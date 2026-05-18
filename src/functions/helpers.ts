@@ -525,6 +525,11 @@ type Operator = ">" | ">=" | "<" | "<=" | "<>" | "=";
 interface Predicate {
   operator: Operator;
   operand: number | string | boolean;
+  // For string equality (= / <>) without wildcards we use case-insensitive
+  // comparison against this lowercased copy of `operand`. Wildcards still go
+  // through wildcardToRegExp (which is /i too).
+  stringHasWildcard?: boolean;
+  lowerOperand?: string;
 }
 
 function getPredicate(descr: string, locale: Locale): Predicate {
@@ -553,7 +558,24 @@ function getPredicate(descr: string, locale: Locale): Predicate {
     operand = toBoolean(operand);
   }
 
-  return { operator, operand };
+  const predicate: Predicate = { operator, operand };
+  if (typeof operand === "string" && (operator === "=" || operator === "<>")) {
+    predicate.stringHasWildcard = hasWildcard(operand);
+    if (!predicate.stringHasWildcard) {
+      predicate.lowerOperand = operand.toLowerCase();
+    }
+  }
+  return predicate;
+}
+
+function hasWildcard(s: string): boolean {
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    if (c === 42 /* * */ || c === 63 /* ? */) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /**
@@ -610,11 +632,17 @@ function evaluatePredicate(
   if (operator === "<>" || operator === "=") {
     let result: boolean;
     if (typeof value === typeof operand) {
-      if (value === "" && operand === "") {
-        // fast path to avoid regex evaluation
-        result = true;
-      } else if (typeof value === "string" && typeof operand === "string") {
-        result = wildcardToRegExp(operand).test(value);
+      if (typeof value === "string" && typeof operand === "string") {
+        // Skip regex when the operand has no wildcards. The wildcard regex
+        // is case-insensitive (/i), so the fast path must match that — use
+        // a precomputed lowercased operand and lowercase the candidate.
+        if (criterion.stringHasWildcard) {
+          result = wildcardToRegExp(operand).test(value);
+        } else {
+          result =
+            value.length === criterion.lowerOperand!.length &&
+            value.toLowerCase() === criterion.lowerOperand;
+        }
       } else {
         result = value === operand;
       }
@@ -696,7 +724,10 @@ export function visitMatchingRanges(
     const description = toString(args[i + 1] as Maybe<FunctionResultObject>);
     const predicate = getPredicate(description, locale);
     if (isQuery && typeof predicate.operand === "string") {
+      // SQL-LIKE prefix match: append "*" and force wildcard path.
       predicate.operand += "*";
+      predicate.stringHasWildcard = true;
+      predicate.lowerOperand = undefined;
     }
     predicates.push(predicate);
     criteriaRanges.push(criteriaRange);
