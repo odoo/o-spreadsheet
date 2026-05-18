@@ -434,6 +434,8 @@ exports[`Color Picker buttons Full component rendering 1`] = `
   <div
     class="colors-grid o-color-picker-toggler"
   >
+    
+    
     <div
       class="o-color-picker-line-item bg-white o-color-picker-toggler-button"
     >
@@ -452,7 +454,13 @@ exports[`Color Picker buttons Full component rendering 1`] = `
         </svg>
       </div>
     </div>
-    
+    <div
+      class="eyedropper d-flex align-items-center justify-content-center rounded-circle"
+    >
+      <i
+        class="fa fa-eyedropper"
+      />
+    </div>
     
   </div>
   <div

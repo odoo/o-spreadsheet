@@ -209,4 +209,27 @@ export class ColorPicker extends Component<SpreadsheetChildEnv> {
   isSameColor(color1: Color, color2: Color): boolean {
     return isSameColor(color1, color2);
   }
+
+  get canUseEyeDropper(): boolean {
+    // In dark mode we'd have to do the opposite color inversion than then dark mode color inversion to get the correct color.
+    // But this mathematically cannot always be done, because our color inversion lose information with clipping and rounding.
+    return !!globalThis.EyeDropper && !this.env.model.getters.isDarkMode();
+  }
+
+  async activateEyedropper() {
+    if (!globalThis.EyeDropper) {
+      return;
+    }
+
+    try {
+      const result = await new globalThis.EyeDropper().open();
+      if (result && result.sRGBHex) {
+        this.props.onColorPicked(toHex(result.sRGBHex));
+      }
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        throw error;
+      }
+    }
+  }
 }

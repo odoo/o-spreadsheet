@@ -2,15 +2,25 @@ import { Color, Model } from "../../src";
 import { ColorPicker } from "../../src/components/color_picker/color_picker";
 import { toHex } from "../../src/helpers/color";
 import { PropsOf } from "../../src/types/props_of";
+import { registerCleanup } from "../setup/jest.setup";
 import { setFormatting } from "../test_helpers/commands_helpers";
 import {
   getElComputedStyle,
   setInputValueAndTrigger,
   simulateClick,
 } from "../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget } from "../test_helpers/helpers";
+import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
+
+function addMockEyeDropperSupport(mockColor: Color) {
+  globalThis.EyeDropper = class {
+    open() {
+      return Promise.resolve({ sRGBHex: mockColor });
+    }
+  };
+  registerCleanup(() => delete globalThis.EyeDropper);
+}
 
 async function mountColorPicker(
   partialProps: Partial<PropsOf<ColorPicker>> = {},
@@ -24,6 +34,7 @@ async function mountColorPicker(
     disableNoColor: partialProps.disableNoColor || false,
   };
   ({ fixture } = await mountComponentWithPortalTarget(ColorPicker, { model, props }));
+  return model;
 }
 
 test("Color picker is correctly positioned", async () => {
@@ -52,6 +63,7 @@ describe("Color Picker buttons", () => {
   });
 
   test("Full component rendering", async () => {
+    addMockEyeDropperSupport("#123456");
     await mountColorPicker();
     await simulateClick(".o-color-picker-toggler-sign");
     expect(fixture.querySelector(".o-color-picker")).toMatchSnapshot();
@@ -206,5 +218,30 @@ describe("Color Picker buttons", () => {
     expect((inputTarget as HTMLInputElement).value).toBe(hexCode.slice(0, 7));
     const addButton = fixture.querySelector(".o-add-button")!;
     expect(addButton.classList).toContain("o-disabled");
+  });
+
+  test("Eye dropper button is not there if the EyeDropper API is not present", async () => {
+    await mountColorPicker();
+    expect(".eyedropper").toHaveCount(0);
+  });
+
+  test("Eye dropper button is not there in dark mode", async () => {
+    // In dark mode we'd have to do the opposite color inversion than then dark mode color inversion to get the correct color.
+    // But this mathematically cannot always be done, because our color inversion lose information with clipping and rounding.
+    addMockEyeDropperSupport("#abc123");
+    const model = await mountColorPicker({});
+    expect(".eyedropper").toHaveCount(1);
+
+    model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "dark" });
+    await nextTick();
+    expect(".eyedropper").toHaveCount(0);
+  });
+
+  test("Can pick a custom color with the eye dropper", async () => {
+    addMockEyeDropperSupport("#abc123");
+    const onColorPicked = jest.fn();
+    await mountColorPicker({ onColorPicked });
+    await simulateClick(".eyedropper");
+    expect(onColorPicked).toHaveBeenCalledWith("#ABC123");
   });
 });
