@@ -471,7 +471,7 @@ export function getFunnelChartScales(
 }
 
 function getGeoChartProjection(projection: GeoChartProjection) {
-  if (projection === "conicConformal") {
+  if (globalThis.ChartGeo && projection === "conicConformal") {
     return globalThis.ChartGeo.geoConicConformal().rotate([100, 0]); // Centered on the US
   }
   return projection;
