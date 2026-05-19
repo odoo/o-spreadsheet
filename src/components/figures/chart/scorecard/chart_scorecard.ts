@@ -3,6 +3,7 @@ import { drawScoreChart } from "../../../../helpers/figures/charts/scorecard_cha
 import { getScorecardConfiguration } from "../../../../helpers/figures/charts/scorecard_chart_config_builder";
 import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
+import { Rect } from "../../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { getZoomedRect } from "../../../helpers/zoom";
 import { types } from "../../../props_validation";
@@ -44,16 +45,17 @@ export class ScorecardChart extends Component<SpreadsheetChildEnv> {
     onWillUnmount(() => resizeObserver.disconnect());
   }
 
+  config(canvasRect: Rect, zoom: number) {
+    return getScorecardConfiguration(getZoomedRect(1 / zoom, canvasRect), this.runtime);
+  }
+
   private createChart() {
     const canvas = this.canvas();
     if (!canvas) {
       return;
     }
     const zoom = this.env.model.getters.getViewportZoomLevel();
-    const config = getScorecardConfiguration(
-      getZoomedRect(1 / zoom, canvas.getBoundingClientRect()),
-      this.runtime
-    );
+    const config = this.config(canvas.getBoundingClientRect(), zoom);
     drawScoreChart(config, canvas, zoom);
   }
 }
