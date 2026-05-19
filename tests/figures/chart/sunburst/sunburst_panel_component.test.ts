@@ -54,6 +54,7 @@ describe("Sunburst chart side panel", () => {
     });
 
     test("Can change chart values in config side panel", async () => {
+      //ici
       const chartId = createSunburstChart(model, {
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A3" }],

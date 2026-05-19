@@ -227,7 +227,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
     return this.getRangeDataFromZone(range.sheetId, range.unboundedZone);
   }
 
-  getRangeFromZone(sheetId: UID, zone: Zone | UnboundedZone): Range {
+  getRangeFromZone(sheetId: UID, zone: Zone | UnboundedZone, prefixSheet: boolean = false): Range {
     return createRange(
       {
         sheetId,
@@ -236,7 +236,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
           { colFixed: false, rowFixed: false },
           { colFixed: false, rowFixed: false },
         ],
-        prefixSheet: false,
+        prefixSheet,
       },
       this.getters.getSheetSize
     );
@@ -280,6 +280,8 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
       (!sheetName || this.getters.getSheetIdByName(sheetName) !== undefined)
     );
   }
+
+  //ici
 
   getRangesUnion(ranges: Range[]): Range {
     const zones = ranges.map((range) => range.unboundedZone);

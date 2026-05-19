@@ -966,10 +966,7 @@ describe("Multi users synchronisation", () => {
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getDataValidationRules(user),
-      [
-        { id: "id", ranges: ["A1:A2"], criterion, isBlocking: false },
-        { id: "id2", ranges: ["A3:A7"], criterion, isBlocking: false },
-      ]
+      [{ id: "id", ranges: ["A1:A2", "A3:A7"], criterion, isBlocking: false }]
     );
   });
 

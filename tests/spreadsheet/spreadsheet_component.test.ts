@@ -452,10 +452,10 @@ test("cell icon takes over a focused selection input", async () => {
   await simulateClick(fixture.querySelector(".o-selection-input input"));
   await nextTick();
   expect(".o-selection-input input.o-focused").toHaveCount(1);
-  expect(".o-selection-input input.o-focused").toHaveValue("B1:B3");
+  expect(".o-selection-input input.o-focused").toHaveValue("Sheet1!B1:B3");
   await clickGridIcon(model, "B1");
   expect(".o-selection-input input.o-focused").toHaveCount(0);
-  expect(".o-selection-input input").toHaveValue("B1:B3");
+  expect(".o-selection-input input").toHaveValue("Sheet1!B1:B3");
 });
 
 test("cell popovers to be closed on clicking outside grid", async () => {
