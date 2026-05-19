@@ -174,6 +174,11 @@ function insertText(
   fontsize: number = CHART_TITLE_FONT_SIZE,
   style: { bold?: boolean; italic?: boolean } = {}
 ): XMLString {
+  const textProperties: XMLAttributes = [
+    ["b", style.bold ? "1" : "0"],
+    ["i", style.italic ? "1" : "0"],
+    ["sz", fontsize * 100],
+  ];
   return escapeXml/*xml*/ `
     <c:tx>
       <c:rich>
@@ -181,14 +186,13 @@ function insertText(
         <a:lstStyle />
         <a:p>
           <a:pPr lvl="0">
-            <a:defRPr b="${style?.bold ? 1 : 0}" i="${style?.italic ? 1 : 0}" sz="${
-    fontsize * 100
-  }">
+            <a:defRPr ${formatAttributes(textProperties)}>
               ${solidFill(fontColor)}
               <a:latin typeface="+mn-lt"/>
             </a:defRPr>
           </a:pPr>
           <a:r> <!-- Runs -->
+            <a:rPr ${formatAttributes(textProperties)}/>
             <a:t>${text}</a:t>
           </a:r>
         </a:p>
