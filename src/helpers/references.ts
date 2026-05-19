@@ -1,5 +1,8 @@
+import { Getters } from "..";
 import { Token } from "../formulas/tokenizer";
+import { toCartesian } from "./coordinates";
 import { getCanonicalSymbolName, getUnquotedSheetName } from "./misc";
+import { toUnboundedZone } from "./zones";
 
 export const cellReference = new RegExp(/\$?([A-Z]{1,3})\$?([0-9]{1,7})/, "i");
 const singleCellReference = new RegExp(/^\$?([A-Z]{1,3})\$?([0-9]{1,7})$/, "i");
@@ -167,4 +170,32 @@ function isRowFixed(xc: string) {
 
 function isColAndRowFixed(xc: string) {
   return xc.startsWith("$") && xc.length > 1 && xc.slice(1).includes("$");
+}
+
+// Return the cell position of a XC that may contain a sheetName.
+// If the xc is representing a zone, return the zone's top left position instead.
+// If the xc is malformed, this will throw an error.
+// If the sheetName does not exist, it will return undefined.
+export function cellPositionFromXC(getters: Getters, xc: string) {
+  if (xc.includes("!")) {
+    const [sheetName, XC] = xc.split("!");
+    const sheetId = getters.getSheetIdByName(sheetName);
+    if (!sheetId) {
+      return undefined;
+    } else if (isSingleCellReference(XC)) {
+      const position = toCartesian(XC);
+      return { ...position, sheetId };
+    } else {
+      const zone = toUnboundedZone(XC);
+      return { col: zone.left, row: zone.top, sheetId };
+    }
+  } else if (isSingleCellReference(xc)) {
+    const sheetId = getters.getActiveSheetId();
+    const position = toCartesian(xc);
+    return { ...position, sheetId };
+  } else {
+    const sheetId = getters.getActiveSheetId();
+    const zone = toUnboundedZone(xc);
+    return { col: zone.left, row: zone.top, sheetId };
+  }
 }

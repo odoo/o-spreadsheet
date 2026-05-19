@@ -91,7 +91,7 @@ import {
   makeFieldProposal,
 } from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
-import { splitReference } from "./helpers/references";
+import { cellPositionFromXC, isSingleCellReference, splitReference } from "./helpers/references";
 import { computeTextWidth } from "./helpers/text_helper";
 import { UuidGenerator } from "./helpers/uuid";
 import {
@@ -419,6 +419,8 @@ export const helpers = {
   isFormula,
   domainToColRowDomain,
   collapseHierarchicalDisplayName,
+  isSingleCellReference,
+  cellPositionFromXC,
 };
 
 export const links = {
