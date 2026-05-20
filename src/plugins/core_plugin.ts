@@ -90,14 +90,14 @@ export class CorePlugin<State = any, Self extends AnyPluginConstructor = any>
 {
   static readonly dependencies: readonly AnyPluginConstructor[] = [];
 
-  protected getters: DepsGetters<Self>;
+  protected getters: DepsGetters<Self> & Partial<CoreGetters>;
   protected dispatch: CoreCommandDispatcher["dispatch"];
   protected canDispatch: CoreCommandDispatcher["dispatch"];
 
   constructor({ getters, stateObserver, range, dispatch, canDispatch }: CorePluginConfig) {
     super(stateObserver);
     range.addRangeProvider(this.adaptRanges.bind(this));
-    this.getters = getters as unknown as DepsGetters<Self>;
+    this.getters = getters as unknown as DepsGetters<Self> & Partial<CoreGetters>;
     this.dispatch = dispatch;
     this.canDispatch = canDispatch;
   }
