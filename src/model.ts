@@ -83,6 +83,8 @@ const enum Status {
  */
 export class Model extends EventBus<any> implements CommandDispatcher {
   private corePlugins: CorePlugin[] = [];
+  private corePluginsByConstructor = new Map<CorePluginConstructor, CorePlugin>();
+  private baseGetters: CoreGetters = {} as CoreGetters;
 
   private statefulUIPlugins: UIPlugin[] = [];
 
@@ -190,6 +192,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.coreHandlers.push(this.range);
     this.handlers.push(this.range);
+    this.baseGetters = { ...this.coreGetters };
 
     this.corePluginConfig = this.setupCorePluginConfig();
     this.coreViewPluginConfig = this.setupCoreViewPluginConfig();
@@ -297,8 +300,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * reason why the model could not add dynamically a plugin while it is running.
    */
   private setupCorePlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
-    const getters = { ...this.coreGetters };
+    const getters = this.buildDepGetters(Plugin);
     const plugin = new Plugin({ ...this.corePluginConfig, getters });
+    this.corePluginsByConstructor.set(Plugin, plugin);
     for (const name of Plugin.getters) {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
@@ -306,13 +310,36 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       if (name in this.coreGetters) {
         throw new Error(`Getter "${name}" is already defined.`);
       }
-      this.coreGetters[name] = plugin[name].bind(plugin);
-      getters[name] = plugin[name].bind(plugin);
+      const bound = plugin[name].bind(plugin);
+      this.coreGetters[name] = bound;
+      getters[name] = bound;
     }
     plugin.import(data);
     this.corePlugins.push(plugin);
     this.coreHandlers.push(plugin);
     this.handlers.push(plugin);
+  }
+
+  private buildDepGetters(Plugin: CorePluginConstructor): CoreGetters {
+    const deps = new Set<CorePluginConstructor>();
+    const visit = (p: CorePluginConstructor) => {
+      for (const dep of p.dependencies as CorePluginConstructor[]) {
+        if (!deps.has(dep)) {
+          deps.add(dep);
+          visit(dep);
+        }
+      }
+    };
+    visit(Plugin);
+
+    const getters = { ...this.baseGetters } as CoreGetters;
+    for (const Dep of deps) {
+      const instance = this.corePluginsByConstructor.get(Dep)!;
+      for (const name of Dep.getters as readonly string[]) {
+        (getters as any)[name] = (instance as any)[name].bind(instance);
+      }
+    }
+    return getters;
   }
 
   private onRemoteRevisionReceived({ commands }: { commands: readonly CoreCommand[] }) {
