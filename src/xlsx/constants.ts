@@ -91,6 +91,7 @@ export const FORCE_DEFAULT_ARGS_FUNCTIONS: Record<string, functionDefaultArg[]> 
   ROUND: [{ type: "NUMBER", value: 0 }],
   ROUNDUP: [{ type: "NUMBER", value: 0 }],
   ROUNDDOWN: [{ type: "NUMBER", value: 0 }],
+  IFERROR: [{ type: "NUMBER", value: 0 }],
 };
 
 /**
