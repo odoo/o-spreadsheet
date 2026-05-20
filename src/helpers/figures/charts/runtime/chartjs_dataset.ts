@@ -541,14 +541,9 @@ export function getGeoBubbleChartDatasets(
     outline: features,
     showOutline: !!features,
     data: [],
-    // backgroundColor: "red",
   };
 
-  const emptyValue = {
-    longitude: NaN,
-    latitude: NaN,
-    value: NaN,
-  };
+  const emptyValue = { longitude: NaN, latitude: NaN, value: NaN };
 
   for (let i = 0; i < labels.length; i++) {
     const city = labels[i];

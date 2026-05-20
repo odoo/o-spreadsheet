@@ -392,14 +392,15 @@ export function getGeoChartData(
 
 export function getGeoBubbleChartData(
   definition: GeoBubbleChartDefinition,
-  { labelValues, dataSetsValues }: ChartData,
+  { labelValues, dataSetsValues: nonFilteredValues }: ChartData,
   getters: Getters
 ): GeoBubbleChartRuntimeGenerationArgs {
-  dataSetsValues = dataSetsValues.slice(0, 1);
-  let labels = labelValues.map(({ value, format }) =>
-    formatValue(value, { format, locale: getters.getLocale() })
+  nonFilteredValues = nonFilteredValues.slice(0, 1);
+  let { labels, dataSetsValues } = filterInvalidGeoBubbleChartPoints(
+    labelValues,
+    nonFilteredValues,
+    getters
   );
-  ({ labels, dataSetsValues } = filterInvalidDataPoints(labels, dataSetsValues));
   ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
 
   const format =
@@ -908,6 +909,40 @@ function filterInvalidCalendarDataPoints(
       data: dataPointsIndexes.map((i) =>
         isNumberResult(dataset.data[i]) ? dataset.data[i] : EMPTY
       ),
+    })),
+  };
+}
+
+/**
+ * Filter the data points that:
+ * - do not have a label or a non-string label
+ * - do not have a numeric value in one of the datasets
+ * - do not have a city linked to the label
+ */
+function filterInvalidGeoBubbleChartPoints(
+  labels: LabelValues,
+  datasets: DatasetValues[],
+  getters: Getters
+): { labels: string[]; dataSetsValues: DatasetValues[] } {
+  const numberOfDataPoints = Math.max(
+    labels.length,
+    ...datasets.map((dataset) => dataset.data?.length || 0)
+  );
+  const dataPointsIndexes = range(0, numberOfDataPoints).filter((dataPointIndex) => {
+    const label = labels[dataPointIndex];
+    const values = datasets.map((dataset) => dataset.data?.[dataPointIndex]);
+    return (
+      label.value &&
+      typeof label.value === "string" &&
+      values.some((value) => isNumberResult(value)) &&
+      getters.getCityCoordinates(label.value) !== undefined
+    );
+  });
+  return {
+    labels: dataPointsIndexes.map((i) => String(labels[i].value || "")),
+    dataSetsValues: datasets.map((dataset) => ({
+      ...dataset,
+      data: dataPointsIndexes.map((i) => dataset.data[i]),
     })),
   };
 }

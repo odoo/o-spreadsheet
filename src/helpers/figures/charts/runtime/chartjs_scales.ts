@@ -24,6 +24,8 @@ import { FunnelChartDefinition } from "../../../../types/chart/funnel_chart";
 import {
   GeoBubbleChartDefinition,
   GeoBubbleChartRuntimeGenerationArgs,
+} from "../../../../types/chart/geo_bubble_chart";
+import {
   GeoChartDefinition,
   GeoChartProjection,
   GeoChartRuntimeGenerationArgs,

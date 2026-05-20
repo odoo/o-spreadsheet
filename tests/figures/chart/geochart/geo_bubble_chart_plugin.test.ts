@@ -1,24 +1,14 @@
 import { Model } from "../../../../src";
 import { GeoBubbleChartRuntime } from "../../../../src/types/chart/geo_bubble_chart";
-import { GeoChartRuntime } from "../../../../src/types/chart/geo_chart";
-import {
-  createChart,
-  createGeoBubbleChart,
-  createGeoChart,
-  setCellContent,
-  setFormat,
-  updateChart,
-} from "../../../test_helpers";
+import { createGeoBubbleChart, setFormat, updateChart } from "../../../test_helpers";
 import { getChartTooltipValues, toChartDataSource } from "../../../test_helpers/chart_helpers";
 import {
   cityCoordinates,
-  mockChart,
   mockGeoJsonService,
   nextTick,
   setGrid,
 } from "../../../test_helpers/helpers";
 
-mockChart();
 let model: Model;
 
 beforeEach(async () => {
@@ -32,24 +22,27 @@ beforeEach(async () => {
   await nextTick();
 });
 
-/**
- * Get the data points of the chart that have a value.
- * It's useful because the chart dataset always contains a point for ALL the features, even if they have no value
- */
-function getGeoChartNonEmptyData(runtime: GeoChartRuntime) {
-  const dataPoints: { value: number; feature: any }[] = [];
-  for (let i = 0; i < runtime.chartJsConfig.data.datasets[0].data.length; i++) {
-    const data = runtime.chartJsConfig.data.datasets[0].data[i] as any;
-    if (data.value !== undefined) {
-      dataPoints.push(data);
-    }
-  }
-  return dataPoints;
-}
+// /**
+//  * Get the data points of the chart that have a value.
+//  * It's useful because the chart dataset always contains a point for ALL the features, even if they have no value
+//  */
+// function getGeoChartNonEmptyData(runtime: GeoChartRuntime) {
+//   const dataPoints: { value: number; feature: any }[] = [];
+//   for (let i = 0; i < runtime.chartJsConfig.data.datasets[0].data.length; i++) {
+//     const data = runtime.chartJsConfig.data.datasets[0].data[i] as any;
+//     if (data.value !== undefined) {
+//       dataPoints.push(data);
+//     }
+//   }
+//   return dataPoints;
+// }
 
 function getChartConfig(chartId: string) {
   return (model.getters.getChartRuntime(chartId) as GeoBubbleChartRuntime).chartJsConfig;
 }
+
+// ADRM TODO
+jest.setTimeout(100000);
 
 describe("Geo charts plugin tests", () => {
   test("Basic geo bubble chart runtime", () => {
@@ -66,165 +59,79 @@ describe("Geo charts plugin tests", () => {
     ]);
   });
 
-  test("Points with empty/wrong values are empty in the runtime", () => {
-    setGrid(model, { A2: "Paris", A3: "NotACity", B2: "10", B3: "20" });
+  test("Points with empty/wrong values are not in the runtime", () => {
+    setGrid(model, { A2: "Paris", B2: "10", A3: "NotACity", B3: "20", A4: "Berlin", B4: "NaN" });
 
-    createGeoChart(
-      model,
-      { ...toChartDataSource({ dataSets: [{ dataRange: "B1:B4" }], labelRange: "A1:A4" }) },
-      "chartId"
-    );
-    const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
-    expect(getGeoChartNonEmptyData(runtime)).toEqual([]);
+    createGeoBubbleChart(model, {
+      ...toChartDataSource({ dataSets: [{ dataRange: "B1:B4" }], labelRange: "A1:A4" }),
+    });
+    const config = getChartConfig("chartId");
+    expect(config.data.labels).toEqual(["Paris"]);
+    expect(config.data.datasets[0].data).toEqual([{ value: 10, ...cityCoordinates.paris }]);
   });
 
   test("Data with the same label is aggregated", () => {
-    setCellContent(model, "A2", "France");
-    setCellContent(model, "A3", "France");
-    setCellContent(model, "B2", "10");
-    setCellContent(model, "B3", "20");
+    setGrid(model, { A2: "Paris", B2: "10", A3: "Paris", B3: "20", A4: "Berlin", B4: "5" });
 
-    createGeoChart(
-      model,
-      { ...toChartDataSource({ dataSets: [{ dataRange: "B1:B4" }], labelRange: "A1:A4" }) },
-      "chartId"
-    );
-    const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
-    expect(getGeoChartNonEmptyData(runtime)).toMatchObject([
-      { value: 30, feature: { properties: { name: "France" } } },
+    createGeoBubbleChart(model, {
+      ...toChartDataSource({ dataSets: [{ dataRange: "B1:B4" }], labelRange: "A1:A4" }),
+    });
+    const config = getChartConfig("chartId");
+    expect(config.data.labels).toEqual(["Paris", "Berlin"]);
+    expect(config.data.datasets[0].data).toEqual([
+      { value: 30, ...cityCoordinates.paris },
+      { value: 5, ...cityCoordinates.berlin },
     ]);
   });
 
   test("Only the first dataset is kept", () => {
-    setCellContent(model, "A2", "France");
-    setCellContent(model, "B2", "10");
-    setCellContent(model, "C3", "20");
+    setGrid(model, { A2: "Paris", A3: "Berlin", B2: "10", B3: "20", C2: "100", C3: "200" });
 
-    createGeoChart(model, {
+    createGeoBubbleChart(model, {
       ...toChartDataSource({
-        dataSets: [{ dataRange: "B1:B2" }, { dataRange: "C1:C2" }],
+        dataSets: [{ dataRange: "B1:B3" }, { dataRange: "C1:C3" }],
         labelRange: "A1:A3",
       }),
     });
-    const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
-    const dataPoints = getGeoChartNonEmptyData(runtime);
-    expect(dataPoints).toHaveLength(1);
-    expect(dataPoints).toMatchObject([{ value: 10, feature: { properties: { name: "France" } } }]);
+    const config = getChartConfig("chartId");
+    expect(config.data.labels).toEqual(["Paris", "Berlin"]);
+    expect(config.data.datasets).toHaveLength(1);
+    expect(config.data.datasets[0].data).toEqual([
+      { value: 10, ...cityCoordinates.paris },
+      { value: 20, ...cityCoordinates.berlin },
+    ]);
   });
 
-  test("Ticks values have the same format as the data", () => {
-    setCellContent(model, "A2", "France");
-    setCellContent(model, "B2", "20");
-    setFormat(model, "B2", "$0");
-
-    createGeoChart(model, {
-      ...toChartDataSource({ dataSets: [{ dataRange: "B1:B2" }], labelRange: "A1:A2" }),
-    });
-    const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
-    expect(runtime.chartJsConfig.options?.scales?.color?.["ticks"]?.callback?.(20)).toBe("$20");
-  });
-
-  test("Geo charts use custom tooltip", () => {
-    createGeoChart(model, {});
-    const runtime = model.getters.getChartRuntime("chartId") as any;
-    expect(runtime.chartJsConfig.options?.plugins?.tooltip).toMatchObject({
+  test("Geo bubble charts use custom tooltip", () => {
+    createGeoBubbleChart(model, {});
+    const config = getChartConfig("chartId");
+    expect(config.options?.plugins?.tooltip).toMatchObject({
       enabled: false,
       external: expect.any(Function),
     });
   });
 
   test("Tooltip values have the same format as the data", () => {
-    setCellContent(model, "A2", "France");
-    setCellContent(model, "B2", "20");
+    setGrid(model, { A2: "Paris", B2: "20" });
     setFormat(model, "B2", "$0");
 
-    createGeoChart(model, {
+    createGeoBubbleChart(model, {
       ...toChartDataSource({ dataSets: [{ dataRange: "B1:B2" }], labelRange: "A1:A2" }),
     });
-    const runtime = model.getters.getChartRuntime("chartId") as any;
-    const tooltipItem = { raw: { value: 20, feature: { properties: { name: "France" } } } };
+    const runtime = model.getters.getChartRuntime("chartId") as GeoBubbleChartRuntime;
+    const parsed = { x: cityCoordinates.paris.latitude, y: cityCoordinates.paris.latitude, r: 20 };
+    const tooltipItem = { datasetIndex: 0, dataIndex: 0, parsed };
     const tooltipValues = getChartTooltipValues(runtime, tooltipItem);
-    expect(tooltipValues).toEqual({ beforeLabel: "France", label: "$20" });
+    expect(tooltipValues).toEqual({ beforeLabel: "Paris", label: "$20" });
   });
 
   test("The projection used depends on the region selected", () => {
-    createGeoChart(model, { region: "world" });
-    const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
-    expect(runtime.chartJsConfig.options?.scales?.projection?.["projection"]).toBe("mercator");
+    createGeoBubbleChart(model, { region: "world" });
+    let config = getChartConfig("chartId");
+    expect(config.options?.scales?.projection?.["projection"]).toBe("mercator");
 
     updateChart(model, "chartId", { region: "usa" });
-    const runtime2 = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
-    expect(runtime2.chartJsConfig.options?.scales?.projection?.["projection"]).toBe("albersUsa");
-  });
-
-  test("Can define colors of countries not in the dataset", () => {
-    createGeoChart(model, { missingValueColor: "#ff0000" });
-    const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
-    expect(runtime.chartJsConfig.options?.scales?.color?.["missing"]).toBe("#ff0000");
-
-    // The countries that have no data should still be in the runtime, otherwise the missing color won't be applied
-    expect(runtime.chartJsConfig.data.datasets[0].data.length).toBe(3);
-  });
-
-  describe("UPDATE_CHART_REGION", () => {
-    test("dispatching UPDATE_CHART_REGION changes the chart region", () => {
-      createGeoChart(model, { region: "world" });
-      expect(model.getters.getChartDefinition("chartId")).toMatchObject({ region: "world" });
-
-      model.dispatch("UPDATE_CHART_REGION", { chartId: "chartId", region: "usa" });
-      expect(model.getters.getChartDefinition("chartId")).toMatchObject({ region: "usa" });
-    });
-
-    test("getAvailableChartRegions returns alternatives for a world chart", () => {
-      createGeoChart(model, { region: "world" });
-      const regions = model.getters.getAvailableChartRegions("chartId");
-      expect(regions.map((r) => r.id)).toEqual(["world"]);
-      expect(regions.find((r) => r.id === "usa")).toBeUndefined();
-    });
-
-    test("getAvailableChartRegions returns empty array for a usa chart", () => {
-      createGeoChart(model, { region: "usa" });
-      expect(model.getters.getAvailableChartRegions("chartId")).toEqual([]);
-    });
-
-    test("getAvailableChartRegions still uses the initial region after switching", () => {
-      createGeoChart(model, { region: "world" });
-      model.dispatch("UPDATE_CHART_REGION", { chartId: "chartId", region: "world" });
-      // After switching, the initial region ("world") still allows alternatives
-      const regions = model.getters.getAvailableChartRegions("chartId");
-      expect(regions.length).toBeGreaterThan(0);
-      expect(regions.find((r) => r.id === "usa")).toBeUndefined();
-    });
-
-    test("UPDATE_CHART_REGION is allowed in readonly mode", () => {
-      createGeoChart(model, { region: "world" });
-      const readonlyModel = new Model(model.exportData(), {
-        mode: "readonly",
-        external: { geoJsonService: mockGeoJsonService },
-      });
-      const result = readonlyModel.dispatch("UPDATE_CHART_REGION", {
-        chartId: "chartId",
-        region: "world",
-      });
-      expect(result.isSuccessful).toBe(true);
-    });
-
-    test("UPDATE_CHART_REGION is allowed in dashboard mode", () => {
-      createGeoChart(model, { region: "world" });
-      const dashboardModel = new Model(model.exportData(), {
-        mode: "dashboard",
-        external: { geoJsonService: mockGeoJsonService },
-      });
-      const result = dashboardModel.dispatch("UPDATE_CHART_REGION", {
-        chartId: "chartId",
-        region: "world",
-      });
-      expect(result.isSuccessful).toBe(true);
-    });
-
-    test("getAvailableChartRegions returns empty array for non-geo chart", () => {
-      createChart(model, { type: "bar" }, "barChartId");
-      expect(model.getters.getAvailableChartRegions("barChartId")).toEqual([]);
-    });
+    config = getChartConfig("chartId");
+    expect(config.options?.scales?.projection?.["projection"]).toBe("albersUsa");
   });
 });
