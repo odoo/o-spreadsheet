@@ -3,6 +3,7 @@ import {
   DEFAULT_GAUGE_MIDDLE_COLOR,
   DEFAULT_GAUGE_UPPER_COLOR,
 } from "../../../constants";
+import { CompiledFormula } from "../../../formulas/compiler";
 import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
 import { tryToNumber } from "../../../functions/helpers";
 import { BasePlugin } from "../../../plugins/base_plugin";
@@ -228,6 +229,31 @@ export const GaugeChart: ChartTypeBuilder<"gauge"> = {
   },
 
   getDefinitionForExcel: () => undefined,
+
+  getRanges(definition, getters, sheetId) {
+    const ranges: Range[] = [definition.dataRange].filter(
+      (r): r is Range => r !== undefined && !r.invalidXc && !r.invalidSheetName
+    );
+    if (definition.sectionRule) {
+      const formulaValues = [
+        definition.sectionRule.rangeMin,
+        definition.sectionRule.rangeMax,
+        definition.sectionRule.lowerInflectionPoint.value,
+        definition.sectionRule.upperInflectionPoint.value,
+      ];
+      for (const formula of formulaValues) {
+        if (formula.startsWith("=")) {
+          for (const range of CompiledFormula.Compile(formula, sheetId, getters)
+            .rangeDependencies) {
+            if (!range.invalidXc && !range.invalidSheetName) {
+              ranges.push(range);
+            }
+          }
+        }
+      }
+    }
+    return ranges;
+  },
 
   getContextCreation(definition) {
     return {

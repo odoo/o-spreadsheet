@@ -5,7 +5,7 @@ import { CommandResult } from "../../../types/commands";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { isNumberResult } from "../../cells/cell_evaluation";
 import { AbstractChart } from "./abstract_chart";
-import { chartFontColor, getDefinedAxis } from "./chart_common";
+import { chartFontColor, getDataSourceRanges, getDefinedAxis } from "./chart_common";
 import { getChartData } from "./chart_data_sources";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import { getPyramidChartData } from "./runtime/chart_data_extractor";
@@ -94,6 +94,8 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
       maxValue,
     };
   },
+
+  getRanges: (definition) => getDataSourceRanges(definition.dataSource),
 
   getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): PyramidChartRuntime {
     const data = extractData();

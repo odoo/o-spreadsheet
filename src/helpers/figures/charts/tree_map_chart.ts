@@ -3,6 +3,7 @@ import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { TreeMapChartRuntime } from "../../../types/chart/tree_map_chart";
 import { CommandResult } from "../../../types/commands";
 import { AbstractChart } from "./abstract_chart";
+import { getDataSourceRanges } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import { getHierarchalChartData } from "./runtime/chart_data_extractor";
 import { getTreeMapChartDatasets } from "./runtime/chartjs_dataset";
@@ -66,6 +67,8 @@ export const TreeMapChart: ChartTypeBuilder<"treemap"> = {
   },
 
   getDefinitionForExcel: () => undefined,
+
+  getRanges: (definition) => getDataSourceRanges(definition.dataSource),
 
   getRuntime(
     getters,

@@ -2,6 +2,7 @@ import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
 import {
   ChartAxisFormats,
+  ChartDataSource,
   ChartDefinition,
   ChartRangeDataSource,
   DataSet,
@@ -378,6 +379,26 @@ export function truncateLabel(label: string | undefined, maxLen: number = MAX_CH
 
 export function isTrendLineAxis(axisID: string) {
   return axisID === TREND_LINE_XAXIS_ID || axisID === MOVING_AVERAGE_TREND_LINE_XAXIS_ID;
+}
+
+export function getDataSourceRanges(dataSource: ChartDataSource<Range> | undefined): Range[] {
+  if (!dataSource || dataSource.type !== "range") {
+    return [];
+  }
+  const ranges: Range[] = [];
+  for (const { dataRange } of dataSource.dataSets) {
+    if (!dataRange.invalidXc && !dataRange.invalidSheetName) {
+      ranges.push(dataRange);
+    }
+  }
+  if (
+    dataSource.labelRange &&
+    !dataSource.labelRange.invalidXc &&
+    !dataSource.labelRange.invalidSheetName
+  ) {
+    ranges.push(dataSource.labelRange);
+  }
+  return ranges;
 }
 
 export function getChartBackgroundColor(

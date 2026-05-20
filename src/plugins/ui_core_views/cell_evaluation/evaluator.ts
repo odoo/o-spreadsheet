@@ -712,7 +712,7 @@ export class Evaluator {
     return cell.compiledFormula.rangeDependencies;
   }
 
-  private getCellsDependingOn(ranges: Iterable<BoundedRange>): RangeSet {
+  getCellsDependingOn(ranges: Iterable<BoundedRange>): RangeSet {
     return this.formulaDependencies().getCellsDependingOn(ranges, this.nextRangesToUpdate);
   }
 }
