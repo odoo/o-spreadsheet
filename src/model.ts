@@ -713,21 +713,28 @@ function createCommand(type: string, payload: any = {}): Command {
 export function sortByDependencies(plugins: CorePluginConstructor[]): CorePluginConstructor[] {
   const inRegistry = new Set<CorePluginConstructor>(plugins);
   const result = new Set<CorePluginConstructor>();
+  const visiting = new Set<CorePluginConstructor>();
 
-  function visit(plugin: CorePluginConstructor) {
+  function visit(plugin: CorePluginConstructor, path: CorePluginConstructor[]) {
     if (result.has(plugin)) {
       return;
     }
+    if (visiting.has(plugin)) {
+      const cycle = [...path.slice(path.indexOf(plugin)), plugin].map((p) => p.name).join(" → ");
+      throw new Error(`Cyclic plugin dependency detected: ${cycle}`);
+    }
+    visiting.add(plugin);
     for (const dep of plugin.dependencies as CorePluginConstructor[]) {
       if (inRegistry.has(dep)) {
-        visit(dep);
+        visit(dep, [...path, plugin]);
       }
     }
+    visiting.delete(plugin);
     result.add(plugin);
   }
 
   for (const plugin of plugins) {
-    visit(plugin);
+    visit(plugin, [plugin]);
   }
   return [...result];
 }

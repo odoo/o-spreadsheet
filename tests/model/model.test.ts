@@ -464,6 +464,22 @@ describe("sortByDependencies", () => {
     expect(sorted.indexOf(C)).toBeLessThan(sorted.indexOf(D));
   });
 
+  test("throws on direct cycle (A → B → A)", () => {
+    const A: CorePluginConstructor = makePlugin("A");
+    const B = makePlugin("B", [A]);
+    (A as any).dependencies = [B];
+    expect(() => sortByDependencies([A, B])).toThrow(/Cyclic plugin dependency detected/);
+    expect(() => sortByDependencies([A, B])).toThrow(/A.*B.*A/);
+  });
+
+  test("throws on indirect cycle (A → B → C → A)", () => {
+    const A: CorePluginConstructor = makePlugin("A");
+    const B = makePlugin("B", [A]);
+    const C = makePlugin("C", [B]);
+    (A as any).dependencies = [C];
+    expect(() => sortByDependencies([A, B, C])).toThrow(/Cyclic plugin dependency detected/);
+  });
+
   test("all registered core plugins satisfy their declared dependencies", () => {
     const plugins = corePluginRegistry.getAll();
     const sorted = sortByDependencies(plugins);
