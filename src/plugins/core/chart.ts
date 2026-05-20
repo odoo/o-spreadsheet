@@ -12,7 +12,7 @@ import {
 } from "../../types/commands";
 import { HeaderIndex, PixelPosition, RangeAdapterFunctions, UID } from "../../types/misc";
 import { DOMDimension } from "../../types/rendering";
-import { FigureData, WorkbookData } from "../../types/workbook_data";
+import { WorkbookData } from "../../types/workbook_data";
 import type { DepsGetters } from "../core_plugin";
 import { CorePlugin } from "../core_plugin";
 import { FigurePlugin } from "./figures";
@@ -237,35 +237,28 @@ export class ChartPlugin extends CorePlugin<ChartState, typeof ChartPlugin> impl
   export(data: WorkbookData) {
     if (data.sheets) {
       for (const sheet of data.sheets) {
-        // TODO This code is false, if two plugins want to insert figures on the sheet, it will crash !
-        const sheetFigures = this.getters.getFigures(sheet.id);
-        const figures: FigureData<any>[] = [];
-        for (const sheetFigure of sheetFigures) {
-          const figure = sheetFigure as FigureData<any>;
-          const chartId = Object.keys(this.charts).find(
-            (chartId) => this.charts[chartId]?.figureId === sheetFigure.id
-          );
-          if (figure && figure.tag === "chart" && chartId) {
-            const data = this.charts[chartId]?.chart.getDefinition();
-            if (data) {
-              figure.data = { ...data, chartId };
-              figures.push(figure);
-            }
-          } else if (figure && figure.tag === "carousel") {
-            const chartIds = Object.keys(this.charts).filter(
-              (chartId) => this.charts[chartId]?.figureId === sheetFigure.id
+        for (const figure of sheet.figures) {
+          if (figure.tag === "chart") {
+            const chartId = Object.keys(this.charts).find(
+              (chartId) => this.charts[chartId]?.figureId === figure.id
             );
-            const data = {};
-            for (const chartId of chartIds) {
-              data[chartId] = this.charts[chartId]?.chart.getDefinition();
+            if (chartId) {
+              const chartData = this.charts[chartId]?.chart.getDefinition();
+              if (chartData) {
+                figure.data = { ...chartData, chartId };
+              }
             }
-            figure.data = { chartDefinitions: data };
-            figures.push(figure);
-          } else {
-            figures.push(figure);
+          } else if (figure.tag === "carousel") {
+            const chartIds = Object.keys(this.charts).filter(
+              (chartId) => this.charts[chartId]?.figureId === figure.id
+            );
+            const carouselData = {};
+            for (const chartId of chartIds) {
+              carouselData[chartId] = this.charts[chartId]?.chart.getDefinition();
+            }
+            figure.data = { ...figure.data, chartDefinitions: carouselData };
           }
         }
-        sheet.figures = figures;
       }
     }
   }

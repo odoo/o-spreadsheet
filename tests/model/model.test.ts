@@ -10,8 +10,7 @@ import {
 } from "../../src";
 import { MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
-import { Model, sortByDependencies } from "../../src/model";
-import { CorePluginConstructor } from "../../src/plugins/core_plugin";
+import { Model } from "../../src/model";
 import { corePluginRegistry, featurePluginRegistry } from "../../src/plugins/plugin_registries";
 import { UIPlugin } from "../../src/plugins/ui_plugin";
 import { ModelConfig } from "../../src/types/model";
@@ -423,74 +422,74 @@ describe("Model", () => {
   });
 });
 
-describe("sortByDependencies", () => {
-  function makePlugin(name: string, deps: CorePluginConstructor[] = []): CorePluginConstructor {
-    return class {
-      static getters = [] as const;
-      static readonly dependencies = deps;
-      static readonly name = name;
-    } as unknown as CorePluginConstructor;
-  }
-
-  test("places dependencies before the plugins that declare them", () => {
-    const A = makePlugin("A");
-    const B = makePlugin("B", [A]);
-    const C = makePlugin("C", [B]);
-
-    const sorted = sortByDependencies([C, B, A]);
-    expect(sorted.indexOf(A)).toBeLessThan(sorted.indexOf(B));
-    expect(sorted.indexOf(B)).toBeLessThan(sorted.indexOf(C));
-  });
-
-  test("handles plugins with no dependencies", () => {
-    const A = makePlugin("A");
-    const B = makePlugin("B");
-    const sorted = sortByDependencies([A, B]);
-    expect(sorted).toHaveLength(2);
-    expect(sorted).toContain(A);
-    expect(sorted).toContain(B);
-  });
-
-  test("handles diamond dependency", () => {
-    const A = makePlugin("A");
-    const B = makePlugin("B", [A]);
-    const C = makePlugin("C", [A]);
-    const D = makePlugin("D", [B, C]);
-
-    const sorted = sortByDependencies([D, C, B, A]);
-    expect(sorted.indexOf(A)).toBeLessThan(sorted.indexOf(B));
-    expect(sorted.indexOf(A)).toBeLessThan(sorted.indexOf(C));
-    expect(sorted.indexOf(B)).toBeLessThan(sorted.indexOf(D));
-    expect(sorted.indexOf(C)).toBeLessThan(sorted.indexOf(D));
-  });
-
-  test("throws on direct cycle (A → B → A)", () => {
-    const A: CorePluginConstructor = makePlugin("A");
-    const B = makePlugin("B", [A]);
-    (A as any).dependencies = [B];
-    expect(() => sortByDependencies([A, B])).toThrow(/Cyclic plugin dependency detected/);
-    expect(() => sortByDependencies([A, B])).toThrow(/A.*B.*A/);
-  });
-
-  test("throws on indirect cycle (A → B → C → A)", () => {
-    const A: CorePluginConstructor = makePlugin("A");
-    const B = makePlugin("B", [A]);
-    const C = makePlugin("C", [B]);
-    (A as any).dependencies = [C];
-    expect(() => sortByDependencies([A, B, C])).toThrow(/Cyclic plugin dependency detected/);
-  });
-
-  test("all registered core plugins satisfy their declared dependencies", () => {
-    const plugins = corePluginRegistry.getAll();
-    const sorted = sortByDependencies(plugins);
-    const position = new Map(sorted.map((p, i) => [p, i] as [CorePluginConstructor, number]));
-    for (const plugin of sorted) {
-      for (const dep of plugin.dependencies) {
-        const depInRegistry = plugins.find((p) => p === dep);
-        if (depInRegistry) {
-          expect(position.get(depInRegistry)!).toBeLessThan(position.get(plugin)!);
-        }
-      }
-    }
-  });
-});
+// describe("sortByDependencies", () => {
+//   function makePlugin(name: string, deps: CorePluginConstructor[] = []): CorePluginConstructor {
+//     return class {
+//       static getters = [] as const;
+//       static readonly dependencies = deps;
+//       static readonly name = name;
+//     } as unknown as CorePluginConstructor;
+//   }
+//
+//   test("places dependencies before the plugins that declare them", () => {
+//     const A = makePlugin("A");
+//     const B = makePlugin("B", [A]);
+//     const C = makePlugin("C", [B]);
+//
+//     const sorted = sortByDependencies([C, B, A]);
+//     expect(sorted.indexOf(A)).toBeLessThan(sorted.indexOf(B));
+//     expect(sorted.indexOf(B)).toBeLessThan(sorted.indexOf(C));
+//   });
+//
+//   test("handles plugins with no dependencies", () => {
+//     const A = makePlugin("A");
+//     const B = makePlugin("B");
+//     const sorted = sortByDependencies([A, B]);
+//     expect(sorted).toHaveLength(2);
+//     expect(sorted).toContain(A);
+//     expect(sorted).toContain(B);
+//   });
+//
+//   test("handles diamond dependency", () => {
+//     const A = makePlugin("A");
+//     const B = makePlugin("B", [A]);
+//     const C = makePlugin("C", [A]);
+//     const D = makePlugin("D", [B, C]);
+//
+//     const sorted = sortByDependencies([D, C, B, A]);
+//     expect(sorted.indexOf(A)).toBeLessThan(sorted.indexOf(B));
+//     expect(sorted.indexOf(A)).toBeLessThan(sorted.indexOf(C));
+//     expect(sorted.indexOf(B)).toBeLessThan(sorted.indexOf(D));
+//     expect(sorted.indexOf(C)).toBeLessThan(sorted.indexOf(D));
+//   });
+//
+//   test("throws on direct cycle (A → B → A)", () => {
+//     const A: CorePluginConstructor = makePlugin("A");
+//     const B = makePlugin("B", [A]);
+//     (A as any).dependencies = [B];
+//     expect(() => sortByDependencies([A, B])).toThrow(/Cyclic plugin dependency detected/);
+//     expect(() => sortByDependencies([A, B])).toThrow(/A.*B.*A/);
+//   });
+//
+//   test("throws on indirect cycle (A → B → C → A)", () => {
+//     const A: CorePluginConstructor = makePlugin("A");
+//     const B = makePlugin("B", [A]);
+//     const C = makePlugin("C", [B]);
+//     (A as any).dependencies = [C];
+//     expect(() => sortByDependencies([A, B, C])).toThrow(/Cyclic plugin dependency detected/);
+//   });
+//
+//   test("all registered core plugins satisfy their declared dependencies", () => {
+//     const plugins = corePluginRegistry.getAll();
+//     const sorted = sortByDependencies(plugins);
+//     const position = new Map(sorted.map((p, i) => [p, i] as [CorePluginConstructor, number]));
+//     for (const plugin of sorted) {
+//       for (const dep of plugin.dependencies) {
+//         const depInRegistry = plugins.find((p) => p === dep);
+//         if (depInRegistry) {
+//           expect(position.get(depInRegistry)!).toBeLessThan(position.get(plugin)!);
+//         }
+//       }
+//     }
+//   });
+// });

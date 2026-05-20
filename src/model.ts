@@ -195,9 +195,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.coreViewPluginConfig = this.setupCoreViewPluginConfig();
     this.uiPluginConfig = this.setupUiPluginConfig();
 
-    // registering plugins in dependency order so each plugin's getters
-    // are available when plugins that depend on it are instantiated
-    for (const Plugin of sortByDependencies(corePluginRegistry.getAll())) {
+    for (const Plugin of corePluginRegistry.getAll()) {
       this.setupCorePlugin(Plugin, workbookData);
     }
     Object.assign(this.getters, this.coreGetters);
@@ -708,33 +706,4 @@ function createCommand(type: string, payload: any = {}): Command {
   const command = deepCopy(payload);
   command.type = type;
   return command;
-}
-
-export function sortByDependencies(plugins: CorePluginConstructor[]): CorePluginConstructor[] {
-  const inRegistry = new Set<CorePluginConstructor>(plugins);
-  const result = new Set<CorePluginConstructor>();
-  const visiting = new Set<CorePluginConstructor>();
-
-  function visit(plugin: CorePluginConstructor, path: CorePluginConstructor[]) {
-    if (result.has(plugin)) {
-      return;
-    }
-    if (visiting.has(plugin)) {
-      const cycle = [...path.slice(path.indexOf(plugin)), plugin].map((p) => p.name).join(" → ");
-      throw new Error(`Cyclic plugin dependency detected: ${cycle}`);
-    }
-    visiting.add(plugin);
-    for (const dep of plugin.dependencies as CorePluginConstructor[]) {
-      if (inRegistry.has(dep)) {
-        visit(dep, [...path, plugin]);
-      }
-    }
-    visiting.delete(plugin);
-    result.add(plugin);
-  }
-
-  for (const plugin of plugins) {
-    visit(plugin, [plugin]);
-  }
-  return [...result];
 }

@@ -362,8 +362,8 @@ export class FigurePlugin
   // ---------------------------------------------------------------------------
   import(data: WorkbookData) {
     for (const sheet of data.sheets) {
-      for (const figure of sheet.figures) {
-        this.addFigure(figure, sheet.id);
+      for (const { data: _data, ...figure } of sheet.figures) {
+        this.addFigure(figure as Figure, sheet.id);
       }
     }
   }

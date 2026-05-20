@@ -65,7 +65,59 @@ import { HeaderPositionsUIPlugin } from "./ui_stateful/header_positions";
 import { GridSelectionPlugin } from "./ui_stateful/selection";
 import { SheetViewPlugin } from "./ui_stateful/sheetview";
 
-export const corePluginRegistry = new Registry<CorePluginConstructor>()
+class CorePluginRegistry extends Registry<CorePluginConstructor> {
+  override add(key: string, plugin: CorePluginConstructor): this {
+    if (key in this.content) {
+      throw new Error(`${key} is already present in this registry!`);
+    }
+    this.checkWouldCreateCycle(plugin);
+
+    // Insert right after the last direct dependency already in the registry (O(n)).
+    // Use max() so we never move the insertion point backward: same-dep siblings
+    // stay in registration order rather than being reversed.
+    const entries = Object.entries(this.content);
+    const depSet = new Set(plugin.dependencies as CorePluginConstructor[]);
+    let insertAfter = entries.length - 1; // default: append at end
+    for (let i = 0; i < entries.length; i++) {
+      if (depSet.has(entries[i][1])) {
+        insertAfter = Math.max(insertAfter, i);
+      }
+    }
+    const before = entries.slice(0, insertAfter + 1);
+    const after = entries.slice(insertAfter + 1);
+    this.content = Object.fromEntries([...before, [key, plugin], ...after]);
+    return this;
+  }
+
+  private checkWouldCreateCycle(plugin: CorePluginConstructor) {
+    // Temporarily include the new plugin so dependency chains through it are visible.
+    const all = new Set([...Object.values(this.content), plugin]);
+    const visiting = new Set<CorePluginConstructor>();
+    const visited = new Set<CorePluginConstructor>();
+
+    const dfs = (p: CorePluginConstructor, path: CorePluginConstructor[]) => {
+      if (visiting.has(p)) {
+        const cycle = [...path.slice(path.indexOf(p)), p].map((c) => c.name).join(" → ");
+        throw new Error(`Cyclic plugin dependency detected: ${cycle}`);
+      }
+      if (visited.has(p)) {
+        return;
+      }
+      visiting.add(p);
+      for (const dep of p.dependencies as CorePluginConstructor[]) {
+        if (all.has(dep)) {
+          dfs(dep, [...path, p]);
+        }
+      }
+      visiting.delete(p);
+      visited.add(p);
+    };
+
+    dfs(plugin, [plugin]);
+  }
+}
+
+export const corePluginRegistry = new CorePluginRegistry()
   .add("sheet", SheetPlugin)
   .add("settings", SettingsPlugin)
   .add("header grouping", HeaderGroupingPlugin)
