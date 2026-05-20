@@ -586,6 +586,24 @@ export function applyVectorization(
   }
   const nbVectorized = vectorizedIndices.length;
 
+  // Specialize the call for common arities — argsBuffer.length is constant for the whole call,
+  // so dispatch once here rather than switching inside every cell iteration.
+  type FormulaCall = () => Matrix<FunctionResultObject> | FunctionResultObject;
+  let callFormula: FormulaCall;
+  switch (argsBuffer.length) {
+    case 1:
+      callFormula = () => formula(argsBuffer[0]);
+      break;
+    case 2:
+      callFormula = () => formula(argsBuffer[0], argsBuffer[1]);
+      break;
+    case 3:
+      callFormula = () => formula(argsBuffer[0], argsBuffer[1], argsBuffer[2]);
+      break;
+    default:
+      callFormula = () => formula(...argsBuffer);
+  }
+
   const result: Matrix<FunctionResultObject> = new Array(countVectorizedCol);
   for (let col = 0; col < countVectorizedCol; col++) {
     const column: FunctionResultObject[] = new Array(countVectorizedRow);
@@ -600,7 +618,7 @@ export function applyVectorization(
       for (let k = 0; k < nbVectorized; k++) {
         argsBuffer[vectorizedIndices[k]] = argGetters[k](col, row);
       }
-      const singleCellComputeResult = formula(...argsBuffer);
+      const singleCellComputeResult = callFormula();
       // In the case where the user tries to vectorize arguments of an array formula, we will get an
       // array for every combination of the vectorized arguments, which will lead to a 3D matrix and
       // we won't be able to return the values.
