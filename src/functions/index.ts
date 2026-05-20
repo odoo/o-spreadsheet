@@ -11,6 +11,8 @@ import {
   Matrix,
   isMatrix,
 } from "../types";
+import { ArgDefinition } from "../types/functions";
+
 import { BadExpressionError, EvaluationError } from "../types/errors";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
 import { applyVectorization, isEvaluationError, matrixForEach, matrixMap } from "./helpers";
@@ -111,14 +113,19 @@ function createComputeFunction(
   descr: FunctionDescription,
   functionName: string
 ): ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject> {
+  // Shared across vectorizedCompute→errorHandlingCompute within a single (synchronous) call.
+  let currentArgDefinitions: ArgDefinition[] = [];
+
   function vectorizedCompute(
     this: EvalContext,
     ...args: Arg[]
   ): FunctionResultObject | Matrix<FunctionResultObject> {
     const acceptToVectorize: boolean[] = [];
+    currentArgDefinitions = new Array(args.length);
 
     for (let i = 0; i < args.length; i++) {
       const argDefinition = descr.args[descr.getArgToFocus(i + 1) - 1];
+      currentArgDefinitions[i] = argDefinition;
       const arg = args[i];
       if (!isMatrix(arg) && argDefinition.acceptMatrixOnly) {
         throw new BadExpressionError(
@@ -154,12 +161,15 @@ function createComputeFunction(
   ): Matrix<FunctionResultObject> | FunctionResultObject {
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
-      const argDefinition = descr.args[descr.getArgToFocus(i + 1) - 1];
 
       // Early exit if the argument is an error and the function does not accept errors
       // We only check scalar arguments, not matrix arguments for performance reasons.
       // Casting helpers are responsible for handling errors in matrix arguments.
-      if (!argDefinition.acceptErrors && !isMatrix(arg) && isEvaluationError(arg?.value)) {
+      if (
+        !currentArgDefinitions[i].acceptErrors &&
+        !isMatrix(arg) &&
+        isEvaluationError(arg?.value)
+      ) {
         return arg;
       }
     }
