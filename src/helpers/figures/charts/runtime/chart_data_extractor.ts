@@ -932,7 +932,7 @@ function filterInvalidGeoBubbleChartPoints(
     const label = labels[dataPointIndex];
     const values = datasets.map((dataset) => dataset.data?.[dataPointIndex]);
     return (
-      label.value &&
+      label?.value &&
       typeof label.value === "string" &&
       values.some((value) => isNumberResult(value)) &&
       getters.getCityCoordinates(label.value) !== undefined

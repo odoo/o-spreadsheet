@@ -15,6 +15,8 @@ import { FunnelChartConfigPanel } from "./funnel_chart_panel/funnel_chart_config
 import { FunnelChartDesignPanel } from "./funnel_chart_panel/funnel_chart_design_panel";
 import { GaugeChartConfigPanel } from "./gauge_chart_panel/gauge_chart_config_panel";
 import { GaugeChartDesignPanel } from "./gauge_chart_panel/gauge_chart_design_panel";
+import { GeoBubbleChartConfigPanel } from "./geo_bubble_chart_panel/geo_bubble_chart_config_panel";
+import { GeoBubbleChartDesignPanel } from "./geo_bubble_chart_panel/geo_bubble_chart_design_panel";
 import { GeoChartConfigPanel } from "./geo_chart_panel/geo_chart_config_panel";
 import { GeoChartDesignPanel } from "./geo_chart_panel/geo_chart_design_panel";
 import { HierarchicalChartConfigPanel } from "./hierarchical_chart/hierarchical_chart_config_panel";
@@ -101,8 +103,8 @@ chartSidePanelComponentRegistry
     design: GeoChartDesignPanel,
   })
   .add("geo_bubble", {
-    configuration: GeoChartConfigPanel,
-    design: GeoChartDesignPanel,
+    configuration: GeoBubbleChartConfigPanel,
+    design: GeoBubbleChartDesignPanel,
   })
   .add("funnel", {
     configuration: FunnelChartConfigPanel,

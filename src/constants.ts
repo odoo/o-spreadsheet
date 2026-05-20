@@ -24,6 +24,10 @@ export const MIN_BUBBLE_RADIUS = 10;
 export const DEFAULT_BUBBLE_RADIUS = 2;
 export const MAX_BUBBLE_RADIUS = 30;
 
+// ADRM TODO: add option in panel
+export const MIN_GEO_BUBBLE_RADIUS = 2;
+export const MAX_GEO_BUBBLE_RADIUS = 20;
+
 export const GRAY_900 = "#111827";
 export const GRAY_400 = "#ced4da";
 export const GRAY_300 = "#D8DADD";

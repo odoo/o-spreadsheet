@@ -1053,6 +1053,34 @@ export const demoData = {
           col: 0,
           row: 0,
         },
+        {
+          id: "17",
+          tag: "chart",
+          width: 500,
+          height: 400,
+          data: {
+            type: "geo_bubble",
+            legendPosition: "none",
+            region: "europe",
+            dataSets: [
+              {
+                dataRange: "Z27:Z77",
+              },
+            ],
+            dataSetsHaveTitle: true,
+            labelRange: "Y27:Y77",
+            title: {},
+            humanize: true,
+            bubbleColor: { color: "#0096FF", transparent: true },
+            chartId: "17",
+          },
+          offset: {
+            x: 650,
+            y: 2550,
+          },
+          col: 0,
+          row: 0,
+        },
       ],
       tables: [
         {

@@ -15,7 +15,13 @@ export const GeoBubbleChart: ChartTypeBuilder<"geo_bubble"> = {
   sequence: 90,
   dataSeriesLimit: 1,
 
-  allowedDefinitionKeys: [...AbstractChart.commonKeys, "dataSource", "legendPosition", "region"],
+  allowedDefinitionKeys: [
+    ...AbstractChart.commonKeys,
+    "dataSource",
+    "legendPosition",
+    "region",
+    "bubbleColor",
+  ],
 
   fromStrDefinition: (definition) => definition,
 
@@ -31,9 +37,13 @@ export const GeoBubbleChart: ChartTypeBuilder<"geo_bubble"> = {
 
   updateRanges: (definition) => definition,
 
-  getContextCreation: (definition) => definition,
+  getContextCreation: (definition) => ({
+    ...definition,
+    bubbleColorMode: definition.bubbleColor,
+  }),
 
   getDefinitionFromContextCreation(context, dataSourceBuilder) {
+    console.log(context.bubbleColorMode || { color: "#4c84ff" });
     return {
       background: context.background,
       dataSource: dataSourceBuilder.fromContextCreation(context),
@@ -42,6 +52,7 @@ export const GeoBubbleChart: ChartTypeBuilder<"geo_bubble"> = {
       title: context.title || { text: "" },
       type: "geo_bubble",
       humanize: context.humanize,
+      bubbleColor: context.bubbleColorMode || { color: "#4c84ff" },
     };
   },
 

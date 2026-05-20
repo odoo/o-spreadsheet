@@ -7,6 +7,8 @@ import {
   CHART_PADDING_TOP,
   DEFAULT_CHART_COLOR_SCALE,
   GRAY_300,
+  MAX_GEO_BUBBLE_RADIUS,
+  MIN_GEO_BUBBLE_RADIUS,
 } from "../../../../constants";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
@@ -444,7 +446,7 @@ export function getGeoBubbleChartScales(
       // It goes outside of the chart as soon as there is a title, gets split in two if we try to move it with a margin, etc.
       display: false,
       axis: "x",
-      range: [1, 20], // Range of the size of the bubbles
+      range: [MIN_GEO_BUBBLE_RADIUS, MAX_GEO_BUBBLE_RADIUS],
     },
   };
 }

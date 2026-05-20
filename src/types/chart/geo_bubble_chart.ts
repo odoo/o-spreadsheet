@@ -1,5 +1,6 @@
 import { ChartConfiguration } from "chart.js";
 import { Range } from "../range";
+import { BubbleColorMode } from "./bubble_chart";
 import { ChartRuntimeGenerationArgs } from "./chart";
 import { CommonChartDefinition } from "./common_chart";
 import { GeoChartRegion } from "./geo_chart";
@@ -8,6 +9,7 @@ export interface GeoBubbleChartDefinition<T extends string | Range = Range>
   extends CommonChartDefinition<T> {
   readonly type: "geo_bubble";
   readonly region?: string;
+  readonly bubbleColor: BubbleColorMode;
 }
 
 export type GeoBubbleChartRuntime = {

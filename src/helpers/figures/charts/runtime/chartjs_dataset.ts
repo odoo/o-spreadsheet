@@ -13,7 +13,7 @@ import {
 } from "../../../../constants";
 import { _t } from "../../../../translation";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
-import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
+import { BubbleChartDefinition, BubbleColorMode } from "../../../../types/chart/bubble_chart";
 import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import {
   ChartRuntimeGenerationArgs,
@@ -296,20 +296,10 @@ export function getBubbleChartDatasets(
   definition: BubbleChartDefinition<Range>,
   chartData: BubbleChartData
 ): ChartDataset<"line">[] {
-  let backgroundColor: string | string[], borderColor: string | string[];
-  if (definition.bubbleColor.color === "multiple") {
-    const colorGenerator = new ColorGenerator(chartData.bubbleSizes.length);
-    borderColor = [];
-    for (let i = 0; i < chartData.bubbleSizes.length; i++) {
-      borderColor.push(colorGenerator.next());
-    }
-    backgroundColor = borderColor.map((c) =>
-      setColorAlpha(c, definition.bubbleColor.transparent ? 0.5 : 1)
-    );
-  } else {
-    borderColor = definition.bubbleColor.color;
-    backgroundColor = setColorAlpha(borderColor, definition.bubbleColor.transparent ? 0.5 : 1);
-  }
+  const { backgroundColor, borderColor } = getBubbleColors(
+    definition.bubbleColor,
+    chartData.bubbleSizes.length
+  );
 
   const radii = computeBubbleRadii(chartData.bubbleSizes);
   const data: { x: number | string; y: number }[] = [];
@@ -529,7 +519,7 @@ export function getGeoChartDatasets(
 }
 
 export function getGeoBubbleChartDatasets(
-  definition: GenericDefinition<GeoBubbleChartDefinition>,
+  definition: GeoBubbleChartDefinition,
   args: GeoBubbleChartRuntimeGenerationArgs
 ): ChartDataset[] {
   const { availableRegions, dataSetsValues, labels } = args;
@@ -537,10 +527,14 @@ export function getGeoBubbleChartDatasets(
   const regionName = definition.region || availableRegions[0]?.id;
   const features = regionName ? args.getGeoJsonFeatures(regionName) : undefined;
 
+  const { backgroundColor, borderColor } = getBubbleColors(definition.bubbleColor, labels.length);
+
   const dataset: ChartDataset<"bubbleMap"> = {
     outline: features,
     showOutline: !!features,
     data: [],
+    backgroundColor,
+    borderColor,
   };
 
   const emptyValue = { longitude: NaN, latitude: NaN, value: NaN };
@@ -940,4 +934,20 @@ function getTreeMapElementColor(
   const value = Number(ctx.raw.v) || 0;
   const factor = ((value - max) / (min - max)) * 0.5;
   return lightenColor(baseColor, factor);
+}
+
+function getBubbleColors(bubbleColor: BubbleColorMode, numberOfElements: number) {
+  let backgroundColor: string | string[], borderColor: string | string[];
+  if (bubbleColor.color === "multiple") {
+    const colorGenerator = new ColorGenerator(numberOfElements);
+    borderColor = [];
+    for (let i = 0; i < numberOfElements; i++) {
+      borderColor.push(colorGenerator.next());
+    }
+    backgroundColor = borderColor.map((c) => setColorAlpha(c, bubbleColor.transparent ? 0.5 : 1));
+  } else {
+    borderColor = bubbleColor.color;
+    backgroundColor = setColorAlpha(borderColor, bubbleColor.transparent ? 0.5 : 1);
+  }
+  return { backgroundColor, borderColor };
 }

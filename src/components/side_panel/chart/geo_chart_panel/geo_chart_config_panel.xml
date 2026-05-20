@@ -14,7 +14,7 @@
         canUpdateChart="props.canUpdateChart"
         onErrorMessagesChanged.bind="onErrorMessagesChanged"
         getLabelRangeOptions.bind="getLabelRangeOptions"
-        labelRangeTitle.translate="Territories"
+        labelRangeTitle="this.labelRangeTitle"
       />
 
       <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
