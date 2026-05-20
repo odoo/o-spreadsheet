@@ -1,5 +1,6 @@
 .o-spreadsheet {
   .o-col-resizer {
+    z-index: calc(var(--os-components-importance-grid) + 1);
     position: absolute;
     top: 0;
     left: var(--os-header-width);
@@ -42,12 +43,12 @@
       background-color: var(--os-selection-border-color);
     }
     .o-unhide:hover {
-      z-index: calc(var(--os-components-importance-grid) + 1);
       background-color: var(--os-gray-400);
     }
   }
 
   .o-row-resizer {
+    z-index: calc(var(--os-components-importance-grid) + 1);
     position: absolute;
     top: var(--os-header-height);
     left: 0;
@@ -89,7 +90,6 @@
       background-color: var(--os-selection-border-color);
     }
     .o-unhide:hover {
-      z-index: calc(var(--os-components-importance-grid) + 1);
       background-color: var(--os-gray-400);
     }
   }
