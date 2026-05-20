@@ -979,6 +979,12 @@ const getAvailableRegions: () => GeoChartRegion[] = () => [
   { id: "usa", label: "United States", defaultProjection: "albersUsa" },
 ];
 
+export const cityCoordinates = {
+  paris: { latitude: 48.8566, longitude: 2.3522 },
+  berlin: { latitude: 52.52, longitude: 13.405 },
+  madrid: { latitude: 40.4168, longitude: -3.7038 },
+};
+
 export const mockGeoJsonService: ModelExternalConfig["geoJsonService"] = {
   getAvailableRegions,
   getTopoJson: async () => ({
@@ -1007,6 +1013,9 @@ export const mockGeoJsonService: ModelExternalConfig["geoJsonService"] = {
     }
     const allRegions = getAvailableRegions();
     return allRegions.filter((r) => r.id !== "usa");
+  },
+  getCityCoordinates: async (city: string) => {
+    return cityCoordinates[city.toLowerCase()] || undefined;
   },
 };
 

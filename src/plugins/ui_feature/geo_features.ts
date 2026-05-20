@@ -1,3 +1,4 @@
+import { GeoCoordinates } from "../../types/chart/geo_bubble_chart";
 import { GeoChartDefinition, GeoChartRegion } from "../../types/chart/geo_chart";
 import { Command } from "../../types/commands";
 import { UID } from "../../types/misc";
@@ -10,11 +11,13 @@ export class GeoFeaturePlugin extends UIPlugin {
     "geoFeatureNameToId",
     "getGeoChartAvailableRegions",
     "getAvailableChartRegions",
+    "getCityCoordinates",
   ] as const;
 
   private readonly geoJsonService: ModelConfig["external"]["geoJsonService"];
 
   private geoJsonCache: { [region: string]: GeoJSON.Feature[] | null | Promise<void> } = {};
+  private cityCoordinatesCache: { [city: string]: GeoCoordinates | null | Promise<void> } = {};
 
   /** Stores the initial region of each geo chart at the time of the START command */
   private initialRegions: Record<UID, string> = {};
@@ -122,6 +125,35 @@ export class GeoFeaturePlugin extends UIPlugin {
       return;
     }
     return this.geoJsonService.geoFeatureNameToId(region, featureName);
+  }
+
+  getCityCoordinates(city: string): GeoCoordinates | undefined {
+    if (!this.geoJsonService) {
+      console.error("No geoJsonService provided to the model");
+      return;
+    }
+    city = city.toLowerCase();
+    const cachedCoordinates = this.cityCoordinatesCache[city];
+
+    if (cachedCoordinates instanceof Promise) {
+      return undefined;
+    }
+    if (cachedCoordinates !== undefined) {
+      return cachedCoordinates ?? undefined;
+    }
+
+    this.cityCoordinatesCache[city] = new Promise<void>(async (resolve) => {
+      const coordinates = await this.geoJsonService?.getCityCoordinates(city);
+      this.cityCoordinatesCache[city] = coordinates || null;
+      const hasPendingPromise = Object.values(this.cityCoordinatesCache).some(
+        (val) => val instanceof Promise
+      );
+      if (!hasPendingPromise) {
+        this.dispatch("EVALUATE_CHARTS");
+      }
+      resolve();
+    });
+    return undefined;
   }
 
   private convertToGeoJson(

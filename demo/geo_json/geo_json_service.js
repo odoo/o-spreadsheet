@@ -35,6 +35,11 @@ export const geoJsonService = {
     }
     return this.getAvailableRegions().filter((r) => r.id !== "usa");
   },
+  getCityCoordinates: async function (city) {
+    // ADRM TODO: fix the dataset (London is in the USA for example ...)
+    const cities = await getResource("./geo_json/world_cities.json");
+    return cities[city.toLowerCase()];
+  },
 };
 
 function inverseMapping(mapping) {

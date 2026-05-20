@@ -26,6 +26,10 @@ import {
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
 import { FunnelChartColors, FunnelChartDefinition } from "../../../../types/chart/funnel_chart";
 import {
+  GeoBubbleChartDefinition,
+  GeoBubbleChartRuntimeGenerationArgs,
+} from "../../../../types/chart/geo_bubble_chart";
+import {
   GeoChartDefinition,
   GeoChartRuntimeGenerationArgs,
 } from "../../../../types/chart/geo_chart";
@@ -519,6 +523,46 @@ export function getGeoChartDatasets(
         value: labelsAndValues[feature.id]?.value,
       });
     }
+  }
+
+  return [dataset];
+}
+
+export function getGeoBubbleChartDatasets(
+  definition: GenericDefinition<GeoBubbleChartDefinition>,
+  args: GeoBubbleChartRuntimeGenerationArgs
+): ChartDataset[] {
+  const { availableRegions, dataSetsValues, labels } = args;
+
+  const regionName = definition.region || availableRegions[0]?.id;
+  const features = regionName ? args.getGeoJsonFeatures(regionName) : undefined;
+
+  const dataset: ChartDataset<"bubbleMap"> = {
+    outline: features,
+    showOutline: !!features,
+    data: [],
+    // backgroundColor: "red",
+  };
+
+  const emptyValue = {
+    longitude: NaN,
+    latitude: NaN,
+    value: NaN,
+  };
+
+  for (let i = 0; i < labels.length; i++) {
+    const city = labels[i];
+    const value = dataSetsValues[0]?.data[i];
+    if (!city || !isNumberResult(value)) {
+      dataset.data.push(emptyValue);
+      continue;
+    }
+    const coordinates = args.getCityCoordinates(city);
+    if (!coordinates) {
+      dataset.data.push(emptyValue);
+      continue;
+    }
+    dataset.data.push({ ...coordinates, value: value.value });
   }
 
   return [dataset];

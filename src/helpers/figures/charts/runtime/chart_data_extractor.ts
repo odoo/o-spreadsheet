@@ -28,6 +28,10 @@ import {
 } from "../../../../types/chart/chart";
 import { FunnelChartDefinition } from "../../../../types/chart/funnel_chart";
 import {
+  GeoBubbleChartDefinition,
+  GeoBubbleChartRuntimeGenerationArgs,
+} from "../../../../types/chart/geo_bubble_chart";
+import {
   GeoChartDefinition,
   GeoChartRuntimeGenerationArgs,
 } from "../../../../types/chart/geo_chart";
@@ -381,6 +385,34 @@ export function getGeoChartData(
     locale: getters.getLocale(),
     availableRegions: getters.getGeoChartAvailableRegions(),
     geoFeatureNameToId: getters.geoFeatureNameToId,
+    getGeoJsonFeatures: getters.getGeoJsonFeatures,
+    background: getChartBackgroundColor(definition, getters),
+  };
+}
+
+export function getGeoBubbleChartData(
+  definition: GeoBubbleChartDefinition,
+  { labelValues, dataSetsValues }: ChartData,
+  getters: Getters
+): GeoBubbleChartRuntimeGenerationArgs {
+  dataSetsValues = dataSetsValues.slice(0, 1);
+  let labels = labelValues.map(({ value, format }) =>
+    formatValue(value, { format, locale: getters.getLocale() })
+  );
+  ({ labels, dataSetsValues } = filterInvalidDataPoints(labels, dataSetsValues));
+  ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
+
+  const format =
+    getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "left") ||
+    getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "right");
+
+  return {
+    dataSetsValues,
+    axisFormats: { y: format },
+    labels,
+    locale: getters.getLocale(),
+    availableRegions: getters.getGeoChartAvailableRegions(),
+    getCityCoordinates: getters.getCityCoordinates,
     getGeoJsonFeatures: getters.getGeoJsonFeatures,
     background: getChartBackgroundColor(definition, getters),
   };

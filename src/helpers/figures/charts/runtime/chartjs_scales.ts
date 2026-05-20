@@ -22,6 +22,8 @@ import {
 import { LegendPosition } from "../../../../types/chart/common_chart";
 import { FunnelChartDefinition } from "../../../../types/chart/funnel_chart";
 import {
+  GeoBubbleChartDefinition,
+  GeoBubbleChartRuntimeGenerationArgs,
   GeoChartDefinition,
   GeoChartProjection,
   GeoChartRuntimeGenerationArgs,
@@ -50,6 +52,7 @@ import {
 
 type ChartScales = DeepPartial<ScaleChartOptions<"line" | "bar" | "radar">["scales"]>;
 type GeoChartScales = DeepPartial<ScaleChartOptions<"choropleth">["scales"]>;
+type GeoBubbleChartScales = DeepPartial<ScaleChartOptions<"bubbleMap">["scales"]>;
 
 export function getBarChartScales(
   definition: GenericDefinition<BarChartDefinition>,
@@ -415,6 +418,31 @@ export function getGeoChartScales(
       },
       interpolate: getRuntimeColorScale(definition.colorScale ?? DEFAULT_CHART_COLOR_SCALE),
       missing: definition.missingValueColor || "#ffffff",
+    },
+  };
+}
+
+export function getGeoBubbleChartScales(
+  definition: GeoBubbleChartDefinition,
+  args: GeoBubbleChartRuntimeGenerationArgs
+): GeoBubbleChartScales {
+  const { availableRegions } = args;
+
+  const region = definition.region
+    ? availableRegions.find((r) => r.id === definition.region)
+    : availableRegions[0];
+
+  return {
+    projection: {
+      projection: getGeoChartProjection(region?.defaultProjection || "mercator"),
+      axis: "x" as const,
+    },
+    size: {
+      // Bubble size legend is super-bugged, don't display it
+      // It goes outside of the chart as soon as there is a title, gets split in two if we try to move it with a margin, etc.
+      display: false,
+      axis: "x",
+      range: [1, 20], // Range of the size of the bubbles
     },
   };
 }

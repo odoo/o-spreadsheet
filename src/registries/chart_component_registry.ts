@@ -19,6 +19,7 @@ chartComponentRegistry.add("waterfall", ZoomableChartJsComponent);
 chartComponentRegistry.add("pyramid", ChartJsComponent);
 chartComponentRegistry.add("radar", ChartJsComponent);
 chartComponentRegistry.add("geo", ChartJsComponent);
+chartComponentRegistry.add("geo_bubble", ChartJsComponent);
 chartComponentRegistry.add("funnel", ChartJsComponent);
 chartComponentRegistry.add("sunburst", ChartJsComponent);
 chartComponentRegistry.add("treemap", ChartJsComponent);

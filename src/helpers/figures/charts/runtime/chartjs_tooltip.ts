@@ -5,6 +5,7 @@ import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
 import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import { ChartRuntimeGenerationArgs, GenericDefinition } from "../../../../types/chart/chart";
+import { GeoBubbleChartDefinition } from "../../../../types/chart/geo_bubble_chart";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../../types/chart/pie_chart";
@@ -304,6 +305,26 @@ export function getGeoChartTooltip(
         const yLabel = rawItem.value;
         const toolTipFormat = !format && Math.abs(yLabel) >= 1000 ? "#,##" : format;
         return formatOrHumanizeValue(yLabel, toolTipFormat, locale, definition.humanize);
+      },
+    },
+  };
+}
+
+export function getGeoBubbleChartTooltip(
+  definition: GeoBubbleChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartTooltip {
+  const { locale, axisFormats, labels } = args;
+  const format = axisFormats?.y || axisFormats?.y1;
+  return {
+    enabled: false,
+    external: customTooltipHandler,
+    callbacks: {
+      beforeLabel: (tooltipItem: TooltipItem<"bubbleMap">) => labels[tooltipItem.dataIndex],
+      label: function (tooltipItem: TooltipItem<"bubbleMap">) {
+        const value = tooltipItem.parsed.r;
+        const toolTipFormat = !format && Math.abs(value) >= 1000 ? "#,##" : format;
+        return formatOrHumanizeValue(value, toolTipFormat, locale, definition.humanize);
       },
     },
   };

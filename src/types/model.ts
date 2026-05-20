@@ -1,3 +1,4 @@
+import { GeoCoordinates } from "./chart/geo_bubble_chart";
 import { GeoChartRegion } from "./chart/geo_chart";
 import { Client, ClientPosition } from "./collaborative/session";
 import { TransportService } from "./collaborative/transport_service";
@@ -46,5 +47,6 @@ export interface ModelExternalConfig {
     geoFeatureNameToId: (region: string, territory: string) => string | undefined;
     /** Returns the regions that can be selected as an alternative when the chart was initially configured with the given region */
     getAlternativeRegions?: (region: string) => GeoChartRegion[];
+    getCityCoordinates: (city: string) => Promise<GeoCoordinates | undefined>;
   };
 }

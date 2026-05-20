@@ -4,6 +4,7 @@ import { CalendarChart } from "../helpers/figures/charts/calendar_chart";
 import { ComboChart } from "../helpers/figures/charts/combo_chart";
 import { FunnelChart } from "../helpers/figures/charts/funnel_chart";
 import { GaugeChart } from "../helpers/figures/charts/gauge_chart";
+import { GeoBubbleChart } from "../helpers/figures/charts/geo_bubble_chart";
 import { GeoChart } from "../helpers/figures/charts/geo_chart";
 import { LineChart } from "../helpers/figures/charts/line_chart";
 import { PieChart } from "../helpers/figures/charts/pie_chart";
@@ -33,6 +34,7 @@ chartTypeRegistry.add("waterfall", WaterfallChart);
 chartTypeRegistry.add("pyramid", PyramidChart);
 chartTypeRegistry.add("radar", RadarChart);
 chartTypeRegistry.add("geo", GeoChart);
+chartTypeRegistry.add("geo_bubble", GeoBubbleChart);
 chartTypeRegistry.add("funnel", FunnelChart);
 chartTypeRegistry.add("sunburst", SunburstChart);
 chartTypeRegistry.add("treemap", TreeMapChart);
@@ -209,6 +211,13 @@ chartSubtypeRegistry
     displayName: _t("Geo Chart"),
     chartSubtype: "geo",
     chartType: "geo",
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.GEO_CHART",
+  })
+  .add("geo_bubble", {
+    displayName: _t("Geo Bubble Chart"),
+    chartSubtype: "geo_bubble",
+    chartType: "geo_bubble",
     category: "misc",
     preview: "o-spreadsheet-ChartPreview.GEO_CHART",
   })

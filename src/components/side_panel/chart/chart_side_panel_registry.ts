@@ -100,6 +100,10 @@ chartSidePanelComponentRegistry
     configuration: GeoChartConfigPanel,
     design: GeoChartDesignPanel,
   })
+  .add("geo_bubble", {
+    configuration: GeoChartConfigPanel,
+    design: GeoChartDesignPanel,
+  })
   .add("funnel", {
     configuration: FunnelChartConfigPanel,
     design: FunnelChartDesignPanel,

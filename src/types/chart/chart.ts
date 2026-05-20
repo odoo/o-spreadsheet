@@ -27,6 +27,7 @@ import { Locale } from "../locale";
 import { Align, Color, FunctionResultObject, UID, VerticalAlign } from "../misc";
 import { Range } from "../range";
 import { BubbleChartDefinition, BubbleChartRuntime, BubbleColorMode } from "./bubble_chart";
+import { GeoBubbleChartDefinition } from "./geo_bubble_chart";
 export const CHART_TYPES = [
   "line",
   "bar",
@@ -40,6 +41,7 @@ export const CHART_TYPES = [
   "pyramid",
   "radar",
   "geo",
+  "geo_bubble",
   "funnel",
   "sunburst",
   "treemap",
@@ -57,6 +59,7 @@ export type ChartDefinitionWithDataSource<T extends string | Range = Range> =
   | PyramidChartDefinition<T>
   | RadarChartDefinition<T>
   | GeoChartDefinition<T>
+  | GeoBubbleChartDefinition<T>
   | FunnelChartDefinition<T>
   | SunburstChartDefinition<T>
   | TreeMapChartDefinition<T>
