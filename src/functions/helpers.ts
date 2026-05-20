@@ -559,27 +559,32 @@ export function applyVectorization(
 
   // Resolve each arg's access pattern once, outside the inner loop.
   type ArgGetter = (i: number, j: number) => Arg;
-  const argGetters: ArgGetter[] = new Array(args.length);
+  const argGetters: ArgGetter[] = [];
+  const vectorizedIndices: number[] = []; // tracks which slots need updating each iteration.
   for (let k = 0; k < args.length; k++) {
     const arg = args[k];
     switch (vectorArgsType?.[k]) {
       case "matrix": {
-        argGetters[k] = (i, j) => arg![i][j];
+        argGetters.push((i, j) => arg![i][j]);
+        vectorizedIndices.push(k);
         break;
       }
       case "horizontal": {
-        argGetters[k] = (i) => arg![i][0];
+        argGetters.push((i) => arg![i][0]);
+        vectorizedIndices.push(k);
         break;
       }
       case "vertical": {
-        argGetters[k] = (_i, j) => arg![0][j];
+        argGetters.push((_i, j) => arg![0][j]);
+        vectorizedIndices.push(k);
         break;
       }
       case undefined:
-        argGetters[k] = () => arg;
+        argsBuffer[k] = arg;
         break;
     }
   }
+  const nbVectorized = vectorizedIndices.length;
 
   return generateMatrix(countVectorizedCol, countVectorizedRow, (col, row) => {
     if (col > vectorizedColLimit - 1 || row > vectorizedRowLimit - 1) {
@@ -587,8 +592,8 @@ export function applyVectorization(
         _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
       );
     }
-    for (let k = 0; k < argGetters.length; k++) {
-      argsBuffer[k] = argGetters[k](col, row);
+    for (let k = 0; k < nbVectorized; k++) {
+      argsBuffer[vectorizedIndices[k]] = argGetters[k](col, row);
     }
     const singleCellComputeResult = formula(...argsBuffer);
     // In the case where the user tries to vectorize arguments of an array formula, we will get an
