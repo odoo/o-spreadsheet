@@ -409,7 +409,7 @@ describe("Composer hover integration test", () => {
     const sheetId = model.getters.getActiveSheetId();
     addEqualCf(model, "B1:D3", { fillColor: "#b6d7a8" }, "=ROW() + COLUMN() + B2");
     const cf = model.getters.getConditionalFormats(sheetId)[0];
-    env.openSidePanel("ConditionalFormattingEditor", { cf, isNewCf: false });
+    env.openSidePanel("ConditionalFormattingEditor", { cf, isNewCf: false, sheetId });
     await nextTick();
 
     const composerSelector = ".o-sidePanel .o-composer";

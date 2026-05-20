@@ -3,10 +3,13 @@ import { canonicalizeContent } from "../../../../helpers/locale";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { _t } from "../../../../translation";
 import { DataValidationCriterionType } from "../../../../types/data_validation";
+import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
+import { adaptFormulaToSheet } from "../../../helpers/formula";
 
 interface Props {
+  sheetId: UID;
   value: string;
   criterionType: DataValidationCriterionType;
   onValueChanged: (value: string) => void;
@@ -20,6 +23,7 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CriterionInput";
   static props = {
     value: { type: String, optional: true },
+    sheetId: String,
     criterionType: String,
     onValueChanged: Function,
     onKeyDown: { type: Function, optional: true },
@@ -82,6 +86,7 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
 
   onChangeComposerValue(str: string) {
     this.state.shouldDisplayError = true;
+    str = adaptFormulaToSheet(this.env.model.getters, str, this.props.sheetId);
     this.props.onValueChanged(str);
   }
 
@@ -91,7 +96,7 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
       composerContent: this.props.value,
       placeholder: this.placeholder,
       class: "o-sidePanel-composer",
-      defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
+      defaultRangeSheetId: this.props.sheetId,
       invalid: this.state.shouldDisplayError && !!this.errorMessage,
       defaultStatic: true,
       autofocus: this.props.focused,

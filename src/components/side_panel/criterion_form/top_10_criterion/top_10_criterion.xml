@@ -8,6 +8,7 @@
         onChange.bind="updateIsBottom"
       />
       <CriterionInput
+        sheetId="props.sheetId"
         value="props.criterion.values[0]"
         onValueChanged.bind="onValueChanged"
         criterionType="props.criterion.type"
