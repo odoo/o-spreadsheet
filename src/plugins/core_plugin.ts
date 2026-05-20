@@ -36,22 +36,13 @@ type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (
   ? I
   : never;
 
-/** Minimal structural constraint for a constructor that can appear in a `dependencies` array.
- * Allow typescript not to resolve the full CorePlugin structure
- */
-export type AnyPluginConstructor = {
-  new (...args: unknown[]): any;
-  getters: readonly string[];
-  dependencies: readonly AnyPluginConstructor[];
-};
-
 /** Transitive closure of the dependency DAG: the plugin itself plus every dependency, recursively. Depth-capped at 8. */
-type _Reach<P extends AnyPluginConstructor, D extends unknown[] = []> = D extends { length: 8 }
+type _Reach<P extends CorePluginConstructor, D extends unknown[] = []> = D extends { length: 8 }
   ? P
   : P | _Reach<P["dependencies"][number], [...D, unknown]>;
 
 /** Distributive map: turns a union of plugin constructors into a union of their getter types. */
-type DistGetters<T extends AnyPluginConstructor> = T extends AnyPluginConstructor
+type DistGetters<T extends CorePluginConstructor> = T extends CorePluginConstructor
   ? PluginGetters<T>
   : never;
 
@@ -59,7 +50,7 @@ type DistGetters<T extends AnyPluginConstructor> = T extends AnyPluginConstructo
  * The type of `this.getters` inside a core plugin.
  * Automatically includes the getters of every plugin declared in `Class.dependencies`, transitively.
  */
-export type DepsGetters<Plugin extends AnyPluginConstructor> = RangeAdapterGetters &
+export type DepsGetters<Plugin extends CorePluginConstructor> = RangeAdapterGetters &
   UnionToIntersection<DistGetters<_Reach<Plugin>>>;
 
 export interface CorePluginConfig {
@@ -73,9 +64,9 @@ export interface CorePluginConfig {
 }
 
 export interface CorePluginConstructor {
-  new (config: CorePluginConfig): CorePlugin;
+  new (config: CorePluginConfig): any;
   getters: readonly string[];
-  readonly dependencies: readonly AnyPluginConstructor[];
+  readonly dependencies: readonly CorePluginConstructor[];
 }
 
 /**
@@ -84,11 +75,11 @@ export interface CorePluginConstructor {
  * persisted state.
  * They should not be concerned about UI parts or transient state.
  */
-export class CorePlugin<State = any, Self extends AnyPluginConstructor = any>
+export class CorePlugin<State = any, Self extends CorePluginConstructor = any>
   extends BasePlugin<State, CoreCommand>
   implements RangeProvider
 {
-  static readonly dependencies: readonly AnyPluginConstructor[] = [];
+  static readonly dependencies: readonly CorePluginConstructor[] = [];
 
   protected getters: DepsGetters<Self> & Partial<CoreGetters>;
   protected dispatch: CoreCommandDispatcher["dispatch"];
