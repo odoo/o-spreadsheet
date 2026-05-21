@@ -33,16 +33,26 @@ export interface ArgDefinition {
 
 export type ArgProposal = { value: CellValue; label?: string };
 
-export type ComputeFunction<R> = (this: EvalContext, ...args: Arg[]) => R;
-
-export interface AddFunctionDescription {
-  compute: ComputeFunction<FunctionResultObject | Matrix<FunctionResultObject>>;
+export type BaseFunctionDescription = {
   description: string;
   category?: string;
   args: ArgDefinition[];
   isExported?: boolean;
   hidden?: boolean;
-}
+};
+
+export type ComputeFunction = (this: EvalContext, ...args: Arg[]) => FunctionResultObject;
+
+export type ComputeArrayFunction = (
+  this: EvalContext,
+  ...args: Arg[]
+) => FunctionResultObject | Matrix<FunctionResultObject>;
+
+type ComputeVariant =
+  | { compute: ComputeFunction; computeArray?: undefined }
+  | { compute?: undefined; computeArray: ComputeArrayFunction };
+
+export type AddFunctionDescription = BaseFunctionDescription & ComputeVariant;
 
 export type FunctionDescription = AddFunctionDescription & {
   name: string;
