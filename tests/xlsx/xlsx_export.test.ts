@@ -1107,7 +1107,7 @@ describe("Test XLSX export", () => {
       });
       addToRegistry(functionRegistry, "RANDARRAY", {
         ...RANDARRAY,
-        compute: () => [
+        computeArray: () => [
           [{ value: 1 }, { value: 1 }],
           [{ value: 1 }, { value: 1 }],
         ],
@@ -1167,7 +1167,7 @@ describe("Test XLSX export", () => {
       addToRegistry(functionRegistry, "NON.EXPORTABLE.ARRAY.FORMULA", {
         description: "a non exportable formula that spread",
         args: [],
-        compute: function () {
+        computeArray: function () {
           return [
             [
               { value: 1, format: "0.00%" },

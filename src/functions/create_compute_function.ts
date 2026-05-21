@@ -194,21 +194,21 @@ function errorHandlingCompute(
     }
   }
   try {
-    const compute = descr.compute;
+    const computeFormula = descr.compute || descr.computeArray;
     let result: FunctionResultObject | Matrix<FunctionResultObject> | CellValue | Matrix<CellValue>;
     switch (args.length) {
       case 1:
-        result = compute.call(context, args[0]);
+        result = computeFormula.call(context, args[0]);
         break;
       case 2:
-        result = compute.call(context, args[0], args[1]);
+        result = computeFormula.call(context, args[0], args[1]);
         break;
       case 3:
-        result = compute.call(context, args[0], args[1], args[2]);
+        result = computeFormula.call(context, args[0], args[1], args[2]);
         break;
       default:
         // fallback to a generic apply for functions with more than 3 arguments
-        result = compute.apply(context, args);
+        result = computeFormula.apply(context, args);
     }
     return result;
   } catch (e) {
@@ -219,7 +219,7 @@ function errorHandlingCompute(
 export function createComputeFunction(
   descr: FunctionDescription,
   argCount: number
-): PreparedComputeFunction<FunctionResultObject | Matrix<FunctionResultObject>> {
+): PreparedComputeFunction {
   const functionName = descr.name;
   const argsToFocus = argTargeting(descr, argCount);
   const argDefinitions: ArgDefinition[] = new Array(argCount);

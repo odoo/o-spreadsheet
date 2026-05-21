@@ -542,7 +542,7 @@ export const FORECAST: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (
+  computeArray: function (
     x: Arg,
     dataY: Matrix<FunctionResultObject>,
     dataX: Matrix<FunctionResultObject>
@@ -593,7 +593,7 @@ export const GROWTH: AddFunctionDescription = {
       CALCULATE_B_OPTIONS
     ),
   ],
-  compute: function (
+  computeArray: function (
     knownDataY: Matrix<FunctionResultObject>,
     knownDataX: Matrix<FunctionResultObject> = [[]],
     newDataX: Matrix<FunctionResultObject> = [[]],
@@ -717,7 +717,7 @@ export const LINEST: AddFunctionDescription = {
       RETURN_VERBOSE_OPTIONS
     ),
   ],
-  compute: function (
+  computeArray: function (
     dataY: Matrix<FunctionResultObject>,
     dataX: Matrix<FunctionResultObject> = [[]],
     calculateB: Maybe<FunctionResultObject> = { value: true },
@@ -768,7 +768,7 @@ export const LOGEST: AddFunctionDescription = {
       RETURN_VERBOSE_OPTIONS
     ),
   ],
-  compute: function (
+  computeArray: function (
     dataY: Matrix<FunctionResultObject>,
     dataX: Matrix<FunctionResultObject> = [[]],
     calculateB: Maybe<FunctionResultObject> = { value: true },
@@ -1149,7 +1149,7 @@ export const POLYFIT_COEFFS: AddFunctionDescription = {
       COMPUTE_INTERCEPT_OPTIONS
     ),
   ],
-  compute: function (
+  computeArray: function (
     dataY: Matrix<FunctionResultObject>,
     dataX: Matrix<FunctionResultObject>,
     order: Maybe<FunctionResultObject>,
@@ -1198,7 +1198,7 @@ export const POLYFIT_FORECAST: AddFunctionDescription = {
       COMPUTE_INTERCEPT_OPTIONS
     ),
   ],
-  compute: function (
+  computeArray: function (
     x: Arg,
     dataY: Matrix<FunctionResultObject>,
     dataX: Matrix<FunctionResultObject>,
@@ -1609,7 +1609,7 @@ export const TREND: AddFunctionDescription = {
       CALCULATE_B_OPTIONS
     ),
   ],
-  compute: function (
+  computeArray: function (
     knownDataY: Matrix<FunctionResultObject>,
     knownDataX: Matrix<FunctionResultObject> = [[]],
     newDataX: Matrix<FunctionResultObject> = [[]],

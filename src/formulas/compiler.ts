@@ -1,4 +1,3 @@
-import { FunctionResultObject, Matrix, PreparedComputeFunction } from "..";
 import { argTargeting } from "../functions/arguments";
 import { createComputeFunction } from "../functions/create_compute_function";
 import { functionRegistry } from "../functions/function_registry";
@@ -8,6 +7,7 @@ import { parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
 import { CoreGetters } from "../types/core_getters";
 import { BadExpressionError, EvaluationError, UnknownFunctionError } from "../types/errors";
+import { PreparedComputeFunction } from "../types/functions";
 import { DEFAULT_LOCALE } from "../types/locale";
 import {
   ApplyRangeChange,
@@ -57,7 +57,7 @@ export const UNARY_OPERATOR_MAP = {
 
 interface ICompiledFormula {
   execute: FormulaToExecute;
-  preparedFunctions: PreparedComputeFunction<FunctionResultObject | Matrix<FunctionResultObject>>[];
+  preparedFunctions: PreparedComputeFunction[];
   tokens: Token[];
   dependencies: string[];
   isBadExpression: boolean;
@@ -75,7 +75,7 @@ const NO_REAL_VALUE = "__NO_REAL_VALUE__";
 export const functionCache: { [key: string]: FormulaToExecute } = {};
 
 export const preparedFunctionsCache: {
-  [key: string]: PreparedComputeFunction<FunctionResultObject | Matrix<FunctionResultObject>>[];
+  [key: string]: PreparedComputeFunction[];
 } = {};
 
 const collator = new Intl.Collator("en", { sensitivity: "accent" });
@@ -99,9 +99,7 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
     public readonly isBadExpression: boolean,
     public readonly normalizedFormula: string,
     public readonly execute: FormulaToExecute,
-    public readonly preparedFunctions: PreparedComputeFunction<
-      FunctionResultObject | Matrix<FunctionResultObject>
-    >[]
+    public readonly preparedFunctions: PreparedComputeFunction[]
   ) {
     this.hasDependencies = dependencies?.length > 0;
     this.tokens.forEach((t) => {
@@ -413,9 +411,7 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
     let stringCount = 0;
     let numberCount = 0;
     let dependencyCount = 0;
-    const preparedFunctions: PreparedComputeFunction<
-      FunctionResultObject | Matrix<FunctionResultObject>
-    >[] = [];
+    const preparedFunctions: PreparedComputeFunction[] = [];
 
     if (ast.type === "BIN_OPERATION" && ast.value === ":") {
       throw new BadExpressionError(_t("Invalid formula"));

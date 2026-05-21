@@ -71,7 +71,7 @@ export const IF = {
       _t("The value the function returns if logical_expression is FALSE.")
     ),
   ],
-  compute: function (logicalExpression: Arg, valueIfTrue: Arg, valueIfFalse: Arg) {
+  computeArray: function (logicalExpression: Arg, valueIfTrue: Arg, valueIfFalse: Arg) {
     if (isMultipleElementMatrix(logicalExpression)) {
       return applyVectorization(this, functionRegistry.get("IF"), [
         logicalExpression,
@@ -97,7 +97,7 @@ export const IFERROR = {
       _t("The value the function returns if value is an error.")
     ),
   ],
-  compute: function (value: Arg, valueIfError: Arg) {
+  computeArray: function (value: Arg, valueIfError: Arg) {
     if (isMultipleElementMatrix(value)) {
       return applyVectorization(this, functionRegistry.get("IFERROR"), [value, valueIfError]);
     }
@@ -119,7 +119,7 @@ export const IFNA = {
       _t("The value the function returns if value is an #N/A error.")
     ),
   ],
-  compute: function (value: Arg, valueIfError: Arg) {
+  computeArray: function (value: Arg, valueIfError: Arg) {
     if (isMultipleElementMatrix(value)) {
       return applyVectorization(this, functionRegistry.get("IFNA"), [value, valueIfError]);
     }
@@ -146,7 +146,7 @@ export const IFS = {
       _t("The value to be returned if its corresponding condition is TRUE.")
     ),
   ],
-  compute: function (...values: Arg[]) {
+  computeArray: function (...values: Arg[]) {
     if (values.length % 2 !== 0) {
       return new EvaluationError(
         _t("Wrong number of arguments. Expected an even number of arguments.")

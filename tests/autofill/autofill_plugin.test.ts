@@ -758,7 +758,7 @@ describe("Autofill", () => {
     addToRegistry(functionRegistry, "SPREAD.EMPTY", {
       description: "spreads empty values",
       args: [],
-      compute: function () {
+      computeArray: function () {
         const value = { value: null };
         return [
           [value, value, value], // return 2 col, 3 row matrix

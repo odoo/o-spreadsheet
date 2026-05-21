@@ -305,7 +305,7 @@ export const POW = {
 export const SPILLED_RANGE = {
   description: _t("Gets the spilled range of an array formula."),
   args: [arg("ref (any, range<any>)", _t("The reference to get the spilled range from."))],
-  compute: function (ref: Arg | undefined) {
+  computeArray: function (ref: Arg | undefined) {
     if (ref === undefined) {
       return new InvalidReferenceError(expectReferenceError);
     }
