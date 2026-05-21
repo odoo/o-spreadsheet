@@ -52,6 +52,7 @@ import {
 } from "../../../src/constants";
 import { toNumber } from "../../../src/functions/helpers";
 import { convertDateFormatForLuxon } from "../../../src/helpers/chart_date";
+import { fontSizeInPixels } from "../../../src/helpers/text_helper";
 import { ChartPlugin } from "../../../src/plugins/core/chart";
 import { FigurePlugin } from "../../../src/plugins/core/figures";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
@@ -1579,6 +1580,30 @@ describe("title", function () {
       updateChart(model, "1", { title: { text: "title", italic: false } });
       expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
         style: "normal",
+      });
+    }
+  );
+
+  test.each(["line", "bar", "pyramid", "pie", "combo", "waterfall", "scatter"] as const)(
+    "Title font size is converted from points to pixels for %s chart",
+    (type) => {
+      createChart(
+        model,
+        {
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1:B1" }],
+            labelRange: "A2:B2",
+          }),
+          title: {
+            text: "title",
+            fontSize: 24,
+          },
+          type,
+        },
+        "1"
+      );
+      expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
+        size: fontSizeInPixels(24),
       });
     }
   );

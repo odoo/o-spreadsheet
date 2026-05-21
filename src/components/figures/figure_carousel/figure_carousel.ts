@@ -1,8 +1,9 @@
 import { props, proxy, signal } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
-import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
+import { CHART_TITLE_FONT_SIZE, DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers/misc";
+import { fontSizeInPixels } from "../../../helpers/text_helper";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { useStore } from "../../../store_engine/store_hooks";
@@ -127,6 +128,7 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
 
   get titleStyle(): string {
     const style = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...this.carousel.title };
+    style.fontSize = fontSizeInPixels(style.fontSize ?? CHART_TITLE_FONT_SIZE);
     return cssPropertiesToCss(cellTextStyleToCss(chartStyleToCellStyle(style)));
   }
 

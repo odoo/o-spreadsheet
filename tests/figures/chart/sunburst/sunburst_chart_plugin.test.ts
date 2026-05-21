@@ -2,6 +2,7 @@ import { ChartCreationContext, Model, UID } from "../../../../src";
 import { COLOR_TRANSPARENT } from "../../../../src/constants";
 import { ColorGenerator } from "../../../../src/helpers/color";
 import { GHOST_SUNBURST_VALUE } from "../../../../src/helpers/figures/charts/runtime/chartjs_dataset";
+import { fontSizeInPixels } from "../../../../src/helpers/text_helper";
 import {
   SunburstChartJSDataset,
   SunburstChartRawData,
@@ -523,7 +524,7 @@ describe("Sunburst chart chart", () => {
     expect(config.options?.plugins?.sunburstLabelsPlugin).toMatchObject({
       showLabels: true,
       showValues: true,
-      style: { fontSize: 12, bold: true, italic: true, textColor: "#FF0000" },
+      style: { fontSize: fontSizeInPixels(12), bold: true, italic: true, textColor: "#FF0000" },
     });
     expect(config.options?.plugins?.sunburstLabelsPlugin?.callback?.(10, "y")).toBe("10 ( •⩊• )");
   });
