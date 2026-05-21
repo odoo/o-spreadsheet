@@ -1,7 +1,9 @@
 import {
   CellIsRule,
+  ColorScaleRule,
   CommandResult,
   ConditionalFormattingOperatorValues,
+  IconSetRule,
   Model,
   UID,
 } from "../../src";
@@ -1593,6 +1595,36 @@ describe("UI of conditional formats", () => {
 
       const description = fixture.querySelector(selectors.description.ruletype.rule);
       expect(description?.textContent).toContain("01/05/2012");
+    });
+    test("color-scale threshold value is canonicalized when sending to the model", async () => {
+      updateLocale(model, FR_LOCALE);
+      await click(fixture, selectors.buttonAdd);
+      await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
+
+      await editSelectComponent(selectors.colorScaleEditor.minType, "number");
+      await setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "1,5");
+
+      await click(fixture, selectors.buttonSave);
+      const sheetId = model.getters.getActiveSheetId();
+      const lastCf = model.getters.getConditionalFormats(sheetId).at(-1)!;
+      expect((lastCf.rule as ColorScaleRule).minimum.value).toBe("1.5");
+    });
+
+    test("icon-set inflection point value is canonicalized when sending to the model", async () => {
+      updateLocale(model, FR_LOCALE);
+      await click(fixture, selectors.buttonAdd);
+      await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
+
+      const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
+      const typeinflectionLower = rows[2].querySelectorAll(".o-select")[1];
+      const inputinflectionLower = rows[2].querySelectorAll("input")[0];
+      await editSelectComponent(typeinflectionLower, "number");
+      await setInputValueAndTrigger(inputinflectionLower, "1,5");
+
+      await click(fixture, selectors.buttonSave);
+      const sheetId = model.getters.getActiveSheetId();
+      const lastCf = model.getters.getConditionalFormats(sheetId).at(-1)!;
+      expect((lastCf.rule as IconSetRule).lowerInflectionPoint.value).toBe("1.5");
     });
   });
 });

@@ -1,6 +1,4 @@
-import { localizeDataValidationRule } from "../../../helpers/locale";
 import { UuidGenerator } from "../../../helpers/uuid";
-import { DataValidationRule } from "../../../types/data_validation";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { types } from "../../props_validation";
 import { DataValidationPreview } from "./dv_preview/dv_preview";
@@ -20,14 +18,6 @@ export class DataValidationPanel extends Component<SpreadsheetChildEnv> {
     this.env.replaceSidePanel("DataValidationEditor", "DataValidation", {
       ruleId: UuidGenerator.smallUuid(),
     });
-  }
-
-  localizeDVRule(rule?: DataValidationRule): DataValidationRule | undefined {
-    if (!rule) {
-      return rule;
-    }
-    const locale = this.env.model.getters.getLocale();
-    return localizeDataValidationRule(rule, locale);
   }
 
   get validationRules() {

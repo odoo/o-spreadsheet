@@ -1,5 +1,4 @@
 import { props, proxy } from "@odoo/owl";
-import { canonicalizeContent, localizeDataValidationRule } from "../../../../helpers/locale";
 import { zoneToXc } from "../../../../helpers/zones";
 import { Component, ComponentConstructor } from "../../../../owl3_compatibility_layer";
 import {
@@ -53,9 +52,8 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
       this.props.ruleId
     );
     if (rule) {
-      const locale = this.env.model.getters.getLocale();
       this.state.rule = {
-        ...localizeDataValidationRule(rule, locale),
+        ...rule,
         ranges: rule.ranges.map((range) =>
           this.env.model.getters.getRangeString(range, this.editingSheetId)
         ),
@@ -96,15 +94,13 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
 
   get dispatchPayload(): Omit<AddDataValidationCommand, "type"> {
     const rule = { ...this.state.rule, ranges: undefined };
-    const locale = this.env.model.getters.getLocale();
 
     const criterion = rule.criterion;
     const criterionEvaluator = criterionEvaluatorRegistry.get(criterion.type);
 
     const values = criterion.values
       .slice(0, criterionEvaluator.numberOfValues(criterion))
-      .filter((value) => value && value.trim() !== "")
-      .map((value) => canonicalizeContent(value, locale));
+      .filter((value) => value && value.trim() !== "");
     rule.criterion = { ...criterion, values };
     return {
       sheetId: this.editingSheetId,

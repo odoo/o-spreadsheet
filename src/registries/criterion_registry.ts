@@ -422,14 +422,18 @@ criterionEvaluatorRegistry.add("isEqual", {
   },
   getErrorString: (criterion: EvaluatedCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getNumberCriterionLocalizedValues(criterion, locale);
     return _t("The value must be equal to %s", values[0]);
   },
   isCriterionValueValid: (value) => checkValueIsNumber(value),
   criterionValueErrorString: DVTerms.CriterionError.numberValue,
   numberOfValues: () => 1,
   name: _t("Is equal to"),
-  getPreview: (criterion) => _t("Value is equal to %s", criterion.values[0]),
+  getPreview: (criterion: EvaluatedCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionLocalizedValues(criterion, locale);
+    return _t("Value is equal to %s", values[0]);
+  },
 });
 
 criterionEvaluatorRegistry.add("isNotEqual", {
@@ -439,14 +443,18 @@ criterionEvaluatorRegistry.add("isNotEqual", {
   },
   getErrorString: (criterion: EvaluatedCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getNumberCriterionLocalizedValues(criterion, locale);
     return _t("The value must not be equal to %s", values[0]);
   },
   isCriterionValueValid: (value) => checkValueIsNumber(value),
   criterionValueErrorString: DVTerms.CriterionError.numberValue,
   numberOfValues: () => 1,
   name: _t("Is not equal to"),
-  getPreview: (criterion) => _t("Value is not equal to %s", criterion.values[0]),
+  getPreview: (criterion: EvaluatedCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionLocalizedValues(criterion, locale);
+    return _t("Value is not equal to %s", values[0]);
+  },
 });
 
 criterionEvaluatorRegistry.add("isGreaterThan", {
@@ -464,14 +472,18 @@ criterionEvaluatorRegistry.add("isGreaterThan", {
   },
   getErrorString: (criterion: EvaluatedCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getNumberCriterionLocalizedValues(criterion, locale);
     return _t("The value must be greater than %s", values[0]);
   },
   isCriterionValueValid: (value) => checkValueIsNumber(value),
   criterionValueErrorString: DVTerms.CriterionError.numberValue,
   numberOfValues: () => 1,
   name: _t("Is greater than"),
-  getPreview: (criterion) => _t("Value is greater than %s", criterion.values[0]),
+  getPreview: (criterion: EvaluatedCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionLocalizedValues(criterion, locale);
+    return _t("Value is greater than %s", values[0]);
+  },
 });
 
 criterionEvaluatorRegistry.add("isGreaterOrEqualTo", {
@@ -489,14 +501,18 @@ criterionEvaluatorRegistry.add("isGreaterOrEqualTo", {
   },
   getErrorString: (criterion: EvaluatedCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getNumberCriterionLocalizedValues(criterion, locale);
     return _t("The value must be greater or equal to %s", values[0]);
   },
   isCriterionValueValid: (value) => checkValueIsNumber(value),
   criterionValueErrorString: DVTerms.CriterionError.numberValue,
   numberOfValues: () => 1,
   name: _t("Is greater or equal to"),
-  getPreview: (criterion) => _t("Value is greater or equal to %s", criterion.values[0]),
+  getPreview: (criterion: EvaluatedCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionLocalizedValues(criterion, locale);
+    return _t("Value is greater or equal to %s", values[0]);
+  },
 });
 
 criterionEvaluatorRegistry.add("isLessThan", {
@@ -514,14 +530,18 @@ criterionEvaluatorRegistry.add("isLessThan", {
   },
   getErrorString: (criterion: EvaluatedCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getNumberCriterionLocalizedValues(criterion, locale);
     return _t("The value must be less than %s", values[0]);
   },
   isCriterionValueValid: (value) => checkValueIsNumber(value),
   criterionValueErrorString: DVTerms.CriterionError.numberValue,
   numberOfValues: () => 1,
   name: _t("Is less than"),
-  getPreview: (criterion) => _t("Value is less than %s", criterion.values[0]),
+  getPreview: (criterion: EvaluatedCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionLocalizedValues(criterion, locale);
+    return _t("Value is less than %s", values[0]);
+  },
 });
 
 criterionEvaluatorRegistry.add("isLessOrEqualTo", {
@@ -539,14 +559,18 @@ criterionEvaluatorRegistry.add("isLessOrEqualTo", {
   },
   getErrorString: (criterion: EvaluatedCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getNumberCriterionLocalizedValues(criterion, locale);
     return _t("The value must be less or equal to %s", values[0]);
   },
   isCriterionValueValid: (value) => checkValueIsNumber(value),
   criterionValueErrorString: DVTerms.CriterionError.numberValue,
   numberOfValues: () => 1,
   name: _t("Is less or equal to"),
-  getPreview: (criterion) => _t("Value is less or equal to %s", criterion.values[0]),
+  getPreview: (criterion: EvaluatedCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionLocalizedValues(criterion, locale);
+    return _t("Value is less or equal to %s", values[0]);
+  },
 });
 
 criterionEvaluatorRegistry.add("isBetween", {
@@ -563,15 +587,18 @@ criterionEvaluatorRegistry.add("isBetween", {
   },
   getErrorString: (criterion: EvaluatedCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getNumberCriterionLocalizedValues(criterion, locale);
     return _t("The value must be between %s and %s", values[0], values[1]);
   },
   isCriterionValueValid: (value) => checkValueIsNumber(value),
   criterionValueErrorString: DVTerms.CriterionError.numberValue,
   numberOfValues: () => 2,
   name: _t("Is between"),
-  getPreview: (criterion) =>
-    _t("Value is between %s and %s", criterion.values[0], criterion.values[1]),
+  getPreview: (criterion: EvaluatedCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionLocalizedValues(criterion, locale);
+    return _t("Value is between %s and %s", values[0], values[1]);
+  },
 });
 
 criterionEvaluatorRegistry.add("isNotBetween", {
@@ -588,15 +615,18 @@ criterionEvaluatorRegistry.add("isNotBetween", {
   },
   getErrorString: (criterion: EvaluatedCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getNumberCriterionLocalizedValues(criterion, locale);
     return _t("The value must not be between %s and %s", values[0], values[1]);
   },
   isCriterionValueValid: (value) => checkValueIsNumber(value),
   criterionValueErrorString: DVTerms.CriterionError.numberValue,
   numberOfValues: () => 2,
   name: _t("Is not between"),
-  getPreview: (criterion) =>
-    _t("Value is not between %s and %s", criterion.values[0], criterion.values[1]),
+  getPreview: (criterion: EvaluatedCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionLocalizedValues(criterion, locale);
+    return _t("Value is not between %s and %s", values[0], values[1]);
+  },
 });
 
 criterionEvaluatorRegistry.add("isBoolean", {
@@ -854,7 +884,7 @@ criterionEvaluatorRegistry.add("duplicateValues", {
   getPreview: () => _t("Value is duplicate"),
 } satisfies CriterionEvaluator<Set<string>>);
 
-function getNumberCriterionlocalizedValues(
+function getNumberCriterionLocalizedValues(
   criterion: EvaluatedCriterion,
   locale: Locale
 ): string[] {

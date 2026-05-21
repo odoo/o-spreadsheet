@@ -1,5 +1,5 @@
-import { props, proxy, signal } from "@odoo/owl";
-import { canonicalizeContent } from "../../../../helpers/locale";
+import { onWillUpdateProps, props, proxy, signal } from "@odoo/owl";
+import { canonicalizeContent, localizeContent } from "../../../../helpers/locale";
 import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { _t } from "../../../../translation";
@@ -43,10 +43,16 @@ export class CriterionInput extends Component<SpreadsheetChildEnv> {
       },
       () => [this.props.focused, this.inputRef()]
     );
+    onWillUpdateProps((nextProps) => {
+      if (nextProps.value !== this.props.value) {
+        this.state.textInput = localizeContent(nextProps.value, this.env.model.getters.getLocale());
+      }
+    });
   }
 
   state = proxy({
     shouldDisplayError: !!this.props.value, // Don't display error if user inputted nothing yet
+    textInput: localizeContent(this.props.value, this.env.model.getters.getLocale()),
   });
 
   get placeholder(): string {
@@ -73,7 +79,13 @@ export class CriterionInput extends Component<SpreadsheetChildEnv> {
 
   onInputValueChanged(ev: Event) {
     this.state.shouldDisplayError = true;
-    this.props.onValueChanged((ev.target as HTMLInputElement).value);
+    this.state.textInput = (ev.target as HTMLInputElement).value;
+  }
+
+  onInputValueConfirmed() {
+    const locale = this.env.model.getters.getLocale();
+    const canonicalizedValue = canonicalizeContent(this.state.textInput, locale);
+    this.props.onValueChanged(canonicalizedValue);
   }
 
   onChangeComposerValue(str: string) {
@@ -100,7 +112,7 @@ export class CriterionInput extends Component<SpreadsheetChildEnv> {
     }
     return this.env.model.getters.getDataValidationInvalidCriterionValueMessage(
       this.props.criterionType,
-      canonicalizeContent(this.props.value, this.env.model.getters.getLocale())
+      canonicalizeContent(this.state.textInput, this.env.model.getters.getLocale())
     );
   }
 }

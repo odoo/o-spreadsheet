@@ -1,16 +1,10 @@
 import { tokenize } from "../formulas/tokenizer";
 import { toNumber } from "../functions/helpers";
-import {
-  ColorScaleThreshold,
-  ConditionalFormatRule,
-  IconThreshold,
-} from "../types/conditional_formatting";
-import { DataValidationRule } from "../types/data_validation";
 import { DEFAULT_LOCALE, Locale } from "../types/locale";
 import { isDateTime } from "./dates";
 
 import { formatValue, getDecimalNumberRegex } from "./format/format";
-import { deepCopy, isFormula } from "./misc";
+import { isFormula } from "./misc";
 import { isNumber } from "./numbers";
 
 export function isValidLocale(locale: any): locale is Locale {
@@ -236,94 +230,6 @@ function localizeLiteral(literal: string, locale: Locale): string {
     return formatValue(dateNumber, { locale, format });
   }
   return localizeNumberLiteral(literal, locale);
-}
-
-export function canonicalizeCFRule(
-  cf: ConditionalFormatRule,
-  locale: Locale
-): ConditionalFormatRule {
-  return changeCFRuleLocale(cf, (content) => canonicalizeContent(content, locale));
-}
-
-export function localizeCFRule(cf: ConditionalFormatRule, locale: Locale): ConditionalFormatRule {
-  return changeCFRuleLocale(cf, (content) => localizeContent(content, locale));
-}
-
-export function localizeDataValidationRule(
-  rule: DataValidationRule,
-  locale: Locale
-): DataValidationRule {
-  const localizedDVRule = deepCopy(rule);
-  localizedDVRule.criterion.values = localizedDVRule.criterion.values.map((content) =>
-    localizeContent(content, locale)
-  );
-  return localizedDVRule;
-}
-
-function changeCFRuleLocale(
-  rule: ConditionalFormatRule,
-  changeContentLocale: (content: string) => string
-): ConditionalFormatRule {
-  rule = deepCopy(rule);
-  switch (rule.type) {
-    case "CellIsRule":
-      // Only change value for number operators
-      switch (rule.operator) {
-        case "isBetween":
-        case "isNotBetween":
-        case "isEqual":
-        case "isNotEqual":
-        case "isGreaterThan":
-        case "isGreaterOrEqualTo":
-        case "isLessThan":
-        case "isLessOrEqualTo":
-        case "customFormula":
-        case "dateIs":
-        case "dateIsBefore":
-        case "dateIsAfter":
-        case "dateIsOnOrAfter":
-        case "dateIsOnOrBefore":
-        case "top10":
-          rule.values = rule.values.map((v) => changeContentLocale(v));
-          return rule;
-        case "beginsWithText":
-        case "containsText":
-        case "endsWithText":
-        case "notContainsText":
-        case "isEmpty":
-        case "isNotEmpty":
-        case "uniqueValues":
-        case "duplicateValues":
-          return rule;
-      }
-    case "DataBarRule":
-      return rule;
-    case "ColorScaleRule":
-      rule.minimum = changeCFRuleThresholdLocale(rule.minimum, changeContentLocale);
-      rule.maximum = changeCFRuleThresholdLocale(rule.maximum, changeContentLocale);
-      if (rule.midpoint) {
-        rule.midpoint = changeCFRuleThresholdLocale(rule.midpoint, changeContentLocale);
-      }
-      return rule;
-    case "IconSetRule":
-      rule.lowerInflectionPoint.value = changeContentLocale(rule.lowerInflectionPoint.value);
-      rule.upperInflectionPoint.value = changeContentLocale(rule.upperInflectionPoint.value);
-      return rule;
-  }
-}
-
-function changeCFRuleThresholdLocale<T extends IconThreshold | ColorScaleThreshold>(
-  threshold: T,
-  changeContentLocale: (content: string) => string
-): T {
-  if (!threshold?.value) {
-    return threshold;
-  }
-
-  const value = threshold.type === "formula" ? "=" + threshold.value : threshold.value;
-  const modified = changeContentLocale(value);
-  const newValue = threshold.type === "formula" ? modified.slice(1) : modified;
-  return { ...threshold, value: newValue };
 }
 
 export function getDateTimeFormat(locale: Locale) {

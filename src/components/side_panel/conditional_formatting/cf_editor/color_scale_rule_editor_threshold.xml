@@ -25,7 +25,7 @@
           t-if="this.threshold.type !== 'formula'"
           type="text"
           class="o-input"
-          t-att-value="this.threshold.value"
+          t-att-value="this.localizeValue(this.threshold.value)"
           t-on-change="(ev) => this.props.store.updateThresholdValue(this.props.thresholdType, ev.target.value)"
           t-att-class="{ 'o-invalid': this.isValueInvalid(), 'invisible': this.threshold === undefined }"
         />

@@ -1,4 +1,4 @@
-import { Model, UID } from "../../src";
+import { DataValidationCriterion, DataValidationCriterionType, Model, UID } from "../../src";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
@@ -338,11 +338,31 @@ describe("data validation sidePanel component", () => {
   });
 
   describe("Locale", () => {
-    test("Number preview is localized", async () => {
+    test.each<DataValidationCriterionType>([
+      "isEqual",
+      "isNotEqual",
+      "isGreaterThan",
+      "isLessThan",
+      "isLessOrEqualTo",
+      "isGreaterOrEqualTo",
+    ])("Number preview is localized (type: %s)", async (type) => {
       updateLocale(model, FR_LOCALE);
-      addDataValidation(model, "A1", "id", { type: "isEqual", values: ["5.5"] });
+      const criterion = { type, values: ["5.5"] };
+      addDataValidation(model, "A1", "id", criterion as DataValidationCriterion);
       await nextTick();
       expect(fixture.querySelector(".o-dv-preview-description")?.textContent).toContain("5,5");
+    });
+
+    test("Date value is localized in the edition composer", async () => {
+      updateLocale(model, FR_LOCALE);
+      addDataValidation(model, "A1", "id", {
+        type: "dateIs",
+        values: ["3/5/2021"],
+        dateValue: "exactDate",
+      });
+      await nextTick();
+      await click(fixture, ".o-dv-preview");
+      expect(".o-dv-settings .o-composer").toHaveText("05/03/2021");
     });
 
     test("Date preview is localized", async () => {
@@ -360,7 +380,7 @@ describe("data validation sidePanel component", () => {
 
     test("Formula preview is localized", async () => {
       updateLocale(model, FR_LOCALE);
-      addDataValidation(model, "A1", "id", { type: "isEqualText", values: ["=SUM(5.5,3)"] });
+      addDataValidation(model, "A1", "id", { type: "isEqual", values: ["=SUM(5.5,3)"] });
       await nextTick();
       expect(fixture.querySelector(".o-dv-preview-description")?.textContent).toContain(
         "=SUM(5,5;3)"
@@ -389,7 +409,7 @@ describe("data validation sidePanel component", () => {
       ]);
     });
 
-    test("Can input date localized value, and the value is canonicalized when saved", async () => {
+    test("Can input a localized date value, and the value is canonicalized when saved", async () => {
       updateLocale(model, FR_LOCALE);
       await simulateClick(".o-dv-add");
       await nextTick();
@@ -415,7 +435,7 @@ describe("data validation sidePanel component", () => {
       updateLocale(model, FR_LOCALE);
       await simulateClick(".o-dv-add");
       await nextTick();
-      await changeCriterionType("isEqualText");
+      await changeCriterionType("isEqual");
 
       const composer = ".o-dv-settings .o-composer";
       await editStandaloneComposer(composer, "=SUM(5,5; 3)");
@@ -426,7 +446,7 @@ describe("data validation sidePanel component", () => {
       expect(getDataValidationRules(model, sheetId)).toEqual([
         {
           id: expect.any(String),
-          criterion: { type: "isEqualText", values: ["=SUM(5.5, 3)"] },
+          criterion: { type: "isEqual", values: ["=SUM(5.5, 3)"] },
           ranges: ["A1"],
         },
       ]);

@@ -56,7 +56,7 @@
                   t-if="this.rule.upperInflectionPoint.type !== 'formula'"
                   class="o-input"
                   t-att-class="{ 'o-invalid': this.isInflectionPointInvalid('upperInflectionPoint') }"
-                  t-att-value="this.rule['upperInflectionPoint'].value"
+                  t-att-value="this.localizeValue(this.rule['upperInflectionPoint'].value)"
                   t-on-change="(ev) => this.props.store.setInflectionValue('upperInflectionPoint', ev.target.value)"
                 />
                 <StandaloneComposer
@@ -105,7 +105,7 @@
                   t-if="this.rule.lowerInflectionPoint.type !== 'formula'"
                   class="o-input"
                   t-att-class="{ 'o-invalid': this.isInflectionPointInvalid('lowerInflectionPoint') }"
-                  t-att-value="this.rule['lowerInflectionPoint'].value"
+                  t-att-value="this.localizeValue(this.rule['lowerInflectionPoint'].value)"
                   t-on-change="(ev) => this.props.store.setInflectionValue('lowerInflectionPoint', ev.target.value)"
                 />
                 <StandaloneComposer

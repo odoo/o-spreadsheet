@@ -1,4 +1,5 @@
 import { props } from "@odoo/owl";
+import { localizeContent } from "../../../../helpers/locale";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { CommandResult } from "../../../../types/commands";
@@ -89,5 +90,10 @@ export class IconSetRuleEditor extends Component<SpreadsheetChildEnv> {
       { value: "gt", label: ">" },
       { value: "ge", label: ">=" },
     ];
+  }
+
+  localizeValue(value: string | undefined): string {
+    const locale = this.env.model.getters.getLocale();
+    return value ? localizeContent(value, locale) : "";
   }
 }

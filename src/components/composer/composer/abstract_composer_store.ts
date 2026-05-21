@@ -103,6 +103,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     position: CellPosition,
     selection?: ComposerSelection
   ): { text: string; adjustedSelection?: ComposerSelection };
+  // We need to use different canonicalize method in the standalone composer and the cell composer where dates should not be converted (they are not canonicals on UPDATE_CELL)
+  protected abstract getCurrentCanonicalContent(): string;
 
   abstract stopEdition(direction?: Direction): void;
 
@@ -452,10 +454,6 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       }
       this.confirmEdition(content);
     }
-  }
-
-  protected getCurrentCanonicalContent(): string {
-    return canonicalizeNumberContent(this._currentContent, this.getters.getLocale());
   }
 
   protected cancelEditionAndActivateSheet() {
