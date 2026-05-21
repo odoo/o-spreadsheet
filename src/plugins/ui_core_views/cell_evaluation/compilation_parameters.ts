@@ -1,16 +1,19 @@
+import { applyVectorization } from "../../../functions/create_compute_function";
 import { functionRegistry } from "../../../functions/function_registry";
 import { intersection, isZoneValid } from "../../../helpers/zones";
 import { _t } from "../../../translation";
 import { EvaluatedCell } from "../../../types/cells";
 import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
-import { EvalContext } from "../../../types/functions";
+import { ComputeArrayFunction, EvalContext } from "../../../types/functions";
 import { Getters } from "../../../types/getters";
 import {
+  Arg,
   CellPosition,
   EnsureRange,
   FunctionResultObject,
   Matrix,
   ReferenceDenormalizer,
+  VectorizedCompute,
 } from "../../../types/misc";
 import { ModelConfig } from "../../../types/model";
 import { Range } from "../../../types/range";
@@ -18,6 +21,7 @@ import { Range } from "../../../types/range";
 export type CompilationParameters = {
   referenceDenormalizer: ReferenceDenormalizer;
   ensureRange: EnsureRange;
+  vectorizedCompute: VectorizedCompute;
   evalContext: EvalContext;
 };
 const functionMap = functionRegistry.mapping;
@@ -58,6 +62,7 @@ class CompilationParametersBuilder {
     return {
       referenceDenormalizer: this.refFn.bind(this),
       ensureRange: this.range.bind(this),
+      vectorizedCompute: this.vectorize.bind(this),
       evalContext: this.evalContext,
     };
   }
@@ -126,6 +131,14 @@ class CompilationParametersBuilder {
 
     this.rangeCache[cacheKey] = matrix;
     return matrix;
+  }
+
+  private vectorize(
+    formula: ComputeArrayFunction, //(...args: Arg[]) => Matrix<FunctionResultObject> | FunctionResultObject,
+    args: Arg[],
+    acceptToVectorize: boolean[] | undefined = undefined
+  ) {
+    return applyVectorization(formula.bind(this.evalContext), args, acceptToVectorize);
   }
 
   private getFormulaResult(position: CellPosition): FunctionResultObject {

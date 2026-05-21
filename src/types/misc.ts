@@ -172,12 +172,19 @@ export type ReferenceDenormalizer = (range: Range) => FunctionResultObject;
 
 export type EnsureRange = (range: Range) => Matrix<FunctionResultObject>;
 
+export type VectorizedCompute = (
+  formula: (...args: Arg[]) => FunctionResultObject,
+  args: Arg[],
+  acceptToVectorize?: boolean[] | undefined
+) => Matrix<FunctionResultObject> | FunctionResultObject;
+
 export type GetSymbolValue = (symbolName: string, isRange: boolean) => Arg;
 
 export type FormulaToExecute = (
   deps: Range[],
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
+  vectorizedCompute: VectorizedCompute,
   getSymbolValue: GetSymbolValue,
   ctx: object
 ) => Matrix<FunctionResultObject> | FunctionResultObject;
