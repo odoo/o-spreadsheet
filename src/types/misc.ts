@@ -183,7 +183,7 @@ export type FormulaToExecute = (
   range: EnsureRange,
   getSymbolValue: GetSymbolValue,
   ctx: object,
-  functions: ComputeFunction<FunctionResultObject | Matrix<FunctionResultObject>>[]
+  functions: ComputeFunction[]
 ) => Matrix<FunctionResultObject> | FunctionResultObject;
 
 export interface LiteralValues {
