@@ -286,6 +286,10 @@ topbarMenuRegistry
     sequence: 40,
     separator: true,
   })
+  .addChild("insert_chart_suggestions", ["insert"], {
+    ...ACTION_INSERT.insertChartSuggestions,
+    sequence: 49,
+  })
   .addChild("insert_chart", ["insert"], {
     ...ACTION_INSERT.insertChart,
     sequence: 50,

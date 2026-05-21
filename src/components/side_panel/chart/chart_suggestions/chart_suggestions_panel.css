@@ -1,0 +1,20 @@
+.o-spreadsheet .o-chart-suggestions-panel {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.o-spreadsheet .o-chart-suggestion-recommended {
+  border-left: 3px solid var(--o-spreadsheet-primary-color, #1a73e8);
+}
+
+.o-spreadsheet .o-chart-suggestion-insert {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.o-spreadsheet .o-chart-suggestion-preview {
+  height: 180px;
+  background: var(--o-spreadsheet-background, #ffffff);
+  border-radius: 4px;
+  overflow: hidden;
+}

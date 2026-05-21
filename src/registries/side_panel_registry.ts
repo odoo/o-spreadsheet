@@ -1,4 +1,5 @@
 import { CarouselPanel } from "../components/side_panel/carousel_panel/carousel_panel";
+import { ChartSuggestionsPanel } from "../components/side_panel/chart/chart_suggestions/chart_suggestions_panel";
 import { ChartPanel } from "../components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { ColumnStatsPanel } from "../components/side_panel/column_stats/column_stats_panel";
 import { ConditionalFormattingEditor } from "../components/side_panel/conditional_formatting/cf_editor/cf_editor";
@@ -214,4 +215,9 @@ sidePanelRegistry.add("NamedRangesPanel", {
 sidePanelRegistry.add("PerfProfile", {
   title: _t("Performance"),
   Body: PerfProfilePanel,
+});
+
+sidePanelRegistry.add("ChartSuggestionsPanel", {
+  title: _t("Suggested Charts"),
+  Body: ChartSuggestionsPanel,
 });

@@ -55,10 +55,19 @@ const ZERO = Object.freeze({ value: 0 });
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
-  { labelValues, dataSetsValues }: ChartData,
+  { labelValues: rawLabelValues, dataSetsValues: rawDataSetsValues }: ChartData,
   getters: Getters
 ): ChartRuntimeGenerationArgs {
   const locale = getters.getLocale();
+
+  // Sort by numeric date value so bar charts with date labels are always chronological.
+  let { labelValues, dataSetsValues } = canBeDateChart({
+    labelValues: rawLabelValues,
+    dataSetsValues: rawDataSetsValues,
+  })
+    ? sortByNumericLabels(rawLabelValues, rawDataSetsValues)
+    : { labelValues: rawLabelValues, dataSetsValues: rawDataSetsValues };
+
   let labels = labelValues.map(({ value, format }) => formatValue(value, { format, locale }));
 
   ({ labels, dataSetsValues } = filterInvalidDataPoints(labels, dataSetsValues));
@@ -249,10 +258,21 @@ export function getPyramidChartData(
 
 export function getLineChartData(
   definition: GenericDefinition<LineChartDefinition>,
-  { labelValues, dataSetsValues }: ChartData,
+  { labelValues: rawLabelValues, dataSetsValues: rawDataSetsValues }: ChartData,
   getters: Getters
 ): ChartRuntimeGenerationArgs {
-  const axisType = getChartAxisType(definition, { labelValues, dataSetsValues });
+  const axisType = getChartAxisType(definition, {
+    labelValues: rawLabelValues,
+    dataSetsValues: rawDataSetsValues,
+  });
+
+  // Sort by numeric date value so time-series charts are always chronological,
+  // regardless of row order in the source spreadsheet.
+  let { labelValues, dataSetsValues } =
+    axisType === "time"
+      ? sortByNumericLabels(rawLabelValues, rawDataSetsValues)
+      : { labelValues: rawLabelValues, dataSetsValues: rawDataSetsValues };
+
   let labels =
     axisType === "linear"
       ? labelValues.map(({ value }) => String(value ?? ""))
@@ -798,6 +818,31 @@ function keepOnlyPositiveValues(
       data: filteredIndexes.map((i) =>
         isNumberResult(ds.data[i]) && ds.data[i].value > 0 ? ds.data[i] : EMPTY
       ),
+    })),
+  };
+}
+
+/**
+ * Sort label-data pairs in ascending order by the raw numeric label value.
+ * Used to ensure time-series charts display data chronologically regardless
+ * of the order rows appear in the source spreadsheet.
+ */
+function sortByNumericLabels(
+  labelValues: LabelValues,
+  dataSetsValues: DatasetValues[]
+): { labelValues: LabelValues; dataSetsValues: DatasetValues[] } {
+  const indices = Array.from({ length: labelValues.length }, (_, i) => i).sort((a, b) => {
+    const va =
+      typeof labelValues[a].value === "number" ? (labelValues[a].value as number) : Infinity;
+    const vb =
+      typeof labelValues[b].value === "number" ? (labelValues[b].value as number) : Infinity;
+    return va - vb;
+  });
+  return {
+    labelValues: indices.map((i) => labelValues[i]),
+    dataSetsValues: dataSetsValues.map((dataset) => ({
+      ...dataset,
+      data: indices.map((i) => dataset.data[i] ?? EMPTY),
     })),
   };
 }

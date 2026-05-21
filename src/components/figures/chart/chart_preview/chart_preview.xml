@@ -1,0 +1,5 @@
+<templates>
+  <t t-name="o-spreadsheet-ChartPreview">
+    <canvas class="o-chart-preview-canvas w-100 h-100 d-block" t-ref="previewCanvas"/>
+  </t>
+</templates>

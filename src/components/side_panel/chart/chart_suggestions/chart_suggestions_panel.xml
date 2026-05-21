@@ -1,0 +1,39 @@
+<templates>
+  <t t-name="o-spreadsheet-ChartSuggestionsPanel">
+    <div class="o-chart-suggestions-panel">
+      <t t-if="suggestions.length">
+        <t t-foreach="suggestions" t-as="suggestion" t-key="suggestion_index">
+          <div
+            class="o-chart-suggestion"
+            t-att-class="{'o-chart-suggestion-recommended': suggestion_index === 0}">
+            <Section>
+              <div class="o-chart-suggestion-preview">
+                <ChartPreview definition="suggestion.definition"/>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mt-2">
+                <div>
+                  <div class="o-chart-suggestion-title o-fw-bold" t-out="suggestion.title"/>
+                  <div
+                    class="o-chart-suggestion-description text-muted small"
+                    t-out="suggestion.description"
+                  />
+                </div>
+                <button
+                  class="btn btn-sm btn-primary o-chart-suggestion-insert ms-2 flex-shrink-0"
+                  t-on-click="() => this.insertSuggestion(suggestion)">
+                  <t t-if="suggestion.carouselDefinitions">Carousel</t>
+                  <t t-else="">Insert</t>
+                </button>
+              </div>
+            </Section>
+          </div>
+        </t>
+      </t>
+      <t t-else="">
+        <div class="o-chart-suggestions-empty text-muted p-4">
+          Select columns to see chart suggestions.
+        </div>
+      </t>
+    </div>
+  </t>
+</templates>

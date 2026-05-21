@@ -186,6 +186,13 @@ export const insertChart: ActionSpec = {
   icon: "o-spreadsheet-Icon.INSERT_CHART",
 };
 
+export const insertChartSuggestions: ActionSpec = {
+  name: _t("Suggested Charts"),
+  execute: (env) => env.openSidePanel("ChartSuggestionsPanel"),
+  isEnabled: (env) => !env.isSmall,
+  icon: "o-spreadsheet-Icon.INSERT_CHART",
+};
+
 export const insertCarousel: ActionSpec = {
   name: _t("Carousel"),
   execute: ACTIONS.CREATE_CAROUSEL,

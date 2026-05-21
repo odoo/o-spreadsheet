@@ -3,7 +3,7 @@ import { SpreadsheetChart } from "../../helpers/figures/chart";
 import { chartFontColor } from "../../helpers/figures/charts/chart_common";
 import { chartToImageUrl } from "../../helpers/figures/charts/chart_ui_common";
 import { generateMasterChartConfig } from "../../helpers/figures/charts/runtime/chart_zoom";
-import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
+import { ChartDefinition, ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
 import {
   CoreViewCommand,
   invalidateCFEvaluationCommands,
@@ -25,7 +25,11 @@ interface EvaluationChartState {
 }
 
 export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> {
-  static getters = ["getChartRuntime", "getStyleOfSingleCellChart"] as const;
+  static getters = [
+    "getChartRuntime",
+    "getChartRuntimeFromDefinition",
+    "getStyleOfSingleCellChart",
+  ] as const;
 
   charts: Record<UID, ChartRuntime | undefined> = {};
 
@@ -67,6 +71,12 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
       this.charts[chartId] = this.createRuntimeChart(chartId, chart);
     }
     return this.charts[chartId] as ChartRuntime;
+  }
+
+  getChartRuntimeFromDefinition(definition: ChartDefinition<string>): ChartRuntime {
+    const sheetId = this.getters.getActiveSheetId();
+    const chart = SpreadsheetChart.fromStrDefinition(this.getters, sheetId, definition);
+    return chart.getRuntime(this.getters, "preview");
   }
 
   /**

@@ -3167,10 +3167,12 @@ describe("Linear/Time charts", () => {
     );
     setCellContent(model, "C3", "");
     const data = getChartConfiguration(model, chartId).data;
-    expect(data.labels![1]).toEqual("1/17/1900");
-    expect(data.datasets![0].data![1]).toEqual({
+    // After sorting by date value ascending, the empty C3 label moves to the last position.
+    // fixEmptyLabelsForDateCharts replaces it with the nearest defined label and sets data to NaN.
+    expect(data.labels![3]).toEqual("1/19/1900");
+    expect(data.datasets![0].data![3]).toEqual({
       y: NaN,
-      x: "1/17/1900",
+      x: "1/19/1900",
     });
   });
 
@@ -3323,14 +3325,14 @@ describe("Linear/Time charts", () => {
       },
     });
     expect(runtime.chartJsConfig.data).toMatchObject({
-      labels: ["1/19/1900", "1/18/1900", "1/17/1900", "1/16/1900"],
+      labels: ["1/16/1900", "1/17/1900", "1/18/1900", "1/19/1900"],
       datasets: [
         {
           data: [
-            { x: "1/19/1900", y: 10 },
-            { x: "1/18/1900", y: 11 },
-            { x: "1/17/1900", y: 12 },
             { x: "1/16/1900", y: 13 },
+            { x: "1/17/1900", y: 12 },
+            { x: "1/18/1900", y: 11 },
+            { x: "1/19/1900", y: 10 },
           ],
         },
       ],

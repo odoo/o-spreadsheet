@@ -310,3 +310,16 @@ export function schemeToColorScale(scheme: string): ChartColorScale | undefined 
         maxColor: colors[colors.length - 1],
       };
 }
+
+export interface SuggestedChart {
+  title: string;
+  description: string;
+  /** Primary chart definition — used for the live preview and single-chart insertion. */
+  definition: ChartDefinition;
+  /**
+   * When present, the suggestion inserts a Carousel instead of a single chart.
+   * The `definition` above is used as the preview; all definitions are inserted
+   * as items of the carousel in order.
+   */
+  carouselDefinitions?: ChartDefinition[];
+}
