@@ -1,7 +1,7 @@
 import { proxy } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberToHex, colorToNumber, isColorValid } from "../../../../helpers/color";
-import { canonicalizeCFRule } from "../../../../helpers/locale";
+import { canonicalizeContent } from "../../../../helpers/locale";
 import { rangeReference } from "../../../../helpers/references";
 import { ComponentConstructor } from "../../../../owl3_compatibility_layer";
 import {
@@ -103,12 +103,11 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
       return;
     }
     const sheetId = this.model.getters.getActiveSheetId();
-    const locale = this.model.getters.getLocale();
     const rule = newCf.rule || this.getEditedRule(this.state.currentCFType);
     const result = this.model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: this.cfId,
-        rule: canonicalizeCFRule(rule, locale),
+        rule,
       },
       ranges: ranges.map((xc) => this.model.getters.getRangeDataFromXc(sheetId, xc)),
       sheetId,
@@ -253,7 +252,9 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
   }
 
   updateThresholdValue(threshold: "minimum" | "midpoint" | "maximum", value: string) {
-    this.state.rules.colorScale[threshold]!.value = value;
+    const locale = this.model.getters.getLocale();
+    const canonicalizedValue = canonicalizeContent(value, locale);
+    this.state.rules.colorScale[threshold]!.value = canonicalizedValue;
     this.updateConditionalFormat({ rule: this.state.rules.colorScale });
   }
 
@@ -307,7 +308,9 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
     inflectionPoint: "lowerInflectionPoint" | "upperInflectionPoint",
     value: string
   ) {
-    this.state.rules.iconSet[inflectionPoint].value = value;
+    const locale = this.model.getters.getLocale();
+    const canonicalizedValue = canonicalizeContent(value, locale);
+    this.state.rules.iconSet[inflectionPoint].value = canonicalizedValue;
     this.updateConditionalFormat({ rule: this.state.rules.iconSet });
   }
 

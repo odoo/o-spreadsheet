@@ -1,7 +1,7 @@
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { rangeTokenize } from "../../../formulas/range_tokenizer";
 import { Token } from "../../../formulas/tokenizer";
-import { localizeContent } from "../../../helpers/locale";
+import { canonicalizeContent, localizeContent } from "../../../helpers/locale";
 import { setXcToFixedReferenceType } from "../../../helpers/references";
 import { AutoCompleteProviderDefinition } from "../../../registries/auto_completes/auto_complete_registry";
 import { Color, UID, UnboundedZone, Zone } from "../../../types/misc";
@@ -88,5 +88,9 @@ export class StandaloneComposerStore extends AbstractComposerStore {
      * in the standalone composer.
      */
     return;
+  }
+
+  protected getCurrentCanonicalContent(): string {
+    return canonicalizeContent(this._currentContent, this.getters.getLocale());
   }
 }

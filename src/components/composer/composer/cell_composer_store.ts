@@ -9,7 +9,11 @@ import {
   isDateTimeFormat,
   numberToString,
 } from "../../../helpers/format/format";
-import { getDateTimeFormat, localizeFormula } from "../../../helpers/locale";
+import {
+  canonicalizeNumberContent,
+  getDateTimeFormat,
+  localizeFormula,
+} from "../../../helpers/locale";
 import { getMissingHeadersForSpreadResult, isFormula, markdownLink } from "../../../helpers/misc";
 import {
   positionToZone,
@@ -372,5 +376,9 @@ export class CellComposerStore extends AbstractComposerStore {
       col: this.col,
       row: this.row,
     });
+  }
+
+  protected getCurrentCanonicalContent(): string {
+    return canonicalizeNumberContent(this._currentContent, this.getters.getLocale());
   }
 }

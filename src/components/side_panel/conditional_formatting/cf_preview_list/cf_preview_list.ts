@@ -1,5 +1,4 @@
 import { props, signal } from "@odoo/owl";
-import { localizeCFRule } from "../../../../helpers/locale";
 import { UuidGenerator } from "../../../../helpers/uuid";
 import { zoneToXc } from "../../../../helpers/zones";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -26,10 +25,7 @@ export class ConditionalFormatPreviewList extends Component<SpreadsheetChildEnv>
     const cfs = this.env.model.getters.getConditionalFormats(
       this.env.model.getters.getActiveSheetId()
     );
-    return cfs.map((cf) => ({
-      ...cf,
-      rule: localizeCFRule(cf.rule, this.env.model.getters.getLocale()),
-    }));
+    return cfs;
   }
 
   getPreviewDivStyle(cf: ConditionalFormat): string {

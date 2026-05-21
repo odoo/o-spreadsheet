@@ -1,6 +1,7 @@
 import { props } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberToHex } from "../../../../helpers/color";
+import { localizeContent } from "../../../../helpers/locale";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { CommandResult } from "../../../../types/commands";
@@ -100,5 +101,10 @@ export class ColorScaleRuleEditorThreshold extends Component<SpreadsheetChildEnv
       return [{ value: "none", label: _t("None") }, ...options];
     }
     return [{ value: "value", label: _t("Cell values") }, ...options];
+  }
+
+  localizeValue(value: string | undefined): string {
+    const locale = this.env.model.getters.getLocale();
+    return value ? localizeContent(value, locale) : "";
   }
 }
