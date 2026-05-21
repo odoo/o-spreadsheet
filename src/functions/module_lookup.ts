@@ -139,7 +139,7 @@ export const COLUMN = {
       )
     ),
   ],
-  compute: function (cellReference: Arg) {
+  computeArray: function (cellReference: Arg) {
     if (cellReference === undefined) {
       if (this.__originCellPosition === undefined) {
         return new EvaluationError(
@@ -269,7 +269,7 @@ export const INDEX: AddFunctionDescription = {
       _t("The index of the column to be returned from within the reference range of cells.")
     ),
   ],
-  compute: function (
+  computeArray: function (
     reference: Arg,
     row: Maybe<FunctionResultObject> = { value: 0 },
     column: Maybe<FunctionResultObject> = { value: 0 }
@@ -314,7 +314,7 @@ export const INDIRECT: AddFunctionDescription = {
       A1_NOTATION_OPTIONS
     ),
   ],
-  compute: function (
+  computeArray: function (
     reference: Maybe<FunctionResultObject>,
     useA1Notation: Maybe<FunctionResultObject> = { value: true }
   ): FunctionResultObject | Matrix<FunctionResultObject> {
@@ -536,7 +536,7 @@ export const ROW = {
       )
     ),
   ],
-  compute: function (cellReference: Arg) {
+  computeArray: function (cellReference: Arg) {
     if (cellReference === undefined) {
       if (this.__originCellPosition?.row === undefined) {
         return new EvaluationError(
@@ -706,7 +706,7 @@ export const XLOOKUP = {
       ]
     ),
   ],
-  compute: function (
+  computeArray: function (
     searchKey: Maybe<FunctionResultObject>,
     lookupRange: Arg,
     returnRange: Arg,
@@ -913,7 +913,7 @@ export const PIVOT = {
       _t("Whether to include the measure titles row or not.")
     ),
   ],
-  compute: function (
+  computeArray: function (
     pivotFormulaId: Maybe<FunctionResultObject>,
     rowCount: Maybe<FunctionResultObject>,
     includeTotal: Maybe<FunctionResultObject>,
@@ -1022,7 +1022,7 @@ export const OFFSET = {
       _t("The number of columns of the range to return starting at the offset target.")
     ),
   ],
-  compute: function (
+  computeArray: function (
     cellReference: Arg,
     offsetRows: Maybe<FunctionResultObject>,
     offsetColumns: Maybe<FunctionResultObject>,
@@ -1123,7 +1123,7 @@ export const CHOOSE = {
       _t("A potential value to return. May be a reference to a cell or an individual value.")
     ),
   ],
-  compute: function (index: Maybe<FunctionResultObject>, ...choices: Arg[]) {
+  computeArray: function (index: Maybe<FunctionResultObject>, ...choices: Arg[]) {
     const _index = Math.floor(toNumber(index, this.locale)) - 1;
     if (_index < 0 || _index >= choices.length) {
       return new EvaluationError(
@@ -1156,7 +1156,7 @@ export const DROP = {
       _t("The number of columns to exclude. A negative value drops from the end of the array.")
     ),
   ],
-  compute: function (
+  computeArray: function (
     array: Matrix<{ value: string }>,
     rows: Maybe<FunctionResultObject>,
     columns: Maybe<FunctionResultObject>
@@ -1207,7 +1207,7 @@ export const TAKE = {
       _t("The number of columns to take. A negative value takes from the end of the array.")
     ),
   ],
-  compute: function (
+  computeArray: function (
     array: Matrix<{ value: string }>,
     rows: Maybe<FunctionResultObject>,
     columns: Maybe<FunctionResultObject>

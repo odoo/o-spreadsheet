@@ -106,7 +106,7 @@ export const FILTER = {
       _t("Column or row containing true or false values corresponding to the range.")
     ),
   ],
-  compute: function (range: Arg, ...conditions: Arg[]) {
+  computeArray: function (range: Arg, ...conditions: Arg[]) {
     let _array = toMatrix(range);
     const _conditionsMatrices = conditions.map((cond) =>
       matrixMap(toMatrix(cond), (data) => data.value)
@@ -170,7 +170,7 @@ export const SORT: AddFunctionDescription = {
       ]
     ),
   ],
-  compute: function (
+  computeArray: function (
     range: Matrix<FunctionResultObject>,
     ...sortingCriteria: Arg[]
   ): Matrix<FunctionResultObject> {
@@ -315,7 +315,7 @@ export const UNIQUE = {
       ]
     ),
   ],
-  compute: function (
+  computeArray: function (
     range: Arg = { value: "" },
     byColumn: Maybe<FunctionResultObject>,
     exactlyOnce: Maybe<FunctionResultObject>
