@@ -12,7 +12,7 @@ import {
 } from "../../../types/chart/scorecard_chart";
 import { Color, Pixel, PixelPosition } from "../../../types/misc";
 import { DOMDimension } from "../../../types/rendering";
-import { getDefaultContextFont } from "../../text_helper";
+import { fontSizeInPixels, getDefaultContextFont } from "../../text_helper";
 import { chartMutedFontColor } from "./chart_common";
 
 const BOTTOM_PADDING_RATIO = 0.05;
@@ -326,7 +326,7 @@ class ScorecardChartConfigBuilder {
     return {
       title: {
         font: getDefaultContextFont(
-          this.runtime.title.fontSize ?? SCORECARD_CHART_TITLE_FONT_SIZE,
+          fontSizeInPixels(this.runtime.title.fontSize ?? SCORECARD_CHART_TITLE_FONT_SIZE),
           this.runtime.title.bold,
           this.runtime.title.italic
         ),
@@ -335,7 +335,7 @@ class ScorecardChartConfigBuilder {
       keyValue: {
         color: this.runtime.keyValueStyle?.textColor || this.runtime.fontColor,
         font: getDefaultContextFont(
-          keyValueFontSize,
+          fontSizeInPixels(keyValueFontSize),
           this.runtime.keyValueStyle?.bold,
           this.runtime.keyValueStyle?.italic
         ),
@@ -345,7 +345,7 @@ class ScorecardChartConfigBuilder {
       keyDescr: {
         color: this.runtime.keyValueDescrStyle?.textColor || this.runtime.fontColor,
         font: getDefaultContextFont(
-          keyValueDescrFontSize,
+          fontSizeInPixels(keyValueDescrFontSize),
           this.runtime.keyValueDescrStyle?.bold,
           this.runtime.keyValueDescrStyle?.italic
         ),
@@ -354,7 +354,7 @@ class ScorecardChartConfigBuilder {
       },
       baselineValue: {
         font: getDefaultContextFont(
-          baselineValueFontSize,
+          fontSizeInPixels(baselineValueFontSize),
           this.runtime.baselineStyle?.bold,
           this.runtime.baselineStyle?.italic
         ),
@@ -367,7 +367,7 @@ class ScorecardChartConfigBuilder {
       },
       baselineDescr: {
         font: getDefaultContextFont(
-          baselineDescrFontSize,
+          fontSizeInPixels(baselineDescrFontSize),
           this.runtime.baselineDescrStyle?.bold,
           this.runtime.baselineDescrStyle?.italic
         ),
@@ -379,7 +379,7 @@ class ScorecardChartConfigBuilder {
         this.baselineArrow === "neutral" || this.runtime.progressBar
           ? undefined
           : {
-              size: this.keyValue ? 0.8 * baselineValueFontSize : 0,
+              size: this.keyValue ? 0.8 * fontSizeInPixels(baselineValueFontSize) : 0,
               color:
                 this.runtime.baselineColor ||
                 this.runtime.baselineStyle?.textColor ||

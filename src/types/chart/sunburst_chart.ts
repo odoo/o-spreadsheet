@@ -40,7 +40,7 @@ export const SunburstChartDefaults = {
   valuesDesign: {
     align: "center",
     fontSize: 13,
-  } as ChartStyle,
+  } as ChartStyle & { fontSize: number },
 };
 
 export interface SunburstChartJSDataset extends ChartDataset<"doughnut"> {

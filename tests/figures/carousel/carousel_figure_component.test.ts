@@ -3,6 +3,7 @@ import { Model, UID } from "../../../src";
 import { getCarouselMenuActions } from "../../../src/actions/figure_menu_actions";
 import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
 import { downloadFile } from "../../../src/components/helpers/dom_helpers";
+import { fontSizeInPixels } from "../../../src/helpers/text_helper";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
@@ -170,7 +171,9 @@ describe("Carousel figure component", () => {
     await mountSpreadsheet({ model });
 
     expect(".o-figure .o-carousel-title").toHaveText("Title1");
-    expect(getElStyle(".o-figure .o-carousel-title", "font-size")).toBe("20px");
+    expect(getElStyle(".o-figure .o-carousel-title", "font-size")).toBe(
+      `${fontSizeInPixels(20)}px`
+    );
     expect(getElStyle(".o-figure .o-carousel-title", "font-weight")).toBe("bold");
   });
 
