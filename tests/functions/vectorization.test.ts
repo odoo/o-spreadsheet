@@ -34,7 +34,7 @@ describe("vectorization", () => {
     addToRegistry(functionRegistry, "FUNCTION.THAT.SPREADS", {
       description: "a function that spreads a matrix",
       args: [{ name: "arg1", description: "", type: ["ANY"] }],
-      compute: function (arg1) {
+      computeArray: function (arg1) {
         const value = { value: toString(toScalar(arg1)) };
         return [
           [value, value],
