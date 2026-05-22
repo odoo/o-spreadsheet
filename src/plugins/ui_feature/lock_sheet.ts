@@ -22,11 +22,6 @@ export class LockSheetPlugin extends UIPlugin {
       ("sheetId" in cmd && this.getters.isSheetLocked(cmd.sheetId)) ||
       (!isCoreCommand(cmd) && this.isCurrentSheetLocked())
     ) {
-      // this.ui.notifyUI({
-      //   type: "info",
-      //   text: _t("This sheet is locked and cannot be modified. Please unlock it first."),
-      //   sticky: false,
-      // });
       return CommandResult.SheetLocked;
     }
     return CommandResult.Success;

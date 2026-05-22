@@ -248,6 +248,11 @@ export const lockedSheetAllowedCommands = new Set<Command["type"]>([
   "UPDATE_CAROUSEL_ACTIVE_ITEM",
   "DUPLICATE_PIVOT_IN_NEW_SHEET",
   "UPDATE_FILTER",
+  "ACTIVATE_NEXT_SHEET",
+  "ACTIVATE_PREVIOUS_SHEET",
+  "SCROLL_TO_CELL",
+  "SHIFT_VIEWPORT_DOWN",
+  "SHIFT_VIEWPORT_UP",
 ]);
 
 export const coreTypes = new Set<CoreCommandTypes>([

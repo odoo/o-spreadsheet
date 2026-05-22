@@ -10,6 +10,7 @@ import {
 } from "../../src";
 import { createChart, createSheet, lockSheet } from "../test_helpers/commands_helpers";
 import { TEST_COMMANDS } from "../test_helpers/constants";
+import { toCellPosition } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
 
 const allowedCommands: Command["type"][] = [];
@@ -62,5 +63,28 @@ describe("Lock Sheet plugin", () => {
       const result = model.dispatch(cmdType, TEST_COMMANDS[cmdType]);
       expect(result).toBeSuccessfullyDispatched();
     }
+  });
+
+  test("sheet navigation commands are allowed on locked sheets", () => {
+    const model = new Model();
+    const firstSheetId = model.getters.getActiveSheetId();
+    const lockedSheetId = "locked";
+    createSheet(model, {
+      name: "Another sheet",
+      position: 0,
+      sheetId: lockedSheetId,
+      activate: true,
+    });
+    lockSheet(model);
+    expect(
+      model.dispatch("SCROLL_TO_CELL", toCellPosition(lockedSheetId, "Z100"))
+    ).toBeSuccessfullyDispatched();
+    expect(model.dispatch("SHIFT_VIEWPORT_UP")).toBeSuccessfullyDispatched();
+    expect(model.dispatch("SHIFT_VIEWPORT_DOWN")).toBeSuccessfullyDispatched();
+    model.dispatch("ACTIVATE_NEXT_SHEET");
+    expect(model.getters.getActiveSheetId()).toBe(firstSheetId);
+    lockSheet(model);
+    model.dispatch("ACTIVATE_PREVIOUS_SHEET");
+    expect(model.getters.getActiveSheetId()).toBe(lockedSheetId);
   });
 });
