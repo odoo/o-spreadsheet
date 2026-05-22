@@ -49,7 +49,7 @@
             t-custom-ref="toolBar">
             <div
               class="d-flex h-100 o-named-range-selector-container align-items-center ms-2 me-1"
-              t-custom-ref="namedRanges"
+              t-ref="this.namedRangesRef"
               t-on-click.stop="">
               <NamedRangeSelector/>
               <div class="o-topbar-divider border-end"/>

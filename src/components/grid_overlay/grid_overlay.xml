@@ -4,7 +4,7 @@
       <FiguresContainer/>
     </div>
     <div
-      t-custom-ref="gridOverlay"
+      t-ref="this.gridOverlayRef"
       class="o-grid-overlay overflow-hidden o-zoomable"
       t-att-class="{'o-paint-format-cursor': this.isPaintingFormat}"
       t-att-style="this.style"

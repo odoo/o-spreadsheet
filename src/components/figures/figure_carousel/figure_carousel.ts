@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { proxy, signal } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
@@ -14,7 +14,7 @@ import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { FullScreenFigureStore } from "../../full_screen_figure/full_screen_figure_store";
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers/css";
-import { getBoundingRectAsPOJO, getRefBoundingRect } from "../../helpers/dom_helpers";
+import { getBoundingRectAsPOJO, getElBoundingRect } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";
 import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
@@ -37,7 +37,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   static components = { ChartDashboardMenu, MenuPopover };
 
   private carouselTabsRef = useRef("carouselTabs");
-  private carouselTabsDropdownRef = useRef("carouselTabsDropdown");
+  private carouselTabsDropdownRef = signal<HTMLElement | null>(null);
 
   private menuState = proxy<MenuState>({ isOpen: false, anchorRect: null, menuItems: [] });
   private hiddenItems: CarouselItem[] = [];
@@ -134,7 +134,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
 
   private updateTabsVisibility(): void {
     const tabsContainerEl = this.carouselTabsRef.el;
-    const dropDownEl = this.carouselTabsDropdownRef.el;
+    const dropDownEl = this.carouselTabsDropdownRef();
     if (!tabsContainerEl || !dropDownEl) {
       return;
     }
@@ -172,7 +172,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
       this.menuState.isOpen = false;
       return;
     }
-    const rect = getRefBoundingRect(this.carouselTabsDropdownRef);
+    const rect = getElBoundingRect(this.carouselTabsDropdownRef());
     const menuItems: ActionSpec[] = this.hiddenItems.map((item) => ({
       name: this.getItemTitle(item),
       execute: () => this.onCarouselTabClick(item),

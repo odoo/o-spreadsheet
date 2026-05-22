@@ -1,5 +1,4 @@
 import { whenReady } from "@odoo/owl";
-import { Ref } from "../../types/misc";
 import { DOMCoordinates, Rect } from "../../types/rendering";
 
 const macRegex = /Mac/i;
@@ -63,11 +62,11 @@ export function zoomCorrectedElementRect(el: Element, zoomLevel: number): Rect {
   };
 }
 
-export function getRefBoundingRect(ref: Ref<HTMLElement>): Rect {
-  if (!ref.el) {
+export function getElBoundingRect(el: HTMLElement | null): Rect {
+  if (!el) {
     return { x: 0, y: 0, width: 0, height: 0 };
   }
-  return getBoundingRectAsPOJO(ref.el);
+  return getBoundingRectAsPOJO(el);
 }
 
 export function getBoundingRectAsPOJO(el: Element): Rect {

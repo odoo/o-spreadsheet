@@ -1,47 +1,24 @@
-import { proxy } from "@odoo/owl";
-import { useLayoutEffect } from "../../owl3_compatibility_layer";
-import { Ref } from "../../types/misc";
+import { proxy, Signal, useEffect, useListener } from "@odoo/owl";
 
-/**
- * Manages an event listener on a ref. Useful for hooks that want to manage
- * event listeners, especially more than one. Prefer using t-on directly in
- * components. If your hook only needs a single event listener, consider simply
- * returning it from the hook and letting the user attach it with t-on.
- *
- * Adapted from Odoo Community - See https://github.com/odoo/odoo/blob/saas-16.2/addons/web/static/src/core/utils/hooks.js
- */
-export function useRefListener(
-  ref: Ref<HTMLElement>,
-  ...listener: Parameters<typeof addEventListener>
-) {
-  useLayoutEffect(
-    (el: HTMLElement | null) => {
-      el?.addEventListener(...listener);
-      return () => el?.removeEventListener(...listener);
-    },
-    () => [ref.el]
-  );
-}
-
-export function useHoveredElement(ref: Ref<HTMLElement>) {
+export function useHoveredElement(ref: Signal<HTMLElement | null>) {
   const state = proxy({ hovered: false });
-  useRefListener(ref, "mouseenter", () => (state.hovered = true));
-  useRefListener(ref, "mouseleave", () => (state.hovered = false));
+  useListener(ref, "mouseenter", () => (state.hovered = true));
+  useListener(ref, "mouseleave", () => (state.hovered = false));
   // If a render changes the element size while the mouse is over it,
   // the mouseleave event might not be triggered. Removing the hover state in case of a resize is not great,
   // but it's better than having a stuck hover state.
   const resizeObserver = new ResizeObserver(() => {
     state.hovered = false;
   });
-  useLayoutEffect(
-    () => {
-      resizeObserver.observe(ref.el!);
-      return () => {
-        resizeObserver.disconnect();
-      };
-    },
-    () => [ref.el]
-  );
+  useEffect(() => {
+    const el = ref();
+    if (el) {
+      resizeObserver.observe(el);
+    }
+    return () => {
+      resizeObserver.disconnect();
+    };
+  });
 
   return state;
 }

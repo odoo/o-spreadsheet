@@ -1,8 +1,8 @@
-import { toRaw } from "@odoo/owl";
-import { Component, useChildSubEnv, useRef } from "../../owl3_compatibility_layer";
+import { signal, toRaw } from "@odoo/owl";
+import { Component, useChildSubEnv } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
-import { Pixel, Ref } from "../../types/misc";
+import { Pixel } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
@@ -10,7 +10,7 @@ import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { cssPropertiesToCss } from "../helpers/css";
-import { getRefBoundingRect, isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
+import { getElBoundingRect, isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useTouchHandlers } from "../helpers/touch_handlers_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
@@ -43,10 +43,9 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   hoveredCell!: Store<DelayedHoveredCellStore>;
   clickableCellsStore!: Store<ClickableCellsStore>;
 
-  private gridRef!: Ref<HTMLElement>;
+  private gridRef = signal<HTMLElement | null>(null);
 
   setup() {
-    this.gridRef = useRef("grid");
     this.hoveredCell = useStore(DelayedHoveredCellStore);
     this.clickableCellsStore = useStore(ClickableCellsStore);
 
@@ -149,7 +148,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
 
   private getGridRect(): Rect {
     return {
-      ...getRefBoundingRect(this.gridRef),
+      ...getElBoundingRect(this.gridRef()),
       ...this.env.model.getters.getSheetViewDimensionWithHeaders(),
     };
   }

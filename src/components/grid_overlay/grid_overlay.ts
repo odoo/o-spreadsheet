@@ -1,10 +1,10 @@
-import { onMounted, onWillUnmount } from "@odoo/owl";
+import { onMounted, onWillUnmount, Signal, signal, useListener } from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { positionToZone } from "../../helpers/zones";
-import { Component, useExternalListener, useRef } from "../../owl3_compatibility_layer";
+import { Component, useExternalListener } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
-import { GridClickModifiers, HeaderIndex, Pixel, Position, Ref } from "../../types/misc";
+import { GridClickModifiers, HeaderIndex, Pixel, Position } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
@@ -12,13 +12,7 @@ import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { cssPropertiesToCss } from "../helpers/css";
-import {
-  getBoundingRectAsPOJO,
-  getRefBoundingRect,
-  isChildEvent,
-  isCtrlKey,
-} from "../helpers/dom_helpers";
-import { useRefListener } from "../helpers/listener_hook";
+import { getElBoundingRect, isChildEvent, isCtrlKey } from "../helpers/dom_helpers";
 import { useInterval } from "../helpers/time_hooks";
 import { withZoom, ZoomedMouseEvent } from "../helpers/zoom";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
@@ -26,7 +20,10 @@ import { CellPopoverStore } from "../popover/cell_popover_store";
 import { HoveredTableStore } from "../tables/hovered_table_store";
 import { HoveredIconStore } from "./hovered_icon_store";
 
-function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Partial<Position> {
+function useCellHovered(
+  env: SpreadsheetChildEnv,
+  gridRef: Signal<HTMLElement | null>
+): Partial<Position> {
   const delayedHoveredCell = useStore(DelayedHoveredCellStore);
   const hoveredTable = useStore(HoveredTableStore);
   const hoveredPosition: Partial<Position> = {
@@ -50,7 +47,7 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
   function getOffsetRelativeToOverlay(
     zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>
   ): DOMCoordinates {
-    const gridRect = getBoundingRectAsPOJO(gridRef.el!);
+    const gridRect = getElBoundingRect(gridRef());
     return {
       x: zoomedMouseEvent.clientX - gridRect.x,
       y: zoomedMouseEvent.clientY - gridRect.y,
@@ -73,7 +70,7 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
     }
   }
   function updateMousePosition(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>) {
-    if (isChildEvent(gridRef.el, zoomedMouseEvent.ev)) {
+    if (isChildEvent(gridRef(), zoomedMouseEvent.ev)) {
       ({ x, y } = getOffsetRelativeToOverlay(zoomedMouseEvent));
       lastMoved = Date.now();
       hoveredTable.hover(getPosition());
@@ -90,7 +87,7 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
   function onMouseLeave(e: MouseEvent) {
     const zoomedMouseEvent = withZoom(env, e);
     const { x, y } = getOffsetRelativeToOverlay(zoomedMouseEvent);
-    const gridRect = getBoundingRectAsPOJO(gridRef.el!);
+    const gridRect = getElBoundingRect(gridRef());
 
     if (y < 0 || y > gridRect.height || x < 0 || x > gridRect.width) {
       return updateMousePosition(zoomedMouseEvent);
@@ -99,15 +96,15 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
     }
   }
 
-  useRefListener(
+  useListener(
     gridRef,
     "pointermove",
     (ev: MouseEvent) => !env.isMobile() && updateMousePosition(withZoom(env, ev))
   );
-  useRefListener(gridRef, "mouseleave", onMouseLeave);
-  useRefListener(gridRef, "mouseenter", resume);
-  useRefListener(gridRef, "pointerdown", recompute);
-  useRefListener(
+  useListener(gridRef, "mouseleave", onMouseLeave);
+  useListener(gridRef, "mouseenter", resume);
+  useListener(gridRef, "pointerdown", recompute);
+  useListener(
     gridRef,
     "pointerdown",
     (ev: MouseEvent) => env.isMobile() && updateMousePosition(withZoom(env, ev))
@@ -116,8 +113,8 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
   useExternalListener(window, "click", handleGlobalClick);
   function handleGlobalClick(e: MouseEvent) {
     const target = e.target as HTMLElement;
-    const grid = gridRef.el!;
-    if (!grid.contains(target)) {
+    const grid = gridRef();
+    if (grid && !grid.contains(target)) {
       setPosition(undefined, undefined);
     }
   }
@@ -167,13 +164,13 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onCellRightClicked: () => {},
     onGridResized: () => {},
   };
-  private gridOverlay: Ref<HTMLElement> = useRef("gridOverlay");
+  private gridOverlayRef: Signal<HTMLElement | null> = signal(null);
   private cellPopovers!: Store<CellPopoverStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
   private hoveredIconStore!: Store<HoveredIconStore>;
 
   setup() {
-    useCellHovered(this.env, this.gridOverlay);
+    useCellHovered(this.env, this.gridOverlayRef);
     const resizeObserver = new ResizeObserver(() => {
       this.props.onGridResized();
     });
@@ -190,10 +187,11 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get gridOverlayEl(): HTMLElement {
-    if (!this.gridOverlay.el) {
+    const el = this.gridOverlayRef();
+    if (!el) {
       throw new Error("GridOverlay el is not defined.");
     }
-    return this.gridOverlay.el;
+    return el;
   }
 
   get style() {
@@ -256,7 +254,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     }
 
     if (
-      zoomedMouseEvent.ev.target === this.gridOverlay.el &&
+      zoomedMouseEvent.ev.target === this.gridOverlayRef() &&
       this.cellPopovers.isOpen &&
       deepEquals(openedPopover, this.cellPopovers.persistentCellPopover)
     ) {
@@ -290,7 +288,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getInteractiveIconAtEvent(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>) {
-    const gridOverLayRect = getRefBoundingRect(this.gridOverlay);
+    const gridOverLayRect = getElBoundingRect(this.gridOverlayRef());
     const gridOffset = this.env.model.getters.getGridOffset();
     const x = zoomedMouseEvent.clientX - gridOverLayRect.x + gridOffset.x;
     const y = zoomedMouseEvent.clientY - gridOverLayRect.y + gridOffset.y;

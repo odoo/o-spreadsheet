@@ -7,7 +7,7 @@
       t-on-click="this.focusDefaultElement"
       t-on-keydown="this.onKeydown"
       t-on-wheel.prevent="this.onMouseWheel"
-      t-custom-ref="grid">
+      t-ref="this.gridRef">
       <GridOverlay
         onCellClicked.bind="this.onCellClicked"
         onCellDoubleClicked.bind="this.onCellDoubleClicked"

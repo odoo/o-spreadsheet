@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { proxy, signal } from "@odoo/owl";
 import { Component, useLayoutEffect, useRef } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { MoveFiguresPayload } from "../../../types/commands";
@@ -8,7 +8,7 @@ import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
 import {
-  getRefBoundingRect,
+  getElBoundingRect,
   isCtrlKey,
   keyboardEventToShortcutString,
 } from "../../helpers/dom_helpers";
@@ -59,7 +59,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
   private figureRef = useRef("figure");
   private figureWrapperRef = useRef("figureWrapper");
-  private menuButtonRef = useRef("menuButton");
+  private menuButtonRef = signal<HTMLElement | null>(null);
 
   private borderWidth!: number;
 
@@ -277,7 +277,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
         selectMultiple: ev.shiftKey || isCtrlKey(ev),
       });
     }
-    this.openContextMenu(getRefBoundingRect(this.menuButtonRef));
+    this.openContextMenu(getElBoundingRect(this.menuButtonRef()));
   }
 
   openContextMenu(anchorRect: Rect) {
