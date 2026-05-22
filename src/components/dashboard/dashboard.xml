@@ -30,7 +30,7 @@
             />
           </div>
         </GridOverlay>
-        <canvas t-custom-ref="canvas" class="os-theme-dependant"/>
+        <canvas t-ref="this.canvasRef" class="os-theme-dependant"/>
         <GridPopover
           gridRect="this.getGridRect()"
           onMouseWheel.bind="this.onMouseWheel"

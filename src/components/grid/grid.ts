@@ -147,6 +147,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   readonly HEADER_WIDTH = HEADER_WIDTH;
   private menuState!: MenuState;
   private gridRef = signal<HTMLElement | null>(null);
+  private canvasRef = signal<HTMLElement | null>(null);
   private highlightStore!: Store<HighlightStore>;
   private cellPopovers!: Store<CellPopoverStore>;
   private composerFocusStore!: Store<ComposerFocusStore>;
@@ -182,7 +183,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     onMounted(() => this.focusDefaultElement());
     this.props.exposeFocus(() => this.focusDefaultElement());
     useGridDrawing({
-      refName: "canvas",
+      canvasRef: this.canvasRef,
       renderingCtx: () => ({
         dpr: window.devicePixelRatio || 1,
         viewports: this.env.model.getters.getViewportCollection(),
