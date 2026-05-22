@@ -10,7 +10,7 @@
   <t t-name="o-spreadsheet-RowResizer">
     <div
       class="o-row-resizer o-zoomable"
-      t-custom-ref="rowResizer"
+      t-ref="this.rowResizerRef"
       t-on-pointermove.self="this.onMouseMove"
       t-on-mouseleave="this.onMouseLeave"
       t-on-pointerdown.self.prevent="this.select"
@@ -54,7 +54,7 @@
   <t t-name="o-spreadsheet-ColResizer">
     <div
       class="o-col-resizer d-flex o-zoomable"
-      t-custom-ref="colResizer"
+      t-ref="this.colResizerRef"
       t-on-pointermove.self="this.onMouseMove"
       t-on-mouseleave="this.onMouseLeave"
       t-on-pointerdown.self.prevent="this.select"

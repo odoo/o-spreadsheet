@@ -1,6 +1,6 @@
-import { proxy } from "@odoo/owl";
+import { proxy, signal } from "@odoo/owl";
 import { Action, createAction } from "../../../actions/action";
-import { Component, useRef } from "../../../owl3_compatibility_layer";
+import { Component } from "../../../owl3_compatibility_layer";
 import { formatNumberMenuItemSpec } from "../../../registries/menus/number_format_menu_registry";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -25,7 +25,7 @@ export class NumberFormatsTool extends Component<Props, SpreadsheetChildEnv> {
   formatNumberMenuItemSpec = formatNumberMenuItemSpec;
   topBarToolStore!: ToolBarDropdownStore;
 
-  buttonRef = useRef("buttonRef");
+  buttonRef = signal<HTMLElement | null>(null);
   state: State = proxy({
     anchorRect: { x: 0, y: 0, width: 0, height: 0 },
     menuItems: [],
@@ -41,7 +41,7 @@ export class NumberFormatsTool extends Component<Props, SpreadsheetChildEnv> {
     } else {
       const menu = createAction(this.formatNumberMenuItemSpec);
       this.state.menuItems = menu.children(this.env).sort((a, b) => a.sequence - b.sequence);
-      this.state.anchorRect = getBoundingRectAsPOJO(this.buttonRef.el!);
+      this.state.anchorRect = getBoundingRectAsPOJO(this.buttonRef()!);
       this.topBarToolStore.openDropdown();
     }
   }

@@ -19,7 +19,7 @@
         />
         <div
           class="o-carousel-tabs d-flex flex-fill justify-content-end"
-          t-custom-ref="carouselTabs">
+          t-ref="this.carouselTabsRef">
           <t t-foreach="this.visibleCarouselItems" t-as="item" t-key="item_index">
             <div
               class="o-carousel-tab text-truncate px-2 mt-1 flex-shrink-0"

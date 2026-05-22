@@ -1,7 +1,7 @@
-import { proxy } from "@odoo/owl";
+import { proxy, signal } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../../actions/action";
 import { UuidGenerator } from "../../../../helpers/uuid";
-import { Component, useRef } from "../../../../owl3_compatibility_layer";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { MenuMouseEvent } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
@@ -18,7 +18,7 @@ export class CogWheelMenu extends Component<Props, SpreadsheetChildEnv> {
     items: Array,
   };
 
-  private buttonRef = useRef("button");
+  private buttonRef = signal<HTMLElement | null>(null);
   private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
   private menuId = UuidGenerator.uuidv4();
@@ -29,7 +29,7 @@ export class CogWheelMenu extends Component<Props, SpreadsheetChildEnv> {
     }
 
     this.menuState.isOpen = !this.menuState.isOpen;
-    this.menuState.anchorRect = getBoundingRectAsPOJO(this.buttonRef.el!);
+    this.menuState.anchorRect = getBoundingRectAsPOJO(this.buttonRef()!);
     this.menuState.menuItems = createActions(this.props.items);
   }
 }

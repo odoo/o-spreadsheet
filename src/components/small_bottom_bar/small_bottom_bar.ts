@@ -1,5 +1,5 @@
-import { proxy } from "@odoo/owl";
-import { Component, useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
+import { onMounted, onPatched, proxy, signal } from "@odoo/owl";
+import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ComposerFocusType } from "../../types/misc";
 import { Rect } from "../../types/rendering";
@@ -11,7 +11,7 @@ import { CellComposerStore } from "../composer/composer/cell_composer_store";
 import { CellComposerProps, Composer } from "../composer/composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer/composer_focus_store";
 import { cssPropertiesToCss } from "../helpers/css";
-import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
+import { getElBoundingRect } from "../helpers/dom_helpers";
 import { RibbonMenu } from "./ribbon_menu/ribbon_menu";
 
 interface Props {
@@ -28,7 +28,7 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
   private composerFocusStore!: Store<ComposerFocusStore>;
   private composerStore!: Store<CellComposerStore>;
   private composerInterface!: ComposerInterface;
-  private composerRef = useRef("bottombarComposer");
+  private composerRef = signal<HTMLElement | null>(null);
 
   private menuState = proxy({
     isOpen: false,
@@ -48,7 +48,7 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
       stopEdition: this.composerStore.stopEdition,
     };
 
-    useLayoutEffect(() => {
+    const autoFocusComposer = () => {
       if (
         // we hide the grid composer on mobile so we need to autofocus this composer
         this.env.isMobile() &&
@@ -60,7 +60,9 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
           focusMode: "contentFocus",
         });
       }
-    });
+    };
+    onMounted(autoFocusComposer);
+    onPatched(autoFocusComposer);
   }
 
   get focus(): ComposerFocusType {
@@ -78,9 +80,7 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get rect(): Rect {
-    return this.composerRef.el
-      ? getBoundingRectAsPOJO(this.composerRef.el)
-      : { x: 0, y: 0, width: 0, height: 0 };
+    return getElBoundingRect(this.composerRef());
   }
 
   get composerProps(): CellComposerProps {

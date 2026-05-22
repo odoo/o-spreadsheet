@@ -1,10 +1,10 @@
-import { onWillUnmount, proxy } from "@odoo/owl";
+import { onWillUnmount, proxy, signal } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { FIRST_CHART_COLOR } from "../../../helpers/color";
 import { numberToLetters } from "../../../helpers/coordinates";
 import { clipTextWithEllipsis } from "../../../helpers/text_helper";
 import { positionToZone } from "../../../helpers/zones";
-import { Component, useLayoutEffect, useRef } from "../../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
 import { Highlight } from "../../../types/misc";
@@ -33,7 +33,7 @@ export class ColumnStatsPanel extends Component<Props, SpreadsheetChildEnv> {
   });
 
   store!: Store<ColumnStatisticsStore>;
-  private chartCanvas = useRef("columnStatsChart");
+  private chartCanvasRef = signal<HTMLCanvasElement | null>(null);
   private chart?: Chart;
 
   setup() {
@@ -110,7 +110,7 @@ export class ColumnStatsPanel extends Component<Props, SpreadsheetChildEnv> {
     if (!globalThis.Chart) {
       throw new Error("Chart.js library is not loaded");
     }
-    const canvas = this.chartCanvas.el as HTMLCanvasElement | null;
+    const canvas = this.chartCanvasRef();
     if (!canvas) {
       return;
     }
@@ -225,7 +225,7 @@ export class ColumnStatsPanel extends Component<Props, SpreadsheetChildEnv> {
     if (!text) {
       return "";
     }
-    const canvas = this.chartCanvas.el as HTMLCanvasElement | null;
+    const canvas = this.chartCanvasRef();
     if (!canvas) {
       return text;
     }

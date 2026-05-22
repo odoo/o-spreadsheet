@@ -3,7 +3,7 @@
     <div
       t-on-pointermove="this.props.onMouseMove"
       class="o-filter-menu-item o-filter-menu-value"
-      t-custom-ref="menuValueItem"
+      t-ref="this.itemRef"
       t-att-class="{'selected': this.props.isSelected}">
       <t t-set="value">
         <t t-if="this.props.value === ''">(Blanks)</t>

@@ -19,7 +19,7 @@
       <div
         class="o-select-dropdown overflow-hidden py-2"
         t-att-class="this.props.popoverClass"
-        t-custom-ref="dropdownRef">
+        t-ref="this.dropdownRef">
         <t t-foreach="this.props.values" t-as="value" t-key="value_index">
           <div
             class="o-select-option"

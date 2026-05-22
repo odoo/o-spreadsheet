@@ -1,7 +1,8 @@
+import { signal } from "@odoo/owl";
 import { localizeCFRule } from "../../../../helpers/locale";
 import { UuidGenerator } from "../../../../helpers/uuid";
 import { zoneToXc } from "../../../../helpers/zones";
-import { Component, useRef } from "../../../../owl3_compatibility_layer";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { ConditionalFormat } from "../../../../types/conditional_formatting";
 import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
@@ -21,7 +22,7 @@ export class ConditionalFormatPreviewList extends Component<Props, SpreadsheetCh
   static components = { ConditionalFormatPreview };
 
   private dragAndDrop = useDragAndDropListItems();
-  private cfListRef = useRef("cfList");
+  private cfListRef = signal<HTMLElement | null>(null);
 
   get conditionalFormats(): ConditionalFormat[] {
     const cfs = this.env.model.getters.getConditionalFormats(
@@ -41,7 +42,11 @@ export class ConditionalFormatPreviewList extends Component<Props, SpreadsheetCh
     if (event.button !== 0) {
       return;
     }
-    const previewRects = Array.from(this.cfListRef.el!.children).map((previewEl) =>
+    const cfListEl = this.cfListRef();
+    if (!cfListEl) {
+      return;
+    }
+    const previewRects = Array.from(cfListEl.children).map((previewEl) =>
       getBoundingRectAsPOJO(previewEl)
     );
     const items = this.conditionalFormats.map((cf, index) => ({
@@ -53,7 +58,7 @@ export class ConditionalFormatPreviewList extends Component<Props, SpreadsheetCh
       draggedItemId: cf.id,
       initialMousePosition: event.clientY,
       items: items,
-      scrollableContainerEl: this.cfListRef.el!,
+      scrollableContainerEl: cfListEl,
       onDragEnd: (cfId: UID, finalIndex: number) => this.onDragEnd(cfId, finalIndex),
     });
   }

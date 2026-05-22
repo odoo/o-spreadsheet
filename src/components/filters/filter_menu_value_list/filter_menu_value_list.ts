@@ -1,9 +1,9 @@
-import { onWillUpdateProps, proxy } from "@odoo/owl";
+import { onWillUpdateProps, proxy, signal } from "@odoo/owl";
 import { deepEquals } from "../../../helpers/misc";
 import { fuzzyLookup } from "../../../helpers/search";
 import { toTrimmedLowerCase } from "../../../helpers/text_helper";
 import { positions } from "../../../helpers/zones";
-import { Component, useRef } from "../../../owl3_compatibility_layer";
+import { Component } from "../../../owl3_compatibility_layer";
 import { Position } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { FilterMenuValueItem } from "../filter_menu_item/filter_menu_value_item";
@@ -45,7 +45,7 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
     hasMoreValues: false,
   });
 
-  private searchBar = useRef("filterMenuSearchBar");
+  private searchBarRef = signal<HTMLInputElement | null>(null);
 
   setup() {
     onWillUpdateProps((nextProps: Props) => {
@@ -111,7 +111,7 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
   checkValue(value: Value) {
     this.state.selectedValue = value.string;
     value.checked = !value.checked;
-    this.searchBar.el?.focus();
+    this.searchBarRef()?.focus();
     this.updateHiddenValues();
   }
 

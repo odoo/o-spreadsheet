@@ -14,7 +14,7 @@
       <input
         type="text"
         class="o-grid-add-rows-input o-input mt-0 me-2"
-        t-custom-ref="inputRef"
+        t-ref="this.inputRef"
         value="100"
         t-on-click.stop=""
         t-on-keydown.stop="this.onKeydown"

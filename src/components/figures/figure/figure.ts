@@ -1,9 +1,9 @@
 import { proxy, signal } from "@odoo/owl";
-import { Component, useLayoutEffect, useRef } from "../../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { MoveFiguresPayload } from "../../../types/commands";
 import { AnchorOffset, FigureUI, ResizeDirection } from "../../../types/figure";
-import { CSSProperties, Pixel, UID } from "../../../types/misc";
+import { CSSProperties, Pixel } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
@@ -57,8 +57,8 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
   private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
-  private figureRef = useRef("figure");
-  private figureWrapperRef = useRef("figureWrapper");
+  private figureRef = signal<HTMLElement | null>(null);
+  private figureWrapperRef = signal<HTMLElement | null>(null);
   private menuButtonRef = signal<HTMLElement | null>(null);
 
   private borderWidth!: number;
@@ -116,26 +116,22 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     const borderWidth = figureRegistry.get(this.props.figureUI.tag).borderWidth;
     this.borderWidth = borderWidth !== undefined ? borderWidth : BORDER_WIDTH;
-    useLayoutEffect(
-      (selectedFiguresIds: UID[], thisFigureId: UID, el: HTMLElement | null) => {
-        if (selectedFiguresIds.includes(thisFigureId)) {
-          /** Scrolling on a newly inserted figure that overflows outside the viewport
-           * will break the whole layout.
-           * NOTE: `preventScroll`does not work on mobile but then again,
-           * mobile is not really supported ATM.
-           *
-           * TODO: When implementing proper mobile, we will need to scroll the viewport
-           * correctly (and render?) before focusing the element.
-           */
-          el?.focus({ preventScroll: true });
-        }
-      },
-      () => [
-        this.env.model.getters.getSelectedFigureIds(),
-        this.props.figureUI.id,
-        this.figureRef.el,
-      ]
-    );
+    useLayoutEffect(() => {
+      const selectedFigureIds = this.env.model.getters.getSelectedFigureIds();
+      const thisFigureId = this.props.figureUI.id;
+      const el = this.figureRef();
+      if (selectedFigureIds.includes(thisFigureId)) {
+        /** Scrolling on a newly inserted figure that overflows outside the viewport
+         * will break the whole layout.
+         * NOTE: `preventScroll`does not work on mobile but then again,
+         * mobile is not really supported ATM.
+         *
+         * TODO: When implementing proper mobile, we will need to scroll the viewport
+         * correctly (and render?) before focusing the element.
+         */
+        el?.focus({ preventScroll: true });
+      }
+    });
   }
 
   clickAnchor(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) {
@@ -289,9 +285,10 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   editWrapperStyle(properties: CSSProperties) {
-    if (this.figureWrapperRef.el) {
+    const el = this.figureWrapperRef();
+    if (el) {
       for (const property in properties) {
-        this.figureWrapperRef.el.style.setProperty(property, properties[property] || null);
+        el.style.setProperty(property, properties[property] || null);
       }
     }
   }

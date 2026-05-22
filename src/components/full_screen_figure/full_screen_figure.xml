@@ -17,7 +17,7 @@
         <div
           class="o-fullscreen-figure os-theme-dependant o-figure position-relative border rounded shadow"
           tabindex="1"
-          t-custom-ref="fullScreenFigure"
+          t-ref="this.fullScreenFigureRef"
           t-on-click.stop=""
           t-on-keydown="(ev) => this.onKeyDown(ev)">
           <t>

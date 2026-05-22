@@ -1,7 +1,7 @@
-import { onMounted, onWillUnmount, proxy } from "@odoo/owl";
+import { onMounted, onWillUnmount, proxy, signal } from "@odoo/owl";
 import { debounce } from "../../../helpers/misc";
 import { zoneToXc } from "../../../helpers/zones";
-import { Component, useExternalListener, useRef } from "../../../owl3_compatibility_layer";
+import { Component, useExternalListener } from "../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
 import { SearchOptions } from "../../../types/find_and_replace";
@@ -27,7 +27,7 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
     onCloseSidePanel: Function,
   };
 
-  private searchInput = useRef("searchInput");
+  private searchInputRef = signal<HTMLInputElement | null>(null);
   private store!: Store<FindAndReplaceStore>;
   private state!: { dataRange: string };
   private updateSearchContent!: DebouncedFunction<(value: string) => void>;
@@ -78,7 +78,7 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     this.store = useLocalStore(FindAndReplaceStore);
     this.state = proxy({ dataRange: "" });
-    onMounted(() => this.searchInput.el?.focus());
+    onMounted(() => this.searchInputRef()?.focus());
     onWillUnmount(() => this.updateSearchContent.stopDebounce());
     this.updateSearchContent = debounce(this.store.updateSearchContent, 200);
     useExternalListener(
@@ -87,7 +87,7 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
       (ev: KeyboardEvent) => {
         const code = keyboardEventToShortcutString(ev);
         if (code === "Ctrl+F" || code === "Ctrl+H") {
-          this.searchInput.el?.focus();
+          this.searchInputRef()?.focus();
           ev.preventDefault();
           ev.stopPropagation();
         }

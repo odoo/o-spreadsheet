@@ -12,13 +12,13 @@ import { withZoom } from "../../../../helpers/zoom";
 import { ChartJsComponent } from "../chartjs";
 import { Boundaries, ZoomableChartStore } from "./zoomable_chart_store";
 
-import { useRef } from "../../../../../owl3_compatibility_layer";
+import { signal } from "@odoo/owl";
 export class ZoomableChartJsComponent extends ChartJsComponent {
   static template = "o-spreadsheet-ZoomableChartJsComponent";
 
   private store!: Store<ZoomableChartStore>;
 
-  private masterChartCanvas = useRef("masterChartCanvas");
+  private masterChartCanvas = signal<HTMLCanvasElement | null>(null);
   private masterChart?: Chart;
   private mode?: "selectInMaster" | "moveInMaster";
   private hasLinearScale?: boolean;
@@ -123,7 +123,10 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   }
 
   private setMasterChartCursor(runtime: ChartJSRuntime) {
-    const masterElement = this.masterChartCanvas?.el as HTMLCanvasElement;
+    const masterElement = this.masterChartCanvas();
+    if (!masterElement) {
+      return;
+    }
     if (runtime && !runtime.chartJsConfig.data.datasets.some((ds) => ds.data.length > 1)) {
       masterElement.style.cursor = "not-allowed";
       this.isMasterChartAllowed = false;
@@ -155,7 +158,11 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     }
 
     this.masterChart?.destroy();
-    const masterChartCtx = (this.masterChartCanvas?.el as HTMLCanvasElement).getContext("2d")!;
+    const masterCanvas = this.masterChartCanvas();
+    if (!masterCanvas) {
+      return;
+    }
+    const masterChartCtx = masterCanvas.getContext("2d")!;
 
     this.setMasterChartCursor(chartRuntime);
     this.masterChart = new globalThis.Chart(
@@ -196,7 +203,11 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
         chartRuntime["masterChartConfig"] as ChartConfiguration<any>
       );
       if (!this.masterChart) {
-        const masterChartCtx = (this.masterChartCanvas!.el as HTMLCanvasElement).getContext("2d")!;
+        const masterCanvas = this.masterChartCanvas();
+        if (!masterCanvas) {
+          return;
+        }
+        const masterChartCtx = masterCanvas.getContext("2d")!;
         this.masterChart = new globalThis.Chart(masterChartCtx, masterChartConfig);
       } else {
         this.masterChart.data = masterChartConfig.data;
@@ -358,7 +369,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
 
   onMasterChartPointerDown(ev: PointerEvent) {
     this.removeEventListeners();
-    const zoomedEvent = withZoom(this.env, ev, this.masterChartCanvas.el?.getBoundingClientRect());
+    const zoomedEvent = withZoom(this.env, ev, this.masterChartCanvas()?.getBoundingClientRect());
     const position = zoomedEvent.offsetX;
     if (!this.masterChart?.chartArea || !this.chart?.scales?.x) {
       return;
@@ -429,11 +440,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     };
 
     const onMasterChartDrag = (ev: PointerEvent) => {
-      const zoomedEvent = withZoom(
-        this.env,
-        ev,
-        this.masterChartCanvas.el?.getBoundingClientRect()
-      );
+      const zoomedEvent = withZoom(this.env, ev, this.masterChartCanvas()?.getBoundingClientRect());
       const position = zoomedEvent.offsetX;
       if (Math.abs(position - startingEventPosition) < 5) {
         return;
@@ -508,7 +515,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
 
   onMasterChartDoubleClick(ev: PointerEvent) {
     this.mode = undefined;
-    const zoomedEvent = withZoom(this.env, ev, this.masterChartCanvas.el?.getBoundingClientRect());
+    const zoomedEvent = withZoom(this.env, ev, this.masterChartCanvas()?.getBoundingClientRect());
     const position = zoomedEvent.offsetX;
     if (!this.masterChart?.chartArea || !this.chart?.scales.x) {
       return;

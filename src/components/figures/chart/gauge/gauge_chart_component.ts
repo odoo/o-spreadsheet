@@ -1,7 +1,7 @@
-import { onMounted, onWillUnmount } from "@odoo/owl";
+import { onMounted, onWillUnmount, signal } from "@odoo/owl";
 import { drawGaugeChart } from "../../../../helpers/figures/charts/gauge_chart_rendering";
 import { deepEquals } from "../../../../helpers/misc";
-import { Component, useLayoutEffect, useRef } from "../../../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { EASING_FN } from "../../../../registries/cell_animation_registry";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { GaugeChartRuntime } from "../../../../types/chart/gauge_chart";
@@ -24,7 +24,7 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
     isFullScreen: { type: Boolean, optional: true },
   };
 
-  private canvas = useRef("chartContainer");
+  private canvas = signal<HTMLCanvasElement | null>(null);
 
   private animationStore: Store<ChartAnimationStore> | undefined;
 
@@ -64,8 +64,12 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
         return () => animation?.stop();
       },
       () => {
-        const rect = this.canvasEl.getBoundingClientRect();
-        return [rect.width, rect.height, this.runtime, this.canvas.el, window.devicePixelRatio];
+        const canvas = this.canvas();
+        if (!canvas) {
+          return [];
+        }
+        const rect = canvas.getBoundingClientRect();
+        return [rect.width, rect.height, this.runtime, canvas, window.devicePixelRatio];
       }
     );
     const resizeObserver = new ResizeObserver(() => {
@@ -75,7 +79,12 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
       }
       drawGaugeChart(this.canvasEl, this.runtime, this.env.model.getters.getViewportZoomLevel());
     });
-    onMounted(() => resizeObserver.observe(this.canvas.el as HTMLCanvasElement));
+    onMounted(() => {
+      const canvas = this.canvas();
+      if (canvas) {
+        resizeObserver.observe(canvas);
+      }
+    });
     onWillUnmount(() => resizeObserver.disconnect());
   }
 
@@ -98,7 +107,7 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get canvasEl() {
-    return this.canvas.el as HTMLCanvasElement;
+    return this.canvas()!;
   }
 
   get animationChartId() {

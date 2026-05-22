@@ -1,5 +1,5 @@
-import { proxy } from "@odoo/owl";
-import { Component, useRef } from "../../owl3_compatibility_layer";
+import { proxy, signal } from "@odoo/owl";
+import { Component } from "../../owl3_compatibility_layer";
 import { BorderPosition, BorderStyle, Color, Pixel, borderStyles } from "../../types/misc";
 import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -66,7 +66,7 @@ export class BorderEditor extends Component<BorderEditorProps, SpreadsheetChildE
   static components = { ColorPickerWidget, Popover };
   BORDER_POSITIONS = BORDER_POSITIONS;
 
-  lineStyleButtonRef = useRef("lineStyleButton");
+  lineStyleButtonRef = signal<HTMLElement | null>(null);
   borderStyles = borderStyles;
   state: State = proxy({
     activeTool: undefined,
@@ -114,7 +114,7 @@ export class BorderEditor extends Component<BorderEditorProps, SpreadsheetChildE
   }
 
   get lineStylePickerAnchorRect(): Rect {
-    const button = this.lineStyleButtonRef.el;
+    const button = this.lineStyleButtonRef();
     if (button === null) {
       return { x: 0, y: 0, width: 0, height: 0 };
     }

@@ -1,7 +1,7 @@
-import { onWillUpdateProps, proxy } from "@odoo/owl";
+import { onWillUpdateProps, proxy, signal } from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
 import { UuidGenerator } from "../../helpers/uuid";
-import { Component, useRef } from "../../owl3_compatibility_layer";
+import { Component } from "../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { _t } from "../../translation";
 import { MenuMouseEvent, Pixel, UID } from "../../types/misc";
@@ -38,8 +38,8 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
 
   static components = { MenuPopover, Ripple, BottomBarSheet, BottomBarStatistic };
 
-  private bottomBarRef = useRef("bottomBar");
-  private sheetListRef = useRef("sheetList");
+  private bottomBarRef = signal<HTMLElement | null>(null);
+  private sheetListRef = signal<HTMLElement | null>(null);
 
   private dragAndDrop = useDragAndDropListItems();
   private targetScroll: number | undefined = undefined;
@@ -114,7 +114,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     }
     const target = ev.currentTarget as HTMLElement;
     const { left } = target.getBoundingClientRect();
-    const top = this.bottomBarRef.el!.getBoundingClientRect().top;
+    const top = this.bottomBarRef()!.getBoundingClientRect().top;
     this.openContextMenu(left, top, "listSheets", registry);
   }
 
@@ -189,11 +189,12 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private scrollSheetListTo(scroll: number) {
-    if (!this.sheetListRef.el) {
+    const sheetListEl = this.sheetListRef();
+    if (!sheetListEl) {
       return;
     }
     this.targetScroll = scroll;
-    this.sheetListRef.el.scrollTo({ top: 0, left: scroll, behavior: "smooth" });
+    sheetListEl.scrollTo({ top: 0, left: scroll, behavior: "smooth" });
   }
 
   onSheetMouseDown(sheetId: UID, event: MouseEvent) {
@@ -218,7 +219,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
       draggedItemId: sheetId,
       initialMousePosition: event.clientX,
       items: sheets,
-      scrollableContainerEl: this.sheetListRef.el!,
+      scrollableContainerEl: this.sheetListRef()!,
       onDragEnd: (sheetId: UID, finalIndex: number) => this.onDragEnd(sheetId, finalIndex),
     });
   }
@@ -239,7 +240,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getSheetItemRects(): Rect[] {
-    return Array.from(this.bottomBarRef.el!.querySelectorAll<HTMLElement>(`.o-sheet`))
+    return Array.from(this.bottomBarRef()!.querySelectorAll<HTMLElement>(`.o-sheet`))
       .map((sheetEl) => sheetEl.getBoundingClientRect())
       .map((rect) => ({
         x: rect.x,
@@ -250,23 +251,26 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get sheetListCurrentScroll() {
-    if (!this.sheetListRef.el) {
+    const sheetListEl = this.sheetListRef();
+    if (!sheetListEl) {
       return 0;
     }
-    return this.sheetListRef.el.scrollLeft;
+    return sheetListEl.scrollLeft;
   }
 
   get sheetListWidth() {
-    if (!this.sheetListRef.el) {
+    const sheetListEl = this.sheetListRef();
+    if (!sheetListEl) {
       return 0;
     }
-    return this.sheetListRef.el.clientWidth;
+    return sheetListEl.clientWidth;
   }
 
   get sheetListMaxScroll() {
-    if (!this.sheetListRef.el) {
+    const sheetListEl = this.sheetListRef();
+    if (!sheetListEl) {
       return 0;
     }
-    return this.sheetListRef.el.scrollWidth - this.sheetListRef.el.clientWidth;
+    return sheetListEl.scrollWidth - sheetListEl.clientWidth;
   }
 }

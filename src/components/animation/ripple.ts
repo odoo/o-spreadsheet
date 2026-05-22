@@ -1,5 +1,5 @@
-import { onMounted, onWillUnmount, proxy } from "@odoo/owl";
-import { Component, useRef } from "../../owl3_compatibility_layer";
+import { onMounted, onWillUnmount, proxy, signal } from "@odoo/owl";
+import { Component } from "../../owl3_compatibility_layer";
 import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss, getElementMargins } from "../helpers/css";
@@ -71,12 +71,12 @@ class RippleEffect extends Component<RippleEffectProps, SpreadsheetChildEnv> {
     style: String,
   };
 
-  private rippleRef = useRef("ripple");
+  private rippleRef = signal<HTMLElement | null>(null);
 
   setup() {
     let animation: Animation | undefined = undefined;
     onMounted(() => {
-      const rippleEl = this.rippleRef.el;
+      const rippleEl = this.rippleRef();
       if (!rippleEl || !rippleEl.animate) {
         return;
       }
@@ -137,7 +137,7 @@ export class Ripple extends Component<RippleProps, SpreadsheetChildEnv> {
     class: "",
   };
 
-  private childContainer = useRef("childContainer");
+  private childContainerRef = signal<HTMLElement | null>(null);
 
   private state = proxy<RippleState>({ ripples: [] });
 
@@ -147,7 +147,7 @@ export class Ripple extends Component<RippleProps, SpreadsheetChildEnv> {
     if (!this.props.enabled) {
       return;
     }
-    const containerEl = this.childContainer.el;
+    const containerEl = this.childContainerRef();
     if (!containerEl) {
       return;
     }
@@ -166,7 +166,7 @@ export class Ripple extends Component<RippleProps, SpreadsheetChildEnv> {
   }
 
   private getRippleStyle(): string {
-    const containerEl = this.childContainer.el;
+    const containerEl = this.childContainerRef();
 
     if (!containerEl || containerEl.childElementCount !== 1 || !containerEl.firstElementChild) {
       return "";
@@ -182,7 +182,7 @@ export class Ripple extends Component<RippleProps, SpreadsheetChildEnv> {
   }
 
   private getRippleChildRectInfo(): RectWithMargins {
-    const el = this.childContainer.el;
+    const el = this.childContainerRef();
     if (!el) {
       throw new Error("No child container element found");
     }

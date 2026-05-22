@@ -1,7 +1,7 @@
-import { proxy } from "@odoo/owl";
+import { proxy, signal } from "@odoo/owl";
 import { DEFAULT_CHART_COLOR_SCALE } from "../../../../../constants";
 import { ColorScale, COLORSCALES, COLORSCHEMES } from "../../../../../helpers/color";
-import { Component, useExternalListener, useRef } from "../../../../../owl3_compatibility_layer";
+import { Component, useExternalListener } from "../../../../../owl3_compatibility_layer";
 import { ChartColorScale, schemeToColorScale } from "../../../../../types/chart/chart";
 import { Color } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
@@ -40,7 +40,7 @@ export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
   }));
 
   state = proxy<ColorScalePickerState>({ popoverProps: undefined, popoverStyle: "" });
-  popoverRef = useRef("popoverRef");
+  popoverRef = signal<HTMLElement | null>(null);
 
   setup() {
     useExternalListener(window, "click", this.closePopover);

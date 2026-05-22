@@ -1,11 +1,11 @@
-import { onMounted, onWillUnmount } from "@odoo/owl";
+import { onMounted, onWillUnmount, signal } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import {
   chartJsExtensionRegistry,
   registerChartJSExtensions,
 } from "../../../../helpers/figures/charts/chart_js_extension";
 import { deepCopy, deepEquals } from "../../../../helpers/misc";
-import { Component, useLayoutEffect, useRef } from "../../../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { UID } from "../../../../types/misc";
@@ -89,7 +89,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     isFullScreen: { type: Boolean, optional: true },
   };
 
-  protected canvas = useRef("graphContainer");
+  protected canvas = signal<HTMLCanvasElement | null>(null);
   protected chart?: Chart;
   protected currentRuntime!: ChartJSRuntime;
   protected animationStore: Store<ChartAnimationStore> | undefined;
@@ -154,7 +154,10 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       }
     }
 
-    const canvas = this.canvas.el as HTMLCanvasElement;
+    const canvas = this.canvas();
+    if (!canvas) {
+      return;
+    }
     const ctx = canvas.getContext("2d")!;
     this.chart = new globalThis.Chart(ctx, chartData);
   }

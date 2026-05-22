@@ -1,10 +1,10 @@
-import { onWillUpdateProps } from "@odoo/owl";
+import { onWillUpdateProps, signal } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemPreview, getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { deepEquals } from "../../../helpers/misc";
 import { UuidGenerator } from "../../../helpers/uuid";
-import { Component, useRef } from "../../../owl3_compatibility_layer";
+import { Component } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
 import { TitleDesign } from "../../../types/chart/chart";
 import { CarouselItem } from "../../../types/figure";
@@ -30,7 +30,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   DEFAULT_CAROUSEL_TITLE_STYLE = DEFAULT_CAROUSEL_TITLE_STYLE;
 
   private dragAndDrop = useDragAndDropListItems();
-  private previewListRef = useRef("previewList");
+  private previewListRef = signal<HTMLElement | null>(null);
 
   setup() {
     let lastCarouselItems: CarouselItem[] = [...this.carouselItems];
@@ -145,7 +145,11 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     if (event.button !== 0) {
       return;
     }
-    const previewRects = Array.from(this.previewListRef.el!.children).map((previewEl) =>
+    const previewListEl = this.previewListRef();
+    if (!previewListEl) {
+      return;
+    }
+    const previewRects = Array.from(previewListEl.children).map((previewEl) =>
       getBoundingRectAsPOJO(previewEl)
     );
     const items = this.carouselItems.map((item, index) => ({
@@ -157,7 +161,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
       draggedItemId: this.getItemId(item),
       initialMousePosition: event.clientY,
       items: items,
-      scrollableContainerEl: this.previewListRef.el!,
+      scrollableContainerEl: previewListEl,
       onDragEnd: (itemId: string, finalIndex: number) => this.onDragEnd(item, finalIndex),
     });
   }

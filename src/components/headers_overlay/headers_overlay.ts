@@ -1,9 +1,9 @@
-import { proxy } from "@odoo/owl";
+import { proxy, signal } from "@odoo/owl";
 import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../constants";
-import { Component, useRef } from "../../owl3_compatibility_layer";
+import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { CommandResult } from "../../types/commands";
-import { HeaderDimensions, HeaderIndex, Pixel, Ref } from "../../types/misc";
+import { HeaderDimensions, HeaderIndex, Pixel } from "../../types/misc";
 import { EdgeScrollInfo } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
@@ -351,11 +351,10 @@ export class ColResizer extends AbstractResizer {
   static template = "o-spreadsheet-ColResizer";
   static components = { UnhideColumnHeaders };
 
-  private colResizerRef!: Ref<HTMLElement>;
+  private colResizerRef = signal<HTMLElement | null>(null);
 
   setup() {
     super.setup();
-    this.colResizerRef = useRef("colResizer");
     this.PADDING = 15;
     this.MAX_SIZE_MARGIN = 90;
     this.MIN_ELEMENT_SIZE = MIN_COL_WIDTH;
@@ -402,7 +401,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getMaxSize(): Pixel {
-    return this.colResizerRef.el!.clientWidth;
+    return this.colResizerRef()?.clientWidth ?? 0;
   }
 
   _updateSize(): void {
@@ -524,15 +523,14 @@ export class RowResizer extends AbstractResizer {
   static template = "o-spreadsheet-RowResizer";
   static components = { UnhideRowHeaders };
 
+  private rowResizerRef = signal<HTMLElement | null>(null);
+
   setup() {
     super.setup();
-    this.rowResizerRef = useRef("rowResizer");
     this.PADDING = 5;
     this.MAX_SIZE_MARGIN = 60;
     this.MIN_ELEMENT_SIZE = MIN_ROW_HEIGHT;
   }
-
-  private rowResizerRef!: Ref<HTMLElement>;
 
   get sheetId() {
     return this.env.model.getters.getActiveSheetId();
@@ -575,7 +573,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getMaxSize(): Pixel {
-    return this.rowResizerRef.el!.clientHeight;
+    return this.rowResizerRef()?.clientHeight ?? 0;
   }
 
   _updateSize(): void {

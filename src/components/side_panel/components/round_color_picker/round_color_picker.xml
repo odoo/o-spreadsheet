@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet.RoundColorPicker">
     <div
       class="o-round-color-picker-button rounded-circle border os-theme-dependant"
-      t-custom-ref="colorPickerButton"
+      t-ref="this.colorPickerButtonRef"
       t-on-click.stop="this.togglePicker"
       t-att-title="this.props.title"
       t-att-style="this.buttonStyle"

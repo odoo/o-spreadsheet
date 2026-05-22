@@ -1,6 +1,6 @@
-import { onWillStart, onWillUpdateProps, proxy } from "@odoo/owl";
+import { onWillStart, onWillUpdateProps, proxy, signal, useEffect } from "@odoo/owl";
 import { deepEquals, range } from "../../helpers/misc";
-import { Component, useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { Color } from "../../types/misc";
@@ -68,8 +68,9 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     isMissing: false,
   });
   private dragAndDrop = useDragAndDropListItems();
-  private focusedInput = useRef("focusedInput");
-  private selectionRef = useRef("o-selection");
+  private focusedInputRef = signal<HTMLInputElement | null>(null);
+  unfocusedInputRef = signal<HTMLInputElement | null>(null);
+  private selectionRef = signal<HTMLElement | null>(null);
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private store!: Store<SelectionInputStore>;
 
@@ -110,23 +111,6 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
      * (due to this commit: https://github.com/odoo/owl/commit/076b1f09079f8263a84afa4e412d395190a693db)
      */
     onWillUpdateProps(async () => {});
-    useLayoutEffect(
-      () => {
-        if (this.store.hasFocus) {
-          this.focusedInput.el?.focus();
-        }
-      },
-      () => [this.focusedInput.el]
-    );
-    useLayoutEffect(() => {
-      // Check the offsetParent to know if the input or an ancestor is `display: none` (eg. when changing side panel tab)
-      if (
-        (this.store.isResettable || this.store.hasFocus) &&
-        this.selectionRef.el?.offsetParent === null
-      ) {
-        this.reset();
-      }
-    });
 
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     this.store = useLocalStore(
@@ -140,6 +124,17 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       this.store.focusById(this.store.selectionInputs[0]?.id);
       this.props.onInputFocused?.();
     }
+    useEffect(() => {
+      this.focusedInputRef()?.focus();
+    });
+    // Check on every render if the element is hidden (non-reactive DOM property)
+    const checkVisibility = () => {
+      const el = this.selectionRef();
+      if ((this.store.isResettable || this.store.hasFocus) && el?.offsetParent === null) {
+        this.reset();
+      }
+    };
+    useLayoutEffect(checkVisibility);
     onWillUpdateProps((nextProps) => {
       if (nextProps.ranges.join() !== this.store.selectionInputValues.join()) {
         this.triggerChange();
@@ -181,7 +176,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       draggedItemId: rangeId.toString(),
       initialMousePosition: event.clientY,
       items: draggableItems,
-      scrollableContainerEl: this.selectionRef.el!,
+      scrollableContainerEl: this.selectionRef()!,
       onDragEnd: (dimensionName, finalIndex) => {
         const originalIndex = draggableIds.findIndex((id) => id === rangeId);
         if (originalIndex === finalIndex) {
@@ -198,7 +193,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getRangeElementsRects() {
-    return Array.from(this.selectionRef.el!.children).map((el) => el.getBoundingClientRect());
+    return Array.from(this.selectionRef()!.children).map((el) => el.getBoundingClientRect());
   }
 
   getColor(range: SelectionRange) {

@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, proxy, signal, useEffect } from "@odoo/owl";
+import { onMounted, onPatched, onWillUnmount, proxy, signal } from "@odoo/owl";
 import { throttle } from "../../../helpers/misc";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
 import { Component, useExternalListener, useLayoutEffect } from "../../../owl3_compatibility_layer";
@@ -69,7 +69,15 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     useExternalListener(window, "click", () => (this.state.pickerOpened = false));
 
-    useEffect(() => {
+    // Subscribe BottomBarSheet to isEditing so onPatched fires when it changes.
+    // (Without this, isEditing is read inside Ripple's slot render, which subscribes
+    // Ripple's signalComputation instead of ours, so our onPatched never fires.)
+    useLayoutEffect(
+      () => {},
+      () => [this.state.isEditing]
+    );
+
+    onPatched(() => {
       if (this.sheetNameRef() && this.state.isEditing && this.editionState === "initializing") {
         this.editionState = "editing";
         this.focusInputAndSelectContent();

@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-TextValueProvider">
     <div
-      t-custom-ref="autoCompleteList"
+      t-ref="this.autoCompleteListRef"
       t-on-pointerdown.prevent=""
       t-att-class="{
           'o-autocomplete-dropdown': this.props.proposals.length}">

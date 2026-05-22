@@ -20,7 +20,7 @@
         <div class="o-section-title mt-3">Link</div>
         <div
           class="o-link-url"
-          t-custom-ref="urlInputContainer"
+          t-ref="this.urlInputContainer"
           tabindex="-1"
           t-on-keydown="this.onInputKeyDown">
           <t t-if="this.state.isUrlEditable">
@@ -29,7 +29,7 @@
               type="text"
               placeholder="e.g. 'http://www.odoo.com'"
               title="Link URL"
-              t-custom-ref="urlInput"
+              t-ref="this.urlInput"
               t-custom-model="this.state.url"
               t-on-input="this.computeLinks"
             />
@@ -53,7 +53,7 @@
         </div>
       </div>
 
-      <div class="suggestions border rounded user-select-none" t-custom-ref="suggestionList">
+      <div class="suggestions border rounded user-select-none" t-ref="this.suggestionListRef">
         <t t-foreach="this.state.linksByCategory" t-as="proposalCategory" t-key="proposalCategory">
           <t t-set="categoryTitle" t-value="proposalCategory"/>
           <t t-set="proposals" t-value="proposalCategory_value"/>
