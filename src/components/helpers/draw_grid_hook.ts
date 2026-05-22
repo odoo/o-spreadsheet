@@ -1,5 +1,6 @@
+import type { Signal } from "@odoo/owl";
 import { CANVAS_SHIFT } from "../../constants";
-import { useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
+import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { GridRenderer } from "../../stores/grid_renderer_store";
 import { RendererStore } from "../../stores/renderer_store";
@@ -8,25 +9,24 @@ import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "./css";
 
 interface GridDrawingArgs {
-  refName: string;
+  canvasRef: Signal<HTMLElement | null>;
   renderingCtx: () => Omit<GridRenderingContext, "ctx" | "thinLineWidth">;
   rendererStore?: Store<RendererStore>;
   changeCanvasSizeOnZoom?: boolean;
 }
 
 export function useGridDrawing({
-  refName,
+  canvasRef,
   renderingCtx,
   rendererStore,
   changeCanvasSizeOnZoom,
 }: GridDrawingArgs) {
-  const canvasRef = useRef(refName);
   useLayoutEffect(drawGrid);
   const renderer = rendererStore || useStore(RendererStore);
   useLocalStore(GridRenderer, renderer);
 
   function drawGrid() {
-    const canvas = canvasRef.el as HTMLCanvasElement;
+    const canvas = canvasRef() as HTMLCanvasElement;
     const ctx = canvas.getContext("2d", { alpha: false })!;
     const renderingContext: GridRenderingContext = {
       ctx,

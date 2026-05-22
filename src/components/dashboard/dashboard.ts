@@ -44,6 +44,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   clickableCellsStore!: Store<ClickableCellsStore>;
 
   private gridRef = signal<HTMLElement | null>(null);
+  private canvasRef = signal<HTMLElement | null>(null);
 
   setup() {
     this.hoveredCell = useStore(DelayedHoveredCellStore);
@@ -56,7 +57,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
         getZoomedRect(this.env.model.getters.getViewportZoomLevel(), this.getGridRect()),
     });
     useGridDrawing({
-      refName: "canvas",
+      canvasRef: this.canvasRef,
       rendererStore,
       renderingCtx: () => ({
         dpr: window.devicePixelRatio || 1,
