@@ -1,3 +1,4 @@
+import { signal } from "@odoo/owl";
 import { isDefined } from "../../../../helpers/misc";
 import {
   AGGREGATORS,
@@ -5,7 +6,7 @@ import {
   isDateOrDatetimeField,
 } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
-import { Component, useRef } from "../../../../owl3_compatibility_layer";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
 import { SortDirection, UID } from "../../../../types/misc";
@@ -66,7 +67,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     pivotId: String,
   };
 
-  private dimensionsRef = useRef("pivot-dimensions");
+  private dimensionsRef = signal<HTMLElement | null>(null);
   private dragAndDrop = useDragAndDropListItems();
   AGGREGATORS = AGGREGATORS;
   private composerFocus!: Store<ComposerFocusStore>;
@@ -101,7 +102,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
       draggedItemId: dimension.nameWithGranularity,
       initialMousePosition: event.clientY,
       items: draggableItems,
-      scrollableContainerEl: this.props.getScrollableContainerEl?.() || this.dimensionsRef.el!,
+      scrollableContainerEl: this.props.getScrollableContainerEl?.() || this.dimensionsRef()!,
       onDragEnd: (dimensionName, finalIndex) => {
         const originalIndex = draggableIds.findIndex((id) => id === dimensionName);
         if (originalIndex === finalIndex) {
@@ -163,7 +164,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
       draggedItemId: measure.id,
       initialMousePosition: event.clientY,
       items: draggableItems,
-      scrollableContainerEl: this.props.getScrollableContainerEl?.() || this.dimensionsRef.el!,
+      scrollableContainerEl: this.props.getScrollableContainerEl?.() || this.dimensionsRef()!,
       onDragEnd: (measureName, finalIndex) => {
         const originalIndex = draggableIds.findIndex((id) => id === measureName);
         if (originalIndex === finalIndex) {
@@ -182,7 +183,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
   }
 
   getDimensionElementsRects() {
-    return Array.from(this.dimensionsRef.el!.children).map((el) => {
+    return Array.from(this.dimensionsRef()!.children).map((el) => {
       const style = getComputedStyle(el)!;
       const rect = el.getBoundingClientRect();
       return {

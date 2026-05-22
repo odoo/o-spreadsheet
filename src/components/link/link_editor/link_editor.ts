@@ -1,9 +1,9 @@
-import { onMounted, proxy } from "@odoo/owl";
+import { onMounted, proxy, signal } from "@odoo/owl";
 import { urlRegistry, urlRepresentation } from "../../../helpers/links";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { markdownLink } from "../../../helpers/misc";
 import { fuzzyLookup } from "../../../helpers/search";
-import { Component, useRef } from "../../../owl3_compatibility_layer";
+import { Component } from "../../../owl3_compatibility_layer";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { Link, Position } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -39,15 +39,15 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
   static components = { MenuPopover };
   static size = { maxHeight: 500 };
 
-  urlInput = useRef("urlInput");
-  suggestionListRef = useRef("suggestionList");
-  urlInputContainer = useRef("urlInputContainer");
+  urlInput = signal<HTMLElement | null>(null);
+  suggestionListRef = signal<HTMLElement | null>(null);
+  urlInputContainer = signal<HTMLElement | null>(null);
 
   private state: LinkState = proxy(this.defaultState);
 
   setup() {
     this.computeLinks();
-    onMounted(() => this.urlInput.el?.focus());
+    onMounted(() => this.urlInput()?.focus());
   }
 
   computeLinks() {
@@ -86,7 +86,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
             this.state.label = link.label;
             this.state.isUrlEditable = link.isUrlEditable;
             this.state.selectedIndex = index;
-            this.urlInputContainer.el?.focus();
+            this.urlInputContainer()?.focus();
           },
         };
       });
@@ -205,7 +205,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
   }
 
   showSelectedProposal() {
-    this.suggestionListRef.el
+    this.suggestionListRef()
       ?.querySelector(`.suggestion-item[data-index="${this.state.selectedIndex}"]`)
       ?.scrollIntoView({ block: "nearest" });
   }

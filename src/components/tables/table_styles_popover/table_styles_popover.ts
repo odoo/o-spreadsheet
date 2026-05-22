@@ -1,6 +1,6 @@
-import { proxy } from "@odoo/owl";
+import { proxy, signal } from "@odoo/owl";
 import { TABLE_STYLE_CATEGORIES } from "../../../helpers/table_presets";
-import { Component, useExternalListener, useRef } from "../../../owl3_compatibility_layer";
+import { Component, useExternalListener } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableConfig, TableStyle } from "../../../types/table";
@@ -37,7 +37,7 @@ export class TableStylesPopover extends Component<TableStylesPopoverProps, Sprea
     type: String,
   };
 
-  private tableStyleListRef = useRef("tableStyleList");
+  private tableStyleListRef = signal<HTMLElement | null>(null);
   state = proxy<State>({ selectedCategory: this.initialSelectedCategory });
 
   setup(): void {
@@ -45,7 +45,8 @@ export class TableStylesPopover extends Component<TableStylesPopoverProps, Sprea
   }
 
   onExternalClick(ev: CustomTablePopoverMouseEvent) {
-    if (this.tableStyleListRef.el && !isChildEvent(this.tableStyleListRef.el, ev)) {
+    const el = this.tableStyleListRef();
+    if (el && !isChildEvent(el, ev)) {
       this.props.closePopover();
       ev.hasClosedTableStylesPopover = true;
     }

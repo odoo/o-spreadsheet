@@ -1,9 +1,9 @@
-import { proxy } from "@odoo/owl";
+import { proxy, signal } from "@odoo/owl";
 import { SpreadsheetPivotRuntimeDefinition } from "../../../../../helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { SpreadsheetPivot } from "../../../../../helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
-import { Component, useRef } from "../../../../../owl3_compatibility_layer";
+import { Component } from "../../../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../../../store_engine/store_hooks";
-import { Ref, UID } from "../../../../../types/misc";
+import { UID } from "../../../../../types/misc";
 import { SpreadsheetPivotCoreDefinition } from "../../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Store } from "../../../../../types/store_engine";
@@ -38,7 +38,7 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
 
   state!: { range?: string; rangeHasChanged: boolean };
 
-  pivotSidePanelRef: Ref<HTMLElement> = useRef("pivotSidePanel");
+  pivotSidePanelRef = signal<HTMLElement | null>(null);
 
   setup() {
     this.store = useLocalStore(PivotSidePanelStore, this.props.pivotId);
@@ -74,7 +74,7 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
   }
 
   getScrollableContainerEl() {
-    return this.pivotSidePanelRef.el;
+    return this.pivotSidePanelRef();
   }
 
   onSelectionChanged(ranges: string[]) {

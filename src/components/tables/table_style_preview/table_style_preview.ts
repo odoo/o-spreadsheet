@@ -1,7 +1,7 @@
-import { onWillUpdateProps, proxy } from "@odoo/owl";
+import { onWillUpdateProps, proxy, signal, useEffect } from "@odoo/owl";
 import { deepEquals } from "../../../helpers/misc";
 import { getComputedTableStyle } from "../../../helpers/table_helpers";
-import { Component, useLayoutEffect, useRef } from "../../../owl3_compatibility_layer";
+import { Component } from "../../../owl3_compatibility_layer";
 import { createTableStyleContextMenuActions } from "../../../registries/menus/table_style_menu_registry";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableConfig, TableMetaData, TableStyle } from "../../../types/table";
@@ -29,7 +29,7 @@ export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
     onClick: { type: Function, optional: true },
   };
 
-  private canvasRef = useRef<HTMLCanvasElement>("canvas");
+  private canvasRef = signal<HTMLCanvasElement | null>(null);
   menu: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
   setup() {
@@ -44,25 +44,30 @@ export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
     const resizeObserver = new ResizeObserver(() => {
       this.drawTable(this.props);
     });
-    useLayoutEffect(
-      () => {
-        resizeObserver.observe(this.canvasRef.el!);
-        return () => {
-          resizeObserver.disconnect();
-        };
-      },
-      () => [this.canvasRef.el]
-    );
+    useEffect(() => {
+      const canvas = this.canvasRef();
+      if (!canvas) {
+        return;
+      }
+      resizeObserver.observe(canvas);
+      return () => {
+        resizeObserver.disconnect();
+      };
+    });
   }
 
   private drawTable(props: Props) {
-    const ctx = this.canvasRef.el!.getContext("2d")!;
-    const { width, height } = this.canvasRef.el!.getBoundingClientRect();
+    const canvas = this.canvasRef();
+    if (!canvas) {
+      return;
+    }
+    const ctx = canvas.getContext("2d")!;
+    const { width, height } = canvas.getBoundingClientRect();
     if (!width || !height) {
       return;
     }
-    this.canvasRef.el!.width = width;
-    this.canvasRef.el!.height = height;
+    canvas.width = width;
+    canvas.height = height;
     let tableMetaData: TableMetaData;
     if (props.type === "table") {
       tableMetaData = { mode: "table", numberOfCols: 5, numberOfRows: 5 };

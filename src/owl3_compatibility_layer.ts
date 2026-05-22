@@ -12,7 +12,6 @@
  *
  * 1. Update template directives:
  *    - replace `t-portal` → `t-custom-portal`
- *    - replace `t-ref`    → `t-custom-ref`
  *    - replace `t-model`  → `t-custom-model`
  *
  * 2. Load this file immediately after Owl 3.
@@ -28,7 +27,6 @@
  * Gradually remove the compatibility layer by migrating to native Owl 3:
  *
  * - replace `t-custom-portal` with proper Owl 3 portal usage
- * - replace `t-custom-ref` with `t-ref` + signals
  * - replace `t-custom-model` with `t-model` + signals
  * - convert `useLayoutEffect` back to `useEffect` where appropriate
  *
@@ -51,7 +49,6 @@ import {
   useEnv as OwlUseEnv, // Exported by Odoo compat layer
   useExternalListener as OwlUseExternalListener, // Exported by Odoo compat layer
   useLayoutEffect as OwlUseLayoutEffect, // Exported by Odoo compat layer
-  useRef as OwlUseRef,
   useSubEnv as OwlUseSubEnv, // Exported by Odoo compat layer
   Plugin,
   plugin,
@@ -89,25 +86,6 @@ class _Component<Props = any, Env = any> extends OwlComponent {
   render(deep = false) {
     void this.__owl__.render(deep === true);
   }
-}
-
-function _useRef<T extends HTMLElement = HTMLElement>(name: string): { el: T | null } {
-  const node = useScope();
-  if (!node.__refs__) {
-    node.__refs__ = {};
-  }
-  if (!node.__refs__[name]) {
-    node.__refs__[name] = { lastSetId: null, values: {} };
-  }
-  return {
-    get el(): T | null {
-      const info = node.__refs__[name];
-      if (!info.lastSetId) {
-        return null;
-      }
-      return info.values[info.lastSetId];
-    },
-  };
 }
 
 function _useComponent() {
@@ -387,7 +365,6 @@ class _App extends OwlApp {
 }
 
 const Component = isOdooCompatLoaded ? (OwlComponent as typeof _Component) : _Component;
-const useRef = isOdooCompatLoaded ? (OwlUseRef as typeof _useRef) : _useRef;
 const useComponent = isOdooCompatLoaded ? (OwlUseComponent as typeof _useComponent) : _useComponent;
 const useExternalListener = isOdooCompatLoaded
   ? (OwlUseExternalListener as typeof _useExternalListener)
@@ -414,11 +391,9 @@ export {
   useEnv,
   useExternalListener,
   useLayoutEffect,
-  useRef,
   useSubEnv,
 };
 export type Component<Props = any, Env = any> = _Component<Props, Env>;
-export type useRef<T extends HTMLElement = HTMLElement> = (name: string) => { el: T | null };
 export type useComponent = () => any;
 export type useExternalListener = (target, eventName, handler, eventParams?) => void;
 export type useLayoutEffect = (effect, computeDependencies: () => any) => void;

@@ -1,4 +1,12 @@
-import { onMounted, onPatched, onWillUnmount, onWillUpdateProps, proxy } from "@odoo/owl";
+import {
+  onMounted,
+  onPatched,
+  onWillUnmount,
+  onWillUpdateProps,
+  proxy,
+  signal,
+  useEffect,
+} from "@odoo/owl";
 import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO } from "../../constants";
 import { DARK_MODE_FILTER_STRING } from "../../helpers/color";
 import { unregisterChartJsExtensions } from "../../helpers/figures/charts/chart_js_extension";
@@ -9,7 +17,6 @@ import {
   Component,
   useExternalListener,
   useLayoutEffect,
-  useRef,
   useSubEnv,
 } from "../../owl3_compatibility_layer";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
@@ -80,7 +87,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   };
 
   sidePanel!: Store<SidePanelStore>;
-  spreadsheetRef = useRef("spreadsheet");
+  spreadsheetRef = signal<HTMLElement | null>(null);
   spreadsheetRect = useSpreadsheetRect();
 
   state = proxy({ printModeEnabled: false });
@@ -171,10 +178,8 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
        * and spreadsheet is a child of that element. Anything else means that the focus
        * is on an element that needs to keep it.
        */
-      if (
-        !this.spreadsheetRef.el!.contains(document.activeElement) &&
-        document.activeElement?.contains(this.spreadsheetRef.el!)
-      ) {
+      const el = this.spreadsheetRef();
+      if (el && !el.contains(document.activeElement) && document.activeElement?.contains(el)) {
         this.focusGrid();
       }
     });
@@ -211,24 +216,31 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       }
     });
 
+    const resizeObserver = new ResizeObserver(() => {
+      this.sidePanel.changeSpreadsheetWidth(this.spreadsheetRect.width);
+    });
+    useEffect(() => {
+      const el = this.spreadsheetRef();
+      if (!el) {
+        return;
+      }
+      resizeObserver.observe(el);
+      return () => resizeObserver.disconnect();
+    });
+
     const render = batched(this.render.bind(this, true));
     onMounted(() => {
       this.bindModelEvents();
       this.checkViewportSize();
       stores.on("store-updated", this, render);
-      resizeObserver.observe(this.spreadsheetRef.el!);
     });
     onWillUnmount(() => {
       this.unbindModelEvents();
       stores.off("store-updated", this);
-      resizeObserver.disconnect();
       unregisterChartJsExtensions();
     });
     onPatched(() => {
       this.checkViewportSize();
-    });
-    const resizeObserver = new ResizeObserver(() => {
-      this.sidePanel.changeSpreadsheetWidth(this.spreadsheetRect.width);
     });
   }
 
@@ -317,7 +329,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   }
 
   getGridSize() {
-    const el = this.spreadsheetRef.el;
+    const el = this.spreadsheetRef();
     if (!el) {
       return { width: 0, height: 0 };
     }

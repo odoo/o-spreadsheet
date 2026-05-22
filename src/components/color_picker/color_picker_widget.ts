@@ -1,7 +1,9 @@
-import { Component, useRef } from "../../owl3_compatibility_layer";
+import { signal } from "@odoo/owl";
+import { Component } from "../../owl3_compatibility_layer";
 import { Pixel } from "../../types/misc";
 import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { getElBoundingRect } from "../helpers/dom_helpers";
 import { ColorPicker } from "./color_picker";
 
 interface Props {
@@ -31,7 +33,7 @@ export class ColorPickerWidget extends Component<Props, SpreadsheetChildEnv> {
   };
   static components = { ColorPicker };
 
-  colorPickerButtonRef = useRef("colorPickerButton");
+  colorPickerButtonRef = signal<HTMLElement | null>(null);
 
   get iconStyle() {
     return this.props.currentColor
@@ -40,13 +42,6 @@ export class ColorPickerWidget extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get colorPickerAnchorRect(): Rect {
-    const button = this.colorPickerButtonRef.el!;
-    const buttonRect = button.getBoundingClientRect();
-    return {
-      x: buttonRect.x,
-      y: buttonRect.y,
-      width: buttonRect.width,
-      height: buttonRect.height,
-    };
+    return getElBoundingRect(this.colorPickerButtonRef());
   }
 }

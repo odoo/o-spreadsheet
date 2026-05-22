@@ -1,5 +1,5 @@
-import { onWillPatch } from "@odoo/owl";
-import { Component, useRef } from "../../../owl3_compatibility_layer";
+import { onWillPatch, signal } from "@odoo/owl";
+import { Component } from "../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Checkbox } from "../../side_panel/components/checkbox/checkbox";
 
@@ -24,7 +24,7 @@ export class FilterMenuValueItem extends Component<Props, SpreadsheetChildEnv> {
     scrolledTo: { type: String, optional: true },
   };
 
-  private itemRef = useRef("menuValueItem");
+  itemRef = signal<HTMLElement | null>(null);
 
   setup() {
     onWillPatch(() => {
@@ -35,10 +35,11 @@ export class FilterMenuValueItem extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private scrollListToSelectedValue() {
-    if (!this.itemRef.el) {
+    const el = this.itemRef();
+    if (!el) {
       return;
     }
-    this.itemRef.el.scrollIntoView?.({
+    el.scrollIntoView?.({
       block: "nearest",
     });
   }

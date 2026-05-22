@@ -1,7 +1,7 @@
 import { proxy, signal } from "@odoo/owl";
 import { COMPOSER_ASSISTANT_COLOR } from "../../../../../constants";
 import { fuzzyLookup } from "../../../../../helpers/search";
-import { Component, useExternalListener, useRef } from "../../../../../owl3_compatibility_layer";
+import { Component, useExternalListener } from "../../../../../owl3_compatibility_layer";
 import {
   AutoCompleteProposal,
   AutoCompleteProvider,
@@ -30,7 +30,7 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
     slots: { type: Object, optional: true },
   };
 
-  private buttonRef = useRef("button");
+  private buttonRef = signal<HTMLElement | null>(null);
   private popover = proxy({ isOpen: false });
   private search = proxy({ input: "" });
   private autoComplete!: Store<AutoCompleteStore>;
@@ -41,7 +41,7 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
     this.autoComplete = useLocalStore(AutoCompleteStore);
     this.autoComplete.useProvider(this.getProvider());
     useExternalListener(window, "click", (ev) => {
-      if (ev.target !== this.buttonRef.el) {
+      if (ev.target !== this.buttonRef()) {
         this.popover.isOpen = false;
       }
     });
@@ -86,7 +86,10 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get popoverProps() {
-    const { x, y, width, height } = this.buttonRef.el!.getBoundingClientRect();
+    const el = this.buttonRef();
+    const { x, y, width, height } = el
+      ? el.getBoundingClientRect()
+      : { x: 0, y: 0, width: 0, height: 0 };
     return {
       anchorRect: { x, y, width, height },
       positioning: "bottom-left",

@@ -1,6 +1,6 @@
-import { onMounted, onWillUnmount } from "@odoo/owl";
+import { onMounted, onWillUnmount, signal } from "@odoo/owl";
 import { rectIntersection } from "../../helpers/rectangle";
-import { Component, useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
 import { CSSProperties, Pixel } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../../types/rendering";
@@ -57,8 +57,8 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     onPopoverHidden: () => {},
   };
 
-  private popoverRef = useRef("popover");
-  private popoverContentRef = useRef("popoverContent");
+  private popoverRef = signal<HTMLElement | null>(null);
+  private popoverContentRef = signal<HTMLElement | null>(null);
   private currentPosition: PopoverPosition | undefined = undefined;
   private currentDisplayValue: DisplayValue | undefined = undefined;
 
@@ -70,14 +70,15 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
 
     const resizeObserver = new ResizeObserver(this.computePopoverPosition.bind(this));
     onMounted(() => {
-      resizeObserver.observe(this.popoverContentRef.el!);
+      const contentEl = this.popoverContentRef();
+      if (contentEl) {
+        resizeObserver.observe(contentEl);
+      }
     });
     onWillUnmount(() => {
       resizeObserver.disconnect();
     });
 
-    // useLayoutEffect occurs after the DOM is created and the element width/height are computed, but before
-    // the element in rendered, so we can still set its position
     useLayoutEffect(this.computePopoverPosition.bind(this));
   }
 
@@ -85,8 +86,11 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     if (!this.containerRect) {
       throw new Error("Popover container is not defined");
     }
-    const el = this.popoverRef.el!;
-    const contentEl = this.popoverContentRef.el!;
+    const el = this.popoverRef();
+    const contentEl = this.popoverContentRef();
+    if (!el || !contentEl) {
+      return;
+    }
 
     const anchor = rectIntersection(this.props.anchorRect, this.containerRect);
     const newDisplay: DisplayValue = anchor ? "block" : "none";

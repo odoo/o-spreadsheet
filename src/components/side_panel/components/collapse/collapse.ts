@@ -1,5 +1,5 @@
-import { onMounted, onWillUpdateProps } from "@odoo/owl";
-import { Component, useRef } from "../../../../owl3_compatibility_layer";
+import { onMounted, onWillUpdateProps, signal } from "@odoo/owl";
+import { Component } from "../../../../owl3_compatibility_layer";
 
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 
@@ -15,12 +15,12 @@ export class Collapse extends Component<Props, SpreadsheetChildEnv> {
     slots: Object,
   };
 
-  private contentRef = useRef("content");
+  private contentRef = signal<HTMLElement | null>(null);
 
   setup() {
     onMounted(() => {
       if (this.props.isCollapsed) {
-        this.contentRef.el?.classList.add("d-none");
+        this.contentRef()?.classList.add("d-none");
       }
     });
     onWillUpdateProps((nextProps) => {
@@ -31,7 +31,7 @@ export class Collapse extends Component<Props, SpreadsheetChildEnv> {
   }
 
   startTransition(isCollapsed: boolean) {
-    const el = this.contentRef.el;
+    const el = this.contentRef();
     if (!el) {
       return;
     }

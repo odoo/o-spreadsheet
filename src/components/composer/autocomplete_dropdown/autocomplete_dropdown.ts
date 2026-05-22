@@ -1,4 +1,5 @@
-import { Component, useLayoutEffect, useRef } from "../../../owl3_compatibility_layer";
+import { signal, useEffect } from "@odoo/owl";
+import { Component } from "../../../owl3_compatibility_layer";
 import { AutoCompleteProposal } from "../../../registries/auto_completes/auto_complete_registry";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { HtmlContent } from "../composer/composer";
@@ -18,20 +19,18 @@ export class TextValueProvider extends Component<Props> {
     onValueSelected: Function,
     onValueHovered: Function,
   };
-  private autoCompleteListRef = useRef("autoCompleteList");
+  autoCompleteListRef = signal<HTMLElement | null>(null);
 
   setup() {
-    useLayoutEffect(
-      () => {
-        const selectedIndex = this.props.selectedIndex;
-        if (selectedIndex === undefined) {
-          return;
-        }
-        const selectedElement = this.autoCompleteListRef.el?.children[selectedIndex];
-        selectedElement?.scrollIntoView?.({ block: "nearest" });
-      },
-      () => [this.props.selectedIndex, this.autoCompleteListRef.el]
-    );
+    useEffect(() => {
+      const selectedIndex = this.props.selectedIndex;
+      if (selectedIndex === undefined) {
+        return;
+      }
+      const el = this.autoCompleteListRef();
+      const selectedElement = el?.children[selectedIndex];
+      selectedElement?.scrollIntoView?.({ block: "nearest" });
+    });
   }
 
   getCss(html: HtmlContent) {

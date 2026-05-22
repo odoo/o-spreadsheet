@@ -1,10 +1,10 @@
-import { proxy } from "@odoo/owl";
-import { Component, useExternalListener, useRef } from "../../../../owl3_compatibility_layer";
+import { proxy, signal } from "@odoo/owl";
+import { Component, useExternalListener } from "../../../../owl3_compatibility_layer";
 import { Rect } from "../../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { ColorPicker } from "../../../color_picker/color_picker";
 import { cssPropertiesToCss } from "../../../helpers/css";
-import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
+import { getElBoundingRect } from "../../../helpers/dom_helpers";
 import { Section } from "../section/section";
 
 interface State {
@@ -35,7 +35,7 @@ export class RoundColorPicker extends Component<Props, SpreadsheetChildEnv> {
     disableNoColor: { type: Boolean, optional: true },
   };
 
-  colorPickerButtonRef = useRef("colorPickerButton");
+  colorPickerButtonRef = signal<HTMLElement | null>(null);
 
   private state!: State;
 
@@ -58,8 +58,7 @@ export class RoundColorPicker extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get colorPickerAnchorRect(): Rect {
-    const button = this.colorPickerButtonRef.el!;
-    return getBoundingRectAsPOJO(button);
+    return getElBoundingRect(this.colorPickerButtonRef());
   }
 
   get buttonStyle() {

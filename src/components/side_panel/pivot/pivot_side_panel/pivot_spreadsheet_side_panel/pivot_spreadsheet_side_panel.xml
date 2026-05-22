@@ -4,7 +4,7 @@
     <div class="d-flex flex-column h-100 justify-content-between overflow-hidden">
       <div
         class="h-100 position-relative overflow-x-hidden overflow-y-auto"
-        t-custom-ref="pivotSidePanel">
+        t-ref="this.pivotSidePanelRef">
         <div
           t-att="isReadonly ? ['inert', 1] : []"
           t-att-class="{ 'pe-none opacity-50': isReadonly }">

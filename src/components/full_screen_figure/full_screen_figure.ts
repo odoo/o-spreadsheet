@@ -1,5 +1,5 @@
-import { onWillUpdateProps } from "@odoo/owl";
-import { Component, useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
+import { onWillUpdateProps, signal, useEffect } from "@odoo/owl";
+import { Component } from "../../owl3_compatibility_layer";
 import { figureRegistry } from "../../registries/figures_registry";
 import { useStore } from "../../store_engine/store_hooks";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -15,7 +15,7 @@ export class FullScreenFigure extends Component<{}, SpreadsheetChildEnv> {
   static components = { ChartFigure };
 
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
-  private ref = useRef("fullScreenFigure");
+  private fullScreenFigureRef = signal<HTMLElement | null>(null);
 
   spreadsheetRect = useSpreadsheetRect();
 
@@ -33,10 +33,7 @@ export class FullScreenFigure extends Component<{}, SpreadsheetChildEnv> {
       lastFigureId = this.figureUI?.id;
     });
 
-    useLayoutEffect(
-      (el) => el?.focus(),
-      () => [this.ref.el]
-    );
+    useEffect(() => this.fullScreenFigureRef()?.focus());
   }
 
   get figureUI() {

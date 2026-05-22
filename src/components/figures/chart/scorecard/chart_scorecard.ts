@@ -1,7 +1,7 @@
-import { onMounted, onWillUnmount } from "@odoo/owl";
+import { onMounted, onWillUnmount, signal } from "@odoo/owl";
 import { drawScoreChart } from "../../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../../helpers/figures/charts/scorecard_chart_config_builder";
-import { Component, useLayoutEffect, useRef } from "../../../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
@@ -18,7 +18,7 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
     chartId: String,
     isFullScreen: { type: Boolean, optional: true },
   };
-  private canvas = useRef("chartContainer");
+  private canvas = signal<HTMLCanvasElement | null>(null);
 
   get runtime(): ScorecardChartRuntime {
     return this.env.model.getters.getChartRuntime(this.props.chartId) as ScorecardChartRuntime;
@@ -31,17 +31,28 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     useLayoutEffect(this.createChart.bind(this), () => {
-      const canvas = this.canvas.el as HTMLCanvasElement;
+      const canvas = this.canvas();
+      if (!canvas) {
+        return [];
+      }
       const rect = canvas.getBoundingClientRect();
-      return [rect.width, rect.height, this.runtime, this.canvas.el, window.devicePixelRatio];
+      return [rect.width, rect.height, this.runtime, canvas, window.devicePixelRatio];
     });
     const resizeObserver = new ResizeObserver(() => this.createChart());
-    onMounted(() => resizeObserver.observe(this.canvas.el as HTMLCanvasElement));
+    onMounted(() => {
+      const canvas = this.canvas();
+      if (canvas) {
+        resizeObserver.observe(canvas);
+      }
+    });
     onWillUnmount(() => resizeObserver.disconnect());
   }
 
   private createChart() {
-    const canvas = this.canvas.el as HTMLCanvasElement;
+    const canvas = this.canvas();
+    if (!canvas) {
+      return;
+    }
     const zoom = this.env.model.getters.getViewportZoomLevel();
     const config = getScorecardConfiguration(
       getZoomedRect(1 / zoom, canvas.getBoundingClientRect()),

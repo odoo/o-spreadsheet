@@ -1,9 +1,10 @@
-import { onWillUpdateProps, proxy } from "@odoo/owl";
+import { onWillUpdateProps, proxy, signal } from "@odoo/owl";
 import { DEFAULT_BORDER_DESC } from "../../constants";
-import { Component, useRef } from "../../owl3_compatibility_layer";
+import { Component } from "../../owl3_compatibility_layer";
 import { BorderPosition, BorderStyle, Color, Pixel } from "../../types/misc";
 import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { getElBoundingRect } from "../helpers/dom_helpers";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../helpers/top_bar_tool_hook";
 import { BorderEditor } from "./border_editor";
 
@@ -29,7 +30,7 @@ export class BorderEditorWidget extends Component<Props, SpreadsheetChildEnv> {
   static components = { BorderEditor };
   topBarToolStore!: ToolBarDropdownStore;
 
-  borderEditorButtonRef = useRef("borderEditorButton");
+  borderEditorButtonRef = signal<HTMLElement | null>(null);
   state: State = proxy({
     currentColor: DEFAULT_BORDER_DESC.color,
     currentStyle: DEFAULT_BORDER_DESC.style,
@@ -50,14 +51,7 @@ export class BorderEditorWidget extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get borderEditorAnchorRect(): Rect {
-    const button = this.borderEditorButtonRef.el!;
-    const buttonRect = button.getBoundingClientRect();
-    return {
-      x: buttonRect.x,
-      y: buttonRect.y,
-      width: buttonRect.width,
-      height: buttonRect.height,
-    };
+    return getElBoundingRect(this.borderEditorButtonRef());
   }
 
   onBorderPositionPicked(position: BorderPosition) {

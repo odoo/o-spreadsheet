@@ -2,7 +2,7 @@
   <div
     t-name="o-spreadsheet-DropdownAction"
     class="o-dropdown"
-    t-custom-ref="actionRef"
+    t-ref="this.actionRef"
     t-on-click.stop="">
     <ActionButton
       action="this.props.parentAction"

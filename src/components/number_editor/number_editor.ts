@@ -1,12 +1,11 @@
-import { onMounted, onWillUpdateProps, proxy } from "@odoo/owl";
+import { onMounted, onWillUpdateProps, proxy, signal } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
-import { Component, useExternalListener, useRef } from "../../owl3_compatibility_layer";
+import { Component, useExternalListener } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
-import { Ref } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
-import { isChildEvent } from "../helpers/dom_helpers";
+import { getElBoundingRect, isChildEvent } from "../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../popover/popover";
 
 interface State {
@@ -49,9 +48,9 @@ export class NumberEditor extends Component<Props, SpreadsheetChildEnv> {
 
   dropdown: State = proxy({ isOpen: false });
 
-  private inputRef: Ref<HTMLInputElement> = useRef("inputNumber");
-  private rootEditorRef = useRef("NumberEditor");
-  private valueListRef = useRef("numberList");
+  private inputRef = signal<HTMLInputElement | null>(null);
+  private rootEditorRef = signal<HTMLElement | null>(null);
+  private valueListRef = signal<HTMLElement | null>(null);
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
@@ -60,29 +59,37 @@ export class NumberEditor extends Component<Props, SpreadsheetChildEnv> {
 
     useExternalListener(window, "click", this.onExternalClick, { capture: true });
     onWillUpdateProps((nextProps) => {
-      if (this.inputRef.el && document.activeElement !== this.inputRef.el) {
-        this.inputRef.el.value = nextProps.currentValue;
+      const input = this.inputRef();
+      if (input && document.activeElement !== input) {
+        input.value = nextProps.currentValue;
       }
     });
 
     onMounted(() => {
-      if (this.inputRef.el) {
-        this.inputRef.el.value = this.props.currentValue.toString();
+      const input = this.inputRef();
+      if (input) {
+        input.value = this.props.currentValue.toString();
       }
     });
   }
 
   get popoverProps(): PopoverProps {
-    const { x, y, width, height } = this.rootEditorRef.el!.getBoundingClientRect();
     return {
-      anchorRect: { x, y, width, height },
+      anchorRect: getElBoundingRect(this.rootEditorRef()),
       positioning: "bottom-left",
       verticalOffset: 0,
     };
   }
 
   onExternalClick(ev: MouseEvent) {
-    if (!isChildEvent(this.valueListRef.el!, ev) && !isChildEvent(this.rootEditorRef.el!, ev)) {
+    const valueListEl = this.valueListRef();
+    const rootEditorEl = this.rootEditorRef();
+    if (
+      valueListEl &&
+      rootEditorEl &&
+      !isChildEvent(valueListEl, ev) &&
+      !isChildEvent(rootEditorEl, ev)
+    ) {
       this.closeList();
     }
   }
@@ -91,7 +98,7 @@ export class NumberEditor extends Component<Props, SpreadsheetChildEnv> {
     const isOpen = this.dropdown.isOpen;
     if (!isOpen) {
       this.props.onToggle?.();
-      this.inputRef.el!.focus();
+      this.inputRef()?.focus();
     } else {
       this.closeList();
     }

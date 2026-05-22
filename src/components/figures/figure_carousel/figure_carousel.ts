@@ -3,7 +3,7 @@ import { ActionSpec, createActions } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers/misc";
-import { Component, useLayoutEffect, useRef } from "../../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
@@ -36,7 +36,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   };
   static components = { ChartDashboardMenu, MenuPopover };
 
-  private carouselTabsRef = useRef("carouselTabs");
+  private carouselTabsRef = signal<HTMLElement | null>(null);
   private carouselTabsDropdownRef = signal<HTMLElement | null>(null);
 
   private menuState = proxy<MenuState>({ isOpen: false, anchorRect: null, menuItems: [] });
@@ -133,7 +133,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private updateTabsVisibility(): void {
-    const tabsContainerEl = this.carouselTabsRef.el;
+    const tabsContainerEl = this.carouselTabsRef();
     const dropDownEl = this.carouselTabsDropdownRef();
     if (!tabsContainerEl || !dropDownEl) {
       return;

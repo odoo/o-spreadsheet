@@ -1,5 +1,6 @@
+import { signal } from "@odoo/owl";
 import { Action, isMenuItemEnabled, isRootMenu, MenuItemOrSeparator } from "../../actions/action";
-import { Component, useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { Pixel } from "../../types/misc";
 import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -52,18 +53,19 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
   static components = {};
   static defaultProps = {};
 
-  private menuRef = useRef("menu");
+  private menuRef = signal<HTMLElement | null>(null);
 
   setup(): void {
     useLayoutEffect(() => {
+      const menuEl = this.menuRef();
       if (
         this.props.hoveredMenuId &&
         this.props.isHoveredMenuFocused &&
-        this.menuRef.el &&
+        menuEl &&
         !this.props.disableKeyboardNavigation
       ) {
         const selector = `[data-name='${this.props.hoveredMenuId}']`;
-        const menuItemElement = this.menuRef.el.querySelector(selector) as HTMLElement;
+        const menuItemElement = menuEl.querySelector(selector) as HTMLElement;
         menuItemElement?.focus();
       }
     });

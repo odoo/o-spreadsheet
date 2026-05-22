@@ -3,7 +3,7 @@
     <div
       class="o-spreadsheet h-100 w-100"
       t-att-class="this.getSpreadSheetClasses()"
-      t-custom-ref="spreadsheet"
+      t-ref="this.spreadsheetRef"
       t-att-style="this.getStyle()">
       <t t-if="this.state.printModeEnabled">
         <SpreadsheetPrint onExitPrintMode.bind="this.exitPrintMode"/>

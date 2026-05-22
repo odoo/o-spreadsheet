@@ -1,5 +1,5 @@
-import { proxy } from "@odoo/owl";
-import { Component, useExternalListener, useRef } from "../../../../owl3_compatibility_layer";
+import { proxy, signal } from "@odoo/owl";
+import { Component, useExternalListener } from "../../../../owl3_compatibility_layer";
 import { chartDataSourceRegistry } from "../../../../registries/chart_data_source_registry";
 import { chartSubtypeRegistry } from "../../../../registries/chart_subtype_registry";
 import { CHART_TYPES, ChartDefinition, ChartType } from "../../../../types/chart/chart";
@@ -33,8 +33,8 @@ export class ChartTypePicker extends Component<Props, SpreadsheetChildEnv> {
   categories = chartCategories;
   chartTypeByCategories: Record<string, ChartSubtypeProperties[]> = {};
 
-  popoverRef = useRef("popoverRef");
-  selectRef = useRef("selectRef");
+  popoverRef = signal<HTMLElement | null>(null);
+  selectRef = signal<HTMLElement | null>(null);
 
   state = proxy<ChartTypePickerState>({ popoverProps: undefined, popoverStyle: "" });
 
@@ -77,10 +77,7 @@ export class ChartTypePicker extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onExternalClick(ev: MouseEvent) {
-    if (
-      isChildEvent(this.popoverRef.el?.parentElement, ev) ||
-      isChildEvent(this.selectRef.el, ev)
-    ) {
+    if (isChildEvent(this.popoverRef()?.parentElement, ev) || isChildEvent(this.selectRef(), ev)) {
       return;
     }
     this.closePopover();

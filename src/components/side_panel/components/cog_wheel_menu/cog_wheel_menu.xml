@@ -3,7 +3,7 @@
     <span
       class="fa fa-cog os-cog-wheel-menu-icon o-button-icon"
       t-on-click="this.toggleMenu"
-      t-custom-ref="button"
+      t-ref="this.buttonRef"
     />
     <MenuPopover
       t-if="this.menuState.isOpen"

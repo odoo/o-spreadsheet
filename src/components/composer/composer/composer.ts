@@ -1,8 +1,8 @@
-import { onMounted, onWillUnmount, proxy } from "@odoo/owl";
+import { onMounted, onWillUnmount, proxy, signal } from "@odoo/owl";
 import { NEWLINE, SCROLLBAR_WIDTH } from "../../../constants";
 import { setColorAlpha } from "../../../helpers/color";
 import { debounce, deepEquals, isFormula } from "../../../helpers/misc";
-import { Component, useLayoutEffect, useRef } from "../../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 
 import { DEFAULT_TOKEN_COLOR } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
@@ -100,10 +100,12 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
-  composerRef = useRef("o_composer");
-  containerRef = useRef("composerContainer");
+  composerRef = signal<HTMLElement | null>(null);
+  containerRef = signal<HTMLElement | null>(null);
 
-  contentHelper: ContentEditableHelper = new ContentEditableHelper(this.composerRef.el!);
+  contentHelper: ContentEditableHelper = new ContentEditableHelper(
+    this.composerRef() as unknown as HTMLElement
+  );
 
   composerState: ComposerState = proxy({
     positionStart: 0,
@@ -137,7 +139,8 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   }, 120);
 
   get assistantStyleProperties(): CSSProperties {
-    const composerRect = this.composerRef.el!.getBoundingClientRect();
+    const composerEl = this.composerRef();
+    const composerRect = composerEl!.getBoundingClientRect();
     const assistantStyle: CSSProperties = {};
 
     const minWidth = Math.min(this.props.rect?.width || Infinity, ASSISTANT_WIDTH);
@@ -217,7 +220,10 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   setup() {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     onMounted(() => {
-      const el = this.composerRef.el!;
+      const el = this.composerRef();
+      if (!el) {
+        return;
+      }
       if (this.props.isDefaultFocus) {
         this.DOMFocusableElementStore.setFocusableElement(el);
       }
@@ -473,7 +479,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       return;
     }
 
-    if (this.containerRef.el?.contains(ev.relatedTarget as Node)) {
+    if (this.containerRef()?.contains(ev.relatedTarget as Node)) {
       return;
     }
 
@@ -586,10 +592,8 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
 
   onWheel(event: WheelEvent) {
     // detect if scrollbar is available
-    if (
-      this.composerRef.el &&
-      this.composerRef.el.scrollHeight > this.composerRef.el.clientHeight
-    ) {
+    const composerEl = this.composerRef();
+    if (composerEl && composerEl.scrollHeight > composerEl.clientHeight) {
       event.stopPropagation();
     }
   }

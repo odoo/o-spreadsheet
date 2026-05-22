@@ -2,7 +2,6 @@
   <t t-name="o-spreadsheet-SpreadsheetDashboard">
     <div
       class="o-grid o-two-columns o-zoomable bg-white"
-      t-custom-ref="dashboard"
       tabindex="-1"
       t-on-wheel="this.onMouseWheel"
       t-att-style="this.dashboardStyle">

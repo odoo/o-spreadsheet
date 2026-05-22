@@ -1,13 +1,8 @@
-import { proxy, signal } from "@odoo/owl";
+import { onMounted, onPatched, proxy, signal } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../constants";
-import {
-  Component,
-  useExternalListener,
-  useLayoutEffect,
-  useRef,
-} from "../../owl3_compatibility_layer";
+import { Component, useExternalListener } from "../../owl3_compatibility_layer";
 import { formatNumberMenuItemSpec } from "../../registries/menus/number_format_menu_registry";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../../registries/topbar_component_registry";
@@ -77,13 +72,13 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   fingerprints!: Store<FormulaFingerprintStore>;
   topBarToolStore!: Store<TopBarToolStore>;
 
-  toolBarContainerRef = useRef("toolBarContainer");
-  toolbarRef = useRef("toolBar");
+  toolBarContainerRef = signal<HTMLElement | null>(null);
+  toolbarRef = signal<HTMLElement | null>(null);
   namedRangesRef = signal<HTMLElement | null>(null);
-  topBarTopRef = useRef("topBarTop");
+  topBarTopRef = signal<HTMLElement | null>(null);
 
-  moreToolsContainerRef = useRef("moreToolsContainer");
-  moreToolsButtonRef = useRef("moreToolsButton");
+  moreToolsContainerRef = signal<HTMLElement | null>(null);
+  moreToolsButtonRef = signal<HTMLElement | null>(null);
 
   spreadsheetRect = useSpreadsheetRect();
 
@@ -96,13 +91,17 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     useExternalListener(window, "keydown", this.onKeydown);
     this.menus = topbarMenuRegistry.getMenuItems();
 
-    useLayoutEffect(
-      () => {
+    let lastWidth: number | undefined;
+    const updateVisibility = () => {
+      const currentWidth = this.spreadsheetRect.width;
+      if (lastWidth !== currentWidth) {
+        lastWidth = currentWidth;
         this.state.toolsPopoverState.isOpen = false;
         this.setVisibilityToolsGroups();
-      },
-      () => [this.spreadsheetRect.width]
-    );
+      }
+    };
+    onMounted(updateVisibility);
+    onPatched(updateVisibility);
   }
 
   setVisibilityToolsGroups() {
@@ -111,12 +110,17 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     }
     const hiddenCategories: string[] = [];
 
-    const { x: toolsX } = this.toolbarRef.el!.getBoundingClientRect();
-    const { x } = this.toolBarContainerRef.el!.getBoundingClientRect();
+    const toolbarEl = this.toolbarRef();
+    const containerEl = this.toolBarContainerRef();
+    if (!toolbarEl || !containerEl) {
+      return;
+    }
+    const { x: toolsX } = toolbarEl.getBoundingClientRect();
+    const { x } = containerEl.getBoundingClientRect();
 
     // Compute the with of the button that will toggle the hidden tools
-    this.moreToolsContainerRef.el?.classList.remove("d-none");
-    const moreToolsWidth = this.moreToolsButtonRef.el?.getBoundingClientRect().width || 0;
+    this.moreToolsContainerRef()?.classList.remove("d-none");
+    const moreToolsWidth = this.moreToolsButtonRef()?.getBoundingClientRect().width || 0;
 
     const namedRangeWidth = getElBoundingRect(this.namedRangesRef()).width;
 
@@ -142,7 +146,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     }
     this.state.invisibleToolsCategories = hiddenCategories;
     if (!hiddenCategories.length) {
-      this.moreToolsContainerRef.el?.classList.add("d-none");
+      this.moreToolsContainerRef()?.classList.add("d-none");
     }
   }
 
@@ -260,9 +264,8 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get toolsPopoverProps(): PopoverProps {
-    const rect = this.moreToolsButtonRef.el
-      ? getBoundingRectAsPOJO(this.moreToolsButtonRef.el)
-      : { x: 0, y: 0, width: 0, height: 0 };
+    const el = this.moreToolsButtonRef();
+    const rect = el ? getBoundingRectAsPOJO(el) : { x: 0, y: 0, width: 0, height: 0 };
     return {
       anchorRect: rect,
       positioning: "bottom-left",
@@ -308,7 +311,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   private getMenuItemEl(menuItemId: UID): HTMLElement | undefined {
     return (
-      this.topBarTopRef.el?.querySelector<HTMLElement>(`[data-id="${menuItemId}"]`) || undefined
+      this.topBarTopRef()?.querySelector<HTMLElement>(`[data-id="${menuItemId}"]`) || undefined
     );
   }
 }

@@ -1,5 +1,5 @@
-import { proxy } from "@odoo/owl";
-import { Component, useExternalListener, useRef } from "../../owl3_compatibility_layer";
+import { proxy, signal } from "@odoo/owl";
+import { Component, useExternalListener } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { _t } from "../../translation";
@@ -17,7 +17,7 @@ export class GridAddRowsFooter extends Component<Props, SpreadsheetChildEnv> {
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
-  inputRef = useRef<HTMLInputElement>("inputRef");
+  inputRef = signal<HTMLInputElement | null>(null);
   state = proxy({
     inputValue: "100",
     errorFlag: false,
@@ -89,14 +89,15 @@ export class GridAddRowsFooter extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private onExternalClick(ev) {
-    if (this.inputRef.el !== document.activeElement || ev.target === this.inputRef.el) {
+    const inputEl = this.inputRef();
+    if (inputEl !== document.activeElement || ev.target === inputEl) {
       return;
     }
     this.focusDefaultElement();
   }
 
   private focusDefaultElement() {
-    if (document.activeElement === this.inputRef.el) {
+    if (document.activeElement === this.inputRef()) {
       this.DOMFocusableElementStore.focus();
     }
   }

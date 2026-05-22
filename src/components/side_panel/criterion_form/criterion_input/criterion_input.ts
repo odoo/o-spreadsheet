@@ -1,6 +1,6 @@
-import { proxy } from "@odoo/owl";
+import { proxy, signal } from "@odoo/owl";
 import { canonicalizeContent } from "../../../../helpers/locale";
-import { Component, useLayoutEffect, useRef } from "../../../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { _t } from "../../../../translation";
 import { DataValidationCriterionType } from "../../../../types/data_validation";
@@ -37,16 +37,17 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
   };
   static components = { StandaloneComposer: StandaloneComposer };
 
-  inputRef = useRef("input");
+  inputRef = signal<HTMLInputElement | null>(null);
 
   setup() {
     useLayoutEffect(
       () => {
-        if (this.props.focused && this.inputRef.el) {
-          this.inputRef.el.focus();
+        const el = this.inputRef();
+        if (this.props.focused && el) {
+          el.focus();
         }
       },
-      () => [this.props.focused, this.inputRef.el]
+      () => [this.props.focused, this.inputRef()]
     );
   }
 

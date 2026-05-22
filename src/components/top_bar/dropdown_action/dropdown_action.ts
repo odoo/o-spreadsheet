@@ -1,7 +1,9 @@
+import { signal } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
-import { Component, useRef } from "../../../owl3_compatibility_layer";
+import { Component } from "../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ActionButton } from "../../action_button/action_button";
+import { getElBoundingRect } from "../../helpers/dom_helpers";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 import { Popover, PopoverProps } from "../../popover/popover";
 
@@ -23,7 +25,7 @@ export class DropdownAction extends Component<Props, SpreadsheetChildEnv> {
   };
 
   topBarToolStore!: ToolBarDropdownStore;
-  actionRef = useRef("actionRef");
+  actionRef = signal<HTMLElement | null>(null);
 
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();
@@ -42,11 +44,8 @@ export class DropdownAction extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get popoverProps(): PopoverProps {
-    const rect = this.actionRef.el
-      ? this.actionRef.el.getBoundingClientRect()
-      : { x: 0, y: 0, width: 0, height: 0 };
     return {
-      anchorRect: rect,
+      anchorRect: getElBoundingRect(this.actionRef()),
       positioning: "bottom-left",
       verticalOffset: 0,
       class: "rounded",
