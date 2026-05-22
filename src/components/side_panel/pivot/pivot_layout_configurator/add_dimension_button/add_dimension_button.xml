@@ -15,7 +15,7 @@
           t-on-input="(ev) => this.updateSearch(ev.target.value)"
           t-on-keydown="this.onKeyDown"
           class="border-0 w-100 pivot-dimension-search-field"
-          t-custom-ref="autofocus"
+          t-ref="this.autofocusRef"
         />
       </div>
       <TextValueProvider
