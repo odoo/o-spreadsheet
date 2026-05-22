@@ -1,12 +1,7 @@
-import { onMounted, onPatched, onWillUnmount, proxy } from "@odoo/owl";
+import { onMounted, onWillUnmount, proxy, signal, useEffect } from "@odoo/owl";
 import { throttle } from "../../../helpers/misc";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
-import {
-  Component,
-  useExternalListener,
-  useLayoutEffect,
-  useRef,
-} from "../../../owl3_compatibility_layer";
+import { Component, useExternalListener, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { getSheetMenuRegistry } from "../../../registries/menus/sheet_menu_registry";
 import { useStore } from "../../../store_engine/store_hooks";
@@ -19,7 +14,7 @@ import { Store } from "../../../types/store_engine";
 import { Ripple } from "../../animation/ripple";
 import { ColorPicker } from "../../color_picker/color_picker";
 import { cssPropertiesToCss } from "../../helpers/css";
-import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
+import { getElBoundingRect } from "../../helpers/dom_helpers";
 
 interface Props {
   sheetId: string;
@@ -63,9 +58,9 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
 
   private state = proxy<State>({ isEditing: false, pickerOpened: false });
 
-  private sheetDivRef = useRef("sheetDiv");
-  private iconRef = useRef("icon");
-  private sheetNameRef = useRef("sheetNameSpan");
+  private sheetDivRef = signal<HTMLElement | null>(null);
+  private iconRef = signal<HTMLElement | null>(null);
+  private sheetNameRef = signal<HTMLElement | null>(null);
 
   private editionState: "initializing" | "editing" = "initializing";
 
@@ -74,16 +69,8 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     useExternalListener(window, "click", () => (this.state.pickerOpened = false));
 
-    // Subscribe BottomBarSheet to isEditing so onPatched fires when it changes.
-    // (Without this, isEditing is read inside Ripple's slot render, which subscribes
-    // Ripple's signalComputation instead of ours, so our onPatched never fires.)
-    useLayoutEffect(
-      () => {},
-      () => [this.state.isEditing]
-    );
-
-    onPatched(() => {
-      if (this.sheetNameRef.el && this.state.isEditing && this.editionState === "initializing") {
+    useEffect(() => {
+      if (this.sheetNameRef() && this.state.isEditing && this.editionState === "initializing") {
         this.editionState = "editing";
         this.focusInputAndSelectContent();
       }
@@ -101,9 +88,9 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     onMounted(() => {
       const animateLockedSheet = throttle(
         () =>
-          this.sheetDivRef.el
+          this.sheetDivRef()
             ?.animate(...getSheetLockAnimation(200, 1))
-            .finished.then(() => this.iconRef.el?.animate(...getSheetLockAnimation(200, 2))),
+            .finished.then(() => this.iconRef()?.animate(...getSheetLockAnimation(200, 2))),
         800
       );
 
@@ -130,24 +117,20 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private focusInputAndSelectContent() {
-    if (!this.state.isEditing || !this.sheetNameRef.el) {
+    const el = this.sheetNameRef();
+    if (!this.state.isEditing || !el) {
       return;
     }
 
-    this.sheetNameRef.el.focus();
+    el.focus();
     const selection = window.getSelection();
-    if (selection && this.sheetNameRef.el.firstChild) {
-      selection.setBaseAndExtent(
-        this.sheetNameRef.el.firstChild,
-        0,
-        this.sheetNameRef.el.firstChild,
-        this.sheetNameRef.el.textContent?.length || 0
-      );
+    if (selection && el.firstChild) {
+      selection.setBaseAndExtent(el.firstChild, 0, el.firstChild, el.textContent?.length || 0);
     }
   }
 
   private scrollToSheet() {
-    this.sheetDivRef.el?.scrollIntoView?.({
+    this.sheetDivRef()?.scrollIntoView?.({
       behavior: "smooth",
       inline: "nearest",
     });
@@ -216,13 +199,13 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private stopEdition() {
-    if (!this.state.isEditing || !this.sheetNameRef.el) {
+    if (!this.state.isEditing || !this.sheetNameRef()) {
       return;
     }
 
     this.state.isEditing = false;
     this.editionState = "initializing";
-    this.sheetNameRef.el.blur();
+    this.sheetNameRef()?.blur();
 
     const inputValue = this.getInputContent() || "";
 
@@ -232,7 +215,7 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   private cancelEdition() {
     this.state.isEditing = false;
     this.editionState = "initializing";
-    this.sheetNameRef.el?.blur();
+    this.sheetNameRef()?.blur();
     this.setInputContent(this.sheetName);
   }
 
@@ -255,12 +238,13 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getInputContent(): string | undefined | null {
-    return this.sheetNameRef.el?.textContent;
+    return this.sheetNameRef()?.textContent;
   }
 
   private setInputContent(content: string) {
-    if (this.sheetNameRef.el) {
-      this.sheetNameRef.el.textContent = content;
+    const el = this.sheetNameRef();
+    if (el) {
+      el.textContent = content;
     }
   }
 
@@ -270,8 +254,8 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get colorPickerAnchorRect(): Rect {
-    const button = this.sheetDivRef.el!;
-    return getBoundingRectAsPOJO(button);
+    const button = this.sheetDivRef();
+    return getElBoundingRect(button);
   }
 
   get contextMenuRegistry() {
