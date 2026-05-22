@@ -21,7 +21,7 @@ export class NumberInput extends GenericInput<Props> {
   debouncedOnChange = debounce(this.props.onChange.bind(this), 100, true);
 
   save() {
-    const currentValue = (this.inputRef.el?.value || "").trim();
+    const currentValue = (this.genericInputRef()?.value || "").trim();
     if (currentValue !== this.props.value.toString()) {
       this.debouncedOnChange(currentValue);
     }

@@ -1,11 +1,5 @@
-import { useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
+import { Signal, useEffect } from "@odoo/owl";
 
-export function useAutofocus({ refName }: { refName: string }) {
-  const ref = useRef(refName);
-  useLayoutEffect(
-    (el) => {
-      el?.focus();
-    },
-    () => [ref.el]
-  );
+export function useAutofocus(ref: Signal<HTMLElement | null>) {
+  useEffect(() => ref()?.focus());
 }

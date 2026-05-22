@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { proxy, signal } from "@odoo/owl";
 import { COMPOSER_ASSISTANT_COLOR } from "../../../../../constants";
 import { fuzzyLookup } from "../../../../../helpers/search";
 import { Component, useExternalListener, useRef } from "../../../../../owl3_compatibility_layer";
@@ -34,6 +34,7 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
   private popover = proxy({ isOpen: false });
   private search = proxy({ input: "" });
   private autoComplete!: Store<AutoCompleteStore>;
+  private autofocusRef = signal<HTMLElement | null>(null);
 
   // TODO navigation keys. (this looks a lot like auto-complete list. Could maybe be factorized)
   setup() {
@@ -44,7 +45,7 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
         this.popover.isOpen = false;
       }
     });
-    useAutofocus({ refName: "autofocus" });
+    useAutofocus(this.autofocusRef);
   }
 
   getProvider(): AutoCompleteProvider {

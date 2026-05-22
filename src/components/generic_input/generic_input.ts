@@ -1,6 +1,5 @@
-import { onMounted, onWillUpdateProps } from "@odoo/owl";
-import { Component, useExternalListener, useRef } from "../../owl3_compatibility_layer";
-import { Ref } from "../../types/misc";
+import { onMounted, onWillUpdateProps, signal, useListener } from "@odoo/owl";
+import { Component } from "../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { useAutofocus } from "../helpers/autofocus_hook";
 
@@ -34,18 +33,16 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
     resetOnBlur: { type: Boolean, optional: true },
   };
 
-  protected refName = "input";
-  protected inputRef!: Ref<HTMLInputElement>;
+  protected genericInputRef = signal<HTMLInputElement | null>(null);
 
   private lastOnChangeValue: string = this.props.value.toString();
 
   setup() {
-    this.inputRef = useRef(this.refName);
-    useExternalListener(
+    useListener(
       window,
       "click",
       (ev) => {
-        const el = this.inputRef.el;
+        const el = this.genericInputRef();
         if (!el || ev.target === el || el.value === this.props.value.toString()) {
           return;
         }
@@ -58,17 +55,19 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
       { capture: true }
     );
     if (this.props.autofocus) {
-      useAutofocus({ refName: this.refName });
+      useAutofocus(this.genericInputRef);
     }
     onWillUpdateProps((nextProps) => {
-      if (document.activeElement !== this.inputRef.el && this.inputRef.el) {
-        this.inputRef.el.value = nextProps.value;
+      const el = this.genericInputRef();
+      if (document.activeElement !== el && el) {
+        el.value = nextProps.value;
       }
       this.lastOnChangeValue = nextProps.value.toString();
     });
     onMounted(() => {
-      if (this.inputRef.el) {
-        this.inputRef.el.value = this.props.value.toString();
+      const el = this.genericInputRef();
+      if (el) {
+        el.value = this.props.value.toString();
       }
     });
   }
@@ -81,9 +80,10 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
         ev.stopPropagation();
         break;
       case "Escape":
-        if (this.inputRef.el) {
-          this.inputRef.el.value = this.props.value.toString();
-          this.inputRef.el.blur();
+        const el = this.genericInputRef();
+        if (el) {
+          el.value = this.props.value.toString();
+          el.blur();
         }
         ev.preventDefault();
         ev.stopPropagation();
@@ -92,13 +92,13 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
   }
 
   save() {
-    const currentValue = (this.inputRef.el?.value || "").trim();
+    const currentValue = (this.genericInputRef()?.value || "").trim();
     if (currentValue !== this.lastOnChangeValue) {
       this.lastOnChangeValue = currentValue;
       this.props.onChange(currentValue);
     }
-    if (document.activeElement === this.inputRef.el) {
-      this.inputRef.el?.blur();
+    if (document.activeElement === this.genericInputRef()) {
+      this.genericInputRef()?.blur();
     }
   }
 
@@ -129,8 +129,9 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
   onBlur() {
     this.props.onBlur?.();
     if (this.props.resetOnBlur) {
-      if (this.inputRef.el) {
-        this.inputRef.el.value = this.props.value.toString();
+      const el = this.genericInputRef();
+      if (el) {
+        el.value = this.props.value.toString();
       }
     } else {
       this.save();
