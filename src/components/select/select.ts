@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { proxy, signal } from "@odoo/owl";
 import {
   Component,
   useExternalListener,
@@ -7,7 +7,7 @@ import {
 } from "../../owl3_compatibility_layer";
 import { ValueAndLabel } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
-import { getRefBoundingRect, isChildEvent } from "../helpers/dom_helpers";
+import { getElBoundingRect, isChildEvent } from "../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../popover/popover";
 
 export interface SelectProps {
@@ -38,7 +38,7 @@ export class Select extends Component<SelectProps, SpreadsheetChildEnv> {
   };
   static components = { Popover };
 
-  private selectRef = useRef("selectRef");
+  private selectRef = signal<HTMLElement | null>(null);
   private dropdownRef = useRef("dropdownRef");
 
   private state = proxy<State>({ isPopoverOpen: false, hoveredValue: undefined });
@@ -48,7 +48,7 @@ export class Select extends Component<SelectProps, SpreadsheetChildEnv> {
 
     useLayoutEffect(() => {
       if (this.dropdownRef.el) {
-        this.dropdownRef.el.style.width = `${this.selectRef.el?.offsetWidth}px`;
+        this.dropdownRef.el.style.width = `${this.selectRef()?.offsetWidth}px`;
       }
     });
   }
@@ -98,7 +98,7 @@ export class Select extends Component<SelectProps, SpreadsheetChildEnv> {
   }
 
   onExternalClick(ev: MouseEvent) {
-    if (!isChildEvent(this.selectRef.el, ev) && !isChildEvent(this.dropdownRef.el, ev)) {
+    if (!isChildEvent(this.selectRef(), ev) && !isChildEvent(this.dropdownRef.el, ev)) {
       this.closeDropdown();
     }
   }
@@ -125,7 +125,7 @@ export class Select extends Component<SelectProps, SpreadsheetChildEnv> {
 
   get popoverProps(): PopoverProps {
     return {
-      anchorRect: getRefBoundingRect(this.selectRef),
+      anchorRect: getElBoundingRect(this.selectRef()),
       positioning: "bottom-left",
       verticalOffset: 0,
     };

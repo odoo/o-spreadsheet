@@ -8,7 +8,7 @@
       t-att-style="this.dashboardStyle">
       <div
         class="mx-auto h-100 position-relative"
-        t-custom-ref="grid"
+        t-ref="this.gridRef"
         t-att-style="this.gridContainer">
         <GridOverlay
           onGridResized.bind="this.onGridResized"

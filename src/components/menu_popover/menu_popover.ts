@@ -1,12 +1,7 @@
-import { onWillUnmount, onWillUpdateProps, proxy } from "@odoo/owl";
+import { onWillUnmount, onWillUpdateProps, proxy, signal } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators, isMenuItemEnabled } from "../../actions/action";
 import { DESKTOP_MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../constants";
-import {
-  Component,
-  useExternalListener,
-  useLayoutEffect,
-  useRef,
-} from "../../owl3_compatibility_layer";
+import { Component, useExternalListener, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
@@ -16,8 +11,8 @@ import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 import {
   getBoundingRectAsPOJO,
+  getElBoundingRect,
   getOpenedMenus,
-  getRefBoundingRect,
   isChildEvent,
   isMiddleClickOrCtrlClick,
 } from "../helpers/dom_helpers";
@@ -94,7 +89,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
   private state: State = proxy({
     hoveredMenu: this.props.autoSelectFirstItem ? this.getNextEnabledMenuItem() : undefined,
   });
-  private menuRef = useRef("menu");
+  private menuRef = signal<HTMLElement | null>(null);
 
   private openingTimeOut = useTimeOut();
 
@@ -107,7 +102,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
         !this.state.hoveredMenu &&
         !this.subMenu.isOpen
       ) {
-        this.menuRef.el?.focus();
+        this.menuRef()?.focus();
       }
     });
 
@@ -120,7 +115,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     });
     onWillUnmount(() => {
       this.state.hoveredMenu?.onStopHover?.(this.env);
-      if (this.menuRef.el?.contains(document.activeElement)) {
+      if (this.menuRef()?.contains(document.activeElement)) {
         domFocusableElementStore.focus();
       }
     });
@@ -205,7 +200,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
 
   private onExternalClick(ev: MenuMouseEvent) {
     // Don't close a root menu when clicked to open the submenus.
-    const el = this.menuRef.el;
+    const el = this.menuRef();
     if (el && getOpenedMenus().some((el) => isChildEvent(el, ev))) {
       return;
     }
@@ -242,7 +237,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
    */
   private openSubMenu(menu: Action, y: number, autoSelectFirstItem = false) {
     this.subMenu.anchorRect = {
-      x: getRefBoundingRect(this.menuRef).x,
+      x: getElBoundingRect(this.menuRef()).x,
       y: y - (this.subMenu.scrollOffset || 0),
       width: this.props.width || MENU_WIDTH,
       height: DESKTOP_MENU_ITEM_HEIGHT,
@@ -374,7 +369,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getMenuItemRect(menuItemId: UID): Rect | undefined {
-    const menuEl = this.menuRef.el?.querySelector<HTMLElement>(`[data-name="${menuItemId}"]`);
+    const menuEl = this.menuRef()?.querySelector<HTMLElement>(`[data-name="${menuItemId}"]`);
     return menuEl ? getBoundingRectAsPOJO(menuEl) : undefined;
   }
 

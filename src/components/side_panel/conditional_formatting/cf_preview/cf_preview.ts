@@ -1,6 +1,7 @@
+import { signal } from "@odoo/owl";
 import { HIGHLIGHT_COLOR, TEXT_BODY } from "../../../../constants";
 import { colorNumberToHex } from "../../../../helpers/color";
-import { Component, useRef } from "../../../../owl3_compatibility_layer";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { ConditionalFormat } from "../../../../types/conditional_formatting";
 import { Highlight } from "../../../../types/misc";
@@ -24,10 +25,10 @@ export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildE
     class: String,
   };
   icons = ICONS;
-  private ref = useRef("cfPreview");
+  private cfPreviewRef = signal<HTMLElement | null>(null);
 
   setup() {
-    useHighlightsOnHover(this.ref, this);
+    useHighlightsOnHover(this.cfPreviewRef, this);
   }
 
   get previewImageStyle(): string {

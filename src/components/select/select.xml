@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-Select">
     <div
       tabIndex="0"
-      t-custom-ref="selectRef"
+      t-ref="this.selectRef"
       class="o-input o-select"
       t-att-class="this.props.class"
       t-att-name="this.props.name"

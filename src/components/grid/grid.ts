@@ -1,4 +1,4 @@
-import { onMounted, proxy } from "@odoo/owl";
+import { onMounted, proxy, signal } from "@odoo/owl";
 import { insertSheet, insertTable } from "../../actions/insert_actions";
 import {
   CREATE_IMAGE,
@@ -27,7 +27,6 @@ import {
   useChildSubEnv,
   useExternalListener,
   useLayoutEffect,
-  useRef,
 } from "../../owl3_compatibility_layer";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
@@ -52,7 +51,6 @@ import {
   GridClickModifiers,
   HeaderIndex,
   Pixel,
-  Ref,
 } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -67,7 +65,7 @@ import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { cssPropertiesToCss } from "../helpers/css";
-import { getRefBoundingRect, keyboardEventToShortcutString } from "../helpers/dom_helpers";
+import { getElBoundingRect, keyboardEventToShortcutString } from "../helpers/dom_helpers";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import {
@@ -148,7 +146,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly HEADER_WIDTH = HEADER_WIDTH;
   private menuState!: MenuState;
-  private gridRef!: Ref<HTMLElement>;
+  private gridRef = signal<HTMLElement | null>(null);
   private highlightStore!: Store<HighlightStore>;
   private cellPopovers!: Store<CellPopoverStore>;
   private composerFocusStore!: Store<ComposerFocusStore>;
@@ -169,7 +167,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       anchorRect: null,
       menuItems: [],
     });
-    this.gridRef = useRef("grid");
     this.hoveredCell = useStore(DelayedHoveredCellStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
@@ -484,10 +481,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get gridEl(): HTMLElement {
-    if (!this.gridRef.el) {
+    const el = this.gridRef();
+    if (!el) {
       throw new Error("Grid el is not defined.");
     }
-    return this.gridRef.el;
+    return el;
   }
 
   getAutofillPosition() {
@@ -560,7 +558,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const zoom = this.env.model.getters.getViewportZoomLevel();
     const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
     return {
-      ...getRefBoundingRect(this.gridRef),
+      ...getElBoundingRect(this.gridRef()),
       width: width * zoom,
       height: height * zoom,
     };

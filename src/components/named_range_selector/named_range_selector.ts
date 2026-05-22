@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { proxy, signal } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../actions/action";
 import { HIGHLIGHT_COLOR } from "../../constants";
 import { rangeReference } from "../../helpers/references";
@@ -8,7 +8,7 @@ import {
   interactiveUpdateNamedRange,
 } from "../../helpers/ui/named_range_interactive";
 import { zoneToXc } from "../../helpers/zones";
-import { Component, useRef } from "../../owl3_compatibility_layer";
+import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
@@ -18,7 +18,7 @@ import { Highlight } from "../../types/misc";
 import { Range } from "../../types/range";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
-import { getRefBoundingRect } from "../helpers/dom_helpers";
+import { getElBoundingRect } from "../helpers/dom_helpers";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../helpers/top_bar_tool_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { TextInput } from "../text_input/text_input";
@@ -39,7 +39,7 @@ export class NamedRangeSelector extends Component<Props, SpreadsheetChildEnv> {
   topBarToolStore!: ToolBarDropdownStore;
   menuState = proxy<State>({ anchorRect: null, menuItems: [] });
 
-  private namedRangeSelectorRef = useRef("namedRangeSelectorRef");
+  private namedRangeSelectorRef = signal<HTMLElement | null>(null);
 
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();
@@ -99,7 +99,7 @@ export class NamedRangeSelector extends Component<Props, SpreadsheetChildEnv> {
 
   openDropdown() {
     this.topBarToolStore.openDropdown();
-    this.menuState.anchorRect = getRefBoundingRect(this.namedRangeSelectorRef);
+    this.menuState.anchorRect = getElBoundingRect(this.namedRangeSelectorRef());
     this.menuState.menuItems = this.getNamedRangeMenuItems();
   }
 

@@ -29,7 +29,7 @@
             class="o-figure-menu-item d-flex-align-items-center"
             t-if="!this.env.model.getters.isReadonly() and this.props.figureUI.tag !== 'carousel'"
             t-on-click="this.showMenu"
-            t-custom-ref="menuButton"
+            t-ref="this.menuButtonRef"
             t-on-contextmenu.prevent.stop="this.showMenu">
             <t t-call="o-spreadsheet-Icon.LIST"/>
           </div>

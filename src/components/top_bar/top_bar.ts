@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { proxy, signal } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../constants";
@@ -20,7 +20,7 @@ import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import {
   getBoundingRectAsPOJO,
-  getRefBoundingRect,
+  getElBoundingRect,
   keyboardEventToShortcutString,
 } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
@@ -79,7 +79,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   toolBarContainerRef = useRef("toolBarContainer");
   toolbarRef = useRef("toolBar");
-  namedRangesRef = useRef("namedRanges");
+  namedRangesRef = signal<HTMLElement | null>(null);
   topBarTopRef = useRef("topBarTop");
 
   moreToolsContainerRef = useRef("moreToolsContainer");
@@ -118,7 +118,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.moreToolsContainerRef.el?.classList.remove("d-none");
     const moreToolsWidth = this.moreToolsButtonRef.el?.getBoundingClientRect().width || 0;
 
-    const namedRangeWidth = getRefBoundingRect(this.namedRangesRef).width;
+    const namedRangeWidth = getElBoundingRect(this.namedRangesRef()).width;
 
     // The actual width in which we can place our tools so that they are visible.
     // Every tool container passed that width will be hidden.

@@ -1,5 +1,6 @@
+import { signal } from "@odoo/owl";
 import { HIGHLIGHT_COLOR } from "../../../../constants";
-import { Component, useRef } from "../../../../owl3_compatibility_layer";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { DataValidationRule } from "../../../../types/data_validation";
 import { Highlight } from "../../../../types/misc";
@@ -16,10 +17,10 @@ export class DataValidationPreview extends Component<Props, SpreadsheetChildEnv>
     rule: Object,
   };
 
-  private ref = useRef("dvPreview");
+  private dvPreviewRef = signal<HTMLElement | null>(null);
 
   setup() {
-    useHighlightsOnHover(this.ref, this);
+    useHighlightsOnHover(this.dvPreviewRef, this);
   }
 
   onPreviewClick() {

@@ -1,7 +1,7 @@
-import { proxy } from "@odoo/owl";
+import { proxy, signal } from "@odoo/owl";
 import { HIGHLIGHT_COLOR } from "../../../../constants";
 import { interactiveUpdateNamedRange } from "../../../../helpers/ui/named_range_interactive";
-import { Component, useRef } from "../../../../owl3_compatibility_layer";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { Highlight, NamedRange } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
@@ -26,10 +26,10 @@ export class NamedRangePreview extends Component<Props, SpreadsheetChildEnv> {
 
   state = proxy<State>({});
 
-  private ref = useRef("namedRangePreview");
+  private namedRangePreviewRef = signal<HTMLElement | null>(null);
 
   setup() {
-    useHighlightsOnHover(this.ref, this);
+    useHighlightsOnHover(this.namedRangePreviewRef, this);
   }
 
   get highlights(): Highlight[] {

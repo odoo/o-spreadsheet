@@ -1,5 +1,4 @@
-import { Ref } from "../../types/misc";
-import { useRefListener } from "./listener_hook";
+import { Signal, useListener } from "@odoo/owl";
 
 import { useExternalListener } from "../../owl3_compatibility_layer";
 const friction = 0.95;
@@ -18,7 +17,7 @@ type touchCallBacks = {
 };
 
 export function useTouchHandlers(
-  ref: Ref<HTMLElement>,
+  ref: Signal<HTMLElement | null>,
   { updateScroll, canMoveUp, canMoveDown, getZoom, setZoom }: touchCallBacks
 ) {
   // Scroll state
@@ -35,14 +34,14 @@ export function useTouchHandlers(
   const evCache: PointerEvent[] = [];
   let previousPointersDistance = -1;
 
-  useRefListener(ref, "touchstart", onTouchStart, { capture: false });
-  useRefListener(ref, "touchmove", onTouchMove, { capture: false });
-  useRefListener(ref, "touchend", onTouchEnd, { capture: false });
+  useListener(ref, "touchstart", onTouchStart, { capture: false });
+  useListener(ref, "touchmove", onTouchMove, { capture: false });
+  useListener(ref, "touchend", onTouchEnd, { capture: false });
 
-  useRefListener(ref, "pointerdown", onPointerdown, { passive: false, capture: false });
-  useRefListener(ref, "pointermove", onPointermove, { passive: false, capture: false });
+  useListener(ref, "pointerdown", onPointerdown, { passive: false, capture: false });
+  useListener(ref, "pointermove", onPointermove, { passive: false, capture: false });
   useExternalListener(window, "pointerup", onPointerUp, { passive: false, capture: true });
-  useRefListener(ref, "pointercancel", onPointerUp, { passive: false });
+  useListener(ref, "pointercancel", onPointerUp, { passive: false });
 
   function onTouchStart(event: TouchEvent) {
     isMouseDown = true;

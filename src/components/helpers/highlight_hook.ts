@@ -1,12 +1,14 @@
-import { onMounted } from "@odoo/owl";
+import { onMounted, Signal } from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
 import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { HighlightProvider, HighlightStore } from "../../stores/highlight_store";
-import { Ref } from "../../types/misc";
 import { useHoveredElement } from "./listener_hook";
 
-export function useHighlightsOnHover(ref: Ref<HTMLElement>, highlightProvider: HighlightProvider) {
+export function useHighlightsOnHover(
+  ref: Signal<HTMLElement | null>,
+  highlightProvider: HighlightProvider
+) {
   const hoverState = useHoveredElement(ref);
   useHighlights({
     get highlights() {
