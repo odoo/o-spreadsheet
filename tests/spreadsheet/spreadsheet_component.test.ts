@@ -23,6 +23,7 @@ import {
   lockSheet,
   selectCell,
   setCellContent,
+  setSelection,
 } from "../test_helpers/commands_helpers";
 import {
   click,
@@ -33,7 +34,7 @@ import {
   keyDown,
   simulateClick,
 } from "../test_helpers/dom_helper";
-import { getCellContent } from "../test_helpers/getters_helpers";
+import { getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
   addToRegistry,
   doAction,
@@ -196,6 +197,37 @@ describe("Simple Spreadsheet Component", () => {
     mockUserAgent.mockReset();
   });
 
+  test("Mac user use CtrlKey, not AltKey", async () => {
+    let model = new Model({ sheets: [{ id: "sh1" }] });
+    setCellContent(model, "A1", "2");
+    setCellContent(model, "A2", "3");
+    setSelection(model, ["A1:A2"]);
+    ({ model, parent, fixture } = await mountSpreadsheet({ model }));
+    const mockUserAgent = jest.spyOn(navigator, "userAgent", "get");
+    mockUserAgent.mockImplementation(
+      () => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0"
+    );
+    await keyDown({ key: "=", altKey: true, bubbles: true });
+    expect(getEvaluatedCell(model, "A3").value).toBeNull();
+    await nextTick();
+    await keyDown({ key: "=", ctrlKey: true, bubbles: true });
+    expect(getEvaluatedCell(model, "A3").value).toBe(5);
+    jest.restoreAllMocks();
+  });
+
+  test("Mac user have ⌃ in menu instead of Alt", async () => {
+    const mockUserAgent = jest.spyOn(navigator, "userAgent", "get");
+    mockUserAgent.mockImplementation(
+      () => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0"
+    );
+    ({ model, parent, fixture } = await mountSpreadsheet({
+      model: new Model({ sheets: [{ id: "sh1" }] }),
+    }));
+    await click(fixture, ".o-topbar-menu[data-id='insert']");
+    expect('[data-name="insert_table"]').toHaveText("Table⌃+T");
+    mockUserAgent.mockReset();
+  });
+
   test("Mac user have ⌘ in menu instead of Ctrl", async () => {
     const mockUserAgent = jest.spyOn(navigator, "userAgent", "get");
     mockUserAgent.mockImplementation(
@@ -205,6 +237,8 @@ describe("Simple Spreadsheet Component", () => {
       model: new Model({ sheets: [{ id: "sh1" }] }),
     }));
     await click(fixture, ".o-topbar-menu[data-id='format']");
+    expect('[data-name="format_bold"]').toHaveText("Bold⌘+B");
+    // topbar shortcut
     expect(document.querySelectorAll('span[title="Bold (⌘+B)"]').length).toBe(1);
     mockUserAgent.mockReset();
   });
