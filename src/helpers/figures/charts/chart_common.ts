@@ -4,6 +4,7 @@ import { _t } from "../../../translation";
 import {
   ChartAxisFormats,
   ChartDefinition,
+  ChartDefinitionWithDataSource,
   ChartRangeDataSource,
   DataSet,
   DataSetStyle,
@@ -290,10 +291,11 @@ export function checkDataset(dataSource: ChartRangeDataSource<string>): CommandR
 }
 
 export function checkLabelRange(dataSource: ChartRangeDataSource<string>): CommandResult {
-  if (dataSource.labelRange) {
-    const invalidLabels = !rangeReference.test(dataSource.labelRange || "");
-    if (invalidLabels) {
-      return CommandResult.InvalidLabelRange;
+  if (dataSource.labelRanges) {
+    for (const labelRange of dataSource.labelRanges) {
+      if (!rangeReference.test(labelRange || "")) {
+        return CommandResult.InvalidLabelRange;
+      }
     }
   }
   return CommandResult.Success;
@@ -305,6 +307,11 @@ export function shouldRemoveFirstLabel(
   dataSetsHaveTitle: boolean
 ) {
   return dataSetsHaveTitle && !!numberOfDataPoints && numberOfLabels >= numberOfDataPoints;
+}
+
+export function hasMultipleLabelRanges(definition: ChartDefinitionWithDataSource<string>): boolean {
+  const dataSource = definition.dataSource;
+  return dataSource?.type === "range" && (dataSource.labelRanges?.length ?? 0) > 1;
 }
 
 export function getDefinedAxis(definition: Partial<ChartDefinition<string | Range>>): {
