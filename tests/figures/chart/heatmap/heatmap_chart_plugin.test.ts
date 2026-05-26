@@ -714,7 +714,7 @@ describe("switching chart type between line and heatmap", () => {
             { dataRange: "Sheet1!C1:C4", dataSetId: "1" },
             { dataRange: "Sheet1!D1:D4", dataSetId: "2" },
           ],
-          labelRange: "Sheet1!A1:A4",
+          labelRanges: ["Sheet1!A1:A4"],
           dataSetsHaveTitle: true,
         },
       },
@@ -734,7 +734,7 @@ describe("switching chart type between line and heatmap", () => {
       { type: "range" }
     >;
     expect(dataSource.dataSets.map((ds) => ds.dataRange)).toEqual(["B1:B4", "C1:C4", "D1:D4"]);
-    expect(dataSource.labelRange).toBe("Sheet1!A1:A4");
+    expect(dataSource.labelRanges).toEqual(["Sheet1!A1:A4"]);
     expect(lineDefinition.legendPosition).toBe("bottom");
   });
 
@@ -789,7 +789,7 @@ describe("switching chart type between line and heatmap", () => {
       { type: "range" }
     >;
     expect(dataSource.dataSets.map((ds) => ds.dataRange)).toEqual(["A1:A4"]);
-    expect(dataSource.labelRange).toBe("B1:B4");
+    expect(dataSource.labelRanges).toEqual(["B1:B4"]);
 
     chartPanelStore.changeChartType(chartId, "heatmap");
     const heatmapDefinition = model.getters.getChartDefinition(
