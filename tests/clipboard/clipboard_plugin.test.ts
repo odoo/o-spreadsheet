@@ -3157,19 +3157,28 @@ test("Can use clipboard handlers to paste in a sheet other than the active sheet
   addEqualCf(model, "A1", { fillColor: "#FF0000" }, "1");
   createTable(model, "A1");
 
-  const handlers = clipboardHandlersRegistries.cellHandlers
-    .getAll()
-    .map((handler) => new handler(model.getters, model.dispatch));
+  const handlerNames = clipboardHandlersRegistries.cellHandlers.getKeys();
+  const handlers = handlerNames.map((name) => {
+    const Handler = clipboardHandlersRegistries.cellHandlers.get(name);
+    return { name, handler: new Handler(model.getters, model.dispatch) };
+  });
 
-  let copiedData = {};
+  const copiedData: Record<string, any> = {};
   const clipboardData = getClipboardDataPositions(sheetId, [toZone("A1")]);
-  for (const handler of handlers) {
-    copiedData = { ...copiedData, ...handler.copy(clipboardData, false) };
+  for (const { name, handler } of handlers) {
+    copiedData[name] = handler.copy(clipboardData, false);
   }
 
   const pasteTarget: ClipboardPasteTarget = { sheetId: "sh2", zones: target("A1") };
-  for (const handler of handlers) {
-    handler.paste(pasteTarget, copiedData, { isCutOperation: false });
+  for (const { name, handler } of handlers) {
+    if (copiedData[name]) {
+      handler.paste(
+        pasteTarget,
+        handler.expand(copiedData[name]),
+        { isCutOperation: false },
+        { sheetId: "sh2", zones: target("A1") }
+      );
+    }
   }
 
   expect(getCellContent(model, "A1", "sh2")).toBe("1");

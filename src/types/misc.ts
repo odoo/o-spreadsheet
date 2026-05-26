@@ -1,11 +1,12 @@
-import { CellValue, EvaluatedCell } from "./cells";
+import { CellValue } from "./cells";
 
 // -----------------------------------------------------------------------------
 // MISC
 // -----------------------------------------------------------------------------
 import { CompiledFormula } from "../formulas/compiler";
+import { SquishedContent } from "../plugins/core/squisher";
 import { CommandResult } from "./commands";
-import { Format } from "./format";
+import { Format, FormattedValue } from "./format";
 import { Range } from "./range";
 
 /**
@@ -216,14 +217,22 @@ export function isMatrix(x: any): x is Matrix<any> {
   return Array.isArray(x) && Array.isArray(x[0]);
 }
 
+/**
+ * Lightweight subset of EvaluatedCell stored in clipboard cells.
+ * Only the fields needed for paste operations and plain-text clipboard.
+ */
+export type ClipboardEvaluatedCell = {
+  value: CellValue;
+  format?: Format;
+  formattedValue: FormattedValue;
+};
+
 export interface ClipboardCell {
-  evaluatedCell: EvaluatedCell;
-  position: CellPosition;
-  content: string;
+  evaluatedCell: ClipboardEvaluatedCell;
+  content: SquishedContent;
   style?: Style | undefined;
   format?: Format | undefined;
   compiledFormula?: CompiledFormula;
-  border?: Border;
 }
 
 export interface HeaderDimensions {

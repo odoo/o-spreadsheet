@@ -1,20 +1,24 @@
+import { makeIndexer } from "../helpers/clipboard/clipboard_helpers";
 import { recomputeZones } from "../helpers/recompute_zones";
 import { positionToZone } from "../helpers/zones";
-import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
-import { Border, CellPosition, HeaderIndex, UID, Zone } from "../types/misc";
+import {
+  ClipboardCellData,
+  ClipboardOptions,
+  ClipboardPasteTarget,
+  ClipboardPositions,
+  CompactBorderCell,
+  CompactBorderHandlerData,
+} from "../types/clipboard";
+import { Border, BorderDescr, CellPosition, HeaderIndex, UID, Zone } from "../types/misc";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
-type ClipboardContent = {
-  borders: (Border | null)[][];
-};
-
 export class BorderClipboardHandler extends AbstractCellClipboardHandler<
-  ClipboardContent,
-  Border | null
+  Border | null,
+  CompactBorderHandlerData
 > {
   private queuedBordersToAdd: Record<string, Zone[]> = {};
 
-  copy(data: ClipboardCellData): ClipboardContent | undefined {
+  copy(data: ClipboardCellData): CompactBorderHandlerData | undefined {
     const sheetId = data.sheetId;
     if (data.zones.length === 0) {
       return;
@@ -30,26 +34,38 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
       }
       borders.push(bordersInRow);
     }
-    return { borders };
+    return this.compact(borders);
   }
 
-  paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
+  paste(
+    target: ClipboardPasteTarget,
+    content: (Border | null)[][],
+    options: ClipboardOptions,
+    positions: ClipboardPositions
+  ) {
     const sheetId = target.sheetId;
     if (options.pasteOption === "asValue") {
       return;
     }
     const zones = target.zones;
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, content.borders);
+      this.pasteFromCopy(sheetId, zones, content, options, positions);
     } else {
       const { left, top } = zones[0];
-      this.pasteZone(sheetId, left, top, content.borders);
+      this.pasteZone(sheetId, left, top, content, options, positions);
     }
 
     this.executeQueuedChanges(sheetId);
   }
 
-  pasteZone(sheetId: UID, col: HeaderIndex, row: HeaderIndex, borders: (Border | null)[][]) {
+  pasteZone(
+    sheetId: UID,
+    col: HeaderIndex,
+    row: HeaderIndex,
+    borders: (Border | null)[][],
+    options: ClipboardOptions,
+    positions: ClipboardPositions
+  ) {
     for (const [r, rowBorders] of borders.entries()) {
       for (const [c, originBorders] of rowBorders.entries()) {
         const position = { col: col + c, row: row + r, sheetId };
@@ -82,5 +98,68 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
       this.dispatch("SET_BORDERS_ON_TARGET", { sheetId: pasteSheetTarget, target, border });
     }
     this.queuedBordersToAdd = {};
+  }
+
+  protected compact(data: (Border | null)[][]): CompactBorderHandlerData {
+    const rows = data.length;
+    const cols = data[0]?.length ?? 0;
+    const { index: descrIndex, table: descrTable } = makeIndexer<BorderDescr>(
+      (d) => `${d.style}|${d.color}`
+    );
+    const items: CompactBorderHandlerData["items"] = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < (data[r]?.length ?? 0); c++) {
+        const border = data[r][c];
+        if (!border) {
+          continue;
+        }
+        const v: CompactBorderCell = {};
+        if (border.top) {
+          v.top = descrIndex(border.top);
+        }
+        if (border.left) {
+          v.left = descrIndex(border.left);
+        }
+        if (border.bottom) {
+          v.bottom = descrIndex(border.bottom);
+        }
+        if (border.right) {
+          v.right = descrIndex(border.right);
+        }
+        if (Object.keys(v).length === 0) {
+          continue;
+        }
+        items.push({ r, c, v });
+      }
+    }
+    return { rows, cols, descrTable, items };
+  }
+
+  expand(data: unknown): (Border | null)[][] {
+    if (Array.isArray(data)) {
+      return data as (Border | null)[][];
+    }
+    const compact = data as CompactBorderHandlerData;
+    const { rows, cols, descrTable, items } = compact;
+    const result: (Border | null)[][] = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => null)
+    );
+    for (const { r, c, v } of items) {
+      const border: Border = {};
+      if (v.top !== undefined) {
+        border.top = descrTable[v.top];
+      }
+      if (v.left !== undefined) {
+        border.left = descrTable[v.left];
+      }
+      if (v.bottom !== undefined) {
+        border.bottom = descrTable[v.bottom];
+      }
+      if (v.right !== undefined) {
+        border.right = descrTable[v.right];
+      }
+      result[r][c] = border;
+    }
+    return result;
   }
 }

@@ -5,7 +5,7 @@ import { recomputeZones } from "../../helpers/recompute_zones";
 import { positions, zoneToDimension } from "../../helpers/zones";
 import { _t } from "../../translation";
 import { Command, CommandResult, RemoveDuplicatesCommand } from "../../types/commands";
-import { HeaderIndex, UID, Zone } from "../../types/misc";
+import { ClipboardCell, HeaderIndex, UID, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class DataCleanupPlugin extends UIPlugin {
@@ -72,8 +72,13 @@ export class DataCleanupPlugin extends UIPlugin {
       bottom: rowIndex,
     }));
 
+    const clipboardPositions = getClipboardDataPositions(sheetId, rowsToKeep);
     const handler = new CellClipboardHandler(this.getters, this.dispatch);
-    const data = handler.copy(getClipboardDataPositions(sheetId, rowsToKeep), false);
+    const compactData = handler.copy(clipboardPositions, false);
+    if (!compactData) {
+      return;
+    }
+    const data = handler.expand(compactData);
     if (!data) {
       return;
     }
@@ -87,7 +92,19 @@ export class DataCleanupPlugin extends UIPlugin {
       bottom: zone.top,
     };
 
-    handler.paste({ zones: [zonePasted], sheetId }, data, { isCutOperation: false });
+    handler.paste(
+      { zones: [zonePasted], sheetId },
+      data as ClipboardCell[][],
+      {
+        isCutOperation: false,
+      },
+      {
+        sheetId: sheetId,
+        zones: rowsToKeep,
+        rowsIndexes: clipboardPositions.rowsIndexes,
+        columnsIndexes: clipboardPositions.columnsIndexes,
+      }
+    );
 
     const remainingZone = {
       left: zone.left,
