@@ -1,4 +1,4 @@
-import { xml } from "@odoo/owl";
+import { props, xml } from "@odoo/owl";
 import { TextInput } from "../../src/components/text_input/text_input";
 import { Component } from "../../src/owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
@@ -14,14 +14,14 @@ let fixture: HTMLElement;
 let parent: Component;
 type Props = TextInput["props"];
 
-class TextInputContainer extends Component<Props, SpreadsheetChildEnv> {
+class TextInputContainer extends Component<SpreadsheetChildEnv> {
   static template = xml/* xml */ `
     <div class="container">
       <TextInput t-props="this.props"/>
     </div>
   `;
   static components = { TextInput };
-  static props = TextInput.props;
+  protected props = props();
 }
 
 async function mountTextInput(props: Props) {

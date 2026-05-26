@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { CHART_AXIS_TITLE_FONT_SIZE } from "../../../../../constants";
 import { toNumber } from "../../../../../functions/helpers";
 import { getDefinedAxis } from "../../../../../helpers/figures/charts/chart_common";
@@ -20,6 +20,7 @@ import { UID } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { DateInput } from "../../../../date_input/date_input";
 import { NumberInput } from "../../../../number_input/number_input";
+import { types } from "../../../../props_validation";
 import { BadgeSelection } from "../../../components/badge_selection/badge_selection";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
@@ -30,17 +31,19 @@ export interface AxisDefinition {
   name: string;
 }
 
-interface Props {
-  chartId: UID;
-  definition: ChartWithAxisDefinition;
-  updateChart: (chartId: UID, definition: Partial<ChartWithAxisDefinition>) => DispatchResult;
-  axesList: AxisDefinition[];
-}
-
-export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
+export class AxisDesignEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-AxisDesignEditor";
   static components = { Section, ChartTitle, BadgeSelection, Checkbox, NumberInput, DateInput };
-  static props = { chartId: String, definition: Object, updateChart: Function, axesList: Array };
+
+  protected props = props({
+    chartId: types.UID(),
+    definition: types.ChartWithAxisDefinition(),
+    updateChart: types.function<
+      [chartId: UID, definition: Partial<ChartWithAxisDefinition>],
+      DispatchResult
+    >([types.UID(), types.object({})], types.DispatchResult()),
+    axesList: types.ArrayOf<AxisDefinition>(),
+  });
 
   state: { currentAxis: AxisId } = proxy({ currentAxis: "x" });
 

@@ -1,43 +1,43 @@
-import { onWillUpdateProps, proxy } from "@odoo/owl";
+import { onWillUpdateProps, props, proxy } from "@odoo/owl";
 import { getPivotHighlights } from "../../../../helpers/pivot/pivot_highlight";
 import { pivotSidePanelRegistry } from "../../../../helpers/pivot/pivot_side_panel_registry";
 import { Component } from "../../../../owl3_compatibility_layer";
-import { UID } from "../../../../types/misc";
+import { PropsOf } from "../../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlights } from "../../../helpers/highlight_hook";
+import { types } from "../../../props_validation";
 import { Section } from "../../components/section/section";
 import { PivotLayoutConfigurator } from "../pivot_layout_configurator/pivot_layout_configurator";
 import { PivotDesignPanel } from "./pivot_design_panel/pivot_design_panel";
-
-interface Props {
-  pivotId: UID;
-  onCloseSidePanel: () => void;
-  openTab: "configuration" | "design";
-}
 
 interface State {
   panel: "configuration" | "design";
 }
 
-export class PivotSidePanel extends Component<Props, SpreadsheetChildEnv> {
+export class PivotSidePanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotSidePanel";
-  static props = {
-    pivotId: String,
-    onCloseSidePanel: Function,
-    openTab: { type: String, optional: true },
-  };
-  static defaultProps = { openTab: "configuration" };
   static components = {
     PivotLayoutConfigurator,
     Section,
     PivotDesignPanel,
   };
 
+  protected props = props(
+    {
+      pivotId: types.UID(),
+      onCloseSidePanel: types.function([]),
+      "openTab?": types.or([types.literal("configuration"), types.literal("design")]),
+    },
+    {
+      openTab: "configuration",
+    }
+  );
+
   state = proxy<State>({ panel: this.props.openTab || "configuration" });
 
   setup() {
     useHighlights(this);
-    onWillUpdateProps((nextProps) => {
+    onWillUpdateProps((nextProps: PropsOf<PivotSidePanel>) => {
       if (nextProps.openTab && nextProps.openTab !== this.props.openTab) {
         this.switchPanel(nextProps.openTab);
       }

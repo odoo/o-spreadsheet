@@ -1,17 +1,16 @@
+import { props } from "@odoo/owl";
 import { ZOOM_VALUES } from "../../../constants";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 import { NumberEditor } from "../../number_editor/number_editor";
 
 import { Component } from "../../../owl3_compatibility_layer";
-interface Props {
-  class: string;
-}
-
-export class ToolBarZoom extends Component<Props, SpreadsheetChildEnv> {
+import { types } from "../../props_validation";
+export class ToolBarZoom extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBarZoom";
   static components = { NumberEditor };
-  static props = { class: String };
+
+  protected props = props({ class: types.string() });
   topBarToolStore!: ToolBarDropdownStore;
 
   valueList = ZOOM_VALUES;

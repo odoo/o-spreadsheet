@@ -1,11 +1,11 @@
-import { onWillUnmount, onWillUpdateProps, proxy, signal } from "@odoo/owl";
+import { onWillUnmount, onWillUpdateProps, props, proxy, signal } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators, isMenuItemEnabled } from "../../actions/action";
 import { DESKTOP_MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../constants";
 import { Component, useExternalListener, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
-import { PopoverPropsPosition } from "../../types/cell_popovers";
 import { MenuMouseEvent, Pixel, UID } from "../../types/misc";
+import { PropsOf } from "../../types/props_of";
 import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
@@ -17,30 +17,15 @@ import {
   isMiddleClickOrCtrlClick,
 } from "../helpers/dom_helpers";
 import { useTimeOut } from "../helpers/time_hooks";
-import { Menu, MenuProps } from "../menu/menu";
-import { Popover, PopoverProps } from "../popover/popover";
+import { Menu } from "../menu/menu";
+import { Popover } from "../popover/popover";
+import { types } from "../props_validation";
 
 //------------------------------------------------------------------------------
 // Context MenuPopover Component
 //------------------------------------------------------------------------------
 
 const TIMEOUT_DELAY = 250;
-
-interface Props {
-  anchorRect: Rect;
-  popoverPositioning: PopoverPropsPosition;
-  menuItems: Action[];
-  depth: number;
-  maxHeight?: Pixel;
-  onClose: () => void;
-  onMenuClicked?: (ev: CustomEvent) => void;
-  menuId?: UID;
-  onMouseOver?: () => void;
-  width?: number;
-  autoSelectFirstItem?: boolean;
-  disableKeyboardNavigation?: boolean;
-  onKeyboardNavigation?: (ev: KeyboardEvent) => void;
-}
 
 export interface MenuState {
   isOpen: boolean;
@@ -56,29 +41,33 @@ interface State {
   hoveredMenu?: Action;
 }
 
-export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
+export class MenuPopover extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Menu-Popover";
-  static props = {
-    anchorRect: Object,
-    popoverPositioning: { type: String, optional: true },
-    menuItems: Array,
-    depth: { type: Number, optional: true },
-    maxHeight: { type: Number, optional: true },
-    onClose: Function,
-    onMenuClicked: { type: Function, optional: true },
-    menuId: { type: String, optional: true },
-    onMouseOver: { type: Function, optional: true },
-    width: { type: Number, optional: true },
-    autoSelectFirstItem: { type: Boolean, optional: true },
-    disableKeyboardNavigation: { type: Boolean, optional: true },
-    onKeyboardNavigation: { type: Function, optional: true },
-  };
-
   static components = { MenuPopover, Menu, Popover };
-  static defaultProps = {
-    depth: 0,
-    popoverPositioning: "top-right",
-  };
+
+  protected props = props(
+    {
+      anchorRect: types.Rect(),
+      "popoverPositioning?": types.or([types.literal("top-right"), types.literal("bottom-left")]),
+      menuItems: types.ArrayOf<Action>(),
+      "depth?": types.number(),
+      "maxHeight?": types.Pixel(),
+      onClose: types.function([]),
+      "onMenuClicked?": types.function<[ev: CustomEvent]>([types.instanceOf(CustomEvent)]),
+      "menuId?": types.UID(),
+      "onMouseOver?": types.function([]),
+      "width?": types.number(),
+      "autoSelectFirstItem?": types.boolean(),
+      "disableKeyboardNavigation?": types.boolean(),
+      "onKeyboardNavigation?": types.function<[ev: KeyboardEvent]>([
+        types.instanceOf(KeyboardEvent),
+      ]),
+    },
+    {
+      depth: 0,
+      popoverPositioning: "top-right",
+    }
+  );
   private subMenu: MenuState = proxy({
     isOpen: false,
     anchorRect: null,
@@ -108,7 +97,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
 
     useExternalListener(window, "click", this.onExternalClick, { capture: true });
     useExternalListener(window, "contextmenu", this.onExternalClick, { capture: true });
-    onWillUpdateProps((nextProps: Props) => {
+    onWillUpdateProps((nextProps: PropsOf<MenuPopover>) => {
       if (nextProps.menuItems !== this.props.menuItems) {
         this.closeSubMenu();
       }
@@ -121,7 +110,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  get menuProps(): MenuProps {
+  get menuProps(): PropsOf<Menu> {
     const menItems = this.menuItems;
     const hoveredMenuId = menItems
       .filter((menuItem) => menuItem !== "separator")
@@ -147,7 +136,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     return anchorRect;
   }
 
-  get popoverProps(): PopoverProps {
+  get popoverProps(): PropsOf<Popover> {
     const isRoot = this.props.depth === 0;
     return {
       anchorRect: {

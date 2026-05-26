@@ -1,30 +1,33 @@
+import { props } from "@odoo/owl";
 import { _t } from "../../../../../translation";
-import { ChartDefinitionWithDataSource } from "../../../../../types/chart/chart";
 import { LegendPosition } from "../../../../../types/chart/common_chart";
 import { ValueAndLabel } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Select } from "../../../../select/select";
 import { Section } from "../../../components/section/section";
-import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 
 import { Component } from "../../../../../owl3_compatibility_layer";
-export class ChartLegend extends Component<
-  ChartSidePanelProps<ChartDefinitionWithDataSource<string>> & { isDisabled?: boolean },
-  SpreadsheetChildEnv
-> {
+import { types } from "../../../../props_validation";
+
+export class ChartLegend extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartLegend";
   static components = {
     Section,
     Select,
   };
-  static props = {
-    ...ChartSidePanelPropsObject,
-    isDisabled: { type: Boolean, optional: true },
-  };
 
-  static defaultProps = {
-    isDisabled: false,
-  };
+  protected props = props(
+    {
+      chartId: types.string(),
+      definition: types.ChartDefinitionWithDataSource(),
+      canUpdateChart: types.function(),
+      updateChart: types.function(),
+      "isDisabled?": types.boolean(),
+    },
+    {
+      isDisabled: false,
+    }
+  );
 
   updateLegendPosition(value: LegendPosition) {
     this.props.updateChart(this.props.chartId, {

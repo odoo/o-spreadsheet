@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, proxy, signal } from "@odoo/owl";
+import { onMounted, onWillUnmount, props, proxy, signal } from "@odoo/owl";
 import { NEWLINE, SCROLLBAR_WIDTH } from "../../../constants";
 import { setColorAlpha } from "../../../helpers/color";
 import { debounce, deepEquals, isFormula } from "../../../helpers/misc";
@@ -12,14 +12,15 @@ import { AutoCompleteProposal } from "../../../registries/auto_completes/auto_co
 import { useStore } from "../../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import { FunctionDescription } from "../../../types/functions";
-import { CSSProperties, Color, ComposerFocusType, Direction } from "../../../types/misc";
-import { DOMDimension, Rect } from "../../../types/rendering";
+import { CSSProperties, Color, Direction } from "../../../types/misc";
+import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { isIOS, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
+import { types } from "../../props_validation";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";
@@ -44,21 +45,6 @@ export type HtmlContent = {
   classes?: string[];
 };
 
-export interface CellComposerProps {
-  focus: ComposerFocusType;
-  inputStyle?: string;
-  rect?: Rect;
-  delimitation?: DOMDimension;
-  onComposerContentFocused: (selection: ComposerSelection) => void;
-  onComposerCellFocused?: (content: string) => void;
-  onInputContextMenu?: (event: MouseEvent) => void;
-  isDefaultFocus?: boolean;
-  composerStore: Store<AbstractComposerStore>;
-  placeholder?: string;
-  inputMode?: ElementContentEditable["inputMode"];
-  showAssistant?: boolean;
-}
-
 interface ComposerState {
   positionStart: number;
   positionEnd: number;
@@ -72,31 +58,34 @@ interface FunctionDescriptionState {
   repeatingArgGroupIndex: number | undefined;
 }
 
-export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> {
+export class Composer extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Composer";
-  static props = {
-    focus: {
-      validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value),
-    },
-    inputStyle: { type: String, optional: true },
-    rect: { type: Object, optional: true },
-    delimitation: { type: Object, optional: true },
-    onComposerCellFocused: { type: Function, optional: true },
-    onComposerContentFocused: Function,
-    isDefaultFocus: { type: Boolean, optional: true },
-    onInputContextMenu: { type: Function, optional: true },
-    composerStore: Object,
-    placeholder: { type: String, optional: true },
-    inputMode: { type: String, optional: true },
-    showAssistant: { type: Boolean, optional: true },
-  };
   static components = { TextValueProvider, FunctionDescriptionProvider, SpeechBubble };
-  static defaultProps = {
-    inputStyle: "",
-    isDefaultFocus: false,
-    inputMode: "text",
-    showAssistant: true,
-  };
+
+  protected props = props(
+    {
+      focus: types.ComposerFocusType(),
+      "inputStyle?": types.string(),
+      "rect?": types.Rect(),
+      "delimitation?": types.DOMDimension(),
+      "onComposerCellFocused?": types.function<[content: string]>([types.string()]),
+      onComposerContentFocused: types.function<[selection: ComposerSelection]>([
+        types.ComposerSelection(),
+      ]),
+      "isDefaultFocus?": types.boolean(),
+      "onInputContextMenu?": types.function<[event: MouseEvent]>([types.instanceOf(MouseEvent)]),
+      composerStore: types.Store<AbstractComposerStore>(),
+      "placeholder?": types.string(),
+      "inputMode?": types.string(),
+      "showAssistant?": types.boolean(),
+    },
+    {
+      inputStyle: "",
+      isDefaultFocus: false,
+      inputMode: "text",
+      showAssistant: true,
+    }
+  );
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 

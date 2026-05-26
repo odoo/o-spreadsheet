@@ -1,4 +1,4 @@
-import { proxy, signal } from "@odoo/owl";
+import { props, proxy, signal } from "@odoo/owl";
 import { COMPOSER_ASSISTANT_COLOR } from "../../../../../constants";
 import { fuzzyLookup } from "../../../../../helpers/search";
 import { Component, useExternalListener } from "../../../../../owl3_compatibility_layer";
@@ -15,20 +15,15 @@ import { AutoCompleteStore } from "../../../../composer/autocomplete_dropdown/au
 import { useAutofocus } from "../../../../helpers/autofocus_hook";
 import { getHtmlContentFromPattern } from "../../../../helpers/html_content_helpers";
 import { Popover } from "../../../../popover/popover";
+import { types } from "../../../../props_validation";
 
-interface Props {
-  onFieldPicked: (field: string) => void;
-  fields: PivotField[];
-}
-
-export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
+export class AddDimensionButton extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-AddDimensionButton";
   static components = { Popover, TextValueProvider };
-  static props = {
-    onFieldPicked: Function,
-    fields: Array,
-    slots: { type: Object, optional: true },
-  };
+  protected props = props({
+    onFieldPicked: types.function<[field: string]>([types.string()]),
+    fields: types.array(),
+  });
 
   private buttonRef = signal<HTMLElement | null>(null);
   private popover = proxy({ isOpen: false });

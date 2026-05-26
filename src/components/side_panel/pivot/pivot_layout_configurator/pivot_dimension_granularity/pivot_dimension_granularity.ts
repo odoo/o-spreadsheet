@@ -1,26 +1,23 @@
+import { props } from "@odoo/owl";
 import { ALL_PERIODS } from "../../../../../helpers/pivot/pivot_helpers";
-import { PivotDimension } from "../../../../../types/pivot";
-
+import { Component } from "../../../../../owl3_compatibility_layer";
 import { ValueAndLabel } from "../../../../../types/misc";
+import { PivotDimension } from "../../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { types } from "../../../../props_validation";
 import { Select } from "../../../../select/select";
 
-import { Component } from "../../../../../owl3_compatibility_layer";
-interface Props {
-  dimension: PivotDimension;
-  onUpdated: (dimension: PivotDimension, ev: InputEvent) => void;
-  availableGranularities: Set<string>;
-  allGranularities: string[];
-}
-
-export class PivotDimensionGranularity extends Component<Props, SpreadsheetChildEnv> {
+export class PivotDimensionGranularity extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotDimensionGranularity";
-  static props = {
-    dimension: Object,
-    onUpdated: Function,
-    availableGranularities: Set,
-    allGranularities: Array,
-  };
+  protected props = props({
+    dimension: types.PivotDimension(),
+    onUpdated: types.function<[dimension: PivotDimension, ev: InputEvent]>([
+      types.PivotDimension(),
+      types.instanceOf(InputEvent),
+    ]),
+    availableGranularities: types.SetOf<string>(),
+    allGranularities: types.array(),
+  });
   static components = { Select };
   periods = ALL_PERIODS;
 

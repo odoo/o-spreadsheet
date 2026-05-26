@@ -1,6 +1,7 @@
 import { Color, Model } from "../../src";
-import { ColorPicker, ColorPickerProps } from "../../src/components/color_picker/color_picker";
+import { ColorPicker } from "../../src/components/color_picker/color_picker";
 import { toHex } from "../../src/helpers/color";
+import { PropsOf } from "../../src/types/props_of";
 import { setFormatting } from "../test_helpers/commands_helpers";
 import {
   getElComputedStyle,
@@ -11,7 +12,10 @@ import { mountComponentWithPortalTarget } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
-async function mountColorPicker(partialProps: Partial<ColorPickerProps> = {}, model = new Model()) {
+async function mountColorPicker(
+  partialProps: Partial<PropsOf<ColorPicker>> = {},
+  model = new Model()
+) {
   const props = {
     onColorPicked: partialProps.onColorPicked || (() => {}),
     currentColor: partialProps.currentColor || "#000000",

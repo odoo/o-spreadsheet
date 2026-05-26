@@ -1,4 +1,4 @@
-import { xml } from "@odoo/owl";
+import { props, types, xml } from "@odoo/owl";
 import { ActionSpec } from "../src/actions/action";
 import { ActionButton } from "../src/components/action_button/action_button";
 import { Component } from "../src/owl3_compatibility_layer";
@@ -9,9 +9,11 @@ interface ParentProps {
   getAction: () => ActionSpec;
 }
 
-class Parent extends Component<ParentProps, SpreadsheetChildEnv> {
+class Parent extends Component<SpreadsheetChildEnv> {
   static components = { ActionButton };
-  static props = { getAction: Function };
+  protected props: ParentProps = props({
+    getAction: types.function(),
+  });
   static template = xml/*xml*/ `
       <ActionButton action="this.props.getAction()"/>
     `;

@@ -1,4 +1,4 @@
-import { signal, toRaw } from "@odoo/owl";
+import { props, signal, toRaw } from "@odoo/owl";
 import { Component, useChildSubEnv } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
@@ -17,17 +17,13 @@ import { useWheelHandler } from "../helpers/wheel_hook";
 import { getZoomedRect } from "../helpers/zoom";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
+import { types } from "../props_validation";
 import { HorizontalScrollBar } from "../scrollbar/scrollbar_horizontal";
 import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
 import { ClickableCell, ClickableCellsStore } from "./clickable_cell_store";
 
-interface Props {
-  getGridSize: () => DOMDimension;
-}
-
-export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> {
+export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SpreadsheetDashboard";
-  static props = { getGridSize: Function };
   static components = {
     GridOverlay,
     GridPopover,
@@ -35,6 +31,10 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     VerticalScrollBar,
     HorizontalScrollBar,
   };
+
+  protected props = props({
+    getGridSize: types.function<[], DOMDimension>([], types.DOMDimension()),
+  });
 
   protected cellPopovers!: Store<CellPopoverStore>;
 

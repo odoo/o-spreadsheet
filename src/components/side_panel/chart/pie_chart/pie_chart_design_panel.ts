@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/misc";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { PieChartDefinition, PieChartRuntime } from "../../../../types/chart/pie_chart";
@@ -15,12 +15,9 @@ import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humani
 import { ChartLegend } from "../building_blocks/legend/legend";
 import { PieHoleSize } from "../building_blocks/pie_hole_size/pie_hole_size";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
-import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
+import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
-export class PieChartDesignPanel extends Component<
-  ChartSidePanelProps<PieChartDefinition<string>>,
-  SpreadsheetChildEnv
-> {
+export class PieChartDesignPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PieChartDesignPanel";
   static components = {
     GeneralDesignEditor,
@@ -34,7 +31,9 @@ export class PieChartDesignPanel extends Component<
     RoundColorPicker,
     Select,
   };
-  static props = ChartSidePanelPropsObject;
+  protected props = props(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<
+    PieChartDefinition<string>
+  >;
 
   protected state = proxy({ index: 0 });
 

@@ -1,6 +1,7 @@
-import { BorderEditor, BorderEditorProps } from "../../src/components/border_editor/border_editor";
+import { BorderEditor } from "../../src/components/border_editor/border_editor";
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { Model } from "../../src/model";
+import { PropsOf } from "../../src/types/props_of";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { makeTestFixture, mountComponentWithPortalTarget } from "../test_helpers/helpers";
 
@@ -17,7 +18,7 @@ async function setDefaultBorder(name: string) {
 }
 
 async function mountBorderEditor(
-  partialProps: Partial<BorderEditorProps> = {},
+  partialProps: Partial<PropsOf<BorderEditor>> = {},
   model = new Model()
 ) {
   const props = {

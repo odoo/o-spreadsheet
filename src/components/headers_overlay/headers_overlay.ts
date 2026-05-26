@@ -1,4 +1,4 @@
-import { proxy, signal } from "@odoo/owl";
+import { props, proxy, signal } from "@odoo/owl";
 import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../constants";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
@@ -13,6 +13,7 @@ import { isCtrlKey } from "../helpers/dom_helpers";
 import { startDnd } from "../helpers/drag_and_drop";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { withZoom, ZoomedMouseEvent } from "../helpers/zoom";
+import { types } from "../props_validation";
 import { MergeErrorMessage, TableHeaderMoveErrorMessage } from "../translations_terms";
 import { ComposerFocusStore } from "./../composer/composer_focus_store";
 import { UnhideColumnHeaders, UnhideRowHeaders } from "./unhide_headers";
@@ -36,14 +37,16 @@ interface ResizerState {
   position: "before" | "after";
 }
 
-interface ResizerProps {
-  onOpenContextMenu: (type: ContextMenuType, x: Pixel, y: Pixel) => void;
-}
+export const resizerPropsDefinition = {
+  onOpenContextMenu: types.function<[type: ContextMenuType, x: Pixel, y: Pixel]>([
+    types.ContextMenuType(),
+    types.Pixel(),
+    types.Pixel(),
+  ]),
+};
 
-abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildEnv> {
-  static props = {
-    onOpenContextMenu: Function,
-  };
+abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
+  protected props = props(resizerPropsDefinition);
   private composerFocusStore!: Store<ComposerFocusStore>;
 
   PADDING: number = 0;
@@ -344,10 +347,6 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
 }
 
 export class ColResizer extends AbstractResizer {
-  static props = {
-    onOpenContextMenu: Function,
-  };
-
   static template = "o-spreadsheet-ColResizer";
   static components = { UnhideColumnHeaders };
 
@@ -517,9 +516,6 @@ export class ColResizer extends AbstractResizer {
 }
 
 export class RowResizer extends AbstractResizer {
-  static props = {
-    onOpenContextMenu: Function,
-  };
   static template = "o-spreadsheet-RowResizer";
   static components = { UnhideRowHeaders };
 
@@ -685,11 +681,10 @@ export class RowResizer extends AbstractResizer {
   }
 }
 
-export class HeadersOverlay extends Component<any, SpreadsheetChildEnv> {
-  static props = {
-    onOpenContextMenu: Function,
-  };
+export class HeadersOverlay extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-HeadersOverlay";
+
+  protected props = props(resizerPropsDefinition);
   static components = { ColResizer, RowResizer };
 
   selectAll() {

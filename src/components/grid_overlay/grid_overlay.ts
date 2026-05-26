@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, Signal, signal, useListener } from "@odoo/owl";
+import { onMounted, onWillUnmount, props, Signal, signal, useListener } from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { positionToZone } from "../../helpers/zones";
@@ -17,6 +17,7 @@ import { useInterval } from "../helpers/time_hooks";
 import { withZoom, ZoomedMouseEvent } from "../helpers/zoom";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover/cell_popover_store";
+import { types } from "../props_validation";
 import { HoveredTableStore } from "../tables/hovered_table_store";
 import { HoveredIconStore } from "./hovered_icon_store";
 
@@ -129,41 +130,46 @@ function useCellHovered(
   return hoveredPosition;
 }
 
-interface Props {
-  onCellDoubleClicked: (col: HeaderIndex, row: HeaderIndex) => void;
-  onCellClicked: (
-    col: HeaderIndex,
-    row: HeaderIndex,
-    modifiers: GridClickModifiers,
-    zoomedMouseEvent: ZoomedMouseEvent<MouseEvent | PointerEvent>
-  ) => void;
-  onCellRightClicked: (col: HeaderIndex, row: HeaderIndex, coordinates: DOMCoordinates) => void;
-  onGridResized: () => void;
-  onGridMoved: (deltaX: Pixel, deltaY: Pixel) => void;
-  gridOverlayDimensions: string;
-}
-
-export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
+export class GridOverlay extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridOverlay";
-  static props = {
-    onCellDoubleClicked: { type: Function, optional: true },
-    onCellClicked: { type: Function, optional: true },
-    onCellRightClicked: { type: Function, optional: true },
-    onGridResized: { type: Function, optional: true },
-    onGridMoved: Function,
-    gridOverlayDimensions: String,
-    slots: { type: Object, optional: true },
-  };
   static components = {
     FiguresContainer,
     GridAddRowsFooter,
   };
-  static defaultProps = {
-    onCellDoubleClicked: () => {},
-    onCellClicked: () => {},
-    onCellRightClicked: () => {},
-    onGridResized: () => {},
-  };
+
+  protected props = props(
+    {
+      "onCellDoubleClicked?": types.function<[col: HeaderIndex, row: HeaderIndex]>([
+        types.HeaderIndex(),
+        types.HeaderIndex(),
+      ]),
+      "onCellClicked?": types.function<
+        [
+          col: HeaderIndex,
+          row: HeaderIndex,
+          modifiers: GridClickModifiers,
+          zoomedMouseEvent: ZoomedMouseEvent<MouseEvent | PointerEvent>
+        ]
+      >([
+        types.HeaderIndex(),
+        types.HeaderIndex(),
+        types.GridClickModifiers(),
+        types.ZoomedMouseEvent(),
+      ]),
+      "onCellRightClicked?": types.function<
+        [col: HeaderIndex, row: HeaderIndex, coordinates: DOMCoordinates]
+      >([types.HeaderIndex(), types.HeaderIndex(), types.DOMCoordinates()]),
+      "onGridResized?": types.function([]),
+      onGridMoved: types.function<[deltaX: Pixel, deltaY: Pixel]>([types.Pixel(), types.Pixel()]),
+      gridOverlayDimensions: types.string(),
+    },
+    {
+      onCellDoubleClicked: () => {},
+      onCellClicked: () => {},
+      onCellRightClicked: () => {},
+      onGridResized: () => {},
+    }
+  );
   private gridOverlayRef: Signal<HTMLElement | null> = signal(null);
   private cellPopovers!: Store<CellPopoverStore>;
   private paintFormatStore!: Store<PaintFormatStore>;

@@ -1,34 +1,24 @@
-import { SidePanelContent } from "../../../registries/side_panel_registry";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
-import { SidePanelComponentProps } from "./side_panel_store";
+import { types } from "../../props_validation";
 
+import { props } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
-export interface SidePanelProps {
-  panelContent: SidePanelContent;
-  panelProps: SidePanelComponentProps;
-  onCloseSidePanel: () => void;
-  onStartHandleDrag: (ev: MouseEvent) => void;
-  onResetPanelSize: () => void;
-  isPinned?: boolean;
-  onTogglePinPanel?: () => void;
-  onToggleCollapsePanel?: () => void;
-  isCollapsed?: boolean;
-}
 
-export class SidePanel extends Component<SidePanelProps, SpreadsheetChildEnv> {
+export class SidePanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SidePanel";
-  static props = {
-    panelContent: Object,
-    panelProps: Object,
-    onCloseSidePanel: Function,
-    onStartHandleDrag: Function,
-    onResetPanelSize: Function,
-    isPinned: { type: Boolean, optional: true },
-    onTogglePinPanel: { type: Function, optional: true },
-    onToggleCollapsePanel: { type: Function, optional: true },
-    isCollapsed: { type: Boolean, optional: true },
-  };
+
+  protected props = props({
+    panelContent: types.SidePanelContent(),
+    panelProps: types.SidePanelComponentProps(),
+    onCloseSidePanel: types.function([]),
+    onStartHandleDrag: types.function<[ev: MouseEvent]>([types.instanceOf(MouseEvent)]),
+    onResetPanelSize: types.function([]),
+    "isPinned?": types.boolean(),
+    "onTogglePinPanel?": types.function([]),
+    "onToggleCollapsePanel?": types.function([]),
+    "isCollapsed?": types.boolean(),
+  });
   spreadsheetRect = useSpreadsheetRect();
 
   getTitle() {

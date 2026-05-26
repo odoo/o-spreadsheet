@@ -1,15 +1,15 @@
+import { props } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 
 import { Component } from "../../../../owl3_compatibility_layer";
-interface Props {
-  class?: string;
-}
+import { types } from "../../../props_validation";
 
-export class Section extends Component<Props, SpreadsheetChildEnv> {
+export class Section extends Component<SpreadsheetChildEnv> {
   static template = "o_spreadsheet.Section";
-  static props = {
-    class: { type: String, optional: true },
-    title: { type: String, optional: true },
-    slots: Object,
-  };
+
+  protected props = props({
+    "class?": types.string(),
+    "title?": types.string(),
+    slots: types.object(),
+  });
 }

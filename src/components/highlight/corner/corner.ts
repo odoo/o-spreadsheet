@@ -1,31 +1,36 @@
+import { props } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
 import { ResizeDirection } from "../../../types/figure";
-import { Color, Zone } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
+import { types } from "../../props_validation";
 
 import { Component } from "../../../owl3_compatibility_layer";
 const MOBILE_HANDLER_WIDTH = 40;
 
 type Orientation = "nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w";
 
-interface Props {
-  zone: Zone;
-  color: Color;
-  orientation: Orientation;
-  isResizing: boolean;
-  onResizeHighlight: (ev: PointerEvent, dirX: ResizeDirection, dirY: ResizeDirection) => void;
-}
-
-export class Corner extends Component<Props, SpreadsheetChildEnv> {
+export class Corner extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Corner";
-  static props = {
-    zone: Object,
-    color: String,
-    orientation: String,
-    isResizing: Boolean,
-    onResizeHighlight: Function,
-  };
+
+  protected props = props({
+    zone: types.Zone(),
+    color: types.Color(),
+    orientation: types.or([
+      types.literal("nw"),
+      types.literal("ne"),
+      types.literal("sw"),
+      types.literal("se"),
+      types.literal("n"),
+      types.literal("s"),
+      types.literal("e"),
+      types.literal("w"),
+    ]),
+    isResizing: types.boolean(),
+    onResizeHighlight: types.function<
+      [ev: PointerEvent, dirX: ResizeDirection, dirY: ResizeDirection]
+    >([types.instanceOf(PointerEvent), types.ResizeDirection(), types.ResizeDirection()]),
+  });
   private dirX!: ResizeDirection;
   private dirY!: ResizeDirection;
 

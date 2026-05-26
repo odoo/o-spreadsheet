@@ -1,17 +1,11 @@
-import { xml } from "@odoo/owl";
+import { props, xml } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { isBrowserFirefox } from "../helpers/dom_helpers";
+import { types } from "../props_validation";
 import { ScrollBar } from "./scrollbar";
 
-interface Props {
-  topOffset: number;
-}
-
-export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
-  static props = {
-    topOffset: { type: Number, optional: true },
-  };
+export class VerticalScrollBar extends Component<SpreadsheetChildEnv> {
   static components = { ScrollBar };
   static template = xml/*xml*/ `
     <ScrollBar
@@ -22,9 +16,15 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
       direction="'vertical'"
       onScroll.bind="(offset) => this.onScroll(offset)"
     />`;
-  static defaultProps = {
-    topOffset: 0,
-  };
+
+  protected props = props(
+    {
+      "topOffset?": types.number(),
+    },
+    {
+      topOffset: 0,
+    }
+  );
 
   get offset() {
     return this.env.model.getters.getActiveSheetScrollInfo().scrollY;

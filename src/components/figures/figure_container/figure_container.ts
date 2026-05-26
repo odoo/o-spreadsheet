@@ -23,8 +23,6 @@ import { FigureComponent } from "../figure/figure";
 
 type ContainerType = "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "dnd";
 
-interface Props {}
-
 interface Container {
   type: ContainerType;
   figures: FigureUI[];
@@ -108,9 +106,8 @@ interface DndState {
  * that occurred during the drag & drop, and to position the figure on the correct pane.
  *
  */
-export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
+export class FiguresContainer extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FiguresContainer";
-  static props = {};
   static components = { FigureComponent };
 
   dnd = proxy<DndState>({

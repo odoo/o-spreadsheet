@@ -1,26 +1,26 @@
+import { props } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { CommandResult } from "../../../../types/commands";
 import { ValueAndLabel } from "../../../../types/misc";
+import { PropsOf } from "../../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
-import { Store } from "../../../../types/store_engine";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { IconPicker } from "../../../icon_picker/icon_picker";
+import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
 import { ConditionalFormattingEditorStore } from "./cf_editor_store";
 
-interface Props {
-  store: Store<ConditionalFormattingEditorStore>;
-}
-
-export class IconSetRuleEditor extends Component<Props, SpreadsheetChildEnv> {
+export class IconSetRuleEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-IconSetRuleEditor";
   static components = {
     IconPicker,
     StandaloneComposer,
     Select,
   };
-  static props = { store: Object };
+  protected props = props({
+    store: types.Store<ConditionalFormattingEditorStore>(),
+  });
 
   get rule() {
     return this.props.store.state.rules.iconSet;
@@ -58,7 +58,7 @@ export class IconSetRuleEditor extends Component<Props, SpreadsheetChildEnv> {
 
   getColorIconSetComposerProps(
     inflectionPoint: "lowerInflectionPoint" | "upperInflectionPoint"
-  ): StandaloneComposer["props"] {
+  ): PropsOf<StandaloneComposer> {
     const inflection = this.props.store.state.rules.iconSet[inflectionPoint];
     const isInvalid = this.isInflectionPointInvalid(inflectionPoint);
     return {

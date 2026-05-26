@@ -1,11 +1,11 @@
+import { props } from "@odoo/owl";
 import { FIRST_CHART_COLOR } from "../../../../helpers/color";
 import { CHART_AXIS_CHOICES } from "../../../../helpers/figures/charts/chart_common";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
 import { VerticalAxisPosition } from "../../../../types/chart/common_chart";
-import { DispatchResult } from "../../../../types/commands";
-import { Color, UID } from "../../../../types/misc";
+import { Color } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -20,16 +20,9 @@ import { GeneralDesignEditor } from "../building_blocks/general_design/general_d
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartLegend } from "../building_blocks/legend/legend";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
-import { ChartSidePanelPropsObject } from "../common";
+import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
-interface Props {
-  chartId: UID;
-  definition: BubbleChartDefinition;
-  canUpdateChart: (chartId: UID, definition: Partial<BubbleChartDefinition>) => DispatchResult;
-  updateChart: (chartId: UID, definition: Partial<BubbleChartDefinition>) => DispatchResult;
-}
-
-export class BubbleChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
+export class BubbleChartDesignPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BubbleChartDesignPanel";
   static components = {
     GeneralDesignEditor,
@@ -43,7 +36,9 @@ export class BubbleChartDesignPanel extends Component<Props, SpreadsheetChildEnv
     RoundColorPicker,
     Checkbox,
   };
-  static props = ChartSidePanelPropsObject;
+  protected props = props(
+    chartSidePanelPropsDefinition
+  ) as unknown as ChartSidePanelProps<BubbleChartDefinition>;
 
   get axesList(): AxisDefinition[] {
     return [

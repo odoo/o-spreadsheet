@@ -269,17 +269,20 @@ export interface PaneDivision {
   ySplit: number;
 }
 
-export type BorderPosition =
-  | "all"
-  | "hv"
-  | "h"
-  | "v"
-  | "external"
-  | "left"
-  | "top"
-  | "right"
-  | "bottom"
-  | "clear";
+export const borderPositions = [
+  "all",
+  "hv",
+  "h",
+  "v",
+  "external",
+  "left",
+  "top",
+  "right",
+  "bottom",
+  "clear",
+] as const;
+
+export type BorderPosition = (typeof borderPositions)[number];
 
 export const enum DIRECTION {
   UP = "up",
@@ -421,7 +424,8 @@ export interface GridClickModifiers {
   expandZone: boolean;
 }
 
-export type ComposerFocusType = "inactive" | "cellFocus" | "contentFocus";
+export const composerFocusTypes = ["inactive", "cellFocus", "contentFocus"] as const;
+export type ComposerFocusType = (typeof composerFocusTypes)[number];
 
 export type EditionMode =
   | "editing"

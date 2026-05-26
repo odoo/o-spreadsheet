@@ -1,17 +1,17 @@
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { sidePanelRegistry } from "../../../registries/side_panel_registry";
 import { useStore } from "../../../store_engine/store_hooks";
+import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { startDnd } from "../../helpers/drag_and_drop";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
-import { SidePanel, SidePanelProps } from "../side_panel/side_panel";
+import { SidePanel } from "../side_panel/side_panel";
 import { SidePanelStore } from "../side_panel/side_panel_store";
 
-export class SidePanels extends Component<{}, SpreadsheetChildEnv> {
+export class SidePanels extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SidePanels";
-  static props = {};
   static components = { SidePanel };
   sidePanelStore!: Store<SidePanelStore>;
   spreadsheetRect = useSpreadsheetRect();
@@ -51,7 +51,7 @@ export class SidePanels extends Component<{}, SpreadsheetChildEnv> {
     startDnd(onMouseMove, cleanUp);
   }
 
-  get mainPanelProps(): SidePanel["props"] | undefined {
+  get mainPanelProps(): PropsOf<SidePanel> | undefined {
     const panelProps = this.sidePanelStore.mainPanelProps;
     if (!this.sidePanelStore.mainPanel || !panelProps) {
       return undefined;
@@ -69,7 +69,7 @@ export class SidePanels extends Component<{}, SpreadsheetChildEnv> {
     };
   }
 
-  get secondaryPanelProps(): SidePanelProps | undefined {
+  get secondaryPanelProps(): PropsOf<SidePanel> | undefined {
     const panelProps = this.sidePanelStore.secondaryPanelProps;
     if (!this.sidePanelStore.secondaryPanel || !panelProps) {
       return undefined;

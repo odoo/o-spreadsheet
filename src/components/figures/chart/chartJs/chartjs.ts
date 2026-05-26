@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, signal } from "@odoo/owl";
+import { onMounted, onWillUnmount, props, signal, types } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import {
   chartJsExtensionRegistry,
@@ -8,7 +8,6 @@ import { deepCopy, deepEquals } from "../../../../helpers/misc";
 import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
-import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { ChartAnimationStore } from "./chartjs_animation_store";
@@ -26,11 +25,6 @@ import { sunburstHoverPlugin } from "./chartjs_sunburst_hover_plugin";
 import { sunburstLabelsPlugin } from "./chartjs_sunburst_labels_plugin";
 import { waterfallLinesPlugin } from "./chartjs_waterfall_plugin";
 import { zoomWindowPlugin } from "./zoomable_chart/zoomable_chartjs_plugins";
-
-interface Props {
-  chartId: UID;
-  isFullScreen?: boolean;
-}
 
 chartJsExtensionRegistry.add("chartShowValuesPlugin", {
   register: (Chart) => Chart.register(chartShowValuesPlugin),
@@ -82,12 +76,13 @@ chartJsExtensionRegistry.add("chartBackgroundPlugin", {
   unregister: (Chart) => Chart.unregister(chartBackgroundPlugin),
 });
 
-export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
+export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartJsComponent";
-  static props = {
-    chartId: String,
-    isFullScreen: { type: Boolean, optional: true },
-  };
+
+  protected props = props({
+    chartId: types.string(),
+    "isFullScreen?": types.boolean(),
+  });
 
   protected canvas = signal<HTMLCanvasElement | null>(null);
   protected chart?: Chart;

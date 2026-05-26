@@ -1,4 +1,4 @@
-import { proxy, signal } from "@odoo/owl";
+import { props, proxy, signal } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
@@ -7,7 +7,7 @@ import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
-import { Carousel, CarouselItem, FigureUI } from "../../../types/figure";
+import { Carousel, CarouselItem } from "../../../types/figure";
 import { CSSProperties, MenuMouseEvent } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -16,25 +16,23 @@ import { FullScreenFigureStore } from "../../full_screen_figure/full_screen_figu
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers/css";
 import { getBoundingRectAsPOJO, getElBoundingRect } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
+import { types } from "../../props_validation";
 import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";
 import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
 
-interface Props {
-  figureUI: FigureUI;
-  editFigureStyle?: (properties: CSSProperties) => void;
-  isFullScreen?: boolean;
-  openContextMenu?: (anchorRect: Rect, onClose?: () => void) => void;
-}
-
-export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
+export class CarouselFigure extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CarouselFigure";
-  static props = {
-    figureUI: Object,
-    editFigureStyle: { type: Function, optional: true },
-    isFullScreen: { type: Boolean, optional: true },
-    openContextMenu: { type: Function, optional: true },
-  };
   static components = { ChartDashboardMenu, MenuPopover };
+
+  protected props = props({
+    figureUI: types.FigureUI(),
+    "editFigureStyle?": types.function<[properties: CSSProperties]>([types.CSSProperties()]),
+    "isFullScreen?": types.boolean(),
+    "openContextMenu?": types.function<[anchorRect: Rect, onClose?: () => void]>([
+      types.Rect(),
+      types.function([]),
+    ]),
+  });
 
   private carouselTabsRef = signal<HTMLElement | null>(null);
   private carouselTabsDropdownRef = signal<HTMLElement | null>(null);

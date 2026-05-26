@@ -1,5 +1,6 @@
 import { ValueAndLabel } from "../../src";
 import { Select } from "../../src/components/select/select";
+import { PropsOf } from "../../src/types/props_of";
 import { keyDown, simulateClick, triggerMouseEvent } from "../test_helpers";
 import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
 
@@ -14,9 +15,9 @@ let fixture: HTMLElement;
 let selectEl: HTMLElement;
 let onChange: jest.Mock;
 
-async function mountSelectMenu(partialProps: Partial<Select["props"]> = {}) {
+async function mountSelectMenu(partialProps: Partial<PropsOf<Select>> = {}) {
   onChange = jest.fn();
-  const props: Select["props"] = {
+  const props: PropsOf<Select> = {
     values: testValues,
     onChange,
     ...partialProps,

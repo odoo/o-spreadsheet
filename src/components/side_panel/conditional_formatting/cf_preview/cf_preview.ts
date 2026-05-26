@@ -1,29 +1,24 @@
-import { signal } from "@odoo/owl";
+import { props, signal } from "@odoo/owl";
 import { HIGHLIGHT_COLOR, TEXT_BODY } from "../../../../constants";
 import { colorNumberToHex } from "../../../../helpers/color";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
-import { ConditionalFormat } from "../../../../types/conditional_formatting";
 import { Highlight } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { cellStyleToCss, cssPropertiesToCss } from "../../../helpers/css";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
 import { ICONS } from "../../../icons/icons";
+import { types } from "../../../props_validation";
 import { CfTerms } from "../../../translations_terms";
 
-interface Props {
-  conditionalFormat: ConditionalFormat;
-  onMouseDown: (ev: MouseEvent) => void;
-  class: string;
-}
-
-export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildEnv> {
+export class ConditionalFormatPreview extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ConditionalFormatPreview";
-  static props = {
-    conditionalFormat: Object,
-    onMouseDown: Function,
-    class: String,
-  };
+  protected props = props({
+    conditionalFormat: types.ConditionalFormat(),
+    onMouseDown: types.function<[ev: MouseEvent]>([types.instanceOf(MouseEvent)]),
+    class: types.string(),
+  });
+
   icons = ICONS;
   private cfPreviewRef = signal<HTMLElement | null>(null);
 

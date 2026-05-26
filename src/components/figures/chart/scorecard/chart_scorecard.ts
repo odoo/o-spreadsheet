@@ -1,23 +1,18 @@
-import { onMounted, onWillUnmount, signal } from "@odoo/owl";
+import { onMounted, onWillUnmount, props, signal, types } from "@odoo/owl";
 import { drawScoreChart } from "../../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../../helpers/figures/charts/scorecard_chart_config_builder";
 import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
-import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { getZoomedRect } from "../../../helpers/zoom";
 
-interface Props {
-  chartId: UID;
-  isFullScreen?: Boolean;
-}
-
-export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
+export class ScorecardChart extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChart";
-  static props = {
-    chartId: String,
-    isFullScreen: { type: Boolean, optional: true },
-  };
+
+  protected props = props({
+    chartId: types.string(),
+    "isFullScreen?": types.boolean(),
+  });
   private canvas = signal<HTMLCanvasElement | null>(null);
 
   get runtime(): ScorecardChartRuntime {

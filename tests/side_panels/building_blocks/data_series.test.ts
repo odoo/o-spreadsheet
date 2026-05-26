@@ -1,9 +1,10 @@
 import { ChartDataSeries } from "../../../src/components/side_panel/chart/building_blocks/data_series/data_series";
+import { PropsOf } from "../../../src/types/props_of";
 import { mountComponent } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
-async function mountDataSeries(props: ChartDataSeries["props"]) {
+async function mountDataSeries(props: PropsOf<ChartDataSeries>) {
   ({ fixture } = await mountComponent(ChartDataSeries, { props }));
 }
 

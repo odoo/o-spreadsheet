@@ -1,27 +1,24 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { GROUP_LAYER_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { Component } from "../../owl3_compatibility_layer";
 import { createHeaderGroupContainerContextMenu } from "../../registries/menus/header_group_registry";
-import { CSSProperties, Dimension, HeaderGroup, Pixel } from "../../types/misc";
+import { CSSProperties, Pixel } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
+import { types } from "../props_validation";
 import { ColGroup, RowGroup } from "./header_group";
 
-interface Props {
-  dimension: Dimension;
-  layers: HeaderGroup[][];
-}
-
-export class HeaderGroupContainer extends Component<Props, SpreadsheetChildEnv> {
+export class HeaderGroupContainer extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-HeaderGroupContainer";
-  static props = {
-    dimension: String,
-    layers: Array,
-  };
   static components = { RowGroup, ColGroup, MenuPopover };
+
+  protected props = props({
+    dimension: types.Dimension(),
+    layers: types.array(),
+  });
 
   menu: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 

@@ -1,3 +1,4 @@
+import { props } from "@odoo/owl";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { DispatchResult } from "../../../../types/commands";
 import { UID, ValueAndLabel } from "../../../../types/misc";
@@ -6,20 +7,19 @@ import { Select } from "../../../select/select";
 import { Section } from "../../components/section/section";
 
 import { Component } from "../../../../owl3_compatibility_layer";
-interface Props {
-  chartId: UID;
-  definition: GeoChartDefinition;
-  updateChart: (chartId: UID, definition: Partial<GeoChartDefinition>) => DispatchResult;
-}
-
-export class GeoChartRegionSelectSection extends Component<Props, SpreadsheetChildEnv> {
+import { types } from "../../../props_validation";
+export class GeoChartRegionSelectSection extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GeoChartRegionSelectSection";
   static components = { Section, Select };
-  static props = {
-    chartId: String,
-    definition: Object,
-    updateChart: Function,
-  };
+
+  protected props = props({
+    chartId: types.UID(),
+    definition: types.GeoChartDefinition(),
+    updateChart: types.function<
+      [chartId: UID, definition: Partial<GeoChartDefinition>],
+      DispatchResult
+    >([types.UID(), types.object({})], types.DispatchResult()),
+  });
 
   updateSelectedRegion(value: string) {
     this.props.updateChart(this.props.chartId, { region: value });

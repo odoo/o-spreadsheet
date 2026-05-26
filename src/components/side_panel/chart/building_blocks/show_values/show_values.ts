@@ -1,20 +1,20 @@
+import { props } from "@odoo/owl";
 import { Component } from "../../../../../owl3_compatibility_layer";
-import { ChartDefinitionWithDataSource } from "../../../../../types/chart/chart";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { types } from "../../../../props_validation";
 import { Checkbox } from "../../../components/checkbox/checkbox";
-import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 
-interface Props extends ChartSidePanelProps<ChartDefinitionWithDataSource<string>> {
-  defaultValue?: boolean;
-}
-
-export class ChartShowValues extends Component<Props, SpreadsheetChildEnv> {
+export class ChartShowValues extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartShowValues";
   static components = {
     Checkbox,
   };
-  static props = {
-    ...ChartSidePanelPropsObject,
-    defaultValue: { type: Boolean, optional: true },
-  };
+
+  protected props = props({
+    chartId: types.UID(),
+    definition: types.ChartDefinitionWithDataSource(),
+    canUpdateChart: types.function([]),
+    updateChart: types.function([]),
+    "defaultValue?": types.boolean(),
+  });
 }

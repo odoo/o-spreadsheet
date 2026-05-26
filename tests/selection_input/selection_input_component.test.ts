@@ -1,4 +1,4 @@
-import { App, xml } from "@odoo/owl";
+import { App, props, types, xml } from "@odoo/owl";
 import { Color, Model } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { SelectionInput } from "../../src/components/selection_input/selection_input";
@@ -70,7 +70,10 @@ class Parent extends Component<any> {
     />
   `;
   static components = { SelectionInput };
-  static props = { model: Object, config: Object };
+  protected props = props({
+    model: types.object({}),
+    config: types.object({}),
+  }) as any;
   model!: Model;
   initialRanges: string[] | undefined;
   hasSingleRange: boolean | undefined;
@@ -110,7 +113,9 @@ class MultiParent extends Component<any> {
     </div>
   `;
   static components = { SelectionInput };
-  static props = { model: Object };
+  protected props = props({
+    model: types.object({}),
+  }) as any;
 
   setup() {
     useSubEnv({

@@ -1,25 +1,24 @@
-import { Zone } from "../../../types/misc";
+import { props } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
+import { types } from "../../props_validation";
 
 import { Component } from "../../../owl3_compatibility_layer";
-type Orientation = "n" | "s" | "w" | "e";
 
-interface Props {
-  zone: Zone;
-  orientation: Orientation;
-  isMoving: boolean;
-  onMoveHighlight: (ev: PointerEvent) => void;
-}
-
-export class Border extends Component<Props, SpreadsheetChildEnv> {
+export class Border extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Border";
-  static props = {
-    zone: Object,
-    orientation: String,
-    isMoving: Boolean,
-    onMoveHighlight: Function,
-  };
+
+  protected props = props({
+    zone: types.Zone(),
+    orientation: types.or([
+      types.literal("n"),
+      types.literal("s"),
+      types.literal("w"),
+      types.literal("e"),
+    ]),
+    isMoving: types.boolean(),
+    onMoveHighlight: types.function<[ev: PointerEvent]>([types.instanceOf(PointerEvent)]),
+  });
   get style() {
     const isTop = ["n", "w", "e"].includes(this.props.orientation);
     const isLeft = ["n", "w", "s"].includes(this.props.orientation);

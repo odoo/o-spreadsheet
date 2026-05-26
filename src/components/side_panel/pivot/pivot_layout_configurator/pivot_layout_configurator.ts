@@ -1,4 +1,4 @@
-import { signal } from "@odoo/owl";
+import { props, signal } from "@odoo/owl";
 import { isDefined } from "../../../../helpers/misc";
 import {
   AGGREGATORS,
@@ -9,7 +9,7 @@ import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_
 import { Component } from "../../../../owl3_compatibility_layer";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
-import { SortDirection, UID } from "../../../../types/misc";
+import { SortDirection } from "../../../../types/misc";
 import {
   Aggregator,
   Granularity,
@@ -24,6 +24,7 @@ import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
+import { types } from "../../../props_validation";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { PivotCustomGroupsCollapsible } from "../pivot_custom_groups_collapsible/pivot_custom_groups_collapsible";
 import { AddDimensionButton } from "./add_dimension_button/add_dimension_button";
@@ -33,20 +34,7 @@ import { PivotDimensionOrder } from "./pivot_dimension_order/pivot_dimension_ord
 import { PivotMeasureEditor } from "./pivot_measure/pivot_measure";
 import { PivotSortSection } from "./pivot_sort_section/pivot_sort_section";
 
-interface Props {
-  definition: PivotRuntimeDefinition;
-  onDimensionsUpdated: (definition: Partial<PivotCoreDefinition>) => void;
-  onFiltersUpdated: (definition: Partial<PivotCoreDefinition>) => void;
-  unusedGroupableFields: PivotField[];
-  measureFields: PivotField[];
-  unusedGranularities: Record<string, Set<string>>;
-  dateGranularities: string[];
-  datetimeGranularities: string[];
-  getScrollableContainerEl?: () => HTMLElement;
-  pivotId: UID;
-}
-
-export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEnv> {
+export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotLayoutConfigurator";
   static components = {
     AddDimensionButton,
@@ -58,18 +46,22 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     PivotCustomGroupsCollapsible,
     SidePanelCollapsible,
   };
-  static props = {
-    definition: Object,
-    onDimensionsUpdated: Function,
-    onFiltersUpdated: Function,
-    unusedGroupableFields: Array,
-    measureFields: Array,
-    unusedGranularities: Object,
-    dateGranularities: Array,
-    datetimeGranularities: Array,
-    getScrollableContainerEl: { type: Function, optional: true },
-    pivotId: String,
-  };
+  protected props = props({
+    definition: types.instanceOf(PivotRuntimeDefinition),
+    onDimensionsUpdated: types.function<[definition: Partial<PivotCoreDefinition>]>([
+      types.PivotCoreDefinition(),
+    ]),
+    onFiltersUpdated: types.function<[definition: Partial<PivotCoreDefinition>]>([
+      types.PivotCoreDefinition(),
+    ]),
+    unusedGroupableFields: types.array(types.PivotField()),
+    measureFields: types.array(types.PivotField()),
+    unusedGranularities: types.RecordOf<Set<string>>(),
+    dateGranularities: types.array(types.string()),
+    datetimeGranularities: types.array(types.string()),
+    "getScrollableContainerEl?": types.function<[], HTMLElement>([], types.instanceOf(HTMLElement)),
+    pivotId: types.UID(),
+  });
 
   private dimensionsRef = signal<HTMLElement | null>(null);
   private dragAndDrop = useDragAndDropListItems();

@@ -1,4 +1,4 @@
-import { xml } from "@odoo/owl";
+import { props, types, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import { DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
@@ -209,7 +209,9 @@ describe("Autofill component", () => {
       static template = xml/* xml */ `
         <div class="custom_tooltip" t-out="this.props.content"/>
       `;
-      static props = { content: String };
+      protected props = props({
+        content: types.string(),
+      });
     }
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
     model.getters.getAutofillTooltip = jest.fn(() => {

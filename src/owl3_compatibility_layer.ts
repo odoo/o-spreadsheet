@@ -60,23 +60,18 @@ import {
 
 const isOdooCompatLoaded = __ODOO_COMPATIBILITY_LAYER_ADDED__ === true;
 
-export interface ComponentConstructor<Props = any, Env = any> {
+export interface ComponentConstructor<Env = any> {
   new (...args: any[]): any;
   template: string;
 }
 
-class _Component<Props = any, Env = any> extends OwlComponent {
+class _Component<Env = any> extends OwlComponent {
   static template = "";
-  static props = {};
-  static defaultProps = {};
-  // @ts-ignore
-  public props: Props;
   // @ts-ignore
   public env: Env;
 
   constructor(node) {
     super(node);
-    this.props = props(null, this.constructor.defaultProps);
     this.env = useChildEnv();
     this.__owl__ = node;
   }
@@ -226,7 +221,12 @@ class VPortal extends blockDom.text("").constructor {
 
 class Portal extends OwlComponent {
   static template = xml`<t t-call-slot="default"/>`;
-  static props = { selector: String, slots: true };
+
+  constructor(node) {
+    super(node);
+    this.props = props();
+    this.__owl__ = node;
+  }
 
   setup() {
     const node = this.__owl__;
@@ -393,7 +393,7 @@ export {
   useLayoutEffect,
   useSubEnv,
 };
-export type Component<Props = any, Env = any> = _Component<Props, Env>;
+export type Component<Env = any> = _Component<Env>;
 export type useComponent = () => any;
 export type useExternalListener = (target, eventName, handler, eventParams?) => void;
 export type useLayoutEffect = (effect, computeDependencies: () => any) => void;

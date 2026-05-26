@@ -1,32 +1,17 @@
-import { onWillStart, onWillUpdateProps, proxy, signal, useEffect } from "@odoo/owl";
+import { onWillStart, onWillUpdateProps, props, proxy, signal, useEffect } from "@odoo/owl";
 import { deepEquals, range } from "../../helpers/misc";
 import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { Color } from "../../types/misc";
+import { PropsOf } from "../../types/props_of";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
+import { types } from "../props_validation";
 import { RangeInputValue, SelectionInputStore } from "./selection_input_store";
-
-interface Props {
-  ranges: string[];
-  hasSingleRange?: boolean;
-  required?: boolean;
-  autofocus?: boolean;
-  isInvalid?: boolean;
-  class?: string;
-  onSelectionChanged?: (ranges: string[]) => void;
-  onSelectionReordered?: (indexes: number[]) => void;
-  onSelectionRemoved?: (index: number) => void;
-  onSelectionConfirmed?: () => void;
-  onInputFocused?: () => void;
-  colors?: Color[];
-  disabledRanges?: boolean[];
-  disabledRangeTitle?: string;
-}
 
 interface State {
   isMissing: boolean;
@@ -46,24 +31,31 @@ interface SelectionRange extends Omit<RangeInputValue, "color"> {
  * onSelectionChanged is called every time the input value
  * changes.
  */
-export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
+export class SelectionInput extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SelectionInput";
-  static props = {
-    ranges: Array,
-    hasSingleRange: { type: Boolean, optional: true },
-    required: { type: Boolean, optional: true },
-    autofocus: { type: Boolean, optional: true },
-    isInvalid: { type: Boolean, optional: true },
-    class: { type: String, optional: true },
-    onSelectionChanged: { type: Function, optional: true },
-    onSelectionConfirmed: { type: Function, optional: true },
-    onSelectionReordered: { type: Function, optional: true },
-    onSelectionRemoved: { type: Function, optional: true },
-    onInputFocused: { type: Function, optional: true },
-    colors: { type: Array, optional: true, default: [] },
-    disabledRanges: { type: Array, optional: true, default: [] },
-    disabledRangeTitle: { type: String, optional: true },
-  };
+
+  protected props = props(
+    {
+      ranges: types.array(types.string()),
+      "hasSingleRange?": types.boolean(),
+      "required?": types.boolean(),
+      "autofocus?": types.boolean(),
+      "isInvalid?": types.boolean(),
+      "class?": types.string(),
+      "onSelectionChanged?": types.function<[ranges: string[]]>([types.array(types.string())]),
+      "onSelectionConfirmed?": types.function([]),
+      "onSelectionReordered?": types.function<[indexes: number[]]>([types.array(types.number())]),
+      "onSelectionRemoved?": types.function<[index: number]>([types.number()]),
+      "onInputFocused?": types.function([]),
+      "colors?": types.ArrayOf<Color>(),
+      "disabledRanges?": types.array(types.boolean()),
+      "disabledRangeTitle?": types.string(),
+    },
+    {
+      colors: [],
+      disabledRanges: [],
+    }
+  );
   private state: State = proxy({
     isMissing: false,
   });
@@ -135,7 +127,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       }
     };
     useLayoutEffect(checkVisibility);
-    onWillUpdateProps((nextProps) => {
+    onWillUpdateProps((nextProps: PropsOf<SelectionInput>) => {
       if (nextProps.ranges.join() !== this.store.selectionInputValues.join()) {
         this.triggerChange();
       }

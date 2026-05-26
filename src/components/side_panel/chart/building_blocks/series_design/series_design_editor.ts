@@ -1,23 +1,20 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { getColorsPalette, getNthColor, toHex } from "../../../../../helpers/color";
 import { Component } from "../../../../../owl3_compatibility_layer";
 import {
   ChartDefinitionWithDataSource,
   CustomizableSeriesChartRuntime,
 } from "../../../../../types/chart/chart";
-import { ValueAndLabel } from "../../../../../types/misc";
+import { DispatchResult } from "../../../../../types/commands";
+import { UID, ValueAndLabel } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { types } from "../../../../props_validation";
 import { Select } from "../../../../select/select";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
-import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 
-interface Props extends ChartSidePanelProps<ChartDefinitionWithDataSource<string>> {
-  slots?: object;
-}
-
-export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
+export class SeriesDesignEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SeriesDesignEditor";
   static components = {
     SidePanelCollapsible,
@@ -25,10 +22,19 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     RoundColorPicker,
     Select,
   };
-  static props = {
-    ...ChartSidePanelPropsObject,
-    slots: { type: Object, optional: true },
-  };
+
+  protected props = props({
+    chartId: types.UID(),
+    definition: types.ChartDefinitionWithDataSource(),
+    canUpdateChart: types.function<
+      [chartId: UID, definition: Partial<ChartDefinitionWithDataSource<string>>],
+      DispatchResult
+    >([types.UID(), types.object({})], types.DispatchResult()),
+    updateChart: types.function<
+      [chartId: UID, definition: Partial<ChartDefinitionWithDataSource<string>>],
+      DispatchResult
+    >([types.UID(), types.object({})], types.DispatchResult()),
+  });
 
   protected state = proxy({ dataSetId: this.getDataSeries()[0]?.dataSetId || "" });
 

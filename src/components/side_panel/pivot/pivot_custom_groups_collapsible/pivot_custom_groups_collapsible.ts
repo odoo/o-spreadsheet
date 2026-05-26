@@ -1,31 +1,28 @@
+import { props } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/misc";
 import { getUniquePivotGroupName } from "../../../../helpers/pivot/pivot_helpers";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
-import { UID } from "../../../../types/misc";
 import {
   PivotCoreDefinition,
   PivotCustomGroup,
   PivotCustomGroupedField,
 } from "../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { types } from "../../../props_validation";
 import { TextInput } from "../../../text_input/text_input";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 
-import { Component } from "../../../../owl3_compatibility_layer";
-export interface Props {
-  pivotId: UID;
-  customField: PivotCustomGroupedField;
-  onCustomFieldUpdated: (definition: Partial<PivotCoreDefinition>) => void;
-}
-
-export class PivotCustomGroupsCollapsible extends Component<Props, SpreadsheetChildEnv> {
+export class PivotCustomGroupsCollapsible extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotCustomGroupsCollapsible";
-  static props = {
-    pivotId: String,
-    customField: Object,
-    onCustomFieldUpdated: Function,
-  };
+  protected props = props({
+    pivotId: types.UID(),
+    customField: types.PivotCustomGroupedField(),
+    onCustomFieldUpdated: types.function<[definition: Partial<PivotCoreDefinition>]>([
+      types.object({}) as Partial<PivotCoreDefinition>,
+    ]),
+  });
   static components = { SidePanelCollapsible, TextInput, Checkbox };
 
   get groups() {

@@ -15,10 +15,11 @@ import { GeneralDesignEditor } from "../building_blocks/general_design/general_d
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { TextStyler } from "../building_blocks/text_styler/text_styler";
-import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
+import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 import { TreeMapCategoryColors } from "./treemap_category_color/treemap_category_color";
 import { TreeMapColorScale } from "./treemap_color_scale/treemap_color_scale";
 
+import { props } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 const DEFAULT_COLOR_SCALE: TreeMapColorScaleOptions = {
   type: "colorScale",
@@ -33,10 +34,7 @@ const DEFAULT_SOLID_COLOR: TreeMapCategoryColorOptions = {
   useValueBasedGradient: true,
 };
 
-export class TreeMapChartDesignPanel extends Component<
-  ChartSidePanelProps<TreeMapChartDefinition<string>>,
-  SpreadsheetChildEnv
-> {
+export class TreeMapChartDesignPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TreeMapChartDesignPanel";
   static components = {
     GeneralDesignEditor,
@@ -51,7 +49,9 @@ export class TreeMapChartDesignPanel extends Component<
     TreeMapColorScale,
     ChartHumanizeNumbers,
   };
-  static props = ChartSidePanelPropsObject;
+  protected props = props(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<
+    TreeMapChartDefinition<string>
+  >;
 
   private savedColors = {
     categoryColors: DEFAULT_SOLID_COLOR,

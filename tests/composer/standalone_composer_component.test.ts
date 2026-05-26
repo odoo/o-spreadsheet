@@ -1,4 +1,4 @@
-import { xml } from "@odoo/owl";
+import { props, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { StandaloneComposer } from "../../src/components/composer/standalone_composer/standalone_composer";
@@ -24,7 +24,7 @@ let composerEl: HTMLElement;
 let composerFocusStore: Store<ComposerFocusStore>;
 let model: Model;
 
-class SidePanelWithComposer extends Component<any, any> {
+class SidePanelWithComposer extends Component<any> {
   static template = xml/*xml*/ `
       <div>
         <StandaloneComposer
@@ -36,8 +36,9 @@ class SidePanelWithComposer extends Component<any, any> {
           placeholder="this.props.placeholder"
         />
       </div>`;
-  static props = { "*": Object };
   static components = { StandaloneComposer };
+
+  protected props = props();
 }
 
 async function openSidePanelWithComposer(props?: Partial<StandaloneComposer["props"]>) {

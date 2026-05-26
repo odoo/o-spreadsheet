@@ -1,3 +1,4 @@
+import { props, types } from "@odoo/owl";
 import { setStyle } from "../../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../../constants";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -5,15 +6,12 @@ import { FontSizeEditor } from "../../font_size_editor/font_size_editor";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 
 import { Component } from "../../../owl3_compatibility_layer";
-type Props = {
-  class: string;
-};
 
-export class TopBarFontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
+export class TopBarFontSizeEditor extends Component<SpreadsheetChildEnv> {
   static components = { FontSizeEditor };
-  static props = { class: String };
-
   static template = "o-spreadsheet-TopBarFontSizeEditor";
+
+  protected props = props({ class: types.string() });
   topBarToolStore!: ToolBarDropdownStore;
 
   setup() {

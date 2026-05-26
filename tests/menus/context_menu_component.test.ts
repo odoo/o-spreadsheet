@@ -1,4 +1,4 @@
-import { xml } from "@odoo/owl";
+import { props, types, xml } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../src/actions/action";
 import { MenuPopover } from "../../src/components/menu_popover/menu_popover";
 import {
@@ -175,7 +175,7 @@ interface Props {
   config: any;
 }
 
-class ContextMenuParent extends Component<Props> {
+class ContextMenuParent extends Component {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
       <MenuPopover
@@ -188,7 +188,13 @@ class ContextMenuParent extends Component<Props> {
     </div>
   `;
   static components = { MenuPopover };
-  static props = { x: Number, y: Number, width: Number, height: Number, config: Object };
+  protected props: Props = props({
+    x: types.number(),
+    y: types.number(),
+    width: types.number(),
+    height: types.number(),
+    config: types.object({}),
+  }) as any;
   menus!: Action[];
   anchorRect: Rect;
   onClose!: () => void;

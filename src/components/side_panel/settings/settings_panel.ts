@@ -1,4 +1,4 @@
-import { onWillStart } from "@odoo/owl";
+import { onWillStart, props } from "@odoo/owl";
 import { DAYS, formatValue } from "../../../helpers/format/format";
 import { getDateTimeFormat, isValidLocale } from "../../../helpers/locale";
 import { deepEquals } from "../../../helpers/misc";
@@ -6,19 +6,19 @@ import { Component } from "../../../owl3_compatibility_layer";
 import { Locale, LocaleCode } from "../../../types/locale";
 import { ValueAndLabel } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { types } from "../../props_validation";
 import { Select } from "../../select/select";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { BadgeSelection } from "../components/badge_selection/badge_selection";
 import { Section } from "../components/section/section";
 
-interface Props {
-  onCloseSidePanel: () => void;
-}
-
-export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
+export class SettingsPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SettingsPanel";
   static components = { Section, ValidationMessages, BadgeSelection, Select };
-  static props = { onCloseSidePanel: Function };
+
+  protected props = props({
+    onCloseSidePanel: types.function([]),
+  });
 
   loadedLocales: Locale[] = [];
 

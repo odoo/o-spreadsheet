@@ -1,23 +1,19 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
-import { FunctionDescription } from "../../../types/functions";
+import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { types } from "../../props_validation";
 import { Collapse } from "../../side_panel/components/collapse/collapse";
 
-interface Props {
-  functionDescription: FunctionDescription;
-  argsToFocus: number[];
-  repeatingArgGroupIndex: number | undefined;
-}
-
-export class FunctionDescriptionProvider extends Component<Props, SpreadsheetChildEnv> {
+export class FunctionDescriptionProvider extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FunctionDescriptionProvider";
-  static props = {
-    functionDescription: Object,
-    argsToFocus: Array,
-    repeatingArgGroupIndex: { type: Number, optional: true },
-  };
   static components = { Collapse };
+
+  protected props = props({
+    functionDescription: types.FunctionDescription(),
+    argsToFocus: types.array(types.number()),
+    "repeatingArgGroupIndex?": types.number(),
+  });
 
   private state: { isCollapsed: boolean } = proxy({
     isCollapsed: true,
@@ -27,7 +23,7 @@ export class FunctionDescriptionProvider extends Component<Props, SpreadsheetChi
     this.state.isCollapsed = !this.state.isCollapsed;
   }
 
-  getContext(): Props {
+  getContext(): PropsOf<FunctionDescriptionProvider> {
     return this.props;
   }
 

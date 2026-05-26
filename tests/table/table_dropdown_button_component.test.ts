@@ -14,7 +14,7 @@ let model: Model;
 let sheetId: UID;
 let fixture: HTMLElement;
 
-class Parent extends Component<{}, SpreadsheetChildEnv> {
+class Parent extends Component<SpreadsheetChildEnv> {
   static components = { TableDropdownButton, SidePanels };
   static template = xml/*xml*/ `
   <div class="o-spreadsheet">
@@ -22,7 +22,6 @@ class Parent extends Component<{}, SpreadsheetChildEnv> {
     <SidePanels />
   </div>
   `;
-  static props = {};
 }
 
 beforeEach(async () => {

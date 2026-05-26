@@ -1,30 +1,25 @@
+import { props } from "@odoo/owl";
 import { formatValue } from "../../../../../helpers/format/format";
 import {
   getFieldDisplayName,
   isSortedColumnValid,
 } from "../../../../../helpers/pivot/pivot_helpers";
-import { PivotRuntimeDefinition } from "../../../../../helpers/pivot/pivot_runtime_definition";
+import { Component } from "../../../../../owl3_compatibility_layer";
 import { _t } from "../../../../../translation";
-import { UID } from "../../../../../types/misc";
 import { PivotDomain } from "../../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { types } from "../../../../props_validation";
 import { Section } from "../../../components/section/section";
 
-import { Component } from "../../../../../owl3_compatibility_layer";
-interface Props {
-  definition: PivotRuntimeDefinition;
-  pivotId: UID;
-}
-
-export class PivotSortSection extends Component<Props, SpreadsheetChildEnv> {
+export class PivotSortSection extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotSortSection";
   static components = {
     Section,
   };
-  static props = {
-    definition: Object,
-    pivotId: String,
-  };
+  protected props = props({
+    definition: types.PivotRuntimeDefinition(),
+    pivotId: types.UID(),
+  });
 
   get hasValidSort() {
     const pivot = this.env.model.getters.getPivot(this.props.pivotId);

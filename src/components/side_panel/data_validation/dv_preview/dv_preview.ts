@@ -1,21 +1,18 @@
-import { signal } from "@odoo/owl";
+import { props, signal } from "@odoo/owl";
 import { HIGHLIGHT_COLOR } from "../../../../constants";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
-import { DataValidationRule } from "../../../../types/data_validation";
 import { Highlight } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
+import { types } from "../../../props_validation";
 
-interface Props {
-  rule: DataValidationRule;
-}
-
-export class DataValidationPreview extends Component<Props, SpreadsheetChildEnv> {
+export class DataValidationPreview extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationPreview";
-  static props = {
-    rule: Object,
-  };
+
+  protected props = props({
+    rule: types.DataValidationRule(),
+  });
 
   private dvPreviewRef = signal<HTMLElement | null>(null);
 

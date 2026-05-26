@@ -1,5 +1,6 @@
-import { onMounted, onWillUnmount, proxy, signal } from "@odoo/owl";
+import { onMounted, onWillUnmount, props, proxy, signal, types } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
+import { PropsOf } from "../../types/props_of";
 import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss, getElementMargins } from "../helpers/css";
@@ -10,35 +11,6 @@ const RIPPLE_KEY_FRAMES = [
   { transform: "scale(0.8)", offset: 0.33 },
   { opacity: "0", transform: "scale(1)", offset: 1 },
 ];
-
-interface RippleProps {
-  color: string;
-  opacity: number;
-  duration: number;
-
-  /** If true, the ripple will play from the element center instead of the position of the click */
-  ignoreClickPosition?: boolean;
-
-  /** Width of the ripple. Defaults to the width of the element the ripple is on (without margins). */
-  width?: number;
-  /** Height of the ripple. Defaults to the height of the element the ripple is on (without margins). */
-  height?: number;
-
-  offsetY?: number;
-  offsetX?: number;
-
-  allowOverflow?: boolean;
-  enabled: boolean;
-  onAnimationEnd: () => void;
-  class?: string;
-}
-
-interface RippleEffectProps
-  extends Omit<Required<RippleProps>, "ignoreClickPosition" | "enabled" | "class"> {
-  x: string;
-  y: string;
-  style: string;
-}
 
 interface RippleDef {
   rippleRect: Rect | undefined;
@@ -54,22 +26,25 @@ interface RectWithMargins extends Rect {
   marginLeft: number;
 }
 
-class RippleEffect extends Component<RippleEffectProps, SpreadsheetChildEnv> {
+class RippleEffect extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-RippleEffect";
-  static props = {
-    x: String,
-    y: String,
-    color: String,
-    opacity: Number,
-    duration: Number,
-    width: Number,
-    height: Number,
-    offsetY: Number,
-    offsetX: Number,
-    allowOverflow: Boolean,
-    onAnimationEnd: Function,
-    style: String,
-  };
+
+  protected props = props({
+    x: types.string(),
+    y: types.string(),
+    color: types.string(),
+    opacity: types.number(),
+    duration: types.number(),
+    /** Width of the ripple. Defaults to the width of the element the ripple is on (without margins). */
+    width: types.number(),
+    /** Height of the ripple. Defaults to the height of the element the ripple is on (without margins). */
+    height: types.number(),
+    offsetY: types.number(),
+    offsetX: types.number(),
+    allowOverflow: types.boolean(),
+    onAnimationEnd: types.function(),
+    style: types.string(),
+  });
 
   private rippleRef = signal<HTMLElement | null>(null);
 
@@ -110,32 +85,38 @@ class RippleEffect extends Component<RippleEffectProps, SpreadsheetChildEnv> {
   }
 }
 
-export class Ripple extends Component<RippleProps, SpreadsheetChildEnv> {
+export class Ripple extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Ripple";
-  static props = {
-    color: { type: String, optional: true },
-    opacity: { type: Number, optional: true },
-    duration: { type: Number, optional: true },
-    ignoreClickPosition: { type: Boolean, optional: true },
-    width: { type: Number, optional: true },
-    height: { type: Number, optional: true },
-    offsetY: { type: Number, optional: true },
-    offsetX: { type: Number, optional: true },
-    allowOverflow: { type: Boolean, optional: true },
-    enabled: { type: Boolean, optional: true },
-    onAnimationEnd: { type: Function, optional: true },
-    slots: Object,
-    class: { type: String, optional: true },
-  };
   static components = { RippleEffect };
-  static defaultProps = {
-    color: "#aaaaaa",
-    opacity: 0.4,
-    duration: 800,
-    enabled: true,
-    onAnimationEnd: () => {},
-    class: "",
-  };
+
+  protected props = props(
+    {
+      "color?": types.string(),
+      "opacity?": types.number(),
+      "duration?": types.number(),
+
+      /** If true, the ripple will play from the element center instead of the position of the click */
+      "ignoreClickPosition?": types.boolean(),
+      /** Width of the ripple. Defaults to the width of the element the ripple is on (without margins). */
+      "width?": types.number(),
+      /** Height of the ripple. Defaults to the height of the element the ripple is on (without margins). */
+      "height?": types.number(),
+      "offsetY?": types.number(),
+      "offsetX?": types.number(),
+      "allowOverflow?": types.boolean(),
+      "enabled?": types.boolean(),
+      "onAnimationEnd?": types.function(),
+      "class?": types.string(),
+    },
+    {
+      color: "#aaaaaa",
+      opacity: 0.4,
+      duration: 800,
+      enabled: true,
+      onAnimationEnd: () => {},
+      class: "",
+    }
+  );
 
   private childContainerRef = signal<HTMLElement | null>(null);
 
@@ -211,7 +192,7 @@ export class Ripple extends Component<RippleProps, SpreadsheetChildEnv> {
     this.state.ripples.splice(index, 1);
   }
 
-  getRippleEffectProps(id: number): RippleEffectProps {
+  getRippleEffectProps(id: number): PropsOf<RippleEffect> {
     const rect = this.state.ripples.find((r) => r.id === id)?.rippleRect;
     if (!rect) {
       throw new Error("Cannot find a ripple with the id " + id);

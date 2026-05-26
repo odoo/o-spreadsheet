@@ -1,3 +1,4 @@
+import { props } from "@odoo/owl";
 import { DEFAULT_WINDOW_SIZE } from "../../../../../constants";
 import { getColorsPalette, getNthColor, setColorAlpha, toHex } from "../../../../../helpers/color";
 import { CHART_AXIS_CHOICES } from "../../../../../helpers/figures/charts/chart_common";
@@ -9,22 +10,19 @@ import {
   CustomizableSeriesChartRuntime,
   TrendConfiguration,
 } from "../../../../../types/chart/chart";
+import { DispatchResult } from "../../../../../types/commands";
 import { Color, UID, ValueAndLabel } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { NumberInput } from "../../../../number_input/number_input";
+import { types } from "../../../../props_validation";
 import { Select } from "../../../../select/select";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RadioSelection } from "../../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
-import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 import { SeriesDesignEditor } from "./series_design_editor";
 
-interface Props extends ChartSidePanelProps<ChartDefinitionWithDataSource<string>> {
-  slots?: object;
-}
-
-export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
+export class SeriesWithAxisDesignEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SeriesWithAxisDesignEditor";
   static components = {
     SeriesDesignEditor,
@@ -35,10 +33,19 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
     NumberInput,
     Select,
   };
-  static props = {
-    ...ChartSidePanelPropsObject,
-    slots: { type: Object, optional: true },
-  };
+
+  protected props = props({
+    chartId: types.UID(),
+    definition: types.ChartDefinitionWithDataSource(),
+    canUpdateChart: types.function<
+      [chartId: UID, definition: Partial<ChartDefinitionWithDataSource<string>>],
+      DispatchResult
+    >([types.UID(), types.object({})], types.DispatchResult()),
+    updateChart: types.function<
+      [chartId: UID, definition: Partial<ChartDefinitionWithDataSource<string>>],
+      DispatchResult
+    >([types.UID(), types.object({})], types.DispatchResult()),
+  });
 
   axisChoices = CHART_AXIS_CHOICES;
 

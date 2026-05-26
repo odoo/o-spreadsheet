@@ -1,10 +1,9 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { clip } from "../../../helpers/misc";
 import { isEqual } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
 import { ResizeDirection } from "../../../types/figure";
-import { Color, HeaderIndex, Zone } from "../../../types/misc";
-import { Range } from "../../../types/range";
+import { HeaderIndex, Zone } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { gridOverlayPosition } from "../../helpers/dom_helpers";
 import {
@@ -12,27 +11,24 @@ import {
   useDragAndDropBeyondTheViewport,
 } from "../../helpers/drag_and_drop_grid_hook";
 import { withZoom } from "../../helpers/zoom";
+import { types } from "../../props_validation";
 import { Border } from "../border/border";
 import { Corner } from "../corner/corner";
-
-export interface HighlightProps {
-  range: Range;
-  color: Color;
-}
 
 interface HighlightState {
   shiftingMode: "isMoving" | "isResizing" | "none";
 }
-export class Highlight extends Component<HighlightProps, SpreadsheetChildEnv> {
+export class Highlight extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Highlight";
-  static props = {
-    range: Object,
-    color: String,
-  };
   static components = {
     Corner,
     Border,
   };
+
+  protected props = props({
+    range: types.Range(),
+    color: types.Color(),
+  });
 
   highlightState: HighlightState = proxy({
     shiftingMode: "none",

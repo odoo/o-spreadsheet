@@ -1,4 +1,4 @@
-import { onWillUpdateProps } from "@odoo/owl";
+import { onWillUpdateProps, props } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../../constants";
 import { toXC } from "../../../helpers/coordinates";
 import { deepEquals, isFormula } from "../../../helpers/misc";
@@ -8,33 +8,31 @@ import { positionToZone } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { CellPosition, ComposerFocusType } from "../../../types/misc";
-import { DOMDimension, Rect } from "../../../types/rendering";
+import { PropsOf } from "../../../types/props_of";
+import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss, getTextDecoration } from "../../helpers/css";
+import { types } from "../../props_validation";
 import { CellComposerStore } from "../composer/cell_composer_store";
-import { CellComposerProps, Composer } from "../composer/composer";
+import { Composer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 
 const COMPOSER_BORDER_WIDTH = 3 * 0.4 * globalThis.devicePixelRatio || 1;
 const GRID_CELL_REFERENCE_TOP_OFFSET = 28;
 
-interface Props {
-  gridDims: DOMDimension;
-  onInputContextMenu: (event: MouseEvent) => void;
-}
-
 /**
  * This component is a composer which positions itself on the grid at the anchor cell.
  * It also applies the style of the cell to the composer input.
  */
-export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
+export class GridComposer extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridComposer";
-  static props = {
-    gridDims: Object,
-    onInputContextMenu: Function,
-  };
   static components = { Composer };
+
+  protected props = props({
+    gridDims: types.DOMDimension(),
+    onInputContextMenu: types.function<[event: MouseEvent]>([types.instanceOf(MouseEvent)]),
+  });
 
   private rect: Rect = this.defaultRect;
   private isEditing: boolean = false;
@@ -101,7 +99,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       : "inactive";
   }
 
-  get composerProps(): CellComposerProps {
+  get composerProps(): PropsOf<Composer> {
     const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
     // Remove the wrapper border width
     const maxHeight = this.props.gridDims.height - this.rect.y - 2 * COMPOSER_BORDER_WIDTH;

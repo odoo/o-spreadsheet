@@ -1,4 +1,4 @@
-import { onWillUpdateProps, proxy } from "@odoo/owl";
+import { onWillUpdateProps, props, proxy } from "@odoo/owl";
 import { isDateTimeFormat } from "../../../helpers/format/format";
 import { deepCopy, deepEquals } from "../../../helpers/misc";
 import { interactiveSort } from "../../../helpers/sort_interactive";
@@ -8,6 +8,7 @@ import { Component } from "../../../owl3_compatibility_layer";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { CellValueType } from "../../../types/cells";
 import { Position, SortDirection } from "../../../types/misc";
+import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import {
   CriterionFilter,
@@ -16,14 +17,10 @@ import {
   filterNumberCriterionOperators,
   filterTextCriterionOperators,
 } from "../../../types/table";
+import { types } from "../../props_validation";
 import { SidePanelCollapsible } from "../../side_panel/components/collapsible/side_panel_collapsible";
 import { FilterMenuCriterion } from "../filter_menu_criterion/filter_menu_criterion";
 import { FilterMenuValueList } from "../filter_menu_value_list/filter_menu_value_list";
-
-interface Props {
-  filterPosition: Position;
-  onClosed?: () => void;
-}
 
 interface State {
   values: Value[];
@@ -37,19 +34,21 @@ interface Value {
 
 type CriterionCategory = "text" | "number" | "date";
 
-export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
+export class FilterMenu extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FilterMenu";
-  static props = {
-    filterPosition: Object,
-    onClosed: { type: Function, optional: true },
-  };
   static components = { FilterMenuValueList, SidePanelCollapsible, FilterMenuCriterion };
+
+  private props = props({
+    filterPosition: types.Position(),
+    "onClosed?": types.function([]),
+  });
+
   private state!: State;
   private criterionCategory: CriterionCategory = "text";
   private updatedCriterionValue: DataFilterValue | undefined;
 
   setup() {
-    onWillUpdateProps((nextProps: Props) => {
+    onWillUpdateProps((nextProps: PropsOf<FilterMenu>) => {
       if (!deepEquals(nextProps.filterPosition, this.props.filterPosition)) {
         this.updatedCriterionValue = undefined;
         this.criterionCategory = this.getCriterionCategory(nextProps.filterPosition);

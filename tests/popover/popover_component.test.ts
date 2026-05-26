@@ -1,7 +1,8 @@
-import { App, xml } from "@odoo/owl";
+import { App, props, types, xml } from "@odoo/owl";
 import { Model, Pixel, Rect } from "../../src";
-import { Popover, PopoverProps } from "../../src/components/popover/popover";
+import { Popover } from "../../src/components/popover/popover";
 import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
+import { PropsOf } from "../../src/types/props_of";
 import { getStylePropertyInPx, mountComponent } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
@@ -12,14 +13,14 @@ let fixture: HTMLElement;
 let model: Model;
 let app: App;
 
-interface MountPopoverArgs extends Partial<PopoverProps> {
+interface MountPopoverArgs extends Partial<PropsOf<Popover>> {
   childWidth?: Pixel;
   childHeight?: Pixel;
   containerRect?: Rect;
 }
 
 async function mountTestPopover(args: MountPopoverArgs) {
-  class Parent extends Component<any, any> {
+  class Parent extends Component<any> {
     static template = xml/* xml */ `
         <div class="o-spreadsheet">
           <Popover t-props="this.popoverProps">
@@ -28,7 +29,9 @@ async function mountTestPopover(args: MountPopoverArgs) {
         </div>
   `;
     static components = { Popover };
-    static props = { model: Object };
+    protected props = props({
+      model: types.object({}),
+    }) as any;
 
     setup() {
       const env: any = {

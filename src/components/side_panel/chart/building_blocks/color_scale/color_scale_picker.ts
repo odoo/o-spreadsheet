@@ -1,37 +1,35 @@
-import { proxy, signal } from "@odoo/owl";
+import { props, proxy, signal } from "@odoo/owl";
 import { DEFAULT_CHART_COLOR_SCALE } from "../../../../../constants";
 import { ColorScale, COLORSCALES, COLORSCHEMES } from "../../../../../helpers/color";
 import { Component, useExternalListener } from "../../../../../owl3_compatibility_layer";
 import { ChartColorScale, schemeToColorScale } from "../../../../../types/chart/chart";
 import { Color } from "../../../../../types/misc";
+import { PropsOf } from "../../../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../../../helpers/css";
-import { Popover, PopoverProps } from "../../../../popover/popover";
+import { Popover } from "../../../../popover/popover";
+import { types } from "../../../../props_validation";
 import { ChartTerms } from "../../../../translations_terms";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
 
-interface Props {
-  definition: { colorScale: ChartColorScale };
-  onUpdateColorScale: (colorscale: ChartColorScale) => void;
-}
-
 interface ColorScalePickerState {
-  popoverProps: PopoverProps | undefined;
+  popoverProps: PropsOf<Popover> | undefined;
   popoverStyle: string;
 }
 
-export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
+export class ColorScalePicker extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ColorScalePicker";
   static components = {
     Section,
     RoundColorPicker,
     Popover,
   };
-  static props = {
-    definition: Object,
-    onUpdateColorScale: Function,
-  };
+
+  protected props = props({
+    definition: types.object({ "colorScale?": types.ChartColorScale() }),
+    onUpdateColorScale: types.function<[colorscale: ChartColorScale]>([types.ChartColorScale()]),
+  });
 
   colorScales = COLORSCALES.map((colorScale) => ({
     value: colorScale,
@@ -47,7 +45,7 @@ export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get currentColorScale(): ChartColorScale {
-    return this.props.definition.colorScale || schemeToColorScale("oranges");
+    return this.props.definition.colorScale || (schemeToColorScale("oranges") as ChartColorScale);
   }
 
   get currentColorScaleStyle(): string | undefined {

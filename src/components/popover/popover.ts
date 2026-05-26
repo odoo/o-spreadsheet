@@ -1,61 +1,40 @@
-import { onMounted, onWillUnmount, signal } from "@odoo/owl";
+import { onMounted, onWillUnmount, props, signal } from "@odoo/owl";
 import { rectIntersection } from "../../helpers/rectangle";
 import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
-import { PopoverPropsPosition } from "../../types/cell_popovers";
-import { CSSProperties, Pixel } from "../../types/misc";
+import { CSSProperties } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { usePopoverContainer, useSpreadsheetRect } from "../helpers/position_hook";
+import { types } from "../props_validation";
 
 type PopoverPosition = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 type DisplayValue = "none" | "block";
 
-export interface PopoverProps {
-  /**
-   * Rectangle around which the popover is displayed.
-   * Coordinates are expressed as absolute DOM position.
-   */
-  anchorRect: Rect;
-
-  /** The popover can be positioned below the anchor Rectangle, or to the right of the rectangle */
-  positioning: PopoverPropsPosition;
-
-  maxWidth?: Pixel;
-  maxHeight?: Pixel;
-
-  /** Offset to apply to the vertical position of the popover.*/
-  verticalOffset: number;
-
-  onMouseWheel?: () => void;
-  onPopoverMoved?: () => void;
-  onPopoverHidden?: () => void;
-
-  class?: string;
-}
-
-export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
+export class Popover extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Popover";
-  static props = {
-    anchorRect: Object,
-    containerRect: { type: Object, optional: true },
-    positioning: { type: String, optional: true },
-    maxWidth: { type: Number, optional: true },
-    maxHeight: { type: Number, optional: true },
-    verticalOffset: { type: Number, optional: true },
-    onMouseWheel: { type: Function, optional: true },
-    onPopoverHidden: { type: Function, optional: true },
-    onPopoverMoved: { type: Function, optional: true },
-    zIndex: { type: Number, optional: true },
-    class: { type: String, optional: true },
-    slots: Object,
-  };
-  static defaultProps = {
-    positioning: "bottom-left",
-    verticalOffset: 0,
-    onMouseWheel: () => {},
-    onPopoverMoved: () => {},
-    onPopoverHidden: () => {},
-  };
+
+  protected props = props(
+    {
+      anchorRect: types.Rect(),
+      "containerRect?": types.object({}),
+      "positioning?": types.or([types.literal("top-right"), types.literal("bottom-left")]),
+      "maxWidth?": types.Pixel(),
+      "maxHeight?": types.Pixel(),
+      "verticalOffset?": types.number(),
+      "onMouseWheel?": types.function([]),
+      "onPopoverHidden?": types.function([]),
+      "onPopoverMoved?": types.function([]),
+      "zIndex?": types.number(),
+      "class?": types.string(),
+    },
+    {
+      positioning: "bottom-left",
+      verticalOffset: 0,
+      onMouseWheel: () => {},
+      onPopoverMoved: () => {},
+      onPopoverHidden: () => {},
+    }
+  );
 
   private popoverRef = signal<HTMLElement | null>(null);
   private popoverContentRef = signal<HTMLElement | null>(null);

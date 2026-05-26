@@ -1,36 +1,36 @@
+import { props } from "@odoo/owl";
 import { ChartConfiguration } from "chart.js";
 import { deepCopy } from "../../../../../helpers/misc";
 import {
   TreeMapCategoryColorOptions,
   TreeMapChartDefaults,
-  TreeMapChartDefinition,
   TreeMapChartRuntime,
   TreeMapGroupColor,
 } from "../../../../../types/chart/tree_map_chart";
 import { DispatchResult } from "../../../../../types/commands";
-import { DeepPartial, UID } from "../../../../../types/misc";
+import { DeepPartial } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { types } from "../../../../props_validation";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 
 import { Component } from "../../../../../owl3_compatibility_layer";
-interface Props {
-  chartId: UID;
-  definition: TreeMapChartDefinition;
-  onColorChanged: (colors: TreeMapCategoryColorOptions) => DispatchResult;
-}
 
-export class TreeMapCategoryColors extends Component<Props, SpreadsheetChildEnv> {
+export class TreeMapCategoryColors extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TreeMapCategoryColors";
   static components = {
     Checkbox,
     RoundColorPicker,
   };
-  static props = {
-    chartId: String,
-    definition: Object,
-    onColorChanged: Function,
-  };
+
+  protected props = props({
+    chartId: types.UID(),
+    definition: types.TreeMapChartDefinition(),
+    onColorChanged: types.function<[colors: TreeMapCategoryColorOptions], DispatchResult>(
+      [types.TreeMapCategoryColorOptions()],
+      types.DispatchResult()
+    ),
+  });
 
   get coloringOptions() {
     const coloringOptions =

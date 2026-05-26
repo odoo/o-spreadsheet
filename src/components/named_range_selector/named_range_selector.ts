@@ -23,15 +23,12 @@ import { ToolBarDropdownStore, useToolBarDropdownStore } from "../helpers/top_ba
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { TextInput } from "../text_input/text_input";
 
-interface Props {}
-
 interface State extends Omit<MenuState, "isOpen"> {
   searchedText?: string;
 }
 
-export class NamedRangeSelector extends Component<Props, SpreadsheetChildEnv> {
+export class NamedRangeSelector extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-NamedRangeSelector";
-  static props = {};
   static components = { TextInput, MenuPopover };
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;

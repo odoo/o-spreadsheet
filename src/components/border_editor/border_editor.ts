@@ -1,10 +1,12 @@
-import { proxy, signal } from "@odoo/owl";
+import { props, proxy, signal } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
-import { BorderPosition, BorderStyle, Color, Pixel, borderStyles } from "../../types/misc";
+import { BorderPosition, BorderStyle, Color, borderStyles } from "../../types/misc";
+import { PropsOf } from "../../types/props_of";
 import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { ColorPickerWidget } from "../color_picker/color_picker_widget";
-import { Popover, PopoverProps } from "../popover/popover";
+import { Popover } from "../popover/popover";
+import { types } from "../props_validation";
 
 type Tool = "borderColorTool" | "borderTypeTool";
 
@@ -34,36 +36,21 @@ const BORDER_POSITIONS: [BorderPosition, string][][] = [
   ],
 ];
 
-export interface BorderEditorProps {
-  class?: string;
-  currentBorderColor: Color;
-  currentBorderStyle: BorderStyle;
-  currentBorderPosition: BorderPosition | undefined;
-  onBorderColorPicked: (color: Color) => void;
-  onBorderStylePicked: (style: BorderStyle) => void;
-  onBorderPositionPicked: (position: BorderPosition) => void;
-  maxHeight?: Pixel;
-  anchorRect: Rect;
-}
-
-// -----------------------------------------------------------------------------
-// Border Editor
-// -----------------------------------------------------------------------------
-
-export class BorderEditor extends Component<BorderEditorProps, SpreadsheetChildEnv> {
+export class BorderEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BorderEditor";
-  static props = {
-    class: { type: String, optional: true },
-    currentBorderColor: { type: String, optional: false },
-    currentBorderStyle: { type: String, optional: false },
-    currentBorderPosition: { type: String, optional: true },
-    onBorderColorPicked: Function,
-    onBorderStylePicked: Function,
-    onBorderPositionPicked: Function,
-    maxHeight: { type: Number, optional: true },
-    anchorRect: Object,
-  };
   static components = { ColorPickerWidget, Popover };
+
+  protected props = props({
+    "class?": types.string(),
+    currentBorderColor: types.Color(),
+    currentBorderStyle: types.BorderStyle(),
+    "currentBorderPosition?": types.BorderPosition(),
+    onBorderColorPicked: types.function<[color: Color]>([types.Color()]),
+    onBorderStylePicked: types.function<[style: BorderStyle]>([types.BorderStyle()]),
+    onBorderPositionPicked: types.function<[position: BorderPosition]>([types.BorderPosition()]),
+    "maxHeight?": types.Pixel(),
+    anchorRect: types.Rect(),
+  });
   BORDER_POSITIONS = BORDER_POSITIONS;
 
   lineStyleButtonRef = signal<HTMLElement | null>(null);
@@ -96,7 +83,7 @@ export class BorderEditor extends Component<BorderEditorProps, SpreadsheetChildE
     this.closeDropdown();
   }
 
-  get lineStylePickerPopoverProps(): PopoverProps {
+  get lineStylePickerPopoverProps(): PropsOf<Popover> {
     return {
       anchorRect: this.lineStylePickerAnchorRect,
       positioning: "bottom-left",
@@ -104,7 +91,7 @@ export class BorderEditor extends Component<BorderEditorProps, SpreadsheetChildE
     };
   }
 
-  get popoverProps(): PopoverProps {
+  get popoverProps(): PropsOf<Popover> {
     return {
       anchorRect: this.props.anchorRect,
       maxHeight: this.props.maxHeight,

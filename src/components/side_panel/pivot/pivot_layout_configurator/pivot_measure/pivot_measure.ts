@@ -1,45 +1,40 @@
+import { props } from "@odoo/owl";
 import { PIVOT_TOKEN_COLOR } from "../../../../../constants";
 import { CompiledFormula } from "../../../../../formulas/compiler";
 import { Token } from "../../../../../formulas/tokenizer";
 import { unquote } from "../../../../../helpers/misc";
 import { getFieldDisplayName } from "../../../../../helpers/pivot/pivot_helpers";
-import { PivotRuntimeDefinition } from "../../../../../helpers/pivot/pivot_runtime_definition";
+import { Component } from "../../../../../owl3_compatibility_layer";
 import { createMeasureAutoComplete } from "../../../../../registries/auto_completes/pivot_dimension_auto_complete";
 import { _t } from "../../../../../translation";
 import { Color, ValueAndLabel } from "../../../../../types/misc";
 import { PivotMeasure } from "../../../../../types/pivot";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../../composer/standalone_composer/standalone_composer";
+import { types } from "../../../../props_validation";
 import { Select } from "../../../../select/select";
 import { measureDisplayTerms } from "../../../../translations_terms";
 import { PivotDimension } from "../pivot_dimension/pivot_dimension";
 
-import { Component } from "../../../../../owl3_compatibility_layer";
-interface Props {
-  pivotId: string;
-  definition: PivotRuntimeDefinition;
-  measure: PivotMeasure;
-  onMeasureUpdated: (measure: PivotMeasure) => void;
-  onRemoved: () => void;
-  generateMeasureId: (fieldName: string, aggregator?: string) => string;
-  aggregators;
-}
-
-export class PivotMeasureEditor extends Component<Props> {
+export class PivotMeasureEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotMeasureEditor";
   static components = {
     PivotDimension,
     StandaloneComposer,
     Select,
   };
-  static props = {
-    definition: Object,
-    measure: Object,
-    onMeasureUpdated: Function,
-    onRemoved: Function,
-    generateMeasureId: Function,
-    aggregators: Object,
-    pivotId: String,
-  };
+  protected props = props({
+    pivotId: types.string(),
+    definition: types.PivotRuntimeDefinition(),
+    measure: types.PivotMeasure(),
+    onMeasureUpdated: types.function<[measure: PivotMeasure]>([types.PivotMeasure()]),
+    onRemoved: types.function([]),
+    generateMeasureId: types.function<[fieldName: string, aggregator?: string], string>(
+      [types.string(), types.string()],
+      types.string()
+    ),
+    aggregators: types.object({}),
+  });
 
   getMeasureAutocomplete() {
     return createMeasureAutoComplete(this.props.definition, this.props.measure);

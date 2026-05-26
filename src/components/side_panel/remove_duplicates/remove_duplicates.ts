@@ -1,27 +1,27 @@
-import { onWillUpdateProps, proxy } from "@odoo/owl";
+import { onWillUpdateProps, props, proxy } from "@odoo/owl";
 import { numberToLetters } from "../../../helpers/coordinates";
 import { zoneToDimension } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
 import { HeaderIndex } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { types } from "../../props_validation";
 import { RemoveDuplicateTerms } from "../../translations_terms";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 
-interface Props {
-  onCloseSidePanel: () => void;
-}
-
 interface RemoveDuplicatesState {
   hasHeader: boolean;
   columns: { [colIndex: number]: boolean };
 }
-export class RemoveDuplicatesPanel extends Component<Props, SpreadsheetChildEnv> {
+export class RemoveDuplicatesPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-RemoveDuplicatesPanel";
   static components = { ValidationMessages, Section, Checkbox };
-  static props = { onCloseSidePanel: Function };
+
+  protected props = props({
+    onCloseSidePanel: types.function([]),
+  });
 
   state: RemoveDuplicatesState = proxy({
     hasHeader: false,

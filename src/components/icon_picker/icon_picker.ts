@@ -1,16 +1,16 @@
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { ICONS, ICON_SETS } from "../icons/icons";
 
+import { props } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
-interface Props {
-  onIconPicked: (icon: string) => void;
-}
+import { types } from "../props_validation";
 
-export class IconPicker extends Component<Props, SpreadsheetChildEnv> {
+export class IconPicker extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-IconPicker";
-  static props = {
-    onIconPicked: Function,
-  };
+
+  protected props = props({
+    onIconPicked: types.function<[icon: string]>([types.string()]),
+  });
 
   onIconClick(icon: string) {
     if (icon) {

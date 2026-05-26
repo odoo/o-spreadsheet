@@ -1,41 +1,35 @@
-import { proxy, signal } from "@odoo/owl";
+import { props, proxy, signal } from "@odoo/owl";
 import { canonicalizeContent } from "../../../../helpers/locale";
 import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { _t } from "../../../../translation";
-import { DataValidationCriterionType } from "../../../../types/data_validation";
+import { PropsOf } from "../../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
+import { types } from "../../../props_validation";
 
-interface Props {
-  value: string;
-  criterionType: DataValidationCriterionType;
-  onValueChanged: (value: string) => void;
-  onKeyDown?: (ev: KeyboardEvent) => void;
-  focused: boolean;
-  onBlur: () => void;
-  disableFormulas?: boolean;
-}
-
-export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
+export class CriterionInput extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CriterionInput";
-  static props = {
-    value: { type: String, optional: true },
-    criterionType: String,
-    onValueChanged: Function,
-    onKeyDown: { type: Function, optional: true },
-    focused: { type: Boolean, optional: true },
-    onBlur: { type: Function, optional: true },
-    onFocus: { type: Function, optional: true },
-    disableFormulas: { type: Boolean, optional: true },
-  };
-  static defaultProps = {
-    value: "",
-    onKeyDown: () => {},
-    focused: false,
-    onBlur: () => {},
-  };
   static components = { StandaloneComposer: StandaloneComposer };
+
+  protected props = props(
+    {
+      "value?": types.string(),
+      criterionType: types.DataValidationCriterionType(),
+      onValueChanged: types.function<[value: string]>([types.string()]),
+      "onKeyDown?": types.function<[ev: KeyboardEvent]>([types.instanceOf(KeyboardEvent)]),
+      "focused?": types.boolean(),
+      "onBlur?": types.function([]),
+      "onFocus?": types.function([]),
+      "disableFormulas?": types.boolean(),
+    },
+    {
+      value: "",
+      onKeyDown: () => {},
+      focused: false,
+      onBlur: () => {},
+    }
+  );
 
   inputRef = signal<HTMLInputElement | null>(null);
 
@@ -87,7 +81,7 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
     this.props.onValueChanged(str);
   }
 
-  getDataValidationRuleInputComposerProps(): StandaloneComposer["props"] {
+  getDataValidationRuleInputComposerProps(): PropsOf<StandaloneComposer> {
     return {
       onConfirm: (str: string) => this.onChangeComposerValue(str),
       composerContent: this.props.value,

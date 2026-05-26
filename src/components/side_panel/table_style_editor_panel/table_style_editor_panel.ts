@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { isColorValid } from "../../../helpers/color";
 import { TABLE_STYLES_TEMPLATES, buildTableStyle } from "../../../helpers/table_presets";
 import { UuidGenerator } from "../../../helpers/uuid";
@@ -7,17 +7,12 @@ import { Color } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableConfig, TableStyle, TableStyleTemplateName } from "../../../types/table";
 import { cssPropertiesToCss } from "../../helpers/css";
+import { types } from "../../props_validation";
 import { TableStylePreview } from "../../tables/table_style_preview/table_style_preview";
 import { RoundColorPicker } from "../components/round_color_picker/round_color_picker";
 import { Section } from "../components/section/section";
 
 const DEFAULT_TABLE_STYLE_COLOR = "#3C78D8";
-
-export interface TableStyleEditorPanelProps {
-  onCloseSidePanel: () => void;
-  styleId?: string;
-  onStylePicked?: (styleId: string) => void;
-}
 
 interface State {
   pickerOpened: boolean;
@@ -26,17 +21,14 @@ interface State {
   styleName: string;
 }
 
-export class TableStyleEditorPanel extends Component<
-  TableStyleEditorPanelProps,
-  SpreadsheetChildEnv
-> {
+export class TableStyleEditorPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableStyleEditorPanel";
   static components = { Section, RoundColorPicker, TableStylePreview };
-  static props = {
-    onCloseSidePanel: Function,
-    onStylePicked: { type: Function, optional: true },
-    styleId: { type: String, optional: true },
-  };
+  protected props = props({
+    onCloseSidePanel: types.function([]),
+    "onStylePicked?": types.function<[styleId: string]>([types.string()]),
+    "styleId?": types.string(),
+  });
 
   state = proxy<State>(this.getInitialState());
 

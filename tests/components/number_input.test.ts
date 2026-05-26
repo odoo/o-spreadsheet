@@ -1,4 +1,4 @@
-import { xml } from "@odoo/owl";
+import { props, xml } from "@odoo/owl";
 import { NumberInput } from "../../src/components/number_input/number_input";
 import { Component } from "../../src/owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
@@ -14,14 +14,14 @@ let fixture: HTMLElement;
 let parent: Component;
 type Props = NumberInput["props"];
 
-class NumberInputContainer extends Component<Props, SpreadsheetChildEnv> {
+class NumberInputContainer extends Component<SpreadsheetChildEnv> {
   static template = xml/* xml */ `
     <div class="container">
       <NumberInput t-props="this.props"/>
     </div>
   `;
   static components = { NumberInput };
-  static props = NumberInput.props;
+  protected props = props();
 }
 
 async function mountNumberInput(props: Props) {

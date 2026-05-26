@@ -1,8 +1,8 @@
-import { proxy, signal } from "@odoo/owl";
+import { props, proxy, signal } from "@odoo/owl";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { MoveFiguresPayload } from "../../../types/commands";
-import { AnchorOffset, FigureUI, ResizeDirection } from "../../../types/figure";
+import { AnchorOffset, ResizeDirection } from "../../../types/figure";
 import { CSSProperties, Pixel } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -14,6 +14,7 @@ import {
 } from "../../helpers/dom_helpers";
 import { withZoom } from "../../helpers/zoom";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
+import { types } from "../../props_validation";
 
 type ResizeAnchor =
   | "top left"
@@ -32,28 +33,25 @@ const ANCHOR_SIZE = 8;
 const BORDER_WIDTH = 1;
 const ACTIVE_BORDER_WIDTH = 2;
 
-interface Props {
-  figureUI: FigureUI;
-  style: string;
-  class: string;
-  onMouseDown: (ev: MouseEvent) => void;
-  onClickAnchor(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent): void;
-}
-
-export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
+export class FigureComponent extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FigureComponent";
-  static props = {
-    figureUI: Object,
-    style: { type: String, optional: true },
-    class: { type: String, optional: true },
-    onMouseDown: { type: Function, optional: true },
-    onClickAnchor: { type: Function, optional: true },
-  };
   static components = { MenuPopover };
-  static defaultProps = {
-    onMouseDown: () => {},
-    onClickAnchor: () => {},
-  };
+
+  protected props = props(
+    {
+      figureUI: types.FigureUI(),
+      style: types.string(),
+      class: types.string(),
+      "onMouseDown?": types.function<[ev: MouseEvent]>([types.instanceOf(MouseEvent)]),
+      "onClickAnchor?": types.function<
+        [dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent]
+      >([types.ResizeDirection(), types.ResizeDirection(), types.instanceOf(MouseEvent)]),
+    },
+    {
+      onMouseDown: () => {},
+      onClickAnchor: () => {},
+    }
+  );
 
   private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 

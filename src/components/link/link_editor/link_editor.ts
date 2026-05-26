@@ -1,18 +1,14 @@
-import { onMounted, proxy, signal } from "@odoo/owl";
+import { onMounted, props, proxy, signal } from "@odoo/owl";
 import { urlRegistry, urlRepresentation } from "../../../helpers/links";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { markdownLink } from "../../../helpers/misc";
 import { fuzzyLookup } from "../../../helpers/search";
 import { Component } from "../../../owl3_compatibility_layer";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
-import { Link, Position } from "../../../types/misc";
+import { Link } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { MenuPopover } from "../../menu_popover/menu_popover";
-
-interface LinkEditorProps {
-  cellPosition: Position;
-  onClosed?: () => void;
-}
+import { types } from "../../props_validation";
 
 interface LinkProposal {
   text: string;
@@ -30,13 +26,14 @@ interface LinkState {
   linksList: LinkProposal[];
 }
 
-export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> {
+export class LinkEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-LinkEditor";
-  static props = {
-    cellPosition: Object,
-    onClosed: { type: Function, optional: true },
-  };
   static components = { MenuPopover };
+
+  protected props = props({
+    cellPosition: types.CellPosition(),
+    "onClosed?": types.function([]),
+  });
   static size = { maxHeight: 500 };
 
   urlInput = signal<HTMLElement | null>(null);

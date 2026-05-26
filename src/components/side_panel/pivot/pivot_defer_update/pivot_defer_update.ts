@@ -1,26 +1,20 @@
-import { Checkbox } from "../../components/checkbox/checkbox";
-import { Section } from "../../components/section/section";
-
+import { props } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
-interface Props {
-  deferUpdate: boolean;
-  isDirty: boolean;
-  toggleDeferUpdate: (value: boolean) => void;
-  discard: () => void;
-  apply: () => void;
-}
+import { types } from "../../../props_validation";
+import { Checkbox } from "../../components/checkbox/checkbox";
+import { Section } from "../../components/section/section";
 
-export class PivotDeferUpdate extends Component<Props, SpreadsheetChildEnv> {
+export class PivotDeferUpdate extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotDeferUpdate";
-  static props = {
-    deferUpdate: Boolean,
-    isDirty: Boolean,
-    toggleDeferUpdate: Function,
-    discard: Function,
-    apply: Function,
-  };
+  protected props = props({
+    deferUpdate: types.boolean(),
+    isDirty: types.boolean(),
+    toggleDeferUpdate: types.function<[value: boolean]>([types.boolean()]),
+    discard: types.function([]),
+    apply: types.function([]),
+  });
   static components = {
     Section,
     Checkbox,

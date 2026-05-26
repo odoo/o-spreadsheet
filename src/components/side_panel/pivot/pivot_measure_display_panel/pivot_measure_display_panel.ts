@@ -1,8 +1,10 @@
+import { props } from "@odoo/owl";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../../store_engine/store_hooks";
-import { UID, ValueAndLabel } from "../../../../types/misc";
-import { PivotCoreMeasure } from "../../../../types/pivot";
+import { ValueAndLabel } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
+import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
 import { measureDisplayTerms } from "../../../translations_terms";
 import { Checkbox } from "../../components/checkbox/checkbox";
@@ -10,20 +12,13 @@ import { RadioSelection } from "../../components/radio_selection/radio_selection
 import { Section } from "../../components/section/section";
 import { PivotMeasureDisplayPanelStore } from "./pivot_measure_display_panel_store";
 
-import { Component } from "../../../../owl3_compatibility_layer";
-interface Props {
-  onCloseSidePanel: () => void;
-  pivotId: UID;
-  measure: PivotCoreMeasure;
-}
-
-export class PivotMeasureDisplayPanel extends Component<Props, SpreadsheetChildEnv> {
+export class PivotMeasureDisplayPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotMeasureDisplayPanel";
-  static props = {
-    onCloseSidePanel: Function,
-    pivotId: String,
-    measure: Object,
-  };
+  protected props = props({
+    onCloseSidePanel: types.function([]),
+    pivotId: types.UID(),
+    measure: types.PivotCoreMeasure(),
+  });
   static components = { Section, Checkbox, RadioSelection, Select };
 
   measureDisplayTypeLabels = measureDisplayTerms.labels;

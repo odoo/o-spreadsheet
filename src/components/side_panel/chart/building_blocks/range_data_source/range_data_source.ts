@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { numberToLetters } from "../../../../../helpers/coordinates";
 import { createDataSets } from "../../../../../helpers/figures/charts/helpers_index";
 import { getChartColorsGenerator } from "../../../../../helpers/figures/charts/runtime/chartjs_dataset";
@@ -25,8 +25,8 @@ import {
 import { CommandResult, DispatchResult } from "../../../../../types/commands";
 import { UID, Zone } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { types } from "../../../../props_validation";
 import { ChartTerms } from "../../../../translations_terms";
-import { ChartSidePanelProps } from "../../common";
 import { ChartDataSeries } from "../data_series/data_series";
 import { ChartLabelRange } from "../label_range/label_range";
 
@@ -35,40 +35,37 @@ interface ChartRangeDataSourceState {
   labelsDispatchResult?: DispatchResult;
 }
 
-interface Props {
-  chartId: UID;
-  definition: ChartDefinitionWithDataSource<string>;
-  dataSource: ChartRangeDataSourceType<string>;
-  updateChart: ChartSidePanelProps<ChartDefinitionWithDataSource<string>>["updateChart"];
-  canUpdateChart: ChartSidePanelProps<ChartDefinitionWithDataSource<string>>["canUpdateChart"];
-  onErrorMessagesChanged?: (errorMessages: string[]) => void;
-  dataSeriesTitle?: string;
-  labelRangeTitle?: string;
-  getLabelRangeOptions?: () => Array<{
-    name: string;
-    label: string;
-    value: boolean;
-    onChange: (value: boolean) => void;
-  }>;
-}
-
-export class ChartRangeDataSourceComponent extends Component<Props, SpreadsheetChildEnv> {
+export class ChartRangeDataSourceComponent extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartRangeDataSource";
   static components = {
     ChartDataSeries,
     ChartLabelRange,
   };
-  static props = {
-    chartId: String,
-    definition: Object,
-    dataSource: Object,
-    updateChart: Function,
-    canUpdateChart: Function,
-    onErrorMessagesChanged: { type: Function, optional: true },
-    dataSeriesTitle: { type: String, optional: true },
-    labelRangeTitle: { type: String, optional: true },
-    getLabelRangeOptions: { type: Function, optional: true },
-  };
+
+  protected props = props({
+    chartId: types.UID(),
+    definition: types.ChartDefinitionWithDataSource(),
+    dataSource: types.ChartRangeDataSource(),
+    updateChart: types.function<
+      [chartId: UID, definition: Partial<ChartDefinitionWithDataSource<string>>],
+      DispatchResult
+    >([types.UID(), types.object({})], types.DispatchResult()),
+    canUpdateChart: types.function<
+      [chartId: UID, definition: Partial<ChartDefinitionWithDataSource<string>>],
+      DispatchResult
+    >([types.UID(), types.object({})], types.DispatchResult()),
+    "onErrorMessagesChanged?": types.function<[errorMessages: string[]]>([
+      types.array(types.string()),
+    ]),
+    "dataSeriesTitle?": types.string(),
+    "labelRangeTitle?": types.string(),
+    "getLabelRangeOptions?": types.function([]) as unknown as () => Array<{
+      name: string;
+      label: string;
+      value: boolean;
+      onChange: (value: boolean) => void;
+    }>,
+  });
 
   protected state: ChartRangeDataSourceState = proxy({
     datasetDispatchResult: undefined,

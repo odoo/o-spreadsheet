@@ -1,26 +1,26 @@
+import { props } from "@odoo/owl";
 import { DEFAULT_PIVOT_STYLE } from "../../../../../helpers/pivot/pivot_helpers";
 import { PIVOT_TABLE_PRESETS } from "../../../../../helpers/pivot_table_presets";
+import { Component } from "../../../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../../../store_engine/store_hooks";
-import { UID } from "../../../../../types/misc";
 import { PivotStyle } from "../../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Store } from "../../../../../types/store_engine";
 import { TableConfig, TableStyle } from "../../../../../types/table";
 import { NumberInput } from "../../../../number_input/number_input";
+import { types } from "../../../../props_validation";
 import { TableStylePicker } from "../../../../tables/table_style_picker/table_style_picker";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
 import { PivotSidePanelStore } from "../pivot_side_panel_store";
 
-import { Component } from "../../../../../owl3_compatibility_layer";
-interface Props {
-  pivotId: UID;
-}
-
-export class PivotDesignPanel extends Component<Props, SpreadsheetChildEnv> {
+export class PivotDesignPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotDesignPanel";
-  static props = { pivotId: String };
   static components = { Section, Checkbox, NumberInput, TableStylePicker };
+
+  protected props = props({
+    pivotId: types.UID(),
+  });
 
   store!: Store<PivotSidePanelStore>;
 

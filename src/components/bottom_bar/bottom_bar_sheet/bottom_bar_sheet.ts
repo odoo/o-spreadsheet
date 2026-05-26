@@ -1,4 +1,4 @@
-import { onMounted, onPatched, onWillUnmount, proxy, signal } from "@odoo/owl";
+import { onMounted, onPatched, onWillUnmount, props, proxy, signal, types } from "@odoo/owl";
 import { throttle } from "../../../helpers/misc";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
 import { Component, useExternalListener, useLayoutEffect } from "../../../owl3_compatibility_layer";
@@ -15,13 +15,6 @@ import { Ripple } from "../../animation/ripple";
 import { ColorPicker } from "../../color_picker/color_picker";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { getElBoundingRect } from "../../helpers/dom_helpers";
-
-interface Props {
-  sheetId: string;
-  openContextMenu: (registry: MenuItemRegistry, ev: MouseEvent) => void;
-  style?: string;
-  onMouseDown: (ev: PointerEvent) => void;
-}
 
 interface State {
   isEditing: boolean;
@@ -42,19 +35,24 @@ const getSheetLockAnimation = (
   ];
 };
 
-export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
+export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BottomBarSheet";
-  static props = {
-    sheetId: String,
-    openContextMenu: Function,
-    style: { type: String, optional: true },
-    onMouseDown: { type: Function, optional: true },
-  };
   static components = { Ripple, ColorPicker };
-  static defaultProps = {
-    onMouseDown: () => {},
-    style: "",
-  };
+  protected props = props(
+    {
+      sheetId: types.string(),
+      openContextMenu: types.function<[registry: MenuItemRegistry, ev: MouseEvent]>([
+        types.instanceOf(MenuItemRegistry),
+        types.instanceOf(MouseEvent),
+      ]),
+      "style?": types.string(),
+      "onMouseDown?": types.function<[ev: PointerEvent]>([types.instanceOf(PointerEvent)]),
+    },
+    {
+      onMouseDown: () => {},
+      style: "",
+    }
+  );
 
   private state = proxy<State>({ isEditing: false, pickerOpened: false });
 

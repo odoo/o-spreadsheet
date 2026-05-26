@@ -1,52 +1,44 @@
-import { onMounted } from "@odoo/owl";
+import { onMounted, props } from "@odoo/owl";
 import { Token } from "../../../formulas/tokenizer";
 import { Component } from "../../../owl3_compatibility_layer";
-import { AutoCompleteProviderDefinition } from "../../../registries/auto_completes/auto_complete_registry";
 import { useLocalStore, useStore } from "../../../store_engine/store_hooks";
-import { Color, ComposerFocusType, UID } from "../../../types/misc";
+import { Color, ComposerFocusType } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
+import { types } from "../../props_validation";
 import { ComposerSelection } from "../composer/abstract_composer_store";
 import { Composer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 import { StandaloneComposerStore } from "./standalone_composer_store";
 
-interface Props {
-  onConfirm: (content: string) => void;
-  composerContent: string;
-  defaultRangeSheetId: UID;
-  defaultStatic?: boolean;
-  contextualAutocomplete?: AutoCompleteProviderDefinition;
-  placeholder?: string;
-  title?: string;
-  class?: string;
-  invalid?: boolean;
-  autofocus?: boolean;
-  getContextualColoredSymbolToken?: (token: Token) => Color;
-}
-
-export class StandaloneComposer extends Component<Props, SpreadsheetChildEnv> {
+export class StandaloneComposer extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-StandaloneComposer";
-  static props = {
-    composerContent: { type: String, optional: true },
-    defaultRangeSheetId: { type: String, optional: true },
-    defaultStatic: { type: Boolean, optional: true },
-    onConfirm: Function,
-    contextualAutocomplete: { type: Object, optional: true },
-    placeholder: { type: String, optional: true },
-    title: { type: String, optional: true },
-    class: { type: String, optional: true },
-    invalid: { type: Boolean, optional: true },
-    autofocus: { type: Boolean, optional: true },
-    getContextualColoredSymbolToken: { type: Function, optional: true },
-  };
   static components = { Composer };
-  static defaultProps = {
-    composerContent: "",
-    defaultStatic: false,
-  };
+
+  protected props = props(
+    {
+      onConfirm: types.function<[content: string]>([types.string()]),
+      "composerContent?": types.string(),
+      defaultRangeSheetId: types.UID(),
+      "defaultStatic?": types.boolean(),
+      "contextualAutocomplete?": types.AutoCompleteProviderDefinition(),
+      "placeholder?": types.string(),
+      "title?": types.string(),
+      "class?": types.string(),
+      "invalid?": types.boolean(),
+      "autofocus?": types.boolean(),
+      "getContextualColoredSymbolToken?": types.function<[token: Token], Color>(
+        [types.Token()],
+        types.Color()
+      ),
+    },
+    {
+      composerContent: "",
+      defaultStatic: false,
+    }
+  );
 
   private composerFocusStore!: Store<ComposerFocusStore>;
   private standaloneComposerStore!: Store<StandaloneComposerStore>;

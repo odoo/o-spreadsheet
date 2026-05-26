@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_TABLE_CONFIG } from "../../../helpers/table_presets";
 import { interactiveCreateTable } from "../../../helpers/ui/table_interactive";
@@ -6,30 +6,29 @@ import { positions } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
 import { UID } from "../../../types/misc";
+import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableConfig } from "../../../types/table";
 import { ActionButton } from "../../action_button/action_button";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
-import { PopoverProps } from "../../popover/popover";
+import { Popover } from "../../popover/popover";
+import { types } from "../../props_validation";
 import {
   CustomTablePopoverMouseEvent,
   TableStylesPopover,
 } from "../table_styles_popover/table_styles_popover";
 
 interface State {
-  popoverProps: PopoverProps | undefined;
+  popoverProps: PropsOf<Popover> | undefined;
 }
 
-interface Props {
-  class?: String;
-}
-
-export class TableDropdownButton extends Component<Props, SpreadsheetChildEnv> {
+export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableDropdownButton";
   static components = { TableStylesPopover, ActionButton };
-  static props = {
-    class: { type: String, optional: true },
-  };
+
+  protected props = props({
+    "class?": types.string(),
+  });
 
   topBarToolStore!: ToolBarDropdownStore;
   state = proxy<State>({ popoverProps: undefined });

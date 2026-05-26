@@ -1,25 +1,21 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { getZoneArea, positionToZone } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
 import { CommandResult, DispatchResult } from "../../../types/commands";
 import { Zone } from "../../../types/misc";
 import { Range } from "../../../types/range";
-import { CoreTable, TableConfig } from "../../../types/table";
+import { TableConfig } from "../../../types/table";
 
 import { getTableTopLeft } from "../../../helpers/table_helpers";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { NumberInput } from "../../number_input/number_input";
+import { types } from "../../props_validation";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { TableStylePicker } from "../../tables/table_style_picker/table_style_picker";
 import { TableTerms } from "../../translations_terms";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
-
-interface Props {
-  table: CoreTable;
-  onCloseSidePanel: () => void;
-}
 
 interface State {
   tableZoneErrors: CommandResult[];
@@ -29,7 +25,7 @@ interface State {
   filtersEnabledIfPossible: boolean;
 }
 
-export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
+export class TablePanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TablePanel";
   static components = {
     TableStylePicker,
@@ -39,7 +35,10 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
     Section,
     NumberInput,
   };
-  static props = { onCloseSidePanel: Function, table: Object };
+  protected props = props({
+    onCloseSidePanel: types.function([]),
+    table: types.CoreTable(),
+  });
 
   state!: State;
 

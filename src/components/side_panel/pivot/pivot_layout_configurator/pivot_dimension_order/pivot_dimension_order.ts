@@ -1,22 +1,21 @@
-import { PivotDimension } from "../../../../../types/pivot";
-
+import { props } from "@odoo/owl";
+import { Component } from "../../../../../owl3_compatibility_layer";
 import { _t } from "../../../../../translation";
 import { ValueAndLabel } from "../../../../../types/misc";
+import { PivotDimension } from "../../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { types } from "../../../../props_validation";
 import { Select } from "../../../../select/select";
 
-import { Component } from "../../../../../owl3_compatibility_layer";
-interface Props {
-  dimension: PivotDimension;
-  onUpdated: (dimension: PivotDimension, ev: InputEvent) => void;
-}
-
-export class PivotDimensionOrder extends Component<Props, SpreadsheetChildEnv> {
+export class PivotDimensionOrder extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotDimensionOrder";
-  static props = {
-    dimension: Object,
-    onUpdated: Function,
-  };
+  protected props = props({
+    dimension: types.PivotDimension(),
+    onUpdated: types.function<[dimension: PivotDimension, ev: InputEvent]>([
+      types.PivotDimension(),
+      types.instanceOf(InputEvent),
+    ]),
+  });
   static components = { Select };
 
   get orderSelectOptions(): ValueAndLabel[] {

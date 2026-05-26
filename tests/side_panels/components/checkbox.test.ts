@@ -1,10 +1,11 @@
 import { Checkbox } from "../../../src/components/side_panel/components/checkbox/checkbox";
+import { PropsOf } from "../../../src/types/props_of";
 import { click } from "../../test_helpers/dom_helper";
 import { mountComponent } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
-async function mountCheckbox(props: Checkbox["props"]) {
+async function mountCheckbox(props: PropsOf<Checkbox>) {
   ({ fixture } = await mountComponent(Checkbox, { props }));
 }
 

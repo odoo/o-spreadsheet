@@ -1,34 +1,30 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
+import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-import { TableConfig, TableStyle } from "../../../types/table";
-import { PopoverProps } from "../../popover/popover";
+import { TableStyle } from "../../../types/table";
+import { Popover } from "../../popover/popover";
+import { types } from "../../props_validation";
 import { TableStylePreview } from "../table_style_preview/table_style_preview";
 import {
   CustomTablePopoverMouseEvent,
   TableStylesPopover,
 } from "../table_styles_popover/table_styles_popover";
 
-interface TableStylePickerProps {
-  tableConfig: TableConfig;
-  onStylePicked: (styleId: string) => void;
-  tableStyles: Record<string, TableStyle>;
-  type: "table" | "pivot";
-}
-
 interface TableStylePickerState {
-  popoverProps: PopoverProps | undefined;
+  popoverProps: PropsOf<Popover> | undefined;
 }
 
-export class TableStylePicker extends Component<TableStylePickerProps, SpreadsheetChildEnv> {
+export class TableStylePicker extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableStylePicker";
   static components = { TableStylesPopover, TableStylePreview };
-  static props = {
-    tableConfig: Object,
-    onStylePicked: Function,
-    tableStyles: Object,
-    type: String,
-  };
+
+  protected props = props({
+    tableConfig: types.TableConfig(),
+    onStylePicked: types.function<[styleId: string]>([types.string()]),
+    tableStyles: types.RecordOf<TableStyle>(),
+    type: types.or([types.literal("table"), types.literal("pivot")]),
+  });
 
   state = proxy<TableStylePickerState>({ popoverProps: undefined });
 

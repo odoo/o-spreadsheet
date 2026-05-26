@@ -4,24 +4,21 @@ import { _t } from "../../translation";
 import { CellPopoverComponent, PopoverBuilders } from "../../types/cell_popovers";
 import { CellValueType } from "../../types/cells";
 import { CellErrorType } from "../../types/errors";
-import { CellPosition } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
+import { props } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
+import { types } from "../props_validation";
 const ERROR_TOOLTIP_MAX_HEIGHT = 80;
 
-interface ErrorToolTipProps {
-  cellPosition: CellPosition;
-  onClosed?: () => void;
-}
-
-export class ErrorToolTip extends Component<ErrorToolTipProps, SpreadsheetChildEnv> {
+export class ErrorToolTip extends Component<SpreadsheetChildEnv> {
   static maxSize = { maxHeight: ERROR_TOOLTIP_MAX_HEIGHT };
   static template = "o-spreadsheet-ErrorToolTip";
-  static props = {
-    cellPosition: Object,
-    onClosed: { type: Function, optional: true },
-  };
+
+  protected props = props({
+    cellPosition: types.CellPosition(),
+    "onClosed?": types.function([]),
+  });
 
   get dataValidationErrorMessage() {
     return this.env.model.getters.getInvalidDataValidationMessage(this.props.cellPosition);

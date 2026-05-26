@@ -1,29 +1,22 @@
-import { onWillStart, onWillUpdateProps } from "@odoo/owl";
+import { onWillStart, onWillUpdateProps, props } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
 import { useLocalStore } from "../../../store_engine/store_hooks";
 import { Currency } from "../../../types/currency";
 import { ValueAndLabel } from "../../../types/misc";
+import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
+import { types } from "../../props_validation";
 import { Select } from "../../select/select";
 import { TextInput } from "../../text_input/text_input";
 import { BadgeSelection } from "../components/badge_selection/badge_selection";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
-import { CustomFormatCategory, MoreFormatsStore } from "./more_formats_store";
+import { MoreFormatsStore } from "./more_formats_store";
 
-interface Props {
-  onCloseSidePanel: () => void;
-  category?: CustomFormatCategory;
-}
-
-export class MoreFormatsPanel extends Component<Props, SpreadsheetChildEnv> {
+export class MoreFormatsPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-MoreFormatsPanel";
-  static props = {
-    onCloseSidePanel: Function,
-    category: { type: String, optional: true },
-  };
   static components = {
     BadgeSelection,
     Section,
@@ -32,12 +25,21 @@ export class MoreFormatsPanel extends Component<Props, SpreadsheetChildEnv> {
     Select,
   };
 
+  protected props = props({
+    onCloseSidePanel: types.function([]),
+    "category?": types.or([
+      types.literal("number"),
+      types.literal("date"),
+      types.literal("currency"),
+    ]),
+  });
+
   store!: Store<MoreFormatsStore>;
 
   setup() {
     this.store = useLocalStore(MoreFormatsStore, this.props.category);
     onWillStart(() => this.loadCurrencies());
-    onWillUpdateProps((nextProps: Props) => {
+    onWillUpdateProps((nextProps: PropsOf<MoreFormatsPanel>) => {
       if (nextProps.category && nextProps.category !== this.props.category) {
         this.store.changeCategory(nextProps.category);
       }

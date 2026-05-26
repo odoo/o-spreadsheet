@@ -2,6 +2,7 @@ import { onWillStart, onWillUpdateProps } from "@odoo/owl";
 import { _t } from "../../../../translation";
 import { IsValueInRangeCriterion } from "../../../../types/data_validation";
 import { Color, ValueAndLabel } from "../../../../types/misc";
+import { PropsOf } from "../../../../types/props_of";
 import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
@@ -13,7 +14,7 @@ export class ValueInRangeCriterionForm extends CriterionForm<IsValueInRangeCrite
 
   setup() {
     super.setup();
-    const setupDefault = (props: this["props"]) => {
+    const setupDefault = (props: PropsOf<ValueInRangeCriterionForm>) => {
       if (props.criterion.displayStyle === undefined) {
         this.updateCriterion({ displayStyle: "chip" });
       }

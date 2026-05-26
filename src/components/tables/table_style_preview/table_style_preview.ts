@@ -1,39 +1,33 @@
-import { onWillUpdateProps, proxy, signal, useEffect } from "@odoo/owl";
+import { onWillUpdateProps, props, proxy, signal, useEffect } from "@odoo/owl";
 import { deepEquals } from "../../../helpers/misc";
 import { getComputedTableStyle } from "../../../helpers/table_helpers";
 import { Component } from "../../../owl3_compatibility_layer";
 import { createTableStyleContextMenuActions } from "../../../registries/menus/table_style_menu_registry";
+import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-import { TableConfig, TableMetaData, TableStyle } from "../../../types/table";
+import { TableMetaData } from "../../../types/table";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
+import { types } from "../../props_validation";
 import { drawPreviewTable } from "./table_canvas_helpers";
 
-interface Props {
-  tableConfig: TableConfig;
-  tableStyle: TableStyle;
-  styleId?: string;
-  selected?: boolean;
-  onClick?: () => void;
-  type: "table" | "pivot";
-}
-
-export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
+export class TableStylePreview extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableStylePreview";
   static components = { MenuPopover };
-  static props = {
-    tableConfig: Object,
-    tableStyle: Object,
-    type: String,
-    styleId: { type: String, optional: true },
-    selected: { type: Boolean, optional: true },
-    onClick: { type: Function, optional: true },
-  };
+
+  protected props = props({
+    tableConfig: types.TableConfig(),
+    tableStyle: types.TableStyle(),
+    type: types.or([types.literal("table"), types.literal("pivot")]),
+    "styleId?": types.string(),
+    "selected?": types.boolean(),
+    "onClick?": types.function([]),
+  });
 
   private canvasRef = signal<HTMLCanvasElement | null>(null);
   menu: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
   setup() {
-    onWillUpdateProps((nextProps) => {
+    onWillUpdateProps((nextProps: PropsOf<TableStylePreview>) => {
       if (
         !deepEquals(this.props.tableConfig, nextProps.tableConfig) ||
         !deepEquals(this.props.tableStyle, nextProps.tableStyle)
@@ -56,7 +50,7 @@ export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  private drawTable(props: Props) {
+  private drawTable(props: PropsOf<TableStylePreview>) {
     const canvas = this.canvasRef();
     if (!canvas) {
       return;

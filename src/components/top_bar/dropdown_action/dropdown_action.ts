@@ -1,28 +1,23 @@
-import { signal } from "@odoo/owl";
-import { ActionSpec } from "../../../actions/action";
+import { props, signal } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
+import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ActionButton } from "../../action_button/action_button";
 import { getElBoundingRect } from "../../helpers/dom_helpers";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
-import { Popover, PopoverProps } from "../../popover/popover";
+import { Popover } from "../../popover/popover";
+import { types } from "../../props_validation";
 
-interface Props {
-  parentAction: ActionSpec;
-  childActions: ActionSpec[];
-  class: string;
-  childClass: String;
-}
-
-export class DropdownAction extends Component<Props, SpreadsheetChildEnv> {
+export class DropdownAction extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DropdownAction";
   static components = { ActionButton, Popover };
-  static props = {
-    parentAction: Object,
-    childActions: Array,
-    class: String,
-    childClass: String,
-  };
+
+  protected props = props({
+    parentAction: types.ActionSpec(),
+    childActions: types.array(types.ActionSpec()),
+    class: types.string(),
+    childClass: types.string(),
+  });
 
   topBarToolStore!: ToolBarDropdownStore;
   actionRef = signal<HTMLElement | null>(null);
@@ -43,7 +38,7 @@ export class DropdownAction extends Component<Props, SpreadsheetChildEnv> {
     return this.topBarToolStore.isActive;
   }
 
-  get popoverProps(): PopoverProps {
+  get popoverProps(): PropsOf<Popover> {
     return {
       anchorRect: getElBoundingRect(this.actionRef()),
       positioning: "bottom-left",
