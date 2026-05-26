@@ -1,28 +1,20 @@
-import { onWillPatch, signal } from "@odoo/owl";
+import { onWillPatch, props, signal, types } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Checkbox } from "../../side_panel/components/checkbox/checkbox";
 
-interface Props {
-  value: string;
-  isChecked: boolean;
-  isSelected: boolean;
-  onClick: () => void;
-  onMouseMove: () => void;
-  scrolledTo: "top" | "bottom" | undefined;
-}
-
-export class FilterMenuValueItem extends Component<Props, SpreadsheetChildEnv> {
+export class FilterMenuValueItem extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FilterMenuValueItem";
   static components = { Checkbox };
-  static props = {
-    value: String,
-    isChecked: Boolean,
-    isSelected: Boolean,
-    onMouseMove: Function,
-    onClick: Function,
-    scrolledTo: { type: String, optional: true },
-  };
+
+  protected props = props({
+    value: types.string(),
+    isChecked: types.boolean(),
+    isSelected: types.boolean(),
+    onMouseMove: types.function([]),
+    onClick: types.function([]),
+    "scrolledTo?": types.or([types.literal("top"), types.literal("bottom")]),
+  });
 
   itemRef = signal<HTMLElement | null>(null);
 

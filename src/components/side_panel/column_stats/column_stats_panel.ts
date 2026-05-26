@@ -1,4 +1,4 @@
-import { onWillUnmount, proxy, signal } from "@odoo/owl";
+import { onWillUnmount, props, proxy, signal } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { FIRST_CHART_COLOR } from "../../../helpers/color";
 import { numberToLetters } from "../../../helpers/coordinates";
@@ -12,19 +12,19 @@ import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { useHighlights } from "../../helpers/highlight_hook";
 import { NumberInput } from "../../number_input/number_input";
+import { types } from "../../props_validation";
 import { BadgeSelection } from "../components/badge_selection/badge_selection";
 import { SidePanelCollapsible } from "../components/collapsible/side_panel_collapsible";
 import { Section } from "../components/section/section";
 import { ColumnStatisticsStore } from "./column_stats_store";
 
-interface Props {
-  onCloseSidePanel: () => void;
-}
-
-export class ColumnStatsPanel extends Component<Props, SpreadsheetChildEnv> {
+export class ColumnStatsPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ColumnStatsPanel";
-  static props = { onCloseSidePanel: Function };
   static components = { NumberInput, SidePanelCollapsible, BadgeSelection, Section };
+
+  protected props = props({
+    onCloseSidePanel: types.function([]),
+  });
 
   state = proxy({
     currentChart: "count",

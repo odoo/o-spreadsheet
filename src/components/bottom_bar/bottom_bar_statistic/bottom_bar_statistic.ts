@@ -1,4 +1,4 @@
-import { onWillUpdateProps, proxy } from "@odoo/owl";
+import { onWillUpdateProps, props, proxy, types } from "@odoo/owl";
 import { formatValue } from "../../../helpers/format/format";
 import { Component } from "../../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
@@ -12,18 +12,18 @@ import { AggregateStatisticsStore } from "./aggregate_statistics_store";
 // SpreadSheet
 // -----------------------------------------------------------------------------
 
-interface Props {
-  openContextMenu: (x: number, y: number, registry: MenuItemRegistry) => void;
-  closeContextMenu: () => void;
-}
-
-export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
+export class BottomBarStatistic extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BottomBarStatistic";
-  static props = {
-    openContextMenu: Function,
-    closeContextMenu: Function,
-  };
   static components = { Ripple };
+
+  protected props = props({
+    openContextMenu: types.function<[x: number, y: number, registry: MenuItemRegistry]>([
+      types.number(),
+      types.number(),
+      types.instanceOf(MenuItemRegistry),
+    ]),
+    closeContextMenu: types.function([]),
+  });
 
   private state = proxy({ selectedStatisticFn: "" });
   private store!: Store<AggregateStatisticsStore>;

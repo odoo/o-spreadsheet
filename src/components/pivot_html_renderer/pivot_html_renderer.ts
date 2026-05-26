@@ -1,10 +1,11 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { FunctionResultObject, Maybe, SpreadsheetPivotTable, UID } from "../..";
 import { toString } from "../../functions/helpers";
 import { formatValue } from "../../helpers/format/format";
 import { generatePivotArgs } from "../../helpers/pivot/pivot_helpers";
 import { Component } from "../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { types } from "../props_validation";
 import { Checkbox } from "../side_panel/components/checkbox/checkbox";
 
 interface PivotDialogColumn {
@@ -28,11 +29,6 @@ interface PivotDialogValue {
   isMissing: boolean;
 }
 
-interface Props {
-  pivotId: UID;
-  onCellClicked: (formula: string) => void;
-}
-
 interface State {
   showMissingValuesOnly: boolean;
 }
@@ -43,13 +39,13 @@ interface TableData {
   values: PivotDialogValue[][];
 }
 
-export class PivotHTMLRenderer extends Component<Props, SpreadsheetChildEnv> {
+export class PivotHTMLRenderer extends Component<SpreadsheetChildEnv> {
   static template = "o_spreadsheet.PivotHTMLRenderer";
   static components = { Checkbox };
-  static props = {
-    pivotId: String,
-    onCellClicked: Function,
-  };
+  protected props = props({
+    pivotId: types.UID(),
+    onCellClicked: types.function<[formula: string]>([types.string()]),
+  });
 
   private pivot = this.env.model.getters.getPivot(this.props.pivotId);
   data: TableData = {

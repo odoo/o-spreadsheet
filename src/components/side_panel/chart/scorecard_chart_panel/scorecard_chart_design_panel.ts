@@ -15,15 +15,13 @@ import { Section } from "../../components/section/section";
 import { ChartTitle } from "../building_blocks/chart_title/chart_title";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
-import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
+import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
+import { props } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 type ColorPickerId = undefined | "backgroundColor" | "baselineColorUp" | "baselineColorDown";
 
-export class ScorecardChartDesignPanel extends Component<
-  ChartSidePanelProps<ScorecardChartDefinition>,
-  SpreadsheetChildEnv
-> {
+export class ScorecardChartDesignPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChartDesignPanel";
   static components = {
     GeneralDesignEditor,
@@ -34,7 +32,9 @@ export class ScorecardChartDesignPanel extends Component<
     ChartTitle,
     ChartHumanizeNumbers,
   };
-  static props = ChartSidePanelPropsObject;
+  protected props = props(
+    chartSidePanelPropsDefinition
+  ) as unknown as ChartSidePanelProps<ScorecardChartDefinition>;
 
   get colorsSectionTitle(): string {
     return this.props.definition.baselineMode === "progress"

@@ -100,7 +100,7 @@ let fixture: HTMLElement;
 let parent: Parent;
 let env: SpreadsheetChildEnv;
 
-class Parent extends Component<any, SpreadsheetChildEnv> {
+class Parent extends Component<SpreadsheetChildEnv> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
       <TopBar
@@ -109,7 +109,6 @@ class Parent extends Component<any, SpreadsheetChildEnv> {
     </div>
   `;
   static components = { TopBar };
-  static props = {};
 
   get gridHeight(): Pixel {
     const { height } = this.env.model.getters.getSheetViewDimension();
@@ -119,7 +118,6 @@ class Parent extends Component<any, SpreadsheetChildEnv> {
 
 class Comp extends Component {
   static template = xml`<div class="o-topbar-test">Test</div>`;
-  static props = {};
 }
 
 class Comp1 extends Comp {

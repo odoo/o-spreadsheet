@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { isMultipleElementMatrix, toScalar } from "../../../../functions/helper_matrices";
 import { tryToNumber } from "../../../../functions/helpers";
 import { deepCopy } from "../../../../helpers/misc";
@@ -7,6 +7,7 @@ import { _t } from "../../../../translation";
 import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
 import { CommandResult } from "../../../../types/commands";
 import { Color, ValueAndLabel } from "../../../../types/misc";
+import { PropsOf } from "../../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { Select } from "../../../select/select";
@@ -17,17 +18,14 @@ import { Section } from "../../components/section/section";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
-import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
+import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 interface PanelState {
   sectionRuleCancelledReasons?: Set<CommandResult>;
   sectionRule: SectionRule;
 }
 
-export class GaugeChartDesignPanel extends Component<
-  ChartSidePanelProps<GaugeChartDefinition>,
-  SpreadsheetChildEnv
-> {
+export class GaugeChartDesignPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GaugeChartDesignPanel";
   static components = {
     SidePanelCollapsible,
@@ -39,7 +37,9 @@ export class GaugeChartDesignPanel extends Component<
     ChartHumanizeNumbers,
     Select,
   };
-  static props = ChartSidePanelPropsObject;
+  protected props = props(
+    chartSidePanelPropsDefinition
+  ) as unknown as ChartSidePanelProps<GaugeChartDefinition>;
 
   protected state!: PanelState;
 
@@ -143,7 +143,7 @@ export class GaugeChartDesignPanel extends Component<
 
   getGaugeInflectionComposerProps(
     sectionType: "lowerColor" | "middleColor"
-  ): StandaloneComposer["props"] {
+  ): PropsOf<StandaloneComposer> {
     const inflectionPointName =
       sectionType === "lowerColor" ? "lowerInflectionPoint" : "upperInflectionPoint";
     const inflectionPoint = this.state.sectionRule[inflectionPointName];

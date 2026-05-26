@@ -1,4 +1,4 @@
-import { onMounted, proxy, signal } from "@odoo/owl";
+import { onMounted, props, proxy, signal } from "@odoo/owl";
 import { insertSheet, insertTable } from "../../actions/insert_actions";
 import {
   CREATE_IMAGE,
@@ -80,6 +80,7 @@ import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
+import { types } from "../props_validation";
 import { HorizontalScrollBar } from "../scrollbar/scrollbar_horizontal";
 import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
 import { Selection } from "../selection/selection";
@@ -114,20 +115,11 @@ const registries = {
   UNGROUP_HEADERS: unGroupHeadersMenuRegistry,
 };
 
-interface Props {
-  exposeFocus: (focus: () => void) => void;
-  getGridSize: () => DOMDimension;
-}
-
 // -----------------------------------------------------------------------------
 // JS
 // -----------------------------------------------------------------------------
-export class Grid extends Component<Props, SpreadsheetChildEnv> {
+export class Grid extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Grid";
-  static props = {
-    exposeFocus: Function,
-    getGridSize: Function,
-  };
   static components = {
     GridComposer,
     GridOverlay,
@@ -143,6 +135,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     TableResizer,
     Selection,
   };
+
+  protected props = props({
+    exposeFocus: types.function<[focus: () => void]>([types.function([])]),
+    getGridSize: types.function<[], DOMDimension>([], types.DOMDimension()),
+  });
+
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly HEADER_WIDTH = HEADER_WIDTH;
   private menuState!: MenuState;

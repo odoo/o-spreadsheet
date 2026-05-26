@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { canonicalizeContent, localizeDataValidationRule } from "../../../../helpers/locale";
 import { zoneToXc } from "../../../../helpers/zones";
 import { Component, ComponentConstructor } from "../../../../owl3_compatibility_layer";
@@ -17,17 +17,12 @@ import {
 import { UID, ValueAndLabel } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { DataValidationRuleData } from "../../../../types/workbook_data";
+import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { DVTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { Section } from "../../components/section/section";
-
-interface Props {
-  ruleId: UID;
-  onCancel?: () => void;
-  onCloseSidePanel: () => void;
-}
 
 interface State {
   rule: DataValidationRuleData;
@@ -35,14 +30,14 @@ interface State {
   isTypeUpdated: boolean;
 }
 
-export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> {
+export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationEditor";
   static components = { SelectionInput, Select, Section, ValidationMessages };
-  static props = {
-    ruleId: String,
-    onCancel: { type: Function, optional: true },
-    onCloseSidePanel: Function,
-  };
+  protected props = props({
+    ruleId: types.UID(),
+    "onCancel?": types.function([]),
+    onCloseSidePanel: types.function([]),
+  });
 
   state = proxy<State>({
     rule: this.defaultDataValidationRule,

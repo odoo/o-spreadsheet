@@ -3,6 +3,7 @@ import {
   onPatched,
   onWillUnmount,
   onWillUpdateProps,
+  props,
   proxy,
   signal,
   useEffect,
@@ -27,6 +28,7 @@ import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
 import { InformationNotification } from "../../types/env";
 import { CSSProperties, HeaderGroup, Pixel } from "../../types/misc";
+import { PropsOf } from "../../types/props_of";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { NotificationStoreMethods } from "../../types/stores/notification_store_methods";
@@ -44,6 +46,7 @@ import {
 } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";
+import { types } from "../props_validation";
 import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../side_panel/side_panels/side_panels";
 import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
@@ -62,18 +65,23 @@ import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipbo
 // </svg>
 // `;
 
-export interface SpreadsheetProps extends Partial<NotificationStoreMethods> {
-  model: Model;
-}
-
-export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
+export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Spreadsheet";
-  static props = {
-    model: Object,
-    notifyUser: { type: Function, optional: true },
-    raiseError: { type: Function, optional: true },
-    askConfirmation: { type: Function, optional: true },
-  };
+  protected props = props({
+    model: types.Model(),
+    "notifyUser?": types.function([
+      types.InformationNotification(),
+    ]) as unknown as NotificationStoreMethods["notifyUser"],
+    "raiseError?": types.function([
+      types.string(),
+      types.function([]),
+    ]) as unknown as NotificationStoreMethods["raiseError"],
+    "askConfirmation?": types.function([
+      types.string(),
+      types.function([]),
+      types.function([]),
+    ]) as unknown as NotificationStoreMethods["askConfirmation"],
+  });
   static components = {
     TopBar,
     Grid,
@@ -203,7 +211,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       { capture: true }
     );
 
-    onWillUpdateProps((nextProps: SpreadsheetProps) => {
+    onWillUpdateProps((nextProps: PropsOf<Spreadsheet>) => {
       if (nextProps.model !== this.props.model) {
         throw new Error("Changing the props model is not supported at the moment.");
       }

@@ -1,11 +1,12 @@
-import { onMounted, proxy, signal } from "@odoo/owl";
+import { onMounted, props, proxy, signal } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators } from "../../../actions/action";
 import { Component, useExternalListener } from "../../../owl3_compatibility_layer";
 import { topbarMenuRegistry } from "../../../registries/menus/topbar_menu_registry";
 import { _t } from "../../../translation";
+import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-import { cssPropertiesToCss } from "../../helpers/css";
-import { Menu, MenuProps } from "../../menu/menu";
+import { Menu } from "../../menu/menu";
+import { types } from "../../props_validation";
 
 export const itemHeight = 40;
 
@@ -15,17 +16,13 @@ interface State {
   parentState: State | undefined;
 }
 
-export interface RibbonMenuProps {
-  onClose: () => void;
-  height: number;
-}
-
-export class RibbonMenu extends Component<RibbonMenuProps, SpreadsheetChildEnv> {
+export class RibbonMenu extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-RibbonMenu";
-  static props = {
-    onClose: Function,
-  };
   static components = { Menu };
+
+  protected props = props({
+    onClose: types.function([]),
+  });
 
   rootItems = topbarMenuRegistry.getMenuItems();
   private menuRef = signal<HTMLElement | null>(null);
@@ -64,18 +61,12 @@ export class RibbonMenu extends Component<RibbonMenuProps, SpreadsheetChildEnv> 
     }
   }
 
-  get menuProps(): MenuProps {
+  get menuProps(): PropsOf<Menu> {
     return {
       menuItems: getMenuItemsAndSeparators(this.env, this.state.menuItems),
       onClose: this.props.onClose,
       onClickMenu: this.onClickMenu.bind(this),
     };
-  }
-
-  get style() {
-    return cssPropertiesToCss({
-      height: `${this.props.height}px`,
-    });
   }
 
   updateShadows() {

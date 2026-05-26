@@ -1,4 +1,4 @@
-import { onWillUpdateProps, proxy, signal } from "@odoo/owl";
+import { onWillUpdateProps, props, proxy, signal } from "@odoo/owl";
 import { DEFAULT_BORDER_DESC } from "../../constants";
 import { Component } from "../../owl3_compatibility_layer";
 import { BorderPosition, BorderStyle, Color, Pixel } from "../../types/misc";
@@ -6,13 +6,8 @@ import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { getElBoundingRect } from "../helpers/dom_helpers";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../helpers/top_bar_tool_hook";
+import { types } from "../props_validation";
 import { BorderEditor } from "./border_editor";
-
-interface Props {
-  disabled?: boolean;
-  dropdownMaxHeight?: Pixel;
-  class?: string;
-}
 
 interface State {
   currentColor: Color;
@@ -20,14 +15,15 @@ interface State {
   currentPosition: BorderPosition | undefined;
 }
 
-export class BorderEditorWidget extends Component<Props, SpreadsheetChildEnv> {
+export class BorderEditorWidget extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BorderEditorWidget";
-  static props = {
-    disabled: { type: Boolean, optional: true },
-    dropdownMaxHeight: { type: Number, optional: true },
-    class: { type: String, optional: true },
-  };
   static components = { BorderEditor };
+
+  protected props = props({
+    "disabled?": types.boolean(),
+    "dropdownMaxHeight?": types.Pixel(),
+    "class?": types.string(),
+  });
   topBarToolStore!: ToolBarDropdownStore;
 
   borderEditorButtonRef = signal<HTMLElement | null>(null);

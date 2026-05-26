@@ -1,28 +1,26 @@
-import { proxy, signal } from "@odoo/owl";
+import { props, proxy, signal } from "@odoo/owl";
 import { HIGHLIGHT_COLOR } from "../../../../constants";
 import { interactiveUpdateNamedRange } from "../../../../helpers/ui/named_range_interactive";
 import { Component } from "../../../../owl3_compatibility_layer";
-import { Highlight, NamedRange } from "../../../../types/misc";
+import { Highlight } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
+import { types } from "../../../props_validation";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { TextInput } from "../../../text_input/text_input";
-
-interface Props {
-  namedRange: NamedRange;
-}
 
 interface State {
   isSelectionInputFocused?: boolean;
   currentRange?: string;
 }
 
-export class NamedRangePreview extends Component<Props, SpreadsheetChildEnv> {
+export class NamedRangePreview extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-NamedRangePreview";
-  static props = {
-    namedRange: Object,
-  };
   static components = { SelectionInput, TextInput };
+
+  protected props = props({
+    namedRange: types.NamedRange(),
+  });
 
   state = proxy<State>({});
 

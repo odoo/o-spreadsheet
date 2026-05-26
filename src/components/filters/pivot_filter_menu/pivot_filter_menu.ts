@@ -1,9 +1,8 @@
-import { onWillUpdateProps } from "@odoo/owl";
+import { onWillUpdateProps, props } from "@odoo/owl";
 import { deepCopy, deepEquals } from "../../../helpers/misc";
 import { SpreadsheetPivotRuntimeDefinition } from "../../../helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { Component } from "../../../owl3_compatibility_layer";
-import { UID } from "../../../types/misc";
-import { PivotFilter } from "../../../types/pivot";
+import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import {
   CriterionFilter,
@@ -12,45 +11,40 @@ import {
   filterNumberCriterionOperators,
   filterTextCriterionOperators,
 } from "../../../types/table";
+import { types } from "../../props_validation";
 import { SidePanelCollapsible } from "../../side_panel/components/collapsible/side_panel_collapsible";
 import { FilterMenuCriterion } from "../filter_menu_criterion/filter_menu_criterion";
 import { FilterMenuValueList } from "../filter_menu_value_list/filter_menu_value_list";
 
-interface Props {
-  pivotId: UID;
-  definition: SpreadsheetPivotRuntimeDefinition;
-  filter: PivotFilter;
-  values: Value[];
-  onClosed?: () => void;
-  onConfirmed: (updatedCriterionValue: DataFilterValue) => void;
-}
-
-interface Value {
-  checked: boolean;
-  string: string;
-  scrolledTo?: "top" | "bottom" | undefined;
-}
-
 type CriterionCategory = "char" | "boolean" | "integer" | "datetime";
 
-export class PivotFilterMenu extends Component<Props, SpreadsheetChildEnv> {
+export class PivotFilterMenu extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotFilterMenu";
-  static props = {
-    pivotId: String,
-    definition: Object,
-    filter: Object,
-    values: Object,
-    onClosed: { type: Function, optional: true },
-    onConfirmed: Function,
-  };
 
   static components = { FilterMenuValueList, SidePanelCollapsible, FilterMenuCriterion };
 
   private criterionCategory: CriterionCategory = "char";
   private updatedCriterionValue: DataFilterValue | undefined;
 
+  protected props = props({
+    pivotId: types.UID(),
+    definition: types.instanceOf(SpreadsheetPivotRuntimeDefinition),
+    filter: types.PivotFilter(),
+    values: types.array(
+      types.object({
+        checked: types.boolean(),
+        string: types.string(),
+        "scrolledTo?": types.or([types.literal("top"), types.literal("bottom")]),
+      })
+    ),
+    "onClosed?": types.function([]),
+    onConfirmed: types.function<[updatedCriterionValue: DataFilterValue]>([
+      types.DataFilterValue(),
+    ]),
+  });
+
   setup() {
-    onWillUpdateProps((nextProps: Props) => {
+    onWillUpdateProps((nextProps: PropsOf<PivotFilterMenu>) => {
       if (!deepEquals(nextProps.definition, this.props.definition)) {
         this.updatedCriterionValue = undefined;
         this.criterionCategory = this.getCriterionCategory();

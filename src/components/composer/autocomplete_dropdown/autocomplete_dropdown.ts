@@ -1,24 +1,21 @@
-import { signal, useEffect } from "@odoo/owl";
+import { props, signal, useEffect } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { AutoCompleteProposal } from "../../../registries/auto_completes/auto_complete_registry";
 import { cssPropertiesToCss } from "../../helpers/css";
+import { types } from "../../props_validation";
 import { HtmlContent } from "../composer/composer";
 
-interface Props {
-  proposals: AutoCompleteProposal[];
-  selectedIndex: number | undefined;
-  onValueSelected: (proposal: AutoCompleteProposal) => void;
-  onValueHovered: (index: string) => void;
-}
-
-export class TextValueProvider extends Component<Props> {
+export class TextValueProvider extends Component<any> {
   static template = "o-spreadsheet-TextValueProvider";
-  static props = {
-    proposals: Array,
-    selectedIndex: { type: Number, optional: true },
-    onValueSelected: Function,
-    onValueHovered: Function,
-  };
+
+  protected props = props({
+    proposals: types.array(types.AutoCompleteProposal()),
+    "selectedIndex?": types.number(),
+    onValueSelected: types.function<[proposal: AutoCompleteProposal]>([
+      types.AutoCompleteProposal(),
+    ]),
+    onValueHovered: types.function<[index: string]>([types.string()]),
+  });
   autoCompleteListRef = signal<HTMLElement | null>(null);
 
   setup() {

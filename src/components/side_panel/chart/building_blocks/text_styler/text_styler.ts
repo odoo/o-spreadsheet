@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { ActionSpec } from "../../../../../actions/action";
 import { DEFAULT_STYLE } from "../../../../../constants";
 import { Component, useExternalListener } from "../../../../../owl3_compatibility_layer";
@@ -9,33 +9,25 @@ import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { ActionButton } from "../../../../action_button/action_button";
 import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
 import { FontSizeEditor } from "../../../../font_size_editor/font_size_editor";
-
-interface Props {
-  class?: string;
-  style: ChartStyle;
-  updateStyle: (style: ChartStyle) => void;
-  defaultStyle?: Partial<ChartStyle>;
-  hasVerticalAlign?: boolean;
-  hasHorizontalAlign?: boolean;
-  hasBackgroundColor?: boolean;
-}
+import { types } from "../../../../props_validation";
 
 export interface TextStylerState {
   activeTool: string;
 }
 
-export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
+export class TextStyler extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.TextStyler";
   static components = { ColorPickerWidget, ActionButton, FontSizeEditor };
-  static props = {
-    style: Object,
-    updateStyle: { type: Function, optional: true },
-    defaultStyle: { type: Object, optional: true },
-    hasVerticalAlign: { type: Boolean, optional: true },
-    hasHorizontalAlign: { type: Boolean, optional: true },
-    hasBackgroundColor: { type: Boolean, optional: true },
-    class: { type: String, optional: true },
-  };
+
+  protected props = props({
+    style: types.ChartStyle(),
+    updateStyle: types.function<[style: ChartStyle]>([types.ChartStyle()]),
+    "defaultStyle?": types.object({}) as Partial<ChartStyle>,
+    "hasVerticalAlign?": types.boolean(),
+    "hasHorizontalAlign?": types.boolean(),
+    "hasBackgroundColor?": types.boolean(),
+    "class?": types.string(),
+  });
   openedEl: HTMLElement | null = null;
 
   setup() {

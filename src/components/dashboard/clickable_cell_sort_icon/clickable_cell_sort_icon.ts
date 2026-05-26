@@ -2,24 +2,23 @@ import { TEXT_BODY_MUTED } from "../../../constants";
 import { blendColors } from "../../../helpers/color";
 import { computeTextFontSizeInPixels } from "../../../helpers/text_helper";
 import { useStore } from "../../../store_engine/store_hooks";
-import { CellPosition, Color, SortDirection, Style } from "../../../types/misc";
+import { Color, Style } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { HoveredTableStore } from "../../tables/hovered_table_store";
 
+import { props } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
-interface Props {
-  position: CellPosition;
-  sortDirection: SortDirection | "none";
-}
+import { types } from "../../props_validation";
 
-export class ClickableCellSortIcon extends Component<Props, SpreadsheetChildEnv> {
+export class ClickableCellSortIcon extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ClickableCellSortIcon";
-  static props = {
-    position: Object,
-    sortDirection: String,
-  };
+
+  protected props = props({
+    position: types.CellPosition(),
+    sortDirection: types.or([types.SortDirection, types.literal("none")]),
+  });
   private hoveredTableStore!: Store<HoveredTableStore>;
 
   setup(): void {

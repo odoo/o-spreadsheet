@@ -45,7 +45,7 @@ export interface OpenCellPopover {
 type OpenCellPopoverComponent<C extends ComponentConstructor> = {
   isOpen: true;
   Component: C;
-  props: PropsOf<C>;
+  props: PropsOf<InstanceType<C>>;
   cellCorner: PopoverPropsPosition;
 };
 
@@ -58,7 +58,7 @@ export type PositionedCellPopoverComponent<
 > = {
   isOpen: true;
   Component: C;
-  props: PropsOf<C>;
+  props: PropsOf<InstanceType<C>>;
   anchorRect: Rect;
   cellCorner: PopoverPropsPosition;
 };

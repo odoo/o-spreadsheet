@@ -1,15 +1,15 @@
-import { proxy, xml } from "@odoo/owl";
+import { props, proxy, xml } from "@odoo/owl";
 import { type ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { functionCache, type StoreConstructor } from "../../src";
 import { Action } from "../../src/actions/action";
 import { ComposerSelection } from "../../src/components/composer/composer/abstract_composer_store";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
-import { CellComposerProps, Composer } from "../../src/components/composer/composer/composer";
+import { Composer } from "../../src/components/composer/composer/composer";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { getCurrentSelection, isMobileOS } from "../../src/components/helpers/dom_helpers";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
-import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
+import { Spreadsheet } from "../../src/components/spreadsheet/spreadsheet";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { matrixMap } from "../../src/functions/helpers";
 import { toCartesian, toXC } from "../../src/helpers/coordinates";
@@ -27,6 +27,7 @@ import { SheetUIPlugin } from "../../src/plugins/ui_feature/ui_sheet";
 import { UIPluginConstructor } from "../../src/plugins/ui_plugin";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { Registry } from "../../src/registries/registry";
+import { PropsOf } from "../../src/types/props_of";
 
 import {
   CellPosition,
@@ -93,7 +94,7 @@ const functionsContentRestore = { ...functionsContent };
 const functionMapRestore = { ...functionMap };
 
 export function spyDispatch(parent: Spreadsheet): jest.SpyInstance {
-  return jest.spyOn(parent.props.model, "dispatch");
+  return jest.spyOn(parent["props"].model, "dispatch");
 }
 
 export function spyModelDispatch(model: Model): jest.SpyInstance {
@@ -273,21 +274,18 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
 
 type ComponentProps = { [key: string]: any };
 
-interface ParentProps<ChildProps extends ComponentProps> {
-  childComponent: ComponentConstructor<ChildProps, SpreadsheetChildEnv>;
-  childProps: ChildProps;
+interface ParentProps {
+  childComponent: ComponentConstructor<SpreadsheetChildEnv>;
+  childProps: ComponentProps;
 }
 
-class ParentWithPortalTarget<Props extends ComponentProps> extends Component<
-  ParentProps<Props>,
-  SpreadsheetChildEnv
-> {
+class ParentWithPortalTarget extends Component<SpreadsheetChildEnv> {
   static template = xml/*xml*/ `
     <div class="o-spreadsheet" >
       <t t-component="this.props.childComponent" t-props="this.props.childProps"/>
     </div>
   `;
-  static props = { "*": Object };
+  protected props = props() as unknown as ParentProps;
 }
 
 interface MountComponentArgs<Props extends ComponentProps> {
@@ -300,25 +298,25 @@ interface MountComponentArgs<Props extends ComponentProps> {
 
 interface MountComponentReturn<Props extends ComponentProps> {
   app: App;
-  parent: Component<Props, SpreadsheetChildEnv>;
+  parent: Component<SpreadsheetChildEnv>;
   model: Model;
   fixture: HTMLElement;
   env: SpreadsheetChildEnv;
 }
 
 export async function mountComponentWithPortalTarget<Props extends ComponentProps>(
-  component: ComponentConstructor<Props, SpreadsheetChildEnv>,
+  component: ComponentConstructor<SpreadsheetChildEnv>,
   optionalArgs: MountComponentArgs<Props> = {}
-): Promise<MountComponentReturn<ParentProps<Props>>> {
+): Promise<MountComponentReturn<ParentProps>> {
   const args = {
     ...optionalArgs,
     props: { childComponent: component, childProps: optionalArgs.props || ({} as Props) },
   };
-  return mountComponent(ParentWithPortalTarget<Props>, args);
+  return mountComponent(ParentWithPortalTarget, args);
 }
 
 export async function mountComponent<Props extends { [key: string]: any }>(
-  component: ComponentConstructor<Props, SpreadsheetChildEnv>,
+  component: ComponentConstructor<SpreadsheetChildEnv>,
   optionalArgs: MountComponentArgs<Props> = {}
 ): Promise<MountComponentReturn<Props>> {
   const model = optionalArgs.model || optionalArgs.env?.model || new Model();
@@ -355,7 +353,7 @@ export async function mountComponent<Props extends { [key: string]: any }>(
 
 // Requires to be called wit jest realTimers
 export async function mountSpreadsheet(
-  props: SpreadsheetProps = { model: new Model() },
+  props: PropsOf<Spreadsheet> = { model: new Model() },
   partialEnv: Partial<SpreadsheetChildEnv> = {}
 ): Promise<{
   app: App;
@@ -1112,16 +1110,16 @@ export function getStylePropertyInPx(el: HTMLElement, property: string): number 
 
 type ComposerWrapperProps = {
   focusComposer: ComposerFocusType;
-  composerProps: Partial<CellComposerProps>;
+  composerProps: Partial<PropsOf<Composer>>;
 };
 
-export class ComposerWrapper extends Component<ComposerWrapperProps, SpreadsheetChildEnv> {
+export class ComposerWrapper extends Component<SpreadsheetChildEnv> {
   static components = { Composer };
   static template = xml/*xml*/ `
     <div class="o-spreadsheet"/>
     <Composer t-props="this.composerProps"/>
   `;
-  static props = { composerProps: Object, focusComposer: String };
+  protected props = props() as unknown as ComposerWrapperProps;
   state = proxy({ focusComposer: <ComposerFocusType>"inactive" });
   composerStore!: Store<CellComposerStore>;
 
@@ -1130,7 +1128,7 @@ export class ComposerWrapper extends Component<ComposerWrapperProps, Spreadsheet
     this.composerStore = useStore(CellComposerStore);
   }
 
-  get composerProps(): CellComposerProps {
+  get composerProps(): PropsOf<Composer> {
     return {
       ...this.props.composerProps,
       onComposerContentFocused: (selection) => {
@@ -1158,7 +1156,7 @@ export class ComposerWrapper extends Component<ComposerWrapperProps, Spreadsheet
 
 export async function mountComposerWrapper(
   model: Model = new Model(),
-  composerProps: Partial<CellComposerProps> = {},
+  composerProps: Partial<PropsOf<Composer>> = {},
   focusComposer: ComposerFocusType = "inactive"
 ): Promise<{
   parent: ComposerWrapper;

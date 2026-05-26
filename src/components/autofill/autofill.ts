@@ -1,4 +1,4 @@
-import { proxy, xml } from "@odoo/owl";
+import { props, proxy, xml } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
 import { Component } from "../../owl3_compatibility_layer";
 import { HeaderIndex } from "../../types/misc";
@@ -7,27 +7,24 @@ import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { withZoom } from "../helpers/zoom";
+import { types } from "../props_validation";
 
 // -----------------------------------------------------------------------------
 // Autofill
 // -----------------------------------------------------------------------------
-
-interface Props {
-  isVisible: boolean;
-  position: DOMCoordinates;
-}
 
 interface State {
   position: DOMCoordinates;
   handler: boolean;
 }
 
-export class Autofill extends Component<Props, SpreadsheetChildEnv> {
+export class Autofill extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Autofill";
-  static props = {
-    position: Object,
-    isVisible: Boolean,
-  };
+
+  protected props = props({
+    position: types.DOMCoordinates(),
+    isVisible: types.boolean(),
+  });
   state: State = proxy({
     position: { x: 0, y: 0 },
     handler: false,
@@ -107,10 +104,10 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
   }
 }
 
-class TooltipComponent extends Component<Props> {
-  static props = {
-    content: String,
-  };
+class TooltipComponent extends Component<any> {
+  protected props: { content: string } = props({
+    content: types.string(),
+  });
   static template = xml/* xml */ `
     <div t-out="this.props.content"/>
   `;

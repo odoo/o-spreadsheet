@@ -1,29 +1,28 @@
-import { onMounted, onPatched, proxy, signal } from "@odoo/owl";
+import { onMounted, onPatched, props, proxy, signal } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ComposerFocusType } from "../../types/misc";
+import { PropsOf } from "../../types/props_of";
 import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { Ripple } from "../animation/ripple";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { CellComposerStore } from "../composer/composer/cell_composer_store";
-import { CellComposerProps, Composer } from "../composer/composer/composer";
+import { Composer } from "../composer/composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer/composer_focus_store";
 import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect } from "../helpers/dom_helpers";
+import { types } from "../props_validation";
 import { RibbonMenu } from "./ribbon_menu/ribbon_menu";
 
-interface Props {
-  onClick: () => void;
-}
-
-export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
+export class SmallBottomBar extends Component<SpreadsheetChildEnv> {
   static components = { Composer, BottomBar, Ripple, RibbonMenu };
   static template = "o-spreadsheet-SmallBottomBar";
-  static props = {
-    onClick: Function,
-  };
+
+  protected props = props({
+    onClick: types.function([]),
+  });
 
   private composerFocusStore!: Store<ComposerFocusStore>;
   private composerStore!: Store<CellComposerStore>;
@@ -83,7 +82,7 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
     return getElBoundingRect(this.composerRef());
   }
 
-  get composerProps(): CellComposerProps {
+  get composerProps(): PropsOf<Composer> {
     const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
     return {
       rect: { ...this.rect },

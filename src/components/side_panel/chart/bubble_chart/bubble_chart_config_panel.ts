@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { numberToLetters } from "../../../../helpers/coordinates";
 import { createValidRange } from "../../../../helpers/range";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -10,7 +10,7 @@ import { ChartTerms } from "../../../translations_terms";
 import { ChartDataSeries } from "../building_blocks/data_series/data_series";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
 import { ChartLabelRange } from "../building_blocks/label_range/label_range";
-import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
+import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 interface BubbleChartPanelState {
   datasetDispatchResult?: DispatchResult;
@@ -21,14 +21,14 @@ interface BubbleChartPanelState {
 
 type Props = ChartSidePanelProps<BubbleChartDefinition>;
 
-export class BubbleChartConfigPanel extends Component<Props, SpreadsheetChildEnv> {
+export class BubbleChartConfigPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BubbleChartConfigPanel";
   static components = {
     ChartDataSeries,
     ChartLabelRange,
     ChartErrorSection,
   };
-  static props = ChartSidePanelPropsObject;
+  protected props = props(chartSidePanelPropsDefinition) as unknown as Props;
 
   protected state: BubbleChartPanelState = proxy({
     datasetDispatchResult: undefined,

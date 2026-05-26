@@ -41,18 +41,13 @@ const TEMPLATE = xml/* xml */ `
   </div>
 `;
 
-interface Props {
-  model: Model;
-}
-
 let selectedCol: number | undefined = undefined;
 let selectedRow: number | undefined = undefined;
 
 const mouseUpFn = jest.fn();
 
-class FakeGridComponent extends Component<Props, SpreadsheetChildEnv> {
+class FakeGridComponent extends Component<SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  static props = {};
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 

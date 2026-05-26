@@ -1,31 +1,26 @@
-import { onWillUpdateProps } from "@odoo/owl";
-import { ActionSpec, createAction } from "../../actions/action";
+import { onWillUpdateProps, props } from "@odoo/owl";
+import { createAction } from "../../actions/action";
 import { Component } from "../../owl3_compatibility_layer";
+import { PropsOf } from "../../types/props_of";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
+import { types } from "../props_validation";
 
-interface Props {
-  action: ActionSpec;
-  hasTriangleDownIcon?: boolean;
-  selectedColor?: string;
-  class?: string;
-  onClick?: (ev: MouseEvent) => void;
-}
-
-export class ActionButton extends Component<Props, SpreadsheetChildEnv> {
+export class ActionButton extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ActionButton";
-  static props = {
-    action: Object,
-    hasTriangleDownIcon: { type: Boolean, optional: true },
-    selectedColor: { type: String, optional: true },
-    class: { type: String, optional: true },
-    onClick: { type: Function, optional: true },
-  };
+
+  protected props = props({
+    action: types.ActionSpec(),
+    "hasTriangleDownIcon?": types.boolean(),
+    "selectedColor?": types.string(),
+    "class?": types.string(),
+    "onClick?": types.function(),
+  });
 
   private actionButton = createAction(this.props.action);
 
   setup() {
-    onWillUpdateProps((nextProps: Props) => {
+    onWillUpdateProps((nextProps: PropsOf<ActionButton>) => {
       if (nextProps.action !== this.props.action) {
         this.actionButton = createAction(nextProps.action);
       }

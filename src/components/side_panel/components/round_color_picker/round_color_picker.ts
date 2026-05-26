@@ -1,21 +1,15 @@
-import { proxy, signal } from "@odoo/owl";
+import { props, proxy, signal } from "@odoo/owl";
 import { Component, useExternalListener } from "../../../../owl3_compatibility_layer";
 import { Rect } from "../../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { ColorPicker } from "../../../color_picker/color_picker";
 import { cssPropertiesToCss } from "../../../helpers/css";
 import { getElBoundingRect } from "../../../helpers/dom_helpers";
+import { types } from "../../../props_validation";
 import { Section } from "../section/section";
 
 interface State {
   pickerOpened: boolean;
-}
-
-interface Props {
-  currentColor?: string;
-  onColorPicked: (color: string) => void;
-  title?: string;
-  disableNoColor?: boolean;
 }
 
 // FIXME Encoding version used in css
@@ -25,15 +19,15 @@ interface Props {
 // </svg>
 // `;
 
-export class RoundColorPicker extends Component<Props, SpreadsheetChildEnv> {
+export class RoundColorPicker extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.RoundColorPicker";
   static components = { Section, ColorPicker };
-  static props = {
-    currentColor: { type: String, optional: true },
-    title: { type: String, optional: true },
-    onColorPicked: Function,
-    disableNoColor: { type: Boolean, optional: true },
-  };
+  protected props = props({
+    "currentColor?": types.string(),
+    "title?": types.string(),
+    onColorPicked: types.function<[color: string]>([types.string()]),
+    "disableNoColor?": types.boolean(),
+  });
 
   colorPickerButtonRef = signal<HTMLElement | null>(null);
 

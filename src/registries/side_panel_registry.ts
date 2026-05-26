@@ -16,15 +16,13 @@ import { SettingsPanel } from "../components/side_panel/settings/settings_panel"
 import { SidePanelState } from "../components/side_panel/side_panel/side_panel_store";
 import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns_panel/split_to_columns_panel";
 import { TablePanel } from "../components/side_panel/table_panel/table_panel";
-import {
-  TableStyleEditorPanel,
-  TableStyleEditorPanelProps,
-} from "../components/side_panel/table_style_editor_panel/table_style_editor_panel";
+import { TableStyleEditorPanel } from "../components/side_panel/table_style_editor_panel/table_style_editor_panel";
 import { getTableTopLeft } from "../helpers/table_helpers";
 import { _t } from "../translation";
 import { ConditionalFormat } from "../types/conditional_formatting";
 import { Getters } from "../types/getters";
 import { UID } from "../types/misc";
+import { PropsOf } from "../types/props_of";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { Registry } from "./registry";
 
@@ -145,7 +143,7 @@ sidePanelRegistry.add("TableSidePanel", {
 sidePanelRegistry.add("TableStyleEditorPanel", {
   title: _t("Create custom table style"),
   Body: TableStyleEditorPanel,
-  computeState: (getters: Getters, initialProps: TableStyleEditorPanelProps) => {
+  computeState: (getters: Getters, initialProps: PropsOf<TableStyleEditorPanel>) => {
     return {
       isOpen: true,
       props: { ...initialProps },
@@ -169,12 +167,12 @@ sidePanelRegistry.add("PivotSidePanel", {
 });
 
 sidePanelRegistry.add("PivotMeasureDisplayPanel", {
-  title: (env: SpreadsheetChildEnv, props: PivotMeasureDisplayPanel["props"]) => {
+  title: (env: SpreadsheetChildEnv, props: PropsOf<PivotMeasureDisplayPanel>) => {
     const measure = env.model.getters.getPivot(props.pivotId).getMeasure(props.measure.id);
     return _t('Measure "%s" options', measure.displayName);
   },
   Body: PivotMeasureDisplayPanel,
-  computeState: (getters: Getters, props: PivotMeasureDisplayPanel["props"]) => {
+  computeState: (getters: Getters, props: PropsOf<PivotMeasureDisplayPanel>) => {
     try {
       // This will throw if the pivot or measure does not exist
       getters.getPivot(props.pivotId).getMeasure(props.measure.id);

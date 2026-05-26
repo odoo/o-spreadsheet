@@ -1,4 +1,4 @@
-import { onWillUpdateProps, signal } from "@odoo/owl";
+import { onWillUpdateProps, props, signal } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemPreview, getCarouselItemTitle } from "../../../helpers/carousel_helpers";
@@ -12,20 +12,20 @@ import { UID } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../helpers/drag_and_drop_dom_items_hook";
+import { types } from "../../props_validation";
 import { TextInput } from "../../text_input/text_input";
 import { TextStyler } from "../chart/building_blocks/text_styler/text_styler";
 import { CogWheelMenu } from "../components/cog_wheel_menu/cog_wheel_menu";
 import { Section } from "../components/section/section";
 
-interface Props {
-  onCloseSidePanel: () => void;
-  figureId: UID;
-}
-
-export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
+export class CarouselPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CarouselPanel";
-  static props = { onCloseSidePanel: Function, figureId: String };
   static components = { Section, TextInput, TextStyler, CogWheelMenu };
+
+  protected props = props({
+    onCloseSidePanel: types.function([]),
+    figureId: types.UID(),
+  });
 
   DEFAULT_CAROUSEL_TITLE_STYLE = DEFAULT_CAROUSEL_TITLE_STYLE;
 

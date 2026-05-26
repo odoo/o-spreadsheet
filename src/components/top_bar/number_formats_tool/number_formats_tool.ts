@@ -1,4 +1,4 @@
-import { proxy, signal } from "@odoo/owl";
+import { props, proxy, signal } from "@odoo/owl";
 import { Action, createAction } from "../../../actions/action";
 import { Component } from "../../../owl3_compatibility_layer";
 import { formatNumberMenuItemSpec } from "../../../registries/menus/number_format_menu_registry";
@@ -8,20 +8,18 @@ import { ActionButton } from "../../action_button/action_button";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 import { MenuPopover } from "../../menu_popover/menu_popover";
-
-interface Props {
-  class: string;
-}
+import { types } from "../../props_validation";
 
 interface State {
   menuItems: Action[];
   anchorRect: Rect;
 }
 
-export class NumberFormatsTool extends Component<Props, SpreadsheetChildEnv> {
+export class NumberFormatsTool extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-NumberFormatsTool";
   static components = { MenuPopover, ActionButton };
-  static props = { class: String };
+
+  protected props = props({ class: types.string() });
   formatNumberMenuItemSpec = formatNumberMenuItemSpec;
   topBarToolStore!: ToolBarDropdownStore;
 

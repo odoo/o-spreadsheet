@@ -1,19 +1,16 @@
-import { onWillUpdateProps, proxy, signal } from "@odoo/owl";
+import { onWillUpdateProps, props, proxy, signal } from "@odoo/owl";
 import { deepEquals } from "../../../helpers/misc";
 import { fuzzyLookup } from "../../../helpers/search";
 import { Component } from "../../../owl3_compatibility_layer";
+import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { types } from "../../props_validation";
 import { FilterMenuValueItem } from "../filter_menu_item/filter_menu_value_item";
-
-interface Props {
-  values: Value[];
-  onUpdateHiddenValues: (values: string[]) => void;
-}
 
 interface Value {
   checked: boolean;
   string: string;
-  scrolledTo?: "top" | "bottom" | undefined;
+  scrolledTo?: "top" | "bottom";
 }
 
 interface State {
@@ -24,13 +21,20 @@ interface State {
   hasMoreValues: boolean;
 }
 
-export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
+export class FilterMenuValueList extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FilterMenuValueList";
-  static props = {
-    values: Object,
-    onUpdateHiddenValues: Function,
-  };
   static components = { FilterMenuValueItem };
+
+  protected props = props({
+    values: types.array(
+      types.object({
+        checked: types.boolean(),
+        string: types.string(),
+        "scrolledTo?": types.or([types.literal("top"), types.literal("bottom")]),
+      })
+    ),
+    onUpdateHiddenValues: types.function<[values: string[]]>([types.array(types.string())]),
+  });
 
   private state: State = proxy({
     displayedValues: [],
@@ -43,7 +47,7 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
   private searchBarRef = signal<HTMLInputElement | null>(null);
 
   setup() {
-    onWillUpdateProps((nextProps: Props) => {
+    onWillUpdateProps((nextProps: PropsOf<FilterMenuValueList>) => {
       if (!deepEquals(nextProps.values, this.props.values)) {
         this.computeDisplayedValues(nextProps);
       }
@@ -62,7 +66,7 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
     this.state.selectedValue = value.string;
   }
 
-  private getSearchedValues(props: Props): Value[] {
+  private getSearchedValues(props: PropsOf<FilterMenuValueList>): Value[] {
     return !this.state.textFilter
       ? props.values
       : fuzzyLookup(this.state.textFilter, props.values, (val) => val.string);
@@ -98,7 +102,7 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
     this.computeDisplayedValues(this.props);
   }
 
-  computeDisplayedValues(props: Props) {
+  computeDisplayedValues(props: PropsOf<FilterMenuValueList>) {
     const searchedValues = this.getSearchedValues(props);
     this.state.displayedValues = searchedValues.slice(0, this.state.numberOfDisplayedValues);
     this.state.hasMoreValues = searchedValues.length > this.state.numberOfDisplayedValues;

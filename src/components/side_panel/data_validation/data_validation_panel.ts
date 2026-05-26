@@ -2,19 +2,19 @@ import { localizeDataValidationRule } from "../../../helpers/locale";
 import { UuidGenerator } from "../../../helpers/uuid";
 import { DataValidationRule } from "../../../types/data_validation";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { types } from "../../props_validation";
 import { DataValidationPreview } from "./dv_preview/dv_preview";
 
+import { props } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
-interface Props {
-  onCloseSidePanel: () => void;
-}
 
-export class DataValidationPanel extends Component<Props, SpreadsheetChildEnv> {
+export class DataValidationPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationPanel";
-  static props = {
-    onCloseSidePanel: Function,
-  };
   static components = { DataValidationPreview };
+
+  protected props = props({
+    onCloseSidePanel: types.function([]),
+  });
 
   addDataValidationRule() {
     this.env.replaceSidePanel("DataValidationEditor", "DataValidation", {

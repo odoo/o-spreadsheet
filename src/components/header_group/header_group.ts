@@ -1,18 +1,15 @@
+import { props } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { GROUP_LAYER_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { interactiveToggleGroup } from "../../helpers/ui/toggle_group_interactive";
 import { getHeaderGroupContextMenu } from "../../registries/menus/header_group_registry";
-import { Dimension, HeaderGroup } from "../../types/misc";
+import { Dimension } from "../../types/misc";
 import { DOMCoordinates, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
+import { types } from "../props_validation";
 
 import { Component } from "../../owl3_compatibility_layer";
-interface Props {
-  group: HeaderGroup;
-  layerOffset: number;
-  openContextMenu(position: DOMCoordinates, menuItems: Action[]): void;
-}
 
 interface GroupBox {
   groupRect: Rect;
@@ -20,13 +17,17 @@ interface GroupBox {
   isEndHidden: boolean;
 }
 
-abstract class AbstractHeaderGroup extends Component<Props, SpreadsheetChildEnv> {
+abstract class AbstractHeaderGroup extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-HeaderGroup";
-  static props = {
-    group: Object,
-    layerOffset: Number,
-    openContextMenu: Function,
-  };
+
+  protected props = props({
+    group: types.HeaderGroup(),
+    layerOffset: types.number(),
+    openContextMenu: types.function<[position: DOMCoordinates, menuItems: Action[]]>([
+      types.DOMCoordinates(),
+      types.ArrayOf<Action>(),
+    ]),
+  });
 
   abstract dimension: Dimension;
 

@@ -1,5 +1,5 @@
+import { props } from "@odoo/owl";
 import { _t } from "../../../../../translation";
-import { ChartDatasetOrientation, DataSetStyle } from "../../../../../types/chart/chart";
 import { Color, UID } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { SelectionInput } from "../../../../selection_input/selection_input";
@@ -7,39 +7,26 @@ import { Section } from "../../../components/section/section";
 
 import { onWillUpdateProps } from "@odoo/owl";
 import { Component } from "../../../../../owl3_compatibility_layer";
+import { types } from "../../../../props_validation";
 
-interface Props {
-  ranges: { dataRange: string; dataSetId: UID }[];
-  dataSetStyles?: DataSetStyle;
-  hasSingleRange?: boolean;
-  onSelectionChanged: (ranges: string[]) => void;
-  onSelectionReordered?: (indexes: number[]) => void;
-  onSelectionRemoved?: (index: number) => void;
-  onSelectionConfirmed: () => void;
-  maxNumberOfUsedRanges?: number;
-  title?: string;
-  datasetOrientation?: ChartDatasetOrientation;
-  canChangeDatasetOrientation?: boolean;
-  onFlipAxis?: (structure: string) => void;
-}
-
-export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
+export class ChartDataSeries extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartDataSeries";
   static components = { SelectionInput, Section };
-  static props = {
-    ranges: Array,
-    dataSetStyles: { type: Object, optional: true },
-    hasSingleRange: { type: Boolean, optional: true },
-    onSelectionChanged: Function,
-    onSelectionReordered: { type: Function, optional: true },
-    onSelectionRemoved: { type: Function, optional: true },
-    onSelectionConfirmed: Function,
-    title: { type: String, optional: true },
-    maxNumberOfUsedRanges: { type: Number, optional: true },
-    datasetOrientation: { type: String, optional: true },
-    canChangeDatasetOrientation: { type: Boolean, optional: true },
-    onFlipAxis: { type: Function, optional: true },
-  };
+
+  protected props = props({
+    ranges: types.ArrayOf<{ dataRange: string; dataSetId: UID }>(),
+    "dataSetStyles?": types.DataSetStyle(),
+    "hasSingleRange?": types.boolean(),
+    onSelectionChanged: types.function<[ranges: string[]]>([types.array(types.string())]),
+    "onSelectionReordered?": types.function<[indexes: number[]]>([types.array(types.number())]),
+    "onSelectionRemoved?": types.function<[index: number]>([types.number()]),
+    onSelectionConfirmed: types.function([]),
+    "maxNumberOfUsedRanges?": types.number(),
+    "title?": types.string(),
+    "datasetOrientation?": types.or([types.literal("rows"), types.literal("columns")]),
+    "canChangeDatasetOrientation?": types.boolean(),
+    "onFlipAxis?": types.function<[structure: string]>([types.string()]),
+  });
 
   get ranges(): string[] {
     return this.props.ranges.map((r) => r.dataRange);

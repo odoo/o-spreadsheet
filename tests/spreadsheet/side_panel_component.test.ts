@@ -1,4 +1,4 @@
-import { xml } from "@odoo/owl";
+import { props, types, xml } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
 import {
   COLLAPSED_SIDE_PANEL_SIZE,
@@ -29,35 +29,40 @@ let model: Model;
 let sidePanelStore: Store<SidePanelStore>;
 let notifyUser = jest.fn();
 
-class Body extends Component<any, any> {
+class Body extends Component<any> {
   static template = xml`
     <div>
       <div class="main_body">test</div>
       <div class="props_body" t-if="this.props.text"><t t-out="this.props.text"/></div>
       <input type="text" class="input" t-if="this.props.input" />
     </div>`;
-  static props = {
-    text: { type: String, optional: true },
-    input: { type: Boolean, optional: true },
-    onCloseSidePanel: Function,
-  };
+  protected props = props({
+    "text?": types.string(),
+    "input?": types.boolean(),
+    onCloseSidePanel: types.function(),
+  });
 }
 
-class Body2 extends Component<any, any> {
+class Body2 extends Component<any> {
   static template = xml`
     <div>
       <div class="main_body_2">Hello</div>
       <div class="props_body_2" t-if="this.props.field"><t t-out="this.props.field"/></div>
     </div>`;
-  static props = { field: { type: String, optional: true }, onCloseSidePanel: Function };
+  protected props = props({
+    "field?": types.string(),
+    onCloseSidePanel: types.function(),
+  });
 }
 
-class BodyWithoutProps extends Component<any, any> {
+class BodyWithoutProps extends Component<any> {
   static template = xml`
     <div>
       <div class="main_body_3">Hello</div>
     </div>`;
-  static props = { onCloseSidePanel: Function };
+  protected props = props({
+    onCloseSidePanel: types.function(),
+  });
 }
 
 beforeEach(async () => {

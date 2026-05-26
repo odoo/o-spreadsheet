@@ -1,9 +1,7 @@
 import { Model } from "../../src";
-import {
-  TableStylesPopover,
-  TableStylesPopoverProps,
-} from "../../src/components/tables/table_styles_popover/table_styles_popover";
+import { TableStylesPopover } from "../../src/components/tables/table_styles_popover/table_styles_popover";
 import { DEFAULT_TABLE_CONFIG, TABLE_PRESETS } from "../../src/helpers/table_presets";
+import { PropsOf } from "../../src/types/props_of";
 import { createTableStyle } from "../test_helpers/commands_helpers";
 import { click, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
@@ -12,8 +10,8 @@ let model: Model;
 let fixture: HTMLElement;
 let openSidePanel: jest.Mock;
 
-async function mountPopover(partialProps: Partial<TableStylesPopoverProps> = {}) {
-  const props: TableStylesPopoverProps = {
+async function mountPopover(partialProps: Partial<PropsOf<TableStylesPopover>> = {}) {
+  const props: PropsOf<TableStylesPopover> = {
     tableConfig: DEFAULT_TABLE_CONFIG,
     closePopover: () => {},
     onStylePicked: () => {},

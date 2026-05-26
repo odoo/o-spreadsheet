@@ -1,4 +1,4 @@
-import { onMounted, onPatched, proxy, signal } from "@odoo/owl";
+import { onMounted, onPatched, props, proxy, signal } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../constants";
@@ -8,7 +8,8 @@ import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry"
 import { topbarComponentRegistry } from "../../registries/topbar_component_registry";
 import { useStore } from "../../store_engine/store_hooks";
 import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store";
-import { Color, Pixel, UID } from "../../types/misc";
+import { Color, UID } from "../../types/misc";
+import { PropsOf } from "../../types/props_of";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
@@ -21,7 +22,8 @@ import {
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { NamedRangeSelector } from "../named_range_selector/named_range_selector";
-import { Popover, PopoverProps } from "../popover/popover";
+import { Popover } from "../popover/popover";
+import { types } from "../props_validation";
 import { TopBarToolStore } from "./top_bar_tool_store";
 import { topBarToolBarRegistry } from "./top_bar_tools_registry";
 
@@ -31,21 +33,16 @@ interface State {
   toolsPopoverState: { isOpen: boolean };
 }
 
-interface Props {
-  onClick: () => void;
-  dropdownMaxHeight: Pixel;
-}
-
 // -----------------------------------------------------------------------------
 // TopBar
 // -----------------------------------------------------------------------------
 
-export class TopBar extends Component<Props, SpreadsheetChildEnv> {
+export class TopBar extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBar";
-  static props = {
-    onClick: Function,
-    dropdownMaxHeight: Number,
-  };
+  protected props = props({
+    onClick: types.function([]),
+    dropdownMaxHeight: types.Pixel(),
+  });
   static components = {
     MenuPopover,
     TopBarComposer,
@@ -263,7 +260,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.state.toolsPopoverState.isOpen = !this.state.toolsPopoverState.isOpen;
   }
 
-  get toolsPopoverProps(): PopoverProps {
+  get toolsPopoverProps(): PropsOf<Popover> {
     const el = this.moreToolsButtonRef();
     const rect = el ? getBoundingRectAsPOJO(el) : { x: 0, y: 0, width: 0, height: 0 };
     return {

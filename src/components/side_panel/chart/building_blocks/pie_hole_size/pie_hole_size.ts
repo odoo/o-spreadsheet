@@ -1,18 +1,19 @@
+import { props } from "@odoo/owl";
 import { clip } from "../../../../../helpers/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { NumberInput } from "../../../../number_input/number_input";
 import { Section } from "../../../components/section/section";
 
 import { Component } from "../../../../../owl3_compatibility_layer";
-interface Props {
-  onValueChange: (value: number) => void;
-  value: number;
-}
-
-export class PieHoleSize extends Component<Props, SpreadsheetChildEnv> {
+import { types } from "../../../../props_validation";
+export class PieHoleSize extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.PieHoleSize";
   static components = { Section, NumberInput };
-  static props = { onValueChange: Function, value: Number };
+
+  protected props = props({
+    onValueChange: types.function<[value: number]>([types.number()]),
+    value: types.number(),
+  });
 
   onChange(value: string) {
     if (!isNaN(Number(value))) {

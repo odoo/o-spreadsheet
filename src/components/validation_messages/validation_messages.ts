@@ -1,19 +1,17 @@
+import { props } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 import { Component } from "../../owl3_compatibility_layer";
-interface Props {
-  messages: string[];
-  msgType: "warning" | "error" | "info";
-  singleBox?: boolean;
-}
+import { types } from "../props_validation";
 
-export class ValidationMessages extends Component<Props, SpreadsheetChildEnv> {
+export class ValidationMessages extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ValidationMessages";
-  static props = {
-    messages: Array,
-    msgType: String,
-    singleBox: { type: Boolean, optional: true },
-  };
+
+  protected props = props({
+    messages: types.array(types.string()),
+    msgType: types.or([types.literal("warning"), types.literal("error"), types.literal("info")]),
+    "singleBox?": types.boolean(),
+  });
 
   get divClasses() {
     if (this.props.msgType === "warning") {

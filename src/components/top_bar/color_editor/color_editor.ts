@@ -1,22 +1,21 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { setStyle } from "../../../actions/menu_items_actions";
 import { Component } from "../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ColorPickerWidget } from "../../color_picker/color_picker_widget";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
+import { types } from "../../props_validation";
 
-type Props = {
-  style: "textColor" | "fillColor";
-  icon: string;
-  class: string;
-  title: string;
-};
-
-export class TopBarColorEditor extends Component<Props, SpreadsheetChildEnv> {
+export class TopBarColorEditor extends Component<SpreadsheetChildEnv> {
   static components = { ColorPickerWidget };
-  static props = { class: String, style: String, icon: String, title: String };
-
   static template = "o-spreadsheet-ColorEditor";
+
+  protected props = props({
+    class: types.string(),
+    style: types.or([types.literal("textColor"), types.literal("fillColor")]),
+    icon: types.string(),
+    title: types.string(),
+  });
   topBarToolStore!: ToolBarDropdownStore;
 
   state = proxy({

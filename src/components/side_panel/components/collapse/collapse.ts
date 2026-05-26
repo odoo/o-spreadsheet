@@ -1,19 +1,14 @@
-import { onMounted, onWillUpdateProps, signal } from "@odoo/owl";
+import { onMounted, onWillUpdateProps, props, signal } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { types } from "../../../props_validation";
 
-interface Props {
-  isCollapsed: boolean;
-  slots: any;
-}
-
-export class Collapse extends Component<Props, SpreadsheetChildEnv> {
+export class Collapse extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Collapse";
-  static props = {
-    isCollapsed: Boolean,
-    slots: Object,
-  };
+  protected props = props({
+    isCollapsed: types.boolean(),
+  });
 
   private contentRef = signal<HTMLElement | null>(null);
 

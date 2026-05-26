@@ -1,3 +1,4 @@
+import { props } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberToHex } from "../../../../helpers/color";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -5,26 +6,29 @@ import { _t } from "../../../../translation";
 import { CommandResult } from "../../../../types/commands";
 import { ColorScaleThreshold } from "../../../../types/conditional_formatting";
 import { ValueAndLabel } from "../../../../types/misc";
+import { PropsOf } from "../../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
-import { Store } from "../../../../types/store_engine";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
+import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { ConditionalFormattingEditorStore } from "./cf_editor_store";
 
-interface Props {
-  store: Store<ConditionalFormattingEditorStore>;
-  thresholdType: "minimum" | "midpoint" | "maximum";
-}
-
-export class ColorScaleRuleEditorThreshold extends Component<Props, SpreadsheetChildEnv> {
+export class ColorScaleRuleEditorThreshold extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ColorScaleRuleEditorThreshold";
   static components = {
     RoundColorPicker,
     StandaloneComposer,
     Select,
   };
-  static props = { store: Object, thresholdType: String };
+  protected props = props({
+    store: types.Store<ConditionalFormattingEditorStore>(),
+    thresholdType: types.or([
+      types.literal("minimum"),
+      types.literal("midpoint"),
+      types.literal("maximum"),
+    ]),
+  });
 
   get rule() {
     return this.props.store.state.rules.colorScale;
@@ -65,7 +69,7 @@ export class ColorScaleRuleEditorThreshold extends Component<Props, SpreadsheetC
     }
   }
 
-  getColorScaleComposerProps(): StandaloneComposer["props"] {
+  getColorScaleComposerProps(): PropsOf<StandaloneComposer> {
     const threshold = this.rule[this.props.thresholdType];
     if (!threshold) {
       throw new Error("Threshold not found");

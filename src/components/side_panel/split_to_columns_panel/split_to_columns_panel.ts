@@ -1,4 +1,4 @@
-import { onMounted, proxy } from "@odoo/owl";
+import { onMounted, props, proxy } from "@odoo/owl";
 import { NEWLINE } from "../../../constants";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
@@ -7,6 +7,7 @@ import { _t } from "../../../translation";
 import { CommandResult } from "../../../types/commands";
 import { ValueAndLabel } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { types } from "../../props_validation";
 import { Select } from "../../select/select";
 import { SplitToColumnsTerms } from "../../translations_terms";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
@@ -25,20 +26,19 @@ const SEPARATORS: ValueAndLabel[] = [
   { label: _t("Line Break"), value: NEWLINE },
 ];
 
-interface Props {
-  onCloseSidePanel: () => void;
-}
-
 interface State {
   separatorValue: SeparatorValue;
   customSeparator: string;
   addNewColumns: boolean;
 }
 
-export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv> {
+export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SplitIntoColumnsPanel";
   static components = { ValidationMessages, Section, Checkbox, Select };
-  static props = { onCloseSidePanel: Function };
+
+  protected props = props({
+    onCloseSidePanel: types.function([]),
+  });
 
   state = proxy<State>({ separatorValue: "auto", addNewColumns: false, customSeparator: "" });
 

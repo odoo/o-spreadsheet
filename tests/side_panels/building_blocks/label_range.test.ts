@@ -1,9 +1,10 @@
 import { ChartLabelRange } from "../../../src/components/side_panel/chart/building_blocks/label_range/label_range";
+import { PropsOf } from "../../../src/types/props_of";
 import { mountComponent } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
-async function mountLabelRange(props: ChartLabelRange["props"]) {
+async function mountLabelRange(props: PropsOf<ChartLabelRange>) {
   ({ fixture } = await mountComponent(ChartLabelRange, { props }));
 }
 

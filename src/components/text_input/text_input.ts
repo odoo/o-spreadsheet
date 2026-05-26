@@ -1,5 +1,11 @@
+import { props } from "@odoo/owl";
 import { isDefined } from "../../helpers/misc";
-import { GenericInput, GenericInputProps } from "../generic_input/generic_input";
+import {
+  GenericInput,
+  GenericInputProps,
+  genericInputPropsDefinition,
+} from "../generic_input/generic_input";
+import { types } from "../props_validation";
 
 interface Props extends GenericInputProps {
   alwaysShowBorder?: boolean;
@@ -10,10 +16,12 @@ interface Props extends GenericInputProps {
 export class TextInput extends GenericInput<Props> {
   static template = "o-spreadsheet-TextInput";
   static components = {};
-  static props = {
-    ...GenericInput.props,
-    errorMessage: { type: String, optional: true },
-  };
+
+  protected props: Props = props({
+    ...genericInputPropsDefinition,
+    value: types.string(),
+    "errorMessage?": types.string(),
+  }) as unknown as Props;
 
   get inputClass(): string {
     return [

@@ -16,13 +16,11 @@ import { ChartLegend } from "../building_blocks/legend/legend";
 import { PieHoleSize } from "../building_blocks/pie_hole_size/pie_hole_size";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { TextStyler } from "../building_blocks/text_styler/text_styler";
-import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
+import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
+import { props } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
-export class SunburstChartDesignPanel extends Component<
-  ChartSidePanelProps<SunburstChartDefinition<string>>,
-  SpreadsheetChildEnv
-> {
+export class SunburstChartDesignPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SunburstChartDesignPanel";
   static components = {
     GeneralDesignEditor,
@@ -36,7 +34,9 @@ export class SunburstChartDesignPanel extends Component<
     PieHoleSize,
     ChartHumanizeNumbers,
   };
-  static props = ChartSidePanelPropsObject;
+  protected props = props(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<
+    SunburstChartDefinition<string>
+  >;
 
   defaults = SunburstChartDefaults;
 

@@ -1,17 +1,11 @@
+import { props } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 
 import { Component } from "../../../../owl3_compatibility_layer";
+import { types } from "../../../props_validation";
 interface Choice {
   value: unknown;
   label: string;
-}
-
-interface Props {
-  choices: Choice[];
-  onChange: (value: unknown) => void;
-  selectedValue: string;
-  name: string;
-  direction: "horizontal" | "vertical";
 }
 
 // FIXME Encoding version used in css
@@ -21,16 +15,19 @@ interface Props {
 // </svg>
 // `;
 
-export class RadioSelection extends Component<Props, SpreadsheetChildEnv> {
+export class RadioSelection extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.RadioSelection";
-  static props = {
-    choices: Array,
-    onChange: Function,
-    selectedValue: { optional: false },
-    name: String,
-    direction: { type: String, optional: true },
-  };
-  static defaultProps = {
-    direction: "horizontal",
-  };
+
+  protected props = props(
+    {
+      choices: types.ArrayOf<Choice>(),
+      onChange: types.function<[value: unknown]>([types.any()]),
+      selectedValue: types.string(),
+      name: types.string(),
+      "direction?": types.or([types.literal("horizontal"), types.literal("vertical")]),
+    },
+    {
+      direction: "horizontal",
+    }
+  );
 }

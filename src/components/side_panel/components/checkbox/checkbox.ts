@@ -1,6 +1,8 @@
+import { props } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 
 import { Component } from "../../../../owl3_compatibility_layer";
+import { types } from "../../../props_validation";
 // FIXME Encoding version used in css
 // const CHECK_SVG = /*xml*/ `
 // <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'>
@@ -8,28 +10,23 @@ import { Component } from "../../../../owl3_compatibility_layer";
 // </svg>
 // `;
 
-interface Props {
-  label?: string;
-  value: boolean;
-  className?: string;
-  name?: string;
-  title?: string;
-  disabled?: boolean;
-  onChange: (value: boolean) => void;
-}
-
-export class Checkbox extends Component<Props, SpreadsheetChildEnv> {
+export class Checkbox extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.Checkbox";
-  static props = {
-    label: { type: String, optional: true },
-    value: { type: Boolean, optional: true },
-    className: { type: String, optional: true },
-    name: { type: String, optional: true },
-    title: { type: String, optional: true },
-    disabled: { type: Boolean, optional: true },
-    onChange: Function,
-  };
-  static defaultProps = { value: false };
+
+  protected props = props(
+    {
+      "label?": types.string(),
+      "value?": types.boolean(),
+      "className?": types.string(),
+      "name?": types.string(),
+      "title?": types.string(),
+      "disabled?": types.boolean(),
+      onChange: types.function<[value: boolean]>([types.boolean()]),
+    },
+    {
+      value: false,
+    }
+  );
 
   onChange(ev: InputEvent) {
     const value = (ev.target as HTMLInputElement).checked;

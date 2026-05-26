@@ -1,22 +1,14 @@
-import { proxy, signal } from "@odoo/owl";
+import { props, proxy, signal } from "@odoo/owl";
 import { TABLE_STYLE_CATEGORIES } from "../../../helpers/table_presets";
 import { Component, useExternalListener } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
+import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableConfig, TableStyle } from "../../../types/table";
 import { isChildEvent } from "../../helpers/dom_helpers";
-import { Popover, PopoverProps } from "../../popover/popover";
+import { Popover } from "../../popover/popover";
+import { types } from "../../props_validation";
 import { TableStylePreview } from "../table_style_preview/table_style_preview";
-
-export interface TableStylesPopoverProps {
-  selectedStyleId?: string;
-  tableConfig: Omit<TableConfig, "styleId">;
-  closePopover: () => void;
-  onStylePicked: (styleId: string) => void;
-  popoverProps?: PopoverProps;
-  tableStyles: Record<string, TableStyle>;
-  type: "table" | "pivot";
-}
 
 export type CustomTablePopoverMouseEvent = MouseEvent & { hasClosedTableStylesPopover?: boolean };
 
@@ -24,18 +16,19 @@ export interface State {
   selectedCategory: string;
 }
 
-export class TableStylesPopover extends Component<TableStylesPopoverProps, SpreadsheetChildEnv> {
+export class TableStylesPopover extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableStylesPopover";
   static components = { Popover, TableStylePreview };
-  static props = {
-    tableConfig: Object,
-    popoverProps: { type: Object, optional: true },
-    closePopover: Function,
-    onStylePicked: Function,
-    selectedStyleId: { type: String, optional: true },
-    tableStyles: Object,
-    type: String,
-  };
+
+  protected props = props({
+    tableConfig: types.object({}) as Omit<TableConfig, "styleId">,
+    "popoverProps?": types.object({}) as PropsOf<Popover>,
+    closePopover: types.function([]),
+    onStylePicked: types.function<[styleId: string]>([types.string()]),
+    "selectedStyleId?": types.string(),
+    tableStyles: types.RecordOf<TableStyle>(),
+    type: types.or([types.literal("table"), types.literal("pivot")]),
+  });
 
   private tableStyleListRef = signal<HTMLElement | null>(null);
   state = proxy<State>({ selectedCategory: this.initialSelectedCategory });

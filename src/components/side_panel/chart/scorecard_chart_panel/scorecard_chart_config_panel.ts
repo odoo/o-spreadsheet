@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { BaselineMode, ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
@@ -10,20 +10,19 @@ import { SelectionInput } from "../../../selection_input/selection_input";
 import { ChartTerms } from "../../../translations_terms";
 import { Section } from "../../components/section/section";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
-import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
+import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 interface PanelState {
   keyValueDispatchResult?: DispatchResult;
   baselineDispatchResult?: DispatchResult;
 }
 
-export class ScorecardChartConfigPanel extends Component<
-  ChartSidePanelProps<ScorecardChartDefinition>,
-  SpreadsheetChildEnv
-> {
+export class ScorecardChartConfigPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChartConfigPanel";
   static components = { SelectionInput, ChartErrorSection, Section, Select };
-  static props = ChartSidePanelPropsObject;
+  protected props = props(
+    chartSidePanelPropsDefinition
+  ) as unknown as ChartSidePanelProps<ScorecardChartDefinition>;
 
   private state: PanelState = proxy({
     keyValueDispatchResult: undefined,

@@ -1,12 +1,13 @@
 import { ChartTitle } from "../../../src/components/side_panel/chart/building_blocks/chart_title/chart_title";
 import { TextStyler } from "../../../src/components/side_panel/chart/building_blocks/text_styler/text_styler";
+import { PropsOf } from "../../../src/types/props_of";
 import { click, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
-async function mountChartTitle(props: Partial<ChartTitle["props"]>) {
-  const defaultProps: ChartTitle["props"] = {
+async function mountChartTitle(props: Partial<PropsOf<ChartTitle>>) {
+  const defaultProps: PropsOf<ChartTitle> = {
     name: "Chart title",
     title: "My title",
     updateTitle: () => {},
@@ -19,8 +20,8 @@ async function mountChartTitle(props: Partial<ChartTitle["props"]>) {
   }));
 }
 
-async function mountTextStyler(props: Partial<TextStyler["props"]>) {
-  const defaultProps: TextStyler["props"] = {
+async function mountTextStyler(props: Partial<PropsOf<TextStyler>>) {
+  const defaultProps: PropsOf<TextStyler> = {
     updateStyle: () => {},
     style: {},
     defaultStyle: { fontSize: 10 },

@@ -1,28 +1,26 @@
+import { props } from "@odoo/owl";
 import {
   TreeMapChartDefaults,
-  TreeMapChartDefinition,
   TreeMapColorScaleOptions,
 } from "../../../../../types/chart/tree_map_chart";
 import { DispatchResult } from "../../../../../types/commands";
-import { UID } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 
 import { Component } from "../../../../../owl3_compatibility_layer";
-interface Props {
-  chartId: UID;
-  definition: TreeMapChartDefinition;
-  onColorChanged: (colors: TreeMapColorScaleOptions) => DispatchResult;
-}
-
-export class TreeMapColorScale extends Component<Props, SpreadsheetChildEnv> {
+import { types } from "../../../../props_validation";
+export class TreeMapColorScale extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TreeMapColorScale";
   static components = { RoundColorPicker };
-  static props = {
-    chartId: String,
-    definition: Object,
-    onColorChanged: Function,
-  };
+
+  protected props = props({
+    chartId: types.UID(),
+    definition: types.TreeMapChartDefinition(),
+    onColorChanged: types.function<[colors: TreeMapColorScaleOptions], DispatchResult>(
+      [types.TreeMapColorScaleOptions()],
+      types.DispatchResult()
+    ),
+  });
 
   get coloringOptions() {
     const coloringOptions =

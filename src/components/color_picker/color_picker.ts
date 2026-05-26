@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { COLOR_PICKER_DEFAULTS, ICON_EDGE_LENGTH } from "../../constants";
 import {
   hexToHSLA,
@@ -12,11 +12,12 @@ import { chartFontColor } from "../../helpers/figures/charts/chart_common";
 import { clip } from "../../helpers/misc";
 import { Component } from "../../owl3_compatibility_layer";
 import { Color, HSLA, Pixel, PixelPosition } from "../../types/misc";
-import { Rect } from "../../types/rendering";
+import { PropsOf } from "../../types/props_of";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 import { startDnd } from "../helpers/drag_and_drop";
-import { Popover, PopoverProps } from "../popover/popover";
+import { Popover } from "../popover/popover";
+import { types } from "../props_validation";
 
 const ITEM_BORDER_WIDTH = 1;
 const ITEM_EDGE_LENGTH = 18;
@@ -30,31 +31,26 @@ const CONTENT_WIDTH =
 const INNER_GRADIENT_WIDTH = CONTENT_WIDTH - 2 * ITEM_BORDER_WIDTH;
 const INNER_GRADIENT_HEIGHT = CONTENT_WIDTH - 30 - 2 * ITEM_BORDER_WIDTH;
 
-export interface ColorPickerProps {
-  anchorRect: Rect;
-  maxHeight?: Pixel;
-  onColorPicked: (color: Color) => void;
-  currentColor: Color;
-  disableNoColor?: boolean;
-}
-
 interface State {
   showGradient: boolean;
   currentHslaColor: HSLA;
   customHexColor: Color;
 }
 
-export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv> {
+export class ColorPicker extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ColorPicker";
-  static props = {
-    onColorPicked: Function,
-    currentColor: { type: String, optional: true },
-    maxHeight: { type: Number, optional: true },
-    anchorRect: Object,
-    disableNoColor: { type: Boolean, optional: true },
-  };
-  static defaultProps = { currentColor: "" };
   static components = { Popover };
+
+  protected props = props(
+    {
+      onColorPicked: types.function<[color: string]>([types.string()]),
+      "currentColor?": types.string(),
+      "maxHeight?": types.Pixel(),
+      anchorRect: types.Rect(),
+      "disableNoColor?": types.boolean(),
+    },
+    { currentColor: "" }
+  );
 
   COLORS = COLOR_PICKER_DEFAULTS;
 
@@ -73,7 +69,7 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
     return "";
   }
 
-  get popoverProps(): PopoverProps {
+  get popoverProps(): PropsOf<Popover> {
     return {
       anchorRect: this.props.anchorRect,
       maxHeight: this.props.maxHeight,

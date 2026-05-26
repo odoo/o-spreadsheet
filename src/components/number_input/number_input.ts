@@ -1,5 +1,11 @@
+import { props } from "@odoo/owl";
 import { debounce } from "../../helpers/misc";
-import { GenericInput, GenericInputProps } from "../generic_input/generic_input";
+import {
+  GenericInput,
+  GenericInputProps,
+  genericInputPropsDefinition,
+} from "../generic_input/generic_input";
+import { types } from "../props_validation";
 
 interface Props extends GenericInputProps {
   alwaysShowBorder?: boolean;
@@ -11,11 +17,12 @@ interface Props extends GenericInputProps {
 export class NumberInput extends GenericInput<Props> {
   static template = "o-spreadsheet-NumberInput";
   static components = {};
-  static props = {
-    ...GenericInput.props,
-    min: { type: Number, optional: true },
-    max: { type: Number, optional: true },
-  };
+
+  protected props: Props = props({
+    ...genericInputPropsDefinition,
+    "min?": types.number(),
+    "max?": types.number(),
+  }) as unknown as Props;
 
   // Very short debounce to prevent up/down arrow on number input to spam the onChange
   debouncedOnChange = debounce(this.props.onChange.bind(this), 100, true);

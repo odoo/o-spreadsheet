@@ -13,12 +13,13 @@ import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humani
 import { ChartLegend } from "../building_blocks/legend/legend";
 import { SeriesWithAxisDesignEditor } from "../building_blocks/series_design/series_with_axis_design_editor";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
-import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
+import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
+import { props } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 export class ChartWithAxisDesignPanel<
   P extends ChartSidePanelProps<ChartDefinitionWithDataSource<string>>
-> extends Component<P, SpreadsheetChildEnv> {
+> extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartWithAxisDesignPanel";
   static components = {
     GeneralDesignEditor,
@@ -30,7 +31,7 @@ export class ChartWithAxisDesignPanel<
     ChartShowValues,
     ChartHumanizeNumbers,
   };
-  static props = ChartSidePanelPropsObject;
+  protected props = props(chartSidePanelPropsDefinition) as unknown as P;
 
   get axesList(): AxisDefinition[] {
     const { useLeftAxis, useRightAxis } = getDefinedAxis(this.props.definition);

@@ -1,4 +1,4 @@
-import { onWillUpdateProps, proxy } from "@odoo/owl";
+import { onWillUpdateProps, props, proxy } from "@odoo/owl";
 import { deepEquals } from "../../../helpers/misc";
 import { Component, ComponentConstructor } from "../../../owl3_compatibility_layer";
 import {
@@ -6,35 +6,31 @@ import {
   getCriterionValueAndLabels,
 } from "../../../registries/criterion_component_registry";
 import { _t } from "../../../translation";
-import { GenericCriterionType } from "../../../types/generic_criterion";
 import { ValueAndLabel } from "../../../types/misc";
+import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { CriterionFilter } from "../../../types/table";
+import { types } from "../../props_validation";
 import { Select } from "../../select/select";
-
-interface Props {
-  criterion: CriterionFilter;
-  criterionOperators: GenericCriterionType[];
-  onCriterionChanged: (criterion: CriterionFilter) => void;
-}
 
 interface State {
   criterion: CriterionFilter;
 }
 
-export class FilterMenuCriterion extends Component<Props, SpreadsheetChildEnv> {
+export class FilterMenuCriterion extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FilterMenuCriterion";
-  static props = {
-    criterion: Object,
-    onCriterionChanged: Function,
-    criterionOperators: Array,
-  };
   static components = { Select };
+
+  protected props = props({
+    criterion: types.CriterionFilter(),
+    criterionOperators: types.array(types.GenericCriterionType()),
+    onCriterionChanged: types.function<[criterion: CriterionFilter]>([types.CriterionFilter()]),
+  });
 
   private state!: State;
 
   setup() {
-    onWillUpdateProps((nextProps: Props) => {
+    onWillUpdateProps((nextProps: PropsOf<FilterMenuCriterion>) => {
       if (!deepEquals(nextProps.criterion, this.props.criterion)) {
         this.state.criterion = nextProps.criterion;
       }

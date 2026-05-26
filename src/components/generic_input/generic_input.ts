@@ -1,7 +1,8 @@
-import { onMounted, onWillUpdateProps, signal, useListener } from "@odoo/owl";
+import { onMounted, onWillUpdateProps, props, signal, useListener } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { useAutofocus } from "../helpers/autofocus_hook";
+import { types } from "../props_validation";
 
 export interface GenericInputProps {
   value: string | number;
@@ -17,21 +18,23 @@ export interface GenericInputProps {
   resetOnBlur?: boolean;
 }
 
-export class GenericInput<T extends GenericInputProps> extends Component<T, SpreadsheetChildEnv> {
-  static props = {
-    value: [Number, String],
-    onChange: Function,
-    onFocused: { type: Function, optional: true },
-    onBlur: { type: Function, optional: true },
-    onInput: { type: Function, optional: true },
-    class: { type: String, optional: true },
-    id: { type: String, optional: true },
-    placeholder: { type: String, optional: true },
-    autofocus: { type: Boolean, optional: true },
-    alwaysShowBorder: { type: Boolean, optional: true },
-    selectContentOnFocus: { type: Boolean, optional: true },
-    resetOnBlur: { type: Boolean, optional: true },
-  };
+export const genericInputPropsDefinition = {
+  value: types.or([types.number(), types.string()]),
+  onChange: types.function<[value: string]>([types.string()]),
+  "onFocused?": types.function([]),
+  "onBlur?": types.function([]),
+  "onInput?": types.function<[value: string]>([types.string()]),
+  "class?": types.string(),
+  "id?": types.string(),
+  "placeholder?": types.string(),
+  "autofocus?": types.boolean(),
+  "alwaysShowBorder?": types.boolean(),
+  "selectContentOnFocus?": types.boolean(),
+  "resetOnBlur?": types.boolean(),
+};
+
+export class GenericInput<T extends GenericInputProps> extends Component<SpreadsheetChildEnv> {
+  protected props: T = props(genericInputPropsDefinition) as unknown as T;
 
   protected genericInputRef = signal<HTMLInputElement | null>(null);
 

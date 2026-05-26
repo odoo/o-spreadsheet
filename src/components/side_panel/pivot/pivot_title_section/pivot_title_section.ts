@@ -1,26 +1,22 @@
+import { props } from "@odoo/owl";
 import { ActionSpec } from "../../../../actions/action";
 import { UuidGenerator } from "../../../../helpers/uuid";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { CommandResult } from "../../../../types/commands";
-import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { types } from "../../../props_validation";
 import { TextInput } from "../../../text_input/text_input";
 import { CogWheelMenu } from "../../components/cog_wheel_menu/cog_wheel_menu";
 import { Section } from "../../components/section/section";
 
-import { Component } from "../../../../owl3_compatibility_layer";
-interface Props {
-  pivotId: UID;
-  flipAxis: () => void;
-}
-
-export class PivotTitleSection extends Component<Props, SpreadsheetChildEnv> {
+export class PivotTitleSection extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotTitleSection";
   static components = { CogWheelMenu, Section, TextInput };
-  static props = {
-    pivotId: String,
-    flipAxis: Function,
-  };
+  protected props = props({
+    pivotId: types.UID(),
+    flipAxis: types.function([]),
+  });
 
   get cogWheelMenuItems(): ActionSpec[] {
     return [

@@ -1,3 +1,4 @@
+import { props } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/misc";
 import {
   Component,
@@ -6,10 +7,10 @@ import {
 } from "../../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
-import { ConditionalFormat } from "../../../../types/conditional_formatting";
 import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
+import { types } from "../../../props_validation";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { BadgeSelection } from "../../components/badge_selection/badge_selection";
@@ -20,13 +21,7 @@ import { ColorScaleRuleEditor } from "./color_scale_rule_editor";
 import { DataBarRuleEditor } from "./data_bar_rule_editor";
 import { IconSetRuleEditor } from "./icon_set_rule_editor";
 
-interface Props {
-  cf: ConditionalFormat;
-  isNewCf: boolean;
-  onCloseSidePanel: () => void;
-}
-
-export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChildEnv> {
+export class ConditionalFormattingEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ConditionalFormattingEditor";
   static components = {
     SelectionInput,
@@ -38,7 +33,11 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     IconSetRuleEditor,
     DataBarRuleEditor,
   };
-  static props = { cf: Object, isNewCf: Boolean, onCloseSidePanel: Function };
+  protected props = props({
+    cf: types.ConditionalFormat(),
+    isNewCf: types.boolean(),
+    onCloseSidePanel: types.function([]),
+  });
 
   private activeSheetId!: UID;
   private store!: Store<ConditionalFormattingEditorStore>;

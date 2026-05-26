@@ -21,14 +21,12 @@ import { GeneralDesignEditor } from "../building_blocks/general_design/general_d
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartLegend } from "../building_blocks/legend/legend";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
-import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
+import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 import { Checkbox } from "./../../components/checkbox/checkbox";
 
+import { props } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
-export class WaterfallChartDesignPanel extends Component<
-  ChartSidePanelProps<WaterfallChartDefinition<string>>,
-  SpreadsheetChildEnv
-> {
+export class WaterfallChartDesignPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-WaterfallChartDesignPanel";
   static components = {
     GeneralDesignEditor,
@@ -42,7 +40,9 @@ export class WaterfallChartDesignPanel extends Component<
     ChartLegend,
     ChartHumanizeNumbers,
   };
-  static props = ChartSidePanelPropsObject;
+  protected props = props(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<
+    WaterfallChartDefinition<string>
+  >;
 
   axisChoices = CHART_AXIS_CHOICES;
 

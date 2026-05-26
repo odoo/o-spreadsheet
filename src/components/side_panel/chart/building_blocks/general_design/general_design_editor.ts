@@ -1,26 +1,22 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { CHART_TITLE_FONT_SIZE } from "../../../../../constants";
 import { Component } from "../../../../../owl3_compatibility_layer";
 import { ChartDefinition, TitleDesign } from "../../../../../types/chart/chart";
-import { Color } from "../../../../../types/misc";
+import { DispatchResult } from "../../../../../types/commands";
+import { Color, UID } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { types } from "../../../../props_validation";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "../../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
-import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 import { ChartTitle } from "../chart_title/chart_title";
 
 interface GeneralDesignEditorState {
   activeTool: string;
 }
 
-interface Props extends ChartSidePanelProps<ChartDefinition<string>> {
-  defaultChartTitleFontSize?: number;
-  slots?: object;
-}
-
-export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
+export class GeneralDesignEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GeneralDesignEditor";
   static components = {
     RoundColorPicker,
@@ -29,14 +25,25 @@ export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     SidePanelCollapsible,
     RadioSelection,
   };
-  static props = {
-    ...ChartSidePanelPropsObject,
-    defaultChartTitleFontSize: { type: Number, optional: true },
-    slots: { type: Object, optional: true },
-  };
-  static defaultProps = {
-    defaultChartTitleFontSize: CHART_TITLE_FONT_SIZE,
-  };
+
+  protected props = props(
+    {
+      chartId: types.UID(),
+      definition: types.ChartDefinition(),
+      canUpdateChart: types.function<
+        [chartId: UID, definition: Partial<ChartDefinition<string>>],
+        DispatchResult
+      >([types.UID(), types.object({})], types.DispatchResult()),
+      updateChart: types.function<
+        [chartId: UID, definition: Partial<ChartDefinition<string>>],
+        DispatchResult
+      >([types.UID(), types.object({})], types.DispatchResult()),
+      "defaultChartTitleFontSize?": types.number(),
+    },
+    {
+      defaultChartTitleFontSize: CHART_TITLE_FONT_SIZE,
+    }
+  );
   private state!: GeneralDesignEditorState;
 
   setup() {

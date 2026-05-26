@@ -1,21 +1,23 @@
+import { props } from "@odoo/owl";
 import { getFunnelLabelColors } from "../../../../helpers/figures/charts/runtime/chartjs_dataset";
 import { replaceItemAtIndex } from "../../../../helpers/misc";
 import { _t } from "../../../../translation";
 import { FunnelChartDefinition, FunnelChartRuntime } from "../../../../types/chart/funnel_chart";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { types } from "../../../props_validation";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
-import { ChartSidePanelProps } from "../common";
+import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 import { Component } from "../../../../owl3_compatibility_layer";
-export class FunnelChartDesignPanel extends Component<
-  ChartSidePanelProps<FunnelChartDefinition<string>>,
-  SpreadsheetChildEnv
-> {
+
+type Props = ChartSidePanelProps<FunnelChartDefinition<string>>;
+
+export class FunnelChartDesignPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FunnelChartDesignPanel";
   static components = {
     ChartShowValues,
@@ -25,12 +27,11 @@ export class FunnelChartDesignPanel extends Component<
     Section,
     ChartHumanizeNumbers,
   };
-  static props = {
-    chartId: String,
-    definition: Object,
-    updateChart: Function,
-    canUpdateChart: Function,
-  };
+
+  protected props: Props = props({
+    ...chartSidePanelPropsDefinition,
+    definition: types.FunnelChartDefinition(),
+  }) as unknown as Props;
 
   getFunnelColorItems() {
     const runtime = this.env.model.getters.getChartRuntime(

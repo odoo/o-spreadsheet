@@ -2,6 +2,7 @@ import { onWillStart, onWillUpdateProps, proxy } from "@odoo/owl";
 import { _t } from "../../../../translation";
 import { IsValueInListCriterion } from "../../../../types/data_validation";
 import { Color, ValueAndLabel } from "../../../../types/misc";
+import { PropsOf } from "../../../../types/props_of";
 import { Select } from "../../../select/select";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { CriterionForm } from "../criterion_form";
@@ -38,7 +39,7 @@ export class ListCriterionForm extends CriterionForm<IsValueInListCriterion> {
       };
     });
 
-    const setupDefault = (props: this["props"]) => {
+    const setupDefault = (props: PropsOf<ListCriterionForm>) => {
       if (props.criterion.displayStyle === undefined) {
         this.updateCriterion({ displayStyle: "chip" });
       }

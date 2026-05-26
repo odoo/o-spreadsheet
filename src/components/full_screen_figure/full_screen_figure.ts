@@ -9,9 +9,8 @@ import { ChartFigure } from "../figures/figure_chart/figure_chart";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { FullScreenFigureStore } from "./full_screen_figure_store";
 
-export class FullScreenFigure extends Component<{}, SpreadsheetChildEnv> {
+export class FullScreenFigure extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FullScreenFigure";
-  static props = {};
   static components = { ChartFigure };
 
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;

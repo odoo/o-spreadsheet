@@ -1,4 +1,4 @@
-import { signal } from "@odoo/owl";
+import { props, signal } from "@odoo/owl";
 import { localizeCFRule } from "../../../../helpers/locale";
 import { UuidGenerator } from "../../../../helpers/uuid";
 import { zoneToXc } from "../../../../helpers/zones";
@@ -8,18 +8,16 @@ import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
+import { types } from "../../../props_validation";
 import { ConditionalFormatPreview } from "../cf_preview/cf_preview";
 
-interface Props {
-  onCloseSidePanel: () => void;
-}
-
-export class ConditionalFormatPreviewList extends Component<Props, SpreadsheetChildEnv> {
+export class ConditionalFormatPreviewList extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ConditionalFormatPreviewList";
-  static props = {
-    onCloseSidePanel: Function,
-  };
   static components = { ConditionalFormatPreview };
+
+  protected props = props({
+    onCloseSidePanel: types.function([]),
+  });
 
   private dragAndDrop = useDragAndDropListItems();
   private cfListRef = signal<HTMLElement | null>(null);

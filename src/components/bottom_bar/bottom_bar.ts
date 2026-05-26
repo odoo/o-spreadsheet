@@ -1,4 +1,4 @@
-import { onWillUpdateProps, proxy, signal } from "@odoo/owl";
+import { onWillUpdateProps, props, proxy, signal, types } from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
 import { UuidGenerator } from "../../helpers/uuid";
 import { Component } from "../../owl3_compatibility_layer";
@@ -24,17 +24,14 @@ interface BottomBarSheetItem {
   name: string;
 }
 
-interface Props {
-  onClick: () => void;
-}
-
 interface BottomBarMenuState extends MenuState {
   menuId: UID | undefined;
 }
 
-export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
+export class BottomBar extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BottomBar";
-  static props = { onClick: Function };
+
+  protected props = props({ onClick: types.function([]) });
 
   static components = { MenuPopover, Ripple, BottomBarSheet, BottomBarStatistic };
 

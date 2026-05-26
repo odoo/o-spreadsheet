@@ -1,4 +1,4 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { formatValue, humanizeNumber } from "../../../helpers/format/format";
 import { Component } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
@@ -6,18 +6,18 @@ import { PerfProfile, RangeTiming } from "../../../types/functions";
 import { Highlight } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { useHighlights } from "../../helpers/highlight_hook";
+import { types } from "../../props_validation";
 import { Section } from "../components/section/section";
 
 const HIGHLIGHT_COLOR = "#e28f08";
 
-interface Props {
-  onCloseSidePanel: () => void;
-}
-
-export class PerfProfilePanel extends Component<Props, SpreadsheetChildEnv> {
+export class PerfProfilePanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PerfProfilePanel";
   static components = { Section };
-  static props = { onCloseSidePanel: Function };
+
+  protected props = props({
+    onCloseSidePanel: types.function([]),
+  });
 
   private state = proxy({
     selectedIndex: undefined as number | undefined,

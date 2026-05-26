@@ -1,9 +1,10 @@
 import { ChartErrorSection } from "../../../src/components/side_panel/chart/building_blocks/error_section/error_section";
+import { PropsOf } from "../../../src/types/props_of";
 import { mountComponent } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
-async function mountChartErrorSection(props: ChartErrorSection["props"]) {
+async function mountChartErrorSection(props: PropsOf<ChartErrorSection>) {
   ({ fixture } = await mountComponent(ChartErrorSection, { props }));
 }
 

@@ -1,37 +1,26 @@
-import { signal } from "@odoo/owl";
+import { props, signal } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
-import { Pixel } from "../../types/misc";
 import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { getElBoundingRect } from "../helpers/dom_helpers";
+import { types } from "../props_validation";
 import { ColorPicker } from "./color_picker";
 
-interface Props {
-  currentColor: string | undefined;
-  toggleColorPicker: () => void;
-  showColorPicker: boolean;
-  onColorPicked: (color: string) => void;
-  icon: string;
-  title?: string;
-  disabled?: boolean;
-  dropdownMaxHeight?: Pixel;
-  class?: string;
-}
-
-export class ColorPickerWidget extends Component<Props, SpreadsheetChildEnv> {
+export class ColorPickerWidget extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ColorPickerWidget";
-  static props = {
-    currentColor: { type: String, optional: true },
-    toggleColorPicker: Function,
-    showColorPicker: Boolean,
-    onColorPicked: Function,
-    icon: String,
-    title: { type: String, optional: true },
-    disabled: { type: Boolean, optional: true },
-    dropdownMaxHeight: { type: Number, optional: true },
-    class: { type: String, optional: true },
-  };
   static components = { ColorPicker };
+
+  protected props = props({
+    "currentColor?": types.string(),
+    toggleColorPicker: types.function([]),
+    showColorPicker: types.boolean(),
+    onColorPicked: types.function<[color: string]>([types.string()]),
+    icon: types.string(),
+    "title?": types.string(),
+    "disabled?": types.boolean(),
+    "dropdownMaxHeight?": types.Pixel(),
+    "class?": types.string(),
+  });
 
   colorPickerButtonRef = signal<HTMLElement | null>(null);
 

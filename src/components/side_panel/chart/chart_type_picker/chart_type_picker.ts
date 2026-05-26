@@ -1,4 +1,4 @@
-import { proxy, signal } from "@odoo/owl";
+import { props, proxy, signal } from "@odoo/owl";
 import { Component, useExternalListener } from "../../../../owl3_compatibility_layer";
 import { chartDataSourceRegistry } from "../../../../registries/chart_data_source_registry";
 import { chartSubtypeRegistry } from "../../../../registries/chart_subtype_registry";
@@ -8,27 +8,28 @@ import {
   ChartSubtypeProperties,
 } from "../../../../types/chart_subtype_properties";
 import { UID } from "../../../../types/misc";
+import { PropsOf } from "../../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../../helpers/css";
 import { isChildEvent } from "../../../helpers/dom_helpers";
-import { Popover, PopoverProps } from "../../../popover/popover";
+import { Popover } from "../../../popover/popover";
+import { types } from "../../../props_validation";
 import { Section } from "../../components/section/section";
 import { MainChartPanelStore } from "../main_chart_panel/main_chart_panel_store";
 
-interface Props {
-  chartId: UID;
-  chartPanelStore: MainChartPanelStore;
-}
-
 interface ChartTypePickerState {
-  popoverProps: PopoverProps | undefined;
+  popoverProps: PropsOf<Popover> | undefined;
   popoverStyle: string;
 }
 
-export class ChartTypePicker extends Component<Props, SpreadsheetChildEnv> {
+export class ChartTypePicker extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartTypePicker";
   static components = { Section, Popover };
-  static props = { chartId: String, chartPanelStore: Object };
+
+  protected props = props({
+    chartId: types.UID(),
+    chartPanelStore: types.Store<MainChartPanelStore>(),
+  });
 
   categories = chartCategories;
   chartTypeByCategories: Record<string, ChartSubtypeProperties[]> = {};

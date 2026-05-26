@@ -1,5 +1,5 @@
-import { onWillUpdateProps, proxy, signal } from "@odoo/owl";
-import { CellPosition, GenericCriterion, UID } from "../../../..";
+import { onWillUpdateProps, props, proxy, signal } from "@odoo/owl";
+import { CellPosition, GenericCriterion } from "../../../..";
 import { deepEquals } from "../../../../helpers/misc";
 import { SpreadsheetPivotRuntimeDefinition } from "../../../../helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { SpreadsheetPivot } from "../../../../helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
@@ -9,19 +9,14 @@ import { criterionEvaluatorRegistry } from "../../../../registries/criterion_reg
 import { _t } from "../../../../translation";
 import { Cell } from "../../../../types/cells";
 import { PivotFilter, SpreadsheetPivotCoreDefinition } from "../../../../types/pivot";
+import { PropsOf } from "../../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { DataFilterValue } from "../../../../types/table";
 import { PivotFilterMenu } from "../../../filters/pivot_filter_menu/pivot_filter_menu";
 import { isChildEvent } from "../../../helpers/dom_helpers";
 import { Popover } from "../../../popover/popover";
+import { types } from "../../../props_validation";
 import { PivotDimension } from "../pivot_layout_configurator/pivot_dimension/pivot_dimension";
-
-interface Props {
-  pivotId: UID;
-  definition: SpreadsheetPivotRuntimeDefinition;
-  filter: PivotFilter;
-  onFiltersUpdated: (definition: Partial<SpreadsheetPivotCoreDefinition>) => void;
-}
 
 interface Value {
   checked: boolean;
@@ -33,19 +28,22 @@ interface State {
   values: Value[];
 }
 
-export class PivotFilterEditor extends Component<Props, SpreadsheetChildEnv> {
+export class PivotFilterEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotFilterEditor";
   static components = {
     PivotDimension,
     Popover,
     PivotFilterMenu,
   };
-  static props = {
-    pivotId: String,
-    definition: Object,
-    filter: Object,
-    onFiltersUpdated: Function,
-  };
+
+  protected props = props({
+    pivotId: types.UID(),
+    definition: types.instanceOf(SpreadsheetPivotRuntimeDefinition),
+    filter: types.PivotFilter(),
+    onFiltersUpdated: types.function<[definition: Partial<SpreadsheetPivotCoreDefinition>]>([
+      types.SpreadsheetPivotCoreDefinition(),
+    ]),
+  });
 
   private state!: State;
 
@@ -58,7 +56,7 @@ export class PivotFilterEditor extends Component<Props, SpreadsheetChildEnv> {
         this.popover.isOpen = false;
       }
     });
-    onWillUpdateProps((nextProps: Props) => {
+    onWillUpdateProps((nextProps: PropsOf<PivotFilterEditor>) => {
       if (!deepEquals(nextProps.definition, this.props.definition)) {
         this.state.values = this.getFilterHiddenValues(nextProps);
       }
@@ -91,7 +89,7 @@ export class PivotFilterEditor extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  private getFilterHiddenValues(props: Props): Value[] {
+  private getFilterHiddenValues(props: PropsOf<PivotFilterEditor>): Value[] {
     const pivot = this.env.model.getters.getPivot(props.pivotId) as SpreadsheetPivot;
     if (pivot.type !== "SPREADSHEET") {
       throw new Error("Filters are only available on spreadsheet pivot table");

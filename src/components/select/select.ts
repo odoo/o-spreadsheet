@@ -1,37 +1,30 @@
-import { proxy, signal } from "@odoo/owl";
+import { props, proxy, signal } from "@odoo/owl";
 import { Component, useExternalListener, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { ValueAndLabel } from "../../types/misc";
+import { PropsOf } from "../../types/props_of";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { getElBoundingRect, isChildEvent } from "../helpers/dom_helpers";
-import { Popover, PopoverProps } from "../popover/popover";
-
-export interface SelectProps {
-  onChange: (value: string) => void;
-  values: ValueAndLabel[];
-  selectedValue?: string;
-  class?: string;
-  popoverClass?: string;
-  name?: string;
-  title?: string;
-}
+import { Popover } from "../popover/popover";
+import { types } from "../props_validation";
 
 interface State {
   isPopoverOpen: boolean;
   hoveredValue: string | undefined;
 }
 
-export class Select extends Component<SelectProps, SpreadsheetChildEnv> {
+export class Select extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Select";
-  static props = {
-    onChange: Function,
-    values: Array,
-    selectedValue: { type: String, optional: true },
-    class: { type: String, optional: true },
-    popoverClass: { type: String, optional: true },
-    name: { type: String, optional: true },
-    title: { type: String, optional: true },
-  };
   static components = { Popover };
+
+  protected props = props({
+    onChange: types.function<[value: string]>([types.string()]),
+    values: types.array() as ValueAndLabel[],
+    "selectedValue?": types.string(),
+    "class?": types.string(),
+    "popoverClass?": types.string(),
+    "name?": types.string(),
+    "title?": types.string(),
+  });
 
   private selectRef = signal<HTMLElement | null>(null);
   private dropdownRef = signal<HTMLElement | null>(null);
@@ -119,7 +112,7 @@ export class Select extends Component<SelectProps, SpreadsheetChildEnv> {
     this.state.hoveredValue = undefined;
   }
 
-  get popoverProps(): PopoverProps {
+  get popoverProps(): PropsOf<Popover> {
     return {
       anchorRect: getElBoundingRect(this.selectRef()),
       positioning: "bottom-left",

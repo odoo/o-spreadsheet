@@ -4,23 +4,23 @@ import { openLink, urlRepresentation } from "../../../helpers/links";
 import { useStore } from "../../../store_engine/store_hooks";
 import type { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { EvaluatedCell } from "../../../types/cells";
-import { Link, Position } from "../../../types/misc";
+import { Link } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { isMiddleClickOrCtrlClick } from "../../helpers/dom_helpers";
 import { CellPopoverStore } from "../../popover/cell_popover_store";
 
+import { props } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
-interface LinkDisplayProps {
-  cellPosition: Position;
-}
+import { types } from "../../props_validation";
 
-export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv> {
+export class LinkDisplay extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-LinkDisplay";
-  static props = {
-    cellPosition: Object,
-    onClosed: { type: Function, optional: true },
-  };
+
+  protected props = props({
+    cellPosition: types.CellPosition(),
+    "onClosed?": types.function([]),
+  });
 
   protected cellPopovers!: Store<CellPopoverStore>;
 

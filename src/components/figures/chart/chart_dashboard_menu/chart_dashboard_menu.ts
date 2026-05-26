@@ -1,22 +1,18 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
 import { isDefined } from "../../../../helpers/misc";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
-import { UID, ValueAndLabel } from "../../../../types/misc";
+import { ValueAndLabel } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { FullScreenFigureStore } from "../../../full_screen_figure/full_screen_figure_store";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
+import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
-
-interface Props {
-  chartId: UID;
-  hasFullScreenButton: boolean;
-}
 
 interface MenuItem {
   id: string;
@@ -26,11 +22,19 @@ interface MenuItem {
   preview?: string;
 }
 
-export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
+export class ChartDashboardMenu extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartDashboardMenu";
   static components = { MenuPopover, Select };
-  static props = { chartId: String, hasFullScreenButton: { type: Boolean, optional: true } };
-  static defaultProps = { hasFullScreenButton: true };
+
+  protected props = props(
+    {
+      chartId: types.UID(),
+      "hasFullScreenButton?": types.boolean(),
+    },
+    {
+      hasFullScreenButton: true,
+    }
+  );
 
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
 

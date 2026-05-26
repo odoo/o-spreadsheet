@@ -1,4 +1,4 @@
-import { xml } from "@odoo/owl";
+import { props, types, xml } from "@odoo/owl";
 import { Color, Model, Pixel, Range } from "../../src";
 import { Highlight } from "../../src/components/highlight/highlight/highlight";
 import {
@@ -121,18 +121,16 @@ let borderEl: Element;
 let spyDispatch: jest.SpyInstance;
 let spyHandleEvent: jest.Mock;
 
-interface Props {
-  range: Range;
-  model: Model;
-  color: Color;
-}
-
-class Parent extends Component<Props> {
+class Parent extends Component {
   static components = { Highlight };
   static template = xml/*xml*/ `
     <Highlight range="this.props.range" color="this.props.color"/>
   `;
-  static props = { ...Highlight.props, model: Object };
+  protected props = props({
+    range: types.object({}) as unknown as Range,
+    color: types.string(),
+    model: types.object({}) as unknown as Model,
+  });
 
   setup() {
     spyDispatch = jest.spyOn(model, "dispatch");

@@ -12,9 +12,8 @@ import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 import { Component } from "../../../owl3_compatibility_layer";
 const COMPOSER_MAX_HEIGHT = 300;
 
-export class TopBarComposer extends Component<any, SpreadsheetChildEnv> {
+export class TopBarComposer extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBarComposer";
-  static props = {};
   static components = { Composer };
 
   private composerFocusStore!: Store<ComposerFocusStore>;

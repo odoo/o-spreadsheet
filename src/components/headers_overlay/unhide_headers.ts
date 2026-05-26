@@ -1,24 +1,27 @@
+import { props } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { positionToZone } from "../../helpers/zones";
-import { ConsecutiveIndexes, HeaderIndex } from "../../types/misc";
+import { HeaderIndex } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
+import { types } from "../props_validation";
 
 import { Component } from "../../owl3_compatibility_layer";
-interface Props {
-  headersGroups: ConsecutiveIndexes[];
-  offset: number;
-  headerRange: { start: HeaderIndex; end: HeaderIndex };
-}
 
-export class UnhideRowHeaders extends Component<Props, SpreadsheetChildEnv> {
+export class UnhideRowHeaders extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-UnhideRowHeaders";
-  static props = {
-    headersGroups: Array,
-    headerRange: Object,
-    offset: { type: Number, optional: true },
-  };
-  static defaultProps = { offset: 0 };
+
+  protected props = props(
+    {
+      headersGroups: types.array(),
+      headerRange: types.object({
+        start: types.HeaderIndex(),
+        end: types.HeaderIndex(),
+      }),
+      "offset?": types.number(),
+    },
+    { offset: 0 }
+  );
 
   get sheetId() {
     return this.env.model.getters.getActiveSheetId();
@@ -49,14 +52,20 @@ export class UnhideRowHeaders extends Component<Props, SpreadsheetChildEnv> {
   }
 }
 
-export class UnhideColumnHeaders extends Component<Props, SpreadsheetChildEnv> {
+export class UnhideColumnHeaders extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-UnhideColumnHeaders";
-  static props = {
-    headersGroups: Array,
-    headerRange: Object,
-    offset: { type: Number, optional: true },
-  };
-  static defaultProps = { offset: 0 };
+
+  protected props = props(
+    {
+      headersGroups: types.array(),
+      headerRange: types.object({
+        start: types.HeaderIndex(),
+        end: types.HeaderIndex(),
+      }),
+      "offset?": types.number(),
+    },
+    { offset: 0 }
+  );
 
   get sheetId() {
     return this.env.model.getters.getActiveSheetId();

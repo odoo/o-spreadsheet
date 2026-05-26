@@ -8,11 +8,8 @@ import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { ValidationMessages } from "../validation_messages/validation_messages";
 
-interface Props {}
-
-export class GridAddRowsFooter extends Component<Props, SpreadsheetChildEnv> {
+export class GridAddRowsFooter extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridAddRowsFooter";
-  static props = {};
   static components = { ValidationMessages };
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;

@@ -1,27 +1,26 @@
-import { proxy } from "@odoo/owl";
+import { props, proxy } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { HeaderIndex, Highlight, Zone } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-import { Table } from "../../../types/table";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop_grid_hook";
 import { useHighlights } from "../../helpers/highlight_hook";
 import { withZoom } from "../../helpers/zoom";
+import { types } from "../../props_validation";
 
 const SIZE = 3;
 const COLOR = "#777";
-
-interface Props {
-  table: Table;
-}
 
 interface State {
   highlightZone: Zone | undefined;
 }
 
-export class TableResizer extends Component<Props, SpreadsheetChildEnv> {
+export class TableResizer extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableResizer";
-  static props = { table: Object };
+
+  protected props = props({
+    table: types.Table(),
+  });
 
   state = proxy<State>({ highlightZone: undefined });
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);

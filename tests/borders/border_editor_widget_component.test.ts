@@ -4,6 +4,7 @@ import { BorderEditorWidget } from "../../src/components/border_editor/border_ed
 import { toHex } from "../../src/helpers/color";
 import { toZone } from "../../src/helpers/zones";
 import { Component } from "../../src/owl3_compatibility_layer";
+import { PropsOf } from "../../src/types/props_of";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { click, simulateClick } from "../test_helpers/dom_helper";
 import { mountComponent } from "../test_helpers/helpers";
@@ -11,7 +12,6 @@ import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 let fixture: HTMLElement;
 let model: Model;
-type Props = BorderEditorWidget["props"];
 
 async function setBorder({
   position,
@@ -35,7 +35,7 @@ async function setBorder({
   await simulateClick(`.o-line-item[name="${position}"]`);
 }
 
-class BorderWidgetContainer extends Component<Props, SpreadsheetChildEnv> {
+class BorderWidgetContainer extends Component<SpreadsheetChildEnv> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
       <div class="container">
@@ -44,7 +44,6 @@ class BorderWidgetContainer extends Component<Props, SpreadsheetChildEnv> {
     </div>
   `;
   static components = { BorderEditorWidget };
-  static props = {};
   state!: { showBorderEditor: boolean };
 
   setup() {
@@ -53,7 +52,7 @@ class BorderWidgetContainer extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  get borderWidgetProps(): Props {
+  get borderWidgetProps(): PropsOf<BorderEditorWidget> {
     return { class: "border-widget" };
   }
 }

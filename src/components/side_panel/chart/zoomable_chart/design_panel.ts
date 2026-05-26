@@ -5,9 +5,9 @@ import { ChartSidePanelProps } from "../common";
 
 type ZoomableChartDefinition = Extract<ChartDefinition<string>, { zoomable?: boolean }>;
 
-interface Props extends ChartSidePanelProps<ZoomableChartDefinition> {}
-
-export class GenericZoomableChartDesignPanel<P extends Props> extends ChartWithAxisDesignPanel<P> {
+export class GenericZoomableChartDesignPanel<
+  P extends ChartSidePanelProps<ZoomableChartDefinition>
+> extends ChartWithAxisDesignPanel<P> {
   static template = "o-spreadsheet-GenericZoomableChartDesignPanel";
   static components = {
     ...ChartWithAxisDesignPanel.components,

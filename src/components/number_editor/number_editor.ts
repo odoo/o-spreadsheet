@@ -1,50 +1,40 @@
-import { onMounted, onWillUpdateProps, proxy, signal } from "@odoo/owl";
+import { onMounted, onWillUpdateProps, props, proxy, signal } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
 import { Component, useExternalListener } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
+import { PropsOf } from "../../types/props_of";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { getElBoundingRect, isChildEvent } from "../helpers/dom_helpers";
-import { Popover, PopoverProps } from "../popover/popover";
+import { Popover } from "../popover/popover";
+import { types } from "../props_validation";
 
 interface State {
   isOpen: boolean;
 }
 
-interface Props {
-  currentValue: number;
-  class: string;
-  onValueChange: (fontSize: number) => void;
-  onToggle?: () => void;
-  onFocusInput?: () => void;
-  valueIcon?: String;
-  min: number;
-  max: number;
-  title: String;
-  valueList: number[];
-}
-
-export class NumberEditor extends Component<Props, SpreadsheetChildEnv> {
+export class NumberEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-NumberEditor";
-  static props = {
-    currentValue: Number,
-    onValueChange: Function,
-    onToggle: { type: Function, optional: true },
-    onFocusInput: { type: Function, optional: true },
-    class: String,
-    valueIcon: { type: String, optional: true },
-    min: Number,
-    max: Number,
-    title: String,
-    valueList: Array<Number>,
-  };
-
-  static defaultProps = {
-    onFocusInput: () => {},
-  };
-
   static components = { Popover };
+
+  protected props = props(
+    {
+      currentValue: types.number(),
+      onValueChange: types.function<[fontSize: number]>([types.number()]),
+      "onToggle?": types.function([]),
+      "onFocusInput?": types.function([]),
+      class: types.string(),
+      "valueIcon?": types.string(),
+      min: types.number(),
+      max: types.number(),
+      title: types.string(),
+      valueList: types.array(types.number()),
+    },
+    {
+      onFocusInput: () => {},
+    }
+  );
 
   dropdown: State = proxy({ isOpen: false });
 
@@ -73,7 +63,7 @@ export class NumberEditor extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  get popoverProps(): PopoverProps {
+  get popoverProps(): PropsOf<Popover> {
     return {
       anchorRect: getElBoundingRect(this.rootEditorRef()),
       positioning: "bottom-left",

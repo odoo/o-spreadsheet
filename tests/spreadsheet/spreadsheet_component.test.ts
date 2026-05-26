@@ -477,7 +477,6 @@ test("*isSmall* is properly recomputed when changing window size", async () => {
   class Parent extends Component {
     static template = xml`<div class="o-spreadsheet"/>`;
     static components = { Spreadsheet };
-    static props = {};
 
     setup() {
       const screenSize = useScreenWidth();
