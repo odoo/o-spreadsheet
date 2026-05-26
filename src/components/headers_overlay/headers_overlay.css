@@ -6,6 +6,7 @@
     right: var(--os-scrollbar-width);
     height: var(--os-header-height);
     width: calc(100% - var(--os-header-width) + var(--os-scrollbar-width));
+    color-scheme: light;
     &.o-dragging {
       cursor: grabbing;
     }
@@ -41,9 +42,12 @@
       height: 10000px;
       background-color: var(--os-selection-border-color);
     }
-    .o-unhide:hover {
-      z-index: calc(var(--os-components-importance-grid) + 1);
-      background-color: var(--os-gray-400);
+    .o-unhide {
+      color: var(--os-text-body);
+      &:hover {
+        z-index: calc(var(--os-components-importance-grid) + 1);
+        background-color: var(--os-gray-400);
+      }
     }
   }
 
@@ -53,6 +57,7 @@
     left: 0;
     bottom: var(--os-scrollbar-width);
     width: var(--os-header-width);
+    color-scheme: light;
     &.o-dragging {
       cursor: grabbing;
     }
@@ -88,9 +93,12 @@
       height: 1px;
       background-color: var(--os-selection-border-color);
     }
-    .o-unhide:hover {
-      z-index: calc(var(--os-components-importance-grid) + 1);
-      background-color: var(--os-gray-400);
+    .o-unhide {
+      color: var(--os-text-body);
+      &:hover {
+        z-index: calc(var(--os-components-importance-grid) + 1);
+        background-color: var(--os-gray-400);
+      }
     }
   }
 
