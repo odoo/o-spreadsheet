@@ -174,7 +174,7 @@ describe("calendar chart", () => {
       ...GENERAL_CHART_CREATION_CONTEXT,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
         dataSetsHaveTitle: true,
       }),
     };
@@ -186,7 +186,7 @@ describe("calendar chart", () => {
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
         dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
       }),
       legendPosition: "left",
       showValues: false,
@@ -213,7 +213,7 @@ describe("calendar chart", () => {
           type: "calendar" as const,
           ...toChartDataSource({
             dataSets: [{ dataRange: "B1:B365" }],
-            labelRange: "A1:A365",
+            labelRanges: ["A1:A365"],
           }),
           verticalGroupBy: grouping.stamp,
         },
@@ -242,7 +242,7 @@ describe("calendar chart", () => {
           type: "calendar" as const,
           ...toChartDataSource({
             dataSets: [{ dataRange: "B1:B365" }],
-            labelRange: "A1:A365",
+            labelRanges: ["A1:A365"],
           }),
           horizontalGroupBy: grouping.stamp,
         },
@@ -266,7 +266,7 @@ describe("calendar chart", () => {
         type: "calendar",
         ...toChartDataSource({
           dataSets: [{ dataRange: "B1:B2" }],
-          labelRange: "A1:A2",
+          labelRanges: ["A1:A2"],
           dataSetsHaveTitle: false,
         }),
       },
@@ -306,7 +306,7 @@ describe("calendar chart", () => {
       model,
       {
         type: "calendar" as const,
-        ...toChartDataSource({ dataSets: [], labelRange: "A1:A3" }),
+        ...toChartDataSource({ dataSets: [], labelRanges: ["A1:A3"] }),
         horizontalGroupBy: "day_of_week",
         verticalGroupBy: "month_number",
       },

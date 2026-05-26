@@ -7,6 +7,7 @@ import { AbstractChart } from "./abstract_chart";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import { getBarChartData } from "./runtime/chart_data_extractor";
 import { getWaterfallDatasetAndLabels } from "./runtime/chartjs_dataset";
+import { getChartGroupedLabels } from "./runtime/chartjs_grouped_labels";
 import { getChartLayout } from "./runtime/chartjs_layout";
 import { getWaterfallChartLegend } from "./runtime/chartjs_legend";
 import { getWaterfallChartScales } from "./runtime/chartjs_scales";
@@ -32,6 +33,7 @@ export const WaterfallChart: ChartTypeBuilder<"waterfall"> = {
     "zoomable",
     "axesDesign",
     "showValues",
+    "groupByParentCategories",
   ],
 
   fromStrDefinition: (definition) => definition,
@@ -71,6 +73,7 @@ export const WaterfallChart: ChartTypeBuilder<"waterfall"> = {
       humanize: context.humanize,
       annotationLink: context.annotationLink,
       annotationText: context.annotationText,
+      groupByParentCategories: context.groupByParentCategories,
     };
   },
 
@@ -104,6 +107,7 @@ export const WaterfallChart: ChartTypeBuilder<"waterfall"> = {
           tooltip: getWaterfallChartTooltip(definition, chartData),
           chartShowValuesPlugin: getWaterfallChartShowValues(definition, chartData),
           waterfallLinesPlugin: { showConnectorLines: definition.showConnectorLines },
+          chartGroupedLabelsPlugin: getChartGroupedLabels(chartData, definition.background),
           background: { color: chartData.background },
         },
         ...eventHandlers,

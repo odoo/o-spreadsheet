@@ -2,6 +2,7 @@ import { getDefinedAxis } from "../../../../helpers/figures/charts/chart_common"
 import { _t } from "../../../../translation";
 import { ChartDefinitionWithDataSource } from "../../../../types/chart/chart";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { Section } from "../../components/section/section";
 import { ChartAnnotation } from "../building_blocks/annotation/annotation";
@@ -32,6 +33,7 @@ export class ChartWithAxisDesignPanel<
     ChartLegend,
     ChartShowValues,
     ChartHumanizeNumbers,
+    Checkbox,
   };
   protected props = useProps(chartSidePanelPropsDefinition) as unknown as P;
 

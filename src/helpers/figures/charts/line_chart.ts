@@ -10,6 +10,7 @@ import { chartFontColor, getDefinedAxis } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import { getLineChartData } from "./runtime/chart_data_extractor";
 import { getLineChartDatasets } from "./runtime/chartjs_dataset";
+import { getChartGroupedLabels } from "./runtime/chartjs_grouped_labels";
 import { getChartLayout } from "./runtime/chartjs_layout";
 import { getLineChartLegend } from "./runtime/chartjs_legend";
 import { getLineChartScales } from "./runtime/chartjs_scales";
@@ -34,6 +35,7 @@ export const LineChart: ChartTypeBuilder<"line"> = {
     "showValues",
     "hideDataMarkers",
     "zoomable",
+    "groupByParentCategories",
   ] as const,
 
   fromStrDefinition: (definition) => definition,
@@ -74,16 +76,17 @@ export const LineChart: ChartTypeBuilder<"line"> = {
       humanize: context.humanize,
       annotationLink: context.annotationLink,
       annotationText: context.annotationText,
+      groupByParentCategories: context.groupByParentCategories,
     };
   },
 
-  getDefinitionForExcel(getters, definition, { dataSets, labelRange }) {
+  getDefinitionForExcel(getters, definition, { dataSets, labelRanges }) {
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(definition.background || DEFAULT_CHART_BACKGROUND_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
-      labelRange,
+      labelRanges,
       verticalAxis: getDefinedAxis(definition),
     };
   },
@@ -114,6 +117,7 @@ export const LineChart: ChartTypeBuilder<"line"> = {
           legend: getLineChartLegend(definition, chartData),
           tooltip: getLineChartTooltip(definition, chartData),
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
+          chartGroupedLabelsPlugin: getChartGroupedLabels(chartData, definition.background),
           background: { color: chartData.background },
         },
         ...eventHandlers,

@@ -21,7 +21,7 @@ export function dataset(zone: Zone, getters: Getters, id = "0") {
 export function rangeSource(
   dataSets: ReturnType<typeof dataset>[],
   dataSetsHaveTitle: boolean,
-  labelRange?: string
+  labelRanges?: string[]
 ): ChartRangeDataSource<string> {
-  return { type: "range", dataSets, dataSetsHaveTitle, labelRange };
+  return { type: "range", dataSets, dataSetsHaveTitle, labelRanges };
 }

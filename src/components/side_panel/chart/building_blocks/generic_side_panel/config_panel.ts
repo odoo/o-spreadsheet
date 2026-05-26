@@ -59,4 +59,23 @@ export class GenericChartConfigPanel<
       },
     };
   }
+
+  getGroupByParentCategories() {
+    return {
+      name: "groupByParentCategories",
+      label: this.chartTerms.GroupByParentCategories,
+      value:
+        ("groupByParentCategories" in this.props.definition
+          ? this.props.definition.groupByParentCategories
+          : false) ?? false,
+      onChange: (groupByParentCategories: boolean) => {
+        this.props.updateChart(this.props.chartId, { groupByParentCategories });
+      },
+    };
+  }
+
+  get hasMultipleLabelRanges(): boolean {
+    const dataSource = this.props.definition.dataSource;
+    return dataSource?.type === "range" ? (dataSource.labelRanges?.length ?? 0) > 1 : false;
+  }
 }

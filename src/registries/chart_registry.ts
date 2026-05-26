@@ -92,7 +92,7 @@ export interface ChartTypeBuilder<T extends ChartType> {
   getDefinitionForExcel(
     getters: EvaluationGetters,
     definition: ChartTypeDefinition<T, Range>,
-    params: Pick<ExcelChartDefinition, "dataSets" | "labelRange">
+    params: Pick<ExcelChartDefinition, "dataSets" | "labelRanges">
   ): ExcelChartDefinition | undefined;
   getRuntime(
     getters: EvaluationGetters,

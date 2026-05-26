@@ -45,7 +45,7 @@ describe("Geo chart side panel", () => {
       createGeoChart(model, {
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A3" }],
-          labelRange: "B1:B3",
+          labelRanges: ["B1:B3"],
           dataSetsHaveTitle: true,
         }),
         region: "usa",

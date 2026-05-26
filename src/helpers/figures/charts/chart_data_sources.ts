@@ -32,7 +32,6 @@ import {
   checkDataset,
   checkLabelRange,
   createDataSets,
-  duplicateLabelRangeInDuplicatedSheet,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
@@ -41,6 +40,21 @@ import {
 const EMPTY = Object.freeze({ value: null });
 const ONE = Object.freeze({ value: 1 });
 
+/**
+ * Adapt each label range with `adaptOne`, dropping the ones it returns `undefined` for
+ * (e.g. removed or invalid ranges), and collapse an empty result to `undefined`.
+ */
+function adaptLabelRanges<T, U>(
+  labelRanges: T[] | undefined,
+  adaptOne: (labelRange: T) => U | undefined
+): U[] | undefined {
+  if (!labelRanges?.length) {
+    return undefined;
+  }
+  const adaptedLabelRanges = labelRanges.map(adaptOne).filter(isDefined);
+  return adaptedLabelRanges.length ? adaptedLabelRanges : undefined;
+}
+
 export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<
   ChartRangeDataSource<string>,
   ChartRangeDataSource<Range>
@@ -48,17 +62,35 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<
   supportedChartTypes: CHART_TYPES,
   fromExternalDefinition(dataSource, defaultSheetId, getters) {
     const dataSets = createDataSets(getters, defaultSheetId, dataSource);
-    const labelRange = createValidRange(getters, defaultSheetId, dataSource.labelRange);
-    return { ...dataSource, dataSets, labelRange };
+    const labelRanges = adaptLabelRanges(dataSource.labelRanges, (lr) =>
+      createValidRange(getters, defaultSheetId, lr)
+    );
+    return {
+      ...dataSource,
+      dataSets,
+      labelRanges,
+    };
   },
 
   fromContextCreation(context) {
+    const dsLabelRanges =
+      context.dataSource?.type === "range" ? context.dataSource.labelRanges : undefined;
+    const primaryRange = context.auxiliaryRange;
+    let labelRanges: string[] | undefined;
+    if (dsLabelRanges?.length) {
+      labelRanges =
+        !primaryRange || dsLabelRanges[dsLabelRanges.length - 1] === primaryRange
+          ? dsLabelRanges
+          : [...dsLabelRanges, primaryRange];
+    } else {
+      labelRanges = primaryRange ? [primaryRange] : undefined;
+    }
     return {
       type: "range",
       dataSets: [],
       dataSetsHaveTitle: false,
-      labelRange: context.auxiliaryRange,
       ...context.dataSource,
+      labelRanges,
     };
   },
 
@@ -74,37 +106,34 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<
         dataSetsHaveTitle: false,
       };
     }
-    let dataSource: ChartRangeDataSource<string> = {
-      type: "range",
-      dataSets: [],
-      dataSetsHaveTitle: context.dataSource?.dataSetsHaveTitle ?? false,
-      labelRange: context.dataSource?.dataSets?.[0]?.dataRange,
-    };
     if (context.hierarchicalDataSource?.dataSets.length) {
-      dataSource = context.hierarchicalDataSource;
-    } else if (context.auxiliaryRange) {
-      dataSource = {
-        ...dataSource,
-        dataSets: [{ dataRange: context.auxiliaryRange, dataSetId: "0" }],
-      };
+      return context.hierarchicalDataSource;
     }
-    return dataSource;
+    const dsLabelRanges =
+      context.dataSource?.type === "range" ? context.dataSource.labelRanges : undefined;
+    const dataSetsHaveTitle = context.dataSource?.dataSetsHaveTitle ?? false;
+    const firstDataRange = context.dataSource?.dataSets?.[0]?.dataRange;
+    const categoryRanges: string[] = dsLabelRanges?.length
+      ? dsLabelRanges
+      : context.auxiliaryRange
+      ? [context.auxiliaryRange]
+      : [];
+    return {
+      type: "range",
+      dataSets: categoryRanges.map((range, i) => ({ dataRange: range, dataSetId: String(i) })),
+      dataSetsHaveTitle,
+      labelRanges: firstDataRange ? [firstDataRange] : undefined,
+    };
   },
 
   validate: (dataSource, validator) =>
     validator.checkValidations(dataSource, checkDataset, checkLabelRange),
 
   transform(dataSource, defaultSheetId, { adaptRangeString }) {
-    let labelRange: string | undefined;
-    if (dataSource.labelRange) {
-      const { changeType, range: adaptedRange } = adaptRangeString(
-        defaultSheetId,
-        dataSource.labelRange
-      );
-      if (changeType !== "REMOVE") {
-        labelRange = adaptedRange;
-      }
-    }
+    const labelRanges = adaptLabelRanges(dataSource.labelRanges, (lr) => {
+      const { changeType, range: adaptedRange } = adaptRangeString(defaultSheetId, lr);
+      return changeType !== "REMOVE" ? adaptedRange : undefined;
+    });
 
     const dataSets: ChartRangeDataSource<string>["dataSets"] = [];
     for (const dataSet of dataSource.dataSets) {
@@ -122,7 +151,7 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<
     return {
       ...dataSource,
       dataSets,
-      labelRange,
+      labelRanges,
     };
   },
 
@@ -130,7 +159,7 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<
 
   extractHierarchicalData(dataSource, chartId, getters) {
     const dataSets = dataSource.dataSets;
-    const labelRange = dataSource.labelRange;
+    const labelRange = dataSource.labelRanges?.[0];
     const labelValues = getChartLabelValues(getters, dataSets, labelRange);
     const dataSetsValues = getHierarchicalDatasetValues(getters, dataSets);
     const data = { labelValues, dataSetsValues };
@@ -170,28 +199,29 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<
         };
       })
       .filter(isDefined);
-    let labelRange = dataSource.labelRange;
-    if (labelRange) {
-      const { range: adaptedLabelRange, changeType } = applyChange(labelRange);
-      if (changeType === "REMOVE") {
-        labelRange = undefined;
-      } else {
-        labelRange = adaptedLabelRange;
-      }
-    }
+    const labelRanges = adaptLabelRanges(dataSource.labelRanges, (lr) => {
+      const { range: adaptedLabelRange, changeType } = applyChange(lr);
+      return changeType !== "REMOVE" &&
+        !adaptedLabelRange.invalidSheetName &&
+        !adaptedLabelRange.invalidXc
+        ? adaptedLabelRange
+        : undefined;
+    });
+
     const dataSets = dataSetsWithUndefined;
     return {
       ...dataSource,
       dataSets,
-      labelRange: labelRange?.invalidSheetName || labelRange?.invalidXc ? undefined : labelRange,
+      labelRanges,
     };
   },
 
   getDefinition(dataSource, defaultSheetId, getters) {
+    const labelRanges = dataSource.labelRanges?.map((lr) =>
+      getters.getRangeString(lr, defaultSheetId)
+    );
     return {
-      labelRange: dataSource.labelRange
-        ? getters.getRangeString(dataSource.labelRange, defaultSheetId)
-        : undefined,
+      ...(labelRanges?.length ? { labelRanges } : {}),
       type: "range",
       dataSets: dataSource.dataSets.map((dataSet) => ({
         dataSetId: dataSet.dataSetId,
@@ -206,13 +236,12 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<
    * sheetIdTo.
    */
   duplicateInDuplicatedSheet(dataSource, sheetIdFrom, sheetIdTo, getters) {
+    const labelRanges = dataSource.labelRanges?.map((lr) =>
+      duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, lr)
+    );
     return {
       ...dataSource,
-      labelRange: duplicateLabelRangeInDuplicatedSheet(
-        sheetIdFrom,
-        sheetIdTo,
-        dataSource.labelRange
-      ),
+      ...(labelRanges?.length ? { labelRanges } : {}),
       dataSets: dataSource.dataSets.map((ds) => ({
         ...ds,
         dataRange: duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, ds.dataRange),
@@ -221,29 +250,33 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<
   },
 
   getContextCreation: (dataSource) => ({
-    auxiliaryRange: dataSource.labelRange,
+    auxiliaryRange: dataSource.labelRanges?.at(-1),
     dataSource,
   }),
 
   getHierarchicalContextCreation(dataSource) {
-    const leafRange = dataSource.dataSets.at(-1)?.dataRange;
     const dataSetsHaveTitle = dataSource.dataSetsHaveTitle;
+    const categoryColumns = dataSource.dataSets;
+    const valueColumn = dataSource.labelRanges?.[0];
+    const leafCategory = categoryColumns[categoryColumns.length - 1];
+    const remainingCategories = categoryColumns.slice(0, -1);
     return {
-      auxiliaryRange: leafRange,
+      auxiliaryRange: leafCategory?.dataRange || undefined,
       hierarchicalDataSource: dataSource,
-      dataSource: dataSource.labelRange
-        ? {
-            type: "range",
-            dataSets: [{ dataRange: dataSource.labelRange, dataSetId: "0" }],
-            dataSetsHaveTitle,
-          }
-        : { type: "range", dataSets: [], dataSetsHaveTitle },
+      dataSource: {
+        type: "range",
+        dataSets: valueColumn ? [{ dataRange: valueColumn, dataSetId: "0" }] : [],
+        dataSetsHaveTitle,
+        ...(remainingCategories.length && {
+          labelRanges: remainingCategories.map((c) => c.dataRange),
+        }),
+      },
     };
   },
 
   toExcelDataSets(dataSource, dataSetStyles, getters) {
     const dataSets = dataSource.dataSets;
-    const labelRange = dataSource.labelRange;
+    const labelRange = dataSource.labelRanges?.at(-1);
     const excelDataSets: ExcelChartDataset[] = dataSets
       .map((ds: DataSet) => toExcelDataset(getters, dataSetStyles, ds))
       .filter((ds) => ds.range !== "" && ds.range !== CellErrorType.InvalidReference);
@@ -257,7 +290,7 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<
     const excelLabelRange = toExcelLabelRange(getters, labelRange, _shouldRemoveFirstLabel);
     return {
       dataSets: excelDataSets,
-      labelRange: excelLabelRange,
+      labelRanges: excelLabelRange ? [excelLabelRange] : undefined,
     };
   },
 };
@@ -267,22 +300,32 @@ export function getChartData(
   dataSource: ChartRangeDataSource
 ): ChartData {
   const dataSets = dataSource.dataSets;
-  const labelRange = dataSource.labelRange;
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
-  const dataSetsValues = getChartDatasetValues(getters, dataSets, labelRange);
-  const data = { labelValues, dataSetsValues };
+  const labelRanges = dataSource.labelRanges;
+  const primaryLabelRange = labelRanges?.at(-1);
+  const labelValues = getChartLabelValues(getters, dataSets, primaryLabelRange);
+  const dataSetsValues = getChartDatasetValues(getters, dataSets, primaryLabelRange);
+  const data: ChartData = { labelValues, dataSetsValues };
   // FIXME nested ternary
   const numberOfDataPoints = dataSetsValues.length
     ? dataSetsValues[0]?.data.length + (dataSetsValues[0]?.label !== undefined ? 1 : 0)
     : 0;
-  if (
-    shouldRemoveFirstLabel(
-      labelValues.length,
-      numberOfDataPoints,
-      dataSource.dataSetsHaveTitle || false
-    )
-  ) {
+  const removeFirstLabel = shouldRemoveFirstLabel(
+    labelValues.length,
+    numberOfDataPoints,
+    dataSource.dataSetsHaveTitle || false
+  );
+  if (removeFirstLabel) {
     labelValues.shift();
+  }
+  if (dataSource.labelRanges && dataSource.labelRanges.length > 1) {
+    const parentLabelRanges = dataSource.labelRanges.slice(0, -1).reverse();
+    data.secondaryLabelValues = parentLabelRanges.map((lr) => {
+      const values = getChartLabelValues(getters, dataSets, lr);
+      if (removeFirstLabel) {
+        values.shift();
+      }
+      return values;
+    });
   }
   return data;
 }
@@ -447,7 +490,7 @@ const ChartNeverDataSourceHandler: ChartDataSourceBuilder<{ type: "none" }, { ty
   duplicateInDuplicatedSheet: (dataSource) => dataSource,
   getContextCreation: () => ({}),
   getHierarchicalContextCreation: () => ({}),
-  toExcelDataSets: () => ({ dataSets: [], labelRange: undefined }),
+  toExcelDataSets: () => ({ dataSets: [], labelRanges: undefined }),
 };
 
 chartDataSourceRegistry.add("range", ChartRangeDataSourceHandler);

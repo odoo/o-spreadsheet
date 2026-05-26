@@ -12,6 +12,7 @@ import { getChartData } from "./chart_data_sources";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import { getPyramidChartData } from "./runtime/chart_data_extractor";
 import { getBarChartDatasets } from "./runtime/chartjs_dataset";
+import { getChartGroupedLabels } from "./runtime/chartjs_grouped_labels";
 import { getChartLayout } from "./runtime/chartjs_layout";
 import { getPyramidChartLegend } from "./runtime/chartjs_legend";
 import { getPyramidChartScales } from "./runtime/chartjs_scales";
@@ -32,6 +33,7 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
     "axesDesign",
     "stacked",
     "horizontal",
+    "groupByParentCategories",
   ],
 
   fromStrDefinition: (definition) => ({
@@ -72,10 +74,11 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
       humanize: context.humanize,
       annotationLink: context.annotationLink,
       annotationText: context.annotationText,
+      groupByParentCategories: context.groupByParentCategories,
     };
   },
 
-  getDefinitionForExcel(getters, definition, { dataSets, labelRange }) {
+  getDefinitionForExcel(getters, definition, { dataSets, labelRanges }) {
     if (definition.dataSource.type !== "range") {
       return undefined;
     }
@@ -95,7 +98,7 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
       backgroundColor: toXlsxHexColor(definition.background || DEFAULT_CHART_BACKGROUND_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
-      labelRange,
+      labelRanges,
       verticalAxis: getDefinedAxis(definition),
       maxValue,
     };
@@ -128,6 +131,11 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
           legend: getPyramidChartLegend(definition, chartData),
           tooltip: getPyramidChartTooltip(definition, chartData),
           chartShowValuesPlugin: getPyramidChartShowValues(definition, chartData),
+          chartGroupedLabelsPlugin: getChartGroupedLabels(
+            chartData,
+            definition.background,
+            definition.horizontal
+          ),
           background: { color: chartData.background },
         },
         ...eventHandlers,

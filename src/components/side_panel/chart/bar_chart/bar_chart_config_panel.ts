@@ -1,7 +1,7 @@
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
-import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
+import { MultiLabelsChartConfigPanel } from "../building_blocks/generic_side_panel/multi_labels_config_panel";
 
-export class BarConfigPanel extends GenericChartConfigPanel {
+export class BarConfigPanel extends MultiLabelsChartConfigPanel {
   static template = "o-spreadsheet-BarConfigPanel";
 
   get stackedLabel(): string {
@@ -15,10 +15,5 @@ export class BarConfigPanel extends GenericChartConfigPanel {
     this.props.updateChart(this.props.chartId, {
       stacked,
     });
-  }
-
-  getLabelRangeOptions() {
-    const options = [this.getAggregateLabelRangeOption()];
-    return options;
   }
 }

@@ -34,7 +34,7 @@ function createTestChart(
     {
       ...TEST_CHART_DATA.basicChart,
       ...toChartDataSource({
-        labelRange: "C2:C4",
+        labelRanges: ["C2:C4"],
         dataSets: [{ dataRange: "B2:B4" }],
         dataSetsHaveTitle: false,
       }),
@@ -485,7 +485,7 @@ describe("zoom", () => {
     updateChart(
       model,
       chartId,
-      toChartDataSource({ dataSets: [{ dataRange: "B2:B2" }], labelRange: "C2:C2" })
+      toChartDataSource({ dataSets: [{ dataRange: "B2:B2" }], labelRanges: ["C2:C2"] })
     );
     await nextTick();
     container = fixture.querySelector(".o-master-chart-container");

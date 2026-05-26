@@ -12,6 +12,7 @@ import {
   setFormat,
   updateChart,
 } from "../../../test_helpers/commands_helpers";
+import { setGrid } from "../../../test_helpers/helpers";
 
 let model: Model;
 describe("population pyramid chart", () => {
@@ -21,7 +22,7 @@ describe("population pyramid chart", () => {
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
         dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
       }),
     };
     const definition = createChartDefinitionFromContext("pyramid", context);
@@ -31,7 +32,7 @@ describe("population pyramid chart", () => {
       title: { text: "hello there" },
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
         dataSetsHaveTitle: true,
       }),
       legendPosition: "bottom",
@@ -43,6 +44,7 @@ describe("population pyramid chart", () => {
       humanize: false,
       annotationText: "This is an annotation text",
       annotationLink: "https://www.odoo.com",
+      groupByParentCategories: false,
     });
   });
 
@@ -152,6 +154,34 @@ describe("population pyramid chart", () => {
       expect(plugin.callback(-10, "x")).toBe("10");
       expect(plugin.callback(0, "x")).toBe("");
     });
+
+    test("groupByParentCategories draws secondary labels on the category axis", () => {
+      // prettier-ignore
+      setGrid(model, {
+        A1: "2024", B1: "Q1", C1: "5", D1: "3",
+        A2: "2024", B2: "Q2", C2: "8", D2: "6"
+      });
+
+      createChart(
+        model,
+        {
+          type: "pyramid",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "C1:C2" }, { dataRange: "D1:D2" }],
+            labelRanges: ["A1:A2", "B1:B2"],
+            dataSetsHaveTitle: false,
+          }),
+          groupByParentCategories: true,
+        },
+        "id"
+      );
+
+      const config = getChartConfiguration(model, "id");
+      expect(config.options?.plugins?.chartGroupedLabelsPlugin?.enabled).toBe(true);
+      expect(config.options?.plugins?.chartGroupedLabelsPlugin?.parentCategories).toEqual([
+        ["2024", "2024"],
+      ]);
+    });
   });
 });
 
@@ -163,7 +193,7 @@ test("Humanization is taken into account for the axis ticks of a pyramid chart",
       type: "pyramid",
       ...toChartDataSource({
         dataSets: [{ dataRange: "B2" }],
-        labelRange: "A2",
+        labelRanges: ["A2"],
       }),
       humanize: false,
     },

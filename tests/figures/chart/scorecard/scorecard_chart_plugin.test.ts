@@ -169,7 +169,7 @@ describe("datasource tests", function () {
     const def = model.getters.getChartDefinition("1") as any;
     expect(def.type).toBe("bar");
     expect(def.dataSource.dataSets).toMatchObject([{ dataRange: "B2:B4" }]);
-    expect(def.dataSource.labelRange).toEqual("A1");
+    expect(def.dataSource.labelRanges).toEqual(["A1"]);
   });
 
   test("Scorecard Chart is deleted on sheet deletion", () => {

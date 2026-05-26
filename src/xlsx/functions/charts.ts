@@ -336,7 +336,9 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
         ${insertDataLabels({ showValues: chart.showValues })}
         ${dataShapeProperty}
         ${
-          chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
+          chart.labelRanges?.[0]
+            ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRanges[0])}</c:cat>`
+            : ""
         } <!-- x-coordinate values -->
         <c:val> <!-- x-coordinate values -->
           ${numberRef(dataset.range)}
@@ -460,7 +462,11 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
         backgroundColor: firstColor,
         line: { color: firstColor },
       })}
-      ${chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
+      ${
+        chart.labelRanges?.[0]
+          ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRanges?.[0])}</c:cat>`
+          : ""
+      }
       <!-- x-coordinate values -->
       <c:val>
         ${numberRef(dataSet.range)}
@@ -491,7 +497,11 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
         ${extractDataSetLabel(dataSet.label)}
         ${insertDataLabels({ showValues: chart.showValues })}
         ${dataShapeProperty}
-        ${chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
+        ${
+          chart.labelRanges?.[0]
+            ? escapeXml`<c:cat>${stringRef(chart.labelRanges?.[0])}</c:cat>`
+            : ""
+        }
         <!-- x-coordinate values -->
         <c:val>
           ${numberRef(dataSet.range)}
@@ -592,8 +602,8 @@ function addPyramidChart(chart: ExcelChartDefinition): XMLString {
   const firstColor = toXlsxHexColor(colors.next());
   const secondColor = toXlsxHexColor(colors.next());
   const { maxValue, majorUnit } = getPyramidChartHorizontalAxisConfig(chart.maxValue!);
-  const labelRangeEl = chart.labelRange
-    ? escapeXml`<c:cat>${stringRef(chart.labelRange)}</c:cat>`
+  const labelRangeEl = chart.labelRanges?.[0]
+    ? escapeXml`<c:cat>${stringRef(chart.labelRanges?.[0])}</c:cat>`
     : "";
   const leftBarDataSetNode: XMLString = escapeXml/*xml*/ `
   <c:ser>
@@ -624,7 +634,11 @@ function addPyramidChart(chart: ExcelChartDefinition): XMLString {
       backgroundColor: secondColor,
       line: { color: secondColor },
     })}
-    ${chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
+    ${
+      chart.labelRanges?.[0]
+        ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRanges?.[0])}</c:cat>`
+        : ""
+    }
     <!-- x-coordinate values -->
     <c:val>
       ${numberRef(rightDataSet.range)}
@@ -747,7 +761,7 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
         ${insertDataLabels({ showValues: chart.showValues })}
         ${dataShapeProperty}
         ${
-          chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
+          chart.labelRanges?.[0] ? escapeXml`<c:cat>${stringRef(chart.labelRanges[0])}</c:cat>` : ""
         } <!-- x-coordinate values -->
         <c:val> <!-- x-coordinate values -->
           ${numberRef(dataset.range)}
@@ -844,9 +858,9 @@ function addScatterChart(chart: ExcelChartDefinition): XMLString {
         ${extractDataSetLabel(dataset.label)}
         ${insertDataLabels({ showValues: chart.showValues })}
         ${
-          chart.labelRange
+          chart.labelRanges?.[0]
             ? escapeXml/*xml*/ `<c:xVal> <!-- x-coordinate values -->
-              ${numberRef(chart.labelRange)}
+              ${numberRef(chart.labelRanges?.[0])}
             </c:xVal>`
             : ""
         }
@@ -941,7 +955,7 @@ function addRadarChart(chart: ExcelChartDefinition): XMLString {
         ${insertDataLabels({ showValues: chart.showValues })}
         ${dataShapeProperty}
         ${
-          chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
+          chart.labelRanges?.[0] ? escapeXml`<c:cat>${stringRef(chart.labelRanges[0])}</c:cat>` : ""
         } <!-- x-coordinate values -->
         <c:val> <!-- x-coordinate values -->
           ${numberRef(dataset.range)}
@@ -1003,7 +1017,9 @@ function addDoughnutChart(
         ${extractDataSetLabel(dataset.label)}
         ${joinXmlNodes(dataPoints)}
         ${insertDataLabels({ showLeaderLines: true, showValues: chart.showValues })}
-        ${chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""}
+        ${
+          chart.labelRanges?.[0] ? escapeXml`<c:cat>${stringRef(chart.labelRanges[0])}</c:cat>` : ""
+        }
         <c:val>
           ${numberRef(dataset.range)}
         </c:val>

@@ -14,7 +14,8 @@
       />
       <ChartLabelRange
         title.translate="Horizontal axis values"
-        range="this.xRange || ''"
+        ranges="this.xRange ? [this.xRange] : ['']"
+        hasSingleRange="true"
         isInvalid="this.isXDataInvalid"
         onSelectionChanged.bind="this.onXDataRangeChanged"
         onSelectionConfirmed.bind="this.onXDataRangeConfirmed"
@@ -22,7 +23,8 @@
       />
       <ChartLabelRange
         title.translate="Bubble labels"
-        range="this.labelRange || ''"
+        ranges="this.labelRange ? [this.labelRange] : ['']"
+        hasSingleRange="true"
         isInvalid="this.isLabelInvalid"
         onSelectionChanged.bind="this.onLabelRangeChanged"
         onSelectionConfirmed.bind="this.onLabelRangeConfirmed"
@@ -30,7 +32,8 @@
       />
       <ChartLabelRange
         title.translate="Bubble sizes"
-        range="this.sizeRange || ''"
+        ranges="this.sizeRange ? [this.sizeRange] : ['']"
+        hasSingleRange="true"
         isInvalid="this.isBubbleSizeRangeInvalid"
         onSelectionChanged.bind="this.onBubbleSizeRangeChanged"
         onSelectionConfirmed.bind="this.onBubbleSizeRangeConfirmed"

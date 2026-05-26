@@ -61,7 +61,7 @@ interface ChartDataInput {
     dataSetId?: UID;
     type?: "bar" | "line"; // for combo charts
   })[];
-  labelRange?: string;
+  labelRanges?: string[];
   dataSetsHaveTitle?: boolean;
 }
 
@@ -71,7 +71,6 @@ interface ChartDataOutput {
 }
 
 export function toChartDataSource(args: ChartDataInput): ChartDataOutput {
-  const { labelRange } = args;
   const dataSets =
     args.dataSets?.map((dataSet, i) => ({
       ...dataSet,
@@ -91,10 +90,10 @@ export function toChartDataSource(args: ChartDataInput): ChartDataOutput {
     },
     dataSetStyles,
   };
-  if ("labelRange" in args) {
+  if (args.labelRanges?.length) {
     result.dataSource = {
       ...result.dataSource,
-      labelRange,
+      labelRanges: [...(result.dataSource.labelRanges ?? []), ...args.labelRanges],
     };
   }
   return result;
@@ -242,4 +241,5 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   annotationText: "This is an annotation text",
   scorecardKeyValueFormula: "=Sheet1!B1:B4",
   scorecardBaselineFormula: "=Sheet1!A1:A4",
+  groupByParentCategories: false,
 };

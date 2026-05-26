@@ -55,7 +55,7 @@ describe("combo charts", () => {
       {
         ...toChartDataSource({
           dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4", type: "bar" }],
-          labelRange: "A2:A4",
+          labelRanges: ["A2:A4"],
         }),
         type: "combo",
       },
