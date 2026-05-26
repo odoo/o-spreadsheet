@@ -145,7 +145,7 @@ function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefi
         dataSource: {
           type: "range",
           dataSets: [{ dataRange, dataSetId: "0" }],
-          labelRange: dataRange,
+          labelRanges: [dataRange],
           dataSetsHaveTitle: hasUniqueTitle,
         },
         dataSetStyles: {},
@@ -191,7 +191,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
       dataSource: {
         type: "range",
         dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "0" }],
-        labelRange: getUnboundRange(getters, columns[0].zone),
+        labelRanges: [getUnboundRange(getters, columns[0].zone)],
         dataSetsHaveTitle: isDatasetTitled(getters, columns[1]),
       },
       dataSetStyles: {},
@@ -207,7 +207,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
       dataSource: {
         type: "range",
         dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "0" }],
-        labelRange: getUnboundRange(getters, columns[0].zone),
+        labelRanges: [getUnboundRange(getters, columns[0].zone)],
         dataSetsHaveTitle: isDatasetTitled(getters, columns[1]),
       },
       dataSetStyles: {},
@@ -223,7 +223,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
       dataSource: {
         type: "range",
         dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "0" }],
-        labelRange: getUnboundRange(getters, columns[0].zone),
+        labelRanges: [getUnboundRange(getters, columns[0].zone)],
         dataSetsHaveTitle: isDatasetTitled(getters, columns[0]),
       },
       dataSetStyles: {},
@@ -244,7 +244,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
         dataSource: {
           type: "range",
           dataSets: [{ dataRange: getUnboundRange(getters, textColumn.zone), dataSetId: "0" }],
-          labelRange: getUnboundRange(getters, numberColumn.zone),
+          labelRanges: [getUnboundRange(getters, numberColumn.zone)],
           dataSetsHaveTitle,
         },
         dataSetStyles: {},
@@ -258,7 +258,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
     dataSource: {
       type: "range",
       dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "0" }],
-      labelRange: getUnboundRange(getters, columns[0].zone),
+      labelRanges: [getUnboundRange(getters, columns[0].zone)],
       dataSetsHaveTitle: isDatasetTitled(getters, columns[1]),
     },
     dataSetStyles: {},
@@ -300,7 +300,7 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
         type: "range",
         dataSets,
         dataSetsHaveTitle,
-        labelRange: getUnboundRange(getters, lastColumn.zone),
+        labelRanges: [getUnboundRange(getters, lastColumn.zone)],
       },
       dataSetStyles: {},
       legendPosition: "none",
@@ -321,7 +321,7 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
       dataSource: {
         type: "range",
         dataSets: rangesOfColumnsExceptFirst,
-        labelRange: getUnboundRange(getters, firstColumn.zone),
+        labelRanges: [getUnboundRange(getters, firstColumn.zone)],
         dataSetsHaveTitle,
       },
       dataSetStyles: {},
@@ -337,7 +337,7 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
       dataSource: {
         type: "range",
         dataSets: rangesOfColumnsExceptFirst,
-        labelRange: getUnboundRange(getters, firstColumn.zone),
+        labelRanges: [getUnboundRange(getters, firstColumn.zone)],
         dataSetsHaveTitle,
       },
       dataSetStyles: {},
@@ -350,7 +350,7 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
     dataSource: {
       type: "range",
       dataSets: rangesOfColumnsExceptFirst,
-      labelRange: getUnboundRange(getters, firstColumn.zone),
+      labelRanges: [getUnboundRange(getters, firstColumn.zone)],
       dataSetsHaveTitle,
     },
     dataSetStyles: {},

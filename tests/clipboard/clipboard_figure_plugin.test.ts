@@ -180,7 +180,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
             { dataRange: "Sheet1!A1:A5", dataSetId: "0" },
             { dataRange: "Sheet2!B1:B5", dataSetId: "1" },
           ],
-          labelRange: "B1",
+          labelRanges: ["B1"],
         }),
       },
       "chartId",
@@ -196,7 +196,6 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     expect(model.getters.getChartDefinition(newChartId)).toMatchObject(
       toChartDataSource({
         dataSets: [{ dataRange: "B1:B5", dataSetId: "1" }],
-        labelRange: undefined,
       })
     );
   });
@@ -239,7 +238,7 @@ describe("chart specific Clipboard test", () => {
     updateChart(
       model,
       chartId,
-      toChartDataSource({ dataSets: [{ dataRange: "A1:A5" }], labelRange: "B1" })
+      toChartDataSource({ dataSets: [{ dataRange: "A1:A5" }], labelRanges: ["B1"] })
     );
     const chartDef = model.getters.getChartDefinition(chartId);
     selectFigure(model, model.getters.getFigureIdFromChartId(chartId));
@@ -250,7 +249,10 @@ describe("chart specific Clipboard test", () => {
     const newChartId = model.getters.getChartIds("42")[0];
     expect(model.getters.getChartDefinition(newChartId)).toEqual({
       ...chartDef,
-      ...toChartDataSource({ dataSets: [{ dataRange: "Sheet1!A1:A5" }], labelRange: "Sheet1!B1" }),
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!A1:A5" }],
+        labelRanges: ["Sheet1!B1"],
+      }),
     });
   });
 });
@@ -298,7 +300,7 @@ describe("Carousel clipboard test", () => {
     });
     const chartId2 = addNewChartToCarousel(model, "carouselId", {
       type: "bar",
-      ...toChartDataSource({ labelRange: "B1", dataSets: [] }),
+      ...toChartDataSource({ labelRanges: ["B1"], dataSets: [] }),
     });
     selectFigure(model, "carouselId");
     copy(model);
@@ -318,7 +320,7 @@ describe("Carousel clipboard test", () => {
     });
     expect(model.getters.getChartDefinition(copiedCarousel.items[1]["chartId"])).toMatchObject({
       type: "bar",
-      ...toChartDataSource({ labelRange: "B1", dataSets: [] }),
+      ...toChartDataSource({ labelRanges: ["B1"], dataSets: [] }),
     });
   });
 

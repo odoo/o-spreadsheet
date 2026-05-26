@@ -259,7 +259,7 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
         type: "range",
         dataSets: definition.keyValue ? [{ dataRange: definition.keyValue, dataSetId: "0" }] : [],
       },
-      auxiliaryRange: definition.baseline,
+      auxiliaryRange: definition.baseline || undefined,
     };
   },
 

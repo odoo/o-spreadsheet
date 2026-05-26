@@ -55,13 +55,27 @@ const ZERO = Object.freeze({ value: 0 });
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
-  { labelValues, dataSetsValues }: ChartData,
+  { labelValues, dataSetsValues, secondaryLabelValues }: ChartData,
   getters: Getters
 ): ChartRuntimeGenerationArgs {
   const locale = getters.getLocale();
   let labels = labelValues.map(({ value, format }) => formatValue(value, { format, locale }));
+  let secondaryLabels = secondaryLabelValues?.map((secondaryValues) =>
+    secondaryValues.map(({ value, format }) => formatValue(value, { format, locale }))
+  );
 
-  ({ labels, dataSetsValues } = filterInvalidDataPoints(labels, dataSetsValues));
+  ({ labels, dataSetsValues, secondaryLabels } = filterInvalidDataPoints(
+    labels,
+    dataSetsValues,
+    secondaryLabels
+  ));
+  if (definition.groupBySecondaryLabels && secondaryLabels?.length) {
+    ({ labels, dataSetsValues, secondaryLabels } = reorderBySecondaryLabels(
+      labels,
+      dataSetsValues,
+      secondaryLabels
+    ));
+  }
   if (definition.aggregated) {
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
@@ -91,6 +105,7 @@ export function getBarChartData(
     trendDataSetsValues,
     axisFormats,
     labels,
+    secondaryLabels,
     locale: getters.getLocale(),
     topPadding: getTopPaddingForDashboard(definition, getters),
     background: getChartBackgroundColor(definition, getters),
@@ -217,12 +232,12 @@ export function getCalendarChartData(
 
 export function getPyramidChartData(
   definition: PyramidChartDefinition,
-  { labelValues, dataSetsValues }: ChartData,
+  { labelValues, dataSetsValues, secondaryLabelValues }: ChartData,
   getters: Getters
 ): ChartRuntimeGenerationArgs {
   const barChartData = getBarChartData(
     definition,
-    { labelValues, dataSetsValues: dataSetsValues.slice(0, 2) },
+    { labelValues, dataSetsValues: dataSetsValues.slice(0, 2), secondaryLabelValues },
     getters
   );
   const barDataset = barChartData.dataSetsValues.filter((ds) => !ds.hidden);
@@ -249,18 +264,31 @@ export function getPyramidChartData(
 
 export function getLineChartData(
   definition: GenericDefinition<LineChartDefinition>,
-  { labelValues, dataSetsValues }: ChartData,
+  { labelValues, dataSetsValues, secondaryLabelValues }: ChartData,
   getters: Getters
 ): ChartRuntimeGenerationArgs {
   const axisType = getChartAxisType(definition, { labelValues, dataSetsValues });
+  const locale = getters.getLocale();
   let labels =
     axisType === "linear"
       ? labelValues.map(({ value }) => String(value ?? ""))
-      : labelValues.map(({ value, format }) =>
-          formatValue(value, { format, locale: getters.getLocale() })
-        );
+      : labelValues.map(({ value, format }) => formatValue(value, { format, locale }));
+  let secondaryLabels = secondaryLabelValues?.map((secondaryValues) =>
+    secondaryValues.map(({ value, format }) => formatValue(value, { format, locale }))
+  );
 
-  ({ labels, dataSetsValues } = filterInvalidDataPoints(labels, dataSetsValues));
+  ({ labels, dataSetsValues, secondaryLabels } = filterInvalidDataPoints(
+    labels,
+    dataSetsValues,
+    secondaryLabels
+  ));
+  if (definition.groupBySecondaryLabels && secondaryLabels?.length) {
+    ({ labels, dataSetsValues, secondaryLabels } = reorderBySecondaryLabels(
+      labels,
+      dataSetsValues,
+      secondaryLabels
+    ));
+  }
   if (axisType === "time") {
     ({ labels, dataSetsValues } = fixEmptyLabelsForDateCharts(labels, dataSetsValues));
   }
@@ -294,6 +322,7 @@ export function getLineChartData(
     dataSetsValues,
     axisFormats,
     labels,
+    secondaryLabels,
     locale: getters.getLocale(),
     trendDataSetsValues,
     axisType,
@@ -782,8 +811,9 @@ function isLuxonTimeAdapterInstalled() {
 
 function keepOnlyPositiveValues(
   labels: readonly string[],
-  datasets: readonly DatasetValues[]
-): { labels: string[]; dataSetsValues: DatasetValues[] } {
+  datasets: readonly DatasetValues[],
+  secondaryLabels?: string[][]
+): { labels: string[]; dataSetsValues: DatasetValues[]; secondaryLabels?: string[][] } {
   const numberOfDataPoints = Math.max(
     labels.length,
     ...datasets.map((dataset) => dataset.data?.length || 0)
@@ -799,6 +829,9 @@ function keepOnlyPositiveValues(
         isNumberResult(ds.data[i]) && ds.data[i].value > 0 ? ds.data[i] : EMPTY
       ),
     })),
+    secondaryLabels: secondaryLabels
+      ? secondaryLabels.map((secondary) => filteredIndexes.map((i) => secondary[i] ?? ""))
+      : undefined,
   };
 }
 
@@ -823,14 +856,87 @@ function fixEmptyLabelsForDateCharts(
 }
 
 /**
+ * Reorder data points so that entries sharing the same secondary label are
+ * grouped together, preserving the original group order (first-occurrence).
+ * The sparse secondary label arrays are rebuilt after the reordering.
+ */
+function reorderBySecondaryLabels(
+  labels: string[],
+  dataSetsValues: DatasetValues[],
+  secondaryLabels: string[][]
+): { labels: string[]; dataSetsValues: DatasetValues[]; secondaryLabels: string[][] } {
+  const n = labels.length;
+  // Fill sparse secondary label arrays forward (last non-empty value carries over)
+  const filled = secondaryLabels.map((level) => {
+    const result: string[] = [];
+    let last = "";
+    for (const val of level) {
+      if (val !== "") {
+        last = val;
+      }
+      result.push(last);
+    }
+    return result;
+  });
+
+  // For each level, build a map from value → index of first occurrence
+  // so that groups are sorted in their original appearance order.
+  const rankMaps = filled.map((level) => {
+    const map = new Map<string, number>();
+    for (let i = 0; i < level.length; i++) {
+      const val = level[i];
+      if (!map.has(val)) {
+        map.set(val, i);
+      }
+    }
+    return map;
+  });
+
+  // Build a stable index permutation sorted by outermost secondary label
+  // first, then inner levels, then original position within a group.
+  const indices = Array.from({ length: n }, (_, i) => i);
+  indices.sort((a, b) => {
+    for (let L = filled.length - 1; L >= 0; L--) {
+      const rankA = rankMaps[L].get(filled[L][a]) ?? 0;
+      const rankB = rankMaps[L].get(filled[L][b]) ?? 0;
+      if (rankA !== rankB) {
+        return rankA - rankB;
+      }
+    }
+    return a - b; // preserve original position within the same group
+  });
+
+  const newLabels = indices.map((i) => labels[i]);
+  const newDataSets = dataSetsValues.map((ds) => ({
+    ...ds,
+    data: indices.map((i) => ds.data[i]),
+  }));
+
+  // Rebuild sparse secondary labels from the new order
+  const newSecondary = secondaryLabels.map((_, L) => {
+    const result: string[] = [];
+    let prev = "";
+    for (const i of indices) {
+      const val = filled[L][i];
+      result.push(val !== prev ? val : "");
+      prev = val;
+    }
+    return result;
+  });
+
+  return { labels: newLabels, dataSetsValues: newDataSets, secondaryLabels: newSecondary };
+}
+
+/**
  * Filter the data points that:
  * - have neither a label nor a value
  * - have no label and a non-numeric value
  */
 function filterInvalidDataPoints(
   labels: string[],
-  datasets: DatasetValues[]
-): { labels: string[]; dataSetsValues: DatasetValues[] } {
+  datasets: DatasetValues[],
+  secondaryLabels?: string[][]
+): { labels: string[]; dataSetsValues: DatasetValues[]; secondaryLabels?: string[][] } {
   const numberOfDataPoints = Math.max(
     labels.length,
     ...datasets.map((dataset) => dataset.data?.length || 0)
@@ -848,6 +954,9 @@ function filterInvalidDataPoints(
         isNumberResult(dataset.data[i]) ? dataset.data[i] : EMPTY
       ),
     })),
+    secondaryLabels: secondaryLabels
+      ? secondaryLabels.map((secondary) => dataPointsIndexes.map((i) => secondary[i] ?? ""))
+      : undefined,
   };
 }
 

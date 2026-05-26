@@ -69,7 +69,7 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
     };
   },
 
-  getDefinitionForExcel(getters, definition, { dataSets, labelRange }) {
+  getDefinitionForExcel(getters, definition, { dataSets, labelRanges }) {
     if (definition.dataSource.type !== "range") {
       return undefined;
     }
@@ -89,7 +89,7 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
       backgroundColor: toXlsxHexColor(chartData.background || "#FFFFFF"),
       fontColor: toXlsxHexColor(chartFontColor(chartData.background)),
       dataSets,
-      labelRange,
+      labelRanges,
       verticalAxis: getDefinedAxis(definition),
       maxValue,
     };

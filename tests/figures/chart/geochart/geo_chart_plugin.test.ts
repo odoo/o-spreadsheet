@@ -46,7 +46,7 @@ describe("Geo charts plugin tests", () => {
     setCellContent(model, "B2", "10");
     setCellContent(model, "B3", "20");
     createGeoChart(model, {
-      ...toChartDataSource({ dataSets: [{ dataRange: "B1:B3" }], labelRange: "A1:A3" }),
+      ...toChartDataSource({ dataSets: [{ dataRange: "B1:B3" }], labelRanges: ["A1:A3"] }),
     });
 
     const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
@@ -64,7 +64,7 @@ describe("Geo charts plugin tests", () => {
 
     createGeoChart(
       model,
-      { ...toChartDataSource({ dataSets: [{ dataRange: "B1:B4" }], labelRange: "A1:A4" }) },
+      { ...toChartDataSource({ dataSets: [{ dataRange: "B1:B4" }], labelRanges: ["A1:A4"] }) },
       "chartId"
     );
     const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
@@ -79,7 +79,7 @@ describe("Geo charts plugin tests", () => {
 
     createGeoChart(
       model,
-      { ...toChartDataSource({ dataSets: [{ dataRange: "B1:B4" }], labelRange: "A1:A4" }) },
+      { ...toChartDataSource({ dataSets: [{ dataRange: "B1:B4" }], labelRanges: ["A1:A4"] }) },
       "chartId"
     );
     const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
@@ -96,7 +96,7 @@ describe("Geo charts plugin tests", () => {
     createGeoChart(model, {
       ...toChartDataSource({
         dataSets: [{ dataRange: "B1:B2" }, { dataRange: "C1:C2" }],
-        labelRange: "A1:A3",
+        labelRanges: ["A1:A3"],
       }),
     });
     const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
@@ -111,7 +111,7 @@ describe("Geo charts plugin tests", () => {
     setFormat(model, "B2", "$0");
 
     createGeoChart(model, {
-      ...toChartDataSource({ dataSets: [{ dataRange: "B1:B2" }], labelRange: "A1:A2" }),
+      ...toChartDataSource({ dataSets: [{ dataRange: "B1:B2" }], labelRanges: ["A1:A2"] }),
     });
     const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
     expect(runtime.chartJsConfig.options?.scales?.color?.["ticks"]?.callback?.(20)).toBe("$20");
@@ -132,7 +132,7 @@ describe("Geo charts plugin tests", () => {
     setFormat(model, "B2", "$0");
 
     createGeoChart(model, {
-      ...toChartDataSource({ dataSets: [{ dataRange: "B1:B2" }], labelRange: "A1:A2" }),
+      ...toChartDataSource({ dataSets: [{ dataRange: "B1:B2" }], labelRanges: ["A1:A2"] }),
     });
     const runtime = model.getters.getChartRuntime("chartId") as any;
     const tooltipItem = { raw: { value: 20, feature: { properties: { name: "France" } } } };

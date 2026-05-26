@@ -14,7 +14,7 @@ describe("pie chart", () => {
       ...GENERAL_CHART_CREATION_CONTEXT,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
         dataSetsHaveTitle: true,
       }),
     };
@@ -25,7 +25,7 @@ describe("pie chart", () => {
       title: { text: "hello there" },
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
         dataSetsHaveTitle: true,
       }),
       legendPosition: "bottom",
@@ -49,7 +49,7 @@ describe("pie chart", () => {
       {
         ...toChartDataSource({
           dataSets: [{ dataRange: "Sheet1!B1:B2" }, { dataRange: "Sheet1!C1:C2" }],
-          labelRange: "Sheet1!A1:A2",
+          labelRanges: ["Sheet1!A1:A2"],
           dataSetsHaveTitle: false,
         }),
         type: "pie",
@@ -93,7 +93,7 @@ describe("pie chart", () => {
       {
         ...toChartDataSource({
           dataSets: [{ dataRange: "B1:B2" }],
-          labelRange: "A1:A2",
+          labelRanges: ["A1:A2"],
           dataSetsHaveTitle: false,
         }),
         type: "pie",

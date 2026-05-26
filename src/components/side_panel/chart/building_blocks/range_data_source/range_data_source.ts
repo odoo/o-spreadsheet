@@ -44,6 +44,7 @@ interface Props {
   onErrorMessagesChanged?: (errorMessages: string[]) => void;
   dataSeriesTitle?: string;
   labelRangeTitle?: string;
+  hasSingleLabelRange?: boolean;
   getLabelRangeOptions?: () => Array<{
     name: string;
     label: string;
@@ -67,6 +68,7 @@ export class ChartRangeDataSourceComponent extends Component<Props, SpreadsheetC
     onErrorMessagesChanged: { type: Function, optional: true },
     dataSeriesTitle: { type: String, optional: true },
     labelRangeTitle: { type: String, optional: true },
+    hasSingleLabelRange: { type: Boolean, optional: true },
     getLabelRangeOptions: { type: Function, optional: true },
   };
 
@@ -76,14 +78,14 @@ export class ChartRangeDataSourceComponent extends Component<Props, SpreadsheetC
   });
 
   protected dataSets: ChartRangeDataSourceType<string>["dataSets"] = [];
-  private labelRange: string | undefined;
+  private labelRanges: string[] | undefined;
   private datasetOrientation: ChartDatasetOrientation | undefined = undefined;
 
   protected chartTerms = ChartTerms;
 
   setup() {
     this.dataSets = this.props.dataSource.dataSets ?? [];
-    this.labelRange = this.props.dataSource.labelRange;
+    this.labelRanges = this.props.dataSource.labelRanges;
     if (this.props.dataSource.type === "range") {
       this.datasetOrientation = this.computeDatasetOrientation();
     }
@@ -152,12 +154,16 @@ export class ChartRangeDataSourceComponent extends Component<Props, SpreadsheetC
   }
 
   get canChangeDatasetOrientation(): boolean {
+    // We cannot change the dataset orientation if there are multiple label ranges, as we don't know which one to use as labels after transposition
+    if (this.labelRanges && this.labelRanges.length > 1) {
+      return false;
+    }
     const sheetNames = new Set<string>();
     const datasetZones: Zone[] = [];
     const currentSheetName = this.env.model.getters.getActiveSheetName();
     const ranges = this.dataSets.map((ds) => ds.dataRange);
-    if (this.labelRange) {
-      ranges.push(this.labelRange);
+    if (this.labelRanges?.length) {
+      ranges.push(this.labelRanges[0]);
     }
     for (const range of ranges) {
       if (!isXcRepresentation(range)) {
@@ -222,19 +228,19 @@ export class ChartRangeDataSourceComponent extends Component<Props, SpreadsheetC
     const oldDataSets = dataSource.dataSets;
     const dataRanges = oldDataSets.map((d) => d.dataRange);
     const dataSets = this.transposeDataSet(
-      [dataSource.labelRange, ...dataRanges],
+      [dataSource.labelRanges?.[0], ...dataRanges],
       datasetOrientation
     );
     if (dataSets.length === 0) {
       return;
     }
-    const labelRange = dataSets.length > 1 ? dataSets.shift()!.dataRange : "";
+    const labelRanges = dataSets.length > 1 ? [dataSets.shift()!.dataRange] : [];
 
     this.props.updateChart(this.props.chartId, {
-      dataSource: { ...dataSource, labelRange, dataSets },
+      dataSource: { ...dataSource, labelRanges, dataSets },
     });
     this.dataSets = dataSets;
-    this.labelRange = labelRange;
+    this.labelRanges = labelRanges;
     this.datasetOrientation = datasetOrientation;
   }
 
@@ -425,21 +431,28 @@ export class ChartRangeDataSourceComponent extends Component<Props, SpreadsheetC
    * Change the local labelRange. The model should be updated when the
    * button "confirm" is clicked
    */
-  onLabelRangeChanged(ranges: string[]) {
-    this.labelRange = ranges[0];
+  onLabelRangeChanged(labelRanges: string[]) {
+    this.labelRanges = labelRanges;
     this.state.labelsDispatchResult = this.props.canUpdateChart(this.props.chartId, {
-      dataSource: { ...this.props.dataSource, labelRange: this.labelRange },
+      dataSource: { ...this.props.dataSource, labelRanges },
     });
   }
 
   onLabelRangeConfirmed() {
     this.state.labelsDispatchResult = this.props.updateChart(this.props.chartId, {
-      dataSource: { ...this.props.dataSource, labelRange: this.labelRange },
+      dataSource: { ...this.props.dataSource, labelRanges: this.labelRanges },
     });
   }
 
-  getLabelRange(): string {
-    return this.labelRange || "";
+  onLabelRangesReordered(indexes: number[]) {
+    this.labelRanges = indexes.map((i) => this.labelRanges![i]);
+    this.state.labelsDispatchResult = this.props.updateChart(this.props.chartId, {
+      dataSource: { ...this.props.dataSource, labelRanges: this.labelRanges },
+    });
+  }
+
+  getLabelRange(): string[] {
+    return this.labelRanges || [];
   }
 
   onUpdateAggregated(aggregated: boolean) {
@@ -454,14 +467,16 @@ export class ChartRangeDataSourceComponent extends Component<Props, SpreadsheetC
     }
     const getters = this.env.model.getters;
     const sheetId = getters.getActiveSheetId();
-    const labelRange = createValidRange(getters, sheetId, this.labelRange);
+    const labelRanges = this.labelRanges
+      ?.map((lr) => createValidRange(getters, sheetId, lr))
+      .filter(isDefined);
     const dataSets = createDataSets(getters, sheetId, this.props.dataSource);
     if (dataSets.length) {
       return this.datasetOrientation === "rows"
         ? dataSets[0].dataRange.zone.left
         : dataSets[0].dataRange.zone.top + 1;
-    } else if (labelRange) {
-      return labelRange.zone.top + 1;
+    } else if (labelRanges && labelRanges.length) {
+      return labelRanges[0].zone.top + 1;
     }
     return undefined;
   }

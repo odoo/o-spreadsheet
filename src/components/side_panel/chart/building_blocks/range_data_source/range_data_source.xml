@@ -14,10 +14,12 @@
       title="this.props.dataSeriesTitle"
     />
     <ChartLabelRange
-      range="this.getLabelRange()"
+      ranges="this.getLabelRange()"
+      hasSingleRange="this.props.hasSingleLabelRange"
       isInvalid="this.isLabelInvalid"
       onSelectionChanged.bind="this.onLabelRangeChanged"
       onSelectionConfirmed.bind="this.onLabelRangeConfirmed"
+      onSelectionReordered.bind="this.onLabelRangesReordered"
       options="this.getLabelRangeOptions()"
       title="this.props.labelRangeTitle"
     />

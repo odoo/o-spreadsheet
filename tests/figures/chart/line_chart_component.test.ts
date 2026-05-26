@@ -35,7 +35,7 @@ describe("charts", () => {
       {
         ...toChartDataSource({
           dataSets: [{ dataRange: "B2:B3" }],
-          labelRange: "A2:A3",
+          labelRanges: ["A2:A3"],
         }),
         type: "line",
         labelsAsText: false,
@@ -69,7 +69,7 @@ describe("charts", () => {
       {
         ...toChartDataSource({
           dataSets: [{ dataRange: "B2:B3" }],
-          labelRange: "A2:A3",
+          labelRanges: ["A2:A3"],
         }),
         type: "line",
         labelsAsText: false,

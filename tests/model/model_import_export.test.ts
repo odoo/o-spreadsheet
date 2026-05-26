@@ -121,7 +121,7 @@ describe("Migrations", () => {
               data: {
                 type: "line",
                 title: "demo chart",
-                labelRange: "My sheet!A27:A35",
+                labelRanges: ["My sheet!A27:A35"],
                 dataSets: [
                   { labelCell: "My sheet!B26", dataRange: "My sheet!B27:B35" },
                   { labelCell: "My sheet!C26", dataRange: "My sheet!C27:C35" },
@@ -138,7 +138,7 @@ describe("Migrations", () => {
               data: {
                 type: "bar",
                 title: "demo chart 2",
-                labelRange: "My sheet!A27:A35",
+                labelRanges: ["My sheet!A27:A35"],
                 dataSets: [
                   { labelCell: undefined, dataRange: "My sheet!B27:B35" },
                   { dataRange: "My sheet!C27:C35" },
@@ -155,7 +155,7 @@ describe("Migrations", () => {
               data: {
                 type: "bar",
                 title: "demo chart 3",
-                labelRange: "My sheet!A27",
+                labelRanges: ["My sheet!A27"],
                 dataSets: [{ labelCell: "My sheet!B26", dataRange: "My sheet!B27" }],
               },
             },
@@ -169,7 +169,7 @@ describe("Migrations", () => {
               data: {
                 type: "bar",
                 title: "demo chart 4",
-                labelRange: "My sheet!A27",
+                labelRanges: ["My sheet!A27"],
                 dataSets: [{ dataRange: "My sheet!B27" }],
               },
             },
@@ -184,7 +184,6 @@ describe("Migrations", () => {
       type: "line",
       title: { text: "demo chart" },
       ...toChartDataSource({
-        labelRange: "'My sheet'!A27:A35",
         dataSets: [{ dataRange: "B26:B35" }, { dataRange: "C26:C35" }],
         dataSetsHaveTitle: true,
       }),
@@ -198,7 +197,6 @@ describe("Migrations", () => {
       type: "bar",
       title: { text: "demo chart 2" },
       ...toChartDataSource({
-        labelRange: "'My sheet'!A27:A35",
         dataSets: [{ dataRange: "B27:B35" }, { dataRange: "C27:C35" }],
         dataSetsHaveTitle: false,
       }),
@@ -212,7 +210,6 @@ describe("Migrations", () => {
       type: "bar",
       title: { text: "demo chart 3" },
       ...toChartDataSource({
-        labelRange: "'My sheet'!A27",
         dataSets: [{ dataRange: "B26:B27" }],
         dataSetsHaveTitle: true,
       }),
@@ -226,7 +223,6 @@ describe("Migrations", () => {
       type: "bar",
       title: { text: "demo chart 4" },
       ...toChartDataSource({
-        labelRange: "'My sheet'!A27",
         dataSets: [{ dataRange: "B27" }],
         dataSetsHaveTitle: false,
       }),
@@ -317,7 +313,7 @@ describe("Migrations", () => {
         dataSets: [{ dataRange: "A1:A2" }, { dataRange: "'My sheet'!A1:A2" }],
       })
     );
-    expect(figures[0].data?.dataSource.labelRange).toBe("sheetName_!B1:B2");
+    expect(figures[0].data?.dataSource.labelRanges?.[0]).toBe("sheetName_!B1:B2");
 
     const cfs = data.sheets[1].conditionalFormats;
     const rule1 = cfs[0].rule as ColorScaleRule;
@@ -788,7 +784,7 @@ test("migrate version 18.5.1: chartId is added to figure data", () => {
           {
             id: "someuuid",
             tag: "chart",
-            data: { type: "line", title: "demo chart", labelRange: "", dataSets: [] },
+            data: { type: "line", title: "demo chart", labelRanges: [], dataSets: [] },
           },
         ],
       },
@@ -803,7 +799,7 @@ test("migrate version 19.1.0: colorScale is changed to a colorScale", () => {
     chartId,
     type: "geo",
     colorScale: scheme,
-    labelRange: "",
+    labelRanges: [],
     dataSets: [],
     legendPosition: "top",
     title: { text: "Demo Geo Chart" },
@@ -860,7 +856,7 @@ test("migrate version 19.3.2: change datasets to dataSource", () => {
               type: "bar",
               dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3", yAxisId: "y2" }],
               dataSetsHaveTitle: true,
-              labelRange: "Sheet1!C1:C3",
+              labelRanges: ["Sheet1!C1:C3"],
               title: { text: "Test Chart" },
               background: "#FFFFFF",
             },
@@ -875,7 +871,7 @@ test("migrate version 19.3.2: change datasets to dataSource", () => {
                   type: "line",
                   dataSets: [{ dataRange: "D1:D3" }],
                   dataSetsHaveTitle: false,
-                  labelRange: "Sheet1!E1:E3",
+                  labelRanges: ["Sheet1!E1:E3"],
                 },
               },
             },
@@ -890,7 +886,6 @@ test("migrate version 19.3.2: change datasets to dataSource", () => {
     toChartDataSource({
       dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3", yAxisId: "y2" }],
       dataSetsHaveTitle: true,
-      labelRange: "Sheet1!C1:C3",
     })
   );
   expect(exportedData.sheets[0].figures[0].data.dataSets).toBeUndefined();
@@ -901,7 +896,6 @@ test("migrate version 19.3.2: change datasets to dataSource", () => {
     toChartDataSource({
       dataSets: [{ dataRange: "D1:D3" }],
       dataSetsHaveTitle: false,
-      labelRange: "Sheet1!E1:E3",
     })
   );
 });
@@ -1002,7 +996,7 @@ describe("Export", () => {
                 type: "line",
                 title: "demo chart",
                 ...toChartDataSource({
-                  labelRange: "A1:A4",
+                  labelRanges: ["A1:A4"],
                   dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
                 }),
               },

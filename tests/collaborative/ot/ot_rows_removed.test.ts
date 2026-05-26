@@ -602,7 +602,7 @@ describe("OT with removeRows and UPDATE_CHART/CREATE_CHART", () => {
     type: "bar",
     ...toChartDataSource({
       dataSets: [{ dataRange: "Sheet1!A1:A10" }, { dataRange: "Sheet2!A1:A10" }],
-      labelRange: "Sheet1!A1:A10",
+      labelRanges: ["Sheet1!A1:A10"],
     }),
     legendPosition: "top",
     stacked: false,
@@ -639,7 +639,7 @@ describe("OT with removeRows and UPDATE_CHART/CREATE_CHART", () => {
       ...definition,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!A1:A7" }, { dataRange: "Sheet2!A1:A10" }],
-        labelRange: "Sheet1!A1:A7",
+        labelRanges: ["Sheet1!A1:A7"],
       }),
     });
 
@@ -648,7 +648,7 @@ describe("OT with removeRows and UPDATE_CHART/CREATE_CHART", () => {
       ...definition,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!A1:A10" }, { dataRange: "Sheet2!A1:A7" }],
-        labelRange: "Sheet1!A1:A10",
+        labelRanges: ["Sheet1!A1:A10"],
       }),
     });
   });
@@ -666,7 +666,7 @@ describe("OT with removeRows and UPDATE_CHART/CREATE_CHART", () => {
       ...definition,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!A1:A7" }, { dataRange: "Sheet2!A1:A10" }],
-        labelRange: "Sheet1!A1:A7",
+        labelRanges: ["Sheet1!A1:A7"],
       }),
     });
 
@@ -675,7 +675,7 @@ describe("OT with removeRows and UPDATE_CHART/CREATE_CHART", () => {
       ...definition,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!A1:A10" }, { dataRange: "Sheet2!A1:A7" }],
-        labelRange: "Sheet1!A1:A10",
+        labelRanges: ["Sheet1!A1:A10"],
       }),
     });
   });
