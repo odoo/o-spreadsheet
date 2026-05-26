@@ -369,7 +369,7 @@ export const SINGLE_CATEGORICAL_COLUMN_SUGGESTIONS: Suggestion<SingleCategorical
     build: (ctx) =>
       barChart(
         ctx.title,
-        { ...ctx.source, labelRange: ctx.range },
+        { ...ctx.source, labelRanges: ctx.ranges },
         { legendPosition: "none", aggregated: true }
       ),
   },

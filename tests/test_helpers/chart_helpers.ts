@@ -60,7 +60,7 @@ interface ChartDataInput {
     dataSetId?: UID;
     type?: "bar" | "line"; // for combo charts
   })[];
-  labelRange?: string;
+  labelRanges?: string[];
   dataSetsHaveTitle?: boolean;
 }
 
@@ -70,7 +70,6 @@ interface ChartDataOutput {
 }
 
 export function toChartDataSource(args: ChartDataInput): ChartDataOutput {
-  const { labelRange } = args;
   const dataSets =
     args.dataSets?.map((dataSet, i) => ({
       ...dataSet,
@@ -90,10 +89,10 @@ export function toChartDataSource(args: ChartDataInput): ChartDataOutput {
     },
     dataSetStyles,
   };
-  if ("labelRange" in args) {
+  if (args.labelRanges?.length) {
     result.dataSource = {
       ...result.dataSource,
-      labelRange,
+      labelRanges: [...(result.dataSource.labelRanges ?? []), ...args.labelRanges],
     };
   }
   return result;
@@ -166,7 +165,7 @@ export async function editColorPicker(fixture: HTMLElement, selector: string, co
 }
 
 export function getChartTooltipItemFromDataset(
-  chart: ChartJSRuntime,
+  chart: any,
   datasetIndex: number,
   dataIndex: number
 ): Partial<TooltipItem<any>> {
@@ -184,10 +183,7 @@ export function getChartTooltipItemFromDataset(
   };
 }
 
-export function getChartTooltipValues(
-  chart: ChartJSRuntime,
-  tooltipItem: Partial<TooltipItem<any>>
-) {
+export function getChartTooltipValues(chart: any, tooltipItem: Partial<TooltipItem<any>>) {
   const callbacks = chart.chartJsConfig!.options!.plugins!.tooltip!.callbacks! as any;
   return {
     label: callbacks.label(tooltipItem),
@@ -239,4 +235,5 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   bubbleColorMode: { color: FIRST_CHART_COLOR },
   annotationLink: "https://www.odoo.com",
   annotationText: "This is an annotation text",
+  groupBySecondaryLabels: false,
 };

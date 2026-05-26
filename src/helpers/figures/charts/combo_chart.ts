@@ -8,6 +8,7 @@ import { chartFontColor, getDefinedAxis } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import { getBarChartData } from "./runtime/chart_data_extractor";
 import { getComboChartDatasets } from "./runtime/chartjs_dataset";
+import { getChartGroupedLabels } from "./runtime/chartjs_grouped_labels";
 import { getChartLayout } from "./runtime/chartjs_layout";
 import { getComboChartLegend } from "./runtime/chartjs_legend";
 import { getBarChartScales } from "./runtime/chartjs_scales";
@@ -27,6 +28,7 @@ export const ComboChart: ChartTypeBuilder<"combo"> = {
     "showValues",
     "hideDataMarkers",
     "zoomable",
+    "groupBySecondaryLabels",
   ] as const,
 
   fromStrDefinition: (definition) => definition,
@@ -47,13 +49,13 @@ export const ComboChart: ChartTypeBuilder<"combo"> = {
 
   getFormulas: () => [],
 
-  getDefinitionForExcel(getters, definition, { dataSets, labelRange }) {
+  getDefinitionForExcel(getters, definition, { dataSets, labelRanges }) {
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(definition.background || "#FFFFFF"),
       fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
-      labelRange,
+      labelRanges,
       verticalAxis: getDefinedAxis(definition),
     };
   },
@@ -84,6 +86,7 @@ export const ComboChart: ChartTypeBuilder<"combo"> = {
       humanize: context.humanize,
       annotationText: context.annotationText,
       annotationLink: context.annotationLink,
+      groupBySecondaryLabels: context.groupBySecondaryLabels,
     };
   },
 
@@ -106,6 +109,7 @@ export const ComboChart: ChartTypeBuilder<"combo"> = {
           legend: getComboChartLegend(definition, chartData),
           tooltip: getBarChartTooltip(definition, chartData),
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
+          chartGroupedLabelsPlugin: getChartGroupedLabels(chartData, definition.background),
           background: { color: chartData.background },
         },
         ...eventHandlers,

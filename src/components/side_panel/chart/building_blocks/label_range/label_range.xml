@@ -2,11 +2,12 @@
   <t t-name="o-spreadsheet.ChartLabelRange">
     <Section class="this.sectionClass" title="this.props.title">
       <SelectionInput
-        ranges="[this.props.range]"
+        ranges="this.props.ranges"
         isInvalid="this.props.isInvalid"
-        hasSingleRange="true"
+        hasSingleRange="this.props.hasSingleRange"
         onSelectionChanged="(ranges) => this.props.onSelectionChanged(ranges)"
         onSelectionConfirmed="() => this.props.onSelectionConfirmed()"
+        onSelectionReordered="this.props.onSelectionReordered"
       />
       <t t-foreach="this.props.options" t-as="option" t-key="option.name">
         <Checkbox

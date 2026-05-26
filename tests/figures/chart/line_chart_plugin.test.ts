@@ -20,7 +20,7 @@ describe("line chart", () => {
       ...GENERAL_CHART_CREATION_CONTEXT,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
         dataSetsHaveTitle: true,
       }),
     };
@@ -31,7 +31,7 @@ describe("line chart", () => {
       title: { text: "hello there" },
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
         dataSetsHaveTitle: true,
       }),
       legendPosition: "bottom",
@@ -47,6 +47,7 @@ describe("line chart", () => {
       humanize: false,
       annotationLink: "https://www.odoo.com",
       annotationText: "This is an annotation text",
+      groupBySecondaryLabels: false,
     });
   });
 
@@ -205,7 +206,7 @@ describe("line chart", () => {
             { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
             { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
           ],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
         }),
         type: "line",
       },
@@ -248,7 +249,7 @@ describe("line chart", () => {
       {
         type: "line",
         ...toChartDataSource({
-          labelRange: "A2",
+          labelRanges: ["A2"],
           dataSets: [{ dataRange: "B2" }],
         }),
       },

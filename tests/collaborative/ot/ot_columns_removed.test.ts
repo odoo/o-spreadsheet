@@ -601,7 +601,7 @@ describe("OT with RemoveColumns and UPDATE_CHART/CREATE_CHART", () => {
     ...toChartDataSource({
       dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!M1:M10" }],
       dataSetsHaveTitle: false,
-      labelRange: "Sheet1!M1:M10",
+      labelRanges: ["Sheet1!M1:M10"],
     }),
     legendPosition: "top",
     stacked: false,
@@ -639,7 +639,7 @@ describe("OT with RemoveColumns and UPDATE_CHART/CREATE_CHART", () => {
       ...definition,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!J1:J10" }, { dataRange: "Sheet2!M1:M10" }],
-        labelRange: "Sheet1!J1:J10",
+        labelRanges: ["Sheet1!J1:J10"],
         dataSetsHaveTitle: false,
       }),
     });
@@ -649,7 +649,7 @@ describe("OT with RemoveColumns and UPDATE_CHART/CREATE_CHART", () => {
       ...definition,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!J1:J10" }],
-        labelRange: "Sheet1!M1:M10",
+        labelRanges: ["Sheet1!M1:M10"],
         dataSetsHaveTitle: false,
       }),
     });
@@ -668,7 +668,7 @@ describe("OT with RemoveColumns and UPDATE_CHART/CREATE_CHART", () => {
       ...definition,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!J1:J10" }, { dataRange: "Sheet2!M1:M10" }],
-        labelRange: "Sheet1!J1:J10",
+        labelRanges: ["Sheet1!J1:J10"],
         dataSetsHaveTitle: false,
       }),
     });
@@ -678,7 +678,7 @@ describe("OT with RemoveColumns and UPDATE_CHART/CREATE_CHART", () => {
       ...definition,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!J1:J10" }],
-        labelRange: "Sheet1!M1:M10",
+        labelRanges: ["Sheet1!M1:M10"],
         dataSetsHaveTitle: false,
       }),
     });

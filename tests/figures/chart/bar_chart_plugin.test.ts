@@ -27,7 +27,7 @@ describe("bar chart", () => {
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
         dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
       }),
     };
     const definition = createChartDefinitionFromContext("bar", context);
@@ -37,7 +37,7 @@ describe("bar chart", () => {
       title: { text: "hello there" },
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
         dataSetsHaveTitle: true,
       }),
       legendPosition: "bottom",
@@ -51,6 +51,7 @@ describe("bar chart", () => {
       humanize: false,
       annotationText: "This is an annotation text",
       annotationLink: "https://www.odoo.com",
+      groupBySecondaryLabels: false,
     });
   });
 
@@ -160,7 +161,7 @@ describe("bar chart", () => {
             { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
             { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
           ],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
         }),
         type: "bar",
       },
@@ -201,7 +202,7 @@ describe("bar chart", () => {
       {
         ...toChartDataSource({
           dataSets: [{ dataRange: "B1:C2" }],
-          labelRange: "A1:A2",
+          labelRanges: ["A1:A2"],
           dataSetsHaveTitle: true,
         }),
         type: "bar",
@@ -327,7 +328,7 @@ describe("bar chart", () => {
       {
         type: "bar",
         ...toChartDataSource({
-          labelRange: "A2",
+          labelRanges: ["A2"],
           dataSets: [{ dataRange: "B2" }],
         }),
       },
