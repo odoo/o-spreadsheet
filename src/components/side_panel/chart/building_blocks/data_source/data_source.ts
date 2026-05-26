@@ -21,6 +21,7 @@ export class ChartDataSourceComponent extends OSComponent {
     canUpdateChart: types.function<ChartUpdateFunction<ChartDefinitionWithDataSource<string>>>(),
     dataSeriesTitle: types.string().optional(),
     labelRangeTitle: types.string().optional(),
+    hasSingleLabelRange: types.boolean().optional(),
     getLabelRangeOptions: types
       .function<
         () => Array<{

@@ -214,8 +214,9 @@ export function getWaterfallDatasetAndLabels(
 ): {
   datasets: ChartDataset[];
   labels: string[];
+  parentCategories?: string[][];
 } {
-  const { dataSetsValues, labels } = args;
+  const { dataSetsValues, labels, parentCategories } = args;
 
   const negativeColor = definition.negativeValuesColor || CHART_WATERFALL_NEGATIVE_COLOR;
   const positiveColor = definition.positiveValuesColor || CHART_WATERFALL_POSITIVE_COLOR;
@@ -229,6 +230,9 @@ export function getWaterfallDatasetAndLabels(
     backgroundColor,
   };
   const labelsWithSubTotals: string[] = [];
+  // Parent categories must stay aligned with the labels, which are repeated for each
+  // dataset and interleaved with subtotals (that have no parent category)
+  const parentCategoriesWithSubTotals = parentCategories?.map((): string[] => []);
   let lastValue = 0;
   for (const dataSetsValue of dataSetsValues) {
     if (dataSetsValue.hidden) {
@@ -237,6 +241,7 @@ export function getWaterfallDatasetAndLabels(
     for (let i = 0; i < dataSetsValue.data.length; i++) {
       const cell = dataSetsValue.data[i];
       labelsWithSubTotals.push(labels[i]);
+      parentCategoriesWithSubTotals?.forEach((level, l) => level.push(parentCategories![l][i]));
       if (!isNumberResult(cell)) {
         datasetValues.push([lastValue, lastValue]);
         backgroundColor.push("");
@@ -252,6 +257,7 @@ export function getWaterfallDatasetAndLabels(
     }
     if (definition.showSubTotals) {
       labelsWithSubTotals.push(_t("Subtotal"));
+      parentCategoriesWithSubTotals?.forEach((level) => level.push(""));
       datasetValues.push([0, lastValue]);
       backgroundColor.push(subTotalColor);
     }
@@ -260,6 +266,7 @@ export function getWaterfallDatasetAndLabels(
   return {
     datasets: [dataset],
     labels: labelsWithSubTotals,
+    parentCategories: parentCategoriesWithSubTotals,
   };
 }
 

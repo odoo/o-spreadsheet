@@ -40,7 +40,7 @@ export interface SingleDateContext {
 export interface SingleCategoricalContext {
   title: string;
   source: ChartRangeDataSource<string>;
-  range: string;
+  ranges: string[];
 }
 
 /** Pattern E — Single label column */
