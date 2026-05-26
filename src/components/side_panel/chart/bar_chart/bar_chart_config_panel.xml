@@ -15,6 +15,7 @@
         updateChart="this.props.updateChart"
         canUpdateChart="this.props.canUpdateChart"
         onErrorMessagesChanged.bind="this.onErrorMessagesChanged"
+        getLabelRangeOptions.bind="this.getLabelRangeOptions"
       />
 
       <ChartErrorSection t-if="this.errorMessages.length" messages="this.errorMessages"/>

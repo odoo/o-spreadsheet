@@ -51,6 +51,7 @@ export const ChartTerms: {
   CumulativeData: _t("Cumulative data"),
   TreatLabelsAsText: _t("Treat labels as text"),
   AggregatedChart: _t("Aggregate"),
+  GroupByParentCategories: _t("Group by parent categories"),
   Errors: {
     Unexpected: _t("The chart definition is invalid for an unknown reason"),
     // BASIC CHART ERRORS (LINE | BAR | PIE)

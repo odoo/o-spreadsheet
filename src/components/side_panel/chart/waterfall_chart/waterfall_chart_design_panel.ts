@@ -8,43 +8,21 @@ import { _t } from "../../../../translation";
 import { VerticalAxisPosition } from "../../../../types/chart/common_chart";
 import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
 import { Color } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
-import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
-import { Section } from "../../components/section/section";
-import { ChartAnnotation } from "../building_blocks/annotation/annotation";
-import {
-  AxisDefinition,
-  AxisDesignEditor,
-} from "../building_blocks/axis_design/axis_design_editor";
-import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
-import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
-import { ChartLegend } from "../building_blocks/legend/legend";
-import { ChartShowValues } from "../building_blocks/show_values/show_values";
-import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
-import { Checkbox } from "./../../components/checkbox/checkbox";
+import { AxisDefinition } from "../building_blocks/axis_design/axis_design_editor";
+import { ChartSidePanelProps } from "../common";
+import { GenericZoomableChartDesignPanel } from "../zoomable_chart/design_panel";
 
-import { useProps } from "@odoo/owl";
-import { Component } from "../../../../owl3_compatibility_layer";
-export class WaterfallChartDesignPanel extends Component<SpreadsheetChildEnv> {
+export class WaterfallChartDesignPanel extends GenericZoomableChartDesignPanel<
+  ChartSidePanelProps<WaterfallChartDefinition<string>>
+> {
   static template = "o-spreadsheet-WaterfallChartDesignPanel";
   static components = {
-    GeneralDesignEditor,
-    ChartAnnotation,
-    ChartShowValues,
-    Checkbox,
-    SidePanelCollapsible,
-    Section,
+    ...GenericZoomableChartDesignPanel.components,
     RoundColorPicker,
-    AxisDesignEditor,
     RadioSelection,
-    ChartLegend,
-    ChartHumanizeNumbers,
   };
-  protected props = useProps(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<
-    WaterfallChartDefinition<string>
-  >;
 
   axisChoices = CHART_AXIS_CHOICES;
 
@@ -95,12 +73,6 @@ export class WaterfallChartDesignPanel extends Component<SpreadsheetChildEnv> {
   updateVerticalAxisPosition(value: VerticalAxisPosition) {
     this.props.updateChart(this.props.chartId, {
       verticalAxisPosition: value,
-    });
-  }
-
-  onToggleZoom(zoomable: boolean) {
-    this.props.updateChart(this.props.chartId, {
-      zoomable,
     });
   }
 }

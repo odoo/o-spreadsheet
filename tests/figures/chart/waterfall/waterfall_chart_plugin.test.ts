@@ -19,7 +19,7 @@ import {
   getChartTooltipValues,
   toChartDataSource,
 } from "../../../test_helpers/chart_helpers";
-import { nextTick } from "../../../test_helpers/helpers";
+import { nextTick, setGrid } from "../../../test_helpers/helpers";
 
 let model: Model;
 
@@ -50,6 +50,51 @@ describe("Waterfall chart", () => {
     ]);
   });
 
+  test("groupByParentCategories draws secondary labels on the category axis", () => {
+    // prettier-ignore
+    setGrid(model, {
+      A1: "2024", B1: "Q1", C1: "5", D1: "3",
+      A2: "2024", B2: "Q2", C2: "8", D2: "6"
+    });
+
+    const chartId = createWaterfallChart(model, {
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "C1:C2" }],
+        labelRanges: ["A1:A2", "B1:B2"],
+        dataSetsHaveTitle: false,
+      }),
+      groupByParentCategories: true,
+    });
+
+    const config = getChartConfiguration(model, chartId);
+    expect(config.options?.plugins?.chartGroupedLabelsPlugin?.parentCategories).toEqual([
+      ["2024", "2024"],
+    ]);
+  });
+
+  test("secondary labels stay aligned with subtotals and multiple datasets", () => {
+    // prettier-ignore
+    setGrid(model, {
+      A1: "2024", B1: "Q1", C1: "5", D1: "3",
+      A2: "2025", B2: "Q2", C2: "8", D2: "6"
+    });
+
+    const chartId = createWaterfallChart(model, {
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "C1:C2" }, { dataRange: "D1:D2" }],
+        labelRanges: ["A1:A2", "B1:B2"],
+        dataSetsHaveTitle: false,
+      }),
+      showSubTotals: true,
+    });
+
+    const config = getChartConfiguration(model, chartId);
+    expect(config.data.labels).toEqual(["Q1", "Q2", "Subtotal", "Q1", "Q2", "Subtotal"]);
+    expect(config.options?.plugins?.chartGroupedLabelsPlugin?.parentCategories).toEqual([
+      ["2024", "2025", "", "2024", "2025", ""],
+    ]);
+  });
+
   test("Waterfall runtime with multiple datasets", () => {
     setCellContent(model, "A1", "Value 1");
     setCellContent(model, "A2", "Value 2");
@@ -59,7 +104,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "C2", "-40");
     const chartId = createWaterfallChart(model, {
       ...toChartDataSource({
-        labelRange: "A1:A2",
+        labelRanges: ["A1:A2"],
         dataSets: [{ dataRange: "B1:C2" }],
         dataSetsHaveTitle: false,
       }),
@@ -88,7 +133,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "C2", "-40");
     const chartId = createWaterfallChart(model, {
       ...toChartDataSource({
-        labelRange: "A1:A2",
+        labelRanges: ["A1:A2"],
         dataSets: [{ dataRange: "B1:C2" }],
         dataSetsHaveTitle: false,
       }),
@@ -121,7 +166,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "B3", "30");
     const chartId = createWaterfallChart(model, {
       ...toChartDataSource({
-        labelRange: "A1:A4",
+        labelRanges: ["A1:A4"],
         dataSets: [{ dataRange: "B1:B4" }],
         dataSetsHaveTitle: false,
       }),
@@ -147,7 +192,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "B4", "10");
     const chartId = createWaterfallChart(model, {
       ...toChartDataSource({
-        labelRange: "A1:A4",
+        labelRanges: ["A1:A4"],
         dataSets: [{ dataRange: "B1:B4" }],
         dataSetsHaveTitle: false,
       }),
@@ -325,7 +370,7 @@ describe("Waterfall chart", () => {
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
         dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
       }),
     };
     const definition = createChartDefinitionFromContext("waterfall", context);
@@ -335,7 +380,7 @@ describe("Waterfall chart", () => {
       title: { text: "hello there" },
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
         dataSetsHaveTitle: true,
       }),
       legendPosition: "bottom",
@@ -350,6 +395,8 @@ describe("Waterfall chart", () => {
       humanize: false,
       annotationText: "This is an annotation text",
       annotationLink: "https://www.odoo.com",
+      groupByParentCategories: false,
+      mergeGroups: false,
     });
   });
 

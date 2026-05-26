@@ -5,6 +5,7 @@ import { BarChartDesignPanel } from "./bar_chart/bar_chart_design_panel";
 import { BubbleChartConfigPanel } from "./bubble_chart/bubble_chart_config_panel";
 import { BubbleChartDesignPanel } from "./bubble_chart/bubble_chart_design_panel";
 import { GenericChartConfigPanel } from "./building_blocks/generic_side_panel/config_panel";
+import { MultiLabelsChartConfigPanel } from "./building_blocks/generic_side_panel/multi_labels_config_panel";
 import { ChartRangeDataSourceComponent } from "./building_blocks/range_data_source/range_data_source";
 import { CalendarChartConfigPanel } from "./calendar_chart/calendar_chart_config_panel";
 import { CalendarChartDesignPanel } from "./calendar_chart/calendar_chart_design_panel";
@@ -31,6 +32,7 @@ import { WaterfallChartDesignPanel } from "./waterfall_chart/waterfall_chart_des
 import { Component } from "../../../owl3_compatibility_layer";
 export { BarConfigPanel } from "./bar_chart/bar_chart_config_panel";
 export { GenericChartConfigPanel } from "./building_blocks/generic_side_panel/config_panel";
+export { MultiLabelsChartConfigPanel } from "./building_blocks/generic_side_panel/multi_labels_config_panel";
 export { ChartWithAxisDesignPanel } from "./chart_with_axis/design_panel";
 export { GaugeChartConfigPanel } from "./gauge_chart_panel/gauge_chart_config_panel";
 export { GaugeChartDesignPanel } from "./gauge_chart_panel/gauge_chart_design_panel";
@@ -65,7 +67,7 @@ chartSidePanelComponentRegistry
     design: BarChartDesignPanel,
   })
   .add("combo", {
-    configuration: GenericChartConfigPanel,
+    configuration: MultiLabelsChartConfigPanel,
     design: ComboChartDesignPanel,
   })
   .add("pie", {
@@ -81,11 +83,11 @@ chartSidePanelComponentRegistry
     design: ScorecardChartDesignPanel,
   })
   .add("waterfall", {
-    configuration: GenericChartConfigPanel,
+    configuration: MultiLabelsChartConfigPanel,
     design: WaterfallChartDesignPanel,
   })
   .add("pyramid", {
-    configuration: GenericChartConfigPanel,
+    configuration: MultiLabelsChartConfigPanel,
     design: ChartWithAxisDesignPanel,
   })
   .add("radar", {

@@ -1,4 +1,5 @@
 import { proxy, useProps } from "@odoo/owl";
+import { hasMultipleLabelRanges } from "../../../../../helpers/figures/charts/chart_common";
 import { Component } from "../../../../../owl3_compatibility_layer";
 import { ChartDefinitionWithDataSource } from "../../../../../types/chart/chart";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
@@ -58,5 +59,23 @@ export class GenericChartConfigPanel<
         this.props.updateChart(this.props.chartId, { aggregated });
       },
     };
+  }
+
+  getGroupByParentCategories() {
+    return {
+      name: "groupByParentCategories",
+      label: this.chartTerms.GroupByParentCategories,
+      value:
+        ("groupByParentCategories" in this.props.definition
+          ? this.props.definition.groupByParentCategories
+          : false) ?? false,
+      onChange: (groupByParentCategories: boolean) => {
+        this.props.updateChart(this.props.chartId, { groupByParentCategories });
+      },
+    };
+  }
+
+  get hasMultipleLabelRanges(): boolean {
+    return hasMultipleLabelRanges(this.props.definition);
   }
 }

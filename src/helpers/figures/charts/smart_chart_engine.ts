@@ -137,11 +137,9 @@ function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefi
       return {
         type: "pie",
         title: hasUniqueTitle ? { text: String(titleCell.value) } : {},
-        dataSource: rangeSource(
-          [dataset(zone, getters)],
-          hasUniqueTitle,
-          getUnboundRange(getters, zone)
-        ),
+        dataSource: rangeSource([dataset(zone, getters)], hasUniqueTitle, [
+          getUnboundRange(getters, zone),
+        ]),
         dataSetStyles: {},
         aggregated: true,
         legendPosition: "top",
@@ -152,7 +150,7 @@ function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefi
       return {
         type: "calendar",
         title: dataSetsHaveTitle ? { text: String(titleCell.value) } : {},
-        dataSource: rangeSource([], dataSetsHaveTitle, dataRange),
+        dataSource: rangeSource([], dataSetsHaveTitle, dataRange ? [dataRange] : []),
         dataSetStyles: {},
         legendPosition: "left",
         horizontalGroupBy: "day_of_week",
@@ -189,7 +187,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
       dataSource: rangeSource(
         [dataset(columns[1].zone, getters)],
         isDatasetTitled(getters, columns[1].zone),
-        getUnboundRange(getters, columns[0].zone)
+        [getUnboundRange(getters, columns[0].zone)]
       ),
       dataSetStyles: {},
       aggregated: true,
@@ -204,7 +202,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
       dataSource: rangeSource(
         [dataset(columns[1].zone, getters)],
         isDatasetTitled(getters, columns[1].zone),
-        getUnboundRange(getters, columns[0].zone)
+        [getUnboundRange(getters, columns[0].zone)]
       ),
       dataSetStyles: {},
       labelsAsText: false,
@@ -219,7 +217,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
       dataSource: rangeSource(
         [dataset(columns[1].zone, getters)],
         isDatasetTitled(getters, columns[0].zone),
-        getUnboundRange(getters, columns[0].zone)
+        [getUnboundRange(getters, columns[0].zone)]
       ),
       dataSetStyles: {},
     };
@@ -236,11 +234,9 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
       return {
         type: "treemap",
         title: {},
-        dataSource: rangeSource(
-          [dataset(textColumn.zone, getters)],
-          dataSetsHaveTitle,
-          getUnboundRange(getters, numberColumn.zone)
-        ),
+        dataSource: rangeSource([dataset(textColumn.zone, getters)], dataSetsHaveTitle, [
+          getUnboundRange(getters, numberColumn.zone),
+        ]),
         dataSetStyles: {},
         legendPosition: "none",
       };
@@ -252,7 +248,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
     dataSource: rangeSource(
       [dataset(columns[1].zone, getters)],
       isDatasetTitled(getters, columns[1].zone),
-      getUnboundRange(getters, columns[0].zone)
+      [getUnboundRange(getters, columns[0].zone)]
     ),
     dataSetStyles: {},
   };
@@ -286,11 +282,9 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
     return {
       type: columnsExceptLast.length >= 3 ? "sunburst" : "treemap",
       title: {},
-      dataSource: rangeSource(
-        dataSets,
-        dataSetsHaveTitle,
-        getUnboundRange(getters, lastColumn.zone)
-      ),
+      dataSource: rangeSource(dataSets, dataSetsHaveTitle, [
+        getUnboundRange(getters, lastColumn.zone),
+      ]),
       dataSetStyles: {},
       legendPosition: "none",
     };
@@ -306,11 +300,9 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
     return {
       type: "pie",
       title: {},
-      dataSource: rangeSource(
-        rangesOfColumnsExceptFirst,
-        dataSetsHaveTitle,
-        getUnboundRange(getters, firstColumn.zone)
-      ),
+      dataSource: rangeSource(rangesOfColumnsExceptFirst, dataSetsHaveTitle, [
+        getUnboundRange(getters, firstColumn.zone),
+      ]),
       dataSetStyles: {},
       aggregated: false,
       legendPosition: "top",
@@ -321,11 +313,9 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
     return {
       ...DEFAULT_LINE_CHART_CONFIG,
       type: "line",
-      dataSource: rangeSource(
-        rangesOfColumnsExceptFirst,
-        dataSetsHaveTitle,
-        getUnboundRange(getters, firstColumn.zone)
-      ),
+      dataSource: rangeSource(rangesOfColumnsExceptFirst, dataSetsHaveTitle, [
+        getUnboundRange(getters, firstColumn.zone),
+      ]),
       dataSetStyles: {},
       legendPosition: "top",
     };
@@ -333,11 +323,9 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
 
   return {
     ...DEFAULT_BAR_CHART_CONFIG,
-    dataSource: rangeSource(
-      rangesOfColumnsExceptFirst,
-      dataSetsHaveTitle,
-      getUnboundRange(getters, firstColumn.zone)
-    ),
+    dataSource: rangeSource(rangesOfColumnsExceptFirst, dataSetsHaveTitle, [
+      getUnboundRange(getters, firstColumn.zone),
+    ]),
     dataSetStyles: {},
     legendPosition: "top",
   };

@@ -22,6 +22,8 @@ export interface DataSourceChartDefinition<T extends string | Range = Range>
   readonly aggregated?: boolean;
   readonly axesDesign?: AxesDesign;
   readonly showValues?: boolean;
+  readonly groupByParentCategories?: boolean;
+  readonly mergeGroups?: boolean;
 }
 
 export interface NonDataSourceBaseChartDefinition extends BaseChartDefinition {

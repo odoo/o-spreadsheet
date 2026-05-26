@@ -11,7 +11,7 @@ async function mountLabelRange(props: PropsOf<ChartLabelRange>) {
 describe("Label range", () => {
   test("Can render a label range component", async () => {
     await mountLabelRange({
-      range: "A1:B1",
+      ranges: ["A1:B1"],
       isInvalid: false,
       onSelectionChanged: () => {},
       onSelectionConfirmed: () => {},
@@ -21,7 +21,7 @@ describe("Label range", () => {
 
   test("Can add options to the label range component", async () => {
     await mountLabelRange({
-      range: "A1:B1",
+      ranges: ["A1:B1"],
       isInvalid: false,
       onSelectionChanged: () => {},
       onSelectionConfirmed: () => {},

@@ -46,7 +46,7 @@ import { ColorThemeName } from "../../../../types/rendering";
 import { isNumberResult } from "../../../cells/cell_evaluation";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
 import { DAYS, formatValue, isDateTimeFormat, MONTHS } from "../../../format/format";
-import { deepCopy, findNextDefinedValue, range } from "../../../misc";
+import { deepCopy, findNextDefinedValue, range, removeDuplicates } from "../../../misc";
 import { createDate } from "../../../pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { BubbleChartData } from "../bubble_chart";
 import { getChartBackgroundColor, shouldRemoveFirstLabel } from "../chart_common";
@@ -56,16 +56,26 @@ const ZERO = Object.freeze({ value: 0 });
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
-  { labelValues, dataSetsValues }: ChartData,
+  { labelValues, dataSetsValues, secondaryLabelValues }: ChartData,
   getters: EvaluationGetters,
   colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   const locale = getters.getLocale();
   let labels = labelValues.map(({ value, format }) => formatValue(value, { format, locale }));
-
-  ({ labels, dataSetsValues } = filterInvalidDataPoints(labels, dataSetsValues));
+  let parentCategories: string[][] | undefined;
+  ({ labels, dataSetsValues, parentCategories } = filterAndGroupDataPoints(
+    definition,
+    labels,
+    dataSetsValues,
+    secondaryLabelValues,
+    locale
+  ));
   if (definition.aggregated) {
-    ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
+    ({ labels, dataSetsValues, parentCategories } = aggregateDataForLabels(
+      labels,
+      dataSetsValues,
+      parentCategories
+    ));
   }
 
   const leftAxisFormat = getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "left");
@@ -93,6 +103,7 @@ export function getBarChartData(
     trendDataSetsValues,
     axisFormats,
     labels,
+    parentCategories,
     locale: getters.getLocale(),
     topPadding: getTopPaddingForDashboard(definition, getters),
     background: getChartBackgroundColor(definition, colorThemeName),
@@ -231,13 +242,13 @@ export function getCalendarChartData(
 
 export function getPyramidChartData(
   definition: PyramidChartDefinition,
-  { labelValues, dataSetsValues }: ChartData,
+  { labelValues, dataSetsValues, secondaryLabelValues }: ChartData,
   getters: EvaluationGetters,
   colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   const barChartData = getBarChartData(
     definition,
-    { labelValues, dataSetsValues: dataSetsValues.slice(0, 2) },
+    { labelValues, dataSetsValues: dataSetsValues.slice(0, 2), secondaryLabelValues },
     getters,
     colorThemeName
   );
@@ -265,26 +276,37 @@ export function getPyramidChartData(
 
 export function getLineChartData(
   definition: GenericDefinition<LineChartDefinition>,
-  { labelValues, dataSetsValues }: ChartData,
+  { labelValues, dataSetsValues, secondaryLabelValues }: ChartData,
   getters: EvaluationGetters,
   colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   const axisType = getChartAxisType(definition, { labelValues, dataSetsValues });
+  const locale = getters.getLocale();
   let labels =
     axisType === "linear"
       ? labelValues.map(({ value }) => String(value ?? ""))
-      : labelValues.map(({ value, format }) =>
-          formatValue(value, { format, locale: getters.getLocale() })
-        );
+      : labelValues.map(({ value, format }) => formatValue(value, { format, locale }));
+  let parentCategories: string[][] | undefined;
 
   // Area charts use non-numeric values as zero.
   const invalidDataValue = definition.fillArea ? ZERO : EMPTY;
-  ({ labels, dataSetsValues } = filterInvalidDataPoints(labels, dataSetsValues, invalidDataValue));
+  ({ labels, dataSetsValues, parentCategories } = filterAndGroupDataPoints(
+    definition,
+    labels,
+    dataSetsValues,
+    secondaryLabelValues,
+    locale,
+    invalidDataValue
+  ));
   if (axisType === "time") {
     ({ labels, dataSetsValues } = fixEmptyLabelsForDateCharts(labels, dataSetsValues));
   }
   if (definition.aggregated) {
-    ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
+    ({ labels, dataSetsValues, parentCategories } = aggregateDataForLabels(
+      labels,
+      dataSetsValues,
+      parentCategories
+    ));
   }
   if (definition.cumulative) {
     dataSetsValues = makeDatasetsCumulative(dataSetsValues, "asc");
@@ -313,6 +335,7 @@ export function getLineChartData(
     dataSetsValues,
     axisFormats,
     labels,
+    parentCategories,
     locale: getters.getLocale(),
     trendDataSetsValues,
     axisType,
@@ -847,6 +870,68 @@ function fixEmptyLabelsForDateCharts(
   return { labels: newLabels, dataSetsValues: newDatasets };
 }
 
+function filterAndGroupDataPoints(
+  definition: { groupByParentCategories?: boolean },
+  labels: string[],
+  dataSetsValues: DatasetValues[],
+  secondaryLabelValues: LabelValues[] | undefined,
+  locale: Locale,
+  invalidDataValue?: FunctionResultObject
+): { labels: string[]; dataSetsValues: DatasetValues[]; parentCategories?: string[][] } {
+  const parentCategories = secondaryLabelValues?.map((values) =>
+    values.map(({ value, format }) => formatValue(value, { format, locale }))
+  );
+  const filtered = filterInvalidDataPoints(
+    labels,
+    dataSetsValues,
+    parentCategories,
+    invalidDataValue
+  );
+  if (!definition.groupByParentCategories || !filtered.parentCategories?.length) {
+    return filtered;
+  }
+  return reorderByParentCategories(
+    filtered.labels,
+    filtered.dataSetsValues,
+    filtered.parentCategories
+  );
+}
+
+function reorderByParentCategories(
+  labels: string[],
+  dataSetsValues: DatasetValues[],
+  parentCategories: string[][]
+): { labels: string[]; dataSetsValues: DatasetValues[]; parentCategories: string[][] } {
+  const firstOccurrences = parentCategories.map((level) => {
+    const map = new Map<string, number>();
+    level.forEach((value, i) => {
+      if (!map.has(value)) {
+        map.set(value, i);
+      }
+    });
+    return map;
+  });
+
+  const indices = range(0, labels.length).sort((a, b) => {
+    for (let level = parentCategories.length - 1; level >= 0; level--) {
+      const firstOccurrence = firstOccurrences[level];
+      const diff =
+        firstOccurrence.get(parentCategories[level][a])! -
+        firstOccurrence.get(parentCategories[level][b])!;
+      if (diff !== 0) {
+        return diff;
+      }
+    }
+    return 0;
+  });
+
+  return {
+    labels: indices.map((i) => labels[i]),
+    dataSetsValues: dataSetsValues.map((ds) => ({ ...ds, data: indices.map((i) => ds.data[i]) })),
+    parentCategories: parentCategories.map((level) => indices.map((i) => level[i])),
+  };
+}
+
 /**
  * Filter the data points that:
  * - have neither a label nor a value
@@ -855,8 +940,9 @@ function fixEmptyLabelsForDateCharts(
 function filterInvalidDataPoints(
   labels: string[],
   datasets: DatasetValues[],
+  parentCategories?: string[][],
   invalidDataValue: FunctionResultObject = EMPTY
-): { labels: string[]; dataSetsValues: DatasetValues[] } {
+): { labels: string[]; dataSetsValues: DatasetValues[]; parentCategories?: string[][] } {
   const numberOfDataPoints = Math.max(
     labels.length,
     ...datasets.map((dataset) => dataset.data?.length || 0)
@@ -874,6 +960,9 @@ function filterInvalidDataPoints(
         isNumberResult(dataset.data[i]) ? dataset.data[i] : invalidDataValue
       ),
     })),
+    parentCategories: parentCategories
+      ? parentCategories.map((secondary) => dataPointsIndexes.map((i) => secondary[i] ?? ""))
+      : undefined,
   };
 }
 
@@ -980,33 +1069,42 @@ function filterValuesWithDifferentSigns(values: LabelValues, hierarchy: DatasetV
  */
 function aggregateDataForLabels(
   labels: string[],
-  datasets: DatasetValues[]
-): { labels: string[]; dataSetsValues: DatasetValues[] } {
+  datasets: DatasetValues[],
+  parentCategories?: string[][]
+): { labels: string[]; dataSetsValues: DatasetValues[]; parentCategories?: string[][] } {
   const parseNumber = (value: CellValue) => (typeof value === "number" ? value : 0);
-  const labelSet = new Set(labels);
+  const keys = labels.map((_, indexOfLabel) =>
+    JSON.stringify([
+      labels[indexOfLabel],
+      ...(parentCategories?.map((level) => level[indexOfLabel]) ?? []),
+    ])
+  );
+  const uniqueIndices = removeDuplicates(range(0, labels.length), (i) => keys[i]);
   const labelMap: { [key: string]: { value: number; format?: Format }[] } = {};
-  labelSet.forEach((label) => {
-    labelMap[label] = new Array(datasets.length);
+  uniqueIndices.forEach((i) => {
+    labelMap[keys[i]] = new Array(datasets.length);
   });
 
   for (const indexOfLabel of range(0, labels.length)) {
-    const label = labels[indexOfLabel];
+    const key = keys[indexOfLabel];
     for (const indexOfDataset of range(0, datasets.length)) {
       const cell = datasets[indexOfDataset].data[indexOfLabel];
-      if (!labelMap[label][indexOfDataset]) {
-        labelMap[label][indexOfDataset] = { ...cell, value: parseNumber(cell?.value) };
+      if (!labelMap[key][indexOfDataset]) {
+        labelMap[key][indexOfDataset] = { ...cell, value: parseNumber(cell?.value) };
       } else {
-        labelMap[label][indexOfDataset].value += parseNumber(cell?.value);
+        labelMap[key][indexOfDataset].value += parseNumber(cell?.value);
       }
     }
   }
 
+  const newLabels = uniqueIndices.map((i) => labels[i]);
   return {
-    labels: Array.from(labelSet),
+    labels: newLabels,
     dataSetsValues: datasets.map((dataset, indexOfDataset) => ({
       ...dataset,
-      data: Array.from(labelSet).map((label) => labelMap[label][indexOfDataset]),
+      data: uniqueIndices.map((i) => labelMap[keys[i]][indexOfDataset]),
     })),
+    parentCategories: parentCategories?.map((level) => uniqueIndices.map((i) => level[i])),
   };
 }
 
