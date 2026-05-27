@@ -69,7 +69,6 @@ export function getBarChartLegend(
     }),
     ...getLegendDisplayOptions(definition),
     ...getCustomLegendLabels(chartFontColor(definition.background), {
-      pointStyle: "rect",
       lineWidth: 3,
     }),
   };

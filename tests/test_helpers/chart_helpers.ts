@@ -218,6 +218,7 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   hideDataMarkers: false,
   funnelColors: [],
   showLabels: false,
+  showTotalLine: false,
   valuesDesign: {},
   groupColors: [],
   horizontal: false,

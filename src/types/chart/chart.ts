@@ -254,6 +254,7 @@ export interface ChartCreationContext {
   readonly axesDesign?: AxesDesign;
   readonly fillArea?: boolean;
   readonly showValues?: boolean;
+  readonly showTotalLine?: boolean;
   readonly funnelColors?: FunnelChartColors;
   readonly showLabels?: boolean;
   readonly hideDataMarkers?: boolean;

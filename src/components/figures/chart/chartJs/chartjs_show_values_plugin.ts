@@ -21,6 +21,13 @@ declare module "chart.js" {
 
 const MINIMAL_VERTICAL_DISTANCE = 13;
 
+function isLineOverlayOnBarChart(
+  options: ChartShowValuesPluginOptions,
+  dataset: ChartMeta
+): boolean {
+  return options.type === "bar" && dataset.type === "line";
+}
+
 /** This is a chartJS plugin that will draw the values of each data next to the point/bar/pie slice */
 export const chartShowValuesPlugin: Plugin = {
   id: "chartShowValuesPlugin",
@@ -87,7 +94,11 @@ function drawLineOrBarOrRadarChartValues(
 ) {
   const textsPositions: Record<number, number[]> = {};
   for (const dataset of chart._metasets) {
-    if (isTrendLineAxis(dataset.xAxisID) || dataset.hidden) {
+    if (
+      isTrendLineAxis(dataset.xAxisID) ||
+      dataset.hidden ||
+      isLineOverlayOnBarChart(options, dataset)
+    ) {
       continue;
     }
 
@@ -240,8 +251,8 @@ function drawHorizontalBarChartValues(
   const textsPositions: Record<number, number[]> = {};
 
   for (const dataset of chart._metasets) {
-    if (isTrendLineAxis(dataset.xAxisID)) {
-      return; // ignore trend lines
+    if (isTrendLineAxis(dataset.xAxisID) || isLineOverlayOnBarChart(options, dataset)) {
+      continue;
     }
     const xAxisScale = chart.scales[dataset.xAxisID];
     const xZeroLine = xAxisScale.getPixelForValue(0);
