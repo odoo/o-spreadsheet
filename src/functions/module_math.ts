@@ -11,6 +11,8 @@ import {
   isMatrix,
 } from "../types/misc";
 import { arg } from "./arguments";
+import { createComputeFunction } from "./create_compute_function";
+import { functionRegistry } from "./function_registry";
 import { assertNotZero } from "./helper_assert";
 import { countUnique, sum } from "./helper_math";
 import { getUnitMatrix } from "./helper_matrices";
@@ -1429,7 +1431,8 @@ export const SUBTOTAL = {
       }
     }
 
-    return this[subtotalFunctionAggregateByCode[code]].apply(this, [[functionResults]]);
+    const aggregateName = subtotalFunctionAggregateByCode[code];
+    return createComputeFunction(functionRegistry.get(aggregateName), 1)(this, [functionResults]);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
