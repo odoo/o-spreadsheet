@@ -450,6 +450,7 @@ export function createEmptyWorkbookData(sheetName = "Sheet1"): WorkbookData {
     formats: {},
     borders: {},
     revisionId: DEFAULT_REVISION_ID,
+    spreadsheetId: UuidGenerator.uuidv4(),
     uniqueFigureIds: true,
     settings: { locale: DEFAULT_LOCALE },
     pivots: {},

@@ -33,7 +33,13 @@ describe("load data", () => {
       uniqueFigureIds: true,
     });
 
-    expect(load({})).toEqual(emptyWorkbook);
+    // spreadsheetId is a randomly-generated UUID each time `load({})` is called on
+    // empty data (no stored ID to reuse). Verify structural equality excluding that field.
+    const second = load({});
+    expect(typeof second.spreadsheetId).toBe("string");
+    const { spreadsheetId: _a, ...emptyRest } = emptyWorkbook as any;
+    const { spreadsheetId: _b, ...secondRest } = second as any;
+    expect(secondRest).toEqual(emptyRest);
   });
 
   test("assign sheet name if missing", () => {

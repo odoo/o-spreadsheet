@@ -220,7 +220,9 @@ import { isMatrix } from "./types/misc";
 
 export const __info__ = {};
 
+export { LocalStoragePendingMessages } from "./collaborative/local_storage_pending_messages";
 export { LocalTransportService } from "./collaborative/local_transport_service";
+export type { PendingMessagesStorage } from "./collaborative/pending_messages_storage";
 export { Revision } from "./collaborative/revisions";
 export { ClientDisconnectedError } from "./collaborative/session";
 export { Spreadsheet } from "./components/spreadsheet/spreadsheet";
