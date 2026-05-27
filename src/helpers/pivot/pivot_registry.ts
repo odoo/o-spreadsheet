@@ -32,6 +32,7 @@ export interface PivotRegistryItem {
   datetimeGranularities: string[];
   isMeasureCandidate: (field: PivotField) => boolean;
   isGroupable: (field: PivotField) => boolean;
+  isGridDependent: boolean;
   adaptRanges?: (
     getters: CoreGetters,
     definition: PivotCoreDefinition,
@@ -66,6 +67,7 @@ pivotRegistry.add("SPREADSHEET", {
   datetimeGranularities: [...datetimeGranularities],
   isMeasureCandidate: (field: PivotField) => !["datetime", "boolean"].includes(field.type),
   isGroupable: () => true,
+  isGridDependent: true,
   adaptRanges: (getters, definition, applyChange) => {
     if (definition.type !== "SPREADSHEET" || !definition.dataSet) {
       return definition;
