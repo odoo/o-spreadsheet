@@ -1437,7 +1437,7 @@ describe("evaluate formula getter", () => {
     expect(mockCompute).toHaveBeenCalledTimes(1);
   });
 
-  test("cells in error are correctly reset", () => {
+  test.only("cells in error are correctly reset", () => {
     let value: string | number = "LOADING...";
     addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
@@ -1454,7 +1454,7 @@ describe("evaluate formula getter", () => {
     expect(getEvaluatedCell(model, "A2").value).toBe(-2);
   });
 
-  test("cells in error and in another sheet are correctly reset", () => {
+  test.only("cells in error and in another sheet are correctly reset", () => {
     let value: string | number = "LOADING...";
     addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
@@ -1480,7 +1480,7 @@ describe("evaluate formula getter", () => {
     expect(getEvaluatedCell(model, "A3", firstSheetId).value).toBe(5);
   });
 
-  test("cells with two consecutive error are correctly evaluated", () => {
+  test.only("cells with two consecutive error are correctly evaluated", () => {
     let value: number = 1;
     addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",

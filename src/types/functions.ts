@@ -33,7 +33,9 @@ export interface ArgDefinition {
 
 export type ArgProposal = { value: CellValue; label?: string };
 
-export type ComputeFunction<R> = (this: EvalContext, ...args: Arg[]) => R;
+type ComputeFunction<R> = (this: EvalContext, ...args: Arg[]) => R;
+
+export type PreparedComputeFunction<R> = (ctx: EvalContext, ...args: Arg[]) => R;
 
 export interface AddFunctionDescription {
   compute: ComputeFunction<

@@ -4,9 +4,9 @@ import { BadExpressionError, EvaluationError, NotAvailableError } from "../types
 import { _t } from "../translation";
 import {
   ArgDefinition,
-  ComputeFunction,
   EvalContext,
   FunctionDescription,
+  PreparedComputeFunction,
 } from "../types/functions";
 import { Arg, FunctionResultObject, isMatrix, Matrix } from "../types/misc";
 import { argTargeting } from "./arguments";
@@ -54,7 +54,8 @@ export function applyVectorization(
   context: EvalContext,
   descr: FunctionDescription,
   args: Arg[],
-  acceptToVectorize: boolean[] | undefined = undefined
+  acceptToVectorize: boolean[] | undefined = undefined,
+  argDefinitions?: ArgDefinition[]
 ): FunctionResultObject | Matrix<FunctionResultObject> {
   let countVectorizedCol = 1;
   let countVectorizedRow = 1;
@@ -92,10 +93,12 @@ export function applyVectorization(
     }
   }
 
-  const argsToFocus = argTargeting(descr, args.length);
-  const argDefinitions: ArgDefinition[] = new Array(args.length);
-  for (let k = 0; k < args.length; k++) {
-    argDefinitions[k] = descr.args[argsToFocus[k].index];
+  if (!argDefinitions) {
+    const argsToFocus = argTargeting(descr, args.length);
+    argDefinitions = new Array(args.length);
+    for (let k = 0; k < args.length; k++) {
+      argDefinitions[k] = descr.args[argsToFocus[k].index];
+    }
   }
 
   if (countVectorizedCol === 1 && countVectorizedRow === 1) {
@@ -239,25 +242,30 @@ function isFunctionResultObject(obj: unknown): obj is FunctionResultObject {
 }
 
 export function createComputeFunction(
-  descr: FunctionDescription
-): ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject> {
-  function vectorizedCompute(
-    this: EvalContext,
-    ...args: Arg[]
-  ): FunctionResultObject | Matrix<FunctionResultObject> {
+  descr: FunctionDescription,
+  argCount: number
+): PreparedComputeFunction<FunctionResultObject | Matrix<FunctionResultObject>> {
+  const functionName = descr.name;
+  const argsToFocus = argTargeting(descr, argCount);
+  const argDefinitions: ArgDefinition[] = new Array(argCount);
+  const acceptToVectorize: boolean[] = new Array(argCount);
+  const matrixOnlyIndices: number[] = [];
+  for (let i = 0; i < argCount; i++) {
+    const def = descr.args[argsToFocus[i].index];
+    argDefinitions[i] = def;
+    acceptToVectorize[i] = !def.acceptMatrix;
+    if (def.acceptMatrixOnly) {
+      matrixOnlyIndices.push(i);
+    }
+  }
+  function vectorizedCompute(evalContext: EvalContext, ...args: Arg[]) {
     let start = 0;
-    if (this.__timingEntries) {
+    if (evalContext.__timingEntries) {
       start = performance.now();
     }
-    const acceptToVectorize: boolean[] = [];
-
-    const argsToFocus = argTargeting(descr, args.length);
-    //#region Compute vectorisation limits
-    for (let i = 0; i < args.length; i++) {
-      const argIndex = argsToFocus[i].index;
-      const argDefinition = descr.args[argIndex];
-      const arg = args[i];
-      if (!isMatrix(arg) && argDefinition.acceptMatrixOnly) {
+    for (let k = 0; k < matrixOnlyIndices.length; k++) {
+      const i = matrixOnlyIndices[k];
+      if (!isMatrix(args[i])) {
         throw new BadExpressionError(
           _t(
             "Function %s expects the parameter '%s' to be reference to a cell or range.",
@@ -266,17 +274,15 @@ export function createComputeFunction(
           )
         );
       }
-      acceptToVectorize.push(!argDefinition.acceptMatrix);
     }
-
     const result = replaceErrorPlaceholderInResult(
-      applyVectorization(this, descr, args, acceptToVectorize)
+      applyVectorization(evalContext, descr, args, acceptToVectorize, argDefinitions)
     );
-    if (this.__timingEntries && this.__originCellPosition) {
+    if (evalContext.__timingEntries && evalContext.__originCellPosition) {
       const end = performance.now();
-      this.__timingEntries.push({
-        functionName: descr.name,
-        position: this.__originCellPosition,
+      evalContext.__timingEntries.push({
+        functionName,
+        position: evalContext.__originCellPosition,
         time: end - start,
       });
     }
