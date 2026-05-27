@@ -80,7 +80,7 @@ describe("Table dropdown button", () => {
     );
   });
 
-  test("Clicking on the widget open the pivot side panel if there is a pivot in the selection", async () => {
+  test("Clicking on the widget open the pivot side panel if there is a dynamic pivot in the selection", async () => {
     setGrid(model, { A1: "Price", A2: "10", A3: "=PIVOT(1)" });
     addPivot(model, "A1:A2", {});
     setSelection(model, ["A3"]);
@@ -91,5 +91,16 @@ describe("Table dropdown button", () => {
     await click(fixture, ".o-table-widget .o-menu-item-button");
     expect(".o-pivot-panel").toHaveCount(1);
     expect(".o-sidePanel-tab.o-panel-design").not.toHaveClass("inactive");
+  });
+
+  test("Clicking on the widget create a new table if there is a static pivot in the selection", async () => {
+    setGrid(model, { A1: "Price", A2: "10", A3: "=PIVOT.HEADER(1)" });
+    addPivot(model, "A1:A2", {});
+    setSelection(model, ["A3"]);
+    await nextTick();
+
+    expect(".o-table-widget .o-menu-item-button").toHaveAttribute("title", "Insert table");
+    await click(fixture, ".o-table-widget .o-menu-item-button");
+    expect(".o-table-style-popover").toHaveCount(1);
   });
 });
