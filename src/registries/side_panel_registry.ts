@@ -1,3 +1,4 @@
+import { RESIZE_COLUMNS_NAME, RESIZE_ROWS_NAME } from "../actions/menu_items_actions";
 import { CarouselPanel } from "../components/side_panel/carousel_panel/carousel_panel";
 import { ChartPanel } from "../components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { ColumnStatsPanel } from "../components/side_panel/column_stats/column_stats_panel";
@@ -6,6 +7,7 @@ import { ConditionalFormatPreviewList } from "../components/side_panel/condition
 import { DataValidationPanel } from "../components/side_panel/data_validation/data_validation_panel";
 import { DataValidationEditor } from "../components/side_panel/data_validation/dv_editor/dv_editor";
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace/find_and_replace";
+import { HeaderResizePanel } from "../components/side_panel/header_resize_panel/header_resize_panel";
 import { MoreFormatsPanel } from "../components/side_panel/more_formats/more_formats";
 import { NamedRangesPanel } from "../components/side_panel/named_ranges_panel/named_ranges_panel";
 import { PerfProfilePanel } from "../components/side_panel/perf_profile/perf_profile_panel";
@@ -21,7 +23,7 @@ import { getTableTopLeft } from "../helpers/table_helpers";
 import { _t } from "../translation";
 import { ConditionalFormat } from "../types/conditional_formatting";
 import { Getters } from "../types/getters";
-import { UID } from "../types/misc";
+import { Dimension, UID } from "../types/misc";
 import { PropsOf } from "../types/props_of";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { Registry } from "./registry";
@@ -124,6 +126,26 @@ sidePanelRegistry.add("MoreFormats", {
 sidePanelRegistry.add("ColumnStats", {
   title: _t("Column statistics"),
   Body: ColumnStatsPanel,
+});
+
+sidePanelRegistry.add("HeaderResizePanel", {
+  title: (env: SpreadsheetChildEnv, props: PropsOf<HeaderResizePanel>) =>
+    props.dimension === "COL" ? RESIZE_COLUMNS_NAME(env) : RESIZE_ROWS_NAME(env),
+  Body: HeaderResizePanel,
+  computeState: (getters: Getters, props: { dimension: Dimension }) => {
+    const sheetId = getters.getActiveSheetId();
+    const elements =
+      props.dimension === "COL"
+        ? [...getters.getActiveCols()].sort((a, b) => a - b)
+        : [...getters.getActiveRows()].sort((a, b) => a - b);
+    if (!elements.length) {
+      return { isOpen: false };
+    }
+    return {
+      isOpen: true,
+      props: { ...props, sheetId, elements },
+    };
+  },
 });
 
 sidePanelRegistry.add("TableSidePanel", {
