@@ -220,6 +220,16 @@
       />
     </svg>
   </t>
+  <t t-name="o-spreadsheet-Icon.RESIZE_HORIZONTAL">
+    <div class="o-icon">
+      <i class="fa fa-arrows-h"/>
+    </div>
+  </t>
+  <t t-name="o-spreadsheet-Icon.RESIZE_VERTICAL">
+    <div class="o-icon">
+      <i class="fa fa-arrows-v"/>
+    </div>
+  </t>
   <t t-name="o-spreadsheet-Icon.INSERT_CELL">
     <svg class="o-icon" viewBox="0 0 18 18">
       <path
