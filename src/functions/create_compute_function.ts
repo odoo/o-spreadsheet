@@ -1,6 +1,7 @@
 import { CellValue } from "../types/cells";
 import { BadExpressionError, EvaluationError, NotAvailableError } from "../types/errors";
 
+import { range } from "../helpers/misc";
 import { _t } from "../translation";
 import {
   ArgDefinition,
@@ -54,7 +55,7 @@ export function applyVectorization(
   context: EvalContext,
   descr: FunctionDescription,
   args: Arg[],
-  acceptToVectorize: boolean[] | undefined = undefined,
+  vectorizableIndices: number[] = range(0, args.length), // if not specified, all arguments are vectorizable
   argDefinitions?: ArgDefinition[]
 ): FunctionResultObject | Matrix<FunctionResultObject> {
   let countVectorizedCol = 1;
@@ -64,31 +65,32 @@ export function applyVectorization(
 
   let vectorArgsType: VectorArgType[] | undefined = undefined;
 
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
+  for (let k = 0; k < vectorizableIndices.length; k++) {
+    const argIndex = vectorizableIndices[k];
+    const arg = args[argIndex];
 
-    if (isMatrix(arg) && (acceptToVectorize === undefined || acceptToVectorize[i])) {
+    if (isMatrix(arg)) {
       const nColumns = arg.length;
       const nRows = arg[0].length;
       if (nColumns !== 1 || nRows !== 1) {
         vectorArgsType ??= new Array(args.length);
         if (nColumns !== 1 && nRows !== 1) {
-          vectorArgsType[i] = "matrix";
+          vectorArgsType[argIndex] = "matrix";
           countVectorizedCol = Math.max(countVectorizedCol, nColumns);
           countVectorizedRow = Math.max(countVectorizedRow, nRows);
           vectorizedColLimit = Math.min(vectorizedColLimit, nColumns);
           vectorizedRowLimit = Math.min(vectorizedRowLimit, nRows);
         } else if (nColumns !== 1) {
-          vectorArgsType[i] = "horizontal";
+          vectorArgsType[argIndex] = "horizontal";
           countVectorizedCol = Math.max(countVectorizedCol, nColumns);
           vectorizedColLimit = Math.min(vectorizedColLimit, nColumns);
         } else if (nRows !== 1) {
-          vectorArgsType[i] = "vertical";
+          vectorArgsType[argIndex] = "vertical";
           countVectorizedRow = Math.max(countVectorizedRow, nRows);
           vectorizedRowLimit = Math.min(vectorizedRowLimit, nRows);
         }
       } else {
-        args[i] = arg[0][0];
+        args[argIndex] = arg[0][0];
       }
     }
   }
@@ -248,12 +250,14 @@ export function createComputeFunction(
   const functionName = descr.name;
   const argsToFocus = argTargeting(descr, argCount);
   const argDefinitions: ArgDefinition[] = new Array(argCount);
-  const acceptToVectorize: boolean[] = new Array(argCount);
+  const vectorizableIndices: number[] = [];
   const matrixOnlyIndices: number[] = [];
   for (let i = 0; i < argCount; i++) {
     const def = descr.args[argsToFocus[i].index];
     argDefinitions[i] = def;
-    acceptToVectorize[i] = !def.acceptMatrix;
+    if (!def.acceptMatrix) {
+      vectorizableIndices.push(i);
+    }
     if (def.acceptMatrixOnly) {
       matrixOnlyIndices.push(i);
     }
@@ -276,7 +280,7 @@ export function createComputeFunction(
       }
     }
     const result = replaceErrorPlaceholderInResult(
-      applyVectorization(evalContext, descr, args, acceptToVectorize, argDefinitions)
+      applyVectorization(evalContext, descr, args, vectorizableIndices, argDefinitions)
     );
     if (evalContext.__timingEntries && evalContext.__originCellPosition) {
       const end = performance.now();
