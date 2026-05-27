@@ -2,7 +2,7 @@ import { props, proxy } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_TABLE_CONFIG } from "../../../helpers/table_presets";
 import { interactiveCreateTable } from "../../../helpers/ui/table_interactive";
-import { positions } from "../../../helpers/zones";
+import { cellPositions } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
 import { UID } from "../../../types/misc";
@@ -52,7 +52,7 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
       this.closePopover();
       return;
     }
-    const pivotId = this.pivotIdInSelection;
+    const pivotId = this.dynamicPivotIdInSelection;
     if (pivotId) {
       this.env.openSidePanel("PivotSidePanel", { pivotId, openTab: "design" });
       return;
@@ -78,7 +78,7 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
   }
 
   get action(): ActionSpec {
-    const pivotId = this.pivotIdInSelection;
+    const pivotId = this.dynamicPivotIdInSelection;
     if (pivotId) {
       return {
         name: _t("Edit pivot style"),
@@ -104,17 +104,30 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
     return this.env.model.getters.getTableStyles();
   }
 
-  get pivotIdInSelection(): UID | undefined {
+  get dynamicPivotIdInSelection(): UID | undefined {
     const selection = this.env.model.getters.getSelectedZones();
+    const pivotCellIds = new Set(this.env.model.getters.getCellsWithTrackedFormula("PIVOT"));
+    if (pivotCellIds.size === 0) {
+      return undefined;
+    }
+
+    const activeSheetId = this.env.model.getters.getActiveSheetId();
     for (const zone of selection) {
-      for (const position of positions(zone)) {
-        const sheetId = this.env.model.getters.getActiveSheetId();
-        const pivotId = this.env.model.getters.getPivotIdFromPosition({ sheetId, ...position });
-        if (pivotId) {
-          return pivotId;
+      for (const position of cellPositions(activeSheetId, zone)) {
+        const mainPosition = this.env.model.getters.getArrayFormulaSpreadingOn(position);
+        if (!mainPosition) {
+          continue;
+        }
+        const cellId = this.env.model.getters.getCell(mainPosition)?.id;
+        if (cellId && pivotCellIds.has(cellId)) {
+          const pivotId = this.env.model.getters.getPivotIdFromPosition(mainPosition);
+          if (pivotId) {
+            return pivotId;
+          }
         }
       }
     }
+
     return undefined;
   }
 
