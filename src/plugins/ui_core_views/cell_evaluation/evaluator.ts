@@ -796,7 +796,8 @@ export function updateEvalContextAndExecute(
     compilationParams.referenceDenormalizer,
     compilationParams.ensureRange,
     getSymbolValue,
-    evalContext
+    evalContext,
+    compiledFormula.computeFunctions
   );
   evalContext.__originCellPosition = currentCellPosition;
   evalContext.__originSheetId = currentSheetId;
