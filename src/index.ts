@@ -496,7 +496,12 @@ export const hooks = {
   useHighlightsOnHover,
 };
 
-export const compatibility = {
+export const compatibility: {
+  Component: any;
+  useExternalListener: any;
+  EnvPlugin: any;
+  App: any;
+} = {
   Component,
   useExternalListener,
   EnvPlugin,

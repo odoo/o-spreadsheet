@@ -48,6 +48,7 @@ function getConfigForPerf() {
   return {
     input: "src/index.ts",
     external: ["chart.js", "luxon"],
+    shimMissingExports: true,
     checks: {
       circularDependency: true,
     },

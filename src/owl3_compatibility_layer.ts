@@ -61,7 +61,7 @@ import {
 const isOdooCompatLoaded = __ODOO_COMPATIBILITY_LAYER_ADDED__ === true;
 
 export interface ComponentConstructor<Props = any, Env = any> {
-  new (...args: any[]): Component<Props, Env>;
+  new (...args: any[]): any;
   template: string;
 }
 
