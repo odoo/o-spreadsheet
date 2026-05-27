@@ -621,13 +621,12 @@ export const INSERT_TABLE = (env: SpreadsheetChildEnv) => {
 };
 
 export const DELETE_SELECTED_TABLE = (env: SpreadsheetChildEnv) => {
-  const position = env.model.getters.getActivePosition();
-  const table = env.model.getters.getTable(position);
+  const table = env.model.getters.getFirstTableInSelection();
   if (!table) {
     return;
   }
   env.model.dispatch("REMOVE_TABLE", {
-    sheetId: position.sheetId,
+    sheetId: env.model.getters.getActiveSheetId(),
     target: [table.range.zone],
   });
 };
