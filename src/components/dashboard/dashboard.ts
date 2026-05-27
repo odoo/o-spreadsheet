@@ -57,7 +57,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
 
     useTouchScroll(gridRef, this.moveCanvas.bind(this), () => {
       const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-      return scrollY > 0;
+      return scrollY >= 0;
     });
   }
 
