@@ -45,7 +45,7 @@ export class HTMLIcon extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onClick(): void {
-    // ADRM TODO: filter icon onClick don't work, not do data validation list icon
+    // ADRM TODO: filter icon onClick don't work, nor does data validation list icon
     this.props.icon.onClick?.(this.props.icon.position, this.env);
   }
 

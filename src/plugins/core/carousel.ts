@@ -1,7 +1,7 @@
 import { FIGURE_ID_SPLITTER } from "../../constants";
 import { CommandResult, CoreCommand, UpdateCarouselCommand } from "../../types/commands";
-import { Carousel, CarouselItem } from "../../types/figure";
-import { UID } from "../../types/misc";
+import { Carousel, CarouselData, CarouselItem, CarouselItemData } from "../../types/figure";
+import { RangeAdapterFunctions, UID } from "../../types/misc";
 import { WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 
@@ -10,8 +10,27 @@ interface CarouselState {
 }
 
 export class CarouselPlugin extends CorePlugin<CarouselState> implements CarouselState {
-  static getters = ["getCarousel", "doesCarouselExist"] as const;
+  static getters = ["getCarousel", "doesCarouselExist", "carouselToCarouselData"] as const;
   readonly carousels: Record<UID, Record<UID, Carousel | undefined> | undefined> = {};
+
+  adaptRanges(rangeAdapterFunctions: RangeAdapterFunctions): void {
+    for (const sheetId in this.carousels) {
+      for (const figureId in this.carousels[sheetId] || []) {
+        const carousel = this.carousels[sheetId]?.[figureId];
+        if (!carousel) {
+          continue;
+        }
+        for (let i = 0; i < carousel.items.length; i++) {
+          const item = carousel.items[i];
+          if (item.type === "carouselDataView" && item.range) {
+            const change = rangeAdapterFunctions.applyChange(item.range);
+            const newItem = { ...item, range: change.range };
+            this.history.update("carousels", sheetId, figureId, "items", i, newItem);
+          }
+        }
+      }
+    }
+  }
 
   allowDispatch(cmd: CoreCommand) {
     switch (cmd.type) {
@@ -34,16 +53,20 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "CREATE_CAROUSEL":
+      case "CREATE_CAROUSEL": {
         if (!this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
           this.dispatch("CREATE_FIGURE", { ...cmd, tag: "carousel" });
         }
-        this.history.update("carousels", cmd.sheetId, cmd.figureId, cmd.definition);
+        const carousel = this.carouselDataToCarousel(cmd.definition);
+        this.history.update("carousels", cmd.sheetId, cmd.figureId, carousel);
         break;
-      case "UPDATE_CAROUSEL":
+      }
+      case "UPDATE_CAROUSEL": {
         this.removeDeletedCharts(cmd, this.getters.getCarousel(cmd.figureId).items);
-        this.history.update("carousels", cmd.sheetId, cmd.figureId, cmd.definition);
+        const carousel = this.carouselDataToCarousel(cmd.definition);
+        this.history.update("carousels", cmd.sheetId, cmd.figureId, carousel);
         break;
+      }
       case "DUPLICATE_SHEET": {
         const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
         for (const fig of sheetFiguresFrom) {
@@ -61,9 +84,12 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
                 row: fig.row,
                 size,
                 definition: {
-                  items: carousel.items.map((item): CarouselItem => {
+                  items: carousel.items.map((item): CarouselItemData => {
                     if (item.type === "carouselDataView") {
-                      return { ...item };
+                      return {
+                        ...item,
+                        rangeData: item.range ? this.getters.getRangeData(item.range) : undefined,
+                      };
                     }
                     const chartIdBase = item.chartId.split(FIGURE_ID_SPLITTER).pop();
                     const newChartId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${chartIdBase}`;
@@ -115,25 +141,44 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
     }
   }
 
+  private carouselDataToCarousel(carouselData: CarouselData): Carousel {
+    return {
+      ...carouselData,
+      items: carouselData.items.map((item) => {
+        if (item.type === "carouselDataView") {
+          return {
+            type: "carouselDataView",
+            title: item.title,
+            range: item.rangeData ? this.getters.getRangeFromRangeData(item.rangeData) : undefined,
+          };
+        }
+        return item;
+      }),
+    };
+  }
+
+  carouselToCarouselData(carousel: Carousel): CarouselData {
+    return {
+      ...carousel,
+      items: carousel.items.map((item) => {
+        if (item.type === "carouselDataView") {
+          return {
+            type: "carouselDataView",
+            title: item.title,
+            rangeData: item.range ? this.getters.getRangeData(item.range) : undefined,
+          };
+        }
+        return item;
+      }),
+    };
+  }
+
   import(data: WorkbookData) {
     for (const sheet of data.sheets) {
       const carousels = (sheet.figures || []).filter((figure) => figure.tag === "carousel");
-      for (const carousel of carousels) {
-        // ADRM TODO: need an adaptRange + ot transformations
-        const items = carousel.data.items.map((item) =>
-          item.type === "chart"
-            ? item
-            : {
-                ...item,
-                range: item.range
-                  ? this.getters.getRangeFromSheetXC(undefined, item.range)
-                  : undefined,
-              }
-        );
-        this.history.update("carousels", sheet.id, carousel.id, {
-          items: items,
-          title: carousel.data.title,
-        });
+      for (const figure of carousels) {
+        const carousel = this.carouselDataToCarousel(figure.data);
+        this.history.update("carousels", sheet.id, figure.id, carousel);
       }
     }
   }
@@ -144,12 +189,8 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
       for (const carouselData of carousels) {
         const carousel = this.carousels[sheet.id]?.[carouselData.id];
         if (carousel) {
-          const items = carousel.items.map((item) =>
-            item.type === "chart"
-              ? item
-              : { ...item, range: item.range ? this.getters.getRangeString(item.range) : undefined }
-          );
-          carouselData.data = { ...carouselData.data, ...carousel, items };
+          const carouselDefinition = this.carouselToCarouselData(carousel);
+          carouselData.data = { ...carouselData.data, ...carouselDefinition };
         }
       }
     }

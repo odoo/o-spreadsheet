@@ -197,7 +197,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     this.env.model.dispatch("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
-      definition: { ...this.carousel, items },
+      definition: this.env.model.getters.carouselToCarouselData({ ...this.carousel, items }),
     });
   }
 
@@ -206,13 +206,13 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     this.env.model.dispatch("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
-      definition: {
+      definition: this.env.model.getters.carouselToCarouselData({
         ...carousel,
         title: {
           ...carousel.title,
           text: title,
         },
-      },
+      }),
     });
   }
 
@@ -221,13 +221,13 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     this.env.model.dispatch("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
-      definition: {
+      definition: this.env.model.getters.carouselToCarouselData({
         ...carousel,
         title: {
           ...carousel.title,
           ...style,
         },
-      },
+      }),
     });
   }
 
