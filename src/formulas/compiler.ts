@@ -1,4 +1,6 @@
+import { ComputeFunction, FunctionResultObject, Matrix } from "..";
 import { argTargeting } from "../functions/arguments";
+import { createComputeFunction } from "../functions/create_compute_function";
 import { functionRegistry } from "../functions/function_registry";
 import { canBeNamedRangeToken } from "../helpers/formulas";
 import { concat, unquote } from "../helpers/misc";
@@ -55,6 +57,7 @@ export const UNARY_OPERATOR_MAP = {
 
 interface ICompiledFormula {
   execute: FormulaToExecute;
+  computeFunctions: ComputeFunction<FunctionResultObject | Matrix<FunctionResultObject>>[];
   tokens: Token[];
   dependencies: string[];
   isBadExpression: boolean;
@@ -70,6 +73,10 @@ const NO_REAL_VALUE = "__NO_REAL_VALUE__";
 // structural function.
 // It is only exported for testing purposes
 export const functionCache: { [key: string]: FormulaToExecute } = {};
+
+export const computeFunctionsCache: {
+  [key: string]: ComputeFunction<FunctionResultObject | Matrix<FunctionResultObject>>[];
+} = {};
 
 const collator = new Intl.Collator("en", { sensitivity: "accent" });
 
@@ -91,7 +98,10 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
     dependencies: Range[],
     public readonly isBadExpression: boolean,
     public readonly normalizedFormula: string,
-    public readonly execute: FormulaToExecute
+    public readonly execute: FormulaToExecute,
+    public readonly computeFunctions: ComputeFunction<
+      FunctionResultObject | Matrix<FunctionResultObject>
+    >[]
   ) {
     this.hasDependencies = dependencies?.length > 0;
     this.tokens.forEach((t) => {
@@ -227,7 +237,8 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
         newDependencies,
         this.isBadExpression,
         compilationCacheKey(tokenChanges?.newTokens || this.tokens),
-        this.execute
+        this.execute,
+        this.computeFunctions
       );
     }
     return this;
@@ -282,7 +293,8 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
       dependencies,
       base.isBadExpression,
       base.normalizedFormula,
-      base.execute
+      base.execute,
+      base.computeFunctions
     );
   }
 
@@ -304,7 +316,8 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
       dependencies,
       base.isBadExpression,
       base.normalizedFormula,
-      base.execute
+      base.execute,
+      base.computeFunctions
     );
   }
 
@@ -325,7 +338,8 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
       base.rangeDependencies,
       base.isBadExpression,
       base.normalizedFormula,
-      compiledFormula.execute
+      compiledFormula.execute,
+      compiledFormula.computeFunctions
     );
   }
 
@@ -344,7 +358,8 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
       params.dependencies.map((xc: string) => getters.getRangeFromSheetXC(sheetId, xc)),
       params.isBadExpression,
       params.normalizedFormula,
-      params.execute
+      params.execute,
+      params.computeFunctions
     );
   }
 }
@@ -381,6 +396,7 @@ function compileTokens(tokens: Token[]): ICompiledFormula {
       execute: function () {
         return error;
       },
+      computeFunctions: [],
       isBadExpression: true,
       normalizedFormula: tokens.map((t) => t.value).join(""),
     };
@@ -397,6 +413,8 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
     let stringCount = 0;
     let numberCount = 0;
     let dependencyCount = 0;
+    const computeFunctions: ComputeFunction<FunctionResultObject | Matrix<FunctionResultObject>>[] =
+      [];
 
     if (ast.type === "BIN_OPERATION" && ast.value === ":") {
       throw new BadExpressionError(_t("Invalid formula"));
@@ -414,11 +432,13 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
       "range", // same as above, but guarantee that the result is in the form of a range
       "getSymbolValue",
       "ctx",
+      "computeFunctions",
       code.toString()
     );
 
     // @ts-ignore
     functionCache[cacheKey] = baseFunction;
+    computeFunctionsCache[cacheKey] = computeFunctions;
 
     /**
      * This function compile the function arguments. It is mostly straightforward,
@@ -488,7 +508,16 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
             throw new Error(`Unknown function: "${fnName}"`);
           }
           const jsFnName = dangerouslyCreateJsStr(fnName); // validated with known functions
-          return code.return(jsStr`ctx['${jsFnName}'](${args.map((arg) => arg.returnExpression)})`);
+          const funCallIndex = computeFunctions.length;
+          computeFunctions.push(createComputeFunction(functions[fnName], args.length));
+          const comment = jsStr`// ${jsFnName}`;
+          if (args.length === 0) {
+            return code.return(jsStr`computeFunctions[${funCallIndex}](ctx); ${comment}`);
+          }
+          const compiledArgs = args.map((arg) => arg.returnExpression);
+          return code.return(
+            jsStr`computeFunctions[${funCallIndex}](ctx,${compiledArgs}); ${comment}`
+          );
         case "ARRAY": {
           // a literal array is compiled into function calls
           return compileAST(
@@ -514,6 +543,7 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
   }
   const compiledFormula: ICompiledFormula = {
     execute: functionCache[cacheKey],
+    computeFunctions: computeFunctionsCache[cacheKey],
     dependencies,
     literalValues,
     symbols,

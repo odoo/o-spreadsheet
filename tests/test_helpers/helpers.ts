@@ -53,6 +53,7 @@ import {
   UID,
   Zone,
 } from "../../src";
+import { computeFunctionsCache } from "../../src/formulas/compiler";
 import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
@@ -88,10 +89,8 @@ import { DOMTarget, click, getTarget, getTextNodes, keyDown, keyUp } from "./dom
 import { getCellContent, getEvaluatedCell } from "./getters_helpers";
 
 const functionsContent = functionRegistry.content;
-const functionMap = functionRegistry.mapping;
 
 const functionsContentRestore = { ...functionsContent };
-const functionMapRestore = { ...functionMap };
 
 export function spyDispatch(parent: Spreadsheet): jest.SpyInstance {
   return jest.spyOn(parent["props"].model, "dispatch");
@@ -129,6 +128,7 @@ export function addToRegistry<T>(registry: Registry<T>, key: string, value: T) {
     registry.add(key, value);
     registerCleanup(() => registry.remove(key));
   }
+  registerCleanup(restoreDefaultFunctions);
 }
 
 const realTimeSetTimeout = window.setTimeout.bind(window);
@@ -624,23 +624,19 @@ export function clearFunctions() {
 }
 
 function _clearFunctions() {
-  Object.keys(functionMap).forEach((k) => {
-    delete functionMap[k];
-  });
-
   Object.keys(functionsContent).forEach((k) => {
     delete functionsContent[k];
   });
 }
 
 export function restoreDefaultFunctions() {
+  for (const f in computeFunctionsCache) {
+    delete computeFunctionsCache[f];
+  }
   for (const f in functionCache) {
     delete functionCache[f];
   }
   _clearFunctions();
-  Object.keys(functionMapRestore).forEach((k) => {
-    functionMap[k] = functionMapRestore[k];
-  });
   Object.keys(functionsContentRestore).forEach((k) => {
     functionsContent[k] = functionsContentRestore[k];
   });

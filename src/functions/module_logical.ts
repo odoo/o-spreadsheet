@@ -3,7 +3,7 @@ import { CellErrorType, EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { Arg, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
-import { applyVectorization } from "./create_compute_function";
+import { applyVectorization, getFunctionArgDefinitions } from "./create_compute_function";
 import { functionRegistry } from "./function_registry";
 import { boolAnd, boolOr } from "./helper_logical";
 import { isMultipleElementMatrix, toScalar } from "./helper_matrices";
@@ -73,11 +73,13 @@ export const IF = {
   ],
   compute: function (logicalExpression: Arg, valueIfTrue: Arg, valueIfFalse: Arg) {
     if (isMultipleElementMatrix(logicalExpression)) {
-      return applyVectorization(this, functionRegistry.get("IF"), [
-        logicalExpression,
-        valueIfTrue,
-        valueIfFalse,
-      ]);
+      const IF = functionRegistry.get("IF");
+      return applyVectorization(
+        this,
+        IF,
+        [logicalExpression, valueIfTrue, valueIfFalse],
+        getFunctionArgDefinitions(IF, 3)
+      );
     }
     const result = toBoolean(toScalar(logicalExpression)) ? valueIfTrue : valueIfFalse;
     return result ?? { value: 0 };
@@ -99,7 +101,13 @@ export const IFERROR = {
   ],
   compute: function (value: Arg, valueIfError: Arg) {
     if (isMultipleElementMatrix(value)) {
-      return applyVectorization(this, functionRegistry.get("IFERROR"), [value, valueIfError]);
+      const IFERROR = functionRegistry.get("IFERROR");
+      return applyVectorization(
+        this,
+        IFERROR,
+        [value, valueIfError],
+        getFunctionArgDefinitions(IFERROR, 2)
+      );
     }
     const result = isEvaluationError(toScalar(value)?.value) ? valueIfError : value;
     return result ?? { value: 0 };
@@ -121,7 +129,13 @@ export const IFNA = {
   ],
   compute: function (value: Arg, valueIfError: Arg) {
     if (isMultipleElementMatrix(value)) {
-      return applyVectorization(this, functionRegistry.get("IFNA"), [value, valueIfError]);
+      const IFNA = functionRegistry.get("IFNA");
+      return applyVectorization(
+        this,
+        IFNA,
+        [value, valueIfError],
+        getFunctionArgDefinitions(IFNA, 2)
+      );
     }
     const result = toScalar(value)?.value === CellErrorType.NotAvailable ? valueIfError : value;
     return result ?? { value: 0 };
@@ -154,7 +168,8 @@ export const IFS = {
     }
     while (values.length > 0) {
       if (isMultipleElementMatrix(values[0])) {
-        return applyVectorization(this, functionRegistry.get("IFS"), values);
+        const IFS = functionRegistry.get("IFS");
+        return applyVectorization(this, IFS, values, getFunctionArgDefinitions(IFS, values.length));
       }
       const condition = toBoolean(toScalar(values.shift()));
       const valueIfTrue = values.shift();
