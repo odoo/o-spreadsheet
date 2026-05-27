@@ -1,6 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-Menu">
     <Popover t-if="menuItemsAndSeparators.length" t-props="popoverProps">
+      <t t-set="shouldDisplayIcons" t-value="this.childrenHaveIcon"/>
       <div
         t-ref="menu"
         class="o-menu"
@@ -29,7 +30,7 @@
               t-att-style="getColor(menuItem)">
               <div class="d-flex w-100">
                 <div
-                  t-if="childrenHaveIcon"
+                  t-if="shouldDisplayIcons"
                   class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
                   t-att-style="getIconColor(menuItem)">
                   <t t-if="getIconName(menuItem)" t-call="{{getIconName(menuItem)}}"/>
