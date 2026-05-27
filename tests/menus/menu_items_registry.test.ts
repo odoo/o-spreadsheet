@@ -1775,6 +1775,15 @@ describe("Menu Item actions", () => {
         expect(model.getters.getTable({ sheetId, row: 0, col: 0 })).toBeUndefined();
       });
 
+      test("Delete table (cellRegistry) works with a table in the selection but not on the active cell", async () => {
+        createTable(model, "A2:A5");
+        expect(model.getters.getTable({ sheetId, row: 1, col: 0 })).toBeDefined();
+
+        setSelection(model, ["A1:A2"], { anchor: "A1" });
+        await doAction(["delete_table"], env, cellMenuRegistry);
+        expect(model.getters.getTable({ sheetId, row: 1, col: 0 })).toBeUndefined();
+      });
+
       test("Delete table (cellRegistry) on a dynamic table", async () => {
         setCellContent(model, "A1", "=MUNIT(5)");
         createDynamicTable(model, "A1");
