@@ -55,35 +55,12 @@ export function snapForMove(
     ["vCenter", "bottom", "top"]
   );
 
-  const { y: viewportY, x: viewportX } = getters.getMainViewportCoordinates();
-  const { scrollY, scrollX } = getters.getActiveSheetScrollInfo();
-
-  // If the snap cause the figure to change pane, we need to also apply the scroll as an offset
   for (const figureToSnap of figuresToSnap) {
     if (horizontalSnapLine) {
-      const isBaseFigFrozenY = figureToSnap.y < viewportY;
-
       figureToSnap.y -= horizontalSnapLine.snapOffset;
-      const isSnappedFrozenY = figureToSnap.y < viewportY;
-
-      if (isBaseFigFrozenY && !isSnappedFrozenY) {
-        figureToSnap.y += scrollY;
-      } else if (!isBaseFigFrozenY && isSnappedFrozenY) {
-        figureToSnap.y -= scrollY;
-      }
     }
-
     if (verticalSnapLine) {
-      const isBaseFigFrozenX = figureToSnap.x < viewportX;
-
       figureToSnap.x -= verticalSnapLine.snapOffset;
-      const isSnappedFrozenX = figureToSnap.x < viewportX;
-
-      if (isBaseFigFrozenX && !isSnappedFrozenX) {
-        figureToSnap.x += scrollX;
-      } else if (!isBaseFigFrozenX && isSnappedFrozenX) {
-        figureToSnap.x -= scrollX;
-      }
     }
   }
 

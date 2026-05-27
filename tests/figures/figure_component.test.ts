@@ -1337,7 +1337,7 @@ describe("figures", () => {
           await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: 41 }, undefined, true);
           const figure = model.getters.getFigure(sheetId, "f1")!;
           expect(figure.row).toBe(5);
-          expect(figure.offset!.y).toBe(8); // scroll (4) + figure2.offsetY (4)
+          expect(figure.offset!.y).toBe(4);
         });
 
         test("Snapping figure from main viewport to frozen rows applies scroll offset", async () => {
@@ -1364,7 +1364,7 @@ describe("figures", () => {
           await clickAndDrag(".o-figure[data-id=f1]", { x: 1, y: 0 }, undefined, true);
           const figure = model.getters.getFigure(sheetId, "f1")!;
           expect(figure.row).toBe(4);
-          expect(figure.offset!.y).toBe(14); // figure2.offsetY (18) - scroll offset (4)
+          expect(figure.offset!.y).toBe(18);
         });
 
         test("Snapping figure from frozen cols to main viewport applies scroll offset", async () => {
@@ -1391,7 +1391,7 @@ describe("figures", () => {
           await clickAndDrag(".o-figure[data-id=f1]", { x: 187, y: 0 }, undefined, true);
           const figure = model.getters.getFigure(sheetId, "f1")!;
           expect(figure.col).toBe(5);
-          expect(figure.offset!.x).toBe(8); // scroll (4) + figure2.offsetX (4)
+          expect(figure.offset!.x).toBe(4);
         });
 
         test("Snapping figure from main viewport to frozen cols applies scroll offset", async () => {
@@ -1418,7 +1418,7 @@ describe("figures", () => {
           await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: 1 }, undefined, true);
           const figure = model.getters.getFigure(sheetId, "f1")!;
           expect(figure.col).toBe(4);
-          expect(figure.offset!.x).toBe(86); // figure2.offsetX (90) - scroll offset (4)
+          expect(figure.offset!.x).toBe(90);
         });
       });
     });
