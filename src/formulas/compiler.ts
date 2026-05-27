@@ -491,42 +491,18 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
           return code.return(jsStr`ctx['${jsFnName}'](${args.map((arg) => arg.returnExpression)})`);
         case "ARRAY": {
           // a literal array is compiled into function calls
-          const arrayFunctionCall: ASTFuncall = {
-            type: "FUNCALL",
-            value: "ARRAY.LITERAL",
-            args: ast.value.map((row) => ({
-              type: "FUNCALL",
-              value: "ARRAY.ROW",
-              args: row,
-              tokenStartIndex: 0,
-              tokenEndIndex: 0,
-            })),
-            tokenStartIndex: 0,
-            tokenEndIndex: 0,
-          };
-          return compileAST(arrayFunctionCall);
+          return compileAST(
+            toFunCallAst(
+              "ARRAY.LITERAL",
+              ast.value.map((row) => toFunCallAst("ARRAY.ROW", row))
+            )
+          );
         }
         case "UNARY_OPERATION": {
-          if (!Object.hasOwn(UNARY_OPERATOR_MAP, ast.value)) {
-            throw new Error(`Unknown operator: "${ast.value}"`);
-          }
-          const fnName = dangerouslyCreateJsStr(UNARY_OPERATOR_MAP[ast.value]); // validated with known operators
-          const operand = compileAST(ast.operand, ast.value === "#").assignResultToVariable(); // hasRange is true to avoid vectorization of SPILLED.RANGE
-          code.append(operand);
-          return code.return(jsStr`ctx['${fnName}'](${operand.returnExpression})`);
+          return compileAST(toFunCallAst(UNARY_OPERATOR_MAP[ast.value], [ast.operand]));
         }
         case "BIN_OPERATION": {
-          if (!Object.hasOwn(OPERATOR_MAP, ast.value)) {
-            throw new Error(`Unknown operator: "${ast.value}"`);
-          }
-          const fnName = dangerouslyCreateJsStr(OPERATOR_MAP[ast.value]); // validated with known operators
-          const left = compileAST(ast.left, false).assignResultToVariable();
-          const right = compileAST(ast.right, false).assignResultToVariable();
-          code.append(left);
-          code.append(right);
-          return code.return(
-            jsStr`ctx['${fnName}'](${left.returnExpression}, ${right.returnExpression})`
-          );
+          return compileAST(toFunCallAst(OPERATOR_MAP[ast.value], [ast.left, ast.right]));
         }
         case "SYMBOL":
           const symbolIndex = symbols.indexOf(ast.value);
@@ -682,6 +658,16 @@ function assertEnoughArgs(ast: ASTFuncall) {
       );
     }
   }
+}
+
+function toFunCallAst(fnName: string, args: AST[]): ASTFuncall {
+  return {
+    type: "FUNCALL",
+    value: fnName,
+    args: args,
+    tokenStartIndex: 0,
+    tokenEndIndex: 0,
+  };
 }
 
 function isRangeType(type: string) {
