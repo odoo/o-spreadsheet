@@ -113,7 +113,53 @@ export function getBarChartDatasets(
   }
   dataSets.push(...trendDatasets);
 
+  const totalLineDataset = getBarChartTotalLineDataset(definition, dataSetsValues);
+  if (totalLineDataset) {
+    dataSets.push(totalLineDataset);
+  }
+
   return dataSets;
+}
+
+function getBarChartTotalLineDataset(
+  definition: GenericDefinition<BarChartDefinition>,
+  dataSetsValues: DatasetValues[]
+): ChartDataset<"line"> | undefined {
+  const visibleDataSetsValues = dataSetsValues.filter((dataSet) => !dataSet.hidden);
+  if (!definition.stacked || !definition.showTotalLine || visibleDataSetsValues.length < 2) {
+    return undefined;
+  }
+
+  const dataLength = Math.max(...visibleDataSetsValues.map((dataSet) => dataSet.data.length));
+  const data = range(0, dataLength).map((index) => {
+    // Keep all-empty points as NaN instead of drawing a fake zero total.
+    let total: number | undefined;
+    for (const dataSet of visibleDataSetsValues) {
+      const cell = dataSet.data[index];
+      if (isNumberResult(cell)) {
+        total = (total ?? 0) + cell.value;
+      }
+    }
+    return total ?? NaN;
+  });
+  // Use the same total line colors as the Odoo Graph View.
+  const color = relativeLuminance(definition.background || "#FFFFFF") < 0.3 ? "#e9ecef" : "#343a40";
+
+  return {
+    type: "line",
+    label: _t("Sum"),
+    data,
+    order: -1,
+    tension: 0,
+    fill: false,
+    pointRadius: LINE_DATA_POINT_RADIUS,
+    borderWidth: 2,
+    backgroundColor: color,
+    borderColor: color,
+    pointBackgroundColor: color,
+    xAxisID: "x",
+    yAxisID: "y",
+  };
 }
 
 export function getCalendarChartDatasetAndLabels(

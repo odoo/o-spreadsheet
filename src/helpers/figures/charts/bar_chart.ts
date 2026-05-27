@@ -27,6 +27,7 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
     "stacked",
     "aggregated",
     "showValues",
+    "showTotalLine",
     "zoomable",
   ] as const,
 
@@ -61,6 +62,7 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
       type: "bar",
       axesDesign: context.axesDesign,
       showValues: context.showValues,
+      showTotalLine: context.showTotalLine,
       horizontal: context.horizontal,
       zoomable: context.zoomable,
       humanize: context.humanize,

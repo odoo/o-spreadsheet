@@ -2402,6 +2402,39 @@ describe("charts", () => {
     }
   );
 
+  test("showTotalLine checkbox updates stacked bar charts", async () => {
+    createChart(
+      model,
+      {
+        type: "bar",
+        stacked: false,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
+          labelRange: "A2:A4",
+          dataSetsHaveTitle: true,
+        }),
+      },
+      chartId
+    );
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+
+    expect(fixture.querySelector("input[name='showTotalLine']")).toBeNull();
+
+    updateChart(model, chartId, { stacked: true });
+    await nextTick();
+    const checkbox = fixture.querySelector("input[name='showTotalLine']") as HTMLInputElement;
+    expect(checkbox).not.toBeNull();
+    expect(checkbox.checked).toBe(false);
+
+    await simulateClick("input[name='showTotalLine']");
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({ showTotalLine: true });
+    expect(getChartConfiguration(model, chartId).data.datasets.at(-1)).toMatchObject({
+      label: "Sum",
+      type: "line",
+    });
+  });
+
   test.each<ChartType>(["line", "combo", "radar"])(
     "show data marker checkbox updates the chart",
     async (type: ChartType) => {

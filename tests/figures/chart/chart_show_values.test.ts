@@ -62,6 +62,27 @@ describe("Chart show value", () => {
     expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
   });
 
+  test("Can show values on a stacked bar chart with total line", () => {
+    const model = createModelFromGrid({ A1: "42", B1: "8", A2: "26", B2: "4" });
+    const definition: Partial<BarChartDefinition<string>> & { type: "bar" } = {
+      type: "bar",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }],
+        dataSetsHaveTitle: false,
+      }),
+      showValues: true,
+      showTotalLine: true,
+      stacked: true,
+      title: { text: "" },
+      legendPosition: "none",
+    };
+
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+
   test("Can show values on a pie chart", () => {
     const model = createModelFromGrid({ A1: "1", A2: "2", A3: "3", B1: "1", B2: "2", B3: "3" });
     const definition: Partial<PieChartDefinition<string>> & { type: "pie" } = {
@@ -112,6 +133,28 @@ describe("Chart show value", () => {
       title: { text: "" },
       legendPosition: "none",
     };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+
+  test("Can show values on an horizontal stacked bar chart with total line", () => {
+    const model = createModelFromGrid({ A1: "42", B1: "8", A2: "26", B2: "4" });
+    const definition: Partial<BarChartDefinition<string>> & { type: "bar" } = {
+      type: "bar",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }],
+        dataSetsHaveTitle: false,
+      }),
+      showValues: true,
+      showTotalLine: true,
+      stacked: true,
+      horizontal: true,
+      title: { text: "" },
+      legendPosition: "none",
+    };
+
     createChart(model, definition, "chartId");
 
     const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;

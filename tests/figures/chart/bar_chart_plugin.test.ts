@@ -12,6 +12,7 @@ import {
 import {
   createChart,
   createChartDefinitionFromContext,
+  hideColumns,
   setCellContent,
   setFormat,
   updateChart,
@@ -44,6 +45,7 @@ describe("bar chart", () => {
       stacked: true,
       axesDesign: {},
       showValues: false,
+      showTotalLine: false,
       horizontal: false,
       zoomable: true,
       humanize: false,
@@ -344,5 +346,181 @@ describe("bar chart", () => {
     expect(scales.y?.max).toBe(30);
     expect(scales.y?.grid?.display).toBe(false);
     expect(scales.y?.grid?.minor?.display).toBe(true);
+  });
+
+  describe("Total line", () => {
+    test("creates a total line dataset for stacked bar charts", () => {
+      const model = createModelFromGrid({ A1: "13", B1: "10" });
+      createChart(
+        model,
+        {
+          type: "bar",
+          stacked: true,
+          showTotalLine: true,
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1" }, { dataRange: "B1" }],
+            dataSetsHaveTitle: false,
+          }),
+        },
+        "chartId"
+      );
+
+      const datasets = getChartConfiguration(model, "chartId").data.datasets;
+      expect(datasets).toHaveLength(3);
+      expect(datasets[2]).toMatchObject({
+        type: "line",
+        label: "Sum",
+        data: [23],
+        order: -1,
+        tension: 0,
+        fill: false,
+        pointRadius: 3,
+        borderWidth: 2,
+        backgroundColor: "#343a40",
+        borderColor: "#343a40",
+        pointBackgroundColor: "#343a40",
+        xAxisID: "x",
+        yAxisID: "y",
+      });
+    });
+
+    test("does not create a total line unless showTotalLine is enabled on a stacked chart", () => {
+      const model = createModelFromGrid({ A1: "13", B1: "10" });
+      createChart(
+        model,
+        {
+          type: "bar",
+          stacked: true,
+          showTotalLine: false,
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1" }, { dataRange: "B1" }],
+            dataSetsHaveTitle: false,
+          }),
+        },
+        "chartId"
+      );
+
+      let datasets = getChartConfiguration(model, "chartId").data.datasets;
+      expect(datasets).toHaveLength(2);
+      expect(datasets.map((dataset) => dataset.label)).not.toContain("Sum");
+
+      updateChart(model, "chartId", { showTotalLine: true, stacked: false });
+
+      datasets = getChartConfiguration(model, "chartId").data.datasets;
+      expect(datasets).toHaveLength(2);
+      expect(datasets.map((dataset) => dataset.label)).not.toContain("Sum");
+    });
+
+    test("does not create a total line when there is a single visible dataset", () => {
+      const model = createModelFromGrid({ A1: "13" });
+      createChart(
+        model,
+        {
+          type: "bar",
+          stacked: true,
+          showTotalLine: true,
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1" }],
+            dataSetsHaveTitle: false,
+          }),
+        },
+        "chartId"
+      );
+
+      const datasets = getChartConfiguration(model, "chartId").data.datasets;
+      expect(datasets).toHaveLength(1);
+      expect(datasets.map((dataset) => dataset.label)).not.toContain("Sum");
+    });
+
+    test("sums numeric values only", () => {
+      const model = createModelFromGrid({ A1: "13", B1: "text", C1: "27" });
+      createChart(
+        model,
+        {
+          type: "bar",
+          stacked: true,
+          showTotalLine: true,
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1" }, { dataRange: "B1" }, { dataRange: "C1" }],
+            dataSetsHaveTitle: false,
+          }),
+        },
+        "chartId"
+      );
+
+      const totalLineData = getChartConfiguration(model, "chartId").data.datasets[3].data;
+      expect(totalLineData).toEqual([40]);
+    });
+
+    test("ignores hidden source datasets", () => {
+      const model = createModelFromGrid({ A1: "13", B1: "10", C1: "27" });
+      createChart(
+        model,
+        {
+          type: "bar",
+          stacked: true,
+          showTotalLine: true,
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1" }, { dataRange: "B1" }, { dataRange: "C1" }],
+            dataSetsHaveTitle: false,
+          }),
+        },
+        "chartId"
+      );
+
+      hideColumns(model, ["B"]);
+      const datasets = getChartConfiguration(model, "chartId").data.datasets;
+      expect(datasets.at(-1)).toMatchObject({ label: "Sum", data: [40] });
+    });
+
+    test("uses a line legend marker", () => {
+      const model = createModelFromGrid({ A1: "13", B1: "10" });
+      createChart(
+        model,
+        {
+          type: "bar",
+          stacked: true,
+          showTotalLine: true,
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1" }, { dataRange: "B1" }],
+            dataSetsHaveTitle: false,
+          }),
+        },
+        "chartId"
+      );
+
+      expect(getChartLegendLabels(model, "chartId")).toMatchObject([
+        { text: "Series 1", pointStyle: "rect" },
+        { text: "Series 2", pointStyle: "rect" },
+        { text: "Sum", pointStyle: "line" },
+      ]);
+    });
+
+    test("formats the total line tooltip with the value axis format", () => {
+      const model = createModelFromGrid({ A1: "13", B1: "10" });
+      setFormat(model, "A1:B1", "#,##0[$€]");
+      createChart(
+        model,
+        {
+          type: "bar",
+          stacked: true,
+          showTotalLine: true,
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1" }, { dataRange: "B1" }],
+            dataSetsHaveTitle: false,
+          }),
+        },
+        "chartId"
+      );
+
+      const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+      const totalLineDataset = runtime.chartJsConfig.data.datasets[2];
+      const tooltipValues = getChartTooltipValues(runtime, {
+        parsed: { y: 23 },
+        dataset: totalLineDataset,
+      });
+
+      expect(tooltipValues).toEqual({ beforeLabel: "Sum", label: "23€" });
+    });
   });
 });

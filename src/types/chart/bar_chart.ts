@@ -8,6 +8,7 @@ export interface BarChartDefinition<T extends string | Range = Range>
   readonly stacked: boolean;
   readonly horizontal?: boolean;
   readonly zoomable?: boolean;
+  readonly showTotalLine?: boolean;
 }
 
 export type BarChartRuntime = {
