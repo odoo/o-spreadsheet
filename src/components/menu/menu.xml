@@ -8,6 +8,7 @@
       t-on-wheel.stop=""
       t-on-pointerdown.prevent=""
       t-on-click.stop="">
+      <t t-set="shouldDisplayIcons" t-value="this.childrenHaveIcon"/>
       <t t-foreach="this.props.menuItems" t-as="menuItem" t-key="menuItem_index">
         <div t-if="menuItem === 'separator'" class="o-separator border-bottom"/>
         <t t-else="">
@@ -27,7 +28,7 @@
             t-att-style="this.getColor(menuItem)">
             <div class="d-flex w-100">
               <div
-                t-if="this.childrenHaveIcon"
+                t-if="shouldDisplayIcons"
                 class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
                 t-att-style="this.getIconColor(menuItem)">
                 <t t-if="this.getIconName(menuItem)" t-call="{{this.getIconName(menuItem)}}"/>
