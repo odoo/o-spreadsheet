@@ -1,3 +1,4 @@
+import { SpreadsheetChart } from "../../../../helpers/figures/chart";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../../store_engine/store_hooks";
 import { ChartDefinition, ChartType } from "../../../../types/chart/chart";
@@ -43,7 +44,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
       ...updateDefinition,
     };
     return this.env.model.dispatch("UPDATE_CHART", {
-      definition,
+      definition: SpreadsheetChart.deleteInvalidKeys(definition),
       chartId,
       figureId,
       sheetId: this.env.model.getters.getFigureSheetId(figureId)!,

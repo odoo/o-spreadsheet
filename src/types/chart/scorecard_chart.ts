@@ -1,14 +1,14 @@
 import { Color, Style } from "../misc";
 import { Range } from "../range";
-import { TitleDesign } from "./chart";
-import { NonDataSourceBaseChartDefinition } from "./common_chart";
+import { ChartDataSource, TitleDesign } from "./chart";
 
-export interface ScorecardChartDefinition<T extends string | Range = string>
-  extends NonDataSourceBaseChartDefinition {
+export interface ScorecardChartDefinition<T extends string | Range = string> {
   readonly type: "scorecard";
-  readonly keyValue?: T;
+  readonly dataSource: ChartDataSource<T>;
+  readonly title: TitleDesign;
+  readonly background?: Color;
+  readonly humanize?: boolean;
   readonly keyDescr?: TitleDesign;
-  readonly baseline?: T;
   readonly baselineMode: BaselineMode;
   readonly baselineDescr?: TitleDesign;
   readonly baselineColorUp: Color;

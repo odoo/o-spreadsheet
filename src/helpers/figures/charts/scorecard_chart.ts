@@ -1,3 +1,4 @@
+import { FunctionResultWithStyle } from "../../..";
 import {
   CHART_PADDING,
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
@@ -6,29 +7,23 @@ import {
 } from "../../../constants";
 import { toNumber } from "../../../functions/helpers";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
-import { CellValueType, EvaluatedCell } from "../../../types/cells";
 import {
   BaselineArrowDirection,
   BaselineMode,
-  ScorecardChartDefinition,
   ScorecardChartRuntime,
 } from "../../../types/chart/scorecard_chart";
 import { CommandResult } from "../../../types/commands";
 import { Locale } from "../../../types/locale";
-import { Color, RangeAdapterFunctions } from "../../../types/misc";
-import { Range } from "../../../types/range";
+import { Color, FunctionResultObject } from "../../../types/misc";
 import { formatValue, humanizeNumber } from "../../format/format";
 import { isNumber } from "../../numbers";
-import { createValidRange } from "../../range";
-import { rangeReference } from "../../references";
 import { clipTextWithEllipsis, drawDecoratedText } from "../../text_helper";
 import { AbstractChart } from "./abstract_chart";
-import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
 import { ScorecardChartConfig } from "./scorecard_chart_config_builder";
 
 function getBaselineText(
-  baseline: EvaluatedCell | undefined,
-  keyValue: EvaluatedCell | undefined,
+  baseline: FunctionResultWithStyle | undefined,
+  keyValue: FunctionResultWithStyle | undefined,
   baselineMode: BaselineMode,
   humanizeNumbers: boolean,
   locale: Locale
@@ -37,13 +32,13 @@ function getBaselineText(
     return "";
   } else if (
     baselineMode === "text" ||
-    keyValue?.type !== CellValueType.number ||
-    baseline.type !== CellValueType.number
+    typeof keyValue?.value !== "number" ||
+    typeof baseline.value !== "number"
   ) {
     if (humanizeNumbers) {
       return humanizeNumber(baseline, locale);
     }
-    return baseline.formattedValue;
+    return formatValue(baseline.value, { format: baseline.format, locale });
   }
   let { value, format } = baseline;
   if (baselineMode === "progress") {
@@ -68,7 +63,7 @@ function getBaselineText(
 }
 
 function getKeyValueText(
-  keyValueCell: EvaluatedCell | undefined,
+  keyValueCell: FunctionResultObject | undefined,
   humanizeNumbers: boolean,
   locale: Locale
 ): string {
@@ -78,21 +73,21 @@ function getKeyValueText(
   if (humanizeNumbers) {
     return humanizeNumber(keyValueCell, locale);
   }
-  return keyValueCell.formattedValue ?? String(keyValueCell.value ?? "");
+  return formatValue(keyValueCell.value, { format: keyValueCell.format, locale });
 }
 
 function getBaselineColor(
-  baseline: EvaluatedCell | undefined,
+  baseline: FunctionResultWithStyle | undefined,
   baselineMode: BaselineMode,
-  keyValue: EvaluatedCell | undefined,
+  keyValue: FunctionResultWithStyle | undefined,
   colorUp: Color,
   colorDown: Color
 ): Color | undefined {
   if (
     baselineMode === "text" ||
     baselineMode === "progress" ||
-    baseline?.type !== CellValueType.number ||
-    keyValue?.type !== CellValueType.number
+    typeof baseline?.value !== "number" ||
+    typeof keyValue?.value !== "number"
   ) {
     return undefined;
   }
@@ -106,14 +101,14 @@ function getBaselineColor(
 }
 
 function getBaselineArrowDirection(
-  baseline: EvaluatedCell | undefined,
-  keyValue: EvaluatedCell | undefined,
+  baseline: FunctionResultWithStyle | undefined,
+  keyValue: FunctionResultWithStyle | undefined,
   baselineMode: BaselineMode
 ): BaselineArrowDirection {
   if (
     baselineMode === "text" ||
-    baseline?.type !== CellValueType.number ||
-    keyValue?.type !== CellValueType.number
+    typeof baseline?.value !== "number" ||
+    typeof keyValue?.value !== "number"
   ) {
     return "neutral";
   }
@@ -125,18 +120,6 @@ function getBaselineArrowDirection(
     return "down";
   }
   return "neutral";
-}
-
-function checkKeyValue(definition: ScorecardChartDefinition): CommandResult {
-  return definition.keyValue && !rangeReference.test(definition.keyValue)
-    ? CommandResult.InvalidScorecardKeyValue
-    : CommandResult.Success;
-}
-
-function checkBaseline(definition: ScorecardChartDefinition): CommandResult {
-  return definition.baseline && !rangeReference.test(definition.baseline)
-    ? CommandResult.InvalidScorecardBaseline
-    : CommandResult.Success;
 }
 
 const Path2DConstructor = globalThis.Path2D;
@@ -153,31 +136,20 @@ const arrowUpPath =
 
 export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
   sequence: 40,
+  dataSeriesLimit: 1,
   allowedDefinitionKeys: [
     ...AbstractChart.commonKeys,
-    "keyValue",
+    "dataSource",
     "keyDescr",
-    "baseline",
     "baselineMode",
     "baselineDescr",
     "baselineColorUp",
     "baselineColorDown",
   ],
 
-  fromStrDefinition(definition, sheetId, getters) {
-    const baseline = createValidRange(getters, sheetId, definition.baseline);
-    const keyValue = createValidRange(getters, sheetId, definition.keyValue);
-    const rangeDefinition: ScorecardChartDefinition<Range> = {
-      ...definition,
-      baseline,
-      keyValue,
-    };
-    return rangeDefinition;
-  },
+  fromStrDefinition: (definition) => definition,
 
-  validateDefinition(validator, definition) {
-    return validator.checkValidations(definition, checkKeyValue, checkBaseline);
-  },
+  validateDefinition: () => CommandResult.Success,
 
   copyInSheetId: (definition) => definition,
 
@@ -185,121 +157,36 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
     return {
       background: context.background,
       type: "scorecard",
-      keyValue:
-        context.dataSource?.type === "range"
-          ? context.dataSource?.dataSets?.[0]?.dataRange
-          : undefined,
+      dataSource: dataSourceBuilder.fromContextCreation(context),
       title: context.title || { text: "" },
       baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
-      baseline: context.auxiliaryRange || "",
       humanize: context.humanize,
     };
   },
 
-  transformDefinition(definition, chartSheetId, { adaptRangeString }) {
-    let baseline: string | undefined;
-    let keyValue: string | undefined;
-    if (definition.baseline) {
-      const { changeType, range: adaptedRange } = adaptRangeString(
-        chartSheetId,
-        definition.baseline
-      );
-      if (changeType !== "REMOVE") {
-        baseline = adaptedRange;
-      }
-    }
-    if (definition.keyValue) {
-      const { changeType, range: adaptedRange } = adaptRangeString(
-        chartSheetId,
-        definition.keyValue
-      );
-      if (changeType !== "REMOVE") {
-        keyValue = adaptedRange;
-      }
-    }
-    return {
-      ...definition,
-      baseline,
-      keyValue,
-    };
-  },
+  transformDefinition: (definition) => definition,
 
-  duplicateInDuplicatedSheet(definition, sheetIdFrom, sheetIdTo): ScorecardChartDefinition<Range> {
-    const baseline = duplicateLabelRangeInDuplicatedSheet(
-      sheetIdFrom,
-      sheetIdTo,
-      definition.baseline
-    );
-    const keyValue = duplicateLabelRangeInDuplicatedSheet(
-      sheetIdFrom,
-      sheetIdTo,
-      definition.keyValue
-    );
-    return { ...definition, baseline, keyValue };
-  },
+  duplicateInDuplicatedSheet: (definition) => definition,
 
-  toStrDefinition(definition, sheetId, getters) {
-    return {
-      ...definition,
-      keyValue: definition.keyValue
-        ? getters.getRangeString(definition.keyValue, sheetId)
-        : undefined,
-      baseline: definition.baseline
-        ? getters.getRangeString(definition.baseline, sheetId)
-        : undefined,
-    };
-  },
+  toStrDefinition: (definition) => definition,
 
-  getContextCreation(definition, dataSource) {
-    return {
-      ...definition,
-      dataSource: {
-        type: "range",
-        dataSets: definition.keyValue ? [{ dataRange: definition.keyValue, dataSetId: "0" }] : [],
-      },
-      auxiliaryRange: definition.baseline,
-    };
-  },
+  getContextCreation: (definition) => definition,
 
   getDefinitionForExcel: () => undefined,
 
-  updateRanges(definition, adapterFunctions: RangeAdapterFunctions) {
-    const baseline = adaptChartRange(definition.baseline, adapterFunctions);
-    const keyValue = adaptChartRange(definition.keyValue, adapterFunctions);
-    if (definition.baseline === baseline && definition.keyValue === keyValue) {
-      return definition;
-    }
-    return { ...definition, baseline, keyValue };
-  },
+  updateRanges: (definition) => definition,
 
-  getRuntime(getters, definition): ScorecardChartRuntime {
-    let formattedKeyValue = "";
-    let keyValueCell: EvaluatedCell | undefined;
+  getRuntime(getters, definition, { extractData }): ScorecardChartRuntime {
+    const data = extractData();
     const locale = getters.getLocale();
-    if (definition.keyValue) {
-      const keyValuePosition = {
-        sheetId: definition.keyValue.sheetId,
-        col: definition.keyValue.zone.left,
-        row: definition.keyValue.zone.top,
-      };
-      keyValueCell = getters.getEvaluatedCell(keyValuePosition);
-      formattedKeyValue = getKeyValueText(keyValueCell, definition.humanize ?? true, locale);
-    }
-    let baselineCell: EvaluatedCell | undefined;
-    const baseline = definition.baseline;
-    if (baseline) {
-      const baselinePosition = {
-        sheetId: baseline.sheetId,
-        col: baseline.zone.left,
-        row: baseline.zone.top,
-      };
-      baselineCell = getters.getEvaluatedCell(baselinePosition);
-    }
+    const keyValueCell: FunctionResultWithStyle | undefined = data.dataSetsValues[0]?.data[0];
+    const formattedKeyValue = getKeyValueText(keyValueCell, definition.humanize ?? true, locale);
+    const baselineCell: FunctionResultWithStyle | undefined = data.labelValues[0];
     const { background, fontColor } = getters.getStyleOfSingleCellChart(
       definition.background,
-      definition.keyValue
+      keyValueCell
     );
 
     const baselineDisplay = getBaselineText(
@@ -338,14 +225,8 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
       background,
       baselineStyle: {
         ...(definition.baselineMode !== "percentage" &&
-        definition.baselineMode !== "progress" &&
-        baseline
-          ? getters.getCellComputedStyle({
-              sheetId: baseline.sheetId,
-              col: baseline.zone.left,
-              row: baseline.zone.top,
-            })
-          : undefined),
+          definition.baselineMode !== "progress" &&
+          baselineCell?.style),
         fontSize: definition.baselineDescr?.fontSize,
         align: definition.baselineDescr?.align,
       },
@@ -354,13 +235,7 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
         ...definition.baselineDescr,
       },
       keyValueStyle: {
-        ...(definition.keyValue
-          ? getters.getCellComputedStyle({
-              sheetId: definition.keyValue.sheetId,
-              col: definition.keyValue.zone.left,
-              row: definition.keyValue.zone.top,
-            })
-          : undefined),
+        ...keyValueCell?.style,
         fontSize: definition.keyDescr?.fontSize,
         align: definition.keyDescr?.align,
       },

@@ -639,6 +639,54 @@ migrationStepRegistry
       }
       return data;
     },
+  })
+  .add("19.4.1", {
+    migrate(data: WorkbookData): any {
+      function upgradeScorecard(definition: any) {
+        definition = { ...definition };
+        definition.dataSource = {
+          type: "range",
+          labelRange: definition.baseline,
+          dataSets: definition.keyValue ? [{ dataRange: definition.keyValue, dataSetId: "0" }] : [],
+          dataSetsHaveTitle: false,
+        };
+        delete definition.baseline;
+        delete definition.keyValue;
+        return definition;
+      }
+      function upgradeGaugeChart(definition: any) {
+        definition = { ...definition };
+        definition.dataSource = {
+          type: "range",
+          dataSets: definition.dataRange
+            ? [{ dataRange: definition.dataRange, dataSetId: "0" }]
+            : [],
+          labelRange: undefined,
+          dataSetsHaveTitle: false,
+        };
+        delete definition.dataRange;
+        return definition;
+      }
+      for (const sheet of data.sheets || []) {
+        for (const figure of sheet.figures || []) {
+          if (figure.tag === "chart" && figure.data.type === "scorecard") {
+            figure.data = upgradeScorecard(figure.data);
+          } else if (figure.tag === "chart" && figure.data.type === "gauge") {
+            figure.data = upgradeGaugeChart(figure.data);
+          } else if (figure.tag === "carousel") {
+            for (const chartId in figure.data.chartDefinitions) {
+              const definition = figure.data.chartDefinitions[chartId];
+              if (definition.type === "scorecard") {
+                figure.data.chartDefinitions[chartId] = upgradeScorecard(definition);
+              } else if (definition.type === "gauge") {
+                figure.data.chartDefinitions[chartId] = upgradeGaugeChart(definition);
+              }
+            }
+          }
+        }
+      }
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {

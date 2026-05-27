@@ -367,7 +367,11 @@ function buildScorecard(zone: Zone, getters: Getters): ChartDefinition {
   return {
     type: "scorecard",
     title: {},
-    keyValue: getUnboundRange(getters, zone),
+    dataSource: {
+      type: "range",
+      dataSets: [{ dataRange: getUnboundRange(getters, zone), dataSetId: "0" }],
+      dataSetsHaveTitle: false,
+    },
     background: cell?.style?.fillColor,
     baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
     baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,

@@ -10,6 +10,7 @@ import {
   DataSet,
   DatasetValues,
   ExcelChartDataset,
+  FunctionResultWithStyle,
   LabelValues,
 } from "../../../types/chart/chart";
 import { CommandResult } from "../../../types/commands";
@@ -33,8 +34,8 @@ import {
   toExcelLabelRange,
 } from "./chart_common";
 
-const EMPTY = Object.freeze({ value: null });
-const ONE = Object.freeze({ value: 1 });
+const EMPTY = Object.freeze({ value: null, style: null });
+const ONE = Object.freeze({ value: 1, style: null });
 
 export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<
   ChartRangeDataSource<string>,
@@ -319,12 +320,16 @@ function getChartLabelValues(
       !labelRange.invalidSheetName &&
       !getters.isColHidden(labelRange.sheetId, left)
     ) {
-      return getters.getVisibleRangeValues(labelRange);
+      return getters.mapVisiblePositions(labelRange, (position) => {
+        const cell = getters.getEvaluatedCell(position);
+        const style = getters.getCellComputedStyle(position);
+        return { ...cell, style };
+      });
     }
   }
   if (dataSets[0]) {
     const dataLength = getData(getters, dataSets[0]).length;
-    return Array.from({ length: dataLength }, () => ({ value: "" }));
+    return Array.from({ length: dataLength }, () => EMPTY);
   }
   return [];
 }
@@ -376,7 +381,7 @@ function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): Da
         currentValues = currentValues.slice(0, dsIndex);
         currentValues[dsIndex] = cell;
       }
-      datasetValues[dsIndex].data.push(cell ?? EMPTY);
+      datasetValues[dsIndex].data.push(cell ? { ...cell, style: null } : EMPTY);
     }
   }
 
@@ -386,7 +391,7 @@ function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): Da
 /**
  * Get the data from a dataSet
  */
-export function getData(getters: Getters, ds: DataSet): FunctionResultObject[] {
+export function getData(getters: Getters, ds: DataSet): FunctionResultWithStyle[] {
   if (ds.dataRange) {
     const labelCellZone = ds.labelCell ? [ds.labelCell.zone] : [];
     const dataZone = recomputeZones([ds.dataRange.zone], labelCellZone)[0];
@@ -395,7 +400,11 @@ export function getData(getters: Getters, ds: DataSet): FunctionResultObject[] {
     }
     const dataRange = getters.getRangeFromZone(ds.dataRange.sheetId, dataZone);
     return getters
-      .getVisibleRangeValues(dataRange)
+      .mapVisiblePositions(dataRange, (position) => {
+        const cell = getters.getEvaluatedCell(position);
+        const style = getters.getCellComputedStyle(position);
+        return { ...cell, style };
+      })
       .map((cell) => (cell.value === "" ? EMPTY : cell));
   }
   return [];

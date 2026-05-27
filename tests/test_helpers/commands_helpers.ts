@@ -4,6 +4,7 @@ import {
   BorderData,
   Carousel,
   ChartCreationContext,
+  ChartDataSource,
   ChartDefinition,
   ChartDefinitionWithDataSource,
   ChartRangeDataSource,
@@ -447,13 +448,25 @@ export function createTreeMapChart(
 
 export function createScorecardChart(
   model: Model,
-  data: Partial<ScorecardChartDefinition>,
+  data: Partial<ScorecardChartDefinition> & { dataSets?: string[]; labelRange?: string },
   chartId?: UID,
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
 ) {
   const id = chartId || UuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
+
+  let dataSource: ChartDataSource<string> | undefined = data.dataSource;
+  if (!dataSource && (data.dataSets || data.labelRange)) {
+    dataSource = {
+      type: "range",
+      dataSets: data.dataSets
+        ? data.dataSets.map((dataRange, i) => ({ dataRange, dataSetId: i.toString() }))
+        : [],
+      labelRange: data.labelRange,
+      dataSetsHaveTitle: false,
+    };
+  }
 
   return model.dispatch("CREATE_CHART", {
     figureId: figureData.figureId || UuidGenerator.smallUuid(),
@@ -467,8 +480,7 @@ export function createScorecardChart(
     definition: {
       type: "scorecard",
       title: data.title || { text: "" },
-      baseline: data.baseline || "",
-      keyValue: data.keyValue || "",
+      dataSource: dataSource ?? { type: "range", dataSets: [], dataSetsHaveTitle: false },
       baselineDescr: data.baselineDescr,
       keyDescr: data.keyDescr,
       baselineMode: data.baselineMode || "difference",
@@ -482,13 +494,22 @@ export function createScorecardChart(
 
 export function createGaugeChart(
   model: Model,
-  data: Partial<GaugeChartDefinition>,
+  data: Partial<GaugeChartDefinition> & { dataSets?: string[] },
   chartId?: UID,
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
 ) {
   const id = chartId || UuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
+
+  let dataSource: ChartDataSource<string> | undefined = data.dataSource;
+  if (!dataSource && data.dataSets) {
+    dataSource = {
+      type: "range",
+      dataSets: data.dataSets.map((dataRange, i) => ({ dataRange, dataSetId: i.toString() })),
+      dataSetsHaveTitle: false,
+    };
+  }
 
   return model.dispatch("CREATE_CHART", {
     figureId: figureData.figureId || UuidGenerator.smallUuid(),
@@ -503,7 +524,7 @@ export function createGaugeChart(
       type: "gauge",
       background: data.background,
       title: data.title || { text: "" },
-      dataRange: data.dataRange || "",
+      dataSource: dataSource ?? { type: "range", dataSets: [], dataSetsHaveTitle: false },
       sectionRule: data.sectionRule || {
         rangeMin: "0",
         rangeMax: "100",

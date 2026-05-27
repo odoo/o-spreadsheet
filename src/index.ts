@@ -22,7 +22,6 @@ import { ChartTitle } from "./components/side_panel/chart/building_blocks/chart_
 import { ChartDataSeries } from "./components/side_panel/chart/building_blocks/data_series/data_series";
 import { ChartErrorSection } from "./components/side_panel/chart/building_blocks/error_section/error_section";
 import { GenericChartConfigPanel } from "./components/side_panel/chart/building_blocks/generic_side_panel/config_panel";
-import { ChartLabelRange } from "./components/side_panel/chart/building_blocks/label_range/label_range";
 import { chartSidePanelComponentRegistry } from "./components/side_panel/chart/chart_side_panel_registry";
 import { ChartTypePicker } from "./components/side_panel/chart/chart_type_picker/chart_type_picker";
 import { ChartWithAxisDesignPanel } from "./components/side_panel/chart/chart_with_axis/design_panel";
@@ -434,7 +433,6 @@ export const components = {
   RoundColorPicker,
   ChartDataSeries,
   ChartErrorSection,
-  ChartLabelRange,
   ChartRangeDataSourceComponent,
   ChartTitle,
   ChartPanel,

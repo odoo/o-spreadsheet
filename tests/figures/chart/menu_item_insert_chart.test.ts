@@ -8,7 +8,7 @@ import {
 import { toXC } from "../../../src/helpers/coordinates";
 import { zoneToXc } from "../../../src/helpers/zones";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
-import { toChartDataSource } from "../../test_helpers/chart_helpers";
+import { toChartDataSource, toChartRangeDataSource } from "../../test_helpers/chart_helpers";
 import {
   addColumns,
   addRows,
@@ -466,7 +466,7 @@ describe("Smart chart type detection", () => {
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       type: "scorecard",
-      keyValue: "C3",
+      dataSource: toChartRangeDataSource({ dataSets: ["C3"], dataSetsHaveTitle: false }),
     });
   });
 

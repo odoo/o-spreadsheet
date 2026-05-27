@@ -37,7 +37,7 @@ export class SpreadsheetChart {
     const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "none");
     const chartTypeBuilder = chartTypeRegistry.get(definition.type);
     const dataSource = dataSourceBuilder.fromExternalDefinition(
-      definition.dataSource ?? { type: "none" },
+      definition.dataSource,
       sheetId,
       getters
     );
@@ -65,7 +65,7 @@ export class SpreadsheetChart {
     const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "none");
     return validator.batchValidations(
       () => chartTypeBuilder.validateDefinition(validator, definition),
-      () => dataSourceBuilder.validate(definition.dataSource ?? { type: "none" }, validator)
+      () => dataSourceBuilder.validate(definition.dataSource, validator)
     )(undefined); // Typescript requires a parameter but we don't use it (`definition` is captured by closure)
   }
 
@@ -78,7 +78,7 @@ export class SpreadsheetChart {
     if (!definition.dataSource) {
       return chartTypeBuilder.transformDefinition(definition, chartSheetId, rangeAdapters);
     }
-    const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "none");
+    const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource.type);
     const newDataSource = dataSourceBuilder.transform(
       definition.dataSource,
       chartSheetId,
@@ -152,7 +152,7 @@ export class SpreadsheetChart {
   getContextCreation(): ChartCreationContext {
     const definition = this.getDefinition();
     return {
-      ...this.dataSourceBuilder.getContextCreation(definition.dataSource ?? { type: "none" }),
+      ...this.dataSourceBuilder.getContextCreation(definition.dataSource),
       ...this.chartTypeBuilder.getContextCreation(
         definition,
         this.dataSourceBuilder,

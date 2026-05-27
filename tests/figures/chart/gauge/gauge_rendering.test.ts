@@ -274,7 +274,7 @@ describe("Gauge chart component animation", () => {
     readonlyAllowedCommands.add("UPDATE_CELL");
 
     const model = new Model();
-    createGaugeChart(model, { dataRange: "A1" });
+    createGaugeChart(model, { dataSets: ["A1"] });
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });
 
