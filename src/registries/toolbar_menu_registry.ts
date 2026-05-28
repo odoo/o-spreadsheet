@@ -24,6 +24,11 @@ export class ToolBarRegistry {
     return this;
   }
 
+  remove(key: string) {
+    delete this.content[key];
+    return this;
+  }
+
   getEntries(id: string): ToolBarItem[] {
     return this.content[id].sort((a, b) => a.sequence - b.sequence);
   }

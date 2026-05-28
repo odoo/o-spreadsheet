@@ -302,6 +302,7 @@ export const registries = {
   chartDataSourceRegistry,
   topbarMenuRegistry,
   topbarComponentRegistry,
+  topBarToolBarRegistry,
   clickableCellRegistry,
   otRegistry,
   inverseCommandRegistry,
@@ -334,6 +335,7 @@ import { Composer } from "./components/composer/composer/composer";
 import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
 import { TopBar } from "./components/top_bar/top_bar";
+import { topBarToolBarRegistry } from "./components/top_bar/top_bar_tools_registry";
 import { parseFormat } from "./helpers/format/format_parser";
 import {
   getFirstPivotFunction,
