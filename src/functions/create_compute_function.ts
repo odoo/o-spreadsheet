@@ -7,6 +7,7 @@ import {
   ComputeFunctionNoThis,
   EvalContext,
   FunctionDescription,
+  LazyArg,
 } from "../types/functions";
 import { Arg, FunctionResultObject, isMatrix, Matrix, UnboundedZone } from "../types/misc";
 import { argTargeting } from "./arguments";
@@ -56,7 +57,7 @@ export function applyVectorization(
   // All function that return an array result work with a zone to only return partial results. (a vectorized formula could be include in a formula that return partial array result, ex CHOOSECOLS( ADD(A2:A10, B1:K10), 3))
   // So we need to pass the zone to applyVectorization to be able to return only the part of the result that is needed.
   zone: UnboundedZone,
-  args: Arg[],
+  args: (Arg | LazyArg)[],
   acceptToVectorize: boolean[] | undefined = undefined,
   isArrayFormula: boolean | undefined = undefined
 ): FunctionResultObject | Matrix<FunctionResultObject> {
@@ -67,14 +68,28 @@ export function applyVectorization(
 
   let vectorArgsType: VectorArgType[] | undefined = undefined;
 
+  // unlezify args to know how to vectorize them.
+  const _args: Arg[] = new Array(args.length);
+  const defaultZone = { top: 0, left: 0, bottom: undefined, right: undefined };
   for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
+    if (typeof args[i] === "function") {
+      // TODO: have a thought to know if it is possible to compute only the necessary
+      // args parts without unlezify all the range and keep the dimention information.
+      // @ts-ignore
+      _args[i] = args[i](defaultZone);
+    } else {
+      _args[i] = args[i] as Arg;
+    }
+  }
+
+  for (let i = 0; i < _args.length; i++) {
+    const arg = _args[i];
 
     if (isMatrix(arg) && (acceptToVectorize === undefined || acceptToVectorize[i])) {
       const nColumns = arg.length;
       const nRows = arg[0].length;
       if (nColumns !== 1 || nRows !== 1) {
-        vectorArgsType ??= new Array(args.length);
+        vectorArgsType ??= new Array(_args.length);
         if (nColumns !== 1 && nRows !== 1) {
           vectorArgsType[i] = "matrix";
           countVectorizedCol = Math.max(countVectorizedCol, nColumns);
@@ -91,22 +106,20 @@ export function applyVectorization(
           vectorizedRowLimit = Math.min(vectorizedRowLimit, nRows);
         }
       } else {
-        args[i] = arg[0][0];
+        _args[i] = arg[0][0];
       }
     }
   }
 
-  const defaultZone = { top: 0, left: 0, bottom: undefined, right: undefined };
-
   // Reused across every vectorized cell to avoid allocating a new args array per call.
-  const argsBuffer: Arg[] = new Array(args.length);
+  const argsBuffer: Arg[] = new Array(_args.length);
 
   // Resolve each arg's access pattern once, outside the inner loop.
   type ArgGetter = (i: number, j: number) => Arg;
   const argGetters: ArgGetter[] = [];
   const vectorizedIndices: number[] = []; // tracks which slots need updating each iteration.
-  for (let k = 0; k < args.length; k++) {
-    const arg = args[k];
+  for (let k = 0; k < _args.length; k++) {
+    const arg = _args[k];
     switch (vectorArgsType?.[k]) {
       case "matrix": {
         argGetters.push((i, j) => arg![i][j]);
