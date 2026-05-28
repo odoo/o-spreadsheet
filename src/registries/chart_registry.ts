@@ -1,3 +1,4 @@
+import { CoreChartOptions } from "chart.js";
 import { Getters, Range } from "../types";
 import {
   ChartCreationContext,
@@ -109,20 +110,7 @@ interface ChartDataExtractors {
   extractHierarchicalData(): ChartData;
 }
 
-interface ChartJsEventHandlers {
-  onClick?: (
-    // chartjs internals
-    event: unknown,
-    items: unknown,
-    chartJsChart: unknown
-  ) => void;
-  onHover?: (
-    // chartjs internals
-    event: unknown,
-    items: unknown,
-    chartJsChart: unknown
-  ) => void;
-}
+export type ChartJsEventHandlers = Pick<CoreChartOptions<any>, "onClick" | "onHover">;
 
 export interface ChartTypeRegistry extends Registry<ChartTypeBuilder<any>> {
   add<T extends ChartType>(type: T, builder: ChartTypeBuilder<T>): this;
