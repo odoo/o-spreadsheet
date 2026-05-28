@@ -3,6 +3,7 @@
  */
 export interface FunctionCode {
   readonly returnExpression: JsString;
+  readonly returnsMatrix: boolean;
   /**
    * Return the same function code but with the return expression assigned to a variable.
    */
@@ -68,11 +69,11 @@ export class FunctionCodeBuilder {
     }
   }
 
-  return(expression: JsString): FunctionCode {
+  return(expression: JsString, returnsMatrix: boolean = false): FunctionCode {
     if (!isSafeJsValue(expression)) {
       throw new Error(`Expected JsString, got ${expression}`);
     }
-    return new FunctionCodeImpl(this.scope, this.code, expression);
+    return new FunctionCodeImpl(this.scope, this.code, expression, returnsMatrix);
   }
 
   toString(): string {
@@ -84,7 +85,8 @@ class FunctionCodeImpl implements FunctionCode {
   constructor(
     private readonly scope: Scope,
     readonly code: JsString[],
-    readonly returnExpression: JsString
+    readonly returnExpression: JsString,
+    readonly returnsMatrix: boolean
   ) {}
 
   assignResultToVariable(): FunctionCode {
