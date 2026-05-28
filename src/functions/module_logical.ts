@@ -6,7 +6,7 @@ import { arg } from "./arguments";
 import { applyVectorization, getFunctionArgDefinitions } from "./create_compute_function";
 import { functionRegistry } from "./function_registry";
 import { boolAnd, boolOr } from "./helper_logical";
-import { isMultipleElementMatrix, toScalar } from "./helper_matrices";
+import { getMatrixArgIndices, isMultipleElementMatrix, toScalar } from "./helper_matrices";
 import {
   conditionalVisitBoolean,
   isEvaluationError,
@@ -78,7 +78,8 @@ export const IF = {
         this,
         IF,
         [logicalExpression, valueIfTrue, valueIfFalse],
-        getFunctionArgDefinitions(IF, 3)
+        getFunctionArgDefinitions(IF, 3),
+        getMatrixArgIndices([logicalExpression, valueIfTrue, valueIfFalse])
       );
     }
     const result = toBoolean(toScalar(logicalExpression)) ? valueIfTrue : valueIfFalse;
@@ -106,7 +107,8 @@ export const IFERROR = {
         this,
         IFERROR,
         [value, valueIfError],
-        getFunctionArgDefinitions(IFERROR, 2)
+        getFunctionArgDefinitions(IFERROR, 2),
+        getMatrixArgIndices([value, valueIfError])
       );
     }
     const result = isEvaluationError(toScalar(value)?.value) ? valueIfError : value;
@@ -134,7 +136,8 @@ export const IFNA = {
         this,
         IFNA,
         [value, valueIfError],
-        getFunctionArgDefinitions(IFNA, 2)
+        getFunctionArgDefinitions(IFNA, 2),
+        getMatrixArgIndices([value, valueIfError])
       );
     }
     const result = toScalar(value)?.value === CellErrorType.NotAvailable ? valueIfError : value;
@@ -169,7 +172,13 @@ export const IFS = {
     while (values.length > 0) {
       if (isMultipleElementMatrix(values[0])) {
         const IFS = functionRegistry.get("IFS");
-        return applyVectorization(this, IFS, values, getFunctionArgDefinitions(IFS, values.length));
+        return applyVectorization(
+          this,
+          IFS,
+          values,
+          getFunctionArgDefinitions(IFS, values.length),
+          getMatrixArgIndices(values)
+        );
       }
       const condition = toBoolean(toScalar(values.shift()));
       const valueIfTrue = values.shift();
