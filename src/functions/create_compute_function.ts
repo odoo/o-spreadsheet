@@ -54,7 +54,7 @@ export function applyVectorization(
   descr: FunctionDescription,
   args: Arg[],
   argDefinitions: ArgDefinition[],
-  acceptToVectorize: boolean[] | undefined = undefined
+  vectorizedArgsIndices: number[]
 ): FunctionResultObject | Matrix<FunctionResultObject> {
   let countVectorizedCol = 1;
   let countVectorizedRow = 1;
@@ -63,31 +63,31 @@ export function applyVectorization(
 
   let vectorArgsType: VectorArgType[] | undefined = undefined;
 
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
+  for (const argIndex of vectorizedArgsIndices) {
+    const arg = args[argIndex];
 
-    if (isMatrix(arg) && (acceptToVectorize === undefined || acceptToVectorize[i])) {
+    if (isMatrix(arg)) {
       const nColumns = arg.length;
       const nRows = arg[0].length;
       if (nColumns !== 1 || nRows !== 1) {
         vectorArgsType ??= new Array(args.length);
         if (nColumns !== 1 && nRows !== 1) {
-          vectorArgsType[i] = "matrix";
+          vectorArgsType[argIndex] = "matrix";
           countVectorizedCol = Math.max(countVectorizedCol, nColumns);
           countVectorizedRow = Math.max(countVectorizedRow, nRows);
           vectorizedColLimit = Math.min(vectorizedColLimit, nColumns);
           vectorizedRowLimit = Math.min(vectorizedRowLimit, nRows);
         } else if (nColumns !== 1) {
-          vectorArgsType[i] = "horizontal";
+          vectorArgsType[argIndex] = "horizontal";
           countVectorizedCol = Math.max(countVectorizedCol, nColumns);
           vectorizedColLimit = Math.min(vectorizedColLimit, nColumns);
         } else if (nRows !== 1) {
-          vectorArgsType[i] = "vertical";
+          vectorArgsType[argIndex] = "vertical";
           countVectorizedRow = Math.max(countVectorizedRow, nRows);
           vectorizedRowLimit = Math.min(vectorizedRowLimit, nRows);
         }
       } else {
-        args[i] = arg[0][0];
+        args[argIndex] = arg[0][0];
       }
     }
   }
@@ -103,23 +103,19 @@ export function applyVectorization(
   // Resolve each arg's access pattern once, outside the inner loop.
   type ArgGetter = (i: number, j: number) => Arg;
   const argGetters: ArgGetter[] = [];
-  const vectorizedIndices: number[] = []; // tracks which slots need updating each iteration.
   for (let k = 0; k < args.length; k++) {
     const arg = args[k];
     switch (vectorArgsType?.[k]) {
       case "matrix": {
         argGetters.push((i, j) => arg![i][j]);
-        vectorizedIndices.push(k);
         break;
       }
       case "horizontal": {
         argGetters.push((i) => arg![i][0]);
-        vectorizedIndices.push(k);
         break;
       }
       case "vertical": {
         argGetters.push((_i, j) => arg![0][j]);
-        vectorizedIndices.push(k);
         break;
       }
       case undefined:
@@ -127,7 +123,7 @@ export function applyVectorization(
         break;
     }
   }
-  const nbVectorized = vectorizedIndices.length;
+  const nbVectorized = vectorizedArgsIndices.length;
 
   const result: Matrix<FunctionResultObject> = new Array(countVectorizedCol);
   for (let col = 0; col < countVectorizedCol; col++) {
@@ -141,7 +137,7 @@ export function applyVectorization(
         continue;
       }
       for (let k = 0; k < nbVectorized; k++) {
-        argsBuffer[vectorizedIndices[k]] = argGetters[k](col, row);
+        argsBuffer[vectorizedArgsIndices[k]] = argGetters[k](col, row);
       }
       const singleCellComputeResult = errorHandlingCompute(
         descr,
@@ -221,7 +217,7 @@ export function getFunctionArgDefinitions(
 export function createComputeFunction(
   descr: FunctionDescription,
   argCount: number,
-  argsToVectorize?: boolean[]
+  vectorizedArgsIndices?: number[]
 ): ComputeFunction {
   const functionName = descr.name;
   const argsToFocus = argTargeting(descr, argCount);
@@ -237,9 +233,9 @@ export function createComputeFunction(
     }
     let result: FunctionResultObject | Matrix<FunctionResultObject>;
 
-    if (argsToVectorize !== undefined && argsToVectorize.includes(true)) {
+    if (vectorizedArgsIndices !== undefined && vectorizedArgsIndices.length > 0) {
       result = replaceErrorPlaceholderInResult(
-        applyVectorization(evalContext, descr, args, argDefinitions, argsToVectorize),
+        applyVectorization(evalContext, descr, args, argDefinitions, vectorizedArgsIndices),
         descr
       );
     } else {
