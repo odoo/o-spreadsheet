@@ -375,6 +375,8 @@ export type SerializedCompiledFormula = {
   normalizedFormula: string;
 };
 
+type CompiledArg = { argAST: FunctionCode; toVectorize: boolean };
+
 // -----------------------------------------------------------------------------
 // COMPILER
 // -----------------------------------------------------------------------------
@@ -445,7 +447,7 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
      * the cell value into a range. This allow the grid model to differentiate
      * between a cell value and a non cell value.
      */
-    function compileFunctionArgs(ast: ASTFuncall): FunctionCode[] {
+    function compileFunctionArgs(ast: ASTFuncall): CompiledArg[] {
       const { args } = ast;
       const functionName = ast.value.toUpperCase();
       const functionDefinition = functions[functionName];
@@ -456,18 +458,25 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
 
       assertEnoughArgs(ast);
 
-      const compiledArgs: FunctionCode[] = [];
+      const compiledArgs: CompiledArg[] = [];
 
       const argToFocus = argTargeting(functionDefinition, args.length);
 
       for (let i = 0; i < args.length; i++) {
         const argDefinition = functionDefinition.args[argToFocus[i].index];
         const currentArg = args[i];
-        const argTypes = argDefinition.type || [];
-
-        const hasRange = argTypes.some((t) => isRangeType(t));
-
-        compiledArgs.push(compileAST(currentArg, hasRange));
+        const argAST = compileAST(currentArg, argDefinition.acceptMatrix);
+        if (argDefinition.acceptMatrixOnly && !argAST.returnsMatrix) {
+          throw new BadExpressionError(
+            _t(
+              "Function %s expects the parameter '%s' to be reference to a cell or range.",
+              functionName,
+              (i + 1).toString()
+            )
+          );
+        }
+        const toVectorize = !argDefinition.acceptMatrix && argAST.returnsMatrix;
+        compiledArgs.push({ argAST, toVectorize });
       }
 
       return compiledArgs;
@@ -478,7 +487,7 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
      * executable code for the evaluation of the cells content. It uses a cache to
      * not reevaluate identical code structures.
      */
-    function compileAST(ast: AST, hasRange = false): FunctionCode {
+    function compileAST(ast: AST, acceptMatrix = false): FunctionCode {
       const code = new FunctionCodeBuilder(scope);
       if (ast.debug) {
         code.append(jsStr`debugger;`);
@@ -492,13 +501,14 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
         case "STRING":
           return code.return(jsStr`this.literalValues.strings[${stringCount++}]`);
         case "REFERENCE":
+          const isRange = ast.value.includes(":") || acceptMatrix;
           return code.return(
-            jsStr`${
-              ast.value.includes(":") || hasRange ? jsStr`range` : jsStr`ref`
-            }(deps[${dependencyCount++}])`
+            jsStr`${isRange ? jsStr`range` : jsStr`ref`}(deps[${dependencyCount++}])`,
+            isRange
           );
         case "FUNCALL":
-          const args = compileFunctionArgs(ast).map((arg) => arg.assignResultToVariable());
+          const compiledArgs = compileFunctionArgs(ast);
+          const args = compiledArgs.map((compileArg) => compileArg.argAST.assignResultToVariable());
           code.append(...args);
           const fnName = ast.value.toUpperCase();
           if (!Object.hasOwn(functions, fnName)) {
@@ -506,14 +516,19 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
           }
           const jsFnName = dangerouslyCreateJsStr(fnName); // validated with known functions
           const funCallIndex = computeFunctions.length;
-          computeFunctions.push(createComputeFunction(functions[fnName], args.length));
+          const argsToVectorize = compiledArgs.map((compiledArg) => compiledArg.toVectorize);
+
+          computeFunctions.push(
+            createComputeFunction(functions[fnName], args.length, argsToVectorize)
+          );
+
+          const returnsMatrix =
+            functions[fnName].computeArray !== undefined || argsToVectorize.includes(true);
           const comment = jsStr`// ${jsFnName}`;
-          if (args.length === 0) {
-            return code.return(jsStr`computeFunctions[${funCallIndex}](ctx); ${comment}`);
-          }
-          const compiledArgs = args.map((arg) => arg.returnExpression);
+          const parameters = [jsStr`ctx`, ...args.map((arg) => arg.returnExpression)];
           return code.return(
-            jsStr`computeFunctions[${funCallIndex}](ctx,${compiledArgs}); ${comment}`
+            jsStr`computeFunctions[${funCallIndex}](${parameters}); ${comment}`,
+            returnsMatrix
           );
         case "ARRAY": {
           // a literal array is compiled into function calls
@@ -532,7 +547,10 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
         }
         case "SYMBOL":
           const symbolIndex = symbols.indexOf(ast.value);
-          return code.return(jsStr`getSymbolValue(this.symbols[${symbolIndex}], ${hasRange})`);
+          return code.return(
+            jsStr`getSymbolValue(this.symbols[${symbolIndex}], ${acceptMatrix})`,
+            true
+          );
         case "EMPTY":
           return code.return(jsStr`undefined`);
       }
@@ -695,8 +713,4 @@ function toFunCallAst(fnName: string, args: AST[]): ASTFuncall {
     tokenStartIndex: 0,
     tokenEndIndex: 0,
   };
-}
-
-function isRangeType(type: string) {
-  return type.startsWith("RANGE");
 }
