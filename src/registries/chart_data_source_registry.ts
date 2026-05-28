@@ -1,3 +1,4 @@
+import type * as ChartJS from "chart.js";
 import {
   ChartCreationContext,
   ChartData,
@@ -49,11 +50,17 @@ export interface ChartDataSourceBuilder<TExternal, TInternal> {
   onDataSetClick?: (
     chartType: ChartType,
     chartId: UID,
-    // chartjs internals
-    event: unknown,
-    items: unknown,
-    chartJsChart: unknown,
+    event: ChartJS.ChartEvent,
+    items: ChartJS.ActiveElement[],
+    chartJsChart: ChartJS.Chart,
     getters: Getters
+  ) => void;
+  onDataSetHover?: (
+    chartType: ChartType,
+    chartId: UID,
+    event: ChartJS.ChartEvent,
+    items: ChartJS.ActiveElement[],
+    chartJsChart: ChartJS.Chart
   ) => void;
 }
 

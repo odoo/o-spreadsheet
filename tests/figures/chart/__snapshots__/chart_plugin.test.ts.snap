@@ -54,6 +54,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
       },
       "maintainAspectRatio": false,
       "onClick": [Function],
+      "onHover": [Function],
       "plugins": {
         "background": {
           "color": undefined,
@@ -200,6 +201,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
       },
       "maintainAspectRatio": false,
       "onClick": [Function],
+      "onHover": [Function],
       "plugins": {
         "background": {
           "color": undefined,
@@ -333,6 +335,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
       },
       "maintainAspectRatio": false,
       "onClick": [Function],
+      "onHover": [Function],
       "plugins": {
         "background": {
           "color": undefined,
@@ -501,6 +504,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
       },
       "maintainAspectRatio": false,
       "onClick": [Function],
+      "onHover": [Function],
       "plugins": {
         "background": {
           "color": undefined,
