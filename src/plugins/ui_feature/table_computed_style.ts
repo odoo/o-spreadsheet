@@ -203,6 +203,7 @@ const invalidateTableStyleCommands = [
   "RESIZE_TABLE",
   "CREATE_TABLE_STYLE",
   "REMOVE_TABLE_STYLE",
+  "DELETE_CONTENT",
 ] as const;
 const invalidateTableStyleCommandsSet = new Set<CommandTypes>(invalidateTableStyleCommands);
 
