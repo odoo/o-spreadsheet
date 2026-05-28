@@ -516,14 +516,18 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
           }
           const jsFnName = dangerouslyCreateJsStr(fnName); // validated with known functions
           const funCallIndex = computeFunctions.length;
-          const argsToVectorize = compiledArgs.map((compiledArg) => compiledArg.toVectorize);
-
+          const vectorizedArgsIndices: number[] = [];
+          for (let i = 0; i < compiledArgs.length; i++) {
+            if (compiledArgs[i].toVectorize) {
+              vectorizedArgsIndices.push(i);
+            }
+          }
           computeFunctions.push(
-            createComputeFunction(functions[fnName], args.length, argsToVectorize)
+            createComputeFunction(functions[fnName], args.length, vectorizedArgsIndices)
           );
 
           const returnsMatrix =
-            functions[fnName].computeArray !== undefined || argsToVectorize.includes(true);
+            functions[fnName].computeArray !== undefined || vectorizedArgsIndices.length > 0;
           const comment = jsStr`// ${jsFnName}`;
           const parameters = [jsStr`ctx`, ...args.map((arg) => arg.returnExpression)];
           return code.return(
