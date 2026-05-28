@@ -2,7 +2,11 @@ import {
   ChartDataSourceBuilder,
   chartDataSourceRegistry,
 } from "../../registries/chart_data_source_registry";
-import { ChartTypeBuilder, chartTypeRegistry } from "../../registries/chart_registry";
+import {
+  ChartJsEventHandlers,
+  ChartTypeBuilder,
+  chartTypeRegistry,
+} from "../../registries/chart_registry";
 import {
   ChartCreationContext,
   ChartData,
@@ -193,7 +197,7 @@ export class SpreadsheetChart {
           extractData: () => ({ dataSetsValues: [], labelValues: [] }),
           extractHierarchicalData: () => ({ dataSetsValues: [], labelValues: [] }),
         };
-    const eventHandlers = {
+    const eventHandlers: ChartJsEventHandlers = {
       onClick: (event, items, chartJsChart) => {
         return this.dataSourceBuilder.onDataSetClick?.(
           this.definition.type,
@@ -204,6 +208,14 @@ export class SpreadsheetChart {
           getters
         );
       },
+      onHover: (event, items, chartJsChart) =>
+        this.dataSourceBuilder.onDataSetHover?.(
+          this.definition.type,
+          chartId,
+          event,
+          items,
+          chartJsChart
+        ),
     };
     return this.chartTypeBuilder.getRuntime(
       getters,
