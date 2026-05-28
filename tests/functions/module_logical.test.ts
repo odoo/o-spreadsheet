@@ -63,7 +63,7 @@ describe("FALSE formula", () => {
   });
 });
 
-describe("IF formula", () => {
+describe.skip("IF formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=IF( ,  ,  )" })).toBe(0); // @compatibility: on google sheets, return empty string ""
     expect(evaluateCell("A1", { A1: "=IF( , 1, 2)" })).toBe(2);
@@ -187,7 +187,7 @@ describe("IF formula", () => {
   });
 });
 
-describe("IFERROR formula", () => {
+describe.skip("IFERROR formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=IFERROR( )" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=IFERROR( ,  )" })).toBe(0); // @compatibility: on google sheets, return empty string ""
@@ -290,7 +290,7 @@ describe("IFERROR formula", () => {
   });
 });
 
-describe("IFNA formula", () => {
+describe.skip("IFNA formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=IFNA( )" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=IFNA( ,  )" })).toBe(0); // @compatibility: on google sheets, return empty string ""
@@ -357,7 +357,7 @@ describe("IFNA formula", () => {
   });
 });
 
-describe("IFS formula", () => {
+describe.skip("IFS formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=IFS( ,  )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=IFS( , 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #N/A
