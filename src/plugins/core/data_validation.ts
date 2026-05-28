@@ -373,4 +373,14 @@ export class DataValidationPlugin
     }
     return CommandResult.Success;
   }
+
+  getFormulas(): CompiledFormula[] {
+    return Object.keys(this.rules).flatMap((sheetId) =>
+      this.rules[sheetId].flatMap((rule) =>
+        rule.criterion.values
+          .filter((value) => value.startsWith("="))
+          .map((formulaString) => CompiledFormula.Compile(formulaString, sheetId, this.getters))
+      )
+    );
+  }
 }

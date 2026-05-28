@@ -3,6 +3,7 @@ import { ChartPanel } from "../components/side_panel/chart/main_chart_panel/main
 import { ColumnStatsPanel } from "../components/side_panel/column_stats/column_stats_panel";
 import { ConditionalFormattingEditor } from "../components/side_panel/conditional_formatting/cf_editor/cf_editor";
 import { ConditionalFormatPreviewList } from "../components/side_panel/conditional_formatting/cf_preview_list/cf_preview_list";
+import { DataSourcesCleanup } from "../components/side_panel/data_sources_cleanup/data_sources_cleanup";
 import { DataValidationPanel } from "../components/side_panel/data_validation/data_validation_panel";
 import { DataValidationEditor } from "../components/side_panel/data_validation/dv_editor/dv_editor";
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace/find_and_replace";
@@ -99,6 +100,11 @@ sidePanelRegistry.add("Settings", {
 sidePanelRegistry.add("RemoveDuplicates", {
   title: _t("Remove duplicates"),
   Body: RemoveDuplicatesPanel,
+});
+
+sidePanelRegistry.add("DataSourceCleanup", {
+  title: _t("Unused data sources"),
+  Body: DataSourcesCleanup,
 });
 
 sidePanelRegistry.add("DataValidation", {

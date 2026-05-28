@@ -1,16 +1,19 @@
+import { CompiledFormula } from "../formulas/compiler";
 import { StateObserver } from "../state_observer";
 import { CoreCommand, CoreCommandDispatcher } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
-import { RangeAdapterFunctions, RangeProvider } from "../types/misc";
+import { FormulaProvider, RangeAdapterFunctions, RangeProvider } from "../types/misc";
 import { ModelConfig } from "../types/model";
 import { WorkbookData } from "../types/workbook_data";
 import { BasePlugin } from "./base_plugin";
+import { FormulaProviderAggregator } from "./core/formulas_provider";
 import { RangeAdapterPlugin } from "./core/range";
 
 export interface CorePluginConfig {
   readonly getters: CoreGetters;
   readonly stateObserver: StateObserver;
   readonly range: RangeAdapterPlugin;
+  readonly formulasPlugin: FormulaProviderAggregator;
   readonly dispatch: CoreCommandDispatcher["dispatch"];
   readonly canDispatch: CoreCommandDispatcher["dispatch"];
   readonly custom: ModelConfig["custom"];
@@ -30,15 +33,23 @@ export interface CorePluginConstructor {
  */
 export class CorePlugin<State = any>
   extends BasePlugin<State, CoreCommand>
-  implements RangeProvider
+  implements RangeProvider, FormulaProvider
 {
   protected getters: CoreGetters;
   protected dispatch: CoreCommandDispatcher["dispatch"];
   protected canDispatch: CoreCommandDispatcher["dispatch"];
 
-  constructor({ getters, stateObserver, range, dispatch, canDispatch }: CorePluginConfig) {
+  constructor({
+    getters,
+    stateObserver,
+    range,
+    dispatch,
+    canDispatch,
+    formulasPlugin,
+  }: CorePluginConfig) {
     super(stateObserver);
     range.addRangeProvider(this.adaptRanges.bind(this));
+    formulasPlugin.addFormulaProvider(this.getFormulas.bind(this));
     this.getters = getters;
     this.dispatch = dispatch;
     this.canDispatch = canDispatch;
@@ -63,4 +74,8 @@ export class CorePlugin<State = any>
    * @param sheetName couple of old and new sheet names to adapt ranges pointing to that sheet
    */
   adaptRanges(rangeAdapterFunctions: RangeAdapterFunctions): void {}
+
+  getFormulas(): CompiledFormula[] {
+    return [];
+  }
 }

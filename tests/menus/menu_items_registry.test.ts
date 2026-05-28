@@ -44,11 +44,7 @@ import {
   spyModelDispatch,
   target,
 } from "../test_helpers/helpers";
-import {
-  addPivot,
-  createModelWithPivot,
-  createModelWithTestPivotDataset,
-} from "../test_helpers/pivot_helpers";
+import { createModelWithPivot } from "../test_helpers/pivot_helpers";
 
 import { Currency, Model } from "../../src";
 
@@ -284,15 +280,6 @@ describe("Menu Item actions", () => {
     expect(pivotSubmenu.isVisible(pivotEnv)).toBeTruthy();
     expect(pivotSubmenu.children(pivotEnv)).toHaveLength(pivotIds.length);
     expect(pivotItem.name(pivotEnv)).toBe(pivotModel.getters.getPivotDisplayName(firstPivotId));
-  });
-
-  test("Data -> Pivot submenu shows a warning icon when at least one pivot is unused", () => {
-    const pivotModel = createModelWithTestPivotDataset();
-    addPivot(pivotModel, "A1:E18", { name: "Unused pivot" }, "2");
-    const pivotEnv = makeTestEnv({ model: pivotModel });
-
-    const pivotSubmenu = getNode(["data", "pivot_data_sources"], pivotEnv);
-    expect(pivotSubmenu.secondaryIcon(pivotEnv)).toBe("o-spreadsheet-Icon.UNUSED_PIVOT_WARNING");
   });
 
   test("Edit -> paste_special should not be hidden after a COPY ", () => {

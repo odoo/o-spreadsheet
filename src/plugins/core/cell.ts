@@ -694,4 +694,17 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
     return CommandResult.NoChanges;
   }
+
+  getFormulas(): CompiledFormula[] {
+    const formulas: CompiledFormula[] = [];
+    for (const sheetId in this.cells) {
+      for (const cellId in this.cells[sheetId]) {
+        const cell = this.cells[sheetId]?.[cellId];
+        if (cell?.isFormula) {
+          formulas.push(cell.compiledFormula);
+        }
+      }
+    }
+    return formulas;
+  }
 }
