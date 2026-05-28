@@ -15,7 +15,7 @@ import { createComputeFunction } from "./create_compute_function";
 import { functionRegistry } from "./function_registry";
 import { assertNotZero } from "./helper_assert";
 import { countUnique, sum } from "./helper_math";
-import { getUnitMatrix } from "./helper_matrices";
+import { getUnitMatrix, toScalar } from "./helper_matrices";
 import {
   expectReferenceError,
   generateMatrix,
@@ -1392,8 +1392,7 @@ export const SUBTOTAL = {
       _t("Range or reference for which you want the subtotal.")
     ),
   ],
-  // LUL: not sure about this
-  computeArray: function (functionCode: Maybe<FunctionResultObject>, ...refs: Arg[]) {
+  compute: function (functionCode: Maybe<FunctionResultObject>, ...refs: Arg[]) {
     let code = toInteger(functionCode, this.locale);
     let acceptHiddenCells = true;
     if (code > 100) {
@@ -1436,7 +1435,12 @@ export const SUBTOTAL = {
     }
 
     const aggregateName = subtotalFunctionAggregateByCode[code];
-    return createComputeFunction(functionRegistry.get(aggregateName), 1)(this, [functionResults]);
+    const args = [functionResults];
+    const result = createComputeFunction(functionRegistry.get(aggregateName), args.length)(
+      this,
+      args
+    );
+    return toScalar(result);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
