@@ -159,3 +159,13 @@ function isSingleElementMatrix<T>(matrix: Matrix<T>) {
 export function isMultipleElementMatrix(arg: any) {
   return isMatrix(arg) && !isSingleElementMatrix(arg);
 }
+
+export function getMatrixArgIndices(args: unknown[]): number[] {
+  const indices: number[] = [];
+  for (let i = 0; i < args.length; i++) {
+    if (isMultipleElementMatrix(args[i])) {
+      indices.push(i);
+    }
+  }
+  return indices;
+}

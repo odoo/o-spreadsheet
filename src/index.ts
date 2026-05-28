@@ -344,6 +344,7 @@ import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/bui
 import { CalendarButton } from "./components/side_panel/criterion_form/calendar_button/calendar_button";
 import { TopBar } from "./components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "./components/top_bar/top_bar_tools_registry";
+import { createComputeFunction } from "./functions/create_compute_function";
 import { PositionMap } from "./helpers/cells/position_map";
 import { parseFormat } from "./helpers/format/format_parser";
 import { replaceSymbolInFormula } from "./helpers/formulas";
@@ -441,6 +442,7 @@ export const helpers = {
   replaceSymbolInFormula,
   isSingleCellReference,
   computeCachedTextDimension,
+  createComputeFunction,
 };
 
 export const links = {
