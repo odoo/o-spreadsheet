@@ -26,6 +26,7 @@ import {
   createTable,
   createTableStyle,
   createTableWithFilter,
+  deleteContent,
   deleteRows,
   deleteSheet,
   duplicateSheet,
@@ -57,6 +58,7 @@ import {
   createEqualCF,
   getDataValidationRules,
   target,
+  toCellPosition,
   toRangesData,
 } from "../test_helpers/helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
@@ -974,6 +976,22 @@ describe("Multi users synchronisation", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getStyle(user, "A1")!.fillColor,
       undefined
+    );
+  });
+
+  test("deleting a cell content properly deletes the table and invalidates its computed style", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    setCellContent(alice, "A1", "hello");
+    createTable(alice, "A1:A2");
+    const A1 = toCellPosition(sheetId, "A1");
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getCellComputedStyle(A1),
+      { bold: true, fillColor: "#346B90", textColor: "#FFFFFF" }
+    );
+    deleteContent(alice, ["A1:A2"]);
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getCellComputedStyle(A1),
+      {}
     );
   });
 
