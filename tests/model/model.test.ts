@@ -11,7 +11,12 @@ import {
 import { MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
-import { corePluginRegistry, featurePluginRegistry } from "../../src/plugins/plugin_registries";
+import { CorePluginConstructor } from "../../src/plugins/core_plugin";
+import {
+  CorePluginRegistry,
+  corePluginRegistry,
+  featurePluginRegistry,
+} from "../../src/plugins/plugin_registries";
 import { UIPlugin } from "../../src/plugins/ui_plugin";
 import { ModelConfig } from "../../src/types/model";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -422,74 +427,102 @@ describe("Model", () => {
   });
 });
 
-// describe("sortByDependencies", () => {
-//   function makePlugin(name: string, deps: CorePluginConstructor[] = []): CorePluginConstructor {
-//     return class {
-//       static getters = [] as const;
-//       static readonly dependencies = deps;
-//       static readonly name = name;
-//     } as unknown as CorePluginConstructor;
-//   }
-//
-//   test("places dependencies before the plugins that declare them", () => {
-//     const A = makePlugin("A");
-//     const B = makePlugin("B", [A]);
-//     const C = makePlugin("C", [B]);
-//
-//     const sorted = sortByDependencies([C, B, A]);
-//     expect(sorted.indexOf(A)).toBeLessThan(sorted.indexOf(B));
-//     expect(sorted.indexOf(B)).toBeLessThan(sorted.indexOf(C));
-//   });
-//
-//   test("handles plugins with no dependencies", () => {
-//     const A = makePlugin("A");
-//     const B = makePlugin("B");
-//     const sorted = sortByDependencies([A, B]);
-//     expect(sorted).toHaveLength(2);
-//     expect(sorted).toContain(A);
-//     expect(sorted).toContain(B);
-//   });
-//
-//   test("handles diamond dependency", () => {
-//     const A = makePlugin("A");
-//     const B = makePlugin("B", [A]);
-//     const C = makePlugin("C", [A]);
-//     const D = makePlugin("D", [B, C]);
-//
-//     const sorted = sortByDependencies([D, C, B, A]);
-//     expect(sorted.indexOf(A)).toBeLessThan(sorted.indexOf(B));
-//     expect(sorted.indexOf(A)).toBeLessThan(sorted.indexOf(C));
-//     expect(sorted.indexOf(B)).toBeLessThan(sorted.indexOf(D));
-//     expect(sorted.indexOf(C)).toBeLessThan(sorted.indexOf(D));
-//   });
-//
-//   test("throws on direct cycle (A → B → A)", () => {
-//     const A: CorePluginConstructor = makePlugin("A");
-//     const B = makePlugin("B", [A]);
-//     (A as any).dependencies = [B];
-//     expect(() => sortByDependencies([A, B])).toThrow(/Cyclic plugin dependency detected/);
-//     expect(() => sortByDependencies([A, B])).toThrow(/A.*B.*A/);
-//   });
-//
-//   test("throws on indirect cycle (A → B → C → A)", () => {
-//     const A: CorePluginConstructor = makePlugin("A");
-//     const B = makePlugin("B", [A]);
-//     const C = makePlugin("C", [B]);
-//     (A as any).dependencies = [C];
-//     expect(() => sortByDependencies([A, B, C])).toThrow(/Cyclic plugin dependency detected/);
-//   });
-//
-//   test("all registered core plugins satisfy their declared dependencies", () => {
-//     const plugins = corePluginRegistry.getAll();
-//     const sorted = sortByDependencies(plugins);
-//     const position = new Map(sorted.map((p, i) => [p, i] as [CorePluginConstructor, number]));
-//     for (const plugin of sorted) {
-//       for (const dep of plugin.dependencies) {
-//         const depInRegistry = plugins.find((p) => p === dep);
-//         if (depInRegistry) {
-//           expect(position.get(depInRegistry)!).toBeLessThan(position.get(plugin)!);
-//         }
-//       }
-//     }
-//   });
-// });
+function makePlugin(name: string, deps: CorePluginConstructor[] = []): CorePluginConstructor {
+  return class {
+    static getters = [] as const;
+    static readonly dependencies = deps;
+    static readonly name = name;
+  } as unknown as CorePluginConstructor;
+}
+
+describe("sortByDependencies", () => {
+  test("dependencies sorting", () => {
+    const A = makePlugin("A");
+    const B = makePlugin("B", [A]);
+    const C = makePlugin("C", [B]);
+    const newCorePluginRegistry = new CorePluginRegistry();
+    newCorePluginRegistry.add("A", A);
+    newCorePluginRegistry.add("B", B);
+    newCorePluginRegistry.add("C", C);
+    expect(newCorePluginRegistry.getAll()).toEqual([A, B, C]);
+  });
+
+  test("handles diamond dependency", () => {
+    const A = makePlugin("A");
+    const B = makePlugin("B", [A]);
+    const C = makePlugin("C", [A]);
+    const D = makePlugin("D", [B, C]);
+    const newCorePluginRegistry = new CorePluginRegistry();
+    newCorePluginRegistry.add("A", A);
+    newCorePluginRegistry.add("B", B);
+    newCorePluginRegistry.add("C", C);
+    newCorePluginRegistry.add("D", D);
+    const sorted = newCorePluginRegistry.getAll();
+    expect(sorted.indexOf(A)).toBeLessThan(sorted.indexOf(B));
+    expect(sorted.indexOf(A)).toBeLessThan(sorted.indexOf(C));
+    expect(sorted.indexOf(B)).toBeLessThan(sorted.indexOf(D));
+    expect(sorted.indexOf(C)).toBeLessThan(sorted.indexOf(D));
+  });
+
+  test("throws on direct cycle (A → B → A)", () => {
+    const A: CorePluginConstructor = makePlugin("A");
+    const B = makePlugin("B", [A]);
+    (A as any).dependencies = [B];
+    const newCorePluginRegistry = new CorePluginRegistry();
+    expect(() => newCorePluginRegistry.add("A", A)).toThrow(
+      "Cyclic plugin dependency detected: A → B → A"
+    );
+    expect(() => newCorePluginRegistry.add("B", B)).toThrow(
+      "Cyclic plugin dependency detected: B → A → B"
+    );
+  });
+
+  test("throws on indirect cycle (A → B → C → A)", () => {
+    const A: CorePluginConstructor = makePlugin("A");
+    const B = makePlugin("B", [A]);
+    const C = makePlugin("C", [B]);
+    (A as any).dependencies = [C];
+    const D = makePlugin("D", []);
+    const newCorePluginRegistry = new CorePluginRegistry();
+    expect(() => newCorePluginRegistry.add("A", A)).toThrow(
+      "Cyclic plugin dependency detected: A → B → C → A"
+    );
+    expect(() => newCorePluginRegistry.add("B", B)).toThrow(
+      "Cyclic plugin dependency detected: B → C → A → B"
+    );
+    expect(() => newCorePluginRegistry.add("C", C)).toThrow(
+      "Cyclic plugin dependency detected: C → A → B → C"
+    );
+    expect(() => newCorePluginRegistry.add("D", D)).not.toThrow();
+  });
+
+  test("all registered core plugins satisfy their declared dependencies", () => {
+    const plugins = corePluginRegistry.getAll();
+    const position = new Map(plugins.map((p, i) => [p, i] as [CorePluginConstructor, number]));
+    for (const plugin of plugins) {
+      for (const dep of plugin.dependencies) {
+        const depInRegistry = plugins.find((p) => p === dep);
+        if (depInRegistry) {
+          expect(position.get(depInRegistry)!).toBeLessThan(position.get(plugin)!);
+        }
+      }
+    }
+  });
+
+  test("plugins with the same dependency are in registration order", () => {
+    const A = makePlugin("A");
+    const B = makePlugin("B", [A]);
+    const C = makePlugin("C", [A]);
+    const newCorePluginRegistry = new CorePluginRegistry();
+    newCorePluginRegistry.add("A", A);
+    newCorePluginRegistry.add("B", B);
+    newCorePluginRegistry.add("C", C);
+    const sorted = newCorePluginRegistry.getAll();
+    expect(sorted.indexOf(B)).toBeLessThan(sorted.indexOf(C));
+  });
+
+  test("Core plugin order is unchanged", () => {
+    const plugins = corePluginRegistry.getAll().map((p) => p.prototype.constructor.name);
+    expect(plugins).toMatchSnapshot();
+  });
+});

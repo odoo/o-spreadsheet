@@ -65,16 +65,14 @@ import { HeaderPositionsUIPlugin } from "./ui_stateful/header_positions";
 import { GridSelectionPlugin } from "./ui_stateful/selection";
 import { SheetViewPlugin } from "./ui_stateful/sheetview";
 
-class CorePluginRegistry extends Registry<CorePluginConstructor> {
+export class CorePluginRegistry extends Registry<CorePluginConstructor> {
+  // private _entries: [string, CorePluginConstructor][] = [];
+
   override add(key: string, plugin: CorePluginConstructor): this {
     if (key in this.content) {
       throw new Error(`${key} is already present in this registry!`);
     }
-    this.checkWouldCreateCycle(plugin);
-
-    // Insert right after the last direct dependency already in the registry (O(n)).
-    // Use max() so we never move the insertion point backward: same-dep siblings
-    // stay in registration order rather than being reversed.
+    this.checkDepCycle(plugin);
     const entries = Object.entries(this.content);
     const depSet = new Set(plugin.dependencies as CorePluginConstructor[]);
     let insertAfter = entries.length - 1; // default: append at end
@@ -89,31 +87,24 @@ class CorePluginRegistry extends Registry<CorePluginConstructor> {
     return this;
   }
 
-  private checkWouldCreateCycle(plugin: CorePluginConstructor) {
-    // Temporarily include the new plugin so dependency chains through it are visible.
-    const all = new Set([...Object.values(this.content), plugin]);
-    const visiting = new Set<CorePluginConstructor>();
-    const visited = new Set<CorePluginConstructor>();
+  // override getAll(): CorePluginConstructor[] {
+  //   return this._entries.map(([, plugin]) => plugin);
+  // }
 
-    const dfs = (p: CorePluginConstructor, path: CorePluginConstructor[]) => {
-      if (visiting.has(p)) {
-        const cycle = [...path.slice(path.indexOf(p)), p].map((c) => c.name).join(" → ");
-        throw new Error(`Cyclic plugin dependency detected: ${cycle}`);
-      }
-      if (visited.has(p)) {
-        return;
-      }
-      visiting.add(p);
-      for (const dep of p.dependencies as CorePluginConstructor[]) {
-        if (all.has(dep)) {
-          dfs(dep, [...path, p]);
-        }
-      }
-      visiting.delete(p);
-      visited.add(p);
-    };
-
-    dfs(plugin, [plugin]);
+  private checkDepCycle(
+    plugin: CorePluginConstructor,
+    dependencyChain: CorePluginConstructor[] = []
+  ) {
+    if (dependencyChain.includes(plugin)) {
+      const cycle = [plugin, ...dependencyChain]
+        .reverse()
+        .map((p) => p.prototype.constructor.name)
+        .join(" → ");
+      throw new Error(`Cyclic plugin dependency detected: ${cycle}`);
+    }
+    for (const dep of dependencyChain.at(-1)?.dependencies || plugin.dependencies) {
+      this.checkDepCycle(plugin, dependencyChain.concat(dep));
+    }
   }
 }
 

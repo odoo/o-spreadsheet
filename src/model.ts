@@ -83,7 +83,7 @@ const enum Status {
  */
 export class Model extends EventBus<any> implements CommandDispatcher {
   private corePlugins: CorePlugin[] = [];
-  private corePluginsByConstructor = new Map<CorePluginConstructor, CorePlugin>();
+  private corePluginGetters = new Map<CorePluginConstructor, CoreGetters>();
   private baseGetters: CoreGetters = {} as CoreGetters;
 
   private statefulUIPlugins: UIPlugin[] = [];
@@ -302,7 +302,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private setupCorePlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
     const getters = this.buildDepGetters(Plugin);
     const plugin = new Plugin({ ...this.corePluginConfig, getters });
-    this.corePluginsByConstructor.set(Plugin, plugin);
     for (const name of Plugin.getters) {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
@@ -314,6 +313,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.coreGetters[name] = bound;
       getters[name] = bound;
     }
+    this.corePluginGetters.set(Plugin, getters);
     plugin.import(data);
     this.corePlugins.push(plugin);
     this.coreHandlers.push(plugin);
@@ -321,23 +321,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   private buildDepGetters(Plugin: CorePluginConstructor): CoreGetters {
-    const deps = new Set<CorePluginConstructor>();
-    const visit = (p: CorePluginConstructor) => {
-      for (const dep of p.dependencies as CorePluginConstructor[]) {
-        if (!deps.has(dep)) {
-          deps.add(dep);
-          visit(dep);
-        }
-      }
-    };
-    visit(Plugin);
-
     const getters = { ...this.baseGetters } as CoreGetters;
-    for (const Dep of deps) {
-      const instance = this.corePluginsByConstructor.get(Dep)!;
-      for (const name of Dep.getters as readonly string[]) {
-        (getters as any)[name] = (instance as any)[name].bind(instance);
-      }
+    for (const Dep of Plugin.dependencies as CorePluginConstructor[]) {
+      Object.assign(getters, this.corePluginGetters.get(Dep));
     }
     return getters;
   }
