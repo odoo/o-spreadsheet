@@ -10,6 +10,7 @@ import {
   flattenRowFirst,
   generateMatrix,
   isEvaluationError,
+  matrixMap,
   toBoolean,
   toInteger,
   toMatrix,
@@ -101,7 +102,7 @@ export const ARRAY_CONSTRAIN = {
     arg("rows (number)", _t("The number of rows in the constrained array.")),
     arg("columns (number)", _t("The number of columns in the constrained array.")),
   ],
-  compute: function (
+  computeArray: function (
     array: Arg,
     rows: Maybe<FunctionResultObject>,
     columns: Maybe<FunctionResultObject>
@@ -137,7 +138,7 @@ export const ARRAY_LITERAL = {
     "Appends ranges vertically and in sequence to return a larger array. All ranges must have the same number of columns."
   ),
   args: [arg("range (any, range<any>, repeating)", _t("The range to be appended."))],
-  compute: function (...ranges: Arg[]) {
+  computeArray: function (...ranges: Arg[]) {
     return stackVertically(ranges, { requireSameColCount: true });
   },
   isExported: false,
@@ -152,7 +153,7 @@ export const ARRAY_ROW = {
     "Appends ranges horizontally and in sequence to return a larger array. All ranges must have the same number of rows."
   ),
   args: [arg("range (any, range<any>, repeating)", _t("The range to be appended."))],
-  compute: function (...ranges: Arg[]) {
+  computeArray: function (...ranges: Arg[]) {
     return stackHorizontally(ranges, { requireSameRowCount: true });
   },
   isExported: false,
@@ -171,7 +172,7 @@ export const CHOOSECOLS = {
       _t("The column index of the column to be returned.")
     ),
   ],
-  compute: function (array: Arg, ...columns: Arg[]) {
+  computeArray: function (array: Arg, ...columns: Arg[]) {
     const _array = toMatrix(array);
     const _columns = flattenRowFirst(columns, (item) => toInteger(item?.value, this.locale));
 
@@ -213,7 +214,7 @@ export const CHOOSEROWS = {
       _t("The row index of the row to be returned.")
     ),
   ],
-  compute: function (array: Arg, ...rows: Arg[]) {
+  computeArray: function (array: Arg, ...rows: Arg[]) {
     const _array = toMatrix(array);
     const _rows = flattenRowFirst(rows, (item) => toInteger(item?.value, this.locale));
     const _nbColumns = _array.length;
@@ -257,7 +258,7 @@ export const EXPAND = {
     ),
     arg("pad_with (any, default=0)", _t("The value with which to pad.")), // @compatibility: on Excel, pad with #N/A
   ],
-  compute: function (
+  computeArray: function (
     arg: Arg,
     rows: Maybe<FunctionResultObject>,
     columns?: Maybe<FunctionResultObject>,
@@ -299,7 +300,7 @@ export const EXPAND = {
 export const FLATTEN = {
   description: _t("Flattens all the values from one or more ranges into a single column."),
   args: [arg("range (any, range<any>, repeating)", _t("The range to flatten."))],
-  compute: function (...ranges: Arg[]): Matrix<FunctionResultObject> {
+  computeArray: function (...ranges: Arg[]): Matrix<FunctionResultObject> {
     return [flattenRowFirst(ranges, (val) => (val === undefined ? { value: "" } : val))];
   },
   isExported: false,
@@ -314,10 +315,10 @@ export const FREQUENCY = {
     arg("data (range<number>)", _t("The array of ranges containing the values to be counted.")),
     arg("classes (number, range<number>)", _t("The range containing the set of classes.")),
   ],
-  compute: function (
+  computeArray: function (
     data: Matrix<FunctionResultObject>,
     classes: Matrix<FunctionResultObject>
-  ): Matrix<number> {
+  ) {
     const _data = flattenRowFirst([data], (data) => data.value).filter(
       (val): val is number => typeof val === "number"
     );
@@ -359,7 +360,7 @@ export const FREQUENCY = {
 
     const result = sortedClasses
       .sort((a, b) => a.initialIndex - b.initialIndex)
-      .map((val) => val.count);
+      .map((val) => ({ value: val.count }));
     return [result];
   },
   isExported: true,
@@ -371,7 +372,7 @@ export const FREQUENCY = {
 export const HSTACK = {
   description: _t("Appends ranges horizontally and in sequence to return a larger array."),
   args: [arg("range (any, range<any>, repeating)", _t("The range to be appended."))],
-  compute: function (...ranges: Arg[]) {
+  computeArray: function (...ranges: Arg[]) {
     return stackHorizontally(ranges);
   },
   isExported: true,
@@ -397,7 +398,7 @@ export const MDETERM = {
         _t("The argument square_matrix must have the same number of columns and rows.")
       );
     }
-    return invertMatrix(_matrix).determinant;
+    return { value: invertMatrix(_matrix).determinant };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -415,7 +416,7 @@ export const MINVERSE = {
       )
     ),
   ],
-  compute: function (matrix: Arg) {
+  computeArray: function (matrix: Arg) {
     const _matrix = toNumberMatrix(matrix, "square_matrix");
     if (!isSquareMatrix(_matrix)) {
       return new EvaluationError(
@@ -426,7 +427,7 @@ export const MINVERSE = {
     if (!inverted) {
       return new EvaluationError(_t("The matrix is not invertible."));
     }
-    return inverted;
+    return matrixMap(inverted, (value) => ({ value }));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -446,7 +447,7 @@ export const MMULT = {
       _t("The second matrix in the matrix multiplication operation.")
     ),
   ],
-  compute: function (matrix1: Arg, matrix2: Arg) {
+  computeArray: function (matrix1: Arg, matrix2: Arg) {
     const _matrix1 = toNumberMatrix(matrix1, "matrix1");
     const _matrix2 = toNumberMatrix(matrix2, "matrix2");
 
@@ -467,7 +468,7 @@ export const MMULT = {
       );
     }
 
-    return multiplyMatrices(_matrix1, _matrix2);
+    return matrixMap(multiplyMatrices(_matrix1, _matrix2), (value) => ({ value }));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -505,7 +506,7 @@ export const SUMPRODUCT = {
         result += product;
       }
     }
-    return result;
+    return { value: result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -570,7 +571,11 @@ export const SUMX2MY2 = {
     ),
   ],
   compute: function (arrayX: Arg, arrayY: Arg) {
-    return getSumXAndY(arrayX, arrayY, (x, y) => x ** 2 - y ** 2);
+    const result = getSumXAndY(arrayX, arrayY, (x, y) => x ** 2 - y ** 2);
+    if (result instanceof EvaluationError) {
+      return result;
+    }
+    return { value: result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -595,7 +600,11 @@ export const SUMX2PY2 = {
     ),
   ],
   compute: function (arrayX: Arg, arrayY: Arg) {
-    return getSumXAndY(arrayX, arrayY, (x, y) => x ** 2 + y ** 2);
+    const result = getSumXAndY(arrayX, arrayY, (x, y) => x ** 2 + y ** 2);
+    if (result instanceof EvaluationError) {
+      return result;
+    }
+    return { value: result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -620,7 +629,11 @@ export const SUMXMY2 = {
     ),
   ],
   compute: function (arrayX: Arg, arrayY: Arg) {
-    return getSumXAndY(arrayX, arrayY, (x, y) => (x - y) ** 2);
+    const result = getSumXAndY(arrayX, arrayY, (x, y) => (x - y) ** 2);
+    if (result instanceof EvaluationError) {
+      return result;
+    }
+    return { value: result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -672,7 +685,7 @@ function shouldKeepValue(ignore: number): (data: FunctionResultObject) => boolea
 export const TOCOL = {
   description: _t("Transforms a range of cells into a single column."),
   args: TO_COL_ROW_ARGS,
-  compute: function (
+  computeArray: function (
     array: Arg,
     ignore: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_IGNORE },
     scanByColumn: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_SCAN }
@@ -698,7 +711,7 @@ export const TOCOL = {
 export const TOROW = {
   description: _t("Transforms a range of cells into a single row."),
   args: TO_COL_ROW_ARGS,
-  compute: function (
+  computeArray: function (
     array: Arg,
     ignore: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_IGNORE },
     scanByColumn: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_SCAN }
@@ -725,7 +738,7 @@ export const TOROW = {
 export const TRANSPOSE = {
   description: _t("Transposes the rows and columns of a range."),
   args: [arg("range (any, range<any>)", _t("The range to be transposed."))],
-  compute: function (arg: Arg): Matrix<FunctionResultObject> {
+  computeArray: function (arg: Arg): Matrix<FunctionResultObject> {
     const _array = toMatrix(arg);
     const nbColumns = _array[0].length;
     const nbRows = _array.length;
@@ -741,7 +754,7 @@ export const TRANSPOSE = {
 export const VSTACK = {
   description: _t("Appends ranges vertically and in sequence to return a larger array."),
   args: [arg("range (any, range<any>, repeating)", _t("The range to be appended."))],
-  compute: function (...ranges: Arg[]) {
+  computeArray: function (...ranges: Arg[]) {
     return stackVertically(ranges);
   },
   isExported: true,
@@ -765,7 +778,7 @@ export const WRAPCOLS = {
       _t("The value with which to fill the extra cells in the range.")
     ),
   ],
-  compute: function (
+  computeArray: function (
     range: Arg,
     wrapCount: Maybe<FunctionResultObject>,
     padWith: Maybe<FunctionResultObject> = { value: 0 }
@@ -806,7 +819,7 @@ export const WRAPROWS = {
       _t("The value with which to fill the extra cells in the range.")
     ),
   ],
-  compute: function (
+  computeArray: function (
     range: Arg,
     wrapCount: Maybe<FunctionResultObject>,
     padWith: Maybe<FunctionResultObject> = { value: 0 }
@@ -853,7 +866,7 @@ export const ARRAYTOTEXT = {
     const _format = toNumber(format, this.locale);
     const _array = toMatrix(array);
     if (_format === 1) {
-      return evaluationResultToDisplayString(_array, "", this.locale);
+      return { value: evaluationResultToDisplayString(_array, "", this.locale) };
     } else if (_format === 0) {
       const rowSeparator = this.locale.decimalSeparator === "," ? "/" : ",";
       const arrayStr = transposeMatrix(_array)
@@ -863,7 +876,7 @@ export const ARRAYTOTEXT = {
           })
         )
         .join(rowSeparator);
-      return arrayStr;
+      return { value: arrayStr };
     } else {
       return new EvaluationError(_t("Format must be 0 or 1"));
     }

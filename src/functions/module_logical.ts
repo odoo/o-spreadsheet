@@ -3,8 +3,7 @@ import { CellErrorType, EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { Arg, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
-import { applyVectorization } from "./create_compute_function";
-import { functionRegistry } from "./function_registry";
+import { createVectorizedComputeFunction } from "./create_compute_function";
 import { boolAnd, boolOr } from "./helper_logical";
 import { isMultipleElementMatrix, toScalar } from "./helper_matrices";
 import {
@@ -33,7 +32,7 @@ export const AND = {
     if (!foundBoolean) {
       return new EvaluationError(noValidInputErrorMessage);
     }
-    return result;
+    return { value: result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -44,8 +43,8 @@ export const AND = {
 export const FALSE: AddFunctionDescription = {
   description: _t("Logical value `false`."),
   args: [],
-  compute: function (): boolean {
-    return false;
+  compute: function () {
+    return { value: false };
   },
   isExported: true,
 };
@@ -71,13 +70,14 @@ export const IF = {
       _t("The value the function returns if logical_expression is FALSE.")
     ),
   ],
-  compute: function (logicalExpression: Arg, valueIfTrue: Arg, valueIfFalse: Arg) {
+  computeArray: function (logicalExpression: Arg, valueIfTrue: Arg, valueIfFalse: Arg) {
     if (isMultipleElementMatrix(logicalExpression)) {
-      return applyVectorization(this, functionRegistry.get("IF"), [
+      return createVectorizedComputeFunction(IF, 3)(
+        this,
         logicalExpression,
         valueIfTrue,
-        valueIfFalse,
-      ]);
+        valueIfFalse
+      );
     }
     const result = toBoolean(toScalar(logicalExpression)) ? valueIfTrue : valueIfFalse;
     return result ?? { value: 0 };
@@ -97,9 +97,9 @@ export const IFERROR = {
       _t("The value the function returns if value is an error.")
     ),
   ],
-  compute: function (value: Arg, valueIfError: Arg) {
+  computeArray: function (value: Arg, valueIfError: Arg) {
     if (isMultipleElementMatrix(value)) {
-      return applyVectorization(this, functionRegistry.get("IFERROR"), [value, valueIfError]);
+      return createVectorizedComputeFunction(IFERROR, 2)(this, value, valueIfError);
     }
     const result = isEvaluationError(toScalar(value)?.value) ? valueIfError : value;
     return result ?? { value: 0 };
@@ -119,9 +119,9 @@ export const IFNA = {
       _t("The value the function returns if value is an #N/A error.")
     ),
   ],
-  compute: function (value: Arg, valueIfError: Arg) {
+  computeArray: function (value: Arg, valueIfError: Arg) {
     if (isMultipleElementMatrix(value)) {
-      return applyVectorization(this, functionRegistry.get("IFNA"), [value, valueIfError]);
+      return createVectorizedComputeFunction(IFNA, 2)(this, value, valueIfError);
     }
     const result = toScalar(value)?.value === CellErrorType.NotAvailable ? valueIfError : value;
     return result ?? { value: 0 };
@@ -146,7 +146,7 @@ export const IFS = {
       _t("The value to be returned if its corresponding condition is TRUE.")
     ),
   ],
-  compute: function (...values: Arg[]) {
+  computeArray: function (...values: Arg[]) {
     if (values.length % 2 !== 0) {
       return new EvaluationError(
         _t("Wrong number of arguments. Expected an even number of arguments.")
@@ -154,7 +154,7 @@ export const IFS = {
     }
     while (values.length > 0) {
       if (isMultipleElementMatrix(values[0])) {
-        return applyVectorization(this, functionRegistry.get("IFS"), values);
+        return createVectorizedComputeFunction(IFS, values.length)(this, ...values);
       }
       const condition = toBoolean(toScalar(values.shift()));
       const valueIfTrue = values.shift();
@@ -180,8 +180,8 @@ export const NOT = {
       )
     ),
   ],
-  compute: function (logicalExpression: Maybe<FunctionResultObject>): boolean {
-    return !toBoolean(logicalExpression);
+  compute: function (logicalExpression: Maybe<FunctionResultObject>) {
+    return { value: !toBoolean(logicalExpression) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -204,7 +204,7 @@ export const OR = {
     if (!foundBoolean) {
       return new EvaluationError(noValidInputErrorMessage);
     }
-    return result;
+    return { value: result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -257,8 +257,8 @@ export const SWITCH = {
 export const TRUE: AddFunctionDescription = {
   description: _t("Logical value `true`."),
   args: [],
-  compute: function (): boolean {
-    return true;
+  compute: function () {
+    return { value: true };
   },
   isExported: true,
 };
@@ -287,7 +287,7 @@ export const XOR = {
     if (!foundBoolean) {
       return new EvaluationError(noValidInputErrorMessage);
     }
-    return acc;
+    return { value: acc };
   },
   isExported: true,
 } satisfies AddFunctionDescription;

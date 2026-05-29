@@ -1,4 +1,3 @@
-import { functionRegistry } from "../../../functions/function_registry";
 import { intersection, isZoneValid } from "../../../helpers/zones";
 import { _t } from "../../../translation";
 import { EvaluatedCell } from "../../../types/cells";
@@ -20,7 +19,6 @@ export type CompilationParameters = {
   ensureRange: EnsureRange;
   evalContext: EvalContext;
 };
-const functionMap = functionRegistry.mapping;
 
 /**
  * Return all functions necessary to properly evaluate a formula:
@@ -47,11 +45,11 @@ class CompilationParametersBuilder {
     private getters: Getters,
     private computeCell: (position: CellPosition) => EvaluatedCell
   ) {
-    this.evalContext = Object.assign(Object.create(functionMap), context, {
+    this.evalContext = Object.assign({}, context, {
       getters: this.getters,
       locale: this.getters.getLocale(),
       getFormulaResult: this.getFormulaResult.bind(this),
-    });
+    }) as EvalContext;
   }
 
   getParameters(): CompilationParameters {

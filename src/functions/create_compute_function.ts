@@ -1,16 +1,16 @@
-import { CellValue } from "../types/cells";
 import { BadExpressionError, EvaluationError, NotAvailableError } from "../types/errors";
 
+import { range } from "../helpers/misc";
 import { _t } from "../translation";
 import {
   ArgDefinition,
-  ComputeFunction,
   EvalContext,
   FunctionDescription,
+  PreparedComputeFunction,
 } from "../types/functions";
 import { Arg, FunctionResultObject, isMatrix, Matrix } from "../types/misc";
 import { argTargeting } from "./arguments";
-import { isEvaluationError, matrixForEach, matrixMap } from "./helpers";
+import { isEvaluationError, matrixForEach } from "./helpers";
 
 type VectorArgType = "horizontal" | "vertical" | "matrix";
 
@@ -50,11 +50,12 @@ type VectorArgType = "horizontal" | "vertical" | "matrix";
  * - For special behaviors (e.g. the `IF` function), you may declare all arguments
  *   as ranges and invoke this helper directly within your `compute` implementation.
  */
-export function applyVectorization(
+function applyVectorization(
   context: EvalContext,
   descr: FunctionDescription,
   args: Arg[],
-  acceptToVectorize: boolean[] | undefined = undefined
+  vectorizableIndices: number[] = range(0, args.length), // if not specified, all arguments are vectorizable
+  argDefinitions?: ArgDefinition[]
 ): FunctionResultObject | Matrix<FunctionResultObject> {
   let countVectorizedCol = 1;
   let countVectorizedRow = 1;
@@ -63,39 +64,42 @@ export function applyVectorization(
 
   let vectorArgsType: VectorArgType[] | undefined = undefined;
 
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
+  for (let k = 0; k < vectorizableIndices.length; k++) {
+    const argIndex = vectorizableIndices[k];
+    const arg = args[argIndex];
 
-    if (isMatrix(arg) && (acceptToVectorize === undefined || acceptToVectorize[i])) {
+    if (isMatrix(arg)) {
       const nColumns = arg.length;
       const nRows = arg[0].length;
       if (nColumns !== 1 || nRows !== 1) {
         vectorArgsType ??= new Array(args.length);
         if (nColumns !== 1 && nRows !== 1) {
-          vectorArgsType[i] = "matrix";
+          vectorArgsType[argIndex] = "matrix";
           countVectorizedCol = Math.max(countVectorizedCol, nColumns);
           countVectorizedRow = Math.max(countVectorizedRow, nRows);
           vectorizedColLimit = Math.min(vectorizedColLimit, nColumns);
           vectorizedRowLimit = Math.min(vectorizedRowLimit, nRows);
         } else if (nColumns !== 1) {
-          vectorArgsType[i] = "horizontal";
+          vectorArgsType[argIndex] = "horizontal";
           countVectorizedCol = Math.max(countVectorizedCol, nColumns);
           vectorizedColLimit = Math.min(vectorizedColLimit, nColumns);
         } else if (nRows !== 1) {
-          vectorArgsType[i] = "vertical";
+          vectorArgsType[argIndex] = "vertical";
           countVectorizedRow = Math.max(countVectorizedRow, nRows);
           vectorizedRowLimit = Math.min(vectorizedRowLimit, nRows);
         }
       } else {
-        args[i] = arg[0][0];
+        args[argIndex] = arg[0][0];
       }
     }
   }
 
-  const argsToFocus = argTargeting(descr, args.length);
-  const argDefinitions: ArgDefinition[] = new Array(args.length);
-  for (let k = 0; k < args.length; k++) {
-    argDefinitions[k] = descr.args[argsToFocus[k].index];
+  if (!argDefinitions) {
+    const argsToFocus = argTargeting(descr, args.length);
+    argDefinitions = new Array(args.length);
+    for (let k = 0; k < args.length; k++) {
+      argDefinitions[k] = descr.args[argsToFocus[k].index];
+    }
   }
 
   if (countVectorizedCol === 1 && countVectorizedRow === 1) {
@@ -141,9 +145,7 @@ export function applyVectorization(
     result[col] = column;
     for (let row = 0; row < countVectorizedRow; row++) {
       if (col > vectorizedColLimit - 1 || row > vectorizedRowLimit - 1) {
-        column[row] = new NotAvailableError(
-          _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
-        );
+        column[row] = new NotAvailableError(_t("Array arguments are of different size."));
         continue;
       }
       for (let k = 0; k < nbVectorized; k++) {
@@ -172,45 +174,6 @@ export function applyVectorization(
   return result;
 }
 
-function computeFunctionToObject(
-  descr: FunctionDescription,
-  context: EvalContext,
-  args: Arg[]
-): FunctionResultObject | Matrix<FunctionResultObject> {
-  if (context.debug) {
-    // eslint-disable-next-line no-debugger
-    debugger;
-    context.debug = false;
-  }
-  // Specialize the call for common arities for performance reasons
-  const compute = descr.compute;
-  let result: FunctionResultObject | Matrix<FunctionResultObject> | CellValue | Matrix<CellValue>;
-  switch (args.length) {
-    case 1:
-      result = compute.call(context, args[0]);
-      break;
-    case 2:
-      result = compute.call(context, args[0], args[1]);
-      break;
-    case 3:
-      result = compute.call(context, args[0], args[1], args[2]);
-      break;
-    default:
-      // fallback to a generic apply for functions with more than 3 arguments
-      result = compute.apply(context, args);
-  }
-
-  if (!isMatrix(result)) {
-    return isFunctionResultObject(result) ? result : { value: result };
-  }
-
-  if (isFunctionResultObject(result[0][0])) {
-    return result as Matrix<FunctionResultObject>;
-  }
-
-  return matrixMap(result as Matrix<CellValue>, (row) => ({ value: row }));
-}
-
 function errorHandlingCompute(
   descr: FunctionDescription,
   context: EvalContext,
@@ -219,45 +182,61 @@ function errorHandlingCompute(
 ): Matrix<FunctionResultObject> | FunctionResultObject {
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
+    const argDefinition = argDefinitions[i];
 
     // Early exit if the argument is an error and the function does not accept errors.
     // We only check scalar arguments, not matrix arguments for performance reasons.
     // Casting helpers are responsible for handling errors in matrix arguments.
-    if (!argDefinitions[i].acceptErrors && !isMatrix(arg) && isEvaluationError(arg?.value)) {
+    if (!argDefinition.acceptErrors && !isMatrix(arg) && isEvaluationError(arg?.value)) {
       return arg;
     }
   }
   try {
-    return computeFunctionToObject(descr, context, args);
+    const computeFormula = descr.compute !== undefined ? descr.compute : descr.computeArray;
+    let result: FunctionResultObject | Matrix<FunctionResultObject>;
+    switch (args.length) {
+      case 1:
+        result = computeFormula.call(context, args[0]);
+        break;
+      case 2:
+        result = computeFormula.call(context, args[0], args[1]);
+        break;
+      case 3:
+        result = computeFormula.call(context, args[0], args[1], args[2]);
+        break;
+      default:
+        // fallback to a generic apply for functions with more than 3 arguments
+        result = computeFormula.apply(context, args);
+    }
+    return result;
   } catch (e) {
     return handleError(e, descr.name);
   }
 }
 
-function isFunctionResultObject(obj: unknown): obj is FunctionResultObject {
-  return typeof obj === "object" && obj !== null && "value" in obj;
-}
-
 export function createComputeFunction(
-  descr: FunctionDescription
-): ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject> {
-  function vectorizedCompute(
-    this: EvalContext,
-    ...args: Arg[]
-  ): FunctionResultObject | Matrix<FunctionResultObject> {
+  descr: FunctionDescription,
+  argCount: number
+): PreparedComputeFunction {
+  const functionName = descr.name;
+  const argsToFocus = argTargeting(descr, argCount);
+  const argDefinitions: ArgDefinition[] = new Array(argCount);
+  const matrixOnlyIndices: number[] = [];
+  for (let i = 0; i < argCount; i++) {
+    const def = descr.args[argsToFocus[i].index];
+    argDefinitions[i] = def;
+    if (def.acceptMatrixOnly) {
+      matrixOnlyIndices.push(i);
+    }
+  }
+  function computeFn(evalContext: EvalContext, ...args: Arg[]) {
     let start = 0;
-    if (this.__timingEntries) {
+    if (evalContext.__timingEntries) {
       start = performance.now();
     }
-    const acceptToVectorize: boolean[] = [];
-
-    const argsToFocus = argTargeting(descr, args.length);
-    //#region Compute vectorisation limits
-    for (let i = 0; i < args.length; i++) {
-      const argIndex = argsToFocus[i].index;
-      const argDefinition = descr.args[argIndex];
-      const arg = args[i];
-      if (!isMatrix(arg) && argDefinition.acceptMatrixOnly) {
+    for (let k = 0; k < matrixOnlyIndices.length; k++) {
+      const i = matrixOnlyIndices[k];
+      if (!isMatrix(args[i])) {
         throw new BadExpressionError(
           _t(
             "Function %s expects the parameter '%s' to be reference to a cell or range.",
@@ -266,35 +245,89 @@ export function createComputeFunction(
           )
         );
       }
-      acceptToVectorize.push(!argDefinition.acceptMatrix);
     }
-
     const result = replaceErrorPlaceholderInResult(
-      applyVectorization(this, descr, args, acceptToVectorize)
+      errorHandlingCompute(descr, evalContext, args, argDefinitions),
+      descr
     );
-    if (this.__timingEntries && this.__originCellPosition) {
+    if (evalContext.__timingEntries && evalContext.__originCellPosition) {
       const end = performance.now();
-      this.__timingEntries.push({
-        functionName: descr.name,
-        position: this.__originCellPosition,
+      evalContext.__timingEntries.push({
+        functionName,
+        position: evalContext.__originCellPosition,
         time: end - start,
       });
     }
     return result;
   }
 
-  function replaceErrorPlaceholderInResult(
-    result: FunctionResultObject | Matrix<FunctionResultObject>
-  ): FunctionResultObject | Matrix<FunctionResultObject> {
-    if (!isMatrix(result)) {
-      replaceFunctionNamePlaceholder(result, descr.name);
-    } else {
-      matrixForEach(result, (result) => replaceFunctionNamePlaceholder(result, descr.name));
+  return computeFn;
+}
+
+export function createVectorizedComputeFunction(
+  descr: FunctionDescription,
+  argCount: number
+): PreparedComputeFunction {
+  const functionName = descr.name;
+  const argsToFocus = argTargeting(descr, argCount);
+  const argDefinitions: ArgDefinition[] = new Array(argCount);
+  const vectorizableIndices: number[] = [];
+  const matrixOnlyIndices: number[] = [];
+  for (let i = 0; i < argCount; i++) {
+    const def = descr.args[argsToFocus[i].index];
+    argDefinitions[i] = def;
+    if (!def.acceptMatrix) {
+      vectorizableIndices.push(i);
+    }
+    if (def.acceptMatrixOnly) {
+      matrixOnlyIndices.push(i);
+    }
+  }
+  function vectorizedCompute(evalContext: EvalContext, ...args: Arg[]) {
+    let start = 0;
+    if (evalContext.__timingEntries) {
+      start = performance.now();
+    }
+    for (let k = 0; k < matrixOnlyIndices.length; k++) {
+      const i = matrixOnlyIndices[k];
+      if (!isMatrix(args[i])) {
+        throw new BadExpressionError(
+          _t(
+            "Function %s expects the parameter '%s' to be reference to a cell or range.",
+            descr.name,
+            (i + 1).toString()
+          )
+        );
+      }
+    }
+    const result = replaceErrorPlaceholderInResult(
+      applyVectorization(evalContext, descr, args, vectorizableIndices, argDefinitions),
+      descr
+    );
+    if (evalContext.__timingEntries && evalContext.__originCellPosition) {
+      const end = performance.now();
+      evalContext.__timingEntries.push({
+        functionName,
+        position: evalContext.__originCellPosition,
+        time: end - start,
+      });
     }
     return result;
   }
 
   return vectorizedCompute;
+}
+
+function replaceErrorPlaceholderInResult(
+  result: FunctionResultObject | Matrix<FunctionResultObject>,
+  descr: FunctionDescription
+): FunctionResultObject | Matrix<FunctionResultObject> {
+  if (!isMatrix(result)) {
+    replaceFunctionNamePlaceholder(result, descr.name);
+  } else {
+    matrixForEach(result, (result) => replaceFunctionNamePlaceholder(result, descr.name));
+  }
+  return result;
 }
 
 export function handleError(e: unknown, functionName: string): FunctionResultObject {

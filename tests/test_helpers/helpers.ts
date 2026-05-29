@@ -52,6 +52,7 @@ import {
   UID,
   Zone,
 } from "../../src";
+import { preparedFunctionsCache } from "../../src/formulas/compiler";
 import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
@@ -87,7 +88,7 @@ import { DOMTarget, click, getTarget, getTextNodes, keyDown, keyUp } from "./dom
 import { getCellContent, getEvaluatedCell } from "./getters_helpers";
 
 const functionsContent = functionRegistry.content;
-const functionMap = functionRegistry.mapping;
+const functionMap = functionRegistry.content;
 
 const functionsContentRestore = { ...functionsContent };
 const functionMapRestore = { ...functionMap };
@@ -128,6 +129,7 @@ export function addToRegistry<T>(registry: Registry<T>, key: string, value: T) {
     registry.add(key, value);
     registerCleanup(() => registry.remove(key));
   }
+  registerCleanup(restoreDefaultFunctions);
 }
 
 const realTimeSetTimeout = window.setTimeout.bind(window);
@@ -637,6 +639,9 @@ function _clearFunctions() {
 }
 
 export function restoreDefaultFunctions() {
+  for (const f in preparedFunctionsCache) {
+    delete preparedFunctionsCache[f];
+  }
   for (const f in functionCache) {
     delete functionCache[f];
   }

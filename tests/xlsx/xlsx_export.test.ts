@@ -1100,26 +1100,26 @@ describe("Test XLSX export", () => {
     beforeEach(() => {
       addToRegistry(functionRegistry, "NOW", {
         ...NOW,
-        compute: () => 1,
+        compute: () => ({ value: 1 }),
       });
       addToRegistry(functionRegistry, "RAND", {
         ...RAND,
-        compute: () => 1,
+        compute: () => ({ value: 1 }),
       });
       addToRegistry(functionRegistry, "TODAY", {
         ...TODAY,
-        compute: () => 1,
+        compute: () => ({ value: 1 }),
       });
       addToRegistry(functionRegistry, "RANDARRAY", {
         ...RANDARRAY,
-        compute: () => [
-          [1, 1],
-          [1, 1],
+        computeArray: () => [
+          [{ value: 1 }, { value: 1 }],
+          [{ value: 1 }, { value: 1 }],
         ],
       });
       addToRegistry(functionRegistry, "RANDBETWEEN", {
         ...RANDBETWEEN,
-        compute: () => 1,
+        compute: () => ({ value: 1 }),
       });
     });
 
@@ -1172,7 +1172,7 @@ describe("Test XLSX export", () => {
       addToRegistry(functionRegistry, "NON.EXPORTABLE.ARRAY.FORMULA", {
         description: "a non exportable formula that spread",
         args: [],
-        compute: function () {
+        computeArray: function () {
           return [
             [
               { value: 1, format: "0.00%" },

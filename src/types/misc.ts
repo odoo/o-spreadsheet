@@ -6,6 +6,7 @@ import { CellValue, EvaluatedCell } from "./cells";
 import { CompiledFormula } from "../formulas/compiler";
 import { CommandResult } from "./commands";
 import { Format } from "./format";
+import { PreparedComputeFunction } from "./functions";
 import { Range } from "./range";
 
 /**
@@ -172,6 +173,12 @@ export type ReferenceDenormalizer = (range: Range) => FunctionResultObject;
 
 export type EnsureRange = (range: Range) => Matrix<FunctionResultObject>;
 
+// export type VectorizedCompute = (
+//   formula: (...args: Arg[]) => FunctionResultObject,
+//   args: Arg[],
+//   acceptToVectorize?: boolean[] | undefined
+// ) => Matrix<FunctionResultObject> | FunctionResultObject;
+
 export type GetSymbolValue = (symbolName: string, isRange: boolean) => Arg;
 
 export type FormulaToExecute = (
@@ -179,7 +186,8 @@ export type FormulaToExecute = (
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
   getSymbolValue: GetSymbolValue,
-  ctx: object
+  ctx: object,
+  functions: PreparedComputeFunction[]
 ) => Matrix<FunctionResultObject> | FunctionResultObject;
 
 export interface LiteralValues {
