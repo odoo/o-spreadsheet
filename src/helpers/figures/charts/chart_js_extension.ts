@@ -1,4 +1,4 @@
-import { Registry } from "../../../registry";
+import { Registry } from "../../../registries/registry";
 import { GlobalChart } from "../../../types/chart/chartjs";
 
 export const chartJsExtensionRegistry = new Registry<{
