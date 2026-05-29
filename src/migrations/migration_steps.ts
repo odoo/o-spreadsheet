@@ -5,7 +5,7 @@ import { getUniqueText, sanitizeSheetName } from "../helpers/misc";
 import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { overlap, toZone, zoneToXc } from "../helpers/zones";
-import { Registry } from "../registry";
+import { Registry } from "../registries/registry";
 import { CustomizedDataSet, schemeToColorScale } from "../types/chart";
 import { Format } from "../types/format";
 import { DEFAULT_LOCALE } from "../types/locale";

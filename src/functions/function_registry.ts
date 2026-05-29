@@ -1,4 +1,4 @@
-import { Registry } from "../registry";
+import { Registry } from "../registries/registry";
 import { AddFunctionDescription, ComputeFunction, FunctionDescription } from "../types/functions";
 import { FunctionResultObject, Matrix } from "../types/misc";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
