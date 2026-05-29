@@ -63,6 +63,7 @@ export type FormatToken =
   | RepeatCharToken;
 
 export function tokenizeFormat(str: string): FormatToken[][] {
+  str = str.replace(/\s/g, " ");
   const chars = new TokenizingChars(str);
   const result: FormatToken[][] = [];
 
