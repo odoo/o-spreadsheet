@@ -18,6 +18,7 @@ export const topBarToolBarRegistry = new ToolBarRegistry();
 topBarToolBarRegistry
   .add("edit")
   .addChild("edit", {
+    name: "undo",
     component: ActionButton,
     props: {
       action: ACTION_EDIT.undo,
@@ -26,6 +27,7 @@ topBarToolBarRegistry
     sequence: 1,
   })
   .addChild("edit", {
+    name: "redo",
     component: ActionButton,
     props: {
       action: ACTION_EDIT.redo,
@@ -34,6 +36,7 @@ topBarToolBarRegistry
     sequence: 2,
   })
   .addChild("edit", {
+    name: "paintFormat",
     component: PaintFormatButton,
     props: {
       class: "o-hoverable-button o-toolbar-button o-mobile-disabled",
@@ -41,6 +44,7 @@ topBarToolBarRegistry
     sequence: 3,
   })
   .addChild("edit", {
+    name: "clearFormat",
     component: ActionButton,
     props: {
       action: ACTION_FORMAT.clearFormat,
@@ -49,6 +53,7 @@ topBarToolBarRegistry
     sequence: 4,
   })
   .addChild("edit", {
+    name: "zoom",
     component: ToolBarZoom,
     props: {
       class: "o-menu-item-button o-hoverable-button o-toolbar-button",
@@ -58,6 +63,7 @@ topBarToolBarRegistry
 
   .add("numberFormat")
   .addChild("numberFormat", {
+    name: "formatPercent",
     component: ActionButton,
     props: {
       action: ACTION_FORMAT.formatPercent,
@@ -66,6 +72,7 @@ topBarToolBarRegistry
     sequence: 1,
   })
   .addChild("numberFormat", {
+    name: "decreaseDecimalPlaces",
     component: ActionButton,
     props: {
       action: ACTION_FORMAT.decreaseDecimalPlaces,
@@ -74,6 +81,7 @@ topBarToolBarRegistry
     sequence: 2,
   })
   .addChild("numberFormat", {
+    name: "increaseDecimalPlaces",
     component: ActionButton,
     props: {
       action: ACTION_FORMAT.increaseDecimalPlaces,
@@ -82,6 +90,7 @@ topBarToolBarRegistry
     sequence: 3,
   })
   .addChild("numberFormat", {
+    name: "numberFormatsTool",
     component: NumberFormatsTool,
     props: {
       class: "o-menu-item-button o-hoverable-button o-toolbar-button",
@@ -90,6 +99,7 @@ topBarToolBarRegistry
   })
   .add("fontSize")
   .addChild("fontSize", {
+    name: "fontSizeEditor",
     component: TopBarFontSizeEditor,
     props: {
       class: "o-hoverable-button o-toolbar-button",
@@ -98,6 +108,7 @@ topBarToolBarRegistry
   })
   .add("textStyle")
   .addChild("textStyle", {
+    name: "bold",
     component: ActionButton,
     props: {
       action: ACTION_FORMAT.formatBold,
@@ -106,6 +117,7 @@ topBarToolBarRegistry
     sequence: 1,
   })
   .addChild("textStyle", {
+    name: "italic",
     component: ActionButton,
     props: {
       action: ACTION_FORMAT.formatItalic,
@@ -114,6 +126,7 @@ topBarToolBarRegistry
     sequence: 2,
   })
   .addChild("textStyle", {
+    name: "strikethrough",
     component: ActionButton,
     props: {
       action: ACTION_FORMAT.formatStrikethrough,
@@ -122,6 +135,7 @@ topBarToolBarRegistry
     sequence: 3,
   })
   .addChild("textStyle", {
+    name: "textColor",
     component: TopBarColorEditor,
     props: {
       class: "o-hoverable-button o-menu-item-button o-toolbar-button",
@@ -133,6 +147,7 @@ topBarToolBarRegistry
   })
   .add("cellStyle")
   .addChild("cellStyle", {
+    name: "fillColor",
     component: TopBarColorEditor,
     props: {
       class: "o-hoverable-button o-menu-item-button o-toolbar-button",
@@ -143,6 +158,7 @@ topBarToolBarRegistry
     sequence: 1,
   })
   .addChild("cellStyle", {
+    name: "borderEditor",
     component: BorderEditorWidget,
     props: {
       class: "o-hoverable-button o-menu-item-button o-toolbar-button",
@@ -150,6 +166,7 @@ topBarToolBarRegistry
     sequence: 2,
   })
   .addChild("cellStyle", {
+    name: "mergeCells",
     component: ActionButton,
     props: {
       action: ACTION_EDIT.mergeCells,
@@ -159,6 +176,7 @@ topBarToolBarRegistry
   })
   .add("alignment")
   .addChild("alignment", {
+    name: "alignmentHorizontal",
     component: DropdownAction,
     props: {
       parentAction: ACTION_FORMAT.formatAlignmentHorizontal,
@@ -173,6 +191,7 @@ topBarToolBarRegistry
     sequence: 1,
   })
   .addChild("alignment", {
+    name: "alignmentVertical",
     component: DropdownAction,
     props: {
       parentAction: ACTION_FORMAT.formatAlignmentVertical,
@@ -187,6 +206,7 @@ topBarToolBarRegistry
     sequence: 2,
   })
   .addChild("alignment", {
+    name: "formatWrapping",
     component: DropdownAction,
     props: {
       parentAction: ACTION_FORMAT.formatWrapping,
@@ -201,6 +221,7 @@ topBarToolBarRegistry
     sequence: 3,
   })
   .addChild("alignment", {
+    name: "formatRotation",
     component: DropdownAction,
     props: {
       parentAction: ACTION_FORMAT.formatRotation,
@@ -218,11 +239,13 @@ topBarToolBarRegistry
   })
   .add("misc")
   .addChild("misc", {
+    name: "tableDropdown",
     component: TableDropdownButton,
     props: { class: "o-toolbar-button o-hoverable-button o-menu-item-button o-mobile-disabled" },
     sequence: 1,
   })
   .addChild("misc", {
+    name: "createRemoveFilterTool",
     component: ActionButton,
     props: {
       action: ACTION_DATA.createRemoveFilterTool,
