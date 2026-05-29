@@ -358,6 +358,12 @@ describe("formatValue on number", () => {
     }
   });
 
+  test("Unicode space characters are normalized to ASCII space in format strings", () => {
+    expect(formatValue(5, { format: "0 ", locale })).toBe("5 "); // nbsp
+    expect(formatValue(5, { format: "0 ", locale })).toBe("5 "); // nnbsp
+    expect(formatValue(5, { format: "0 ", locale })).toBe("5 "); // thin space
+  });
+
   test("Escaped string in the middle of a number format", () => {
     expect(formatValue(1234, { format: '0"Str"000', locale })).toBe("1Str234");
     expect(formatValue(1234, { format: '#,##0"Str"0', locale })).toBe("1,23Str4");
