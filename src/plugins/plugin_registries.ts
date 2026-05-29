@@ -1,4 +1,4 @@
-import { Registry } from "../registry";
+import { Registry } from "../registries/registry";
 import { BordersPlugin } from "./core/borders";
 import { CarouselPlugin } from "./core/carousel";
 import { CellPlugin } from "./core/cell";
