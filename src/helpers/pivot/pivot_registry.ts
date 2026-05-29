@@ -1,4 +1,4 @@
-import { Registry } from "../../registry";
+import { Registry } from "../../registries/registry";
 import { CoreGetters } from "../../types/core_getters";
 import { Getters } from "../../types/getters";
 import { ApplyRangeChange, UID } from "../../types/misc";
