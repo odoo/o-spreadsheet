@@ -17,6 +17,7 @@ import { CommandResult } from "../../../types/commands";
 import { Locale } from "../../../types/locale";
 import { Color, RangeAdapterFunctions } from "../../../types/misc";
 import { Range } from "../../../types/range";
+import { createEvaluatedCell } from "../../cells/cell_evaluation";
 import { formatValue, humanizeNumber } from "../../format/format";
 import { isNumber } from "../../numbers";
 import { createValidRange } from "../../range";
@@ -128,7 +129,10 @@ function getBaselineArrowDirection(
 }
 
 function checkKeyValue(definition: ScorecardChartDefinition): CommandResult {
-  return definition.keyValue && !rangeReference.test(definition.keyValue)
+  if (definition.keyValueType === "formula" || definition.keyValueType === "litteral") {
+    return CommandResult.Success;
+  }
+  return definition.keyValue && !rangeReference.test(definition.keyValue as string)
     ? CommandResult.InvalidScorecardKeyValue
     : CommandResult.Success;
 }
@@ -156,6 +160,7 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
   allowedDefinitionKeys: [
     ...AbstractChart.commonKeys,
     "keyValue",
+    "keyValueType",
     "keyDescr",
     "baseline",
     "baselineMode",
@@ -166,7 +171,10 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
 
   fromStrDefinition(definition, sheetId, getters) {
     const baseline = createValidRange(getters, sheetId, definition.baseline);
-    const keyValue = createValidRange(getters, sheetId, definition.keyValue);
+    const isRange = !definition.keyValueType || definition.keyValueType === "range";
+    const keyValue = isRange
+      ? createValidRange(getters, sheetId, definition.keyValue as string | undefined)
+      : definition.keyValue;
     const rangeDefinition: ScorecardChartDefinition<Range> = {
       ...definition,
       baseline,
@@ -210,14 +218,17 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
         baseline = adaptedRange;
       }
     }
-    if (definition.keyValue) {
+    const isRange = !definition.keyValueType || definition.keyValueType === "range";
+    if (isRange && definition.keyValue) {
       const { changeType, range: adaptedRange } = adaptRangeString(
         chartSheetId,
-        definition.keyValue
+        definition.keyValue as string
       );
       if (changeType !== "REMOVE") {
         keyValue = adaptedRange;
       }
+    } else {
+      keyValue = definition.keyValue as string | undefined;
     }
     return {
       ...definition,
@@ -232,20 +243,25 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
       sheetIdTo,
       definition.baseline
     );
-    const keyValue = duplicateLabelRangeInDuplicatedSheet(
-      sheetIdFrom,
-      sheetIdTo,
-      definition.keyValue
-    );
+    const isRange = !definition.keyValueType || definition.keyValueType === "range";
+    const keyValue = isRange
+      ? duplicateLabelRangeInDuplicatedSheet(
+          sheetIdFrom,
+          sheetIdTo,
+          definition.keyValue as Range | undefined
+        )
+      : (definition.keyValue as string | undefined);
     return { ...definition, baseline, keyValue };
   },
 
   toStrDefinition(definition, sheetId, getters) {
+    const isRange = !definition.keyValueType || definition.keyValueType === "range";
     return {
       ...definition,
-      keyValue: definition.keyValue
-        ? getters.getRangeString(definition.keyValue, sheetId)
-        : undefined,
+      keyValue:
+        isRange && definition.keyValue
+          ? getters.getRangeString(definition.keyValue as Range, sheetId)
+          : (definition.keyValue as string | undefined),
       baseline: definition.baseline
         ? getters.getRangeString(definition.baseline, sheetId)
         : undefined,
@@ -253,11 +269,15 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
   },
 
   getContextCreation(definition, dataSource) {
+    const isRange = !definition.keyValueType || definition.keyValueType === "range";
     return {
       ...definition,
       dataSource: {
         type: "range",
-        dataSets: definition.keyValue ? [{ dataRange: definition.keyValue, dataSetId: "0" }] : [],
+        dataSets:
+          isRange && definition.keyValue
+            ? [{ dataRange: definition.keyValue as string, dataSetId: "0" }]
+            : [],
       },
       auxiliaryRange: definition.baseline,
     };
@@ -266,26 +286,48 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
   getDefinitionForExcel: () => undefined,
 
   updateRanges(definition, adapterFunctions: RangeAdapterFunctions) {
+    const isRange = !definition.keyValueType || definition.keyValueType === "range";
     const baseline = adaptChartRange(definition.baseline, adapterFunctions);
-    const keyValue = adaptChartRange(definition.keyValue, adapterFunctions);
+    const keyValue = isRange
+      ? adaptChartRange(definition.keyValue as Range | undefined, adapterFunctions)
+      : definition.keyValue;
     if (definition.baseline === baseline && definition.keyValue === keyValue) {
       return definition;
     }
     return { ...definition, baseline, keyValue };
   },
 
-  getRuntime(getters, definition): ScorecardChartRuntime {
+  getRuntime(getters, definition, _dataExtractors, sheetId): ScorecardChartRuntime {
     let formattedKeyValue = "";
     let keyValueCell: EvaluatedCell | undefined;
     const locale = getters.getLocale();
+    const isKeyValueRange = !definition.keyValueType || definition.keyValueType === "range";
     if (definition.keyValue) {
-      const keyValuePosition = {
-        sheetId: definition.keyValue.sheetId,
-        col: definition.keyValue.zone.left,
-        row: definition.keyValue.zone.top,
-      };
-      keyValueCell = getters.getEvaluatedCell(keyValuePosition);
-      formattedKeyValue = getKeyValueText(keyValueCell, definition.humanize ?? true, locale);
+      if (isKeyValueRange) {
+        const keyValueRange = definition.keyValue as Range;
+        const keyValuePosition = {
+          sheetId: keyValueRange.sheetId,
+          col: keyValueRange.zone.left,
+          row: keyValueRange.zone.top,
+        };
+        keyValueCell = getters.getEvaluatedCell(keyValuePosition);
+        formattedKeyValue = getKeyValueText(keyValueCell, definition.humanize ?? true, locale);
+      } else if (definition.keyValueType === "formula") {
+        const result = getters.evaluateFormula(sheetId, definition.keyValue as string);
+        const locale = getters.getLocale();
+        const scalar = Array.isArray(result) ? (result as any[][])[0]?.[0] : result;
+        keyValueCell = createEvaluatedCell({ value: scalar }, locale);
+        if (scalar !== null && scalar !== undefined) {
+          formattedKeyValue = definition.humanize
+            ? humanizeNumber({ value: scalar }, locale)
+            : String(scalar);
+        } else {
+          formattedKeyValue = "";
+        }
+      } else {
+        // "litteral"
+        formattedKeyValue = definition.keyValue as string;
+      }
     }
     let baselineCell: EvaluatedCell | undefined;
     const baseline = definition.baseline;
@@ -299,7 +341,7 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
     }
     const { background, fontColor } = getters.getStyleOfSingleCellChart(
       definition.background,
-      definition.keyValue
+      isKeyValueRange ? (definition.keyValue as Range | undefined) : undefined
     );
 
     const baselineDisplay = getBaselineText(
@@ -354,11 +396,11 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
         ...definition.baselineDescr,
       },
       keyValueStyle: {
-        ...(definition.keyValue
+        ...(isKeyValueRange && definition.keyValue
           ? getters.getCellComputedStyle({
-              sheetId: definition.keyValue.sheetId,
-              col: definition.keyValue.zone.left,
-              row: definition.keyValue.zone.top,
+              sheetId: (definition.keyValue as Range).sheetId,
+              col: (definition.keyValue as Range).zone.left,
+              row: (definition.keyValue as Range).zone.top,
             })
           : undefined),
         fontSize: definition.keyDescr?.fontSize,

@@ -6,7 +6,8 @@ import { NonDataSourceBaseChartDefinition } from "./common_chart";
 export interface ScorecardChartDefinition<T extends string | Range = string>
   extends NonDataSourceBaseChartDefinition {
   readonly type: "scorecard";
-  readonly keyValue?: T;
+  readonly keyValue?: T | string;
+  readonly keyValueType?: "range" | "formula" | "litteral";
   readonly keyDescr?: TitleDesign;
   readonly baseline?: T;
   readonly baselineMode: BaselineMode;

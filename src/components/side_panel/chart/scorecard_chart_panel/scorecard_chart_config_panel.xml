@@ -2,14 +2,31 @@
   <t t-name="o-spreadsheet-ScorecardChartConfigPanel">
     <div>
       <Section class="'o-data-series'" title.translate="Key value">
-        <SelectionInput
-          ranges="[this.getKeyValueRange()]"
-          isInvalid="this.isKeyValueInvalid"
-          hasSingleRange="true"
-          required="true"
-          onSelectionChanged="(ranges) => this.onKeyValueRangeChanged(ranges)"
-          onSelectionConfirmed="() => this.updateKeyValueRange()"
+        <BadgeSelection
+          choices="this.choices"
+          onChange="(valueType) => this.onKeyValueTypeChanged(valueType)"
+          selectedValue="this.state.keyValueType"
         />
+        <div class="m-2">
+          <SelectionInput
+            t-if="this.state.keyValueType === 'range' "
+            ranges="[this.getKeyValueRange()]"
+            isInvalid="this.isKeyValueInvalid"
+            hasSingleRange="true"
+            required="true"
+            onSelectionChanged="(ranges) => this.onKeyValueRangeChanged(ranges)"
+            onSelectionConfirmed="() => this.updateKeyValueRange()"
+          />
+          <StandaloneComposer
+            t-else=""
+            class="'o-data-range-min'"
+            placeholder.translate="Value or formula"
+            title.translate=""
+            composerContent="this.keyValue"
+            defaultRangeSheetId="this.sheetId"
+            onConfirm="(str) => this.onConfirmKeyValue(str)"
+          />
+        </div>
       </Section>
       <Section class="'o-data-labels'" title.translate="Baseline configuration">
         <div class="o-section-subtitle">Value</div>
