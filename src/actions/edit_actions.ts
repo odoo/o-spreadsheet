@@ -73,6 +73,14 @@ export const pasteSpecialFormat: ActionSpec = {
   execute: ACTIONS.PASTE_FORMAT_ACTION,
 };
 
+export const dataAnalysis: ActionSpec = {
+  name: _t("Data analysis"),
+  execute: (env) =>
+    env.openSidePanel("DataAnalysisPanel", { zones: env.model.getters.getSelectedZones() }),
+  icon: "o-spreadsheet-Icon.COLUMN_STATS",
+  isEnabled: (env) => !env.isSmall,
+};
+
 export const findAndReplace: ActionSpec = {
   name: _t("Find and replace"),
   shortcut: "Ctrl+H",

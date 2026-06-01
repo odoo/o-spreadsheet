@@ -80,4 +80,9 @@ export class BottomBarStatistic extends Component<SpreadsheetChildEnv> {
       (fnValue?.value !== undefined ? formatValue(fnValue.value(), { locale }) : "__")
     );
   }
+
+  showDataAnalysis() {
+    const zones = this.env.model.getters.getSelectedZones();
+    this.env.openSidePanel("DataAnalysisPanel", { zones });
+  }
 }

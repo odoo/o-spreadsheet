@@ -76,7 +76,7 @@ function detectColumnType(cells: EvaluatedCell[]): ColumnType {
   return detectedType;
 }
 
-function categorizeColumns(zones: Zone[], getters: Getters): ColumnInfo[] {
+export function categorizeColumns(zones: Zone[], getters: Getters): ColumnInfo[] {
   const columns: ColumnInfo[] = [];
   for (const zone of getZonesByColumns(zones)) {
     const cells = getters.getEvaluatedCellsInZone(getters.getActiveSheetId(), zone);
