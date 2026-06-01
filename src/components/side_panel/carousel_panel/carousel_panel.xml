@@ -51,19 +51,32 @@
           </div>
         </t>
       </div>
-      <div
-        class="o-button-link o-carousel-add-chart float-end d-flex align-items-center py-4 pe-4 gap-2"
-        t-on-click="this.addNewChartToCarousel"
-        t-att-title="this.carouselAddChartInfoMessage">
-        + Add chart
-      </div>
-      <div
-        t-if="!this.hasDataView"
-        class="o-button-link o-carousel-add-data-view float-end py-4 pe-4"
-        t-on-click="this.addDataViewToCarousel"
-        t-att-title="this.carouselDataViewMessage">
-        + Add data view
-      </div>
+      <Section class="'pt-0'">
+        <div>
+          <div
+            class="o-button-link o-carousel-add-chart float-end d-flex align-items-center my-4"
+            t-on-click="this.addNewChartToCarousel"
+            t-ref="this.addChartButton"
+            t-att-title="this.carouselAddChartInfoMessage">
+            + Add chart
+          </div>
+          <div
+            t-if="!this.hasDataView"
+            class="o-button-link o-carousel-add-data-view float-end my-4 me-4"
+            t-on-click="this.addDataViewToCarousel"
+            t-att-title="this.carouselDataViewMessage">
+            + Add data view
+          </div>
+        </div>
+      </Section>
     </div>
+    <ChartTypePickerPopover
+      t-if="this.state.popoverProps"
+      popoverProps="this.state.popoverProps"
+      onClose.bind="this.closePopover"
+      onSelectSubType.bind="this.onSelectChartType"
+      parentRef="this.addChartButton"
+      supportedTypes="this.supportedChartTypes"
+    />
   </t>
 </templates>
