@@ -1,0 +1,19 @@
+.o-spreadsheet {
+  .o-popover .o-chart-select-popover {
+    .o-chart-type-item {
+      cursor: pointer;
+      padding: 2px 5px;
+      margin: 1px 2px;
+      border: 1px solid transparent;
+      &.selected,
+      &:hover {
+        border-color: var(--os-action-color);
+        background: var(--os-badge-selected-color);
+      }
+      .o-chart-preview {
+        width: 48px;
+        height: 48px;
+      }
+    }
+  }
+}
