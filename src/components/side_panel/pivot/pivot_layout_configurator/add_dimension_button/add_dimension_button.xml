@@ -7,7 +7,8 @@
       t-if="this.popover.isOpen"
       t-props="this.popoverProps"
       class="'o-pivot-add-dimension-popover'">
-      <div class="p-2 border-bottom d-flex sticky-top align-items-baseline pivot-dimension-search">
+      <div
+        class="p-2 border-bottom d-flex sticky-top align-items-baseline pivot-dimension-search bg-white">
         <i class="pe-1 pivot-dimension-search-field-icon text-muted">
           <t t-call="o-spreadsheet-Icon.SEARCH"/>
         </i>
