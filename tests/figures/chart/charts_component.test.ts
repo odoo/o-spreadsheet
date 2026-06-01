@@ -46,6 +46,7 @@ import {
   deleteFigure,
   deleteSheet,
   paste,
+  resizeAnchorZone,
   selectCell,
   selectFigure,
   setCellContent,
@@ -3363,4 +3364,43 @@ describe("Change chart type", () => {
     await changeChartType("bar");
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({ type: "bar" });
   });
+});
+
+test("Can update the chart data source from the side panel", async () => {
+  model = new Model();
+  createChart(model, { type: "bar" }, chartId);
+  await mountSpreadsheet();
+  selectFigure(model, model.getters.getFigureIdFromChartId(chartId)!);
+  env.openSidePanel("ChartPanel");
+  await nextTick();
+  const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0] as HTMLInputElement;
+  const dataSeriesValues = dataSeries.querySelector("input")!;
+  await setInputValueAndTrigger(dataSeriesValues, "B1:B5");
+  await nextTick();
+  await simulateClick(".o-data-series .o-selection-ok");
+  const definition = model.getters.getChartDefinition(chartId) as BarChartDefinition<string>;
+
+  expect(definition).toMatchObject(
+    toChartDataSource({
+      dataSets: [{ dataRange: "B1:B5", dataSetId: expect.any(String) }],
+      dataSetsHaveTitle: false,
+    })
+  );
+  await click(dataSeriesValues);
+
+  selectCell(model, "A1");
+  // required to mimic a realisticuser interaction
+  await nextTick();
+  resizeAnchorZone(model, "down", 1);
+  await nextTick();
+
+  await simulateClick(".o-data-series .o-selection-ok");
+  const definition2 = model.getters.getChartDefinition(chartId) as BarChartDefinition<string>;
+
+  expect(definition2).toMatchObject(
+    toChartDataSource({
+      dataSets: [{ dataRange: "A1:A2", dataSetId: expect.any(String) }],
+      dataSetsHaveTitle: false,
+    })
+  );
 });

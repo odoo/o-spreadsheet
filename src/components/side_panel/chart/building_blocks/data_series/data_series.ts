@@ -5,7 +5,9 @@ import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { SelectionInput } from "../../../../selection_input/selection_input";
 import { Section } from "../../../components/section/section";
 
+import { onWillUpdateProps } from "@odoo/owl";
 import { Component } from "../../../../../owl3_compatibility_layer";
+
 interface Props {
   ranges: { dataRange: string; dataSetId: UID }[];
   dataSetStyles?: DataSetStyle;
@@ -41,6 +43,11 @@ export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
 
   get ranges(): string[] {
     return this.props.ranges.map((r) => r.dataRange);
+  }
+  setup() {
+    // TODO: remove this hook.
+    // Required to ensure that it's part of the same update cycle as its child component so it can pass the correct version of the props.
+    onWillUpdateProps(async () => {});
   }
 
   get disabledRanges(): boolean[] {
