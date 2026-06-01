@@ -15,7 +15,13 @@ import {
   selectFigure,
   updateCarousel,
 } from "../../test_helpers/commands_helpers";
-import { click, clickAndDrag, getElStyle, triggerMouseEvent } from "../../test_helpers/dom_helper";
+import {
+  click,
+  clickAndDrag,
+  doubleClick,
+  getElStyle,
+  triggerMouseEvent,
+} from "../../test_helpers/dom_helper";
 import { makeTestEnv, mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
@@ -329,6 +335,20 @@ describe("Carousel figure component", () => {
 
     await click(fixture, ".o-figure .o-carousel-menu-button");
     expect(".o-popover .o-menu").toHaveCount(1);
+  });
+
+  test("Double Click opens either the carousel or the chart side panel", async () => {
+    createCarousel(model, { items: [] }, "carouselId");
+    const chartId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
+
+    const { fixture, env } = await mountSpreadsheet({ model }, {});
+    const openSidePanel = jest.spyOn(env, "openSidePanel");
+
+    await doubleClick(fixture, ".o-chart-container");
+    expect(openSidePanel).toHaveBeenLastCalledWith("ChartPanel", { chartId });
+
+    await doubleClick(fixture, ".o-carousel-header");
+    expect(openSidePanel).toHaveBeenLastCalledWith("CarouselPanel", { figureId: "carouselId" });
   });
 
   describe("Carousel menu items", () => {

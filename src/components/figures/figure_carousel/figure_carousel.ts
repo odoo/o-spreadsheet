@@ -81,6 +81,15 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
     this.env.openSidePanel("CarouselPanel", { figureId: this.props.figureUI.id });
   }
 
+  onCarouselChartDoubleClick() {
+    if (this.selectedCarouselItem?.type !== "chart") {
+      return;
+    }
+    const chartId = this.selectedCarouselItem.chartId;
+    this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });
+    this.env.openSidePanel("ChartPanel", { chartId });
+  }
+
   isItemSelected(item: CarouselItem): boolean {
     const selectedItem = this.selectedCarouselItem;
     return deepEquals(selectedItem, item);
