@@ -1,5 +1,5 @@
-import { props, signal } from "@odoo/owl";
-import { Component, useExternalListener } from "../../../../owl3_compatibility_layer";
+import { signal, useListener, useProps } from "@odoo/owl";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { chartSubtypeRegistry } from "../../../../registries/chart_subtype_registry";
 import { ChartType } from "../../../../types/chart/chart";
 import {
@@ -16,7 +16,7 @@ export class ChartTypePickerPopover extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartTypePickerPopover";
   static components = { Popover };
 
-  protected props = props({
+  protected props = useProps({
     parentRef: types.signal<HTMLElement | null>().optional(),
     onClose: types.function(),
     onSelectSubType: types.function<(type: string) => void>(),
@@ -31,7 +31,7 @@ export class ChartTypePickerPopover extends Component<SpreadsheetChildEnv> {
   popoverRef = signal<HTMLElement | null>(null);
 
   setup(): void {
-    useExternalListener(window, "pointerdown", this.onExternalClick, { capture: true });
+    useListener(window, "pointerdown", this.onExternalClick.bind(this), { capture: true });
 
     for (const subtypeProperties of chartSubtypeRegistry.getAll()) {
       if (!this.props.supportedTypes.has(subtypeProperties.chartType)) {
