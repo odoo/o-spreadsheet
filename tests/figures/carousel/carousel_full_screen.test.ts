@@ -1,5 +1,9 @@
 import { Model } from "../../../src";
-import { addNewChartToCarousel, createCarousel } from "../../test_helpers/commands_helpers";
+import {
+  addNewChartToCarousel,
+  createCarousel,
+  selectCarouselItem,
+} from "../../test_helpers/commands_helpers";
 import { click } from "../../test_helpers/dom_helper";
 import { mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 
@@ -47,6 +51,7 @@ describe("full screen carousel", () => {
   test("Cannot use the data view in full screen", async () => {
     createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
     addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    selectCarouselItem(model, "carouselId", { type: "carouselDataView" });
     model.updateMode("dashboard");
     await nextTick();
     expect(".o-figure .o-carousel-full-screen-button").toHaveClass("invisible");

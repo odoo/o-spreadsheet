@@ -1,21 +1,10 @@
 import { chartSubtypeRegistry } from "../registries/chart_subtype_registry";
 import { ViewportsStore } from "../stores/viewports_store";
 import { _t } from "../translation";
-import { ChartDefinition } from "../types/chart/chart";
 import { AnchorOffset, CarouselItem } from "../types/figure";
 import { Getters } from "../types/getters";
 import { UID } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
-
-export const CAROUSEL_DEFAULT_CHART_DEFINITION: ChartDefinition = {
-  type: "bar",
-  title: {},
-  stacked: false,
-  dataSetStyles: {},
-  dataSource: { type: "range", dataSets: [], dataSetsHaveTitle: false },
-  legendPosition: "top",
-  humanize: true,
-};
 
 /**
  * Compute the anchor of a chart popped out of a carousel: slightly offset from the

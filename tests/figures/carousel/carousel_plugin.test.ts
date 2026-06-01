@@ -1,5 +1,4 @@
 import { CommandResult, Model, UID } from "../../../src";
-import { CAROUSEL_DEFAULT_CHART_DEFINITION } from "../../../src/helpers/carousel_helpers";
 import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
   addChartFigureToCarousel,
@@ -12,6 +11,7 @@ import {
   updateCarousel,
   updateChart,
 } from "../../test_helpers/commands_helpers";
+import { TEST_CHART_DATA } from "../../test_helpers/constants";
 
 let model: Model;
 let sheetId: UID;
@@ -42,10 +42,20 @@ describe("Carousel figure", () => {
       createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "chartFigureId" });
 
       const sheetId = model.getters.getActiveSheetId();
-      let result = model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", { figureId: "invalidId", sheetId });
+      let result = model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
+        figureId: "invalidId",
+        sheetId,
+        newChartId: "chartId",
+        chartDefinition: TEST_CHART_DATA.combo,
+      });
       expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
 
-      result = model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", { figureId: "chartFigureId", sheetId });
+      result = model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
+        figureId: "chartFigureId",
+        sheetId,
+        newChartId: "chartId",
+        chartDefinition: TEST_CHART_DATA.combo,
+      });
       expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
     });
 
@@ -141,13 +151,13 @@ describe("Carousel figure", () => {
   test("Can add a new chart to a carousel", () => {
     createCarousel(model, { items: [] }, "carouselId");
 
-    addNewChartToCarousel(model, "carouselId");
+    addNewChartToCarousel(model, "carouselId", { type: "radar" });
 
     const carouselItems = model.getters.getCarousel("carouselId").items;
     expect(carouselItems).toMatchObject([{ type: "chart", chartId: expect.any(String) }]);
-    expect(model.getters.getChartDefinition(carouselItems[0]["chartId"])).toEqual(
-      CAROUSEL_DEFAULT_CHART_DEFINITION
-    );
+    expect(model.getters.getChartDefinition(carouselItems[0]["chartId"])).toMatchObject({
+      type: "radar",
+    });
     expect(model.getters.getFigureIdFromChartId(carouselItems[0]["chartId"])).toBe("carouselId");
   });
 
@@ -186,13 +196,13 @@ describe("Carousel figure", () => {
 
   test("Can duplicate a sheet with a carousel", () => {
     createCarousel(model, { items: [] }, "carouselId");
-    const chartId = addNewChartToCarousel(model, "carouselId");
+    const chartId = addNewChartToCarousel(model, "carouselId", { type: "funnel" });
 
     duplicateSheet(model, sheetId, "newSheetId");
 
     const carouselItems = model.getters.getCarousel("carouselId").items;
     expect(carouselItems).toMatchObject([{ type: "chart", chartId }]);
-    expect(model.getters.getChartDefinition(chartId)).toEqual(CAROUSEL_DEFAULT_CHART_DEFINITION);
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({ type: "funnel" });
     expect(model.getters.getFigureIdFromChartId(chartId)).toBe("carouselId");
 
     const newCarouselId = model.getters.getFigures("newSheetId")[0].id;
@@ -202,9 +212,9 @@ describe("Carousel figure", () => {
     expect(model.getters.getCarousel(newCarouselId).items).toEqual([
       { type: "chart", chartId: newChartId },
     ]);
-    expect(model.getters.getChartDefinition("newSheetId??" + chartId)).toEqual(
-      CAROUSEL_DEFAULT_CHART_DEFINITION
-    );
+    expect(model.getters.getChartDefinition("newSheetId??" + chartId)).toMatchObject({
+      type: "funnel",
+    });
     expect(model.getters.getFigureIdFromChartId("newSheetId??" + chartId)).toBe(newCarouselId);
   });
 
