@@ -315,6 +315,17 @@ describe("TopBar component", () => {
     expect(".irregularity-map btn").toHaveCount(0);
   });
 
+  test("manual evaluation banner appears and can re-enable automatic evaluation", async () => {
+    const { model } = await mountParent();
+    expect(".manual-evaluation").toHaveCount(0);
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
+    await nextTick();
+    expect(".manual-evaluation").toHaveCount(1);
+    await click(fixture, ".manual-evaluation .btn");
+    expect(".manual-evaluation").toHaveCount(0);
+    expect(model.getters.isAutomaticEvaluationEnabled()).toBe(true);
+  });
+
   describe("Paint format tools", () => {
     test("Single click to activate paint format (once)", async () => {
       const { parent } = await mountParent();

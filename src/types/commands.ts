@@ -211,6 +211,7 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "EVALUATE_CHARTS",
 
   "SET_FORMULA_VISIBILITY",
+  "SET_AUTOMATIC_EVALUATION",
 
   "UPDATE_FILTER",
   "UPDATE_CHART",
@@ -1028,6 +1029,11 @@ export interface ShowFormulaCommand {
   show: boolean;
 }
 
+export interface SetAutomaticEvaluationCommand {
+  type: "SET_AUTOMATIC_EVALUATION";
+  enabled: boolean;
+}
+
 export interface DeleteContentCommand {
   type: "DELETE_CONTENT";
   sheetId: UID;
@@ -1379,6 +1385,7 @@ export type LocalCommand =
   | SortCommand
   | SetDecimalCommand
   | SetContextualFormatCommand
+  | SetAutomaticEvaluationCommand
   | ResizeViewportCommand
   | SetZoomCommand
   | SumSelectionCommand
