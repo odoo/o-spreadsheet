@@ -1,3 +1,4 @@
+import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import { interactiveCut } from "../helpers/ui/cut_interactive";
 import { interactiveAddMerge } from "../helpers/ui/merge_interactive";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
@@ -71,6 +72,19 @@ export const pasteSpecialValue: ActionSpec = {
 export const pasteSpecialFormat: ActionSpec = {
   name: _t("Paste format only"),
   execute: ACTIONS.PASTE_FORMAT_ACTION,
+};
+
+export const dataAnalysis: ActionSpec = {
+  name: _t("Data analysis"),
+  execute: (env) => {
+    env.toggleSidePanel("DataAnalysisPanel", {});
+    const store = env.getStore(SidePanelStore);
+    if (!store.mainPanel?.isPinned) {
+      store.togglePinPanel();
+    }
+  },
+  icon: "o-spreadsheet-Icon.COLUMN_STATS",
+  isEnabled: (env) => !env.isSmall,
 };
 
 export const findAndReplace: ActionSpec = {

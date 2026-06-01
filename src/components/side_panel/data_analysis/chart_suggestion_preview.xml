@@ -1,0 +1,19 @@
+<templates>
+  <t t-name="o-spreadsheet-ChartSuggestionPreview">
+    <div
+      class="o-chart-suggestion-thumb d-flex flex-column"
+      t-att-class="{ 'o-chart-suggestion-recommended': this.props.isRecommended }"
+      t-att-title="this.props.rationale">
+      <div
+        class="o-suggestion-canvas-wrap"
+        t-ref="this.chartDivRef"
+        t-on-pointerdown="(ev) => this.startDragAndDrop(ev)">
+        <canvas class="w-100 h-100" t-ref="this.chartCanvasRef"/>
+      </div>
+      <div
+        class="o-suggestion-thumb-title text-truncate small text-center px-1 mt-1"
+        t-out="this.props.title"
+      />
+    </div>
+  </t>
+</templates>
