@@ -38,6 +38,11 @@ cellMenuRegistry
     ...ACTION_EDIT.pasteSpecialFormat,
     sequence: 20,
   })
+  .add("data_analysis", {
+    ...ACTION_EDIT.dataAnalysis,
+    sequence: 50,
+    separator: true,
+  })
   .add("add_row_before", {
     ...ACTION_INSERT.cellInsertRowsBefore,
     sequence: 70,
