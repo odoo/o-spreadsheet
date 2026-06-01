@@ -41,9 +41,13 @@ describe("Carousel panel component", () => {
     await mountCarouselPanel(model, "carouselId");
 
     await click(fixture, ".o-carousel-add-chart");
+    await click(fixture, '.o-popover [data-id="radar"]');
+    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getCarousel("carouselId")).toMatchObject({
-      items: [{ type: "chart", chartId: expect.any(String) }],
+      items: [{ type: "chart", chartId }],
     });
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({ type: "radar" });
+    expect(".o-sidePanel .o-chart").toHaveCount(1); // Chart side panel is open for the new chart
   });
 
   test("Can add a data view to the carousel", async () => {
@@ -159,6 +163,7 @@ describe("Carousel panel component", () => {
   test("Selected carousel item is highlighted", async () => {
     createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
     const radarId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    selectCarouselItem(model, "carouselId", { type: "carouselDataView" });
     await mountCarouselPanel(model, "carouselId");
 
     await setInputValueAndTrigger(".o-carousel-preview .os-input", "New Chart Name");

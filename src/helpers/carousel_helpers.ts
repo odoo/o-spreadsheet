@@ -1,18 +1,7 @@
 import { chartSubtypeRegistry } from "../registries/chart_subtype_registry";
 import { _t } from "../translation";
-import { ChartDefinition } from "../types/chart/chart";
 import { CarouselItem } from "../types/figure";
 import { Getters } from "../types/getters";
-
-export const CAROUSEL_DEFAULT_CHART_DEFINITION: ChartDefinition = {
-  type: "bar",
-  title: {},
-  stacked: false,
-  dataSetStyles: {},
-  dataSource: { type: "range", dataSets: [], dataSetsHaveTitle: false },
-  legendPosition: "top",
-  humanize: true,
-};
 
 export function getCarouselItemPreview(getters: Getters, item: CarouselItem): string {
   if (item.type === "carouselDataView") {
