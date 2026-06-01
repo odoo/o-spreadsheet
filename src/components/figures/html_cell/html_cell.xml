@@ -20,7 +20,7 @@
         <div
           t-if="dataBarStyle"
           class="o-html-cell-data-bar position-absolute h-100 start-0"
-          t-att-style="this.dataBarStyle"
+          t-att-style="dataBarStyle"
         />
         <div t-if="this.icons.left" class="flex-shrink-0 pe-1">
           <HTMLIcon icon="this.icons.left"/>

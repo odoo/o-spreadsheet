@@ -1,4 +1,5 @@
 import { proxy } from "@odoo/owl";
+import { intersection } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
 import { CellPosition, Zone } from "../../../types/misc";
 import { Range } from "../../../types/range";
@@ -46,7 +47,8 @@ export class HTMLGrid extends Component<Props, SpreadsheetChildEnv> {
   get nonEmptyZone(): Zone {
     const zone = this.props.range.zone;
     const lastUsedRow = this.getLastUsedRow();
-    return { ...zone, bottom: lastUsedRow };
+    const sheetZone = this.env.model.getters.getSheetZone(this.props.range.sheetId);
+    return intersection({ ...zone, bottom: lastUsedRow }, sheetZone) || zone;
   }
 
   get positions(): CellPosition[] {
