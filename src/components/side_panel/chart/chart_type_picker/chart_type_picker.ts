@@ -1,65 +1,39 @@
 import { props, proxy, signal } from "@odoo/owl";
-import { Component, useExternalListener } from "../../../../owl3_compatibility_layer";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { chartDataSourceRegistry } from "../../../../registries/chart_data_source_registry";
 import { chartSubtypeRegistry } from "../../../../registries/chart_subtype_registry";
 import { CHART_TYPES, ChartDefinition, ChartType } from "../../../../types/chart/chart";
-import {
-  chartCategories,
-  ChartSubtypeProperties,
-} from "../../../../types/chart_subtype_properties";
+import { ChartSubtypeProperties } from "../../../../types/chart_subtype_properties";
 import { UID } from "../../../../types/misc";
 import { PropsOf } from "../../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
-import { cssPropertiesToCss } from "../../../helpers/css";
-import { isChildEvent } from "../../../helpers/dom_helpers";
 import { Popover } from "../../../popover/popover";
 import { types } from "../../../props_validation";
 import { Section } from "../../components/section/section";
+import { ChartTypePickerPopover } from "../chart_type_picker_popover/chart_type_picker_popover";
 import { MainChartPanelStore } from "../main_chart_panel/main_chart_panel_store";
 
 interface ChartTypePickerState {
   popoverProps: PropsOf<Popover> | undefined;
-  popoverStyle: string;
 }
 
 export class ChartTypePicker extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartTypePicker";
-  static components = { Section, Popover };
+  static components = { Section, ChartTypePickerPopover };
 
   protected props = props({
     chartId: types.UID(),
     chartPanelStore: types.Store<MainChartPanelStore>(),
   });
 
-  categories = chartCategories;
-  chartTypeByCategories: Record<string, ChartSubtypeProperties[]> = {};
-
-  popoverRef = signal<HTMLElement | null>(null);
   selectRef = signal<HTMLElement | null>(null);
 
-  state = proxy<ChartTypePickerState>({ popoverProps: undefined, popoverStyle: "" });
+  state = proxy<ChartTypePickerState>({ popoverProps: undefined });
 
-  setup(): void {
-    useExternalListener(window, "pointerdown", this.onExternalClick, { capture: true });
-
-    const definition = this.env.model.getters.getChartDefinition(this.props.chartId);
-    const supportedTypes = this.getSupportedChartTypes(definition);
-
-    for (const subtypeProperties of chartSubtypeRegistry.getAll()) {
-      if (!supportedTypes.has(subtypeProperties.chartType)) {
-        continue;
-      }
-      if (this.chartTypeByCategories[subtypeProperties.category]) {
-        this.chartTypeByCategories[subtypeProperties.category].push(subtypeProperties);
-      } else {
-        this.chartTypeByCategories[subtypeProperties.category] = [subtypeProperties];
-      }
-    }
-  }
-
-  private getSupportedChartTypes(definition: ChartDefinition): Set<ChartType> {
+  getSupportedChartTypes(): Set<ChartType> {
     let supportedTypes: Set<ChartType>;
 
+    const definition = this.getChartDefinition(this.props.chartId);
     if (definition.dataSource) {
       const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource.type);
       supportedTypes = new Set(dataSourceBuilder.supportedChartTypes);
@@ -77,16 +51,8 @@ export class ChartTypePicker extends Component<SpreadsheetChildEnv> {
     return supportedTypes;
   }
 
-  onExternalClick(ev: MouseEvent) {
-    if (isChildEvent(this.popoverRef()?.parentElement, ev) || isChildEvent(this.selectRef(), ev)) {
-      return;
-    }
-    this.closePopover();
-  }
-
   onTypeChange(type: ChartType) {
     this.props.chartPanelStore.changeChartType(this.props.chartId, type);
-    this.closePopover();
   }
 
   private getChartDefinition(chartId: UID): ChartDefinition {
@@ -112,12 +78,11 @@ export class ChartTypePicker extends Component<SpreadsheetChildEnv> {
       anchorRect: { x: right, y: bottom, width: 0, height: 0 },
       positioning: "top-right",
       verticalOffset: 0,
+      maxWidth: width,
     };
-
-    this.state.popoverStyle = cssPropertiesToCss({ width: `${width}px` });
   }
 
-  private closePopover() {
+  closePopover() {
     this.state.popoverProps = undefined;
   }
 }

@@ -1,0 +1,31 @@
+<templates>
+  <t t-name="o-spreadsheet-ChartTypePickerPopover">
+    <Popover t-props="this.props.popoverProps">
+      <div
+        t-ref="this.popoverRef"
+        class="o-chart-select-popover px-3 pb-4"
+        t-att-style="this.popoverStyle">
+        <t t-foreach="this.categories" t-as="category" t-key="category">
+          <t t-if="this.chartTypeByCategories[category]">
+            <h5 class="my-3" t-out="category_value"/>
+            <div class="d-flex flex-wrap">
+              <t
+                t-foreach="this.chartTypeByCategories[category]"
+                t-as="properties"
+                t-key="properties.chartSubtype">
+                <div
+                  class="o-chart-type-item"
+                  t-att-title="properties.displayName"
+                  t-on-click="() => this.onTypeChange(properties.chartSubtype)"
+                  t-att-data-id="properties.chartSubtype"
+                  t-att-class="{'selected': properties.chartSubtype === this.props.selectedChartSubType}">
+                  <t t-call="{{properties.preview}}"/>
+                </div>
+              </t>
+            </div>
+          </t>
+        </t>
+      </div>
+    </Popover>
+  </t>
+</templates>
