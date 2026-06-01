@@ -1,0 +1,31 @@
+<templates>
+  <t t-name="o-spreadsheet-DataAnalysisPanel">
+    <div class="o-data-analysis-panel">
+      <Section title.translate="Suggested charts">
+        <t t-if="this.store.hasData">
+          <div class="px-2 pb-2">
+            <div t-if="this.chartSuggestions.length" class="o-chart-suggestions-grid">
+              <t t-foreach="this.chartSuggestions" t-as="suggestion" t-key="suggestion_index">
+                <ChartSuggestionPreview
+                  definition="suggestion.definition"
+                  title="suggestion.title"
+                  rationale="suggestion.rationale"
+                  isRecommended="suggestion_index === 0"
+                  onPointerDown="(ev) => this.onStartChartSuggestionDrag(suggestion.definition, ev)"
+                />
+              </t>
+            </div>
+            <div t-else="" class="o-data-analysis-empty text-muted p-3 text-center">
+              No chart suggestions available for the selected data.
+            </div>
+          </div>
+        </t>
+        <t t-else="">
+          <div class="o-data-analysis-empty text-muted p-3 text-center">
+            Select cells containing data to see chart suggestions.
+          </div>
+        </t>
+      </Section>
+    </div>
+  </t>
+</templates>
