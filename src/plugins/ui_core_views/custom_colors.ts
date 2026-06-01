@@ -90,11 +90,18 @@ export class CustomColorsPlugin extends CoreViewPlugin<CustomColorState> {
           for (const chartId of this.getters.getChartIds(sheetId)) {
             this.tryToAddColors(this.getChartColors(chartId));
           }
+          for (const figureId of this.getters.getFigures(sheetId)) {
+            this.tryToAddColors(this.getCarouselColors(sheetId, figureId.id));
+          }
         }
         break;
       case "UPDATE_CHART":
       case "CREATE_CHART":
         this.tryToAddColors(this.getChartColors(cmd.chartId));
+        break;
+      case "CREATE_CAROUSEL":
+      case "UPDATE_CAROUSEL":
+        this.tryToAddColors(this.getCarouselColors(cmd.sheetId, cmd.figureId));
         break;
       case "UPDATE_CELL":
       case "ADD_CONDITIONAL_FORMAT":
@@ -173,6 +180,15 @@ export class CustomColorsPlugin extends CoreViewPlugin<CustomColorState> {
     const stringifiedChart = JSON.stringify(chart.getRangeDefinition());
     const colors = stringifiedChart.matchAll(chartColorRegex);
     return [...colors].map((color) => color[1]); // color[1] is the first capturing group of the regex
+  }
+
+  private getCarouselColors(sheetId: UID, figureId: UID): Color[] {
+    const figure = this.getters.getFigure(sheetId, figureId);
+    if (figure?.tag !== "carousel") {
+      return [];
+    }
+    const titleColor = this.getters.getCarousel(figureId).title?.color;
+    return titleColor ? [titleColor] : [];
   }
 
   private getTableColors(sheetId: UID): Color[] {

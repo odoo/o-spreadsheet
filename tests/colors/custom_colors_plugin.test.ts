@@ -5,6 +5,7 @@ import {
   addCfRule,
   addEqualCf,
   clearFormatting,
+  createCarousel,
   createChart,
   createGaugeChart,
   createScorecardChart,
@@ -13,6 +14,7 @@ import {
   redo,
   setFormatting,
   undo,
+  updateCarousel,
   updateChart,
 } from "../test_helpers/commands_helpers";
 import { createColorScale } from "../test_helpers/helpers";
@@ -206,6 +208,18 @@ describe("custom colors are correctly handled when editing charts", () => {
     createChart(model, { type: "bar", background: "#654987" }, "1", sheetId);
     const importedModel = new Model(model.exportData());
     expect(importedModel.getters.getCustomColors()).toEqual(["#654987", "#123456"]);
+  });
+
+  test("Carousel title color are taken into account", () => {
+    expect(model.getters.getCustomColors()).toEqual([]);
+    createCarousel(model, { title: { text: "Hello", color: "#123456" }, items: [] }, "id");
+    expect(model.getters.getCustomColors()).toEqual(["#123456"]);
+
+    updateCarousel(model, "id", { title: { text: "Hello", color: "#654321" }, items: [] });
+    expect(model.getters.getCustomColors()).toEqual(["#654321", "#123456"]);
+
+    const model2 = new Model(model.exportData());
+    expect(model2.getters.getCustomColors()).toEqual(["#654321"]);
   });
 });
 
