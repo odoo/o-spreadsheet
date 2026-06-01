@@ -1,7 +1,7 @@
-import { CAROUSEL_DEFAULT_CHART_DEFINITION } from "../../helpers/carousel_helpers";
 import { SpreadsheetChart } from "../../helpers/figures/chart";
 import { deepEquals, insertItemsAtIndex } from "../../helpers/misc";
 import { UuidGenerator } from "../../helpers/uuid";
+import { ChartDefinition } from "../../types/chart/chart";
 import {
   Command,
   CommandResult,
@@ -66,7 +66,7 @@ export class CarouselUIPlugin extends UIPlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "ADD_NEW_CHART_TO_CAROUSEL":
-        this.addNewChartToCarousel(cmd.figureId, cmd.sheetId);
+        this.addNewChartToCarousel(cmd.figureId, cmd.newChartId, cmd.sheetId, cmd.chartDefinition);
         break;
       case "ADD_FIGURES_CHART_TO_CAROUSEL":
         cmd.chartFigureIds.forEach((figureId) => {
@@ -195,21 +195,24 @@ export class CarouselUIPlugin extends UIPlugin {
     }
   }
 
-  private addNewChartToCarousel(figureId: string, sheetId: string) {
+  private addNewChartToCarousel(
+    figureId: string,
+    chartId: string,
+    sheetId: string,
+    chartDefinition: ChartDefinition<string>
+  ) {
     const carousel = this.getters.getCarousel(figureId);
-    const chartId = UuidGenerator.smallUuid();
     this.dispatch("CREATE_CHART", {
       chartId,
       figureId,
       sheetId,
-      definition: CAROUSEL_DEFAULT_CHART_DEFINITION,
+      definition: chartDefinition,
     });
 
-    const definition: Carousel = {
-      ...carousel,
-      items: [...carousel.items, { type: "chart", chartId }],
-    };
+    const carouselItem: CarouselItem = { type: "chart", chartId };
+    const definition: Carousel = { ...carousel, items: [...carousel.items, carouselItem] };
     this.dispatch("UPDATE_CAROUSEL", { sheetId, figureId, definition });
+    this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", { figureId, sheetId, item: carouselItem });
   }
 
   private addFigureChartToCarousel(figureId: UID, chartFigureId: UID, sheetId: string) {
