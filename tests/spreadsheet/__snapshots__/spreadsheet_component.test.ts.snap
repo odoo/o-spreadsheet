@@ -1117,7 +1117,25 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         
       </div>
       
-      
+      <div
+        class="w-100 d-flex o-bottom-bar-statistic"
+      >
+        
+        <span
+          class="o-data-analysis-button m-2 me-4 ms-auto"
+        >
+          <svg
+            class="o-icon"
+            viewBox="0 0 512 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M319 174c71 0 129 58 129 129 0 27-8 52-23 73l66 66-33 33-66-66c-21 14-46 23-73 23-71 0-129-58-129-129s57-129 129-129m0 47c-45 0-82 37-82 82s36 82 82 82 82-37 82-82-37-82-82-82m-152 70a155 155 0 0 0 0 12c0 12 1 24 4 35H25v-47zM119 33v235H49V33zm94 94v66c-21 20-36 46-43 75h-28V127zm94-47v71a152 152 0 0 0-70 24V80zm94 23v71a152 152 0 0 0-70-24v-47z"
+              fill="currentColor"
+            />
+          </svg>
+        </span>
+      </div>
       
       
     </div>
