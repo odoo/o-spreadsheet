@@ -70,7 +70,9 @@
       <div
         t-elif="selectedItem.type === 'chart'"
         class="o-carousel-content w-100 flex-fill position-relative">
-        <div class="o-chart-container w-100 h-100">
+        <div
+          class="o-chart-container w-100 h-100"
+          t-on-dblclick.stop="this.onCarouselChartDoubleClick">
           <t
             t-component="this.chartComponent"
             chartId="selectedItem.chartId"
