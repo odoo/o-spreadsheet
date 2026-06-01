@@ -25,7 +25,7 @@ describe("combo chart", () => {
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
         dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
       }),
     };
     const definition = createChartDefinitionFromContext("combo", context);
@@ -35,7 +35,7 @@ describe("combo chart", () => {
       title: { text: "hello there" },
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1", type: "bar" }],
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
         dataSetsHaveTitle: true,
       }),
       legendPosition: "bottom",
@@ -45,6 +45,7 @@ describe("combo chart", () => {
       hideDataMarkers: false,
       zoomable: true,
       humanize: false,
+      groupBySecondaryLabels: false,
     });
   });
 
@@ -60,7 +61,7 @@ describe("combo chart", () => {
       {
         type: "combo",
         ...toChartDataSource({
-          labelRange: "A1:A2",
+          labelRanges: ["A1:A2"],
           dataSets: [
             { dataRange: "B1:B2", yAxisId: "y" },
             { dataRange: "C1:C2", yAxisId: "y1" },
@@ -100,7 +101,7 @@ describe("combo chart", () => {
       {
         type: "combo",
         ...toChartDataSource({
-          labelRange: "A1:A2",
+          labelRanges: ["A1:A2"],
           dataSets: [{ dataRange: "B1:B2" }, { dataRange: "C1:C2" }],
           dataSetsHaveTitle: false,
         }),
@@ -133,7 +134,7 @@ describe("combo chart", () => {
             { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
             { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
           ],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
         }),
         type: "combo",
       },
@@ -200,7 +201,7 @@ describe("combo chart", () => {
       {
         type: "combo",
         ...toChartDataSource({
-          labelRange: "A2",
+          labelRanges: ["A2"],
           dataSets: [
             { dataRange: "B2", yAxisId: "y" },
             { dataRange: "C2", yAxisId: "y1" },

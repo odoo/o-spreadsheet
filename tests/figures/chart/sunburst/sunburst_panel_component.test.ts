@@ -46,7 +46,7 @@ describe("Sunburst chart side panel", () => {
       const chartId = createSunburstChart(model, {
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A3" }],
-          labelRange: "B1:B3",
+          labelRanges: ["B1:B3"],
           dataSetsHaveTitle: true,
         }),
       });
@@ -61,7 +61,7 @@ describe("Sunburst chart side panel", () => {
       const chartId = createSunburstChart(model, {
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A3" }],
-          labelRange: "B1:B3",
+          labelRanges: ["B1:B3"],
           dataSetsHaveTitle: true,
         }),
       });
@@ -69,7 +69,7 @@ describe("Sunburst chart side panel", () => {
 
       await setInputValueAndTrigger(".o-data-labels input", "C1:C3");
       await simulateClick(".o-data-labels .o-selection-ok");
-      expect(getChartDataSource(model, chartId)?.labelRange).toEqual("C1:C3");
+      expect(getChartDataSource(model, chartId)?.labelRanges?.[0]).toEqual("C1:C3");
 
       await setInputValueAndTrigger(".o-data-series input", "B1:B3");
       await simulateClick(".o-data-series .o-selection-ok");
@@ -173,7 +173,7 @@ describe("Sunburst chart side panel", () => {
       const chartId = createSunburstChart(model, {
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A3" }],
-          labelRange: "B1:B3",
+          labelRanges: ["B1:B3"],
         }),
         groupColors: [undefined, "#00FF00"],
       });

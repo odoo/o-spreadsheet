@@ -15,6 +15,7 @@ interface Props {
   onErrorMessagesChanged?: (errorMessages: string[]) => void;
   dataSeriesTitle?: string;
   labelRangeTitle?: string;
+  hasSingleLabelRange?: boolean;
   getLabelRangeOptions?: () => Array<{
     name: string;
     label: string;
@@ -37,6 +38,7 @@ export class ChartDataSourceComponent extends Component<Props, SpreadsheetChildE
     onErrorMessagesChanged: { type: Function, optional: true },
     dataSeriesTitle: { type: String, optional: true },
     labelRangeTitle: { type: String, optional: true },
+    hasSingleLabelRange: { type: Boolean, optional: true },
     getLabelRangeOptions: { type: Function, optional: true },
   };
 

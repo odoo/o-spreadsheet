@@ -584,7 +584,7 @@ describe("OT with addRows and UPDATE_CHART/CREATE_CHART", () => {
     ...toChartDataSource({
       dataSets: [{ dataRange: "Sheet1!A5:A15" }, { dataRange: "Sheet2!A5:A15" }],
       dataSetsHaveTitle: false,
-      labelRange: "Sheet1!A5:A15",
+      labelRanges: ["Sheet1!A5:A15"],
     }),
     legendPosition: "top",
     stacked: false,
@@ -622,7 +622,7 @@ describe("OT with addRows and UPDATE_CHART/CREATE_CHART", () => {
       ...definition,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!A5:A17" }, { dataRange: "Sheet2!A5:A15" }],
-        labelRange: "Sheet1!A5:A17",
+        labelRanges: ["Sheet1!A5:A17"],
         dataSetsHaveTitle: false,
       }),
     });
@@ -632,7 +632,7 @@ describe("OT with addRows and UPDATE_CHART/CREATE_CHART", () => {
       ...definition,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!A5:A15" }, { dataRange: "Sheet2!A5:A17" }],
-        labelRange: "Sheet1!A5:A15",
+        labelRanges: ["Sheet1!A5:A15"],
         dataSetsHaveTitle: false,
       }),
     });
@@ -652,7 +652,7 @@ describe("OT with addRows and UPDATE_CHART/CREATE_CHART", () => {
       ...definition,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!A5:A17" }, { dataRange: "Sheet2!A5:A15" }],
-        labelRange: "Sheet1!A5:A17",
+        labelRanges: ["Sheet1!A5:A17"],
         dataSetsHaveTitle: false,
       }),
     });
@@ -662,7 +662,7 @@ describe("OT with addRows and UPDATE_CHART/CREATE_CHART", () => {
       ...definition,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!A5:A15" }, { dataRange: "Sheet2!A5:A17" }],
-        labelRange: "Sheet1!A5:A15",
+        labelRanges: ["Sheet1!A5:A15"],
         dataSetsHaveTitle: false,
       }),
     });

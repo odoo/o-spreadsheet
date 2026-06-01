@@ -62,13 +62,13 @@ export const RadarChart: ChartTypeBuilder<"radar"> = {
     };
   },
 
-  getDefinitionForExcel(getters, definition, { dataSets, labelRange }) {
+  getDefinitionForExcel(getters, definition, { dataSets, labelRanges }) {
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(definition.background || "#FFFFFF"),
       fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
-      labelRange,
+      labelRanges,
     };
   },
 

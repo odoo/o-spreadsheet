@@ -42,7 +42,7 @@ describe("TreeMap chart side panel", () => {
       const chartId = createTreeMapChart(model, {
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A3" }],
-          labelRange: "B1:B3",
+          labelRanges: ["B1:B3"],
           dataSetsHaveTitle: true,
         }),
       });
@@ -57,7 +57,7 @@ describe("TreeMap chart side panel", () => {
       const chartId = createTreeMapChart(model, {
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A3" }],
-          labelRange: "B1:B3",
+          labelRanges: ["B1:B3"],
           dataSetsHaveTitle: true,
         }),
       });
@@ -65,7 +65,7 @@ describe("TreeMap chart side panel", () => {
 
       await setInputValueAndTrigger(".o-data-labels input", "C1:C3");
       await simulateClick(".o-data-labels .o-selection-ok");
-      expect(getChartDataSource(model, chartId)?.labelRange).toEqual("C1:C3");
+      expect(getChartDataSource(model, chartId)?.labelRanges?.[0]).toEqual("C1:C3");
 
       await setInputValueAndTrigger(".o-data-series input", "B1:B3");
       await simulateClick(".o-data-series .o-selection-ok");
@@ -93,7 +93,7 @@ describe("TreeMap chart side panel", () => {
       const chartId = createTreeMapChart(model, {
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A3" }],
-          labelRange: "B1:B3",
+          labelRanges: ["B1:B3"],
         }),
         title: { text: "My TreeMap chart" },
         background: "#00FF00",
@@ -177,7 +177,7 @@ describe("TreeMap chart side panel", () => {
       const chartId = createTreeMapChart(model, {
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A3" }],
-          labelRange: "B1:B3",
+          labelRanges: ["B1:B3"],
         }),
       });
       await openChartDesignSidePanel(model, env, fixture, chartId);
@@ -203,7 +203,7 @@ describe("TreeMap chart side panel", () => {
       const chartId = createTreeMapChart(model, {
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A2" }],
-          labelRange: "B1:B2",
+          labelRanges: ["B1:B2"],
         }),
         coloringOptions: { type: "categoryColor", useValueBasedGradient: false, colors: [] },
       });
@@ -237,7 +237,7 @@ describe("TreeMap chart side panel", () => {
       const chartId = createTreeMapChart(model, {
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A2" }],
-          labelRange: "B1:B2",
+          labelRanges: ["B1:B2"],
         }),
       });
       await openChartDesignSidePanel(model, env, fixture, chartId);

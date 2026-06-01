@@ -7,10 +7,12 @@ import { Section } from "../../../components/section/section";
 import { Component } from "../../../../../owl3_compatibility_layer";
 interface Props {
   title?: string;
-  range: string;
+  ranges: string[];
+  hasSingleRange?: boolean;
   isInvalid: boolean;
-  onSelectionChanged: (range: string) => void;
+  onSelectionChanged: (ranges: string[]) => void;
   onSelectionConfirmed: () => void;
+  onSelectionReordered?: (indexes: number[]) => void;
   class?: string;
   options?: Array<{
     name: string;
@@ -25,11 +27,13 @@ export class ChartLabelRange extends Component<Props, SpreadsheetChildEnv> {
   static components = { SelectionInput, Checkbox, Section };
   static props = {
     title: { type: String, optional: true },
-    range: String,
+    ranges: Array,
+    hasSingleRange: { type: Boolean, optional: true },
     class: { type: String, optional: true },
     isInvalid: Boolean,
     onSelectionChanged: Function,
     onSelectionConfirmed: Function,
+    onSelectionReordered: { type: Function, optional: true },
     options: { type: Array, optional: true },
   };
 

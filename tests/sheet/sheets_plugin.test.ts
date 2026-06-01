@@ -741,7 +741,7 @@ describe("sheets", () => {
         type: "bar",
         ...toChartDataSource({
           dataSets: [{ dataRange: "Sheet1!B1:B4" }],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
         }),
       },
       "uuid",

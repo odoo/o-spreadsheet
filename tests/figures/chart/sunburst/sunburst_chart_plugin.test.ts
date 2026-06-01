@@ -64,7 +64,7 @@ describe("Sunburst chart chart", () => {
       title: { text: "hello there" },
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!A1:A4" }],
-        labelRange: "Sheet1!B1:B4",
+        labelRanges: ["Sheet1!B1:B4"],
         dataSetsHaveTitle: true,
       }),
       legendPosition: "bottom",
@@ -91,7 +91,7 @@ describe("Sunburst chart chart", () => {
     expect(definition).toMatchObject(
       toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!A1:A4" }],
-        labelRange: "Sheet1!B1:B4",
+        labelRanges: ["Sheet1!B1:B4"],
       })
     );
     const chartId = createSunburstChart(model, definition);
@@ -109,7 +109,7 @@ describe("Sunburst chart chart", () => {
     const chartId = createTreeMapChart(model, {
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:A4" }],
-        labelRange: "B1:B4",
+        labelRanges: ["B1:B4"],
       }),
     });
     const context = model.getters.getChart(chartId)!.getContextCreation();
@@ -117,7 +117,7 @@ describe("Sunburst chart chart", () => {
     expect(definition).toMatchObject(
       toChartDataSource({
         dataSets: [{ dataRange: "A1:A4" }],
-        labelRange: "B1:B4",
+        labelRanges: ["B1:B4"],
       })
     );
   });
@@ -132,7 +132,7 @@ describe("Sunburst chart chart", () => {
     const chartId = createSunburstChart(model, {
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:A4" }],
-        labelRange: "B1:B4",
+        labelRanges: ["B1:B4"],
       }),
     });
 
@@ -159,7 +159,7 @@ describe("Sunburst chart chart", () => {
     const chartId = createSunburstChart(model, {
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
+        labelRanges: ["B1:B3"],
       }),
     });
 
@@ -182,7 +182,7 @@ describe("Sunburst chart chart", () => {
     const chartId = createSunburstChart(model, {
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
+        labelRanges: ["B1:B3"],
       }),
     });
 
@@ -204,7 +204,7 @@ describe("Sunburst chart chart", () => {
     const chartId = createSunburstChart(model, {
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
+        labelRanges: ["B1:B3"],
       }),
     });
 
@@ -221,7 +221,7 @@ describe("Sunburst chart chart", () => {
     const chartId = createSunburstChart(model, {
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:C10" }],
-        labelRange: "D1:D10",
+        labelRanges: ["D1:D10"],
       }),
     });
 
@@ -268,7 +268,7 @@ describe("Sunburst chart chart", () => {
     const chartId = createSunburstChart(model, {
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:C10" }],
-        labelRange: "D1:D10",
+        labelRanges: ["D1:D10"],
       }),
     });
 
@@ -305,7 +305,7 @@ describe("Sunburst chart chart", () => {
     const chartId = createSunburstChart(model, {
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:C10" }],
-        labelRange: "D1:D10",
+        labelRanges: ["D1:D10"],
       }),
     });
 
@@ -332,7 +332,7 @@ describe("Sunburst chart chart", () => {
     const chartId = createSunburstChart(model, {
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
+        labelRanges: ["B1:B3"],
       }),
     });
 
@@ -354,7 +354,7 @@ describe("Sunburst chart chart", () => {
     const chartId = createSunburstChart(model, {
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }, { dataRange: "C1:C3" }],
-        labelRange: "D1:D3",
+        labelRanges: ["D1:D3"],
       }),
     });
     const config = getSunburstRuntime(chartId).chartJsConfig;
@@ -370,7 +370,7 @@ describe("Sunburst chart chart", () => {
     const chartId = createSunburstChart(model, {
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:C10" }],
-        labelRange: "D1:D10",
+        labelRanges: ["D1:D10"],
         dataSetsHaveTitle: false,
       }),
       groupColors: ["#FF0000", undefined, "#0000FF"],
@@ -406,7 +406,7 @@ describe("Sunburst chart chart", () => {
     const chartId = createSunburstChart(model, {
       ...toChartDataSource({
         dataSets: [{ dataRange: "B1:C2" }],
-        labelRange: "D1:D2",
+        labelRanges: ["D1:D2"],
       }),
     });
 
@@ -428,7 +428,7 @@ describe("Sunburst chart chart", () => {
     const chartId = createSunburstChart(model, {
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:A2" }],
-        labelRange: "B1:B2",
+        labelRanges: ["B1:B2"],
       }),
       humanize: false,
     });
@@ -452,7 +452,7 @@ describe("Sunburst chart chart", () => {
     const chartId = createSunburstChart(model, {
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:A2" }],
-        labelRange: "B1:B2",
+        labelRanges: ["B1:B2"],
       }),
     });
 
@@ -469,7 +469,7 @@ describe("Sunburst chart chart", () => {
     const chartId = createSunburstChart(model, {
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:C10" }],
-        labelRange: "D1:D10",
+        labelRanges: ["D1:D10"],
       }),
       groupColors: ["#FF0000", "#00FF00", "#0000FF"],
     });
@@ -496,7 +496,7 @@ describe("Sunburst chart chart", () => {
     const chartId = createSunburstChart(model, {
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:A2" }],
-        labelRange: "B1:B2",
+        labelRanges: ["B1:B2"],
       }),
     });
 
@@ -512,7 +512,7 @@ describe("Sunburst chart chart", () => {
     const chartId = createSunburstChart(model, {
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:A2" }],
-        labelRange: "B1:B2",
+        labelRanges: ["B1:B2"],
       }),
       showLabels: true,
       showValues: true,

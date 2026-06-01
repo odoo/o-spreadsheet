@@ -23,7 +23,7 @@ describe("radar chart", () => {
       ...GENERAL_CHART_CREATION_CONTEXT,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
         dataSetsHaveTitle: true,
       }),
       showValues: true,
@@ -36,7 +36,7 @@ describe("radar chart", () => {
       title: { text: "hello there" },
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
         dataSetsHaveTitle: true,
       }),
       legendPosition: "bottom",
@@ -81,7 +81,7 @@ describe("radar chart", () => {
             { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
             { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
           ],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
         }),
         type: "radar",
       },
@@ -197,7 +197,7 @@ test("Humanization is taken into account for the axis ticks of a radar chart", a
     {
       type: "radar",
       ...toChartDataSource({
-        labelRange: "A2",
+        labelRanges: ["A2"],
         dataSets: [{ dataRange: "B2" }],
       }),
       humanize: false,

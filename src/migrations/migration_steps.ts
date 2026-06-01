@@ -605,10 +605,11 @@ migrationStepRegistry
         }
         definition = { ...definition };
         const styles = {};
+        const labelRanges = definition.labelRange ? [definition.labelRange] : undefined;
         definition.dataSource = {
           type: "range",
           dataSetsHaveTitle: definition.dataSetsHaveTitle,
-          labelRange: definition.labelRange,
+          labelRanges,
           dataSets: definition.dataSets.map((ds, i) => {
             const dataSetId = i.toString();
             const dataRange = ds.dataRange;
@@ -639,7 +640,34 @@ migrationStepRegistry
       }
       return data;
     },
+  })
+  .add("19.3.3", {
+    // convert singular labelRange (string) to plural labelRanges (string[]) in chart definitions
+    migrate(data: WorkbookData): any {
+      for (const sheet of data.sheets ?? []) {
+        for (const figure of sheet.figures ?? []) {
+          if (figure.tag === "chart") {
+            migrateChartData(figure.data);
+          }
+          if (figure.tag === "carousel") {
+            for (const definition of Object.values<any>(figure.data.chartDefinitions) ?? []) {
+              migrateChartData(definition);
+            }
+          }
+        }
+      }
+      return data;
+    },
   });
+
+function migrateChartData(chartData: any) {
+  if (chartData.dataSource && "labelRange" in chartData.dataSource) {
+    if (chartData.dataSource.labelRange) {
+      chartData.dataSource.labelRanges = [chartData.dataSource.labelRange];
+    }
+    delete chartData.dataSource.labelRange;
+  }
+}
 
 function fixOverlappingFilters(data: any): any {
   for (const sheet of data.sheets || []) {

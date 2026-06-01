@@ -21,7 +21,7 @@ describe("population pyramid chart", () => {
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
         dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
       }),
     };
     const definition = createChartDefinitionFromContext("pyramid", context);
@@ -31,7 +31,7 @@ describe("population pyramid chart", () => {
       title: { text: "hello there" },
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
         dataSetsHaveTitle: true,
       }),
       legendPosition: "bottom",
@@ -161,7 +161,7 @@ test("Humanization is taken into account for the axis ticks of a pyramid chart",
       type: "pyramid",
       ...toChartDataSource({
         dataSets: [{ dataRange: "B2" }],
-        labelRange: "A2",
+        labelRanges: ["A2"],
       }),
       humanize: false,
     },

@@ -59,7 +59,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "C2", "-40");
     const chartId = createWaterfallChart(model, {
       ...toChartDataSource({
-        labelRange: "A1:A2",
+        labelRanges: ["A1:A2"],
         dataSets: [{ dataRange: "B1:C2" }],
         dataSetsHaveTitle: false,
       }),
@@ -88,7 +88,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "C2", "-40");
     const chartId = createWaterfallChart(model, {
       ...toChartDataSource({
-        labelRange: "A1:A2",
+        labelRanges: ["A1:A2"],
         dataSets: [{ dataRange: "B1:C2" }],
         dataSetsHaveTitle: false,
       }),
@@ -121,7 +121,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "B3", "30");
     const chartId = createWaterfallChart(model, {
       ...toChartDataSource({
-        labelRange: "A1:A4",
+        labelRanges: ["A1:A4"],
         dataSets: [{ dataRange: "B1:B4" }],
         dataSetsHaveTitle: false,
       }),
@@ -147,7 +147,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "B4", "10");
     const chartId = createWaterfallChart(model, {
       ...toChartDataSource({
-        labelRange: "A1:A4",
+        labelRanges: ["A1:A4"],
         dataSets: [{ dataRange: "B1:B4" }],
         dataSetsHaveTitle: false,
       }),
@@ -325,7 +325,7 @@ describe("Waterfall chart", () => {
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
         dataSetsHaveTitle: true,
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
       }),
     };
     const definition = createChartDefinitionFromContext("waterfall", context);
@@ -335,7 +335,7 @@ describe("Waterfall chart", () => {
       title: { text: "hello there" },
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
         dataSetsHaveTitle: true,
       }),
       legendPosition: "bottom",

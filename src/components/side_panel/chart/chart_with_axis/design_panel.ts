@@ -2,6 +2,7 @@ import { getDefinedAxis } from "../../../../helpers/figures/charts/chart_common"
 import { _t } from "../../../../translation";
 import { ChartDefinitionWithDataSource } from "../../../../types/chart/chart";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { Section } from "../../components/section/section";
 import {
@@ -29,8 +30,18 @@ export class ChartWithAxisDesignPanel<
     ChartLegend,
     ChartShowValues,
     ChartHumanizeNumbers,
+    Checkbox,
   };
   static props = ChartSidePanelPropsObject;
+
+  get hasMultipleLabelRanges(): boolean {
+    const dataSource = this.props.definition.dataSource;
+    return dataSource?.type === "range" ? (dataSource.labelRanges?.length ?? 0) > 1 : false;
+  }
+
+  onToggleGroupBySecondaryLabels(groupBySecondaryLabels: boolean) {
+    this.props.updateChart(this.props.chartId, { groupBySecondaryLabels });
+  }
 
   get axesList(): AxisDefinition[] {
     const { useLeftAxis, useRightAxis } = getDefinedAxis(this.props.definition);

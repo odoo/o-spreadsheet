@@ -32,7 +32,7 @@ describe("Funnel chart side panel", () => {
       const chartId = createFunnelChart(model, {
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A3" }],
-          labelRange: "B1:B3",
+          labelRanges: ["B1:B3"],
           dataSetsHaveTitle: true,
         }),
         aggregated: true,
@@ -111,7 +111,7 @@ describe("Funnel chart side panel", () => {
       const chartId = createFunnelChart(model, {
         ...toChartDataSource({
           dataSets: [{ dataRange: "B1:B3" }],
-          labelRange: "A1:A3",
+          labelRanges: ["A1:A3"],
         }),
         title: { text: "My Funnel chart" },
         showValues: true,

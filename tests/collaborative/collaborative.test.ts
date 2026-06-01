@@ -488,7 +488,7 @@ describe("Multi users synchronisation", () => {
       {
         ...toChartDataSource({
           dataSets: [{ dataRange: "A8:D8" }, { dataRange: "A9:D9" }],
-          labelRange: "B7:D7",
+          labelRanges: ["B7:D7"],
         }),
         type: "line",
       },

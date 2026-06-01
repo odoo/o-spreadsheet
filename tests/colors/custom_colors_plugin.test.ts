@@ -94,7 +94,7 @@ describe("custom colors are correctly handled when editing charts", () => {
         type: "bar",
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A10" }],
-          labelRange: "A1",
+          labelRanges: ["A1"],
         }),
         background: "#123456",
       },
@@ -106,7 +106,7 @@ describe("custom colors are correctly handled when editing charts", () => {
       title: { text: "a title" },
       ...toChartDataSource({
         dataSets: [],
-        labelRange: "A1",
+        labelRanges: ["A1"],
         dataSetsHaveTitle: false,
       }),
       type: "bar",
@@ -191,7 +191,7 @@ describe("custom colors are correctly handled when editing charts", () => {
         type: "bar",
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A10" }],
-          labelRange: "A1",
+          labelRanges: ["A1"],
         }),
         background: "#123456",
       },
