@@ -12,7 +12,9 @@
           t-att-title="this.title"
           t-att-style="this.titleStyle"
         />
-        <div class="o-carousel-tabs d-flex flex-fill justify-content-end" t-ref="this.carouselTabsRef">
+        <div
+          class="o-carousel-tabs d-flex flex-fill justify-content-end"
+          t-ref="this.carouselTabsRef">
           <t
             t-foreach="this.carousel.items"
             t-as="item"
@@ -61,7 +63,7 @@
       <div t-if="title" class="w-100 border-bottom"/>
       <div
         t-if="!selectedItem"
-        class="o-carousel-empty w-100 flex-fill d-flex align-items-center justify-content-center">
+        class="o-carousel-empty o-carousel-content w-100 flex-fill d-flex align-items-center justify-content-center">
         <t t-call="o-spreadsheet-Icon.CAROUSEL"/>
       </div>
       <div
@@ -84,7 +86,7 @@
       </div>
       <div
         t-elif="selectedItem.type === 'carouselDataView' and selectedItem.range"
-        class="my-2 h-100 w-100 overflow-auto"
+        class="o-carousel-content my-2 h-100 w-100 overflow-auto"
         t-on-wheel="this.onMouseWheel">
         <HTMLGrid range="selectedItem.range"/>
       </div>
