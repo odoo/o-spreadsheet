@@ -2,7 +2,8 @@
   <t t-name="o-spreadsheet-AddDimensionButton">
     <button class="add-dimension o-button" t-on-click="togglePopover" t-ref="button">Add</button>
     <Popover t-if="popover.isOpen" t-props="popoverProps" class="'o-pivot-add-dimension-popover'">
-      <div class="p-2 border-bottom d-flex sticky-top align-items-baseline pivot-dimension-search">
+      <div
+        class="p-2 border-bottom d-flex sticky-top align-items-baseline pivot-dimension-search bg-white">
         <i class="pe-1 pivot-dimension-search-field-icon text-muted">
           <t t-call="o-spreadsheet-Icon.SEARCH"/>
         </i>
