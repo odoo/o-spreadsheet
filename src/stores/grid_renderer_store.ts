@@ -504,8 +504,6 @@ export class GridRenderer extends DisposableStore {
     const selection = renderingContext.selectedZones;
     const selectedCols = getZonesCols(selection);
     const selectedRows = getZonesRows(selection);
-    const numberOfCols = this.getters.getNumberCols(sheetId);
-    const numberOfRows = this.getters.getNumberRows(sheetId);
     const activeCols = renderingContext.activeCols;
     const activeRows = renderingContext.activeRows;
 
@@ -523,7 +521,7 @@ export class GridRenderer extends DisposableStore {
 
     // Columns headers background
     for (const col of visibleCols) {
-      const colZone = { left: col, right: col, top: 0, bottom: numberOfRows - 1 };
+      const colZone = { left: col, right: col, top: 0, bottom: Number.MAX_SAFE_INTEGER };
       const { x, width } = viewports.getVisibleRect(sheetId, colZone);
       const isColActive = activeCols.has(col);
       const isColSelected = selectedCols.has(col);
@@ -539,7 +537,7 @@ export class GridRenderer extends DisposableStore {
 
     // Rows headers background
     for (const row of visibleRows) {
-      const rowZone = { top: row, bottom: row, left: 0, right: numberOfCols - 1 };
+      const rowZone = { top: row, bottom: row, left: 0, right: Number.MAX_SAFE_INTEGER };
       const { y, height } = viewports.getVisibleRect(sheetId, rowZone);
 
       const isRowActive = activeRows.has(row);
