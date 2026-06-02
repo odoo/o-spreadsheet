@@ -126,6 +126,8 @@ export class StandaloneViewportStore extends SpreadsheetStore {
   get renderingContext(): Omit<GridRenderingContext, "ctx" | "thinLineWidth"> {
     const { sheetId } = this.range;
 
+    const theme = this.getters.getSpreadsheetTheme();
+    const sheet = this.getters.getSheet(sheetId);
     const renderingCtx: Omit<GridRenderingContext, "ctx" | "thinLineWidth"> = {
       sheetId,
       viewports: this.viewStore.viewports,
@@ -136,6 +138,8 @@ export class StandaloneViewportStore extends SpreadsheetStore {
       activeCols: new Set(),
       activeRows: new Set(),
       activePosition: undefined,
+      backgroundColor: sheet.backgroundColor || theme.backgroundColor,
+      theme: this.getters.getSpreadsheetTheme(),
     };
     return renderingCtx;
   }
