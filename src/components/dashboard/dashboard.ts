@@ -63,6 +63,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
         viewports: this.env.model.getters.getViewportCollection(),
         ...this.env.model.getters.getSelectionState(),
         hideGridLines: true,
+        theme: this.env.model.getters.getSpreadsheetTheme(),
       }),
     });
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {

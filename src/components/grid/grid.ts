@@ -181,11 +181,16 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     this.props.exposeFocus(() => this.focusDefaultElement());
     useGridDrawing({
       canvasRef: this.canvasRef,
-      renderingCtx: () => ({
-        dpr: window.devicePixelRatio || 1,
-        viewports: this.env.model.getters.getViewportCollection(),
-        ...this.env.model.getters.getSelectionState(),
-      }),
+      renderingCtx: () => {
+        const sheetId = this.env.model.getters.getActiveSheetId();
+        return {
+          dpr: window.devicePixelRatio || 1,
+          viewports: this.env.model.getters.getViewportCollection(),
+          ...this.env.model.getters.getSelectionState(),
+          hideGridLines: !this.env.model.getters.getGridLinesVisibility(sheetId),
+          theme: this.env.model.getters.getSpreadsheetTheme(),
+        };
+      },
     });
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);

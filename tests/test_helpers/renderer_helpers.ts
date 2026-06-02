@@ -108,8 +108,14 @@ export class MockGridRenderingContext implements GridRenderingContext {
   }
 
   get hideGridLines(): boolean {
-    // Handled in the rendering context created by the `Dashboard` component in practice
-    return this.model.getters.isDashboard();
+    // Handled in the rendering context created by the `Dashboard`/`Grid` components in practice
+    return this.model.getters.isDashboard()
+      ? true
+      : !this.model.getters.getGridLinesVisibility(this.sheetId);
+  }
+
+  get theme() {
+    return this.model.getters.getSpreadsheetTheme();
   }
 }
 
