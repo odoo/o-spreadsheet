@@ -1,4 +1,5 @@
 import { Model, UID } from "../../src";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { Grid } from "../../src/components/grid/grid";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
@@ -109,6 +110,16 @@ describe("Table resizer component", () => {
     await nextTick();
     expect(".o-table-resizer").toHaveCount(1);
     model.updateMode("readonly");
+    await nextTick();
+    expect(".o-table-resizer").toHaveCount(0);
+  });
+
+  test("table resizer is not loaded when the grid selection is not active", async () => {
+    createTable(model, "A1:B2");
+    await nextTick();
+    expect(".o-table-resizer").toHaveCount(1);
+    // start the edition and steal the selection from the grid
+    env.getStore(CellComposerStore).startEdition();
     await nextTick();
     expect(".o-table-resizer").toHaveCount(0);
   });

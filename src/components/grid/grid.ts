@@ -931,4 +931,12 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     const sheetId = this.env.model.getters.getActiveSheetId();
     return this.env.model.getters.getClientsToDisplay(sheetId);
   }
+
+  get displayTableResizer() {
+    return (
+      this.env.model.getters.isGridSelectionActive() &&
+      !this.env.model.getters.isReadonly() &&
+      !this.env.model.getters.isSheetLocked(this.env.model.getters.getActiveSheetId())
+    );
+  }
 }
