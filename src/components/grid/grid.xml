@@ -57,7 +57,7 @@
         onClose="() => this.closeMenu()"
       />
       <t
-        t-if="!this.env.model.getters.isReadonly()"
+        t-if="this.displayTableResizer"
         t-foreach="this.staticTables"
         t-as="table"
         t-key="table.id">
