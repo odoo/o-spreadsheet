@@ -181,6 +181,8 @@ export class SpreadsheetPrintStore extends SpreadsheetStore {
     });
     viewports.setSheetViewOffset(sheetId, firstColStart, firstRowStart);
 
+    const theme = this.getters.getSpreadsheetTheme();
+    const sheet = this.getters.getSheet(sheetId);
     return {
       sheetId,
       viewports,
@@ -190,6 +192,8 @@ export class SpreadsheetPrintStore extends SpreadsheetStore {
       activeCols: new Set(),
       activeRows: new Set(),
       activePosition: undefined,
+      theme,
+      backgroundColor: sheet.backgroundColor || theme.backgroundColor,
     };
   }
 

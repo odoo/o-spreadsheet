@@ -38,7 +38,7 @@ export class ViewportsStore extends SpreadsheetStore {
     "scrollToCell",
   ] as const;
 
-  private viewports: ViewportCollection = new ViewportCollection({
+  viewports: ViewportCollection = new ViewportCollection({
     getters: this.getters,
     paneDivision: this.getPaneDivisions(),
     sheetViewHeight: getDefaultSheetViewSize(),

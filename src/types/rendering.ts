@@ -40,7 +40,12 @@ export type RenderingBorder = {
   left?: BorderDescrWithOpacity;
 };
 
-export type RenderingGridIcon = GridIcon & { clipRect?: Rect; opacity?: number };
+export type RenderingGridIcon = GridIcon & {
+  clipRect?: Rect;
+  opacity?: number;
+  rect: Rect;
+  isHovered: boolean;
+};
 
 export interface RenderingBox {
   id: string;
@@ -113,6 +118,8 @@ export type GridRenderingContext = {
   thinLineWidth: number;
   viewports: ViewportCollection;
   hideGridLines?: boolean;
+  theme: GridRenderingTheme;
+  backgroundColor: Color;
 } & SelectionState;
 
 const LAYERS = {
