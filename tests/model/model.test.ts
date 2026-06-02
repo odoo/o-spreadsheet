@@ -420,4 +420,41 @@ describe("Model", () => {
       type: "SNAPSHOT",
     });
   });
+
+  test("Selection Processor falls back to gridSelection when invoked from the plugins", () => {
+    class MyUIPlugin extends UIPlugin {
+      handle(cmd: Command) {
+        // @ts-ignore
+        if (cmd.type === "CAPTURE") {
+          this.selection.capture(
+            this,
+            {
+              cell: { col: 0, row: 0 },
+              zone: toZone("A1"),
+            },
+            {
+              handleEvent: () => {
+                throw new Error("Should not be called");
+              },
+            }
+          );
+        }
+        // @ts-ignore
+        else if (cmd.type === "MOVE") {
+          this.selection.selectCell(0, 1);
+        }
+      }
+    }
+    addTestPlugin(featurePluginRegistry, MyUIPlugin);
+    const model = new Model();
+    expect(model.getters.isGridSelectionActive()).toBe(true);
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
+    // @ts-ignore
+    model.dispatch("CAPTURE");
+    expect(model.getters.isGridSelectionActive()).toBe(false);
+    // @ts-ignore
+    model.dispatch("MOVE");
+    expect(model.getters.isGridSelectionActive()).toBe(true);
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A2"));
+  });
 });

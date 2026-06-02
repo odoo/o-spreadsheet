@@ -24,7 +24,10 @@ import {
   statefulUIPluginRegistry,
 } from "./plugins/plugin_registries";
 import { UIPlugin, UIPluginConfig, UIPluginConstructor } from "./plugins/ui_plugin";
-import { SelectionStreamProcessorImpl } from "./selection_stream/selection_stream_processor";
+import {
+  selectionModifiers,
+  SelectionStreamProcessorImpl,
+} from "./selection_stream/selection_stream_processor";
 import { StateObserver } from "./state_observer";
 import { _t, setDefaultTranslationMethod } from "./translation";
 import { StateUpdateMessage } from "./types/collaborative/transport_service";
@@ -121,6 +124,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private state: StateObserver;
 
   readonly selection: SelectionStreamProcessor;
+  readonly pluginSelection: SelectionStreamProcessor;
 
   /**
    * Getters are the main way the rest of the UI read data from the model. Also,
@@ -187,6 +191,21 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     // Initiate stream processor
     this.selection = new SelectionStreamProcessorImpl(this.getters);
+    this.pluginSelection = new Proxy(this.selection, {
+      observable: false,
+      get: (target, prop, receiver) => {
+        const value = Reflect.get(target, prop, receiver);
+        if (typeof value !== "function" || !selectionModifiers.has(prop)) {
+          return value;
+        }
+        return (...args: unknown[]) => {
+          if (!this.getters.isGridSelectionActive()) {
+            this.selection.getBackToDefault();
+          }
+          return (value as Function).apply(target, args);
+        };
+      },
+    } as ProxyHandler<SelectionStreamProcessorImpl>);
 
     this.coreHandlers.push(this.range);
     this.handlers.push(this.range);
@@ -433,7 +452,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       stateObserver: this.state,
       dispatch: this.dispatch,
       canDispatch: this.canDispatch,
-      selection: this.selection,
+      selection: this.pluginSelection,
       moveClient: this.session.move.bind(this.session),
       custom: this.config.custom,
       uiActions: this.config,
