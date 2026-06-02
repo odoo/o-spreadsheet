@@ -190,6 +190,7 @@ export class SpreadsheetPrintStore extends SpreadsheetStore {
       activeCols: new Set(),
       activeRows: new Set(),
       activePosition: undefined,
+      theme: this.getters.getSpreadsheetTheme(),
     };
   }
 

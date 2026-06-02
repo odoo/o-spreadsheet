@@ -1,4 +1,4 @@
-import { Box, CellIsRule, GridRenderingContext, Model } from "../../src";
+import { Box, CellIsRule, Model } from "../../src";
 import { ICONS } from "../../src/components/icons/icons";
 import {
   DEFAULT_BORDER_DESC,
@@ -80,11 +80,18 @@ beforeEach(() => {
   drawGrid = () => rendererStore.draw(ctx);
   gridRenderer = gridRendererStore;
 
+  const originalGetBoxesWithAnimations =
+    gridRendererStore["getBoxesWithAnimations"].bind(gridRendererStore);
+
   jest // @ts-expect-error
-    .spyOn(gridRendererStore, "drawBackground") // @ts-expect-error
-    .mockImplementation((ctx: GridRenderingContext, boxes: Box[]) => {
-      boxesOfLastRender = boxes;
-    });
+    .spyOn(gridRendererStore, "getBoxesWithAnimations")
+    .mockImplementation(
+      // @ts-expect-error
+      (boxes: Box[], oldBoxes: Map<string, Box>, timeStamp: number | undefined) => {
+        boxesOfLastRender = originalGetBoxesWithAnimations(boxes, oldBoxes, timeStamp);
+        return boxesOfLastRender;
+      }
+    );
 
   spyRequestAnimationFrame = jest
     .spyOn(window, "requestAnimationFrame")
