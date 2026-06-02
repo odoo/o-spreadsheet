@@ -63,12 +63,19 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
     useGridDrawing({
       canvasRef: this.canvasRef,
       rendererStore,
-      renderingCtx: () => ({
-        dpr: window.devicePixelRatio || 1,
-        viewports: this.viewStore.viewports,
-        ...this.env.model.getters.getSelectionState(),
-        hideGridLines: true,
-      }),
+      renderingCtx: () => {
+        const selectionState = this.env.model.getters.getSelectionState();
+        const theme = this.env.model.getters.getSpreadsheetTheme();
+        const sheet = this.env.model.getters.getSheet(selectionState.sheetId);
+        return {
+          dpr: window.devicePixelRatio || 1,
+          viewports: this.viewStore.viewports,
+          ...selectionState,
+          hideGridLines: true,
+          theme,
+          backgroundColor: sheet.backgroundColor || theme.backgroundColor,
+        };
+      },
     });
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);
