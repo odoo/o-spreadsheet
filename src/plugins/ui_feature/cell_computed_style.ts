@@ -2,22 +2,28 @@ import { LINK_COLOR } from "../../constants";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { toCartesian } from "../../helpers/coordinates";
 import { getItemId } from "../../helpers/data_normalization";
+import { formatHasRepeatedChar } from "../../helpers/format/format";
 import { isObjectEmptyRecursive, removeFalsyAttributes } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isZoneInside, toZone, zoneToXc } from "../../helpers/zones";
+import { CellValueType } from "../../types/cells";
 import {
   Command,
   invalidateBordersCommands,
   invalidateCFEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types/commands";
-import { Border, CellPosition, Style } from "../../types/misc";
+import { Align, Border, CellPosition, Style } from "../../types/misc";
 import { ExcelWorkbookData } from "../../types/workbook_data";
 import { UIPlugin } from "../ui_plugin";
 import { doesCommandInvalidatesTableStyle } from "./table_computed_style";
 
 export class CellComputedStylePlugin extends UIPlugin {
-  static getters = ["getCellComputedBorder", "getCellComputedStyle"] as const;
+  static getters = [
+    "getCellComputedBorder",
+    "getCellComputedStyle",
+    "getComputedCellAlign",
+  ] as const;
 
   private styles: PositionMap<Style> = new PositionMap();
   private borders: PositionMap<Border | null> = new PositionMap();
@@ -74,6 +80,22 @@ export class CellComputedStylePlugin extends UIPlugin {
       this.styles.set(position, style);
     }
     return style;
+  }
+
+  getComputedCellAlign(position: CellPosition, isOverflowing: boolean): Align {
+    const cell = this.getters.getCell(position);
+    if (cell?.isFormula && this.getters.shouldShowFormulas()) {
+      return "left";
+    }
+    const { align } = this.getters.getCellStyle(position);
+    const evaluatedCell = this.getters.getEvaluatedCell(position);
+    if (!align && formatHasRepeatedChar(evaluatedCell.value, evaluatedCell.format)) {
+      return "left";
+    }
+    if (isOverflowing && evaluatedCell.type === CellValueType.number) {
+      return align !== "center" ? "left" : align;
+    }
+    return align || evaluatedCell.defaultAlign;
   }
 
   private computeCellStyle(position: CellPosition): Style {

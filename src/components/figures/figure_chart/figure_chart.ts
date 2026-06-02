@@ -1,7 +1,7 @@
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { ChartType } from "../../../types/chart/chart";
 import { FigureUI } from "../../../types/figure";
-import { CSSProperties, UID } from "../../../types/misc";
+import { UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
@@ -11,7 +11,6 @@ interface Props {
   // props figure is currently necessary scorecards, we need the chart dimension at render to avoid having to force the
   // style by hand in the useLayoutEffect()
   figureUI: FigureUI;
-  editFigureStyle?: (properties: CSSProperties) => void;
   isFullScreen?: boolean;
   openContextMenu?: (anchorRect: Rect, onClose?: () => void) => void;
 }
@@ -20,7 +19,6 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartFigure";
   static props = {
     figureUI: Object,
-    editFigureStyle: { type: Function, optional: true },
     isFullScreen: { type: Boolean, optional: true },
     openContextMenu: { type: Function, optional: true },
   };

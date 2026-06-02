@@ -1,12 +1,11 @@
 import { FigureUI } from "../../../types/figure";
-import { CSSProperties, UID } from "../../../types/misc";
+import { UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 
 import { Component } from "../../../owl3_compatibility_layer";
 interface Props {
   figureUI: FigureUI;
-  editFigureStyle?: (properties: CSSProperties) => void;
   openContextMenu?: (anchorRect: Rect, onClose?: () => void) => void;
 }
 
@@ -14,7 +13,6 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ImageFigure";
   static props = {
     figureUI: Object,
-    editFigureStyle: { type: Function, optional: true },
     openContextMenu: { type: Function, optional: true },
   };
   static components = {};

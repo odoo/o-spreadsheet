@@ -1,0 +1,17 @@
+<templates>
+  <t t-name="o-spreadsheet-HTMLGrid">
+    <div class="o-html-grid d-flex flex-column">
+      <div class="o-html-grid-content d-grid w-100" t-att-style="this.gridStyle">
+        <t t-foreach="this.positions" t-as="position" t-key="position_index">
+          <HTMLCell
+            position="position"
+            hovered="this.isCellHovered(position)"
+            boundingZone="this.props.range.zone"
+            onMouseEnter="() => this.onCellMouseEnter(position)"
+            onMouseLeave="() => this.onCellMouseLeave(position)"
+          />
+        </t>
+      </div>
+    </div>
+  </t>
+</templates>
