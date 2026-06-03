@@ -61,6 +61,17 @@ function xlsxColorToHEXA(color: Color): Color {
 }
 
 /**
+ * Apply luminance modification and offset to a color (see OpenXml spec §20.1.2.3.13 lumMod and §20.1.2.3.14 lumOff).
+ * Both lumMod and lumOff are fractions (raw XML values divided by 100000).
+ */
+export function applyLumModOff(color: Color, lumMod: number, lumOff: number): Color {
+  const rgba = colorToRGBA(color);
+  const hsla = rgbaToHSLA(rgba);
+  hsla.l = Math.min(100, Math.max(0, hsla.l * lumMod + lumOff * 100));
+  return rgbaToHex(hslaToRGBA(hsla));
+}
+
+/**
  *  Apply tint to a color (see OpenXml spec §18.3.1.15);
  */
 function applyTint(color: Color, tint: number): Color {

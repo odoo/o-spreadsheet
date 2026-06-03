@@ -1822,6 +1822,34 @@ describe("Test XLSX export", () => {
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
+
+    test("pie chart with custom colors", async () => {
+      const model = new Model(chartData);
+      createChart(
+        model,
+        {
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B2:B5" }],
+            labelRange: "Sheet1!A2:A5",
+            dataSetsHaveTitle: false,
+          }),
+          type: "pie",
+          slicesColors: ["#FF0000", "#00FF00", "#0000FF", "#FFFF00"],
+        },
+        "1"
+      );
+      const exported = await model.exportXLSX();
+      const chartFile = exported.files.find(
+        (f) => f["contentType"] === "chart"
+      ) as XLSXExportXMLFile;
+      const chartXml = parseXML(new XMLString(chartFile.content));
+
+      const dataPoints = Array.from(chartXml.getElementsByTagName("c:dPt"));
+      const expectedColors = ["FF0000", "00FF00", "0000FF", "FFFF00"];
+      expect(
+        dataPoints.map((dPt) => dPt.getElementsByTagName("a:srgbClr")[0]?.getAttribute("val"))
+      ).toEqual(expectedColors);
+    });
   });
 
   describe("Images", () => {

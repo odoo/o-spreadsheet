@@ -8,12 +8,25 @@ import {
   TitleDesign,
 } from "../../types/chart/chart";
 import { XLSX_CHART_TYPES, XLSXChartType } from "../../types/xlsx";
+import { applyLumModOff } from "../conversion/color_conversion";
 import {
   CHART_TYPE_CONVERSION_MAP,
   DRAWING_LEGEND_POSITION_CONVERSION_MAP,
 } from "../conversion/conversion_maps";
 import { removeTagEscapedNamespaces } from "../helpers/xml_helpers";
 import { XlsxBaseExtractor } from "./base_extractor";
+
+/**
+ * Default colorMap used when no <a:clrMap> is defined.
+ * Maps semantic alias names to actual theme color slot names (a:clrScheme children).
+ * These aliases are defined in a clrMap element that can be redefined in the xlsx file.
+ */
+const DEFAULT_COLOR_MAP: Record<string, string> = {
+  bg1: "lt1",
+  tx1: "dk1",
+  bg2: "lt2",
+  tx2: "dk2",
+};
 
 export class XlsxChartExtractor extends XlsxBaseExtractor {
   extractChart(): ExcelChartDefinition | undefined {
@@ -53,6 +66,30 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
         const showValues = [...showValueNodes].some(
           (el) => el.attributes.getNamedItem("val")?.value === "1"
         );
+
+        const slicesColors: string[] = [];
+        if (CHART_TYPE_CONVERSION_MAP[chartType] === "pie") {
+          // Only the first series is read as in pie charts the corresponding slices across series
+          // share the same color in o-spreadsheet.
+          const ser = this.querySelector(rootChartElement, "c:ser");
+          if (ser) {
+            const dPtNodes = Array.from(this.querySelectorAll(ser, "c:dPt"));
+            const colorsByIdx: Record<number, string> = {};
+            for (const dPt of dPtNodes) {
+              const idx = this.extractChildAttr(dPt, "c:idx", "val", { required: true }).asNum();
+              const val = this.extractDrawingFillColor(dPt);
+              if (typeof idx === "number" && val) {
+                colorsByIdx[idx] = val;
+              }
+            }
+            if (Object.keys(colorsByIdx).length) {
+              const maxIdx = Math.max(...Object.keys(colorsByIdx).map(Number));
+              for (let i = 0; i <= maxIdx; ++i) {
+                slicesColors.push(colorsByIdx[i] || "");
+              }
+            }
+          }
+        }
         return {
           title: { text: chartTitle, ...chartTitleStyle },
           type: CHART_TYPE_CONVERSION_MAP[chartType]!,
@@ -82,6 +119,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
           isDoughnut: chartHoleSize > 0,
           pieHolePercentage: chartHoleSize,
           showValues,
+          slicesColors: slicesColors.length ? slicesColors : undefined,
         };
       }
     )[0];
@@ -184,40 +222,60 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
     }
     const schemeClr = this.querySelector(element, "a:solidFill a:schemeClr");
     if (schemeClr) {
-      const schemeName = schemeClr.getAttribute("val");
-      if (schemeName) {
-        return this.resolveSchemeColor(schemeName);
-      }
+      return this.resolveSchemeColor(schemeClr);
     }
     return undefined;
   }
 
   /**
    * Resolve a DrawingML scheme color name (e.g. "accent1", "dk1") to its hex
-   * RGB value by looking it up in the theme's `a:clrScheme` element.
+   * RGB value by looking it up in the theme's `a:clrScheme` element and apply any
+   * lumMod or lumOff modifications if specified in the original `a:schemeClr` element.
    * Returns `undefined` if the theme is unavailable or the color cannot be found.
    */
-  private resolveSchemeColor(schemeName: string): string | undefined {
+  private resolveSchemeColor(schemeClrEl: Element): string | undefined {
+    const rawName = schemeClrEl.getAttribute("val");
+    if (!rawName) {
+      return undefined;
+    }
+
     const themeFile = this.xlsxFileStructure.theme;
     if (!themeFile) {
       return undefined;
     }
+
+    const schemeName = DEFAULT_COLOR_MAP[rawName] ?? rawName;
     const schemeEl = this.querySelector(themeFile.file.xml, `a:clrScheme a:${schemeName}`);
     if (!schemeEl) {
       return undefined;
     }
+
+    let color: string | undefined;
     const srgbClr = this.querySelector(schemeEl, "a:srgbClr");
     if (srgbClr) {
       const val = srgbClr.getAttribute("val");
-      return val && isColorValid(val) ? toHex(val) : undefined;
+      color = val && isColorValid(val) ? toHex(val) : undefined;
+    } else {
+      const sysClr = this.querySelector(schemeEl, "a:sysClr");
+      if (sysClr) {
+        const lastClr = sysClr.getAttribute("lastClr");
+        color = lastClr && isColorValid(lastClr) ? toHex(lastClr) : undefined;
+      }
     }
 
-    const sysClr = this.querySelector(schemeEl, "a:sysClr");
-    if (sysClr) {
-      const lastClr = sysClr.getAttribute("lastClr");
-      return lastClr && isColorValid(lastClr) ? toHex(lastClr) : undefined;
+    if (!color) {
+      return undefined;
     }
-    return undefined;
+
+    const lumModVal = this.querySelector(schemeClrEl, "a:lumMod")?.getAttribute("val");
+    const lumOffVal = this.querySelector(schemeClrEl, "a:lumOff")?.getAttribute("val");
+    if (lumModVal !== undefined || lumOffVal !== undefined) {
+      const lumMod = lumModVal ? parseInt(lumModVal) / 100000 : 1;
+      const lumOff = lumOffVal ? parseInt(lumOffVal) / 100000 : 0;
+      color = applyLumModOff(color, lumMod, lumOff);
+    }
+
+    return color;
   }
 
   private extractAxisTitleDesign(axElement: Element | null): TitleDesign | undefined {
@@ -279,17 +337,16 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
                 label = { text };
               }
             }
-            const colorElements = this.querySelectorAll(chartDataElement, "c:spPr a:solidFill");
-            const datasetColorElement = colorElements.length
-              ? this.querySelector(colorElements[0], "a:srgbClr")
+            const colorElements = this.querySelectorAll(chartDataElement, "c:spPr");
+            const backgroundColor = colorElements.length
+              ? this.extractDrawingFillColor(colorElements[0])
               : undefined;
-            const color = datasetColorElement ? datasetColorElement.getAttribute("val") : undefined;
             return {
               label,
               range: this.extractChildTextContent(chartDataElement, "c:val c:f", {
                 required: true,
               })!,
-              backgroundColor: color && isColorValid(color) ? `${toHex(color)}` : undefined,
+              backgroundColor,
               trend: this.extractChartTrendline(chartDataElement),
             };
           }
@@ -306,15 +363,12 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
       return undefined;
     }
     const trendlineType = this.extractChildAttr(trendlineElement, "c:trendlineType", "val");
-    const trendlineColor = this.extractChildAttr(trendlineElement, "a:solidFill a:srgbClr", "val");
+    const color = this.extractDrawingFillColor(trendlineElement);
     return {
       type: trendlineType ? (trendlineType.asString() as ExcelTrendlineType) : undefined,
       order: this.extractChildAttr(trendlineElement, "c:order", "val")?.asNum(),
       window: this.extractChildAttr(trendlineElement, "c:period", "val")?.asNum(),
-      color:
-        trendlineColor && isColorValid(trendlineColor.asString())
-          ? `${toHex(trendlineColor.asString())}`
-          : undefined,
+      color,
     };
   }
 
@@ -323,11 +377,10 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
       { parent: chartElement, query: "c:ser" },
       (chartDataElement): ExcelChartDataset => {
         let label = {};
-        const colorElements = this.querySelectorAll(
-          chartDataElement,
-          "c:spPr a:solidFill a:srgbClr"
-        );
-        const color = colorElements.length ? colorElements[0].getAttribute("val") : undefined;
+        const colorElements = this.querySelectorAll(chartDataElement, "c:spPr");
+        const backgroundColor = colorElements.length
+          ? this.extractDrawingFillColor(colorElements[0])
+          : undefined;
         const reference = this.extractChildTextContent(chartDataElement, "c:tx c:f");
         if (reference) {
           label = { reference };
@@ -341,7 +394,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
           label,
           range: this.extractChildTextContent(chartDataElement, "c:yVal c:f", { required: true })!,
           trend: this.extractChartTrendline(chartDataElement),
-          backgroundColor: color && isColorValid(color) ? `${toHex(color)}` : undefined,
+          backgroundColor,
         };
       }
     );

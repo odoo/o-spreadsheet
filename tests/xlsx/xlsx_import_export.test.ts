@@ -11,6 +11,7 @@ import { LINK_COLOR } from "../../src/constants";
 import { buildSheetLink } from "../../src/helpers/misc";
 import { toZone } from "../../src/helpers/zones";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
+import { PieChartDefinition } from "../../src/types/chart/pie_chart";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
@@ -595,5 +596,32 @@ describe("Export data to xlsx then import it", () => {
       range: { zone: toZone("A1:B10"), sheetId },
     });
     expect(getCellRawContent(importedModel, "A1")).toEqual("=My_Named_Range");
+  });
+
+  test("Pie chart slices colors are imported from xlsx", async () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+
+    createChart(
+      model,
+      {
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "Sheet1!B1:B3", dataSetId: "0" }],
+          dataSetsHaveTitle: false,
+          labelRange: "Sheet1!A1:A3",
+        }),
+        type: "pie",
+        slicesColors: ["#FF0000", "#00FF00", "#0000FF"],
+      },
+      "1"
+    );
+
+    const importedModel = await exportToXlsxThenImport(model);
+    const newChartId = importedModel.getters.getChartIds(sheetId)[0];
+    const importedChart = importedModel.getters.getChartDefinition(
+      newChartId
+    ) as PieChartDefinition<string>;
+
+    expect(importedChart.slicesColors).toEqual(["#FF0000", "#00FF00", "#0000FF"]);
   });
 });
