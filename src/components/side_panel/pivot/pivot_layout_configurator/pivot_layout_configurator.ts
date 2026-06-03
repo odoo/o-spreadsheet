@@ -6,7 +6,6 @@ import {
   isDateOrDatetimeField,
 } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
-import { Store, useStore } from "../../../../store_engine";
 import { _t } from "../../../../translation";
 import { SortDirection, UID } from "../../../../types";
 import {
@@ -20,7 +19,7 @@ import {
   PivotMeasure,
 } from "../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
-import { ComposerFocusStore } from "../../../composer/composer_focus_store";
+import { hasInteractiveElementInEventTree } from "../../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
 import { PivotCustomGroupsCollapsible } from "../pivot_custom_groups_collapsible/pivot_custom_groups_collapsible";
 import { AddDimensionButton } from "./add_dimension_button/add_dimension_button";
@@ -68,16 +67,11 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
   private dimensionsRef = useRef("pivot-dimensions");
   private dragAndDrop = useDragAndDropListItems();
   AGGREGATORS = AGGREGATORS;
-  private composerFocus!: Store<ComposerFocusStore>;
 
   isDateOrDatetimeField = isDateOrDatetimeField;
 
-  setup() {
-    this.composerFocus = useStore(ComposerFocusStore);
-  }
-
   startDragAndDrop(dimension: PivotDimensionType, event: MouseEvent) {
-    if (event.button !== 0 || (event.target as HTMLElement).tagName === "SELECT") {
+    if (event.button !== 0 || hasInteractiveElementInEventTree(event)) {
       return;
     }
 
@@ -139,12 +133,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
   }
 
   startDragAndDropMeasures(measure: PivotMeasure, event: MouseEvent) {
-    if (
-      event.button !== 0 ||
-      (event.target as HTMLElement).tagName === "SELECT" ||
-      (event.target as HTMLElement).tagName === "INPUT" ||
-      this.composerFocus.focusMode !== "inactive"
-    ) {
+    if (event.button !== 0 || hasInteractiveElementInEventTree(event)) {
       return;
     }
 

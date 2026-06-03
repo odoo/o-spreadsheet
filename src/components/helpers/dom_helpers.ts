@@ -288,3 +288,25 @@ function isOtherMobileOS() {
 export function isMobileOS() {
   return isAndroid() || isIOS() || isOtherMobileOS();
 }
+
+const INTERACTIVE_ELEMENT_SELECTOR =
+  "select, input, textarea, button, .o-select, .os-input, .o-input, .o-button, .o-button-icon, .o-button-link, .o-composer";
+
+/** Check if there is an interactive element (input, select, button, ...) between the event.target and event.currentTarget (inclusive)*/
+export function hasInteractiveElementInEventTree(event: Event) {
+  const target = event.target as HTMLElement | null;
+  const root = event.currentTarget as HTMLElement | null;
+  if (!root || !target || !root.contains(target)) {
+    return false;
+  }
+
+  let node: HTMLElement | null = target;
+  while (node && node !== root) {
+    if (node.matches(INTERACTIVE_ELEMENT_SELECTOR)) {
+      return true;
+    }
+    node = node.parentElement;
+  }
+
+  return root.matches(INTERACTIVE_ELEMENT_SELECTOR);
+}
