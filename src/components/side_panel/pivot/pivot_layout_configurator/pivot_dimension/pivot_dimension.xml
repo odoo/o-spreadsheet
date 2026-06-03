@@ -19,7 +19,7 @@
           />
           <span t-else="1" class="o-fw-bold text-truncate" t-out="dimensionDisplayName"/>
         </div>
-        <div class="d-flex flex-rows" t-on-pointerdown.stop="">
+        <div class="d-flex flex-rows">
           <t t-slot="upper-right-icons"/>
           <i
             class="o-button-icon fa fa-trash pe-1 ps-2"
