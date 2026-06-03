@@ -18,6 +18,59 @@
     font-weight: bold;
   }
 
+  .o-chart-suggestions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .o-chart-suggestion-thumb {
+    cursor: grab;
+    min-width: 0;
+  }
+  .o-chart-suggestion-thumb:active {
+    cursor: grabbing;
+  }
+
+  .o-suggestion-canvas-wrap {
+    height: 120px;
+    border: 1px solid var(--os-border-color);
+    border-radius: 3px;
+    overflow: hidden;
+    background: white;
+    position: relative;
+  }
+  .o-suggestion-canvas-wrap:hover {
+    border-color: var(--o-action-color, #3d9be9);
+  }
+
+  .o-chart-suggestion-recommended .o-suggestion-canvas-wrap {
+    border-color: var(--o-action-color, #3d9be9);
+    border-width: 2px;
+  }
+  .o-chart-suggestion-recommended .o-suggestion-canvas-wrap::after {
+    content: "★";
+    position: absolute;
+    top: 3px;
+    right: 5px;
+    font-size: 10px;
+    color: var(--o-action-color, #3d9be9);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .o-suggestion-placeholder {
+    color: var(--os-text-muted, #666);
+    font-size: 0.7rem;
+    text-transform: capitalize;
+  }
+
+  .o-suggestion-thumb-title {
+    font-size: 0.7rem;
+    color: var(--os-text-muted, #555);
+    line-height: 1.2;
+  }
+
   .o-data-analysis-chart {
     height: 200px;
     cursor: pointer;

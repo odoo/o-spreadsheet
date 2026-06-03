@@ -13,17 +13,25 @@
           />
         </div>
       </Section>
-      <SidePanelCollapsible title.translate="Data visualization" isInitiallyCollapsed="false">
+      <SidePanelCollapsible title.translate="Suggested charts" isInitiallyCollapsed="false">
         <t t-set-slot="content">
-          <Section class="'pt-0'">
-            <div
-              class="o-data-analysis-chart"
-              t-ref="this.chartDivRef"
-              t-on-pointerdown="(ev) => this.startDragAndDrop(ev)"
-              title="Click to drag the chart in the current active sheet">
-              <canvas class="w-100 h-100" t-ref="this.chartCanvasRef"/>
-            </div>
-          </Section>
+          <div class="px-2 pb-2">
+            <t t-if="this.chartSuggestions.length">
+              <div class="o-chart-suggestions-grid">
+                <t t-foreach="this.chartSuggestions" t-as="suggestion" t-key="suggestion_index">
+                  <ChartSuggestionPreview
+                    definition="suggestion.definition"
+                    title="suggestion.title"
+                    rationale="suggestion.rationale"
+                    isRecommended="suggestion_index === 0"
+                  />
+                </t>
+              </div>
+            </t>
+            <t t-else="">
+              <div class="text-muted small py-2">Select a range to see chart suggestions.</div>
+            </t>
+          </div>
         </t>
       </SidePanelCollapsible>
       <SidePanelCollapsible title.translate="General statistics" isInitiallyCollapsed="false">
