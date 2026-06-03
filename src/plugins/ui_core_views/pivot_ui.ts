@@ -83,10 +83,12 @@ export class PivotUIPlugin extends UIPlugin {
         this.refreshPivot(cmd.id);
         break;
       case "ADD_PIVOT": {
+        this.unusedPivots?.push(cmd.pivotId);
         this.setupPivot(cmd.pivotId);
         break;
       }
       case "DUPLICATE_PIVOT": {
+        this.unusedPivots?.push(cmd.newPivotId);
         this.setupPivot(cmd.newPivotId);
         break;
       }
@@ -336,7 +338,7 @@ export class PivotUIPlugin extends UIPlugin {
     }
   }
 
-  _getUnusedPivots() {
+  private _getUnusedPivots() {
     if (this.unusedPivots !== undefined) {
       return this.unusedPivots;
     }
