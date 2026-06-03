@@ -59,6 +59,7 @@ export function getCalendarChartShowValues(
       if (value === undefined) {
         return definition.background;
       }
+      // ADRM TODO: that's definitevly not the background color ...
       return chartFontColor(colorScale(value));
     };
   }

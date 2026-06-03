@@ -154,8 +154,16 @@ function mockMeasureText(this: NodeCanvasRenderingContext2D, text: string) {
 
   const actualBoundingBoxAscent = fontHeight * scale;
   const actualBoundingBoxDescent = 0;
+  const fontBoundingBoxAscent = actualBoundingBoxAscent;
+  const fontBoundingBoxDescent = actualBoundingBoxDescent;
 
-  return { width: width * scale, actualBoundingBoxAscent, actualBoundingBoxDescent } as TextMetrics;
+  return {
+    width: width * scale,
+    actualBoundingBoxAscent,
+    actualBoundingBoxDescent,
+    fontBoundingBoxAscent,
+    fontBoundingBoxDescent,
+  } as TextMetrics;
 }
 
 // Single reusable off-screen canvas for character colorization (avoids per-draw allocations)
