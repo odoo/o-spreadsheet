@@ -61,6 +61,7 @@ import { TEST_CHART_DATA } from "../../test_helpers/constants";
 import {
   click,
   clickAndDrag,
+  clickCell,
   doubleClick,
   editSelectComponent,
   focusAndKeyDown,
@@ -3400,6 +3401,40 @@ test("Can update the chart data source from the side panel", async () => {
   expect(definition2).toMatchObject(
     toChartDataSource({
       dataSets: [{ dataRange: "A1:A2", dataSetId: expect.any(String) }],
+      dataSetsHaveTitle: false,
+    })
+  );
+});
+
+test("Can edit a chart range", async () => {
+  model = new Model();
+  createChart(
+    model,
+    {
+      type: "bar",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }],
+        dataSetsHaveTitle: false,
+      }),
+    },
+    chartId
+  );
+  await mountSpreadsheet();
+  selectFigure(model, model.getters.getFigureIdFromChartId(chartId)!);
+  await simulateClick(".o-figure");
+  env.openSidePanel("ChartPanel");
+  await nextTick();
+  expect(document.activeElement).toBe(fixture.querySelector(".o-figure")!);
+  await simulateClick(".o-selection-input input.o-input");
+  await clickCell(model, "B1");
+  await keyDown({ key: "ArrowDown" });
+
+  await simulateClick(".o-data-series .o-selection-ok");
+  const definition = model.getters.getChartDefinition(chartId) as BarChartDefinition<string>;
+
+  expect(definition).toMatchObject(
+    toChartDataSource({
+      dataSets: [{ dataRange: "B2", dataSetId: expect.any(String) }],
       dataSetsHaveTitle: false,
     })
   );
