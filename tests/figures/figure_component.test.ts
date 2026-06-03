@@ -151,6 +151,7 @@ beforeEach(() => {
     "o-popover-content": () => ({ height: 0, width: 0 }),
     "o-spreadsheet": () => ({ ...mockSpreadsheetRect }),
     "o-figure-menu-item": () => ({ ...mockFigureMenuItemRect }),
+    "o-chart-menu-item": () => ({ ...mockFigureMenuItemRect }),
   });
 });
 
@@ -955,27 +956,41 @@ describe("figures", () => {
     expect(model.getters.getSelectedFigureIds()).toEqual(["someuuid"]);
   });
 
+  test("images don't have a menu button in dashboard mode", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    createImage(model, { sheetId, figureId: "figureId" });
+    model.updateMode("dashboard");
+    await nextTick();
+    expect(fixture.querySelector(".o-figure")).not.toBeNull();
+    expect(fixture.querySelector(".o-figure-menu-item")).toBeNull();
+  });
+
   describe.each(["image", "basicChart", "scorecard", "gauge"])(
     "common tests for chart & image",
     (type: string) => {
       let sheetId: UID;
       let figureId: UID;
+      let menuQuery: string;
       beforeEach(async () => {
         sheetId = model.getters.getActiveSheetId();
         figureId = "figureId";
         switch (type) {
           case "image":
+            menuQuery = ".o-figure-menu-item";
             createImage(model, { sheetId, figureId });
             break;
           case "basicChart":
+            menuQuery = ".o-chart-menu-item";
             createChart(model, TEST_CHART_DATA.basicChart, undefined, undefined, { figureId });
             break;
           case "scorecard":
+            menuQuery = ".o-chart-menu-item";
             createScorecardChart(model, TEST_CHART_DATA.scorecard, undefined, undefined, {
               figureId,
             });
             break;
           case "gauge":
+            menuQuery = ".o-chart-menu-item";
             createGaugeChart(model, TEST_CHART_DATA.gauge, undefined, undefined, { figureId });
             break;
         }
@@ -985,8 +1000,8 @@ describe("figures", () => {
         expect(fixture.querySelector(".o-figure")).not.toBeNull();
         await simulateClick(".o-figure");
         expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
-        expect(fixture.querySelector(".o-figure-menu-item")).not.toBeNull();
-        await simulateClick(".o-figure-menu-item");
+        expect(fixture.querySelector(menuQuery)).not.toBeNull();
+        await simulateClick(menuQuery);
         expect(fixture.querySelector(".o-menu")).not.toBeNull();
         await simulateClick(".o-menu div[data-name='delete']");
         expect(() => model.getters.getImage(figureId)).toThrow();
@@ -995,7 +1010,7 @@ describe("figures", () => {
       test(`Can copy/paste a figure ${type} with its context menu`, async () => {
         const figureDef = getFigureDefinition(model, figureId, type);
         await simulateClick(".o-figure");
-        await simulateClick(".o-figure-menu-item");
+        await simulateClick(menuQuery);
         await simulateClick(".o-menu div[data-name='copy']");
         const envClipBoardContent = await env.clipboard.read();
         if (envClipBoardContent.status === "ok") {
@@ -1022,7 +1037,7 @@ describe("figures", () => {
       test(`Can cut/paste a figure ${type} with its context menu`, async () => {
         const figureDef = getFigureDefinition(model, figureId, type);
         await simulateClick(".o-figure");
-        await simulateClick(".o-figure-menu-item");
+        await simulateClick(menuQuery);
         await simulateClick(".o-menu div[data-name='cut']");
         const envClipBoardContent = await env.clipboard.read();
         if (envClipBoardContent.status === "ok") {
@@ -1038,7 +1053,7 @@ describe("figures", () => {
 
       test(`Copied figure ${type} are selected`, async () => {
         await simulateClick(".o-figure");
-        await simulateClick(".o-figure-menu-item");
+        await simulateClick(menuQuery);
         await simulateClick(".o-menu div[data-name='copy']");
         expect(model.getters.getSelectedFigureIds()).toEqual([figureId]);
         paste(model, "A1");
@@ -1050,21 +1065,14 @@ describe("figures", () => {
 
       test(`figure ${type} have a menu button`, async () => {
         expect(fixture.querySelector(".o-figure")).not.toBeNull();
-        expect(fixture.querySelector(".o-figure-menu-item")).not.toBeNull();
-      });
-
-      test("images don't have a menu button in dashboard mode", async () => {
-        model.updateMode("dashboard");
-        await nextTick();
-        expect(fixture.querySelector(".o-figure")).not.toBeNull();
-        expect(fixture.querySelector(".o-figure-menu-item")).toBeNull();
+        expect(fixture.querySelector(menuQuery)).not.toBeNull();
       });
 
       test("images don't have a menu button in readonly mode", async () => {
         model.updateMode("readonly");
         await nextTick();
         expect(fixture.querySelector(".o-figure")).not.toBeNull();
-        expect(fixture.querySelector(".o-figure-menu-item")).toBeNull();
+        expect(fixture.querySelector(menuQuery)).toBeNull();
       });
 
       test("Can open context menu on right click", async () => {
@@ -1078,7 +1086,7 @@ describe("figures", () => {
         mockFigureMenuItemRect = { top: 500, left: 500 };
         parent.render(true); // force a render to update `useAbsoluteBoundingRect` with new mocked values
         await nextTick();
-        await simulateClick(".o-figure-menu-item");
+        await simulateClick(menuQuery);
         const menuPopover = fixture.querySelector<HTMLElement>(".o-popover")!;
         expect(menuPopover.style.top).toBe(`${500 - 25}px`); // 25 : spreadsheet offset of the extendMockGetBoundingClientRect
         expect(menuPopover.style.left).toBe(`${500 - 25}px`);
@@ -1089,7 +1097,7 @@ describe("figures", () => {
         mockFigureMenuItemRect = { top: 500, left: MENU_WIDTH - 50, width: 32 };
         parent.render(true); // force a render to update `useAbsoluteBoundingRect` with new mocked values
         await nextTick();
-        await simulateClick(".o-figure-menu-item");
+        await simulateClick(menuQuery);
         const MenuPopover = fixture.querySelector<HTMLElement>(".o-popover")!;
         expect(MenuPopover.style.top).toBe(`${500 - 25}px`); // 25 : spreadsheet offset of the mockGetBoundingClientRect
         expect(MenuPopover.style.left).toBe(`${MENU_WIDTH - 50 - 25 + 32}px`);
@@ -1112,14 +1120,14 @@ describe("figures", () => {
         expect(fixture.querySelector(".o-figure")).not.toBeNull();
         await simulateClick(".o-figure");
         expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
-        expect(fixture.querySelector(".o-figure-menu-item")).not.toBeNull();
-        await simulateClick(".o-figure-menu-item");
+        expect(fixture.querySelector(menuQuery)).not.toBeNull();
+        await simulateClick(menuQuery);
         expect(fixture.querySelector(".o-menu")).not.toBeNull();
       });
 
       test("Context menu is positioned according to the spreadsheet position", async () => {
         await simulateClick(".o-figure");
-        await simulateClick(".o-figure-menu-item");
+        await simulateClick(menuQuery);
         const menuPopover = fixture.querySelector<HTMLElement>(".o-popover");
         expect(menuPopover?.style.top).toBe(`${500 - 100}px`);
         expect(menuPopover?.style.left).toBe(`${500 - 200}px`);
@@ -1136,7 +1144,7 @@ describe("figures", () => {
 
       test("Can download the image", async () => {
         await simulateClick(".o-figure");
-        await simulateClick(".o-figure-menu-item");
+        await simulateClick(menuQuery);
         await simulateClick(".o-menu div[data-name='download']");
         expect(downloadFile).toHaveBeenCalled();
       });

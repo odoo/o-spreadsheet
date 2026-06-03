@@ -54,6 +54,8 @@ export const TreeMapChart: ChartTypeBuilder<"treemap"> = {
       valuesDesign: context.valuesDesign,
       coloringOptions: context.treemapColoringOptions,
       humanize: context.humanize,
+      annotationText: context.annotationText,
+      annotationLink: context.annotationLink,
     };
   },
 

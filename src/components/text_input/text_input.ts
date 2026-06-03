@@ -11,6 +11,7 @@ interface Props extends GenericInputProps {
   alwaysShowBorder?: boolean;
   value: string;
   errorMessage?: string;
+  maxLength?: number;
 }
 
 export class TextInput extends GenericInput<Props> {
@@ -21,6 +22,7 @@ export class TextInput extends GenericInput<Props> {
     ...genericInputPropsDefinition,
     value: types.string(),
     "errorMessage?": types.string(),
+    "maxLength?": types.number(),
   }) as unknown as Props;
 
   get inputClass(): string {

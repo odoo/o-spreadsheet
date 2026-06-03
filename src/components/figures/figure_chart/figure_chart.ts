@@ -3,7 +3,7 @@ import { ChartType } from "../../../types/chart/chart";
 import { CSSProperties, UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
+import { ChartMenu } from "../chart/chart_menu/chart_menu";
 
 import { props } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
@@ -11,7 +11,7 @@ import { types } from "../../props_validation";
 
 export class ChartFigure extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartFigure";
-  static components = { ChartDashboardMenu };
+  static components = { ChartMenu };
 
   protected props = props({
     figureUI: types.FigureUI(),

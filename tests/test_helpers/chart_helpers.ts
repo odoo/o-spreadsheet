@@ -232,4 +232,6 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   bubbleLabelRange: "Sheet1!A1:A4",
   bubbleSizeRange: "Sheet1!A1:A4",
   bubbleColorMode: { color: FIRST_CHART_COLOR },
+  annotationLink: "https://www.odoo.com",
+  annotationText: "This is an annotation text",
 };

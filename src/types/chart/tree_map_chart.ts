@@ -3,14 +3,13 @@ import { Color } from "../misc";
 import { Range } from "../range";
 import { ChartDataSource, DataSetStyle, TitleDesign } from "./chart";
 import { TreemapDataPoint } from "./chartjs_tree_map_type";
-import { LegendPosition } from "./common_chart";
+import { BaseChartDefinition, LegendPosition } from "./common_chart";
 
-export interface TreeMapChartDefinition<T extends string | Range = Range> {
+export interface TreeMapChartDefinition<T extends string | Range = Range>
+  extends BaseChartDefinition {
   readonly type: "treemap";
   readonly dataSetStyles: DataSetStyle;
   readonly dataSource: ChartDataSource<T>;
-  readonly title: TitleDesign;
-  readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly showHeaders?: boolean;
   readonly headerDesign?: TitleDesign;
