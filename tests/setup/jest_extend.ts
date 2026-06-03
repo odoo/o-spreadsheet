@@ -68,32 +68,29 @@ expect.extend({
   toMatchImageSnapshot,
   toExport(model: Model, expected: any) {
     const exportData = model.exportData();
-    if (
-      !this.equals(exportData, { ...expected, revisionId: expect.any(String) }, [
-        this.utils.iterableEquality,
-      ])
-    ) {
-      return {
-        pass: !!this.isNot,
-        message: () =>
-          `Diff: ${this.utils.printDiffOrStringify(
-            expected,
-            exportData,
-            "Expected",
-            "Received",
-            false
-          )}`,
-      };
-    }
-    return { pass: !this.isNot, message: () => "" };
+    const pass = this.equals(exportData, { ...expected, revisionId: expect.any(String) }, [
+      this.utils.iterableEquality,
+    ]);
+    const message = () =>
+      `Diff: ${this.utils.printDiffOrStringify(
+        expected,
+        exportData,
+        pass ? "Not expected" : "Expected",
+        "Received",
+        false
+      )}`;
+    return { pass, message };
   },
   toHaveSynchronizedValue(users: Model[], callback: (model: Model) => any, expected: any) {
+    if (this.isNot) {
+      throw new Error("not.toHaveSynchronizedValue is not supported");
+    }
     for (const user of users) {
       const result = callback(user);
       if (!this.equals(result, expected, [this.utils.iterableEquality])) {
         const userId = user.getters.getCurrentClient().name;
         return {
-          pass: !!this.isNot,
+          pass: false,
           message: () =>
             `${userId} does not have the expected value: \nReceived: ${this.utils.printReceived(
               result
@@ -104,6 +101,9 @@ expect.extend({
     return { pass: !this.isNot, message: () => "" };
   },
   toHaveSynchronizedEvaluation(users: Model[]) {
+    if (this.isNot) {
+      throw new Error("not.toHaveSynchronizedEvaluation is not supported");
+    }
     for (let i = 0; i < users.length - 1; i++) {
       const a = users[i];
       const b = users[i + 1];
@@ -117,7 +117,7 @@ expect.extend({
           const prettyValuesUserA = getPrettyEvaluatedCells(a, sheetId, sheetZone);
           const prettyValuesUserB = getPrettyEvaluatedCells(b, sheetId, sheetZone);
           return {
-            pass: !!this.isNot,
+            pass: false,
             message: () =>
               `${clientA} and ${clientB} are not synchronized: \n${this.utils.printDiffOrStringify(
                 prettyValuesUserA,
@@ -133,6 +133,9 @@ expect.extend({
     return { pass: !this.isNot, message: () => "" };
   },
   toHaveSynchronizedExportedData(users: Model[]) {
+    if (this.isNot) {
+      throw new Error("not.toHaveSynchronizedExportedData is not supported");
+    }
     for (let i = 0; i < users.length - 1; i++) {
       const a = users[i];
       const b = users[i + 1];
@@ -142,7 +145,7 @@ expect.extend({
         const clientA = a.getters.getCurrentClient().id;
         const clientB = b.getters.getCurrentClient().id;
         return {
-          pass: !!this.isNot,
+          pass: false,
           message: () =>
             `${clientA} and ${clientB} are not synchronized: \n${this.utils.printDiffOrStringify(
               exportA,
@@ -188,13 +191,12 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
     return { pass, message };
   },
   toBeBetween(received: number, lower: number, upper: number) {
-    if (received < lower || received > upper) {
-      return {
-        pass: false,
-        message: () => `Expected ${received} to be between ${lower} and ${upper}`,
-      };
-    }
-    return { pass: true, message: () => "" };
+    const pass = received >= lower && received <= upper;
+    return {
+      pass,
+      message: () =>
+        `Expected ${received} ${pass ? "not " : ""}to be between ${lower} and ${upper}`,
+    };
   },
   toBeSameColorAs(received: string, expected: string, tolerance: number = 0) {
     let pass = false;
@@ -204,13 +206,10 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
       pass = isSameColor(received, expected, tolerance);
     }
     const message = () =>
-      pass
-        ? ""
-        : `Expected ${received} to be equivalent to ${expected} with a tolerance of ${tolerance}`;
-    return {
-      pass,
-      message,
-    };
+      `Expected ${received}${
+        pass ? " not" : ""
+      } to be equivalent to ${expected} with a tolerance of ${tolerance}`;
+    return { pass, message };
   },
   toHaveValue(target: DOMTarget, expectedValue: string | boolean) {
     const element = getTarget(target);
@@ -223,20 +222,21 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
       (element.type === "checkbox" || element.type === "radio")
         ? element.checked
         : element.value;
-    if (value !== expectedValue) {
-      return {
-        pass: false,
-        message: () =>
-          `expect(target).toHaveValue(expected);\n\n${this.utils.printDiffOrStringify(
-            expectedValue,
-            value,
-            "Expected value",
-            "Received value",
-            false
-          )}`,
-      };
-    }
-    return { pass: true, message: () => "" };
+
+    const pass = value === expectedValue;
+    const message = () => {
+      const diff = this.utils.printDiffOrStringify(
+        expectedValue,
+        value,
+        pass ? "Unexpected value" : "Expected value",
+        "Received value",
+        false
+      );
+      return pass
+        ? `expect(target).not.toHaveValue(expected);\n\n${diff}`
+        : `expect(target).toHaveValue(expected);\n\n${diff}`;
+    };
+    return { pass, message };
   },
   toHaveText(target: DOMTarget, expectedText: string) {
     const element = getTarget(target);
@@ -245,37 +245,37 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
       return { pass: false, message: () => message };
     }
     const text = element.textContent;
-    if (text !== expectedText) {
-      return {
-        pass: false,
-        message: () =>
-          `expect(target).toHaveText(expected);\n\n${this.utils.printDiffOrStringify(
-            expectedText,
-            text,
-            "Expected text",
-            "Received text",
-            false
-          )}`,
-      };
-    }
-    return { pass: true, message: () => "" };
+    const pass = text === expectedText;
+    const message = () => {
+      const diff = this.utils.printDiffOrStringify(
+        expectedText,
+        text,
+        pass ? "Unexpected text" : "Expected text",
+        "Received text",
+        false
+      );
+      return pass
+        ? `expect(target).not.toHaveText(expected);\n\n${diff}`
+        : `expect(target).toHaveText(expected);\n\n${diff}`;
+    };
+    return { pass, message };
   },
   toHaveCount(selector: string, expectedCount: number) {
     const elements = document.querySelectorAll(selector);
-    if (elements.length !== expectedCount) {
-      return {
-        pass: false,
-        message: () =>
-          `expect("${selector}").toHaveCount(expected);\n\n${this.utils.printDiffOrStringify(
-            expectedCount,
-            elements.length,
-            "Expected",
-            "Received",
-            false
-          )}`,
-      };
-    }
-    return { pass: true, message: () => "" };
+    const pass = elements.length === expectedCount;
+    const message = () => {
+      const diff = this.utils.printDiffOrStringify(
+        expectedCount,
+        elements.length,
+        pass ? "Unexpected count" : "Expected count",
+        "Received",
+        false
+      );
+      return pass
+        ? `expect("${selector}").not.toHaveCount(expected);\n\n${diff}`
+        : `expect("${selector}").toHaveCount(expected);\n\n${diff}`;
+    };
+    return { pass, message };
   },
   toHaveClass(target: DOMTarget, expectedClass: string) {
     const element = getTarget(target);
@@ -285,24 +285,16 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
     }
     const pass = element.classList.contains(expectedClass);
     const message = () => {
-      if (this.isNot && pass) {
-        return `expect(target).not.toHaveClass(expected);\n\n${this.utils.printDiffOrStringify(
-          expectedClass,
-          element.className,
-          "Unexpected class",
-          "Received class",
-          false
-        )}`;
-      } else if (!pass) {
-        return `expect(target).toHaveClass(expected);\n\n${this.utils.printDiffOrStringify(
-          expectedClass,
-          element.className,
-          "Expected class",
-          "Received class",
-          false
-        )}`;
-      }
-      return "";
+      const diff = this.utils.printDiffOrStringify(
+        expectedClass,
+        element.className,
+        pass ? "Unexpected class" : "Expected class",
+        "Received classes",
+        false
+      );
+      return pass
+        ? `expect(target).not.toHaveClass(expected);\n\n${diff}`
+        : `expect(target).toHaveClass(expected);\n\n${diff}`;
     };
     return { pass, message };
   },
@@ -313,16 +305,18 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
       return { pass: false, message: () => message };
     }
     const pass = element.getAttribute(attribute) === expectedValue;
-    const message = () =>
-      pass
-        ? ""
-        : `expect(target).toHaveAttribute(attribute, expected);\n\n${this.utils.printDiffOrStringify(
-            expectedValue,
-            element.getAttribute(attribute),
-            "Expected value",
-            "Received value",
-            false
-          )}`;
+    const message = () => {
+      const diff = this.utils.printDiffOrStringify(
+        expectedValue,
+        element.getAttribute(attribute),
+        pass ? "Unexpected attribute value" : "Expected attribute value",
+        "Received value",
+        false
+      );
+      return pass
+        ? `expect(target).not.toHaveAttribute(${attribute}, expected);\n\n${diff}`
+        : `expect(target).toHaveAttribute(${attribute}, expected);\n\n${diff}`;
+    };
     return { pass, message };
   },
   toHaveStyle(target: DOMTarget, expectedStyle: Record<string, string>) {
@@ -339,16 +333,18 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
       }
     }
     const pass = this.equals(receivedStyle, expectedStyle, [this.utils.iterableEquality]);
-    const message = () =>
-      pass
-        ? ""
-        : `expect(target).toHaveStyle(expected);\n\n${this.utils.printDiffOrStringify(
-            expectedStyle,
-            receivedStyle,
-            "Expected style",
-            "Received style",
-            false
-          )}`;
+    const message = () => {
+      const diff = this.utils.printDiffOrStringify(
+        expectedStyle,
+        receivedStyle,
+        pass ? "Unexpected style" : "Expected style",
+        "Received style",
+        false
+      );
+      return pass
+        ? `expect(target).not.toHaveStyle(expected);\n\n${diff}`
+        : `expect(target).toHaveStyle(expected);\n\n${diff}`;
+    };
     return { pass, message };
   },
 });
