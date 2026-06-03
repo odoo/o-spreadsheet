@@ -6,7 +6,12 @@ import { EMPTY_PIVOT_CELL } from "../../src/helpers/pivot/table_spreadsheet_pivo
 import { getEvaluatedCell } from "../test_helpers";
 import { renameSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { createModelFromGrid, toCellPosition } from "../test_helpers/helpers";
-import { addPivot, createModelWithPivot, updatePivot } from "../test_helpers/pivot_helpers";
+import {
+  addPivot,
+  createModelWithPivot,
+  duplicatePivot,
+  updatePivot,
+} from "../test_helpers/pivot_helpers";
 
 describe("Pivot plugin", () => {
   test("isSpillPivotFormula", () => {
@@ -445,6 +450,15 @@ describe("Pivot plugin", () => {
 
       expect(model.getters.isPivotUnused("1")).toBe(false);
       expect(model.getters.isPivotUnused("2")).toBe(false);
+    });
+
+    test("pivots that are only added, not used, are marked as unused", () => {
+      const model = createModelWithPivot("A1:I5");
+      expect(model.getters.isPivotUnused("1")).toBe(true);
+      addPivot(model, "A1:I5", { name: "Unused Pivot" }, "2");
+      expect(model.getters.isPivotUnused("2")).toBe(true);
+      duplicatePivot(model, "1", "3");
+      expect(model.getters.isPivotUnused("3")).toBe(true);
     });
   });
 
