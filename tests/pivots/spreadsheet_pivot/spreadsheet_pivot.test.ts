@@ -2123,16 +2123,19 @@ describe("Spreadsheet Pivot", () => {
   test("Date dimensions should support empty cells", () => {
     const grid = {
       A1: "Date",
-      A2: "",
-      A3: "2024-03-01",
+      B1: "Price",
+      A2: "2024-03-01",
+      B2: "20",
+      A3: "",
+      B3: "45",
       A4: "=pivot(1)",
     };
     const model = createModelFromGrid(grid);
-    addPivot(model, "A1:A3", {
-      columns: [{ fieldName: "Date", granularity: "month_number" }],
-      measures: [{ id: "__count:sum", fieldName: "__count", aggregator: "sum" }],
+    addPivot(model, "A1:B3", {
+      rows: [{ fieldName: "Date", granularity: "month_number" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    expect(getEvaluatedGrid(model, "B4:E4")).toEqual([["March", "(Undefined)", "Total", ""]]);
+    expect(getEvaluatedGrid(model, "A6:A8")).toEqual([["March"], ["(Undefined)"], ["Total"]]);
   });
 
   test("fieldsType is not mandatory in INSERT_PIVOT command", () => {
