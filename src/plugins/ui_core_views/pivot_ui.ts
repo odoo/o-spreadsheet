@@ -380,8 +380,8 @@ export class PivotUIPlugin extends CoreViewPlugin {
     }
 
     for (const pivotId of this.getters.getPivotIds()) {
-      const pivot = this.getters.getPivot(pivotId);
-      for (const measure of pivot.definition.measures) {
+      const pivot = this.getters.getPivotCoreDefinition(pivotId);
+      for (const measure of pivot.measures) {
         if (measure.computedBy) {
           const { sheetId } = measure.computedBy;
           const formula = this.getters.getMeasureCompiledFormula(pivotId, measure);
