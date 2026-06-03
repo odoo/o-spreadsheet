@@ -59,6 +59,7 @@ export function getCalendarChartShowValues(
       if (value === undefined) {
         return definition.background;
       }
+      // FIXME: that's definitively not the background color of the chart ...
       return chartFontColor(colorScale(value));
     };
   }
