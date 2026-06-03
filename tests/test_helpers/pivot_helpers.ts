@@ -48,6 +48,16 @@ export function addPivot(
   return result;
 }
 
+export function duplicatePivot(model: Model, pivotId: UID, newPivotId: UID) {
+  const result = model.dispatch("DUPLICATE_PIVOT", { pivotId, newPivotId });
+  if (!result.isSuccessful) {
+    return result;
+  }
+  const instance = model.getters.getPivot(newPivotId);
+  instance?.init();
+  return result;
+}
+
 export function updatePivot(
   model: Model,
   pivotId: UID,
