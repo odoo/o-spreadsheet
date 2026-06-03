@@ -21,7 +21,7 @@
         />
       </t>
       <div t-if="measure.computedBy" class="d-flex flex-row small">
-        <div class="d-flex flex-column py-2 px-2 w-100" t-on-pointerdown.stop="">
+        <div class="d-flex flex-column py-2 px-2 w-100">
           <StandaloneComposer
             onConfirm.bind="this.updateMeasureFormula"
             composerContent="measure.computedBy.formula"
