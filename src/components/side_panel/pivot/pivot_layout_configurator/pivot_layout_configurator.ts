@@ -7,7 +7,6 @@ import {
 } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
 import { Component } from "../../../../owl3_compatibility_layer";
-import { useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
 import { SortDirection } from "../../../../types/misc";
 import {
@@ -21,8 +20,7 @@ import {
   PivotMeasure,
 } from "../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
-import { Store } from "../../../../types/store_engine";
-import { ComposerFocusStore } from "../../../composer/composer_focus_store";
+import { hasInteractiveElementInEventTree } from "../../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
 import { types } from "../../../props_validation";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -62,16 +60,11 @@ export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
   private dimensionsRef = signal<HTMLElement | null>(null);
   private dragAndDrop = useDragAndDropListItems();
   AGGREGATORS = AGGREGATORS;
-  private composerFocus!: Store<ComposerFocusStore>;
 
   isDateOrDatetimeField = isDateOrDatetimeField;
 
-  setup() {
-    this.composerFocus = useStore(ComposerFocusStore);
-  }
-
   startDragAndDrop(dimension: PivotDimensionType, event: MouseEvent) {
-    if (event.button !== 0 || (event.target as HTMLElement).tagName === "SELECT") {
+    if (event.button !== 0 || hasInteractiveElementInEventTree(event)) {
       return;
     }
 
@@ -133,12 +126,7 @@ export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
   }
 
   startDragAndDropMeasures(measure: PivotMeasure, event: MouseEvent) {
-    if (
-      event.button !== 0 ||
-      (event.target as HTMLElement).tagName === "SELECT" ||
-      (event.target as HTMLElement).tagName === "INPUT" ||
-      this.composerFocus.focusMode !== "inactive"
-    ) {
+    if (event.button !== 0 || hasInteractiveElementInEventTree(event)) {
       return;
     }
 
