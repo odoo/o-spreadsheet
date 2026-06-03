@@ -90,10 +90,12 @@ export class PivotUIPlugin extends CoreViewPlugin {
         this.refreshPivot(cmd.id);
         break;
       case "ADD_PIVOT": {
+        this.unusedPivotsInFormulas?.push(cmd.pivotId);
         this.setupPivot(cmd.pivotId);
         break;
       }
       case "DUPLICATE_PIVOT": {
+        this.unusedPivotsInFormulas?.push(cmd.newPivotId);
         this.setupPivot(cmd.newPivotId);
         break;
       }
