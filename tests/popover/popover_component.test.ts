@@ -36,7 +36,6 @@ async function mountTestPopover(args: MountPopoverArgs) {
     setup() {
       const env: any = {
         model: this.props.model,
-        isDashboard: () => false,
       };
       if (args.containerRect) {
         env.getPopoverContainerRect = () => args.containerRect;
