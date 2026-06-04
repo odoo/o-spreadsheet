@@ -85,10 +85,11 @@ exports[`TopBar component simple rendering 1`] = `
               class="o-hoverable-button"
             >
               <div
-                class="o-icon fa-small"
+                class="o-icon oi-small"
               >
                 <i
-                  class="fa fa-caret-down"
+                  class="oi"
+                  data-icon="arrow_drop_down"
                 />
               </div>
             </div>
@@ -196,10 +197,11 @@ exports[`TopBar component simple rendering 1`] = `
                 
                 <span>
                   <div
-                    class="o-icon fa-small"
+                    class="o-icon oi-small"
                   >
                     <i
-                      class="fa fa-caret-down"
+                      class="oi"
+                      data-icon="arrow_drop_down"
                     />
                   </div>
                 </span>
@@ -279,10 +281,11 @@ exports[`TopBar component simple rendering 1`] = `
               </span>
               
               <div
-                class="o-icon fa-small"
+                class="o-icon oi-small"
               >
                 <i
-                  class="fa fa-caret-down"
+                  class="oi"
+                  data-icon="arrow_drop_down"
                 />
               </div>
               
@@ -318,10 +321,11 @@ exports[`TopBar component simple rendering 1`] = `
               
               <span>
                 <div
-                  class="o-icon fa-small"
+                  class="o-icon oi-small"
                 >
                   <i
-                    class="fa fa-caret-down"
+                    class="oi"
+                    data-icon="arrow_drop_down"
                   />
                 </div>
               </span>
@@ -546,10 +550,11 @@ exports[`TopBar component simple rendering 1`] = `
               </span>
               
               <div
-                class="o-icon fa-small"
+                class="o-icon oi-small"
               >
                 <i
-                  class="fa fa-caret-down"
+                  class="oi"
+                  data-icon="arrow_drop_down"
                 />
               </div>
               
@@ -578,10 +583,11 @@ exports[`TopBar component simple rendering 1`] = `
               </span>
               
               <div
-                class="o-icon fa-small"
+                class="o-icon oi-small"
               >
                 <i
-                  class="fa fa-caret-down"
+                  class="oi"
+                  data-icon="arrow_drop_down"
                 />
               </div>
               
@@ -610,10 +616,11 @@ exports[`TopBar component simple rendering 1`] = `
               </span>
               
               <div
-                class="o-icon fa-small"
+                class="o-icon oi-small"
               >
                 <i
-                  class="fa fa-caret-down"
+                  class="oi"
+                  data-icon="arrow_drop_down"
                 />
               </div>
               
@@ -642,10 +649,11 @@ exports[`TopBar component simple rendering 1`] = `
               </span>
               
               <div
-                class="o-icon fa-small"
+                class="o-icon oi-small"
               >
                 <i
-                  class="fa fa-caret-down"
+                  class="oi"
+                  data-icon="arrow_drop_down"
                 />
               </div>
               
@@ -685,10 +693,11 @@ exports[`TopBar component simple rendering 1`] = `
               </span>
               
               <div
-                class="o-icon fa-small"
+                class="o-icon oi-small"
               >
                 <i
-                  class="fa fa-caret-down"
+                  class="oi"
+                  data-icon="arrow_drop_down"
                 />
               </div>
               
@@ -705,7 +714,8 @@ exports[`TopBar component simple rendering 1`] = `
                 class="o-icon filter-icon-active"
               >
                 <i
-                  class="fa fa-filter"
+                  class="oi oi-filled"
+                  data-icon="filter_alt"
                 />
               </div>
             </span>

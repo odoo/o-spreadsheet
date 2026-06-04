@@ -143,7 +143,7 @@
   "dependencies": {
     "@odoo/owl": "3.0.0-alpha.40",
     "bootstrap": "5.3.3",
-    "font-awesome": "^4.7.0",
+    "material-symbols": "^0.44.12",
     "rbush": "^3.0.1"
   },
   "jest": {

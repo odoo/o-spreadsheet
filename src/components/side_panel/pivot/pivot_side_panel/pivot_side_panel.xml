@@ -6,14 +6,14 @@
           class="o-sidePanel-tab o-panel-configuration d-flew flex-grow-1 text-center"
           t-att-class="this.state.panel !== 'configuration' ? 'inactive' : ''"
           t-on-click="this.switchPanel.bind(this, 'configuration')">
-          <i class="fa fa-sliders me-1"/>
+          <i class="oi me-1" data-icon="tune"/>
           Configuration
         </div>
         <div
           class="o-sidePanel-tab o-panel-design d-flew flex-grow-1 text-center"
           t-att-class="this.state.panel !== 'design' ? 'inactive' : ''"
           t-on-click="this.switchPanel.bind(this, 'design')">
-          <i class="fa fa-paint-brush me-1"/>
+          <i class="oi me-1" data-icon="design_services"/>
           Design
         </div>
       </div>

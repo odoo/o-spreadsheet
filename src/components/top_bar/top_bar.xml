@@ -39,7 +39,7 @@
             t-if="this.env.model.getters.isReadonly()"
             class="o-readonly-toolbar d-flex flex-grow-1 align-items-center text-muted">
             <span>
-              <i class="fa fa-eye"/>
+              <i class="oi" data-icon="visibility"/>
               Readonly Access
             </span>
           </div>

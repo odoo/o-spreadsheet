@@ -14,11 +14,79 @@
       font: bold 16px sans-serif;
     }
   }
-  .fa-small {
+  .oi-small {
     font-size: 14px;
   }
 
   .o-icon.fx-icon {
     color: var(--os-composer-placeholder-color);
+  }
+
+  /*
+   * Odoo UI Icon (oi): render Material Symbols through the data-icon attribute.
+   * Mirrors web/static/src/webclient/icons.scss `material-icon-base`, adapted to
+   * the `material-symbols` package whose variable font exposes a FILL axis.
+   */
+  .oi {
+    display: inline-block;
+    font-family: "Material Symbols Outlined";
+    font-style: normal;
+    font-weight: 400 !important;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    vertical-align: -11.5%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "liga";
+    font-variation-settings: "FILL" var(--oi-mi-fill, 0);
+
+    &::before {
+      display: inline-block;
+      content: attr(data-icon);
+      /* Compensate the pictogram's inner spacing so glyphs fill the box like FA did. */
+      transform: scale(var(--oi-before-scale, 1.214285));
+      text-rendering: geometricPrecision;
+    }
+  }
+  .oi-outlined {
+    --oi-mi-fill: 0;
+  }
+  .oi-filled {
+    --oi-mi-fill: 1;
+  }
+
+  /* Rotation helpers (replaces FontAwesome's fa-rotate-*). */
+  .oi-rotate-90 {
+    transform: rotate(90deg);
+  }
+  .oi-rotate-180 {
+    transform: rotate(180deg);
+  }
+  .oi-rotate-270 {
+    transform: rotate(270deg);
+  }
+
+  /* Overlap several icons (e.g. a glyph over a background disc). */
+  .oi-stack {
+    position: relative;
+    display: inline-block;
+    width: 2em;
+    height: 2em;
+    line-height: 2em;
+    vertical-align: middle;
+  }
+  .oi-stack-1x,
+  .oi-stack-2x {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    text-align: center;
+  }
+  .oi-stack-2x {
+    font-size: 2em;
   }
 }
