@@ -70,6 +70,11 @@ export interface SnapshotCreatedMessage extends AbstractMessage {
   nextRevisionId: UID;
 }
 
+interface TemporaryVersionSaved extends AbstractMessage {
+  type: "INTERMEDIARY_VERSION_SAVED";
+  data: WorkbookData;
+}
+
 export type CollaborationMessage =
   | RevisionUndoneMessage
   | RevisionRedoneMessage
@@ -77,6 +82,7 @@ export type CollaborationMessage =
   | RemoteRevisionsSquishedMessage
   | SnapshotMessage
   | SnapshotCreatedMessage
+  | TemporaryVersionSaved
   | ClientMovedMessage
   | ClientJoinedMessage
   | ClientLeftMessage;
