@@ -8,6 +8,7 @@ import { Component } from "../../../../../owl3_compatibility_layer";
 import { _t } from "../../../../../translation";
 import { PivotDomain } from "../../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { useModel } from "../../../../owl_plugins/model_plugin";
 import { types } from "../../../../props_validation";
 import { Section } from "../../../components/section/section";
 
@@ -22,7 +23,7 @@ export class PivotSortSection extends Component<SpreadsheetChildEnv> {
   });
 
   get hasValidSort() {
-    const pivot = this.env.model.getters.getPivot(this.props.pivotId);
+    const pivot = this.model().getters.getPivot(this.props.pivotId);
     return (
       !!this.props.definition.sortedColumn &&
       isSortedColumnValid(this.props.definition.sortedColumn, pivot)
@@ -42,8 +43,8 @@ export class PivotSortSection extends Component<SpreadsheetChildEnv> {
     if (!sortedColumn) {
       return [];
     }
-    const pivot = this.env.model.getters.getPivot(this.props.pivotId);
-    const locale = this.env.model.getters.getLocale();
+    const pivot = this.model().getters.getPivot(this.props.pivotId);
+    const locale = this.model().getters.getLocale();
 
     const currentDomain: PivotDomain = [];
     const sortValues: { field?: string; value: string }[] = [];
@@ -63,4 +64,6 @@ export class PivotSortSection extends Component<SpreadsheetChildEnv> {
 
     return sortValues;
   }
+
+  private model = useModel();
 }

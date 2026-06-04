@@ -1,19 +1,21 @@
 import { FORBIDDEN_SHEETNAME_CHARS } from "../../constants";
+import { Model } from "../../model";
 import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
 import { UID } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 export function interactiveRenameSheet(
+  model: Model,
   env: SpreadsheetChildEnv,
   sheetId: UID,
   name: string,
   errorCallback: () => void
 ) {
-  const result = env.model.dispatch("RENAME_SHEET", {
+  const result = model.dispatch("RENAME_SHEET", {
     sheetId,
     newName: name,
-    oldName: env.model.getters.getSheetName(sheetId),
+    oldName: model.getters.getSheetName(sheetId),
   });
   if (result.reasons.includes(CommandResult.MissingSheetName)) {
     env.raiseError(_t("The sheet name cannot be empty."), errorCallback);

@@ -11,6 +11,7 @@ import {
   filterNumberCriterionOperators,
   filterTextCriterionOperators,
 } from "../../../types/table";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 import { SidePanelCollapsible } from "../../side_panel/components/collapsible/side_panel_collapsible";
 import { FilterMenuCriterion } from "../filter_menu_criterion/filter_menu_criterion";
@@ -25,6 +26,7 @@ export class PivotFilterMenu extends Component<SpreadsheetChildEnv> {
 
   private criterionCategory: CriterionCategory = "char";
   private updatedCriterionValue: DataFilterValue | undefined;
+  private model = useModel();
 
   protected props = props({
     pivotId: types.UID(),
@@ -54,7 +56,7 @@ export class PivotFilterMenu extends Component<SpreadsheetChildEnv> {
   }
 
   private getCriterionCategory(): CriterionCategory {
-    const pivot = this.env.model.getters.getPivot(this.props.pivotId);
+    const pivot = this.model().getters.getPivot(this.props.pivotId);
     const fields = pivot.getFields();
     const criterionCategory = fields[this.props.filter.fieldName]?.type;
     return (criterionCategory || "char") as CriterionCategory;

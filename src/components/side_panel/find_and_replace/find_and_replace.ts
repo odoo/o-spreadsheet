@@ -9,6 +9,7 @@ import { DebouncedFunction, ValueAndLabel } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 import { Select } from "../../select/select";
 import { SelectionInput } from "../../selection_input/selection_input";
@@ -44,7 +45,7 @@ export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
   get currentSheetMatchesCount() {
     return _t("%(matches)s matches in %(sheetName)s", {
       matches: this.store.activeSheetMatchesCount,
-      sheetName: this.env.model.getters.getSheetName(this.env.model.getters.getActiveSheetId()),
+      sheetName: this.model().getters.getSheetName(this.model().getters.getActiveSheetId()),
     });
   }
 
@@ -57,7 +58,7 @@ export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
     return _t("%(matches)s matches in range %(range)s of %(sheetName)s", {
       matches: this.store.specificRangeMatchesCount,
       range: zoneToXc(zone),
-      sheetName: this.env.model.getters.getSheetName(sheetId),
+      sheetName: this.model().getters.getSheetName(sheetId),
     });
   }
 
@@ -72,6 +73,7 @@ export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
     ];
   }
 
+  private model = useModel();
   setup() {
     this.store = useLocalStore(FindAndReplaceStore);
     this.state = proxy({ dataRange: "" });
@@ -149,8 +151,8 @@ export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
     if (!this.state.dataRange || this.searchOptions.searchScope !== "specificRange") {
       return;
     }
-    const specificRange = this.env.model.getters.getRangeFromSheetXC(
-      this.env.model.getters.getActiveSheetId(),
+    const specificRange = this.model().getters.getRangeFromSheetXC(
+      this.model().getters.getActiveSheetId(),
       this.state.dataRange
     );
     this.store.updateSearchOptions({ specificRange });
@@ -158,7 +160,7 @@ export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
 
   get specificRange(): string {
     const range = this.store.searchOptions.specificRange;
-    return range ? this.env.model.getters.getRangeString(range, "forceSheetReference") : "";
+    return range ? this.model().getters.getRangeString(range, "forceSheetReference") : "";
   }
 
   get pendingSearch() {
@@ -170,7 +172,7 @@ export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
     // and have specific behaviour linked to it (eg. go back to the initial sheet after confirmation).
     // We don't want all those behaviors here, so we force the recreation of the component when the active sheet changes.
     // The only drawback is that the input loses focus when changing sheet.
-    return this.env.model.getters.getActiveSheetId();
+    return this.model().getters.getActiveSheetId();
   }
 
   get searchScopeOptions(): ValueAndLabel[] {

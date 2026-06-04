@@ -1,3 +1,4 @@
+import { Model } from "../../model";
 import { _t } from "../../translation";
 import {
   CommandResult,
@@ -8,18 +9,20 @@ import {
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 export function interactiveCreateNamedRange(
+  model: Model,
   env: SpreadsheetChildEnv,
   payload: Omit<CreateNamedRangeCommand, "type">
 ) {
-  const result = env.model.dispatch("CREATE_NAMED_RANGE", payload);
+  const result = model.dispatch("CREATE_NAMED_RANGE", payload);
   handleResult(env, result);
 }
 
 export function interactiveUpdateNamedRange(
+  model: Model,
   env: SpreadsheetChildEnv,
   payload: Omit<UpdateNamedRangeCommand, "type">
 ) {
-  const result = env.model.dispatch("UPDATE_NAMED_RANGE", payload);
+  const result = model.dispatch("UPDATE_NAMED_RANGE", payload);
   handleResult(env, result);
 }
 

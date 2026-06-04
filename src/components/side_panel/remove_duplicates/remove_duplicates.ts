@@ -5,6 +5,7 @@ import { Component } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
 import { HeaderIndex } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 import { RemoveDuplicateTerms } from "../../translations_terms";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
@@ -28,6 +29,7 @@ export class RemoveDuplicatesPanel extends Component<SpreadsheetChildEnv> {
     columns: {},
   });
 
+  private model = useModel();
   setup() {
     this.updateColumns();
     onWillUpdateProps(() => this.updateColumns());
@@ -49,7 +51,7 @@ export class RemoveDuplicatesPanel extends Component<SpreadsheetChildEnv> {
   }
 
   onRemoveDuplicates() {
-    this.env.model.dispatch("REMOVE_DUPLICATES", {
+    this.model().dispatch("REMOVE_DUPLICATES", {
       hasHeader: this.state.hasHeader,
       columns: this.getColsToAnalyze(),
     });
@@ -59,9 +61,9 @@ export class RemoveDuplicatesPanel extends Component<SpreadsheetChildEnv> {
     const col = parseInt(colKey);
     let colLabel = _t("Column %s", numberToLetters(col));
     if (this.state.hasHeader) {
-      const sheetId = this.env.model.getters.getActiveSheetId();
-      const row = this.env.model.getters.getSelectedZone().top;
-      const colHeader = this.env.model.getters.getEvaluatedCell({ sheetId, col, row });
+      const sheetId = this.model().getters.getActiveSheetId();
+      const row = this.model().getters.getSelectedZone().top;
+      const colHeader = this.model().getters.getEvaluatedCell({ sheetId, col, row });
       if (colHeader.type !== "empty") {
         colLabel += ` - ${colHeader.value}`;
       }
@@ -74,7 +76,7 @@ export class RemoveDuplicatesPanel extends Component<SpreadsheetChildEnv> {
   }
 
   get errorMessages(): string[] {
-    const cancelledReasons = this.env.model.canDispatch("REMOVE_DUPLICATES", {
+    const cancelledReasons = this.model().canDispatch("REMOVE_DUPLICATES", {
       hasHeader: this.state.hasHeader,
       columns: this.getColsToAnalyze(),
     }).reasons;
@@ -88,7 +90,7 @@ export class RemoveDuplicatesPanel extends Component<SpreadsheetChildEnv> {
   }
 
   get selectionStatisticalInformation(): string {
-    const dimension = zoneToDimension(this.env.model.getters.getSelectedZone());
+    const dimension = zoneToDimension(this.model().getters.getSelectedZone());
     return _t("%(row_count)s rows and %(column_count)s columns selected", {
       row_count: dimension.numberOfRows,
       column_count: dimension.numberOfCols,
@@ -104,7 +106,7 @@ export class RemoveDuplicatesPanel extends Component<SpreadsheetChildEnv> {
   // ---------------------------------------------------------------------------
 
   private updateColumns() {
-    const zone = this.env.model.getters.getSelectedZone();
+    const zone = this.model().getters.getSelectedZone();
     const oldColumns = this.state.columns;
     const newColumns = {};
     for (let i = zone.left; i <= zone.right; i++) {

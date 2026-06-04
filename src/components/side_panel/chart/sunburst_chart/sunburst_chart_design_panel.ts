@@ -20,6 +20,7 @@ import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 import { props } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
+import { useModel } from "../../../owl_plugins/model_plugin";
 export class SunburstChartDesignPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SunburstChartDesignPanel";
   static components = {
@@ -50,7 +51,7 @@ export class SunburstChartDesignPanel extends Component<SpreadsheetChildEnv> {
 
   get groupColors() {
     const chartId = this.props.chartId;
-    const runtime = this.env.model.getters.getChartRuntime(chartId) as SunburstChartRuntime;
+    const runtime = this.model().getters.getChartRuntime(chartId) as SunburstChartRuntime;
     const dataset = runtime.chartJsConfig.data.datasets[0] as SunburstChartJSDataset;
     return dataset?.groupColors || [];
   }
@@ -67,4 +68,6 @@ export class SunburstChartDesignPanel extends Component<SpreadsheetChildEnv> {
       pieHolePercentage,
     });
   }
+
+  private model = useModel();
 }

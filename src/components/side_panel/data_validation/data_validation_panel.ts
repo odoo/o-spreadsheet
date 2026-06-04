@@ -7,6 +7,7 @@ import { DataValidationPreview } from "./dv_preview/dv_preview";
 
 import { props } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
+import { useModel } from "../../owl_plugins/model_plugin";
 
 export class DataValidationPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationPanel";
@@ -26,12 +27,14 @@ export class DataValidationPanel extends Component<SpreadsheetChildEnv> {
     if (!rule) {
       return rule;
     }
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     return localizeDataValidationRule(rule, locale);
   }
 
   get validationRules() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    return this.env.model.getters.getDataValidationRules(sheetId);
+    const sheetId = this.model().getters.getActiveSheetId();
+    return this.model().getters.getDataValidationRules(sheetId);
   }
+
+  private model = useModel();
 }

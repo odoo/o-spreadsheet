@@ -8,6 +8,7 @@ import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { types } from "../../../props_validation";
 import { ConditionalFormatPreview } from "../cf_preview/cf_preview";
 
@@ -23,12 +24,10 @@ export class ConditionalFormatPreviewList extends Component<SpreadsheetChildEnv>
   private cfListRef = signal<HTMLElement | null>(null);
 
   get conditionalFormats(): ConditionalFormat[] {
-    const cfs = this.env.model.getters.getConditionalFormats(
-      this.env.model.getters.getActiveSheetId()
-    );
+    const cfs = this.model().getters.getConditionalFormats(this.model().getters.getActiveSheetId());
     return cfs.map((cf) => ({
       ...cf,
-      rule: localizeCFRule(cf.rule, this.env.model.getters.getLocale()),
+      rule: localizeCFRule(cf.rule, this.model().getters.getLocale()),
     }));
   }
 
@@ -62,8 +61,8 @@ export class ConditionalFormatPreviewList extends Component<SpreadsheetChildEnv>
   }
 
   onAddConditionalFormat() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const zones = this.env.model.getters.getSelectedZones();
+    const sheetId = this.model().getters.getActiveSheetId();
+    const zones = this.model().getters.getSelectedZones();
     const cf: Omit<ConditionalFormat, "ranges"> = {
       id: UuidGenerator.smallUuid(),
       rule: {
@@ -73,17 +72,15 @@ export class ConditionalFormatPreviewList extends Component<SpreadsheetChildEnv>
         values: [],
       },
     };
-    this.env.model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    this.model().dispatch("ADD_CONDITIONAL_FORMAT", {
       cf,
-      ranges: zones.map((zone) => this.env.model.getters.getRangeDataFromZone(sheetId, zone)),
+      ranges: zones.map((zone) => this.model().getters.getRangeDataFromZone(sheetId, zone)),
       sheetId,
     });
     return this.env.replaceSidePanel("ConditionalFormattingEditor", "ConditionalFormatting", {
       cf: {
         ...cf,
-        ranges: zones.map((zone) =>
-          zoneToXc(this.env.model.getters.getUnboundedZone(sheetId, zone))
-        ),
+        ranges: zones.map((zone) => zoneToXc(this.model().getters.getUnboundedZone(sheetId, zone))),
       },
       isNewCf: true,
     });
@@ -93,11 +90,13 @@ export class ConditionalFormatPreviewList extends Component<SpreadsheetChildEnv>
     const originalIndex = this.conditionalFormats.findIndex((sheet) => sheet.id === cfId);
     const delta = originalIndex - finalIndex;
     if (delta !== 0) {
-      this.env.model.dispatch("CHANGE_CONDITIONAL_FORMAT_PRIORITY", {
+      this.model().dispatch("CHANGE_CONDITIONAL_FORMAT_PRIORITY", {
         cfId,
         delta,
-        sheetId: this.env.model.getters.getActiveSheetId(),
+        sheetId: this.model().getters.getActiveSheetId(),
       });
     }
   }
+
+  private model = useModel();
 }

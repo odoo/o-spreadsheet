@@ -17,6 +17,7 @@ import {
   filterNumberCriterionOperators,
   filterTextCriterionOperators,
 } from "../../../types/table";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 import { SidePanelCollapsible } from "../../side_panel/components/collapsible/side_panel_collapsible";
 import { FilterMenuCriterion } from "../filter_menu_criterion/filter_menu_criterion";
@@ -47,6 +48,8 @@ export class FilterMenu extends Component<SpreadsheetChildEnv> {
   private criterionCategory: CriterionCategory = "text";
   private updatedCriterionValue: DataFilterValue | undefined;
 
+  private model = useModel();
+
   setup() {
     onWillUpdateProps((nextProps: PropsOf<FilterMenu>) => {
       if (!deepEquals(nextProps.filterPosition, this.props.filterPosition)) {
@@ -65,29 +68,29 @@ export class FilterMenu extends Component<SpreadsheetChildEnv> {
     if (!this.table) {
       return false;
     }
-    const coreTable = this.env.model.getters.getCoreTableMatchingTopLeft(
+    const coreTable = this.model().getters.getCoreTableMatchingTopLeft(
       this.table.range.sheetId,
       this.table.range.zone
     );
-    return !this.env.model.getters.isReadonly() && coreTable?.type !== "dynamic";
+    return !this.model().getters.isReadonly() && coreTable?.type !== "dynamic";
   }
 
   get table() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const position = this.props.filterPosition;
-    return this.env.model.getters.getTable({ sheetId, ...position });
+    return this.model().getters.getTable({ sheetId, ...position });
   }
 
   get filterValueType() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const position = this.props.filterPosition;
-    const filterValue = this.env.model.getters.getFilterValue({ sheetId, ...position });
+    const filterValue = this.model().getters.getFilterValue({ sheetId, ...position });
     return filterValue?.filterType;
   }
 
   private getCriterionCategory(position: Position): CriterionCategory {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const filter = this.env.model.getters.getFilter({ sheetId, ...position });
+    const sheetId = this.model().getters.getActiveSheetId();
+    const filter = this.model().getters.getFilter({ sheetId, ...position });
     if (!filter || !filter.filteredRange) {
       return "text";
     }
@@ -100,7 +103,7 @@ export class FilterMenu extends Component<SpreadsheetChildEnv> {
       if (row > 100) {
         break;
       }
-      const cell = this.env.model.getters.getEvaluatedCell({ sheetId, row, col: position.col });
+      const cell = this.model().getters.getEvaluatedCell({ sheetId, row, col: position.col });
       if (cell.type === CellValueType.text || cell.type === CellValueType.boolean) {
         cellTypesCount.text++;
       } else if (cell.type === CellValueType.number) {
@@ -131,9 +134,9 @@ export class FilterMenu extends Component<SpreadsheetChildEnv> {
       return;
     }
     const position = this.props.filterPosition;
-    this.env.model.dispatch("UPDATE_FILTER", {
+    this.model().dispatch("UPDATE_FILTER", {
       ...position,
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.model().getters.getActiveSheetId(),
       value: this.updatedCriterionValue,
     });
     this.props.onClosed?.();
@@ -159,30 +162,38 @@ export class FilterMenu extends Component<SpreadsheetChildEnv> {
     if (!filterPosition || !tableZone || tableZone.top === tableZone.bottom) {
       return;
     }
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const contentZone = { ...tableZone, top: tableZone.top + 1 };
     const sortAnchor = { col: filterPosition.col, row: contentZone.top };
     const sortOptions = { emptyCellAsZero: true, sortHeaders: true };
-    interactiveSort(this.env, sheetId, sortAnchor, contentZone, sortDirection, sortOptions);
+    interactiveSort(
+      this.model(),
+      this.env,
+      sheetId,
+      sortAnchor,
+      contentZone,
+      sortDirection,
+      sortOptions
+    );
     this.props.onClosed?.();
   }
 
   private getFilterHiddenValues(position: Position): Value[] {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const filter = this.env.model.getters.getFilter({ sheetId, ...position });
+    const sheetId = this.model().getters.getActiveSheetId();
+    const filter = this.model().getters.getFilter({ sheetId, ...position });
     if (!filter?.filteredRange) {
       return [];
     }
-    const filterValue = this.env.model.getters.getFilterValue({ sheetId, ...position });
+    const filterValue = this.model().getters.getFilterValue({ sheetId, ...position });
     let cellPositions = positions(filter.filteredRange.zone);
     if (filterValue?.filterType !== "criterion") {
       cellPositions = cellPositions.filter(
-        (currentPosition) => !this.env.model.getters.isRowHidden(sheetId, currentPosition.row)
+        (currentPosition) => !this.model().getters.isRowHidden(sheetId, currentPosition.row)
       );
     }
     const cellValues = cellPositions.map(
       (currentPosition) =>
-        this.env.model.getters.getEvaluatedCell({ sheetId, ...currentPosition }).formattedValue
+        this.model().getters.getEvaluatedCell({ sheetId, ...currentPosition }).formattedValue
     );
 
     const filterValues = filterValue?.filterType === "values" ? filterValue.hiddenValues : [];
@@ -216,8 +227,8 @@ export class FilterMenu extends Component<SpreadsheetChildEnv> {
   }
 
   getFilterCriterionValue(position: Position): CriterionFilter {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const filterValue = this.env.model.getters.getFilterCriterionValue({ sheetId, ...position });
+    const sheetId = this.model().getters.getActiveSheetId();
+    const filterValue = this.model().getters.getFilterCriterionValue({ sheetId, ...position });
     return filterValue?.filterType === "criterion"
       ? deepCopy(filterValue)
       : { filterType: "criterion", type: "none", values: [] };

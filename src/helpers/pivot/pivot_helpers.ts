@@ -9,6 +9,7 @@ import {
   toString,
   toValue,
 } from "../../functions/helpers";
+import { Model } from "../../model";
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
 import { CellValue } from "../../types/cells";
@@ -30,7 +31,6 @@ import {
   PivotTableCell,
 } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { replaceSymbolInFormula } from "../formulas";
 import { deepEquals, getUniqueText, isDefined } from "../misc";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
@@ -435,13 +435,13 @@ export function getCustomFieldWithParentField(
   );
 }
 
-export function togglePivotCollapse(position: CellPosition, env: SpreadsheetChildEnv) {
-  const pivotCell = env.model.getters.getPivotCellFromPosition(position);
-  const pivotId = env.model.getters.getPivotIdFromPosition(position);
+export function togglePivotCollapse(position: CellPosition, model: Model) {
+  const pivotCell = model.getters.getPivotCellFromPosition(position);
+  const pivotId = model.getters.getPivotIdFromPosition(position);
   if (!pivotId || pivotCell.type !== "HEADER") {
     return;
   }
-  const definition = env.model.getters.getPivotCoreDefinition(pivotId);
+  const definition = model.getters.getPivotCoreDefinition(pivotId);
 
   const collapsedDomains = definition.collapsedDomains?.[pivotCell.dimension]
     ? [...definition.collapsedDomains[pivotCell.dimension]]
@@ -457,7 +457,7 @@ export function togglePivotCollapse(position: CellPosition, env: SpreadsheetChil
     ? { ...definition.collapsedDomains }
     : { COL: [], ROW: [] };
   newDomains[pivotCell.dimension] = collapsedDomains;
-  env.model.dispatch("UPDATE_PIVOT", {
+  model.dispatch("UPDATE_PIVOT", {
     pivotId,
     pivot: { ...definition, collapsedDomains: newDomains },
   });

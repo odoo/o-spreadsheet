@@ -48,13 +48,13 @@ describe("Pivot properties menu item", () => {
   let env: SpreadsheetChildEnv;
 
   beforeEach(async () => {
-    env = makeTestEnv();
-    model = env.model;
+    model = new Model();
+    env = makeTestEnv(model);
   });
   test("It should not display pivot_properties if there is no pivot in the cell", () => {
     selectCell(model, "A1");
     expect(model.getters.getPivotIdFromPosition(model.getters.getActivePosition())).toBeUndefined();
-    expect(cellMenuRegistry.get("pivot_properties").isVisible!(env)).toBe(false);
+    expect(cellMenuRegistry.get("pivot_properties").isVisible!(model, env)).toBe(false);
   });
 
   test("It should display pivot_properties if there is a pivot in the cell", () => {
@@ -62,7 +62,7 @@ describe("Pivot properties menu item", () => {
     addPivot(model, "M1:N1", {}, "1");
     setCellContent(model, "A1", `=PIVOT("1")`);
     expect(model.getters.getPivotIdFromPosition(model.getters.getActivePosition())).toBe("1");
-    expect(cellMenuRegistry.get("pivot_properties").isVisible!(env)).toBe(true);
+    expect(cellMenuRegistry.get("pivot_properties").isVisible!(model, env)).toBe(true);
   });
 
   test("It should not display pivot_properties if the pivot does not exist", () => {
@@ -70,7 +70,7 @@ describe("Pivot properties menu item", () => {
     addPivot(model, "M1:N1", {}, "1");
     setCellContent(model, "A1", `=PIVOT("2")`);
     expect(model.getters.getPivotIdFromPosition(model.getters.getActivePosition())).toBeUndefined();
-    expect(cellMenuRegistry.get("pivot_properties").isVisible!(env)).toBe(false);
+    expect(cellMenuRegistry.get("pivot_properties").isVisible!(model, env)).toBe(false);
   });
 
   test("It should display pivot_properties if there are multiple pivots in the cell", () => {
@@ -79,7 +79,7 @@ describe("Pivot properties menu item", () => {
     addPivot(model, "M1:N1", {}, "2");
     setCellContent(model, "A1", `=PIVOT("1") + PIVOT("2")`);
     expect(model.getters.getPivotIdFromPosition(model.getters.getActivePosition())).toBe("1");
-    expect(cellMenuRegistry.get("pivot_properties").isVisible!(env)).toBe(true);
+    expect(cellMenuRegistry.get("pivot_properties").isVisible!(model, env)).toBe(true);
   });
 
   test("It should open the pivot side panel when clicking on pivot_properties", () => {
@@ -87,7 +87,7 @@ describe("Pivot properties menu item", () => {
     addPivot(model, "M1:N1", {}, "1");
     setCellContent(model, "A1", `=PIVOT("1")`);
     const openSidePanel = jest.spyOn(env, "openSidePanel");
-    cellMenuRegistry.get("pivot_properties").execute!(env);
+    cellMenuRegistry.get("pivot_properties").execute!(model, env);
     expect(openSidePanel).toHaveBeenCalledWith("PivotSidePanel", { pivotId: "1" });
   });
 
@@ -97,7 +97,7 @@ describe("Pivot properties menu item", () => {
     addPivot(model, "M1:N1", {}, "2");
     setCellContent(model, "A1", `=PIVOT("1") + PIVOT("2")`);
     const openSidePanel = jest.spyOn(env, "openSidePanel");
-    cellMenuRegistry.get("pivot_properties").execute!(env);
+    cellMenuRegistry.get("pivot_properties").execute!(model, env);
     expect(openSidePanel).toHaveBeenCalledWith("PivotSidePanel", { pivotId: "1" });
   });
 });
@@ -115,7 +115,7 @@ describe("Pivot fix formula menu item", () => {
       A8: "=PIVOT(1)",
     };
     const model = createModelFromGrid(grid);
-    const env = makeTestEnv({ model });
+    const env = makeTestEnv(model);
     addPivot(model, "A1:E6", {
       columns: [{ fieldName: "Customer", order: "asc" }],
       rows: [{ fieldName: "Date", order: "asc", granularity: "month_number" }],
@@ -123,7 +123,7 @@ describe("Pivot fix formula menu item", () => {
     });
     // Zone of the pivot is from A8 to E14
     selectCell(model, "B8");
-    cellMenuRegistry.get("pivot_fix_formulas").execute!(env);
+    cellMenuRegistry.get("pivot_fix_formulas").execute!(model, env);
 
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A8:E14")).toEqual([
@@ -198,7 +198,7 @@ describe("Pivot fix formula menu item", () => {
       A3: "",         B3: "20",
     };
     const model = createModelFromGrid(grid);
-    const env = makeTestEnv({ model });
+    const env = makeTestEnv(model);
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Customer", order: "asc" }],
@@ -214,7 +214,7 @@ describe("Pivot fix formula menu item", () => {
     ]);
 
     selectCell(model, "C2");
-    cellMenuRegistry.get("pivot_fix_formulas").execute!(env);
+    cellMenuRegistry.get("pivot_fix_formulas").execute!(model, env);
 
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:D4")).toEqual([
@@ -239,7 +239,7 @@ describe("Pivot fix formula menu item", () => {
      A3: "Bob",      B3: "30",
    };
     const model = createModelFromGrid(grid);
-    const env = makeTestEnv({ model });
+    const env = makeTestEnv(model);
 
     addPivot(model, "A1:B3", {
       columns: [],
@@ -258,7 +258,7 @@ describe("Pivot fix formula menu item", () => {
     });
 
     selectCell(model, "C1");
-    cellMenuRegistry.get("pivot_fix_formulas").execute!(env);
+    cellMenuRegistry.get("pivot_fix_formulas").execute!(model, env);
 
     expect(model.getters.getTables(sheetId)).toHaveLength(1);
     expect(model.getters.getCoreTable(activePosition)).toMatchObject({
@@ -276,7 +276,7 @@ describe("Pivot fix formula menu item", () => {
     };
     const model = createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
-    const env = makeTestEnv({ model });
+    const env = makeTestEnv(model);
     addPivot(model, "A1:A2", {
       columns: [],
       rows: [{ fieldName: "Customer" }],
@@ -291,7 +291,7 @@ describe("Pivot fix formula menu item", () => {
     });
     // Zone of the pivot is from A8 to E14
     selectCell(model, "A3");
-    cellMenuRegistry.get("pivot_fix_formulas").execute?.(env);
+    cellMenuRegistry.get("pivot_fix_formulas").execute?.(model, env);
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A3:B6")).toEqual([
       ["",      "Total"],
@@ -322,22 +322,22 @@ describe("Pivot fix formula menu item", () => {
       rows: [{ fieldName: "Invalid" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    const env = makeTestEnv({ model });
+    const env = makeTestEnv(model);
     const pivot = model.getters.getPivot("1")!;
     expect(pivot.isValid()).toBe(false);
     selectCell(model, "C1");
-    expect(cellMenuRegistry.get("pivot_fix_formulas").isVisible!(env)).toBe(false);
+    expect(cellMenuRegistry.get("pivot_fix_formulas").isVisible!(model, env)).toBe(false);
   });
 
   test("It should  be invisible when the pivot cannot spill", () => {
     const model = createModelWithPivot("A1:I5");
     setCellContent(model, "A24", "=pivot(1)");
     setCellContent(model, "A25", "block the spill");
-    const env = makeTestEnv({ model });
+    const env = makeTestEnv(model);
 
     expect(getCellContent(model, "A24")).toEqual("#SPILL!");
     selectCell(model, "A24");
-    expect(cellMenuRegistry.get("pivot_fix_formulas").isVisible!(env)).toBe(false);
+    expect(cellMenuRegistry.get("pivot_fix_formulas").isVisible!(model, env)).toBe(false);
   });
 
   test("It should ignore hidden measures", () => {
@@ -365,9 +365,9 @@ describe("Pivot fix formula menu item", () => {
         },
       ],
     });
-    const env = makeTestEnv({ model });
+    const env = makeTestEnv(model);
     selectCell(model, "A4");
-    cellMenuRegistry.get("pivot_fix_formulas").execute?.(env);
+    cellMenuRegistry.get("pivot_fix_formulas").execute?.(model, env);
     setFormulaVisibility(model, true);
 
     // prettier-ignore
@@ -386,7 +386,7 @@ describe("Pivot fix formula menu item", () => {
      A3: "Bob",      B3: "30",    C3: "1/1/2024",
    };
     const model = createModelFromGrid(grid);
-    const env = makeTestEnv({ model });
+    const env = makeTestEnv(model);
 
     addPivot(model, "A1:C3", {
       columns: [{ fieldName: "Customer" }],
@@ -396,7 +396,7 @@ describe("Pivot fix formula menu item", () => {
     });
 
     selectCell(model, "E1");
-    cellMenuRegistry.get("pivot_fix_formulas").execute!(env);
+    cellMenuRegistry.get("pivot_fix_formulas").execute!(model, env);
 
     setFormulaVisibility(model, true);
     expect(getEvaluatedGrid(model, "E1:F1")).toEqual([
@@ -427,9 +427,9 @@ describe("Pivot reinsertion menu item", () => {
         measures: [{ id: "Quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
         style: { tableStyleId: PIVOT_INSERT_TABLE_STYLE_ID },
       });
-      const env = makeTestEnv({ model });
+      const env = makeTestEnv(model);
       selectCell(model, "B8");
-      await doAction(reinsertDynamicPivotPath, env, topbarMenuRegistry);
+      await doAction(reinsertDynamicPivotPath, model, env, topbarMenuRegistry);
       expect(getCellText(model, "B8")).toEqual(`=PIVOT(1)`);
       expect(getTable(model, "B8")).toMatchObject({
         range: { zone: toZone("B8:C11") },
@@ -450,8 +450,8 @@ describe("Pivot reinsertion menu item", () => {
         measures: [{ id: "Quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
       });
       createSheet(model, { sheetId: "smallSheet", rows: 1, cols: 1, activate: true });
-      const env = makeTestEnv({ model });
-      await doAction(reinsertDynamicPivotPath, env, topbarMenuRegistry);
+      const env = makeTestEnv(model);
+      await doAction(reinsertDynamicPivotPath, model, env, topbarMenuRegistry);
       expect(getCellText(model, "A1")).toEqual(`=PIVOT(1)`);
       expect(model.getters.getPivot(model.getters.getPivotId("1")!).isValid()).toBeTruthy();
       expect(model.getters.getNumberCols("smallSheet")).toEqual(2);
@@ -471,9 +471,9 @@ describe("Pivot reinsertion menu item", () => {
         measures: [{ id: "Quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
         style: { tableStyleId: PIVOT_INSERT_TABLE_STYLE_ID },
       });
-      const env = makeTestEnv({ model });
+      const env = makeTestEnv(model);
       selectCell(model, "B8");
-      await doAction(reinsertDynamicPivotPath, env, topbarMenuRegistry);
+      await doAction(reinsertDynamicPivotPath, model, env, topbarMenuRegistry);
       expect(getCellText(model, "B8")).toEqual(`=PIVOT(1)`);
       expect(getTable(model, "B8")).toBeDefined();
       undo(model);
@@ -498,9 +498,9 @@ describe("Pivot reinsertion menu item", () => {
         rows: [{ fieldName: "Customer" }],
         measures: [{ id: "Quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
       });
-      const env = makeTestEnv({ model });
+      const env = makeTestEnv(model);
       selectCell(model, "B8");
-      await doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
+      await doAction(reinsertStaticPivotPath, model, env, topbarMenuRegistry);
       expect(getCellText(model, "B10")).toEqual(`=PIVOT.HEADER(1,"Customer","Alice")`);
       expect(
         model.getters.getCoreTable({
@@ -527,8 +527,8 @@ describe("Pivot reinsertion menu item", () => {
         measures: [{ id: "Quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
       });
       createSheet(model, { sheetId: "smallSheet", rows: 1, cols: 1, activate: true });
-      const env = makeTestEnv({ model });
-      await doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
+      const env = makeTestEnv(model);
+      await doAction(reinsertStaticPivotPath, model, env, topbarMenuRegistry);
       expect(getCellText(model, "A3")).toEqual(`=PIVOT.HEADER(1,"Customer","Alice")`);
       expect(model.getters.getPivot(model.getters.getPivotId("1")!).isValid()).toBeTruthy();
       expect(model.getters.getNumberCols("smallSheet")).toEqual(2);
@@ -541,10 +541,10 @@ describe("Pivot reinsertion menu item", () => {
       addPivot(model, "A1:B2", {});
 
       const notifyUser = jest.fn();
-      const env = makeTestEnv({ model, notifyUser });
+      const env = makeTestEnv(model, { notifyUser });
       jest.spyOn(SpreadsheetPivotTable.prototype, "numberOfCells", "get").mockReturnValue(1000000);
 
-      await doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
+      await doAction(reinsertStaticPivotPath, model, env, topbarMenuRegistry);
       expect(notifyUser).toHaveBeenCalledWith({
         sticky: true,
         text: getPivotTooBigErrorMessage(1000000, model.getters.getLocale()),
@@ -565,9 +565,9 @@ describe("Pivot reinsertion menu item", () => {
         rows: [{ fieldName: "Customer" }],
         measures: [{ id: "Quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
       });
-      const env = makeTestEnv({ model });
+      const env = makeTestEnv(model);
       selectCell(model, "B8");
-      await doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
+      await doAction(reinsertStaticPivotPath, model, env, topbarMenuRegistry);
       expect(getCellText(model, "B10")).toEqual(`=PIVOT.HEADER(1,"Customer","Alice")`);
       expect(getTable(model, "B10")).toBeDefined();
       undo(model);
@@ -591,11 +591,15 @@ describe("Pivot reinsertion menu item", () => {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
     });
-    const env = makeTestEnv({ model });
+    const env = makeTestEnv(model);
     selectCell(model, "B8");
     expect(model.getters.getPivot("1")!.isValid()).toBeFalsy();
-    expect(getNode(reinsertDynamicPivotPath, env, topbarMenuRegistry).isVisible(env)).toBeFalsy();
-    expect(getNode(reinsertStaticPivotPath, env, topbarMenuRegistry).isVisible(env)).toBeFalsy();
+    expect(
+      getNode(reinsertDynamicPivotPath, model, env, topbarMenuRegistry).isVisible(model, env)
+    ).toBeFalsy();
+    expect(
+      getNode(reinsertStaticPivotPath, model, env, topbarMenuRegistry).isVisible(model, env)
+    ).toBeFalsy();
   });
 
   test("Verify re-insert pivot menu items invisibility when no pivots present", () => {
@@ -608,10 +612,14 @@ describe("Pivot reinsertion menu item", () => {
             A2: "Alice",    B2: "Jambon",
           };
     const model = createModelFromGrid(grid);
-    const env = makeTestEnv({ model });
+    const env = makeTestEnv(model);
 
-    expect(getNode(reinsertDynamicPivotPath, env, topbarMenuRegistry).isVisible(env)).toBeFalsy();
-    expect(getNode(reinsertStaticPivotPath, env, topbarMenuRegistry).isVisible(env)).toBeFalsy();
+    expect(
+      getNode(reinsertDynamicPivotPath, model, env, topbarMenuRegistry).isVisible(model, env)
+    ).toBeFalsy();
+    expect(
+      getNode(reinsertStaticPivotPath, model, env, topbarMenuRegistry).isVisible(model, env)
+    ).toBeFalsy();
 
     addPivot(model, "A1:B2", {
       columns: [],
@@ -619,17 +627,21 @@ describe("Pivot reinsertion menu item", () => {
       measures: [{ id: "quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
     });
 
-    expect(getNode(reinsertDynamicPivotPath, env, topbarMenuRegistry).isVisible(env)).toBeTruthy();
-    expect(getNode(reinsertStaticPivotPath, env, topbarMenuRegistry).isVisible(env)).toBeTruthy();
+    expect(
+      getNode(reinsertDynamicPivotPath, model, env, topbarMenuRegistry).isVisible(model, env)
+    ).toBeTruthy();
+    expect(
+      getNode(reinsertStaticPivotPath, model, env, topbarMenuRegistry).isVisible(model, env)
+    ).toBeTruthy();
   });
 
   test("Insert a pivot", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    const env = makeTestEnv({ model });
+    const env = makeTestEnv(model);
     setGrid(model, { A1: "Header1", B1: "Header2", A2: "Data1", B2: "Data2" });
     setSelection(model, ["A1:B2"]);
-    await doAction(insertPivotPath, env, topbarMenuRegistry);
+    await doAction(insertPivotPath, model, env, topbarMenuRegistry);
     expect(model.getters.getActiveSheetId()).not.toEqual(sheetId);
     expect(model.getters.getPivotIds()).toHaveLength(1);
     expect(getCellText(model, "A1")).toEqual(`=PIVOT(1)`);
@@ -654,7 +666,7 @@ describe("Pivot sorting menu item", () => {
     } else {
       path.push("pivot_sorting_none");
     }
-    await doAction(path, env, cellMenuRegistry);
+    await doAction(path, model, env, cellMenuRegistry);
   }
 
   function getPivotSortedColumn() {
@@ -664,8 +676,8 @@ describe("Pivot sorting menu item", () => {
 
   beforeEach(() => {
     model = createModelWithTestPivotDataset();
-    env = makeTestEnv({ model });
-    sortAction = getNode(["pivot_sorting"], env, cellMenuRegistry);
+    env = makeTestEnv(model);
+    sortAction = getNode(["pivot_sorting"], model, env, cellMenuRegistry);
   });
 
   test("Can sort and un-sort the pivot when clicking on a value cell", async () => {
@@ -703,30 +715,30 @@ describe("Pivot sorting menu item", () => {
     setCellContent(model, "A1", "Not Created On");
     expect(getEvaluatedCell(model, "A20").value).toEqual("#ERROR");
     selectCell(model, "A20");
-    expect(sortAction.isVisible(env)).toBe(false);
+    expect(sortAction.isVisible(model, env)).toBe(false);
   });
 
   test("Sort menu item is only visible on pivot values and measure header", () => {
     selectCell(model, "A1"); // Random cell
-    expect(sortAction.isVisible(env)).toBe(false);
+    expect(sortAction.isVisible(model, env)).toBe(false);
 
     selectCell(model, "A20"); // Pivot header
-    expect(sortAction.isVisible(env)).toBe(false);
+    expect(sortAction.isVisible(model, env)).toBe(false);
 
     selectCell(model, "A21"); // Empty pivot cell
-    expect(sortAction.isVisible(env)).toBe(false);
+    expect(sortAction.isVisible(model, env)).toBe(false);
 
     selectCell(model, "A22"); // Pivot row header
-    expect(sortAction.isVisible(env)).toBe(false);
+    expect(sortAction.isVisible(model, env)).toBe(false);
 
     selectCell(model, "B20"); // Pivot col header
-    expect(sortAction.isVisible(env)).toBe(false);
+    expect(sortAction.isVisible(model, env)).toBe(false);
 
     selectCell(model, "B21"); // Pivot measure header
-    expect(sortAction.isVisible(env)).toBe(true);
+    expect(sortAction.isVisible(model, env)).toBe(true);
 
     selectCell(model, "B23"); // Pivot value cell
-    expect(sortAction.isVisible(env)).toBe(true);
+    expect(sortAction.isVisible(model, env)).toBe(true);
   });
 
   test("Sort menu item is not visible on static pivot formulas", () => {
@@ -739,22 +751,37 @@ describe("Pivot sorting menu item", () => {
     });
 
     selectCell(model, "A21");
-    expect(sortAction.isVisible(env)).toBe(false);
+    expect(sortAction.isVisible(model, env)).toBe(false);
 
     selectCell(model, "A22");
-    expect(sortAction.isVisible(env)).toBe(false);
+    expect(sortAction.isVisible(model, env)).toBe(false);
   });
 
   test("Menu item corresponding to the current sorting of the pivot is active", async () => {
     function getActiveSortOrder() {
       const activeNodes: string[] = [];
-      if (getNode(["pivot_sorting", "pivot_sorting_asc"], env, cellMenuRegistry).isActive?.(env)) {
+      if (
+        getNode(["pivot_sorting", "pivot_sorting_asc"], model, env, cellMenuRegistry).isActive?.(
+          model,
+          env
+        )
+      ) {
         activeNodes.push("pivot_sorting_asc");
       }
-      if (getNode(["pivot_sorting", "pivot_sorting_desc"], env, cellMenuRegistry).isActive?.(env)) {
+      if (
+        getNode(["pivot_sorting", "pivot_sorting_desc"], model, env, cellMenuRegistry).isActive?.(
+          model,
+          env
+        )
+      ) {
         activeNodes.push("pivot_sorting_desc");
       }
-      if (getNode(["pivot_sorting", "pivot_sorting_none"], env, cellMenuRegistry).isActive?.(env)) {
+      if (
+        getNode(["pivot_sorting", "pivot_sorting_none"], model, env, cellMenuRegistry).isActive?.(
+          model,
+          env
+        )
+      ) {
         activeNodes.push("pivot_sorting_none");
       }
       return activeNodes;
@@ -784,7 +811,7 @@ describe("Pivot (un)grouping menu items", () => {
     model = createModelWithPivot("A1:I22");
     openSidePanel = jest.fn();
 
-    env = makeTestEnv({ model, openSidePanel });
+    env = makeTestEnv(model, { openSidePanel });
     pivotId = model.getters.getPivotIds()[0];
     updatePivot(model, pivotId, {
       rows: [],
@@ -815,22 +842,22 @@ describe("Pivot (un)grouping menu items", () => {
       });
 
       setSelection(model, ["A1"]); // No pivot header selected
-      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(false);
+      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(model, env)).toBe(false);
 
       setSelection(model, ["A25"]); // Pivot title
-      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(false);
+      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(model, env)).toBe(false);
 
       setSelection(model, ["A27"]); // Single Salesperson header
-      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(false);
+      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(model, env)).toBe(false);
 
       setSelection(model, ["A27", "A32"]); // Salesperson headers
-      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(true);
+      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(model, env)).toBe(true);
 
       setSelection(model, ["A28:A29"]); // Stage headers
-      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(true);
+      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(model, env)).toBe(true);
 
       setSelection(model, ["A27:A29"]); // Salesperson and Stage headers
-      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(false);
+      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(model, env)).toBe(false);
     });
 
     test("Menu item is not visible when selecting non-groupable fields", () => {
@@ -840,10 +867,10 @@ describe("Pivot (un)grouping menu items", () => {
       });
 
       setSelection(model, ["A27:A28"]); // "Created on" headers
-      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(false);
+      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(model, env)).toBe(false);
 
       setSelection(model, ["B25:C25"]); // "Expected MMR" headers
-      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(false);
+      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(model, env)).toBe(false);
     });
 
     test("Menu item is not visible on static pivot formulas", () => {
@@ -854,7 +881,7 @@ describe("Pivot (un)grouping menu items", () => {
       model.dispatch("SPLIT_PIVOT_FORMULA", { sheetId, col: 0, row: 24, pivotId });
 
       setSelection(model, ["A27", "A32"]); // Salesperson headers
-      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(false);
+      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(model, env)).toBe(false);
     });
 
     test("Can group pivot headers", async () => {
@@ -863,7 +890,7 @@ describe("Pivot (un)grouping menu items", () => {
       });
 
       setSelection(model, ["A27:A28"]); // Salesperson and Stage headers
-      await doAction(["pivot_headers_group"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_group"], model, env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId)).toMatchObject({
         rows: [{ fieldName: "Stage2" }, { fieldName: "Stage" }],
@@ -880,7 +907,7 @@ describe("Pivot (un)grouping menu items", () => {
       updatePivotWithGroups([{ name: "CustomGroup", values: ["New", "Won"] }]);
 
       setSelection(model, ["A28:A29", "A31"]); // "New", "Won" and"Proposition" headers
-      await doAction(["pivot_headers_group"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_group"], model, env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId)).toMatchObject({
         rows: [{ fieldName: "Stage2" }, { fieldName: "Stage" }],
@@ -893,7 +920,7 @@ describe("Pivot (un)grouping menu items", () => {
       });
 
       setSelection(model, ["A28:A29"]); // "New" and "Won" headers
-      await doAction(["pivot_headers_group"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_group"], model, env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
         { name: "Group", values: ["New", "Won"] },
@@ -904,8 +931,8 @@ describe("Pivot (un)grouping menu items", () => {
       updatePivotWithGroups([{ name: "MyGroup", values: ["New", "Won"] }]);
 
       setSelection(model, ["A27", "A30"]); // "MyGroup" + "Proposition" headers
-      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(true);
-      await doAction(["pivot_headers_group"], env, cellMenuRegistry);
+      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(model, env)).toBe(true);
+      await doAction(["pivot_headers_group"], model, env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId)).toMatchObject({
         rows: [{ fieldName: "Stage2" }, { fieldName: "Stage" }],
@@ -924,8 +951,8 @@ describe("Pivot (un)grouping menu items", () => {
       ]);
 
       setSelection(model, ["A27", "A30"]); // "MyGroup" + "Group2" headers
-      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(true);
-      await doAction(["pivot_headers_group"], env, cellMenuRegistry);
+      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(model, env)).toBe(true);
+      await doAction(["pivot_headers_group"], model, env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId)).toMatchObject({
         rows: [{ fieldName: "Stage2" }, { fieldName: "Stage" }],
@@ -944,7 +971,7 @@ describe("Pivot (un)grouping menu items", () => {
       ]);
 
       setSelection(model, ["A27", "A30"]); // MyGroup + Others headers
-      await doAction(["pivot_headers_group"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_group"], model, env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId)).toMatchObject({
         rows: [{ fieldName: "Stage2" }, { fieldName: "Stage" }],
@@ -962,22 +989,22 @@ describe("Pivot (un)grouping menu items", () => {
       updatePivotWithGroups([{ name: "MyGroup", values: ["New", "Won"] }]);
 
       setSelection(model, ["A1"]); // No pivot header selected
-      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(env)).toBe(false);
+      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(model, env)).toBe(false);
 
       setSelection(model, ["A25"]); // Pivot title
-      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(env)).toBe(false);
+      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(model, env)).toBe(false);
 
       setSelection(model, ["A27"]); // "MyGroup" header
-      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(env)).toBe(true);
+      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(model, env)).toBe(true);
 
       setSelection(model, ["A28"]); // "New" header inside MyGroup
-      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(env)).toBe(true);
+      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(model, env)).toBe(true);
 
       setSelection(model, ["A30"]); // Proposition header in dimension Stage2
-      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(env)).toBe(false);
+      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(model, env)).toBe(false);
 
       setSelection(model, ["A31"]); // Proposition header in dimension Stage
-      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(env)).toBe(false);
+      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(model, env)).toBe(false);
     });
 
     test("Menu item is not visible on grouped values when grouped field is not in the pivot", () => {
@@ -994,7 +1021,7 @@ describe("Pivot (un)grouping menu items", () => {
 
       setSelection(model, ["A27"]); // "New" header inside Stage
       expect(getEvaluatedCell(model, "A27").value).toEqual("New");
-      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(env)).toBe(false);
+      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(model, env)).toBe(false);
     });
 
     test("Un-grouping header deletes the group it belongs to", async () => {
@@ -1004,7 +1031,7 @@ describe("Pivot (un)grouping menu items", () => {
       ]);
 
       setSelection(model, ["A28"]); // "New" header inside MyGroup
-      await doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_ungroup"], model, env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
         { name: "SecondGroup", values: ["Proposition", "Qualified"] },
@@ -1018,7 +1045,7 @@ describe("Pivot (un)grouping menu items", () => {
       ]);
 
       setSelection(model, ["A28", "A31"]); // "New" header inside MyGroup and Proposition header in Others group
-      await doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_ungroup"], model, env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2).toBeUndefined();
       expect(model.getters.getPivotCoreDefinition(pivotId).rows).toEqual([{ fieldName: "Stage" }]);
@@ -1037,7 +1064,7 @@ describe("Pivot (un)grouping menu items", () => {
       });
 
       setSelection(model, ["A27"]); // "MyGroup" header
-      await doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_ungroup"], model, env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2).toBeUndefined();
       expect(model.getters.getPivotCoreDefinition(pivotId).rows).toEqual([{ fieldName: "Stage" }]);
@@ -1050,7 +1077,7 @@ describe("Pivot (un)grouping menu items", () => {
       ]);
 
       setSelection(model, ["A27"]); // "MyGroup" header
-      await doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_ungroup"], model, env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
         { name: "Others", values: [], isOtherGroup: true },
@@ -1064,7 +1091,7 @@ describe("Pivot (un)grouping menu items", () => {
       ]);
 
       setSelection(model, ["A30"]); // "MyGroup" header
-      await doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_ungroup"], model, env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
         { name: "MyGroup", values: ["New", "Won"] },
@@ -1077,32 +1104,32 @@ describe("Pivot (un)grouping menu items", () => {
       updatePivotWithGroups([{ name: "MyGroup", values: ["New", "Won"] }]);
 
       setSelection(model, ["A1"]); // No pivot header selected
-      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(env)).toBe(false);
+      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(model, env)).toBe(false);
 
       setSelection(model, ["A25"]); // Pivot title
-      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(env)).toBe(false);
+      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(model, env)).toBe(false);
 
       setSelection(model, ["A27"]); // "MyGroup" header
-      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(env)).toBe(false);
+      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(model, env)).toBe(false);
 
       setSelection(model, ["A28"]); // "New" header inside MyGroup
-      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(env)).toBe(false);
+      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(model, env)).toBe(false);
 
       setSelection(model, ["A30"]); // "Proposition" header in dimension Stage2
-      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(env)).toBe(false);
+      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(model, env)).toBe(false);
 
       setSelection(model, ["A30", "A32"]); // "Proposition" and "Qualified" headers in dimension Stage2
-      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(env)).toBe(true);
+      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(model, env)).toBe(true);
 
       setSelection(model, ["A31", "A33"]); // "Proposition" and "Qualified" headers in dimension Stage
-      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(env)).toBe(true);
+      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(model, env)).toBe(true);
     });
 
     test("Can group remaining groups", async () => {
       updatePivotWithGroups([{ name: "MyGroup", values: ["New", "Won"] }]);
 
       setSelection(model, ["A30", "A32"]); // "Proposition", "Qualified" headers inside Stage field
-      await doAction(["pivot_group_remaining"], env, cellMenuRegistry);
+      await doAction(["pivot_group_remaining"], model, env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
         { name: "MyGroup", values: ["New", "Won"] },
@@ -1111,7 +1138,7 @@ describe("Pivot (un)grouping menu items", () => {
 
       undo(model);
       setSelection(model, ["A31", "A33"]); // "Proposition", "Qualified" headers inside Stage field
-      await doAction(["pivot_group_remaining"], env, cellMenuRegistry);
+      await doAction(["pivot_group_remaining"], model, env, cellMenuRegistry);
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
         { name: "MyGroup", values: ["New", "Won"] },
         { name: "Others", values: [], isOtherGroup: true },
@@ -1125,7 +1152,7 @@ describe("Pivot (un)grouping menu items", () => {
       ]);
 
       setSelection(model, ["A28", "A31"]); // "New" header inside MyGroup and Proposition header in Others group
-      await doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_ungroup"], model, env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2).toBeUndefined();
     });
@@ -1137,7 +1164,7 @@ describe("Pivot (un)grouping menu items", () => {
       ]);
 
       setSelection(model, ["A27"]); // "MyGroup" header
-      await doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_ungroup"], model, env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
         { name: "Others", values: [], isOtherGroup: true },
@@ -1151,7 +1178,7 @@ describe("Pivot (un)grouping menu items", () => {
       ]);
 
       setSelection(model, ["A30"]); // "MyGroup" header
-      await doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_ungroup"], model, env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
         { name: "MyGroup", values: ["New", "Won"] },
@@ -1168,7 +1195,7 @@ describe("Pivot (un)collapse menu items", () => {
   beforeEach(() => {
     model = createModelWithPivot("A1:I22");
 
-    env = makeTestEnv({ model });
+    env = makeTestEnv(model);
     pivotId = model.getters.getPivotIds()[0];
     updatePivot(model, pivotId, {
       rows: [],
@@ -1181,80 +1208,80 @@ describe("Pivot (un)collapse menu items", () => {
 
   test("Expand/collapse menu item visibility", () => {
     const path = ["collapse_pivot", "toggle_collapse_pivot_cell"];
-    const menuItem = getNode(path, env, cellMenuRegistry);
+    const menuItem = getNode(path, model, env, cellMenuRegistry);
     updatePivot(model, pivotId, {
       rows: [{ fieldName: "Salesperson" }, { fieldName: "Stage" }],
     });
 
     setSelection(model, ["A1"]); // No pivot header selected
-    expect(menuItem.isVisible!(env)).toBe(false);
+    expect(menuItem.isVisible!(model, env)).toBe(false);
 
     setSelection(model, ["A25"]); // Pivot title
-    expect(menuItem.isVisible!(env)).toBe(false);
+    expect(menuItem.isVisible!(model, env)).toBe(false);
 
     setSelection(model, ["A27"]); // "Kevin" Salesperson header
-    expect(menuItem.isVisible!(env)).toBe(true);
+    expect(menuItem.isVisible!(model, env)).toBe(true);
 
     setSelection(model, ["A28"]); // "New" Stage header
-    expect(menuItem.isVisible!(env)).toBe(false);
+    expect(menuItem.isVisible!(model, env)).toBe(false);
   });
 
   test("Can expand/collapse pivot header", () => {
     const path = ["collapse_pivot", "toggle_collapse_pivot_cell"];
-    const menuItem = getNode(path, env, cellMenuRegistry);
+    const menuItem = getNode(path, model, env, cellMenuRegistry);
     updatePivot(model, pivotId, {
       rows: [{ fieldName: "Salesperson" }, { fieldName: "Stage" }],
     });
 
     setSelection(model, ["A27"]); // "Kevin" Salesperson header
-    expect(menuItem.name(env)).toBe("Collapse");
-    menuItem.execute!(env);
+    expect(menuItem.name(model, env)).toBe("Collapse");
+    menuItem.execute!(model, env);
     expect(model.getters.getPivot(pivotId).definition.collapsedDomains?.ROW).toEqual([
       [{ field: "Salesperson", value: "Kevin", type: "char" }],
     ]);
 
-    expect(menuItem.name(env)).toBe("Expand");
-    menuItem.execute!(env);
+    expect(menuItem.name(model, env)).toBe("Expand");
+    menuItem.execute!(model, env);
     expect(model.getters.getPivot(pivotId).definition.collapsedDomains?.ROW).toHaveLength(0);
   });
 
   test("Expand all/Collapse all menu items visibility", () => {
     const collapseAllPath = ["collapse_pivot", "collapse_all_pivot"];
     const expandAllPath = ["collapse_pivot", "expand_all_pivot"];
-    const collapseAllMenuItem = getNode(collapseAllPath, env, cellMenuRegistry);
-    const expandAllMenuItem = getNode(expandAllPath, env, cellMenuRegistry);
+    const collapseAllMenuItem = getNode(collapseAllPath, model, env, cellMenuRegistry);
+    const expandAllMenuItem = getNode(expandAllPath, model, env, cellMenuRegistry);
     updatePivot(model, pivotId, {
       rows: [{ fieldName: "Salesperson" }, { fieldName: "Stage" }],
     });
 
     setSelection(model, ["A1"]); // No pivot header selected
-    expect(collapseAllMenuItem.isVisible!(env)).toBe(false);
-    expect(expandAllMenuItem.isVisible!(env)).toBe(false);
+    expect(collapseAllMenuItem.isVisible!(model, env)).toBe(false);
+    expect(expandAllMenuItem.isVisible!(model, env)).toBe(false);
 
     setSelection(model, ["A25"]); // Pivot title
-    expect(collapseAllMenuItem.isVisible!(env)).toBe(false);
-    expect(expandAllMenuItem.isVisible!(env)).toBe(false);
+    expect(collapseAllMenuItem.isVisible!(model, env)).toBe(false);
+    expect(expandAllMenuItem.isVisible!(model, env)).toBe(false);
 
     setSelection(model, ["A28"]); // "New" Stage header
-    expect(collapseAllMenuItem.isVisible!(env)).toBe(false);
-    expect(expandAllMenuItem.isVisible!(env)).toBe(false);
+    expect(collapseAllMenuItem.isVisible!(model, env)).toBe(false);
+    expect(expandAllMenuItem.isVisible!(model, env)).toBe(false);
 
     setSelection(model, ["A27"]); // "Kevin" Salesperson header
-    expect(collapseAllMenuItem.isVisible!(env)).toBe(true);
-    expect(expandAllMenuItem.isVisible!(env)).toBe(false);
+    expect(collapseAllMenuItem.isVisible!(model, env)).toBe(true);
+    expect(expandAllMenuItem.isVisible!(model, env)).toBe(false);
 
-    collapseAllMenuItem.execute!(env);
-    expect(collapseAllMenuItem.isVisible!(env)).toBe(false);
-    expect(expandAllMenuItem.isVisible!(env)).toBe(true);
+    collapseAllMenuItem.execute!(model, env);
+    expect(collapseAllMenuItem.isVisible!(model, env)).toBe(false);
+    expect(expandAllMenuItem.isVisible!(model, env)).toBe(true);
   });
 
   test("Expand/collapse menu items not visible in tabular pivot", () => {
     const collapseAllPath = ["collapse_pivot", "collapse_all_pivot"];
     const expandAllPath = ["collapse_pivot", "expand_all_pivot"];
     const collapsePath = ["collapse_pivot", "toggle_collapse_pivot_cell"];
-    const collapseAllMenuItem = getNode(collapseAllPath, env, cellMenuRegistry);
-    const expandAllMenuItem = getNode(expandAllPath, env, cellMenuRegistry);
-    const collapseMenuItem = getNode(collapsePath, env, cellMenuRegistry);
+    const collapseAllMenuItem = getNode(collapseAllPath, model, env, cellMenuRegistry);
+    const expandAllMenuItem = getNode(expandAllPath, model, env, cellMenuRegistry);
+    const collapseMenuItem = getNode(collapsePath, model, env, cellMenuRegistry);
     updatePivot(model, pivotId, {
       rows: [{ fieldName: "Salesperson" }, { fieldName: "Stage" }],
       collapsedDomains: {
@@ -1264,33 +1291,33 @@ describe("Pivot (un)collapse menu items", () => {
     });
 
     setSelection(model, ["A27"]); // "Kevin" Salesperson header
-    expect(collapseAllMenuItem.isVisible!(env)).toBe(true);
-    expect(expandAllMenuItem.isVisible!(env)).toBe(true);
-    expect(collapseMenuItem.isVisible!(env)).toBe(true);
+    expect(collapseAllMenuItem.isVisible!(model, env)).toBe(true);
+    expect(expandAllMenuItem.isVisible!(model, env)).toBe(true);
+    expect(collapseMenuItem.isVisible!(model, env)).toBe(true);
 
     updatePivot(model, pivotId, { style: { tabularForm: true } });
-    expect(collapseAllMenuItem.isVisible!(env)).toBe(false);
-    expect(expandAllMenuItem.isVisible!(env)).toBe(false);
-    expect(collapseMenuItem.isVisible!(env)).toBe(false);
+    expect(collapseAllMenuItem.isVisible!(model, env)).toBe(false);
+    expect(expandAllMenuItem.isVisible!(model, env)).toBe(false);
+    expect(collapseMenuItem.isVisible!(model, env)).toBe(false);
   });
 
   test("Can collapse all/expand all pivot groups", () => {
     const collapseAllPath = ["collapse_pivot", "collapse_all_pivot"];
     const expandAllPath = ["collapse_pivot", "expand_all_pivot"];
-    const collapseAllMenuItem = getNode(collapseAllPath, env, cellMenuRegistry);
-    const expandAllMenuItem = getNode(expandAllPath, env, cellMenuRegistry);
+    const collapseAllMenuItem = getNode(collapseAllPath, model, env, cellMenuRegistry);
+    const expandAllMenuItem = getNode(expandAllPath, model, env, cellMenuRegistry);
     updatePivot(model, pivotId, {
       columns: [{ fieldName: "Salesperson" }, { fieldName: "Stage" }],
     });
 
     setSelection(model, ["B25"]); // "Kevin" Salesperson header
-    collapseAllMenuItem.execute!(env);
+    collapseAllMenuItem.execute!(model, env);
     expect(model.getters.getPivot(pivotId).definition.collapsedDomains?.COL).toEqual([
       [{ field: "Salesperson", value: "Kevin", type: "char" }],
       [{ field: "Salesperson", value: "Eden", type: "char" }],
     ]);
 
-    expandAllMenuItem.execute!(env);
+    expandAllMenuItem.execute!(model, env);
     expect(model.getters.getPivot(pivotId).definition.collapsedDomains?.COL).toHaveLength(0);
   });
 });

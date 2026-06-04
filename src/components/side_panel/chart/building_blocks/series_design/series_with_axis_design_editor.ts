@@ -14,6 +14,7 @@ import { DispatchResult } from "../../../../../types/commands";
 import { Color, UID, ValueAndLabel } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { NumberInput } from "../../../../number_input/number_input";
+import { useModel } from "../../../../owl_plugins/model_plugin";
 import { types } from "../../../../props_validation";
 import { Select } from "../../../../select/select";
 import { Checkbox } from "../../../components/checkbox/checkbox";
@@ -139,7 +140,7 @@ export class SeriesWithAxisDesignEditor extends Component<SpreadsheetChildEnv> {
   }
 
   getMaxPolynomialDegree(dataSetId: UID) {
-    const runtime = this.env.model.getters.getChartRuntime(
+    const runtime = this.model().getters.getChartRuntime(
       this.props.chartId
     ) as CustomizableSeriesChartRuntime;
     const index = runtime.customizableSeries.findIndex((series) => series.dataSetId === dataSetId);
@@ -164,7 +165,7 @@ export class SeriesWithAxisDesignEditor extends Component<SpreadsheetChildEnv> {
       return "";
     }
     const color = dataSets[dataSetId]?.backgroundColor;
-    const runtime = this.env.model.getters.getChartRuntime(
+    const runtime = this.model().getters.getChartRuntime(
       this.props.chartId
     ) as CustomizableSeriesChartRuntime;
     const index = runtime.customizableSeries.findIndex((series) => series.dataSetId === dataSetId);
@@ -195,4 +196,6 @@ export class SeriesWithAxisDesignEditor extends Component<SpreadsheetChildEnv> {
     };
     this.props.updateChart(this.props.chartId, { dataSetStyles });
   }
+
+  private model = useModel();
 }

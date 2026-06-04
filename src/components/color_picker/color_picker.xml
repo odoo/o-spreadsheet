@@ -33,7 +33,7 @@
             </div>
           </div>
           <div
-            t-foreach="this.env.model.getters.getCustomColors()"
+            t-foreach="this.model().getters.getCustomColors()"
             t-as="color"
             t-key="color"
             class="o-color-picker-line-item os-theme-dependant"

@@ -6,6 +6,7 @@ import { _t } from "../../../../translation";
 import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
 import { CommandResult, DispatchResult } from "../../../../types/commands";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { ChartTerms } from "../../../translations_terms";
 import { ChartDataSeries } from "../building_blocks/data_series/data_series";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
@@ -37,6 +38,7 @@ export class BubbleChartConfigPanel extends Component<SpreadsheetChildEnv> {
     sizeRangeDispatchResult: undefined,
   });
 
+  private model = useModel();
   protected yRanges: string[] = [];
   protected labelRange?: string;
   protected datasetOrientation: "rows" | "columns" | undefined;
@@ -184,7 +186,7 @@ export class BubbleChartConfigPanel extends Component<SpreadsheetChildEnv> {
       return undefined;
     }
     const dataRange = this.yRanges[0] ?? this.xRange ?? "";
-    const getters = this.env.model.getters;
+    const getters = this.model().getters;
     const sheetId = getters.getActiveSheetId();
     const zone = createValidRange(getters, sheetId, dataRange || "")?.zone;
     if (zone) {
@@ -197,7 +199,7 @@ export class BubbleChartConfigPanel extends Component<SpreadsheetChildEnv> {
     let anyRow = false;
     let anyColumn = false;
     for (const yRange of this.yRanges) {
-      const getters = this.env.model.getters;
+      const getters = this.model().getters;
       const sheetId = getters.getActiveSheetId();
       const zone = createValidRange(getters, sheetId, yRange)?.zone;
       if (!zone) {

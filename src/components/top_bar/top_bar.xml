@@ -29,14 +29,14 @@
       <!-- Toolbar and Cell Content -->
       <div
         class="d-flex o-topbar-responsive"
-        t-att-class="{'o-topbar-responsive': !this.env.model.getters.isReadonly()}"
+        t-att-class="{'o-topbar-responsive': !this.model().getters.isReadonly()}"
         t-ref="this.toolBarContainerRef">
         <div
           class="o-topbar-toolbar d-flex flex-grow-1"
-          t-att-class="{'flex-shrink-0': this.env.model.getters.isReadonly()}">
+          t-att-class="{'flex-shrink-0': this.model().getters.isReadonly()}">
           <!-- Toolbar -->
           <div
-            t-if="this.env.model.getters.isReadonly()"
+            t-if="this.model().getters.isReadonly()"
             class="o-readonly-toolbar d-flex flex-grow-1 align-items-center text-muted">
             <span>
               <i class="fa fa-eye"/>

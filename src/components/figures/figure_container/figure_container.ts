@@ -19,6 +19,7 @@ import {
   snapForMove,
   snapForResize,
 } from "../../helpers/figure_snap_helper";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { FigureComponent } from "../figure/figure";
 
 type ContainerType = "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "dnd";
@@ -120,6 +121,8 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
     overlappingCarousel: undefined,
   });
 
+  private model = useModel();
+
   setup() {
     onMounted(() => {
       // horrible, but necessary
@@ -132,9 +135,9 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       this.render();
     });
     onWillUpdateProps(() => {
-      const sheetId = this.env.model.getters.getActiveSheetId();
+      const sheetId = this.model().getters.getActiveSheetId();
       const draggedFigureId = this.dnd.draggedFigure?.id;
-      if (draggedFigureId && !this.env.model.getters.getFigure(sheetId, draggedFigureId)) {
+      if (draggedFigureId && !this.model().getters.getFigure(sheetId, draggedFigureId)) {
         this.dnd.cancelDnd?.();
         this.dnd.draggedFigure = undefined;
         this.dnd.selectedFigures = undefined;
@@ -148,7 +151,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
   }
 
   private getVisibleFigures(): FigureUI[] {
-    const visibleFigures = this.env.model.getters.getVisibleFigures();
+    const visibleFigures = this.model().getters.getVisibleFigures();
     for (const figure of this.dnd.selectedFigures || []) {
       if (!visibleFigures.some((figureUI) => figureUI.id === figure.id)) {
         visibleFigures.push(figure);
@@ -207,8 +210,8 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
   }
 
   private getContainerRect(container: ContainerType): Rect {
-    const { width: viewWidth, height: viewHeight } = this.env.model.getters.getSheetViewDimension();
-    const { x: viewportX, y: viewportY } = this.env.model.getters.getMainViewportCoordinates();
+    const { width: viewWidth, height: viewHeight } = this.model().getters.getSheetViewDimension();
+    const { x: viewportX, y: viewportY } = this.model().getters.getMainViewportCoordinates();
 
     const x = ["bottomRight", "topRight"].includes(container) ? viewportX : 0;
     const width = viewWidth - x;
@@ -223,8 +226,8 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
   }
 
   private getInverseViewportPositionStyle(container: ContainerType): string {
-    const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-    const { x: viewportX, y: viewportY } = this.env.model.getters.getMainViewportCoordinates();
+    const { scrollX, scrollY } = this.model().getters.getActiveSheetScrollInfo();
+    const { x: viewportX, y: viewportY } = this.model().getters.getMainViewportCoordinates();
 
     let left = 0;
     let top = 0;
@@ -247,7 +250,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
   }
 
   private getFigureContainer(figureUI: FigureUI): ContainerType {
-    const { x: viewportX, y: viewportY } = this.env.model.getters.getMainViewportCoordinates();
+    const { x: viewportX, y: viewportY } = this.model().getters.getMainViewportCoordinates();
     if (this.dnd.selectedFigures?.some((f) => f.id === figureUI.id)) {
       return "dnd";
     } else if (figureUI.x < viewportX && figureUI.y < viewportY) {
@@ -270,7 +273,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
 
   private toBottomRightViewport(figureUI: FigureUI): FigureUI {
     const container = this.getFigureContainer(figureUI);
-    const initialScrollPosition = this.env.model.getters.getActiveSheetScrollInfo();
+    const initialScrollPosition = this.model().getters.getActiveSheetScrollInfo();
     const bottomRightFigure = { ...figureUI };
 
     if (["bottomLeft", "topLeft"].includes(container)) {
@@ -291,13 +294,13 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
   }
 
   startDraggingFigure(figureUI: FigureUI, ev: MouseEvent) {
-    if (ev.button > 0 || this.env.model.getters.isReadonly() || this.isMenuClick(ev)) {
+    if (ev.button > 0 || this.model().getters.isReadonly() || this.isMenuClick(ev)) {
       // not main button, probably a context menu and no d&d in readonly mode
       return;
     }
-    const selected = this.env.model.getters.getSelectedFigureIds().includes(figureUI.id);
+    const selected = this.model().getters.getSelectedFigureIds().includes(figureUI.id);
     if (!selected) {
-      const selectResult = this.env.model.dispatch("SELECT_FIGURE", {
+      const selectResult = this.model().dispatch("SELECT_FIGURE", {
         figureId: figureUI.id,
         selectMultiple: ev.shiftKey || isCtrlKey(ev),
       });
@@ -306,38 +309,38 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       }
     }
 
-    if (this.env.isMobile() || this.env.model.getters.isCurrentSheetLocked()) {
+    if (this.env.isMobile() || this.model().getters.isCurrentSheetLocked()) {
       return;
     }
 
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const zoom = this.env.model.getters.getViewportZoomLevel();
+    const sheetId = this.model().getters.getActiveSheetId();
+    const zoom = this.model().getters.getViewportZoomLevel();
 
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
-    const initialScrollPosition = this.env.model.getters.getActiveSheetScrollInfo();
+    const initialScrollPosition = this.model().getters.getActiveSheetScrollInfo();
 
-    const initialFigures = this.env.model.getters
-      .getSelectedFigureIds()
-      .map((id) => this.env.model.getters.getFigure(sheetId, id))
+    const initialFigures = this.model()
+      .getters.getSelectedFigureIds()
+      .map((id) => this.model().getters.getFigure(sheetId, id))
       .filter(isDefined)
-      .map((f) => this.env.model.getters.getFigureUI(sheetId, f))
+      .map((f) => this.model().getters.getFigureUI(sheetId, f))
       .map(this.toBottomRightViewport.bind(this));
     const draggedFigureId = figureUI.id;
 
     const maxDimensions = {
-      maxX: this.env.model.getters.getColDimensions(
+      maxX: this.model().getters.getColDimensions(
         sheetId,
-        this.env.model.getters.getNumberCols(sheetId) - 1
+        this.model().getters.getNumberCols(sheetId) - 1
       ).end,
-      maxY: this.env.model.getters.getRowDimensions(
+      maxY: this.model().getters.getRowDimensions(
         sheetId,
-        this.env.model.getters.getNumberRows(sheetId) - 1
+        this.model().getters.getNumberRows(sheetId) - 1
       ).end,
     };
 
     let hasStartedDnd = false;
     const onMouseMove = (ev: MouseEvent) => {
-      const getters = this.env.model.getters;
+      const getters = this.model().getters;
       const currentMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
 
       const offsetX = Math.abs(currentMousePosition.x - initialMousePosition.x);
@@ -385,9 +388,9 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
         // on click without move
         if (selected) {
           if (ev.shiftKey || isCtrlKey(ev)) {
-            this.env.model.dispatch("UNSELECT_FIGURE", { figureId: figureUI.id });
+            this.model().dispatch("UNSELECT_FIGURE", { figureId: figureUI.id });
           } else {
-            this.env.model.dispatch("SELECT_FIGURE", { figureId: figureUI.id });
+            this.model().dispatch("SELECT_FIGURE", { figureId: figureUI.id });
           }
         }
         return;
@@ -398,14 +401,14 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
             return {
               sheetId,
               figureId: f.id,
-              ...this.env.model.getters.getPositionAnchorOffset(f),
+              ...this.model().getters.getPositionAnchorOffset(f),
             };
           }) || [];
-        this.env.model.dispatch("MOVE_FIGURES", { figures: payloads });
+        this.model().dispatch("MOVE_FIGURES", { figures: payloads });
       } else {
         const carouselFigureId = this.dnd.overlappingCarousel.id;
         const chartFigureIds = this.dnd.selectedFigures?.map((f) => f.id) || [];
-        this.env.model.dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
+        this.model().dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
           sheetId,
           carouselFigureId,
           chartFigureIds: chartFigureIds,
@@ -434,23 +437,23 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
    */
   startResize(figureUI: FigureUI, dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) {
     ev.stopPropagation();
-    const initialScrollPosition = this.env.model.getters.getActiveSheetScrollInfo();
+    const initialScrollPosition = this.model().getters.getActiveSheetScrollInfo();
 
     const keepRatio = figureRegistry.get(figureUI.tag).keepRatio || false;
     const minFigSize = figureRegistry.get(figureUI.tag).minFigSize || MIN_FIG_SIZE;
-    const zoom = this.env.model.getters.getViewportZoomLevel();
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const zoom = this.model().getters.getViewportZoomLevel();
+    const sheetId = this.model().getters.getActiveSheetId();
 
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
 
     const maxDimensions = {
-      maxX: this.env.model.getters.getColDimensions(
+      maxX: this.model().getters.getColDimensions(
         sheetId,
-        this.env.model.getters.getNumberCols(sheetId) - 1
+        this.model().getters.getNumberCols(sheetId) - 1
       ).end,
-      maxY: this.env.model.getters.getRowDimensions(
+      maxY: this.model().getters.getRowDimensions(
         sheetId,
-        this.env.model.getters.getNumberRows(sheetId) - 1
+        this.model().getters.getNumberRows(sheetId) - 1
       ).end,
     };
 
@@ -465,13 +468,13 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
         keepRatio,
         minFigSize,
         initialScrollPosition,
-        this.env.model.getters.getActiveSheetScrollInfo(),
+        this.model().getters.getActiveSheetScrollInfo(),
         maxDimensions
       );
 
       const otherFigures = this.getOtherFigures([figureUI.id]);
       const snapResult = snapForResize(
-        this.env.model.getters,
+        this.model().getters,
         dirX,
         dirY,
         draggedFigure,
@@ -488,7 +491,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       if (!this.dnd.draggedFigure) {
         return;
       }
-      const update: Partial<Figure> & AnchorOffset = this.env.model.getters.getPositionAnchorOffset(
+      const update: Partial<Figure> & AnchorOffset = this.model().getters.getPositionAnchorOffset(
         this.dnd.draggedFigure
       );
       if (dirX) {
@@ -497,8 +500,8 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       if (dirY) {
         update.height = this.dnd.draggedFigure.height;
       }
-      this.env.model.dispatch("UPDATE_FIGURE", {
-        sheetId: this.env.model.getters.getActiveSheetId(),
+      this.model().dispatch("UPDATE_FIGURE", {
+        sheetId: this.model().getters.getActiveSheetId(),
         figureId: figureUI.id,
         ...update,
       });
@@ -540,7 +543,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
     if (!snapLine || !this.dnd.draggedFigure) {
       return undefined;
     }
-    const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+    const { scrollX, scrollY } = this.model().getters.getActiveSheetScrollInfo();
     const figureVisibleRects = snapLine.matchedFigIds
       .map((id) => this.getVisibleFigures().find((figureUI) => figureUI.id === id))
       .filter(isDefined)
@@ -575,7 +578,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
     if (!snapLine) {
       return "";
     }
-    const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+    const { scrollX, scrollY } = this.model().getters.getActiveSheetScrollInfo();
     if (["top", "vCenter", "bottom"].includes(snapLine.snappedAxisType)) {
       return cssPropertiesToCss({
         top: `${snapLine.position - containerRect.y - scrollY}px`,

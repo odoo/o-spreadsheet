@@ -18,6 +18,7 @@ import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_in
 import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { UuidGenerator } from "../helpers/uuid";
 import { areZonesContinuous, getZoneArea, isEqual } from "../helpers/zones";
+import { Model } from "../model";
 import { _t } from "../translation";
 import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
 import { Format } from "../types/format";
@@ -29,18 +30,18 @@ import { ActionSpec } from "./action";
 // Helpers
 //------------------------------------------------------------------------------
 
-export function setFormatter(env: SpreadsheetChildEnv, format: Format) {
-  env.model.dispatch("SET_FORMATTING_WITH_PIVOT", {
-    sheetId: env.model.getters.getActiveSheetId(),
-    target: env.model.getters.getSelectedZones(),
+export function setFormatter(model: Model, format: Format) {
+  model.dispatch("SET_FORMATTING_WITH_PIVOT", {
+    sheetId: model.getters.getActiveSheetId(),
+    target: model.getters.getSelectedZones(),
     format,
   });
 }
 
-export function setStyle(env: SpreadsheetChildEnv, style: Style) {
-  env.model.dispatch("SET_FORMATTING", {
-    sheetId: env.model.getters.getActiveSheetId(),
-    target: env.model.getters.getSelectedZones(),
+export function setStyle(model: Model, style: Style) {
+  model.dispatch("SET_FORMATTING", {
+    sheetId: model.getters.getActiveSheetId(),
+    target: model.getters.getSelectedZones(),
     style,
   });
 }
@@ -49,25 +50,26 @@ export function setStyle(env: SpreadsheetChildEnv, style: Style) {
 // Simple actions
 //------------------------------------------------------------------------------
 
-export const PASTE_ACTION = async (env: SpreadsheetChildEnv) => paste(env);
-export const PASTE_AS_VALUE_ACTION = async (env: SpreadsheetChildEnv) => paste(env, "asValue");
+export const PASTE_ACTION = async (model: Model, env: SpreadsheetChildEnv) => paste(model, env);
+export const PASTE_AS_VALUE_ACTION = async (model: Model, env: SpreadsheetChildEnv) =>
+  paste(model, env, "asValue");
 
-async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptions) {
+async function paste(model: Model, env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptions) {
   const osClipboard = await env.clipboard.read();
   switch (osClipboard.status) {
     case "ok":
-      const clipboardId = env.model.getters.getClipboardId();
-      const target = env.model.getters.getSelectedZones();
+      const clipboardId = model.getters.getClipboardId();
+      const target = model.getters.getSelectedZones();
       const htmlClipboardId = getOSheetClipboardIdFromHTML(
         osClipboard.content[ClipboardMIMEType.Html]
       );
       if (clipboardId === htmlClipboardId) {
-        interactivePaste(env, target, pasteOption);
+        interactivePaste(model, env, target, pasteOption);
       } else {
         const osClipboardContent = parseOSClipboardContent(osClipboard.content);
-        await interactivePasteFromOS(env, target, osClipboardContent, pasteOption);
+        await interactivePasteFromOS(model, env, target, osClipboardContent, pasteOption);
       }
-      if (env.model.getters.isCutOperation() && pasteOption !== "asValue") {
+      if (model.getters.isCutOperation() && pasteOption !== "asValue") {
         await env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
       }
       break;
@@ -88,24 +90,25 @@ async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptio
   }
 }
 
-export const PASTE_FORMAT_ACTION = (env: SpreadsheetChildEnv) => paste(env, "onlyFormat");
+export const PASTE_FORMAT_ACTION = (model: Model, env: SpreadsheetChildEnv) =>
+  paste(model, env, "onlyFormat");
 
 //------------------------------------------------------------------------------
 // Grid manipulations
 //------------------------------------------------------------------------------
 
-export const DELETE_CONTENT_ROWS_NAME = (env: SpreadsheetChildEnv) => {
-  if (env.model.getters.getSelectedZones().length > 1) {
+export const DELETE_CONTENT_ROWS_NAME = (model: Model) => {
+  if (model.getters.getSelectedZones().length > 1) {
     return _t("Clear rows");
   }
   let first: number;
   let last: number;
-  const activesRows = env.model.getters.getActiveRows();
+  const activesRows = model.getters.getActiveRows();
   if (activesRows.size !== 0) {
     first = largeMin([...activesRows]);
     last = largeMax([...activesRows]);
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = model.getters.getSelectedZones()[0];
     first = zone.top;
     last = zone.bottom;
   }
@@ -115,29 +118,29 @@ export const DELETE_CONTENT_ROWS_NAME = (env: SpreadsheetChildEnv) => {
   return _t("Clear rows %s - %s", (first + 1).toString(), (last + 1).toString());
 };
 
-export const DELETE_CONTENT_ROWS_ACTION = (env: SpreadsheetChildEnv) => {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const target = [...env.model.getters.getActiveRows()].map((index) =>
-    env.model.getters.getRowsZone(sheetId, index, index)
+export const DELETE_CONTENT_ROWS_ACTION = (model: Model) => {
+  const sheetId = model.getters.getActiveSheetId();
+  const target = [...model.getters.getActiveRows()].map((index) =>
+    model.getters.getRowsZone(sheetId, index, index)
   );
-  env.model.dispatch("DELETE_CONTENT", {
+  model.dispatch("DELETE_CONTENT", {
     target,
-    sheetId: env.model.getters.getActiveSheetId(),
+    sheetId: model.getters.getActiveSheetId(),
   });
 };
 
-export const DELETE_CONTENT_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
-  if (env.model.getters.getSelectedZones().length > 1) {
+export const DELETE_CONTENT_COLUMNS_NAME = (model: Model) => {
+  if (model.getters.getSelectedZones().length > 1) {
     return _t("Clear columns");
   }
   let first: number;
   let last: number;
-  const activeCols = env.model.getters.getActiveCols();
+  const activeCols = model.getters.getActiveCols();
   if (activeCols.size !== 0) {
     first = largeMin([...activeCols]);
     last = largeMax([...activeCols]);
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = model.getters.getSelectedZones()[0];
     first = zone.left;
     last = zone.right;
   }
@@ -147,29 +150,29 @@ export const DELETE_CONTENT_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
   return _t("Clear columns %s - %s", numberToLetters(first), numberToLetters(last));
 };
 
-export const DELETE_CONTENT_COLUMNS_ACTION = (env: SpreadsheetChildEnv) => {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const target = [...env.model.getters.getActiveCols()].map((index) =>
-    env.model.getters.getColsZone(sheetId, index, index)
+export const DELETE_CONTENT_COLUMNS_ACTION = (model: Model) => {
+  const sheetId = model.getters.getActiveSheetId();
+  const target = [...model.getters.getActiveCols()].map((index) =>
+    model.getters.getColsZone(sheetId, index, index)
   );
-  env.model.dispatch("DELETE_CONTENT", {
+  model.dispatch("DELETE_CONTENT", {
     target,
-    sheetId: env.model.getters.getActiveSheetId(),
+    sheetId: model.getters.getActiveSheetId(),
   });
 };
 
-export const REMOVE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
-  if (env.model.getters.getSelectedZones().length > 1) {
+export const REMOVE_ROWS_NAME = (model: Model) => {
+  if (model.getters.getSelectedZones().length > 1) {
     return _t("Delete rows");
   }
   let first: number;
   let last: number;
-  const activesRows = env.model.getters.getActiveRows();
+  const activesRows = model.getters.getActiveRows();
   if (activesRows.size !== 0) {
     first = largeMin([...activesRows]);
     last = largeMax([...activesRows]);
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = model.getters.getSelectedZones()[0];
     first = zone.top;
     last = zone.bottom;
   }
@@ -179,41 +182,38 @@ export const REMOVE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
   return _t("Delete rows %s - %s", (first + 1).toString(), (last + 1).toString());
 };
 
-export const REMOVE_ROWS_ACTION = (env: SpreadsheetChildEnv) => {
-  const rows = [...env.model.getters.getActiveRows()];
+export const REMOVE_ROWS_ACTION = (model: Model) => {
+  const rows = [...model.getters.getActiveRows()];
   if (!rows.length) {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = model.getters.getSelectedZones()[0];
     for (let i = zone.top; i <= zone.bottom; i++) {
       rows.push(i);
     }
   }
-  env.model.dispatch("REMOVE_COLUMNS_ROWS", {
-    sheetId: env.model.getters.getActiveSheetId(),
-    sheetName: env.model.getters.getActiveSheetName(),
+  model.dispatch("REMOVE_COLUMNS_ROWS", {
+    sheetId: model.getters.getActiveSheetId(),
+    sheetName: model.getters.getActiveSheetName(),
     dimension: "ROW",
     elements: rows,
   });
 };
 
-export const CAN_REMOVE_COLUMNS_ROWS = (
-  dimension: Dimension,
-  env: SpreadsheetChildEnv
-): boolean => {
+export const CAN_REMOVE_COLUMNS_ROWS = (model: Model, dimension: Dimension): boolean => {
   if (
-    (dimension === "COL" && env.model.getters.getActiveRows().size > 0) ||
-    (dimension === "ROW" && env.model.getters.getActiveCols().size > 0)
+    (dimension === "COL" && model.getters.getActiveRows().size > 0) ||
+    (dimension === "ROW" && model.getters.getActiveCols().size > 0)
   ) {
     return false;
   }
-  const sheetId = env.model.getters.getActiveSheetId();
-  const selectedElements = env.model.getters.getElementsFromSelection(dimension);
+  const sheetId = model.getters.getActiveSheetId();
+  const selectedElements = model.getters.getElementsFromSelection(dimension);
 
-  const includesAllVisibleHeaders = env.model.getters.checkElementsIncludeAllVisibleHeaders(
+  const includesAllVisibleHeaders = model.getters.checkElementsIncludeAllVisibleHeaders(
     sheetId,
     dimension,
     selectedElements
   );
-  const includesAllNonFrozenHeaders = env.model.getters.checkElementsIncludeAllNonFrozenHeaders(
+  const includesAllNonFrozenHeaders = model.getters.checkElementsIncludeAllNonFrozenHeaders(
     sheetId,
     dimension,
     selectedElements
@@ -222,18 +222,18 @@ export const CAN_REMOVE_COLUMNS_ROWS = (
   return !includesAllVisibleHeaders && !includesAllNonFrozenHeaders;
 };
 
-export const REMOVE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
-  if (env.model.getters.getSelectedZones().length > 1) {
+export const REMOVE_COLUMNS_NAME = (model: Model) => {
+  if (model.getters.getSelectedZones().length > 1) {
     return _t("Delete columns");
   }
   let first: number;
   let last: number;
-  const activeCols = env.model.getters.getActiveCols();
+  const activeCols = model.getters.getActiveCols();
   if (activeCols.size !== 0) {
     first = largeMin([...activeCols]);
     last = largeMax([...activeCols]);
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = model.getters.getSelectedZones()[0];
     first = zone.left;
     last = zone.right;
   }
@@ -243,49 +243,49 @@ export const REMOVE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
   return _t("Delete columns %s - %s", numberToLetters(first), numberToLetters(last));
 };
 
-export const NOT_ALL_VISIBLE_ROWS_SELECTED = (env: SpreadsheetChildEnv) => {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const selectedRows = env.model.getters.getElementsFromSelection("ROW");
-  return !env.model.getters.checkElementsIncludeAllVisibleHeaders(sheetId, "ROW", selectedRows);
+export const NOT_ALL_VISIBLE_ROWS_SELECTED = (model: Model) => {
+  const sheetId = model.getters.getActiveSheetId();
+  const selectedRows = model.getters.getElementsFromSelection("ROW");
+  return !model.getters.checkElementsIncludeAllVisibleHeaders(sheetId, "ROW", selectedRows);
 };
 
-export const REMOVE_COLUMNS_ACTION = (env: SpreadsheetChildEnv) => {
-  const columns = [...env.model.getters.getActiveCols()];
+export const REMOVE_COLUMNS_ACTION = (model: Model) => {
+  const columns = [...model.getters.getActiveCols()];
   if (!columns.length) {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = model.getters.getSelectedZones()[0];
     for (let i = zone.left; i <= zone.right; i++) {
       columns.push(i);
     }
   }
-  env.model.dispatch("REMOVE_COLUMNS_ROWS", {
-    sheetId: env.model.getters.getActiveSheetId(),
-    sheetName: env.model.getters.getActiveSheetName(),
+  model.dispatch("REMOVE_COLUMNS_ROWS", {
+    sheetId: model.getters.getActiveSheetId(),
+    sheetName: model.getters.getActiveSheetName(),
     dimension: "COL",
     elements: columns,
   });
 };
 
-export const NOT_ALL_VISIBLE_COLS_SELECTED = (env: SpreadsheetChildEnv) => {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const selectedCols = env.model.getters.getElementsFromSelection("COL");
-  return !env.model.getters.checkElementsIncludeAllVisibleHeaders(sheetId, "COL", selectedCols);
+export const NOT_ALL_VISIBLE_COLS_SELECTED = (model: Model) => {
+  const sheetId = model.getters.getActiveSheetId();
+  const selectedCols = model.getters.getElementsFromSelection("COL");
+  return !model.getters.checkElementsIncludeAllVisibleHeaders(sheetId, "COL", selectedCols);
 };
 
-export const INSERT_ROWS_BEFORE_ACTION = (env: SpreadsheetChildEnv) => {
-  const activeRows = env.model.getters.getActiveRows();
+export const INSERT_ROWS_BEFORE_ACTION = (model: Model) => {
+  const activeRows = model.getters.getActiveRows();
   let row: number;
   let quantity: number;
   if (activeRows.size) {
     row = largeMin([...activeRows]);
     quantity = activeRows.size;
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = model.getters.getSelectedZones()[0];
     row = zone.top;
     quantity = zone.bottom - zone.top + 1;
   }
-  env.model.dispatch("ADD_COLUMNS_ROWS", {
-    sheetId: env.model.getters.getActiveSheetId(),
-    sheetName: env.model.getters.getActiveSheetName(),
+  model.dispatch("ADD_COLUMNS_ROWS", {
+    sheetId: model.getters.getActiveSheetId(),
+    sheetName: model.getters.getActiveSheetName(),
     position: "before",
     base: row,
     quantity,
@@ -293,21 +293,21 @@ export const INSERT_ROWS_BEFORE_ACTION = (env: SpreadsheetChildEnv) => {
   });
 };
 
-export const INSERT_ROWS_AFTER_ACTION = (env: SpreadsheetChildEnv) => {
-  const activeRows = env.model.getters.getActiveRows();
+export const INSERT_ROWS_AFTER_ACTION = (model: Model) => {
+  const activeRows = model.getters.getActiveRows();
   let row: number;
   let quantity: number;
   if (activeRows.size) {
     row = largeMax([...activeRows]);
     quantity = activeRows.size;
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = model.getters.getSelectedZones()[0];
     row = zone.bottom;
     quantity = zone.bottom - zone.top + 1;
   }
-  env.model.dispatch("ADD_COLUMNS_ROWS", {
-    sheetId: env.model.getters.getActiveSheetId(),
-    sheetName: env.model.getters.getActiveSheetName(),
+  model.dispatch("ADD_COLUMNS_ROWS", {
+    sheetId: model.getters.getActiveSheetId(),
+    sheetName: model.getters.getActiveSheetName(),
     position: "after",
     base: row,
     quantity,
@@ -315,21 +315,21 @@ export const INSERT_ROWS_AFTER_ACTION = (env: SpreadsheetChildEnv) => {
   });
 };
 
-export const INSERT_COLUMNS_BEFORE_ACTION = (env: SpreadsheetChildEnv) => {
-  const activeCols = env.model.getters.getActiveCols();
+export const INSERT_COLUMNS_BEFORE_ACTION = (model: Model) => {
+  const activeCols = model.getters.getActiveCols();
   let column: number;
   let quantity: number;
   if (activeCols.size) {
     column = largeMin([...activeCols]);
     quantity = activeCols.size;
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = model.getters.getSelectedZones()[0];
     column = zone.left;
     quantity = zone.right - zone.left + 1;
   }
-  env.model.dispatch("ADD_COLUMNS_ROWS", {
-    sheetId: env.model.getters.getActiveSheetId(),
-    sheetName: env.model.getters.getActiveSheetName(),
+  model.dispatch("ADD_COLUMNS_ROWS", {
+    sheetId: model.getters.getActiveSheetId(),
+    sheetName: model.getters.getActiveSheetName(),
     position: "before",
     dimension: "COL",
     base: column,
@@ -337,21 +337,21 @@ export const INSERT_COLUMNS_BEFORE_ACTION = (env: SpreadsheetChildEnv) => {
   });
 };
 
-export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetChildEnv) => {
-  const activeCols = env.model.getters.getActiveCols();
+export const INSERT_COLUMNS_AFTER_ACTION = (model: Model) => {
+  const activeCols = model.getters.getActiveCols();
   let column: number;
   let quantity: number;
   if (activeCols.size) {
     column = largeMax([...activeCols]);
     quantity = activeCols.size;
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = model.getters.getSelectedZones()[0];
     column = zone.right;
     quantity = zone.right - zone.left + 1;
   }
-  env.model.dispatch("ADD_COLUMNS_ROWS", {
-    sheetId: env.model.getters.getActiveSheetId(),
-    sheetName: env.model.getters.getActiveSheetName(),
+  model.dispatch("ADD_COLUMNS_ROWS", {
+    sheetId: model.getters.getActiveSheetId(),
+    sheetName: model.getters.getActiveSheetName(),
     position: "after",
     dimension: "COL",
     base: column,
@@ -359,8 +359,8 @@ export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetChildEnv) => {
   });
 };
 
-export const HIDE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
-  const cols = env.model.getters.getElementsFromSelection("COL");
+export const HIDE_COLUMNS_NAME = (model: Model) => {
+  const cols = model.getters.getElementsFromSelection("COL");
   const first = cols[0];
   const last = cols[cols.length - 1];
   if (cols.length === 1) {
@@ -376,8 +376,8 @@ export const HIDE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
   }
 };
 
-export const HIDE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
-  const rows = env.model.getters.getElementsFromSelection("ROW");
+export const HIDE_ROWS_NAME = (model: Model) => {
+  const rows = model.getters.getElementsFromSelection("ROW");
   const first = rows[0];
   const last = rows[rows.length - 1];
   if (rows.length === 1) {
@@ -393,21 +393,21 @@ export const HIDE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
 // Charts
 //------------------------------------------------------------------------------
 
-export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
-  const getters = env.model.getters;
+export const CREATE_CHART = (model: Model, env: SpreadsheetChildEnv) => {
+  const getters = model.getters;
   const figureId = UuidGenerator.smallUuid();
   const sheetId = getters.getActiveSheetId();
   let zones = getters.getSelectedZones();
 
   if (zones.length === 1 && getZoneArea(zones[0]) === 1) {
-    env.model.selection.selectTableAroundSelection();
+    model.selection.selectTableAroundSelection();
     zones = getters.getSelectedZones();
   }
 
   const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
   const { col, row, offset } = centerFigurePosition(getters, size);
 
-  const result = env.model.dispatch("CREATE_CHART", {
+  const result = model.dispatch("CREATE_CHART", {
     sheetId,
     figureId,
     chartId: UuidGenerator.smallUuid(),
@@ -415,23 +415,23 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
     row,
     offset,
     size,
-    definition: getSmartChartDefinition(zones, env.model.getters),
+    definition: getSmartChartDefinition(zones, model.getters),
   });
   if (result.isSuccessful) {
-    env.model.dispatch("SELECT_FIGURE", { figureId });
+    model.dispatch("SELECT_FIGURE", { figureId });
     env.openSidePanel("ChartPanel");
   }
 };
 
-export const CREATE_CAROUSEL = (env: SpreadsheetChildEnv) => {
-  const getters = env.model.getters;
+export const CREATE_CAROUSEL = (model: Model, env: SpreadsheetChildEnv) => {
+  const getters = model.getters;
   const figureId = UuidGenerator.smallUuid();
   const sheetId = getters.getActiveSheetId();
 
   const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
   const { col, row, offset } = centerFigurePosition(getters, size);
 
-  const result = env.model.dispatch("CREATE_CAROUSEL", {
+  const result = model.dispatch("CREATE_CAROUSEL", {
     sheetId,
     figureId,
     col,
@@ -441,7 +441,7 @@ export const CREATE_CAROUSEL = (env: SpreadsheetChildEnv) => {
     definition: { items: [] },
   });
   if (result.isSuccessful) {
-    env.model.dispatch("SELECT_FIGURE", { figureId });
+    model.dispatch("SELECT_FIGURE", { figureId });
     env.openSidePanel("CarouselPanel", { figureId });
   }
 };
@@ -450,77 +450,77 @@ export const CREATE_CAROUSEL = (env: SpreadsheetChildEnv) => {
 // Pivots
 //------------------------------------------------------------------------------
 
-export const CREATE_PIVOT = (env: SpreadsheetChildEnv) => {
+export const CREATE_PIVOT = (model: Model, env: SpreadsheetChildEnv) => {
   const pivotId = UuidGenerator.smallUuid();
   const newSheetId = UuidGenerator.smallUuid();
-  const result = env.model.dispatch("INSERT_NEW_PIVOT", { pivotId, newSheetId });
+  const result = model.dispatch("INSERT_NEW_PIVOT", { pivotId, newSheetId });
   if (result.isSuccessful) {
     env.openSidePanel("PivotSidePanel", { pivotId });
   }
 };
 
-export const REINSERT_DYNAMIC_PIVOT_CHILDREN = (env: SpreadsheetChildEnv) =>
-  env.model.getters.getPivotIds().map((pivotId, index) => ({
-    id: `reinsert_dynamic_pivot_${env.model.getters.getPivotFormulaId(pivotId)}`,
-    name: env.model.getters.getPivotDisplayName(pivotId),
+export const REINSERT_DYNAMIC_PIVOT_CHILDREN = (model: Model) =>
+  model.getters.getPivotIds().map((pivotId, index) => ({
+    id: `reinsert_dynamic_pivot_${model.getters.getPivotFormulaId(pivotId)}`,
+    name: model.getters.getPivotDisplayName(pivotId),
     sequence: index,
-    execute: (env: SpreadsheetChildEnv) => {
-      const zone = env.model.getters.getSelectedZone();
-      const table = env.model.getters.getPivot(pivotId).getCollapsedTableStructure().export();
-      env.model.dispatch("INSERT_PIVOT_WITH_TABLE", {
+    execute: (model: Model) => {
+      const zone = model.getters.getSelectedZone();
+      const table = model.getters.getPivot(pivotId).getCollapsedTableStructure().export();
+      model.dispatch("INSERT_PIVOT_WITH_TABLE", {
         pivotId,
         table,
         col: zone.left,
         row: zone.top,
-        sheetId: env.model.getters.getActiveSheetId(),
+        sheetId: model.getters.getActiveSheetId(),
         pivotMode: "dynamic",
       });
-      env.model.dispatch("REFRESH_PIVOT", { id: pivotId });
+      model.dispatch("REFRESH_PIVOT", { id: pivotId });
     },
-    isVisible: (env: SpreadsheetChildEnv) => env.model.getters.getPivot(pivotId).isValid(),
+    isVisible: (model: Model) => model.getters.getPivot(pivotId).isValid(),
   }));
 
-export const REINSERT_STATIC_PIVOT_CHILDREN = (env: SpreadsheetChildEnv) =>
-  env.model.getters.getPivotIds().map((pivotId, index) => ({
-    id: `reinsert_static_pivot_${env.model.getters.getPivotFormulaId(pivotId)}`,
-    name: env.model.getters.getPivotDisplayName(pivotId),
+export const REINSERT_STATIC_PIVOT_CHILDREN = (model: Model) =>
+  model.getters.getPivotIds().map((pivotId, index) => ({
+    id: `reinsert_static_pivot_${model.getters.getPivotFormulaId(pivotId)}`,
+    name: model.getters.getPivotDisplayName(pivotId),
     sequence: index,
-    execute: (env: SpreadsheetChildEnv) => {
-      const zone = env.model.getters.getSelectedZone();
-      const table = env.model.getters.getPivot(pivotId).getExpandedTableStructure();
+    execute: (model: Model, env: SpreadsheetChildEnv) => {
+      const zone = model.getters.getSelectedZone();
+      const table = model.getters.getPivot(pivotId).getExpandedTableStructure();
       if (table.numberOfCells > PIVOT_MAX_NUMBER_OF_CELLS) {
         env.notifyUser({
           type: "warning",
-          text: getPivotTooBigErrorMessage(table.numberOfCells, env.model.getters.getLocale()),
+          text: getPivotTooBigErrorMessage(table.numberOfCells, model.getters.getLocale()),
           sticky: true,
         });
         return;
       }
-      env.model.dispatch("INSERT_PIVOT_WITH_TABLE", {
+      model.dispatch("INSERT_PIVOT_WITH_TABLE", {
         pivotId,
         table: table.export(),
         col: zone.left,
         row: zone.top,
-        sheetId: env.model.getters.getActiveSheetId(),
+        sheetId: model.getters.getActiveSheetId(),
         pivotMode: "static",
       });
-      env.model.dispatch("REFRESH_PIVOT", { id: pivotId });
+      model.dispatch("REFRESH_PIVOT", { id: pivotId });
     },
-    isVisible: (env: SpreadsheetChildEnv) => env.model.getters.getPivot(pivotId).isValid(),
+    isVisible: (model: Model) => model.getters.getPivot(pivotId).isValid(),
   }));
 
 //------------------------------------------------------------------------------
 // Image
 //------------------------------------------------------------------------------
 
-export const CREATE_IMAGE = async (env: SpreadsheetChildEnv) => {
+export const CREATE_IMAGE = async (model: Model, env: SpreadsheetChildEnv) => {
   if (env.imageProvider) {
-    const sheetId = env.model.getters.getActiveSheetId();
+    const sheetId = model.getters.getActiveSheetId();
     const figureId = UuidGenerator.smallUuid();
     const image = await env.imageProvider.requestImage();
-    const size = getMaxFigureSize(env.model.getters, image.size);
-    const { col, row, offset } = centerFigurePosition(env.model.getters, size);
-    env.model.dispatch("CREATE_IMAGE", {
+    const size = getMaxFigureSize(model.getters, image.size);
+    const { col, row, offset } = centerFigurePosition(model.getters, size);
+    model.dispatch("CREATE_IMAGE", {
       sheetId,
       figureId,
       col,
@@ -536,16 +536,16 @@ export const CREATE_IMAGE = async (env: SpreadsheetChildEnv) => {
 // Style/Format
 //------------------------------------------------------------------------------
 
-export const FORMAT_PERCENT_ACTION = (env: SpreadsheetChildEnv) => setFormatter(env, "0.00%");
+export const FORMAT_PERCENT_ACTION = (model: Model) => setFormatter(model, "0.00%");
 
 //------------------------------------------------------------------------------
 // Side panel
 //------------------------------------------------------------------------------
-export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetChildEnv) => {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const zones = env.model.getters.getSelectedZones();
-  const rules = env.model.getters.getConditionalFormats(sheetId);
-  const ruleIds = env.model.getters.getRulesSelection(sheetId, zones);
+export const OPEN_CF_SIDEPANEL_ACTION = (model: Model, env: SpreadsheetChildEnv) => {
+  const sheetId = model.getters.getActiveSheetId();
+  const zones = model.getters.getSelectedZones();
+  const rules = model.getters.getConditionalFormats(sheetId);
+  const ruleIds = model.getters.getRulesSelection(sheetId, zones);
   if (ruleIds.length === 1) {
     return env.openSidePanel("ConditionalFormattingEditor", {
       cf: rules.find((r) => r.id === ruleIds[0]),
@@ -555,15 +555,15 @@ export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetChildEnv) => {
   return env.openSidePanel("ConditionalFormatting");
 };
 
-export const INSERT_LINK = (env: SpreadsheetChildEnv) => {
-  const { col, row } = env.model.getters.getActivePosition();
+export const INSERT_LINK = (model: Model, env: SpreadsheetChildEnv) => {
+  const { col, row } = model.getters.getActivePosition();
   env.getStore(CellPopoverStore).open({ col, row }, "LinkEditor");
 };
 
-export const INSERT_LINK_NAME = (env: SpreadsheetChildEnv) => {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const { col, row } = env.model.getters.getActivePosition();
-  const cell = env.model.getters.getEvaluatedCell({ sheetId, col, row });
+export const INSERT_LINK_NAME = (model: Model, env: SpreadsheetChildEnv) => {
+  const sheetId = model.getters.getActiveSheetId();
+  const { col, row } = model.getters.getActivePosition();
+  const cell = model.getters.getEvaluatedCell({ sheetId, col, row });
 
   return cell && cell.link ? _t("Edit link") : _t("Insert link");
 };
@@ -572,27 +572,27 @@ export const INSERT_LINK_NAME = (env: SpreadsheetChildEnv) => {
 // Filters action
 //------------------------------------------------------------------------------
 
-export const SELECTED_TABLE_HAS_FILTERS = (env: SpreadsheetChildEnv): boolean => {
-  const table = env.model.getters.getFirstTableInSelection();
+export const SELECTED_TABLE_HAS_FILTERS = (model: Model): boolean => {
+  const table = model.getters.getFirstTableInSelection();
   return table?.config.hasFilters || false;
 };
 
-export const SELECTION_CONTAINS_SINGLE_TABLE = (env: SpreadsheetChildEnv): boolean => {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const selectedZones = env.model.getters.getSelectedZones();
-  const tables = env.model.getters.getTablesOverlappingZones(sheetId, selectedZones);
+export const SELECTION_CONTAINS_SINGLE_TABLE = (model: Model): boolean => {
+  const sheetId = model.getters.getActiveSheetId();
+  const selectedZones = model.getters.getSelectedZones();
+  const tables = model.getters.getTablesOverlappingZones(sheetId, selectedZones);
   return tables.length === 1 && !tables[0].isPivotTable;
 };
 
-export const IS_SELECTION_CONTINUOUS = (env: SpreadsheetChildEnv): boolean => {
-  return areZonesContinuous(env.model.getters.getSelectedZones());
+export const IS_SELECTION_CONTINUOUS = (model: Model): boolean => {
+  return areZonesContinuous(model.getters.getSelectedZones());
 };
 
-export const ADD_DATA_FILTER = (env: SpreadsheetChildEnv) => {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const table = env.model.getters.getFirstTableInSelection();
+export const ADD_DATA_FILTER = (model: Model, env: SpreadsheetChildEnv) => {
+  const sheetId = model.getters.getActiveSheetId();
+  const table = model.getters.getFirstTableInSelection();
   if (table) {
-    env.model.dispatch("UPDATE_TABLE", {
+    model.dispatch("UPDATE_TABLE", {
       sheetId,
       zone: table.range.zone,
       config: { hasFilters: true },
@@ -604,39 +604,39 @@ export const ADD_DATA_FILTER = (env: SpreadsheetChildEnv) => {
       bandedRows: false,
       styleId: "TableStyleLight11",
     };
-    interactiveCreateTable(env, sheetId, tableConfig);
+    interactiveCreateTable(model, env, sheetId, tableConfig);
   }
 };
 
-export const REMOVE_DATA_FILTER = (env: SpreadsheetChildEnv) => {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const table = env.model.getters.getFirstTableInSelection();
+export const REMOVE_DATA_FILTER = (model: Model) => {
+  const sheetId = model.getters.getActiveSheetId();
+  const table = model.getters.getFirstTableInSelection();
   if (!table) {
     return;
   }
-  env.model.dispatch("UPDATE_TABLE", {
+  model.dispatch("UPDATE_TABLE", {
     sheetId,
     zone: table.range.zone,
     config: { hasFilters: false },
   });
 };
 
-export const INSERT_TABLE = (env: SpreadsheetChildEnv) => {
-  const sheetId = env.model.getters.getActiveSheetId();
+export const INSERT_TABLE = (model: Model, env: SpreadsheetChildEnv) => {
+  const sheetId = model.getters.getActiveSheetId();
 
-  const result = interactiveCreateTable(env, sheetId);
+  const result = interactiveCreateTable(model, env, sheetId);
   if (result.isSuccessful) {
     env.openSidePanel("TableSidePanel", {});
   }
 };
 
-export const DELETE_SELECTED_TABLE = (env: SpreadsheetChildEnv) => {
-  const table = env.model.getters.getFirstTableInSelection();
+export const DELETE_SELECTED_TABLE = (model: Model) => {
+  const table = model.getters.getFirstTableInSelection();
   if (!table) {
     return;
   }
-  env.model.dispatch("REMOVE_TABLE", {
-    sheetId: env.model.getters.getActiveSheetId(),
+  model.dispatch("REMOVE_TABLE", {
+    sheetId: model.getters.getActiveSheetId(),
     target: [table.range.zone],
   });
 };
@@ -645,29 +645,29 @@ export const DELETE_SELECTED_TABLE = (env: SpreadsheetChildEnv) => {
 // Sorting action
 //------------------------------------------------------------------------------
 
-export const IS_ONLY_ONE_RANGE = (env: SpreadsheetChildEnv): boolean => {
-  return env.model.getters.getSelectedZones().length === 1;
+export const IS_ONLY_ONE_RANGE = (model: Model): boolean => {
+  return model.getters.getSelectedZones().length === 1;
 };
 
-export const CAN_INSERT_HEADER = (env: SpreadsheetChildEnv, dimension: Dimension): boolean => {
-  if (!IS_ONLY_ONE_RANGE(env)) {
+export const CAN_INSERT_HEADER = (model: Model, dimension: Dimension): boolean => {
+  if (!IS_ONLY_ONE_RANGE(model)) {
     return false;
   }
   const activeHeaders =
-    dimension === "COL" ? env.model.getters.getActiveCols() : env.model.getters.getActiveRows();
+    dimension === "COL" ? model.getters.getActiveCols() : model.getters.getActiveRows();
   const ortogonalActiveHeaders =
-    dimension === "COL" ? env.model.getters.getActiveRows() : env.model.getters.getActiveCols();
-  const sheetId = env.model.getters.getActiveSheetId();
-  const zone = env.model.getters.getSelectedZone();
-  const allSheetSelected = isEqual(zone, env.model.getters.getSheetZone(sheetId));
+    dimension === "COL" ? model.getters.getActiveRows() : model.getters.getActiveCols();
+  const sheetId = model.getters.getActiveSheetId();
+  const zone = model.getters.getSelectedZone();
+  const allSheetSelected = isEqual(zone, model.getters.getSheetZone(sheetId));
   return isConsecutive(activeHeaders) && (ortogonalActiveHeaders.size === 0 || allSheetSelected);
 };
 
 export const CREATE_OR_REMOVE_FILTER_ACTION: ActionSpec = {
-  name: (env) =>
-    SELECTED_TABLE_HAS_FILTERS(env) ? _t("Remove selected filters") : _t("Add filters"),
-  isEnabled: (env) => IS_SELECTION_CONTINUOUS(env),
-  execute: (env) =>
-    SELECTED_TABLE_HAS_FILTERS(env) ? REMOVE_DATA_FILTER(env) : ADD_DATA_FILTER(env),
+  name: (model) =>
+    SELECTED_TABLE_HAS_FILTERS(model) ? _t("Remove selected filters") : _t("Add filters"),
+  isEnabled: (model) => IS_SELECTION_CONTINUOUS(model),
+  execute: (model, env) =>
+    SELECTED_TABLE_HAS_FILTERS(model) ? REMOVE_DATA_FILTER(model) : ADD_DATA_FILTER(model, env),
   icon: "o-spreadsheet-Icon.FILTER_ICON_ACTIVE",
 };

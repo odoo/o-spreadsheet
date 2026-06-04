@@ -15,6 +15,7 @@ import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useTouchHandlers } from "../helpers/touch_handlers_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { getZoomedRect } from "../helpers/zoom";
+import { useModel } from "../owl_plugins/model_plugin";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
@@ -46,6 +47,8 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   private gridRef = signal<HTMLElement | null>(null);
   private canvasRef = signal<HTMLElement | null>(null);
 
+  private model = useModel();
+
   setup() {
     this.hoveredCell = useStore(DelayedHoveredCellStore);
     this.clickableCellsStore = useStore(ClickableCellsStore);
@@ -54,15 +57,15 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
     const rendererStore = useLocalStore(RendererStore, layers);
     useChildSubEnv({
       getPopoverContainerRect: () =>
-        getZoomedRect(this.env.model.getters.getViewportZoomLevel(), this.getGridRect()),
+        getZoomedRect(this.model().getters.getViewportZoomLevel(), this.getGridRect()),
     });
     useGridDrawing({
       canvasRef: this.canvasRef,
       rendererStore,
       renderingCtx: () => ({
         dpr: window.devicePixelRatio || 1,
-        viewports: this.env.model.getters.getViewportCollection(),
-        ...this.env.model.getters.getSelectionState(),
+        viewports: this.model().getters.getViewportCollection(),
+        ...this.model().getters.getSelectionState(),
         hideGridLines: true,
       }),
     });
@@ -75,16 +78,16 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
     useTouchHandlers(this.gridRef, {
       updateScroll: this.moveCanvas.bind(this),
       canMoveUp: () => {
-        const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+        const { scrollY } = this.model().getters.getActiveSheetScrollInfo();
         return scrollY > 0;
       },
       canMoveDown: () => {
-        const { maxOffsetY } = this.env.model.getters.getMaximumSheetOffset();
-        const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+        const { maxOffsetY } = this.model().getters.getMaximumSheetOffset();
+        const { scrollY } = this.model().getters.getActiveSheetScrollInfo();
         return scrollY < maxOffsetY;
       },
-      getZoom: () => this.env.model.getters.getViewportZoomLevel(),
-      setZoom: (zoom: number) => this.env.model.dispatch("SET_ZOOM", { zoom }),
+      getZoom: () => this.model().getters.getViewportZoomLevel(),
+      setZoom: (zoom: number) => this.model().dispatch("SET_ZOOM", { zoom }),
     });
   }
 
@@ -121,7 +124,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
 
   selectClickableCell(ev: MouseEvent, clickableCell: ClickableCell) {
     const { position, action } = clickableCell;
-    action(position, this.env, isMiddleClickOrCtrlClick(ev));
+    action(position, this.model(), this.env, isMiddleClickOrCtrlClick(ev));
   }
 
   onClosePopover() {
@@ -131,7 +134,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   onGridResized() {
     const { height, width } = this.props.getGridSize();
     const maxWidth = this.getMaxSheetWidth();
-    this.env.model.dispatch("RESIZE_SHEETVIEW", {
+    this.model().dispatch("RESIZE_SHEETVIEW", {
       width: Math.min(maxWidth, width),
       height,
       gridOffsetX: 0,
@@ -140,8 +143,8 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   }
 
   private moveCanvas(deltaX: Pixel, deltaY: Pixel) {
-    const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
+    const { scrollX, scrollY } = this.model().getters.getActiveSheetScrollInfo();
+    this.model().dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: scrollX + deltaX,
       offsetY: scrollY + deltaY,
     });
@@ -150,18 +153,18 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   private getGridRect(): Rect {
     return {
       ...getElBoundingRect(this.gridRef()),
-      ...this.env.model.getters.getSheetViewDimensionWithHeaders(),
+      ...this.model().getters.getSheetViewDimensionWithHeaders(),
     };
   }
 
   private getMaxSheetWidth(): Pixel {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const { right } = this.env.model.getters.getSheetZone(sheetId);
-    return this.env.model.getters.getColDimensions(sheetId, right).end;
+    const sheetId = this.model().getters.getActiveSheetId();
+    const { right } = this.model().getters.getSheetZone(sheetId);
+    return this.model().getters.getColDimensions(sheetId, right).end;
   }
 
   get dashboardStyle() {
-    const zoomLevel = this.env.model.getters.getViewportZoomLevel();
+    const zoomLevel = this.model().getters.getViewportZoomLevel();
     return cssPropertiesToCss({ zoom: `${zoomLevel}` });
   }
 }

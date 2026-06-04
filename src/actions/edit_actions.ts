@@ -2,6 +2,7 @@ import { interactiveCut } from "../helpers/ui/cut_interactive";
 import { interactiveAddMerge } from "../helpers/ui/merge_interactive";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { doesAnyZoneCrossFrozenPane, getZoneArea, hasOverlappingZones } from "../helpers/zones";
+import { Model } from "../model";
 import { _t } from "../translation";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { ActionSpec } from "./action";
@@ -10,8 +11,8 @@ import * as ACTIONS from "./menu_items_actions";
 export const undo: ActionSpec = {
   name: _t("Undo"),
   shortcut: "Ctrl+Z",
-  execute: (env) => env.model.dispatch("REQUEST_UNDO"),
-  isEnabled: (env) => env.model.getters.canUndo(),
+  execute: (model) => model.dispatch("REQUEST_UNDO"),
+  isEnabled: (model) => model.getters.canUndo(),
   isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.UNDO",
 };
@@ -19,8 +20,8 @@ export const undo: ActionSpec = {
 export const redo: ActionSpec = {
   name: _t("Redo"),
   shortcut: "Ctrl+Y",
-  execute: (env) => env.model.dispatch("REQUEST_REDO"),
-  isEnabled: (env) => env.model.getters.canRedo(),
+  execute: (model) => model.dispatch("REQUEST_REDO"),
+  isEnabled: (model) => model.getters.canRedo(),
   isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.REDO",
 };
@@ -29,9 +30,9 @@ export const copy: ActionSpec = {
   name: _t("Copy"),
   shortcut: "Ctrl+C",
   isReadonlyAllowed: true,
-  execute: async (env) => {
-    env.model.dispatch("COPY");
-    await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
+  execute: async (model, env) => {
+    model.dispatch("COPY");
+    await env.clipboard.write(await model.getters.getClipboardTextAndImageContent());
   },
   isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.CLIPBOARD",
@@ -40,9 +41,9 @@ export const copy: ActionSpec = {
 export const cut: ActionSpec = {
   name: _t("Cut"),
   shortcut: "Ctrl+X",
-  execute: async (env) => {
-    interactiveCut(env);
-    await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
+  execute: async (model, env) => {
+    interactiveCut(model, env);
+    await env.clipboard.write(await model.getters.getClipboardTextAndImageContent());
   },
   icon: "o-spreadsheet-Icon.CUT",
 };
@@ -56,8 +57,8 @@ export const paste: ActionSpec = {
 
 export const pasteSpecial: ActionSpec = {
   name: _t("Paste special"),
-  isVisible: (env): boolean => {
-    return !env.model.getters.isCutOperation();
+  isVisible: (model): boolean => {
+    return !model.getters.isCutOperation();
   },
   icon: "o-spreadsheet-Icon.PASTE",
 };
@@ -78,26 +79,26 @@ export const findAndReplace: ActionSpec = {
   shortcut: "Ctrl+H",
   isReadonlyAllowed: true,
   isEnabledOnLockedSheet: true,
-  execute: (env) => {
+  execute: (model, env) => {
     env.openSidePanel("FindAndReplace", {});
   },
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (model, env) => !env.isSmall,
   icon: "o-spreadsheet-Icon.SEARCH",
 };
 
 export const deleteValues: ActionSpec = {
   name: _t("Delete values"),
-  execute: (env) =>
-    env.model.dispatch("DELETE_UNFILTERED_CONTENT", {
-      sheetId: env.model.getters.getActiveSheetId(),
-      target: env.model.getters.getSelectedZones(),
+  execute: (model, env) =>
+    model.dispatch("DELETE_UNFILTERED_CONTENT", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: model.getters.getSelectedZones(),
     }),
 };
 
 export const deleteRows: ActionSpec = {
   name: ACTIONS.REMOVE_ROWS_NAME,
   execute: ACTIONS.REMOVE_ROWS_ACTION,
-  isVisible: (env: SpreadsheetChildEnv) => ACTIONS.CAN_REMOVE_COLUMNS_ROWS("ROW", env),
+  isVisible: (model) => ACTIONS.CAN_REMOVE_COLUMNS_ROWS(model, "ROW"),
 };
 
 export const deleteRow: ActionSpec = {
@@ -113,7 +114,7 @@ export const clearRows: ActionSpec = {
 export const deleteCols: ActionSpec = {
   name: ACTIONS.REMOVE_COLUMNS_NAME,
   execute: ACTIONS.REMOVE_COLUMNS_ACTION,
-  isVisible: (env: SpreadsheetChildEnv) => ACTIONS.CAN_REMOVE_COLUMNS_ROWS("COL", env),
+  isVisible: (model) => ACTIONS.CAN_REMOVE_COLUMNS_ROWS(model, "COL"),
 };
 
 export const deleteCol: ActionSpec = {
@@ -133,33 +134,33 @@ export const deleteCells: ActionSpec = {
 
 export const deleteCellShiftUp: ActionSpec = {
   name: _t("Delete cell and shift up"),
-  execute: (env) => {
-    const zone = env.model.getters.getSelectedZone();
-    const result = env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "ROW" });
-    handlePasteResult(env, result);
+  execute: (model, env) => {
+    const zone = model.getters.getSelectedZone();
+    const result = model.dispatch("DELETE_CELL", { zone, shiftDimension: "ROW" });
+    handlePasteResult(model, env, result);
   },
 };
 
 export const deleteCellShiftLeft: ActionSpec = {
   name: _t("Delete cell and shift left"),
-  execute: (env) => {
-    const zone = env.model.getters.getSelectedZone();
-    const result = env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "COL" });
-    handlePasteResult(env, result);
+  execute: (model, env) => {
+    const zone = model.getters.getSelectedZone();
+    const result = model.dispatch("DELETE_CELL", { zone, shiftDimension: "COL" });
+    handlePasteResult(model, env, result);
   },
 };
 
 export const mergeCells: ActionSpec = {
   name: _t("Merge cells"),
-  isEnabled: (env) => !cannotMerge(env),
-  isActive: (env) => hasMergeInAnySelectedZone(env),
-  execute: (env) => toggleMerge(env),
+  isEnabled: (model) => !cannotMerge(model),
+  isActive: (model) => hasMergeInAnySelectedZone(model),
+  execute: (model, env) => toggleMerge(model, env),
   icon: "o-spreadsheet-Icon.MERGE_CELL",
 };
 
 export const editTable: ActionSpec = {
   name: () => _t("Edit table"),
-  execute: (env) => env.openSidePanel("TableSidePanel", {}),
+  execute: (model, env) => env.openSidePanel("TableSidePanel", {}),
   icon: "o-spreadsheet-Icon.EDIT_TABLE",
 };
 
@@ -169,10 +170,10 @@ export const deleteTable: ActionSpec = {
   icon: "o-spreadsheet-Icon.DELETE_TABLE",
 };
 
-function cannotMerge(env: SpreadsheetChildEnv): boolean {
-  const zones = env.model.getters.getSelectedZones();
-  const { sheetId } = env.model.getters.getActivePosition();
-  const { xSplit, ySplit } = env.model.getters.getPaneDivisions(sheetId);
+function cannotMerge(model: Model): boolean {
+  const zones = model.getters.getSelectedZones();
+  const { sheetId } = model.getters.getActivePosition();
+  const { xSplit, ySplit } = model.getters.getPaneDivisions(sheetId);
   return (
     zones.every((zone) => getZoneArea(zone) === 1) ||
     doesAnyZoneCrossFrozenPane(zones, xSplit, ySplit) ||
@@ -180,31 +181,29 @@ function cannotMerge(env: SpreadsheetChildEnv): boolean {
   );
 }
 
-function hasMergeInAnySelectedZone(env: SpreadsheetChildEnv): boolean {
-  if (cannotMerge(env)) {
+function hasMergeInAnySelectedZone(model: Model): boolean {
+  if (cannotMerge(model)) {
     return false;
   }
 
-  const sheetId = env.model.getters.getActiveSheetId();
-  const zones = env.model.getters.getSelectedZones();
+  const sheetId = model.getters.getActiveSheetId();
+  const zones = model.getters.getSelectedZones();
   return zones.some((zone) => {
-    return env.model.getters.getMergesInZone(sheetId, zone).length > 0;
+    return model.getters.getMergesInZone(sheetId, zone).length > 0;
   });
 }
 
-function toggleMerge(env: SpreadsheetChildEnv) {
-  if (cannotMerge(env)) {
+function toggleMerge(model: Model, env: SpreadsheetChildEnv) {
+  if (cannotMerge(model)) {
     return;
   }
 
-  const target = env.model.getters.getSelectedZones();
-  const sheetId = env.model.getters.getActiveSheetId();
-  if (hasMergeInAnySelectedZone(env)) {
-    const mergesToRemove = target.flatMap((zone) =>
-      env.model.getters.getMergesInZone(sheetId, zone)
-    );
-    env.model.dispatch("REMOVE_MERGE", { sheetId, target: mergesToRemove });
+  const target = model.getters.getSelectedZones();
+  const sheetId = model.getters.getActiveSheetId();
+  if (hasMergeInAnySelectedZone(model)) {
+    const mergesToRemove = target.flatMap((zone) => model.getters.getMergesInZone(sheetId, zone));
+    model.dispatch("REMOVE_MERGE", { sheetId, target: mergesToRemove });
   } else {
-    interactiveAddMerge(env, sheetId, target);
+    interactiveAddMerge(model, env, sheetId, target);
   }
 }

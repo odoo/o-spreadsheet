@@ -3,6 +3,7 @@ import { ClosedCellPopover, PositionedCellPopoverComponent } from "../../types/c
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { getZoomedRect } from "../helpers/zoom";
+import { useModel } from "../owl_plugins/model_plugin";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
@@ -21,6 +22,8 @@ export class GridPopover extends Component<SpreadsheetChildEnv> {
   });
   protected cellPopovers!: Store<CellPopoverStore>;
 
+  private model = useModel();
+
   setup() {
     this.cellPopovers = useStore(CellPopoverStore);
   }
@@ -30,7 +33,7 @@ export class GridPopover extends Component<SpreadsheetChildEnv> {
     if (!popover.isOpen) {
       return { isOpen: false };
     }
-    const zoom = this.env.model.getters.getViewportZoomLevel();
+    const zoom = this.model().getters.getViewportZoomLevel();
     const anchorRect = getZoomedRect(zoom, popover.anchorRect);
     return {
       ...popover,

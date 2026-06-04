@@ -18,7 +18,7 @@ async function mountPivotHtmlRenderer(
   };
   model.dispatch("PIVOT_START_PRESENCE_TRACKING", { pivotId });
   evaluateCells(model);
-  ({ fixture } = await mountComponent(PivotHTMLRenderer, { env: { model }, props }));
+  ({ fixture } = await mountComponent(PivotHTMLRenderer, { model, props }));
 }
 
 describe("Pivot HTML Renderer", () => {

@@ -17,6 +17,7 @@ import {
 import { UID, ValueAndLabel } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { DataValidationRuleData } from "../../../../types/workbook_data";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";
@@ -38,6 +39,7 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
     "onCancel?": types.function([]),
     onCloseSidePanel: types.function([]),
   });
+  private model = useModel();
 
   state = proxy<State>({
     rule: this.defaultDataValidationRule,
@@ -47,17 +49,14 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
   private editingSheetId!: UID;
 
   setup() {
-    this.editingSheetId = this.env.model.getters.getActiveSheetId();
-    const rule = this.env.model.getters.getDataValidationRule(
-      this.editingSheetId,
-      this.props.ruleId
-    );
+    this.editingSheetId = this.model().getters.getActiveSheetId();
+    const rule = this.model().getters.getDataValidationRule(this.editingSheetId, this.props.ruleId);
     if (rule) {
-      const locale = this.env.model.getters.getLocale();
+      const locale = this.model().getters.getLocale();
       this.state.rule = {
         ...localizeDataValidationRule(rule, locale),
         ranges: rule.ranges.map((range) =>
-          this.env.model.getters.getRangeString(range, this.editingSheetId)
+          this.model().getters.getRangeString(range, this.editingSheetId)
         ),
       };
     }
@@ -86,7 +85,7 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
   }
 
   onSave() {
-    const result = this.env.model.dispatch("ADD_DATA_VALIDATION_RULE", this.dispatchPayload);
+    const result = this.model().dispatch("ADD_DATA_VALIDATION_RULE", this.dispatchPayload);
     if (!result.isSuccessful) {
       this.state.errors = result.reasons;
       return;
@@ -96,7 +95,7 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
 
   get dispatchPayload(): Omit<AddDataValidationCommand, "type"> {
     const rule = { ...this.state.rule, ranges: undefined };
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
 
     const criterion = rule.criterion;
     const criterionEvaluator = criterionEvaluatorRegistry.get(criterion.type);
@@ -109,7 +108,7 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
     return {
       sheetId: this.editingSheetId,
       ranges: this.state.rule.ranges.map((xc) =>
-        this.env.model.getters.getRangeDataFromXc(this.editingSheetId, xc)
+        this.model().getters.getRangeDataFromXc(this.editingSheetId, xc)
       ),
       rule,
     };
@@ -120,10 +119,10 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
   }
 
   get defaultDataValidationRule(): DataValidationRuleData {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const ranges = this.env.model.getters
-      .getSelectedZones()
-      .map((zone) => zoneToXc(this.env.model.getters.getUnboundedZone(sheetId, zone)));
+    const sheetId = this.model().getters.getActiveSheetId();
+    const ranges = this.model()
+      .getters.getSelectedZones()
+      .map((zone) => zoneToXc(this.model().getters.getUnboundedZone(sheetId, zone)));
     return {
       id: this.props.ruleId,
       criterion: { type: "containsText", values: [""] },

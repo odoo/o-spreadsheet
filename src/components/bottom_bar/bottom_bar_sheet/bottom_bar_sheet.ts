@@ -15,6 +15,7 @@ import { Ripple } from "../../animation/ripple";
 import { ColorPicker } from "../../color_picker/color_picker";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { getElBoundingRect } from "../../helpers/dom_helpers";
+import { useModel } from "../../owl_plugins/model_plugin";
 
 interface State {
   isEditing: boolean;
@@ -62,6 +63,7 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
 
   private editionState: "initializing" | "editing" = "initializing";
 
+  private model = useModel();
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   setup() {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
@@ -88,7 +90,7 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
           this.scrollToSheet();
         }
       },
-      () => [this.env.model.getters.getActiveSheetId()]
+      () => [this.model().getters.getActiveSheetId()]
     );
 
     onMounted(() => {
@@ -100,7 +102,7 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
         800
       );
 
-      this.env.model.on(
+      this.model().on(
         "command-rejected",
         this,
         async ({ command, result }: { command: Command; result: DispatchResult }) => {
@@ -118,7 +120,7 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
       );
     });
     onWillUnmount(() => {
-      this.env.model.off("command-rejected", this);
+      this.model().off("command-rejected", this);
     });
   }
 
@@ -164,15 +166,15 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
   }
 
   private activateSheet() {
-    this.env.model.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: this.env.model.getters.getActiveSheetId(),
+    this.model().dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: this.model().getters.getActiveSheetId(),
       sheetIdTo: this.props.sheetId,
     });
     this.scrollToSheet();
   }
 
   onDblClick() {
-    if (this.env.model.getters.isReadonly() || this.isSheetLocked) {
+    if (this.model().getters.isReadonly() || this.isSheetLocked) {
       return;
     }
     this.startEdition();
@@ -215,7 +217,9 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
 
     const inputValue = this.getInputContent() || "";
 
-    interactiveRenameSheet(this.env, this.props.sheetId, inputValue, () => this.startEdition());
+    interactiveRenameSheet(this.model(), this.env, this.props.sheetId, inputValue, () =>
+      this.startEdition()
+    );
   }
 
   private cancelEdition() {
@@ -256,7 +260,7 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
 
   onColorPicked(color: string) {
     this.state.pickerOpened = false;
-    this.env.model.dispatch("COLOR_SHEET", { sheetId: this.props.sheetId, color });
+    this.model().dispatch("COLOR_SHEET", { sheetId: this.props.sheetId, color });
   }
 
   get colorPickerAnchorRect(): Rect {
@@ -277,19 +281,19 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
   }
 
   get isSheetActive() {
-    return this.env.model.getters.getActiveSheetId() === this.props.sheetId;
+    return this.model().getters.getActiveSheetId() === this.props.sheetId;
   }
 
   get sheetName() {
-    return this.env.model.getters.getSheetName(this.props.sheetId);
+    return this.model().getters.getSheetName(this.props.sheetId);
   }
 
   get sheetColorStyle() {
-    const color = this.env.model.getters.getSheet(this.props.sheetId).color || "";
+    const color = this.model().getters.getSheet(this.props.sheetId).color || "";
     return cssPropertiesToCss({ background: color });
   }
 
   get isSheetLocked() {
-    return this.env.model.getters.isSheetLocked(this.props.sheetId);
+    return this.model().getters.isSheetLocked(this.props.sheetId);
   }
 }

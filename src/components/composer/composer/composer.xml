@@ -21,11 +21,11 @@
         </span>
         <div
           class="o-composer w-100 text-start"
-          t-att-class="{ 'text-muted': this.env.model.getters.isReadonly(), 'active': this.props.focus !== 'inactive' }"
+          t-att-class="{ 'text-muted': this.model().getters.isReadonly(), 'active': this.props.focus !== 'inactive' }"
           t-att-style="this.props.inputStyle"
           t-ref="this.composerRef"
           tabindex="1"
-          t-att-contenteditable="this.env.model.getters.isReadonly() ? 'false' : 'plaintext-only'"
+          t-att-contenteditable="this.model().getters.isReadonly() ? 'false' : 'plaintext-only'"
           t-att-placeHolder="this.props.placeholder"
           t-att-inputmode="this.props.inputMode"
           spellcheck="false"

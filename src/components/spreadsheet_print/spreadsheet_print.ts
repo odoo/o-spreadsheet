@@ -4,6 +4,7 @@ import { useLocalStore } from "../../store_engine/store_hooks";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
+import { useModel } from "../owl_plugins/model_plugin";
 import { types } from "../props_validation";
 import { Select } from "../select/select";
 import { BadgeSelection } from "../side_panel/components/badge_selection/badge_selection";
@@ -24,6 +25,7 @@ export class SpreadsheetPrint extends Component<SpreadsheetChildEnv> {
     onExitPrintMode: types.function([]),
   });
   static components = { StandaloneGridCanvas, Section, Select, BadgeSelection, Checkbox };
+  protected model = useModel();
 
   printStore!: Store<SpreadsheetPrintStore>;
 

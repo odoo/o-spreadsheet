@@ -12,6 +12,7 @@ import { CellPopoverStore } from "../../popover/cell_popover_store";
 
 import { props } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 
 export class LinkDisplay extends Component<SpreadsheetChildEnv> {
@@ -24,14 +25,16 @@ export class LinkDisplay extends Component<SpreadsheetChildEnv> {
 
   protected cellPopovers!: Store<CellPopoverStore>;
 
+  private model = useModel();
+
   setup() {
     this.cellPopovers = useStore(CellPopoverStore);
   }
 
   get cell(): EvaluatedCell {
     const { col, row } = this.props.cellPosition;
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    return this.env.model.getters.getEvaluatedCell({ sheetId, col, row });
+    const sheetId = this.model().getters.getActiveSheetId();
+    return this.model().getters.getEvaluatedCell({ sheetId, col, row });
   }
 
   get link(): Link {
@@ -45,25 +48,25 @@ export class LinkDisplay extends Component<SpreadsheetChildEnv> {
   }
 
   getUrlRepresentation(link: Link): string {
-    return urlRepresentation(link, this.env.model.getters);
+    return urlRepresentation(link, this.model().getters);
   }
 
   openLink(ev: MouseEvent) {
-    openLink(this.link, this.env, isMiddleClickOrCtrlClick(ev));
+    openLink(this.link, this.model(), this.env, isMiddleClickOrCtrlClick(ev));
   }
 
   edit() {
     const { col, row } = this.props.cellPosition;
-    this.env.model.selection.selectCell(col, row);
+    this.model().selection.selectCell(col, row);
     this.cellPopovers.open({ col, row }, "LinkEditor");
   }
 
   unlink() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const { col, row } = this.props.cellPosition;
-    const style = this.env.model.getters.getCellComputedStyle({ sheetId, col, row });
+    const style = this.model().getters.getCellComputedStyle({ sheetId, col, row });
     const textColor = style?.textColor === LINK_COLOR ? undefined : style?.textColor;
-    this.env.model.dispatch("UPDATE_CELL", {
+    this.model().dispatch("UPDATE_CELL", {
       col,
       row,
       sheetId,

@@ -14,6 +14,7 @@ import {
 } from "../../helpers/dom_helpers";
 import { withZoom } from "../../helpers/zoom";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 
 type ResizeAnchor =
@@ -59,10 +60,11 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
   private figureWrapperRef = signal<HTMLElement | null>(null);
   private menuButtonRef = signal<HTMLElement | null>(null);
 
+  private model = useModel();
   private borderWidth!: number;
 
   get isSelected(): boolean {
-    return this.env.model.getters.getSelectedFigureIds().includes(this.props.figureUI.id);
+    return this.model().getters.getSelectedFigureIds().includes(this.props.figureUI.id);
   }
 
   get figureRegistry() {
@@ -70,7 +72,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
   }
 
   private getBorderWidth(): Pixel {
-    if (this.env.model.getters.isDashboard()) {
+    if (this.model().getters.isDashboard()) {
       return 0;
     }
     return this.isSelected ? ACTIVE_BORDER_WIDTH : this.borderWidth;
@@ -115,7 +117,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
     const borderWidth = figureRegistry.get(this.props.figureUI.tag).borderWidth;
     this.borderWidth = borderWidth !== undefined ? borderWidth : BORDER_WIDTH;
     useLayoutEffect(() => {
-      const selectedFigureIds = this.env.model.getters.getSelectedFigureIds();
+      const selectedFigureIds = this.model().getters.getSelectedFigureIds();
       const thisFigureId = this.props.figureUI.id;
       const el = this.figureRef();
       if (selectedFigureIds.includes(thisFigureId)) {
@@ -153,9 +155,9 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
     switch (keyDownShortcut) {
       case "Delete":
       case "Backspace":
-        this.env.model.dispatch("DELETE_FIGURES", {
-          sheetId: this.env.model.getters.getActiveSheetId(),
-          figureIds: this.env.model.getters.getSelectedFigureIds(),
+        this.model().dispatch("DELETE_FIGURES", {
+          sheetId: this.model().getters.getActiveSheetId(),
+          figureIds: this.model().getters.getSelectedFigureIds(),
         });
         ev.preventDefault();
         ev.stopPropagation();
@@ -168,11 +170,11 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
       case "ArrowLeft":
       case "ArrowRight":
       case "ArrowUp":
-        const sheetId = this.env.model.getters.getActiveSheetId();
-        const figureIds = this.env.model.getters.getSelectedFigureIds();
+        const sheetId = this.model().getters.getActiveSheetId();
+        const figureIds = this.model().getters.getSelectedFigureIds();
         const figures: MoveFiguresPayload[] = [];
         for (const figureId of figureIds) {
-          const figure = this.env.model.getters.getFigure(sheetId, figureId);
+          const figure = this.model().getters.getFigure(sheetId, figureId);
           if (!figure) {
             continue;
           }
@@ -180,13 +182,13 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
             sheetId,
             figureId,
             ...this.postionInBoundary(
-              this.env.model.getters.getFigureUI(sheetId, figure),
+              this.model().getters.getFigureUI(sheetId, figure),
               ev.key,
               ev.shiftKey
             ),
           });
         }
-        this.env.model.dispatch("MOVE_FIGURES", { figures });
+        this.model().dispatch("MOVE_FIGURES", { figures });
         ev.preventDefault();
         ev.stopPropagation();
         break;
@@ -198,9 +200,9 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
       case "Ctrl+Y":
       case "Ctrl+Z":
         if (keyDownShortcut === "Ctrl+Y") {
-          this.env.model.dispatch("REQUEST_REDO");
+          this.model().dispatch("REQUEST_REDO");
         } else if (keyDownShortcut === "Ctrl+Z") {
-          this.env.model.dispatch("REQUEST_UNDO");
+          this.model().dispatch("REQUEST_UNDO");
         }
         ev.preventDefault();
         ev.stopPropagation();
@@ -209,7 +211,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
   }
 
   private postionInBoundary(position: AnchorOffset, key: string, shift: boolean): AnchorOffset {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const shiftAmount = shift ? 1 : 5;
     let { col, row, offset } = position;
     offset = { ...offset };
@@ -217,7 +219,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
       case "ArrowUp":
         if (offset.y < shiftAmount) {
           row--;
-          offset.y = this.env.model.getters.getRowSize(sheetId, row) - shiftAmount + offset.y;
+          offset.y = this.model().getters.getRowSize(sheetId, row) - shiftAmount + offset.y;
         } else {
           offset.y -= shiftAmount;
         }
@@ -225,13 +227,13 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
       case "ArrowLeft":
         if (offset.x < shiftAmount) {
           col--;
-          offset.x = this.env.model.getters.getColSize(sheetId, col) - shiftAmount + offset.x;
+          offset.x = this.model().getters.getColSize(sheetId, col) - shiftAmount + offset.x;
         } else {
           offset.x -= shiftAmount;
         }
         break;
       case "ArrowDown":
-        const rowSize = this.env.model.getters.getRowSize(sheetId, row);
+        const rowSize = this.model().getters.getRowSize(sheetId, row);
         if (offset.y + shiftAmount >= rowSize) {
           row++;
           offset.y = offset.y + shiftAmount - rowSize;
@@ -240,7 +242,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
         }
         break;
       case "ArrowRight":
-        const colSize = this.env.model.getters.getColSize(sheetId, col);
+        const colSize = this.model().getters.getColSize(sheetId, col);
         if (offset.x + shiftAmount >= colSize) {
           col++;
           offset.x = offset.x + shiftAmount - colSize;
@@ -252,10 +254,10 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
   }
 
   onContextMenu(ev: MouseEvent) {
-    if (this.env.model.getters.isDashboard()) {
+    if (this.model().getters.isDashboard()) {
       return;
     }
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = withZoom(this.model(), ev);
     this.openContextMenu({
       x: zoomedMouseEvent.clientX,
       y: zoomedMouseEvent.clientY,
@@ -266,7 +268,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
 
   showMenu(ev: MouseEvent) {
     if (!this.isSelected) {
-      this.env.model.dispatch("SELECT_FIGURE", {
+      this.model().dispatch("SELECT_FIGURE", {
         figureId: this.props.figureUI.id,
         selectMultiple: ev.shiftKey || isCtrlKey(ev),
       });
@@ -279,7 +281,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
     this.menuState.anchorRect = anchorRect;
     this.menuState.menuItems = figureRegistry
       .get(this.props.figureUI.tag)
-      .menuBuilder(this.props.figureUI.id, this.env);
+      .menuBuilder(this.props.figureUI.id, this.model());
   }
 
   editWrapperStyle(properties: CSSProperties) {
@@ -295,8 +297,8 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
     return (
       this.isSelected &&
       !this.env.isMobile() &&
-      !this.env.model.getters.isDashboard() &&
-      !this.env.model.getters.isCurrentSheetLocked()
+      !this.model().getters.isDashboard() &&
+      !this.model().getters.isCurrentSheetLocked()
     );
   }
 }

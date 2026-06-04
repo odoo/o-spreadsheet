@@ -8,7 +8,7 @@
         isFullScreen="this.props.isFullScreen"
       />
     </div>
-    <div t-if="this.env.model.getters.isDashboard()" class="position-absolute top-0 end-0">
+    <div t-if="this.model().getters.isDashboard()" class="position-absolute top-0 end-0">
       <ChartDashboardMenu chartId="this.chartId"/>
     </div>
   </t>

@@ -12,10 +12,10 @@ export const sortRange: ActionSpec = {
 
 export const sortAscending: ActionSpec = {
   name: _t("Ascending (A ⟶ Z)"),
-  execute: (env) => {
-    const { anchor, zones } = env.model.getters.getSelection();
-    const sheetId = env.model.getters.getActiveSheetId();
-    interactiveSortSelection(env, sheetId, anchor.cell, zones[0], "asc");
+  execute: (model, env) => {
+    const { anchor, zones } = model.getters.getSelection();
+    const sheetId = model.getters.getActiveSheetId();
+    interactiveSortSelection(model, env, sheetId, anchor.cell, zones[0], "asc");
   },
   icon: "o-spreadsheet-Icon.SORT_ASCENDING",
 };
@@ -27,28 +27,28 @@ export const dataCleanup: ActionSpec = {
 
 export const removeDuplicates: ActionSpec = {
   name: _t("Remove duplicates"),
-  execute: (env) => {
-    if (getZoneArea(env.model.getters.getSelectedZone()) === 1) {
-      env.model.selection.selectTableAroundSelection();
+  execute: (model, env) => {
+    if (getZoneArea(model.getters.getSelectedZone()) === 1) {
+      model.selection.selectTableAroundSelection();
     }
     env.openSidePanel("RemoveDuplicates", {});
   },
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (model, env) => !env.isSmall,
 };
 
 export const trimWhitespace: ActionSpec = {
   name: _t("Trim whitespace"),
-  execute: (env) => {
-    env.model.dispatch("TRIM_WHITESPACE");
+  execute: (model) => {
+    model.dispatch("TRIM_WHITESPACE");
   },
 };
 
 export const sortDescending: ActionSpec = {
   name: _t("Descending (Z ⟶ A)"),
-  execute: (env) => {
-    const { anchor, zones } = env.model.getters.getSelection();
-    const sheetId = env.model.getters.getActiveSheetId();
-    interactiveSortSelection(env, sheetId, anchor.cell, zones[0], "desc");
+  execute: (model, env) => {
+    const { anchor, zones } = model.getters.getSelection();
+    const sheetId = model.getters.getActiveSheetId();
+    interactiveSortSelection(model, env, sheetId, anchor.cell, zones[0], "desc");
   },
   icon: "o-spreadsheet-Icon.SORT_DESCENDING",
 };
@@ -65,14 +65,14 @@ export const createRemoveFilterTool: ActionSpec = {
 export const splitToColumns: ActionSpec = {
   name: _t("Split text to columns"),
   sequence: 1,
-  execute: (env) => env.openSidePanel("SplitToColumns", {}),
-  isEnabled: (env) => !env.isSmall && env.model.getters.isSingleColSelected(),
+  execute: (model, env) => env.openSidePanel("SplitToColumns", {}),
+  isEnabled: (model, env) => !env.isSmall && model.getters.isSingleColSelected(),
   icon: "o-spreadsheet-Icon.SPLIT_TEXT",
 };
 
 export const columnStatistics: ActionSpec = {
   name: _t("Column statistics"),
-  execute: (env) => env.openSidePanel("ColumnStats", {}),
+  execute: (model, env) => env.openSidePanel("ColumnStats", {}),
   icon: "o-spreadsheet-Icon.COLUMN_STATS",
 };
 
@@ -82,8 +82,8 @@ export const reinsertDynamicPivotMenu: ActionSpec = {
   sequence: 60,
   icon: "o-spreadsheet-Icon.INSERT_PIVOT",
   children: [ACTIONS.REINSERT_DYNAMIC_PIVOT_CHILDREN],
-  isVisible: (env) =>
-    env.model.getters.getPivotIds().some((id) => env.model.getters.getPivot(id).isValid()),
+  isVisible: (model) =>
+    model.getters.getPivotIds().some((id) => model.getters.getPivot(id).isValid()),
 };
 
 export const reinsertStaticPivotMenu: ActionSpec = {
@@ -92,6 +92,6 @@ export const reinsertStaticPivotMenu: ActionSpec = {
   sequence: 70,
   icon: "o-spreadsheet-Icon.INSERT_PIVOT",
   children: [ACTIONS.REINSERT_STATIC_PIVOT_CHILDREN],
-  isVisible: (env) =>
-    env.model.getters.getPivotIds().some((id) => env.model.getters.getPivot(id).isValid()),
+  isVisible: (model) =>
+    model.getters.getPivotIds().some((id) => model.getters.getPivot(id).isValid()),
 };

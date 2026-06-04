@@ -25,6 +25,7 @@ import {
 import { CommandResult, DispatchResult } from "../../../../../types/commands";
 import { UID, Zone } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { useModel } from "../../../../owl_plugins/model_plugin";
 import { types } from "../../../../props_validation";
 import { ChartTerms } from "../../../../translations_terms";
 import { ChartDataSeries } from "../data_series/data_series";
@@ -72,6 +73,7 @@ export class ChartRangeDataSourceComponent extends Component<SpreadsheetChildEnv
     labelsDispatchResult: undefined,
   });
 
+  private model = useModel();
   protected dataSets: ChartRangeDataSourceType<string>["dataSets"] = [];
   private labelRange: string | undefined;
   private datasetOrientation: ChartDatasetOrientation | undefined = undefined;
@@ -151,7 +153,7 @@ export class ChartRangeDataSourceComponent extends Component<SpreadsheetChildEnv
   get canChangeDatasetOrientation(): boolean {
     const sheetNames = new Set<string>();
     const datasetZones: Zone[] = [];
-    const currentSheetName = this.env.model.getters.getActiveSheetName();
+    const currentSheetName = this.model().getters.getActiveSheetName();
     const ranges = this.dataSets.map((ds) => ds.dataRange);
     if (this.labelRange) {
       ranges.push(this.labelRange);
@@ -298,7 +300,7 @@ export class ChartRangeDataSourceComponent extends Component<SpreadsheetChildEnv
       dataSetStyles,
     });
     if (this.state.datasetDispatchResult.isSuccessful) {
-      const newDefinition = this.env.model.getters.getChartDefinition(
+      const newDefinition = this.model().getters.getChartDefinition(
         this.props.chartId
       ) as ChartDefinitionWithDataSource<string>;
       if (newDefinition.dataSource.type === "range") {
@@ -311,13 +313,13 @@ export class ChartRangeDataSourceComponent extends Component<SpreadsheetChildEnv
   splitRanges() {
     const postProcessedRanges: ChartRangeDataSourceType<string>["dataSets"] = [];
     const postProcessedStyles: DataSetStyle = {};
-    const definition = this.env.model.getters.getChartDefinition(
+    const definition = this.model().getters.getChartDefinition(
       this.props.chartId
     ) as ChartDefinitionWithDataSource<string>;
     const dataSetStyles = definition.dataSetStyles || {};
     for (const dataSet of this.dataSets) {
       const range = dataSet.dataRange;
-      if (!this.env.model.getters.isRangeValid(range)) {
+      if (!this.model().getters.isRangeValid(range)) {
         postProcessedRanges.push(dataSet); // ignore invalid range
         continue;
       }
@@ -449,7 +451,7 @@ export class ChartRangeDataSourceComponent extends Component<SpreadsheetChildEnv
     if (this.isDatasetInvalid || this.isLabelInvalid) {
       return undefined;
     }
-    const getters = this.env.model.getters;
+    const getters = this.model().getters;
     const sheetId = getters.getActiveSheetId();
     const labelRange = createValidRange(getters, sheetId, this.labelRange);
     const dataSets = createDataSets(getters, sheetId, this.props.dataSource);
@@ -471,7 +473,7 @@ export class ChartRangeDataSourceComponent extends Component<SpreadsheetChildEnv
     dataRanges: (string | undefined)[],
     datasetOrientation: ChartDatasetOrientation | undefined
   ): { dataRange: string; dataSetId: UID }[] {
-    const getters = this.env.model.getters;
+    const getters = this.model().getters;
     if (datasetOrientation === undefined) {
       return dataRanges
         .filter(isDefined)

@@ -5,6 +5,7 @@ import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { CommandResult } from "../../../../types/commands";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { types } from "../../../props_validation";
 import { TextInput } from "../../../text_input/text_input";
 import { CogWheelMenu } from "../../components/cog_wheel_menu/cog_wheel_menu";
@@ -42,17 +43,17 @@ export class PivotTitleSection extends Component<SpreadsheetChildEnv> {
   }
 
   get name() {
-    return this.env.model.getters.getPivotName(this.props.pivotId);
+    return this.model().getters.getPivotName(this.props.pivotId);
   }
 
   get displayName() {
-    return this.env.model.getters.getPivotDisplayName(this.props.pivotId);
+    return this.model().getters.getPivotDisplayName(this.props.pivotId);
   }
 
   duplicatePivot() {
     const newPivotId = UuidGenerator.smallUuid();
     const newSheetId = UuidGenerator.smallUuid();
-    const result = this.env.model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
+    const result = this.model().dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
       pivotId: this.props.pivotId,
       newPivotId,
       newSheetId,
@@ -78,13 +79,13 @@ export class PivotTitleSection extends Component<SpreadsheetChildEnv> {
 
   delete() {
     this.env.askConfirmation(_t("Are you sure you want to delete this pivot?"), () => {
-      this.env.model.dispatch("REMOVE_PIVOT", { pivotId: this.props.pivotId });
+      this.model().dispatch("REMOVE_PIVOT", { pivotId: this.props.pivotId });
     });
   }
 
   onNameChanged(name: string) {
-    const pivot = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
-    this.env.model.dispatch("UPDATE_PIVOT", {
+    const pivot = this.model().getters.getPivotCoreDefinition(this.props.pivotId);
+    this.model().dispatch("UPDATE_PIVOT", {
       pivotId: this.props.pivotId,
       pivot: {
         ...pivot,
@@ -92,4 +93,6 @@ export class PivotTitleSection extends Component<SpreadsheetChildEnv> {
       },
     });
   }
+
+  private model = useModel();
 }

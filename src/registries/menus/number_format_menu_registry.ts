@@ -1,10 +1,10 @@
+import { Model } from "../..";
 import { ActionSpec } from "../../actions/action";
 import * as ACTION_FORMAT from "../../actions/format_actions";
 import { isDateTimeFormat } from "../../helpers/format/format";
 import { memoize } from "../../helpers/misc";
 import { _t } from "../../translation";
 import { Format } from "../../types/format";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Registry } from "../registry";
 
 export const numberFormatMenuRegistry = new Registry<ACTION_FORMAT.NumberFormatActionSpec>();
@@ -91,18 +91,16 @@ numberFormatMenuRegistry
     sequence: 140,
   });
 
-export function getCustomNumberFormats(
-  env: SpreadsheetChildEnv
-): ACTION_FORMAT.NumberFormatActionSpec[] {
+export function getCustomNumberFormats(model: Model): ACTION_FORMAT.NumberFormatActionSpec[] {
   const defaultFormats = new Set(
     numberFormatMenuRegistry
       .getAll()
-      .map((f) => (typeof f.format === "function" ? f.format(env) : f.format))
+      .map((f) => (typeof f.format === "function" ? f.format(model) : f.format))
   );
 
   const customFormats = new Map<Format, ACTION_FORMAT.NumberFormatActionSpec>();
-  for (const sheetId of env.model.getters.getSheetIds()) {
-    const cells = env.model.getters.getEvaluatedCells(sheetId);
+  for (const sheetId of model.getters.getSheetIds()) {
+    const cells = model.getters.getEvaluatedCells(sheetId);
     for (const cellId in cells) {
       const cell = cells[cellId];
 
@@ -137,8 +135,8 @@ export const formatNumberMenuItemSpec: ActionSpec = {
   name: _t("More formats"),
   icon: "o-spreadsheet-Icon.NUMBER_FORMATS",
   children: [
-    (env) => {
-      const customFormats = getCustomNumberFormats(env).map((action) => ({
+    (model) => {
+      const customFormats = getCustomNumberFormats(model).map((action) => ({
         ...action,
         sequence: 110,
       }));

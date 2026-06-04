@@ -1,11 +1,11 @@
 import { props } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
+import { Component } from "../../../owl3_compatibility_layer";
 import { ResizeDirection } from "../../../types/figure";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
-
-import { Component } from "../../../owl3_compatibility_layer";
 const MOBILE_HANDLER_WIDTH = 40;
 
 type Orientation = "nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w";
@@ -31,6 +31,7 @@ export class Corner extends Component<SpreadsheetChildEnv> {
       [ev: PointerEvent, dirX: ResizeDirection, dirY: ResizeDirection]
     >([types.instanceOf(PointerEvent), types.ResizeDirection(), types.ResizeDirection()]),
   });
+  private model = useModel();
   private dirX!: ResizeDirection;
   private dirY!: ResizeDirection;
 
@@ -43,7 +44,7 @@ export class Corner extends Component<SpreadsheetChildEnv> {
   get handlerStyle() {
     const z = this.props.zone;
 
-    const rect = this.env.model.getters.getVisibleRect({
+    const rect = this.model().getters.getVisibleRect({
       left: this.dirX === 1 ? z.right : z.left,
       right: this.dirX === -1 ? z.left : z.right,
       top: this.dirY === 1 ? z.bottom : z.top,

@@ -6,6 +6,7 @@ import { _t } from "../../../translation";
 import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Menu } from "../../menu/menu";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 
 export const itemHeight = 40;
@@ -23,6 +24,8 @@ export class RibbonMenu extends Component<SpreadsheetChildEnv> {
   protected props = props({
     onClose: types.function([]),
   });
+
+  private model = useModel();
 
   rootItems = topbarMenuRegistry.getMenuItems();
   private menuRef = signal<HTMLElement | null>(null);
@@ -46,24 +49,24 @@ export class RibbonMenu extends Component<SpreadsheetChildEnv> {
   }
 
   onClickMenu(menu: Action) {
-    const children = menu.children(this.env);
+    const children = menu.children(this.model(), this.env);
     if (children.length) {
       this.state.parentState = { ...this.state };
       this.state.menuItems = children;
-      this.state.title = menu.name(this.env);
+      this.state.title = menu.name(this.model(), this.env);
       this.containerRef()?.scrollTo({ top: 0 });
     } else {
       this.state.menuItems = this.rootItems;
       this.state.title = undefined;
       this.state.parentState = undefined;
-      menu.execute?.(this.env);
+      menu.execute?.(this.model(), this.env);
       this.props.onClose();
     }
   }
 
   get menuProps(): PropsOf<Menu> {
     return {
-      menuItems: getMenuItemsAndSeparators(this.env, this.state.menuItems),
+      menuItems: getMenuItemsAndSeparators(this.model(), this.env, this.state.menuItems),
       onClose: this.props.onClose,
       onClickMenu: this.onClickMenu.bind(this),
     };

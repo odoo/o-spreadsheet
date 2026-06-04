@@ -2,14 +2,14 @@ import { props } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { GROUP_LAYER_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { interactiveToggleGroup } from "../../helpers/ui/toggle_group_interactive";
+import { Component } from "../../owl3_compatibility_layer";
 import { getHeaderGroupContextMenu } from "../../registries/menus/header_group_registry";
 import { Dimension } from "../../types/misc";
 import { DOMCoordinates, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
+import { useModel } from "../owl_plugins/model_plugin";
 import { types } from "../props_validation";
-
-import { Component } from "../../owl3_compatibility_layer";
 
 interface GroupBox {
   groupRect: Rect;
@@ -31,10 +31,12 @@ abstract class AbstractHeaderGroup extends Component<SpreadsheetChildEnv> {
 
   abstract dimension: Dimension;
 
+  protected model = useModel();
+
   toggleGroup() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const { start, end } = this.props.group;
-    interactiveToggleGroup(this.env, sheetId, this.dimension, start, end);
+    interactiveToggleGroup(this.model(), this.env, sheetId, this.dimension, start, end);
   }
 
   get groupBoxStyle(): string {
@@ -61,16 +63,16 @@ abstract class AbstractHeaderGroup extends Component<SpreadsheetChildEnv> {
   }
 
   get isGroupFolded(): boolean {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const group = this.props.group;
-    return this.env.model.getters.isGroupFolded(sheetId, this.dimension, group.start, group.end);
+    return this.model().getters.isGroupFolded(sheetId, this.dimension, group.start, group.end);
   }
 
   /** The box that will be used to draw the header group. */
   abstract get groupBox(): GroupBox;
 
   onContextMenu(ev: MouseEvent) {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const position = { x: ev.clientX, y: ev.clientY };
     const group = this.props.group;
     const menuItems = getHeaderGroupContextMenu(sheetId, this.dimension, group.start, group.end);
@@ -105,16 +107,16 @@ export class RowGroup extends AbstractHeaderGroup {
   }
 
   get groupBox(): GroupBox {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
 
     const { start: startRow, end: endRow } = this.props.group;
-    const startCoordinates = this.env.model.getters.getRowDimensions(sheetId, startRow).start;
-    const endCoordinates = this.env.model.getters.getRowDimensions(sheetId, endRow).end;
+    const startCoordinates = this.model().getters.getRowDimensions(sheetId, startRow).start;
+    const endCoordinates = this.model().getters.getRowDimensions(sheetId, endRow).end;
 
     let groupHeaderY: number = 0;
     let groupHeaderHeight = HEADER_HEIGHT;
     if (startRow !== 0) {
-      const headerRowDims = this.env.model.getters.getRowDimensions(sheetId, startRow - 1);
+      const headerRowDims = this.model().getters.getRowDimensions(sheetId, startRow - 1);
       groupHeaderY = HEADER_HEIGHT + headerRowDims.start;
       groupHeaderHeight = headerRowDims.end - headerRowDims.start;
     }
@@ -135,7 +137,7 @@ export class RowGroup extends AbstractHeaderGroup {
     return {
       headerRect,
       groupRect,
-      isEndHidden: this.env.model.getters.isRowHidden(sheetId, endRow),
+      isEndHidden: this.model().getters.isRowHidden(sheetId, endRow),
     };
   }
 }
@@ -166,16 +168,16 @@ export class ColGroup extends AbstractHeaderGroup {
   }
 
   get groupBox(): GroupBox {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
 
     const { start: startCol, end: endCol } = this.props.group;
-    const startCoordinates = this.env.model.getters.getColDimensions(sheetId, startCol).start;
-    const endCoordinates = this.env.model.getters.getColDimensions(sheetId, endCol).end;
+    const startCoordinates = this.model().getters.getColDimensions(sheetId, startCol).start;
+    const endCoordinates = this.model().getters.getColDimensions(sheetId, endCol).end;
 
     let groupHeaderX = 0;
     let groupHeaderWidth: number = HEADER_WIDTH;
     if (startCol !== 0) {
-      const headerRowDims = this.env.model.getters.getColDimensions(sheetId, startCol - 1);
+      const headerRowDims = this.model().getters.getColDimensions(sheetId, startCol - 1);
       groupHeaderX = HEADER_WIDTH + headerRowDims.start;
       groupHeaderWidth = headerRowDims.end - headerRowDims.start;
     }
@@ -196,7 +198,7 @@ export class ColGroup extends AbstractHeaderGroup {
     return {
       headerRect,
       groupRect,
-      isEndHidden: this.env.model.getters.isColHidden(sheetId, endCol),
+      isEndHidden: this.model().getters.isColHidden(sheetId, endCol),
     };
   }
 }

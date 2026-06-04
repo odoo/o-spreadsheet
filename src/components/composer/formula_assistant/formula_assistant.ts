@@ -2,6 +2,7 @@ import { props, proxy } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 import { Collapse } from "../../side_panel/components/collapse/collapse";
 
@@ -19,6 +20,8 @@ export class FunctionDescriptionProvider extends Component<SpreadsheetChildEnv> 
     isCollapsed: true,
   });
 
+  private model = useModel();
+
   toggle() {
     this.state.isCollapsed = !this.state.isCollapsed;
   }
@@ -29,7 +32,7 @@ export class FunctionDescriptionProvider extends Component<SpreadsheetChildEnv> 
 
   get formulaHeaderContent(): { content: string; focused?: boolean }[] {
     const { functionDescription, repeatingArgGroupIndex, argsToFocus } = this.props;
-    const argSeparator = this.env.model.getters.getLocale().formulaArgSeparator + " ";
+    const argSeparator = this.model().getters.getLocale().formulaArgSeparator + " ";
 
     const result: { content: string; focused?: boolean }[] = [
       { content: functionDescription.name + " ( " },

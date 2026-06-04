@@ -13,6 +13,7 @@ import { Composer } from "../composer/composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer/composer_focus_store";
 import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect } from "../helpers/dom_helpers";
+import { useModel } from "../owl_plugins/model_plugin";
 import { types } from "../props_validation";
 import { RibbonMenu } from "./ribbon_menu/ribbon_menu";
 
@@ -33,6 +34,7 @@ export class SmallBottomBar extends Component<SpreadsheetChildEnv> {
     isOpen: false,
   });
 
+  private model = useModel();
   setup(): void {
     this.composerFocusStore = useStore(ComposerFocusStore);
     const composerStore = useStore(CellComposerStore);
@@ -83,7 +85,7 @@ export class SmallBottomBar extends Component<SpreadsheetChildEnv> {
   }
 
   get composerProps(): PropsOf<Composer> {
-    const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
+    const { width, height } = this.model().getters.getSheetViewDimensionWithHeaders();
     return {
       rect: { ...this.rect },
       delimitation: {

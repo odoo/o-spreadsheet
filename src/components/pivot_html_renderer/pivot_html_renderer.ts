@@ -5,6 +5,7 @@ import { formatValue } from "../../helpers/format/format";
 import { generatePivotArgs } from "../../helpers/pivot/pivot_helpers";
 import { Component } from "../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { useModel } from "../owl_plugins/model_plugin";
 import { types } from "../props_validation";
 import { Checkbox } from "../side_panel/components/checkbox/checkbox";
 
@@ -47,7 +48,8 @@ export class PivotHTMLRenderer extends Component<SpreadsheetChildEnv> {
     onCellClicked: types.function<[formula: string]>([types.string()]),
   });
 
-  private pivot = this.env.model.getters.getPivot(this.props.pivotId);
+  private model = useModel();
+  private pivot = this.model().getters.getPivot(this.props.pivotId);
   data: TableData = {
     columns: [],
     rows: [],
@@ -59,7 +61,7 @@ export class PivotHTMLRenderer extends Component<SpreadsheetChildEnv> {
 
   setup() {
     const table = this.pivot.getExpandedTableStructure();
-    const formulaId = this.env.model.getters.getPivotFormulaId(this.props.pivotId);
+    const formulaId = this.model().getters.getPivotFormulaId(this.props.pivotId);
     this.data = {
       columns: this._buildColHeaders(formulaId, table),
       rows: this._buildRowHeaders(formulaId, table),
@@ -68,7 +70,7 @@ export class PivotHTMLRenderer extends Component<SpreadsheetChildEnv> {
   }
 
   get tracker() {
-    return this.env.model.getters.getPivotPresenceTracker(this.props.pivotId);
+    return this.model().getters.getPivotPresenceTracker(this.props.pivotId);
   }
 
   // ---------------------------------------------------------------------
@@ -244,7 +246,7 @@ export class PivotHTMLRenderer extends Component<SpreadsheetChildEnv> {
           args.push({ value: cell.fields[i] }, { value: cell.values[i] });
         }
         const domain = this.pivot.parseArgsToPivotDomain(args);
-        const locale = this.env.model.getters.getLocale();
+        const locale = this.model().getters.getLocale();
         if (domain.at(-1)?.field === "measure") {
           const { value, format } = this.pivot.getPivotMeasureValue(
             toString(domain.at(-1)!.value),
@@ -286,7 +288,7 @@ export class PivotHTMLRenderer extends Component<SpreadsheetChildEnv> {
       }
       const domain = this.pivot.parseArgsToPivotDomain(args);
       const { value, format } = this.pivot.getPivotHeaderValueAndFormat(domain);
-      const locale = this.env.model.getters.getLocale();
+      const locale = this.model().getters.getLocale();
       const cell: PivotDialogRow = {
         formula: `=PIVOT.HEADER(${generatePivotArgs(id, domain).join(",")})`,
         value: formatValue(value, { format, locale }),
@@ -314,7 +316,7 @@ export class PivotHTMLRenderer extends Component<SpreadsheetChildEnv> {
         }
         const domain = this.pivot.parseArgsToPivotDomain(args);
         const { value, format } = this.pivot.getPivotCellValueAndFormat(measure, domain);
-        const locale = this.env.model.getters.getLocale();
+        const locale = this.model().getters.getLocale();
         current.push({
           formula: `=PIVOT.VALUE(${generatePivotArgs(id, domain, measure).join(",")})`,
           value: formatValue(value, { format, locale }),

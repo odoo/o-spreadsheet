@@ -5,6 +5,7 @@ import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { getZoomedRect } from "../../../helpers/zoom";
+import { useModel } from "../../../owl_plugins/model_plugin";
 
 export class ScorecardChart extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChart";
@@ -15,13 +16,15 @@ export class ScorecardChart extends Component<SpreadsheetChildEnv> {
   });
   private canvas = signal<HTMLCanvasElement | null>(null);
 
+  private model = useModel();
+
   get runtime(): ScorecardChartRuntime {
-    return this.env.model.getters.getChartRuntime(this.props.chartId) as ScorecardChartRuntime;
+    return this.model().getters.getChartRuntime(this.props.chartId) as ScorecardChartRuntime;
   }
 
   get title(): string {
-    const title = this.env.model.getters.getChartDefinition(this.props.chartId).title.text;
-    return title ? this.env.model.getters.dynamicTranslate(title) : "";
+    const title = this.model().getters.getChartDefinition(this.props.chartId).title.text;
+    return title ? this.model().getters.dynamicTranslate(title) : "";
   }
 
   setup() {
@@ -48,7 +51,7 @@ export class ScorecardChart extends Component<SpreadsheetChildEnv> {
     if (!canvas) {
       return;
     }
-    const zoom = this.env.model.getters.getViewportZoomLevel();
+    const zoom = this.model().getters.getViewportZoomLevel();
     const config = getScorecardConfiguration(
       getZoomedRect(1 / zoom, canvas.getBoundingClientRect()),
       this.runtime

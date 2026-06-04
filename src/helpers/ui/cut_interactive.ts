@@ -1,9 +1,10 @@
+import { Model } from "../../model";
 import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
-export function interactiveCut(env: SpreadsheetChildEnv) {
-  const result = env.model.dispatch("CUT");
+export function interactiveCut(model: Model, env: SpreadsheetChildEnv) {
+  const result = model.dispatch("CUT");
 
   if (!result.isSuccessful) {
     if (result.isCancelledBecause(CommandResult.WrongCutSelection)) {

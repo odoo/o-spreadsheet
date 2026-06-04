@@ -1,16 +1,16 @@
+import { props } from "@odoo/owl";
 import { TEXT_BODY_MUTED } from "../../../constants";
 import { blendColors } from "../../../helpers/color";
 import { computeTextFontSizeInPixels } from "../../../helpers/text_helper";
+import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { Color, Style } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
-import { HoveredTableStore } from "../../tables/hovered_table_store";
-
-import { props } from "@odoo/owl";
-import { Component } from "../../../owl3_compatibility_layer";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
+import { HoveredTableStore } from "../../tables/hovered_table_store";
 
 export class ClickableCellSortIcon extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ClickableCellSortIcon";
@@ -21,12 +21,14 @@ export class ClickableCellSortIcon extends Component<SpreadsheetChildEnv> {
   });
   private hoveredTableStore!: Store<HoveredTableStore>;
 
+  private model = useModel();
+
   setup(): void {
     this.hoveredTableStore = useStore(HoveredTableStore);
   }
 
   get style() {
-    const cellStyle = this.env.model.getters.getCellComputedStyle(this.props.position);
+    const cellStyle = this.model().getters.getCellComputedStyle(this.props.position);
     const size = computeTextFontSizeInPixels(cellStyle);
     return cssPropertiesToCss({
       height: `${size}px`,
@@ -37,7 +39,7 @@ export class ClickableCellSortIcon extends Component<SpreadsheetChildEnv> {
   }
 
   get verticalJustifyClass() {
-    const cellStyle = this.env.model.getters.getCellComputedStyle(this.props.position);
+    const cellStyle = this.model().getters.getCellComputedStyle(this.props.position);
     switch (cellStyle.verticalAlign) {
       case "top":
         return "justify-content-start";

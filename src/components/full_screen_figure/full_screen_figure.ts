@@ -7,6 +7,7 @@ import { Store } from "../../types/store_engine";
 import { ChartAnimationStore } from "../figures/chart/chartJs/chartjs_animation_store";
 import { ChartFigure } from "../figures/figure_chart/figure_chart";
 import { useSpreadsheetRect } from "../helpers/position_hook";
+import { useModel } from "../owl_plugins/model_plugin";
 import { FullScreenFigureStore } from "./full_screen_figure_store";
 
 export class FullScreenFigure extends Component<SpreadsheetChildEnv> {
@@ -19,6 +20,8 @@ export class FullScreenFigure extends Component<SpreadsheetChildEnv> {
   spreadsheetRect = useSpreadsheetRect();
 
   figureRegistry = figureRegistry;
+
+  private model = useModel();
 
   setup() {
     this.fullScreenFigureStore = useStore(FullScreenFigureStore);
@@ -43,7 +46,7 @@ export class FullScreenFigure extends Component<SpreadsheetChildEnv> {
     if (!this.figureUI) {
       return undefined;
     }
-    return this.env.model.getters.getChartIdFromFigureId(this.figureUI?.id);
+    return this.model().getters.getChartIdFromFigureId(this.figureUI?.id);
   }
 
   exitFullScreen() {

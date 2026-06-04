@@ -6,6 +6,7 @@ import { cssPropertiesToCss } from "../../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop_grid_hook";
 import { useHighlights } from "../../helpers/highlight_hook";
 import { withZoom } from "../../helpers/zoom";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 
 const SIZE = 3;
@@ -22,8 +23,9 @@ export class TableResizer extends Component<SpreadsheetChildEnv> {
     table: types.Table(),
   });
 
+  private model = useModel();
   state = proxy<State>({ highlightZone: undefined });
-  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.model());
 
   setup(): void {
     useHighlights(this);
@@ -33,11 +35,11 @@ export class TableResizer extends Component<SpreadsheetChildEnv> {
     const tableZone = this.props.table.range.zone;
     const sheetId = this.props.table.range.sheetId;
 
-    if (this.env.model.getters.isReadonly() || this.env.model.getters.isSheetLocked(sheetId)) {
+    if (this.model().getters.isReadonly() || this.model().getters.isSheetLocked(sheetId)) {
       return cssPropertiesToCss({ display: "none" });
     }
     const bottomRight = { ...tableZone, left: tableZone.right, top: tableZone.bottom };
-    const rect = this.env.model.getters.getVisibleRect(bottomRight);
+    const rect = this.model().getters.getVisibleRect(bottomRight);
     if (rect.height === 0 || rect.width === 0) {
       return cssPropertiesToCss({ display: "none" });
     }
@@ -52,7 +54,7 @@ export class TableResizer extends Component<SpreadsheetChildEnv> {
     const tableZone = this.props.table.range.zone;
     const topLeft = { col: tableZone.left, row: tableZone.top };
     document.body.style.cursor = "nwse-resize";
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = withZoom(this.model(), ev);
 
     const onMouseUp = () => {
       document.body.style.cursor = "";
@@ -61,10 +63,10 @@ export class TableResizer extends Component<SpreadsheetChildEnv> {
         return;
       }
       const sheetId = this.props.table.range.sheetId;
-      this.env.model.dispatch("RESIZE_TABLE", {
+      this.model().dispatch("RESIZE_TABLE", {
         sheetId,
         zone: this.props.table.range.zone,
-        newTableRange: this.env.model.getters.getRangeDataFromZone(sheetId, newTableZone),
+        newTableRange: this.model().getters.getRangeDataFromZone(sheetId, newTableZone),
       });
       this.state.highlightZone = undefined;
     };
@@ -86,7 +88,7 @@ export class TableResizer extends Component<SpreadsheetChildEnv> {
     }
     return [
       {
-        range: this.env.model.getters.getRangeFromZone(
+        range: this.model().getters.getRangeFromZone(
           this.props.table.range.sheetId,
           this.state.highlightZone
         ),

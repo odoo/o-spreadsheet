@@ -16,6 +16,7 @@ import { PropsOf } from "../../types/props_of";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 import { startDnd } from "../helpers/drag_and_drop";
+import { useModel } from "../owl_plugins/model_plugin";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
 
@@ -61,6 +62,8 @@ export class ColorPicker extends Component<SpreadsheetChildEnv> {
       : { h: 0, s: 100, l: 100, a: 1 },
     customHexColor: isColorValid(this.props.currentColor) ? toHex(this.props.currentColor) : "",
   });
+
+  protected model = useModel();
 
   get colorPickerStyle(): string {
     if (this.props.maxHeight !== undefined && this.props.maxHeight <= 0) {

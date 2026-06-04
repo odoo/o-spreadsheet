@@ -2,6 +2,7 @@ import { _t } from "../../../../translation";
 import { CustomizableSeriesChartRuntime } from "../../../../types/chart/chart";
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
 import { UID } from "../../../../types/misc";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { ChartShowDataMarkers } from "../building_blocks/show_data_markers/show_data_markers";
 import { ChartSidePanelProps } from "../common";
@@ -35,7 +36,7 @@ export class ComboChartDesignPanel extends GenericZoomableChartDesignPanel<
       .dataSetStyles as ComboChartDefinition["dataSetStyles"];
     const type = dataSetStyles?.[dataSetId]?.type;
     if (!type) {
-      const runtime = this.env.model.getters.getChartRuntime(
+      const runtime = this.model().getters.getChartRuntime(
         this.props.chartId
       ) as CustomizableSeriesChartRuntime;
       const dataSetIndex = runtime.customizableSeries.findIndex(
@@ -45,4 +46,6 @@ export class ComboChartDesignPanel extends GenericZoomableChartDesignPanel<
     }
     return type;
   }
+
+  private model = useModel();
 }

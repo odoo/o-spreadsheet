@@ -12,6 +12,7 @@ import {
 import { ChartRangeDataSource } from "../../../../types/chart/chart";
 import { DEFAULT_LOCALE } from "../../../../types/locale";
 import { ValueAndLabel } from "../../../../types/misc";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { Select } from "../../../select/select";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 import { ChartSidePanelProps } from "../common";
@@ -28,24 +29,24 @@ export class CalendarChartConfigPanel extends GenericChartConfigPanel<
   }));
 
   getGroupByOptions(): ValueAndLabel[] {
-    const sheetId = this.env.model.getters.getFigureSheetId(
-      this.env.model.getters.getFigureIdFromChartId(this.props.chartId)
+    const sheetId = this.model().getters.getFigureSheetId(
+      this.model().getters.getFigureIdFromChartId(this.props.chartId)
     )!;
     const definition = SpreadsheetChart.fromStrDefinition(
-      this.env.model.getters,
+      this.model().getters,
       sheetId,
       this.props.definition
     ).getRangeDefinition() as CalendarChartDefinition;
     const data = getBarChartData(
       definition,
-      getChartData(this.env.model.getters, definition.dataSource as ChartRangeDataSource),
-      this.env.model.getters
+      getChartData(this.model().getters, definition.dataSource as ChartRangeDataSource),
+      this.model().getters
     );
     const labels = data.labels.filter((l) => isDateTime(l, DEFAULT_LOCALE));
     if (labels.length === 0) {
       return [];
     }
-    const dates = labels.map((label) => toJsDate(label, this.env.model.getters.getLocale()));
+    const dates = labels.map((label) => toJsDate(label, this.model().getters.getLocale()));
     const uniqueYears = new Set<number>();
     const uniqueMonths = new Set<number>();
     const uniqueDays = new Set<number>();
@@ -97,4 +98,6 @@ export class CalendarChartConfigPanel extends GenericChartConfigPanel<
       [currentAxis === "horizontal" ? "horizontalGroupBy" : "verticalGroupBy"]: value,
     });
   }
+
+  private model = useModel();
 }

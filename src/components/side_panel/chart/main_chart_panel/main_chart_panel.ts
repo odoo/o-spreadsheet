@@ -5,6 +5,7 @@ import { ChartDefinition, ChartType } from "../../../../types/chart/chart";
 import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { types } from "../../../props_validation";
 import { Section } from "../../components/section/section";
 import { ChartSidePanel, chartSidePanelComponentRegistry } from "../chart_side_panel_registry";
@@ -26,6 +27,7 @@ export class ChartPanel extends Component<SpreadsheetChildEnv> {
     return this.props.chartId;
   }
 
+  private model = useModel();
   setup(): void {
     this.store = useLocalStore(MainChartPanelStore);
   }
@@ -35,7 +37,7 @@ export class ChartPanel extends Component<SpreadsheetChildEnv> {
   }
 
   updateChart<T extends ChartDefinition>(chartId: UID, updateDefinition: Partial<T>) {
-    const figureId = this.env.model.getters.getFigureIdFromChartId(chartId);
+    const figureId = this.model().getters.getFigureIdFromChartId(chartId);
     if (chartId !== this.chartId) {
       return;
     }
@@ -43,28 +45,28 @@ export class ChartPanel extends Component<SpreadsheetChildEnv> {
       ...(this.getChartDefinition(this.chartId) as T),
       ...updateDefinition,
     };
-    return this.env.model.dispatch("UPDATE_CHART", {
+    return this.model().dispatch("UPDATE_CHART", {
       definition,
       chartId,
       figureId,
-      sheetId: this.env.model.getters.getFigureSheetId(figureId)!,
+      sheetId: this.model().getters.getFigureSheetId(figureId)!,
     });
   }
 
   canUpdateChart<T extends ChartDefinition>(chartId: UID, updateDefinition: Partial<T>) {
-    const figureId = this.env.model.getters.getFigureIdFromChartId(chartId);
-    if (chartId !== this.chartId || !this.env.model.getters.isChartDefined(chartId)) {
+    const figureId = this.model().getters.getFigureIdFromChartId(chartId);
+    if (chartId !== this.chartId || !this.model().getters.isChartDefined(chartId)) {
       return;
     }
     const definition: T = {
       ...(this.getChartDefinition(this.chartId) as T),
       ...updateDefinition,
     };
-    return this.env.model.canDispatch("UPDATE_CHART", {
+    return this.model().canDispatch("UPDATE_CHART", {
       definition,
       chartId,
       figureId,
-      sheetId: this.env.model.getters.getFigureSheetId(figureId)!,
+      sheetId: this.model().getters.getFigureSheetId(figureId)!,
     });
   }
 
@@ -79,7 +81,7 @@ export class ChartPanel extends Component<SpreadsheetChildEnv> {
     if (!this.chartId) {
       throw new Error("Chart not defined.");
     }
-    const type = this.env.model.getters.getChartType(this.chartId);
+    const type = this.model().getters.getChartType(this.chartId);
     if (!type) {
       throw new Error("Chart not defined.");
     }
@@ -91,6 +93,6 @@ export class ChartPanel extends Component<SpreadsheetChildEnv> {
   }
 
   private getChartDefinition(chartId: UID): ChartDefinition {
-    return this.env.model.getters.getChartDefinition(chartId);
+    return this.model().getters.getChartDefinition(chartId);
   }
 }

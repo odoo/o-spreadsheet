@@ -11,6 +11,7 @@ import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableConfig } from "../../../types/table";
 import { ActionButton } from "../../action_button/action_button";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { Popover } from "../../popover/popover";
 import { types } from "../../props_validation";
 import {
@@ -33,14 +34,15 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
   topBarToolStore!: ToolBarDropdownStore;
   state = proxy<State>({ popoverProps: undefined });
 
+  private model = useModel();
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();
   }
 
   onStylePicked(styleId: string) {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const tableConfig = { ...this.tableConfig, styleId };
-    const result = interactiveCreateTable(this.env, sheetId, tableConfig);
+    const result = interactiveCreateTable(this.model(), this.env, sheetId, tableConfig);
     if (result.isSuccessful) {
       this.env.openSidePanel("TableSidePanel", {});
     }
@@ -57,7 +59,7 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
       this.env.openSidePanel("PivotSidePanel", { pivotId, openTab: "design" });
       return;
     }
-    if (this.env.model.getters.getFirstTableInSelection()) {
+    if (this.model().getters.getFirstTableInSelection()) {
       this.topBarToolStore.closeDropdowns();
       this.env.toggleSidePanel("TableSidePanel", {});
       return;
@@ -87,10 +89,10 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
     }
 
     return {
-      name: (env) =>
-        env.model.getters.getFirstTableInSelection() ? _t("Edit table") : _t("Insert table"),
-      icon: (env) =>
-        env.model.getters.getFirstTableInSelection()
+      name: (model) =>
+        model.getters.getFirstTableInSelection() ? _t("Edit table") : _t("Insert table"),
+      icon: (model) =>
+        model.getters.getFirstTableInSelection()
           ? "o-spreadsheet-Icon.EDIT_TABLE"
           : "o-spreadsheet-Icon.PAINT_TABLE",
     };
@@ -101,15 +103,15 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
   }
 
   get tableStyles() {
-    return this.env.model.getters.getTableStyles();
+    return this.model().getters.getTableStyles();
   }
 
   get pivotIdInSelection(): UID | undefined {
-    const selection = this.env.model.getters.getSelectedZones();
+    const selection = this.model().getters.getSelectedZones();
     for (const zone of selection) {
       for (const position of positions(zone)) {
-        const sheetId = this.env.model.getters.getActiveSheetId();
-        const pivotId = this.env.model.getters.getPivotIdFromPosition({ sheetId, ...position });
+        const sheetId = this.model().getters.getActiveSheetId();
+        const pivotId = this.model().getters.getPivotIdFromPosition({ sheetId, ...position });
         if (pivotId) {
           return pivotId;
         }
@@ -120,7 +122,7 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
 
   get class() {
     return `${this.props.class ? this.props.class : ""} ${
-      this.env.model.getters.isCurrentSheetLocked() ? "o-disabled" : ""
+      this.model().getters.isCurrentSheetLocked() ? "o-disabled" : ""
     }`;
   }
 }

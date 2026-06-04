@@ -5,6 +5,7 @@ import { PieChartDefinition, PieChartRuntime } from "../../../../types/chart/pie
 import { ValueAndLabel } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { DEFAULT_DOUGHNUT_CHART_HOLE_SIZE } from "../../../../xlsx/constants";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { Select } from "../../../select/select";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -38,7 +39,7 @@ export class PieChartDesignPanel extends Component<SpreadsheetChildEnv> {
   protected state = proxy({ index: 0 });
 
   get runtime() {
-    return this.env.model.getters.getChartRuntime(this.props.chartId) as PieChartRuntime;
+    return this.model().getters.getChartRuntime(this.props.chartId) as PieChartRuntime;
   }
 
   get isLegendDisabled() {
@@ -93,4 +94,6 @@ export class PieChartDesignPanel extends Component<SpreadsheetChildEnv> {
       label,
     }));
   }
+
+  private model = useModel();
 }

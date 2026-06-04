@@ -14,6 +14,7 @@ import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 import { Component } from "../../../../owl3_compatibility_layer";
+import { useModel } from "../../../owl_plugins/model_plugin";
 
 type Props = ChartSidePanelProps<FunnelChartDefinition<string>>;
 
@@ -34,9 +35,7 @@ export class FunnelChartDesignPanel extends Component<SpreadsheetChildEnv> {
   }) as unknown as Props;
 
   getFunnelColorItems() {
-    const runtime = this.env.model.getters.getChartRuntime(
-      this.props.chartId
-    ) as FunnelChartRuntime;
+    const runtime = this.model().getters.getChartRuntime(this.props.chartId) as FunnelChartRuntime;
     const labels: string[] = (runtime.chartJsConfig.data.labels || []) as string[];
     const colors = getFunnelLabelColors(labels, this.props.definition.funnelColors);
     return labels.map((label, index) => ({
@@ -49,4 +48,6 @@ export class FunnelChartDesignPanel extends Component<SpreadsheetChildEnv> {
     const funnelColors = replaceItemAtIndex(this.props.definition.funnelColors || [], color, index);
     this.props.updateChart(this.props.chartId, { funnelColors });
   }
+
+  private model = useModel();
 }

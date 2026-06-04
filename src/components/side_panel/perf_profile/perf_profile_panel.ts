@@ -6,6 +6,7 @@ import { PerfProfile, RangeTiming } from "../../../types/functions";
 import { Highlight } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { useHighlights } from "../../helpers/highlight_hook";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 import { Section } from "../components/section/section";
 
@@ -24,12 +25,13 @@ export class PerfProfilePanel extends Component<SpreadsheetChildEnv> {
     lastProfiledTime: 0,
   });
 
+  private model = useModel();
   setup() {
     useHighlights(this);
   }
 
   get perfProfile(): PerfProfile | undefined {
-    return this.env.model.getters.getPerfProfile();
+    return this.model().getters.getPerfProfile();
   }
 
   get highlights(): Highlight[] {
@@ -45,7 +47,7 @@ export class PerfProfilePanel extends Component<SpreadsheetChildEnv> {
   }
 
   stringifyRange({ range }: RangeTiming) {
-    return this.env.model.getters.getRangeString(range, "forceSheetReference");
+    return this.model().getters.getRangeString(range, "forceSheetReference");
   }
 
   startProfiling(event: MouseEvent) {
@@ -53,7 +55,7 @@ export class PerfProfilePanel extends Component<SpreadsheetChildEnv> {
       return;
     }
     this.state.selectedIndex = undefined;
-    this.env.model.dispatch("EVALUATE_CELLS", { profiling: true });
+    this.model().dispatch("EVALUATE_CELLS", { profiling: true });
     this.state.lastProfiledTime = performance.now(); // has the same reference time as event.timeStamp. Don't use Date.now().
   }
 
@@ -64,12 +66,12 @@ export class PerfProfilePanel extends Component<SpreadsheetChildEnv> {
   selectEntry(index: number) {
     this.state.selectedIndex = index;
     const entry = this.perfProfile?.entries[index];
-    if (!entry || !this.env.model.getters.tryGetSheet(entry.range.sheetId)) {
+    if (!entry || !this.model().getters.tryGetSheet(entry.range.sheetId)) {
       return;
     }
-    const activeSheetId = this.env.model.getters.getActiveSheetId();
+    const activeSheetId = this.model().getters.getActiveSheetId();
     if (entry.range.sheetId !== activeSheetId) {
-      this.env.model.dispatch("ACTIVATE_SHEET", {
+      this.model().dispatch("ACTIVATE_SHEET", {
         sheetIdFrom: activeSheetId,
         sheetIdTo: entry.range.sheetId,
       });
@@ -77,12 +79,12 @@ export class PerfProfilePanel extends Component<SpreadsheetChildEnv> {
     const zone = entry.range.zone;
     // Select the bottom right cell of the range first to ensure most of
     // the range is visible.
-    this.env.model.selection.selectCell(zone.right, zone.bottom);
-    this.env.model.selection.selectCell(zone.left, zone.top);
+    this.model().selection.selectCell(zone.right, zone.bottom);
+    this.model().selection.selectCell(zone.left, zone.top);
   }
 
   formatTime(ms: number): string {
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     if (ms >= 1000) {
       return _t("%(seconds)s s", {
         seconds: formatValue(ms / 1000, { format: "0.00", locale }),
@@ -94,7 +96,7 @@ export class PerfProfilePanel extends Component<SpreadsheetChildEnv> {
   }
 
   humanize(time: number): string {
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     return humanizeNumber({ value: time }, locale);
   }
 
@@ -105,7 +107,7 @@ export class PerfProfilePanel extends Component<SpreadsheetChildEnv> {
     }
     return formatValue(time / total, {
       format: "0.0%",
-      locale: this.env.model.getters.getLocale(),
+      locale: this.model().getters.getLocale(),
     });
   }
 

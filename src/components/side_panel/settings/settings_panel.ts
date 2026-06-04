@@ -6,6 +6,7 @@ import { Component } from "../../../owl3_compatibility_layer";
 import { Locale, LocaleCode } from "../../../types/locale";
 import { ValueAndLabel } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 import { Select } from "../../select/select";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
@@ -22,6 +23,7 @@ export class SettingsPanel extends Component<SpreadsheetChildEnv> {
 
   loadedLocales: Locale[] = [];
 
+  private model = useModel();
   setup() {
     onWillStart(() => this.loadLocales());
   }
@@ -31,7 +33,7 @@ export class SettingsPanel extends Component<SpreadsheetChildEnv> {
     if (!locale) {
       return;
     }
-    this.env.model.dispatch("UPDATE_LOCALE", { locale });
+    this.model().dispatch("UPDATE_LOCALE", { locale });
   }
 
   private async loadLocales() {
@@ -47,23 +49,23 @@ export class SettingsPanel extends Component<SpreadsheetChildEnv> {
   }
 
   get numberFormatPreview() {
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     return formatValue(1234567.89, { format: "#,##0.00", locale });
   }
 
   get dateFormatPreview() {
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     return formatValue(1.6, { format: locale.dateFormat, locale });
   }
 
   get dateTimeFormatPreview() {
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     const dateTimeFormat = getDateTimeFormat(locale);
     return formatValue(1.6, { format: dateTimeFormat, locale });
   }
 
   get firstDayOfWeek() {
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     const weekStart = locale.weekStart;
     // Week start: 1 = Monday, 7 = Sunday
     // Days: 0 = Sunday, 6 = Saturday
@@ -71,7 +73,7 @@ export class SettingsPanel extends Component<SpreadsheetChildEnv> {
   }
 
   get currentLocale() {
-    return this.env.model.getters.getLocale();
+    return this.model().getters.getLocale();
   }
 
   get supportedLocales() {

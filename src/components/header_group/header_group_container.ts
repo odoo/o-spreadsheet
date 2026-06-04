@@ -8,6 +8,7 @@ import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
+import { useModel } from "../owl_plugins/model_plugin";
 import { types } from "../props_validation";
 import { ColGroup, RowGroup } from "./header_group";
 
@@ -22,12 +23,14 @@ export class HeaderGroupContainer extends Component<SpreadsheetChildEnv> {
 
   menu: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
+  private model = useModel();
+
   getLayerOffset(layerIndex: number): number {
     return layerIndex * GROUP_LAYER_WIDTH;
   }
 
   onContextMenu(event: MouseEvent) {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const position = { x: event.clientX, y: event.clientY };
     const menuItems = createHeaderGroupContainerContextMenu(sheetId, this.props.dimension);
     this.openContextMenu(position, menuItems);
@@ -50,12 +53,12 @@ export class HeaderGroupContainer extends Component<SpreadsheetChildEnv> {
   }
 
   get hasFrozenPane(): boolean {
-    const viewportCoordinates = this.env.model.getters.getMainViewportCoordinates();
+    const viewportCoordinates = this.model().getters.getMainViewportCoordinates();
     return this.props.dimension === "COL" ? viewportCoordinates.x > 0 : viewportCoordinates.y > 0;
   }
 
   get scrollContainerStyle(): string {
-    const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+    const { scrollX, scrollY } = this.model().getters.getActiveSheetScrollInfo();
 
     const cssProperties: CSSProperties = {};
     if (this.props.dimension === "COL") {
@@ -81,7 +84,7 @@ export class HeaderGroupContainer extends Component<SpreadsheetChildEnv> {
       return 0;
     }
 
-    const viewportCoordinates = this.env.model.getters.getMainViewportCoordinates();
+    const viewportCoordinates = this.model().getters.getMainViewportCoordinates();
     if (this.props.dimension === "COL") {
       return HEADER_WIDTH + viewportCoordinates.x;
     } else {

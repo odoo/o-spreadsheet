@@ -26,15 +26,15 @@ topbarMenuRegistry
   .addChild("print", ["file"], {
     name: _t("Print"),
     sequence: 190,
-    execute: (env) => env.printSpreadsheet(),
-    isEnabled: (env) => !env.isSmall,
+    execute: (model, env) => env.printSpreadsheet(),
+    isEnabled: (model, env) => !env.isSmall,
     icon: "o-spreadsheet-Icon.PRINT",
   })
   .addChild("settings", ["file"], {
     name: _t("Settings"),
     sequence: 200,
-    execute: (env) => env.openSidePanel("Settings"),
-    isEnabled: (env) => !env.isSmall,
+    execute: (model, env) => env.openSidePanel("Settings"),
+    isEnabled: (model, env) => !env.isSmall,
     isEnabledOnLockedSheet: true,
     icon: "o-spreadsheet-Icon.COG",
   })
@@ -187,7 +187,7 @@ topbarMenuRegistry
   })
   .addChild("ungroup_columns", ["view", "group_headers"], {
     ...ACTION_VIEW.ungroupColumns,
-    isVisible: (env) => ACTION_VIEW.canUngroupHeaders(env, "COL"),
+    isVisible: (model) => ACTION_VIEW.canUngroupHeaders(model, "COL"),
     sequence: 10,
   })
   .addChild("group_rows", ["view", "group_headers"], {
@@ -196,7 +196,7 @@ topbarMenuRegistry
   })
   .addChild("ungroup_rows", ["view", "group_headers"], {
     ...ACTION_VIEW.ungroupRows,
-    isVisible: (env) => ACTION_VIEW.canUngroupHeaders(env, "ROW"),
+    isVisible: (model) => ACTION_VIEW.canUngroupHeaders(model, "ROW"),
     sequence: 20,
   })
   .addChild("show", ["view"], {
@@ -228,8 +228,8 @@ topbarMenuRegistry
   .addChild("perf_profile", ["view"], {
     name: _t("Performance"),
     sequence: 45,
-    execute: (env) => env.openSidePanel("PerfProfile"),
-    isVisible: (env) => !env.isSmall,
+    execute: (model, env) => env.openSidePanel("PerfProfile"),
+    isVisible: (model, env) => !env.isSmall,
     isEnabledOnLockedSheet: true,
     icon: "o-spreadsheet-Icon.AVG_TIME",
     separator: true,
@@ -492,20 +492,20 @@ topbarMenuRegistry
   })
   .addChild("data_validation", ["data"], {
     name: _t("Data Validation"),
-    execute: (env) => {
+    execute: (model, env) => {
       env.openSidePanel("DataValidation");
     },
-    isEnabled: (env) => !env.isSmall,
+    isEnabled: (model, env) => !env.isSmall,
     isEnabledOnLockedSheet: true,
     icon: "o-spreadsheet-Icon.DATA_VALIDATION",
     sequence: 30,
   })
   .addChild("named_range", ["data"], {
     name: _t("Named ranges"),
-    execute: (env) => {
+    execute: (model, env) => {
       env.openSidePanel("NamedRangesPanel");
     },
-    isEnabled: (env) => !env.isSmall,
+    isEnabled: (model, env) => !env.isSmall,
     isEnabledOnLockedSheet: true,
     icon: "o-spreadsheet-Icon.NAMED_RANGE",
     sequence: 35,
@@ -520,13 +520,13 @@ topbarMenuRegistry
     name: _t("Pivot"),
     sequence: 50,
     icon: "o-spreadsheet-Icon.PIVOT",
-    secondaryIcon: (env) =>
-      env.model.getters.getPivotIds().some((pivotId) => env.model.getters.isPivotUnused(pivotId))
+    secondaryIcon: (model) =>
+      model.getters.getPivotIds().some((pivotId) => model.getters.isPivotUnused(pivotId))
         ? "o-spreadsheet-Icon.UNUSED_PIVOT_WARNING"
         : "",
     children: [
-      (env) => {
-        const { getters } = env.model;
+      (model, env) => {
+        const { getters } = model;
         return getters.getPivotIds().map((pivotId, sequence) => {
           const highlightProvider = {
             get highlights() {
@@ -539,11 +539,11 @@ topbarMenuRegistry
             sequence,
             isReadonlyAllowed: true,
             isEnabledOnLockedSheet: true,
-            execute: () => env.openSidePanel("PivotSidePanel", { pivotId }),
-            isEnabled: () => !env.isSmall,
-            onStartHover: () => env.getStore(HighlightStore).register(highlightProvider),
-            onStopHover: () => env.getStore(HighlightStore).unRegister(highlightProvider),
-            secondaryIcon: () =>
+            execute: (model, env) => env.openSidePanel("PivotSidePanel", { pivotId }),
+            isEnabled: (model, env) => !env.isSmall,
+            onStartHover: (model, env) => env.getStore(HighlightStore).register(highlightProvider),
+            onStopHover: (model, env) => env.getStore(HighlightStore).unRegister(highlightProvider),
+            secondaryIcon: (model, env) =>
               getters.isPivotUnused(pivotId)
                 ? "o-spreadsheet-Icon.UNUSED_PIVOT_WARNING"
                 : undefined,

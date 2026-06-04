@@ -7,6 +7,7 @@ import { Color } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableConfig, TableStyle, TableStyleTemplateName } from "../../../types/table";
 import { cssPropertiesToCss } from "../../helpers/css";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 import { TableStylePreview } from "../../tables/table_style_preview/table_style_preview";
 import { RoundColorPicker } from "../components/round_color_picker/round_color_picker";
@@ -30,6 +31,8 @@ export class TableStyleEditorPanel extends Component<SpreadsheetChildEnv> {
     "styleId?": types.string(),
   });
 
+  private model = useModel();
+
   state = proxy<State>(this.getInitialState());
 
   setup() {
@@ -38,13 +41,13 @@ export class TableStyleEditorPanel extends Component<SpreadsheetChildEnv> {
 
   getInitialState(): State {
     const editedStyle = this.props.styleId
-      ? this.env.model.getters.getTableStyle(this.props.styleId)
+      ? this.model().getters.getTableStyle(this.props.styleId)
       : null;
     return {
       pickerOpened: false,
       primaryColor: editedStyle?.primaryColor || DEFAULT_TABLE_STYLE_COLOR,
       selectedTemplateName: editedStyle?.templateName || "lightColoredText",
-      styleName: editedStyle?.displayName || this.env.model.getters.getNewCustomTableStyleName(),
+      styleName: editedStyle?.displayName || this.model().getters.getNewCustomTableStyleName(),
     };
   }
 
@@ -63,7 +66,7 @@ export class TableStyleEditorPanel extends Component<SpreadsheetChildEnv> {
 
   onConfirm() {
     const tableStyleId = this.props.styleId || UuidGenerator.smallUuid();
-    this.env.model.dispatch("CREATE_TABLE_STYLE", {
+    this.model().dispatch("CREATE_TABLE_STYLE", {
       tableStyleId,
       tableStyleName: this.state.styleName,
       templateName: this.state.selectedTemplateName,
@@ -81,7 +84,7 @@ export class TableStyleEditorPanel extends Component<SpreadsheetChildEnv> {
     if (!this.props.styleId) {
       return;
     }
-    this.env.model.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: this.props.styleId });
+    this.model().dispatch("REMOVE_TABLE_STYLE", { tableStyleId: this.props.styleId });
     this.props.onCloseSidePanel();
   }
 

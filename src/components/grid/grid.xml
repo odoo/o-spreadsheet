@@ -18,13 +18,13 @@
       />
       <HeadersOverlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"/>
       <GridComposer
-        gridDims="this.env.model.getters.getSheetViewDimensionWithHeaders()"
+        gridDims="this.model().getters.getSheetViewDimensionWithHeaders()"
         onInputContextMenu.bind="this.onInputContextMenu"
       />
       <canvas t-ref="this.canvasRef" class="os-theme-dependant pe-none"/>
       <t t-set="focused" t-value="this.focusedClients"/>
       <t
-        t-foreach="this.env.model.getters.getClientsToDisplay()"
+        t-foreach="this.model().getters.getClientsToDisplay()"
         t-as="client"
         t-key="this.getClientPositionKey(client)">
         <ClientTag
@@ -41,12 +41,12 @@
         onMouseWheel.bind="this.onMouseWheel"
         onClosePopover.bind="this.onClosePopover"
       />
-      <t t-if="this.env.model.getters.isGridSelectionActive() and !this.env.isMobile()">
+      <t t-if="this.model().getters.isGridSelectionActive() and !this.env.isMobile()">
         <Autofill position="this.getAutofillPosition()" isVisible="this.isAutofillVisible"/>
       </t>
       <t t-foreach="this.highlights" t-as="highlight" t-key="highlight_index">
         <t
-          t-if="highlight.interactive and highlight.range.sheetId === this.env.model.getters.getActiveSheetId()">
+          t-if="highlight.interactive and highlight.range.sheetId === this.model().getters.getActiveSheetId()">
           <Highlight range="highlight.range" color="highlight.color"/>
         </t>
       </t>
@@ -58,7 +58,7 @@
         onClose="() => this.closeMenu()"
       />
       <t
-        t-if="!this.env.model.getters.isReadonly()"
+        t-if="!this.model().getters.isReadonly()"
         t-foreach="this.staticTables"
         t-as="table"
         t-key="table.id">

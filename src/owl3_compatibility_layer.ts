@@ -76,8 +76,6 @@ class _Component<Env = any> extends OwlComponent {
     this.__owl__ = node;
   }
 
-  setup() {}
-
   render(deep = false) {
     void this.__owl__.render(deep === true);
   }

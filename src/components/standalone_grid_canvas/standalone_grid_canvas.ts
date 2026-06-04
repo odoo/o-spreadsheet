@@ -7,6 +7,7 @@ import { GridRenderingContext } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
+import { useModel } from "../owl_plugins/model_plugin";
 import { types } from "../props_validation";
 import { FigureRendererStore } from "./figure_renderer_store";
 
@@ -24,6 +25,7 @@ export class StandaloneGridCanvas extends Component<SpreadsheetChildEnv> {
   rendererStore!: Store<RendererStore>;
   figureRendererStore!: Store<FigureRendererStore>;
 
+  private model = useModel();
   setup() {
     this.rendererStore = useLocalStore(RendererStore, ["Background", "Chart"]);
     this.figureRendererStore = useLocalStore(FigureRendererStore, this.rendererStore);
@@ -43,7 +45,7 @@ export class StandaloneGridCanvas extends Component<SpreadsheetChildEnv> {
     const imagePaths = props.renderingCtx.viewports
       .getVisibleFigures(props.sheetId)
       .filter((figure) => figure.tag === "image")
-      .map((figure) => this.env.model.getters.getImagePath(figure.id))
+      .map((figure) => this.model().getters.getImagePath(figure.id))
       .filter((path) => path && !this.figureRendererStore.loadedImages[path]);
 
     await Promise.all(

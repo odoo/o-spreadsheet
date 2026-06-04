@@ -8,6 +8,7 @@ import {
 import { DispatchResult } from "../../../../../types/commands";
 import { UID, ValueAndLabel } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { useModel } from "../../../../owl_plugins/model_plugin";
 import { types } from "../../../../props_validation";
 import { Select } from "../../../../select/select";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
@@ -36,10 +37,12 @@ export class SeriesDesignEditor extends Component<SpreadsheetChildEnv> {
     >([types.UID(), types.object({})], types.DispatchResult()),
   });
 
+  private model = useModel();
+
   protected state = proxy({ dataSetId: this.getDataSeries()[0]?.dataSetId || "" });
 
   private getRuntime(): CustomizableSeriesChartRuntime {
-    const runtime = this.env.model.getters.getChartRuntime(this.props.chartId);
+    const runtime = this.model().getters.getChartRuntime(this.props.chartId);
     if (!runtime || !("customizableSeries" in runtime)) {
       throw new Error(
         "SeriesDesignEditor: chart runtime is not compatible with series customization."

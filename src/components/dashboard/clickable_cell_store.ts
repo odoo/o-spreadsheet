@@ -1,6 +1,7 @@
 import { markRaw } from "@odoo/owl";
 import { toXC } from "../../helpers/coordinates";
 import { positionToZone } from "../../helpers/zones";
+import { Model } from "../../model";
 import { ComponentConstructor } from "../../owl3_compatibility_layer";
 import { CellClickableItem, clickableCellRegistry } from "../../registries/cell_clickable_registry";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
@@ -13,7 +14,12 @@ export interface ClickableCell {
   coordinates: Rect;
   position: CellPosition;
   title: string;
-  action: (position: CellPosition, env: SpreadsheetChildEnv, isMiddleClick?: boolean) => void;
+  action: (
+    position: CellPosition,
+    model: Model,
+    env: SpreadsheetChildEnv,
+    isMiddleClick?: boolean
+  ) => void;
   component: ComponentConstructor | undefined;
   componentProps: Record<string, unknown>;
 }

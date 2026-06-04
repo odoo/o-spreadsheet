@@ -8,6 +8,7 @@ import { ActionButton } from "../../action_button/action_button";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 import { MenuPopover } from "../../menu_popover/menu_popover";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 
 interface State {
@@ -20,6 +21,7 @@ export class NumberFormatsTool extends Component<SpreadsheetChildEnv> {
   static components = { MenuPopover, ActionButton };
 
   protected props = props({ class: types.string() });
+  private model = useModel();
   formatNumberMenuItemSpec = formatNumberMenuItemSpec;
   topBarToolStore!: ToolBarDropdownStore;
 
@@ -38,7 +40,9 @@ export class NumberFormatsTool extends Component<SpreadsheetChildEnv> {
       this.topBarToolStore.closeDropdowns();
     } else {
       const menu = createAction(this.formatNumberMenuItemSpec);
-      this.state.menuItems = menu.children(this.env).sort((a, b) => a.sequence - b.sequence);
+      this.state.menuItems = menu
+        .children(this.model(), this.env)
+        .sort((a, b) => a.sequence - b.sequence);
       this.state.anchorRect = getBoundingRectAsPOJO(this.buttonRef()!);
       this.topBarToolStore.openDropdown();
     }

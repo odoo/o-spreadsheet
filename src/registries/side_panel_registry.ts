@@ -18,6 +18,7 @@ import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns
 import { TablePanel } from "../components/side_panel/table_panel/table_panel";
 import { TableStyleEditorPanel } from "../components/side_panel/table_style_editor_panel/table_style_editor_panel";
 import { getTableTopLeft } from "../helpers/table_helpers";
+import { Model } from "../model";
 import { _t } from "../translation";
 import { ConditionalFormat } from "../types/conditional_formatting";
 import { Getters } from "../types/getters";
@@ -31,7 +32,7 @@ import { Registry } from "./registry";
 //------------------------------------------------------------------------------
 
 export interface SidePanelContent {
-  title: string | ((env: SpreadsheetChildEnv, props: object) => string);
+  title: string | ((model: Model, env: SpreadsheetChildEnv, props: object) => string);
   Body: any;
   Footer?: any;
   /**
@@ -153,8 +154,8 @@ sidePanelRegistry.add("TableStyleEditorPanel", {
 });
 
 sidePanelRegistry.add("PivotSidePanel", {
-  title: (env: SpreadsheetChildEnv, props: { pivotId: UID }) => {
-    return _t("Pivot #%s", env.model.getters.getPivotFormulaId(props.pivotId));
+  title: (model: Model, env: SpreadsheetChildEnv, props: { pivotId: UID }) => {
+    return _t("Pivot #%s", model.getters.getPivotFormulaId(props.pivotId));
   },
   Body: PivotSidePanel,
   computeState: (getters: Getters, props: { pivotId: UID }) => {
@@ -167,8 +168,8 @@ sidePanelRegistry.add("PivotSidePanel", {
 });
 
 sidePanelRegistry.add("PivotMeasureDisplayPanel", {
-  title: (env: SpreadsheetChildEnv, props: PropsOf<PivotMeasureDisplayPanel>) => {
-    const measure = env.model.getters.getPivot(props.pivotId).getMeasure(props.measure.id);
+  title: (model: Model, env: SpreadsheetChildEnv, props: PropsOf<PivotMeasureDisplayPanel>) => {
+    const measure = model.getters.getPivot(props.pivotId).getMeasure(props.measure.id);
     return _t('Measure "%s" options', measure.displayName);
   },
   Body: PivotMeasureDisplayPanel,

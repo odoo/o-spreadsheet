@@ -6,10 +6,8 @@ import { ActionSpec } from "./action";
 export const linkSheet: ActionSpec = {
   name: _t("Link sheet"),
   children: [
-    (env) => {
-      const sheets = env.model.getters
-        .getSheetIds()
-        .map((sheetId) => env.model.getters.getSheet(sheetId));
+    (model) => {
+      const sheets = model.getters.getSheetIds().map((sheetId) => model.getters.getSheet(sheetId));
       return sheets.map((sheet) => ({
         id: sheet.id,
         name: sheet.name,
@@ -21,15 +19,15 @@ export const linkSheet: ActionSpec = {
 
 export const deleteSheet: ActionSpec = {
   name: _t("Delete"),
-  isVisible: (env) => {
-    return env.model.getters.getVisibleSheetIds().length > 1;
+  isVisible: (model) => {
+    return model.getters.getVisibleSheetIds().length > 1;
   },
 
-  execute: (env) =>
+  execute: (model, env) =>
     env.askConfirmation(_t("Are you sure you want to delete this sheet?"), () => {
-      env.model.dispatch("DELETE_SHEET", {
-        sheetId: env.model.getters.getActiveSheetId(),
-        sheetName: env.model.getters.getActiveSheetName(),
+      model.dispatch("DELETE_SHEET", {
+        sheetId: model.getters.getActiveSheetId(),
+        sheetName: model.getters.getActiveSheetName(),
       });
     }),
   icon: "o-spreadsheet-Icon.TRASH",
@@ -37,17 +35,17 @@ export const deleteSheet: ActionSpec = {
 
 export const duplicateSheet: ActionSpec = {
   name: _t("Duplicate"),
-  execute: (env) => {
-    const sheetIdFrom = env.model.getters.getActiveSheetId();
-    const sheetNameFrom = env.model.getters.getSheetName(sheetIdFrom);
+  execute: (model, env) => {
+    const sheetIdFrom = model.getters.getActiveSheetId();
+    const sheetNameFrom = model.getters.getSheetName(sheetIdFrom);
     const sheetIdTo = UuidGenerator.smallUuid();
-    const sheetNameTo = env.model.getters.getDuplicateSheetName(sheetNameFrom);
-    env.model.dispatch("DUPLICATE_SHEET", {
+    const sheetNameTo = model.getters.getDuplicateSheetName(sheetNameFrom);
+    model.dispatch("DUPLICATE_SHEET", {
       sheetId: sheetIdFrom,
       sheetIdTo,
       sheetNameTo,
     });
-    env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom, sheetIdTo });
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom, sheetIdTo });
   },
   isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.COPY",
@@ -73,14 +71,14 @@ export const changeSheetColor = (args: {
 
 export const sheetMoveRight: ActionSpec = {
   name: _t("Move right"),
-  isVisible: (env) => {
-    const sheetId = env.model.getters.getActiveSheetId();
-    const sheetIds = env.model.getters.getVisibleSheetIds();
+  isVisible: (model) => {
+    const sheetId = model.getters.getActiveSheetId();
+    const sheetIds = model.getters.getVisibleSheetIds();
     return sheetIds.indexOf(sheetId) !== sheetIds.length - 1;
   },
-  execute: (env) =>
-    env.model.dispatch("MOVE_SHEET", {
-      sheetId: env.model.getters.getActiveSheetId(),
+  execute: (model) =>
+    model.dispatch("MOVE_SHEET", {
+      sheetId: model.getters.getActiveSheetId(),
       delta: 1,
     }),
   isEnabledOnLockedSheet: true,
@@ -89,13 +87,13 @@ export const sheetMoveRight: ActionSpec = {
 
 export const sheetMoveLeft: ActionSpec = {
   name: _t("Move left"),
-  isVisible: (env) => {
-    const sheetId = env.model.getters.getActiveSheetId();
-    return env.model.getters.getVisibleSheetIds()[0] !== sheetId;
+  isVisible: (model) => {
+    const sheetId = model.getters.getActiveSheetId();
+    return model.getters.getVisibleSheetIds()[0] !== sheetId;
   },
-  execute: (env) =>
-    env.model.dispatch("MOVE_SHEET", {
-      sheetId: env.model.getters.getActiveSheetId(),
+  execute: (model) =>
+    model.dispatch("MOVE_SHEET", {
+      sheetId: model.getters.getActiveSheetId(),
       delta: -1,
     }),
   isEnabledOnLockedSheet: true,
@@ -104,21 +102,20 @@ export const sheetMoveLeft: ActionSpec = {
 
 export const hideSheet: ActionSpec = {
   name: _t("Hide sheet"),
-  isVisible: (env) => env.model.getters.getVisibleSheetIds().length !== 1,
-  execute: (env) =>
-    env.model.dispatch("HIDE_SHEET", { sheetId: env.model.getters.getActiveSheetId() }),
+  isVisible: (model) => model.getters.getVisibleSheetIds().length !== 1,
+  execute: (model) => model.dispatch("HIDE_SHEET", { sheetId: model.getters.getActiveSheetId() }),
   isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.HIDE_SHEET",
 };
 
 export const lockSheet: ActionSpec = {
   name: _t("Lock sheet"),
-  isVisible: (env) => {
-    return !env.model.getters.isCurrentSheetLocked();
+  isVisible: (model) => {
+    return !model.getters.isCurrentSheetLocked();
   },
-  execute: (env) => {
-    env.model.dispatch("LOCK_SHEET", {
-      sheetId: env.model.getters.getActiveSheetId(),
+  execute: (model) => {
+    model.dispatch("LOCK_SHEET", {
+      sheetId: model.getters.getActiveSheetId(),
     });
   },
   icon: "o-spreadsheet-Icon.LOCK",
@@ -126,12 +123,12 @@ export const lockSheet: ActionSpec = {
 
 export const unlockSheet: ActionSpec = {
   name: _t("Unlock sheet"),
-  isVisible: (env) => {
-    return env.model.getters.isCurrentSheetLocked();
+  isVisible: (model) => {
+    return model.getters.isCurrentSheetLocked();
   },
-  execute: (env) => {
-    env.model.dispatch("UNLOCK_SHEET", {
-      sheetId: env.model.getters.getActiveSheetId(),
+  execute: (model) => {
+    model.dispatch("UNLOCK_SHEET", {
+      sheetId: model.getters.getActiveSheetId(),
     });
   },
   isEnabledOnLockedSheet: true,

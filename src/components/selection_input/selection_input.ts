@@ -10,6 +10,7 @@ import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
+import { useModel } from "../owl_plugins/model_plugin";
 import { types } from "../props_validation";
 import { RangeInputValue, SelectionInputStore } from "./selection_input_store";
 
@@ -63,6 +64,7 @@ export class SelectionInput extends Component<SpreadsheetChildEnv> {
   private focusedInputRef = signal<HTMLInputElement | null>(null);
   unfocusedInputRef = signal<HTMLInputElement | null>(null);
   private selectionRef = signal<HTMLElement | null>(null);
+  private model = useModel();
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private store!: Store<SelectionInputStore>;
 
@@ -213,7 +215,7 @@ export class SelectionInput extends Component<SpreadsheetChildEnv> {
       ev.stopPropagation();
       if (this.store.mode === "select-range") {
         ev.preventDefault();
-        updateSelectionWithArrowKeys(ev, this.env.model.selection);
+        updateSelectionWithArrowKeys(ev, this.model().selection);
       }
     } else if (ev.key === "Enter") {
       const target = ev.target as HTMLInputElement;
@@ -265,7 +267,7 @@ export class SelectionInput extends Component<SpreadsheetChildEnv> {
   confirm() {
     this.store.confirm();
     const anyValidInput = this.store.selectionInputs.some((range) =>
-      this.env.model.getters.isRangeValid(range.xc)
+      this.model().getters.isRangeValid(range.xc)
     );
     if (this.props.required && !anyValidInput) {
       this.state.isMissing = true;

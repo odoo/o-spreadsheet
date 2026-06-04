@@ -1,9 +1,9 @@
 import { props } from "@odoo/owl";
+import { Component } from "../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
-
-import { Component } from "../../../owl3_compatibility_layer";
 
 export class Border extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Border";
@@ -19,6 +19,8 @@ export class Border extends Component<SpreadsheetChildEnv> {
     isMoving: types.boolean(),
     onMoveHighlight: types.function<[ev: PointerEvent]>([types.instanceOf(PointerEvent)]),
   });
+  private model = useModel();
+
   get style() {
     const isTop = ["n", "w", "e"].includes(this.props.orientation);
     const isLeft = ["n", "w", "s"].includes(this.props.orientation);
@@ -28,7 +30,7 @@ export class Border extends Component<SpreadsheetChildEnv> {
     const z = this.props.zone;
     const margin = 2;
 
-    const rect = this.env.model.getters.getVisibleRect(z);
+    const rect = this.model().getters.getVisibleRect(z);
 
     const left = rect.x;
     const right = rect.x + rect.width - 2 * margin;

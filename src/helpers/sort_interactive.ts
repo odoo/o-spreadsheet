@@ -1,3 +1,4 @@
+import { Model } from "../model";
 import { _t } from "../translation";
 import { CommandResult } from "../types/commands";
 import { Position, SortDirection, SortOptions, UID, Zone } from "../types/misc";
@@ -5,6 +6,7 @@ import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { isEqual } from "./zones";
 
 export function interactiveSortSelection(
+  model: Model,
   env: SpreadsheetChildEnv,
   sheetId: UID,
   anchor: Position,
@@ -13,13 +15,13 @@ export function interactiveSortSelection(
 ) {
   //several columns => bypass the contiguity check
   let multiColumns: boolean = zone.right > zone.left;
-  if (env.model.getters.doesIntersectMerge(sheetId, zone)) {
+  if (model.getters.doesIntersectMerge(sheetId, zone)) {
     multiColumns = false;
     let table: UID[];
     for (let row = zone.top; row <= zone.bottom; row++) {
       table = [];
       for (let col = zone.left; col <= zone.right; col++) {
-        const merge = env.model.getters.getMerge({ sheetId, col, row });
+        const merge = model.getters.getMerge({ sheetId, col, row });
         if (merge && !table.includes(merge.id.toString())) {
           table.push(merge.id.toString());
         }
@@ -32,25 +34,26 @@ export function interactiveSortSelection(
   }
 
   if (multiColumns) {
-    interactiveSort(env, sheetId, anchor, zone, sortDirection);
+    interactiveSort(model, env, sheetId, anchor, zone, sortDirection);
     return;
   }
 
-  const contiguousZone = env.model.getters.getContiguousZone(sheetId, zone);
+  const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
   if (isEqual(contiguousZone, zone)) {
-    interactiveSort(env, sheetId, anchor, zone, sortDirection);
+    interactiveSort(model, env, sheetId, anchor, zone, sortDirection);
   } else {
     env.askConfirmation(
       _t(
         "We found data next to your selection. Since this data was not selected, it will not be sorted. Do you want to extend your selection?"
       ),
-      () => interactiveSort(env, sheetId, anchor, contiguousZone, sortDirection),
-      () => interactiveSort(env, sheetId, anchor, zone, sortDirection)
+      () => interactiveSort(model, env, sheetId, anchor, contiguousZone, sortDirection),
+      () => interactiveSort(model, env, sheetId, anchor, zone, sortDirection)
     );
   }
 }
 
 export function interactiveSort(
+  model: Model,
   env: SpreadsheetChildEnv,
   sheetId: UID,
   anchor: Position,
@@ -58,7 +61,7 @@ export function interactiveSort(
   sortDirection: SortDirection,
   sortOptions?: SortOptions
 ) {
-  const result = env.model.dispatch("SORT_CELLS", {
+  const result = model.dispatch("SORT_CELLS", {
     sheetId,
     col: anchor.col,
     row: anchor.row,
@@ -68,14 +71,14 @@ export function interactiveSort(
   });
   if (result.isCancelledBecause(CommandResult.InvalidSortZone)) {
     const { col, row } = anchor;
-    env.model.selection.selectZone({ cell: { col, row }, zone });
+    model.selection.selectZone({ cell: { col, row }, zone });
     env.raiseError(
       _t("Cannot sort. To sort, select only cells or only merges that have the same size.")
     );
   }
   if (result.isCancelledBecause(CommandResult.SortZoneWithArrayFormulas)) {
     const { col, row } = anchor;
-    env.model.selection.selectZone({ cell: { col, row }, zone });
+    model.selection.selectZone({ cell: { col, row }, zone });
     env.raiseError(_t("Cannot sort a zone with array formulas."));
   }
 }

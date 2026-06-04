@@ -5,6 +5,7 @@ import { criterionEvaluatorRegistry } from "../../../../registries/criterion_reg
 import { Highlight } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { types } from "../../../props_validation";
 
 export class DataValidationPreview extends Component<SpreadsheetChildEnv> {
@@ -16,6 +17,7 @@ export class DataValidationPreview extends Component<SpreadsheetChildEnv> {
 
   private dvPreviewRef = signal<HTMLElement | null>(null);
 
+  private model = useModel();
   setup() {
     useHighlightsOnHover(this.dvPreviewRef, this);
   }
@@ -27,8 +29,8 @@ export class DataValidationPreview extends Component<SpreadsheetChildEnv> {
   }
 
   deleteDataValidation() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    this.env.model.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: this.props.rule.id });
+    const sheetId = this.model().getters.getActiveSheetId();
+    this.model().dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: this.props.rule.id });
   }
 
   get highlights(): Highlight[] {
@@ -40,15 +42,15 @@ export class DataValidationPreview extends Component<SpreadsheetChildEnv> {
   }
 
   get rangesString(): string {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     return this.props.rule.ranges
-      .map((range) => this.env.model.getters.getRangeString(range, sheetId))
+      .map((range) => this.model().getters.getRangeString(range, sheetId))
       .join(", ");
   }
 
   get descriptionString(): string {
     return criterionEvaluatorRegistry
       .get(this.props.rule.criterion.type)
-      .getPreview(this.props.rule.criterion, this.env.model.getters);
+      .getPreview(this.props.rule.criterion, this.model().getters);
   }
 }

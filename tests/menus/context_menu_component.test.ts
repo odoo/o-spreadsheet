@@ -27,6 +27,7 @@ import {
 import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
 
 import { Rect } from "../../src";
+import { useModel } from "../../src/components/owl_plugins/model_plugin";
 import { PopoverPropsPosition } from "../../src/types/cell_popovers";
 import {
   getStylePropertyInPx,
@@ -195,6 +196,7 @@ class ContextMenuParent extends Component {
     height: types.number(),
     config: types.object({}),
   }) as any;
+  private model = useModel();
   menus!: Action[];
   anchorRect: Rect;
   onClose!: () => void;
@@ -209,7 +211,7 @@ class ContextMenuParent extends Component {
       height: 0,
     };
     this.menus = this.props.config.menuItems || createActions([makeTestMenuItem("Action")]);
-    resizeSheetView(this.env.model, this.props.height, this.props.width);
+    resizeSheetView(this.model(), this.props.height, this.props.width);
   }
 }
 
@@ -774,7 +776,7 @@ describe("Context MenuPopover internal tests", () => {
       {
         id: "menuItem",
         name: "menuItem",
-        execute: (_, isMiddleClick) => mockCallback(isMiddleClick),
+        execute: (_, __, isMiddleClick) => mockCallback(isMiddleClick),
       },
     ]);
     await renderContextMenu(300, 300, { menuItems });

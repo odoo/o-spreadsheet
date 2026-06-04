@@ -7,6 +7,7 @@ import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableMetaData } from "../../../types/table";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 import { drawPreviewTable } from "./table_canvas_helpers";
 
@@ -26,6 +27,7 @@ export class TableStylePreview extends Component<SpreadsheetChildEnv> {
   private canvasRef = signal<HTMLCanvasElement | null>(null);
   menu: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
+  private model = useModel();
   setup() {
     onWillUpdateProps((nextProps: PropsOf<TableStylePreview>) => {
       if (
@@ -88,7 +90,7 @@ export class TableStylePreview extends Component<SpreadsheetChildEnv> {
     if (!this.props.styleId) {
       return;
     }
-    this.menu.menuItems = createTableStyleContextMenuActions(this.env, this.props.styleId);
+    this.menu.menuItems = createTableStyleContextMenuActions(this.model(), this.props.styleId);
     this.menu.isOpen = true;
     this.menu.anchorRect = { x: event.clientX, y: event.clientY, width: 0, height: 0 };
   }
@@ -110,7 +112,7 @@ export class TableStylePreview extends Component<SpreadsheetChildEnv> {
     if (!this.props.styleId) {
       return false;
     }
-    return this.env.model.getters.isTableStyleEditable(this.props.styleId);
+    return this.model().getters.isTableStyleEditable(this.props.styleId);
   }
 
   editTableStyle() {

@@ -7,6 +7,7 @@ import { _t } from "../../../translation";
 import { CommandResult } from "../../../types/commands";
 import { ValueAndLabel } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 import { Select } from "../../select/select";
 import { SplitToColumnsTerms } from "../../translations_terms";
@@ -42,6 +43,7 @@ export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
 
   state = proxy<State>({ separatorValue: "auto", addNewColumns: false, customSeparator: "" });
 
+  private model = useModel();
   setup() {
     const composerFocusStore = useStore(ComposerFocusStore);
     // The feature makes no sense if we are editing a cell, because then the selection isn't active
@@ -77,6 +79,7 @@ export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
 
   confirm() {
     const result = interactiveSplitToColumns(
+      this.model(),
       this.env,
       this.separatorValue,
       this.state.addNewColumns
@@ -88,7 +91,7 @@ export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
   }
 
   get errorMessages(): string[] {
-    const cancelledReasons = this.env.model.canDispatch("SPLIT_TEXT_INTO_COLUMNS", {
+    const cancelledReasons = this.model().canDispatch("SPLIT_TEXT_INTO_COLUMNS", {
       separator: this.separatorValue,
       addNewColumns: this.state.addNewColumns,
       force: true,
@@ -110,7 +113,7 @@ export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
 
   get warningMessages(): string[] {
     const warnings: string[] = [];
-    const cancelledReasons = this.env.model.canDispatch("SPLIT_TEXT_INTO_COLUMNS", {
+    const cancelledReasons = this.model().canDispatch("SPLIT_TEXT_INTO_COLUMNS", {
       separator: this.separatorValue,
       addNewColumns: this.state.addNewColumns,
       force: false,
@@ -127,7 +130,7 @@ export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
     if (this.state.separatorValue === "custom") {
       return this.state.customSeparator;
     } else if (this.state.separatorValue === "auto") {
-      return this.env.model.getters.getAutomaticSeparator();
+      return this.model().getters.getAutomaticSeparator();
     }
     return this.state.separatorValue;
   }

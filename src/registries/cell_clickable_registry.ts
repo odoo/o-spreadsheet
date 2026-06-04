@@ -7,10 +7,16 @@ import { CellPosition, SortDirection } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { Registry } from "./registry";
 
+import { Model } from "../model";
 import { ComponentConstructor } from "../owl3_compatibility_layer";
 export interface CellClickableItem {
   condition: (position: CellPosition, getters: Getters) => boolean;
-  execute: (position: CellPosition, env: SpreadsheetChildEnv, isMiddleClick?: boolean) => void;
+  execute: (
+    position: CellPosition,
+    model: Model,
+    env: SpreadsheetChildEnv,
+    isMiddleClick?: boolean
+  ) => void;
   title?: string | ((position: CellPosition, getters: Getters) => string);
   sequence: number;
   component?: ComponentConstructor;
@@ -23,8 +29,12 @@ clickableCellRegistry.add("link", {
   condition: (position: CellPosition, getters: Getters) => {
     return !!getters.getEvaluatedCell(position).link;
   },
-  execute: (position: CellPosition, env: SpreadsheetChildEnv, isMiddleClick?: boolean) =>
-    openLink(env.model.getters.getEvaluatedCell(position).link!, env, isMiddleClick),
+  execute: (
+    position: CellPosition,
+    model: Model,
+    env: SpreadsheetChildEnv,
+    isMiddleClick?: boolean
+  ) => openLink(model.getters.getEvaluatedCell(position).link!, model, env, isMiddleClick),
   title: (position, getters) => {
     const link = getters.getEvaluatedCell(position).link;
     if (!link) {
@@ -47,8 +57,8 @@ clickableCellRegistry.add("dashboard_pivot_sorting", {
     const pivotCell = getters.getPivotCellFromPosition(position);
     return canSortPivot(getters, position) && pivotCell.type === "MEASURE_HEADER";
   },
-  execute: (position: CellPosition, env: SpreadsheetChildEnv) => {
-    sortPivot(env, position, getNextSortDirection(env.model.getters, position));
+  execute: (position: CellPosition, model: Model) => {
+    sortPivot(model, position, getNextSortDirection(model.getters, position));
   },
   component: ClickableCellSortIcon,
   componentProps: (position: CellPosition, getters: Getters) => {

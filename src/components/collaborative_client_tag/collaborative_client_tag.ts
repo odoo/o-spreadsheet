@@ -1,8 +1,8 @@
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
-import { cssPropertiesToCss } from "../helpers/css";
-
 import { props } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { cssPropertiesToCss } from "../helpers/css";
+import { useModel } from "../owl_plugins/model_plugin";
 import { types } from "../props_validation";
 
 export class ClientTag extends Component<SpreadsheetChildEnv> {
@@ -15,15 +15,18 @@ export class ClientTag extends Component<SpreadsheetChildEnv> {
     col: types.HeaderIndex(),
     row: types.HeaderIndex(),
   });
+
+  private model = useModel();
+
   get tagStyle(): string {
     const { col, row, color } = this.props;
-    const { height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
-    const visible = this.env.model.getters.isVisibleInViewport({
-      sheetId: this.env.model.getters.getActiveSheetId(),
+    const { height } = this.model().getters.getSheetViewDimensionWithHeaders();
+    const visible = this.model().getters.isVisibleInViewport({
+      sheetId: this.model().getters.getActiveSheetId(),
       col,
       row,
     });
-    const { x, y } = this.env.model.getters.getVisibleRect({
+    const { x, y } = this.model().getters.getVisibleRect({
       left: col,
       top: row,
       right: col,
