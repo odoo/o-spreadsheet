@@ -322,6 +322,7 @@ export const registries = {
   migrationStepRegistry,
   chartJsExtensionRegistry,
   onIterationEndEvaluationRegistry,
+  specificRangeTransformRegistry,
 };
 
 /** Registries Population */
@@ -352,6 +353,7 @@ import { chartDataSourceRegistry } from "./registries/chart_data_source_registry
 import { chartSubtypeRegistry } from "./registries/chart_subtype_registry";
 import { clipboardHandlersRegistries } from "./registries/clipboardHandlersRegistries";
 import { onIterationEndEvaluationRegistry } from "./registries/evaluation_registry";
+import { specificRangeTransformRegistry } from "./registries/srt_registry";
 
 export const helpers = {
   arg,
