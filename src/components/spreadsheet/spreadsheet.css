@@ -297,4 +297,6 @@
       filter: var(--os-dark-mode-filter);
     }
   }
+
+  --oi-font-size: var(--os-icon-font-size);
 }

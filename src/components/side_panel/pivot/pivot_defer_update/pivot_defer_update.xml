@@ -10,7 +10,8 @@
       />
       <div t-if="this.props.isDirty" class="d-flex align-items-center">
         <i
-          class="o-button-icon pe-0 fa fa-undo"
+          class="o-button-icon pe-0 oi"
+          data-icon="undo"
           title="Discard all changes"
           t-on-click="() => this.props.discard()"
         />

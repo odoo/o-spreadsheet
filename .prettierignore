@@ -22,6 +22,8 @@ tests/**/xlsx_demo_data
 **/*.xltx
 **/*.xltm
 **/*.xlam
+**/*.woff2
+**/*.py
 tools/parse_message.mjs
 *.png
 .claude/

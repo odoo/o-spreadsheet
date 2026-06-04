@@ -36,7 +36,8 @@ describe("chart menu for dashboard", () => {
 
   test("Can open menu to copy/download chart in dashboard mode", async () => {
     extendMockGetBoundingClientRect({
-      "fa-ellipsis-v": () => ({ x: 100, y: 100, width: 20, height: 20 }),
+      "o-chart-dashboard-item": () => ({ x: 100, y: 100, width: 20, height: 20 }),
+      oi: () => ({ x: 100, y: 100, width: 20, height: 20 }),
     });
     createChart(model, { type: "bar" }, chartId);
     model.updateMode("dashboard");
@@ -46,7 +47,7 @@ describe("chart menu for dashboard", () => {
     await nextTick();
     expect(".o-menu-item").toHaveCount(0);
 
-    await click(fixture, ".o-figure .fa-ellipsis-v");
+    await click(fixture, ".o-figure [data-icon='more_vert']");
     expect(getElStyle(".o-popover", "top")).toBe("120px");
     expect(getElStyle(".o-popover", "left")).toBe("100px");
     const menuItems = [...document.querySelectorAll<HTMLElement>(".o-menu-item")].map(

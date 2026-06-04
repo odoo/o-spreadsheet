@@ -118,7 +118,7 @@ describe("PerfProfilePanel", () => {
     expect(".o-perf-entry-selected").toHaveCount(1);
 
     // Click re-analyze
-    await click(fixture, ".fa-refresh");
+    await click(fixture, "[data-icon='refresh']");
 
     // Selection is cleared
     expect(".o-perf-entry-selected").toHaveCount(0);

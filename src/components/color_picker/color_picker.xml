@@ -51,7 +51,7 @@
             class="eyedropper d-flex align-items-center justify-content-center rounded-circle"
             t-if="this.canUseEyeDropper"
             t-on-click.stop="this.activateEyedropper">
-            <i class="fa fa-eyedropper"/>
+            <i class="oi" data-icon="colorize"/>
           </div>
         </div>
         <div t-if="this.state.showGradient" class="o-custom-selector">

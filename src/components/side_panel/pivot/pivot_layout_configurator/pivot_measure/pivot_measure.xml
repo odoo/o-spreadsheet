@@ -9,13 +9,14 @@
         <t t-if="measure.isHidden" t-set="hideTitle">Show</t>
         <t t-else="" t-set="hideTitle">Hide</t>
         <i
-          t-att-class="measure.isHidden ? 'fa fa-eye-slash': 'fa fa-eye'"
+          t-att-data-icon="measure.isHidden ? 'visibility_off' : 'visibility'"
           t-att-title="hideTitle"
-          class="o-button-icon pe-1 ps-2"
+          class="o-button-icon pe-1 ps-2 oi"
           t-on-click="this.toggleMeasureVisibility"
         />
         <i
-          class="o-button-icon pe-1 ps-2 fa fa-cog"
+          class="o-button-icon pe-1 ps-2 oi oi-filled"
+          data-icon="settings"
           title="Show values as"
           t-on-click="this.openShowValuesAs"
         />

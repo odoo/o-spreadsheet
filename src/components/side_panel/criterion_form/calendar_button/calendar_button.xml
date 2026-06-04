@@ -2,7 +2,8 @@
   <t t-name="o-spreadsheet-CalendarButton">
     <div class="o-calendar-button ms-1">
       <button type="button" class="o-button btn" t-on-click="this.openCalendar">
-        <i class="fa fa-calendar"/>
+        <!-- TODORAR  see how we can make filled versions -->
+        <i class="oi oi-filled" data-icon="calendar_today"/>
       </button>
       <input
         type="date"

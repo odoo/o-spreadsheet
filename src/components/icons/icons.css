@@ -14,11 +14,64 @@
       font: bold 16px sans-serif;
     }
   }
-  .fa-small {
-    font-size: 14px;
-  }
 
   .o-icon.fx-icon {
     color: var(--os-composer-placeholder-color);
+  }
+
+  /*
+   * Odoo UI Icon (oi): render Material Symbols through the data-icon attribute.
+   * Mirrors web/static/src/webclient/icons.scss `material-icon-base`, adapted to
+   * the `material-symbols` package whose variable font exposes a FILL axis.
+   */
+  .oi {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: var(--icon-font-family, "Material Symbols Outlined");
+    font-style: normal;
+    font-size: var(--oi-font-size, 1em);
+    font-weight: 400 !important;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    speak: never;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .oi:before {
+    display: inline-block;
+    content: attr(data-icon);
+    text-rendering: geometricPrecision;
+  }
+
+  .oi-filled {
+    -webkit-font-variation-settings: "FILL" 1;
+    font-variation-settings: "FILL" 1;
+  }
+
+  /* Overlap several icons (e.g. a glyph over a background disc).
+  FIXME: this is kept as a compatibility layer, we should try to remove it in the future. */
+  .oi-stack {
+    position: relative;
+    display: inline-block;
+    width: 2em;
+    height: 2em;
+    line-height: 2em;
+    vertical-align: middle;
+  }
+  .oi-stack-1x,
+  .oi-stack-2x {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    text-align: center;
+  }
+  .oi-stack-2x {
+    font-size: 2em;
   }
 }
