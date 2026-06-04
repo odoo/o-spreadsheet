@@ -484,10 +484,11 @@ exports[`Color Picker buttons Full component rendering 1`] = `
         style="margin-left: -8px;"
       >
         <div
-          class="o-icon fa-small"
+          class="o-icon oi-small"
         >
           <i
-            class="fa fa-caret-up"
+            class="oi"
+            data-icon="arrow_drop_up"
           />
         </div>
       </div>

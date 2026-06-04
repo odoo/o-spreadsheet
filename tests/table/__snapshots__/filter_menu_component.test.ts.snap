@@ -146,7 +146,8 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
                 class="o-icon"
               >
                 <i
-                  class="fa fa-search"
+                  class="oi"
+                  data-icon="search"
                 />
               </div>
             </i>

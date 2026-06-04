@@ -15,6 +15,7 @@
           <div
             t-attf-class=" {{item.class}}"
             class="o-chart-dashboard-item btn border-0 lh-1 p-1 d-flex align-items-center justify-content-center"
+            t-att-data-icon="item.icon"
             t-att-title="item.label"
             t-on-click="item.onClick"
             t-att-data-id="item.id">
@@ -22,7 +23,8 @@
           </div>
         </t>
         <button
-          class="o-chart-dashboard-item btn text-muted lh-1 p-1 fa fa-ellipsis-v"
+          class="o-chart-dashboard-item btn text-muted lh-1 py-1 px-0 oi"
+          data-icon="more_vert"
           t-on-click="this.openContextMenu"
         />
       </div>

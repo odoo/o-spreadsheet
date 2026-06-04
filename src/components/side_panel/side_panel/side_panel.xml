@@ -12,14 +12,14 @@
           t-if="this.props.onToggleCollapsePanel"
           class="o-collapse-panel o-sidePanelAction rounded"
           t-on-click="this.props.onToggleCollapsePanel">
-          <i class="fa fa-angle-double-right"/>
+          <i class="oi" data-icon="keyboard_double_arrow_right"/>
         </div>
         <div class="o-sidePanelTitle o-fw-bold ms-2" t-out="this.getTitle()"/>
         <div
           t-if="this.props.isPinned"
           class="o-pin-panel o-sidePanelAction ms-auto rounded active"
           t-on-click="this.props.onTogglePinPanel">
-          <i class="fa fa-thumb-tack"/>
+          <i class="oi" data-icon="keep"/>
         </div>
         <div
           class="o-sidePanelClose o-sidePanelAction rounded"
@@ -58,13 +58,13 @@
         <div
           t-if="this.props.onToggleCollapsePanel"
           class="o-collapse-panel o-sidePanelAction rounded mb-1">
-          <i class="fa fa-angle-double-left"/>
+          <i class="oi" data-icon="keyboard_double_arrow_left"/>
         </div>
         <div
           t-if="this.props.isPinned"
           class="o-pin-panel o-sidePanelAction ms-auto rounded active"
           t-on-click="this.props.onTogglePinPanel">
-          <i class="fa fa-thumb-tack"/>
+          <i class="oi" data-icon="keep"/>
         </div>
         <div
           class="o-sidePanelClose o-sidePanelAction rounded mb-1"

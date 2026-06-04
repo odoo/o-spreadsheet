@@ -104,7 +104,7 @@ describe("Named ranges topbar selector", () => {
     createNamedRange(model, "AnotherRange", "C3:D4", "sh2");
     await mountRangeSelector();
 
-    await simulateClick(".o-named-range-selector .fa-caret-down");
+    await simulateClick(".o-named-range-selector [data-icon='arrow_drop_down']");
     const menuItems = [...document.querySelectorAll<HTMLElement>(".o-menu-item")];
     const getMenuItemText = (item: HTMLElement) => {
       const name = item.querySelector(".o-menu-item-name")?.textContent?.trim() || "";
@@ -129,7 +129,7 @@ describe("Named ranges topbar selector", () => {
     const viewportWidth = viewport.right - viewport.left;
     const viewportHeight = viewport.bottom - viewport.top;
 
-    await simulateClick(".o-named-range-selector .fa-caret-down");
+    await simulateClick(".o-named-range-selector [data-icon='arrow_drop_down']");
     await simulateClick(".o-menu-item");
 
     expect(model.getters.getSelectedZone()).toEqual(toZone("Y60:Z70"));
@@ -145,7 +145,7 @@ describe("Named ranges topbar selector", () => {
     createNamedRange(model, "MyRange", "A1:B3");
     await mountRangeSelector();
 
-    await simulateClick(".o-named-range-selector .fa-caret-down");
+    await simulateClick(".o-named-range-selector [data-icon='arrow_drop_down']");
     triggerMouseEvent(".o-menu-item", "mouseenter");
     await nextTick();
 
@@ -161,7 +161,7 @@ describe("Named ranges topbar selector", () => {
 
   test("Can open the named range side panel from the dropdown", async () => {
     await mountRangeSelector();
-    await simulateClick(".o-named-range-selector .fa-caret-down");
+    await simulateClick(".o-named-range-selector [data-icon='arrow_drop_down']");
 
     expect(".o-menu-item").toHaveCount(1);
     await simulateClick(".o-menu-item");
