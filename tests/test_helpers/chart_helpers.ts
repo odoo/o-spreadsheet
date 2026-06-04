@@ -6,6 +6,7 @@ import {
   ChartRangeDataSource,
   CustomizedDataSet,
   Model,
+  PixelDimension,
   UID,
 } from "../../src";
 import { FIRST_CHART_COLOR, toHex } from "../../src/helpers/color";
@@ -124,20 +125,23 @@ export async function openChartDesignSidePanel(
   await simulateClick(".o-sidePanel-tab.inactive");
 }
 
-export function drawChartOnNodeCanvas(runtime: ChartJSRuntime) {
+export function drawChartOnNodeCanvas(
+  runtime: ChartJSRuntime,
+  size: PixelDimension = { width: 400, height: 400 }
+) {
   if (!areChartJSExtensionsLoaded()) {
     registerChartJSExtensions();
   }
   const config = deepCopy(runtime.chartJsConfig);
   config.options!.responsive = false;
 
-  const canvas = new Canvas(400, 400);
+  const canvas = new Canvas(size.width, size.height);
   canvas["getAttribute"] = (attribute) => {
     if (attribute === "height") {
-      return 400;
+      return size.height;
     }
     if (attribute === "width") {
-      return 400;
+      return size.width;
     }
     throw new Error(`Attribute ${attribute} not implemented in mock`);
   };

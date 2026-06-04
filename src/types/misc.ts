@@ -246,6 +246,11 @@ export interface PixelPosition {
   y: Pixel;
 }
 
+export interface PixelDimension {
+  width: Pixel;
+  height: Pixel;
+}
+
 export interface Merge extends Zone {
   id: number;
 }
