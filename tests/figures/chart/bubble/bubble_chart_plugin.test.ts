@@ -7,6 +7,7 @@ import { BubbleChartRuntime } from "../../../../src/types/chart/bubble_chart";
 import { createBubbleChart, updateChart } from "../../../test_helpers";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
+  getChartConfiguration,
   getChartLegendLabels,
   getChartTooltipItemFromDataset,
   getChartTooltipValues,
@@ -115,6 +116,35 @@ describe("bubble chart", () => {
       "1"
     );
     expect(getChartLegendLabels(model, "1")).not.toBeDefined();
+  });
+
+  test("Bubble chart legend hover highlights one bubble", () => {
+    //prettier-ignore
+    const model = createModelFromGrid({
+      A1: "A", B1: "1", C1: "2",
+      A2: "B", B2: "2", C2: "3",
+    });
+    createBubbleChart(
+      model,
+      {
+        yRanges: ["C1:C2"],
+        xRange: "B1:B2",
+        labelRange: "A1:A2",
+        bubbleColor: { color: "multiple" },
+      },
+      "1"
+    );
+    const config = getChartConfiguration(model, "1");
+    const dataset = config.data.datasets[0];
+    const legend = { chart: { ...config, update: jest.fn() } };
+
+    config.options.plugins.legend.onHover({}, { datasetIndex: 1 }, legend);
+    expect(dataset.backgroundColor).toEqual(["#4EA7F233", "#EA6175"]);
+    expect(dataset.borderColor).toEqual(["#4EA7F233", "#EA6175"]);
+
+    config.options.plugins.legend.onLeave({}, { datasetIndex: 1 }, legend);
+    expect(dataset.backgroundColor).toEqual(["#4EA7F2", "#EA6175"]);
+    expect(dataset.borderColor).toEqual(["#4EA7F2", "#EA6175"]);
   });
 
   test("bubble chart runtime uses dedicated ranges and color modes", () => {

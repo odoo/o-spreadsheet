@@ -69,6 +69,32 @@ export function resetLineChartHighlights(dataSets: ChartDataset<"line" | "radar"
   }
 }
 
+export function highlightBubbleChartItem(item: LegendItem, dataSets: ChartDataset<"line">[]) {
+  const dataset = dataSets[0];
+  const backgroundColors = dataset.hoverBackgroundColor;
+  const borderColors = dataset.hoverBorderColor;
+  if (!Array.isArray(backgroundColors) || !Array.isArray(borderColors)) {
+    return;
+  }
+  dataset.backgroundColor = backgroundColors.map((color, i) =>
+    setColorAlpha(color, i === item.datasetIndex ? 1 : HIGHLIGHT_TRANSPARENCY)
+  );
+  dataset.borderColor = borderColors.map((color, i) =>
+    setColorAlpha(color, i === item.datasetIndex ? 1 : HIGHLIGHT_TRANSPARENCY)
+  );
+}
+
+export function resetBubbleChartHighlights(dataSets: ChartDataset<"line">[]) {
+  const dataset = dataSets[0];
+  const backgroundColors = dataset.hoverBackgroundColor;
+  const borderColors = dataset.hoverBorderColor;
+  if (!Array.isArray(backgroundColors) || !Array.isArray(borderColors)) {
+    return;
+  }
+  dataset.backgroundColor = [...backgroundColors];
+  dataset.borderColor = [...borderColors];
+}
+
 export function toggleLineBarDataVisibility(
   chart: Chart<"line" | "bar" | "radar">,
   item: LegendItem
