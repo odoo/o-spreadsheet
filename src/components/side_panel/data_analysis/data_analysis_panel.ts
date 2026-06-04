@@ -1,4 +1,4 @@
-import { onWillUpdateProps, proxy } from "@odoo/owl";
+import { onWillUpdateProps, props, proxy } from "@odoo/owl";
 import { HIGHLIGHT_COLOR } from "../../../constants";
 import { lightenColor } from "../../../helpers/color";
 import {
@@ -14,6 +14,7 @@ import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { useHighlights } from "../../helpers/highlight_hook";
 import { NumberInput } from "../../number_input/number_input";
+import { types } from "../../props_validation";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { BadgeSelection } from "../components/badge_selection/badge_selection";
 import { SidePanelCollapsible } from "../components/collapsible/side_panel_collapsible";
@@ -28,9 +29,9 @@ interface Props {
 
 const CURRENT_SELECTION_COLOR = lightenColor(HIGHLIGHT_COLOR, 0.25);
 
-export class DataAnalysisPanel extends Component<Props, SpreadsheetChildEnv> {
+export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataAnalysisPanel";
-  static props = { onCloseSidePanel: Function, zones: Array };
+  protected props = props({ onCloseSidePanel: types.function(), zones: types.array(types.Zone()) });
   static components = {
     NumberInput,
     SidePanelCollapsible,

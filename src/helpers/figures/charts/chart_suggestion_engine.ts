@@ -597,7 +597,7 @@ function chartsForCategoricalVsNumber(cols: ColumnAnalysis[], getters: Getters):
     {
       title: _t("%s — Pie Chart", title),
       rationale: _t("Share of total per category."),
-      definition: pieChart(title, source, { legendPosition: "top" }),
+      definition: pieChart(title, source, { legendPosition: "top", aggregated: true }),
     },
     {
       title: _t("%s — Treemap", title),
@@ -641,22 +641,19 @@ function chartsForDateVsNumber(cols: ColumnAnalysis[], getters: Getters): ChartS
     {
       title: _t("%s — Area Chart", title),
       rationale: _t("Emphasizes total volume over time."),
-      definition: lineChart(title, source, { fillArea: true }),
+      definition: lineChart(title, source, { fillArea: true, cumulative: true }),
     },
     {
       title: _t("%s — Bar Chart", title),
       rationale: _t("Period-by-period comparison."),
       definition: barChart(title, source),
     },
-  ];
-
-  if (numCol.rowCount >= 20) {
-    suggestions.push({
+    {
       title: _t("%s — Calendar Heatmap", title),
       rationale: _t("Shows intensity variation across days of the year."),
       definition: calendarChart(title, source),
-    });
-  }
+    },
+  ];
 
   return suggestions;
 }

@@ -1,4 +1,4 @@
-import { onWillUnmount, signal } from "@odoo/owl";
+import { onWillUnmount, props, signal } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../../../constants";
 import { SpreadsheetChart } from "../../../helpers/figures/chart";
@@ -7,26 +7,19 @@ import { drawScoreChart } from "../../../helpers/figures/charts/scorecard_chart"
 import { getScorecardConfiguration } from "../../../helpers/figures/charts/scorecard_chart_config_builder";
 import { UuidGenerator } from "../../../helpers/uuid";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
-import { ChartDefinition } from "../../../types/chart/chart";
 import { GaugeChartRuntime } from "../../../types/chart/gauge_chart";
 import { ScorecardChartRuntime } from "../../../types/chart/scorecard_chart";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { types } from "../../props_validation";
 
-interface Props {
-  definition: ChartDefinition;
-  title: string;
-  rationale: string;
-  isRecommended: boolean;
-}
-
-export class ChartSuggestionPreview extends Component<Props, SpreadsheetChildEnv> {
+export class ChartSuggestionPreview extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartSuggestionPreview";
-  static props = {
-    definition: Object,
-    title: String,
-    rationale: String,
-    isRecommended: Boolean,
-  };
+  protected props = props({
+    definition: types.ChartDefinition(),
+    title: types.string(),
+    rationale: types.string(),
+    isRecommended: types.boolean(),
+  });
 
   private chartCanvasRef = signal<HTMLCanvasElement | null>(null);
   private chartDivRef = signal<HTMLDivElement | null>(null);
@@ -214,7 +207,14 @@ export class ChartSuggestionPreview extends Component<Props, SpreadsheetChildEnv
       );
       drawScoreChart(config, canvas);
     } else if (type === "gauge") {
-      drawGaugeChart(canvas, runtime as GaugeChartRuntime);
+      let gaugeRuntime = runtime as GaugeChartRuntime;
+      if (gaugeRuntime.title) {
+        gaugeRuntime = {
+          ...gaugeRuntime,
+          title: { text: "" },
+        };
+      }
+      drawGaugeChart(canvas, gaugeRuntime, 1, undefined, { labelFontSize: 8 });
     }
   }
 
