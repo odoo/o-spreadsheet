@@ -37,14 +37,14 @@ export class GaugeChartComponent extends Component<SpreadsheetChildEnv> {
     useLayoutEffect(
       () => {
         if (
-          this.env.isDashboard() &&
+          this.env.model.getters.isDashboard() &&
           lastRuntime === undefined && // first render
           this.animationStore?.animationPlayed[this.animationChartId] !== "gauge"
         ) {
           animation = this.drawGaugeWithAnimation();
           this.animationStore?.disableAnimationForChart(this.animationChartId, "gauge");
         } else if (
-          this.env.isDashboard() &&
+          this.env.model.getters.isDashboard() &&
           lastRuntime !== undefined && // not first render
           !deepEquals(this.runtime, lastRuntime)
         ) {

@@ -134,7 +134,6 @@ async function mountParent(
   const partialEnv = {
     ...testEnv,
     model,
-    isDashboard: () => model.getters.isDashboard(),
   };
   let parent: Component;
   ({ parent, fixture, env } = await mountComponent(Parent, { env: partialEnv }));

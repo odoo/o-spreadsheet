@@ -120,7 +120,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
     if (this.state.printModeEnabled) {
       properties["display"] = `block`;
     } else {
-      if (this.env.isDashboard()) {
+      if (this.env.model.getters.isDashboard()) {
         properties["grid-template-rows"] = `auto`;
       } else {
         properties["grid-template-rows"] = `min-content auto min-content`;
@@ -162,7 +162,6 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       imageProvider: fileStore ? new ImageProvider(fileStore) : undefined,
       loadCurrencies: this.model.config.external.loadCurrencies,
       loadLocales: this.model.config.external.loadLocales,
-      isDashboard: () => this.model.getters.isDashboard(),
       openSidePanel: this.sidePanel.open.bind(this.sidePanel),
       replaceSidePanel: this.sidePanel.replace.bind(this.sidePanel),
       toggleSidePanel: this.sidePanel.toggle.bind(this.sidePanel),

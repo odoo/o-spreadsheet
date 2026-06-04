@@ -70,7 +70,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
   }
 
   private getBorderWidth(): Pixel {
-    if (this.env.isDashboard()) {
+    if (this.env.model.getters.isDashboard()) {
       return 0;
     }
     return this.isSelected ? ACTIVE_BORDER_WIDTH : this.borderWidth;
@@ -252,7 +252,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
   }
 
   onContextMenu(ev: MouseEvent) {
-    if (this.env.isDashboard()) {
+    if (this.env.model.getters.isDashboard()) {
       return;
     }
     const zoomedMouseEvent = withZoom(this.env, ev);
@@ -295,7 +295,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
     return (
       this.isSelected &&
       !this.env.isMobile() &&
-      !this.env.isDashboard() &&
+      !this.env.model.getters.isDashboard() &&
       !this.env.model.getters.isCurrentSheetLocked()
     );
   }
