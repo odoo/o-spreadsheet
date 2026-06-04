@@ -19,7 +19,8 @@
               <t t-set="errorMessage" t-value="this.getHugeDimensionErrorMessage(col)"/>
               <i
                 t-if="errorMessage"
-                class="text-warning fa fa-exclamation-triangle"
+                class="text-warning oi"
+                data-icon="warning"
                 t-att-title="errorMessage"
               />
             </t>
@@ -60,7 +61,8 @@
               <t t-set="errorMessage" t-value="this.getHugeDimensionErrorMessage(row)"/>
               <i
                 t-if="errorMessage"
-                class="text-warning fa fa-exclamation-triangle"
+                class="text-warning oi"
+                data-icon="warning"
                 t-att-title="errorMessage"
               />
             </t>

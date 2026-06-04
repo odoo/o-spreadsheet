@@ -15,9 +15,9 @@
           t-on-click.stop="this.openAssistant"
           t-on-pointerdown.prevent.stop=""
           t-on-pointerup.stop=""
-          class="fa-stack position-absolute translate-middle force-open-assistant fs-4">
-          <i class="fa fa-circle fa-stack-1x fa-inverse"/>
-          <i class="fa fa-question-circle fa-stack-1x"/>
+          class="oi-stack position-absolute translate-middle force-open-assistant fs-4">
+          <i class="oi oi-filled oi-stack-1x o-composer-assistant-icon-bg" data-icon="circle"/>
+          <i class="oi oi-filled oi-stack-1x" data-icon="help"/>
         </span>
         <div
           class="o-composer w-100 text-start"
@@ -58,9 +58,9 @@
           role="button"
           t-on-click="this.closeAssistant"
           t-on-pointerdown.prevent.stop=""
-          class="fa-stack position-absolute top-0 start-100 translate-middle fs-4">
-          <i class="fa fa-circle fa-stack-1x fa-inverse"/>
-          <i class="fa fa-times-circle fa-stack-1x"/>
+          class="oi-stack position-absolute top-0 start-100 translate-middle fs-4">
+          <i class="oi oi-filled oi-stack-1x o-composer-assistant-icon-bg" data-icon="circle"/>
+          <i class="oi oi-filled oi-stack-1x" data-icon="cancel"/>
         </span>
         <div class="o-composer-assistant overflow-auto" t-att-style="this.assistantStyle">
           <FunctionDescriptionProvider

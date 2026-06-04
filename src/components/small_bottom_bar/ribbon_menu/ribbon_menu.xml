@@ -6,7 +6,7 @@
           class="o-previous-button px-3 py-1 mx-2 rounded"
           t-on-click="this.onClickBack"
           t-att-title="this.backTitle">
-          <i class="fa fa-angle-left"/>
+          <i class="oi" data-icon="keyboard_arrow_left"/>
         </div>
         <span class="d-flex align-items-center" t-out="this.state.title"/>
       </div>

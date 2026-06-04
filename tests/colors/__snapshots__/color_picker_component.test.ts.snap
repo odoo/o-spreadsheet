@@ -458,7 +458,8 @@ exports[`Color Picker buttons Full component rendering 1`] = `
       class="eyedropper d-flex align-items-center justify-content-center rounded-circle"
     >
       <i
-        class="fa fa-eyedropper"
+        class="oi"
+        data-icon="colorize"
       />
     </div>
     
@@ -492,10 +493,11 @@ exports[`Color Picker buttons Full component rendering 1`] = `
         style="margin-left: -8px;"
       >
         <div
-          class="o-icon fa-small"
+          class="o-icon"
         >
           <i
-            class="fa fa-caret-up"
+            class="oi"
+            data-icon="arrow_drop_up"
           />
         </div>
       </div>

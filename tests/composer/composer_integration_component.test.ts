@@ -971,12 +971,12 @@ describe("TopBar composer", () => {
     composerEl = document.querySelector(".o-spreadsheet-topbar .o-composer");
     expect(document.activeElement).toBe(composerEl);
     expect(fixture.querySelector(".o-formula-assistant")).toBeDefined();
-    expect(fixture.querySelector(".o-spreadsheet-topbar .fa-question-circle")).toBe(null);
-    expect(fixture.querySelector(".o-spreadsheet-topbar .fa-times-circle")).not.toBe(null);
-    await simulateClick(".o-spreadsheet-topbar .fa-times-circle");
+    expect(fixture.querySelector(".o-spreadsheet-topbar [data-icon='help']")).toBe(null);
+    expect(fixture.querySelector(".o-spreadsheet-topbar [data-icon='cancel']")).not.toBe(null);
+    await simulateClick(".o-spreadsheet-topbar [data-icon='cancel']");
     expect(document.activeElement).toBe(composerEl);
     expect(fixture.querySelector(".o-formula-assistant")).toBe(null);
-    await simulateClick(".o-spreadsheet-topbar .fa-question-circle");
+    await simulateClick(".o-spreadsheet-topbar [data-icon='help']");
     expect(fixture.querySelector(".o-formula-assistant")).toBeDefined();
     expect(document.activeElement).toBe(composerEl);
   });

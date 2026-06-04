@@ -22,7 +22,8 @@
         </t>
         <t t-if="this.isMenuAvailable()">
           <button
-            class="o-chart-menu-item btn text-muted lh-1 p-1 fa fa-ellipsis-v"
+            class="o-chart-menu-item btn text-muted lh-1 p-1 oi"
+            data-icon="more_vert"
             t-on-click="this.openContextMenu"
           />
         </t>

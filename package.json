@@ -33,11 +33,12 @@
     "bundle:xml:watch": "node tools/bundle_xml/watch_xml_templates.cjs",
     "bundle:css": "node tools/bundle_css/main.cjs",
     "bundle:css:watch": "node tools/bundle_css/watch_css_files.cjs",
+    "bundle:icons": "node tools/bundle_icons/main.cjs",
     "serve-static": "live-server --host=127.0.0.1 --open=demo --watch=build/o_spreadsheet.iife.js,build/o_spreadsheet.xml,build/o_spreadsheet.css,demo",
     "serve-static:wait": "wait-on build/o_spreadsheet.iife.js build/o_spreadsheet.xml build/o_spreadsheet.css && npm run serve-static",
     "server": "node tools/server/main.cjs",
     "dist": "tsc --module es6 --declaration --declarationDir dist/types && rolldown -c",
-    "postdist": " npm run bundle:xml -- --outDir dist && npm run bundle:css -- --out dist",
+    "postdist": " npm run bundle:xml -- --outDir dist && npm run bundle:css -- --out dist && npm run bundle:icons -- --outDir dist",
     "test": "tsc --noEmit --project tests/tsconfig.json && jest",
     "monkey": "SPREADSHEET_MONKEY_COUNT=$npm_config_monkey_count jest 'tests/collaborative/collaborative_monkey_party.test.ts'",
     "model-in-node": "npm run dist && node tools/run_in_node.mjs",
@@ -143,7 +144,6 @@
   "dependencies": {
     "@odoo/owl": "3.0.0-alpha.45",
     "bootstrap": "5.3.3",
-    "font-awesome": "^4.7.0",
     "rbush": "^3.0.1"
   },
   "jest": {

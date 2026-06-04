@@ -5,7 +5,8 @@
       class="o-figure-menu position-absolute m-2 align-items-center"
       t-if="this.shouldShowMenuButton">
       <div
-        class="o-figure-menu-item btn fa fa-ellipsis-v rounded p-1"
+        class="o-figure-menu-item btn oi rounded p-1"
+        data-icon="more_vert"
         t-on-click="this.showMenu"
         t-ref="this.menuButtonRef"
         t-on-contextmenu.prevent.stop="this.showMenu"

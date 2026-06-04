@@ -39,7 +39,7 @@
             t-if="this.env.model.getters.isReadonly()"
             class="o-readonly-toolbar d-flex flex-grow-1 align-items-center text-muted">
             <span>
-              <i class="fa fa-eye"/>
+              <i class="oi" data-icon="visibility"/>
               Readonly Access
             </span>
           </div>
@@ -110,7 +110,7 @@
         t-if="!this.env.model.getters.isAutomaticEvaluationEnabled()"
         class="topbar-banner manual-evaluation d-flex align-items-center justify-content-between border-top">
         <div class="h-100 d-flex align-items-center text-warning px-3">
-          <i class="fa fa-pause-circle me-1"/>
+          <i class="oi me-1" data-icon="pause_circle"/>
           Manual calculation
         </div>
         <div

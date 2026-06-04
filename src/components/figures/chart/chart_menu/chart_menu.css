@@ -13,6 +13,7 @@
       color: var(--os-gray-900) !important;
       height: 20px;
       width: 20px;
+      border-color: transparent;
       &.active,
       &:hover,
       &:target {

@@ -6,7 +6,7 @@ const commentPattern = /\/\/.*|\/\*[\s\S]*?\*\//g;
 const firstLevelSelectorPattern = /^(?!(\s|\}|:root)).+/gm;
 
 // Get css files in diff
-const files = execSync("git diff --name-only --cached")
+const files = execSync("git diff --name-only --cached src/")
   .toString()
   .split("\n")
   .filter((file) => file.endsWith(".css"));
