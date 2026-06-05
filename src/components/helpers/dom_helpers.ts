@@ -140,20 +140,20 @@ function findSelectionIndex(el: HTMLElement, nodeToFind: Node, nodeOffset: numbe
 
   const it = iterateChildren(el);
   let current = it.next();
-  let isFirstParagraph = true;
+  let isFirstLine = true;
   while (!current.done && current.value !== nodeToFind) {
     if (!current.value.hasChildNodes()) {
       if (current.value.textContent) {
         usedCharacters += current.value.textContent.length;
       }
     }
-    // One new paragraph = one new line character, except for the first paragraph
+    // One new line = one new line character, except for the first line
     if (
       current.value.nodeName === "P" ||
       (current.value.nodeName === "DIV" && current.value !== el) // On paste, the HTML may contain <div> instead of <p>
     ) {
-      if (isFirstParagraph) {
-        isFirstParagraph = false;
+      if (isFirstLine) {
+        isFirstLine = false;
       } else {
         usedCharacters++;
       }
@@ -177,7 +177,7 @@ function findSelectionIndex(el: HTMLElement, nodeToFind: Node, nodeOffset: numbe
           // need to account for paragraph nodes that implicitly add a new line
           // except for the last paragraph
           let chars = child.textContent.length;
-          if (child.nodeName === "P" && index !== children.length - 1) {
+          if (child.nodeName === "DIV" && index !== children.length - 1) {
             chars++;
           }
           return acc + chars;
@@ -187,7 +187,12 @@ function findSelectionIndex(el: HTMLElement, nodeToFind: Node, nodeOffset: numbe
       }, 0);
     }
   }
-  if (nodeToFind.nodeName === "P" && !isFirstParagraph && nodeToFind.textContent === "") {
+  if (
+    nodeToFind.nodeName === "DIV" &&
+    nodeToFind !== el &&
+    !isFirstLine &&
+    nodeToFind.textContent === ""
+  ) {
     usedCharacters++;
   }
   return usedCharacters;
