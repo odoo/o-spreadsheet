@@ -1,12 +1,12 @@
 import { localizeDataValidationRule } from "../../../helpers/locale";
 import { UuidGenerator } from "../../../helpers/uuid";
-import { DataValidationRule } from "../../../types/data_validation";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { types } from "../../props_validation";
 import { DataValidationPreview } from "./dv_preview/dv_preview";
 
 import { props } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
+import { DataValidationRule } from "../../../types/data_validation";
 
 export class DataValidationPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationPanel";

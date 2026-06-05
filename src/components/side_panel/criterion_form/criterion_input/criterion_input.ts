@@ -6,11 +6,12 @@ import { _t } from "../../../../translation";
 import { PropsOf } from "../../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
+import { CalendarButton } from "../calendar_button/calendar_button";
 import { types } from "../../../props_validation";
 
 export class CriterionInput extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CriterionInput";
-  static components = { StandaloneComposer: StandaloneComposer };
+  static components = { StandaloneComposer: StandaloneComposer, CalendarButton };
 
   protected props = props(
     {
@@ -22,12 +23,14 @@ export class CriterionInput extends Component<SpreadsheetChildEnv> {
       "onBlur?": types.function([]),
       "onFocus?": types.function([]),
       "disableFormulas?": types.boolean(),
+      "isDateType?": types.boolean(),
     },
     {
       value: "",
       onKeyDown: () => {},
       focused: false,
       onBlur: () => {},
+      isDateType: false,
     }
   );
 
@@ -71,19 +74,14 @@ export class CriterionInput extends Component<SpreadsheetChildEnv> {
     return allowedValues ?? "any";
   }
 
-  onInputValueChanged(ev: Event) {
-    this.state.shouldDisplayError = true;
-    this.props.onValueChanged((ev.target as HTMLInputElement).value);
-  }
-
-  onChangeComposerValue(str: string) {
+  onInputValueChanged(str: string) {
     this.state.shouldDisplayError = true;
     this.props.onValueChanged(str);
   }
 
   getDataValidationRuleInputComposerProps(): PropsOf<StandaloneComposer> {
     return {
-      onConfirm: (str: string) => this.onChangeComposerValue(str),
+      onConfirm: (str: string) => this.onInputValueChanged(str),
       composerContent: this.props.value,
       placeholder: this.placeholder,
       class: "o-sidePanel-composer",
