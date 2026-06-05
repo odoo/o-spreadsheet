@@ -22,6 +22,7 @@ import {
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { NamedRangeSelector } from "../named_range_selector/named_range_selector";
+import { useModel } from "../owl_plugins/model_plugin";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
 import { TopBarToolStore } from "./top_bar_tool_store";
@@ -79,6 +80,7 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
 
   spreadsheetRect = useSpreadsheetRect();
 
+  private model = useModel();
   setup() {
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.fingerprints = useStore(FormulaFingerprintStore);
@@ -102,7 +104,7 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
   }
 
   setVisibilityToolsGroups() {
-    if (this.env.model.getters.isReadonly()) {
+    if (this.model().getters.isReadonly()) {
       return;
     }
     const hiddenCategories: string[] = [];
@@ -154,7 +156,7 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
   }
 
   get currentFontSize(): number {
-    return this.env.model.getters.getCurrentStyle().fontSize || DEFAULT_FONT_SIZE;
+    return this.model().getters.getCurrentStyle().fontSize || DEFAULT_FONT_SIZE;
   }
 
   onExternalClick(ev: MouseEvent) {
@@ -220,7 +222,7 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
     this.state.menuState.isOpen = true;
     this.state.menuState.anchorRect = getBoundingRectAsPOJO(target);
     this.state.menuState.menuItems = menu
-      .children(this.env)
+      .children(this.model(), this.env)
       .sort((a, b) => a.sequence - b.sequence);
     this.state.menuState.parentMenu = menu;
     this.state.menuState.autoSelectFirstItem = autoSelectFirstItem;
@@ -241,16 +243,16 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
   }
 
   getMenuName(menu: Action) {
-    return menu.name(this.env);
+    return menu.name(this.model(), this.env);
   }
 
   setColor(target: string, color: Color) {
-    setStyle(this.env, { [target]: color });
+    setStyle(this.model(), { [target]: color });
     this.onClick();
   }
 
   setFontSize(fontSize: number) {
-    setStyle(this.env, { fontSize });
+    setStyle(this.model(), { fontSize });
   }
 
   toggleMoreTools() {

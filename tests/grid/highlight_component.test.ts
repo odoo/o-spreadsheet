@@ -160,6 +160,7 @@ async function mountHighlight(
   let parent: Component;
   const sheetId = model.getters.getActiveSheetId();
   ({ fixture, parent } = await mountComponent(Parent, {
+    model,
     props: { range: model.getters.getRangeFromZone(sheetId, toZone(zone)), color, model },
   }));
   return { parent: parent as Parent, model };

@@ -348,7 +348,7 @@ describe("Selection Input", () => {
 
   test("ctrl + select cell --> add new input", async () => {
     const { env, model, fixture } = await mountSpreadsheet();
-    OPEN_CF_SIDEPANEL_ACTION(env);
+    OPEN_CF_SIDEPANEL_ACTION(model, env);
     await nextTick();
     await simulateClick(".o-cf-add");
     await nextTick();
@@ -456,7 +456,7 @@ describe("Selection Input", () => {
 
   test("Input is in text-edit by default and switched to range-select when selecting on grid", async () => {
     const { env, model, fixture } = await mountSpreadsheet();
-    OPEN_CF_SIDEPANEL_ACTION(env);
+    OPEN_CF_SIDEPANEL_ACTION(model, env);
     await nextTick();
     await simulateClick(".o-cf-add");
     await nextTick();
@@ -499,7 +499,7 @@ describe("Selection Input", () => {
   test("can select full col/row grid selection as selection input data series range", async () => {
     const { env, model, fixture } = await mountSpreadsheet();
     await selectColumnByClicking(model, "B");
-    OPEN_CF_SIDEPANEL_ACTION(env);
+    OPEN_CF_SIDEPANEL_ACTION(model, env);
     await nextTick();
     await simulateClick(".o-cf-add");
     await nextTick();
@@ -585,7 +585,7 @@ describe("Selection Input", () => {
 
   test("pressing and releasing control has no effect on future clicks", async () => {
     const { env, model, fixture } = await mountSpreadsheet();
-    OPEN_CF_SIDEPANEL_ACTION(env);
+    OPEN_CF_SIDEPANEL_ACTION(model, env);
     await nextTick();
     await simulateClick(".o-cf-add");
     await nextTick();

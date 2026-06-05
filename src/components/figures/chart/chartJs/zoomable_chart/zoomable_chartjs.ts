@@ -47,7 +47,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   }
 
   get masterChartContainerStyle() {
-    const runtime = this.env.model.getters.getChartRuntime(this.props.chartId) as ChartJSRuntime;
+    const runtime = this.model().getters.getChartRuntime(this.props.chartId) as ChartJSRuntime;
     if (runtime && !runtime.chartJsConfig.data.datasets.some((ds) => ds.data.length > 1)) {
       return "opacity: 0.3;";
     }
@@ -58,7 +58,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     if (this.props.isFullScreen) {
       return true;
     }
-    const definition = this.env.model.getters.getChartDefinition(this.props.chartId);
+    const definition = this.model().getters.getChartDefinition(this.props.chartId);
     return ("zoomable" in definition && definition.zoomable) ?? false;
   }
 
@@ -369,7 +369,11 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
 
   onMasterChartPointerDown(ev: PointerEvent) {
     this.removeEventListeners();
-    const zoomedEvent = withZoom(this.env, ev, this.masterChartCanvas()?.getBoundingClientRect());
+    const zoomedEvent = withZoom(
+      this.model(),
+      ev,
+      this.masterChartCanvas()?.getBoundingClientRect()
+    );
     const position = zoomedEvent.offsetX;
     if (!this.masterChart?.chartArea || !this.chart?.scales?.x) {
       return;
@@ -440,7 +444,11 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     };
 
     const onMasterChartDrag = (ev: PointerEvent) => {
-      const zoomedEvent = withZoom(this.env, ev, this.masterChartCanvas()?.getBoundingClientRect());
+      const zoomedEvent = withZoom(
+        this.model(),
+        ev,
+        this.masterChartCanvas()?.getBoundingClientRect()
+      );
       const position = zoomedEvent.offsetX;
       if (Math.abs(position - startingEventPosition) < 5) {
         return;
@@ -478,7 +486,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   updateMasterChartCursor(ev: PointerEvent) {
     const target = ev.target;
     const { offsetX: x, offsetY: y } = withZoom(
-      this.env,
+      this.model(),
       ev,
       (target as HTMLElement)?.getBoundingClientRect()
     );
@@ -515,7 +523,11 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
 
   onMasterChartDoubleClick(ev: PointerEvent) {
     this.mode = undefined;
-    const zoomedEvent = withZoom(this.env, ev, this.masterChartCanvas()?.getBoundingClientRect());
+    const zoomedEvent = withZoom(
+      this.model(),
+      ev,
+      this.masterChartCanvas()?.getBoundingClientRect()
+    );
     const position = zoomedEvent.offsetX;
     if (!this.masterChart?.chartArea || !this.chart?.scales.x) {
       return;

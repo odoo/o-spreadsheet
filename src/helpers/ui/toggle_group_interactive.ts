@@ -1,3 +1,4 @@
+import { Model } from "../../model";
 import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
 import { Dimension, HeaderIndex, UID } from "../../types/misc";
@@ -9,18 +10,19 @@ export const ToggleGroupInteractiveContent = {
 };
 
 export function interactiveToggleGroup(
+  model: Model,
   env: SpreadsheetChildEnv,
   sheetId: UID,
   dimension: Dimension,
   start: HeaderIndex,
   end: HeaderIndex
 ) {
-  const group = env.model.getters.getHeaderGroup(sheetId, dimension, start, end);
+  const group = model.getters.getHeaderGroup(sheetId, dimension, start, end);
   if (!group) {
     return;
   }
   const command = group.isFolded ? "UNFOLD_HEADER_GROUP" : "FOLD_HEADER_GROUP";
-  const result = env.model.dispatch(command, {
+  const result = model.dispatch(command, {
     sheetId,
     dimension,
     start: group.start,

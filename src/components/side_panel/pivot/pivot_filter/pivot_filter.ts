@@ -14,6 +14,7 @@ import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { DataFilterValue } from "../../../../types/table";
 import { PivotFilterMenu } from "../../../filters/pivot_filter_menu/pivot_filter_menu";
 import { isChildEvent } from "../../../helpers/dom_helpers";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { Popover } from "../../../popover/popover";
 import { types } from "../../../props_validation";
 import { PivotDimension } from "../pivot_layout_configurator/pivot_dimension/pivot_dimension";
@@ -50,6 +51,7 @@ export class PivotFilterEditor extends Component<SpreadsheetChildEnv> {
   private buttonFilter = signal<HTMLElement | null>(null);
   private popover!: { isOpen: boolean };
 
+  private model = useModel();
   setup() {
     useExternalListener(window, "click", (ev) => {
       if (!isChildEvent(this.buttonFilter(), ev)) {
@@ -74,7 +76,7 @@ export class PivotFilterEditor extends Component<SpreadsheetChildEnv> {
       }
       return criterionEvaluatorRegistry
         .get(this.props.filter.type)
-        .getPreview(this.props.filter as GenericCriterion, this.env.model.getters);
+        .getPreview(this.props.filter as GenericCriterion, this.model().getters);
     }
 
     const numberOfHiddenValues = this.props.filter.hiddenValues.length;
@@ -90,7 +92,7 @@ export class PivotFilterEditor extends Component<SpreadsheetChildEnv> {
   }
 
   private getFilterHiddenValues(props: PropsOf<PivotFilterEditor>): Value[] {
-    const pivot = this.env.model.getters.getPivot(props.pivotId) as SpreadsheetPivot;
+    const pivot = this.model().getters.getPivot(props.pivotId) as SpreadsheetPivot;
     if (pivot.type !== "SPREADSHEET") {
       throw new Error("Filters are only available on spreadsheet pivot table");
     }
@@ -134,7 +136,7 @@ export class PivotFilterEditor extends Component<SpreadsheetChildEnv> {
   }
 
   getCell(position: CellPosition): Cell | undefined {
-    return this.env.model.getters.getCell(position);
+    return this.model().getters.getCell(position);
   }
 
   removeFilter(filter: PivotFilter) {

@@ -10,6 +10,7 @@ import { _t } from "../../../../translation";
 import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { types } from "../../../props_validation";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
@@ -42,8 +43,9 @@ export class ConditionalFormattingEditor extends Component<SpreadsheetChildEnv> 
   private activeSheetId!: UID;
   private store!: Store<ConditionalFormattingEditorStore>;
 
+  private model = useModel();
   setup() {
-    this.activeSheetId = this.env.model.getters.getActiveSheetId();
+    this.activeSheetId = this.model().getters.getActiveSheetId();
     this.store = useLocalStore(
       ConditionalFormattingEditorStore,
       deepCopy(this.props.cf),
@@ -58,15 +60,15 @@ export class ConditionalFormattingEditor extends Component<SpreadsheetChildEnv> 
           );
         }
       },
-      () => [this.env.model.getters.getActiveSheetId(), this.isEditedCfRemoved]
+      () => [this.model().getters.getActiveSheetId(), this.isEditedCfRemoved]
     );
     useExternalListener(window as any, "click", () => this.store.closeMenus());
   }
 
   get isEditedCfRemoved() {
     return !Boolean(
-      this.env.model.getters
-        .getConditionalFormats(this.activeSheetId)
+      this.model()
+        .getters.getConditionalFormats(this.activeSheetId)
         .find((cf) => cf.id === this.props.cf.id)
     );
   }
@@ -94,15 +96,15 @@ export class ConditionalFormattingEditor extends Component<SpreadsheetChildEnv> 
   onCancel() {
     if (this.store.state.hasEditedCf) {
       if (this.props.isNewCf) {
-        this.env.model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+        this.model().dispatch("REMOVE_CONDITIONAL_FORMAT", {
           sheetId: this.activeSheetId,
           id: this.props.cf.id,
         });
       } else {
-        this.env.model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        this.model().dispatch("ADD_CONDITIONAL_FORMAT", {
           cf: this.props.cf,
           ranges: this.props.cf.ranges.map((range) =>
-            this.env.model.getters.getRangeDataFromXc(this.activeSheetId, range)
+            this.model().getters.getRangeDataFromXc(this.activeSheetId, range)
           ),
           sheetId: this.activeSheetId,
         });

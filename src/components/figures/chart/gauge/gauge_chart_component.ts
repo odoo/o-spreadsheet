@@ -7,6 +7,7 @@ import { useStore } from "../../../../store_engine/store_hooks";
 import { GaugeChartRuntime } from "../../../../types/chart/gauge_chart";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { ChartAnimationStore } from "../chartJs/chartjs_animation_store";
 
 const ANIMATION_DURATION = 1000;
@@ -23,12 +24,14 @@ export class GaugeChartComponent extends Component<SpreadsheetChildEnv> {
 
   private animationStore: Store<ChartAnimationStore> | undefined;
 
+  private model = useModel();
+
   get runtime(): GaugeChartRuntime {
-    return this.env.model.getters.getChartRuntime(this.props.chartId) as GaugeChartRuntime;
+    return this.model().getters.getChartRuntime(this.props.chartId) as GaugeChartRuntime;
   }
 
   setup() {
-    if (this.env.model.getters.isDashboard()) {
+    if (this.model().getters.isDashboard()) {
       this.animationStore = useStore(ChartAnimationStore);
     }
 
@@ -37,21 +40,21 @@ export class GaugeChartComponent extends Component<SpreadsheetChildEnv> {
     useLayoutEffect(
       () => {
         if (
-          this.env.model.getters.isDashboard() &&
+          this.model().getters.isDashboard() &&
           lastRuntime === undefined && // first render
           this.animationStore?.animationPlayed[this.animationChartId] !== "gauge"
         ) {
           animation = this.drawGaugeWithAnimation();
           this.animationStore?.disableAnimationForChart(this.animationChartId, "gauge");
         } else if (
-          this.env.model.getters.isDashboard() &&
+          this.model().getters.isDashboard() &&
           lastRuntime !== undefined && // not first render
           !deepEquals(this.runtime, lastRuntime)
         ) {
           animation = this.drawGaugeWithAnimation();
           this.animationStore?.disableAnimationForChart(this.animationChartId, "gauge");
         } else {
-          const zoom = this.env.model.getters.getViewportZoomLevel();
+          const zoom = this.model().getters.getViewportZoomLevel();
           drawGaugeChart(this.canvasEl, this.runtime, zoom);
         }
 
@@ -72,7 +75,7 @@ export class GaugeChartComponent extends Component<SpreadsheetChildEnv> {
         animation.stop();
         animation = null;
       }
-      drawGaugeChart(this.canvasEl, this.runtime, this.env.model.getters.getViewportZoomLevel());
+      drawGaugeChart(this.canvasEl, this.runtime, this.model().getters.getViewportZoomLevel());
     });
     onMounted(() => {
       const canvas = this.canvas();

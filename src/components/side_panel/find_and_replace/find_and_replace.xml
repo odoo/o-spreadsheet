@@ -78,7 +78,7 @@
           <ValidationMessages msgType="'info'" messages="this.searchInfo" singleBox="true"/>
         </div>
       </Section>
-      <t t-if="!this.env.model.getters.isReadonly()">
+      <t t-if="!this.model().getters.isReadonly()">
         <Section class="'pt-0'" title.translate="Replace">
           <div class="o-input-search-container">
             <input

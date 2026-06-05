@@ -6,6 +6,7 @@ import { useLocalStore } from "../../../../../store_engine/store_hooks";
 import { SpreadsheetPivotCoreDefinition } from "../../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Store } from "../../../../../types/store_engine";
+import { useModel } from "../../../../owl_plugins/model_plugin";
 import { types } from "../../../../props_validation";
 import { SelectionInput } from "../../../../selection_input/selection_input";
 import { Checkbox } from "../../../components/checkbox/checkbox";
@@ -40,6 +41,7 @@ export class PivotSpreadsheetSidePanel extends Component<SpreadsheetChildEnv> {
 
   pivotSidePanelRef = signal<HTMLElement | null>(null);
 
+  private model = useModel();
   setup() {
     this.store = useLocalStore(PivotSidePanelStore, this.props.pivotId);
     this.state = proxy({
@@ -60,7 +62,7 @@ export class PivotSpreadsheetSidePanel extends Component<SpreadsheetChildEnv> {
       return [this.state.range];
     }
     if (this.definition.range) {
-      return [this.env.model.getters.getRangeString(this.definition.range, "forceSheetReference")];
+      return [this.model().getters.getRangeString(this.definition.range, "forceSheetReference")];
     }
     return [];
   }
@@ -84,8 +86,8 @@ export class PivotSpreadsheetSidePanel extends Component<SpreadsheetChildEnv> {
 
   onSelectionConfirmed() {
     if (this.state.range) {
-      const range = this.env.model.getters.getRangeFromSheetXC(
-        this.env.model.getters.getActiveSheetId(),
+      const range = this.model().getters.getRangeFromSheetXC(
+        this.model().getters.getActiveSheetId(),
         this.state.range
       );
       if (range.invalidSheetName || range.invalidXc) {
@@ -116,7 +118,7 @@ export class PivotSpreadsheetSidePanel extends Component<SpreadsheetChildEnv> {
   }
 
   addFilter(fieldName: string) {
-    const { filters } = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
+    const { filters } = this.model().getters.getPivotCoreDefinition(this.props.pivotId);
     this.onFiltersUpdated({
       filters: (filters ?? []).concat([
         {

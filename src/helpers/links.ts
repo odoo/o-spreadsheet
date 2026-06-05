@@ -1,3 +1,4 @@
+import { Model } from "../model";
 import { Registry } from "../registries/registry";
 import { _t } from "../translation";
 import { CellValue } from "../types/cells";
@@ -35,11 +36,19 @@ export interface LinkSpec {
    * - a link to a sheet displays the sheet name
    */
   readonly urlRepresentation: (url: string, getters: CoreGetters) => string;
-  readonly open: (url: string, env: SpreadsheetChildEnv, isMiddleClick?: boolean) => void;
+  readonly open: (
+    url: string,
+    model: Model,
+    env: SpreadsheetChildEnv,
+    isMiddleClick?: boolean
+  ) => void;
   readonly sequence: number;
   readonly title: string;
   readonly icon?: string;
-  readonly getLinkProposals?: (env: SpreadsheetChildEnv) => (Link & { icon: string })[];
+  readonly getLinkProposals?: (
+    model: Model,
+    env: SpreadsheetChildEnv
+  ) => (Link & { icon: string })[];
 }
 
 export const urlRegistry = new Registry<LinkSpec>();
@@ -68,10 +77,10 @@ urlRegistry.add("sheet_URL", {
     const sheetId = parseSheetUrl(url);
     return getters.tryGetSheetName(sheetId) || _t("Invalid sheet");
   },
-  open(url, env) {
+  open(url, model, env) {
     const sheetId = parseSheetUrl(url);
-    const result = env.model.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: env.model.getters.getActiveSheetId(),
+    const result = model.dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: model.getters.getActiveSheetId(),
       sheetIdTo: sheetId,
     });
     if (result.isCancelledBecause(CommandResult.SheetIsHidden)) {
@@ -84,9 +93,9 @@ urlRegistry.add("sheet_URL", {
   },
   sequence: 0,
   title: _t("Sheets"),
-  getLinkProposals(env) {
-    return env.model.getters.getSheetIds().map((sheetId) => {
-      const sheet = env.model.getters.getSheet(sheetId);
+  getLinkProposals(model, env) {
+    return model.getters.getSheetIds().map((sheetId) => {
+      const sheet = model.getters.getSheet(sheetId);
       return {
         ...this.createLink(buildSheetLink(sheetId), sheet.name),
         icon: "o-spreadsheet-Icon.INSERT_SHEET",
@@ -117,8 +126,13 @@ export function urlRepresentation(link: Link, getters: CoreGetters): string {
   return findMatchingSpec(link.url).urlRepresentation(link.url, getters);
 }
 
-export function openLink(link: Link, env: SpreadsheetChildEnv, isMiddleClick?: boolean) {
-  findMatchingSpec(link.url).open(link.url, env, isMiddleClick);
+export function openLink(
+  link: Link,
+  model: Model,
+  env: SpreadsheetChildEnv,
+  isMiddleClick?: boolean
+) {
+  findMatchingSpec(link.url).open(link.url, model, env, isMiddleClick);
 }
 
 export function detectLink(value: CellValue | null): Link | undefined {

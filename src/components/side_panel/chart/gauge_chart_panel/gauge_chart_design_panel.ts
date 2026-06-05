@@ -10,6 +10,7 @@ import { Color, ValueAndLabel } from "../../../../types/misc";
 import { PropsOf } from "../../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { Select } from "../../../select/select";
 import { ChartTerms } from "../../../translations_terms";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -43,6 +44,7 @@ export class GaugeChartDesignPanel extends Component<SpreadsheetChildEnv> {
 
   protected state!: PanelState;
 
+  private model = useModel();
   setup() {
     this.state = proxy<PanelState>({
       sectionRuleCancelledReasons: new Set(
@@ -185,11 +187,11 @@ export class GaugeChartDesignPanel extends Component<SpreadsheetChildEnv> {
   }
 
   private valueIsValidNumber(value: string): boolean {
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     if (!value.startsWith("=")) {
       return tryToNumber(value, locale) !== undefined;
     }
-    const evaluatedValue = this.env.model.getters.evaluateFormula(this.sheetId, value);
+    const evaluatedValue = this.model().getters.evaluateFormula(this.sheetId, value);
     if (isMultipleElementMatrix(evaluatedValue)) {
       return false;
     }
@@ -197,7 +199,7 @@ export class GaugeChartDesignPanel extends Component<SpreadsheetChildEnv> {
   }
 
   get sheetId() {
-    const chart = this.env.model.getters.getChart(this.props.chartId);
+    const chart = this.model().getters.getChart(this.props.chartId);
     if (!chart) {
       throw new Error("Chart not found with id " + this.props.chartId);
     }

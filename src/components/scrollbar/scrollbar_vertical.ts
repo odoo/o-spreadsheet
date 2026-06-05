@@ -2,6 +2,7 @@ import { props, xml } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { isBrowserFirefox } from "../helpers/dom_helpers";
+import { useModel } from "../owl_plugins/model_plugin";
 import { types } from "../props_validation";
 import { ScrollBar } from "./scrollbar";
 
@@ -26,24 +27,26 @@ export class VerticalScrollBar extends Component<SpreadsheetChildEnv> {
     }
   );
 
+  private model = useModel();
+
   get offset() {
-    return this.env.model.getters.getActiveSheetScrollInfo().scrollY;
+    return this.model().getters.getActiveSheetScrollInfo().scrollY;
   }
 
   get height() {
-    return this.env.model.getters.getMainViewportRect().height;
+    return this.model().getters.getMainViewportRect().height;
   }
 
   get isDisplayed() {
-    const { yRatio } = this.env.model.getters.getFrozenSheetViewRatio(
-      this.env.model.getters.getActiveSheetId()
+    const { yRatio } = this.model().getters.getFrozenSheetViewRatio(
+      this.model().getters.getActiveSheetId()
     );
     return yRatio < 1;
   }
 
   get position() {
-    const { y } = this.env.model.getters.getMainViewportRect();
-    const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
+    const { y } = this.model().getters.getMainViewportRect();
+    const scrollbarWidth = this.model().getters.getScrollBarWidth();
     return {
       top: `${this.props.topOffset + y}px`,
       right: "0px",
@@ -53,8 +56,8 @@ export class VerticalScrollBar extends Component<SpreadsheetChildEnv> {
   }
 
   onScroll(offset) {
-    const { scrollX } = this.env.model.getters.getActiveSheetScrollInfo();
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
+    const { scrollX } = this.model().getters.getActiveSheetScrollInfo();
+    this.model().dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: scrollX, // offsetX is the same
       offsetY: offset,
     });

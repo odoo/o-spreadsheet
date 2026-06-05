@@ -7,8 +7,8 @@
       <div
         class="o-carousel-header d-flex align-items-baseline flex-shrink-0 pe-1 pe-auto"
         t-att-class="{
-          'border-bottom': this.env.model.getters.isDashboard(),
-          'o-carousel-header-floating': !this.env.model.getters.isDashboard() and selectedItem?.type === 'carouselDataView',
+          'border-bottom': this.model().getters.isDashboard(),
+          'o-carousel-header-floating': !this.model().getters.isDashboard() and selectedItem?.type === 'carouselDataView',
          }"
         t-att-style="this.headerStyle">
         <div
@@ -46,7 +46,7 @@
           />
         </div>
         <div
-          t-if="this.env.model.getters.isDashboard()"
+          t-if="this.model().getters.isDashboard()"
           t-att-title="this.fullScreenButtonTitle"
           class="o-carousel-full-screen-button fa o-carousel-button rounded p-1 ms-1"
           t-att-class="{
@@ -57,7 +57,7 @@
           t-on-click="this.toggleFullScreen"
         />
         <div
-          t-if="!this.env.model.getters.isDashboard()"
+          t-if="!this.model().getters.isDashboard()"
           class="o-carousel-menu-button o-carousel-button fa fa-ellipsis-v rounded ms-1"
           t-on-click="this.openContextMenu"
         />
@@ -79,7 +79,7 @@
           />
         </div>
         <ChartDashboardMenu
-          t-if="this.env.model.getters.isDashboard()"
+          t-if="this.model().getters.isDashboard()"
           chartId="selectedItem.chartId"
           hasFullScreenButton="false"
           t-key="selectedItem.chartId"

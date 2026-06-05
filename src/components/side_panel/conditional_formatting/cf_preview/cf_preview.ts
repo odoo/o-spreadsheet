@@ -8,6 +8,7 @@ import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { cellStyleToCss, cssPropertiesToCss } from "../../../helpers/css";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
 import { ICONS } from "../../../icons/icons";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { types } from "../../../props_validation";
 import { CfTerms } from "../../../translations_terms";
 
@@ -22,6 +23,7 @@ export class ConditionalFormatPreview extends Component<SpreadsheetChildEnv> {
   icons = ICONS;
   private cfPreviewRef = signal<HTMLElement | null>(null);
 
+  private model = useModel();
   setup() {
     useHighlightsOnHover(this.cfPreviewRef, this);
   }
@@ -52,7 +54,7 @@ export class ConditionalFormatPreview extends Component<SpreadsheetChildEnv> {
       case "CellIsRule":
         return criterionEvaluatorRegistry
           .get(cf.rule.operator)
-          .getPreview({ ...cf.rule, type: cf.rule.operator }, this.env.model.getters);
+          .getPreview({ ...cf.rule, type: cf.rule.operator }, this.model().getters);
       case "ColorScaleRule":
         return CfTerms.ColorScale;
       case "IconSetRule":
@@ -63,9 +65,9 @@ export class ConditionalFormatPreview extends Component<SpreadsheetChildEnv> {
   }
 
   get highlights(): Highlight[] {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     return this.props.conditionalFormat.ranges.map((range) => ({
-      range: this.env.model.getters.getRangeFromSheetXC(sheetId, range),
+      range: this.model().getters.getRangeFromSheetXC(sheetId, range),
       color: HIGHLIGHT_COLOR,
       fillAlpha: 0.06,
     }));
@@ -79,9 +81,9 @@ export class ConditionalFormatPreview extends Component<SpreadsheetChildEnv> {
   }
 
   deleteConditionalFormat() {
-    this.env.model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+    this.model().dispatch("REMOVE_CONDITIONAL_FORMAT", {
       id: this.props.conditionalFormat.id,
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.model().getters.getActiveSheetId(),
     });
   }
 }

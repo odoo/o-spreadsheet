@@ -92,7 +92,7 @@ cellMenuRegistry
   .add("edit_table", {
     ...ACTION_EDIT.editTable,
     isVisible: ACTIONS.SELECTION_CONTAINS_SINGLE_TABLE,
-    isEnabled: (env) => !env.isSmall,
+    isEnabled: (model, env) => !env.isSmall,
     sequence: 140,
   })
   .add("delete_table", {
@@ -143,9 +143,9 @@ cellMenuRegistry
     name: _t("Sort pivot"),
     sequence: 155,
     icon: "o-spreadsheet-Icon.SORT_RANGE",
-    isVisible: (env) => {
-      const position = env.model.getters.getActivePosition();
-      return ACTIONS_PIVOT.canSortPivot(env.model.getters, position);
+    isVisible: (model) => {
+      const position = model.getters.getActivePosition();
+      return ACTIONS_PIVOT.canSortPivot(model.getters, position);
     },
   })
   .add("pivot_fix_formulas", {

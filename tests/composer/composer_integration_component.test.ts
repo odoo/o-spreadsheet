@@ -730,13 +730,13 @@ describe("Grid composer", () => {
     test("Grid Composer Position is recomputed if we change the edited cell", async () => {
       const expectedTop = (index: HeaderIndex) => HEADER_HEIGHT + index * DEFAULT_CELL_HEIGHT;
       const expectedLeft = (index: HeaderIndex) => HEADER_WIDTH + index * DEFAULT_CELL_WIDTH - 1; //-1 to include cell border
-      env.model.selection.selectCell(2, 4);
+      model.selection.selectCell(2, 4);
       await typeInComposerGrid("coucou", true);
       expect(getElComputedStyle(composerContainerSelector, "top")).toBe(expectedTop(4) + "px");
       expect(getElComputedStyle(composerContainerSelector, "left")).toBe(expectedLeft(2) + "px");
 
-      env.model.selection.getBackToDefault();
-      env.model.selection.selectCell(1, 1);
+      model.selection.getBackToDefault();
+      model.selection.selectCell(1, 1);
       env.startCellEdition();
       await nextTick();
       expect(getElComputedStyle(composerContainerSelector, "top")).toBe(expectedTop(1) + "px");

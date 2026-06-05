@@ -11,6 +11,7 @@ import {
   useDragAndDropBeyondTheViewport,
 } from "../../helpers/drag_and_drop_grid_hook";
 import { withZoom } from "../../helpers/zoom";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 import { Border } from "../border/border";
 import { Corner } from "../corner/corner";
@@ -29,11 +30,12 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
     range: types.Range(),
     color: types.Color(),
   });
+  private model = useModel();
 
   highlightState: HighlightState = proxy({
     shiftingMode: "none",
   });
-  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.model());
 
   get cornerOrientations(): Array<"nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w"> {
     if (!this.env.isMobile()) {
@@ -50,8 +52,8 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
   }
 
   onResizeHighlight(ev: PointerEvent, dirX: ResizeDirection, dirY: ResizeDirection) {
-    const activeSheetId = this.env.model.getters.getActiveSheetId();
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const activeSheetId = this.model().getters.getActiveSheetId();
+    const zoomedMouseEvent = withZoom(this.model(), ev);
     this.highlightState.shiftingMode = "isResizing";
     const z = this.props.range.zone;
 
@@ -68,7 +70,7 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
       scrollDirection = dirX === 0 ? "vertical" : dirY === 0 ? "horizontal" : "all";
     }
 
-    this.env.model.dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
+    this.model().dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
 
     const mouseMove = (col: HeaderIndex, row: HeaderIndex) => {
       if (lastCol !== col || lastRow !== row) {
@@ -78,7 +80,7 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
           lastRow = lastRow = clip(
             row === -1 ? lastRow : row,
             0,
-            this.env.model.getters.getNumberRows(activeSheetId) - 1
+            this.model().getters.getNumberRows(activeSheetId) - 1
           );
           top = Math.min(pivotRow, lastRow);
           bottom = Math.max(pivotRow, lastRow);
@@ -88,7 +90,7 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
           lastCol = clip(
             col === -1 ? lastCol : col,
             0,
-            this.env.model.getters.getNumberCols(activeSheetId) - 1
+            this.model().getters.getNumberCols(activeSheetId) - 1
           );
           left = Math.min(pivotCol, lastCol);
           right = Math.max(pivotCol, lastCol);
@@ -96,7 +98,7 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
 
         const newZone: Zone = { left, right, top, bottom };
         if (!isEqual(newZone, currentZone)) {
-          this.env.model.selection.selectZone(
+          this.model().selection.selectZone(
             {
               cell: { col: newZone.left, row: newZone.top },
               zone: newZone,
@@ -118,23 +120,23 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
     this.highlightState.shiftingMode = "isMoving";
     const z = this.props.range.zone;
 
-    const zoomLevel = this.env.model.getters.getViewportZoomLevel();
+    const zoomLevel = this.model().getters.getViewportZoomLevel();
     const position = gridOverlayPosition(zoomLevel);
-    const zoomedMouseEvent = withZoom(this.env, ev, position);
+    const zoomedMouseEvent = withZoom(this.model(), ev, position);
 
-    const activeSheetId = this.env.model.getters.getActiveSheetId();
+    const activeSheetId = this.model().getters.getActiveSheetId();
 
-    const initCol = this.env.model.getters.getColIndex(zoomedMouseEvent.clientX - position.x);
-    const initRow = this.env.model.getters.getRowIndex(zoomedMouseEvent.clientY - position.y);
+    const initCol = this.model().getters.getColIndex(zoomedMouseEvent.clientX - position.x);
+    const initRow = this.model().getters.getRowIndex(zoomedMouseEvent.clientY - position.y);
 
     const deltaColMin = -z.left;
-    const deltaColMax = this.env.model.getters.getNumberCols(activeSheetId) - z.right - 1;
+    const deltaColMax = this.model().getters.getNumberCols(activeSheetId) - z.right - 1;
 
     const deltaRowMin = -z.top;
-    const deltaRowMax = this.env.model.getters.getNumberRows(activeSheetId) - z.bottom - 1;
+    const deltaRowMax = this.model().getters.getNumberRows(activeSheetId) - z.bottom - 1;
 
     let currentZone = z;
-    this.env.model.dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
+    this.model().dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
 
     let lastCol = initCol;
     let lastRow = initRow;
@@ -154,7 +156,7 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
         };
 
         if (!isEqual(newZone, currentZone)) {
-          this.env.model.selection.selectZone(
+          this.model().selection.selectZone(
             {
               cell: { col: newZone.left, row: newZone.top },
               zone: newZone,

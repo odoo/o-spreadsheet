@@ -8,6 +8,7 @@ import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 import { props } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
+import { useModel } from "../owl_plugins/model_plugin";
 import { types } from "../props_validation";
 const ERROR_TOOLTIP_MAX_HEIGHT = 80;
 
@@ -20,12 +21,14 @@ export class ErrorToolTip extends Component<SpreadsheetChildEnv> {
     "onClosed?": types.function([]),
   });
 
+  private model = useModel();
+
   get dataValidationErrorMessage() {
-    return this.env.model.getters.getInvalidDataValidationMessage(this.props.cellPosition);
+    return this.model().getters.getInvalidDataValidationMessage(this.props.cellPosition);
   }
 
   get evaluationError() {
-    const cell = this.env.model.getters.getEvaluatedCell(this.props.cellPosition);
+    const cell = this.model().getters.getEvaluatedCell(this.props.cellPosition);
     if (cell.message) {
       return cell;
     }
@@ -33,7 +36,7 @@ export class ErrorToolTip extends Component<SpreadsheetChildEnv> {
   }
 
   get errorOriginPositionString() {
-    if (this.env.model.getters.isDashboard()) {
+    if (this.model().getters.isDashboard()) {
       return "";
     }
     const evaluationError = this.evaluationError;
@@ -42,9 +45,9 @@ export class ErrorToolTip extends Component<SpreadsheetChildEnv> {
       return "";
     }
     const sheetId = position.sheetId;
-    return this.env.model.getters.getRangeString(
-      this.env.model.getters.getRangeFromZone(sheetId, positionToZone(position)),
-      this.env.model.getters.getActiveSheetId()
+    return this.model().getters.getRangeString(
+      this.model().getters.getRangeFromZone(sheetId, positionToZone(position)),
+      this.model().getters.getActiveSheetId()
     );
   }
 
@@ -53,14 +56,14 @@ export class ErrorToolTip extends Component<SpreadsheetChildEnv> {
     if (!position) {
       return;
     }
-    const activeSheetId = this.env.model.getters.getActiveSheetId();
+    const activeSheetId = this.model().getters.getActiveSheetId();
     if (position.sheetId !== activeSheetId) {
-      this.env.model.dispatch("ACTIVATE_SHEET", {
+      this.model().dispatch("ACTIVATE_SHEET", {
         sheetIdFrom: activeSheetId,
         sheetIdTo: position.sheetId,
       });
     }
-    this.env.model.selection.selectCell(position.col, position.row);
+    this.model().selection.selectCell(position.col, position.row);
   }
 
   get isSpillErrorBecauseOfMissingHeaders() {
@@ -68,7 +71,7 @@ export class ErrorToolTip extends Component<SpreadsheetChildEnv> {
     return (
       evaluationError?.value === CellErrorType.SpilledBlocked &&
       !evaluationError.errorOriginPosition &&
-      !this.env.model.getters.getSpreadZone(this.props.cellPosition, { ignoreSpillError: true })
+      !this.model().getters.getSpreadZone(this.props.cellPosition, { ignoreSpillError: true })
     );
   }
 
@@ -76,36 +79,32 @@ export class ErrorToolTip extends Component<SpreadsheetChildEnv> {
     if (!this.isSpillErrorBecauseOfMissingHeaders) {
       return;
     }
-    const cell = this.env.model.getters.getCell(this.props.cellPosition);
+    const cell = this.model().getters.getCell(this.props.cellPosition);
     if (!cell || !cell.isFormula) {
       return;
     }
-    const formula = cell.compiledFormula.toFormulaString(this.env.model.getters);
-    return getMissingHeadersForSpreadResult(
-      this.env.model.getters,
-      this.props.cellPosition,
-      formula
-    );
+    const formula = cell.compiledFormula.toFormulaString(this.model().getters);
+    return getMissingHeadersForSpreadResult(this.model().getters, this.props.cellPosition, formula);
   }
 
   addMissingHeaders({ missingCols, missingRows }: { missingCols: number; missingRows: number }) {
     const sheetId = this.props.cellPosition.sheetId;
     if (missingCols > 0) {
-      this.env.model.dispatch("ADD_COLUMNS_ROWS", {
+      this.model().dispatch("ADD_COLUMNS_ROWS", {
         sheetId,
-        sheetName: this.env.model.getters.getSheetName(sheetId),
+        sheetName: this.model().getters.getSheetName(sheetId),
         dimension: "COL",
-        base: this.env.model.getters.getNumberCols(sheetId) - 1,
+        base: this.model().getters.getNumberCols(sheetId) - 1,
         position: "after",
         quantity: missingCols + 20,
       });
     }
     if (missingRows > 0) {
-      this.env.model.dispatch("ADD_COLUMNS_ROWS", {
+      this.model().dispatch("ADD_COLUMNS_ROWS", {
         sheetId,
-        sheetName: this.env.model.getters.getSheetName(sheetId),
+        sheetName: this.model().getters.getSheetName(sheetId),
         dimension: "ROW",
-        base: this.env.model.getters.getNumberRows(sheetId) - 1,
+        base: this.model().getters.getNumberRows(sheetId) - 1,
         position: "after",
         quantity: missingRows + 50,
       });

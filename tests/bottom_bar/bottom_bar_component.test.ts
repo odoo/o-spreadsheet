@@ -394,8 +394,8 @@ describe("BottomBar component", () => {
     const sheetName = "New name";
     const raiseError = jest.fn();
     const model = new Model({}, { mode: "readonly" });
-    const env = makeTestEnv({ model, raiseError });
-    interactiveRenameSheet(env, model.getters.getActiveSheetId(), sheetName, raiseError);
+    const env = makeTestEnv(model, { raiseError });
+    interactiveRenameSheet(model, env, model.getters.getActiveSheetId(), sheetName, raiseError);
     expect(raiseError).not.toHaveBeenCalled();
     expect(model.getters.getActiveSheet().name).toEqual("Sheet1");
   });

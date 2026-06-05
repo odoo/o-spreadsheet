@@ -212,9 +212,9 @@ describe("Simple Spreadsheet Component", () => {
   test("Insert a function properly sets the edition", async () => {
     ({ model, parent, fixture, env } = await mountSpreadsheet());
     const composerStore = env.getStore(CellComposerStore);
-    await doAction(["insert", "insert_function", "insert_function_sum"], env);
+    await doAction(["insert", "insert_function", "insert_function_sum"], model, env);
     expect(composerStore.currentContent).toBe("=SUM(");
-    await doAction(["insert", "insert_function", "insert_function_sum"], env);
+    await doAction(["insert", "insert_function", "insert_function_sum"], model, env);
     expect(composerStore.currentContent).toBe("=SUM(");
   });
 });
@@ -356,7 +356,7 @@ describe("Composer / selectionInput interactions", () => {
     const composerStore = env.getStore(CellComposerStore);
     //open cf sidepanel
     selectCell(model, "B2");
-    OPEN_CF_SIDEPANEL_ACTION(env);
+    OPEN_CF_SIDEPANEL_ACTION(model, env);
     await nextTick();
     await simulateClick(".o-selection-input input");
 
@@ -379,7 +379,7 @@ describe("Composer / selectionInput interactions", () => {
     "Switching from grid composer to selection input should update the highlights and hide the highlight components",
     async (composerContent) => {
       selectCell(model, "B2");
-      OPEN_CF_SIDEPANEL_ACTION(env);
+      OPEN_CF_SIDEPANEL_ACTION(model, env);
       await nextTick();
 
       await startGridComposition(composerContent);
@@ -394,7 +394,7 @@ describe("Composer / selectionInput interactions", () => {
   test("Switching from composer to selection input should update the highlights and the highlight components", async () => {
     const highlightStore = env.getStore(HighlightStore);
     selectCell(model, "B2");
-    OPEN_CF_SIDEPANEL_ACTION(env);
+    OPEN_CF_SIDEPANEL_ACTION(model, env);
     await nextTick();
 
     await simulateClick(".o-spreadsheet-topbar .o-composer");
@@ -432,7 +432,7 @@ describe("Composer / selectionInput interactions", () => {
 
   test("switching to selection input deactivates the autofill", async () => {
     selectCell(model, "B2");
-    OPEN_CF_SIDEPANEL_ACTION(env);
+    OPEN_CF_SIDEPANEL_ACTION(model, env);
     await nextTick();
 
     expect(fixture.querySelector(".o-autofill")).not.toBeNull();
@@ -487,8 +487,7 @@ test("*isSmall* is properly recomputed when changing window size", async () => {
       });
     }
   }
-  const env = { model };
-  const { parent } = await mountComponent(Parent, { env });
+  const { parent } = await mountComponent(Parent, { model });
   expect(parent.env.isSmall).toBeFalsy();
   spreadsheetWidth = 500;
   parent.render();

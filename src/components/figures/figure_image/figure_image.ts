@@ -1,9 +1,9 @@
+import { props } from "@odoo/owl";
+import { Component } from "../../../owl3_compatibility_layer";
 import { CSSProperties, UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-
-import { props } from "@odoo/owl";
-import { Component } from "../../../owl3_compatibility_layer";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 
 export class ImageFigure extends Component<SpreadsheetChildEnv> {
@@ -19,6 +19,8 @@ export class ImageFigure extends Component<SpreadsheetChildEnv> {
     ]),
   });
 
+  private model = useModel();
+
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
@@ -28,6 +30,6 @@ export class ImageFigure extends Component<SpreadsheetChildEnv> {
   }
 
   get getImagePath(): string {
-    return this.env.model.getters.getImagePath(this.figureId);
+    return this.model().getters.getImagePath(this.figureId);
   }
 }

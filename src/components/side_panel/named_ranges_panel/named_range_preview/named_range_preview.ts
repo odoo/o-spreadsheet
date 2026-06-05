@@ -5,6 +5,7 @@ import { Component } from "../../../../owl3_compatibility_layer";
 import { Highlight } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { types } from "../../../props_validation";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { TextInput } from "../../../text_input/text_input";
@@ -26,6 +27,7 @@ export class NamedRangePreview extends Component<SpreadsheetChildEnv> {
 
   private namedRangePreviewRef = signal<HTMLElement | null>(null);
 
+  private model = useModel();
   setup() {
     useHighlightsOnHover(this.namedRangePreviewRef, this);
   }
@@ -38,17 +40,17 @@ export class NamedRangePreview extends Component<SpreadsheetChildEnv> {
   }
 
   deleteNamedRange() {
-    this.env.model.dispatch("DELETE_NAMED_RANGE", {
+    this.model().dispatch("DELETE_NAMED_RANGE", {
       name: this.props.namedRange.name,
     });
   }
 
   updateNamedRangeName(newName: string) {
     newName = newName.replace(/ /g, "_");
-    interactiveUpdateNamedRange(this.env, {
+    interactiveUpdateNamedRange(this.model(), this.env, {
       oldRangeName: this.props.namedRange.name,
       newRangeName: newName,
-      ranges: [this.env.model.getters.getRangeData(this.props.namedRange.range)],
+      ranges: [this.model().getters.getRangeData(this.props.namedRange.range)],
     });
   }
 
@@ -59,18 +61,18 @@ export class NamedRangePreview extends Component<SpreadsheetChildEnv> {
   onSelectionInputConfirmed() {
     this.state.isSelectionInputFocused = false;
     if (this.state.currentRange) {
-      const range = this.env.model.getters.getRangeFromSheetXC(
-        this.env.model.getters.getActiveSheetId(),
+      const range = this.model().getters.getRangeFromSheetXC(
+        this.model().getters.getActiveSheetId(),
         this.state.currentRange
       );
       if (range.invalidSheetName || range.invalidXc) {
         return;
       }
 
-      interactiveUpdateNamedRange(this.env, {
+      interactiveUpdateNamedRange(this.model(), this.env, {
         oldRangeName: this.props.namedRange.name,
         newRangeName: this.props.namedRange.name,
-        ranges: [this.env.model.getters.getRangeData(range)],
+        ranges: [this.model().getters.getRangeData(range)],
       });
     }
   }
@@ -80,9 +82,9 @@ export class NamedRangePreview extends Component<SpreadsheetChildEnv> {
   }
 
   get rangeString(): string {
-    return this.env.model.getters.getRangeString(
+    return this.model().getters.getRangeString(
       this.props.namedRange.range,
-      this.env.model.getters.getActiveSheetId()
+      this.model().getters.getActiveSheetId()
     );
   }
 }

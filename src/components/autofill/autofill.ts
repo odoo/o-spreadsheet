@@ -7,6 +7,7 @@ import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { withZoom } from "../helpers/zoom";
+import { useModel } from "../owl_plugins/model_plugin";
 import { types } from "../props_validation";
 
 // -----------------------------------------------------------------------------
@@ -25,12 +26,13 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
     position: types.DOMCoordinates(),
     isVisible: types.boolean(),
   });
+  private model = useModel();
   state: State = proxy({
     position: { x: 0, y: 0 },
     handler: false,
   });
 
-  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.model());
 
   get style() {
     const { x, y } = this.props.position;
@@ -57,7 +59,7 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
   }
 
   getTooltip() {
-    const tooltip = this.env.model.getters.getAutofillTooltip();
+    const tooltip = this.model().getters.getAutofillTooltip();
     if (tooltip && !tooltip.component) {
       tooltip.component = TooltipComponent;
     }
@@ -66,8 +68,8 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
 
   onMouseDown(ev: PointerEvent) {
     this.state.handler = true;
-    const zoomedMouseEvent = withZoom(this.env, ev);
-    const zoom = this.env.model.getters.getViewportZoomLevel();
+    const zoomedMouseEvent = withZoom(this.model(), ev);
+    const zoom = this.model().getters.getViewportZoomLevel();
     let lastCol: HeaderIndex | undefined;
     let lastRow: HeaderIndex | undefined;
     const start = {
@@ -77,7 +79,7 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
     const onMouseUp = () => {
       this.state.handler = false;
       this.state.position = { ...this.props.position };
-      this.env.model.dispatch("AUTOFILL");
+      this.model().dispatch("AUTOFILL");
     };
 
     const onMouseMove = (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => {
@@ -86,13 +88,13 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
         y: ev.clientY / zoom - start.y,
       };
       if (lastCol !== col || lastRow !== row) {
-        const activeSheetId = this.env.model.getters.getActiveSheetId();
-        const numberOfCols = this.env.model.getters.getNumberCols(activeSheetId);
-        const numberOfRows = this.env.model.getters.getNumberRows(activeSheetId);
+        const activeSheetId = this.model().getters.getActiveSheetId();
+        const numberOfCols = this.model().getters.getNumberCols(activeSheetId);
+        const numberOfRows = this.model().getters.getNumberRows(activeSheetId);
         lastCol = col === -1 ? lastCol : clip(col, 0, numberOfCols);
         lastRow = row === -1 ? lastRow : clip(row, 0, numberOfRows);
         if (lastCol !== undefined && lastRow !== undefined) {
-          this.env.model.dispatch("AUTOFILL_SELECT", { col: lastCol, row: lastRow });
+          this.model().dispatch("AUTOFILL_SELECT", { col: lastCol, row: lastRow });
         }
       }
     };
@@ -100,7 +102,7 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
   }
 
   onDblClick() {
-    this.env.model.dispatch("AUTOFILL_AUTO");
+    this.model().dispatch("AUTOFILL_AUTO");
   }
 }
 

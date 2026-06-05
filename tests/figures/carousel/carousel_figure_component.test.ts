@@ -336,19 +336,19 @@ describe("Carousel figure component", () => {
     let openSidePanel: jest.Mock;
 
     function getCarouselMenuItem(figureId: UID, actionId: string) {
-      return getCarouselMenuActions(figureId, env).find((action) => action.id === actionId);
+      return getCarouselMenuActions(figureId, model).find((action) => action.id === actionId);
     }
 
     beforeEach(() => {
       openSidePanel = jest.fn();
-      env = makeTestEnv({ model, openSidePanel });
+      env = makeTestEnv(model, { openSidePanel });
     });
 
     test("Can edit the carousel", () => {
       createCarousel(model, { items: [] }, "carouselId");
 
       const action = getCarouselMenuItem("carouselId", "edit_carousel");
-      action?.execute?.(env);
+      action?.execute?.(model, env);
       expect(openSidePanel).toHaveBeenCalledWith("CarouselPanel", { figureId: "carouselId" });
     });
 
@@ -357,7 +357,7 @@ describe("Carousel figure component", () => {
       addNewChartToCarousel(model, "carouselId", { type: "radar" });
 
       const action = getCarouselMenuItem("carouselId", "edit_chart");
-      action?.execute?.(env);
+      action?.execute?.(model, env);
       expect(openSidePanel).toHaveBeenCalledWith("ChartPanel", {});
     });
 
@@ -365,7 +365,7 @@ describe("Carousel figure component", () => {
       createCarousel(model, { items: [] }, "carouselId");
 
       const action = getCarouselMenuItem("carouselId", "delete");
-      action?.execute?.(env);
+      action?.execute?.(model, env);
       expect(model.getters.getFigures(sheetId)).toHaveLength(0);
     });
 
@@ -373,17 +373,17 @@ describe("Carousel figure component", () => {
       createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
 
       const action = getCarouselMenuItem("carouselId", "delete_carousel_item");
-      expect(action?.isVisible(env)).toBe(true);
-      action?.execute?.(env);
+      expect(action?.isVisible(model, env)).toBe(true);
+      action?.execute?.(model, env);
 
       expect(model.getters.getCarousel("carouselId").items).toHaveLength(0);
-      expect(action?.isVisible(env)).toBe(false);
+      expect(action?.isVisible(model, env)).toBe(false);
     });
 
     test("Can copy the carousel", () => {
       createCarousel(model, { items: [] }, "carouselId");
       const action = getCarouselMenuItem("carouselId", "copy");
-      action?.execute?.(env);
+      action?.execute?.(model, env);
 
       paste(model, "A1");
       expect(model.getters.getFigures(sheetId)).toHaveLength(2);
@@ -392,7 +392,7 @@ describe("Carousel figure component", () => {
     test("Can cut the carousel", () => {
       createCarousel(model, { items: [] }, "carouselId");
       const action = getCarouselMenuItem("carouselId", "cut");
-      action?.execute?.(env);
+      action?.execute?.(model, env);
 
       paste(model, "A1");
       expect(model.getters.getFigures(sheetId)).toHaveLength(1);
@@ -403,7 +403,7 @@ describe("Carousel figure component", () => {
       createCarousel(model, { items: [] }, "carouselId");
       addNewChartToCarousel(model, "carouselId", { type: "radar" });
       const action = getCarouselMenuItem("carouselId", "copy_as_image");
-      action?.execute?.(env);
+      action?.execute?.(model, env);
       await nextTick();
 
       const clipboard = await env.clipboard.read!();
@@ -425,7 +425,7 @@ describe("Carousel figure component", () => {
       addNewChartToCarousel(model, "carouselId", { type: "radar" });
 
       const action = getCarouselMenuItem("carouselId", "download");
-      action?.execute?.(env);
+      action?.execute?.(model, env);
       await nextTick();
       expect(downloadFile).toHaveBeenCalled();
     });
@@ -433,14 +433,14 @@ describe("Carousel figure component", () => {
     test("Chart menu items are not visible when the carousel selected item is not a chart", () => {
       createCarousel(model, { items: [] }, "carouselId");
 
-      expect(getCarouselMenuItem("carouselId", "edit_chart")?.isVisible(env)).toBe(false);
-      expect(getCarouselMenuItem("carouselId", "copy_as_image")?.isVisible(env)).toBe(false);
-      expect(getCarouselMenuItem("carouselId", "download")?.isVisible(env)).toBe(false);
+      expect(getCarouselMenuItem("carouselId", "edit_chart")?.isVisible(model, env)).toBe(false);
+      expect(getCarouselMenuItem("carouselId", "copy_as_image")?.isVisible(model, env)).toBe(false);
+      expect(getCarouselMenuItem("carouselId", "download")?.isVisible(model, env)).toBe(false);
 
       addNewChartToCarousel(model, "carouselId", { type: "radar" });
-      expect(getCarouselMenuItem("carouselId", "edit_chart")?.isVisible(env)).toBe(true);
-      expect(getCarouselMenuItem("carouselId", "copy_as_image")?.isVisible(env)).toBe(true);
-      expect(getCarouselMenuItem("carouselId", "download")?.isVisible(env)).toBe(true);
+      expect(getCarouselMenuItem("carouselId", "edit_chart")?.isVisible(model, env)).toBe(true);
+      expect(getCarouselMenuItem("carouselId", "copy_as_image")?.isVisible(model, env)).toBe(true);
+      expect(getCarouselMenuItem("carouselId", "download")?.isVisible(model, env)).toBe(true);
     });
   });
 });

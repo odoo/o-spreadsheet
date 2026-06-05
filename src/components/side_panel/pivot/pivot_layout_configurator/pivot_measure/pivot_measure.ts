@@ -11,6 +11,7 @@ import { Color, ValueAndLabel } from "../../../../../types/misc";
 import { PivotMeasure } from "../../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../../composer/standalone_composer/standalone_composer";
+import { useModel } from "../../../../owl_plugins/model_plugin";
 import { types } from "../../../../props_validation";
 import { Select } from "../../../../select/select";
 import { measureDisplayTerms } from "../../../../translations_terms";
@@ -44,7 +45,7 @@ export class PivotMeasureEditor extends Component<SpreadsheetChildEnv> {
     this.props.onMeasureUpdated({
       ...this.props.measure,
       computedBy: {
-        sheetId: this.env.model.getters.getActiveSheetId(),
+        sheetId: this.model().getters.getActiveSheetId(),
         formula: formula[0] === "=" ? formula : "=" + formula,
       },
     });
@@ -126,7 +127,7 @@ export class PivotMeasureEditor extends Component<SpreadsheetChildEnv> {
     if (!measureDisplay || measureDisplay.type === "no_calculations") {
       return "";
     }
-    const pivot = this.env.model.getters.getPivot(this.props.pivotId);
+    const pivot = this.model().getters.getPivot(this.props.pivotId);
     const field = [...pivot.definition.columns, ...pivot.definition.rows].find(
       (f) => f.nameWithGranularity === measureDisplay.fieldNameWithGranularity
     );
@@ -134,4 +135,6 @@ export class PivotMeasureEditor extends Component<SpreadsheetChildEnv> {
     const value = measureDisplay.value?.toString() || "";
     return measureDisplayTerms.descriptions[measureDisplay.type](fieldName, value);
   }
+
+  private model = useModel();
 }

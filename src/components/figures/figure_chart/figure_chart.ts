@@ -1,13 +1,13 @@
+import { props } from "@odoo/owl";
+import { Component } from "../../../owl3_compatibility_layer";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { ChartType } from "../../../types/chart/chart";
 import { CSSProperties, UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
-
-import { props } from "@odoo/owl";
-import { Component } from "../../../owl3_compatibility_layer";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
+import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
 
 export class ChartFigure extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartFigure";
@@ -23,17 +23,19 @@ export class ChartFigure extends Component<SpreadsheetChildEnv> {
     ]),
   });
 
+  private model = useModel();
+
   onDoubleClick() {
-    this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });
+    this.model().dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });
     this.env.openSidePanel("ChartPanel");
   }
 
   get chartType(): ChartType {
-    return this.env.model.getters.getChartType(this.chartId);
+    return this.model().getters.getChartType(this.chartId);
   }
 
   get chartId(): UID {
-    const chartId = this.env.model.getters.getChartIdFromFigureId(this.props.figureUI.id);
+    const chartId = this.model().getters.getChartIdFromFigureId(this.props.figureUI.id);
     if (!chartId) {
       throw new Error(`No chart found for figure ID: ${this.props.figureUI.id}`);
     }

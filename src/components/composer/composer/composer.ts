@@ -20,6 +20,7 @@ import { cssPropertiesToCss } from "../../helpers/css";
 import { isIOS, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
 import { ContentEditableHelper } from "../content_editable_helper";
@@ -88,6 +89,8 @@ export class Composer extends Component<SpreadsheetChildEnv> {
   );
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
+
+  private model = useModel();
 
   composerRef = signal<HTMLElement | null>(null);
   containerRef = signal<HTMLElement | null>(null);
@@ -270,7 +273,7 @@ export class Composer extends Component<SpreadsheetChildEnv> {
       // Prevent the default content editable behavior which moves the cursor
       ev.preventDefault();
       ev.stopPropagation();
-      updateSelectionWithArrowKeys(ev, this.env.model.selection);
+      updateSelectionWithArrowKeys(ev, this.model().selection);
       return;
     }
     const content = this.props.composerStore.currentContent;
@@ -353,7 +356,7 @@ export class Composer extends Component<SpreadsheetChildEnv> {
   private processNumpadDecimal(ev: KeyboardEvent) {
     ev.stopPropagation();
     ev.preventDefault();
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     const selection = this.contentHelper.getCurrentSelection();
     const currentContent = this.props.composerStore.currentContent;
     const content =
@@ -504,7 +507,7 @@ export class Composer extends Component<SpreadsheetChildEnv> {
   }
 
   onMouseup() {
-    if (this.env.model.getters.isReadonly()) {
+    if (this.model().getters.isReadonly()) {
       return;
     }
     const selection = this.contentHelper.getCurrentSelection();
@@ -514,7 +517,7 @@ export class Composer extends Component<SpreadsheetChildEnv> {
   }
 
   onClick() {
-    if (this.env.model.getters.isReadonly()) {
+    if (this.model().getters.isReadonly()) {
       return;
     }
     const newSelection = this.contentHelper.getCurrentSelection();
@@ -527,7 +530,7 @@ export class Composer extends Component<SpreadsheetChildEnv> {
   }
 
   onDblClick() {
-    if (this.env.model.getters.isReadonly()) {
+    if (this.model().getters.isReadonly()) {
       return;
     }
     const composerContent = this.props.composerStore.currentContent;

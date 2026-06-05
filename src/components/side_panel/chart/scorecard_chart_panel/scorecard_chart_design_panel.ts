@@ -19,6 +19,7 @@ import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 import { props } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
+import { useModel } from "../../../owl_plugins/model_plugin";
 type ColorPickerId = undefined | "backgroundColor" | "baselineColorUp" | "baselineColorDown";
 
 export class ScorecardChartDesignPanel extends Component<SpreadsheetChildEnv> {
@@ -47,7 +48,7 @@ export class ScorecardChartDesignPanel extends Component<SpreadsheetChildEnv> {
   }
 
   translate(term: string): string {
-    return this.env.model.getters.dynamicTranslate(term);
+    return this.model().getters.dynamicTranslate(term);
   }
 
   setColor(color: Color, colorPickerId: ColorPickerId) {
@@ -101,4 +102,6 @@ export class ScorecardChartDesignPanel extends Component<SpreadsheetChildEnv> {
     const baselineDescr = { ...this.baselineStyle, ...style };
     this.props.updateChart(this.props.chartId, { baselineDescr });
   }
+
+  private model = useModel();
 }

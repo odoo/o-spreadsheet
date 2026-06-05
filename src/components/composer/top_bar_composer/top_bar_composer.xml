@@ -4,7 +4,7 @@
       <div
         class="o-topbar-composer position-relative bg-white user-select-text d-flex border"
         t-att-class="{
-          'o-topbar-composer-readonly': this.env.model.getters.isReadonly(),
+          'o-topbar-composer-readonly': this.model().getters.isReadonly(),
           'o-topbar-composer-active': this.focus !== 'inactive',
           'o-topbar-composer-inactive': this.focus === 'inactive',
         }"

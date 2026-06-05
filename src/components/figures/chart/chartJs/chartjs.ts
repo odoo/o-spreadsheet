@@ -10,6 +10,7 @@ import { useStore } from "../../../../store_engine/store_hooks";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { ChartAnimationStore } from "./chartjs_animation_store";
 import { chartBackgroundPlugin } from "./chartjs_background_plugin";
 import { getCalendarChartController } from "./chartjs_calendar_chart";
@@ -84,6 +85,7 @@ export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
     "isFullScreen?": types.boolean(),
   });
 
+  protected model = useModel();
   protected canvas = signal<HTMLCanvasElement | null>(null);
   protected chart?: Chart;
   protected currentRuntime!: ChartJSRuntime;
@@ -92,7 +94,7 @@ export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
   private currentDevicePixelRatio = window.devicePixelRatio;
 
   get chartRuntime(): ChartJSRuntime {
-    const runtime = this.env.model.getters.getChartRuntime(this.props.chartId);
+    const runtime = this.model().getters.getChartRuntime(this.props.chartId);
     if (!("chartJsConfig" in runtime)) {
       throw new Error("Unsupported chart runtime");
     }
@@ -133,7 +135,7 @@ export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
   }
 
   private get shouldAnimate(): boolean {
-    return this.env.model.getters.isDashboard();
+    return this.model().getters.isDashboard();
   }
 
   protected createChart(chartRuntime: ChartJSRuntime) {
@@ -142,7 +144,7 @@ export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
     }
     let chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
     if (this.shouldAnimate && this.animationStore) {
-      const chartType = this.env.model.getters.getChartDefinition(this.props.chartId)?.type;
+      const chartType = this.model().getters.getChartDefinition(this.props.chartId)?.type;
       if (chartType && this.animationStore.animationPlayed[this.animationChartId] !== chartType) {
         chartData = this.enableAnimationInChartData(chartData);
         this.animationStore.disableAnimationForChart(this.animationChartId, chartType);
@@ -160,7 +162,7 @@ export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
   protected updateChartJs(chartRuntime: ChartJSRuntime) {
     let chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
     if (this.shouldAnimate) {
-      const chartType = this.env.model.getters.getChartDefinition(this.props.chartId)?.type;
+      const chartType = this.model().getters.getChartDefinition(this.props.chartId)?.type;
       if (chartType && this.hasChartDataChanged() && this.animationStore) {
         chartData = this.enableAnimationInChartData(chartData);
         this.animationStore.disableAnimationForChart(this.animationChartId, chartType);

@@ -9,6 +9,7 @@ import {
   PivotCustomGroupedField,
 } from "../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { types } from "../../../props_validation";
 import { TextInput } from "../../../text_input/text_input";
 import { Checkbox } from "../../components/checkbox/checkbox";
@@ -67,9 +68,11 @@ export class PivotCustomGroupsCollapsible extends Component<SpreadsheetChildEnv>
   }
 
   private updateCustomField(customField: PivotCustomGroupedField) {
-    const definition = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
+    const definition = this.model().getters.getPivotCoreDefinition(this.props.pivotId);
     this.props.onCustomFieldUpdated({
       customFields: { ...definition.customFields, [customField.name]: customField },
     });
   }
+
+  private model = useModel();
 }

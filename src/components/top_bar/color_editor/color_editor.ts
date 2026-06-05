@@ -4,6 +4,7 @@ import { Component } from "../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ColorPickerWidget } from "../../color_picker/color_picker_widget";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 
 export class TopBarColorEditor extends Component<SpreadsheetChildEnv> {
@@ -22,18 +23,19 @@ export class TopBarColorEditor extends Component<SpreadsheetChildEnv> {
     isOpen: false,
   });
 
+  private model = useModel();
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();
   }
   get currentColor(): string {
     return (
-      this.env.model.getters.getCurrentStyle()[this.props.style] ||
+      this.model().getters.getCurrentStyle()[this.props.style] ||
       (this.props.style === "textColor" ? "#000000" : "#ffffff")
     );
   }
 
   setColor(color: string) {
-    setStyle(this.env, { [this.props.style]: color });
+    setStyle(this.model(), { [this.props.style]: color });
     this.state.isOpen = false;
   }
 

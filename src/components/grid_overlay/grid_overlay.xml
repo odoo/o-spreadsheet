@@ -14,8 +14,8 @@
       t-on-dblclick.self="this.onDoubleClick"
       t-on-contextmenu.stop.prevent="this.onContextMenu">
       <GridAddRowsFooter
-        t-if="!this.env.model.getters.isReadonly()"
-        t-key="this.env.model.getters.getActiveSheetId()"
+        t-if="!this.model().getters.isReadonly()"
+        t-key="this.model().getters.getActiveSheetId()"
       />
       <t t-call-slot="default"/>
     </div>

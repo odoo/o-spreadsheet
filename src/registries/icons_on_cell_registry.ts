@@ -18,6 +18,7 @@ import {
 import { deepEquals } from "../helpers/misc";
 import { DEFAULT_PIVOT_STYLE, togglePivotCollapse } from "../helpers/pivot/pivot_helpers";
 import { computeTextFontSizeInPixels } from "../helpers/text_helper";
+import { Model } from "../model";
 import { Getters } from "../types/getters";
 import { ImageSVG } from "../types/image";
 import { Align, CellPosition } from "../types/misc";
@@ -35,7 +36,7 @@ export interface GridIcon {
   svg?: ImageSVG;
   hoverSvg?: ImageSVG;
   priority: number;
-  onClick?: (position: CellPosition, env: SpreadsheetChildEnv) => void;
+  onClick?: (position: CellPosition, model: Model, env: SpreadsheetChildEnv) => void;
 }
 
 type ImageSvgCallback = (getters: Getters, position: CellPosition) => GridIcon | undefined;
@@ -68,15 +69,15 @@ iconsOnCellRegistry.add("data_validation_checkbox", (getters, position) => {
       margin: GRID_ICON_MARGIN,
       position,
       type: "data_validation_checkbox",
-      onClick: (position, env) => {
-        const cell = env.model.getters.getCell(position);
-        const isDisabled = env.model.getters.isReadonly() || !!cell?.isFormula;
+      onClick: (position, model) => {
+        const cell = model.getters.getCell(position);
+        const isDisabled = model.getters.isReadonly() || !!cell?.isFormula;
         if (isDisabled) {
           return;
         }
 
         const cellContent = value ? "FALSE" : "TRUE";
-        env.model.dispatch("UPDATE_CELL", { ...position, content: cellContent });
+        model.dispatch("UPDATE_CELL", { ...position, content: cellContent });
       },
     };
   }
@@ -102,9 +103,9 @@ iconsOnCellRegistry.add("data_validation_list_chip_icon", (getters, position) =>
     size: computeTextFontSizeInPixels(cellStyle),
     margin: 4,
     position,
-    onClick: (position, env) => {
+    onClick: (position, model, env) => {
       const { col, row } = position;
-      env.model.selection.selectCell(col, row);
+      model.selection.selectCell(col, row);
       env.startCellEdition();
     },
     type: "data_validation_list_chip_icon",

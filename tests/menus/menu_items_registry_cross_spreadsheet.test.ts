@@ -7,10 +7,10 @@ import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 
 describe("cross spreadsheet copy/paste", () => {
   test("should copy/paste from Edit menu", async () => {
-    const envA: SpreadsheetChildEnv = makeTestEnv();
-    const envB: SpreadsheetChildEnv = makeTestEnv();
-    const modelA: Model = envA.model;
-    const modelB: Model = envB.model;
+    const modelA = new Model();
+    const modelB = new Model();
+    const envA: SpreadsheetChildEnv = makeTestEnv(modelA);
+    const envB: SpreadsheetChildEnv = makeTestEnv(modelB);
 
     const cellStyle = { bold: true, fillColor: "#00FF00", fontSize: 20 };
 
@@ -22,7 +22,7 @@ describe("cross spreadsheet copy/paste", () => {
     });
 
     selectCell(modelA, "A1");
-    await doAction(["edit", "copy"], envA);
+    await doAction(["edit", "copy"], modelA, envA);
 
     /**
      * Copy the clipboard from envA to envB because
@@ -34,7 +34,7 @@ describe("cross spreadsheet copy/paste", () => {
     envB.clipboard = envA.clipboard;
 
     selectCell(modelB, "B1");
-    await doAction(["edit", "paste"], envB);
+    await doAction(["edit", "paste"], modelB, envB);
 
     expect(getCellRawContent(modelB, "B1")).toEqual("a1");
     expect(getCell(modelB, "B1")?.style).toMatchObject(cellStyle);

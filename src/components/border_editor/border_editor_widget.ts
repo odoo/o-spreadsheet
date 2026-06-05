@@ -6,6 +6,7 @@ import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { getElBoundingRect } from "../helpers/dom_helpers";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../helpers/top_bar_tool_hook";
+import { useModel } from "../owl_plugins/model_plugin";
 import { types } from "../props_validation";
 import { BorderEditor } from "./border_editor";
 
@@ -33,6 +34,7 @@ export class BorderEditorWidget extends Component<SpreadsheetChildEnv> {
     currentPosition: undefined,
   });
 
+  private model = useModel();
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();
     onWillUpdateProps(() => {
@@ -43,7 +45,7 @@ export class BorderEditorWidget extends Component<SpreadsheetChildEnv> {
   }
 
   get dropdownMaxHeight(): Pixel {
-    return this.env.model.getters.getSheetViewDimension().height;
+    return this.model().getters.getSheetViewDimension().height;
   }
 
   get borderEditorAnchorRect(): Rect {
@@ -81,9 +83,9 @@ export class BorderEditorWidget extends Component<SpreadsheetChildEnv> {
     if (this.state.currentPosition === undefined) {
       return;
     }
-    this.env.model.dispatch("SET_ZONE_BORDERS", {
-      sheetId: this.env.model.getters.getActiveSheetId(),
-      target: this.env.model.getters.getSelectedZones(),
+    this.model().dispatch("SET_ZONE_BORDERS", {
+      sheetId: this.model().getters.getActiveSheetId(),
+      target: this.model().getters.getSelectedZones(),
       border: {
         position: this.state.currentPosition,
         color: this.state.currentColor,

@@ -6,6 +6,7 @@ import { FontSizeEditor } from "../../font_size_editor/font_size_editor";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 
 import { Component } from "../../../owl3_compatibility_layer";
+import { useModel } from "../../owl_plugins/model_plugin";
 
 export class TopBarFontSizeEditor extends Component<SpreadsheetChildEnv> {
   static components = { FontSizeEditor };
@@ -14,15 +15,16 @@ export class TopBarFontSizeEditor extends Component<SpreadsheetChildEnv> {
   protected props = props({ class: types.string() });
   topBarToolStore!: ToolBarDropdownStore;
 
+  private model = useModel();
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();
   }
 
   get currentFontSize(): number {
-    return this.env.model.getters.getCurrentStyle().fontSize || DEFAULT_FONT_SIZE;
+    return this.model().getters.getCurrentStyle().fontSize || DEFAULT_FONT_SIZE;
   }
   setFontSize(fontSize: number) {
-    setStyle(this.env, { fontSize });
+    setStyle(this.model(), { fontSize });
   }
 
   onToggle() {
@@ -42,8 +44,6 @@ export class TopBarFontSizeEditor extends Component<SpreadsheetChildEnv> {
   }
 
   get class() {
-    return `${this.props.class} ${
-      this.env.model.getters.isCurrentSheetLocked() ? "o-disabled" : ""
-    }`;
+    return `${this.props.class} ${this.model().getters.isCurrentSheetLocked() ? "o-disabled" : ""}`;
   }
 }

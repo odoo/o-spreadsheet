@@ -1,3 +1,4 @@
+import { Model } from "../../model";
 import { _t } from "../../translation";
 import { CommandResult, DispatchResult } from "../../types/commands";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -7,14 +8,15 @@ export const SplitToColumnsInteractiveContent = {
 };
 
 export function interactiveSplitToColumns(
+  model: Model,
   env: SpreadsheetChildEnv,
   separator: string,
   addNewColumns: boolean
 ): DispatchResult {
-  let result = env.model.dispatch("SPLIT_TEXT_INTO_COLUMNS", { separator, addNewColumns });
+  let result = model.dispatch("SPLIT_TEXT_INTO_COLUMNS", { separator, addNewColumns });
   if (result.isCancelledBecause(CommandResult.SplitWillOverwriteContent)) {
     env.askConfirmation(SplitToColumnsInteractiveContent.SplitIsDestructive, () => {
-      result = env.model.dispatch("SPLIT_TEXT_INTO_COLUMNS", {
+      result = model.dispatch("SPLIT_TEXT_INTO_COLUMNS", {
         separator,
         addNewColumns,
         force: true,

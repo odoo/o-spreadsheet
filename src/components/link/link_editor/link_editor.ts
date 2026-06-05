@@ -8,6 +8,7 @@ import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popov
 import { Link } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { MenuPopover } from "../../menu_popover/menu_popover";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 
 interface LinkProposal {
@@ -36,6 +37,7 @@ export class LinkEditor extends Component<SpreadsheetChildEnv> {
   });
   static size = { maxHeight: 500 };
 
+  private model = useModel();
   urlInput = signal<HTMLElement | null>(null);
   suggestionListRef = signal<HTMLElement | null>(null);
   urlInputContainer = signal<HTMLElement | null>(null);
@@ -59,11 +61,11 @@ export class LinkEditor extends Component<SpreadsheetChildEnv> {
     const inputVal = this.state.url;
     for (const category of urlRegistry.getKeys()) {
       const spec = urlRegistry.get(category);
-      const linkProposals = spec.getLinkProposals?.(this.env) || [];
+      const linkProposals = spec.getLinkProposals?.(this.model(), this.env) || [];
       const links =
         inputVal && this.state.isUrlEditable
           ? fuzzyLookup(inputVal, linkProposals, (link) =>
-              spec.urlRepresentation(link.url, this.env.model.getters)
+              spec.urlRepresentation(link.url, this.model().getters)
             )
           : linkProposals;
 
@@ -72,7 +74,7 @@ export class LinkEditor extends Component<SpreadsheetChildEnv> {
       }
       proposals[spec.title] = links.map((link) => {
         counter++;
-        const text = spec.urlRepresentation(link.url, this.env.model.getters);
+        const text = spec.urlRepresentation(link.url, this.model().getters);
         const index = counter;
         return {
           text,
@@ -93,8 +95,8 @@ export class LinkEditor extends Component<SpreadsheetChildEnv> {
 
   get defaultState(): LinkState {
     const { col, row } = this.props.cellPosition;
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const cell = this.env.model.getters.getEvaluatedCell({ sheetId, col, row });
+    const sheetId = this.model().getters.getActiveSheetId();
+    const cell = this.model().getters.getEvaluatedCell({ sheetId, col, row });
     if (cell.link) {
       return {
         url: cell.link.url,
@@ -116,7 +118,7 @@ export class LinkEditor extends Component<SpreadsheetChildEnv> {
   }
 
   getUrlRepresentation(link: Link): string {
-    return urlRepresentation(link, this.env.model.getters);
+    return urlRepresentation(link, this.model().getters);
   }
 
   removeLink() {
@@ -127,14 +129,14 @@ export class LinkEditor extends Component<SpreadsheetChildEnv> {
 
   save() {
     const { col, row } = this.props.cellPosition;
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     const label = this.state.label
       ? canonicalizeNumberContent(this.state.label, locale)
       : this.state.url;
-    this.env.model.dispatch("UPDATE_CELL", {
+    this.model().dispatch("UPDATE_CELL", {
       col: col,
       row: row,
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.model().getters.getActiveSheetId(),
       content: markdownLink(label, this.state.url),
     });
     this.props.onClosed?.();

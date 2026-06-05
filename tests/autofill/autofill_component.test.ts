@@ -240,21 +240,21 @@ describe("Autofill component", () => {
   });
 
   test("Autofill does not reset the viewport position if not near the viewport edge", async () => {
-    setSelection(parent.model, ["A1:A100"]);
-    setViewportOffset(parent.model, 400, 400);
-    const firstViewport = parent.model.getters.getActiveMainViewport();
+    setSelection(model, ["A1:A100"]);
+    setViewportOffset(model, 400, 400);
+    const firstViewport = model.getters.getActiveMainViewport();
     const autofill = fixture.querySelector(".o-autofill");
     triggerMouseEvent(autofill, "pointerdown", 4, 4);
     await nextTick();
     const newX =
       HEADER_WIDTH +
-      parent.model.getters.getColDimensions(parent.model.getters.getActiveSheetId(), 0)!.start +
+      model.getters.getColDimensions(model.getters.getActiveSheetId(), 0)!.start +
       2 * DEFAULT_CELL_WIDTH;
     triggerMouseEvent(autofill, "pointermove", newX, HEADER_HEIGHT + 4);
     await nextTick();
     triggerMouseEvent(autofill, "pointerup", newX, HEADER_HEIGHT + 4);
     await nextTick();
-    expect(firstViewport).toMatchObject(parent.model.getters.getActiveMainViewport());
+    expect(firstViewport).toMatchObject(model.getters.getActiveMainViewport());
   });
 
   test("Autofill is not loaded when the grid selection does not have the focus", async () => {

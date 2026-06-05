@@ -7,7 +7,7 @@
       <Ripple class="'add-sheet-container'">
         <div
           class="o-sheet-item o-add-sheet me-2 p-1"
-          t-if="!this.env.model.getters.isReadonly()"
+          t-if="!this.model().getters.isReadonly()"
           t-on-click="this.clickAddSheet">
           <t t-call="o-spreadsheet-Icon.PLUS"/>
         </div>

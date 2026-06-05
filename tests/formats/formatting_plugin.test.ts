@@ -408,8 +408,8 @@ describe("pivot contextual formatting", () => {
   });
 
   test("topbar menu correctly indicates the format of the selected pivot cell", () => {
-    const env = makeTestEnv();
-    const { model } = env;
+    const model = new Model();
+    const env = makeTestEnv(model);
 
     setCellContent(model, "A1", "Price");
     setCellContent(model, "A2", "10");
@@ -421,8 +421,8 @@ describe("pivot contextual formatting", () => {
     setContextualFormat(model, "C3", "[$$]#,##0.00");
     selectCell(model, "C3");
 
-    const action = getNode(["format", "format_number", "format_number_currency"], env);
-    expect(action.isActive?.(env)).toBe(true);
+    const action = getNode(["format", "format_number", "format_number_currency"], model, env);
+    expect(action.isActive?.(model, env)).toBe(true);
   });
 });
 

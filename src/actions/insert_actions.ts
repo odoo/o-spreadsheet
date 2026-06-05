@@ -2,35 +2,36 @@ import { functionRegistry } from "../functions/function_registry";
 import { isDefined } from "../helpers/misc";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { UuidGenerator } from "../helpers/uuid";
+import { Model } from "../model";
 import { _t } from "../translation";
 import { ActionBuilder, ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 
 export const insertRow: ActionSpec = {
-  name: (env) => {
-    const number = getRowsNumber(env);
+  name: (model) => {
+    const number = getRowsNumber(model);
     return number === 1 ? _t("Insert row") : _t("Insert %s rows", number.toString());
   },
-  isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "ROW"),
+  isVisible: (model) => ACTIONS.CAN_INSERT_HEADER(model, "ROW"),
 
   icon: "o-spreadsheet-Icon.INSERT_ROW",
 };
 
 export const rowInsertRowBefore: ActionSpec = {
-  name: (env) => {
-    const number = getRowsNumber(env);
+  name: (model) => {
+    const number = getRowsNumber(model);
     return number === 1 ? _t("Insert row above") : _t("Insert %s rows above", number.toString());
   },
   execute: ACTIONS.INSERT_ROWS_BEFORE_ACTION,
-  isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "ROW"),
+  isVisible: (model) => ACTIONS.CAN_INSERT_HEADER(model, "ROW"),
 
   icon: "o-spreadsheet-Icon.INSERT_ROW_BEFORE",
 };
 
 export const topBarInsertRowsBefore: ActionSpec = {
   ...rowInsertRowBefore,
-  name: (env) => {
-    const number = getRowsNumber(env);
+  name: (model) => {
+    const number = getRowsNumber(model);
     if (number === 1) {
       return _t("Row above");
     }
@@ -40,8 +41,8 @@ export const topBarInsertRowsBefore: ActionSpec = {
 
 export const cellInsertRowsBefore: ActionSpec = {
   ...rowInsertRowBefore,
-  name: (env) => {
-    const number = getRowsNumber(env);
+  name: (model) => {
+    const number = getRowsNumber(model);
     if (number === 1) {
       return _t("Insert row");
     }
@@ -53,19 +54,19 @@ export const cellInsertRowsBefore: ActionSpec = {
 
 export const rowInsertRowsAfter: ActionSpec = {
   execute: ACTIONS.INSERT_ROWS_AFTER_ACTION,
-  name: (env) => {
-    const number = getRowsNumber(env);
+  name: (model) => {
+    const number = getRowsNumber(model);
     return number === 1 ? _t("Insert row below") : _t("Insert %s rows below", number.toString());
   },
-  isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "ROW"),
+  isVisible: (model) => ACTIONS.CAN_INSERT_HEADER(model, "ROW"),
 
   icon: "o-spreadsheet-Icon.INSERT_ROW_AFTER",
 };
 
 export const topBarInsertRowsAfter: ActionSpec = {
   ...rowInsertRowsAfter,
-  name: (env) => {
-    const number = getRowsNumber(env);
+  name: (model) => {
+    const number = getRowsNumber(model);
     if (number === 1) {
       return _t("Row below");
     }
@@ -74,32 +75,32 @@ export const topBarInsertRowsAfter: ActionSpec = {
 };
 
 export const insertCol: ActionSpec = {
-  name: (env) => {
-    const number = getColumnsNumber(env);
+  name: (model) => {
+    const number = getColumnsNumber(model);
     return number === 1 ? _t("Insert column") : _t("Insert %s columns", number.toString());
   },
-  isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "COL"),
+  isVisible: (model) => ACTIONS.CAN_INSERT_HEADER(model, "COL"),
 
   icon: "o-spreadsheet-Icon.INSERT_COL",
 };
 
 export const colInsertColsBefore: ActionSpec = {
-  name: (env) => {
-    const number = getColumnsNumber(env);
+  name: (model) => {
+    const number = getColumnsNumber(model);
     return number === 1
       ? _t("Insert column left")
       : _t("Insert %s columns left", number.toString());
   },
   execute: ACTIONS.INSERT_COLUMNS_BEFORE_ACTION,
-  isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "COL"),
+  isVisible: (model) => ACTIONS.CAN_INSERT_HEADER(model, "COL"),
 
   icon: "o-spreadsheet-Icon.INSERT_COL_BEFORE",
 };
 
 export const topBarInsertColsBefore: ActionSpec = {
   ...colInsertColsBefore,
-  name: (env) => {
-    const number = getColumnsNumber(env);
+  name: (model) => {
+    const number = getColumnsNumber(model);
     if (number === 1) {
       return _t("Column left");
     }
@@ -109,8 +110,8 @@ export const topBarInsertColsBefore: ActionSpec = {
 
 export const cellInsertColsBefore: ActionSpec = {
   ...colInsertColsBefore,
-  name: (env) => {
-    const number = getColumnsNumber(env);
+  name: (model) => {
+    const number = getColumnsNumber(model);
     if (number === 1) {
       return _t("Insert column");
     }
@@ -121,22 +122,22 @@ export const cellInsertColsBefore: ActionSpec = {
 };
 
 export const colInsertColsAfter: ActionSpec = {
-  name: (env) => {
-    const number = getColumnsNumber(env);
+  name: (model) => {
+    const number = getColumnsNumber(model);
     return number === 1
       ? _t("Insert column right")
       : _t("Insert %s columns right", number.toString());
   },
   execute: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
-  isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "COL"),
+  isVisible: (model) => ACTIONS.CAN_INSERT_HEADER(model, "COL"),
 
   icon: "o-spreadsheet-Icon.INSERT_COL_AFTER",
 };
 
 export const topBarInsertColsAfter: ActionSpec = {
   ...colInsertColsAfter,
-  name: (env) => {
-    const number = getColumnsNumber(env);
+  name: (model) => {
+    const number = getColumnsNumber(model);
     if (number === 1) {
       return _t("Column right");
     }
@@ -147,56 +148,56 @@ export const topBarInsertColsAfter: ActionSpec = {
 
 export const insertCell: ActionSpec = {
   name: _t("Insert cells"),
-  isVisible: (env) =>
-    ACTIONS.IS_ONLY_ONE_RANGE(env) &&
-    env.model.getters.getActiveCols().size === 0 &&
-    env.model.getters.getActiveRows().size === 0,
+  isVisible: (model) =>
+    ACTIONS.IS_ONLY_ONE_RANGE(model) &&
+    model.getters.getActiveCols().size === 0 &&
+    model.getters.getActiveRows().size === 0,
 
   icon: "o-spreadsheet-Icon.INSERT_CELL",
 };
 
 export const insertCellShiftDown: ActionSpec = {
   name: _t("Insert cells and shift down"),
-  execute: (env) => {
-    const zone = env.model.getters.getSelectedZone();
-    const result = env.model.dispatch("INSERT_CELL", { zone, shiftDimension: "ROW" });
-    handlePasteResult(env, result);
+  execute: (model, env) => {
+    const zone = model.getters.getSelectedZone();
+    const result = model.dispatch("INSERT_CELL", { zone, shiftDimension: "ROW" });
+    handlePasteResult(model, env, result);
   },
-  isVisible: (env) =>
-    env.model.getters.getActiveRows().size === 0 && env.model.getters.getActiveCols().size === 0,
+  isVisible: (model) =>
+    model.getters.getActiveRows().size === 0 && model.getters.getActiveCols().size === 0,
   icon: "o-spreadsheet-Icon.INSERT_CELL_SHIFT_DOWN",
 };
 
 export const insertCellShiftRight: ActionSpec = {
   name: _t("Insert cells and shift right"),
-  execute: (env) => {
-    const zone = env.model.getters.getSelectedZone();
-    const result = env.model.dispatch("INSERT_CELL", { zone, shiftDimension: "COL" });
-    handlePasteResult(env, result);
+  execute: (model, env) => {
+    const zone = model.getters.getSelectedZone();
+    const result = model.dispatch("INSERT_CELL", { zone, shiftDimension: "COL" });
+    handlePasteResult(model, env, result);
   },
-  isVisible: (env) =>
-    env.model.getters.getActiveRows().size === 0 && env.model.getters.getActiveCols().size === 0,
+  isVisible: (model) =>
+    model.getters.getActiveRows().size === 0 && model.getters.getActiveCols().size === 0,
   icon: "o-spreadsheet-Icon.INSERT_CELL_SHIFT_RIGHT",
 };
 
 export const insertChart: ActionSpec = {
   name: _t("Chart"),
   execute: ACTIONS.CREATE_CHART,
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (model, env) => !env.isSmall,
   icon: "o-spreadsheet-Icon.INSERT_CHART",
 };
 
 export const insertCarousel: ActionSpec = {
   name: _t("Carousel"),
   execute: ACTIONS.CREATE_CAROUSEL,
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (model, env) => !env.isSmall,
   icon: "o-spreadsheet-Icon.CAROUSEL",
 };
 
 export const insertPivot: ActionSpec = {
   name: _t("Pivot table"),
   execute: ACTIONS.CREATE_PIVOT,
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (model, env) => !env.isSmall,
   isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.PIVOT",
 };
@@ -205,8 +206,8 @@ export const insertImage: ActionSpec = {
   name: _t("Image"),
   shortcut: "Ctrl+O",
   execute: ACTIONS.CREATE_IMAGE,
-  isVisible: (env) => env.imageProvider !== undefined,
-  isEnabled: (env) => !env.isSmall,
+  isVisible: (model, env) => env.imageProvider !== undefined,
+  isEnabled: (model, env) => !env.isSmall,
   icon: "o-spreadsheet-Icon.INSERT_IMAGE",
 };
 
@@ -214,9 +215,9 @@ export const insertTable: ActionSpec = {
   name: () => _t("Table"),
   shortcut: "Alt+T",
   execute: ACTIONS.INSERT_TABLE,
-  isVisible: (env) =>
-    ACTIONS.IS_SELECTION_CONTINUOUS(env) && !env.model.getters.getFirstTableInSelection(),
-  isEnabled: (env) => !env.isSmall,
+  isVisible: (model) =>
+    ACTIONS.IS_SELECTION_CONTINUOUS(model) && !model.getters.getFirstTableInSelection(),
+  isEnabled: (model, env) => !env.isSmall,
   icon: "o-spreadsheet-Icon.PAINT_TABLE",
 };
 
@@ -227,27 +228,27 @@ export const insertFunction: ActionSpec = {
 
 export const insertFunctionSum: ActionSpec = {
   name: _t("SUM"),
-  execute: (env) => env.startCellEdition(`=SUM(`),
+  execute: (model, env) => env.startCellEdition(`=SUM(`),
 };
 
 export const insertFunctionAverage: ActionSpec = {
   name: _t("AVERAGE"),
-  execute: (env) => env.startCellEdition(`=AVERAGE(`),
+  execute: (model, env) => env.startCellEdition(`=AVERAGE(`),
 };
 
 export const insertFunctionCount: ActionSpec = {
   name: _t("COUNT"),
-  execute: (env) => env.startCellEdition(`=COUNT(`),
+  execute: (model, env) => env.startCellEdition(`=COUNT(`),
 };
 
 export const insertFunctionMax: ActionSpec = {
   name: _t("MAX"),
-  execute: (env) => env.startCellEdition(`=MAX(`),
+  execute: (model, env) => env.startCellEdition(`=MAX(`),
 };
 
 export const insertFunctionMin: ActionSpec = {
   name: _t("MIN"),
-  execute: (env) => env.startCellEdition(`=MIN(`),
+  execute: (model, env) => env.startCellEdition(`=MIN(`),
 };
 
 export const categorieFunctionAll: ActionSpec = {
@@ -292,11 +293,11 @@ export const insertLink: ActionSpec = {
 
 export const insertCheckbox: ActionSpec = {
   name: _t("Checkbox"),
-  execute: (env) => {
-    const zones = env.model.getters.getSelectedZones();
-    const sheetId = env.model.getters.getActiveSheetId();
-    const ranges = zones.map((zone) => env.model.getters.getRangeDataFromZone(sheetId, zone));
-    env.model.dispatch("ADD_DATA_VALIDATION_RULE", {
+  execute: (model) => {
+    const zones = model.getters.getSelectedZones();
+    const sheetId = model.getters.getActiveSheetId();
+    const ranges = zones.map((zone) => model.getters.getRangeDataFromZone(sheetId, zone));
+    model.dispatch("ADD_DATA_VALIDATION_RULE", {
       ranges,
       sheetId,
       rule: {
@@ -314,12 +315,12 @@ export const insertCheckbox: ActionSpec = {
 
 export const insertDropdown: ActionSpec = {
   name: _t("Dropdown list"),
-  execute: (env) => {
-    const zones = env.model.getters.getSelectedZones();
-    const sheetId = env.model.getters.getActiveSheetId();
-    const ranges = zones.map((zone) => env.model.getters.getRangeDataFromZone(sheetId, zone));
+  execute: (model, env) => {
+    const zones = model.getters.getSelectedZones();
+    const sheetId = model.getters.getActiveSheetId();
+    const ranges = zones.map((zone) => model.getters.getRangeDataFromZone(sheetId, zone));
     const ruleId = UuidGenerator.smallUuid();
-    env.model.dispatch("ADD_DATA_VALIDATION_RULE", {
+    model.dispatch("ADD_DATA_VALIDATION_RULE", {
       ranges,
       sheetId,
       rule: {
@@ -331,34 +332,34 @@ export const insertDropdown: ActionSpec = {
         },
       },
     });
-    const rule = env.model.getters.getDataValidationRule(sheetId, ruleId);
+    const rule = model.getters.getDataValidationRule(sheetId, ruleId);
     if (!rule) {
       return;
     }
     env.openSidePanel("DataValidationEditor", {
       ruleId,
       onCancel: () => {
-        env.model.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: ruleId });
+        model.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: ruleId });
       },
     });
   },
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (model, env) => !env.isSmall,
   icon: "o-spreadsheet-Icon.INSERT_DROPDOWN",
 };
 
 export const insertSheet: ActionSpec = {
   name: _t("Insert sheet"),
   shortcut: "Shift+F11",
-  execute: (env) => {
-    const activeSheetId = env.model.getters.getActiveSheetId();
-    const position = env.model.getters.getSheetIds().indexOf(activeSheetId) + 1;
+  execute: (model) => {
+    const activeSheetId = model.getters.getActiveSheetId();
+    const position = model.getters.getSheetIds().indexOf(activeSheetId) + 1;
     const sheetId = UuidGenerator.smallUuid();
-    env.model.dispatch("CREATE_SHEET", {
+    model.dispatch("CREATE_SHEET", {
       sheetId,
       position,
-      name: env.model.getters.getNextSheetName(),
+      name: model.getters.getNextSheetName(),
     });
-    env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
+    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
   },
   icon: "o-spreadsheet-Icon.INSERT_SHEET",
 };
@@ -368,27 +369,27 @@ function createFormulaFunctions(fnNames: string[]): ActionSpec[] {
     return {
       name: fnName,
       sequence: i * 10,
-      execute: (env) => env.startCellEdition(`=${fnName}(`),
+      execute: (model, env) => env.startCellEdition(`=${fnName}(`),
     };
   });
 }
 
-function getRowsNumber(env): number {
-  const activeRows = env.model.getters.getActiveRows();
+function getRowsNumber(model: Model): number {
+  const activeRows = model.getters.getActiveRows();
   if (activeRows.size) {
     return activeRows.size;
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = model.getters.getSelectedZones()[0];
     return zone.bottom - zone.top + 1;
   }
 }
 
-function getColumnsNumber(env): number {
-  const activeCols = env.model.getters.getActiveCols();
+function getColumnsNumber(model: Model): number {
+  const activeCols = model.getters.getActiveCols();
   if (activeCols.size) {
     return activeCols.size;
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = model.getters.getSelectedZones()[0];
     return zone.right - zone.left + 1;
   }
 }

@@ -5,6 +5,7 @@ import { Pixel } from "../../types/misc";
 import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
+import { useModel } from "../owl_plugins/model_plugin";
 import { types } from "../props_validation";
 
 //------------------------------------------------------------------------------
@@ -47,6 +48,7 @@ export class Menu extends Component<SpreadsheetChildEnv> {
     "onKeyDown?": types.function<[ev: KeyboardEvent]>([types.instanceOf(KeyboardEvent)]),
     "disableKeyboardNavigation?": types.boolean(),
   });
+  private model = useModel();
 
   private menuRef = signal<HTMLElement | null>(null);
 
@@ -73,10 +75,10 @@ export class Menu extends Component<SpreadsheetChildEnv> {
   }
 
   getIconName(menu: Action) {
-    if (menu.icon(this.env)) {
-      return menu.icon(this.env);
+    if (menu.icon(this.model(), this.env)) {
+      return menu.icon(this.model(), this.env);
     }
-    if (menu.isActive?.(this.env)) {
+    if (menu.isActive?.(this.model(), this.env)) {
       return "o-spreadsheet-Icon.CHECK";
     }
 
@@ -92,7 +94,7 @@ export class Menu extends Component<SpreadsheetChildEnv> {
   }
 
   getName(menu: Action) {
-    return menu.name(this.env);
+    return menu.name(this.model(), this.env);
   }
 
   isRoot(menu: Action) {
@@ -100,7 +102,7 @@ export class Menu extends Component<SpreadsheetChildEnv> {
   }
 
   isEnabled(menu: Action) {
-    return isMenuItemEnabled(this.env, menu);
+    return isMenuItemEnabled(this.model(), this.env, menu);
   }
 
   get menuStyle() {

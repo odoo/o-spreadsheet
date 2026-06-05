@@ -6,6 +6,7 @@ import { useStore } from "../../../store_engine/store_hooks";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { Ripple } from "../../animation/ripple";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { AggregateStatisticsStore } from "./aggregate_statistics_store";
 
 // -----------------------------------------------------------------------------
@@ -27,6 +28,8 @@ export class BottomBarStatistic extends Component<SpreadsheetChildEnv> {
 
   private state = proxy({ selectedStatisticFn: "" });
   private store!: Store<AggregateStatisticsStore>;
+
+  private model = useModel();
 
   setup() {
     this.store = useStore(AggregateStatisticsStore);
@@ -72,7 +75,7 @@ export class BottomBarStatistic extends Component<SpreadsheetChildEnv> {
   }
 
   private getComposedFnName(fnName: string): string {
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     const fnValue = this.store.statisticFnResults[fnName];
     return (
       fnName +

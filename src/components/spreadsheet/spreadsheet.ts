@@ -4,6 +4,7 @@ import {
   onWillUnmount,
   onWillUpdateProps,
   props,
+  providePlugins,
   proxy,
   signal,
   useEffect,
@@ -46,6 +47,7 @@ import {
 } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";
+import { ModelPlugin, useModel } from "../owl_plugins/model_plugin";
 import { types } from "../props_validation";
 import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../side_panel/side_panels/side_panels";
@@ -105,22 +107,19 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   private isViewportTooSmall: boolean = false;
   private notificationStore!: Store<NotificationStore>;
   private composerFocusStore!: Store<ComposerFocusStore>;
-
-  get model(): Model {
-    return this.props.model;
-  }
+  private model!: () => Model;
 
   getStyle(): string {
     const properties: CSSProperties = {};
-    const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
+    const scrollbarWidth = this.model().getters.getScrollBarWidth();
     properties["--os-scrollbar-width"] = `${scrollbarWidth}px`;
     properties["--os-dark-mode-filter"] = DARK_MODE_FILTER_STRING;
-    properties["color-scheme"] = this.props.model.getters.isDarkMode() ? "dark" : "light";
+    properties["color-scheme"] = this.model().getters.isDarkMode() ? "dark" : "light";
 
     if (this.state.printModeEnabled) {
       properties["display"] = `block`;
     } else {
-      if (this.env.model.getters.isDashboard()) {
+      if (this.model().getters.isDashboard()) {
         properties["grid-template-rows"] = `auto`;
       } else {
         properties["grid-template-rows"] = `min-content auto min-content`;
@@ -135,6 +134,9 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   }
 
   setup() {
+    providePlugins([ModelPlugin], { model: this.props.model });
+    this.model = useModel();
+
     if (!("isSmall" in this.env)) {
       const screenSize = useScreenWidth();
       useSubEnv({
@@ -145,7 +147,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
     }
 
     const stores = useStoreProvider();
-    stores.inject(ModelStore, this.model);
+    stores.inject(ModelStore, this.model());
 
     const env = this.env;
     stores.get(ScreenWidthStore).setSmallThreshhold(() => {
@@ -155,13 +157,12 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
     this.notificationStore = useStore(NotificationStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.sidePanel = useStore(SidePanelStore);
-    const fileStore = this.model.config.external.fileStore;
+    const fileStore = this.model().config.external.fileStore;
 
     useSubEnv({
-      model: this.model,
       imageProvider: fileStore ? new ImageProvider(fileStore) : undefined,
-      loadCurrencies: this.model.config.external.loadCurrencies,
-      loadLocales: this.model.config.external.loadLocales,
+      loadCurrencies: this.model().config.external.loadCurrencies,
+      loadLocales: this.model().config.external.loadLocales,
       openSidePanel: this.sidePanel.open.bind(this.sidePanel),
       replaceSidePanel: this.sidePanel.replace.bind(this.sidePanel),
       toggleSidePanel: this.sidePanel.toggle.bind(this.sidePanel),
@@ -252,8 +253,8 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   }
 
   private bindModelEvents() {
-    this.model.on("update", this, () => this.render(true));
-    this.model.on("command-rejected", this, ({ result }) => {
+    this.model().on("update", this, () => this.render(true));
+    this.model().on("command-rejected", this, ({ result }) => {
       if (result.isCancelledBecause(CommandResult.SheetLocked)) {
         this.notificationStore.notifyUser({
           type: "info",
@@ -263,22 +264,22 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       }
     });
 
-    this.model.on("notify-ui", this, (notification: InformationNotification) =>
+    this.model().on("notify-ui", this, (notification: InformationNotification) =>
       this.notificationStore.notifyUser(notification)
     );
-    this.model.on("raise-error-ui", this, ({ text }) => this.notificationStore.raiseError(text));
+    this.model().on("raise-error-ui", this, ({ text }) => this.notificationStore.raiseError(text));
   }
 
   private unbindModelEvents() {
-    this.model.off("update", this);
-    this.model.off("command-rejected", this);
-    this.model.off("notify-ui", this);
-    this.model.off("raise-error-ui", this);
+    this.model().off("update", this);
+    this.model().off("command-rejected", this);
+    this.model().off("notify-ui", this);
+    this.model().off("raise-error-ui", this);
   }
 
   private checkViewportSize() {
-    const { xRatio, yRatio } = this.env.model.getters.getFrozenSheetViewRatio(
-      this.env.model.getters.getActiveSheetId()
+    const { xRatio, yRatio } = this.model().getters.getFrozenSheetViewRatio(
+      this.model().getters.getActiveSheetId()
     );
 
     if (!isFinite(xRatio) || !isFinite(yRatio)) {
@@ -311,13 +312,13 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   }
 
   get gridHeight(): Pixel {
-    return this.env.model.getters.getSheetViewDimension().height;
+    return this.model().getters.getSheetViewDimension().height;
   }
 
   get gridContainerStyle(): string {
     const gridColSize = GROUP_LAYER_WIDTH * this.rowLayers.length;
     const gridRowSize = GROUP_LAYER_WIDTH * this.colLayers.length;
-    const zoom = this.env.model.getters.getViewportZoomLevel();
+    const zoom = this.model().getters.getViewportZoomLevel();
     return cssPropertiesToCss({
       "grid-template-columns": `${gridColSize ? gridColSize + 2 : 0}px auto`, // +2: margins
       "grid-template-rows": `${gridRowSize ? gridRowSize + 2 : 0}px auto`,
@@ -326,13 +327,13 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   }
 
   get rowLayers(): HeaderGroup[][] {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    return this.env.model.getters.getVisibleGroupLayers(sheetId, "ROW");
+    const sheetId = this.model().getters.getActiveSheetId();
+    return this.model().getters.getVisibleGroupLayers(sheetId, "ROW");
   }
 
   get colLayers(): HeaderGroup[][] {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    return this.env.model.getters.getVisibleGroupLayers(sheetId, "COL");
+    const sheetId = this.model().getters.getActiveSheetId();
+    return this.model().getters.getVisibleGroupLayers(sheetId, "COL");
   }
 
   getGridSize() {
@@ -341,8 +342,8 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       return { width: 0, height: 0 };
     }
 
-    const zoom = this.env.model.getters.getViewportZoomLevel();
-    const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
+    const zoom = this.model().getters.getViewportZoomLevel();
+    const scrollbarWidth = this.model().getters.getScrollBarWidth();
 
     const getHeight = (s: string) =>
       (el.querySelector(s) && zoomCorrectedElementRect(el.querySelector(s)!, zoom).height) || 0;
@@ -366,7 +367,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   getSpreadSheetClasses() {
     return [
       this.env.isSmall ? "o-spreadsheet-mobile" : "",
-      this.props.model.getters.isDarkMode() ? "dark" : "",
+      this.model().getters.isDarkMode() ? "dark" : "",
     ].join(" ");
   }
 

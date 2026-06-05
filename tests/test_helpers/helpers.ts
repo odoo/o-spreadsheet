@@ -53,6 +53,7 @@ import {
   UID,
   Zone,
 } from "../../src";
+import { ModelPlugin } from "../../src/components/owl_plugins/model_plugin";
 import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
@@ -190,9 +191,9 @@ interface SpreadsheetChildEnvWithStores extends SpreadsheetChildEnv {
 }
 
 export function makeTestEnv(
+  model: Model,
   mockEnv: Partial<SpreadsheetChildEnvWithStores> = {}
 ): SpreadsheetChildEnvWithStores {
-  const model = mockEnv.model || new Model();
   if (mockEnv.__spreadsheet_stores__) {
     throw new Error("Cannot call makeTestEnv on a partial env that already have a store container");
   }
@@ -229,7 +230,6 @@ export function makeTestEnv(
   const store = container.get(SidePanelStore);
   const sidePanelStore = proxifyStoreMutation(store, () => container.trigger("store-updated"));
   return {
-    model,
     openSidePanel: mockEnv.openSidePanel || sidePanelStore.open.bind(sidePanelStore),
     replaceSidePanel: mockEnv.replaceSidePanel || sidePanelStore.replace.bind(sidePanelStore),
     toggleSidePanel: mockEnv.toggleSidePanel || sidePanelStore.toggle.bind(sidePanelStore),
@@ -318,35 +318,33 @@ export async function mountComponent<Props extends { [key: string]: any }>(
   component: ComponentConstructor<SpreadsheetChildEnv>,
   optionalArgs: MountComponentArgs<Props> = {}
 ): Promise<MountComponentReturn<Props>> {
-  const model = optionalArgs.model || optionalArgs.env?.model || new Model();
+  const model = optionalArgs.model || new Model();
   model.drawLayer = () => {};
-  const env = makeTestEnv({ ...optionalArgs.env, model: model });
+  const env = makeTestEnv(model, { ...optionalArgs.env });
   const props = optionalArgs.props || ({} as Props);
   const app = new App({
     test: true,
     translateFn: _t,
+    plugins: [ModelPlugin],
+    config: { model },
   });
   const root = app.createRoot(component, { props, env });
   const fixture = optionalArgs?.fixture || makeTestFixture();
-  const parent = await root.mount(fixture);
+  const parent = (await root.mount(fixture)) as Component;
 
-  //@ts-ignore
   const render = batched(parent.render.bind(parent, true));
   if (optionalArgs.renderOnModelUpdate === undefined || optionalArgs.renderOnModelUpdate) {
     model.on("update", null, render);
   }
-  // @ts-ignore
   env.__spreadsheet_stores__.on("store-updated", null, render);
 
   registerCleanup(() => {
     app.destroy();
     fixture.remove();
     model.off("update", null);
-    // @ts-ignore
     env.__spreadsheet_stores__.off("store-updated", null);
   });
 
-  // @ts-ignore
   return { app, parent, model, fixture, env: parent.env };
 }
 
@@ -1034,15 +1032,17 @@ export function getCellsObject(model: Model, sheetId: UID): Record<string, CellO
 
 export async function doAction(
   path: string[],
+  model: Model,
   env: SpreadsheetChildEnv,
   menuRegistry: MenuItemRegistry = topbarMenuRegistry
 ) {
-  const node = getNode(path, env, menuRegistry);
-  await node.execute?.(env);
+  const node = getNode(path, model, env, menuRegistry);
+  await node.execute?.(model, env);
 }
 
 export function getNode(
   _path: string[],
+  model: Model,
   env: SpreadsheetChildEnv,
   menuRegistry: MenuItemRegistry = topbarMenuRegistry
 ): Action {
@@ -1057,18 +1057,19 @@ export function getNode(
     if (path.length === 0) {
       return item;
     }
-    items = item.children(env);
+    items = item.children(model, env);
   }
   throw new Error(`Menu item not found`);
 }
 
 export function getName(
   path: string[],
+  model: Model,
   env: SpreadsheetChildEnv,
   menuRegistry: MenuItemRegistry = topbarMenuRegistry
 ): string {
-  const node = getNode(path, env, menuRegistry);
-  return node.name(env).toString();
+  const node = getNode(path, model, env, menuRegistry);
+  return node.name(model, env).toString();
 }
 
 export function getFigureIds(model: Model, sheetId: UID, type?: string): UID[] {

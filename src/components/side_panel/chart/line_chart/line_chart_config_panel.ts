@@ -1,17 +1,18 @@
 import { canChartParseLabels } from "../../../../helpers/figures/charts/runtime/chart_data_extractor";
 import { AxesDesign } from "../../../../types/chart/chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 
 export class LineConfigPanel extends GenericChartConfigPanel {
   static template = "o-spreadsheet-LineConfigPanel";
 
   get canTreatLabelsAsText() {
-    const chart = this.env.model.getters.getChart(this.props.chartId);
+    const chart = this.model().getters.getChart(this.props.chartId);
     const definition = chart?.getRangeDefinition();
     const sheetId = chart?.sheetId;
     if (sheetId && definition?.type === "line") {
-      return canChartParseLabels(chart.getData(this.env.model.getters, this.props.chartId));
+      return canChartParseLabels(chart.getData(this.model().getters, this.props.chartId));
     }
     return false;
   }
@@ -67,4 +68,6 @@ export class LineConfigPanel extends GenericChartConfigPanel {
       cumulative,
     });
   }
+
+  private model = useModel();
 }

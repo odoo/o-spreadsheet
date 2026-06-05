@@ -8,6 +8,7 @@ import { NamedRangePreview } from "./named_range_preview/named_range_preview";
 
 import { props } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
+import { useModel } from "../../owl_plugins/model_plugin";
 
 export class NamedRangesPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-NamedRangesPanel";
@@ -18,18 +19,20 @@ export class NamedRangesPanel extends Component<SpreadsheetChildEnv> {
   });
 
   get namedRanges() {
-    return this.env.model.getters.getNamedRanges();
+    return this.model().getters.getNamedRanges();
   }
 
   addNewNamedRange() {
     const existingNames = this.namedRanges.map((nr) => nr.name);
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const selection = this.env.model.getters.getSelectedZone();
-    this.env.model.dispatch("CREATE_NAMED_RANGE", {
+    const sheetId = this.model().getters.getActiveSheetId();
+    const selection = this.model().getters.getSelectedZone();
+    this.model().dispatch("CREATE_NAMED_RANGE", {
       name: getUniqueText(_t("Named_Range"), existingNames, {
         compute: (text, index) => `${text}${index}`,
       }),
-      ranges: [this.env.model.getters.getRangeDataFromZone(sheetId, selection)],
+      ranges: [this.model().getters.getRangeDataFromZone(sheetId, selection)],
     });
   }
+
+  private model = useModel();
 }

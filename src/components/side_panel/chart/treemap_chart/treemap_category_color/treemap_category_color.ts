@@ -15,6 +15,7 @@ import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 
 import { Component } from "../../../../../owl3_compatibility_layer";
+import { useModel } from "../../../../owl_plugins/model_plugin";
 
 export class TreeMapCategoryColors extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TreeMapCategoryColors";
@@ -42,9 +43,7 @@ export class TreeMapCategoryColors extends Component<SpreadsheetChildEnv> {
   }
 
   getTreeGroupAndColors(): DeepPartial<TreeMapGroupColor[]> {
-    const runtime = this.env.model.getters.getChartRuntime(
-      this.props.chartId
-    ) as TreeMapChartRuntime;
+    const runtime = this.model().getters.getChartRuntime(this.props.chartId) as TreeMapChartRuntime;
     const config = runtime.chartJsConfig as ChartConfiguration<"treemap">;
     return config.data.datasets[0]?.groupColors || [];
   }
@@ -61,4 +60,6 @@ export class TreeMapCategoryColors extends Component<SpreadsheetChildEnv> {
     }
     this.props.onColorChanged({ ...this.coloringOptions, useValueBasedGradient });
   }
+
+  private model = useModel();
 }

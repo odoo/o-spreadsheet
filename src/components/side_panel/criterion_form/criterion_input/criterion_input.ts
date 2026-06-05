@@ -6,6 +6,7 @@ import { _t } from "../../../../translation";
 import { PropsOf } from "../../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { types } from "../../../props_validation";
 
 export class CriterionInput extends Component<SpreadsheetChildEnv> {
@@ -33,6 +34,7 @@ export class CriterionInput extends Component<SpreadsheetChildEnv> {
 
   inputRef = signal<HTMLInputElement | null>(null);
 
+  private model = useModel();
   setup() {
     useLayoutEffect(
       () => {
@@ -87,7 +89,7 @@ export class CriterionInput extends Component<SpreadsheetChildEnv> {
       composerContent: this.props.value,
       placeholder: this.placeholder,
       class: "o-sidePanel-composer",
-      defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
+      defaultRangeSheetId: this.model().getters.getActiveSheetId(),
       invalid: this.state.shouldDisplayError && !!this.errorMessage,
       defaultStatic: true,
       autofocus: this.props.focused,
@@ -98,9 +100,9 @@ export class CriterionInput extends Component<SpreadsheetChildEnv> {
     if (!this.state.shouldDisplayError) {
       return undefined;
     }
-    return this.env.model.getters.getDataValidationInvalidCriterionValueMessage(
+    return this.model().getters.getDataValidationInvalidCriterionValueMessage(
       this.props.criterionType,
-      canonicalizeContent(this.props.value, this.env.model.getters.getLocale())
+      canonicalizeContent(this.props.value, this.model().getters.getLocale())
     );
   }
 }

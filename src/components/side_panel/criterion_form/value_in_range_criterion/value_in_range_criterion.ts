@@ -3,6 +3,7 @@ import { _t } from "../../../../translation";
 import { IsValueInRangeCriterion } from "../../../../types/data_validation";
 import { Color, ValueAndLabel } from "../../../../types/misc";
 import { PropsOf } from "../../../../types/props_of";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
@@ -12,6 +13,7 @@ export class ValueInRangeCriterionForm extends CriterionForm<IsValueInRangeCrite
   static template = "o-spreadsheet-ValueInRangeCriterionForm";
   static components = { RoundColorPicker, SelectionInput, Select };
 
+  private model = useModel();
   setup() {
     super.setup();
     const setupDefault = (props: PropsOf<ValueInRangeCriterionForm>) => {
@@ -38,11 +40,8 @@ export class ValueInRangeCriterionForm extends CriterionForm<IsValueInRangeCrite
   }
 
   get values() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const values = this.env.model.getters.getDataValidationRangeValues(
-      sheetId,
-      this.props.criterion
-    );
+    const sheetId = this.model().getters.getActiveSheetId();
+    const values = this.model().getters.getDataValidationRangeValues(sheetId, this.props.criterion);
     return new Set(values);
   }
 

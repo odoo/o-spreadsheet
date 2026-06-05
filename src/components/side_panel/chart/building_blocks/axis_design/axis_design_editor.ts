@@ -20,6 +20,7 @@ import { UID } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { DateInput } from "../../../../date_input/date_input";
 import { NumberInput } from "../../../../number_input/number_input";
+import { useModel } from "../../../../owl_plugins/model_plugin";
 import { types } from "../../../../props_validation";
 import { BadgeSelection } from "../../../components/badge_selection/badge_selection";
 import { Checkbox } from "../../../components/checkbox/checkbox";
@@ -45,6 +46,7 @@ export class AxisDesignEditor extends Component<SpreadsheetChildEnv> {
     axesList: types.ArrayOf<AxisDefinition>(),
   });
 
+  private model = useModel();
   state: { currentAxis: AxisId } = proxy({ currentAxis: "x" });
 
   defaultFontSize = CHART_AXIS_TITLE_FONT_SIZE;
@@ -251,7 +253,7 @@ export class AxisDesignEditor extends Component<SpreadsheetChildEnv> {
   }
 
   private parseTimeAxisBoundaryValue(value: string): number | undefined | null {
-    const dateNumber = toNumber(value, this.env.model.getters.getLocale());
+    const dateNumber = toNumber(value, this.model().getters.getLocale());
     return Number.isNaN(dateNumber) ? null : dateNumber;
   }
 
@@ -259,11 +261,11 @@ export class AxisDesignEditor extends Component<SpreadsheetChildEnv> {
     if (value === undefined) {
       return undefined;
     }
-    return formatValue(value, { format: "yyyy-mm-dd", locale: this.env.model.getters.getLocale() });
+    return formatValue(value, { format: "yyyy-mm-dd", locale: this.model().getters.getLocale() });
   }
 
   private getXAxisType(): AxisType | undefined {
-    const runtime = this.env.model.getters.getChartRuntime(this.props.chartId) as LineChartRuntime;
+    const runtime = this.model().getters.getChartRuntime(this.props.chartId) as LineChartRuntime;
     return runtime?.chartJsConfig.options?.scales?.x?.type as AxisType | undefined;
   }
 }

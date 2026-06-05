@@ -12,6 +12,7 @@ import { UID } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../helpers/drag_and_drop_dom_items_hook";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 import { TextInput } from "../../text_input/text_input";
 import { TextStyler } from "../chart/building_blocks/text_styler/text_styler";
@@ -29,6 +30,7 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
 
   DEFAULT_CAROUSEL_TITLE_STYLE = DEFAULT_CAROUSEL_TITLE_STYLE;
 
+  private model = useModel();
   private dragAndDrop = useDragAndDropListItems();
   private previewListRef = signal<HTMLElement | null>(null);
 
@@ -43,15 +45,15 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
   }
 
   get carouselItems(): CarouselItem[] {
-    return this.env.model.getters.getCarousel(this.props.figureId).items;
+    return this.model().getters.getCarousel(this.props.figureId).items;
   }
 
   get title(): TitleDesign | undefined {
-    return this.env.model.getters.getCarousel(this.props.figureId).title;
+    return this.model().getters.getCarousel(this.props.figureId).title;
   }
 
   get carousel() {
-    return this.env.model.getters.getCarousel(this.props.figureId);
+    return this.model().getters.getCarousel(this.props.figureId);
   }
 
   getPreviewDivStyle(item: CarouselItem): string {
@@ -63,7 +65,7 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
   }
 
   addNewChartToCarousel() {
-    this.env.model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
+    this.model().dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
     });
@@ -74,17 +76,17 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
   }
 
   isCarouselItemActive(item: CarouselItem): boolean {
-    const activeItem = this.env.model.getters.getSelectedCarouselItem(this.props.figureId);
+    const activeItem = this.model().getters.getSelectedCarouselItem(this.props.figureId);
     return deepEquals(activeItem, item);
   }
 
   addDataViewToCarousel() {
-    const carousel = this.env.model.getters.getCarousel(this.props.figureId);
+    const carousel = this.model().getters.getCarousel(this.props.figureId);
     this.updateItems([...carousel.items, { type: "carouselDataView" }]);
   }
 
   activateCarouselItem(item: CarouselItem) {
-    this.env.model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+    this.model().dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
       item,
@@ -94,7 +96,7 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
   editCarouselItem(item: CarouselItem) {
     if (item.type === "chart") {
       this.activateCarouselItem(item);
-      this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureId });
+      this.model().dispatch("SELECT_FIGURE", { figureId: this.props.figureId });
       this.env.openSidePanel("ChartPanel", { chartId: item.chartId });
     }
   }
@@ -113,7 +115,7 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
   }
 
   deleteCarouselItem(item: CarouselItem) {
-    const carousel = this.env.model.getters.getCarousel(this.props.figureId);
+    const carousel = this.model().getters.getCarousel(this.props.figureId);
     const items = carousel.items.filter((itm) => !deepEquals(itm, item));
     this.updateItems(items);
   }
@@ -122,7 +124,7 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
     if (item.type !== "chart") {
       return;
     }
-    this.env.model.dispatch("POPOUT_CHART_FROM_CAROUSEL", {
+    this.model().dispatch("POPOUT_CHART_FROM_CAROUSEL", {
       sheetId: this.carouselSheetId,
       carouselId: this.props.figureId,
       chartId: item.chartId,
@@ -133,7 +135,7 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
     if (item.type !== "chart") {
       return;
     }
-    this.env.model.dispatch("DUPLICATE_CAROUSEL_CHART", {
+    this.model().dispatch("DUPLICATE_CAROUSEL_CHART", {
       sheetId: this.carouselSheetId,
       carouselId: this.props.figureId,
       chartId: item.chartId,
@@ -171,7 +173,7 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
     if (originalIndex === -1 || originalIndex === finalIndex) {
       return;
     }
-    const carousel = this.env.model.getters.getCarousel(this.props.figureId);
+    const carousel = this.model().getters.getCarousel(this.props.figureId);
     const items = [...carousel.items];
     items.splice(originalIndex, 1);
     items.splice(finalIndex, 0, item);
@@ -179,15 +181,15 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
   }
 
   getItemTitle(item: CarouselItem): string {
-    return getCarouselItemTitle(this.env.model.getters, item);
+    return getCarouselItemTitle(this.model().getters, item);
   }
 
   getItemPreview(item: CarouselItem): string {
-    return getCarouselItemPreview(this.env.model.getters, item);
+    return getCarouselItemPreview(this.model().getters, item);
   }
 
   updateItems(items: CarouselItem[]) {
-    this.env.model.dispatch("UPDATE_CAROUSEL", {
+    this.model().dispatch("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
       definition: { ...this.carousel, items },
@@ -195,8 +197,8 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
   }
 
   updateTitleText(title: string) {
-    const carousel = this.env.model.getters.getCarousel(this.props.figureId);
-    this.env.model.dispatch("UPDATE_CAROUSEL", {
+    const carousel = this.model().getters.getCarousel(this.props.figureId);
+    this.model().dispatch("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
       definition: {
@@ -210,8 +212,8 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
   }
 
   updateTitleStyle(style: TitleDesign) {
-    const carousel = this.env.model.getters.getCarousel(this.props.figureId);
-    this.env.model.dispatch("UPDATE_CAROUSEL", {
+    const carousel = this.model().getters.getCarousel(this.props.figureId);
+    this.model().dispatch("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
       definition: {
@@ -258,7 +260,7 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
   }
 
   get carouselSheetId(): UID {
-    const sheetId = this.env.model.getters.getFigureSheetId(this.props.figureId);
+    const sheetId = this.model().getters.getFigureSheetId(this.props.figureId);
     if (!sheetId) {
       throw new Error("Could not find the sheetId of the carousel figure");
     }

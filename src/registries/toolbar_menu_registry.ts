@@ -1,6 +1,7 @@
 import { PropsOf } from "../types/props_of";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 
+import { Model } from "../model";
 import { ComponentConstructor } from "../owl3_compatibility_layer";
 import { Registry } from "./registry";
 
@@ -9,7 +10,7 @@ type ToolBarItem<C extends ComponentConstructor = ComponentConstructor> = {
   component: C;
   props: PropsOf<C>;
   sequence: number;
-  isVisible?: (env: SpreadsheetChildEnv) => boolean;
+  isVisible?: (model: Model, env: SpreadsheetChildEnv) => boolean;
 };
 
 export class ToolBarRegistry extends Registry<ToolBarItem[]> {

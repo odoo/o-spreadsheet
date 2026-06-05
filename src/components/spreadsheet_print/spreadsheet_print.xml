@@ -39,7 +39,7 @@
         </div>
         <div class="o-sidePanel flex-shrink-0 bg-white border-top border-start d-print-none">
           <div class="o-sidePanelBody pt-4">
-            <Section t-if="!this.env.model.getters.isDashboard()">
+            <Section t-if="!this.model().getters.isDashboard()">
               <div class="o-section-title">Print content</div>
               <Select
                 selectedValue="this.printStore.printSelection"
@@ -78,7 +78,7 @@
               />
             </Section>
 
-            <Section t-if="!this.env.model.getters.isDashboard()">
+            <Section t-if="!this.model().getters.isDashboard()">
               <div class="o-section-title">Formatting</div>
               <Checkbox
                 name="'showGridLines'"

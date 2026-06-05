@@ -1,5 +1,6 @@
 import { MergeErrorMessage, RemoveDuplicateTerms } from "../../components/translations_terms";
 import { getCurrentVersion } from "../../migrations/data";
+import { Model } from "../../model";
 import { _t } from "../../translation";
 import {
   ClipboardPasteOptions,
@@ -17,10 +18,11 @@ import { Zone } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 export const handleCopyPasteResult = (
+  model: Model,
   env: SpreadsheetChildEnv,
   command: CopyPasteCellsAboveCommand | CopyPasteCellsOnLeftCommand | CopyPasteCellsOnZoneCommand
 ) => {
-  const result = env.model.dispatch(command.type);
+  const result = model.dispatch(command.type);
   if (result.isCancelledBecause(CommandResult.WillRemoveExistingMerge)) {
     env.raiseError(MergeErrorMessage);
   }
@@ -33,7 +35,7 @@ export const PasteInteractiveContent = {
   frozenPaneOverlap: _t("This operation is not allowed due to an overlapping frozen pane."),
 };
 
-export function handlePasteResult(env: SpreadsheetChildEnv, result: DispatchResult) {
+export function handlePasteResult(model: Model, env: SpreadsheetChildEnv, result: DispatchResult) {
   if (!result.isSuccessful) {
     if (result.reasons.includes(CommandResult.WrongPasteSelection)) {
       env.raiseError(PasteInteractiveContent.wrongPasteSelection);
@@ -48,15 +50,17 @@ export function handlePasteResult(env: SpreadsheetChildEnv, result: DispatchResu
 }
 
 export function interactivePaste(
+  model: Model,
   env: SpreadsheetChildEnv,
   target: Zone[],
   pasteOption?: ClipboardPasteOptions
 ) {
-  const result = env.model.dispatch("PASTE", { target, pasteOption });
-  handlePasteResult(env, result);
+  const result = model.dispatch("PASTE", { target, pasteOption });
+  handlePasteResult(model, env, result);
 }
 
 export async function interactivePasteFromOS(
+  model: Model,
   env: SpreadsheetChildEnv,
   target: Zone[],
   parsedClipboardContent: ParsedOSClipboardContent,
@@ -85,11 +89,11 @@ export async function interactivePasteFromOS(
     delete parsedClipboardContent.imageBlob;
   }
 
-  const result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+  const result = model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
     target,
     clipboardContent: parsedClipboardContent,
     pasteOption,
   });
 
-  handlePasteResult(env, result);
+  handlePasteResult(model, env, result);
 }

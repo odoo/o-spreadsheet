@@ -24,6 +24,7 @@ import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { types } from "../../../props_validation";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { PivotCustomGroupsCollapsible } from "../pivot_custom_groups_collapsible/pivot_custom_groups_collapsible";
@@ -70,6 +71,7 @@ export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
 
   isDateOrDatetimeField = isDateOrDatetimeField;
 
+  private model = useModel();
   setup() {
     this.composerFocus = useStore(ComposerFocusStore);
   }
@@ -260,7 +262,7 @@ export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
 
   addCalculatedMeasure() {
     const { measures }: { measures: PivotCoreMeasure[] } = this.props.definition;
-    const measureName = this.env.model.getters.generateNewCalculatedMeasureName(measures);
+    const measureName = this.model().getters.generateNewCalculatedMeasureName(measures);
     const aggregator = "sum";
     this.props.onDimensionsUpdated({
       measures: measures.concat([
@@ -269,7 +271,7 @@ export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
           fieldName: measureName,
           aggregator,
           computedBy: {
-            sheetId: this.env.model.getters.getActiveSheetId(),
+            sheetId: this.model().getters.getActiveSheetId(),
             formula: "=0",
           },
         },
@@ -278,7 +280,7 @@ export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
   }
 
   getCustomField(dimension: PivotDimensionType) {
-    const definition = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
+    const definition = this.model().getters.getPivotCoreDefinition(this.props.pivotId);
     return definition.customFields?.[dimension.nameWithGranularity];
   }
 
@@ -323,7 +325,7 @@ export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
   }
 
   getHugeDimensionErrorMessage(dimension: PivotDimensionType) {
-    const pivot = this.env.model.getters.getPivot(this.props.pivotId);
+    const pivot = this.model().getters.getPivot(this.props.pivotId);
     const possibleValues = pivot.getPossibleFieldValues(dimension);
     return possibleValues.length > 100
       ? _t(

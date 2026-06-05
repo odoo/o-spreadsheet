@@ -151,7 +151,7 @@ describe("Side Panel", () => {
 
   test("Can open a custom side panel with custom title based on props", async () => {
     addToRegistry(sidePanelRegistry, "CUSTOM_PANEL", {
-      title: (env, props: any) => `Title: ${props.text}`,
+      title: (model, env, props: any) => `Title: ${props.text}`,
       Body: Body,
     });
     parent.env.openSidePanel("CUSTOM_PANEL", { text: "1" });
@@ -380,7 +380,7 @@ describe("Side Panel", () => {
       expect(sidePanelStore.mainPanel?.isPinned).toBeFalsy();
       expect(".o-pin-panel").toHaveCount(0);
 
-      await doAction(["view", "toggle_pin_panel"], parent.env);
+      await doAction(["view", "toggle_pin_panel"], model, parent.env);
       await nextTick();
       expect(sidePanelStore.mainPanel?.isPinned).toBe(true);
       expect(".o-pin-panel").toHaveCount(1);
@@ -396,7 +396,7 @@ describe("Side Panel", () => {
     });
 
     test("Can unpin a side panel with the icon", async () => {
-      await doAction(["view", "toggle_pin_panel"], parent.env);
+      await doAction(["view", "toggle_pin_panel"], model, parent.env);
       await nextTick();
       expect(sidePanelStore.mainPanel?.isPinned).toBe(true);
       await click(fixture, ".o-pin-panel");
@@ -404,10 +404,10 @@ describe("Side Panel", () => {
     });
 
     test("Can unpin a side panel with the menu", async () => {
-      await doAction(["view", "toggle_pin_panel"], parent.env);
+      await doAction(["view", "toggle_pin_panel"], model, parent.env);
       expect(sidePanelStore.mainPanel?.isPinned).toBe(true);
       await nextTick();
-      await doAction(["view", "toggle_pin_panel"], parent.env);
+      await doAction(["view", "toggle_pin_panel"], model, parent.env);
       expect(sidePanelStore.mainPanel?.isPinned).toBeFalsy();
     });
 
@@ -475,7 +475,7 @@ describe("Side Panel", () => {
         }),
       });
 
-      await doAction(["view", "toggle_pin_panel"], parent.env);
+      await doAction(["view", "toggle_pin_panel"], model, parent.env);
       parent.env.openSidePanel("OTHER_PANEL", { key: panelKey });
       await nextTick();
       expect(".o-sidePanel").toHaveCount(1);
@@ -483,7 +483,7 @@ describe("Side Panel", () => {
     });
 
     test("Reopening main panel from secondary panel closes secondary panel", async () => {
-      await doAction(["view", "toggle_pin_panel"], parent.env);
+      await doAction(["view", "toggle_pin_panel"], model, parent.env);
 
       parent.env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
@@ -496,7 +496,7 @@ describe("Side Panel", () => {
     });
 
     test("Reopening main panel directly does not close secondary panel", async () => {
-      await doAction(["view", "toggle_pin_panel"], parent.env);
+      await doAction(["view", "toggle_pin_panel"], model, parent.env);
 
       parent.env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
@@ -508,7 +508,7 @@ describe("Side Panel", () => {
     });
 
     test("Re-opening the same panel un-collapses it", async () => {
-      await doAction(["view", "toggle_pin_panel"], parent.env);
+      await doAction(["view", "toggle_pin_panel"], model, parent.env);
       await click(fixture, ".o-collapse-panel");
 
       expect(".o-sidePanel").toHaveClass("collapsed");
@@ -521,7 +521,7 @@ describe("Side Panel", () => {
     });
 
     test("Reopening main panel from secondary panel should expand it if collapsed", async () => {
-      await doAction(["view", "toggle_pin_panel"], parent.env);
+      await doAction(["view", "toggle_pin_panel"], model, parent.env);
       await click(fixture, ".o-collapse-panel");
 
       expect(".o-sidePanel").toHaveClass("collapsed");

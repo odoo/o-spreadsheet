@@ -772,7 +772,7 @@ describe("Spreadsheet pivot side panel", () => {
     const sheet2Id = "sheet2";
     createSheet(model, { sheetId: sheet2Id, activate: true });
     const reinsertStaticPivotPath = ["data", "reinsert_static_pivot", "reinsert_static_pivot_1"];
-    await doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
+    await doAction(reinsertStaticPivotPath, model, env, topbarMenuRegistry);
     env.openSidePanel("PivotSidePanel", { pivotId: "2" });
     await nextTick();
     // update the pivot

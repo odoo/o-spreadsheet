@@ -7,6 +7,7 @@ import { Select } from "../../../select/select";
 import { Section } from "../../components/section/section";
 
 import { Component } from "../../../../owl3_compatibility_layer";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { types } from "../../../props_validation";
 export class GeoChartRegionSelectSection extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GeoChartRegionSelectSection";
@@ -26,7 +27,7 @@ export class GeoChartRegionSelectSection extends Component<SpreadsheetChildEnv> 
   }
 
   get availableRegions() {
-    return this.env.model.getters.getGeoChartAvailableRegions();
+    return this.model().getters.getGeoChartAvailableRegions();
   }
 
   get selectedRegion() {
@@ -36,4 +37,6 @@ export class GeoChartRegionSelectSection extends Component<SpreadsheetChildEnv> 
   get regionOptions(): ValueAndLabel[] {
     return this.availableRegions.map((region) => ({ value: region.id, label: region.label }));
   }
+
+  private model = useModel();
 }

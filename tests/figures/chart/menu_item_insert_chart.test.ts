@@ -87,7 +87,7 @@ describe("Insert chart menu item", () => {
   let openSidePanelSpy: jest.Mock<any, any>;
 
   async function insertChart() {
-    await doAction(["insert", "insert_chart"], env);
+    await doAction(["insert", "insert_chart"], model, env);
   }
 
   async function mountTestSpreadsheet() {
@@ -97,11 +97,10 @@ describe("Insert chart menu item", () => {
 
   beforeEach(async () => {
     openSidePanelSpy = jest.fn();
-    env = makeTestEnv({
-      model: new Model(data),
+    model = new Model(data);
+    env = makeTestEnv(model, {
       openSidePanel: (type, props) => openSidePanelSpy(type, props),
     });
-    model = env.model;
 
     mockChart();
     dispatchSpy = spyModelDispatch(model);
@@ -277,7 +276,7 @@ describe("Insert chart menu item", () => {
 
   test("Chart is inserted at correct position on a scrolled viewport", async () => {
     setSelection(model, ["B2:B3"]);
-    const { width, height } = env.model.getters.getSheetViewDimension();
+    const { width, height } = model.getters.getSheetViewDimension();
     addColumns(model, "after", "D", 100);
     addRows(model, "after", 4, 100);
     setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 4 * DEFAULT_CELL_HEIGHT);
@@ -422,7 +421,7 @@ describe("Smart chart type detection", () => {
 
   beforeEach(() => {
     model = new Model();
-    env = makeTestEnv({ model });
+    env = makeTestEnv(model);
   });
 
   /**
@@ -462,7 +461,7 @@ describe("Smart chart type detection", () => {
   test("Single cell: create a scorecard", async () => {
     setCellContent(model, "C3", "100");
     setSelection(model, ["C3"]);
-    await doAction(["insert", "insert_chart"], env);
+    await doAction(["insert", "insert_chart"], model, env);
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       type: "scorecard",
@@ -479,7 +478,7 @@ describe("Smart chart type detection", () => {
     [["date_with_header"], { type: "line", dataSetsHaveTitle: true }],
   ] as const)("Single column %s creates chart", async (datasetPattern, expected) => {
     createDatasetFromDescription([...datasetPattern]);
-    await doAction(["insert", "insert_chart"], env);
+    await doAction(["insert", "insert_chart"], model, env);
 
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
 
@@ -508,7 +507,7 @@ describe("Smart chart type detection", () => {
     [["number", "number_with_header"], { type: "scatter", dataSetsHaveTitle: true }],
   ])("Two columns %s creates %s chart", async (datasetPattern, expected) => {
     createDatasetFromDescription(datasetPattern);
-    await doAction(["insert", "insert_chart"], env);
+    await doAction(["insert", "insert_chart"], model, env);
 
     const expectedDataset =
       expected.type === "treemap" ? [{ dataRange: "A1:A6" }] : [{ dataRange: "B1:B6" }];
@@ -535,7 +534,7 @@ describe("Smart chart type detection", () => {
     "Multiple text columns  %s create a %s hierarchical chart",
     async (datasetPattern, expected) => {
       createDatasetFromDescription(datasetPattern);
-      await doAction(["insert", "insert_chart"], env);
+      await doAction(["insert", "insert_chart"], model, env);
 
       const datasetLastCol = datasetPattern.findIndex((p) => !p.includes("text"));
       const expectedDatasets: ChartRangeDataSource<string>["dataSets"] = [];
@@ -576,7 +575,7 @@ describe("Smart chart type detection", () => {
     [["text", "number", "date_with_header"], { type: "bar", dataSetsHaveTitle: true }],
   ])("Multiple columns  %s create a %s chart", async (datasetPattern, expected) => {
     createDatasetFromDescription(datasetPattern);
-    await doAction(["insert", "insert_chart"], env);
+    await doAction(["insert", "insert_chart"], model, env);
 
     const expectedDatasets: ChartRangeDataSource<string>["dataSets"] = [];
     for (let i = 1; i < datasetPattern.length; i++) {
@@ -599,7 +598,7 @@ describe("Smart chart type detection", () => {
 
   test("Empty columns are passed in the chart dataset if the whole selection is empty", async () => {
     setSelection(model, ["A1:B6"]);
-    await doAction(["insert", "insert_chart"], env);
+    await doAction(["insert", "insert_chart"], model, env);
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       type: "bar",
@@ -613,7 +612,7 @@ describe("Smart chart type detection", () => {
   test("Empty columns are ignored in the chart dataset if other columns are not empty", async () => {
     createDatasetFromDescription(["number", "empty", "number"]);
     setSelection(model, ["A1:C6"]);
-    await doAction(["insert", "insert_chart"], env);
+    await doAction(["insert", "insert_chart"], model, env);
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       type: "scatter",
@@ -634,7 +633,7 @@ describe("Smart chart type detection", () => {
     "Pie charts and charts with more than one column in their dataset %s have a legend",
     async (datasetPattern, expected) => {
       createDatasetFromDescription(datasetPattern);
-      await doAction(["insert", "insert_chart"], env);
+      await doAction(["insert", "insert_chart"], model, env);
 
       const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
       expect(model.getters.getChartDefinition(chartId)).toMatchObject(expected);

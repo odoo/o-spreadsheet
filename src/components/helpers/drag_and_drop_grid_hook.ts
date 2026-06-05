@@ -1,8 +1,8 @@
 import { onWillUnmount } from "@odoo/owl";
 import { MAX_DELAY } from "../../helpers/edge_scrolling";
+import { Model } from "../../model";
 import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { HeaderIndex, Pixel } from "../../types/misc";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { gridOverlayPosition } from "./dom_helpers";
 import { startDnd } from "./drag_and_drop";
 import { withZoom } from "./zoom";
@@ -18,14 +18,14 @@ export type DnDDirection = "all" | "vertical" | "horizontal";
  * (occurrence of the current column and the current row). Second intended for actions
  * performed during the pointerup event.
  */
-export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
+export function useDragAndDropBeyondTheViewport(model: Model) {
   let timeOutId: any = null;
   let currentEv: PointerEvent;
   let previousEvClientPosition: { clientX: number; clientY: number };
   let startingX: number;
   let startingY: number;
   let scrollDirection: DnDDirection = "all";
-  const getters = env.model.getters;
+  const getters = model.getters;
 
   const blockKeyboard = (ev: KeyboardEvent) => ev.preventDefault();
   const cleanUpBlockKeyboard = () =>
@@ -50,9 +50,9 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     }
 
     const sheetId = getters.getActiveSheetId();
-    const zoomLevel = env.model.getters.getViewportZoomLevel();
+    const zoomLevel = model.getters.getViewportZoomLevel();
     const position = gridOverlayPosition(zoomLevel);
-    const zoomedMouseEvent = withZoom(env, currentEv, position);
+    const zoomedMouseEvent = withZoom(model, currentEv, position);
     const { x: offsetCorrectionX, y: offsetCorrectionY } = getters.getMainViewportCoordinates();
     const { top, left, bottom, right } = getters.getActiveMainViewport();
     let { scrollX, scrollY } = getters.getActiveSheetScrollInfo();
@@ -80,7 +80,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
             break;
           case -1:
             colIndex = left - 1;
-            while (env.model.getters.isColHidden(sheetId, colIndex)) {
+            while (model.getters.isColHidden(sheetId, colIndex)) {
               colIndex--;
             }
             newTarget = colIndex;
@@ -110,13 +110,13 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
             break;
           case -1:
             rowIndex = top - 1;
-            while (env.model.getters.isRowHidden(sheetId, rowIndex)) {
+            while (model.getters.isRowHidden(sheetId, rowIndex)) {
               rowIndex--;
             }
             newTarget = rowIndex;
             break;
         }
-        scrollY = env.model.getters.getRowDimensions(sheetId, newTarget).start - offsetCorrectionY;
+        scrollY = model.getters.getRowDimensions(sheetId, newTarget).start - offsetCorrectionY;
       }
     }
 
@@ -127,7 +127,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
 
     pointerMoveCallback?.(colIndex, rowIndex, currentEv);
     if (canEdgeScroll) {
-      env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: scrollX, offsetY: scrollY });
+      model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: scrollX, offsetY: scrollY });
       timeOutId = setTimeout(() => {
         timeOutId = null;
         pointerMoveHandler(currentEv);
@@ -151,7 +151,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     startScrollDirection: DnDDirection = "all"
   ) => {
     cleanUp();
-    const zoomLevel = env.model.getters.getViewportZoomLevel();
+    const zoomLevel = model.getters.getViewportZoomLevel();
     const position = gridOverlayPosition(zoomLevel);
     scrollDirection = startScrollDirection;
     startingX = initialPointerCoordinates.clientX - position.x;

@@ -10,7 +10,7 @@
         t-att-class="this.props.class"
         t-on-pointerdown.stop="(ev) => this.onMouseDown(ev)"
         t-on-click="this.onClick"
-        t-on-contextmenu.prevent.stop="(ev) => !this.env.model.getters.isReadonly() and this.onContextMenu(ev)"
+        t-on-contextmenu.prevent.stop="(ev) => !this.model().getters.isReadonly() and this.onContextMenu(ev)"
         t-ref="this.figureRef"
         t-att-style="this.props.style"
         t-att-data-id="this.props.figureUI.id"
@@ -24,12 +24,10 @@
           editFigureStyle.bind="this.editWrapperStyle"
           openContextMenu.bind="this.openContextMenu"
         />
-        <div
-          class="o-figure-menu position-absolute m-2"
-          t-if="!this.env.model.getters.isDashboard()">
+        <div class="o-figure-menu position-absolute m-2" t-if="!this.model().getters.isDashboard()">
           <div
             class="o-figure-menu-item d-flex-align-items-center"
-            t-if="!this.env.model.getters.isReadonly() and this.props.figureUI.tag !== 'carousel'"
+            t-if="!this.model().getters.isReadonly() and this.props.figureUI.tag !== 'carousel'"
             t-on-click="this.showMenu"
             t-ref="this.menuButtonRef"
             t-on-contextmenu.prevent.stop="this.showMenu">
@@ -43,7 +41,7 @@
           />
         </div>
         <div
-          t-if="!this.env.model.getters.isDashboard()"
+          t-if="!this.model().getters.isDashboard()"
           class="position-absolute top-0 start-0 pe-none w-100 h-100">
           <div
             class="o-figure-border pe-auto w-100 h-0 position-absolute pb-2"

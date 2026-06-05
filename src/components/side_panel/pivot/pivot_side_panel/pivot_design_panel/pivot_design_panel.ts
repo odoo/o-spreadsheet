@@ -8,6 +8,7 @@ import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Store } from "../../../../../types/store_engine";
 import { TableConfig, TableStyle } from "../../../../../types/table";
 import { NumberInput } from "../../../../number_input/number_input";
+import { useModel } from "../../../../owl_plugins/model_plugin";
 import { types } from "../../../../props_validation";
 import { TableStylePicker } from "../../../../tables/table_style_picker/table_style_picker";
 import { Checkbox } from "../../../components/checkbox/checkbox";
@@ -24,6 +25,7 @@ export class PivotDesignPanel extends Component<SpreadsheetChildEnv> {
 
   store!: Store<PivotSidePanelStore>;
 
+  private model = useModel();
   setup() {
     this.store = useLocalStore(PivotSidePanelStore, this.props.pivotId, "neverDefer");
   }
@@ -38,7 +40,7 @@ export class PivotDesignPanel extends Component<SpreadsheetChildEnv> {
   }
 
   get pivotStyle() {
-    const pivot = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
+    const pivot = this.model().getters.getPivotCoreDefinition(this.props.pivotId);
     return pivot.style || {};
   }
 

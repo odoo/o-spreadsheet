@@ -193,7 +193,7 @@ describe("Grid component in dashboard mode", () => {
           : cell.compiledFormula.toFormulaString(getters);
         return !!content?.startsWith("__");
       },
-      execute: (_, __, isMiddleClick) => fn(isMiddleClick),
+      execute: (_, __, ___, isMiddleClick) => fn(isMiddleClick),
       sequence: 5,
     });
     setCellContent(model, "A1", "__test1");

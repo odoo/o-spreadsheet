@@ -12,6 +12,7 @@ import { PropsOf } from "../../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../../helpers/css";
 import { isChildEvent } from "../../../helpers/dom_helpers";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { Popover } from "../../../popover/popover";
 import { types } from "../../../props_validation";
 import { Section } from "../../components/section/section";
@@ -39,10 +40,11 @@ export class ChartTypePicker extends Component<SpreadsheetChildEnv> {
 
   state = proxy<ChartTypePickerState>({ popoverProps: undefined, popoverStyle: "" });
 
+  private model = useModel();
   setup(): void {
     useExternalListener(window, "pointerdown", this.onExternalClick, { capture: true });
 
-    const definition = this.env.model.getters.getChartDefinition(this.props.chartId);
+    const definition = this.model().getters.getChartDefinition(this.props.chartId);
     const supportedTypes = this.getSupportedChartTypes(definition);
 
     for (const subtypeProperties of chartSubtypeRegistry.getAll()) {
@@ -90,7 +92,7 @@ export class ChartTypePicker extends Component<SpreadsheetChildEnv> {
   }
 
   private getChartDefinition(chartId: UID): ChartDefinition {
-    return this.env.model.getters.getChartDefinition(chartId);
+    return this.model().getters.getChartDefinition(chartId);
   }
 
   getSelectedChartSubtypeProperties(): ChartSubtypeProperties {

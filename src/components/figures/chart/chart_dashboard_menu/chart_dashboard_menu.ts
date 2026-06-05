@@ -11,6 +11,7 @@ import { Store } from "../../../../types/store_engine";
 import { FullScreenFigureStore } from "../../../full_screen_figure/full_screen_figure_store";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
 
@@ -38,6 +39,7 @@ export class ChartDashboardMenu extends Component<SpreadsheetChildEnv> {
 
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
 
+  private model = useModel();
   private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
   setup() {
     super.setup();
@@ -49,25 +51,25 @@ export class ChartDashboardMenu extends Component<SpreadsheetChildEnv> {
   }
 
   get backgroundColor() {
-    const color = this.env.model.getters.getChartDefinition(this.props.chartId).background;
+    const color = this.model().getters.getChartDefinition(this.props.chartId).background;
     return (
-      "background-color: " + (color || this.env.model.getters.getSpreadsheetTheme().backgroundColor)
+      "background-color: " + (color || this.model().getters.getSpreadsheetTheme().backgroundColor)
     );
   }
 
   openContextMenu(ev: MouseEvent) {
     this.menuState.isOpen = true;
     this.menuState.anchorRect = getBoundingRectAsPOJO(ev.currentTarget as HTMLElement);
-    const figureId = this.env.model.getters.getFigureIdFromChartId(this.props.chartId);
-    this.menuState.menuItems = getChartMenuActions(figureId, this.env);
+    const figureId = this.model().getters.getFigureIdFromChartId(this.props.chartId);
+    this.menuState.menuItems = getChartMenuActions(figureId, this.model());
   }
 
   get fullScreenMenuItem(): MenuItem | undefined {
     if (!this.props.hasFullScreenButton) {
       return undefined;
     }
-    const definition = this.env.model.getters.getChartDefinition(this.props.chartId);
-    const figureId = this.env.model.getters.getFigureIdFromChartId(this.props.chartId);
+    const definition = this.model().getters.getChartDefinition(this.props.chartId);
+    const figureId = this.model().getters.getFigureIdFromChartId(this.props.chartId);
     if (definition.type === "scorecard") {
       return undefined;
     }
@@ -83,23 +85,23 @@ export class ChartDashboardMenu extends Component<SpreadsheetChildEnv> {
   }
 
   get regionOptions(): ValueAndLabel[] {
-    return this.env.model.getters
-      .getAvailableChartRegions(this.props.chartId)
+    return this.model()
+      .getters.getAvailableChartRegions(this.props.chartId)
       .map((r) => ({ value: r.id, label: r.label }));
   }
 
   get selectedRegion(): string {
-    const definition = this.env.model.getters.getChartDefinition(this.props.chartId);
+    const definition = this.model().getters.getChartDefinition(this.props.chartId);
     if (!definition.type.includes("geo")) {
       return "";
     }
     const geoDef = definition as GeoChartDefinition<string>;
-    const availableRegions = this.env.model.getters.getGeoChartAvailableRegions();
+    const availableRegions = this.model().getters.getGeoChartAvailableRegions();
     return geoDef.region || availableRegions[0]?.id || "";
   }
 
   onRegionSelected(region: string) {
-    this.env.model.dispatch("UPDATE_CHART_REGION", {
+    this.model().dispatch("UPDATE_CHART_REGION", {
       chartId: this.props.chartId,
       region,
     });

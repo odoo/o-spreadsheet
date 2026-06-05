@@ -4,6 +4,7 @@ import { types } from "../../props_validation";
 
 import { props } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
+import { useModel } from "../../owl_plugins/model_plugin";
 
 export class SidePanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SidePanel";
@@ -20,11 +21,12 @@ export class SidePanel extends Component<SpreadsheetChildEnv> {
     "isCollapsed?": types.boolean(),
   });
   spreadsheetRect = useSpreadsheetRect();
+  private model = useModel();
 
   getTitle() {
     const panel = this.props.panelContent;
     return typeof panel.title === "function"
-      ? panel.title(this.env, this.props.panelProps)
+      ? panel.title(this.model(), this.env, this.props.panelProps)
       : panel.title;
   }
 }

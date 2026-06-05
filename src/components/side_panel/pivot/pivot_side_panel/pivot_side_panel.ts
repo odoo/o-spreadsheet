@@ -5,6 +5,7 @@ import { Component } from "../../../../owl3_compatibility_layer";
 import { PropsOf } from "../../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlights } from "../../../helpers/highlight_hook";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { types } from "../../../props_validation";
 import { Section } from "../../components/section/section";
 import { PivotLayoutConfigurator } from "../pivot_layout_configurator/pivot_layout_configurator";
@@ -35,6 +36,7 @@ export class PivotSidePanel extends Component<SpreadsheetChildEnv> {
 
   state = proxy<State>({ panel: this.props.openTab || "configuration" });
 
+  private model = useModel();
   setup() {
     useHighlights(this);
     onWillUpdateProps((nextProps: PropsOf<PivotSidePanel>) => {
@@ -45,7 +47,7 @@ export class PivotSidePanel extends Component<SpreadsheetChildEnv> {
   }
 
   get sidePanelEditor() {
-    const pivot = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
+    const pivot = this.model().getters.getPivotCoreDefinition(this.props.pivotId);
     if (!pivot) {
       throw new Error("pivotId does not correspond to a pivot.");
     }
@@ -54,7 +56,7 @@ export class PivotSidePanel extends Component<SpreadsheetChildEnv> {
 
   get highlights() {
     return this.state.panel === "configuration"
-      ? getPivotHighlights(this.env.model.getters, this.props.pivotId)
+      ? getPivotHighlights(this.model().getters, this.props.pivotId)
       : [];
   }
 

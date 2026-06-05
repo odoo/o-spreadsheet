@@ -70,7 +70,7 @@ describe("Interactive rename sheet", () => {
       callback();
     });
     model = new Model({});
-    env = makeTestEnv({ model, raiseError: raiseErrorSpy });
+    env = makeTestEnv(model, { raiseError: raiseErrorSpy });
   });
 
   test.each([
@@ -84,7 +84,13 @@ describe("Interactive rename sheet", () => {
     "Rename a sheet with interaction with wrong name %s",
     async (sheetName, expectedErrorMessage) => {
       const errorCallback = jest.fn();
-      interactiveRenameSheet(env, model.getters.getActiveSheetId(), sheetName, errorCallback);
+      interactiveRenameSheet(
+        model,
+        env,
+        model.getters.getActiveSheetId(),
+        sheetName,
+        errorCallback
+      );
       expect(raiseErrorSpy).toHaveBeenCalledTimes(1);
       expect(errorCallback).toHaveBeenCalled();
       expect(errorTextSpy).toHaveBeenCalledWith(expectedErrorMessage);
@@ -95,7 +101,7 @@ describe("Interactive rename sheet", () => {
     const sheetName = "ThisSheetExistsAlready";
     createSheet(model, { name: sheetName });
     const errorCallback = jest.fn();
-    interactiveRenameSheet(env, model.getters.getActiveSheetId(), sheetName, errorCallback);
+    interactiveRenameSheet(model, env, model.getters.getActiveSheetId(), sheetName, errorCallback);
     expect(raiseErrorSpy).toHaveBeenCalledTimes(1);
     expect(errorCallback).toHaveBeenCalled();
     expect(errorTextSpy).toHaveBeenCalledWith(
@@ -112,8 +118,8 @@ describe("Interactive Freeze columns/rows", () => {
     const model = new Model();
     merge(model, "A1:D4");
     const raiseError = jest.fn();
-    const env = makeTestEnv({ model, raiseError });
-    interactiveFreezeColumnsRows(env, dimension as Dimension, 2);
+    const env = makeTestEnv(model, { raiseError });
+    interactiveFreezeColumnsRows(model, env, dimension as Dimension, 2);
     expect(raiseError).toHaveBeenCalled();
   });
 });
@@ -136,20 +142,20 @@ describe("UI Helpers", () => {
     const askConfirmation = (content: string, confirm: () => any, cancel?: () => any) => {
       askConfirmationTextSpy(content.toString());
     };
-    env = makeTestEnv({ model, raiseError, askConfirmation });
+    env = makeTestEnv(model, { raiseError, askConfirmation });
   });
 
   describe("Interactive Create table", () => {
     test("Successfully create a table", () => {
       setSelection(model, ["A1:B5"]);
-      interactiveCreateTable(env, sheetId);
+      interactiveCreateTable(model, env, sheetId);
       expect(notifyUserTextSpy).toHaveBeenCalledTimes(0);
     });
 
     test("Create a table across a merge", () => {
       merge(model, "A1:B1");
       setSelection(model, ["A1:B1"]);
-      interactiveCreateTable(env, sheetId);
+      interactiveCreateTable(model, env, sheetId);
       expect(notifyUserTextSpy).not.toHaveBeenCalled();
       expect(model.getters.getMerges(sheetId)).toEqual([]);
       expect(model.getters.getTables(sheetId)).toMatchObject([
@@ -160,13 +166,13 @@ describe("UI Helpers", () => {
     test("Create a table across another table", () => {
       createTable(model, "A1:A2");
       setSelection(model, ["A1:B5"]);
-      interactiveCreateTable(env, sheetId);
+      interactiveCreateTable(model, env, sheetId);
       expect(notifyUserTextSpy).toHaveBeenCalledWith(TableTerms.Errors.TableOverlap.toString());
     });
 
     test("Create table with non-continuous zones", () => {
       setSelection(model, ["A1:A2", "C3"]);
-      interactiveCreateTable(env, sheetId);
+      interactiveCreateTable(model, env, sheetId);
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         TableTerms.Errors.NonContinuousTargets.toString()
       );
@@ -175,7 +181,7 @@ describe("UI Helpers", () => {
 
   describe("Interactive paste", () => {
     test("paste without copied value interactively", () => {
-      interactivePaste(env, target("D2"));
+      interactivePaste(model, env, target("D2"));
       expect(getCellContent(model, "D2")).toBe("");
     });
 
@@ -185,10 +191,10 @@ describe("UI Helpers", () => {
       setCellStyle(model, "A1", style);
 
       copy(model, "A1");
-      const env = makeTestEnv({ model });
-      interactivePaste(env, target("B1"), "onlyFormat");
-      interactivePaste(env, target("B2"), "asValue");
-      interactivePaste(env, target("B3"));
+      const env = makeTestEnv(model);
+      interactivePaste(model, env, target("B1"), "onlyFormat");
+      interactivePaste(model, env, target("B2"), "asValue");
+      interactivePaste(model, env, target("B3"));
 
       expect(getCellText(model, "B1")).toBe("");
       expect(getCell(model, "B1")!.style).toEqual(style);
@@ -205,7 +211,7 @@ describe("UI Helpers", () => {
 
       selectCell(model, "C4");
       addCellToSelection(model, "F6");
-      interactivePaste(env, model.getters.getSelectedZones());
+      interactivePaste(model, env, model.getters.getSelectedZones());
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         PasteInteractiveContent.wrongPasteSelection.toString()
       );
@@ -218,7 +224,7 @@ describe("UI Helpers", () => {
       selectCell(model, "C4");
       addCellToSelection(model, "F6");
 
-      interactivePaste(env, model.getters.getSelectedZones());
+      interactivePaste(model, env, model.getters.getSelectedZones());
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         PasteInteractiveContent.wrongPasteSelection.toString()
       );
@@ -226,7 +232,7 @@ describe("UI Helpers", () => {
 
     test("will warn user if paste in several selection", () => {
       copy(model, "A1", "C1");
-      interactivePaste(env, target("A2, B2"));
+      interactivePaste(model, env, target("A2, B2"));
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         PasteInteractiveContent.wrongPasteSelection.toString()
       );
@@ -236,7 +242,7 @@ describe("UI Helpers", () => {
       createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figureId" });
       selectFigure(model, "figureId");
       copy(model);
-      interactivePaste(env, target("A1"), "onlyFormat");
+      interactivePaste(model, env, target("A1"), "onlyFormat");
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         PasteInteractiveContent.wrongFigurePasteOption.toString()
       );
@@ -246,7 +252,7 @@ describe("UI Helpers", () => {
       merge(model, "B2:C3");
       copy(model, "B2");
       selectCell(model, "A1");
-      interactivePaste(env, model.getters.getSelectedZones());
+      interactivePaste(model, env, model.getters.getSelectedZones());
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         PasteInteractiveContent.willRemoveExistingMerge.toString()
       );
@@ -256,7 +262,7 @@ describe("UI Helpers", () => {
       const clipboardString = "a\t1\nb\t2";
 
       test("Can interactive paste", async () => {
-        await interactivePasteFromOS(env, target("D2"), { text: clipboardString });
+        await interactivePasteFromOS(model, env, target("D2"), { text: clipboardString });
         expect(getCellContent(model, "D2")).toBe("a");
         expect(getCellContent(model, "E2")).toBe("1");
         expect(getCellContent(model, "D3")).toBe("b");
@@ -266,7 +272,7 @@ describe("UI Helpers", () => {
       test("Pasting content that will destroy a merge will notify the user", async () => {
         merge(model, "B2:C3");
         selectCell(model, "A1");
-        await interactivePasteFromOS(env, model.getters.getSelectedZones(), {
+        await interactivePasteFromOS(model, env, model.getters.getSelectedZones(), {
           text: clipboardString,
         });
         expect(notifyUserTextSpy).toHaveBeenCalledWith(
@@ -281,7 +287,7 @@ describe("UI Helpers", () => {
       copy(model, "F4:G5");
 
       selectCell(model, "B4");
-      interactivePaste(env, model.getters.getSelectedZones());
+      interactivePaste(model, env, model.getters.getSelectedZones());
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         PasteInteractiveContent.frozenPaneOverlap.toString()
       );
@@ -293,7 +299,7 @@ describe("UI Helpers", () => {
       copy(model, "F4:G5");
 
       selectCell(model, "B2");
-      interactivePaste(env, model.getters.getSelectedZones());
+      interactivePaste(model, env, model.getters.getSelectedZones());
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         PasteInteractiveContent.frozenPaneOverlap.toString()
       );
@@ -303,7 +309,7 @@ describe("UI Helpers", () => {
   describe("Interactive cut", () => {
     test("cutting with multiple selection will warn user", async () => {
       setSelection(model, ["A1", "A2"]);
-      interactiveCut(env);
+      interactiveCut(model, env);
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         PasteInteractiveContent.wrongPasteSelection.toString()
       );
@@ -312,14 +318,14 @@ describe("UI Helpers", () => {
 
   describe("Interactive Merge", () => {
     test("Successfully Create a merge", () => {
-      interactiveAddMerge(env, sheetId, target("A1:B5"));
+      interactiveAddMerge(model, env, sheetId, target("A1:B5"));
       expect(askConfirmationTextSpy).toHaveBeenCalledTimes(0);
       expect(notifyUserTextSpy).toHaveBeenCalledTimes(0);
     });
 
     test("Destructive merge", () => {
       setCellContent(model, "A2", ":)");
-      interactiveAddMerge(env, sheetId, target("A1:B5"));
+      interactiveAddMerge(model, env, sheetId, target("A1:B5"));
       expect(askConfirmationTextSpy).toHaveBeenCalledWith(
         AddMergeInteractiveContent.MergeIsDestructive.toString()
       );
@@ -327,7 +333,7 @@ describe("UI Helpers", () => {
 
     test("Create a merge inside a table", () => {
       createTable(model, "A1:A2");
-      interactiveAddMerge(env, sheetId, target("A1:B5"));
+      interactiveAddMerge(model, env, sheetId, target("A1:B5"));
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         AddMergeInteractiveContent.MergeInFilter.toString()
       );
@@ -336,7 +342,7 @@ describe("UI Helpers", () => {
     test("Destructive merge inside a table", () => {
       createTable(model, "A1:A2");
       setCellContent(model, "A2", ":)");
-      interactiveAddMerge(env, sheetId, target("A1:B5"));
+      interactiveAddMerge(model, env, sheetId, target("A1:B5"));
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         AddMergeInteractiveContent.MergeInFilter.toString()
       );
@@ -348,7 +354,7 @@ describe("UI Helpers", () => {
     test("Cannot fold all rows", () => {
       const numberOfRows = model.getters.getNumberRows(sheetId);
       groupHeaders(model, "ROW", 0, numberOfRows - 1);
-      interactiveToggleGroup(env, sheetId, "ROW", 0, numberOfRows - 1);
+      interactiveToggleGroup(model, env, sheetId, "ROW", 0, numberOfRows - 1);
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         ToggleGroupInteractiveContent.CannotHideAllRows.toString()
       );
@@ -357,7 +363,7 @@ describe("UI Helpers", () => {
     test("Cannot fold all columns", () => {
       const numberOfColumns = model.getters.getNumberCols(sheetId);
       groupHeaders(model, "COL", 0, numberOfColumns - 1);
-      interactiveToggleGroup(env, sheetId, "COL", 0, numberOfColumns - 1);
+      interactiveToggleGroup(model, env, sheetId, "COL", 0, numberOfColumns - 1);
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         ToggleGroupInteractiveContent.CannotHideAllColumns.toString()
       );
@@ -394,8 +400,8 @@ describe("UI Helpers", () => {
       model = new Model(modelData);
       const zone = toZone("A2:A3");
       anchor = toCartesian("A2");
-      const env = makeTestEnv({ model, askConfirmation });
-      interactiveSortSelection(env, sheetId, anchor, zone, "desc");
+      const env = makeTestEnv(model, { askConfirmation });
+      interactiveSortSelection(model, env, sheetId, anchor, zone, "desc");
       expect(askConfirmation).toHaveBeenCalled();
     });
     test("Sort without adjacent values to the selection does not ask for confirmation", () => {
@@ -403,8 +409,8 @@ describe("UI Helpers", () => {
       model = new Model(modelData);
       const zone = toZone("A2:A3");
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-      const env = makeTestEnv({ model, askConfirmation });
-      interactiveSortSelection(env, sheetId, anchor, contiguousZone, "desc");
+      const env = makeTestEnv(model, { askConfirmation });
+      interactiveSortSelection(model, env, sheetId, anchor, contiguousZone, "desc");
       expect(askConfirmation).not.toHaveBeenCalled();
     });
 
@@ -413,8 +419,8 @@ describe("UI Helpers", () => {
       model = new Model(modelData);
       const zone = toZone("A3:A4");
       anchor = toCartesian("A3");
-      const env = makeTestEnv({ model, askConfirmation });
-      interactiveSortSelection(env, sheetId, anchor, zone, "desc");
+      const env = makeTestEnv(model, { askConfirmation });
+      interactiveSortSelection(model, env, sheetId, anchor, zone, "desc");
       expect(getCellsObject(model, sheetId)).toMatchObject({
         A1: { content: "Zulu" },
         A2: { content: "Tango" },
@@ -433,8 +439,8 @@ describe("UI Helpers", () => {
       model = new Model(modelData);
       const zone = toZone("A3:A4");
       anchor = toCartesian("A3");
-      const env = makeTestEnv({ model, askConfirmation });
-      interactiveSortSelection(env, sheetId, anchor, zone, "desc");
+      const env = makeTestEnv(model, { askConfirmation });
+      interactiveSortSelection(model, env, sheetId, anchor, zone, "desc");
       expect(getCellsObject(model, sheetId)).toMatchObject({
         A1: { content: "Alpha" },
         A2: { content: "Tango" },
@@ -453,23 +459,23 @@ describe("UI Helpers", () => {
   test("Cannot sort on zone with array formulas that spread", () => {
     const raiseError = jest.fn();
     model = createModelFromGrid({ A1: "9", A2: "8", A3: "=CHOOSECOLS(A1:A2, 1)" });
-    const env = makeTestEnv({ model, raiseError });
+    const env = makeTestEnv(model, { raiseError });
 
-    interactiveSortSelection(env, sheetId, toCartesian("A1"), toZone("A1:A4"), "asc");
+    interactiveSortSelection(model, env, sheetId, toCartesian("A1"), toZone("A1:A4"), "asc");
     expect(raiseError).toHaveBeenCalledWith("Cannot sort a zone with array formulas.");
   });
 
   test("Can sort on zone with array formulas that do not spread", () => {
     const raiseError = jest.fn();
     model = createModelFromGrid({ A1: "9", A2: "8", B1: "1", C1: "=MMULT(A1:A2, A1:B1)" });
-    const env = makeTestEnv({ model, raiseError });
+    const env = makeTestEnv(model, { raiseError });
 
-    interactiveSortSelection(env, sheetId, toCartesian("C1"), toZone("C1:D2"), "asc");
+    interactiveSortSelection(model, env, sheetId, toCartesian("C1"), toZone("C1:D2"), "asc");
     expect(raiseError).toHaveBeenCalledTimes(1);
     expect(raiseError).toHaveBeenCalledWith("Cannot sort a zone with array formulas.");
 
     setCellContent(model, "C1", "=MMULT( A1:B1, A1:A2)");
-    interactiveSortSelection(env, sheetId, toCartesian("C1"), toZone("C1:D2"), "asc");
+    interactiveSortSelection(model, env, sheetId, toCartesian("C1"), toZone("C1:D2"), "asc");
     expect(raiseError).toHaveBeenCalledTimes(1);
   });
 
@@ -519,8 +525,8 @@ describe("UI Helpers", () => {
       const zone = toZone("B2:B8");
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
       anchor = toCartesian("B2");
-      const env = makeTestEnv({ model, raiseError });
-      interactiveSortSelection(env, sheetId, anchor, contiguousZone, "asc");
+      const env = makeTestEnv(model, { raiseError });
+      interactiveSortSelection(model, env, sheetId, anchor, contiguousZone, "asc");
       expect(raiseError).toHaveBeenCalled();
       expect(model.getters.getSelection()).toEqual({
         anchor: { cell: anchor, zone: contiguousZone },
@@ -546,8 +552,8 @@ describe("UI Helpers", () => {
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
 
       const anchor = toCartesian("B2");
-      const env = makeTestEnv({ model, raiseError });
-      interactiveSortSelection(env, sheetId, anchor, contiguousZone, "asc");
+      const env = makeTestEnv(model, { raiseError });
+      interactiveSortSelection(model, env, sheetId, anchor, contiguousZone, "asc");
       expect(raiseError).toHaveBeenCalled();
       expect(model.getters.getSelection()).toEqual({
         anchor: { cell: anchor, zone: contiguousZone },

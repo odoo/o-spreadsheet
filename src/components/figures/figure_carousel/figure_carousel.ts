@@ -17,6 +17,7 @@ import { FullScreenFigureStore } from "../../full_screen_figure/full_screen_figu
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers/css";
 import { getBoundingRectAsPOJO, getElBoundingRect } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";
 import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
@@ -44,6 +45,8 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
   protected animationStore: Store<ChartAnimationStore> | undefined;
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
 
+  private model = useModel();
+
   setup(): void {
     this.animationStore = useStore(ChartAnimationStore);
     this.fullScreenFigureStore = useStore(FullScreenFigureStore);
@@ -59,11 +62,11 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
   }
 
   get carousel(): Carousel {
-    return this.env.model.getters.getCarousel(this.props.figureUI.id);
+    return this.model().getters.getCarousel(this.props.figureUI.id);
   }
 
   get selectedCarouselItem(): CarouselItem | undefined {
-    return this.env.model.getters.getSelectedCarouselItem(this.props.figureUI.id);
+    return this.model().getters.getSelectedCarouselItem(this.props.figureUI.id);
   }
 
   get chartComponent(): new (...args: any) => Component {
@@ -71,7 +74,7 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
     if (selectedItem?.type !== "chart") {
       throw new Error("Selected item is not a chart");
     }
-    const type = this.env.model.getters.getChartType(selectedItem.chartId);
+    const type = this.model().getters.getChartType(selectedItem.chartId);
     const component = chartComponentRegistry.get(type);
     if (!component) {
       throw new Error(`Component is not defined for type ${type}`);
@@ -80,7 +83,7 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
   }
 
   onCarouselDoubleClick() {
-    this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });
+    this.model().dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });
     this.env.openSidePanel("CarouselPanel", { figureId: this.props.figureUI.id });
   }
 
@@ -90,13 +93,13 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
   }
 
   getItemTitle(item: CarouselItem): string {
-    return getCarouselItemTitle(this.env.model.getters, item);
+    return getCarouselItemTitle(this.model().getters, item);
   }
 
   onCarouselTabClick(item: CarouselItem) {
-    this.env.model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+    this.model().dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
       figureId: this.props.figureUI.id,
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.model().getters.getActiveSheetId(),
       item,
     });
     if (item.type === "chart") {
@@ -107,9 +110,9 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
 
   get headerStyle(): string {
     const cssProperties: CSSProperties = {};
-    const backgroundColor = this.env.model.getters.getSpreadsheetTheme().backgroundColor;
+    const backgroundColor = this.model().getters.getSpreadsheetTheme().backgroundColor;
     if (this.selectedCarouselItem?.type === "chart") {
-      const chart = this.env.model.getters.getChartRuntime(this.selectedCarouselItem.chartId);
+      const chart = this.model().getters.getChartRuntime(this.selectedCarouselItem.chartId);
       if ("background" in chart && chart.background) {
         cssProperties["background-color"] = chart.background;
       } else if ("chartJsConfig" in chart) {

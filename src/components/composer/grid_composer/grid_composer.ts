@@ -13,6 +13,7 @@ import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss, getTextDecoration } from "../../helpers/css";
+import { useModel } from "../../owl_plugins/model_plugin";
 import { types } from "../../props_validation";
 import { CellComposerStore } from "../composer/cell_composer_store";
 import { Composer } from "../composer/composer";
@@ -37,12 +38,9 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
   private rect: Rect = this.defaultRect;
   private isEditing: boolean = false;
   private isCellReferenceVisible: boolean = false;
-  private currentEditedCell: CellPosition = {
-    col: 0,
-    row: 0,
-    sheetId: this.env.model.getters.getActiveSheetId(),
-  };
+  private currentEditedCell!: CellPosition;
 
+  private model = useModel();
   private composerStore!: Store<CellComposerStore>;
   composerFocusStore!: Store<ComposerFocusStore>;
 
@@ -53,6 +51,7 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
   }
 
   setup() {
+    this.currentEditedCell = { col: 0, row: 0, sheetId: this.model().getters.getActiveSheetId() };
     const composerStore = useStore(CellComposerStore);
     this.composerStore = composerStore;
     this.composerFocusStore = useStore(ComposerFocusStore);
@@ -78,9 +77,9 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
 
   get cellReference(): string {
     const { col, row, sheetId } = this.composerStore.currentEditedCell;
-    const prefixSheet = sheetId !== this.env.model.getters.getActiveSheetId();
+    const prefixSheet = sheetId !== this.model().getters.getActiveSheetId();
     return getFullReference(
-      prefixSheet ? this.env.model.getters.getSheetName(sheetId) : undefined,
+      prefixSheet ? this.model().getters.getSheetName(sheetId) : undefined,
       toXC(col, row)
     );
   }
@@ -100,7 +99,7 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
   }
 
   get composerProps(): PropsOf<Composer> {
-    const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
+    const { width, height } = this.model().getters.getSheetViewDimensionWithHeaders();
     // Remove the wrapper border width
     const maxHeight = this.props.gridDims.height - this.rect.y - 2 * COMPOSER_BORDER_WIDTH;
     return {
@@ -133,9 +132,9 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
       return `z-index: -1000; opacity: 0;`; // opacity 0 for safari on ios
     }
     const _isFormula = isFormula(this.composerStore.currentContent);
-    const cell = this.env.model.getters.getActiveCell();
-    const position = this.env.model.getters.getActivePosition();
-    const style = this.env.model.getters.getCellComputedStyle(position);
+    const cell = this.model().getters.getActiveCell();
+    const position = this.model().getters.getActivePosition();
+    const style = this.model().getters.getCellComputedStyle(position);
 
     // position style
     const { x: left, y: top, width, height } = this.rect;
@@ -210,9 +209,9 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
     }
 
     if (shouldRecomputeRect) {
-      const position = this.env.model.getters.getActivePosition();
-      const zone = this.env.model.getters.expandZone(position.sheetId, positionToZone(position));
-      this.rect = this.env.model.getters.getVisibleRect(zone);
+      const position = this.model().getters.getActivePosition();
+      const zone = this.model().getters.expandZone(position.sheetId, positionToZone(position));
+      this.rect = this.model().getters.getVisibleRect(zone);
     }
   }
 
@@ -224,9 +223,9 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
     if (this.isCellReferenceVisible) {
       return;
     }
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const zone = positionToZone(this.env.model.getters.getSelection().anchor.cell);
-    const rect = this.env.model.getters.getVisibleRect(zone);
+    const sheetId = this.model().getters.getActiveSheetId();
+    const zone = positionToZone(this.model().getters.getSelection().anchor.cell);
+    const rect = this.model().getters.getVisibleRect(zone);
     if (!deepEquals(rect, this.rect) || sheetId !== this.composerStore.currentEditedCell.sheetId) {
       this.isCellReferenceVisible = true;
     }

@@ -1,6 +1,7 @@
 import { App, xml } from "@odoo/owl";
 import { Model, UID } from "../../src";
 import { useDragAndDropBeyondTheViewport } from "../../src/components/helpers/drag_and_drop_grid_hook";
+import { useModel } from "../../src/components/owl_plugins/model_plugin";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { numberToLetters } from "../../src/helpers/coordinates";
 import { Component } from "../../src/owl3_compatibility_layer";
@@ -49,7 +50,8 @@ const mouseUpFn = jest.fn();
 class FakeGridComponent extends Component<SpreadsheetChildEnv> {
   static template = TEMPLATE;
 
-  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+  private model = useModel();
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.model());
 
   onMouseDown(ev: PointerEvent) {
     this.dragNDropGrid.start(

@@ -1,11 +1,11 @@
+import { props } from "@odoo/owl";
+import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
-import { PaintFormatStore } from "./paint_format_store";
-
-import { props } from "@odoo/owl";
-import { Component } from "../../owl3_compatibility_layer";
+import { useModel } from "../owl_plugins/model_plugin";
 import { types } from "../props_validation";
+import { PaintFormatStore } from "./paint_format_store";
 export class PaintFormatButton extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PaintFormatButton";
 
@@ -13,6 +13,7 @@ export class PaintFormatButton extends Component<SpreadsheetChildEnv> {
     "class?": types.string(),
   });
 
+  protected model = useModel();
   private paintFormatStore!: Store<PaintFormatStore>;
 
   setup() {

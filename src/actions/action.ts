@@ -1,4 +1,5 @@
 import { isMacOS } from "../components/helpers/dom_helpers";
+import { Model } from "../model";
 import { Color } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 
@@ -13,8 +14,8 @@ export interface ActionSpec {
   /**
    * String or a function to compute the name
    */
-  name: string | ((env: SpreadsheetChildEnv) => string);
-  description?: string | ((env: SpreadsheetChildEnv) => string);
+  name: string | ((model: Model, env: SpreadsheetChildEnv) => string);
+  description?: string | ((model: Model, env: SpreadsheetChildEnv) => string);
   shortcut?: string;
   /**
    * which represents its position inside the
@@ -28,24 +29,24 @@ export interface ActionSpec {
   /**
    * Can be defined to compute the visibility of the item
    */
-  isVisible?: (env: SpreadsheetChildEnv) => boolean;
+  isVisible?: (model: Model, env: SpreadsheetChildEnv) => boolean;
   /**
    * Can be defined to compute if the user can click on the action
    */
-  isEnabled?: (env: SpreadsheetChildEnv) => boolean;
+  isEnabled?: (model: Model, env: SpreadsheetChildEnv) => boolean;
   /**
    * Can be defined to compute if the action is active
    */
-  isActive?: (env: SpreadsheetChildEnv) => boolean;
+  isActive?: (model: Model, env: SpreadsheetChildEnv) => boolean;
   /**
    * Can be defined to display an icon
    */
-  icon?: string | ((env: SpreadsheetChildEnv) => string);
+  icon?: string | ((model: Model, env: SpreadsheetChildEnv) => string);
   iconColor?: Color;
   /**
    * Can be defined to display another icon on the right of the item.
    */
-  secondaryIcon?: string | ((env: SpreadsheetChildEnv) => string);
+  secondaryIcon?: string | ((model: Model, env: SpreadsheetChildEnv) => string);
   /**
    * is the action allowed when running spreadsheet in readonly mode
    */
@@ -59,7 +60,7 @@ export interface ActionSpec {
    * Execute the action. The action can return a result.
    * The result will be carried by a `menu-clicked` event to the menu parent component.
    */
-  execute?: (env: SpreadsheetChildEnv, isMiddleClick?: boolean) => unknown;
+  execute?: (model: Model, env: SpreadsheetChildEnv, isMiddleClick?: boolean) => unknown;
   /**
    * subitems associated to this item
    * NB: an action without an execute function or children is not displayed !
@@ -71,30 +72,30 @@ export interface ActionSpec {
    */
   separator?: boolean;
   textColor?: Color;
-  onStartHover?: (env: SpreadsheetChildEnv) => void;
-  onStopHover?: (env: SpreadsheetChildEnv) => void;
+  onStartHover?: (model: Model, env: SpreadsheetChildEnv) => void;
+  onStopHover?: (model: Model, env: SpreadsheetChildEnv) => void;
 }
 
 export interface Action {
-  name: (env: SpreadsheetChildEnv) => string;
-  description: (env: SpreadsheetChildEnv) => string;
+  name: (model: Model, env: SpreadsheetChildEnv) => string;
+  description: (model: Model, env: SpreadsheetChildEnv) => string;
   shortcut: string;
   sequence: number;
   id: string;
-  isVisible: (env: SpreadsheetChildEnv) => boolean;
-  isEnabled: (env: SpreadsheetChildEnv) => boolean;
-  isActive?: (env: SpreadsheetChildEnv) => boolean;
-  icon: (env: SpreadsheetChildEnv) => string;
+  isVisible: (model: Model, env: SpreadsheetChildEnv) => boolean;
+  isEnabled: (model: Model, env: SpreadsheetChildEnv) => boolean;
+  isActive?: (model: Model, env: SpreadsheetChildEnv) => boolean;
+  icon: (model: Model, env: SpreadsheetChildEnv) => string;
   iconColor?: Color;
-  secondaryIcon: (env: SpreadsheetChildEnv) => string;
+  secondaryIcon: (model: Model, env: SpreadsheetChildEnv) => string;
   isReadonlyAllowed: boolean;
   isEnabledOnLockedSheet: boolean;
-  execute?: (env: SpreadsheetChildEnv, isMiddleClick?: boolean) => unknown;
-  children: (env: SpreadsheetChildEnv) => Action[];
+  execute?: (model: Model, env: SpreadsheetChildEnv, isMiddleClick?: boolean) => unknown;
+  children: (model: Model, env: SpreadsheetChildEnv) => Action[];
   separator: boolean;
   textColor?: Color;
-  onStartHover?: (env: SpreadsheetChildEnv) => void;
-  onStopHover?: (env: SpreadsheetChildEnv) => void;
+  onStartHover?: (model: Model, env: SpreadsheetChildEnv) => void;
+  onStopHover?: (model: Model, env: SpreadsheetChildEnv) => void;
 }
 
 export interface ComputedAction
@@ -105,7 +106,7 @@ export interface ComputedAction
   secondaryIcon: string;
 }
 
-export type ActionBuilder = (env: SpreadsheetChildEnv) => ActionSpec[];
+export type ActionBuilder = (model: Model, env: SpreadsheetChildEnv) => ActionSpec[];
 type ActionChildren = (ActionSpec | ActionBuilder)[];
 
 export function createActions(menuItems: ActionSpec[]): Action[] {
@@ -134,17 +135,17 @@ export function createAction(item: ActionSpec): Action {
     isEnabled: isEnabled,
     isActive: item.isActive,
     execute: item.execute
-      ? (env, isMiddleClick) => {
-          if (isEnabled(env)) {
-            return item.execute!(env, isMiddleClick);
+      ? (model, env, isMiddleClick) => {
+          if (isEnabled(model, env)) {
+            return item.execute!(model, env, isMiddleClick);
           }
           return undefined;
         }
       : undefined,
     children: children
-      ? (env) => {
+      ? (model, env) => {
           return children
-            .map((child) => (typeof child === "function" ? child(env) : child))
+            .map((child) => (typeof child === "function" ? child(model, env) : child))
             .flat()
             .map(createAction)
             .sort((a, b) => a.sequence - b.sequence);
@@ -166,13 +167,17 @@ export function createAction(item: ActionSpec): Action {
 }
 
 export function getMenuItemsAndSeparators(
+  model: Model,
   env: SpreadsheetChildEnv,
   actions: Action[]
 ): MenuItemOrSeparator[] {
   const menuItemsAndSeparators: MenuItemOrSeparator[] = [];
   for (let i = 0; i < actions.length; i++) {
     const menuItem = actions[i];
-    if (menuItem.isVisible(env) && (!isRootMenu(menuItem) || hasVisibleChildren(env, menuItem))) {
+    if (
+      menuItem.isVisible(model, env) &&
+      (!isRootMenu(menuItem) || hasVisibleChildren(model, env, menuItem))
+    ) {
       menuItemsAndSeparators.push(menuItem);
     }
     if (
@@ -196,17 +201,17 @@ export function isRootMenu(menu: Action) {
   return !menu.execute;
 }
 
-export function hasVisibleChildren(env: SpreadsheetChildEnv, menu: Action) {
-  return menu.children(env).some((child) => child.isVisible(env));
+export function hasVisibleChildren(model: Model, env: SpreadsheetChildEnv, menu: Action) {
+  return menu.children(model, env).some((child) => child.isVisible(model, env));
 }
 
-export function isMenuItemEnabled(env: SpreadsheetChildEnv, menu: Action): boolean {
-  const children = menu.children?.(env);
+export function isMenuItemEnabled(model: Model, env: SpreadsheetChildEnv, menu: Action): boolean {
+  const children = menu.children?.(model, env);
   if (children.length) {
-    return children.some((child) => isMenuItemEnabled(env, child));
+    return children.some((child) => isMenuItemEnabled(model, env, child));
   } else {
-    if (menu.isEnabled(env)) {
-      return env.model.getters.isReadonly() ? menu.isReadonlyAllowed : true;
+    if (menu.isEnabled(model, env)) {
+      return model.getters.isReadonly() ? menu.isReadonlyAllowed : true;
     }
     return false;
   }

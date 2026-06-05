@@ -9,6 +9,7 @@ import { ValueAndLabel } from "../../../../types/misc";
 import { PropsOf } from "../../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
+import { useModel } from "../../../owl_plugins/model_plugin";
 import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
@@ -85,7 +86,7 @@ export class ColorScaleRuleEditorThreshold extends Component<SpreadsheetChildEnv
       defaultStatic: true,
       invalid: isInvalid,
       class: "o-sidePanel-composer",
-      defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
+      defaultRangeSheetId: this.model().getters.getActiveSheetId(),
     };
   }
 
@@ -101,4 +102,6 @@ export class ColorScaleRuleEditorThreshold extends Component<SpreadsheetChildEnv
     }
     return [{ value: "value", label: _t("Cell values") }, ...options];
   }
+
+  private model = useModel();
 }

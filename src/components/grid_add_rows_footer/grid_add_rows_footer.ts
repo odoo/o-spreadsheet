@@ -6,6 +6,7 @@ import { _t } from "../../translation";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
+import { useModel } from "../owl_plugins/model_plugin";
 import { ValidationMessages } from "../validation_messages/validation_messages";
 
 export class GridAddRowsFooter extends Component<SpreadsheetChildEnv> {
@@ -20,16 +21,18 @@ export class GridAddRowsFooter extends Component<SpreadsheetChildEnv> {
     errorFlag: false,
   });
 
+  private model = useModel();
+
   setup() {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     useExternalListener(window, "click", this.onExternalClick, { capture: true });
   }
 
   get addRowsPosition() {
-    const activeSheetId = this.env.model.getters.getActiveSheetId();
-    const { numberOfRows } = this.env.model.getters.getSheetSize(activeSheetId);
-    const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-    const rowDimensions = this.env.model.getters.getRowDimensions(activeSheetId, numberOfRows - 1);
+    const activeSheetId = this.model().getters.getActiveSheetId();
+    const { numberOfRows } = this.model().getters.getSheetSize(activeSheetId);
+    const { scrollY } = this.model().getters.getActiveSheetScrollInfo();
+    const rowDimensions = this.model().getters.getRowDimensions(activeSheetId, numberOfRows - 1);
     const top = rowDimensions.end - scrollY;
 
     return cssPropertiesToCss({
@@ -61,11 +64,11 @@ export class GridAddRowsFooter extends Component<SpreadsheetChildEnv> {
       return;
     }
     const quantity = Number(this.state.inputValue);
-    const activeSheetId = this.env.model.getters.getActiveSheetId();
-    const rowNumber = this.env.model.getters.getNumberRows(activeSheetId);
-    this.env.model.dispatch("ADD_COLUMNS_ROWS", {
+    const activeSheetId = this.model().getters.getActiveSheetId();
+    const rowNumber = this.model().getters.getNumberRows(activeSheetId);
+    this.model().dispatch("ADD_COLUMNS_ROWS", {
       sheetId: activeSheetId,
-      sheetName: this.env.model.getters.getSheetName(activeSheetId),
+      sheetName: this.model().getters.getSheetName(activeSheetId),
       position: "after",
       base: rowNumber - 1,
       quantity,
@@ -74,12 +77,9 @@ export class GridAddRowsFooter extends Component<SpreadsheetChildEnv> {
     this.focusDefaultElement();
 
     // After adding new rows, scroll down to the new last row
-    const { scrollX } = this.env.model.getters.getActiveSheetScrollInfo();
-    const { end } = this.env.model.getters.getRowDimensions(
-      activeSheetId,
-      rowNumber + quantity - 1
-    );
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
+    const { scrollX } = this.model().getters.getActiveSheetScrollInfo();
+    const { end } = this.model().getters.getRowDimensions(activeSheetId, rowNumber + quantity - 1);
+    this.model().dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: scrollX,
       offsetY: end,
     });
