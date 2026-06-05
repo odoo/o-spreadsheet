@@ -17,7 +17,6 @@ import { SidePanelState } from "../components/side_panel/side_panel/side_panel_s
 import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns_panel/split_to_columns_panel";
 import { TablePanel } from "../components/side_panel/table_panel/table_panel";
 import { TableStyleEditorPanel } from "../components/side_panel/table_style_editor_panel/table_style_editor_panel";
-import { getTableTopLeft } from "../helpers/table_helpers";
 import { _t } from "../translation";
 import { ConditionalFormat } from "../types/conditional_formatting";
 import { Getters } from "../types/getters";
@@ -129,14 +128,13 @@ sidePanelRegistry.add("ColumnStats", {
 sidePanelRegistry.add("TableSidePanel", {
   title: _t("Edit table"),
   Body: TablePanel,
-  computeState: (getters: Getters) => {
-    const table = getters.getFirstTableInSelection();
-    if (!table || table.isPivotTable) {
+  computeState: (getters: Getters, props: PropsOf<TablePanel>) => {
+    const sheetId = props.table.range.sheetId;
+    const table = getters.getCoreTableById(sheetId, props.table.id);
+    if (sheetId !== getters.getActiveSheetId() || !table) {
       return { isOpen: false };
     }
-
-    const coreTable = getters.getCoreTable(getTableTopLeft(table));
-    return { isOpen: true, props: { table: coreTable }, key: table.id };
+    return { isOpen: true, props: { ...props, table }, key: props.table.id };
   },
 });
 

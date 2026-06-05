@@ -159,7 +159,12 @@ export const mergeCells: ActionSpec = {
 
 export const editTable: ActionSpec = {
   name: () => _t("Edit table"),
-  execute: (env) => env.openSidePanel("TableSidePanel", {}),
+  execute: (env) => {
+    const table = env.model.getters.getFirstTableInSelection();
+    if (table) {
+      env.openSidePanel("TableSidePanel", { table });
+    }
+  },
   icon: "o-spreadsheet-Icon.EDIT_TABLE",
 };
 

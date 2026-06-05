@@ -10,7 +10,13 @@ import {
 } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
 import { getCellRawContent } from "../test_helpers/getters_helpers";
-import { mountComponentWithPortalTarget, nextTick, setGrid } from "../test_helpers/helpers";
+import {
+  getHighlightsFromStore,
+  mountComponentWithPortalTarget,
+  nextTick,
+  setGrid,
+  toRangeData,
+} from "../test_helpers/helpers";
 
 import { Model } from "../../src";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
@@ -37,8 +43,9 @@ describe("Table side panel", () => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
     createTable(model, "A1:C3");
+    const table = model.getters.getFirstTableInSelection();
     ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
-    env.openSidePanel("TableSidePanel", {});
+    env.openSidePanel("TableSidePanel", { table });
     await nextTick();
   });
 
@@ -169,7 +176,39 @@ describe("Table side panel", () => {
     expect(getTable(model, sheetId).range.zone).toEqual(toZone("A1"));
   });
 
-  test("Changing the selection changes the edited table", async () => {
+  test("the table range is highlighted when the side panel is open", async () => {
+    expect(getHighlightsFromStore(env).map((h) => zoneToXc(h.range.zone))).toEqual(["A1:C3"]);
+    await simulateClick(".o-sidePanelClose");
+    expect(getHighlightsFromStore(env).map((h) => zoneToXc(h.range.zone))).toEqual([]);
+  });
+
+  test("The table zone displayed in the side panel is updated when the user modifies the table range with the mouse", async () => {
+    const table = getTable(model, sheetId);
+    expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("A1:C3");
+    env.model.dispatch("UPDATE_TABLE", {
+      sheetId,
+      zone: table.range.zone,
+      newTableRange: toRangeData(sheetId, "D1:D2"),
+      config: { numberOfHeaders: 0 },
+    });
+    await nextTick();
+    expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("D1:D2");
+  });
+
+  test("The highlighted zone is updated when the user modifies the table range with the mouse", async () => {
+    const table = getTable(model, sheetId);
+    expect(getHighlightsFromStore(env).map((h) => zoneToXc(h.range.zone))).toEqual(["A1:C3"]);
+    env.model.dispatch("UPDATE_TABLE", {
+      sheetId,
+      zone: table.range.zone,
+      newTableRange: toRangeData(sheetId, "D1:D2"),
+      config: { numberOfHeaders: 0 },
+    });
+    await nextTick();
+    expect(getHighlightsFromStore(env).map((h) => zoneToXc(h.range.zone))).toEqual(["D1:D2"]);
+  });
+
+  test("Changing the selection does not change the edited table", async () => {
     createTable(model, "D1:D2");
     updateTableConfig(model, "D1:D2", { numberOfHeaders: 0 });
 
@@ -178,22 +217,22 @@ describe("Table side panel", () => {
 
     setSelection(model, ["D1"]);
     await nextTick();
-    expect(fixture.querySelector<HTMLInputElement>("input[name='headerRow']")!.checked).toBe(false);
-    expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("D1:D2");
+    expect(fixture.querySelector<HTMLInputElement>("input[name='headerRow']")!.checked).toBe(true);
+    expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("A1:C3");
   });
 
-  test("Selecting a cell without a table closes the side panel", async () => {
+  test("Selecting a cell without a table does not close the side panel", async () => {
     setSelection(model, ["D1"]);
     await nextTick();
-    expect(fixture.querySelector(".o-table-panel")).toBeNull();
+    expect(fixture.querySelector(".o-table-panel")).not.toBeNull();
   });
 
-  test("Selecting a cell with a pivot table closes the table panel", async () => {
+  test("Selecting a cell with a pivot table does not close the table panel", async () => {
     setGrid(model, { A1: "Header1", B1: "Header2", A2: "Data1", B2: "Data2", F1: "=PIVOT(1)" });
     addPivot(model, "A1:B2", { style: { tableStyleId: "PivotTableStyleMedium9" } });
     setSelection(model, ["F1"]);
     await nextTick();
-    expect(fixture.querySelector(".o-table-panel")).toBeNull();
+    expect(fixture.querySelector(".o-table-panel")).not.toBeNull();
   });
 
   test("Can edit the table style", async () => {
