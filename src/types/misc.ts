@@ -133,7 +133,7 @@ export interface Sheet {
   id: UID;
   name: string;
   numberOfCols: number;
-  rows: Row[];
+  numberOfRows: number;
   areGridLinesVisible: boolean;
   isVisible: boolean;
   panes: PaneDivision;
@@ -230,10 +230,6 @@ export interface HeaderDimensions {
   start: Pixel;
   size: Pixel;
   end: Pixel;
-}
-
-export interface Row {
-  cells: Record<number, number | undefined>; // number is a column index
 }
 
 export interface Position {
