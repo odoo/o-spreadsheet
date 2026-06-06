@@ -5,12 +5,12 @@ import {
 import { toBoundedRange } from "../test_helpers/helpers";
 
 describe("IntervalTree", () => {
-  // Helper to create a Required<Interval> quickly
+  // Helper to create a fixed-dependents Interval quickly
   const createInterval = (
     top: number,
     bottom: number,
-    dependents: Required<Interval>["dependents"]
-  ): Required<Interval> => ({
+    dependents: Interval["dependents"]
+  ): Interval => ({
     top,
     bottom,
     dependents,

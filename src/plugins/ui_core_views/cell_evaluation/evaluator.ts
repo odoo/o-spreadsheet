@@ -1,6 +1,10 @@
 import { CompiledFormula, OPERATOR_MAP, UNARY_OPERATOR_MAP } from "../../../formulas/compiler";
 
-import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells/cell_evaluation";
+import {
+  createEvaluatedCell,
+  evaluateLiteral,
+  RegionFormulaCell,
+} from "../../../helpers/cells/cell_evaluation";
 
 import { CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
@@ -226,15 +230,79 @@ export class Evaluator {
     this.formulaDependencies = lazy(() => {
       const graph = new FormulaDependencyGraph();
       for (const sheetId of this.getters.getSheetIds()) {
+        // Region cells share a compiled template; register the whole run at once
+        // (without reifying each cell's formula) instead of cell by cell.
+        const regionCellsByTemplate = new Map<CompiledFormula, RegionFormulaCell[]>();
         for (const cell of this.getters.getCells(sheetId)) {
-          if (cell.isFormula) {
+          if (!cell.isFormula) {
+            continue;
+          }
+          if (cell instanceof RegionFormulaCell) {
+            const group = regionCellsByTemplate.get(cell.template);
+            if (group) {
+              group.push(cell);
+            } else {
+              regionCellsByTemplate.set(cell.template, [cell]);
+            }
+          } else {
             const cellPosition = this.getters.getCellPosition(cell.id);
             graph.addDependencies(cellPosition, cell.compiledFormula.rangeDependencies);
           }
         }
+        for (const [template, cells] of regionCellsByTemplate) {
+          this.addRegionToDependencyGraph(graph, sheetId, template, cells);
+        }
       }
       return graph;
     });
+  }
+
+  /**
+   * Register a set of region cells sharing a `template`. They are split into
+   * contiguous vertical runs (gaps appear when a cell was edited and dissolved),
+   * and each run is registered as a region; anything the graph cannot express as
+   * a region falls back to per-cell registration.
+   */
+  private addRegionToDependencyGraph(
+    graph: FormulaDependencyGraph,
+    sheetId: UID,
+    template: CompiledFormula,
+    cells: RegionFormulaCell[]
+  ) {
+    const positioned = cells
+      .map((cell) => ({ cell, ...this.getters.getCellPosition(cell.id) }))
+      .sort((a, b) => a.row - b.row);
+    const dependencies = template.rangeDependencies;
+    const dependenciesShiftedByOneRow = this.getters.createAdaptedRanges(
+      dependencies,
+      0,
+      1,
+      sheetId
+    );
+    let runStart = 0;
+    for (let i = 1; i <= positioned.length; i++) {
+      const endOfRun = i === positioned.length || positioned[i].row !== positioned[i - 1].row + 1;
+      if (!endOfRun) {
+        continue;
+      }
+      const run = positioned.slice(runStart, i);
+      const first = run[0];
+      const registered = graph.addRegionDependencies({
+        sheetId,
+        col: first.col,
+        rowStart: first.row,
+        rowEnd: run[run.length - 1].row,
+        anchorRow: first.row - first.cell.dRow,
+        dependencies,
+        dependenciesShiftedByOneRow,
+      });
+      if (!registered) {
+        for (const { cell, col, row } of run) {
+          graph.addDependencies({ sheetId, col, row }, cell.compiledFormula.rangeDependencies);
+        }
+      }
+      runStart = i;
+    }
   }
 
   evaluateAllCells(profiling?: boolean) {

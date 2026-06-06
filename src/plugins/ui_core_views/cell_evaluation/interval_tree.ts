@@ -1,14 +1,33 @@
+import { UID } from "../../../types/misc";
 import { BoundedRange } from "../../../types/range";
 
 /**
+ * Dependents of an interval whose position is a function of the queried rows,
+ * used to represent a whole fill region with a single interval. A change in rows
+ * [qTop, qBottom] of this interval's column dirties the region cells (all in
+ * column `col`) in rows [qTop + lowConst, qBottom + highConst], clamped to
+ * [rowStart, rowEnd]. See FormulaDependencyGraph.addRegionDependencies.
+ */
+export interface AffineDependents {
+  sheetId: UID;
+  col: number;
+  rowStart: number;
+  rowEnd: number;
+  lowConst: number;
+  highConst: number;
+}
+
+/**
  * Represents a numeric range [top, bottom].
- * Optional 'dependents' link the interval to the range of cells that depend on
- * the interval.
+ * 'dependents' link the interval to a fixed range of cells that depend on it;
+ * 'affine' instead derives the dependents from the queried rows (region cells).
+ * Exactly one of the two is set.
  */
 export interface Interval {
   top: number;
   bottom: number;
   dependents?: BoundedRange;
+  affine?: AffineDependents;
 }
 
 class IntervalNode {
@@ -41,27 +60,27 @@ class IntervalNode {
  */
 export class IntervalTree {
   private root: IntervalNode | null = null;
-  private buffer: Required<Interval>[] = [];
+  private buffer: Interval[] = [];
 
   /**
    * Adds an interval to the uncommitted buffer.
    * O(1) operation until the buffer needs to be merged into the main tree on the next query.
    */
-  insert(interval: Required<Interval>) {
+  insert(interval: Interval) {
     this.buffer.push(interval);
   }
 
   /**
    * Finds all intervals overlapping the target.
    */
-  query(target: Interval): Required<Interval>[] {
+  query(target: Interval): Interval[] {
     if (this.buffer.length) {
       // If rebuilding the tree is too expensive (e.g. many inserts, interleaved with queries),
       // consider switching to a self-balancing tree (once it has been built a first time).
       // But rebuilding is already very fast, even with 10k intervals, so we keep it simple for now.
       this.rebuild();
     }
-    const results: Required<Interval>[] = [];
+    const results: Interval[] = [];
     this.searchTree(this.root, target, results);
     return results;
   }
@@ -69,7 +88,7 @@ export class IntervalTree {
   private rebuild() {
     // Sort only the buffer, as the current tree is already sorted,
     // and we merge them in O(n) afterwards
-    const currentSortedIntervals: Required<Interval>[] = [];
+    const currentSortedIntervals: Interval[] = [];
     this.inOrderTraversal(this.root, currentSortedIntervals);
     const sortedBuffer = this.buffer.sort(compareIntervals);
     const allIntervals = this.mergeSortedIntervals(currentSortedIntervals, sortedBuffer);
@@ -81,7 +100,7 @@ export class IntervalTree {
    * Compacts consecutive intervals with consecutive dependents into a single
    * interval.
    */
-  private compactSortedIntervals(sortedIntervals: Required<Interval>[]): Interval[] {
+  private compactSortedIntervals(sortedIntervals: Interval[]): Interval[] {
     let current = sortedIntervals[0];
     const compacted: Interval[] = [];
     for (let i = 1; i < sortedIntervals.length; i++) {
@@ -89,6 +108,10 @@ export class IntervalTree {
       const isSameInterval = next.top === current.top && next.bottom === current.bottom;
       if (
         isSameInterval &&
+        // Affine (region) intervals are never compacted: their dependents are a
+        // function of the query, not a fixed range.
+        next.dependents &&
+        current.dependents &&
         // Is same column
         next.dependents.zone.left === current.dependents.zone.left &&
         next.dependents.zone.right === current.dependents.zone.right &&
@@ -116,11 +139,8 @@ export class IntervalTree {
     return compacted;
   }
 
-  private mergeSortedIntervals(
-    a: Required<Interval>[],
-    b: Required<Interval>[]
-  ): Required<Interval>[] {
-    const merged: Required<Interval>[] = [];
+  private mergeSortedIntervals(a: Interval[], b: Interval[]): Interval[] {
+    const merged: Interval[] = [];
     let i = 0;
     let j = 0;
 
@@ -135,7 +155,7 @@ export class IntervalTree {
     return merged.concat(i < a.length ? a.slice(i) : b.slice(j));
   }
 
-  private bulkLoad(sortedIntervals: Required<Interval>[]) {
+  private bulkLoad(sortedIntervals: Interval[]) {
     const compacted = this.compactSortedIntervals(sortedIntervals);
     this.root = this.buildBalancedTree(compacted);
   }
@@ -203,14 +223,19 @@ export class IntervalTree {
 /**
  * Extracted comparison logic for consistency between sort and merge.
  */
-function compareIntervals(a: Required<Interval>, b: Required<Interval>): number {
+function compareIntervals(a: Interval, b: Interval): number {
   // Primary sort by interval boundaries
   if (a.top !== b.top) {
     return a.top - b.top;
   } else if (a.bottom !== b.bottom) {
     return a.bottom - b.bottom;
   }
-  // Secondary sort by dependent for compaction
+  // Secondary sort by dependent for compaction. Affine (region) intervals carry
+  // no fixed dependents and are not compacted, so their relative order is
+  // irrelevant — keep them after equal-boundary fixed intervals.
+  if (!a.dependents || !b.dependents) {
+    return (a.dependents ? 0 : 1) - (b.dependents ? 0 : 1);
+  }
   const { zone: zA, sheetId: sheetIdA } = a.dependents;
   const { zone: zB, sheetId: sheetIdB } = b.dependents;
   if (sheetIdA !== sheetIdB) {

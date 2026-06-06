@@ -66,6 +66,34 @@ test("inserting a row inside a region dissolves it and keeps formulas correct", 
   expect(getEvaluatedCell(model, "B5").value).toBe(6);
 });
 
+test("changing a dependency re-evaluates the region cell that depends on it", () => {
+  const model = squishedFillColumn(20);
+
+  // B10 = A10 + 1 ; changing A10 must dirty B10 through the region dependency graph
+  setCellContent(model, "A10", "999");
+
+  expect(getEvaluatedCell(model, "B10").value).toBe(1000);
+  // unrelated region cells are unchanged
+  expect(getEvaluatedCell(model, "B9").value).toBe(10);
+  expect(getEvaluatedCell(model, "B11").value).toBe(12);
+});
+
+test("a region whose dependency is a range tracks changes to any cell of the range", () => {
+  const grid: Record<string, string> = {};
+  for (let r = 1; r <= 10; r++) {
+    grid[`A${r}`] = `${r}`;
+    grid[`B${r}`] = `${r * 10}`;
+    grid[`C${r}`] = `=SUM(A${r}:B${r})`; // fill region with a range dependency
+  }
+  const model = new Model(createModelFromGrid(grid)._exportData(true));
+
+  expect(getEvaluatedCell(model, "C5").value).toBe(55); // 5 + 50
+
+  setCellContent(model, "B5", "500");
+  expect(getEvaluatedCell(model, "C5").value).toBe(505); // 5 + 500
+  expect(getEvaluatedCell(model, "C6").value).toBe(66); // untouched
+});
+
 test("editing a single cell of a region leaves the others intact", () => {
   const model = squishedFillColumn(20);
 
