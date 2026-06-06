@@ -37,11 +37,13 @@ const selectionStatisticFunctions: SelectionStatisticFunction[] = [
     name: _t("Count"),
     types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
     compute: (values) => countAny([[values]]),
+    format: "",
   },
   {
     name: _t("Count Numbers"),
     types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
     compute: (values, locale) => countNumbers([[values]], locale),
+    format: "",
   },
 ];
 
