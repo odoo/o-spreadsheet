@@ -35,6 +35,7 @@ import { CompiledFormula, SerializedCompiledFormula } from "../../formulas/compi
 import {
   createCell,
   createFormulaCellFromCompiledFormula,
+  RegionFormulaCell,
 } from "../../helpers/cells/cell_evaluation";
 import { isExcelCompatible } from "../../helpers/format/format";
 import { isNumber } from "../../helpers/numbers";
@@ -45,7 +46,7 @@ import { Style, UpdateCellData, Zone } from "../../types/misc";
 import { Range, RangePart } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { SquishedContent, Squisher } from "./squisher";
-import { Unsquisher } from "./unsquisher";
+import { UnsquishedRegionCell, Unsquisher } from "./unsquisher";
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
@@ -89,17 +90,34 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   adaptRanges(adapters: RangeAdapterFunctions) {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
-        if (cell.isFormula) {
-          const newCompiledFormula = adapters.adaptCompiledFormula(cell.compiledFormula);
+        if (!cell.isFormula) {
+          continue;
+        }
+        const newCompiledFormula = adapters.adaptCompiledFormula(cell.compiledFormula);
+        if (cell instanceof RegionFormulaCell) {
+          // The flyweight has no writable compiledFormula: dissolve it into a
+          // concrete cell holding the (possibly adapted) formula.
           if (newCompiledFormula !== cell.compiledFormula) {
             this.history.update(
               "cells",
               sheet,
               cell.id,
-              "compiledFormula" as any,
-              newCompiledFormula
+              createFormulaCellFromCompiledFormula(
+                cell.id,
+                newCompiledFormula,
+                cell.format,
+                cell.style
+              )
             );
           }
+        } else if (newCompiledFormula !== cell.compiledFormula) {
+          this.history.update(
+            "cells",
+            sheet,
+            cell.id,
+            "compiledFormula" as any,
+            newCompiledFormula
+          );
         }
       }
     }
@@ -367,6 +385,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       const sheetId = sheet.id;
       const cellsData = new PositionMap<{
         compiledFormula?: CompiledFormula;
+        region?: UnsquishedRegionCell;
         content?: string;
         style?: number;
         format?: number;
@@ -374,7 +393,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       // cells content
       const unsquisher = new Unsquisher();
       for (const unsquishedItem of unsquisher.unsquishSheet(sheet.cells, sheet.id, this.getters)) {
-        if (unsquishedItem.content || unsquishedItem.compiled) {
+        if (unsquishedItem.content || unsquishedItem.compiled || unsquishedItem.region) {
           const position = {
             sheetId: sheet.id,
             col: unsquishedItem.position.col,
@@ -382,6 +401,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           };
           if (unsquishedItem.compiled) {
             cellsData.set(position, { compiledFormula: unsquishedItem.compiled });
+          } else if (unsquishedItem.region) {
+            cellsData.set(position, { region: unsquishedItem.region });
           } else {
             cellsData.set(position, { content: unsquishedItem.content });
           }
@@ -403,14 +424,39 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       }
       for (const position of cellsData.keysForSheet(sheetId)) {
         const cellData = cellsData.get(position);
-        if (cellData?.content || cellData?.format || cellData?.style || cellData?.compiledFormula) {
-          const cell = this.importCell(
+        if (!cellData) {
+          continue;
+        }
+        const style = cellData.style ? data.styles[cellData.style] : undefined;
+        const format = cellData.format ? data.formats[cellData.format] : undefined;
+        let cell: Cell | undefined;
+        if (cellData.region) {
+          const { template, dCol, dRow } = cellData.region;
+          cell = new RegionFormulaCell(
+            this.getNextCellId(),
+            format,
+            style,
+            template,
             sheet.id,
-            cellData?.content,
-            cellData?.style ? data.styles[cellData?.style] : undefined,
-            cellData?.format ? data.formats[cellData?.format] : undefined,
-            cellData?.compiledFormula
+            dCol,
+            dRow,
+            this.getters
           );
+        } else if (
+          cellData.content ||
+          cellData.format ||
+          cellData.style ||
+          cellData.compiledFormula
+        ) {
+          cell = this.importCell(
+            sheet.id,
+            cellData.content,
+            style,
+            format,
+            cellData.compiledFormula
+          );
+        }
+        if (cell) {
           this.history.update("cells", sheet.id, cell.id, cell);
           this.setNewPosition(cell.id, position.sheetId, position.col, position.row);
         }
