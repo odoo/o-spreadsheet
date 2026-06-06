@@ -140,36 +140,39 @@ export function createFormulaCellFromCompiledFormula(
  */
 export class RegionFormulaCell implements FormulaCell {
   readonly isFormula = true as const;
+  private reified: CompiledFormula | undefined;
 
   constructor(
     readonly id: number,
     readonly format: Format | undefined,
     readonly style: Style | undefined,
-    readonly template: CompiledFormula,
-    readonly sheetId: UID,
-    readonly dCol: number,
-    readonly dRow: number,
+    private readonly template: CompiledFormula,
+    private readonly sheetId: UID,
+    private readonly dCol: number,
+    private readonly dRow: number,
     private readonly getters: CoreGetters
   ) {}
 
-  /**
-   * Reified on demand and intentionally NOT cached: keeping it transient is what
-   * lets a large fill region stay cheap in memory. The dependency graph reads
-   * the shared `template` directly (see FormulaDependencyGraph.addRegionDependencies),
-   * so the only place this is built is when the cell is actually evaluated, and
-   * the result can be garbage-collected right after.
-   */
   get compiledFormula(): CompiledFormula {
-    if (this.dCol === 0 && this.dRow === 0) {
-      return this.template;
+    if (this.reified) {
+      return this.reified;
     }
-    const dependencies = this.getters.createAdaptedRanges(
-      this.template.rangeDependencies,
-      this.dCol,
-      this.dRow,
-      this.sheetId
-    );
-    return CompiledFormula.CopyWithDependencies(this.template, this.sheetId, dependencies);
+    if (this.dCol === 0 && this.dRow === 0) {
+      this.reified = this.template;
+    } else {
+      const dependencies = this.getters.createAdaptedRanges(
+        this.template.rangeDependencies,
+        this.dCol,
+        this.dRow,
+        this.sheetId
+      );
+      this.reified = CompiledFormula.CopyWithDependencies(
+        this.template,
+        this.sheetId,
+        dependencies
+      );
+    }
+    return this.reified;
   }
 }
 
