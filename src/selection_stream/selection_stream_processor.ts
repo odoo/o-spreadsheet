@@ -677,3 +677,19 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     );
   }
 }
+
+export const selectionModifiers: Set<string | symbol> = new Set([
+  "selectZone",
+  "selectCell",
+  "moveAnchorCell",
+  "updateAnchorCell",
+  "setAnchorCorner",
+  "addCellToSelection",
+  "resizeAnchorZone",
+  "selectColumn",
+  "selectRow",
+  "selectAll",
+  "loopSelection",
+  "selectTableAroundSelection",
+  "commitSelection",
+]);
