@@ -17,6 +17,7 @@ import {
 } from "../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";
+import { hasInteractiveElementInEventTree } from "../../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
 import { PivotCustomGroupsCollapsible } from "../pivot_custom_groups_collapsible/pivot_custom_groups_collapsible";
 import { AddDimensionButton } from "./add_dimension_button/add_dimension_button";
@@ -73,7 +74,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
   }
 
   startDragAndDrop(dimension: PivotDimensionType, event: MouseEvent) {
-    if (event.button !== 0 || (event.target as HTMLElement).tagName === "SELECT") {
+    if (event.button !== 0 || hasInteractiveElementInEventTree(event)) {
       return;
     }
 
@@ -137,8 +138,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
   startDragAndDropMeasures(measure: PivotMeasure, event: MouseEvent) {
     if (
       event.button !== 0 ||
-      (event.target as HTMLElement).tagName === "SELECT" ||
-      (event.target as HTMLElement).tagName === "INPUT" ||
+      hasInteractiveElementInEventTree(event) ||
       this.composerFocus.focusMode !== "inactive"
     ) {
       return;
