@@ -4,7 +4,7 @@ import { ScatterChartRuntime } from "../../../types/chart/scatter_chart";
 import { CommandResult } from "../../../types/commands";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { AbstractChart } from "./abstract_chart";
-import { chartFontColor, getDefinedAxis } from "./chart_common";
+import { chartFontColor, getDataSourceRanges, getDefinedAxis } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import { getLineChartData } from "./runtime/chart_data_extractor";
 import { getScatterChartDatasets } from "./runtime/chartjs_dataset";
@@ -70,6 +70,8 @@ export const ScatterChart: ChartTypeBuilder<"scatter"> = {
       verticalAxis: getDefinedAxis(definition),
     };
   },
+
+  getRanges: (definition) => getDataSourceRanges(definition.dataSource),
 
   getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): ScatterChartRuntime {
     const data = extractData();

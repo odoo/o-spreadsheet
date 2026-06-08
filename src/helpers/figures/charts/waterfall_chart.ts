@@ -3,6 +3,7 @@ import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { WaterfallChartRuntime } from "../../../types/chart/waterfall_chart";
 import { CommandResult } from "../../../types/commands";
 import { AbstractChart } from "./abstract_chart";
+import { getDataSourceRanges } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import { getBarChartData } from "./runtime/chart_data_extractor";
 import { getWaterfallDatasetAndLabels } from "./runtime/chartjs_dataset";
@@ -70,6 +71,8 @@ export const WaterfallChart: ChartTypeBuilder<"waterfall"> = {
   },
 
   getDefinitionForExcel: () => undefined,
+
+  getRanges: (definition) => getDataSourceRanges(definition.dataSource),
 
   getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): WaterfallChartRuntime {
     const data = extractData();

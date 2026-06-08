@@ -22,7 +22,7 @@ import {
   UID,
   Zone,
 } from "../../../types/misc";
-import { Range } from "../../../types/range";
+import { BoundedRange, Range } from "../../../types/range";
 import { ExcelWorkbookData } from "../../../types/workbook_data";
 import { SquishedFormula } from "../../core/squisher";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../../core_view_plugin";
@@ -159,6 +159,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "isArrayFormulaSpillBlocked",
     "isEmpty",
     "getPerfProfile",
+    "getCellsDependingOn",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
@@ -309,6 +310,19 @@ export class EvaluationPlugin extends CoreViewPlugin {
 
   getPerfProfile(): PerfProfile | undefined {
     return this.evaluator.getPerfProfile();
+  }
+
+  /**
+   * Returns ranges of formula cells that (transitively) depend on the given cell position.
+   */
+  getCellsDependingOn(position: CellPosition): Iterable<BoundedRange> {
+    const zone = {
+      left: position.col,
+      right: position.col,
+      top: position.row,
+      bottom: position.row,
+    };
+    return this.evaluator.getCellsDependingOn([{ sheetId: position.sheetId, zone }]);
   }
 
   /**

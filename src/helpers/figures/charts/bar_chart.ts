@@ -4,7 +4,7 @@ import { BarChartRuntime } from "../../../types/chart/bar_chart";
 import { CommandResult } from "../../../types/commands";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { AbstractChart } from "./abstract_chart";
-import { chartFontColor, getDefinedAxis } from "./chart_common";
+import { chartFontColor, getDataSourceRanges, getDefinedAxis } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import { getBarChartData } from "./runtime/chart_data_extractor";
 import { getBarChartDatasets } from "./runtime/chartjs_dataset";
@@ -79,6 +79,8 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
       verticalAxis: getDefinedAxis(definition),
     };
   },
+
+  getRanges: (definition) => getDataSourceRanges(definition.dataSource),
 
   getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): BarChartRuntime {
     const data = extractData();
