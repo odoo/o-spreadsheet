@@ -21,7 +21,7 @@ export class RadioSelection extends Component<SpreadsheetChildEnv> {
   protected props = props(
     {
       choices: types.ArrayOf<Choice>(),
-      onChange: types.function<[value: unknown]>([types.any()]),
+      onChange: types.function<(value: unknown) => void>(),
       selectedValue: types.string(),
       name: types.string(),
       "direction?": types.or([types.literal("horizontal"), types.literal("vertical")]),

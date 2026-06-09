@@ -25,7 +25,7 @@ export class RoundColorPicker extends Component<SpreadsheetChildEnv> {
   protected props = props({
     "currentColor?": types.string(),
     "title?": types.string(),
-    onColorPicked: types.function<[color: string]>([types.string()]),
+    onColorPicked: types.function<(color: string) => void>(),
     "disableNoColor?": types.boolean(),
   });
 

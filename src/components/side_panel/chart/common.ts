@@ -10,15 +10,14 @@ export interface ChartSidePanelProps<T extends ChartDefinition<string>> {
   updateChart: (chartId: UID, definition: Partial<T>) => DispatchResult;
 }
 
+export type ChartUpdateFunction<T extends ChartDefinition<string> = ChartDefinition<string>> = (
+  chartId: UID,
+  definition: Partial<T>
+) => DispatchResult;
+
 export const chartSidePanelPropsDefinition = {
   chartId: types.UID(),
   definition: types.object({}),
-  canUpdateChart: types.function<
-    [chartId: UID, definition: Partial<ChartDefinition<string>>],
-    DispatchResult
-  >([types.UID(), types.object({})], types.DispatchResult()),
-  updateChart: types.function<
-    [chartId: UID, definition: Partial<ChartDefinition<string>>],
-    DispatchResult
-  >([types.UID(), types.object({})], types.DispatchResult()),
+  canUpdateChart: types.function<ChartUpdateFunction>(),
+  updateChart: types.function<ChartUpdateFunction>(),
 };

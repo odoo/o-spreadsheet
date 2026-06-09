@@ -1,5 +1,6 @@
-import { props, types, xml } from "@odoo/owl";
+import { props, xml } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
+import { types } from "../../src/components/props_validation";
 import {
   COLLAPSED_SIDE_PANEL_SIZE,
   DEFAULT_SIDE_PANEL_SIZE,

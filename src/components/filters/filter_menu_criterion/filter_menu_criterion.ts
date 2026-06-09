@@ -24,7 +24,7 @@ export class FilterMenuCriterion extends Component<SpreadsheetChildEnv> {
   protected props = props({
     criterion: types.CriterionFilter(),
     criterionOperators: types.array(types.GenericCriterionType()),
-    onCriterionChanged: types.function<[criterion: CriterionFilter]>([types.CriterionFilter()]),
+    onCriterionChanged: types.function<(criterion: CriterionFilter) => void>(),
   });
 
   private state!: State;

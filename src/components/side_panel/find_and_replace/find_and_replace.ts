@@ -21,7 +21,7 @@ export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FindAndReplacePanel";
   static components = { SelectionInput, Section, Checkbox, ValidationMessages, Select };
   protected props = props({
-    onCloseSidePanel: types.function([]),
+    onCloseSidePanel: types.function(),
   });
 
   private searchInputRef = signal<HTMLInputElement | null>(null);

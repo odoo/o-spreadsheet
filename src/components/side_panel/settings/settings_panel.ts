@@ -17,7 +17,7 @@ export class SettingsPanel extends Component<SpreadsheetChildEnv> {
   static components = { Section, ValidationMessages, BadgeSelection, Select };
 
   protected props = props({
-    onCloseSidePanel: types.function([]),
+    onCloseSidePanel: types.function(),
   });
 
   loadedLocales: Locale[] = [];

@@ -12,9 +12,9 @@ export class FontSizeEditor extends Component<SpreadsheetChildEnv> {
   protected props = props(
     {
       currentFontSize: types.number(),
-      onFontSizeChanged: types.function<[fontSize: number]>([types.number()]),
-      "onToggle?": types.function([]),
-      "onFocusInput?": types.function([]),
+      onFontSizeChanged: types.function<(fontSize: number) => void>(),
+      "onToggle?": types.function(),
+      "onFocusInput?": types.function(),
       class: types.string(),
     },
     {

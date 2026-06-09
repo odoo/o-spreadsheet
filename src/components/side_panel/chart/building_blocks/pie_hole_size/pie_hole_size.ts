@@ -11,7 +11,7 @@ export class PieHoleSize extends Component<SpreadsheetChildEnv> {
   static components = { Section, NumberInput };
 
   protected props = props({
-    onValueChange: types.function<[value: number]>([types.number()]),
+    onValueChange: types.function<(value: number) => void>(),
     value: types.number(),
   });
 

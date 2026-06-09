@@ -137,8 +137,8 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   };
 
   protected props = props({
-    exposeFocus: types.function<[focus: () => void]>([types.function([])]),
-    getGridSize: types.function<[], DOMDimension>([], types.DOMDimension()),
+    exposeFocus: types.function<(focus: () => void) => void>(),
+    getGridSize: types.function<() => DOMDimension>(),
   });
 
   readonly HEADER_HEIGHT = HEADER_HEIGHT;

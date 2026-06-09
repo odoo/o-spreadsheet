@@ -15,8 +15,8 @@ export class GridPopover extends Component<SpreadsheetChildEnv> {
   static components = { Popover };
 
   protected props = props({
-    onClosePopover: types.function([]),
-    onMouseWheel: types.function<[ev: WheelEvent]>([types.instanceOf(WheelEvent)]),
+    onClosePopover: types.function(),
+    onMouseWheel: types.function<(ev: WheelEvent) => void>(),
     gridRect: types.Rect(),
   });
   protected cellPopovers!: Store<CellPopoverStore>;

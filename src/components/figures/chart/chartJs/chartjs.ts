@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, props, signal, types } from "@odoo/owl";
+import { onMounted, onWillUnmount, props, signal } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import {
   chartJsExtensionRegistry,
@@ -10,6 +10,7 @@ import { useStore } from "../../../../store_engine/store_hooks";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
+import { types } from "../../../props_validation";
 import { ChartAnimationStore } from "./chartjs_animation_store";
 import { chartBackgroundPlugin } from "./chartjs_background_plugin";
 import { getCalendarChartController } from "./chartjs_calendar_chart";

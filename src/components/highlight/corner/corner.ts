@@ -27,9 +27,8 @@ export class Corner extends Component<SpreadsheetChildEnv> {
       types.literal("w"),
     ]),
     isResizing: types.boolean(),
-    onResizeHighlight: types.function<
-      [ev: PointerEvent, dirX: ResizeDirection, dirY: ResizeDirection]
-    >([types.instanceOf(PointerEvent), types.ResizeDirection(), types.ResizeDirection()]),
+    onResizeHighlight:
+      types.function<(ev: PointerEvent, dirX: ResizeDirection, dirY: ResizeDirection) => void>(),
   });
   private dirX!: ResizeDirection;
   private dirY!: ResizeDirection;

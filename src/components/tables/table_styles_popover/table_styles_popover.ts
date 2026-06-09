@@ -23,8 +23,8 @@ export class TableStylesPopover extends Component<SpreadsheetChildEnv> {
   protected props = props({
     tableConfig: types.object({}) as Omit<TableConfig, "styleId">,
     "popoverProps?": types.object({}) as PropsOf<Popover>,
-    closePopover: types.function([]),
-    onStylePicked: types.function<[styleId: string]>([types.string()]),
+    closePopover: types.function(),
+    onStylePicked: types.function<(styleId: string) => void>(),
     "selectedStyleId?": types.string(),
     tableStyles: types.RecordOf<TableStyle>(),
     type: types.or([types.literal("table"), types.literal("pivot")]),

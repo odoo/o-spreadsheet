@@ -21,7 +21,7 @@ export class Checkbox extends Component<SpreadsheetChildEnv> {
       "name?": types.string(),
       "title?": types.string(),
       "disabled?": types.boolean(),
-      onChange: types.function<[value: boolean]>([types.boolean()]),
+      onChange: types.function<(value: boolean) => void>(),
     },
     {
       value: false,

@@ -11,10 +11,7 @@ export class PivotDimensionOrder extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotDimensionOrder";
   protected props = props({
     dimension: types.PivotDimension(),
-    onUpdated: types.function<[dimension: PivotDimension, ev: InputEvent]>([
-      types.PivotDimension(),
-      types.instanceOf(InputEvent),
-    ]),
+    onUpdated: types.function<(dimension: PivotDimension, ev: InputEvent) => void>(),
     "isMeasureSorted?": types.boolean(),
   });
   static components = { Select };

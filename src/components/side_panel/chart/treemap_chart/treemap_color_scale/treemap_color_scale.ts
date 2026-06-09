@@ -16,10 +16,7 @@ export class TreeMapColorScale extends Component<SpreadsheetChildEnv> {
   protected props = props({
     chartId: types.UID(),
     definition: types.TreeMapChartDefinition(),
-    onColorChanged: types.function<[colors: TreeMapColorScaleOptions], DispatchResult>(
-      [types.TreeMapColorScaleOptions()],
-      types.DispatchResult()
-    ),
+    onColorChanged: types.function<(colors: TreeMapColorScaleOptions) => DispatchResult>(),
   });
 
   get coloringOptions() {

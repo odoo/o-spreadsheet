@@ -1,6 +1,7 @@
-import { props, types, xml } from "@odoo/owl";
+import { props, xml } from "@odoo/owl";
 import { Color, Model, Pixel, Range } from "../../src";
 import { Highlight } from "../../src/components/highlight/highlight/highlight";
+import { types } from "../../src/components/props_validation";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -127,9 +128,9 @@ class Parent extends Component {
     <Highlight range="this.props.range" color="this.props.color"/>
   `;
   protected props = props({
-    range: types.object({}) as unknown as Range,
+    range: types.object<Range>(),
     color: types.string(),
-    model: types.object({}) as unknown as Model,
+    model: types.object<Model>(),
   });
 
   setup() {

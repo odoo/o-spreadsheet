@@ -14,7 +14,7 @@ export class NamedRangesPanel extends Component<SpreadsheetChildEnv> {
   static components = { NamedRangePreview, SelectionInput, TextInput };
 
   protected props = props({
-    onCloseSidePanel: types.function([]),
+    onCloseSidePanel: types.function(),
   });
 
   get namedRanges() {

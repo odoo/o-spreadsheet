@@ -17,7 +17,7 @@ export class Border extends Component<SpreadsheetChildEnv> {
       types.literal("e"),
     ]),
     isMoving: types.boolean(),
-    onMoveHighlight: types.function<[ev: PointerEvent]>([types.instanceOf(PointerEvent)]),
+    onMoveHighlight: types.function<(ev: PointerEvent) => void>(),
   });
   get style() {
     const isTop = ["n", "w", "e"].includes(this.props.orientation);

@@ -1,4 +1,4 @@
-import { onWillUpdateProps, props, proxy, signal, types } from "@odoo/owl";
+import { onWillUpdateProps, props, proxy, signal } from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
 import { UuidGenerator } from "../../helpers/uuid";
 import { Component } from "../../owl3_compatibility_layer";
@@ -10,6 +10,7 @@ import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Ripple } from "../animation/ripple";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
+import { types } from "../props_validation";
 import { BottomBarSheet } from "./bottom_bar_sheet/bottom_bar_sheet";
 import { BottomBarStatistic } from "./bottom_bar_statistic/bottom_bar_statistic";
 
@@ -31,7 +32,7 @@ interface BottomBarMenuState extends MenuState {
 export class BottomBar extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BottomBar";
 
-  protected props = props({ onClick: types.function([]) });
+  protected props = props({ onClick: types.function<(ev: MouseEvent) => void>() });
 
   static components = { MenuPopover, Ripple, BottomBarSheet, BottomBarStatistic };
 

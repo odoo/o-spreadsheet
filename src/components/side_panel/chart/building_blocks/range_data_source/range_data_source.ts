@@ -27,6 +27,7 @@ import { UID, Zone } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { types } from "../../../../props_validation";
 import { ChartTerms } from "../../../../translations_terms";
+import { ChartUpdateFunction } from "../../common";
 import { ChartDataSeries } from "../data_series/data_series";
 import { ChartLabelRange } from "../label_range/label_range";
 
@@ -46,20 +47,12 @@ export class ChartRangeDataSourceComponent extends Component<SpreadsheetChildEnv
     chartId: types.UID(),
     definition: types.ChartDefinitionWithDataSource(),
     dataSource: types.ChartRangeDataSource(),
-    updateChart: types.function<
-      [chartId: UID, definition: Partial<ChartDefinitionWithDataSource<string>>],
-      DispatchResult
-    >([types.UID(), types.object({})], types.DispatchResult()),
-    canUpdateChart: types.function<
-      [chartId: UID, definition: Partial<ChartDefinitionWithDataSource<string>>],
-      DispatchResult
-    >([types.UID(), types.object({})], types.DispatchResult()),
-    "onErrorMessagesChanged?": types.function<[errorMessages: string[]]>([
-      types.array(types.string()),
-    ]),
+    updateChart: types.function<ChartUpdateFunction<ChartDefinitionWithDataSource<string>>>(),
+    canUpdateChart: types.function<ChartUpdateFunction<ChartDefinitionWithDataSource<string>>>(),
+    "onErrorMessagesChanged?": types.function<(errorMessages: string[]) => void>(),
     "dataSeriesTitle?": types.string(),
     "labelRangeTitle?": types.string(),
-    "getLabelRangeOptions?": types.function([]) as unknown as () => Array<{
+    "getLabelRangeOptions?": types.function as unknown as () => Array<{
       name: string;
       label: string;
       value: boolean;

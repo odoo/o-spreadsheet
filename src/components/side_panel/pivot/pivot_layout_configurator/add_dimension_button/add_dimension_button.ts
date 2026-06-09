@@ -21,7 +21,7 @@ export class AddDimensionButton extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-AddDimensionButton";
   static components = { Popover, TextValueProvider };
   protected props = props({
-    onFieldPicked: types.function<[field: string]>([types.string()]),
+    onFieldPicked: types.function<(field: string) => void>(),
     fields: types.array(),
   });
 

@@ -16,7 +16,7 @@ export class PerfProfilePanel extends Component<SpreadsheetChildEnv> {
   static components = { Section };
 
   protected props = props({
-    onCloseSidePanel: types.function([]),
+    onCloseSidePanel: types.function(),
   });
 
   private state = proxy({

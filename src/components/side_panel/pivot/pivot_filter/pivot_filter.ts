@@ -40,9 +40,8 @@ export class PivotFilterEditor extends Component<SpreadsheetChildEnv> {
     pivotId: types.UID(),
     definition: types.instanceOf(SpreadsheetPivotRuntimeDefinition),
     filter: types.PivotFilter(),
-    onFiltersUpdated: types.function<[definition: Partial<SpreadsheetPivotCoreDefinition>]>([
-      types.SpreadsheetPivotCoreDefinition(),
-    ]),
+    onFiltersUpdated:
+      types.function<(definition: Partial<SpreadsheetPivotCoreDefinition>) => void>(),
   });
 
   private state!: State;

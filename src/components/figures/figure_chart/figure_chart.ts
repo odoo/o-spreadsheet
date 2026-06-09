@@ -15,12 +15,9 @@ export class ChartFigure extends Component<SpreadsheetChildEnv> {
 
   protected props = props({
     figureUI: types.FigureUI(),
-    "editFigureStyle?": types.function<[properties: CSSProperties]>([types.CSSProperties()]),
+    "editFigureStyle?": types.function<(properties: CSSProperties) => void>(),
     "isFullScreen?": types.boolean(),
-    "openContextMenu?": types.function<[anchorRect: Rect, onClose?: () => void]>([
-      types.Rect(),
-      types.function([]),
-    ]),
+    "openContextMenu?": types.function<(anchorRect: Rect, onClose?: () => void) => void>(),
   });
 
   onDoubleClick() {

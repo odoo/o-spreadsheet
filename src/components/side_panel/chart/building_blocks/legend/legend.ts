@@ -8,6 +8,7 @@ import { Section } from "../../../components/section/section";
 
 import { Component } from "../../../../../owl3_compatibility_layer";
 import { types } from "../../../../props_validation";
+import { ChartUpdateFunction } from "../../common";
 
 export class ChartLegend extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartLegend";
@@ -20,8 +21,8 @@ export class ChartLegend extends Component<SpreadsheetChildEnv> {
     {
       chartId: types.string(),
       definition: types.ChartDefinitionWithDataSource(),
-      canUpdateChart: types.function(),
-      updateChart: types.function(),
+      canUpdateChart: types.function<ChartUpdateFunction>(),
+      updateChart: types.function<ChartUpdateFunction>(),
       "isDisabled?": types.boolean(),
     },
     {

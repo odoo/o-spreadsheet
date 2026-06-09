@@ -45,9 +45,9 @@ export class BorderEditor extends Component<SpreadsheetChildEnv> {
     currentBorderColor: types.Color(),
     currentBorderStyle: types.BorderStyle(),
     "currentBorderPosition?": types.BorderPosition(),
-    onBorderColorPicked: types.function<[color: Color]>([types.Color()]),
-    onBorderStylePicked: types.function<[style: BorderStyle]>([types.BorderStyle()]),
-    onBorderPositionPicked: types.function<[position: BorderPosition]>([types.BorderPosition()]),
+    onBorderColorPicked: types.function<(color: Color) => void>(),
+    onBorderStylePicked: types.function<(style: BorderStyle) => void>(),
+    onBorderPositionPicked: types.function<(position: BorderPosition) => void>(),
     "maxHeight?": types.Pixel(),
     anchorRect: types.Rect(),
   });

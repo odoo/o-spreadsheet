@@ -21,7 +21,7 @@ export class SmallBottomBar extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SmallBottomBar";
 
   protected props = props({
-    onClick: types.function([]),
+    onClick: types.function(),
   });
 
   private composerFocusStore!: Store<ComposerFocusStore>;

@@ -17,15 +17,15 @@ export class ChartDataSeries extends Component<SpreadsheetChildEnv> {
     ranges: types.ArrayOf<{ dataRange: string; dataSetId: UID }>(),
     "dataSetStyles?": types.DataSetStyle(),
     "hasSingleRange?": types.boolean(),
-    onSelectionChanged: types.function<[ranges: string[]]>([types.array(types.string())]),
-    "onSelectionReordered?": types.function<[indexes: number[]]>([types.array(types.number())]),
-    "onSelectionRemoved?": types.function<[index: number]>([types.number()]),
-    onSelectionConfirmed: types.function([]),
+    onSelectionChanged: types.function<(ranges: string[]) => void>(),
+    "onSelectionReordered?": types.function<(indexes: number[]) => void>(),
+    "onSelectionRemoved?": types.function<(index: number) => void>(),
+    onSelectionConfirmed: types.function(),
     "maxNumberOfUsedRanges?": types.number(),
     "title?": types.string(),
     "datasetOrientation?": types.or([types.literal("rows"), types.literal("columns")]),
     "canChangeDatasetOrientation?": types.boolean(),
-    "onFlipAxis?": types.function<[structure: string]>([types.string()]),
+    "onFlipAxis?": types.function<(structure: string) => void>(),
   });
 
   get ranges(): string[] {

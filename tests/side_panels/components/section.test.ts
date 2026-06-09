@@ -1,4 +1,5 @@
-import { props, types, xml } from "@odoo/owl";
+import { props, xml } from "@odoo/owl";
+import { types } from "../../../src/components/props_validation";
 import { Section } from "../../../src/components/side_panel/components/section/section";
 import { Component } from "../../../src/owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";

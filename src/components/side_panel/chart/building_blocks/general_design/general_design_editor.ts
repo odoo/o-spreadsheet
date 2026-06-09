@@ -1,15 +1,15 @@
 import { props, proxy } from "@odoo/owl";
 import { CHART_TITLE_FONT_SIZE } from "../../../../../constants";
 import { Component } from "../../../../../owl3_compatibility_layer";
-import { ChartDefinition, TitleDesign } from "../../../../../types/chart/chart";
-import { DispatchResult } from "../../../../../types/commands";
-import { Color, UID } from "../../../../../types/misc";
+import { TitleDesign } from "../../../../../types/chart/chart";
+import { Color } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { types } from "../../../../props_validation";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "../../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
+import { ChartUpdateFunction } from "../../common";
 import { ChartTitle } from "../chart_title/chart_title";
 
 interface GeneralDesignEditorState {
@@ -30,14 +30,8 @@ export class GeneralDesignEditor extends Component<SpreadsheetChildEnv> {
     {
       chartId: types.UID(),
       definition: types.ChartDefinition(),
-      canUpdateChart: types.function<
-        [chartId: UID, definition: Partial<ChartDefinition<string>>],
-        DispatchResult
-      >([types.UID(), types.object({})], types.DispatchResult()),
-      updateChart: types.function<
-        [chartId: UID, definition: Partial<ChartDefinition<string>>],
-        DispatchResult
-      >([types.UID(), types.object({})], types.DispatchResult()),
+      canUpdateChart: types.function<ChartUpdateFunction>(),
+      updateChart: types.function<ChartUpdateFunction>(),
       "defaultChartTitleFontSize?": types.number(),
     },
     {

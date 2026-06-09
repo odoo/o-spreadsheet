@@ -32,7 +32,7 @@ export class PivotSpreadsheetSidePanel extends Component<SpreadsheetChildEnv> {
 
   protected props = props({
     pivotId: types.UID(),
-    onCloseSidePanel: types.function([]),
+    onCloseSidePanel: types.function(),
   });
   store!: Store<PivotSidePanelStore>;
 

@@ -207,8 +207,13 @@ function validateStore<T>(): Store<T> {
   return owlTypes.object() as any;
 }
 
+function validateFunction<T = () => void>(): T {
+  return owlTypes.function() as any;
+}
+
 export const types = {
   ...owlTypes,
+  function: validateFunction,
   ArrayOf: validateArrayOf,
   RecordOf: validateRecordOf,
   SetOf: validateSetOf,

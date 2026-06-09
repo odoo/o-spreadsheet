@@ -11,10 +11,8 @@ export class TextValueProvider extends Component<any> {
   protected props = props({
     proposals: types.array(types.AutoCompleteProposal()),
     "selectedIndex?": types.number(),
-    onValueSelected: types.function<[proposal: AutoCompleteProposal]>([
-      types.AutoCompleteProposal(),
-    ]),
-    onValueHovered: types.function<[index: string]>([types.string()]),
+    onValueSelected: types.function<(proposal: AutoCompleteProposal) => void>(),
+    onValueHovered: types.function<(index: string) => void>(),
   });
   autoCompleteListRef = signal<HTMLElement | null>(null);
 

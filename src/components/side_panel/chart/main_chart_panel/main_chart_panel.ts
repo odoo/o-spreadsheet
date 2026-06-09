@@ -16,7 +16,7 @@ export class ChartPanel extends Component<SpreadsheetChildEnv> {
   static components = { Section, ChartTypePicker };
 
   protected props = props({
-    onCloseSidePanel: types.function([]),
+    onCloseSidePanel: types.function(),
     chartId: types.UID(),
   });
 

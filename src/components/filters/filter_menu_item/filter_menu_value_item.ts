@@ -1,6 +1,7 @@
-import { onWillPatch, props, signal, types } from "@odoo/owl";
+import { onWillPatch, props, signal } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { types } from "../../props_validation";
 import { Checkbox } from "../../side_panel/components/checkbox/checkbox";
 
 export class FilterMenuValueItem extends Component<SpreadsheetChildEnv> {
@@ -11,8 +12,8 @@ export class FilterMenuValueItem extends Component<SpreadsheetChildEnv> {
     value: types.string(),
     isChecked: types.boolean(),
     isSelected: types.boolean(),
-    onMouseMove: types.function([]),
-    onClick: types.function([]),
+    onMouseMove: types.function<(ev: MouseEvent) => void>(),
+    onClick: types.function<(ev: MouseEvent) => void>(),
     "scrolledTo?": types.or([types.literal("top"), types.literal("bottom")]),
   });
 

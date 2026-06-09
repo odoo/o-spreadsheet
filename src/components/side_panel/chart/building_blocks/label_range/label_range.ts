@@ -17,8 +17,8 @@ export class ChartLabelRange extends Component<SpreadsheetChildEnv> {
       range: types.string(),
       "class?": types.string(),
       isInvalid: types.boolean(),
-      onSelectionChanged: types.function<[range: string]>([types.string()]),
-      onSelectionConfirmed: types.function([]),
+      onSelectionChanged: types.function<(range: string) => void>(),
+      onSelectionConfirmed: types.function(),
       "options?": types.ArrayOf<{
         name: string;
         label: string;

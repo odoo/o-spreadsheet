@@ -15,7 +15,7 @@ export class PivotTitleSection extends Component<SpreadsheetChildEnv> {
   static components = { CogWheelMenu, Section, TextInput };
   protected props = props({
     pivotId: types.UID(),
-    flipAxis: types.function([]),
+    flipAxis: types.function(),
   });
 
   get cogWheelMenuItems(): ActionSpec[] {

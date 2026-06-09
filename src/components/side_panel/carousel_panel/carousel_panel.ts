@@ -23,7 +23,7 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
   static components = { Section, TextInput, TextStyler, CogWheelMenu };
 
   protected props = props({
-    onCloseSidePanel: types.function([]),
+    onCloseSidePanel: types.function(),
     figureId: types.UID(),
   });
 

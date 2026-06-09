@@ -1,6 +1,7 @@
-import { App, props, types, xml } from "@odoo/owl";
+import { App, props, xml } from "@odoo/owl";
 import { Color, Model } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
+import { types } from "../../src/components/props_validation";
 import { SelectionInput } from "../../src/components/selection_input/selection_input";
 import { ColorGenerator } from "../../src/helpers/color";
 import { toCartesian } from "../../src/helpers/coordinates";
@@ -71,8 +72,8 @@ class Parent extends Component<any> {
   `;
   static components = { SelectionInput };
   protected props = props({
-    model: types.object({}),
-    config: types.object({}),
+    model: types.object<Model>(),
+    config: types.object<SelectionInputTestConfig>(),
   }) as any;
   model!: Model;
   initialRanges: string[] | undefined;

@@ -21,7 +21,7 @@ export class TextStyler extends Component<SpreadsheetChildEnv> {
 
   protected props = props({
     style: types.ChartStyle(),
-    updateStyle: types.function<[style: ChartStyle]>([types.ChartStyle()]),
+    updateStyle: types.function<(style: ChartStyle) => void>(),
     "defaultStyle?": types.object({}) as Partial<ChartStyle>,
     "hasVerticalAlign?": types.boolean(),
     "hasHorizontalAlign?": types.boolean(),

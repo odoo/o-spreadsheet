@@ -43,7 +43,7 @@ export class ColorPicker extends Component<SpreadsheetChildEnv> {
 
   protected props = props(
     {
-      onColorPicked: types.function<[color: string]>([types.string()]),
+      onColorPicked: types.function<(color: string) => void>(),
       "currentColor?": types.string(),
       "maxHeight?": types.Pixel(),
       anchorRect: types.Rect(),

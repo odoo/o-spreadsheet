@@ -37,7 +37,7 @@ export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
   static components = { ValidationMessages, Section, Checkbox, Select };
 
   protected props = props({
-    onCloseSidePanel: types.function([]),
+    onCloseSidePanel: types.function(),
   });
 
   state = proxy<State>({ separatorValue: "auto", addNewColumns: false, customSeparator: "" });

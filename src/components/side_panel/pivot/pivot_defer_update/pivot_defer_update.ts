@@ -11,9 +11,9 @@ export class PivotDeferUpdate extends Component<SpreadsheetChildEnv> {
   protected props = props({
     deferUpdate: types.boolean(),
     isDirty: types.boolean(),
-    toggleDeferUpdate: types.function<[value: boolean]>([types.boolean()]),
-    discard: types.function([]),
-    apply: types.function([]),
+    toggleDeferUpdate: types.function<(value: boolean) => void>(),
+    discard: types.function(),
+    apply: types.function(),
   });
   static components = {
     Section,

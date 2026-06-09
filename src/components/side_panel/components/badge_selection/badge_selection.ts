@@ -14,7 +14,7 @@ export class BadgeSelection extends Component<SpreadsheetChildEnv> {
 
   protected props = props({
     choices: types.ArrayOf<Choice>(),
-    onChange: types.function<[value: string]>([types.string()]),
+    onChange: types.function<(value: string) => void>(),
     selectedValue: types.string(),
   });
 }

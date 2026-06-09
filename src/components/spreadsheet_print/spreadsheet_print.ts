@@ -21,7 +21,7 @@ import {
 export class SpreadsheetPrint extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SpreadsheetPrint";
   protected props = props({
-    onExitPrintMode: types.function([]),
+    onExitPrintMode: types.function(),
   });
   static components = { StandaloneGridCanvas, Section, Select, BadgeSelection, Checkbox };
 
