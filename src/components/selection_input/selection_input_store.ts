@@ -50,7 +50,8 @@ export class SelectionInputStore extends SpreadsheetStore {
     private initialRanges: string[] = [],
     private readonly inputHasSingleRange: boolean = false,
     public colors: Color[] = [],
-    public disabledRanges: boolean[] = []
+    public disabledRanges: boolean[] = [],
+    private readonly goBackToSheet: boolean = true
   ) {
     super(get);
     if (inputHasSingleRange && initialRanges.length > 1) {
@@ -194,7 +195,7 @@ export class SelectionInputStore extends SpreadsheetStore {
       }
     }
     const activeSheetId = this.getters.getActiveSheetId();
-    if (this.inputSheetId !== activeSheetId) {
+    if (this.goBackToSheet && this.inputSheetId !== activeSheetId) {
       this.model.dispatch("ACTIVATE_SHEET", {
         sheetIdFrom: activeSheetId,
         sheetIdTo: this.inputSheetId,
