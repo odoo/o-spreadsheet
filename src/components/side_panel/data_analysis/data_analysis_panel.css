@@ -11,6 +11,67 @@
   .o-data-analysis-row:nth-child(even) {
     background: var(--os-gray-100);
   }
+  .o-stat-section-title {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--os-text-muted, #666);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding-top: 6px;
+    margin-bottom: -2px;
+    &:first-child {
+      padding-top: 0;
+    }
+  }
+  .o-stat-draggable {
+    cursor: grab;
+    &:active {
+      cursor: grabbing;
+    }
+    &:hover {
+      background: var(--os-background-gray-color-hover);
+    }
+  }
+  .o-stat-info-icon {
+    opacity: 0.4;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    line-height: 1;
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+    &:hover,
+    &.active {
+      opacity: 0.8;
+    }
+  }
+  .o-stat-detail {
+    padding: 2px 4px 4px 4px;
+    line-height: 1.4;
+    border-left: 2px solid var(--os-border-color);
+    margin-bottom: 2px;
+  }
+  .o-stat-interpretation {
+    color: var(--o-action-color, #3d9be9);
+    margin-bottom: 2px;
+  }
+  .o-stat-description {
+    line-height: 1.4;
+  }
+  .o-stat-dragged {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--o-action-color, #3d9be9);
+    color: white;
+    font-size: 12px;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  }
   .o-column-frequencies-row {
     cursor: pointer;
   }
