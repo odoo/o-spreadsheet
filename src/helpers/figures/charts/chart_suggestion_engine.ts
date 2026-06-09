@@ -476,7 +476,7 @@ function analyzeColumn(zone: Zone, getters: Getters): ColumnAnalysis {
   };
 }
 
-function analyzeColumns(zones: Zone[], getters: Getters): ColumnAnalysis[] {
+export function analyzeColumns(zones: Zone[], getters: Getters): ColumnAnalysis[] {
   return getZonesByColumns(zones).map((zone) => analyzeColumn(zone, getters));
 }
 

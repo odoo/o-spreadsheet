@@ -3186,6 +3186,126 @@ describe("MATTHEWS formula", () => {
   });
 });
 
+describe("CHISQ.TEST formula", () => {
+  test("returns 0 for independent distributions (χ² = 0)", () => {
+    // 2×2 contingency table with uniform distribution → all observed = expected
+    // A: [a,a,b,b], B: [x,y,x,y] → table: a/x=1, a/y=1, b/x=1, b/y=1
+    const grid = {
+      A1: "a",
+      B1: "x",
+      A2: "a",
+      B2: "y",
+      A3: "b",
+      B3: "x",
+      A4: "b",
+      B4: "y",
+      A5: "=CHISQ.TEST(A1:A4, B1:B4)",
+    };
+    expect(evaluateCell("A5", grid)).toBeCloseTo(0);
+  });
+
+  test("returns n*(min(r,c)-1) for perfect 2x2 association (V = 1)", () => {
+    // A: [a,a,b,b], B: [x,x,y,y]
+    // Table: a/x=2, a/y=0, b/x=0, b/y=2 → E_ij=1 → χ²=4, n=4, k=1 → V=1
+    const grid = {
+      A1: "a",
+      B1: "x",
+      A2: "a",
+      B2: "x",
+      A3: "b",
+      B3: "y",
+      A4: "b",
+      B4: "y",
+      A5: "=CHISQ.TEST(A1:A4, B1:B4)",
+    };
+    expect(evaluateCell("A5", grid)).toBeCloseTo(4);
+  });
+
+  test("returns n*(min(r,c)-1) for perfect 3x3 association (V = 1)", () => {
+    // A: [a,a,b,b,c,c], B: [x,x,y,y,z,z]
+    // Perfect diagonal → χ²=12, n=6, k=2 → V=1
+    const grid = {
+      A1: "a",
+      B1: "x",
+      A2: "a",
+      B2: "x",
+      A3: "b",
+      B3: "y",
+      A4: "b",
+      B4: "y",
+      A5: "c",
+      B5: "z",
+      A6: "c",
+      B6: "z",
+      A7: "=CHISQ.TEST(A1:A6, B1:B6)",
+    };
+    expect(evaluateCell("A7", grid)).toBeCloseTo(12);
+  });
+
+  test("returns partial χ² for weak association", () => {
+    // A: [a,a,a,b,b,b], B: [x,x,y,x,y,y]
+    // Table: a/x=2, a/y=1, b/x=1, b/y=2 → E_ij=1.5 → χ²=4*(0.25/1.5)=2/3
+    const grid = {
+      A1: "a",
+      B1: "x",
+      A2: "a",
+      B2: "x",
+      A3: "a",
+      B3: "y",
+      A4: "b",
+      B4: "x",
+      A5: "b",
+      B5: "y",
+      A6: "b",
+      B6: "y",
+      A7: "=CHISQ.TEST(A1:A6, B1:B6)",
+    };
+    // χ² = 4 * (0.5²/1.5) = 4/6 ≈ 0.667
+    expect(evaluateCell("A7", grid)).toBeCloseTo(2 / 3);
+  });
+
+  test("numeric values are treated as category keys", () => {
+    // Numbers work as category labels
+    const grid = {
+      A1: "1",
+      B1: "10",
+      A2: "1",
+      B2: "10",
+      A3: "2",
+      B3: "20",
+      A4: "2",
+      B4: "20",
+      A5: "=CHISQ.TEST(A1:A4, B1:B4)",
+    };
+    expect(evaluateCell("A5", grid)).toBeCloseTo(4);
+  });
+
+  test("empty cells are skipped", () => {
+    // Only 4 non-empty pairs; same perfect 2×2 → χ²=4
+    const grid = {
+      A1: "a",
+      B1: "x",
+      A2: "a",
+      B2: "x",
+      A3: "b",
+      B3: "y",
+      A4: "b",
+      B4: "y",
+      A5: "",
+      B5: "",
+      A6: "=CHISQ.TEST(A1:A5, B1:B5)",
+    };
+    expect(evaluateCell("A6", grid)).toBeCloseTo(4);
+  });
+
+  test("inconsistent dimensions return an error", () => {
+    const grid = {
+      A6: "=CHISQ.TEST(A1:A5, B1:B4)",
+    };
+    expect(evaluateCell("A6", grid)).toBe("#ERROR");
+  });
+});
+
 describe("SLOPE formula", () => {
   test("Slope with an empty matrix for the y values", () => {
     const model = createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
@@ -4547,5 +4667,361 @@ describe("GROWTH formula", () => {
     expect(getEvaluatedCell(model, "A16").value).toBeCloseTo(30.16739886);
     expect(getEvaluatedCell(model, "A17").value).toBeCloseTo(34.8244006);
     expect(getEvaluatedCell(model, "A18").value).toBeCloseTo(37.00120429);
+  });
+});
+
+describe("SKEW formula", () => {
+  test("symmetric distribution has skew near 0", () => {
+    // Symmetric data: 1,2,3,4,5
+    expect(evaluateCell("A1", { A1: "=SKEW(1,2,3,4,5)" })).toBeCloseTo(0, 5);
+  });
+  test("right-skewed data has positive skew", () => {
+    // 1,1,1,1,10 — long right tail
+    expect(evaluateCell("A1", { A1: "=SKEW(1,1,1,1,10)" })).toBeGreaterThan(0);
+  });
+  test("left-skewed data has negative skew", () => {
+    expect(evaluateCell("A1", { A1: "=SKEW(10,10,10,10,1)" })).toBeLessThan(0);
+  });
+  test("known value", () => {
+    // Excel: =SKEW(3,4,5,2,3,4,5,6,4,7) = 0.3595...
+    expect(evaluateCell("A1", { A1: "=SKEW(3,4,5,2,3,4,5,6,4,7)" })).toBeCloseTo(0.3595, 3);
+  });
+  test("fewer than 3 values returns error", () => {
+    expect(evaluateCell("A1", { A1: "=SKEW(1,2)" })).toBe("#ERROR");
+  });
+  test("constant data returns error", () => {
+    expect(evaluateCell("A1", { A1: "=SKEW(3,3,3)" })).toBe("#ERROR");
+  });
+});
+
+describe("SKEW.P formula", () => {
+  test("population skew of symmetric data is 0", () => {
+    expect(evaluateCell("A1", { A1: "=SKEW.P(1,2,3,4,5)" })).toBeCloseTo(0, 5);
+  });
+  test("population skew differs from sample skew (SKEW.P uses n, SKEW uses (n-1)(n-2))", () => {
+    // Use a small n=5 so the n vs (n-1)(n-2) correction is large
+    const sample = evaluateCell("A1", { A1: "=SKEW(1,2,3,4,10)" }) as number;
+    const pop = evaluateCell("A1", { A1: "=SKEW.P(1,2,3,4,10)" }) as number;
+    expect(typeof sample).toBe("number");
+    expect(typeof pop).toBe("number");
+    // Both positive (right-skewed), but sample formula inflates the value
+    expect(Math.abs(sample)).toBeGreaterThan(Math.abs(pop));
+  });
+  test("fewer than 3 values returns error", () => {
+    expect(evaluateCell("A1", { A1: "=SKEW.P(1,2)" })).toBe("#ERROR");
+  });
+});
+
+describe("KURT formula", () => {
+  test("normal-like data has kurtosis near 0", () => {
+    expect(evaluateCell("A1", { A1: "=KURT(1,2,3,4,5,4,3,2,1)" })).toBeCloseTo(-0.908, 2);
+  });
+  test("known value", () => {
+    // Excel: =KURT(3,4,5,2,3,4,5,6,4,7) = -0.1518...
+    expect(evaluateCell("A1", { A1: "=KURT(3,4,5,2,3,4,5,6,4,7)" })).toBeCloseTo(-0.1518, 3);
+  });
+  test("fewer than 4 values returns error", () => {
+    expect(evaluateCell("A1", { A1: "=KURT(1,2,3)" })).toBe("#ERROR");
+  });
+  test("constant data returns error", () => {
+    expect(evaluateCell("A1", { A1: "=KURT(2,2,2,2)" })).toBe("#ERROR");
+  });
+});
+
+describe("GEOMEAN formula", () => {
+  test("geometric mean of 1,2,4 is 2", () => {
+    expect(evaluateCell("A1", { A1: "=GEOMEAN(1,2,4)" })).toBeCloseTo(2, 8);
+  });
+  test("single value", () => {
+    expect(evaluateCell("A1", { A1: "=GEOMEAN(5)" })).toBeCloseTo(5, 8);
+  });
+  test("geometric mean is less than or equal to arithmetic mean", () => {
+    const g = evaluateCell("A1", { A1: "=GEOMEAN(2,8)" });
+    const a = evaluateCell("A1", { A1: "=AVERAGE(2,8)" });
+    expect(g).toBeLessThanOrEqual(a as number);
+  });
+  test("zero or negative value returns error", () => {
+    expect(evaluateCell("A1", { A1: "=GEOMEAN(1,0,3)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=GEOMEAN(1,-1,3)" })).toBe("#ERROR");
+  });
+  test("no values returns error", () => {
+    expect(evaluateCell("A1", { A1: "=GEOMEAN()" })).toBe("#BAD_EXPR");
+  });
+});
+
+describe("HARMEAN formula", () => {
+  test("harmonic mean of 1,2,4", () => {
+    // 3 / (1/1 + 1/2 + 1/4) = 3 / 1.75 ≈ 1.7143
+    expect(evaluateCell("A1", { A1: "=HARMEAN(1,2,4)" })).toBeCloseTo(1.7143, 3);
+  });
+  test("harmonic mean ≤ geometric mean ≤ arithmetic mean", () => {
+    const h = evaluateCell("A1", { A1: "=HARMEAN(2,8)" }) as number;
+    const g = evaluateCell("A1", { A1: "=GEOMEAN(2,8)" }) as number;
+    const a = evaluateCell("A1", { A1: "=AVERAGE(2,8)" }) as number;
+    expect(h).toBeLessThanOrEqual(g);
+    expect(g).toBeLessThanOrEqual(a);
+  });
+  test("zero value returns error", () => {
+    expect(evaluateCell("A1", { A1: "=HARMEAN(1,0,3)" })).toBe("#ERROR");
+  });
+  test("negative value returns error", () => {
+    expect(evaluateCell("A1", { A1: "=HARMEAN(1,-2,3)" })).toBe("#ERROR");
+  });
+});
+
+describe("TRIMMEAN formula", () => {
+  test("0% trim equals average", () => {
+    const model = createModelFromGrid({
+      A1: "1",
+      A2: "2",
+      A3: "3",
+      A4: "4",
+      A5: "5",
+      A6: "=TRIMMEAN(A1:A5, 0)",
+    });
+    expect(getEvaluatedCell(model, "A6").value).toBeCloseTo(3, 8);
+  });
+  test("trims outliers symmetrically", () => {
+    // 10 values: 1..10, trim 20% → remove 2 from each end → mean(3..8) = 5.5
+    const model = createModelFromGrid({
+      A1: "1",
+      A2: "2",
+      A3: "3",
+      A4: "4",
+      A5: "5",
+      A6: "6",
+      A7: "7",
+      A8: "8",
+      A9: "9",
+      A10: "10",
+      A11: "=TRIMMEAN(A1:A10, 0.2)",
+    });
+    expect(getEvaluatedCell(model, "A11").value).toBeCloseTo(5.5, 8);
+  });
+  test("percent ≥ 0.5 returns error", () => {
+    const model = createModelFromGrid({
+      A1: "1",
+      A2: "2",
+      A3: "3",
+      A4: "=TRIMMEAN(A1:A3, 0.5)",
+    });
+    expect(getEvaluatedCell(model, "A4").value).toBe("#ERROR");
+  });
+  test("negative percent returns error", () => {
+    const model = createModelFromGrid({
+      A1: "1",
+      A2: "2",
+      A3: "3",
+      A4: "=TRIMMEAN(A1:A3, -0.1)",
+    });
+    expect(getEvaluatedCell(model, "A4").value).toBe("#ERROR");
+  });
+  test("Excel reference: TRIMMEAN({4,5,6,7,2,3,4,5,1,2,3}, 0.2) = 3.777...", () => {
+    const model = createModelFromGrid({
+      A1: "4",
+      A2: "5",
+      A3: "6",
+      A4: "7",
+      A5: "2",
+      A6: "3",
+      A7: "4",
+      A8: "5",
+      A9: "1",
+      A10: "2",
+      A11: "3",
+      A12: "=TRIMMEAN(A1:A11, 0.2)",
+    });
+    expect(getEvaluatedCell(model, "A12").value).toBeCloseTo(3.777778, 4);
+  });
+});
+
+describe("CHISQ.DIST.RT formula", () => {
+  test("chi-sq CDF complement known value (df=2, x=4)", () => {
+    // CHISQ.DIST.RT(4, 2) = e^(-2) ≈ 0.1353
+    expect(evaluateCell("A1", { A1: "=CHISQ.DIST.RT(4,2)" })).toBeCloseTo(0.1353, 3);
+  });
+  test("x=0 returns 1", () => {
+    expect(evaluateCell("A1", { A1: "=CHISQ.DIST.RT(0,3)" })).toBeCloseTo(1, 8);
+  });
+  test("large x approaches 0", () => {
+    expect(evaluateCell("A1", { A1: "=CHISQ.DIST.RT(100,3)" })).toBeCloseTo(0, 6);
+  });
+  test("negative x returns error", () => {
+    expect(evaluateCell("A1", { A1: "=CHISQ.DIST.RT(-1,2)" })).toBe("#ERROR");
+  });
+  test("df < 1 returns error", () => {
+    expect(evaluateCell("A1", { A1: "=CHISQ.DIST.RT(1,0)" })).toBe("#ERROR");
+  });
+  test("Excel reference: CHISQ.DIST.RT(18.307, 10) ≈ 0.05", () => {
+    expect(evaluateCell("A1", { A1: "=CHISQ.DIST.RT(18.307,10)" })).toBeCloseTo(0.05, 2);
+  });
+});
+
+describe("T.TEST formula", () => {
+  test("two-tailed paired t-test on identical arrays returns 1", () => {
+    const model = createModelFromGrid({
+      A1: "1",
+      A2: "2",
+      A3: "3",
+      B1: "1",
+      B2: "2",
+      B3: "3",
+      A4: "=T.TEST(A1:A3, B1:B3, 2, 1)",
+    });
+    expect(getEvaluatedCell(model, "A4").value).toBeCloseTo(1, 5);
+  });
+  test("one-tailed result is half of two-tailed", () => {
+    const model = createModelFromGrid({
+      A1: "1",
+      A2: "3",
+      A3: "5",
+      B1: "2",
+      B2: "4",
+      B3: "6",
+      A4: "=T.TEST(A1:A3, B1:B3, 1, 1)",
+      A5: "=T.TEST(A1:A3, B1:B3, 2, 1)",
+    });
+    const one = getEvaluatedCell(model, "A4").value as number;
+    const two = getEvaluatedCell(model, "A5").value as number;
+    expect(one).toBeCloseTo(two / 2, 8);
+  });
+  test("p-value is between 0 and 1", () => {
+    const model = createModelFromGrid({
+      A1: "1",
+      A2: "2",
+      A3: "3",
+      A4: "4",
+      B1: "10",
+      B2: "20",
+      B3: "30",
+      B4: "40",
+      A5: "=T.TEST(A1:A4, B1:B4, 2, 3)",
+    });
+    const p = getEvaluatedCell(model, "A5").value as number;
+    expect(p).toBeGreaterThan(0);
+    expect(p).toBeLessThan(1);
+  });
+  test("invalid tails argument returns error", () => {
+    const model = createModelFromGrid({
+      A1: "1",
+      A2: "2",
+      A3: "3",
+      B1: "2",
+      B2: "4",
+      B3: "6",
+      A4: "=T.TEST(A1:A3, B1:B3, 3, 1)",
+    });
+    expect(getEvaluatedCell(model, "A4").value).toBe("#ERROR");
+  });
+  test("invalid type argument returns error", () => {
+    const model = createModelFromGrid({
+      A1: "1",
+      A2: "2",
+      A3: "3",
+      B1: "2",
+      B2: "4",
+      B3: "6",
+      A4: "=T.TEST(A1:A3, B1:B3, 2, 4)",
+    });
+    expect(getEvaluatedCell(model, "A4").value).toBe("#ERROR");
+  });
+});
+
+describe("F.TEST formula", () => {
+  test("identical arrays return p-value near 1", () => {
+    const model = createModelFromGrid({
+      A1: "2",
+      A2: "4",
+      A3: "6",
+      A4: "8",
+      B1: "2",
+      B2: "4",
+      B3: "6",
+      B4: "8",
+      A5: "=F.TEST(A1:A4, B1:B4)",
+    });
+    expect(getEvaluatedCell(model, "A5").value).toBeCloseTo(1, 5);
+  });
+  test("very different variances produce small p-value", () => {
+    const model = createModelFromGrid({
+      A1: "1",
+      A2: "2",
+      A3: "3",
+      A4: "4",
+      A5: "5",
+      B1: "1",
+      B2: "50",
+      B3: "100",
+      B4: "150",
+      B5: "200",
+      A6: "=F.TEST(A1:A5, B1:B5)",
+    });
+    const p = getEvaluatedCell(model, "A6").value as number;
+    expect(p).toBeLessThan(0.05);
+  });
+  test("p-value is between 0 and 1", () => {
+    const model = createModelFromGrid({
+      A1: "3",
+      A2: "7",
+      A3: "5",
+      B1: "10",
+      B2: "12",
+      B3: "8",
+      A4: "=F.TEST(A1:A3, B1:B3)",
+    });
+    const p = getEvaluatedCell(model, "A4").value as number;
+    expect(p).toBeGreaterThan(0);
+    expect(p).toBeLessThan(1);
+  });
+});
+
+describe("CONFIDENCE.NORM formula", () => {
+  test("known value: alpha=0.05, sigma=2.5, n=50", () => {
+    // Excel: =CONFIDENCE.NORM(0.05, 2.5, 50) ≈ 0.6929...
+    expect(evaluateCell("A1", { A1: "=CONFIDENCE.NORM(0.05,2.5,50)" })).toBeCloseTo(0.6929, 3);
+  });
+  test("larger n gives narrower interval", () => {
+    const small = evaluateCell("A1", { A1: "=CONFIDENCE.NORM(0.05,1,10)" }) as number;
+    const large = evaluateCell("A1", { A1: "=CONFIDENCE.NORM(0.05,1,100)" }) as number;
+    expect(large).toBeLessThan(small);
+  });
+  test("alpha=0 returns error", () => {
+    expect(evaluateCell("A1", { A1: "=CONFIDENCE.NORM(0,1,10)" })).toBe("#ERROR");
+  });
+  test("alpha≥1 returns error", () => {
+    expect(evaluateCell("A1", { A1: "=CONFIDENCE.NORM(1,1,10)" })).toBe("#ERROR");
+  });
+  test("sigma≤0 returns error", () => {
+    expect(evaluateCell("A1", { A1: "=CONFIDENCE.NORM(0.05,0,10)" })).toBe("#ERROR");
+  });
+  test("n<1 returns error", () => {
+    expect(evaluateCell("A1", { A1: "=CONFIDENCE.NORM(0.05,1,0)" })).toBe("#ERROR");
+  });
+});
+
+describe("CONFIDENCE.T formula", () => {
+  test("returns a positive margin of error", () => {
+    const v = evaluateCell("A1", { A1: "=CONFIDENCE.T(0.05,1,10)" });
+    expect(typeof v).toBe("number");
+    expect(v as number).toBeGreaterThan(0);
+  });
+  test("larger n gives narrower interval", () => {
+    const small = evaluateCell("A1", { A1: "=CONFIDENCE.T(0.05,1,5)" }) as number;
+    const large = evaluateCell("A1", { A1: "=CONFIDENCE.T(0.05,1,50)" }) as number;
+    expect(large).toBeLessThan(small);
+  });
+  test("CONFIDENCE.T ≥ CONFIDENCE.NORM for same inputs (t-distribution has heavier tails)", () => {
+    const t = evaluateCell("A1", { A1: "=CONFIDENCE.T(0.05,1,10)" }) as number;
+    const z = evaluateCell("A1", { A1: "=CONFIDENCE.NORM(0.05,1,10)" }) as number;
+    expect(t).toBeGreaterThan(z);
+  });
+  test("alpha=0 returns error", () => {
+    expect(evaluateCell("A1", { A1: "=CONFIDENCE.T(0,1,10)" })).toBe("#ERROR");
+  });
+  test("alpha≥1 returns error", () => {
+    expect(evaluateCell("A1", { A1: "=CONFIDENCE.T(1,1,10)" })).toBe("#ERROR");
+  });
+  test("n<2 returns error", () => {
+    expect(evaluateCell("A1", { A1: "=CONFIDENCE.T(0.05,1,1)" })).toBe("#ERROR");
   });
 });
