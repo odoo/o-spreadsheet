@@ -51,7 +51,8 @@ export class SelectionInputStore extends SpreadsheetStore {
     private readonly inputHasSingleRange: boolean = false,
     public colors: Color[] = [],
     public disabledRanges: boolean[] = [],
-    private readonly prefixSheet: boolean = false
+    private readonly prefixSheet: boolean = false,
+    private readonly goBackToSheet: boolean = true
   ) {
     super(get);
     if (inputHasSingleRange && initialRanges.length > 1) {
@@ -195,16 +196,16 @@ export class SelectionInputStore extends SpreadsheetStore {
       }
     }
     if (this.prefixSheet) {
-      const activesheetName = this.getters.getActiveSheetName();
+      const activeSheetName = this.getters.getActiveSheetName();
       this.ranges = this.ranges.map((range) => {
         return {
           ...range,
-          xc: getFullReference(activesheetName, range.xc),
+          xc: getFullReference(activeSheetName, range.xc),
         };
       });
     }
     const activeSheetId = this.getters.getActiveSheetId();
-    if (this.inputSheetId !== activeSheetId) {
+    if (this.goBackToSheet && this.inputSheetId !== activeSheetId) {
       this.model.dispatch("ACTIVATE_SHEET", {
         sheetIdFrom: activeSheetId,
         sheetIdTo: this.inputSheetId,

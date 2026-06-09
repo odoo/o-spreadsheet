@@ -1217,6 +1217,13 @@ export interface UpdateColorSchemeCommand {
   colorScheme: "light" | "dark";
 }
 
+export interface UpdateConditionalFormatsCommand {
+  type: "UPDATE_CONDITIONAL_FORMATS";
+  cfId: UID;
+  sheetIdsToRemove?: UID[];
+  rulesBySheetId?: { [key: UID]: { cf: Omit<ConditionalFormat, "ranges">; ranges: RangeData[] } };
+}
+
 export interface AddDataValidationsCommand {
   type: "ADD_DATA_VALIDATION_RULES";
   rulesBySheetId: { [key: UID]: { rule: Omit<DataValidationRule, "ranges">; ranges: RangeData[] } };
@@ -1397,6 +1404,7 @@ export type LocalCommand =
   | MergeIntoCarouselCommand
   | CreateChartAndMergeIntoCarouselCommand
   | ColorAllCellsBackground
+  | UpdateConditionalFormatsCommand
   | AddDataValidationsCommand;
 
 export type Command = CoreCommand | LocalCommand;
