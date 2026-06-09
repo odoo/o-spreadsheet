@@ -1,4 +1,5 @@
 import { props, signal } from "@odoo/owl";
+import { getFullReference } from "../../../../helpers/references";
 import { UuidGenerator } from "../../../../helpers/uuid";
 import { zoneToXc } from "../../../../helpers/zones";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -74,12 +75,14 @@ export class ConditionalFormatPreviewList extends Component<SpreadsheetChildEnv>
       ranges: zones.map((zone) => this.env.model.getters.getRangeDataFromZone(sheetId, zone)),
       sheetId,
     });
+    const sheetName = this.env.model.getters.getActiveSheetName();
+    const ranges = zones.map((zone) =>
+      getFullReference(sheetName, zoneToXc(this.env.model.getters.getUnboundedZone(sheetId, zone)))
+    );
     return this.env.replaceSidePanel("ConditionalFormattingEditor", "ConditionalFormatting", {
       cf: {
         ...cf,
-        ranges: zones.map((zone) =>
-          zoneToXc(this.env.model.getters.getUnboundedZone(sheetId, zone))
-        ),
+        ranges,
       },
       sheetId,
       isNewCf: true,

@@ -50,6 +50,7 @@ export class SelectionInput extends Component<SpreadsheetChildEnv> {
     disabledRanges: types.array(types.boolean()).optional([]),
     disabledRangeTitle: types.string().optional(),
     prefixSheet: types.boolean().optional(),
+    goBackToSheet: types.boolean().optional(),
   });
   private state: State = proxy({
     isMissing: false,
@@ -106,7 +107,8 @@ export class SelectionInput extends Component<SpreadsheetChildEnv> {
       this.props.hasSingleRange || false,
       this.props.colors,
       this.props.disabledRanges,
-      this.props.prefixSheet || false
+      this.props.prefixSheet || false,
+      this.props.goBackToSheet ?? true
     );
     if (this.props.autofocus) {
       this.store.focusById(this.store.selectionInputs[0]?.id);
