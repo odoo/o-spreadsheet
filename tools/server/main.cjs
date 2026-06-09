@@ -76,7 +76,11 @@ function log(message) {
 function logMessage(msg) {
   switch (msg.type) {
     case "REMOTE_REVISION":
-      log(`${msg.type}: ${msg.nextRevisionId} : ${JSON.stringify(msg.commands)}`);
+      log(
+        `${msg.type}: ${msg.nextRevisionId} :\n\t${msg.commands
+          .map((x) => JSON.stringify(x))
+          .join("\n\t")}`
+      );
       break;
     case "REVISION_UNDONE":
       log(`${msg.type}: ${msg.undoneRevisionId}`);
