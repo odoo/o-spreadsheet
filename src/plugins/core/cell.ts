@@ -9,8 +9,6 @@ import {
   deepEquals,
   groupConsecutive,
   isDefined,
-  largeMax,
-  largeMin,
   range,
   replaceNewLines,
 } from "../../helpers/misc";
@@ -29,7 +27,7 @@ import {
   SetFormattingCommand,
   UpdateCellCommand,
 } from "../../types/commands";
-import { CellPosition, Dimension, HeaderIndex, RangeAdapterFunctions, UID } from "../../types/misc";
+import { CellPosition, HeaderIndex, RangeAdapterFunctions, UID } from "../../types/misc";
 
 import { CompiledFormula, SerializedCompiledFormula } from "../../formulas/compiler";
 import {
@@ -150,7 +148,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         break;
       case "ADD_COLUMNS_ROWS": {
         const addedIndex = cmd.position === "before" ? cmd.base : cmd.base + 1;
-        this.moveCellsOnAddition(cmd.sheetId, cmd.dimension, addedIndex, cmd.quantity);
+        this.moveCellsOnAddition(
+          cmd.sheetId,
+          addedIndex,
+          cmd.quantity,
+          cmd.dimension === "COL" ? "columns" : "rows"
+        );
         if (cmd.dimension === "COL") {
           this.handleAddColumnsRows(cmd, this.copyColumnStyle.bind(this));
         } else {
@@ -159,7 +162,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         break;
       }
       case "REMOVE_COLUMNS_ROWS":
-        this.moveCellsOnDeletion(cmd.sheetId, cmd.dimension, cmd.elements);
+        if (cmd.dimension === "COL") {
+          this.removeColumns(cmd.sheetId, [...cmd.elements]);
+        } else {
+          this.removeRows(cmd.sheetId, [...cmd.elements]);
+        }
         break;
       case "UPDATE_CELL":
         this.updateCell(cmd.sheetId, cmd.col, cmd.row, cmd);
@@ -216,84 +223,132 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
   }
 
-  /**
-   * Positioned cells of a sheet, sorted by the given dimension. The sort order
-   * guarantees that shifting cells never overwrites a cell that has not been
-   * moved yet: ascending when cells move toward the origin (deletion), descending
-   * when they move away from it (addition).
-   */
-  private getPositionedCells(
-    sheetId: UID,
-    dimension: Dimension,
-    order: "asc" | "desc"
-  ): { cellId: number; col: HeaderIndex; row: HeaderIndex }[] {
-    const cells = this.getCells(sheetId).map((cell) => {
-      const { col, row } = this.positions[cell.id]!;
-      return { cellId: cell.id, col, row };
-    });
-    const key = dimension === "COL" ? "col" : "row";
-    return cells.sort((a, b) => (order === "asc" ? a[key] - b[key] : b[key] - a[key]));
+  private removeColumns(sheetId: UID, columns: HeaderIndex[]) {
+    // This is necessary because we have to delete elements in correct order:
+    // begin with the end.
+    columns.sort((a, b) => b - a);
+    for (const column of columns) {
+      // Move the cells.
+      this.moveCellOnColumnsDeletion(sheetId, column);
+    }
   }
 
-  /**
-   * Shift the cells located after an inserted column/row away from the origin.
-   */
-  private moveCellsOnAddition(
-    sheetId: UID,
-    dimension: Dimension,
-    addedIndex: HeaderIndex,
-    quantity: number
-  ) {
-    for (const { cellId, col, row } of this.getPositionedCells(sheetId, dimension, "desc")) {
-      const index = dimension === "COL" ? col : row;
-      if (index >= addedIndex) {
-        this.setNewPosition(
-          cellId,
-          sheetId,
-          dimension === "COL" ? col + quantity : col,
-          dimension === "ROW" ? row + quantity : row
-        );
+  private removeRows(sheetId: UID, rows: HeaderIndex[]) {
+    // This is necessary because we have to delete elements in correct order:
+    // begin with the end.
+    rows.sort((a, b) => b - a);
+
+    for (const group of groupConsecutive(rows)) {
+      // indexes are sorted in the descending order
+      const from = group[group.length - 1];
+      const to = group[0];
+      // Move the cells.
+      this.moveCellOnRowsDeletion(sheetId, from, to);
+    }
+  }
+
+  private moveCellOnColumnsDeletion(sheetId: UID, deletedColumn: number) {
+    this.dispatch("CLEAR_CELLS", {
+      sheetId,
+      target: [
+        {
+          left: deletedColumn,
+          top: 0,
+          right: deletedColumn,
+          bottom: this.getters.getNumberRows(sheetId) - 1,
+        },
+      ],
+    });
+
+    const grid = this.grid[sheetId] || {};
+    for (const rowKey in grid) {
+      const rowIndex = Number(rowKey);
+      const cells = grid[rowIndex]!;
+      for (const i in cells) {
+        const colIndex = Number(i);
+        const cellId = cells[i];
+        if (cellId) {
+          if (colIndex > deletedColumn) {
+            this.setNewPosition(cellId, sheetId, colIndex - 1, rowIndex);
+          }
+        }
       }
     }
   }
 
   /**
-   * Clear the cells and shift the cells located after deleted columns/rows toward the origin.
-   * The cells located on the deleted headers have already been removed.
+   * Move the cells after a column or rows insertion
    */
-  private moveCellsOnDeletion(sheetId: UID, dimension: Dimension, elements: HeaderIndex[]) {
-    if (dimension === "COL") {
-      this.dispatch("CLEAR_CELLS", {
-        sheetId,
-        target: elements.map((col) => ({
-          left: col,
-          top: 0,
-          right: col,
-          bottom: this.getters.getNumberRows(sheetId) - 1,
-        })),
-      });
-    } else {
-      this.dispatch("CLEAR_CELLS", {
-        sheetId,
-        target: groupConsecutive(elements).map((group) => ({
-          left: 0,
-          top: largeMin(group),
-          right: this.getters.getNumberCols(sheetId) - 1,
-          bottom: largeMax(group),
-        })),
-      });
+  private moveCellsOnAddition(
+    sheetId: UID,
+    addedElement: HeaderIndex,
+    quantity: number,
+    dimension: "rows" | "columns"
+  ) {
+    const updates: { cellId: number; col: HeaderIndex; row: HeaderIndex }[] = [];
+    const grid = this.grid[sheetId] || {};
+    for (const rowKey in grid) {
+      const rowIndex = Number(rowKey);
+      const cells = grid[rowIndex]!;
+      if (dimension !== "rows" || rowIndex >= addedElement) {
+        for (const i in cells) {
+          const colIndex = Number(i);
+          const cellId = cells[i];
+          if (cellId) {
+            if (dimension === "rows" || colIndex >= addedElement) {
+              updates.push({
+                cellId,
+                col: colIndex + (dimension === "columns" ? quantity : 0),
+                row: rowIndex + (dimension === "rows" ? quantity : 0),
+              });
+            }
+          }
+        }
+      }
     }
-    const deleted = [...elements].sort((a, b) => a - b);
-    for (const { cellId, col, row } of this.getPositionedCells(sheetId, dimension, "asc")) {
-      const index = dimension === "COL" ? col : row;
-      const shift = deleted.filter((deletedIndex) => deletedIndex < index).length;
-      if (shift > 0) {
-        this.setNewPosition(
-          cellId,
-          sheetId,
-          dimension === "COL" ? col - shift : col,
-          dimension === "ROW" ? row - shift : row
-        );
+    for (const update of updates.reverse()) {
+      this.setNewPosition(update.cellId, sheetId, update.col, update.row);
+    }
+  }
+
+  /**
+   * Move all the cells that are from the row under `deleteToRow` up to `deleteFromRow`
+   *
+   * b.e.
+   * move vertically with delete from 3 and delete to 5 will first clear all the cells from lines 3 to 5,
+   * then take all the row starting at index 6 and add them back at index 3
+   *
+   */
+  private moveCellOnRowsDeletion(
+    sheetId: UID,
+    deleteFromRow: HeaderIndex,
+    deleteToRow: HeaderIndex
+  ) {
+    this.dispatch("CLEAR_CELLS", {
+      sheetId,
+      target: [
+        {
+          left: 0,
+          top: deleteFromRow,
+          right: this.getters.getNumberCols(sheetId),
+          bottom: deleteToRow,
+        },
+      ],
+    });
+
+    const numberRows = deleteToRow - deleteFromRow + 1;
+    const grid = this.grid[sheetId] || {};
+    for (const rowKey in grid) {
+      const rowIndex = Number(rowKey);
+      const cells = grid[rowIndex]!;
+      if (rowIndex > deleteToRow) {
+        for (const i in cells) {
+          const colIndex = Number(i);
+          const cellId = cells[i];
+          if (cellId) {
+            this.setNewPosition(cellId, sheetId, colIndex, rowIndex - numberRows);
+          }
+        }
       }
     }
   }
