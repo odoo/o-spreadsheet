@@ -27,24 +27,15 @@ export class Menu extends Component<SpreadsheetChildEnv> {
 
   protected props = props({
     menuItems: types.ArrayOf<MenuItemOrSeparator>(),
-    onClose: types.function([]),
-    "onClickMenu?": types.function<[menu: Action, ev: PointerEvent]>([
-      types.Action(),
-      types.instanceOf(PointerEvent),
-    ]),
-    "onMouseEnter?": types.function<[menu: Action, ev: PointerEvent]>([
-      types.Action(),
-      types.instanceOf(PointerEvent),
-    ]),
-    "onMouseLeave?": types.function<[menu: Action, ev: PointerEvent]>([
-      types.Action(),
-      types.instanceOf(PointerEvent),
-    ]),
+    onClose: types.function(),
+    "onClickMenu?": types.function<(menu: Action, ev: PointerEvent) => void>(),
+    "onMouseEnter?": types.function<(menu: Action, ev: PointerEvent) => void>(),
+    "onMouseLeave?": types.function<(menu: Action, ev: PointerEvent) => void>(),
     "width?": types.number(),
     "hoveredMenuId?": types.string(),
     "isHoveredMenuFocused?": types.boolean(),
-    "onScroll?": types.function<[ev: CustomEvent]>([types.instanceOf(CustomEvent)]),
-    "onKeyDown?": types.function<[ev: KeyboardEvent]>([types.instanceOf(KeyboardEvent)]),
+    "onScroll?": types.function<(ev: CustomEvent) => void>(),
+    "onKeyDown?": types.function<(ev: KeyboardEvent) => void>(),
     "disableKeyboardNavigation?": types.boolean(),
   });
 

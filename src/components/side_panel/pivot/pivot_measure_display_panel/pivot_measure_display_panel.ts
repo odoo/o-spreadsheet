@@ -15,7 +15,7 @@ import { PivotMeasureDisplayPanelStore } from "./pivot_measure_display_panel_sto
 export class PivotMeasureDisplayPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotMeasureDisplayPanel";
   protected props = props({
-    onCloseSidePanel: types.function([]),
+    onCloseSidePanel: types.function(),
     pivotId: types.UID(),
     measure: types.PivotCoreMeasure(),
   });

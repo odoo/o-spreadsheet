@@ -1,4 +1,4 @@
-import { onMounted, onPatched, onWillUnmount, props, proxy, signal, types } from "@odoo/owl";
+import { onMounted, onPatched, onWillUnmount, props, proxy, signal } from "@odoo/owl";
 import { throttle } from "../../../helpers/misc";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
 import { Component, useExternalListener, useLayoutEffect } from "../../../owl3_compatibility_layer";
@@ -15,6 +15,7 @@ import { Ripple } from "../../animation/ripple";
 import { ColorPicker } from "../../color_picker/color_picker";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { getElBoundingRect } from "../../helpers/dom_helpers";
+import { types } from "../../props_validation";
 
 interface State {
   isEditing: boolean;
@@ -41,12 +42,9 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
   protected props = props(
     {
       sheetId: types.string(),
-      openContextMenu: types.function<[registry: MenuItemRegistry, ev: MouseEvent]>([
-        types.instanceOf(MenuItemRegistry),
-        types.instanceOf(MouseEvent),
-      ]),
+      openContextMenu: types.function<(registry: MenuItemRegistry, ev: MouseEvent) => void>(),
       "style?": types.string(),
-      "onMouseDown?": types.function<[ev: PointerEvent]>([types.instanceOf(PointerEvent)]),
+      "onMouseDown?": types.function<(ev: PointerEvent) => void>(),
     },
     {
       onMouseDown: () => {},

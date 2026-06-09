@@ -19,7 +19,7 @@ export class LinkDisplay extends Component<SpreadsheetChildEnv> {
 
   protected props = props({
     cellPosition: types.CellPosition(),
-    "onClosed?": types.function([]),
+    "onClosed?": types.function(),
   });
 
   protected cellPopovers!: Store<CellPopoverStore>;

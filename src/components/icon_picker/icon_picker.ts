@@ -9,7 +9,7 @@ export class IconPicker extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-IconPicker";
 
   protected props = props({
-    onIconPicked: types.function<[icon: string]>([types.string()]),
+    onIconPicked: types.function<(icon: string) => void>(),
   });
 
   onIconClick(icon: string) {

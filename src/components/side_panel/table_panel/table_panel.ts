@@ -36,7 +36,7 @@ export class TablePanel extends Component<SpreadsheetChildEnv> {
     NumberInput,
   };
   protected props = props({
-    onCloseSidePanel: types.function([]),
+    onCloseSidePanel: types.function(),
     table: types.CoreTable(),
   });
 

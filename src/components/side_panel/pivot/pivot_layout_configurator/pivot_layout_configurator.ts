@@ -48,18 +48,14 @@ export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
   };
   protected props = props({
     definition: types.instanceOf(PivotRuntimeDefinition),
-    onDimensionsUpdated: types.function<[definition: Partial<PivotCoreDefinition>]>([
-      types.PivotCoreDefinition(),
-    ]),
-    onFiltersUpdated: types.function<[definition: Partial<PivotCoreDefinition>]>([
-      types.PivotCoreDefinition(),
-    ]),
+    onDimensionsUpdated: types.function<(definition: Partial<PivotCoreDefinition>) => void>(),
+    onFiltersUpdated: types.function<(definition: Partial<PivotCoreDefinition>) => void>(),
     unusedGroupableFields: types.array(types.PivotField()),
     measureFields: types.array(types.PivotField()),
     unusedGranularities: types.RecordOf<Set<string>>(),
     dateGranularities: types.array(types.string()),
     datetimeGranularities: types.array(types.string()),
-    "getScrollableContainerEl?": types.function<[], HTMLElement>([], types.instanceOf(HTMLElement)),
+    "getScrollableContainerEl?": types.function<() => HTMLElement>(),
     pivotId: types.UID(),
   });
 

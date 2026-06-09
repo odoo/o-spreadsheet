@@ -31,7 +31,7 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
 
   protected props = props({
     gridDims: types.DOMDimension(),
-    onInputContextMenu: types.function<[event: MouseEvent]>([types.instanceOf(MouseEvent)]),
+    onInputContextMenu: types.function<(event: MouseEvent) => void>(),
   });
 
   private rect: Rect = this.defaultRect;

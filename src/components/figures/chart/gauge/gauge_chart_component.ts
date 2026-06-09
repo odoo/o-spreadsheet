@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, props, signal, types } from "@odoo/owl";
+import { onMounted, onWillUnmount, props, signal } from "@odoo/owl";
 import { drawGaugeChart } from "../../../../helpers/figures/charts/gauge_chart_rendering";
 import { deepEquals } from "../../../../helpers/misc";
 import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
@@ -7,6 +7,7 @@ import { useStore } from "../../../../store_engine/store_hooks";
 import { GaugeChartRuntime } from "../../../../types/chart/gauge_chart";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
+import { types } from "../../../props_validation";
 import { ChartAnimationStore } from "../chartJs/chartjs_animation_store";
 
 const ANIMATION_DURATION = 1000;

@@ -1,10 +1,11 @@
-import { onMounted, onWillUnmount, props, proxy, signal, types } from "@odoo/owl";
+import { onMounted, onWillUnmount, props, proxy, signal } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { PropsOf } from "../../types/props_of";
 import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss, getElementMargins } from "../helpers/css";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
+import { types } from "../props_validation";
 
 const RIPPLE_KEY_FRAMES = [
   { transform: "scale(0)" },

@@ -20,7 +20,7 @@ export class TableStylePreview extends Component<SpreadsheetChildEnv> {
     type: types.or([types.literal("table"), types.literal("pivot")]),
     "styleId?": types.string(),
     "selected?": types.boolean(),
-    "onClick?": types.function([]),
+    "onClick?": types.function(),
   });
 
   private canvasRef = signal<HTMLCanvasElement | null>(null);

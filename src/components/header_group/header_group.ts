@@ -23,10 +23,7 @@ abstract class AbstractHeaderGroup extends Component<SpreadsheetChildEnv> {
   protected props = props({
     group: types.HeaderGroup(),
     layerOffset: types.number(),
-    openContextMenu: types.function<[position: DOMCoordinates, menuItems: Action[]]>([
-      types.DOMCoordinates(),
-      types.ArrayOf<Action>(),
-    ]),
+    openContextMenu: types.function<(position: DOMCoordinates, menuItems: Action[]) => void>(),
   });
 
   abstract dimension: Dimension;

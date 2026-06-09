@@ -1,5 +1,6 @@
-import { props, types, xml } from "@odoo/owl";
+import { props, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
+import { types } from "../../src/components/props_validation";
 import { DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { Component } from "../../src/owl3_compatibility_layer";

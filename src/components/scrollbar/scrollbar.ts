@@ -26,7 +26,7 @@ export class ScrollBar extends Component<any> {
       ),
       position: types.CSSProperties(),
       offset: types.Pixel(),
-      onScroll: types.function<[offset: Pixel]>([types.Pixel()]),
+      onScroll: types.function<(offset: Pixel) => void>(),
     },
     {
       width: 1,

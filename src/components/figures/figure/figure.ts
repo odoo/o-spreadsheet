@@ -42,10 +42,9 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
       figureUI: types.FigureUI(),
       style: types.string(),
       class: types.string(),
-      "onMouseDown?": types.function<[ev: MouseEvent]>([types.instanceOf(MouseEvent)]),
-      "onClickAnchor?": types.function<
-        [dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent]
-      >([types.ResizeDirection(), types.ResizeDirection(), types.instanceOf(MouseEvent)]),
+      "onMouseDown?": types.function<(ev: MouseEvent) => void>(),
+      "onClickAnchor?":
+        types.function<(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) => void>(),
     },
     {
       onMouseDown: () => {},

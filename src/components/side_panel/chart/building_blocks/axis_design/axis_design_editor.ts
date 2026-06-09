@@ -11,12 +11,9 @@ import {
   AxisGridType,
   AxisId,
   AxisType,
-  ChartWithAxisDefinition,
   TitleDesign,
 } from "../../../../../types/chart/chart";
 import { LineChartRuntime } from "../../../../../types/chart/line_chart";
-import { DispatchResult } from "../../../../../types/commands";
-import { UID } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { DateInput } from "../../../../date_input/date_input";
 import { NumberInput } from "../../../../number_input/number_input";
@@ -24,6 +21,7 @@ import { types } from "../../../../props_validation";
 import { BadgeSelection } from "../../../components/badge_selection/badge_selection";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
+import { ChartUpdateFunction } from "../../common";
 import { ChartTitle } from "../chart_title/chart_title";
 
 export interface AxisDefinition {
@@ -38,10 +36,7 @@ export class AxisDesignEditor extends Component<SpreadsheetChildEnv> {
   protected props = props({
     chartId: types.UID(),
     definition: types.ChartWithAxisDefinition(),
-    updateChart: types.function<
-      [chartId: UID, definition: Partial<ChartWithAxisDefinition>],
-      DispatchResult
-    >([types.UID(), types.object({})], types.DispatchResult()),
+    updateChart: types.function<ChartUpdateFunction>(),
     axesList: types.ArrayOf<AxisDefinition>(),
   });
 

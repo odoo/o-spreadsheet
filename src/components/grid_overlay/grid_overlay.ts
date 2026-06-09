@@ -139,28 +139,20 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
 
   protected props = props(
     {
-      "onCellDoubleClicked?": types.function<[col: HeaderIndex, row: HeaderIndex]>([
-        types.HeaderIndex(),
-        types.HeaderIndex(),
-      ]),
-      "onCellClicked?": types.function<
-        [
-          col: HeaderIndex,
-          row: HeaderIndex,
-          modifiers: GridClickModifiers,
-          zoomedMouseEvent: ZoomedMouseEvent<MouseEvent | PointerEvent>
-        ]
-      >([
-        types.HeaderIndex(),
-        types.HeaderIndex(),
-        types.GridClickModifiers(),
-        types.ZoomedMouseEvent(),
-      ]),
-      "onCellRightClicked?": types.function<
-        [col: HeaderIndex, row: HeaderIndex, coordinates: DOMCoordinates]
-      >([types.HeaderIndex(), types.HeaderIndex(), types.DOMCoordinates()]),
-      "onGridResized?": types.function([]),
-      onGridMoved: types.function<[deltaX: Pixel, deltaY: Pixel]>([types.Pixel(), types.Pixel()]),
+      "onCellDoubleClicked?": types.function<(col: HeaderIndex, row: HeaderIndex) => void>(),
+      "onCellClicked?":
+        types.function<
+          (
+            col: HeaderIndex,
+            row: HeaderIndex,
+            modifiers: GridClickModifiers,
+            zoomedMouseEvent: ZoomedMouseEvent<MouseEvent | PointerEvent>
+          ) => void
+        >(),
+      "onCellRightClicked?":
+        types.function<(col: HeaderIndex, row: HeaderIndex, coordinates: DOMCoordinates) => void>(),
+      "onGridResized?": types.function(),
+      onGridMoved: types.function<(deltaX: Pixel, deltaY: Pixel) => void>(),
       gridOverlayDimensions: types.string(),
     },
     {

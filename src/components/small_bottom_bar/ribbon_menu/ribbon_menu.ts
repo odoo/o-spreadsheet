@@ -21,7 +21,7 @@ export class RibbonMenu extends Component<SpreadsheetChildEnv> {
   static components = { Menu };
 
   protected props = props({
-    onClose: types.function([]),
+    onClose: types.function(),
   });
 
   rootItems = topbarMenuRegistry.getMenuItems();

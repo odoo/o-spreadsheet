@@ -25,8 +25,8 @@ export class TableStyleEditorPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableStyleEditorPanel";
   static components = { Section, RoundColorPicker, TableStylePreview };
   protected props = props({
-    onCloseSidePanel: types.function([]),
-    "onStylePicked?": types.function<[styleId: string]>([types.string()]),
+    onCloseSidePanel: types.function(),
+    "onStylePicked?": types.function<(styleId: string) => void>(),
     "styleId?": types.string(),
   });
 

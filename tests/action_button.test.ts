@@ -1,18 +1,15 @@
-import { props, types, xml } from "@odoo/owl";
+import { props, xml } from "@odoo/owl";
 import { ActionSpec } from "../src/actions/action";
 import { ActionButton } from "../src/components/action_button/action_button";
+import { types } from "../src/components/props_validation";
 import { Component } from "../src/owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../src/types/spreadsheet_env";
 import { mountComponent, nextTick } from "./test_helpers/helpers";
 
-interface ParentProps {
-  getAction: () => ActionSpec;
-}
-
 class Parent extends Component<SpreadsheetChildEnv> {
   static components = { ActionButton };
-  protected props: ParentProps = props({
-    getAction: types.function(),
+  protected props = props({
+    getAction: types.function<() => ActionSpec>(),
   });
   static template = xml/*xml*/ `
       <ActionButton action="this.props.getAction()"/>
@@ -21,7 +18,9 @@ class Parent extends Component<SpreadsheetChildEnv> {
 
 test("ActionButton is updated when its props are updated", async () => {
   let action = { isActive: () => true, name: "TestAction" };
-  const { parent, fixture } = await mountComponent(Parent, { props: { getAction: () => action } });
+  const { parent, fixture } = await mountComponent(Parent, {
+    props: { getAction: () => action },
+  });
   const actionButton = fixture.querySelector(".o-menu-item-button")!;
   expect(actionButton.classList).toContain("active");
 

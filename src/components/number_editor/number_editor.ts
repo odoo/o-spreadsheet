@@ -21,9 +21,9 @@ export class NumberEditor extends Component<SpreadsheetChildEnv> {
   protected props = props(
     {
       currentValue: types.number(),
-      onValueChange: types.function<[fontSize: number]>([types.number()]),
-      "onToggle?": types.function([]),
-      "onFocusInput?": types.function([]),
+      onValueChange: types.function<(fontSize: number) => void>(),
+      "onToggle?": types.function(),
+      "onFocusInput?": types.function(),
       class: types.string(),
       "valueIcon?": types.string(),
       min: types.number(),

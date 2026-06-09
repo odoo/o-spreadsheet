@@ -16,11 +16,11 @@ export class CriterionInput extends Component<SpreadsheetChildEnv> {
     {
       "value?": types.string(),
       criterionType: types.DataValidationCriterionType(),
-      onValueChanged: types.function<[value: string]>([types.string()]),
-      "onKeyDown?": types.function<[ev: KeyboardEvent]>([types.instanceOf(KeyboardEvent)]),
+      onValueChanged: types.function<(value: string) => void>(),
+      "onKeyDown?": types.function<(ev: KeyboardEvent) => void>(),
       "focused?": types.boolean(),
-      "onBlur?": types.function([]),
-      "onFocus?": types.function([]),
+      "onBlur?": types.function(),
+      "onFocus?": types.function(),
       "disableFormulas?": types.boolean(),
     },
     {

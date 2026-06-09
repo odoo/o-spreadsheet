@@ -1,4 +1,4 @@
-import { props, types, xml } from "@odoo/owl";
+import { props, xml } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../src/actions/action";
 import { MenuPopover } from "../../src/components/menu_popover/menu_popover";
 import {
@@ -27,6 +27,7 @@ import {
 import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
 
 import { Rect } from "../../src";
+import { types } from "../../src/components/props_validation";
 import { PopoverPropsPosition } from "../../src/types/cell_popovers";
 import {
   getStylePropertyInPx,

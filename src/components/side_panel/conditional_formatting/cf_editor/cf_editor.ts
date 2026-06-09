@@ -36,7 +36,7 @@ export class ConditionalFormattingEditor extends Component<SpreadsheetChildEnv> 
   protected props = props({
     cf: types.ConditionalFormat(),
     isNewCf: types.boolean(),
-    onCloseSidePanel: types.function([]),
+    onCloseSidePanel: types.function(),
   });
 
   private activeSheetId!: UID;

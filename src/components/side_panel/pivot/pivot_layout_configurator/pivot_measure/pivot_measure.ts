@@ -27,12 +27,9 @@ export class PivotMeasureEditor extends Component<SpreadsheetChildEnv> {
     pivotId: types.string(),
     definition: types.PivotRuntimeDefinition(),
     measure: types.PivotMeasure(),
-    onMeasureUpdated: types.function<[measure: PivotMeasure]>([types.PivotMeasure()]),
-    onRemoved: types.function([]),
-    generateMeasureId: types.function<[fieldName: string, aggregator?: string], string>(
-      [types.string(), types.string()],
-      types.string()
-    ),
+    onMeasureUpdated: types.function<(measure: PivotMeasure) => void>(),
+    onRemoved: types.function(),
+    generateMeasureId: types.function<(fieldName: string, aggregator?: string) => string>(),
     aggregators: types.object({}),
   });
 

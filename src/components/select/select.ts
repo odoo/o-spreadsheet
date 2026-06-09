@@ -17,7 +17,7 @@ export class Select extends Component<SpreadsheetChildEnv> {
   static components = { Popover };
 
   protected props = props({
-    onChange: types.function<[value: string]>([types.string()]),
+    onChange: types.function<(value: string) => void>(),
     values: types.array() as ValueAndLabel[],
     "selectedValue?": types.string(),
     "class?": types.string(),

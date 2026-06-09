@@ -20,7 +20,7 @@ export class RemoveDuplicatesPanel extends Component<SpreadsheetChildEnv> {
   static components = { ValidationMessages, Section, Checkbox };
 
   protected props = props({
-    onCloseSidePanel: types.function([]),
+    onCloseSidePanel: types.function(),
   });
 
   state: RemoveDuplicatesState = proxy({

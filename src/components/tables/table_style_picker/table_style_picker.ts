@@ -21,7 +21,7 @@ export class TableStylePicker extends Component<SpreadsheetChildEnv> {
 
   protected props = props({
     tableConfig: types.TableConfig(),
-    onStylePicked: types.function<[styleId: string]>([types.string()]),
+    onStylePicked: types.function<(styleId: string) => void>(),
     tableStyles: types.RecordOf<TableStyle>(),
     type: types.or([types.literal("table"), types.literal("pivot")]),
   });

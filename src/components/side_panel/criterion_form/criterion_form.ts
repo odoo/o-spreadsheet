@@ -12,7 +12,7 @@ export abstract class CriterionForm<
 > extends Component<SpreadsheetChildEnv> {
   protected props = props({
     criterion: types.object({}) as unknown as T,
-    onCriterionChanged: types.function<[criterion: T]>([types.object({}) as unknown as T]),
+    onCriterionChanged: types.function<(criterion: T) => void>(),
     "disableFormulas?": types.boolean(),
     "autofocus?": types.boolean(),
   });

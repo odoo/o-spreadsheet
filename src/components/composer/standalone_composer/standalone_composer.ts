@@ -19,7 +19,7 @@ export class StandaloneComposer extends Component<SpreadsheetChildEnv> {
 
   protected props = props(
     {
-      onConfirm: types.function<[content: string]>([types.string()]),
+      onConfirm: types.function<(content: string) => void>(),
       "composerContent?": types.string(),
       defaultRangeSheetId: types.UID(),
       "defaultStatic?": types.boolean(),
@@ -29,10 +29,7 @@ export class StandaloneComposer extends Component<SpreadsheetChildEnv> {
       "class?": types.string(),
       "invalid?": types.boolean(),
       "autofocus?": types.boolean(),
-      "getContextualColoredSymbolToken?": types.function<[token: Token], Color>(
-        [types.Token()],
-        types.Color()
-      ),
+      "getContextualColoredSymbolToken?": types.function<(token: Token) => Color>(),
     },
     {
       composerContent: "",

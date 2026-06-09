@@ -19,9 +19,7 @@ export class PivotCustomGroupsCollapsible extends Component<SpreadsheetChildEnv>
   protected props = props({
     pivotId: types.UID(),
     customField: types.PivotCustomGroupedField(),
-    onCustomFieldUpdated: types.function<[definition: Partial<PivotCoreDefinition>]>([
-      types.object({}) as Partial<PivotCoreDefinition>,
-    ]),
+    onCustomFieldUpdated: types.function<(definition: Partial<PivotCoreDefinition>) => void>(),
   });
   static components = { SidePanelCollapsible, TextInput, Checkbox };
 

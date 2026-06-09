@@ -1,6 +1,7 @@
-import { App, props, types, xml } from "@odoo/owl";
+import { App, props, xml } from "@odoo/owl";
 import { Model, Pixel, Rect } from "../../src";
 import { Popover } from "../../src/components/popover/popover";
+import { types } from "../../src/components/props_validation";
 import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
 import { PropsOf } from "../../src/types/props_of";
 import { getStylePropertyInPx, mountComponent } from "../test_helpers/helpers";
@@ -30,8 +31,8 @@ async function mountTestPopover(args: MountPopoverArgs) {
   `;
     static components = { Popover };
     protected props = props({
-      model: types.object({}),
-    }) as any;
+      model: types.object<Model>(),
+    });
 
     setup() {
       const env: any = {

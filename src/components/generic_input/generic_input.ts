@@ -20,10 +20,10 @@ export interface GenericInputProps {
 
 export const genericInputPropsDefinition = {
   value: types.or([types.number(), types.string()]),
-  onChange: types.function<[value: string]>([types.string()]),
-  "onFocused?": types.function([]),
-  "onBlur?": types.function([]),
-  "onInput?": types.function<[value: string]>([types.string()]),
+  onChange: types.function<(value: string) => void>(),
+  "onFocused?": types.function(),
+  "onBlur?": types.function(),
+  "onInput?": types.function<(value: string) => void>(),
   "class?": types.string(),
   "id?": types.string(),
   "placeholder?": types.string(),

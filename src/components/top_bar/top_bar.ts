@@ -40,7 +40,7 @@ interface State {
 export class TopBar extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBar";
   protected props = props({
-    onClick: types.function([]),
+    onClick: types.function(),
     dropdownMaxHeight: types.Pixel(),
   });
   static components = {

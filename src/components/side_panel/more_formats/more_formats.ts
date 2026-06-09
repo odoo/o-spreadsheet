@@ -26,7 +26,7 @@ export class MoreFormatsPanel extends Component<SpreadsheetChildEnv> {
   };
 
   protected props = props({
-    onCloseSidePanel: types.function([]),
+    onCloseSidePanel: types.function(),
     "category?": types.or([
       types.literal("number"),
       types.literal("date"),

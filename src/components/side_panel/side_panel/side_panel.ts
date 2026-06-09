@@ -11,12 +11,12 @@ export class SidePanel extends Component<SpreadsheetChildEnv> {
   protected props = props({
     panelContent: types.SidePanelContent(),
     panelProps: types.SidePanelComponentProps(),
-    onCloseSidePanel: types.function([]),
-    onStartHandleDrag: types.function<[ev: MouseEvent]>([types.instanceOf(MouseEvent)]),
-    onResetPanelSize: types.function([]),
+    onCloseSidePanel: types.function(),
+    onStartHandleDrag: types.function<(ev: MouseEvent) => void>(),
+    onResetPanelSize: types.function(),
     "isPinned?": types.boolean(),
-    "onTogglePinPanel?": types.function([]),
-    "onToggleCollapsePanel?": types.function([]),
+    "onTogglePinPanel?": types.function(),
+    "onToggleCollapsePanel?": types.function(),
     "isCollapsed?": types.boolean(),
   });
   spreadsheetRect = useSpreadsheetRect();

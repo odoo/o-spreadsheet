@@ -10,7 +10,6 @@ import {
   CustomizableSeriesChartRuntime,
   TrendConfiguration,
 } from "../../../../../types/chart/chart";
-import { DispatchResult } from "../../../../../types/commands";
 import { Color, UID, ValueAndLabel } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { NumberInput } from "../../../../number_input/number_input";
@@ -20,6 +19,7 @@ import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RadioSelection } from "../../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
+import { ChartUpdateFunction } from "../../common";
 import { SeriesDesignEditor } from "./series_design_editor";
 
 export class SeriesWithAxisDesignEditor extends Component<SpreadsheetChildEnv> {
@@ -37,14 +37,8 @@ export class SeriesWithAxisDesignEditor extends Component<SpreadsheetChildEnv> {
   protected props = props({
     chartId: types.UID(),
     definition: types.ChartDefinitionWithDataSource(),
-    canUpdateChart: types.function<
-      [chartId: UID, definition: Partial<ChartDefinitionWithDataSource<string>>],
-      DispatchResult
-    >([types.UID(), types.object({})], types.DispatchResult()),
-    updateChart: types.function<
-      [chartId: UID, definition: Partial<ChartDefinitionWithDataSource<string>>],
-      DispatchResult
-    >([types.UID(), types.object({})], types.DispatchResult()),
+    updateChart: types.function<ChartUpdateFunction<ChartDefinitionWithDataSource<string>>>(),
+    canUpdateChart: types.function<ChartUpdateFunction<ChartDefinitionWithDataSource<string>>>(),
   });
 
   axisChoices = CHART_AXIS_CHOICES;

@@ -13,7 +13,7 @@ export class DataValidationPanel extends Component<SpreadsheetChildEnv> {
   static components = { DataValidationPreview };
 
   protected props = props({
-    onCloseSidePanel: types.function([]),
+    onCloseSidePanel: types.function(),
   });
 
   addDataValidationRule() {

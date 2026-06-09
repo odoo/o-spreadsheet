@@ -23,7 +23,7 @@ export class ColumnStatsPanel extends Component<SpreadsheetChildEnv> {
   static components = { NumberInput, SidePanelCollapsible, BadgeSelection, Section };
 
   protected props = props({
-    onCloseSidePanel: types.function([]),
+    onCloseSidePanel: types.function(),
   });
 
   state = proxy({

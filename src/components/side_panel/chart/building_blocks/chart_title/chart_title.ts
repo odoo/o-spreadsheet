@@ -15,11 +15,11 @@ export class ChartTitle extends Component<SpreadsheetChildEnv> {
     {
       "title?": types.string(),
       "placeholder?": types.string(),
-      updateTitle: types.function<[title: string]>([types.string()]),
+      updateTitle: types.function<(title: string) => void>(),
       "name?": types.string(),
       style: types.TitleDesign(),
       "defaultStyle?": types.object({}) as Partial<TitleDesign>,
-      updateStyle: types.function<[style: TitleDesign]>([types.object({})]),
+      updateStyle: types.function<(style: TitleDesign) => void>(),
     },
     {
       title: "",

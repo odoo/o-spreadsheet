@@ -33,7 +33,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   };
 
   protected props = props({
-    getGridSize: types.function<[], DOMDimension>([], types.DOMDimension()),
+    getGridSize: types.function<() => DOMDimension>(),
   });
 
   protected cellPopovers!: Store<CellPopoverStore>;

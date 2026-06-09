@@ -44,7 +44,7 @@ export class PivotHTMLRenderer extends Component<SpreadsheetChildEnv> {
   static components = { Checkbox };
   protected props = props({
     pivotId: types.UID(),
-    onCellClicked: types.function<[formula: string]>([types.string()]),
+    onCellClicked: types.function<(formula: string) => void>(),
   });
 
   private pivot = this.env.model.getters.getPivot(this.props.pivotId);

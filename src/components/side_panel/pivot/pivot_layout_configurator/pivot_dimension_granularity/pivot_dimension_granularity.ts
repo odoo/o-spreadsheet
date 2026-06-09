@@ -11,10 +11,7 @@ export class PivotDimensionGranularity extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotDimensionGranularity";
   protected props = props({
     dimension: types.PivotDimension(),
-    onUpdated: types.function<[dimension: PivotDimension, ev: InputEvent]>([
-      types.PivotDimension(),
-      types.instanceOf(InputEvent),
-    ]),
+    onUpdated: types.function<(dimension: PivotDimension, ev: InputEvent) => void>(),
     availableGranularities: types.SetOf<string>(),
     allGranularities: types.array(),
   });

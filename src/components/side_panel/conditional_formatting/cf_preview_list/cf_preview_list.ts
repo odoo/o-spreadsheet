@@ -16,7 +16,7 @@ export class ConditionalFormatPreviewList extends Component<SpreadsheetChildEnv>
   static components = { ConditionalFormatPreview };
 
   protected props = props({
-    onCloseSidePanel: types.function([]),
+    onCloseSidePanel: types.function(),
   });
 
   private dragAndDrop = useDragAndDropListItems();

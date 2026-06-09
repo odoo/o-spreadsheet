@@ -15,7 +15,7 @@ export class ConditionalFormatPreview extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ConditionalFormatPreview";
   protected props = props({
     conditionalFormat: types.ConditionalFormat(),
-    onMouseDown: types.function<[ev: MouseEvent]>([types.instanceOf(MouseEvent)]),
+    onMouseDown: types.function<(ev: MouseEvent) => void>(),
     class: types.string(),
   });
 

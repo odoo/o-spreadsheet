@@ -33,7 +33,7 @@ export class FilterMenuValueList extends Component<SpreadsheetChildEnv> {
         "scrolledTo?": types.or([types.literal("top"), types.literal("bottom")]),
       })
     ),
-    onUpdateHiddenValues: types.function<[values: string[]]>([types.array(types.string())]),
+    onUpdateHiddenValues: types.function<(values: string[]) => void>(),
   });
 
   private state: State = proxy({

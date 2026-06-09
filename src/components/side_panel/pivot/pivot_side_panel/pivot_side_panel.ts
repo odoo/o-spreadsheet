@@ -25,7 +25,7 @@ export class PivotSidePanel extends Component<SpreadsheetChildEnv> {
   protected props = props(
     {
       pivotId: types.UID(),
-      onCloseSidePanel: types.function([]),
+      onCloseSidePanel: types.function(),
       "openTab?": types.or([types.literal("configuration"), types.literal("design")]),
     },
     {

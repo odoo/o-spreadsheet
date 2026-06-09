@@ -12,9 +12,9 @@ export class ColorPickerWidget extends Component<SpreadsheetChildEnv> {
 
   protected props = props({
     "currentColor?": types.string(),
-    toggleColorPicker: types.function([]),
+    toggleColorPicker: types.function(),
     showColorPicker: types.boolean(),
-    onColorPicked: types.function<[color: string]>([types.string()]),
+    onColorPicked: types.function<(color: string) => void>(),
     icon: types.string(),
     "title?": types.string(),
     "disabled?": types.boolean(),

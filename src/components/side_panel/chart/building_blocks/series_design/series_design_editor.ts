@@ -5,14 +5,14 @@ import {
   ChartDefinitionWithDataSource,
   CustomizableSeriesChartRuntime,
 } from "../../../../../types/chart/chart";
-import { DispatchResult } from "../../../../../types/commands";
-import { UID, ValueAndLabel } from "../../../../../types/misc";
+import { ValueAndLabel } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { types } from "../../../../props_validation";
 import { Select } from "../../../../select/select";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
+import { ChartUpdateFunction } from "../../common";
 
 export class SeriesDesignEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SeriesDesignEditor";
@@ -26,14 +26,8 @@ export class SeriesDesignEditor extends Component<SpreadsheetChildEnv> {
   protected props = props({
     chartId: types.UID(),
     definition: types.ChartDefinitionWithDataSource(),
-    canUpdateChart: types.function<
-      [chartId: UID, definition: Partial<ChartDefinitionWithDataSource<string>>],
-      DispatchResult
-    >([types.UID(), types.object({})], types.DispatchResult()),
-    updateChart: types.function<
-      [chartId: UID, definition: Partial<ChartDefinitionWithDataSource<string>>],
-      DispatchResult
-    >([types.UID(), types.object({})], types.DispatchResult()),
+    updateChart: types.function<ChartUpdateFunction<ChartDefinitionWithDataSource<string>>>(),
+    canUpdateChart: types.function<ChartUpdateFunction<ChartDefinitionWithDataSource<string>>>(),
   });
 
   protected state = proxy({ dataSetId: this.getDataSeries()[0]?.dataSetId || "" });
