@@ -1,5 +1,6 @@
 import { useListener, useProps } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/misc";
+import { splitReference } from "../../../../helpers/references";
 import { useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
@@ -53,17 +54,9 @@ export class ConditionalFormattingEditor extends OSComponent {
           this.closeEditor();
         }
       },
-      () => [this.isEditedCfRemoved]
+      () => [this.store.isEditedCfRemoved]
     );
     useListener(window as any, "click", () => this.store.closeMenus());
-  }
-
-  get isEditedCfRemoved() {
-    return !Boolean(
-      this.model()
-        .getters.getConditionalFormats(this.props.sheetId)
-        .find((cf) => cf.id === this.props.cf.id)
-    );
   }
 
   get cfTypesValues() {
@@ -85,18 +78,34 @@ export class ConditionalFormattingEditor extends OSComponent {
 
   onCancel() {
     if (this.store.state.hasEditedCf) {
+      const sheetIdsToRemove = [
+        ...new Set(
+          this.store.state.currentCF.ranges.map((xc) => {
+            const { sheetName } = splitReference(xc);
+            const sheetId = sheetName
+              ? this.model().getters.getSheetIdByName(sheetName)
+              : this.props.sheetId;
+            return this.model().getters.getRangeDataFromXc(sheetId, xc)._sheetId;
+          })
+        ),
+      ];
       if (this.props.isNewCf) {
-        this.model().dispatch("REMOVE_CONDITIONAL_FORMAT", {
-          sheetId: this.props.sheetId,
-          id: this.props.cf.id,
+        this.model().dispatch("UPDATE_CONDITIONAL_FORMATS", {
+          cfId: this.store.state.currentCF.id,
+          sheetIdsToRemove,
         });
       } else {
-        this.model().dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: this.props.cf,
-          ranges: this.props.cf.ranges.map((range) =>
-            this.model().getters.getRangeDataFromXc(this.props.sheetId, range)
-          ),
-          sheetId: this.props.sheetId,
+        this.model().dispatch("UPDATE_CONDITIONAL_FORMATS", {
+          cfId: this.store.state.currentCF.id,
+          sheetIdsToRemove: sheetIdsToRemove.filter((id) => id !== this.props.sheetId),
+          rulesBySheetId: {
+            [this.props.sheetId]: {
+              cf: this.props.cf,
+              ranges: this.props.cf.ranges.map((xc) =>
+                this.model().getters.getRangeDataFromXc(this.props.sheetId, xc)
+              ),
+            },
+          },
         });
       }
     }
@@ -104,10 +113,6 @@ export class ConditionalFormattingEditor extends OSComponent {
   }
 
   closeEditor() {
-    this.model().dispatch("ACTIVATE_SHEET", {
-      sheetIdTo: this.props.sheetId,
-      sheetIdFrom: this.model().getters.getActiveSheetId(),
-    });
     this.sidePanelStore.replace(
       "ConditionalFormatting",
       `ConditionalFormattingEditor_${this.props.cf.id}`

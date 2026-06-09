@@ -82,23 +82,8 @@ export class DataValidationEditor extends OSComponent {
     this.state.rule.isBlocking = isBlocking === "true";
   }
 
-  switchSheetOnClose() {
-    const currentSheetName = this.model().getters.getActiveSheetName();
-    const hasCurrentSheetName = this.state.rule.ranges.some((xc) => {
-      const { sheetName } = splitReference(xc);
-      return sheetName === currentSheetName;
-    });
-    if (!hasCurrentSheetName) {
-      this.model().dispatch("ACTIVATE_SHEET", {
-        sheetIdTo: this.props.sheetId,
-        sheetIdFrom: this.model().getters.getActiveSheetId(),
-      });
-    }
-  }
-
   onCancel() {
     this.props.onCancel?.();
-    this.switchSheetOnClose();
     this.sidePanelStore.replace("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
   }
 
@@ -114,7 +99,6 @@ export class DataValidationEditor extends OSComponent {
       this.state.errors = result.reasons;
       return;
     }
-    this.switchSheetOnClose();
     this.sidePanelStore.replace("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
   }
 
