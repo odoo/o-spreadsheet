@@ -16,9 +16,9 @@ import {
   DataValidationCriterionType,
   DataValidationRule,
 } from "../../../../types/data_validation";
-import { ValueAndLabel } from "../../../../types/misc";
-import { Store } from "../../../../types/store_engine";
+import { UID, ValueAndLabel } from "../../../../types/misc";
 import { RangeData } from "../../../../types/range";
+import { Store } from "../../../../types/store_engine";
 import { DataValidationRuleData } from "../../../../types/workbook_data";
 import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";

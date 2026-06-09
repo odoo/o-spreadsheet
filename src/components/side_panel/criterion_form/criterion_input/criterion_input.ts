@@ -5,8 +5,8 @@ import { criterionEvaluatorRegistry } from "../../../../registries/criterion_reg
 import { _t } from "../../../../translation";
 import { PropsOf } from "../../../../types/props_of";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
-import { OSComponent } from "../../../os_component";
 import { adaptFormulaToSheet } from "../../../helpers/formula";
+import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
 
 export class CriterionInput extends OSComponent {
