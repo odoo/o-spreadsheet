@@ -11,7 +11,6 @@
         t-att-style="this.gridContainer">
         <GridOverlay
           onGridResized.bind="this.onGridResized"
-          onGridMoved.bind="this.moveCanvas"
           gridOverlayDimensions="this.gridOverlayDimensions">
           <div
             t-foreach="this.getClickableCells()"

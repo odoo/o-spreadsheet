@@ -4,7 +4,7 @@ import { isPointInsideRect } from "../../helpers/rectangle";
 import { positionToZone } from "../../helpers/zones";
 import { Component, useExternalListener } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
-import { GridClickModifiers, HeaderIndex, Pixel, Position } from "../../types/misc";
+import { GridClickModifiers, HeaderIndex, Position } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
@@ -152,7 +152,6 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
       "onCellRightClicked?":
         types.function<(col: HeaderIndex, row: HeaderIndex, coordinates: DOMCoordinates) => void>(),
       "onGridResized?": types.function(),
-      onGridMoved: types.function<(deltaX: Pixel, deltaY: Pixel) => void>(),
       gridOverlayDimensions: types.string(),
     },
     {
