@@ -1,6 +1,7 @@
 import { props, signal } from "@odoo/owl";
 import { HIGHLIGHT_COLOR, TEXT_BODY } from "../../../../constants";
 import { colorNumberToHex } from "../../../../helpers/color";
+import { getFullReference } from "../../../../helpers/references";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { Highlight } from "../../../../types/misc";
@@ -72,8 +73,12 @@ export class ConditionalFormatPreview extends Component<SpreadsheetChildEnv> {
   }
 
   editConditionalFormat() {
+    const sheetName = this.env.model.getters.getActiveSheetName();
+    const ranges = this.props.conditionalFormat.ranges.map((range) =>
+      getFullReference(sheetName, range)
+    );
     this.env.replaceSidePanel("ConditionalFormattingEditor", "ConditionalFormatting", {
-      cf: this.props.conditionalFormat,
+      cf: { ...this.props.conditionalFormat, ranges },
       isNewCf: false,
       sheetId: this.env.model.getters.getActiveSheetId(),
     });

@@ -10,6 +10,8 @@
             onSelectionChanged="(ranges) => this.store.onRangeUpdate(ranges)"
             onSelectionConfirmed="() => this.store.onRangeConfirmed()"
             required="true"
+            prefixSheet="true"
+            goBackToSheet="false"
           />
         </div>
       </Section>
