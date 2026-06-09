@@ -13,7 +13,6 @@
         onCellDoubleClicked.bind="this.onCellDoubleClicked"
         onCellRightClicked.bind="this.onCellRightClicked"
         onGridResized.bind="this.onGridResized"
-        onGridMoved.bind="this.moveCanvas"
         gridOverlayDimensions="this.gridOverlayDimensions"
       />
       <HeadersOverlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"/>
