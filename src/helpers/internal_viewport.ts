@@ -1,8 +1,18 @@
-import { FOOTER_HEIGHT } from "../constants";
 import { RenderingGetters } from "../types/getters";
 import { Dimension, HeaderIndex, Pixel, Position, UID, Zone } from "../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../types/rendering";
 import { intersection, isInside } from "./zones";
+
+interface InternalViewportArgs {
+  getters: RenderingGetters;
+  sheetId: UID;
+  boundaries: Zone;
+  sizeInGrid: DOMDimension;
+  canScrollVertically: boolean;
+  canScrollHorizontally: boolean;
+  offsets: DOMCoordinates;
+  getFooterSize: () => number;
+}
 
 export class InternalViewport {
   top: HeaderIndex;
@@ -16,27 +26,30 @@ export class InternalViewport {
   viewportWidth: Pixel;
   viewportHeight: Pixel;
 
-  constructor(
-    private getters: RenderingGetters,
-    private sheetId: UID,
-    private boundaries: Zone,
-    sizeInGrid: DOMDimension,
-    options: { canScrollVertically: boolean; canScrollHorizontally: boolean },
-    offsets: DOMCoordinates
-  ) {
-    if (sizeInGrid.width < 0 || sizeInGrid.height < 0) {
+  private getters: RenderingGetters;
+  private sheetId: UID;
+  private boundaries: Zone;
+  private getFooterSize: () => number;
+
+  constructor(args: InternalViewportArgs) {
+    if (args.sizeInGrid.width < 0 || args.sizeInGrid.height < 0) {
       throw new Error("Viewport size cannot be negative");
     }
-    this.viewportWidth = sizeInGrid.height && sizeInGrid.width;
-    this.viewportHeight = sizeInGrid.width && sizeInGrid.height;
-    this.top = boundaries.top;
-    this.bottom = boundaries.bottom;
-    this.left = boundaries.left;
-    this.right = boundaries.right;
-    this.offsetX = offsets.x;
-    this.offsetY = offsets.y;
-    this.canScrollVertically = options.canScrollVertically;
-    this.canScrollHorizontally = options.canScrollHorizontally;
+    this.getters = args.getters;
+    this.sheetId = args.sheetId;
+    this.boundaries = args.boundaries;
+
+    this.viewportWidth = args.sizeInGrid.height && args.sizeInGrid.width;
+    this.viewportHeight = args.sizeInGrid.width && args.sizeInGrid.height;
+    this.top = args.boundaries.top;
+    this.bottom = args.boundaries.bottom;
+    this.left = args.boundaries.left;
+    this.right = args.boundaries.right;
+    this.offsetX = args.offsets.x;
+    this.offsetY = args.offsets.y;
+    this.canScrollVertically = args.canScrollVertically;
+    this.canScrollHorizontally = args.canScrollHorizontally;
+    this.getFooterSize = args.getFooterSize;
 
     this.adjustViewportOffsetX();
     this.adjustViewportOffsetY();
@@ -78,8 +91,8 @@ export class InternalViewport {
     if (this.canScrollVertically) {
       height = Math.max(height, this.viewportHeight); // if the viewport grid size is smaller than its client height, return client height
 
-      if (lastRowEnd + FOOTER_HEIGHT > height && !this.getters.isReadonly()) {
-        height += FOOTER_HEIGHT;
+      if (lastRowEnd + this.getFooterSize() > height) {
+        height += this.getFooterSize();
       }
     }
 
