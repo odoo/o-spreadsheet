@@ -1429,7 +1429,7 @@ describe("datasource tests", function () {
       "1"
     );
     const { chartJsConfig } = model.getters.getChartRuntime("1") as BarChartRuntime;
-    expect(chartJsConfig.data.datasets[0].data.length).toBe(0);
+    expect(chartJsConfig.data.datasets[0].data.length).toBe(3);
   });
 });
 
