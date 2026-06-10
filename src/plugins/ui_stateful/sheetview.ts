@@ -1,4 +1,4 @@
-import { SCROLLBAR_WIDTH } from "../../constants";
+import { FOOTER_HEIGHT, getDefaultSheetViewSize, SCROLLBAR_WIDTH } from "../../constants";
 import { ViewportCollection } from "../../helpers/viewport_collection";
 import { findCellInNewZone, isEqual } from "../../helpers/zones";
 import {
@@ -71,10 +71,14 @@ export class SheetViewPlugin extends UIPlugin {
     "getViewportCollection",
   ] as const;
 
-  private viewports: ViewportCollection = new ViewportCollection(
-    this.getters,
-    this.getPaneDivisions()
-  );
+  private viewports: ViewportCollection = new ViewportCollection({
+    getters: this.getters,
+    paneDivision: this.getPaneDivisions(),
+    sheetViewHeight: getDefaultSheetViewSize(),
+    sheetViewWidth: getDefaultSheetViewSize(),
+    zoomLevel: 1,
+    getFooterSize: this.getFooterSize.bind(this),
+  });
 
   private sheetsWithDirtyViewports: Set<UID> = new Set();
   private shouldRepositionViewports: boolean = false;
@@ -497,5 +501,9 @@ export class SheetViewPlugin extends UIPlugin {
       paneDivisions[sheetId] = this.getters.getPaneDivisions(sheetId);
     }
     return paneDivisions;
+  }
+
+  private getFooterSize() {
+    return this.getters.isReadonly() ? 0 : FOOTER_HEIGHT;
   }
 }
