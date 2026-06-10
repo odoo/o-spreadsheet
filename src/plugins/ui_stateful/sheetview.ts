@@ -174,17 +174,17 @@ export class SheetViewPlugin extends UIPlugin {
         break;
       case "SHIFT_VIEWPORT_DOWN":
         const sheetId = this.getters.getActiveSheetId();
-        const { top, viewportHeight, offsetCorrectionY } =
+        const { top, viewportHeight, boundaryTopY } =
           this.viewports.getMainInternalViewport(sheetId);
         const topRowDims = this.getters.getRowDimensions(sheetId, top);
-        this.shiftVertically(topRowDims.start + viewportHeight - offsetCorrectionY);
+        this.shiftVertically(topRowDims.start + viewportHeight - boundaryTopY);
         break;
       case "SHIFT_VIEWPORT_UP": {
         const sheetId = this.getters.getActiveSheetId();
-        const { top, viewportHeight, offsetCorrectionY } =
+        const { top, viewportHeight, boundaryTopY } =
           this.viewports.getMainInternalViewport(sheetId);
         const topRowDims = this.getters.getRowDimensions(sheetId, top);
-        this.shiftVertically(topRowDims.end - offsetCorrectionY - viewportHeight);
+        this.shiftVertically(topRowDims.end - boundaryTopY - viewportHeight);
         break;
       }
       case "UNFREEZE_ROWS":
@@ -246,7 +246,7 @@ export class SheetViewPlugin extends UIPlugin {
       this.viewports.resetViewports(sheetId);
       if (this.shouldRepositionViewports) {
         const position = this.getters.getSheetPosition(sheetId);
-        this.viewports.getSubViewports(sheetId).forEach((viewport) => {
+        this.viewports.getSubViewports(sheetId).forEach(({ viewport }) => {
           viewport.repositionViewport(position);
         });
       }
