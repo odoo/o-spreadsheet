@@ -212,18 +212,16 @@ export class ViewportsStore extends SpreadsheetStore {
 
   shiftViewportDown() {
     const sheetId = this.getters.getActiveSheetId();
-    const { top, viewportHeight, offsetCorrectionY } =
-      this.viewports.getMainInternalViewport(sheetId);
+    const { top, viewportHeight, boundaryTopY } = this.viewports.getMainInternalViewport(sheetId);
     const topRowDims = this.getters.getRowDimensions(sheetId, top);
-    this.shiftVertically(topRowDims.start + viewportHeight - offsetCorrectionY);
+    this.shiftVertically(topRowDims.start + viewportHeight - boundaryTopY);
   }
 
   shiftViewportUp() {
     const sheetId = this.getters.getActiveSheetId();
-    const { top, viewportHeight, offsetCorrectionY } =
-      this.viewports.getMainInternalViewport(sheetId);
+    const { top, viewportHeight, boundaryTopY } = this.viewports.getMainInternalViewport(sheetId);
     const topRowDims = this.getters.getRowDimensions(sheetId, top);
-    this.shiftVertically(topRowDims.end - offsetCorrectionY - viewportHeight);
+    this.shiftVertically(topRowDims.end - boundaryTopY - viewportHeight);
   }
 
   scrollToCell(col: HeaderIndex, row: HeaderIndex) {

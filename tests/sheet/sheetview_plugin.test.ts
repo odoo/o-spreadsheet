@@ -1355,6 +1355,19 @@ describe("Multi Panes viewport", () => {
       scrollY: DEFAULT_CELL_HEIGHT * (bottom + 2) - height,
     });
   });
+
+  test("getCol/RowIndex works on frozen pane limit", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    freezeColumns(model, 3);
+    freezeRows(model, 3);
+
+    viewStore.setViewportOffset({ offsetX: 10, offsetY: 10 }); // Scroll a bit so D4 is "below" the frozen pane
+    expect(viewStore.viewports.getColIndex(sheetId, DEFAULT_CELL_WIDTH * 3 - 5)).toBe(2);
+    expect(viewStore.viewports.getColIndex(sheetId, DEFAULT_CELL_WIDTH * 3 + 5)).toBe(3);
+
+    expect(viewStore.viewports.getRowIndex(sheetId, DEFAULT_CELL_HEIGHT * 3 - 5)).toBe(2);
+    expect(viewStore.viewports.getRowIndex(sheetId, DEFAULT_CELL_HEIGHT * 3 + 5)).toBe(3);
+  });
 });
 
 describe("multi sheet with different sizes", () => {
