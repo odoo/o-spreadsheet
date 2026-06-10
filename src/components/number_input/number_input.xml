@@ -8,6 +8,7 @@
       t-att-placeholder="this.props.placeholder"
       t-on-change="this.save"
       t-on-blur="this.save"
+      t-on-focus="this.onFocus"
       t-on-pointerdown="this.onMouseDown"
       t-on-pointerup="this.onMouseUp"
       t-on-keydown="this.onKeyDown"

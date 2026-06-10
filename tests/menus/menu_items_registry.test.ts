@@ -14,6 +14,7 @@ import {
   groupRows,
   hideColumns,
   hideRows,
+  lockSheet,
   selectAll,
   selectCell,
   selectColumn,
@@ -1564,6 +1565,41 @@ describe("Menu Item actions", () => {
       });
     });
   });
+  describe("Resize Columns", () => {
+    const resizePath = ["resize_columns"];
+
+    test("Action on single column selection", async () => {
+      selectColumn(model, 1, "overrideSelection");
+      expect(getName(resizePath, env, colMenuRegistry)).toBe("Resize column B");
+      expect(getNode(resizePath, env, colMenuRegistry).isVisible(env)).toBeTruthy();
+      const openSidePanel = jest.spyOn(env, "openSidePanel");
+      await doAction(resizePath, env, colMenuRegistry);
+      expect(openSidePanel).toHaveBeenCalledWith("HeaderResizePanel", { dimension: "COL" });
+    });
+
+    test("Action on consecutive column selection", () => {
+      selectColumn(model, 1, "overrideSelection");
+      selectColumn(model, 2, "updateAnchor");
+      expect(getName(resizePath, env, colMenuRegistry)).toBe("Resize columns B - C");
+    });
+
+    test("Action on non-consecutive column selection", () => {
+      selectColumn(model, 1, "overrideSelection");
+      selectColumn(model, 3, "newAnchor");
+      expect(getName(resizePath, env, colMenuRegistry)).toBe("Resize columns");
+    });
+
+    test("Action is hidden without selected columns", () => {
+      selectRow(model, 1, "overrideSelection");
+      expect(getNode(resizePath, env, colMenuRegistry).isVisible(env)).toBeFalsy();
+    });
+
+    test("Action is disabled on locked sheet", () => {
+      selectColumn(model, 1, "overrideSelection");
+      lockSheet(model, sheetId);
+      expect(getNode(resizePath, env, colMenuRegistry).isEnabled(env)).toBeFalsy();
+    });
+  });
   describe("Hide/Unhide Rows", () => {
     const hidePath = ["hide_rows"];
     const unhidePath = ["unhide_rows"];
@@ -1883,6 +1919,41 @@ describe("Menu Item actions", () => {
       expect(model.getters.getFigures(model.getters.getActiveSheetId())[0]).toMatchObject({
         tag: "carousel",
       });
+    });
+  });
+  describe("Resize Rows", () => {
+    const resizePath = ["resize_rows"];
+
+    test("Action on single row selection", async () => {
+      selectRow(model, 1, "overrideSelection");
+      expect(getName(resizePath, env, rowMenuRegistry)).toBe("Resize row 2");
+      expect(getNode(resizePath, env, rowMenuRegistry).isVisible(env)).toBeTruthy();
+      const openSidePanel = jest.spyOn(env, "openSidePanel");
+      await doAction(resizePath, env, rowMenuRegistry);
+      expect(openSidePanel).toHaveBeenCalledWith("HeaderResizePanel", { dimension: "ROW" });
+    });
+
+    test("Action on consecutive row selection", () => {
+      selectRow(model, 1, "overrideSelection");
+      selectRow(model, 2, "updateAnchor");
+      expect(getName(resizePath, env, rowMenuRegistry)).toBe("Resize rows 2 - 3");
+    });
+
+    test("Action on non-consecutive row selection", () => {
+      selectRow(model, 1, "overrideSelection");
+      selectRow(model, 3, "newAnchor");
+      expect(getName(resizePath, env, rowMenuRegistry)).toBe("Resize rows");
+    });
+
+    test("Action is hidden without selected rows", () => {
+      selectColumn(model, 1, "overrideSelection");
+      expect(getNode(resizePath, env, rowMenuRegistry).isVisible(env)).toBeFalsy();
+    });
+
+    test("Action is disabled on locked sheet", () => {
+      selectRow(model, 1, "overrideSelection");
+      lockSheet(model, sheetId);
+      expect(getNode(resizePath, env, rowMenuRegistry).isEnabled(env)).toBeFalsy();
     });
   });
 

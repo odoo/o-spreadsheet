@@ -1,0 +1,53 @@
+<templates>
+  <t t-name="o-spreadsheet-HeaderResizePanel">
+    <div class="o-header-resize-panel">
+      <Section title.translate="Size">
+        <label class="o-radio d-flex align-items-center mb-3">
+          <input
+            class="border rounded-circle me-2"
+            type="radio"
+            name="headerResizeMode"
+            value="exactSize"
+            t-att-checked="this.state.mode === 'exactSize'"
+            t-on-change="() => this.onModeChanged('exactSize')"
+          />
+          <span t-out="this.sizeInputLabel"/>
+        </label>
+        <NumberInput
+          value="this.state.inputValue"
+          min="this.minSize"
+          max="this.maxSize"
+          class="'w-50 mb-3'"
+          autofocus="true"
+          selectContentOnFocus="true"
+          onFocused="() => this.onModeChanged('exactSize')"
+          onChange.bind="this.onSizeChanged"
+        />
+        <label class="o-radio d-flex align-items-center">
+          <input
+            class="border rounded-circle me-2"
+            type="radio"
+            name="headerResizeMode"
+            value="fitToData"
+            t-att-checked="this.state.mode === 'fitToData'"
+            t-on-change="() => this.onModeChanged('fitToData')"
+          />
+          <span>Fit to data</span>
+        </label>
+      </Section>
+      <Section t-if="this.errorMessages.length" class="'pt-0'">
+        <ValidationMessages messages="this.errorMessages" msgType="'error'"/>
+      </Section>
+      <Section>
+        <div class="o-sidePanelButtons">
+          <button
+            class="o-button primary"
+            t-att-class="{'o-disabled': this.errorMessages.length > 0}"
+            t-on-click="this.applyResize">
+            Apply
+          </button>
+        </div>
+      </Section>
+    </div>
+  </t>
+</templates>
