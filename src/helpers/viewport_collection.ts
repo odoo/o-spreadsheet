@@ -1,4 +1,4 @@
-import { getDefaultSheetViewSize, SCROLLBAR_WIDTH } from "../constants";
+import { SCROLLBAR_WIDTH } from "../constants";
 import { AnchorOffset, Figure, FigureUI } from "../types/figure";
 import { RenderingGetters } from "../types/getters";
 import {
@@ -39,6 +39,15 @@ interface PositionedViewport {
   viewport: InternalViewport;
   viewportX: Pixel;
   viewportY: Pixel;
+}
+
+interface ViewportCollectionArgs {
+  getters: RenderingGetters;
+  paneDivision: Record<UID, PaneDivision>;
+  sheetViewWidth: Pixel;
+  sheetViewHeight: Pixel;
+  zoomLevel: number;
+  getFooterSize: () => number;
 }
 
 /**
@@ -84,14 +93,19 @@ export class ViewportCollection {
   private gridOffsetX: Pixel = 0;
   private gridOffsetY: Pixel = 0;
 
-  constructor(
-    getters: RenderingGetters,
-    private paneDivision: Record<UID, PaneDivision>,
-    private sheetViewWidth: Pixel = getDefaultSheetViewSize(),
-    private sheetViewHeight: Pixel = getDefaultSheetViewSize(),
-    private zoomLevel: number = 1
-  ) {
-    this.getters = getters;
+  private paneDivision: Record<UID, PaneDivision>;
+  private sheetViewWidth: Pixel;
+  private sheetViewHeight: Pixel;
+  private zoomLevel: number;
+  private getFooterSize: () => number;
+
+  constructor(args: ViewportCollectionArgs) {
+    this.getters = args.getters;
+    this.paneDivision = args.paneDivision;
+    this.sheetViewWidth = args.sheetViewWidth;
+    this.sheetViewHeight = args.sheetViewHeight;
+    this.zoomLevel = args.zoomLevel;
+    this.getFooterSize = args.getFooterSize;
   }
 
   /**
@@ -586,51 +600,56 @@ export class ViewportCollection {
       topLeft:
         (ySplit &&
           xSplit &&
-          new InternalViewport(
-            this.getters,
+          new InternalViewport({
+            getters: this.getters,
             sheetId,
-            { left: 0, right: xSplit - 1, top: 0, bottom: ySplit - 1 },
-            { width: colOffset, height: rowOffset },
-            { canScrollHorizontally: false, canScrollVertically: false },
-            { x: 0, y: 0 }
-          )) ||
+            boundaries: { left: 0, right: xSplit - 1, top: 0, bottom: ySplit - 1 },
+            sizeInGrid: { width: colOffset, height: rowOffset },
+            canScrollHorizontally: false,
+            canScrollVertically: false,
+            offsets: { x: 0, y: 0 },
+            getFooterSize: () => 0,
+          })) ||
         undefined,
       topRight:
         (ySplit &&
-          new InternalViewport(
-            this.getters,
+          new InternalViewport({
+            getters: this.getters,
             sheetId,
-            { left: xSplit, right: nCols - 1, top: 0, bottom: ySplit - 1 },
-            { width: unfrozenWidth, height: rowOffset },
-            { canScrollHorizontally, canScrollVertically: false },
-            { x: canScrollHorizontally ? previousOffset.x : 0, y: 0 }
-          )) ||
+            boundaries: { left: xSplit, right: nCols - 1, top: 0, bottom: ySplit - 1 },
+            sizeInGrid: { width: unfrozenWidth, height: rowOffset },
+            canScrollHorizontally,
+            canScrollVertically: false,
+            offsets: { x: canScrollHorizontally ? previousOffset.x : 0, y: 0 },
+            getFooterSize: () => 0,
+          })) ||
         undefined,
       bottomLeft:
         (xSplit &&
-          new InternalViewport(
-            this.getters,
+          new InternalViewport({
+            getters: this.getters,
             sheetId,
-            { left: 0, right: xSplit - 1, top: ySplit, bottom: nRows - 1 },
-            { width: colOffset, height: unfrozenHeight },
-            { canScrollHorizontally: false, canScrollVertically },
-            { x: 0, y: canScrollVertically ? previousOffset.y : 0 }
-          )) ||
+            boundaries: { left: 0, right: xSplit - 1, top: ySplit, bottom: nRows - 1 },
+            sizeInGrid: { width: colOffset, height: unfrozenHeight },
+            canScrollHorizontally: false,
+            canScrollVertically,
+            offsets: { x: 0, y: canScrollVertically ? previousOffset.y : 0 },
+            getFooterSize: () => this.getFooterSize(),
+          })) ||
         undefined,
-      bottomRight: new InternalViewport(
-        this.getters,
+      bottomRight: new InternalViewport({
+        getters: this.getters,
         sheetId,
-        { left: xSplit, right: nCols - 1, top: ySplit, bottom: nRows - 1 },
-        {
-          width: unfrozenWidth,
-          height: unfrozenHeight,
-        },
-        { canScrollHorizontally, canScrollVertically },
-        {
+        boundaries: { left: xSplit, right: nCols - 1, top: ySplit, bottom: nRows - 1 },
+        sizeInGrid: { width: unfrozenWidth, height: unfrozenHeight },
+        canScrollHorizontally,
+        canScrollVertically,
+        offsets: {
           x: canScrollHorizontally ? previousOffset.x : 0,
           y: canScrollVertically ? previousOffset.y : 0,
-        }
-      ),
+        },
+        getFooterSize: () => this.getFooterSize(),
+      }),
     };
     this.viewports[sheetId] = sheetViewports;
   }
