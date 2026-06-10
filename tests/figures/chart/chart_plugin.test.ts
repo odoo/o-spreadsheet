@@ -1429,7 +1429,7 @@ describe("datasource tests", function () {
       "1"
     );
     const { chartJsConfig } = model.getters.getChartRuntime("1") as BarChartRuntime;
-    expect(chartJsConfig.data.datasets[0].data.length).toBe(0);
+    expect(chartJsConfig.data.datasets[0].data.length).toBe(3);
   });
 });
 
@@ -3743,6 +3743,24 @@ describe("Pie chart invalid values", () => {
     // In pie charts we want to remove non-number values even if they have a label, because they won't show on the pie
     // but will pollute the legend
     expect(data.datasets[0].data).toEqual([45]);
+  });
+
+  test("Pie chart with only text entries counts each distinct value as 1", () => {
+    setCellContent(model, "H1", "apple");
+    setCellContent(model, "H2", "banana");
+    setCellContent(model, "H3", "cherry");
+    createChart(
+      model,
+      {
+        ...toChartDataSource({ dataSets: [{ dataRange: "H:H" }], dataSetsHaveTitle: false }),
+        type: "pie",
+      },
+      "1"
+    );
+
+    const data = getChartConfiguration(model, "1").data;
+    expect(data.datasets[0].data.length).toBe(3);
+    expect(data.datasets[0].data).toEqual([1, 1, 1]);
   });
 });
 
