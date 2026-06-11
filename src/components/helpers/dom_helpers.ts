@@ -257,13 +257,6 @@ export function downloadFile(dataUrl: string, fileName: string) {
   document.body.removeChild(a);
 }
 
-/**
- * Detects if the current browser is Firefox
- */
-export function isBrowserFirefox() {
-  return /Firefox/i.test(navigator.userAgent);
-}
-
 // Mobile detection
 function maxTouchPoints() {
   return navigator.maxTouchPoints || 1;
