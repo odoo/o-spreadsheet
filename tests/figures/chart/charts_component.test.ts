@@ -44,6 +44,7 @@ import {
   click,
   doubleClick,
   focusAndKeyDown,
+  getTarget,
   keyDown,
   setInputValueAndTrigger,
   simulateClick,
@@ -395,6 +396,27 @@ describe("charts", () => {
       bold: true,
       italic: true,
     });
+  });
+
+  test("can edit chart axis title and it does not disappear during the edition", async () => {
+    await mountSpreadsheet();
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "C1:C4" }],
+        labelRange: "A2:A4",
+        type: "line",
+      },
+      chartId
+    );
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+    const input_title = getTarget(".o-chart-title input") as HTMLInputElement;
+    setInputValueAndTrigger(input_title, "new title", "onlyInput");
+    //dispatch a command to force a render
+    model.dispatch("EVALUATE_CELLS");
+    await nextTick();
+    expect(input_title.value).toBe("new title");
   });
 
   test("can edit chart axis title color", async () => {
