@@ -399,9 +399,9 @@ describe("Composer hover integration test", () => {
     setCellContent(model, "B2", "5");
     await typeInComposerGrid("=ROW() + COLUMN() + B2");
     await hoverComposerContent("ROW");
-    expect(".o-speech-bubble").toHaveText("1");
+    expect(".o-speech-bubble").toHaveText("{1}");
     await hoverComposerContent("COLUMN");
-    expect(".o-speech-bubble").toHaveText("1");
+    expect(".o-speech-bubble").toHaveText("{1}");
     await hoverComposerContent("=");
     expect(".o-speech-bubble").toHaveText("7");
   });

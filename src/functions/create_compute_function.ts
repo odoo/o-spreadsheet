@@ -7,9 +7,9 @@ import {
   EvalContext,
   FunctionDescription,
 } from "../types/functions";
-import { Arg, FunctionResultObject, isMatrix, Matrix } from "../types/misc";
+import { Arg, FunctionResultObject, isMatrix, Matrix, UnboundedZone } from "../types/misc";
 import { argTargeting } from "./arguments";
-import { isEvaluationError, matrixForEach } from "./helpers";
+import { generateSubMatrix, isEvaluationError, matrixForEach } from "./helpers";
 
 type VectorArgType = "horizontal" | "vertical" | "matrix";
 
@@ -52,9 +52,14 @@ type VectorArgType = "horizontal" | "vertical" | "matrix";
 export function applyVectorization(
   context: EvalContext,
   descr: FunctionDescription,
+  // applyVectorization will return an array result.
+  // All function that return an array result work with a zone to only return partial results. (a vectorized formula could be include in a formula that return partial array result, ex CHOOSECOLS( ADD(A2:A10, B1:K10), 3))
+  // So we need to pass the zone to applyVectorization to be able to return only the part of the result that is needed.
+  zone: UnboundedZone,
   args: Arg[],
   argDefinitions: ArgDefinition[],
-  vectorizedArgsIndices: number[]
+  vectorizedArgsIndices: number[],
+  isAnArrayFormulaVectorized: boolean | undefined = undefined
 ): FunctionResultObject | Matrix<FunctionResultObject> {
   let countVectorizedCol = 1;
   let countVectorizedRow = 1;
@@ -92,6 +97,8 @@ export function applyVectorization(
     }
   }
 
+  const defaultZone = { top: 0, left: 0, bottom: undefined, right: undefined };
+  // TODO: remove this check ?
   if (countVectorizedCol === 1 && countVectorizedRow === 1) {
     // either this function is not vectorized or it ends up with a 1x1 dimension
     return errorHandlingCompute(descr, context, args, argDefinitions);
@@ -125,41 +132,32 @@ export function applyVectorization(
   }
   const nbVectorized = vectorizedArgsIndices.length;
 
-  const result: Matrix<FunctionResultObject> = new Array(countVectorizedCol);
-  for (let col = 0; col < countVectorizedCol; col++) {
-    const column: FunctionResultObject[] = new Array(countVectorizedRow);
-    result[col] = column;
-    for (let row = 0; row < countVectorizedRow; row++) {
-      if (col > vectorizedColLimit - 1 || row > vectorizedRowLimit - 1) {
-        column[row] = new NotAvailableError(
-          _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
-        );
-        continue;
-      }
-      for (let k = 0; k < nbVectorized; k++) {
-        argsBuffer[vectorizedArgsIndices[k]] = argGetters[k](col, row);
-      }
-      const singleCellComputeResult = errorHandlingCompute(
-        descr,
-        context,
-        argsBuffer,
-        argDefinitions
+  return generateSubMatrix(zone, countVectorizedCol, countVectorizedRow, (col, row) => {
+    if (col > vectorizedColLimit - 1 || row > vectorizedRowLimit - 1) {
+      return new NotAvailableError(
+        _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
       );
-      // In the case where the user tries to vectorize arguments of an array formula, we will get an
-      // array for every combination of the vectorized arguments, which will lead to a 3D matrix and
-      // we won't be able to return the values.
-      // In this case, we keep the first element of each spreading part, just as Excel does, and
-      // create an array with these parts.
-      // For exemple, we have MUNIT(x) that return an unitary matrix of x*x. If we use it with a
-      // range, like MUNIT(A1:A2), we will get two unitary matrices (one for the value in A1 and one
-      // for the value in A2). In this case, we will simply take the first value of each matrix and
-      // return the array [First value of MUNIT(A1), First value of MUNIT(A2)].
-      column[row] = isMatrix(singleCellComputeResult)
-        ? singleCellComputeResult[0][0]
-        : singleCellComputeResult;
     }
-  }
-  return result;
+    for (let k = 0; k < nbVectorized; k++) {
+      argsBuffer[vectorizedArgsIndices[k]] = argGetters[k](col, row);
+    }
+
+    const singleCellComputeResult = isAnArrayFormulaVectorized
+      ? errorHandlingComputeArray(descr, context, defaultZone, argsBuffer, argDefinitions)
+      : errorHandlingCompute(descr, context, argsBuffer, argDefinitions);
+    // In the case where the user tries to vectorize arguments of an array formula, we will get an
+    // array for every combination of the vectorized arguments, which will lead to a 3D matrix and
+    // we won't be able to return the values.
+    // In this case, we keep the first element of each spreading part, just as Excel does, and
+    // create an array with these parts.
+    // For exemple, we have MUNIT(x) that return an unitary matrix of x*x. If we use it with a
+    // range, like MUNIT(A1:A2), we will get two unitary matrices (one for the value in A1 and one
+    // for the value in A2). In this case, we will simply take the first value of each matrix and
+    // return the array [First value of MUNIT(A1), First value of MUNIT(A2)].
+    return isMatrix(singleCellComputeResult)
+      ? singleCellComputeResult[0][0]
+      : singleCellComputeResult;
+  });
 }
 
 function errorHandlingCompute(
@@ -167,39 +165,83 @@ function errorHandlingCompute(
   context: EvalContext,
   args: Arg[],
   argDefinitions: ArgDefinition[]
-): Matrix<FunctionResultObject> | FunctionResultObject {
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    const argDefinition = argDefinitions[i];
-
-    // Early exit if the argument is an error and the function does not accept errors.
-    // We only check scalar arguments, not matrix arguments for performance reasons.
-    // Casting helpers are responsible for handling errors in matrix arguments.
-    if (!argDefinition.acceptErrors && !isMatrix(arg) && isEvaluationError(arg?.value)) {
-      return arg;
-    }
+): FunctionResultObject {
+  // Early exit if the argument is an error and the function does not accept errors.
+  // We only check scalar arguments, not matrix arguments for performance reasons.
+  // Casting helpers are responsible for handling errors in matrix arguments.
+  const possibleArgsError = argsError(args, argDefinitions);
+  if (possibleArgsError) {
+    return possibleArgsError;
   }
+
   try {
-    const computeFormula = descr.compute || descr.computeArray;
     let result: FunctionResultObject | Matrix<FunctionResultObject>;
     switch (args.length) {
       case 1:
-        result = computeFormula.call(context, args[0]);
+        result = descr.compute!.call(context, args[0]);
         break;
       case 2:
-        result = computeFormula.call(context, args[0], args[1]);
+        result = descr.compute!.call(context, args[0], args[1]);
         break;
       case 3:
-        result = computeFormula.call(context, args[0], args[1], args[2]);
+        result = descr.compute!.call(context, args[0], args[1], args[2]);
         break;
       default:
         // fallback to a generic apply for functions with more than 3 arguments
-        result = computeFormula.apply(context, args);
+        result = descr.compute!.apply(context, args);
     }
     return result;
   } catch (e) {
     return handleError(e, descr.name);
   }
+}
+
+function errorHandlingComputeArray(
+  descr: FunctionDescription,
+  context: EvalContext,
+  zone: UnboundedZone,
+  args: Arg[],
+  argDefinitions: ArgDefinition[]
+): Matrix<FunctionResultObject> | FunctionResultObject {
+  // Early exit if the argument is an error and the function does not accept errors.
+  // We only check scalar arguments, not matrix arguments for performance reasons.
+  // Casting helpers are responsible for handling errors in matrix arguments.
+  const possibleArgsError = argsError(args, argDefinitions);
+  if (possibleArgsError) {
+    return possibleArgsError;
+  }
+
+  try {
+    let result: FunctionResultObject | Matrix<FunctionResultObject>;
+    switch (args.length) {
+      case 1:
+        result = descr.computeArray!.call(context, zone, args[0]);
+        break;
+      case 2:
+        result = descr.computeArray!.call(context, zone, args[0], args[1]);
+        break;
+      case 3:
+        result = descr.computeArray!.call(context, zone, args[0], args[1], args[2]);
+        break;
+      default:
+        // fallback to a generic apply for functions with more than 3 arguments
+        result = descr.computeArray!.apply(context, [zone, ...args]); // TODO: check perf here
+    }
+    return result;
+  } catch (e) {
+    return handleError(e, descr.name);
+  }
+}
+
+function argsError(args: Arg[], argDefinitions: ArgDefinition[]): FunctionResultObject | undefined {
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    const argDefinition = argDefinitions[i];
+    if (!argDefinition.acceptErrors && !isMatrix(arg) && isEvaluationError(arg?.value)) {
+      return arg;
+    }
+  }
+  return undefined;
 }
 
 export function getFunctionArgDefinitions(
@@ -226,25 +268,60 @@ export function createComputeFunction(
     const def = descr.args[argsToFocus[i].index];
     argDefinitions[i] = def;
   }
+  const isArrayFormula = !!descr.computeArray;
+  const runVectorization = vectorizedArgsIndices !== undefined && vectorizedArgsIndices.length > 0;
+  const takeZoneInParameters = !!descr.computeArray || runVectorization;
+
+  if (takeZoneInParameters) {
+    function computeArrayFn(evalContext: EvalContext, zone: UnboundedZone, ...args: Arg[]) {
+      let start = 0;
+      if (evalContext.__timingEntries) {
+        start = performance.now();
+      }
+      let result: FunctionResultObject | Matrix<FunctionResultObject>;
+      if (runVectorization) {
+        result = replaceErrorPlaceholderInResult(
+          applyVectorization(
+            evalContext,
+            descr,
+            zone,
+            args,
+            argDefinitions,
+            vectorizedArgsIndices,
+            isArrayFormula
+          ),
+          descr
+        );
+      } else {
+        result = replaceErrorPlaceholderInResult(
+          errorHandlingComputeArray(descr, evalContext, zone, args, argDefinitions),
+          descr
+        );
+      }
+      if (evalContext.__timingEntries && evalContext.__originCellPosition) {
+        const end = performance.now();
+        evalContext.__timingEntries.push({
+          functionName,
+          position: evalContext.__originCellPosition,
+          time: end - start,
+        });
+      }
+      return result;
+    }
+
+    // @ts-ignore
+    return computeArrayFn;
+  }
+
   function computeFn(evalContext: EvalContext, ...args: Arg[]) {
     let start = 0;
     if (evalContext.__timingEntries) {
       start = performance.now();
     }
-    let result: FunctionResultObject | Matrix<FunctionResultObject>;
-
-    if (vectorizedArgsIndices !== undefined && vectorizedArgsIndices.length > 0) {
-      result = replaceErrorPlaceholderInResult(
-        applyVectorization(evalContext, descr, args, argDefinitions, vectorizedArgsIndices),
-        descr
-      );
-    } else {
-      result = replaceErrorPlaceholderInResult(
-        errorHandlingCompute(descr, evalContext, args, argDefinitions),
-        descr
-      );
-    }
-
+    const result = replaceErrorPlaceholderInResult(
+      errorHandlingCompute(descr, evalContext, args, argDefinitions),
+      descr
+    );
     if (evalContext.__timingEntries && evalContext.__originCellPosition) {
       const end = performance.now();
       evalContext.__timingEntries.push({
@@ -259,10 +336,9 @@ export function createComputeFunction(
   return computeFn;
 }
 
-function replaceErrorPlaceholderInResult(
-  result: FunctionResultObject | Matrix<FunctionResultObject>,
-  descr: FunctionDescription
-): FunctionResultObject | Matrix<FunctionResultObject> {
+function replaceErrorPlaceholderInResult<
+  T extends FunctionResultObject | Matrix<FunctionResultObject>
+>(result: T, descr: FunctionDescription): T {
   if (!isMatrix(result)) {
     replaceFunctionNamePlaceholder(result, descr.name);
   } else {

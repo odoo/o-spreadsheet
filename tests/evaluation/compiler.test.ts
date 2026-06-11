@@ -1,7 +1,15 @@
-import { functionCache, Model } from "../../src";
+import {
+  functionCache,
+  FunctionResultObject,
+  Matrix,
+  Maybe,
+  Model,
+  UnboundedZone,
+} from "../../src";
 import { functionRegistry } from "../../src/functions/function_registry";
 
 import { CompiledFormula } from "../../src/formulas/compiler";
+import { generateSubMatrix } from "../../src/functions/helpers";
 import { addToRegistry, evaluateCell, evaluateCellFormat } from "../test_helpers/helpers";
 
 function compiledBaseFunction(formula: string): CompiledFormula {
@@ -318,5 +326,85 @@ describe("compile functions", () => {
 
   test("symbol with space and without single quotes", () => {
     expect(compiledBaseFunction("=Hello world").isBadExpression).toBe(true);
+  });
+
+  describe("function lazy arguments", () => {
+    let counter = 0;
+
+    beforeEach(() => {
+      counter = 0;
+
+      addToRegistry(functionRegistry, "SCALAR_ARG_FORMULA", {
+        description: "function that return the scalar given as argument",
+        compute: (arg: Maybe<FunctionResultObject>) => {
+          counter++;
+          return arg || { value: null };
+        },
+        args: [{ name: "arg1", description: "", type: ["ANY"] }],
+      });
+
+      addToRegistry(functionRegistry, "RANGE_ARG_FORMULA", {
+        description: "function that return the range given as argument",
+        computeArray: (zone: UnboundedZone, arg: Matrix<FunctionResultObject>) => {
+          return generateSubMatrix(zone, arg.length, arg[0].length, () => {
+            counter++;
+            return { value: counter };
+          });
+        },
+        args: [{ name: "arg1", description: "", type: ["RANGE"], acceptMatrix: true }],
+      });
+
+      addToRegistry(functionRegistry, "LAZY_ARG_FORMULA", {
+        description: "function that return the first column of the range given as argument",
+        computeArray: (
+          zone: UnboundedZone,
+          arg: (zone: UnboundedZone) => Matrix<FunctionResultObject>
+        ) => {
+          const newZone = { top: zone.top, left: 0, bottom: zone.bottom, right: 0 };
+          return arg(newZone);
+        },
+        args: [{ name: "arg1", description: "", type: ["RANGE"], acceptMatrix: true, lazy: true }],
+      });
+    });
+
+    test("pass a scalar as non-lazy argument --> arg is not encapsulated", () => {
+      const compiledFormula = compiledBaseFunction("=RANGE_ARG_FORMULA(SCALAR_ARG_FORMULA(A1))");
+      expect(compiledFormula.execute.toString()).toMatchSnapshot();
+    });
+
+    test("pass a range as non-lazy argument --> arg is not encapsulated", () => {
+      const compiledFormula = compiledBaseFunction("=RANGE_ARG_FORMULA(RANGE_ARG_FORMULA(A1:B2))");
+      expect(compiledFormula.execute.toString()).toMatchSnapshot();
+    });
+
+    test("pass a vector as non-lazy argument --> arg is not encapsulated", () => {
+      const compiledFormula = compiledBaseFunction("=RANGE_ARG_FORMULA(SCALAR_ARG_FORMULA(A1:B2))");
+      expect(compiledFormula.execute.toString()).toMatchSnapshot();
+    });
+
+    test("pass a scalar as lazy argument --> arg is encapsulated", () => {
+      // not sure
+      const compiledFormula = compiledBaseFunction("=LAZY_ARG_FORMULA(SCALAR_ARG_FORMULA(A1))");
+      expect(compiledFormula.execute.toString()).toMatchSnapshot();
+    });
+
+    test("pass a range as lazy argument --> arg is encapsulated", () => {
+      const compiledFormula = compiledBaseFunction("=LAZY_ARG_FORMULA(RANGE_ARG_FORMULA(A1:B2))");
+      expect(compiledFormula.execute.toString()).toMatchSnapshot();
+    });
+
+    test("pass a vector as lazy argument --> arg is encapsulated", () => {
+      const compiledFormula = compiledBaseFunction("=LAZY_ARG_FORMULA(SCALAR_ARG_FORMULA(A1:B2))");
+      expect(compiledFormula.execute.toString()).toMatchSnapshot();
+    });
+
+    test("function with lazy argument can be implemented to compute arguments partially", () => {
+      evaluateCell("A1", { A1: "=LAZY_ARG_FORMULA(RANGE_ARG_FORMULA(B1:C2))" });
+      expect(counter).toBe(2); // instead of 4
+
+      counter = 0;
+      evaluateCell("A1", { A1: "=LAZY_ARG_FORMULA(SCALAR_ARG_FORMULA(B1:C2))" });
+      expect(counter).toBe(2); // instead of 4
+    });
   });
 });

@@ -171,9 +171,9 @@ export interface Border {
 
 export type ReferenceDenormalizer = (range: Range) => FunctionResultObject;
 
-export type EnsureRange = (range: Range) => Matrix<FunctionResultObject>;
+export type EnsureRange = (zone: UnboundedZone, range: Range) => Matrix<FunctionResultObject>;
 
-export type GetSymbolValue = (symbolName: string, isRange: boolean) => Arg;
+export type GetSymbolValue = (zone: UnboundedZone, symbolName: string, isRange: boolean) => Arg;
 
 export type FormulaToExecute = (
   deps: Range[],
