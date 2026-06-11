@@ -1137,7 +1137,7 @@ describe("evaluate formulas that use/return an array", () => {
       setCellContent(model, "A1", `={{"A";"B"},{"C";"D";"E"}}`);
       expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
       expect(getCellError(model, "A1")).toBe(
-        "All ranges in ARRAY.ROW must have the same number of columns (got 2, 3)."
+        "All ranges in ARRAY.ROW must have the same number of rows (got 2, 3)."
       );
     });
 
