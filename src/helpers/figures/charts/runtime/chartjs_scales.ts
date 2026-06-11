@@ -45,7 +45,6 @@ import { getChartTimeOptions } from "../../../chart_date";
 import { COLORSCHEMES, getColorScale, relativeLuminance } from "../../../color";
 import { formatValue, humanizeNumber } from "../../../format/format";
 import { isDefined, range, removeFalsyAttributes } from "../../../misc";
-import { fontSizeInPixels } from "../../../text_helper";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
@@ -500,7 +499,7 @@ function getChartAxisTitleRuntime(design?: AxisDesign):
       font: {
         style: italic ? "italic" : "normal",
         weight: bold ? "bold" : "normal",
-        size: fontSizeInPixels(design.title.fontSize ?? CHART_AXIS_TITLE_FONT_SIZE),
+        size: design.title.fontSize ?? CHART_AXIS_TITLE_FONT_SIZE,
       },
       align: align === "left" ? "start" : align === "right" ? "end" : "center",
     };

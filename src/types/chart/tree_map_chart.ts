@@ -58,14 +58,14 @@ export const TreeMapChartDefaults = {
     fillColor: "#808080",
     bold: true,
     fontSize: 15,
-  } satisfies TitleDesign,
+  } as TitleDesign,
   showValues: true,
   showLabels: true,
   valuesDesign: {
     align: "left",
     verticalAlign: "bottom",
     fontSize: 12,
-  } satisfies TitleDesign,
+  } as TitleDesign,
   coloringOptions: {
     type: "categoryColor",
     colors: [],

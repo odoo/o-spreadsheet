@@ -16,7 +16,6 @@ import {
 import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
 import { isNumberResult } from "../../../cells/cell_evaluation";
 import { humanizeNumber } from "../../../format/format";
-import { fontSizeInPixels } from "../../../text_helper";
 import { chartFontColor, formatChartDatasetValue } from "../chart_common";
 import { getRuntimeColorScale } from "./chartjs_scales";
 
@@ -85,9 +84,7 @@ export function getSunburstShowValues(
     showLabels: definition.showLabels ?? SunburstChartDefaults.showLabels,
     showValues: definition.showValues ?? SunburstChartDefaults.showValues,
     style: {
-      fontSize: fontSizeInPixels(
-        definition.valuesDesign?.fontSize ?? SunburstChartDefaults.valuesDesign.fontSize
-      ),
+      fontSize: definition.valuesDesign?.fontSize ?? SunburstChartDefaults.valuesDesign.fontSize,
       align: definition.valuesDesign?.align ?? SunburstChartDefaults.valuesDesign.align,
       bold: definition.valuesDesign?.bold ?? SunburstChartDefaults.valuesDesign.bold,
       italic: definition.valuesDesign?.italic ?? SunburstChartDefaults.valuesDesign.italic,

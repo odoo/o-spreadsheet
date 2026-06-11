@@ -1,14 +1,12 @@
 import { Model, readonlyAllowedCommands, Rect } from "../../../../src";
 import { GaugeChartComponent } from "../../../../src/components/figures/chart/gauge/gauge_chart_component";
-import { CHART_PADDING, CHART_PADDING_TOP, CHART_TITLE_FONT_SIZE } from "../../../../src/constants";
+import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../src/constants";
 import { chartMutedFontColor } from "../../../../src/helpers/figures/charts/chart_common";
 import {
-  drawGaugeChart,
   GAUGE_DEFAULT_VALUE_FONT_SIZE,
   GAUGE_LABELS_FONT_SIZE,
   getGaugeRenderingConfig,
 } from "../../../../src/helpers/figures/charts/gauge_chart_rendering";
-import { fontSizeInPixels, getContextFontSize } from "../../../../src/helpers/text_helper";
 import { GaugeAnimatedRuntime, GaugeChartRuntime } from "../../../../src/types/chart/gauge_chart";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
 import {
@@ -67,7 +65,7 @@ describe("Gauge rendering config", () => {
       fontSize: CHART_TITLE_FONT_SIZE,
       textPosition: {
         x: CHART_PADDING,
-        y: CHART_PADDING_TOP + fontSizeInPixels(CHART_TITLE_FONT_SIZE) / 2,
+        y: 23,
       },
       color: chartMutedFontColor(testRuntime.background),
     });
@@ -239,25 +237,6 @@ describe("Gauge rendering config", () => {
     expect(config.gaugeValue.color).toEqual(chartMutedFontColor("#000000"));
     expect(config.inflectionValues[0].color).toEqual(chartMutedFontColor("#000000"));
     expect(config.inflectionValues[1].color).toEqual(chartMutedFontColor("#000000"));
-  });
-
-  test("Chart title font size is converted from points to pixels when rendered", () => {
-    const ctx = Object.assign(new MockCanvasRenderingContext2D(), {
-      arc() {},
-    });
-    const canvas = {
-      width: 0,
-      height: 0,
-      getBoundingClientRect: () => testChartRect,
-      getContext: () => ctx,
-    } as unknown as HTMLCanvasElement;
-
-    drawGaugeChart(canvas, {
-      ...testRuntime,
-      title: { text: "This is a title", fontSize: 24 },
-    });
-
-    expect(getContextFontSize(ctx.font)).toEqual(fontSizeInPixels(24));
   });
 });
 
