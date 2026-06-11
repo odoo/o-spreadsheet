@@ -1,4 +1,4 @@
-import { props, signal } from "@odoo/owl";
+import { props, providePlugins, signal } from "@odoo/owl";
 import { GridClickModifiers, HeaderIndex, PixelOffset, ViewportsGetters } from "../..";
 import { ViewportCollection } from "../../helpers/viewport_collection";
 import { Component, useChildSubEnv, useLayoutEffect } from "../../owl3_compatibility_layer";
@@ -13,6 +13,9 @@ import { cssPropertiesToCss } from "../helpers/css";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { ZoomedMouseEvent } from "../helpers/zoom";
+import { DelayedHoveredCellPlugin } from "../owl_plugins/delayed_hovered_cell_plugin";
+import { HoveredIconPlugin } from "../owl_plugins/hovered_icon_plugin";
+import { HoveredTablePlugin } from "../owl_plugins/hovered_table_plugin";
 import { types } from "../props_validation";
 import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
 
@@ -35,6 +38,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
   renderingContext!: Omit<GridRenderingContext, "ctx" | "thinLineWidth">;
 
   setup() {
+    providePlugins([HoveredIconPlugin, DelayedHoveredCellPlugin, HoveredTablePlugin]);
     this.rendererStore = useLocalStore(RendererStore, ["Background", "Chart"]);
     this.renderingContext = this.getRenderingContext();
     useLayoutEffect(
