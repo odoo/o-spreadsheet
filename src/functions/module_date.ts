@@ -1044,7 +1044,7 @@ export const YEARFRAC = {
 // MONTH.START
 // -----------------------------------------------------------------------------
 export const MONTH_START = {
-  description: _t("First day of the month preceding a date."),
+  description: _t("First day of the month a date falls in."),
   args: [arg("date (date)", _t("The date from which to calculate the result."))],
   compute: function (date: Maybe<FunctionResultObject>): FunctionResultNumber {
     const _startDate = toJsDate(date, this.locale);
@@ -1062,7 +1062,7 @@ export const MONTH_START = {
 // MONTH.END
 // -----------------------------------------------------------------------------
 export const MONTH_END = {
-  description: _t("Last day of the month following a date."),
+  description: _t("Last day of the month a date falls in."),
   args: [arg("date (date)", _t("The date from which to calculate the result."))],
   compute: function (date: Maybe<FunctionResultObject>): FunctionResultNumber {
     return EOMONTH.compute.bind(this)(date, { value: 0 });
