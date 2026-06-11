@@ -163,6 +163,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       case "RENAME_SHEET":
         return this.isRenameAllowed(cmd);
       case "COLOR_SHEET":
+      case "SET_SHEET_BACKGROUND_COLOR":
         return !cmd.color || isColorValid(cmd.color)
           ? CommandResult.Success
           : CommandResult.InvalidColor;
@@ -232,6 +233,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         break;
       case "COLOR_SHEET":
         this.history.update("sheets", cmd.sheetId, "color", cmd.color);
+        break;
+      case "SET_SHEET_BACKGROUND_COLOR":
+        this.history.update("sheets", cmd.sheetId, "backgroundColor", cmd.color);
         break;
       case "HIDE_SHEET":
         this.hideSheet(cmd.sheetId);
@@ -316,6 +320,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           ySplit: sheetData.panes?.ySplit || 0,
         },
         color: sheetData.color,
+        backgroundColor: sheetData.backgroundColor,
         isLocked: sheetData.isLocked,
       };
       this.orderedSheetIds.push(sheet.id);
@@ -347,6 +352,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         isVisible: sheet.isVisible,
         isLocked: sheet.isLocked,
         color: sheet.color,
+        backgroundColor: sheet.backgroundColor,
       };
       if (sheet.panes.xSplit || sheet.panes.ySplit) {
         sheetData.panes = sheet.panes;

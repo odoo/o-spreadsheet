@@ -19,7 +19,8 @@ import { types } from "../../props_validation";
 
 interface State {
   isEditing: boolean;
-  pickerOpened: boolean;
+  openedPicker: "tabColor" | "backgroundColor" | undefined;
+  currentPickerColor?: string;
 }
 
 const getSheetLockAnimation = (
@@ -52,7 +53,7 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
     }
   );
 
-  private state = proxy<State>({ isEditing: false, pickerOpened: false });
+  private state = proxy<State>({ isEditing: false, openedPicker: undefined });
 
   private sheetDivRef = signal<HTMLElement | null>(null);
   private iconRef = signal<HTMLElement | null>(null);
@@ -63,7 +64,7 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   setup() {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
-    useExternalListener(window, "click", () => (this.state.pickerOpened = false));
+    useExternalListener(window, "click", () => (this.state.openedPicker = undefined));
 
     // Subscribe BottomBarSheet to isEditing so onPatched fires when it changes.
     // (Without this, isEditing is read inside Ripple's slot render, which subscribes
@@ -253,8 +254,12 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
   }
 
   onColorPicked(color: string) {
-    this.state.pickerOpened = false;
-    this.env.model.dispatch("COLOR_SHEET", { sheetId: this.props.sheetId, color });
+    if (this.state.openedPicker === "tabColor") {
+      this.env.model.dispatch("COLOR_SHEET", { sheetId: this.props.sheetId, color });
+    } else if (this.state.openedPicker === "backgroundColor") {
+      this.env.model.dispatch("SET_SHEET_BACKGROUND_COLOR", { sheetId: this.props.sheetId, color });
+    }
+    this.state.openedPicker = undefined;
   }
 
   get colorPickerAnchorRect(): Rect {
@@ -263,13 +268,19 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
   }
 
   get contextMenuRegistry() {
+    const sheet = this.env.model.getters.getSheet(this.props.sheetId);
     return getSheetMenuRegistry({
       renameSheetCallback: () => {
         this.scrollToSheet();
         this.startEdition();
       },
-      openSheetColorPickerCallback: () => {
-        this.state.pickerOpened = true;
+      openSheetTabColorPickerCallback: () => {
+        this.state.openedPicker = "tabColor";
+        this.state.currentPickerColor = sheet.color;
+      },
+      openSheetBackgroundColorPickerCallback: () => {
+        this.state.openedPicker = "backgroundColor";
+        this.state.currentPickerColor = sheet.backgroundColor;
       },
     });
   }

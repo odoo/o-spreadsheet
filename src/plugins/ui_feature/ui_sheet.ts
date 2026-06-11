@@ -83,6 +83,14 @@ export class SheetUIPlugin extends UIPlugin {
         }
         this.dispatch("DELETE_CONTENT", { sheetId: cmd.sheetId, target: newTarget });
         break;
+      case "SET_BACKGROUND_FOR_ALL_CELLS":
+        this.dispatch("SET_FORMATTING", {
+          sheetId: cmd.sheetId,
+          target: [this.getters.getSheetZone(cmd.sheetId)],
+          style: { fillColor: undefined },
+        });
+        this.dispatch("SET_SHEET_BACKGROUND_COLOR", { sheetId: cmd.sheetId, color: cmd.color });
+        break;
     }
   }
 

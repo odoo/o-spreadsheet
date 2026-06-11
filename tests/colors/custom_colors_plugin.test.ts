@@ -5,6 +5,7 @@ import {
   addCfRule,
   addEqualCf,
   clearFormatting,
+  colorSheetTab,
   createChart,
   createGaugeChart,
   createScorecardChart,
@@ -12,6 +13,7 @@ import {
   deleteFigure,
   redo,
   setFormatting,
+  setSheetBackground,
   undo,
   updateChart,
 } from "../test_helpers/commands_helpers";
@@ -160,6 +162,13 @@ describe("custom colors are correctly handled when editing charts", () => {
       "1"
     );
     expect(model.getters.getCustomColors()).toEqual(["#112233", "#123456"]);
+  });
+
+  test("Sheet colors are taken into account", () => {
+    colorSheetTab(model, model.getters.getActiveSheetId(), "#FFFF16");
+    setSheetBackground(model, "#FF16FF");
+
+    expect(model.getters.getCustomColors()).toEqual(["#FFFF16", "#FF16FF"]);
   });
 
   test("Chart data series colors are taken into account", () => {

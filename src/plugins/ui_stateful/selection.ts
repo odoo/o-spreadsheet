@@ -377,7 +377,12 @@ export class GridSelectionPlugin extends UIPlugin {
   getCurrentStyle(): Style {
     const zone = this.getters.getSelectedZone();
     const sheetId = this.getters.getActiveSheetId();
-    return this.getters.getCellStyle({ sheetId, col: zone.left, row: zone.top });
+    const style = this.getters.getCellStyle({ sheetId, col: zone.left, row: zone.top });
+    if (!style.fillColor) {
+      const sheet = this.getters.getSheet(sheetId);
+      return { ...style, fillColor: sheet.backgroundColor };
+    }
+    return style;
   }
 
   getSelectedZones(): Zone[] {

@@ -2,7 +2,7 @@
 
 exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`] = `
 <div
-  class="o-grid o-two-columns o-zoomable bg-white"
+  class="o-grid o-dashboard-grid o-two-columns o-zoomable z-1"
   tabindex="-1"
 >
   <div
