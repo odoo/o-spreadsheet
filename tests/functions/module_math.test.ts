@@ -1267,6 +1267,9 @@ describe("DECIMAL formula", () => {
   test.each([
     ["0.1", "2"],
     ["2020", "2"],
+    ["12", "2"], // digit "2" is out of range for base 2
+    ["19", "8"], // digit "9" is out of range for base 8
+    ["1G", "16"], // digit "G" is out of range for base 16
     ["-ABAB", "2"],
     ["-ABAB", "10"],
     ["ZZZZ", "16"],
