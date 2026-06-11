@@ -1,4 +1,6 @@
-import { evaluateCell, evaluateGrid } from "../test_helpers/helpers";
+import { setCellContent } from "../test_helpers/commands_helpers";
+import { getEvaluatedCell } from "../test_helpers/getters_helpers";
+import { createModelFromGrid, evaluateCell, evaluateGrid } from "../test_helpers/helpers";
 
 describe("database formula", () => {
   // prettier-ignore
@@ -186,6 +188,27 @@ describe("database formula", () => {
       expect(gridResult.A21).toBe(0.75);
       expect(gridResult.A22).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
       expect(gridResult.A23).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    });
+
+    test("error message reflects whether there are zero or several matches", () => {
+      const model = createModelFromGrid({
+        A1: "NAME",
+        B1: "AGE",
+        A2: "Bob",
+        B2: "10",
+        A3: "Bob",
+        B3: "20",
+        D1: "NAME",
+        E1: "NAME",
+        D2: "Zack",
+        E2: "Bob", // D: no match, E: two matches
+      });
+      setCellContent(model, "F1", '=DGET(A1:B3, "AGE", D1:D2)');
+      setCellContent(model, "F2", '=DGET(A1:B3, "AGE", E1:E2)');
+      expect(getEvaluatedCell(model, "F1").message).toBe("No match found in DGET evaluation.");
+      expect(getEvaluatedCell(model, "F2").message).toBe(
+        "More than one match found in DGET evaluation."
+      );
     });
   });
 
