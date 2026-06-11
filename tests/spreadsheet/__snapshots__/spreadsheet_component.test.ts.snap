@@ -958,7 +958,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         
         <div
           class="o-scrollbar vertical"
-          style="top: 26px; right: 0px; width: 15px; bottom: 0px;"
+          style="top: 26px; right: 0px; width: 15px; bottom: 15px;"
         >
           <div
             style="width: 1px; height: 2346px;"
@@ -967,7 +967,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         
         <div
           class="o-scrollbar horizontal"
-          style="left: 48px; bottom: 0px; height: 15px; right: 0px;"
+          style="left: 48px; bottom: 0px; height: 15px; right: 15px;"
         >
           <div
             style="width: 2496px; height: 1px;"
@@ -1992,7 +1992,7 @@ exports[`components take the small screen into account 1`] = `
         
         <div
           class="o-scrollbar vertical"
-          style="top: 26px; right: 0px; width: 15px; bottom: 0px;"
+          style="top: 26px; right: 0px; width: 15px; bottom: 15px;"
         >
           <div
             style="width: 1px; height: 2346px;"
@@ -2001,7 +2001,7 @@ exports[`components take the small screen into account 1`] = `
         
         <div
           class="o-scrollbar horizontal"
-          style="left: 48px; bottom: 0px; height: 15px; right: 0px;"
+          style="left: 48px; bottom: 0px; height: 15px; right: 15px;"
         >
           <div
             style="width: 2496px; height: 1px;"
