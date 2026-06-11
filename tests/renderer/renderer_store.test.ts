@@ -10,7 +10,7 @@ import {
   Model,
   Zone,
 } from "../../src";
-import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
+import { HoveredTablePlugin } from "../../src/components/owl_plugins/hovered_table_plugin";
 import {
   CANVAS_SHIFT,
   DEFAULT_CELL_HEIGHT,
@@ -98,7 +98,11 @@ function removeOffsetOfFillStyles(fillStyles: any[]): any[] {
 }
 
 function setRenderer(model: Model = new Model(), layers: LayerName[] = ["Background"]) {
-  const { container, store: gridRendererStore } = makeStoreWithModel(model, GridRenderer);
+  const {
+    container,
+    store: gridRendererStore,
+    pluginManager,
+  } = makeStoreWithModel(model, GridRenderer);
   gridRendererStore["getBoxesWithAnimations"] = function (boxes: Box[]) {
     for (const box of boxes) {
       this["lastRenderBoxes"].set(box.id, box);
@@ -114,7 +118,7 @@ function setRenderer(model: Model = new Model(), layers: LayerName[] = ["Backgro
       }
     }
   };
-  return { model, gridRendererStore, drawGridRenderer, container };
+  return { model, gridRendererStore, drawGridRenderer, container, pluginManager };
 }
 
 describe("renderer", () => {
@@ -459,7 +463,7 @@ describe("renderer", () => {
   });
 
   test("fill style of hovered clickable cells goes over regular fill style", () => {
-    const { drawGridRenderer, model, container } = setRenderer(
+    const { drawGridRenderer, model, pluginManager } = setRenderer(
       new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
     const background = "#DC6CDF";
@@ -493,7 +497,7 @@ describe("renderer", () => {
     ]);
 
     fillStyles = [];
-    container.get(HoveredTableStore).hover({ col: 0, row: 0 });
+    pluginManager.getPlugin(HoveredTablePlugin)!.hover({ col: 0, row: 0 });
     drawGridRenderer(ctx);
 
     expect(removeOffsetOfFillStyles(fillStyles)).toEqual([

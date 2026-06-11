@@ -1,4 +1,4 @@
-import { props, proxy, xml } from "@odoo/owl";
+import { props, proxy, Scope, xml } from "@odoo/owl";
 import { type ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { functionCache, type StoreConstructor } from "../../src";
@@ -9,7 +9,7 @@ import { Composer } from "../../src/components/composer/composer/composer";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { getCurrentSelection, isMobileOS } from "../../src/components/helpers/dom_helpers";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
-import { Spreadsheet } from "../../src/components/spreadsheet/spreadsheet";
+import { Spreadsheet, spreadsheetOwlPlugins } from "../../src/components/spreadsheet/spreadsheet";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { matrixMap } from "../../src/functions/helpers";
 import { toCartesian, toXC } from "../../src/helpers/coordinates";
@@ -84,7 +84,7 @@ import {
   undo,
 } from "./commands_helpers";
 import { EN_LOCALE } from "./constants";
-import { DOMTarget, click, getTarget, getTextNodes, keyDown, keyUp } from "./dom_helper";
+import { click, DOMTarget, getTarget, getTextNodes, keyDown, keyUp } from "./dom_helper";
 import { getCellContent, getEvaluatedCell } from "./getters_helpers";
 
 const functionsContent = functionRegistry.content;
@@ -293,6 +293,7 @@ interface MountComponentArgs<Props extends ComponentProps> {
   model?: Model;
   fixture?: HTMLElement;
   renderOnModelUpdate?: boolean; // true by default
+  enableModelDraw?: boolean;
 }
 
 interface MountComponentReturn<Props extends ComponentProps> {
@@ -301,6 +302,7 @@ interface MountComponentReturn<Props extends ComponentProps> {
   model: Model;
   fixture: HTMLElement;
   env: SpreadsheetChildEnv;
+  pluginManager: Scope["pluginManager"];
 }
 
 export async function mountComponentWithPortalTarget<Props extends ComponentProps>(
@@ -319,16 +321,20 @@ export async function mountComponent<Props extends { [key: string]: any }>(
   optionalArgs: MountComponentArgs<Props> = {}
 ): Promise<MountComponentReturn<Props>> {
   const model = optionalArgs.model || optionalArgs.env?.model || new Model();
-  model.drawLayer = () => {};
+  if (!optionalArgs.enableModelDraw) {
+    model.drawLayer = () => {};
+  }
   const env = makeTestEnv({ ...optionalArgs.env, model: model });
   const props = optionalArgs.props || ({} as Props);
   const app = new App({
     test: true,
     translateFn: _t,
+    plugins: spreadsheetOwlPlugins,
+    config: { model },
   });
   const root = app.createRoot(component, { props, env });
   const fixture = optionalArgs?.fixture || makeTestFixture();
-  const parent = await root.mount(fixture);
+  const parent = (await root.mount(fixture)) as any;
 
   //@ts-ignore
   const render = batched(parent.render.bind(parent, true));
@@ -346,8 +352,14 @@ export async function mountComponent<Props extends { [key: string]: any }>(
     env.__spreadsheet_stores__.off("store-updated", null);
   });
 
-  // @ts-ignore
-  return { app, parent, model, fixture, env: parent.env };
+  return {
+    app,
+    parent,
+    model,
+    fixture,
+    env: parent.env,
+    pluginManager: parent.__owl__.pluginManager,
+  };
 }
 
 // Requires to be called wit jest realTimers
@@ -360,8 +372,9 @@ export async function mountSpreadsheet(
   model: Model;
   fixture: HTMLElement;
   env: SpreadsheetChildEnv;
+  pluginManager: Scope["pluginManager"];
 }> {
-  const { app, parent, model, fixture, env } = await mountComponent(Spreadsheet, {
+  const { app, parent, model, fixture, env, pluginManager } = await mountComponent(Spreadsheet, {
     props,
     env: partialEnv,
     model: props.model,
@@ -373,7 +386,7 @@ export async function mountSpreadsheet(
    * done after the resize of the sheet view.
    */
   await nextTick();
-  return { app, parent: parent as Spreadsheet, model, fixture, env };
+  return { app, parent: parent as Spreadsheet, model, fixture, env, pluginManager };
 }
 
 type GridDescr = { [xc: string]: string | undefined };

@@ -1,17 +1,16 @@
+import { signal } from "@odoo/owl";
 import { TABLE_HOVER_BACKGROUND_COLOR } from "../../constants";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { range } from "../../helpers/misc";
-import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { Command } from "../../types/commands";
 import { Color, Position } from "../../types/misc";
+import { SpreadsheetOwlPlugin } from "./spreadsheet_owl_plugin";
 
-export class HoveredTableStore extends SpreadsheetStore {
-  mutators = ["clear", "hover"] as const;
+export class HoveredTablePlugin extends SpreadsheetOwlPlugin {
+  col = signal<number | undefined>(undefined);
+  row = signal<number | undefined>(undefined);
 
-  col: number | undefined;
-  row: number | undefined;
-
-  overlayColors: PositionMap<Color> = new PositionMap();
+  overlayColors = signal(new PositionMap<Color>());
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -21,23 +20,27 @@ export class HoveredTableStore extends SpreadsheetStore {
   }
 
   hover(position: Partial<Position>) {
-    if (!this.getters.isDashboard() || (position.col === this.col && position.row === this.row)) {
-      return "noStateChange";
+    if (
+      !this.getters.isDashboard() ||
+      (position.col === this.col() && position.row === this.row())
+    ) {
+      return;
     }
-    this.col = position.col;
-    this.row = position.row;
+    this.col.set(position.col);
+    this.row.set(position.row);
     this.computeOverlay();
-    return;
   }
 
   clear() {
-    this.col = undefined;
-    this.row = undefined;
+    this.col.set(undefined);
+    this.row.set(undefined);
   }
 
   private computeOverlay() {
-    this.overlayColors = new PositionMap();
-    const { col, row } = this;
+    const newPositionMap = new PositionMap<Color>();
+    this.overlayColors.set(newPositionMap);
+    const col = this.col();
+    const row = this.row();
     if (col === undefined || row === undefined) {
       return;
     }
@@ -57,7 +60,7 @@ export class HoveredTableStore extends SpreadsheetStore {
 
     if (!isTableHeader && doesTableRowHaveContent) {
       for (let col = left; col <= right; col++) {
-        this.overlayColors.set({ sheetId, col, row }, TABLE_HOVER_BACKGROUND_COLOR);
+        newPositionMap.set({ sheetId, col, row }, TABLE_HOVER_BACKGROUND_COLOR);
       }
     }
   }

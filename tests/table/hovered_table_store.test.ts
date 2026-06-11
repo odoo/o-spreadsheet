@@ -1,16 +1,17 @@
+import { PluginInstance } from "@odoo/owl";
 import { Model, UID } from "../../src";
-import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
+import { HoveredTablePlugin } from "../../src/components/owl_plugins/hovered_table_plugin";
 import { TABLE_HOVER_BACKGROUND_COLOR } from "../../src/constants";
 import { createTable, hideColumns, setCellContent } from "../test_helpers/commands_helpers";
-import { makeStore } from "../test_helpers/stores";
+import { makeOwlPlugin } from "../test_helpers/owl_plugin";
 
 describe("Hovered Table Store", () => {
-  let hoveredTableStore: HoveredTableStore;
+  let hoveredTable: PluginInstance<typeof HoveredTablePlugin>;
   let model: Model;
   let sheetId: UID;
 
   beforeEach(() => {
-    ({ model, store: hoveredTableStore } = makeStore(HoveredTableStore));
+    ({ model, plugin: hoveredTable } = makeOwlPlugin(HoveredTablePlugin));
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -19,15 +20,15 @@ describe("Hovered Table Store", () => {
     createTable(model, "A1");
 
     model.updateMode("dashboard");
-    hoveredTableStore.hover(A1);
-    expect(hoveredTableStore.overlayColors.has({ sheetId, ...A1 })).toBe(false);
+    hoveredTable.hover(A1);
+    expect(hoveredTable.overlayColors().has({ sheetId, ...A1 })).toBe(false);
 
     model.updateMode("normal");
     setCellContent(model, "A1", "Header");
 
     model.updateMode("dashboard");
-    hoveredTableStore.hover(A1);
-    expect(hoveredTableStore.overlayColors.has({ sheetId, ...A1 })).toBe(false);
+    hoveredTable.hover(A1);
+    expect(hoveredTable.overlayColors().has({ sheetId, ...A1 })).toBe(false);
   });
 
   test("Should not store overlay for empty data cells in dashboard mode", () => {
@@ -35,8 +36,8 @@ describe("Hovered Table Store", () => {
     createTable(model, "A1:A2");
 
     model.updateMode("dashboard");
-    hoveredTableStore.hover(A2);
-    expect(hoveredTableStore.overlayColors.has({ sheetId, ...A2 })).toBe(false);
+    hoveredTable.hover(A2);
+    expect(hoveredTable.overlayColors().has({ sheetId, ...A2 })).toBe(false);
   });
 
   test("Should store overlay for full data rows with content in dashboard mode", () => {
@@ -46,12 +47,10 @@ describe("Hovered Table Store", () => {
     setCellContent(model, "A2", "Data");
 
     model.updateMode("dashboard");
-    hoveredTableStore.hover(A2);
-    expect(hoveredTableStore.overlayColors.has({ sheetId, ...A2 })).toBe(true);
-    expect(hoveredTableStore.overlayColors.has({ sheetId, ...B2 })).toBe(true);
-    expect(hoveredTableStore.overlayColors.get({ sheetId, ...A2 })).toBe(
-      TABLE_HOVER_BACKGROUND_COLOR
-    );
+    hoveredTable.hover(A2);
+    expect(hoveredTable.overlayColors().has({ sheetId, ...A2 })).toBe(true);
+    expect(hoveredTable.overlayColors().has({ sheetId, ...B2 })).toBe(true);
+    expect(hoveredTable.overlayColors().get({ sheetId, ...A2 })).toBe(TABLE_HOVER_BACKGROUND_COLOR);
   });
 
   test("Overlay colors are applied only in dashboard mode", () => {
@@ -60,19 +59,17 @@ describe("Hovered Table Store", () => {
     setCellContent(model, "A2", "Data");
 
     model.updateMode("normal");
-    hoveredTableStore.hover(A2);
-    expect(hoveredTableStore.overlayColors.has({ sheetId, ...A2 })).toBe(false);
+    hoveredTable.hover(A2);
+    expect(hoveredTable.overlayColors().has({ sheetId, ...A2 })).toBe(false);
 
     model.updateMode("readonly");
-    hoveredTableStore.hover(A2);
-    expect(hoveredTableStore.overlayColors.has({ sheetId, ...A2 })).toBe(false);
+    hoveredTable.hover(A2);
+    expect(hoveredTable.overlayColors().has({ sheetId, ...A2 })).toBe(false);
 
     model.updateMode("dashboard");
-    hoveredTableStore.hover(A2);
-    expect(hoveredTableStore.overlayColors.has({ sheetId, ...A2 })).toBe(true);
-    expect(hoveredTableStore.overlayColors.get({ sheetId, ...A2 })).toBe(
-      TABLE_HOVER_BACKGROUND_COLOR
-    );
+    hoveredTable.hover(A2);
+    expect(hoveredTable.overlayColors().has({ sheetId, ...A2 })).toBe(true);
+    expect(hoveredTable.overlayColors().get({ sheetId, ...A2 })).toBe(TABLE_HOVER_BACKGROUND_COLOR);
   });
 
   test("Hidden columns should be ignored when applying overlay colors", () => {
@@ -81,15 +78,15 @@ describe("Hovered Table Store", () => {
     setCellContent(model, "A2", "Some data");
 
     model.updateMode("dashboard");
-    hoveredTableStore.hover(B2);
-    expect(hoveredTableStore.overlayColors.has({ sheetId, ...B2 })).toBe(true);
+    hoveredTable.hover(B2);
+    expect(hoveredTable.overlayColors().has({ sheetId, ...B2 })).toBe(true);
 
-    hoveredTableStore.clear();
+    hoveredTable.clear();
 
     model.updateMode("normal");
     hideColumns(model, ["A"]);
     model.updateMode("dashboard");
-    hoveredTableStore.hover(B2);
-    expect(hoveredTableStore.overlayColors.has({ sheetId, ...B2 })).toBe(false);
+    hoveredTable.hover(B2);
+    expect(hoveredTable.overlayColors().has({ sheetId, ...B2 })).toBe(false);
   });
 });
