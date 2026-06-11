@@ -1,4 +1,4 @@
-import { DelayedHoveredCellStore } from "../../src/components/grid/delayed_hovered_cell_store";
+import { DelayedHoveredCellPlugin } from "../../src/components/owl_plugins/delayed_hovered_cell_plugin";
 import { CellPopoverStore } from "../../src/components/popover/cell_popover_store";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { toCartesian } from "../../src/helpers/coordinates";
@@ -7,11 +7,11 @@ import { makeStore } from "../test_helpers/stores";
 
 describe("cell popover store", () => {
   test("Anchor rect is correct on a merge", () => {
-    const { store: cellPopovers, model, container } = makeStore(CellPopoverStore);
-    const hoveredCellStore = container.get(DelayedHoveredCellStore);
+    const { store: cellPopovers, model, pluginManager } = makeStore(CellPopoverStore);
+    const hoveredCellPlugin = pluginManager.getPlugin(DelayedHoveredCellPlugin)!;
     merge(model, "A1:B2");
     setCellContent(model, "A1", "=0/0");
-    hoveredCellStore.hover(toCartesian("B2"));
+    hoveredCellPlugin.hover(toCartesian("B2"));
     expect(cellPopovers.cellPopover).toMatchObject({
       anchorRect: {
         x: 0,
