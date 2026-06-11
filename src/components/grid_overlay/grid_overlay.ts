@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, props, Signal, signal, useListener } from "@odoo/owl";
+import { onMounted, onWillUnmount, plugin, props, Signal, signal, useListener } from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { positionToZone } from "../../helpers/zones";
@@ -9,24 +9,24 @@ import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
-import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect, isChildEvent, isCtrlKey } from "../helpers/dom_helpers";
 import { useInterval } from "../helpers/time_hooks";
 import { withZoom, ZoomedMouseEvent } from "../helpers/zoom";
+import { DelayedHoveredCellPlugin } from "../owl_plugins/delayed_hovered_cell_plugin";
+import { HoveredIconPlugin } from "../owl_plugins/hovered_icon_plugin";
+import { HoveredTablePlugin } from "../owl_plugins/hovered_table_plugin";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { types } from "../props_validation";
-import { HoveredTableStore } from "../tables/hovered_table_store";
-import { HoveredIconStore } from "./hovered_icon_store";
 
 function useCellHovered(
   env: SpreadsheetChildEnv,
   gridRef: Signal<HTMLElement | null>
 ): Partial<Position> {
-  const delayedHoveredCell = useStore(DelayedHoveredCellStore);
-  const hoveredTable = useStore(HoveredTableStore);
+  const delayedHoveredCell = plugin(DelayedHoveredCellPlugin);
+  const hoveredTable = plugin(HoveredTablePlugin);
   const hoveredPosition: Partial<Position> = {
     col: undefined,
     row: undefined,
@@ -165,7 +165,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
   private gridOverlayRef: Signal<HTMLElement | null> = signal(null);
   private cellPopovers!: Store<CellPopoverStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
-  private hoveredIconStore!: Store<HoveredIconStore>;
+  private hoveredIconPlugin = plugin(HoveredIconPlugin);
 
   setup() {
     useCellHovered(this.env, this.gridOverlayRef);
@@ -181,7 +181,6 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
 
     this.cellPopovers = useStore(CellPopoverStore);
     this.paintFormatStore = useStore(PaintFormatStore);
-    this.hoveredIconStore = useStore(HoveredIconStore);
   }
 
   get gridOverlayEl(): HTMLElement {
@@ -195,7 +194,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
   get style() {
     return (
       this.props.gridOverlayDimensions +
-      cssPropertiesToCss({ cursor: this.hoveredIconStore.hoveredIcon ? "pointer" : "default" })
+      cssPropertiesToCss({ cursor: this.hoveredIconPlugin.hoveredIcon() ? "pointer" : "default" })
     );
   }
 
@@ -209,8 +208,8 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
     }
     const icon = this.getInteractiveIconAtEvent(withZoom(this.env, ev));
     const hoveredIcon = icon?.type ? { id: icon.type, position: icon.position } : undefined;
-    if (!deepEquals(hoveredIcon, this.hoveredIconStore.hoveredIcon)) {
-      this.hoveredIconStore.setHoveredIcon(hoveredIcon);
+    if (!deepEquals(hoveredIcon, this.hoveredIconPlugin.hoveredIcon())) {
+      this.hoveredIconPlugin.setHoveredIcon(hoveredIcon);
     }
   }
 

@@ -1,11 +1,11 @@
-import type { Signal } from "@odoo/owl";
+import { plugin, useEffect, type Signal } from "@odoo/owl";
 import { CANVAS_SHIFT } from "../../constants";
-import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { GridRenderer } from "../../stores/grid_renderer_store";
 import { RendererStore } from "../../stores/renderer_store";
 import { GridRenderingContext } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
+import { ModelPlugin } from "../owl_plugins/model_plugin";
 import { cssPropertiesToCss } from "./css";
 
 interface GridDrawingArgs {
@@ -21,12 +21,14 @@ export function useGridDrawing({
   rendererStore,
   changeCanvasSizeOnZoom,
 }: GridDrawingArgs) {
-  useLayoutEffect(drawGrid);
   const renderer = rendererStore || useStore(RendererStore);
   useLocalStore(GridRenderer, renderer);
 
   function drawGrid() {
     const canvas = canvasRef() as HTMLCanvasElement;
+    if (!canvas) {
+      return;
+    }
     const ctx = canvas.getContext("2d", { alpha: false })!;
     const renderingContext: GridRenderingContext = {
       ctx,
@@ -60,4 +62,12 @@ export function useGridDrawing({
 
     renderer.draw(renderingContext);
   }
+
+  const modelPlugin = plugin(ModelPlugin);
+  useEffect(() => {
+    modelPlugin.model(); // Manually subscribe to the model plugin to trigger re-render on model updates.
+    drawGrid();
+  });
+
+  return drawGrid;
 }

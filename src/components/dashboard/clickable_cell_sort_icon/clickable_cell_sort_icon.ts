@@ -1,14 +1,12 @@
 import { TEXT_BODY_MUTED } from "../../../constants";
 import { blendColors } from "../../../helpers/color";
 import { computeTextFontSizeInPixels } from "../../../helpers/text_helper";
-import { useStore } from "../../../store_engine/store_hooks";
 import { Color, Style } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
-import { HoveredTableStore } from "../../tables/hovered_table_store";
+import { HoveredTablePlugin } from "../../owl_plugins/hovered_table_plugin";
 
-import { props } from "@odoo/owl";
+import { plugin, props } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { types } from "../../props_validation";
 
@@ -19,11 +17,7 @@ export class ClickableCellSortIcon extends Component<SpreadsheetChildEnv> {
     position: types.CellPosition(),
     sortDirection: types.or([types.SortDirection, types.literal("none")]),
   });
-  private hoveredTableStore!: Store<HoveredTableStore>;
-
-  setup(): void {
-    this.hoveredTableStore = useStore(HoveredTableStore);
-  }
+  private hoveredTable = plugin(HoveredTablePlugin);
 
   get style() {
     const cellStyle = this.env.model.getters.getCellComputedStyle(this.props.position);
@@ -50,7 +44,7 @@ export class ClickableCellSortIcon extends Component<SpreadsheetChildEnv> {
   }
 
   private getBackgroundColor(cellStyle: Style): Color {
-    const overlayColor = this.hoveredTableStore.overlayColors.get(this.props.position);
+    const overlayColor = this.hoveredTable.overlayColors().get(this.props.position);
     if (overlayColor) {
       return blendColors(cellStyle.fillColor || "#FFFFFF", overlayColor);
     }
