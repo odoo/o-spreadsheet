@@ -32,7 +32,7 @@ function stackHorizontally(
     if (nbRowsArr.some((len) => len !== firstLength)) {
       return new EvaluationError(
         _t(
-          "All ranges in [[FUNCTION_NAME]] must have the same number of columns (got %s).",
+          "All ranges in [[FUNCTION_NAME]] must have the same number of rows (got %s).",
           nbRowsArr.join(", ")
         )
       );
