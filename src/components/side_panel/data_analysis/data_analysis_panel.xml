@@ -1,0 +1,73 @@
+<templates>
+  <t t-name="o-spreadsheet-DataAnalysisPanel">
+    <div class="o-data-analysis-panel">
+      <Section class="'o-cf-range pb-0'" title.translate="Apply to range">
+        <div class="o-selection-cf">
+          <SelectionInput
+            ranges="this.state.pendingRanges"
+            class="'o-range'"
+            isInvalid="false"
+            onSelectionChanged="(ranges) => this.onRangeUpdate(ranges)"
+            onSelectionConfirmed="() => this.onRangeConfirmed()"
+            required="true"
+          />
+        </div>
+      </Section>
+      <SidePanelCollapsible title.translate="Suggested charts" isInitiallyCollapsed="false">
+        <t t-set-slot="content">
+          <div class="px-2 pb-2">
+            <t t-if="this.chartSuggestions.length">
+              <div class="o-chart-suggestions-grid">
+                <t t-foreach="this.chartSuggestions" t-as="suggestion" t-key="suggestion_index">
+                  <ChartSuggestionPreview
+                    definition="suggestion.definition"
+                    title="suggestion.title"
+                    rationale="suggestion.rationale"
+                    isRecommended="suggestion_index === 0"
+                  />
+                </t>
+              </div>
+            </t>
+            <t t-else="">
+              <div class="text-muted small py-2">Select a range to see chart suggestions.</div>
+            </t>
+          </div>
+        </t>
+      </SidePanelCollapsible>
+      <SidePanelCollapsible title.translate="General statistics" isInitiallyCollapsed="false">
+        <t t-set-slot="content">
+          <Section class="'o-column-global-stats d-flex flex-column gap-2 pt-0'">
+            <t t-foreach="this.store.statItems" t-as="stat" t-key="stat.name">
+              <div class="o-data-analysis-row d-flex justify-content-between">
+                <span class="text-muted" t-out="stat.name"/>
+                <span class="o-fw-bold" t-att-data-test-id="stat.name" t-out="stat.value"/>
+              </div>
+            </t>
+          </Section>
+        </t>
+      </SidePanelCollapsible>
+      <SidePanelCollapsible title.translate="Frequency" isInitiallyCollapsed="true">
+        <t t-set-slot="content">
+          <div class="mx-4 mb-2">
+            <BadgeSelection
+              choices="this.frequencyOrders"
+              onChange.bind="this.switchFrequencyOrder"
+              selectedValue="this.state.currentFrequencyOrder"
+            />
+          </div>
+          <div class="o-column-global-stats d-flex flex-column mx-4 mb-2">
+            <t t-foreach="this.valueFrequencies" t-as="value" t-key="value.value">
+              <div
+                class="o-data-analysis-row o-column-frequencies-row d-flex justify-content-between"
+                t-on-mouseenter="() => this.highlightFrequencyPositions(value.positions)"
+                t-on-mouseleave="() => this.clearHighlights()">
+                <span class="frequency-label text-muted" t-out="value.value"/>
+                <span class="frequency-value o-fw-bold" t-out="value.count"/>
+              </div>
+            </t>
+          </div>
+        </t>
+      </SidePanelCollapsible>
+    </div>
+  </t>
+</templates>

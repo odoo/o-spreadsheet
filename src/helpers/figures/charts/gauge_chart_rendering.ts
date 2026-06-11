@@ -77,7 +77,8 @@ export function drawGaugeChart(
   canvas: CanvasSurface,
   runtime: GaugeAnimatedRuntime,
   zoom: number = 1,
-  dimensions?: DOMDimension // TODO VSC: this doesn't look used, consider removing this param
+  dimensions?: DOMDimension, // TODO VSC: this doesn't look used, consider removing this param
+  options?: { labelFontSize?: number }
 ) {
   const size = dimensions ?? getCanvasSize(canvas);
   const dpr = typeof globalThis.devicePixelRatio === "number" ? globalThis.devicePixelRatio : 1;
@@ -92,7 +93,8 @@ export function drawGaugeChart(
   const config = getGaugeRenderingConfig(
     { width: size.width / zoom, height: size.height / zoom, x: 0, y: 0 },
     runtime,
-    ctx as CanvasRenderingContext2D
+    ctx as CanvasRenderingContext2D,
+    options
   );
   drawBackground(ctx as CanvasRenderingContext2D, config);
   drawGauge(ctx as CanvasRenderingContext2D, config);
@@ -192,8 +194,10 @@ function drawTitle(ctx: CanvasRenderingContext2D, config: RenderingParams) {
 export function getGaugeRenderingConfig(
   boundingRect: Rect,
   runtime: GaugeAnimatedRuntime,
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
+  options?: { labelFontSize?: number }
 ): RenderingParams {
+  const labelFontSize = options?.labelFontSize ?? GAUGE_LABELS_FONT_SIZE;
   const maxValue = runtime.maxValue;
   const minValue = runtime.minValue;
   const gaugeValue = getGaugeValue(runtime, "animated");
@@ -229,17 +233,17 @@ export function getGaugeRenderingConfig(
 
   const minLabelPosition = {
     x: gaugeRect.x + gaugeArcWidth / 2,
-    y: gaugeRect.y + gaugeRect.height + GAUGE_LABELS_FONT_SIZE,
+    y: gaugeRect.y + gaugeRect.height + labelFontSize,
   };
 
   const maxLabelPosition = {
     x: gaugeRect.x + gaugeRect.width - gaugeArcWidth / 2,
-    y: gaugeRect.y + gaugeRect.height + GAUGE_LABELS_FONT_SIZE,
+    y: gaugeRect.y + gaugeRect.height + labelFontSize,
   };
 
   const textColor = chartMutedFontColor(runtime.background);
 
-  const inflectionValues = getInflectionValues(runtime, gaugeRect, textColor, ctx);
+  const inflectionValues = getInflectionValues(runtime, gaugeRect, textColor, ctx, labelFontSize);
 
   let x: number = 0,
     titleWidth = 0,
@@ -299,13 +303,13 @@ export function getGaugeRenderingConfig(
     minLabel: {
       label: runtime.minValue.label,
       textPosition: minLabelPosition,
-      fontSize: GAUGE_LABELS_FONT_SIZE,
+      fontSize: labelFontSize,
       color: textColor,
     },
     maxLabel: {
       label: runtime.maxValue.label,
       textPosition: maxLabelPosition,
-      fontSize: GAUGE_LABELS_FONT_SIZE,
+      fontSize: labelFontSize,
       color: textColor,
     },
   };
@@ -347,7 +351,8 @@ function getInflectionValues(
   runtime: GaugeAnimatedRuntime,
   gaugeRect: Rect,
   textColor: Color,
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
+  labelFontSize: number = GAUGE_LABELS_FONT_SIZE
 ): InflectionValue[] {
   const maxValue = runtime.maxValue;
   const minValue = runtime.minValue;
@@ -356,7 +361,7 @@ function getInflectionValues(
     x: gaugeRect.x + gaugeRect.width / 2,
     y: gaugeRect.y + gaugeRect.height,
   };
-  const textStyle = { fontSize: GAUGE_LABELS_FONT_SIZE };
+  const textStyle = { fontSize: labelFontSize };
 
   const inflectionValues: InflectionValue[] = [];
   const inflectionValuesTextRects: UnalignedRectangle[] = [];
@@ -372,17 +377,17 @@ function getInflectionValues(
       gaugeCircleCenter.x, // center of the gauge circle
       gaugeCircleCenter.y, // center of the gauge circle
       labelWidth + 2, // width of the text + some margin
-      GAUGE_LABELS_FONT_SIZE // height of the text
+      labelFontSize // height of the text
     );
     const offset = inflectionValuesTextRects.some((rect) => doRectanglesIntersect(rect, textRect))
-      ? GAUGE_LABELS_FONT_SIZE
+      ? labelFontSize
       : 0;
     inflectionValuesTextRects.push(textRect);
 
     inflectionValues.push({
       rotation: angle,
       label: inflectionValue.label,
-      fontSize: GAUGE_LABELS_FONT_SIZE,
+      fontSize: labelFontSize,
       color: textColor,
       offset,
     });
