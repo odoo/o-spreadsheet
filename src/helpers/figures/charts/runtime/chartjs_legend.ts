@@ -34,9 +34,11 @@ import { ColorGenerator } from "../../../color";
 import { BubbleChartData } from "../bubble_chart";
 import { chartFontColor, getPieColors, isTrendLineAxis, truncateLabel } from "../chart_common";
 import {
+  highlightBubbleChartItem,
   highlightComboChartItem,
   highlightLineChartItem,
   highlightPieChartItem,
+  resetBubbleChartHighlights,
   resetComboChartHighlights,
   resetLineChartHighlights,
   resetPieChartHighlights,
@@ -372,8 +374,8 @@ function getInteractiveLegendConfig({
 
 const INTERACTIVE_LEGEND_CONFIG_FOR_BUBBLE_CHART = {
   ...getInteractiveLegendConfig({
-    highlightItem: highlightLineChartItem,
-    unHighlightItems: resetLineChartHighlights,
+    highlightItem: highlightBubbleChartItem,
+    unHighlightItems: resetBubbleChartHighlights,
     toggleDataVisibility: toggleLineBarDataVisibility,
   }),
   onClick: (event, legendItem, legend) => {
