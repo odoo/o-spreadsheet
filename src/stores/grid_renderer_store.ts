@@ -1,6 +1,7 @@
-import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
+import { plugin } from "@odoo/owl";
 import { getPath2D } from "../components/icons/icons";
-import { HoveredTableStore } from "../components/tables/hovered_table_store";
+import { HoveredIconPlugin } from "../components/owl_plugins/hovered_icon_plugin";
+import { HoveredTablePlugin } from "../components/owl_plugins/hovered_table_plugin";
 import {
   CANVAS_SHIFT,
   DATA_VALIDATION_CHIP_MARGIN,
@@ -64,8 +65,8 @@ interface Animation {
 
 export class GridRenderer extends DisposableStore {
   private fingerprints: Store<FormulaFingerprintStore>;
-  private hoveredTables: Store<HoveredTableStore>;
-  private hoveredIcon: Store<HoveredIconStore>;
+  private hoveredTables = plugin(HoveredTablePlugin);
+  private hoveredIcon = plugin(HoveredIconPlugin);
 
   private lastRenderSheetId: UID | undefined = undefined;
   private lastRenderBoxes: Map<string, Box> = new Map();
@@ -79,8 +80,6 @@ export class GridRenderer extends DisposableStore {
     const model = get(ModelStore) as Model;
     this.getters = model.getters;
     this.fingerprints = get(FormulaFingerprintStore);
-    this.hoveredTables = get(HoveredTableStore);
-    this.hoveredIcon = get(HoveredIconStore);
 
     model.on("command-dispatched", this, this.handle);
     model.on("command-finalized", this, this.finalize);
@@ -462,7 +461,7 @@ export class GridRenderer extends DisposableStore {
         }
         const isHovered = deepEquals(
           { id: icon.type, position: icon.position },
-          this.hoveredIcon.hoveredIcon
+          this.hoveredIcon.hoveredIcon()
         );
         const svg = isHovered ? icon.hoverSvg || icon.svg : icon.svg;
         if (!svg) {
@@ -751,7 +750,7 @@ export class GridRenderer extends DisposableStore {
       border: this.getters.getCellComputedBorder(position) || undefined,
       style,
       dataBarFill,
-      overlayColor: this.hoveredTables.overlayColors.get(position),
+      overlayColor: this.hoveredTables.overlayColors().get(position),
       isError:
         (cell.type === CellValueType.error && !!cell.message) ||
         this.getters.isDataValidationInvalid(position),

@@ -272,8 +272,11 @@ class Demo extends Component {
     useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
     useExternalListener(window, "unhandledrejection", this.notifyError.bind(this));
     useExternalListener(window, "error", (ev) => {
-      console.error("Global error caught: ", ev.error || ev.message);
-      this.notifyError();
+      const message = ev.error || ev.message;
+      console.error("Global error caught: ", message);
+      if (message !== "ResizeObserver loop completed with undelivered notifications.") {
+        this.notifyError();
+      }
     });
 
     onWillStart(() => this.initiateConnection());
