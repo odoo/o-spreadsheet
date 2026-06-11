@@ -5,7 +5,13 @@ import {
   groupItemIdsByZones,
   iterateItemIdsPositions,
 } from "../../helpers/data_normalization";
-import { deepEquals, range, replaceNewLines } from "../../helpers/misc";
+import {
+  deepEquals,
+  groupConsecutive,
+  isDefined,
+  range,
+  replaceNewLines,
+} from "../../helpers/misc";
 
 import { toXC } from "../../helpers/coordinates";
 import { CorePlugin } from "../core_plugin";
@@ -27,6 +33,7 @@ import { CompiledFormula, SerializedCompiledFormula } from "../../formulas/compi
 import {
   createCell,
   createFormulaCellFromCompiledFormula,
+  RegionFormulaCell,
 } from "../../helpers/cells/cell_evaluation";
 import { isExcelCompatible } from "../../helpers/format/format";
 import { isNumber } from "../../helpers/numbers";
@@ -37,11 +44,15 @@ import { Style, UpdateCellData, Zone } from "../../types/misc";
 import { Range, RangePart } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { SquishedContent, Squisher } from "./squisher";
-import { Unsquisher } from "./unsquisher";
+import { UnsquishedRegionCell, Unsquisher } from "./unsquisher";
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
   cells: Record<UID, Record<number, Cell | undefined> | undefined>;
+  // this.grid[sheetId][row][col] --> cellId|undefined (position --> id)
+  grid: Record<UID, Record<number, Record<number, number | undefined> | undefined> | undefined>;
+  // this.positions[cellId] --> position (id --> position)
+  positions: Record<number, CellPosition | undefined>;
   nextId: number;
 }
 
@@ -55,6 +66,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   static getters = [
     "zoneToXC",
     "getCells",
+    "getCell",
+    "getCellPosition",
+    "tryGetCellPosition",
+    "getRowCellIds",
     "getTranslatedCellFormula",
     "getCellStyle",
     "getCellById",
@@ -63,21 +78,44 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   ] as const;
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
+  public readonly grid: {
+    [sheetId: string]:
+      | { [row: number]: { [col: number]: number | undefined } | undefined }
+      | undefined;
+  } = {};
+  public readonly positions: Record<number, CellPosition | undefined> = {};
 
   adaptRanges(adapters: RangeAdapterFunctions) {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
-        if (cell.isFormula) {
-          const newCompiledFormula = adapters.adaptCompiledFormula(cell.compiledFormula);
+        if (!cell.isFormula) {
+          continue;
+        }
+        const newCompiledFormula = adapters.adaptCompiledFormula(cell.compiledFormula);
+        if (cell instanceof RegionFormulaCell) {
+          // The flyweight has no writable compiledFormula: dissolve it into a
+          // concrete cell holding the (possibly adapted) formula.
           if (newCompiledFormula !== cell.compiledFormula) {
             this.history.update(
               "cells",
               sheet,
               cell.id,
-              "compiledFormula" as any,
-              newCompiledFormula
+              createFormulaCellFromCompiledFormula(
+                cell.id,
+                newCompiledFormula,
+                cell.format,
+                cell.style
+              )
             );
           }
+        } else if (newCompiledFormula !== cell.compiledFormula) {
+          this.history.update(
+            "cells",
+            sheet,
+            cell.id,
+            "compiledFormula" as any,
+            newCompiledFormula
+          );
         }
       }
     }
@@ -93,10 +131,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessUpdateCell);
       case "CLEAR_CELL":
         return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessClearCell);
-      case "UPDATE_CELL_POSITION":
-        return !cmd.cellId || this.cells[cmd.sheetId]?.[cmd.cellId]
-          ? CommandResult.Success
-          : CommandResult.InvalidCellId;
       case "SET_FORMATTING":
         return this.checkUselessSetFormatting(cmd);
       default:
@@ -112,11 +146,26 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       case "CLEAR_FORMATTING":
         this.clearFormatting(cmd.sheetId, cmd.target);
         break;
-      case "ADD_COLUMNS_ROWS":
+      case "ADD_COLUMNS_ROWS": {
+        const addedIndex = cmd.position === "before" ? cmd.base : cmd.base + 1;
+        this.moveCellsOnAddition(
+          cmd.sheetId,
+          addedIndex,
+          cmd.quantity,
+          cmd.dimension === "COL" ? "columns" : "rows"
+        );
         if (cmd.dimension === "COL") {
           this.handleAddColumnsRows(cmd, this.copyColumnStyle.bind(this));
         } else {
           this.handleAddColumnsRows(cmd, this.copyRowStyle.bind(this));
+        }
+        break;
+      }
+      case "REMOVE_COLUMNS_ROWS":
+        if (cmd.dimension === "COL") {
+          this.removeColumns(cmd.sheetId, [...cmd.elements]);
+        } else {
+          this.removeRows(cmd.sheetId, [...cmd.elements]);
         }
         break;
       case "UPDATE_CELL":
@@ -142,7 +191,164 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         this.clearZones(cmd.sheetId, cmd.target);
         break;
       case "DELETE_SHEET": {
+        for (const cell of this.getCells(cmd.sheetId)) {
+          this.history.update("positions", cell.id, undefined);
+        }
         this.history.update("cells", cmd.sheetId, undefined);
+        this.history.update("grid", cmd.sheetId, undefined);
+      }
+    }
+  }
+
+  /**
+   * Set the cell at a new position and clear its previous position.
+   */
+  private setNewPosition(cellId: number, sheetId: UID, col: HeaderIndex, row: HeaderIndex) {
+    const currentPosition = this.positions[cellId];
+    if (currentPosition) {
+      this.clearPosition(sheetId, currentPosition.col, currentPosition.row);
+    }
+    this.history.update("positions", cellId, { row, col, sheetId });
+    this.history.update("grid", sheetId, row, col, cellId);
+  }
+
+  /**
+   * Remove the cell at the given position (if there's one)
+   */
+  private clearPosition(sheetId: UID, col: HeaderIndex, row: HeaderIndex) {
+    const cellId = this.grid[sheetId]?.[row]?.[col];
+    if (cellId) {
+      this.history.update("positions", cellId, undefined);
+      this.history.update("grid", sheetId, row, col, undefined);
+    }
+  }
+
+  private removeColumns(sheetId: UID, columns: HeaderIndex[]) {
+    // This is necessary because we have to delete elements in correct order:
+    // begin with the end.
+    columns.sort((a, b) => b - a);
+    for (const column of columns) {
+      // Move the cells.
+      this.moveCellOnColumnsDeletion(sheetId, column);
+    }
+  }
+
+  private removeRows(sheetId: UID, rows: HeaderIndex[]) {
+    // This is necessary because we have to delete elements in correct order:
+    // begin with the end.
+    rows.sort((a, b) => b - a);
+
+    for (const group of groupConsecutive(rows)) {
+      // indexes are sorted in the descending order
+      const from = group[group.length - 1];
+      const to = group[0];
+      // Move the cells.
+      this.moveCellOnRowsDeletion(sheetId, from, to);
+    }
+  }
+
+  private moveCellOnColumnsDeletion(sheetId: UID, deletedColumn: number) {
+    this.dispatch("CLEAR_CELLS", {
+      sheetId,
+      target: [
+        {
+          left: deletedColumn,
+          top: 0,
+          right: deletedColumn,
+          bottom: this.getters.getNumberRows(sheetId) - 1,
+        },
+      ],
+    });
+
+    const grid = this.grid[sheetId] || {};
+    for (const rowKey in grid) {
+      const rowIndex = Number(rowKey);
+      const cells = grid[rowIndex]!;
+      for (const i in cells) {
+        const colIndex = Number(i);
+        const cellId = cells[i];
+        if (cellId) {
+          if (colIndex > deletedColumn) {
+            this.setNewPosition(cellId, sheetId, colIndex - 1, rowIndex);
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Move the cells after a column or rows insertion
+   */
+  private moveCellsOnAddition(
+    sheetId: UID,
+    addedElement: HeaderIndex,
+    quantity: number,
+    dimension: "rows" | "columns"
+  ) {
+    const updates: { cellId: number; col: HeaderIndex; row: HeaderIndex }[] = [];
+    const grid = this.grid[sheetId] || {};
+    for (const rowKey in grid) {
+      const rowIndex = Number(rowKey);
+      const cells = grid[rowIndex]!;
+      if (dimension !== "rows" || rowIndex >= addedElement) {
+        for (const i in cells) {
+          const colIndex = Number(i);
+          const cellId = cells[i];
+          if (cellId) {
+            if (dimension === "rows" || colIndex >= addedElement) {
+              updates.push({
+                cellId,
+                col: colIndex + (dimension === "columns" ? quantity : 0),
+                row: rowIndex + (dimension === "rows" ? quantity : 0),
+              });
+            }
+          }
+        }
+      }
+    }
+    for (const update of updates.reverse()) {
+      this.setNewPosition(update.cellId, sheetId, update.col, update.row);
+    }
+  }
+
+  /**
+   * Move all the cells that are from the row under `deleteToRow` up to `deleteFromRow`
+   *
+   * b.e.
+   * move vertically with delete from 3 and delete to 5 will first clear all the cells from lines 3 to 5,
+   * then take all the row starting at index 6 and add them back at index 3
+   *
+   */
+  private moveCellOnRowsDeletion(
+    sheetId: UID,
+    deleteFromRow: HeaderIndex,
+    deleteToRow: HeaderIndex
+  ) {
+    this.dispatch("CLEAR_CELLS", {
+      sheetId,
+      target: [
+        {
+          left: 0,
+          top: deleteFromRow,
+          right: this.getters.getNumberCols(sheetId),
+          bottom: deleteToRow,
+        },
+      ],
+    });
+
+    const numberRows = deleteToRow - deleteFromRow + 1;
+    const grid = this.grid[sheetId] || {};
+    for (const rowKey in grid) {
+      const rowIndex = Number(rowKey);
+      const cells = grid[rowIndex]!;
+      if (rowIndex > deleteToRow) {
+        for (const i in cells) {
+          const colIndex = Number(i);
+          const cellId = cells[i];
+          if (cellId) {
+            this.setNewPosition(cellId, sheetId, colIndex, rowIndex - numberRows);
+          }
+        }
       }
     }
   }
@@ -234,6 +440,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       const sheetId = sheet.id;
       const cellsData = new PositionMap<{
         compiledFormula?: CompiledFormula;
+        region?: UnsquishedRegionCell;
         content?: string;
         style?: number;
         format?: number;
@@ -241,7 +448,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       // cells content
       const unsquisher = new Unsquisher();
       for (const unsquishedItem of unsquisher.unsquishSheet(sheet.cells, sheet.id, this.getters)) {
-        if (unsquishedItem.content || unsquishedItem.compiled) {
+        if (unsquishedItem.content || unsquishedItem.compiled || unsquishedItem.region) {
           const position = {
             sheetId: sheet.id,
             col: unsquishedItem.position.col,
@@ -249,6 +456,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           };
           if (unsquishedItem.compiled) {
             cellsData.set(position, { compiledFormula: unsquishedItem.compiled });
+          } else if (unsquishedItem.region) {
+            cellsData.set(position, { region: unsquishedItem.region });
           } else {
             cellsData.set(position, { content: unsquishedItem.content });
           }
@@ -270,19 +479,41 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       }
       for (const position of cellsData.keysForSheet(sheetId)) {
         const cellData = cellsData.get(position);
-        if (cellData?.content || cellData?.format || cellData?.style || cellData?.compiledFormula) {
-          const cell = this.importCell(
+        if (!cellData) {
+          continue;
+        }
+        const style = cellData.style ? data.styles[cellData.style] : undefined;
+        const format = cellData.format ? data.formats[cellData.format] : undefined;
+        let cell: Cell | undefined;
+        if (cellData.region) {
+          const { template, dCol, dRow } = cellData.region;
+          cell = new RegionFormulaCell(
+            this.getNextCellId(),
+            format,
+            style,
+            template,
             sheet.id,
-            cellData?.content,
-            cellData?.style ? data.styles[cellData?.style] : undefined,
-            cellData?.format ? data.formats[cellData?.format] : undefined,
-            cellData?.compiledFormula
+            dCol,
+            dRow,
+            this.getters
           );
+        } else if (
+          cellData.content ||
+          cellData.format ||
+          cellData.style ||
+          cellData.compiledFormula
+        ) {
+          cell = this.importCell(
+            sheet.id,
+            cellData.content,
+            style,
+            format,
+            cellData.compiledFormula
+          );
+        }
+        if (cell) {
           this.history.update("cells", sheet.id, cell.id, cell);
-          this.dispatch("UPDATE_CELL_POSITION", {
-            cellId: cell.id,
-            ...position,
-          });
+          this.setNewPosition(cell.id, position.sheetId, position.col, position.row);
         }
       }
     }
@@ -391,15 +622,41 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return Object.values(this.cells[sheetId] || {});
   }
 
+  getCell({ sheetId, col, row }: CellPosition): Cell | undefined {
+    const cellId = this.grid[sheetId]?.[row]?.[col];
+    if (cellId === undefined) {
+      return undefined;
+    }
+    return this.cells[sheetId]?.[cellId];
+  }
+
+  getCellPosition(cellId: number): CellPosition {
+    const position = this.positions[cellId];
+    if (!position) {
+      throw new Error(`asking for a cell position that doesn't exist, cell id: ${cellId}`);
+    }
+    return position;
+  }
+
+  tryGetCellPosition(cellId: number): CellPosition | undefined {
+    return this.positions[cellId];
+  }
+
+  getRowCellIds(sheetId: UID, row: HeaderIndex): number[] {
+    return Object.values(this.grid[sheetId]?.[row] || {}).filter(isDefined);
+  }
+
   /**
    * get a cell by ID. Used in evaluation when evaluating an async cell, we need to be able to find it back after
    * starting an async evaluation even if it has been moved or re-allocated
    */
   getCellById(cellId: number): Cell | undefined {
     // this must be as fast as possible
-    const position = this.getters.getCellPosition(cellId);
-    const sheet = this.cells[position.sheetId];
-    return sheet[cellId];
+    const position = this.positions[cellId];
+    if (!position) {
+      return undefined;
+    }
+    return this.cells[position.sheetId]?.[cellId];
   }
 
   /*
@@ -617,12 +874,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     ) {
       if (before) {
         this.history.update("cells", sheetId, before.id, undefined);
-        this.dispatch("UPDATE_CELL_POSITION", {
-          cellId: undefined,
-          col,
-          row,
-          sheetId,
-        });
+        this.clearPosition(sheetId, col, row);
       }
       return;
     }
@@ -630,7 +882,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const cellId = before?.id || this.getNextCellId();
     const cell = createCell(this.getters, cellId, afterContent, format, style, sheetId);
     this.history.update("cells", sheetId, cell.id, cell);
-    this.dispatch("UPDATE_CELL_POSITION", { cellId: cell.id, col, row, sheetId });
+    this.setNewPosition(cell.id, sheetId, col, row);
   }
 
   private checkCellOutOfSheet(cmd: PositionDependentCommand): CommandResult {

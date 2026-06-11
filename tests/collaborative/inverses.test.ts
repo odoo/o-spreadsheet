@@ -17,7 +17,6 @@ import {
   SetZoneBordersCommand,
   UnlockSheetCommand,
   UpdateCellCommand,
-  UpdateCellPositionCommand,
   UpdateChartCommand,
   UpdateFigureCommand,
 } from "../../src";
@@ -283,13 +282,6 @@ describe("Inverses commands", () => {
       sheetId: "1",
       content: "test",
     };
-    const updateCellPosition: UpdateCellPositionCommand = {
-      type: "UPDATE_CELL_POSITION",
-      sheetId: "1",
-      cellId: 1,
-      col: 1,
-      row: 1,
-    };
     const clearCell: ClearCellCommand = {
       type: "CLEAR_CELL",
       sheetId: "1",
@@ -354,7 +346,6 @@ describe("Inverses commands", () => {
     };
     test.each([
       updateCell,
-      updateCellPosition,
       clearCell,
       clearCells,
       deleteContent,
