@@ -62,7 +62,6 @@ import {
 } from "../../../color";
 import { formatValue } from "../../../format/format";
 import { clip, isDefined, range } from "../../../misc";
-import { fontSizeInPixels } from "../../../text_helper";
 import { BubbleChartData } from "../bubble_chart";
 import {
   getPieColors,
@@ -815,10 +814,7 @@ export function getTreeMapChartDatasets(
   return dataSets;
 }
 
-function getTextStyle(
-  design: TitleDesign | undefined,
-  defaultDesign: TitleDesign & { fontSize: number }
-) {
+function getTextStyle(design: TitleDesign | undefined, defaultDesign: TitleDesign) {
   const dynamicColor = (ctx: any) => {
     const backgroundColor = ctx.element.options.backgroundColor;
     return relativeLuminance(backgroundColor) > 0.7 ? "#666666" : "#FFFFFF";
@@ -831,7 +827,7 @@ function getTextStyle(
     font: {
       weight: design?.bold ?? defaultDesign?.bold ? "bold" : "normal",
       style: design?.italic ?? defaultDesign?.italic ? "italic" : "normal",
-      size: fontSizeInPixels(design?.fontSize ?? defaultDesign.fontSize),
+      size: design?.fontSize ?? defaultDesign?.fontSize,
     },
   } as const;
 }

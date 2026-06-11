@@ -3,7 +3,6 @@ import { TitleDesign } from "../../../..";
 import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../constants";
 import { Getters } from "../../../../types/getters";
 import { DeepPartial } from "../../../../types/misc";
-import { fontSizeInPixels } from "../../../text_helper";
 import { chartMutedFontColor } from "../chart_common";
 
 export function getChartTitle(
@@ -21,7 +20,7 @@ export function getChartTitle(
     color: title?.color ?? fontColor,
     align: title.align === "center" ? "center" : title.align === "right" ? "end" : "start",
     font: {
-      size: fontSizeInPixels(title.fontSize ?? CHART_TITLE_FONT_SIZE),
+      size: title.fontSize ?? CHART_TITLE_FONT_SIZE,
       weight: title.bold ? "bold" : "normal",
       style: title.italic ? "italic" : "normal",
     },
