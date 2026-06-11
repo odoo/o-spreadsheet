@@ -219,12 +219,13 @@ describe("Selection Input", () => {
     expect(fixture.querySelectorAll(".o-selection-ko").length).toBe(1);
   });
 
-  test("hitting enter key acts the same as clicking confirm button for valid dataset", async () => {
+  test("hitting enter key acts the same as clicking confirm button for valid selection", async () => {
     let isConfirmed = false;
     const onConfirmed = jest.fn(() => {
       isConfirmed = true;
     });
     await createSelectionInput({ onConfirmed });
+    await writeInput(0, "A1");
     expect(fixture.querySelector(".o-focused")).toBeTruthy();
     expect(isConfirmed).toBeFalsy();
     await keyDown({ key: "Enter" });
@@ -233,7 +234,7 @@ describe("Selection Input", () => {
     expect(isConfirmed).toBeTruthy();
   });
 
-  test("hitting enter key does nothing for an invalid dataset", async () => {
+  test("hitting enter key does nothing for an invalid selection", async () => {
     const onConfirmed = jest.fn();
     await createSelectionInput({ onConfirmed });
     await writeInput(0, "Kaboom");
@@ -363,8 +364,8 @@ describe("Selection Input", () => {
       ".o-selection-input input"
     ) as unknown as HTMLInputElement[];
     expect(inputs.length).toBe(2);
-    expect(inputs[0].value).toBe("B4");
-    expect(inputs[1].value).toBe("B5");
+    expect(inputs[0].value).toBe("Sheet1!B4");
+    expect(inputs[1].value).toBe("Sheet1!B5");
   });
 
   test("input is not filled with highlight when maximum ranges reached", async () => {
@@ -463,15 +464,15 @@ describe("Selection Input", () => {
     await nextTick();
     const input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
     await simulateClick(input);
-    expect(input?.value).toEqual("A1");
+    expect(input?.value).toEqual("Sheet1!A1");
     await keyDown({ key: "ArrowRight" });
     expect(document.activeElement).toBe(input);
-    expect(input?.value).toEqual("A1");
+    expect(input?.value).toEqual("Sheet1!A1");
 
     await clickCell(model, "B4");
-    expect(input?.value).toEqual("B4");
+    expect(input?.value).toEqual("Sheet1!B4");
     await keyDown({ key: "ArrowRight" });
-    expect(input?.value).toEqual("C4");
+    expect(input?.value).toEqual("Sheet1!C4");
   });
 
   test("changed event is triggered when input changed", async () => {
@@ -505,16 +506,16 @@ describe("Selection Input", () => {
     await simulateClick(".o-cf-add");
     await nextTick();
     let input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
-    expect(input.value).toBe("B:B");
+    expect(input.value).toBe("Sheet1!B:B");
 
     await simulateClick(input);
     await selectColumnByClicking(model, "C");
     input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
-    expect(input.value).toBe("C:C");
+    expect(input.value).toBe("Sheet1!C:C");
 
     await selectColumnByClicking(model, "B");
     input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
-    expect(input.value).toBe("B:B");
+    expect(input.value).toBe("Sheet1!B:B");
   });
 
   test("focus is transferred from one input to another", async () => {
@@ -592,13 +593,13 @@ describe("Selection Input", () => {
     await nextTick();
     let input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
     await simulateClick(input);
-    expect(input.value).toBe("A1");
+    expect(input.value).toBe("Sheet1!A1");
     await keyDown({ key: "Control" });
     await keyUp({ key: "Control" });
     await clickCell(model, "A2");
     expect(fixture.querySelectorAll(".o-selection-input input")).toHaveLength(1);
     input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
-    expect(input.value).toBe("A2");
+    expect(input.value).toBe("Sheet1!A2");
   });
 
   test("In 'isSingleRange' mode, capture the first part of a multi range input", async () => {

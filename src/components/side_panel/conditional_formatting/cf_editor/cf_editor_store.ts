@@ -2,7 +2,7 @@ import { proxy } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberToHex, colorToNumber, isColorValid } from "../../../../helpers/color";
 import { canonicalizeCFRule } from "../../../../helpers/locale";
-import { rangeReference } from "../../../../helpers/references";
+import { rangeReference, splitReference } from "../../../../helpers/references";
 import { ComponentConstructor } from "../../../../owl3_compatibility_layer";
 import {
   criterionComponentRegistry,
@@ -24,6 +24,7 @@ import {
 } from "../../../../types/conditional_formatting";
 import { GenericCriterion, GenericDateCriterion } from "../../../../types/generic_criterion";
 import { Color, UID, ValueAndLabel } from "../../../../types/misc";
+import { RangeData } from "../../../../types/range";
 import { Get } from "../../../../types/store_engine";
 import { hexaToInt } from "../../../../xlsx/conversion/color_conversion";
 import { cssPropertiesToCss } from "../../../helpers/css";
@@ -51,11 +52,13 @@ type CFMenu =
 
 interface State {
   currentCFType: CFType;
+  currentCF: ConditionalFormat;
   errors: CancelledReason[];
   rules: Rules;
   openedMenu?: CFMenu;
   ranges: string[];
   hasEditedCf: boolean;
+  cfSheetId: UID;
 }
 
 export class ConditionalFormattingEditorStore extends SpreadsheetStore {
@@ -67,7 +70,7 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
   state: State;
   private cfId: UID;
 
-  constructor(get: Get, cf: ConditionalFormat, isNewCf: boolean) {
+  constructor(get: Get, cf: ConditionalFormat, isNewCf: boolean, sheetId: UID) {
     super(get);
     this.cfId = cf.id;
     this.state = proxy<State>({
@@ -76,6 +79,8 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
       ranges: cf.ranges,
       rules: this.getDefaultRules(),
       hasEditedCf: isNewCf,
+      cfSheetId: sheetId,
+      currentCF: cf,
     });
     switch (cf.rule.type) {
       case "CellIsRule":
@@ -93,33 +98,107 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
     }
   }
 
-  updateConditionalFormat(newCf: Partial<ConditionalFormat> & { suppressErrors?: boolean }) {
-    const ranges = newCf.ranges || this.state.ranges;
+  get isEditedCfRemoved() {
+    const sheetIds = [
+      ...new Set(
+        this.state.currentCF.ranges.map((xc) => {
+          const { sheetName } = splitReference(xc);
+          const sheetId = sheetName
+            ? this.model.getters.getSheetIdByName(sheetName)
+            : this.state.cfSheetId;
+          return this.model.getters.getRangeDataFromXc(sheetId, xc)._sheetId;
+        })
+      ),
+    ];
+    return sheetIds.every(
+      (sheetId) =>
+        !this.model.getters
+          .getConditionalFormats(sheetId)
+          .find((cf) => cf.id === this.state.currentCF.id)
+    );
+  }
+
+  get switchBackOnSave() {
+    return this.state.currentCF.ranges.some((xc) => {
+      const { sheetName } = splitReference(xc);
+      const sheetId = this.model.getters.getSheetIdByName(sheetName);
+      return !sheetId || sheetId === this.state.cfSheetId;
+    });
+  }
+
+  updateConditionalFormat(cfChanges: Partial<ConditionalFormat> & { suppressErrors?: boolean }) {
+    const strRanges = cfChanges.ranges || this.state.ranges;
     const invalidRanges = this.state.ranges.some((xc) => !xc.match(rangeReference));
     if (invalidRanges) {
-      if (!newCf.suppressErrors) {
+      if (!cfChanges.suppressErrors) {
         this.state.errors = [CommandResult.InvalidRange];
       }
       return;
     }
-    const sheetId = this.model.getters.getActiveSheetId();
     const locale = this.model.getters.getLocale();
-    const rule = newCf.rule || this.getEditedRule(this.state.currentCFType);
-    const result = this.model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: {
-        id: this.cfId,
-        rule: canonicalizeCFRule(rule, locale),
-      },
-      ranges: ranges.map((xc) => this.model.getters.getRangeDataFromXc(sheetId, xc)),
-      sheetId,
+    const rule = cfChanges.rule || this.getEditedRule(this.state.currentCFType);
+    const ranges = strRanges.map((xc) => {
+      const { sheetName } = splitReference(xc);
+      const sheetId = sheetName
+        ? this.model.getters.getSheetIdByName(sheetName)
+        : this.state.cfSheetId;
+      return this.model.getters.getRangeDataFromXc(sheetId, xc);
     });
+    if (!ranges.length) {
+      if (!cfChanges.suppressErrors) {
+        this.state.errors = [CommandResult.EmptyRange];
+      }
+      return;
+    }
+    const rangesBySheet = Object.groupBy(ranges, (range) => range._sheetId);
+    const oldSheetIds = new Set(
+      this.state.currentCF.ranges.map((xc) => {
+        const { sheetName } = splitReference(xc);
+        const sheetId = sheetName
+          ? this.model.getters.getSheetIdByName(sheetName)
+          : this.state.cfSheetId;
+        return this.model.getters.getRangeDataFromXc(sheetId, xc)._sheetId;
+      })
+    );
+    const sheetIdsToRemove: UID[] = [];
+    const sheetIdsToAdd: {
+      [key: UID]: {
+        cf: Omit<ConditionalFormat, "ranges">;
+        ranges: RangeData[];
+      };
+    } = {};
+    for (const sheetId in rangesBySheet) {
+      sheetIdsToAdd[sheetId] = {
+        cf: {
+          id: this.cfId,
+          rule: canonicalizeCFRule(rule, locale),
+        },
+        ranges: rangesBySheet[sheetId]!,
+      };
+    }
+    for (const sheetId of oldSheetIds) {
+      if (!(sheetId in rangesBySheet)) {
+        sheetIdsToRemove.push(sheetId);
+      }
+    }
+    const result = this.model.dispatch("UPDATE_CONDITIONAL_FORMATS", {
+      cfId: this.cfId,
+      sheetIdsToRemove,
+      sheetIdsToAdd,
+    });
+
     if (result.isSuccessful) {
       this.state.hasEditedCf = true;
     }
     const reasons = result.reasons.filter((r) => r !== CommandResult.NoChanges);
-    if (!newCf.suppressErrors) {
-      this.state.errors = reasons;
+    if (reasons.length) {
+      if (!cfChanges.suppressErrors) {
+        this.state.errors = reasons;
+      }
+      return;
     }
+
+    this.state.currentCF = { ...this.state.currentCF, ...cfChanges };
   }
 
   get isRangeValid(): boolean {
@@ -144,7 +223,10 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
     }
     this.state.errors = [];
     this.state.currentCFType = ruleType;
-    this.updateConditionalFormat({ rule: this.getEditedRule(ruleType), suppressErrors: true });
+    this.updateConditionalFormat({
+      rule: this.getEditedRule(ruleType),
+      suppressErrors: true,
+    });
   }
 
   private getEditedRule(ruleType: CFType): ConditionalFormatRule {
@@ -208,7 +290,10 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
     if (operator.includes("date") && !this.state.rules.cellIs.dateValue) {
       this.state.rules.cellIs.dateValue = "exactDate";
     }
-    this.updateConditionalFormat({ rule: this.state.rules.cellIs, suppressErrors: true });
+    this.updateConditionalFormat({
+      rule: this.state.rules.cellIs,
+      suppressErrors: true,
+    });
     this.closeMenus();
   }
 
@@ -249,7 +334,10 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
 
   updateThresholdType(threshold: "minimum" | "maximum", thresholdType: ThresholdType) {
     this.state.rules.colorScale[threshold].type = thresholdType;
-    this.updateConditionalFormat({ rule: this.state.rules.colorScale, suppressErrors: true });
+    this.updateConditionalFormat({
+      rule: this.state.rules.colorScale,
+      suppressErrors: true,
+    });
   }
 
   updateThresholdValue(threshold: "minimum" | "midpoint" | "maximum", value: string) {
@@ -316,7 +404,10 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
     type: IconThreshold["type"]
   ) {
     this.state.rules.iconSet[inflectionPoint].type = type;
-    this.updateConditionalFormat({ rule: this.state.rules.iconSet, suppressErrors: true });
+    this.updateConditionalFormat({
+      rule: this.state.rules.iconSet,
+      suppressErrors: true,
+    });
   }
 
   /*****************************************************************************

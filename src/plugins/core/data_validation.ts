@@ -1,6 +1,6 @@
 import { CompiledFormula } from "../../formulas/compiler";
 import { toXC } from "../../helpers/coordinates";
-import { deepCopy } from "../../helpers/misc";
+import { deepCopy, deepEquals } from "../../helpers/misc";
 import { duplicateRangeInDuplicatedSheet, getCellPositionsInRanges } from "../../helpers/range";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isInside } from "../../helpers/zones";
@@ -81,7 +81,7 @@ export class DataValidationPlugin
             break;
           case "RESIZE":
           case "MOVE":
-          case "CHANGE":
+          case "RENAME":
             this.history.update("rules", sheetId, ruleIndex, "ranges", rangeIndex, change.range);
             break;
         }
@@ -229,7 +229,17 @@ export class DataValidationPlugin
       adaptedRules[ruleIndex] = newRule;
       this.history.update("rules", sheetId, adaptedRules);
     } else {
-      this.history.update("rules", sheetId, [...adaptedRules, newRule]);
+      const similarRuleIndex = adaptedRules.findIndex(
+        (rule) =>
+          deepEquals(rule.criterion, newRule.criterion) && rule.isBlocking === newRule.isBlocking
+      );
+      if (similarRuleIndex !== -1) {
+        const newRanges = [...adaptedRules[similarRuleIndex].ranges, ...newRule.ranges];
+        adaptedRules[similarRuleIndex].ranges = newRanges;
+        this.history.update("rules", sheetId, adaptedRules);
+      } else {
+        this.history.update("rules", sheetId, [...adaptedRules, newRule]);
+      }
     }
   }
 
@@ -367,6 +377,9 @@ export class DataValidationPlugin
 
   private checkValidRange(cmd: AddDataValidationCommand): CommandResult {
     const ranges = cmd.ranges.map((range) => this.getters.getRangeFromRangeData(range));
+    if (ranges.some((range) => range.sheetId !== cmd.sheetId)) {
+      return CommandResult.TargetOutOfSheet;
+    }
     const stringRanges = ranges.map((range) => this.getters.getRangeString(range, cmd.sheetId));
     if (stringRanges.some((xc) => !this.getters.isRangeValid(xc))) {
       return CommandResult.InvalidRange;

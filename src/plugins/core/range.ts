@@ -213,7 +213,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
     return getRangeString(range, forSheetId, this.getters.getSheetName, options);
   }
 
-  getRangeDataFromXc(sheetId: UID, xc: string): RangeData {
+  getRangeDataFromXc(sheetId: UID | undefined, xc: string): RangeData {
     const range = this.getters.getRangeFromSheetXC(sheetId, xc);
     return this.getRangeDataFromZone(range.sheetId, range.unboundedZone);
   }
@@ -227,7 +227,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
     return this.getRangeDataFromZone(range.sheetId, range.unboundedZone);
   }
 
-  getRangeFromZone(sheetId: UID, zone: Zone | UnboundedZone): Range {
+  getRangeFromZone(sheetId: UID, zone: Zone | UnboundedZone, prefixSheet: boolean = false): Range {
     return createRange(
       {
         sheetId,
@@ -236,7 +236,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
           { colFixed: false, rowFixed: false },
           { colFixed: false, rowFixed: false },
         ],
-        prefixSheet: false,
+        prefixSheet,
       },
       this.getters.getSheetSize
     );
