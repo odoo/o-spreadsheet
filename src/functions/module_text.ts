@@ -985,7 +985,7 @@ export const TEXTAFTER = {
     const pattern = escapeRegExp(_delimiter);
     const regexp = new RegExp(pattern, flags);
 
-    let matchIndices = [..._text.matchAll(regexp)].map((match) => match.index + pattern.length);
+    let matchIndices = [..._text.matchAll(regexp)].map((match) => match.index + _delimiter.length);
     if (_matchIndex < 0) {
       matchIndices = matchIndices.reverse();
     }
@@ -1063,7 +1063,7 @@ export const TEXTBEFORE = {
     const pattern = escapeRegExp(_delimiter);
     const regexp = new RegExp(pattern, flags);
 
-    let matchIndices = [..._text.matchAll(regexp)].map((match) => match.index + pattern.length);
+    let matchIndices = [..._text.matchAll(regexp)].map((match) => match.index + _delimiter.length);
     if (_matchIndex < 0) {
       matchIndices = matchIndices.reverse();
     }
