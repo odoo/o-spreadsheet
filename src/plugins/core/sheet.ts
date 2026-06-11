@@ -61,6 +61,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getSheetIdByName",
     "getSheetIds",
     "getVisibleSheetIds",
+    "getInvisibleSheetIds",
     "isSheetVisible",
     "doesHeaderExist",
     "doesHeadersExist",
@@ -418,6 +419,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   getVisibleSheetIds(): UID[] {
     return this.orderedSheetIds.filter(this.isSheetVisible.bind(this));
+  }
+
+  getInvisibleSheetIds(): UID[] {
+    return this.orderedSheetIds.filter((id) => !this.isSheetVisible(id));
   }
 
   doesHeaderExist(sheetId: UID, dimension: Dimension, index: number) {

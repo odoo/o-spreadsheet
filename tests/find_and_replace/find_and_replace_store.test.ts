@@ -351,6 +351,17 @@ describe("basic search", () => {
     expect(store.selectedMatchIndex).toStrictEqual(0);
   });
 
+  test("hidden cells should be included in match if the search option includeHidden is true", async () => {
+    setCellContent(model, "A2", "1");
+    setCellContent(model, "A3", "1");
+    updateSearch(model, "1");
+    expect(store.searchMatches).toHaveLength(2);
+    hideRows(model, [1]);
+    expect(store.searchMatches).toHaveLength(1);
+    updateSearch(model, "1", { includeHidden: true });
+    expect(store.searchMatches).toHaveLength(2);
+  });
+
   test("Need to update search if updating or removing the filter", () => {
     setCellContent(model, "A2", "1");
     setCellContent(model, "A3", "=111");
@@ -373,12 +384,12 @@ describe("basic search", () => {
     setCellContent(model, "Z100", "hello", "s2");
     updateSearch(model, "hello", { searchScope: "allSheets" });
     expect(store.activeSheetMatchesCount).toBe(2);
-    expect(store.allSheetMatchesCount).toBe(3);
+    expect(store.allSheetsMatchesCount).toBe(3);
     expect(store.specificRangeMatchesCount).toBe(0);
     expect(model.getters.getActiveMainViewport()).toMatchObject(toZone("A1:K44"));
     activateSheet(model, "s2");
     expect(store.activeSheetMatchesCount).toBe(1);
-    expect(store.allSheetMatchesCount).toBe(3);
+    expect(store.allSheetsMatchesCount).toBe(3);
     expect(store.specificRangeMatchesCount).toBe(0);
     expect(model.getters.getActiveMainViewport()).toMatchObject(toZone("P57:Z100"));
   });
@@ -568,6 +579,19 @@ describe("next/previous cycle", () => {
   });
 });
 
+test("next/previous with a hidden match", () => {
+  setCellContent(model, "A1", "1");
+  setCellContent(model, "A2", "1");
+  hideRows(model, [1]);
+  updateSearch(model, "1", { includeHidden: true });
+  store.selectNextMatch();
+  expect(getActivePosition(model)).toBe("A2");
+  expect(store.selectedMatchIndex).toStrictEqual(1);
+  store.selectPreviousMatch();
+  expect(getActivePosition(model)).toBe("A1");
+  expect(store.selectedMatchIndex).toStrictEqual(0);
+});
+
 describe("next/previous with single match", () => {
   beforeEach(() => {
     setCellContent(model, "A1", "1");
@@ -625,6 +649,8 @@ describe("search options", () => {
     setCellContent(model, "A3", "=SUM(1,3)");
     setCellContent(model, "A4", "hell");
     setCellContent(model, "A5", "Hell");
+    setCellContent(model, "A6", "Hello");
+    hideRows(model, [5]);
   });
 
   test("Can search matching case", () => {
@@ -659,15 +685,15 @@ describe("search options", () => {
   });
 
   test("Search in formula searches cell content of a cell in error", () => {
-    setCellContent(model, "A6", "=notASumifFunction(2)");
-    setCellContent(model, "A7", '=SUMIF("a")');
-    expect(getCellError(model, "A6")).toBeDefined();
+    setCellContent(model, "A7", "=notASumifFunction(2)");
+    setCellContent(model, "A8", '=SUMIF("a")');
     expect(getCellError(model, "A7")).toBeDefined();
+    expect(getCellError(model, "A8")).toBeDefined();
     updateSearch(model, "sumif", { searchScope: "activeSheet", searchFormulas: true });
     const matches = store.searchMatches;
     expect(matches).toHaveLength(2);
-    expect(matches[0]).toStrictEqual({ sheetId: sheetId1, col: 0, row: 5 });
-    expect(matches[1]).toStrictEqual({ sheetId: sheetId1, col: 0, row: 6 });
+    expect(matches[0]).toStrictEqual({ sheetId: sheetId1, col: 0, row: 6 });
+    expect(matches[1]).toStrictEqual({ sheetId: sheetId1, col: 0, row: 7 });
   });
 
   test("Combine matching case / matching entire cell / search in formulas", () => {
@@ -698,6 +724,15 @@ describe("search options", () => {
     updateSearch(model, "SUM", { matchCase: true, searchFormulas: true });
     expect(store.selectedMatchIndex).toStrictEqual(0);
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A3")]);
+  });
+
+  test("can search a hidden cell with the option includeHidden", () => {
+    updateSearch(model, "Hello", { includeHidden: true });
+    expect(store.searchMatches).toStrictEqual([
+      match(sheetId1, "A1"),
+      match(sheetId1, "A2"),
+      match(sheetId1, "A6"),
+    ]);
   });
 });
 
@@ -838,10 +873,14 @@ describe("number of match counts", () => {
     setCellContent(model, "A1", "hello");
     setCellContent(model, "A2", "=SUM(2,2)");
     setCellContent(model, "A3", "hell");
+    setCellContent(model, "A4", "hell");
+    hideRows(model, [3]);
 
     createSheet(model, { sheetId: sheetId2 });
     setCellContent(model, "A1", "hello", sheetId2);
     setCellContent(model, "A2", "=SUM(2,2)", sheetId2);
+    setCellContent(model, "A3", "hell", sheetId2);
+    hideRows(model, [2], sheetId2);
   });
 
   test.each(["allSheets", "activeSheet"] as const)(
@@ -849,7 +888,18 @@ describe("number of match counts", () => {
     (scope) => {
       updateSearch(model, "hell", { searchScope: scope });
       expect(store.activeSheetMatchesCount).toBe(2);
-      expect(store.allSheetMatchesCount).toBe(3);
+      expect(store.allSheetsMatchesCount).toBe(3);
+    }
+  );
+
+  test.each(["allSheets", "activeSheet"] as const)(
+    "number of match counts return number of search in allSheet, currentSheet for %s search scope, with hidden cells",
+    (scope) => {
+      updateSearch(model, "hell", { searchScope: scope, includeHidden: true });
+      expect(store.activeSheetMatchesCount).toBe(3);
+      expect(store.activeSheetHiddenMatchesCount).toBe(1);
+      expect(store.allSheetsMatchesCount).toBe(5);
+      expect(store.allSheetsHiddenMatchesCount).toBe(2);
     }
   );
 
@@ -859,7 +909,7 @@ describe("number of match counts", () => {
       specificRange: model.getters.getRangeFromSheetXC(sheetId1, "A1:B2"),
     });
     expect(store.activeSheetMatchesCount).toBe(2);
-    expect(store.allSheetMatchesCount).toBe(3);
+    expect(store.allSheetsMatchesCount).toBe(3);
     expect(store.specificRangeMatchesCount).toBe(1);
   });
 });

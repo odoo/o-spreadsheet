@@ -122,9 +122,9 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
   /**
    * Select a single cell as the new anchor.
    */
-  selectCell(col: HeaderIndex, row: HeaderIndex): DispatchResult {
+  selectCell(col: HeaderIndex, row: HeaderIndex, options?: SelectionEventOptions): DispatchResult {
     const zone = positionToZone({ col, row });
-    return this.selectZone({ zone, cell: { col, row } }, { scrollIntoView: true });
+    return this.selectZone({ zone, cell: { col, row } }, { scrollIntoView: true, ...options });
   }
 
   /**
@@ -429,20 +429,29 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
   }
 
   private checkEventAnchorZone(event: SelectionEvent): CommandResult {
-    return this.checkAnchorZone(event.anchor);
+    return this.checkAnchorZone(event.anchor, event.options);
   }
 
-  private checkAnchorZone(anchor: AnchorZone): CommandResult {
+  private checkAnchorZone(anchor: AnchorZone, options?: SelectionEventOptions): CommandResult {
     const { cell, zone } = anchor;
     if (!isInside(cell.col, cell.row, zone)) {
       return CommandResult.InvalidAnchorZone;
     }
     const { left, right, top, bottom } = zone;
     const sheetId = this.getters.getActiveSheetId();
-    const refCol = this.getters.findVisibleHeader(sheetId, "COL", left, right);
-    const refRow = this.getters.findVisibleHeader(sheetId, "ROW", top, bottom);
-    if (refRow === undefined || refCol === undefined) {
-      return CommandResult.SelectionOutOfBound;
+
+    if (!options?.allowsHiddenSelection) {
+      const refCol = this.getters.findVisibleHeader(sheetId, "COL", left, right);
+      const refRow = this.getters.findVisibleHeader(sheetId, "ROW", top, bottom);
+      if (refRow === undefined || refCol === undefined) {
+        return CommandResult.SelectionOutOfBound;
+      }
+    } else {
+      const numberCols = this.getters.getNumberCols(sheetId);
+      const numberRows = this.getters.getNumberRows(sheetId);
+      if (left < 0 || right > numberCols - 1 || top < 0 || bottom > numberRows - 1) {
+        return CommandResult.SelectionOutOfBound;
+      }
     }
     return CommandResult.Success;
   }
