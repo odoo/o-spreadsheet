@@ -524,8 +524,12 @@ export const REPLACE = {
       );
     }
 
-    const _text = toString(text);
     const _length = toNumber(length, this.locale);
+    if (_length < 0) {
+      return new EvaluationError(_t("The length (%s) must be positive or zero.", _length));
+    }
+
+    const _text = toString(text);
     const _newText = toString(newText);
     return _text.substring(0, _position - 1) + _newText + _text.substring(_position - 1 + _length);
   },
@@ -548,7 +552,7 @@ export const RIGHT = {
     const _numberOfCharacters = args.length ? toNumber(args[0], this.locale) : 1;
     if (_numberOfCharacters < 0) {
       return new EvaluationError(
-        _t("The number_of_characters (%s) must be positive or null.", _numberOfCharacters)
+        _t("The number_of_characters (%s) must be positive or zero.", _numberOfCharacters)
       );
     }
     const _text = toString(text);

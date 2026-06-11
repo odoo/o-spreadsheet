@@ -667,6 +667,7 @@ describe("REPLACE formula", () => {
     expect(evaluateCell("A1", { A1: '=REPLACE("ABZ", 1, 0, "Y")' })).toBe("YABZ");
     expect(evaluateCell("A1", { A1: '=REPLACE("ABZ", 2, 0, "Y")' })).toBe("AYBZ");
     expect(evaluateCell("A1", { A1: '=REPLACE("ABZ", -1, 0, "Y")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=REPLACE("abcdef", 3, -1, "X")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
   test("casting tests on simple arguments", () => {
