@@ -8,6 +8,7 @@ import { UID } from "../../types/misc";
 import { GridRenderingContext } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
+import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
@@ -18,7 +19,7 @@ import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
 // ADRM TODO: Worry about zoom. I did some things that approximately work, but have no idea why.
 export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-StandaloneViewport";
-  static components = { VerticalScrollBar };
+  static components = { VerticalScrollBar, GridOverlay };
 
   protected props = props({
     sheetId: types.UID(),
@@ -174,7 +175,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     modifiers: GridClickModifiers,
     zoomedMouseEvent: ZoomedMouseEvent<MouseEvent | PointerEvent>
   ) {
-    if (!this.env.isDashboard()) {
+    if (!this.env.model.getters.isDashboard()) {
       const activeSheetId = this.env.model.getters.getActiveSheetId();
       if (this.props.sheetId !== activeSheetId) {
         this.env.model.dispatch("ACTIVATE_SHEET", {
@@ -185,5 +186,9 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
       this.env.model.selection.selectCell(col, row);
       return;
     }
+  }
+
+  get gridOverlayDimensions() {
+    return cssPropertiesToCss({ height: "100%", width: "100%" });
   }
 }

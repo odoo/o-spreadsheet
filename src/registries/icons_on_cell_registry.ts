@@ -21,7 +21,7 @@ import { computeTextFontSizeInPixels } from "../helpers/text_helper";
 import { Getters } from "../types/getters";
 import { ImageSVG } from "../types/image";
 import { Align, CellPosition } from "../types/misc";
-import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
+import { SpreadsheetRenderingEnv } from "../types/spreadsheet_env";
 import { Registry } from "./registry";
 
 export type IconsOfCell = Record<Exclude<Align, undefined>, GridIcon | undefined>;
@@ -35,7 +35,7 @@ export interface GridIcon {
   svg?: ImageSVG;
   hoverSvg?: ImageSVG;
   priority: number;
-  onClick?: (position: CellPosition, env: SpreadsheetChildEnv) => void;
+  onClick?: (position: CellPosition, env: SpreadsheetRenderingEnv) => void;
 }
 
 type ImageSvgCallback = (getters: Getters, position: CellPosition) => GridIcon | undefined;
