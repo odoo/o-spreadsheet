@@ -1,5 +1,11 @@
 import { CellComposerStore } from "../../../src/components/composer/composer/cell_composer_store";
-import { addDataValidation, setCellContent, setFormat } from "../../test_helpers/commands_helpers";
+import {
+  addDataValidation,
+  setCellContent,
+  setFormat,
+  updateLocale,
+} from "../../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../../test_helpers/constants";
 import { makeStore } from "../../test_helpers/stores";
 
 describe("Data validation auto complete", () => {
@@ -57,6 +63,33 @@ describe("Data validation auto complete", () => {
         text: "10",
         htmlContent: [{ value: "1900-01-09" }],
         fuzzySearchKey: "1900-01-09",
+      },
+    ]);
+  });
+
+  test("Date values with a locale are correctly displayed in the proposals", () => {
+    const { store: composer, model } = makeStore(CellComposerStore);
+    addDataValidation(model, "A1", "id", {
+      type: "isValueInList",
+      values: ["2/1/2020", "3/1/2020"],
+      displayStyle: "arrow",
+    });
+    updateLocale(model, FR_LOCALE);
+
+    composer.startEdition();
+    const autoComplete = composer.autocompleteProvider;
+    const proposals = autoComplete?.proposals;
+    expect(proposals).toHaveLength(2);
+    expect(proposals).toMatchObject([
+      {
+        text: "2/1/2020",
+        htmlContent: [{ value: "01/02/2020" }],
+        fuzzySearchKey: "01/02/2020",
+      },
+      {
+        text: "3/1/2020",
+        htmlContent: [{ value: "01/03/2020" }],
+        fuzzySearchKey: "01/03/2020",
       },
     ]);
   });

@@ -205,7 +205,7 @@ describe("Data validation", () => {
     expect(getDataValidationRules(model, sheetId)).toEqual([]);
   });
 
-  test.each([
+  test.each<DataValidationCriterion>([
     { type: "textContains", values: ["str"] },
     { type: "textNotContains", values: ["str"] },
     { type: "textIs", values: ["str"] },
@@ -227,16 +227,12 @@ describe("Data validation", () => {
     { type: "isBetween", values: ["5", "6"] },
     { type: "isNotBetween", values: ["5", "6"] },
     { type: "customFormula", values: ["=A1"] },
-  ] as const)(
-    "Deleting content of a cell doesn't remove  %s data validation rule",
-    async (criterion) => {
-      //@ts-ignore
-      addDataValidation(model, "A1", "id", criterion);
-      expect(model.getters.getDataValidationRules(sheetId)).toHaveLength(1);
-      deleteContent(model, ["A1"]);
-      expect(model.getters.getDataValidationRules(sheetId)).toHaveLength(1);
-    }
-  );
+  ])("Deleting content of a cell doesn't remove  %s data validation rule", (criterion) => {
+    addDataValidation(model, "A1", "id", criterion);
+    expect(model.getters.getDataValidationRules(sheetId)).toHaveLength(1);
+    deleteContent(model, ["A1"]);
+    expect(model.getters.getDataValidationRules(sheetId)).toHaveLength(1);
+  });
 
   describe("Clearing dropdown list content", () => {
     beforeEach(async () => {

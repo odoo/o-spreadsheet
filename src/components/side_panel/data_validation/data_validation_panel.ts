@@ -1,5 +1,4 @@
 import { Component, useState } from "@odoo/owl";
-import { localizeDataValidationRule } from "../../../helpers/locale";
 import { DataValidationRule, SpreadsheetChildEnv, UID } from "../../../types";
 import { DataValidationEditor } from "./dv_editor/dv_editor";
 import { DataValidationPreview } from "./dv_preview/dv_preview";
@@ -39,14 +38,6 @@ export class DataValidationPanel extends Component<Props, SpreadsheetChildEnv> {
   onExitEditMode() {
     this.state.mode = "list";
     this.state.activeRule = undefined;
-  }
-
-  localizeDVRule(rule?: DataValidationRule): DataValidationRule | undefined {
-    if (!rule) {
-      return rule;
-    }
-    const locale = this.env.model.getters.getLocale();
-    return localizeDataValidationRule(rule, locale);
   }
 
   get validationRules() {

@@ -41,7 +41,7 @@
           t-if="threshold.type !== 'formula'"
           type="text"
           class="o-input"
-          t-att-value="threshold.value"
+          t-att-value="this.localizeValue(threshold.value)"
           t-on-change="(ev) => this.updateThresholdValue(thresholdType, ev.target.value)"
           t-att-class="{ 'o-invalid': isValueInvalid(thresholdType), 'invisible': threshold === undefined }"
         />
