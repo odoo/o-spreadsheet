@@ -84,7 +84,7 @@ describe("Menu component", () => {
     });
 
     const rootItem = fixture.querySelector(".o-menu div[data-name='root']")!;
-    expect(rootItem.querySelector(".fa-search")).not.toBeNull();
-    expect(rootItem.querySelector(".fa-caret-right")).not.toBeNull();
+    expect(rootItem.querySelector("[data-icon='search']")).not.toBeNull();
+    expect(rootItem.querySelector("[data-icon='arrow_right']")).not.toBeNull();
   });
 });

@@ -22,7 +22,8 @@
         <div class="d-flex flex-rows" t-on-pointerdown.stop="">
           <t t-call-slot="upper-right-icons"/>
           <i
-            class="o-button-icon fa fa-trash pe-1 ps-2"
+            class="o-button-icon oi oi-filled pe-1 ps-2"
+            data-icon="delete"
             t-if="this.props.onRemoved"
             t-on-click="() => this.props.onRemoved(this.props.dimension)"
           />

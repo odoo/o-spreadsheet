@@ -20,6 +20,7 @@ interface MenuItem {
   class: string;
   onClick: () => void;
   preview?: string;
+  icon?: string;
 }
 
 export class ChartDashboardMenu extends Component<SpreadsheetChildEnv> {
@@ -75,7 +76,8 @@ export class ChartDashboardMenu extends Component<SpreadsheetChildEnv> {
     return {
       id: "fullScreenChart",
       label: isFullScreen ? _t("Exit Full Screen") : _t("Full Screen"),
-      class: `text-muted fa ${isFullScreen ? "fa-compress" : "fa-expand"}`,
+      class: "text-muted oi",
+      icon: isFullScreen ? "close_fullscreen" : "open_in_full",
       onClick: () => {
         this.fullScreenFigureStore.toggleFullScreenFigure(figureId);
       },

@@ -245,10 +245,11 @@ exports[`BottomBar component simple rendering 1`] = `
               tabindex="-1"
             >
               <div
-                class="o-icon fa-small"
+                class="o-icon oi-small"
               >
                 <i
-                  class="fa fa-caret-down"
+                  class="oi"
+                  data-icon="arrow_drop_down"
                 />
               </div>
             </span>

@@ -20,7 +20,8 @@
                 selectContentOnFocus="true"
               />
               <i
-                class="o-button-icon ps-3 fa fa-trash"
+                class="o-button-icon ps-3 oi oi-filled"
+                data-icon="delete"
                 t-on-click="() => this.onDeleteGroup(group_index)"
               />
             </div>
