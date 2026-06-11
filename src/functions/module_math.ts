@@ -1118,7 +1118,7 @@ export const RANDBETWEEN = {
       );
     }
     return {
-      value: _low + Math.ceil((_high - _low + 1) * Math.random()) - 1,
+      value: _low + Math.floor((_high - _low + 1) * Math.random()),
       format: low?.format,
     };
   },

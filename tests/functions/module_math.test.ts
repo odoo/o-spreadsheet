@@ -2199,6 +2199,11 @@ describe("RANDBETWEEN formula", () => {
     expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
   });
 
+  test("stays within range when Math.random() returns 0", () => {
+    jest.spyOn(Math, "random").mockReturnValue(0);
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(1, 6)" })).toBe(1);
+  });
+
   test("special value testing", () => {
     expect(evaluateCell("A1", { A1: "=RANDBETWEEN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=RANDBETWEEN( , )" })).toBe(0);
