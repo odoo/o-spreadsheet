@@ -1,4 +1,4 @@
-import { Model, readonlyAllowedCommands, Rect } from "../../../../src";
+import { Model, Rect } from "../../../../src";
 import { GaugeChartComponent } from "../../../../src/components/figures/chart/gauge/gauge_chart_component";
 import { CHART_PADDING, CHART_PADDING_TOP, CHART_TITLE_FONT_SIZE } from "../../../../src/constants";
 import { chartMutedFontColor } from "../../../../src/helpers/figures/charts/chart_common";
@@ -292,8 +292,6 @@ describe("Gauge chart component animation", () => {
   });
 
   test("Animations are replayed only when chart data changes", async () => {
-    readonlyAllowedCommands.add("UPDATE_CELL");
-
     const model = new Model();
     createGaugeChart(model, { dataRange: "A1" });
     model.updateMode("dashboard");
@@ -310,8 +308,6 @@ describe("Gauge chart component animation", () => {
     setCellContent(model, "A1", "6");
     await nextTick();
     expect(gaugeAnimationSpy).toHaveBeenCalledTimes(2);
-
-    readonlyAllowedCommands.delete("UPDATE_CELL");
   });
 });
 

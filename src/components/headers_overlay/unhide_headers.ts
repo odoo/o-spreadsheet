@@ -40,6 +40,9 @@ export class UnhideRowHeaders extends Component<SpreadsheetChildEnv> {
   }
 
   unhide(hiddenElements: HeaderIndex[]) {
+    if (this.env.model.getters.isReadonly()) {
+      return;
+    }
     this.env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
       sheetId: this.sheetId,
       dimension: "ROW",
@@ -84,6 +87,9 @@ export class UnhideColumnHeaders extends Component<SpreadsheetChildEnv> {
   }
 
   unhide(hiddenElements: HeaderIndex[]) {
+    if (this.env.model.getters.isReadonly()) {
+      return;
+    }
     this.env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
       sheetId: this.sheetId,
       dimension: "COL",
