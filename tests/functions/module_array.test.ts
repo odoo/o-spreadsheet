@@ -1529,6 +1529,15 @@ describe("WRAPCOLS function", () => {
     expect(evaluateCell("A1", { A1: '=WRAPCOLS(B3:D9, 8, "pad")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
+  test("wrap_count must be strictly positive", () => {
+    expect(
+      evaluateCell("A1", { A1: "=WRAPCOLS(B1:B4, 0)", B1: "1", B2: "2", B3: "3", B4: "4" })
+    ).toBe("#NUM!");
+    expect(
+      evaluateCell("A1", { A1: "=WRAPCOLS(B1:B4, -1)", B1: "1", B2: "2", B3: "3", B4: "4" })
+    ).toBe("#NUM!");
+  });
+
   test("with single cells", () => {
     const grid = { A1: "A1" };
     const model = createModelFromGrid(grid);
@@ -1629,6 +1638,15 @@ describe("WRAPROWS function", () => {
   test("range argument must be a singe col or single row", () => {
     expect(evaluateCell("A1", { A1: '=WRAPROWS(B1:C2, 8, "pad")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=WRAPROWS(B3:D9, 8, "pad")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+  });
+
+  test("wrap_count must be strictly positive", () => {
+    expect(
+      evaluateCell("A1", { A1: "=WRAPROWS(B1:B4, 0)", B1: "1", B2: "2", B3: "3", B4: "4" })
+    ).toBe("#NUM!");
+    expect(
+      evaluateCell("A1", { A1: "=WRAPROWS(B1:B4, -1)", B1: "1", B2: "2", B3: "3", B4: "4" })
+    ).toBe("#NUM!");
   });
 
   test("with single cells", () => {

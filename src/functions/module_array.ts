@@ -1,6 +1,6 @@
 import { evaluationResultToDisplayString } from "../helpers/matrix";
 import { _t } from "../translation";
-import { EvaluationError, NotAvailableError } from "../types/errors";
+import { CellErrorType, EvaluationError, NotAvailableError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { Arg, FunctionResultObject, Matrix, Maybe } from "../types/misc";
 import { arg } from "./arguments";
@@ -776,6 +776,12 @@ export const WRAPCOLS = {
     if (!isSingleColOrRow(_array)) {
       return new EvaluationError(_t("Argument range must be a single row or column."));
     }
+    if (nbRows < 1) {
+      return new EvaluationError(
+        _t("The wrap_count (%s) must be strictly positive.", nbRows),
+        CellErrorType.InvalidNumber
+      );
+    }
 
     const array = _array.flat();
     const nbColumns = Math.ceil(array.length / nbRows);
@@ -816,6 +822,12 @@ export const WRAPROWS = {
 
     if (!isSingleColOrRow(_array)) {
       return new EvaluationError(_t("Argument range must be a single row or column."));
+    }
+    if (nbColumns < 1) {
+      return new EvaluationError(
+        _t("The wrap_count (%s) must be strictly positive.", nbColumns),
+        CellErrorType.InvalidNumber
+      );
     }
 
     const array = _array.flat();
