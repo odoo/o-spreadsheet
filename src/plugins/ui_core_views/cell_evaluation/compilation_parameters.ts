@@ -1,4 +1,5 @@
-import { intersection, isZoneValid, zoneToXc } from "../../../helpers/zones";
+import { hasOppositeSigns } from "../../../functions/helpers";
+import { intersection, isZoneValid } from "../../../helpers/zones";
 import { _t } from "../../../translation";
 import { EvaluatedCell } from "../../../types/cells";
 import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
@@ -104,51 +105,100 @@ class CompilationParametersBuilder {
       return [[]];
     }
 
-    const nCols = existingRangeZone.right - existingRangeZone.left + 1;
-    const nRows = existingRangeZone.bottom - existingRangeZone.top + 1;
+    // zone index could be negative, meaning that we want to fetch cells in the existing range in the inverse order.
+    // we can do this exercise because, at this step, we know the dimensions of the existing range.
 
-    const subWidth = (zone.right === undefined ? nCols - 1 : zone.right) - zone.left + 1;
-    const subHeight = (zone.bottom === undefined ? nRows - 1 : zone.bottom) - zone.top + 1;
+    // example with the following range: A1:D1:
+    // --> zone = { left: 0, top: 0, right: 0, bottom: 0 } means we want to fetch the sub-range (A1)
+    // --> zone = { left: 0, top: 0, right: 3, bottom: 0 } means we want to fetch the sub-range (A1:C1)
+    // --> zone = { left: 2, top: 0, right: 4, bottom: 0 } means we want to fetch the sub-range (C1:D1)
+    // --> zone = { left: -1, top: 0, right: -1, bottom: 0 } means we want to fetch the sub-range (D1)
+    // --> zone = { left: -2, top: 0, right: -1, bottom: 0 } means we want to fetch the sub-range (C1:D1)
 
-    const left =
-      zone.left >= 0 ? existingRangeZone.left + zone.left : existingRangeZone.right + zone.left + 1;
-    const top =
-      zone.top >= 0 ? existingRangeZone.top + zone.top : existingRangeZone.bottom + zone.top + 1;
-    const right = left + subWidth - 1;
-    const bottom = top + subHeight - 1;
+    const totalWidth = existingRangeZone.right - existingRangeZone.left + 1;
+    const totalHeight = existingRangeZone.bottom - existingRangeZone.top + 1;
 
-    if (
-      left < existingRangeZone.left ||
-      existingRangeZone.right < right ||
-      top < existingRangeZone.top ||
-      existingRangeZone.bottom < bottom
-    ) {
-      const refError = new EvaluationError(
-        _t(
-          "Index out of range: The range %(rangeName)s operates on a matrix of %(nCols)s columns and %(nRows)s rows; the parent formula attempts to access values outside these bounds.",
-          { rangeName: zoneToXc(existingRangeZone), nCols, nRows }
-        )
-      );
-      return [[refError]];
+    const left = zone.left;
+    const right = zone.right === undefined ? Math.max(left, totalWidth - 1) : zone.right;
+    const top = zone.top;
+    const bottom = zone.bottom === undefined ? Math.max(top, totalHeight - 1) : zone.bottom;
+
+    if (hasOppositeSigns(left, right) || hasOppositeSigns(top, bottom)) {
+      throw new Error("Currently, we do not support this kind of zone");
+      // TODO ?
+      // --> zone = { left: -1, top: 0, right: 1, bottom: 0 } means we want to fetch the sub-range (D1 followed by A1:B1)
     }
 
-    if (this.evalContext.__originCellPosition) {
-      const subRange = this.getters.getRangeFromZone(sheetId, { top, left, bottom, right });
-      this.evalContext.currentFormulaDependencies?.push(subRange);
+    if (left > right || top > bottom) {
+      throw new Error("Currently, we do not support this kind of zone");
     }
 
-    const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}`;
+    // at this step we want to transform the zone coordinates into the absolute coordinates of the sheet.
+    // it's at this step that we must transform negative coordinates into positive coordinates too
+
+    const absLeft = left >= 0 ? existingRangeZone.left + left : existingRangeZone.right + left + 1;
+    const absTop = top >= 0 ? existingRangeZone.top + top : existingRangeZone.bottom + top + 1;
+    const absRight =
+      right >= 0 ? existingRangeZone.left + right : existingRangeZone.right + right + 1;
+    const absBottom =
+      bottom >= 0 ? existingRangeZone.top + bottom : existingRangeZone.bottom + bottom + 1;
+
+    // if absolute zone is not include or partially include in the existing range,
+    // we return an empty array or an array partially filled.
+    // We don't throw/return an error because functionally it depends on the function
+    // that is using the range. (e.g. ARRAY.CONSTRAIN must receive less values than
+    // the range passed to it.)
+
+    // However, we don't return exactly an empty matrix but a matrix with undefined
+    // values. Functionally we need information to know how many columns/rows are
+    // empty. E.g. formula like CHOOSECOLUMNS need to distinguish between a range
+    // that return empty because the index is out of range and return empty because
+    // the zone.top/bottom is outside the range.
+
+    // Example if we ask for a zone {left: 2, right: 4, top: 0, bottom: 1} in a
+    // range {A1:B2}, the top and bottom are valid but the left and right are outside
+    // the range.
+
+    // if (
+    //   absLeft < 0 ||
+    //   existingRangeZone.right < absLeft ||
+    //   absTop < 0 ||
+    //   existingRangeZone.top > absTop
+    // ) {
+    //   // no need to check absRight and absBottom because they are always bigger
+    //   // than absLeft and absTop due to the previous checks:
+    //   // if(zone.left > zone.right || zone.top > zone.bottom)
+    //   return [[]];
+    // }
+
+    // if zone is included partially in the existing range, we return the intersection of the two zones
+    // if (absRight > existingRangeZone.right) {
+    //   absRight = existingRangeZone.right;
+    // }
+    // if (absBottom > existingRangeZone.bottom) {
+    //   absBottom = existingRangeZone.bottom;
+    // }
+
+    const cacheKey = `${sheetId}-${absLeft}-${absTop}-${absRight}-${absBottom}`;
     if (cacheKey in this.rangeCache) {
       return this.rangeCache[cacheKey];
     }
 
-    const matrix: Matrix<FunctionResultObject> = new Array(subWidth);
+    const matrix: Matrix<FunctionResultObject> = new Array(absRight - absLeft + 1);
     // Performance issue: nested loop is faster than a map here
-    for (let col = left; col <= right; col++) {
-      const colIndex = col - left;
-      matrix[colIndex] = new Array(subHeight);
-      for (let row = top; row <= bottom; row++) {
-        const rowIndex = row - top;
+    for (let col = absLeft; col <= absRight; col++) {
+      if (col > existingRangeZone.right || col < existingRangeZone.left) {
+        continue;
+      }
+
+      const colIndex = col - absLeft;
+      matrix[colIndex] = new Array(absBottom - absTop + 1);
+      for (let row = absTop; row <= absBottom; row++) {
+        if (row > existingRangeZone.bottom || row < existingRangeZone.top) {
+          continue;
+        }
+
+        const rowIndex = row - absTop;
         const position = { sheetId, col, row };
         const result = this.computeCell(position);
         matrix[colIndex][rowIndex] = result.position ? result : { ...result, position };

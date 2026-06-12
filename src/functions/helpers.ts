@@ -5,7 +5,7 @@ import { isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
 import { CellValue } from "../types/cells";
 import { CellErrorType, ErrorValue, EvaluationError, errorTypes } from "../types/errors";
-import { LookupCaches } from "../types/functions";
+import { LazyArg, LookupCaches } from "../types/functions";
 import { Locale } from "../types/locale";
 import {
   Arg,
@@ -41,6 +41,23 @@ export function valueNotAvailable(searchKey: Maybe<FunctionResultObject>): Funct
     message: _t("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey)),
   };
 }
+
+export function hasOppositeSigns(a: number, b: number) {
+  return (a < 0 && b >= 0) || (a >= 0 && b < 0);
+}
+
+export function hasLackOfColumns(data: Matrix<FunctionResultObject>): boolean {
+  if (data.length !== 0) {
+    for (let col = 0; col < data.length; col++) {
+      if (data[col] === undefined) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+// [Array(0), Array(0)] corresponds to a range for which we have generate two columns but no data to fill it --> mean we have extra columns
+// Array(4)
 
 // -----------------------------------------------------------------------------
 // FORMAT FUNCTIONS
@@ -456,8 +473,13 @@ export function generateSubMatrix<T>(
   nRows: number,
   callback: (col: number, row: number) => T
 ): Matrix<T> {
-  const subWidth = (zone.right === undefined ? nColumns - 1 : zone.right) - zone.left + 1;
-  const subHeight = (zone.bottom === undefined ? nRows - 1 : zone.bottom) - zone.top + 1;
+  const subWidth =
+    (zone.right === undefined ? nColumns - 1 : Math.min(zone.right, nColumns - 1)) - zone.left + 1;
+  const subHeight =
+    (zone.bottom === undefined ? nRows - 1 : Math.min(zone.bottom, nRows - 1)) - zone.top + 1;
+
+  // const subWidth = (zone.right === undefined ? nColumns - 1 : zone.right) - zone.left + 1;
+  // const subHeight = (zone.bottom === undefined ? nRows - 1 : zone.bottom) - zone.top + 1;
 
   if (subWidth < 1 || subHeight < 1) {
     throw new ReferenceError(
@@ -473,6 +495,88 @@ export function generateSubMatrix<T>(
   });
 }
 
+export function generateLimitedMatrix(
+  zone: UnboundedZone,
+  nColumns: number,
+  nRows: number,
+  callback: LazyArg
+): FunctionResultObject | Matrix<FunctionResultObject> {
+  if (callback === undefined) {
+    return [[]];
+  }
+  const left = zone.left;
+  const right = zone.right === undefined ? Math.max(nColumns - 1, left) : zone.right; // Why Math.max? Because right must be at least equal to left.
+  const top = zone.top;
+  const bottom = zone.bottom === undefined ? Math.max(nRows - 1, top) : zone.bottom; // Why Math.max? Because bottom must be at least equal to top.
+
+  if (hasOppositeSigns(left, right) || hasOppositeSigns(top, bottom)) {
+    throw new Error("Currently, we do not support this kind of zone");
+    // TODO ? : have negative and positive values on the same axis ?
+    // --> zone = { left: -1, top: 0, right: 1, bottom: 0 }
+  }
+
+  if (left > right || top > bottom) {
+    throw new Error("Currently, we do not support this kind of zone");
+  }
+
+  // left right top bottom could be negative, mean we want to fetch the range from the end (ex: left: -1 means we want to fetch the last column)
+  const pLeft = left >= 0 ? left : nColumns + left;
+  let pRight = right >= 0 ? right : nColumns + right;
+  const pTop = top >= 0 ? top : nRows + top;
+  let pBottom = bottom >= 0 ? bottom : nRows + bottom;
+
+  // if positive zone is not include in the existing range, we return an empty array
+  if (pLeft < 0 || nColumns - 1 < pLeft || pTop < 0 || nRows - 1 < pTop) {
+    // no need to check pRight and pBottom because they are always bigger
+    // than pLeft and pTop due to the previous checks:
+    // if(zone.left > zone.right || zone.top > zone.bottom)
+    return [[]];
+  }
+
+  // if zone is included partially in the existing range, we return the intersection of the two zones
+  if (pRight > nColumns - 1) {
+    pRight = nColumns - 1;
+  }
+  if (pBottom > nRows - 1) {
+    pBottom = nRows - 1;
+  }
+
+  return callback({ left: pLeft, top: pTop, right: pRight, bottom: pBottom });
+}
+
+export function generateLimitedMatrix2(
+  zone: UnboundedZone,
+  nColumns: number,
+  nRows: number,
+  callback: LazyArg
+): FunctionResultObject | Matrix<FunctionResultObject> {
+  if (callback === undefined) {
+    return [[]];
+  }
+  const left = zone.left;
+  const right = zone.right === undefined ? Math.max(nColumns - 1, left) : zone.right; // Why Math.max? Because right must be at least equal to left.
+  const top = zone.top;
+  const bottom = zone.bottom === undefined ? Math.max(nRows - 1, top) : zone.bottom; // Why Math.max? Because bottom must be at least equal to top.
+
+  if (hasOppositeSigns(left, right) || hasOppositeSigns(top, bottom)) {
+    throw new Error("Currently, we do not support this kind of zone");
+    // TODO ? : have negative and positive values on the same axis ?
+    // --> zone = { left: -1, top: 0, right: 1, bottom: 0 }
+  }
+
+  if (left > right || top > bottom) {
+    throw new Error("Currently, we do not support this kind of zone");
+  }
+
+  // left right top bottom could be negative, mean we want to fetch the range from the end (ex: left: -1 means we want to fetch the last column)
+  const pLeft = left >= 0 ? left : nColumns + left;
+  const pTop = top >= 0 ? top : nRows + top;
+  const pRight = right >= 0 ? right : nColumns + right;
+  const pBottom = bottom >= 0 ? bottom : nRows + bottom;
+
+  return callback({ left: pLeft, top: pTop, right: pRight, bottom: pBottom });
+}
+
 export function matrixMap<T, M>(matrix: Matrix<T>, callback: (value: T) => M): Matrix<M> {
   if (matrix.length === 0) {
     return [];
@@ -485,7 +589,9 @@ export function matrixForEach<T>(matrix: Matrix<T>, fn: (value: T) => void): voi
   const numberOfRows = matrix[0]?.length ?? 0;
   for (let col = 0; col < numberOfCols; col++) {
     for (let row = 0; row < numberOfRows; row++) {
-      fn(matrix[col][row]);
+      if (matrix[col] !== undefined && matrix[col][row] !== undefined) {
+        fn(matrix[col][row]);
+      }
     }
   }
 }
@@ -1052,6 +1158,13 @@ export function toMatrix2<T>(data: T | Matrix<T> | undefined, zone: UnboundedZon
     return generateSubMatrix(zone, 1, 1, () => data);
   }
   return [[data]];
+}
+
+export function toMatrix3<T>(data: T | Matrix<T> | undefined): Matrix<T> {
+  if (data === undefined) {
+    return [[]];
+  }
+  return Array.isArray(data) ? data : [[data]];
 }
 
 /**

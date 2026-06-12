@@ -1,7 +1,7 @@
 import { evaluationResultToDisplayString } from "../helpers/matrix";
 import { _t } from "../translation";
 import { EvaluationError, NotAvailableError } from "../types/errors";
-import { AddFunctionDescription } from "../types/functions";
+import { AddFunctionDescription, LazyArg } from "../types/functions";
 import { Arg, FunctionResultObject, Matrix, Maybe, UnboundedZone } from "../types/misc";
 import { arg } from "./arguments";
 import { areSameDimensions, isSingleColOrRow, isSquareMatrix } from "./helper_assert";
@@ -10,11 +10,14 @@ import {
   flattenRowFirst,
   generateMatrix,
   generateSubMatrix,
+  hasLackOfColumns as hasMissingColumns,
+  hasOppositeSigns,
   isEvaluationError,
   matrixMap,
   toBoolean,
   toInteger,
   toMatrix,
+  toMatrix3,
   toNumber,
   toNumberMatrix,
   toString,
@@ -100,40 +103,123 @@ function stackVertically(
 export const ARRAY_CONSTRAIN = {
   description: _t("Returns a result array constrained to a specific width and height."),
   args: [
-    arg("input_range (any, range<any>)", _t("The range to constrain.")),
+    arg("input_range (any, range<any>, lazy)", _t("The range to constrain.")),
     arg("rows (number)", _t("The number of rows in the constrained array.")),
     arg("columns (number)", _t("The number of columns in the constrained array.")),
   ],
   computeArray: function (
     zone: UnboundedZone,
-    array: Arg,
+    inputRange: LazyArg,
     rows: Maybe<FunctionResultObject>,
     columns: Maybe<FunctionResultObject>
   ) {
-    const _array = toMatrix(array);
-    const _rowsArg = toInteger(rows?.value, this.locale);
-    const _columnsArg = toInteger(columns?.value, this.locale);
+    if (inputRange === undefined) {
+      inputRange = () => [[]];
+    }
 
-    if (_rowsArg <= 0) {
+    const _rows = toInteger(rows?.value, this.locale);
+    const _columns = toInteger(columns?.value, this.locale);
+
+    if (_rows <= 0) {
       return new EvaluationError(
-        _t("The rows argument (%s) must be strictly positive.", _rowsArg.toString())
+        _t("The rows argument (%s) must be strictly positive.", _rows.toString())
       );
     }
-    if (_columnsArg <= 0) {
+    if (_columns <= 0) {
       return new EvaluationError(
-        _t("The columns argument (%s) must be strictly positive.", _columnsArg.toString())
+        _t("The columns argument (%s) must be strictly positive.", _columns.toString())
       );
     }
 
-    // should not check the dimensions. Here _array is empty because we d'ont accept ranges outside of the sheet for
-    if (_array[0].length === 0) {
-      return [[{ value: 0 }]];
+    const left = zone.left;
+    const right = zone.right === undefined ? Math.max(left, _columns - 1) : zone.right;
+    const top = zone.top;
+    const bottom = zone.bottom === undefined ? Math.max(top, _rows - 1) : zone.bottom;
+
+    if (hasOppositeSigns(left, right)) {
+      throw new Error("Currently, we do not support this kind of zone");
+    }
+    if (left > right || top > bottom) {
+      throw new Error("Currently, we do not support this kind of zone");
     }
 
-    const _nbRows = Math.min(_rowsArg, _array[0].length);
-    const _nbColumns = Math.min(_columnsArg, _array.length);
+    // Note: this formula is not implemented in Excel, possibly due to evaluation-system
+    // compatibility constraints. In any case, its implementation requires special care.
+    //
+    // The issue is that we do not know the final output size in advance.
+    // If right/bottom are too large, the function must still be able to return
+    // an array smaller than the requested _rows and _columns.
+    // Example: ARRAY.CONSTRAIN(A1:B2, 3, 3) returns a 2x2 array, not a 3x3 array.
+    // Functionally, it could return an error when the range is smaller than requested,
+    // but it does not.
+    //
+    // In our design, this is problematic. We must support compositions such as:
+    // CHOOSECOLS(ARRAY.CONSTRAIN(...), -1)
+    // Index -1 must return the last column produced by ARRAY.CONSTRAIN.
+    // Case 1: ARRAY.CONSTRAIN(A1:D4, 3, 3) -> last column is C1:C3
+    // Case 2: ARRAY.CONSTRAIN(A1:C3, 3, 3) -> last column is C1:C3
+    // Case 3: ARRAY.CONSTRAIN(A1:B2, 3, 3) -> last column is B1:B2
+    //
+    // Technically, for index -1, ARRAY.CONSTRAIN.computeArray receives a zone like:
+    // { left: -1, top: 0, right: -1, bottom: undefined }
+    //
+    // We could pass this zone directly to inputRange.
+    // Callbacks support negative indices, but doing so would return D1:D4 in case 1,
+    // which is not what we want.
+    //
+    // Another option is to transform this zone into positive indices based on
+    // _rows and _columns. For example:
+    // zone.left = _columns + zone.left = 3 + (-1) = 2 (same for right).
+    // With this transformed zone, case 1 and case 2 return C1:C3 as expected.
+    // But in case 3, we get an empty array because there is no 3rd column in A1:B2.
+    //
+    // Therefore, we could "probe" by decrementing left/right until we hit an
+    // existing column, but this could be expensive if the input result is small
+    // comparing to _rows and _columns.
+    //
+    // The choice done here is to return an error if the result from inputRange
+    // is smaller than the requested _rows and _columns. Mean return an error when
+    // the last column or last row does not exist.
 
-    return generateSubMatrix(zone, _nbColumns, _nbRows, (col, row) => _array[col][row]);
+    const pLeft = left >= 0 ? left : _columns + left;
+    const pRight = right >= 0 ? right : _columns + right;
+    const pTop = top >= 0 ? top : _rows + top;
+    const pBottom = bottom >= 0 ? bottom : _rows + bottom;
+    const pZone = { left: pLeft, top: pTop, right: pRight, bottom: pBottom };
+
+    const result = toMatrix3(inputRange(pZone));
+
+    const resultWidth = result.length;
+    const resultHeight = result[0]?.length ?? 0;
+
+    if (
+      result[0] === undefined ||
+      result[resultWidth - 1] === undefined ||
+      result[0][0] === undefined ||
+      result[0][resultHeight - 1] === undefined
+    ) {
+      return new EvaluationError(
+        _t(
+          "The input range is smaller than the requested size of %s rows and %s columns.",
+          _rows.toString(),
+          _columns.toString()
+        )
+      );
+    }
+
+    return [[{ value: 0 }]];
+
+    // TODO: check whether it is really necessary to return a constructed matrix
+    // when trying to access values that do not exist.
+    //
+    // --> Answer: yes, this is necessary. If we do not do this, we cannot distinguish
+    // between different types of errors. For example, in CHOOSECOLS we must distinguish
+    // a column index that is out of the array range from top/bottom indices that are
+    // out of the array range. The shape of the empty range is what lets us distinguish
+    // these two cases.
+    //
+    // In any case, we need this distinction: we use different empty-array structures
+    // to tell these cases apart.
   },
   isExported: false,
 } satisfies AddFunctionDescription;
@@ -176,38 +262,62 @@ export const ARRAY_ROW = {
 export const CHOOSECOLS = {
   description: _t("Creates a new array from the selected columns in the existing range."),
   args: [
-    arg("array (any, range<any>)", _t("The array that contains the columns to be returned.")),
+    arg("array (any, range<any>, lazy)", _t("The array that contains the columns to be returned.")),
     arg(
       "col_num (number, range<number>, repeating)",
       _t("The column index of the column to be returned.")
     ),
   ],
-  computeArray: function (zone: UnboundedZone, array: Arg, ...columns: Arg[]) {
-    const _array = toMatrix(array);
+  computeArray: function (zone: UnboundedZone, array: LazyArg, ...columns: Arg[]) {
     const _columns = flattenRowFirst(columns, (item) => toInteger(item?.value, this.locale));
 
-    const argOutOfRange = _columns.filter((col) => col === 0 || _array.length < Math.abs(col));
-    if (argOutOfRange.length !== 0) {
+    if (array === undefined) {
+      array = () => [[]];
+    }
+
+    if (_columns.includes(0)) {
       return new EvaluationError(
-        _t(
-          "The columns arguments must be between -%s and %s (got %s), excluding 0.",
-          _array.length.toString(),
-          _array.length.toString(),
-          argOutOfRange.join(",")
-        )
+        _t("The value of parameter 2 of function [[FUNCTION_NAME]] cannot be zero.")
       );
     }
 
-    const result: Matrix<FunctionResultObject> = Array(_columns.length);
-    for (let col = 0; col < _columns.length; col++) {
-      if (_columns[col] > 0) {
-        result[col] = _array[_columns[col] - 1]; // -1 because columns arguments are 1-indexed
-      } else {
-        result[col] = _array[_array.length + _columns[col]];
-      }
+    const leftIndexes = _columns.map((col) => (col > 0 ? col - 1 : col));
+
+    const totalWidth = leftIndexes.length;
+
+    const left = zone.left;
+    const right = zone.right === undefined ? Math.max(left, totalWidth - 1) : zone.right;
+
+    if (hasOppositeSigns(left, right)) {
+      throw new Error("Currently, we do not support this kind of zone");
+    }
+    if (left > right) {
+      throw new Error("Currently, we do not support this kind of zone");
     }
 
-    return toSubMatrix(zone, result);
+    const pLeft = left >= 0 ? left : leftIndexes.length + left;
+    const pRight = right >= 0 ? right : leftIndexes.length + right;
+
+    const result: Matrix<FunctionResultObject> = Array(pRight - pLeft + 1);
+    for (let colIndex = pLeft; colIndex <= pRight; colIndex++) {
+      const newLeft = leftIndexes[colIndex];
+      if (newLeft === undefined) {
+        continue;
+      }
+      const subZone = { left: newLeft, right: newLeft, top: zone.top, bottom: zone.bottom };
+      const res = toMatrix3(array(subZone));
+      if (hasMissingColumns(res)) {
+        return new EvaluationError(
+          _t(
+            "Index out of range: The function [[FUNCTION_NAME]] tries to access a column at index (%s) that doesn't match any column.",
+            _columns[colIndex].toString()
+          )
+        );
+      }
+      result[colIndex - pLeft] = res[0];
+    }
+
+    return result;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -257,7 +367,7 @@ export const CHOOSEROWS = {
 export const EXPAND = {
   description: _t("Expands or pads an array to specified row and column dimensions."),
   args: [
-    arg("array (any, range<any>)", _t("The array to expand.")),
+    arg("array (any, range<any>, lazy)", _t("The array to expand.")),
     arg(
       "rows (number)",
       _t("The number of rows in the expanded array. If missing, rows will not be expanded.")
@@ -270,37 +380,68 @@ export const EXPAND = {
   ],
   computeArray: function (
     zone: UnboundedZone,
-    arg: Arg,
+    array: LazyArg,
     rows: Maybe<FunctionResultObject>,
-    columns?: Maybe<FunctionResultObject>,
+    columns: Maybe<FunctionResultObject>,
     padWith: Maybe<FunctionResultObject> = { value: 0 } // TODO : Replace with #N/A errors once it's supported
   ) {
-    const _array = toMatrix(arg);
-    const _nbRows = toInteger(rows?.value, this.locale);
-    const _nbColumns =
-      columns !== undefined ? toInteger(columns.value, this.locale) : _array.length;
+    if (array === undefined) {
+      array = () => [[]];
+    }
 
-    if (_nbRows < _array[0].length) {
+    // depending the zone passed in parameters, array(zone) could reurn error if
+    // the zone is out of the bounds of the array. But the goal of this function
+    // is to expand the array.
+    // So we shouldn't pass the zone to the array closure,
+    const subArray = toMatrix(array(zone));
+
+    const subWidth = subArray.length;
+    const subHeight = subArray[0].length;
+
+    const realWidth = zone.left + subWidth;
+    const realHeight = zone.top + subHeight;
+
+    const _rows = rows !== undefined ? toInteger(rows.value, this.locale) : realHeight;
+    const _columns = columns !== undefined ? toInteger(columns.value, this.locale) : realWidth;
+
+    if (_rows < realHeight) {
       return new EvaluationError(
         _t(
           "The rows arguments (%s) must be greater or equal than the number of rows of the array.",
-          _nbRows.toString()
+          _rows.toString()
         )
       );
     }
 
-    if (_nbColumns < _array.length) {
+    if (_columns < realWidth) {
       return new EvaluationError(
         _t(
           "The columns arguments (%s) must be greater or equal than the number of columns of the array.",
-          _nbColumns.toString()
+          _columns.toString()
         )
       );
     }
 
-    return generateSubMatrix(zone, _nbColumns, _nbRows, (col, row) =>
-      col >= _array.length || row >= _array[col].length ? padWith : _array[col][row]
-    );
+    const endColIndex = _columns - zone.left;
+    const endRowIndex = _rows - zone.top;
+
+    // fill the missing values in the already existing columns
+    for (let colIndex = 0; colIndex < subWidth; colIndex++) {
+      for (let rowIndex = subHeight; rowIndex < endRowIndex; rowIndex++) {
+        subArray[colIndex].push(padWith);
+      }
+    }
+
+    // fill the missing columns
+    for (let colIndex = subWidth; colIndex < endColIndex; colIndex++) {
+      const newCol: FunctionResultObject[] = [];
+      for (let rowIndex = 0; rowIndex < endRowIndex; rowIndex++) {
+        newCol.push(padWith);
+      }
+      subArray.push(newCol);
+    }
+
+    return subArray;
   },
   isExported: true,
 } satisfies AddFunctionDescription;

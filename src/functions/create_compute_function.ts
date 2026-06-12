@@ -376,7 +376,7 @@ function replaceFunctionNamePlaceholder(
   functionName: string
 ) {
   // for performance reasons: change in place and only if needed
-  if (functionResult.message?.includes("[[FUNCTION_NAME]]")) {
+  if (functionResult?.message?.includes("[[FUNCTION_NAME]]")) {
     functionResult.message = functionResult.message.replace("[[FUNCTION_NAME]]", functionName);
   }
 }

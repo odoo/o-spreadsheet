@@ -1,68 +1,374 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`compile functions function lazy arguments pass a range as lazy argument --> arg is encapsulated 1`] = `
+exports[`compile functions function lazy arguments pass a range as lazy range argument --> arg is encapsulated with zone 1`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = (zone) => {
+	return range(zone, deps[0]);
+}
+return computeFunctions[0](ctx,fullZone,_1); // ACCEPT_LAZY_RANGE_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a range as lazy range argument --> arg is encapsulated with zone 2`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _2 = (zone) => {
+	const _1 = this.literalValues.numbers[0];
+	return computeFunctions[0](ctx,zone,_1); // ACCEPT_SCALAR_RETURN_RANGE;
+}
+return computeFunctions[1](ctx,fullZone,_2); // ACCEPT_LAZY_RANGE_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a range as lazy range argument --> arg is encapsulated with zone 3`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
 ) {
 const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _2 = (zone) => {
 	const _1 = range(fullZone, deps[0]);
-	return computeFunctions[0](ctx,zone,_1); // RANGE_ARG_FORMULA;
+	return computeFunctions[0](ctx,zone,_1); // ACCEPT_RANGE_RETURN_RANGE;
 }
-return computeFunctions[1](ctx,fullZone,_2); // LAZY_ARG_FORMULA;
+return computeFunctions[1](ctx,fullZone,_2); // ACCEPT_LAZY_RANGE_RETURN_RANGE;
 }"
 `;
 
-exports[`compile functions function lazy arguments pass a range as non-lazy argument --> arg is not encapsulated 1`] = `
+exports[`compile functions function lazy arguments pass a range as lazy scalar argument (vectorization) --> arg is encapsulated with zone 1`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = () => {
+	return range(zone, deps[0]);
+}
+return computeFunctions[0](ctx,fullZone,_1); // VECTORIZE ACCEPT_LAZY_SCALAR_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a range as lazy scalar argument (vectorization) --> arg is encapsulated with zone 2`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _2 = () => {
+	const _1 = this.literalValues.numbers[0];
+	return computeFunctions[0](ctx,zone,_1); // ACCEPT_SCALAR_RETURN_RANGE;
+}
+return computeFunctions[1](ctx,fullZone,_2); // VECTORIZE ACCEPT_LAZY_SCALAR_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a range as lazy scalar argument (vectorization) --> arg is encapsulated with zone 3`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _2 = () => {
+	const _1 = range(fullZone, deps[0]);
+	return computeFunctions[0](ctx,zone,_1); // ACCEPT_RANGE_RETURN_RANGE;
+}
+return computeFunctions[1](ctx,fullZone,_2); // VECTORIZE ACCEPT_LAZY_SCALAR_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a range as range argument --> arg is not encapsulated 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
 ) {
 const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = range(fullZone, deps[0]);
-const _2 = computeFunctions[0](ctx,fullZone,_1); // RANGE_ARG_FORMULA;
-return computeFunctions[1](ctx,fullZone,_2); // RANGE_ARG_FORMULA;
+return computeFunctions[0](ctx,_1); // ACCEPT_RANGE_RETURN_SCALAR;
 }"
 `;
 
-exports[`compile functions function lazy arguments pass a scalar as lazy argument --> arg is encapsulated 1`] = `
+exports[`compile functions function lazy arguments pass a range as range argument --> arg is not encapsulated 2`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = this.literalValues.numbers[0];
+const _2 = computeFunctions[0](ctx,fullZone,_1); // ACCEPT_SCALAR_RETURN_RANGE;
+return computeFunctions[1](ctx,_2); // ACCEPT_RANGE_RETURN_SCALAR;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a range as range argument --> arg is not encapsulated 3`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = range(fullZone, deps[0]);
+const _2 = computeFunctions[0](ctx,fullZone,_1); // ACCEPT_RANGE_RETURN_RANGE;
+return computeFunctions[1](ctx,_2); // ACCEPT_RANGE_RETURN_SCALAR;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a range as range argument --> arg is not encapsulated 4`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = range(fullZone, deps[0]);
+return computeFunctions[0](ctx,fullZone,_1); // ACCEPT_RANGE_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a range as range argument --> arg is not encapsulated 5`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = this.literalValues.numbers[0];
+const _2 = computeFunctions[0](ctx,fullZone,_1); // ACCEPT_SCALAR_RETURN_RANGE;
+return computeFunctions[1](ctx,fullZone,_2); // ACCEPT_RANGE_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a range as range argument --> arg is not encapsulated 6`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = range(fullZone, deps[0]);
+const _2 = computeFunctions[0](ctx,fullZone,_1); // ACCEPT_RANGE_RETURN_RANGE;
+return computeFunctions[1](ctx,fullZone,_2); // ACCEPT_RANGE_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a range as scalar argument (VECTORIZATION) --> arg is not encapsulated 1`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = range(fullZone, deps[0]);
+return computeFunctions[0](ctx,fullZone,_1); // VECTORIZE ACCEPT_SCALAR_RETURN_SCALAR;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a range as scalar argument (VECTORIZATION) --> arg is not encapsulated 2`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = this.literalValues.numbers[0];
+const _2 = computeFunctions[0](ctx,fullZone,_1); // ACCEPT_SCALAR_RETURN_RANGE;
+return computeFunctions[1](ctx,fullZone,_2); // VECTORIZE ACCEPT_SCALAR_RETURN_SCALAR;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a range as scalar argument (VECTORIZATION) --> arg is not encapsulated 3`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = range(fullZone, deps[0]);
+const _2 = computeFunctions[0](ctx,fullZone,_1); // ACCEPT_RANGE_RETURN_RANGE;
+return computeFunctions[1](ctx,fullZone,_2); // VECTORIZE ACCEPT_SCALAR_RETURN_SCALAR;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a range as scalar argument (VECTORIZATION) --> arg is not encapsulated 4`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = range(fullZone, deps[0]);
+return computeFunctions[0](ctx,fullZone,_1); // VECTORIZE ACCEPT_SCALAR_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a range as scalar argument (VECTORIZATION) --> arg is not encapsulated 5`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = this.literalValues.numbers[0];
+const _2 = computeFunctions[0](ctx,fullZone,_1); // ACCEPT_SCALAR_RETURN_RANGE;
+return computeFunctions[1](ctx,fullZone,_2); // VECTORIZE ACCEPT_SCALAR_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a range as scalar argument (VECTORIZATION) --> arg is not encapsulated 6`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = range(fullZone, deps[0]);
+const _2 = computeFunctions[0](ctx,fullZone,_1); // ACCEPT_RANGE_RETURN_RANGE;
+return computeFunctions[1](ctx,fullZone,_2); // VECTORIZE ACCEPT_SCALAR_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a scalar as lazy range argument --> arg is encapsulated with zone 1`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = (zone) => {
+	return this.literalValues.numbers[0];
+}
+return computeFunctions[0](ctx,fullZone,_1); // ACCEPT_LAZY_RANGE_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a scalar as lazy range argument --> arg is encapsulated with zone 2`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
 ) {
 const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _2 = (zone) => {
-	const _1 = ref(deps[0]);
-	return computeFunctions[0](ctx,_1); // SCALAR_ARG_FORMULA;
+	const _1 = this.literalValues.numbers[0];
+	return computeFunctions[0](ctx,_1); // ACCEPT_SCALAR_RETURN_SCALAR;
 }
-return computeFunctions[1](ctx,fullZone,_2); // LAZY_ARG_FORMULA;
+return computeFunctions[1](ctx,fullZone,_2); // ACCEPT_LAZY_RANGE_RETURN_RANGE;
 }"
 `;
 
-exports[`compile functions function lazy arguments pass a scalar as non-lazy argument --> arg is not encapsulated 1`] = `
+exports[`compile functions function lazy arguments pass a scalar as lazy range argument --> arg is encapsulated with zone 3`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _2 = (zone) => {
+	const _1 = range(fullZone, deps[0]);
+	return computeFunctions[0](ctx,_1); // ACCEPT_RANGE_RETURN_SCALAR;
+}
+return computeFunctions[1](ctx,fullZone,_2); // ACCEPT_LAZY_RANGE_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a scalar as lazy scalar argument --> arg is encapsulated without zone 1`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = () => {
+	return this.literalValues.numbers[0];
+}
+return computeFunctions[0](ctx,fullZone,_1); // ACCEPT_LAZY_SCALAR_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a scalar as lazy scalar argument --> arg is encapsulated without zone 2`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _2 = () => {
+	const _1 = this.literalValues.numbers[0];
+	return computeFunctions[0](ctx,_1); // ACCEPT_SCALAR_RETURN_SCALAR;
+}
+return computeFunctions[1](ctx,fullZone,_2); // ACCEPT_LAZY_SCALAR_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a scalar as lazy scalar argument --> arg is encapsulated without zone 3`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _2 = () => {
+	const _1 = range(fullZone, deps[0]);
+	return computeFunctions[0](ctx,_1); // ACCEPT_RANGE_RETURN_SCALAR;
+}
+return computeFunctions[1](ctx,fullZone,_2); // ACCEPT_LAZY_SCALAR_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a scalar as range argument --> arg is not encapsulated 1`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = this.literalValues.numbers[0];
+return computeFunctions[0](ctx,_1); // ACCEPT_RANGE_RETURN_SCALAR;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a scalar as range argument --> arg is not encapsulated 2`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = this.literalValues.numbers[0];
+const _2 = computeFunctions[0](ctx,_1); // ACCEPT_SCALAR_RETURN_SCALAR;
+return computeFunctions[1](ctx,_2); // ACCEPT_RANGE_RETURN_SCALAR;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a scalar as range argument --> arg is not encapsulated 3`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = range(fullZone, deps[0]);
+const _2 = computeFunctions[0](ctx,_1); // ACCEPT_RANGE_RETURN_SCALAR;
+return computeFunctions[1](ctx,_2); // ACCEPT_RANGE_RETURN_SCALAR;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a scalar as range argument --> arg is not encapsulated 4`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = this.literalValues.numbers[0];
+return computeFunctions[0](ctx,fullZone,_1); // ACCEPT_RANGE_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a scalar as range argument --> arg is not encapsulated 5`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = this.literalValues.numbers[0];
+const _2 = computeFunctions[0](ctx,_1); // ACCEPT_RANGE_RETURN_SCALAR;
+return computeFunctions[1](ctx,fullZone,_2); // ACCEPT_RANGE_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a scalar as range argument --> arg is not encapsulated 6`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = range(fullZone, deps[0]);
+const _2 = computeFunctions[0](ctx,fullZone,_1); // ACCEPT_RANGE_RETURN_RANGE;
+return computeFunctions[1](ctx,fullZone,_2); // ACCEPT_RANGE_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a scalar as scalar argument --> arg is not encapsulated 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
 ) {
 const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = ref(deps[0]);
-const _2 = computeFunctions[0](ctx,_1); // SCALAR_ARG_FORMULA;
-return computeFunctions[1](ctx,fullZone,_2); // RANGE_ARG_FORMULA;
+return computeFunctions[0](ctx,_1); // ACCEPT_SCALAR_RETURN_SCALAR;
 }"
 `;
 
-exports[`compile functions function lazy arguments pass a vector as lazy argument --> arg is encapsulated 1`] = `
+exports[`compile functions function lazy arguments pass a scalar as scalar argument --> arg is not encapsulated 2`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
 ) {
 const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
-const _2 = (zone) => {
-	const _1 = range(fullZone, deps[0]);
-	return computeFunctions[0](ctx,zone,_1); // VECTORIZE SCALAR_ARG_FORMULA;
-}
-return computeFunctions[1](ctx,fullZone,_2); // LAZY_ARG_FORMULA;
+const _1 = this.literalValues.numbers[0];
+const _2 = computeFunctions[0](ctx,_1); // ACCEPT_SCALAR_RETURN_SCALAR;
+return computeFunctions[1](ctx,_2); // ACCEPT_SCALAR_RETURN_SCALAR;
 }"
 `;
 
-exports[`compile functions function lazy arguments pass a vector as non-lazy argument --> arg is not encapsulated 1`] = `
+exports[`compile functions function lazy arguments pass a scalar as scalar argument --> arg is not encapsulated 3`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
 ) {
 const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = range(fullZone, deps[0]);
-const _2 = computeFunctions[0](ctx,fullZone,_1); // VECTORIZE SCALAR_ARG_FORMULA;
-return computeFunctions[1](ctx,fullZone,_2); // RANGE_ARG_FORMULA;
+const _2 = computeFunctions[0](ctx,_1); // ACCEPT_RANGE_RETURN_SCALAR;
+return computeFunctions[1](ctx,_2); // ACCEPT_SCALAR_RETURN_SCALAR;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a scalar as scalar argument --> arg is not encapsulated 4`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = this.literalValues.numbers[0];
+return computeFunctions[0](ctx,fullZone,_1); // ACCEPT_SCALAR_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a scalar as scalar argument --> arg is not encapsulated 5`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = this.literalValues.numbers[0];
+const _2 = computeFunctions[0](ctx,_1); // ACCEPT_SCALAR_RETURN_SCALAR;
+return computeFunctions[1](ctx,fullZone,_2); // ACCEPT_SCALAR_RETURN_RANGE;
+}"
+`;
+
+exports[`compile functions function lazy arguments pass a scalar as scalar argument --> arg is not encapsulated 6`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = range(fullZone, deps[0]);
+const _2 = computeFunctions[0](ctx,_1); // ACCEPT_RANGE_RETURN_SCALAR;
+return computeFunctions[1](ctx,fullZone,_2); // ACCEPT_SCALAR_RETURN_RANGE;
 }"
 `;
 
