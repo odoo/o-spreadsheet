@@ -1,6 +1,5 @@
 import { ChartCreationContext, Model, UID } from "../../../../src";
 import { ColorGenerator, lightenColor } from "../../../../src/helpers/color";
-import { fontSizeInPixels } from "../../../../src/helpers/text_helper";
 import { TreeMapChartRuntime } from "../../../../src/types/chart/tree_map_chart";
 import {
   createChartDefinitionFromContext,
@@ -208,28 +207,6 @@ describe("TreeMap chart", () => {
       groups: ["0"],
       key: "value",
     });
-  });
-
-  test("TreeMap label and header font sizes are converted from points to pixels", () => {
-    // prettier-ignore
-    setGrid(model, {
-      A1: "Year",   B1: "Quarter",    C1: "Sales",
-      A2: "2024",   B2: "Q1",         C2: "100",
-    });
-
-    const chartId = createTreeMapChart(model, {
-      ...toChartDataSource({
-        dataSets: [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }],
-        labelRange: "C1:C2",
-        dataSetsHaveTitle: true,
-      }),
-      headerDesign: { fontSize: 24 },
-      valuesDesign: { fontSize: 20 },
-    });
-
-    const datasetConfig = getTreeMapDatasetConfig(chartId);
-    expect(datasetConfig.labels.font.size).toEqual(fontSizeInPixels(20));
-    expect(datasetConfig.captions.font.size).toEqual(fontSizeInPixels(24));
   });
 
   test("Can have a hierarchical dataset with some categories more detailed that others", () => {

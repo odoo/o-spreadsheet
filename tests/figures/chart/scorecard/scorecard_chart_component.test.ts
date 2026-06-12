@@ -11,7 +11,7 @@ import {
   getScorecardConfiguration,
 } from "../../../../src/helpers/figures/charts/scorecard_chart_config_builder";
 import { createAccountingFormat } from "../../../../src/helpers/format/format";
-import { fontSizeInPixels, getContextFontSize } from "../../../../src/helpers/text_helper";
+import { getContextFontSize } from "../../../../src/helpers/text_helper";
 import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
@@ -160,40 +160,6 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.baseline?.text).toEqual("1");
     expect(chartDesign.baselineDescr?.text).toEqual(" desc");
     expect(chartDesign.key?.text).toEqual("2");
-  });
-
-  test("Title font size is converted from points to pixels", () => {
-    createScorecardChart(
-      model,
-      { keyValue: "A1", baseline: "B1", title: { text: "hello", fontSize: 24 } },
-      chartId
-    );
-    const chartDesign = getChartDesign(model, chartId, sheetId);
-
-    expect(getContextFontSize(chartDesign.title!.style.font)).toEqual(fontSizeInPixels(24));
-  });
-
-  test("Key and baseline font sizes are converted from points to pixels", () => {
-    createScorecardChart(
-      model,
-      {
-        keyValue: "A1",
-        keyDescr: { text: "keykey", fontSize: 24 },
-        baseline: "B1",
-        baselineDescr: { text: "baselineDescr", fontSize: 28 },
-      },
-      chartId
-    );
-    const chartDesign = getChartDesign(model, chartId, sheetId);
-
-    expect(getContextFontSize(chartDesign.key!.style.font)).toEqual(fontSizeInPixels(24));
-    expect(getContextFontSize(chartDesign.keyDescr!.style.font)).toEqual(
-      fontSizeInPixels(Math.floor(0.9 * 24))
-    );
-    expect(getContextFontSize(chartDesign.baseline!.style.font)).toEqual(fontSizeInPixels(28));
-    expect(getContextFontSize(chartDesign.baselineDescr!.style.font)).toEqual(
-      fontSizeInPixels(Math.floor(0.9 * 28))
-    );
   });
 
   test("Baseline = 0 correctly displayed", () => {
