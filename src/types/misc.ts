@@ -6,6 +6,7 @@ import { CellValue, EvaluatedCell } from "./cells";
 import { CompiledFormula } from "../formulas/compiler";
 import { CommandResult } from "./commands";
 import { Format } from "./format";
+import { ComputeFunction } from "./functions";
 import { Range } from "./range";
 
 /**
@@ -179,7 +180,8 @@ export type FormulaToExecute = (
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
   getSymbolValue: GetSymbolValue,
-  ctx: object
+  ctx: object,
+  functions: ComputeFunction[]
 ) => Matrix<FunctionResultObject> | FunctionResultObject;
 
 export interface LiteralValues {
