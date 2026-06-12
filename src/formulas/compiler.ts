@@ -480,7 +480,10 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
         const toVectorize = !argDefinition.acceptMatrix && argAST.returnsMatrix;
 
         compiledArgs.push({
-          argAST: isLazy ? argAST.wrapInClosure(argDefinition.acceptMatrix === true) : argAST,
+          argAST:
+            currentArg.type !== "EMPTY" && isLazy
+              ? argAST.wrapInClosure(argDefinition.acceptMatrix === true)
+              : argAST,
           toVectorize,
         });
       }
