@@ -1,4 +1,4 @@
-import { types as owlTypes } from "@odoo/owl";
+import { types as owlTypes, Type } from "@odoo/owl";
 import { Action, ActionSpec, MenuItemOrSeparator } from "../actions/action";
 import { Token } from "../formulas/tokenizer";
 import { PivotRuntimeDefinition } from "../helpers/pivot/pivot_runtime_definition";
@@ -94,28 +94,28 @@ import type { SidePanelComponentProps } from "./side_panel/side_panel/side_panel
 /**
  * Validate that a prop is a number, but with a more specific type than just `number` (e.g. `Pixel`).
  */
-function validateNumber<T extends number>(): T {
+function validateNumber<T extends number>(): Type<T> {
   return owlTypes.number() as any;
 }
 
 /**
  * Validate that a prop is a string, but with a more specific type than just `string` (e.g. `Color`).
  */
-function validateString<T extends string>(): T {
+function validateString<T extends string>(): Type<T> {
   return owlTypes.string() as any;
 }
 
 /**
  * Validate that a prop is an object, but with a more specific type than just `object` (e.g. `ActionSpec`).
  */
-function validateObject<T>(): T {
+function validateObject<T>(): Type<T> {
   return owlTypes.object() as any;
 }
 
 /**
  * Validate that a prop is an array, but with a more specific element type than `any[]`.
  */
-function validateArrayOf<T>(): T[] {
+function validateArrayOf<T>(): Type<T[]> {
   return owlTypes.array() as any;
 }
 
@@ -123,18 +123,18 @@ function validateArrayOf<T>(): T[] {
  * Validate that a prop is a record (string-keyed dictionary), but with a more
  * specific value type than `any`.
  */
-function validateRecordOf<T>(): Record<string, T> {
+function validateRecordOf<T>(): Type<Record<string, T>> {
   return owlTypes.record() as any;
 }
 
 /**
  * Validate that a prop is a `Set`, typed with a specific element type.
  */
-function validateSetOf<T>(): Set<T> {
+function validateSetOf<T>(): Type<Set<T>> {
   return owlTypes.instanceOf(Set) as any;
 }
 
-function validateRect(): Rect {
+function validateRect(): Type<Rect> {
   return owlTypes.object({
     x: owlTypes.number(),
     y: owlTypes.number(),
@@ -143,57 +143,57 @@ function validateRect(): Rect {
   }) as any;
 }
 
-function validateBorderPosition(): BorderPosition {
+function validateBorderPosition(): Type<BorderPosition> {
   return owlTypes.customValidator(validateString<BorderPosition>(), (position) =>
     borderPositions.includes(position)
   ) as any;
 }
 
-function validateBorderStyle(): BorderStyle {
+function validateBorderStyle(): Type<BorderStyle> {
   return owlTypes.customValidator(validateString<BorderStyle>(), (style) =>
     borderStyles.includes(style)
   ) as any;
 }
 
-function validateDOMCoordinates(): DOMCoordinates {
+function validateDOMCoordinates(): Type<DOMCoordinates> {
   return owlTypes.object({
     x: owlTypes.number(),
     y: owlTypes.number(),
   }) as any;
 }
 
-function validateDOMDimension(): DOMDimension {
+function validateDOMDimension(): Type<DOMDimension> {
   return owlTypes.object({
     width: owlTypes.number(),
     height: owlTypes.number(),
   }) as any;
 }
 
-function validateSortDirection(): SortDirection {
+function validateSortDirection(): Type<SortDirection> {
   return owlTypes.customValidator(validateString<SortDirection>(), (direction) =>
     ["asc", "desc"].includes(direction)
   ) as any;
 }
 
-function validateResizeDirection(): ResizeDirection {
+function validateResizeDirection(): Type<ResizeDirection> {
   return owlTypes.customValidator(validateNumber<ResizeDirection>(), (direction) =>
     [-1, 0, 1].includes(direction)
   ) as any;
 }
 
-function validateComposerFocusType(): ComposerFocusType {
+function validateComposerFocusType(): Type<ComposerFocusType> {
   return owlTypes.customValidator(validateString<ComposerFocusType>(), (value) =>
     composerFocusTypes.includes(value)
   ) as any;
 }
 
-function validateDimension(): Dimension {
+function validateDimension(): Type<Dimension> {
   return owlTypes.customValidator(validateString<Dimension>(), (value) =>
     ["COL", "ROW"].includes(value)
   ) as any;
 }
 
-function validateContextMenuType(): ContextMenuType {
+function validateContextMenuType(): Type<ContextMenuType> {
   return owlTypes.customValidator(validateString<ContextMenuType>(), (value) =>
     ["ROW", "COL", "CELL", "FILTER", "GROUP_HEADERS", "UNGROUP_HEADERS"].includes(value)
   ) as any;
@@ -203,11 +203,11 @@ function validateContextMenuType(): ContextMenuType {
  * Validate that a prop is a store. Typed as the CQS-wrapped `Store<T>` to
  * match what `useStore(...)` returns at the call site.
  */
-function validateStore<T>(): Store<T> {
+function validateStore<T>(): Type<Store<T>> {
   return owlTypes.object() as any;
 }
 
-function validateFunction<T = () => void>(): T {
+function validateFunction<T = () => void>(): Type<T> {
   return owlTypes.function() as any;
 }
 

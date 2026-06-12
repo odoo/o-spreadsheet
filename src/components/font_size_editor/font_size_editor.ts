@@ -9,18 +9,13 @@ export class FontSizeEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FontSizeEditor";
   static components = { NumberEditor };
 
-  protected props = props(
-    {
-      currentFontSize: types.number(),
-      onFontSizeChanged: types.function<(fontSize: number) => void>(),
-      "onToggle?": types.function(),
-      "onFocusInput?": types.function(),
-      class: types.string(),
-    },
-    {
-      onFocusInput: () => {},
-    }
-  );
+  protected props = props({
+    currentFontSize: types.number(),
+    onFontSizeChanged: types.function<(fontSize: number) => void>(),
+    onToggle: types.function().optional(),
+    onFocusInput: types.function().optional(() => () => {}),
+    class: types.string(),
+  });
 
   fontSizes: number[] = FONT_SIZES;
 }

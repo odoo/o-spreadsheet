@@ -16,14 +16,9 @@ export class VerticalScrollBar extends Component<SpreadsheetChildEnv> {
       onScroll.bind="(offset) => this.onScroll(offset)"
     />`;
 
-  protected props = props(
-    {
-      "topOffset?": types.number(),
-    },
-    {
-      topOffset: 0,
-    }
-  );
+  protected props = props({
+    topOffset: types.number().optional(0),
+  });
 
   get offset() {
     return this.env.model.getters.getActiveSheetScrollInfo().scrollY;

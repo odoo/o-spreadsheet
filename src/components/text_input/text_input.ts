@@ -20,7 +20,7 @@ export class TextInput extends GenericInput<Props> {
   protected props: Props = props({
     ...genericInputPropsDefinition,
     value: types.string(),
-    "errorMessage?": types.string(),
+    errorMessage: types.string().optional(),
   }) as unknown as Props;
 
   get inputClass(): string {

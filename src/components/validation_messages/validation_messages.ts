@@ -10,7 +10,7 @@ export class ValidationMessages extends Component<SpreadsheetChildEnv> {
   protected props = props({
     messages: types.array(types.string()),
     msgType: types.or([types.literal("warning"), types.literal("error"), types.literal("info")]),
-    "singleBox?": types.boolean(),
+    singleBox: types.boolean().optional(),
   });
 
   get divClasses() {

@@ -24,6 +24,6 @@ export class ChartShowValues extends Component<SpreadsheetChildEnv> {
       types.function<
         (chartId: UID, definition: Partial<ChartDefinitionWithDataSource<string>>) => DispatchResult
       >(),
-    "defaultValue?": types.boolean(),
+    defaultValue: types.boolean().optional(),
   });
 }

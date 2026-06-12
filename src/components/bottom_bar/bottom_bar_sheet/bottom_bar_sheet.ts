@@ -39,18 +39,12 @@ const getSheetLockAnimation = (
 export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BottomBarSheet";
   static components = { Ripple, ColorPicker };
-  protected props = props(
-    {
-      sheetId: types.string(),
-      openContextMenu: types.function<(registry: MenuItemRegistry, ev: MouseEvent) => void>(),
-      "style?": types.string(),
-      "onMouseDown?": types.function<(ev: PointerEvent) => void>(),
-    },
-    {
-      onMouseDown: () => {},
-      style: "",
-    }
-  );
+  protected props = props({
+    sheetId: types.string(),
+    openContextMenu: types.function<(registry: MenuItemRegistry, ev: MouseEvent) => void>(),
+    style: types.string().optional(""),
+    onMouseDown: types.function<(ev: PointerEvent) => void>().optional(() => () => {}),
+  });
 
   private state = proxy<State>({ isEditing: false, pickerOpened: false });
 

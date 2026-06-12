@@ -82,7 +82,7 @@ export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
 
   protected props = props({
     chartId: types.string(),
-    "isFullScreen?": types.boolean(),
+    isFullScreen: types.boolean().optional(),
   });
 
   protected canvas = signal<HTMLCanvasElement | null>(null);

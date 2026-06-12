@@ -23,10 +23,10 @@ export class RoundColorPicker extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.RoundColorPicker";
   static components = { Section, ColorPicker };
   protected props = props({
-    "currentColor?": types.string(),
-    "title?": types.string(),
+    currentColor: types.string().optional(),
+    title: types.string().optional(),
     onColorPicked: types.function<(color: string) => void>(),
-    "disableNoColor?": types.boolean(),
+    disableNoColor: types.boolean().optional(),
   });
 
   colorPickerButtonRef = signal<HTMLElement | null>(null);

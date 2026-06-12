@@ -22,11 +22,11 @@ export class TextStyler extends Component<SpreadsheetChildEnv> {
   protected props = props({
     style: types.ChartStyle(),
     updateStyle: types.function<(style: ChartStyle) => void>(),
-    "defaultStyle?": types.object({}) as Partial<ChartStyle>,
-    "hasVerticalAlign?": types.boolean(),
-    "hasHorizontalAlign?": types.boolean(),
-    "hasBackgroundColor?": types.boolean(),
-    "class?": types.string(),
+    defaultStyle: types.object<Partial<ChartStyle>>().optional(),
+    hasVerticalAlign: types.boolean().optional(),
+    hasHorizontalAlign: types.boolean().optional(),
+    hasBackgroundColor: types.boolean().optional(),
+    class: types.string().optional(),
   });
   openedEl: HTMLElement | null = null;
 

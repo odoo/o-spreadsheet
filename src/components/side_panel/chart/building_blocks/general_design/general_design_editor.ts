@@ -26,18 +26,13 @@ export class GeneralDesignEditor extends Component<SpreadsheetChildEnv> {
     RadioSelection,
   };
 
-  protected props = props(
-    {
-      chartId: types.UID(),
-      definition: types.ChartDefinition(),
-      canUpdateChart: types.function<ChartUpdateFunction>(),
-      updateChart: types.function<ChartUpdateFunction>(),
-      "defaultChartTitleFontSize?": types.number(),
-    },
-    {
-      defaultChartTitleFontSize: CHART_TITLE_FONT_SIZE,
-    }
-  );
+  protected props = props({
+    chartId: types.UID(),
+    definition: types.ChartDefinition(),
+    canUpdateChart: types.function<ChartUpdateFunction>(),
+    updateChart: types.function<ChartUpdateFunction>(),
+    defaultChartTitleFontSize: types.number().optional(CHART_TITLE_FONT_SIZE),
+  });
   private state!: GeneralDesignEditorState;
 
   setup() {

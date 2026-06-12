@@ -27,11 +27,9 @@ export class MoreFormatsPanel extends Component<SpreadsheetChildEnv> {
 
   protected props = props({
     onCloseSidePanel: types.function(),
-    "category?": types.or([
-      types.literal("number"),
-      types.literal("date"),
-      types.literal("currency"),
-    ]),
+    category: types
+      .or([types.literal("number"), types.literal("date"), types.literal("currency")])
+      .optional(),
   });
 
   store!: Store<MoreFormatsStore>;
