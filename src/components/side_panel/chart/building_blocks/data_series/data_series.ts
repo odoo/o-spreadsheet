@@ -15,17 +15,17 @@ export class ChartDataSeries extends Component<SpreadsheetChildEnv> {
 
   protected props = props({
     ranges: types.ArrayOf<{ dataRange: string; dataSetId: UID }>(),
-    "dataSetStyles?": types.DataSetStyle(),
-    "hasSingleRange?": types.boolean(),
+    dataSetStyles: types.DataSetStyle().optional(),
+    hasSingleRange: types.boolean().optional(),
     onSelectionChanged: types.function<(ranges: string[]) => void>(),
-    "onSelectionReordered?": types.function<(indexes: number[]) => void>(),
-    "onSelectionRemoved?": types.function<(index: number) => void>(),
+    onSelectionReordered: types.function<(indexes: number[]) => void>().optional(),
+    onSelectionRemoved: types.function<(index: number) => void>().optional(),
     onSelectionConfirmed: types.function(),
-    "maxNumberOfUsedRanges?": types.number(),
-    "title?": types.string(),
-    "datasetOrientation?": types.or([types.literal("rows"), types.literal("columns")]),
-    "canChangeDatasetOrientation?": types.boolean(),
-    "onFlipAxis?": types.function<(structure: string) => void>(),
+    maxNumberOfUsedRanges: types.number().optional(),
+    title: types.string().optional(),
+    datasetOrientation: types.or([types.literal("rows"), types.literal("columns")]).optional(),
+    canChangeDatasetOrientation: types.boolean().optional(),
+    onFlipAxis: types.function<(structure: string) => void>().optional(),
   });
 
   get ranges(): string[] {

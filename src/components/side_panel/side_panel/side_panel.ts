@@ -14,10 +14,10 @@ export class SidePanel extends Component<SpreadsheetChildEnv> {
     onCloseSidePanel: types.function(),
     onStartHandleDrag: types.function<(ev: MouseEvent) => void>(),
     onResetPanelSize: types.function(),
-    "isPinned?": types.boolean(),
-    "onTogglePinPanel?": types.function(),
-    "onToggleCollapsePanel?": types.function(),
-    "isCollapsed?": types.boolean(),
+    isPinned: types.boolean().optional(),
+    onTogglePinPanel: types.function().optional(),
+    onToggleCollapsePanel: types.function().optional(),
+    isCollapsed: types.boolean().optional(),
   });
   spreadsheetRect = useSpreadsheetRect();
 

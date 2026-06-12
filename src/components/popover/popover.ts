@@ -13,28 +13,21 @@ type DisplayValue = "none" | "block";
 export class Popover extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Popover";
 
-  protected props = props(
-    {
-      anchorRect: types.Rect(),
-      "containerRect?": types.object({}),
-      "positioning?": types.or([types.literal("top-right"), types.literal("bottom-left")]),
-      "maxWidth?": types.Pixel(),
-      "maxHeight?": types.Pixel(),
-      "verticalOffset?": types.number(),
-      "onMouseWheel?": types.function(),
-      "onPopoverHidden?": types.function(),
-      "onPopoverMoved?": types.function(),
-      "zIndex?": types.number(),
-      "class?": types.string(),
-    },
-    {
-      positioning: "bottom-left",
-      verticalOffset: 0,
-      onMouseWheel: () => {},
-      onPopoverMoved: () => {},
-      onPopoverHidden: () => {},
-    }
-  );
+  protected props = props({
+    anchorRect: types.Rect(),
+    containerRect: types.object({}).optional(),
+    positioning: types
+      .or([types.literal("top-right"), types.literal("bottom-left")])
+      .optional("bottom-left"),
+    maxWidth: types.Pixel().optional(),
+    maxHeight: types.Pixel().optional(),
+    verticalOffset: types.number().optional(0),
+    onMouseWheel: types.function().optional(() => () => {}),
+    onPopoverHidden: types.function().optional(() => () => {}),
+    onPopoverMoved: types.function().optional(() => () => {}),
+    zIndex: types.number().optional(),
+    class: types.string().optional(),
+  });
 
   private popoverRef = signal<HTMLElement | null>(null);
   private popoverContentRef = signal<HTMLElement | null>(null);

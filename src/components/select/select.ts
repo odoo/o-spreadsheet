@@ -19,11 +19,11 @@ export class Select extends Component<SpreadsheetChildEnv> {
   protected props = props({
     onChange: types.function<(value: string) => void>(),
     values: types.array() as ValueAndLabel[],
-    "selectedValue?": types.string(),
-    "class?": types.string(),
-    "popoverClass?": types.string(),
-    "name?": types.string(),
-    "title?": types.string(),
+    selectedValue: types.string().optional(),
+    class: types.string().optional(),
+    popoverClass: types.string().optional(),
+    name: types.string().optional(),
+    title: types.string().optional(),
   });
 
   private selectRef = signal<HTMLElement | null>(null);

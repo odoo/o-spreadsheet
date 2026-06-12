@@ -12,8 +12,8 @@ export class ImageFigure extends Component<SpreadsheetChildEnv> {
 
   protected props = props({
     figureUI: types.FigureUI(),
-    "editFigureStyle?": types.function<(properties: CSSProperties) => void>(),
-    "openContextMenu?": types.function<(anchorRect: Rect, onClose?: () => void) => void>(),
+    editFigureStyle: types.function<(properties: CSSProperties) => void>().optional(),
+    openContextMenu: types.function<(anchorRect: Rect, onClose?: () => void) => void>().optional(),
   });
 
   // ---------------------------------------------------------------------------

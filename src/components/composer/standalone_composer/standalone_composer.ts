@@ -17,25 +17,19 @@ export class StandaloneComposer extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-StandaloneComposer";
   static components = { Composer };
 
-  protected props = props(
-    {
-      onConfirm: types.function<(content: string) => void>(),
-      "composerContent?": types.string(),
-      defaultRangeSheetId: types.UID(),
-      "defaultStatic?": types.boolean(),
-      "contextualAutocomplete?": types.AutoCompleteProviderDefinition(),
-      "placeholder?": types.string(),
-      "title?": types.string(),
-      "class?": types.string(),
-      "invalid?": types.boolean(),
-      "autofocus?": types.boolean(),
-      "getContextualColoredSymbolToken?": types.function<(token: Token) => Color>(),
-    },
-    {
-      composerContent: "",
-      defaultStatic: false,
-    }
-  );
+  protected props = props({
+    onConfirm: types.function<(content: string) => void>(),
+    composerContent: types.string().optional(""),
+    defaultRangeSheetId: types.UID(),
+    defaultStatic: types.boolean().optional(false),
+    contextualAutocomplete: types.AutoCompleteProviderDefinition().optional(),
+    placeholder: types.string().optional(),
+    title: types.string().optional(),
+    class: types.string().optional(),
+    invalid: types.boolean().optional(),
+    autofocus: types.boolean().optional(),
+    getContextualColoredSymbolToken: types.function<(token: Token) => Color>().optional(),
+  });
 
   private composerFocusStore!: Store<ComposerFocusStore>;
   private standaloneComposerStore!: Store<StandaloneComposerStore>;

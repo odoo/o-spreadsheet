@@ -28,15 +28,15 @@ export class Menu extends Component<SpreadsheetChildEnv> {
   protected props = props({
     menuItems: types.ArrayOf<MenuItemOrSeparator>(),
     onClose: types.function(),
-    "onClickMenu?": types.function<(menu: Action, ev: PointerEvent) => void>(),
-    "onMouseEnter?": types.function<(menu: Action, ev: PointerEvent) => void>(),
-    "onMouseLeave?": types.function<(menu: Action, ev: PointerEvent) => void>(),
-    "width?": types.number(),
-    "hoveredMenuId?": types.string(),
-    "isHoveredMenuFocused?": types.boolean(),
-    "onScroll?": types.function<(ev: CustomEvent) => void>(),
-    "onKeyDown?": types.function<(ev: KeyboardEvent) => void>(),
-    "disableKeyboardNavigation?": types.boolean(),
+    onClickMenu: types.function<(menu: Action, ev: PointerEvent) => void>().optional(),
+    onMouseEnter: types.function<(menu: Action, ev: PointerEvent) => void>().optional(),
+    onMouseLeave: types.function<(menu: Action, ev: PointerEvent) => void>().optional(),
+    width: types.number().optional(),
+    hoveredMenuId: types.string().optional(),
+    isHoveredMenuFocused: types.boolean().optional(),
+    onScroll: types.function<(ev: CustomEvent) => void>().optional(),
+    onKeyDown: types.function<(ev: KeyboardEvent) => void>().optional(),
+    disableKeyboardNavigation: types.boolean().optional(),
   });
 
   private menuRef = signal<HTMLElement | null>(null);

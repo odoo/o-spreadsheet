@@ -38,8 +38,8 @@ class Body extends Component<any> {
       <input type="text" class="input" t-if="this.props.input" />
     </div>`;
   protected props = props({
-    "text?": types.string(),
-    "input?": types.boolean(),
+    text: types.string().optional(),
+    input: types.boolean().optional(),
     onCloseSidePanel: types.function(),
   });
 }
@@ -51,7 +51,7 @@ class Body2 extends Component<any> {
       <div class="props_body_2" t-if="this.props.field"><t t-out="this.props.field"/></div>
     </div>`;
   protected props = props({
-    "field?": types.string(),
+    field: types.string().optional(),
     onCloseSidePanel: types.function(),
   });
 }

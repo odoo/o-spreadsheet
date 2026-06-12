@@ -11,15 +11,15 @@ export class ColorPickerWidget extends Component<SpreadsheetChildEnv> {
   static components = { ColorPicker };
 
   protected props = props({
-    "currentColor?": types.string(),
+    currentColor: types.string().optional(),
     toggleColorPicker: types.function(),
     showColorPicker: types.boolean(),
     onColorPicked: types.function<(color: string) => void>(),
     icon: types.string(),
-    "title?": types.string(),
-    "disabled?": types.boolean(),
-    "dropdownMaxHeight?": types.Pixel(),
-    "class?": types.string(),
+    title: types.string().optional(),
+    disabled: types.boolean().optional(),
+    dropdownMaxHeight: types.Pixel().optional(),
+    class: types.string().optional(),
   });
 
   colorPickerButtonRef = signal<HTMLElement | null>(null);

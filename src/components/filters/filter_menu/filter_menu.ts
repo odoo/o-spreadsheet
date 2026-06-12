@@ -40,7 +40,7 @@ export class FilterMenu extends Component<SpreadsheetChildEnv> {
 
   private props = props({
     filterPosition: types.Position(),
-    "onClosed?": types.function(),
+    onClosed: types.function().optional(),
   });
 
   private state!: State;

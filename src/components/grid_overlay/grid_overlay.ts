@@ -137,30 +137,26 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
     GridAddRowsFooter,
   };
 
-  protected props = props(
-    {
-      "onCellDoubleClicked?": types.function<(col: HeaderIndex, row: HeaderIndex) => void>(),
-      "onCellClicked?":
-        types.function<
-          (
-            col: HeaderIndex,
-            row: HeaderIndex,
-            modifiers: GridClickModifiers,
-            zoomedMouseEvent: ZoomedMouseEvent<MouseEvent | PointerEvent>
-          ) => void
-        >(),
-      "onCellRightClicked?":
-        types.function<(col: HeaderIndex, row: HeaderIndex, coordinates: DOMCoordinates) => void>(),
-      "onGridResized?": types.function(),
-      gridOverlayDimensions: types.string(),
-    },
-    {
-      onCellDoubleClicked: () => {},
-      onCellClicked: () => {},
-      onCellRightClicked: () => {},
-      onGridResized: () => {},
-    }
-  );
+  protected props = props({
+    onCellDoubleClicked: types
+      .function<(col: HeaderIndex, row: HeaderIndex) => void>()
+      .optional(() => () => {}),
+    onCellClicked: types
+      .function<
+        (
+          col: HeaderIndex,
+          row: HeaderIndex,
+          modifiers: GridClickModifiers,
+          zoomedMouseEvent: ZoomedMouseEvent<MouseEvent | PointerEvent>
+        ) => void
+      >()
+      .optional(() => () => {}),
+    onCellRightClicked: types
+      .function<(col: HeaderIndex, row: HeaderIndex, coordinates: DOMCoordinates) => void>()
+      .optional(() => () => {}),
+    onGridResized: types.function().optional(() => () => {}),
+    gridOverlayDimensions: types.string(),
+  });
   private gridOverlayRef: Signal<HTMLElement | null> = signal(null);
   private cellPopovers!: Store<CellPopoverStore>;
   private paintFormatStore!: Store<PaintFormatStore>;

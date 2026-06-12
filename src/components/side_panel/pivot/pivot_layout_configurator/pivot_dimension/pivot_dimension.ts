@@ -16,18 +16,22 @@ export class PivotDimension extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotDimension";
   protected props = props({
     dimension: types.or([types.PivotDimension(), types.PivotMeasure(), types.PivotFilter()]),
-    "onRemoved?":
-      types.function<(dimension: PivotDimensionType | PivotMeasure | PivotFilter) => void>(),
-    "onNameUpdated?":
-      types.function<
+    onRemoved: types
+      .function<(dimension: PivotDimensionType | PivotMeasure | PivotFilter) => void>()
+      .optional(),
+    onNameUpdated: types
+      .function<
         (dimension: PivotDimensionType | PivotMeasure | PivotFilter, name?: string) => void
-      >(),
-    "type?": types.or([
-      types.literal("row"),
-      types.literal("col"),
-      types.literal("measure"),
-      types.literal("filter"),
-    ]),
+      >()
+      .optional(),
+    type: types
+      .or([
+        types.literal("row"),
+        types.literal("col"),
+        types.literal("measure"),
+        types.literal("filter"),
+      ])
+      .optional(),
   });
   static components = { CogWheelMenu, TextInput };
 

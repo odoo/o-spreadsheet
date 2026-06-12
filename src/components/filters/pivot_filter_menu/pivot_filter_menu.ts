@@ -34,10 +34,10 @@ export class PivotFilterMenu extends Component<SpreadsheetChildEnv> {
       types.object({
         checked: types.boolean(),
         string: types.string(),
-        "scrolledTo?": types.or([types.literal("top"), types.literal("bottom")]),
+        scrolledTo: types.or([types.literal("top"), types.literal("bottom")]).optional(),
       })
     ),
-    "onClosed?": types.function(),
+    onClosed: types.function().optional(),
     onConfirmed: types.function<(updatedCriterionValue: DataFilterValue) => void>(),
   });
 

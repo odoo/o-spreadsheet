@@ -17,18 +17,13 @@ export class ChartLegend extends Component<SpreadsheetChildEnv> {
     Select,
   };
 
-  protected props = props(
-    {
-      chartId: types.string(),
-      definition: types.ChartDefinitionWithDataSource(),
-      canUpdateChart: types.function<ChartUpdateFunction>(),
-      updateChart: types.function<ChartUpdateFunction>(),
-      "isDisabled?": types.boolean(),
-    },
-    {
-      isDisabled: false,
-    }
-  );
+  protected props = props({
+    chartId: types.string(),
+    definition: types.ChartDefinitionWithDataSource(),
+    canUpdateChart: types.function<ChartUpdateFunction>(),
+    updateChart: types.function<ChartUpdateFunction>(),
+    isDisabled: types.boolean().optional(false),
+  });
 
   updateLegendPosition(value: LegendPosition) {
     this.props.updateChart(this.props.chartId, {

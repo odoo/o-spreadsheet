@@ -62,28 +62,20 @@ export class Composer extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Composer";
   static components = { TextValueProvider, FunctionDescriptionProvider, SpeechBubble };
 
-  protected props = props(
-    {
-      focus: types.ComposerFocusType(),
-      "inputStyle?": types.string(),
-      "rect?": types.Rect(),
-      "delimitation?": types.DOMDimension(),
-      "onComposerCellFocused?": types.function<(content: string) => void>(),
-      onComposerContentFocused: types.function<(selection: ComposerSelection) => void>(),
-      "isDefaultFocus?": types.boolean(),
-      "onInputContextMenu?": types.function<(event: MouseEvent) => void>(),
-      composerStore: types.Store<AbstractComposerStore>(),
-      "placeholder?": types.string(),
-      "inputMode?": types.string(),
-      "showAssistant?": types.boolean(),
-    },
-    {
-      inputStyle: "",
-      isDefaultFocus: false,
-      inputMode: "text",
-      showAssistant: true,
-    }
-  );
+  protected props = props({
+    focus: types.ComposerFocusType(),
+    inputStyle: types.string().optional(""),
+    rect: types.Rect().optional(),
+    delimitation: types.DOMDimension().optional(),
+    onComposerCellFocused: types.function<(content: string) => void>().optional(),
+    onComposerContentFocused: types.function<(selection: ComposerSelection) => void>(),
+    isDefaultFocus: types.boolean().optional(false),
+    onInputContextMenu: types.function<(event: MouseEvent) => void>().optional(),
+    composerStore: types.Store<AbstractComposerStore>(),
+    placeholder: types.string().optional(),
+    inputMode: types.string().optional("text"),
+    showAssistant: types.boolean().optional(true),
+  });
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 

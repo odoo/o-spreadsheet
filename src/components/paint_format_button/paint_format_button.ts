@@ -10,7 +10,7 @@ export class PaintFormatButton extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PaintFormatButton";
 
   protected props = props({
-    "class?": types.string(),
+    class: types.string().optional(),
   });
 
   private paintFormatStore!: Store<PaintFormatStore>;

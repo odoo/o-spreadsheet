@@ -13,20 +13,15 @@ import { types } from "../../../props_validation";
 export class Checkbox extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.Checkbox";
 
-  protected props = props(
-    {
-      "label?": types.string(),
-      "value?": types.boolean(),
-      "className?": types.string(),
-      "name?": types.string(),
-      "title?": types.string(),
-      "disabled?": types.boolean(),
-      onChange: types.function<(value: boolean) => void>(),
-    },
-    {
-      value: false,
-    }
-  );
+  protected props = props({
+    label: types.string().optional(),
+    value: types.boolean().optional(false),
+    className: types.string().optional(),
+    name: types.string().optional(),
+    title: types.string().optional(),
+    disabled: types.boolean().optional(),
+    onChange: types.function<(value: boolean) => void>(),
+  });
 
   onChange(ev: InputEvent) {
     const value = (ev.target as HTMLInputElement).checked;

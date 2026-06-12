@@ -27,7 +27,7 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
   static components = { TableStylesPopover, ActionButton };
 
   protected props = props({
-    "class?": types.string(),
+    class: types.string().optional(),
   });
 
   topBarToolStore!: ToolBarDropdownStore;

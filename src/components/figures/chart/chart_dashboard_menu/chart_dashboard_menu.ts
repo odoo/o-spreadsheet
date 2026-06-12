@@ -26,15 +26,10 @@ export class ChartDashboardMenu extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartDashboardMenu";
   static components = { MenuPopover, Select };
 
-  protected props = props(
-    {
-      chartId: types.UID(),
-      "hasFullScreenButton?": types.boolean(),
-    },
-    {
-      hasFullScreenButton: true,
-    }
-  );
+  protected props = props({
+    chartId: types.UID(),
+    hasFullScreenButton: types.boolean().optional(true),
+  });
 
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
 

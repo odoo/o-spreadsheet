@@ -55,7 +55,7 @@ export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
     unusedGranularities: types.RecordOf<Set<string>>(),
     dateGranularities: types.array(types.string()),
     datetimeGranularities: types.array(types.string()),
-    "getScrollableContainerEl?": types.function<() => HTMLElement>(),
+    getScrollableContainerEl: types.function<() => HTMLElement>().optional(),
     pivotId: types.UID(),
   });
 
