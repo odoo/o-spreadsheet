@@ -522,16 +522,18 @@ export function conditionalVisitBoolean(args: Arg[], cb: (a: boolean) => boolean
 // -----------------------------------------------------------------------------
 
 type Operator = ">" | ">=" | "<" | "<=" | "<>" | "=";
-interface Predicate {
-  operator: Operator;
-  operand: number | string | boolean;
-  operandHasWildcard: boolean;
-  lowerCaseOperand: string;
-}
+type PredicateFunction = (value: CellValue | undefined) => boolean;
 
-function getPredicate(descr: string, locale: Locale): Predicate {
+/**
+ * Parse a criterion (e.g. ">30", "<>abc", "5") and compile it to a function
+ * checking a single value against the criterion.
+ *
+ * Branching on the operator and the operand type is done once here, instead
+ * of for each visited value.
+ */
+function compilePredicate(descr: string, locale: Locale, isQuery: boolean): PredicateFunction {
   let operator: Operator;
-  let operand: Maybe<CellValue>;
+  let operand: string | number | boolean;
 
   let subString = descr.substring(0, 2);
 
@@ -555,16 +557,56 @@ function getPredicate(descr: string, locale: Locale): Predicate {
     operand = toBoolean(operand);
   }
 
-  const predicate: Predicate = {
-    operator,
-    operand,
-    operandHasWildcard:
-      typeof operand === "string" &&
-      (operator === "=" || operator === "<>") &&
-      hasWildcard(operand),
-    lowerCaseOperand: typeof operand === "string" ? operand.toLowerCase() : "",
-  };
-  return predicate;
+  if (isQuery && typeof operand === "string") {
+    operand += "*";
+  }
+
+  if (operator === "=" && typeof operand === "number") {
+    const numberOperand = operand;
+    return (value = "") => {
+      if (typeof value === "string" && (isNumber(value, locale) || isDateTime(value, locale))) {
+        return toNumber(value, locale) === numberOperand;
+      }
+      return value === numberOperand;
+    };
+  }
+
+  if (operator === "=" || operator === "<>") {
+    let isEqualToOperand: PredicateFunction;
+    if (typeof operand === "string") {
+      // Skip regex when the operand has no wildcards.
+      if (hasWildcard(operand)) {
+        const regExp = wildcardToRegExp(operand);
+        isEqualToOperand = (value = "") => typeof value === "string" && regExp.test(value);
+      } else {
+        const operandLength = operand.length;
+        const lowerCaseOperand = operand.toLowerCase();
+        isEqualToOperand = (value = "") =>
+          typeof value === "string" &&
+          value.length === operandLength &&
+          value.toLowerCase() === lowerCaseOperand;
+      }
+    } else {
+      const scalarOperand = operand;
+      isEqualToOperand = (value = "") => value === scalarOperand;
+    }
+    if (operator === "=") {
+      return isEqualToOperand;
+    }
+    return (value = "") => !isEqualToOperand(value);
+  }
+
+  const operandType = typeof operand;
+  switch (operator) {
+    case "<":
+      return (value = "") => typeof value === operandType && value !== null && value < operand;
+    case ">":
+      return (value = "") => typeof value === operandType && value !== null && value > operand;
+    case "<=":
+      return (value = "") => typeof value === operandType && value !== null && value <= operand;
+    case ">=":
+      return (value = "") => typeof value === operandType && value !== null && value >= operand;
+  }
 }
 
 function hasWildcard(s: string): boolean {
@@ -612,58 +654,6 @@ const wildcardToRegExp = memoize(function wildcardToRegExp(operand: string): Reg
   return new RegExp("^" + exp + "$", "i");
 });
 
-function evaluatePredicate(
-  value: CellValue | undefined = "",
-  criterion: Predicate,
-  locale: Locale
-): boolean {
-  const { operator, operand } = criterion;
-
-  if (operand === undefined || value === null || operand === null) {
-    return false;
-  }
-  if (typeof operand === "number" && operator === "=") {
-    if (typeof value === "string" && (isNumber(value, locale) || isDateTime(value, locale))) {
-      return toNumber(value, locale) === operand;
-    }
-    return value === operand;
-  }
-
-  if (operator === "<>" || operator === "=") {
-    let result: boolean;
-    if (typeof value === typeof operand) {
-      if (typeof value === "string" && typeof operand === "string") {
-        // Skip regex when the operand has no wildcards.
-        if (criterion.operandHasWildcard) {
-          result = wildcardToRegExp(operand).test(value);
-        } else {
-          result =
-            value.length === operand.length && value.toLowerCase() === criterion.lowerCaseOperand;
-        }
-      } else {
-        result = value === operand;
-      }
-    } else {
-      result = false;
-    }
-    return operator === "=" ? result : !result;
-  }
-
-  if (typeof value === typeof operand) {
-    switch (operator) {
-      case "<":
-        return value < operand;
-      case ">":
-        return value > operand;
-      case "<=":
-        return value <= operand;
-      case ">=":
-        return value >= operand;
-    }
-  }
-  return false;
-}
-
 /**
  * Functions used especially for predicate evaluation on ranges.
  *
@@ -706,7 +696,7 @@ export function visitMatchingRanges(
   const dimRow = firstArg.length;
   const dimCol = firstArg[0].length;
 
-  const predicates: Predicate[] = [];
+  const predicates: PredicateFunction[] = [];
 
   for (let i = 0; i < countArg - 1; i += 2) {
     const criteriaRange = toMatrix(args[i]);
@@ -718,12 +708,7 @@ export function visitMatchingRanges(
     }
 
     const description = toString(args[i + 1] as Maybe<FunctionResultObject>);
-    const predicate = getPredicate(description, locale);
-    if (isQuery && typeof predicate.operand === "string") {
-      predicate.operand += "*";
-      predicate.operandHasWildcard = true;
-    }
-    predicates.push(predicate);
+    predicates.push(compilePredicate(description, locale, isQuery));
   }
 
   for (let i = 0; i < dimRow; i++) {
@@ -731,8 +716,7 @@ export function visitMatchingRanges(
       let validatedPredicates = true;
       for (let k = 0; k < countArg - 1; k += 2) {
         const criteriaValue = toMatrix(args[k])[i][j].value;
-        const criterion = predicates[k / 2];
-        validatedPredicates = evaluatePredicate(criteriaValue ?? undefined, criterion, locale);
+        validatedPredicates = predicates[k / 2](criteriaValue ?? undefined);
         if (!validatedPredicates) {
           break;
         }
