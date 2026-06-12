@@ -35,7 +35,7 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
   static components = { SelectionInput, Select, Section, ValidationMessages };
   protected props = props({
     ruleId: types.UID(),
-    "onCancel?": types.function(),
+    onCancel: types.function().optional(),
     onCloseSidePanel: types.function(),
   });
 

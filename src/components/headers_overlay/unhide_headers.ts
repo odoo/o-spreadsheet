@@ -11,17 +11,14 @@ import { Component } from "../../owl3_compatibility_layer";
 export class UnhideRowHeaders extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-UnhideRowHeaders";
 
-  protected props = props(
-    {
-      headersGroups: types.array(),
-      headerRange: types.object({
-        start: types.HeaderIndex(),
-        end: types.HeaderIndex(),
-      }),
-      "offset?": types.number(),
-    },
-    { offset: 0 }
-  );
+  protected props = props({
+    headersGroups: types.array(),
+    headerRange: types.object({
+      start: types.HeaderIndex(),
+      end: types.HeaderIndex(),
+    }),
+    offset: types.number().optional(0),
+  });
 
   get sheetId() {
     return this.env.model.getters.getActiveSheetId();
@@ -55,17 +52,14 @@ export class UnhideRowHeaders extends Component<SpreadsheetChildEnv> {
 export class UnhideColumnHeaders extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-UnhideColumnHeaders";
 
-  protected props = props(
-    {
-      headersGroups: types.array(),
-      headerRange: types.object({
-        start: types.HeaderIndex(),
-        end: types.HeaderIndex(),
-      }),
-      "offset?": types.number(),
-    },
-    { offset: 0 }
-  );
+  protected props = props({
+    headersGroups: types.array(),
+    headerRange: types.object({
+      start: types.HeaderIndex(),
+      end: types.HeaderIndex(),
+    }),
+    offset: types.number().optional(0),
+  });
 
   get sheetId() {
     return this.env.model.getters.getActiveSheetId();

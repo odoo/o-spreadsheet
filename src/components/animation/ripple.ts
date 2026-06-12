@@ -90,34 +90,24 @@ export class Ripple extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Ripple";
   static components = { RippleEffect };
 
-  protected props = props(
-    {
-      "color?": types.string(),
-      "opacity?": types.number(),
-      "duration?": types.number(),
+  protected props = props({
+    color: types.string().optional("#aaaaaa"),
+    opacity: types.number().optional(0.4),
+    duration: types.number().optional(800),
 
-      /** If true, the ripple will play from the element center instead of the position of the click */
-      "ignoreClickPosition?": types.boolean(),
-      /** Width of the ripple. Defaults to the width of the element the ripple is on (without margins). */
-      "width?": types.number(),
-      /** Height of the ripple. Defaults to the height of the element the ripple is on (without margins). */
-      "height?": types.number(),
-      "offsetY?": types.number(),
-      "offsetX?": types.number(),
-      "allowOverflow?": types.boolean(),
-      "enabled?": types.boolean(),
-      "onAnimationEnd?": types.function(),
-      "class?": types.string(),
-    },
-    {
-      color: "#aaaaaa",
-      opacity: 0.4,
-      duration: 800,
-      enabled: true,
-      onAnimationEnd: () => {},
-      class: "",
-    }
-  );
+    /** If true, the ripple will play from the element center instead of the position of the click */
+    ignoreClickPosition: types.boolean().optional(),
+    /** Width of the ripple. Defaults to the width of the element the ripple is on (without margins). */
+    width: types.number().optional(),
+    /** Height of the ripple. Defaults to the height of the element the ripple is on (without margins). */
+    height: types.number().optional(),
+    offsetY: types.number().optional(),
+    offsetX: types.number().optional(),
+    allowOverflow: types.boolean().optional(),
+    enabled: types.boolean().optional(true),
+    onAnimationEnd: types.function().optional(() => () => {}),
+    class: types.string().optional(""),
+  });
 
   private childContainerRef = signal<HTMLElement | null>(null);
 

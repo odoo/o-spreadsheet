@@ -49,15 +49,19 @@ export class ChartRangeDataSourceComponent extends Component<SpreadsheetChildEnv
     dataSource: types.ChartRangeDataSource(),
     updateChart: types.function<ChartUpdateFunction<ChartDefinitionWithDataSource<string>>>(),
     canUpdateChart: types.function<ChartUpdateFunction<ChartDefinitionWithDataSource<string>>>(),
-    "onErrorMessagesChanged?": types.function<(errorMessages: string[]) => void>(),
-    "dataSeriesTitle?": types.string(),
-    "labelRangeTitle?": types.string(),
-    "getLabelRangeOptions?": types.function as unknown as () => Array<{
-      name: string;
-      label: string;
-      value: boolean;
-      onChange: (value: boolean) => void;
-    }>,
+    onErrorMessagesChanged: types.function<(errorMessages: string[]) => void>().optional(),
+    dataSeriesTitle: types.string().optional(),
+    labelRangeTitle: types.string().optional(),
+    getLabelRangeOptions: types
+      .function<
+        () => Array<{
+          name: string;
+          label: string;
+          value: boolean;
+          onChange: (value: boolean) => void;
+        }>
+      >()
+      .optional(),
   });
 
   protected state: ChartRangeDataSourceState = proxy({

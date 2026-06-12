@@ -17,22 +17,16 @@ export class ScrollBar extends Component<any> {
     </div>
   `;
 
-  protected props = props(
-    {
-      "width?": types.Pixel(),
-      "height?": types.Pixel(),
-      direction: types.customValidator(types.string() as ScrollDirection, (direction) =>
-        ["horizontal", "vertical"].includes(direction)
-      ),
-      position: types.CSSProperties(),
-      offset: types.Pixel(),
-      onScroll: types.function<(offset: Pixel) => void>(),
-    },
-    {
-      width: 1,
-      height: 1,
-    }
-  );
+  protected props = props({
+    width: types.Pixel().optional(1),
+    height: types.Pixel().optional(1),
+    direction: types.customValidator(types.string() as ScrollDirection, (direction) =>
+      ["horizontal", "vertical"].includes(direction)
+    ),
+    position: types.CSSProperties(),
+    offset: types.Pixel(),
+    onScroll: types.function<(offset: Pixel) => void>(),
+  });
 
   private scrollbarRef = signal<HTMLElement | null>(null);
   private scrollbar!: ScrollBarElement;

@@ -11,26 +11,22 @@ export class ChartLabelRange extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartLabelRange";
   static components = { SelectionInput, Checkbox, Section };
 
-  protected props = props(
-    {
-      "title?": types.string(),
-      range: types.string(),
-      "class?": types.string(),
-      isInvalid: types.boolean(),
-      onSelectionChanged: types.function<(range: string) => void>(),
-      onSelectionConfirmed: types.function(),
-      "options?": types.ArrayOf<{
+  protected props = props({
+    title: types.string().optional(_t("Categories / Labels")),
+    range: types.string(),
+    class: types.string().optional(),
+    isInvalid: types.boolean(),
+    onSelectionChanged: types.function<(range: string) => void>(),
+    onSelectionConfirmed: types.function(),
+    options: types
+      .ArrayOf<{
         name: string;
         label: string;
         value: boolean;
         onChange: (value: boolean) => void;
-      }>(),
-    },
-    {
-      title: _t("Categories / Labels"),
-      options: [],
-    }
-  );
+      }>()
+      .optional([]),
+  });
 
   get sectionClass() {
     return "o-data-labels" + (this.props.class ? ` ${this.props.class}` : "");

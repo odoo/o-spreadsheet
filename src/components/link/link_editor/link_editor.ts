@@ -32,7 +32,7 @@ export class LinkEditor extends Component<SpreadsheetChildEnv> {
 
   protected props = props({
     cellPosition: types.CellPosition(),
-    "onClosed?": types.function(),
+    onClosed: types.function().optional(),
   });
   static size = { maxHeight: 500 };
 

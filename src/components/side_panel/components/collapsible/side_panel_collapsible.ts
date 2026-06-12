@@ -8,9 +8,9 @@ export class SidePanelCollapsible extends Component<any> {
   static components = { Collapse };
 
   protected props = props({
-    "title?": types.string(),
-    "isInitiallyCollapsed?": types.boolean(),
-    "class?": types.string(),
+    title: types.string().optional(),
+    isInitiallyCollapsed: types.boolean().optional(),
+    class: types.string().optional(),
   });
 
   private state: { isCollapsed: boolean } = proxy({

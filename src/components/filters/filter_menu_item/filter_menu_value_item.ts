@@ -14,7 +14,7 @@ export class FilterMenuValueItem extends Component<SpreadsheetChildEnv> {
     isSelected: types.boolean(),
     onMouseMove: types.function<(ev: MouseEvent) => void>(),
     onClick: types.function<(ev: MouseEvent) => void>(),
-    "scrolledTo?": types.or([types.literal("top"), types.literal("bottom")]),
+    scrolledTo: types.or([types.literal("top"), types.literal("bottom")]).optional(),
   });
 
   itemRef = signal<HTMLElement | null>(null);

@@ -17,7 +17,7 @@ export class GaugeChartComponent extends Component<SpreadsheetChildEnv> {
 
   protected props = props({
     chartId: types.string(),
-    "isFullScreen?": types.boolean(),
+    isFullScreen: types.boolean().optional(),
   });
 
   private canvas = signal<HTMLCanvasElement | null>(null);

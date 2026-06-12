@@ -18,16 +18,13 @@ interface Choice {
 export class RadioSelection extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.RadioSelection";
 
-  protected props = props(
-    {
-      choices: types.ArrayOf<Choice>(),
-      onChange: types.function<(value: unknown) => void>(),
-      selectedValue: types.string(),
-      name: types.string(),
-      "direction?": types.or([types.literal("horizontal"), types.literal("vertical")]),
-    },
-    {
-      direction: "horizontal",
-    }
-  );
+  protected props = props({
+    choices: types.ArrayOf<Choice>(),
+    onChange: types.function<(value: unknown) => void>(),
+    selectedValue: types.string(),
+    name: types.string(),
+    direction: types
+      .or([types.literal("horizontal"), types.literal("vertical")])
+      .optional("horizontal"),
+  });
 }

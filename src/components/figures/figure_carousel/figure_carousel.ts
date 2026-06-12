@@ -27,9 +27,9 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
 
   protected props = props({
     figureUI: types.FigureUI(),
-    "editFigureStyle?": types.function<(properties: CSSProperties) => void>(),
-    "isFullScreen?": types.boolean(),
-    "openContextMenu?": types.function<(anchorRect: Rect, onClose?: () => void) => void>(),
+    editFigureStyle: types.function<(properties: CSSProperties) => void>().optional(),
+    isFullScreen: types.boolean().optional(),
+    openContextMenu: types.function<(anchorRect: Rect, onClose?: () => void) => void>().optional(),
   });
 
   private carouselTabsRef = signal<HTMLElement | null>(null);

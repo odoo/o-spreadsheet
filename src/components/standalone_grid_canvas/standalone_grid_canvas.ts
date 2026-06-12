@@ -16,7 +16,7 @@ export class StandaloneGridCanvas extends Component<SpreadsheetChildEnv> {
   protected props = props({
     sheetId: types.UID(),
     zone: types.Zone(),
-    renderingCtx: types.object({}) as Omit<GridRenderingContext, "ctx" | "thinLineWidth">,
+    renderingCtx: types.object<Omit<GridRenderingContext, "ctx" | "thinLineWidth">>(),
   });
 
   private canvasRef = signal<HTMLElement | null>(null);

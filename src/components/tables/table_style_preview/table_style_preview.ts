@@ -18,9 +18,9 @@ export class TableStylePreview extends Component<SpreadsheetChildEnv> {
     tableConfig: types.TableConfig(),
     tableStyle: types.TableStyle(),
     type: types.or([types.literal("table"), types.literal("pivot")]),
-    "styleId?": types.string(),
-    "selected?": types.boolean(),
-    "onClick?": types.function(),
+    styleId: types.string().optional(),
+    selected: types.boolean().optional(),
+    onClick: types.function().optional(),
   });
 
   private canvasRef = signal<HTMLCanvasElement | null>(null);

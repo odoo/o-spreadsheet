@@ -41,14 +41,14 @@ export class BorderEditor extends Component<SpreadsheetChildEnv> {
   static components = { ColorPickerWidget, Popover };
 
   protected props = props({
-    "class?": types.string(),
+    class: types.string().optional(),
     currentBorderColor: types.Color(),
     currentBorderStyle: types.BorderStyle(),
-    "currentBorderPosition?": types.BorderPosition(),
+    currentBorderPosition: types.BorderPosition().optional(),
     onBorderColorPicked: types.function<(color: Color) => void>(),
     onBorderStylePicked: types.function<(style: BorderStyle) => void>(),
     onBorderPositionPicked: types.function<(position: BorderPosition) => void>(),
-    "maxHeight?": types.Pixel(),
+    maxHeight: types.Pixel().optional(),
     anchorRect: types.Rect(),
   });
   BORDER_POSITIONS = BORDER_POSITIONS;

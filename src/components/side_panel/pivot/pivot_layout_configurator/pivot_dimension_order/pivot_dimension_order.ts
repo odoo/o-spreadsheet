@@ -12,7 +12,7 @@ export class PivotDimensionOrder extends Component<SpreadsheetChildEnv> {
   protected props = props({
     dimension: types.PivotDimension(),
     onUpdated: types.function<(dimension: PivotDimension, ev: InputEvent) => void>(),
-    "isMeasureSorted?": types.boolean(),
+    isMeasureSorted: types.boolean().optional(),
   });
   static components = { Select };
 

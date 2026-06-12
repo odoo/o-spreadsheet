@@ -21,16 +21,16 @@ export interface GenericInputProps {
 export const genericInputPropsDefinition = {
   value: types.or([types.number(), types.string()]),
   onChange: types.function<(value: string) => void>(),
-  "onFocused?": types.function(),
-  "onBlur?": types.function(),
-  "onInput?": types.function<(value: string) => void>(),
-  "class?": types.string(),
-  "id?": types.string(),
-  "placeholder?": types.string(),
-  "autofocus?": types.boolean(),
-  "alwaysShowBorder?": types.boolean(),
-  "selectContentOnFocus?": types.boolean(),
-  "resetOnBlur?": types.boolean(),
+  onFocused: types.function().optional(),
+  onBlur: types.function().optional(),
+  onInput: types.function<(value: string) => void>().optional(),
+  class: types.string().optional(),
+  id: types.string().optional(),
+  placeholder: types.string().optional(),
+  autofocus: types.boolean().optional(),
+  alwaysShowBorder: types.boolean().optional(),
+  selectContentOnFocus: types.boolean().optional(),
+  resetOnBlur: types.boolean().optional(),
 };
 
 export class GenericInput<T extends GenericInputProps> extends Component<SpreadsheetChildEnv> {

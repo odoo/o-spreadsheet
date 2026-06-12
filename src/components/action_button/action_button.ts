@@ -11,10 +11,10 @@ export class ActionButton extends Component<SpreadsheetChildEnv> {
 
   protected props = props({
     action: types.ActionSpec(),
-    "hasTriangleDownIcon?": types.boolean(),
-    "selectedColor?": types.string(),
-    "class?": types.string(),
-    "onClick?": types.function<(ev: MouseEvent) => void>(),
+    hasTriangleDownIcon: types.boolean().optional(),
+    selectedColor: types.string().optional(),
+    class: types.string().optional(),
+    onClick: types.function<(ev: MouseEvent) => void>().optional(),
   });
 
   private actionButton = createAction(this.props.action);

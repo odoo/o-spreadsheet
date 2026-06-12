@@ -20,9 +20,9 @@ export class NumberInput extends GenericInput<Props> {
 
   protected props: Props = props({
     ...genericInputPropsDefinition,
-    "min?": types.number(),
-    "max?": types.number(),
-  }) as unknown as Props;
+    min: types.number().optional(),
+    max: types.number().optional(),
+  });
 
   // Very short debounce to prevent up/down arrow on number input to spam the onChange
   debouncedOnChange = debounce(this.props.onChange.bind(this), 100, true);

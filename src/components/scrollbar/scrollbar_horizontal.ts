@@ -16,14 +16,9 @@ export class HorizontalScrollBar extends Component<SpreadsheetChildEnv> {
         onScroll.bind="this.onScroll"
       />`;
 
-  protected props = props(
-    {
-      "leftOffset?": types.number(),
-    },
-    {
-      leftOffset: 0,
-    }
-  );
+  protected props = props({
+    leftOffset: types.number().optional(0),
+  });
 
   get offset() {
     return this.env.model.getters.getActiveSheetScrollInfo().scrollX;

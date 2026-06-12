@@ -69,9 +69,9 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Spreadsheet";
   protected props = props({
     model: types.Model(),
-    "notifyUser?": types.function<NotificationStoreMethods["notifyUser"]>(),
-    "raiseError?": types.function<NotificationStoreMethods["raiseError"]>(),
-    "askConfirmation?": types.function<NotificationStoreMethods["askConfirmation"]>(),
+    notifyUser: types.function<NotificationStoreMethods["notifyUser"]>().optional(),
+    raiseError: types.function<NotificationStoreMethods["raiseError"]>().optional(),
+    askConfirmation: types.function<NotificationStoreMethods["askConfirmation"]>().optional(),
   });
   static components = {
     TopBar,
