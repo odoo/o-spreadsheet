@@ -20,9 +20,9 @@ export class BorderEditorWidget extends Component<SpreadsheetChildEnv> {
   static components = { BorderEditor };
 
   protected props = props({
-    "disabled?": types.boolean(),
-    "dropdownMaxHeight?": types.Pixel(),
-    "class?": types.string(),
+    disabled: types.boolean().optional(),
+    dropdownMaxHeight: types.Pixel().optional(),
+    class: types.string().optional(),
   });
   topBarToolStore!: ToolBarDropdownStore;
 

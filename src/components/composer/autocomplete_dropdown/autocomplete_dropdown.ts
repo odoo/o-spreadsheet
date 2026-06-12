@@ -10,7 +10,7 @@ export class TextValueProvider extends Component<any> {
 
   protected props = props({
     proposals: types.array(types.AutoCompleteProposal()),
-    "selectedIndex?": types.number(),
+    selectedIndex: types.number().optional(),
     onValueSelected: types.function<(proposal: AutoCompleteProposal) => void>(),
     onValueHovered: types.function<(index: string) => void>(),
   });

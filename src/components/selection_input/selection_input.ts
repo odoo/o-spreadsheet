@@ -34,28 +34,22 @@ interface SelectionRange extends Omit<RangeInputValue, "color"> {
 export class SelectionInput extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SelectionInput";
 
-  protected props = props(
-    {
-      ranges: types.array(types.string()),
-      "hasSingleRange?": types.boolean(),
-      "required?": types.boolean(),
-      "autofocus?": types.boolean(),
-      "isInvalid?": types.boolean(),
-      "class?": types.string(),
-      "onSelectionChanged?": types.function<(ranges: string[]) => void>(),
-      "onSelectionConfirmed?": types.function(),
-      "onSelectionReordered?": types.function<(indexes: number[]) => void>(),
-      "onSelectionRemoved?": types.function<(index: number) => void>(),
-      "onInputFocused?": types.function(),
-      "colors?": types.ArrayOf<Color>(),
-      "disabledRanges?": types.array(types.boolean()),
-      "disabledRangeTitle?": types.string(),
-    },
-    {
-      colors: [],
-      disabledRanges: [],
-    }
-  );
+  protected props = props({
+    ranges: types.array(types.string()),
+    hasSingleRange: types.boolean().optional(),
+    required: types.boolean().optional(),
+    autofocus: types.boolean().optional(),
+    isInvalid: types.boolean().optional(),
+    class: types.string().optional(),
+    onSelectionChanged: types.function<(ranges: string[]) => void>().optional(),
+    onSelectionConfirmed: types.function().optional(),
+    onSelectionReordered: types.function<(indexes: number[]) => void>().optional(),
+    onSelectionRemoved: types.function<(index: number) => void>().optional(),
+    onInputFocused: types.function().optional(),
+    colors: types.ArrayOf<Color>().optional([]),
+    disabledRanges: types.array(types.boolean()).optional([]),
+    disabledRangeTitle: types.string().optional(),
+  });
   private state: State = proxy({
     isMissing: false,
   });

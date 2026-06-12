@@ -8,8 +8,8 @@ export class Section extends Component<SpreadsheetChildEnv> {
   static template = "o_spreadsheet.Section";
 
   protected props = props({
-    "class?": types.string(),
-    "title?": types.string(),
+    class: types.string().optional(),
+    title: types.string().optional(),
     slots: types.object(),
   });
 }

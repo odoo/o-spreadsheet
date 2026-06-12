@@ -18,23 +18,18 @@ export class NumberEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-NumberEditor";
   static components = { Popover };
 
-  protected props = props(
-    {
-      currentValue: types.number(),
-      onValueChange: types.function<(fontSize: number) => void>(),
-      "onToggle?": types.function(),
-      "onFocusInput?": types.function(),
-      class: types.string(),
-      "valueIcon?": types.string(),
-      min: types.number(),
-      max: types.number(),
-      title: types.string(),
-      valueList: types.array(types.number()),
-    },
-    {
-      onFocusInput: () => {},
-    }
-  );
+  protected props = props({
+    currentValue: types.number(),
+    onValueChange: types.function<(fontSize: number) => void>(),
+    onToggle: types.function().optional(),
+    onFocusInput: types.function().optional(() => () => {}),
+    class: types.string(),
+    valueIcon: types.string().optional(),
+    min: types.number(),
+    max: types.number(),
+    title: types.string(),
+    valueList: types.array(types.number()),
+  });
 
   dropdown: State = proxy({ isOpen: false });
 

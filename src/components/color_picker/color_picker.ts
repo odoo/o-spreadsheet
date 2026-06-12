@@ -41,16 +41,13 @@ export class ColorPicker extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ColorPicker";
   static components = { Popover };
 
-  protected props = props(
-    {
-      onColorPicked: types.function<(color: string) => void>(),
-      "currentColor?": types.string(),
-      "maxHeight?": types.Pixel(),
-      anchorRect: types.Rect(),
-      "disableNoColor?": types.boolean(),
-    },
-    { currentColor: "" }
-  );
+  protected props = props({
+    onColorPicked: types.function<(color: string) => void>(),
+    currentColor: types.string().optional(""),
+    maxHeight: types.Pixel().optional(),
+    anchorRect: types.Rect(),
+    disableNoColor: types.boolean().optional(),
+  });
 
   COLORS = COLOR_PICKER_DEFAULTS;
 

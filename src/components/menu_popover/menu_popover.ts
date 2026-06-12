@@ -45,27 +45,23 @@ export class MenuPopover extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Menu-Popover";
   static components = { MenuPopover, Menu, Popover };
 
-  protected props = props(
-    {
-      anchorRect: types.Rect(),
-      "popoverPositioning?": types.or([types.literal("top-right"), types.literal("bottom-left")]),
-      menuItems: types.ArrayOf<Action>(),
-      "depth?": types.number(),
-      "maxHeight?": types.Pixel(),
-      onClose: types.function(),
-      "onMenuClicked?": types.function<(ev: CustomEvent) => void>(),
-      "menuId?": types.UID(),
-      "onMouseOver?": types.function(),
-      "width?": types.number(),
-      "autoSelectFirstItem?": types.boolean(),
-      "disableKeyboardNavigation?": types.boolean(),
-      "onKeyboardNavigation?": types.function<(ev: KeyboardEvent) => void>(),
-    },
-    {
-      depth: 0,
-      popoverPositioning: "top-right",
-    }
-  );
+  protected props = props({
+    anchorRect: types.Rect(),
+    popoverPositioning: types
+      .or([types.literal("top-right"), types.literal("bottom-left")])
+      .optional("top-right"),
+    menuItems: types.ArrayOf<Action>(),
+    depth: types.number().optional(0),
+    maxHeight: types.Pixel().optional(),
+    onClose: types.function(),
+    onMenuClicked: types.function<(ev: CustomEvent) => void>().optional(),
+    menuId: types.UID().optional(),
+    onMouseOver: types.function().optional(),
+    width: types.number().optional(),
+    autoSelectFirstItem: types.boolean().optional(),
+    disableKeyboardNavigation: types.boolean().optional(),
+    onKeyboardNavigation: types.function<(ev: KeyboardEvent) => void>().optional(),
+  });
   private subMenu: MenuState = proxy({
     isOpen: false,
     anchorRect: null,

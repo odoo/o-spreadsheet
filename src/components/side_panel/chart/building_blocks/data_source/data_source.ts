@@ -20,14 +20,18 @@ export class ChartDataSourceComponent extends Component<SpreadsheetChildEnv> {
     definition: types.ChartDefinitionWithDataSource(),
     updateChart: types.function<ChartUpdateFunction<ChartDefinitionWithDataSource<string>>>(),
     canUpdateChart: types.function<ChartUpdateFunction<ChartDefinitionWithDataSource<string>>>(),
-    "dataSeriesTitle?": types.string(),
-    "labelRangeTitle?": types.string(),
-    "getLabelRangeOptions?": types.function as unknown as () => Array<{
-      name: string;
-      label: string;
-      value: boolean;
-      onChange: (value: boolean) => void;
-    }>,
+    dataSeriesTitle: types.string().optional(),
+    labelRangeTitle: types.string().optional(),
+    getLabelRangeOptions: types
+      .function<
+        () => Array<{
+          name: string;
+          label: string;
+          value: boolean;
+          onChange: (value: boolean) => void;
+        }>
+      >()
+      .optional(),
   });
 
   get DataSourceComponent() {

@@ -7,15 +7,22 @@ import { Component } from "../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { types } from "../../props_validation";
 
+interface CriterionFormProps<T extends GenericCriterion> {
+  criterion: T;
+  onCriterionChanged: (criterion: T) => void;
+  disableFormulas?: boolean;
+  autofocus?: boolean;
+}
+
 export abstract class CriterionForm<
   T extends GenericCriterion = GenericCriterion
 > extends Component<SpreadsheetChildEnv> {
-  protected props = props({
-    criterion: types.object({}) as unknown as T,
+  protected props: CriterionFormProps<T> = props({
+    criterion: types.object(),
     onCriterionChanged: types.function<(criterion: T) => void>(),
-    "disableFormulas?": types.boolean(),
-    "autofocus?": types.boolean(),
-  });
+    disableFormulas: types.boolean().optional(),
+    autofocus: types.boolean().optional(),
+  }) as unknown as CriterionFormProps<T>;
 
   setup() {
     const composerFocusStore = useStore(ComposerFocusStore);

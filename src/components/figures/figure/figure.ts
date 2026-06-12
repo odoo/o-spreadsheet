@@ -37,20 +37,15 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FigureComponent";
   static components = { MenuPopover };
 
-  protected props = props(
-    {
-      figureUI: types.FigureUI(),
-      style: types.string(),
-      class: types.string(),
-      "onMouseDown?": types.function<(ev: MouseEvent) => void>(),
-      "onClickAnchor?":
-        types.function<(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) => void>(),
-    },
-    {
-      onMouseDown: () => {},
-      onClickAnchor: () => {},
-    }
-  );
+  protected props = props({
+    figureUI: types.FigureUI(),
+    style: types.string(),
+    class: types.string(),
+    onMouseDown: types.function<(ev: MouseEvent) => void>().optional(() => () => {}),
+    onClickAnchor: types
+      .function<(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) => void>()
+      .optional(() => () => {}),
+  });
 
   private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 

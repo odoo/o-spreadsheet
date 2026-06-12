@@ -12,7 +12,7 @@ export class FunctionDescriptionProvider extends Component<SpreadsheetChildEnv> 
   protected props = props({
     functionDescription: types.FunctionDescription(),
     argsToFocus: types.array(types.number()),
-    "repeatingArgGroupIndex?": types.number(),
+    repeatingArgGroupIndex: types.number().optional(),
   });
 
   private state: { isCollapsed: boolean } = proxy({

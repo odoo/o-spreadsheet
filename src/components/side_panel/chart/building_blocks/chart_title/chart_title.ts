@@ -11,21 +11,15 @@ export class ChartTitle extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartTitle";
   static components = { Section, TextStyler, TextInput };
 
-  protected props = props(
-    {
-      "title?": types.string(),
-      "placeholder?": types.string(),
-      updateTitle: types.function<(title: string) => void>(),
-      "name?": types.string(),
-      style: types.TitleDesign(),
-      "defaultStyle?": types.object({}) as Partial<TitleDesign>,
-      updateStyle: types.function<(style: TitleDesign) => void>(),
-    },
-    {
-      title: "",
-      placeholder: "",
-    }
-  );
+  protected props = props({
+    title: types.string().optional(""),
+    placeholder: types.string().optional(""),
+    updateTitle: types.function<(title: string) => void>(),
+    name: types.string().optional(),
+    style: types.TitleDesign(),
+    defaultStyle: types.object<Partial<TitleDesign>>().optional(),
+    updateStyle: types.function<(style: TitleDesign) => void>(),
+  });
 
   updateTitle(value: string) {
     this.props.updateTitle(value);

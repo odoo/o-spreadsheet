@@ -12,24 +12,16 @@ export class CriterionInput extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CriterionInput";
   static components = { StandaloneComposer: StandaloneComposer };
 
-  protected props = props(
-    {
-      "value?": types.string(),
-      criterionType: types.DataValidationCriterionType(),
-      onValueChanged: types.function<(value: string) => void>(),
-      "onKeyDown?": types.function<(ev: KeyboardEvent) => void>(),
-      "focused?": types.boolean(),
-      "onBlur?": types.function(),
-      "onFocus?": types.function(),
-      "disableFormulas?": types.boolean(),
-    },
-    {
-      value: "",
-      onKeyDown: () => {},
-      focused: false,
-      onBlur: () => {},
-    }
-  );
+  protected props = props({
+    value: types.string().optional(""),
+    criterionType: types.DataValidationCriterionType(),
+    onValueChanged: types.function<(value: string) => void>(),
+    onKeyDown: types.function<(ev: KeyboardEvent) => void>().optional(() => () => {}),
+    focused: types.boolean().optional(false),
+    onBlur: types.function().optional(() => () => {}),
+    onFocus: types.function().optional(),
+    disableFormulas: types.boolean().optional(),
+  });
 
   inputRef = signal<HTMLInputElement | null>(null);
 

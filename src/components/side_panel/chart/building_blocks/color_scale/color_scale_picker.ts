@@ -27,7 +27,7 @@ export class ColorScalePicker extends Component<SpreadsheetChildEnv> {
   };
 
   protected props = props({
-    definition: types.object({ "colorScale?": types.ChartColorScale() }),
+    definition: types.object({ colorScale: types.ChartColorScale().optional() }),
     onUpdateColorScale: types.function<(colorscale: ChartColorScale) => void>(),
   });
 
