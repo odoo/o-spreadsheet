@@ -1,7 +1,7 @@
 import { props, signal } from "@odoo/owl";
 import {
   Action,
-  adaptShortcutMacOs,
+  adaptShortcutStringToMacOs,
   isMenuItemEnabled,
   isRootMenu,
   MenuItemOrSeparator,
@@ -81,7 +81,7 @@ export class Menu extends Component<SpreadsheetChildEnv> {
   }
 
   getShortcut(menu: Action) {
-    return adaptShortcutMacOs(menu.shortcut);
+    return adaptShortcutStringToMacOs(menu.shortcut);
   }
 
   getColor(menu: Action) {
