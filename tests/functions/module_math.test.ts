@@ -1267,6 +1267,9 @@ describe("DECIMAL formula", () => {
   test.each([
     ["0.1", "2"],
     ["2020", "2"],
+    ["12", "2"], // digit "2" is out of range for base 2
+    ["19", "8"], // digit "9" is out of range for base 8
+    ["1G", "16"], // digit "G" is out of range for base 16
     ["-ABAB", "2"],
     ["-ABAB", "10"],
     ["ZZZZ", "16"],
@@ -2194,6 +2197,11 @@ describe("RANDBETWEEN formula", () => {
     ["42", "24"],
   ])("take 2 parameters, return an error", (a, b) => {
     expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("stays within range when Math.random() returns 0", () => {
+    jest.spyOn(Math, "random").mockReturnValue(0);
+    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(1, 6)" })).toBe(1);
   });
 
   test("special value testing", () => {

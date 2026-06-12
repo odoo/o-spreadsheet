@@ -2963,6 +2963,19 @@ describe("PEARSON/CORREL and RSQ formula", () => {
     expect(evaluateCell("C8", grid)).toBeCloseTo(0.4892550143);
   });
 
+  test("Constant input (zero variance) returns #DIV/0!", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "2", B1: "5",
+      A2: "5", B2: "5",
+      A3: "7", B3: "5",
+      A4: "=PEARSON(A1:A3, B1:B3)", B4: "=CORREL(A1:A3, B1:B3)", C4: "=RSQ(A1:A3, B1:B3)",
+    };
+    expect(evaluateCell("A4", grid)).toBe("#DIV/0!");
+    expect(evaluateCell("B4", grid)).toBe("#DIV/0!");
+    expect(evaluateCell("C4", grid)).toBe("#DIV/0!");
+  });
+
   test("Perfect correlation", () => {
     //prettier-ignore
     const grid = {

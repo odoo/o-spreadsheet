@@ -667,6 +667,7 @@ describe("REPLACE formula", () => {
     expect(evaluateCell("A1", { A1: '=REPLACE("ABZ", 1, 0, "Y")' })).toBe("YABZ");
     expect(evaluateCell("A1", { A1: '=REPLACE("ABZ", 2, 0, "Y")' })).toBe("AYBZ");
     expect(evaluateCell("A1", { A1: '=REPLACE("ABZ", -1, 0, "Y")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: '=REPLACE("abcdef", 3, -1, "X")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
 
   test("casting tests on simple arguments", () => {
@@ -1067,6 +1068,11 @@ describe("TEXTAFTER function", () => {
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, ".")' })).toBe("#N/A");
   });
 
+  test("delimiter containing a regex metacharacter", () => {
+    expect(evaluateCell("A1", { A1: '=TEXTAFTER("a.b.c", ".", 1)' })).toBe("b.c");
+    expect(evaluateCell("A1", { A1: '=TEXTAFTER("file.txt", ".")' })).toBe("txt");
+  });
+
   test("should use fallback value when delimiter is not found", () => {
     const text = "apple,banana,orange";
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, ".", , , , "Not Found")' })).toBe(
@@ -1123,6 +1129,11 @@ describe("TEXTBEFORE function", () => {
     expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", -1)' })).not.toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 0)' })).toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1)' })).not.toBe("#ERROR");
+  });
+
+  test("delimiter containing a regex metacharacter", () => {
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("a.b.c", ".", 1)' })).toBe("a");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("file.txt", ".")' })).toBe("file");
   });
 
   test("match_mode should be either 0 or 1", () => {

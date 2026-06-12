@@ -602,6 +602,18 @@ export const DECIMAL = {
       );
     }
 
+    // `parseInt` stops at the first digit that is invalid for the base and
+    // returns the value parsed so far, so a single out-of-range digit (e.g.
+    // "2" in base 2) would not be reported. Reject any such digit explicitly.
+    const digits = _value.replace("-", "");
+    for (const digit of digits) {
+      if (parseInt(digit, 36) >= _base) {
+        return new EvaluationError(
+          _t("The value (%s) must be a valid base %s representation.", _value, _base)
+        );
+      }
+    }
+
     const deci = parseInt(_value, _base);
     if (isNaN(deci)) {
       return new EvaluationError(
@@ -1106,7 +1118,7 @@ export const RANDBETWEEN = {
       );
     }
     return {
-      value: _low + Math.ceil((_high - _low + 1) * Math.random()) - 1,
+      value: _low + Math.floor((_high - _low + 1) * Math.random()),
       format: low?.format,
     };
   },

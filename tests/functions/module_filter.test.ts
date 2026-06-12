@@ -811,6 +811,7 @@ describe("SORT function", () => {
     };
     const model = createModelFromGrid(grid);
     setCellContent(model, "A11", `=SORT(A1:C5, 5, ${index})`);
+    // @compatibility: Excel returns #VALUE!
     expect(getRangeValuesAsMatrix(model, "A11:C15")).toEqual([
       [1, 1, 1],
       [2, 1, 2],

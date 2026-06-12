@@ -1019,9 +1019,12 @@ function pearson(dataY: Matrix<FunctionResultObject>, dataX: Matrix<FunctionResu
     sumXX += xij * xij;
     sumYY += yij * yij;
   }
-  return (
-    (n * sumXY - sumX * sumY) / Math.sqrt((n * sumXX - sumX * sumX) * (n * sumYY - sumY * sumY))
-  );
+  const denominator = Math.sqrt((n * sumXX - sumX * sumX) * (n * sumYY - sumY * sumY));
+  if (denominator === 0) {
+    // a constant (zero-variance) column makes the correlation undefined
+    return new DivisionByZeroError();
+  }
+  return (n * sumXY - sumX * sumY) / denominator;
 }
 
 export const PEARSON: AddFunctionDescription = {
@@ -1039,7 +1042,7 @@ export const PEARSON: AddFunctionDescription = {
   compute: function (
     dataY: Matrix<FunctionResultObject>,
     dataX: Matrix<FunctionResultObject>
-  ): number | NotAvailableError {
+  ): number | EvaluationError {
     return pearson(dataY, dataX);
   },
   isExported: true,
@@ -1326,12 +1329,12 @@ export const RSQ: AddFunctionDescription = {
   compute: function (
     dataY: Matrix<FunctionResultObject>,
     dataX: Matrix<FunctionResultObject>
-  ): number {
+  ): number | EvaluationError {
     const value = pearson(dataY, dataX);
-    if (value instanceof Error) {
-      throw value;
+    if (typeof value === "number") {
+      return Math.pow(value as number, 2.0);
     }
-    return Math.pow(value as number, 2.0);
+    return value; // EvaluationError
   },
   isExported: true,
 };
