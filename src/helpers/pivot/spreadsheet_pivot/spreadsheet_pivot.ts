@@ -534,6 +534,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       const zone = { top: row, bottom: row, left: range.zone.left, right: range.zone.right };
       const cells = this.getters.getEvaluatedCellsInZone(range.sheetId, zone);
       const entry: DataEntry = {};
+      let isEntryEmpty = true;
       for (const index in cells) {
         const cell = cells[index];
         const field = this.fields[this.metaData.fieldKeys[index]];
@@ -544,6 +545,9 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
           entry[field.name] = { value: null, type: CellValueType.empty, formattedValue: "" };
         } else {
           entry[field.name] = cell;
+          if (cell.type !== CellValueType.empty) {
+            isEntryEmpty = false;
+          }
         }
       }
       for (const customFieldName in this.definition.customFields || {}) {
@@ -565,8 +569,10 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
           value: group ? group.name : baseValue.value,
         };
       }
-      entry["__count"] = { value: 1, type: CellValueType.number, formattedValue: "1" };
-      dataEntries.push(entry);
+      if (!isEntryEmpty) {
+        entry["__count"] = { value: 1, type: CellValueType.number, formattedValue: "1" };
+        dataEntries.push(entry);
+      }
     }
     const dateDimensions = this.definition.columns
       .concat(this.definition.rows)
