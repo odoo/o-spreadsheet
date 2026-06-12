@@ -34,10 +34,10 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   private allSheetsMatches: CellPosition[] = [];
   private activeSheetMatches: CellPosition[] = [];
   private specificRangeMatches: CellPosition[] = [];
+  private selectedMatchPosition: CellPosition | null = null;
 
   private currentSearchRegex: RegExp | null = null;
   private initialShowFormulaState: boolean;
-  private preserveSelectedMatchIndex: boolean = false;
   private irreplaceableMatchCount: number = 0;
 
   private isSearchDirty = false;
@@ -190,6 +190,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     this.searchOptions = searchOptions;
     if (toSearch !== this.toSearch) {
       this.selectedMatchIndex = null;
+      this.selectedMatchPosition = null;
     }
     this.toSearch = toSearch;
     this.currentSearchRegex = getSearchRegex(this.toSearch, this.searchOptions);
@@ -199,12 +200,43 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   /**
    * refresh the matches according to the current search options
    */
+<<<<<<< 57b568a4fd6b3a1d70cd1c97ec3f6345619e732d
   private refreshSearch(options: RefreshSearchOptions) {
     if (!this.preserveSelectedMatchIndex) {
       this.selectedMatchIndex = null;
     }
+||||||| bdbbd561b8616c9c10e40a109bdca1b8c8caa6c7
+  private refreshSearch(jumpToMatchSheet = true) {
+    if (!this.preserveSelectedMatchIndex) {
+      this.selectedMatchIndex = null;
+    }
+=======
+  private refreshSearch(jumpToMatchSheet = true) {
+>>>>>>> efa75e5cf3698a3b2f9adeea97ea0773330563cd
     this.findMatches();
+<<<<<<< 57b568a4fd6b3a1d70cd1c97ec3f6345619e732d
     this.selectNextCell(Direction.current, options);
+||||||| bdbbd561b8616c9c10e40a109bdca1b8c8caa6c7
+    this.selectNextCell(Direction.current, jumpToMatchSheet);
+=======
+    if (this.selectedMatchPosition) {
+      if (this.selectedMatchPosition.sheetId !== this.getters.getActiveSheetId()) {
+        this.selectedMatchIndex = null;
+        this.selectedMatchPosition = null;
+      } else {
+        const index = this.searchMatches.findIndex(
+          (match) =>
+            match.sheetId === this.selectedMatchPosition?.sheetId &&
+            match.col === this.selectedMatchPosition?.col &&
+            match.row === this.selectedMatchPosition?.row
+        );
+        if (index !== -1) {
+          this.selectedMatchIndex = index;
+        }
+      }
+    }
+    this.selectNextCell(Direction.current, jumpToMatchSheet);
+>>>>>>> efa75e5cf3698a3b2f9adeea97ea0773330563cd
   }
 
   private getSheetsInSearchOrder() {
@@ -288,6 +320,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     const matches = this.searchMatches;
     if (!matches.length) {
       this.selectedMatchIndex = null;
+      this.selectedMatchPosition = null;
       return;
     }
     let nextIndex: number;
@@ -307,20 +340,31 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     // loop index value inside the array (index -1 => last index)
     nextIndex = (nextIndex + matches.length) % matches.length;
     this.selectedMatchIndex = nextIndex;
+    this.selectedMatchPosition = matches[this.selectedMatchIndex];
     const selectedMatch = matches[nextIndex];
 
     // Switch to the sheet where the match is located
+<<<<<<< 57b568a4fd6b3a1d70cd1c97ec3f6345619e732d
     if (options.jumpToMatchSheet && this.getters.getActiveSheetId() !== selectedMatch.sheetId) {
       // We set `preserveSelectedMatchIndex` to true to avoid resetting the selected search
       // index in the `refreshSearch` function when a new sheet is activated. The reason being
       // that, when we automatically go back to previous sheet while performing a search, the
       // search index is reset to the first occurrence each time.
       this.preserveSelectedMatchIndex = true;
+||||||| bdbbd561b8616c9c10e40a109bdca1b8c8caa6c7
+    if (jumpToMatchSheet && this.getters.getActiveSheetId() !== selectedMatch.sheetId) {
+      // We set `preserveSelectedMatchIndex` to true to avoid resetting the selected search
+      // index in the `refreshSearch` function when a new sheet is activated. The reason being
+      // that, when we automatically go back to previous sheet while performing a search, the
+      // search index is reset to the first occurrence each time.
+      this.preserveSelectedMatchIndex = true;
+=======
+    if (jumpToMatchSheet && this.getters.getActiveSheetId() !== selectedMatch.sheetId) {
+>>>>>>> efa75e5cf3698a3b2f9adeea97ea0773330563cd
       this.model.dispatch("ACTIVATE_SHEET", {
         sheetIdFrom: this.getters.getActiveSheetId(),
         sheetIdTo: selectedMatch.sheetId,
       });
-      this.preserveSelectedMatchIndex = false;
       // We do not want to reset the selection at finalize in this case
       this.isSearchDirty = false;
     }
@@ -338,15 +382,19 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     if (this.selectedMatchIndex === null) {
       return;
     }
+<<<<<<< 57b568a4fd6b3a1d70cd1c97ec3f6345619e732d
     this.preserveSelectedMatchIndex = true;
     this.shouldFinalizeUpdateSelection = true;
+||||||| bdbbd561b8616c9c10e40a109bdca1b8c8caa6c7
+    this.preserveSelectedMatchIndex = true;
+=======
+>>>>>>> efa75e5cf3698a3b2f9adeea97ea0773330563cd
     this.model.dispatch("REPLACE_SEARCH", {
       searchString: this.toSearch,
       replaceWith: this.toReplace,
       matches: [this.searchMatches[this.selectedMatchIndex]],
       searchOptions: this.searchOptions,
     });
-    this.preserveSelectedMatchIndex = false;
   }
   /**
    * Apply the replace function to all the matches one time.
