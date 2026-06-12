@@ -218,6 +218,12 @@ describe("GT formula", () => {
     expect(evaluateCell("A1", { A1: "=GT(TRUE, FALSE)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=GT(FALSE, TRUE)" })).toBe(false);
 
+    // a boolean is always greater than any text (number < text < boolean)
+    expect(evaluateCell("A1", { A1: '=GT(TRUE, "zzz")' })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=GT(FALSE, "zzz")' })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=GT("zzz", TRUE)' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=GT("zzz", FALSE)' })).toBe(false);
+
     expect(evaluateCell("A1", { A1: '=GT(32, "32")' })).toBe(false);
     expect(evaluateCell("A1", { A1: '=GT(32, "31")' })).toBe(false);
     expect(evaluateCell("A1", { A1: '=GT("32", 31)' })).toBe(true);
@@ -311,6 +317,12 @@ describe("GTE formula", () => {
     expect(evaluateCell("A1", { A1: "=GTE( , FALSE)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=GTE(TRUE, FALSE)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=GTE(FALSE, TRUE)" })).toBe(false);
+
+    // a boolean is always greater than any text (number < text < boolean)
+    expect(evaluateCell("A1", { A1: '=GTE(TRUE, "zzz")' })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=GTE(FALSE, "zzz")' })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=GTE("zzz", TRUE)' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=GTE("zzz", FALSE)' })).toBe(false);
 
     expect(evaluateCell("A1", { A1: '=GTE(32, "32")' })).toBe(false);
     expect(evaluateCell("A1", { A1: '=GTE(32, "31")' })).toBe(false);
@@ -414,6 +426,12 @@ describe("LT formula", () => {
     expect(evaluateCell("A1", { A1: "=LT(TRUE, FALSE)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=LT(FALSE, TRUE)" })).toBe(true);
 
+    // a boolean is always greater than any text (number < text < boolean)
+    expect(evaluateCell("A1", { A1: '=LT(TRUE, "zzz")' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=LT(FALSE, "zzz")' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=LT("zzz", TRUE)' })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=LT("zzz", FALSE)' })).toBe(true);
+
     expect(evaluateCell("A1", { A1: '=LT(32, "32")' })).toBe(true);
     expect(evaluateCell("A1", { A1: '=LT(32, "31")' })).toBe(true);
     expect(evaluateCell("A1", { A1: '=LT("32", 31)' })).toBe(false);
@@ -512,6 +530,12 @@ describe("LTE formula", () => {
     expect(evaluateCell("A1", { A1: "=LTE( , FALSE)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=LTE(TRUE, FALSE)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=LTE(FALSE, TRUE)" })).toBe(true);
+
+    // a boolean is always greater than any text (number < text < boolean)
+    expect(evaluateCell("A1", { A1: '=LTE(TRUE, "zzz")' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=LTE(FALSE, "zzz")' })).toBe(false);
+    expect(evaluateCell("A1", { A1: '=LTE("zzz", TRUE)' })).toBe(true);
+    expect(evaluateCell("A1", { A1: '=LTE("zzz", FALSE)' })).toBe(true);
 
     expect(evaluateCell("A1", { A1: '=LTE(32, "32")' })).toBe(true);
     expect(evaluateCell("A1", { A1: '=LTE(32, "31")' })).toBe(true);

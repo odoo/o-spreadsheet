@@ -127,24 +127,36 @@ function applyRelationalOperator(
   if (isEvaluationError(value2?.value)) {
     return value2;
   }
-  let _value1 = isEmpty(value1) ? getNeutral[typeof value2?.value] : value1?.value;
-  let _value2 = isEmpty(value2) ? getNeutral[typeof value1?.value] : value2?.value;
-  if (typeof _value1 !== "number") {
-    _value1 = toString(_value1).toUpperCase();
+  // `getNeutral` returns `undefined` when both values are empty; treat it as text.
+  let _value1 = isEmpty(value1) ? getNeutral[typeof value2?.value] ?? "" : value1?.value;
+  let _value2 = isEmpty(value2) ? getNeutral[typeof value1?.value] ?? "" : value2?.value;
+  // Order values by type: number < text < boolean. When the two values
+  // belong to different categories, the comparison is decided by their rank.
+  const rank1 = TYPE_ORDER[typeof _value1];
+  const rank2 = TYPE_ORDER[typeof _value2];
+  if (rank1 !== rank2) {
+    return { value: cb(rank1, rank2) };
   }
-  if (typeof _value2 !== "number") {
-    _value2 = toString(_value2).toUpperCase();
+  switch (typeof _value1) {
+    case "string":
+      _value1 = _value1.toUpperCase();
+      break;
+    case "boolean":
+      _value1 = Number(_value1);
+      break;
   }
-  const tV1 = typeof _value1;
-  const tV2 = typeof _value2;
-  if (tV1 === "string" && tV2 === "number") {
-    return { value: true };
-  }
-  if (tV2 === "string" && tV1 === "number") {
-    return { value: false };
+  switch (typeof _value2) {
+    case "string":
+      _value2 = _value2.toUpperCase();
+      break;
+    case "boolean":
+      _value2 = Number(_value2);
+      break;
   }
   return { value: cb(_value1, _value2) };
 }
+
+const TYPE_ORDER = { number: 0, string: 1, boolean: 2 };
 
 export const GT = {
   description: _t("Strictly greater than."),
