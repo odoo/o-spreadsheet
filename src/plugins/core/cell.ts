@@ -9,7 +9,10 @@ import { deepEquals, range, replaceNewLines } from "../../helpers/misc";
 
 import { toXC } from "../../helpers/coordinates";
 import { CorePlugin } from "../core_plugin";
+import { SettingsPlugin } from "./settings";
+import { SheetPlugin } from "./sheet";
 
+import { getDateTimeFormat } from "../../helpers/locale";
 import { isInside } from "../../helpers/zones";
 import { Cell } from "../../types/cells";
 import {
@@ -32,9 +35,9 @@ import { isExcelCompatible } from "../../helpers/format/format";
 import { isNumber } from "../../helpers/numbers";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { Format } from "../../types/format";
-import { DEFAULT_LOCALE } from "../../types/locale";
+import { DEFAULT_LOCALE, Locale } from "../../types/locale";
 import { Style, UpdateCellData, Zone } from "../../types/misc";
-import { Range, RangePart } from "../../types/range";
+import { Range } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { SquishedContent, Squisher } from "./squisher";
 import { Unsquisher } from "./unsquisher";
@@ -43,6 +46,7 @@ interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
   cells: Record<UID, Record<number, Cell | undefined> | undefined>;
   nextId: number;
+  previousLocale: Locale;
 }
 
 /**
@@ -51,18 +55,20 @@ interface CoreState {
  * This is the most fundamental of all plugins. It defines how to interact with
  * cell and sheet content.
  */
-export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
+export class CellPlugin extends CorePlugin<CoreState, typeof CellPlugin> implements CoreState {
+  static readonly dependencies = [SheetPlugin, SettingsPlugin] as const;
   static getters = [
-    "zoneToXC",
     "getCells",
     "getTranslatedCellFormula",
     "getCellStyle",
     "getCellById",
     "getFormulaString",
     "getFormulaMovedInSheet",
+    "getCell",
   ] as const;
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
+  previousLocale: Locale = this.getters.getLocale();
 
   adaptRanges(adapters: RangeAdapterFunctions) {
     for (const sheet of Object.keys(this.cells)) {
@@ -143,6 +149,14 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         break;
       case "DELETE_SHEET": {
         this.history.update("cells", cmd.sheetId, undefined);
+        break;
+      }
+      case "DUPLICATE_SHEET":
+        this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo);
+        break;
+      case "UPDATE_LOCALE": {
+        this.changeCellsDateFormatWithLocale(this.previousLocale, cmd.locale);
+        this.history.update("previousLocale", cmd.locale);
       }
     }
   }
@@ -222,6 +236,22 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       styleReference = cmd.base;
     }
     fn(cmd.sheetId, styleReference, insertedElements);
+  }
+
+  private duplicateSheet(sheetIdFrom: UID, sheetIdTo: UID) {
+    for (const cell of Object.values(this.getters.getCells(sheetIdFrom))) {
+      const { col, row } = this.getters.getCellPosition(cell.id);
+      this.dispatch("UPDATE_CELL", {
+        sheetId: sheetIdTo,
+        col,
+        row,
+        content: !cell.isFormula
+          ? cell.content
+          : cell.compiledFormula.toFormulaString(this.getters),
+        format: cell.format,
+        style: cell.style,
+      });
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -454,52 +484,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return this.getters.getCell(position)?.style || {};
   }
 
-  /**
-   * Converts a zone to a XC coordinate system
-   *
-   * The conversion also treats merges as one single cell
-   *
-   * Examples:
-   * {top:0,left:0,right:0,bottom:0} ==> A1
-   * {top:0,left:0,right:1,bottom:1} ==> A1:B2
-   *
-   * if A1:B2 is a merge:
-   * {top:0,left:0,right:1,bottom:1} ==> A1
-   * {top:1,left:0,right:1,bottom:2} ==> A1:B3
-   *
-   * if A1:B2 and A4:B5 are merges:
-   * {top:1,left:0,right:1,bottom:3} ==> A1:A5
-   */
-  zoneToXC(
-    sheetId: UID,
-    zone: Zone,
-    fixedParts: RangePart[] = [{ colFixed: false, rowFixed: false }]
-  ): string {
-    zone = this.getters.expandZone(sheetId, zone);
-    const topLeft = toXC(zone.left, zone.top, fixedParts[0]);
-    const botRight = toXC(
-      zone.right,
-      zone.bottom,
-      fixedParts.length > 1 ? fixedParts[1] : fixedParts[0]
-    );
-    const cellTopLeft = this.getters.getMainCellPosition({
-      sheetId,
-      col: zone.left,
-      row: zone.top,
-    });
-    const cellBotRight = this.getters.getMainCellPosition({
-      sheetId,
-      col: zone.right,
-      row: zone.bottom,
-    });
-    const sameCell = cellTopLeft.col === cellBotRight.col && cellTopLeft.row === cellBotRight.row;
-    if (topLeft !== botRight && !sameCell) {
-      return topLeft + ":" + botRight;
-    }
-
-    return topLeft;
-  }
-
   private setStyleFormat(
     sheetId: UID,
     target: Zone[],
@@ -562,8 +546,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     row: HeaderIndex
   ): { style?: Style; format?: Format } {
     const format: { style?: Style; format?: string } = {};
-    const position = this.getters.getMainCellPosition({ sheetId, col, row });
-    const cell = this.getters.getCell(position);
+    const cell = this.getters.getCell({ sheetId, col, row });
     if (cell) {
       if (cell.style) {
         format["style"] = cell.style;
@@ -641,6 +624,41 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
     const sheetZone = this.getters.getSheetZone(sheetId);
     return isInside(col, row, sheetZone) ? CommandResult.Success : CommandResult.TargetOutOfSheet;
+  }
+
+  getCell({ sheetId, col, row }: CellPosition): Cell | undefined {
+    const sheet = this.getters.tryGetSheet(sheetId);
+    const cellId = sheet?.rows[row]?.cells[col];
+    if (cellId === undefined) {
+      return undefined;
+    }
+    return this.getters.getCellById(cellId);
+  }
+
+  private changeCellsDateFormatWithLocale(oldLocale: Locale, newLocale: Locale) {
+    for (const sheetId of this.getters.getSheetIds()) {
+      for (const cell of this.getters.getCells(sheetId)) {
+        let formatToApply: Format | undefined;
+        if (cell.format === oldLocale.dateFormat) {
+          formatToApply = newLocale.dateFormat;
+        }
+        if (cell.format === oldLocale.timeFormat) {
+          formatToApply = newLocale.timeFormat;
+        }
+        if (cell.format === getDateTimeFormat(oldLocale)) {
+          formatToApply = getDateTimeFormat(newLocale);
+        }
+        if (formatToApply) {
+          const { col, row, sheetId } = this.getters.getCellPosition(cell.id);
+          this.dispatch("UPDATE_CELL", {
+            col,
+            row,
+            sheetId,
+            format: formatToApply,
+          });
+        }
+      }
+    }
   }
 
   private checkUselessClearCell(cmd: ClearCellCommand): CommandResult {

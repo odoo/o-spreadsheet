@@ -1,3 +1,4 @@
+import type { ChartCoreGetters } from "../plugins/core/chart";
 import {
   ChartCreationContext,
   ChartData,
@@ -7,7 +8,6 @@ import {
   ExcelChartDefinition,
 } from "../types/chart/chart";
 import { CommandResult } from "../types/commands";
-import { CoreGetters } from "../types/core_getters";
 import { Getters } from "../types/getters";
 import { RangeAdapterFunctions, UID } from "../types/misc";
 import { Range } from "../types/range";
@@ -26,7 +26,7 @@ export interface ChartTypeBuilder<T extends ChartType> {
   fromStrDefinition(
     definition: ChartTypeDefinition<T, string>,
     sheetId: UID,
-    getters: CoreGetters
+    getters: ChartCoreGetters
   ): Omit<ChartTypeDefinition<T, Range>, "dataSource">;
   /**
    * Returns the definition with ranges as string.
@@ -35,7 +35,7 @@ export interface ChartTypeBuilder<T extends ChartType> {
   toStrDefinition(
     definition: ChartTypeDefinition<T, Range>,
     sheetId: UID,
-    getters: CoreGetters
+    getters: ChartCoreGetters
   ): Omit<ChartTypeDefinition<T, string>, "dataSource">;
   validateDefinition: (
     validator: Validator,
@@ -63,7 +63,7 @@ export interface ChartTypeBuilder<T extends ChartType> {
     definition: ChartTypeDefinition<T, Range>,
     sheetIdFrom: UID,
     sheetIdTo: UID,
-    getters: CoreGetters
+    getters: ChartCoreGetters
   ): ChartTypeDefinition<T, Range>;
   /**
    * Get a copy a the chart in the given sheetId.
@@ -73,7 +73,7 @@ export interface ChartTypeBuilder<T extends ChartType> {
     definition: ChartTypeDefinition<T, Range>,
     sheetIdFrom: UID,
     sheetIdTo: UID,
-    getters: CoreGetters
+    getters: ChartCoreGetters
   ): ChartTypeDefinition<T, Range>;
   getContextCreation(
     definition: ChartTypeDefinition<T, string>,

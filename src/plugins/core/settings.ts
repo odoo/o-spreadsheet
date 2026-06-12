@@ -1,11 +1,15 @@
-import { getDateTimeFormat, isValidLocale } from "../../helpers/locale";
+import { isValidLocale } from "../../helpers/locale";
 import { CommandResult, CoreCommand } from "../../types/commands";
-import { Format } from "../../types/format";
 import { DEFAULT_LOCALE, Locale } from "../../types/locale";
 import { WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 
-export class SettingsPlugin extends CorePlugin {
+interface SettingsState {
+  locale: Locale;
+}
+
+export class SettingsPlugin extends CorePlugin<SettingsState, typeof SettingsPlugin> {
+  static readonly dependencies = [] as const;
   static getters = ["getLocale"] as const;
   private locale: Locale = DEFAULT_LOCALE;
 
@@ -20,42 +24,13 @@ export class SettingsPlugin extends CorePlugin {
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "UPDATE_LOCALE":
-        const oldLocale = this.locale;
-        const newLocale = cmd.locale;
-        this.history.update("locale", newLocale);
-        this.changeCellsDateFormatWithLocale(oldLocale, newLocale);
+        this.history.update("locale", cmd.locale);
         break;
     }
   }
 
   getLocale(): Locale {
     return this.locale;
-  }
-
-  private changeCellsDateFormatWithLocale(oldLocale: Locale, newLocale: Locale) {
-    for (const sheetId of this.getters.getSheetIds()) {
-      for (const cell of this.getters.getCells(sheetId)) {
-        let formatToApply: Format | undefined;
-        if (cell.format === oldLocale.dateFormat) {
-          formatToApply = newLocale.dateFormat;
-        }
-        if (cell.format === oldLocale.timeFormat) {
-          formatToApply = newLocale.timeFormat;
-        }
-        if (cell.format === getDateTimeFormat(oldLocale)) {
-          formatToApply = getDateTimeFormat(newLocale);
-        }
-        if (formatToApply) {
-          const { col, row, sheetId } = this.getters.getCellPosition(cell.id);
-          this.dispatch("UPDATE_CELL", {
-            col,
-            row,
-            sheetId,
-            format: formatToApply,
-          });
-        }
-      }
-    }
   }
 
   import(data: WorkbookData) {

@@ -11,13 +11,18 @@ import { AnchorOffset, Figure } from "../../types/figure";
 import { HeaderIndex, PixelPosition, RangeAdapterFunctions, UID } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
+import { HeaderSizePlugin } from "./header_size";
 
 interface FigureState {
   readonly figures: { [sheet: string]: Record<UID, Figure | undefined> | undefined };
   readonly insertionOrders: UID[];
 }
 
-export class FigurePlugin extends CorePlugin<FigureState> implements FigureState {
+export class FigurePlugin
+  extends CorePlugin<FigureState, typeof FigurePlugin>
+  implements FigureState
+{
+  static readonly dependencies = [HeaderSizePlugin] as const;
   static getters = ["getFigures", "getFigure", "getFigureSheetId"] as const;
   readonly figures: {
     [sheet: string]: Record<UID, Figure | undefined> | undefined;
@@ -357,8 +362,8 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   // ---------------------------------------------------------------------------
   import(data: WorkbookData) {
     for (const sheet of data.sheets) {
-      for (const figure of sheet.figures) {
-        this.addFigure(figure, sheet.id);
+      for (const { data: _data, ...figure } of sheet.figures) {
+        this.addFigure(figure as Figure, sheet.id);
       }
     }
   }

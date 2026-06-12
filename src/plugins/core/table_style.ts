@@ -12,12 +12,17 @@ import { CommandResult, CoreCommand } from "../../types/commands";
 import { TableStyle } from "../../types/table";
 import { TableStyleData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
+import { TablePlugin } from "./tables";
 
 interface TableStylesState {
   readonly styles: { [styleId: string]: TableStyle };
 }
 
-export class TableStylePlugin extends CorePlugin<TableStylesState> implements TableStylesState {
+export class TableStylePlugin
+  extends CorePlugin<TableStylesState, typeof TableStylePlugin>
+  implements TableStylesState
+{
+  static readonly dependencies = [TablePlugin] as const;
   static getters = [
     "getNewCustomTableStyleName",
     "getTableStyle",

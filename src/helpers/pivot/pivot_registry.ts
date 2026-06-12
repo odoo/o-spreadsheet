@@ -1,3 +1,4 @@
+import { PivotCoreGetters } from "../../plugins/core/pivot";
 import { Registry } from "../../registries/registry";
 import { CoreGetters } from "../../types/core_getters";
 import { Getters } from "../../types/getters";
@@ -38,7 +39,7 @@ export interface PivotRegistryItem {
   canHaveCustomGroup: (field: PivotField) => boolean;
   isPivotUnused: (getters: Getters, pivotId: UID) => boolean;
   adaptRanges?: (
-    getters: CoreGetters,
+    getters: PivotCoreGetters,
     definition: PivotCoreDefinition,
     applyChange: ApplyRangeChange
   ) => PivotCoreDefinition;

@@ -16,15 +16,17 @@ import { CellPosition, RangeAdapterFunctions, Style, UID } from "../../types/mis
 import { Range } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
+import { CellPlugin } from "./cell";
 
 interface DataValidationState {
   readonly rules: { [sheet: string]: DataValidationRule[] };
 }
 
 export class DataValidationPlugin
-  extends CorePlugin<DataValidationState>
+  extends CorePlugin<DataValidationState, typeof DataValidationPlugin>
   implements DataValidationState
 {
+  static readonly dependencies = [CellPlugin] as const;
   static getters = [
     "cellHasListDataValidationIcon",
     "getDataValidationRule",
@@ -33,6 +35,7 @@ export class DataValidationPlugin
   ] as const;
 
   readonly rules: { [sheet: string]: DataValidationRule[] } = {};
+  coordinateWithContent = new Set<UID>();
 
   adaptRanges(rangeAdapters: RangeAdapterFunctions) {
     for (const sheetId in this.rules) {
@@ -120,6 +123,25 @@ export class DataValidationPlugin
     return CommandResult.Success;
   }
 
+  beforeHandle(cmd: CoreCommand): void {
+    switch (cmd.type) {
+      case "DELETE_CONTENT":
+        const zones = recomputeZones(cmd.target);
+        const sheetId = cmd.sheetId;
+        for (const zone of zones) {
+          for (let row = zone.top; row <= zone.bottom; row++) {
+            for (let col = zone.left; col <= zone.right; col++) {
+              const cell = this.getters.getCell({ sheetId, col, row });
+              if (!cell?.isFormula && cell?.content) {
+                this.coordinateWithContent.add(`${col}-${row}`);
+              }
+            }
+          }
+        }
+        break;
+    }
+  }
+
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_SHEET":
@@ -165,7 +187,8 @@ export class DataValidationPlugin
                 dataValidation.criterion.type === "isBoolean" ||
                 (dataValidation.criterion.type === "isValueInList" &&
                   !cell?.isFormula &&
-                  !cell?.content)
+                  !cell?.content &&
+                  !this.coordinateWithContent.has(`${col}-${row}`))
               ) {
                 const rules = this.rules[sheetId];
                 const ranges = [this.getters.getRangeFromSheetXC(sheetId, toXC(col, row))];
@@ -175,6 +198,7 @@ export class DataValidationPlugin
             }
           }
         }
+        this.coordinateWithContent = new Set();
       }
     }
   }

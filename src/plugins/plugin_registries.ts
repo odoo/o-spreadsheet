@@ -9,6 +9,7 @@ import { FigurePlugin } from "./core/figures";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
 import { HeaderSizePlugin } from "./core/header_size";
 import { HeaderVisibilityPlugin } from "./core/header_visibility";
+import { HeaderGlobalVisibilityPlugin } from "./core/header_visibility_global";
 import { ImagePlugin } from "./core/image";
 import { MergePlugin } from "./core/merge";
 import { NamedRangesPlugin } from "./core/named_range";
@@ -64,15 +65,59 @@ import { HeaderPositionsUIPlugin } from "./ui_stateful/header_positions";
 import { GridSelectionPlugin } from "./ui_stateful/selection";
 import { SheetViewPlugin } from "./ui_stateful/sheetview";
 
-export const corePluginRegistry = new Registry<CorePluginConstructor>()
-  .add("settings", SettingsPlugin)
+export class CorePluginRegistry extends Registry<CorePluginConstructor> {
+  // private _entries: [string, CorePluginConstructor][] = [];
+
+  override add(key: string, plugin: CorePluginConstructor): this {
+    if (key in this.content) {
+      throw new Error(`${key} is already present in this registry!`);
+    }
+    this.checkDepCycle(plugin);
+    const entries = Object.entries(this.content);
+    const depSet = new Set(plugin.dependencies as CorePluginConstructor[]);
+    let insertAfter = entries.length - 1; // default: append at end
+    for (let i = 0; i < entries.length; i++) {
+      if (depSet.has(entries[i][1])) {
+        insertAfter = Math.max(insertAfter, i);
+      }
+    }
+    const before = entries.slice(0, insertAfter + 1);
+    const after = entries.slice(insertAfter + 1);
+    this.content = Object.fromEntries([...before, [key, plugin], ...after]);
+    return this;
+  }
+
+  // override getAll(): CorePluginConstructor[] {
+  //   return this._entries.map(([, plugin]) => plugin);
+  // }
+
+  private checkDepCycle(
+    plugin: CorePluginConstructor,
+    dependencyChain: CorePluginConstructor[] = []
+  ) {
+    if (dependencyChain.includes(plugin)) {
+      const cycle = [plugin, ...dependencyChain]
+        .reverse()
+        .map((p) => p.prototype.constructor.name)
+        .join(" → ");
+      throw new Error(`Cyclic plugin dependency detected: ${cycle}`);
+    }
+    for (const dep of dependencyChain.at(-1)?.dependencies || plugin.dependencies) {
+      this.checkDepCycle(plugin, dependencyChain.concat(dep));
+    }
+  }
+}
+
+export const corePluginRegistry = new CorePluginRegistry()
   .add("sheet", SheetPlugin)
+  .add("settings", SettingsPlugin)
   .add("header grouping", HeaderGroupingPlugin)
   .add("header visibility", HeaderVisibilityPlugin)
-  .add("tables", TablePlugin)
-  .add("dataValidation", DataValidationPlugin)
+  .add("headerSvisibility global", HeaderGlobalVisibilityPlugin)
   .add("cell", CellPlugin)
+  .add("dataValidation", DataValidationPlugin)
   .add("merge", MergePlugin)
+  .add("tables", TablePlugin)
   .add("headerSize", HeaderSizePlugin)
   .add("borders", BordersPlugin)
   .add("conditional formatting", ConditionalFormatPlugin)

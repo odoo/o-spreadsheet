@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`sortByDependencies Core plugin order is unchanged 1`] = `
+[
+  "SheetPlugin",
+  "SettingsPlugin",
+  "HeaderGroupingPlugin",
+  "HeaderVisibilityPlugin",
+  "HeaderGlobalVisibilityPlugin",
+  "CellPlugin",
+  "DataValidationPlugin",
+  "MergePlugin",
+  "TablePlugin",
+  "HeaderSizePlugin",
+  "BordersPlugin",
+  "ConditionalFormatPlugin",
+  "FigurePlugin",
+  "ChartPlugin",
+  "CarouselPlugin",
+  "ImagePlugin",
+  "NamedRangesPlugin",
+  "PivotCorePlugin",
+  "SpreadsheetPivotCorePlugin",
+  "TableStylePlugin",
+]
+`;

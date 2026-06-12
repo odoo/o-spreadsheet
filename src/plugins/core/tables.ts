@@ -40,17 +40,20 @@ import {
 } from "../../types/table";
 import { ExcelWorkbookData, TableData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
+import { MergePlugin } from "./merge";
 
 interface TableState {
   tables: Record<UID, Record<TableId, CoreTable | undefined>>;
   nextTableId: number;
 }
 
-export class TablePlugin extends CorePlugin<TableState> implements TableState {
+export class TablePlugin extends CorePlugin<TableState, typeof TablePlugin> implements TableState {
+  static readonly dependencies = [MergePlugin] as const;
   static getters = ["getCoreTable", "getCoreTables", "getCoreTableMatchingTopLeft"] as const;
 
   readonly tables: Record<UID, Record<TableId, CoreTable | undefined>> = {};
   readonly nextTableId: number = 1;
+  private extendDirection: Record<TableId, "down" | "right" | "none"> = {};
 
   adaptRanges({ applyChange }: RangeAdapterFunctions) {
     for (const sheetId in this.tables) {
@@ -105,6 +108,16 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
         break;
     }
     return CommandResult.Success;
+  }
+
+  beforeHandle(cmd: CoreCommand): void {
+    if (cmd.type === "UPDATE_CELL") {
+      for (const table of this.getCoreTables(cmd.sheetId)) {
+        if (table.type === "static") {
+          this.extendDirection[table.id] = this.canUpdateCellCmdExtendTable(cmd, table);
+        }
+      }
+    }
   }
 
   handle(cmd: CoreCommand) {
@@ -166,7 +179,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
           if (table.type === "dynamic") {
             continue;
           }
-          const direction = this.canUpdateCellCmdExtendTable(cmd, table);
+          const direction = this.extendDirection[table.id];
           if (direction === "down") {
             this.extendTableDown(sheetId, table);
           } else if (direction === "right") {

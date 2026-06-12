@@ -25,6 +25,7 @@ import { RangeAdapterFunctions, UID, UnboundedZone, Validation, Zone } from "../
 import { RangeData } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
+import { SheetPlugin } from "./sheet";
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -46,9 +47,10 @@ interface ConditionalFormatState {
 }
 
 export class ConditionalFormatPlugin
-  extends CorePlugin<ConditionalFormatState>
+  extends CorePlugin<ConditionalFormatState, typeof ConditionalFormatPlugin>
   implements ConditionalFormatState
 {
+  static readonly dependencies = [SheetPlugin] as const;
   static getters = [
     "getConditionalFormats",
     "getRulesSelection",

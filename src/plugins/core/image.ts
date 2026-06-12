@@ -8,12 +8,15 @@ import { HeaderIndex, PixelPosition, UID } from "../../types/misc";
 import { DOMDimension } from "../../types/rendering";
 import { ExcelWorkbookData, FigureData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin, CorePluginConfig } from "../core_plugin";
+import { CarouselPlugin } from "./carousel";
+import { FigurePlugin } from "./figures";
 
 interface ImageState {
   readonly images: Record<UID, Record<UID, Image | undefined> | undefined>;
 }
 
-export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
+export class ImagePlugin extends CorePlugin<ImageState, typeof ImagePlugin> implements ImageState {
+  static readonly dependencies = [FigurePlugin, CarouselPlugin] as const;
   static getters = ["getImage", "getImagePath", "getImageSize"] as const;
   readonly fileStore?: FileStore;
   readonly images: Record<UID, Record<UID, Image | undefined> | undefined> = {};
