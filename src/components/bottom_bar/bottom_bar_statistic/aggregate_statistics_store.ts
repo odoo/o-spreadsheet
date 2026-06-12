@@ -1,5 +1,6 @@
 import { sum } from "../../../functions/helper_math";
 import { average, countAny, countNumbers, max, min } from "../../../functions/helper_statistical";
+import { isDateTimeFormat } from "../../../helpers/format/format";
 import { recomputeZones } from "../../../helpers/recompute_zones";
 import {
   SelectionStatisticFunction,
@@ -17,31 +18,44 @@ const selectionStatisticFunctions: SelectionStatisticFunction[] = [
     name: _t("Sum"),
     types: [CellValueType.number],
     compute: (values, locale) => sum([[values]], locale),
+    visible: (values, locale) =>
+      values.some((cell) => !cell.format || !isDateTimeFormat(cell.format)),
+    computeFormat: (values, locale) =>
+      values.find((cell) => !cell.format || !isDateTimeFormat(cell.format))?.format ?? "",
   },
   {
     name: _t("Avg"),
     types: [CellValueType.number],
     compute: (values, locale) => average([[values]], locale),
+    visible: (values, locale) =>
+      values.some((cell) => !cell.format || !isDateTimeFormat(cell.format)),
+    computeFormat: (values, locale) => values[0]?.format ?? "",
   },
   {
     name: _t("Min"),
     types: [CellValueType.number],
     compute: (values, locale) => min([[values]], locale).value,
+    visible: (values, locale) => values.length > 0,
+    computeFormat: (values, locale) => values[0]?.format ?? "",
   },
   {
     name: _t("Max"),
     types: [CellValueType.number],
     compute: (values, locale) => max([[values]], locale).value,
+    visible: (values, locale) => values.length > 0,
+    computeFormat: (values, locale) => values[0]?.format ?? "",
   },
   {
     name: _t("Count"),
     types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
     compute: (values) => countAny([[values]]),
+    computeFormat: (values, locale) => "",
   },
   {
     name: _t("Count Numbers"),
     types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
     compute: (values, locale) => countNumbers([[values]], locale),
+    computeFormat: (values, locale) => "",
   },
 ];
 
