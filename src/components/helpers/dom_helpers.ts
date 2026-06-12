@@ -214,7 +214,7 @@ export function keyboardEventToShortcutString(
     if (isCtrlKey(ev)) {
       keyDownString += "Ctrl+";
     }
-    if (ev.altKey) {
+    if (isAltKey(ev)) {
       keyDownString += "Alt+";
     }
     if (ev.shiftKey) {
@@ -237,6 +237,10 @@ export function isMacOS(): boolean {
  */
 export function isCtrlKey(ev: KeyboardEvent | MouseEvent): boolean {
   return isMacOS() || isIOS() ? ev.metaKey : ev.ctrlKey;
+}
+
+function isAltKey(ev: KeyboardEvent | MouseEvent): boolean {
+  return isMacOS() || isIOS() ? ev.ctrlKey : ev.altKey;
 }
 
 /**
