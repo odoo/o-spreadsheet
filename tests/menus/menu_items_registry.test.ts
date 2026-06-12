@@ -2122,3 +2122,17 @@ test("Menu children are sorted by sequence", async () => {
   expect(children[0].id).toBe("firstItem");
   expect(children[1].id).toBe("secondItem");
 });
+
+test("menu shortcuts that involve the altkey are ignored in macOs", async () => {
+  const mockUserAgent = jest.spyOn(navigator, "userAgent", "get");
+  mockUserAgent.mockImplementation(
+    () => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0"
+  );
+  const env = makeTestEnv();
+
+  let menuItem = getNode(["insert", "insert_table"], env, topbarMenuRegistry);
+  expect(menuItem.shortcut).toBe("");
+  mockUserAgent.mockReset();
+  menuItem = getNode(["insert", "insert_table"], env, topbarMenuRegistry);
+  expect(menuItem.shortcut).toBe("Alt+T");
+});

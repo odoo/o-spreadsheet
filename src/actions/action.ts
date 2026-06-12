@@ -112,8 +112,13 @@ export function createActions(menuItems: ActionSpec[]): Action[] {
   return menuItems.map(createAction).sort((a, b) => a.sequence - b.sequence);
 }
 
-function adaptShortcutMacOs(shortcut: string) {
-  return shortcut.replace("Ctrl", "⌘").replace("Alt", "⌃");
+export function adaptShortcutStringToMacOs(shortcut: string | undefined) {
+  return shortcut && isMacOS() ? shortcut.replace("Ctrl", "⌘").replace("Alt", "⌃") : shortcut;
+}
+
+function filterActionShortcutForMacOs(shortcut: string | undefined) {
+  // we filter out the alt key from shortcuts because on macOs, it's used for special characters input and it creates conflicts with o-spreadsheet shortcuts
+  return shortcut && isMacOS() && shortcut.match(/\+?Alt\+?/) ? "" : shortcut;
 }
 
 let nextItemId = 1;
@@ -122,7 +127,7 @@ export function createAction(item: ActionSpec): Action {
   const name = item.name;
   const children = item.children;
   const description = item.description;
-  const shortcut = item.shortcut && isMacOS() ? adaptShortcutMacOs(item.shortcut) : item.shortcut;
+  const shortcut = filterActionShortcutForMacOs(item.shortcut);
   const icon = item.icon;
   const secondaryIcon = item.secondaryIcon;
   const itemId = item.id || nextItemId++;

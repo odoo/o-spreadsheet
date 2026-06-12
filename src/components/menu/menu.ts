@@ -1,5 +1,11 @@
 import { props, signal } from "@odoo/owl";
-import { Action, isMenuItemEnabled, isRootMenu, MenuItemOrSeparator } from "../../actions/action";
+import {
+  Action,
+  adaptShortcutStringToMacOs,
+  isMenuItemEnabled,
+  isRootMenu,
+  MenuItemOrSeparator,
+} from "../../actions/action";
 import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { Pixel } from "../../types/misc";
 import { Rect } from "../../types/rendering";
@@ -72,6 +78,10 @@ export class Menu extends Component<SpreadsheetChildEnv> {
     }
 
     return "";
+  }
+
+  getShortcut(menu: Action) {
+    return adaptShortcutStringToMacOs(menu.shortcut);
   }
 
   getColor(menu: Action) {
