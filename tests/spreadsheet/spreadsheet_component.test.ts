@@ -204,7 +204,10 @@ describe("Simple Spreadsheet Component", () => {
     ({ model, parent, fixture } = await mountSpreadsheet({
       model: new Model({ sheets: [{ id: "sh1" }] }),
     }));
+    // menu shortcut
     await click(fixture, ".o-topbar-menu[data-id='format']");
+    expect('[data-name="format_bold"]').toHaveText("Bold⌘+B");
+    // action button
     expect(document.querySelectorAll('span[title="Bold (⌘+B)"]').length).toBe(1);
     mockUserAgent.mockReset();
   });

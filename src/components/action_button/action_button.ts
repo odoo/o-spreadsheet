@@ -1,5 +1,5 @@
 import { onWillUpdateProps, props } from "@odoo/owl";
-import { createAction } from "../../actions/action";
+import { adaptShortcutMacOs, createAction } from "../../actions/action";
 import { Component } from "../../owl3_compatibility_layer";
 import { PropsOf } from "../../types/props_of";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -43,7 +43,8 @@ export class ActionButton extends Component<SpreadsheetChildEnv> {
 
   get title() {
     const name = this.actionButton.name(this.env);
-    const description = this.actionButton.description(this.env) || this.actionButton.shortcut;
+    const description =
+      this.actionButton.description(this.env) || adaptShortcutMacOs(this.actionButton.shortcut);
     return name + (description ? ` (${description})` : "");
   }
 
@@ -52,6 +53,7 @@ export class ActionButton extends Component<SpreadsheetChildEnv> {
   }
 
   onClick(ev: MouseEvent) {
+    r;
     if (this.isEnabled) {
       this.props.onClick?.(ev);
       this.actionButton.execute?.(this.env);
