@@ -1,4 +1,4 @@
-import type { ChartMeta, ChartType, Plugin, PointElement } from "chart.js";
+import type { Chart, ChartMeta, ChartType, Plugin, PointElement } from "chart.js";
 import { colorToRGBA } from "../../../../helpers/color";
 import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
 import { computeCachedTextDimension, computeTextFont } from "../../../../helpers/text_helper";
@@ -23,6 +23,7 @@ interface CallbackArgs {
   valueIndex: number;
   textSize: Dimensions;
   options: ChartShowValuesPluginOptions;
+  chart: Chart;
 }
 
 export interface ChartShowValuesPluginOptions {
@@ -71,7 +72,7 @@ export const chartShowValuesPlugin: Plugin = {
         break;
       case "combo":
       case "waterfall":
-        drawVerticalBarValues(chart, options);
+        drawComboValues(chart, options);
         break;
       case "radar":
         drawRadarValues(chart, options);
@@ -135,7 +136,15 @@ function drawValues(args: {
 
       const valueToDisplay = options.callback(numberValue, dataset, i);
       const textSize = getTextDimensions(valueToDisplay, ctx);
-      const callbackArgs = { dataset, chartElement, numberValue, valueIndex: i, textSize, options };
+      const callbackArgs = {
+        dataset,
+        chartElement,
+        numberValue,
+        valueIndex: i,
+        textSize,
+        options,
+        chart,
+      };
 
       const position = args.getValuePosition(callbackArgs);
       if (args.shouldSkipValue?.(callbackArgs)) {
@@ -190,21 +199,7 @@ function drawVerticalBarValues(chart: any, options: ChartShowValuesPluginOptions
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => Number(dataset._parsed[i].y),
-    getValuePosition: ({ chartElement, numberValue, dataset, textSize }) => {
-      const yAxisScale = chart.scales[dataset.yAxisID];
-      const yZeroLine = yAxisScale.getPixelForValue(0);
-      const distanceFromAxisOrigin = Math.abs(yZeroLine - chartElement.y);
-
-      const sign = numberValue < 0 ? -1 : 1;
-      let yPosition = 0;
-      if (distanceFromAxisOrigin < textSize.height) {
-        yPosition = yZeroLine - sign * (textSize.height / 2);
-      } else {
-        yPosition = chartElement.y + sign * (chartElement.height / 2);
-      }
-
-      return { x: chartElement.x, y: yPosition };
-    },
+    getValuePosition: getVerticalBarValuePosition,
     shouldSkipValue: ({ dataset }) => isLineOverlayOnBarChart(options, dataset),
     getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
   });
@@ -237,6 +232,24 @@ function drawLineValues(chart: any, options: ChartShowValuesPluginOptions) {
     }),
     shouldSkipValue: () => false,
     getTextColors: chartElementColoredTextWithChartBackgroundHalo,
+  });
+}
+
+function drawComboValues(chart: any, options: ChartShowValuesPluginOptions) {
+  drawValues({
+    chart,
+    options,
+    direction: "vertical",
+    getNumberValue: (dataset, i) => Number(dataset._parsed[i].y),
+    getValuePosition: (args) =>
+      args.dataset.type === "line"
+        ? { x: args.chartElement.x, y: args.chartElement.y - 10 }
+        : getVerticalBarValuePosition(args),
+    shouldSkipValue: () => false,
+    getTextColors: (args) =>
+      args.dataset.type === "line"
+        ? chartElementColoredTextWithChartBackgroundHalo(args)
+        : chartBackgroundColoredTextWithElementColoredHalo(args),
   });
 }
 
@@ -373,4 +386,21 @@ function chartElementColoredTextWithChartBackgroundHalo(args: CallbackArgs) {
     strokeColor: options.background(numberValue, dataset, valueIndex) || "#ffffff",
     textColor: chartElement.options.backgroundColor,
   };
+}
+
+function getVerticalBarValuePosition(args: CallbackArgs) {
+  const { chartElement, numberValue, dataset, textSize, chart } = args;
+  const yAxisScale = chart.scales[dataset.yAxisID];
+  const yZeroLine = yAxisScale.getPixelForValue(0);
+  const distanceFromAxisOrigin = Math.abs(yZeroLine - chartElement.y);
+
+  const sign = numberValue < 0 ? -1 : 1;
+  let yPosition = 0;
+  if (distanceFromAxisOrigin < textSize.height) {
+    yPosition = yZeroLine - sign * (textSize.height / 2);
+  } else {
+    yPosition = chartElement.y + sign * (chartElement.height / 2);
+  }
+
+  return { x: chartElement.x, y: yPosition };
 }
