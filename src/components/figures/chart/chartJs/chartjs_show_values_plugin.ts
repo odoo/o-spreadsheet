@@ -1,6 +1,6 @@
 import type { ChartMeta, ChartType, Plugin, PointElement } from "chart.js";
 import { colorToRGBA } from "../../../../helpers/color";
-import { isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
+import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
 import { computeCachedTextDimension, computeTextFont } from "../../../../helpers/text_helper";
 import type { ChartType as AllChartType } from "../../../../types/chart/chart";
 import { Color } from "../../../../types/misc";
@@ -251,9 +251,9 @@ function drawCalendarValues(chart: any, options: ChartShowValuesPluginOptions) {
     }),
     shouldSkipValue: ({ chartElement, textSize }) =>
       textSize.height + 2 > Math.abs(chartElement.height) - 2,
-    getTextColors: ({ chartElement, dataset, numberValue, valueIndex }) => ({
-      strokeColor: chartElement.options.backgroundColor,
-      textColor: options.background(numberValue, dataset, valueIndex) || "#ffffff",
+    getTextColors: ({ chartElement }) => ({
+      strokeColor: undefined,
+      textColor: chartFontColor(chartElement.options.backgroundColor),
     }),
   });
 }
