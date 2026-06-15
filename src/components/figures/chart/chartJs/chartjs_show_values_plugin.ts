@@ -66,15 +66,19 @@ export const chartShowValuesPlugin: Plugin = {
         break;
       case "line":
       case "scatter":
+        drawLineValues(chart, options);
+        break;
       case "combo":
       case "waterfall":
+        drawVerticalBarValues(chart, options);
+        break;
       case "radar":
-        drawLineOrBarOrRadarChartValues(chart, options);
+        drawRadarValues(chart, options);
         break;
       case "bar":
         options.horizontal
           ? drawHorizontalBarValues(chart, options)
-          : drawLineOrBarOrRadarChartValues(chart, options);
+          : drawVerticalBarValues(chart, options);
         break;
       case "pyramid":
         drawHorizontalBarValues(chart, options);
@@ -172,35 +176,65 @@ function drawValues(args: {
   ctx.restore();
 }
 
-function drawLineOrBarOrRadarChartValues(chart: any, options: ChartShowValuesPluginOptions) {
+function drawVerticalBarValues(chart: any, options: ChartShowValuesPluginOptions) {
   drawValues({
     chart,
     options,
     direction: "vertical",
-    getNumberValue: (dataset, i) =>
-      Number(chart.config.type === "radar" ? dataset._parsed[i].r : dataset._parsed[i].y),
+    getNumberValue: (dataset, i) => Number(dataset._parsed[i].y),
     getValuePosition: ({ chartElement, numberValue, dataset }) => {
-      let yPosition = 0;
-      if (chart.config.type === "line" || chart.config.type === "radar") {
-        yPosition = numberValue < 0 ? chartElement.y + 10 : chartElement.y - 10;
-      } else if (chart.config.type === "bubble") {
-        yPosition = chartElement.y;
-      } else {
-        const yAxisScale = chart.scales[dataset.yAxisID];
-        const yZeroLine = yAxisScale.getPixelForValue(0);
-        const distanceFromAxisOrigin = Math.abs(yZeroLine - chartElement.y);
-        const textHeight = globalThis.Chart?.defaults.font.size ?? 12; // ChartJS default text height
+      const yAxisScale = chart.scales[dataset.yAxisID];
+      const yZeroLine = yAxisScale.getPixelForValue(0);
+      const distanceFromAxisOrigin = Math.abs(yZeroLine - chartElement.y);
+      const textHeight = globalThis.Chart?.defaults.font.size ?? 12; // ChartJS default text height
 
-        const sign = numberValue < 0 ? -1 : 1;
-        if (distanceFromAxisOrigin < textHeight) {
-          yPosition = yZeroLine - sign * (textHeight / 2);
-        } else {
-          yPosition = chartElement.y + sign * (chartElement.height / 2);
-        }
+      const sign = numberValue < 0 ? -1 : 1;
+      let yPosition = 0;
+      if (distanceFromAxisOrigin < textHeight) {
+        yPosition = yZeroLine - sign * (textHeight / 2);
+      } else {
+        yPosition = chartElement.y + sign * (chartElement.height / 2);
       }
+
       return { x: chartElement.x, y: yPosition };
     },
     shouldSkipValue: ({ dataset }) => isLineOverlayOnBarChart(options, dataset),
+    getTextColors: ({ chartElement, dataset, numberValue, valueIndex }) => ({
+      textColor: chartElement.options.backgroundColor,
+      strokeColor: options.background(numberValue, dataset, valueIndex) || "#ffffff",
+    }),
+  });
+}
+
+function drawRadarValues(chart: any, options: ChartShowValuesPluginOptions) {
+  drawValues({
+    chart,
+    options,
+    direction: "vertical",
+    getNumberValue: (dataset, i) => Number(dataset._parsed[i].r),
+    getValuePosition: ({ chartElement, numberValue }) => ({
+      x: chartElement.x,
+      y: numberValue < 0 ? chartElement.y + 10 : chartElement.y - 10,
+    }),
+    shouldSkipValue: () => false,
+    getTextColors: ({ chartElement, dataset, numberValue, valueIndex }) => ({
+      textColor: chartElement.options.backgroundColor,
+      strokeColor: options.background(numberValue, dataset, valueIndex) || "#ffffff",
+    }),
+  });
+}
+
+function drawLineValues(chart: any, options: ChartShowValuesPluginOptions) {
+  drawValues({
+    chart,
+    options,
+    direction: "vertical",
+    getNumberValue: (dataset, i) => Number(dataset._parsed[i].y),
+    getValuePosition: ({ chartElement, numberValue }) => ({
+      x: chartElement.x,
+      y: numberValue < 0 ? chartElement.y + 10 : chartElement.y - 10,
+    }),
+    shouldSkipValue: () => false,
     getTextColors: ({ chartElement, dataset, numberValue, valueIndex }) => ({
       textColor: chartElement.options.backgroundColor,
       strokeColor: options.background(numberValue, dataset, valueIndex) || "#ffffff",
