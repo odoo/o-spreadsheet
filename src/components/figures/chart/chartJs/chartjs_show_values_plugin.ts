@@ -181,16 +181,15 @@ function drawVerticalBarValues(chart: any, options: ChartShowValuesPluginOptions
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => Number(dataset._parsed[i].y),
-    getValuePosition: ({ chartElement, numberValue, dataset }) => {
+    getValuePosition: ({ chartElement, numberValue, dataset, textSize }) => {
       const yAxisScale = chart.scales[dataset.yAxisID];
       const yZeroLine = yAxisScale.getPixelForValue(0);
       const distanceFromAxisOrigin = Math.abs(yZeroLine - chartElement.y);
-      const textHeight = globalThis.Chart?.defaults.font.size ?? 12; // ChartJS default text height
 
       const sign = numberValue < 0 ? -1 : 1;
       let yPosition = 0;
-      if (distanceFromAxisOrigin < textHeight) {
-        yPosition = yZeroLine - sign * (textHeight / 2);
+      if (distanceFromAxisOrigin < textSize.height) {
+        yPosition = yZeroLine - sign * (textSize.height / 2);
       } else {
         yPosition = chartElement.y + sign * (chartElement.height / 2);
       }
