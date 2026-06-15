@@ -21,6 +21,7 @@ interface CallbackArgs {
   numberValue: number;
   valueIndex: number;
   textSize: Dimensions;
+  options: ChartShowValuesPluginOptions;
 }
 
 export interface ChartShowValuesPluginOptions {
@@ -126,7 +127,7 @@ function drawValues(args: {
       const chartElement = dataset.data[i]; // BarElement, PointElement or ArcElement depending on the chart type
       const valueToDisplay = options.callback(numberValue, dataset, i);
       const textSize = getTextDimensions(valueToDisplay, ctx);
-      const callbackArgs = { dataset, chartElement, numberValue, valueIndex: i, textSize };
+      const callbackArgs = { dataset, chartElement, numberValue, valueIndex: i, textSize, options };
 
       const position = args.getValuePosition(callbackArgs);
       if (args.shouldSkipValue?.(callbackArgs)) {
@@ -197,10 +198,7 @@ function drawVerticalBarValues(chart: any, options: ChartShowValuesPluginOptions
       return { x: chartElement.x, y: yPosition };
     },
     shouldSkipValue: ({ dataset }) => isLineOverlayOnBarChart(options, dataset),
-    getTextColors: ({ chartElement, dataset, numberValue, valueIndex }) => ({
-      textColor: chartElement.options.backgroundColor,
-      strokeColor: options.background(numberValue, dataset, valueIndex) || "#ffffff",
-    }),
+    getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
   });
 }
 
@@ -215,10 +213,7 @@ function drawRadarValues(chart: any, options: ChartShowValuesPluginOptions) {
       y: numberValue < 0 ? chartElement.y + 10 : chartElement.y - 10,
     }),
     shouldSkipValue: () => false,
-    getTextColors: ({ chartElement, dataset, numberValue, valueIndex }) => ({
-      textColor: chartElement.options.backgroundColor,
-      strokeColor: options.background(numberValue, dataset, valueIndex) || "#ffffff",
-    }),
+    getTextColors: chartElementColoredTextWithChartBackgroundHalo,
   });
 }
 
@@ -233,10 +228,7 @@ function drawLineValues(chart: any, options: ChartShowValuesPluginOptions) {
       y: numberValue < 0 ? chartElement.y + 10 : chartElement.y - 10,
     }),
     shouldSkipValue: () => false,
-    getTextColors: ({ chartElement, dataset, numberValue, valueIndex }) => ({
-      textColor: chartElement.options.backgroundColor,
-      strokeColor: options.background(numberValue, dataset, valueIndex) || "#ffffff",
-    }),
+    getTextColors: chartElementColoredTextWithChartBackgroundHalo,
   });
 }
 
@@ -307,10 +299,7 @@ function drawHorizontalBarValues(chart: any, options: ChartShowValuesPluginOptio
       };
     },
     shouldSkipValue: ({ dataset }) => isLineOverlayOnBarChart(options, dataset),
-    getTextColors: ({ chartElement, dataset, numberValue, valueIndex }) => ({
-      strokeColor: chartElement.options.backgroundColor,
-      textColor: options.background(numberValue, dataset, valueIndex) || "#ffffff",
-    }),
+    getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
   });
 }
 
@@ -338,16 +327,27 @@ function drawPieValues(chart: any, options: ChartShowValuesPluginOptions) {
       const midWidth = 2 * midRadius * Math.tan(sliceAngle / 2);
       return sliceAngle < Math.PI / 2 && (textSize.width >= midWidth || midWidth < textSize.height);
     },
-    getTextColors: ({ dataset, numberValue, valueIndex }) => {
-      const background = options.background(numberValue, dataset, valueIndex) || "#ffffff";
-      const textColor = chartFontColor(background);
-      const strokeColor = background || "#ffffff";
-      return { textColor, strokeColor };
-    },
+    getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
   });
 }
 
 function getTextDimensions(text: string, ctx: CanvasRenderingContext2D): Dimensions {
   const font = computeTextFont({ fontSize: globalThis.Chart?.defaults.font.size ?? 12 }, "px");
   return computeCachedTextDimension(ctx, text, font);
+}
+
+function chartBackgroundColoredTextWithElementColoredHalo(args: CallbackArgs) {
+  const { dataset, numberValue, valueIndex, chartElement, options } = args;
+  return {
+    strokeColor: chartElement.options.backgroundColor,
+    textColor: options.background(numberValue, dataset, valueIndex) || "#ffffff",
+  };
+}
+
+function chartElementColoredTextWithChartBackgroundHalo(args: CallbackArgs) {
+  const { dataset, numberValue, valueIndex, chartElement, options } = args;
+  return {
+    strokeColor: options.background(numberValue, dataset, valueIndex) || "#ffffff",
+    textColor: chartElement.options.backgroundColor,
+  };
 }
