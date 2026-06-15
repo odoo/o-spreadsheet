@@ -272,7 +272,7 @@ export const CHOOSEROWS = {
 export const EXPAND = {
   description: _t("Expands or pads an array to specified row and column dimensions."),
   args: [
-    arg("array (any, range<any>)", _t("The array to expand.")),
+    arg("array (any, range<any>, lazy)", _t("The array to expand.")),
     arg(
       "rows (number)",
       _t("The number of rows in the expanded array. If missing, rows will not be expanded.")
@@ -285,37 +285,68 @@ export const EXPAND = {
   ],
   computeArray: function (
     zone: UnboundedZone,
-    arg: Arg,
+    array: LazyArg,
     rows: Maybe<FunctionResultObject>,
-    columns?: Maybe<FunctionResultObject>,
+    columns: Maybe<FunctionResultObject>,
     padWith: Maybe<FunctionResultObject> = { value: 0 } // TODO : Replace with #N/A errors once it's supported
   ) {
-    const _array = toMatrix(arg);
-    const _nbRows = toInteger(rows?.value, this.locale);
-    const _nbColumns =
-      columns !== undefined ? toInteger(columns.value, this.locale) : _array.length;
+    if (array === undefined) {
+      array = () => [[]];
+    }
 
-    if (_nbRows < _array[0].length) {
+    // depending the zone passed in parameters, array(zone) could reurn error if
+    // the zone is out of the bounds of the array. But the goal of this function
+    // is to expand the array.
+    // So we shouldn't pass the zone to the array closure,
+    const subArray = toMatrix(array(zone));
+
+    const subWidth = subArray.length;
+    const subHeight = subArray[0].length;
+
+    const realWidth = zone.left + subWidth;
+    const realHeight = zone.top + subHeight;
+
+    const _rows = rows !== undefined ? toInteger(rows.value, this.locale) : realHeight;
+    const _columns = columns !== undefined ? toInteger(columns.value, this.locale) : realWidth;
+
+    if (_rows < realHeight) {
       return new EvaluationError(
         _t(
           "The rows arguments (%s) must be greater or equal than the number of rows of the array.",
-          _nbRows.toString()
+          _rows.toString()
         )
       );
     }
 
-    if (_nbColumns < _array.length) {
+    if (_columns < realWidth) {
       return new EvaluationError(
         _t(
           "The columns arguments (%s) must be greater or equal than the number of columns of the array.",
-          _nbColumns.toString()
+          _columns.toString()
         )
       );
     }
 
-    return generateSubMatrix(zone, _nbColumns, _nbRows, (col, row) =>
-      col >= _array.length || row >= _array[col].length ? padWith : _array[col][row]
-    );
+    const endColIndex = _columns - zone.left;
+    const endRowIndex = _rows - zone.top;
+
+    // fill the missing values in the already existing columns
+    for (let colIndex = 0; colIndex < subWidth; colIndex++) {
+      for (let rowIndex = subHeight; rowIndex < endRowIndex; rowIndex++) {
+        subArray[colIndex].push(padWith);
+      }
+    }
+
+    // fill the missing columns
+    for (let colIndex = subWidth; colIndex < endColIndex; colIndex++) {
+      const newCol: FunctionResultObject[] = [];
+      for (let rowIndex = 0; rowIndex < endRowIndex; rowIndex++) {
+        newCol.push(padWith);
+      }
+      subArray.push(newCol);
+    }
+
+    return subArray;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
