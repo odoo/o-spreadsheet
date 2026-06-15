@@ -1,6 +1,6 @@
-import type { ChartMeta, ChartType, Plugin } from "chart.js";
-import { colorToRGBA, hexToHSLA, toHex } from "../../../../helpers/color";
-import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
+import type { ChartMeta, ChartType, Plugin, PointElement } from "chart.js";
+import { colorToRGBA } from "../../../../helpers/color";
+import { isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
 import { computeCachedTextDimension, computeTextFont } from "../../../../helpers/text_helper";
 import type { ChartType as AllChartType } from "../../../../types/chart/chart";
 import { Color } from "../../../../types/misc";
@@ -259,26 +259,29 @@ function drawCalendarValues(chart: any, options: ChartShowValuesPluginOptions) {
 }
 
 function drawBubbleValues(chart: any, options: ChartShowValuesPluginOptions) {
+  const canDrawTextInsideBubble = (chartElement: PointElement, textSize: Dimensions) => {
+    const radius =
+      chartElement.options.radius ?? globalThis.Chart?.defaults.elements.point.radius ?? 3;
+    // Only compare the height; The goal is to make sure the text doesn't totally hide the point, not to avoid any overflow
+    return textSize.height < radius * 2;
+  };
   drawValues({
     chart,
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => dataset._parsed[i].y,
-    getValuePosition: ({ chartElement }) => ({
-      x: chartElement.x,
-      y: chartElement.y,
-    }),
-    shouldSkipValue: () => false,
-    getTextColors: ({ chartElement }) => {
-      const color = chartElement.options.backgroundColor ?? "#ffffff";
-      const hsla = hexToHSLA(toHex(color));
-      let textColor: string;
-      if (hsla.a === 1) {
-        textColor = chartFontColor(color);
-      } else {
-        textColor = "#000000";
+    getValuePosition: ({ chartElement, textSize, numberValue }) => {
+      let y = chartElement.y;
+      if (!canDrawTextInsideBubble(chartElement, textSize)) {
+        y = numberValue < 0 ? chartElement.y + 10 : chartElement.y - 10;
       }
-      return { textColor };
+      return { x: chartElement.x, y };
+    },
+    shouldSkipValue: () => false,
+    getTextColors: (args: CallbackArgs) => {
+      return canDrawTextInsideBubble(args.chartElement, args.textSize)
+        ? chartBackgroundColoredTextWithElementColoredHalo(args)
+        : chartElementColoredTextWithChartBackgroundHalo(args);
     },
   });
 }
