@@ -509,6 +509,7 @@ export function getRadarChartDatasets(
       hidden,
       borderColor,
       backgroundColor: borderColor,
+      pointBackgroundColor: borderColor,
       pointRadius: definition.hideDataMarkers ? 0 : LINE_DATA_POINT_RADIUS,
     };
     if (fill) {
