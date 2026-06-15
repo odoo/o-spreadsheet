@@ -68,6 +68,21 @@ describe("radar chart", () => {
     expect(runtime.chartJsConfig.data.datasets[0]?.["fill"]).toEqual("start");
   });
 
+  test("Radar chart points have the correct background color", () => {
+    const model = createModelFromGrid({ A2: "2" });
+    createRadarChart(
+      model,
+      { ...toChartDataSource({ dataSets: [{ dataRange: "A1:A2" }] }) },
+      "chartId"
+    );
+    let runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
+    expect(runtime.chartJsConfig.data.datasets[0]?.pointBackgroundColor).toEqual("#4EA7F2");
+
+    updateChart(model, "chartId", { fillArea: true });
+    runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
+    expect(runtime.chartJsConfig.data.datasets[0]?.pointBackgroundColor).toEqual("#4EA7F2");
+  });
+
   test("Radar chart legend", () => {
     const model = createModelFromGrid({
       A1: "1",
