@@ -107,6 +107,28 @@ describe("Bar chart show value", () => {
     const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
   });
+
+  test("Values are not shown when hovering a legend item of another dataset", () => {
+    const model = createModelFromGrid({ A1: "42", B1: "8", A2: "26", B2: "4" });
+    const definition: Partial<BarChartDefinition<string>> & { type: "bar" } = {
+      type: "bar",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }],
+        dataSetsHaveTitle: false,
+      }),
+      showValues: true,
+      title: { text: "" },
+      legendPosition: "top",
+    };
+    createChart(model, definition, "chartId");
+    const runtime = model.getters.getChartRuntime("chartId") as any;
+    const legend = {
+      chart: { ...runtime.chartJsConfig, update: jest.fn() },
+    };
+
+    runtime.chartJsConfig.options.plugins.legend.onHover({}, { datasetIndex: 0 }, legend);
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
 });
 
 describe("Pie chart show value", () => {

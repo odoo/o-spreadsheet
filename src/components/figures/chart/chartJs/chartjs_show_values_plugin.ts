@@ -1,5 +1,5 @@
 import type { ChartMeta, ChartType, Plugin } from "chart.js";
-import { hexToHSLA, toHex } from "../../../../helpers/color";
+import { colorToRGBA, hexToHSLA, toHex } from "../../../../helpers/color";
 import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
 import { computeCachedTextDimension, computeTextFont } from "../../../../helpers/text_helper";
 import type { ChartType as AllChartType } from "../../../../types/chart/chart";
@@ -126,6 +126,13 @@ function drawValues(args: {
         continue;
       }
       const chartElement = dataset.data[i]; // BarElement, PointElement or ArcElement depending on the chart type
+
+      // Elements are transparent only when hovering a legend item, so we don't want to show the value in that case
+      const elementColor = chartElement.options.backgroundColor;
+      if (!elementColor || colorToRGBA(elementColor).a !== 1) {
+        continue;
+      }
+
       const valueToDisplay = options.callback(numberValue, dataset, i);
       const textSize = getTextDimensions(valueToDisplay, ctx);
       const callbackArgs = { dataset, chartElement, numberValue, valueIndex: i, textSize, options };
