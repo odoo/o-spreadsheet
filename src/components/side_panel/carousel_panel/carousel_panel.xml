@@ -24,7 +24,7 @@
           <div
             class="o-carousel-preview border-bottom pe-2 position-relative w-100 d-flex align-items-center"
             t-att-class="{
-              'o-dragging': this.dragAndDrop.draggedItemId === this.getItemId(item),
+              'o-dragging border-top': this.dragAndDrop.draggedItemId === this.getItemId(item),
               'o-selected': this.isCarouselItemActive(item)
             }"
             t-att-style="this.getPreviewDivStyle(item)">
