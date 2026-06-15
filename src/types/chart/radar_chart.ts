@@ -13,6 +13,6 @@ export interface RadarChartDefinition<T extends string | Range = Range>
 }
 
 export type RadarChartRuntime = {
-  chartJsConfig: ChartConfiguration;
+  chartJsConfig: ChartConfiguration<"radar">;
   customizableSeries: { dataSetId: string; label: string }[];
 };
