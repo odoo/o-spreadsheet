@@ -151,22 +151,24 @@ function drawValues(args: {
       }
 
       if (direction === "vertical") {
+        const key = Math.round(position.x);
         // Avoid overlapping texts with same X
-        if (!textsPositions[position.x]) {
-          textsPositions[position.x] = [];
+        if (!textsPositions[key]) {
+          textsPositions[key] = [];
         }
-        for (const otherPosition of textsPositions[position.x] || []) {
+        for (const otherPosition of textsPositions[key] || []) {
           if (Math.abs(otherPosition - position.y) < MINIMAL_VERTICAL_DISTANCE) {
             position.y = otherPosition + MINIMAL_VERTICAL_DISTANCE * (numberValue < 0 ? 1 : -1);
           }
         }
-        textsPositions[position.x].push(position.y);
+        textsPositions[key].push(position.y);
       } else {
+        const key = Math.round(position.y);
         // Avoid overlapping texts with same Y
-        if (!textsPositions[position.y]) {
-          textsPositions[position.y] = [];
+        if (!textsPositions[key]) {
+          textsPositions[key] = [];
         }
-        for (const otherPosition of textsPositions[position.y]) {
+        for (const otherPosition of textsPositions[key]) {
           if (Math.abs(otherPosition - position.x) < textSize.width) {
             position.x =
               numberValue < 0
@@ -174,7 +176,7 @@ function drawValues(args: {
                 : otherPosition + textSize.width + HORIZONTAL_PADDING;
           }
         }
-        textsPositions[position.y].push(position.x);
+        textsPositions[key].push(position.x);
       }
 
       const { strokeColor, textColor } = args.getTextColors(callbackArgs);
