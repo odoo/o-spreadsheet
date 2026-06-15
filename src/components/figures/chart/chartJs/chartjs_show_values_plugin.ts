@@ -91,7 +91,7 @@ export const chartShowValuesPlugin: Plugin = {
         drawBubbleValues(chart, options);
         break;
       case "funnel":
-        drawHorizontalBarValues(chart, options);
+        drawFunnelValues(chart, options);
         break;
     }
   },
@@ -310,6 +310,21 @@ function drawHorizontalBarValues(chart: any, options: ChartShowValuesPluginOptio
       };
     },
     shouldSkipValue: ({ dataset }) => isLineOverlayOnBarChart(options, dataset),
+    getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
+  });
+}
+
+function drawFunnelValues(chart: any, options: ChartShowValuesPluginOptions) {
+  drawValues({
+    chart,
+    options,
+    direction: "horizontal",
+    getNumberValue: (dataset, i) => dataset._parsed[i].x,
+    getValuePosition: ({ chartElement }) => ({
+      x: chartElement.x - chartElement.width / 2,
+      y: chartElement.y,
+    }),
+    shouldSkipValue: () => false,
     getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
   });
 }
