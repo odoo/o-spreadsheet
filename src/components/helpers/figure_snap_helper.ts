@@ -23,8 +23,11 @@ export interface SnapLine<T extends HFigureAxisType | VFigureAxisType> {
   position: Pixel;
 }
 
-interface SnapReturn {
+interface SnapMoveReturn extends SnapReturn {
   snappedFigures: FigureUI[];
+}
+
+export interface SnapReturn {
   verticalSnapLine?: SnapLine<VFigureAxisType>;
   horizontalSnapLine?: SnapLine<HFigureAxisType>;
 }
@@ -37,7 +40,7 @@ export function snapForMove(
   env: SpreadsheetChildEnv,
   figuresToSnap: FigureUI[],
   otherFigures: FigureUI[]
-): SnapReturn {
+): SnapMoveReturn {
   const aggregateRect = rectUnion(...figuresToSnap);
 
   const verticalSnapLine = getSnapLine(
@@ -99,49 +102,50 @@ export function snapForResize(
   env: SpreadsheetChildEnv,
   resizeDirX: -1 | 0 | 1,
   resizeDirY: -1 | 0 | 1,
-  figureToSnap: FigureUI,
+  rect: Rect,
   otherFigures: FigureUI[]
-): SnapReturn {
-  // Vertical snap line
+): { snappedRect: Rect } & SnapReturn {
   const verticalSnapLine = getSnapLine(
     env,
-    figureToSnap,
+    rect,
     [resizeDirX === -1 ? "left" : "right"],
     otherFigures,
     ["right", "left"]
   );
-  if (verticalSnapLine) {
-    if (resizeDirX === 1) {
-      figureToSnap.width -= verticalSnapLine.snapOffset;
-    } else if (resizeDirX === -1) {
-      figureToSnap.x -= verticalSnapLine.snapOffset;
-      figureToSnap.width += verticalSnapLine.snapOffset;
-    }
-  }
-
-  // Horizontal snap line
   const horizontalSnapLine = getSnapLine(
     env,
-    figureToSnap,
+    rect,
     [resizeDirY === -1 ? "top" : "bottom"],
     otherFigures,
     ["bottom", "top"]
   );
-  if (horizontalSnapLine) {
-    if (resizeDirY === 1) {
-      figureToSnap.height -= horizontalSnapLine.snapOffset;
-    } else if (resizeDirY === -1) {
-      figureToSnap.y -= horizontalSnapLine.snapOffset;
-      figureToSnap.height += horizontalSnapLine.snapOffset;
+
+  if (verticalSnapLine) {
+    if (resizeDirX === 1) {
+      rect.width -= verticalSnapLine.snapOffset;
+    } else if (resizeDirX === -1) {
+      rect.x -= verticalSnapLine.snapOffset;
+      rect.width += verticalSnapLine.snapOffset;
     }
   }
 
-  figureToSnap.x = Math.round(figureToSnap.x);
-  figureToSnap.y = Math.round(figureToSnap.y);
-  figureToSnap.height = Math.round(figureToSnap.height);
-  figureToSnap.width = Math.round(figureToSnap.width);
+  if (horizontalSnapLine) {
+    if (resizeDirY === 1) {
+      rect.height -= horizontalSnapLine.snapOffset;
+    } else if (resizeDirY === -1) {
+      rect.y -= horizontalSnapLine.snapOffset;
+      rect.height += horizontalSnapLine.snapOffset;
+    }
+  }
 
-  return { snappedFigures: [figureToSnap], verticalSnapLine, horizontalSnapLine };
+  const snappedRect = {
+    x: Math.round(rect.x),
+    y: Math.round(rect.y),
+    width: Math.round(rect.width),
+    height: Math.round(rect.height),
+  };
+
+  return { snappedRect, verticalSnapLine, horizontalSnapLine };
 }
 
 /**

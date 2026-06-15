@@ -1,7 +1,7 @@
 import { proxy, signal, useProps } from "@odoo/owl";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
-import { MoveFiguresPayload } from "../../../types/commands";
+import { UpdateFiguresPayload } from "../../../types/commands";
 import { AnchorOffset, FigureUI, ResizeDirection } from "../../../types/figure";
 import { CSSProperties, UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
@@ -183,7 +183,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
       case "ArrowUp":
         const sheetId = this.env.model.getters.getActiveSheetId();
         const figureIds = this.env.model.getters.getSelectedFigureIds();
-        const figures: MoveFiguresPayload[] = [];
+        const figures: UpdateFiguresPayload[] = [];
         for (const figureId of figureIds) {
           const figure = this.env.model.getters.getFigure(sheetId, figureId);
           if (!figure) {
@@ -200,7 +200,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
             ),
           });
         }
-        this.env.model.dispatch("MOVE_FIGURES", { figures });
+        this.env.model.dispatch("UPDATE_FIGURES", { figures });
         ev.preventDefault();
         ev.stopPropagation();
         break;

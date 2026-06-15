@@ -474,14 +474,15 @@ export async function clickAndDrag(
   element: Element | string,
   dragOffset: DOMCoordinates,
   startingPosition: DOMCoordinates = { x: 0, y: 0 },
-  mouseUp = false
+  mouseUp = false,
+  shiftKey = false
 ) {
   const { x: startX, y: startY } = startingPosition;
   const { x: offsetX, y: offsetY } = dragOffset;
-  triggerMouseEvent(element, "pointerdown", startX, startY);
-  triggerMouseEvent(element, "pointermove", startX + offsetX, startY + offsetY);
+  triggerMouseEvent(element, "pointerdown", startX, startY, { shiftKey });
+  triggerMouseEvent(element, "pointermove", startX + offsetX, startY + offsetY, { shiftKey });
   if (mouseUp) {
-    triggerMouseEvent(element, "pointerup", startX + offsetX, startY + offsetY);
+    triggerMouseEvent(element, "pointerup", startX + offsetX, startY + offsetY, { shiftKey });
   }
   await nextTick();
 }

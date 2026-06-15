@@ -22,7 +22,6 @@ import {
   DispatchResult,
   HeaderIndex,
   Locale,
-  MoveFiguresPayload,
   ParsedOsClipboardContentWithImageData,
   Pixel,
   PixelPosition,
@@ -37,6 +36,7 @@ import {
   UID,
   UpdateCellCommand,
   UpdateFigureCommand,
+  UpdateFiguresPayload,
 } from "../../src";
 import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
@@ -2004,8 +2004,8 @@ export function deleteFigures(model: Model, sheetId: UID, figureIds: UID[]) {
   return model.dispatch("DELETE_FIGURES", { sheetId, figureIds });
 }
 
-export function moveFigures(model: Model, payloads: MoveFiguresPayload[]) {
-  return model.dispatch("MOVE_FIGURES", { figures: payloads });
+export function moveFigures(model: Model, payloads: UpdateFiguresPayload[]) {
+  return model.dispatch("UPDATE_FIGURES", { figures: payloads });
 }
 
 export function shiftViewportDown(env: SpreadsheetChildEnv) {
