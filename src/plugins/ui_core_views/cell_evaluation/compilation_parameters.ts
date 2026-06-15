@@ -114,15 +114,12 @@ class CompilationParametersBuilder {
       zone.left >= 0 ? existingRangeZone.left + zone.left : existingRangeZone.right + zone.left + 1;
     const top =
       zone.top >= 0 ? existingRangeZone.top + zone.top : existingRangeZone.bottom + zone.top + 1;
-    const right = left + subWidth - 1;
-    const bottom = top + subHeight - 1;
 
-    if (
-      left < existingRangeZone.left ||
-      existingRangeZone.right < right ||
-      top < existingRangeZone.top ||
-      existingRangeZone.bottom < bottom
-    ) {
+    // if zone is bigger than the existing range, we limit it to the existing range size to avoid fetching non existing cells
+    const right = Math.min(existingRangeZone.right, left + subWidth - 1);
+    const bottom = Math.min(existingRangeZone.bottom, top + subHeight - 1);
+
+    if (left < existingRangeZone.left || top < existingRangeZone.top) {
       const refError = new EvaluationError(
         _t(
           "Index out of range: The range %(rangeName)s operates on a matrix of %(nCols)s columns and %(nRows)s rows; the parent formula attempts to access values outside these bounds.",
