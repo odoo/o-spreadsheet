@@ -216,9 +216,9 @@ function drawRadarValues(chart: any, options: ChartShowValuesPluginOptions) {
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => Number(dataset._parsed[i].r),
-    getValuePosition: ({ chartElement, numberValue }) => ({
+    getValuePosition: ({ chartElement }) => ({
       x: chartElement.x,
-      y: numberValue < 0 ? chartElement.y + 10 : chartElement.y - 10,
+      y: chartElement.y - 10,
     }),
     shouldSkipValue: () => false,
     getTextColors: chartElementColoredTextWithChartBackgroundHalo,
@@ -231,9 +231,9 @@ function drawLineValues(chart: any, options: ChartShowValuesPluginOptions) {
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => Number(dataset._parsed[i].y),
-    getValuePosition: ({ chartElement, numberValue }) => ({
+    getValuePosition: ({ chartElement }) => ({
       x: chartElement.x,
-      y: numberValue < 0 ? chartElement.y + 10 : chartElement.y - 10,
+      y: chartElement.y - 10,
     }),
     shouldSkipValue: () => false,
     getTextColors: chartElementColoredTextWithChartBackgroundHalo,
@@ -271,13 +271,10 @@ function drawBubbleValues(chart: any, options: ChartShowValuesPluginOptions) {
     options,
     direction: "vertical",
     getNumberValue: (dataset, i) => dataset._parsed[i].y,
-    getValuePosition: ({ chartElement, textSize, numberValue }) => {
-      let y = chartElement.y;
-      if (!canDrawTextInsideBubble(chartElement, textSize)) {
-        y = numberValue < 0 ? chartElement.y + 10 : chartElement.y - 10;
-      }
-      return { x: chartElement.x, y };
-    },
+    getValuePosition: ({ chartElement, textSize }) => ({
+      x: chartElement.x,
+      y: canDrawTextInsideBubble(chartElement, textSize) ? chartElement.y : chartElement.y - 10,
+    }),
     shouldSkipValue: () => false,
     getTextColors: (args: CallbackArgs) => {
       return canDrawTextInsideBubble(args.chartElement, args.textSize)
