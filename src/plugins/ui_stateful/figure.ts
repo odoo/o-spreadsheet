@@ -9,7 +9,7 @@ export class FigureUIPlugin extends UIPlugin {
 
   allowDispatch(cmd: Command): CommandResult | CommandResult[] {
     switch (cmd.type) {
-      case "MOVE_FIGURES":
+      case "UPDATE_FIGURES":
         for (const updateFigurePayload of cmd.figures) {
           const result = this.canDispatch("UPDATE_FIGURE", updateFigurePayload);
           if (!result.isSuccessful) {
@@ -50,7 +50,7 @@ export class FigureUIPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "MOVE_FIGURES":
+      case "UPDATE_FIGURES":
         for (const updateFigurePayload of cmd.figures) {
           this.dispatch("UPDATE_FIGURE", updateFigurePayload);
         }

@@ -581,14 +581,15 @@ export interface UpdateFigureCommand
   figureId: UID;
 }
 
-export interface MoveFiguresPayload extends PositionDependentCommand {
+export interface UpdateFiguresPayload
+  extends Omit<Partial<Figure>, "id" | "col" | "row">,
+    PositionDependentCommand {
   figureId: UID;
-  offset: PixelPosition;
 }
 
-export interface MoveFiguresCommand {
-  type: "MOVE_FIGURES";
-  figures: MoveFiguresPayload[];
+export interface UpdateFiguresCommand {
+  type: "UPDATE_FIGURES";
+  figures: UpdateFiguresPayload[];
 }
 
 export interface DeleteFigureCommand extends SheetDependentCommand {
@@ -1387,7 +1388,7 @@ export type LocalCommand =
   | DeleteDataSourcesCommand
   | UpdateChartRegionCommand
   | UpdateColorSchemeCommand
-  | MoveFiguresCommand
+  | UpdateFiguresCommand
   | DeleteFiguresCommand
   | MergeIntoCarouselCommand
   | CreateChartAndMergeIntoCarouselCommand
