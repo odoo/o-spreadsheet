@@ -11,6 +11,8 @@ import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";
 import { GridIcon, iconsOnCellRegistry } from "../../src/registries/icons_on_cell_registry";
+import { ViewportsStore } from "../../src/stores/viewports_store";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   createTableWithFilter,
   evaluateCells,
@@ -26,6 +28,7 @@ import { addToRegistry, mountSpreadsheet, nextTick, spyDispatch } from "../test_
 let fixture: HTMLElement;
 let parent: Spreadsheet;
 let model: Model;
+let env: SpreadsheetChildEnv;
 
 function getEmptyClipboardEvent(type: "copy" | "paste" | "cut") {
   const event = new Event(type, { bubbles: true });
@@ -40,7 +43,7 @@ function getEmptyClipboardEvent(type: "copy" | "paste" | "cut") {
 
 describe("Grid component in dashboard mode", () => {
   beforeEach(async () => {
-    ({ parent, fixture, model } = await mountSpreadsheet());
+    ({ parent, fixture, model, env } = await mountSpreadsheet());
   });
 
   test("simple dashboard rendering snapshot", async () => {
@@ -79,11 +82,18 @@ describe("Grid component in dashboard mode", () => {
     const leftB = DEFAULT_CELL_WIDTH * 2 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN;
     const leftC = DEFAULT_CELL_WIDTH * 3 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN;
 
+    const viewStore = env.getStore(ViewportsStore);
     const iconB = getCellIcons(model, "B2")[0];
-    const rectB = model.getters.getCellIconRect(iconB, model.getters.getRect(toZone("B2")));
+    const rectB = model.getters.getCellIconRect(
+      iconB,
+      viewStore.viewports.getRect(model.getters.getActiveSheetId(), toZone("B2"))
+    );
     expect(rectB).toMatchObject({ y, x: leftB });
     const iconC = getCellIcons(model, "C2")[0];
-    const rectC = model.getters.getCellIconRect(iconC, model.getters.getRect(toZone("C2")));
+    const rectC = model.getters.getCellIconRect(
+      iconC,
+      viewStore.viewports.getRect(model.getters.getActiveSheetId(), toZone("C2"))
+    );
     expect(rectC).toMatchObject({ y, x: leftC });
   });
 
@@ -91,7 +101,7 @@ describe("Grid component in dashboard mode", () => {
     createTableWithFilter(model, "A1:A2");
     model.updateMode("dashboard");
     await nextTick();
-    await clickGridIcon(model, "A1");
+    await clickGridIcon(env, "A1");
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
   });
 
@@ -99,11 +109,11 @@ describe("Grid component in dashboard mode", () => {
     createTableWithFilter(model, "A1:A2");
     model.updateMode("dashboard");
     await nextTick();
-    await clickGridIcon(model, "A1");
+    await clickGridIcon(env, "A1");
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
 
     await nextTick();
-    await clickGridIcon(model, "A1");
+    await clickGridIcon(env, "A1");
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
   });
 
@@ -111,7 +121,7 @@ describe("Grid component in dashboard mode", () => {
     createTableWithFilter(model, "A1:A2");
     model.updateMode("dashboard");
     await nextTick();
-    await clickGridIcon(model, "A1");
+    await clickGridIcon(env, "A1");
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
 
     await nextTick();
@@ -154,7 +164,7 @@ describe("Grid component in dashboard mode", () => {
     expect(fn).toHaveBeenCalledWith(0, 0);
 
     setViewportOffset(
-      model,
+      env,
       DEFAULT_CELL_WIDTH /** scroll to column B */,
       9 * DEFAULT_CELL_HEIGHT /** scroll to row 10 */
     );

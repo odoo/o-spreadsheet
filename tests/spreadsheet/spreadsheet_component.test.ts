@@ -429,7 +429,7 @@ describe("Composer / selectionInput interactions", () => {
     );
     await typeInComposerTopBar("=");
     await simulateClick(".o-figure");
-    await clickCell(model, "D1");
+    await clickCell(env, "D1");
     expect(model.getters.getSelectedZones()).toEqual([toZone("D1")]);
   });
 
@@ -458,18 +458,18 @@ test("cell icon takes over a focused selection input", async () => {
   await nextTick();
   expect(".o-selection-input input.o-focused").toHaveCount(1);
   expect(".o-selection-input input.o-focused").toHaveValue("B1:B3");
-  await clickGridIcon(model, "B1");
+  await clickGridIcon(env, "B1");
   expect(".o-selection-input input.o-focused").toHaveCount(0);
   expect(".o-selection-input input").toHaveValue("B1:B3");
 });
 
 test("cell popovers to be closed on clicking outside grid", async () => {
   useJestFakeTimers();
-  ({ model, fixture } = await mountSpreadsheet());
+  ({ model, env, fixture } = await mountSpreadsheet());
 
   setCellContent(model, "A1", "=SUM(");
   await nextTick();
-  await hoverCell(model, "A1", 400);
+  await hoverCell(env, "A1", 400);
   expect(fixture.querySelector(".o-popover .o-error-tooltip")).not.toBeNull();
   await simulateClick(".o-topbar-menu");
   expect(fixture.querySelector(".o-popover .o-error-tooltip")).toBeNull();

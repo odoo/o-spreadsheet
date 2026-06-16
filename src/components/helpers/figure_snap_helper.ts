@@ -1,9 +1,10 @@
 import { FIGURE_BORDER_WIDTH } from "../../constants";
 import { rectUnion } from "../../helpers/rectangle";
+import { ViewportsStore } from "../../stores/viewports_store";
 import { FigureUI } from "../../types/figure";
-import { Getters } from "../../types/getters";
 import { Pixel, PixelPosition, UID } from "../../types/misc";
 import { Rect } from "../../types/rendering";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 const SNAP_MARGIN: Pixel = 5;
 
@@ -33,14 +34,14 @@ interface SnapReturn {
  * figure and the possible snap lines, if any were found
  */
 export function snapForMove(
-  getters: Getters,
+  env: SpreadsheetChildEnv,
   figuresToSnap: FigureUI[],
   otherFigures: FigureUI[]
 ): SnapReturn {
   const aggregateRect = rectUnion(...figuresToSnap);
 
   const verticalSnapLine = getSnapLine(
-    getters,
+    env,
     aggregateRect,
     ["hCenter", "right", "left"],
     otherFigures,
@@ -48,15 +49,15 @@ export function snapForMove(
   );
 
   const horizontalSnapLine = getSnapLine(
-    getters,
+    env,
     aggregateRect,
     ["vCenter", "bottom", "top"],
     otherFigures,
     ["vCenter", "bottom", "top"]
   );
 
-  const { y: viewportY, x: viewportX } = getters.getMainViewportCoordinates();
-  const { scrollY, scrollX } = getters.getActiveSheetScrollInfo();
+  const { y: viewportY, x: viewportX } = env.getStore(ViewportsStore).mainViewportCoordinates;
+  const { scrollY, scrollX } = env.getStore(ViewportsStore).activeSheetScrollInfo;
 
   // If the snap cause the figure to change pane, we need to also apply the scroll as an offset
   for (const figureToSnap of figuresToSnap) {
@@ -95,7 +96,7 @@ export function snapForMove(
  * figure and the possible snap lines, if any were found
  */
 export function snapForResize(
-  getters: Getters,
+  env: SpreadsheetChildEnv,
   resizeDirX: -1 | 0 | 1,
   resizeDirY: -1 | 0 | 1,
   figureToSnap: FigureUI,
@@ -103,7 +104,7 @@ export function snapForResize(
 ): SnapReturn {
   // Vertical snap line
   const verticalSnapLine = getSnapLine(
-    getters,
+    env,
     figureToSnap,
     [resizeDirX === -1 ? "left" : "right"],
     otherFigures,
@@ -120,7 +121,7 @@ export function snapForResize(
 
   // Horizontal snap line
   const horizontalSnapLine = getSnapLine(
-    getters,
+    env,
     figureToSnap,
     [resizeDirY === -1 ? "top" : "bottom"],
     otherFigures,
@@ -150,20 +151,21 @@ export function snapForResize(
  * @param axesTypes the list of axis types to return the positions of
  */
 function getVisibleAxes<T extends HFigureAxisType | VFigureAxisType>(
-  getters: Getters,
+  env: SpreadsheetChildEnv,
   figure: FigureUI,
   axesTypes: T[]
 ): FigureAxis<T>[] {
-  const axes = axesTypes.map((axisType) => getAxis(getters, figure, false, axisType));
-  return axes.filter((axis) => isAxisVisible(getters, figure, axis));
+  const axes = axesTypes.map((axisType) => getAxis(env, figure, false, axisType));
+  return axes.filter((axis) => isAxisVisible(env, figure, axis));
 }
 
 function isAxisVisible<T extends HFigureAxisType | VFigureAxisType>(
-  getters: Getters,
+  env: SpreadsheetChildEnv,
   figureUI: FigureUI,
   axis: FigureAxis<T>
 ): boolean {
-  const { x: mainViewportX, y: mainViewportY } = getters.getMainViewportCoordinates();
+  const { x: mainViewportX, y: mainViewportY } =
+    env.getStore(ViewportsStore).mainViewportCoordinates;
 
   const axisStartEndPositions: PixelPosition[] = [];
   switch (axis.axisType) {
@@ -187,7 +189,11 @@ function isAxisVisible<T extends HFigureAxisType | VFigureAxisType>(
       break;
   }
 
-  return axisStartEndPositions.some(getters.isPixelPositionVisible);
+  return axisStartEndPositions.some((position) =>
+    env
+      .getStore(ViewportsStore)
+      .viewports.isPixelPositionVisible(env.model.getters.getActiveSheetId(), position)
+  );
 }
 
 /**
@@ -200,20 +206,18 @@ function isAxisVisible<T extends HFigureAxisType | VFigureAxisType>(
  */
 
 function getSnapLine<T extends HFigureAxisType[] | VFigureAxisType[]>(
-  getters: Getters,
+  env: SpreadsheetChildEnv,
   figureToSnap: Rect,
   figAxesTypes: T,
   otherFigures: FigureUI[],
   otherAxesTypes: T
 ): SnapLine<T[number]> | undefined {
-  const axesOfFigure = figAxesTypes.map((axisType) =>
-    getAxis(getters, figureToSnap, true, axisType)
-  );
+  const axesOfFigure = figAxesTypes.map((axisType) => getAxis(env, figureToSnap, true, axisType));
 
   let closestMatch: SnapLine<T[number]> | undefined = undefined;
 
   for (const otherFigure of otherFigures) {
-    const axesOfOtherFig = getVisibleAxes(getters, otherFigure, otherAxesTypes);
+    const axesOfOtherFig = getVisibleAxes(env, otherFigure, otherAxesTypes);
     for (const axisOfFigure of axesOfFigure) {
       for (const axisOfOtherFig of axesOfOtherFig) {
         if (!canSnap(axisOfFigure.position, axisOfOtherFig.position)) {
@@ -244,14 +248,14 @@ function canSnap(axisPosition1: Pixel, axisPosition2: Pixel) {
 }
 
 function getAxis<T extends HFigureAxisType | VFigureAxisType>(
-  getters: Getters,
+  env: SpreadsheetChildEnv,
   figureUI: Rect,
   dnd: boolean,
   axisType: T
 ): FigureAxis<T> {
   let position = 0;
-  const { scrollX, scrollY } = getters.getActiveSheetScrollInfo();
-  const { x: viewportX, y: viewportY } = getters.getMainViewportCoordinates();
+  const { scrollX, scrollY } = env.getStore(ViewportsStore).activeSheetScrollInfo;
+  const { x: viewportX, y: viewportY } = env.getStore(ViewportsStore).mainViewportCoordinates;
   const y = !dnd && figureUI.y < viewportY ? figureUI.y + scrollY : figureUI.y;
   const x = !dnd && figureUI.x < viewportX ? figureUI.x + scrollX : figureUI.x;
 

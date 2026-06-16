@@ -1,7 +1,10 @@
 import { props, proxy } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
+import { useStore } from "../../../store_engine/store_hooks";
+import { ViewportsStore } from "../../../stores/viewports_store";
 import { HeaderIndex, Highlight, Zone } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop_grid_hook";
 import { useHighlights } from "../../helpers/highlight_hook";
@@ -24,9 +27,11 @@ export class TableResizer extends Component<SpreadsheetChildEnv> {
 
   state = proxy<State>({ highlightZone: undefined });
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+  private viewStore!: Store<ViewportsStore>;
 
   setup(): void {
     useHighlights(this);
+    this.viewStore = useStore(ViewportsStore);
   }
 
   get containerStyle(): string {
@@ -37,7 +42,7 @@ export class TableResizer extends Component<SpreadsheetChildEnv> {
       return cssPropertiesToCss({ display: "none" });
     }
     const bottomRight = { ...tableZone, left: tableZone.right, top: tableZone.bottom };
-    const rect = this.env.model.getters.getVisibleRect(bottomRight);
+    const rect = this.viewStore.viewports.getVisibleRect(sheetId, bottomRight);
     if (rect.height === 0 || rect.width === 0) {
       return cssPropertiesToCss({ display: "none" });
     }

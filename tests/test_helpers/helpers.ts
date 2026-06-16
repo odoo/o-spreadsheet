@@ -63,6 +63,7 @@ import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_st
 import { ModelStore } from "../../src/stores/model_store";
 import { NotificationStore } from "../../src/stores/notification_store";
 import { RendererStore } from "../../src/stores/renderer_store";
+import { ViewportsStore } from "../../src/stores/viewports_store";
 import { _t } from "../../src/translation";
 import { GeoChartRegion } from "../../src/types/chart/geo_chart";
 import { Image } from "../../src/types/image";
@@ -301,6 +302,7 @@ interface MountComponentReturn<Props extends ComponentProps> {
   model: Model;
   fixture: HTMLElement;
   env: SpreadsheetChildEnv;
+  viewStore: Store<ViewportsStore>;
 }
 
 export async function mountComponentWithPortalTarget<Props extends ComponentProps>(
@@ -345,9 +347,10 @@ export async function mountComponent<Props extends { [key: string]: any }>(
     // @ts-ignore
     env.__spreadsheet_stores__.off("store-updated", null);
   });
+  const viewStore = env.getStore(ViewportsStore);
 
   // @ts-ignore
-  return { app, parent, model, fixture, env: parent.env };
+  return { app, parent, model, fixture, env: parent.env, viewStore };
 }
 
 // Requires to be called wit jest realTimers
@@ -360,8 +363,9 @@ export async function mountSpreadsheet(
   model: Model;
   fixture: HTMLElement;
   env: SpreadsheetChildEnv;
+  viewStore: Store<ViewportsStore>;
 }> {
-  const { app, parent, model, fixture, env } = await mountComponent(Spreadsheet, {
+  const { app, parent, model, fixture, env, viewStore } = await mountComponent(Spreadsheet, {
     props,
     env: partialEnv,
     model: props.model,
@@ -373,7 +377,7 @@ export async function mountSpreadsheet(
    * done after the resize of the sheet view.
    */
   await nextTick();
-  return { app, parent: parent as Spreadsheet, model, fixture, env };
+  return { app, parent: parent as Spreadsheet, model, fixture, env, viewStore };
 }
 
 type GridDescr = { [xc: string]: string | undefined };

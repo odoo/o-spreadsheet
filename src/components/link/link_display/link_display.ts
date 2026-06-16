@@ -76,8 +76,7 @@ export class LinkDisplay extends Component<SpreadsheetChildEnv> {
 export const LinkCellPopoverBuilder: PopoverBuilders = {
   onHover: (position, getters): CellPopoverComponent<typeof LinkDisplay> => {
     const cell = getters.getEvaluatedCell(position);
-    const shouldDisplayLink =
-      !getters.isDashboard() && cell.link && getters.isVisibleInViewport(position);
+    const shouldDisplayLink = !getters.isDashboard() && cell.link;
     if (!shouldDisplayLink) {
       return { isOpen: false };
     }

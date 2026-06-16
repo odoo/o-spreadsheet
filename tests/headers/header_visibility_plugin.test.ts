@@ -3,6 +3,7 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { numberToLetters } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { HeaderSizePlugin } from "../../src/plugins/core/header_size";
+import { ViewportsStore } from "../../src/stores/viewports_store";
 import {
   addColumns,
   addRows,
@@ -15,12 +16,12 @@ import {
   redo,
   setFormatting,
   setSelection,
-  setSheetviewSize,
   undo,
   unhideColumns,
   unhideRows,
 } from "../test_helpers/commands_helpers";
 import { getPlugin } from "../test_helpers/helpers";
+import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
 
 //------------------------------------------------------------------------------
 // Hide/unhide
@@ -86,26 +87,27 @@ describe("Hide Columns", () => {
 
   test("hide/unhide Column on small sheet", () => {
     model = new Model({ sheets: [{ colNumber: 5, rowNumber: 1 }] });
-    setSheetviewSize(model, 1000, DEFAULT_CELL_WIDTH);
+    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
+    viewStore.resizeSheetView({ height: 1000, width: DEFAULT_CELL_WIDTH });
     const sheet = model.getters.getActiveSheet();
-    const dimensions = model.getters.getMainViewportRect();
+    const dimensions = viewStore.mainViewportRect;
     hideColumns(model, ["B", "C", "D"], sheet.id);
-    let dimensions2 = model.getters.getMainViewportRect();
+    let dimensions2 = viewStore.mainViewportRect;
     expect(dimensions2.width).toEqual(dimensions.width - 3 * DEFAULT_CELL_WIDTH);
     unhideColumns(model, ["D"], sheet.id);
-    dimensions2 = model.getters.getMainViewportRect();
+    dimensions2 = viewStore.mainViewportRect;
     expect(dimensions2.width).toEqual(dimensions.width - 2 * DEFAULT_CELL_WIDTH);
   });
 
   test("hide/ unhide Column on big sheet", () => {
-    model = new Model();
+    const { model, store: viewStore } = makeStore(ViewportsStore);
     const sheet = model.getters.getActiveSheet();
-    const dimensions = model.getters.getMainViewportRect();
+    const dimensions = viewStore.mainViewportRect;
     hideColumns(model, ["B", "C", "D"], sheet.id);
-    let dimensions2 = model.getters.getMainViewportRect();
+    let dimensions2 = viewStore.mainViewportRect;
     expect(dimensions2.width).toEqual(dimensions.width - 3 * DEFAULT_CELL_WIDTH);
     unhideColumns(model, ["D"], sheet.id);
-    dimensions2 = model.getters.getMainViewportRect();
+    dimensions2 = viewStore.mainViewportRect;
     expect(dimensions2.width).toEqual(dimensions.width - 2 * DEFAULT_CELL_WIDTH);
   });
 
@@ -181,26 +183,27 @@ describe("Hide Rows", () => {
 
   test("hide/unhide Row on small sheet", () => {
     model = new Model({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
-    setSheetviewSize(model, DEFAULT_CELL_HEIGHT, 1000);
+    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
+    viewStore.resizeSheetView({ height: DEFAULT_CELL_HEIGHT, width: 1000 });
     const sheet = model.getters.getActiveSheet();
-    const dimensions = model.getters.getMainViewportRect();
+    const dimensions = viewStore.mainViewportRect;
     hideRows(model, [1, 2, 3], sheet.id);
-    let dimensions2 = model.getters.getMainViewportRect();
+    let dimensions2 = viewStore.mainViewportRect;
     expect(dimensions2.height).toEqual(dimensions.height - 3 * DEFAULT_CELL_HEIGHT);
     unhideRows(model, [3], sheet.id);
-    dimensions2 = model.getters.getMainViewportRect();
+    dimensions2 = viewStore.mainViewportRect;
     expect(dimensions2.height).toEqual(dimensions.height - 2 * DEFAULT_CELL_HEIGHT);
   });
 
   test("hide/ unhide Row on big sheet", () => {
-    model = new Model();
+    const { model, store: viewStore } = makeStore(ViewportsStore);
     const sheet = model.getters.getActiveSheet();
-    const dimensions = model.getters.getMainViewportRect();
+    const dimensions = viewStore.mainViewportRect;
     hideRows(model, [1, 2, 3], sheet.id);
-    let dimensions2 = model.getters.getMainViewportRect();
+    let dimensions2 = viewStore.mainViewportRect;
     expect(dimensions2.height).toEqual(dimensions.height - 3 * DEFAULT_CELL_HEIGHT);
     unhideRows(model, [3], sheet.id);
-    dimensions2 = model.getters.getMainViewportRect();
+    dimensions2 = viewStore.mainViewportRect;
     expect(dimensions2.height).toEqual(dimensions.height - 2 * DEFAULT_CELL_HEIGHT);
   });
 

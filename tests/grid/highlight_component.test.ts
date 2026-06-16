@@ -11,7 +11,10 @@ import {
 import { toHex } from "../../src/helpers/color";
 import { toZone } from "../../src/helpers/zones";
 import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
-import { merge, resizeSheetView, setZoom } from "../test_helpers/commands_helpers";
+import { ViewportsStore } from "../../src/stores/viewports_store";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { Store } from "../../src/types/store_engine";
+import { merge, setZoom } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
   mountComponent,
@@ -121,6 +124,8 @@ let cornerEl: Element;
 let borderEl: Element;
 let spyDispatch: jest.SpyInstance;
 let spyHandleEvent: jest.Mock;
+let env: SpreadsheetChildEnv;
+let viewStore: Store<ViewportsStore>;
 
 class Parent extends Component {
   static components = { Highlight };
@@ -154,16 +159,13 @@ class Parent extends Component {
   }
 }
 
-async function mountHighlight(
-  zone: string,
-  color: Color
-): Promise<{ parent: Parent; model: Model }> {
+async function mountHighlight(zone: string, color: Color) {
   let parent: Component;
   const sheetId = model.getters.getActiveSheetId();
-  ({ fixture, parent } = await mountComponent(Parent, {
+  ({ fixture, parent, env, viewStore } = await mountComponent(Parent, {
     props: { range: model.getters.getRangeFromZone(sheetId, toZone(zone)), color, model },
   }));
-  return { parent: parent as Parent, model };
+  return { parent: parent as Parent, model, env, viewStore };
 }
 
 function expectedResult(xc: string) {
@@ -180,7 +182,6 @@ function expectedResult(xc: string) {
 
 const genericBeforeEach = async () => {
   model = new Model();
-  resizeSheetView(model, getDefaultSheetViewSize(), getDefaultSheetViewSize());
 };
 
 describe("Corner component", () => {
@@ -407,53 +408,51 @@ describe("Corner component", () => {
   });
 
   test("can edge-scroll horizontally", async () => {
-    const { width } = model.getters.getSheetViewDimensionWithHeaders();
+    const { viewStore } = await mountHighlight("B1", "#666");
+    const width = viewStore.sheetViewDimensionWithHeaders.width;
     model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "COL",
       sheetId: model.getters.getActiveSheetId(),
       elements: [0, 1],
       size: width / 2,
     });
-    const parent = await mountHighlight("B1", "#666");
+
+    const spy = jest.spyOn(viewStore, "setViewportOffset");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select B1 nw corner
     await selectNWCellCorner(cornerEl, "B1");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("B1"),
     });
 
     // move to C1
     await moveToCell(cornerEl, "C1");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
-      offsetX: width / 2,
-      offsetY: 0,
-    });
+    expect(spy).toHaveBeenCalledWith({ offsetX: width / 2, offsetY: 0 });
   });
 
   test("can edge-scroll vertically", async () => {
-    const { height } = model.getters.getSheetViewDimensionWithHeaders();
+    const { viewStore } = await mountHighlight("A2", "#666");
+    const { height } = viewStore.sheetViewDimensionWithHeaders;
     model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "ROW",
       sheetId: model.getters.getActiveSheetId(),
       elements: [0, 1],
       size: height / 2,
     });
-    const parent = await mountHighlight("A2", "#666");
+
+    const spy = jest.spyOn(viewStore, "setViewportOffset");
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select A2 nw corner
     await selectTopCellBorder(cornerEl, "A2");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A2"),
     });
 
     // move to A3
     await moveToCell(cornerEl, "A3");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
-      offsetX: 0,
-      offsetY: height / 2,
-    });
+    expect(spy).toHaveBeenCalledWith({ offsetX: 0, offsetY: height / 2 });
   });
 
   test("Corner is colored with the same color as the highlight", async () => {
@@ -707,53 +706,49 @@ describe("Border component", () => {
   });
 
   test("can edge-scroll horizontally", async () => {
-    const { width } = model.getters.getSheetViewDimensionWithHeaders();
+    const width = getDefaultSheetViewSize();
     model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "COL",
       sheetId: model.getters.getActiveSheetId(),
       elements: [0, 1],
       size: width / 2,
     });
-    const parent = await mountHighlight("B1", "#666");
+    const { viewStore } = await mountHighlight("B1", "#666");
+    const spy = jest.spyOn(viewStore, "setViewportOffset");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select B1 top border
     await selectTopCellBorder(borderEl, "B1");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("B1"),
     });
 
     // move to C1
     await moveToCell(borderEl, "C1");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
-      offsetX: width / 2,
-      offsetY: 0,
-    });
+    expect(spy).toHaveBeenCalledWith({ offsetX: width / 2, offsetY: 0 });
   });
 
   test("can edge-scroll vertically", async () => {
-    const { height } = model.getters.getSheetViewDimensionWithHeaders();
+    const height = getDefaultSheetViewSize();
     model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "ROW",
       sheetId: model.getters.getActiveSheetId(),
       elements: [0, 1],
       size: height / 2,
     });
-    const parent = await mountHighlight("A2", "#666");
+    const { viewStore } = await mountHighlight("A2", "#666");
+    const spy = jest.spyOn(viewStore, "setViewportOffset");
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select A2 top border
     await selectTopCellBorder(borderEl, "A2");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A2"),
     });
 
     // move to A3
     await moveToCell(borderEl, "A3");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
-      offsetX: 0,
-      offsetY: height / 2,
-    });
+    expect(spy).toHaveBeenCalledWith({ offsetX: 0, offsetY: height / 2 });
   });
 });
 
@@ -765,10 +760,10 @@ describe.each(ZOOM_VALUES)(
     let height: Pixel;
     beforeEach(async () => {
       useJestFakeTimers();
-      ({ model, fixture } = await mountSpreadsheet());
+      ({ model, fixture, env, viewStore } = await mountSpreadsheet());
       zoom = zoomValue / 100;
-      setZoom(model, zoom);
-      ({ width, height } = model.getters.getSheetViewDimensionWithHeaders());
+      setZoom(env, zoom);
+      ({ width, height } = viewStore.sheetViewDimensionWithHeaders);
       // In test sheetviewDim is not changed based on the Zoom
       width = width * zoom;
       height = height * zoom;
@@ -786,7 +781,7 @@ describe.each(ZOOM_VALUES)(
 
       jest.advanceTimersByTime(advanceTimer);
       triggerMouseEvent(".o-border-n", "pointerup", 1.5 * width, y);
-      expect(model.getters.getActiveMainViewport()).toMatchObject({
+      expect(viewStore.activeMainViewport).toMatchObject({
         left: 6,
         right: 16,
         top: 0,
@@ -803,7 +798,7 @@ describe.each(ZOOM_VALUES)(
       jest.advanceTimersByTime(advanceTimer2);
       triggerMouseEvent(".o-border-n", "pointerup", -0.5 * width, y);
 
-      expect(model.getters.getActiveMainViewport()).toMatchObject({
+      expect(viewStore.activeMainViewport).toMatchObject({
         left: 3,
         right: 13,
         top: 0,
@@ -820,7 +815,7 @@ describe.each(ZOOM_VALUES)(
       jest.advanceTimersByTime(advanceTimer);
       triggerMouseEvent(".o-border-n", "pointerup", x, 1.5 * height);
 
-      expect(model.getters.getActiveMainViewport()).toMatchObject({
+      expect(viewStore.activeMainViewport).toMatchObject({
         left: 0,
         right: 10,
         top: 6,
@@ -837,7 +832,7 @@ describe.each(ZOOM_VALUES)(
       jest.advanceTimersByTime(advanceTimer2);
       triggerMouseEvent(".o-border-n", "pointerup", x, -0.5 * height);
 
-      expect(model.getters.getActiveMainViewport()).toMatchObject({
+      expect(viewStore.activeMainViewport).toMatchObject({
         left: 0,
         right: 10,
         top: 3,
@@ -854,7 +849,7 @@ describe.each(ZOOM_VALUES)(
 
       jest.advanceTimersByTime(advanceTimer);
       triggerMouseEvent(".o-corner-nw", "pointerup", 1.5 * width, y);
-      expect(model.getters.getActiveMainViewport()).toMatchObject({
+      expect(viewStore.activeMainViewport).toMatchObject({
         left: 6,
         right: 16,
         top: 0,
@@ -871,7 +866,7 @@ describe.each(ZOOM_VALUES)(
       jest.advanceTimersByTime(advanceTimer2);
       triggerMouseEvent(".o-corner-nw", "pointerup", -0.5 * width, y);
 
-      expect(model.getters.getActiveMainViewport()).toMatchObject({
+      expect(viewStore.activeMainViewport).toMatchObject({
         left: 3,
         right: 13,
         top: 0,
@@ -888,7 +883,7 @@ describe.each(ZOOM_VALUES)(
       jest.advanceTimersByTime(advanceTimer);
       triggerMouseEvent(".o-corner-nw", "pointerup", x, 1.5 * height);
 
-      expect(model.getters.getActiveMainViewport()).toMatchObject({
+      expect(viewStore.activeMainViewport).toMatchObject({
         left: 0,
         right: 10,
         top: 6,
@@ -905,7 +900,7 @@ describe.each(ZOOM_VALUES)(
       jest.advanceTimersByTime(advanceTimer2);
       triggerMouseEvent(".o-corner-nw", "pointerup", x, -0.5 * height);
 
-      expect(model.getters.getActiveMainViewport()).toMatchObject({
+      expect(viewStore.activeMainViewport).toMatchObject({
         left: 0,
         right: 10,
         top: 3,

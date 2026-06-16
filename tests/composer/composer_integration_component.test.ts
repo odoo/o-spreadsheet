@@ -9,6 +9,7 @@ import {
 } from "../../src/constants";
 import { colors, toHex } from "../../src/helpers/color";
 import { toZone } from "../../src/helpers/zones";
+import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import {
@@ -66,6 +67,7 @@ import { addPivot } from "../test_helpers/pivot_helpers";
 let fixture: HTMLElement;
 let model: Model;
 let composerStore: Store<CellComposerStore>;
+let env: SpreadsheetChildEnv;
 
 async function startComposition(key?: string) {
   const composerEl = await startGridComposition(key);
@@ -86,7 +88,6 @@ const modelData = { sheets: [{ id: "sh1" }] };
 
 describe("Composer interactions", () => {
   beforeEach(async () => {
-    let env: SpreadsheetChildEnv;
     ({ model, fixture, env } = await mountSpreadsheet({ model: new Model(modelData) }));
     composerStore = env.getStore(CellComposerStore);
   });
@@ -170,7 +171,7 @@ describe("Composer interactions", () => {
     await keyDown({ key: "Enter" });
     await typeInComposerGrid("=PIVOT(");
     expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).not.toBeNull();
-    await clickCell(model, "B3");
+    await clickCell(env, "B3");
     expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();
     await keyDown({ key: "Enter" });
     expect(getCellRawContent(model, "A1")).toBe("=PIVOT(B3)");
@@ -215,24 +216,25 @@ describe("Composer interactions", () => {
   });
 
   test("Selecting a range should not scroll the viewport to the current Grid selection", async () => {
-    const { top, bottom, left, right } = model.getters.getActiveMainViewport();
+    const viewStore = env.getStore(ViewportsStore);
+    const { top, bottom, left, right } = viewStore.activeMainViewport;
     await typeInComposerTopBar("=");
     // scroll
     triggerWheelEvent(".o-grid", { deltaY: 3 * DEFAULT_CELL_HEIGHT });
     await nextTick();
-    const scrolledViewport = model.getters.getActiveMainViewport();
+    const scrolledViewport = viewStore.activeMainViewport;
     expect(scrolledViewport).toMatchObject({
       left,
       right,
       top: top + 3,
       bottom: bottom + 3,
     });
-    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
+    expect(viewStore.activeSheetScrollInfo).toMatchObject({
       scrollY: 3 * DEFAULT_CELL_HEIGHT,
     });
-    await clickCell(model, "E5");
+    await clickCell(env, "E5");
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
-    expect(model.getters.getActiveMainViewport()).toMatchObject(scrolledViewport);
+    expect(viewStore.activeMainViewport).toMatchObject(scrolledViewport);
   });
 
   test("type '=' and click Cell, the cell ref should be colored", async () => {
@@ -246,16 +248,16 @@ describe("Composer interactions", () => {
       focusOffset: 1,
     });
     expect(composerStore.editionMode).toBe("selecting");
-    await clickCell(model, "C8");
+    await clickCell(env, "C8");
     expect(composerEl.textContent).toBe("=C8");
     expect(getComposerColors(composerEl)["C8"]).toBeSameColorAs(colors[0]);
   });
 
   test("=+Click range, the range ref should be colored", async () => {
     const composerEl = await typeInComposerGrid("=");
-    await gridMouseEvent(model, "pointerdown", "C8");
-    await gridMouseEvent(model, "pointermove", "B8");
-    await gridMouseEvent(model, "pointerup", "B8");
+    await gridMouseEvent(env, "pointerdown", "C8");
+    await gridMouseEvent(env, "pointermove", "B8");
+    await gridMouseEvent(env, "pointerup", "B8");
     await nextTick();
     expect(composerEl.textContent).toBe("=B8:C8");
     expect(getComposerColors(composerEl)["B8:C8"]).toBeSameColorAs(colors[0]);
@@ -263,10 +265,10 @@ describe("Composer interactions", () => {
 
   test("type '=', and click a cell several times", async () => {
     const composerEl = await typeInComposerGrid("=");
-    await clickCell(model, "C8");
-    await clickCell(model, "C8");
+    await clickCell(env, "C8");
+    await clickCell(env, "C8");
     expect(composerEl.textContent).toBe("=C8");
-    await clickCell(model, "C7");
+    await clickCell(env, "C7");
     expect(composerEl.textContent).toBe("=C7");
   });
 
@@ -313,7 +315,7 @@ describe("Composer interactions", () => {
 
   test("Starting the edition and scroll should display the cell reference", async () => {
     await startComposition();
-    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 5);
+    setViewportOffset(env, 0, DEFAULT_CELL_HEIGHT * 5);
     await nextTick();
     const reference = fixture.querySelector(".o-grid div.o-cell-reference");
     expect(reference).not.toBeNull();
@@ -343,7 +345,7 @@ describe("Composer interactions", () => {
 
   test("Stopping the edition resets the cell reference visibility", async () => {
     await startComposition();
-    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 5);
+    setViewportOffset(env, 0, DEFAULT_CELL_HEIGHT * 5);
     await nextTick();
     const referenceSelector = ".o-grid div.o-cell-reference";
     const reference = fixture.querySelector(referenceSelector);
@@ -374,7 +376,7 @@ describe("Composer interactions", () => {
     document.getSelection()?.removeAllRanges();
     composerEl.dispatchEvent(new Event("input"));
     composerEl.dispatchEvent(new Event("keyup"));
-    await clickCell(model, "C8");
+    await clickCell(env, "C8");
     expect(getSelectionAnchorCellXc(model)).toBe("C8");
     expect(composerStore.editionMode).toBe("inactive");
   });
@@ -449,21 +451,21 @@ describe("Composer interactions", () => {
 
   test("The composer should be closed before opening the context menu", async () => {
     await typeInComposerGrid("=");
-    await rightClickCell(model, "C8");
+    await rightClickCell(env, "C8");
     expect(composerStore.editionMode).toBe("inactive");
   });
 
   test("The composer should be closed before selecting headers", async () => {
     await typeInComposerGrid("Hello");
     expect(composerStore.editionMode).not.toBe("inactive");
-    await selectColumnByClicking(model, "C");
+    await selectColumnByClicking(env, "C");
     expect(composerStore.editionMode).toBe("inactive");
   });
 
   test("The content in the composer should be kept after selecting headers", async () => {
-    await clickCell(model, "C8");
+    await clickCell(env, "C8");
     await typeInComposerGrid("Hello");
-    await selectColumnByClicking(model, "C");
+    await selectColumnByClicking(env, "C");
     expect(getCellText(model, "C8")).toBe("Hello");
   });
 
@@ -475,7 +477,7 @@ describe("Composer interactions", () => {
   test("Hitting enter on topbar composer will properly update it", async () => {
     setCellContent(model, "A1", "I am Tabouret");
     setCellContent(model, "A2", "wooplaburg");
-    await clickCell(model, "A1");
+    await clickCell(env, "A1");
     const topbarComposerElement = fixture.querySelector(
       ".o-spreadsheet-topbar .o-composer-container .o-composer"
     )!;
@@ -487,7 +489,7 @@ describe("Composer interactions", () => {
 
   test("Grid taking focus over topbar composer will properly update the latter", async () => {
     setCellContent(model, "A1", "I am Tabouret");
-    await clickCell(model, "A1");
+    await clickCell(env, "A1");
     const topbarComposerElement = fixture.querySelector(
       ".o-spreadsheet-topbar .o-composer-container div"
     )!;
@@ -511,25 +513,25 @@ describe("Composer interactions", () => {
 
   test("=sum(sum(1,2) + click outside composer should add the missing parenthesis", async () => {
     await typeInComposerGrid("=sum(sum(1,2");
-    await clickCell(model, "B2");
+    await clickCell(env, "B2");
     expect(getCellText(model, "A1")).toBe("=sum(sum(1,2))");
   });
 
   test("={1,2 + click outside composer should add the missing bracket", async () => {
     await typeInComposerGrid("={1,2");
-    await clickCell(model, "B2");
+    await clickCell(env, "B2");
     expect(getCellText(model, "A1")).toBe("={1,2}");
   });
 
   test("=SUM(1,2,{3,4 + click outside composer should add the missing bracket then parenthesis", async () => {
     await typeInComposerGrid("=SUM(1,2,{3,4");
-    await clickCell(model, "B2");
+    await clickCell(env, "B2");
     expect(getCellText(model, "A1")).toBe("=SUM(1,2,{3,4})");
   });
 
   test("={1,2,SUM(3,4 + click outside composer should add the missing parenthesis then bracket", async () => {
     await typeInComposerGrid("={1,2,SUM(3,4");
-    await clickCell(model, "B2");
+    await clickCell(env, "B2");
     expect(getCellText(model, "A1")).toBe("={1,2,SUM(3,4)}");
   });
 
@@ -537,7 +539,7 @@ describe("Composer interactions", () => {
     await typeInComposerGrid("=S");
     expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(10);
 
-    await clickCell(model, "B2");
+    await clickCell(env, "B2");
     expect(fixture.querySelector(".o-autocomplete-dropdown")).toBeFalsy();
 
     await startGridComposition();
@@ -625,10 +627,10 @@ describe("Composer interactions", () => {
 
   test("keyboard inputs are disabled when selecting a range for the composer", async () => {
     await typeInComposerGrid("=");
-    await gridMouseEvent(model, "pointerdown", "C8");
-    await gridMouseEvent(model, "pointermove", "B8");
+    await gridMouseEvent(env, "pointerdown", "C8");
+    await gridMouseEvent(env, "pointermove", "B8");
     await keyDown({ key: "A" });
-    await gridMouseEvent(model, "pointerup", "B8");
+    await gridMouseEvent(env, "pointerup", "B8");
     await nextTick();
     expect(composerStore.currentContent).toBe("=B8:C8");
   });
@@ -687,21 +689,22 @@ describe("Grid composer", () => {
   });
 
   test("Wheel event on the composer should not scroll the viewport if the composer has a scrollbar", async () => {
-    const viewport = model.getters.getActiveMainViewport();
+    const viewStore = env.getStore(ViewportsStore);
+    const viewport = viewStore.activeMainViewport;
     // Describes a div that has a scrollbar - the scrollHeight is greater than the clientHeight
     jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 50);
     jest.spyOn(HTMLDivElement.prototype, "scrollHeight", "get").mockImplementation(() => 150);
     await startComposition("5");
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
     await nextTick();
-    expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
+    expect(viewStore.activeMainViewport).toMatchObject(viewport);
 
     // Describes a div without a scrollbar, the scrollHeight matches the clientheight
     jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 50);
     jest.spyOn(HTMLDivElement.prototype, "scrollHeight", "get").mockImplementation(() => 50);
     await nextTick();
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       ...viewport,
       top: viewport.top + 4,
       bottom: viewport.bottom + 4,
@@ -763,7 +766,7 @@ describe("Grid composer", () => {
       selectCell(model, "C3");
       await typeInComposerGrid("A");
 
-      const sheetViewDims = model.getters.getSheetViewDimension();
+      const sheetViewDims = env.getStore(ViewportsStore).sheetViewDimension;
       const expectedMaxHeight = sheetViewDims.height - 2 * DEFAULT_CELL_HEIGHT;
       const expectedMaxWidth = sheetViewDims.width - 2 * DEFAULT_CELL_WIDTH;
 

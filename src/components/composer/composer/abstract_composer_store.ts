@@ -23,6 +23,7 @@ import {
 import { HighlightStore } from "../../../stores/highlight_store";
 import { NotificationStore } from "../../../stores/notification_store";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
+import { ViewportsStore } from "../../../stores/viewports_store";
 import { _t } from "../../../translation";
 import { Command } from "../../../types/commands";
 import { EvaluationError } from "../../../types/errors";
@@ -89,6 +90,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   private autoCompleteKeepLast = new KeepLast<AutoCompleteProvider | undefined>();
   protected notificationStore = this.get(NotificationStore);
   private highlightStore = this.get(HighlightStore);
+  private viewStore = this.get(ViewportsStore);
 
   constructor(get: Get) {
     super(get);
@@ -153,7 +155,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   startEdition(text?: string, selection?: ComposerSelection) {
     const { col, row } = this.getters.getActivePosition();
     this.model.dispatch("SELECT_FIGURE", { figureId: null });
-    this.model.dispatch("SCROLL_TO_CELL", { col, row });
+    this.viewStore.scrollToCell(col, row);
 
     if (this.editionMode !== "inactive" && text) {
       this.setContent(text, selection);

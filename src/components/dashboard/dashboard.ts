@@ -2,6 +2,7 @@ import { props, signal, toRaw } from "@odoo/owl";
 import { Component, useChildSubEnv } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
+import { ViewportsStore } from "../../stores/viewports_store";
 import { Pixel } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -42,6 +43,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   canvasPosition!: DOMCoordinates;
   hoveredCell!: Store<DelayedHoveredCellStore>;
   clickableCellsStore!: Store<ClickableCellsStore>;
+  private viewStore!: Store<ViewportsStore>;
 
   private gridRef = signal<HTMLElement | null>(null);
   private canvasRef = signal<HTMLElement | null>(null);
@@ -49,19 +51,19 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   setup() {
     this.hoveredCell = useStore(DelayedHoveredCellStore);
     this.clickableCellsStore = useStore(ClickableCellsStore);
+    this.viewStore = useStore(ViewportsStore);
 
     const layers = OrderedLayers().filter((layer) => layer !== "Headers");
     const rendererStore = useLocalStore(RendererStore, layers);
     useChildSubEnv({
-      getPopoverContainerRect: () =>
-        getZoomedRect(this.env.model.getters.getViewportZoomLevel(), this.getGridRect()),
+      getPopoverContainerRect: () => getZoomedRect(this.viewStore.zoomLevel, this.getGridRect()),
     });
     useGridDrawing({
       canvasRef: this.canvasRef,
       rendererStore,
       renderingCtx: () => ({
         dpr: window.devicePixelRatio || 1,
-        viewports: this.env.model.getters.getViewportCollection(),
+        viewports: this.viewStore.viewports,
         ...this.env.model.getters.getSelectionState(),
         hideGridLines: true,
       }),
@@ -75,16 +77,16 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
     useTouchHandlers(this.gridRef, {
       updateScroll: this.moveCanvas.bind(this),
       canMoveUp: () => {
-        const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+        const { scrollY } = this.viewStore.activeSheetScrollInfo;
         return scrollY > 0;
       },
       canMoveDown: () => {
-        const { maxOffsetY } = this.env.model.getters.getMaximumSheetOffset();
-        const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+        const { maxOffsetY } = this.viewStore.maximumSheetOffset;
+        const { scrollY } = this.viewStore.activeSheetScrollInfo;
         return scrollY < maxOffsetY;
       },
-      getZoom: () => this.env.model.getters.getViewportZoomLevel(),
-      setZoom: (zoom: number) => this.env.model.dispatch("SET_ZOOM", { zoom }),
+      getZoom: () => this.viewStore.zoomLevel,
+      setZoom: (zoom: number) => this.viewStore.setZoom(zoom),
     });
   }
 
@@ -131,26 +133,23 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   onGridResized() {
     const { height, width } = this.props.getGridSize();
     const maxWidth = this.getMaxSheetWidth();
-    this.env.model.dispatch("RESIZE_SHEETVIEW", {
-      width: Math.min(maxWidth, width),
+    this.viewStore.resizeSheetView({
       height,
+      width: Math.min(maxWidth, width),
       gridOffsetX: 0,
       gridOffsetY: 0,
     });
   }
 
   private moveCanvas(deltaX: Pixel, deltaY: Pixel) {
-    const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: scrollX + deltaX,
-      offsetY: scrollY + deltaY,
-    });
+    const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
+    this.viewStore.setViewportOffset({ offsetX: scrollX + deltaX, offsetY: scrollY + deltaY });
   }
 
   private getGridRect(): Rect {
     return {
       ...getElBoundingRect(this.gridRef()),
-      ...this.env.model.getters.getSheetViewDimensionWithHeaders(),
+      ...this.viewStore.sheetViewDimensionWithHeaders,
     };
   }
 
@@ -161,7 +160,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   }
 
   get dashboardStyle() {
-    const zoomLevel = this.env.model.getters.getViewportZoomLevel();
+    const zoomLevel = this.viewStore.zoomLevel;
     return cssPropertiesToCss({ zoom: `${zoomLevel}` });
   }
 

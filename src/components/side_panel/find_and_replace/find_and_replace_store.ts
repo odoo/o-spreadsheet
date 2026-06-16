@@ -7,6 +7,7 @@ import { CellPosition, Color, Highlight, UID } from "../../../types/misc";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { NotificationStore } from "../../../stores/notification_store";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
+import { ViewportsStore } from "../../../stores/viewports_store";
 import { _t } from "../../../translation";
 import { SearchOptions } from "../../../types/find_and_replace";
 import { Get } from "../../../types/store_engine";
@@ -50,6 +51,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   private shouldFinalizeUpdateSelection = false;
 
   private notificationStore = this.get(NotificationStore);
+  private viewStore = this.get(ViewportsStore);
 
   // fixme: why do we make selectedMatchIndex on top of a selected
   // property in the matches?
@@ -493,7 +495,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
       const zone = positionToZone(match);
       const zoneWithMerge = this.getters.expandZone(sheetId, zone);
 
-      const { width, height } = this.getters.getVisibleRect(zoneWithMerge);
+      const { width, height } = this.viewStore.viewports.getVisibleRect(sheetId, zoneWithMerge);
       if (width > 0 && height > 0) {
         highlights.push({
           range: this.model.getters.getRangeFromZone(sheetId, zoneWithMerge),
