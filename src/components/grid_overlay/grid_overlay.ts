@@ -14,11 +14,11 @@ import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect, isChildEvent, isCtrlKey } from "../helpers/dom_helpers";
 import { useInterval } from "../helpers/time_hooks";
 import { withZoom, ZoomedMouseEvent } from "../helpers/zoom";
+import { CellPopoverPlugin } from "../owl_plugins/cell_popover_plugin";
 import { DelayedHoveredCellPlugin } from "../owl_plugins/delayed_hovered_cell_plugin";
 import { HoveredIconPlugin } from "../owl_plugins/hovered_icon_plugin";
 import { HoveredTablePlugin } from "../owl_plugins/hovered_table_plugin";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
-import { CellPopoverStore } from "../popover/cell_popover_store";
 import { types } from "../props_validation";
 
 function useCellHovered(
@@ -162,7 +162,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
     }
   );
   private gridOverlayRef: Signal<HTMLElement | null> = signal(null);
-  private cellPopovers!: Store<CellPopoverStore>;
+  private cellPopovers = plugin(CellPopoverPlugin);
   private paintFormatStore!: Store<PaintFormatStore>;
   private hoveredIconPlugin = plugin(HoveredIconPlugin);
 
@@ -178,7 +178,6 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
       resizeObserver.disconnect();
     });
 
-    this.cellPopovers = useStore(CellPopoverStore);
     this.paintFormatStore = useStore(PaintFormatStore);
   }
 

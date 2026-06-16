@@ -1,13 +1,13 @@
+import { CellPopoverPlugin } from "../../src/components/owl_plugins/cell_popover_plugin";
 import { DelayedHoveredCellPlugin } from "../../src/components/owl_plugins/delayed_hovered_cell_plugin";
-import { CellPopoverStore } from "../../src/components/popover/cell_popover_store";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { merge, setCellContent } from "../test_helpers";
-import { makeStore } from "../test_helpers/stores";
+import { makeOwlPlugin } from "../test_helpers/owl_plugin";
 
-describe("cell popover store", () => {
+describe("cell popover plugin", () => {
   test("Anchor rect is correct on a merge", () => {
-    const { store: cellPopovers, model, pluginManager } = makeStore(CellPopoverStore);
+    const { model, pluginManager, plugin: cellPopovers } = makeOwlPlugin(CellPopoverPlugin);
     const hoveredCellPlugin = pluginManager.getPlugin(DelayedHoveredCellPlugin)!;
     merge(model, "A1:B2");
     setCellContent(model, "A1", "=0/0");
@@ -23,7 +23,7 @@ describe("cell popover store", () => {
   });
 
   test("cannot open popover which does not exists", () => {
-    const { store: cellPopovers } = makeStore(CellPopoverStore);
+    const { plugin: cellPopovers } = makeOwlPlugin(CellPopoverPlugin);
     cellPopovers.open(
       { col: 0, row: 0 },
       /** @ts-ignore */

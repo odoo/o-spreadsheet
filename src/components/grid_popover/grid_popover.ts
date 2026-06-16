@@ -1,14 +1,12 @@
-import { useStore } from "../../store_engine/store_hooks";
 import { ClosedCellPopover, PositionedCellPopoverComponent } from "../../types/cell_popovers";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
-import { Store } from "../../types/store_engine";
 import { getZoomedRect } from "../helpers/zoom";
-import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
 
-import { props } from "@odoo/owl";
+import { plugin, props } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
+import { CellPopoverPlugin } from "../owl_plugins/cell_popover_plugin";
 
 export class GridPopover extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridPopover";
@@ -19,11 +17,7 @@ export class GridPopover extends Component<SpreadsheetChildEnv> {
     onMouseWheel: types.function<(ev: WheelEvent) => void>(),
     gridRect: types.Rect(),
   });
-  protected cellPopovers!: Store<CellPopoverStore>;
-
-  setup() {
-    this.cellPopovers = useStore(CellPopoverStore);
-  }
+  protected cellPopovers = plugin(CellPopoverPlugin);
 
   get cellPopover(): PositionedCellPopoverComponent | ClosedCellPopover {
     const popover = this.cellPopovers.cellPopover;

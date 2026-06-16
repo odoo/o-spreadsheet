@@ -334,6 +334,7 @@ import "./registries/interactive_icon_on_cell_registry";
 
 import { Composer } from "./components/composer/composer/composer";
 import { StandaloneComposer } from "./components/composer/standalone_composer/standalone_composer";
+import { CellPopoverPlugin } from "./components/owl_plugins/cell_popover_plugin";
 import { DelayedHoveredCellPlugin } from "./components/owl_plugins/delayed_hovered_cell_plugin";
 import { HoveredIconPlugin } from "./components/owl_plugins/hovered_icon_plugin";
 import { HoveredTablePlugin } from "./components/owl_plugins/hovered_table_plugin";
@@ -551,6 +552,7 @@ export const owlPlugins = {
   DelayedHoveredCellPlugin,
   HoveredIconPlugin,
   HoveredTablePlugin,
+  CellPopoverPlugin,
 };
 
 export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";

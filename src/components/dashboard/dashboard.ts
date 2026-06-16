@@ -14,8 +14,8 @@ import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useTouchHandlers } from "../helpers/touch_handlers_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { getZoomedRect } from "../helpers/zoom";
+import { CellPopoverPlugin } from "../owl_plugins/cell_popover_plugin";
 import { DelayedHoveredCellPlugin } from "../owl_plugins/delayed_hovered_cell_plugin";
-import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
 import { HorizontalScrollBar } from "../scrollbar/scrollbar_horizontal";
@@ -36,7 +36,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
     getGridSize: types.function<() => DOMDimension>(),
   });
 
-  protected cellPopovers!: Store<CellPopoverStore>;
+  protected cellPopovers = plugin(CellPopoverPlugin);
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
@@ -69,7 +69,6 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
       this.moveCanvas(deltaX, deltaY);
       this.hoveredCell.clear();
     });
-    this.cellPopovers = useStore(CellPopoverStore);
 
     useTouchHandlers(this.gridRef, {
       updateScroll: this.moveCanvas.bind(this),
