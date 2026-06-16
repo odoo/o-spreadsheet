@@ -142,7 +142,7 @@ export class InternalViewport {
     const { start, end } = this.getters.getColDimensions(sheetId, targetCol);
 
     if (this.offsetX + this.viewportWidth + this.offsetCorrectionX < end) {
-      this.offsetX = end - this.viewportWidth;
+      this.offsetX = end - this.viewportWidth - this.offsetCorrectionX;
     } else if (this.offsetX + this.offsetCorrectionX > start) {
       this.offsetX = start - this.offsetCorrectionX;
     }
@@ -153,7 +153,7 @@ export class InternalViewport {
     const sheetId = this.sheetId;
     const { start, end } = this.getters.getRowDimensions(sheetId, targetRow);
     if (this.offsetY + this.viewportHeight + this.offsetCorrectionY < end) {
-      this.offsetY = end - this.viewportHeight;
+      this.offsetY = end - this.viewportHeight - this.offsetCorrectionY;
     } else if (this.offsetY + this.offsetCorrectionY > start) {
       this.offsetY = start - this.offsetCorrectionY;
     }
