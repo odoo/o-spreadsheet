@@ -2,6 +2,7 @@ import { props, proxy, signal } from "@odoo/owl";
 import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../constants";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
+import { ViewportsStore } from "../../stores/viewports_store";
 import { CommandResult } from "../../types/commands";
 import { HeaderDimensions, HeaderIndex, Pixel } from "../../types/misc";
 import { EdgeScrollInfo } from "../../types/rendering";
@@ -44,6 +45,7 @@ export const resizerPropsDefinition = {
 abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
   protected props = props(resizerPropsDefinition);
   private composerFocusStore!: Store<ComposerFocusStore>;
+  protected viewStore!: Store<ViewportsStore>;
 
   PADDING: number = 0;
   MAX_SIZE_MARGIN: number = 0;
@@ -105,6 +107,7 @@ abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
 
   setup(): void {
     this.composerFocusStore = useStore(ComposerFocusStore);
+    this.viewStore = useStore(ViewportsStore);
   }
 
   _computeHandleDisplay(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>) {
@@ -364,7 +367,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getViewportOffset(): Pixel {
-    return this.env.model.getters.getActiveMainViewport().left;
+    return this.viewStore.activeMainViewport.left;
   }
 
   _getClientPosition(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>): Pixel {
@@ -372,7 +375,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getElementIndex(position: Pixel): HeaderIndex {
-    return this.env.model.getters.getColIndex(position);
+    return this.viewStore.viewports.getColIndex(this.sheetId, position);
   }
 
   _getSelectedZoneStart(): HeaderIndex {
@@ -384,11 +387,11 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getEdgeScroll(position: Pixel): EdgeScrollInfo {
-    return this.env.model.getters.getEdgeScrollCol(position, position, position);
+    return this.viewStore.viewports.getEdgeScrollCol(this.sheetId, position, position, position);
   }
 
   _getDimensionsInViewport(index: HeaderIndex): HeaderDimensions {
-    return this.env.model.getters.getColDimensionsInViewport(this.sheetId, index);
+    return this.viewStore.viewports.getColDimensionsInViewport(this.sheetId, index);
   }
 
   _getElementSize(index: HeaderIndex): Pixel {
@@ -478,13 +481,13 @@ export class ColResizer extends AbstractResizer {
   }
 
   get mainUnhideHeadersProps() {
-    const { left, right } = this.env.model.getters.getActiveMainViewport();
+    const { left, right } = this.viewStore.activeMainViewport;
     const { xSplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
     const hiddenGroups = this.env.model.getters.getHiddenColsGroups(this.sheetId);
     const index = hiddenGroups.findIndex((group) => group[0] >= xSplit - 1);
     return {
       headersGroups: index === -1 ? [] : hiddenGroups.slice(index),
-      offset: this.env.model.getters.getMainViewportCoordinates().x,
+      offset: this.viewStore.mainViewportCoordinates.x,
       headerRange: { start: left, end: right },
     };
   }
@@ -502,7 +505,7 @@ export class ColResizer extends AbstractResizer {
 
   get frozenContainerStyle() {
     return cssPropertiesToCss({
-      width: this.env.model.getters.getMainViewportCoordinates().x + "px",
+      width: this.viewStore.mainViewportCoordinates.x + "px",
     });
   }
 
@@ -533,7 +536,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getViewportOffset(): Pixel {
-    return this.env.model.getters.getActiveMainViewport().top;
+    return this.viewStore.activeMainViewport.top;
   }
 
   _getClientPosition(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>): Pixel {
@@ -541,7 +544,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getElementIndex(position: Pixel): HeaderIndex {
-    return this.env.model.getters.getRowIndex(position);
+    return this.viewStore.viewports.getRowIndex(this.sheetId, position);
   }
 
   _getSelectedZoneStart(): HeaderIndex {
@@ -553,11 +556,11 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getEdgeScroll(position: Pixel): EdgeScrollInfo {
-    return this.env.model.getters.getEdgeScrollRow(position, position, position);
+    return this.viewStore.viewports.getEdgeScrollRow(this.sheetId, position, position, position);
   }
 
   _getDimensionsInViewport(index: HeaderIndex): HeaderDimensions {
-    return this.env.model.getters.getRowDimensionsInViewport(this.sheetId, index);
+    return this.viewStore.viewports.getRowDimensionsInViewport(this.sheetId, index);
   }
 
   _getElementSize(index: HeaderIndex): Pixel {
@@ -644,13 +647,13 @@ export class RowResizer extends AbstractResizer {
   }
 
   get mainUnhideHeadersProps() {
-    const { top, bottom } = this.env.model.getters.getActiveMainViewport();
+    const { top, bottom } = this.viewStore.activeMainViewport;
     const { ySplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
     const hiddenGroups = this.env.model.getters.getHiddenRowsGroups(this.sheetId);
     const index = hiddenGroups.findIndex((group) => group[0] >= ySplit - 1);
     return {
       headersGroups: index === -1 ? [] : hiddenGroups.slice(index),
-      offset: this.env.model.getters.getMainViewportCoordinates().y,
+      offset: this.viewStore.mainViewportCoordinates.y,
       headerRange: { start: top, end: bottom },
     };
   }
@@ -668,7 +671,7 @@ export class RowResizer extends AbstractResizer {
 
   get frozenContainerStyle() {
     return cssPropertiesToCss({
-      height: this.env.model.getters.getMainViewportCoordinates().y + "px",
+      height: this.viewStore.mainViewportCoordinates.y + "px",
     });
   }
 

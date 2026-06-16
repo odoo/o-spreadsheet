@@ -10,6 +10,7 @@ import {
   ZOOM_VALUES,
 } from "../../src/constants";
 import { Component } from "../../src/owl3_compatibility_layer";
+import { ViewportsStore } from "../../src/stores/viewports_store";
 
 import { downloadFile } from "../../src/components/helpers/dom_helpers";
 import { figureRegistry } from "../../src/registries/figures_registry";
@@ -609,7 +610,7 @@ describe("figures", () => {
         ...figure,
       });
       await nextTick();
-      setViewportOffset(model, 100, 100);
+      setViewportOffset(env, 100, 100);
       await simulateClick(".o-figure");
       await dragAnchor(anchor, mouseMove.mouseOffsetX, mouseMove.mouseOffsetY, true);
       const updatedFigure = {
@@ -630,7 +631,7 @@ describe("figures", () => {
       beforeEach(async () => {
         freezeRows(model, 5);
         freezeColumns(model, 5);
-        setViewportOffset(model, 10 * cellWidth, 10 * cellHeight);
+        setViewportOffset(env, 10 * cellWidth, 10 * cellHeight);
       });
 
       test("Figure in frozen rows can be dragged to main viewport", async () => {
@@ -1185,7 +1186,7 @@ describe("figures", () => {
     }); // bottomRight
     freezeRows(model, 2);
     freezeColumns(model, 2);
-    const { width, height } = model.getters.getSheetViewDimension();
+    const { width, height } = env.getStore(ViewportsStore).sheetViewDimension;
     await nextTick();
 
     const topLeftContainerStyle = (
@@ -1956,7 +1957,7 @@ describe("figures", () => {
           width: 50,
           height: params.figHeight,
         });
-        setViewportOffset(model, 0, params.scrollY);
+        setViewportOffset(env, 0, params.scrollY);
         await nextTick();
 
         await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: 0 }, undefined, false);
@@ -2001,7 +2002,7 @@ describe("figures", () => {
           width: params.figWidth,
           height: 50,
         });
-        setViewportOffset(model, params.scrollX, 0);
+        setViewportOffset(env, params.scrollX, 0);
         await nextTick();
 
         await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: 0 }, undefined, false);
@@ -2026,7 +2027,7 @@ describe("figures", () => {
 
       test("Snap that makes the figure change pane in Y apply the right offset", async () => {
         freezeRows(model, 2);
-        setViewportOffset(model, 0, 2 * cellHeight);
+        setViewportOffset(env, 0, 2 * cellHeight);
         createFigure(model, {
           id: "f1",
           col: 0,
@@ -2056,7 +2057,7 @@ describe("figures", () => {
 
       test("Snap that makes the figure change pane in X apply the right offset", async () => {
         freezeColumns(model, 2);
-        setViewportOffset(model, 2 * cellWidth, 0);
+        setViewportOffset(env, 2 * cellWidth, 0);
         createFigure(model, {
           id: "f1",
           col: 0,
@@ -2107,7 +2108,7 @@ describe("figures", () => {
           width: 20,
           height: 20,
         });
-        setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
+        setViewportOffset(env, 0, DEFAULT_CELL_HEIGHT);
         await nextTick();
         await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: -49 }, undefined, true);
         expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
@@ -2134,7 +2135,7 @@ describe("figures", () => {
           width: 20,
           height: 20,
         });
-        setViewportOffset(model, DEFAULT_CELL_WIDTH, 0);
+        setViewportOffset(env, DEFAULT_CELL_WIDTH, 0);
         await nextTick();
         await clickAndDrag(".o-figure[data-id=f1]", { x: -49, y: 0 }, undefined, true);
         expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
@@ -2145,7 +2146,7 @@ describe("figures", () => {
       });
 
       test("No Y snap with bottom border below the viewport", async () => {
-        const { height: viewportHeight } = model.getters.getMainViewportRect();
+        const { height: viewportHeight } = env.getStore(ViewportsStore).mainViewportRect;
         createFigure(model, {
           id: "f1",
           col: 0,
@@ -2172,7 +2173,7 @@ describe("figures", () => {
       });
 
       test("No X snap with right border right of the viewport", async () => {
-        const { width: viewportWidth } = model.getters.getMainViewportRect();
+        const { width: viewportWidth } = env.getStore(ViewportsStore).mainViewportRect;
         createFigure(model, {
           id: "f1",
           col: 0,
@@ -2216,7 +2217,7 @@ describe("figures", () => {
           width: 100,
           height: 100,
         });
-        setViewportOffset(model, 0, 2 * DEFAULT_CELL_HEIGHT);
+        setViewportOffset(env, 0, 2 * DEFAULT_CELL_HEIGHT);
         await nextTick();
         await clickAndDrag(
           ".o-figure[data-id=f1]",
@@ -2250,7 +2251,7 @@ describe("figures", () => {
           width: 100,
           height: 100,
         });
-        setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 0);
+        setViewportOffset(env, 2 * DEFAULT_CELL_WIDTH, 0);
         await nextTick();
         await clickAndDrag(
           '.o-figure[data-id="f1"]',
@@ -2278,7 +2279,7 @@ describe.each(ZOOM_VALUES.map((zoom) => zoom / 100))("figures with zoom %s", (zo
     mockFigureMenuItemRect = { top: 500, left: 500 };
     ({ model, parent, fixture, env } = await mountSpreadsheet(undefined, { notifyUser }));
     sheetId = model.getters.getActiveSheetId();
-    setZoom(model, zoom);
+    setZoom(env, zoom);
   });
 
   test("focus a figure", async () => {

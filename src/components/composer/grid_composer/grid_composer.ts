@@ -7,6 +7,7 @@ import { fontSizeInPixels } from "../../../helpers/text_helper";
 import { positionToZone } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
+import { ViewportsStore } from "../../../stores/viewports_store";
 import { CellPosition, ComposerFocusType } from "../../../types/misc";
 import { PropsOf } from "../../../types/props_of";
 import { Rect } from "../../../types/rendering";
@@ -45,6 +46,7 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
 
   private composerStore!: Store<CellComposerStore>;
   composerFocusStore!: Store<ComposerFocusStore>;
+  private viewStore!: Store<ViewportsStore>;
 
   private composerInterface!: ComposerInterface;
 
@@ -56,6 +58,7 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
     const composerStore = useStore(CellComposerStore);
     this.composerStore = composerStore;
     this.composerFocusStore = useStore(ComposerFocusStore);
+    this.viewStore = useStore(ViewportsStore);
     this.composerInterface = {
       id: "gridComposer",
       get editionMode() {
@@ -100,7 +103,7 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
   }
 
   get composerProps(): PropsOf<Composer> {
-    const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
+    const { width, height } = this.viewStore.sheetViewDimensionWithHeaders;
     // Remove the wrapper border width
     const maxHeight = this.props.gridDims.height - this.rect.y - 2 * COMPOSER_BORDER_WIDTH;
     return {
@@ -216,7 +219,7 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
     if (shouldRecomputeRect) {
       const position = this.env.model.getters.getActivePosition();
       const zone = this.env.model.getters.expandZone(position.sheetId, positionToZone(position));
-      this.rect = this.env.model.getters.getVisibleRect(zone);
+      this.rect = this.viewStore.viewports.getVisibleRect(position.sheetId, zone);
     }
   }
 
@@ -230,7 +233,7 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
     }
     const sheetId = this.env.model.getters.getActiveSheetId();
     const zone = positionToZone(this.env.model.getters.getSelection().anchor.cell);
-    const rect = this.env.model.getters.getVisibleRect(zone);
+    const rect = this.viewStore.viewports.getVisibleRect(sheetId, zone);
     if (!deepEquals(rect, this.rect) || sheetId !== this.composerStore.currentEditedCell.sheetId) {
       this.isCellReferenceVisible = true;
     }

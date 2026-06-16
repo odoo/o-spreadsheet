@@ -256,15 +256,15 @@ describe("Gauge chart component animation", () => {
   test("Gauge chart is animated only at first render", async () => {
     createGaugeChart(model, {});
     model.updateMode("dashboard");
-    await mountSpreadsheet({ model });
+    const { env } = await mountSpreadsheet({ model });
 
     expect(gaugeAnimationSpy).toHaveBeenCalledTimes(1);
 
     // Scroll the figure out of the viewport and back in
-    setViewportOffset(model, 0, 500);
+    setViewportOffset(env, 0, 500);
     await nextTick();
     expect(".o-figure").toHaveCount(0);
-    setViewportOffset(model, 0, 0);
+    setViewportOffset(env, 0, 0);
     await nextTick();
     expect(".o-figure").toHaveCount(1);
     expect(gaugeAnimationSpy).toHaveBeenCalledTimes(1);

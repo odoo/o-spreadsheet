@@ -21,6 +21,7 @@ import { Model } from "../../src/model";
 import { featurePluginRegistry } from "../../src/plugins/plugin_registries";
 import { ClipboardPlugin, MAX_FILE_SIZE } from "../../src/plugins/ui_stateful/clipboard";
 import { clipboardHandlersRegistries } from "../../src/registries/clipboardHandlersRegistries";
+import { ViewportsStore } from "../../src/stores/viewports_store";
 import { XMLString } from "../../src/types/xlsx";
 import { parseXML, xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
 import { FileStore as MockFileStore } from "../__mocks__/mock_file_store";
@@ -63,7 +64,6 @@ import {
   setFormatting,
   setFormulaVisibility,
   setSelection,
-  setViewportOffset,
   setZoneBorders,
   unMerge,
   undo,
@@ -90,6 +90,7 @@ import {
   target,
 } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
+import { makeStore } from "../test_helpers/stores";
 
 let model: Model;
 
@@ -739,10 +740,10 @@ describe("clipboard", () => {
   });
 
   test("pasting from OS will not change the viewport", () => {
-    const model = new Model();
-    const viewport = model.getters.getActiveMainViewport();
+    const { model, store: viewStore } = makeStore(ViewportsStore);
+    const viewport = viewStore.activeMainViewport;
     pasteFromOSClipboard(model, "C60", { text: "a\t1\nb\t2" });
-    expect(model.getters.getActiveMainViewport()).toEqual(viewport);
+    expect(viewStore.activeMainViewport).toEqual(viewport);
   });
 
   test("pasting numbers from windows clipboard => interpreted as number", () => {
@@ -790,15 +791,15 @@ describe("clipboard", () => {
   });
 
   test("Viewport won't move after pasting", () => {
-    const model = new Model();
+    const { model, store: viewStore } = makeStore(ViewportsStore);
     copy(model, "A1:B2");
 
     setSelection(model, ["C60:D70"]);
-    setViewportOffset(model, 0, 0);
-    const viewport = model.getters.getActiveMainViewport();
+    viewStore.setViewportOffset({ offsetX: 0, offsetY: 0 });
+    const viewport = viewStore.activeMainViewport;
 
     paste(model, "C60:D70");
-    expect(model.getters.getActiveMainViewport()).toEqual(viewport);
+    expect(viewStore.activeMainViewport).toEqual(viewport);
   });
 
   describe("copy/paste a zone in a larger selection will duplicate the zone on the selection as long as it does not exceed it", () => {
@@ -2586,7 +2587,7 @@ describe("clipboard: pasting outside of sheet", () => {
   });
 
   test("Pasted images from OS are inserted at the paste position with a limited size", () => {
-    const model = new Model();
+    const { model, store: viewStore } = makeStore(ViewportsStore);
     const width = 2000;
     const height = 2000;
     pasteFromOSClipboard(model, "B2", {
@@ -2599,7 +2600,7 @@ describe("clipboard: pasting outside of sheet", () => {
     expect(getCellContent(model, "B2")).toBe("");
     const figures = model.getters.getFigures(sheetId);
     expect(figures).toHaveLength(1);
-    const sheetViewDimension = model.getters.getSheetViewDimension();
+    const sheetViewDimension = viewStore.sheetViewDimension;
     expect(figures[0]).toMatchObject({
       tag: "image",
       width: sheetViewDimension.width,

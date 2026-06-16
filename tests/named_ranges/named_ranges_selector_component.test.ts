@@ -4,6 +4,7 @@ import { HIGHLIGHT_COLOR } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { NotificationStore } from "../../src/stores/notification_store";
+import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   createNamedRange,
@@ -128,7 +129,7 @@ describe("Named ranges topbar selector", () => {
   test("The sheet is scrolled so the whole named range is visible when selecting a named range", async () => {
     createNamedRange(model, "MyRange", "Y60:Z70");
     await mountRangeSelector();
-    const viewport = model.getters.getActiveMainViewport();
+    const viewport = env.getStore(ViewportsStore).activeMainViewport;
     const viewportWidth = viewport.right - viewport.left;
     const viewportHeight = viewport.bottom - viewport.top;
 
@@ -136,7 +137,7 @@ describe("Named ranges topbar selector", () => {
     await simulateClick(".o-menu-item");
 
     expect(model.getters.getSelectedZone()).toEqual(toZone("Y60:Z70"));
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(env.getStore(ViewportsStore).activeMainViewport).toMatchObject({
       bottom: 69, // Row 70
       top: 69 - viewportHeight,
       right: 25, // Column Z

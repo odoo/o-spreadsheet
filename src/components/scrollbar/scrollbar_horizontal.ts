@@ -1,11 +1,15 @@
 import { props, xml } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
+import { useStore } from "../../store_engine/store_hooks";
+import { ViewportsStore } from "../../stores/viewports_store";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { Store } from "../../types/store_engine";
 import { types } from "../props_validation";
 import { ScrollBar } from "./scrollbar";
 
 export class HorizontalScrollBar extends Component<SpreadsheetChildEnv> {
   static components = { ScrollBar };
+  private viewStore!: Store<ViewportsStore>;
   static template = xml/*xml*/ `
       <ScrollBar
         t-if="this.isDisplayed"
@@ -16,28 +20,32 @@ export class HorizontalScrollBar extends Component<SpreadsheetChildEnv> {
         onScroll.bind="this.onScroll"
       />`;
 
+  setup(): void {
+    this.viewStore = useStore(ViewportsStore);
+  }
+
   protected props = props({
     leftOffset: types.number().optional(0),
   });
 
   get offset() {
-    return this.env.model.getters.getActiveSheetScrollInfo().scrollX;
+    return this.viewStore.activeSheetScrollInfo.scrollX;
   }
 
   get width() {
-    return this.env.model.getters.getMainViewportRect().width;
+    return this.viewStore.mainViewportRect.width;
   }
 
   get isDisplayed() {
-    const { xRatio } = this.env.model.getters.getFrozenSheetViewRatio(
+    const { xRatio } = this.viewStore.viewports.getFrozenSheetViewRatio(
       this.env.model.getters.getActiveSheetId()
     );
     return xRatio < 1;
   }
 
   get position() {
-    const { x } = this.env.model.getters.getMainViewportRect();
-    const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
+    const { x } = this.viewStore.mainViewportRect;
+    const scrollbarWidth = this.viewStore.scrollBarWidth;
     return {
       left: `${this.props.leftOffset + x}px`,
       bottom: "0px",
@@ -47,10 +55,7 @@ export class HorizontalScrollBar extends Component<SpreadsheetChildEnv> {
   }
 
   onScroll(offset) {
-    const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: offset,
-      offsetY: scrollY, // offsetY is the same
-    });
+    const { scrollY } = this.viewStore.activeSheetScrollInfo;
+    this.viewStore.setViewportOffset({ offsetX: offset, offsetY: scrollY });
   }
 }

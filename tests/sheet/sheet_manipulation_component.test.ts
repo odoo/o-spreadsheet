@@ -3,6 +3,7 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, FOOTER_HEIGHT } from "../../sr
 import { range } from "../../src/helpers/misc";
 import { zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { ViewportsStore } from "../../src/stores/viewports_store";
 import { Mode } from "../../src/types/model";
 import {
   activateSheet,
@@ -284,12 +285,12 @@ describe("Context MenuPopover hide col/row", () => {
 describe("Adding rows footer at the end of sheet", () => {
   test("won't show if the end of sheet doesn't show in the viewport", () => {
     const top = parseInt(getElStyle(".o-grid-add-rows", "top"));
-    const { height } = model.getters.getSheetViewDimension();
+    const { height } = parent.env.getStore(ViewportsStore).sheetViewDimension;
     expect(top).toBeGreaterThan(height);
   });
 
   test("will show when the page is scrolled down to the end of sheet", async () => {
-    const { height } = model.getters.getSheetViewDimension();
+    const { height } = parent.env.getStore(ViewportsStore).sheetViewDimension;
     await scrollGrid({ deltaY: 10000 });
     const top = parseInt(getElStyle(".o-grid-add-rows", "top"));
     expect(top).toBeLessThan(height);
@@ -306,7 +307,7 @@ describe("Adding rows footer at the end of sheet", () => {
 
   test("will at the bottom of the sheet view, if the sheet is too short to scroll", async () => {
     const sheetId = model.getters.getActiveSheetId();
-    const { height } = model.getters.getSheetViewDimension();
+    const { height } = parent.env.getStore(ViewportsStore).sheetViewDimension;
     const numberOfRows = model.getters.getNumberRows(sheetId);
     expect(".o-grid-add-rows").toHaveStyle({ top: `${numberOfRows * DEFAULT_CELL_HEIGHT}px` });
 
@@ -380,7 +381,7 @@ describe("Adding rows footer at the end of sheet", () => {
     await click(fixture, ".o-grid-add-rows button");
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
-    expect(model.getters.getSheetViewVisibleRows()).toContain(numberOfRows - 1);
+    expect(parent.env.getStore(ViewportsStore).visibleRows).toContain(numberOfRows - 1);
   });
 
   test("the input value will be the default value 100 after changing sheet", async () => {

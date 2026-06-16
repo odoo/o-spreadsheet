@@ -5,6 +5,7 @@ import {
   Model,
   UID,
 } from "../../src";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   createDynamicTable,
   createTableWithFilter,
@@ -33,10 +34,11 @@ import {
 describe("Filter menu component", () => {
   let fixture: HTMLElement;
   let model: Model;
+  let env: SpreadsheetChildEnv;
   let sheetId: UID;
 
   async function openFilterMenu(xc = "A1") {
-    await clickGridIcon(model, xc);
+    await clickGridIcon(env, xc);
   }
 
   function getFilterMenuValues() {
@@ -51,7 +53,7 @@ describe("Filter menu component", () => {
   }
 
   beforeEach(async () => {
-    ({ model, fixture } = await mountSpreadsheet());
+    ({ env, model, fixture } = await mountSpreadsheet());
     sheetId = model.getters.getActiveSheetId();
   });
 

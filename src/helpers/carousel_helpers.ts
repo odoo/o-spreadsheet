@@ -1,4 +1,5 @@
 import { chartSubtypeRegistry } from "../registries/chart_subtype_registry";
+import { ViewportsStore } from "../stores/viewports_store";
 import { _t } from "../translation";
 import { ChartDefinition } from "../types/chart/chart";
 import { AnchorOffset, CarouselItem } from "../types/figure";
@@ -30,7 +31,10 @@ export function getPoppedOutChartAnchor(
     throw new Error(`Could not find figure with id ${carouselId} in sheet ${sheetId}`);
   }
   const figureUI = env.model.getters.getFigureUI(sheetId, figure);
-  return env.model.getters.getPositionAnchorOffset({ x: figureUI.x + 50, y: figureUI.y + 50 });
+  return env.getStore(ViewportsStore).viewports.getPositionAnchorOffset(sheetId, {
+    x: figureUI.x + 50,
+    y: figureUI.y + 50,
+  });
 }
 
 export function getCarouselItemPreview(getters: Getters, item: CarouselItem): string {

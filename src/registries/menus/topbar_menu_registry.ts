@@ -542,7 +542,7 @@ topbarMenuRegistry
         return getters.getPivotIds().map((pivotId, sequence) => {
           const highlightProvider = {
             get highlights() {
-              return getPivotHighlights(getters, pivotId);
+              return getPivotHighlights(env, pivotId);
             },
           };
           return {

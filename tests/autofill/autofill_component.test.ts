@@ -4,6 +4,8 @@ import { types } from "../../src/components/props_validation";
 import { DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { Component } from "../../src/owl3_compatibility_layer";
+import { ViewportsStore } from "../../src/stores/viewports_store";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { setCellContent, setSelection, setViewportOffset } from "../test_helpers/commands_helpers";
 import {
   clickCell,
@@ -23,10 +25,11 @@ import {
 let fixture: HTMLElement;
 let model: Model;
 let parent: Spreadsheet;
+let env: SpreadsheetChildEnv;
 
 describe("Autofill component", () => {
   beforeEach(async () => {
-    ({ parent, model, fixture } = await mountSpreadsheet());
+    ({ parent, model, fixture, env } = await mountSpreadsheet());
   });
   test("Can drag and drop autofill on columns", async () => {
     const dispatch = spyDispatch(parent);
@@ -127,9 +130,9 @@ describe("Autofill component", () => {
   test("tooltip position when viewport is not at the top", async () => {
     const autofill = fixture.querySelector(".o-autofill-handler");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    setViewportOffset(model, 500, 500);
+    setViewportOffset(env, 500, 500);
     setCellContent(model, "F22", "test");
-    await clickCell(model, "F22");
+    await clickCell(env, "F22");
     await nextTick();
     expect(fixture.querySelector(".o-autofill")).not.toBeNull();
     triggerMouseEvent(autofill, "pointerdown", 40, 40);
@@ -242,8 +245,8 @@ describe("Autofill component", () => {
 
   test("Autofill does not reset the viewport position if not near the viewport edge", async () => {
     setSelection(parent.model, ["A1:A100"]);
-    setViewportOffset(parent.model, 400, 400);
-    const firstViewport = parent.model.getters.getActiveMainViewport();
+    setViewportOffset(env, 400, 400);
+    const firstViewport = env.getStore(ViewportsStore).activeMainViewport;
     const autofill = fixture.querySelector(".o-autofill");
     triggerMouseEvent(autofill, "pointerdown", 4, 4);
     await nextTick();
@@ -255,7 +258,7 @@ describe("Autofill component", () => {
     await nextTick();
     triggerMouseEvent(autofill, "pointerup", newX, HEADER_HEIGHT + 4);
     await nextTick();
-    expect(firstViewport).toMatchObject(parent.model.getters.getActiveMainViewport());
+    expect(firstViewport).toMatchObject(env.getStore(ViewportsStore).activeMainViewport);
   });
 
   test("Autofill is not loaded when the grid selection does not have the focus", async () => {
@@ -272,7 +275,7 @@ describe("Autofill component", () => {
 describe("Autofill edge scrolling", () => {
   beforeEach(async () => {
     useJestFakeTimers();
-    ({ parent, model, fixture } = await mountSpreadsheet());
+    ({ parent, model, fixture, env } = await mountSpreadsheet());
   });
 
   afterEach(() => {
@@ -280,7 +283,7 @@ describe("Autofill edge scrolling", () => {
   });
 
   test("Can edge scroll horizontally", () => {
-    const { width, height } = model.getters.getSheetViewDimension();
+    const { width, height } = env.getStore(ViewportsStore).sheetViewDimension;
     const y = height / 2;
     const autofill = fixture.querySelector(".o-autofill-handler");
     triggerMouseEvent(autofill, "pointerdown", width / 2, y);
@@ -289,7 +292,7 @@ describe("Autofill edge scrolling", () => {
 
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(autofill, "pointerup", 1.5 * width, y);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(env.getStore(ViewportsStore).activeMainViewport).toMatchObject({
       left: 6,
       right: 16,
       top: 0,
@@ -303,7 +306,7 @@ describe("Autofill edge scrolling", () => {
     jest.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(autofill, "pointerup", -0.5 * width, y);
 
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(env.getStore(ViewportsStore).activeMainViewport).toMatchObject({
       left: 3,
       right: 13,
       top: 0,
@@ -312,7 +315,7 @@ describe("Autofill edge scrolling", () => {
   });
 
   test("Can edge-scroll vertically", async () => {
-    const { width, height } = model.getters.getSheetViewDimensionWithHeaders();
+    const { width, height } = env.getStore(ViewportsStore).sheetViewDimensionWithHeaders;
     const x = width / 2;
     const autofill = fixture.querySelector(".o-autofill-handler");
     triggerMouseEvent(autofill, "pointerdown", x, height / 2);
@@ -322,7 +325,7 @@ describe("Autofill edge scrolling", () => {
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(autofill, "pointerup", x, 1.5 * height);
 
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(env.getStore(ViewportsStore).activeMainViewport).toMatchObject({
       left: 0,
       right: 10,
       top: 6,
@@ -336,7 +339,7 @@ describe("Autofill edge scrolling", () => {
     jest.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(autofill, "pointerup", x, -0.5 * height);
 
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(env.getStore(ViewportsStore).activeMainViewport).toMatchObject({
       left: 0,
       right: 10,
       top: 3,
@@ -347,7 +350,7 @@ describe("Autofill edge scrolling", () => {
   test("Can show and remove tooltip correctly when edge scroll horizontally", async () => {
     setCellContent(model, "A1", "test");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    const { width } = model.getters.getSheetViewDimensionWithHeaders();
+    const { width } = env.getStore(ViewportsStore).sheetViewDimensionWithHeaders;
     const autofill = fixture.querySelector(".o-autofill-handler");
 
     triggerMouseEvent(autofill, "pointerdown", width / 2, 0);
@@ -374,7 +377,7 @@ describe("Autofill edge scrolling", () => {
   test("Can show and remove tooltip when edge scroll vertically", async () => {
     setCellContent(model, "A1", "test");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    const { height } = model.getters.getSheetViewDimensionWithHeaders();
+    const { height } = env.getStore(ViewportsStore).sheetViewDimensionWithHeaders;
     const autofill = fixture.querySelector(".o-autofill-handler");
 
     triggerMouseEvent(autofill, "pointerdown", 0, height / 2);
@@ -409,7 +412,7 @@ function isVisibleInViewport(element: HTMLElement | null, model: Model) {
   if (element === null) {
     return false;
   }
-  const activeSheetViewDimension = model.getters.getSheetViewDimensionWithHeaders();
+  const activeSheetViewDimension = env.getStore(ViewportsStore).sheetViewDimensionWithHeaders;
   const top = getStylePropertyInPx(element, "top") || -Infinity;
   const left = getStylePropertyInPx(element, "left") || -Infinity;
   return (

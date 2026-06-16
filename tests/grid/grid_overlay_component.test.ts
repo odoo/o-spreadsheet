@@ -3,6 +3,7 @@ import { ColResizer, RowResizer } from "../../src/components/headers_overlay/hea
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
+  HEADER_HEIGHT,
   HEADER_WIDTH,
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
@@ -12,6 +13,7 @@ import {
 import { lettersToNumber, toXC } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   deleteColumns,
@@ -23,8 +25,8 @@ import {
   merge,
   redo,
   resizeRows,
+  resizeSheetView,
   setCellContent,
-  setSheetviewSize,
   setViewportOffset,
   setZoom,
   undo,
@@ -59,7 +61,7 @@ function fillData() {
 }
 
 async function selectColumn(letter: string, extra: any = {}) {
-  await selectColumnByClicking(model, letter, extra);
+  await selectColumnByClicking(env, letter, extra);
 }
 
 /**
@@ -170,7 +172,7 @@ describe("Resizer component", () => {
   });
 
   test.each(ZOOM_VALUES)("can click on a header to select a column", async (zoom) => {
-    setZoom(model, zoom / 100);
+    setZoom(env, zoom / 100);
     await selectColumn("C");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
     expect(getSelectionAnchorCellXc(model)).toBe("C1");
@@ -202,7 +204,7 @@ describe("Resizer component", () => {
   });
 
   test.each(ZOOM_VALUES)("can click on a row-header to select a row", async (zoom) => {
-    setZoom(model, zoom / 100);
+    setZoom(env, zoom / 100);
     await selectRow(2, {}, zoom / 100);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
     expect(getSelectionAnchorCellXc(model)).toBe("A3");
@@ -236,7 +238,7 @@ describe("Resizer component", () => {
     const composerStore = env.getStore(CellComposerStore);
     await typeInComposerGrid("Hello");
     expect(composerStore.editionMode).not.toBe("inactive");
-    await selectColumnByClicking(model, "C");
+    await selectColumnByClicking(env, "C");
     expect(composerStore.editionMode).toBe("inactive");
   });
 
@@ -688,7 +690,7 @@ describe("Resizer component", () => {
 describe("Hide/show columns", () => {
   beforeEach(async () => {
     model = new Model();
-    ({ fixture } = await mountSpreadsheet({ model }));
+    ({ fixture, env } = await mountSpreadsheet({ model }));
   });
   test("Hide A unhide it", async () => {
     hideColumns(model, ["A"]);
@@ -756,7 +758,7 @@ describe("Hide/show columns", () => {
       const unhideButtons = getUnhideColumnButtons();
       expect(unhideButtons).toHaveLength(2);
 
-      setViewportOffset(model, 5 * DEFAULT_CELL_WIDTH, 0);
+      setViewportOffset(env, 5 * DEFAULT_CELL_WIDTH, 0);
       await nextTick();
       expect(getUnhideColumnButtons()).toHaveLength(0);
     });
@@ -779,7 +781,7 @@ describe("Hide/show columns", () => {
       expect(unhideButtons).toHaveLength(2);
       expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
 
-      setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 0);
+      setViewportOffset(env, 2 * DEFAULT_CELL_WIDTH, 0);
       await nextTick();
       unhideButtons = getUnhideColumnButtons();
 
@@ -795,7 +797,12 @@ describe("Hide/show columns", () => {
       expect(unhideButtons).toHaveLength(2);
       expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
 
-      setSheetviewSize(model, 1000, DEFAULT_CELL_WIDTH * 5);
+      resizeSheetView(env, {
+        height: 1000,
+        width: DEFAULT_CELL_WIDTH * 5,
+        gridOffsetX: HEADER_WIDTH,
+        gridOffsetY: HEADER_HEIGHT,
+      });
       await nextTick();
       unhideButtons = getUnhideColumnButtons();
 
@@ -808,7 +815,7 @@ describe("Hide/show columns", () => {
 describe("Hide/show rows", () => {
   beforeEach(async () => {
     model = new Model();
-    ({ fixture } = await mountSpreadsheet({ model }));
+    ({ fixture, env } = await mountSpreadsheet({ model }));
   });
   test("hide 1, unhide it", async () => {
     hideRows(model, [0]);
@@ -890,7 +897,7 @@ describe("Hide/show rows", () => {
       const unhideButtons = getUnhideRowButtons();
       expect(unhideButtons).toHaveLength(2);
 
-      setViewportOffset(model, 0, 5 * DEFAULT_CELL_HEIGHT);
+      setViewportOffset(env, 0, 5 * DEFAULT_CELL_HEIGHT);
       await nextTick();
       expect(getUnhideRowButtons()).toHaveLength(0);
     });
@@ -913,7 +920,7 @@ describe("Hide/show rows", () => {
       expect(unhideButtons).toHaveLength(2);
       expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
 
-      setViewportOffset(model, 0, 2 * DEFAULT_CELL_HEIGHT);
+      setViewportOffset(env, 0, 2 * DEFAULT_CELL_HEIGHT);
       await nextTick();
       unhideButtons = getUnhideRowButtons();
 
@@ -929,7 +936,12 @@ describe("Hide/show rows", () => {
       expect(unhideButtons).toHaveLength(2);
       expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
 
-      setSheetviewSize(model, DEFAULT_CELL_HEIGHT * 5, 1000);
+      resizeSheetView(env, {
+        height: DEFAULT_CELL_HEIGHT * 5,
+        width: 1000,
+        gridOffsetX: HEADER_WIDTH,
+        gridOffsetY: HEADER_HEIGHT,
+      });
       await nextTick();
       unhideButtons = getUnhideRowButtons();
 
@@ -943,11 +955,12 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
   beforeEach(async () => {
     useJestFakeTimers();
 
-    ({ model, fixture } = await mountSpreadsheet());
+    ({ model, fixture, env } = await mountSpreadsheet());
   });
 
   test("Can edge-scroll horizontally", async () => {
-    const { width } = model.getters.getSheetViewDimension();
+    const viewStore = env.getStore(ViewportsStore);
+    const { width } = viewStore.sheetViewDimension;
     const y = DEFAULT_CELL_HEIGHT;
 
     triggerMouseEvent(".o-col-resizer", "pointerdown", width / 2, y);
@@ -958,7 +971,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-col-resizer", "pointerup", 1.5 * width, y);
 
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       left: 6,
       right: 16,
       top: 0,
@@ -973,7 +986,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     jest.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-col-resizer", "pointerup", -0.5 * width, y);
 
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       left: 3,
       right: 13,
       top: 0,
@@ -982,7 +995,8 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
   });
 
   test("Can edge-scroll vertically", async () => {
-    const { height } = model.getters.getSheetViewDimensionWithHeaders();
+    const viewStore = env.getStore(ViewportsStore);
+    const { height } = viewStore.sheetViewDimensionWithHeaders;
     const x = DEFAULT_CELL_WIDTH / 2;
     triggerMouseEvent(".o-row-resizer", "pointerdown", x, height / 2);
     triggerMouseEvent(".o-row-resizer", "pointermove", x, 1.5 * height);
@@ -991,7 +1005,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-row-resizer", "pointerup", x, 1.5 * height);
 
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       left: 0,
       right: 10,
       top: 6,
@@ -1005,7 +1019,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     jest.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-row-resizer", "pointerup", x, -0.5 * height);
 
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       left: 0,
       right: 10,
       top: 3,
@@ -1026,7 +1040,7 @@ describe("move selected element(s)", () => {
       ],
     };
     model = new Model(data);
-    ({ fixture } = await mountSpreadsheet({ model }));
+    ({ fixture, env } = await mountSpreadsheet({ model }));
   });
 
   test("select the last selected cols/rows keep all selected zone active", async () => {
@@ -1170,7 +1184,7 @@ describe("move selected element(s)", () => {
 
     test("Can select a column but not move it in readonly", async () => {
       model.updateMode("readonly");
-      await selectColumnByClicking(model, "A", {});
+      await selectColumnByClicking(env, "A", {});
       expect(model.getters.getActiveCols()).toEqual(new Set([0]));
 
       await simulateClick(".o-overlay .o-col-resizer", 10, 10);

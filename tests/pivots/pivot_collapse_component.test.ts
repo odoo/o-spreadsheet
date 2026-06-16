@@ -21,10 +21,10 @@ describe("Pivot collapse icon", () => {
       rows: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
     });
-    await mountSpreadsheet({ model });
+    const { env } = await mountSpreadsheet({ model });
 
     expect(getCellIcons(model, "D3")[0].svg).toEqual(collapseIconSVG);
-    await clickGridIcon(model, "D3");
+    await clickGridIcon(env, "D3");
 
     expect(getCellIcons(model, "D3")[0].svg).toEqual(expandIconSVG);
     expect(model.getters.getPivotCoreDefinition("1").collapsedDomains).toEqual({
@@ -32,7 +32,7 @@ describe("Pivot collapse icon", () => {
       COL: [],
     });
 
-    await clickGridIcon(model, "D3");
+    await clickGridIcon(env, "D3");
     expect(getCellIcons(model, "D3")[0].svg).toEqual(collapseIconSVG);
     expect(model.getters.getPivotCoreDefinition("1").collapsedDomains).toEqual({
       ROW: [],
@@ -52,10 +52,10 @@ describe("Pivot collapse icon", () => {
       columns: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
     });
-    await mountSpreadsheet({ model });
+    const { env } = await mountSpreadsheet({ model });
 
     expect(getCellIcons(model, "E1")[0].svg).toEqual(collapseIconSVG);
-    await clickGridIcon(model, "E1");
+    await clickGridIcon(env, "E1");
 
     expect(getCellIcons(model, "E1")[0].svg).toEqual(expandIconSVG);
     expect(model.getters.getPivotCoreDefinition("1").collapsedDomains).toEqual({
@@ -63,7 +63,7 @@ describe("Pivot collapse icon", () => {
       ROW: [],
     });
 
-    await clickGridIcon(model, "E1");
+    await clickGridIcon(env, "E1");
     expect(getCellIcons(model, "E1")[0].svg).toEqual(collapseIconSVG);
     expect(model.getters.getPivotCoreDefinition("1").collapsedDomains).toEqual({
       ROW: [],

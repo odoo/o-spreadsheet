@@ -22,10 +22,10 @@ describe("Filter Icon Overlay component", () => {
     const model = new Model();
     createTableWithFilter(model, "B2:B3");
     const sheetId = model.getters.getActiveSheetId();
-    await mountSpreadsheet({ model });
+    const { env } = await mountSpreadsheet({ model });
     expect(model.getters.getActivePosition()).toEqual({ sheetId, col: 0, row: 0 });
 
-    await clickGridIcon(model, "B2");
+    await clickGridIcon(env, "B2");
     expect(model.getters.getActivePosition()).toEqual({ sheetId, col: 1, row: 1 });
   });
 });

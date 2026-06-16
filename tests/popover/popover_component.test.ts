@@ -2,6 +2,7 @@ import { App, props, xml } from "@odoo/owl";
 import { Model, Pixel, Rect } from "../../src";
 import { Popover } from "../../src/components/popover/popover";
 import { types } from "../../src/components/props_validation";
+import { getDefaultSheetViewSize } from "../../src/constants";
 import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
 import { PropsOf } from "../../src/types/props_of";
 import { getStylePropertyInPx, mountComponent } from "../test_helpers/helpers";
@@ -145,8 +146,8 @@ describe("Popover positioning", () => {
     });
 
     test("Popover overflowing right is rendered left of box", async () => {
-      const viewPortDims = model.getters.getSheetViewDimensionWithHeaders();
-      const box = { x: viewPortDims.width - 50, y: 0, width: 50, height: 50 };
+      const viewPortDims = getDefaultSheetViewSize();
+      const box = { x: viewPortDims - 50, y: 0, width: 50, height: 50 };
       await mountTestPopover({
         anchorRect: box,
         positioning: "top-right",
@@ -160,8 +161,8 @@ describe("Popover positioning", () => {
     });
 
     test("Popover overflowing down is rendered with its bottom aligned to the bottom of the box", async () => {
-      const viewPortDims = model.getters.getSheetViewDimensionWithHeaders();
-      const box = { x: 0, y: viewPortDims.height - 50, width: 50, height: 50 };
+      const viewPortDims = getDefaultSheetViewSize();
+      const box = { x: 0, y: viewPortDims - 50, width: 50, height: 50 };
       await mountTestPopover({
         anchorRect: box,
         positioning: "top-right",
@@ -175,10 +176,10 @@ describe("Popover positioning", () => {
     });
 
     test("Popover overflowing down and right is rendered to the left of the box with its bottom aligned to the bottom of the box", async () => {
-      const viewPortDims = model.getters.getSheetViewDimensionWithHeaders();
+      const viewPortDims = getDefaultSheetViewSize();
       const box = {
-        x: viewPortDims.width - 50,
-        y: viewPortDims.height - 50,
+        x: viewPortDims - 50,
+        y: viewPortDims - 50,
         width: 50,
         height: 50,
       };
@@ -224,8 +225,8 @@ describe("Popover positioning", () => {
     });
 
     test("Popover overflowing right is rendered with its right border matching the box right border", async () => {
-      const viewPortDims = model.getters.getSheetViewDimensionWithHeaders();
-      const box = { x: viewPortDims.width - 50, y: 0, width: 50, height: 50 };
+      const viewPortDims = getDefaultSheetViewSize();
+      const box = { x: viewPortDims - 50, y: 0, width: 50, height: 50 };
       await mountTestPopover({
         anchorRect: box,
         positioning: "bottom-left",
@@ -239,8 +240,8 @@ describe("Popover positioning", () => {
     });
 
     test("Popover overflowing down is rendered above the box", async () => {
-      const viewPortDims = model.getters.getSheetViewDimensionWithHeaders();
-      const box = { x: 0, y: viewPortDims.height - 50, width: 50, height: 50 };
+      const viewPortDims = getDefaultSheetViewSize();
+      const box = { x: 0, y: viewPortDims - 50, width: 50, height: 50 };
       await mountTestPopover({
         anchorRect: box,
         positioning: "bottom-left",
@@ -254,16 +255,16 @@ describe("Popover positioning", () => {
     });
 
     test("Popover overflowing down and right is rendered with its right border matching the box right border and above the box", async () => {
-      const viewPortDims = model.getters.getSheetViewDimensionWithHeaders();
+      const viewPortDims = getDefaultSheetViewSize();
       const box = {
-        x: viewPortDims.width - 50,
-        y: viewPortDims.height - 50,
+        x: viewPortDims - 50,
+        y: viewPortDims - 50,
         width: 50,
         height: 50,
       };
       await mountTestPopover({
         anchorRect: box,
-        containerRect: { x: 0, y: 0, ...viewPortDims },
+        containerRect: { x: 0, y: 0, width: viewPortDims, height: viewPortDims },
         positioning: "bottom-left",
         childHeight: 100,
         childWidth: 100,
@@ -276,9 +277,9 @@ describe("Popover positioning", () => {
   });
 
   test("If the anchorRect is not fully in the containerRect, the intersection between the two in taken as anchor", async () => {
-    const viewPortDims = model.getters.getSheetViewDimensionWithHeaders();
+    const viewPortDims = getDefaultSheetViewSize();
     const anchorRect = {
-      x: viewPortDims.width - 75,
+      x: viewPortDims - 75,
       y: 0,
       width: 100,
       height: 100,
@@ -296,9 +297,9 @@ describe("Popover positioning", () => {
   });
 
   test("If the anchorRect is not at all in the containerRect, the popover is hidden", async () => {
-    const viewPortDims = model.getters.getSheetViewDimensionWithHeaders();
+    const viewPortDims = getDefaultSheetViewSize();
     const anchorRect = {
-      x: viewPortDims.width + 75,
+      x: viewPortDims + 75,
       y: 0,
       width: 100,
       height: 100,

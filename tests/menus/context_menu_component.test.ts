@@ -29,6 +29,7 @@ import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/gette
 import { Rect } from "../../src";
 import { types } from "../../src/components/props_validation";
 import { PopoverPropsPosition } from "../../src/types/cell_popovers";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   getStylePropertyInPx,
   makeTestFixture,
@@ -45,6 +46,7 @@ const ROW_5 = { x: 30, y: 100 };
 let fixture: HTMLElement;
 let model: Model;
 let parent: Component;
+let env: SpreadsheetChildEnv;
 
 useJestFakeTimers();
 
@@ -210,7 +212,7 @@ class ContextMenuParent extends Component {
       height: 0,
     };
     this.menus = this.props.config.menuItems || createActions([makeTestMenuItem("Action")]);
-    resizeSheetView(this.env.model, this.props.height, this.props.width);
+    resizeSheetView(this.env, { height: this.props.height, width: this.props.width });
   }
 }
 
@@ -249,24 +251,24 @@ beforeEach(() => {
 
 describe("Context MenuPopover integration tests", () => {
   beforeEach(async () => {
-    ({ fixture, model } = await mountSpreadsheet());
+    ({ fixture, model, env } = await mountSpreadsheet());
   });
   test("context menu simple rendering", async () => {
-    await rightClickCell(model, "C8");
+    await rightClickCell(env, "C8");
     expect(fixture.querySelector(".o-menu")).toMatchSnapshot();
   });
 
   test("right click on a cell opens a context menu", async () => {
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
-    await rightClickCell(model, "C8");
+    await rightClickCell(env, "C8");
     expect(getSelectionAnchorCellXc(model)).toBe("C8");
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
   });
 
   test("context menu opens at correct position upon right-clicking a cell", async () => {
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
-    await rightClickCell(model, "B2");
+    await rightClickCell(env, "B2");
     expect(getSelectionAnchorCellXc(model)).toBe("B2");
     expect(getElPosition(".o-menu-wrapper")).toMatchObject({
       left: DEFAULT_CELL_WIDTH,
@@ -294,7 +296,7 @@ describe("Context MenuPopover integration tests", () => {
   });
 
   test("right click on a cell, then left click elsewhere closes a context menu", async () => {
-    await rightClickCell(model, "C8");
+    await rightClickCell(env, "C8");
     expect(getSelectionAnchorCellXc(model)).toBe("C8");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
@@ -306,13 +308,13 @@ describe("Context MenuPopover integration tests", () => {
   test("can copy/paste with context menu", async () => {
     setCellContent(model, "B1", "b1");
 
-    await rightClickCell(model, "B1");
+    await rightClickCell(env, "B1");
     expect(getSelectionAnchorCellXc(model)).toBe("B1");
 
     // click on 'copy' menu item
     await simulateClick(".o-menu div[data-name='copy']");
 
-    await rightClickCell(model, "B2");
+    await rightClickCell(env, "B2");
 
     // click on 'paste' menu item
     await simulateClick(".o-menu div[data-name='paste']");
@@ -323,13 +325,13 @@ describe("Context MenuPopover integration tests", () => {
   test("can cut/paste with context menu", async () => {
     setCellContent(model, "B1", "b1");
 
-    await rightClickCell(model, "B1");
+    await rightClickCell(env, "B1");
 
     // click on 'cut' menu item
     await simulateClick(".o-menu div[data-name='cut']");
 
     // right click on B2
-    await rightClickCell(model, "B2");
+    await rightClickCell(env, "B2");
     await nextTick();
     expect(getSelectionAnchorCellXc(model)).toBe("B2");
 
@@ -341,28 +343,28 @@ describe("Context MenuPopover integration tests", () => {
   });
 
   test("menu does not close when right click elsewhere", async () => {
-    await rightClickCell(model, "B1");
+    await rightClickCell(env, "B1");
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
-    await rightClickCell(model, "D5");
+    await rightClickCell(env, "D5");
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
   });
 
   test("close contextmenu when clicking on menubar", async () => {
-    await rightClickCell(model, "B1");
+    await rightClickCell(env, "B1");
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
     await click(fixture, ".o-topbar-topleft");
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
   });
 
   test("close contextmenu when clicking on menubar item", async () => {
-    await rightClickCell(model, "B1");
+    await rightClickCell(env, "B1");
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
     await click(fixture, ".o-topbar-menu[data-id='insert']");
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeFalsy();
   });
 
   test("close contextmenu when clicking on tools bar", async () => {
-    await rightClickCell(model, "B1");
+    await rightClickCell(env, "B1");
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeTruthy();
     await click(fixture, ".o-menu-item-button[title='Bold (Ctrl+B)']");
     expect(fixture.querySelector(".o-menu .o-menu-item[data-name='cut']")).toBeFalsy();
@@ -384,7 +386,7 @@ describe("Context MenuPopover integration tests", () => {
         execute() {},
       });
     setCellContent(model, "B1", "b1");
-    await rightClickCell(model, "B1");
+    await rightClickCell(env, "B1");
     expect(fixture.querySelector(".o-menu div[data-name='visible_action']")).toBeTruthy();
     expect(fixture.querySelector(".o-menu div[data-name='hidden_action']")).toBeFalsy();
     cellMenuRegistry.content = menuDefinitions;
@@ -396,7 +398,7 @@ describe("Context MenuPopover integration tests", () => {
     expect(verticalScrollBar.scrollTop).toBe(0);
     expect(horizontalScrollBar.scrollLeft).toBe(0);
 
-    await rightClickCell(model, "C8");
+    await rightClickCell(env, "C8");
 
     const menu = fixture.querySelector(".o-menu")!;
     // scroll
@@ -418,7 +420,7 @@ describe("Context MenuPopover integration tests", () => {
     expect(verticalScrollBar.scrollTop).toBe(0);
     expect(horizontalScrollBar.scrollLeft).toBe(0);
 
-    await rightClickCell(model, "C8");
+    await rightClickCell(env, "C8");
 
     const menu = fixture.querySelector(".o-menu")!;
 
@@ -911,7 +913,7 @@ describe("Context MenuPopover position on large screen 1000px/1000px", () => {
 
 describe("Context menu react to grid size changes", () => {
   beforeEach(async () => {
-    ({ model, fixture } = await mountSpreadsheet());
+    ({ model, fixture, env } = await mountSpreadsheet());
   });
 
   test("Submenu is closed when grid size change make the parent menu hidden", async () => {
@@ -924,7 +926,7 @@ describe("Context menu react to grid size changes", () => {
     expect(menus[0]?.style.display).toBe("block");
     expect(menus[1]).toBeTruthy();
 
-    resizeSheetView(model, 500, 500);
+    resizeSheetView(env, { height: 500, width: 500 });
     await nextTick();
     await nextTick(); // First render hides the parent menu, second closes the submenu
 
@@ -943,7 +945,7 @@ describe("Context menu react to grid size changes", () => {
     expect(menus[0]?.style.left).toBe("500px");
     expect(menus[1]).toBeTruthy();
 
-    resizeSheetView(model, 1000, 500 + MENU_WIDTH / 2);
+    resizeSheetView(env, { height: 1000, width: 500 + MENU_WIDTH / 2 });
     await nextTick();
     await nextTick(); // First render moves the parent menu, second closes the submenu
 

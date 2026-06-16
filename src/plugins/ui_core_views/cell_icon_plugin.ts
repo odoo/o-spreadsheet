@@ -15,9 +15,7 @@ export class CellIconPlugin extends CoreViewPlugin {
   private cellIconsCache: Record<string, Record<number, Record<number, GridIcon[]>>> = {};
 
   handle(cmd: Command) {
-    if (cmd.type !== "SET_VIEWPORT_OFFSET") {
-      this.cellIconsCache = {};
-    }
+    this.cellIconsCache = {};
   }
 
   getCellIcons(position: CellPosition): GridIcon[] {

@@ -1,6 +1,7 @@
 import { onWillUnmount } from "@odoo/owl";
 import { MAX_DELAY } from "../../helpers/edge_scrolling";
 import { useLayoutEffect } from "../../owl3_compatibility_layer";
+import { ViewportsStore } from "../../stores/viewports_store";
 import { HeaderIndex, Pixel } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { gridOverlayPosition } from "./dom_helpers";
@@ -26,6 +27,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
   let startingY: number;
   let scrollDirection: DnDDirection = "all";
   const getters = env.model.getters;
+  const viewStore = env.getStore(ViewportsStore);
 
   const blockKeyboard = (ev: KeyboardEvent) => ev.preventDefault();
   const cleanUpBlockKeyboard = () =>
@@ -50,22 +52,27 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     }
 
     const sheetId = getters.getActiveSheetId();
-    const zoomLevel = env.model.getters.getViewportZoomLevel();
+    const zoomLevel = viewStore.zoomLevel;
     const position = gridOverlayPosition(zoomLevel);
     const zoomedMouseEvent = withZoom(env, currentEv, position);
-    const { x: offsetCorrectionX, y: offsetCorrectionY } = getters.getMainViewportCoordinates();
-    const { top, left, bottom, right } = getters.getActiveMainViewport();
-    let { scrollX, scrollY } = getters.getActiveSheetScrollInfo();
+    const { x: offsetCorrectionX, y: offsetCorrectionY } = viewStore.mainViewportCoordinates;
+    const { top, left, bottom, right } = viewStore.activeMainViewport;
+    let { scrollX, scrollY } = viewStore.activeSheetScrollInfo;
     const { xSplit, ySplit } = getters.getPaneDivisions(sheetId);
     let canEdgeScroll = false;
     let timeoutDelay = MAX_DELAY;
 
     const x = zoomedMouseEvent.clientX - position.x;
-    let colIndex = getters.getColIndex(x);
+    let colIndex = viewStore.viewports.getColIndex(sheetId, x);
 
     if (scrollDirection !== "vertical") {
       const previousX = previousEvClientPosition.clientX - position.x;
-      const edgeScrollInfoX = getters.getEdgeScrollCol(x, previousX, startingX);
+      const edgeScrollInfoX = viewStore.viewports.getEdgeScrollCol(
+        sheetId,
+        x,
+        previousX,
+        startingX
+      );
       if (edgeScrollInfoX.canEdgeScroll) {
         canEdgeScroll = true;
         timeoutDelay = Math.min(timeoutDelay, edgeScrollInfoX.delay);
@@ -91,11 +98,16 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     }
 
     const y = zoomedMouseEvent.clientY - position.y;
-    let rowIndex = getters.getRowIndex(y);
+    let rowIndex = viewStore.viewports.getRowIndex(sheetId, y);
 
     if (scrollDirection !== "horizontal") {
       const previousY = previousEvClientPosition.clientY - position.y;
-      const edgeScrollInfoY = getters.getEdgeScrollRow(y, previousY, startingY);
+      const edgeScrollInfoY = viewStore.viewports.getEdgeScrollRow(
+        sheetId,
+        y,
+        previousY,
+        startingY
+      );
       if (edgeScrollInfoY.canEdgeScroll) {
         canEdgeScroll = true;
         timeoutDelay = Math.min(timeoutDelay, edgeScrollInfoY.delay);
@@ -127,7 +139,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
 
     pointerMoveCallback?.(colIndex, rowIndex, currentEv);
     if (canEdgeScroll) {
-      env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: scrollX, offsetY: scrollY });
+      viewStore.setViewportOffset({ offsetX: scrollX, offsetY: scrollY });
       timeOutId = setTimeout(() => {
         timeOutId = null;
         pointerMoveHandler(currentEv);
@@ -151,7 +163,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     startScrollDirection: DnDDirection = "all"
   ) => {
     cleanUp();
-    const zoomLevel = env.model.getters.getViewportZoomLevel();
+    const zoomLevel = viewStore.zoomLevel;
     const position = gridOverlayPosition(zoomLevel);
     scrollDirection = startScrollDirection;
     startingX = initialPointerCoordinates.clientX - position.x;

@@ -1,32 +1,32 @@
 import { CommandResult, Direction, Viewport } from "../../src";
 import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { Model } from "../../src/model";
+import { ViewportsStore } from "../../src/stores/viewports_store";
 import {
   hideColumns,
   hideRows,
   merge,
   moveAnchorCell,
-  resizeSheetView,
   selectCell,
-  setViewportOffset,
 } from "../test_helpers/commands_helpers";
 import { getActivePosition, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
+import { makeStore } from "../test_helpers/stores";
 
-function getViewport(
-  model: Model,
+function setViewportSizeAndOffset(
+  store: ViewportsStore,
   width: number,
   height: number,
   offsetX: number,
   offsetY: number
 ): Viewport {
-  resizeSheetView(model, height, width);
-  setViewportOffset(model, offsetX, offsetY);
-  return model.getters.getActiveMainViewport();
+  store.resizeSheetView({ height: height, width: width });
+  store.setViewportOffset({ offsetX, offsetY });
+  return store.activeMainViewport;
 }
 
 describe("navigation", () => {
   test("normal move to the right", () => {
-    const model = new Model();
+    const { model } = makeStore(ViewportsStore);
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(getActivePosition(model)).toBe("A1");
     expect(model.getters.getSelection().anchor.cell).toEqual(toCartesian("A1"));
@@ -38,7 +38,7 @@ describe("navigation", () => {
   });
 
   test("move up from top row", () => {
-    const model = new Model();
+    const { model } = makeStore(ViewportsStore);
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(getActivePosition(model)).toBe("A1");
 
@@ -48,7 +48,7 @@ describe("navigation", () => {
   });
 
   test("move right from right row", () => {
-    const model = new Model();
+    const { model } = makeStore(ViewportsStore);
     const activeSheetId = model.getters.getActiveSheetId();
     const colNumber = model.getters.getNumberCols(activeSheetId);
     const xc = toXC(colNumber - 1, 0);
@@ -60,7 +60,7 @@ describe("navigation", () => {
   });
 
   test("move bottom from bottom row", () => {
-    const model = new Model();
+    const { model } = makeStore(ViewportsStore);
     const activeSheetId = model.getters.getActiveSheetId();
     const rowNumber = model.getters.getNumberRows(activeSheetId);
     const xc = toXC(0, rowNumber - 1);
@@ -71,7 +71,7 @@ describe("navigation", () => {
   });
 
   test("move bottom from merge in last position", () => {
-    const model = new Model();
+    const { model } = makeStore(ViewportsStore);
     const activeSheetId = model.getters.getActiveSheetId();
     const rowNumber = model.getters.getNumberRows(activeSheetId);
     merge(model, `${toXC(0, rowNumber - 2)}:${toXC(0, rowNumber - 1)}`, activeSheetId);
@@ -83,7 +83,7 @@ describe("navigation", () => {
   });
 
   test("Cannot move bottom from merge in last position if last row is hidden", () => {
-    const model = new Model();
+    const { model } = makeStore(ViewportsStore);
     const activeSheetId = model.getters.getActiveSheetId();
     const rowNumber = model.getters.getNumberRows(activeSheetId);
     merge(model, `${toXC(0, rowNumber - 3)}:${toXC(0, rowNumber - 2)}`, activeSheetId);
@@ -96,7 +96,7 @@ describe("navigation", () => {
   });
 
   test("move right from merge in last position", () => {
-    const model = new Model();
+    const { model } = makeStore(ViewportsStore);
     const activeSheetId = model.getters.getActiveSheetId();
     const colNumber = model.getters.getNumberCols(activeSheetId);
     merge(model, `${toXC(colNumber - 2, 0)}:${toXC(colNumber - 1, 0)}`, activeSheetId);
@@ -146,100 +146,88 @@ describe("navigation", () => {
   });
 
   test("move right from right col (of the viewport)", () => {
-    const model = new Model();
-    let viewport = getViewport(model, 600, 300, 0, 0);
-    expect(viewport.left).toBe(0);
-    expect(viewport.right).toBe(6);
+    const { model, store: viewStore } = makeStore(ViewportsStore);
+    setViewportSizeAndOffset(viewStore, 600, 300, 0, 0);
+    expect(viewStore.activeMainViewport.left).toBe(0);
+    expect(viewStore.activeMainViewport.right).toBe(6);
 
     selectCell(model, "E1");
-    viewport = model.getters.getActiveMainViewport();
-    expect(viewport.left).toBe(0);
-    expect(viewport.right).toBe(6);
+    expect(viewStore.activeMainViewport.left).toBe(0);
+    expect(viewStore.activeMainViewport.right).toBe(6);
 
     selectCell(model, "G1");
-    viewport = model.getters.getActiveMainViewport();
-    expect(viewport.left).toBe(0);
-    expect(viewport.right).toBe(6);
+    expect(viewStore.activeMainViewport.left).toBe(0);
+    expect(viewStore.activeMainViewport.right).toBe(6);
 
     selectCell(model, "H1");
-    viewport = model.getters.getActiveMainViewport();
-    expect(viewport.left).toBe(1);
-    expect(viewport.right).toBe(7);
+    expect(viewStore.activeMainViewport.left).toBe(1);
+    expect(viewStore.activeMainViewport.right).toBe(7);
   });
 
   test("move left from left col (of the viewport)", () => {
-    const model = new Model();
-    let viewport = getViewport(model, 600, 300, 100, 0);
-    expect(viewport.left).toBe(1);
-    expect(viewport.right).toBe(7);
+    const { model, store: viewStore } = makeStore(ViewportsStore);
+    setViewportSizeAndOffset(viewStore, 600, 300, 100, 0);
+    expect(viewStore.activeMainViewport.left).toBe(1);
+    expect(viewStore.activeMainViewport.right).toBe(7);
 
     selectCell(model, "B1");
-    viewport = model.getters.getActiveMainViewport();
-    expect(viewport.left).toBe(1);
-    expect(viewport.right).toBe(7);
+    expect(viewStore.activeMainViewport.left).toBe(1);
+    expect(viewStore.activeMainViewport.right).toBe(7);
 
     selectCell(model, "A1");
-    viewport = model.getters.getActiveMainViewport();
-    expect(viewport.left).toBe(0);
-    expect(viewport.right).toBe(6);
+    expect(viewStore.activeMainViewport.left).toBe(0);
+    expect(viewStore.activeMainViewport.right).toBe(6);
   });
 
   test("move bottom from bottom row (of the viewport)", () => {
-    const model = new Model();
-    let viewport = getViewport(model, 600, 300, 0, 0);
-    expect(viewport.top).toBe(0);
-    expect(viewport.bottom).toBe(13);
+    const { model, store: viewStore } = makeStore(ViewportsStore);
+    setViewportSizeAndOffset(viewStore, 600, 300, 0, 0);
+    expect(viewStore.activeMainViewport.top).toBe(0);
+    expect(viewStore.activeMainViewport.bottom).toBe(13);
 
     selectCell(model, "A13");
-    viewport = model.getters.getActiveMainViewport();
-    expect(viewport.top).toBe(0);
-    expect(viewport.bottom).toBe(13);
+    expect(viewStore.activeMainViewport.top).toBe(0);
+    expect(viewStore.activeMainViewport.bottom).toBe(13);
 
     selectCell(model, "A14");
-    viewport = model.getters.getActiveMainViewport();
-    expect(viewport.top).toBe(0);
-    expect(viewport.bottom).toBe(13);
+    expect(viewStore.activeMainViewport.top).toBe(0);
+    expect(viewStore.activeMainViewport.bottom).toBe(13);
 
     selectCell(model, "A15");
-    viewport = model.getters.getActiveMainViewport();
-    expect(viewport.top).toBe(1);
-    expect(viewport.bottom).toBe(14);
+    expect(viewStore.activeMainViewport.top).toBe(1);
+    expect(viewStore.activeMainViewport.bottom).toBe(14);
   });
 
   test("move top from top row (of the viewport)", () => {
-    const model = new Model();
-    let viewport = getViewport(model, 600, 300, 0, 60);
-    expect(viewport.top).toBe(2);
-    expect(viewport.bottom).toBe(15);
+    const { model, store: viewStore } = makeStore(ViewportsStore);
+    setViewportSizeAndOffset(viewStore, 600, 300, 0, 60);
+    expect(viewStore.activeMainViewport.top).toBe(2);
+    expect(viewStore.activeMainViewport.bottom).toBe(15);
 
     selectCell(model, "A3");
-    viewport = model.getters.getActiveMainViewport();
-    expect(viewport.top).toBe(2);
-    expect(viewport.bottom).toBe(15);
+    expect(viewStore.activeMainViewport.top).toBe(2);
+    expect(viewStore.activeMainViewport.bottom).toBe(15);
 
     selectCell(model, "A2");
-    viewport = model.getters.getActiveMainViewport();
-    expect(viewport.top).toBe(1);
-    expect(viewport.bottom).toBe(14);
+    expect(viewStore.activeMainViewport.top).toBe(1);
+    expect(viewStore.activeMainViewport.bottom).toBe(14);
   });
 
   test("move top from top row (of the viewport) with a merge", () => {
-    const model = new Model();
-    let viewport = getViewport(model, 600, 300, 0, 60);
-    expect(viewport.top).toBe(2);
-    expect(viewport.bottom).toBe(15);
+    const { model, store: viewStore } = makeStore(ViewportsStore);
+    setViewportSizeAndOffset(viewStore, 600, 300, 0, 60);
+    expect(viewStore.activeMainViewport.top).toBe(2);
+    expect(viewStore.activeMainViewport.bottom).toBe(15);
 
     merge(model, "A1:A2");
 
     selectCell(model, "A3");
-    viewport = model.getters.getActiveMainViewport();
-    expect(viewport.top).toBe(2);
-    expect(viewport.bottom).toBe(15);
+    expect(viewStore.activeMainViewport.top).toBe(2);
+    expect(viewStore.activeMainViewport.bottom).toBe(15);
 
     selectCell(model, "A2");
-    viewport = model.getters.getActiveMainViewport();
-    expect(viewport.top).toBe(0);
-    expect(viewport.bottom).toBe(13);
+    expect(viewStore.activeMainViewport.top).toBe(0);
+    expect(viewStore.activeMainViewport.bottom).toBe(13);
   });
 
   test("move through hidden column", () => {
@@ -320,7 +308,7 @@ describe("Navigation starting from hidden cells", () => {
   ])(
     "Move from position horizontally from hidden col",
     (hiddenCols, startPosition, direction, endPosition) => {
-      const model = new Model();
+      const { model } = makeStore(ViewportsStore);
       selectCell(model, startPosition);
       hideColumns(model, hiddenCols);
       moveAnchorCell(model, direction as Direction);
@@ -342,7 +330,7 @@ describe("Navigation starting from hidden cells", () => {
   ])(
     "Move from position vertically from hidden col",
     (hiddenRows, startPosition, direction, endPosition) => {
-      const model = new Model();
+      const { model } = makeStore(ViewportsStore);
       selectCell(model, startPosition);
       hideRows(model, hiddenRows);
       moveAnchorCell(model, direction as Direction);

@@ -7,6 +7,7 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "../../src/constants";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   foldHeaderGroup,
   freezeColumns,
@@ -123,6 +124,7 @@ describe("Header group component test", () => {
   let fixture: HTMLElement;
   let model: Model;
   let sheetId: UID;
+  let env: SpreadsheetChildEnv;
 
   beforeEach(() => {
     model = new Model();
@@ -131,7 +133,7 @@ describe("Header group component test", () => {
 
   async function mountHeaderGroups(model: Model, dimension: Dimension) {
     const layers = model.getters.getGroupsLayers(sheetId, dimension);
-    ({ fixture } = await mountComponentWithPortalTarget(HeaderGroupContainer, {
+    ({ fixture, env } = await mountComponentWithPortalTarget(HeaderGroupContainer, {
       props: { layers, dimension },
       model,
     }));
@@ -190,7 +192,7 @@ describe("Header group component test", () => {
       expect(getStylePropertyInPx(scrollContainer, "left")).toBe(0);
       expect(getStylePropertyInPx(group, "left")).toBe(0);
 
-      setViewportOffset(model, 3 * DEFAULT_CELL_WIDTH, 0);
+      setViewportOffset(env, 3 * DEFAULT_CELL_WIDTH, 0);
       await nextTick();
 
       expect(getStylePropertyInPx(scrollContainer, "left")).toBe(-3 * DEFAULT_CELL_WIDTH);
@@ -226,11 +228,12 @@ describe("Header group component test", () => {
       expect(frozenPaneContainer.querySelectorAll(".o-header-group")).toHaveLength(1);
     });
 
-    test("Frozen panes are handled are handled", async () => {
+    test("Frozen panes with scroll are handled", async () => {
       groupColumns(model, "A", "F");
-      setViewportOffset(model, DEFAULT_CELL_WIDTH, 0);
-      freezeColumns(model, 2);
       await mountHeaderGroups(model, "COL");
+      setViewportOffset(env, DEFAULT_CELL_WIDTH, 0);
+      freezeColumns(model, 2);
+      await nextTick();
 
       const frozenPaneContainer = fixture.querySelector<HTMLElement>(
         ".o-header-group-frozen-pane"
@@ -314,7 +317,7 @@ describe("Header group component test", () => {
       expect(getStylePropertyInPx(scrollContainer, "top")).toBe(0);
       expect(getStylePropertyInPx(group, "top")).toBe(0);
 
-      setViewportOffset(model, 0, 3 * DEFAULT_CELL_HEIGHT);
+      setViewportOffset(env, 0, 3 * DEFAULT_CELL_HEIGHT);
       await nextTick();
 
       expect(getStylePropertyInPx(scrollContainer, "top")).toBe(-3 * DEFAULT_CELL_HEIGHT);
@@ -350,11 +353,12 @@ describe("Header group component test", () => {
       expect(frozenPaneContainer.querySelectorAll(".o-header-group")).toHaveLength(1);
     });
 
-    test("Frozen panes are handled are handled", async () => {
+    test("Frozen panes with scroll are handled", async () => {
       groupRows(model, 0, 5);
-      setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
-      freezeRows(model, 2);
       await mountHeaderGroups(model, "ROW");
+      setViewportOffset(env, 0, DEFAULT_CELL_HEIGHT);
+      freezeRows(model, 2);
+      await nextTick();
 
       const frozenPaneContainer = fixture.querySelector<HTMLElement>(
         ".o-header-group-frozen-pane"

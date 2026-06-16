@@ -1,9 +1,12 @@
 import { props, proxy, xml } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
 import { Component } from "../../owl3_compatibility_layer";
+import { useStore } from "../../store_engine/store_hooks";
+import { ViewportsStore } from "../../stores/viewports_store";
 import { HeaderIndex } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { withZoom } from "../helpers/zoom";
@@ -31,6 +34,11 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
   });
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+  private viewStore!: Store<ViewportsStore>;
+
+  setup(): void {
+    this.viewStore = useStore(ViewportsStore);
+  }
 
   get style() {
     const { x, y } = this.props.position;
@@ -67,7 +75,7 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
   onMouseDown(ev: PointerEvent) {
     this.state.handler = true;
     const zoomedMouseEvent = withZoom(this.env, ev);
-    const zoom = this.env.model.getters.getViewportZoomLevel();
+    const zoom = this.viewStore.zoomLevel;
     let lastCol: HeaderIndex | undefined;
     let lastRow: HeaderIndex | undefined;
     const start = {

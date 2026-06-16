@@ -1,6 +1,7 @@
 import { Model } from "../../src";
 import { ErrorToolTip } from "../../src/components/error_tooltip/error_tooltip";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { getCellContent } from "../test_helpers";
 import {
   addDataValidation,
@@ -154,10 +155,11 @@ describe("Error tooltip component", () => {
 describe("Grid integration", () => {
   let model: Model;
   let fixture: HTMLElement;
+  let env: SpreadsheetChildEnv;
 
   beforeEach(async () => {
     useJestFakeTimers();
-    ({ model, fixture } = await mountSpreadsheet());
+    ({ model, fixture, env } = await mountSpreadsheet());
   });
 
   afterEach(() => {
@@ -166,21 +168,21 @@ describe("Grid integration", () => {
 
   test("can display error on A1", async () => {
     setCellContent(model, "A1", "=1/0");
-    await hoverCell(model, "A1", 400);
+    await hoverCell(env, "A1", 400);
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
   });
 
   test("can display invalid data validation error", async () => {
     setCellContent(model, "A1", "hello");
     addDataValidation(model, "A1", "id", { type: "containsText", values: ["hi"] });
-    await hoverCell(model, "A1", 400);
+    await hoverCell(env, "A1", 400);
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
   });
 
   test("can display both cell error and data validation error", async () => {
     setCellContent(model, "A1", "=1/0");
     addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
-    await hoverCell(model, "A1", 400);
+    await hoverCell(env, "A1", 400);
     expect(document.querySelectorAll(".o-error-tooltip-title")).toHaveLength(2);
   });
 
@@ -188,7 +190,7 @@ describe("Grid integration", () => {
     Date.now = jest.fn(() => 0);
     setCellContent(model, "A1", "=NA()");
     await nextTick();
-    await gridMouseEvent(model, "pointermove", "A1");
+    await gridMouseEvent(env, "pointermove", "A1");
     Date.now = jest.fn(() => 500);
     jest.advanceTimersByTime(300);
     await nextTick();
@@ -199,7 +201,7 @@ describe("Grid integration", () => {
     Date.now = jest.fn(() => 0);
     setCellContent(model, "A1", "=VLOOKUP(6,A1:A2,B2:B4)");
     await nextTick();
-    await gridMouseEvent(model, "pointermove", "A1");
+    await gridMouseEvent(env, "pointermove", "A1");
     Date.now = jest.fn(() => 500);
     jest.advanceTimersByTime(300);
     await nextTick();
@@ -208,21 +210,21 @@ describe("Grid integration", () => {
 
   test("can display error tooltip", async () => {
     setCellContent(model, "C8", "=1/0");
-    await hoverCell(model, "C8", 200);
+    await hoverCell(env, "C8", 200);
     expect(document.querySelector(".o-error-tooltip")).toBeNull();
-    await hoverCell(model, "C8", 400);
+    await hoverCell(env, "C8", 400);
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
     expect(document.querySelector(".o-error-tooltip")?.parentElement).toMatchSnapshot();
-    await hoverCell(model, "C7", 200);
+    await hoverCell(env, "C7", 200);
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
-    await hoverCell(model, "C7", 400);
+    await hoverCell(env, "C7", 400);
     expect(document.querySelector(".o-error-tooltip")).toBeNull();
   });
 
   test("can display error when move on merge", async () => {
     merge(model, "C1:C8");
     setCellContent(model, "C1", "=1/0");
-    await hoverCell(model, "C8", 400);
+    await hoverCell(env, "C8", 400);
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
   });
 
@@ -255,13 +257,13 @@ describe("Grid integration", () => {
     merge(model, "C1:C8");
     setCellContent(model, "C1", "Hello");
     await nextTick();
-    await clickCell(model, "C8");
+    await clickCell(env, "C8");
     expect(composerStore.currentContent).toBe("Hello");
   });
 
   test("Wheel events on error tooltip are scrolling the grid", async () => {
     setCellContent(model, "C1", "=0/0");
-    await hoverCell(model, "C1", 400);
+    await hoverCell(env, "C1", 400);
     triggerWheelEvent(".o-error-tooltip", { deltaY: 300, deltaX: 300 });
     await nextTick();
     expect(fixture.querySelector(".o-scrollbar.vertical")?.scrollTop).toBe(300);
