@@ -39,6 +39,8 @@ type TokenType =
   | "ARG_SEPARATOR"
   | "LEFT_PAREN"
   | "RIGHT_PAREN"
+  | "LEFT_BRACE"
+  | "RIGHT_BRACE"
   | "REFERENCE"
   | "INVALID_REFERENCE"
   | "UNKNOWN";
