@@ -1300,6 +1300,51 @@ describe("Multi Panes viewport", () => {
     expect(model.getters.getSheetViewVisibleCols()).toEqual([]);
     expect(model.getters.getSheetViewVisibleRows()).toEqual([]);
   });
+
+  test("Move right beyond viewport with frozen columns correctly affects offset", () => {
+    freezeColumns(model, 3);
+    const { width } = model.getters.getSheetViewDimension();
+    const { right } = model.getters.getActiveMainViewport();
+    selectCell(model, toXC(right, 0));
+    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
+      scrollX: DEFAULT_CELL_WIDTH * (right + 1) - width, // right is 0-indexed
+      scrollY: 0,
+    });
+
+    moveAnchorCell(model, "right");
+    expect(model.getters.getActiveMainViewport()).toMatchObject({
+      top: 0,
+      left: 4,
+      right: right + 1,
+    });
+    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
+      scrollX: DEFAULT_CELL_WIDTH * (right + 2) - width,
+      scrollY: 0,
+    });
+  });
+
+  test("Move down beyond viewport with frozen rows correctly affects offset", () => {
+    freezeRows(model, 3);
+    const { height } = model.getters.getSheetViewDimension();
+    const { bottom } = model.getters.getActiveMainViewport();
+    selectCell(model, toXC(0, bottom));
+    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
+      scrollX: 0,
+      scrollY: DEFAULT_CELL_HEIGHT * (bottom + 1) - height, // bottom is 0-indexed
+    });
+
+    moveAnchorCell(model, "down");
+    expect(model.getters.getActiveMainViewport()).toMatchObject({
+      left: 0,
+      right: 10,
+      top: 4,
+      bottom: bottom + 1,
+    });
+    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
+      scrollX: 0,
+      scrollY: DEFAULT_CELL_HEIGHT * (bottom + 2) - height,
+    });
+  });
 });
 
 describe("multi sheet with different sizes", () => {
