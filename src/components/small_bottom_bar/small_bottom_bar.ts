@@ -1,6 +1,7 @@
 import { onMounted, onPatched, props, proxy, signal } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
+import { ViewportsStore } from "../../stores/viewports_store";
 import { ComposerFocusType } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
 import { Rect } from "../../types/rendering";
@@ -26,6 +27,7 @@ export class SmallBottomBar extends Component<SpreadsheetChildEnv> {
 
   private composerFocusStore!: Store<ComposerFocusStore>;
   private composerStore!: Store<CellComposerStore>;
+  private viewStore!: Store<ViewportsStore>;
   private composerInterface!: ComposerInterface;
   private composerRef = signal<HTMLElement | null>(null);
 
@@ -36,6 +38,7 @@ export class SmallBottomBar extends Component<SpreadsheetChildEnv> {
   setup(): void {
     this.composerFocusStore = useStore(ComposerFocusStore);
     const composerStore = useStore(CellComposerStore);
+    this.viewStore = useStore(ViewportsStore);
     this.composerStore = composerStore;
     this.composerInterface = {
       id: "bottombarComposer",
@@ -83,7 +86,7 @@ export class SmallBottomBar extends Component<SpreadsheetChildEnv> {
   }
 
   get composerProps(): PropsOf<Composer> {
-    const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
+    const { width, height } = this.viewStore.sheetViewDimensionWithHeaders;
     return {
       rect: { ...this.rect },
       delimitation: {

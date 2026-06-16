@@ -3,6 +3,8 @@ import { DEFAULT_BORDER_DESC, DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "..
 import { lettersToNumber, toXC } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { ViewportsStore } from "../../src/stores/viewports_store";
+import { Store } from "../../src/types/store_engine";
 import {
   activateSheet,
   addColumns,
@@ -18,7 +20,6 @@ import {
   insertCells,
   merge,
   redo,
-  resizeSheetView,
   selectCell,
   setCellContent,
   setFormatting,
@@ -43,6 +44,8 @@ import {
   makeTestFixture,
   testUndoRedo,
 } from "../test_helpers/helpers";
+import { makeStoreWithModel } from "../test_helpers/stores";
+
 let model: Model;
 
 function clearColumns(indexes: string[]) {
@@ -834,10 +837,13 @@ describe("Rows", () => {
     makeTestFixture();
   });
   describe("Correctly update size, name, order and number", () => {
+    let viewStore: Store<ViewportsStore>;
+
     beforeEach(() => {
       model = new Model({
         sheets: [{ colNumber: 1, rowNumber: 4, rows: { 1: { size: 10 }, 2: { size: 20 } } }],
       });
+      ({ store: viewStore } = makeStoreWithModel(model, ViewportsStore));
     });
     test("On deletion", () => {
       deleteRows(model, [0, 2]);
@@ -951,10 +957,10 @@ describe("Rows", () => {
       expect(model.getters.getRowSize(sheetId, 4)).toBe(20);
       expect(model.getters.getRowSize(sheetId, 5)).toBe(size);
       expect(model.getters.getNumberRows(sheetId)).toBe(6);
-      const dimensions = model.getters.getMainViewportRect();
+      const dimensions = viewStore.mainViewportRect;
       expect(dimensions).toMatchObject({ width: 1000, height: 1000 });
-      resizeSheetView(model, DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH);
-      const newDimensions = model.getters.getMainViewportRect();
+      viewStore.resizeSheetView({ height: DEFAULT_CELL_HEIGHT, width: DEFAULT_CELL_WIDTH });
+      const newDimensions = viewStore.mainViewportRect;
       expect(newDimensions).toMatchObject({
         width: DEFAULT_CELL_WIDTH, // sum of col sizes
         height: 142, // sum of row sizes  + 46px for adding rows footer
@@ -970,10 +976,10 @@ describe("Rows", () => {
       expect(model.getters.getRowSize(sheetId, 3)).toBe(20);
       expect(model.getters.getRowSize(sheetId, 4)).toBe(20);
       expect(model.getters.getRowSize(sheetId, 5)).toBe(size);
-      const dimensions = model.getters.getMainViewportRect();
+      const dimensions = viewStore.mainViewportRect;
       expect(dimensions).toMatchObject({ width: 1000, height: 1000 });
-      resizeSheetView(model, DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH);
-      const newDimensions = model.getters.getMainViewportRect();
+      viewStore.resizeSheetView({ height: DEFAULT_CELL_HEIGHT, width: DEFAULT_CELL_WIDTH });
+      const newDimensions = viewStore.mainViewportRect;
       expect(newDimensions).toMatchObject({
         width: DEFAULT_CELL_WIDTH, // sum of col sizes
         height: 162, // sum of row sizes + 46px for adding rows footer
@@ -989,8 +995,8 @@ describe("Rows", () => {
 
     test("activate Sheet: same size", () => {
       addRows(model, "after", 2, 1);
-      resizeSheetView(model, DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH);
-      let dimensions = model.getters.getMainViewportRect();
+      viewStore.resizeSheetView({ height: DEFAULT_CELL_HEIGHT, width: DEFAULT_CELL_WIDTH });
+      let dimensions = viewStore.mainViewportRect;
       expect(dimensions).toMatchObject({
         width: DEFAULT_CELL_WIDTH, // sum of col sizes
         height: 142, // sum of row sizes + 46px for adding rows footer
@@ -998,7 +1004,7 @@ describe("Rows", () => {
       const to = model.getters.getActiveSheetId();
       createSheet(model, { activate: true, sheetId: "42" });
       activateSheet(model, to);
-      dimensions = model.getters.getMainViewportRect();
+      dimensions = viewStore.mainViewportRect;
       expect(dimensions).toMatchObject({
         width: DEFAULT_CELL_WIDTH, // sum of col sizes
         height: 142, // sum of row sizes + 46px for adding rows footer

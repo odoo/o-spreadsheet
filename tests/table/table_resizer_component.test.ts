@@ -34,13 +34,11 @@ describe("Table resizer component", () => {
   let env: SpreadsheetChildEnv;
 
   beforeEach(async () => {
-    model = new Model();
-    ({ env } = await mountComponent(Grid, {
+    ({ env, model } = await mountComponent(Grid, {
       props: {
         exposeFocus: () => {},
-        getGridSize: model.getters.getSheetViewDimensionWithHeaders,
+        getGridSize: () => ({ width: 1000, height: 1000 }),
       },
-      model,
     }));
     sheetId = model.getters.getActiveSheetId();
   });

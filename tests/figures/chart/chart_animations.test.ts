@@ -1,12 +1,12 @@
 import { Chart } from "chart.js";
 import { Model, readonlyAllowedCommands } from "../../../src";
 import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
+import { ViewportsStore } from "../../../src/stores/viewports_store";
 import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
   createChart,
   evaluateCells,
   setCellContent,
-  setViewportOffset,
   updateChart,
 } from "../../test_helpers/commands_helpers";
 import { click, clickAndDrag } from "../../test_helpers/dom_helper";
@@ -44,16 +44,17 @@ describe("Chart animations in dashboard", () => {
     createChart(model, { type: "bar" });
     model.updateMode("dashboard");
 
-    await mountSpreadsheet({ model });
+    const { env } = await mountSpreadsheet({ model });
+    const viewStore = env.getStore(ViewportsStore);
     expect(".o-figure").toHaveCount(1);
     expect(mockedChart.config.options.animation.animateRotate).toBe(true);
 
     // Scroll the figure out of the viewport and back in
-    setViewportOffset(model, 0, 500);
+    viewStore.setViewportOffset({ offsetX: 0, offsetY: 500 });
     await nextTick();
     expect(".o-figure").toHaveCount(0);
 
-    setViewportOffset(model, 0, 0);
+    viewStore.setViewportOffset({ offsetX: 0, offsetY: 0 });
     await nextTick();
     expect(".o-figure").toHaveCount(1);
     expect(mockedChart.config.options.animation).toBe(false);

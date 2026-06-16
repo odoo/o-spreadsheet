@@ -4,6 +4,7 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
 } from "../../../../src/constants";
+import { ViewportsStore } from "../../../../src/stores/viewports_store";
 import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
@@ -22,6 +23,7 @@ import {
   undo,
   updateChart,
 } from "../../../test_helpers/commands_helpers";
+import { makeStoreWithModel } from "../../../test_helpers/stores";
 
 let model: Model;
 
@@ -126,10 +128,11 @@ describe("datasource tests", function () {
     );
     const exportedData = model.exportData();
     const newModel = new Model(exportedData);
-    expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
+    const { store: viewStore } = makeStoreWithModel(newModel, ViewportsStore);
+    expect(viewStore.visibleFigures).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
     deleteFigure(newModel, model.getters.getFigureIdFromChartId("1"));
-    expect(newModel.getters.getVisibleFigures()).toHaveLength(0);
+    expect(viewStore.visibleFigures).toHaveLength(0);
     expect(() => newModel.getters.getChartRuntime("1")).toThrow();
   });
 

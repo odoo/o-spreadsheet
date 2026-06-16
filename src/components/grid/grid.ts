@@ -40,6 +40,7 @@ import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
 import { ClientFocusStore } from "../../stores/client_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
+import { ViewportsStore } from "../../stores/viewports_store";
 import { CellValueType } from "../../types/cells";
 import { ClipboardMIMEType } from "../../types/clipboard";
 import { Client } from "../../types/collaborative/session";
@@ -147,6 +148,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   private gridRef = signal<HTMLElement | null>(null);
   private canvasRef = signal<HTMLElement | null>(null);
   private highlightStore!: Store<HighlightStore>;
+  viewStore!: Store<ViewportsStore>;
   private cellPopovers!: Store<CellPopoverStore>;
   private composerFocusStore!: Store<ComposerFocusStore>;
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
@@ -161,6 +163,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
 
   setup() {
     this.highlightStore = useStore(HighlightStore);
+    this.viewStore = useStore(ViewportsStore);
     this.menuState = proxy({
       isOpen: false,
       anchorRect: null,
@@ -184,7 +187,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
       canvasRef: this.canvasRef,
       renderingCtx: () => ({
         dpr: window.devicePixelRatio || 1,
-        viewports: this.env.model.getters.getViewportCollection(),
+        viewports: this.viewStore.viewports,
         ...this.env.model.getters.getSelectionState(),
       }),
     });
@@ -206,16 +209,16 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     useTouchHandlers(this.gridRef, {
       updateScroll: this.moveCanvas.bind(this),
       canMoveUp: () => {
-        const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+        const { scrollY } = this.viewStore.activeSheetScrollInfo;
         return scrollY > 0;
       },
       canMoveDown: () => {
-        const { maxOffsetY } = this.env.model.getters.getMaximumSheetOffset();
-        const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+        const { maxOffsetY } = this.viewStore.maximumSheetOffset;
+        const { scrollY } = this.viewStore.activeSheetScrollInfo;
         return scrollY < maxOffsetY;
       },
-      getZoom: () => this.env.model.getters.getViewportZoomLevel(),
-      setZoom: (zoom: number) => this.env.model.dispatch("SET_ZOOM", { zoom }),
+      getZoom: () => this.viewStore.zoomLevel,
+      setZoom: (zoom: number) => this.viewStore.setZoom(zoom),
     });
   }
 
@@ -224,7 +227,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   }
 
   get gridOverlayDimensions() {
-    const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
+    const scrollbarWidth = this.viewStore.scrollBarWidth;
     return cssPropertiesToCss({
       top: `${HEADER_HEIGHT}px`,
       left: `${HEADER_WIDTH}px`,
@@ -430,8 +433,8 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     "Alt+T": () => {
       insertTable.execute?.(this.env);
     },
-    PageDown: () => this.env.model.dispatch("SHIFT_VIEWPORT_DOWN"),
-    PageUp: () => this.env.model.dispatch("SHIFT_VIEWPORT_UP"),
+    PageDown: () => this.viewStore.shiftViewportDown(),
+    PageUp: () => this.viewStore.shiftViewportUp(),
     "Ctrl+Shift+K": () => {
       this.closeMenu();
       INSERT_LINK(this.env);
@@ -490,7 +493,10 @@ export class Grid extends Component<SpreadsheetChildEnv> {
 
   getAutofillPosition() {
     const zone = this.env.model.getters.getSelectedZone();
-    const rect = this.env.model.getters.getVisibleRect(zone);
+    const rect = this.viewStore.viewports.getVisibleRect(
+      this.env.model.getters.getActiveSheetId(),
+      zone
+    );
     return {
       x: rect.x + rect.width - AUTOFILL_EDGE_LENGTH / 2,
       y: rect.y + rect.height - AUTOFILL_EDGE_LENGTH / 2,
@@ -502,31 +508,31 @@ export class Grid extends Component<SpreadsheetChildEnv> {
       return false;
     }
     const zone = this.env.model.getters.getSelectedZone();
-    const rect = this.env.model.getters.getVisibleRect({
-      left: zone.right,
-      right: zone.right,
-      top: zone.bottom,
-      bottom: zone.bottom,
-    });
+    const rect = this.viewStore.viewports.getVisibleRect(
+      this.env.model.getters.getActiveSheetId(),
+      {
+        left: zone.right,
+        right: zone.right,
+        top: zone.bottom,
+        bottom: zone.bottom,
+      }
+    );
     return !(rect.width === 0 || rect.height === 0);
   }
 
   onGridResized() {
     const { height, width } = this.props.getGridSize();
-    this.env.model.dispatch("RESIZE_SHEETVIEW", {
-      width: width - HEADER_WIDTH,
+    this.viewStore.resizeSheetView({
       height: height - HEADER_HEIGHT,
+      width: width - HEADER_WIDTH,
       gridOffsetX: HEADER_WIDTH,
       gridOffsetY: HEADER_HEIGHT,
     });
   }
 
   private moveCanvas(deltaX: number, deltaY: number) {
-    const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: scrollX + deltaX,
-      offsetY: scrollY + deltaY,
-    });
+    const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
+    this.viewStore.setViewportOffset({ offsetX: scrollX + deltaX, offsetY: scrollY + deltaY });
   }
 
   private processSpaceKey(ev: KeyboardEvent) {
@@ -555,8 +561,8 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   }
 
   private getGridRect(): Rect {
-    const zoom = this.env.model.getters.getViewportZoomLevel();
-    const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
+    const zoom = this.viewStore.zoomLevel;
+    const { width, height } = this.viewStore.sheetViewDimensionWithHeaders;
     return {
       ...getElBoundingRect(this.gridRef()),
       width: width * zoom,
@@ -679,7 +685,10 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     } else if (this.env.model.getters.getActiveRows().has(row)) {
       type = "ROW";
     }
-    const { x, y, width } = this.env.model.getters.getVisibleRectWithZoom(lastZone);
+    const { x, y, width } = this.viewStore.viewports.getVisibleRectWithZoom(
+      this.env.model.getters.getActiveSheetId(),
+      lastZone
+    );
     const gridRect = this.getGridRect();
     this.toggleContextMenu(type, gridRect.x + x + width, gridRect.y + y);
   }
@@ -877,7 +886,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
         });
         break;
       case "right": {
-        const { x, y, width } = this.env.model.getters.getVisibleRectWithZoom(zone);
+        const { x, y, width } = this.viewStore.viewports.getVisibleRectWithZoom(sheetId, zone);
         const gridRect = this.getGridRect();
         this.toggleContextMenu("GROUP_HEADERS", x + width + gridRect.x, y + gridRect.y);
         break;
@@ -886,7 +895,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
         if (!canUngroupHeaders(this.env, "COL") && !canUngroupHeaders(this.env, "ROW")) {
           return;
         }
-        const { x, y, width } = this.env.model.getters.getVisibleRectWithZoom(zone);
+        const { x, y, width } = this.viewStore.viewports.getVisibleRectWithZoom(sheetId, zone);
         const gridRect = this.getGridRect();
         this.toggleContextMenu("UNGROUP_HEADERS", x + width + gridRect.x, y + gridRect.y);
         break;

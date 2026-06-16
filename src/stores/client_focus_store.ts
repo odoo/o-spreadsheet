@@ -1,6 +1,7 @@
 import { ClientId } from "../types/collaborative/session";
 import { Get } from "../types/store_engine";
 import { SpreadsheetStore } from "./spreadsheet_store";
+import { ViewportsStore } from "./viewports_store";
 
 export class ClientFocusStore extends SpreadsheetStore {
   mutators = [
@@ -13,6 +14,7 @@ export class ClientFocusStore extends SpreadsheetStore {
 
   private _showClientTag = false;
   private clientFocusTimeout = {};
+  private viewStore = this.get(ViewportsStore);
 
   constructor(get: Get) {
     super(get);
@@ -41,7 +43,7 @@ export class ClientFocusStore extends SpreadsheetStore {
         sheetIdTo: client.position.sheetId,
         sheetIdFrom: this.getters.getActiveSheetId(),
       });
-      this.model.dispatch("SCROLL_TO_CELL", { col: client.position.col, row: client.position.row });
+      this.viewStore.scrollToCell(client.position.col, client.position.row);
     }
   }
 

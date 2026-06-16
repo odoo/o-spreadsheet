@@ -348,16 +348,16 @@ describe("Selection Input", () => {
   });
 
   test("ctrl + select cell --> add new input", async () => {
-    const { env, model, fixture } = await mountSpreadsheet();
+    const { env, fixture } = await mountSpreadsheet();
     OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
     await simulateClick(".o-cf-add");
     await nextTick();
     const input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
     await simulateClick(input);
-    await clickCell(model, "B4");
+    await clickCell(env, "B4");
     await nextTick();
-    await clickCell(model, "B5", { ctrlKey: true });
+    await clickCell(env, "B5", { ctrlKey: true });
     await nextTick();
     const inputs = fixture.querySelectorAll(
       ".o-selection-input input"
@@ -456,7 +456,7 @@ describe("Selection Input", () => {
   });
 
   test("Input is in text-edit by default and switched to range-select when selecting on grid", async () => {
-    const { env, model, fixture } = await mountSpreadsheet();
+    const { env, fixture } = await mountSpreadsheet();
     OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
     await simulateClick(".o-cf-add");
@@ -468,7 +468,7 @@ describe("Selection Input", () => {
     expect(document.activeElement).toBe(input);
     expect(input?.value).toEqual("A1");
 
-    await clickCell(model, "B4");
+    await clickCell(env, "B4");
     expect(input?.value).toEqual("B4");
     await keyDown({ key: "ArrowRight" });
     expect(input?.value).toEqual("C4");
@@ -498,8 +498,8 @@ describe("Selection Input", () => {
   });
 
   test("can select full col/row grid selection as selection input data series range", async () => {
-    const { env, model, fixture } = await mountSpreadsheet();
-    await selectColumnByClicking(model, "B");
+    const { env, fixture } = await mountSpreadsheet();
+    await selectColumnByClicking(env, "B");
     OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
     await simulateClick(".o-cf-add");
@@ -508,11 +508,11 @@ describe("Selection Input", () => {
     expect(input.value).toBe("B:B");
 
     await simulateClick(input);
-    await selectColumnByClicking(model, "C");
+    await selectColumnByClicking(env, "C");
     input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
     expect(input.value).toBe("C:C");
 
-    await selectColumnByClicking(model, "B");
+    await selectColumnByClicking(env, "B");
     input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
     expect(input.value).toBe("B:B");
   });
@@ -585,7 +585,7 @@ describe("Selection Input", () => {
   });
 
   test("pressing and releasing control has no effect on future clicks", async () => {
-    const { env, model, fixture } = await mountSpreadsheet();
+    const { env, fixture } = await mountSpreadsheet();
     OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
     await simulateClick(".o-cf-add");
@@ -595,7 +595,7 @@ describe("Selection Input", () => {
     expect(input.value).toBe("A1");
     await keyDown({ key: "Control" });
     await keyUp({ key: "Control" });
-    await clickCell(model, "A2");
+    await clickCell(env, "A2");
     expect(fixture.querySelectorAll(".o-selection-input input")).toHaveLength(1);
     input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
     expect(input.value).toBe("A2");

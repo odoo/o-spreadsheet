@@ -22,8 +22,18 @@ export function makeStoreWithModel<T extends StoreConstructor>(
 
   container.inject(ModelStore, model);
   container.inject(NotificationStore, makeTestNotificationStore());
+
+  // Use container.get instead of container.instantiate where we can, otherwise the store won't be in the dependency
+  // container, and calls to container.get will create a new instance of the store.
+  // If we have args, that means the store is a local store and shouldn't be in the dependency container
+  let store: InstanceType<T>;
+  if (args.length > 0) {
+    store = container.instantiate(Store, ...args);
+  } else {
+    store = container.get(Store);
+  }
   return {
-    store: container.instantiate(Store, ...args) as InstanceType<T>,
+    store,
     container,
     model: container.get(ModelStore),
   };

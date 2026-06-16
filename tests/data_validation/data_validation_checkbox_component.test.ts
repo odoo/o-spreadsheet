@@ -57,12 +57,12 @@ describe("Checkbox component", () => {
   test("can check and uncheck with click", async () => {
     const model = new Model();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
-    await mountSpreadsheet({ model });
+    const { env } = await mountSpreadsheet({ model });
     expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_UNCHECKED);
-    await clickGridIcon(model, "A1");
+    await clickGridIcon(env, "A1");
     expect(getCellContent(model, "A1")).toBe("TRUE");
     expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_CHECKED);
-    await clickGridIcon(model, "A1");
+    await clickGridIcon(env, "A1");
     expect(getCellContent(model, "A1")).toBe("FALSE");
     expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_UNCHECKED);
   });
@@ -113,10 +113,10 @@ describe("Checkbox component", () => {
     const model = new Model();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
     setCellContent(model, "A1", "=TRUE");
-    await mountSpreadsheet({ model });
+    const { env } = await mountSpreadsheet({ model });
 
     expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_CHECKED);
-    await clickGridIcon(model, "A1");
+    await clickGridIcon(env, "A1");
     expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_CHECKED);
   });
 
@@ -124,10 +124,10 @@ describe("Checkbox component", () => {
     const model = new Model();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
     model.updateMode("readonly");
-    await mountSpreadsheet({ model });
+    const { env } = await mountSpreadsheet({ model });
 
     expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_UNCHECKED);
-    await clickGridIcon(model, "A1");
+    await clickGridIcon(env, "A1");
     expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_UNCHECKED);
   });
 });

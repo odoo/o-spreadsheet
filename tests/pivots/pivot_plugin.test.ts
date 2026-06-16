@@ -5,7 +5,7 @@ import { EMPTY_PIVOT_CELL } from "../../src/helpers/pivot/table_spreadsheet_pivo
 import { toZone } from "../../src/helpers/zones";
 import { getEvaluatedCell } from "../test_helpers";
 import { renameSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
-import { createModelFromGrid, toCellPosition } from "../test_helpers/helpers";
+import { createModelFromGrid, makeTestEnv, toCellPosition } from "../test_helpers/helpers";
 import {
   addPivot,
   createModelWithPivot,
@@ -516,12 +516,9 @@ describe("Pivot plugin", () => {
     const model = createModelWithPivot("A1:I5");
     addPivot(model, "A1:I5", { name: "Unused Pivot" }, "2");
     setCellContent(model, "A40", "=SUM(PIVOT(1) + PIVOT(2))");
+    const env = makeTestEnv({ model });
 
-    expect(getPivotHighlights(model.getters, "1")).toMatchObject([
-      { range: { zone: toZone("A40") } },
-    ]);
-    expect(getPivotHighlights(model.getters, "2")).toMatchObject([
-      { range: { zone: toZone("A40") } },
-    ]);
+    expect(getPivotHighlights(env, "1")).toMatchObject([{ range: { zone: toZone("A40") } }]);
+    expect(getPivotHighlights(env, "2")).toMatchObject([{ range: { zone: toZone("A40") } }]);
   });
 });

@@ -29,6 +29,7 @@ import {
   Range,
   SelectionStep,
   SetDecimalStep,
+  SheetViewDimensions,
   SortDirection,
   SortOptions,
   SplitTextIntoColumnsCommand,
@@ -40,8 +41,6 @@ import {
 import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
 } from "../../src/constants";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
@@ -55,6 +54,7 @@ import { UuidGenerator } from "../../src/helpers/uuid";
 import { isInside, toZone } from "../../src/helpers/zones";
 import { chartDataSourceRegistry } from "../../src/registries/chart_data_source_registry";
 import { chartTypeRegistry } from "../../src/registries/chart_registry";
+import { ViewportsStore } from "../../src/stores/viewports_store";
 import { BubbleChartDefinition } from "../../src/types/chart/bubble_chart";
 import { CalendarChartDefinition } from "../../src/types/chart/calendar_chart";
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
@@ -68,6 +68,7 @@ import { TreeMapChartDefinition } from "../../src/types/chart/tree_map_chart";
 import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart";
 import { AnchorOffset, CarouselItem, FigureSize } from "../../src/types/figure";
 import { Image } from "../../src/types/image";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { CoreTableType, CriterionFilter, TableConfig } from "../../src/types/table";
 import { toChartDataSource } from "./chart_helpers";
 
@@ -1295,11 +1296,9 @@ export function showSheet(model: Model, sheetId: UID) {
   return model.dispatch("SHOW_SHEET", { sheetId });
 }
 
-export function setViewportOffset(model: Model, offsetX: number, offsetY: number) {
-  return model.dispatch("SET_VIEWPORT_OFFSET", {
-    offsetX,
-    offsetY,
-  });
+export function setViewportOffset(env: SpreadsheetChildEnv, offsetX: number, offsetY: number) {
+  const store = env.getStore(ViewportsStore);
+  return store.setViewportOffset({ offsetX, offsetY });
 }
 
 export function setFormatting(
@@ -1707,29 +1706,9 @@ export function insertPivot(
   return model.dispatch("INSERT_NEW_PIVOT", { pivotId, newSheetId });
 }
 
-export function setSheetviewSize(model: Model, height: Pixel, width: Pixel, hasHeaders = true) {
-  return resizeSheetView(
-    model,
-    height,
-    width,
-    hasHeaders ? HEADER_WIDTH : 0,
-    hasHeaders ? HEADER_HEIGHT : 0
-  );
-}
-
-export function resizeSheetView(
-  model: Model,
-  height: Pixel,
-  width: Pixel,
-  gridOffsetX?: Pixel,
-  gridOffsetY?: Pixel
-) {
-  return model.dispatch("RESIZE_SHEETVIEW", {
-    height,
-    width,
-    gridOffsetX,
-    gridOffsetY,
-  });
+export function resizeSheetView(env: SpreadsheetChildEnv, dimensions: SheetViewDimensions) {
+  const store = env.getStore(ViewportsStore);
+  return store.resizeSheetView(dimensions);
 }
 
 export function addCf(
@@ -2003,16 +1982,19 @@ export function moveFigures(model: Model, payloads: MoveFiguresPayload[]) {
   return model.dispatch("MOVE_FIGURES", { figures: payloads });
 }
 
-export function shiftViewportDown(model: Model) {
-  return model.dispatch("SHIFT_VIEWPORT_DOWN");
+export function shiftViewportDown(env: SpreadsheetChildEnv) {
+  const store = env.getStore(ViewportsStore);
+  return store.shiftViewportDown();
 }
 
-export function shiftViewportUp(model: Model) {
-  return model.dispatch("SHIFT_VIEWPORT_UP");
+export function shiftViewportUp(env: SpreadsheetChildEnv) {
+  const store = env.getStore(ViewportsStore);
+  return store.shiftViewportUp();
 }
 
-export function setZoom(model: Model, zoom: number) {
-  return model.dispatch("SET_ZOOM", { zoom });
+export function setZoom(env: SpreadsheetChildEnv, zoom: number) {
+  const store = env.getStore(ViewportsStore);
+  return store.setZoom(zoom);
 }
 
 export function autofillSelect(model: Model, from: string, to: string) {

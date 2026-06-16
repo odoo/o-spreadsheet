@@ -4,6 +4,8 @@ import { numberToLetters, toCartesian, toXC } from "../../src/helpers/coordinate
 import { positionToZone, toZone, zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { corePluginRegistry } from "../../src/plugins/plugin_registries";
+import { ViewportsStore } from "../../src/stores/viewports_store";
+import { Store } from "../../src/types/store_engine";
 import {
   activateSheet,
   addCellToSelection,
@@ -35,7 +37,6 @@ import {
   setCellContent,
   setFormatting,
   setSelection,
-  setViewportOffset,
   undo,
 } from "../test_helpers/commands_helpers";
 import {
@@ -48,6 +49,7 @@ import {
   getTable,
 } from "../test_helpers/getters_helpers";
 import { addTestPlugin, createModelFromGrid } from "../test_helpers/helpers";
+import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
 
 let model: Model;
 const hiddenContent = "hidden content to be skipped";
@@ -284,55 +286,57 @@ describe("simple selection", () => {
 
   test("move selection left through hidden cols, with scrolling", () => {
     const model = new Model({ sheets: [{ colNumber: 100, rowNumber: 1 }] });
+    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
     hideColumns(model, ["B"]);
     selectCell(model, "C1");
-    setViewportOffset(model, DEFAULT_CELL_WIDTH, 0);
+    viewStore.setViewportOffset({ offsetX: DEFAULT_CELL_WIDTH, offsetY: 0 });
 
     moveAnchorCell(model, "left");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
-    expect(model.getters.getActiveSheetScrollInfo()).toEqual({ scrollX: 0, scrollY: 0 });
+    expect(viewStore.activeSheetScrollInfo).toEqual({ scrollX: 0, scrollY: 0 });
   });
 
   test("move selection right through hidden cols, with scrolling", () => {
     const model = new Model({ sheets: [{ colNumber: 100, rowNumber: 1 }] });
-    const visibleCols = model.getters.getSheetViewVisibleCols();
+    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
+    const visibleCols = viewStore.visibleCols;
     const lastVisibleCol = visibleCols[visibleCols.length - 1];
     hideColumns(model, [numberToLetters(lastVisibleCol + 1), numberToLetters(lastVisibleCol + 2)]);
     selectCell(model, toXC(lastVisibleCol, 0));
     moveAnchorCell(model, "right");
 
     expect(model.getters.getSelectedZone()).toEqual(toZone(toXC(lastVisibleCol + 3, 0)));
-    expect(model.getters.getActiveSheetScrollInfo()).toEqual({
-      scrollX:
-        (lastVisibleCol + 2) * DEFAULT_CELL_WIDTH - model.getters.getSheetViewDimension().width,
+    expect(viewStore.activeSheetScrollInfo).toEqual({
+      scrollX: (lastVisibleCol + 2) * DEFAULT_CELL_WIDTH - viewStore.sheetViewDimension.width,
       scrollY: 0,
     });
   });
 
   test("move selection up through hidden rows, with scrolling", () => {
     const model = new Model({ sheets: [{ colNumber: 1, rowNumber: 100 }] });
+    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
     hideRows(model, [1]);
     selectCell(model, "A3");
-    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
+    viewStore.setViewportOffset({ offsetX: 0, offsetY: DEFAULT_CELL_HEIGHT });
 
     moveAnchorCell(model, "up");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
-    expect(model.getters.getActiveSheetScrollInfo()).toEqual({ scrollX: 0, scrollY: 0 });
+    expect(viewStore.activeSheetScrollInfo).toEqual({ scrollX: 0, scrollY: 0 });
   });
 
   test("move selection down through hidden cols, with scrolling", () => {
     const model = new Model({ sheets: [{ colNumber: 1, rowNumber: 100 }] });
-    const visibleRows = model.getters.getSheetViewVisibleRows();
+    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
+    const visibleRows = viewStore.visibleRows;
     const lastVisibleRow = visibleRows[visibleRows.length - 1];
     hideRows(model, [lastVisibleRow + 1, lastVisibleRow + 2]);
     selectCell(model, toXC(0, lastVisibleRow));
 
     moveAnchorCell(model, "down");
     expect(model.getters.getSelectedZone()).toEqual(toZone(toXC(0, lastVisibleRow + 3)));
-    expect(model.getters.getActiveSheetScrollInfo()).toEqual({
+    expect(viewStore.activeSheetScrollInfo).toEqual({
       scrollX: 0,
-      scrollY:
-        (lastVisibleRow + 2) * DEFAULT_CELL_HEIGHT - model.getters.getSheetViewDimension().height,
+      scrollY: (lastVisibleRow + 2) * DEFAULT_CELL_HEIGHT - viewStore.sheetViewDimension.height,
     });
   });
 
@@ -1362,40 +1366,41 @@ describe("Selection loop (ctrl + a)", () => {
 
   describe("Viewport doesn't move", () => {
     let model: Model;
+    let viewStore: Store<ViewportsStore>;
     beforeEach(() => {
-      model = new Model();
+      ({ store: viewStore, model } = makeStore(ViewportsStore));
     });
 
     test("Selection loop doesn't scroll the viewport", () => {
       setCellContent(model, "A1", "a");
       setCellContent(model, "A2", "a");
       selectCell(model, "A2");
-      setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
-      const initialScroll = model.getters.getActiveSheetScrollInfo();
+      viewStore.setViewportOffset({ offsetX: 0, offsetY: DEFAULT_CELL_HEIGHT });
+      const initialScroll = viewStore.activeSheetScrollInfo;
 
       model.selection.loopSelection();
       expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1:A2");
-      expect(model.getters.getActiveSheetScrollInfo()).toEqual(initialScroll);
+      expect(viewStore.activeSheetScrollInfo).toEqual(initialScroll);
 
       model.selection.loopSelection();
       expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1:Z100");
-      expect(model.getters.getActiveSheetScrollInfo()).toEqual(initialScroll);
+      expect(viewStore.activeSheetScrollInfo).toEqual(initialScroll);
 
       model.selection.loopSelection();
       expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A2");
-      expect(model.getters.getActiveSheetScrollInfo()).toEqual(initialScroll);
+      expect(viewStore.activeSheetScrollInfo).toEqual(initialScroll);
     });
 
     test("selectTableAroundSelection doesn't scroll the viewport", () => {
       setCellContent(model, "A1", "a");
       setCellContent(model, "A2", "a");
       selectCell(model, "A2");
-      setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
-      const initialScroll = model.getters.getActiveSheetScrollInfo();
+      viewStore.setViewportOffset({ offsetX: 0, offsetY: DEFAULT_CELL_HEIGHT });
+      const initialScroll = viewStore.activeSheetScrollInfo;
 
       model.selection.selectTableAroundSelection();
       expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1:A2");
-      expect(model.getters.getActiveSheetScrollInfo()).toEqual(initialScroll);
+      expect(viewStore.activeSheetScrollInfo).toEqual(initialScroll);
     });
   });
 });

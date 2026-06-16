@@ -4,6 +4,7 @@ import { functionRegistry } from "../../src/functions/function_registry";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { NotificationStore } from "../../src/stores/notification_store";
+import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SearchOptions } from "../../src/types/find_and_replace";
 import {
   activateSheet,
@@ -19,7 +20,6 @@ import {
   redo,
   setCellContent,
   setSelection,
-  setViewportOffset,
   undo,
   unhideRows,
   updateFilter,
@@ -38,6 +38,7 @@ import { makeStore } from "../test_helpers/stores";
 let model: Model;
 let store: FindAndReplaceStore;
 let container: DependencyContainer;
+let viewStore: ViewportsStore;
 
 function p(xc: string) {
   const z = toZone(xc);
@@ -67,7 +68,9 @@ function replaceAll(replaceWith: string) {
 let sheetId1: string;
 const sheetId2 = "s2";
 beforeEach(() => {
-  ({ store, model, container } = makeStore(FindAndReplaceStore));
+  // Create the viewport store before the f&r store to have the finalize in the correct order (see FIXME in SpreadsheetStore)
+  ({ store: viewStore, model, container } = makeStore(ViewportsStore));
+  store = container.get(FindAndReplaceStore);
   sheetId1 = model.getters.getActiveSheetId();
 });
 
@@ -386,12 +389,12 @@ describe("basic search", () => {
     expect(store.activeSheetMatchesCount).toBe(2);
     expect(store.allSheetsMatchesCount).toBe(3);
     expect(store.specificRangeMatchesCount).toBe(0);
-    expect(model.getters.getActiveMainViewport()).toMatchObject(toZone("A1:K44"));
+    expect(viewStore.activeMainViewport).toMatchObject(toZone("A1:K44"));
     activateSheet(model, "s2");
     expect(store.activeSheetMatchesCount).toBe(1);
     expect(store.allSheetsMatchesCount).toBe(3);
     expect(store.specificRangeMatchesCount).toBe(0);
-    expect(model.getters.getActiveMainViewport()).toMatchObject(toZone("P57:Z100"));
+    expect(viewStore.activeMainViewport).toMatchObject(toZone("P57:Z100"));
   });
 
   test("Search results and range are highlighted", () => {
@@ -625,20 +628,22 @@ describe("next/previous with single match", () => {
   test.each(["selectNext", "selectPrevious"] as const)(
     "%s after scrolling will re-scroll to the match",
     (cmd) => {
-      const viewportAfterSearch = model.getters.getActiveMainViewport();
-      setViewportOffset(model, 1000, 1000);
-      expect(model.getters.getActiveMainViewport()).not.toMatchObject(viewportAfterSearch);
+      const viewStore = container.get(ViewportsStore);
+      const viewportAfterSearch = viewStore.activeMainViewport;
+      viewStore.setViewportOffset({ offsetX: 1000, offsetY: 1000 });
+      expect(viewStore.activeMainViewport).not.toMatchObject(viewportAfterSearch);
       cmd === "selectNext" ? store.selectNextMatch() : store.selectPreviousMatch();
-      expect(model.getters.getActiveMainViewport()).toMatchObject(viewportAfterSearch);
+      expect(viewStore.activeMainViewport).toMatchObject(viewportAfterSearch);
     }
   );
 
   test("Updating search after scrolling will re-scroll to the match", () => {
-    const viewportAfterSearch = model.getters.getActiveMainViewport();
-    setViewportOffset(model, 1000, 1000);
-    expect(model.getters.getActiveMainViewport()).not.toMatchObject(viewportAfterSearch);
+    const viewStore = container.get(ViewportsStore);
+    const viewportAfterSearch = viewStore.activeMainViewport;
+    viewStore.setViewportOffset({ offsetX: 1000, offsetY: 1000 });
+    expect(viewStore.activeMainViewport).not.toMatchObject(viewportAfterSearch);
     updateSearch(model, "1");
-    expect(model.getters.getActiveMainViewport()).toMatchObject(viewportAfterSearch);
+    expect(viewStore.activeMainViewport).toMatchObject(viewportAfterSearch);
   });
 });
 

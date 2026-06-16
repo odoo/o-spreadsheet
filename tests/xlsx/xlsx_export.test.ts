@@ -5,6 +5,7 @@ import { toXC } from "../../src/helpers/coordinates";
 import { buildSheetLink } from "../../src/helpers/misc";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
+import { ViewportsStore } from "../../src/stores/viewports_store";
 import { XLSXExportXMLFile, XMLString } from "../../src/types/xlsx";
 import { hexaToInt } from "../../src/xlsx/conversion/color_conversion";
 import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
@@ -14,6 +15,7 @@ import {
   escapeXml,
   parseXML,
 } from "../../src/xlsx/helpers/xml_helpers";
+import { makeStoreWithModel } from "../test_helpers/stores";
 
 import { arg } from "../../src/functions/arguments";
 import { functionRegistry } from "../../src/functions/function_registry";
@@ -1924,8 +1926,11 @@ describe("Test XLSX export", () => {
     });
 
     test("image larger than the sheet", async () => {
-      const model = new Model(getModelData());
-      const maxSheetSize = model.getters.getMainViewportRect();
+      const { model, store: viewStore } = makeStoreWithModel(
+        new Model(getModelData()),
+        ViewportsStore
+      );
+      const maxSheetSize = viewStore.mainViewportRect;
       createImage(model, {
         size: {
           width: 100000 + maxSheetSize.width,

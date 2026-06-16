@@ -10,7 +10,9 @@ import { Component } from "../src/owl3_compatibility_layer";
 import { topbarMenuRegistry } from "../src/registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../src/registries/topbar_component_registry";
 import { DOMFocusableElementStore } from "../src/stores/DOM_focus_store";
+import { ViewportsStore } from "../src/stores/viewports_store";
 import { SpreadsheetChildEnv } from "../src/types/spreadsheet_env";
+import { Store } from "../src/types/store_engine";
 import { FileStore } from "./__mocks__/mock_file_store";
 import { MockTransportService } from "./__mocks__/transport_service";
 import {
@@ -108,6 +110,7 @@ afterEach(() => {
 let fixture: HTMLElement;
 let parent: Parent;
 let env: SpreadsheetChildEnv;
+let viewStore: Store<ViewportsStore>;
 
 class Parent extends Component<SpreadsheetChildEnv> {
   static template = xml/* xml */ `
@@ -120,7 +123,7 @@ class Parent extends Component<SpreadsheetChildEnv> {
   static components = { TopBar };
 
   get gridHeight(): Pixel {
-    const { height } = this.env.model.getters.getSheetViewDimension();
+    const { height } = this.env.getStore(ViewportsStore).sheetViewDimension;
     return height;
   }
 }
@@ -136,17 +139,14 @@ class Comp2 extends Comp {
   static template = xml`<div class="o-topbar-test2">Test2</div>`;
 }
 
-async function mountParent(
-  model: Model = new Model(),
-  testEnv?: Partial<SpreadsheetChildEnv>
-): Promise<{ parent: Parent; model: Model; fixture: HTMLElement }> {
+async function mountParent(model: Model = new Model(), testEnv?: Partial<SpreadsheetChildEnv>) {
   const partialEnv = {
     ...testEnv,
     model,
   };
   let parent: Component;
-  ({ parent, fixture, env } = await mountComponent(Parent, { env: partialEnv }));
-  return { parent: parent as Parent, model, fixture };
+  ({ parent, fixture, env, viewStore } = await mountComponent(Parent, { env: partialEnv }));
+  return { parent: parent as Parent, model, fixture, viewStore };
 }
 
 describe("TopBar component", () => {
@@ -961,35 +961,37 @@ test("onCancel of dropdown dv editor removes the data validation rule", async ()
 describe("Topbar - menu item resizing with viewport", () => {
   test("color picker of fill color in top bar is resized with screen size change", async () => {
     const { model, fixture } = await mountParent();
+    const sheetId = model.getters.getActiveSheetId();
     await click(fixture, '.o-menu-item-button[title="Fill Color"]');
     let height = getElComputedStyle(".o-popover", "maxHeight");
     expect(parseInt(height)).toBe(
-      model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
+      viewStore.viewports.getVisibleRect(sheetId, viewStore.activeMainViewport).height
     );
-    resizeSheetView(model, 100, 300);
+    resizeSheetView(env, { height: 100, width: 300 });
     spreadsheetHeight = 100;
     window.resizers.resize();
     await nextTick();
     height = getElComputedStyle(".o-popover", "maxHeight");
     expect(parseInt(height)).toBe(
-      model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
+      viewStore.viewports.getVisibleRect(sheetId, viewStore.activeMainViewport).height
     );
   });
 
   test("color picker of text color in top bar is resized with screen size change", async () => {
     const { model, fixture } = await mountParent();
+    const sheetId = model.getters.getActiveSheetId();
     await click(fixture, '.o-menu-item-button[title="Text Color"]');
     let height = getElComputedStyle(".o-popover", "maxHeight");
     expect(parseInt(height)).toBe(
-      model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
+      viewStore.viewports.getVisibleRect(sheetId, viewStore.activeMainViewport).height
     );
-    resizeSheetView(model, 100, 300);
+    resizeSheetView(env, { height: 100, width: 300 });
     spreadsheetHeight = 100;
     window.resizers.resize();
     await nextTick();
     height = getElComputedStyle(".o-popover", "maxHeight");
     expect(parseInt(height)).toBe(
-      model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
+      viewStore.viewports.getVisibleRect(sheetId, viewStore.activeMainViewport).height
     );
   });
 });
@@ -1319,7 +1321,8 @@ describe("Keyboard navigation in topbar", () => {
 
   test("Can open & execute menu items with enter", async () => {
     const { model } = await mountParent();
-    expect(model.getters.getGridLinesVisibility(model.getters.getActiveSheetId())).toBe(true);
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getGridLinesVisibility(sheetId)).toBe(true);
 
     await simulateClick(".o-spreadsheet-topbar [data-id='view']");
     await keyDown({ key: "ArrowDown" });
@@ -1330,7 +1333,7 @@ describe("Keyboard navigation in topbar", () => {
 
     await keyDown({ key: "Enter" });
     expect(getActiveMenu()).toBe(undefined);
-    expect(model.getters.getGridLinesVisibility(model.getters.getActiveSheetId())).toBe(false);
+    expect(model.getters.getGridLinesVisibility(sheetId)).toBe(false);
   });
 
   test("Opening a sub menu with the keyboard focuses the first item, opening it with the mouse does not", async () => {

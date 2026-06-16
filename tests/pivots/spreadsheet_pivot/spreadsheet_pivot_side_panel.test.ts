@@ -12,6 +12,7 @@ import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/s
 import { toZone } from "../../../src/helpers/zones";
 import { topbarMenuRegistry } from "../../../src/registries/menus/topbar_menu_registry";
 import { NotificationStore } from "../../../src/stores/notification_store";
+import { ViewportsStore } from "../../../src/stores/viewports_store";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import {
   activateSheet,
@@ -741,10 +742,10 @@ describe("Spreadsheet pivot side panel", () => {
     expect(mockNotify).toHaveBeenCalledTimes(0);
 
     // scroll beyond the =PIVOT formula
-    setViewportOffset(model, 0, 1000);
+    setViewportOffset(env, 0, 1000);
 
     // add a static pivot in the viewport
-    const { bottom: row, right: col } = model.getters.getActiveMainViewport();
+    const { bottom: row, right: col } = env.getStore(ViewportsStore).activeMainViewport;
     setCellContent(model, toXC(col, row), '=PIVOT.VALUE(1, "amount:sum")');
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);

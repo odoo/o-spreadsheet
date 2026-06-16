@@ -1,9 +1,12 @@
 import { props } from "@odoo/owl";
+import { useStore } from "../../../store_engine/store_hooks";
+import { ViewportsStore } from "../../../stores/viewports_store";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { types } from "../../props_validation";
 
 import { Component } from "../../../owl3_compatibility_layer";
+import { Store } from "../../../types/store_engine";
 
 export class Border extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Border";
@@ -19,6 +22,12 @@ export class Border extends Component<SpreadsheetChildEnv> {
     isMoving: types.boolean(),
     onMoveHighlight: types.function<(ev: PointerEvent) => void>(),
   });
+  private viewStore!: Store<ViewportsStore>;
+
+  setup(): void {
+    this.viewStore = useStore(ViewportsStore);
+  }
+
   get style() {
     const isTop = ["n", "w", "e"].includes(this.props.orientation);
     const isLeft = ["n", "w", "s"].includes(this.props.orientation);
@@ -28,7 +37,10 @@ export class Border extends Component<SpreadsheetChildEnv> {
     const z = this.props.zone;
     const margin = 2;
 
-    const rect = this.env.model.getters.getVisibleRect(z);
+    const rect = this.viewStore.viewports.getVisibleRect(
+      this.env.model.getters.getActiveSheetId(),
+      z
+    );
 
     const left = rect.x;
     const right = rect.x + rect.width - 2 * margin;

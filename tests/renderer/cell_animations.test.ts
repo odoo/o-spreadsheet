@@ -8,8 +8,11 @@ import {
 } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
 import { EASING_FN, cellAnimationRegistry } from "../../src/registries/cell_animation_registry";
+import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { CELL_ANIMATION_DURATION, GridRenderer } from "../../src/stores/grid_renderer_store";
 import { RendererStore } from "../../src/stores/renderer_store";
+import { ViewportsStore } from "../../src/stores/viewports_store";
+import { Store } from "../../src/types/store_engine";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
   activateSheet,
@@ -30,7 +33,6 @@ import {
   setFormat,
   setFormatting,
   setSheetBackground,
-  setViewportOffset,
   undo,
   updateTableConfig,
 } from "../test_helpers/commands_helpers";
@@ -40,11 +42,13 @@ import { makeStoreWithModel } from "../test_helpers/stores";
 
 let boxesOfLastRender: Box[] = [];
 let model: Model;
+let container: DependencyContainer;
 let drawGrid: Function;
 let gridRenderer: GridRenderer;
 let rendererStore: RendererStore;
 let animationFrameCallback: Function;
 let spyRequestAnimationFrame: jest.SpyInstance;
+let viewStore: Store<ViewportsStore>;
 
 function getBoxFromXc(xc: string): Box {
   return boxesOfLastRender.find((b) => b.id === xc)!;
@@ -67,7 +71,9 @@ afterAll(() => {
 
 beforeEach(() => {
   model = new Model();
-  const { container, store: gridRendererStore } = makeStoreWithModel(model, GridRenderer);
+  let gridRendererStore: GridRenderer;
+  ({ container, store: gridRendererStore } = makeStoreWithModel(model, GridRenderer));
+  viewStore = container.get(ViewportsStore);
   rendererStore = container.get(RendererStore);
   jest
     .spyOn(MockCanvasRenderingContext2D.prototype, "measureText")
@@ -77,7 +83,7 @@ beforeEach(() => {
       fontBoundingBoxDescent: 1,
     }));
 
-  const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+  const ctx = new MockGridRenderingContext(model, container, 1000, 1000, {});
   drawGrid = () => rendererStore.draw(ctx);
   gridRenderer = gridRendererStore;
 
@@ -187,7 +193,7 @@ describe("Grid renderer animations", () => {
       y: DEFAULT_CELL_HEIGHT - DEFAULT_CELL_HEIGHT / 2,
     });
 
-    setViewportOffset(model, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT);
+    viewStore.setViewportOffset({ offsetX: DEFAULT_CELL_WIDTH, offsetY: DEFAULT_CELL_HEIGHT });
     animationFrameCallback(CELL_ANIMATION_DURATION / 2);
     expect(getBoxFromXc("B2-text-slide-in")).toMatchObject({
       x: 0,
@@ -682,7 +688,12 @@ describe("Individual animation tests", () => {
     const b3Box = getBoxFromXc("B3");
     expect(b3Box.icons.left?.svg).toEqual(undefined);
     expect(getBoxFromXc("B3-text-slide-in")).toMatchObject({
-      icons: { left: { svg: ICONS.arrowGood.svg, clipRect: model.getters.getRect(toZone("B3")) } },
+      icons: {
+        left: {
+          svg: ICONS.arrowGood.svg,
+          clipRect: viewStore.viewports.getRect(model.getters.getActiveSheetId(), toZone("B3")),
+        },
+      },
       content: { textLines: ["8"] },
       y: b3Box.y - DEFAULT_CELL_HEIGHT / 2,
     });
@@ -733,7 +744,12 @@ describe("Individual animation tests", () => {
       y: b3Box.y - DEFAULT_CELL_HEIGHT / 2,
     });
     expect(getBoxFromXc("B3-text-slide-out")).toMatchObject({
-      icons: { left: { svg: ICONS.arrowGood.svg, clipRect: model.getters.getRect(toZone("B3")) } },
+      icons: {
+        left: {
+          svg: ICONS.arrowGood.svg,
+          clipRect: viewStore.viewports.getRect(model.getters.getActiveSheetId(), toZone("B3")),
+        },
+      },
       content: { textLines: ["9"] },
       y: b3Box.y + DEFAULT_CELL_HEIGHT / 2,
     });

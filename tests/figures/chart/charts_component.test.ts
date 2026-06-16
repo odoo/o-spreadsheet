@@ -3459,7 +3459,7 @@ test("Can edit a chart range", async () => {
   await nextTick();
   expect(document.activeElement).toBe(fixture.querySelector(".o-figure")!);
   await simulateClick(".o-selection-input input.o-input");
-  await clickCell(model, "B1");
+  await clickCell(env, "B1");
   await keyDown({ key: "ArrowDown" });
 
   await simulateClick(".o-data-series .o-selection-ok");

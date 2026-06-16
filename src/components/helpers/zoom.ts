@@ -1,3 +1,4 @@
+import { ViewportsStore } from "../../stores/viewports_store";
 import { Pixel } from "../../types/misc";
 import { DOMCoordinates, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -23,7 +24,7 @@ export function withZoom<T extends MouseEvent>(
   ev: T,
   originalTargetPosition?: DOMCoordinates | null
 ): ZoomedMouseEvent<T> {
-  const zoomLevel = env.model.getters.getViewportZoomLevel();
+  const zoomLevel = env.getStore(ViewportsStore).zoomLevel;
   if (originalTargetPosition === undefined) {
     originalTargetPosition = getZoomTargetPosition(ev, zoomLevel);
   }

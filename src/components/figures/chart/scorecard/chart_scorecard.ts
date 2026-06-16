@@ -2,8 +2,11 @@ import { onMounted, onWillUnmount, props, signal } from "@odoo/owl";
 import { drawScoreChart } from "../../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../../helpers/figures/charts/scorecard_chart_config_builder";
 import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
+import { useStore } from "../../../../store_engine/store_hooks";
+import { ViewportsStore } from "../../../../stores/viewports_store";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { Store } from "../../../../types/store_engine";
 import { getZoomedRect } from "../../../helpers/zoom";
 import { types } from "../../../props_validation";
 
@@ -15,6 +18,7 @@ export class ScorecardChart extends Component<SpreadsheetChildEnv> {
     isFullScreen: types.boolean().optional(),
   });
   private canvas = signal<HTMLCanvasElement | null>(null);
+  private viewStore!: Store<ViewportsStore>;
 
   get runtime(): ScorecardChartRuntime {
     return this.env.model.getters.getChartRuntime(this.props.chartId) as ScorecardChartRuntime;
@@ -26,6 +30,7 @@ export class ScorecardChart extends Component<SpreadsheetChildEnv> {
   }
 
   setup() {
+    this.viewStore = useStore(ViewportsStore);
     useLayoutEffect(this.createChart.bind(this), () => {
       const canvas = this.canvas();
       if (!canvas) {
@@ -49,7 +54,7 @@ export class ScorecardChart extends Component<SpreadsheetChildEnv> {
     if (!canvas) {
       return;
     }
-    const zoom = this.env.model.getters.getViewportZoomLevel();
+    const zoom = this.viewStore.zoomLevel;
     const config = getScorecardConfiguration(
       getZoomedRect(1 / zoom, canvas.getBoundingClientRect()),
       this.runtime
