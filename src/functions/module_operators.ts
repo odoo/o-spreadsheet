@@ -7,9 +7,9 @@ import {
   expectReferenceError,
   generateMatrix,
   isEvaluationError,
+  toLocaleString,
   toMatrix,
   toNumber,
-  toString,
 } from "./helpers";
 import { POWER } from "./module_math";
 
@@ -43,7 +43,7 @@ export const CONCAT = {
     arg("value2 (string)", _t("The value to append to value1.")),
   ],
   compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
-    return { value: toString(value1) + toString(value2) };
+    return { value: toLocaleString(value1, this.locale) + toLocaleString(value2, this.locale) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;

@@ -3,7 +3,7 @@ import { _t } from "../translation";
 import { AddFunctionDescription } from "../types/functions";
 import { FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
-import { toString } from "./helpers";
+import { toLocaleString, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // HYPERLINK
@@ -19,7 +19,7 @@ export const HYPERLINK = {
   ],
   compute: function (url: Maybe<FunctionResultObject>, linkLabel: Maybe<FunctionResultObject>) {
     const processedUrl = toString(url).trim();
-    const processedLabel = toString(linkLabel) || processedUrl;
+    const processedLabel = toLocaleString(linkLabel, this.locale) || processedUrl;
     if (processedUrl === "") {
       return { value: processedLabel };
     }

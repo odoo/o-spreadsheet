@@ -1,5 +1,7 @@
 import { Model } from "../../src";
-import { setCellContent } from "../test_helpers/commands_helpers";
+import { getCellContent } from "../test_helpers";
+import { setCellContent, updateLocale } from "../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../test_helpers/constants";
 import {
   checkFunctionDoesntSpreadBeyondRange,
   createModelFromGrid,
@@ -48,6 +50,17 @@ describe("CLEAN formula", () => {
     expect(evaluateCell("A1", { A1: '=CLEAN("A")' })).toBe("A");
   });
 
+  test("when using CLEAN with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: "=CLEAN(1.2)",
+      A2: "=CLEAN(7%)",
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("1,2");
+    expect(getCellContent(model, "A2")).toBe("0,07");
+  });
+
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=CLEAN(A2)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=CLEAN(A2)", A2: "66" })).toBe("66");
@@ -93,6 +106,25 @@ describe("CONCATENATE formula", () => {
     expect(evaluateCell("A1", { A1: "=CONCATENATE(A2, A3)", A2: "42", A3: '="24"' })).toBe("4224");
   });
 
+  test("when using CONCATENATE with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: "=CONCATENATE(A2, A3)",
+      A2: ">",
+      A3: "1.2",
+      B1: "=CONCATENATE(B2, B3)",
+      B2: ">",
+      B3: "7%",
+      C1: "=CONCATENATE(C2, C3)",
+      C2: ">",
+      C3: "1/1/2021",
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe(">1,2");
+    expect(getCellContent(model, "B1")).toBe(">0,07");
+    expect(getCellContent(model, "C1")).toBe(">44197");
+  });
+
   // prettier-ignore
   test("functional tests on range arguments", () => {
     const grid = {
@@ -128,6 +160,17 @@ describe("EXACT formula", () => {
     expect(evaluateCell("A1", { A1: '=EXACT(TRUE, "TRUE")' })).toBe(true);
   });
 
+  test("when using EXACT with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: '=EXACT(1.2, "1,2")',
+      A2: '=EXACT(7%, "0,07")',
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("TRUE");
+    expect(getCellContent(model, "A2")).toBe("TRUE");
+  });
+
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=EXACT(A2, A3)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=EXACT(A2, A3)", A2: "test", A3: "test" })).toBe(true);
@@ -156,6 +199,17 @@ describe("FIND formula", () => {
     expect(evaluateCell("A1", { A1: '=FIND("C", "ABCD", 3)' })).toBe(3);
     expect(evaluateCell("A1", { A1: '=FIND("C", "ABCD", 4)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=FIND("C", "ABCDC", 4)' })).toBe(5);
+  });
+
+  test("when using FIND with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: '=FIND(",", 1.2)',
+      A2: '=FIND(",", 7%)',
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("2");
+    expect(getCellContent(model, "A2")).toBe("2");
   });
 
   test("functional tests on cell arguments", () => {
@@ -253,6 +307,18 @@ describe("JOIN formula", () => {
     expect(gridResult.B1).toBe("TRUE4212342tset");
     expect(gridResult.C1).toBe('0.07,"8%",');
   });
+
+  test("when using JOIN with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: '=JOIN(" ", A2:A4)',
+      A2: "1.2",
+      A3: "7%",
+      A4: "1/1/2021",
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("1,2 0,07 44197");
+  });
 });
 
 describe("LEFT formula", () => {
@@ -271,6 +337,17 @@ describe("LEFT formula", () => {
     expect(evaluateCell("A1", { A1: '=LEFT("kikou", 6)' })).toBe("kikou");
     expect(evaluateCell("A1", { A1: '=LEFT("kikou", 99)' })).toBe("kikou");
     expect(evaluateCell("A1", { A1: '=LEFT("kikou", "2")' })).toBe("ki");
+  });
+
+  test("when using LEFT with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: "=LEFT(1.2, 99)",
+      A2: "=LEFT(7%, 99)",
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("1,2");
+    expect(getCellContent(model, "A2")).toBe("0,07");
   });
 
   test("functional tests on cell arguments", () => {
@@ -336,6 +413,17 @@ describe("LOWER formula", () => {
     expect(evaluateCell("A1", { A1: '=LOWER("オAドB")' })).toBe("オaドb");
   });
 
+  test("when using LOWER with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: "=LOWER(1.2)",
+      A2: "=LOWER(7%)",
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("1,2");
+    expect(getCellContent(model, "A2")).toBe("0,07");
+  });
+
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=LOWER(A2)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=LOWER(A2)", A2: " " })).toBe(" ");
@@ -365,6 +453,17 @@ describe("MID formula", () => {
     expect(evaluateCell("A1", { A1: '=MID("hey", 2, 20)' })).toBe("ey");
   });
 
+  test("when using MID with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: "=MID(1.2, 1, 99)",
+      A2: "=MID(7%, 1, 99)",
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("1,2");
+    expect(getCellContent(model, "A2")).toBe("0,07");
+  });
+
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=MID(A2, 1, 1)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=MID(A2, 2, 1)", A2: "66" })).toBe("6");
@@ -381,6 +480,17 @@ describe("PROPER formula", () => {
     expect(evaluateCell("A1", { A1: '=PROPER("75google@rdm.com")' })).toBe("75Google@Rdm.Com");
     expect(evaluateCell("A1", { A1: '=PROPER("ça")' })).toBe("Ça");
     expect(evaluateCell("A1", { A1: '=PROPER("ébloui")' })).toBe("Ébloui");
+  });
+
+  test("when using PROPER with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: "=PROPER(1.2)",
+      A2: "=PROPER(7%)",
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("1,2");
+    expect(getCellContent(model, "A2")).toBe("0,07");
   });
 
   test("functional tests on cell arguments", () => {
@@ -675,6 +785,17 @@ describe("REPLACE formula", () => {
     expect(evaluateCell("A1", { A1: '=REPLACE(1239, 2, 2, "78")' })).toBe("1789");
     expect(evaluateCell("A1", { A1: '=REPLACE("1789", 2, 2, 23)' })).toBe("1239");
   });
+
+  test("when using REPLACE with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: '=REPLACE(1.2, 1, 0, "")',
+      A2: '=REPLACE(7%, 1, 0, "")',
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("1,2");
+    expect(getCellContent(model, "A2")).toBe("0,07");
+  });
 });
 
 describe("RIGHT formula", () => {
@@ -693,6 +814,17 @@ describe("RIGHT formula", () => {
     expect(evaluateCell("A1", { A1: '=RIGHT("kikou", 6)' })).toBe("kikou");
     expect(evaluateCell("A1", { A1: '=RIGHT("kikou", 99)' })).toBe("kikou");
     expect(evaluateCell("A1", { A1: '=RIGHT("kikou", "2")' })).toBe("ou");
+  });
+
+  test("when using RIGHT with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: "=RIGHT(1.2, 99)",
+      A2: "=RIGHT(7%, 99)",
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("1,2");
+    expect(getCellContent(model, "A2")).toBe("0,07");
   });
 
   test("functional tests on cell arguments", () => {
@@ -724,6 +856,17 @@ describe("SEARCH formula", () => {
     expect(evaluateCell("A1", { A1: '=SEARCH("C", "ABCD", 3)' })).toBe(3);
     expect(evaluateCell("A1", { A1: '=SEARCH("C", "ABCD", 4)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=SEARCH("C", "ABCDC", 4)' })).toBe(5);
+  });
+
+  test("when using SEARCH with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: '=SEARCH(",", 1.2)',
+      A2: '=SEARCH(",", 7%)',
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("2");
+    expect(getCellContent(model, "A2")).toBe("2");
   });
 
   test("functional tests on cell arguments", () => {
@@ -773,6 +916,17 @@ describe("SPLIT function", () => {
   test("delimiter argument should not be empty", () => {
     expect(evaluateCell("A1", { A1: '=SPLIT("Hello", "", 1, 1)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=SPLIT("Hello", B1, 1, 1)', B1: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+  });
+
+  test("when using SPLIT with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: '=SPLIT(1.2, "-")',
+      A2: '=SPLIT(7%, "-")',
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("1,2");
+    expect(getCellContent(model, "A2")).toBe("0,07");
   });
 
   test("Simple split", () => {
@@ -1236,6 +1390,17 @@ describe("SUBSTITUTE formula", () => {
     expect(evaluateCell("A1", { A1: '=SUBSTITUTE("AAAA", "", "B")' })).toBe("AAAA");
   });
 
+  test("when using SUBSTITUTE with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: '=SUBSTITUTE(1.2, "", "X")',
+      A2: '=SUBSTITUTE(7%, "", "X")',
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("1,2");
+    expect(getCellContent(model, "A2")).toBe("0,07");
+  });
+
   test("functional tests on argument with regexp characters", () => {
     expect(evaluateCell("A1", { A1: '=SUBSTITUTE("(hello)", "(" , ")")' })).toBe(")hello)");
   });
@@ -1337,6 +1502,18 @@ describe("TEXTJOIN formula", () => {
     );
   });
 
+  test("when using TEXTJOIN with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: '=TEXTJOIN(" ", TRUE, A2:A4)',
+      A2: "1.2",
+      A3: "7%",
+      A4: "1/1/2021",
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("1,2 0,07 44197");
+  });
+
   test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=TEXTJOIN(" ", TRUE, 1, 2, 3,  , 4)' })).toBe("1 2 3 4");
     expect(evaluateCell("A1", { A1: '=TEXTJOIN(" ", FALSE, 1, 2, 3,  , 4)' })).toBe("1 2 3  4");
@@ -1395,6 +1572,17 @@ describe("TRIM formula", () => {
     expect(evaluateCell("A1", { A1: "=TRIM(TRUE)" })).toBe("TRUE");
   });
 
+  test("when using TRIM with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: "=TRIM(1.2)",
+      A2: "=TRIM(7%)",
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("1,2");
+    expect(getCellContent(model, "A2")).toBe("0,07");
+  });
+
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=TRIM(A2)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=TRIM(A2)", A2: " Kikou  " })).toBe("Kikou");
@@ -1415,6 +1603,17 @@ describe("UPPER formula", () => {
     expect(evaluateCell("A1", { A1: '=UPPER("オaドb")' })).toBe("オAドB");
     expect(evaluateCell("A1", { A1: '=UPPER("")' })).toBe("");
     expect(evaluateCell("A1", { A1: '=UPPER(" ")' })).toBe(" ");
+  });
+
+  test("when using UPPER with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: "=UPPER(1.2)",
+      A2: "=UPPER(7%)",
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("1,2");
+    expect(getCellContent(model, "A2")).toBe("0,07");
   });
 
   test("functional tests on cell arguments", () => {
