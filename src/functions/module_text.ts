@@ -9,6 +9,7 @@ import {
   matrixMap,
   reduceAny,
   toBoolean,
+  toLocaleString,
   toMatrix,
   toNumber,
   toString,
@@ -57,7 +58,7 @@ export const CLEAN = {
   description: _t("Remove non-printable characters from a piece of text."),
   args: [arg("text (string)", _t("The text whose non-printable characters are to be removed."))],
   compute: function (text: Maybe<FunctionResultObject>) {
-    const _text = toString(text);
+    const _text = toLocaleString(text, this.locale);
     let cleanedStr = "";
     for (const char of _text) {
       if (char && char.charCodeAt(0) > 31) {
@@ -76,7 +77,7 @@ export const CONCATENATE = {
   description: _t("Appends strings to one another."),
   args: [arg("string (string, range<string>, repeating)", _t("String to append in sequence."))],
   compute: function (...datas: Arg[]) {
-    return { value: reduceAny(datas, (acc, a) => acc + toString(a), "") };
+    return { value: reduceAny(datas, (acc, a) => acc + toLocaleString(a, this.locale), "") };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -91,7 +92,7 @@ export const EXACT = {
     arg("string2 (string)", _t("The second string to compare.")),
   ],
   compute: function (string1: Maybe<FunctionResultObject>, string2: Maybe<FunctionResultObject>) {
-    return { value: toString(string1) === toString(string2) };
+    return { value: toLocaleString(string1, this.locale) === toLocaleString(string2, this.locale) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -117,8 +118,8 @@ export const FIND = {
     textToSearch: Maybe<FunctionResultObject>,
     startingAt: Maybe<FunctionResultObject> = { value: DEFAULT_STARTING_AT }
   ) {
-    const _searchFor = toString(searchFor);
-    const _textToSearch = toString(textToSearch);
+    const _searchFor = toLocaleString(searchFor, this.locale);
+    const _textToSearch = toLocaleString(textToSearch, this.locale);
     const _startingAt = toNumber(startingAt, this.locale);
 
     if (_textToSearch === "") {
@@ -191,9 +192,13 @@ export const JOIN = {
     ),
   ],
   compute: function (delimiter: Maybe<FunctionResultObject>, ...valuesOrArrays: Arg[]) {
-    const _delimiter = toString(delimiter);
+    const _delimiter = toLocaleString(delimiter, this.locale);
     return {
-      value: reduceAny(valuesOrArrays, (acc, a) => (acc ? acc + _delimiter : "") + toString(a), ""),
+      value: reduceAny(
+        valuesOrArrays,
+        (acc, a) => (acc ? acc + _delimiter : "") + toLocaleString(a, this.locale),
+        ""
+      ),
     };
   },
 } satisfies AddFunctionDescription;
@@ -218,7 +223,7 @@ export const LEFT = {
         _t("The number_of_characters (%s) must be positive or null.", _numberOfCharacters)
       );
     }
-    return { value: toString(text).substring(0, _numberOfCharacters) };
+    return { value: toLocaleString(text, this.locale).substring(0, _numberOfCharacters) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -230,7 +235,7 @@ export const LEN = {
   description: _t("Length of a string."),
   args: [arg("text (string)", _t("The string whose length will be returned."))],
   compute: function (text: Maybe<FunctionResultObject>) {
-    return { value: toString(text).length };
+    return { value: toLocaleString(text, this.locale).length };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -242,7 +247,7 @@ export const LOWER = {
   description: _t("Converts a specified string to lowercase."),
   args: [arg("text (string)", _t("The string to convert to lowercase."))],
   compute: function (text: Maybe<FunctionResultObject>) {
-    return { value: toString(text).toLowerCase() };
+    return { value: toLocaleString(text, this.locale).toLowerCase() };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -267,7 +272,7 @@ export const MID = {
     starting_at: Maybe<FunctionResultObject>,
     extract_length: Maybe<FunctionResultObject>
   ) {
-    const _text = toString(text);
+    const _text = toLocaleString(text, this.locale);
     const _starting_at = toNumber(starting_at, this.locale);
     const _extract_length = toNumber(extract_length, this.locale);
 
@@ -304,7 +309,7 @@ export const PROPER = {
     ),
   ],
   compute: function (text: Maybe<FunctionResultObject>) {
-    const _text = toString(text);
+    const _text = toLocaleString(text, this.locale);
     return {
       value: _text.replace(wordRegex, (word): string => {
         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
@@ -540,8 +545,8 @@ export const REPLACE = {
       return new EvaluationError(_t("The length (%s) must be positive or zero.", _length));
     }
 
-    const _text = toString(text);
-    const _newText = toString(newText);
+    const _text = toLocaleString(text, this.locale);
+    const _newText = toLocaleString(newText, this.locale);
     return {
       value:
         _text.substring(0, _position - 1) + _newText + _text.substring(_position - 1 + _length),
@@ -569,7 +574,7 @@ export const RIGHT = {
         _t("The number_of_characters (%s) must be positive or zero.", _numberOfCharacters)
       );
     }
-    const _text = toString(text);
+    const _text = toLocaleString(text, this.locale);
     const stringLength = _text.length;
     return { value: _text.substring(stringLength - _numberOfCharacters, stringLength) };
   },
@@ -597,8 +602,8 @@ export const SEARCH = {
     textToSearch: Maybe<FunctionResultObject>,
     startingAt: Maybe<FunctionResultObject> = { value: DEFAULT_STARTING_AT }
   ) {
-    const _searchFor = toString(searchFor).toLowerCase();
-    const _textToSearch = toString(textToSearch).toLowerCase();
+    const _searchFor = toLocaleString(searchFor, this.locale).toLowerCase();
+    const _textToSearch = toLocaleString(textToSearch, this.locale).toLowerCase();
     const _startingAt = toNumber(startingAt, this.locale);
     if (_textToSearch === "") {
       return {
@@ -657,8 +662,8 @@ export const SPLIT = {
     splitByEach: Maybe<FunctionResultObject> = { value: SPLIT_DEFAULT_SPLIT_BY_EACH },
     removeEmptyText: Maybe<FunctionResultObject> = { value: SPLIT_DEFAULT_REMOVE_EMPTY_TEXT }
   ) {
-    const _text = toString(text);
-    const _delimiter = escapeRegExp(toString(delimiter));
+    const _text = toLocaleString(text, this.locale);
+    const _delimiter = escapeRegExp(toLocaleString(delimiter, this.locale));
     const _splitByEach = toBoolean(splitByEach);
     const _removeEmptyText = toBoolean(removeEmptyText);
 
@@ -708,13 +713,13 @@ export const SUBSTITUTE = {
       );
     }
 
-    const _textToSearch = toString(textToSearch);
-    const _searchFor = toString(searchFor);
+    const _textToSearch = toLocaleString(textToSearch, this.locale);
+    const _searchFor = toLocaleString(searchFor, this.locale);
     if (_searchFor === "") {
       return { value: _textToSearch };
     }
 
-    const _replaceWith = toString(replaceWith);
+    const _replaceWith = toLocaleString(replaceWith, this.locale);
     const reg = new RegExp(escapeRegExp(_searchFor), "g");
     if (_occurrenceNumber === 0) {
       return { value: _textToSearch.replace(reg, _replaceWith) };
@@ -762,14 +767,16 @@ export const TEXTJOIN = {
     ignoreEmpty: Maybe<FunctionResultObject> = { value: TEXTJOIN_DEFAULT_IGNORE_EMPTY },
     ...textsOrArrays: Arg[]
   ) {
-    const _delimiter = toString(delimiter);
+    const _delimiter = toLocaleString(delimiter, this.locale);
     const _ignoreEmpty = toBoolean(ignoreEmpty);
     let n = 0;
     return {
       value: reduceAny(
         textsOrArrays,
         (acc, a) =>
-          !(_ignoreEmpty && toString(a) === "") ? (n++ ? acc + _delimiter : "") + toString(a) : acc,
+          !(_ignoreEmpty && toLocaleString(a, this.locale) === "")
+            ? (n++ ? acc + _delimiter : "") + toLocaleString(a, this.locale)
+            : acc,
         ""
       ),
     };
@@ -890,7 +897,7 @@ export const TRIM = {
     arg("text (string)", _t("The text or reference to a cell containing text to be trimmed.")),
   ],
   compute: function (text: Maybe<FunctionResultObject>) {
-    return { value: trimContent(toString(text)) };
+    return { value: trimContent(toLocaleString(text, this.locale)) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -902,7 +909,7 @@ export const UPPER = {
   description: _t("Converts a specified string to uppercase."),
   args: [arg("text (string)", _t("The string to convert to uppercase."))],
   compute: function (text: Maybe<FunctionResultObject>) {
-    return { value: toString(text).toUpperCase() };
+    return { value: toLocaleString(text, this.locale).toUpperCase() };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
