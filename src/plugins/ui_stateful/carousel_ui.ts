@@ -7,6 +7,7 @@ import {
   CommandResult,
   DuplicateCarouselChartCommand,
   LocalCommand,
+  PopOutChartFromCarouselCommand,
 } from "../../types/commands";
 import { Carousel, CarouselItem } from "../../types/figure";
 import { UID } from "../../types/misc";
@@ -80,7 +81,7 @@ export class CarouselUIPlugin extends UIPlugin {
         this.carouselStates[cmd.figureId] = this.getCarouselItemId(cmd.item);
         break;
       case "POPOUT_CHART_FROM_CAROUSEL":
-        this.popOutChartFromCarousel(cmd.carouselId, cmd.chartId, cmd.sheetId);
+        this.popOutChartFromCarousel(cmd);
         break;
       case "DELETE_FIGURE":
         delete this.carouselStates[cmd.figureId];
@@ -98,7 +99,9 @@ export class CarouselUIPlugin extends UIPlugin {
         break;
     }
   }
-  popOutChartFromCarousel(carouselId: UID, chartId: UID, sheetId: UID) {
+
+  popOutChartFromCarousel(cmd: PopOutChartFromCarouselCommand) {
+    const { carouselId, chartId, sheetId, col, row, offset } = cmd;
     const carousel = this.getters.getCarousel(carouselId);
     if (!carousel) {
       return;
@@ -109,15 +112,12 @@ export class CarouselUIPlugin extends UIPlugin {
     if (!chartDefinition || !figure) {
       return;
     }
-    const figureUI = this.getters.getFigureUI(sheetId, figure);
-    const newAnchor = this.getters.getPositionAnchorOffset({
-      x: figureUI.x + 50,
-      y: figureUI.y + 50,
-    });
 
     const newChartFigureId = UuidGenerator.smallUuid();
     this.dispatch("CREATE_CHART", {
-      ...newAnchor,
+      col,
+      row,
+      offset,
       chartId: UuidGenerator.smallUuid(),
       figureId: newChartFigureId,
       sheetId,

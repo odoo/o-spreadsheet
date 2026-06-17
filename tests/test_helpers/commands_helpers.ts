@@ -66,7 +66,7 @@ import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart"
 import { SunburstChartDefinition } from "../../src/types/chart/sunburst_chart";
 import { TreeMapChartDefinition } from "../../src/types/chart/tree_map_chart";
 import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart";
-import { CarouselItem, FigureSize } from "../../src/types/figure";
+import { AnchorOffset, CarouselItem, FigureSize } from "../../src/types/figure";
 import { Image } from "../../src/types/image";
 import { CoreTableType, CriterionFilter, TableConfig } from "../../src/types/table";
 import { toChartDataSource } from "./chart_helpers";
@@ -1874,9 +1874,15 @@ export function popOutChartFromCarousel(
   model: Model,
   sheetId: UID,
   carouselId: UID,
-  chartId: UID
+  chartId: UID,
+  anchor: AnchorOffset = { col: 0, row: 0, offset: { x: 0, y: 0 } }
 ): DispatchResult {
-  return model.dispatch("POPOUT_CHART_FROM_CAROUSEL", { carouselId, chartId, sheetId });
+  return model.dispatch("POPOUT_CHART_FROM_CAROUSEL", {
+    carouselId,
+    chartId,
+    sheetId,
+    ...anchor,
+  });
 }
 
 export function addNewChartToCarousel(

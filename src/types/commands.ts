@@ -22,7 +22,7 @@ import { ConditionalFormat } from "./conditional_formatting";
 
 import { ClipboardPasteOptions, ParsedOsClipboardContentWithImageData } from "./clipboard";
 import { DataValidationRule } from "./data_validation";
-import { Carousel, CarouselItem, Figure, FigureSize } from "./figure";
+import { AnchorOffset, Carousel, CarouselItem, Figure, FigureSize } from "./figure";
 import { SearchOptions } from "./find_and_replace";
 import { Image } from "./image";
 import { Locale } from "./locale";
@@ -688,7 +688,7 @@ export interface UpdateCarouselActiveItemCommand extends SheetDependentCommand {
   item: CarouselItem;
 }
 
-export interface PopOutChartFromCarouselCommand extends SheetDependentCommand {
+export interface PopOutChartFromCarouselCommand extends SheetDependentCommand, AnchorOffset {
   type: "POPOUT_CHART_FROM_CAROUSEL";
   carouselId: UID;
   chartId: UID;
