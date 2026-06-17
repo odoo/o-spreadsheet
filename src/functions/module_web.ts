@@ -2,7 +2,7 @@ import { markdownLink } from "../helpers";
 import { _t } from "../translation";
 import { AddFunctionDescription, FunctionResultObject, Maybe } from "../types";
 import { arg } from "./arguments";
-import { toString } from "./helpers";
+import { toLocaleString, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // HYPERLINK
@@ -21,7 +21,7 @@ export const HYPERLINK = {
     linkLabel: Maybe<FunctionResultObject>
   ): string {
     const processedUrl = toString(url).trim();
-    const processedLabel = toString(linkLabel) || processedUrl;
+    const processedLabel = toLocaleString(linkLabel, this.locale) || processedUrl;
     if (processedUrl === "") {
       return processedLabel;
     }
