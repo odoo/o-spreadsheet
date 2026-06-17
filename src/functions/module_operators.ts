@@ -7,7 +7,7 @@ import {
 } from "../types";
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, isEvaluationError, toNumber, toString } from "./helpers";
+import { assert, isEvaluationError, toLocaleString, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------
@@ -43,7 +43,7 @@ export const CONCAT = {
     value1: Maybe<FunctionResultObject>,
     value2: Maybe<FunctionResultObject>
   ): string {
-    return toString(value1) + toString(value2);
+    return toLocaleString(value1, this.locale) + toLocaleString(value2, this.locale);
   },
   isExported: true,
 } satisfies AddFunctionDescription;

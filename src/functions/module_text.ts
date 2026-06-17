@@ -3,7 +3,15 @@ import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe } from "../types";
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, reduceAny, toBoolean, toNumber, toString, transposeMatrix } from "./helpers";
+import {
+  assert,
+  reduceAny,
+  toBoolean,
+  toLocaleString,
+  toNumber,
+  toString,
+  transposeMatrix,
+} from "./helpers";
 
 const DEFAULT_STARTING_AT = 1;
 
@@ -61,7 +69,7 @@ export const CONCATENATE = {
     arg("string2 (string, range<string>, repeating)", _t("More strings to append in sequence.")),
   ],
   compute: function (...datas: Arg[]): string {
-    return reduceAny(datas, (acc, a) => acc + toString(a), "");
+    return reduceAny(datas, (acc, a) => acc + toLocaleString(a, this.locale), "");
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -152,7 +160,11 @@ export const JOIN = {
   ],
   compute: function (delimiter: Maybe<FunctionResultObject>, ...valuesOrArrays: Arg[]): string {
     const _delimiter = toString(delimiter);
-    return reduceAny(valuesOrArrays, (acc, a) => (acc ? acc + _delimiter : "") + toString(a), "");
+    return reduceAny(
+      valuesOrArrays,
+      (acc, a) => (acc ? acc + _delimiter : "") + toLocaleString(a, this.locale),
+      ""
+    );
   },
 } satisfies AddFunctionDescription;
 
@@ -516,7 +528,9 @@ export const TEXTJOIN = {
     return reduceAny(
       textsOrArrays,
       (acc, a) =>
-        !(_ignoreEmpty && toString(a) === "") ? (n++ ? acc + _delimiter : "") + toString(a) : acc,
+        !(_ignoreEmpty && toString(a) === "")
+          ? (n++ ? acc + _delimiter : "") + toLocaleString(a, this.locale)
+          : acc,
       ""
     );
   },
