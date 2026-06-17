@@ -17,7 +17,6 @@ import { Getters } from "../../../types/getters";
 import { Locale } from "../../../types/locale";
 import { Color, RangeAdapterFunctions, UID, UnboundedZone, Zone } from "../../../types/misc";
 import { Range } from "../../../types/range";
-import { DOMCoordinates, DOMDimension } from "../../../types/rendering";
 import { MAX_XLSX_POLYNOMIAL_DEGREE } from "../../../xlsx/constants";
 import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue, humanizeNumber } from "../../format/format";
@@ -286,20 +285,6 @@ export function shouldRemoveFirstLabel(
   dataSetsHaveTitle: boolean
 ) {
   return dataSetsHaveTitle && !!numberOfDataPoints && numberOfLabels >= numberOfDataPoints;
-}
-
-export function getChartPositionAtCenterOfViewport(
-  getters: Getters,
-  chartSize: DOMDimension
-): DOMCoordinates {
-  const { x, y } = getters.getMainViewportCoordinates();
-  const { scrollX, scrollY } = getters.getActiveSheetScrollInfo();
-  const { width, height } = getters.getVisibleRect(getters.getActiveMainViewport());
-
-  return {
-    x: x + scrollX + Math.max(0, (width - chartSize.width) / 2),
-    y: y + scrollY + Math.max(0, (height - chartSize.height) / 2),
-  }; // Position at the center of the scrollable viewport
 }
 
 export function getDefinedAxis(definition: Partial<ChartDefinition<string | Range>>): {
