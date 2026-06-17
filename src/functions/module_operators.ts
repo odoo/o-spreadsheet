@@ -3,7 +3,7 @@ import { DivisionByZeroError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
-import { isEvaluationError, toNumber, toString } from "./helpers";
+import { isEvaluationError, toLocaleString, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ export const CONCAT = {
     value1: Maybe<FunctionResultObject>,
     value2: Maybe<FunctionResultObject>
   ): string {
-    return toString(value1) + toString(value2);
+    return toLocaleString(value1, this.locale) + toLocaleString(value2, this.locale);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
