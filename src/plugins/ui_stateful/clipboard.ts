@@ -162,7 +162,7 @@ export class ClipboardPlugin extends UIPlugin {
           const figureId = UuidGenerator.uuidv4();
           const definition = contentToPaste.imageData;
 
-          const size = getMaxFigureSize(this.getters, definition.size);
+          const size = getMaxFigureSize(definition.size);
           this.dispatch("CREATE_IMAGE", {
             definition,
             size,

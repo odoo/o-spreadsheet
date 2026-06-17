@@ -8,7 +8,7 @@ import {
   LocalCommand,
 } from "../../types/commands";
 import { SelectionEvent } from "../../types/event_stream/selection_events";
-import { AnchorOffset, Figure, FigureUI } from "../../types/figure";
+import { AnchorOffset, FigureUI } from "../../types/figure";
 import {
   CellPosition,
   Dimension,
@@ -62,7 +62,6 @@ export class SheetViewPlugin extends UIPlugin {
     "getColDimensionsInViewport",
     "getRowDimensionsInViewport",
     "getRect",
-    "getFigureUI",
     "getPositionAnchorOffset",
     "getGridOffset",
     "getViewportZoomLevel",
@@ -469,10 +468,6 @@ export class SheetViewPlugin extends UIPlugin {
 
   getVisibleFigures(): FigureUI[] {
     return this.viewports.getVisibleFigures(this.getters.getActiveSheetId());
-  }
-
-  getFigureUI(sheetId: UID, figure: Figure): FigureUI {
-    return this.viewports.getFigureUI(sheetId, figure);
   }
 
   getPositionAnchorOffset(position: PixelPosition): AnchorOffset {
