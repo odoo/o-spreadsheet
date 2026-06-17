@@ -1,4 +1,6 @@
-import { evaluateCell, evaluateCellFormat } from "../test_helpers/helpers";
+import { getCellContent, updateLocale } from "../test_helpers";
+import { FR_LOCALE } from "../test_helpers/constants";
+import { createModelFromGrid, evaluateCell, evaluateCellFormat } from "../test_helpers/helpers";
 
 describe("ADD formula", () => {
   test("functional tests on simple arguments", () => {
@@ -79,6 +81,21 @@ describe("CONCAT formula", () => {
     expect(evaluateCell("A1", { A1: "=CONCAT(A2, A3)", A2: "42", A3: '=""' })).toBe("42");
     expect(evaluateCell("A1", { A1: "=CONCAT(A2, A3)", A2: "42", A3: '=" "' })).toBe("42 ");
     expect(evaluateCell("A1", { A1: "=CONCAT(A2, A3)", A2: "42", A3: '="24"' })).toBe("4224");
+  });
+
+  test("when using CONCAT with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: ">",
+      A2: "1.2",
+      A3: "7%",
+      A4: "1/1/2021",
+      A5: "=CONCAT(A1, A2:A4)",
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A5")).toBe(">1,2");
+    expect(getCellContent(model, "A6")).toBe(">0,07");
+    expect(getCellContent(model, "A7")).toBe(">44197");
   });
 });
 
