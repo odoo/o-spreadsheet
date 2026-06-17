@@ -1,4 +1,7 @@
-import { evaluateCell, evaluateCellText } from "../test_helpers/helpers";
+import { getCellContent } from "../test_helpers";
+import { updateLocale } from "../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../test_helpers/constants";
+import { createModelFromGrid, evaluateCell, evaluateCellText } from "../test_helpers/helpers";
 
 describe("HYPERLINK formula", () => {
   test("The evaluated result is the link", () => {
@@ -7,6 +10,17 @@ describe("HYPERLINK formula", () => {
       "https://www.odoo.com"
     );
     expect(evaluateCell("A1", { A1: '=HYPERLINK("invalidUrl")' })).toBe("invalidUrl");
+  });
+
+  test("when using HYPERLINK with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: '=HYPERLINK("url", 1.2)',
+      A2: '=HYPERLINK("url", 7%)',
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("1,2");
+    expect(getCellContent(model, "A2")).toBe("0,07");
   });
 
   test("The reference will be taken into account", () => {
