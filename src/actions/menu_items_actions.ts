@@ -518,7 +518,7 @@ export const CREATE_IMAGE = async (env: SpreadsheetChildEnv) => {
     const sheetId = env.model.getters.getActiveSheetId();
     const figureId = UuidGenerator.smallUuid();
     const image = await env.imageProvider.requestImage();
-    const size = getMaxFigureSize(env.model.getters, image.size);
+    const size = getMaxFigureSize(image.size);
     const { col, row, offset } = centerFigurePosition(env.model.getters, size);
     env.model.dispatch("CREATE_IMAGE", {
       sheetId,

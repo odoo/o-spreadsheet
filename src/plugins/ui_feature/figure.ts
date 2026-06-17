@@ -1,8 +1,12 @@
 import { UuidGenerator } from "../../helpers/uuid";
 import { Command, CommandResult } from "../../types/commands";
+import { Figure, FigureUI } from "../../types/figure";
+import { UID } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class FigureUIPlugin extends UIPlugin {
+  static getters = ["getFigureUI"] as const;
+
   allowDispatch(cmd: Command): CommandResult | CommandResult[] {
     switch (cmd.type) {
       case "MOVE_FIGURES":
@@ -67,5 +71,11 @@ export class FigureUIPlugin extends UIPlugin {
           chartFigureIds: cmd.chartFigureIds,
         });
     }
+  }
+
+  getFigureUI(sheetId: UID, figure: Figure): FigureUI {
+    const x = figure.offset.x + this.getters.getColDimensions(sheetId, figure.col).start;
+    const y = figure.offset.y + this.getters.getRowDimensions(sheetId, figure.row).start;
+    return { ...figure, x, y };
   }
 }
