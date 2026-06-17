@@ -174,6 +174,26 @@ export function toString(data: FunctionResultObject | CellValue | undefined): st
 }
 
 /**
+ * Only converts the decimal separator, ignore number format such as % or dates
+ */
+export function toLocaleString(
+  data: FunctionResultObject | CellValue | undefined,
+  locale: Locale
+): string {
+  const value = toValue(data);
+  switch (typeof value) {
+    case "string":
+      return value;
+    case "number":
+      return value.toString().replace(".", locale.decimalSeparator);
+    case "boolean":
+      return value ? "TRUE" : "FALSE";
+    default:
+      return "";
+  }
+}
+
+/**
  * Normalize range by setting all the string in the range to lowercase and replacing
  * accent letters with plain letters
  */
