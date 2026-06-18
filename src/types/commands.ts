@@ -258,7 +258,6 @@ export const lockedSheetAllowedCommands = new Set<Command["type"]>([
 export const coreTypes = new Set<CoreCommandTypes>([
   /** CELLS */
   "UPDATE_CELL",
-  "UPDATE_CELL_POSITION",
   "CLEAR_CELL",
   "CLEAR_CELLS",
   "DELETE_CONTENT",
@@ -377,14 +376,6 @@ export interface UpdateCellCommand extends PositionDependentCommand {
   content?: string;
   style?: Style | null;
   format?: Format;
-}
-
-/**
- * Move a cell to a given position or clear the position.
- */
-export interface UpdateCellPositionCommand extends PositionDependentCommand {
-  type: "UPDATE_CELL_POSITION";
-  cellId?: number;
 }
 
 //------------------------------------------------------------------------------
@@ -1246,7 +1237,6 @@ export type CoreCommand =
 
   /** CELLS */
   | UpdateCellCommand
-  | UpdateCellPositionCommand
   | ClearCellCommand
   | ClearCellsCommand
   | DeleteContentCommand
@@ -1492,7 +1482,6 @@ export const enum CommandResult {
   InvalidRange = "InvalidRange",
   InvalidZones = "InvalidZones",
   InvalidSheetId = "InvalidSheetId",
-  InvalidCellId = "InvalidCellId",
   InvalidFigureId = "InvalidFigureId",
   InputAlreadyFocused = "InputAlreadyFocused",
   MaximumRangesReached = "MaximumRangesReached",

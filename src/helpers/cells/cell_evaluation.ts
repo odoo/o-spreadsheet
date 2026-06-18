@@ -124,6 +124,58 @@ export function createFormulaCellFromCompiledFormula(
   };
 }
 
+/**
+ * A formula cell belonging to a "fill region": a vertical run of cells that all
+ * share the same compiled formula template and differ only by a uniform
+ * translation of their relative references (the common fill-down pattern, e.g.
+ * `=A4+1` repeated down a column).
+ *
+ * Instead of materializing one `CompiledFormula` + `Range[]` per cell at import
+ * time (the dominant allocation when loading large workbooks), the region cell
+ * is a Flyweight: it stores the shared `template` and its grid offset from the
+ * region anchor, and reifies its own `compiledFormula` on demand by translating
+ * the template's dependencies with `createAdaptedRanges` — the exact same
+ * translation the engine uses for autofill/copy, so the result is identical to
+ * what the per-cell path would have produced.
+ */
+export class RegionFormulaCell implements FormulaCell {
+  readonly isFormula = true as const;
+  private reified: CompiledFormula | undefined;
+
+  constructor(
+    readonly id: number,
+    readonly format: Format | undefined,
+    readonly style: Style | undefined,
+    private readonly template: CompiledFormula,
+    private readonly sheetId: UID,
+    private readonly dCol: number,
+    private readonly dRow: number,
+    private readonly getters: CoreGetters
+  ) {}
+
+  get compiledFormula(): CompiledFormula {
+    if (this.reified) {
+      return this.reified;
+    }
+    if (this.dCol === 0 && this.dRow === 0) {
+      this.reified = this.template;
+    } else {
+      const dependencies = this.getters.createAdaptedRanges(
+        this.template.rangeDependencies,
+        this.dCol,
+        this.dRow,
+        this.sheetId
+      );
+      this.reified = CompiledFormula.CopyWithDependencies(
+        this.template,
+        this.sheetId,
+        dependencies
+      );
+    }
+    return this.reified;
+  }
+}
+
 export function parseLiteral(content: string, locale: Locale): CellValue {
   if (content.startsWith("=")) {
     throw new Error(`Cannot parse "${content}" because it's not a literal value. It's a formula`);

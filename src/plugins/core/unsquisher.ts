@@ -4,6 +4,7 @@ import { createLiteralCell } from "../../helpers/cells/cell_evaluation";
 import { toCartesian } from "../../helpers/coordinates";
 import { expandRange, expandXc } from "../../helpers/expand_range";
 import { formatValue } from "../../helpers/format/format";
+import { deepEquals } from "../../helpers/misc";
 import { CoreCommand, UpdateCellCommand } from "../../types/commands";
 import { CoreGetters } from "../../types/core_getters";
 import { Format } from "../../types/format";
@@ -18,6 +19,23 @@ type UnsquishMethod =
   | "FIRST_OFFSET"
   | "COMBINE_OFFSET"
   | "OFFSET_NUMBER";
+
+/**
+ * A cell belonging to a fill region: it shares `template`'s compiled formula and
+ * is the template translated by `(dCol, dRow)` grid cells. See `RegionFormulaCell`.
+ */
+export interface UnsquishedRegionCell {
+  template: CompiledFormula;
+  dCol: number;
+  dRow: number;
+}
+
+export interface UnsquishedCell {
+  position: Position;
+  content?: string;
+  compiled?: CompiledFormula;
+  region?: UnsquishedRegionCell;
+}
 
 export class Unsquisher {
   private previousFormula: CompiledFormula | undefined;
@@ -110,11 +128,7 @@ export class Unsquisher {
     squished: { [cellRefOrRange: string]: SquishedContent | undefined },
     sheetId: UID,
     getters: CoreGetters
-  ): Generator<{
-    position: Position;
-    content?: string;
-    compiled?: CompiledFormula;
-  }> {
+  ): Generator<UnsquishedCell> {
     // sort the keys in cartesian order (col first, then row) using the first part of the range (before ":")
     const keys = Object.keys(squished)
       .map((x) => {
@@ -136,9 +150,76 @@ export class Unsquisher {
       }
 
       const parts = key.split(":");
+      if (parts.length === 2 && strategy === "FIRST_OFFSET" && typeof current === "object") {
+        // A range key under FIRST_OFFSET is a uniform vertical run of a single
+        // formula translated cell by cell — the dominant fill-down pattern.
+        // Try to keep it compressed as one shared template (a region) instead of
+        // materializing one CompiledFormula + Range[] per cell.
+        yield* this.applyFirstOffsetRange(current, parts, sheetId, getters);
+        continue;
+      }
       const targetPositions = parts.length === 1 ? expandXc(key) : expandRange(parts[0], parts[1]);
 
       yield* this.applyStrategy(strategy, targetPositions, current, sheetId, getters);
+    }
+  }
+
+  /**
+   * Handle a `FIRST_OFFSET` range key. If the run is a pure fill (every cell is
+   * the first cell's formula translated by a constant grid offset, with no
+   * literal change), emit lightweight region cells sharing a single template.
+   * Otherwise fall back to materializing one formula per cell — the behaviour is
+   * identical to `applyStrategy("FIRST_OFFSET", …)`, and either branch leaves the
+   * decoder in the same accumulator state for the next key.
+   */
+  private *applyFirstOffsetRange(
+    current: SquishedFormula,
+    parts: string[],
+    sheetId: UID,
+    getters: CoreGetters
+  ): Generator<UnsquishedCell> {
+    const start = toCartesian(parts[0]);
+    const end = toCartesian(parts[1]);
+    const length = end.row - start.row + 1;
+
+    this.previousOffset = current;
+    const template = this.unsquishFormula(current, sheetId, getters);
+    if (length === 1) {
+      yield { position: start, compiled: template };
+      return;
+    }
+    const second = this.unsquishFormula(current, sheetId, getters);
+    const translated = getters.createAdaptedRanges(template.rangeDependencies, 0, 1, sheetId);
+    const isPureFill =
+      deepEquals(template.literalValues, second.literalValues) &&
+      deepEquals(second.rangeDependencies, translated);
+
+    if (isPureFill) {
+      // Fast-forward the reference accumulator to the last cell's state, as if
+      // `unsquishFormula` had been called once per remaining position.
+      this.alreadyAppliedReferenceOffset = getters.createAdaptedRanges(
+        second.rangeDependencies,
+        0,
+        length - 2,
+        sheetId
+      );
+      for (let i = 0; i < length; i++) {
+        yield {
+          position: { col: start.col, row: start.row + i },
+          region: { template, dCol: 0, dRow: i },
+        };
+      }
+      return;
+    }
+
+    // Not a pure fill: materialize each cell individually.
+    yield { position: start, compiled: template };
+    yield { position: { col: start.col, row: start.row + 1 }, compiled: second };
+    for (let i = 2; i < length; i++) {
+      yield {
+        position: { col: start.col, row: start.row + i },
+        compiled: this.unsquishFormula(current, sheetId, getters),
+      };
     }
   }
 
