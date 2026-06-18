@@ -193,6 +193,8 @@ export const DEFAULT_NUMBER_STYLE = { ...DEFAULT_STYLE, align: "right" } satisfi
 export const DEFAULT_VERTICAL_ALIGN = DEFAULT_STYLE.verticalAlign;
 export const DEFAULT_WRAPPING_MODE = DEFAULT_STYLE.wrapping;
 
+export const DEFAULT_TEXT_HIGHLIGHT_PERCENT = 0.25;
+
 // Fonts
 export const DEFAULT_FONT_WEIGHT = "400";
 export const DEFAULT_FONT_SIZE = DEFAULT_STYLE.fontSize;
