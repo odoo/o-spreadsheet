@@ -443,7 +443,7 @@ function isFontSizeSelected(env: SpreadsheetChildEnv, fontSize: number): boolean
 
 function getHorizontalAlign(env: SpreadsheetChildEnv): Align {
   const style = env.model.getters.getCurrentStyle();
-  if (style.align) {
+  if (style.align && style.align !== "default") {
     return style.align;
   }
   const cell = env.model.getters.getActiveCell();
