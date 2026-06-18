@@ -24,7 +24,7 @@ export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
     onCloseSidePanel: types.function(),
   });
 
-  private searchInputRef = signal<HTMLInputElement | null>(null);
+  private searchInputRef = signal.ref(HTMLInputElement);
   private store!: Store<FindAndReplaceStore>;
   private state!: { dataRange: string };
   private updateSearchContent!: DebouncedFunction<(value: string) => void>;
