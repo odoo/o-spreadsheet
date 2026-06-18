@@ -33,7 +33,7 @@ export class NumberEditor extends Component<SpreadsheetChildEnv> {
 
   dropdown: State = proxy({ isOpen: false });
 
-  private inputRef = signal<HTMLInputElement | null>(null);
+  private inputRef = signal.ref(HTMLInputElement);
   private rootEditorRef = signal<HTMLElement | null>(null);
   private valueListRef = signal<HTMLElement | null>(null);
 

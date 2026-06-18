@@ -44,7 +44,7 @@ export class FilterMenuValueList extends Component<SpreadsheetChildEnv> {
     hasMoreValues: false,
   });
 
-  private searchBarRef = signal<HTMLInputElement | null>(null);
+  private searchBarRef = signal.ref(HTMLInputElement);
 
   setup() {
     onWillUpdateProps((nextProps: PropsOf<FilterMenuValueList>) => {

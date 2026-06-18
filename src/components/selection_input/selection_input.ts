@@ -54,8 +54,8 @@ export class SelectionInput extends Component<SpreadsheetChildEnv> {
     isMissing: false,
   });
   private dragAndDrop = useDragAndDropListItems();
-  private focusedInputRef = signal<HTMLInputElement | null>(null);
-  unfocusedInputRef = signal<HTMLInputElement | null>(null);
+  private focusedInputRef = signal.ref(HTMLInputElement);
+  unfocusedInputRef = signal.ref(HTMLInputElement);
   private selectionRef = signal<HTMLElement | null>(null);
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private store!: Store<SelectionInputStore>;

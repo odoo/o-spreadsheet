@@ -14,7 +14,7 @@ export class GridAddRowsFooter extends Component<SpreadsheetChildEnv> {
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
-  inputRef = signal<HTMLInputElement | null>(null);
+  inputRef = signal.ref(HTMLInputElement);
   state = proxy({
     inputValue: "100",
     errorFlag: false,

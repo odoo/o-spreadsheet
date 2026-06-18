@@ -23,7 +23,7 @@ export class CriterionInput extends Component<SpreadsheetChildEnv> {
     disableFormulas: types.boolean().optional(),
   });
 
-  inputRef = signal<HTMLInputElement | null>(null);
+  inputRef = signal.ref(HTMLInputElement);
 
   setup() {
     useLayoutEffect(

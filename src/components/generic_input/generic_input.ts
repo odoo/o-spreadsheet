@@ -36,7 +36,7 @@ export const genericInputPropsDefinition = {
 export class GenericInput<T extends GenericInputProps> extends Component<SpreadsheetChildEnv> {
   protected props: T = props(genericInputPropsDefinition) as unknown as T;
 
-  protected genericInputRef = signal<HTMLInputElement | null>(null);
+  protected genericInputRef = signal.ref(HTMLInputElement);
 
   private lastOnChangeValue: string = this.props.value.toString();
 
