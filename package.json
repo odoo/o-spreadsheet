@@ -131,6 +131,10 @@
     "@rolldown/binding-win32-arm64-msvc": "1.0.0",
     "@rolldown/binding-win32-x64-msvc": "1.0.0"
   },
+  "engines": {
+    "node": ">=24.17.0",
+    "npm": ">=11.13.0"
+  },
   "prettier": {
     "printWidth": 100,
     "xmlWhitespaceSensitivity": "ignore",
