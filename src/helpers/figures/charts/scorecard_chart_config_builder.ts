@@ -24,6 +24,7 @@ type ScorecardChartElement = {
     color: Color;
     strikethrough?: boolean;
     underline?: boolean;
+    highlightText?: boolean;
   };
   position: PixelPosition;
 };
@@ -40,6 +41,7 @@ export type ScorecardChartConfig = {
     style: {
       size: Pixel;
       color: Color;
+      highlight?: boolean;
     };
     position: PixelPosition;
   };
@@ -341,6 +343,7 @@ class ScorecardChartConfigBuilder {
         ),
         strikethrough: this.runtime.keyValueStyle?.strikethrough,
         underline: this.runtime.keyValueStyle?.underline,
+        highlightText: this.runtime.keyHighlight,
       },
       keyDescr: {
         color: this.runtime.keyValueDescrStyle?.textColor || this.runtime.fontColor,
@@ -351,6 +354,7 @@ class ScorecardChartConfigBuilder {
         ),
         strikethrough: this.runtime.keyValueDescrStyle?.strikethrough,
         underline: this.runtime.keyValueDescrStyle?.underline,
+        highlightText: this.runtime.keyHighlight,
       },
       baselineValue: {
         font: getDefaultContextFont(
@@ -364,6 +368,7 @@ class ScorecardChartConfigBuilder {
           this.runtime.baselineColor ||
           this.runtime.baselineStyle?.textColor ||
           this.secondaryFontColor,
+        highlightText: this.runtime.baselineHighlight,
       },
       baselineDescr: {
         font: getDefaultContextFont(
@@ -374,6 +379,7 @@ class ScorecardChartConfigBuilder {
         strikethrough: this.runtime.baselineDescrStyle?.strikethrough,
         underline: this.runtime.baselineDescrStyle?.underline,
         color: this.runtime.baselineDescrStyle?.textColor ?? this.secondaryFontColor,
+        highlightText: this.runtime.baselineHighlight,
       },
       baselineArrow:
         this.baselineArrow === "neutral" || this.runtime.progressBar
@@ -384,6 +390,7 @@ class ScorecardChartConfigBuilder {
                 this.runtime.baselineColor ||
                 this.runtime.baselineStyle?.textColor ||
                 this.secondaryFontColor,
+              highlight: this.runtime.baselineHighlight,
             },
     };
   }
