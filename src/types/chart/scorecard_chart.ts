@@ -27,10 +27,12 @@ export interface ScorecardChartRuntime {
   readonly title: TitleDesign;
   readonly keyValue: string;
   readonly keyDescr: string;
+  readonly keyHighlight?: boolean;
   readonly baselineDisplay: string;
   readonly baselineColor?: string;
   readonly baselineArrow: BaselineArrowDirection;
   readonly baselineDescr?: string;
+  readonly baselineHighlight?: boolean;
   readonly background: Color;
   readonly fontColor: Color;
   readonly keyValueStyle?: Style;

@@ -3,6 +3,7 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
+  DEFAULT_TEXT_HIGHLIGHT_PERCENT,
 } from "../../../constants";
 import { toNumber } from "../../../functions/helpers";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
@@ -17,6 +18,7 @@ import { CommandResult } from "../../../types/commands";
 import { Locale } from "../../../types/locale";
 import { Color, RangeAdapterFunctions } from "../../../types/misc";
 import { Range } from "../../../types/range";
+import { lightenColor } from "../../color";
 import { formatValue, humanizeNumber } from "../../format/format";
 import { isNumber } from "../../numbers";
 import { createValidRange } from "../../range";
@@ -423,13 +425,17 @@ export function drawScoreChart(
       structure.baseline.text,
       structure.baseline.position,
       structure.baseline.style.underline,
-      structure.baseline.style.strikethrough
+      structure.baseline.style.strikethrough,
+      undefined,
+      structure.baseline.style.highlightText
     );
   }
 
   if (structure.baselineArrow && structure.baselineArrow.style.size > 0 && Path2DConstructor) {
     ctx.save();
-    ctx.fillStyle = structure.baselineArrow.style.color;
+    ctx.fillStyle = structure.baselineArrow.style.highlight
+      ? lightenColor(structure.baselineArrow.style.color, DEFAULT_TEXT_HIGHLIGHT_PERCENT)
+      : structure.baselineArrow.style.color;
     ctx.translate(structure.baselineArrow.position.x, structure.baselineArrow.position.y);
     // This ratio is computed according to the original svg size and the final size we want
     const ratio = structure.baselineArrow.style.size / 10;
@@ -451,10 +457,14 @@ export function drawScoreChart(
     const descr = structure.baselineDescr;
     ctx.font = descr.style.font;
     ctx.fillStyle = descr.style.color;
-    ctx.fillText(
+    drawDecoratedText(
+      ctx,
       clipTextWithEllipsis(ctx, descr.text, availableWidth - descr.position.x),
-      descr.position.x,
-      descr.position.y
+      descr.position,
+      undefined,
+      undefined,
+      undefined,
+      structure.baseline?.style.highlightText
     );
   }
 
@@ -466,7 +476,9 @@ export function drawScoreChart(
       clipTextWithEllipsis(ctx, structure.key.text, availableWidth - structure.key.position.x),
       structure.key.position,
       structure.key.style.underline,
-      structure.key.style.strikethrough
+      structure.key.style.strikethrough,
+      undefined,
+      structure.key.style.highlightText
     );
   }
 
@@ -474,10 +486,14 @@ export function drawScoreChart(
     const descr = structure.keyDescr;
     ctx.font = structure.keyDescr?.style.font ?? descr.style.font;
     ctx.fillStyle = descr.style.color;
-    ctx.fillText(
+    drawDecoratedText(
+      ctx,
       clipTextWithEllipsis(ctx, descr.text, availableWidth - descr.position.x),
-      descr.position.x,
-      descr.position.y
+      descr.position,
+      undefined,
+      undefined,
+      undefined,
+      structure.key?.style.highlightText
     );
   }
 
