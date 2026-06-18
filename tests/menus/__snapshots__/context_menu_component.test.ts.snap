@@ -153,7 +153,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       <div
         class="o-menu-item-root ms-auto align-items-center d-flex gap-1"
       >
-        
         <div
           class="o-icon fa-small"
         >
@@ -161,7 +160,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
             class="fa fa-caret-right"
           />
         </div>
-        
       </div>
       
     </div>
@@ -272,7 +270,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       <div
         class="o-menu-item-root ms-auto align-items-center d-flex gap-1"
       >
-        
         <div
           class="o-icon fa-small"
         >
@@ -280,7 +277,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
             class="fa fa-caret-right"
           />
         </div>
-        
       </div>
       
     </div>
@@ -382,7 +378,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       <div
         class="o-menu-item-root ms-auto align-items-center d-flex gap-1"
       >
-        
         <div
           class="o-icon fa-small"
         >
@@ -390,7 +385,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
             class="fa fa-caret-right"
           />
         </div>
-        
       </div>
       
     </div>

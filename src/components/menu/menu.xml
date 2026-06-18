@@ -46,11 +46,9 @@
                 class="o-menu-item-description ms-auto text-truncate"
                 t-out="description"
               />
-              <t t-set="secondaryIcon" t-value="menuItem.secondaryIcon(this.env)"/>
               <div
-                t-if="isMenuRoot || secondaryIcon"
+                t-if="isMenuRoot"
                 class="o-menu-item-root ms-auto align-items-center d-flex gap-1">
-                <t t-if="secondaryIcon" t-call="{{secondaryIcon}}"/>
                 <t t-if="isMenuRoot" t-call="o-spreadsheet-Icon.CARET_RIGHT"/>
               </div>
             </div>
