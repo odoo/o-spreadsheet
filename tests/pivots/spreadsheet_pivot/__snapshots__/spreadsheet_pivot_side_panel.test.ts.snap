@@ -11,7 +11,8 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
       class="o-collapse-panel o-sidePanelAction rounded"
     >
       <i
-        class="fa fa-angle-double-right"
+        class="oi"
+        data-icon="keyboard_double_arrow_right"
       />
     </div>
     
@@ -78,7 +79,8 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
             class="o-sidePanel-tab o-panel-configuration d-flew flex-grow-1 text-center"
           >
             <i
-              class="fa fa-sliders me-1"
+              class="oi me-1"
+              data-icon="tune"
             />
              Configuration 
           </div>
@@ -86,7 +88,8 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
             class="o-sidePanel-tab o-panel-design d-flew flex-grow-1 text-center inactive"
           >
             <i
-              class="fa fa-paint-brush me-1"
+              class="oi me-1"
+              data-icon="design_services"
             />
              Design 
           </div>
@@ -117,7 +120,8 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                       >
                          Name 
                         <span
-                          class="fa fa-cog os-cog-wheel-menu-icon o-button-icon"
+                          class="oi oi-filled os-cog-wheel-menu-icon o-button-icon"
+                          data-icon="settings"
                         />
                         
                         
@@ -972,10 +976,11 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                       class="o-table-style-picker-arrow d-flex align-items-center px-1 border-start"
                     >
                       <div
-                        class="o-icon fa-small"
+                        class="o-icon oi-small"
                       >
                         <i
-                          class="fa fa-caret-down"
+                          class="oi"
+                          data-icon="arrow_drop_down"
                         />
                       </div>
                     </div>
@@ -1006,7 +1011,8 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
       class="o-collapse-panel o-sidePanelAction rounded"
     >
       <i
-        class="fa fa-angle-double-right"
+        class="oi"
+        data-icon="keyboard_double_arrow_right"
       />
     </div>
     
@@ -1073,7 +1079,8 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
             class="o-sidePanel-tab o-panel-configuration d-flew flex-grow-1 text-center"
           >
             <i
-              class="fa fa-sliders me-1"
+              class="oi me-1"
+              data-icon="tune"
             />
              Configuration 
           </div>
@@ -1081,7 +1088,8 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
             class="o-sidePanel-tab o-panel-design d-flew flex-grow-1 text-center inactive"
           >
             <i
-              class="fa fa-paint-brush me-1"
+              class="oi me-1"
+              data-icon="design_services"
             />
              Design 
           </div>
@@ -1112,7 +1120,8 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                       >
                          Name 
                         <span
-                          class="fa fa-cog os-cog-wheel-menu-icon o-button-icon"
+                          class="oi oi-filled os-cog-wheel-menu-icon o-button-icon"
+                          data-icon="settings"
                         />
                         
                         
@@ -1168,7 +1177,8 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                               class="o-icon"
                             >
                               <i
-                                class="fa fa-exclamation-circle"
+                                class="oi"
+                                data-icon="error"
                               />
                             </div>
                           </span>
@@ -1932,10 +1942,11 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                       class="o-table-style-picker-arrow d-flex align-items-center px-1 border-start"
                     >
                       <div
-                        class="o-icon fa-small"
+                        class="o-icon oi-small"
                       >
                         <i
-                          class="fa fa-caret-down"
+                          class="oi"
+                          data-icon="arrow_drop_down"
                         />
                       </div>
                     </div>

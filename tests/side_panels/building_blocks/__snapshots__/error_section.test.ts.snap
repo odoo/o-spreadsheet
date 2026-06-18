@@ -14,10 +14,11 @@ exports[`Chart error section Can render a chart error section component 1`] = `
       >
         
         <div
-          class="o-icon fa-small"
+          class="o-icon oi-small"
         >
           <i
-            class="fa fa-exclamation-triangle"
+            class="oi"
+            data-icon="warning"
           />
         </div>
         
@@ -41,10 +42,11 @@ exports[`Chart error section Can render a chart error section component 1`] = `
       >
         
         <div
-          class="o-icon fa-small"
+          class="o-icon oi-small"
         >
           <i
-            class="fa fa-exclamation-triangle"
+            class="oi"
+            data-icon="warning"
           />
         </div>
         

@@ -430,7 +430,7 @@ describe("Spreadsheet pivot side panel", () => {
     expect(fixture.querySelector(".o-popover")).toBeDefined();
     await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
     expect(fixture.querySelectorAll(".pivot-dimension")).toHaveLength(1);
-    await click(fixture.querySelector(".fa-undo")!);
+    await click(fixture.querySelector("[data-icon='undo']")!);
     expect(fixture.querySelectorAll(".pivot-dimension")).toHaveLength(0);
   });
 
@@ -776,7 +776,7 @@ describe("Spreadsheet pivot side panel", () => {
     env.openSidePanel("PivotSidePanel", { pivotId: "2" });
     await nextTick();
     // update the pivot
-    await click(fixture.querySelector(".pivot-measure .fa-eye")!);
+    await click(fixture.querySelector(".pivot-measure [data-icon='visibility']")!);
     expect(mockNotify).toHaveBeenCalledTimes(0);
   });
 
@@ -797,11 +797,11 @@ describe("Spreadsheet pivot side panel", () => {
     const pivotDimensionEls = fixture.querySelectorAll<HTMLElement>(".pivot-dimension")!;
     const validDimensionEl = pivotDimensionEls[0];
     expect(validDimensionEl.classList).not.toContain("pivot-dimension-invalid");
-    expect(validDimensionEl.querySelector(".fa-exclamation-triangle")).toBe(null);
+    expect(validDimensionEl.querySelector("[data-icon='warning']")).toBe(null);
 
     const invalidDimensionEl = pivotDimensionEls[1];
     expect(invalidDimensionEl.classList).toContain("pivot-dimension-invalid");
-    expect(invalidDimensionEl.querySelector(".fa-exclamation-triangle")).not.toBe(null);
+    expect(invalidDimensionEl.querySelector("[data-icon='warning']")).not.toBe(null);
   });
 
   test("Can update the name of a computed measure", async () => {
@@ -853,11 +853,11 @@ describe("Spreadsheet pivot side panel", () => {
     );
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
     await nextTick();
-    await click(fixture.querySelector(".pivot-measure .fa-eye")!);
+    await click(fixture.querySelector(".pivot-measure [data-icon='visibility']")!);
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
       { id: "amount:sum", fieldName: "amount", aggregator: "sum", isHidden: true },
     ]);
-    await click(fixture.querySelector(".pivot-measure .fa-eye-slash")!);
+    await click(fixture.querySelector(".pivot-measure [data-icon='visibility_off']")!);
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
       { id: "amount:sum", fieldName: "amount", aggregator: "sum", isHidden: false },
     ]);
@@ -887,7 +887,7 @@ describe("Spreadsheet pivot side panel", () => {
     expect(model.getters.getPivotCoreDefinition("1").columns).toEqual([
       { fieldName: "Amount", order: "desc" },
     ]);
-    await clickAndDrag(".pivot-dimension .fa-trash", { x: 0, y: 30 }, undefined, true);
+    await clickAndDrag(".pivot-dimension [data-icon='delete']", { x: 0, y: 30 }, undefined, true);
     expect(model.getters.getPivotCoreDefinition("1").columns).toEqual([
       { fieldName: "Amount", order: "desc" },
     ]);
@@ -947,14 +947,14 @@ describe("Spreadsheet pivot side panel", () => {
 
     test("Pivot sorting is removed when removing the sorted measure", async () => {
       expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toEqual(sortedColumn);
-      await click(fixture, ".pivot-measure .fa-trash");
+      await click(fixture, ".pivot-measure [data-icon='delete']");
       expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toBeUndefined();
     });
 
     test("Pivot sorting is removed when removing a column", async () => {
       expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toEqual(sortedColumn);
       const column = fixture.querySelectorAll(".pivot-dimension")[0];
-      await click(column, ".fa-trash");
+      await click(column, "[data-icon='delete']");
       expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toBeUndefined();
     });
 

@@ -61,7 +61,8 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
           class="o-icon"
         >
           <i
-            class="fa fa-clipboard"
+            class="oi"
+            data-icon="assignment"
           />
         </div>
       </div>
@@ -155,10 +156,11 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       >
         
         <div
-          class="o-icon fa-small"
+          class="o-icon oi-small"
         >
           <i
-            class="fa fa-caret-right"
+            class="oi"
+            data-icon="arrow_right"
           />
         </div>
         
@@ -274,10 +276,11 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       >
         
         <div
-          class="o-icon fa-small"
+          class="o-icon oi-small"
         >
           <i
-            class="fa fa-caret-right"
+            class="oi"
+            data-icon="arrow_right"
           />
         </div>
         
@@ -306,7 +309,8 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
           class="o-icon"
         >
           <i
-            class="fa fa-trash-o"
+            class="oi"
+            data-icon="delete"
           />
         </div>
       </div>
@@ -337,7 +341,8 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
           class="o-icon"
         >
           <i
-            class="fa fa-trash-o"
+            class="oi"
+            data-icon="delete"
           />
         </div>
       </div>
@@ -368,7 +373,8 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
           class="o-icon"
         >
           <i
-            class="fa fa-trash-o"
+            class="oi"
+            data-icon="delete"
           />
         </div>
       </div>
@@ -384,10 +390,11 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       >
         
         <div
-          class="o-icon fa-small"
+          class="o-icon oi-small"
         >
           <i
-            class="fa fa-caret-right"
+            class="oi"
+            data-icon="arrow_right"
           />
         </div>
         
@@ -416,7 +423,8 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
           class="o-icon"
         >
           <i
-            class="fa fa-link"
+            class="oi"
+            data-icon="link"
           />
         </div>
       </div>
