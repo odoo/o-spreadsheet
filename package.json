@@ -37,7 +37,8 @@
     "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
     "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
     "build": "npm-run-all build:js bundle:esm \"bundle:xml -- --outDir build\" && node tools/bundle_scss/main.cjs --out build",
-    "lint": "eslint --fix"
+    "lint": "eslint --fix",
+    "runbot": "npm run check-formatting && npm run test --"
   },
   "browserslist": [
     "last 1 Chrome versions"
