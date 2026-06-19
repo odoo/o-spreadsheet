@@ -8,6 +8,7 @@ import { clip } from "../../../../../helpers/misc";
 import { useStore } from "../../../../../store_engine/store_hooks";
 import { ChartJSRuntime } from "../../../../../types/chart/chart";
 import { Store } from "../../../../../types/store_engine";
+import { cssPropertiesToCss } from "../../../../helpers/css";
 import { withZoom } from "../../../../helpers/zoom";
 import { ChartJsComponent } from "../chartjs";
 import { Boundaries, ZoomableChartStore } from "./zoomable_chart_store";
@@ -40,10 +41,9 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   }
 
   get containerStyle() {
-    const height = this.sliceable ? `calc(100% - ${MASTER_CHART_HEIGHT}px)` : "100%";
-    return `
-      height:${height};
-    `;
+    return cssPropertiesToCss({
+      height: this.sliceable ? `calc(100% - ${MASTER_CHART_HEIGHT}px)` : "100%",
+    });
   }
 
   get masterChartContainerStyle() {
