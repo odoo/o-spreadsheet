@@ -5,6 +5,7 @@ import { bundle } from "./tools/bundle.cjs";
 
 const outro = bundle.outro();
 
+<<<<<<< 4a9480b602e26ace25d0978533074d3480a8e9c0
 const EXTENSION = {
   esm: "esm.js", //TODO Change it to mjs
   cjs: "cjs",
@@ -25,6 +26,15 @@ function canvasMockPlugin() {
   };
 }
 
+||||||| 119be977c5b49c009ebdf9209ea7f2873c430e37
+=======
+const EXTENSION = {
+  esm: "esm.js", //TODO Change it to mjs
+  cjs: "cjs",
+  iife: "iife.js",
+};
+
+>>>>>>> c0d1c22de75cf608e46d7c4d69bdc5ec8608406e
 /**
  * Get the rolldown config based on the arguments
  * @param {"esm" | "cjs" | "iife"} format format of the bundle
@@ -33,7 +43,13 @@ function canvasMockPlugin() {
 function getConfigForFormat(format, minified = false) {
   const extension = EXTENSION[format];
   return {
+<<<<<<< 4a9480b602e26ace25d0978533074d3480a8e9c0
     file: minified ? `dist/o_spreadsheet.min.${extension}` : `dist/o_spreadsheet.${extension}`,
+||||||| 119be977c5b49c009ebdf9209ea7f2873c430e37
+    file: minified ? `dist/o_spreadsheet.${format}.min.js` : `dist/o_spreadsheet.${format}.js`,
+=======
+    file: minified ? `dist/o_spreadsheet.${format}.min.js` : `dist/o_spreadsheet.${extension}`,
+>>>>>>> c0d1c22de75cf608e46d7c4d69bdc5ec8608406e
     format,
     name: "o_spreadsheet",
     extend: true,
