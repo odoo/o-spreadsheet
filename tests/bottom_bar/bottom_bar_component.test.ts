@@ -682,6 +682,18 @@ describe("BottomBar component", () => {
     expect(fixture.querySelector(".o-menu")).toMatchSnapshot();
   });
 
+  test("Can close the list of statistics by clicking on the statistic button", async () => {
+    const { model } = await mountBottomBar();
+    setCellContent(model, "A2", "24");
+    selectCell(model, "A2");
+    await nextTick();
+
+    await click(fixture, ".o-selection-statistic");
+    expect(fixture.querySelector(".o-menu")).toBeTruthy();
+    await click(fixture, ".o-selection-statistic");
+    expect(fixture.querySelector(".o-menu")).toBeFalsy();
+  });
+
   test("Can open the list of statistics if another menu is already open", async () => {
     const model = new Model();
     const nonMockedDispatch = model.dispatch;
