@@ -3,14 +3,21 @@ import { bundle } from "./tools/bundle.cjs";
 
 const outro = bundle.outro();
 
+const EXTENSION = {
+  esm: "esm.js", //TODO Change it to mjs
+  cjs: "cjs",
+  iife: "iife.js",
+};
+
 /**
  * Get the rolldown config based on the arguments
  * @param {"esm" | "cjs" | "iife"} format format of the bundle
  * @param {boolean} minified should it be minified
  */
 function getConfigForFormat(format, minified = false) {
+  const extension = EXTENSION[format];
   return {
-    file: minified ? `dist/o-spreadsheet.${format}.min.js` : `dist/o-spreadsheet.${format}.js`,
+    file: minified ? `dist/o-spreadsheet.${format}.min.js` : `dist/o-spreadsheet.${extension}`,
     format,
     name: "o_spreadsheet",
     extend: true,
