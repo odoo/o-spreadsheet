@@ -3,6 +3,7 @@ import { formatValue } from "../../../helpers/format/format";
 import { Component } from "../../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { useStore } from "../../../store_engine/store_hooks";
+import { MenuMouseEvent } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { Ripple } from "../../animation/ripple";
@@ -49,7 +50,11 @@ export class BottomBarStatistic extends Component<SpreadsheetChildEnv> {
     return this.getComposedFnName(this.state.selectedStatisticFn);
   }
 
-  listSelectionStatistics(ev: MouseEvent) {
+  listSelectionStatistics(ev: MenuMouseEvent) {
+    if (ev.closedMenuId === "listSelectionStatistics") {
+      this.props.closeContextMenu();
+      return;
+    }
     const registry = new MenuItemRegistry();
     let i = 0;
     for (const [fnName] of Object.entries(this.store.statisticFnResults)) {
