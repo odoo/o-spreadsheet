@@ -35,7 +35,8 @@
     "watch:xml": "node tools/bundle_xml/watch_xml_templates.cjs",
     "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
     "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
-    "lint": "eslint --fix"
+    "lint": "eslint --fix",
+    "runbot": "npm run check-formatting && npm run test --"
   },
   "browserslist": [
     "last 1 Chrome versions"
