@@ -13,9 +13,6 @@
     "dist/*.xml",
     "dist/*.css"
   ],
-  "engines": {
-    "node": ">=22.0.0"
-  },
   "scripts": {
     "prepare": "husky install",
     "prettier": "prettier . --write",
@@ -44,7 +41,8 @@
     "monkey": "SPREADSHEET_MONKEY_COUNT=$npm_config_monkey_count jest 'tests/collaborative/collaborative_monkey_party.test.ts'",
     "model-in-node": "npm run dist && node tools/run_in_node.cjs",
     "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
-    "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs"
+    "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
+    "runbot": "npm run check-formatting && npm run model-in-node && npm run test --"
   },
   "browserslist": [
     "last 1 Chrome versions"
