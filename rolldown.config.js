@@ -18,7 +18,7 @@ const EXTENSION = {
 function getConfigForFormat(format, minified = false) {
   const extension = EXTENSION[format];
   return {
-    file: minified ? `dist/o_spreadsheet.${format}.min.js` : `dist/o_spreadsheet.${format}.js`,
+    file: minified ? `dist/o_spreadsheet.${format}.min.js` : `dist/o_spreadsheet.${extension}`,
     format,
     name: "o_spreadsheet",
     extend: true,
