@@ -2,6 +2,7 @@ import { Model } from "../../src";
 import { TABLE_PRESETS } from "../../src/helpers/table_presets";
 import { TableStyle, UID } from "../../src/types";
 import {
+  colorSheet,
   createChart,
   createScorecardChart,
   createTable,
@@ -172,6 +173,12 @@ describe("custom colors are correctly handled when editing charts", () => {
       "1"
     );
     expect(model.getters.getCustomColors()).toEqual(["#112233", "#123456"]);
+  });
+
+  test("Sheet colors are taken into account", () => {
+    colorSheet(model, model.getters.getActiveSheetId(), "#FFFF16");
+
+    expect(model.getters.getCustomColors()).toEqual(["#FFFF16"]);
   });
 
   test("Chart data series colors are taken into account", () => {
