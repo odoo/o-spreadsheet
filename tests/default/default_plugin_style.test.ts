@@ -12,10 +12,13 @@ import {
   deleteCells,
   deleteColumns,
   deleteRows,
+  getStyle,
   insertCells,
   merge,
   moveColumns,
   moveRows,
+  setCellContent,
+  setFormatting,
   setSelection,
   unMerge,
 } from "../test_helpers";
@@ -1070,5 +1073,29 @@ describe("Default Plugin: setRowsStyle preserves cells outside the zone", () => 
     expect(getCellStyle(model, "I1")).toEqual(FCOLOR_STYLE);
     expect(getCellStyle(model, "I2")).toEqual(FCOLOR_STYLE);
     expect(getCellStyle(model, "I3")).toEqual(FCOLOR_STYLE);
+  });
+});
+
+describe("inserting headers next to a header holding a default", () => {
+  test("the copied cell style is not dropped by the default of the shifted column", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "hello");
+    setFormatting(model, "A1", { bold: true });
+    setFormatting(model, "B1:B100", { bold: true });
+
+    addColumns(model, "after", "A", 1);
+
+    expect(getStyle(model, "B1")).toMatchObject({ bold: true });
+  });
+
+  test("the copied cell style is not dropped by the default of the shifted row", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "hello");
+    setFormatting(model, "A1", { bold: true });
+    setFormatting(model, "A2:Z2", { bold: true });
+
+    addRows(model, "after", 0, 1);
+
+    expect(getStyle(model, "A2")).toMatchObject({ bold: true });
   });
 });
