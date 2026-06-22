@@ -6,6 +6,7 @@ import {
   addCfRule,
   addEqualCf,
   clearFormatting,
+  colorSheet,
   createCarousel,
   createChart,
   createGaugeChart,
@@ -163,6 +164,12 @@ describe("custom colors are correctly handled when editing charts", () => {
       "1"
     );
     expect(model.getters.getCustomColors()).toEqual(["#112233", "#123456"]);
+  });
+
+  test("Sheet colors are taken into account", () => {
+    colorSheet(model, model.getters.getActiveSheetId(), "#FFFF16");
+
+    expect(model.getters.getCustomColors()).toEqual(["#FFFF16"]);
   });
 
   test("Chart data series colors are taken into account", () => {
