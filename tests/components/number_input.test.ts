@@ -1,6 +1,7 @@
 import { props, xml } from "@odoo/owl";
 import { NumberInput } from "../../src/components/number_input/number_input";
 import { Component } from "../../src/owl3_compatibility_layer";
+import { PropsOf } from "../../src/types/props_of";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   click,
@@ -12,7 +13,6 @@ import { mountComponent, nextTick, useJestFakeTimers } from "../test_helpers/hel
 
 let fixture: HTMLElement;
 let parent: Component;
-type Props = NumberInput["props"];
 
 class NumberInputContainer extends Component<SpreadsheetChildEnv> {
   static template = xml/* xml */ `
@@ -24,7 +24,7 @@ class NumberInputContainer extends Component<SpreadsheetChildEnv> {
   protected props = props();
 }
 
-async function mountNumberInput(props: Props) {
+async function mountNumberInput(props: PropsOf<NumberInput>) {
   ({ fixture, parent } = await mountComponent(NumberInputContainer, { props }));
 }
 
