@@ -43,7 +43,7 @@
       t-if="state.pickerOpened"
       anchorRect="colorPickerAnchorRect"
       onColorPicked.bind="onColorPicked"
-      currentColor="props.currentColor"
+      currentColor="this.state.currentPickerColor"
     />
   </t>
 </templates>
