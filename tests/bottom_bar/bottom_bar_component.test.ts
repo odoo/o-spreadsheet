@@ -7,6 +7,7 @@ import { DOMFocusableElementStore } from "../../src/stores/DOM_focus_store";
 import { Pixel, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
   activateSheet,
+  colorSheet,
   createSheet,
   deleteSheet,
   hideSheet,
@@ -1033,6 +1034,17 @@ describe("BottomBar component", () => {
       expect(menuItemsIcons[0]?.children).toHaveLength(0);
       expect(getElComputedStyle(menuItemsIcons[1], "color")).toBeSameColorAs("#FFFF00");
       expect(getElComputedStyle(menuItemsIcons[2], "color")).toBeSameColorAs("#FF0000");
+    });
+
+    test("Color picker has the correct color selected when opening it", async () => {
+      const { model } = await mountBottomBar();
+
+      // Tab color
+      colorSheet(model, model.getters.getActiveSheetId(), "#FFFF00");
+      triggerMouseEvent(".o-sheet", "contextmenu");
+      await nextTick();
+      await click(fixture, ".o-menu-item[data-name='change_color'");
+      expect(".o-color-picker-line-item[data-color='#FFFF00']").toHaveText(" ✓ ");
     });
   });
 });

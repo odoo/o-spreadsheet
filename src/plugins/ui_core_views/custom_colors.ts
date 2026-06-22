@@ -93,6 +93,11 @@ export class CustomColorsPlugin extends CoreViewPlugin<CustomColorState> {
       case "CREATE_CHART":
         this.tryToAddColors(this.getChartColors(cmd.id));
         break;
+      case "COLOR_SHEET":
+        if (cmd.color) {
+          this.tryToAddColors([cmd.color]);
+        }
+        break;
       case "UPDATE_CELL":
       case "ADD_CONDITIONAL_FORMAT":
       case "SET_BORDER":
@@ -120,12 +125,18 @@ export class CustomColorsPlugin extends CoreViewPlugin<CustomColorState> {
     let usedColors: Color[] = [];
     for (const sheetId of this.getters.getSheetIds()) {
       usedColors = usedColors.concat(
+        this.getSheetColors(sheetId),
         this.getColorsFromCells(sheetId),
         this.getFormattingColors(sheetId),
         this.getTableColors(sheetId)
       );
     }
     return [...new Set([...usedColors])];
+  }
+
+  private getSheetColors(sheetId: UID): Color[] {
+    const sheet = this.getters.getSheet(sheetId);
+    return sheet.color ? [sheet.color] : [];
   }
 
   private getColorsFromCells(sheetId: UID): Color[] {
