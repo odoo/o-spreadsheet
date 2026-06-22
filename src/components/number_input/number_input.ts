@@ -1,24 +1,13 @@
 import { props } from "@odoo/owl";
 import { debounce } from "../../helpers/misc";
-import {
-  GenericInput,
-  GenericInputProps,
-  genericInputPropsDefinition,
-} from "../generic_input/generic_input";
+import { GenericInput, genericInputPropsDefinition } from "../generic_input/generic_input";
 import { types } from "../props_validation";
 
-interface Props extends GenericInputProps {
-  alwaysShowBorder?: boolean;
-  min?: number;
-  max?: number;
-  value: number;
-}
-
-export class NumberInput extends GenericInput<Props> {
+export class NumberInput extends GenericInput<any> {
   static template = "o-spreadsheet-NumberInput";
   static components = {};
 
-  protected props: Props = props({
+  protected props = props({
     ...genericInputPropsDefinition,
     min: types.number().optional(),
     max: types.number().optional(),
