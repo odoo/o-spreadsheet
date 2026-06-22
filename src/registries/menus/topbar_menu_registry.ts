@@ -18,32 +18,6 @@ import { formatNumberMenuItemSpec } from "./number_format_menu_registry";
 
 export const topbarMenuRegistry = new MenuItemRegistry();
 
-function getZoneContainingFigure(env: SpreadsheetChildEnv, sheetId: UID, figureUI: FigureUI): Zone {
-  const startCol = figureUI.col;
-  const startX = figureUI.x;
-  const endX = startX + figureUI.width;
-  let endCol = startCol;
-  while (
-    endCol < env.model.getters.getNumberCols(sheetId) - 1 &&
-    env.model.getters.getColDimensions(sheetId, endCol).end < endX
-  ) {
-    endCol++;
-  }
-
-  const startRow = figureUI.row;
-  const startY = figureUI.y;
-  const endY = startY + figureUI.height;
-  let endRow = startRow;
-  while (
-    endRow < env.model.getters.getNumberRows(sheetId) - 1 &&
-    env.model.getters.getRowDimensions(sheetId, endRow).end < endY
-  ) {
-    endRow++;
-  }
-
-  return { left: startCol, right: endCol, top: startRow, bottom: endRow };
-}
-
 topbarMenuRegistry
 
   // ---------------------------------------------------------------------
@@ -75,6 +49,36 @@ topbarMenuRegistry
     name: _t("Carouselize Dashboard"),
     sequence: 250,
     execute: (env) => {
+      function getZoneContainingFigure(
+        env: SpreadsheetChildEnv,
+        sheetId: UID,
+        figureUI: FigureUI
+      ): Zone {
+        const startCol = figureUI.col;
+        const startX = figureUI.x;
+        const endX = startX + figureUI.width;
+        let endCol = startCol;
+        while (
+          endCol < env.model.getters.getNumberCols(sheetId) - 1 &&
+          env.model.getters.getColDimensions(sheetId, endCol).end < endX
+        ) {
+          endCol++;
+        }
+
+        const startRow = figureUI.row;
+        const startY = figureUI.y;
+        const endY = startY + figureUI.height;
+        let endRow = startRow;
+        while (
+          endRow < env.model.getters.getNumberRows(sheetId) - 1 &&
+          env.model.getters.getRowDimensions(sheetId, endRow).end < endY
+        ) {
+          endRow++;
+        }
+
+        return { left: startCol, right: endCol, top: startRow, bottom: endRow };
+      }
+
       const dashboardSheetId = env.model.getters.getSheetIds()[0];
       const newSheetId = UuidGenerator.smallUuid();
       env.model.dispatch("DUPLICATE_SHEET", {
