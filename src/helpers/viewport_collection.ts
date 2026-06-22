@@ -1,7 +1,7 @@
-import { getDefaultSheetViewSize, SCROLLBAR_WIDTH } from "../constants";
+import { SCROLLBAR_WIDTH } from "../constants";
 import { CommandResult, ResizeViewportCommand, SetViewportOffsetCommand } from "../types/commands";
 import { AnchorOffset, Figure, FigureUI } from "../types/figure";
-import { RenderingGetters } from "../types/getters";
+import { ViewportsGetters } from "../types/getters";
 import {
   CellPosition,
   Dimension,
@@ -25,8 +25,8 @@ import {
 } from "../types/rendering";
 import { scrollDelay } from "./edge_scrolling";
 import { InternalViewport } from "./internal_viewport";
-import { clip, isDefined, range } from "./misc";
-import { positionToZone } from "./zones";
+import { clip, range } from "./misc";
+import { intersection, positionToZone } from "./zones";
 
 type SheetViewports = {
   topLeft: InternalViewport | undefined;
@@ -34,6 +34,22 @@ type SheetViewports = {
   topRight: InternalViewport | undefined;
   bottomRight: InternalViewport;
 };
+
+interface PositionedViewport {
+  viewport: InternalViewport;
+  viewportX: Pixel;
+  viewportY: Pixel;
+}
+
+interface ViewportCollectionArgs {
+  getters: ViewportsGetters;
+  paneDivision: Record<UID, PaneDivision>;
+  sheetViewWidth: Pixel;
+  sheetViewHeight: Pixel;
+  zoomLevel: number;
+  getFooterSize: () => number;
+  zoneToDisplay?: Zone;
+}
 
 /**
  *   EdgeScrollCases Schema
@@ -72,20 +88,27 @@ type SheetViewports = {
  */
 
 export class ViewportCollection {
-  getters: RenderingGetters;
+  getters: ViewportsGetters;
   viewports: Record<UID, SheetViewports | undefined> = {};
 
   private gridOffsetX: Pixel = 0;
   private gridOffsetY: Pixel = 0;
 
-  constructor(
-    getters: RenderingGetters,
-    private paneDivision: Record<UID, PaneDivision>,
-    private sheetViewWidth: Pixel = getDefaultSheetViewSize(),
-    private sheetViewHeight: Pixel = getDefaultSheetViewSize(),
-    private zoomLevel: number = 1
-  ) {
-    this.getters = getters;
+  private paneDivision: Record<UID, PaneDivision>;
+  private sheetViewWidth: Pixel;
+  private sheetViewHeight: Pixel;
+  private zoomLevel: number;
+  private getFooterSize: () => number;
+  private zoneToDisplay?: Zone;
+
+  constructor(args: ViewportCollectionArgs) {
+    this.getters = args.getters;
+    this.paneDivision = args.paneDivision;
+    this.sheetViewWidth = args.sheetViewWidth;
+    this.sheetViewHeight = args.sheetViewHeight;
+    this.zoomLevel = args.zoomLevel;
+    this.getFooterSize = args.getFooterSize;
+    this.zoneToDisplay = args.zoneToDisplay;
   }
 
   /**
@@ -94,7 +117,11 @@ export class ViewportCollection {
    * It returns -1 if no column is found.
    */
   getColIndex(sheetId: UID, x: Pixel): HeaderIndex {
-    return Math.max(...this.getSubViewports(sheetId).map((viewport) => viewport.getColIndex(x)));
+    return Math.max(
+      ...this.getSubViewports(sheetId).map(({ viewport, viewportX }) =>
+        viewport.getColIndex(x - viewportX)
+      )
+    );
   }
 
   /**
@@ -103,7 +130,11 @@ export class ViewportCollection {
    * It returns -1 if no row is found.
    */
   getRowIndex(sheetId: UID, y: Pixel): HeaderIndex {
-    return Math.max(...this.getSubViewports(sheetId).map((viewport) => viewport.getRowIndex(y)));
+    return Math.max(
+      ...this.getSubViewports(sheetId).map(({ viewport, viewportY }) =>
+        viewport.getRowIndex(y - viewportY)
+      )
+    );
   }
 
   getSheetViewDimensionWithHeaders(): DOMDimension {
@@ -137,7 +168,7 @@ export class ViewportCollection {
   }
 
   getSheetViewVisibleCols(sheetId: UID): HeaderIndex[] {
-    const viewports = this.getSubViewports(sheetId);
+    const viewports = this.getSubViewports(sheetId).map(({ viewport }) => viewport);
 
     //TODO make another commit to improve this
     return [...new Set(viewports.map((v) => range(v.left, v.right + 1)).flat())].filter(
@@ -146,7 +177,7 @@ export class ViewportCollection {
   }
 
   getSheetViewVisibleRows(sheetId: UID): HeaderIndex[] {
-    const viewports = this.getSubViewports(sheetId);
+    const viewports = this.getSubViewports(sheetId).map(({ viewport }) => viewport);
     return [...new Set(viewports.map((v) => range(v.top, v.bottom + 1)).flat())].filter(
       (row) => row >= 0 && !this.getters.isHeaderHidden(sheetId, "ROW", row)
     );
@@ -228,7 +259,7 @@ export class ViewportCollection {
    * Check if a given position is visible in the viewport.
    */
   isVisibleInViewport({ sheetId, col, row }: CellPosition): boolean {
-    return this.getSubViewports(sheetId).some((pane) => pane.isVisible(col, row));
+    return this.getSubViewports(sheetId).some(({ viewport }) => viewport.isVisible(col, row));
   }
 
   getScrollBarWidth(): Pixel {
@@ -399,12 +430,12 @@ export class ViewportCollection {
   }
 
   getAllSheetViewportsZonesAndRect(sheetId: UID): { zone: Zone; rect: Rect }[] {
-    return this.getSubViewports(sheetId).map((viewport) => {
+    return this.getSubViewports(sheetId).map(({ viewport, viewportX, viewportY }) => {
       return {
         zone: viewport,
         rect: {
-          x: viewport.offsetCorrectionX + this.gridOffsetX,
-          y: viewport.offsetCorrectionY + this.gridOffsetY,
+          x: viewportX + this.gridOffsetX,
+          y: viewportY + this.gridOffsetY,
           ...viewport.getMaxSize(),
         },
       };
@@ -421,9 +452,25 @@ export class ViewportCollection {
     }
   }
 
-  getSubViewports(sheetId: UID): InternalViewport[] {
+  getSubViewports(sheetId: UID): PositionedViewport[] {
     this.ensureMainViewportExist(sheetId);
-    return Object.values(this.viewports[sheetId]!).filter(isDefined);
+
+    const { xSplit, ySplit } = this.getPaneDivisions(sheetId);
+    const paneX = this.getters.getColDimensions(sheetId, xSplit).start;
+    const paneY = this.getters.getRowDimensions(sheetId, ySplit).start;
+    const viewports = this.viewports[sheetId]!;
+    const viewPorts: PositionedViewport[] = [];
+    if (ySplit && xSplit) {
+      viewPorts.push({ viewport: viewports.topLeft!, viewportX: 0, viewportY: 0 });
+    }
+    if (ySplit) {
+      viewPorts.push({ viewport: viewports.topRight!, viewportX: paneX, viewportY: 0 });
+    }
+    if (xSplit) {
+      viewPorts.push({ viewport: viewports.bottomLeft!, viewportX: 0, viewportY: paneY });
+    }
+    viewPorts.push({ viewport: viewports.bottomRight, viewportX: paneX, viewportY: paneY });
+    return viewPorts;
   }
 
   checkPositiveDimension(cmd: ResizeViewportCommand) {
@@ -462,7 +509,7 @@ export class ViewportCollection {
 
   checkIfViewportsWillChange(sheetId: UID, { offsetX, offsetY }: SetViewportOffsetCommand) {
     const { maxOffsetX, maxOffsetY } = this.getMaximumSheetOffset(sheetId);
-    const willScroll = this.getSubViewports(sheetId).some((viewport) =>
+    const willScroll = this.getSubViewports(sheetId).some(({ viewport }) =>
       viewport.willNewOffsetScrollViewport(
         clip(offsetX, 0, maxOffsetX),
         clip(offsetY, 0, maxOffsetY)
@@ -511,7 +558,7 @@ export class ViewportCollection {
 
   setSheetViewOffset(sheetId: UID, offsetX: Pixel, offsetY: Pixel) {
     const { maxOffsetX, maxOffsetY } = this.getMaximumSheetOffset(sheetId);
-    this.getSubViewports(sheetId).forEach((viewport) =>
+    this.getSubViewports(sheetId).forEach(({ viewport }) =>
       viewport.setViewportOffset(clip(offsetX, 0, maxOffsetX), clip(offsetY, 0, maxOffsetY))
     );
   }
@@ -528,8 +575,6 @@ export class ViewportCollection {
       return;
     }
     const { xSplit, ySplit } = this.getPaneDivisions(sheetId);
-    const nCols = this.getters.getNumberCols(sheetId);
-    const nRows = this.getters.getNumberRows(sheetId);
     const colOffset = Math.min(
       this.getters.getColRowOffset("COL", 0, xSplit, sheetId),
       this.sheetViewWidth
@@ -545,64 +590,108 @@ export class ViewportCollection {
     const canScrollVertically = yRatio < 1.0;
     const previousOffset = this.getViewportOffset(sheetId);
 
+    const bottomRightViewport = new InternalViewport({
+      getters: this.getters,
+      sheetId,
+      boundaries: this.getViewportZone(sheetId, "bottomRight")!,
+      sizeInGrid: { width: unfrozenWidth, height: unfrozenHeight },
+      canScrollHorizontally,
+      canScrollVertically,
+      offsets: {
+        x: canScrollHorizontally ? previousOffset.x : 0,
+        y: canScrollVertically ? previousOffset.y : 0,
+      },
+      getFooterSize: this.getFooterSize,
+    });
+
     const sheetViewports: SheetViewports = {
-      topLeft:
-        (ySplit &&
-          xSplit &&
-          new InternalViewport(
-            this.getters,
-            sheetId,
-            { left: 0, right: xSplit - 1, top: 0, bottom: ySplit - 1 },
-            { width: colOffset, height: rowOffset },
-            { canScrollHorizontally: false, canScrollVertically: false },
-            { x: 0, y: 0 }
-          )) ||
-        undefined,
-      topRight:
-        (ySplit &&
-          new InternalViewport(
-            this.getters,
-            sheetId,
-            { left: xSplit, right: nCols - 1, top: 0, bottom: ySplit - 1 },
-            { width: unfrozenWidth, height: rowOffset },
-            { canScrollHorizontally, canScrollVertically: false },
-            { x: canScrollHorizontally ? previousOffset.x : 0, y: 0 }
-          )) ||
-        undefined,
-      bottomLeft:
-        (xSplit &&
-          new InternalViewport(
-            this.getters,
-            sheetId,
-            { left: 0, right: xSplit - 1, top: ySplit, bottom: nRows - 1 },
-            { width: colOffset, height: unfrozenHeight },
-            { canScrollHorizontally: false, canScrollVertically },
-            { x: 0, y: canScrollVertically ? previousOffset.y : 0 }
-          )) ||
-        undefined,
-      bottomRight: new InternalViewport(
-        this.getters,
-        sheetId,
-        { left: xSplit, right: nCols - 1, top: ySplit, bottom: nRows - 1 },
-        {
-          width: unfrozenWidth,
-          height: unfrozenHeight,
-        },
-        { canScrollHorizontally, canScrollVertically },
-        {
-          x: canScrollHorizontally ? previousOffset.x : 0,
-          y: canScrollVertically ? previousOffset.y : 0,
-        }
-      ),
+      topLeft: undefined,
+      topRight: undefined,
+      bottomLeft: undefined,
+      bottomRight: bottomRightViewport,
     };
+
+    const topLeftZone = this.getViewportZone(sheetId, "topLeft");
+    if (topLeftZone) {
+      sheetViewports.topLeft = new InternalViewport({
+        getters: this.getters,
+        sheetId,
+        boundaries: topLeftZone,
+        sizeInGrid: { width: colOffset, height: rowOffset },
+        canScrollHorizontally: false,
+        canScrollVertically: false,
+        offsets: { x: 0, y: 0 },
+        getFooterSize: () => 0,
+      });
+    }
+
+    const topRightZone = this.getViewportZone(sheetId, "topRight");
+    if (topRightZone) {
+      sheetViewports.topRight = new InternalViewport({
+        getters: this.getters,
+        sheetId,
+        boundaries: topRightZone,
+        sizeInGrid: { width: unfrozenWidth, height: rowOffset },
+        canScrollHorizontally,
+        canScrollVertically: false,
+        offsets: { x: canScrollHorizontally ? previousOffset.x : 0, y: 0 },
+        getFooterSize: () => 0,
+      });
+    }
+
+    const bottomLeftZone = this.getViewportZone(sheetId, "bottomLeft");
+    if (bottomLeftZone) {
+      sheetViewports.bottomLeft = new InternalViewport({
+        getters: this.getters,
+        sheetId,
+        boundaries: bottomLeftZone,
+        sizeInGrid: { width: colOffset, height: unfrozenHeight },
+        canScrollHorizontally: false,
+        canScrollVertically,
+        offsets: { x: 0, y: canScrollVertically ? previousOffset.y : 0 },
+        getFooterSize: this.getFooterSize,
+      });
+    }
+
     this.viewports[sheetId] = sheetViewports;
+  }
+
+  private getViewportZone(sheetId: UID, position: keyof SheetViewports): Zone | undefined {
+    const { xSplit, ySplit } = this.getPaneDivisions(sheetId);
+    const nCols = this.getters.getNumberCols(sheetId);
+    const nRows = this.getters.getNumberRows(sheetId);
+
+    switch (position) {
+      case "topLeft": {
+        const zone = { left: 0, right: xSplit - 1, top: 0, bottom: ySplit - 1 };
+        return this.zoneToDisplay ? intersection(zone, this.zoneToDisplay) : zone;
+      }
+      case "topRight": {
+        const zone = { left: xSplit, right: nCols - 1, top: 0, bottom: ySplit - 1 };
+        return this.zoneToDisplay ? intersection(zone, this.zoneToDisplay) : zone;
+      }
+      case "bottomLeft": {
+        const zone = { left: 0, right: xSplit - 1, top: ySplit, bottom: nRows - 1 };
+        return this.zoneToDisplay ? intersection(zone, this.zoneToDisplay) : zone;
+      }
+      case "bottomRight": {
+        const zone = { left: xSplit, right: nCols - 1, top: ySplit, bottom: nRows - 1 };
+        const intersectingZone = this.zoneToDisplay ? intersection(zone, this.zoneToDisplay) : zone;
+        if (!intersectingZone) {
+          throw new Error(
+            "The main viewport zone should always be intersecting with the zone to display"
+          );
+        }
+        return intersectingZone;
+      }
+    }
   }
 
   /**
    * Adjust the viewport such that the anchor position is visible
    */
   refreshViewport(sheetId: UID, anchorPosition: Position) {
-    this.getSubViewports(sheetId).forEach((viewport) => {
+    this.getSubViewports(sheetId).forEach(({ viewport }) => {
       viewport.adjustViewportZone();
       viewport.repositionViewport(anchorPosition);
     });
@@ -744,9 +833,12 @@ export class ViewportCollection {
     let width: Pixel = 0;
     let height: Pixel = 0;
     let hasViewports: boolean = false;
-    for (const viewport of this.getSubViewports(sheetId)) {
-      const rect = rectCallBack(viewport);
+    for (const positionedViewport of this.getSubViewports(sheetId)) {
+      const rect = rectCallBack(positionedViewport.viewport);
       if (rect) {
+        rect.x += positionedViewport.viewportX;
+        rect.y += positionedViewport.viewportY;
+
         hasViewports = true;
         x = Math.min(x, rect.x);
         y = Math.min(y, rect.y);

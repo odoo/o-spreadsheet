@@ -67,18 +67,6 @@ describe("Carousel figure component", () => {
     expect(model.getters.getChartIdFromFigureId("carouselId")).toBe(radarId);
   });
 
-  test("Carousel data view make the figure un-clickable", async () => {
-    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
-    addNewChartToCarousel(model, "carouselId", { type: "radar" });
-
-    const { fixture } = await mountSpreadsheet({ model });
-    expect(".o-carousel-header").toHaveClass("pe-auto");
-    expect(getElStyle(".o-figure-wrapper", "pointer-events")).toBe("none");
-
-    await click(fixture, ".o-carousel-tab:nth-child(2)");
-    expect(getElStyle(".o-figure-wrapper", "pointer-events")).toBe("auto");
-  });
-
   test("Carousel tabs have the correct name", async () => {
     createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
     addNewChartToCarousel(model, "carouselId", { type: "radar" });
@@ -180,23 +168,23 @@ describe("Carousel figure component", () => {
     expect(getElStyle(".o-figure .o-carousel-title", "font-weight")).toBe("bold");
   });
 
-  test("Carousel header has the correct background color", async () => {
+  test("Carousel has the correct background color", async () => {
     createCarousel(model, { items: [], title: { text: "Title" } }, "carouselId");
     await mountSpreadsheet({ model });
 
     // Empty carousel
-    expect(".o-carousel-header").toHaveStyle({ "background-color": "#FFFFFF" });
+    expect(".o-carousel").toHaveStyle({ "background-color": "#FFFFFF" });
 
     // Carousel with data view
     updateCarousel(model, "carouselId", { items: [{ type: "carouselDataView" }] });
     await nextTick();
-    expect(".o-carousel-header").toHaveStyle({ "background-color": "#FFFFFF" });
+    expect(".o-carousel").toHaveStyle({ "background-color": "#FFFFFF" });
 
     // Carousel with chart
     const chartId = addNewChartToCarousel(model, "carouselId", { background: "#123456" });
     selectCarouselItem(model, "carouselId", { type: "chart", chartId });
     await nextTick();
-    expect(".o-carousel-header").toHaveStyle({ "background-color": "#123456" });
+    expect(".o-carousel").toHaveStyle({ "background-color": "#123456" });
   });
 
   test("display chart menu", async () => {

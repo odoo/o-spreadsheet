@@ -914,7 +914,7 @@ export class GridSelectionPlugin extends UIPlugin {
     // at the wrong position. We should think of a way to improve that.
     const { ctx, thinLineWidth, viewports, sheetId, selectedZones: zones } = renderingContext;
     // selection
-    const theme = this.getters.getSpreadsheetTheme();
+    const theme = renderingContext.theme;
     const onlyOneCell =
       zones.length === 1 && zones[0].left === zones[0].right && zones[0].top === zones[0].bottom;
     ctx.fillStyle = onlyOneCell

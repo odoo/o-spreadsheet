@@ -4,7 +4,12 @@ import { Dimension, HeaderDimensions, HeaderIndex, Pixel, UID } from "../../type
 import { UIPlugin } from "../ui_plugin";
 
 export class HeaderPositionsUIPlugin extends UIPlugin {
-  static getters = ["getColDimensions", "getRowDimensions", "getColRowOffset"] as const;
+  static getters = [
+    "getColDimensions",
+    "getRowDimensions",
+    "getHeaderDimensions",
+    "getColRowOffset",
+  ] as const;
 
   private headerPositions: Record<UID, Record<Dimension, Record<HeaderIndex, Pixel>>> = {};
   private isDirty = true;
@@ -75,6 +80,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     const start = this.headerPositions[sheetId]["COL"][col];
     const size = this.getters.getColSize(sheetId, col);
     const isColHidden = this.getters.isColHidden(sheetId, col);
+    // FIXME CAROUSEL: check why getHeaderSize return 0 if header is hidden, but getRow/Col size do not ...
     return {
       start,
       size,
@@ -94,6 +100,17 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
       size: size,
       end: start + (isRowHidden ? 0 : size),
     };
+  }
+
+  getHeaderDimensions(sheetId: UID, dimension: "COL" | "ROW", index: number) {
+    const dim =
+      dimension === "COL"
+        ? this.getters.getColDimensions(sheetId, index)
+        : this.getters.getRowDimensions(sheetId, index);
+    if (this.getters.isHeaderHidden(sheetId, dimension, index)) {
+      return { start: dim.start, size: 0, end: dim.start };
+    }
+    return dim;
   }
 
   /**
