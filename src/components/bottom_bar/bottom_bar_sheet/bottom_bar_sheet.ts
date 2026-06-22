@@ -21,6 +21,7 @@ interface Props {
 interface State {
   isEditing: boolean;
   pickerOpened: boolean;
+  currentPickerColor?: string;
 }
 
 export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
@@ -215,6 +216,8 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
       },
       openSheetColorPickerCallback: () => {
         this.state.pickerOpened = true;
+        const sheet = this.env.model.getters.getSheet(this.props.sheetId);
+        this.state.currentPickerColor = sheet.color;
       },
     });
   }
