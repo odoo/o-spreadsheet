@@ -3,6 +3,7 @@ import { Model, UID } from "../../../src";
 import { getCarouselMenuActions } from "../../../src/actions/figure_menu_actions";
 import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
 import { downloadFile } from "../../../src/components/helpers/dom_helpers";
+import { toZone } from "../../../src/helpers/zones";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
@@ -21,14 +22,26 @@ import {
   getElStyle,
   triggerMouseEvent,
 } from "../../test_helpers/dom_helper";
-import { makeTestEnv, mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import {
+  makeTestEnv,
+  mockChart,
+  mountSpreadsheet,
+  nextTick,
+  setGrid,
+  toRangeData,
+} from "../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
+import { getLastZonesRendered, spyStoreCreation } from "../../test_helpers/stores";
 
 jest.mock("../../../src/components/helpers/dom_helpers", () => {
   return {
     ...jest.requireActual("../../../src/components/helpers/dom_helpers"),
     downloadFile: jest.fn(),
   };
+});
+
+extendMockGetBoundingClientRect({
+  "o-standalone-viewport-content": () => ({ width: 800, height: 600 }),
 });
 
 let model: Model;
@@ -65,6 +78,23 @@ describe("Carousel figure component", () => {
     await click(fixture, ".o-carousel-tab:nth-child(1)");
     expect(model.getters.getSelectedCarouselItem("carouselId")).toMatchObject({ chartId: radarId });
     expect(model.getters.getChartIdFromFigureId("carouselId")).toBe(radarId);
+  });
+
+  test("Can display a carousel data view", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    setGrid(model, { A1: "Hello", A2: "World" });
+    createCarousel(
+      model,
+      { items: [{ type: "carouselDataView", rangeData: toRangeData(sheetId, "A1:A2") }] },
+      "carouselId"
+    );
+    const stores = spyStoreCreation();
+
+    await mountSpreadsheet({ model });
+    expect(".o-carousel .o-standalone-viewport").toHaveCount(1);
+    await nextTick();
+
+    expect(getLastZonesRendered(stores)).toEqual([{ sheetId, ...toZone("A1:A2") }]);
   });
 
   test("Carousel tabs have the correct name", async () => {

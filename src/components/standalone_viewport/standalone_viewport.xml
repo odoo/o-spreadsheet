@@ -3,7 +3,9 @@
     <div
       class="o-standalone-viewport h-100 w-100 overflow-hidden d-flex"
       t-on-wheel="this.onMouseWheel">
-      <div class="position-relative flex-grow-1 overflow-hidden" t-ref="this.containerRef">
+      <div
+        class="o-standalone-viewport-content position-relative flex-grow-1 overflow-hidden"
+        t-ref="this.containerRef">
         <GridOverlay
           onCellClicked.bind="this.onCellClicked"
           onGridResized="() => {}"

@@ -4,6 +4,7 @@ import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { toHex } from "../../src/helpers/color";
 import { lettersToNumber, toCartesian } from "../../src/helpers/coordinates";
 import { MIN_DELAY, scrollDelay } from "../../src/helpers/edge_scrolling";
+import { ViewportCollection } from "../../src/helpers/viewport_collection";
 import { positionToZone, toZone } from "../../src/helpers/zones";
 import { nextTick } from "./helpers";
 
@@ -144,23 +145,27 @@ export async function clickCell(
   model: Model,
   xc: string,
   extra: MouseEventInit = { bubbles: true },
-  option: { clickInMiddle?: boolean; offsetX?: number; offsetY?: number } = {
+  option: {
+    clickInMiddle?: boolean;
+    offsetX?: number;
+    offsetY?: number;
+    viewports?: ViewportCollection;
+  } = {
     clickInMiddle: false,
     offsetX: 0,
     offsetY: 0,
   }
 ) {
+  const viewports = option.viewports || model.getters.getViewportCollection();
   const zone = toZone(xc);
   const sheetId = model.getters.getActiveSheetId();
-  const zoom = model.getters.getViewportZoomLevel();
-  if (!model.getters.isVisibleInViewport({ sheetId, col: zone.left, row: zone.top })) {
+  const zoom = viewports.getViewportZoomLevel();
+  if (!viewports.isVisibleInViewport({ sheetId, col: zone.left, row: zone.top })) {
     throw new Error(`You can't click on ${xc} because it is not visible`);
   }
-  let { x, y, width, height } = model.getters.getVisibleRectWithZoom(zone);
-  if (!model.getters.isDashboard()) {
-    x -= HEADER_WIDTH * zoom;
-    y -= HEADER_HEIGHT * zoom;
-  }
+  let { x, y, width, height } = viewports.getVisibleRectWithZoom(sheetId, zone);
+  x -= viewports.getGridOffsetX() * zoom;
+  y -= viewports.getGridOffsetY() * zoom;
   if (option.clickInMiddle) {
     x += width / 2;
     y += height / 2;
@@ -197,29 +202,41 @@ export async function clickHeader(
   await simulateClick(".o-grid-overlay", x, y, extra);
 }
 
-export function getGridIconEventPosition(model: Model, xc: string) {
+export function getGridIconEventPosition(
+  model: Model,
+  xc: string,
+  viewports = model.getters.getViewportCollection()
+) {
   const position = { ...toCartesian(xc), sheetId: model.getters.getActiveSheetId() };
   const icon = model.getters.getCellIcons(position)[0];
   if (!icon) {
     throw new Error(`No icon inside cell ${xc}`);
   }
-  const gridOffset = model.getters.getGridOffset();
+  const gridOffset = viewports.getGridOffset();
   const merge = model.getters.getMerge(position);
   const zone = merge || positionToZone(position);
-  const cellRect = model.getters.getRect(zone);
+  const cellRect = viewports.getRect(model.getters.getActiveSheetId(), zone);
   const rect = model.getters.getCellIconRect(icon, cellRect);
   const x = rect.x + rect.width / 2 - gridOffset.x;
   const y = rect.y + rect.height / 2 - gridOffset.y;
   return { x, y };
 }
 
-export async function clickGridIcon(model: Model, xc: string) {
-  const { x, y } = getGridIconEventPosition(model, xc);
+export async function clickGridIcon(
+  model: Model,
+  xc: string,
+  viewports = model.getters.getViewportCollection()
+) {
+  const { x, y } = getGridIconEventPosition(model, xc, viewports);
   await simulateClick(".o-grid-overlay", x, y);
 }
 
-export async function hoverGridIcon(model: Model, xc: string) {
-  const { x, y } = getGridIconEventPosition(model, xc);
+export async function hoverGridIcon(
+  model: Model,
+  xc: string,
+  viewports = model.getters.getViewportCollection()
+) {
+  const { x, y } = getGridIconEventPosition(model, xc, viewports);
   triggerMouseEvent(".o-grid-overlay", "pointermove", x, y);
   await nextTick();
 }

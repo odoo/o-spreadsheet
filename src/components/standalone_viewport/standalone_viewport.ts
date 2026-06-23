@@ -12,6 +12,7 @@ import { Store } from "../../types/store_engine";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { HoveredIconStore } from "../grid_overlay/hovered_icon_store";
 import { cssPropertiesToCss } from "../helpers/css";
+import { getElBoundingRect } from "../helpers/dom_helpers";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { types } from "../props_validation";
@@ -79,14 +80,11 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
   getRenderingContext(): Omit<GridRenderingContext, "ctx" | "thinLineWidth"> {
     const { sheetId, zone } = this.props.range;
 
-    const getters = this.viewportGetters;
-    const sheetViewWidth = this.containerWidth;
-    const sheetViewHeight = this.containerHeight;
     const viewports = new ViewportCollection({
-      getters: getters,
+      getters: this.viewportGetters,
       paneDivision: { [sheetId]: { xSplit: 0, ySplit: 0 } },
-      sheetViewWidth,
-      sheetViewHeight,
+      sheetViewWidth: this.containerWidth,
+      sheetViewHeight: this.containerHeight,
       zoomLevel: this.env.model.getters.getViewportZoomLevel(),
       zoneToDisplay: zone,
       getFooterSize: () => 0,
@@ -107,11 +105,11 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
   }
 
   get containerWidth() {
-    return this.containerRef()?.offsetWidth || 0;
+    return getElBoundingRect(this.containerRef()).width;
   }
 
   get containerHeight() {
-    return this.containerRef()?.offsetHeight || 0;
+    return getElBoundingRect(this.containerRef()).height;
   }
 
   get viewportGetters(): ViewportsGetters {
