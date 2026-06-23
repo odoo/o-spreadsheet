@@ -292,7 +292,7 @@ export const enum DIRECTION {
   RIGHT = "right",
 }
 
-export type ChangeType = "REMOVE" | "RESIZE" | "MOVE" | "CHANGE" | "NONE";
+export type ChangeType = "REMOVE" | "RESIZE" | "MOVE" | "RENAME" | "NONE";
 export type ApplyRangeChangeResult<T> = { changeType: ChangeType; range: T };
 export type ApplyFormulaRangeChangeResult = { changeType: ChangeType; formula: string };
 export type ApplyRangeChange = (range: Range) => ApplyRangeChangeResult<Range>;

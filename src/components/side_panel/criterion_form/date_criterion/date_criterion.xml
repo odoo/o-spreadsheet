@@ -9,6 +9,7 @@
 
     <CriterionInput
       t-if="this.currentDateValue === 'exactDate'"
+      sheetId="this.props.sheetId"
       value="this.props.criterion.values[0]"
       onValueChanged.bind="this.onValueChanged"
       criterionType="this.props.criterion.type"

@@ -16,6 +16,7 @@
         criterion="this.props.store.genericCriterion"
         onCriterionChanged="(rule) => this.props.store.onRuleValuesChanged(rule)"
         autofocus="this.props.store.state.hasEditedCf"
+        sheetId="this.props.sheetId"
       />
 
       <div class="o-section-subtitle pt-3">Formatting style</div>

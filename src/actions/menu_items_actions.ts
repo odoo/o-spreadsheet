@@ -13,6 +13,7 @@ import { numberToLetters } from "../helpers/coordinates";
 import { getSmartChartDefinition } from "../helpers/figures/charts/smart_chart_engine";
 import { centerFigurePosition, getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { isConsecutive, largeMax, largeMin } from "../helpers/misc";
+import { getFullReference } from "../helpers/references";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
 import { interactiveCreateTable } from "../helpers/ui/table_interactive";
@@ -547,9 +548,13 @@ export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetChildEnv) => {
   const rules = env.model.getters.getConditionalFormats(sheetId);
   const ruleIds = env.model.getters.getRulesSelection(sheetId, zones);
   if (ruleIds.length === 1) {
+    const sheetName = env.model.getters.getActiveSheetName();
+    const cf = rules.find((r) => r.id === ruleIds[0]);
+    const ranges = cf?.ranges?.map?.((range) => getFullReference(sheetName, range));
     return env.openSidePanel("ConditionalFormattingEditor", {
-      cf: rules.find((r) => r.id === ruleIds[0]),
+      cf: cf ? { ...cf, ranges } : undefined,
       isNewCf: false,
+      sheetId,
     });
   }
   return env.openSidePanel("ConditionalFormatting");

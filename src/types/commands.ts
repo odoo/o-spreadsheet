@@ -1245,6 +1245,18 @@ export interface UpdateColorSchemeCommand {
   colorScheme: "light" | "dark";
 }
 
+export interface UpdateConditionalFormatsCommand {
+  type: "UPDATE_CONDITIONAL_FORMATS";
+  cfId: UID;
+  sheetIdsToRemove?: UID[];
+  sheetIdsToAdd?: { [key: UID]: { cf: Omit<ConditionalFormat, "ranges">; ranges: RangeData[] } };
+}
+
+export interface AddDataValidationsCommand {
+  type: "ADD_DATA_VALIDATION_RULES";
+  sheetIdsToAdd: { [key: UID]: { rule: Omit<DataValidationRule, "ranges">; ranges: RangeData[] } };
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1421,7 +1433,9 @@ export type LocalCommand =
   | UpdateColorSchemeCommand
   | MoveFiguresCommand
   | DeleteFiguresCommand
-  | MergeIntoCarouselCommand;
+  | MergeIntoCarouselCommand
+  | UpdateConditionalFormatsCommand
+  | AddDataValidationsCommand;
 
 export type Command = CoreCommand | LocalCommand;
 

@@ -22,6 +22,7 @@ import {
   copy,
   createSheet,
   paste,
+  redo,
   setSelection,
   undo,
   updateLocale,
@@ -301,7 +302,7 @@ describe("UI of conditional formats", () => {
       const ranges = ["A1:A2"];
 
       ({ model, fixture } = await mountComponentWithPortalTarget(ConditionalFormattingEditor, {
-        props: { cf: { ...cf, ranges }, isNewCf: false, onCloseSidePanel: () => {} },
+        props: { cf: { ...cf, ranges }, isNewCf: false, sheetId, onCloseSidePanel: () => {} },
       }));
       sheetId = model.getters.getActiveSheetId();
       addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
@@ -870,7 +871,7 @@ describe("UI of conditional formats", () => {
       await click(fixture, selectors.buttonCancel);
       await click(fixture, selectors.buttonAdd);
       expect((document.querySelector(selectors.ruleEditor.range) as HTMLInputElement).value).toBe(
-        "A1"
+        "Sheet1!A1"
       );
       expect(selectors.ruleEditor.editor.operatorInput).toHaveText("Is not empty");
     });
@@ -923,24 +924,29 @@ describe("UI of conditional formats", () => {
         //  click save
         await click(fixture, selectors.buttonSave);
         const sheetId = model.getters.getActiveSheetId();
-        expect(dispatch).toHaveBeenNthCalledWith(1, "ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            id: expect.any(String),
-            rule: {
-              operator: "beginsWithText",
-              style: {
-                bold: true,
-                fillColor: "#b6d7a8",
-                italic: true,
-                strikethrough: true,
-                underline: true,
+        expect(dispatch).toHaveBeenCalledWith("UPDATE_CONDITIONAL_FORMATS", {
+          sheetIdsToRemove: [],
+          sheetIdsToAdd: {
+            [sheetId]: {
+              cf: {
+                id: expect.any(String),
+                rule: {
+                  operator: "beginsWithText",
+                  style: {
+                    bold: true,
+                    fillColor: "#b6d7a8",
+                    italic: true,
+                    strikethrough: true,
+                    underline: true,
+                  },
+                  type: "CellIsRule",
+                  values: ["3"],
+                },
               },
-              type: "CellIsRule",
-              values: ["3"],
+              ranges: toRangesData(sheetId, "A1:A3"),
             },
           },
-          ranges: toRangesData(sheetId, "A1:A3"),
-          sheetId,
+          cfId: expect.any(String),
         });
       });
 
@@ -966,24 +972,29 @@ describe("UI of conditional formats", () => {
         //  click save
         await click(fixture, selectors.buttonSave);
 
-        expect(dispatch).toHaveBeenNthCalledWith(1, "ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            id: "1",
-            rule: {
-              operator: "beginsWithText",
-              style: {
-                bold: true,
-                fillColor: "#FF0000",
-                italic: true,
-                strikethrough: true,
-                underline: true,
+        expect(dispatch).toHaveBeenCalledWith("UPDATE_CONDITIONAL_FORMATS", {
+          sheetIdsToRemove: [],
+          sheetIdsToAdd: {
+            [sheetId]: {
+              cf: {
+                id: "1",
+                rule: {
+                  operator: "beginsWithText",
+                  style: {
+                    bold: true,
+                    fillColor: "#FF0000",
+                    italic: true,
+                    strikethrough: true,
+                    underline: true,
+                  },
+                  type: "CellIsRule",
+                  values: ["3"],
+                },
               },
-              type: "CellIsRule",
-              values: ["3"],
+              ranges: toRangesData(sheetId, "A1:A3"),
             },
           },
-          ranges: toRangesData(sheetId, "A1:A3"),
-          sheetId,
+          cfId: "1",
         });
       });
 
@@ -1061,23 +1072,28 @@ describe("UI of conditional formats", () => {
         //  click save
         await click(fixture, selectors.buttonSave);
 
-        expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            id: expect.any(String),
-            rule: {
-              maximum: {
-                color: 0xffff00,
-                type: "value",
+        expect(dispatch).toHaveBeenCalledWith("UPDATE_CONDITIONAL_FORMATS", {
+          sheetIdsToRemove: [],
+          sheetIdsToAdd: {
+            [sheetId]: {
+              cf: {
+                id: expect.any(String),
+                rule: {
+                  maximum: {
+                    color: 0xffff00,
+                    type: "value",
+                  },
+                  minimum: {
+                    color: 0x0000ff,
+                    type: "value",
+                  },
+                  type: "ColorScaleRule",
+                },
               },
-              minimum: {
-                color: 0x0000ff,
-                type: "value",
-              },
-              type: "ColorScaleRule",
+              ranges: toRangesData(sheetId, "B2:B5"),
             },
           },
-          ranges: toRangesData(model.getters.getActiveSheetId(), "B2:B5"),
-          sheetId: model.getters.getActiveSheetId(),
+          cfId: expect.any(String),
         });
       });
 
@@ -1103,25 +1119,30 @@ describe("UI of conditional formats", () => {
         await click(fixture, selectors.buttonSave);
 
         const sheetId = model.getters.getActiveSheetId();
-        expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            id: expect.any(String),
-            rule: {
-              maximum: {
-                color: 0xffff00,
-                type: "number",
-                value: "20",
+        expect(dispatch).toHaveBeenCalledWith("UPDATE_CONDITIONAL_FORMATS", {
+          sheetIdsToRemove: [],
+          sheetIdsToAdd: {
+            [sheetId]: {
+              cf: {
+                id: expect.any(String),
+                rule: {
+                  maximum: {
+                    color: 0xffff00,
+                    type: "number",
+                    value: "20",
+                  },
+                  minimum: {
+                    color: 0x0000ff,
+                    type: "number",
+                    value: "10",
+                  },
+                  type: "ColorScaleRule",
+                },
               },
-              minimum: {
-                color: 0x0000ff,
-                type: "number",
-                value: "10",
-              },
-              type: "ColorScaleRule",
+              ranges: toRangesData(sheetId, "B2:B5"),
             },
           },
-          ranges: toRangesData(sheetId, "B2:B5"),
-          sheetId,
+          cfId: expect.any(String),
         });
       });
 
@@ -1147,25 +1168,30 @@ describe("UI of conditional formats", () => {
         await click(fixture, selectors.buttonSave);
 
         const sheetId = model.getters.getActiveSheetId();
-        expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            id: expect.any(String),
-            rule: {
-              maximum: {
-                color: 0xffff00,
-                type: "percentage",
-                value: "90",
+        expect(dispatch).toHaveBeenCalledWith("UPDATE_CONDITIONAL_FORMATS", {
+          sheetIdsToRemove: [],
+          sheetIdsToAdd: {
+            [sheetId]: {
+              cf: {
+                id: expect.any(String),
+                rule: {
+                  maximum: {
+                    color: 0xffff00,
+                    type: "percentage",
+                    value: "90",
+                  },
+                  minimum: {
+                    color: 0x0000ff,
+                    type: "percentage",
+                    value: "10",
+                  },
+                  type: "ColorScaleRule",
+                },
               },
-              minimum: {
-                color: 0x0000ff,
-                type: "percentage",
-                value: "10",
-              },
-              type: "ColorScaleRule",
+              ranges: toRangesData(sheetId, "B2:B5"),
             },
           },
-          ranges: toRangesData(sheetId, "B2:B5"),
-          sheetId,
+          cfId: expect.any(String),
         });
       });
 
@@ -1191,25 +1217,30 @@ describe("UI of conditional formats", () => {
         await click(fixture, selectors.buttonSave);
 
         const sheetId = model.getters.getActiveSheetId();
-        expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            id: expect.any(String),
-            rule: {
-              maximum: {
-                color: 0xffff00,
-                type: "percentile",
-                value: "90",
+        expect(dispatch).toHaveBeenCalledWith("UPDATE_CONDITIONAL_FORMATS", {
+          sheetIdsToRemove: [],
+          sheetIdsToAdd: {
+            [sheetId]: {
+              cf: {
+                id: expect.any(String),
+                rule: {
+                  maximum: {
+                    color: 0xffff00,
+                    type: "percentile",
+                    value: "90",
+                  },
+                  minimum: {
+                    color: 0x0000ff,
+                    type: "percentile",
+                    value: "10",
+                  },
+                  type: "ColorScaleRule",
+                },
               },
-              minimum: {
-                color: 0x0000ff,
-                type: "percentile",
-                value: "10",
-              },
-              type: "ColorScaleRule",
+              ranges: toRangesData(sheetId, "B2:B5"),
             },
           },
-          ranges: toRangesData(sheetId, "B2:B5"),
-          sheetId,
+          cfId: expect.any(String),
         });
       });
 
@@ -1241,30 +1272,35 @@ describe("UI of conditional formats", () => {
         await click(fixture, selectors.buttonSave);
 
         const sheetId = model.getters.getActiveSheetId();
-        expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            id: expect.any(String),
-            rule: {
-              maximum: {
-                color: 0xffff00,
-                type: "number",
-                value: "100",
+        expect(dispatch).toHaveBeenCalledWith("UPDATE_CONDITIONAL_FORMATS", {
+          sheetIdsToRemove: [],
+          sheetIdsToAdd: {
+            [sheetId]: {
+              cf: {
+                id: expect.any(String),
+                rule: {
+                  maximum: {
+                    color: 0xffff00,
+                    type: "number",
+                    value: "100",
+                  },
+                  midpoint: {
+                    color: 0xff9900,
+                    type: "number",
+                    value: "50",
+                  },
+                  minimum: {
+                    color: 0x0000ff,
+                    type: "number",
+                    value: "0",
+                  },
+                  type: "ColorScaleRule",
+                },
               },
-              midpoint: {
-                color: 0xff9900,
-                type: "number",
-                value: "50",
-              },
-              minimum: {
-                color: 0x0000ff,
-                type: "number",
-                value: "0",
-              },
-              type: "ColorScaleRule",
+              ranges: toRangesData(sheetId, "B2:B5"),
             },
           },
-          ranges: toRangesData(sheetId, "B2:B5"),
-          sheetId,
+          cfId: expect.any(String),
         });
       });
 
@@ -1290,25 +1326,30 @@ describe("UI of conditional formats", () => {
         //  click save
         await click(fixture, selectors.buttonSave);
 
-        expect(dispatch).toHaveBeenNthCalledWith(1, "ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            id: "2",
-            rule: {
-              maximum: {
-                color: 0xffff00,
-                type: "value",
-                value: "",
+        expect(dispatch).toHaveBeenCalledWith("UPDATE_CONDITIONAL_FORMATS", {
+          sheetIdsToRemove: [],
+          sheetIdsToAdd: {
+            [sheetId]: {
+              cf: {
+                id: "2",
+                rule: {
+                  maximum: {
+                    color: 0xffff00,
+                    type: "value",
+                    value: "",
+                  },
+                  minimum: {
+                    color: 0x0000ff,
+                    type: "value",
+                    value: "",
+                  },
+                  type: "ColorScaleRule",
+                },
               },
-              minimum: {
-                color: 0x0000ff,
-                type: "value",
-                value: "",
-              },
-              type: "ColorScaleRule",
+              ranges: toRangesData(sheetId, "B2:B5"),
             },
           },
-          ranges: toRangesData(sheetId, "B2:B5"),
-          sheetId,
+          cfId: "2",
         });
       });
     });
@@ -1327,30 +1368,35 @@ describe("UI of conditional formats", () => {
         await click(fixture, selectors.buttonSave);
 
         const sheetId = model.getters.getActiveSheetId();
-        expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            id: expect.any(String),
-            rule: {
-              type: "IconSetRule",
-              icons: {
-                lower: "arrowBad",
-                middle: "arrowNeutral",
-                upper: "arrowGood",
+        expect(dispatch).toHaveBeenCalledWith("UPDATE_CONDITIONAL_FORMATS", {
+          sheetIdsToRemove: [],
+          sheetIdsToAdd: {
+            [sheetId]: {
+              cf: {
+                id: expect.any(String),
+                rule: {
+                  type: "IconSetRule",
+                  icons: {
+                    lower: "arrowBad",
+                    middle: "arrowNeutral",
+                    upper: "arrowGood",
+                  },
+                  lowerInflectionPoint: {
+                    operator: "gt",
+                    type: "percentage",
+                    value: "33",
+                  },
+                  upperInflectionPoint: {
+                    operator: "gt",
+                    type: "percentage",
+                    value: "66",
+                  },
+                },
               },
-              lowerInflectionPoint: {
-                operator: "gt",
-                type: "percentage",
-                value: "33",
-              },
-              upperInflectionPoint: {
-                operator: "gt",
-                type: "percentage",
-                value: "66",
-              },
+              ranges: toRangesData(sheetId, "B2:B5"),
             },
           },
-          ranges: toRangesData(sheetId, "B2:B5"),
-          sheetId,
+          cfId: expect.any(String),
         });
       });
 
@@ -1376,30 +1422,35 @@ describe("UI of conditional formats", () => {
         await setInputValueAndTrigger(inputinflectionUpper, "0");
 
         const sheetId = model.getters.getActiveSheetId();
-        expect(dispatch).toHaveBeenLastCalledWith("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            id: expect.any(String),
-            rule: {
-              type: "IconSetRule",
-              icons: {
-                lower: "arrowBad",
-                middle: "arrowNeutral",
-                upper: "arrowGood",
+        expect(dispatch).toHaveBeenCalledWith("UPDATE_CONDITIONAL_FORMATS", {
+          sheetIdsToRemove: [],
+          sheetIdsToAdd: {
+            [sheetId]: {
+              cf: {
+                id: expect.any(String),
+                rule: {
+                  type: "IconSetRule",
+                  icons: {
+                    lower: "arrowBad",
+                    middle: "arrowNeutral",
+                    upper: "arrowGood",
+                  },
+                  lowerInflectionPoint: {
+                    operator: "ge",
+                    type: "number",
+                    value: "0",
+                  },
+                  upperInflectionPoint: {
+                    operator: "ge",
+                    type: "number",
+                    value: "10",
+                  },
+                },
               },
-              lowerInflectionPoint: {
-                operator: "ge",
-                type: "number",
-                value: "0",
-              },
-              upperInflectionPoint: {
-                operator: "ge",
-                type: "number",
-                value: "10",
-              },
+              ranges: toRangesData(sheetId, "A1"),
             },
           },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
+          cfId: expect.any(String),
         });
       });
 
@@ -1424,26 +1475,31 @@ describe("UI of conditional formats", () => {
         await click(fixture, selectors.buttonSave);
 
         const sheetId = model.getters.getActiveSheetId();
-        expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            id: expect.any(String),
-            rule: {
-              type: "IconSetRule",
-              icons: expectedIcons,
-              lowerInflectionPoint: {
-                operator: "gt",
-                type: "percentage",
-                value: "33",
+        expect(dispatch).toHaveBeenCalledWith("UPDATE_CONDITIONAL_FORMATS", {
+          sheetIdsToRemove: [],
+          sheetIdsToAdd: {
+            [sheetId]: {
+              cf: {
+                id: expect.any(String),
+                rule: {
+                  type: "IconSetRule",
+                  icons: expectedIcons,
+                  lowerInflectionPoint: {
+                    operator: "gt",
+                    type: "percentage",
+                    value: "33",
+                  },
+                  upperInflectionPoint: {
+                    operator: "gt",
+                    type: "percentage",
+                    value: "66",
+                  },
+                },
               },
-              upperInflectionPoint: {
-                operator: "gt",
-                type: "percentage",
-                value: "66",
-              },
+              ranges: toRangesData(sheetId, "A1"),
             },
           },
-          ranges: toRangesData(sheetId, "A1"),
-          sheetId,
+          cfId: expect.any(String),
         });
       });
 
@@ -1546,16 +1602,21 @@ describe("UI of conditional formats", () => {
         await click(fixture, selectors.buttonSave);
 
         const sheetId = model.getters.getActiveSheetId();
-        expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
-          cf: {
-            id: expect.any(String),
-            rule: {
-              type: "DataBarRule",
-              color: 0xd9ead3,
+        expect(dispatch).toHaveBeenCalledWith("UPDATE_CONDITIONAL_FORMATS", {
+          sheetIdsToRemove: [],
+          sheetIdsToAdd: {
+            [sheetId]: {
+              cf: {
+                id: expect.any(String),
+                rule: {
+                  type: "DataBarRule",
+                  color: 0xd9ead3,
+                },
+              },
+              ranges: toRangesData(sheetId, "B2:B5"),
             },
           },
-          ranges: toRangesData(sheetId, "B2:B5"),
-          sheetId,
+          cfId: expect.any(String),
         });
       });
     });
@@ -1646,29 +1707,31 @@ describe("Integration tests", () => {
     await nextTick();
     const ranges = document.querySelectorAll(selectors.ruleEditor.range);
     expect(ranges).toHaveLength(2);
-    expect((ranges[0] as HTMLInputElement).value).toBe("B2");
-    expect((ranges[1] as HTMLInputElement).value).toBe("C3");
+    expect((ranges[0] as HTMLInputElement).value).toBe("Sheet1!B2");
+    expect((ranges[1] as HTMLInputElement).value).toBe("Sheet1!C3");
   });
 
-  test("switching sheet resets CF Editor to list", async () => {
+  test("switching sheet keeps CF Editor open", async () => {
     const cf = createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99");
     const range = "A1:A2";
+    const cfSheetId = model.getters.getActiveSheetId();
     addEqualCf(model, range, { bold: true, fillColor: "#ff0000" }, "2", "99");
     createSheet(model, { sheetId: "42" });
     env.openSidePanel("ConditionalFormattingEditor", {
       cf: { ...cf, ranges: [range] },
       isNewCf: true,
+      sheetId: cfSheetId,
     });
     await nextTick();
     expect(fixture.querySelector(selectors.listPreview)).toBeNull();
     expect(fixture.querySelector(selectors.ruleEditor.range! as "input")!.value).toBe("A1:A2");
     activateSheet(model, "42");
     await nextTick();
-    expect(fixture.querySelector(selectors.ruleEditor.range)).toBeNull();
-    expect(fixture.querySelector(selectors.listPreview)).toBeDefined();
+    expect(fixture.querySelector(selectors.ruleEditor.range)).not.toBeNull();
+    expect(fixture.querySelector(selectors.listPreview)).toBeNull();
   });
 
-  test("CF standalone composer becomes inactive on sheet change", async () => {
+  test("CF Editor composer does not becomes inactive on sheet change", async () => {
     const cf = createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99");
     const range = "A1:A2";
     addEqualCf(model, range, { bold: true, fillColor: "#ff0000" }, "2", "99");
@@ -1676,6 +1739,7 @@ describe("Integration tests", () => {
     env.openSidePanel("ConditionalFormattingEditor", {
       cf: { ...cf, ranges: [range] },
       isNewCf: true,
+      sheetId: model.getters.getActiveSheetId(),
     });
     await nextTick();
     await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "=", {
@@ -1686,7 +1750,133 @@ describe("Integration tests", () => {
     expect(composerFocusStore.activeComposer.editionMode).toBe("selecting");
     activateSheet(model, "42");
     await nextTick();
+    expect(fixture.querySelector(selectors.editorPanel)).not.toBeNull();
+  });
+
+  test("CF Editor saves to its original sheet when saving from a different sheet", async () => {
+    const range = "A1:A2";
+    const cfSheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "sh2" });
+
+    addEqualCf(model, range, { bold: false, fillColor: "#ff0000" }, "2");
+    const cf = model.getters.getConditionalFormats(cfSheetId)[0];
+    env.openSidePanel("ConditionalFormattingEditor", {
+      cf,
+      isNewCf: false,
+      sheetId: cfSheetId,
+    });
+
     await nextTick();
-    expect(composerFocusStore.activeComposer.editionMode).toBe("inactive");
+    activateSheet(model, "sh2");
+    await nextTick();
+    await click(fixture, selectors.ruleEditor.editor.bold);
+    await click(fixture, selectors.buttonSave);
+    expect(model.getters.getConditionalFormats(cfSheetId)[0].rule).toMatchObject({
+      style: { bold: true },
+    });
+    expect(model.getters.getConditionalFormats("sh2")).toHaveLength(0);
+    expect(model.getters.getActiveSheetId()).toBe(cfSheetId);
+  });
+
+  test("CF Editor cancels to its original sheet when cancelling from a different sheet", async () => {
+    const range = "A1:A2";
+    const cfSheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "sh2" });
+
+    addEqualCf(model, range, { bold: false, fillColor: "#ff0000" }, "2");
+    const cf = model.getters.getConditionalFormats(cfSheetId)[0];
+    env.openSidePanel("ConditionalFormattingEditor", {
+      cf,
+      isNewCf: false,
+      sheetId: cfSheetId,
+    });
+
+    await nextTick();
+    activateSheet(model, "sh2");
+    await nextTick();
+    await click(fixture, selectors.ruleEditor.editor.bold);
+    await click(fixture, selectors.buttonCancel);
+    expect(model.getters.getConditionalFormats(cfSheetId)[0].rule).toMatchObject({
+      style: { bold: false },
+    });
+    expect(model.getters.getConditionalFormats("sh2")).toHaveLength(0);
+    expect(model.getters.getActiveSheetId()).toBe(cfSheetId);
+  });
+
+  test("Create a new rule with different sheets duplicate the rule in both sheets", async () => {
+    const range = "A1:A2";
+    const cfSheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "sh2", name: "Sheet2" });
+    addEqualCf(model, range, { bold: false, fillColor: "#ff0000" }, "2");
+    const cf = model.getters.getConditionalFormats(cfSheetId)[0];
+    env.openSidePanel("ConditionalFormattingEditor", {
+      cf,
+      isNewCf: false,
+      sheetId: cfSheetId,
+    });
+    await nextTick();
+    await simulateClick(".o-add-selection");
+    const range2 = document.querySelectorAll(".o-selection-input input")[1];
+    await setInputValueAndTrigger(range2, "Sheet2!B1");
+    await simulateClick(".o-cf-save");
+
+    expect(model.getters.getConditionalFormats("sh2")).toHaveLength(1);
+    expect(model.getters.getConditionalFormats("sh2")[0].ranges).toEqual(["B1"]);
+    expect(model.getters.getConditionalFormats(cfSheetId)).toHaveLength(1);
+    expect(model.getters.getConditionalFormats(cfSheetId)[0].ranges).toEqual(["A1:A2"]);
+  });
+
+  test("undo/redo when a CF is added to multiple sheets is atomic", () => {
+    const cfSheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "sh2" });
+    const { id, rule } = createEqualCF("2", { bold: true }, "cfId");
+
+    model.dispatch("UPDATE_CONDITIONAL_FORMATS", {
+      cfId: id,
+      sheetIdsToAdd: {
+        [cfSheetId]: {
+          cf: { id, rule },
+          ranges: [model.getters.getRangeDataFromXc(cfSheetId, "A1:A2")],
+        },
+        sh2: { cf: { id, rule }, ranges: [model.getters.getRangeDataFromXc("sh2", "B1")] },
+      },
+    });
+    expect(model.getters.getConditionalFormats(cfSheetId)).toHaveLength(1);
+    expect(model.getters.getConditionalFormats("sh2")).toHaveLength(1);
+
+    // All sheets are undone in a single step
+    undo(model);
+    expect(model.getters.getConditionalFormats(cfSheetId)).toHaveLength(0);
+    expect(model.getters.getConditionalFormats("sh2")).toHaveLength(0);
+
+    redo(model);
+    expect(model.getters.getConditionalFormats(cfSheetId)).toHaveLength(1);
+    expect(model.getters.getConditionalFormats("sh2")).toHaveLength(1);
+  });
+
+  test("undo/redo of a CF moved to another sheet is atomic", () => {
+    const cfSheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "sh2" });
+    addEqualCf(model, "A1:A2", { bold: true }, "2");
+
+    const { id, rule } = model.getters.getConditionalFormats(cfSheetId)[0];
+    model.dispatch("UPDATE_CONDITIONAL_FORMATS", {
+      cfId: id,
+      sheetIdsToRemove: [cfSheetId],
+      sheetIdsToAdd: {
+        sh2: { cf: { id, rule }, ranges: [model.getters.getRangeDataFromXc("sh2", "B1")] },
+      },
+    });
+    expect(model.getters.getConditionalFormats(cfSheetId)).toHaveLength(0);
+    expect(model.getters.getConditionalFormats("sh2")).toHaveLength(1);
+
+    // Remove and add are undone atomically: CF moves back to sh1 in one step
+    undo(model);
+    expect(model.getters.getConditionalFormats(cfSheetId)).toHaveLength(1);
+    expect(model.getters.getConditionalFormats("sh2")).toHaveLength(0);
+
+    redo(model);
+    expect(model.getters.getConditionalFormats(cfSheetId)).toHaveLength(0);
+    expect(model.getters.getConditionalFormats("sh2")).toHaveLength(1);
   });
 });
