@@ -79,7 +79,7 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
       }
     });
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
-    useExternalListener(window, "click", () => (this.state.pickerOpened = false));
+    useExternalListener(window, "click", this.onExternalClick.bind(this), { capture: true });
 
     useEffect(
       (sheetId) => {
@@ -119,6 +119,13 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     onWillUnmount(() => {
       this.env.model.off("command-rejected", this);
     });
+  }
+
+  onExternalClick(ev: MouseEvent) {
+    const target = ev.target as HTMLElement;
+    if (!target.closest(".o-color-picker")) {
+      this.state.pickerOpened = false;
+    }
   }
 
   private focusInputAndSelectContent() {
