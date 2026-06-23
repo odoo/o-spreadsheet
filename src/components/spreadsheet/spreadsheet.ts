@@ -70,11 +70,9 @@ import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipbo
 // SpreadSheet
 // -----------------------------------------------------------------------------
 
-const CARET_DOWN_SVG = /*xml*/ `
-<svg xmlns='http://www.w3.org/2000/svg' width='7' height='4' viewBox='0 0 7 4'>
-  <polygon fill='%23374151' points='3.5 4 7 0 0 0'/>
-</svg>
-`;
+const CARET_DOWN_SVG =
+  /*xml*/
+  "<svg xmlns='http://www.w3.org/2000/svg' width='7' height='4' viewBox='0 0 7 4'><polygon fill='%23374151' points='3.5 4 7 0 0 0'/></svg>";
 
 css/* scss */ `
   .o-spreadsheet {

@@ -16,11 +16,9 @@ interface Props {
   direction: "horizontal" | "vertical";
 }
 
-const CIRCLE_SVG = /*xml*/ `
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'>
-  <circle r="2" fill="#FFF"/>
-</svg>
-`;
+const CIRCLE_SVG =
+  /*xml*/
+  "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='2' fill='#FFF'/></svg>";
 
 css/* scss */ `
   .o-radio {

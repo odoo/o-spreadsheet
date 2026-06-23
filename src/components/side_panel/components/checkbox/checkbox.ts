@@ -3,11 +3,9 @@ import { ACTION_COLOR, GRAY_300 } from "../../../../constants";
 import { SpreadsheetChildEnv } from "../../../../types";
 import { css } from "../../../helpers/css";
 
-const CHECK_SVG = /*xml*/ `
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'>
-  <path fill='none' stroke='#FFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/>
-</svg>
-`;
+const CHECK_SVG =
+  /*xml*/
+  "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path fill='none' stroke='#FFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/></svg>";
 
 interface Props {
   label?: string;
