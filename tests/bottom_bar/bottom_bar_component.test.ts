@@ -141,6 +141,17 @@ describe("BottomBar component", () => {
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
   });
 
+  test("Click on the arrow when a color picker is open should close it", async () => {
+    await mountBottomBar();
+    await click(fixture, ".o-sheet-icon");
+    await click(fixture, ".o-menu-item[data-name='change_color'");
+    expect(".o-color-picker").toHaveCount(1);
+
+    await click(fixture, ".o-sheet-icon");
+    expect(".o-menu").toHaveCount(1);
+    expect(".o-color-picker").toHaveCount(0);
+  });
+
   test("Can open context menu of a sheet with the arrow if another menu is already open", async () => {
     await mountBottomBar();
 
