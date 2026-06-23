@@ -58,7 +58,7 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   setup() {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
-    useExternalListener(window, "click", () => (this.state.openedPicker = undefined));
+    useExternalListener(window, "click", this.onExternalClick.bind(this), { capture: true });
 
     // Subscribe BottomBarSheet to isEditing so onPatched fires when it changes.
     // (Without this, isEditing is read inside Ripple's slot render, which subscribes
@@ -113,6 +113,13 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
     onWillUnmount(() => {
       this.env.model.off("command-rejected", this);
     });
+  }
+
+  onExternalClick(ev: MouseEvent) {
+    const target = ev.target as HTMLElement;
+    if (!target.closest(".o-color-picker")) {
+      this.state.openedPicker = undefined;
+    }
   }
 
   private focusInputAndSelectContent() {
