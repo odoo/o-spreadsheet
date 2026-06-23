@@ -100,7 +100,7 @@
             may indicate potential errors in formula structures, references or arguments.
           </span>
           <div
-            class="ps-3 btn btn-link flex-shrink-0"
+            class="ps-3 btn o-button-link flex-shrink-0"
             t-on-click="() => this.fingerprints.disable()">
             Turn off
           </div>
@@ -119,7 +119,7 @@
             Automatic evaluation is disabled. Press F9 to recalculate.
           </span>
           <div
-            class="ps-3 btn btn-link flex-shrink-0"
+            class="ps-3 btn o-button-link flex-shrink-0"
             t-on-click="() => this.env.model.dispatch('SET_AUTOMATIC_EVALUATION', { enabled: true })">
             Re-enable
           </div>
