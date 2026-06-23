@@ -43,7 +43,7 @@ interface DndState {
   horizontalSnap?: Snap<HFigureAxisType>;
   verticalSnap?: Snap<VFigureAxisType>;
   cancelDnd: (() => void) | undefined;
-  overlappingCarousel?: FigureUI;
+  overlappingChartOrCarousel?: FigureUI;
 }
 
 /**
@@ -117,7 +117,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
     horizontalSnap: undefined,
     verticalSnap: undefined,
     cancelDnd: undefined,
-    overlappingCarousel: undefined,
+    overlappingChartOrCarousel: undefined,
   });
 
   setup() {
@@ -141,7 +141,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
         this.dnd.selectedRect = undefined;
         this.dnd.horizontalSnap = undefined;
         this.dnd.verticalSnap = undefined;
-        this.dnd.overlappingCarousel = undefined;
+        this.dnd.overlappingChartOrCarousel = undefined;
         this.dnd.cancelDnd = undefined;
       }
     });
@@ -357,14 +357,14 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       );
       const draggedFigure = selectedFigures.find((f) => f.id === draggedFigureId);
 
-      let overlappingCarousel: FigureUI | undefined = undefined;
+      let overlappingChartOrCarousel: FigureUI | undefined = undefined;
       const otherFigures = this.getOtherFigures(selectedFigures.map((f) => f.id));
       if (draggedFigure && !selectedFigures.find((f) => f.tag !== "chart")) {
-        overlappingCarousel = this.getCarouselOverlappingChart(draggedFigure, otherFigures);
+        overlappingChartOrCarousel = this.getOverlappingFigure(draggedFigure, otherFigures);
       }
-      this.dnd.overlappingCarousel = overlappingCarousel;
+      this.dnd.overlappingChartOrCarousel = overlappingChartOrCarousel;
 
-      if (!overlappingCarousel) {
+      if (!overlappingChartOrCarousel) {
         const snapReturn = snapForMove(getters, selectedFigures, otherFigures);
         this.dnd.selectedFigures = snapReturn.snappedFigures;
         this.dnd.selectedRect = this.getDndFigureRect();
@@ -392,7 +392,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
         }
         return;
       }
-      if (!this.dnd.overlappingCarousel) {
+      if (!this.dnd.overlappingChartOrCarousel) {
         const payloads =
           this.dnd.selectedFigures?.map((f) => {
             return {
@@ -403,13 +403,21 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
           }) || [];
         this.env.model.dispatch("MOVE_FIGURES", { figures: payloads });
       } else {
-        const carouselFigureId = this.dnd.overlappingCarousel.id;
+        const overlappingFigureId = this.dnd.overlappingChartOrCarousel.id;
         const chartFigureIds = this.dnd.selectedFigures?.map((f) => f.id) || [];
-        this.env.model.dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
-          sheetId,
-          carouselFigureId,
-          chartFigureIds: chartFigureIds,
-        });
+        if (this.dnd.overlappingChartOrCarousel.tag === "carousel") {
+          this.env.model.dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
+            sheetId,
+            carouselFigureId: overlappingFigureId,
+            chartFigureIds: chartFigureIds,
+          });
+        } else if (this.dnd.overlappingChartOrCarousel.tag === "chart") {
+          this.env.model.dispatch("MERGE_CHART_FIGURES_INTO_CAROUSEL", {
+            sheetId,
+            baseFigureId: overlappingFigureId,
+            chartFigureIds: [overlappingFigureId, ...chartFigureIds],
+          });
+        }
       }
 
       this.dnd.draggedFigure = undefined;
@@ -417,7 +425,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       this.dnd.selectedRect = undefined;
       this.dnd.horizontalSnap = undefined;
       this.dnd.verticalSnap = undefined;
-      this.dnd.overlappingCarousel = undefined;
+      this.dnd.overlappingChartOrCarousel = undefined;
     };
 
     this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
@@ -507,7 +515,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       this.dnd.selectedRect = undefined;
       this.dnd.horizontalSnap = undefined;
       this.dnd.verticalSnap = undefined;
-      this.dnd.overlappingCarousel = undefined;
+      this.dnd.overlappingChartOrCarousel = undefined;
     };
 
     this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
@@ -522,13 +530,13 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       return "";
     }
     return cssPropertiesToCss({
-      opacity: this.dnd.overlappingCarousel?.id ? "0.6" : "0.9",
+      opacity: this.dnd.overlappingChartOrCarousel?.id ? "0.6" : "0.9",
       cursor: "grabbing",
     });
   }
 
   getFigureClass(figureUI: FigureUI): string {
-    if (figureUI.id !== this.dnd.overlappingCarousel?.id) {
+    if (figureUI.id !== this.dnd.overlappingChartOrCarousel?.id) {
       return "";
     }
     return "o-add-to-carousel";
@@ -591,10 +599,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
     }
   }
 
-  private getCarouselOverlappingChart(
-    figureUI: FigureUI,
-    otherFigures: FigureUI[]
-  ): FigureUI | undefined {
+  private getOverlappingFigure(figureUI: FigureUI, otherFigures: FigureUI[]): FigureUI | undefined {
     if (figureUI.tag !== "chart") {
       return undefined;
     }
@@ -606,14 +611,14 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
     let smallestDistance = Infinity;
 
     for (const figure of otherFigures) {
-      if (figure.tag !== "carousel") {
+      if (figure.tag !== "chart" && figure.tag !== "carousel") {
         continue;
       }
-      const carouselCenterX = figure.x + figure.width / 2;
-      const carouselCenterY = figure.y + figure.height / 2;
+      const targetCenterX = figure.x + figure.width / 2;
+      const targetCenterY = figure.y + figure.height / 2;
 
-      const distanceX = Math.abs(figureCenterX - carouselCenterX);
-      const distanceY = Math.abs(figureCenterY - carouselCenterY);
+      const distanceX = Math.abs(figureCenterX - targetCenterX);
+      const distanceY = Math.abs(figureCenterY - targetCenterY);
       const squaredDistance = distanceX ** 2 + distanceY ** 2;
 
       if (

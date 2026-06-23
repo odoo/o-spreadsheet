@@ -12,6 +12,7 @@ import {
   paste,
   selectCarouselItem,
   selectFigure,
+  undo,
   updateCarousel,
 } from "../../test_helpers/commands_helpers";
 import {
@@ -155,6 +156,127 @@ describe("Carousel figure component", () => {
     await clickAndDrag(".o-figure[data-id=chartFigureId]", { x: 0, y: 80 }, { x: 0, y: 0 }, true);
     expect(model.getters.getCarousel("carouselId1").items).toHaveLength(0);
     expect(model.getters.getCarousel("carouselId2").items).toHaveLength(1);
+  });
+
+  describe("Drag & drop chart onto chart to create a carousel", () => {
+    test("Creates a carousel with both charts when dragging a chart onto another", async () => {
+      createChart(model, { type: "bar" }, "chartId1", undefined, {
+        col: 0,
+        row: 0,
+        offset: { x: 0, y: 0 },
+        size: { width: 200, height: 200 },
+        figureId: "chartFigureId1",
+      });
+      createChart(model, { type: "line" }, "chartId2", undefined, {
+        col: 0,
+        row: 0,
+        offset: { x: 300, y: 300 },
+        size: { width: 200, height: 200 },
+        figureId: "chartFigureId2",
+      });
+      const targetFigure = model.getters.getFigure(sheetId, "chartFigureId1")!;
+      await mountSpreadsheet({ model });
+
+      // Move chartFigureId2 by (-250, -250) so its center (150,150) is within 100px of
+      // chartFigureId1's center (100,100) — triggers chart-to-chart carousel creation
+      await clickAndDrag(
+        ".o-figure[data-id=chartFigureId2]",
+        { x: -250, y: -250 },
+        { x: 300, y: 300 },
+        true
+      );
+
+      expect(model.getters.getFigures(sheetId)).toHaveLength(1);
+      const [carouselFigure] = model.getters.getFigures(sheetId);
+      expect(carouselFigure).toMatchObject({
+        tag: "carousel",
+        col: targetFigure.col,
+        row: targetFigure.row,
+        offset: targetFigure.offset,
+      });
+      const carousel = model.getters.getCarousel(carouselFigure.id);
+      const chartIds = new Set(
+        carousel.items.map((item) => (item.type === "chart" ? item.chartId : undefined))
+      );
+      expect(chartIds).toEqual(new Set(["chartId1", "chartId2"]));
+    });
+
+    test("Multiple selected charts dragged onto a chart are all merged into the new carousel", async () => {
+      createChart(model, { type: "bar" }, "chartId1", undefined, {
+        col: 0,
+        row: 0,
+        offset: { x: 0, y: 0 },
+        size: { width: 200, height: 200 },
+        figureId: "chartFigureId1",
+      });
+      createChart(model, { type: "line" }, "chartId2", undefined, {
+        col: 0,
+        row: 0,
+        offset: { x: 300, y: 300 },
+        size: { width: 200, height: 200 },
+        figureId: "chartFigureId2",
+      });
+      createChart(model, { type: "pie" }, "chartId3", undefined, {
+        col: 0,
+        row: 0,
+        offset: { x: 310, y: 310 },
+        size: { width: 200, height: 200 },
+        figureId: "chartFigureId3",
+      });
+      selectFigure(model, "chartFigureId2");
+      selectFigure(model, "chartFigureId3", true);
+      await mountSpreadsheet({ model });
+
+      // Primary dragged figure (chartFigureId2) overlaps chartFigureId1 after the move
+      await clickAndDrag(
+        ".o-figure[data-id=chartFigureId2]",
+        { x: -250, y: -250 },
+        { x: 300, y: 300 },
+        true
+      );
+
+      expect(model.getters.getFigures(sheetId)).toHaveLength(1);
+      const [carouselFigure] = model.getters.getFigures(sheetId);
+      const carousel = model.getters.getCarousel(carouselFigure.id);
+      expect(carousel.items).toHaveLength(3);
+      const chartIds = new Set(
+        carousel.items.map((item) => (item.type === "chart" ? item.chartId : undefined))
+      );
+      expect(chartIds).toEqual(new Set(["chartId1", "chartId2", "chartId3"]));
+    });
+
+    test("Undo restores the two independent charts", async () => {
+      createChart(model, { type: "bar" }, "chartId1", undefined, {
+        col: 0,
+        row: 0,
+        offset: { x: 0, y: 0 },
+        size: { width: 200, height: 200 },
+        figureId: "chartFigureId1",
+      });
+      createChart(model, { type: "line" }, "chartId2", undefined, {
+        col: 0,
+        row: 0,
+        offset: { x: 300, y: 300 },
+        size: { width: 200, height: 200 },
+        figureId: "chartFigureId2",
+      });
+      await mountSpreadsheet({ model });
+
+      await clickAndDrag(
+        ".o-figure[data-id=chartFigureId2]",
+        { x: -250, y: -250 },
+        { x: 300, y: 300 },
+        true
+      );
+      expect(model.getters.getFigures(sheetId)).toHaveLength(1);
+      expect(model.getters.getFigures(sheetId)[0].tag).toBe("carousel");
+
+      undo(model);
+
+      const figures = model.getters.getFigures(sheetId);
+      expect(figures).toHaveLength(2);
+      expect(figures.every((f) => f.tag === "chart")).toBe(true);
+    });
   });
 
   test("Can define a carousel title", async () => {
