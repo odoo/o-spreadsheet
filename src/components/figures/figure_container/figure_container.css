@@ -20,7 +20,8 @@
     z-index: var(--os-components-importance-figure-snap-line);
     opacity: 1;
   }
-  .o-figure.o-add-to-carousel::before {
+  .o-figure.o-add-to-carousel::before,
+  .o-figure.o-create-carousel::before {
     content: "";
     position: absolute;
     top: 0;
@@ -33,7 +34,8 @@
     pointer-events: none;
   }
 
-  .o-figure.o-add-to-carousel::after {
+  .o-figure.o-add-to-carousel::after,
+  .o-figure.o-create-carousel::after {
     content: "+";
     position: absolute;
     top: calc(50% - 15px);
