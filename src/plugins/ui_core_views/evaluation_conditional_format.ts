@@ -340,13 +340,13 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
       minValue === null ||
       maxValue === null ||
       minValue >= maxValue ||
-      (midValue && (minValue >= midValue || midValue >= maxValue))
+      (midValue !== null && (minValue >= midValue || midValue >= maxValue))
     ) {
       return;
     }
     const zone: Zone = this.getters.getRangeFromSheetXC(sheetId, range).zone;
     const colorThresholds = [{ value: minValue, color: rule.minimum.color }];
-    if (rule.midpoint && midValue) {
+    if (rule.midpoint && midValue !== null) {
       colorThresholds.push({ value: midValue, color: rule.midpoint.color });
     }
     colorThresholds.push({ value: maxValue, color: rule.maximum.color });
