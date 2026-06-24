@@ -2629,6 +2629,27 @@ describe("conditional formats types", () => {
       });
     });
 
+    test("3 points, value scale with midpoint = 0", () => {
+      setCellContent(model, "A1", "-5");
+      setCellContent(model, "A2", "0");
+      setCellContent(model, "A3", "5");
+
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createColorScale(
+          "1",
+          { type: "value", color: 0xff0000 },
+          { type: "value", color: 0x00ff00 },
+          { type: "number", color: 0xffffff, value: "0" }
+        ),
+        ranges: toRangesData(sheetId, "A1:A3"),
+        sheetId,
+      });
+
+      expect(getStyle(model, "A2")).toEqual({
+        fillColor: "#FFFFFF",
+      });
+    });
+
     test("2 points, value scale with same min/max", () => {
       setCellContent(model, "A1", "10");
       setCellContent(model, "A2", "10");
