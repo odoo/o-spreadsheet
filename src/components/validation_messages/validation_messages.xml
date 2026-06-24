@@ -23,7 +23,7 @@
             <t t-else="" t-call="o-spreadsheet-Icon.TRIANGLE_EXCLAMATION"/>
           </div>
           <div class="d-flex flex-column overflow-hidden">
-            <span class="ps-2" t-slot="info-text"/>
+            <span class="ps-2" t-call-slot="info-text"/>
           </div>
         </div>
       </div>
