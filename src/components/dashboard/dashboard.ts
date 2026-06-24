@@ -1,4 +1,4 @@
-import { signal, toRaw, useProps } from "@odoo/owl";
+import { signal, useProps } from "@odoo/owl";
 import { Component, useChildSubEnv } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
@@ -7,11 +7,12 @@ import { Pixel } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
+import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { cssPropertiesToCss } from "../helpers/css";
-import { getElBoundingRect, isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
+import { getElBoundingRect } from "../helpers/dom_helpers";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useTouchHandlers } from "../helpers/touch_handlers_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
@@ -21,7 +22,7 @@ import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
 import { HorizontalScrollBar } from "../scrollbar/scrollbar_horizontal";
 import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
-import { ClickableCell, ClickableCellsStore } from "./clickable_cell_store";
+import { ClickableCellsStore } from "./clickable_cell_store";
 
 export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SpreadsheetDashboard";
@@ -31,6 +32,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
     Popover,
     VerticalScrollBar,
     HorizontalScrollBar,
+    ClickableCellsOverlay,
   };
 
   protected props = useProps({
@@ -100,30 +102,6 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
       height: "100%",
       width: "100%",
     });
-  }
-
-  getCellClickableStyle(coordinates: Rect) {
-    return cssPropertiesToCss({
-      top: `${coordinates.y}px`,
-      left: `${coordinates.x}px`,
-      width: `${coordinates.width}px`,
-      height: `${coordinates.height}px`,
-    });
-  }
-
-  /**
-   * Get all the boxes for the cell in the sheet view that are clickable.
-   * This function is used to render an overlay over each clickable cell in
-   * order to display a pointer cursor.
-   *
-   */
-  getClickableCells(): ClickableCell[] {
-    return toRaw(this.clickableCellsStore.clickableCells);
-  }
-
-  selectClickableCell(ev: MouseEvent, clickableCell: ClickableCell) {
-    const { position, action } = clickableCell;
-    action(position, this.env, isMiddleClickOrCtrlClick(ev));
   }
 
   onClosePopover() {
