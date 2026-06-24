@@ -2,7 +2,13 @@ import { Component, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import { DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
-import { setCellContent, setSelection, setViewportOffset } from "../test_helpers/commands_helpers";
+import {
+  hideRows,
+  selectRow,
+  setCellContent,
+  setSelection,
+  setViewportOffset,
+} from "../test_helpers/commands_helpers";
 import {
   clickCell,
   edgeScrollDelay,
@@ -59,6 +65,13 @@ describe("Autofill component", () => {
     triggerMouseEvent(autofill, "pointerup");
     await nextTick();
     expect(dispatch).toHaveBeenCalledWith("AUTOFILL");
+  });
+
+  test("Autofill handler is not visible if the selection is a hidden row", async () => {
+    selectRow(model, 1, "overrideSelection");
+    await nextTick();
+    hideRows(model, [1]);
+    expect(".o-autofill-handler").toHaveCount(0);
   });
 
   test("Can auto-autofill with dblclick", async () => {
@@ -346,7 +359,8 @@ describe("Autofill edge scrolling", () => {
     const autofill = fixture.querySelector(".o-autofill-handler");
 
     triggerMouseEvent(autofill, "pointerdown", width / 2, 0);
-    triggerMouseEvent(autofill, "pointermove", width * 1.5, 0);
+    // drag and drop on the window, the autofill handler disappears during the drag and drop
+    triggerMouseEvent(window, "pointermove", width * 1.5, 0);
     const advanceTimer = edgeScrollDelay(width / 2, 5);
     jest.advanceTimersByTime(advanceTimer);
     await nextTick(); // now the cursor is out of the sheet
@@ -355,13 +369,13 @@ describe("Autofill edge scrolling", () => {
     expect(tooltipElement.textContent).toBe("test");
     expect(isVisibleInViewport(tooltipElement, model)).toBeFalsy();
 
-    triggerMouseEvent(autofill, "pointermove", width / 2, 0);
+    triggerMouseEvent(window, "pointermove", width / 2, 0);
     const advanceTimer2 = edgeScrollDelay(width / 2, 5);
     jest.advanceTimersByTime(advanceTimer2);
     await nextTick();
     expect(isVisibleInViewport(tooltipElement, model)).toBeTruthy();
 
-    triggerMouseEvent(autofill, "pointerup", width / 2, 0);
+    triggerMouseEvent(window, "pointerup", width / 2, 0);
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
   });
@@ -373,7 +387,8 @@ describe("Autofill edge scrolling", () => {
     const autofill = fixture.querySelector(".o-autofill-handler");
 
     triggerMouseEvent(autofill, "pointerdown", 0, height / 2);
-    triggerMouseEvent(autofill, "pointermove", 0, height * 1.5);
+    // drag and drop on the window, the autofill handler disappears during the drag and drop
+    triggerMouseEvent(window, "pointermove", 0, height * 1.5);
     const advanceTimer = edgeScrollDelay(height / 2, 5);
     jest.advanceTimersByTime(advanceTimer);
     await nextTick(); // now the cursor is out of the viewport
@@ -383,7 +398,7 @@ describe("Autofill edge scrolling", () => {
     expect(tooltipElement.textContent).toBe("test");
     expect(isVisibleInViewport(tooltipElement, model)).toBeFalsy();
 
-    triggerMouseEvent(autofill, "pointermove", 0, height / 2);
+    triggerMouseEvent(window, "pointermove", 0, height / 2);
     /**
      * We have a time out when dragging
      * (see line 162 in `drag_and_drop.ts`)
@@ -394,7 +409,7 @@ describe("Autofill edge scrolling", () => {
     await nextTick();
     expect(isVisibleInViewport(tooltipElement, model)).toBeTruthy();
 
-    triggerMouseEvent(autofill, "pointerup", 0, height / 2);
+    triggerMouseEvent(window, "pointerup", 0, height / 2);
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
   });
