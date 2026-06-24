@@ -7,13 +7,13 @@ import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { Command, invalidateEvaluationCommands } from "../../types/commands";
 import { CellPosition, UID } from "../../types/misc";
 import { Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetRenderingEnv } from "../../types/spreadsheet_env";
 
 export interface ClickableCell {
   coordinates: Rect;
   position: CellPosition;
   title: string;
-  action: (position: CellPosition, env: SpreadsheetChildEnv, isMiddleClick?: boolean) => void;
+  action: (position: CellPosition, env: SpreadsheetRenderingEnv, isMiddleClick?: boolean) => void;
   component: ComponentConstructor | undefined;
   componentProps: Record<string, unknown>;
 }

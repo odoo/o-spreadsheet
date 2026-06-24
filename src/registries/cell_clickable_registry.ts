@@ -2,15 +2,15 @@ import { ClickableCellSortIcon } from "../components/dashboard/clickable_cell_so
 import { openLink } from "../helpers/links";
 import { canSortPivot, sortPivot } from "../helpers/pivot/pivot_menu_items";
 import { _t } from "../translation";
-import { Getters } from "../types/getters";
+import { Getters, RenderingGetters } from "../types/getters";
 import { CellPosition, SortDirection } from "../types/misc";
-import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
+import { SpreadsheetChildEnv, SpreadsheetRenderingEnv } from "../types/spreadsheet_env";
 import { Registry } from "./registry";
 
 import { ComponentConstructor } from "../owl3_compatibility_layer";
 export interface CellClickableItem {
   condition: (position: CellPosition, getters: Getters) => boolean;
-  execute: (position: CellPosition, env: SpreadsheetChildEnv, isMiddleClick?: boolean) => void;
+  execute: (position: CellPosition, env: SpreadsheetRenderingEnv, isMiddleClick?: boolean) => void;
   title?: string | ((position: CellPosition, getters: Getters) => string);
   sequence: number;
   component?: ComponentConstructor;
@@ -23,8 +23,11 @@ clickableCellRegistry.add("link", {
   condition: (position: CellPosition, getters: Getters) => {
     return !!getters.getEvaluatedCell(position).link;
   },
-  execute: (position: CellPosition, env: SpreadsheetChildEnv, isMiddleClick?: boolean) =>
-    openLink(env.model.getters.getEvaluatedCell(position).link!, env, isMiddleClick),
+  execute: (
+    position: CellPosition,
+    env: SpreadsheetRenderingEnv | SpreadsheetRenderingEnv,
+    isMiddleClick?: boolean
+  ) => openLink(env.model.getters.getEvaluatedCell(position).link!, env, isMiddleClick),
   title: (position, getters) => {
     const link = getters.getEvaluatedCell(position).link;
     if (!link) {
@@ -47,7 +50,7 @@ clickableCellRegistry.add("dashboard_pivot_sorting", {
     const pivotCell = getters.getPivotCellFromPosition(position);
     return canSortPivot(getters, position) && pivotCell.type === "MEASURE_HEADER";
   },
-  execute: (position: CellPosition, env: SpreadsheetChildEnv) => {
+  execute: (position: CellPosition, env: SpreadsheetChildEnv | SpreadsheetRenderingEnv) => {
     sortPivot(env, position, getNextSortDirection(env.model.getters, position));
   },
   component: ClickableCellSortIcon,
@@ -66,6 +69,9 @@ const NEXT_SORT_DIRECTION = {
   desc: "none",
 } as const;
 
-function getNextSortDirection(getters: Getters, position: CellPosition): SortDirection | "none" {
+function getNextSortDirection(
+  getters: RenderingGetters,
+  position: CellPosition
+): SortDirection | "none" {
   return NEXT_SORT_DIRECTION[getters.getPivotCellSortDirection(position) ?? "none"];
 }

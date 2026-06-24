@@ -9,6 +9,7 @@ import { UID } from "../../types/misc";
 import { GridRenderingContext } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
+import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { HoveredIconStore } from "../grid_overlay/hovered_icon_store";
 import { cssPropertiesToCss } from "../helpers/css";
@@ -24,7 +25,7 @@ import { HoveredTableStore } from "../tables/hovered_table_store";
 // FIXME CAROUSELS: clickable cells, grid popover
 export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-StandaloneViewport";
-  static components = { VerticalScrollBar, GridOverlay };
+  static components = { VerticalScrollBar, GridOverlay, ClickableCellsOverlay };
 
   protected props = props({
     range: types.Range(),

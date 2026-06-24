@@ -9,8 +9,9 @@
         <GridOverlay
           onCellClicked.bind="this.onCellClicked"
           onGridResized="() => {}"
-          gridOverlayDimensions="this.gridOverlayDimensions"
-        />
+          gridOverlayDimensions="this.gridOverlayDimensions">
+          <ClickableCellsOverlay/>
+        </GridOverlay>
         <canvas class="" t-ref="this.canvasRef"/>
       </div>
       <div
