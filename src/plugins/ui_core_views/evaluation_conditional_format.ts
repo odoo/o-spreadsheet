@@ -293,7 +293,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       minValue === null ||
       maxValue === null ||
       minValue >= maxValue ||
-      (midValue && (minValue >= midValue || midValue >= maxValue))
+      (midValue !== null && (minValue >= midValue || midValue >= maxValue))
     ) {
       return;
     }
@@ -303,7 +303,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       minColor: number;
       colorDiffUnit: [number, number, number];
     }[] = [];
-    if (rule.midpoint && midValue) {
+    if (rule.midpoint && midValue !== null) {
       colorCellArgs.push({
         minValue,
         minColor: rule.minimum.color,
@@ -342,7 +342,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         if (cell.type === CellValueType.number) {
           const value = clip(cell.value, minValue, maxValue);
           let color;
-          if (colorCellArgs.length === 2 && midValue) {
+          if (colorCellArgs.length === 2 && midValue !== null) {
             color =
               value <= midValue
                 ? this.colorCell(
