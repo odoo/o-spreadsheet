@@ -46,6 +46,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
     return cssPropertiesToCss({
       top: `${y}px`,
       left: `${x}px`,
+      visibility: this.props.isVisible ? "visible" : "hidden",
     });
   }
 
