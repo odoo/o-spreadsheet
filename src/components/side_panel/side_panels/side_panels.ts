@@ -85,7 +85,11 @@ export class SidePanels extends Component<SpreadsheetChildEnv> {
     };
   }
 
-  get panelList() {
+  get panelList(): {
+    key?: string;
+    props?: PropsOf<SidePanel>;
+    style: string;
+  }[] {
     return [
       {
         key: this.sidePanelStore.secondaryPanelKey,
