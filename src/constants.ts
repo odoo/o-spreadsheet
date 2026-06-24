@@ -196,7 +196,7 @@ export const DEFAULT_WRAPPING_MODE = DEFAULT_STYLE.wrapping;
 export const DEFAULT_FONT_WEIGHT = "400";
 export const DEFAULT_FONT_SIZE = DEFAULT_STYLE.fontSize;
 export const HEADER_FONT_SIZE = 11;
-export const DEFAULT_FONT = "'Roboto', arial";
+export const DEFAULT_FONT = "'Roboto', arial, 'Liberation Sans'";
 
 // Borders
 export const DEFAULT_BORDER_DESC: BorderDescr = { style: "thin", color: "#000000" };
