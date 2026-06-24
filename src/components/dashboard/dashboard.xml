@@ -16,21 +16,7 @@
         <GridOverlay
           onGridResized.bind="this.onGridResized"
           gridOverlayDimensions="this.gridOverlayDimensions">
-          <div
-            t-foreach="this.getClickableCells()"
-            t-as="clickableCell"
-            t-key="clickableCell_index"
-            class="o-dashboard-clickable-cell"
-            t-att-title="clickableCell.title"
-            t-on-click="(ev) => this.selectClickableCell(ev, clickableCell)"
-            t-on-auxclick="(ev) => this.selectClickableCell(ev, clickableCell)"
-            t-att-style="this.getCellClickableStyle(clickableCell.coordinates)">
-            <t
-              t-if="clickableCell.component"
-              t-component="clickableCell.component"
-              t-props="clickableCell.componentProps"
-            />
-          </div>
+          <ClickableCellsOverlay/>
         </GridOverlay>
         <canvas t-ref="this.canvasRef" class="os-theme-dependant"/>
         <GridPopover
