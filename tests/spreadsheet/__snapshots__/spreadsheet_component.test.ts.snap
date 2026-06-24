@@ -947,7 +947,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         />
         <div
           class="o-autofill-handler"
-          style="top: 45px; left: 140px;"
+          style="top: 45px; left: 140px; visibility: visible;"
         />
         
         
@@ -1982,7 +1982,7 @@ exports[`components take the small screen into account 1`] = `
         />
         <div
           class="o-autofill-handler"
-          style="top: 45px; left: 140px;"
+          style="top: 45px; left: 140px; visibility: visible;"
         />
         
         
