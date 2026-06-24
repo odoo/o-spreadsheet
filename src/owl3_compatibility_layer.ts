@@ -33,33 +33,34 @@
  * The end goal is to eliminate all compatibility shims.
  */
 
-import {
+import * as owl from "@odoo/owl";
+
+const {
   __ODOO_COMPATIBILITY_LAYER_ADDED__,
   blockDom,
   config,
   onMounted,
   onPatched, // Exported by Odoo compat layer
   onWillUnmount,
-  App as OwlApp,
-  Component as OwlComponent, // Exported by Odoo compat layer
-  EnvPlugin as OwlEnvPlugin, // Exported by Odoo compat layer
-  useChildEnv as OwlUseChildEnv, // Exported by Odoo compat layer
-  useChildSubEnv as OwlUseChildSubEnv,
-  useComponent as OwlUseComponent, // Exported by Odoo compat layer
-  useEnv as OwlUseEnv, // Exported by Odoo compat layer
-  useExternalListener as OwlUseExternalListener, // Exported by Odoo compat layer
-  useLayoutEffect as OwlUseLayoutEffect, // Exported by Odoo compat layer
-  useSubEnv as OwlUseSubEnv, // Exported by Odoo compat layer
+  App: OwlApp,
+  Component: OwlComponent, // Exported by Odoo compat layer
+  EnvPlugin: OwlEnvPlugin, // Exported by Odoo compat layer
+  useChildEnv: OwlUseChildEnv, // Exported by Odoo compat layer
+  useChildSubEnv: OwlUseChildSubEnv,
+  useComponent: OwlUseComponent, // Exported by Odoo compat layer
+  useEnv: OwlUseEnv, // Exported by Odoo compat layer
+  useExternalListener: OwlUseExternalListener, // Exported by Odoo compat layer
+  useLayoutEffect: OwlUseLayoutEffect, // Exported by Odoo compat layer
+  useSubEnv: OwlUseSubEnv, // Exported by Odoo compat layer
   Plugin,
   plugin,
   props,
   providePlugins, // Exported by Odoo compat layer
   useScope,
   xml,
-} from "@odoo/owl";
+} = owl;
 
 const isOdooCompatLoaded = __ODOO_COMPATIBILITY_LAYER_ADDED__ === true;
-
 export interface ComponentConstructor<Env = any> {
   new (...args: any[]): any;
   template: string;
