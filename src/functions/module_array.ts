@@ -8,6 +8,7 @@ import { areSameDimensions, isSingleColOrRow, isSquareMatrix } from "./helper_as
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 import {
   flattenRowFirst,
+  generateLimitedMatrix2,
   generateMatrix,
   generateSubMatrix,
   isEvaluationError,
@@ -101,40 +102,31 @@ function stackVertically(
 export const ARRAY_CONSTRAIN = {
   description: _t("Returns a result array constrained to a specific width and height."),
   args: [
-    arg("input_range (any, range<any>)", _t("The range to constrain.")),
+    arg("input_range (any, range<any>, lazy)", _t("The range to constrain.")),
     arg("rows (number)", _t("The number of rows in the constrained array.")),
     arg("columns (number)", _t("The number of columns in the constrained array.")),
   ],
   computeArray: function (
     zone: UnboundedZone,
-    array: Arg,
+    inputRange: LazyArg,
     rows: Maybe<FunctionResultObject>,
     columns: Maybe<FunctionResultObject>
   ) {
-    const _array = toMatrix(array);
-    const _rowsArg = toInteger(rows?.value, this.locale);
-    const _columnsArg = toInteger(columns?.value, this.locale);
+    const _rows = toInteger(rows?.value, this.locale);
+    const _columns = toInteger(columns?.value, this.locale);
 
-    if (_rowsArg <= 0) {
+    if (_rows <= 0) {
       return new EvaluationError(
-        _t("The rows argument (%s) must be strictly positive.", _rowsArg.toString())
+        _t("The rows argument (%s) must be strictly positive.", _rows.toString())
       );
     }
-    if (_columnsArg <= 0) {
+    if (_columns <= 0) {
       return new EvaluationError(
-        _t("The columns argument (%s) must be strictly positive.", _columnsArg.toString())
+        _t("The columns argument (%s) must be strictly positive.", _columns.toString())
       );
     }
 
-    // should not check the dimensions. Here _array is empty because we d'ont accept ranges outside of the sheet for
-    if (_array[0].length === 0) {
-      return [[{ value: 0 }]];
-    }
-
-    const _nbRows = Math.min(_rowsArg, _array[0].length);
-    const _nbColumns = Math.min(_columnsArg, _array.length);
-
-    return generateSubMatrix(zone, _nbColumns, _nbRows, (col, row) => _array[col][row]);
+    return generateLimitedMatrix2(zone, _columns, _rows, inputRange);
   },
   isExported: false,
 } satisfies AddFunctionDescription;
@@ -196,29 +188,25 @@ export const CHOOSECOLS = {
       );
     }
 
-    if (
-      zone.left > _columns.length - 1 ||
-      (zone.right !== undefined && zone.right > _columns.length - 1)
-    ) {
-      return new EvaluationError(
-        _t(
-          "Index out of range: The function [[FUNCTION_NAME]] operates on a matrix of %(nColumns)s columns; the parent formula attempts to access values outside these bounds.",
-          { nColumns: _columns.length }
-        )
-      );
-    }
-
-    const leftsIndex = _columns.map((col) => (col > 0 ? col - 1 : col));
+    const leftIndexes = _columns.map((col) => (col > 0 ? col - 1 : col));
 
     const result: Matrix<FunctionResultObject> = Array(_columns.length);
     for (
       let widthIndex = zone.left;
-      widthIndex < (zone.right === undefined ? leftsIndex.length : zone.right);
+      widthIndex < (zone.right === undefined ? leftsIndex.length : zone.right + 1);
       widthIndex++
     ) {
       const left = leftsIndex[widthIndex];
       const subZone = { left, right: left, top: zone.top, bottom: zone.bottom };
-      const res = array(subZone);
+      const res = toMatrix(array(subZone));
+      if (res.length === 0 || res[0].length === 0) {
+        return new EvaluationError(
+          _t(
+            "Index out of range: The function [[FUNCTION_NAME]] tries to access a column at index (%s) that doesn't match any column.",
+            _columns[widthIndex].toString()
+          )
+        );
+      }
       result[widthIndex] = toMatrix2(res, subZone)[0];
     }
 
