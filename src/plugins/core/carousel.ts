@@ -4,12 +4,17 @@ import { Carousel, CarouselItem } from "../../types/figure";
 import { UID } from "../../types/misc";
 import { WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
+import { FigurePlugin } from "./figures";
 
 interface CarouselState {
   readonly carousels: Record<UID, Record<UID, Carousel | undefined> | undefined>;
 }
 
-export class CarouselPlugin extends CorePlugin<CarouselState> implements CarouselState {
+export class CarouselPlugin
+  extends CorePlugin<typeof CarouselPlugin, CarouselState>
+  implements CarouselState
+{
+  static readonly dependencies = [FigurePlugin] as const;
   static getters = ["getCarousel", "doesCarouselExist"] as const;
   readonly carousels: Record<UID, Record<UID, Carousel | undefined> | undefined> = {};
 

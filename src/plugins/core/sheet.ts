@@ -17,7 +17,6 @@ import {
   toStandardizedSheetName,
 } from "../../helpers/sheet";
 import { isZoneInside, isZoneValid, toZone } from "../../helpers/zones";
-import { Cell } from "../../types/cells";
 import {
   Command,
   CommandResult,
@@ -52,7 +51,8 @@ interface SheetState {
   readonly cellPosition: Record<number, CellPosition | undefined>;
 }
 
-export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
+export class SheetPlugin extends CorePlugin<typeof SheetPlugin, SheetState> implements SheetState {
+  static readonly dependencies = [] as const;
   static getters = [
     "getSheetName",
     "tryGetSheetName",
@@ -65,7 +65,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "isSheetVisible",
     "doesHeaderExist",
     "doesHeadersExist",
-    "getCell",
     "getCellPosition",
     "getColsZone",
     "getRowCellIds",
@@ -192,20 +191,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           return CommandResult.Success;
         }
       }
-      case "FREEZE_ROWS": {
-        return this.checkValidations(
-          cmd,
-          this.checkRowFreezeQuantity,
-          this.checkRowFreezeOverlapMerge
-        );
-      }
-      case "FREEZE_COLUMNS": {
-        return this.checkValidations(
-          cmd,
-          this.checkColFreezeQuantity,
-          this.checkColFreezeOverlapMerge
-        );
-      }
+      case "FREEZE_ROWS":
+        return this.checkRowFreezeQuantity(cmd);
+      case "FREEZE_COLUMNS":
+        return this.checkColFreezeQuantity(cmd);
       default:
         return CommandResult.Success;
     }
@@ -439,15 +428,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   doesHeadersExist(sheetId: UID, dimension: Dimension, headerIndexes: HeaderIndex[]): boolean {
     return headerIndexes.every((index) => this.doesHeaderExist(sheetId, dimension, index));
-  }
-
-  getCell({ sheetId, col, row }: CellPosition): Cell | undefined {
-    const sheet = this.tryGetSheet(sheetId);
-    const cellId = sheet?.rows[row]?.cells[col];
-    if (cellId === undefined) {
-      return undefined;
-    }
-    return this.getters.getCellById(cellId);
   }
 
   getColsZone(sheetId: UID, start: HeaderIndex, end: HeaderIndex): Zone {
@@ -751,26 +731,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       : CommandResult.InvalidFreezeQuantity;
   }
 
-  private checkRowFreezeOverlapMerge(cmd: FreezeRowsCommand): CommandResult {
-    const merges = this.getters.getMerges(cmd.sheetId);
-    for (const merge of merges) {
-      if (merge.top < cmd.quantity && cmd.quantity <= merge.bottom) {
-        return CommandResult.MergeOverlap;
-      }
-    }
-    return CommandResult.Success;
-  }
-
-  private checkColFreezeOverlapMerge(cmd: FreezeColumnsCommand): CommandResult {
-    const merges = this.getters.getMerges(cmd.sheetId);
-    for (const merge of merges) {
-      if (merge.left < cmd.quantity && cmd.quantity <= merge.right) {
-        return CommandResult.MergeOverlap;
-      }
-    }
-    return CommandResult.Success;
-  }
-
   private isRenameAllowed(cmd: RenameSheetCommand): CommandResult {
     const name = cmd.newName && cmd.newName.trim().toLowerCase();
     if (!name) {
@@ -814,20 +774,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     orderedSheetIds.splice(currentIndex + 1, 0, newSheet.id);
     this.history.update("orderedSheetIds", orderedSheetIds);
     this.history.update("sheets", Object.assign({}, this.sheets, { [newSheet.id]: newSheet }));
-
-    for (const cell of Object.values(this.getters.getCells(fromId))) {
-      const { col, row } = this.getCellPosition(cell.id);
-      this.dispatch("UPDATE_CELL", {
-        sheetId: newSheet.id,
-        col,
-        row,
-        content: !cell.isFormula
-          ? cell.content
-          : cell.compiledFormula.toFormulaString(this.getters),
-        format: cell.format,
-        style: cell.style,
-      });
-    }
 
     const sheetIdsMapName = Object.assign({}, this.sheetIdsMapName);
     sheetIdsMapName[toStandardizedSheetName(newSheet.name)] = newSheet.id;

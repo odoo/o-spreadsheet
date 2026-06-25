@@ -14,7 +14,7 @@ import {
   ChartDefinition,
   ChartType,
 } from "../../types/chart/chart";
-import { CoreGetters } from "../../types/core_getters";
+import { ChartCoreGetters } from "../../types/core_getters";
 import { Getters } from "../../types/getters";
 import { RangeAdapterFunctions, UID } from "../../types/misc";
 import { Range } from "../../types/range";
@@ -24,7 +24,7 @@ export class SpreadsheetChart {
   private readonly dataSource: ChartDataSource<Range> | undefined;
 
   private constructor(
-    private readonly getters: CoreGetters,
+    private readonly getters: ChartCoreGetters,
     readonly sheetId: UID,
     private readonly definition: ChartDefinition<Range>,
     private readonly chartTypeBuilder: ChartTypeBuilder<ChartType>, // e.g., BarChart, LineChart
@@ -34,7 +34,7 @@ export class SpreadsheetChart {
   }
 
   static fromStrDefinition(
-    getters: CoreGetters,
+    getters: ChartCoreGetters,
     sheetId: UID,
     definition: ChartDefinition<string>
   ) {
@@ -58,7 +58,11 @@ export class SpreadsheetChart {
     );
   }
 
-  static fromDefinition(getters: CoreGetters, sheetId: UID, definition: ChartDefinition<Range>) {
+  static fromDefinition(
+    getters: ChartCoreGetters,
+    sheetId: UID,
+    definition: ChartDefinition<Range>
+  ) {
     const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "none");
     const chartTypeBuilder = chartTypeRegistry.get(definition.type);
     return new SpreadsheetChart(getters, sheetId, definition, chartTypeBuilder, dataSourceBuilder);

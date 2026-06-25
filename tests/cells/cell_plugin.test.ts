@@ -566,7 +566,7 @@ describe("Cell dependencies and tokens are updated", () => {
 
   test("Do not dispatch UPDATE_CELL subcommands if the content is empty", () => {
     let counter = 0;
-    class SubCommandCounterRange extends CorePlugin {
+    class SubCommandCounterRange extends CorePlugin<typeof SubCommandCounterRange> {
       static getters = [];
       handle(command: CoreCommand) {
         if (command.type === "UPDATE_CELL") {

@@ -40,13 +40,15 @@ import {
 } from "../../types/table";
 import { ExcelWorkbookData, TableData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
+import { MergePlugin } from "./merge";
 
 interface TableState {
   tables: Record<UID, Record<TableId, CoreTable | undefined>>;
   nextTableId: number;
 }
 
-export class TablePlugin extends CorePlugin<TableState> implements TableState {
+export class TablePlugin extends CorePlugin<typeof TablePlugin, TableState> implements TableState {
+  static readonly dependencies = [MergePlugin] as const;
   static getters = ["getCoreTable", "getCoreTables", "getCoreTableMatchingTopLeft"] as const;
 
   readonly tables: Record<UID, Record<TableId, CoreTable | undefined>> = {};
@@ -107,6 +109,23 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     return CommandResult.Success;
   }
 
+  beforeHandle(cmd: CoreCommand): void {
+    if (cmd.type === "UPDATE_CELL") {
+      const sheetId = cmd.sheetId;
+      for (const table of this.getCoreTables(sheetId)) {
+        if (table.type === "dynamic") {
+          continue;
+        }
+        const direction = this.canUpdateCellCmdExtendTable(cmd, table);
+        if (direction === "down") {
+          this.extendTableDown(sheetId, table);
+        } else if (direction === "right") {
+          this.extendTableRight(sheetId, table);
+        }
+      }
+    }
+  }
+
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_SHEET":
@@ -158,21 +177,6 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
       }
       case "UPDATE_TABLE": {
         this.updateTable(cmd);
-        break;
-      }
-      case "UPDATE_CELL": {
-        const sheetId = cmd.sheetId;
-        for (const table of this.getCoreTables(sheetId)) {
-          if (table.type === "dynamic") {
-            continue;
-          }
-          const direction = this.canUpdateCellCmdExtendTable(cmd, table);
-          if (direction === "down") {
-            this.extendTableDown(sheetId, table);
-          } else if (direction === "right") {
-            this.extendTableRight(sheetId, table);
-          }
-        }
         break;
       }
       case "DELETE_CONTENT": {

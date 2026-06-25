@@ -312,6 +312,18 @@ describe("Table plugin", () => {
       ]);
     });
 
+    test("Tables zone is expanded for 'forceStatic' tables", () => {
+      // createTableWithFilter(model, "A1:B3", { forceStatic: true });
+      // updateFilter(model, "A1", ["C"]);
+      // setCellContent(model, "A4", "Something");
+      // setCellContent(model, "B5", "Something Else");
+      // expect(zoneToXc(model.getters.getTables(sheetId)[0].range.zone)).toEqual("A1:B5");
+      // expect(getFilterHiddenValues(model)).toEqual([
+      //   { zone: "A1:A5", value: ["C"] },
+      //   { zone: "B1:B5", value: [] },
+      // ]);
+    });
+
     test("Table zone is expanded when creating cells right of the table", () => {
       createTableWithFilter(model, "B1:B3");
       updateFilter(model, "B1", ["C"]);
