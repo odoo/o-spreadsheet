@@ -4,7 +4,12 @@ import { Dimension, HeaderDimensions, HeaderIndex, Pixel, UID } from "../../type
 import { UIPlugin } from "../ui_plugin";
 
 export class HeaderPositionsUIPlugin extends UIPlugin {
-  static getters = ["getColDimensions", "getRowDimensions", "getColRowOffset"] as const;
+  static getters = [
+    "getColDimensions",
+    "getRowDimensions",
+    "getHeaderDimensions",
+    "getColRowOffset",
+  ] as const;
 
   private headerPositions: Record<UID, Record<Dimension, Record<HeaderIndex, Pixel>>> = {};
   private isDirty = true;
@@ -94,6 +99,12 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
       size: size,
       end: start + (isRowHidden ? 0 : size),
     };
+  }
+
+  getHeaderDimensions(sheetId: UID, dim: Dimension, index: HeaderIndex): HeaderDimensions {
+    return dim === "COL"
+      ? this.getColDimensions(sheetId, index)
+      : this.getRowDimensions(sheetId, index);
   }
 
   /**
