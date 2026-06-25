@@ -21,8 +21,8 @@ import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
 import { HoveredTableStore } from "../tables/hovered_table_store";
 
 // FIXME CAROUSELS: it doesn't work with zoom
-// FIXME CAROUSELS: flicker on first render (thus in figure drag & drop)
 // FIXME CAROUSELS: clickable cells, grid popover
+// ADRM TODO DISCUSS: Make selection into a store & move everything ? idk it's hard
 export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-StandaloneViewport";
   static components = { VerticalScrollBar, GridOverlay, ClickableCellsOverlay };
@@ -106,11 +106,11 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
   }
 
   get containerWidth() {
-    return getElBoundingRect(this.containerRef()).width;
+    return Math.floor(getElBoundingRect(this.containerRef()).width);
   }
 
   get containerHeight() {
-    return getElBoundingRect(this.containerRef()).height;
+    return Math.floor(getElBoundingRect(this.containerRef()).height);
   }
 
   get viewportGetters(): ViewportsGetters {

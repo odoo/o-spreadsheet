@@ -80,7 +80,6 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     const start = this.headerPositions[sheetId]["COL"][col];
     const size = this.getters.getColSize(sheetId, col);
     const isColHidden = this.getters.isColHidden(sheetId, col);
-    // FIXME CAROUSEL: check why getHeaderSize return 0 if header is hidden, but getRow/Col size do not ...
     return {
       start,
       size,
@@ -103,14 +102,9 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
   }
 
   getHeaderDimensions(sheetId: UID, dimension: "COL" | "ROW", index: number) {
-    const dim =
-      dimension === "COL"
-        ? this.getters.getColDimensions(sheetId, index)
-        : this.getters.getRowDimensions(sheetId, index);
-    if (this.getters.isHeaderHidden(sheetId, dimension, index)) {
-      return { start: dim.start, size: 0, end: dim.start };
-    }
-    return dim;
+    return dimension === "COL"
+      ? this.getters.getColDimensions(sheetId, index)
+      : this.getters.getRowDimensions(sheetId, index);
   }
 
   /**
