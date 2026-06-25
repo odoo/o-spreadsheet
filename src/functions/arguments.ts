@@ -42,6 +42,7 @@ function makeArg(str: string, description: string, proposals?: ArgProposal[]): A
   const types: ArgType[] = [];
   let isOptional = false;
   let isRepeating = false;
+  let isLazy = false;
   let defaultValue;
 
   for (const param of parts[2].split(",")) {
@@ -55,6 +56,8 @@ function makeArg(str: string, description: string, proposals?: ArgProposal[]): A
       isOptional = true;
     } else if (key === "REPEATING") {
       isRepeating = true;
+    } else if (key === "LAZY") {
+      isLazy = true;
     } else if (key.startsWith("DEFAULT=")) {
       defaultValue = param.trim().slice(8);
     }
@@ -73,6 +76,9 @@ function makeArg(str: string, description: string, proposals?: ArgProposal[]): A
   }
   if (isRepeating) {
     result.repeating = true;
+  }
+  if (isLazy) {
+    result.lazy = true;
   }
   if (defaultValue !== undefined) {
     result.default = true;

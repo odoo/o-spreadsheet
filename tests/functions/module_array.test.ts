@@ -34,7 +34,7 @@ describe("ARRAY.CONSTRAIN function", () => {
     const grid = {
       A1: "A1", B1: "B1", C1: "C1",
       A2: "A2", B2: "B2", C2: "C2",
-      A3: "A3", B3: "B2", C3: "C3",
+      A3: "A3", B3: "B3", C3: "C3",
     };
     const model = createModelFromGrid(grid);
     setCellContent(model, "D1", "=ARRAY.CONSTRAIN(A1:C3, 2, 2)");

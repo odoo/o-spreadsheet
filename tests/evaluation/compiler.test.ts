@@ -1,7 +1,15 @@
-import { functionCache, Model } from "../../src";
+import {
+  functionCache,
+  FunctionResultObject,
+  Matrix,
+  Maybe,
+  Model,
+  UnboundedZone,
+} from "../../src";
 import { functionRegistry } from "../../src/functions/function_registry";
 
 import { CompiledFormula } from "../../src/formulas/compiler";
+import { generateSubMatrix } from "../../src/functions/helpers";
 import { addToRegistry, evaluateCell, evaluateCellFormat } from "../test_helpers/helpers";
 
 function compiledBaseFunction(formula: string): CompiledFormula {
@@ -318,5 +326,382 @@ describe("compile functions", () => {
 
   test("symbol with space and without single quotes", () => {
     expect(compiledBaseFunction("=Hello world").isBadExpression).toBe(true);
+  });
+
+  describe("function lazy arguments", () => {
+    let counter = 0;
+
+    beforeEach(() => {
+      counter = 0;
+
+      // /////////////////////////////
+      // FORMULA WITHOUT LAZY ARGUMENT
+      // /////////////////////////////
+
+      // concerning formula examples:
+      // COS / UPPER
+      addToRegistry(functionRegistry, "ACCEPT_SCALAR_RETURN_SCALAR", {
+        description: "function that return the scalar given as argument",
+        compute: (arg: Maybe<FunctionResultObject>) => {
+          counter++;
+          return arg || { value: null };
+        },
+        args: [{ name: "arg", description: "", type: ["ANY"] }],
+      });
+
+      // concerning formula examples:
+      // MUNIT / SEQUENCE
+      addToRegistry(functionRegistry, "ACCEPT_SCALAR_RETURN_RANGE", {
+        description:
+          "function that return the scalar given as argument placed at each position of a range",
+        computeArray: (zone: UnboundedZone, arg: Maybe<FunctionResultObject>) => {
+          const obj = arg || { value: null };
+          return generateSubMatrix(zone, 2, 2, () => {
+            counter++;
+            return obj;
+          });
+        },
+        args: [{ name: "arg", description: "", type: ["ANY"] }],
+      });
+
+      // concerning formula examples:
+      // SUM / AVERAGE
+      addToRegistry(functionRegistry, "ACCEPT_RANGE_RETURN_SCALAR", {
+        description: "function that return the first element of the range given as argument",
+        compute: (arg: Matrix<FunctionResultObject>) => {
+          counter++;
+          return arg[0][0];
+        },
+        args: [{ name: "arg", description: "", type: ["RANGE"], acceptMatrix: true }],
+      });
+
+      // concerning formula examples:
+      // TRANSPOSE / MMULT
+      addToRegistry(functionRegistry, "ACCEPT_RANGE_RETURN_RANGE", {
+        description: "function that return the range given as argument",
+        computeArray: (zone: UnboundedZone, arg: Matrix<FunctionResultObject>) => {
+          return generateSubMatrix(zone, arg.length, arg[0].length, () => {
+            counter++;
+            return { value: counter };
+          });
+        },
+        args: [{ name: "arg", description: "", type: ["RANGE"], acceptMatrix: true }],
+      });
+
+      // //////////////////////////
+      // FORMULA WITH LAZY ARGUMENT
+      // //////////////////////////
+
+      // // DON'T KNOW IF THIS PATTERN EXIST
+      // addToRegistry(functionRegistry, "ACCEPT_LAZY_SCALAR_RETURN_SCALAR", {
+      //   description:
+      //     "function that return the argument if today is Monday and return null otherwise",
+      //   compute: (arg: Maybe<() => FunctionResultObject>) => {
+      //     // Mock: force "today" to Monday so tests are deterministic
+      //     const mockedDayOfWeek = 1; // 1 = Monday (Date.getDay convention)
+      //     if (mockedDayOfWeek === 1 && arg) {
+      //       return arg();
+      //     }
+      //     return { value: null };
+      //   },
+      //   args: [{ name: "arg1", description: "", type: ["ANY"], lazy: true }],
+      // });
+
+      // // DON'T KNOW IF THIS PATTERN EXIST
+      // addToRegistry(functionRegistry, "ACCEPT_LAZY_RANGE_RETURN_SCALAR", {
+      //   description: "function that return the first element of the range given as argument",
+      //   compute: (arg: (zone: UnboundedZone) => Matrix<FunctionResultObject>) => {
+      //     const newZone = { top: 0, left: 0, bottom: 0, right: 0 };
+      //     return arg(newZone)[0][0];
+      //   },
+      //   args: [{ name: "arg1", description: "", type: ["RANGE"], acceptMatrix: true, lazy: true }],
+      // });
+
+      // DON'T KNOW IF THIS PATTERN EXIST
+      addToRegistry(functionRegistry, "ACCEPT_LAZY_SCALAR_RETURN_RANGE", {
+        description:
+          "function that return a range filled with arg if today is Monday and return null otherwise",
+        computeArray: (zone: UnboundedZone, arg: Maybe<() => FunctionResultObject>) => {
+          // Mock: force "today" to Monday so tests are deterministic
+          const mockedDayOfWeek = 1; // 1 = Monday (Date.getDay convention)
+          return generateSubMatrix(zone, 2, 2, () => {
+            return mockedDayOfWeek === 1 && arg ? arg() : { value: null };
+          });
+        },
+        args: [{ name: "arg", description: "", type: ["ANY"], lazy: true }],
+      });
+
+      // main case of the lazy evaluation
+      // concerning formula examples:
+      // COLUMNS / ROWS / ARRAY.CONSTRAIN
+      addToRegistry(functionRegistry, "ACCEPT_LAZY_RANGE_RETURN_RANGE", {
+        description: "function that return the first column of the range given as argument",
+        computeArray: (
+          zone: UnboundedZone,
+          arg: (zone: UnboundedZone) => Matrix<FunctionResultObject>
+        ) => {
+          const newZone = { top: zone.top, left: 0, bottom: zone.bottom, right: 0 };
+          return arg(newZone);
+        },
+        args: [{ name: "arg", description: "", type: ["RANGE"], acceptMatrix: true, lazy: true }],
+      });
+    });
+
+    // /////////////////////////////
+    // FORMULA WITHOUT LAZY ARGUMENT
+    // /////////////////////////////
+
+    test("pass a scalar as scalar argument --> arg is not encapsulated", () => {
+      expect(
+        compiledBaseFunction("=ACCEPT_SCALAR_RETURN_SCALAR(A1)").execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_SCALAR_RETURN_SCALAR(ACCEPT_SCALAR_RETURN_SCALAR(42))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_SCALAR_RETURN_SCALAR(ACCEPT_RANGE_RETURN_SCALAR(A1:A2))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction("=ACCEPT_SCALAR_RETURN_RANGE(42)").execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_SCALAR_RETURN_RANGE(ACCEPT_SCALAR_RETURN_SCALAR(42))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_SCALAR_RETURN_RANGE(ACCEPT_RANGE_RETURN_SCALAR(A1:A2))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+    });
+
+    test("pass a range as range argument --> arg is not encapsulated", () => {
+      expect(
+        compiledBaseFunction("=ACCEPT_RANGE_RETURN_SCALAR(A1:A2)").execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_RANGE_RETURN_SCALAR(ACCEPT_SCALAR_RETURN_RANGE(42))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_RANGE_RETURN_SCALAR(ACCEPT_RANGE_RETURN_RANGE(A1:A2))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction("=ACCEPT_RANGE_RETURN_RANGE(A1:A2)").execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_RANGE_RETURN_RANGE(ACCEPT_SCALAR_RETURN_RANGE(42))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_RANGE_RETURN_RANGE(ACCEPT_RANGE_RETURN_RANGE(A1:A2))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+    });
+
+    // note: in practice, zone check is done during respective compute function.
+    test("pass a scalar as range argument --> arg is not encapsulated", () => {
+      expect(
+        compiledBaseFunction("=ACCEPT_RANGE_RETURN_SCALAR(42)").execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_RANGE_RETURN_SCALAR(ACCEPT_SCALAR_RETURN_SCALAR(42))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_RANGE_RETURN_SCALAR(ACCEPT_RANGE_RETURN_SCALAR(A1:A2))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction("=ACCEPT_RANGE_RETURN_RANGE(42)").execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_RANGE_RETURN_RANGE(ACCEPT_RANGE_RETURN_SCALAR(42))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_RANGE_RETURN_RANGE(ACCEPT_RANGE_RETURN_RANGE(A1:A2))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+    });
+
+    test("pass a range as scalar argument (VECTORIZATION) --> arg is not encapsulated", () => {
+      expect(
+        compiledBaseFunction("=ACCEPT_SCALAR_RETURN_SCALAR(A1:A2)").execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_SCALAR_RETURN_SCALAR(ACCEPT_SCALAR_RETURN_RANGE(42))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_SCALAR_RETURN_SCALAR(ACCEPT_RANGE_RETURN_RANGE(A1:A2))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction("=ACCEPT_SCALAR_RETURN_RANGE(A1:A2)").execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_SCALAR_RETURN_RANGE(ACCEPT_SCALAR_RETURN_RANGE(42))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_SCALAR_RETURN_RANGE(ACCEPT_RANGE_RETURN_RANGE(A1:A2))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+    });
+
+    // TODO: pass a vector as scalar (VECTORIZATION) --> arg is not encapsulated
+    // TODO: pass a vector as range (VECTORIZATION) --> arg is not encapsulated
+
+    // //////////////////////////
+    // FORMULA WITH LAZY ARGUMENT
+    // //////////////////////////
+
+    // DON'T KNOW IF THIS PATTERN EXIST IN PRACTICE. BUT WORKS AT COMPILE TIME
+    test("pass a scalar as lazy scalar argument --> arg is encapsulated without zone", () => {
+      expect(
+        compiledBaseFunction("=ACCEPT_LAZY_SCALAR_RETURN_RANGE(42)").execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_LAZY_SCALAR_RETURN_RANGE(ACCEPT_SCALAR_RETURN_SCALAR(42))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_LAZY_SCALAR_RETURN_RANGE(ACCEPT_RANGE_RETURN_SCALAR(A1:A2))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+    });
+
+    // TODO: compilation isn't correct. to fix...
+    // DON'T KNOW IF THIS PATTERN EXIST IN PRACTICE.
+    test.skip("pass a range as lazy scalar argument (vectorization) --> arg is encapsulated with zone", () => {
+      expect(
+        compiledBaseFunction("=ACCEPT_LAZY_SCALAR_RETURN_RANGE(A1:A2)").execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_LAZY_SCALAR_RETURN_RANGE(ACCEPT_SCALAR_RETURN_RANGE(42))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_LAZY_SCALAR_RETURN_RANGE(ACCEPT_RANGE_RETURN_RANGE(A1:A2))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+    });
+
+    // main case of the lazy evaluation
+    test("pass a range as lazy range argument --> arg is encapsulated with zone", () => {
+      expect(
+        compiledBaseFunction("=ACCEPT_LAZY_RANGE_RETURN_RANGE(A1:A2)").execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_LAZY_RANGE_RETURN_RANGE(ACCEPT_SCALAR_RETURN_RANGE(42))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_LAZY_RANGE_RETURN_RANGE(ACCEPT_RANGE_RETURN_RANGE(A1:A2))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+    });
+
+    // TODO: in this case, arg is encapsulated but zone is not used. compilation should treat this special case
+    // and return error when the zone isn't {top:0, left:0, bottom:0, right:0}
+    test.skip("pass a scalar as lazy range argument --> arg is encapsulated with zone", () => {
+      expect(
+        compiledBaseFunction("=ACCEPT_LAZY_RANGE_RETURN_RANGE(42)").execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_LAZY_RANGE_RETURN_RANGE(ACCEPT_SCALAR_RETURN_SCALAR(42))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+
+      expect(
+        compiledBaseFunction(
+          "=ACCEPT_LAZY_RANGE_RETURN_RANGE(ACCEPT_RANGE_RETURN_SCALAR(A1:A2))"
+        ).execute.toString()
+      ).toMatchSnapshot();
+    });
+
+    // TODO: pass a vector as lazy range argument --> arg is encapsulated with zone
+    // TODO: pass a vector as lazy scalar argument --> arg is encapsulated with zone
+
+    // /////////////////////////////////////
+    // PARTIAL EVALUATION WITH LAZY ARGUMENT
+    // /////////////////////////////////////
+
+    test("function with lazy range argument can be implemented to compute arguments partially", () => {
+      evaluateCell("A1", {
+        A1: "=ACCEPT_LAZY_RANGE_RETURN_RANGE(ACCEPT_RANGE_RETURN_RANGE(B1:C2))",
+      });
+      expect(counter).toBe(2); // instead of 4
+
+      counter = 0;
+      evaluateCell("A1", {
+        // vector case
+        A1: "=ACCEPT_LAZY_RANGE_RETURN_RANGE(ACCEPT_SCALAR_RETURN_SCALAR(B1:C2))",
+      });
+      expect(counter).toBe(2); // instead of 4
+
+      counter = 0;
+      evaluateCell("A1", {
+        A1: "=ACCEPT_LAZY_RANGE_RETURN_RANGE(ACCEPT_SCALAR_RETURN_RANGE(42))",
+      });
+      expect(counter).toBe(2); // instead of 4
+    });
+
+    // TODO: function with lazy scalar argument can be implemented to compute arguments partially
+
+    // TODO: lazy arg empty is not encapsulated
   });
 });
