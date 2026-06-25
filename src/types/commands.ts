@@ -1082,17 +1082,17 @@ export interface StartCommand {
   type: "START";
 }
 
-export interface AutofillCommand {
+export interface AutofillCommand extends SheetDependentCommand {
   type: "AUTOFILL";
 }
 
-export interface AutofillSelectCommand {
+export interface AutofillSelectCommand extends SheetDependentCommand {
   type: "AUTOFILL_SELECT";
   col: HeaderIndex;
   row: HeaderIndex;
 }
 
-export interface AutofillAutoCommand {
+export interface AutofillAutoCommand extends SheetDependentCommand {
   type: "AUTOFILL_AUTO";
 }
 

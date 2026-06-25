@@ -98,7 +98,7 @@ export class AutofillPlugin extends UIPlugin {
   allowDispatch(cmd: LocalCommand): CommandResult {
     switch (cmd.type) {
       case "AUTOFILL_SELECT":
-        const sheetId = this.getters.getActiveSheetId();
+        const sheetId = cmd.sheetId;
         this.lastCellSelected.col =
           cmd.col === -1
             ? this.lastCellSelected.col
@@ -118,13 +118,13 @@ export class AutofillPlugin extends UIPlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "AUTOFILL":
-        this.autofill(true);
+        this.autofill(cmd.sheetId, true);
         break;
       case "AUTOFILL_SELECT":
-        this.select(cmd.col, cmd.row);
+        this.select(cmd.sheetId, cmd.col, cmd.row);
         break;
       case "AUTOFILL_AUTO":
-        this.autofillAuto();
+        this.autofillAuto(cmd.sheetId);
         break;
     }
   }
@@ -146,7 +146,7 @@ export class AutofillPlugin extends UIPlugin {
    * @param apply Flag set to true to apply the autofill in the model. It's
    *              useful to set it to false when we need to fill the tooltip
    */
-  private autofill(apply: boolean) {
+  private autofill(sheetId: UID, apply: boolean) {
     if (!this.autofillZone || !this.steps || this.direction === undefined) {
       this.tooltip = undefined;
       return;
@@ -162,7 +162,7 @@ export class AutofillPlugin extends UIPlugin {
           for (let row = source.top; row <= source.bottom; row++) {
             xcs.push(toXC(col, row));
           }
-          const generator = this.createGenerator(xcs);
+          const generator = this.createGenerator(sheetId, xcs);
           for (let row = target.top; row <= target.bottom; row++) {
             autofillCellsData.push(this.computeNewCell(generator, col, row));
           }
@@ -174,7 +174,7 @@ export class AutofillPlugin extends UIPlugin {
           for (let row = source.bottom; row >= source.top; row--) {
             xcs.push(toXC(col, row));
           }
-          const generator = this.createGenerator(xcs);
+          const generator = this.createGenerator(sheetId, xcs);
           for (let row = target.bottom; row >= target.top; row--) {
             autofillCellsData.push(this.computeNewCell(generator, col, row));
           }
@@ -186,7 +186,7 @@ export class AutofillPlugin extends UIPlugin {
           for (let col = source.right; col >= source.left; col--) {
             xcs.push(toXC(col, row));
           }
-          const generator = this.createGenerator(xcs);
+          const generator = this.createGenerator(sheetId, xcs);
           for (let col = target.right; col >= target.left; col--) {
             autofillCellsData.push(this.computeNewCell(generator, col, row));
           }
@@ -198,7 +198,7 @@ export class AutofillPlugin extends UIPlugin {
           for (let col = source.left; col <= source.right; col++) {
             xcs.push(toXC(col, row));
           }
-          const generator = this.createGenerator(xcs);
+          const generator = this.createGenerator(sheetId, xcs);
           for (let col = target.left; col <= target.right; col++) {
             autofillCellsData.push(this.computeNewCell(generator, col, row));
           }
@@ -210,7 +210,6 @@ export class AutofillPlugin extends UIPlugin {
       const bordersZones: Record<string, Zone[]> = {};
       const cfNewRanges: Record<UID, string[]> = {};
       const dvNewZones: Record<UID, Zone[]> = {};
-      const sheetId = this.getters.getActiveSheetId();
       for (const data of autofillCellsData) {
         this.collectBordersData(data, bordersZones);
         this.autofillMerge(sheetId, data);
@@ -338,7 +337,7 @@ export class AutofillPlugin extends UIPlugin {
   /**
    * Select a cell which becomes the last cell of the autofillZone
    */
-  private select(col: HeaderIndex, row: HeaderIndex) {
+  private select(sheetId: UID, col: HeaderIndex, row: HeaderIndex) {
     const source = this.getters.getSelectedZone();
     if (isInside(col, row, source)) {
       this.autofillZone = undefined;
@@ -363,37 +362,39 @@ export class AutofillPlugin extends UIPlugin {
         this.steps = col - source.right;
         break;
     }
-    this.autofill(false);
+    this.autofill(sheetId, false);
   }
 
   /**
    * Computes the autofillZone to autofill when the user double click on the
    * autofiller
    */
-  private autofillAuto() {
+  private autofillAuto(sheetId: UID) {
     const activePosition = this.getters.getActivePosition();
 
     const table = this.getters.getTable(activePosition);
-    let autofillRow = table ? table.range.zone.bottom : this.getAutofillAutoLastRow();
+    let autofillRow = table ? table.range.zone.bottom : this.getAutofillAutoLastRow(sheetId);
 
     // Stop autofill at the next non-empty cell
     const selection = this.getters.getSelectedZone();
     for (let row = selection.bottom + 1; row <= autofillRow; row++) {
-      if (this.getters.getEvaluatedCell({ ...activePosition, row }).type !== CellValueType.empty) {
+      if (
+        this.getters.getEvaluatedCell({ ...activePosition, sheetId, row }).type !==
+        CellValueType.empty
+      ) {
         autofillRow = row - 1;
         break;
       }
     }
 
     if (autofillRow > selection.bottom) {
-      this.select(activePosition.col, autofillRow);
-      this.autofill(true);
+      this.select(sheetId, activePosition.col, autofillRow);
+      this.autofill(sheetId, true);
     }
   }
 
-  private getAutofillAutoLastRow() {
+  private getAutofillAutoLastRow(sheetId: UID) {
     const zone = this.getters.getSelectedZone();
-    const sheetId = this.getters.getActiveSheetId();
     let col: HeaderIndex = zone.left;
     let row: HeaderIndex = zone.bottom;
 
@@ -452,11 +453,10 @@ export class AutofillPlugin extends UIPlugin {
   /**
    * Create the generator to be able to autofill the next cells.
    */
-  private createGenerator(source: string[]): AutofillGenerator {
+  private createGenerator(sheetId: UID, source: string[]): AutofillGenerator {
     const nextCells: GeneratorCell[] = [];
 
     const cellsData: AutofillData[] = [];
-    const sheetId = this.getters.getActiveSheetId();
     for (const xc of source) {
       const { col, row } = toCartesian(xc);
       const position = { sheetId, col, row };
