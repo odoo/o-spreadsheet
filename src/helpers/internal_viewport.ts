@@ -261,7 +261,9 @@ export class InternalViewport {
     while (start <= end && start !== headers && end !== -1) {
       const mid: HeaderIndex = Math.floor((start + end) / 2);
       const offset = this.getters.getColRowOffset(dimension, startIndex, mid, this.sheetId);
-      const size = this.getters.getHeaderSize(sheetId, dimension, mid);
+      const size = this.getters.isHeaderHidden(sheetId, dimension, mid)
+        ? 0
+        : this.getters.getHeaderSize(sheetId, dimension, mid);
       if (position >= offset && position < offset + size) {
         return mid;
       } else if (position >= offset + size) {
