@@ -1,6 +1,13 @@
 import { Model } from "../../src";
 import { SpreadsheetPrintStore } from "../../src/components/spreadsheet_print/spreadsheet_print_store";
-import { createChart, createSheet, setCellContent, setSelection } from "../test_helpers";
+import {
+  createChart,
+  createSheet,
+  hideColumns,
+  hideRows,
+  setCellContent,
+  setSelection,
+} from "../test_helpers";
 import { makeStore } from "../test_helpers/stores";
 
 describe("Spreadsheet print rendering", () => {
@@ -32,6 +39,35 @@ describe("Spreadsheet print rendering", () => {
       { sheetId, left: 0, top: 0, right: 0, bottom: 43 },
       { sheetId, left: 0, top: 44, right: 0, bottom: 87 },
       { sheetId, left: 0, top: 88, right: 0, bottom: 99 },
+    ]);
+  });
+
+  test("Print pages break take hidden rows into account", () => {
+    setCellContent(model, "A1", "=SEQUENCE(80)");
+    expect(getPrintedZones()).toEqual([
+      { sheetId, left: 0, top: 0, right: 0, bottom: 43 },
+      { sheetId, left: 0, top: 44, right: 0, bottom: 79 },
+    ]);
+
+    hideRows(model, [5, 6, 7, 8, 9]);
+    expect(getPrintedZones()).toEqual([
+      { sheetId, left: 0, top: 0, right: 0, bottom: 48 },
+      { sheetId, left: 0, top: 49, right: 0, bottom: 79 },
+    ]);
+  });
+
+  test("Print pages breaks take hidden columns into account", () => {
+    setCellContent(model, "A1", "=TRANSPOSE(SEQUENCE(12))");
+    printStore.changePrintScale("fitToHeight");
+    expect(getPrintedZones()).toEqual([
+      { sheetId, left: 0, top: 0, right: 6, bottom: 0 },
+      { sheetId, left: 7, top: 0, right: 11, bottom: 0 },
+    ]);
+
+    hideColumns(model, ["B", "C", "D"]);
+    expect(getPrintedZones()).toEqual([
+      { sheetId, left: 0, top: 0, right: 9, bottom: 0 },
+      { sheetId, left: 10, top: 0, right: 11, bottom: 0 },
     ]);
   });
 
