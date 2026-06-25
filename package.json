@@ -141,7 +141,7 @@
     "xmlSelfClosingSpace": false
   },
   "dependencies": {
-    "@odoo/owl": "3.0.0-alpha.38",
+    "@odoo/owl": "3.0.0-alpha.39",
     "bootstrap": "5.3.3",
     "font-awesome": "^4.7.0",
     "rbush": "^3.0.1"
