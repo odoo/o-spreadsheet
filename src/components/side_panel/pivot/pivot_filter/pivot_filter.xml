@@ -14,7 +14,7 @@
         </Popover>
         <div class="d-flex">
           <i class="o-pivot-filter-caption">
-            <t t-esc="this.filterCaption()"/>
+            <t t-out="this.filterCaption()"/>
           </i>
           <div
             class="o-button-icon o-pivot-filter-icon pe-1 ps-2"
