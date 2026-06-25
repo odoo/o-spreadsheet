@@ -20,6 +20,8 @@ import {
   deleteRows,
   freezeColumns,
   freezeRows,
+  hideColumns,
+  hideRows,
   merge,
   redo,
   resizeColumns,
@@ -693,6 +695,26 @@ describe("Model resizer", () => {
     resizeRows(model, [0], 26.6);
     expect(model.getters.getColSize(sheetId, 0)).toBe(26);
     expect(model.getters.getRowSize(sheetId, 0)).toBe(27);
+  });
+
+  test("getHeaderSize and getCol/RowSize give the same result with hidden rows", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    resizeColumns(model, ["A"], 12);
+    expect(model.getters.getHeaderSize(sheetId, "COL", 0)).toBe(12);
+    expect(model.getters.getColSize(sheetId, 0)).toBe(12);
+
+    hideColumns(model, ["A"]);
+    expect(model.getters.getHeaderSize(sheetId, "COL", 0)).toBe(12);
+    expect(model.getters.getColSize(sheetId, 0)).toBe(12);
+
+    resizeRows(model, [0], 25);
+    expect(model.getters.getHeaderSize(sheetId, "ROW", 0)).toBe(25);
+    expect(model.getters.getRowSize(sheetId, 0)).toBe(25);
+
+    hideRows(model, [0]);
+    expect(model.getters.getHeaderSize(sheetId, "ROW", 0)).toBe(25);
+    expect(model.getters.getRowSize(sheetId, 0)).toBe(25);
   });
 
   test("Should use markdown label instead of full link for auto row height", () => {
