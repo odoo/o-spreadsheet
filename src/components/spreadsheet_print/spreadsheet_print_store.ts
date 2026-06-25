@@ -134,14 +134,12 @@ export class SpreadsheetPrintStore extends SpreadsheetStore {
 
     const start = dimension === "COL" ? printZone.left : printZone.top;
     const end = dimension === "COL" ? printZone.right : printZone.bottom;
-    const getHeaderSize =
-      dimension === "COL" ? this.getters.getColDimensions : this.getters.getRowDimensions;
     const max = dimension === "COL" ? printWidth : printHeight;
 
     const breaks: number[] = [];
     let current = 0;
     for (let i = start; i <= end; i++) {
-      const headerSize = getHeaderSize(sheetId, i).size * zoom;
+      const headerSize = this.getters.getHeaderSize(sheetId, dimension, i) * zoom;
       current += headerSize;
       if (current >= max) {
         breaks.push(i);
