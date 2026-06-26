@@ -209,6 +209,23 @@ describe("TreeMap chart", () => {
     });
   });
 
+  test("TreeMap chart does not crash when hierarchy range starts at a different row than value range", () => {
+    // prettier-ignore
+    setGrid(model, {
+                    B1: "Sales",
+      A2: "Group1", B2: "100",
+      A3: "Group2", B3: "200",
+    });
+    const chartId = createTreeMapChart(model, {
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A2:A3" }],
+        labelRange: "B1:B3",
+        dataSetsHaveTitle: true,
+      }),
+    });
+    expect(() => getTreeMapDatasetConfig(chartId)).not.toThrow();
+  });
+
   test("Can have a hierarchical dataset with some categories more detailed that others", () => {
     // prettier-ignore
     setGrid(model, {
