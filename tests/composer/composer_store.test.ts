@@ -18,6 +18,7 @@ import {
   copy,
   createSheet,
   createSheetWithName,
+  hideRows,
   merge,
   moveAnchorCell,
   paste,
@@ -1140,6 +1141,16 @@ describe("edition", () => {
     expect(highlights).toHaveLength(1);
     expect(highlights[0].color).toEqual(colors[0]);
     expect(highlights[0].range.zone).toMatchObject(toZone("A2"));
+  });
+
+  test("Can edit a sheet in which the old selection was hidden", () => {
+    const firstSheetId = model.getters.getActiveSheetId();
+    selectCell(model, "A100");
+    hideRows(model, [99]);
+    // right now, the selection is hidden as it's set on A100
+    createSheet(model, { sheetId: "sheet2", activate: true });
+    composerStore.startEdition(`=`);
+    activateSheet(model, firstSheetId);
   });
 
   test("References of non-active sheets are filtered out from the highlights", () => {
