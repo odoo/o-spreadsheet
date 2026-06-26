@@ -33,8 +33,14 @@ export class HeaderVisibilityUIPlugin extends UIPlugin {
   getNextVisibleCellPosition({ sheetId, col, row }: CellPosition): CellPosition {
     return {
       sheetId,
-      col: this.findVisibleHeader(sheetId, "COL", col, this.getters.getNumberCols(sheetId) - 1)!,
-      row: this.findVisibleHeader(sheetId, "ROW", row, this.getters.getNumberRows(sheetId) - 1)!,
+      col:
+        this.findVisibleHeader(sheetId, "COL", col, this.getters.getNumberCols(sheetId) - 1) ||
+        this.findVisibleHeader(sheetId, "COL", col, 0) ||
+        0,
+      row:
+        this.findVisibleHeader(sheetId, "ROW", row, this.getters.getNumberRows(sheetId) - 1) ||
+        this.findVisibleHeader(sheetId, "ROW", row, 0) ||
+        0,
     };
   }
 
