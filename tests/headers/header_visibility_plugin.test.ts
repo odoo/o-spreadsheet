@@ -20,7 +20,7 @@ import {
   unhideColumns,
   unhideRows,
 } from "../test_helpers/commands_helpers";
-import { getPlugin } from "../test_helpers/helpers";
+import { getPlugin, toCellPosition } from "../test_helpers/helpers";
 import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
 
 //------------------------------------------------------------------------------
@@ -325,4 +325,17 @@ describe("Hide Rows", () => {
     duplicateSheet(model, sheetId, "sheet2");
     expect(plugin.sizes["sheet2"].ROW.length).toEqual(101);
   });
+});
+
+test("getNextVisibleCellPosition getter work on hidden cells", () => {
+  model = new Model();
+  const sheetId = model.getters.getActiveSheetId();
+  hideRows(model, [0, 99]);
+  hideColumns(model, ["A", "Z"]);
+  expect(model.getters.getNextVisibleCellPosition(toCellPosition(sheetId, "A1"))).toMatchObject(
+    toCellPosition(sheetId, "B2")
+  );
+  expect(model.getters.getNextVisibleCellPosition(toCellPosition(sheetId, "Z100"))).toMatchObject(
+    toCellPosition(sheetId, "Y99")
+  );
 });
