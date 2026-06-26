@@ -891,7 +891,7 @@ function filterInvalidHierarchicalPoints(
     values.length,
     ...hierarchy.map((dataset) => dataset.data?.length || 0)
   );
-  const isEmpty = (value: CellValue) => value === null || value === "";
+  const isEmpty = (value: CellValue) => value === undefined || value === null || value === "";
   const dataPointsIndexes = range(0, numberOfDataPoints).filter((dataPointIndex) => {
     const groups = hierarchy.map((dataset) => dataset.data?.[dataPointIndex]);
     if (isEmpty(groups[0]?.value)) {
