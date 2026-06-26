@@ -204,7 +204,8 @@ export class EditionPlugin extends UIPlugin {
           this.cancelEdition();
           this.resetContent();
         }
-        if (cmd.sheetIdFrom !== cmd.sheetIdTo) {
+
+        if (this.selection.isListening(this) && cmd.sheetIdFrom !== cmd.sheetIdTo) {
           const activePosition = this.getters.getActivePosition();
           const { col, row } = this.getters.getNextVisibleCellPosition({
             sheetId: cmd.sheetIdTo,
