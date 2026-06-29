@@ -24,8 +24,10 @@ export class PivotRuntimeDefinition {
 
   constructor(definition: CommonPivotCoreDefinition, fields: PivotFields) {
     this.measures = definition.measures.map((measure) => createMeasure(fields, measure));
-    this.columns = definition.columns.map((dimension) => createPivotDimension(fields, dimension));
-    this.rows = definition.rows.map((dimension) => createPivotDimension(fields, dimension));
+    this.columns = definition.columns.map((dimension) =>
+      this.createPivotDimension(fields, dimension)
+    );
+    this.rows = definition.rows.map((dimension) => this.createPivotDimension(fields, dimension));
     this.sortedColumn = definition.sortedColumn;
   }
 
@@ -45,6 +47,48 @@ export class PivotRuntimeDefinition {
       throw new EvaluationError(_t("Field %s is not a measure", id));
     }
     return measure;
+  }
+
+  private createPivotDimension(fields: PivotFields, dimension: PivotCoreDimension): PivotDimension {
+    const field = fields[dimension.fieldName];
+    const type = field?.type ?? "integer";
+    const granularity = field && isDateOrDatetimeField(field) ? dimension.granularity : undefined;
+
+    return {
+      /**
+       * Get the display name of the dimension
+       * e.g. "stage_id" -> "Stage", "create_date:month" -> "Create Date"
+       */
+      displayName: field?.string ?? dimension.fieldName,
+
+      /**
+       * Get the name of the dimension, as it is stored in the pivot formula
+       * e.g. "stage_id", "create_date:month"
+       */
+      nameWithGranularity: dimension.fieldName + (granularity ? `:${granularity}` : ""),
+
+      /**
+       * Get the name of the field of the dimension
+       * e.g. "stage_id" -> "stage_id", "create_date:month" -> "create_date"
+       */
+      fieldName: dimension.fieldName,
+
+      /**
+       * Get the aggregate operator of the dimension
+       * e.g. "stage_id" -> undefined, "create_date:month" -> "month"
+       */
+      granularity,
+
+      /**
+       * Get the type of the field of the dimension
+       * e.g. "stage_id" -> "many2one", "create_date:month" -> "date"
+       */
+      type,
+
+      order: dimension.order,
+
+      isValid: !!field,
+    };
   }
 }
 
@@ -86,47 +130,5 @@ function createMeasure(fields: PivotFields, measure: PivotCoreMeasure): PivotMea
     format: measure.format,
     computedBy: measure.computedBy,
     display: measure.display,
-  };
-}
-
-function createPivotDimension(fields: PivotFields, dimension: PivotCoreDimension): PivotDimension {
-  const field = fields[dimension.fieldName];
-  const type = field?.type ?? "integer";
-  const granularity = field && isDateOrDatetimeField(field) ? dimension.granularity : undefined;
-
-  return {
-    /**
-     * Get the display name of the dimension
-     * e.g. "stage_id" -> "Stage", "create_date:month" -> "Create Date"
-     */
-    displayName: field?.string ?? dimension.fieldName,
-
-    /**
-     * Get the name of the dimension, as it is stored in the pivot formula
-     * e.g. "stage_id", "create_date:month"
-     */
-    nameWithGranularity: dimension.fieldName + (granularity ? `:${granularity}` : ""),
-
-    /**
-     * Get the name of the field of the dimension
-     * e.g. "stage_id" -> "stage_id", "create_date:month" -> "create_date"
-     */
-    fieldName: dimension.fieldName,
-
-    /**
-     * Get the aggregate operator of the dimension
-     * e.g. "stage_id" -> undefined, "create_date:month" -> "month"
-     */
-    granularity,
-
-    /**
-     * Get the type of the field of the dimension
-     * e.g. "stage_id" -> "many2one", "create_date:month" -> "date"
-     */
-    type,
-
-    order: dimension.order,
-
-    isValid: !!field,
   };
 }
