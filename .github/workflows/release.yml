@@ -52,7 +52,7 @@ jobs:
           commit: ${{ github.sha }}
           body: ${{ needs.build.outputs.body }}
           artifacts: "./dist/*.*"
-          makeLatest: false
+          makeLatest: true
           prerelease: ${{ needs.build.outputs.prerelease }}
 
   publish:
