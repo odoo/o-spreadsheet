@@ -144,7 +144,7 @@ export function getCalendarChartDatasetAndLabels(
       borderWidth: 1,
       barPercentage: 1,
       categoryPercentage: 1,
-      values: dataSetValues.data.map((cell) => (isNumberResult(cell) ? cell.value : NaN)),
+      values: dataSetValues.data.map((cell) => (isNumberResult(cell) ? cell.value : undefined)),
     });
   }
 
