@@ -254,6 +254,34 @@ describe("calendar chart", () => {
     }
   );
 
+  test("Missing values do not have a tooltip", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=DATE(2024,7,8)");
+    setCellContent(model, "B1", "10");
+    setCellContent(model, "A2", "=DATE(2024,8,4)");
+    setCellContent(model, "B2", "20");
+    createCalendarChart(
+      model,
+      {
+        type: "calendar",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B1:B2" }],
+          labelRange: "A1:A2",
+          dataSetsHaveTitle: false,
+        }),
+      },
+      "chartId"
+    );
+    const runtime = model.getters.getChartRuntime("chartId") as CalendarChartRuntime;
+    const [augustDataset, julyDataset] = runtime.chartJsConfig.data.datasets as any[];
+    const tooltipFilter = (runtime.chartJsConfig.options?.plugins?.tooltip as any).filter;
+
+    expect(augustDataset.values).toEqual([20, undefined]);
+    expect(julyDataset.values).toEqual([undefined, 10]);
+    expect(tooltipFilter({ dataset: augustDataset, dataIndex: 0 })).toBe(true);
+    expect(tooltipFilter({ dataset: augustDataset, dataIndex: 1 })).toBe(false);
+  });
+
   test("Axis borders are not shown in calendar charts", () => {
     const model = new Model();
     createCalendarChart(
