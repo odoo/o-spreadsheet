@@ -254,11 +254,16 @@ export function toNormalizedPivotValue(
     return false;
   }
   const normalizer = pivotNormalizationValueRegistry.get(dimension.type);
-  return normalizer(groupValueString, dimension.granularity);
+  return normalizer(groupValueString, dimension);
 }
 
-function normalizeDateTime(value: CellValue, granularity: Granularity) {
-  return pivotTimeAdapter(granularity ?? "month").normalizeFunctionValue(value);
+function normalizeDateTime(
+  value: CellValue,
+  dimension: Pick<PivotDimension, "type" | "displayName" | "granularity">
+) {
+  return pivotTimeAdapter((dimension.granularity ?? "month") as Granularity).normalizeFunctionValue(
+    value
+  );
 }
 
 export function toFunctionPivotValue(
@@ -279,7 +284,10 @@ function toFunctionValueDateTime(value: CellValue, granularity: Granularity) {
 }
 
 export const pivotNormalizationValueRegistry = new Registry<
-  (value: string, granularity?: Granularity | string) => CellValue
+  (
+    value: string,
+    dimension: Pick<PivotDimension, "type" | "displayName" | "granularity">
+  ) => CellValue
 >();
 
 pivotNormalizationValueRegistry
