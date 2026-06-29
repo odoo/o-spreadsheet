@@ -490,6 +490,7 @@ export function createScorecardChart(
       humanize: data.humanize || false,
       annotationLink: data.annotationLink,
       annotationText: data.annotationText,
+      keyValueType: data.keyValueType || "range",
     },
   });
 }

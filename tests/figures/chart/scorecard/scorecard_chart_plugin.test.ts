@@ -521,3 +521,35 @@ test("Scorecard with formula cell", () => {
   expect(runtime.keyValue).toEqual("4");
   expect(runtime.baselineDisplay).toEqual("100.0%");
 });
+
+describe("formula and literal keyValueType", () => {
+  test("formula keyValue evaluates the formula", () => {
+    const model = new Model();
+    createScorecardChart(model, { keyValueType: "formula", keyValue: "=SUM(1, 2)" }, "1");
+    expect(model.getters.getChartRuntime("1")).toMatchObject({ keyValue: "3" });
+  });
+
+  test("formula keyValue updates when referenced cell changes", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "5");
+    createScorecardChart(model, { keyValueType: "formula", keyValue: "=A1" }, "1");
+    expect(model.getters.getChartRuntime("1")).toMatchObject({ keyValue: "5" });
+    setCellContent(model, "A1", "99");
+    expect(model.getters.getChartRuntime("1")).toMatchObject({ keyValue: "99" });
+  });
+
+  test("literal keyValue displays the string as-is", () => {
+    const model = new Model();
+    createScorecardChart(model, { keyValueType: "literal", keyValue: "My KPI" }, "1");
+    expect(model.getters.getChartRuntime("1")).toMatchObject({ keyValue: "My KPI" });
+  });
+
+  test("formula keyValue string is adapted on column insertion", () => {
+    const model = new Model();
+    createScorecardChart(model, { keyValueType: "formula", keyValue: "=SUM(A1, B1)" }, "1");
+    addColumns(model, "before", "A", 1);
+    const chart = model.getters.getChartDefinition("1") as ScorecardChartDefinition;
+    expect(chart.keyValue).toEqual("=SUM(B1, C1)");
+    expect(chart.keyValueType).toEqual("formula");
+  });
+});

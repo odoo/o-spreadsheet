@@ -5,9 +5,12 @@ import { BaselineMode, ScorecardChartDefinition } from "../../../../types/chart/
 import { CommandResult, DispatchResult } from "../../../../types/commands";
 import { ValueAndLabel } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";
+import { TextInput } from "../../../text_input/text_input";
 import { ChartTerms } from "../../../translations_terms";
+import { BadgeSelection } from "../../components/badge_selection/badge_selection";
 import { Section } from "../../components/section/section";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
@@ -19,7 +22,15 @@ interface PanelState {
 
 export class ScorecardChartConfigPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChartConfigPanel";
-  static components = { SelectionInput, ChartErrorSection, Section, Select };
+  static components = {
+    SelectionInput,
+    ChartErrorSection,
+    Section,
+    Select,
+    BadgeSelection,
+    StandaloneComposer,
+    TextInput,
+  };
   protected props = props(
     chartSidePanelPropsDefinition
   ) as unknown as ChartSidePanelProps<ScorecardChartDefinition>;
@@ -52,6 +63,27 @@ export class ScorecardChartConfigPanel extends Component<SpreadsheetChildEnv> {
     return !!this.state.keyValueDispatchResult?.isCancelledBecause(
       CommandResult.InvalidScorecardBaseline
     );
+  }
+
+  get choices(): ValueAndLabel[] {
+    return [
+      { value: "range", label: _t("Range") },
+      { value: "formula", label: _t("Formula") },
+      { value: "literal", label: _t("Literal") },
+    ];
+  }
+
+  onKeyValueTypeChanged(keyValueType: "range" | "formula" | "literal") {
+    this.keyValue = "";
+    this.state.keyValueDispatchResult = this.props.updateChart(this.props.chartId, {
+      keyValueType,
+      keyValue: this.keyValue,
+    });
+  }
+
+  onConfirmKeyValue(keyValue: string) {
+    this.keyValue = keyValue;
+    this.state.keyValueDispatchResult = this.props.updateChart(this.props.chartId, { keyValue });
   }
 
   onKeyValueRangeChanged(ranges: string[]) {
@@ -99,5 +131,9 @@ export class ScorecardChartConfigPanel extends Component<SpreadsheetChildEnv> {
       { value: "percentage", label: _t("Percentage change from key value") },
       { value: "progress", label: _t("Progress bar") },
     ];
+  }
+
+  get keyValueType(): "range" | "formula" | "literal" {
+    return this.props.definition.keyValueType || "range";
   }
 }
