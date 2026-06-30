@@ -1,3 +1,4 @@
+import { CellValue } from "../types/cells";
 import {
   ClipboardCopyOptions,
   ClipboardData,
@@ -44,6 +45,10 @@ export class ClipboardHandler<T> {
   }
 
   convertTextToClipboardData(data: string): T | undefined {
+    return;
+  }
+
+  convertCellDataToClipboardData(_data: { formula: string; value: CellValue }): T | undefined {
     return;
   }
 }
