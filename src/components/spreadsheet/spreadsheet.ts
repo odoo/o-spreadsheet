@@ -226,6 +226,11 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       return () => resizeObserver.disconnect();
     });
 
+    useEffect(() => {
+      this.model.getModelVersion()();
+      this.render(true);
+    });
+
     const render = batched(this.render.bind(this, true));
     onMounted(() => {
       this.bindModelEvents();
@@ -243,7 +248,6 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   }
 
   private bindModelEvents() {
-    this.model.on("update", this, () => this.render(true));
     this.model.on("command-rejected", this, ({ result }) => {
       if (result.isCancelledBecause(CommandResult.SheetLocked)) {
         this.notificationStore.notifyUser({
@@ -261,7 +265,6 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   }
 
   private unbindModelEvents() {
-    this.model.off("update", this);
     this.model.off("command-rejected", this);
     this.model.off("notify-ui", this);
     this.model.off("raise-error-ui", this);
