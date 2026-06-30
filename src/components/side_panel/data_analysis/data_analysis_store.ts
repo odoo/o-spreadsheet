@@ -1,3 +1,6 @@
+import { analyzeColumns } from "../../../helpers/data_analysis";
+import { StatSection } from "../../../helpers/data_statistics/statistics_items";
+import { buildStatSections } from "../../../helpers/data_statistics/statistics_suggestion";
 import { zoneToXc } from "../../../helpers/zones";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { Command, invalidateEvaluationCommands } from "../../../types/commands";
@@ -6,6 +9,7 @@ import { Get } from "../../../types/store_engine";
 export class DataAnalysisStore extends SpreadsheetStore {
   mutators = [] as const;
   /** One section per individual column (drives the column selector). */
+  section: StatSection | undefined = undefined;
   hasData: boolean = false;
   private isDirty = false;
   ranges?: string[];
@@ -60,6 +64,7 @@ export class DataAnalysisStore extends SpreadsheetStore {
     this.ranges = getters.getSelectedZones().map(zoneToXc);
 
     if (!this.ranges?.length) {
+      this.section = undefined;
       this.hasData = false;
       return;
     }
@@ -67,5 +72,15 @@ export class DataAnalysisStore extends SpreadsheetStore {
     const rangesArg = this.ranges.join(",");
     const countaResult = getters.evaluateFormula(sheetId, `=COUNTA(${rangesArg})`);
     this.hasData = typeof countaResult === "number" && countaResult > 0;
+
+    if (!this.hasData) {
+      this.section = undefined;
+      return;
+    }
+
+    const zones = getters.getSelectedZones();
+    const cols = analyzeColumns(zones, getters);
+    const nonEmpty = cols.filter((c) => c.type !== "empty");
+    this.section = buildStatSections(this.getters, nonEmpty, sheetId);
   }
 }

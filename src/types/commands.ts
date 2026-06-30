@@ -20,7 +20,7 @@ import { ChartDefinition } from "./chart/chart";
 
 import { ConditionalFormat } from "./conditional_formatting";
 
-import { CellValue } from "..";
+import { CellValue } from "./cells";
 import { ClipboardPasteOptions, ParsedOsClipboardContentWithImageData } from "./clipboard";
 import { DataValidationRule } from "./data_validation";
 import { Carousel, CarouselItem, Figure, FigureSize } from "./figure";

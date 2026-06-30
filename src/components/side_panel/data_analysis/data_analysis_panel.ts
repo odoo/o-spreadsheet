@@ -23,16 +23,22 @@ import { ScorecardChartRuntime } from "../../../types/chart/scorecard_chart";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { getCarouselOverlappingChart } from "../../figures/figure_container/figure_container";
+import { Select } from "../../select/select";
+import { SidePanelCollapsible } from "../components/collapsible/side_panel_collapsible";
 import { Section } from "../components/section/section";
 import { ChartSuggestionPreview } from "./chart_suggestion_preview";
 import { DataAnalysisStore } from "./data_analysis_store";
+import { DataStatistics } from "./data_statistics";
 
 export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataAnalysisPanel";
   protected props = props({ onCloseSidePanel: types.function() });
   static components = {
+    SidePanelCollapsible,
     Section,
     ChartSuggestionPreview,
+    DataStatistics,
+    Select,
   };
 
   store!: Store<DataAnalysisStore>;
