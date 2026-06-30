@@ -128,7 +128,7 @@ export class SidePanelStore extends SpreadsheetStore {
       this.get(NotificationStore).notifyUser({
         sticky: false,
         type: "warning",
-        text: _t("The window is too small to display multiple side panels."),
+        text: _t("Too small to show multiple side panels."),
       });
       return;
     }

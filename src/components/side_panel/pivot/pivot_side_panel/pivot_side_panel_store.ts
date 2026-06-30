@@ -171,15 +171,10 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       });
       this.draft = null;
       if (!this.alreadyNotified && this.isUpdatedPivotVisibleInViewportOnlyAsStaticPivot()) {
-        const formulaId = this.getters.getPivotFormulaId(this.pivotId);
-        const pivotExample = `=PIVOT(${formulaId})`;
         this.alreadyNotified = true;
         this.notification.notifyUser({
           type: "info",
-          text: _t(
-            "Pivot updates only work with dynamic pivot tables. Use the formula '%s' or re-insert the static pivot from the Data menu.",
-            pivotExample
-          ),
+          text: _t("Only dynamic pivots can be updated."),
           sticky: true,
         });
       }
