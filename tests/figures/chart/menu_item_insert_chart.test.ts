@@ -454,6 +454,8 @@ describe("Smart chart type detection", () => {
           setCellContent(model, xc, `2022-10-${generator + 1}`);
         } else if (type === "percentage") {
           setCellContent(model, xc, `${generator * 10}%`);
+        } else if (type === "boolean") {
+          setCellContent(model, xc, generator % 2 === 0 ? "=TRUE()" : "=FALSE()");
         }
       }
     }
@@ -474,6 +476,7 @@ describe("Smart chart type detection", () => {
     [["percentage"], { type: "pie", dataSetsHaveTitle: false }],
     [["number"], { type: "bar", dataSetsHaveTitle: false }],
     [["text"], { type: "pie", labelRange: "A1:A6", aggregated: true, dataSetsHaveTitle: true }], // categorical pie chart, the data range is also the label range
+    [["boolean"], { type: "pie", labelRange: "A1:A6", aggregated: true, dataSetsHaveTitle: false }],
     [["date"], { type: "line", dataSetsHaveTitle: false }],
     [["percentage_with_header"], { type: "pie", dataSetsHaveTitle: true }],
     [["date_with_header"], { type: "line", dataSetsHaveTitle: true }],

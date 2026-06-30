@@ -3756,6 +3756,24 @@ describe("Pie chart invalid values", () => {
     expect(data.datasets[0].data.length).toBe(3);
     expect(data.datasets[0].data).toEqual([1, 1, 1]);
   });
+
+  test("Pie chart with only boolean entries counts each distinct value as 1", () => {
+    const booleanModel = createModelFromGrid({
+      A1: "=TRUE",
+      A2: "=FALSE",
+      A3: "=TRUE",
+    });
+    createChart(
+      booleanModel,
+      {
+        ...toChartDataSource({ dataSets: [{ dataRange: "A1:A3" }], dataSetsHaveTitle: false }),
+        type: "pie",
+      },
+      "1"
+    );
+    const data = getChartConfiguration(booleanModel, "1").data;
+    expect(data.datasets[0].data).toEqual([1, 1, 1]);
+  });
 });
 
 test("Duplicating a sheet dispatches CREATE_CHART for each chart", () => {
