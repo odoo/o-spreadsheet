@@ -3,21 +3,15 @@ import { Range } from "../../../..";
 import { ChartShowValuesPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
 import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
 import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
-import {
-  ChartDefinition,
-  ChartRuntimeGenerationArgs,
-  schemeToColorScale,
-} from "../../../../types/chart/chart";
+import { ChartDefinition, ChartRuntimeGenerationArgs } from "../../../../types/chart/chart";
 import { PyramidChartDefinition } from "../../../../types/chart/pyramid_chart";
 import {
   SunburstChartDefaults,
   SunburstChartDefinition,
 } from "../../../../types/chart/sunburst_chart";
 import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
-import { isNumberResult } from "../../../cells/cell_evaluation";
 import { humanizeNumber } from "../../../format/format";
-import { chartFontColor, formatChartDatasetValue } from "../chart_common";
-import { getRuntimeColorScale } from "./chartjs_scales";
+import { formatChartDatasetValue } from "../chart_common";
 
 export function getChartShowValues(
   definition: ChartDefinition<Range>,
@@ -41,32 +35,11 @@ export function getCalendarChartShowValues(
   args: ChartRuntimeGenerationArgs
 ): ChartShowValuesPluginOptions {
   const { locale, axisFormats } = args;
-  let background = (_value, dataset, index) => definition.background;
-  const values = args.dataSetsValues
-    .flat()
-    .flatMap((dsv) => dsv?.data.filter(isNumberResult))
-    .map((cell) => cell.value);
-  if (values.length) {
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const colorScale = getRuntimeColorScale(
-      definition.colorScale ?? schemeToColorScale("oranges")!,
-      min,
-      max
-    );
-    background = (_value: number | string, dataset: ChartMeta<any>, index) => {
-      const value = dataset._dataset.values[index];
-      if (value === undefined) {
-        return definition.background;
-      }
-      return chartFontColor(colorScale(value));
-    };
-  }
   return {
     type: "calendar",
     horizontal: false,
     showValues: "showValues" in definition ? !!definition.showValues : false,
-    background,
+    background: () => definition.background,
     callback: (_value: number | string, dataset: ChartMeta<any>, index) => {
       const value = dataset._dataset.values[index];
       return value === undefined ? "" : humanizeNumber({ value, format: axisFormats?.y }, locale);

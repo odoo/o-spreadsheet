@@ -1,9 +1,29 @@
-import type { ChartMeta, ChartType, Plugin } from "chart.js";
-import { hexToHSLA, toHex } from "../../../../helpers/color";
+import type { Chart, ChartMeta, ChartType, Plugin, PointElement } from "chart.js";
+import { colorToRGBA } from "../../../../helpers/color";
 import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
-import { computeTextWidth } from "../../../../helpers/text_helper";
+import { computeCachedTextDimension, computeTextFont } from "../../../../helpers/text_helper";
 import type { ChartType as AllChartType } from "../../../../types/chart/chart";
 import { Color } from "../../../../types/misc";
+
+interface Dimensions {
+  width: number;
+  height: number;
+}
+
+interface TextStyle {
+  strokeColor?: string;
+  textColor: string;
+}
+
+interface CallbackArgs {
+  dataset: any;
+  chartElement: any;
+  numberValue: number;
+  valueIndex: number;
+  textSize: Dimensions;
+  options: ChartShowValuesPluginOptions;
+  chart: Chart;
+}
 
 export interface ChartShowValuesPluginOptions {
   type: AllChartType;
@@ -20,6 +40,7 @@ declare module "chart.js" {
 }
 
 const MINIMAL_VERTICAL_DISTANCE = 13;
+const HORIZONTAL_PADDING = 3;
 
 function isLineOverlayOnBarChart(
   options: ChartShowValuesPluginOptions,
@@ -39,307 +60,348 @@ export const chartShowValuesPlugin: Plugin = {
     if (!drawData) {
       return;
     }
-    const ctx = chart.ctx as CanvasRenderingContext2D;
-    ctx.save();
-
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.miterLimit = 1; // Avoid sharp artifacts on strokeText
 
     switch (options.type) {
       case "pie":
-        drawPieChartValues(chart, options, ctx);
+        drawPieValues(chart, options);
         break;
       case "line":
       case "scatter":
+        drawLineValues(chart, options);
+        break;
       case "combo":
       case "waterfall":
+        drawComboValues(chart, options);
+        break;
       case "radar":
-        drawLineOrBarOrRadarChartValues(chart, options, ctx);
+        drawRadarValues(chart, options);
         break;
       case "bar":
         options.horizontal
-          ? drawHorizontalBarChartValues(chart, options, ctx)
-          : drawLineOrBarOrRadarChartValues(chart, options, ctx);
+          ? drawHorizontalBarValues(chart, options)
+          : drawVerticalBarValues(chart, options);
         break;
       case "pyramid":
-        drawHorizontalBarChartValues(chart, options, ctx);
+        drawHorizontalBarValues(chart, options);
         break;
       case "calendar":
-        drawBarChartValues(chart, options, ctx);
+        drawCalendarValues(chart, options);
         break;
       case "bubble":
-        drawBubbleChartValues(chart, options, ctx);
+        drawBubbleValues(chart, options);
         break;
       case "funnel":
-        drawHorizontalBarChartValues(chart, options, ctx);
+        drawFunnelValues(chart, options);
         break;
     }
-
-    ctx.restore();
   },
 };
 
-function drawTextWithBackground(text: string, x: number, y: number, ctx: CanvasRenderingContext2D) {
-  ctx.lineWidth = 3; // Stroke the text with a big lineWidth width to have some kind of background
-  ctx.strokeText(text, x, y);
-  ctx.lineWidth = 1;
-  ctx.fillText(text, x, y);
-}
+function drawValues(args: {
+  chart: any;
+  options: ChartShowValuesPluginOptions;
+  direction: "horizontal" | "vertical";
+  getNumberValue: (dataset: any, valueIndex: number) => number | undefined;
+  getValuePosition: (args: CallbackArgs) => { x: number; y: number };
+  shouldSkipValue: (args: CallbackArgs) => boolean;
+  getTextColors: (args: CallbackArgs) => TextStyle;
+}) {
+  const { chart, options, getNumberValue, direction } = args;
+  const ctx = chart.ctx as CanvasRenderingContext2D;
+  ctx.save();
 
-function drawLineOrBarOrRadarChartValues(
-  chart: any,
-  options: ChartShowValuesPluginOptions,
-  ctx: CanvasRenderingContext2D
-) {
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.miterLimit = 1; // Avoid sharp artifacts on strokeText
+
   const textsPositions: Record<number, number[]> = {};
-  for (const dataset of chart._metasets) {
-    if (
-      isTrendLineAxis(dataset.xAxisID) ||
-      dataset.hidden ||
-      isLineOverlayOnBarChart(options, dataset)
-    ) {
-      continue;
-    }
-
-    const yAxisScale = chart.scales[dataset.yAxisID];
-    for (let i = 0; i < dataset._parsed.length; i++) {
-      const parsedValue = dataset._parsed[i];
-      const value = Number(chart.config.type === "radar" ? parsedValue.r : parsedValue.y);
-      if (isNaN(value)) {
-        continue;
-      }
-      const point = dataset.data[i];
-      const xPosition = point.x;
-
-      let yPosition = 0;
-      if (chart.config.type === "line" || chart.config.type === "radar") {
-        yPosition = value < 0 ? point.y + 10 : point.y - 10;
-      } else if (chart.config.type === "bubble") {
-        yPosition = point.y;
-      } else {
-        const yZeroLine = yAxisScale.getPixelForValue(0);
-        const distanceFromAxisOrigin = Math.abs(yZeroLine - point.y);
-        const textHeight = globalThis.Chart?.defaults.font.size ?? 12; // ChartJS default text height
-
-        if (distanceFromAxisOrigin < textHeight) {
-          yPosition = value < 0 ? yZeroLine + textHeight / 2 : yZeroLine - textHeight / 2;
-        } else {
-          yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;
-        }
-      }
-
-      // Avoid overlapping texts with same X
-      if (!textsPositions[xPosition]) {
-        textsPositions[xPosition] = [];
-      }
-      for (const otherPosition of textsPositions[xPosition] || []) {
-        if (Math.abs(otherPosition - yPosition) < MINIMAL_VERTICAL_DISTANCE) {
-          yPosition = otherPosition + MINIMAL_VERTICAL_DISTANCE * (value < 0 ? 1 : -1);
-        }
-      }
-      textsPositions[xPosition].push(yPosition);
-
-      ctx.fillStyle = point.options.backgroundColor;
-      ctx.strokeStyle = options.background(Number(value), dataset, i) || "#ffffff";
-      const valueToDisplay = options.callback(Number(value), dataset, i);
-      drawTextWithBackground(valueToDisplay, xPosition, yPosition, ctx);
-    }
-  }
-}
-
-function drawBarChartValues(
-  chart: any,
-  options: ChartShowValuesPluginOptions,
-  ctx: CanvasRenderingContext2D
-) {
-  const yMax = chart.chartArea.bottom;
-  const yMin = chart.chartArea.top;
-
   for (const dataset of chart._metasets) {
     if (isTrendLineAxis(dataset.xAxisID) || dataset.hidden) {
       continue;
     }
 
-    const yAxisScale = chart.scales[dataset.yAxisID];
     for (let i = 0; i < dataset._parsed.length; i++) {
-      const parsedValue = dataset._parsed[i];
-      const value = Number(chart.config.type === "radar" ? parsedValue.r : parsedValue.y);
-      if (isNaN(value)) {
+      const numberValue = getNumberValue(dataset, i);
+      if (numberValue === undefined || isNaN(numberValue)) {
+        continue;
+      }
+      const chartElement = dataset.data[i]; // BarElement, PointElement or ArcElement depending on the chart type
+
+      // Elements are transparent only when hovering a legend item, so we don't want to show the value in that case
+      const elementColor = chartElement.options.backgroundColor;
+      if (!elementColor || colorToRGBA(elementColor).a !== 1) {
         continue;
       }
 
-      const point = dataset.data[i];
-      const xPosition = point.x;
+      const valueToDisplay = options.callback(numberValue, dataset, i);
+      const textSize = getTextDimensions(valueToDisplay, ctx);
+      const callbackArgs = {
+        dataset,
+        chartElement,
+        numberValue,
+        valueIndex: i,
+        textSize,
+        options,
+        chart,
+      };
 
-      let yPosition = 0;
-      const yZeroLine = yAxisScale.getPixelForValue(0);
-      const distanceFromAxisOrigin = Math.abs(yZeroLine - point.y);
-      const textHeight = globalThis.Chart?.defaults.font.size ?? 12; // ChartJS default text height
-
-      if (distanceFromAxisOrigin < textHeight) {
-        yPosition = value < 0 ? yZeroLine + textHeight / 2 : yZeroLine - textHeight / 2;
-      } else {
-        yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;
-      }
-
-      yPosition = Math.min(yPosition, yMax);
-      yPosition = Math.max(yPosition, yMin);
-
-      ctx.strokeStyle = point.options.backgroundColor;
-      ctx.fillStyle = options.background(Number(value), dataset, i) || "#ffffff";
-      const valueToDisplay = options.callback(Number(value), dataset, i);
-      const measures = ctx.measureText(valueToDisplay);
-      const height = measures.actualBoundingBoxAscent + measures.actualBoundingBoxDescent;
-      if (height + 2 > Math.abs(point.height) - 2) {
-        continue; // Skip drawing the value if there is not enough space in the bar
-      }
-      drawTextWithBackground(valueToDisplay, xPosition, yPosition, ctx);
-    }
-  }
-}
-
-function drawBubbleChartValues(
-  chart: any,
-  options: ChartShowValuesPluginOptions,
-  ctx: CanvasRenderingContext2D
-) {
-  const yMax = chart.chartArea.bottom;
-  const yMin = chart.chartArea.top;
-  const textsPositions: Record<number, number[]> = {};
-
-  for (const dataset of chart._metasets) {
-    for (let i = 0; i < dataset._parsed.length; i++) {
-      const parsedValue = dataset._parsed[i];
-      const value = parsedValue.y;
-      if (isNaN(value)) {
+      const position = args.getValuePosition(callbackArgs);
+      if (args.shouldSkipValue?.(callbackArgs)) {
         continue;
       }
 
-      const point = dataset.data[i];
-      const xPosition = point.x;
-      let yPosition = Math.max(Math.min(point.y, yMax), yMin);
-
-      // Avoid overlapping texts with same X
-      if (!textsPositions[xPosition]) {
-        textsPositions[xPosition] = [];
-      }
-      for (const otherPosition of textsPositions[xPosition] || []) {
-        if (Math.abs(otherPosition - yPosition) < MINIMAL_VERTICAL_DISTANCE) {
-          yPosition = otherPosition + MINIMAL_VERTICAL_DISTANCE * (value < 0 ? 1 : -1);
+      if (direction === "vertical") {
+        const key = Math.round(position.x);
+        // Avoid overlapping texts with same X
+        if (!textsPositions[key]) {
+          textsPositions[key] = [];
         }
-      }
-      textsPositions[xPosition].push(yPosition);
-      const color = point.options.backgroundColor ?? "#ffffff";
-      const hsla = hexToHSLA(toHex(color));
-      if (hsla.a === 1) {
-        ctx.fillStyle = chartFontColor(color);
+        for (const otherPosition of textsPositions[key] || []) {
+          if (Math.abs(otherPosition - position.y) < MINIMAL_VERTICAL_DISTANCE) {
+            position.y = otherPosition + MINIMAL_VERTICAL_DISTANCE * (numberValue < 0 ? 1 : -1);
+          }
+        }
+        textsPositions[key].push(position.y);
       } else {
-        ctx.fillStyle = "#000000";
+        const key = Math.round(position.y);
+        // Avoid overlapping texts with same Y
+        if (!textsPositions[key]) {
+          textsPositions[key] = [];
+        }
+        for (const otherPosition of textsPositions[key]) {
+          if (Math.abs(otherPosition - position.x) < textSize.width) {
+            position.x =
+              numberValue < 0
+                ? otherPosition - textSize.width - HORIZONTAL_PADDING
+                : otherPosition + textSize.width + HORIZONTAL_PADDING;
+          }
+        }
+        textsPositions[key].push(position.x);
       }
-      const valueToDisplay = options.callback(Number(value), dataset, i);
-      ctx.fillText(valueToDisplay, xPosition, yPosition);
+
+      const { strokeColor, textColor } = args.getTextColors(callbackArgs);
+      if (!!strokeColor) {
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = 3; // Stroke the text with a big lineWidth width to have some kind of background
+        ctx.strokeText(valueToDisplay, position.x, position.y);
+      }
+      ctx.fillStyle = textColor;
+      ctx.lineWidth = 1;
+      ctx.fillText(valueToDisplay, position.x, position.y);
     }
   }
+
+  ctx.restore();
 }
 
-function drawHorizontalBarChartValues(
-  chart: any,
-  options: ChartShowValuesPluginOptions,
-  ctx: CanvasRenderingContext2D
-) {
-  const textsPositions: Record<number, number[]> = {};
+function drawVerticalBarValues(chart: any, options: ChartShowValuesPluginOptions) {
+  drawValues({
+    chart,
+    options,
+    direction: "vertical",
+    getNumberValue: (dataset, i) => Number(dataset._parsed[i].y),
+    getValuePosition: getVerticalBarValuePosition,
+    shouldSkipValue: ({ dataset }) => isLineOverlayOnBarChart(options, dataset),
+    getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
+  });
+}
 
-  for (const dataset of chart._metasets) {
-    if (isTrendLineAxis(dataset.xAxisID) || isLineOverlayOnBarChart(options, dataset)) {
-      continue;
-    }
-    const xAxisScale = chart.scales[dataset.xAxisID];
-    const xZeroLine = xAxisScale.getPixelForValue(0);
+function drawRadarValues(chart: any, options: ChartShowValuesPluginOptions) {
+  drawValues({
+    chart,
+    options,
+    direction: "vertical",
+    getNumberValue: (dataset, i) => Number(dataset._parsed[i].r),
+    getValuePosition: ({ chartElement }) => ({
+      x: chartElement.x,
+      y: chartElement.y - 10,
+    }),
+    shouldSkipValue: () => false,
+    getTextColors: chartElementColoredTextWithChartBackgroundHalo,
+  });
+}
 
-    for (let i = 0; i < dataset._parsed.length; i++) {
-      const value = Number(dataset._parsed[i].x);
-      if (isNaN(value)) {
-        continue;
-      }
-      const displayValue = options.callback(value, dataset, i);
-      const point = dataset.data[i];
+function drawLineValues(chart: any, options: ChartShowValuesPluginOptions) {
+  drawValues({
+    chart,
+    options,
+    direction: "vertical",
+    getNumberValue: (dataset, i) => Number(dataset._parsed[i].y),
+    getValuePosition: ({ chartElement }) => ({
+      x: chartElement.x,
+      y: chartElement.y - 10,
+    }),
+    shouldSkipValue: () => false,
+    getTextColors: chartElementColoredTextWithChartBackgroundHalo,
+  });
+}
 
-      const yPosition = point.y;
-      const textWidth = computeTextWidth(
-        ctx,
-        displayValue,
-        { fontSize: globalThis.Chart?.defaults.font.size ?? 12 },
-        "px"
-      );
-      const distanceFromAxisOrigin = Math.abs(point.x - xZeroLine);
+function drawComboValues(chart: any, options: ChartShowValuesPluginOptions) {
+  drawValues({
+    chart,
+    options,
+    direction: "vertical",
+    getNumberValue: (dataset, i) => Number(dataset._parsed[i].y),
+    getValuePosition: (args) =>
+      args.dataset.type === "line"
+        ? { x: args.chartElement.x, y: args.chartElement.y - 10 }
+        : getVerticalBarValuePosition(args),
+    shouldSkipValue: () => false,
+    getTextColors: (args) =>
+      args.dataset.type === "line"
+        ? chartElementColoredTextWithChartBackgroundHalo(args)
+        : chartBackgroundColoredTextWithElementColoredHalo(args),
+  });
+}
 
-      const PADDING = 3;
+function drawCalendarValues(chart: any, options: ChartShowValuesPluginOptions) {
+  drawValues({
+    chart,
+    options,
+    direction: "vertical",
+    getNumberValue: (dataset, i) => dataset._parsed[i].y,
+    getValuePosition: ({ chartElement }) => ({
+      x: chartElement.x,
+      y: chartElement.y + chartElement.height / 2,
+    }),
+    shouldSkipValue: ({ chartElement, textSize }) =>
+      textSize.height + 2 > Math.abs(chartElement.height) - 2,
+    getTextColors: ({ chartElement }) => ({
+      strokeColor: undefined,
+      textColor: chartFontColor(chartElement.options.backgroundColor),
+    }),
+  });
+}
+
+function drawBubbleValues(chart: any, options: ChartShowValuesPluginOptions) {
+  const canDrawTextInsideBubble = (chartElement: PointElement, textSize: Dimensions) => {
+    const radius =
+      chartElement.options.radius ?? globalThis.Chart?.defaults.elements.point.radius ?? 3;
+    // Only compare the height; The goal is to make sure the text doesn't totally hide the point, not to avoid any overflow
+    return textSize.height < radius * 2;
+  };
+  drawValues({
+    chart,
+    options,
+    direction: "vertical",
+    getNumberValue: (dataset, i) => dataset._parsed[i].y,
+    getValuePosition: ({ chartElement, textSize }) => ({
+      x: chartElement.x,
+      y: canDrawTextInsideBubble(chartElement, textSize) ? chartElement.y : chartElement.y - 10,
+    }),
+    shouldSkipValue: () => false,
+    getTextColors: (args: CallbackArgs) => {
+      return canDrawTextInsideBubble(args.chartElement, args.textSize)
+        ? chartBackgroundColoredTextWithElementColoredHalo(args)
+        : chartElementColoredTextWithChartBackgroundHalo(args);
+    },
+  });
+}
+
+function drawHorizontalBarValues(chart: any, options: ChartShowValuesPluginOptions) {
+  drawValues({
+    chart,
+    options,
+    direction: "horizontal",
+    getNumberValue: (dataset, i) => dataset._parsed[i].x,
+    getValuePosition: ({ chartElement, numberValue, textSize, dataset }) => {
+      const xAxisScale = chart.scales[dataset.xAxisID];
+      const xZeroLine = xAxisScale.getPixelForValue(0);
+      const distanceFromAxisOrigin = Math.abs(chartElement.x - xZeroLine);
       let xPosition: number;
-      if (distanceFromAxisOrigin < textWidth) {
-        xPosition =
-          value < 0 ? xZeroLine - textWidth / 2 - PADDING : xZeroLine + textWidth / 2 + PADDING;
+      const sign = numberValue < 0 ? -1 : 1;
+      if (distanceFromAxisOrigin < textSize.width) {
+        xPosition = xZeroLine + sign * (textSize.width / 2 + HORIZONTAL_PADDING);
       } else {
-        xPosition = value < 0 ? point.x + point.width / 2 : point.x - point.width / 2;
+        xPosition = chartElement.x - sign * (chartElement.width / 2);
       }
-
-      // Avoid overlapping texts with same Y
-      if (!textsPositions[yPosition]) {
-        textsPositions[yPosition] = [];
-      }
-      for (const otherPosition of textsPositions[yPosition]) {
-        if (Math.abs(otherPosition - xPosition) < textWidth) {
-          xPosition =
-            value < 0 ? otherPosition - textWidth - PADDING : otherPosition + textWidth + PADDING;
-        }
-      }
-      textsPositions[yPosition].push(xPosition);
-
-      ctx.strokeStyle = point.options.backgroundColor;
-      ctx.fillStyle = options.background(Number(value), dataset, i) || "#ffffff";
-      drawTextWithBackground(displayValue, xPosition, yPosition, ctx);
-    }
-  }
+      return {
+        x: xPosition,
+        y: chartElement.y,
+      };
+    },
+    shouldSkipValue: ({ dataset }) => isLineOverlayOnBarChart(options, dataset),
+    getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
+  });
 }
 
-function drawPieChartValues(
-  chart: any,
-  options: ChartShowValuesPluginOptions,
-  ctx: CanvasRenderingContext2D
-) {
-  for (const dataset of chart._metasets) {
-    for (let i = 0; i < dataset._parsed.length; i++) {
-      const value = Number(dataset._parsed[i]);
-      if (isNaN(value) || value === 0) {
-        continue;
-      }
-      const bar = dataset.data[i];
-      const { startAngle, endAngle, innerRadius, outerRadius } = bar;
-      const midAngle = (startAngle + endAngle) / 2;
-      const midRadius = (innerRadius + outerRadius) / 2;
-      const x = bar.x + midRadius * Math.cos(midAngle);
-      const y = bar.y + midRadius * Math.sin(midAngle);
-      const displayValue = options.callback(value, dataset, i);
+function drawFunnelValues(chart: any, options: ChartShowValuesPluginOptions) {
+  drawValues({
+    chart,
+    options,
+    direction: "horizontal",
+    getNumberValue: (dataset, i) => dataset._parsed[i].x,
+    getValuePosition: ({ chartElement }) => ({
+      x: chartElement.x - chartElement.width / 2,
+      y: chartElement.y,
+    }),
+    shouldSkipValue: () => false,
+    getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
+  });
+}
 
-      const textHeight = globalThis.Chart?.defaults.font.size ?? 12; // ChartJS default
-      const textWidth = computeTextWidth(ctx, displayValue, { fontSize: textHeight }, "px");
-
-      const radius = outerRadius - innerRadius;
-      // Check if the text fits in the slice. Not perfect, but good enough heuristic.
-      if (textWidth >= radius || radius < textHeight) {
-        continue;
-      }
-      const sliceAngle = endAngle - startAngle;
+function drawPieValues(chart: any, options: ChartShowValuesPluginOptions) {
+  const getSliceDimensions = (chartElement: any) => {
+    const { startAngle, endAngle, innerRadius, outerRadius } = chartElement;
+    const midAngle = (startAngle + endAngle) / 2;
+    const midRadius = (innerRadius + outerRadius) / 2;
+    return { midAngle, midRadius };
+  };
+  drawValues({
+    chart,
+    options,
+    direction: "vertical",
+    getNumberValue: (dataset, i) => Number(dataset._parsed[i]),
+    getValuePosition: ({ chartElement }) => {
+      const { midAngle, midRadius } = getSliceDimensions(chartElement);
+      const x = chartElement.x + midRadius * Math.cos(midAngle);
+      const y = chartElement.y + midRadius * Math.sin(midAngle);
+      return { x, y };
+    },
+    shouldSkipValue: ({ chartElement, textSize }) => {
+      const { midRadius } = getSliceDimensions(chartElement);
+      const sliceAngle = chartElement.endAngle - chartElement.startAngle;
       const midWidth = 2 * midRadius * Math.tan(sliceAngle / 2);
-      if (sliceAngle < Math.PI / 2 && (textWidth >= midWidth || midWidth < textHeight)) {
-        continue;
-      }
+      return sliceAngle < Math.PI / 2 && (textSize.width >= midWidth || midWidth < textSize.height);
+    },
+    getTextColors: chartBackgroundColoredTextWithElementColoredHalo,
+  });
+}
 
-      const background = options.background(Number(value), dataset, i);
-      ctx.fillStyle = chartFontColor(background);
-      ctx.strokeStyle = background || "#ffffff";
+function getTextDimensions(text: string, ctx: CanvasRenderingContext2D): Dimensions {
+  const font = computeTextFont({ fontSize: globalThis.Chart?.defaults.font.size ?? 12 }, "px");
+  return computeCachedTextDimension(ctx, text, font);
+}
 
-      drawTextWithBackground(displayValue, x, y, ctx);
-    }
+function chartBackgroundColoredTextWithElementColoredHalo(args: CallbackArgs) {
+  const { dataset, numberValue, valueIndex, chartElement, options } = args;
+  return {
+    strokeColor: chartElement.options.backgroundColor,
+    textColor: options.background(numberValue, dataset, valueIndex) || "#ffffff",
+  };
+}
+
+function chartElementColoredTextWithChartBackgroundHalo(args: CallbackArgs) {
+  const { dataset, numberValue, valueIndex, chartElement, options } = args;
+  return {
+    strokeColor: options.background(numberValue, dataset, valueIndex) || "#ffffff",
+    textColor: chartElement.options.backgroundColor,
+  };
+}
+
+function getVerticalBarValuePosition(args: CallbackArgs) {
+  const { chartElement, numberValue, dataset, textSize, chart } = args;
+  const yAxisScale = chart.scales[dataset.yAxisID];
+  const yZeroLine = yAxisScale.getPixelForValue(0);
+  const distanceFromAxisOrigin = Math.abs(yZeroLine - chartElement.y);
+
+  const sign = numberValue < 0 ? -1 : 1;
+  let yPosition = 0;
+  if (distanceFromAxisOrigin < textSize.height) {
+    yPosition = yZeroLine - sign * (textSize.height / 2);
+  } else {
+    yPosition = chartElement.y + sign * (chartElement.height / 2);
   }
+
+  return { x: chartElement.x, y: yPosition };
 }
