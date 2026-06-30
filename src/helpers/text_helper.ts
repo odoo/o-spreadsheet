@@ -3,6 +3,7 @@ import {
   DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
   DEFAULT_FONT_WEIGHT,
+  DEFAULT_TEXT_HIGHLIGHT_PERCENT,
   MIN_CELL_TEXT_MARGIN,
   NEWLINE,
   PADDING_AUTORESIZE_VERTICAL,
@@ -11,8 +12,9 @@ import { Canvas2DContext } from "../types/canvas";
 import { Cell } from "../types/cells";
 import { CellErrorType } from "../types/errors";
 import { Locale } from "../types/locale";
-import { Pixel, PixelPosition, Style } from "../types/misc";
+import { Color, Pixel, PixelPosition, Style } from "../types/misc";
 import { parseLiteral } from "./cells/cell_evaluation";
+import { lightenColor } from "./color";
 import { formatValue } from "./format/format";
 import { isMarkdownLink, parseMarkdownLink } from "./misc";
 
@@ -137,7 +139,7 @@ export function computeTextDimension(
   };
 }
 
-function computeCachedTextDimension(
+export function computeCachedTextDimension(
   context: Canvas2DContext,
   text: string,
   font: string
@@ -355,8 +357,13 @@ export function drawDecoratedText(
   position: PixelPosition,
   underline: boolean | undefined = false,
   strikethrough: boolean | undefined = false,
-  strokeWidth: number = getContextFontSize(context.font) / 10 //This value is defined to get a good looking stroke
+  strokeWidth: number = getContextFontSize(context.font) / 10, //This value is defined to get a good looking stroke
+  highlight: boolean | undefined = false
 ) {
+  if (highlight) {
+    context.save();
+    context.fillStyle = lightenColor(context.fillStyle as Color, DEFAULT_TEXT_HIGHLIGHT_PERCENT);
+  }
   context.fillText(text, position.x, position.y);
   if (!underline && !strikethrough) {
     return;
@@ -408,6 +415,9 @@ export function drawDecoratedText(
     context.moveTo(x, strikeY);
     context.lineTo(x + textWidth, strikeY);
     context.stroke();
+  }
+  if (highlight) {
+    context.restore();
   }
 }
 
