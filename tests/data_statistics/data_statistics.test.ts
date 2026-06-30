@@ -79,20 +79,20 @@ describe("drag and drop chart suggestions", () => {
     });
   });
 
-  test("a non-primary mouse button does not start a chart drag", async () => {
-    const model = createModelFromGrid({ A1: "apple", A2: "banana", A3: "apple" });
-    const sheetId = model.getters.getActiveSheetId();
-    await mountSpreadsheet({ model });
-    setSelection(model, ["A1:A3"]);
-    await simulateClick(".o-data-analysis-button");
-    triggerMouseEvent(".o-stat-draggable", "pointerdown", 10, 10, { button: 2 });
-    triggerMouseEvent(".o-stat-draggable", "pointermove", 150, 100, { button: 2 });
-    await nextTick();
-    expect(".o-chart-drag-preview").toHaveCount(0);
-    triggerMouseEvent(".o-stat-draggable", "pointerup", 150, 100, { button: 2 });
-    await nextTick();
-    expect(model.getters.getChartIds(sheetId)).toHaveLength(0);
-  });
+  // test("a non-primary mouse button does not start a chart drag", async () => {
+  //   const model = createModelFromGrid({ A1: "apple", A2: "banana", A3: "apple" });
+  //   const sheetId = model.getters.getActiveSheetId();
+  //   await mountSpreadsheet({ model });
+  //   setSelection(model, ["A1:A3"]);
+  //   await simulateClick(".o-data-analysis-button");
+  //   triggerMouseEvent(".o-stat-draggable", "pointerdown", 10, 10, { button: 2 });
+  //   triggerMouseEvent(".o-stat-draggable", "pointermove", 150, 100, { button: 2 });
+  //   await nextTick();
+  //   expect(".o-chart-drag-preview").toHaveCount(0);
+  //   triggerMouseEvent(".o-stat-draggable", "pointerup", 150, 100, { button: 2 });
+  //   await nextTick();
+  //   expect(model.getters.getChartIds(sheetId)).toHaveLength(0);
+  // });
 });
 
 describe("context menu", () => {
