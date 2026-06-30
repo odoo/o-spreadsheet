@@ -2,6 +2,7 @@
   <t t-name="o-spreadsheet-Autofill">
     <div class="o-autofill" t-att-style="style"/>
     <div
+      t-if="this.props.isVisible"
       class="o-autofill-handler"
       t-att-style="handlerStyle"
       t-on-pointerdown="onMouseDown"
