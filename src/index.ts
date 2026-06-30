@@ -141,6 +141,7 @@ import { TextInput } from "./components/text_input/text_input";
 import { ChartTerms } from "./components/translations_terms";
 import { arg } from "./functions/arguments";
 import { functionRegistry } from "./functions/function_registry";
+import { PositionMap } from "./helpers/cells/position_map";
 import * as CHART_HELPERS from "./helpers/figures/charts";
 import { chartJsExtensionRegistry } from "./helpers/figures/charts/chart_js_extension";
 import * as CHART_RUNTIME_HELPERS from "./helpers/figures/charts/runtime";
@@ -411,6 +412,7 @@ export const helpers = {
   parseFormat,
   isFormula,
   domainToColRowDomain,
+  PositionMap,
 };
 
 export const links = {
