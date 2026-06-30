@@ -1,15 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-DataStatistics">
     <Section class="'o-column-global-stats d-flex flex-column gap-1 pt-0'">
-      <!-- Column selector: only when there are multiple columns -->
-      <t t-if="this.store.perColSections.length > 1">
-        <Select
-          selectedValue="this.selectedColValue"
-          values="this.columnSelectOptions"
-          onChange.bind="this.onColChange"
-        />
-      </t>
-      <!-- Per-column stats for the active column -->
       <t t-if="this.activeColSection">
         <t t-if="this.store.perColSections.length === 1">
           <div class="o-section-title">

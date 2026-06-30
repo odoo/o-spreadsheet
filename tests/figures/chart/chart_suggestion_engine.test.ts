@@ -1,6 +1,6 @@
 import { Model } from "../../../src";
+import { analyzeColumns } from "../../../src/helpers/data_analysis";
 import {
-  analyzeColumns,
   ChartSuggestion,
   getChartSuggestions,
 } from "../../../src/helpers/figures/charts/chart_suggestion_engine";

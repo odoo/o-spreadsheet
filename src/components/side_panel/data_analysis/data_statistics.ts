@@ -1,26 +1,22 @@
-import { markup, proxy } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { CellValue } from "../../..";
 import { DEFAULT_SCORECARD_HEIGHT, DEFAULT_SCORECARD_WIDTH } from "../../../constants";
+import { StatSection } from "../../../helpers/data_statistics_suggestions";
 import { drawScoreChart, ScorecardChart } from "../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../helpers/figures/charts/scorecard_chart_config_builder";
 import { UuidGenerator } from "../../../helpers/uuid";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../store_engine/store_hooks";
 import { ScorecardChartRuntime } from "../../../types/chart/scorecard_chart";
-import { ValueAndLabel } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
-import { Select } from "../../select/select";
 import { Section } from "../components/section/section";
-import { ChartSuggestionPreview } from "./chart_suggestion_preview";
-import { DataAnalysisStore, StatSection } from "./data_analysis_store";
+import { DataAnalysisStore } from "./data_analysis_store";
 
 export class DataStatistics extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataStatistics";
   static components = {
     Section,
-    ChartSuggestionPreview,
-    Select,
   };
 
   store!: Store<DataAnalysisStore>;
@@ -29,15 +25,6 @@ export class DataStatistics extends Component<SpreadsheetChildEnv> {
 
   setup() {
     this.store = useLocalStore(DataAnalysisStore);
-  }
-
-  get columnSelectOptions(): ValueAndLabel[] {
-    return this.store.perColSections.map((s, i) => ({
-      value: String(i),
-      label: markup(
-        `${s.title}&nbsp;<span class="text-muted fw-normal small">(${s.range})</span>`
-      ) as unknown as string,
-    }));
   }
 
   get activeColSection(): StatSection | undefined {
