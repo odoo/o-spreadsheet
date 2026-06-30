@@ -6,6 +6,18 @@
     background: var(--os-gray-100);
   }
 
+  .o-stat-copy-icon {
+    opacity: 0.6;
+    cursor: pointer;
+    &:hover,
+    &.active {
+      opacity: 0.8;
+    }
+    .o-icon {
+      font-size: 12px !important;
+    }
+  }
+
   .o-stat-detail {
     padding: 2px 4px 4px 4px;
     line-height: 1.4;

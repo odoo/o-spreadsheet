@@ -1,9 +1,11 @@
+import { createEvaluatedCell } from "../helpers/cells/cell_evaluation";
 import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
 import { formatValue } from "../helpers/format/format";
 import { canonicalizeNumberValue } from "../helpers/locale";
 import { deepEquals } from "../helpers/misc";
 import { createPivotFormula } from "../helpers/pivot/pivot_helpers";
 import { cellPositions, isZoneInside } from "../helpers/zones";
+import { CellValue } from "../types/cells";
 import {
   ClipboardCellData,
   ClipboardCopyOptions,
@@ -307,5 +309,30 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       copiedData.cells.push(cells);
     }
     return copiedData;
+  }
+
+  convertCellDataToClipboardData({
+    formula,
+    value,
+  }: {
+    formula: string;
+    value: CellValue;
+  }): ClipboardContent {
+    const locale = this.getters.getLocale();
+    const sheetId = this.getters.getActiveSheetId();
+    const evaluatedCell = createEvaluatedCell({ value }, locale);
+    return {
+      cells: [
+        [
+          {
+            content: formula,
+            evaluatedCell,
+            position: { col: 0, row: 0, sheetId },
+          },
+        ],
+      ],
+      zones: [],
+      sheetId,
+    };
   }
 }
