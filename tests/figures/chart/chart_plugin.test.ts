@@ -3756,7 +3756,78 @@ describe("Pie chart invalid values", () => {
     expect(data.datasets[0].data.length).toBe(3);
     expect(data.datasets[0].data).toEqual([1, 1, 1]);
   });
+
+  test("Pie chart with only boolean entries counts each distinct value as 1", () => {
+    const booleanModel = createModelFromGrid({
+      A1: "=TRUE",
+      A2: "=FALSE",
+      A3: "=TRUE",
+    });
+    createChart(
+      booleanModel,
+      {
+        ...toChartDataSource({ dataSets: [{ dataRange: "A1:A3" }], dataSetsHaveTitle: false }),
+        type: "pie",
+      },
+      "1"
+    );
+    const data = getChartConfiguration(booleanModel, "1").data;
+    expect(data.datasets[0].data).toEqual([1, 1, 1]);
+  });
+
+  test("Bar chart with boolean data series and distinct labels maps TRUE/FALSE to 1/0", () => {
+    const booleanModel = createModelFromGrid({
+      A1: "Q1",
+      A2: "Q2",
+      A3: "Q3",
+      B1: "=TRUE",
+      B2: "=FALSE",
+      B3: "=TRUE",
+    });
+    createChart(
+      booleanModel,
+      {
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B1:B3" }],
+          labelRange: "A1:A3",
+          dataSetsHaveTitle: false,
+        }),
+        type: "bar",
+      },
+      "1"
+    );
+    const data = getChartConfiguration(booleanModel, "1").data;
+    expect(data.datasets[0].data).toEqual([1, 0, 1]);
+  });
 });
+
+test.each([
+  ["A1:A3", "bar", [3]],
+  ["A2:A4", "pie", [1, 1]],
+  ["A1:A5", "pie", [3, 2]],
+])(
+  "Single column with different type of data: respect number > boolean > text priority",
+  (range, expectedType: "bar" | "pie", result) => {
+    const model = createModelFromGrid({
+      A1: "3",
+      A2: "TRUE",
+      A3: "FALSE",
+      A4: "Text1",
+      A5: "2",
+    });
+    createChart(
+      model,
+      {
+        ...toChartDataSource({ dataSets: [{ dataRange: range }], dataSetsHaveTitle: false }),
+        type: expectedType,
+      },
+      "1"
+    );
+
+    const data = getChartConfiguration(model, "1").data;
+    expect(data.datasets[0].data).toEqual(result);
+  }
+);
 
 test("Duplicating a sheet dispatches CREATE_CHART for each chart", () => {
   createChart(
