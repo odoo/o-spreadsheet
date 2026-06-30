@@ -340,6 +340,7 @@ import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
 import { TopBar } from "./components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "./components/top_bar/top_bar_tools_registry";
+import { PositionMap } from "./helpers/cells/position_map";
 import { parseFormat } from "./helpers/format/format_parser";
 import { replaceSymbolInFormula } from "./helpers/formulas";
 import {
@@ -429,6 +430,7 @@ export const helpers = {
   collapseHierarchicalDisplayName,
   getCanonicalSymbolName,
   fuzzyLookup,
+  PositionMap,
   replaceSymbolInFormula,
 };
 
