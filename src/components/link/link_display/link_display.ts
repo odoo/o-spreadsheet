@@ -1,17 +1,15 @@
 import { LINK_COLOR } from "../../../constants";
 import { toXC } from "../../../helpers/coordinates";
 import { openLink, urlRepresentation } from "../../../helpers/links";
-import { useStore } from "../../../store_engine/store_hooks";
 import type { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { EvaluatedCell } from "../../../types/cells";
 import { Link } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-import { Store } from "../../../types/store_engine";
 import { isMiddleClickOrCtrlClick } from "../../helpers/dom_helpers";
-import { CellPopoverStore } from "../../popover/cell_popover_store";
 
-import { props } from "@odoo/owl";
+import { plugin, props } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
+import { CellPopoverPlugin } from "../../owl_plugins/cell_popover_plugin";
 import { types } from "../../props_validation";
 
 export class LinkDisplay extends Component<SpreadsheetChildEnv> {
@@ -22,11 +20,7 @@ export class LinkDisplay extends Component<SpreadsheetChildEnv> {
     onClosed: types.function().optional(),
   });
 
-  protected cellPopovers!: Store<CellPopoverStore>;
-
-  setup() {
-    this.cellPopovers = useStore(CellPopoverStore);
-  }
+  protected cellPopovers = plugin(CellPopoverPlugin);
 
   get cell(): EvaluatedCell {
     const { col, row } = this.props.cellPosition;

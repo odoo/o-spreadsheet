@@ -1,4 +1,4 @@
-import { props, signal, toRaw } from "@odoo/owl";
+import { plugin, props, signal, toRaw } from "@odoo/owl";
 import { Component, useChildSubEnv } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
@@ -6,7 +6,6 @@ import { Pixel } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
-import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { cssPropertiesToCss } from "../helpers/css";
@@ -15,7 +14,8 @@ import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useTouchHandlers } from "../helpers/touch_handlers_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { getZoomedRect } from "../helpers/zoom";
-import { CellPopoverStore } from "../popover/cell_popover_store";
+import { CellPopoverPlugin } from "../owl_plugins/cell_popover_plugin";
+import { DelayedHoveredCellPlugin } from "../owl_plugins/delayed_hovered_cell_plugin";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
 import { HorizontalScrollBar } from "../scrollbar/scrollbar_horizontal";
@@ -36,18 +36,17 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
     getGridSize: types.function<() => DOMDimension>(),
   });
 
-  protected cellPopovers!: Store<CellPopoverStore>;
+  protected cellPopovers = plugin(CellPopoverPlugin);
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
-  hoveredCell!: Store<DelayedHoveredCellStore>;
+  private hoveredCell = plugin(DelayedHoveredCellPlugin);
   clickableCellsStore!: Store<ClickableCellsStore>;
 
   private gridRef = signal<HTMLElement | null>(null);
   private canvasRef = signal<HTMLElement | null>(null);
 
   setup() {
-    this.hoveredCell = useStore(DelayedHoveredCellStore);
     this.clickableCellsStore = useStore(ClickableCellsStore);
 
     const layers = OrderedLayers().filter((layer) => layer !== "Headers");
@@ -70,7 +69,6 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
       this.moveCanvas(deltaX, deltaY);
       this.hoveredCell.clear();
     });
-    this.cellPopovers = useStore(CellPopoverStore);
 
     useTouchHandlers(this.gridRef, {
       updateScroll: this.moveCanvas.bind(this),
