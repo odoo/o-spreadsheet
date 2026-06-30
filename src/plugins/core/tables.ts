@@ -47,8 +47,12 @@ interface TableState {
 }
 
 export class TablePlugin extends CorePlugin<TableState> implements TableState {
-  static getters = ["getCoreTable", "getCoreTables", "getCoreTableMatchingTopLeft"] as const;
-
+  static getters = [
+    "getCoreTable",
+    "getCoreTables",
+    "getCoreTableMatchingTopLeft",
+    "getCoreTableById",
+  ] as const;
   readonly tables: Record<UID, Record<TableId, CoreTable | undefined>> = {};
   readonly nextTableId: number = 1;
 
@@ -194,6 +198,10 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
 
   getCoreTable({ sheetId, col, row }: CellPosition): CoreTable | undefined {
     return this.getCoreTables(sheetId).find((table) => isInside(col, row, table.range.zone));
+  }
+
+  getCoreTableById(sheetId: UID, tableId: UID): CoreTable | undefined {
+    return this.tables[sheetId]?.[tableId];
   }
 
   private getTablesOverlappingZones(sheetId: UID, zones: Zone[]): CoreTable[] {

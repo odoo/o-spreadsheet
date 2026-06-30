@@ -1747,9 +1747,10 @@ describe("Menu Item actions", () => {
       test("Edit -> Table (topbar)", async () => {
         const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
         createTable(model, "A1:A5");
+        const table = model.getters.getFirstTableInSelection();
         expect(getName(editTablePath, env)).toBe("Edit table");
         await doAction(editTablePath, env);
-        expect(spyOpenSidePanel).toHaveBeenCalledWith("TableSidePanel", {});
+        expect(spyOpenSidePanel).toHaveBeenCalledWith("TableSidePanel", { table });
       });
 
       test("Edit -> Table (topbar) is not visible if there is no table in the selection", () => {
@@ -1761,9 +1762,10 @@ describe("Menu Item actions", () => {
       test("Edit table (cellRegistry)", async () => {
         const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
         createTable(model, "A1:A5");
+        const table = model.getters.getFirstTableInSelection();
         expect(getName(["edit_table"], env, cellMenuRegistry)).toBe("Edit table");
         await doAction(["edit_table"], env, cellMenuRegistry);
-        expect(spyOpenSidePanel).toHaveBeenCalledWith("TableSidePanel", {});
+        expect(spyOpenSidePanel).toHaveBeenCalledWith("TableSidePanel", { table });
       });
 
       test("Delete table (cellRegistry)", async () => {
