@@ -21,6 +21,8 @@ export class DataStatistics extends Component<SpreadsheetChildEnv> {
 
   private menuState = proxy<MenuState>({ isOpen: false, anchorRect: null, menuItems: [] });
 
+  private openDescriptionKey = proxy({ value: "" });
+
   getScorecardDefinition(stat: { name: string; formula: string }) {
     return {
       title: { text: stat.name },
@@ -35,6 +37,10 @@ export class DataStatistics extends Component<SpreadsheetChildEnv> {
 
   startDragAndDrop(stat: { name: string; formula: string }, ev: MouseEvent) {
     startChartDragAndDrop(this.env, this.getScorecardDefinition(stat), ev);
+  }
+
+  toggleDescription(key: string) {
+    this.openDescriptionKey.value = this.openDescriptionKey.value === key ? "" : key;
   }
 
   async copyFormulaToClipboard(formula: string) {

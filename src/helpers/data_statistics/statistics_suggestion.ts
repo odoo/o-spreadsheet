@@ -3,6 +3,7 @@ import { CellValueType } from "../../types/cells";
 import { Getters } from "../../types/getters";
 import { ColumnAnalysis } from "../data_analysis";
 import { zoneToXc } from "../zones";
+import { interpretAverage } from "./numbers_statistics";
 import { item, literalForFormula, StatGroup } from "./statistics_items";
 
 /**
@@ -18,6 +19,32 @@ function uniqueValues(col: ColumnAnalysis): (string | number | boolean)[] {
     uniqueValues.add(cell.value as string | number | boolean);
   }
   return [...uniqueValues].sort();
+}
+
+/** Pattern A — Single number (or percentage) column: min, max, sum, average. */
+function statsForNumberColumn(getters: Getters, sheetId: string, range: string): StatGroup[] {
+  const items = [
+    item(getters, sheetId, _t("Min"), `=MIN(${range})`),
+    item(getters, sheetId, _t("Max"), `=MAX(${range})`),
+    item(getters, sheetId, _t("Sum"), `=SUM(${range})`),
+    item(getters, sheetId, _t("Median"), `=MEDIAN(${range})`),
+    item(
+      getters,
+      sheetId,
+      _t("Average"),
+      `=AVERAGE(${range})`,
+      _t("Average of all non-empty values."),
+      interpretAverage,
+      [
+        `=MEDIAN(${range})`,
+        `=SKEW(${range})`,
+        `=STDEV(${range})`,
+        `=SUMPRODUCT(--(${range} > (QUARTILE.INC(${range}, 3) + 1.5 * (QUARTILE.INC(${range}, 3) - QUARTILE.INC(${range}, 1)))))`,
+        `=SUMPRODUCT(--(${range} < (QUARTILE.INC(${range}, 1) - 1.5 * (QUARTILE.INC(${range}, 3) - QUARTILE.INC(${range}, 1)))))`,
+      ]
+    ),
+  ];
+  return [{ items }];
 }
 
 /** Pattern C — Single categorical column: count per category. */
@@ -46,6 +73,7 @@ function sectionsForSingleColumn(
       return statsForCategoricalColumn(getters, sheetId, col, range);
     case "number":
     case "percentage":
+      return statsForNumberColumn(getters, sheetId, range);
     case "date":
     case "label":
     case "boolean":
