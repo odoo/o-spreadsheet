@@ -1,18 +1,12 @@
 import { Registry } from "../registries/registry";
-import { AddFunctionDescription, ComputeFunction, FunctionDescription } from "../types/functions";
-import { FunctionResultObject, Matrix } from "../types/misc";
+import { AddFunctionDescription, FunctionDescription } from "../types/functions";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
-import { createComputeFunction } from "./create_compute_function";
 
 import { _t } from "../translation";
 
 const functionNameRegex = /^[A-Z0-9\_\.]+$/;
 
 export class FunctionRegistry extends Registry<FunctionDescription> {
-  mapping: {
-    [key: string]: ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject>;
-  } = {};
-
   add(name: string, addDescr: AddFunctionDescription) {
     name = name.toUpperCase();
     if (name in this.content) {
@@ -33,7 +27,6 @@ export class FunctionRegistry extends Registry<FunctionDescription> {
     }
     const descr = addMetaInfoFromArg(name, addDescr);
     validateArguments(descr);
-    this.mapping[name] = createComputeFunction(descr);
     super.replace(name, descr);
     return this;
   }

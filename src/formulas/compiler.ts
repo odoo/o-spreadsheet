@@ -1,4 +1,5 @@
 import { argTargeting } from "../functions/arguments";
+import { createComputeFunction } from "../functions/create_compute_function";
 import { functionRegistry } from "../functions/function_registry";
 import { canBeNamedRangeToken } from "../helpers/formulas";
 import { concat, unquote } from "../helpers/misc";
@@ -6,6 +7,7 @@ import { parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
 import { CoreGetters } from "../types/core_getters";
 import { BadExpressionError, EvaluationError, UnknownFunctionError } from "../types/errors";
+import { ComputeFunction } from "../types/functions";
 import { DEFAULT_LOCALE } from "../types/locale";
 import {
   ApplyRangeChange,
@@ -55,6 +57,7 @@ export const UNARY_OPERATOR_MAP = {
 
 interface ICompiledFormula {
   execute: FormulaToExecute;
+  computeFunctions: ComputeFunction[];
   tokens: Token[];
   dependencies: string[];
   isBadExpression: boolean;
@@ -70,6 +73,10 @@ const NO_REAL_VALUE = "__NO_REAL_VALUE__";
 // structural function.
 // It is only exported for testing purposes
 export const functionCache: { [key: string]: FormulaToExecute } = {};
+
+export const computeFunctionsCache: {
+  [key: string]: ComputeFunction[];
+} = {};
 
 const collator = new Intl.Collator("en", { sensitivity: "accent" });
 
@@ -91,7 +98,8 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
     dependencies: Range[],
     public readonly isBadExpression: boolean,
     public readonly normalizedFormula: string,
-    public readonly execute: FormulaToExecute
+    public readonly execute: FormulaToExecute,
+    public readonly computeFunctions: ComputeFunction[]
   ) {
     this.hasDependencies = dependencies?.length > 0;
     this.tokens.forEach((t) => {
@@ -227,7 +235,8 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
         newDependencies,
         this.isBadExpression,
         compilationCacheKey(tokenChanges?.newTokens || this.tokens),
-        this.execute
+        this.execute,
+        this.computeFunctions
       );
     }
     return this;
@@ -282,7 +291,8 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
       dependencies,
       base.isBadExpression,
       base.normalizedFormula,
-      base.execute
+      base.execute,
+      base.computeFunctions
     );
   }
 
@@ -304,7 +314,8 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
       dependencies,
       base.isBadExpression,
       base.normalizedFormula,
-      base.execute
+      base.execute,
+      base.computeFunctions
     );
   }
 
@@ -325,7 +336,8 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
       base.rangeDependencies,
       base.isBadExpression,
       base.normalizedFormula,
-      compiledFormula.execute
+      compiledFormula.execute,
+      compiledFormula.computeFunctions
     );
   }
 
@@ -344,7 +356,8 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
       params.dependencies.map((xc: string) => getters.getRangeFromSheetXC(sheetId, xc)),
       params.isBadExpression,
       params.normalizedFormula,
-      params.execute
+      params.execute,
+      params.computeFunctions
     );
   }
 }
@@ -361,6 +374,8 @@ export type SerializedCompiledFormula = {
   isBadExpression: boolean;
   normalizedFormula: string;
 };
+
+type CompiledArg = { argAST: FunctionCode; toVectorize: boolean };
 
 // -----------------------------------------------------------------------------
 // COMPILER
@@ -381,6 +396,7 @@ function compileTokens(tokens: Token[]): ICompiledFormula {
       execute: function () {
         return error;
       },
+      computeFunctions: [],
       isBadExpression: true,
       normalizedFormula: tokens.map((t) => t.value).join(""),
     };
@@ -397,6 +413,7 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
     let stringCount = 0;
     let numberCount = 0;
     let dependencyCount = 0;
+    const computeFunctions: ComputeFunction[] = [];
 
     if (ast.type === "BIN_OPERATION" && ast.value === ":") {
       throw new BadExpressionError(_t("Invalid formula"));
@@ -414,11 +431,13 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
       "range", // same as above, but guarantee that the result is in the form of a range
       "getSymbolValue",
       "ctx",
+      "computeFunctions",
       code.toString()
     );
 
     // @ts-ignore
     functionCache[cacheKey] = baseFunction;
+    computeFunctionsCache[cacheKey] = computeFunctions;
 
     /**
      * This function compile the function arguments. It is mostly straightforward,
@@ -428,7 +447,7 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
      * the cell value into a range. This allow the grid model to differentiate
      * between a cell value and a non cell value.
      */
-    function compileFunctionArgs(ast: ASTFuncall): FunctionCode[] {
+    function compileFunctionArgs(ast: ASTFuncall): CompiledArg[] {
       const { args } = ast;
       const functionName = ast.value.toUpperCase();
       const functionDefinition = functions[functionName];
@@ -439,18 +458,25 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
 
       assertEnoughArgs(ast);
 
-      const compiledArgs: FunctionCode[] = [];
+      const compiledArgs: CompiledArg[] = [];
 
       const argToFocus = argTargeting(functionDefinition, args.length);
 
       for (let i = 0; i < args.length; i++) {
         const argDefinition = functionDefinition.args[argToFocus[i].index];
         const currentArg = args[i];
-        const argTypes = argDefinition.type || [];
-
-        const hasRange = argTypes.some((t) => isRangeType(t));
-
-        compiledArgs.push(compileAST(currentArg, hasRange));
+        const argAST = compileAST(currentArg, argDefinition.acceptMatrix);
+        if (argDefinition.acceptMatrixOnly && !argAST.returnsMatrix) {
+          throw new BadExpressionError(
+            _t(
+              "Function %s expects the parameter '%s' to be reference to a cell or range.",
+              functionName,
+              (i + 1).toString()
+            )
+          );
+        }
+        const toVectorize = !argDefinition.acceptMatrix && argAST.returnsMatrix;
+        compiledArgs.push({ argAST, toVectorize });
       }
 
       return compiledArgs;
@@ -461,7 +487,7 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
      * executable code for the evaluation of the cells content. It uses a cache to
      * not reevaluate identical code structures.
      */
-    function compileAST(ast: AST, hasRange = false): FunctionCode {
+    function compileAST(ast: AST, acceptMatrix = false): FunctionCode {
       const code = new FunctionCodeBuilder(scope);
       if (ast.debug) {
         code.append(jsStr`debugger;`);
@@ -475,62 +501,60 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
         case "STRING":
           return code.return(jsStr`this.literalValues.strings[${stringCount++}]`);
         case "REFERENCE":
+          const isRange = ast.value.includes(":") || acceptMatrix;
           return code.return(
-            jsStr`${
-              ast.value.includes(":") || hasRange ? jsStr`range` : jsStr`ref`
-            }(deps[${dependencyCount++}])`
+            jsStr`${isRange ? jsStr`range` : jsStr`ref`}(deps[${dependencyCount++}])`,
+            isRange
           );
         case "FUNCALL":
-          const args = compileFunctionArgs(ast).map((arg) => arg.assignResultToVariable());
+          const compiledArgs = compileFunctionArgs(ast);
+          const args = compiledArgs.map((compileArg) => compileArg.argAST.assignResultToVariable());
           code.append(...args);
           const fnName = ast.value.toUpperCase();
           if (!Object.hasOwn(functions, fnName)) {
             throw new Error(`Unknown function: "${fnName}"`);
           }
           const jsFnName = dangerouslyCreateJsStr(fnName); // validated with known functions
-          return code.return(jsStr`ctx['${jsFnName}'](${args.map((arg) => arg.returnExpression)})`);
+          const funCallIndex = computeFunctions.length;
+          const vectorizedArgsIndices: number[] = [];
+          for (let i = 0; i < compiledArgs.length; i++) {
+            if (compiledArgs[i].toVectorize) {
+              vectorizedArgsIndices.push(i);
+            }
+          }
+          computeFunctions.push(
+            createComputeFunction(functions[fnName], args.length, vectorizedArgsIndices)
+          );
+
+          const returnsMatrix =
+            functions[fnName].computeArray !== undefined || vectorizedArgsIndices.length > 0;
+          const comment = jsStr`// ${jsFnName}`;
+          const parameters = [jsStr`ctx`, ...args.map((arg) => arg.returnExpression)];
+          return code.return(
+            jsStr`computeFunctions[${funCallIndex}](${parameters}); ${comment}`,
+            returnsMatrix
+          );
         case "ARRAY": {
           // a literal array is compiled into function calls
-          const arrayFunctionCall: ASTFuncall = {
-            type: "FUNCALL",
-            value: "ARRAY.LITERAL",
-            args: ast.value.map((row) => ({
-              type: "FUNCALL",
-              value: "ARRAY.ROW",
-              args: row,
-              tokenStartIndex: 0,
-              tokenEndIndex: 0,
-            })),
-            tokenStartIndex: 0,
-            tokenEndIndex: 0,
-          };
-          return compileAST(arrayFunctionCall);
+          return compileAST(
+            toFunCallAst(
+              "ARRAY.LITERAL",
+              ast.value.map((row) => toFunCallAst("ARRAY.ROW", row))
+            )
+          );
         }
         case "UNARY_OPERATION": {
-          if (!Object.hasOwn(UNARY_OPERATOR_MAP, ast.value)) {
-            throw new Error(`Unknown operator: "${ast.value}"`);
-          }
-          const fnName = dangerouslyCreateJsStr(UNARY_OPERATOR_MAP[ast.value]); // validated with known operators
-          const operand = compileAST(ast.operand, ast.value === "#").assignResultToVariable(); // hasRange is true to avoid vectorization of SPILLED.RANGE
-          code.append(operand);
-          return code.return(jsStr`ctx['${fnName}'](${operand.returnExpression})`);
+          return compileAST(toFunCallAst(UNARY_OPERATOR_MAP[ast.value], [ast.operand]));
         }
         case "BIN_OPERATION": {
-          if (!Object.hasOwn(OPERATOR_MAP, ast.value)) {
-            throw new Error(`Unknown operator: "${ast.value}"`);
-          }
-          const fnName = dangerouslyCreateJsStr(OPERATOR_MAP[ast.value]); // validated with known operators
-          const left = compileAST(ast.left, false).assignResultToVariable();
-          const right = compileAST(ast.right, false).assignResultToVariable();
-          code.append(left);
-          code.append(right);
-          return code.return(
-            jsStr`ctx['${fnName}'](${left.returnExpression}, ${right.returnExpression})`
-          );
+          return compileAST(toFunCallAst(OPERATOR_MAP[ast.value], [ast.left, ast.right]));
         }
         case "SYMBOL":
           const symbolIndex = symbols.indexOf(ast.value);
-          return code.return(jsStr`getSymbolValue(this.symbols[${symbolIndex}], ${hasRange})`);
+          return code.return(
+            jsStr`getSymbolValue(this.symbols[${symbolIndex}], ${acceptMatrix})`,
+            true
+          );
         case "EMPTY":
           return code.return(jsStr`undefined`);
       }
@@ -538,6 +562,7 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
   }
   const compiledFormula: ICompiledFormula = {
     execute: functionCache[cacheKey],
+    computeFunctions: computeFunctionsCache[cacheKey],
     dependencies,
     literalValues,
     symbols,
@@ -684,6 +709,12 @@ function assertEnoughArgs(ast: ASTFuncall) {
   }
 }
 
-function isRangeType(type: string) {
-  return type.startsWith("RANGE");
+function toFunCallAst(fnName: string, args: AST[]): ASTFuncall {
+  return {
+    type: "FUNCALL",
+    value: fnName,
+    args: args,
+    tokenStartIndex: 0,
+    tokenEndIndex: 0,
+  };
 }

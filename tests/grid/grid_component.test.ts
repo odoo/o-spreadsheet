@@ -1040,7 +1040,9 @@ describe("Grid component", () => {
       let value = 1;
       addToRegistry(functionRegistry, "GETVALUE", {
         description: "Get value",
-        compute: () => value,
+        compute: () => {
+          return { value };
+        },
         args: [],
       });
       setCellContent(model, "A1", "=GETVALUE()");
