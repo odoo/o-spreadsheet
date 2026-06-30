@@ -330,3 +330,198 @@ export function getMovingAverageValues(
   }
   return values;
 }
+
+// Lanczos approximation of the log-gamma function. The implemented approximation uses g=7 and the
+// partial fraction coefficients for he A_g function. The p values are the ones computed by P. Godfrey
+// in 2001. See https://en.wikipedia.org/wiki/Lanczos_approximation
+export function lnGamma(z: number): number {
+  const g = 7;
+  const coeffs = [
+    0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
+    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
+    1.5056327351493116e-7,
+  ];
+  if (z < 0.5) {
+    return Math.log(Math.PI / Math.sin(Math.PI * z)) - lnGamma(1 - z);
+  }
+  z -= 1;
+  let x = coeffs[0];
+  for (let i = 1; i <= g + 1; i++) {
+    x += coeffs[i] / (z + i);
+  }
+  const t = z + g + 0.5;
+  return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+}
+
+// Upper regularized incomplete gamma Q(a, x) = 1 - P(a, x) — used by CHISQ.DIST.RT
+// See Numerical Recipes, section 6.2
+export function regularizedGammaUpper(a: number, x: number): number {
+  if (x <= 0) {
+    return 1;
+  }
+  if (x < a + 1) {
+    // Use series expansion for better convergence when x is small compared to a
+    let term = 1 / a,
+      sum = term;
+    for (let n = 1; n < 300; n++) {
+      term *= x / (a + n);
+      sum += term;
+      if (Math.abs(term) < 1e-15 * sum) {
+        break;
+      }
+    }
+    return 1 - sum * Math.exp(-x + a * Math.log(x) - lnGamma(a));
+  }
+  // Use continued fraction expansion for better convergence when x is large compared to a
+  const fpMin = 1e-300;
+  let b = x + 1 - a,
+    c = 1 / fpMin,
+    d = 1 / b,
+    h = d;
+  for (let i = 1; i <= 300; i++) {
+    const an = -i * (i - a);
+    b += 2;
+    d = an * d + b;
+    if (Math.abs(d) < fpMin) {
+      d = fpMin;
+    }
+    c = b + an / c;
+    if (Math.abs(c) < fpMin) {
+      c = fpMin;
+    }
+    d = 1 / d;
+    const del = d * c;
+    h *= del;
+    if (Math.abs(del - 1) < 1e-12) {
+      break;
+    }
+  }
+  return Math.exp(-x + a * Math.log(x) - lnGamma(a)) * h;
+}
+
+// Regularized incomplete beta I_x(a, b) — used by T.TEST and F.TEST
+// See Numerical Recipes, section 6.4
+export function regularizedBeta(x: number, a: number, b: number): number {
+  if (x <= 0) {
+    return 0;
+  } else if (x >= 1) {
+    return 1;
+  }
+  const lbeta = lnGamma(a) + lnGamma(b) - lnGamma(a + b);
+  const front = Math.exp(Math.log(x) * a + Math.log(1 - x) * b - lbeta);
+  if (x < (a + 1) / (a + b + 2)) {
+    return (front * betaContinuedFraction(x, a, b)) / a;
+  } else {
+    return 1 - (front * betaContinuedFraction(1 - x, b, a)) / b;
+  }
+}
+
+function betaContinuedFraction(x: number, a: number, b: number): number {
+  const fpMin = 1e-300,
+    eps = 3e-12;
+  const qab = a + b,
+    qap = a + 1,
+    qam = a - 1;
+  let c = 1,
+    d = 1 - (qab * x) / qap;
+  if (Math.abs(d) < fpMin) {
+    d = fpMin;
+  }
+  d = 1 / d;
+  let h = d;
+  for (let m = 1; m <= 300; m++) {
+    const m2 = 2 * m;
+    let aa = (m * (b - m) * x) / ((qam + m2) * (a + m2));
+    d = 1 + aa * d;
+    if (Math.abs(d) < fpMin) {
+      d = fpMin;
+    }
+    c = 1 + aa / c;
+    if (Math.abs(c) < fpMin) {
+      c = fpMin;
+    }
+    d = 1 / d;
+    h *= d * c;
+    aa = (-(a + m) * (qab + m) * x) / ((a + m2) * (qap + m2));
+    d = 1 + aa * d;
+    if (Math.abs(d) < fpMin) {
+      d = fpMin;
+    }
+    c = 1 + aa / c;
+    if (Math.abs(c) < fpMin) {
+      c = fpMin;
+    }
+    d = 1 / d;
+    const del = d * c;
+    h *= del;
+    if (Math.abs(del - 1) < eps) {
+      break;
+    }
+  }
+  return h;
+}
+
+// Inverse normal CDF (Acklam's rational approximation) — used by CONFIDENCE.NORM
+// See https://stackedboxes.org/2017/05/01/acklams-normal-quantile-function/
+export function normInv(p: number): number {
+  if (p <= 0) {
+    return -Infinity;
+  } else if (p >= 1) {
+    return Infinity;
+  }
+  const a = [
+    -3.969683028665376e1, 2.209460984245205e2, -2.759285104469687e2, 1.38357751867269e2,
+    -3.066479806614716e1, 2.506628277459239,
+  ];
+  const b = [
+    -5.447609879822406e1, 1.615858368580409e2, -1.556989798598866e2, 6.680131188771972e1,
+    -1.328068155288572e1,
+  ];
+  const c = [
+    -7.784894002430293e-3, -3.223964580411365e-1, -2.400758277161838, -2.549732539343734,
+    4.374664141464968, 2.938163982698783,
+  ];
+  const d = [7.784695709041462e-3, 3.224671290700398e-1, 2.445134137142996, 3.754408661907416];
+  const pLow = 0.02425,
+    pHigh = 1 - pLow;
+  if (p < pLow) {
+    const q = Math.sqrt(-2 * Math.log(p));
+    return (
+      (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) /
+      ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1)
+    );
+  }
+  if (p <= pHigh) {
+    const q = p - 0.5,
+      r = q * q;
+    return (
+      ((((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q) /
+      (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1)
+    );
+  }
+  const q = Math.sqrt(-2 * Math.log(1 - p));
+  return (
+    -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) /
+    ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1)
+  );
+}
+
+// Two-tailed p-value of t-distribution: I_{df/(df+t²)}(df/2, 1/2)
+export function tDistTwoTail(t: number, df: number): number {
+  return regularizedBeta(df / (df + t * t), df / 2, 0.5);
+}
+
+// Critical value for two-tailed t-test at given alpha and df (bisection on tDistTwoTail)
+export function tInv2T(alpha: number, df: number): number {
+  let lo = 0,
+    hi = 1e9;
+  for (let i = 0; i < 100; i++) {
+    const mid = (lo + hi) / 2;
+    if (tDistTwoTail(mid, df) > alpha) {
+      lo = mid;
+    } else {
+      hi = mid;
+    }
+  }
+  return (lo + hi) / 2;
+}
