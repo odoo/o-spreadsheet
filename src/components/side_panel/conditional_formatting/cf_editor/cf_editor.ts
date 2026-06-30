@@ -13,7 +13,7 @@ import {
   isColorValid,
   rangeReference,
 } from "../../../../helpers";
-import { canonicalizeCFRule } from "../../../../helpers/locale";
+import { canonicalizeContent, localizeContent } from "../../../../helpers/locale";
 import { cycleFixedReference } from "../../../../helpers/reference_type";
 import { _t } from "../../../../translation";
 import {
@@ -252,11 +252,10 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       return [CommandResult.InvalidRange];
     }
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const locale = this.env.model.getters.getLocale();
     const rule = newCf.rule || this.getEditedRule(this.state.currentCFType);
     const result = this.env.model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        rule: canonicalizeCFRule(rule, locale),
+        rule,
         id: this.props.editedCf.id,
       },
       ranges: ranges.map((xc) => this.env.model.getters.getRangeDataFromXc(sheetId, xc)),
@@ -370,6 +369,11 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
 
   private closeMenus() {
     this.state.openedMenu = undefined;
+  }
+
+  localizeValue(value: string | undefined): string {
+    const locale = this.env.model.getters.getLocale();
+    return value ? localizeContent(value, locale) : "";
   }
 
   /*****************************************************************************
@@ -505,7 +509,9 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   }
 
   updateThresholdValue(threshold: "minimum" | "midpoint" | "maximum", value: string) {
-    this.state.rules.colorScale[threshold]!.value = value;
+    const locale = this.env.model.getters.getLocale();
+    const canonicalizedValue = canonicalizeContent(value, locale);
+    this.state.rules.colorScale[threshold]!.value = canonicalizedValue;
     this.updateConditionalFormat({ rule: this.state.rules.colorScale });
   }
 
@@ -567,7 +573,9 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     inflectionPoint: "lowerInflectionPoint" | "upperInflectionPoint",
     value: string
   ) {
-    this.state.rules.iconSet[inflectionPoint].value = value;
+    const locale = this.env.model.getters.getLocale();
+    const canonicalizedValue = canonicalizeContent(value, locale);
+    this.state.rules.iconSet[inflectionPoint].value = canonicalizedValue;
     this.updateConditionalFormat({ rule: this.state.rules.iconSet });
   }
 

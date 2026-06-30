@@ -1,5 +1,6 @@
 import { CellPosition, CellValue, Getters } from "../..";
 import { positions } from "../../helpers";
+import { localizeContent } from "../../helpers/locale";
 import { autoCompleteProviders } from "./auto_complete_registry";
 
 autoCompleteProviders.add("dataValidation", {
@@ -20,7 +21,9 @@ autoCompleteProviders.add("dataValidation", {
     }));
   },
   selectProposal(tokenAtCursor, value) {
-    this.composer.setCurrentContent(value);
+    const locale = this.getters.getLocale();
+    const localizedValue = localizeContent(value, locale) ?? "";
+    this.composer.setCurrentContent(localizedValue);
     this.composer.stopEdition();
   },
 });
@@ -39,7 +42,11 @@ function getProposedValues(
 
   let values: { label: string; value: CellValue }[] = [];
   if (rule.criterion.type === "isValueInList") {
-    values = rule.criterion.values.map((value) => ({ label: value, value }));
+    const locale = getters.getLocale();
+    values = rule.criterion.values.map((value) => {
+      const localizedValue = localizeContent(value, locale);
+      return { label: localizedValue, value };
+    });
   } else {
     const labelsSet = new Set<string>();
     const range = getters.getRangeFromSheetXC(position.sheetId, rule.criterion.values[0]);

@@ -1,7 +1,6 @@
 import { Component, ComponentConstructor, useState } from "@odoo/owl";
 import { Action } from "../../../../actions/action";
 import { zoneToXc } from "../../../../helpers";
-import { canonicalizeContent } from "../../../../helpers/locale";
 import { dataValidationEvaluatorRegistry } from "../../../../registries/data_validation_registry";
 import {
   AddDataValidationCommand,
@@ -89,15 +88,13 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
 
   get dispatchPayload(): Omit<AddDataValidationCommand, "type"> {
     const rule = { ...this.state.rule, ranges: undefined };
-    const locale = this.env.model.getters.getLocale();
 
     const criterion = rule.criterion;
     const criterionEvaluator = dataValidationEvaluatorRegistry.get(criterion.type);
 
     const values = criterion.values
       .slice(0, criterionEvaluator.numberOfValues(criterion))
-      .filter((value) => value && value.trim() !== "")
-      .map((value) => canonicalizeContent(value, locale));
+      .filter((value) => value && value.trim() !== "");
     rule.criterion = { ...criterion, values };
     return {
       sheetId: this.editingSheetId,

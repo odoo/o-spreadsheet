@@ -1,6 +1,5 @@
 import { functionRegistry } from "../functions";
 import { isDefined } from "../helpers";
-import { localizeDataValidationRule } from "../helpers/locale";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { _t } from "../translation";
 import { ActionBuilder, ActionSpec } from "./action";
@@ -313,7 +312,7 @@ export const insertDropdown: ActionSpec = {
       return;
     }
     env.openSidePanel("DataValidationEditor", {
-      rule: localizeDataValidationRule(rule, env.model.getters.getLocale()),
+      rule,
       onExit: () => {
         env.openSidePanel("DataValidation");
       },

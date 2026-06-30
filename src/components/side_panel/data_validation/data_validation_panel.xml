@@ -4,10 +4,7 @@
       <t t-if="state.mode === 'list'">
         <div class="o-dv-preview-list">
           <t t-foreach="validationRules" t-as="rule" t-key="rule.id">
-            <DataValidationPreview
-              rule="localizeDVRule(rule)"
-              onClick="() => this.onPreviewClick(rule.id)"
-            />
+            <DataValidationPreview rule="rule" onClick="() => this.onPreviewClick(rule.id)"/>
           </t>
         </div>
         <div class="o-dv-add o-button-link p-4 float-end" t-on-click="addDataValidationRule">
@@ -15,7 +12,7 @@
         </div>
       </t>
       <t t-else="">
-        <DataValidationEditor rule="localizeDVRule(state.activeRule)" onExit.bind="onExitEditMode"/>
+        <DataValidationEditor rule="state.activeRule" onExit.bind="onExitEditMode"/>
       </t>
     </div>
   </t>

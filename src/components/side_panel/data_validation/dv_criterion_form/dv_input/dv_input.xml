@@ -6,7 +6,8 @@
           type="text"
           t-ref="input"
           t-on-input="onInputValueChanged"
-          t-att-value="props.value"
+          t-on-change="onInputValueConfirmed"
+          t-att-value="this.state.textInput"
           class="o-input"
           t-att-class="{
               'o-invalid border-danger position-relative': errorMessage,

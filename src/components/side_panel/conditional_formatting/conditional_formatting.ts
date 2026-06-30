@@ -1,5 +1,4 @@
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
-import { localizeCFRule } from "../../../helpers/locale";
 import { ConditionalFormat, SpreadsheetChildEnv, UID, Zone } from "../../../types";
 import { Section } from "../components/section/section";
 import { ConditionalFormattingEditor } from "./cf_editor/cf_editor";
@@ -71,10 +70,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
     const cfs = this.env.model.getters.getConditionalFormats(
       this.env.model.getters.getActiveSheetId()
     );
-    return cfs.map((cf) => ({
-      ...cf,
-      rule: localizeCFRule(cf.rule, this.env.model.getters.getLocale()),
-    }));
+    return cfs;
   }
 
   private switchToList() {
