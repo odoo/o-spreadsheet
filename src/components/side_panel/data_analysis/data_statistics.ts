@@ -39,11 +39,6 @@ export class DataStatistics extends Component<SpreadsheetChildEnv> {
     return this.store.section;
   }
 
-  onColChange(value: string) {
-    this.selectedCol.index = Number(value);
-    this.openDescriptionKey.value = "";
-  }
-
   toggleDescription(key: string) {
     this.openDescriptionKey.value = this.openDescriptionKey.value === key ? "" : key;
   }

@@ -3,7 +3,8 @@ import { CellValueType } from "../../types/cells";
 import { Getters } from "../../types/getters";
 import { ColumnAnalysis } from "../data_analysis";
 import { zoneToXc } from "../zones";
-import { item, literalForFormula, StatGroup, StatSection } from "./statistics_items";
+import { interpretAverage } from "./numbers_statistics";
+import { item, literalForFormula, StatGroup, StatItem, StatSection } from "./statistics_items";
 
 /**
  * Distinct values of a column, in first-seen order.
@@ -47,6 +48,31 @@ function columnTitle(col: ColumnAnalysis, indexInAll: number): string {
   }
 }
 
+/** Pattern A — Single number (or percentage) column: min, max, sum, average. */
+function statsForNumberColumn(getters: Getters, sheetId: string, range: string): StatItem[] {
+  return [
+    item(getters, sheetId, _t("Min"), `=MIN(${range})`),
+    item(getters, sheetId, _t("Max"), `=MAX(${range})`),
+    item(getters, sheetId, _t("Sum"), `=SUM(${range})`),
+    item(getters, sheetId, _t("Median"), `=MEDIAN(${range})`),
+    item(
+      getters,
+      sheetId,
+      _t("Average"),
+      `=AVERAGE(${range})`,
+      _t("Average of all non-empty values."),
+      interpretAverage,
+      [
+        `=MEDIAN(${range})`,
+        `=SKEW(${range})`,
+        `=STDEV(${range})`,
+        `=SUMPRODUCT(--(${range} > (QUARTILE.INC(${range}, 3) + 1.5 * (QUARTILE.INC(${range}, 3) - QUARTILE.INC(${range}, 1)))))`,
+        `=SUMPRODUCT(--(${range} < (QUARTILE.INC(${range}, 1) - 1.5 * (QUARTILE.INC(${range}, 3) - QUARTILE.INC(${range}, 1)))))`,
+      ]
+    ),
+  ];
+}
+
 /** Pattern C — Single categorical column: count per category. */
 function statsForCategoricalColumn(
   getters: Getters,
@@ -73,6 +99,11 @@ export function baseStatGroups(
       return [{ items: [commonStats] }, ...statsForCategoricalColumn(getters, sheetId, col, range)];
     case "number":
     case "percentage":
+      return [
+        {
+          items: [commonStats, ...statsForNumberColumn(getters, sheetId, range)],
+        },
+      ];
     case "date":
     case "label":
     case "boolean":
