@@ -1,0 +1,71 @@
+<templates>
+  <t t-name="o-spreadsheet-DataStatistics">
+    <Section class="'o-column-global-stats d-flex flex-column gap-1 pt-0'">
+      <!-- Column selector: only when there are multiple columns -->
+      <t t-if="this.store.perColSections.length > 1">
+        <Select
+          selectedValue="this.selectedColValue"
+          values="this.columnSelectOptions"
+          onChange.bind="this.onColChange"
+        />
+      </t>
+      <!-- Per-column stats for the active column -->
+      <t t-if="this.activeColSection">
+        <t t-if="this.store.perColSections.length === 1">
+          <div class="o-section-title">
+            <span t-out="this.activeColSection.title"/>
+            <span
+              class="text-muted ms-1 fw-normal small"
+              t-out="'(' + this.activeColSection.range + ')'"
+            />
+          </div>
+        </t>
+        <t t-foreach="this.activeColSection.groups" t-as="group" t-key="group_index">
+          <div
+            t-if="group.label"
+            class="o-stat-group-label text-muted small mt-2"
+            t-out="group.label"
+          />
+          <t t-foreach="group.items" t-as="stat" t-key="stat_index">
+            <t t-set="descKey" t-value="group_index + '-' + stat_index"/>
+            <div class="o-data-analysis-row d-flex align-items-center">
+              <div
+                class="o-stat-draggable d-flex flex-fill justify-content-between align-items-center"
+                t-on-pointerdown="(ev) => this.startDragAndDrop(stat, ev)">
+                <span class="text-muted" t-out="stat.name"/>
+                <span class="o-fw-bold" t-att-data-test-id="stat.name" t-out="stat.value"/>
+              </div>
+              <span
+                class="o-stat-copy-icon text-muted ms-2"
+                title="Copy formula to clipboard"
+                t-on-click="() => this.copyFormulaToClipboard(stat.formula)">
+                <t t-call="o-spreadsheet-Icon.CLIPBOARD"/>
+              </span>
+              <span
+                t-if="stat.description or stat.interpretation"
+                class="o-stat-info-icon text-muted"
+                t-att-class="{ 'active': this.openDescriptionKey.value === descKey }"
+                t-on-click="() => this.toggleDescription(descKey)">
+                <t t-call="o-spreadsheet-Icon.CIRCLE_INFO"/>
+              </span>
+            </div>
+            <div
+              t-if="(stat.description or stat.interpretation) and this.openDescriptionKey.value === descKey"
+              class="o-stat-detail pb-1">
+              <div
+                t-if="stat.interpretation"
+                class="o-stat-interpretation small fw-medium"
+                t-out="stat.interpretation"
+              />
+              <div
+                t-if="stat.description"
+                class="o-stat-description text-muted small"
+                t-out="stat.description"
+              />
+            </div>
+          </t>
+        </t>
+      </t>
+    </Section>
+  </t>
+</templates>
