@@ -1,0 +1,219 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`toBeCancelledBecause matches cancelled dispatch reasons 1`] = `
+"
+The command should have been cancelled:
+Expected: [32m["WillRemoveExistingMerge"][39m
+Received: [31m["CancelledForUnknownReason"][39m
+"
+`;
+
+exports[`toBeSuccessfullyDispatched can use not.toBeSuccessfullyDispatched 1`] = `"The command should not have been successfully dispatched"`;
+
+exports[`toBeSuccessfullyDispatched matches successful dispatch results 1`] = `
+"
+The command should have been successfully dispatched:
+CancelledReasons: [31m["CancelledForUnknownReason"][39m
+"
+`;
+
+exports[`toExport can use not.toExport 1`] = `
+"Diff: [32m- Not expected  - 1[39m
+[31m+ Received      + 1[39m
+
+[33m@@ -3,11 +3,11 @@[39m
+[2m    "customTableStyles": Object {},[22m
+[2m    "formats": Object {},[22m
+[2m    "namedRanges": Object {},[22m
+[2m    "pivotNextId": 1,[22m
+[2m    "pivots": Object {},[22m
+[32m-   "revisionId": "random-id",[39m
+[31m+   "revisionId": "mock-uuidv4-2",[39m
+[2m    "settings": Object {[22m
+[2m      "locale": Object {[22m
+[2m        "code": "en_US",[22m
+[2m        "dateFormat": "m/d/yyyy",[22m
+[2m        "decimalSeparator": ".",[22m"
+`;
+
+exports[`toExport ignores the revision id and compares exported data 1`] = `
+"Diff: [32m- Expected  - 2[39m
+[31m+ Received  + 4[39m
+
+[33m@@ -3,11 +3,11 @@[39m
+[2m    "customTableStyles": Object {},[22m
+[2m    "formats": Object {},[22m
+[2m    "namedRanges": Object {},[22m
+[2m    "pivotNextId": 1,[22m
+[2m    "pivots": Object {},[22m
+[32m-   "revisionId": "START_REVISION",[39m
+[31m+   "revisionId": "mock-uuidv4-2",[39m
+[2m    "settings": Object {[22m
+[2m      "locale": Object {[22m
+[2m        "code": "en_US",[22m
+[2m        "dateFormat": "m/d/yyyy",[22m
+[2m        "decimalSeparator": ".",[22m
+[33m@@ -20,11 +20,13 @@[39m
+[2m    },[22m
+[2m    "sheets": Array [[22m
+[2m      Object {[22m
+[2m        "areGridLinesVisible": true,[22m
+[2m        "borders": Object {},[22m
+[32m-       "cells": Object {},[39m
+[31m+       "cells": Object {[39m
+[31m+         "A1": "42",[39m
+[31m+       },[39m
+[2m        "colNumber": 26,[22m
+[2m        "color": undefined,[22m
+[2m        "cols": Object {},[22m
+[2m        "conditionalFormats": Array [],[22m
+[2m        "dataValidationRules": Array [],[22m"
+`;
+
+exports[`toHaveAttribute can use not.toHaveAttribute 1`] = `
+"expect(target).not.toHaveAttribute(aria-label, expected);
+
+Unexpected attribute value: [32m"Confirm"[39m
+Received value:             serializes to the same string"
+`;
+
+exports[`toHaveAttribute matches attribute values 1`] = `
+"expect(target).toHaveAttribute(aria-label, expected);
+
+Expected attribute value: [32m"C[7mancel[27m"[39m
+Received value:           [31m"C[7monfirm[27m"[39m"
+`;
+
+exports[`toHaveClass can match an element classes 1`] = `
+"expect(target).toHaveClass(expected);
+
+Expected class:   [32m"[7mgamm[27ma"[39m
+Received classes: [31m"[7mbox alpha bet[27ma"[39m"
+`;
+
+exports[`toHaveClass can use not.toHaveClass 1`] = `
+"expect(target).not.toHaveClass(expected);
+
+Unexpected class: [32m"[7malph[27ma"[39m
+Received classes: [31m"[7mbox alpha bet[27ma"[39m"
+`;
+
+exports[`toHaveCount can use not.toHaveCount 1`] = `
+"expect(".item").not.toHaveCount(expected);
+
+Unexpected count: [32m2[39m
+Received:         serializes to the same string"
+`;
+
+exports[`toHaveCount counts matching elements 1`] = `
+"expect(".item").toHaveCount(expected);
+
+Expected count: [32m1[39m
+Received:       [31m2[39m"
+`;
+
+exports[`toHaveStyle can use not.toHaveStyle 1`] = `
+"expect(target).not.toHaveStyle(expected);
+
+Unexpected style: [32m{"display": "block"}[39m
+Received style:   serializes to the same string"
+`;
+
+exports[`toHaveStyle compares inline styles and normalizes rgb colors 1`] = `
+"expect(target).toHaveStyle(expected);
+
+[32m- Expected style  - 1[39m
+[31m+ Received style  + 1[39m
+
+[2m  Object {[22m
+[32m-   "color": "#00FF00",[39m
+[31m+   "color": "#FF0000",[39m
+[2m  }[22m"
+`;
+
+exports[`toHaveSynchronizedEvaluation compares evaluated cells across models 1`] = `
+"alice and mock-smallUuid-7 are not synchronized: 
+[32m- alice             - 1[39m
+[31m+ mock-smallUuid-7  + 1[39m
+
+[33m@@ -1,9 +1,9 @@[39m
+[2m  Array [[22m
+[2m    Object {[22m
+[2m      "sheetId": "Sheet1",[22m
+[32m-     "value": 2,[39m
+[31m+     "value": null,[39m
+[2m      "xc": "A1",[22m
+[2m    },[22m
+[2m    Object {[22m
+[2m      "sheetId": "Sheet1",[22m
+[2m      "value": null,[22m"
+`;
+
+exports[`toHaveSynchronizedExportedData compares exported workbook data 1`] = `
+"alice and mock-smallUuid-9 are not synchronized: 
+[32m- alice             - 4[39m
+[31m+ mock-smallUuid-9  + 2[39m
+
+[33m@@ -3,11 +3,11 @@[39m
+[2m    "customTableStyles": Object {},[22m
+[2m    "formats": Object {},[22m
+[2m    "namedRanges": Object {},[22m
+[2m    "pivotNextId": 1,[22m
+[2m    "pivots": Object {},[22m
+[32m-   "revisionId": "mock-uuidv4-6",[39m
+[31m+   "revisionId": "START_REVISION",[39m
+[2m    "settings": Object {[22m
+[2m      "locale": Object {[22m
+[2m        "code": "en_US",[22m
+[2m        "dateFormat": "m/d/yyyy",[22m
+[2m        "decimalSeparator": ".",[22m
+[33m@@ -20,13 +20,11 @@[39m
+[2m    },[22m
+[2m    "sheets": Array [[22m
+[2m      Object {[22m
+[2m        "areGridLinesVisible": true,[22m
+[2m        "borders": Object {},[22m
+[32m-       "cells": Object {[39m
+[32m-         "A1": "42",[39m
+[32m-       },[39m
+[31m+       "cells": Object {},[39m
+[2m        "colNumber": 26,[22m
+[2m        "color": undefined,[22m
+[2m        "cols": Object {},[22m
+[2m        "conditionalFormats": Array [],[22m
+[2m        "dataValidationRules": Array [],[22m"
+`;
+
+exports[`toHaveSynchronizedValue compares the callback result across models 1`] = `
+"Alice does not have the expected value: 
+Received: [31m"2"[39m
+Expected: [32m"1"[39m"
+`;
+
+exports[`toHaveText Can use not.toHaveText 1`] = `
+"expect(target).not.toHaveText(expected);
+
+Unexpected text: [32m"Exact text"[39m
+Received text:   serializes to the same string"
+`;
+
+exports[`toHaveText matches exact text content 1`] = `
+"expect(target).toHaveText(expected);
+
+Expected text: [32m"[7mOther[27m text"[39m
+Received text: [31m"[7mExact[27m text"[39m"
+`;
+
+exports[`toHaveValue Can use not.toHaveValue 1`] = `
+"expect(target).not.toHaveValue(expected);
+
+Unexpected value: [32m"hello"[39m
+Received value:   serializes to the same string"
+`;
+
+exports[`toHaveValue supports text inputs and checkbox 1`] = `
+"expect(target).toHaveValue(expected);
+
+Expected value: [32m"world"[39m
+Received value: [31m"hello"[39m"
+`;
