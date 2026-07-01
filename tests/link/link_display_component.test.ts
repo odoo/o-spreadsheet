@@ -234,7 +234,7 @@ describe("link display component", () => {
     expect(notifyUser).toHaveBeenCalledWith({
       type: "warning",
       sticky: false,
-      text: "Cannot open the link because the linked sheet is hidden.",
+      text: "Linked sheet is hidden.",
     });
   });
 

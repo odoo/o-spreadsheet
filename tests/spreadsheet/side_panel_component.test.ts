@@ -594,7 +594,7 @@ describe("Side Panel", () => {
       expect(notifyUser).toHaveBeenCalledWith({
         sticky: false,
         type: "warning",
-        text: "The window is too small to display multiple side panels.",
+        text: "Too small to show multiple side panels.",
       });
     });
   });

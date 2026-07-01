@@ -424,21 +424,16 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
       this.notificationStore.notifyUser({
         type: "warning",
         sticky: false,
-        text: _t(
-          "Match(es) cannot be replaced as they are part of a formula or inside a locked sheet"
-        ),
+        text: _t("Some matches can't be replaced."),
       });
     } else {
       this.notificationStore.notifyUser({
         type: "warning",
         sticky: false,
-        text: _t(
-          "%(replaceable_count)s match(es) replaced. %(irreplaceable_count)s match(es) cannot be replaced as they are part of a formula or inside a locked sheet",
-          {
-            replaceable_count: replaceableMatches,
-            irreplaceable_count: irreplaceableMatches,
-          }
-        ),
+        text: _t("%(replaceable_count)s replaced, %(irreplaceable_count)s skipped.", {
+          replaceable_count: replaceableMatches,
+          irreplaceable_count: irreplaceableMatches,
+        }),
       });
     }
   }

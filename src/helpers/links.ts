@@ -78,7 +78,7 @@ urlRegistry.add("sheet_URL", {
       env.notifyUser({
         type: "warning",
         sticky: false,
-        text: _t("Cannot open the link because the linked sheet is hidden."),
+        text: _t("Linked sheet is hidden."),
       });
     }
   },
