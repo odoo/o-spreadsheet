@@ -18,11 +18,9 @@ interface Props {
   disableNoColor?: boolean;
 }
 
-const TRANSPARENT_BACKGROUND_SVG = /*xml*/ `
-<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10">
-  <path fill="#d9d9d9" d="M5 5h5v5H5zH0V0h5"/>
-</svg>
-`;
+const TRANSPARENT_BACKGROUND_SVG =
+  /*xml*/
+  '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><path fill="#d9d9d9" d="M5 5h5v5H5zH0V0h5"/></svg>';
 
 css/* scss */ `
   .o-round-color-picker-button {
