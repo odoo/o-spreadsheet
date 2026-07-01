@@ -4,8 +4,10 @@
       background-color: var(--os-alert-danger-bg);
     }
     .error-icon {
-      right: 7px;
-      top: 7px;
+      right: 8px;
+      top: 0;
+      bottom: 0;
+      pointer-events: none;
     }
   }
 }

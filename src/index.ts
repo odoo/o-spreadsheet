@@ -338,6 +338,7 @@ import { Composer } from "./components/composer/composer/composer";
 import { StandaloneComposer } from "./components/composer/standalone_composer/standalone_composer";
 import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
+import { CalendarButton } from "./components/side_panel/criterion_form/calendar_button/calendar_button";
 import { TopBar } from "./components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "./components/top_bar/top_bar_tools_registry";
 import { parseFormat } from "./helpers/format/format_parser";
@@ -502,6 +503,7 @@ export const components = {
   NumberInput,
   TopBar,
   Composer,
+  CalendarButton,
 };
 
 export const hooks = {

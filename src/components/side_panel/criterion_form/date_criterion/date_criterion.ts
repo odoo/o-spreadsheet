@@ -2,6 +2,7 @@ import { _t } from "../../../../translation";
 import { DateCriterionValue, GenericDateCriterion } from "../../../../types/generic_criterion";
 import { ValueAndLabel } from "../../../../types/misc";
 import { Select } from "../../../select/select";
+import { CalendarButton } from "../calendar_button/calendar_button";
 import { CriterionForm } from "../criterion_form";
 import { CriterionInput } from "../criterion_input/criterion_input";
 
@@ -17,7 +18,7 @@ const DATES_VALUES: Record<DateCriterionValue, string> = {
 
 export class DateCriterionForm extends CriterionForm<GenericDateCriterion> {
   static template = "o-spreadsheet-DataValidationDateCriterion";
-  static components = { CriterionInput, Select };
+  static components = { CriterionInput, Select, CalendarButton };
 
   get currentDateValue() {
     return this.props.criterion.dateValue || "exactDate";
