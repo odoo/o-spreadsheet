@@ -108,7 +108,7 @@ function isDatasetTitled(getters: Getters, column: ColumnInfo): boolean {
  * - If the column contains a single cell, create a scorecard.
  * - If the column type is "percentage", create a pie chart.
  * - If the column type is "text", create a pie chart
- * - If the column type is "date", create a line chart.
+ * - If the column type is "date", create a calendar chart.
  * - Otherwise, create a bar chart.
  */
 function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefinition {
@@ -155,11 +155,18 @@ function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefi
 
     case "date":
       return {
-        ...DEFAULT_LINE_CHART_CONFIG,
-        type: "line",
+        type: "calendar",
         title: dataSetsHaveTitle ? { text: String(titleCell.value) } : {},
-        dataSource: { type: "range", dataSets: [{ dataRange, dataSetId: "0" }], dataSetsHaveTitle },
+        dataSource: {
+          type: "range",
+          dataSets: [],
+          dataSetsHaveTitle,
+          labelRange: dataRange,
+        },
         dataSetStyles: {},
+        legendPosition: "left",
+        horizontalGroupBy: "day_of_week",
+        verticalGroupBy: "month_number",
       };
   }
   return {
