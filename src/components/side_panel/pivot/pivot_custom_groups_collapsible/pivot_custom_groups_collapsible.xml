@@ -11,9 +11,7 @@
             t-as="group"
             t-key="group_index"
             class="o-pivot-custom-group pb-1">
-            <div
-              class="d-flex align-items-center justify-content-between small"
-              t-on-pointerdown.stop="">
+            <div class="d-flex align-items-center justify-content-between small">
               <TextInput
                 value="group.name"
                 onChange="(newName) => this.onRenameGroup(group_index, newName)"
