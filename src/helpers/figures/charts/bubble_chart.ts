@@ -109,6 +109,8 @@ export const BubbleChart: ChartTypeBuilder<"bubble"> = {
     };
   },
 
+  getFormulas: () => [],
+
   getDefinitionFromContextCreation(context, dataSourceBuilder): BubbleChartDefinition {
     const isDataSourceRange = context.dataSource?.type === "range";
     return {

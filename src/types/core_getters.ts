@@ -6,6 +6,7 @@ import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { DataValidationPlugin } from "../plugins/core/data_validation";
 import { DefaultPlugin } from "../plugins/core/default";
 import { FigurePlugin } from "../plugins/core/figures";
+import { FormulaProviderAggregator } from "../plugins/core/formulas_provider";
 import { HeaderGroupingPlugin } from "../plugins/core/header_grouping";
 import { HeaderSizePlugin } from "../plugins/core/header_size";
 import { HeaderVisibilityPlugin } from "../plugins/core/header_visibility";
@@ -69,6 +70,11 @@ export type PluginGetters<
   Plugin extends { new (...args: unknown[]): any; getters: readonly string[] }
 > = Pick<InstanceType<Plugin>, GetterNames<Plugin>>;
 type RangeAdapterGetters = Pick<RangeAdapterPlugin, GetterNames<typeof RangeAdapterPlugin>>;
+type FormulasGetters = Pick<
+  FormulaProviderAggregator,
+  GetterNames<typeof FormulaProviderAggregator>
+>;
+
 export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof HeaderSizePlugin> &
   PluginGetters<typeof HeaderVisibilityPlugin> &
@@ -81,6 +87,7 @@ export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof CarouselPlugin> &
   PluginGetters<typeof FigurePlugin> &
   RangeAdapterGetters &
+  FormulasGetters &
   PluginGetters<typeof ConditionalFormatPlugin> &
   PluginGetters<typeof TablePlugin> &
   PluginGetters<typeof SettingsPlugin> &

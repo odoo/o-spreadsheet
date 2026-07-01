@@ -1,6 +1,7 @@
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH, FIGURE_ID_SPLITTER } from "../../constants";
+import { CompiledFormula } from "../../formulas/compiler";
 import { SpreadsheetChart } from "../../helpers/figures/chart";
-import { deepEquals } from "../../helpers/misc";
+import { deepEquals, isDefined } from "../../helpers/misc";
 import { ChartCreationContext, ChartDefinition, ChartType } from "../../types/chart/chart";
 import {
   Command,
@@ -344,5 +345,11 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     return cmd.offset !== undefined && cmd.col !== undefined && cmd.row !== undefined
       ? CommandResult.Success
       : CommandResult.MissingFigureArguments;
+  }
+
+  getFormulas(): CompiledFormula[] {
+    return Object.values(this.charts)
+      .filter(isDefined)
+      .flatMap(({ chart }) => chart.getFormulas(this.getters));
   }
 }

@@ -3,6 +3,7 @@ import {
   DEFAULT_GAUGE_MIDDLE_COLOR,
   DEFAULT_GAUGE_UPPER_COLOR,
 } from "../../../constants";
+import { CompiledFormula } from "../../../formulas/compiler";
 import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
 import { tryToNumber } from "../../../functions/helpers";
 import { BasePlugin } from "../../../plugins/base_plugin";
@@ -248,6 +249,17 @@ export const GaugeChart: ChartTypeBuilder<"gauge"> = {
     const adaptFormula = (formula: string) => adaptFormulaString(sheetId, formula);
     const sectionRule = adaptSectionRuleFormulas(definition.sectionRule, adaptFormula);
     return { ...definition, dataRange, sectionRule };
+  },
+
+  getFormulas(getters, sheetId, definition): CompiledFormula[] {
+    return [
+      definition.sectionRule.rangeMin,
+      definition.sectionRule.rangeMax,
+      definition.sectionRule.lowerInflectionPoint.value,
+      definition.sectionRule.upperInflectionPoint.value,
+    ]
+      .filter((value) => value.startsWith("="))
+      .map((formula) => CompiledFormula.Compile(formula, sheetId, getters));
   },
 
   getRuntime(getters: Getters, definition, dataSource, sheetId): GaugeChartRuntime {

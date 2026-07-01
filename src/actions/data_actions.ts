@@ -43,6 +43,12 @@ export const trimWhitespace: ActionSpec = {
   },
 };
 
+export const cleanupDataSources: ActionSpec = {
+  name: _t("Remove unused data sources"),
+  execute: (env) => env.openSidePanel("DataSourceCleanup", {}),
+  isEnabled: (env) => !env.isSmall,
+};
+
 export const sortDescending: ActionSpec = {
   name: _t("Descending (Z ⟶ A)"),
   execute: (env) => {

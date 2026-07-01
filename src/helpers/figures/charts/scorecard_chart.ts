@@ -276,6 +276,8 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
     return { ...definition, baseline, keyValue };
   },
 
+  getFormulas: () => [],
+
   getRuntime(getters, definition): ScorecardChartRuntime {
     let formattedKeyValue = "";
     let keyValueCell: EvaluatedCell | undefined;
