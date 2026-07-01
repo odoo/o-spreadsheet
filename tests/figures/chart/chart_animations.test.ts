@@ -6,6 +6,7 @@ import {
   createChart,
   evaluateCells,
   setCellContent,
+  setCellFormat,
   setViewportOffset,
   updateChart,
 } from "../../test_helpers/commands_helpers";
@@ -72,10 +73,11 @@ describe("Chart animations in dashboard", () => {
 
     expect(mockedChart.config.options.animation).toEqual({ animateRotate: true });
 
-    // Dispatch a command that doesn't change the chart data
+    // Dispatch a command that doesn't change the chart data (cell outside chart range)
+    // The chart is not updated at all, so animation config is unchanged
     setCellContent(model, "A50", "6");
     await nextTick();
-    expect(mockedChart.config.options.animation).toBe(false);
+    expect(mockedChart.config.options.animation).toEqual({ animateRotate: true });
 
     // Change the chart data
     setCellContent(model, "A2", "6");
@@ -99,7 +101,8 @@ describe("Chart animations in dashboard", () => {
 
     expect(mockedChart.config.options.animation).toEqual({ animateRotate: true });
 
-    setCellContent(model, "B1", "6");
+    // Format change on a cell inside the range: the runtime is re-created but actual data is unchanged
+    setCellFormat(model, "A2", "0.00");
     await nextTick();
     expect(mockedChart.config.options.animation).toBe(false);
 

@@ -9,6 +9,7 @@ import { LegendPosition } from "../../../types/chart/common_chart";
 import { CommandResult } from "../../../types/commands";
 import { Validator } from "../../../types/validator";
 import { AbstractChart } from "./abstract_chart";
+import { getDataSourceRanges } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import { getCalendarChartData } from "./runtime/chart_data_extractor";
 import { getCalendarChartDatasetAndLabels } from "./runtime/chartjs_dataset";
@@ -87,6 +88,8 @@ export const CalendarChart: ChartTypeBuilder<"calendar"> = {
   },
 
   getDefinitionForExcel: () => undefined,
+
+  getRanges: (definition) => getDataSourceRanges(definition.dataSource),
 
   getRuntime(getters, definition, { extractData }): CalendarChartRuntime {
     const data = extractData();

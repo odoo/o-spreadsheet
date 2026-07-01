@@ -3,6 +3,8 @@ import { SpreadsheetChart } from "../../helpers/figures/chart";
 import { chartFontColor } from "../../helpers/figures/charts/chart_common";
 import { chartToImageUrl } from "../../helpers/figures/charts/chart_ui_common";
 import { generateMasterChartConfig } from "../../helpers/figures/charts/runtime/chart_zoom";
+import { isDefined } from "../../helpers/misc";
+import { isInside, overlap } from "../../helpers/zones";
 import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
 import {
   CoreViewCommand,
@@ -11,7 +13,7 @@ import {
   invalidateEvaluationCommands,
 } from "../../types/commands";
 import { Color, UID } from "../../types/misc";
-import { Range } from "../../types/range";
+import { BoundedRange, Range } from "../../types/range";
 import { ExcelWorkbookData, FigureData } from "../../types/workbook_data";
 import { CoreViewPlugin } from "../core_view_plugin";
 
@@ -33,7 +35,7 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       invalidateCFEvaluationCommands.has(cmd.type) ||
-      invalidateChartEvaluationCommands.has(cmd.type)
+      (invalidateChartEvaluationCommands.has(cmd.type) && cmd.type !== "UPDATE_CELL")
     ) {
       for (const chartId in this.charts) {
         this.charts[chartId] = undefined;
@@ -41,6 +43,9 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
     }
 
     switch (cmd.type) {
+      case "UPDATE_CELL":
+        this.invalidateChartsAffectedByCell(cmd.sheetId, cmd.col, cmd.row);
+        break;
       case "UPDATE_CHART":
       case "CREATE_CHART":
         this.charts[cmd.chartId] = undefined;
@@ -56,6 +61,46 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
         }
         break;
     }
+  }
+
+  private invalidateChartsAffectedByCell(sheetId: UID, col: number, row: number): void {
+    if (!Object.values(this.charts).some(isDefined)) {
+      return;
+    }
+    const dependents = [...this.getters.getCellsDependingOn({ sheetId, col, row })];
+    for (const chartId in this.charts) {
+      if (this.charts[chartId] === undefined) {
+        continue;
+      }
+      if (this.chartIsAffectedByCell(chartId, sheetId, col, row, dependents)) {
+        this.charts[chartId] = undefined;
+      }
+    }
+  }
+
+  private chartIsAffectedByCell(
+    chartId: UID,
+    sheetId: UID,
+    col: number,
+    row: number,
+    dependents: BoundedRange[]
+  ): boolean {
+    const chart = this.getters.getChart(chartId);
+    if (!chart) {
+      return false;
+    }
+    const chartRanges = chart.getRanges();
+    for (const r of chartRanges) {
+      if (r.sheetId === sheetId && isInside(col, row, r.zone)) {
+        return true;
+      }
+      for (const dep of dependents) {
+        if (r.sheetId === dep.sheetId && overlap(dep.zone, r.zone)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   getChartRuntime(chartId: UID): ChartRuntime {
