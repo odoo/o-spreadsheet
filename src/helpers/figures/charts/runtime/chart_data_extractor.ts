@@ -127,7 +127,8 @@ function computeValuesAndLabels(
   values: FunctionResultObject[],
   horizontalGroupBy: CalendarChartGranularity,
   verticalGroupBy: CalendarChartGranularity,
-  locale: Locale
+  locale: Locale,
+  countEntries: boolean
 ) {
   const grouping: Record<string, Record<string, { value: number }>> = {};
   const xValues: number[] = [];
@@ -161,9 +162,13 @@ function computeValuesAndLabels(
     if (!(yValue in grouping[xValue])) {
       grouping[xValue][yValue] = { value: 0 };
     }
-    const cell = values[i];
-    if (isNumberResult(cell)) {
-      grouping[xValue][yValue].value += cell.value;
+    if (countEntries) {
+      grouping[xValue][yValue].value += 1;
+    } else {
+      const cell = values[i];
+      if (isNumberResult(cell)) {
+        grouping[xValue][yValue].value += cell.value;
+      }
     }
   }
 
@@ -191,8 +196,13 @@ export function getCalendarChartData(
   let labels = labelValues;
 
   const locale = getters.getLocale();
+  const countEntries = dataSetsValues.length === 0;
 
-  ({ labels, dataSetsValues } = filterInvalidCalendarDataPoints(labels, dataSetsValues));
+  ({ labels, dataSetsValues } = filterInvalidCalendarDataPoints(
+    labels,
+    dataSetsValues,
+    countEntries
+  ));
   const axisFormats = {
     y: getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "left"),
   };
@@ -202,7 +212,8 @@ export function getCalendarChartData(
     dataSetsValues[0]?.data ?? [],
     definition.horizontalGroupBy ?? "day_of_week",
     definition.verticalGroupBy ?? "hour_number",
-    locale
+    locale,
+    countEntries
   ));
 
   return {
@@ -852,13 +863,14 @@ function filterInvalidDataPoints(
 }
 
 /**
- * Filter the data points that:
- * - have neither a label nor a value
- * - have no label and a non-numeric value
+ * Keep only data points that:
+ * - have a valid numeric label if countEntries is true
+ * - have both a valid numeric date label and a valid numeric value else
  */
 function filterInvalidCalendarDataPoints(
   labels: LabelValues,
-  datasets: DatasetValues[]
+  datasets: DatasetValues[],
+  countEntries: boolean
 ): { labels: LabelValues; dataSetsValues: DatasetValues[] } {
   const numberOfDataPoints = Math.max(
     labels.length,
@@ -866,8 +878,13 @@ function filterInvalidCalendarDataPoints(
   );
   const dataPointsIndexes = range(0, numberOfDataPoints).filter((dataPointIndex) => {
     const label = labels[dataPointIndex];
+    if (!isNumberResult(label)) {
+      return false;
+    } else if (countEntries) {
+      return true;
+    }
     const values = datasets.map((dataset) => dataset.data?.[dataPointIndex]);
-    return isNumberResult(label) && isNumberResult(values[0]);
+    return isNumberResult(values[0]);
   });
   return {
     labels: dataPointsIndexes.map((i) => labels[i] || ""),
