@@ -9,7 +9,8 @@
       <input
         type="text"
         class="o-input"
-        t-att-value="props.title"
+        t-att-value="state.inputTitle"
+        t-on-input="onInputTitle"
         t-on-change="updateTitle"
         t-att-placeholder="placeholder"
       />
