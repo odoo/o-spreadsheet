@@ -1,5 +1,7 @@
 import { Model } from "../../src";
-import { setCellContent } from "../test_helpers/commands_helpers";
+import { getCellContent } from "../test_helpers";
+import { setCellContent, updateLocale } from "../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../test_helpers/constants";
 import {
   checkFunctionDoesntSpreadBeyondRange,
   createModelFromGrid,
@@ -90,6 +92,25 @@ describe("CONCATENATE formula", () => {
     expect(evaluateCell("A1", { A1: "=CONCATENATE(A2, A3)", A2: "42", A3: '=""' })).toBe("42");
     expect(evaluateCell("A1", { A1: "=CONCATENATE(A2, A3)", A2: "42", A3: '=" "' })).toBe("42 ");
     expect(evaluateCell("A1", { A1: "=CONCATENATE(A2, A3)", A2: "42", A3: '="24"' })).toBe("4224");
+  });
+
+  test("when using CONCATENATE with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: "=CONCATENATE(A2, A3)",
+      A2: ">",
+      A3: "1.2",
+      B1: "=CONCATENATE(B2, B3)",
+      B2: ">",
+      B3: "7%",
+      C1: "=CONCATENATE(C2, C3)",
+      C2: ">",
+      C3: "1/1/2021",
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe(">1,2");
+    expect(getCellContent(model, "B1")).toBe(">0,07");
+    expect(getCellContent(model, "C1")).toBe(">44197");
   });
 
   // prettier-ignore
@@ -251,6 +272,18 @@ describe("JOIN formula", () => {
     expect(gridResult.A1).toBe('9*test*"42"');
     expect(gridResult.B1).toBe("TRUE4212342tset");
     expect(gridResult.C1).toBe('0.07,"8%",');
+  });
+
+  test("when using JOIN with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: '=JOIN(" ", A2:A4)',
+      A2: "1.2",
+      A3: "7%",
+      A4: "1/1/2021",
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("1,2 0,07 44197");
   });
 });
 
@@ -684,6 +717,18 @@ describe("TEXTJOIN formula", () => {
     expect(evaluateCell("A1", { A1: '=TEXTJOIN(" ", FALSE, "1", "2", "3",  , "4")' })).toBe(
       "1 2 3  4"
     );
+  });
+
+  test("when using TEXTJOIN with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: '=TEXTJOIN(" ", TRUE, A2:A4)',
+      A2: "1.2",
+      A3: "7%",
+      A4: "1/1/2021",
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("1,2 0,07 44197");
   });
 
   test("casting tests on simple arguments", () => {
