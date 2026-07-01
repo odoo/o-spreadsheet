@@ -20,7 +20,7 @@ type StatefulStream<Event, State> = {
 interface SelectionProcessor {
   selectZone(anchor: AnchorZone, options?: SelectionEventOptions): DispatchResult;
 
-  selectCell(col: number, row: number): DispatchResult;
+  selectCell(col: number, row: number, options?: SelectionEventOptions): DispatchResult;
 
   moveAnchorCell(direction: Direction, step: SelectionStep): DispatchResult;
 
