@@ -100,6 +100,11 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
    */
   needsReevaluation: boolean = true;
 
+  /**
+   * Marks the type of reload that should be done on next init
+   */
+  private reloadType: ReloadType = ReloadType.ALL;
+
   constructor(custom: ModelConfig["custom"], params: SpreadsheetPivotParams) {
     this.getters = params.getters;
     this.coreDefinition = params.definition;
@@ -107,9 +112,13 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
 
   init(params: InitPivotParams = {}) {
     if (!this._definition || params.reload) {
-      this.reload(ReloadType.ALL);
+      this.reloadType = ReloadType.ALL;
+    }
+    this.reload(this.reloadType);
+    if (params.reload) {
       this.needsReevaluation = false;
     }
+    this.reloadType = ReloadType.NONE;
   }
 
   reload(type: ReloadType) {
@@ -135,7 +144,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
         this.computeShouldReload(actualDefinition, nextDefinition),
         ReloadType.NONE
       );
-      this.reload(reloadType);
+      this.reloadType = Math.max(this.reloadType, reloadType);
     }
   }
 
