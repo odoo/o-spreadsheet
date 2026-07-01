@@ -112,6 +112,22 @@ export const unhideAllRows: ActionSpec = {
   icon: "o-spreadsheet-Icon.UNHIDE_ROW",
 };
 
+export const resizeCols: ActionSpec = {
+  name: ACTIONS.RESIZE_COLUMNS_NAME,
+  execute: (env) => env.openSidePanel("HeaderResizePanel", { dimension: "COL" }),
+  isVisible: (env) => env.model.getters.getActiveCols().size > 0,
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
+  icon: "o-spreadsheet-Icon.RESIZE_HORIZONTAL",
+};
+
+export const resizeRows: ActionSpec = {
+  name: ACTIONS.RESIZE_ROWS_NAME,
+  execute: (env) => env.openSidePanel("HeaderResizePanel", { dimension: "ROW" }),
+  isVisible: (env) => env.model.getters.getActiveRows().size > 0,
+  isEnabled: (env) => !env.model.getters.isCurrentSheetLocked(),
+  icon: "o-spreadsheet-Icon.RESIZE_VERTICAL",
+};
+
 export const unFreezePane: ActionSpec = {
   name: _t("Unfreeze"),
   isVisible: (env) => {
