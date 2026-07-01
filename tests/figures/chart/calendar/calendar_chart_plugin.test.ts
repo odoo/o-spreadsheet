@@ -1,4 +1,4 @@
-import { ScaleChartOptions } from "chart.js";
+import { ChartConfiguration, ScaleChartOptions } from "chart.js";
 import { ChartCreationContext, Model } from "../../../../src";
 import { UuidGenerator } from "../../../../src/helpers/uuid";
 import {
@@ -265,5 +265,33 @@ describe("calendar chart", () => {
     const scales = runtime.chartJsConfig.options?.scales as ScaleChartOptions<"bar">["scales"];
     expect(scales?.x?.border?.display).toBe(false);
     expect(scales?.y?.border?.display).toBe(false);
+  });
+
+  test("calendar chart without values counts entries per date bucket", () => {
+    const model = new Model();
+    createSheet(model, { sheetId: "calendar", activate: true, rows: 3, cols: 1 });
+    setCellContent(model, "A1", "=DATE(2024,1,1)");
+    setCellContent(model, "A2", "=DATE(2024,1,8)");
+    setCellContent(model, "A3", "=DATE(2024,2,5)");
+    const chartId = UuidGenerator.uuidv4();
+    createCalendarChart(
+      model,
+      {
+        type: "calendar" as const,
+        ...toChartDataSource({ dataSets: [], labelRange: "A1:A3" }),
+        horizontalGroupBy: "day_of_week",
+        verticalGroupBy: "month_number",
+      },
+      chartId,
+      "calendar"
+    );
+    const runtime = model.getters.getChartRuntime(chartId) as CalendarChartRuntime;
+    const config = runtime.chartJsConfig as ChartConfiguration<"calendar">;
+    const datasets = config.data.datasets!;
+    expect(config.data.labels).toEqual(["Monday"]);
+    // datasets are sorted descending by month: February first, January second
+    expect(datasets.map((ds) => ds.label)).toEqual(["February", "January"]);
+    expect(datasets[1].values).toEqual([2]); // January: 2 entries
+    expect(datasets[0].values).toEqual([1]); // February: 1 entry
   });
 });

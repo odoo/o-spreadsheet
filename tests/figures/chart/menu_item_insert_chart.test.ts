@@ -474,9 +474,7 @@ describe("Smart chart type detection", () => {
     [["percentage"], { type: "pie", dataSetsHaveTitle: false }],
     [["number"], { type: "bar", dataSetsHaveTitle: false }],
     [["text"], { type: "pie", labelRange: "A1:A6", aggregated: true, dataSetsHaveTitle: true }], // categorical pie chart, the data range is also the label range
-    [["date"], { type: "line", dataSetsHaveTitle: false }],
     [["percentage_with_header"], { type: "pie", dataSetsHaveTitle: true }],
-    [["date_with_header"], { type: "line", dataSetsHaveTitle: true }],
   ] as const)("Single column %s creates chart", async (datasetPattern, expected) => {
     createDatasetFromDescription([...datasetPattern]);
     await doAction(["insert", "insert_chart"], env);
@@ -491,6 +489,28 @@ describe("Smart chart type detection", () => {
         labelRange: "labelRange" in expected ? expected.labelRange : undefined,
         dataSetsHaveTitle: expected.dataSetsHaveTitle,
       }),
+    });
+  });
+
+  test.each([
+    [["date"], undefined],
+    [["date_with_header"], "Header0"],
+  ] as const)("Single date column %s creates a calendar chart", async (datasetPattern, title) => {
+    createDatasetFromDescription([...datasetPattern]);
+    await doAction(["insert", "insert_chart"], env);
+
+    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+    const definition = model.getters.getChartDefinition(chartId);
+    expect(definition).toMatchObject({
+      type: "calendar",
+      title: title ? { text: title } : {},
+      dataSource: {
+        type: "range",
+        dataSets: [],
+        labelRange: "A1:A6",
+      },
+      horizontalGroupBy: "day_of_week",
+      verticalGroupBy: "month_number",
     });
   });
 
