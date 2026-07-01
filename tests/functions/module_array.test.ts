@@ -1,5 +1,6 @@
 import { ErrorCell, Model } from "../../src";
-import { setCellContent, setFormat } from "../test_helpers/commands_helpers";
+import { setCellContent, setFormat, updateLocale } from "../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../test_helpers/constants";
 import { getCellContent, getEvaluatedCell, getRangeValues } from "../test_helpers/getters_helpers";
 import {
   checkFunctionDoesntSpreadBeyondRange,
@@ -1789,5 +1790,16 @@ describe("ARRAYTOTEXT formula", () => {
                                     D5: "=ARRAYTOTEXT(A1:C2)"
     };
     expect(evaluateCell("D5", grid)).toBe("www.odoo.com,TRUE,41255,3.14,#DIV/0!,");
+  });
+  test("when using ARRAYTOTEXT with number cells, decimal separator follows the locale but number's format is ignored", () => {
+    const grid = {
+      A1: "1.2",
+      A2: "7%",
+      A3: "1/1/2021",
+      A4: "=ARRAYTOTEXT(A1:A3)",
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A4")).toBe("1,2/0,07/44197");
   });
 });
