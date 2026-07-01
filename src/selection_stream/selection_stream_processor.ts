@@ -14,7 +14,7 @@ import {
   SelectionStep,
   Zone,
 } from "../types/misc";
-import { SelectionStreamProcessor } from "../types/selection_stream_processor";
+import { SelectionProcessor, SelectionStreamProcessor } from "../types/selection_stream_processor";
 import { EventStream, StreamCallbacks } from "./event_stream";
 
 type Delta = [number, number];
@@ -686,3 +686,21 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     );
   }
 }
+
+export const selectionModifiers: Set<string | symbol> = new Set<
+  Exclude<keyof SelectionProcessor, "isListening">
+>([
+  "selectZone",
+  "selectCell",
+  "moveAnchorCell",
+  "updateAnchorCell",
+  "setAnchorCorner",
+  "addCellToSelection",
+  "resizeAnchorZone",
+  "selectColumn",
+  "selectRow",
+  "selectAll",
+  "loopSelection",
+  "selectTableAroundSelection",
+  "commitSelection",
+]);
