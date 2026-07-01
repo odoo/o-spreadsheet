@@ -12,7 +12,7 @@ import { Zone } from "../../../types/misc";
 import { isDateTimeFormat } from "../../format/format";
 import { getZoneArea, getZonesByColumns, zoneToXc } from "../../zones";
 
-type ColumnType = "number" | "text" | "date" | "percentage" | "empty";
+type ColumnType = "number" | "text" | "date" | "percentage" | "boolean" | "empty";
 
 const DEFAULT_BAR_CHART_CONFIG: BarChartDefinition = {
   type: "bar",
@@ -49,7 +49,7 @@ function detectColumnType(cells: EvaluatedCell[]): ColumnType {
   if (!cells.length) {
     return "empty";
   }
-  const counts = { number: 0, text: 0, date: 0, percentage: 0 };
+  const counts = { number: 0, text: 0, date: 0, percentage: 0, boolean: 0 };
   let max = 0;
   let detectedType: ColumnType = "empty";
   for (const cell of cells) {
@@ -64,6 +64,8 @@ function detectColumnType(cells: EvaluatedCell[]): ColumnType {
       }
     } else if (cell.type === CellValueType.text) {
       type = "text";
+    } else if (cell.type === CellValueType.boolean) {
+      type = "boolean";
     }
     if (type) {
       const newCount = ++counts[type];
@@ -107,7 +109,7 @@ function isDatasetTitled(getters: Getters, column: ColumnInfo): boolean {
  * Builds a chart definition for a single column selection. The logic to detect the chart type is as follows:
  * - If the column contains a single cell, create a scorecard.
  * - If the column type is "percentage", create a pie chart.
- * - If the column type is "text", create a pie chart
+ * - If the column type is "text" or "boolean", create a pie chart.
  * - If the column type is "date", create a line chart.
  * - Otherwise, create a bar chart.
  */
@@ -133,6 +135,7 @@ function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefi
       };
 
     case "text":
+    case "boolean":
       const cells = getters.getEvaluatedCellsInZone(sheetId, zone);
       const titleCount = cells.reduce(
         (count, cell) => (cell.value === titleCell.value ? count + 1 : count),

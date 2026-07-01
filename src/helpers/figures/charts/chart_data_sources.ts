@@ -17,7 +17,12 @@ import { CellErrorType } from "../../../types/errors";
 import { Getters } from "../../../types/getters";
 import { FunctionResultObject } from "../../../types/misc";
 import { Range } from "../../../types/range";
-import { isErrorResult, isNumberResult, isTextResult } from "../../cells/cell_evaluation";
+import {
+  isBooleanResult,
+  isErrorResult,
+  isNumberResult,
+  isTextResult,
+} from "../../cells/cell_evaluation";
 import { formatValue } from "../../format/format";
 import { isDefined } from "../../misc";
 import { createValidRange, duplicateRangeInDuplicatedSheet } from "../../range";
@@ -294,6 +299,11 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
 
     let data = ds.dataRange ? getData(getters, ds) : [];
     if (
+      data.every((cell) => cell.value === null || isBooleanResult(cell)) &&
+      data.filter((cell) => isBooleanResult(cell)).length > 1
+    ) {
+      data = data.map((cell) => (cell.value !== null ? ONE : EMPTY));
+    } else if (
       data.every((cell) => !cell.value || isTextResult(cell)) &&
       data.filter(isTextResult).length > 1
     ) {
