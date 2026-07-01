@@ -74,6 +74,14 @@ export class ListCriterionForm extends CriterionForm<IsValueInListCriterion> {
   }
 
   removeItem(index: number) {
+    if (this.state.items.length === 1) {
+      this.env.notifyUser({
+        text: _t("At least one value is required."),
+        type: "warning",
+        sticky: false,
+      });
+      return;
+    }
     this.state.items.splice(index, 1);
     this.syncCriterion();
   }
