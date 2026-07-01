@@ -1,7 +1,9 @@
 import { _t } from "../translation";
+import { CellValueType } from "../types/cells";
 import { Getters } from "../types/getters";
 import { isMatrix } from "../types/misc";
 import { ColumnAnalysis } from "./data_analysis";
+import { numberToJsDate } from "./dates";
 import { formatValue } from "./format/format";
 import { zoneToXc } from "./zones";
 
@@ -55,76 +57,35 @@ function item(
   return { name, value: "—", formula, description };
 }
 
-function dateItems(getters: Getters, sheetId: string, range: string): StatItem[] {
-  return [
-    item(getters, sheetId, _t("Count"), `=COUNTA(${range})`, _t("Number of non-empty cells.")),
-    item(
-      getters,
-      sheetId,
-      _t("Unique"),
-      `=COUNTUNIQUE(${range})`,
-      _t("Number of distinct dates. If much lower than Count, many dates repeat.")
-    ),
-    item(getters, sheetId, _t("Earliest"), `=MIN(${range})`, _t("The oldest date in the dataset.")),
-    item(
-      getters,
-      sheetId,
-      _t("Latest"),
-      `=MAX(${range})`,
-      _t("The most recent date in the dataset.")
-    ),
-    item(
-      getters,
-      sheetId,
-      _t("Span (days)"),
-      `=DAYS(MAX(${range}),MIN(${range}))`,
-      _t("Number of days between the earliest and latest date.")
-    ),
-    item(
-      getters,
-      sheetId,
-      _t("Empty"),
-      `=COUNTBLANK(${range})`,
-      _t("Number of cells with no value. High empty count may affect analysis.")
-    ),
-  ];
+/** Wraps a raw cell value so it can be spliced into a formula criterion (e.g. `COUNTIF`). */
+function literalForFormula(value: string | number | boolean): string {
+  if (typeof value === "boolean") {
+    return value ? "TRUE" : "FALSE";
+  }
+  if (typeof value === "number") {
+    return String(value);
+  }
+  return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 }
 
-function categoryItems(getters: Getters, sheetId: string, range: string): StatItem[] {
-  return [
-    item(getters, sheetId, _t("Count"), `=COUNTA(${range})`, _t("Number of non-empty cells.")),
-    item(
-      getters,
-      sheetId,
-      _t("Unique"),
-      `=COUNTUNIQUE(${range})`,
-      _t(
-        "Number of distinct categories. High value means many different values; low value means few categories repeated often."
-      )
-    ),
-    item(
-      getters,
-      sheetId,
-      _t("Empty"),
-      `=COUNTBLANK(${range})`,
-      _t("Number of cells with no value. High empty count may affect analysis.")
-    ),
-  ];
-}
-
-function booleanItems(getters: Getters, sheetId: string, range: string): StatItem[] {
-  return [
-    item(getters, sheetId, _t("Count"), `=COUNTA(${range})`, _t("Number of non-empty cells.")),
-    item(getters, sheetId, _t("True"), `=COUNTIF(${range},TRUE)`, _t("Number of TRUE values.")),
-    item(getters, sheetId, _t("False"), `=COUNTIF(${range},FALSE)`, _t("Number of FALSE values.")),
-    item(
-      getters,
-      sheetId,
-      _t("Empty"),
-      `=COUNTBLANK(${range})`,
-      _t("Number of cells with no value. High empty count may affect analysis.")
-    ),
-  ];
+/**
+ * Distinct values of a column, in first-seen order.
+ * Categorical columns are capped at 20 uniques by construction.
+ */
+function uniqueValues(col: ColumnAnalysis): (string | number | boolean)[] {
+  const seen = new Set<string>();
+  const values: (string | number | boolean)[] = [];
+  for (const cell of col.nonEmpty) {
+    if (cell.type === CellValueType.error) {
+      continue;
+    }
+    const key = String(cell.value);
+    if (!seen.has(key)) {
+      seen.add(key);
+      values.push(cell.value as string | number | boolean);
+    }
+  }
+  return values;
 }
 
 function columnTitle(col: ColumnAnalysis, indexInAll: number): string {
@@ -141,11 +102,466 @@ function columnTitle(col: ColumnAnalysis, indexInAll: number): string {
     case "boolean":
       return _t("Col %s (boolean)", n);
     case "categorical":
+      return _t("Col %s (category)", n);
     case "label":
-      return _t("Col %s (categorical)", n);
+      return _t("Col %s (label)", n);
     default:
       return _t("Col %s", n);
   }
+}
+
+const interpretPearson = (v: number): string => {
+  const abs = Math.abs(v);
+  const dir = v >= 0 ? _t("positive") : _t("negative");
+  if (abs >= 0.9) {
+    return _t("Very strong %s correlation", dir);
+  }
+  if (abs >= 0.7) {
+    return _t("Strong %s correlation", dir);
+  }
+  if (abs >= 0.5) {
+    return _t("Moderate %s correlation", dir);
+  }
+  if (abs >= 0.3) {
+    return _t("Weak %s correlation", dir);
+  }
+  return _t("Very weak or no linear correlation");
+};
+
+const interpretPValue = (v: number): string => {
+  if (v < 0.001) {
+    return _t("Very strong evidence (p < 0.001)");
+  }
+  if (v < 0.01) {
+    return _t("Strong evidence (p < 0.01)");
+  }
+  if (v < 0.05) {
+    return _t("Statistically significant (p < 0.05)");
+  }
+  if (v < 0.1) {
+    return _t("Marginal evidence (p < 0.1)");
+  }
+  return _t("Not statistically significant (p ≥ 0.1)");
+};
+
+const interpretAverage = (v: number): string => {
+  return "complicated";
+};
+
+/** Pattern A — Single number (or percentage) column: min, max, sum, average. */
+function statsForNumberColumn(getters: Getters, sheetId: string, range: string): StatItem[] {
+  return [
+    item(getters, sheetId, _t("Min"), `=MIN(${range})`),
+    item(getters, sheetId, _t("Max"), `=MAX(${range})`),
+    item(getters, sheetId, _t("Sum"), `=SUM(${range})`),
+    item(
+      getters,
+      sheetId,
+      _t("Average"),
+      `=AVERAGE(${range})`,
+      _t("Average of all non-empty values."),
+      interpretAverage
+    ),
+  ];
+}
+
+/** Pattern B — Single date column: earliest, latest, span. */
+function statsForDateColumn(getters: Getters, sheetId: string, range: string): StatItem[] {
+  return [
+    item(getters, sheetId, _t("Earliest"), `=MIN(${range})`, _t("The oldest date in the dataset.")),
+    item(
+      getters,
+      sheetId,
+      _t("Latest"),
+      `=MAX(${range})`,
+      _t("The most recent date in the dataset.")
+    ),
+    item(
+      getters,
+      sheetId,
+      _t("Span (days)"),
+      `=DAYS(MAX(${range}),MIN(${range}))`,
+      _t("Number of days between the earliest and latest date.")
+    ),
+  ];
+}
+
+/** Pattern C — Single categorical column: count per category. */
+function statsForCategoricalColumn(
+  getters: Getters,
+  sheetId: string,
+  col: ColumnAnalysis,
+  range: string
+): StatGroup[] {
+  const breakdown = uniqueValues(col).map((value) =>
+    item(getters, sheetId, String(value), `=COUNTIF(${range},${literalForFormula(value)})`)
+  );
+  const count = item(getters, sheetId, _t("Number of non-empty rows"), `=COUNTA(${range})`);
+  return [{ items: [count] }, { label: _t("Count by category"), items: breakdown }];
+}
+
+/** Pattern D — Single label column: unique count and empty count. */
+function statsForLabelColumn(getters: Getters, sheetId: string, range: string): StatItem[] {
+  return [
+    item(
+      getters,
+      sheetId,
+      _t("Unique"),
+      `=COUNTUNIQUE(${range})`,
+      _t("Number of distinct values.")
+    ),
+    item(
+      getters,
+      sheetId,
+      _t("Empty"),
+      `=COUNTBLANK(${range})`,
+      _t("Number of cells with no value.")
+    ),
+  ];
+}
+
+/** Single boolean column: count, true, false, empty. Not covered by the new spec yet. */
+function statsForBooleanColumn(getters: Getters, sheetId: string, range: string): StatItem[] {
+  return [
+    item(getters, sheetId, _t("True"), `=COUNTIF(${range},TRUE)`, _t("Number of TRUE values.")),
+    item(getters, sheetId, _t("False"), `=COUNTIF(${range},FALSE)`, _t("Number of FALSE values.")),
+    item(
+      getters,
+      sheetId,
+      _t("Empty"),
+      `=COUNTBLANK(${range})`,
+      _t("Number of cells with no value.")
+    ),
+  ];
+}
+
+/** Pattern E — Category + Number: highest, lowest and sum per category. */
+function statsForCategoryVsNumber(
+  getters: Getters,
+  sheetId: string,
+  numRange: string,
+  catCol: ColumnAnalysis,
+  catRange: string,
+  catTitle: string
+): StatGroup[] {
+  const highest: StatItem[] = [];
+  const lowest: StatItem[] = [];
+  const sum: StatItem[] = [];
+  for (const value of uniqueValues(catCol)) {
+    const criterion = `${catRange},${literalForFormula(value)}`;
+    const name = String(value);
+    highest.push(item(getters, sheetId, name, `=MAXIFS(${numRange},${criterion})`));
+    lowest.push(item(getters, sheetId, name, `=MINIFS(${numRange},${criterion})`));
+    sum.push(item(getters, sheetId, name, `=SUMIFS(${numRange},${criterion})`));
+  }
+  return [
+    { label: _t("Highest by %s", catTitle), items: highest },
+    { label: _t("Lowest by %s", catTitle), items: lowest },
+    { label: _t("Sum by %s", catTitle), items: sum },
+  ];
+}
+
+/** Pattern F — Label + Number: which label has the highest/lowest value. */
+function statsForLabelVsNumber(
+  getters: Getters,
+  sheetId: string,
+  numRange: string,
+  labelRange: string,
+  labelTitle: string
+): StatGroup[] {
+  return [
+    {
+      label: _t("By %s", labelTitle),
+      items: [
+        item(
+          getters,
+          sheetId,
+          _t("Highest"),
+          `=INDEX(${labelRange},MATCH(MAX(${numRange}),${numRange},0))`,
+          _t("The entry with the highest value.")
+        ),
+        item(
+          getters,
+          sheetId,
+          _t("Lowest"),
+          `=INDEX(${labelRange},MATCH(MIN(${numRange}),${numRange},0))`,
+          _t("The entry with the lowest value.")
+        ),
+      ],
+    },
+  ];
+}
+
+/**
+ * Pattern G — Date + Number: highest, lowest and sum per year.
+ * TODO ANHE: pick day/month/year granularity based on the date span instead of always year.
+ */
+function statsForDateVsNumber(
+  getters: Getters,
+  sheetId: string,
+  numRange: string,
+  dateCol: ColumnAnalysis,
+  dateRange: string,
+  dateTitle: string
+): StatGroup[] {
+  const years = Array.from(
+    new Set(
+      dateCol.nonEmpty
+        .filter((c) => typeof c.value === "number")
+        .map((c) => numberToJsDate(c.value as number).getFullYear())
+    )
+  ).sort((a, b) => a - b);
+
+  const highest: StatItem[] = [];
+  const lowest: StatItem[] = [];
+  const sum: StatItem[] = [];
+  for (const year of years) {
+    const criterion = `${dateRange},">="&DATE(${year},1,1),${dateRange},"<"&DATE(${year + 1},1,1)`;
+    const name = String(year);
+    highest.push(item(getters, sheetId, name, `=MAXIFS(${numRange},${criterion})`));
+    lowest.push(item(getters, sheetId, name, `=MINIFS(${numRange},${criterion})`));
+    sum.push(item(getters, sheetId, name, `=SUMIFS(${numRange},${criterion})`));
+  }
+  return [
+    { label: _t("Highest by year (%s)", dateTitle), items: highest },
+    { label: _t("Lowest by year (%s)", dateTitle), items: lowest },
+    { label: _t("Sum by year (%s)", dateTitle), items: sum },
+  ];
+}
+
+/** Pattern H — Number + Number: correlation and independence. */
+function statsForNumberVsNumber(
+  getters: Getters,
+  sheetId: string,
+  range: string,
+  otherRange: string,
+  otherTitle: string
+): StatGroup[] {
+  return [
+    {
+      label: otherTitle,
+      items: [
+        item(
+          getters,
+          sheetId,
+          _t("Correlation"),
+          `=PEARSON(${range},${otherRange})`,
+          _t(
+            "Linear correlation from -1 to 1. |r| > 0.7 = strong, 0.3–0.7 = moderate, < 0.3 = weak."
+          ),
+          interpretPearson
+        ),
+        item(
+          getters,
+          sheetId,
+          _t("Independence"),
+          `=T.TEST(${range},${otherRange},2,3)`,
+          _t(
+            "Probability of observing this difference by chance alone. < 0.05 = the two columns are likely related."
+          ),
+          interpretPValue
+        ),
+      ],
+    },
+  ];
+}
+
+/** Pattern I — Category + Category: independence (Cramér's V and χ² test). */
+function statsForCategoryVsCategory(
+  getters: Getters,
+  sheetId: string,
+  range: string,
+  otherRange: string,
+  otherTitle: string
+): StatGroup[] {
+  return [
+    {
+      label: otherTitle,
+      items: [
+        item(
+          getters,
+          sheetId,
+          _t("Cramér's V"),
+          `=SQRT(CHISQ.TEST(${range},${otherRange}) / (COUNTA(${range}) * (MIN(COUNTUNIQUE(${range}), COUNTUNIQUE(${otherRange})) - 1)))`,
+          _t(
+            "Strength of association between two categorical columns, from 0 (none) to 1 (perfect)."
+          ),
+          (v) => {
+            if (v < 0.1) {
+              return _t("Negligible association");
+            }
+            if (v < 0.3) {
+              return _t("Weak association");
+            }
+            if (v < 0.5) {
+              return _t("Moderate association");
+            }
+            return _t("Strong association");
+          }
+        ),
+        item(
+          getters,
+          sheetId,
+          _t("Independence"),
+          `=CHISQ.DIST.RT(CHISQ.TEST(${range},${otherRange}),(COUNTUNIQUE(${range})-1)*(COUNTUNIQUE(${otherRange})-1))`,
+          _t("Probability that the two columns are independent by chance."),
+          interpretPValue
+        ),
+      ],
+    },
+  ];
+}
+
+/** Boolean + Boolean: kept as-is (MCC), not part of the new spec yet. */
+function statsForBooleanVsBoolean(
+  getters: Getters,
+  sheetId: string,
+  range: string,
+  otherRange: string,
+  otherTitle: string
+): StatGroup[] {
+  return [
+    {
+      label: otherTitle,
+      items: [
+        item(
+          getters,
+          sheetId,
+          _t("MCC"),
+          `=MATTHEWS(${range},${otherRange})`,
+          _t(
+            "Matthews Correlation Coefficient: correlation between two yes/no columns, from -1 to 1."
+          ),
+          (v) => {
+            const abs = Math.abs(v);
+            if (abs < 0.2) {
+              return _t("Very weak or no correlation");
+            }
+            const dir = v > 0 ? _t("positive") : _t("negative");
+            if (abs < 0.4) {
+              return _t("Weak %s correlation", dir);
+            }
+            if (abs < 0.6) {
+              return _t("Moderate %s correlation", dir);
+            }
+            if (abs < 0.8) {
+              return _t("Strong %s correlation", dir);
+            }
+            return _t("Very strong %s correlation", dir);
+          }
+        ),
+      ],
+    },
+  ];
+}
+
+/** Patterns A–D — a single column's own stats, dispatched on its type. */
+function baseStatGroups(
+  getters: Getters,
+  sheetId: string,
+  col: ColumnAnalysis,
+  range: string
+): StatGroup[] {
+  const commonStats = item(getters, sheetId, _t("Number of non-empty rows"), `=COUNTA(${range})`);
+  switch (col.type) {
+    case "number":
+    case "percentage":
+      return [
+        {
+          items: [commonStats, ...statsForNumberColumn(getters, sheetId, range)],
+        },
+      ];
+    case "date":
+      return [
+        {
+          items: [commonStats, ...statsForDateColumn(getters, sheetId, range)],
+        },
+      ];
+    case "categorical":
+      return statsForCategoricalColumn(getters, sheetId, col, range);
+    case "label":
+      return [
+        {
+          items: [commonStats, ...statsForLabelColumn(getters, sheetId, range)],
+        },
+      ];
+    case "boolean":
+      return [
+        {
+          items: [commonStats, ...statsForBooleanColumn(getters, sheetId, range)],
+        },
+      ];
+    default:
+      return [];
+  }
+}
+
+/** Single column selected: just its own stats, no cross-column pattern applies. */
+function sectionsForSingleColumn(
+  getters: Getters,
+  sheetId: string,
+  col: ColumnAnalysis,
+  title: (col: ColumnAnalysis) => string
+): StatSection[] {
+  const range = zoneToXc(col.zone);
+  return [{ title: title(col), range, groups: baseStatGroups(getters, sheetId, col, range) }];
+}
+
+const isNumberLike = (col: ColumnAnalysis) => col.type === "number" || col.type === "percentage";
+
+/**
+ * Two columns selected: own stats for each, plus the cross-stat pattern matching their types
+ * (E — Category vs Number, F — Label vs Number, G — Date vs Number, H — Number vs Number,
+ * I — Category vs Category, Boolean vs Boolean). Unmatched type pairs get no cross-stat.
+ */
+function sectionsForColumnPair(
+  getters: Getters,
+  sheetId: string,
+  colA: ColumnAnalysis,
+  colB: ColumnAnalysis,
+  title: (col: ColumnAnalysis) => string
+): StatSection[] {
+  const rangeA = zoneToXc(colA.zone);
+  const rangeB = zoneToXc(colB.zone);
+  const groupsA = baseStatGroups(getters, sheetId, colA, rangeA);
+  const groupsB = baseStatGroups(getters, sheetId, colB, rangeB);
+
+  if (isNumberLike(colA) && isNumberLike(colB)) {
+    groupsA.push(...statsForNumberVsNumber(getters, sheetId, rangeA, rangeB, title(colB)));
+    groupsB.push(...statsForNumberVsNumber(getters, sheetId, rangeB, rangeA, title(colA)));
+  } else if (colA.type === "categorical" && isNumberLike(colB)) {
+    groupsB.push(...statsForCategoryVsNumber(getters, sheetId, rangeB, colA, rangeA, title(colA)));
+  } else if (isNumberLike(colA) && colB.type === "categorical") {
+    groupsA.push(...statsForCategoryVsNumber(getters, sheetId, rangeA, colB, rangeB, title(colB)));
+  } else if (colA.type === "date" && isNumberLike(colB)) {
+    groupsB.push(...statsForDateVsNumber(getters, sheetId, rangeB, colA, rangeA, title(colA)));
+  } else if (isNumberLike(colA) && colB.type === "date") {
+    groupsA.push(...statsForDateVsNumber(getters, sheetId, rangeA, colB, rangeB, title(colB)));
+  } else if (colA.type === "label" && isNumberLike(colB)) {
+    groupsB.push(...statsForLabelVsNumber(getters, sheetId, rangeB, rangeA, title(colA)));
+  } else if (isNumberLike(colA) && colB.type === "label") {
+    groupsA.push(...statsForLabelVsNumber(getters, sheetId, rangeA, rangeB, title(colB)));
+  } else if (colA.type === "categorical" && colB.type === "categorical") {
+    groupsA.push(...statsForCategoryVsCategory(getters, sheetId, rangeA, rangeB, title(colB)));
+    groupsB.push(...statsForCategoryVsCategory(getters, sheetId, rangeB, rangeA, title(colA)));
+  } else if (colA.type === "boolean" && colB.type === "boolean") {
+    groupsA.push(...statsForBooleanVsBoolean(getters, sheetId, rangeA, rangeB, title(colB)));
+    groupsB.push(...statsForBooleanVsBoolean(getters, sheetId, rangeB, rangeA, title(colA)));
+  }
+
+  return [
+    { title: title(colA), range: rangeA, groups: groupsA },
+    { title: title(colB), range: rangeB, groups: groupsB },
+  ];
+}
+
+function sectionsForManyColumns(
+  getters: Getters,
+  sheetId: string,
+  cols: ColumnAnalysis[],
+  title: (col: ColumnAnalysis) => string
+): StatSection[] {
+  return [];
 }
 
 export function buildStatSections(
@@ -153,415 +569,24 @@ export function buildStatSections(
   cols: ColumnAnalysis[],
   sheetId: string
 ): StatSection[] {
-  const isSingleColumn = cols.length === 1;
-  const sections: StatSection[] = [];
-
-  const interpretPearson = (v: number): string => {
-    const abs = Math.abs(v);
-    const dir = v >= 0 ? _t("positive") : _t("negative");
-    if (abs >= 0.9) {
-      return _t("Very strong %s correlation", dir);
-    }
-    if (abs >= 0.7) {
-      return _t("Strong %s correlation", dir);
-    }
-    if (abs >= 0.5) {
-      return _t("Moderate %s correlation", dir);
-    }
-    if (abs >= 0.3) {
-      return _t("Weak %s correlation", dir);
-    }
-    return _t("Very weak or no linear correlation");
-  };
-
-  const interpretPValue = (v: number): string => {
-    if (v < 0.001) {
-      return _t("Very strong evidence (p < 0.001)");
-    }
-    if (v < 0.01) {
-      return _t("Strong evidence (p < 0.01)");
-    }
-    if (v < 0.05) {
-      return _t("Statistically significant (p < 0.05)");
-    }
-    if (v < 0.1) {
-      return _t("Marginal evidence (p < 0.1)");
-    }
-    return _t("Not statistically significant (p ≥ 0.1)");
-  };
+  const nonEmpty = cols.filter((c) => c.type !== "empty");
+  if (!nonEmpty.length) {
+    return [];
+  }
 
   const colIndex = new Map<ColumnAnalysis, number>();
-  const numCols: ColumnAnalysis[] = [];
-  const dateCols: ColumnAnalysis[] = [];
-  const catCols: ColumnAnalysis[] = [];
-  const boolCols: ColumnAnalysis[] = [];
+  nonEmpty.forEach((col, i) => colIndex.set(col, i));
+  const title = (col: ColumnAnalysis) => columnTitle(col, colIndex.get(col)!);
 
-  for (let i = 0; i < cols.length; i++) {
-    const col = cols[i];
-    colIndex.set(col, i);
-    switch (col.type) {
-      case "number":
-      case "percentage":
-        numCols.push(col);
-        break;
-      case "date":
-        dateCols.push(col);
-        break;
-      case "categorical":
-      case "label":
-        catCols.push(col);
-        break;
-      case "boolean":
-        boolCols.push(col);
-        break;
-    }
+  const numberOfColumns = nonEmpty.length;
+
+  if (numberOfColumns === 1) {
+    return sectionsForSingleColumn(getters, sheetId, nonEmpty[0], title);
   }
 
-  const otherNumCount = numCols.length - 1;
-  for (const col of numCols) {
-    const range = zoneToXc(col.zone);
-
-    const summaryItems: StatItem[] = [
-      item(getters, sheetId, _t("Count"), `=COUNTA(${range})`, _t("Number of non-empty cells.")),
-      item(getters, sheetId, _t("Min"), `=MIN(${range})`),
-      item(getters, sheetId, _t("Max"), `=MAX(${range})`),
-      item(getters, sheetId, _t("Sum"), `=SUM(${range})`),
-      item(
-        getters,
-        sheetId,
-        _t("Average"),
-        `=AVERAGE(${range})`,
-        _t(
-          "Sum divided by count. Sensitive to extreme values — if far from the median, outliers are pulling it."
-        )
-      ),
-    ];
-    if (isSingleColumn) {
-      summaryItems.push(
-        item(
-          getters,
-          sheetId,
-          _t("Median"),
-          `=MEDIAN(${range})`,
-          _t(
-            "Middle value when sorted. Robust to outliers. If much lower than average, a few high values are skewing the mean upward."
-          )
-        )
-      );
-    }
-
-    const groups: StatGroup[] = [
-      { items: summaryItems },
-      {
-        label: _t("Dispersion"),
-        items: [
-          item(
-            getters,
-            sheetId,
-            _t("Standard Deviation"),
-            `=STDEV(${range})`,
-            _t(
-              "Average distance from the mean. ~68% of values lie within 1 std dev of the mean, ~95% within 2."
-            ),
-            (_, cv) => {
-              if (cv === undefined) {
-                return undefined;
-              }
-              const pct = Math.round(Math.abs(cv) * 100);
-              if (Math.abs(cv) < 0.15) {
-                return _t("Low variability relative to the mean (CV = %s%)", pct);
-              }
-              if (Math.abs(cv) < 0.3) {
-                return _t("Moderate variability relative to the mean (CV = %s%)", pct);
-              }
-              return _t("High variability relative to the mean (CV = %s%)", pct);
-            },
-            `=IFERROR(STDEV(${range})/ABS(AVERAGE(${range})),"")`
-          ),
-        ],
-      },
-    ];
-
-    if (isSingleColumn) {
-      groups.push({
-        label: _t("Distribution"),
-        items: [
-          item(
-            getters,
-            sheetId,
-            _t("Skewness"),
-            `=SKEW(${range})`,
-            _t(
-              "Asymmetry of the distribution. Near 0 = symmetric. Positive = long right tail (a few high outliers). Negative = long left tail (a few low outliers)."
-            ),
-            (v) => {
-              const abs = Math.abs(v);
-              if (abs < 0.5) {
-                return _t("Approximately symmetric distribution");
-              }
-              if (v > 0) {
-                return abs < 1
-                  ? _t("Moderately right-skewed")
-                  : _t("Highly right-skewed — a few extreme high values");
-              }
-              return abs < 1
-                ? _t("Moderately left-skewed")
-                : _t("Highly left-skewed — a few extreme low values");
-            }
-          ),
-          item(
-            getters,
-            sheetId,
-            _t("Kurtosis"),
-            `=KURT(${range})`,
-            _t(
-              "Shape of the peak compared to a normal distribution. Near 0 = normal. Positive = sharper peak with more extreme outliers. Negative = flatter, more spread out."
-            ),
-            (v) => {
-              if (Math.abs(v) < 0.5) {
-                return _t("Similar shape to a normal distribution");
-              }
-              return v > 0
-                ? _t("Sharper peak than normal — more extreme outliers likely")
-                : _t("Flatter peak than normal — fewer extreme outliers");
-            }
-          ),
-        ],
-      });
-    }
-
-    for (const other of numCols) {
-      if (other === col) {
-        continue;
-      }
-      const otherRange = zoneToXc(other.zone);
-      const otherName = columnTitle(other, colIndex.get(other)!);
-      if (otherNumCount === 1) {
-        groups.push({
-          label: otherName,
-          items: [
-            item(
-              getters,
-              sheetId,
-              _t("Pearson"),
-              `=PEARSON(${range},${otherRange})`,
-              _t(
-                "Linear correlation from -1 to 1. |r| > 0.7 = strong, 0.3–0.7 = moderate, < 0.3 = weak. Sign indicates direction."
-              ),
-              interpretPearson
-            ),
-            item(
-              getters,
-              sheetId,
-              _t("R²"),
-              `=RSQ(${range},${otherRange})`,
-              _t(
-                "Proportion of variance explained by the linear relationship. 0.8 means 80% of the variation in Y is explained by X."
-              ),
-              (v) =>
-                _t(
-                  "%s% of the variation is explained by the linear relationship",
-                  Math.round(v * 100)
-                )
-            ),
-            item(
-              getters,
-              sheetId,
-              _t("Slope"),
-              `=SLOPE(${range},${otherRange})`,
-              _t("How much this column increases for each unit increase in the other column."),
-              (v) =>
-                v > 0
-                  ? _t("Increases with the other column")
-                  : v < 0
-                  ? _t("Decreases as the other column increases")
-                  : _t("No linear trend between columns")
-            ),
-            item(
-              getters,
-              sheetId,
-              _t("Intercept"),
-              `=INTERCEPT(${range},${otherRange})`,
-              _t("Predicted value of this column when the other column equals 0.")
-            ),
-            item(
-              getters,
-              sheetId,
-              _t("T-test p-value"),
-              `=T.TEST(${range},${otherRange},2,3)`,
-              _t(
-                "Probability of observing this difference in means by chance alone. < 0.05 = the two columns likely have different means."
-              ),
-              interpretPValue
-            ),
-            item(
-              getters,
-              sheetId,
-              _t("F-test p-value"),
-              `=F.TEST(${range},${otherRange})`,
-              _t(
-                "Probability of observing this difference in spread by chance alone. < 0.05 = the two columns likely have different variability."
-              ),
-              interpretPValue
-            ),
-          ],
-        });
-      } else {
-        groups.push({
-          label: otherName,
-          items: [
-            item(
-              getters,
-              sheetId,
-              _t("Pearson"),
-              `=PEARSON(${range},${otherRange})`,
-              _t(
-                "Linear correlation from -1 to 1. |r| > 0.7 = strong, 0.3–0.7 = moderate, < 0.3 = weak. Sign indicates direction."
-              ),
-              interpretPearson
-            ),
-          ],
-        });
-      }
-    }
-
-    for (const dateCol of dateCols) {
-      const dateRange = zoneToXc(dateCol.zone);
-      const dateName = columnTitle(dateCol, colIndex.get(dateCol)!);
-      groups.push({
-        label: dateName,
-        items: [
-          item(
-            getters,
-            sheetId,
-            _t("Pearson"),
-            `=PEARSON(${range},${dateRange})`,
-            _t(
-              "Linear correlation with time from -1 to 1. Positive = values tend to increase over time. Negative = values tend to decrease."
-            ),
-            interpretPearson
-          ),
-          item(
-            getters,
-            sheetId,
-            _t("Slope/day"),
-            `=SLOPE(${range},${dateRange})`,
-            _t("Average daily change in this column over time."),
-            (v) =>
-              v > 0
-                ? _t("Values tend to increase over time")
-                : v < 0
-                ? _t("Values tend to decrease over time")
-                : _t("No temporal trend detected")
-          ),
-        ],
-      });
-    }
-
-    sections.push({ title: columnTitle(col, colIndex.get(col)!), range, groups });
+  if (numberOfColumns === 2) {
+    return sectionsForColumnPair(getters, sheetId, nonEmpty[0], nonEmpty[1], title);
   }
 
-  for (const col of dateCols) {
-    const range = zoneToXc(col.zone);
-    sections.push({
-      title: columnTitle(col, colIndex.get(col)!),
-      range,
-      groups: [{ items: dateItems(getters, sheetId, range) }],
-    });
-  }
-
-  for (const col of catCols) {
-    const range = zoneToXc(col.zone);
-    const groups: StatGroup[] = [{ items: categoryItems(getters, sheetId, range) }];
-    for (const other of catCols) {
-      if (other === col) {
-        continue;
-      }
-      const otherRange = zoneToXc(other.zone);
-      const otherName = columnTitle(other, colIndex.get(other)!);
-      groups.push({
-        label: otherName,
-        items: [
-          item(
-            getters,
-            sheetId,
-            _t("Cramér's V"),
-            `=SQRT(CHISQ.TEST(${range},${otherRange}) / (COUNTA(${range}) * (MIN(COUNTUNIQUE(${range}), COUNTUNIQUE(${otherRange})) - 1)))`,
-            _t(
-              "Strength of association between two categorical columns, from 0 to 1. 0 = no association. 1 = perfect association. Think of it like a correlation for categories."
-            ),
-            (v) => {
-              if (v < 0.1) {
-                return _t("Negligible association");
-              }
-              if (v < 0.3) {
-                return _t("Weak association");
-              }
-              if (v < 0.5) {
-                return _t("Moderate association");
-              }
-              return _t("Strong association");
-            }
-          ),
-          item(
-            getters,
-            sheetId,
-            _t("χ² p-value"),
-            `=CHISQ.DIST.RT(CHISQ.TEST(${range},${otherRange}),(COUNTUNIQUE(${range})-1)*(COUNTUNIQUE(${otherRange})-1))`,
-            _t(
-              "Probability that the two columns are independent by chance. < 0.05 = the association between the two columns is statistically significant."
-            ),
-            interpretPValue
-          ),
-        ],
-      });
-    }
-    sections.push({ title: columnTitle(col, colIndex.get(col)!), range, groups });
-  }
-
-  for (const col of boolCols) {
-    const range = zoneToXc(col.zone);
-    const groups: StatGroup[] = [{ items: booleanItems(getters, sheetId, range) }];
-    for (const other of boolCols) {
-      if (other === col) {
-        continue;
-      }
-      const otherRange = zoneToXc(other.zone);
-      const otherName = columnTitle(other, colIndex.get(other)!);
-      groups.push({
-        label: otherName,
-        items: [
-          item(
-            getters,
-            sheetId,
-            _t("MCC"),
-            `=MATTHEWS(${range},${otherRange})`,
-            _t(
-              "Matthews Correlation Coefficient: correlation between two yes/no columns, from -1 to 1. 0 = no relationship. 1 = perfect agreement. More reliable than accuracy when true/false values are unbalanced."
-            ),
-            (v) => {
-              const abs = Math.abs(v);
-              if (abs < 0.2) {
-                return _t("Very weak or no correlation");
-              }
-              const dir = v > 0 ? _t("positive") : _t("negative");
-              if (abs < 0.4) {
-                return _t("Weak %s correlation", dir);
-              }
-              if (abs < 0.6) {
-                return _t("Moderate %s correlation", dir);
-              }
-              if (abs < 0.8) {
-                return _t("Strong %s correlation", dir);
-              }
-              return _t("Very strong %s correlation", dir);
-            }
-          ),
-        ],
-      });
-    }
-    sections.push({ title: columnTitle(col, colIndex.get(col)!), range, groups });
-  }
-
-  return sections;
+  return sectionsForManyColumns(getters, sheetId, nonEmpty, title);
 }

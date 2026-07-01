@@ -2,7 +2,8 @@ import { proxy } from "@odoo/owl";
 import { CellValue } from "../../..";
 import { DEFAULT_SCORECARD_HEIGHT, DEFAULT_SCORECARD_WIDTH } from "../../../constants";
 import { StatSection } from "../../../helpers/data_statistics_suggestions";
-import { drawScoreChart, ScorecardChart } from "../../../helpers/figures/charts/scorecard_chart";
+import { SpreadsheetChart } from "../../../helpers/figures/chart";
+import { drawScoreChart } from "../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../helpers/figures/charts/scorecard_chart_config_builder";
 import { UuidGenerator } from "../../../helpers/uuid";
 import { Component } from "../../../owl3_compatibility_layer";
@@ -53,6 +54,8 @@ export class DataStatistics extends Component<SpreadsheetChildEnv> {
   }
 
   startDragAndDrop(stat: { name: string; formula: string }, _ev: MouseEvent) {
+    const startX = _ev.clientX;
+    const startY = _ev.clientY;
     const gridOverlay = document.querySelector(".o-grid-overlay") as HTMLElement | null;
     if (!gridOverlay) {
       return;
@@ -65,6 +68,9 @@ export class DataStatistics extends Component<SpreadsheetChildEnv> {
 
     const label = document.createElement("div");
     label.className = "o-stat-dragged";
+    label.style.width = `${DEFAULT_SCORECARD_WIDTH}px`;
+    label.style.height = `${DEFAULT_SCORECARD_HEIGHT}px`;
+    label.style.display = "none";
     const canvas = document.createElement("canvas");
     canvas.id = "canvas-id";
     label.appendChild(canvas);
@@ -81,21 +87,28 @@ export class DataStatistics extends Component<SpreadsheetChildEnv> {
       baselineColorDown: "#F00",
     };
     //@ts-ignore
-    const runtime = ScorecardChart.getRuntime(
-      this.env.model.getters,
-      scorecardDefinition,
-      this.env.model.getters.getActiveSheetId(),
-      undefined
-    ) as ScorecardChartRuntime;
-    const design = getScorecardConfiguration(
-      { width: DEFAULT_SCORECARD_WIDTH, height: DEFAULT_SCORECARD_HEIGHT },
-      runtime
+    const getters = this.env.model.getters;
+    const chart = SpreadsheetChart.fromStrDefinition(
+      getters,
+      getters.getActiveSheetId(),
+      scorecardDefinition
     );
-    drawScoreChart(design, canvas);
+    const runtime = chart.getRuntime(getters, "myChart");
+    const config = getScorecardConfiguration(
+      { width: DEFAULT_SCORECARD_WIDTH, height: DEFAULT_SCORECARD_HEIGHT },
+      runtime as ScorecardChartRuntime
+    );
+    drawScoreChart(config, canvas);
 
     const onMouseMove = (e: MouseEvent) => {
       label.style.left = `${e.clientX}px`;
       label.style.top = `${e.clientY}px`;
+      if (
+        label.style.display === "none" &&
+        (Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5)
+      ) {
+        label.style.display = "block";
+      }
     };
 
     const onMouseUp = (mouseEvent: MouseEvent) => {

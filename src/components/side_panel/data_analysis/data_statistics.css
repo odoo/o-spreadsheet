@@ -31,7 +31,12 @@
     }
   }
   .o-stat-copy-icon {
+    opacity: 0.6;
     cursor: pointer;
+    &:hover,
+    &.active {
+      opacity: 0.8;
+    }
     .o-icon {
       font-size: 12px !important;
     }

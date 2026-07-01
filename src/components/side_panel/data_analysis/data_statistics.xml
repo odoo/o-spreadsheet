@@ -2,15 +2,6 @@
   <t t-name="o-spreadsheet-DataStatistics">
     <Section class="'o-column-global-stats d-flex flex-column gap-1 pt-0'">
       <t t-if="this.activeColSection">
-        <t t-if="this.store.perColSections.length === 1">
-          <div class="o-section-title">
-            <span t-out="this.activeColSection.title"/>
-            <span
-              class="text-muted ms-1 fw-normal small"
-              t-out="'(' + this.activeColSection.range + ')'"
-            />
-          </div>
-        </t>
         <t t-foreach="this.activeColSection.groups" t-as="group" t-key="group_index">
           <div
             t-if="group.label"
@@ -23,7 +14,9 @@
               <div
                 class="o-stat-draggable d-flex flex-fill justify-content-between align-items-center"
                 t-on-pointerdown="(ev) => this.startDragAndDrop(stat, ev)">
-                <span class="text-muted" t-out="stat.name"/>
+                <div class="d-flex">
+                  <span class="text-muted" t-out="stat.name"/>
+                </div>
                 <span class="o-fw-bold" t-att-data-test-id="stat.name" t-out="stat.value"/>
               </div>
               <span
@@ -32,8 +25,15 @@
                 t-on-click="() => this.copyFormulaToClipboard(stat.formula)">
                 <t t-call="o-spreadsheet-Icon.CLIPBOARD"/>
               </span>
+            </div>
+            <div>
+              <div
+                t-if="stat.interpretation"
+                class="o-stat-interpretation small fw-medium"
+                t-out="stat.interpretation"
+              />
               <span
-                t-if="stat.description or stat.interpretation"
+                t-if="stat.description and stat.interpretation"
                 class="o-stat-info-icon text-muted"
                 t-att-class="{ 'active': this.openDescriptionKey.value === descKey }"
                 t-on-click="() => this.toggleDescription(descKey)">
@@ -41,18 +41,9 @@
               </span>
             </div>
             <div
-              t-if="(stat.description or stat.interpretation) and this.openDescriptionKey.value === descKey"
+              t-if="stat.description and this.openDescriptionKey.value === descKey"
               class="o-stat-detail pb-1">
-              <div
-                t-if="stat.interpretation"
-                class="o-stat-interpretation small fw-medium"
-                t-out="stat.interpretation"
-              />
-              <div
-                t-if="stat.description"
-                class="o-stat-description text-muted small"
-                t-out="stat.description"
-              />
+              <div class="o-stat-description text-muted small" t-out="stat.description"/>
             </div>
           </t>
         </t>
