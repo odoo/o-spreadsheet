@@ -13,10 +13,10 @@ import {
   matrixMap,
   toBoolean,
   toInteger,
+  toLocaleString,
   toMatrix,
   toNumber,
   toNumberMatrix,
-  toString,
   transposeMatrix,
 } from "./helpers";
 
@@ -884,7 +884,9 @@ export const ARRAYTOTEXT = {
       const arrayStr = transposeMatrix(_array)
         .flatMap((row) =>
           row.map((value) => {
-            return isEvaluationError(value.value) ? value.value : toString(value);
+            return isEvaluationError(value.value)
+              ? value.value
+              : toLocaleString(value, this.locale);
           })
         )
         .join(rowSeparator);
