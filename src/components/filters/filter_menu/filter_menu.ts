@@ -69,7 +69,7 @@ export class FilterMenu extends Component<SpreadsheetChildEnv> {
       this.table.range.sheetId,
       this.table.range.zone
     );
-    return !this.env.model.getters.isReadonly() && coreTable?.type !== "dynamic";
+    return coreTable?.type !== "dynamic";
   }
 
   get table() {

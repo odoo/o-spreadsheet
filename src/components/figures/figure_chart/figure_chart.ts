@@ -21,6 +21,9 @@ export class ChartFigure extends Component<SpreadsheetChildEnv> {
   });
 
   onDoubleClick() {
+    if (this.env.model.getters.isReadonly()) {
+      return;
+    }
     this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });
     this.env.openSidePanel("ChartPanel");
   }

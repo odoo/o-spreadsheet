@@ -53,6 +53,9 @@ export const PASTE_ACTION = async (env: SpreadsheetChildEnv) => paste(env);
 export const PASTE_AS_VALUE_ACTION = async (env: SpreadsheetChildEnv) => paste(env, "asValue");
 
 async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptions) {
+  if (env.model.getters.isReadonly()) {
+    return;
+  }
   const osClipboard = await env.clipboard.read();
   switch (osClipboard.status) {
     case "ok":
