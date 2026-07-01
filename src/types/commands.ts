@@ -667,6 +667,8 @@ export interface UpdateCarouselCommand extends SheetDependentCommand {
 export interface AddNewChartToCarouselCommand extends SheetDependentCommand {
   type: "ADD_NEW_CHART_TO_CAROUSEL";
   figureId: UID;
+  newChartId: UID;
+  chartDefinition: ChartDefinition<string>;
 }
 
 export interface AddFiguresChartToCarouselCommand extends SheetDependentCommand {
