@@ -1,5 +1,6 @@
 import { UID } from "..";
 import { downloadFile } from "../components/helpers/dom_helpers";
+import { getPoppedOutChartAnchor } from "../helpers/carousel_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts/chart_ui_common";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { deepEquals } from "../helpers/misc";
@@ -57,7 +58,7 @@ export function getImageMenuActions(figureId: UID, env: SpreadsheetChildEnv): Ac
           image.size = size;
         }
         const { col, row } = figure;
-        const { height, width } = getMaxFigureSize(env.model.getters, size);
+        const { height, width } = getMaxFigureSize(size);
         env.model.dispatch("UPDATE_FIGURE", {
           sheetId,
           figureId,
@@ -139,10 +140,13 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetChildEnv):
         if (!selectedItem || selectedItem.type !== "chart") {
           return;
         }
+        const sheetId = env.model.getters.getActiveSheetId();
+        const anchor = getPoppedOutChartAnchor(env, sheetId, figureId);
         env.model.dispatch("POPOUT_CHART_FROM_CAROUSEL", {
           carouselId: figureId,
           chartId: selectedItem.chartId,
-          sheetId: env.model.getters.getActiveSheetId(),
+          sheetId,
+          ...anchor,
         });
       },
       isVisible: isChartSelected,

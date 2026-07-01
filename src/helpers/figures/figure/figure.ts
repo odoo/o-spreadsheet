@@ -1,30 +1,34 @@
 import { Position, UID } from "../../..";
+import { ViewportsStore } from "../../../stores/viewports_store";
 import { AnchorOffset, Figure, FigureSize } from "../../../types/figure";
 import { Getters } from "../../../types/getters";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { deepCopy } from "../../misc";
 
-export function centerFigurePosition(getters: Getters, size: FigureSize): AnchorOffset {
-  const { scrollX, scrollY } = getters.getActiveSheetScrollInfo();
-  const dim = getters.getSheetViewDimension();
+const MAX_FIGURE_WIDTH = 1000;
+const MAX_FIGURE_HEIGHT = 1000;
+
+export function centerFigurePosition(env: SpreadsheetChildEnv, size: FigureSize): AnchorOffset {
+  const viewStore = env.getStore(ViewportsStore);
+  const { scrollX, scrollY } = viewStore.activeSheetScrollInfo;
+  const dim = viewStore.sheetViewDimension;
 
   const posX = scrollX + Math.max(0, (dim.width - size.width) / 2);
   const posY = scrollY + Math.max(0, (dim.height - size.height) / 2);
-  return getters.getPositionAnchorOffset({ x: posX, y: posY });
+  const sheetId = env.model.getters.getActiveSheetId();
+  return viewStore.viewports.getPositionAnchorOffset(sheetId, { x: posX, y: posY });
 }
 
-export function getMaxFigureSize(getters: Getters, figureSize: FigureSize): FigureSize {
+export function getMaxFigureSize(figureSize: FigureSize): FigureSize {
   const size = deepCopy(figureSize);
-  const dim = getters.getSheetViewDimension();
-  const maxWidth = dim.width;
-  const maxHeight = dim.height;
-  if (size.width > maxWidth) {
-    const ratio = maxWidth / size.width;
-    size.width = maxWidth;
+  if (size.width > MAX_FIGURE_WIDTH) {
+    const ratio = MAX_FIGURE_WIDTH / size.width;
+    size.width = MAX_FIGURE_WIDTH;
     size.height = size.height * ratio;
   }
-  if (size.height > maxHeight) {
-    const ratio = maxHeight / size.height;
-    size.height = maxHeight;
+  if (size.height > MAX_FIGURE_HEIGHT) {
+    const ratio = MAX_FIGURE_HEIGHT / size.height;
+    size.height = MAX_FIGURE_HEIGHT;
     size.width = size.width * ratio;
   }
   return size;

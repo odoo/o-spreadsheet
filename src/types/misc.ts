@@ -446,3 +446,10 @@ export interface NamedRange {
   name: string;
   range: Range;
 }
+
+export interface SheetViewDimensions {
+  height: Pixel;
+  width: Pixel;
+  gridOffsetX?: Pixel;
+  gridOffsetY?: Pixel;
+}

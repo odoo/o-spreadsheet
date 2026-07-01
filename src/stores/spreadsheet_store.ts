@@ -14,6 +14,10 @@ export class SpreadsheetStore extends DisposableStore {
 
   constructor(get: Get) {
     super(get);
+    // FIXME: registering the event handlers here is sketchy vis-à-vis the store dependencies
+    // If a store A depends on a store B via a `this.get(B)` in the constructor, A will be after B in the dependency container.
+    // But A will register before B in the model bus since it's registered in `A.super()`, before `B.constructor()` is called
+    // This is not an issue in practice at the moment, but may be in the future
     this.model.on("command-dispatched", this, this.handle);
     this.model.on("command-finalized", this, this.finalize);
     this.renderer.register(this);

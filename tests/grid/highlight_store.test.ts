@@ -4,12 +4,14 @@ import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_st
 
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers/zones";
+import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { MockGridRenderingContext } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 
 let highlightStore: HighlightStore;
 let ctx: MockGridRenderingContext;
 let ctxInstructions: string[];
+let container: DependencyContainer;
 let model: Model;
 let sheetId: UID;
 
@@ -23,10 +25,10 @@ describe("Highlight store", () => {
   beforeEach(() => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
-    ({ store: highlightStore } = makeStoreWithModel(model, HighlightStore));
+    ({ store: highlightStore, container } = makeStoreWithModel(model, HighlightStore));
 
     ctxInstructions = [];
-    ctx = new MockGridRenderingContext(model, 1000, 1000, {
+    ctx = new MockGridRenderingContext(model, container, 1000, 1000, {
       onSet: (key, value) => {
         ctxInstructions.push(`context.${key}=${JSON.stringify(value)};`);
       },

@@ -1,6 +1,7 @@
 import { DEFAULT_LOCALE, Model } from "../../src";
 import { buildSheetLink } from "../../src/helpers/misc";
 import { CellValueType } from "../../src/types/cells";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   activateSheet,
   createSheet,
@@ -27,9 +28,10 @@ extendMockGetBoundingClientRect({
 describe("link editor component", () => {
   let fixture: HTMLElement;
   let model: Model;
+  let env: SpreadsheetChildEnv;
 
   async function openLinkEditor(model: Model, xc: string) {
-    await rightClickCell(model, xc);
+    await rightClickCell(env, xc);
     await simulateClick(".o-menu-item[data-name='insert_link']");
   }
 
@@ -41,11 +43,11 @@ describe("link editor component", () => {
   }
 
   beforeEach(async () => {
-    ({ model, fixture } = await mountSpreadsheet());
+    ({ model, fixture, env } = await mountSpreadsheet());
   });
 
   test("open link editor from cell context menu", async () => {
-    await rightClickCell(model, "A1");
+    await rightClickCell(env, "A1");
     await simulateClick(".o-menu-item[data-name='insert_link']");
     const editor = fixture.querySelector(".o-link-editor");
     expect(editor).toBeTruthy();
@@ -285,7 +287,7 @@ describe("link editor component", () => {
   test("clicking another cell closes the editor", async () => {
     await openLinkEditor(model, "A1");
     expect(fixture.querySelector(".o-link-editor")).toBeTruthy();
-    await clickCell(model, "B2");
+    await clickCell(env, "B2");
     expect(fixture.querySelector(".o-link-editor")).toBeNull();
   });
 
@@ -303,14 +305,14 @@ describe("link editor component", () => {
     setCellContent(model, "B2", "[label](url.com)");
     await openLinkEditor(model, "A1");
     expect(fixture.querySelector(".o-link-editor")).toBeTruthy();
-    await clickCell(model, "B2");
+    await clickCell(env, "B2");
     expect(fixture.querySelector(".o-link-editor")).toBeNull();
   });
 
   test("clicking the same cell closes the editor", async () => {
     await openLinkEditor(model, "A1");
     expect(fixture.querySelector(".o-link-editor")).toBeTruthy();
-    await clickCell(model, "A1");
+    await clickCell(env, "A1");
     expect(fixture.querySelector(".o-link-editor")).toBeNull();
   });
 

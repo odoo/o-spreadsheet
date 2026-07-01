@@ -405,7 +405,7 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   }
 
   const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
-  const { col, row, offset } = centerFigurePosition(getters, size);
+  const { col, row, offset } = centerFigurePosition(env, size);
 
   const result = env.model.dispatch("CREATE_CHART", {
     sheetId,
@@ -429,7 +429,7 @@ export const CREATE_CAROUSEL = (env: SpreadsheetChildEnv) => {
   const sheetId = getters.getActiveSheetId();
 
   const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
-  const { col, row, offset } = centerFigurePosition(getters, size);
+  const { col, row, offset } = centerFigurePosition(env, size);
 
   const result = env.model.dispatch("CREATE_CAROUSEL", {
     sheetId,
@@ -518,8 +518,8 @@ export const CREATE_IMAGE = async (env: SpreadsheetChildEnv) => {
     const sheetId = env.model.getters.getActiveSheetId();
     const figureId = UuidGenerator.smallUuid();
     const image = await env.imageProvider.requestImage();
-    const size = getMaxFigureSize(env.model.getters, image.size);
-    const { col, row, offset } = centerFigurePosition(env.model.getters, size);
+    const size = getMaxFigureSize(image.size);
+    const { col, row, offset } = centerFigurePosition(env, size);
     env.model.dispatch("CREATE_IMAGE", {
       sheetId,
       figureId,

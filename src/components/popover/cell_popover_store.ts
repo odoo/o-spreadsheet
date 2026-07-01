@@ -1,6 +1,7 @@
 import { positionToZone } from "../../helpers/zones";
 import { cellPopoverRegistry } from "../../registries/cell_popovers_registry";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
+import { ViewportsStore } from "../../stores/viewports_store";
 import {
   CellPopoverType,
   ClosedCellPopover,
@@ -18,6 +19,7 @@ export class CellPopoverStore extends SpreadsheetStore {
   private persistentPopover?: CellPosition & { type: CellPopoverType };
 
   protected hoveredCell = this.get(DelayedHoveredCellStore);
+  private viewStore = this.get(ViewportsStore);
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -55,7 +57,10 @@ export class CellPopoverStore extends SpreadsheetStore {
   get cellPopover(): ClosedCellPopover | PositionedCellPopoverComponent {
     const sheetId = this.getters.getActiveSheetId();
 
-    if (this.persistentPopover && this.getters.isVisibleInViewport(this.persistentPopover)) {
+    if (
+      this.persistentPopover &&
+      this.viewStore.viewports.isVisibleInViewport(this.persistentPopover)
+    ) {
       const position = this.getters.getMainCellPosition(this.persistentPopover);
       const popover = cellPopoverRegistry
         .get(this.persistentPopover.type)
@@ -71,7 +76,7 @@ export class CellPopoverStore extends SpreadsheetStore {
     if (
       col === undefined ||
       row === undefined ||
-      !this.getters.isVisibleInViewport({ sheetId, col, row })
+      !this.viewStore.viewports.isVisibleInViewport({ sheetId, col, row })
     ) {
       return { isOpen: false };
     }
@@ -92,8 +97,8 @@ export class CellPopoverStore extends SpreadsheetStore {
     const sheetId = this.getters.getActiveSheetId();
     const merge = this.getters.getMerge({ sheetId, col, row });
     if (merge) {
-      return this.getters.getVisibleRect(merge);
+      return this.viewStore.viewports.getVisibleRect(sheetId, merge);
     }
-    return this.getters.getVisibleRect(positionToZone({ col, row }));
+    return this.viewStore.viewports.getVisibleRect(sheetId, positionToZone({ col, row }));
   }
 }

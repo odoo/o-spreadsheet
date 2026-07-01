@@ -51,7 +51,7 @@ export class PivotSidePanel extends Component<SpreadsheetChildEnv> {
 
   get highlights() {
     return this.state.panel === "configuration"
-      ? getPivotHighlights(this.env.model.getters, this.props.pivotId)
+      ? getPivotHighlights(this.env, this.props.pivotId)
       : [];
   }
 

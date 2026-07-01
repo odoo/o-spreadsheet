@@ -4,6 +4,7 @@ import { isDateOrDatetimeField } from "../../../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../../../helpers/pivot/pivot_registry";
 import { NotificationStore } from "../../../../stores/notification_store";
 import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
+import { ViewportsStore } from "../../../../stores/viewports_store";
 import { _t } from "../../../../translation";
 import { Command } from "../../../../types/commands";
 import { UID } from "../../../../types/misc";
@@ -28,6 +29,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
   private _updatesAreDeferred: boolean;
   private draft: PivotCoreDefinition | null = null;
   private notification = this.get(NotificationStore);
+  private viewStore = this.get(ViewportsStore);
   private alreadyNotified = false;
   private alreadyNotifiedForPivotSize = false;
 
@@ -276,7 +278,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
   private isUpdatedPivotVisibleInViewportOnlyAsStaticPivot() {
     let staticPivotCount = 0;
     const updatedPivotFormulaId = this.getters.getPivotFormulaId(this.pivotId);
-    for (const position of this.getters.getVisibleCellPositions()) {
+    for (const position of this.viewStore.visibleCellPositions) {
       const cell = this.getters.getCell(position);
       if (cell?.isFormula) {
         const pivotFunction = getFirstPivotFunction(cell.compiledFormula, this.getters);

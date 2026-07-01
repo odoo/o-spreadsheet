@@ -1,10 +1,12 @@
-import { Color, DOMCoordinates, HeaderIndex, Model, Pixel } from "../../src";
+import { Color, DOMCoordinates, HeaderIndex, Pixel } from "../../src";
 import { iterateChildren } from "../../src/components/helpers/dom_helpers";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { toHex } from "../../src/helpers/color";
 import { lettersToNumber, toCartesian } from "../../src/helpers/coordinates";
 import { MIN_DELAY, scrollDelay } from "../../src/helpers/edge_scrolling";
 import { positionToZone, toZone } from "../../src/helpers/zones";
+import { ViewportsStore } from "../../src/stores/viewports_store";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { nextTick } from "./helpers";
 
 export type DOMTarget = string | Element | Document | Window | null;
@@ -125,10 +127,13 @@ export async function pointerUp(target: DOMTarget) {
  * Don't forget to use `useJestFakeTimers();` when using
  * this helper.
  */
-export async function hoverCell(model: Model, xc: string, delay: number) {
+export async function hoverCell(env: SpreadsheetChildEnv, xc: string, delay: number) {
+  const model = env.model;
   const zone = toZone(xc);
-  const zoom = model.getters.getViewportZoomLevel();
-  let { x, y, width, height } = model.getters.getVisibleRectWithZoom(zone);
+  const zoom = env.getStore(ViewportsStore).zoomLevel;
+  let { x, y, width, height } = env
+    .getStore(ViewportsStore)
+    .viewports.getVisibleRectWithZoom(model.getters.getActiveSheetId(), zone);
   if (!model.getters.isDashboard()) {
     x -= HEADER_WIDTH * zoom;
     y -= HEADER_HEIGHT * zoom;
@@ -141,7 +146,7 @@ export async function hoverCell(model: Model, xc: string, delay: number) {
 }
 
 export async function clickCell(
-  model: Model,
+  env: SpreadsheetChildEnv,
   xc: string,
   extra: MouseEventInit = { bubbles: true },
   option: { clickInMiddle?: boolean; offsetX?: number; offsetY?: number } = {
@@ -150,13 +155,22 @@ export async function clickCell(
     offsetY: 0,
   }
 ) {
+  const model = env.model;
   const zone = toZone(xc);
   const sheetId = model.getters.getActiveSheetId();
-  const zoom = model.getters.getViewportZoomLevel();
-  if (!model.getters.isVisibleInViewport({ sheetId, col: zone.left, row: zone.top })) {
+  const zoom = env.getStore(ViewportsStore).zoomLevel;
+  if (
+    !env.getStore(ViewportsStore).viewports.isVisibleInViewport({
+      sheetId,
+      col: zone.left,
+      row: zone.top,
+    })
+  ) {
     throw new Error(`You can't click on ${xc} because it is not visible`);
   }
-  let { x, y, width, height } = model.getters.getVisibleRectWithZoom(zone);
+  let { x, y, width, height } = env
+    .getStore(ViewportsStore)
+    .viewports.getVisibleRectWithZoom(model.getters.getActiveSheetId(), zone);
   if (!model.getters.isDashboard()) {
     x -= HEADER_WIDTH * zoom;
     y -= HEADER_HEIGHT * zoom;
@@ -171,67 +185,78 @@ export async function clickCell(
 }
 
 export async function clickHeader(
-  model: Model,
+  env: SpreadsheetChildEnv,
   dim: "COL" | "ROW",
   header: HeaderIndex,
   extra: MouseEventInit = { bubbles: true }
 ) {
+  const model = env.model;
   let x = 1;
   let y = 1;
   const sheetZone = model.getters.getSheetZone(model.getters.getActiveSheetId());
   if (dim === "COL") {
-    x = model.getters.getVisibleRectWithZoom({
-      left: header,
-      right: header,
-      top: sheetZone.top,
-      bottom: sheetZone.bottom,
-    }).x;
+    x = env
+      .getStore(ViewportsStore)
+      .viewports.getVisibleRectWithZoom(model.getters.getActiveSheetId(), {
+        left: header,
+        right: header,
+        top: sheetZone.top,
+        bottom: sheetZone.bottom,
+      }).x;
   } else {
-    y = model.getters.getVisibleRectWithZoom({
-      left: sheetZone.left,
-      right: sheetZone.right,
-      top: header,
-      bottom: header,
-    }).y;
+    y = env
+      .getStore(ViewportsStore)
+      .viewports.getVisibleRectWithZoom(model.getters.getActiveSheetId(), {
+        left: sheetZone.left,
+        right: sheetZone.right,
+        top: header,
+        bottom: header,
+      }).y;
   }
   await simulateClick(".o-grid-overlay", x, y, extra);
 }
 
-export function getGridIconEventPosition(model: Model, xc: string) {
+export function getGridIconEventPosition(env: SpreadsheetChildEnv, xc: string) {
+  const model = env.model;
   const position = { ...toCartesian(xc), sheetId: model.getters.getActiveSheetId() };
   const icon = model.getters.getCellIcons(position)[0];
   if (!icon) {
     throw new Error(`No icon inside cell ${xc}`);
   }
-  const gridOffset = model.getters.getGridOffset();
+  const gridOffset = env.getStore(ViewportsStore).gridOffset;
   const merge = model.getters.getMerge(position);
   const zone = merge || positionToZone(position);
-  const cellRect = model.getters.getRect(zone);
+  const cellRect = env
+    .getStore(ViewportsStore)
+    .viewports.getRect(model.getters.getActiveSheetId(), zone);
   const rect = model.getters.getCellIconRect(icon, cellRect);
   const x = rect.x + rect.width / 2 - gridOffset.x;
   const y = rect.y + rect.height / 2 - gridOffset.y;
   return { x, y };
 }
 
-export async function clickGridIcon(model: Model, xc: string) {
-  const { x, y } = getGridIconEventPosition(model, xc);
+export async function clickGridIcon(env: SpreadsheetChildEnv, xc: string) {
+  const { x, y } = getGridIconEventPosition(env, xc);
   await simulateClick(".o-grid-overlay", x, y);
 }
 
-export async function hoverGridIcon(model: Model, xc: string) {
-  const { x, y } = getGridIconEventPosition(model, xc);
+export async function hoverGridIcon(env: SpreadsheetChildEnv, xc: string) {
+  const { x, y } = getGridIconEventPosition(env, xc);
   triggerMouseEvent(".o-grid-overlay", "pointermove", x, y);
   await nextTick();
 }
 
 export async function gridMouseEvent(
-  model: Model,
+  env: SpreadsheetChildEnv,
   type: string,
   xc: string,
   extra: MouseEventInit = { bubbles: true }
 ) {
+  const model = env.model;
   const zone = toZone(xc);
-  let { x, y } = model.getters.getVisibleRect(zone);
+  let { x, y } = env
+    .getStore(ViewportsStore)
+    .viewports.getVisibleRect(model.getters.getActiveSheetId(), zone);
   if (!model.getters.isDashboard()) {
     x -= HEADER_WIDTH;
     y -= HEADER_HEIGHT;
@@ -241,11 +266,11 @@ export async function gridMouseEvent(
 }
 
 export async function rightClickCell(
-  model: Model,
+  env: SpreadsheetChildEnv,
   xc: string,
   extra: MouseEventInit = { bubbles: true }
 ) {
-  await gridMouseEvent(model, "contextmenu", xc, extra);
+  await gridMouseEvent(env, "contextmenu", xc, extra);
 }
 
 export function triggerMouseEvent(
@@ -418,9 +443,14 @@ export function getElStyle(selector: string, style: string): string {
  * @param letter Name of the column to click on (Starts at 'A')
  * @param extra shiftKey, ctrlKey
  */
-export async function selectColumnByClicking(model: Model, letter: string, extra: any = {}) {
+export async function selectColumnByClicking(
+  env: SpreadsheetChildEnv,
+  letter: string,
+  extra: any = {}
+) {
+  const model = env.model;
   const index = lettersToNumber(letter);
-  const zoom = model.getters.getViewportZoomLevel();
+  const zoom = env.getStore(ViewportsStore).zoomLevel;
   const x =
     model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.start * zoom + 1;
   triggerMouseEvent(".o-overlay .o-col-resizer", "pointermove", x, 10);

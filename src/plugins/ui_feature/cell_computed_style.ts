@@ -87,6 +87,9 @@ export class CellComputedStylePlugin extends UIPlugin {
   }
 
   private getComputedStyle(position: CellPosition): Style {
+    if (!this.getters.tryGetSheet(position.sheetId)) {
+      return {};
+    }
     const cellStyle = this.getters.getCellStyle(position);
     const cfStyle = this.getters.getCellConditionalFormatStyle(position);
     const tableStyle = this.getters.getCellTableStyle(position);

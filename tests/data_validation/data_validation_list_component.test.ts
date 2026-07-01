@@ -9,6 +9,7 @@ import {
 } from "../../src/constants";
 import { computeTextFontSizeInPixels } from "../../src/helpers/text_helper";
 import { toZone } from "../../src/helpers/zones";
+import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   addDataValidation,
@@ -40,6 +41,7 @@ import {
   nextTick,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
+import { makeStoreWithModel } from "../test_helpers/stores";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -517,7 +519,11 @@ describe("Selection arrow icon in grid", () => {
   test("Icon is displayed in the grid at the correct position", () => {
     const icon = getCellIcons(model, "A1")[0];
     expect(icon.type).toEqual("data_validation_list_chip_icon");
-    const rect = model.getters.getCellIconRect(icon, model.getters.getRect(toZone("A1")));
+    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
+    const rect = model.getters.getCellIconRect(
+      icon,
+      viewStore.viewports.getRect(model.getters.getActiveSheetId(), toZone("A1"))
+    );
     const cellStyle = model.getters.getCellComputedStyle({
       col: 0,
       row: 0,
@@ -532,7 +538,7 @@ describe("Selection arrow icon in grid", () => {
     setSelection(model, ["B2"]);
     ({ fixture, env } = await mountSpreadsheet({ model }));
     const composerStore = env.getStore(CellComposerStore);
-    await clickGridIcon(model, "A1");
+    await clickGridIcon(env, "A1");
     expect(composerStore.editionMode).toBe("editing");
     expect(composerStore.currentEditedCell).toEqual({ sheetId, col: 0, row: 0 });
     const suggestions = fixture.querySelectorAll(".o-autocomplete-dropdown .o-autocomplete-value");
@@ -546,19 +552,19 @@ describe("Selection arrow icon in grid", () => {
     ({ fixture, env } = await mountSpreadsheet({ model }));
     const composerStore = env.getStore(CellComposerStore);
     const hideHelpSpy = jest.spyOn(composerStore, "hideHelp");
-    await clickGridIcon(model, "A1");
+    await clickGridIcon(env, "A1");
     expect(composerStore.editionMode).toBe("editing");
     expect(hideHelpSpy).not.toHaveBeenCalled();
 
-    await gridMouseEvent(model, "pointerdown", "B2");
-    await gridMouseEvent(model, "pointerup", "B2");
+    await gridMouseEvent(env, "pointerdown", "B2");
+    await gridMouseEvent(env, "pointerup", "B2");
     expect(composerStore.editionMode).toBe("inactive");
   });
 
   test("Click-and-drag on grid icon does not hide autocomplete", async () => {
     ({ fixture, env } = await mountSpreadsheet({ model }));
     const composerStore = env.getStore(CellComposerStore);
-    const { x, y } = getGridIconEventPosition(model, "A1");
+    const { x, y } = getGridIconEventPosition(env, "A1");
 
     triggerMouseEvent(".o-grid-overlay", "pointerdown", x, y);
     await nextTick();
@@ -626,8 +632,8 @@ describe("Selection arrow icon in grid", () => {
       fillColor: "#123456",
       textColor: "#654321",
     });
-    ({ fixture } = await mountSpreadsheet({ model }));
-    await clickGridIcon(model, "A1");
+    ({ fixture, env } = await mountSpreadsheet({ model }));
+    await clickGridIcon(env, "A1");
     expect(getElComputedStyle(".o-grid-composer", "background")).toBeSameColorAs("#123456");
     expect(getElComputedStyle(".o-grid-composer", "color")).toBeSameColorAs("#654321");
   });

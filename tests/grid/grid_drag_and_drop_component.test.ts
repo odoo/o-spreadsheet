@@ -4,7 +4,9 @@ import { useDragAndDropBeyondTheViewport } from "../../src/components/helpers/dr
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { numberToLetters } from "../../src/helpers/coordinates";
 import { Component } from "../../src/owl3_compatibility_layer";
+import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { Store } from "../../src/types/store_engine";
 import {
   addColumns,
   addRows,
@@ -33,6 +35,8 @@ jest.mock("../../src/components/helpers/dom_helpers", () => {
 let model: Model;
 let sheetId: UID;
 let app: App;
+let env: SpreadsheetChildEnv;
+let viewStore: Store<ViewportsStore>;
 
 //Test Component required
 const TEMPLATE = xml/* xml */ `
@@ -73,7 +77,7 @@ afterAll(() => {
 });
 
 beforeEach(async () => {
-  ({ model, app } = await mountComponent(FakeGridComponent));
+  ({ model, app, env, viewStore } = await mountComponent(FakeGridComponent));
   selectedCol = selectedRow = undefined;
   sheetId = model.getters.getActiveSheetId();
   await nextTick();
@@ -86,14 +90,14 @@ afterEach(() => {
 describe("Drag And Drop horizontal tests", () => {
   test("Start Drag&Drop in XRight then moving to XLeft edge-scroll XRight to the left", async () => {
     freezeColumns(model, 4, sheetId);
-    setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+    setViewportOffset(env, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
     await nextTick();
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       left: 10,
       right: 16,
     });
-    const { height } = model.getters.getSheetViewDimension();
-    const { x: offsetCorrectionX } = model.getters.getMainViewportCoordinates();
+    const { height } = viewStore.sheetViewDimension;
+    const { x: offsetCorrectionX } = viewStore.mainViewportCoordinates;
     const x = offsetCorrectionX + DEFAULT_CELL_WIDTH;
     triggerMouseEvent(".o-fake-grid", "pointerdown", x, 0.5 * height);
     triggerMouseEvent(".o-fake-grid", "pointermove", 0.5 * offsetCorrectionX, 0.5 * height);
@@ -101,7 +105,7 @@ describe("Drag And Drop horizontal tests", () => {
 
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-fake-grid", "pointerup", 0.5 * offsetCorrectionX, 0.5 * height);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       left: 8,
       right: 14,
     });
@@ -109,19 +113,19 @@ describe("Drag And Drop horizontal tests", () => {
 
   test("Start Drag&Drop in XLeft then moving to XRight unscroll XRight", async () => {
     freezeColumns(model, 4, sheetId);
-    setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+    setViewportOffset(env, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
     await nextTick();
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       left: 10,
       right: 16,
     });
-    const { height } = model.getters.getSheetViewDimension();
-    const { x: offsetCorrectionX } = model.getters.getMainViewportCoordinates();
+    const { height } = viewStore.sheetViewDimension;
+    const { x: offsetCorrectionX } = viewStore.mainViewportCoordinates;
     const x = offsetCorrectionX + DEFAULT_CELL_WIDTH;
     triggerMouseEvent(".o-fake-grid", "pointerdown", 0.5 * offsetCorrectionX, 0.5 * height);
     triggerMouseEvent(".o-fake-grid", "pointermove", x, 0.5 * height);
     triggerMouseEvent(".o-fake-grid", "pointerup", 0.5 * offsetCorrectionX, 0.5 * height);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       left: 4,
       right: 10,
     });
@@ -131,18 +135,18 @@ describe("Drag And Drop horizontal tests", () => {
   test("Start Drag&Drop in XRight then moving it outside right scroll XRight to the right", async () => {
     freezeColumns(model, 4, sheetId);
     await nextTick();
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       left: 4,
       right: 10,
     });
-    const { width, height } = model.getters.getSheetViewDimension();
+    const { width, height } = viewStore.sheetViewDimension;
     triggerMouseEvent(".o-fake-grid", "pointerdown", width, 0.5 * height);
     triggerMouseEvent(".o-fake-grid", "pointermove", 1.5 * width, 0.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * width, 4);
 
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-fake-grid", "pointerup", 1.5 * width, 0.5 * height);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       left: 9,
       right: 15,
     });
@@ -151,29 +155,29 @@ describe("Drag And Drop horizontal tests", () => {
   test("Start Drag&Drop in XLeft then moving it outside right scroll XRight to the right", async () => {
     freezeColumns(model, 4, sheetId);
     await nextTick();
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       left: 4,
       right: 10,
     });
-    const { width, height } = model.getters.getSheetViewDimension();
-    const { x: offsetCorrectionX } = model.getters.getMainViewportCoordinates();
+    const { width, height } = viewStore.sheetViewDimension;
+    const { x: offsetCorrectionX } = viewStore.mainViewportCoordinates;
     triggerMouseEvent(".o-fake-grid", "pointerdown", 0.5 * offsetCorrectionX, 0.5 * height);
     triggerMouseEvent(".o-fake-grid", "pointermove", 1.5 * width, 0.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * width, 4);
 
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-fake-grid", "pointerup", 1.5 * width, 0.5 * height);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       left: 9,
       right: 15,
     });
   });
 
   test("drag And Drop through hidden columns", async () => {
-    const { right } = model.getters.getActiveMainViewport();
+    const { right } = viewStore.activeMainViewport;
     addColumns(model, "after", "Z", 100);
     hideColumns(model, [numberToLetters(right + 1)]);
-    const { width, height } = model.getters.getSheetViewDimension();
+    const { width, height } = viewStore.sheetViewDimension;
     const y = height / 2;
     triggerMouseEvent(".o-fake-grid", "pointerdown", width / 2, y);
     triggerMouseEvent(".o-fake-grid", "pointermove", 1.5 * width, y);
@@ -181,18 +185,18 @@ describe("Drag And Drop horizontal tests", () => {
 
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-fake-grid", "pointerup", 1.5 * width, y);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       left: 6,
       right: 17,
     });
-    setViewportOffset(model, (right + 2) * DEFAULT_CELL_WIDTH, 0);
+    setViewportOffset(env, (right + 2) * DEFAULT_CELL_WIDTH, 0);
     await nextTick();
     triggerMouseEvent(".o-fake-grid", "pointerdown", width / 2, y);
     triggerMouseEvent(".o-fake-grid", "pointermove", -1.5 * width, y);
 
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-fake-grid", "pointerup", -1.5 * width, y);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       left: 6,
       right: 17,
     });
@@ -200,9 +204,9 @@ describe("Drag And Drop horizontal tests", () => {
 
   test("Drag&Drop beyond the grid: correct col value is given to the callback", async () => {
     freezeColumns(model, 4, sheetId);
-    setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+    setViewportOffset(env, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
     await nextTick();
-    const { x: offsetCorrectionX } = model.getters.getMainViewportCoordinates();
+    const { x: offsetCorrectionX } = viewStore.mainViewportCoordinates;
     const x = offsetCorrectionX + DEFAULT_CELL_WIDTH;
     triggerMouseEvent(".o-fake-grid", "pointerdown", x, 0);
     triggerMouseEvent(".o-fake-grid", "pointermove", -50, 0);
@@ -210,7 +214,7 @@ describe("Drag And Drop horizontal tests", () => {
 
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-fake-grid", "pointerup", -50, 0);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       left: 4,
       right: 10,
     });
@@ -221,14 +225,14 @@ describe("Drag And Drop horizontal tests", () => {
 describe("Drag And Drop vertical tests", () => {
   test("Start Drag&Drop in XBottom then moving to XTop edge-scroll XBottom way-up", async () => {
     freezeRows(model, 4, sheetId);
-    setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+    setViewportOffset(env, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
     await nextTick();
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       top: 10,
       bottom: 49,
     });
-    const { width } = model.getters.getSheetViewDimension();
-    const { y: offsetCorrectionY } = model.getters.getMainViewportCoordinates();
+    const { width } = viewStore.sheetViewDimension;
+    const { y: offsetCorrectionY } = viewStore.mainViewportCoordinates;
     const y = offsetCorrectionY + DEFAULT_CELL_HEIGHT;
     triggerMouseEvent(".o-fake-grid", "pointerdown", 0.5 * width, y);
     triggerMouseEvent(".o-fake-grid", "pointermove", 0.5 * width, 0.5 * offsetCorrectionY);
@@ -236,7 +240,7 @@ describe("Drag And Drop vertical tests", () => {
 
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-fake-grid", "pointerup", 0.5 * width, 0.5 * offsetCorrectionY);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       top: 8,
       bottom: 47,
     });
@@ -244,20 +248,20 @@ describe("Drag And Drop vertical tests", () => {
 
   test("Start Drag&Drop in XTop then moving to XBottom unscroll XBottom", async () => {
     freezeRows(model, 4, sheetId);
-    setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+    setViewportOffset(env, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
     await nextTick();
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       top: 10,
       bottom: 49,
     });
-    const { width } = model.getters.getSheetViewDimension();
-    const { y: offsetCorrectionY } = model.getters.getMainViewportCoordinates();
+    const { width } = viewStore.sheetViewDimension;
+    const { y: offsetCorrectionY } = viewStore.mainViewportCoordinates;
     const y = offsetCorrectionY + DEFAULT_CELL_HEIGHT;
     triggerMouseEvent(".o-fake-grid", "pointerdown", 0.5 * width, 0.5 * offsetCorrectionY);
     triggerMouseEvent(".o-fake-grid", "pointermove", 0.5 * width, y);
 
     triggerMouseEvent(".o-fake-grid", "pointerup", 0.5 * width, 0.5 * offsetCorrectionY);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       top: 4,
       bottom: 43,
     });
@@ -266,18 +270,18 @@ describe("Drag And Drop vertical tests", () => {
   test("Start Drag&Drop in XBottom then moving it under the viewport scroll XBottom upside-down", async () => {
     freezeRows(model, 4, sheetId);
     await nextTick();
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       top: 4,
       bottom: 43,
     });
-    const { width, height } = model.getters.getSheetViewDimension();
+    const { width, height } = viewStore.sheetViewDimension;
     triggerMouseEvent(".o-fake-grid", "pointerdown", 0.5 * width, height);
     triggerMouseEvent(".o-fake-grid", "pointermove", 0.5 * width, 1.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * height, 4);
 
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-fake-grid", "pointerup", 0.5 * width, 1.5 * height);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       top: 9,
       bottom: 48,
     });
@@ -286,19 +290,19 @@ describe("Drag And Drop vertical tests", () => {
   test("Start Drag&Drop in XTop then moving it under the viewport scroll XBottom upside-down", async () => {
     freezeRows(model, 4, sheetId);
     await nextTick();
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       top: 4,
       bottom: 43,
     });
-    const { width, height } = model.getters.getSheetViewDimension();
-    const { y: offsetCorrectionY } = model.getters.getMainViewportCoordinates();
+    const { width, height } = viewStore.sheetViewDimension;
+    const { y: offsetCorrectionY } = viewStore.mainViewportCoordinates;
     triggerMouseEvent(".o-fake-grid", "pointerdown", 0.5 * width, 0.5 * offsetCorrectionY);
     triggerMouseEvent(".o-fake-grid", "pointermove", 0.5 * width, 1.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * height, 4);
 
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-fake-grid", "pointerup", 0.5 * width, 1.5 * height);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       top: 9,
       bottom: 48,
     });
@@ -306,9 +310,9 @@ describe("Drag And Drop vertical tests", () => {
 
   test("Drag&Drop beyond the grid: correct row value is given to the callback", async () => {
     freezeRows(model, 4, sheetId);
-    setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+    setViewportOffset(env, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
     await nextTick();
-    const { y: offsetCorrectionY } = model.getters.getMainViewportCoordinates();
+    const { y: offsetCorrectionY } = viewStore.mainViewportCoordinates;
     const y = offsetCorrectionY + DEFAULT_CELL_HEIGHT;
     triggerMouseEvent(".o-fake-grid", "pointerdown", 0, y);
     triggerMouseEvent(".o-fake-grid", "pointermove", 0, -50);
@@ -316,7 +320,7 @@ describe("Drag And Drop vertical tests", () => {
 
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-fake-grid", "pointerup", 0, -50);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       top: 4,
       bottom: 43,
     });
@@ -326,46 +330,46 @@ describe("Drag And Drop vertical tests", () => {
 
 describe("Drag And Drop vertical tests without frozen panes", () => {
   test("Start Drag&Drop in viewport then moving outside-left edge-scroll the viewport to the left", () => {
-    setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    setViewportOffset(env, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+    expect(viewStore.activeMainViewport).toMatchObject({
       left: 6,
       right: 16,
     });
-    const { height } = model.getters.getSheetViewDimension();
+    const { height } = viewStore.sheetViewDimension;
     triggerMouseEvent(".o-fake-grid", "pointerdown", DEFAULT_CELL_WIDTH, 0.5 * height);
     triggerMouseEvent(".o-fake-grid", "pointermove", -0.5 * DEFAULT_CELL_WIDTH, 0.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * DEFAULT_CELL_WIDTH, 1);
 
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-fake-grid", "pointerup", -0.5 * DEFAULT_CELL_WIDTH, 0.5 * height);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       left: 4,
       right: 14,
     });
   });
   test("Start Drag&Drop in viewport then moving outside-top edge-scroll the viewport to the top", () => {
-    setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    setViewportOffset(env, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+    expect(viewStore.activeMainViewport).toMatchObject({
       top: 6,
       bottom: 49,
     });
-    const { width } = model.getters.getSheetViewDimension();
+    const { width } = viewStore.sheetViewDimension;
     triggerMouseEvent(".o-fake-grid", "pointerdown", 0.5 * width, DEFAULT_CELL_HEIGHT);
     triggerMouseEvent(".o-fake-grid", "pointermove", 0.5 * width, -0.5 * DEFAULT_CELL_HEIGHT);
     const advanceTimer = edgeScrollDelay(0.5 * DEFAULT_CELL_HEIGHT, 1);
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-fake-grid", "pointerup", 0.5 * width, -0.5 * DEFAULT_CELL_HEIGHT);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       top: 4,
       bottom: 47,
     });
   });
 
   test("drag And Drop through hidden rows", async () => {
-    const { bottom } = model.getters.getActiveMainViewport();
+    const { bottom } = viewStore.activeMainViewport;
     addRows(model, "after", 80, 100);
     hideRows(model, [bottom + 1]);
-    const { width, height } = model.getters.getSheetViewDimension();
+    const { width, height } = viewStore.sheetViewDimension;
     const x = width / 2;
     triggerMouseEvent(".o-fake-grid", "pointerdown", x, height / 2);
     triggerMouseEvent(".o-fake-grid", "pointermove", x, 1.5 * height);
@@ -373,18 +377,18 @@ describe("Drag And Drop vertical tests without frozen panes", () => {
 
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-fake-grid", "pointerup", x, 1.5 * height);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       top: 6,
       bottom: 50,
     });
-    setViewportOffset(model, 0, (bottom + 2) * DEFAULT_CELL_HEIGHT);
+    setViewportOffset(env, 0, (bottom + 2) * DEFAULT_CELL_HEIGHT);
     await nextTick();
     triggerMouseEvent(".o-fake-grid", "pointerdown", x, height / 2);
     triggerMouseEvent(".o-fake-grid", "pointermove", x, -1.5 * height);
 
     jest.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-fake-grid", "pointerup", x, -1.5 * height);
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
+    expect(viewStore.activeMainViewport).toMatchObject({
       top: 39,
       bottom: 83,
     });
@@ -392,7 +396,7 @@ describe("Drag And Drop vertical tests without frozen panes", () => {
 });
 
 test("Drag&drop is stopped when the calling component is unmounted", async () => {
-  const { x: offsetCorrectionX } = model.getters.getMainViewportCoordinates();
+  const { x: offsetCorrectionX } = viewStore.mainViewportCoordinates;
   const x = offsetCorrectionX + DEFAULT_CELL_WIDTH;
 
   // move to col 1
@@ -429,24 +433,24 @@ test("Drag&drop is stopped when mouseup is called on an element that stops point
 });
 
 test("drag And Drop is based on the current active sheet", async () => {
-  setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+  setViewportOffset(env, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
   hideColumns(model, [numberToLetters(5)]);
   createSheet(model, { sheetId: "sh2", activate: true });
-  setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+  setViewportOffset(env, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
   await nextTick();
 
-  expect(model.getters.getActiveMainViewport()).toMatchObject({
+  expect(viewStore.activeMainViewport).toMatchObject({
     left: 6,
     right: 16,
   });
-  const { height } = model.getters.getSheetViewDimension();
+  const { height } = viewStore.sheetViewDimension;
   triggerMouseEvent(".o-fake-grid", "pointerdown", DEFAULT_CELL_WIDTH, 0.5 * height);
   triggerMouseEvent(".o-fake-grid", "pointermove", -0.5 * DEFAULT_CELL_WIDTH, 0.5 * height);
   const advanceTimer = edgeScrollDelay(0.5 * DEFAULT_CELL_WIDTH, 1);
 
   jest.advanceTimersByTime(advanceTimer);
   triggerMouseEvent(".o-fake-grid", "pointerup", 0.5 * DEFAULT_CELL_WIDTH, 0.5 * height);
-  expect(model.getters.getActiveMainViewport()).toMatchObject({
+  expect(viewStore.activeMainViewport).toMatchObject({
     left: 4,
     right: 14,
   });

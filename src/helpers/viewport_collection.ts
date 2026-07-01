@@ -1,5 +1,4 @@
 import { getDefaultSheetViewSize, SCROLLBAR_WIDTH } from "../constants";
-import { CommandResult, ResizeViewportCommand, SetViewportOffsetCommand } from "../types/commands";
 import { AnchorOffset, Figure, FigureUI } from "../types/figure";
 import { RenderingGetters } from "../types/getters";
 import {
@@ -11,6 +10,7 @@ import {
   Pixel,
   PixelPosition,
   Position,
+  SheetViewDimensions,
   UID,
   Zone,
 } from "../types/misc";
@@ -426,41 +426,44 @@ export class ViewportCollection {
     return Object.values(this.viewports[sheetId]!).filter(isDefined);
   }
 
-  checkPositiveDimension(cmd: ResizeViewportCommand) {
-    if (cmd.width < 0 || cmd.height < 0) {
-      return CommandResult.InvalidViewportSize;
+  checkPositiveDimension(dims: SheetViewDimensions) {
+    if (dims.width < 0 || dims.height < 0) {
+      return false;
     }
-    return CommandResult.Success;
+    return true;
   }
 
-  checkValuesAreDifferent(cmd: ResizeViewportCommand) {
+  checkValuesAreDifferent(dims: SheetViewDimensions) {
     const { height, width } = this.getSheetViewDimension();
     if (
-      cmd.gridOffsetX === this.gridOffsetX &&
-      cmd.gridOffsetY === this.gridOffsetY &&
-      cmd.width === width &&
-      cmd.height === height
+      dims.gridOffsetX === this.gridOffsetX &&
+      dims.gridOffsetY === this.gridOffsetY &&
+      dims.width === width &&
+      dims.height === height
     ) {
-      return CommandResult.ValuesNotChanged;
+      return false;
     }
-    return CommandResult.Success;
+    return true;
   }
 
   checkScrollingDirection(
     sheetId: UID,
     { offsetX, offsetY }: { offsetX: Pixel; offsetY: Pixel }
-  ): CommandResult {
+  ): boolean {
     const pane = this.getMainInternalViewport(sheetId);
     if (
       (!pane.canScrollHorizontally && offsetX > 0) ||
       (!pane.canScrollVertically && offsetY > 0)
     ) {
-      return CommandResult.InvalidScrollingDirection;
+      return false;
     }
-    return CommandResult.Success;
+    return true;
   }
 
-  checkIfViewportsWillChange(sheetId: UID, { offsetX, offsetY }: SetViewportOffsetCommand) {
+  checkIfViewportsWillChange(
+    sheetId: UID,
+    { offsetX, offsetY }: { offsetX: Pixel; offsetY: Pixel }
+  ) {
     const { maxOffsetX, maxOffsetY } = this.getMaximumSheetOffset(sheetId);
     const willScroll = this.getSubViewports(sheetId).some((viewport) =>
       viewport.willNewOffsetScrollViewport(
@@ -468,7 +471,7 @@ export class ViewportCollection {
         clip(offsetY, 0, maxOffsetY)
       )
     );
-    return willScroll ? CommandResult.Success : CommandResult.ViewportScrollLimitsReached;
+    return willScroll ? true : false;
   }
 
   getMainViewport(sheetId: UID): Viewport {
@@ -495,11 +498,11 @@ export class ViewportCollection {
     this.viewports = newViewport;
   }
 
-  resizeSheetView(height: Pixel, width: Pixel, gridOffsetX: Pixel = 0, gridOffsetY: Pixel = 0) {
-    this.sheetViewHeight = height;
-    this.sheetViewWidth = width;
-    this.gridOffsetX = gridOffsetX;
-    this.gridOffsetY = gridOffsetY;
+  resizeSheetView(dimensions: SheetViewDimensions) {
+    this.sheetViewHeight = dimensions.height;
+    this.sheetViewWidth = dimensions.width;
+    this.gridOffsetX = dimensions.gridOffsetX || 0;
+    this.gridOffsetY = dimensions.gridOffsetY || 0;
     this.recomputeViewports();
   }
 

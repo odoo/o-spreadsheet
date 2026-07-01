@@ -1,7 +1,11 @@
 import { onWillUpdateProps, props, signal } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
-import { getCarouselItemPreview, getCarouselItemTitle } from "../../../helpers/carousel_helpers";
+import {
+  getCarouselItemPreview,
+  getCarouselItemTitle,
+  getPoppedOutChartAnchor,
+} from "../../../helpers/carousel_helpers";
 import { deepEquals } from "../../../helpers/misc";
 import { UuidGenerator } from "../../../helpers/uuid";
 import { Component } from "../../../owl3_compatibility_layer";
@@ -122,10 +126,12 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
     if (item.type !== "chart") {
       return;
     }
+    const anchor = getPoppedOutChartAnchor(this.env, this.carouselSheetId, this.props.figureId);
     this.env.model.dispatch("POPOUT_CHART_FROM_CAROUSEL", {
       sheetId: this.carouselSheetId,
       carouselId: this.props.figureId,
       chartId: item.chartId,
+      ...anchor,
     });
   }
 

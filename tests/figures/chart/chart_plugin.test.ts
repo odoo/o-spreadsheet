@@ -54,6 +54,7 @@ import { toNumber } from "../../../src/functions/helpers";
 import { convertDateFormatForLuxon } from "../../../src/helpers/chart_date";
 import { ChartPlugin } from "../../../src/plugins/core/chart";
 import { FigurePlugin } from "../../../src/plugins/core/figures";
+import { ViewportsStore } from "../../../src/stores/viewports_store";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import { LineChartRuntime } from "../../../src/types/chart/line_chart";
 import { PieChartDefinition, PieChartRuntime } from "../../../src/types/chart/pie_chart";
@@ -69,6 +70,7 @@ import {
   toChartDataSource,
 } from "../../test_helpers/chart_helpers";
 import { FR_LOCALE } from "../../test_helpers/constants";
+import { makeStoreWithModel } from "../../test_helpers/stores";
 
 let model: Model;
 
@@ -624,10 +626,11 @@ describe("datasource tests", function () {
     const figureId = model.getters.getFigureIdFromChartId("1")!;
     const exportedData = model.exportData();
     const newModel = new Model(exportedData);
-    expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
+    const { store: viewStore } = makeStoreWithModel(newModel, ViewportsStore);
+    expect(viewStore.visibleFigures).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
     deleteFigure(newModel, figureId);
-    expect(newModel.getters.getVisibleFigures()).toHaveLength(0);
+    expect(viewStore.visibleFigures).toHaveLength(0);
     expect(() => newModel.getters.getChartRuntime("1")).toThrow();
   });
 
@@ -1178,6 +1181,7 @@ describe("datasource tests", function () {
         },
       ],
     });
+    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
     createChart(
       model,
       {
@@ -1192,12 +1196,12 @@ describe("datasource tests", function () {
     );
     duplicateSheet(model, "1", "SheetNoFigure");
     activateSheet(model, "SheetNoFigure");
-    expect(model.getters.getVisibleFigures()).toEqual([]);
+    expect(viewStore.visibleFigures).toEqual([]);
     duplicateSheet(model, "2", "SheetWithFigure");
     activateSheet(model, "2");
-    const { x, y, width, height, tag } = model.getters.getVisibleFigures()[0];
+    const { x, y, width, height, tag } = viewStore.visibleFigures[0];
     activateSheet(model, "SheetWithFigure");
-    expect(model.getters.getVisibleFigures()).toMatchObject([{ x, y, height, width, tag }]);
+    expect(viewStore.visibleFigures).toMatchObject([{ x, y, height, width, tag }]);
   });
   test("extend data source to new values manually", () => {
     createChart(

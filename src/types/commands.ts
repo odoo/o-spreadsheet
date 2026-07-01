@@ -6,7 +6,6 @@ import {
   Color,
   Dimension,
   HeaderIndex,
-  Pixel,
   PixelPosition,
   SetDecimalStep,
   SortDirection,
@@ -22,7 +21,7 @@ import { ConditionalFormat } from "./conditional_formatting";
 
 import { ClipboardPasteOptions, ParsedOsClipboardContentWithImageData } from "./clipboard";
 import { DataValidationRule } from "./data_validation";
-import { Carousel, CarouselItem, Figure, FigureSize } from "./figure";
+import { AnchorOffset, Carousel, CarouselItem, Figure, FigureSize } from "./figure";
 import { SearchOptions } from "./find_and_replace";
 import { Image } from "./image";
 import { Locale } from "./locale";
@@ -203,10 +202,6 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
 
   "COPY",
 
-  "RESIZE_SHEETVIEW",
-  "SET_VIEWPORT_OFFSET",
-  "SET_ZOOM",
-
   "EVALUATE_CELLS",
   "EVALUATE_CHARTS",
 
@@ -234,10 +229,7 @@ export const lockedSheetAllowedCommands = new Set<Command["type"]>([
   // local commands
   "COPY",
   "START",
-  "SCROLL_TO_CELL",
   "ACTIVATE_SHEET",
-  "RESIZE_SHEETVIEW",
-  "SET_VIEWPORT_OFFSET",
   "SET_FORMULA_VISIBILITY",
   "SELECT_FIGURE", // not  sure
   "EVALUATE_CHARTS",
@@ -245,15 +237,11 @@ export const lockedSheetAllowedCommands = new Set<Command["type"]>([
   "REQUEST_UNDO",
   "REQUEST_REDO",
   "REPLACE_SEARCH",
-  "SET_ZOOM",
   "UPDATE_CAROUSEL_ACTIVE_ITEM",
   "DUPLICATE_PIVOT_IN_NEW_SHEET",
   "UPDATE_FILTER",
   "ACTIVATE_NEXT_SHEET",
   "ACTIVATE_PREVIOUS_SHEET",
-  "SCROLL_TO_CELL",
-  "SHIFT_VIEWPORT_DOWN",
-  "SHIFT_VIEWPORT_UP",
 ]);
 
 export const coreTypes = new Set<CoreCommandTypes>([
@@ -688,7 +676,7 @@ export interface UpdateCarouselActiveItemCommand extends SheetDependentCommand {
   item: CarouselItem;
 }
 
-export interface PopOutChartFromCarouselCommand extends SheetDependentCommand {
+export interface PopOutChartFromCarouselCommand extends SheetDependentCommand, AnchorOffset {
   type: "POPOUT_CHART_FROM_CAROUSEL";
   carouselId: UID;
   chartId: UID;
@@ -1125,45 +1113,6 @@ export interface SortCommand {
   sortOptions?: SortOptions;
 }
 
-export interface ResizeViewportCommand {
-  type: "RESIZE_SHEETVIEW";
-  width: Pixel;
-  height: Pixel;
-  gridOffsetX?: Pixel;
-  gridOffsetY?: Pixel;
-}
-
-export interface SetViewportOffsetCommand {
-  type: "SET_VIEWPORT_OFFSET";
-  offsetX: Pixel;
-  offsetY: Pixel;
-}
-
-export interface SetZoomCommand {
-  type: "SET_ZOOM";
-  zoom: number;
-}
-
-/**
- * Shift the viewport down by the viewport height
- */
-export interface MoveViewportDownCommand {
-  type: "SHIFT_VIEWPORT_DOWN";
-}
-
-/**
- * Shift the viewport up by the viewport height
- */
-export interface MoveViewportUpCommand {
-  type: "SHIFT_VIEWPORT_UP";
-}
-
-export interface MoveViewportToCellCommand {
-  type: "SCROLL_TO_CELL";
-  col: HeaderIndex;
-  row: HeaderIndex;
-}
-
 /**
  * Sum data according to the selected zone(s) in the appropriated
  * cells.
@@ -1399,15 +1348,9 @@ export type LocalCommand =
   | SetDecimalCommand
   | SetContextualFormatCommand
   | SetAutomaticEvaluationCommand
-  | ResizeViewportCommand
-  | SetZoomCommand
   | SumSelectionCommand
   | DeleteCellCommand
   | InsertCellCommand
-  | SetViewportOffsetCommand
-  | MoveViewportDownCommand
-  | MoveViewportUpCommand
-  | MoveViewportToCellCommand
   | ActivateNextSheetCommand
   | ActivatePreviousSheetCommand
   | UpdateFilterCommand
@@ -1557,9 +1500,6 @@ export const enum CommandResult {
   MergeOverlap = "MergeOverlap",
   TooManyHiddenElements = "TooManyHiddenElements",
   Readonly = "Readonly",
-  InvalidViewportSize = "InvalidViewportSize",
-  InvalidScrollingDirection = "InvalidScrollingDirection",
-  ViewportScrollLimitsReached = "ViewportScrollLimitsReached",
   FigureDoesNotExist = "FigureDoesNotExist",
   InvalidConditionalFormatId = "InvalidConditionalFormatId",
   InvalidConditionalFormatType = "InvalidConditionalFormatType",
@@ -1567,7 +1507,6 @@ export const enum CommandResult {
   EmptySelectedRange = "EmptySelectedRange",
   InvalidFreezeQuantity = "InvalidFreezeQuantity",
   FrozenPaneOverlap = "FrozenPaneOverlap",
-  ValuesNotChanged = "ValuesNotChanged",
   InvalidFilterZone = "InvalidFilterZone",
   TableNotFound = "TableNotFound",
   TableOverlap = "TableOverlap",
@@ -1616,7 +1555,6 @@ export const enum CommandResult {
   MissingFigureArguments = "MissingFigureArguments",
   InvalidCarouselItem = "InvalidCarouselItem",
   SheetLocked = "SheetLocked",
-  InvalidZoomLevel = "InvalidZoomLevel",
   NamedRangeNameAlreadyExists = "NamedRangeNameAlreadyExists",
   NamedRangeInvalidName = "NamedRangeInvalidName",
   NamedRangeNameLooksLikeCellReference = "NamedRangeNameLooksLikeCellReference",
