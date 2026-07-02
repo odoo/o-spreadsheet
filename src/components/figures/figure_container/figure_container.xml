@@ -21,7 +21,7 @@
                 style="this.getFigureStyle(figureUI)"
                 class="this.getFigureClass(figureUI)"
                 onMouseDown="(ev) => this.startDraggingFigure(figureUI, ev)"
-                onClickAnchor="(dirX, dirY, ev) => this.startResize(figureUI, dirX, dirY, ev)"
+                onClickAnchor.bind="this.resizeAllSelectedFigures"
               />
             </t>
           </div>

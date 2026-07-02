@@ -424,7 +424,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
   }
 
   /**
-   * Initialize the resize of a figure with mouse movements
+   * Initialize the resize of the selected figures with mouse movements
    *
    * @param dirX X direction of the resize. -1 : resize from the left border of the figure, 0 : no resize in X, 1 :
    * resize from the right border of the figure
@@ -432,14 +432,20 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
    * resize from the bottom border of the figure
    * @param ev Mouse Event
    */
-  startResize(figureUI: FigureUI, dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) {
+  resizeAllSelectedFigures(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) {
     ev.stopPropagation();
     const initialScrollPosition = this.env.model.getters.getActiveSheetScrollInfo();
-
-    const keepRatio = figureRegistry.get(figureUI.tag).keepRatio || false;
-    const minFigSize = figureRegistry.get(figureUI.tag).minFigSize || MIN_FIG_SIZE;
-    const zoom = this.env.model.getters.getViewportZoomLevel();
     const sheetId = this.env.model.getters.getActiveSheetId();
+    const selectedFiguresIds = this.env.model.getters.getSelectedFigureIds();
+    const selectedFiguresUI = selectedFiguresIds
+      .map((id) => this.env.model.getters.getFigure(sheetId, id))
+      .filter(isDefined)
+      .map((figure) => this.env.model.getters.getFigureUI(sheetId, figure));
+
+    if (selectedFiguresUI.length === 0) {
+      return;
+    }
+    const zoom = this.env.model.getters.getViewportZoomLevel();
 
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
 
@@ -456,52 +462,93 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
 
     const onMouseMove = (ev: MouseEvent) => {
       const currentMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
-      const draggedFigure = dragFigureForResize(
-        figureUI,
-        dirX,
-        dirY,
-        currentMousePosition,
-        initialMousePosition,
-        keepRatio,
-        minFigSize,
-        initialScrollPosition,
-        this.env.model.getters.getActiveSheetScrollInfo(),
-        maxDimensions
-      );
 
-      const otherFigures = this.getOtherFigures([figureUI.id]);
+      const resizedFigures = selectedFiguresUI.map((figureUI) => {
+        const keepRatio = ev.shiftKey ? true : figureRegistry.get(figureUI.tag).keepRatio || false;
+        const minFigSize = figureRegistry.get(figureUI.tag).minFigSize || MIN_FIG_SIZE;
+        return dragFigureForResize(
+          figureUI,
+          dirX,
+          dirY,
+          currentMousePosition,
+          initialMousePosition,
+          keepRatio,
+          minFigSize,
+          initialScrollPosition,
+          this.env.model.getters.getActiveSheetScrollInfo(),
+          maxDimensions
+        );
+      });
+
+      const otherFigures = this.getOtherFigures(selectedFiguresIds);
+
+      // snapForResize mutates resizedFigures[0] in-place; use its snap offsets for all other figures
       const snapResult = snapForResize(
         this.env.model.getters,
         dirX,
         dirY,
-        draggedFigure,
+        resizedFigures[0],
         otherFigures
       );
-      this.dnd.draggedFigure = snapResult.snappedFigures[0];
-      this.dnd.selectedFigures = [this.dnd.draggedFigure];
+
+      const vOffset = snapResult.verticalSnapLine?.snapOffset ?? 0;
+      const hOffset = snapResult.horizontalSnapLine?.snapOffset ?? 0;
+      const snappedFigures = resizedFigures.map((figureUI, i) => {
+        if (i === 0) {
+          return snapResult.snappedFigures[0];
+        }
+        let { x, y, width, height } = figureUI;
+        if (vOffset) {
+          if (dirX === 1) {
+            width -= vOffset;
+          } else if (dirX === -1) {
+            x -= vOffset;
+            width += vOffset;
+          }
+        }
+        if (hOffset) {
+          if (dirY === 1) {
+            height -= hOffset;
+          } else if (dirY === -1) {
+            y -= hOffset;
+            height += hOffset;
+          }
+        }
+        return {
+          ...figureUI,
+          x: Math.round(x),
+          y: Math.round(y),
+          width: Math.round(width),
+          height: Math.round(height),
+        };
+      });
+
+      this.dnd.draggedFigure = snappedFigures[0];
+      this.dnd.selectedFigures = snappedFigures;
       this.dnd.selectedRect = undefined;
       this.dnd.horizontalSnap = this.getSnap(snapResult.horizontalSnapLine);
       this.dnd.verticalSnap = this.getSnap(snapResult.verticalSnapLine);
     };
 
-    const onMouseUp = (ev: MouseEvent) => {
-      if (!this.dnd.draggedFigure) {
+    const onMouseUp = () => {
+      if (!this.dnd.selectedFigures) {
         return;
       }
-      const update: Partial<Figure> & AnchorOffset = this.env.model.getters.getPositionAnchorOffset(
-        this.dnd.draggedFigure
-      );
-      if (dirX) {
-        update.width = this.dnd.draggedFigure.width;
+      for (const figureUI of this.dnd.selectedFigures) {
+        const update: Partial<Figure> & AnchorOffset =
+          this.env.model.getters.getPositionAnchorOffset(figureUI);
+        if (dirX) {
+          update.width = figureUI.width;
+        }
+        if (dirY) {
+          update.height = figureUI.height;
+        }
+        this.env.model.dispatch("UPDATE_FIGURE", {
+          sheetId,
+          figureId: figureUI.id,
+          ...update,
+        });
       }
-      if (dirY) {
-        update.height = this.dnd.draggedFigure.height;
-      }
-      this.env.model.dispatch("UPDATE_FIGURE", {
-        sheetId: this.env.model.getters.getActiveSheetId(),
-        figureId: figureUI.id,
-        ...update,
-      });
       this.dnd.draggedFigure = undefined;
       this.dnd.selectedFigures = undefined;
       this.dnd.selectedRect = undefined;

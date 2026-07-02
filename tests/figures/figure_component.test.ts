@@ -569,6 +569,18 @@ describe("figures", () => {
     }
   );
 
+  test("Resize all selected figures", async () => {
+    createFigure(model, { id: "fig1", offset: { x: 0, y: 0 }, width: 100, height: 100 });
+    createFigure(model, { id: "fig2", offset: { x: 20, y: 20 }, width: 100, height: 100 });
+    await nextTick();
+    selectFigure(model, "fig1");
+    selectFigure(model, "fig2", true);
+    await nextTick();
+    await dragAnchor("bottomRight", 100, 100, true);
+    expect(model.getters.getFigure(sheetId, "fig1")).toMatchObject({ width: 200, height: 200 });
+    expect(model.getters.getFigure(sheetId, "fig2")).toMatchObject({ width: 200, height: 200 });
+  });
+
   test.each([
     ["top", { mouseOffsetX: 0, mouseOffsetY: -100 }],
     ["left", { mouseOffsetX: -100, mouseOffsetY: 0 }],
