@@ -15,6 +15,7 @@ import {
   mockGetBoundingClientRect,
 } from "../test_helpers/mock_helpers";
 import "./canvas.mock";
+import "./crypto.mock";
 import "./jest_extend";
 import "./polyfill";
 import "./resize_observer.mock";
