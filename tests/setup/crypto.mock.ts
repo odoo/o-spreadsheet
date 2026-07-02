@@ -8,9 +8,11 @@ import { webcrypto } from "node:crypto";
 import { TextDecoder, TextEncoder } from "node:util";
 
 if (!globalThis.crypto?.subtle) {
+  // Define as an accessor (not a value) so existing tests can still
+  // `jest.spyOn(window, "crypto", "get")`.
   Object.defineProperty(globalThis, "crypto", {
     configurable: true,
-    value: webcrypto,
+    get: () => webcrypto,
   });
 }
 
