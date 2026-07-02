@@ -239,6 +239,67 @@ export class Session extends EventBus<CollaborativeEvent> {
   }
 
   /**
+   * Return the queue of pending local revisions (created locally but not yet
+   * acknowledged by the server). Commands are returned unsquished, as they are
+   * stored in the queue, so callers can persist and later recover them without
+   * depending on the command squisher.
+   */
+  getPendingMessages(): StateUpdateMessage[] {
+    return [...this.pendingMessages];
+  }
+
+  /**
+   * Re-apply and re-queue pending local revisions that were persisted (e.g. in
+   * localStorage) while the client was disconnected, then reloaded.
+   *
+   * Each recovered revision keeps its original `nextRevisionId` (the server
+   * never received it, and acks match solely on that id) but is re-stamped with
+   * the current `clientId` and chained onto the *current* server revision.
+   * Inserting it into the revision log re-applies its commands locally (so the
+   * user sees their edits again) and, when there are newer server revisions,
+   * transforms the queue against them - the same machinery used when a remote
+   * revision is received. The client always sends revisions relative to the
+   * current server head, so inserting at the head keeps every client convergent.
+   *
+   * Only `REMOTE_REVISION` messages are recovered; pending undo/redo are dropped
+   * (their target revision may no longer exist in the reloaded log).
+   *
+   * Must be called after `loadInitialMessages` and `join`, so `serverRevisionId`
+   * is the true head and `clientId` is set.
+   */
+  recoverPendingMessages(messages: StateUpdateMessage[]) {
+    const revisionsToRecover = messages.filter(
+      (message): message is RemoteRevisionMessage => message.type === "REMOTE_REVISION"
+    );
+    let insertAfter = this.serverRevisionId;
+    for (const message of revisionsToRecover) {
+      const revision = new Revision(
+        message.nextRevisionId,
+        this.clientId,
+        message.commands,
+        undefined,
+        undefined,
+        message.timestamp ?? Date.now()
+      );
+      this.revisions.insert(revision.id, revision, insertAfter);
+      insertAfter = revision.id;
+      this.pendingMessages.push({
+        type: "REMOTE_REVISION",
+        version: message.version ?? MESSAGE_VERSION,
+        serverRevisionId: this.serverRevisionId,
+        nextRevisionId: revision.id,
+        clientId: this.clientId,
+        commands: revision.commands,
+      });
+      this.lastLocalOperation = revision;
+      this.trigger("new-local-state-update", { id: revision.id });
+    }
+    if (revisionsToRecover.length > 0) {
+      this.sendPendingMessage();
+    }
+  }
+
+  /**
    * Get the last local revision
    * */
   getLastLocalNonEmptyRevision(): Revision | undefined {

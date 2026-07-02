@@ -7,6 +7,7 @@ import {
   ClientPosition,
   ClientWithColor,
 } from "../../types/collaborative/session";
+import { StateUpdateMessage } from "../../types/collaborative/transport_service";
 import { GridRenderingContext } from "../../types/rendering";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
@@ -19,6 +20,7 @@ export class CollaborativePlugin extends UIPlugin {
     "getCurrentClient",
     "getConnectedClients",
     "isFullySynchronized",
+    "getPendingRevisions",
   ] as const;
   static layers = ["Selection"] as const;
   private colors: AlternatingColorMap = new AlternatingColorMap(12);
@@ -52,6 +54,14 @@ export class CollaborativePlugin extends UIPlugin {
 
   isFullySynchronized() {
     return this.session.isFullySynchronized();
+  }
+
+  /**
+   * The queue of local revisions not yet acknowledged by the server. Used by
+   * the persistence store to mirror disconnected changes to localStorage.
+   */
+  getPendingRevisions(): StateUpdateMessage[] {
+    return this.session.getPendingMessages();
   }
 
   /**

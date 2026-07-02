@@ -679,6 +679,20 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   /**
+   * Re-apply and re-queue collaborative revisions that were persisted locally
+   * while the client was disconnected (see LocalRevisionPersistenceStore),
+   * after a page reload. Delegates to the session and re-renders.
+   */
+  recoverPendingMessages(messages: StateUpdateMessage[]) {
+    this.session.recoverPendingMessages(messages);
+    // Recovered commands are applied to core plugins through the revision log
+    // but, like remote revisions, need a finalize pass so derived state (e.g.
+    // cell evaluation) is recomputed.
+    this.finalize();
+    this.trigger("update");
+  }
+
+  /**
    * Exports the current model data into a list of serialized XML files
    * to be zipped together as an *.xlsx file.
    *
