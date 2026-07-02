@@ -3,8 +3,8 @@ import { toNumber } from "../../../../functions/helpers";
 import { CellValue } from "../../../../types/cells";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
-import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import { ChartRuntimeGenerationArgs, GenericDefinition } from "../../../../types/chart/chart";
+import { ColorScaleGridChartDefinition } from "../../../../types/chart/common_chart";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../../types/chart/pie_chart";
@@ -61,8 +61,8 @@ export function getBarChartTooltip(
   };
 }
 
-export function getCalendarChartTooltip(
-  definition: CalendarChartDefinition,
+export function getColorScaleGridTooltip(
+  definition: ColorScaleGridChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartTooltip {
   const { locale, axisFormats } = args;

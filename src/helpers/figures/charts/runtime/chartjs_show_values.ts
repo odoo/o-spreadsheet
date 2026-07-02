@@ -2,12 +2,13 @@ import { ChartMeta } from "chart.js";
 import { Range } from "../../../..";
 import { ChartShowValuesPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
 import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
-import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import {
   ChartDefinition,
   ChartRuntimeGenerationArgs,
+  ChartType,
   schemeToColorScale,
 } from "../../../../types/chart/chart";
+import { ColorScaleGridChartDefinition } from "../../../../types/chart/common_chart";
 import { PyramidChartDefinition } from "../../../../types/chart/pyramid_chart";
 import {
   SunburstChartDefaults,
@@ -36,9 +37,10 @@ export function getChartShowValues(
   };
 }
 
-export function getCalendarChartShowValues(
-  definition: CalendarChartDefinition,
-  args: ChartRuntimeGenerationArgs
+export function getColorScaleGridShowValues(
+  definition: ColorScaleGridChartDefinition,
+  args: ChartRuntimeGenerationArgs,
+  type: ChartType
 ): ChartShowValuesPluginOptions {
   const { locale, axisFormats } = args;
   let background = (_value, dataset, index) => definition.background;
@@ -63,7 +65,7 @@ export function getCalendarChartShowValues(
     };
   }
   return {
-    type: "calendar",
+    type,
     horizontal: false,
     showValues: "showValues" in definition ? !!definition.showValues : false,
     background,

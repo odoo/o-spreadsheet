@@ -67,7 +67,8 @@ export class ChartTypePicker extends Component<SpreadsheetChildEnv> {
       !definition.dataSource &&
       (definition.type === "scorecard" ||
         definition.type === "gauge" ||
-        definition.type === "bubble")
+        definition.type === "bubble" ||
+        definition.type === "heatmap")
     ) {
       // Scorecard and gauge don't have a data source but can still be converted to other types of charts
       supportedTypes = new Set(CHART_TYPES);

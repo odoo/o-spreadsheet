@@ -11,12 +11,12 @@ import { Validator } from "../../../types/validator";
 import { AbstractChart } from "./abstract_chart";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import { getCalendarChartData } from "./runtime/chart_data_extractor";
-import { getCalendarChartDatasetAndLabels } from "./runtime/chartjs_dataset";
-import { getCalendarChartLayout } from "./runtime/chartjs_layout";
-import { getCalendarChartScales, getCalendarColorScale } from "./runtime/chartjs_scales";
-import { getCalendarChartShowValues } from "./runtime/chartjs_show_values";
+import { getColorScaleGridDatasetAndLabels } from "./runtime/chartjs_dataset";
+import { getColorScaleGridLayout } from "./runtime/chartjs_layout";
+import { getColorScaleGridScales, getColorScaleLegend } from "./runtime/chartjs_scales";
+import { getColorScaleGridShowValues } from "./runtime/chartjs_show_values";
 import { getChartTitle } from "./runtime/chartjs_title";
-import { getCalendarChartTooltip } from "./runtime/chartjs_tooltip";
+import { getColorScaleGridTooltip } from "./runtime/chartjs_tooltip";
 
 function checkDateGranularity(definition: CalendarChartDefinition<string>): CommandResult {
   if (!CALENDAR_CHART_GRANULARITIES.includes(definition.horizontalGroupBy)) {
@@ -91,7 +91,7 @@ export const CalendarChart: ChartTypeBuilder<"calendar"> = {
   getRuntime(getters, definition, { extractData }): CalendarChartRuntime {
     const data = extractData();
     const chartData = getCalendarChartData(definition, data, getters);
-    const { labels, datasets } = getCalendarChartDatasetAndLabels(definition, chartData);
+    const { labels, datasets } = getColorScaleGridDatasetAndLabels(definition, chartData);
 
     const config: ChartConfiguration<"calendar"> = {
       type: "calendar",
@@ -102,14 +102,14 @@ export const CalendarChart: ChartTypeBuilder<"calendar"> = {
       options: {
         ...CHART_COMMON_OPTIONS,
         indexAxis: "x",
-        layout: getCalendarChartLayout(definition, chartData),
-        scales: getCalendarChartScales(definition, datasets),
+        layout: getColorScaleGridLayout(definition, chartData),
+        scales: getColorScaleGridScales(definition, datasets),
         plugins: {
           title: getChartTitle(definition, getters),
           legend: { display: false },
-          tooltip: getCalendarChartTooltip(definition, chartData),
-          chartShowValuesPlugin: getCalendarChartShowValues(definition, chartData),
-          chartColorScalePlugin: getCalendarColorScale(definition, chartData),
+          tooltip: getColorScaleGridTooltip(definition, chartData),
+          chartShowValuesPlugin: getColorScaleGridShowValues(definition, chartData, "calendar"),
+          chartColorScalePlugin: getColorScaleLegend(definition, chartData),
           background: { color: chartData.background },
         },
       },

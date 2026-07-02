@@ -41,6 +41,7 @@ import {
   createCalendarChart,
   createChart,
   createGaugeChart,
+  createHeatmapChart,
   createScorecardChart,
   createSheet,
   deleteFigure,
@@ -117,6 +118,9 @@ function createTestChart(
       break;
     case "bubble":
       createBubbleChart(model, TEST_CHART_DATA.bubble, newChartId, undefined, partialFigure);
+      break;
+    case "heatmap":
+      createHeatmapChart(model, TEST_CHART_DATA.heatmap, newChartId, undefined, partialFigure);
       break;
     default:
       createChart(

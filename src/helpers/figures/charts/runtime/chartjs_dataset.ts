@@ -14,7 +14,6 @@ import {
 import { _t } from "../../../../translation";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
-import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import {
   ChartRuntimeGenerationArgs,
   DataSetStyle,
@@ -24,6 +23,7 @@ import {
   TrendConfiguration,
 } from "../../../../types/chart/chart";
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
+import { ColorScaleGridChartDefinition } from "../../../../types/chart/common_chart";
 import { FunnelChartColors, FunnelChartDefinition } from "../../../../types/chart/funnel_chart";
 import {
   GeoChartDefinition,
@@ -162,8 +162,8 @@ function getBarChartTotalLineDataset(
   };
 }
 
-export function getCalendarChartDatasetAndLabels(
-  definition: CalendarChartDefinition,
+export function getColorScaleGridDatasetAndLabels(
+  definition: ColorScaleGridChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): {
   datasets: ChartDataset<"calendar">[];

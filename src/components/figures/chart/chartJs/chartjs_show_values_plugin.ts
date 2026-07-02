@@ -66,6 +66,7 @@ export const chartShowValuesPlugin: Plugin = {
         drawHorizontalBarChartValues(chart, options, ctx);
         break;
       case "calendar":
+      case "heatmap":
         drawBarChartValues(chart, options, ctx);
         break;
       case "bubble":

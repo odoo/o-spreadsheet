@@ -435,4 +435,17 @@
       <path fill="var(--os-chart-preview-orange-dark)" d="M25 16h7v7h-7"/>
     </svg>
   </t>
+  <t t-name="o-spreadsheet-ChartPreview.HEATMAP_CHART">
+    <svg class="o-chart-preview" viewBox="0 0 48 48">
+      <path fill="var(--os-chart-preview-orange-dark)" d="M4 4h12v12H4z"/>
+      <path fill="var(--os-chart-preview-orange-line)" d="M18 4h12v12H18z"/>
+      <path fill="var(--os-chart-preview-orange-light)" d="M32 4h12v12H32z"/>
+      <path fill="var(--os-chart-preview-orange-light)" d="M4 18h12v12H4z"/>
+      <path fill="var(--os-chart-preview-orange-dark)" d="M18 18h12v12H18z"/>
+      <path fill="var(--os-chart-preview-orange-fill)" d="M32 18h12v12H32z"/>
+      <path fill="var(--os-chart-preview-orange-fill)" d="M4 32h12v12H4z"/>
+      <path fill="var(--os-chart-preview-orange-light)" d="M18 32h12v12H18z"/>
+      <path fill="var(--os-chart-preview-orange-dark)" d="M32 32h12v12H32z"/>
+    </svg>
+  </t>
 </templates>
