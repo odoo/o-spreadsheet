@@ -304,36 +304,22 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
         continue;
       }
       const rowDefault = this.format[sheetId]?.rowDefault?.[position.row];
-      if (rowDefault) {
+      if (rowDefault !== undefined) {
         if (priorities.shouldUseDefaultRow) {
           defaults.push([position, rowDefault]);
         }
         continue;
       }
       const colDefault = this.format[sheetId]?.colDefault?.[position.col];
-      if (colDefault) {
+      if (colDefault !== undefined) {
         if (priorities.shouldUseDefaultCol) {
           defaults.push([position, colDefault]);
         }
         continue;
       }
-      const sheetDefault = this.format[sheetId]?.sheetDefault;
-      if (sheetDefault) {
-        if (priorities.shouldUseDefaultSheet) {
-          defaults.push([position, sheetDefault]);
-        }
-        continue;
-      }
-      // The cell currently has no format at all (not even a default one).
-      // If the default level is going to change, we want an explicit empty "" format
-      // to prevent the cell from inheriting the new default
-      if (
-        (priorities.shouldUseDefaultRow ||
-          priorities.shouldUseDefaultCol ||
-          priorities.shouldUseDefaultSheet) &&
-        cell
-      ) {
-        defaults.push([position, ""]);
+      const sheetDefault = this.format[sheetId]?.sheetDefault ?? "";
+      if (priorities.shouldUseDefaultSheet) {
+        defaults.push([position, sheetDefault]);
       }
     }
     return defaults;
