@@ -72,8 +72,13 @@ export class DataCleanupPlugin extends UIPlugin {
       bottom: rowIndex,
     }));
 
+    const clipboardPositions = getClipboardDataPositions(sheetId, rowsToKeep);
     const handler = new CellClipboardHandler(this.getters, this.dispatch);
-    const data = handler.copy(getClipboardDataPositions(sheetId, rowsToKeep), false);
+    const compactData = handler.copy(clipboardPositions, false);
+    if (!compactData) {
+      return;
+    }
+    const data = handler.expand(compactData);
     if (!data) {
       return;
     }
@@ -87,7 +92,19 @@ export class DataCleanupPlugin extends UIPlugin {
       bottom: zone.top,
     };
 
-    handler.paste({ zones: [zonePasted], sheetId }, data, { isCutOperation: false });
+    handler.paste(
+      { zones: [zonePasted], sheetId },
+      data,
+      {
+        isCutOperation: false,
+      },
+      {
+        sheetId: sheetId,
+        zones: rowsToKeep,
+        rowsIndexes: clipboardPositions.rowsIndexes,
+        columnsIndexes: clipboardPositions.columnsIndexes,
+      }
+    );
 
     const remainingZone = {
       left: zone.left,

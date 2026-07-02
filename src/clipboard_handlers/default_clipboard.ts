@@ -2,7 +2,13 @@ import { DEFAULT_STYLE } from "../constants";
 import { splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
 import { defaultDict, isObjectEmptyRecursive } from "../helpers/misc";
 import { defaultValue } from "../plugins/core/default";
-import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
+import {
+  ClipboardCellData,
+  ClipboardCopyOptions,
+  ClipboardOptions,
+  ClipboardPasteTarget,
+  ClipboardPositions,
+} from "../types/clipboard";
 import { Format } from "../types/format";
 import { HeaderIndex, Style, UID, Zone } from "../types/misc";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
@@ -18,9 +24,13 @@ type ClipboardContent = {
 
 export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
   ClipboardContent,
-  unknown
+  ClipboardContent
 > {
-  copy(data: ClipboardCellData): ClipboardContent | undefined {
+  copy(
+    data: ClipboardCellData,
+    _isCutOperation: boolean,
+    _mode: ClipboardCopyOptions = "copyPaste"
+  ): ClipboardContent | undefined {
     const content = {
       style: {},
       format: {} as defaultValue<Format>,
@@ -78,11 +88,20 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
     return content;
   }
 
-  clearStyleFormat(sheetId: UID, zone: Zone) {
-    this.dispatch("SET_FORMATTING", { sheetId, target: [zone], format: "" });
+  expand(data: ClipboardContent): ClipboardContent[][] {
+    return [[data]];
   }
 
-  paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
+  paste(
+    target: ClipboardPasteTarget,
+    content: (ClipboardContent | null)[][],
+    options: ClipboardOptions,
+    _positions: ClipboardPositions
+  ) {
+    const clipboardContent = content[0]?.[0];
+    if (!clipboardContent) {
+      return;
+    }
     const sheetId = target.sheetId;
     if (options.pasteOption === "asValue") {
       return;
@@ -90,30 +109,48 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
     const zones = target.zones;
     if (!options.isCutOperation) {
       for (const zone of zones) {
-        for (const pasteZone of splitZoneForPaste(zone, content.width, content.height)) {
+        for (const pasteZone of splitZoneForPaste(
+          zone,
+          clipboardContent.width,
+          clipboardContent.height
+        )) {
           this.pasteStyle(
             sheetId,
             pasteZone.left,
             pasteZone.top,
-            content.width,
-            content.height,
-            content.style
+            clipboardContent.width,
+            clipboardContent.height,
+            clipboardContent.style
           );
           this.pasteFormat(
             sheetId,
             pasteZone.left,
             pasteZone.top,
-            content.width,
-            content.height,
-            content.format
+            clipboardContent.width,
+            clipboardContent.height,
+            clipboardContent.format
           );
         }
       }
     } else {
-      this.clearClippedZones(content);
+      this.clearClippedZones(clipboardContent);
       const { left, top } = zones[0];
-      this.pasteStyle(sheetId, left, top, content.width, content.height, content.style);
-      this.pasteFormat(sheetId, left, top, content.width, content.height, content.format);
+      this.pasteStyle(
+        sheetId,
+        left,
+        top,
+        clipboardContent.width,
+        clipboardContent.height,
+        clipboardContent.style
+      );
+      this.pasteFormat(
+        sheetId,
+        left,
+        top,
+        clipboardContent.width,
+        clipboardContent.height,
+        clipboardContent.format
+      );
     }
   }
 
