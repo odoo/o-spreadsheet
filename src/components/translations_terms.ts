@@ -75,6 +75,10 @@ export const ChartTerms: {
     [CommandResult.InvalidYRange]: _t("The vertical axis values range is invalid"),
     [CommandResult.InvalidXRange]: _t("The horizontal axis values range is invalid"),
     [CommandResult.InvalidBubbleSizeRange]: _t("The bubble sizes range is invalid"),
+    // HEATMAP CHART ERRORS
+    [CommandResult.InvalidHeatmapRowRange]: _t("The row range is invalid"),
+    [CommandResult.InvalidHeatmapColumnRange]: _t("The column range is invalid"),
+    [CommandResult.InvalidHeatmapDataRange]: _t("The data range is invalid"),
   },
   ColorScales: {
     blues: _t("Blues"),

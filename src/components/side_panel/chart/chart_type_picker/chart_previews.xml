@@ -418,6 +418,25 @@
   </t>
   <t t-name="o-spreadsheet-ChartPreview.CALENDAR_CHART">
     <svg class="o-chart-preview" viewBox="0 0 48 48">
+      <path
+        fill="var(--os-gray-600)"
+        d="M3 8h5.5V5a2 2 0 0 1 4 0v3h5V5a2 2 0 0 1 4 0v3h5V5a2 2 0 0 1 4 0v3h5V5a2 2 0 0 1 4 0v3H45v34a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zh1v33.5A1.5 1.5 0 0 0 5.5 43h37a1.5 1.5 0 0 0 1.5-1.5V17H4"
+      />
+      <path
+        fill="var(--os-chart-preview-orange-line)"
+        d="M7 19h7v6H7m0 2h7v6H7m0 2h7v6H7m9-22h7v6h-7m0 2h7v6h-7m0 2h7v6h-7m9-14h7v6h-7m0 2h7v6h-7m9-22h7v6h-7m0 2h7v6h-7m0 2h7v6h-7"
+      />
+      <path fill="var(--os-chart-preview-orange-fill)" d="M8 28h5v4H8m9 4h5v4h-5m18-4h5v4h-5"/>
+      <path
+        fill="var(--os-chart-preview-orange-light)"
+        d="M8 20h5v4H8m9 4h5v4h-5m9 4h5v4h-5m9-12h5v4h-5"
+      />
+      <path fill="var(--os-white-bg)" d="M8 36h5v4H8"/>
+      <path fill="var(--os-chart-preview-orange-dark)" d="M25 19h7v6h-7"/>
+    </svg>
+  </t>
+  <t t-name="o-spreadsheet-ChartPreview.HEATMAP_CHART">
+    <svg class="o-chart-preview" viewBox="0 0 48 48">
       <path fill="var(--os-gray-600)" d="M3 3h42v42H3zh1v41h40V4H4"/>
       <path
         fill="var(--os-chart-preview-orange-line)"

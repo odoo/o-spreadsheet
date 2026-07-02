@@ -7,6 +7,7 @@ import { LegendPosition } from "./common_chart";
 import { FunnelChartColors, FunnelChartDefinition, FunnelChartRuntime } from "./funnel_chart";
 import { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";
 import { GeoChartDefinition, GeoChartRuntime } from "./geo_chart";
+import { HeatmapChartDefinition, HeatmapChartRuntime } from "./heatmap_chart";
 import { LineChartDefinition, LineChartRuntime } from "./line_chart";
 import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
 import { PyramidChartDefinition, PyramidChartRuntime } from "./pyramid_chart";
@@ -44,6 +45,7 @@ export const CHART_TYPES = [
   "sunburst",
   "treemap",
   "calendar",
+  "heatmap",
 ] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
@@ -66,7 +68,8 @@ export type ChartDefinition<T extends string | Range = string> =
   | ChartDefinitionWithDataSource<T>
   | ScorecardChartDefinition<T>
   | GaugeChartDefinition<T>
-  | BubbleChartDefinition<T>;
+  | BubbleChartDefinition<T>
+  | HeatmapChartDefinition<T>;
 
 /**
  * `ChartTypeDefinition<"bar", Range>`
@@ -101,7 +104,8 @@ export type ChartJSRuntime =
   | GeoChartRuntime
   | FunnelChartRuntime
   | SunburstChartRuntime
-  | TreeMapChartRuntime;
+  | TreeMapChartRuntime
+  | HeatmapChartRuntime;
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
 
