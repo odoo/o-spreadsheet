@@ -31,6 +31,7 @@ import {
   GeoChartDefinition,
   GeoChartRuntimeGenerationArgs,
 } from "../../../../types/chart/geo_chart";
+import { HeatmapChartDefinition } from "../../../../types/chart/heatmap_chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../../types/chart/pie_chart";
 import { PyramidChartDefinition } from "../../../../types/chart/pyramid_chart";
@@ -122,6 +123,64 @@ function getDateTimeLabel(value: number, stamp: CalendarChartGranularity): strin
   }
 }
 
+/**
+ * Groups (x, y, value) triples by (x, y) pair, summing the values, and builds the resulting
+ * chart datasets (one per y key, rows) and labels (one per x key, columns). Shared by the
+ * calendar chart (x/y keys derived from date granularities) and the heatmap chart (x/y keys
+ * are raw category values from two separate ranges).
+ */
+function computeGroupedValuesAndLabels<K extends string | number>(
+  count: number,
+  getXKey: (i: number) => K,
+  getYKey: (i: number) => K,
+  getValue: (i: number) => FunctionResultObject,
+  formatXLabel: (key: K) => string,
+  formatYLabel: (key: K) => string,
+  sortXKeys: (keys: K[]) => K[],
+  sortYKeys: (keys: K[]) => K[]
+): { dataSetsValues: DatasetValues[]; labels: LabelValues } {
+  const grouping: Record<string, Record<string, { value: number }>> = {};
+  const xValues: K[] = [];
+  const yValues: K[] = [];
+  const previousYValues: K[] = [];
+  for (let i = 0; i < count; i++) {
+    const xValue = getXKey(i);
+    const xKey = String(xValue);
+    if (!(xKey in grouping)) {
+      xValues.push(xValue);
+      grouping[xKey] = {};
+    }
+    const yValue = getYKey(i);
+    if (!previousYValues.includes(yValue)) {
+      yValues.push(yValue);
+      previousYValues.push(yValue);
+    }
+    const yKey = String(yValue);
+    if (!(yKey in grouping[xKey])) {
+      grouping[xKey][yKey] = { value: 0 };
+    }
+    const cell = getValue(i);
+    if (isNumberResult(cell)) {
+      grouping[xKey][yKey].value += cell.value;
+    }
+  }
+
+  const sortedXValues = sortXKeys(xValues);
+  const sortedYValues = sortYKeys(yValues);
+
+  const dataSetsValues = sortedYValues.map((y) => ({
+    data: sortedXValues.map((x) => grouping[String(x)]?.[String(y)]),
+    label: formatYLabel(y),
+    hidden: false,
+    dataSetId: "0",
+  }));
+
+  return {
+    dataSetsValues,
+    labels: sortedXValues.map((v) => ({ value: formatXLabel(v) })),
+  };
+}
+
 function computeValuesAndLabels(
   timeValues: FunctionResultObject[],
   values: FunctionResultObject[],
@@ -129,58 +188,25 @@ function computeValuesAndLabels(
   verticalGroupBy: CalendarChartGranularity,
   locale: Locale
 ) {
-  const grouping: Record<string, Record<string, { value: number }>> = {};
-  const xValues: number[] = [];
-  const yValues: number[] = [];
-  const previousYValues: number[] = [];
-  for (let i = 0; i < timeValues?.length; i++) {
-    const xValue = toNumber(
+  const getKey = (granularity: CalendarChartGranularity) => (i: number) =>
+    toNumber(
       createDate(
-        { granularity: horizontalGroupBy, type: "date", displayName: "date" },
+        { granularity, type: "date", displayName: "date" },
         timeValues[i].value,
         DEFAULT_LOCALE
       ),
       locale
     );
-    if (!(xValue in grouping)) {
-      xValues.push(xValue);
-      grouping[xValue] = {};
-    }
-    const yValue = toNumber(
-      createDate(
-        { granularity: verticalGroupBy, type: "date", displayName: "date" },
-        timeValues[i].value,
-        DEFAULT_LOCALE
-      ),
-      locale
-    );
-    if (!previousYValues.includes(yValue)) {
-      yValues.push(yValue);
-      previousYValues.push(yValue);
-    }
-    if (!(yValue in grouping[xValue])) {
-      grouping[xValue][yValue] = { value: 0 };
-    }
-    const cell = values[i];
-    if (isNumberResult(cell)) {
-      grouping[xValue][yValue].value += cell.value;
-    }
-  }
-
-  xValues.sort((a, b) => a - b);
-  yValues.sort((a, b) => b - a);
-
-  const dataSetsValues = yValues.map((y) => ({
-    data: xValues.map((x) => grouping?.[x]?.[y]),
-    label: getDateTimeLabel(y, verticalGroupBy),
-    hidden: false,
-    dataSetId: "0",
-  }));
-
-  return {
-    dataSetsValues,
-    labels: xValues.map((v) => ({ value: getDateTimeLabel(v, horizontalGroupBy) })),
-  };
+  return computeGroupedValuesAndLabels(
+    timeValues?.length ?? 0,
+    getKey(horizontalGroupBy),
+    getKey(verticalGroupBy),
+    (i) => values[i],
+    (key) => getDateTimeLabel(key, horizontalGroupBy),
+    (key) => getDateTimeLabel(key, verticalGroupBy),
+    (keys) => [...keys].sort((a, b) => a - b),
+    (keys) => [...keys].sort((a, b) => b - a)
+  );
 }
 
 export function getCalendarChartData(
@@ -210,6 +236,142 @@ export function getCalendarChartData(
     axisFormats,
     labels: labels.map(({ value }) => String(value ?? "")),
     locale: getters.getLocale(),
+    topPadding: getTopPaddingForDashboard(definition, getters),
+    background: getChartBackgroundColor(definition, getters),
+  };
+}
+
+/**
+ * Keep only the (row, column, value) triples that are fully defined: a heatmap cell needs a
+ * row category, a column category and a numeric value to be meaningful. The 3 ranges are read
+ * independently and may have different lengths (e.g. the user picked a taller data range than
+ * the row range), so indexes past the end of an array are treated as missing.
+ */
+function filterInvalidHeatmapDataPoints(
+  rowValues: FunctionResultObject[],
+  columnValues: FunctionResultObject[],
+  dataValues: FunctionResultObject[]
+): {
+  rows: FunctionResultObject[];
+  columns: FunctionResultObject[];
+  values: FunctionResultObject[];
+} {
+  const count = Math.max(rowValues.length, columnValues.length, dataValues.length);
+  const rows: FunctionResultObject[] = [];
+  const columns: FunctionResultObject[] = [];
+  const values: FunctionResultObject[] = [];
+  for (let i = 0; i < count; i++) {
+    const row = rowValues[i];
+    const column = columnValues[i];
+    const value = dataValues[i];
+    if (
+      row?.value !== undefined &&
+      row?.value !== null &&
+      column?.value !== undefined &&
+      column?.value !== null &&
+      isNumberResult(value)
+    ) {
+      rows.push(row);
+      columns.push(column);
+      values.push(value);
+    }
+  }
+  return { rows, columns, values };
+}
+
+/**
+ * Splits a series of numeric values into equal-width bins covering their whole range, using
+ * Sturges' formula for the bin count (same heuristic as the column statistics histogram, see
+ * `ColumnStatisticsStore.computeHistogramData`). Used to turn a continuous numerical row/column
+ * range into a fixed-size grid instead of one row/column per distinct value.
+ */
+function computeNumericBins(values: number[], locale: Locale) {
+  const binCount = Math.max(1, 1 + Math.floor(Math.log2(values.length)));
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
+  const range = maxValue - minValue;
+  const binSize = range / binCount;
+  return {
+    getBinIndex: (value: number): number => {
+      if (range === 0) {
+        return 0;
+      }
+      const ratio = (value - minValue) / range;
+      return Math.min(binCount - 1, Math.floor(ratio * binCount));
+    },
+    getBinLabel: (index: number): string => {
+      const start = minValue + index * binSize;
+      const end = index === binCount - 1 ? maxValue : minValue + (index + 1) * binSize;
+      return `${formatValue(start, { locale })} - ${formatValue(end, { locale })}`;
+    },
+  };
+}
+
+export function getHeatmapChartData(
+  definition: HeatmapChartDefinition<Range>,
+  getters: Getters
+): ChartRuntimeGenerationArgs {
+  const locale = getters.getLocale();
+  let rowValues = definition.rowRange ? getters.getVisibleRangeValues(definition.rowRange) : [];
+  let columnValues = definition.columnRange
+    ? getters.getVisibleRangeValues(definition.columnRange)
+    : [];
+  let dataValues = definition.dataRange ? getters.getVisibleRangeValues(definition.dataRange) : [];
+
+  if (definition.dataSetsHaveTitle) {
+    rowValues = rowValues.slice(1);
+    columnValues = columnValues.slice(1);
+    dataValues = dataValues.slice(1);
+  }
+
+  const { rows, columns, values } = filterInvalidHeatmapDataPoints(
+    rowValues,
+    columnValues,
+    dataValues
+  );
+
+  // When every row (resp. column) value is a number, treat the axis as a continuous numerical
+  // range: cut it into a grid of bins and aggregate values falling into the same bin, instead of
+  // creating one row/column per distinct value.
+  const rowsAreNumeric = rows.length > 0 && rows.every(isNumberResult);
+  const columnsAreNumeric = columns.length > 0 && columns.every(isNumberResult);
+  const rowBins = rowsAreNumeric
+    ? computeNumericBins(
+        rows.map((r) => r.value as number),
+        locale
+      )
+    : undefined;
+  const columnBins = columnsAreNumeric
+    ? computeNumericBins(
+        columns.map((c) => c.value as number),
+        locale
+      )
+    : undefined;
+  const ascending = (keys: (string | number)[]) =>
+    [...keys].sort((a, b) => (a as number) - (b as number));
+
+  const { dataSetsValues, labels } = computeGroupedValuesAndLabels(
+    values.length,
+    (i) =>
+      columnBins
+        ? columnBins.getBinIndex(columns[i].value as number)
+        : formatValue(columns[i].value, { format: columns[i].format, locale }),
+    (i) =>
+      rowBins
+        ? rowBins.getBinIndex(rows[i].value as number)
+        : formatValue(rows[i].value, { format: rows[i].format, locale }),
+    (i) => values[i],
+    (key) => (columnBins ? columnBins.getBinLabel(key as number) : String(key)),
+    (key) => (rowBins ? rowBins.getBinLabel(key as number) : String(key)),
+    (keys) => (columnBins ? ascending(keys) : keys),
+    (keys) => (rowBins ? ascending(keys) : keys)
+  );
+
+  return {
+    dataSetsValues,
+    axisFormats: {},
+    labels: labels.map(({ value }) => String(value ?? "")),
+    locale,
     topPadding: getTopPaddingForDashboard(definition, getters),
     background: getChartBackgroundColor(definition, getters),
   };

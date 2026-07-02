@@ -16,7 +16,6 @@ import {
 } from "../../../../constants";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
-import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import {
   AxisDesign,
   AxisType,
@@ -25,7 +24,10 @@ import {
   ChartWithAxisDefinition,
   GenericDefinition,
 } from "../../../../types/chart/chart";
-import { LegendPosition } from "../../../../types/chart/common_chart";
+import {
+  ColorScaleGridChartDefinition,
+  LegendPosition,
+} from "../../../../types/chart/common_chart";
 import { FunnelChartDefinition } from "../../../../types/chart/funnel_chart";
 import {
   GeoChartDefinition,
@@ -107,8 +109,8 @@ export function getBarChartScales(
   return scales;
 }
 
-export function getCalendarChartScales(
-  definition: GenericDefinition<BarChartDefinition>,
+export function getColorScaleGridScales(
+  definition: ColorScaleGridChartDefinition,
   datasets: ChartDataset[]
 ): ChartScales<"calendar"> {
   const yLabels = datasets.map((dataset) => dataset.label || "");
@@ -151,8 +153,8 @@ export function getCalendarChartScales(
   };
 }
 
-export function getCalendarColorScale(
-  definition: CalendarChartDefinition,
+export function getColorScaleLegend(
+  definition: ColorScaleGridChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartColorScalePluginOptions | undefined {
   const { dataSetsValues } = args;
