@@ -276,7 +276,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           positionsByStyle[styleId] ??= [];
           positionsByStyle[styleId].push(position);
         }
-        if (cell.format) {
+        if (cell.format !== undefined) {
           const formatId = getItemId<Format>(cell.format, formats);
           positionsByFormat[formatId] ??= [];
           positionsByFormat[formatId].push(position);
