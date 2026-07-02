@@ -12,28 +12,37 @@ const templates = /* xml */ `
   <t t-name="o-spreadsheet-CustomTooltip">
     <div
       class="o-chart-custom-tooltip border rounded px-2 py-1 pe-none mw-100 position-absolute text-nowrap shadow opacity-100">
-      <table class="overflow-hidden m-0">
-        <thead t-if="title">
-          <tr>
-            <th class="o-tooltip-title align-baseline border-0 text-truncate" t-out="title" t-attf-style="max-width: {{ labelsMaxWidth }}"/>
-          </tr>
-        </thead>
+      <div
+        t-if="title"
+        class="o-tooltip-title text-truncate mb-1 fw-bold"
+        t-out="title"
+        t-attf-style="max-width: {{ labelsMaxWidth }}"
+      />
+      <table class="overflow-hidden m-0" style="table-layout: auto; width: auto">
         <tbody>
           <tr t-foreach="tooltipItems" t-as="tooltipItem" t-key="tooltipItem_index">
-            <td>
-              <span
-                class="badge ps-2 py-2 rounded-0 align-middle"
-                t-attf-style="background-color: {{ tooltipItem.boxColor }}"
-              > </span>
+            <td
+              class="o-tooltip-color-indicator ps-2 align-top"
+              t-attf-style="border-left: 5px solid {{ tooltipItem.boxColor }}"
+            >
               <small
-                t-if="tooltipItem.label"
-                class="o-tooltip-label d-inline-block text-truncate align-middle smaller ms-2"
+                t-if="tooltipItem.label and typeof tooltipItem.label === 'string'"
+                class="o-tooltip-label d-inline-block text-truncate smaller"
                 t-out="tooltipItem.label"
                 t-attf-style="max-width: {{ labelsMaxWidth }}"
               />
+              <small
+                t-else=""
+                t-foreach="tooltipItem.label"
+                t-as="tooltipLabelLine"
+                t-key="tooltipLabelLine_index"
+                class="o-tooltip-label d-block text-truncate smaller"
+                t-out="tooltipLabelLine"
+                t-attf-style="max-width: {{ labelsMaxWidth }}"
+              />
             </td>
-            <td class="o-tooltip-value ps-2 fw-bolder text-end">
-              <small class="smaller d-inline-block text-truncate align-middle" t-attf-style="max-width: {{ valuesMaxWidth }}">
+            <td class="o-tooltip-value ps-2 fw-bolder text-end align-top">
+              <small class="smaller d-inline-block text-truncate" t-attf-style="max-width: {{ valuesMaxWidth }}">
                 <t t-out="tooltipItem.value"/>
                 <t t-if="tooltipItem.percentage">
                   (

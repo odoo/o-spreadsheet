@@ -1,0 +1,33 @@
+<templates>
+  <t t-name="o-spreadsheet-HeatmapChartConfigPanel">
+    <div>
+      <ChartLabelRange
+        title.translate="Rows"
+        range="this.rowRange || ''"
+        isInvalid="this.isRowRangeInvalid"
+        onSelectionChanged.bind="this.onRowRangeChanged"
+        onSelectionConfirmed.bind="this.onRowRangeConfirmed"
+        class="'pt-0'"
+      />
+      <ChartLabelRange
+        title.translate="Columns"
+        range="this.columnRange || ''"
+        isInvalid="this.isColumnRangeInvalid"
+        onSelectionChanged.bind="this.onColumnRangeChanged"
+        onSelectionConfirmed.bind="this.onColumnRangeConfirmed"
+        class="'pt-0'"
+      />
+      <ChartLabelRange
+        title.translate="Values"
+        range="this.dataRange || ''"
+        isInvalid="this.isDataRangeInvalid"
+        onSelectionChanged.bind="this.onDataRangeChanged"
+        onSelectionConfirmed.bind="this.onDataRangeConfirmed"
+        class="'pt-0'"
+        options="this.getDataRangeOptions()"
+      />
+
+      <ChartErrorSection t-if="this.errorMessages.length" messages="this.errorMessages"/>
+    </div>
+  </t>
+</templates>

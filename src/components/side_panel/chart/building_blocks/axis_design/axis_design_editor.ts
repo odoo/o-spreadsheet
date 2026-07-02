@@ -38,6 +38,8 @@ export class AxisDesignEditor extends Component<SpreadsheetChildEnv> {
     definition: types.ChartWithAxisDefinition(),
     updateChart: types.function<ChartUpdateFunction>(),
     axesList: types.ArrayOf<AxisDefinition>(),
+    editBoundaries: types.boolean().optional(true),
+    editGridlines: types.boolean().optional(true),
   });
 
   state: { currentAxis: AxisId } = proxy({ currentAxis: "x" });

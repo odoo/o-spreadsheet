@@ -5,6 +5,7 @@ import { ComboChart } from "../helpers/figures/charts/combo_chart";
 import { FunnelChart } from "../helpers/figures/charts/funnel_chart";
 import { GaugeChart } from "../helpers/figures/charts/gauge_chart";
 import { GeoChart } from "../helpers/figures/charts/geo_chart";
+import { HeatmapChart } from "../helpers/figures/charts/heatmap_chart";
 import { LineChart } from "../helpers/figures/charts/line_chart";
 import { PieChart } from "../helpers/figures/charts/pie_chart";
 import { PyramidChart } from "../helpers/figures/charts/pyramid_chart";
@@ -38,6 +39,7 @@ chartTypeRegistry.add("sunburst", SunburstChart);
 chartTypeRegistry.add("treemap", TreeMapChart);
 chartTypeRegistry.add("calendar", CalendarChart);
 chartTypeRegistry.add("bubble", BubbleChart);
+chartTypeRegistry.add("heatmap", HeatmapChart);
 
 chartSubtypeRegistry
   .add("line", {
@@ -241,4 +243,11 @@ chartSubtypeRegistry
     chartType: "calendar",
     category: "misc",
     preview: "o-spreadsheet-ChartPreview.CALENDAR_CHART",
+  })
+  .add("heatmap", {
+    displayName: _t("Heatmap"),
+    chartSubtype: "heatmap",
+    chartType: "heatmap",
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.HEATMAP_CHART",
   });

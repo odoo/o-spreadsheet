@@ -10,6 +10,7 @@ import {
   ChartRuntimeGenerationArgs,
   GenericDefinition,
 } from "../../../../types/chart/chart";
+import { ColorGridChartDefinition } from "../../../../types/chart/common_chart";
 
 type ChartLayout = ChartOptions["layout"];
 
@@ -27,8 +28,8 @@ export function getChartLayout(
   };
 }
 
-export function getCalendarChartLayout(
-  definition: GenericDefinition<ChartDefinitionWithDataSource>,
+export function getColorGridChartLayout(
+  definition: ColorGridChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartLayout {
   const legendPosition = definition.legendPosition;
