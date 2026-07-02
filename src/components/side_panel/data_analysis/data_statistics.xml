@@ -1,0 +1,81 @@
+<templates>
+  <t t-name="o-spreadsheet-DataStatistics">
+    <Section class="'o-column-global-stats d-flex flex-column gap-1 pt-0'">
+      <t t-if="this.activeColSection">
+        <t t-foreach="this.activeColSection.groups" t-as="group" t-key="group_index">
+          <div
+            t-if="group.label"
+            class="o-stat-group-label text-muted small mt-2"
+            t-out="group.label"
+          />
+          <t t-foreach="group.items" t-as="stat" t-key="stat_index">
+            <t t-set="descKey" t-value="group_index + '-' + stat_index"/>
+            <div class="o-data-analysis-row d-flex align-items-center">
+              <div
+                class="o-stat-draggable d-flex flex-fill justify-content-between align-items-center"
+                t-on-pointerdown="(ev) => this.startDragAndDrop(stat, ev)">
+                <div class="d-flex">
+                  <span class="text-muted" t-out="stat.name"/>
+                </div>
+                <span class="o-fw-bold" t-att-data-test-id="stat.name" t-out="stat.value"/>
+              </div>
+              <span
+                class="o-stat-copy-icon text-muted ms-2"
+                title="Copy formula to clipboard"
+                t-on-click="() => this.copyFormulaToClipboard(stat.formula)">
+                <t t-call="o-spreadsheet-Icon.CLIPBOARD"/>
+              </span>
+            </div>
+            <div t-if="stat.interpretation">
+              <div class="d-flex">
+                <div
+                  class="o-stat-interpretation small fw-medium"
+                  t-out="stat.interpretation.main"
+                />
+                <span
+                  t-if="stat.interpretation.details"
+                  class="o-stat-info-icon text-muted"
+                  t-att-class="{ 'active': this.openDescriptionKey.value === descKey }"
+                  t-on-click="() => this.toggleDescription(descKey)">
+                  <t t-call="o-spreadsheet-Icon.CIRCLE_INFO"/>
+                </span>
+              </div>
+              <div
+                t-if="stat.interpretation.details and this.openDescriptionKey.value === descKey"
+                class="o-stat-detail pb-1">
+                <div
+                  class="o-stat-description text-muted small"
+                  t-out="stat.interpretation.details"
+                />
+                <ul>
+                  <t t-foreach="stat.interpretation.technicalData" t-as="data" t-key="data_index">
+                    <li
+                      class="o-stat-description text-muted small"
+                      t-out="data.title + ': ' + data.value"
+                    />
+                  </t>
+                </ul>
+                <span class="o-stat-description small">Recommandation:</span>
+                <div
+                  class="o-stat-description text-muted small"
+                  t-out="stat.interpretation.recommandation"
+                />
+              </div>
+            </div>
+            <div
+              t-if="group_index === 0 and stat_index === 0 and this.showDateGranularitySelector"
+              class="o-data-analysis-row d-flex align-items-center justify-content-between">
+              <span class="text-muted">Granularity</span>
+              <Select
+                class="'o-stat-granularity-select'"
+                values="this.dateGranularityOptions"
+                selectedValue="this.selectedDateGranularity"
+                onChange.bind="this.onDateGranularityChange"
+              />
+            </div>
+          </t>
+        </t>
+      </t>
+    </Section>
+  </t>
+</templates>

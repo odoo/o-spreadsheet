@@ -1,0 +1,22 @@
+.o-spreadsheet {
+  .o-chart-suggestions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .o-data-analysis-chart {
+    cursor: pointer;
+    border: 1px solid var(--os-border-color);
+  }
+
+  .o-stat-dragged {
+    position: fixed;
+    box-sizing: content-box;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  .o-stat-dragged > canvas {
+    border: 1px solid var(--os-figure-border-color);
+  }
+}
