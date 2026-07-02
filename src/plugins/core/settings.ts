@@ -1,13 +1,16 @@
 import { getDateTimeFormat, isValidLocale } from "../../helpers/locale";
+import { UuidGenerator } from "../../helpers/uuid";
 import { CommandResult, CoreCommand } from "../../types/commands";
 import { Format } from "../../types/format";
 import { DEFAULT_LOCALE, Locale } from "../../types/locale";
+import { UID } from "../../types/misc";
 import { WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 
 export class SettingsPlugin extends CorePlugin {
-  static getters = ["getLocale"] as const;
+  static getters = ["getLocale", "getSpreadsheetUuid"] as const;
   private locale: Locale = DEFAULT_LOCALE;
+  private uuid: UID = "";
 
   allowDispatch(cmd: CoreCommand) {
     switch (cmd.type) {
@@ -30,6 +33,10 @@ export class SettingsPlugin extends CorePlugin {
 
   getLocale(): Locale {
     return this.locale;
+  }
+
+  getSpreadsheetUuid(): UID {
+    return this.uuid;
   }
 
   private changeCellsDateFormatWithLocale(oldLocale: Locale, newLocale: Locale) {
@@ -60,9 +67,13 @@ export class SettingsPlugin extends CorePlugin {
 
   import(data: WorkbookData) {
     this.locale = data.settings?.locale ?? DEFAULT_LOCALE;
+    // `load()` back-fills a uuid on every document, but guard anyway so a model
+    // built from raw data still gets a stable identity.
+    this.uuid = data.uuid || UuidGenerator.uuidv4();
   }
 
   export(data: WorkbookData) {
     data.settings = { locale: this.locale };
+    data.uuid = this.uuid;
   }
 }

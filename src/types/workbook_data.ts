@@ -79,6 +79,13 @@ type PivotData = { formulaId: string } & PivotCoreDefinition;
 
 export interface WorkbookData {
   version: string;
+  /**
+   * Stable identifier of the spreadsheet, persisted across save/load. Used to
+   * scope client-side storage (e.g. the disconnected-changes persistence) to a
+   * single document. Optional so legacy documents and the numerous partial
+   * `WorkbookData` literals keep type-checking; it is back-filled on load.
+   */
+  uuid?: UID;
   sheets: SheetData[];
   styles: { [key: number]: Style };
   formats: { [key: number]: Format };

@@ -445,6 +445,7 @@ export function createEmptySheet(sheetId: UID, name: string): SheetData {
 export function createEmptyWorkbookData(sheetName = "Sheet1"): WorkbookData {
   return {
     version: getCurrentVersion(),
+    uuid: UuidGenerator.uuidv4(),
     sheets: [createEmptySheet(INITIAL_SHEET_ID, sheetName)],
     styles: {},
     formats: {},

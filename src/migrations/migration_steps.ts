@@ -4,6 +4,7 @@ import { getItemId } from "../helpers/data_normalization";
 import { getUniqueText, sanitizeSheetName } from "../helpers/misc";
 import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
+import { UuidGenerator } from "../helpers/uuid";
 import { overlap, toZone, zoneToXc } from "../helpers/zones";
 import { Registry } from "../registries/registry";
 import { CustomizedDataSet, schemeToColorScale } from "../types/chart/chart";
@@ -636,6 +637,19 @@ migrationStepRegistry
             }
           }
         }
+      }
+      return data;
+    },
+  })
+  .add("19.4", {
+    // Back-fill a stable spreadsheet uuid for legacy documents that predate it.
+    // NB: this runs independently on each client, so collaborators opening a
+    // legacy document without a uuid generate *different* uuids until one saves.
+    // This is benign for the storage-scoping use case (each client gets its own
+    // slot); the clean long-term fix is a host-provided uuid at creation time.
+    migrate(data: WorkbookData): any {
+      if (!data.uuid) {
+        data.uuid = UuidGenerator.uuidv4();
       }
       return data;
     },

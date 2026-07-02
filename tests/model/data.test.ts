@@ -33,7 +33,8 @@ describe("load data", () => {
       uniqueFigureIds: true,
     });
 
-    expect(load({})).toEqual(emptyWorkbook);
+    // uuid is a freshly generated identifier, so it differs between two loads
+    expect(load({})).toEqual({ ...emptyWorkbook, uuid: expect.any(String) });
   });
 
   test("assign sheet name if missing", () => {

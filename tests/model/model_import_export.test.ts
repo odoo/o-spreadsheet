@@ -1124,8 +1124,9 @@ test("complete import, then export", () => {
   const model = new Model(modelData);
   expect(model).toExport(modelData);
   // We test here a that two import with the same data give the same result.
+  // uuid is a freshly generated identifier when absent from the imported data.
   const model2 = new Model(modelData);
-  expect(model2.exportData()).toEqual(modelData);
+  expect(model2.exportData()).toEqual({ ...modelData, uuid: expect.any(String) });
 });
 
 test("can import cells outside sheet size", () => {

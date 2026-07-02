@@ -26,8 +26,8 @@ declare global {
       toHaveSynchronizedValue<T>(callback: (model: Model) => T, expected: T): R;
       /**
        * Check that the export data of the model is the same as the expected.
-       * Note that it ignore the revisionId, as it's intended that it should be
-       * different
+       * Note that it ignores the revisionId and uuid, as it's intended that they
+       * should be different (both are dynamically generated identifiers)
        */
       toExport<T>(expected: T): R;
       toBeCancelledBecause(...expected: CancelledReason[]): R;
@@ -70,9 +70,11 @@ expect.extend({
   toExport(model: Model, expected: any) {
     const exportData = model.exportData();
     if (
-      !this.equals(exportData, { ...expected, revisionId: expect.any(String) }, [
-        this.utils.iterableEquality,
-      ])
+      !this.equals(
+        exportData,
+        { ...expected, revisionId: expect.any(String), uuid: expect.any(String) },
+        [this.utils.iterableEquality]
+      )
     ) {
       return {
         pass: !!this.isNot,
