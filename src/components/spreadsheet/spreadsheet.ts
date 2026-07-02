@@ -21,6 +21,7 @@ import {
   useSubEnv,
 } from "../../owl3_compatibility_layer";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
+import { LocalRevisionPersistenceStore } from "../../stores/local_revision_persistence_store";
 import { ModelStore } from "../../stores/model_store";
 import { NotificationStore } from "../../stores/notification_store";
 import { ScreenWidthStore } from "../../stores/screen_width_store";
@@ -146,6 +147,9 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
     this.notificationStore = useStore(NotificationStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.sidePanel = useStore(SidePanelStore);
+    // Instantiated here (not only in the top bar) so disconnected-changes
+    // persistence runs for the whole spreadsheet lifetime.
+    useStore(LocalRevisionPersistenceStore);
     const fileStore = this.model.config.external.fileStore;
 
     useSubEnv({

@@ -237,6 +237,12 @@ export const DEFAULT_WINDOW_SIZE = 2;
 // session
 export const MESSAGE_VERSION = 1;
 
+// Disconnected-changes persistence (see LocalRevisionPersistenceStore).
+// Delay before an unsynced client is flagged as disconnected (informational).
+export const PENDING_CHANGES_DISCONNECT_DELAY = 3000;
+// Debounce applied before mirroring the pending-changes queue to localStorage.
+export const PERSIST_DEBOUNCE_MS = 250;
+
 // Sheets
 export const FORBIDDEN_SHEETNAME_CHARS = ["'", "*", "?", "/", "\\", "[", "]"] as const;
 export const FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX = /'|\*|\?|\/|\\|\[|\]/;
