@@ -8,6 +8,8 @@ import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry"
 import { topbarComponentRegistry } from "../../registries/topbar_component_registry";
 import { useStore } from "../../store_engine/store_hooks";
 import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store";
+import { LocalRevisionPersistenceStore } from "../../stores/local_revision_persistence_store";
+import { _t } from "../../translation";
 import { Color, UID } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -67,6 +69,7 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
   isntToolbarMenu = false;
   composerFocusStore!: Store<ComposerFocusStore>;
   fingerprints!: Store<FormulaFingerprintStore>;
+  connection!: Store<LocalRevisionPersistenceStore>;
   topBarToolStore!: Store<TopBarToolStore>;
 
   toolBarContainerRef = signal<HTMLElement | null>(null);
@@ -82,6 +85,7 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
   setup() {
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.fingerprints = useStore(FormulaFingerprintStore);
+    this.connection = useStore(LocalRevisionPersistenceStore);
     this.topBarToolStore = useStore(TopBarToolStore);
 
     useExternalListener(window, "click", this.onExternalClick);
@@ -155,6 +159,19 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
 
   get currentFontSize(): number {
     return this.env.model.getters.getCurrentStyle().fontSize || DEFAULT_FONT_SIZE;
+  }
+
+  get connectionMessage(): string {
+    switch (this.connection.reason) {
+      case "another-tab-editing":
+        return _t("This spreadsheet is open in another tab. This tab is read-only.");
+      case "offline-pending-changes":
+        return _t(
+          "You are offline. Your changes are saved locally and will sync when you reconnect."
+        );
+      default:
+        return "";
+    }
   }
 
   onExternalClick(ev: MouseEvent) {

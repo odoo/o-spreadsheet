@@ -9,7 +9,9 @@ import { toZone, zoneToXc } from "../src/helpers/zones";
 import { Component } from "../src/owl3_compatibility_layer";
 import { topbarMenuRegistry } from "../src/registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../src/registries/topbar_component_registry";
+import { DependencyContainer } from "../src/store_engine/dependency_container";
 import { DOMFocusableElementStore } from "../src/stores/DOM_focus_store";
+import { LocalRevisionPersistenceStore } from "../src/stores/local_revision_persistence_store";
 import { SpreadsheetChildEnv } from "../src/types/spreadsheet_env";
 import { FileStore } from "./__mocks__/mock_file_store";
 import { MockTransportService } from "./__mocks__/transport_service";
@@ -151,6 +153,23 @@ describe("TopBar component", () => {
   test("simple rendering", async () => {
     await mountParent();
     expect(fixture.querySelector(".o-spreadsheet-topbar")).toMatchSnapshot();
+  });
+
+  test("shows a warning banner when the client is disconnected", async () => {
+    const { parent } = await mountParent();
+    expect(fixture.querySelector(".o-disconnected-banner")).toBeNull();
+
+    const container = (env as any).__spreadsheet_stores__ as DependencyContainer;
+    const store = container.get(LocalRevisionPersistenceStore);
+    // wait for the async init so its catch-up update doesn't reset the state
+    await store.whenReady;
+    store.setDisconnected("offline-pending-changes");
+    parent.render(true);
+    await nextTick();
+
+    const banner = fixture.querySelector(".o-disconnected-banner");
+    expect(banner).not.toBeNull();
+    expect(banner!.textContent).toContain("offline");
   });
 
   test("opening a second menu closes the first one", async () => {

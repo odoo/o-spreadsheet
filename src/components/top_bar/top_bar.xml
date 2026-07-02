@@ -106,6 +106,17 @@
           </div>
         </div>
       </div>
+      <div
+        t-if="this.connection.isDisconnected"
+        class="topbar-banner o-disconnected-banner d-flex align-items-center border-top">
+        <div
+          class="ps-3 h-100 flex-fill d-flex align-items-center rounded-0 alert alert-warning ps-0 py-0 my-0">
+          <span class="h-100 d-flex align-items-center text-warning px-3">
+            <t t-call="o-spreadsheet-Icon.TRIANGLE_EXCLAMATION"/>
+          </span>
+          <span class="d-flex align-items-center" t-out="this.connectionMessage"/>
+        </div>
+      </div>
     </div>
     <MenuPopover
       t-if="this.state.menuState.isOpen"
