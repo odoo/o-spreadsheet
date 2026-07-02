@@ -13,6 +13,7 @@ import {
   merge,
   moveColumns,
   moveRows,
+  setCellContent,
   unMerge,
 } from "../test_helpers";
 import { target } from "../test_helpers/helpers";
@@ -802,7 +803,8 @@ describe("Default Plugin: setRowsFormat preserves cells outside the zone", () =>
     setFormat(model, [model.getters.getColsZone(sheetId, 8, 8)], DATE_FORMAT);
 
     // Multi-row zone: rows 0-2 ensures zone.bottom > zone.top so the reversed-args bug fires
-    setFormat(model, [{ left: 0, right: 5, top: 0, bottom: 2 }], PERCENT_FORMAT);
+    const zone = toZone("A1:F3");
+    setFormat(model, [zone], PERCENT_FORMAT);
 
     // Cells inside the zone get the new format
     expect(getCellFormat(model, "A1")).toBe(PERCENT_FORMAT);
@@ -812,5 +814,31 @@ describe("Default Plugin: setRowsFormat preserves cells outside the zone", () =>
     expect(getCellFormat(model, "I1")).toBe(DATE_FORMAT);
     expect(getCellFormat(model, "I2")).toBe(DATE_FORMAT);
     expect(getCellFormat(model, "I3")).toBe(DATE_FORMAT);
+  });
+});
+
+describe("Default Plugin: setSheetFormat preserves cells outside the zone", () => {
+  test("a cell with content but no format keeps no format after setSheetFormat, even after a reload", () => {
+    // Default sheet is 26 cols x 100 rows. Selecting columns B:Z (25/26 cols, full height)
+    // covers more than half the sheet area, so SET_FORMATTING is stored as a sheet default,
+    // not a per-column default.
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "1");
+
+    setFormat(model, [model.getters.getColsZone(sheetId, 1, 25)], DATE_FORMAT);
+
+    // A1 was not part of the selection: it must keep no explicit/default format.
+    expect(getCellFormat(model, "A1")).toEqual("");
+    expect(model.getters.getEvaluatedCell({ sheetId, ...toCartesian("A1") }).formattedValue).toBe(
+      "1"
+    );
+
+    // Simulate a reload (export + reimport), which forces a full re-evaluation
+    const reloadedModel = new Model(model.exportData());
+    expect(getCellFormat(reloadedModel, "A1")).toEqual("");
+    expect(
+      reloadedModel.getters.getEvaluatedCell({ sheetId, ...toCartesian("A1") }).formattedValue
+    ).toBe("1");
   });
 });

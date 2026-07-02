@@ -299,8 +299,8 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
   ): [CellPosition, Format][] {
     const defaults: [CellPosition, Format][] = [];
     for (const position of zones.flatMap((zone) => cellPositions(sheetId, zone))) {
-      const cellFormat = this.getters.getCell(position)?.format;
-      if (cellFormat) {
+      const cell = this.getters.getCell(position);
+      if (cell?.format !== undefined) {
         continue;
       }
       const rowDefault = this.format[sheetId]?.rowDefault?.[position.row];
@@ -323,6 +323,17 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
           defaults.push([position, sheetDefault]);
         }
         continue;
+      }
+      // The cell currently has no format at all (not even a default one).
+      // If the default level is going to change, we want an explicit empty "" format
+      // to prevent the cell from inheriting the new default
+      if (
+        (priorities.shouldUseDefaultRow ||
+          priorities.shouldUseDefaultCol ||
+          priorities.shouldUseDefaultSheet) &&
+        cell
+      ) {
+        defaults.push([position, ""]);
       }
     }
     return defaults;
