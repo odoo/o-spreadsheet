@@ -1,0 +1,75 @@
+.o-spreadsheet {
+  .o-data-analysis-row {
+    padding: 1px 0;
+  }
+  .o-data-analysis-row:nth-child(even) {
+    background: var(--os-gray-100);
+  }
+  .o-stat-draggable {
+    cursor: grab;
+    &:active {
+      cursor: grabbing;
+    }
+    &:hover {
+      background: var(--os-background-gray-color-hover);
+    }
+  }
+  .o-stat-info-icon {
+    opacity: 0.4;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    line-height: 1;
+    margin-left: 4px;
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+    &:hover,
+    &.active {
+      opacity: 0.8;
+    }
+  }
+  .o-stat-copy-icon {
+    opacity: 0.6;
+    cursor: pointer;
+    &:hover,
+    &.active {
+      opacity: 0.8;
+    }
+    .o-icon {
+      font-size: 12px !important;
+    }
+  }
+  .o-stat-detail {
+    padding: 2px 4px 4px 4px;
+    line-height: 1.4;
+    border-left: 2px solid var(--os-border-color);
+    margin-bottom: 2px;
+  }
+  .o-stat-interpretation {
+    color: var(--o-action-color, #3d9be9);
+    margin-bottom: 2px;
+  }
+  .o-stat-description {
+    line-height: 1.4;
+  }
+  .o-stat-dragged {
+    position: fixed;
+    padding: 2px 8px;
+    box-sizing: content-box;
+    pointer-events: none;
+    z-index: 9999;
+    width: 213px;
+    height: 101px;
+  }
+  .o-stat-dragged > canvas {
+    border: 1px solid var(--os-figure-border-color);
+  }
+
+  .o-data-analysis-chart {
+    height: 200px;
+    cursor: pointer;
+    border: 1px solid var(--os-border-color);
+  }
+}
