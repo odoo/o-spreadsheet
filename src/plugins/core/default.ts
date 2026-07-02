@@ -300,29 +300,26 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
     const defaults: [CellPosition, Format][] = [];
     for (const position of zones.flatMap((zone) => cellPositions(sheetId, zone))) {
       const cellFormat = this.getters.getCell(position)?.format;
-      if (cellFormat) {
+      if (cellFormat !== undefined) {
         continue;
       }
       const rowDefault = this.format[sheetId]?.rowDefault?.[position.row];
-      if (rowDefault) {
+      if (rowDefault !== undefined) {
         if (priorities.shouldUseDefaultRow) {
           defaults.push([position, rowDefault]);
         }
         continue;
       }
       const colDefault = this.format[sheetId]?.colDefault?.[position.col];
-      if (colDefault) {
+      if (colDefault !== undefined) {
         if (priorities.shouldUseDefaultCol) {
           defaults.push([position, colDefault]);
         }
         continue;
       }
-      const sheetDefault = this.format[sheetId]?.sheetDefault;
-      if (sheetDefault) {
-        if (priorities.shouldUseDefaultSheet) {
-          defaults.push([position, sheetDefault]);
-        }
-        continue;
+      const sheetDefault = this.format[sheetId]?.sheetDefault ?? "";
+      if (priorities.shouldUseDefaultSheet) {
+        defaults.push([position, sheetDefault]);
       }
     }
     return defaults;
