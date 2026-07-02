@@ -1,72 +1,17 @@
-import { _t } from "../translation";
-import { CellValueType } from "../types/cells";
-import { Getters } from "../types/getters";
-import { isMatrix } from "../types/misc";
-import { ColumnAnalysis } from "./data_analysis";
-import { numberToJsDate } from "./dates";
-import { formatValue } from "./format/format";
-import { zoneToXc } from "./zones";
-
-type StatItem = {
-  name: string;
-  value: string;
-  formula: string;
-  description?: string;
-  interpretation?: string;
-};
-
-type StatGroup = { label?: string; items: StatItem[] };
-export type StatSection = { title: string; range: string; groups: StatGroup[] };
-
-function item(
-  getters: Getters,
-  sheetId: string,
-  name: string,
-  formula: string,
-  description?: string,
-  interpret?: (value: number, aux?: number) => string | undefined,
-  auxFormula?: string
-): StatItem {
-  const locale = getters.getLocale();
-  const result = getters.evaluateFormulaResult(sheetId, formula);
-  if (!isMatrix(result) && !result.message) {
-    const { value, format } = result;
-    if (value !== null && value !== undefined) {
-      const displayValue =
-        typeof value === "number" && !format ? parseFloat(value.toFixed(4)) : value;
-      let interpretation: string | undefined;
-      if (typeof value === "number" && interpret) {
-        let aux: number | undefined;
-        if (auxFormula) {
-          const auxResult = getters.evaluateFormulaResult(sheetId, auxFormula);
-          if (!isMatrix(auxResult) && !auxResult.message && typeof auxResult.value === "number") {
-            aux = auxResult.value;
-          }
-        }
-        interpretation = interpret(value, aux) ?? undefined;
-      }
-      return {
-        name,
-        value: formatValue(displayValue, { locale, format }),
-        formula,
-        description,
-        interpretation,
-      };
-    }
-  }
-  return { name, value: "—", formula, description };
-}
-
-/** Wraps a raw cell value so it can be spliced into a formula criterion (e.g. `COUNTIF`). */
-function literalForFormula(value: string | number | boolean): string {
-  if (typeof value === "boolean") {
-    return value ? "TRUE" : "FALSE";
-  }
-  if (typeof value === "number") {
-    return String(value);
-  }
-  return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
-}
+import { _t } from "../../translation";
+import { CellValueType } from "../../types/cells";
+import { Getters } from "../../types/getters";
+import { ColumnAnalysis } from "../data_analysis";
+import { numberToJsDate } from "../dates";
+import { zoneToXc } from "../zones";
+import {
+  atDateGranularity,
+  DateGranularity,
+  interpretMedianDate,
+  mostFrequentDateItem,
+} from "./dates_statistics";
+import { interpretAverage, interpretPearson, interpretPValue } from "./numbers_statistics";
+import { item, literalForFormula, StatGroup, StatItem, StatSection } from "./statistics_items";
 
 /**
  * Distinct values of a column, in first-seen order.
@@ -110,80 +55,93 @@ function columnTitle(col: ColumnAnalysis, indexInAll: number): string {
   }
 }
 
-const interpretPearson = (v: number): string => {
-  const abs = Math.abs(v);
-  const dir = v >= 0 ? _t("positive") : _t("negative");
-  if (abs >= 0.9) {
-    return _t("Very strong %s correlation", dir);
-  }
-  if (abs >= 0.7) {
-    return _t("Strong %s correlation", dir);
-  }
-  if (abs >= 0.5) {
-    return _t("Moderate %s correlation", dir);
-  }
-  if (abs >= 0.3) {
-    return _t("Weak %s correlation", dir);
-  }
-  return _t("Very weak or no linear correlation");
-};
-
-const interpretPValue = (v: number): string => {
-  if (v < 0.001) {
-    return _t("Very strong evidence (p < 0.001)");
-  }
-  if (v < 0.01) {
-    return _t("Strong evidence (p < 0.01)");
-  }
-  if (v < 0.05) {
-    return _t("Statistically significant (p < 0.05)");
-  }
-  if (v < 0.1) {
-    return _t("Marginal evidence (p < 0.1)");
-  }
-  return _t("Not statistically significant (p ≥ 0.1)");
-};
-
-const interpretAverage = (v: number): string => {
-  return "complicated";
-};
-
 /** Pattern A — Single number (or percentage) column: min, max, sum, average. */
 function statsForNumberColumn(getters: Getters, sheetId: string, range: string): StatItem[] {
   return [
     item(getters, sheetId, _t("Min"), `=MIN(${range})`),
     item(getters, sheetId, _t("Max"), `=MAX(${range})`),
     item(getters, sheetId, _t("Sum"), `=SUM(${range})`),
+    item(getters, sheetId, _t("Median"), `=MEDIAN(${range})`),
     item(
       getters,
       sheetId,
       _t("Average"),
       `=AVERAGE(${range})`,
       _t("Average of all non-empty values."),
-      interpretAverage
+      interpretAverage,
+      [
+        `=MEDIAN(${range})`,
+        `=SKEW(${range})`,
+        `=STDEV(${range})`,
+        `=SUMPRODUCT(--(${range} > (QUARTILE.INC(${range}, 3) + 1.5 * (QUARTILE.INC(${range}, 3) - QUARTILE.INC(${range}, 1)))))`,
+        `=SUMPRODUCT(--(${range} < (QUARTILE.INC(${range}, 1) - 1.5 * (QUARTILE.INC(${range}, 3) - QUARTILE.INC(${range}, 1)))))`,
+      ]
     ),
   ];
 }
 
-/** Pattern B — Single date column: earliest, latest, span. */
-function statsForDateColumn(getters: Getters, sheetId: string, range: string): StatItem[] {
-  return [
-    item(getters, sheetId, _t("Earliest"), `=MIN(${range})`, _t("The oldest date in the dataset.")),
+/** Pattern B — Single date column: earliest, latest, median, span, business days, mode. */
+function statsForDateColumn(
+  getters: Getters,
+  sheetId: string,
+  col: ColumnAnalysis,
+  range: string,
+  granularity: DateGranularity = "date"
+): StatItem[] {
+  const serials = col.nonEmpty
+    .filter((c) => typeof c.value === "number")
+    .map((c) => c.value as number);
+
+  const min = `MIN(${range})`;
+  const max = `MAX(${range})`;
+  const median = `MEDIAN(${range})`;
+
+  const items: StatItem[] = [
+    item(
+      getters,
+      sheetId,
+      _t("Earliest"),
+      atDateGranularity(min, granularity),
+      _t("The oldest date in the dataset.")
+    ),
     item(
       getters,
       sheetId,
       _t("Latest"),
-      `=MAX(${range})`,
+      atDateGranularity(max, granularity),
       _t("The most recent date in the dataset.")
     ),
     item(
       getters,
       sheetId,
+      _t("Median"),
+      atDateGranularity(median, granularity),
+      _t("The middle date: half of the dates are earlier, half are later."),
+      interpretMedianDate,
+      [`=${min}`, `=${max}`]
+    ),
+    item(
+      getters,
+      sheetId,
       _t("Span (days)"),
-      `=DAYS(MAX(${range}),MIN(${range}))`,
+      `=DAYS(${max},${min})`,
       _t("Number of days between the earliest and latest date.")
     ),
+    item(
+      getters,
+      sheetId,
+      _t("Business days"),
+      `=NETWORKDAYS(${min},${max})`,
+      _t("Number of week days (excluding week-ends) between the earliest and latest date.")
+    ),
   ];
+
+  const modeItem = mostFrequentDateItem(getters, sheetId, range, serials, granularity);
+  if (modeItem) {
+    items.push(modeItem);
+  }
+
+  return items;
 }
 
 /** Pattern C — Single categorical column: count per category. */
@@ -388,15 +346,15 @@ function statsForCategoryVsCategory(
           ),
           (v) => {
             if (v < 0.1) {
-              return _t("Negligible association");
+              return { main: _t("Negligible association") };
             }
             if (v < 0.3) {
-              return _t("Weak association");
+              return { main: _t("Weak association") };
             }
             if (v < 0.5) {
-              return _t("Moderate association");
+              return { main: _t("Moderate association") };
             }
-            return _t("Strong association");
+            return { main: _t("Strong association") };
           }
         ),
         item(
@@ -435,19 +393,19 @@ function statsForBooleanVsBoolean(
           (v) => {
             const abs = Math.abs(v);
             if (abs < 0.2) {
-              return _t("Very weak or no correlation");
+              return { main: _t("Very weak or no correlation") };
             }
             const dir = v > 0 ? _t("positive") : _t("negative");
             if (abs < 0.4) {
-              return _t("Weak %s correlation", dir);
+              return { main: _t("Weak %s correlation", dir) };
             }
             if (abs < 0.6) {
-              return _t("Moderate %s correlation", dir);
+              return { main: _t("Moderate %s correlation", dir) };
             }
             if (abs < 0.8) {
-              return _t("Strong %s correlation", dir);
+              return { main: _t("Strong %s correlation", dir) };
             }
-            return _t("Very strong %s correlation", dir);
+            return { main: _t("Very strong %s correlation", dir) };
           }
         ),
       ],
@@ -456,11 +414,12 @@ function statsForBooleanVsBoolean(
 }
 
 /** Patterns A–D — a single column's own stats, dispatched on its type. */
-function baseStatGroups(
+export function baseStatGroups(
   getters: Getters,
   sheetId: string,
   col: ColumnAnalysis,
-  range: string
+  range: string,
+  dateGranularity: DateGranularity = "date"
 ): StatGroup[] {
   const commonStats = item(getters, sheetId, _t("Number of non-empty rows"), `=COUNTA(${range})`);
   switch (col.type) {
@@ -474,7 +433,10 @@ function baseStatGroups(
     case "date":
       return [
         {
-          items: [commonStats, ...statsForDateColumn(getters, sheetId, range)],
+          items: [
+            commonStats,
+            ...statsForDateColumn(getters, sheetId, col, range, dateGranularity),
+          ],
         },
       ];
     case "categorical":

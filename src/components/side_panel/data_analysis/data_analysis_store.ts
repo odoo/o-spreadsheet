@@ -1,5 +1,6 @@
-import { analyzeColumns } from "../../../helpers/data_analysis";
-import { buildStatSections, StatSection } from "../../../helpers/data_statistics_suggestions";
+import { analyzeColumns, ColumnAnalysis } from "../../../helpers/data_analysis";
+import { StatSection } from "../../../helpers/data_statistics/statistics_items";
+import { buildStatSections } from "../../../helpers/data_statistics/statistics_suggestion";
 import { zoneToXc } from "../../../helpers/zones";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { Command, invalidateEvaluationCommands } from "../../../types/commands";
@@ -9,6 +10,8 @@ export class DataAnalysisStore extends SpreadsheetStore {
   mutators = [] as const;
   /** One section per individual column (drives the column selector). */
   perColSections: StatSection[] = [];
+  /** Raw analysis backing each entry of perColSections, same order/indices. */
+  perColAnalysis: ColumnAnalysis[] = [];
   hasData: boolean = false;
   private isDirty = false;
   ranges?: string[];
@@ -64,6 +67,7 @@ export class DataAnalysisStore extends SpreadsheetStore {
 
     if (!this.ranges?.length) {
       this.perColSections = [];
+      this.perColAnalysis = [];
       this.hasData = false;
       return;
     }
@@ -74,12 +78,14 @@ export class DataAnalysisStore extends SpreadsheetStore {
 
     if (!this.hasData) {
       this.perColSections = [];
+      this.perColAnalysis = [];
       return;
     }
 
     const zones = getters.getSelectedZones();
     const cols = analyzeColumns(zones, getters);
     const nonEmpty = cols.filter((c) => c.type !== "empty");
+    this.perColAnalysis = nonEmpty;
     this.perColSections = buildStatSections(this.getters, nonEmpty, sheetId);
   }
 }

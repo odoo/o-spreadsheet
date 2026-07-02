@@ -1,7 +1,13 @@
 import { proxy } from "@odoo/owl";
 import { CellValue } from "../../..";
+import { Select } from "../../../components/select/select";
 import { DEFAULT_SCORECARD_HEIGHT, DEFAULT_SCORECARD_WIDTH } from "../../../constants";
-import { StatSection } from "../../../helpers/data_statistics_suggestions";
+import {
+  DATE_GRANULARITY_LABELS,
+  DateGranularity,
+} from "../../../helpers/data_statistics/dates_statistics";
+import { StatSection } from "../../../helpers/data_statistics/statistics_items";
+import { baseStatGroups } from "../../../helpers/data_statistics/statistics_suggestion";
 import { SpreadsheetChart } from "../../../helpers/figures/chart";
 import { drawScoreChart } from "../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../helpers/figures/charts/scorecard_chart_config_builder";
@@ -9,6 +15,7 @@ import { UuidGenerator } from "../../../helpers/uuid";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../store_engine/store_hooks";
 import { ScorecardChartRuntime } from "../../../types/chart/scorecard_chart";
+import { ValueAndLabel } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { Section } from "../components/section/section";
@@ -18,14 +25,24 @@ export class DataStatistics extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataStatistics";
   static components = {
     Section,
+    Select,
   };
 
   store!: Store<DataAnalysisStore>;
   selectedCol = proxy({ index: 0 });
   openDescriptionKey = proxy({ value: "" });
+  dateGranularityByCol = proxy<Record<number, DateGranularity>>({});
 
   setup() {
     this.store = useLocalStore(DataAnalysisStore);
+  }
+
+  get activeColIndex(): number {
+    const sections = this.store.perColSections;
+    if (!sections.length) {
+      return 0;
+    }
+    return Math.min(this.selectedCol.index, sections.length - 1);
   }
 
   get activeColSection(): StatSection | undefined {
@@ -33,15 +50,44 @@ export class DataStatistics extends Component<SpreadsheetChildEnv> {
     if (!sections.length) {
       return undefined;
     }
-    return sections[Math.min(this.selectedCol.index, sections.length - 1)];
+    const section = sections[this.activeColIndex];
+    const col = this.store.perColAnalysis[this.activeColIndex];
+    if (!col || col.type !== "date") {
+      return section;
+    }
+    // baseStatGroups always returns a single group for a date column; any extra groups in
+    // `section.groups` come from a cross-column pattern (e.g. Date vs Number) and must be kept.
+    const [ownGroup] = baseStatGroups(
+      this.env.model.getters,
+      this.env.model.getters.getActiveSheetId(),
+      col,
+      section.range,
+      this.selectedDateGranularity
+    );
+    return {
+      ...section,
+      groups: [ownGroup, ...section.groups.slice(1)],
+    };
+  }
+
+  get showDateGranularitySelector(): boolean {
+    return this.store.perColAnalysis[this.activeColIndex]?.type === "date";
+  }
+
+  get selectedDateGranularity(): DateGranularity {
+    return this.dateGranularityByCol[this.activeColIndex] ?? "date";
+  }
+
+  get dateGranularityOptions(): ValueAndLabel[] {
+    return Object.entries(DATE_GRANULARITY_LABELS).map(([value, label]) => ({ value, label }));
+  }
+
+  onDateGranularityChange(value: string) {
+    this.dateGranularityByCol[this.activeColIndex] = value as DateGranularity;
   }
 
   get selectedColValue(): string {
-    const sections = this.store.perColSections;
-    if (!sections.length) {
-      return "0";
-    }
-    return String(Math.min(this.selectedCol.index, sections.length - 1));
+    return String(this.activeColIndex);
   }
 
   onColChange(value: string) {
