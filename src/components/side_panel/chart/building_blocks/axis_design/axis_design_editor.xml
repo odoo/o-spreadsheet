@@ -18,7 +18,7 @@
       defaultStyle="{align: 'center', color: '', fontSize: this.defaultFontSize}"
     />
     <Section
-      t-if="!this.isCategoricalAxis"
+      t-if="this.props.editBoundaries and !this.isCategoricalAxis"
       class="'pt-0 o-axis-bounds-section'"
       title.translate="Axis range">
       <div class="d-flex">
@@ -56,7 +56,10 @@
         </div>
       </div>
     </Section>
-    <Section class="'pt-0'" t-if="!this.isCategoricalAxis" title.translate="Gridlines">
+    <Section
+      class="'pt-0'"
+      t-if="this.props.editGridlines and !this.isCategoricalAxis"
+      title.translate="Gridlines">
       <Checkbox
         className="'o-axis-grid-major'"
         label="this.majorGridLabel"

@@ -11,12 +11,12 @@ import {
   CHART_PADDING,
   CHART_PADDING_BOTTOM,
   CHART_PADDING_TOP,
+  COLOR_TRANSPARENT,
   DEFAULT_CHART_COLOR_SCALE,
   GRAY_300,
 } from "../../../../constants";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
-import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import {
   AxisDesign,
   AxisType,
@@ -25,7 +25,7 @@ import {
   ChartWithAxisDefinition,
   GenericDefinition,
 } from "../../../../types/chart/chart";
-import { LegendPosition } from "../../../../types/chart/common_chart";
+import { ColorGridChartDefinition, LegendPosition } from "../../../../types/chart/common_chart";
 import { FunnelChartDefinition } from "../../../../types/chart/funnel_chart";
 import {
   GeoChartDefinition,
@@ -107,30 +107,48 @@ export function getBarChartScales(
   return scales;
 }
 
-export function getCalendarChartScales(
-  definition: GenericDefinition<BarChartDefinition>,
-  datasets: ChartDataset[]
+// A column-boundary axis can't just be the bar-index "x" axis switched to a linear type: Chart.js
+// infers each bar's position from its array index only on a category scale, and a bar on a linear
+// index axis is centered on its x value rather than spanning [i, i+1] — both fragile to get
+// pixel-perfect. Instead, the real "x" axis stays a normal (hidden) category axis, exactly as
+// before, and a separate overlay axis — sharing the same "top" position and the same [0, binCount]
+// domain, but with no dataset bound to it — draws the boundary ticks on top of it.
+const X_BOUNDARY_AXIS_ID = "xBoundary";
+
+export function getColorGridChartScales(
+  definition: ColorGridChartDefinition,
+  datasets: ChartDataset[],
+  args?: ChartRuntimeGenerationArgs
 ): ChartScales<"calendar"> {
   const yLabels = datasets.map((dataset) => dataset.label || "");
   const fontColor = chartFontColor(definition.background);
-  return {
+  const yTicksAtBoundaries = args?.binBoundaryLabels?.y;
+  const xTicksAtBoundaries = args?.binBoundaryLabels?.x;
+  const scales: ChartScales<"calendar"> = {
     y: {
       title: getChartAxisTitleRuntime(definition.axesDesign?.y),
       stacked: true,
       min: 0,
       max: yLabels.length,
-      ticks: {
-        // Here we have to use a step of 0.5 and skip every even label to have the labels centered
-        // with the bars
-        stepSize: 0.5,
-        color: fontColor,
-        callback: function (label, index, labels) {
-          if (index % 2 === 0) {
-            return undefined;
+      ticks: yTicksAtBoundaries
+        ? {
+            stepSize: 1,
+            autoSkip: false,
+            color: fontColor,
+            callback: (value) => yTicksAtBoundaries[Math.round(Number(value))] ?? "",
           }
-          return yLabels[Math.floor((index - 1) / 2)];
-        },
-      },
+        : {
+            // Here we have to use a step of 0.5 and skip every even label to have the labels centered
+            // with the bars
+            stepSize: 0.5,
+            color: fontColor,
+            callback: function (label, index, labels) {
+              if (index % 2 === 0) {
+                return undefined;
+              }
+              return yLabels[Math.floor((index - 1) / 2)];
+            },
+          },
       grid: {
         display: false,
       },
@@ -143,16 +161,38 @@ export function getCalendarChartScales(
         display: false,
       },
       position: "top",
-      ticks: {
-        color: fontColor,
-      },
+      // The boundary overlay axis draws the ticks instead, when active.
+      ticks: xTicksAtBoundaries ? { display: false } : { color: fontColor },
       border: { display: false },
     },
   };
+  if (xTicksAtBoundaries) {
+    scales[X_BOUNDARY_AXIS_ID] = {
+      axis: "x",
+      type: "linear",
+      position: "top",
+      min: 0,
+      max: xTicksAtBoundaries.length - 1,
+      // Without this, a linear scale defaults to reserving half a step of margin on each side
+      // (meant for a scatter/line-style axis where edge points shouldn't be clipped), which
+      // insets its [0, binCount] domain from the chartArea and desyncs it from the category axis
+      // below, whose bars fill the chartArea edge to edge.
+      offset: false,
+      ticks: {
+        stepSize: 1,
+        autoSkip: false,
+        color: fontColor,
+        callback: (value) => xTicksAtBoundaries[Math.round(Number(value))] ?? "",
+      },
+      grid: { display: false },
+      border: { display: false },
+    };
+  }
+  return scales;
 }
 
-export function getCalendarColorScale(
-  definition: CalendarChartDefinition,
+export function getColorScaleLegend(
+  definition: ColorGridChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartColorScalePluginOptions | undefined {
   const { dataSetsValues } = args;
@@ -175,6 +215,9 @@ export function getCalendarColorScale(
   } else {
     colorScale = [...COLORSCHEMES[definition.colorScale ?? "oranges"]];
   }
+  const hasMissingValue = dataSetsValues.some((ds) =>
+    ds.data.some((cell) => !isNumberResult(cell))
+  );
   return {
     position: definition.legendPosition === "right" ? "right" : "left",
     colorScale,
@@ -182,6 +225,9 @@ export function getCalendarColorScale(
     minValue,
     maxValue,
     locale: args.locale,
+    missingValueColor: hasMissingValue
+      ? definition.missingValueColor || COLOR_TRANSPARENT
+      : undefined,
   };
 }
 

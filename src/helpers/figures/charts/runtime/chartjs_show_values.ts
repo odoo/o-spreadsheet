@@ -2,8 +2,12 @@ import { ChartMeta } from "chart.js";
 import { Range } from "../../../..";
 import { ChartShowValuesPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
 import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
-import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
-import { ChartDefinition, ChartRuntimeGenerationArgs } from "../../../../types/chart/chart";
+import {
+  ChartDefinition,
+  ChartRuntimeGenerationArgs,
+  ChartType,
+} from "../../../../types/chart/chart";
+import { ColorGridChartDefinition } from "../../../../types/chart/common_chart";
 import { PyramidChartDefinition } from "../../../../types/chart/pyramid_chart";
 import {
   SunburstChartDefaults,
@@ -30,19 +34,20 @@ export function getChartShowValues(
   };
 }
 
-export function getCalendarChartShowValues(
-  definition: CalendarChartDefinition,
-  args: ChartRuntimeGenerationArgs
+export function getColorGridChartShowValues(
+  definition: ColorGridChartDefinition,
+  args: ChartRuntimeGenerationArgs,
+  type: ChartType
 ): ChartShowValuesPluginOptions {
   const { locale, axisFormats } = args;
   return {
-    type: "calendar",
+    type,
     horizontal: false,
     showValues: "showValues" in definition ? !!definition.showValues : false,
     background: () => definition.background,
     callback: (_value: number | string, dataset: ChartMeta<any>, index) => {
       const value = dataset._dataset.values[index];
-      return value === undefined ? "" : humanizeNumber({ value, format: axisFormats?.y }, locale);
+      return Number.isNaN(value) ? "" : humanizeNumber({ value, format: axisFormats?.y }, locale);
     },
   };
 }

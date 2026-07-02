@@ -3,9 +3,11 @@ import {
   CHART_AXIS_TITLE_FONT_SIZE,
   CHART_COLORSCALE_WIDTH,
   CHART_PADDING,
+  GRAY_300,
 } from "../../../../constants";
 import { humanizeNumber } from "../../../../helpers/format/format";
 import { getDefaultContextFont } from "../../../../helpers/text_helper";
+import { _t } from "../../../../translation";
 import { Locale } from "../../../../types/locale";
 import { Color } from "../../../../types/misc";
 
@@ -16,6 +18,7 @@ export interface ChartColorScalePluginOptions {
   minValue: number;
   maxValue: number;
   locale: Locale;
+  missingValueColor?: Color;
 }
 
 declare module "chart.js" {
@@ -75,6 +78,21 @@ export const chartColorScalePlugin: Plugin = {
     );
     ctx.fillText(formattedMinValue, gradientX + gradientWidth + 5, gradientY + gradientHeight - 6);
     ctx.fillText(formattedMaxValue, gradientX + gradientWidth + 5, gradientY + 6);
+
+    // Draw a swatch for the missing-value color, with a label, below the gradient
+    if (options.missingValueColor) {
+      const swatchSize = gradientWidth;
+      const swatchY = gradientY + gradientHeight + 20;
+
+      ctx.fillStyle = options.missingValueColor;
+      ctx.fillRect(gradientX, swatchY, swatchSize, swatchSize);
+      ctx.strokeStyle = GRAY_300;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(gradientX, swatchY, swatchSize, swatchSize);
+
+      ctx.fillStyle = options.fontColor ?? "black";
+      ctx.fillText(_t("No Data"), gradientX + swatchSize + 5, swatchY + swatchSize / 2);
+    }
 
     ctx.restore();
   },
