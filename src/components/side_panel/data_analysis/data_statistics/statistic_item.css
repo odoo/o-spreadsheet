@@ -1,0 +1,22 @@
+.o-spreadsheet {
+  .o-data-analysis-item:nth-child(even) {
+    background: var(--os-gray-100);
+  }
+  .o-data-analysis-item {
+    padding: 1px 0;
+  }
+
+  .o-data-analysis-item-draggable {
+    cursor: grab;
+    &:active {
+      cursor: grabbing;
+    }
+    &:hover {
+      background: var(--os-background-gray-color-hover);
+    }
+  }
+
+  .o-item-percentage {
+    width: 40px;
+  }
+}

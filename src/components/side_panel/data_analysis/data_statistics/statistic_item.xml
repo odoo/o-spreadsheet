@@ -1,0 +1,31 @@
+<templates>
+  <t t-name="o-spreadsheet-StatisticItem">
+    <div
+      class="o-data-analysis-item d-flex flex-fill justify-content-between align-items-center"
+      t-att-class="{
+        'o-data-analysis-item-draggable': this.props.stat.formula !== '',
+      }"
+      t-on-pointerdown="(ev) => this.startDragAndDrop(this.props.stat, ev)"
+      t-on-contextmenu.prevent="(ev) => this.openContextMenu(this.props.stat, ev)"
+      t-on-mouseenter="() => this.props.onHover?.(this.props.stat, true)"
+      t-on-mouseleave="() => this.props.onHover?.(this.props.stat, false)">
+      <span class="text-muted" data-test-id="stat-name" t-out="this.props.stat.name"/>
+      <span
+        class="o-fw-bold ms-auto"
+        t-att-data-test-id="this.props.stat.id"
+        t-out="this.props.stat.value"
+      />
+      <span
+        t-if="this.props.stat.percentage"
+        class="o-item-percentage text-muted small mx-1 text-end"
+        t-out="this.props.stat.percentage"
+      />
+    </div>
+    <MenuPopover
+      t-if="this.menuState.isOpen"
+      anchorRect="this.menuState.anchorRect"
+      menuItems="this.menuState.menuItems"
+      onClose="() => this.closeMenu()"
+    />
+  </t>
+</templates>
