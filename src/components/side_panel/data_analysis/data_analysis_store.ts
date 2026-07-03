@@ -1,3 +1,6 @@
+import { analyzeColumns } from "../../../helpers/data_analysis";
+import { StatSection } from "../../../helpers/data_statistics/statistics_items";
+import { buildStatSections } from "../../../helpers/data_statistics/statistics_suggestion";
 import { zoneToXc } from "../../../helpers/zones";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { CellValueType } from "../../../types/cells";
@@ -6,6 +9,7 @@ import { Get } from "../../../types/store_engine";
 
 export class DataAnalysisStore extends SpreadsheetStore {
   mutators = [] as const;
+  section: StatSection | undefined = undefined;
   hasData: boolean = false;
   private isDirty = false;
   ranges?: string[];
@@ -59,5 +63,13 @@ export class DataAnalysisStore extends SpreadsheetStore {
         .getEvaluatedCellsInZone(sheetId, zone)
         .some((cell) => cell.type !== CellValueType.empty)
     );
+    if (!this.hasData) {
+      this.section = undefined;
+      return;
+    }
+
+    const cols = analyzeColumns(zones, getters);
+    const nonEmpty = cols.filter((c) => c.type !== "empty");
+    this.section = buildStatSections(this.getters, nonEmpty, sheetId);
   }
 }
