@@ -1,0 +1,29 @@
+<templates>
+  <t t-name="o-spreadsheet-DataStatistics">
+    <Section class="'o-column-global-stats d-flex flex-column gap-1 pt-0'">
+      <t t-if="this.activeColSection and this.activeColSection.groups.length">
+        <t t-foreach="this.activeColSection.groups" t-as="group" t-key="group_index">
+          <div
+            t-if="group.label"
+            class="o-stat-group-label text-muted small mt-2"
+            t-out="group.label"
+          />
+          <t t-foreach="group.items" t-as="stat" t-key="stat_index">
+            <t t-set="descKey" t-value="group_index + '-' + stat_index"/>
+            <div class="o-data-analysis-row d-flex align-items-center">
+              <div class="d-flex flex-fill justify-content-between align-items-center">
+                <div class="d-flex">
+                  <span class="text-muted" t-out="stat.name"/>
+                </div>
+                <span class="o-fw-bold" t-att-data-test-id="stat.name" t-out="stat.value"/>
+              </div>
+            </div>
+          </t>
+        </t>
+      </t>
+      <div t-else="" class="text-center text-muted small mt-2">
+        Statistics for this selection are not yet available
+      </div>
+    </Section>
+  </t>
+</templates>
