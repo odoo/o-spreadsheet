@@ -1,5 +1,18 @@
 <templates>
   <t t-name="o-spreadsheet-DataAnalysisPanel">
-    <div class="o-data-analysis-panel"/>
+    <div class="o-data-analysis-panel">
+      <t t-if="this.store.hasData">
+        <SidePanelCollapsible title.translate="General statistics" isInitiallyCollapsed="false">
+          <t t-set-slot="content">
+            <DataStatistics/>
+          </t>
+        </SidePanelCollapsible>
+      </t>
+      <t t-else="">
+        <div class="o-data-analysis-empty text-muted small p-3 text-center">
+          Select cells containing data to see chart suggestions and statistics.
+        </div>
+      </t>
+    </div>
   </t>
 </templates>
