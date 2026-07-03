@@ -36,6 +36,13 @@ const REPEATED_CHAR_PLACEHOLDER = "REPEATED_CHAR_PLACEHOLDER_";
 
 // TODO in the future : remove these constants MONTHS/DAYS, and use a library such as luxon to handle it
 // + possibly handle automatic translation of day/month
+export const QUARTERS: Readonly<Record<number, string>> = {
+  1: _t("Quarter 1"),
+  2: _t("Quarter 2"),
+  3: _t("Quarter 3"),
+  4: _t("Quarter 4"),
+};
+
 export const MONTHS: Readonly<Record<number, string>> = {
   0: _t("January"),
   1: _t("February"),

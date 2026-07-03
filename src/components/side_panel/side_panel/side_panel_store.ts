@@ -272,7 +272,11 @@ export class SidePanelStore extends SpreadsheetStore {
 
   togglePinnedSidePanel(componentTag: string, panelProps: SidePanelComponentProps = {}) {
     if (this.mainPanel?.componentTag === componentTag && this.isMainPanelOpen) {
-      this.closeMainPanel();
+      if (this.mainPanel.isCollapsed) {
+        this.toggleCollapsePanel("mainPanel");
+      } else {
+        this.closeMainPanel();
+      }
       return;
     }
     if (this.secondaryPanel?.componentTag === componentTag && this.isSecondaryPanelOpen) {

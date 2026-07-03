@@ -9,4 +9,8 @@
     box-sizing: content-box;
     z-index: 9999;
   }
+
+  .o-stat-sort-header:not(:hover) .o-caret-sort-icon {
+    visibility: hidden;
+  }
 }
