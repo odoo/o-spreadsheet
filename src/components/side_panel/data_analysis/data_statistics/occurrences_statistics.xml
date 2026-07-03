@@ -1,0 +1,47 @@
+<templates>
+  <t t-name="o-spreadsheet-Occurrences">
+    <div class="fw-bold d-flex justify-content-between">
+      <div class="d-flex o-stat-sort-header">
+        <t t-set="sortOn" t-value="this.store.occurrencesSortType.sortOn"/>
+        <t t-set="sortOrder" t-value="this.store.occurrencesSortType.order"/>
+        <span>Categories</span>
+        <div
+          t-on-click="() => this.store.toggleOccurrencesSort('name')"
+          data-test-id="o-sort-occurrences"
+          class="o-button-icon mx-2 d-flex">
+          <t t-if="sortOn === 'name'">
+            <t t-if="sortOrder === 'desc'" t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+            <t t-if="sortOrder === 'asc'" t-call="o-spreadsheet-Icon.CARET_UP"/>
+          </t>
+          <span t-if="sortOn !== 'name' or sortOrder === 'none'" class="o-caret-sort-icon">
+            <t t-call="o-spreadsheet-Icon.CARET_UP_DOWN"/>
+          </span>
+        </div>
+      </div>
+      <div class="d-flex o-stat-sort-header">
+        <span>Count</span>
+        <div
+          t-on-click="() => this.store.toggleOccurrencesSort('value')"
+          data-test-id="o-sort-occurrences"
+          class="o-button-icon mx-2 d-flex">
+          <t t-if="sortOn === 'value'">
+            <t t-if="sortOrder === 'desc'" t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+            <t t-if="sortOrder === 'asc'" t-call="o-spreadsheet-Icon.CARET_UP"/>
+          </t>
+          <span t-if="sortOn !== 'value' or sortOrder === 'none'" class="o-caret-sort-icon">
+            <t t-call="o-spreadsheet-Icon.CARET_UP_DOWN"/>
+          </span>
+        </div>
+      </div>
+    </div>
+    <t t-foreach="this.store.displayedOccurrencesItems" t-as="stat" t-key="stat_index">
+      <StatisticItem stat="stat" onHover.bind="this.hoverStat"/>
+    </t>
+    <div
+      t-if="this.store.hasMoreOccurrences"
+      class="o-button-link d-flex justify-content-center py-1"
+      t-on-click="() => this.store.loadMoreOccurrences()">
+      Load more...
+    </div>
+  </t>
+</templates>

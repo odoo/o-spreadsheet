@@ -7,6 +7,7 @@ import {
 } from "../../constants";
 import { SpreadsheetChart } from "../../helpers/figures/chart";
 import { drawChartOnCanvas } from "../../helpers/figures/charts/chart_ui_common";
+import { centerFigurePosition } from "../../helpers/figures/figure/figure";
 import { clip } from "../../helpers/misc";
 import { UuidGenerator } from "../../helpers/uuid";
 import { ChartDragStore } from "../../stores/chart_drag_store";
@@ -69,6 +70,9 @@ export function startChartDragAndDrop(
   definition: ChartDefinition,
   ev: MouseEvent
 ) {
+  if (ev.button !== 0) {
+    return;
+  }
   const getters = env.model().getters;
   const viewStore = env.getStore(ViewportsStore);
   const sheetId = getters.getActiveSheetId();
@@ -190,19 +194,21 @@ export function startChartDragAndDrop(
         gridTop + gridHeight - figureSize.height
       ),
     };
-    let position = getGridPosition(figurePosition.x, figurePosition.y, { scrollX, scrollY });
+    let col: number, row: number, offset: { x: number; y: number };
+    const position = getGridPosition(figurePosition.x, figurePosition.y, { scrollX, scrollY });
     if (offsetX <= DRAG_THRESHOLD && offsetY <= DRAG_THRESHOLD) {
-      position = { x: 0, y: 0 };
+      ({ col, row, offset } = centerFigurePosition(env, figureSize));
     } else if (
       !position ||
       position.x + halfWidth > Math.min(gridWidth + scrollX, maxDimensions.maxX)
     ) {
       return;
+    } else {
+      ({ col, row, offset } = env
+        .getStore(ViewportsStore)
+        .viewports.getPositionAnchorOffset(sheetId, position));
     }
-    position.x = Math.min(position.x, maxDimensions.maxX - figureSize.width);
-    position.y = Math.min(position.y, maxDimensions.maxY - figureSize.height);
 
-    const { col, row, offset } = viewStore.viewports.getPositionAnchorOffset(sheetId, position);
     const payload = {
       chartId: UuidGenerator.smallUuid(),
       figureId: UuidGenerator.smallUuid(),
@@ -215,7 +221,7 @@ export function startChartDragAndDrop(
     };
     const figureUI = {
       tag: "chart",
-      ...position,
+      ...position!,
       width: figureSize.width,
       height: figureSize.height,
     };
