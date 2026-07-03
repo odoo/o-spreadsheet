@@ -7,7 +7,7 @@
         t-if="this.props.sortDirection === 'none'"
         class="o-icon sorting-icon mb-1"
         t-att-style="this.style">
-        <t t-call="o-spreadsheet-Icon.CARET_SORT"/>
+        <t t-call="o-spreadsheet-Icon.CARET_UP_DOWN"/>
       </span>
     </div>
   </t>

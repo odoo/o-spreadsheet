@@ -6,6 +6,7 @@ export const CANVAS_SHIFT = 0.5;
 
 // Colors
 export const HIGHLIGHT_COLOR = "#017E84";
+export const HIGHLIGHT_IN_SELECTION_COLOR = "#FFEB3B9A";
 export const SELECTION_BORDER_COLOR = "#3266ca";
 export const DEFAULT_COLOR_SCALE_MIDPOINT_COLOR = 0xb6d7a8;
 export const LINK_COLOR = HIGHLIGHT_COLOR;
