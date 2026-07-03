@@ -74,7 +74,11 @@ export class TableComputedStylePlugin extends UIPlugin {
   private computeTableStyle(sheetId: UID, table: Table): Lazy<ComputedTableStyle> {
     return lazy(() => {
       const style = this.getters.getTableStyle(table.config.styleId);
-      const { tableMetaData, config } = this.getTableMetaData(sheetId, table);
+      const tableMetaDataAndConfig = this.getTableMetaData(sheetId, table);
+      if (!tableMetaDataAndConfig) {
+        return { borders: {}, styles: {} };
+      }
+      const { tableMetaData, config } = tableMetaDataAndConfig;
       const relativeTableStyle = getComputedTableStyle(config, style, tableMetaData);
 
       // Return the style with sheet coordinates instead of tables coordinates
@@ -98,7 +102,7 @@ export class TableComputedStylePlugin extends UIPlugin {
   private getTableMetaData(
     sheetId: UID,
     table: Table
-  ): { tableMetaData: TableMetaData; config: TableConfig } {
+  ): { tableMetaData: TableMetaData; config: TableConfig } | undefined {
     const { config, numberOfCols, numberOfRows } = this.getTableRuntimeConfig(sheetId, table);
     if (!table.isPivotTable) {
       return { tableMetaData: { numberOfCols, numberOfRows, mode: "table" }, config };
@@ -110,6 +114,9 @@ export class TableComputedStylePlugin extends UIPlugin {
       throw new Error("No dynamic pivot info found at pivot table position");
     }
     const pivot = this.getters.getPivot(pivotInfo.pivotId);
+    if (!pivot.isValid()) {
+      return undefined;
+    }
     const pivotStyle = pivotInfo.pivotStyle;
     const maxRowDepth = pivot.getExpandedTableStructure().getNumberOfRowGroupBys();
     const pivotCells = pivot.getCollapsedTableStructure().getPivotCells(pivotStyle);
