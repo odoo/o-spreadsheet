@@ -41,7 +41,7 @@ test("shows a prompt to select data when the selection is empty", async () => {
   selectCell(model, "A1");
   await simulateClick(".o-data-analysis-button");
   expect(fixture.querySelector(".o-data-analysis-empty")?.textContent?.trim()).toBe(
-    "Select cells containing data to see chart suggestions. Note that the order of selected columns can impact chart suggestions."
+    "Select cells containing data to see suggestions. Note that the order of selected columns can impact chart suggestions."
   );
 });
 

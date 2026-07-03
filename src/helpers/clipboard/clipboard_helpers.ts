@@ -12,6 +12,7 @@ import {
 import { AllowedImageMimeTypes } from "../../types/image";
 import { UID, Zone } from "../../types/misc";
 import { SelectionStreamProcessor } from "../../types/selection_stream_processor";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { mergeOverlappingZones, positions, union } from "../zones";
 
 export function getClipboardDataPositions(sheetId: UID, zones: Zone[]): ClipboardCellData {
@@ -204,3 +205,7 @@ export const selectPastedZone = (
     { scrollIntoView: false }
   );
 };
+
+export async function copyFormulaToClipboard(formula: string, env: SpreadsheetChildEnv) {
+  await env.clipboard.writeText(formula);
+}

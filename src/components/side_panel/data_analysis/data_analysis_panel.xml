@@ -1,25 +1,41 @@
 <templates>
-  <div t-name="o-spreadsheet-DataAnalysisPanel" class="o-data-analysis-panel">
-    <Section title.translate="Suggested charts">
-      <div t-if="this.store.hasData" class="px-2 pb-2">
-        <div t-if="this.store.chartSuggestions.length" class="o-chart-suggestions-grid">
-          <t t-foreach="this.store.chartSuggestions" t-as="suggestion" t-key="suggestion_index">
-            <ChartSuggestionPreview
-              definition="suggestion.definition"
-              description="suggestion.description"
-              onPointerDown="(ev) => this.onStartChartSuggestionDrag(suggestion.definition, ev)"
+  <div t-name="o-spreadsheet-DataAnalysisPanel" class="o-data-analysis-panel p-2">
+    <div t-if="this.store.hasData">
+      <SidePanelCollapsible title.translate="Suggested charts" isInitiallyCollapsed="false">
+        <t t-set-slot="content">
+          <div t-if="this.store.chartSuggestions.length" class="o-chart-suggestions-grid pb-4">
+            <t t-foreach="this.store.chartSuggestions" t-as="suggestion" t-key="suggestion_index">
+              <ChartSuggestionPreview
+                definition="suggestion.definition"
+                description="suggestion.description"
+                onPointerDown="(ev) => this.onStartChartSuggestionDrag(suggestion.definition, ev)"
+              />
+            </t>
+          </div>
+          <div t-else="" class="o-data-analysis-empty text-muted p-3">
+            No chart suggestions available for the selected data. Note that the order of selected
+        columns can impact chart suggestions.
+          </div>
+        </t>
+      </SidePanelCollapsible>
+      <SidePanelCollapsible
+        title.translate="General statistics"
+        isInitiallyCollapsed="false"
+        t-if="this.store.statSections and this.store.statSections.length">
+        <t t-set-slot="content">
+          <Section class="'o-column-global-stats d-flex flex-column pt-0'">
+            <t
+              t-if="this.statSectionComponent"
+              t-component="this.statSectionComponent"
+              t-props="this.componentProps"
             />
-          </t>
-        </div>
-        <div t-else="" class="o-data-analysis-empty text-muted p-3 text-center">
-          No chart suggestions available for the selected data. Note that the order of selected
+          </Section>
+        </t>
+      </SidePanelCollapsible>
+    </div>
+    <div t-else="" class="o-data-analysis-empty text-muted p-3">
+      Select cells containing data to see suggestions. Note that the order of selected
         columns can impact chart suggestions.
-        </div>
-      </div>
-      <div t-else="" class="o-data-analysis-empty text-muted p-3 text-center">
-        Select cells containing data to see chart suggestions. Note that the order of selected
-        columns can impact chart suggestions.
-      </div>
-    </Section>
+    </div>
   </div>
 </templates>
