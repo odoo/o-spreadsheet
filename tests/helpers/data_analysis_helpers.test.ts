@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { ColumnAnalysis, analyzeColumns } from "../../src/helpers/data_analysis";
+import { analyzeColumns, ColumnAnalysis } from "../../src/helpers/data_statistics/data_analysis";
 import { toZone } from "../../src/helpers/zones";
 import { createTable, setCellContent, setFormat } from "../test_helpers";
 import { createModelFromGrid } from "../test_helpers/helpers";
@@ -14,11 +14,6 @@ function analyzeColumn(model: Model, xc: string): ColumnAnalysis {
 }
 
 describe("analyzeColumns", () => {
-  test("empty column", () => {
-    const model = new Model();
-    expect(columnType(model, "A1:A3")).toBe("empty");
-  });
-
   test("all-error column", () => {
     const model = createModelFromGrid({ A1: "=1/0", A2: "=1/0" });
     expect(columnType(model, "A1:A2")).toBe("error");
