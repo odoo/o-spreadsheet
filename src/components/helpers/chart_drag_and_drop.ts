@@ -73,6 +73,9 @@ export function startChartDragAndDrop(
   definition: ChartDefinition,
   ev: MouseEvent
 ) {
+  if (ev.button !== 0) {
+    return;
+  }
   const zoom = env.getStore(ZoomStore).zoomLevel;
   const gridPosition = gridOverlayPosition(zoom);
   const spreadsheet = document.querySelector(".o-spreadsheet") as HTMLElement | null;
