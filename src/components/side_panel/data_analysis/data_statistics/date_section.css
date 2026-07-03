@@ -1,0 +1,5 @@
+.o-spreadsheet {
+  .o-stat-date-granularity {
+    color: var(--os-action-color);
+  }
+}

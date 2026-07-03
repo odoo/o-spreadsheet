@@ -1,6 +1,6 @@
 import { createCanvas } from "canvas";
 import { Model } from "../../../src";
-import { ChartSuggestionPreview } from "../../../src/components/side_panel/data_analysis/chart_suggestion_preview";
+import { ChartSuggestionPreview } from "../../../src/components/side_panel/data_analysis/chart_suggestion/chart_suggestion_preview";
 import { ComponentConstructor } from "../../../src/owl3_compatibility_layer";
 import { ChartDefinition } from "../../../src/types/chart/chart";
 import { registerCleanup } from "../../setup/jest.setup";

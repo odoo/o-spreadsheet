@@ -9,10 +9,10 @@ export function useHighlightsOnHover(
   ref: Signal<HTMLElement | null>,
   highlightProvider: HighlightProvider
 ) {
-  const hoverState = useHoveredElement(ref);
+  const onStatHovered = useHoveredElement(ref);
   useHighlights({
     get highlights() {
-      return hoverState.hovered ? highlightProvider.highlights : [];
+      return onStatHovered.hovered ? highlightProvider.highlights : [];
     },
   });
 }

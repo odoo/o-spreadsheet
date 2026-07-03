@@ -1,8 +1,8 @@
-import { CellValueType, EvaluatedCell } from "../types/cells";
-import { Getters } from "../types/getters";
-import { CellPosition, UID, Zone } from "../types/misc";
-import { isDateTimeFormat } from "./format/format";
-import { getZonesByColumns, isInside } from "./zones";
+import { CellValueType, EvaluatedCell } from "../../types/cells";
+import { Getters } from "../../types/getters";
+import { CellPosition, UID, Zone } from "../../types/misc";
+import { isDateTimeFormat } from "../format/format";
+import { getZonesByColumns, isInside } from "../zones";
 
 export type ExtendedColumnType =
   | "error"
@@ -21,13 +21,14 @@ export interface ColumnAnalysis {
   headerInZone: boolean;
   rowCount: number;
   uniqueCount: number;
-  uniqueRatio: number;
   maxValue?: number;
   nonEmpty: EvaluatedCell[];
 }
 
 export function analyzeColumns(zones: Zone[], getters: Getters): ColumnAnalysis[] {
-  return getZonesByColumns(zones).map((zone) => analyzeColumn(zone, getters));
+  return getZonesByColumns(zones)
+    .map((zone) => analyzeColumn(zone, getters))
+    .filter((c) => c.type !== "empty");
 }
 
 function analyzeColumn(zone: Zone, getters: Getters): ColumnAnalysis {
@@ -43,7 +44,6 @@ function analyzeColumn(zone: Zone, getters: Getters): ColumnAnalysis {
       headerInZone: false,
       rowCount: 0,
       uniqueCount: 0,
-      uniqueRatio: 0,
       nonEmpty: [],
     };
   }
@@ -54,20 +54,17 @@ function analyzeColumn(zone: Zone, getters: Getters): ColumnAnalysis {
   let title: string | undefined;
   let dataCells: EvaluatedCell[] = [];
   let headerInZone = false;
-  let analyzedZone: Zone = zone;
+  let analyzedZone: Zone = { ...zone, top: firstCell.position!.row };
   const tableHeaderPosition = getColumnTableHeaderPosition(sheetId, zone, getters);
 
   if (tableHeaderPosition) {
     title = getters.getCellText(tableHeaderPosition) || undefined;
     dataCells = cells.filter((c) => c.position && c.position.row > tableHeaderPosition.row);
-    headerInZone =
-      !!title && tableHeaderPosition.row >= zone.top && tableHeaderPosition.row <= zone.bottom;
+    headerInZone = tableHeaderPosition.row >= zone.top && tableHeaderPosition.row <= zone.bottom;
     if (headerInZone) {
       analyzedZone = {
+        ...analyzedZone,
         top: tableHeaderPosition.row,
-        bottom: zone.bottom,
-        left: zone.left,
-        right: zone.right,
       };
     }
   } else if (
@@ -96,7 +93,6 @@ function analyzeColumn(zone: Zone, getters: Getters): ColumnAnalysis {
     headerInZone,
     rowCount: dataCells.length,
     uniqueCount,
-    uniqueRatio: allVals.length > 0 ? uniqueCount / allVals.length : 0,
     maxValue: numericValues.length
       ? numericValues.reduce((max, v) => (v > max ? v : max), numericValues[0])
       : undefined,
