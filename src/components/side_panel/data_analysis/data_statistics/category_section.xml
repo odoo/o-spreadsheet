@@ -1,0 +1,30 @@
+<templates>
+  <t t-name="o-spreadsheet-CategorySection">
+    <div class="p-1 ">
+      <div class="my-4">
+        <StatisticItem stat="this.props.statSections[0].items[0]"/>
+      </div>
+      <div class="fw-bold text-muted mt-2 d-flex justify-content-between">
+        <t t-out="this.categorySection.label"/>
+        <div t-on-click="this.sortItems" class="o-button-icon d-flex align-items-center">
+          <t t-if="this.listState.sortType === 'desc'" t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+          <t t-if="this.listState.sortType === 'asc'" t-call="o-spreadsheet-Icon.CARET_UP"/>
+          <t t-if="this.listState.sortType === 'none'" t-call="o-spreadsheet-Icon.CARET_SORT"/>
+        </div>
+      </div>
+      <t t-foreach="this.listState.displayedValues" t-as="stat" t-key="stat_index">
+        <StatisticItem
+          stat="stat"
+          onHover.bind="this.hoverStat"
+          computePercentage.bind="this.computePercentage"
+        />
+      </t>
+      <div
+        t-if="this.listState.hasMoreValues"
+        class="o-button-link d-flex justify-content-center py-1"
+        t-on-click="this.loadMoreValues">
+        Load more...
+      </div>
+    </div>
+  </t>
+</templates>

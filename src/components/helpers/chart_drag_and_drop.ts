@@ -7,6 +7,7 @@ import {
 } from "../../constants";
 import { SpreadsheetChart } from "../../helpers/figures/chart";
 import { drawChartOnCanvas } from "../../helpers/figures/charts/chart_ui_common";
+import { centerFigurePosition } from "../../helpers/figures/figure/figure";
 import { UuidGenerator } from "../../helpers/uuid";
 import { ChartDragStore } from "../../stores/chart_drag_store";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -73,6 +74,9 @@ export function startChartDragAndDrop(
   definition: ChartDefinition,
   ev: MouseEvent
 ) {
+  if (ev.button !== 0) {
+    return;
+  }
   const zoom = env.getStore(ZoomStore).zoomLevel;
   const gridPosition = gridOverlayPosition(zoom);
   const spreadsheet = document.querySelector(".o-spreadsheet") as HTMLElement | null;
@@ -168,19 +172,23 @@ export function startChartDragAndDrop(
     destroyChart?.();
     document.body.style.cursor = previousCursor;
 
-    let position = getGridPosition(mouseEvent.clientX - halfWidth, mouseEvent.clientY - halfHeight);
+    const position = getGridPosition(
+      mouseEvent.clientX - halfWidth,
+      mouseEvent.clientY - halfHeight
+    );
+    let col: number, row: number, offset: { x: number; y: number };
     if (
       Math.abs(mouseEvent.clientX / zoom - startX) <= DRAG_THRESHOLD &&
       Math.abs(mouseEvent.clientY / zoom - startY) <= DRAG_THRESHOLD
     ) {
-      position = { x: 0, y: 0 };
+      ({ col, row, offset } = centerFigurePosition(env, { width, height }));
     } else if (!position || position.x + halfWidth > gridPosition.width) {
       return;
+    } else {
+      ({ col, row, offset } = env
+        .getStore(ViewportsStore)
+        .viewports.getPositionAnchorOffset(sheetId, position));
     }
-
-    const { col, row, offset } = env
-      .getStore(ViewportsStore)
-      .viewports.getPositionAnchorOffset(sheetId, position);
     const payload = {
       chartId: UuidGenerator.smallUuid(),
       figureId: UuidGenerator.smallUuid(),
