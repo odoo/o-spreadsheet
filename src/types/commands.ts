@@ -19,6 +19,7 @@ import { ChartDefinition } from "./chart/chart";
 
 import { ConditionalFormat } from "./conditional_formatting";
 
+import { CellValue } from "./cells";
 import { ClipboardPasteOptions, ParsedOsClipboardContentWithImageData } from "./clipboard";
 import { DataValidationRule } from "./data_validation";
 import { AnchorOffset, CarouselData, CarouselItem, Figure, FigureSize } from "./figure";
@@ -202,6 +203,7 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "ACTIVATE_SHEET",
 
   "COPY",
+  "COPY_TO_CLIPBOARD",
 
   "EVALUATE_CELLS",
   "EVALUATE_CHARTS",
@@ -231,6 +233,7 @@ export const lockedSheetAllowedCommands = new Set<Command["type"]>([
 
   // local commands
   "COPY",
+  "COPY_TO_CLIPBOARD",
   "START",
   "ACTIVATE_SHEET",
   "SET_FORMULA_VISIBILITY",
@@ -952,6 +955,11 @@ export interface CopyCommand {
   type: "COPY";
 }
 
+export interface CopyToClipboardCommand {
+  type: "COPY_TO_CLIPBOARD";
+  data: { formula: string; value: CellValue };
+}
+
 export interface CutCommand {
   type: "CUT";
 }
@@ -1334,6 +1342,7 @@ export type LocalCommand =
   | UndoCommand
   | RedoCommand
   | CopyCommand
+  | CopyToClipboardCommand
   | CutCommand
   | PasteCommand
   | CopyPasteCellsAboveCommand

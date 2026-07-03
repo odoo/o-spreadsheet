@@ -1,6 +1,7 @@
 import { types as owlTypes, Type } from "@odoo/owl";
 import { Action, ActionSpec, MenuItemOrSeparator } from "../actions/action";
 import { Token } from "../formulas/tokenizer";
+import { StatGroup } from "../helpers/data_statistics/statistics_items";
 import { PivotRuntimeDefinition } from "../helpers/pivot/pivot_runtime_definition";
 import { Model } from "../model";
 import {
@@ -289,4 +290,5 @@ export const types = {
   DataValidationCriterionType: validateString<DataValidationCriterionType>,
   Dimension: validateDimension,
   ContextMenuType: validateContextMenuType,
+  StatGroup: validateObject<StatGroup>,
 };
