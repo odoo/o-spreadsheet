@@ -1,16 +1,57 @@
 import { invalidateEvaluationCommands } from "../../../command_registry";
+import { analyzeColumns, ExtendedColumnType } from "../../../helpers/data_statistics/data_analysis";
+import {
+  DateGranularity,
+  DateSections,
+  StatValue,
+} from "../../../helpers/data_statistics/statistics_items";
+import {
+  buildBooleanItems,
+  buildDateStatSections,
+  buildGeneralStatItems,
+  buildOccurrencesItems,
+} from "../../../helpers/data_statistics/statistics_suggestion";
 import {
   ChartSuggestion,
   getChartSuggestions,
 } from "../../../helpers/figures/charts/chart_suggestion_engine";
+import { cellsSortingCriterion } from "../../../helpers/sort";
 import { zoneToXc } from "../../../helpers/zones";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { CellValueType } from "../../../types/cells";
 import { Command } from "../../../types/commands";
 import { Get } from "../../../types/store_engine";
 
+const OCCURRENCES_PAGE_SIZE = 50;
+
+export type DateSortType = "desc" | "asc" | "chrono";
+export interface OccurrencesSortType {
+  sortOn: "name" | "value";
+  order: "asc" | "desc" | "none";
+}
+
 export class DataAnalysisStore extends SpreadsheetStore {
-  mutators = [] as const;
+  mutators = [
+    "setDateGranularity",
+    "toggleDateSort",
+    "toggleOccurrencesSort",
+    "loadMoreOccurrences",
+  ] as const;
+  shape: ExtendedColumnType[] = [];
+  hasHeader: boolean = false;
+  generalStatItems: StatValue[] = [];
+  occurrencesItems: StatValue[] = [];
+  dateStatSections: DateSections = this.defaultDateSections;
+
+  dateGranularity: DateGranularity = "month";
+  dateSortType: DateSortType = "chrono";
+  displayedDateItems: StatValue[] = [];
+
+  occurrencesSortType: OccurrencesSortType = { sortOn: "value", order: "desc" };
+  numberOfDisplayedOccurrences = OCCURRENCES_PAGE_SIZE;
+  displayedOccurrencesItems: StatValue[] = [];
+  hasMoreOccurrences = false;
+
   hasData: boolean = false;
   chartSuggestions: ChartSuggestion[] = [];
   private isDirty = false;
@@ -57,6 +98,89 @@ export class DataAnalysisStore extends SpreadsheetStore {
     }
   }
 
+  setDateGranularity(granularity: DateGranularity) {
+    this.dateGranularity = granularity;
+    this.sortDateItems();
+  }
+
+  toggleDateSort() {
+    switch (this.dateSortType) {
+      case "desc":
+        this.dateSortType = "asc";
+        break;
+      case "asc":
+        this.dateSortType = "chrono";
+        break;
+      case "chrono":
+        this.dateSortType = "desc";
+        break;
+    }
+    this.sortDateItems();
+  }
+
+  toggleOccurrencesSort(sortOn: "name" | "value") {
+    const sortType = this.occurrencesSortType;
+    if (sortType.sortOn !== sortOn) {
+      this.occurrencesSortType = { sortOn, order: "desc" };
+    } else {
+      switch (sortType.order) {
+        case "desc":
+          this.occurrencesSortType = { sortOn, order: "asc" };
+          break;
+        case "asc":
+          this.occurrencesSortType = { sortOn, order: "none" };
+          break;
+        case "none":
+          this.occurrencesSortType = { sortOn, order: "desc" };
+          break;
+      }
+    }
+    this.sortOccurrencesItems();
+  }
+
+  loadMoreOccurrences() {
+    this.numberOfDisplayedOccurrences += OCCURRENCES_PAGE_SIZE;
+    this.sortOccurrencesItems();
+  }
+
+  private sortDateItems() {
+    const items = [...this.dateStatSections[this.dateGranularity]];
+    switch (this.dateSortType) {
+      case "asc":
+        items.sort((a, b) => Number(a.value) - Number(b.value) || a.name.localeCompare(b.name));
+        break;
+      case "desc":
+        items.sort((a, b) => Number(b.value) - Number(a.value) || a.name.localeCompare(b.name));
+        break;
+    }
+    this.displayedDateItems = items;
+  }
+
+  private sortOccurrencesItems() {
+    const { sortOn, order } = this.occurrencesSortType;
+    const items = [...this.occurrencesItems];
+    if (order !== "none") {
+      items.sort((a, b) => {
+        if (sortOn === "name") {
+          return order === "desc" ? compareCategories(a, b) : compareCategories(b, a);
+        }
+        return order === "asc"
+          ? Number(a.value) - Number(b.value)
+          : Number(b.value) - Number(a.value);
+      });
+    }
+    this.displayedOccurrencesItems = items.slice(0, this.numberOfDisplayedOccurrences);
+    this.hasMoreOccurrences = items.length > this.numberOfDisplayedOccurrences;
+  }
+
+  get defaultDateSections() {
+    return {
+      year: [],
+      month: [],
+      day: [],
+    };
+  }
+
   private refresh() {
     const sheetId = this.getters.getActiveSheetId();
     const zones = this.getters.getSelectedZones();
@@ -67,8 +191,38 @@ export class DataAnalysisStore extends SpreadsheetStore {
         .getEvaluatedCellsInZone(sheetId, zone)
         .some((cell) => cell.type !== CellValueType.empty)
     );
+    const cols = analyzeColumns(zones, this.getters);
+    this.shape = cols.map((c) => c.type);
+    this.hasHeader = cols.some((c) => c.headerInZone);
 
-    const suggestions = this.hasData ? getChartSuggestions(zones, this.getters) : [];
+    const suggestions = this.hasData ? getChartSuggestions(this.shape, cols, this.getters) : [];
     this.chartSuggestions = suggestions;
+    this.generalStatItems = [];
+    this.occurrencesItems = [];
+    this.dateStatSections = this.defaultDateSections;
+    if (this.hasData && this.shape.length === 1) {
+      const col = cols[0];
+      this.generalStatItems = buildGeneralStatItems(this.getters, col, sheetId);
+      switch (col.type) {
+        case "date":
+          this.dateStatSections = buildDateStatSections(this.getters, col, sheetId);
+          break;
+        case "boolean":
+          this.occurrencesItems = buildBooleanItems(this.getters, col, sheetId);
+          break;
+        default:
+          this.occurrencesItems = buildOccurrencesItems(this.getters, col, sheetId);
+      }
+    }
+    this.sortOccurrencesItems();
+    this.sortDateItems();
   }
+}
+
+const sortCategoriesAscending = cellsSortingCriterion("asc");
+function compareCategories(a: StatValue, b: StatValue): number {
+  if (a.rawData && b.rawData) {
+    return sortCategoriesAscending(a.rawData, b.rawData);
+  }
+  return a.name.localeCompare(b.name);
 }
