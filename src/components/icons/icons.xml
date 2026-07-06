@@ -1155,7 +1155,7 @@
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.COLUMN_STATS">
-    <svg width="18px" height="18px" viewBox="0 0 512 512">
+    <svg class="o-icon" viewBox="0 0 512 512">
       <path
         d="M319 174c71 0 129 58 129 129 0 27-8 52-23 73l66 66-33 33-66-66c-21 14-46 23-73 23-71 0-129-58-129-129s57-129 129-129m0 47c-45 0-82 37-82 82s36 82 82 82 82-37 82-82-37-82-82-82m-152 70a155 155 0 0 0 0 12c0 12 1 24 4 35H25v-47zM119 33v235H49V33zm94 94v66c-21 20-36 46-43 75h-28V127zm94-47v71a152 152 0 0 0-70 24V80zm94 23v71a152 152 0 0 0-70-24v-47z"
         fill="currentColor"
@@ -1214,5 +1214,19 @@
     <div class="o-icon">
       <i class="oi" data-icon="calculate"/>
     </div>
+  </t>
+  <t t-name="o-spreadsheet-Icon.INSERT_CHART_SUGGESTION">
+    <svg
+      class="o-icon"
+      fill="currentColor"
+      viewBox="0 -960 960 960"
+      xmlns="http://www.w3.org/2000/svg">
+      <!-- Material icon add_chart.
+      TODO remove when we use Material icons directly -->
+      <path
+        xmlns="http://www.w3.org/2000/svg"
+        d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h360v80H200v560h560v-360h80v360q0 33-23.5 56.5T760-120H200Zm80-160h80v-280h-80v280Zm160 0h80v-400h-80v400Zm160 0h80v-160h-80v160Zm80-320v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80ZM480-480Z"
+      />
+    </svg>
   </t>
 </templates>

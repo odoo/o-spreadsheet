@@ -41,6 +41,7 @@ export class SidePanelStore extends SpreadsheetStore {
     "changePanelSize",
     "resetPanelSize",
     "togglePinPanel",
+    "togglePinnedSidePanel",
     "closeMainPanel",
     "changeSpreadsheetWidth",
     "toggleCollapsePanel",
@@ -256,6 +257,22 @@ export class SidePanelStore extends SpreadsheetStore {
       this.secondaryPanel?.currentPanelProps.onCloseSidePanel?.();
       this.mainPanel = this.secondaryPanel;
       this.secondaryPanel = undefined;
+    }
+  }
+
+  togglePinnedSidePanel(componentTag: string, panelProps: SidePanelComponentProps = {}) {
+    if (this.mainPanel?.componentTag === componentTag && this.isMainPanelOpen) {
+      this.closeMainPanel();
+      return;
+    }
+    if (this.secondaryPanel?.componentTag === componentTag && this.isSecondaryPanelOpen) {
+      this.secondaryPanel?.currentPanelProps.onCloseSidePanel?.();
+      this.secondaryPanel = undefined;
+      return;
+    }
+    this.open(componentTag, panelProps);
+    if (!this.mainPanel?.isPinned) {
+      this.togglePinPanel();
     }
   }
 

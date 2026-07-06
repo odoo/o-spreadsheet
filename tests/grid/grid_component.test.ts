@@ -1430,13 +1430,13 @@ describe("Grid component", () => {
     addIconCF(model, "A1", ["3", "7"], "arrows");
     createTableWithFilter(model, "B1:B2");
     const overlay = fixture.querySelector<HTMLElement>(".o-grid-overlay")!;
-    expect(overlay!.style.cursor).toBe("default");
+    expect(overlay!.style.cursor).toBe("inherit");
 
     await hoverGridIcon(env, "B1");
     expect(overlay.style.cursor).toBe("pointer");
 
     await hoverGridIcon(env, "A1");
-    expect(overlay.style.cursor).toBe("default");
+    expect(overlay.style.cursor).toBe("inherit");
   });
 });
 

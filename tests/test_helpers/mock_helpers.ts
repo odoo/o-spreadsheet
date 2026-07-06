@@ -2,10 +2,21 @@ const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRec
 
 let persistentClassesWithMocks = {};
 
+/**
+ * Register mocked rects keyed by a class name (matched via `classList.contains`), an HTML tag
+ * name (e.g. "canvas", matched case-insensitively), or "*" to match every element. Returns a
+ * function that removes exactly these keys, for callers that only want the mock active for part
+ * of a test.
+ */
 export function extendMockGetBoundingClientRect(
-  classesWithMocks: Record<string, (el: HTMLElement) => Partial<DOMRect>>
-) {
-  Object.assign(persistentClassesWithMocks, classesWithMocks);
+  matchersWithMocks: Record<string, (el: HTMLElement) => Partial<DOMRect>>
+): () => void {
+  Object.assign(persistentClassesWithMocks, matchersWithMocks);
+  return () => {
+    for (const key of Object.keys(matchersWithMocks)) {
+      delete persistentClassesWithMocks[key];
+    }
+  };
 }
 
 export function resetMockGetBoundingClientRect() {
@@ -17,7 +28,9 @@ export function mockGetBoundingClientRect() {
     .spyOn(HTMLElement.prototype, "getBoundingClientRect")
     .mockImplementation(function (this: HTMLElement) {
       const mockedClasses = Object.keys(persistentClassesWithMocks);
-      const mockedClass = mockedClasses.find((className) => this.classList.contains(className));
+      const mockedClass = mockedClasses.find(
+        (key) => this.classList.contains(key) || this.tagName.toLowerCase() === key.toLowerCase()
+      );
       if (mockedClass) {
         const rect = populateDOMRect(persistentClassesWithMocks[mockedClass](this));
         return {

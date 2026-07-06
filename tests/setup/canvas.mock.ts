@@ -58,11 +58,15 @@ Object.assign(globalThis.HTMLCanvasElement.prototype, patch);
 globalThis.OffscreenCanvas = class OffscreenCanvas {
   width: number;
   height: number;
+  private nodeCanvas: ReturnType<typeof createCanvas>;
   constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
+    this.nodeCanvas = createCanvas(width, height);
   }
-  getContext = patch.getContext;
+  getContext(id: string) {
+    return this.nodeCanvas.getContext(id as "2d");
+  }
   convertToBlob = async () => {
     return new Blob([], { type: "image/png" });
   };
@@ -219,6 +223,28 @@ function drawColoredChar(
   );
 }
 
+/**
+ * The sprite is drawn with its top-left corner at `y`, so `y` needs to be shifted up depending on
+ * where the requested `textBaseline` sits relative to the top of the glyph.
+ */
+function adjustYForBaseline(
+  ctx: NodeCanvasRenderingContext2D,
+  text: string,
+  baseline: CanvasTextBaseline,
+  y: number
+): number {
+  if (baseline === "middle") {
+    return y - fontHeight / 2;
+  }
+  if (["alphabetic", "bottom", "ideographic"].includes(baseline)) {
+    const metrics = ctx.measureText(text);
+    const ascent = metrics.fontBoundingBoxAscent ?? 0;
+    const descent = metrics.fontBoundingBoxDescent ?? 0;
+    return y - (baseline === "bottom" || baseline === "ideographic" ? ascent + descent : ascent);
+  }
+  return y;
+}
+
 function mockFillText(this: NodeCanvasRenderingContext2D, text: string, x: number, y: number) {
   if (text && text.charCodeAt) {
     const align = this.textAlign;
@@ -230,9 +256,7 @@ function mockFillText(this: NodeCanvasRenderingContext2D, text: string, x: numbe
     const fontSize = parseInt(this.font.match(/([0-9]+)px/)![1], 10);
     const scale = fontSize / fontSizeInPixels(DEFAULT_FONT_SIZE);
 
-    if (this.textBaseline === "middle") {
-      y -= fontHeight / 2;
-    }
+    y = adjustYForBaseline(this, text, this.textBaseline, y);
 
     for (let i = 0; i < text.length; ++i) {
       const charCode = text.charCodeAt(i);
@@ -249,9 +273,7 @@ function mockStrokeText(this: NodeCanvasRenderingContext2D, text: string, x: num
       const w = this.measureText(text).width;
       x -= align === "center" ? w / 2 : w;
     }
-    if (this.textBaseline === "middle") {
-      y -= fontHeight / 2;
-    }
+    y = adjustYForBaseline(this, text, this.textBaseline, y);
 
     const fontSize = parseInt(this.font.match(/([0-9]+)px/)![1], 10);
     const scale = fontSize / fontSizeInPixels(DEFAULT_FONT_SIZE);

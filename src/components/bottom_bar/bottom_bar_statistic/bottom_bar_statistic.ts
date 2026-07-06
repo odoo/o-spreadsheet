@@ -8,6 +8,7 @@ import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { Ripple } from "../../animation/ripple";
 import { types } from "../../props_validation";
+import { SidePanelStore } from "../../side_panel/side_panel/side_panel_store";
 import { AggregateStatisticsStore } from "./aggregate_statistics_store";
 
 // -----------------------------------------------------------------------------
@@ -25,9 +26,11 @@ export class BottomBarStatistic extends Component<SpreadsheetChildEnv> {
 
   private state = proxy({ selectedStatisticFn: "" });
   private store!: Store<AggregateStatisticsStore>;
+  private sidePanelStore!: Store<SidePanelStore>;
 
   setup() {
     this.store = useStore(AggregateStatisticsStore);
+    this.sidePanelStore = useStore(SidePanelStore);
     onWillUpdateProps(() => {
       if (
         Object.values(this.store.statisticFnResults).every((result) => result?.value === undefined)
@@ -80,5 +83,18 @@ export class BottomBarStatistic extends Component<SpreadsheetChildEnv> {
       return "";
     }
     return fnName + ": " + formatValue(fnValue.value(), { locale, format: fnValue.format() });
+  }
+
+  get isDataAnalysisOpen(): boolean {
+    return (
+      (this.sidePanelStore.mainPanel?.componentTag === "DataAnalysisPanel" &&
+        this.sidePanelStore.isMainPanelOpen) ||
+      (this.sidePanelStore.secondaryPanel?.componentTag === "DataAnalysisPanel" &&
+        this.sidePanelStore.isSecondaryPanelOpen)
+    );
+  }
+
+  toggleDataAnalysisPanel() {
+    this.sidePanelStore.togglePinnedSidePanel("DataAnalysisPanel");
   }
 }

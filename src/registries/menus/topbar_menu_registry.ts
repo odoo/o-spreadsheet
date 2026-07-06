@@ -490,6 +490,10 @@ topbarMenuRegistry
     ...ACTION_DATA.splitToColumns,
     sequence: 20,
   })
+  .addChild("data_analysis", ["data"], {
+    ...ACTION_DATA.dataAnalysis,
+    sequence: 24,
+  })
   .addChild("column_statistics", ["data"], {
     ...ACTION_DATA.columnStatistics,
     sequence: 25,

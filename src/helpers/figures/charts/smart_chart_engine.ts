@@ -10,7 +10,13 @@ import { LineChartDefinition } from "../../../types/chart/line_chart";
 import { Getters } from "../../../types/getters";
 import { Zone } from "../../../types/misc";
 import { isDateTimeFormat } from "../../format/format";
-import { getZoneArea, getZonesByColumns, zoneToXc } from "../../zones";
+import { getZoneArea, getZonesByColumns } from "../../zones";
+import {
+  dataset,
+  getUnboundRange,
+  isDatasetTitled,
+  rangeSource,
+} from "./chart_data_source_helpers";
 
 type ColumnType = "number" | "text" | "date" | "percentage" | "boolean" | "empty";
 
@@ -39,10 +45,6 @@ const DEFAULT_LINE_CHART_CONFIG: LineChartDefinition = {
 interface ColumnInfo {
   zone: Zone;
   type: ColumnType;
-}
-
-function getUnboundRange(getters: Getters, zone: Zone): string {
-  return zoneToXc(getters.getUnboundedZone(getters.getActiveSheetId(), zone));
 }
 
 function detectColumnType(cells: EvaluatedCell[]): ColumnType {
@@ -96,15 +98,6 @@ function getCellStats(getters: Getters, zone: Zone) {
   };
 }
 
-function isDatasetTitled(getters: Getters, column: ColumnInfo): boolean {
-  const titleCell = getters.getEvaluatedCell({
-    sheetId: getters.getActiveSheetId(),
-    col: column.zone.left,
-    row: column.zone.top,
-  });
-  return ![CellValueType.number, CellValueType.empty].includes(titleCell.type);
-}
-
 /**
  * Builds a chart definition for a single column selection. The logic to detect the chart type is as follows:
  * - If the column contains a single cell, create a scorecard.
@@ -116,8 +109,7 @@ function isDatasetTitled(getters: Getters, column: ColumnInfo): boolean {
 function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefinition {
   const { type, zone } = column;
   const sheetId = getters.getActiveSheetId();
-  const dataSetsHaveTitle = isDatasetTitled(getters, column);
-  const dataRange = getUnboundRange(getters, zone);
+  const dataSetsHaveTitle = isDatasetTitled(getters, column.zone);
   const titleCell = getters.getEvaluatedCell({ sheetId, col: zone.left, row: zone.top });
 
   if (getZoneArea(zone) === 1) {
@@ -129,7 +121,7 @@ function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefi
       return {
         type: "pie",
         title: dataSetsHaveTitle ? { text: String(titleCell.value) } : {},
-        dataSource: { type: "range", dataSets: [{ dataRange, dataSetId: "0" }], dataSetsHaveTitle },
+        dataSource: rangeSource([dataset(zone, getters)], dataSetsHaveTitle),
         dataSetStyles: {},
         legendPosition: "none",
       };
@@ -145,37 +137,33 @@ function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefi
       return {
         type: "pie",
         title: hasUniqueTitle ? { text: String(titleCell.value) } : {},
-        dataSource: {
-          type: "range",
-          dataSets: [{ dataRange, dataSetId: "0" }],
-          labelRange: dataRange,
-          dataSetsHaveTitle: hasUniqueTitle,
-        },
+        dataSource: rangeSource(
+          [dataset(zone, getters)],
+          hasUniqueTitle,
+          getUnboundRange(getters, zone)
+        ),
         dataSetStyles: {},
         aggregated: true,
         legendPosition: "top",
       };
 
-    case "date":
+    case "date": {
+      const dataRange = getUnboundRange(getters, zone);
       return {
         type: "calendar",
         title: dataSetsHaveTitle ? { text: String(titleCell.value) } : {},
-        dataSource: {
-          type: "range",
-          dataSets: [],
-          dataSetsHaveTitle,
-          labelRange: dataRange,
-        },
+        dataSource: rangeSource([], dataSetsHaveTitle, dataRange),
         dataSetStyles: {},
         legendPosition: "left",
         horizontalGroupBy: "day_of_week",
         verticalGroupBy: "month_number",
       };
+    }
   }
   return {
     ...DEFAULT_BAR_CHART_CONFIG,
     title: dataSetsHaveTitle ? { text: String(titleCell.value) } : {},
-    dataSource: { type: "range", dataSets: [{ dataRange, dataSetId: "0" }], dataSetsHaveTitle },
+    dataSource: rangeSource([dataset(zone, getters)], dataSetsHaveTitle),
     dataSetStyles: {},
   };
 }
@@ -198,12 +186,11 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
     return {
       type: "pie",
       title: {},
-      dataSource: {
-        type: "range",
-        dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "0" }],
-        labelRange: getUnboundRange(getters, columns[0].zone),
-        dataSetsHaveTitle: isDatasetTitled(getters, columns[1]),
-      },
+      dataSource: rangeSource(
+        [dataset(columns[1].zone, getters)],
+        isDatasetTitled(getters, columns[1].zone),
+        getUnboundRange(getters, columns[0].zone)
+      ),
       dataSetStyles: {},
       aggregated: true,
       legendPosition: "none",
@@ -214,12 +201,11 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
     return {
       type: "scatter",
       title: {},
-      dataSource: {
-        type: "range",
-        dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "0" }],
-        labelRange: getUnboundRange(getters, columns[0].zone),
-        dataSetsHaveTitle: isDatasetTitled(getters, columns[1]),
-      },
+      dataSource: rangeSource(
+        [dataset(columns[1].zone, getters)],
+        isDatasetTitled(getters, columns[1].zone),
+        getUnboundRange(getters, columns[0].zone)
+      ),
       dataSetStyles: {},
       labelsAsText: false,
       legendPosition: "none",
@@ -230,12 +216,11 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
     return {
       ...DEFAULT_LINE_CHART_CONFIG,
       type: "line",
-      dataSource: {
-        type: "range",
-        dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "0" }],
-        labelRange: getUnboundRange(getters, columns[0].zone),
-        dataSetsHaveTitle: isDatasetTitled(getters, columns[0]),
-      },
+      dataSource: rangeSource(
+        [dataset(columns[1].zone, getters)],
+        isDatasetTitled(getters, columns[0].zone),
+        getUnboundRange(getters, columns[0].zone)
+      ),
       dataSetStyles: {},
     };
   }
@@ -245,18 +230,17 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
     const numberColumn = columns[1];
 
     const { uniqueCount, totalCount } = getCellStats(getters, textColumn.zone);
-    const dataSetsHaveTitle = isDatasetTitled(getters, numberColumn);
+    const dataSetsHaveTitle = isDatasetTitled(getters, numberColumn.zone);
 
     if (uniqueCount !== totalCount) {
       return {
         type: "treemap",
         title: {},
-        dataSource: {
-          type: "range",
-          dataSets: [{ dataRange: getUnboundRange(getters, textColumn.zone), dataSetId: "0" }],
-          labelRange: getUnboundRange(getters, numberColumn.zone),
+        dataSource: rangeSource(
+          [dataset(textColumn.zone, getters)],
           dataSetsHaveTitle,
-        },
+          getUnboundRange(getters, numberColumn.zone)
+        ),
         dataSetStyles: {},
         legendPosition: "none",
       };
@@ -265,12 +249,11 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
 
   return {
     ...DEFAULT_BAR_CHART_CONFIG,
-    dataSource: {
-      type: "range",
-      dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone), dataSetId: "0" }],
-      labelRange: getUnboundRange(getters, columns[0].zone),
-      dataSetsHaveTitle: isDatasetTitled(getters, columns[1]),
-    },
+    dataSource: rangeSource(
+      [dataset(columns[1].zone, getters)],
+      isDatasetTitled(getters, columns[1].zone),
+      getUnboundRange(getters, columns[0].zone)
+    ),
     dataSetStyles: {},
   };
 }
@@ -289,7 +272,7 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
   }
 
   const dataSetsHaveTitle = columns.some(
-    (col) => col.type !== "text" && isDatasetTitled(getters, col)
+    (col) => col.type !== "text" && isDatasetTitled(getters, col.zone)
   );
 
   const lastColumn = columns[columns.length - 1];
@@ -299,19 +282,15 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
     (lastColumn.type === "percentage" || lastColumn.type === "number") &&
     columnsExceptLast.every((col) => col.type === "text")
   ) {
-    const dataSets = columnsExceptLast.map(({ zone }, i) => ({
-      dataRange: getUnboundRange(getters, zone),
-      dataSetId: i.toString(),
-    }));
+    const dataSets = columnsExceptLast.map(({ zone }, i) => dataset(zone, getters, String(i)));
     return {
       type: columnsExceptLast.length >= 3 ? "sunburst" : "treemap",
       title: {},
-      dataSource: {
-        type: "range",
+      dataSource: rangeSource(
         dataSets,
         dataSetsHaveTitle,
-        labelRange: getUnboundRange(getters, lastColumn.zone),
-      },
+        getUnboundRange(getters, lastColumn.zone)
+      ),
       dataSetStyles: {},
       legendPosition: "none",
     };
@@ -319,21 +298,19 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
 
   const firstColumn = columns[0];
   const columnsExceptFirst = columns.slice(1);
-  const rangesOfColumnsExceptFirst = columnsExceptFirst.map(({ zone }, i) => ({
-    dataRange: getUnboundRange(getters, zone),
-    dataSetId: i.toString(),
-  }));
+  const rangesOfColumnsExceptFirst = columnsExceptFirst.map(({ zone }, i) =>
+    dataset(zone, getters, String(i))
+  );
 
   if (columnsExceptFirst.every((col) => col.type === "percentage")) {
     return {
       type: "pie",
       title: {},
-      dataSource: {
-        type: "range",
-        dataSets: rangesOfColumnsExceptFirst,
-        labelRange: getUnboundRange(getters, firstColumn.zone),
+      dataSource: rangeSource(
+        rangesOfColumnsExceptFirst,
         dataSetsHaveTitle,
-      },
+        getUnboundRange(getters, firstColumn.zone)
+      ),
       dataSetStyles: {},
       aggregated: false,
       legendPosition: "top",
@@ -344,12 +321,11 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
     return {
       ...DEFAULT_LINE_CHART_CONFIG,
       type: "line",
-      dataSource: {
-        type: "range",
-        dataSets: rangesOfColumnsExceptFirst,
-        labelRange: getUnboundRange(getters, firstColumn.zone),
+      dataSource: rangeSource(
+        rangesOfColumnsExceptFirst,
         dataSetsHaveTitle,
-      },
+        getUnboundRange(getters, firstColumn.zone)
+      ),
       dataSetStyles: {},
       legendPosition: "top",
     };
@@ -357,12 +333,11 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
 
   return {
     ...DEFAULT_BAR_CHART_CONFIG,
-    dataSource: {
-      type: "range",
-      dataSets: rangesOfColumnsExceptFirst,
-      labelRange: getUnboundRange(getters, firstColumn.zone),
+    dataSource: rangeSource(
+      rangesOfColumnsExceptFirst,
       dataSetsHaveTitle,
-    },
+      getUnboundRange(getters, firstColumn.zone)
+    ),
     dataSetStyles: {},
     legendPosition: "top",
   };
@@ -392,13 +367,10 @@ export function getSmartChartDefinition(zones: Zone[], getters: Getters): ChartD
   const columns = categorizeColumns(zones, getters);
 
   if (columns.length === 0 || columns.every((col) => col.type === "empty")) {
-    const dataSets = columns.map(({ zone }, i) => ({
-      dataRange: getUnboundRange(getters, zone),
-      dataSetId: i.toString(),
-    }));
+    const dataSets = columns.map(({ zone }, i) => dataset(zone, getters, String(i)));
     return {
       ...DEFAULT_BAR_CHART_CONFIG,
-      dataSource: { type: "range", dataSets, dataSetsHaveTitle: false },
+      dataSource: rangeSource(dataSets, false),
     };
   }
 

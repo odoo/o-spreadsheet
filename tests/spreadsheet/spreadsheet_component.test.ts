@@ -155,6 +155,12 @@ describe("Simple Spreadsheet Component", () => {
     expect(composerStore.currentContent).toBe("d");
   });
 
+  test("can open data analysis panel with the icon button", async () => {
+    ({ model, parent, fixture } = await mountSpreadsheet());
+    await click(fixture, ".o-data-analysis-button");
+    expect(document.querySelector(".o-data-analysis-panel")).toBeTruthy();
+  });
+
   test("can open search with ctrl+h", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet());
     await keyDown({ key: "H", ctrlKey: true });
