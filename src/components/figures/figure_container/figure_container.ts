@@ -360,7 +360,9 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       let overlappingChartOrCarousel: FigureUI | undefined = undefined;
       const otherFigures = this.getOtherFigures(selectedFigures.map((f) => f.id));
       if (draggedFigure && !selectedFigures.find((f) => f.tag !== "chart")) {
-        overlappingChartOrCarousel = this.getOverlappingFigure(draggedFigure, otherFigures);
+        overlappingChartOrCarousel = this.getOverlappingFigure(draggedFigure, otherFigures, [
+          "carousel", "chart"
+        ]);
       }
       this.dnd.overlappingChartOrCarousel = overlappingChartOrCarousel;
 
@@ -599,7 +601,11 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
     }
   }
 
-  private getOverlappingFigure(figureUI: FigureUI, otherFigures: FigureUI[]): FigureUI | undefined {
+  private getOverlappingFigure(
+    figureUI: FigureUI,
+    otherFigures: FigureUI[],
+    matchTags: FigureUI["tag"][]
+  ): FigureUI | undefined {
     if (figureUI.tag !== "chart") {
       return undefined;
     }
@@ -611,7 +617,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
     let smallestDistance = Infinity;
 
     for (const figure of otherFigures) {
-      if (figure.tag !== "chart" && figure.tag !== "carousel") {
+      if (!matchTags.includes(figure.tag)) {
         continue;
       }
       const targetCenterX = figure.x + figure.width / 2;

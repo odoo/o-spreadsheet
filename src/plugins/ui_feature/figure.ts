@@ -30,6 +30,24 @@ export class FigureUIPlugin extends UIPlugin {
         ) {
           return CommandResult.FigureDoesNotExist;
         }
+        break;
+      case "CREATE_CHART_INTO_CAROUSEL":
+        if (
+          this.getters.getFigure(cmd.sheetId, cmd.figureId) ||
+          !this.getters.doesCarouselExist(cmd.carouselId)
+        ) {
+          return CommandResult.InvalidFigureId;
+        }
+        break;
+      case "CREATE_CHART_AND_MERGE_INTO_CAROUSEL":
+        const baseFigure = this.getters.getFigure(cmd.sheetId, cmd.baseFigureId);
+        if (this.getters.getFigure(cmd.sheetId, cmd.figureId) || !baseFigure) {
+          return CommandResult.InvalidFigureId;
+        }
+        if (baseFigure.tag !== "chart") {
+          return CommandResult.FigureDoesNotExist;
+        }
+        break;
     }
     return CommandResult.Success;
   }
@@ -66,6 +84,45 @@ export class FigureUIPlugin extends UIPlugin {
           carouselFigureId,
           chartFigureIds: cmd.chartFigureIds,
         });
+        break;
+      case "CREATE_CHART_INTO_CAROUSEL":
+        this.dispatch("CREATE_CHART", {
+          chartId: cmd.chartId,
+          figureId: cmd.figureId,
+          sheetId: cmd.sheetId,
+          size: cmd.size,
+          definition: cmd.definition,
+          col: cmd.col,
+          row: cmd.row,
+          offset: cmd.offset,
+        });
+        this.dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
+          sheetId: cmd.sheetId,
+          carouselFigureId: cmd.carouselId,
+          chartFigureIds: [cmd.figureId],
+        });
+        break;
+      case "CREATE_CHART_AND_MERGE_INTO_CAROUSEL":
+        const baseFigureToMerge = this.getters.getFigure(cmd.sheetId, cmd.baseFigureId);
+        if (!baseFigureToMerge) {
+          throw new Error(`Figure ${cmd.baseFigureId} does not exists.`);
+        }
+        this.dispatch("CREATE_CHART", {
+          chartId: cmd.chartId,
+          figureId: cmd.figureId,
+          sheetId: cmd.sheetId,
+          definition: cmd.definition,
+          col: baseFigureToMerge.col,
+          row: baseFigureToMerge.row,
+          offset: baseFigureToMerge.offset,
+          size: { width: baseFigureToMerge.width, height: baseFigureToMerge.height },
+        });
+        this.dispatch("MERGE_CHART_FIGURES_INTO_CAROUSEL", {
+          sheetId: cmd.sheetId,
+          baseFigureId: cmd.baseFigureId,
+          chartFigureIds: [cmd.baseFigureId, cmd.figureId],
+        });
+        break;
     }
   }
 }
