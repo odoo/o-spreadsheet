@@ -1,6 +1,7 @@
 import { _t } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
 
+import * as ACTION_DATA from "../../actions/data_actions";
 import * as ACTION_EDIT from "../../actions/edit_actions";
 import * as ACTION_INSERT from "../../actions/insert_actions";
 import * as ACTIONS from "../../actions/menu_items_actions";
@@ -37,6 +38,11 @@ cellMenuRegistry
   .addChild("paste_format_only", ["paste_special"], {
     ...ACTION_EDIT.pasteSpecialFormat,
     sequence: 20,
+  })
+  .add("data_analysis", {
+    ...ACTION_DATA.dataAnalysis,
+    sequence: 50,
+    separator: true,
   })
   .add("add_row_before", {
     ...ACTION_INSERT.cellInsertRowsBefore,

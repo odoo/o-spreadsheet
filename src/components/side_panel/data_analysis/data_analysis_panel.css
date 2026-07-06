@@ -1,0 +1,12 @@
+.o-spreadsheet {
+  .o-chart-suggestions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .o-chart-drag-preview {
+    box-sizing: content-box;
+    z-index: 9999;
+  }
+}

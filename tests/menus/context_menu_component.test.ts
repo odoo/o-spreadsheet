@@ -342,6 +342,13 @@ describe("Context MenuPopover integration tests", () => {
     expect(getCellContent(model, "B2")).toBe("b1");
   });
 
+  test("can open data analysis panel with the context menu", async () => {
+    await rightClickCell(env, "A1");
+    await nextTick();
+    await simulateClick(".o-menu div[data-name='data_analysis']");
+    expect(document.querySelector(".o-data-analysis-panel")).toBeTruthy();
+  });
+
   test("menu does not close when right click elsewhere", async () => {
     await rightClickCell(env, "B1");
     expect(fixture.querySelector(".o-menu")).toBeTruthy();

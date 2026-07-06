@@ -1,0 +1,13 @@
+<templates>
+  <t t-name="o-spreadsheet-ChartSuggestionPreview">
+    <div
+      class="o-suggestion-canvas-wrap os-theme-dependant overflow-hidden position-relative border rounded"
+      t-on-pointerdown="(ev) => this.props.onPointerDown(ev)"
+      t-att-title="this.props.description">
+      <canvas class="w-100 h-100" t-ref="this.chartCanvasRef"/>
+      <div class="o-suggestion-insert-icon d-flex align-items-center justify-content-center">
+        <t t-call="o-spreadsheet-Icon.INSERT_CHART_SUGGESTION"/>
+      </div>
+    </div>
+  </t>
+</templates>

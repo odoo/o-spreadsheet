@@ -5,6 +5,7 @@ import { rectUnion } from "../../../helpers/rectangle";
 import { Component } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { useStore } from "../../../store_engine/store_hooks";
+import { ChartDragStore } from "../../../stores/chart_drag_store";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { ZoomStore } from "../../../stores/zoom_store";
 import { AnchorOffset, Figure, FigureUI, ResizeDirection } from "../../../types/figure";
@@ -12,6 +13,7 @@ import { UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
+import { getCarouselOverlappingChart } from "../../helpers/chart_drag_and_drop";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { isCtrlKey } from "../../helpers/dom_helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
@@ -47,7 +49,6 @@ interface DndState {
   horizontalSnap?: Snap<HFigureAxisType>;
   verticalSnap?: Snap<VFigureAxisType>;
   cancelDnd: (() => void) | undefined;
-  overlappingChartOrCarousel?: FigureUI;
 }
 
 /**
@@ -121,14 +122,15 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
     horizontalSnap: undefined,
     verticalSnap: undefined,
     cancelDnd: undefined,
-    overlappingChartOrCarousel: undefined,
   });
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
+  private chartDragStore!: Store<ChartDragStore>;
 
   setup() {
     this.viewStore = useStore(ViewportsStore);
     this.zoomStore = useStore(ZoomStore);
+    this.chartDragStore = useStore(ChartDragStore);
     onMounted(() => {
       // horrible, but necessary
       // the following line ensures that we render the figures with the correct
@@ -149,7 +151,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
         this.dnd.selectedRect = undefined;
         this.dnd.horizontalSnap = undefined;
         this.dnd.verticalSnap = undefined;
-        this.dnd.overlappingChartOrCarousel = undefined;
+        this.chartDragStore.setHighlightedFigure(undefined);
         this.dnd.cancelDnd = undefined;
       }
     });
@@ -344,6 +346,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
     };
 
     let hasStartedDnd = false;
+    let overlappingChartOrCarousel: FigureUI | undefined = undefined;
     const onMouseMove = (ev: MouseEvent) => {
       const currentMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
 
@@ -364,12 +367,15 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       );
       const draggedFigure = selectedFigures.find((f) => f.id === draggedFigureId);
 
-      let overlappingChartOrCarousel: FigureUI | undefined = undefined;
+      overlappingChartOrCarousel = undefined;
       const otherFigures = this.getOtherFigures(selectedFigures.map((f) => f.id));
       if (draggedFigure && !selectedFigures.find((f) => f.tag !== "chart")) {
-        overlappingChartOrCarousel = this.getOverlappingFigure(draggedFigure, otherFigures);
+        overlappingChartOrCarousel = getCarouselOverlappingChart(draggedFigure, otherFigures, [
+          "carousel",
+          "chart",
+        ]);
       }
-      this.dnd.overlappingChartOrCarousel = overlappingChartOrCarousel;
+      this.chartDragStore.setHighlightedFigure(overlappingChartOrCarousel?.id);
 
       if (!overlappingChartOrCarousel) {
         const snapReturn = snapForMove(this.env, selectedFigures, otherFigures);
@@ -399,7 +405,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
         }
         return;
       }
-      if (!this.dnd.overlappingChartOrCarousel) {
+      if (!overlappingChartOrCarousel) {
         const payloads =
           this.dnd.selectedFigures?.map((f) => {
             return {
@@ -410,15 +416,15 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
           }) || [];
         this.env.model.dispatch("MOVE_FIGURES", { figures: payloads });
       } else {
-        const overlappingFigureId = this.dnd.overlappingChartOrCarousel.id;
+        const overlappingFigureId = overlappingChartOrCarousel.id;
         const chartFigureIds = this.dnd.selectedFigures?.map((f) => f.id) || [];
-        if (this.dnd.overlappingChartOrCarousel.tag === "carousel") {
+        if (overlappingChartOrCarousel.tag === "carousel") {
           this.env.model.dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
             sheetId,
             carouselFigureId: overlappingFigureId,
             chartFigureIds: chartFigureIds,
           });
-        } else if (this.dnd.overlappingChartOrCarousel.tag === "chart") {
+        } else if (overlappingChartOrCarousel.tag === "chart") {
           this.env.model.dispatch("MERGE_CHART_FIGURES_INTO_CAROUSEL", {
             sheetId,
             baseFigureId: overlappingFigureId,
@@ -432,7 +438,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       this.dnd.selectedRect = undefined;
       this.dnd.horizontalSnap = undefined;
       this.dnd.verticalSnap = undefined;
-      this.dnd.overlappingChartOrCarousel = undefined;
+      this.chartDragStore.setHighlightedFigure(undefined);
     };
 
     this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
@@ -518,7 +524,6 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       this.dnd.selectedRect = undefined;
       this.dnd.horizontalSnap = undefined;
       this.dnd.verticalSnap = undefined;
-      this.dnd.overlappingChartOrCarousel = undefined;
     };
 
     this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
@@ -533,13 +538,13 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       return "";
     }
     return cssPropertiesToCss({
-      opacity: this.dnd.overlappingChartOrCarousel?.id ? "0.6" : "0.9",
+      opacity: this.chartDragStore.highlightedFigureId ? "0.6" : "0.9",
       cursor: "grabbing",
     });
   }
 
   getFigureClass(figureUI: FigureUI): string {
-    if (figureUI.id !== this.dnd.overlappingChartOrCarousel?.id) {
+    if (figureUI.id !== this.chartDragStore.highlightedFigureId) {
       return "";
     }
     return "o-add-to-carousel";
@@ -600,40 +605,5 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
         height: `100%`,
       });
     }
-  }
-
-  private getOverlappingFigure(figureUI: FigureUI, otherFigures: FigureUI[]): FigureUI | undefined {
-    if (figureUI.tag !== "chart") {
-      return undefined;
-    }
-
-    const figureCenterX = figureUI.x + figureUI.width / 2;
-    const figureCenterY = figureUI.y + figureUI.height / 2;
-
-    let bestMatch: FigureUI | undefined;
-    let smallestDistance = Infinity;
-
-    for (const figure of otherFigures) {
-      if (figure.tag !== "chart" && figure.tag !== "carousel") {
-        continue;
-      }
-      const targetCenterX = figure.x + figure.width / 2;
-      const targetCenterY = figure.y + figure.height / 2;
-
-      const distanceX = Math.abs(figureCenterX - targetCenterX);
-      const distanceY = Math.abs(figureCenterY - targetCenterY);
-      const squaredDistance = distanceX ** 2 + distanceY ** 2;
-
-      if (
-        distanceX <= figureUI.width / 2 &&
-        distanceY <= figureUI.height / 2 &&
-        squaredDistance < smallestDistance
-      ) {
-        smallestDistance = squaredDistance;
-        bestMatch = figure;
-      }
-    }
-
-    return bestMatch;
   }
 }

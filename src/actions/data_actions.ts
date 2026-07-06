@@ -1,3 +1,4 @@
+import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import { interactiveSortSelection } from "../helpers/sort_interactive";
 import { getZoneArea } from "../helpers/zones";
 import { TrimWhitespaceStore } from "../stores/trim_whitespace_store";
@@ -75,6 +76,16 @@ export const splitToColumns: ActionSpec = {
   execute: (env) => env.openSidePanel("SplitToColumns", {}),
   isEnabled: (env) => !env.isSmall && env.model.getters.isSingleColSelected(),
   icon: "o-spreadsheet-Icon.SPLIT_TEXT",
+};
+
+export const dataAnalysis: ActionSpec = {
+  name: _t("Data analysis"),
+  execute: (env) => {
+    const sidePanelStore = env.getStore(SidePanelStore);
+    sidePanelStore.togglePinnedSidePanel("DataAnalysisPanel");
+  },
+  icon: "o-spreadsheet-Icon.COLUMN_STATS",
+  isEnabled: (env) => !env.isSmall,
 };
 
 export const columnStatistics: ActionSpec = {

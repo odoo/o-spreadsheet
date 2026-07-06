@@ -1,5 +1,5 @@
 import { whenReady } from "@odoo/owl";
-import { DOMCoordinates, Rect } from "../../types/rendering";
+import { Rect } from "../../types/rendering";
 
 const macRegex = /Mac/i;
 
@@ -28,7 +28,7 @@ export function isChildEvent(parent: HTMLElement | null | undefined, ev: Event):
   return !!ev.target && parent!.contains(ev.target as Node);
 }
 
-export function gridOverlayPosition(zoom = 1): DOMCoordinates {
+export function gridOverlayPosition(zoom = 1): Rect {
   const spreadsheetElement = document.querySelector(
     ".o-grid-overlay:not(.o-figure-container .o-grid-overlay)"
   );

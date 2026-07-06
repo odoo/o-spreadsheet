@@ -50,6 +50,10 @@ colMenuRegistry
     ...ACTION_DATA.sortDescending,
     sequence: 20,
   })
+  .add("data_analysis", {
+    ...ACTION_DATA.dataAnalysis,
+    sequence: 55,
+  })
   .add("column_statistics", {
     ...ACTION_DATA.columnStatistics,
     sequence: 60,

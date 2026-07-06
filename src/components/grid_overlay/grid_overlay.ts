@@ -199,7 +199,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
   get style() {
     return (
       this.props.gridOverlayDimensions +
-      cssPropertiesToCss({ cursor: this.hoveredIconStore.hoveredIcon ? "pointer" : "default" })
+      cssPropertiesToCss({ cursor: this.hoveredIconStore.hoveredIcon ? "pointer" : "inherit" })
     );
   }
 

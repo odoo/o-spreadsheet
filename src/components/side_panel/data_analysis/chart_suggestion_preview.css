@@ -1,0 +1,30 @@
+.o-spreadsheet {
+  .o-suggestion-canvas-wrap {
+    cursor: grab;
+    height: 120px;
+  }
+  .o-suggestion-canvas-wrap:hover {
+    border-color: var(--o-action-color, #3d9be9);
+  }
+  .o-suggestion-canvas-wrap:active {
+    cursor: grabbing;
+  }
+
+  .o-suggestion-insert-icon {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s;
+
+    .o-icon {
+      width: 32px;
+      height: 32px;
+      color: white;
+    }
+  }
+  .o-suggestion-canvas-wrap:hover .o-suggestion-insert-icon {
+    opacity: 1;
+  }
+}
