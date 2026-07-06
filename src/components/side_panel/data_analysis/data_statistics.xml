@@ -11,7 +11,9 @@
           <t t-foreach="group.items" t-as="stat" t-key="stat_index">
             <t t-set="descKey" t-value="group_index + '-' + stat_index"/>
             <div class="o-data-analysis-row d-flex align-items-center">
-              <div class="d-flex flex-fill justify-content-between align-items-center">
+              <div
+                class="o-stat-draggable d-flex flex-fill justify-content-between align-items-center"
+                t-on-pointerdown="(ev) => this.startDragAndDrop(stat, ev)">
                 <span class="text-muted" t-out="stat.name"/>
                 <div class="d-flex">
                   <span class="o-fw-bold" t-att-data-test-id="stat.name" t-out="stat.value"/>
