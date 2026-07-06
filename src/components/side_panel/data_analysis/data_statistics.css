@@ -6,6 +6,16 @@
     background: var(--os-gray-100);
   }
 
+  .o-stat-draggable {
+    cursor: grab;
+    &:active {
+      cursor: grabbing;
+    }
+    &:hover {
+      background: var(--os-background-gray-color-hover);
+    }
+  }
+
   .o-stat-copy-icon {
     opacity: 0.6;
     cursor: pointer;
@@ -17,7 +27,6 @@
       font-size: 12px !important;
     }
   }
-
   .o-stat-detail {
     padding: 2px 4px 4px 4px;
     line-height: 1.4;
