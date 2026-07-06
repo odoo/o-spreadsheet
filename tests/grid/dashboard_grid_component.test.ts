@@ -150,7 +150,7 @@ describe("Grid component in dashboard mode", () => {
     expect(fn).toHaveBeenCalledWith(1, 9);
   });
 
-  test("Triggers clickable cell actions with correct params on left-click and middle-click", async () => {
+  test("Triggers clickable cell actions with correct params on left-click and middle-click only", async () => {
     const fn = jest.fn();
     addToRegistry(clickableCellRegistry, "fake", {
       condition: (position, getters) => {
@@ -166,6 +166,10 @@ describe("Grid component in dashboard mode", () => {
     expect(fn).toHaveBeenCalledWith(false);
     await simulateClick("div.o-dashboard-clickable-cell", 10, 10, { bubbles: true, button: 1 });
     expect(fn).toHaveBeenCalledWith(true);
+    expect(fn).toHaveBeenCalledTimes(2);
+    // any button different from left or middle click should not trigger the action
+    await simulateClick("div.o-dashboard-clickable-cell", 10, 10, { bubbles: true, button: 2 });
+    expect(fn).toHaveBeenCalledTimes(2);
   });
 
   test("Clickable cell actions are computed only once per cell", async () => {
