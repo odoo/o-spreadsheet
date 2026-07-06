@@ -826,3 +826,16 @@ export function defaultDict<T>(def: T) {
     },
   };
 }
+
+export function repeat<T>(array: T[], times: number): T[] {
+  const len = array.length;
+  const result = new Array<T>(len * times);
+
+  for (let t = 0; t < times; t++) {
+    for (let i = 0; i < len; i++) {
+      result[t * len + i] = array[i];
+    }
+  }
+
+  return result;
+}

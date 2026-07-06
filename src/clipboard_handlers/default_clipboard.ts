@@ -1,6 +1,5 @@
 import { DEFAULT_STYLE } from "../constants";
-import { splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
-import { defaultDict, isObjectEmptyRecursive } from "../helpers/misc";
+import { deepCopy, defaultDict, isObjectEmptyRecursive, repeat } from "../helpers/misc";
 import { defaultValue } from "../plugins/core/default";
 import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
 import { Format } from "../types/format";
@@ -21,9 +20,9 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
   unknown
 > {
   copy(data: ClipboardCellData): ClipboardContent | undefined {
-    const content = {
+    const content: ClipboardContent = {
       style: {},
-      format: {} as defaultValue<Format>,
+      format: {},
       width: data.columnsIndexes.length,
       height: data.rowsIndexes.length,
       sheetId: data.sheetId,
@@ -51,12 +50,12 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
       rowIndex++;
     }
     for (const key in DEFAULT_STYLE) {
-      content.style[key] = {
+      content.style[key as keyof Style] = {
         sheetDefault:
           this.getters.getDefaultStyle(data.sheetId, key as keyof Style, "SHEET", undefined) ??
           DEFAULT_STYLE[key],
-        colDefault: {},
-        rowDefault: {},
+        colDefault: [],
+        rowDefault: [],
       };
       let colIndex = 0;
       for (const col of data.columnsIndexes) {
@@ -78,8 +77,38 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
     return content;
   }
 
-  clearStyleFormat(sheetId: UID, zone: Zone) {
-    this.dispatch("SET_FORMATTING", { sheetId, target: [zone], format: "" });
+  adaptContentToZone(zone: Zone, content: ClipboardContent): ClipboardContent {
+    const colRepetition = Math.max(Math.floor((zone.right - zone.left + 1) / content.width), 1);
+    const rowRepetition = Math.max(Math.floor((zone.bottom - zone.top + 1) / content.height), 1);
+
+    if (colRepetition === 1 && rowRepetition === 1) {
+      return content;
+    }
+
+    const newContent = deepCopy(content);
+    newContent.height *= rowRepetition;
+    newContent.width *= colRepetition;
+
+    if (rowRepetition > 1 && newContent.format.rowDefault) {
+      newContent.format.rowDefault.length = content.height;
+      newContent.format.rowDefault = repeat(newContent.format.rowDefault, rowRepetition);
+    }
+    if (colRepetition > 1 && newContent.format.colDefault) {
+      newContent.format.colDefault.length = content.width;
+      newContent.format.colDefault = repeat(newContent.format.colDefault, colRepetition);
+    }
+    for (const key in content.style) {
+      if (rowRepetition > 1 && newContent.style[key].rowDefault) {
+        newContent.style[key].rowDefault.length = content.height;
+        newContent.style[key].rowDefault = repeat(newContent.style[key].rowDefault, rowRepetition);
+      }
+      if (colRepetition > 1 && newContent.style[key].colDefault) {
+        newContent.style[key].colDefault.length = content.width;
+        newContent.style[key].colDefault = repeat(newContent.style[key].colDefault, colRepetition);
+      }
+    }
+
+    return newContent;
   }
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
@@ -90,24 +119,23 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
     const zones = target.zones;
     if (!options.isCutOperation) {
       for (const zone of zones) {
-        for (const pasteZone of splitZoneForPaste(zone, content.width, content.height)) {
-          this.pasteStyle(
-            sheetId,
-            pasteZone.left,
-            pasteZone.top,
-            content.width,
-            content.height,
-            content.style
-          );
-          this.pasteFormat(
-            sheetId,
-            pasteZone.left,
-            pasteZone.top,
-            content.width,
-            content.height,
-            content.format
-          );
-        }
+        const newContent = this.adaptContentToZone(zone, content);
+        this.pasteStyle(
+          sheetId,
+          zone.left,
+          zone.top,
+          newContent.width,
+          newContent.height,
+          newContent.style
+        );
+        this.pasteFormat(
+          sheetId,
+          zone.left,
+          zone.top,
+          newContent.width,
+          newContent.height,
+          newContent.format
+        );
       }
     } else {
       this.clearClippedZones(content);
@@ -232,7 +260,9 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
     const commands: [number, Zone, Format | undefined][] = [];
     for (const [zoneStr, [zone, priority]] of Object.entries(zones)) {
       const format = updateCells[zoneStr];
-      commands.push([priority, zone, format]);
+      if (format !== undefined) {
+        commands.push([priority, zone, format]);
+      }
     }
     commands.sort((a, b) => a[0] - b[0]);
     for (const [_, zone, format] of commands) {
