@@ -46,4 +46,14 @@
     pointer-events: none;
     font-weight: bold;
   }
+
+  .o-chart-drag-preview {
+    position: fixed;
+    box-sizing: content-box;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  .o-chart-drag-preview > canvas {
+    border: 1px solid var(--os-figure-border-color);
+  }
 }

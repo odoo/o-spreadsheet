@@ -1,0 +1,12 @@
+.o-spreadsheet {
+  .o-chart-suggestions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .o-data-analysis-chart {
+    cursor: pointer;
+    border: 1px solid var(--os-border-color);
+  }
+}
