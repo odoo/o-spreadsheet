@@ -24,3 +24,4 @@ tests/**/xlsx_demo_data
 **/*.xlam
 tools/parse_message.mjs
 *.png
+.claude/
