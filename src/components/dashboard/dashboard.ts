@@ -122,6 +122,9 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   }
 
   selectClickableCell(ev: MouseEvent, clickableCell: ClickableCell) {
+    if (![0, 1].includes(ev.button)) {
+      return;
+    }
     const { position, action } = clickableCell;
     action(position, this.env, isMiddleClickOrCtrlClick(ev));
   }
