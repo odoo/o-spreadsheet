@@ -549,15 +549,16 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
       const deltaStyle: Style = {};
       let hasDelta = false;
       const styleSheet = this.style[position.sheetId];
-      if (!styleSheet) {
-        continue;
-      }
       for (const key in newDefaultStyle) {
         if (key in cellStyle) {
           continue;
         }
-        const defaults = styleSheet[key];
+        const defaults = styleSheet?.[key];
         if (!defaults) {
+          if (newDefaultStyle[key] !== DEFAULT_STYLE[key]) {
+            deltaStyle[key] = DEFAULT_STYLE[key];
+            hasDelta = true;
+          }
           continue;
         }
         const rowDefault = defaults.rowDefault?.[position.row];

@@ -355,6 +355,15 @@ describe("Default Plugin: Style", () => {
     });
   });
 
+  test("Editing default on a new sheet", () => {
+    const zone = { left: 0, right: 0, top: 0, bottom: 14 };
+    setStyle(model, [zone], BOLD_STYLE);
+    expect(getCellStyle(model, "A1")).toEqual(BOLD_STYLE);
+    expect(getCellStyle(model, "A15")).toEqual(BOLD_STYLE);
+    expect(getCellStyle(model, "A16")).toEqual({ bold: false });
+    expect(getCellStyle(model, "A20")).toEqual({ bold: false });
+  });
+
   describe("Sheet Manipulation: Add Column", () => {
     test("Default Row", () => {
       setStyle(model, [model.getters.getRowsZone(sheetId, 1, 1)], MULTI_STYLE);
