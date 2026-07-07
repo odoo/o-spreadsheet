@@ -614,10 +614,14 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
         if (!defaults) {
           continue;
         }
-        style[key] =
+        const styleValue =
           defaults.rowDefault?.[position.row] ??
           defaults.colDefault?.[position.col] ??
           defaults.sheetDefault;
+
+        if (styleValue !== undefined) {
+          style[key] = styleValue;
+        }
       }
     }
     return style;
