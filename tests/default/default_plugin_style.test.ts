@@ -1030,6 +1030,15 @@ describe("Default Plugin: Style", () => {
     expect(getCellStyle(model, "C2")).toEqual(style);
     expect(getCellStyle(model, "D2")).toEqual(style);
   });
+
+  test("Cell not impacted by the default style have an empty style by default", () => {
+    model.dispatch("SET_FORMATTING", {
+      sheetId,
+      target: [model.getters.getColsZone(sheetId, 1, 1)],
+      style: { bold: true, fillColor: "#FF0000" },
+    });
+    expect(getCellStyle(model, "A1")).toStrictEqual({});
+  });
 });
 
 describe("Default Plugin: setRowsStyle preserves cells outside the zone", () => {
