@@ -118,9 +118,9 @@ export const ADDRESS = {
       cellReference = rowPart + colPart;
     }
     if (sheet !== undefined) {
-      return getFullReference(toString(sheet), cellReference);
+      return { value: getFullReference(toString(sheet), cellReference) };
     }
-    return cellReference;
+    return { value: cellReference };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -139,7 +139,7 @@ export const COLUMN = {
       )
     ),
   ],
-  compute: function (cellReference: Arg) {
+  computeArray: function (cellReference: Arg) {
     if (cellReference === undefined) {
       if (this.__originCellPosition === undefined) {
         return new EvaluationError(
@@ -148,7 +148,7 @@ export const COLUMN = {
           )
         );
       }
-      return this.__originCellPosition.col + 1;
+      return { value: this.__originCellPosition.col + 1 };
     }
     const _cellReference = toMatrix(cellReference);
     const firstCell = _cellReference[0][0];
@@ -161,7 +161,7 @@ export const COLUMN = {
     }
     const left = firstCell.position.col;
     if (_cellReference.length === 1) {
-      return left + 1;
+      return { value: left + 1 };
     }
     return generateMatrix(_cellReference.length, 1, (col) => ({ value: left + col + 1 }));
   },
@@ -183,7 +183,7 @@ export const COLUMNS = {
     if (_range[0][0].value === CellErrorType.InvalidReference) {
       return _range[0][0];
     }
-    return _range.length;
+    return { value: _range.length };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -269,7 +269,7 @@ export const INDEX: AddFunctionDescription = {
       _t("The index of the column to be returned from within the reference range of cells.")
     ),
   ],
-  compute: function (
+  computeArray: function (
     reference: Arg,
     row: Maybe<FunctionResultObject> = { value: 0 },
     column: Maybe<FunctionResultObject> = { value: 0 }
@@ -314,7 +314,7 @@ export const INDIRECT: AddFunctionDescription = {
       A1_NOTATION_OPTIONS
     ),
   ],
-  compute: function (
+  computeArray: function (
     reference: Maybe<FunctionResultObject>,
     useA1Notation: Maybe<FunctionResultObject> = { value: true }
   ): FunctionResultObject | Matrix<FunctionResultObject> {
@@ -517,7 +517,7 @@ export const MATCH = {
     ) {
       return valueNotAvailable(searchKey);
     }
-    return index + 1;
+    return { value: index + 1 };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -536,7 +536,7 @@ export const ROW = {
       )
     ),
   ],
-  compute: function (cellReference: Arg) {
+  computeArray: function (cellReference: Arg) {
     if (cellReference === undefined) {
       if (this.__originCellPosition?.row === undefined) {
         return new EvaluationError(
@@ -545,7 +545,7 @@ export const ROW = {
           )
         );
       }
-      return this.__originCellPosition.row + 1;
+      return { value: this.__originCellPosition.row + 1 };
     }
     const _cellReference = toMatrix(cellReference);
     const firstCell = _cellReference[0][0];
@@ -558,7 +558,7 @@ export const ROW = {
     }
     const top = firstCell.position.row;
     if (_cellReference[0].length === 1) {
-      return top + 1;
+      return { value: top + 1 };
     }
     return generateMatrix(1, _cellReference[0].length, (col, row) => ({ value: top + row + 1 }));
   },
@@ -580,7 +580,7 @@ export const ROWS = {
     if (_range[0][0].value === CellErrorType.InvalidReference) {
       return _range[0][0];
     }
-    return _range[0].length;
+    return { value: _range[0].length };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -706,7 +706,7 @@ export const XLOOKUP = {
       ]
     ),
   ],
-  compute: function (
+  computeArray: function (
     searchKey: Maybe<FunctionResultObject>,
     lookupRange: Arg,
     returnRange: Arg,
@@ -913,7 +913,7 @@ export const PIVOT = {
       _t("Whether to include the measure titles row or not.")
     ),
   ],
-  compute: function (
+  computeArray: function (
     pivotFormulaId: Maybe<FunctionResultObject>,
     rowCount: Maybe<FunctionResultObject>,
     includeTotal: Maybe<FunctionResultObject>,
@@ -1022,7 +1022,7 @@ export const OFFSET = {
       _t("The number of columns of the range to return starting at the offset target.")
     ),
   ],
-  compute: function (
+  computeArray: function (
     cellReference: Arg,
     offsetRows: Maybe<FunctionResultObject>,
     offsetColumns: Maybe<FunctionResultObject>,
@@ -1123,7 +1123,7 @@ export const CHOOSE = {
       _t("A potential value to return. May be a reference to a cell or an individual value.")
     ),
   ],
-  compute: function (index: Maybe<FunctionResultObject>, ...choices: Arg[]) {
+  computeArray: function (index: Maybe<FunctionResultObject>, ...choices: Arg[]) {
     const _index = Math.floor(toNumber(index, this.locale)) - 1;
     if (_index < 0 || _index >= choices.length) {
       return new EvaluationError(
@@ -1156,7 +1156,7 @@ export const DROP = {
       _t("The number of columns to exclude. A negative value drops from the end of the array.")
     ),
   ],
-  compute: function (
+  computeArray: function (
     array: Matrix<{ value: string }>,
     rows: Maybe<FunctionResultObject>,
     columns: Maybe<FunctionResultObject>
@@ -1207,7 +1207,7 @@ export const TAKE = {
       _t("The number of columns to take. A negative value takes from the end of the array.")
     ),
   ],
-  compute: function (
+  computeArray: function (
     array: Matrix<{ value: string }>,
     rows: Maybe<FunctionResultObject>,
     columns: Maybe<FunctionResultObject>
@@ -1254,7 +1254,7 @@ export const FORMULATEXT = {
     }
     const cell = this.getters.getCell(cellReference.position);
     if (cell?.isFormula) {
-      return cell.compiledFormula.toFormulaString(this.getters);
+      return { value: cell.compiledFormula.toFormulaString(this.getters) };
     } else {
       return new NotAvailableError(_t("The cell does not contain a formula."));
     }
