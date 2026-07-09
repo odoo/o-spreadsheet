@@ -24,8 +24,13 @@ import {
   logM,
   max,
   min,
+  normInv,
   polynomialRegression,
   predictLinearValues,
+  regularizedBeta,
+  regularizedGammaUpper,
+  tDistTwoTail,
+  tInv2T,
 } from "./helper_statistical";
 import {
   dichotomicSearch,
@@ -523,6 +528,208 @@ export const COVARIANCE_S = {
 } satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
+// CHISQ.TEST — shared helper
+// -----------------------------------------------------------------------------
+type ContingencyResult = { chiSq: number; n: number; numRows: number; numCols: number };
+
+function chiSquareContingency(
+  dataX: Matrix<FunctionResultObject>,
+  dataY: Matrix<FunctionResultObject>
+): ContingencyResult | NotAvailableError {
+  const flatX = dataX.flat();
+  const flatY = dataY.flat();
+  assertSameNumberOfElements(flatX, flatY);
+
+  const rowIndex = new Map<string, number>();
+  const colIndex = new Map<string, number>();
+  const table: number[][] = [];
+  let n = 0;
+
+  for (let i = 0; i < flatX.length; i++) {
+    const vx = flatX[i]?.value;
+    const vy = flatY[i]?.value;
+    if (vx === null || vx === undefined || vy === null || vy === undefined) {
+      continue;
+    }
+
+    const rx = String(vx);
+    const cy = String(vy);
+
+    if (!rowIndex.has(rx)) {
+      rowIndex.set(rx, rowIndex.size);
+      table.push([]);
+    }
+    if (!colIndex.has(cy)) {
+      colIndex.set(cy, colIndex.size);
+    }
+
+    const r = rowIndex.get(rx)!;
+    const c = colIndex.get(cy)!;
+    table[r][c] = (table[r][c] ?? 0) + 1;
+    n++;
+  }
+
+  if (n === 0) {
+    return new NotAvailableError(noValidInputErrorMessage);
+  }
+
+  const numRows = rowIndex.size;
+  const numCols = colIndex.size;
+  const rowTotals = new Array<number>(numRows).fill(0);
+  const colTotals = new Array<number>(numCols).fill(0);
+  for (let r = 0; r < numRows; r++) {
+    for (let c = 0; c < numCols; c++) {
+      const o = table[r]?.[c] ?? 0;
+      rowTotals[r] += o;
+      colTotals[c] += o;
+    }
+  }
+
+  let chiSq = 0;
+  for (let r = 0; r < numRows; r++) {
+    for (let c = 0; c < numCols; c++) {
+      const expected = (rowTotals[r] * colTotals[c]) / n;
+      if (expected === 0) {
+        continue;
+      }
+      const diff = (table[r]?.[c] ?? 0) - expected;
+      chiSq += (diff * diff) / expected;
+    }
+  }
+
+  return { chiSq, n, numRows, numCols };
+}
+
+// -----------------------------------------------------------------------------
+// CHISQ.TEST
+// -----------------------------------------------------------------------------
+export const CHISQ_TEST: AddFunctionDescription = {
+  description: _t(
+    "Computes the chi-square statistic for two categorical datasets from their contingency table."
+  ),
+  args: [
+    arg("data_x (range)", _t("The range representing the first categorical column.")),
+    arg("data_y (range)", _t("The range representing the second categorical column.")),
+  ],
+  compute: function (dataX: Matrix<FunctionResultObject>, dataY: Matrix<FunctionResultObject>) {
+    const result = chiSquareContingency(dataX, dataY);
+    if (result instanceof NotAvailableError) {
+      return result;
+    }
+    return result.chiSq;
+  },
+  isExported: false,
+};
+
+// -----------------------------------------------------------------------------
+// CHISQ.DIST.RT
+// -----------------------------------------------------------------------------
+export const CHISQ_DIST_RT: AddFunctionDescription = {
+  description: _t("Upper tail of the chi-square distribution."),
+  args: [
+    arg("x (number)", _t("The value to evaluate.")),
+    arg("degrees_of_freedom (number)", _t("The degrees of freedom.")),
+  ],
+  compute: function (x: Maybe<FunctionResultObject>, df: Maybe<FunctionResultObject>): number {
+    const _x = toNumber(x, this.locale);
+    const _df = Math.round(toNumber(df, this.locale));
+    assert(_x >= 0, _t("x must be non-negative."));
+    assert(_df >= 1, _t("Degrees of freedom must be >= 1."));
+    return regularizedGammaUpper(_df / 2, _x / 2);
+  },
+  isExported: false,
+};
+
+// -----------------------------------------------------------------------------
+// CONFIDENCE.NORM
+// -----------------------------------------------------------------------------
+export const CONFIDENCE_NORM: AddFunctionDescription = {
+  description: _t(
+    "Half-width of the confidence interval for a population mean (normal distribution)."
+  ),
+  args: [
+    arg("alpha (number)", _t("The significance level (e.g. 0.05 for 95% CI).")),
+    arg("standard_deviation (number)", _t("The population standard deviation.")),
+    arg("size (number)", _t("The sample size.")),
+  ],
+  compute: function (
+    alpha: Maybe<FunctionResultObject>,
+    stdev: Maybe<FunctionResultObject>,
+    size: Maybe<FunctionResultObject>
+  ): number {
+    const a = toNumber(alpha, this.locale);
+    const s = toNumber(stdev, this.locale);
+    const n = Math.round(toNumber(size, this.locale));
+    assert(a > 0 && a < 1, _t("Alpha must be between 0 and 1."));
+    assert(s > 0, _t("Standard deviation must be positive."));
+    assert(n >= 1, _t("Size must be >= 1."));
+    return (-normInv(a / 2) * s) / Math.sqrt(n);
+  },
+  isExported: false,
+};
+
+// -----------------------------------------------------------------------------
+// CONFIDENCE.T
+// -----------------------------------------------------------------------------
+export const CONFIDENCE_T: AddFunctionDescription = {
+  description: _t("Half-width of the confidence interval for a population mean (t-distribution)."),
+  args: [
+    arg("alpha (number)", _t("The significance level (e.g. 0.05 for 95% CI).")),
+    arg("standard_deviation (number)", _t("The sample standard deviation.")),
+    arg("size (number)", _t("The sample size.")),
+  ],
+  compute: function (
+    alpha: Maybe<FunctionResultObject>,
+    stdev: Maybe<FunctionResultObject>,
+    size: Maybe<FunctionResultObject>
+  ): number {
+    const a = toNumber(alpha, this.locale);
+    const s = toNumber(stdev, this.locale);
+    const n = Math.round(toNumber(size, this.locale));
+    assert(a > 0 && a < 1, _t("Alpha must be between 0 and 1."));
+    assert(s > 0, _t("Standard deviation must be positive."));
+    assert(n >= 2, _t("Size must be >= 2."));
+    return (tInv2T(a, n - 1) * s) / Math.sqrt(n);
+  },
+  isExported: false,
+};
+
+// -----------------------------------------------------------------------------
+// F.TEST
+// -----------------------------------------------------------------------------
+export const F_TEST: AddFunctionDescription = {
+  description: _t(
+    "Returns the two-tailed p-value of an F-test comparing the variances of two datasets."
+  ),
+  args: [
+    arg("range1 (range<number>)", _t("The first sample.")),
+    arg("range2 (range<number>)", _t("The second sample.")),
+  ],
+  compute: function (range1: Arg, range2: Arg): number {
+    const nums1: number[] = [],
+      nums2: number[] = [];
+    visitNumbers([range1], (v) => nums1.push(v.value), this.locale);
+    visitNumbers([range2], (v) => nums2.push(v.value), this.locale);
+    const n1 = nums1.length,
+      n2 = nums2.length;
+    assert(n1 >= 2 && n2 >= 2, _t("Each range must contain at least 2 numeric values."));
+    const mean1 = nums1.reduce((s, v) => s + v, 0) / n1;
+    const mean2 = nums2.reduce((s, v) => s + v, 0) / n2;
+    const var1 = nums1.reduce((s, v) => s + (v - mean1) ** 2, 0) / (n1 - 1);
+    const var2 = nums2.reduce((s, v) => s + (v - mean2) ** 2, 0) / (n2 - 1);
+    assertNotZero(var1);
+    assertNotZero(var2);
+    const f = var1 / var2;
+    const df1 = n1 - 1,
+      df2 = n2 - 1;
+    const x = (df1 * f) / (df1 * f + df2);
+    const p = regularizedBeta(x, df1 / 2, df2 / 2);
+    return 2 * Math.min(p, 1 - p);
+  },
+  isExported: false,
+};
+
+// -----------------------------------------------------------------------------
 // FORECAST
 // -----------------------------------------------------------------------------
 export const FORECAST: AddFunctionDescription = {
@@ -558,6 +765,30 @@ export const FORECAST: AddFunctionDescription = {
     );
   },
   isExported: true,
+};
+
+// -----------------------------------------------------------------------------
+// GEOMEAN
+// -----------------------------------------------------------------------------
+export const GEOMEAN: AddFunctionDescription = {
+  description: _t("Geometric mean of a dataset."),
+  args: [arg("value (number, range<number>, repeating)", _t("Values to include."))],
+  compute: function (...values: Arg[]): number {
+    let sum = 0,
+      count = 0;
+    visitNumbers(
+      values,
+      (v) => {
+        assert(v.value > 0, _t("GEOMEAN requires strictly positive values."));
+        sum += Math.log(v.value);
+        count++;
+      },
+      this.locale
+    );
+    assert(count > 0, noValidInputErrorMessage);
+    return Math.exp(sum / count);
+  },
+  isExported: false,
 };
 
 // -----------------------------------------------------------------------------
@@ -609,6 +840,30 @@ export const GROWTH: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// HARMEAN
+// -----------------------------------------------------------------------------
+export const HARMEAN: AddFunctionDescription = {
+  description: _t("Harmonic mean of a dataset."),
+  args: [arg("value (number, range<number>, repeating)", _t("Values to include."))],
+  compute: function (...values: Arg[]): number {
+    let sum = 0,
+      count = 0;
+    visitNumbers(
+      values,
+      (v) => {
+        assert(v.value > 0, _t("HARMEAN requires strictly positive values."));
+        sum += 1 / v.value;
+        count++;
+      },
+      this.locale
+    );
+    assert(count > 0, noValidInputErrorMessage);
+    return count / sum;
+  },
+  isExported: false,
+};
+
+// -----------------------------------------------------------------------------
 // INTERCEPT
 // -----------------------------------------------------------------------------
 export const INTERCEPT: AddFunctionDescription = {
@@ -632,6 +887,30 @@ export const INTERCEPT: AddFunctionDescription = {
     return intercept as number;
   },
   isExported: true,
+};
+
+// -----------------------------------------------------------------------------
+// KURT
+// -----------------------------------------------------------------------------
+export const KURT: AddFunctionDescription = {
+  description: _t("Excess kurtosis of a dataset."),
+  args: [arg("value (number, range<number>, repeating)", _t("Values to include."))],
+  compute: function (...values: Arg[]): number {
+    const nums: number[] = [];
+    visitNumbers(values, (v) => nums.push(v.value), this.locale);
+    const n = nums.length;
+    assert(n >= 4, _t("KURT requires at least 4 values."));
+    const mean = nums.reduce((s, v) => s + v, 0) / n;
+    const variance = nums.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1);
+    assert(variance > 0, _t("KURT requires non-constant data."));
+    const s = Math.sqrt(variance);
+    const sum4 = nums.reduce((acc, v) => acc + ((v - mean) / s) ** 4, 0);
+    return (
+      ((n * (n + 1)) / ((n - 1) * (n - 2) * (n - 3))) * sum4 -
+      (3 * (n - 1) ** 2) / ((n - 2) * (n - 3))
+    );
+  },
+  isExported: false,
 };
 
 // -----------------------------------------------------------------------------
@@ -1366,6 +1645,48 @@ export const SLOPE: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// SKEW
+// -----------------------------------------------------------------------------
+export const SKEW: AddFunctionDescription = {
+  description: _t("Skewness of a dataset."),
+  args: [arg("value (number, range<number>, repeating)", _t("Values to include."))],
+  compute: function (...values: Arg[]): number {
+    const nums: number[] = [];
+    visitNumbers(values, (v) => nums.push(v.value), this.locale);
+    const n = nums.length;
+    assert(n >= 3, _t("SKEW requires at least 3 values."));
+    const mean = nums.reduce((s, v) => s + v, 0) / n;
+    const variance = nums.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1);
+    assert(variance > 0, _t("SKEW requires non-constant data."));
+    const s = Math.sqrt(variance);
+    const sum3 = nums.reduce((acc, v) => acc + ((v - mean) / s) ** 3, 0);
+    return (n / ((n - 1) * (n - 2))) * sum3;
+  },
+  isExported: false,
+};
+
+// -----------------------------------------------------------------------------
+// SKEW.P
+// -----------------------------------------------------------------------------
+export const SKEW_P: AddFunctionDescription = {
+  description: _t("Population skewness of a dataset."),
+  args: [arg("value (number, range<number>, repeating)", _t("Values to include."))],
+  compute: function (...values: Arg[]): number {
+    const nums: number[] = [];
+    visitNumbers(values, (v) => nums.push(v.value), this.locale);
+    const n = nums.length;
+    assert(n >= 3, _t("SKEW.P requires at least 3 values."));
+    const mean = nums.reduce((s, v) => s + v, 0) / n;
+    const variance = nums.reduce((s, v) => s + (v - mean) ** 2, 0) / n;
+    assert(variance > 0, _t("SKEW.P requires non-constant data."));
+    const s = Math.sqrt(variance);
+    const sum3 = nums.reduce((acc, v) => acc + ((v - mean) / s) ** 3, 0);
+    return sum3 / n;
+  },
+  isExported: false,
+};
+
+// -----------------------------------------------------------------------------
 // SMALL
 // -----------------------------------------------------------------------------
 export const SMALL = {
@@ -1544,6 +1865,80 @@ export const STDEVPA = {
 } satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
+// T.TEST
+// -----------------------------------------------------------------------------
+export const T_TEST: AddFunctionDescription = {
+  description: _t("Returns the p-value of a Student's t-test."),
+  args: [
+    arg("range1 (range<number>)", _t("The first sample.")),
+    arg("range2 (range<number>)", _t("The second sample.")),
+    arg("tails (number)", _t("1 for one-tailed, 2 for two-tailed.")),
+    arg(
+      "type (number)",
+      _t("1 = paired, 2 = two-sample equal variance, 3 = two-sample unequal variance (Welch).")
+    ),
+  ],
+  compute: function (
+    range1: Arg,
+    range2: Arg,
+    tails: Maybe<FunctionResultObject>,
+    type: Maybe<FunctionResultObject>
+  ): number {
+    const _tails = Math.round(toNumber(tails, this.locale));
+    const _type = Math.round(toNumber(type, this.locale));
+    assert(_tails === 1 || _tails === 2, _t("Tails must be 1 or 2."));
+    assert(_type >= 1 && _type <= 3, _t("Type must be 1, 2, or 3."));
+
+    const nums1: number[] = [],
+      nums2: number[] = [];
+    visitNumbers([range1], (v) => nums1.push(v.value), this.locale);
+    visitNumbers([range2], (v) => nums2.push(v.value), this.locale);
+
+    let t: number, df: number;
+
+    if (_type === 1) {
+      assert(nums1.length === nums2.length, _t("Paired t-test requires equal-length ranges."));
+      const diffs = nums1.map((v, i) => v - nums2[i]);
+      const n = diffs.length;
+      assert(n >= 2, _t("Paired t-test requires at least 2 pairs."));
+      const meanD = diffs.reduce((s, v) => s + v, 0) / n;
+      const varD = diffs.reduce((s, v) => s + (v - meanD) ** 2, 0) / (n - 1);
+      if (varD === 0) {
+        const pTwo = meanD === 0 ? 1 : 0;
+        return _tails === 1 ? pTwo / 2 : pTwo;
+      }
+      t = Math.abs(meanD) / Math.sqrt(varD / n);
+      df = n - 1;
+    } else {
+      const n1 = nums1.length,
+        n2 = nums2.length;
+      assert(n1 >= 2 && n2 >= 2, _t("Each range must contain at least 2 numeric values."));
+      const mean1 = nums1.reduce((s, v) => s + v, 0) / n1;
+      const mean2 = nums2.reduce((s, v) => s + v, 0) / n2;
+      const var1 = nums1.reduce((s, v) => s + (v - mean1) ** 2, 0) / (n1 - 1);
+      const var2 = nums2.reduce((s, v) => s + (v - mean2) ** 2, 0) / (n2 - 1);
+
+      if (_type === 2) {
+        const sp2 = ((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2);
+        assert(sp2 > 0, _t("T.TEST requires non-constant data."));
+        t = Math.abs(mean1 - mean2) / Math.sqrt(sp2 * (1 / n1 + 1 / n2));
+        df = n1 + n2 - 2;
+      } else {
+        const v1n = var1 / n1,
+          v2n = var2 / n2;
+        assert(v1n + v2n > 0, _t("T.TEST requires non-constant data."));
+        t = Math.abs(mean1 - mean2) / Math.sqrt(v1n + v2n);
+        df = (v1n + v2n) ** 2 / (v1n ** 2 / (n1 - 1) + v2n ** 2 / (n2 - 1));
+      }
+    }
+
+    const pTwoTail = tDistTwoTail(t, df);
+    return _tails === 1 ? pTwoTail / 2 : pTwoTail;
+  },
+  isExported: false,
+};
+
+// -----------------------------------------------------------------------------
 // STEYX
 // -----------------------------------------------------------------------------
 export const STEYX: AddFunctionDescription = {
@@ -1615,6 +2010,29 @@ export const TREND: AddFunctionDescription = {
       toBoolean(b)
     );
   },
+};
+
+// -----------------------------------------------------------------------------
+// TRIMMEAN
+// -----------------------------------------------------------------------------
+export const TRIMMEAN: AddFunctionDescription = {
+  description: _t("Average of a dataset after discarding a fraction of data from the ends."),
+  args: [
+    arg("range (number, range<number>)", _t("The data to average.")),
+    arg("percent (number)", _t("Fraction of data to trim from each end (0 to 0.5).")),
+  ],
+  compute: function (data: Arg, percent: Maybe<FunctionResultObject>): number {
+    const p = toNumber(percent, this.locale);
+    assert(p >= 0 && p < 0.5, _t("Percent must be between 0 (inclusive) and 0.5 (exclusive)."));
+    const nums: number[] = [];
+    visitNumbers([data], (v) => nums.push(v.value), this.locale);
+    assert(nums.length > 0, noValidInputErrorMessage);
+    nums.sort((a, b) => a - b);
+    const trimCount = Math.floor(nums.length * p);
+    const trimmed = nums.slice(trimCount, nums.length - trimCount);
+    return trimmed.reduce((s, v) => s + v, 0) / trimmed.length;
+  },
+  isExported: false,
 };
 
 // -----------------------------------------------------------------------------

@@ -360,7 +360,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       let overlappingCarousel: FigureUI | undefined = undefined;
       const otherFigures = this.getOtherFigures(selectedFigures.map((f) => f.id));
       if (draggedFigure && !selectedFigures.find((f) => f.tag !== "chart")) {
-        overlappingCarousel = this.getCarouselOverlappingChart(draggedFigure, otherFigures);
+        overlappingCarousel = getCarouselOverlappingChart(draggedFigure, otherFigures);
       }
       this.dnd.overlappingCarousel = overlappingCarousel;
 
@@ -590,42 +590,42 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       });
     }
   }
+}
 
-  private getCarouselOverlappingChart(
-    figureUI: FigureUI,
-    otherFigures: FigureUI[]
-  ): FigureUI | undefined {
-    if (figureUI.tag !== "chart") {
-      return undefined;
-    }
-
-    const figureCenterX = figureUI.x + figureUI.width / 2;
-    const figureCenterY = figureUI.y + figureUI.height / 2;
-
-    let bestMatch: FigureUI | undefined;
-    let smallestDistance = Infinity;
-
-    for (const figure of otherFigures) {
-      if (figure.tag !== "carousel") {
-        continue;
-      }
-      const carouselCenterX = figure.x + figure.width / 2;
-      const carouselCenterY = figure.y + figure.height / 2;
-
-      const distanceX = Math.abs(figureCenterX - carouselCenterX);
-      const distanceY = Math.abs(figureCenterY - carouselCenterY);
-      const squaredDistance = distanceX ** 2 + distanceY ** 2;
-
-      if (
-        distanceX <= figureUI.width / 2 &&
-        distanceY <= figureUI.height / 2 &&
-        squaredDistance < smallestDistance
-      ) {
-        smallestDistance = squaredDistance;
-        bestMatch = figure;
-      }
-    }
-
-    return bestMatch;
+export function getCarouselOverlappingChart(
+  figureUI: { tag: string; x: number; y: number; width: number; height: number },
+  otherFigures: FigureUI[]
+): FigureUI | undefined {
+  if (figureUI.tag !== "chart") {
+    return undefined;
   }
+
+  const figureCenterX = figureUI.x + figureUI.width / 2;
+  const figureCenterY = figureUI.y + figureUI.height / 2;
+
+  let bestMatch: FigureUI | undefined;
+  let smallestDistance = Infinity;
+
+  for (const figure of otherFigures) {
+    if (figure.tag !== "carousel") {
+      continue;
+    }
+    const carouselCenterX = figure.x + figure.width / 2;
+    const carouselCenterY = figure.y + figure.height / 2;
+
+    const distanceX = Math.abs(figureCenterX - carouselCenterX);
+    const distanceY = Math.abs(figureCenterY - carouselCenterY);
+    const squaredDistance = distanceX ** 2 + distanceY ** 2;
+
+    if (
+      distanceX <= figureUI.width / 2 &&
+      distanceY <= figureUI.height / 2 &&
+      squaredDistance < smallestDistance
+    ) {
+      smallestDistance = squaredDistance;
+      bestMatch = figure;
+    }
+  }
+
+  return bestMatch;
 }
