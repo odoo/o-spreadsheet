@@ -1,6 +1,7 @@
 import { interactiveCut } from "../helpers/ui/cut_interactive";
 import { interactiveAddMerge } from "../helpers/ui/merge_interactive";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
+import { togglePinnedSidePanel } from "../helpers/ui/side_panel_interactive";
 import { doesAnyZoneCrossFrozenPane, getZoneArea, hasOverlappingZones } from "../helpers/zones";
 import { _t } from "../translation";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
@@ -71,6 +72,13 @@ export const pasteSpecialValue: ActionSpec = {
 export const pasteSpecialFormat: ActionSpec = {
   name: _t("Paste format only"),
   execute: ACTIONS.PASTE_FORMAT_ACTION,
+};
+
+export const dataAnalysis: ActionSpec = {
+  name: _t("Data analysis"),
+  execute: (env) => togglePinnedSidePanel(env, "DataAnalysisPanel"),
+  icon: "o-spreadsheet-Icon.COLUMN_STATS",
+  isEnabled: (env) => !env.isSmall,
 };
 
 export const findAndReplace: ActionSpec = {
