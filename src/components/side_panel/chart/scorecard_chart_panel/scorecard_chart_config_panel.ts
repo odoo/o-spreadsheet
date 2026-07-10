@@ -46,7 +46,7 @@ export class ScorecardChartConfigPanel extends Component<Props, SpreadsheetChild
   }
 
   get isBaselineInvalid(): boolean {
-    return !!this.state.keyValueDispatchResult?.isCancelledBecause(
+    return !!this.state.baselineDispatchResult?.isCancelledBecause(
       CommandResult.InvalidScorecardBaseline
     );
   }
