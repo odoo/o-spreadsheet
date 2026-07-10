@@ -1,7 +1,7 @@
 import { clip } from "../../helpers/misc";
 import { FigureUI } from "../../types/figure";
 import { PixelPosition } from "../../types/misc";
-import { SheetDOMScrollInfo } from "../../types/rendering";
+import { Rect, SheetDOMScrollInfo } from "../../types/rendering";
 
 export function dragFigureForMove(
   { x: mouseX, y: mouseY }: PixelPosition,
@@ -25,7 +25,7 @@ export function dragFigureForMove(
 }
 
 export function dragFigureForResize(
-  initialFigure: FigureUI,
+  initialRect: Rect,
   dirX: -1 | 0 | 1,
   dirY: -1 | 0 | 1,
   { x: mouseX, y: mouseY }: PixelPosition,
@@ -35,8 +35,8 @@ export function dragFigureForResize(
   { scrollX: initialScrollX, scrollY: initialScrollY }: SheetDOMScrollInfo,
   { scrollX, scrollY }: SheetDOMScrollInfo,
   { maxX, maxY }: { maxX: number; maxY: number }
-): FigureUI {
-  let { x, y, width, height } = initialFigure;
+): Rect {
+  let { x, y, width, height } = initialRect;
 
   if (keepRatio && dirX !== 0 && dirY !== 0) {
     const deltaX = Math.min(
@@ -90,5 +90,5 @@ export function dragFigureForResize(
     height = maxY - y;
   }
 
-  return { ...initialFigure, x, y, width, height };
+  return { x, y, width, height };
 }

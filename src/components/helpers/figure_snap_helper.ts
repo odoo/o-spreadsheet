@@ -22,8 +22,11 @@ export interface SnapLine<T extends HFigureAxisType | VFigureAxisType> {
   position: Pixel;
 }
 
-interface SnapReturn {
+interface SnapMoveReturn extends SnapReturn {
   snappedFigures: FigureUI[];
+}
+
+interface SnapReturn {
   verticalSnapLine?: SnapLine<VFigureAxisType>;
   horizontalSnapLine?: SnapLine<HFigureAxisType>;
 }
@@ -36,7 +39,7 @@ export function snapForMove(
   getters: Getters,
   figuresToSnap: FigureUI[],
   otherFigures: FigureUI[]
-): SnapReturn {
+): SnapMoveReturn {
   const aggregateRect = rectUnion(...figuresToSnap);
 
   const verticalSnapLine = getSnapLine(
@@ -98,7 +101,7 @@ export function snapForResize(
   getters: Getters,
   resizeDirX: -1 | 0 | 1,
   resizeDirY: -1 | 0 | 1,
-  figureToSnap: FigureUI,
+  figureToSnap: Rect,
   otherFigures: FigureUI[]
 ): SnapReturn {
   // Vertical snap line
@@ -140,7 +143,7 @@ export function snapForResize(
   figureToSnap.height = Math.round(figureToSnap.height);
   figureToSnap.width = Math.round(figureToSnap.width);
 
-  return { snappedFigures: [figureToSnap], verticalSnapLine, horizontalSnapLine };
+  return { verticalSnapLine, horizontalSnapLine };
 }
 
 /**

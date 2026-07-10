@@ -571,7 +571,7 @@ describe("figures", () => {
 
   test("Resize all selected figures", async () => {
     createFigure(model, { id: "fig1", offset: { x: 0, y: 0 }, width: 100, height: 100 });
-    createFigure(model, { id: "fig2", offset: { x: 20, y: 20 }, width: 100, height: 100 });
+    createFigure(model, { id: "fig2", offset: { x: 200, y: 200 }, width: 100, height: 100 });
     await nextTick();
     selectFigure(model, "fig1");
     selectFigure(model, "fig2", true);

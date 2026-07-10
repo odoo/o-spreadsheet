@@ -466,75 +466,54 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
         this.env.model.getters.getNumberRows(sheetId) - 1
       ).end,
     };
+    const initialAggregateRect = rectUnion(...selectedFiguresUI);
 
     const onMouseMove = (ev: MouseEvent) => {
       const currentMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
+      const keepRatio =
+        isSelectionMultiple || ev.shiftKey
+          ? true
+          : figureRegistry.get(selectedFiguresUI[0].tag).keepRatio || false;
+      const minSize = isSelectionMultiple
+        ? MIN_FIG_SIZE
+        : figureRegistry.get(selectedFiguresUI[0].tag).minFigSize || MIN_FIG_SIZE;
 
-      const resizedFigures = selectedFiguresUI.map((figureUI) => {
-        const keepRatio =
-          isSelectionMultiple || ev.shiftKey
-            ? true
-            : figureRegistry.get(figureUI.tag).keepRatio || false;
-        const minFigSize = figureRegistry.get(figureUI.tag).minFigSize || MIN_FIG_SIZE;
-        return dragFigureForResize(
-          figureUI,
-          dirX,
-          dirY,
-          currentMousePosition,
-          initialMousePosition,
-          keepRatio,
-          minFigSize,
-          initialScrollPosition,
-          this.env.model.getters.getActiveSheetScrollInfo(),
-          maxDimensions
-        );
-      });
+      const resizedAggregateRect = dragFigureForResize(
+        initialAggregateRect,
+        dirX,
+        dirY,
+        currentMousePosition,
+        initialMousePosition,
+        keepRatio,
+        minSize,
+        initialScrollPosition,
+        this.env.model.getters.getActiveSheetScrollInfo(),
+        maxDimensions
+      );
 
       const otherFigures = this.getOtherFigures(selectedFiguresIds);
 
-      // snapForResize mutates resizedFigures[0] in-place; use its snap offsets for all other figures
+      // snapForResize mutates resizedAggregateRect in-place
       const snapResult = snapForResize(
         this.env.model.getters,
         dirX,
         dirY,
-        resizedFigures[0],
+        resizedAggregateRect,
         otherFigures
       );
 
-      const vOffset = snapResult.verticalSnapLine?.snapOffset ?? 0;
-      const hOffset = snapResult.horizontalSnapLine?.snapOffset ?? 0;
-      const snappedFigures = resizedFigures.map((figureUI, i) => {
-        if (i === 0) {
-          return snapResult.snappedFigures[0];
-        }
-        let { x, y, width, height } = figureUI;
-        if (vOffset) {
-          if (dirX === 1) {
-            width -= vOffset;
-          } else if (dirX === -1) {
-            x -= vOffset;
-            width += vOffset;
-          }
-        }
-        if (hOffset) {
-          if (dirY === 1) {
-            height -= hOffset;
-          } else if (dirY === -1) {
-            y -= hOffset;
-            height += hOffset;
-          }
-        }
-        return {
-          ...figureUI,
-          x: Math.round(x),
-          y: Math.round(y),
-          width: Math.round(width),
-          height: Math.round(height),
-        };
-      });
+      const scaleX = resizedAggregateRect.width / initialAggregateRect.width;
+      const scaleY = resizedAggregateRect.height / initialAggregateRect.height;
+      const resizedFigures = selectedFiguresUI.map((figureUI) => ({
+        ...figureUI,
+        x: Math.round(resizedAggregateRect.x + (figureUI.x - initialAggregateRect.x) * scaleX),
+        y: Math.round(resizedAggregateRect.y + (figureUI.y - initialAggregateRect.y) * scaleY),
+        width: Math.round(figureUI.width * scaleX),
+        height: Math.round(figureUI.height * scaleY),
+      }));
 
-      this.dnd.draggedFigure = snappedFigures[0];
-      this.dnd.selectedFigures = snappedFigures;
+      this.dnd.draggedFigure = resizedFigures[0];
+      this.dnd.selectedFigures = resizedFigures;
       this.dnd.selectedRect = undefined;
       this.dnd.horizontalSnap = this.getSnap(snapResult.horizontalSnapLine);
       this.dnd.verticalSnap = this.getSnap(snapResult.verticalSnapLine);
