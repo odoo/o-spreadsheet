@@ -61,6 +61,7 @@ import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
 import { FunnelChartDefinition } from "../../src/types/chart/funnel_chart";
 import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
 import { GeoChartDefinition } from "../../src/types/chart/geo_chart";
+import { HeatmapChartDefinition } from "../../src/types/chart/heatmap_chart";
 import { RadarChartDefinition } from "../../src/types/chart/radar_chart";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
 import { SunburstChartDefinition } from "../../src/types/chart/sunburst_chart";
@@ -421,6 +422,40 @@ export function createCalendarChart(
       verticalGroupBy: data.verticalGroupBy ?? "month_number",
       legendPosition: data.legendPosition || "top",
       colorScale: data.colorScale,
+    },
+  });
+}
+
+export function createHeatmapChart(
+  model: Model,
+  data: Partial<HeatmapChartDefinition<string>>,
+  chartId?: UID,
+  sheetId?: UID,
+  figureData: Partial<CreateFigureCommand> = {}
+) {
+  const id = chartId || UuidGenerator.uuidv4();
+  sheetId = sheetId || model.getters.getActiveSheetId();
+
+  return model.dispatch("CREATE_CHART", {
+    figureId: figureData.figureId || UuidGenerator.smallUuid(),
+    chartId: id,
+    sheetId: sheetId,
+    col: 0,
+    row: 0,
+    size: { width: 536, height: 335 },
+    offset: { x: 0, y: 0 },
+    ...figureData,
+    definition: {
+      title: data.title || { text: "test" },
+      type: "heatmap",
+      background: data.background,
+      rowRange: data.rowRange,
+      columnRange: data.columnRange,
+      dataRange: data.dataRange,
+      dataSetsHaveTitle: data.dataSetsHaveTitle ?? false,
+      legendPosition: data.legendPosition || "top",
+      colorScale: data.colorScale,
+      missingValueColor: data.missingValueColor,
     },
   });
 }
