@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { FunctionResultObject, Maybe, SpreadsheetPivotTable, UID } from "../..";
 import { toString } from "../../functions/helpers";
 import { formatValue } from "../../helpers/format/format";
@@ -42,7 +42,7 @@ interface TableData {
 export class PivotHTMLRenderer extends Component<SpreadsheetChildEnv> {
   static template = "o_spreadsheet.PivotHTMLRenderer";
   static components = { Checkbox };
-  protected props = props({
+  protected props = useProps({
     pivotId: types.UID(),
     onCellClicked: types.function<(formula: string) => void>(),
   });

@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { PIVOT_TOKEN_COLOR } from "../../../../../constants";
 import { CompiledFormula } from "../../../../../formulas/compiler";
 import { Token } from "../../../../../formulas/tokenizer";
@@ -23,7 +23,7 @@ export class PivotMeasureEditor extends Component<SpreadsheetChildEnv> {
     StandaloneComposer,
     Select,
   };
-  protected props = props({
+  protected props = useProps({
     pivotId: types.string(),
     definition: types.PivotRuntimeDefinition(),
     measure: types.PivotMeasure(),

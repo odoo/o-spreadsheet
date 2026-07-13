@@ -1,4 +1,4 @@
-import { onMounted, props, proxy } from "@odoo/owl";
+import { onMounted, proxy, useProps } from "@odoo/owl";
 import { NEWLINE } from "../../../constants";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
@@ -36,7 +36,7 @@ export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SplitIntoColumnsPanel";
   static components = { ValidationMessages, Section, Checkbox, Select };
 
-  protected props = props({
+  protected props = useProps({
     onCloseSidePanel: types.function(),
   });
 

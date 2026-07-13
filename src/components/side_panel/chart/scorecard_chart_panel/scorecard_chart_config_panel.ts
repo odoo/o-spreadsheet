@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { BaselineMode, ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
@@ -20,7 +20,7 @@ interface PanelState {
 export class ScorecardChartConfigPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChartConfigPanel";
   static components = { SelectionInput, ChartErrorSection, Section, Select };
-  protected props = props(
+  protected props = useProps(
     chartSidePanelPropsDefinition
   ) as unknown as ChartSidePanelProps<ScorecardChartDefinition>;
 

@@ -1,4 +1,4 @@
-import { App, props, xml } from "@odoo/owl";
+import { App, useProps, xml } from "@odoo/owl";
 import { Color, Model } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { types } from "../../src/components/props_validation";
@@ -71,7 +71,7 @@ class Parent extends Component<any> {
     />
   `;
   static components = { SelectionInput };
-  protected props = props({
+  protected props = useProps({
     model: types.object<Model>(),
     config: types.object<SelectionInputTestConfig>(),
   }) as any;
@@ -114,7 +114,7 @@ class MultiParent extends Component<any> {
     </div>
   `;
   static components = { SelectionInput };
-  protected props = props({
+  protected props = useProps({
     model: types.object({}),
   }) as any;
 

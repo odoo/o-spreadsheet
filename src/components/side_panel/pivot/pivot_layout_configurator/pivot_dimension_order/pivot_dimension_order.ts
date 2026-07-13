@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../../../owl3_compatibility_layer";
 import { _t } from "../../../../../translation";
 import { ValueAndLabel } from "../../../../../types/misc";
@@ -9,7 +9,7 @@ import { Select } from "../../../../select/select";
 
 export class PivotDimensionOrder extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotDimensionOrder";
-  protected props = props({
+  protected props = useProps({
     dimension: types.PivotDimension(),
     onUpdated: types.function<(dimension: PivotDimension, ev: InputEvent) => void>(),
     isMeasureSorted: types.boolean().optional(),

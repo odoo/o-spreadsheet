@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { ALL_PERIODS } from "../../../../../helpers/pivot/pivot_helpers";
 import { Component } from "../../../../../owl3_compatibility_layer";
 import { ValueAndLabel } from "../../../../../types/misc";
@@ -9,7 +9,7 @@ import { Select } from "../../../../select/select";
 
 export class PivotDimensionGranularity extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotDimensionGranularity";
-  protected props = props({
+  protected props = useProps({
     dimension: types.PivotDimension(),
     onUpdated: types.function<(dimension: PivotDimension, ev: InputEvent) => void>(),
     availableGranularities: types.SetOf<string>(),

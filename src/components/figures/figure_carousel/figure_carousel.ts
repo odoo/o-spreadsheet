@@ -1,4 +1,4 @@
-import { props, proxy, signal } from "@odoo/owl";
+import { proxy, signal, useProps } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
@@ -24,7 +24,7 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CarouselFigure";
   static components = { ChartMenu, MenuPopover };
 
-  protected props = props({
+  protected props = useProps({
     figureUI: types.FigureUI(),
     editFigureStyle: types.function<(properties: CSSProperties) => void>().optional(),
     isFullScreen: types.boolean().optional(),

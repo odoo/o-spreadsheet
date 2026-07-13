@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { clip } from "../../../helpers/misc";
 import { isEqual } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
@@ -25,7 +25,7 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
     Border,
   };
 
-  protected props = props({
+  protected props = useProps({
     range: types.Range(),
     color: types.Color(),
   });

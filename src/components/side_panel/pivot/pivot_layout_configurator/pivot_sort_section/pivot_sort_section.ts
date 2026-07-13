@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { formatValue } from "../../../../../helpers/format/format";
 import {
   getFieldDisplayName,
@@ -16,7 +16,7 @@ export class PivotSortSection extends Component<SpreadsheetChildEnv> {
   static components = {
     Section,
   };
-  protected props = props({
+  protected props = useProps({
     definition: types.PivotRuntimeDefinition(),
     pivotId: types.UID(),
   });

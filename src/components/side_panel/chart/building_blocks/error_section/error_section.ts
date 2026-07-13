@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Section } from "../../../components/section/section";
 
@@ -9,7 +9,7 @@ export class ChartErrorSection extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartErrorSection";
   static components = { Section, ValidationMessages };
 
-  protected props = props({
+  protected props = useProps({
     messages: types.array(types.string()),
   });
 }

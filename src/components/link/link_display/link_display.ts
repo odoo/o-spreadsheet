@@ -10,14 +10,14 @@ import { Store } from "../../../types/store_engine";
 import { isMiddleClickOrCtrlClick } from "../../helpers/dom_helpers";
 import { CellPopoverStore } from "../../popover/cell_popover_store";
 
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { types } from "../../props_validation";
 
 export class LinkDisplay extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-LinkDisplay";
 
-  protected props = props({
+  protected props = useProps({
     cellPosition: types.CellPosition(),
     onClosed: types.function().optional(),
   });

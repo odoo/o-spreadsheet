@@ -1,4 +1,4 @@
-import { props, signal } from "@odoo/owl";
+import { signal, useProps } from "@odoo/owl";
 import { HIGHLIGHT_COLOR, TEXT_BODY } from "../../../../constants";
 import { colorNumberToHex } from "../../../../helpers/color";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -13,7 +13,7 @@ import { CfTerms } from "../../../translations_terms";
 
 export class ConditionalFormatPreview extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ConditionalFormatPreview";
-  protected props = props({
+  protected props = useProps({
     conditionalFormat: types.ConditionalFormat(),
     onMouseDown: types.function<(ev: MouseEvent) => void>(),
     class: types.string(),

@@ -1,4 +1,4 @@
-import { onMounted, onPatched, onWillUnmount, props, proxy, signal } from "@odoo/owl";
+import { onMounted, onPatched, onWillUnmount, proxy, signal, useProps } from "@odoo/owl";
 import { throttle } from "../../../helpers/misc";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
 import { Component, useExternalListener, useLayoutEffect } from "../../../owl3_compatibility_layer";
@@ -40,7 +40,7 @@ const getSheetLockAnimation = (
 export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BottomBarSheet";
   static components = { Ripple, ColorPicker };
-  protected props = props({
+  protected props = useProps({
     sheetId: types.string(),
     openContextMenu: types.function<(registry: MenuItemRegistry, ev: MouseEvent) => void>(),
     style: types.string().optional(""),

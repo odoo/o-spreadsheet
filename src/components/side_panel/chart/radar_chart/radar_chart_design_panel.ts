@@ -11,7 +11,7 @@ import { ChartShowDataMarkers } from "../building_blocks/show_data_markers/show_
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 export class RadarChartDesignPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-RadarChartDesignPanel";
@@ -26,7 +26,7 @@ export class RadarChartDesignPanel extends Component<SpreadsheetChildEnv> {
     Checkbox,
     ChartHumanizeNumbers,
   };
-  protected props = props(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<
+  protected props = useProps(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<
     RadarChartDefinition<string>
   >;
 }

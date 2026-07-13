@@ -1,4 +1,4 @@
-import { onMounted, props, proxy, signal } from "@odoo/owl";
+import { onMounted, proxy, signal, useProps } from "@odoo/owl";
 import { urlRegistry, urlRepresentation } from "../../../helpers/links";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { markdownLink } from "../../../helpers/misc";
@@ -30,7 +30,7 @@ export class LinkEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-LinkEditor";
   static components = { MenuPopover };
 
-  protected props = props({
+  protected props = useProps({
     cellPosition: types.CellPosition(),
     onClosed: types.function().optional(),
   });

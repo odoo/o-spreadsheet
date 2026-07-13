@@ -1,4 +1,4 @@
-import { onMounted, props, proxy, signal } from "@odoo/owl";
+import { onMounted, proxy, signal, useProps } from "@odoo/owl";
 import { insertSheet, insertTable } from "../../actions/insert_actions";
 import {
   CREATE_IMAGE,
@@ -136,7 +136,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     Selection,
   };
 
-  protected props = props({
+  protected props = useProps({
     exposeFocus: types.function<(focus: () => void) => void>(),
     getGridSize: types.function<() => DOMDimension>(),
   });

@@ -1,4 +1,4 @@
-import { props, xml } from "@odoo/owl";
+import { useProps, xml } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { types } from "../props_validation";
@@ -16,7 +16,7 @@ export class HorizontalScrollBar extends Component<SpreadsheetChildEnv> {
         onScroll.bind="this.onScroll"
       />`;
 
-  protected props = props({
+  protected props = useProps({
     leftOffset: types.number().optional(0),
   });
 

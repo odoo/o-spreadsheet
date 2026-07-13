@@ -1,4 +1,4 @@
-import { props, xml } from "@odoo/owl";
+import { useProps, xml } from "@odoo/owl";
 import { types } from "../../../src/components/props_validation";
 import { Section } from "../../../src/components/side_panel/components/section/section";
 import { Component } from "../../../src/owl3_compatibility_layer";
@@ -22,7 +22,7 @@ describe("Section", () => {
     </div>
   `;
       static components = { Section };
-      protected props: Props = props({
+      protected props: Props = useProps({
         class: types.string(),
       });
     }
@@ -41,7 +41,7 @@ describe("Section", () => {
     </div>
   `;
       static components = { Section };
-      protected props: Props = props({
+      protected props: Props = useProps({
         class: types.string(),
       });
     }
@@ -59,7 +59,7 @@ describe("Section", () => {
     </div>
   `;
       static components = { Section };
-      protected props: Props = props({
+      protected props: Props = useProps({
         class: types.string(),
       });
     }
@@ -78,7 +78,7 @@ describe("Section", () => {
     </div>
   `;
       static components = { Section };
-      protected props: Props = props({
+      protected props: Props = useProps({
         class: types.string(),
       });
     }

@@ -1,4 +1,4 @@
-import { onWillUpdateProps, props, proxy } from "@odoo/owl";
+import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
 import { getPivotHighlights } from "../../../../helpers/pivot/pivot_highlight";
 import { pivotSidePanelRegistry } from "../../../../helpers/pivot/pivot_side_panel_registry";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -22,7 +22,7 @@ export class PivotSidePanel extends Component<SpreadsheetChildEnv> {
     PivotDesignPanel,
   };
 
-  protected props = props({
+  protected props = useProps({
     pivotId: types.UID(),
     onCloseSidePanel: types.function(),
     openTab: types

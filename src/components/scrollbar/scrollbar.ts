@@ -1,4 +1,4 @@
-import { onMounted, props, signal, xml } from "@odoo/owl";
+import { onMounted, signal, useProps, xml } from "@odoo/owl";
 import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { Pixel } from "../../types/misc";
 import { ScrollDirection } from "../../types/scroll_direction";
@@ -17,7 +17,7 @@ export class ScrollBar extends Component<any> {
     </div>
   `;
 
-  protected props = props({
+  protected props = useProps({
     width: types.Pixel().optional(1),
     height: types.Pixel().optional(1),
     direction: types.customValidator(types.string() as ScrollDirection, (direction) =>

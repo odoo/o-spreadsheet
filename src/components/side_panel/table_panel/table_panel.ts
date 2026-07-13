@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { getZoneArea, positionToZone } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
 import { CommandResult, DispatchResult } from "../../../types/commands";
@@ -35,7 +35,7 @@ export class TablePanel extends Component<SpreadsheetChildEnv> {
     Section,
     NumberInput,
   };
-  protected props = props({
+  protected props = useProps({
     onCloseSidePanel: types.function(),
     table: types.CoreTable(),
   });

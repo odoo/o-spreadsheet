@@ -1,4 +1,4 @@
-import { props, signal } from "@odoo/owl";
+import { signal, useProps } from "@odoo/owl";
 import { withHttps } from "../../helpers/links";
 import { Component, useExternalListener } from "../../owl3_compatibility_layer";
 import { MenuMouseEvent } from "../../types/misc";
@@ -10,7 +10,7 @@ import { types } from "../props_validation";
 
 export class InfoPopover extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Info-Popover";
-  protected props = props({
+  protected props = useProps({
     anchorRect: types.Rect(),
     onClose: types.function(),
     annotationText: types.string().optional(),

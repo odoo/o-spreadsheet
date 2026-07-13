@@ -1,4 +1,4 @@
-import { App, props, xml } from "@odoo/owl";
+import { App, useProps, xml } from "@odoo/owl";
 import { Model, Pixel, Rect } from "../../src";
 import { Popover } from "../../src/components/popover/popover";
 import { types } from "../../src/components/props_validation";
@@ -30,7 +30,7 @@ async function mountTestPopover(args: MountPopoverArgs) {
         </div>
   `;
     static components = { Popover };
-    protected props = props({
+    protected props = useProps({
       model: types.object<Model>(),
     });
 

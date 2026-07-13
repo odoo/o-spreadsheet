@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import {
   TreeMapChartDefaults,
   TreeMapColorScaleOptions,
@@ -13,7 +13,7 @@ export class TreeMapColorScale extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TreeMapColorScale";
   static components = { RoundColorPicker };
 
-  protected props = props({
+  protected props = useProps({
     chartId: types.UID(),
     definition: types.TreeMapChartDefinition(),
     onColorChanged: types.function<(colors: TreeMapColorScaleOptions) => DispatchResult>(),

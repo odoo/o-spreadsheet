@@ -1,4 +1,4 @@
-import { props, proxy, xml } from "@odoo/owl";
+import { proxy, useProps, xml } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
 import { Component } from "../../owl3_compatibility_layer";
 import { HeaderIndex } from "../../types/misc";
@@ -21,7 +21,7 @@ interface State {
 export class Autofill extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Autofill";
 
-  protected props = props({
+  protected props = useProps({
     position: types.DOMCoordinates(),
     isVisible: types.boolean(),
   });
@@ -105,7 +105,7 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
 }
 
 class TooltipComponent extends Component<any> {
-  protected props: { content: string } = props({
+  protected props: { content: string } = useProps({
     content: types.string(),
   });
   static template = xml/* xml */ `

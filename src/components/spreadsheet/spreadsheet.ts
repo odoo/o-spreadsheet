@@ -3,10 +3,10 @@ import {
   onPatched,
   onWillUnmount,
   onWillUpdateProps,
-  props,
   proxy,
   signal,
   useEffect,
+  useProps,
 } from "@odoo/owl";
 import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO } from "../../constants";
 import { DARK_MODE_FILTER_STRING } from "../../helpers/color";
@@ -67,7 +67,7 @@ import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipbo
 
 export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Spreadsheet";
-  protected props = props({
+  protected props = useProps({
     model: types.Model(),
     notifyUser: types.function<NotificationStoreMethods["notifyUser"]>().optional(),
     raiseError: types.function<NotificationStoreMethods["raiseError"]>().optional(),

@@ -1,4 +1,4 @@
-import { props, proxy, signal } from "@odoo/owl";
+import { proxy, signal, useProps } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { BorderPosition, BorderStyle, Color, borderStyles } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
@@ -40,7 +40,7 @@ export class BorderEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BorderEditor";
   static components = { ColorPickerWidget, Popover };
 
-  protected props = props({
+  protected props = useProps({
     class: types.string().optional(),
     currentBorderColor: types.Color(),
     currentBorderStyle: types.BorderStyle(),

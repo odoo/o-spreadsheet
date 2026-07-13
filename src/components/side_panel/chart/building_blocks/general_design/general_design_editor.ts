@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { CHART_TITLE_FONT_SIZE } from "../../../../../constants";
 import { Component } from "../../../../../owl3_compatibility_layer";
 import { TitleDesign } from "../../../../../types/chart/chart";
@@ -26,7 +26,7 @@ export class GeneralDesignEditor extends Component<SpreadsheetChildEnv> {
     RadioSelection,
   };
 
-  protected props = props({
+  protected props = useProps({
     chartId: types.UID(),
     definition: types.ChartDefinition(),
     canUpdateChart: types.function<ChartUpdateFunction>(),

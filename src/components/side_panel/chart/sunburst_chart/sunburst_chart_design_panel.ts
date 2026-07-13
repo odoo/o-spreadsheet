@@ -19,7 +19,7 @@ import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { TextStyler } from "../building_blocks/text_styler/text_styler";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 export class SunburstChartDesignPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SunburstChartDesignPanel";
@@ -36,7 +36,7 @@ export class SunburstChartDesignPanel extends Component<SpreadsheetChildEnv> {
     PieHoleSize,
     ChartHumanizeNumbers,
   };
-  protected props = props(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<
+  protected props = useProps(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<
     SunburstChartDefinition<string>
   >;
 

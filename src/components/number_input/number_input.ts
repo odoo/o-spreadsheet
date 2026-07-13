@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { debounce } from "../../helpers/misc";
 import { GenericInput, genericInputPropsDefinition } from "../generic_input/generic_input";
 import { types } from "../props_validation";
@@ -7,7 +7,7 @@ export class NumberInput extends GenericInput<any> {
   static template = "o-spreadsheet-NumberInput";
   static components = {};
 
-  protected props = props({
+  protected props = useProps({
     ...genericInputPropsDefinition,
     min: types.number().optional(),
     max: types.number().optional(),

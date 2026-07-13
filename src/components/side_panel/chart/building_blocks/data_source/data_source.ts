@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../../../owl3_compatibility_layer";
 import { chartDataSourceSidePanelComponentRegistry } from "../../../../../registries/chart_data_source_component_registry";
 import { ChartDefinitionWithDataSource } from "../../../../../types/chart/chart";
@@ -15,7 +15,7 @@ export class ChartDataSourceComponent extends Component<SpreadsheetChildEnv> {
     ChartLabelRange,
   };
 
-  protected props = props({
+  protected props = useProps({
     chartId: types.UID(),
     definition: types.ChartDefinitionWithDataSource(),
     updateChart: types.function<ChartUpdateFunction<ChartDefinitionWithDataSource<string>>>(),

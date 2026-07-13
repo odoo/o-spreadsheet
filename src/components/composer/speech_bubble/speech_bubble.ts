@@ -1,4 +1,4 @@
-import { props, signal, useEffect } from "@odoo/owl";
+import { signal, useEffect, useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
@@ -11,7 +11,7 @@ export class SpeechBubble extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SpeechBubble";
   static components = {};
 
-  protected props = props({
+  protected props = useProps({
     content: types.string(),
     anchorRect: types.Rect(),
   });

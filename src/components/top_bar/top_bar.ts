@@ -1,4 +1,4 @@
-import { onMounted, onPatched, props, proxy, signal } from "@odoo/owl";
+import { onMounted, onPatched, proxy, signal, useProps } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../constants";
@@ -39,7 +39,7 @@ interface State {
 
 export class TopBar extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBar";
-  protected props = props({
+  protected props = useProps({
     onClick: types.function(),
     dropdownMaxHeight: types.Pixel(),
   });

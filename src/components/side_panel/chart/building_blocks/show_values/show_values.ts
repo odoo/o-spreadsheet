@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../../../owl3_compatibility_layer";
 import { ChartDefinitionWithDataSource } from "../../../../../types/chart/chart";
 import { DispatchResult } from "../../../../../types/commands";
@@ -13,7 +13,7 @@ export class ChartShowValues extends Component<SpreadsheetChildEnv> {
     Checkbox,
   };
 
-  protected props = props({
+  protected props = useProps({
     chartId: types.UID(),
     definition: types.ChartDefinitionWithDataSource(),
     canUpdateChart:

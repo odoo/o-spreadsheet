@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { getFunnelLabelColors } from "../../../../helpers/figures/charts/runtime/chartjs_dataset";
 import { replaceItemAtIndex } from "../../../../helpers/misc";
 import { _t } from "../../../../translation";
@@ -30,7 +30,7 @@ export class FunnelChartDesignPanel extends Component<SpreadsheetChildEnv> {
     ChartHumanizeNumbers,
   };
 
-  protected props: Props = props({
+  protected props: Props = useProps({
     ...chartSidePanelPropsDefinition,
     definition: types.FunnelChartDefinition(),
   }) as unknown as Props;

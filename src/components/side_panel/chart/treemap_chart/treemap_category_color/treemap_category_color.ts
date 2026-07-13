@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { ChartConfiguration } from "chart.js";
 import { deepCopy } from "../../../../../helpers/misc";
 import {
@@ -23,7 +23,7 @@ export class TreeMapCategoryColors extends Component<SpreadsheetChildEnv> {
     RoundColorPicker,
   };
 
-  protected props = props({
+  protected props = useProps({
     chartId: types.UID(),
     definition: types.TreeMapChartDefinition(),
     onColorChanged: types.function<(colors: TreeMapCategoryColorOptions) => DispatchResult>(),

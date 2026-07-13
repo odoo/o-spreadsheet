@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { _t } from "../../../../../translation";
 import { Color, UID } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
@@ -13,7 +13,7 @@ export class ChartDataSeries extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartDataSeries";
   static components = { SelectionInput, Section };
 
-  protected props = props({
+  protected props = useProps({
     ranges: types.ArrayOf<{ dataRange: string; dataSetId: UID }>(),
     dataSetStyles: types.DataSetStyle().optional(),
     hasSingleRange: types.boolean().optional(),

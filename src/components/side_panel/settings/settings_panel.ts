@@ -1,4 +1,4 @@
-import { onWillStart, props } from "@odoo/owl";
+import { onWillStart, useProps } from "@odoo/owl";
 import { DAYS, formatValue } from "../../../helpers/format/format";
 import { getDateTimeFormat, isValidLocale } from "../../../helpers/locale";
 import { deepEquals } from "../../../helpers/misc";
@@ -16,7 +16,7 @@ export class SettingsPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SettingsPanel";
   static components = { Section, ValidationMessages, BadgeSelection, Select };
 
-  protected props = props({
+  protected props = useProps({
     onCloseSidePanel: types.function(),
   });
 

@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { clip } from "../../../../../helpers/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { NumberInput } from "../../../../number_input/number_input";
@@ -10,7 +10,7 @@ export class PieHoleSize extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.PieHoleSize";
   static components = { Section, NumberInput };
 
-  protected props = props({
+  protected props = useProps({
     onValueChange: types.function<(value: number) => void>(),
     value: types.number(),
   });

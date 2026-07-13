@@ -1,4 +1,4 @@
-import { props, xml } from "@odoo/owl";
+import { useProps, xml } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
 import { types } from "../../src/components/props_validation";
 import {
@@ -37,7 +37,7 @@ class Body extends Component<any> {
       <div class="props_body" t-if="this.props.text"><t t-out="this.props.text"/></div>
       <input type="text" class="input" t-if="this.props.input" />
     </div>`;
-  protected props = props({
+  protected props = useProps({
     text: types.string().optional(),
     input: types.boolean().optional(),
     onCloseSidePanel: types.function(),
@@ -50,7 +50,7 @@ class Body2 extends Component<any> {
       <div class="main_body_2">Hello</div>
       <div class="props_body_2" t-if="this.props.field"><t t-out="this.props.field"/></div>
     </div>`;
-  protected props = props({
+  protected props = useProps({
     field: types.string().optional(),
     onCloseSidePanel: types.function(),
   });
@@ -61,7 +61,7 @@ class BodyWithoutProps extends Component<any> {
     <div>
       <div class="main_body_3">Hello</div>
     </div>`;
-  protected props = props({
+  protected props = useProps({
     onCloseSidePanel: types.function(),
   });
 }
