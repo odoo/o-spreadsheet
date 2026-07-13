@@ -603,11 +603,17 @@ describe("Multi users synchronisation", () => {
       (user) => getCellContent(user, "A1"),
       "hello"
     );
-    setCellContent(david, "A1", "I'm David and I want access !");
-    expect([alice, bob, charlie, david]).toHaveSynchronizedValue(
+  });
+
+  test("Users in readonly cannot send commands", () => {
+    const david = new Model(alice.exportData(), { transportService: network, mode: "readonly" });
+    setCellContent(alice, "A1", "hello");
+    setCellContent(david, "A1", "I'm David and I want access !"); //technically David cannot write in a cell but UPDATE_CELL are allowed
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
       "hello"
     );
+    expect(getCellContent(david, "A1")).toBe("I'm David and I want access !");
   });
 
   test("autofill overwrite style and format", () => {
