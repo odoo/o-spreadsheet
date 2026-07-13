@@ -74,6 +74,7 @@ import {
 import { getCellContent, getChartDataSource } from "../../test_helpers/getters_helpers";
 import {
   createModelFromGrid,
+  editStandaloneComposer,
   mockChart,
   mockGeoJsonService,
   mountComponentWithPortalTarget,
@@ -160,6 +161,9 @@ let parent: Spreadsheet;
 let env: SpreadsheetChildEnv;
 
 const TEST_CHART_TYPES = ["basicChart", "scorecard", "gauge", "combo"] as const;
+// scorecard's key value is edited with a composer, not a SelectionInput: it has no
+// separate confirm/cancel button, so it doesn't fit the tests below.
+const SELECTION_INPUT_CHART_TYPES = TEST_CHART_TYPES.filter((type) => type !== "scorecard");
 
 describe("charts", () => {
   beforeEach(async () => {
@@ -401,10 +405,10 @@ describe("charts", () => {
         const keyValue = fixture.querySelector(".o-chart .o-data-series");
         const baseline = fixture.querySelector(".o-data-labels");
         expect(panelChartType.textContent).toBe("Scorecard");
-        expect((keyValue!.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
+        expect(keyValue!.querySelector(".o-composer")).toHaveText(
           TEST_CHART_DATA.scorecard.keyValue
         );
-        expect((baseline!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
+        expect(baseline!.querySelector(".o-composer")).toHaveText(
           TEST_CHART_DATA.scorecard.baseline
         );
         break;
@@ -455,11 +459,9 @@ describe("charts", () => {
         });
         break;
       case "scorecard": {
-        await setInputValueAndTrigger(dataSeriesValues, "B2:B4");
-        await nextTick();
-        await simulateClick(".o-data-series .o-selection-ok");
+        await editStandaloneComposer(".o-data-series .o-composer", "=B2:B4");
         const definition = model.getters.getChartDefinition(chartId) as ScorecardChartDefinition;
-        expect(definition.keyValue).toEqual("B2:B4");
+        expect(definition.keyValue).toEqual("=B2:B4");
         break;
       }
       case "gauge": {
@@ -1313,22 +1315,6 @@ describe("charts", () => {
     }
   );
 
-  test("remove ranges in scorecard chart", async () => {
-    createTestChart("scorecard");
-    await mountChartSidePanel();
-
-    expect(
-      (model.getters.getChartDefinition(chartId) as ScorecardChartDefinition)?.baseline
-    ).not.toBeUndefined();
-
-    await simulateClick(".o-data-labels input");
-    await setInputValueAndTrigger(".o-data-labels input", "");
-    await simulateClick(".o-data-labels .o-selection-ok");
-    expect(
-      (model.getters.getChartDefinition(chartId) as ScorecardChartDefinition).baseline
-    ).toBeUndefined();
-  });
-
   describe("reordering dataseries", () => {
     beforeEach(async () => {
       extendMockGetBoundingClientRect({
@@ -1939,7 +1925,6 @@ describe("charts", () => {
     test.each([
       ["basicChart" as const, []],
       ["combo" as const, []],
-      ["scorecard" as const, []],
     ])(
       "update %s with empty labels/baseline",
       async (chartType, expectedResults: CommandResult[]) => {
@@ -1957,7 +1942,7 @@ describe("charts", () => {
       }
     );
 
-    test.each(TEST_CHART_TYPES)(
+    test.each(SELECTION_INPUT_CHART_TYPES)(
       "update chart with valid dataset/keyValue/dataRange show confirm button",
       async (chartType) => {
         createTestChart(chartType);
@@ -1969,7 +1954,7 @@ describe("charts", () => {
       }
     );
 
-    test.each(TEST_CHART_TYPES)(
+    test.each(SELECTION_INPUT_CHART_TYPES)(
       "update chart with invalid dataset/keyValue/dataRange disable confirm button",
       async (chartType) => {
         createTestChart(chartType);
@@ -1992,7 +1977,7 @@ describe("charts", () => {
       expect(model.getters.getChartDefinition(chartId)).toMatchObject(TEST_CHART_DATA.basicChart);
     });
 
-    test.each(TEST_CHART_TYPES)(
+    test.each(SELECTION_INPUT_CHART_TYPES)(
       "Clicking on reset button on dataset/keyValue/dataRange put back the last valid dataset/keyValue/dataRange",
       async (chartType) => {
         createTestChart(chartType);
@@ -2012,7 +1997,7 @@ describe("charts", () => {
       }
     );
 
-    test.each(["basicChart", "combo", "scorecard"] as const)(
+    test.each(["basicChart", "combo"] as const)(
       "resetting chart label works as expected",
       async (chartType) => {
         createTestChart(chartType);
@@ -2035,35 +2020,6 @@ describe("charts", () => {
         );
       }
     );
-
-    test("Scorecard > no error when confirming unchanged key value", async () => {
-      createTestChart("scorecard");
-      await mountChartSidePanel();
-
-      expect(errorMessages()).toEqual([]);
-      await simulateClick(".o-data-series input");
-      await simulateClick(".o-data-series .o-selection-ok");
-      expect(errorMessages()).toEqual([]);
-    });
-
-    test("Scorecard > error displayed on input fields", async () => {
-      createTestChart("scorecard");
-      await mountChartSidePanel();
-
-      // empty dataset/key value
-      await simulateClick(".o-data-series input");
-      await setInputValueAndTrigger(".o-data-series input", "");
-      await simulateClick(".o-data-series .o-selection-ok");
-      expect(document.querySelector(".o-data-series input")?.classList).toContain("o-invalid");
-      expect(document.querySelector(".o-data-labels input")?.classList).not.toContain("o-invalid");
-
-      // invalid labels/baseline
-      await simulateClick(".o-data-labels input");
-      await setInputValueAndTrigger(".o-data-labels input", "Invalid Label Range");
-      await simulateClick(".o-data-labels .o-selection-ok");
-      expect(document.querySelector(".o-data-series input")?.classList).toContain("o-invalid");
-      expect(document.querySelector(".o-data-labels input")?.classList).toContain("o-invalid");
-    });
   });
 
   test.each(["basicChart", "combo", "scorecard"] as const)(
@@ -2077,7 +2033,7 @@ describe("charts", () => {
     }
   );
 
-  test.each(TEST_CHART_TYPES)(
+  test.each(SELECTION_INPUT_CHART_TYPES)(
     "Can edit a chart with empty main range without traceback",
     async (chartType) => {
       createTestChart(chartType);
@@ -2152,63 +2108,6 @@ describe("charts", () => {
     await nextTick();
     expect(store.isMainPanelOpen).toBeFalsy();
     expect(fixture.querySelector(".o-sidePanel")).toBeNull();
-  });
-
-  describe("Scorecard specific tests", () => {
-    test("can edit chart baseline colors", async () => {
-      createTestChart("scorecard");
-      const dispatch = spyModelDispatch(model);
-      await mountChartSidePanel();
-      await openChartDesignSidePanel(model, env, fixture, chartId);
-
-      // Change color of "up" value of baseline
-      const colorpickerUpButton = fixture.querySelectorAll(
-        ".o-chart-baseline-color .o-round-color-picker-button"
-      )[0];
-      await simulateClick(colorpickerUpButton);
-      const colorpickerUpItems = fixture.querySelectorAll(
-        ".o-color-picker-line-item"
-      ) as NodeListOf<HTMLElement>;
-      for (const el of colorpickerUpItems) {
-        if (toHex(el.style.backgroundColor) === "#0000FF") {
-          await simulateClick(el);
-          break;
-        }
-      }
-      expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-        figureId: model.getters.getFigureIdFromChartId(chartId),
-        chartId,
-        sheetId,
-        definition: {
-          ...model.getters.getChartDefinition(chartId),
-          baselineColorUp: "#0000FF",
-        },
-      });
-
-      // Change color of "down" value of baseline
-      const colorpickerDownButton = fixture.querySelectorAll(
-        ".o-chart-baseline-color .o-round-color-picker-button"
-      )[1];
-      await simulateClick(colorpickerDownButton);
-      const colorpickerDownItems = fixture.querySelectorAll(
-        ".o-color-picker-line-item"
-      ) as NodeListOf<HTMLElement>;
-      for (const el of colorpickerDownItems) {
-        if (toHex(el.style.backgroundColor) === "#FF0000") {
-          await simulateClick(el);
-          break;
-        }
-      }
-      expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-        figureId: model.getters.getFigureIdFromChartId(chartId),
-        chartId,
-        sheetId,
-        definition: {
-          ...model.getters.getChartDefinition(chartId),
-          baselineColorDown: "#FF0000",
-        },
-      });
-    });
   });
 
   describe("labelAsText", () => {
@@ -2806,6 +2705,43 @@ describe("charts", () => {
         }),
       });
     });
+
+    test("Scorecard formula is kept when switching to another chart type and back", async () => {
+      createScorecardChart(model, { keyValue: "=A1+22", baseline: "=B1+22" }, chartId);
+      await mountChartSidePanel(chartId);
+
+      await changeChartType("bar");
+      await changeChartType("scorecard");
+
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+        keyValue: "=A1+22",
+        baseline: "=B1+22",
+      });
+    });
+
+    test("Label range is not wrongly restored when switching from a chart with a label range to a scorecard then to another chart", async () => {
+      createChart(
+        model,
+        {
+          type: "line",
+          ...toChartDataSource({ dataSets: [{ dataRange: "A1" }], labelRange: "B3" }),
+        },
+        chartId
+      );
+      await mountChartSidePanel(chartId);
+      await openChartConfigSidePanel(model, env, chartId);
+
+      await changeChartType("scorecard");
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({ baseline: "=B3" });
+
+      await editStandaloneComposer(".o-data-labels .o-composer", "=A1+22");
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({ baseline: "=A1+22" });
+
+      await changeChartType("line");
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject(
+        toChartDataSource({ dataSets: [{ dataRange: "A1" }], labelRange: undefined })
+      );
+    });
   });
 
   describe("trend line", () => {
@@ -3225,8 +3161,8 @@ describe("charts with multiple sheets", () => {
                 chartId: "2",
                 type: "scorecard",
                 title: { text: "demo scorecard" },
-                baseline: "Sheet1!A2:A4",
-                keyValue: "Sheet1!B1:B4",
+                baseline: "=Sheet1!A2:A4",
+                keyValue: "=Sheet1!B1:B4",
               },
             },
           ],
@@ -3285,7 +3221,7 @@ describe("Default background on runtime tests", () => {
       chartId,
       sheetId
     );
-    updateChart(model, chartId, { type: "scorecard", keyValue: "A1" }, sheetId);
+    updateChart(model, chartId, { type: "scorecard", keyValue: "=A1" }, sheetId);
     const runtime = model.getters.getChartRuntime(chartId) as ScorecardChartRuntime;
     expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
     expect(runtime.background).toBe("#FA0000");

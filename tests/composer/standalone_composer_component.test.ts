@@ -34,6 +34,7 @@ class SidePanelWithComposer extends Component<any> {
           defaultStatic="this.props.defaultStatic"
           title="this.props.title"
           placeholder="this.props.placeholder"
+          equalSign="this.props.equalSign"
         />
       </div>`;
   static components = { StandaloneComposer };
@@ -48,6 +49,7 @@ async function openSidePanelWithComposer(props?: Partial<StandaloneComposer["pro
     composerContent: props?.composerContent || "",
     defaultRangeSheetId: props?.defaultRangeSheetId || model.getters.getActiveSheetId(),
     defaultStatic: props?.defaultStatic || false,
+    equalSign: props?.equalSign || false,
   });
   await nextTick();
   composerEl = fixture.querySelector<HTMLElement>(".o-sidePanel .o-composer")!;
@@ -203,6 +205,32 @@ describe("Spreadsheet integrations tests", () => {
     expect(composerEl.textContent).toBe("=SUM(1;2,5) + SUM(1,5;4)");
     await keyDown({ key: "Enter" });
     expect(onConfirm).toHaveBeenCalledWith("=SUM(1,2.5) + SUM(1.5,4)");
+  });
+
+  test("equalSign inserts = when focusing an empty composer", async () => {
+    await openSidePanelWithComposer({ equalSign: true });
+    await simulateClick(composerSelector);
+    expect(composerEl.textContent).toBe("=");
+  });
+
+  test("equalSign does not overwrite existing content", async () => {
+    await openSidePanelWithComposer({ equalSign: true, composerContent: "=A1" });
+    await simulateClick(composerSelector);
+    expect(composerEl.textContent).toBe("=A1");
+  });
+
+  test("equalSign leaves the cursor right after the =, ready to select a cell", async () => {
+    await openSidePanelWithComposer({ equalSign: true });
+    await simulateClick(composerSelector);
+    expect(composerEl.textContent).toBe("=");
+    await keyDown({ key: "ArrowRight" });
+    expect(composerEl.textContent).toBe("=B1");
+  });
+
+  test("composer does not insert = on focus by default", async () => {
+    await openSidePanelWithComposer();
+    await simulateClick(composerSelector);
+    expect(composerEl.textContent).toBe("");
   });
 
   test("Can have title and placeholder", async () => {

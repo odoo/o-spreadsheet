@@ -26,6 +26,10 @@ export class MainChartPanelStore extends SpreadsheetStore {
   changeChartType(chartId: UID, newDisplayType: string) {
     const currentCreationContext = this.getters.getContextCreationChart(chartId);
     const savedCreationContext = this.creationContexts[chartId] || {};
+    const auxiliaryRange =
+      currentCreationContext && "auxiliaryRange" in currentCreationContext
+        ? currentCreationContext.auxiliaryRange
+        : savedCreationContext.auxiliaryRange;
 
     let dataSetStyles = savedCreationContext.dataSetStyles ?? currentCreationContext?.dataSetStyles;
     let dataSource = {
@@ -66,6 +70,7 @@ export class MainChartPanelStore extends SpreadsheetStore {
         ...savedCreationContext.dataSource,
         ...currentCreationContext?.dataSource,
         dataSets: newRanges ?? [],
+        labelRange: auxiliaryRange,
       };
     }
 

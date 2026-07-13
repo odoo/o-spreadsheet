@@ -275,6 +275,8 @@ export interface ChartCreationContext {
   readonly bubbleColorMode?: BubbleColorMode;
   readonly annotationText?: string;
   readonly annotationLink?: string;
+  readonly scorecardKeyValueFormula?: string;
+  readonly scorecardBaselineFormula?: string;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;

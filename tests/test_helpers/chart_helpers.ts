@@ -239,4 +239,6 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   bubbleColorMode: { color: FIRST_CHART_COLOR },
   annotationLink: "https://www.odoo.com",
   annotationText: "This is an annotation text",
+  scorecardKeyValueFormula: "=Sheet1!B1:B4",
+  scorecardBaselineFormula: "=Sheet1!A1:A4",
 };

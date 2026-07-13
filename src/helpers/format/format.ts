@@ -746,7 +746,7 @@ function _roundFormat<T extends InternalFormat>(internalFormat: T): T {
 export function humanizeNumber({ value, format }: FunctionResultObject, locale: Locale): string {
   const numberValue = tryToNumber(value, locale);
   if (numberValue === undefined) {
-    return "";
+    return value ? value.toString() : "";
   }
   let numberFormat: Format | undefined = format;
   if (Math.abs(numberValue) < 1000) {

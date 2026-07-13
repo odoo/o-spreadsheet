@@ -57,8 +57,8 @@ export const ChartTerms: {
     [CommandResult.InvalidDataSet]: _t("The dataset is invalid"),
     [CommandResult.InvalidLabelRange]: _t("Labels are invalid"),
     // SCORECARD CHART ERRORS
-    [CommandResult.InvalidScorecardKeyValue]: _t("The key value is invalid"),
-    [CommandResult.InvalidScorecardBaseline]: _t("The baseline value is invalid"),
+    [CommandResult.InvalidScorecardKeyValue]: _t("The key value is not a valid formula."),
+    [CommandResult.InvalidScorecardBaseline]: _t("The baseline is not a valid formula."),
     // GAUGE CHART ERRORS
     [CommandResult.InvalidGaugeDataRange]: _t("The data range is invalid"),
     [CommandResult.EmptyGaugeRangeMin]: _t("A minimum range limit value is needed"),
