@@ -162,7 +162,7 @@ function getBaselineArrowDirection(
 }
 
 // Only used to derive a Range when the formula is nothing but a bare reference (e.g. "=A1" or "=A1:B2")
-function getFormulaRangeXc(formula: string | undefined): string | undefined {
+export function getFormulaRangeXc(formula: string | undefined): string | undefined {
   if (!formula) {
     return undefined;
   }
