@@ -35,7 +35,6 @@ import { PivotUIPlugin } from "./ui_core_views/pivot_ui";
 import { CellComputedStylePlugin } from "./ui_feature/cell_computed_style";
 import { CollaborativePlugin } from "./ui_feature/collaborative";
 import { ColorThemeUIPlugin } from "./ui_feature/color_theme";
-import { DataCleanupPlugin } from "./ui_feature/data_cleanup";
 import { DataValidationInsertionPlugin } from "./ui_feature/datavalidation_insertion";
 import { DynamicTranslate } from "./ui_feature/dynamic_translate";
 import { FigureUIPlugin } from "./ui_feature/figure";
@@ -98,7 +97,6 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("datavalidation_insert", DataValidationInsertionPlugin)
   .add("dynamic_translate", DynamicTranslate)
   .add("geo_features", GeoFeaturePlugin)
-  .add("data_cleanup", DataCleanupPlugin)
   .add("color_theme", ColorThemeUIPlugin);
 
 // Plugins which have a state, but which should not be shared in collaborative
