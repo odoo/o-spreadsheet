@@ -22,6 +22,7 @@ import { Validator } from "../../types/validator";
 
 export class SpreadsheetChart {
   private readonly dataSource: ChartDataSource<Range> | undefined;
+  private _cachedRanges?: Set<Range>;
 
   private constructor(
     private readonly getters: CoreGetters,
@@ -176,6 +177,15 @@ export class SpreadsheetChart {
       return undefined;
     }
     return this.chartTypeBuilder.getDefinitionForExcel(getters, definition, excelDataSets);
+  }
+
+  getRanges(): Set<Range> {
+    if (!this._cachedRanges) {
+      this._cachedRanges = new Set(
+        this.chartTypeBuilder.getRanges(this.definition, this.getters, this.sheetId)
+      );
+    }
+    return this._cachedRanges;
   }
 
   getData(getters: Getters, chartId: UID): ChartData {

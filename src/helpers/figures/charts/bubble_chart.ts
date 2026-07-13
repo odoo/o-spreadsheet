@@ -153,6 +153,15 @@ export const BubbleChart: ChartTypeBuilder<"bubble"> = {
 
   getDefinitionForExcel: () => undefined,
 
+  getRanges(definition) {
+    return [
+      ...definition.yRanges,
+      definition.xRange,
+      definition.labelRange,
+      definition.sizeRange,
+    ].filter((r): r is Range => r !== undefined && !r.invalidXc && !r.invalidSheetName);
+  },
+
   updateRanges(definition, adapterFunctions) {
     const adaptedYRanges = definition.yRanges
       .map((yRange) => adaptChartRange(yRange, adapterFunctions))

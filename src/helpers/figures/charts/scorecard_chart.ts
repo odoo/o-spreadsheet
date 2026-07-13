@@ -269,6 +269,12 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
 
   getDefinitionForExcel: () => undefined,
 
+  getRanges(definition) {
+    return [definition.keyValue, definition.baseline].filter(
+      (r): r is Range => r !== undefined && !r.invalidXc && !r.invalidSheetName
+    );
+  },
+
   updateRanges(definition, adapterFunctions: RangeAdapterFunctions) {
     const baseline = adaptChartRange(definition.baseline, adapterFunctions);
     const keyValue = adaptChartRange(definition.keyValue, adapterFunctions);

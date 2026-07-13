@@ -101,6 +101,7 @@ export interface ChartTypeBuilder<T extends ChartType> {
     sheetId: UID,
     eventHandlers: ChartJsEventHandlers
   ): ChartRuntime;
+  getRanges(definition: ChartTypeDefinition<T, Range>, getters: CoreGetters, sheetId: UID): Range[];
   allowedDefinitionKeys: readonly string[];
   sequence: number;
   dataSeriesLimit?: number;

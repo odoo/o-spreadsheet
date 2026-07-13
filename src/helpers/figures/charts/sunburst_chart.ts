@@ -3,6 +3,7 @@ import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { SunburstChartRuntime } from "../../../types/chart/sunburst_chart";
 import { CommandResult } from "../../../types/commands";
 import { AbstractChart } from "./abstract_chart";
+import { getDataSourceRanges } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import { getHierarchalChartData } from "./runtime/chart_data_extractor";
 import { getSunburstChartDatasets } from "./runtime/chartjs_dataset";
@@ -67,6 +68,8 @@ export const SunburstChart: ChartTypeBuilder<"sunburst"> = {
   },
 
   getDefinitionForExcel: () => undefined,
+
+  getRanges: (definition) => getDataSourceRanges(definition.dataSource),
 
   getRuntime(
     getters,
