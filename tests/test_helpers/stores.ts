@@ -1,10 +1,44 @@
+import { props, providePlugins, Scope, xml } from "@odoo/owl";
 import { Model, StoreConstructor, StoreParams } from "../../src";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 
+import { types } from "../../src/components/props_validation";
+import { spreadsheetOwlPlugins } from "../../src/components/spreadsheet/spreadsheet";
+import { App, Component } from "../../src/owl3_compatibility_layer";
+import { useLocalStore, useStoreProvider } from "../../src/store_engine/store_hooks";
 import { ModelStore } from "../../src/stores/model_store";
 import { NotificationStore } from "../../src/stores/notification_store";
-import { registerCleanup } from "../setup/jest.setup";
+import { _t } from "../../src/translation";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { makeTestNotificationStore } from "./helpers";
+
+class StoreParent extends Component<SpreadsheetChildEnv> {
+  static template = xml/*xml*/ `<div/>`;
+  protected props = props({
+    model: types.object<Model>(),
+    Store: types.function<any>(),
+    storeArgs: types.array(types.any()),
+    provideStore: types.function<(args: any) => void>(),
+  });
+
+  setup() {
+    providePlugins(spreadsheetOwlPlugins, { model: this.props.model });
+
+    const stores = useStoreProvider();
+    stores.inject(ModelStore, this.props.model);
+    stores.inject(NotificationStore, makeTestNotificationStore());
+
+    // @ts-ignore
+    const store = useLocalStore(this.props.Store, ...this.props.storeArgs);
+
+    this.props.provideStore({
+      store: store,
+      container: stores,
+      model: this.props.model,
+      pluginManager: this.__owl__.pluginManager,
+    });
+  }
+}
 
 export function makeStore<T extends StoreConstructor>(Store: T, ...args: StoreParams<T>) {
   return makeStoreWithModel(new Model(), Store, ...args);
@@ -14,19 +48,36 @@ export function makeStoreWithModel<T extends StoreConstructor>(
   model: Model,
   Store: T,
   ...args: StoreParams<T>
-) {
-  const container = new DependencyContainer();
-  registerCleanup(() => {
-    container.dispose();
+): {
+  store: InstanceType<T>;
+  container: DependencyContainer;
+  model: Model;
+  pluginManager: Scope["pluginManager"];
+} {
+  const app = new App({ test: true, translateFn: _t });
+
+  let storeInstance: InstanceType<T> | null = null;
+  let container: DependencyContainer | null = null;
+  let pluginManager: Scope["pluginManager"] | null = null;
+
+  app.createRoot(StoreParent, {
+    props: {
+      model,
+      Store,
+      storeArgs: args,
+      provideStore: (params: any) => {
+        storeInstance = params.store;
+        container = params.container;
+        pluginManager = params.pluginManager;
+      },
+    },
   });
 
-  container.inject(ModelStore, model);
-  container.inject(NotificationStore, makeTestNotificationStore());
-  return {
-    store: container.instantiate(Store, ...args) as InstanceType<T>,
-    container,
-    model: container.get(ModelStore),
-  };
+  if (!storeInstance || !container) {
+    throw new Error("Failed to create store instance");
+  }
+
+  return { store: storeInstance!, container: container!, model, pluginManager: pluginManager! };
 }
 
 /**

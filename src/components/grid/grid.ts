@@ -1,4 +1,4 @@
-import { onMounted, props, proxy, signal } from "@odoo/owl";
+import { onMounted, plugin, props, proxy, signal } from "@odoo/owl";
 import { insertSheet, insertTable } from "../../actions/insert_actions";
 import {
   CREATE_IMAGE,
@@ -77,8 +77,9 @@ import { useWheelHandler } from "../helpers/wheel_hook";
 import { ZoomedMouseEvent } from "../helpers/zoom";
 import { Highlight } from "../highlight/highlight/highlight";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
+import { CellPopoverPlugin } from "../owl_plugins/cell_popover_plugin";
+import { DelayedHoveredCellPlugin } from "../owl_plugins/delayed_hovered_cell_plugin";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
-import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
 import { HorizontalScrollBar } from "../scrollbar/scrollbar_horizontal";
@@ -86,7 +87,6 @@ import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
 import { Selection } from "../selection/selection";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { TableResizer } from "../tables/table_resizer/table_resizer";
-import { DelayedHoveredCellStore } from "./delayed_hovered_cell_store";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -147,7 +147,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   private gridRef = signal<HTMLElement | null>(null);
   private canvasRef = signal<HTMLElement | null>(null);
   private highlightStore!: Store<HighlightStore>;
-  private cellPopovers!: Store<CellPopoverStore>;
+  private cellPopovers = plugin(CellPopoverPlugin);
   private composerFocusStore!: Store<ComposerFocusStore>;
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
@@ -156,7 +156,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
   onMouseWheel!: (ev: WheelEvent) => void;
-  hoveredCell!: Store<DelayedHoveredCellStore>;
+  private hoveredCell = plugin(DelayedHoveredCellPlugin);
   sidePanel!: Store<SidePanelStore>;
 
   setup() {
@@ -166,7 +166,6 @@ export class Grid extends Component<SpreadsheetChildEnv> {
       anchorRect: null,
       menuItems: [],
     });
-    this.hoveredCell = useStore(DelayedHoveredCellStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     this.sidePanel = useStore(SidePanelStore);
@@ -192,7 +191,6 @@ export class Grid extends Component<SpreadsheetChildEnv> {
       this.moveCanvas(deltaX, deltaY);
       this.hoveredCell.clear();
     });
-    this.cellPopovers = useStore(CellPopoverStore);
 
     useLayoutEffect(
       (isMainPanelOpen, isSecondaryPanelOpen) => {
@@ -547,7 +545,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   }
 
   isCellHovered(col: HeaderIndex, row: HeaderIndex): boolean {
-    return this.hoveredCell.col === col && this.hoveredCell.row === row;
+    return this.hoveredCell.col() === col && this.hoveredCell.row() === row;
   }
 
   get focusedClients() {

@@ -1,5 +1,5 @@
 import { ClickableCellsStore } from "../../src/components/dashboard/clickable_cell_store";
-import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
+import { HoveredTablePlugin } from "../../src/components/owl_plugins/hovered_table_plugin";
 import { TEXT_BODY_MUTED } from "../../src/constants";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { createTable, setFormatting } from "../test_helpers/commands_helpers";
@@ -160,7 +160,7 @@ describe("Dashboard Pivot Sorting", () => {
     createTable(model, "A4", {}, "dynamic");
     const table = model.getters.getTable(toCellPosition(model.getters.getActiveSheetId(), "B5"))!;
     const tableStyle = model.getters.getTableStyle(table.config.styleId);
-    const { env } = await mountSpreadsheet({ model });
+    const { pluginManager } = await mountSpreadsheet({ model });
     model.updateMode("dashboard");
     await nextTick();
     expect(
@@ -171,7 +171,7 @@ describe("Dashboard Pivot Sorting", () => {
     ).toBeSameColorAs(TEXT_BODY_MUTED);
 
     // hover the row -> background should follow the overlay color
-    env.getStore(HoveredTableStore).hover(toCartesian("B5"));
+    pluginManager.getPlugin(HoveredTablePlugin)!.hover(toCartesian("B5"));
     await nextTick();
     expect(
       getElComputedStyle(".o-dashboard-clickable-cell .sorting-icon", "background-color")

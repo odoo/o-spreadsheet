@@ -7,7 +7,6 @@ import { ChartJsComponent } from "./components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "./components/figures/chart/scorecard/chart_scorecard";
 import { FigureComponent } from "./components/figures/figure/figure";
 import { ChartFigure } from "./components/figures/figure_chart/figure_chart";
-import { DelayedHoveredCellStore } from "./components/grid/delayed_hovered_cell_store";
 import { Grid } from "./components/grid/grid";
 import { GridOverlay } from "./components/grid_overlay/grid_overlay";
 import { useDragAndDropListItems } from "./components/helpers/drag_and_drop_dom_items_hook";
@@ -129,7 +128,6 @@ import { GenericZoomableChartDesignPanel } from "./components/side_panel/chart/z
 import { SidePanelCollapsible } from "./components/side_panel/components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "./components/side_panel/components/radio_selection/radio_selection";
 import { PivotMeasureDisplayPanelStore } from "./components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel_store";
-import { HoveredTableStore } from "./components/tables/hovered_table_store";
 import { TextInput } from "./components/text_input/text_input";
 import { ChartTerms } from "./components/translations_terms";
 import { arg } from "./functions/arguments";
@@ -336,6 +334,11 @@ import "./registries/interactive_icon_on_cell_registry";
 
 import { Composer } from "./components/composer/composer/composer";
 import { StandaloneComposer } from "./components/composer/standalone_composer/standalone_composer";
+import { CellPopoverPlugin } from "./components/owl_plugins/cell_popover_plugin";
+import { DelayedHoveredCellPlugin } from "./components/owl_plugins/delayed_hovered_cell_plugin";
+import { HoveredIconPlugin } from "./components/owl_plugins/hovered_icon_plugin";
+import { HoveredTablePlugin } from "./components/owl_plugins/hovered_table_plugin";
+import { ModelPlugin } from "./components/owl_plugins/model_plugin";
 import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
 import { CalendarButton } from "./components/side_panel/criterion_form/calendar_button/calendar_button";
@@ -534,8 +537,6 @@ export const stores = {
   CellComposerStore,
   FindAndReplaceStore,
   HighlightStore,
-  DelayedHoveredCellStore,
-  HoveredTableStore,
   ModelStore,
   NotificationStore,
   RendererStore,
@@ -548,6 +549,14 @@ export const stores = {
   PivotMeasureDisplayPanelStore,
   ClientFocusStore,
   GridRenderer,
+};
+
+export const owlPlugins = {
+  ModelPlugin,
+  DelayedHoveredCellPlugin,
+  HoveredIconPlugin,
+  HoveredTablePlugin,
+  CellPopoverPlugin,
 };
 
 export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";

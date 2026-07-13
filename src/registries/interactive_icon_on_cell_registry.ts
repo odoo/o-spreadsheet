@@ -21,17 +21,17 @@ iconsOnCellRegistry.add("filter_icon", (getters, position) => {
       position,
       onClick: (position, env) => {
         const cellPopovers = env.getStore(CellPopoverStore);
-        const activePopover = cellPopovers.persistentCellPopover;
+        const activePopover = cellPopovers.popoverPlugin.persistentCellPopover;
         if (
           activePopover.isOpen &&
           activePopover.col === position.col &&
           activePopover.row === position.row &&
           activePopover.type === "FilterMenu"
         ) {
-          cellPopovers.close();
+          cellPopovers.popoverPlugin.close();
           return;
         }
-        cellPopovers.open(position, "FilterMenu");
+        cellPopovers.popoverPlugin.open(position, "FilterMenu");
       },
     };
   }

@@ -1,10 +1,11 @@
+import { Scope } from "@odoo/owl";
 import { Align, ClipboardMIMEType, Spreadsheet, TransportService } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { resetTimeoutDuration } from "../../src/components/helpers/touch_handlers_hook";
 import { getDataFilterIcon } from "../../src/components/icons/icons";
+import { CellPopoverPlugin } from "../../src/components/owl_plugins/cell_popover_plugin";
 import { PaintFormatStore } from "../../src/components/paint_format_button/paint_format_store";
-import { CellPopoverStore } from "../../src/components/popover/cell_popover_store";
 import {
   DEFAULT_BORDER_DESC,
   DEFAULT_CELL_HEIGHT,
@@ -133,13 +134,14 @@ let env: SpreadsheetChildEnv;
 let parent: Spreadsheet;
 let composerStore: Store<CellComposerStore>;
 let composerFocusStore: Store<ComposerFocusStore>;
+let pluginManager: Scope["pluginManager"];
 
 useJestFakeTimers();
 mockChart();
 
 describe("Grid component", () => {
   beforeEach(async () => {
-    ({ parent, model, fixture, env } = await mountSpreadsheet());
+    ({ parent, model, fixture, env, pluginManager } = await mountSpreadsheet());
     composerStore = env.getStore(CellComposerStore);
     composerFocusStore = env.getStore(ComposerFocusStore);
   });
@@ -1133,7 +1135,7 @@ describe("Grid component", () => {
     });
 
     test("Scrolling the grid remove persistent popovers if the cell is outside the viewport", async () => {
-      const cellPopovers = env.getStore(CellPopoverStore);
+      const cellPopovers = pluginManager.getPlugin(CellPopoverPlugin)!;
       cellPopovers.open({ col: 0, row: 0 }, "LinkEditor");
       await nextTick();
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
@@ -1144,7 +1146,7 @@ describe("Grid component", () => {
     });
 
     test("Scrolling the grid don't remove persistent popovers if the cell is inside the viewport", async () => {
-      const cellPopovers = env.getStore(CellPopoverStore);
+      const cellPopovers = pluginManager.getPlugin(CellPopoverPlugin)!;
       cellPopovers.open({ col: 0, row: 0 }, "LinkEditor");
       await nextTick();
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();

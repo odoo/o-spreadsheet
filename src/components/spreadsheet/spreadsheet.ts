@@ -4,6 +4,7 @@ import {
   onWillUnmount,
   onWillUpdateProps,
   props,
+  providePlugins,
   proxy,
   signal,
   useEffect,
@@ -46,6 +47,12 @@ import {
 } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";
+import { CellPopoverPlugin } from "../owl_plugins/cell_popover_plugin";
+import { DelayedHoveredCellPlugin } from "../owl_plugins/delayed_hovered_cell_plugin";
+import { HoveredIconPlugin } from "../owl_plugins/hovered_icon_plugin";
+import { HoveredTablePlugin } from "../owl_plugins/hovered_table_plugin";
+import { ModelPlugin } from "../owl_plugins/model_plugin";
+import { CellPopoverStore } from "../popover/cell_popover_store";
 import { types } from "../props_validation";
 import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../side_panel/side_panels/side_panels";
@@ -64,6 +71,14 @@ import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipbo
 //   <polygon fill='%23374151' points='3.5 4 7 0 0 0'/>
 // </svg>
 // `;
+
+export const spreadsheetOwlPlugins = [
+  ModelPlugin,
+  HoveredIconPlugin,
+  DelayedHoveredCellPlugin,
+  HoveredTablePlugin,
+  CellPopoverPlugin,
+];
 
 export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Spreadsheet";
@@ -126,6 +141,8 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   }
 
   setup() {
+    providePlugins(spreadsheetOwlPlugins, { model: this.props.model });
+
     if (!("isSmall" in this.env)) {
       const screenSize = useScreenWidth();
       useSubEnv({
@@ -146,6 +163,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
     this.notificationStore = useStore(NotificationStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.sidePanel = useStore(SidePanelStore);
+    useStore(CellPopoverStore); // Instantiate the store to scope its owl plugin
     const fileStore = this.model.config.external.fileStore;
 
     useSubEnv({
