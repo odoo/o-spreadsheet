@@ -1,4 +1,4 @@
-import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constants";
+import { DEFAULT_REVISION_ID, MESSAGE_VERSION, SAVE_VERSION_EVERY_N_MINUTES } from "../constants";
 import { EventBus } from "../helpers/event_bus";
 import { isDefined } from "../helpers/misc";
 import { UuidGenerator } from "../helpers/uuid";
@@ -57,6 +57,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   private isReplayingInitialRevisions = false;
 
   private processedRevisions: Set<UID> = new Set();
+  private lastVersionSavedAt = Date.now();
   private lastRevisionMessage:
     | RevisionUndoneMessage
     | RevisionRedoneMessage
@@ -96,9 +97,21 @@ export class Session extends EventBus<CollaborativeEvent> {
    * Add a new revision to the collaborative session.
    * It will be transmitted to all other connected clients.
    */
-  save(rootCommand: Command, commands: CoreCommand[], changes: HistoryChange[]) {
+  save(
+    rootCommand: Command,
+    commands: CoreCommand[],
+    changes: HistoryChange[],
+    data: Lazy<WorkbookData>
+  ) {
     if (!commands.length || !changes.length || !this.canApplyOptimisticUpdate()) {
       return;
+    }
+    const isTimeToSaveVersion =
+      Date.now() - this.lastVersionSavedAt > SAVE_VERSION_EVERY_N_MINUTES * 60 * 1000;
+    if (isTimeToSaveVersion) {
+      // This saves the current state, which is not committed!
+      // But it's good enough. It doesn't need to be consistent.
+      this.saveIntermediaryVersion(data);
     }
     const revision = new Revision(
       UuidGenerator.uuidv4(),
@@ -180,13 +193,12 @@ export class Session extends EventBus<CollaborativeEvent> {
    * Notify the server that the user client left the collaborative session
    */
   async leave(data?: Lazy<WorkbookData>) {
-    if (
-      data &&
-      Object.keys(this.clients).length === 1 &&
-      this.lastRevisionMessage &&
-      this.lastRevisionMessage?.type !== "SNAPSHOT_CREATED"
-    ) {
-      await this.snapshot(data());
+    if (data && this.lastRevisionMessage && this.lastRevisionMessage?.type !== "SNAPSHOT_CREATED") {
+      if (Object.keys(this.clients).length === 1) {
+        await this.snapshot(data());
+      } else if (this.pendingMessages.length === 0) {
+        await this.saveIntermediaryVersion(data);
+      }
     }
     delete this.clients[this.clientId];
     this.transportService.leave(this.clientId);
@@ -204,6 +216,7 @@ export class Session extends EventBus<CollaborativeEvent> {
     if (this.pendingMessages.length !== 0) {
       return;
     }
+    this.lastVersionSavedAt = Date.now();
     const snapshotId = UuidGenerator.uuidv4();
     await this.sendToTransport({
       type: "SNAPSHOT",
@@ -524,5 +537,16 @@ export class Session extends EventBus<CollaborativeEvent> {
     this.pendingMessages = this.pendingMessages.filter(
       ({ type }) => type !== "REVISION_REDONE" && type !== "REVISION_UNDONE"
     );
+  }
+
+  private async saveIntermediaryVersion(data: Lazy<WorkbookData>) {
+    if (this.lastRevisionMessage && this.lastRevisionMessage?.type !== "SNAPSHOT_CREATED") {
+      this.lastVersionSavedAt = Date.now();
+      return this.sendToTransport({
+        type: "INTERMEDIARY_VERSION_SAVED",
+        version: MESSAGE_VERSION,
+        data: data(),
+      });
+    }
   }
 }
