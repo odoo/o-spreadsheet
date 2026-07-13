@@ -29,6 +29,7 @@ import { Lazy, UID } from "../types/misc";
 import { WorkbookData } from "../types/workbook_data";
 import { ICommandSquisher } from "./command_squisher";
 import { transformAll } from "./ot/ot";
+import { PendingMessagesStorage } from "./pending_messages_storage";
 import { Revision } from "./revisions";
 
 export class ClientDisconnectedError extends Error {}
@@ -83,7 +84,8 @@ export class Session extends EventBus<CollaborativeEvent> {
     private revisions: RevisionLog<Revision>,
     private transportService: TransportService<CollaborationMessage>,
     private serverRevisionId: UID = DEFAULT_REVISION_ID,
-    private commandSquisher: ICommandSquisher
+    private commandSquisher: ICommandSquisher,
+    private pendingChangesStorage?: PendingMessagesStorage
   ) {
     super();
   }
@@ -147,7 +149,7 @@ export class Session extends EventBus<CollaborativeEvent> {
     });
   }
 
-  join(client?: Client) {
+  async join(client?: Client): Promise<void> {
     if (client) {
       this.clients[client.id] = client;
       this.clientId = client.id;
@@ -160,6 +162,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       this.move(this.awaitingClientPosition);
       this.awaitingClientPosition = undefined;
     }
+    await this.restorePendingMessages();
   }
 
   loadInitialMessages(messages: StateUpdateMessage[]) {
@@ -249,7 +252,7 @@ export class Session extends EventBus<CollaborativeEvent> {
    * Notify that the position of the client has changed
    */
   move(position: ClientPosition) {
-    // this method could be called before the client joins the session, or after he left (because of the debounce)
+    // this method can be called before the client joins the session, or after they left
     if (!this.clients[this.clientId]) {
       this.awaitingClientPosition = position;
       return;
@@ -269,11 +272,17 @@ export class Session extends EventBus<CollaborativeEvent> {
       type,
       version: MESSAGE_VERSION,
       client: { ...client, position },
-    }).then(() => {
-      if (this.pendingMessages.length > 0 && !this.waitingAck) {
-        this.sendPendingMessage();
-      }
-    });
+    })
+      .then(() => {
+        if (this.pendingMessages.length > 0 && !this.waitingAck) {
+          this.sendPendingMessage();
+        }
+      })
+      .catch((e: Error) => {
+        if (!(e instanceof ClientDisconnectedError)) {
+          throw e.cause || e;
+        }
+      });
   }
 
   /**
@@ -399,6 +408,7 @@ export class Session extends EventBus<CollaborativeEvent> {
 
   private sendUpdateMessage(message: StateUpdateMessage) {
     this.pendingMessages.push(message);
+    this.pendingChangesStorage?.addMessage(message);
     if (this.waitingAck) {
       return;
     }
@@ -461,6 +471,7 @@ export class Session extends EventBus<CollaborativeEvent> {
         this.pendingMessages = this.pendingMessages.filter(
           (msg) => msg.nextRevisionId !== message.nextRevisionId
         );
+        this.pendingChangesStorage?.removeMessage(message.nextRevisionId);
         this.serverRevisionId = message.nextRevisionId;
         this.processedRevisions.add(message.nextRevisionId);
         this.lastRevisionMessage = message;
@@ -471,6 +482,7 @@ export class Session extends EventBus<CollaborativeEvent> {
         this.pendingMessages = this.pendingMessages.filter(
           (msg) => msg.nextRevisionId !== message.nextRevisionId
         );
+        this.pendingChangesStorage?.removeMessage(message.nextRevisionId);
         const firstPendingRevisionId = this.pendingMessages.findIndex(
           (message): message is RemoteRevisionMessage => message.type === "REMOTE_REVISION"
         );
@@ -521,8 +533,100 @@ export class Session extends EventBus<CollaborativeEvent> {
 
   private dropPendingHistoryMessages() {
     this.waitingUndoRedoAck = false;
+    const dropped = this.pendingMessages.filter(
+      ({ type }) => type === "REVISION_REDONE" || type === "REVISION_UNDONE"
+    );
     this.pendingMessages = this.pendingMessages.filter(
       ({ type }) => type !== "REVISION_REDONE" && type !== "REVISION_UNDONE"
     );
+    for (const msg of dropped) {
+      this.pendingChangesStorage?.removeMessage(msg.nextRevisionId);
+    }
+  }
+
+  /**
+   * Load pending messages previously saved to storage and replay them on top of
+   * the current server state, then begin retransmitting them to the server.
+   *
+   * Must be called after `join()` so that `clientId` is set.
+   * The integrator should call `model.restoreOfflineChanges()` which delegates here.
+   */
+  async restorePendingMessages(): Promise<void> {
+    if (!this.pendingChangesStorage) {
+      return;
+    }
+    const stored = await this.pendingChangesStorage.loadAndClaim();
+    if (!stored?.length) {
+      return;
+    }
+
+    // Skip messages already acked by the server (safety net for multi-tab concurrent sends)
+    const toRestore = stored.filter((m) => !this.processedRevisions.has(m.nextRevisionId));
+    if (!toRestore.length) {
+      return;
+    }
+
+    this.isReplayingInitialRevisions = true;
+    const newPendingMessages: StateUpdateMessage[] = [];
+    let insertAfter = this.serverRevisionId;
+
+    for (const message of toRestore) {
+      switch (message.type) {
+        case "REMOTE_REVISION": {
+          const commands = this.commandSquisher.unsquish(message.commands);
+          const revision = new Revision(
+            message.nextRevisionId,
+            this.clientId,
+            commands,
+            undefined,
+            undefined,
+            message.timestamp
+          );
+          // revisions.insert applies OT automatically against any server revisions
+          // that arrived between the original send and this reload
+          this.revisions.insert(revision.id, revision, insertAfter);
+          // Use the OT'd commands from the revision log (may differ from the originals)
+          this.trigger("remote-revision-received", {
+            commands: this.revisions.get(revision.id).commands,
+          });
+          newPendingMessages.push({ ...message, clientId: this.clientId });
+          this.lastLocalOperation = this.revisions.get(revision.id);
+          insertAfter = message.nextRevisionId;
+          break;
+        }
+        case "REVISION_UNDONE":
+          this.revisions.undo(message.undoneRevisionId, message.nextRevisionId, insertAfter);
+          this.trigger("revision-undone", {
+            revisionId: message.undoneRevisionId,
+            commands: this.revisions.get(message.undoneRevisionId).commands,
+          });
+          newPendingMessages.push({ ...message });
+          insertAfter = message.nextRevisionId;
+          break;
+        case "REVISION_REDONE":
+          this.revisions.redo(message.redoneRevisionId, message.nextRevisionId, insertAfter);
+          this.trigger("revision-redone", {
+            revisionId: message.redoneRevisionId,
+            commands: this.revisions.get(message.redoneRevisionId).commands,
+          });
+          newPendingMessages.push({ ...message });
+          insertAfter = message.nextRevisionId;
+          break;
+        default:
+          // SNAPSHOT_CREATED and other types never appear in pendingMessages; skip silently
+          break;
+      }
+    }
+
+    this.pendingMessages = newPendingMessages;
+    this.isReplayingInitialRevisions = false;
+    // Restore the flag that blocks new dispatches until an undo/redo is acked
+    this.waitingUndoRedoAck = newPendingMessages.some(
+      (m) => m.type === "REVISION_UNDONE" || m.type === "REVISION_REDONE"
+    );
+    this.pendingChangesStorage?.save(this.pendingMessages);
+    if (!this.waitingAck) {
+      this.sendPendingMessage();
+    }
   }
 }

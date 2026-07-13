@@ -91,10 +91,18 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private session: Session;
 
   /**
+   * Stable identifier for this spreadsheet document. Set once from workbookData during
+   * construction and injected into every exportData() call. Never changes (unlike revisionId).
+   */
+  private spreadsheetId: UID;
+
+  /**
    * In a collaborative context, some commands can be replayed, we have to ensure
    * that these commands are not replayed on the UI plugins.
    */
   private isReplayingCommand: boolean = false;
+
+  private joinPromise: Promise<void> = Promise.resolve();
 
   /**
    * A plugin can draw some contents on the canvas. But even better: it can do
@@ -153,6 +161,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     stateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
 
     const workbookData = load(data, verboseImport);
+
+    this.spreadsheetId = workbookData.spreadsheetId;
 
     this.state = new StateObserver();
 
@@ -233,7 +243,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       // events
       this.setupSessionEvents();
 
-      this.joinSession();
+      this.joinPromise = this.joinSession();
 
       if (config.snapshotRequested || (data["[Content_Types].xml"] && !this.getters.isReadonly())) {
         const startSnapshot = performance.now();
@@ -247,8 +257,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     console.debug("######");
   }
 
-  joinSession() {
-    this.session.join(this.config.client);
+  async joinSession(): Promise<void> {
+    await this.session.join(this.config.client);
   }
 
   async leaveSession({ shouldSnapshot }: { shouldSnapshot?: boolean } = { shouldSnapshot: true }) {
@@ -346,8 +356,20 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       }),
       this.config.transportService,
       revisionId,
-      new CommandSquisher(this.getters)
+      new CommandSquisher(this.getters),
+      this.config.pendingChangesStorage
     );
+  }
+
+  /**
+   * Restore pending collaborative changes that were saved to storage before a page reload.
+   * Call this once after constructing the Model (after `joinSession` has been called internally).
+   * The returned promise resolves when the stored changes have been replayed and retransmission
+   * to the server has started.
+   */
+  async restoreOfflineChanges(): Promise<void> {
+    await this.joinPromise;
+    this.trigger("update");
   }
 
   private setupSessionEvents() {
@@ -668,6 +690,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       }
     }
     data.revisionId = this.session.getRevisionId() || DEFAULT_REVISION_ID;
+    data.spreadsheetId = this.spreadsheetId;
     data = deepCopy(data);
     return data;
   }

@@ -1120,6 +1120,7 @@ test("complete import, then export", () => {
     },
     uniqueFigureIds: true,
     namedRanges: {},
+    spreadsheetId: "test-spreadsheet-id",
   };
   const model = new Model(modelData);
   expect(model).toExport(modelData);
