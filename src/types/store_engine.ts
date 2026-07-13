@@ -36,9 +36,15 @@ export type SkipFirst<T extends any[]> = T extends [any, ...infer U] ? U : never
 export type OmitFunctions<T> = {
   [K in keyof T as T[K] extends Function ? never : K]: T[K];
 };
-export type Store<S> = S extends { mutators: readonly (keyof S)[] }
-  ? CQS<Pick<S, S["mutators"][number]> & OmitFunctions<S>>
-  : CQS<OmitFunctions<S>>;
+
+export type FunctionKeys<T> = { [K in keyof T]: T[K] extends Function ? K : never }[keyof T];
+export type MutatorKeys<S> = S extends { mutators: readonly FunctionKeys<S>[] }
+  ? S["mutators"][number]
+  : never;
+export type GetterKeys<S> = S extends { storeGetters: readonly FunctionKeys<S>[] }
+  ? S["storeGetters"][number]
+  : never;
+export type Store<S> = CQS<Pick<S, MutatorKeys<S>> & OmitFunctions<S>> & Pick<S, GetterKeys<S>>;
 /**
  * Command Query Separation [1,2] implementation with types.
  *
