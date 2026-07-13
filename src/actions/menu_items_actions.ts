@@ -626,7 +626,10 @@ export const INSERT_TABLE = (env: SpreadsheetChildEnv) => {
 
   const result = interactiveCreateTable(env, sheetId);
   if (result.isSuccessful) {
-    env.openSidePanel("TableSidePanel", {});
+    const table = env.model.getters.getFirstTableInSelection();
+    if (table) {
+      env.openSidePanel("TableSidePanel", { table });
+    }
   }
 };
 
