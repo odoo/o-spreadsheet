@@ -1,3 +1,4 @@
+import { signal, Signal } from "@odoo/owl";
 import { CommandSquisher } from "./collaborative/command_squisher";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
@@ -89,6 +90,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private range: RangeAdapterPlugin;
 
   private session: Session;
+
+  private modelVersion = signal(0);
 
   /**
    * In a collaborative context, some commands can be replayed, we have to ensure
@@ -227,7 +230,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       // Model should be the last permanent subscriber in the list since he should render
       // after all changes have been applied to the other subscribers (plugins)
       this.selection.observe(this, {
-        handleEvent: () => this.trigger("update"),
+        handleEvent: () => this.incrementModelVersion(),
       });
       // This should be done after construction of LocalHistory due to order of
       // events
@@ -245,6 +248,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     }
     console.debug("Model created in", performance.now() - start, "ms");
     console.debug("######");
+  }
+
+  private incrementModelVersion() {
+    this.modelVersion.set(this.modelVersion() + 1);
+  }
+
+  getModelVersion(): Signal<number> {
+    return this.modelVersion;
   }
 
   joinSession() {
@@ -364,7 +375,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     // It feels weird to have the model piping specific session events to its own bus.
     this.session.on("unexpected-revision-id", this, () => this.trigger("unexpected-revision-id"));
     this.session.on("collaborative-event-received", this, () => {
-      this.trigger("update");
+      this.incrementModelVersion();
     });
   }
 
@@ -523,7 +534,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       case Status.Ready:
         const result = this.checkDispatchAllowed(command);
         if (!result.isSuccessful) {
-          this.trigger("update");
+          this.incrementModelVersion();
           this.trigger("command-rejected", { command, result });
           return result;
         }
@@ -542,7 +553,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         });
         this.session.save(command, commands, changes);
         this.status = Status.Ready;
-        this.trigger("update");
+        this.incrementModelVersion();
         break;
       case Status.Running:
         if (isCoreCommand(command)) {
@@ -675,7 +686,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   updateMode(mode: Mode) {
     // @ts-ignore For testing purposes only
     this.config.mode = mode;
-    this.trigger("update");
+    this.incrementModelVersion();
   }
 
   /**
