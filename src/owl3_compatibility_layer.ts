@@ -53,8 +53,8 @@ const {
   useLayoutEffect: OwlUseLayoutEffect, // Exported by Odoo compat layer
   useSubEnv: OwlUseSubEnv, // Exported by Odoo compat layer
   Plugin,
-  plugin,
-  props,
+  usePlugin,
+  useProps,
   providePlugins, // Exported by Odoo compat layer
   useScope,
   xml,
@@ -165,7 +165,7 @@ function _useChildSubEnv(extension) {
 }
 
 function _useChildEnv() {
-  return plugin(_EnvPlugin).env;
+  return usePlugin(_EnvPlugin).env;
 }
 
 class VPortal extends blockDom.text("").constructor {
@@ -225,7 +225,7 @@ class Portal extends OwlComponent {
 
   constructor(node) {
     super(node);
-    this.props = props();
+    this.props = useProps();
     this.__owl__ = node;
   }
 

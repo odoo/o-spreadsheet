@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { Action } from "../../../../actions/action";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -33,7 +33,7 @@ interface ChartMenuState {
 export class ChartMenu extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartMenu";
   static components = { MenuPopover, InfoPopover, Select };
-  protected props = props({
+  protected props = useProps({
     chartId: types.UID(),
     hasFullScreenButton: types.boolean().optional(true),
     displayEllipsisButton: types.boolean().optional(true),

@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
 import { ResizeDirection } from "../../../types/figure";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -13,7 +13,7 @@ type Orientation = "nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w";
 export class Corner extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Corner";
 
-  protected props = props({
+  protected props = useProps({
     zone: types.Zone(),
     color: types.Color(),
     orientation: types.or([

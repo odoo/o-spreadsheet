@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/misc";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { PieChartDefinition, PieChartRuntime } from "../../../../types/chart/pie_chart";
@@ -33,7 +33,7 @@ export class PieChartDesignPanel extends Component<SpreadsheetChildEnv> {
     RoundColorPicker,
     Select,
   };
-  protected props = props(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<
+  protected props = useProps(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<
     PieChartDefinition<string>
   >;
 

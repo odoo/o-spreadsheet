@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, props, signal } from "@odoo/owl";
+import { onMounted, onWillUnmount, signal, useProps } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import {
   chartJsExtensionRegistry,
@@ -80,7 +80,7 @@ chartJsExtensionRegistry.add("chartBackgroundPlugin", {
 export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartJsComponent";
 
-  protected props = props({
+  protected props = useProps({
     chartId: types.string(),
     isFullScreen: types.boolean().optional(),
   });

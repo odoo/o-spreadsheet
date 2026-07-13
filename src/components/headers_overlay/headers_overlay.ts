@@ -1,4 +1,4 @@
-import { props, proxy, signal } from "@odoo/owl";
+import { proxy, signal, useProps } from "@odoo/owl";
 import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../constants";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
@@ -42,7 +42,7 @@ export const resizerPropsDefinition = {
 };
 
 abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
-  protected props = props(resizerPropsDefinition);
+  protected props = useProps(resizerPropsDefinition);
   private composerFocusStore!: Store<ComposerFocusStore>;
 
   PADDING: number = 0;
@@ -680,7 +680,7 @@ export class RowResizer extends AbstractResizer {
 export class HeadersOverlay extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-HeadersOverlay";
 
-  protected props = props(resizerPropsDefinition);
+  protected props = useProps(resizerPropsDefinition);
   static components = { ColResizer, RowResizer };
 
   selectAll() {

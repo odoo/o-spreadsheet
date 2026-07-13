@@ -1,4 +1,4 @@
-import { onWillUpdateProps, props, proxy, signal } from "@odoo/owl";
+import { onWillUpdateProps, proxy, signal, useProps } from "@odoo/owl";
 import { canonicalizeContent, localizeContent } from "../../../../helpers/locale";
 import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
@@ -12,7 +12,7 @@ export class CriterionInput extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CriterionInput";
   static components = { StandaloneComposer: StandaloneComposer };
 
-  protected props = props({
+  protected props = useProps({
     value: types.string().optional(""),
     criterionType: types.DataValidationCriterionType(),
     onValueChanged: types.function<(value: string) => void>(),

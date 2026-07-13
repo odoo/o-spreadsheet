@@ -1,4 +1,4 @@
-import { onWillUpdateProps, props, proxy } from "@odoo/owl";
+import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
 import { deepEquals } from "../../../helpers/misc";
 import { Component, ComponentConstructor } from "../../../owl3_compatibility_layer";
 import {
@@ -21,7 +21,7 @@ export class FilterMenuCriterion extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FilterMenuCriterion";
   static components = { Select };
 
-  protected props = props({
+  protected props = useProps({
     criterion: types.CriterionFilter(),
     criterionOperators: types.array(types.GenericCriterionType()),
     onCriterionChanged: types.function<(criterion: CriterionFilter) => void>(),

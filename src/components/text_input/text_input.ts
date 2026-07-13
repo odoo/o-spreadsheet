@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { isDefined } from "../../helpers/misc";
 import {
   GenericInput,
@@ -18,7 +18,7 @@ export class TextInput extends GenericInput<Props> {
   static template = "o-spreadsheet-TextInput";
   static components = {};
 
-  protected props: Props = props({
+  protected props: Props = useProps({
     ...genericInputPropsDefinition,
     value: types.string(),
     errorMessage: types.string().optional(),

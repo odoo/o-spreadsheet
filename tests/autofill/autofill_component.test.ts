@@ -1,4 +1,4 @@
-import { props, xml } from "@odoo/owl";
+import { useProps, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import { types } from "../../src/components/props_validation";
 import { DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
@@ -210,7 +210,7 @@ describe("Autofill component", () => {
       static template = xml/* xml */ `
         <div class="custom_tooltip" t-out="this.props.content"/>
       `;
-      protected props = props({
+      protected props = useProps({
         content: types.string(),
       });
     }

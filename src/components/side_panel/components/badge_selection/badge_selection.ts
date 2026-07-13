@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -12,7 +12,7 @@ interface Choice {
 export class BadgeSelection extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.BadgeSelection";
 
-  protected props = props({
+  protected props = useProps({
     choices: types.ArrayOf<Choice>(),
     onChange: types.function<(value: string) => void>(),
     selectedValue: types.string(),

@@ -1,4 +1,4 @@
-import { props, signal, toRaw } from "@odoo/owl";
+import { signal, toRaw, useProps } from "@odoo/owl";
 import { Component, useChildSubEnv } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
@@ -32,7 +32,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
     HorizontalScrollBar,
   };
 
-  protected props = props({
+  protected props = useProps({
     getGridSize: types.function<() => DOMDimension>(),
   });
 

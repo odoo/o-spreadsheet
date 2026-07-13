@@ -1,4 +1,4 @@
-import { props, xml } from "@odoo/owl";
+import { useProps, xml } from "@odoo/owl";
 import { Color, Model, Pixel, Range } from "../../src";
 import { Highlight } from "../../src/components/highlight/highlight/highlight";
 import { types } from "../../src/components/props_validation";
@@ -127,7 +127,7 @@ class Parent extends Component {
   static template = xml/*xml*/ `
     <Highlight range="this.props.range" color="this.props.color"/>
   `;
-  protected props = props({
+  protected props = useProps({
     range: types.object<Range>(),
     color: types.string(),
     model: types.object<Model>(),

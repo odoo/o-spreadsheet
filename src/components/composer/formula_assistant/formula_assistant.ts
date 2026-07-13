@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -9,7 +9,7 @@ export class FunctionDescriptionProvider extends Component<SpreadsheetChildEnv> 
   static template = "o-spreadsheet-FunctionDescriptionProvider";
   static components = { Collapse };
 
-  protected props = props({
+  protected props = useProps({
     functionDescription: types.FunctionDescription(),
     argsToFocus: types.array(types.number()),
     repeatingArgGroupIndex: types.number().optional(),

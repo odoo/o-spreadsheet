@@ -1,4 +1,4 @@
-import { props, proxy, signal } from "@odoo/owl";
+import { proxy, signal, useProps } from "@odoo/owl";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { MoveFiguresPayload } from "../../../types/commands";
@@ -33,7 +33,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FigureComponent";
   static components = { MenuPopover };
 
-  protected props = props({
+  protected props = useProps({
     figureUI: types.FigureUI(),
     style: types.string(),
     class: types.string(),

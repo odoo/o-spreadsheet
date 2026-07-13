@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { DEFAULT_PIVOT_STYLE } from "../../../../../helpers/pivot/pivot_helpers";
 import { PIVOT_TABLE_PRESETS } from "../../../../../helpers/pivot_table_presets";
 import { Component } from "../../../../../owl3_compatibility_layer";
@@ -18,7 +18,7 @@ export class PivotDesignPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotDesignPanel";
   static components = { Section, Checkbox, NumberInput, TableStylePicker };
 
-  protected props = props({
+  protected props = useProps({
     pivotId: types.UID(),
   });
 

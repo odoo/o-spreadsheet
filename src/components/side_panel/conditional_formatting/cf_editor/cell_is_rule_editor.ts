@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
@@ -13,7 +13,7 @@ export class CellIsRuleEditor extends Component<SpreadsheetChildEnv> {
     ColorPickerWidget,
     Select,
   };
-  protected props = props({
+  protected props = useProps({
     store: types.Store<ConditionalFormattingEditorStore>(),
   });
 

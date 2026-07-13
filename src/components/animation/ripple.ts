@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, props, proxy, signal } from "@odoo/owl";
+import { onMounted, onWillUnmount, proxy, signal, useProps } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { PropsOf } from "../../types/props_of";
 import { Rect } from "../../types/rendering";
@@ -30,7 +30,7 @@ interface RectWithMargins extends Rect {
 class RippleEffect extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-RippleEffect";
 
-  protected props = props({
+  protected props = useProps({
     x: types.string(),
     y: types.string(),
     color: types.string(),
@@ -90,7 +90,7 @@ export class Ripple extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Ripple";
   static components = { RippleEffect };
 
-  protected props = props({
+  protected props = useProps({
     color: types.string().optional("#aaaaaa"),
     opacity: types.number().optional(0.4),
     duration: types.number().optional(800),

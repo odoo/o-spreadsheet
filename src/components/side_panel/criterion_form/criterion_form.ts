@@ -2,7 +2,7 @@ import { useStore } from "../../../store_engine/store_hooks";
 import { GenericCriterion } from "../../../types/generic_criterion";
 import { ComposerFocusStore } from "../../composer/composer_focus_store";
 
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { types } from "../../props_validation";
@@ -17,7 +17,7 @@ interface CriterionFormProps<T extends GenericCriterion> {
 export abstract class CriterionForm<
   T extends GenericCriterion = GenericCriterion
 > extends Component<SpreadsheetChildEnv> {
-  protected props: CriterionFormProps<T> = props({
+  protected props: CriterionFormProps<T> = useProps({
     criterion: types.object(),
     onCriterionChanged: types.function<(criterion: T) => void>(),
     disableFormulas: types.boolean().optional(),

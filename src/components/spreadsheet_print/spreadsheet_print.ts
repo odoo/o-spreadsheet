@@ -1,4 +1,4 @@
-import { onWillUnmount, props } from "@odoo/owl";
+import { onWillUnmount, useProps } from "@odoo/owl";
 import { Component, useExternalListener } from "../../owl3_compatibility_layer";
 import { useLocalStore } from "../../store_engine/store_hooks";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -20,7 +20,7 @@ import {
 
 export class SpreadsheetPrint extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SpreadsheetPrint";
-  protected props = props({
+  protected props = useProps({
     onExitPrintMode: types.function(),
   });
   static components = { StandaloneGridCanvas, Section, Select, BadgeSelection, Checkbox };

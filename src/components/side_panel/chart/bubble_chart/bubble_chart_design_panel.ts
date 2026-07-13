@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { FIRST_CHART_COLOR } from "../../../../helpers/color";
 import { CHART_AXIS_CHOICES } from "../../../../helpers/figures/charts/chart_common";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -38,7 +38,7 @@ export class BubbleChartDesignPanel extends Component<SpreadsheetChildEnv> {
     Checkbox,
     ChartAnnotation,
   };
-  protected props = props(
+  protected props = useProps(
     chartSidePanelPropsDefinition
   ) as unknown as ChartSidePanelProps<BubbleChartDefinition>;
 

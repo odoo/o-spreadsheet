@@ -1,4 +1,4 @@
-import { onWillUpdateProps, props, proxy } from "@odoo/owl";
+import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
 import { formatValue } from "../../../helpers/format/format";
 import { Component } from "../../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
@@ -18,7 +18,7 @@ export class BottomBarStatistic extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BottomBarStatistic";
   static components = { Ripple };
 
-  protected props = props({
+  protected props = useProps({
     openContextMenu: types.function<(x: number, y: number, registry: MenuItemRegistry) => void>(),
     closeContextMenu: types.function(),
   });

@@ -1,4 +1,4 @@
-import { onWillStart, onWillUpdateProps, props } from "@odoo/owl";
+import { onWillStart, onWillUpdateProps, useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
 import { useLocalStore } from "../../../store_engine/store_hooks";
@@ -25,7 +25,7 @@ export class MoreFormatsPanel extends Component<SpreadsheetChildEnv> {
     Select,
   };
 
-  protected props = props({
+  protected props = useProps({
     onCloseSidePanel: types.function(),
     category: types
       .or([types.literal("number"), types.literal("date"), types.literal("currency")])

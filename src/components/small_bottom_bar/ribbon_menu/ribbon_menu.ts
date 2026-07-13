@@ -1,4 +1,4 @@
-import { onMounted, props, proxy, signal } from "@odoo/owl";
+import { onMounted, proxy, signal, useProps } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators } from "../../../actions/action";
 import { Component, useExternalListener } from "../../../owl3_compatibility_layer";
 import { topbarMenuRegistry } from "../../../registries/menus/topbar_menu_registry";
@@ -20,7 +20,7 @@ export class RibbonMenu extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-RibbonMenu";
   static components = { Menu };
 
-  protected props = props({
+  protected props = useProps({
     onClose: types.function(),
   });
 

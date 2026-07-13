@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { GaugeChartDefinition } from "../../../../types/chart/gauge_chart";
 import { CommandResult, DispatchResult } from "../../../../types/commands";
@@ -15,7 +15,7 @@ interface PanelState {
 export class GaugeChartConfigPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GaugeChartConfigPanel";
   static components = { ChartErrorSection, ChartDataSeries };
-  protected props = props(
+  protected props = useProps(
     chartSidePanelPropsDefinition
   ) as unknown as ChartSidePanelProps<GaugeChartDefinition>;
 

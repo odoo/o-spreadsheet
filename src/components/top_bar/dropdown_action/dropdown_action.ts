@@ -1,4 +1,4 @@
-import { props, signal } from "@odoo/owl";
+import { signal, useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -12,7 +12,7 @@ export class DropdownAction extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DropdownAction";
   static components = { ActionButton, Popover };
 
-  protected props = props({
+  protected props = useProps({
     parentAction: types.ActionSpec(),
     childActions: types.array(types.ActionSpec()),
     class: types.string(),

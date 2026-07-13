@@ -1,4 +1,4 @@
-import { props, proxy, signal } from "@odoo/owl";
+import { proxy, signal, useProps } from "@odoo/owl";
 import { Component, useExternalListener, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { ValueAndLabel } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
@@ -16,7 +16,7 @@ export class Select extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Select";
   static components = { Popover };
 
-  protected props = props({
+  protected props = useProps({
     onChange: types.function<(value: string) => void>(),
     values: types.array() as ValueAndLabel[],
     selectedValue: types.string().optional(),

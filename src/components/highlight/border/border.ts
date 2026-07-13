@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { types } from "../../props_validation";
@@ -8,7 +8,7 @@ import { Component } from "../../../owl3_compatibility_layer";
 export class Border extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Border";
 
-  protected props = props({
+  protected props = useProps({
     zone: types.Zone(),
     orientation: types.or([
       types.literal("n"),

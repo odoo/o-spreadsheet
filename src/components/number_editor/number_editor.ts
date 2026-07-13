@@ -1,4 +1,4 @@
-import { onMounted, onWillUpdateProps, props, proxy, signal } from "@odoo/owl";
+import { onMounted, onWillUpdateProps, proxy, signal, useProps } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
 import { Component, useExternalListener } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
@@ -18,7 +18,7 @@ export class NumberEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-NumberEditor";
   static components = { Popover };
 
-  protected props = props({
+  protected props = useProps({
     currentValue: types.number(),
     onValueChange: types.function<(fontSize: number) => void>(),
     onToggle: types.function().optional(),

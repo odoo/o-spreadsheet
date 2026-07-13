@@ -1,14 +1,14 @@
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { types } from "../props_validation";
 
 export class ClientTag extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ClientTag";
 
-  protected props = props({
+  protected props = useProps({
     active: types.boolean(),
     name: types.string(),
     color: types.Color(),

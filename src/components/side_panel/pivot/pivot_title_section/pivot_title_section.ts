@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { ActionSpec } from "../../../../actions/action";
 import { UuidGenerator } from "../../../../helpers/uuid";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -13,7 +13,7 @@ import { Section } from "../../components/section/section";
 export class PivotTitleSection extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotTitleSection";
   static components = { CogWheelMenu, Section, TextInput };
-  protected props = props({
+  protected props = useProps({
     pivotId: types.UID(),
     flipAxis: types.function(),
   });

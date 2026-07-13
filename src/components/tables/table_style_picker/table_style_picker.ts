@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -19,7 +19,7 @@ export class TableStylePicker extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableStylePicker";
   static components = { TableStylesPopover, TableStylePreview };
 
-  protected props = props({
+  protected props = useProps({
     tableConfig: types.TableConfig(),
     onStylePicked: types.function<(styleId: string) => void>(),
     tableStyles: types.RecordOf<TableStyle>(),

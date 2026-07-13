@@ -1,4 +1,4 @@
-import { onWillUnmount, onWillUpdateProps, props, proxy, signal } from "@odoo/owl";
+import { onWillUnmount, onWillUpdateProps, proxy, signal, useProps } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators, isMenuItemEnabled } from "../../actions/action";
 import { DESKTOP_MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../constants";
 import { Component, useExternalListener, useLayoutEffect } from "../../owl3_compatibility_layer";
@@ -45,7 +45,7 @@ export class MenuPopover extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Menu-Popover";
   static components = { MenuPopover, Menu, Popover };
 
-  protected props = props({
+  protected props = useProps({
     anchorRect: types.Rect(),
     popoverPositioning: types
       .or([types.literal("top-right"), types.literal("bottom-left")])

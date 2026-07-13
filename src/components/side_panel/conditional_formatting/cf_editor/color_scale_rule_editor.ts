@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { types } from "../../../props_validation";
@@ -10,7 +10,7 @@ export class ColorScaleRuleEditor extends Component<SpreadsheetChildEnv> {
   static components = {
     ColorScaleRuleEditorThreshold,
   };
-  protected props = props({
+  protected props = useProps({
     store: types.Store<ConditionalFormattingEditorStore>(),
   });
 }

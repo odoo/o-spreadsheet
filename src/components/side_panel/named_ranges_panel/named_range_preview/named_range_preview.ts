@@ -1,4 +1,4 @@
-import { props, proxy, signal } from "@odoo/owl";
+import { proxy, signal, useProps } from "@odoo/owl";
 import { HIGHLIGHT_COLOR } from "../../../../constants";
 import { interactiveUpdateNamedRange } from "../../../../helpers/ui/named_range_interactive";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -18,7 +18,7 @@ export class NamedRangePreview extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-NamedRangePreview";
   static components = { SelectionInput, TextInput };
 
-  protected props = props({
+  protected props = useProps({
     namedRange: types.NamedRange(),
   });
 

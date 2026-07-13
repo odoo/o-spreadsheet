@@ -17,7 +17,7 @@ import { GeneralDesignEditor } from "../building_blocks/general_design/general_d
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 export class CalendarChartDesignPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CalendarChartDesignPanel";
@@ -32,7 +32,7 @@ export class CalendarChartDesignPanel extends Component<SpreadsheetChildEnv> {
     RoundColorPicker,
     Select,
   };
-  protected props = props(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<
+  protected props = useProps(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<
     CalendarChartDefinition<string>
   >;
 

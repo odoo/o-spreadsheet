@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../../store_engine/store_hooks";
 import { ValueAndLabel } from "../../../../types/misc";
@@ -14,7 +14,7 @@ import { PivotMeasureDisplayPanelStore } from "./pivot_measure_display_panel_sto
 
 export class PivotMeasureDisplayPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotMeasureDisplayPanel";
-  protected props = props({
+  protected props = useProps({
     onCloseSidePanel: types.function(),
     pivotId: types.UID(),
     measure: types.PivotCoreMeasure(),

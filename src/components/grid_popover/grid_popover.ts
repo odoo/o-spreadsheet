@@ -7,14 +7,14 @@ import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
 
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 
 export class GridPopover extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridPopover";
   static components = { Popover };
 
-  protected props = props({
+  protected props = useProps({
     onClosePopover: types.function(),
     onMouseWheel: types.function<(ev: WheelEvent) => void>(),
     gridRect: types.Rect(),

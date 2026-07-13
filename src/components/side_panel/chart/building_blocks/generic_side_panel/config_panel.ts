@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { Component } from "../../../../../owl3_compatibility_layer";
 import { ChartDefinitionWithDataSource } from "../../../../../types/chart/chart";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
@@ -25,7 +25,7 @@ export class GenericChartConfigPanel<
     Checkbox,
     ChartErrorSection,
   };
-  protected props = props(chartSidePanelPropsDefinition) as unknown as P;
+  protected props = useProps(chartSidePanelPropsDefinition) as unknown as P;
 
   protected chartTerms = ChartTerms;
   protected state: GenericChartPanelState = proxy({

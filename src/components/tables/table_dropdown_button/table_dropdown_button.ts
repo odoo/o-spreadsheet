@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_TABLE_CONFIG } from "../../../helpers/table_presets";
 import { interactiveCreateTable } from "../../../helpers/ui/table_interactive";
@@ -26,7 +26,7 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableDropdownButton";
   static components = { TableStylesPopover, ActionButton };
 
-  protected props = props({
+  protected props = useProps({
     class: types.string().optional(),
   });
 
