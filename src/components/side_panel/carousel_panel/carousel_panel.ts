@@ -1,26 +1,37 @@
-import { onWillUpdateProps, props, signal } from "@odoo/owl";
+import { onWillUpdateProps, props, proxy, signal } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemPreview, getCarouselItemTitle } from "../../../helpers/carousel_helpers";
+import { SpreadsheetChart } from "../../../helpers/figures/chart";
 import { deepEquals } from "../../../helpers/misc";
 import { UuidGenerator } from "../../../helpers/uuid";
 import { Component } from "../../../owl3_compatibility_layer";
+import { chartDataSourceRegistry } from "../../../registries/chart_data_source_registry";
+import { chartTypeRegistry } from "../../../registries/chart_registry";
+import { chartSubtypeRegistry } from "../../../registries/chart_subtype_registry";
 import { _t } from "../../../translation";
-import { TitleDesign } from "../../../types/chart/chart";
+import { CHART_TYPES, ChartDefinition, TitleDesign } from "../../../types/chart/chart";
 import { CarouselItem } from "../../../types/figure";
 import { UID } from "../../../types/misc";
+import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../helpers/drag_and_drop_dom_items_hook";
+import { Popover } from "../../popover/popover";
 import { types } from "../../props_validation";
 import { TextInput } from "../../text_input/text_input";
 import { TextStyler } from "../chart/building_blocks/text_styler/text_styler";
+import { ChartTypePickerPopover } from "../chart/chart_type_picker_popover/chart_type_picker_popover";
 import { CogWheelMenu } from "../components/cog_wheel_menu/cog_wheel_menu";
 import { Section } from "../components/section/section";
 
+interface CarouselPanelState {
+  popoverProps: PropsOf<Popover> | undefined;
+}
+
 export class CarouselPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CarouselPanel";
-  static components = { Section, TextInput, TextStyler, CogWheelMenu };
+  static components = { Section, TextInput, TextStyler, CogWheelMenu, ChartTypePickerPopover };
 
   protected props = props({
     onCloseSidePanel: types.function(),
@@ -31,6 +42,9 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
 
   private dragAndDrop = useDragAndDropListItems();
   private previewListRef = signal<HTMLElement | null>(null);
+  addChartButton = signal<HTMLElement | null>(null);
+
+  state = proxy<CarouselPanelState>({ popoverProps: undefined });
 
   setup() {
     let lastCarouselItems: CarouselItem[] = [...this.carouselItems];
@@ -62,11 +76,46 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
     return item.type === "chart" ? item.chartId : "transparent-carousel";
   }
 
-  addNewChartToCarousel() {
+  addNewChartToCarousel(ev: MouseEvent) {
+    if (this.state.popoverProps) {
+      this.state.popoverProps = undefined;
+      return;
+    }
+    const target = ev.currentTarget as HTMLElement;
+    const { bottom, right } = target.getBoundingClientRect();
+    this.state.popoverProps = {
+      anchorRect: { x: right, y: bottom, width: 0, height: 0 },
+      positioning: "top-right",
+      verticalOffset: 0,
+      maxWidth: target.parentElement?.getBoundingClientRect().width || 300,
+    };
+  }
+
+  get supportedChartTypes() {
+    return new Set(CHART_TYPES);
+  }
+
+  closePopover() {
+    this.state.popoverProps = undefined;
+  }
+
+  onSelectChartType(type: string) {
+    const newChartInfo = chartSubtypeRegistry.get(type);
+    const ChartTypeBuilder = chartTypeRegistry.get(newChartInfo.chartType);
+    const DataSourceBuilder = chartDataSourceRegistry.get("range");
+    const definition = SpreadsheetChart.deleteInvalidKeys({
+      ...ChartTypeBuilder.getDefinitionFromContextCreation({}, DataSourceBuilder),
+      ...newChartInfo.subtypeDefinition,
+    } as ChartDefinition);
+
     this.env.model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
+      newChartId: UuidGenerator.smallUuid(),
+      chartDefinition: definition,
     });
+    this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureId });
+    this.env.openSidePanel("ChartPanel");
   }
 
   get hasDataView(): boolean {

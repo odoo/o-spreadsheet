@@ -1886,16 +1886,16 @@ export function popOutChartFromCarousel(
 export function addNewChartToCarousel(
   model: Model,
   carouselId: UID,
-  definition?: Partial<ChartDefinition>
+  creationContext?: Partial<ChartCreationContext> & { type: ChartType }
 ): UID {
+  creationContext = creationContext || { type: "bar" };
+  const chartId = UuidGenerator.smallUuid();
   model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
     figureId: carouselId,
     sheetId: model.getters.getActiveSheetId(),
+    newChartId: chartId,
+    chartDefinition: createChartDefinitionFromContext(creationContext.type, creationContext),
   });
-  const chartId = model.getters.getCarousel(carouselId).items.at(-1)!["chartId"];
-  if (definition) {
-    updateChart(model, chartId, definition);
-  }
   return chartId;
 }
 
