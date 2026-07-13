@@ -5,8 +5,8 @@ import { BaselineMode, ScorecardChartDefinition } from "../../../../types/chart/
 import { CommandResult, DispatchResult } from "../../../../types/commands";
 import { ValueAndLabel } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { Select } from "../../../select/select";
-import { SelectionInput } from "../../../selection_input/selection_input";
 import { ChartTerms } from "../../../translations_terms";
 import { Section } from "../../components/section/section";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
@@ -19,7 +19,7 @@ interface PanelState {
 
 export class ScorecardChartConfigPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChartConfigPanel";
-  static components = { SelectionInput, ChartErrorSection, Section, Select };
+  static components = { ChartErrorSection, Section, Select, StandaloneComposer };
   protected props = props(
     chartSidePanelPropsDefinition
   ) as unknown as ChartSidePanelProps<ScorecardChartDefinition>;
@@ -49,42 +49,30 @@ export class ScorecardChartConfigPanel extends Component<SpreadsheetChildEnv> {
   }
 
   get isBaselineInvalid(): boolean {
-    return !!this.state.keyValueDispatchResult?.isCancelledBecause(
+    return !!this.state.baselineDispatchResult?.isCancelledBecause(
       CommandResult.InvalidScorecardBaseline
     );
   }
 
-  onKeyValueRangeChanged(ranges: string[]) {
-    this.keyValue = ranges[0];
-    this.state.keyValueDispatchResult = this.props.canUpdateChart(this.props.chartId, {
-      keyValue: this.keyValue,
-    });
-  }
-
-  updateKeyValueRange() {
+  onConfirmKeyValue(keyValue: string) {
+    this.keyValue = keyValue === "=" ? "" : keyValue;
     this.state.keyValueDispatchResult = this.props.updateChart(this.props.chartId, {
       keyValue: this.keyValue,
     });
   }
 
-  getKeyValueRange(): string {
+  getKeyValue(): string {
     return this.keyValue || "";
   }
 
-  onBaselineRangeChanged(ranges: string[]) {
-    this.baseline = ranges[0];
-    this.state.baselineDispatchResult = this.props.canUpdateChart(this.props.chartId, {
-      baseline: this.baseline,
-    });
-  }
-
-  updateBaselineRange() {
+  onConfirmBaseline(baseline: string) {
+    this.baseline = baseline === "=" ? "" : baseline;
     this.state.baselineDispatchResult = this.props.updateChart(this.props.chartId, {
       baseline: this.baseline,
     });
   }
 
-  getBaselineRange(): string {
+  getBaseline(): string {
     return this.baseline || "";
   }
 

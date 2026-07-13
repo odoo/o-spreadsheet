@@ -54,8 +54,8 @@ export const TEST_CHART_DATA = {
   },
   scorecard: {
     type: "scorecard" as const,
-    keyValue: "B1:B4",
-    baseline: "A2:A4",
+    keyValue: "=B1:B4",
+    baseline: "=A2:A4",
     title: { text: "hello" },
     baselineDescr: { text: "description" },
     baselineMode: "difference" as const,
@@ -63,7 +63,7 @@ export const TEST_CHART_DATA = {
   },
   funnel: {
     type: "funnel" as const,
-    keyValue: "B1:B4",
+    keyValue: "=B1:B4",
     baseline: "A2:A4",
     title: { text: "hello" },
     baselineDescr: { text: "description" },

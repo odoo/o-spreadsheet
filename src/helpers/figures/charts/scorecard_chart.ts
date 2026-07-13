@@ -5,6 +5,7 @@ import {
   DEFAULT_SCORECARD_BASELINE_MODE,
   DEFAULT_TEXT_HIGHLIGHT_PERCENT,
 } from "../../../constants";
+import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
 import { toNumber } from "../../../functions/helpers";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { CellValueType, EvaluatedCell } from "../../../types/cells";
@@ -18,14 +19,15 @@ import { CommandResult } from "../../../types/commands";
 import { Locale } from "../../../types/locale";
 import { Color, RangeAdapterFunctions } from "../../../types/misc";
 import { Range } from "../../../types/range";
+import { createEvaluatedCell } from "../../cells/cell_evaluation";
 import { lightenColor } from "../../color";
 import { formatValue, humanizeNumber } from "../../format/format";
+import { isFormula } from "../../misc";
 import { isNumber } from "../../numbers";
 import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
 import { clipTextWithEllipsis, drawDecoratedText } from "../../text_helper";
 import { AbstractChart } from "./abstract_chart";
-import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
 import { ScorecardChartConfig } from "./scorecard_chart_config_builder";
 
 function getBaselineText(
@@ -129,16 +131,27 @@ function getBaselineArrowDirection(
   return "neutral";
 }
 
+// Only used to derive a Range when the formula is nothing but a bare reference (e.g. "=A1" or "=A1:B2")
+function getFormulaRangeXc(formula: string | undefined): string | undefined {
+  if (!formula) {
+    return undefined;
+  }
+  const content = formula.startsWith("=") ? formula.slice(1) : formula;
+  return rangeReference.test(content) ? content : undefined;
+}
+
 function checkKeyValue(definition: ScorecardChartDefinition): CommandResult {
-  return definition.keyValue && !rangeReference.test(definition.keyValue)
-    ? CommandResult.InvalidScorecardKeyValue
-    : CommandResult.Success;
+  if (definition.keyValue && !isFormula(definition.keyValue)) {
+    return CommandResult.InvalidScorecardKeyValue;
+  }
+  return CommandResult.Success;
 }
 
 function checkBaseline(definition: ScorecardChartDefinition): CommandResult {
-  return definition.baseline && !rangeReference.test(definition.baseline)
-    ? CommandResult.InvalidScorecardBaseline
-    : CommandResult.Success;
+  if (definition.baseline && !isFormula(definition.baseline)) {
+    return CommandResult.InvalidScorecardBaseline;
+  }
+  return CommandResult.Success;
 }
 
 const Path2DConstructor = globalThis.Path2D;
@@ -166,16 +179,7 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
     "baselineColorDown",
   ],
 
-  fromStrDefinition(definition, sheetId, getters) {
-    const baseline = createValidRange(getters, sheetId, definition.baseline);
-    const keyValue = createValidRange(getters, sheetId, definition.keyValue);
-    const rangeDefinition: ScorecardChartDefinition<Range> = {
-      ...definition,
-      baseline,
-      keyValue,
-    };
-    return rangeDefinition;
-  },
+  fromStrDefinition: (definition) => definition,
 
   validateDefinition(validator, definition) {
     return validator.checkValidations(definition, checkKeyValue, checkBaseline);
@@ -184,44 +188,33 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
   copyInSheetId: (definition) => definition,
 
   getDefinitionFromContextCreation(context, dataSourceBuilder) {
+    const dataRange =
+      context.dataSource?.type === "range"
+        ? context.dataSource?.dataSets?.[0]?.dataRange
+        : undefined;
     return {
       background: context.background,
       type: "scorecard",
-      keyValue:
-        context.dataSource?.type === "range"
-          ? context.dataSource?.dataSets?.[0]?.dataRange
-          : undefined,
+      keyValue: dataRange ? `=${dataRange}` : undefined,
       title: context.title || { text: "" },
       baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
-      baseline: context.auxiliaryRange || "",
+      baseline: context.auxiliaryRange ? `=${context.auxiliaryRange}` : undefined,
       humanize: context.humanize,
       annotationLink: context.annotationLink,
       annotationText: context.annotationText,
     };
   },
 
-  transformDefinition(definition, chartSheetId, { adaptRangeString }) {
+  transformDefinition(definition, chartSheetId, { adaptFormulaString }) {
     let baseline: string | undefined;
     let keyValue: string | undefined;
     if (definition.baseline) {
-      const { changeType, range: adaptedRange } = adaptRangeString(
-        chartSheetId,
-        definition.baseline
-      );
-      if (changeType !== "REMOVE") {
-        baseline = adaptedRange;
-      }
+      baseline = adaptFormulaString(chartSheetId, definition.baseline);
     }
     if (definition.keyValue) {
-      const { changeType, range: adaptedRange } = adaptRangeString(
-        chartSheetId,
-        definition.keyValue
-      );
-      if (changeType !== "REMOVE") {
-        keyValue = adaptedRange;
-      }
+      keyValue = adaptFormulaString(chartSheetId, definition.keyValue);
     }
     return {
       ...definition,
@@ -230,81 +223,106 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
     };
   },
 
-  duplicateInDuplicatedSheet(definition, sheetIdFrom, sheetIdTo): ScorecardChartDefinition<Range> {
-    const baseline = duplicateLabelRangeInDuplicatedSheet(
-      sheetIdFrom,
-      sheetIdTo,
-      definition.baseline
-    );
-    const keyValue = duplicateLabelRangeInDuplicatedSheet(
-      sheetIdFrom,
-      sheetIdTo,
-      definition.keyValue
-    );
-    return { ...definition, baseline, keyValue };
-  },
-
-  toStrDefinition(definition, sheetId, getters) {
+  duplicateInDuplicatedSheet(definition, sheetIdFrom, sheetIdTo, getters) {
+    const adaptFormula = (formula: string) =>
+      getters.copyFormulaStringForSheet(sheetIdFrom, sheetIdTo, formula, "moveReference");
     return {
       ...definition,
-      keyValue: definition.keyValue
-        ? getters.getRangeString(definition.keyValue, sheetId)
-        : undefined,
-      baseline: definition.baseline
-        ? getters.getRangeString(definition.baseline, sheetId)
-        : undefined,
+      keyValue: definition.keyValue ? adaptFormula(definition.keyValue) : definition.keyValue,
+      baseline: definition.baseline ? adaptFormula(definition.baseline) : definition.baseline,
     };
   },
 
+  toStrDefinition: (definition) => definition,
+
   getContextCreation(definition, dataSource) {
+    const keyValueXc = getFormulaRangeXc(definition.keyValue);
     return {
       ...definition,
       dataSource: {
         type: "range",
-        dataSets: definition.keyValue ? [{ dataRange: definition.keyValue, dataSetId: "0" }] : [],
+        dataSets: keyValueXc ? [{ dataRange: keyValueXc, dataSetId: "0" }] : [],
       },
-      auxiliaryRange: definition.baseline,
+      auxiliaryRange: getFormulaRangeXc(definition.baseline),
     };
   },
 
   getDefinitionForExcel: () => undefined,
 
-  updateRanges(definition, adapterFunctions: RangeAdapterFunctions) {
-    const baseline = adaptChartRange(definition.baseline, adapterFunctions);
-    const keyValue = adaptChartRange(definition.keyValue, adapterFunctions);
+  updateRanges(definition, adapterFunctions: RangeAdapterFunctions, sheetId) {
+    const baseline = definition.baseline
+      ? adapterFunctions.adaptFormulaString(sheetId, definition.baseline)
+      : definition.baseline;
+    const keyValue = definition.keyValue
+      ? adapterFunctions.adaptFormulaString(sheetId, definition.keyValue)
+      : definition.keyValue;
     if (definition.baseline === baseline && definition.keyValue === keyValue) {
       return definition;
     }
     return { ...definition, baseline, keyValue };
   },
 
-  getRuntime(getters, definition): ScorecardChartRuntime {
+  getRuntime(getters, definition, _dataExtractor, sheetId): ScorecardChartRuntime {
     let formattedKeyValue = "";
     let keyValueCell: EvaluatedCell | undefined;
     const locale = getters.getLocale();
     if (definition.keyValue) {
-      const keyValuePosition = {
-        sheetId: definition.keyValue.sheetId,
-        col: definition.keyValue.zone.left,
-        row: definition.keyValue.zone.top,
-      };
-      keyValueCell = getters.getEvaluatedCell(keyValuePosition);
-      formattedKeyValue = getKeyValueText(keyValueCell, definition.humanize ?? true, locale);
+      const result = getters.evaluateFormulaResult(sheetId, definition.keyValue);
+      const scalar = isMultipleElementMatrix(result) ? result[0][0] : toScalar(result);
+      keyValueCell = createEvaluatedCell(scalar, locale);
+      if (scalar !== null && scalar !== undefined) {
+        formattedKeyValue = getKeyValueText(keyValueCell, definition.humanize ?? true, locale);
+      } else {
+        formattedKeyValue = "";
+      }
     }
     let baselineCell: EvaluatedCell | undefined;
-    const baseline = definition.baseline;
-    if (baseline) {
-      const baselinePosition = {
-        sheetId: baseline.sheetId,
-        col: baseline.zone.left,
-        row: baseline.zone.top,
-      };
-      baselineCell = getters.getEvaluatedCell(baselinePosition);
+    if (definition.baseline) {
+      const result = getters.evaluateFormulaResult(sheetId, definition.baseline);
+      const scalar = isMultipleElementMatrix(result) ? result[0][0] : toScalar(result);
+      baselineCell = createEvaluatedCell(scalar, locale);
+    }
+    let keyValueRange: Range | undefined = undefined;
+    if (definition.keyValue) {
+      const keyValueXc = getFormulaRangeXc(definition.keyValue);
+      if (keyValueXc) {
+        keyValueRange = createValidRange(getters, sheetId, keyValueXc);
+      }
+    }
+    let baselineRange: Range | undefined = undefined;
+    if (definition.baseline) {
+      const baselineXc = getFormulaRangeXc(definition.baseline);
+      if (baselineXc) {
+        baselineRange = createValidRange(getters, sheetId, baselineXc);
+      }
     }
     const { background, fontColor } = getters.getStyleOfSingleCellChart(
       definition.background,
-      definition.keyValue
+      keyValueRange
     );
+
+    // A bare reference to an empty cell (e.g. keyValue "=A1" with A1 blank) evaluates to 0
+    // as a formula, but should still be treated as "not defined" when compared to the baseline.
+    if (keyValueRange) {
+      const rawKeyValueCell = getters.getEvaluatedCell({
+        sheetId: keyValueRange.sheetId,
+        col: keyValueRange.zone.left,
+        row: keyValueRange.zone.top,
+      });
+      if (rawKeyValueCell.type === CellValueType.empty) {
+        keyValueCell = undefined;
+      }
+    }
+    if (baselineRange) {
+      const rawBaselineCell = getters.getEvaluatedCell({
+        sheetId: baselineRange.sheetId,
+        col: baselineRange.zone.left,
+        row: baselineRange.zone.top,
+      });
+      if (rawBaselineCell.type === CellValueType.empty) {
+        baselineCell = undefined;
+      }
+    }
 
     const baselineDisplay = getBaselineText(
       baselineCell,
@@ -343,11 +361,11 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
       baselineStyle: {
         ...(definition.baselineMode !== "percentage" &&
         definition.baselineMode !== "progress" &&
-        baseline
+        baselineRange
           ? getters.getCellComputedStyle({
-              sheetId: baseline.sheetId,
-              col: baseline.zone.left,
-              row: baseline.zone.top,
+              sheetId: baselineRange.sheetId,
+              col: baselineRange.zone.left,
+              row: baselineRange.zone.top,
             })
           : undefined),
         fontSize: definition.baselineDescr?.fontSize,
@@ -358,11 +376,11 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
         ...definition.baselineDescr,
       },
       keyValueStyle: {
-        ...(definition.keyValue
+        ...(keyValueRange
           ? getters.getCellComputedStyle({
-              sheetId: definition.keyValue.sheetId,
-              col: definition.keyValue.zone.left,
-              row: definition.keyValue.zone.top,
+              sheetId: keyValueRange.sheetId,
+              col: keyValueRange.zone.left,
+              row: keyValueRange.zone.top,
             })
           : undefined),
         fontSize: definition.keyDescr?.fontSize,

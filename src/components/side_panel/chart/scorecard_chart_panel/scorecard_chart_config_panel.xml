@@ -2,23 +2,26 @@
   <t t-name="o-spreadsheet-ScorecardChartConfigPanel">
     <div>
       <Section class="'o-data-series'" title.translate="Key value">
-        <SelectionInput
-          ranges="[this.getKeyValueRange()]"
-          isInvalid="this.isKeyValueInvalid"
-          hasSingleRange="true"
-          required="true"
-          onSelectionChanged="(ranges) => this.onKeyValueRangeChanged(ranges)"
-          onSelectionConfirmed="() => this.updateKeyValueRange()"
+        <StandaloneComposer
+          placeholder.translate="Value or formula"
+          title.translate=""
+          invalid="this.isKeyValueInvalid"
+          composerContent="this.getKeyValue()"
+          defaultRangeSheetId="this.env.model.getters.getActiveSheetId()"
+          onConfirm.bind="this.onConfirmKeyValue"
+          insertEqualSignOnFocus="true"
         />
       </Section>
       <Section class="'o-data-labels'" title.translate="Baseline configuration">
         <div class="o-section-subtitle">Value</div>
-        <SelectionInput
-          ranges="[this.getBaselineRange()]"
-          isInvalid="this.isBaselineInvalid"
-          hasSingleRange="true"
-          onSelectionChanged="(ranges) => this.onBaselineRangeChanged(ranges)"
-          onSelectionConfirmed="() => this.updateBaselineRange()"
+        <StandaloneComposer
+          placeholder.translate="Value or formula"
+          title.translate=""
+          invalid="this.isBaselineInvalid"
+          composerContent="this.getBaseline()"
+          defaultRangeSheetId="this.env.model.getters.getActiveSheetId()"
+          onConfirm.bind="this.onConfirmBaseline"
+          insertEqualSignOnFocus="true"
         />
         <div class="o-section-subtitle">Format</div>
         <Select
