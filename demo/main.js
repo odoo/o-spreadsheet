@@ -414,8 +414,7 @@ async function setup() {
   const templates = await (await fetch("../build/o_spreadsheet.xml")).text();
   start = Date.now();
 
-  const app = new App({ dev: true, warnIfNoStaticProps: true });
-  app.addTemplates(templates);
+  const app = new App({ dev: true, templates });
   const root = app.createRoot(Demo);
   root.mount(document.body);
 }

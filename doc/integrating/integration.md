@@ -5,7 +5,8 @@
 Here is the shortest example to use o-spreadsheet.
 
 ```typescript
-const { Spreadsheet, Model } = o_spreadsheet;
+const { Spreadsheet, Model, compatibility } = o_spreadsheet;
+const { App } = compatibility;
 
 const response = await fetch("../dist/o_spreadsheet.xml");
 if (response.status === 404) {
@@ -13,7 +14,8 @@ if (response.status === 404) {
     'File not found: ../dist/o_spreadsheet.xml, Don\'t forget to run: "npm run dist"';
 } else {
   const templates = await response.text();
-  const app = new owl.App(Spreadsheet, {
+  const app = new App(Spreadsheet, { templates });
+  const root = app.createRoot(Spreadsheet, {
     props: {
       model: new Model(),
       // optionals
@@ -24,9 +26,8 @@ if (response.status === 404) {
         callback?.();
       },
     },
-    templates,
   });
-  app.mount(document.body);
+  root.mount(document.body);
 }
 ```
 
