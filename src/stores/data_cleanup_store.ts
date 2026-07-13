@@ -1,13 +1,13 @@
-import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
-import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
-import { deepEquals, range } from "../../helpers/misc";
-import { zoneToDimension } from "../../helpers/zones";
-import { NotificationStore } from "../../stores/notification_store";
-import { SpreadsheetStore } from "../../stores/spreadsheet_store";
-import { _t } from "../../translation";
-import { CancelledReason, Command, CommandResult } from "../../types/commands";
-import { HeaderIndex, UID, Zone } from "../../types/misc";
-import { Get } from "../../types/store_engine";
+import { CellClipboardHandler } from "../clipboard_handlers/cell_clipboard";
+import { getClipboardDataPositions } from "../helpers/clipboard/clipboard_helpers";
+import { deepEquals, range } from "../helpers/misc";
+import { zoneToDimension } from "../helpers/zones";
+import { _t } from "../translation";
+import { CancelledReason, Command, CommandResult } from "../types/commands";
+import { HeaderIndex, UID, Zone } from "../types/misc";
+import { Get } from "../types/store_engine";
+import { NotificationStore } from "./notification_store";
+import { SpreadsheetStore } from "./spreadsheet_store";
 
 export class DataCleanupStore extends SpreadsheetStore {
   mutators = ["setHasHeader", "setColumns", "toggleAllColumns", "toggleColumn"] as const;
