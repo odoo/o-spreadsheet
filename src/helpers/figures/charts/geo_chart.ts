@@ -41,6 +41,8 @@ export const GeoChart: ChartTypeBuilder<"geo"> = {
 
   getContextCreation: (definition) => definition,
 
+  getFormulas: () => [],
+
   getDefinitionFromContextCreation(context, dataSourceBuilder) {
     return {
       background: context.background,

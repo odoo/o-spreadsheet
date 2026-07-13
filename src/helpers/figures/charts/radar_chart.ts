@@ -45,6 +45,8 @@ export const RadarChart: ChartTypeBuilder<"radar"> = {
 
   getContextCreation: (definition) => definition,
 
+  getFormulas: () => [],
+
   getDefinitionFromContextCreation(context, dataSourceBuilder) {
     return {
       background: context.background,

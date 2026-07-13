@@ -50,6 +50,8 @@ export const LineChart: ChartTypeBuilder<"line"> = {
 
   getContextCreation: (definition) => definition,
 
+  getFormulas: () => [],
+
   getDefinitionFromContextCreation(context, dataSourceBuilder) {
     return {
       background: context.background,

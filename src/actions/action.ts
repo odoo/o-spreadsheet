@@ -43,10 +43,6 @@ export interface ActionSpec {
   icon?: string | ((env: SpreadsheetChildEnv) => string);
   iconColor?: Color;
   /**
-   * Can be defined to display another icon on the right of the item.
-   */
-  secondaryIcon?: string | ((env: SpreadsheetChildEnv) => string);
-  /**
    * is the action allowed when running spreadsheet in readonly mode
    */
   isReadonlyAllowed?: boolean;
@@ -86,7 +82,6 @@ export interface Action {
   isActive?: (env: SpreadsheetChildEnv) => boolean;
   icon: (env: SpreadsheetChildEnv) => string;
   iconColor?: Color;
-  secondaryIcon: (env: SpreadsheetChildEnv) => string;
   isReadonlyAllowed: boolean;
   isEnabledOnLockedSheet: boolean;
   execute?: (env: SpreadsheetChildEnv, isMiddleClick?: boolean) => unknown;
@@ -97,12 +92,10 @@ export interface Action {
   onStopHover?: (env: SpreadsheetChildEnv) => void;
 }
 
-export interface ComputedAction
-  extends Omit<Action, "name" | "description" | "icon" | "secondaryIcon" | "children"> {
+export interface ComputedAction extends Omit<Action, "name" | "description" | "icon" | "children"> {
   name: string;
   description: string;
   icon: string;
-  secondaryIcon: string;
 }
 
 export type ActionBuilder = (env: SpreadsheetChildEnv) => ActionSpec[];
@@ -129,7 +122,6 @@ export function createAction(item: ActionSpec): Action {
   const description = item.description;
   const shortcut = filterActionShortcutForMacOs(item.shortcut);
   const icon = item.icon;
-  const secondaryIcon = item.secondaryIcon;
   const itemId = item.id || nextItemId++;
   const isEnabled = item.isEnabled ? item.isEnabled : () => true;
   return {
@@ -160,7 +152,6 @@ export function createAction(item: ActionSpec): Action {
     separator: item.separator || false,
     icon: typeof icon === "function" ? icon : () => icon || "",
     iconColor: item.iconColor,
-    secondaryIcon: typeof secondaryIcon === "function" ? secondaryIcon : () => secondaryIcon || "",
     description: typeof description === "function" ? description : () => description || "",
     shortcut: shortcut || "",
     textColor: item.textColor,

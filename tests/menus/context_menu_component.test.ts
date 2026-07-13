@@ -698,23 +698,6 @@ describe("Context MenuPopover internal tests", () => {
     expect(fixture.querySelectorAll(".o-menu-item-icon").length).toBe(2);
   });
 
-  test("Can display a secondary icon", async () => {
-    let visible = true;
-    const menuItems = createActions([
-      {
-        name: "child1",
-        secondaryIcon: () => (visible ? "o-spreadsheet-Icon.SEARCH" : ""),
-        execute: () => {},
-      },
-    ]);
-    await renderContextMenu(300, 300, { menuItems });
-    expect(fixture.querySelector(".fa-search")).not.toBeNull();
-    visible = false;
-    parent.render(true);
-    await nextTick();
-    expect(fixture.querySelector(".fa-search")).toBeNull();
-  });
-
   test("Can change icon color", async () => {
     const menuItems = createActions([
       { name: "child1", icon: "o-spreadsheet-Icon.BOLD", iconColor: "#FFF000", execute: () => {} },

@@ -65,6 +65,8 @@ export const CalendarChart: ChartTypeBuilder<"calendar"> = {
 
   getContextCreation: (definition) => definition,
 
+  getFormulas: () => [],
+
   getDefinitionFromContextCreation(context, dataSourceBuilder) {
     let legendPosition: LegendPosition = "left";
     if (context.legendPosition === "right") {
