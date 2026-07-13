@@ -560,40 +560,86 @@ export function applyVectorization(
     return formula(...args);
   }
 
-  const getArgOffset: (i: number, j: number) => Arg[] = (i, j) =>
-    args.map((arg, index) => {
-      switch (vectorArgsType?.[index]) {
-        case "matrix":
-          return arg![i][j];
-        case "horizontal":
-          return arg![i][0];
-        case "vertical":
-          return arg![0][j];
-        case undefined:
-          return arg;
-      }
-    });
+  // Reused across every vectorized cell to avoid allocating a new args array per call.
+  const argsBuffer: Arg[] = new Array(args.length);
 
-  return generateMatrix(countVectorizedCol, countVectorizedRow, (col, row) => {
-    if (col > vectorizedColLimit - 1 || row > vectorizedRowLimit - 1) {
-      return new NotAvailableError(
-        _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
-      );
+  // Resolve each arg's access pattern once, outside the inner loop.
+  type ArgGetter = (i: number, j: number) => Arg;
+  const argGetters: ArgGetter[] = [];
+  const vectorizedIndices: number[] = []; // tracks which slots need updating each iteration.
+  for (let k = 0; k < args.length; k++) {
+    const arg = args[k];
+    switch (vectorArgsType?.[k]) {
+      case "matrix": {
+        argGetters.push((i, j) => arg![i][j]);
+        vectorizedIndices.push(k);
+        break;
+      }
+      case "horizontal": {
+        argGetters.push((i) => arg![i][0]);
+        vectorizedIndices.push(k);
+        break;
+      }
+      case "vertical": {
+        argGetters.push((_i, j) => arg![0][j]);
+        vectorizedIndices.push(k);
+        break;
+      }
+      case undefined:
+        argsBuffer[k] = arg;
+        break;
     }
-    const singleCellComputeResult = formula(...getArgOffset(col, row));
-    // In the case where the user tries to vectorize arguments of an array formula, we will get an
-    // array for every combination of the vectorized arguments, which will lead to a 3D matrix and
-    // we won't be able to return the values.
-    // In this case, we keep the first element of each spreading part, just as Excel does, and
-    // create an array with these parts.
-    // For exemple, we have MUNIT(x) that return an unitary matrix of x*x. If we use it with a
-    // range, like MUNIT(A1:A2), we will get two unitary matrices (one for the value in A1 and one
-    // for the value in A2). In this case, we will simply take the first value of each matrix and
-    // return the array [First value of MUNIT(A1), First value of MUNIT(A2)].
-    return isMatrix(singleCellComputeResult)
-      ? singleCellComputeResult[0][0]
-      : singleCellComputeResult;
-  });
+  }
+  const nbVectorized = vectorizedIndices.length;
+
+  // Specialize the call for common arities — argsBuffer.length is constant for the whole call,
+  // so dispatch once here rather than switching inside every cell iteration.
+  type FormulaCall = () => Matrix<FunctionResultObject> | FunctionResultObject;
+  let callFormula: FormulaCall;
+  switch (argsBuffer.length) {
+    case 1:
+      callFormula = () => formula(argsBuffer[0]);
+      break;
+    case 2:
+      callFormula = () => formula(argsBuffer[0], argsBuffer[1]);
+      break;
+    case 3:
+      callFormula = () => formula(argsBuffer[0], argsBuffer[1], argsBuffer[2]);
+      break;
+    default:
+      callFormula = () => formula(...argsBuffer);
+  }
+
+  const result: Matrix<FunctionResultObject> = new Array(countVectorizedCol);
+  for (let col = 0; col < countVectorizedCol; col++) {
+    const column: FunctionResultObject[] = new Array(countVectorizedRow);
+    result[col] = column;
+    for (let row = 0; row < countVectorizedRow; row++) {
+      if (col > vectorizedColLimit - 1 || row > vectorizedRowLimit - 1) {
+        column[row] = new NotAvailableError(
+          _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
+        );
+        continue;
+      }
+      for (let k = 0; k < nbVectorized; k++) {
+        argsBuffer[vectorizedIndices[k]] = argGetters[k](col, row);
+      }
+      const singleCellComputeResult = callFormula();
+      // In the case where the user tries to vectorize arguments of an array formula, we will get an
+      // array for every combination of the vectorized arguments, which will lead to a 3D matrix and
+      // we won't be able to return the values.
+      // In this case, we keep the first element of each spreading part, just as Excel does, and
+      // create an array with these parts.
+      // For exemple, we have MUNIT(x) that return an unitary matrix of x*x. If we use it with a
+      // range, like MUNIT(A1:A2), we will get two unitary matrices (one for the value in A1 and one
+      // for the value in A2). In this case, we will simply take the first value of each matrix and
+      // return the array [First value of MUNIT(A1), First value of MUNIT(A2)].
+      column[row] = isMatrix(singleCellComputeResult)
+        ? singleCellComputeResult[0][0]
+        : singleCellComputeResult;
+    }
+  }
+  return result;
 }
 // -----------------------------------------------------------------------------
 // CONDITIONAL EXPLORE FUNCTIONS
