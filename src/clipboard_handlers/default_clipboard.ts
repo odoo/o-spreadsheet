@@ -78,10 +78,6 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
     return content;
   }
 
-  clearStyleFormat(sheetId: UID, zone: Zone) {
-    this.dispatch("SET_FORMATTING", { sheetId, target: [zone], format: "" });
-  }
-
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
     const sheetId = target.sheetId;
     if (options.pasteOption === "asValue") {
