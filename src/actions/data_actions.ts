@@ -1,5 +1,6 @@
 import { interactiveSortSelection } from "../helpers/sort_interactive";
 import { getZoneArea } from "../helpers/zones";
+import { TrimWhitespaceStore } from "../stores/trim_whitespace_store";
 import { _t } from "../translation";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
@@ -39,7 +40,7 @@ export const removeDuplicates: ActionSpec = {
 export const trimWhitespace: ActionSpec = {
   name: _t("Trim whitespace"),
   execute: (env) => {
-    env.model.dispatch("TRIM_WHITESPACE");
+    env.getStore(TrimWhitespaceStore).trimWhitespace();
   },
 };
 

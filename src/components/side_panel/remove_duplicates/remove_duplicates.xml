@@ -8,7 +8,7 @@
         <t t-set="dataHasHeaderLabel">Data has header row</t>
         <Checkbox
           name="'dataHasHeader'"
-          value="this.state.hasHeader"
+          value="this.dataCleanupSore.hasHeader"
           label="dataHasHeaderLabel"
           onChange.bind="this.toggleHasHeader"
         />
@@ -23,9 +23,9 @@
             onChange.bind="this.toggleAllColumns"
           />
 
-          <t t-foreach="Object.keys(this.state.columns)" t-as="colIndex" t-key="colIndex">
+          <t t-foreach="Object.keys(this.dataCleanupSore.columns)" t-as="colIndex" t-key="colIndex">
             <Checkbox
-              value="this.state.columns[colIndex]"
+              value="this.dataCleanupSore.columns[colIndex]"
               label="this.getColLabel(colIndex)"
               onChange="() => this.toggleColumn(colIndex)"
             />

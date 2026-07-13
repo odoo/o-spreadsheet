@@ -1,27 +1,24 @@
-import { Model } from "../src";
+import { NotificationStore } from "../src/stores/notification_store";
+import { TrimWhitespaceStore } from "../src/stores/trim_whitespace_store";
 import { getCellContent } from "./test_helpers";
-import {
-  selectCell,
-  setCellContent,
-  setSelection,
-  trimWhitespace,
-} from "./test_helpers/commands_helpers";
+import { selectCell, setCellContent, setSelection } from "./test_helpers/commands_helpers";
 import { createModelFromGrid, getRangeValuesAsMatrix } from "./test_helpers/helpers";
+import { makeStore, makeStoreWithModel } from "./test_helpers/stores";
 
 describe("trim whitespace", () => {
   test("trim cell content", () => {
-    const model = new Model();
+    const { model, store } = makeStore(TrimWhitespaceStore);
     setCellContent(model, "A2", "   Alo         ");
     selectCell(model, "A2");
-    trimWhitespace(model);
+    store.trimWhitespace();
     expect(getCellContent(model, "A2")).toBe("Alo");
   });
 
   test("remove duplicate spaces", () => {
-    const model = new Model();
+    const { model, store } = makeStore(TrimWhitespaceStore);
     setCellContent(model, "A2", "  Alo        salut     sunt  eu    un haiduc  ");
     selectCell(model, "A2");
-    trimWhitespace(model);
+    store.trimWhitespace();
     expect(getCellContent(model, "A2")).toBe("Alo salut sunt eu un haiduc");
   });
 
@@ -32,10 +29,11 @@ describe("trim whitespace", () => {
       A3: "  Space Cowboys   ",
       A4: "   Space Cake  ???    ",
     });
+    const { store } = makeStoreWithModel(model, TrimWhitespaceStore);
     const notifyUserTextSpy = jest.fn();
     jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
     setSelection(model, ["A1:A2", "A2:A3", "A4"]);
-    trimWhitespace(model);
+    store.trimWhitespace();
     expect(getCellContent(model, "A1")).toBe("Space Opera");
     expect(getCellContent(model, "A2")).toBe("Space Marine");
     expect(getCellContent(model, "A3")).toBe("Space Cowboys");
@@ -43,35 +41,36 @@ describe("trim whitespace", () => {
   });
 
   test("remove tabulation", () => {
-    const model = new Model();
+    const { model, store } = makeStore(TrimWhitespaceStore);
     setCellContent(model, "A2", "\tAlo   \t     salut\tsunt eu \tun haiduc  \t");
     selectCell(model, "A2");
-    trimWhitespace(model);
+    store.trimWhitespace();
     expect(getCellContent(model, "A2")).toBe("Alo salut sunt eu un haiduc");
   });
 
   test("keep lines break", () => {
     // @compatibility: the TRIM Excel function does not keep line breaks
-    const model = new Model();
+    const { model, store } = makeStore(TrimWhitespaceStore);
     setCellContent(model, "A2", "  Alo        salut   \n   sunt  eu  \n  un haiduc  ");
     selectCell(model, "A2");
-    trimWhitespace(model);
+    store.trimWhitespace();
     expect(getCellContent(model, "A2")).toBe("Alo salut\nsunt eu\nun haiduc");
   });
 
   test("keep empty lines break", () => {
     // @compatibility: the TRIM Google Sheets feature does not keep empty line breaks bue the formula does
-    const model = new Model();
+    const { model, store } = makeStore(TrimWhitespaceStore);
     setCellContent(model, "A2", "  Alo        salut   \n\n   sunt  eu  \n     \n  un haiduc  ");
     selectCell(model, "A2");
-    trimWhitespace(model);
+    store.trimWhitespace();
     expect(getCellContent(model, "A2")).toBe("Alo salut\n\nsunt eu\n\nun haiduc");
   });
 
   test("apply it on all selected cells", () => {
     const model = createModelFromGrid({ A2: " a ", A3: " b ", A4: " c " });
+    const { store } = makeStoreWithModel(model, TrimWhitespaceStore);
     setSelection(model, ["A2:A3", "A3:A4"]);
-    trimWhitespace(model);
+    store.trimWhitespace();
     expect(getRangeValuesAsMatrix(model, "A2:A4")).toEqual([["a"], ["b"], ["c"]]);
   });
 });
@@ -83,10 +82,11 @@ describe("notify user", () => {
       A2: "  SPACES   INVADERS   !  ",
       A3: "NO SPACES INVADERS",
     });
-    const notifyUserTextSpy = jest.fn();
-    jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
+    const { store, container } = makeStoreWithModel(model, TrimWhitespaceStore);
+    const notificationStore = container.get(NotificationStore);
+    const notifyUserTextSpy = jest.spyOn(notificationStore, "notifyUser");
     setSelection(model, ["A1:A3"]);
-    trimWhitespace(model);
+    store.trimWhitespace();
     expect(notifyUserTextSpy).toHaveBeenCalledWith({
       text: "Trimmed whitespace from 2 cells.",
       type: "info",
@@ -100,10 +100,11 @@ describe("notify user", () => {
       A2: "Space invaders",
       A3: "Space mountain",
     });
-    const notifyUserTextSpy = jest.fn();
-    jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
+    const { store, container } = makeStoreWithModel(model, TrimWhitespaceStore);
+    const notificationStore = container.get(NotificationStore);
+    const notifyUserTextSpy = jest.spyOn(notificationStore, "notifyUser");
     setSelection(model, ["A1:A3"]);
-    trimWhitespace(model);
+    store.trimWhitespace();
     expect(notifyUserTextSpy).toHaveBeenCalledWith({
       text: "No selected cells had whitespace trimmed.",
       type: "info",

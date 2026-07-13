@@ -842,8 +842,6 @@ export interface DuplicatePivotCommand {
 
 export interface RemoveDuplicatesCommand {
   type: "REMOVE_DUPLICATES";
-  columns: HeaderIndex[];
-  hasHeader: boolean;
 }
 
 export interface TrimWhitespaceCommand {
@@ -1530,7 +1528,6 @@ export const enum CommandResult {
   MoreThanOneRangeSelected = "MoreThanOneRangeSelected",
   NoColumnsProvided = "NoColumnsProvided",
   ColumnsNotIncludedInZone = "ColumnsNotIncludedInZone",
-  DuplicatesColumnsSelected = "DuplicatesColumnsSelected",
   InvalidHeaderGroupStartEnd = "InvalidHeaderGroupStartEnd",
   HeaderGroupAlreadyExists = "HeaderGroupAlreadyExists",
   UnknownHeaderGroup = "UnknownHeaderGroup",

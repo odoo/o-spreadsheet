@@ -1,20 +1,18 @@
-import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { numberToLetters } from "../../../helpers/coordinates";
 import { zoneToDimension } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
+import { DataCleanupStore } from "../../../plugins/ui_feature/data_cleanup";
+import { useLocalStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
-import { HeaderIndex } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { Store } from "../../../types/store_engine";
 import { types } from "../../props_validation";
 import { RemoveDuplicateTerms } from "../../translations_terms";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 
-interface RemoveDuplicatesState {
-  hasHeader: boolean;
-  columns: { [colIndex: number]: boolean };
-}
 export class RemoveDuplicatesPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-RemoveDuplicatesPanel";
   static components = { ValidationMessages, Section, Checkbox };
@@ -23,42 +21,32 @@ export class RemoveDuplicatesPanel extends Component<SpreadsheetChildEnv> {
     onCloseSidePanel: types.function(),
   });
 
-  state: RemoveDuplicatesState = proxy({
-    hasHeader: false,
-    columns: {},
-  });
+  dataCleanupSore!: Store<DataCleanupStore>;
 
   setup() {
-    this.updateColumns();
-    onWillUpdateProps(() => this.updateColumns());
+    this.dataCleanupSore = useLocalStore(DataCleanupStore);
   }
 
   toggleHasHeader() {
-    this.state.hasHeader = !this.state.hasHeader;
+    this.dataCleanupSore.setHasHeader(!this.dataCleanupSore.hasHeader);
   }
 
   toggleAllColumns() {
-    const newState = !this.isEveryColumnSelected;
-    for (const index in this.state.columns) {
-      this.state.columns[index] = newState;
-    }
+    this.dataCleanupSore.toggleAllColumns();
   }
 
   toggleColumn(colIndex: number) {
-    this.state.columns[colIndex] = !this.state.columns[colIndex];
+    this.dataCleanupSore.toggleColumn(colIndex);
   }
 
   onRemoveDuplicates() {
-    this.env.model.dispatch("REMOVE_DUPLICATES", {
-      hasHeader: this.state.hasHeader,
-      columns: this.getColsToAnalyze(),
-    });
+    this.env.model.dispatch("REMOVE_DUPLICATES");
   }
 
   getColLabel(colKey: string): string {
     const col = parseInt(colKey);
     let colLabel = _t("Column %s", numberToLetters(col));
-    if (this.state.hasHeader) {
+    if (this.dataCleanupSore.hasHeader) {
       const sheetId = this.env.model.getters.getActiveSheetId();
       const row = this.env.model.getters.getSelectedZone().top;
       const colHeader = this.env.model.getters.getEvaluatedCell({ sheetId, col, row });
@@ -70,14 +58,11 @@ export class RemoveDuplicatesPanel extends Component<SpreadsheetChildEnv> {
   }
 
   get isEveryColumnSelected(): boolean {
-    return Object.values(this.state.columns).every((value) => value);
+    return Object.values(this.dataCleanupSore.columns).every((value) => value);
   }
 
   get errorMessages(): string[] {
-    const cancelledReasons = this.env.model.canDispatch("REMOVE_DUPLICATES", {
-      hasHeader: this.state.hasHeader,
-      columns: this.getColsToAnalyze(),
-    }).reasons;
+    const cancelledReasons = this.dataCleanupSore.removeDuplicateErrors;
 
     const errors = new Set<string>();
 
@@ -97,25 +82,5 @@ export class RemoveDuplicatesPanel extends Component<SpreadsheetChildEnv> {
 
   get canConfirm(): boolean {
     return this.errorMessages.length === 0;
-  }
-
-  // ---------------------------------------------------------------------------
-  // Private
-  // ---------------------------------------------------------------------------
-
-  private updateColumns() {
-    const zone = this.env.model.getters.getSelectedZone();
-    const oldColumns = this.state.columns;
-    const newColumns = {};
-    for (let i = zone.left; i <= zone.right; i++) {
-      newColumns[i] = i in oldColumns ? oldColumns[i] : true;
-    }
-    this.state.columns = newColumns;
-  }
-
-  private getColsToAnalyze(): HeaderIndex[] {
-    return Object.keys(this.state.columns)
-      .filter((colIndex) => this.state.columns[colIndex])
-      .map((colIndex) => parseInt(colIndex));
   }
 }

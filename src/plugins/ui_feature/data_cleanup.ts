@@ -1,42 +1,91 @@
 import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
-import { deepEquals, range, trimContent } from "../../helpers/misc";
-import { recomputeZones } from "../../helpers/recompute_zones";
-import { positions, zoneToDimension } from "../../helpers/zones";
+import { deepEquals, range } from "../../helpers/misc";
+import { zoneToDimension } from "../../helpers/zones";
+import { NotificationStore } from "../../stores/notification_store";
+import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { _t } from "../../translation";
-import { Command, CommandResult, RemoveDuplicatesCommand } from "../../types/commands";
+import { CancelledReason, Command, CommandResult } from "../../types/commands";
 import { HeaderIndex, UID, Zone } from "../../types/misc";
-import { UIPlugin } from "../ui_plugin";
+import { Get } from "../../types/store_engine";
 
-export class DataCleanupPlugin extends UIPlugin {
-  // ---------------------------------------------------------------------------
-  // Command Handling
-  // ---------------------------------------------------------------------------
+export class DataCleanupStore extends SpreadsheetStore {
+  mutators = ["setHasHeader", "setColumns", "toggleAllColumns", "toggleColumn"] as const;
+  private notificationStore = this.get(NotificationStore);
 
-  allowDispatch(cmd: Command) {
-    switch (cmd.type) {
-      case "REMOVE_DUPLICATES":
-        return this.checkValidations(
-          cmd,
-          this.chainValidations(
-            this.checkSingleRangeSelected,
-            this.checkNoMergeInZone,
-            this.checkRangeContainsValues,
-            this.checkColumnsIncludedInZone
-          ),
-          this.chainValidations(this.checkNoColumnProvided, this.checkColumnsAreUnique)
-        );
+  hasHeader: boolean = false;
+  columns: { [colIndex: number]: boolean } = {};
+
+  constructor(get: Get) {
+    super(get);
+    this.updateColumns();
+    this.model.selection.observe(this, {
+      handleEvent: this.updateColumns.bind(this),
+    });
+    this.onDispose(() => {
+      this.model.selection.unobserve(this);
+    });
+  }
+
+  private updateColumns() {
+    const zone = this.model.getters.getSelectedZone();
+    const oldColumns = this.columns;
+    const newColumns = {};
+    for (let i = zone.left; i <= zone.right; i++) {
+      newColumns[i] = i in oldColumns ? oldColumns[i] : true;
     }
-    return CommandResult.Success;
+    this.setColumns(newColumns);
+  }
+
+  setHasHeader(hasHeader: boolean) {
+    this.hasHeader = hasHeader;
+  }
+
+  setColumns(columns: { [colIndex: number]: boolean }) {
+    this.columns = columns;
+  }
+
+  toggleAllColumns() {
+    const newState = !this.isEveryColumnSelected;
+    const newColumns = {};
+    for (const index in this.columns) {
+      newColumns[index] = newState;
+    }
+    this.setColumns(newColumns);
+  }
+
+  toggleColumn(colIndex: number) {
+    const newColumns = { ...this.columns };
+    newColumns[colIndex] = !this.columns[colIndex];
+    this.setColumns(newColumns);
+  }
+
+  private get isEveryColumnSelected(): boolean {
+    return Object.values(this.columns).every((value) => value);
+  }
+
+  get removeDuplicateErrors(): CancelledReason[] {
+    const reasons: CancelledReason[] = [];
+    if (!this.checkSingleRangeSelected()) {
+      reasons.push(CommandResult.MoreThanOneRangeSelected);
+    } else if (!this.checkNoMergeInZone()) {
+      reasons.push(CommandResult.WillRemoveExistingMerge);
+    } else if (!this.checkRangeContainsValues()) {
+      reasons.push(CommandResult.EmptySelectedRange);
+    } else if (!this.checkColumnsIncludedInZone()) {
+      reasons.push(CommandResult.ColumnsNotIncludedInZone);
+    }
+
+    if (!this.checkNoColumnProvided()) {
+      reasons.push(CommandResult.NoColumnsProvided);
+    }
+    return reasons;
   }
 
   handle(cmd: Command) {
     switch (cmd.type) {
       case "REMOVE_DUPLICATES":
-        this.removeDuplicates(cmd.columns, cmd.hasHeader);
-        break;
-      case "TRIM_WHITESPACE":
-        this.trimWhitespace();
+        this.removeDuplicates();
         break;
     }
   }
@@ -45,12 +94,13 @@ export class DataCleanupPlugin extends UIPlugin {
   // Private
   // ---------------------------------------------------------------------------
 
-  private removeDuplicates(columnsToAnalyze: HeaderIndex[], hasHeader: boolean) {
+  private removeDuplicates() {
     const sheetId = this.getters.getActiveSheetId();
     const zone = this.getters.getSelectedZone();
-    if (hasHeader) {
+    if (this.hasHeader) {
       zone.top += 1;
     }
+    const columnsToAnalyze = this.getColsToAnalyze();
 
     const uniqueRowsIndexes = this.getUniqueRowsIndexes(
       sheetId,
@@ -72,13 +122,13 @@ export class DataCleanupPlugin extends UIPlugin {
       bottom: rowIndex,
     }));
 
-    const handler = new CellClipboardHandler(this.getters, this.dispatch);
+    const handler = new CellClipboardHandler(this.getters, this.model.dispatch);
     const data = handler.copy(getClipboardDataPositions(sheetId, rowsToKeep), false);
     if (!data) {
       return;
     }
 
-    this.dispatch("CLEAR_CELLS", { target: [zone], sheetId });
+    this.model.dispatch("CLEAR_CELLS", { target: [zone], sheetId });
 
     const zonePasted: Zone = {
       left: zone.left,
@@ -91,12 +141,12 @@ export class DataCleanupPlugin extends UIPlugin {
 
     const remainingZone = {
       left: zone.left,
-      top: zone.top - (hasHeader ? 1 : 0),
+      top: zone.top - (this.hasHeader ? 1 : 0),
       right: zone.right,
       bottom: zone.top + numberOfUniqueRows - 1,
     };
 
-    this.selection.selectZone({
+    this.model.selection.selectZone({
       cell: { col: remainingZone.left, row: remainingZone.top },
       zone: remainingZone,
     });
@@ -134,7 +184,7 @@ export class DataCleanupPlugin extends UIPlugin {
   }
 
   private notifyRowsRemovedAndRemaining(removedRows: number, remainingRows: number) {
-    this.ui.notifyUI({
+    this.notificationStore.notifyUser({
       type: "info",
       text: _t(
         "%s duplicate rows found and removed.\n%s unique rows remain.",
@@ -145,92 +195,57 @@ export class DataCleanupPlugin extends UIPlugin {
     });
   }
 
-  private checkSingleRangeSelected(): CommandResult {
+  private checkSingleRangeSelected(): boolean {
     const zones = this.getters.getSelectedZones();
     if (zones.length !== 1) {
-      return CommandResult.MoreThanOneRangeSelected;
+      return false;
     }
-    return CommandResult.Success;
+    return true;
   }
 
-  private checkNoMergeInZone(): CommandResult {
+  private checkNoMergeInZone(): boolean {
     const sheetId = this.getters.getActiveSheetId();
     const zone = this.getters.getSelectedZone();
     const mergesInZone = this.getters.getMergesInZone(sheetId, zone);
     if (mergesInZone.length > 0) {
-      return CommandResult.WillRemoveExistingMerge;
+      return false;
     }
-    return CommandResult.Success;
+    return true;
   }
 
-  private checkRangeContainsValues(cmd: RemoveDuplicatesCommand): CommandResult {
+  private checkRangeContainsValues(): boolean {
     const sheetId = this.getters.getActiveSheetId();
     const zone = this.getters.getSelectedZone();
-    if (cmd.hasHeader) {
+    if (this.hasHeader) {
       zone.top += 1;
     }
     const evaluatedCells = this.getters.getEvaluatedCellsInZone(sheetId, zone);
     if (evaluatedCells.every((evaluatedCel) => evaluatedCel.type === "empty")) {
-      return CommandResult.EmptySelectedRange;
+      return false;
     }
-    return CommandResult.Success;
+    return true;
   }
 
-  private checkNoColumnProvided(cmd: RemoveDuplicatesCommand): CommandResult {
-    if (cmd.columns.length === 0) {
-      return CommandResult.NoColumnsProvided;
+  private checkNoColumnProvided(): boolean {
+    const columnsToAnalyze = this.getColsToAnalyze();
+    if (columnsToAnalyze.length === 0) {
+      return false;
     }
-    return CommandResult.Success;
+    return true;
   }
 
-  private checkColumnsIncludedInZone(cmd: RemoveDuplicatesCommand): CommandResult {
+  private checkColumnsIncludedInZone(): boolean {
     const zone = this.getters.getSelectedZone();
-    const columnsToAnalyze = cmd.columns;
+    const columnsToAnalyze = this.getColsToAnalyze();
     if (columnsToAnalyze.some((colIndex) => colIndex < zone.left || colIndex > zone.right)) {
-      return CommandResult.ColumnsNotIncludedInZone;
+      return false;
     }
-    return CommandResult.Success;
+    return true;
   }
 
-  private checkColumnsAreUnique(cmd: RemoveDuplicatesCommand): CommandResult {
-    if (cmd.columns.length !== new Set(cmd.columns).size) {
-      return CommandResult.DuplicatesColumnsSelected;
-    }
-    return CommandResult.Success;
-  }
-
-  private trimWhitespace() {
-    const zones = recomputeZones(this.getters.getSelectedZones());
-    const sheetId = this.getters.getActiveSheetId();
-    let count = 0;
-
-    for (const { col, row } of zones.map(positions).flat()) {
-      const cell = this.getters.getCell({ col, row, sheetId });
-      if (!cell) {
-        continue;
-      }
-      const currentContent = !cell.isFormula
-        ? cell.content
-        : cell.compiledFormula.toFormulaString(this.getters);
-      const trimmedContent = trimContent(currentContent);
-      if (trimmedContent !== currentContent) {
-        count += 1;
-        this.dispatch("UPDATE_CELL", {
-          sheetId,
-          col,
-          row,
-          content: trimmedContent,
-        });
-      }
-    }
-
-    const text = count
-      ? _t("Trimmed whitespace from %s cells.", count)
-      : _t("No selected cells had whitespace trimmed.");
-    this.ui.notifyUI({
-      type: "info",
-      text: text,
-      sticky: false,
-    });
+  private getColsToAnalyze(): HeaderIndex[] {
+    return Object.keys(this.columns)
+      .filter((colIndex) => this.columns[colIndex])
+      .map((colIndex) => parseInt(colIndex));
   }
 }

@@ -1911,10 +1911,6 @@ export function unlockSheet(
   return model.dispatch("UNLOCK_SHEET", { sheetId });
 }
 
-export function trimWhitespace(model: Model) {
-  return model.dispatch("TRIM_WHITESPACE");
-}
-
 export function evaluateCells(model: Model) {
   return model.dispatch("EVALUATE_CELLS");
 }
@@ -2009,10 +2005,6 @@ export function autofillSelect(model: Model, from: string, to: string) {
 export function autofill(model: Model, from: string, to: string) {
   autofillSelect(model, from, to);
   return model.dispatch("AUTOFILL");
-}
-
-export function removeDuplicates(model: Model, columns: HeaderIndex[], hasHeader: boolean) {
-  return model.dispatch("REMOVE_DUPLICATES", { columns, hasHeader });
 }
 
 export function setFormulaVisibility(model: Model, show: boolean) {
