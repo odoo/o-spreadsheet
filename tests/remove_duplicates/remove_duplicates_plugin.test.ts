@@ -1,6 +1,6 @@
 import { CommandResult, HeaderIndex, Model } from "../../src";
 import { toZone } from "../../src/helpers/zones";
-import { DataCleanupStore } from "../../src/plugins/ui_feature/data_cleanup";
+import { DataCleanupStore } from "../../src/stores/data_cleanup_store";
 import { NotificationStore } from "../../src/stores/notification_store";
 import { getCellRawContent, getEvaluatedCell } from "../test_helpers";
 import { merge, setFormat, setSelection } from "../test_helpers/commands_helpers";
