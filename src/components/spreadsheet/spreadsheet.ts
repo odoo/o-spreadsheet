@@ -64,6 +64,7 @@ import { css, cssPropertiesToCss } from "../helpers/css";
 import { isMobileOS } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";
+import { CARET_DOWN_SVG } from "../icons/raw_svgs";
 import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../side_panel/side_panels/side_panels";
 import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
@@ -73,12 +74,6 @@ import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipbo
 // -----------------------------------------------------------------------------
 // SpreadSheet
 // -----------------------------------------------------------------------------
-
-const CARET_DOWN_SVG = /*xml*/ `
-<svg xmlns='http://www.w3.org/2000/svg' width='7' height='4' viewBox='0 0 7 4'>
-  <polygon fill='%23374151' points='3.5 4 7 0 0 0'/>
-</svg>
-`;
 
 css/* scss */ `
   .o-spreadsheet {
