@@ -18,7 +18,7 @@
         onGridResized.bind="this.onGridResized"
         gridOverlayDimensions="this.gridOverlayDimensions"
       />
-      <HeadersOverlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"/>
+      <HeadersOverlay onOpenContextMenu.bind="this.toggleContextMenu"/>
       <GridComposer
         gridDims="this.viewStore.viewports.getSheetViewDimensionWithHeaders()"
         onInputContextMenu.bind="this.onInputContextMenu"
@@ -55,6 +55,13 @@
         menuItems="this.menuState.menuItems"
         anchorRect="this.menuState.anchorRect"
         onClose="() => this.closeMenu()"
+      />
+      <HeaderResizeEditor
+        t-if="this.headerResizeEditorStore.state?.isOpen"
+        dimension="this.headerResizeEditorStore.state.dimension"
+        anchorIndex="this.headerResizeEditorStore.state.index"
+        anchorRect="this.headerResizeEditorAnchorRect"
+        onClose.bind="this.closeHeaderResizeEditor"
       />
       <t
         t-if="!this.env.model.getters.isReadonly()"

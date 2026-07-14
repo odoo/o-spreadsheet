@@ -76,11 +76,14 @@ colMenuRegistry
   .add("hide_columns", {
     ...ACTION_VIEW.hideCols,
     sequence: 105,
-    separator: true,
   })
   .add("unhide_columns", {
     ...ACTION_VIEW.unhideCols,
     sequence: 106,
+  })
+  .add("resize_columns", {
+    ...ACTION_VIEW.resizeCols,
+    sequence: 107,
     separator: true,
   })
   .add("conditional_formatting", {

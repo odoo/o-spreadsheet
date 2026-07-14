@@ -50,6 +50,7 @@ import { Currency, Model } from "../../src";
 
 import { ActionSpec, createAction, createActions } from "../../src/actions/action";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { HeaderResizeEditorStore } from "../../src/components/header_resize_editor/header_resize_editor_store";
 import { FONT_SIZES } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
@@ -1551,6 +1552,57 @@ describe("Menu Item actions", () => {
       });
     });
   });
+
+  describe("Resize rows and columns", () => {
+    test("Column resize actions", async () => {
+      const resizeAction = getNode(["resize_columns"], env, colMenuRegistry);
+      expect(resizeAction.isVisible(env)).toBeFalsy();
+
+      selectColumn(model, 1, "overrideSelection");
+      selectColumn(model, 2, "updateAnchor");
+      expect(resizeAction.name(env).toString()).toBe("Resize column");
+      expect(resizeAction.isVisible(env)).toBeTruthy();
+
+      const [fitToData, customSize] = resizeAction.children(env);
+      expect(fitToData.name(env).toString()).toBe("Fit to data");
+      expect(customSize.name(env).toString()).toBe("Custom size");
+
+      await fitToData.execute?.(env);
+      expect(dispatch).toHaveBeenCalledWith("AUTORESIZE_COLUMNS", {
+        sheetId,
+        cols: [1, 2],
+      });
+      const editorStore = env.getStore(HeaderResizeEditorStore);
+      editorStore.setTarget("COL", 1);
+      await customSize.execute?.(env);
+      expect(editorStore.state).toEqual({ isOpen: true, dimension: "COL", index: 1 });
+    });
+
+    test("Row resize actions", async () => {
+      const resizeAction = getNode(["resize_rows"], env, rowMenuRegistry);
+      expect(resizeAction.isVisible(env)).toBeFalsy();
+
+      selectRow(model, 1, "overrideSelection");
+      selectRow(model, 2, "updateAnchor");
+      expect(resizeAction.name(env).toString()).toBe("Resize row");
+      expect(resizeAction.isVisible(env)).toBeTruthy();
+
+      const [fitToData, customSize] = resizeAction.children(env);
+      expect(fitToData.name(env).toString()).toBe("Fit to data");
+      expect(customSize.name(env).toString()).toBe("Custom size");
+
+      await fitToData.execute?.(env);
+      expect(dispatch).toHaveBeenCalledWith("AUTORESIZE_ROWS", {
+        sheetId,
+        rows: [1, 2],
+      });
+      const editorStore = env.getStore(HeaderResizeEditorStore);
+      editorStore.setTarget("ROW", 1);
+      await customSize.execute?.(env);
+      expect(editorStore.state).toEqual({ isOpen: true, dimension: "ROW", index: 1 });
+    });
+  });
+
   describe("Hide/Unhide Rows", () => {
     const hidePath = ["hide_rows"];
     const unhidePath = ["unhide_rows"];

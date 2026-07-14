@@ -53,11 +53,14 @@ rowMenuRegistry
   .add("hide_rows", {
     ...ACTION_VIEW.hideRows,
     sequence: 85,
-    separator: true,
   })
   .add("unhide_rows", {
     ...ACTION_VIEW.unhideRows,
     sequence: 86,
+  })
+  .add("resize_rows", {
+    ...ACTION_VIEW.resizeRows,
+    sequence: 87,
     separator: true,
   })
   .add("conditional_formatting", {

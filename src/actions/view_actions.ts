@@ -1,3 +1,4 @@
+import { HeaderResizeEditorStore } from "../components/header_resize_editor/header_resize_editor_store";
 import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import { numberToLetters } from "../helpers/coordinates";
 import { interactiveFreezeColumnsRows } from "../helpers/ui/freeze_interactive";
@@ -111,6 +112,46 @@ export const unhideAllRows: ActionSpec = {
     env.model.getters.getHiddenRowsGroups(env.model.getters.getActiveSheetId()).length > 0,
 
   icon: "o-spreadsheet-Icon.UNHIDE_ROW",
+};
+
+export const resizeCols: ActionSpec = {
+  name: _t("Resize column"),
+  isVisible: (env) => env.model.getters.getActiveCols().size > 0,
+  icon: "o-spreadsheet-Icon.RESIZE_HORIZONTAL",
+  children: [
+    {
+      name: _t("Fit to data"),
+      execute: (env) =>
+        env.model.dispatch("AUTORESIZE_COLUMNS", {
+          sheetId: env.model.getters.getActiveSheetId(),
+          cols: [...env.model.getters.getActiveCols()],
+        }),
+    },
+    {
+      name: _t("Custom size"),
+      execute: (env) => env.getStore(HeaderResizeEditorStore).open(),
+    },
+  ],
+};
+
+export const resizeRows: ActionSpec = {
+  name: _t("Resize row"),
+  isVisible: (env) => env.model.getters.getActiveRows().size > 0,
+  icon: "o-spreadsheet-Icon.RESIZE_VERTICAL",
+  children: [
+    {
+      name: _t("Fit to data"),
+      execute: (env) =>
+        env.model.dispatch("AUTORESIZE_ROWS", {
+          sheetId: env.model.getters.getActiveSheetId(),
+          rows: [...env.model.getters.getActiveRows()],
+        }),
+    },
+    {
+      name: _t("Custom size"),
+      execute: (env) => env.getStore(HeaderResizeEditorStore).open(),
+    },
+  ],
 };
 
 export const unFreezePane: ActionSpec = {

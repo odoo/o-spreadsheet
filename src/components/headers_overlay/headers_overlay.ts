@@ -39,7 +39,8 @@ interface ResizerState {
 }
 
 export const resizerPropsDefinition = {
-  onOpenContextMenu: types.function<(type: ContextMenuType, x: Pixel, y: Pixel) => void>(),
+  onOpenContextMenu:
+    types.function<(type: ContextMenuType, x: Pixel, y: Pixel, headerIndex: HeaderIndex) => void>(),
 };
 
 abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
@@ -341,7 +342,7 @@ abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
       this._selectElement(index, false);
     }
     const type = this._getType();
-    this.props.onOpenContextMenu(type, ev.clientX, ev.clientY);
+    this.props.onOpenContextMenu(type, ev.clientX, ev.clientY, index);
   }
 }
 
