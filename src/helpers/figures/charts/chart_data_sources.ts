@@ -17,12 +17,17 @@ import { CellErrorType } from "../../../types/errors";
 import { Getters } from "../../../types/getters";
 import { FunctionResultObject } from "../../../types/misc";
 import { Range } from "../../../types/range";
-import { isErrorResult, isNumberResult, isTextResult } from "../../cells/cell_evaluation";
+import {
+  isBooleanResult,
+  isErrorResult,
+  isNumberResult,
+  isTextResult,
+} from "../../cells/cell_evaluation";
 import { formatValue } from "../../format/format";
 import { isDefined } from "../../misc";
 import { createValidRange, duplicateRangeInDuplicatedSheet } from "../../range";
 import { recomputeZones } from "../../recompute_zones";
-import { getZoneArea } from "../../zones";
+import { getZoneArea, isEqual } from "../../zones";
 import {
   checkDataset,
   checkLabelRange,
@@ -261,7 +266,7 @@ export function getChartData(getters: Getters, dataSource: ChartRangeDataSource)
   const dataSets = dataSource.dataSets;
   const labelRange = dataSource.labelRange;
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
-  const dataSetsValues = getChartDatasetValues(getters, dataSets);
+  const dataSetsValues = getChartDatasetValues(getters, dataSets, labelRange);
   const data = { labelValues, dataSetsValues };
   // FIXME nested ternary
   const numberOfDataPoints = dataSetsValues.length
@@ -279,7 +284,11 @@ export function getChartData(getters: Getters, dataSource: ChartRangeDataSource)
   return data;
 }
 
-function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {
+function getChartDatasetValues(
+  getters: Getters,
+  dataSets: DataSet[],
+  labelRange: Range | undefined
+): DatasetValues[] {
   const datasetValues: DatasetValues[] = [];
   for (const [dsIndex, ds] of Object.entries(dataSets)) {
     let label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;
@@ -293,7 +302,18 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
     }
 
     let data = ds.dataRange ? getData(getters, ds) : [];
-    if (
+    if (!data.some((cell) => isNumberResult(cell)) && data.some((cell) => isBooleanResult(cell))) {
+      // When the labels are the boolean values themselves (categorical chart), each boolean
+      // occurrence is counted as 1 so it can be aggregated per TRUE/FALSE label. Otherwise, the
+      // booleans are used as regular numeric values: TRUE = 1, FALSE = 0.
+      const isCategorical =
+        !labelRange ||
+        (labelRange.sheetId === ds.dataRange.sheetId &&
+          isEqual(labelRange.zone, ds.dataRange.zone));
+      data = data.map((cell) =>
+        !isBooleanResult(cell) ? EMPTY : isCategorical ? ONE : { value: cell.value ? 1 : 0 }
+      );
+    } else if (
       data.every((cell) => !cell.value || isTextResult(cell)) &&
       data.filter(isTextResult).length > 1
     ) {
