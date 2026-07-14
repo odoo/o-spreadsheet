@@ -14,7 +14,7 @@ import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { getDefaultCellHeight } from "../../src/helpers/text_helper";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { featurePluginRegistry } from "../../src/plugins/plugin_registries";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { toChartDataSource } from "../test_helpers/chart_helpers";

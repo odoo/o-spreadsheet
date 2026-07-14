@@ -1,7 +1,7 @@
 import { BorderDescr, CommandResult } from "../../src";
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { Model } from "../../src/model";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   activateSheet,
   addColumns,

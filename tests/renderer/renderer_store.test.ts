@@ -31,7 +31,7 @@ import {
   BACKGROUND_HEADER_SELECTED_COLOR,
 } from "../../src/plugins/ui_feature/color_theme";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { RendererStore } from "../../src/stores/renderer_store";

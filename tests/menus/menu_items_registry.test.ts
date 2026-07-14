@@ -57,12 +57,12 @@ import { CellComposerStore } from "../../src/components/composer/composer/cell_c
 import { FONT_SIZES } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../src/registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../../src/registries/menus/row_menu_registry";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { FR_LOCALE } from "../test_helpers/constants";
 

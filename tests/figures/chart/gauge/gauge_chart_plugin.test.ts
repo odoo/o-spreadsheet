@@ -1,6 +1,6 @@
 import { CellErrorType, CommandResult, Model } from "../../../../src";
 import { deepCopy } from "../../../../src/helpers/misc";
-import { ClipboardStore } from "../../../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../../../src/stores/clipboard_store";
 import { ViewportsStore } from "../../../../src/stores/viewports_store";
 import {
   GaugeChartDefinition,

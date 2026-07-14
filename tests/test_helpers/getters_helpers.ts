@@ -15,7 +15,7 @@ import {
 import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { Store } from "../../src/types/store_engine";
 import { setSelection } from "./commands_helpers";
 

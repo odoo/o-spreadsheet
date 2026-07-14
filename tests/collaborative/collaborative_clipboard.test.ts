@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { toChartDataSource } from "../test_helpers/chart_helpers";

@@ -16,12 +16,12 @@ import {
 } from "../src/types/commands";
 
 import { CoreCommand, Dimension, UID } from "../src";
-import { ClipboardStore } from "../src/plugins/ui_stateful/clipboard";
 import {
   repeatCommandTransformRegistry,
   repeatCoreCommand,
   repeatLocalCommandTransformRegistry,
 } from "../src/registries/repeat_transform_registry";
+import { ClipboardStore } from "../src/stores/clipboard_store";
 import {
   activateSheet,
   addEqualCf,

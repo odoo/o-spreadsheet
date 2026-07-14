@@ -1,8 +1,8 @@
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { SelectionInputStore } from "../../src/components/selection_input/selection_input_store";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import {
   activateSheet,

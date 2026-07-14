@@ -18,7 +18,7 @@ import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_in
 import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { UuidGenerator } from "../helpers/uuid";
 import { areZonesContinuous, getZoneArea, isEqual } from "../helpers/zones";
-import { ClipboardStore } from "../plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
 import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
 import { Format } from "../types/format";

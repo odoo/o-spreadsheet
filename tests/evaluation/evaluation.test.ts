@@ -4,7 +4,7 @@ import { functionRegistry } from "../../src/functions/function_registry";
 import { toMatrix } from "../../src/functions/helpers";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { Model } from "../../src/model";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   activateSheet,
   addColumns,

@@ -1,6 +1,6 @@
 import { BorderDescr, Model, UID } from "../../src";
 import { toZone } from "../../src/helpers/zones";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   copy,
   createDynamicTable,

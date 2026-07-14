@@ -1,21 +1,19 @@
-import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
-import { convertImageToPng } from "../../components/helpers/convert_image_to_png";
-import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers/css";
-import { SELECTION_BORDER_COLOR } from "../../constants";
+import { ClipboardHandler } from "../clipboard_handlers/abstract_clipboard_handler";
+import { convertImageToPng } from "../components/helpers/convert_image_to_png";
+import { cellStyleToCss, cssPropertiesToCss } from "../components/helpers/css";
+import { SELECTION_BORDER_COLOR } from "../constants";
 import {
   applyClipboardHandlersPaste,
   getClipboardDataPositions,
   getPasteTargetFromHandlers,
   selectPastedZone,
-} from "../../helpers/clipboard/clipboard_helpers";
-import { getMaxFigureSize } from "../../helpers/figures/figure/figure";
-import { UuidGenerator } from "../../helpers/uuid";
-import { isZoneValid } from "../../helpers/zones";
-import { getCurrentVersion } from "../../migrations/data";
-import { clipboardHandlersRegistries } from "../../registries/clipboardHandlersRegistries";
-import { NotificationStore } from "../../stores/notification_store";
-import { SpreadsheetStore } from "../../stores/spreadsheet_store";
-import { _t } from "../../translation";
+} from "../helpers/clipboard/clipboard_helpers";
+import { getMaxFigureSize } from "../helpers/figures/figure/figure";
+import { UuidGenerator } from "../helpers/uuid";
+import { isZoneValid } from "../helpers/zones";
+import { getCurrentVersion } from "../migrations/data";
+import { clipboardHandlersRegistries } from "../registries/clipboardHandlersRegistries";
+import { _t } from "../translation";
 import {
   ClipboardCopyOptions,
   ClipboardData,
@@ -24,11 +22,13 @@ import {
   MinimalClipboardData,
   OSClipboardContent,
   SpreadsheetClipboardData,
-} from "../../types/clipboard";
-import { Command, CommandResult, DispatchResult, isCoreCommand } from "../../types/commands";
-import { Dimension, HeaderIndex, UID, Zone } from "../../types/misc";
-import { GridRenderingContext } from "../../types/rendering";
-import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
+} from "../types/clipboard";
+import { Command, CommandResult, DispatchResult, isCoreCommand } from "../types/commands";
+import { Dimension, HeaderIndex, UID, Zone } from "../types/misc";
+import { GridRenderingContext } from "../types/rendering";
+import { xmlEscape } from "../xlsx/helpers/xml_helpers";
+import { NotificationStore } from "./notification_store";
+import { SpreadsheetStore } from "./spreadsheet_store";
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 

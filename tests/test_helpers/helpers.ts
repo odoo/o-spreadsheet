@@ -55,10 +55,10 @@ import {
 } from "../../src";
 import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { proxifyStoreMutation, useStore } from "../../src/store_engine/store_hooks";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
 import { ModelStore } from "../../src/stores/model_store";

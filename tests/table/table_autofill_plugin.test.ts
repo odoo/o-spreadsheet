@@ -1,7 +1,7 @@
 import { Model, UID } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   copy,
   createTable,

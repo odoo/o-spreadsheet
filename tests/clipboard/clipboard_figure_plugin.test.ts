@@ -2,7 +2,7 @@ import { CommandResult, Model, UID } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { parseOSClipboardContent } from "../../src/helpers/clipboard/clipboard_helpers";
 import { UuidGenerator } from "../../src/helpers/uuid";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   activateSheet,

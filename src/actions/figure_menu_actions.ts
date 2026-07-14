@@ -4,7 +4,7 @@ import { getPoppedOutChartAnchor } from "../helpers/carousel_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts/chart_ui_common";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { deepEquals } from "../helpers/misc";
-import { ClipboardStore } from "../plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { Action, ActionSpec, createActions } from "./action";
