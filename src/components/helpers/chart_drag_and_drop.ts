@@ -6,6 +6,7 @@ import {
   DEFAULT_SCORECARD_WIDTH,
 } from "../../constants";
 import { SpreadsheetChart } from "../../helpers/figures/chart";
+import { limitChartConfigDataPoints } from "../../helpers/figures/charts/chart_ui_common";
 import { drawGaugeChart } from "../../helpers/figures/charts/gauge_chart_rendering";
 import { drawScoreChart } from "../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../helpers/figures/charts/scorecard_chart_config_builder";
@@ -91,7 +92,7 @@ export function startChartDragAndDrop(
       }
       canvas.style.zoom = `${zoom}`;
       //@ts-ignore chartJsConfig's union of ChartConfiguration<type> is too complex for TS to narrow
-      chart = new globalThis.Chart!(ctx, runtime.chartJsConfig);
+      chart = new globalThis.Chart!(ctx, limitChartConfigDataPoints(runtime.chartJsConfig));
       break;
     }
   }

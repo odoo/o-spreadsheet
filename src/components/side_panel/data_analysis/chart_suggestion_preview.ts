@@ -2,6 +2,7 @@ import { onMounted, onWillUnmount, props, signal } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { SpreadsheetChart } from "../../../helpers/figures/chart";
 import { registerChartJSExtensions } from "../../../helpers/figures/charts/chart_js_extension";
+import { limitChartConfigDataPoints } from "../../../helpers/figures/charts/chart_ui_common";
 import { drawGaugeChart } from "../../../helpers/figures/charts/gauge_chart_rendering";
 import { drawScoreChart } from "../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../helpers/figures/charts/scorecard_chart_config_builder";
@@ -103,7 +104,7 @@ export class ChartSuggestionPreview extends Component<SpreadsheetChildEnv> {
         },
       },
     };
-    return config;
+    return limitChartConfigDataPoints(config);
   }
 
   private scaleBubblePointRadius(pointRadius: number | number[] | undefined): number | number[] {

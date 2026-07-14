@@ -1,4 +1,5 @@
-import { ChartConfiguration, ChartOptions } from "chart.js";
+import { ChartConfiguration, ChartDataset, ChartOptions } from "chart.js";
+import { MAX_CHART_PREVIEW_DATA_POINTS } from "../../../constants";
 import { ChartRuntime, ChartType } from "../../../types/chart/chart";
 import { GaugeChartRuntime } from "../../../types/chart/gauge_chart";
 import { ScorecardChartRuntime } from "../../../types/chart/scorecard_chart";
@@ -29,6 +30,59 @@ export const CHART_COMMON_OPTIONS = {
   animation: false,
   events: ["mousemove", "mouseout", "click", "touchstart", "touchmove", "mouseup"],
 } satisfies ChartOptions;
+
+/**
+ * Sample down a Chart.js configuration's data points to at most `maxPoints`, evenly spaced.
+ * Used for lightweight previews (drag preview, chart suggestions) where rendering every point
+ * of a large dataset would make Chart.js slow without any visible benefit on a small canvas.
+ */
+export function limitChartConfigDataPoints(
+  config: ChartConfiguration<any>,
+  maxPoints: number = MAX_CHART_PREVIEW_DATA_POINTS
+): ChartConfiguration<any> {
+  const data = config.data;
+  if (!data) {
+    return config;
+  }
+  return {
+    ...config,
+    data: {
+      ...data,
+      labels: limitArrayDataPoints(data.labels, maxPoints),
+      datasets: data.datasets?.map((dataset) => limitDatasetDataPoints(dataset, maxPoints)),
+    },
+  };
+}
+
+function limitDatasetDataPoints(dataset: ChartDataset<any>, maxPoints: number): ChartDataset<any> {
+  const values = dataset.data;
+  if (!Array.isArray(values) || values.length <= maxPoints) {
+    return dataset;
+  }
+  const length = values.length;
+  const indices = sampleIndices(length, maxPoints);
+  const limited: Record<string, unknown> = { ...dataset };
+  for (const key of Object.keys(limited)) {
+    const value = limited[key];
+    if (Array.isArray(value) && value.length === length) {
+      limited[key] = indices.map((i) => value[i]);
+    }
+  }
+  return limited as ChartDataset<any>;
+}
+
+function limitArrayDataPoints<T>(arr: T[] | undefined, maxPoints: number): T[] | undefined {
+  if (!Array.isArray(arr) || arr.length <= maxPoints) {
+    return arr;
+  }
+  return sampleIndices(arr.length, maxPoints).map((i) => arr[i]);
+}
+
+/** Evenly spaced indices sampled from [0, length). */
+function sampleIndices(length: number, maxPoints: number): number[] {
+  const step = length / maxPoints;
+  return Array.from({ length: maxPoints }, (_, i) => Math.min(length - 1, Math.floor(i * step)));
+}
 
 export async function chartToImageUrl(
   runtime: ChartRuntime,
