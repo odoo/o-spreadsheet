@@ -24,7 +24,11 @@ import { css, cssPropertiesToCss } from "../helpers/css";
 import { isCtrlKey } from "../helpers/dom_helpers";
 import { startDnd } from "../helpers/drag_and_drop";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
-import { MergeErrorMessage, TableHeaderMoveErrorMessage } from "../translations_terms";
+import {
+  MergeErrorMessage,
+  TableHeaderMoveErrorMessage,
+  TableWillOverlap,
+} from "../translations_terms";
 import { ComposerFocusStore } from "./../composer/composer_focus_store";
 import { UnhideColumnHeaders, UnhideRowHeaders } from "./unhide_headers";
 
@@ -484,8 +488,12 @@ export class ColResizer extends AbstractResizer {
       elements,
       position: this.state.position,
     });
-    if (!result.isSuccessful && result.reasons.includes(CommandResult.WillRemoveExistingMerge)) {
-      this.env.raiseError(MergeErrorMessage);
+    if (!result.isSuccessful) {
+      if (result.reasons.includes(CommandResult.WillRemoveExistingMerge)) {
+        this.env.raiseError(MergeErrorMessage);
+      } else if (result.reasons.includes(CommandResult.WillOverlapTable)) {
+        this.env.raiseError(TableWillOverlap);
+      }
     }
   }
 
@@ -715,6 +723,8 @@ export class RowResizer extends AbstractResizer {
         this.env.raiseError(MergeErrorMessage);
       } else if (result.reasons.includes(CommandResult.CannotMoveTableHeader)) {
         this.env.raiseError(TableHeaderMoveErrorMessage);
+      } else if (result.reasons.includes(CommandResult.WillOverlapTable)) {
+        this.env.raiseError(TableWillOverlap);
       }
     }
   }
