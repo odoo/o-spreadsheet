@@ -184,8 +184,8 @@ describe("UI Helpers", () => {
       setCellContent(model, "A1", "=42");
       setCellStyle(model, "A1", style);
 
-      copy(model, "A1");
       const env = makeTestEnv({ model });
+      copy(model, "A1");
       interactivePaste(env, target("B1"), "onlyFormat");
       interactivePaste(env, target("B2"), "asValue");
       interactivePaste(env, target("B3"));

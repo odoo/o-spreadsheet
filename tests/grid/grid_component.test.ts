@@ -25,7 +25,7 @@ import { handleCopyPasteResult } from "../../src/helpers/ui/paste_interactive";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
-import { ClipboardPlugin } from "../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
 import { ClientFocusStore } from "../../src/stores/client_focus_store";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { NotificationStore } from "../../src/stores/notification_store";
@@ -104,7 +104,6 @@ import {
 import {
   addToRegistry,
   flattenHighlightRange,
-  getPlugin,
   mockChart,
   mountSpreadsheet,
   nextTick,
@@ -1315,22 +1314,24 @@ describe("Grid component", () => {
     });
 
     test("paint format does not destroy clipboard content", async () => {
+      const clipboardStore = env.getStore(ClipboardStore);
       setCellContent(model, "A1", "hello");
       setFormatting(model, "A1", { bold: true });
       copy(model, "A1");
 
-      const clipboardContent = await model.getters.getClipboardTextAndImageContent();
+      const clipboardContent = await clipboardStore.getClipboardTextAndImageContent();
       paintFormatStore.activate({ persistent: false });
-      expect(await model.getters.getClipboardTextAndImageContent()).toEqual(clipboardContent);
+      expect(await clipboardStore.getClipboardTextAndImageContent()).toEqual(clipboardContent);
     });
 
     test("can paint format after a cut", async () => {
+      const clipboardStore = env.getStore(ClipboardStore);
       setCellContent(model, "B2", "b2");
       cut(model, "A1");
       selectCell(model, "B2");
       setFormatting(model, "B2", { bold: true });
       paintFormatStore.activate({ persistent: false });
-      expect(model.getters.isCutOperation());
+      expect(clipboardStore.isCutOperation());
 
       await gridMouseEvent(env, "pointerdown", "D8");
       await gridMouseEvent(env, "pointerup", "D8");
@@ -1986,10 +1987,10 @@ describe("Copy paste keyboard shortcut", () => {
       clipboardData.content = clipboard.content;
     }
     const clipboardContent = clipboardData.content;
-    const cbPlugin = getPlugin(model, ClipboardPlugin);
+    const clipboardStore = env.getStore(ClipboardStore);
     //@ts-ignore
-    const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData());
-    const clipboardId = model.getters.getClipboardId();
+    const clipboardHtmlData = JSON.stringify(clipboardStore.getSheetData());
+    const clipboardId = clipboardStore.getClipboardId();
     expect(clipboardContent).toMatchObject({
       "text/plain": "things",
       "text/html": `<div data-osheet-clipboard-id='${clipboardId}' data-osheet-clipboard='${xmlEscape(
@@ -2012,10 +2013,10 @@ describe("Copy paste keyboard shortcut", () => {
       clipboardData.content = clipboard.content;
     }
     const clipboardContent = clipboardData.content;
-    const cbPlugin = getPlugin(model, ClipboardPlugin);
+    const clipboardStore = env.getStore(ClipboardStore);
     //@ts-ignore
-    const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData());
-    const clipboardId = model.getters.getClipboardId();
+    const clipboardHtmlData = JSON.stringify(clipboardStore.getSheetData());
+    const clipboardId = clipboardStore.getClipboardId();
     expect(clipboardContent).toMatchObject({
       "text/plain": "things",
       "text/html": `<div data-osheet-clipboard-id='${clipboardId}' data-osheet-clipboard='${xmlEscape(
@@ -2193,26 +2194,29 @@ describe("Copy paste keyboard shortcut", () => {
   });
 
   test("Clipboard visible zones (copy) will be cleaned after hitting esc", async () => {
+    const clipboardStore = env.getStore(ClipboardStore);
     setCellContent(model, "A1", "things");
     selectCell(model, "A1");
     copy(model, "A1");
     selectCell(model, "A2");
-    expect(getClipboardVisibleZones(model).length).toBe(1);
+    expect(getClipboardVisibleZones(clipboardStore).length).toBe(1);
     await keyDown({ key: "Escape" });
-    expect(getClipboardVisibleZones(model).length).toBe(0);
+    expect(getClipboardVisibleZones(clipboardStore).length).toBe(0);
   });
 
   test("Clipboard visible zones (cut) will be cleaned after hitting esc", async () => {
+    const clipboardStore = env.getStore(ClipboardStore);
     setCellContent(model, "A1", "things");
     selectCell(model, "A1");
     cut(model, "A1");
     selectCell(model, "A2");
-    expect(getClipboardVisibleZones(model).length).toBe(1);
+    expect(getClipboardVisibleZones(clipboardStore).length).toBe(1);
     await keyDown({ key: "Escape" });
-    expect(getClipboardVisibleZones(model).length).toBe(0);
+    expect(getClipboardVisibleZones(clipboardStore).length).toBe(0);
   });
 
   test("When there is a opened cell popover, hitting esc key will only close the popover and not clean the clipboard visible zones", async () => {
+    const clipboardStore = env.getStore(ClipboardStore);
     setCellContent(model, "A1", "things");
     createTableWithFilter(model, "A1:A2");
     selectCell(model, "A1");
@@ -2221,27 +2225,28 @@ describe("Copy paste keyboard shortcut", () => {
     await nextTick();
     await clickGridIcon(env, "A1");
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
-    expect(getClipboardVisibleZones(model).length).toBe(1);
+    expect(getClipboardVisibleZones(clipboardStore).length).toBe(1);
     await keyDown({ key: "Escape" });
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
-    expect(getClipboardVisibleZones(model).length).toBe(1);
+    expect(getClipboardVisibleZones(clipboardStore).length).toBe(1);
 
     await keyDown({ key: "Escape" });
-    expect(getClipboardVisibleZones(model).length).toBe(0);
+    expect(getClipboardVisibleZones(clipboardStore).length).toBe(0);
   });
 
   test("When there is a opened context menu, hitting esc key will only close the menu and not clean the clipboard visible zones", async () => {
+    const clipboardStore = env.getStore(ClipboardStore);
     setCellContent(model, "A1", "things");
     copy(model, "A1");
     await rightClickCell(env, "A2");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
-    expect(getClipboardVisibleZones(model).length).toBe(1);
+    expect(getClipboardVisibleZones(clipboardStore).length).toBe(1);
 
     await keyDown({ key: "Escape" });
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
-    expect(getClipboardVisibleZones(model).length).toBe(1);
+    expect(getClipboardVisibleZones(clipboardStore).length).toBe(1);
     await keyDown({ key: "Escape" });
-    expect(getClipboardVisibleZones(model).length).toBe(0);
+    expect(getClipboardVisibleZones(clipboardStore).length).toBe(0);
   });
 
   test("Can copy/paste chart", async () => {
@@ -2299,10 +2304,10 @@ describe("Copy paste keyboard shortcut", () => {
       }
       const clipboardContent = clipboard.content;
 
-      const cbPlugin = getPlugin(model, ClipboardPlugin);
+      const clipboardStore = env.getStore(ClipboardStore);
       //@ts-ignore
-      const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData());
-      const clipboardId = model.getters.getClipboardId();
+      const clipboardHtmlData = JSON.stringify(clipboardStore.getSheetData());
+      const clipboardId = clipboardStore.getClipboardId();
 
       expect(clipboardContent).toMatchObject({
         "text/plain": "\t",
@@ -2332,12 +2337,12 @@ describe("Copy paste keyboard shortcut", () => {
       }
       const clipboardContent = clipboard.content;
 
-      const cbPlugin = getPlugin(model, ClipboardPlugin);
+      const clipboardStore = env.getStore(ClipboardStore);
       //@ts-ignore
-      const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData());
-      const clipboardId = model.getters.getClipboardId();
+      const clipboardHtmlData = JSON.stringify(clipboardStore.getSheetData());
+      const clipboardId = clipboardStore.getClipboardId();
       //@ts-ignore
-      const imgData = (await cbPlugin.readFileAsDataURL(
+      const imgData = (await clipboardStore.readFileAsDataURL(
         new Blob([], { type: "image/png" })
       )) as string;
 

@@ -54,7 +54,6 @@ import { SheetUIPlugin } from "./ui_feature/ui_sheet";
 import { UIPlugin, UIPluginConstructor } from "./ui_plugin";
 import { CarouselUIPlugin } from "./ui_stateful/carousel_ui";
 import { CellIconPlugin } from "./ui_stateful/cell_icon_plugin";
-import { ClipboardPlugin } from "./ui_stateful/clipboard";
 import { FigureUIPlugin } from "./ui_stateful/figure";
 import { HeaderPositionsUIPlugin } from "./ui_stateful/header_positions";
 import { GridSelectionPlugin } from "./ui_stateful/selection";
@@ -120,7 +119,6 @@ export const featurePluginRegistry = new PluginRegistry<UIPluginConstructor>(UIP
 export const statefulUIPluginRegistry = new PluginRegistry<UIPluginConstructor>(UIPlugin)
   .add("selection", GridSelectionPlugin)
   .add("header_positions", HeaderPositionsUIPlugin)
-  .add("clipboard", ClipboardPlugin)
   .add("carousel_ui", CarouselUIPlugin)
   .add("cell_icon", CellIconPlugin)
   .add("figure_ui", FigureUIPlugin);

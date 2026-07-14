@@ -59,6 +59,7 @@ import { computeFunctionsCache } from "../../src/formulas/compiler";
 import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
 import { EvaluationPluginConstructor } from "../../src/plugins/evaluation_plugin";
+import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { proxifyStoreMutation, useStore } from "../../src/store_engine/store_hooks";
@@ -230,6 +231,8 @@ export function makeTestEnv(
     },
     { focusMode: "inactive" }
   );
+
+  container.get(ClipboardStore); // Instantiate a clipboard store
 
   const store = container.get(SidePanelStore);
   const sidePanelStore = proxifyStoreMutation(store, () => container.trigger("store-updated"));

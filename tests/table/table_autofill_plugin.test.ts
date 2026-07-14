@@ -3,6 +3,7 @@ import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import { TableAutofillStore } from "../../src/components/autofill/table_autofill_store";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
+import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import {
   copy,
@@ -29,6 +30,7 @@ describe("Table formula autofill ", () => {
     sheetId = model.getters.getActiveSheetId();
     ({ container } = makeStoreWithModel(model, AutofillStore));
     container.get(TableAutofillStore);
+    container.get(ClipboardStore);
   });
 
   test("Can autofill a formula on a table column", () => {
@@ -104,6 +106,7 @@ describe("Table autofill with composer", () => {
     ({ model, store: composerStore, container } = makeStore(CellComposerStore));
     container.get(AutofillStore);
     container.get(TableAutofillStore);
+    container.get(ClipboardStore);
   });
 
   test("Editing a cell autofill the table column", () => {
@@ -144,6 +147,7 @@ describe("Table autofill with copy/paste", () => {
     model = new Model();
     const { container } = makeStoreWithModel(model, AutofillStore);
     container.get(TableAutofillStore);
+    container.get(ClipboardStore);
   });
 
   test("Copy paste a formula autofill the table column", () => {

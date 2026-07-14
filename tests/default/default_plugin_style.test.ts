@@ -4,6 +4,7 @@ import { getClipboardDataPositions } from "../../src/helpers/clipboard/clipboard
 import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { deepEquals } from "../../src/helpers/misc";
 import { toZone } from "../../src/helpers/zones";
+import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
 import { clipboardHandlersRegistries } from "../../src/registries/clipboardHandlersRegistries";
 import {
   addColumns,
@@ -69,7 +70,8 @@ describe("Default Plugin: Style", () => {
     model = new Model({
       sheets: [{ id: "sh1", colNumber: 25, rowNumber: 20 }],
     });
-    makeStoreWithModel(model, AutofillStore);
+    const { container } = makeStoreWithModel(model, AutofillStore);
+    container.get(ClipboardStore);
     sheetId = model.getters.getActiveSheetId();
   });
 
