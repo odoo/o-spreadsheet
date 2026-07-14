@@ -2,6 +2,7 @@ import { Component } from "@odoo/owl";
 import { ACTION_COLOR, GRAY_300 } from "../../../../constants";
 import { SpreadsheetChildEnv } from "../../../../types";
 import { css } from "../../../helpers/css";
+import { CIRCLE_SVG } from "../../../icons/raw_svgs";
 
 interface Choice {
   value: unknown;
@@ -15,12 +16,6 @@ interface Props {
   name: string;
   direction: "horizontal" | "vertical";
 }
-
-const CIRCLE_SVG = /*xml*/ `
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'>
-  <circle r="2" fill="#FFF"/>
-</svg>
-`;
 
 css/* scss */ `
   .o-radio {
