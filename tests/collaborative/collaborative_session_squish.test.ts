@@ -2,7 +2,7 @@ import { CoreCommand, Model, RemoteRevisionMessage } from "../../src";
 import { CommandSquisher, SquishedCoreCommand } from "../../src/collaborative/command_squisher";
 import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import { toZone } from "../../src/helpers/zones";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { RemoteRevisionsSquishedMessage } from "../../src/types/collaborative/transport_service";
 import { MockTransportService } from "../__mocks__/transport_service";
 import {

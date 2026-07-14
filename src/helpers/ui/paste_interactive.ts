@@ -1,6 +1,6 @@
 import { MergeErrorMessage, RemoveDuplicateTerms } from "../../components/translations_terms";
 import { getCurrentVersion } from "../../migrations/data";
-import { ClipboardStore } from "../../plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../stores/clipboard_store";
 import { _t } from "../../translation";
 import {
   ClipboardPasteOptions,

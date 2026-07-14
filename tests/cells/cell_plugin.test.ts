@@ -3,7 +3,7 @@ import { LINK_COLOR } from "../../src/constants";
 import { urlRepresentation } from "../../src/helpers/links";
 import { buildSheetLink } from "../../src/helpers/misc";
 import { corePluginRegistry } from "../../src/plugins/plugin_registries";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   addColumns,
   addRows,

@@ -8,7 +8,7 @@ import {
 import { toXC } from "../../src/helpers/coordinates";
 import { getDefaultCellHeight as getDefaultCellHeightHelper } from "../../src/helpers/text_helper";
 import { Model } from "../../src/model";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import {
   activateSheet,

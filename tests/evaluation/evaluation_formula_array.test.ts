@@ -6,7 +6,7 @@ import { toMatrix, toNumber } from "../../src/functions/helpers";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   addColumns,
   addRows,

@@ -1,7 +1,7 @@
 import { CellPosition, CommandResult, ConditionalFormattingOperatorValues, UID } from "../../src";
 import { ICON_SETS } from "../../src/components/icons/icons";
 import { Model } from "../../src/model";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   ConditionalFormat,
   ConditionalFormatRule,

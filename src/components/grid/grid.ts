@@ -23,7 +23,6 @@ import {
 } from "../../helpers/ui/paste_interactive";
 import { isInside } from "../../helpers/zones";
 import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
-import { ClipboardStore } from "../../plugins/ui_stateful/clipboard";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {
@@ -37,6 +36,7 @@ import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
 import { AutomaticSumStore } from "../../stores/automatic_sum_store";
 import { CheckboxToggleStore } from "../../stores/checkbox_toggle";
 import { ClientFocusStore } from "../../stores/client_focus_store";
+import { ClipboardStore } from "../../stores/clipboard_store";
 import { HighlightStore } from "../../stores/highlight_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
