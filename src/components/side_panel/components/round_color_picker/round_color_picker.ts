@@ -5,6 +5,7 @@ import { ColorPicker } from "../../../color_picker/color_picker";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { css, cssPropertiesToCss } from "../../../helpers";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
+import { TRANSPARENT_BACKGROUND_SVG } from "../../../icons/raw_svgs";
 import { Section } from "../section/section";
 
 interface State {
@@ -17,12 +18,6 @@ interface Props {
   title?: string;
   disableNoColor?: boolean;
 }
-
-const TRANSPARENT_BACKGROUND_SVG = /*xml*/ `
-<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10">
-  <path fill="#d9d9d9" d="M5 5h5v5H5zH0V0h5"/>
-</svg>
-`;
 
 css/* scss */ `
   .o-round-color-picker-button {
