@@ -15,6 +15,7 @@ import {
   localizeFormula,
 } from "../../../helpers/locale";
 import { getMissingHeadersForSpreadResult, isFormula, markdownLink } from "../../../helpers/misc";
+import { isNumber } from "../../../helpers/numbers";
 import {
   positionToZone,
   updateSelectionOnDeletion,
@@ -200,10 +201,17 @@ export class CellComposerStore extends AbstractComposerStore {
         content = markdownLink(content, cell.link.url);
       }
       const currentFormat = this.getters.getCell(position)?.format;
-      const afterFormat =
-        currentFormat === "@" || (currentFormat && isDateTimeFormat(currentFormat))
-          ? undefined
-          : detectDateFormat(content, this.getters.getLocale());
+      const isCurrentFormatDate = currentFormat && isDateTimeFormat(currentFormat);
+      const contentDateFormat = detectDateFormat(content, this.getters.getLocale());
+      let afterFormat: Format | undefined;
+      if (currentFormat !== "@") {
+        if (contentDateFormat && !isCurrentFormatDate) {
+          afterFormat = contentDateFormat;
+        } else if (isCurrentFormatDate && isNumber(content, this.getters.getLocale())) {
+          afterFormat = "";
+        }
+      }
+
       this.addHeadersForSpreadingFormula(content);
       result = this.model.dispatch("UPDATE_CELL", {
         ...this.currentEditedCell,
