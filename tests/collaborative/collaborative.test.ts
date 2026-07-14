@@ -14,6 +14,7 @@ import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { getDefaultCellHeight } from "../../src/helpers/text_helper";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { featurePluginRegistry } from "../../src/plugins/plugin_registries";
+import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
@@ -72,6 +73,7 @@ import {
 } from "../test_helpers/getters_helpers";
 import { addToRegistry, getDataValidationRules, toCellPosition } from "../test_helpers/helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
+import { makeStoreWithModel } from "../test_helpers/stores";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 describe("Multi users synchronisation", () => {
@@ -268,6 +270,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("copy/paste style", () => {
+    makeStoreWithModel(alice, ClipboardStore);
     setCellContent(alice, "A1", "hello");
     setCellStyle(alice, "A1", { fillColor: "#fefefe" });
     copy(alice, "A1");
@@ -281,6 +284,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("copy/paste on styled cell", () => {
+    makeStoreWithModel(alice, ClipboardStore);
     setCellContent(alice, "A1", "hello");
     setCellStyle(alice, "B2", { fillColor: "#fefefe" });
     copy(alice, "A1");
@@ -1168,6 +1172,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("pasting an empty content empties the target cell", () => {
+    makeStoreWithModel(alice, ClipboardStore);
     setCellContent(alice, "A1", "23");
     copy(alice, "A2");
     paste(alice, "A1");

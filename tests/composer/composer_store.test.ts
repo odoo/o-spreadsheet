@@ -6,6 +6,7 @@ import { DateTime, jsDateToRoundNumber } from "../../src/helpers/dates";
 import { getCanonicalSymbolName } from "../../src/helpers/misc";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { NotificationStore } from "../../src/stores/notification_store";
@@ -52,6 +53,7 @@ let container: DependencyContainer;
 
 beforeEach(() => {
   ({ model, container, store: composerStore } = makeStore(CellComposerStore));
+  container.get(ClipboardStore); // Instantiate a clipboard store
 });
 
 function editCell(model: Model, xc: string, content: string) {

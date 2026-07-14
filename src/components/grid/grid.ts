@@ -28,6 +28,7 @@ import {
   useExternalListener,
   useLayoutEffect,
 } from "../../owl3_compatibility_layer";
+import { ClipboardStore } from "../../plugins/ui_stateful/clipboard";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {
@@ -154,6 +155,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
   private clientFocusStore!: Store<ClientFocusStore>;
+  private clipboardStore!: Store<ClipboardStore>;
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
@@ -176,6 +178,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     this.paintFormatStore = useStore(PaintFormatStore);
     this.clientFocusStore = useStore(ClientFocusStore);
     useStore(ArrayFormulaHighlight);
+    this.clipboardStore = useStore(ClipboardStore);
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
@@ -736,7 +739,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     } else {
       this.env.model.dispatch("COPY");
     }
-    const osContent = await this.env.model.getters.getClipboardTextAndImageContent();
+    const osContent = await this.clipboardStore.getClipboardTextAndImageContent();
     await this.env.clipboard.write(osContent);
     ev.preventDefault();
   }
@@ -767,9 +770,9 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     }
 
     const target = this.env.model.getters.getSelectedZones();
-    const isCutOperation = this.env.model.getters.isCutOperation();
+    const isCutOperation = this.clipboardStore.isCutOperation();
 
-    const clipboardId = this.env.model.getters.getClipboardId();
+    const clipboardId = this.clipboardStore.getClipboardId();
     const htmlClipboardId = getOSheetClipboardIdFromHTML(
       osClipboard.content[ClipboardMIMEType.Html]
     );

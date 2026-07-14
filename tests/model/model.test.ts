@@ -9,7 +9,6 @@ import {
   coreTypes,
 } from "../../src";
 import { MESSAGE_VERSION } from "../../src/constants";
-import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { corePluginRegistry, featurePluginRegistry } from "../../src/plugins/plugin_registries";
 import { UIPlugin } from "../../src/plugins/ui_plugin";
@@ -17,7 +16,13 @@ import { ModelConfig } from "../../src/types/model";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
 import { setupCollaborativeEnv } from "../collaborative/collaborative_helpers";
-import { copy, createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import {
+  createChart,
+  createSheet,
+  evaluateCells,
+  selectCell,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
 import {
   getCellContent,
   getCellRawContent,
@@ -39,7 +44,7 @@ describe("Model", () => {
     let result: DispatchResult | undefined = undefined;
     class MyUIPlugin extends UIPlugin {
       handle(cmd: Command) {
-        if (cmd.type === "COPY") {
+        if (cmd.type === "EVALUATE_CELLS") {
           result = this.dispatch("UPDATE_CELL", {
             col: 0,
             row: 0,
@@ -52,7 +57,7 @@ describe("Model", () => {
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
-    copy(model, "A1");
+    evaluateCells(model);
     expect(result).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
   });
 
@@ -87,25 +92,23 @@ describe("Model", () => {
     let result: DispatchResult | undefined = undefined;
     class MyUIPlugin extends UIPlugin {
       allowDispatch(cmd: Command) {
-        if (cmd.type === "PASTE") {
+        if (cmd.type === "SELECT_FIGURE") {
           return CommandResult.CancelledForUnknownReason;
         }
         return CommandResult.Success;
       }
       handle(cmd: Command) {
-        if (cmd.type === "COPY") {
-          result = this.dispatch("PASTE", {
-            target: [toZone("A2")],
-          });
+        if (cmd.type === "EVALUATE_CELLS") {
+          result = this.dispatch("SELECT_FIGURE", { figureId: "figureId" });
         }
       }
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     const model = new Model();
-    setCellContent(model, "A1", "copy&paste me");
-    copy(model, "A1");
+    createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figureId" });
+    evaluateCells(model);
     expect(result).toBeSuccessfullyDispatched();
-    expect(getCellText(model, "A2")).toBe("copy&paste me");
+    expect(model.getters.getSelectedFigureIds()).toEqual(["figureId"]);
   });
 
   test("UI plugins can refuse local core commands", () => {
@@ -134,8 +137,8 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
-    copy(model);
-    expect(receivedCommands).not.toContain("COPY");
+    evaluateCells(model);
+    expect(receivedCommands).not.toContain("EVALUATE_CELLS");
   });
 
   test("Core plugins handle don't receive UI commands", () => {
@@ -147,8 +150,8 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
-    copy(model);
-    expect(receivedCommands).not.toContain("COPY");
+    evaluateCells(model);
+    expect(receivedCommands).not.toContain("EVALUATE_CELLS");
   });
 
   test("canDispatch method is exposed and works", () => {

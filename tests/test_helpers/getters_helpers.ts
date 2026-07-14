@@ -15,9 +15,9 @@ import {
 import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
-import { ClipboardPlugin } from "../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
+import { Store } from "../../src/types/store_engine";
 import { setSelection } from "./commands_helpers";
-import { getPlugin } from "./helpers";
 
 /**
  * Get the active XC
@@ -277,11 +277,8 @@ export function getFilter(
   return model.getters.getFilter({ sheetId, col, row });
 }
 
-export function getClipboardVisibleZones(model: Model): Zone[] {
-  const clipboardPlugin = getPlugin(model, ClipboardPlugin);
-  return clipboardPlugin["status"] === "visible"
-    ? clipboardPlugin["copiedData"]?.["zones"] ?? []
-    : [];
+export function getClipboardVisibleZones(store: Store<ClipboardStore>): Zone[] {
+  return store["status"] === "visible" ? store["copiedData"]?.["zones"] ?? [] : [];
 }
 
 export function getCellIcons(model: Model, xc: string) {

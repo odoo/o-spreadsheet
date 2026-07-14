@@ -13,6 +13,7 @@ import { Component } from "../../src/owl3_compatibility_layer";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 
 import { downloadFile } from "../../src/components/helpers/dom_helpers";
+import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
 import { figureRegistry } from "../../src/registries/figures_registry";
 import { ClipboardMIMEType } from "../../src/types/clipboard";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
@@ -1016,7 +1017,8 @@ describe("figures", () => {
         const envClipBoardContent = await env.clipboard.read();
         if (envClipBoardContent.status === "ok") {
           const envClipboardTextContent = envClipBoardContent.content[ClipboardMIMEType.PlainText];
-          const osClipboardContent = await model.getters.getClipboardTextAndImageContent();
+          const clipboardStore = env.getStore(ClipboardStore);
+          const osClipboardContent = await clipboardStore.getClipboardTextAndImageContent();
           expect(envClipboardTextContent).toEqual(osClipboardContent[ClipboardMIMEType.PlainText]);
         }
         paste(model, "A4");
@@ -1043,7 +1045,8 @@ describe("figures", () => {
         const envClipBoardContent = await env.clipboard.read();
         if (envClipBoardContent.status === "ok") {
           const envClipboardTextContent = envClipBoardContent.content[ClipboardMIMEType.PlainText];
-          const osClipboardContent = await model.getters.getClipboardTextAndImageContent();
+          const clipboardStore = env.getStore(ClipboardStore);
+          const osClipboardContent = await clipboardStore.getClipboardTextAndImageContent();
           expect(envClipboardTextContent).toEqual(osClipboardContent[ClipboardMIMEType.PlainText]);
         }
         paste(model, "A1");

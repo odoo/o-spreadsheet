@@ -1,9 +1,11 @@
 import { Model } from "../../src";
 import { PIVOT_INSERT_TABLE_STYLE_ID } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
+import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
 import { copy, insertPivot, paste } from "../test_helpers/commands_helpers";
 import { getCell, getCellText, getTable } from "../test_helpers/getters_helpers";
 import { createModelFromGrid, setGrid } from "../test_helpers/helpers";
+import { makeStoreWithModel } from "../test_helpers/stores";
 
 describe("Insert pivot command", () => {
   test("Can insert a pivot in a cell", () => {
@@ -35,7 +37,7 @@ describe("Insert pivot command", () => {
 
 describe("Check the style when copying and pasting a pivot table", () => {
   test("copy/paste the top left cell", () => {
-    const model = createModelFromGrid({ A1: "1", A2: "2" });
+    const { model } = makeStoreWithModel(createModelFromGrid({ A1: "1", A2: "2" }), ClipboardStore);
     insertPivot(model, "A1:A2", "pivot1", "Sheet2");
     copy(model, "A1");
     paste(model, "C1");
@@ -44,7 +46,7 @@ describe("Check the style when copying and pasting a pivot table", () => {
   });
 
   test("copy/paste the whole table", () => {
-    const model = createModelFromGrid({ A1: "1", A2: "2" });
+    const { model } = makeStoreWithModel(createModelFromGrid({ A1: "1", A2: "2" }), ClipboardStore);
     insertPivot(model, "A1:A2", "pivot1", "Sheet2");
     copy(model, "A1:A3");
     paste(model, "C1");
@@ -53,7 +55,7 @@ describe("Check the style when copying and pasting a pivot table", () => {
   });
 
   test("copy/paste a random cell", () => {
-    const model = createModelFromGrid({ A1: "1", A2: "2" });
+    const { model } = makeStoreWithModel(createModelFromGrid({ A1: "1", A2: "2" }), ClipboardStore);
     insertPivot(model, "A1:A2", "pivot1", "Sheet2");
     copy(model, "A2");
     paste(model, "C1");

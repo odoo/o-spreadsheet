@@ -2,6 +2,7 @@ import { interactiveCut } from "../helpers/ui/cut_interactive";
 import { interactiveAddMerge } from "../helpers/ui/merge_interactive";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { doesAnyZoneCrossFrozenPane, getZoneArea, hasOverlappingZones } from "../helpers/zones";
+import { ClipboardStore } from "../plugins/ui_stateful/clipboard";
 import { _t } from "../translation";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { ActionSpec } from "./action";
@@ -31,7 +32,8 @@ export const copy: ActionSpec = {
   isReadonlyAllowed: true,
   execute: async (env) => {
     env.model.dispatch("COPY");
-    await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
+    const clipboardStore = env.getStore(ClipboardStore);
+    await env.clipboard.write(await clipboardStore.getClipboardTextAndImageContent());
   },
   isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.CLIPBOARD",
@@ -42,7 +44,8 @@ export const cut: ActionSpec = {
   shortcut: "Ctrl+X",
   execute: async (env) => {
     interactiveCut(env);
-    await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
+    const clipboardStore = env.getStore(ClipboardStore);
+    await env.clipboard.write(await clipboardStore.getClipboardTextAndImageContent());
   },
   icon: "o-spreadsheet-Icon.CUT",
 };
@@ -57,7 +60,8 @@ export const paste: ActionSpec = {
 export const pasteSpecial: ActionSpec = {
   name: _t("Paste special"),
   isVisible: (env): boolean => {
-    return !env.model.getters.isCutOperation();
+    const clipboardStore = env.getStore(ClipboardStore);
+    return !clipboardStore.isCutOperation();
   },
   icon: "o-spreadsheet-Icon.PASTE",
 };

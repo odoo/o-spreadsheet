@@ -6,6 +6,7 @@ import { toMatrix, toNumber } from "../../src/functions/helpers";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
 import {
   addColumns,
   addRows,
@@ -22,6 +23,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { addToRegistry, toCellPosition } from "../test_helpers/helpers";
+import { makeStoreWithModel } from "../test_helpers/stores";
 
 let model: Model;
 let sheetId: UID;
@@ -202,6 +204,10 @@ describe("evaluate formulas that use/return an array", () => {
   });
 
   describe("cut/past reference", () => {
+    beforeEach(() => {
+      makeStoreWithModel(model, ClipboardStore);
+    });
+
     test("reference to a spread is keep when we cut/past the spread formula", () => {
       setCellContent(model, "A1", "=MFILL(2,2,42)");
       setCellContent(model, "A3", "=B2");

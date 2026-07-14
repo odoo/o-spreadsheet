@@ -30,7 +30,6 @@ import { TableComputedStylePlugin } from "../plugins/ui_feature/table_computed_s
 import { UIOptionsPlugin } from "../plugins/ui_feature/ui_options";
 import { SheetUIPlugin } from "../plugins/ui_feature/ui_sheet";
 import { CarouselUIPlugin } from "../plugins/ui_stateful/carousel_ui";
-import { ClipboardPlugin } from "../plugins/ui_stateful/clipboard";
 import { FilterEvaluationPlugin } from "../plugins/ui_stateful/filter_evaluation";
 import { HeaderPositionsUIPlugin } from "../plugins/ui_stateful/header_positions";
 import { GridSelectionPlugin } from "../plugins/ui_stateful/selection";
@@ -50,7 +49,6 @@ export type RenderingGetters = {
   PluginGetters<typeof AutofillPlugin> &
   PluginGetters<typeof AutomaticSumPlugin> &
   PluginGetters<typeof HistoryPlugin> &
-  PluginGetters<typeof ClipboardPlugin> &
   PluginGetters<typeof EvaluationPlugin> &
   PluginGetters<typeof EvaluationChartPlugin> &
   PluginGetters<typeof EvaluationConditionalFormatPlugin> &

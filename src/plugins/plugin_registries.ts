@@ -59,7 +59,6 @@ import { UIOptionsPlugin } from "./ui_feature/ui_options";
 import { SheetUIPlugin } from "./ui_feature/ui_sheet";
 import { UIPluginConstructor } from "./ui_plugin";
 import { CarouselUIPlugin } from "./ui_stateful/carousel_ui";
-import { ClipboardPlugin } from "./ui_stateful/clipboard";
 import { FilterEvaluationPlugin } from "./ui_stateful/filter_evaluation";
 import { HeaderPositionsUIPlugin } from "./ui_stateful/header_positions";
 import { GridSelectionPlugin } from "./ui_stateful/selection";
@@ -117,7 +116,6 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("cell_computed_style", CellComputedStylePlugin)
   .add("table_computed_style", TableComputedStylePlugin)
   .add("header_positions", HeaderPositionsUIPlugin)
-  .add("clipboard", ClipboardPlugin)
   .add("carousel_ui", CarouselUIPlugin)
   .add("lock_sheet", LockSheetPlugin)
   .add("figure_ui", FigureUIPlugin);
