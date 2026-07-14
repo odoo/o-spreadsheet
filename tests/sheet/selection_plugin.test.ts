@@ -987,6 +987,57 @@ describe("move elements(s)", () => {
     expect(getTable(model, "A9")!.range.zone).toEqual(toZone("A9:A10"));
   });
 
+  test("can't move a whole table column onto another table", () => {
+    const model = new Model();
+    createTable(model, "A1:B3");
+    createTable(model, "D1:E3");
+    // moving the whole D:E table between A and B would drop it inside the A:B table
+    const result = moveColumns(model, "B", ["D", "E"]);
+    expect(result).toBeCancelledBecause(CommandResult.WillOverlapTable);
+  });
+
+  test("can't move a whole table row onto another table", () => {
+    const model = new Model();
+    createTable(model, "A1:C2");
+    createTable(model, "A4:C5");
+    const result = moveRows(model, 1, [3, 4]);
+    expect(result).toBeCancelledBecause(CommandResult.WillOverlapTable);
+  });
+
+  test("allows splitting a table by moving some of its columns away", () => {
+    const model = new Model();
+    createTable(model, "B1:D3");
+    // moving a column out of the single table only shrinks it, no overlap
+    expect(moveColumns(model, "H", ["C"])).toBeSuccessfullyDispatched();
+  });
+
+  test("allows moving a column into a table when no other table is overlapped", () => {
+    const model = new Model();
+    createTable(model, "B1:D3");
+    expect(moveColumns(model, "C", ["F"])).toBeSuccessfullyDispatched();
+  });
+
+  test("allows moving a whole table to an empty area", () => {
+    const model = new Model();
+    createTable(model, "A1:B3");
+    createTable(model, "D1:E3");
+    expect(moveColumns(model, "H", ["D", "E"], "after")).toBeSuccessfullyDispatched();
+  });
+
+  test("allows moving a column that does not overlap any table", () => {
+    const model = new Model();
+    createTable(model, "B1:D3");
+    expect(moveColumns(model, "J", ["G"])).toBeSuccessfullyDispatched();
+    expect(getTable(model, "B1")!.range.zone).toEqual(toZone("B1:D3"));
+  });
+
+  test("allows moving the whole table columns", () => {
+    const model = new Model();
+    createTable(model, "B1:C3");
+    expect(moveColumns(model, "G", ["B", "C"], "after")).toBeSuccessfullyDispatched();
+    expect(getTable(model, "F1")!.range.zone).toEqual(toZone("F1:G3"));
+  });
+
   test("Move a resized column preserves its size", () => {
     const model = new Model();
     resizeColumns(model, ["A"], 10);

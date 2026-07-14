@@ -5,6 +5,7 @@ import {
   clip,
   deepCopy,
   isEqual,
+  overlap,
   positionToZone,
   range,
   uniqueZones,
@@ -624,7 +625,73 @@ export class GridSelectionPlugin extends UIPlugin {
     if (!isCol && !this.isTableRowMoveAllowed(id, cmd.elements)) {
       return CommandResult.CannotMoveTableHeader;
     }
+    if (this.willMoveOverlapTables(cmd)) {
+      return CommandResult.WillOverlapTable;
+    }
     return CommandResult.Success;
+  }
+
+  private willMoveOverlapTables(cmd: MoveColumnsRowsCommand): boolean {
+    const tables = this.getters.getCoreTables(cmd.sheetId);
+    if (tables.length < 2) {
+      return false;
+    }
+    const isCol = cmd.dimension === "COL";
+    const start = cmd.elements[0];
+    const end = cmd.elements[cmd.elements.length - 1];
+    const startAfterMove = cmd.base < start ? cmd.base : cmd.base - end + start;
+
+    const movedZones: Zone[] = [];
+    for (const table of tables) {
+      const zone = this.getTableZoneAfterMove(table.range.zone, isCol, start, end, startAfterMove);
+      if (zone) {
+        movedZones.push(zone);
+      }
+    }
+
+    for (let i = 0; i < movedZones.length; i++) {
+      for (let j = i + 1; j < movedZones.length; j++) {
+        if (overlap(movedZones[i], movedZones[j])) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private getTableZoneAfterMove(
+    zone: Zone,
+    isCol: boolean,
+    start: HeaderIndex,
+    end: HeaderIndex,
+    startAfterMove: HeaderIndex
+  ): Zone | undefined {
+    const thickness = end - start + 1;
+    const from = isCol ? zone.left : zone.top;
+    const to = isCol ? zone.right : zone.bottom;
+    const isWholeTableMoved = start <= from && to <= end;
+    if (isWholeTableMoved) {
+      const delta = startAfterMove - start;
+      return isCol
+        ? { ...zone, left: from + delta, right: to + delta }
+        : { ...zone, top: from + delta, bottom: to + delta };
+    }
+
+    const newHeaders: HeaderIndex[] = [];
+    for (let header = from; header <= to; header++) {
+      if (header < start || header > end) {
+        const afterRemoval = header < start ? header : header - thickness;
+        newHeaders.push(afterRemoval < startAfterMove ? afterRemoval : afterRemoval + thickness);
+      }
+    }
+    if (!newHeaders.length) {
+      return undefined;
+    }
+    const newFrom = Math.min(...newHeaders);
+    const newTo = Math.max(...newHeaders);
+    return isCol
+      ? { ...zone, left: newFrom, right: newTo }
+      : { ...zone, top: newFrom, bottom: newTo };
   }
 
   private isTableRowMoveAllowed(sheetId: UID, selectedRows: HeaderIndex[]): boolean {
