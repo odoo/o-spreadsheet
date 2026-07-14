@@ -2,13 +2,6 @@ import { Component } from "@odoo/owl";
 
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 
-// FIXME Encoding version used in css
-// const CHECK_SVG = /*xml*/ `
-// <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'>
-//   <path fill='none' stroke='#FFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/>
-// </svg>
-// `;
-
 interface Props {
   label?: string;
   value: boolean;
