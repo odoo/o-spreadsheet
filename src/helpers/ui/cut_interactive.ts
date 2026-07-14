@@ -1,4 +1,4 @@
-import { ClipboardStore } from "../../plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../stores/clipboard_store";
 import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";

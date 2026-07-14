@@ -7,9 +7,9 @@ import {
   MIN_CELL_TEXT_MARGIN,
 } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
 import { EASING_FN, cellAnimationRegistry } from "../../src/registries/cell_animation_registry";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { CELL_ANIMATION_DURATION, GridRenderer } from "../../src/stores/grid_renderer_store";
 import { RendererStore } from "../../src/stores/renderer_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";

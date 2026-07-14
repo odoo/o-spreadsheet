@@ -15,8 +15,8 @@ import { ViewportsStore } from "../../src/stores/viewports_store";
 import { downloadFile } from "../../src/components/helpers/dom_helpers";
 import { toXC } from "../../src/helpers/coordinates";
 import { render } from "../../src/helpers/owl3_helpers";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
 import { figureRegistry } from "../../src/registries/figures_registry";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { ClipboardMIMEType } from "../../src/types/clipboard";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {

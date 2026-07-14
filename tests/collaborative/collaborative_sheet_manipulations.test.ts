@@ -2,7 +2,7 @@ import { CellIsRule, FormulaCell, LiteralCell, Model } from "../../src";
 import { lettersToNumber, numberToLetters } from "../../src/helpers/coordinates";
 import { range } from "../../src/helpers/misc";
 import { toZone } from "../../src/helpers/zones";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { toChartDataSource } from "../test_helpers/chart_helpers";

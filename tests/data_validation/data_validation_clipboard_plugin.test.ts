@@ -1,6 +1,6 @@
 import { Command, DataValidationCriterion, Model, UID, UIPlugin } from "../../src";
 import { featurePluginRegistry } from "../../src/plugins/plugin_registries";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   activateSheet,
   addDataValidation,

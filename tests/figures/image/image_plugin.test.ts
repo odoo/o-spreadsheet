@@ -1,6 +1,6 @@
 import { Model } from "../../../src";
 import { FIGURE_ID_SPLITTER } from "../../../src/constants";
-import { ClipboardStore } from "../../../src/plugins/ui_stateful/clipboard";
+import { ClipboardStore } from "../../../src/stores/clipboard_store";
 import {
   copy,
   createImage,

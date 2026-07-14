@@ -2,8 +2,8 @@ import { ClipboardPasteTarget, Format, Model, UID, Zone } from "../../src";
 import { getClipboardDataPositions } from "../../src/helpers/clipboard/clipboard_helpers";
 import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
-import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
 import { clipboardHandlersRegistries } from "../../src/registries/clipboardHandlersRegistries";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   addColumns,
   addRows,

@@ -367,7 +367,6 @@ import {
 import { domainToColRowDomain } from "./helpers/pivot/pivot_domain_helpers";
 import { drawHighlight } from "./helpers/rendering";
 import { fuzzyLookup } from "./helpers/search";
-import { ClipboardStore } from "./plugins/ui_stateful/clipboard";
 import { chartDataSourceSidePanelComponentRegistry } from "./registries/chart_data_source_component_registry";
 import { chartDataSourceRegistry } from "./registries/chart_data_source_registry";
 import { chartSubtypeRegistry } from "./registries/chart_subtype_registry";
@@ -376,6 +375,7 @@ import { unusedDataSourceRegistry } from "./registries/data_source_registry";
 import { onIterationEndEvaluationRegistry } from "./registries/evaluation_registry";
 import { specificRangeTransformRegistry } from "./registries/srt_registry";
 import { globalStores } from "./store_engine/store_registries";
+import { ClipboardStore } from "./stores/clipboard_store";
 import { ViewportsStore } from "./stores/viewports_store";
 
 export const helpers = {
