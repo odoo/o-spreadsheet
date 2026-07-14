@@ -367,6 +367,7 @@ import {
 import { domainToColRowDomain } from "./helpers/pivot/pivot_domain_helpers";
 import { drawHighlight } from "./helpers/rendering";
 import { fuzzyLookup } from "./helpers/search";
+import { ClipboardStore } from "./plugins/ui_stateful/clipboard";
 import { chartDataSourceSidePanelComponentRegistry } from "./registries/chart_data_source_component_registry";
 import { chartDataSourceRegistry } from "./registries/chart_data_source_registry";
 import { chartSubtypeRegistry } from "./registries/chart_subtype_registry";
@@ -578,6 +579,7 @@ export const stores = {
   ClientFocusStore,
   GridRenderer,
   ViewportsStore,
+  ClipboardStore,
   ZoomStore,
   globalStores,
 };

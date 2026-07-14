@@ -25,6 +25,7 @@ import { MockTransportService } from "../__mocks__/transport_service";
 import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
 import { setupCollaborativeEnv } from "../collaborative/collaborative_helpers";
 import {
+  autoresizeColumns,
   copy,
   createSheet,
   evaluateCells,
@@ -110,12 +111,13 @@ describe("Model", () => {
           result = this.dispatch("PASTE", {
             target: [toZone("A2")],
           });
+        } else if (cmd.type === "PASTE") {
+          setCellContent(model, "A2", "copy&paste me");
         }
       }
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     const model = new Model();
-    setCellContent(model, "A1", "copy&paste me");
     copy(model, "A1");
     expect(result).toBeSuccessfullyDispatched();
     expect(getCellText(model, "A2")).toBe("copy&paste me");
@@ -147,8 +149,8 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
-    copy(model);
-    expect(receivedCommands).not.toContain("COPY");
+    evaluateCells(model);
+    expect(receivedCommands).not.toContain("EVALUATE_CELLS");
   });
 
   test("Core plugins handle don't receive UI commands", () => {
@@ -160,8 +162,8 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
-    copy(model);
-    expect(receivedCommands).not.toContain("COPY");
+    evaluateCells(model);
+    expect(receivedCommands).not.toContain("EVALUATE_CELLS");
   });
 
   test("An evaluation plugin cannot dispatch non-evaluation commands", () => {
@@ -200,9 +202,9 @@ describe("Model", () => {
     }
     addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
     const model = new Model();
-    copy(model);
+    autoresizeColumns(model, [1]);
     selectCell(model, "A2");
-    expect(receivedCommands).not.toContain("COPY");
+    expect(receivedCommands).not.toContain("AUTORESIZE_COLUMNS");
     expect(receivedCommands).not.toContain("SELECT_CELL");
   });
 
@@ -215,10 +217,10 @@ describe("Model", () => {
     }
     addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
     const model = new Model();
-    copy(model);
+    autoresizeColumns(model, [1]);
     selectCell(model, "A2");
     setCellContent(model, "A1", "hello");
-    expect(receivedCommands).not.toContain("COPY");
+    expect(receivedCommands).not.toContain("AUTORESIZE_COLUMNS");
     expect(receivedCommands).not.toContain("SELECT_CELL");
     // core and evaluation commands are still received
     expect(receivedCommands).toContain("UPDATE_CELL");

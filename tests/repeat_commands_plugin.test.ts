@@ -16,6 +16,7 @@ import {
 } from "../src/types/commands";
 
 import { CoreCommand, Dimension, UID } from "../src";
+import { ClipboardStore } from "../src/plugins/ui_stateful/clipboard";
 import {
   repeatCommandTransformRegistry,
   repeatCoreCommand,
@@ -61,6 +62,7 @@ let sheetId: UID;
 beforeEach(() => {
   model = new Model();
   sheetId = model.getters.getActiveSheetId();
+  makeStoreWithModel(model, ClipboardStore);
 });
 
 describe("Repeat commands basics", () => {

@@ -48,7 +48,6 @@ import { UIOptionsPlugin } from "../plugins/ui_feature/ui_options";
 import { SheetUIPlugin } from "../plugins/ui_feature/ui_sheet";
 import { CarouselUIPlugin } from "../plugins/ui_stateful/carousel_ui";
 import { CellIconPlugin } from "../plugins/ui_stateful/cell_icon_plugin";
-import { ClipboardPlugin } from "../plugins/ui_stateful/clipboard";
 import { FigureUIPlugin } from "../plugins/ui_stateful/figure";
 import { HeaderPositionsUIPlugin } from "../plugins/ui_stateful/header_positions";
 import { GridSelectionPlugin } from "../plugins/ui_stateful/selection";
@@ -166,7 +165,6 @@ export type RenderingGetters = {
 } & CoreGetters &
   EvaluationGetters &
   PluginGetters<typeof HistoryPlugin> &
-  PluginGetters<typeof ClipboardPlugin> &
   PluginGetters<typeof CollaborativePlugin> &
   PluginGetters<typeof SortPlugin> &
   PluginGetters<typeof UIOptionsPlugin> &

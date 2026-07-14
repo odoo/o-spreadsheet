@@ -27,6 +27,7 @@ import { blendColors, toHex } from "../../src/helpers/color";
 import { COLOR_THEMES } from "../../src/helpers/color_themes";
 import { fontSizeInPixels, getContextFontSize } from "../../src/helpers/text_helper";
 import { toZone } from "../../src/helpers/zones";
+import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { CellHoverOverlayStore } from "../../src/stores/cell_hover_overlay_store";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
@@ -99,6 +100,7 @@ function removeOffsetOfFillStyles(fillStyles: any[]): any[] {
 
 function setRenderer(model: Model = new Model(), layers: LayerName[] = ["Background"]) {
   const { container, store: gridRendererStore } = makeStoreWithModel(model, GridRenderer);
+  container.get(ClipboardStore); // Instantiate a ClipboardStore
   gridRendererStore["getBoxesWithAnimations"] = function (boxes: Box[]) {
     for (const box of boxes) {
       this["lastRenderBoxes"].set(box.id, box);

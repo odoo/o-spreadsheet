@@ -7,6 +7,7 @@ import {
   MIN_CELL_TEXT_MARGIN,
 } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
+import { ClipboardStore } from "../../src/plugins/ui_stateful/clipboard";
 import { EASING_FN, cellAnimationRegistry } from "../../src/registries/cell_animation_registry";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { CELL_ANIMATION_DURATION, GridRenderer } from "../../src/stores/grid_renderer_store";
@@ -75,6 +76,7 @@ beforeEach(() => {
   ({ container, store: gridRendererStore } = makeStoreWithModel(model, GridRenderer));
   viewStore = container.get(ViewportsStore);
   rendererStore = container.get(RendererStore);
+  container.get(ClipboardStore);
   jest
     .spyOn(MockCanvasRenderingContext2D.prototype, "measureText")
     .mockImplementation((text: string) => ({
