@@ -252,7 +252,11 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       case "ArrowLeft":
       case "ArrowRight":
       case "ArrowUp":
-        const { col, row, offset } = this.postionInBoundary(this.props.figureUI, ev.key);
+        const { col, row, offset } = this.postionInBoundary(
+          this.env.model.getters.getActiveSheetId(),
+          this.props.figureUI,
+          ev.key
+        );
         this.env.model.dispatch("UPDATE_FIGURE", {
           sheetId: this.env.model.getters.getActiveSheetId(),
           figureId: this.props.figureUI.id,
@@ -281,14 +285,21 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  private postionInBoundary(position: AnchorOffset, key: string): AnchorOffset {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    let { col, row, offset } = position;
+  private postionInBoundary(sheetId: UID, figure: FigureUI, key: string): AnchorOffset {
+    let { col, row, offset } = figure;
     offset = { ...offset };
+    const maxAnchor = this.env.model.getters.getMaxAnchorOffset(
+      sheetId,
+      figure.height,
+      figure.width
+    );
     switch (key) {
       case "ArrowUp":
         if (offset.y === 0) {
           row--;
+          while (row > 0 && this.env.model.getters.isRowHiddenByUser(sheetId, row)) {
+            row--;
+          }
           offset.y = this.env.model.getters.getRowSize(sheetId, row) - 1;
         } else {
           offset.y--;
@@ -297,6 +308,9 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       case "ArrowLeft":
         if (offset.x === 0) {
           col--;
+          while (col > 0 && this.env.model.getters.isColHiddenByUser(sheetId, col)) {
+            col--;
+          }
           offset.x = this.env.model.getters.getColSize(sheetId, col) - 1;
         } else {
           offset.x--;
@@ -305,6 +319,9 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       case "ArrowDown":
         if (offset.y === this.env.model.getters.getRowSize(sheetId, row)) {
           row++;
+          while (row <= maxAnchor.row && this.env.model.getters.isRowHiddenByUser(sheetId, row)) {
+            row++;
+          }
           offset.y = 0;
         } else {
           offset.y++;
@@ -313,10 +330,27 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       case "ArrowRight":
         if (offset.x === this.env.model.getters.getColSize(sheetId, row)) {
           col++;
+          while (col <= maxAnchor.col && this.env.model.getters.isColHiddenByUser(sheetId, col)) {
+            col++;
+          }
           offset.x = 0;
         } else {
           offset.x++;
         }
+    }
+    if (col < 0) {
+      col = 0;
+      offset.x = 0;
+    } else if (col > maxAnchor.col || (col === maxAnchor.col && offset.x > maxAnchor.offset.x)) {
+      col = maxAnchor.col;
+      offset.x = maxAnchor.offset.x;
+    }
+    if (row < 0) {
+      row = 0;
+      offset.y = 0;
+    } else if (row > maxAnchor.row || (row === maxAnchor.row && offset.y > maxAnchor.offset.y)) {
+      row = maxAnchor.row;
+      offset.y = maxAnchor.offset.y;
     }
     return { col, row, offset };
   }
