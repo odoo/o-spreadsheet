@@ -907,6 +907,54 @@ test("migrate version 19.3.2: change datasets to dataSource", () => {
   );
 });
 
+test("migrate version 19.3.3: scorecard keyValue/baseline become formulas", () => {
+  const model = new Model({
+    version: "19.3.2",
+    sheets: [
+      {
+        id: "sh1",
+        figures: [
+          {
+            id: "chartFigure1",
+            tag: "chart",
+            data: {
+              chartId: "chartFigure1",
+              type: "scorecard",
+              keyValue: "A1:A3",
+              baseline: "B1",
+              title: { text: "Test scorecard" },
+            },
+          },
+          {
+            id: "carouselFigure",
+            tag: "carousel",
+            data: {
+              chartDefinitions: {
+                carouselChart: {
+                  chartId: "carouselChart",
+                  type: "scorecard",
+                  keyValue: "Sheet1!C1",
+                  baseline: "=D1", // already a formula, must stay untouched
+                },
+              },
+            },
+          },
+        ],
+      },
+    ],
+  });
+  const exportedData = model.exportData();
+
+  expect(exportedData.sheets[0].figures[0].data).toMatchObject({
+    keyValue: "=A1:A3",
+    baseline: "=B1",
+  });
+  expect(exportedData.sheets[0].figures[1].data.chartDefinitions["carouselChart"]).toMatchObject({
+    keyValue: "=Sheet1!C1",
+    baseline: "=D1",
+  });
+});
+
 describe("Import", () => {
   test("Import sheet with rows/cols size defined.", () => {
     const model = new Model({

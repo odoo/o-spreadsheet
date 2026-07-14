@@ -1,7 +1,7 @@
 import { FORMULA_REF_IDENTIFIER } from "../constants";
 import { toXC } from "../helpers/coordinates";
 import { getItemId } from "../helpers/data_normalization";
-import { getUniqueText, sanitizeSheetName } from "../helpers/misc";
+import { getUniqueText, isFormula, sanitizeSheetName } from "../helpers/misc";
 import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { overlap, toZone, zoneToXc } from "../helpers/zones";
@@ -628,6 +628,36 @@ migrationStepRegistry
       for (const sheet of data.sheets || []) {
         for (const figure of sheet.figures || []) {
           if (figure.tag === "chart" && "dataSets" in figure.data) {
+            figure.data = upgrade(figure.data);
+          } else if (figure.tag === "carousel") {
+            for (const chartId in figure.data.chartDefinitions) {
+              const definition = figure.data.chartDefinitions[chartId];
+              figure.data.chartDefinitions[chartId] = upgrade(definition);
+            }
+          }
+        }
+      }
+      return data;
+    },
+  })
+  .add("19.3.3", {
+    migrate(data: WorkbookData): any {
+      function upgrade(definition: any): any {
+        if (definition.type !== "scorecard") {
+          return definition;
+        }
+        definition = { ...definition };
+        if (definition.keyValue && !isFormula(definition.keyValue)) {
+          definition.keyValue = `=${definition.keyValue}`;
+        }
+        if (definition.baseline && !isFormula(definition.baseline)) {
+          definition.baseline = `=${definition.baseline}`;
+        }
+        return definition;
+      }
+      for (const sheet of data.sheets || []) {
+        for (const figure of sheet.figures || []) {
+          if (figure.tag === "chart") {
             figure.data = upgrade(figure.data);
           } else if (figure.tag === "carousel") {
             for (const chartId in figure.data.chartDefinitions) {

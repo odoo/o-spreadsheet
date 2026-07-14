@@ -46,8 +46,8 @@ describe("datasource tests", function () {
     createScorecardChart(
       model,
       {
-        keyValue: "B8",
-        baseline: "B7",
+        keyValue: "=B8",
+        baseline: "=B7",
         type: "scorecard",
         baselineDescr: { text: "Description" },
         title: { text: "Title" },
@@ -55,7 +55,7 @@ describe("datasource tests", function () {
       "1"
     );
     expect(model.getters.getChartRuntime("1")).toMatchObject({
-      keyValue: "",
+      keyValue: "0",
       baselineDisplay: "",
       baselineDescr: "Description",
       title: { text: "Title" },
@@ -69,12 +69,12 @@ describe("datasource tests", function () {
       model,
       {
         type: "scorecard",
-        keyValue: "A1",
+        keyValue: "=A1",
       },
       "1"
     );
     expect(model.getters.getChartRuntime("1")).toMatchObject({
-      keyValue: "",
+      keyValue: "0",
       baselineDisplay: "",
       baselineDescr: "",
       title: { text: "" },
@@ -92,8 +92,8 @@ describe("datasource tests", function () {
       type: "scorecard",
       background: "#123456",
       title: { text: "hello there" },
-      keyValue: "Sheet1!B1:B4",
-      baseline: "Sheet1!A1:A4",
+      keyValue: "=Sheet1!B1:B4",
+      baseline: "=Sheet1!A1:A4",
       baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
@@ -107,23 +107,23 @@ describe("datasource tests", function () {
     createScorecardChart(
       model,
       {
-        keyValue: "Sheet1!B1:B4",
-        baseline: "Sheet1!A2:A4",
+        keyValue: "=Sheet1!B1:B4",
+        baseline: "=Sheet1!A2:A4",
       },
       "1"
     );
     addColumns(model, "before", "A", 2);
     const chart = model.getters.getChartDefinition("1") as ScorecardChartDefinition;
-    expect(chart.keyValue!).toStrictEqual("Sheet1!D1:D4");
-    expect(chart.baseline!).toStrictEqual("Sheet1!C2:C4");
+    expect(chart.keyValue!).toStrictEqual("=Sheet1!D1:D4");
+    expect(chart.baseline!).toStrictEqual("=Sheet1!C2:C4");
   });
 
   test("can delete an imported scorecard chart", () => {
     createScorecardChart(
       model,
       {
-        keyValue: "B7:B8",
-        baseline: "B7",
+        keyValue: "=B7:B8",
+        baseline: "=B7",
         type: "scorecard",
       },
       "1"
@@ -142,21 +142,21 @@ describe("datasource tests", function () {
     createScorecardChart(
       model,
       {
-        keyValue: "B7:B8",
-        baseline: "B7",
+        keyValue: "=B7:B8",
+        baseline: "=B7",
       },
       "1"
     );
     updateChart(model, "1", {
-      keyValue: "A7",
-      baseline: "E3",
+      keyValue: "=A7",
+      baseline: "=E3",
       baselineMode: "percentage",
       baselineDescr: { text: "description" },
       title: { text: "hello1" },
     });
     expect(model.getters.getChartDefinition("1")).toMatchObject({
-      keyValue: "A7",
-      baseline: "E3",
+      keyValue: "=A7",
+      baseline: "=E3",
       baselineMode: "percentage",
       baselineDescr: { text: "description" },
       title: { text: "hello1" },
@@ -175,7 +175,7 @@ describe("datasource tests", function () {
     result = createScorecardChart(
       model,
       {
-        keyValue: "A1",
+        keyValue: "=A1",
         baseline: "this is invalid",
       },
       "1"
@@ -183,12 +183,21 @@ describe("datasource tests", function () {
     expect(result).toBeCancelledBecause(CommandResult.InvalidScorecardBaseline);
   });
 
+  test("changing a scorecard chart type keeps the key value as the new chart's data range", () => {
+    createScorecardChart(model, { keyValue: "=B2:B4", baseline: "=A1" }, "1");
+    updateChart(model, "1", { type: "bar" } as any);
+    const def = model.getters.getChartDefinition("1") as any;
+    expect(def.type).toBe("bar");
+    expect(def.dataSource.dataSets).toMatchObject([{ dataRange: "B2:B4" }]);
+    expect(def.dataSource.labelRange).toEqual("A1");
+  });
+
   test("Scorecard Chart is deleted on sheet deletion", () => {
     createSheet(model, { sheetId: "2", position: 1 });
     createScorecardChart(
       model,
       {
-        keyValue: "Sheet1!B1:B4",
+        keyValue: "=Sheet1!B1:B4",
       },
       "1",
       "2"
@@ -205,8 +214,8 @@ describe("datasource tests", function () {
       model,
       {
         title: { text: "test" },
-        keyValue: "B1:B4",
-        baseline: "A1",
+        keyValue: "=B1:B4",
+        baseline: "=A1",
       },
       firstSheetId
     );
@@ -221,8 +230,8 @@ describe("datasource tests", function () {
       .getChart(duplicatedChartId)
       ?.getDefinition() as ScorecardChartDefinition;
     expect(newChart.title.text).toEqual("test");
-    expect(newChart.keyValue).toEqual("B1:B4");
-    expect(newChart.baseline).toEqual("A1");
+    expect(newChart.keyValue).toEqual("=B1:B4");
+    expect(newChart.baseline).toEqual("=A1");
 
     expect(duplicatedFigure).toMatchObject({ ...figure, id: expect.any(String) });
     expect(duplicatedFigure.id).not.toBe(figure?.id);
@@ -232,12 +241,33 @@ describe("datasource tests", function () {
     expect(model.getters.getFigures(secondSheetId)).toEqual([duplicatedFigure]);
   });
 
+  test("Explicit cross-sheet references are moved to the new sheet on sheet duplication", () => {
+    const firstSheetId = model.getters.getActiveSheetId();
+    const secondSheetId = "42";
+    setCellContent(model, "B1", "99");
+    createScorecardChart(
+      model,
+      {
+        keyValue: `=${model.getters.getSheetName(firstSheetId)}!B1`,
+        baseline: `=${model.getters.getSheetName(firstSheetId)}!A1`,
+      },
+      firstSheetId
+    );
+    duplicateSheet(model, firstSheetId, secondSheetId, "Sheet1Copy");
+    const duplicatedChartId = model.getters.getChartIds(secondSheetId)[0];
+    const newChart = model.getters
+      .getChart(duplicatedChartId)
+      ?.getDefinition() as ScorecardChartDefinition;
+    expect(newChart.keyValue).toEqual("=Sheet1Copy!B1");
+    expect(newChart.baseline).toEqual("=Sheet1Copy!A1");
+  });
+
   test("percentage with key value smaller than baseline", () => {
     setCellContent(model, "A1", "40");
     setCellContent(model, "A2", "100");
     createScorecardChart(model, {
-      keyValue: "A1",
-      baseline: "A2",
+      keyValue: "=A1",
+      baseline: "=A2",
       baselineMode: "percentage",
     });
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
@@ -253,8 +283,8 @@ describe("datasource tests", function () {
     setCellContent(model, "A1", "140");
     setCellContent(model, "A2", "100");
     createScorecardChart(model, {
-      keyValue: "A1",
-      baseline: "A2",
+      keyValue: "=A1",
+      baseline: "=A2",
       baselineMode: "percentage",
     });
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
@@ -270,8 +300,8 @@ describe("datasource tests", function () {
     setCellContent(model, "A1", "140");
     setCellContent(model, "A2", "140");
     createScorecardChart(model, {
-      keyValue: "A1",
-      baseline: "A2",
+      keyValue: "=A1",
+      baseline: "=A2",
       baselineMode: "percentage",
     });
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
@@ -286,8 +316,8 @@ describe("datasource tests", function () {
   test("percentage with key value not defined", () => {
     setCellContent(model, "A2", "140");
     createScorecardChart(model, {
-      keyValue: "A1",
-      baseline: "A2",
+      keyValue: "=A1",
+      baseline: "=A2",
       baselineMode: "percentage",
     });
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
@@ -295,15 +325,15 @@ describe("datasource tests", function () {
       baselineArrow: "neutral",
       baselineColor: undefined,
       baselineDisplay: "140",
-      keyValue: "",
+      keyValue: "0",
     });
   });
 
   test("percentage with baseline value not defined", () => {
     setCellContent(model, "A1", "140");
     createScorecardChart(model, {
-      keyValue: "A1",
-      baseline: "A2",
+      keyValue: "=A1",
+      baseline: "=A2",
       baselineMode: "percentage",
     });
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
@@ -317,8 +347,8 @@ describe("datasource tests", function () {
 
   test("percentage with key value not defined and baseline value not defined", () => {
     createScorecardChart(model, {
-      keyValue: "A1",
-      baseline: "A2",
+      keyValue: "=A1",
+      baseline: "=A2",
       baselineMode: "percentage",
     });
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
@@ -326,7 +356,7 @@ describe("datasource tests", function () {
       baselineArrow: "neutral",
       baselineColor: undefined,
       baselineDisplay: "",
-      keyValue: "",
+      keyValue: "0",
     });
   });
 
@@ -334,8 +364,8 @@ describe("datasource tests", function () {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "0");
     createScorecardChart(model, {
-      keyValue: "A1",
-      baseline: "A2",
+      keyValue: "=A1",
+      baseline: "=A2",
       baselineMode: "percentage",
     });
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
@@ -350,8 +380,8 @@ describe("datasource tests", function () {
     setCellContent(model, "A1", "0");
     setCellContent(model, "A2", "0");
     createScorecardChart(model, {
-      keyValue: "A1",
-      baseline: "A2",
+      keyValue: "=A1",
+      baseline: "=A2",
       baselineMode: "percentage",
     });
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
@@ -366,8 +396,8 @@ describe("datasource tests", function () {
     setCellContent(model, "A1", "40");
     setCellContent(model, "A2", "100");
     createScorecardChart(model, {
-      keyValue: "A1",
-      baseline: "A2",
+      keyValue: "=A1",
+      baseline: "=A2",
       baselineMode: "progress",
     });
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
@@ -386,8 +416,8 @@ describe("datasource tests", function () {
     setCellContent(model, "A1", "-40");
     setCellContent(model, "A2", "100");
     createScorecardChart(model, {
-      keyValue: "A1",
-      baseline: "A2",
+      keyValue: "=A1",
+      baseline: "=A2",
       baselineMode: "progress",
     });
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
@@ -424,7 +454,7 @@ describe("multiple sheets", () => {
               data: {
                 type: "scorecard",
                 title: "demo chart",
-                keyValue: "Sheet2!A1",
+                keyValue: "=Sheet2!A1",
                 baselineMode: "difference",
                 baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
                 baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
@@ -448,21 +478,21 @@ describe("multiple sheets", () => {
     createScorecardChart(
       model,
       {
-        keyValue: "Sheet1!B1",
-        baseline: "Sheet1!C1",
+        keyValue: "=Sheet1!B1",
+        baseline: "=Sheet1!C1",
       },
       "28"
     );
     const chart = model.getters.getChartDefinition("28") as ScorecardChartDefinition;
-    expect(chart.keyValue).toEqual("Sheet1!B1");
-    expect(chart.baseline).toEqual("Sheet1!C1");
+    expect(chart.keyValue).toEqual("=Sheet1!B1");
+    expect(chart.baseline).toEqual("=Sheet1!C1");
   });
 });
 
 describe("undo/redo", () => {
   test("undo/redo scorecard chart creation", () => {
     const before = model.exportData();
-    createScorecardChart(model, { keyValue: "Sheet1!B1:B4" });
+    createScorecardChart(model, { keyValue: "=Sheet1!B1:B4" });
     const after = model.exportData();
     undo(model);
     expect(model).toExport(before);
@@ -474,7 +504,7 @@ describe("undo/redo", () => {
     createScorecardChart(
       model,
       {
-        keyValue: "Sheet1!A2",
+        keyValue: "=Sheet1!A2",
       },
       "27"
     );
@@ -498,7 +528,7 @@ test("font color is white with a dark background color", () => {
   createScorecardChart(
     model,
     {
-      keyValue: "Sheet1!A2",
+      keyValue: "=Sheet1!A2",
       background: "#000000",
     },
     "1"
@@ -514,8 +544,8 @@ test("Scorecard with formula cell", () => {
   createScorecardChart(
     model,
     {
-      keyValue: "A1",
-      baseline: "A2",
+      keyValue: "=A1",
+      baseline: "=A2",
       baselineMode: "percentage",
     },
     "1"
@@ -523,4 +553,29 @@ test("Scorecard with formula cell", () => {
   const runtime = model.getters.getChartRuntime("1") as ScorecardChartRuntime;
   expect(runtime.keyValue).toEqual("4");
   expect(runtime.baselineDisplay).toEqual("100.0%");
+});
+
+describe("formula keyValueType", () => {
+  test("keyValue evaluates the formula", () => {
+    const model = new Model();
+    createScorecardChart(model, { keyValue: "=SUM(1, 2)" }, "1");
+    expect(model.getters.getChartRuntime("1")).toMatchObject({ keyValue: "3" });
+  });
+
+  test("keyValue updates when referenced cell changes", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "5");
+    createScorecardChart(model, { keyValue: "=A1" }, "1");
+    expect(model.getters.getChartRuntime("1")).toMatchObject({ keyValue: "5" });
+    setCellContent(model, "A1", "99");
+    expect(model.getters.getChartRuntime("1")).toMatchObject({ keyValue: "99" });
+  });
+
+  test("keyValue string is adapted on column insertion", () => {
+    const model = new Model();
+    createScorecardChart(model, { keyValue: "=SUM(A1, B1)" }, "1");
+    addColumns(model, "before", "A", 1);
+    const chart = model.getters.getChartDefinition("1") as ScorecardChartDefinition;
+    expect(chart.keyValue).toEqual("=SUM(B1, C1)");
+  });
 });

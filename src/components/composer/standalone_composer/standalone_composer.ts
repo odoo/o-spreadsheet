@@ -28,6 +28,7 @@ export class StandaloneComposer extends Component<SpreadsheetChildEnv> {
     class: types.string().optional(),
     invalid: types.boolean().optional(),
     autofocus: types.boolean().optional(),
+    insertEqualSignOnFocus: types.boolean().optional(false),
     getContextualColoredSymbolToken: types.function<(token: Token) => Color>().optional(),
   });
 
@@ -58,7 +59,9 @@ export class StandaloneComposer extends Component<SpreadsheetChildEnv> {
     };
     onMounted(() => {
       if (this.props.autofocus && this.focus === "inactive") {
-        this.composerFocusStore.focusComposer(this.composerInterface, {});
+        this.composerFocusStore.focusComposer(this.composerInterface, {
+          content: this.getEmptyComposerContent(),
+        });
         this.composerFocusStore.activeComposer.editionMode;
       }
     });
@@ -86,6 +89,25 @@ export class StandaloneComposer extends Component<SpreadsheetChildEnv> {
   }
 
   onFocus(selection: ComposerSelection) {
-    this.composerFocusStore.focusComposer(this.composerInterface, { selection });
+    const content = this.getEmptyComposerContent();
+    this.composerFocusStore.focusComposer(this.composerInterface, {
+      selection: content ? undefined : selection,
+      content,
+    });
+  }
+
+  /**
+   * When enabled, starting to edit an empty composer inserts a leading "="
+   * so the user lands directly in formula mode.
+   */
+  private getEmptyComposerContent(): string | undefined {
+    if (
+      this.props.insertEqualSignOnFocus &&
+      this.standaloneComposerStore.editionMode === "inactive" &&
+      !this.standaloneComposerStore.currentContent
+    ) {
+      return "=";
+    }
+    return undefined;
   }
 }

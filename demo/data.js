@@ -551,11 +551,11 @@ export const demoData = {
               text: "Scorecard",
             },
             type: "scorecard",
-            baseline: "Sheet1!B28",
+            baseline: "=Sheet1!B28",
             baselineDescr: {
               text: "Descr",
             },
-            keyValue: "Sheet1!B29",
+            keyValue: "=Sheet1!B29",
             humanize: false,
             chartId: "4",
           },

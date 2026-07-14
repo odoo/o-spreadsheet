@@ -473,7 +473,7 @@ describe("Smart chart type detection", () => {
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       type: "scorecard",
-      keyValue: "C3",
+      keyValue: "=C3",
     });
   });
 
