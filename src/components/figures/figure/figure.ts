@@ -2,8 +2,8 @@ import { props, proxy, signal } from "@odoo/owl";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { MoveFiguresPayload } from "../../../types/commands";
-import { AnchorOffset, ResizeDirection } from "../../../types/figure";
-import { CSSProperties, Pixel } from "../../../types/misc";
+import { AnchorOffset, FigureUI, ResizeDirection } from "../../../types/figure";
+import { CSSProperties, Pixel, UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
@@ -171,7 +171,8 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
           figures.push({
             sheetId,
             figureId,
-            ...this.postionInBoundary(
+            ...this.positionInBoundary(
+              sheetId,
               this.env.model.getters.getFigureUI(sheetId, figure),
               ev.key,
               ev.shiftKey
@@ -200,15 +201,27 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
     }
   }
 
-  private postionInBoundary(position: AnchorOffset, key: string, shift: boolean): AnchorOffset {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+  private positionInBoundary(
+    sheetId: UID,
+    figure: FigureUI,
+    key: string,
+    shift: boolean
+  ): AnchorOffset {
     const shiftAmount = shift ? 1 : 5;
-    let { col, row, offset } = position;
+    let { col, row, offset } = figure;
     offset = { ...offset };
+    const maxAnchor = this.env.model.getters.getMaxAnchorOffset(
+      sheetId,
+      figure.height,
+      figure.width
+    );
     switch (key) {
       case "ArrowUp":
         if (offset.y < shiftAmount) {
           row--;
+          while (row > 0 && this.env.model.getters.isRowHiddenByUser(sheetId, row)) {
+            row--;
+          }
           offset.y = this.env.model.getters.getRowSize(sheetId, row) - shiftAmount + offset.y;
         } else {
           offset.y -= shiftAmount;
@@ -217,6 +230,9 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
       case "ArrowLeft":
         if (offset.x < shiftAmount) {
           col--;
+          while (col > 0 && this.env.model.getters.isColHiddenByUser(sheetId, col)) {
+            col--;
+          }
           offset.x = this.env.model.getters.getColSize(sheetId, col) - shiftAmount + offset.x;
         } else {
           offset.x -= shiftAmount;
@@ -226,6 +242,9 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
         const rowSize = this.env.model.getters.getRowSize(sheetId, row);
         if (offset.y + shiftAmount >= rowSize) {
           row++;
+          while (row <= maxAnchor.row && this.env.model.getters.isRowHiddenByUser(sheetId, row)) {
+            row++;
+          }
           offset.y = offset.y + shiftAmount - rowSize;
         } else {
           offset.y += shiftAmount;
@@ -235,10 +254,27 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
         const colSize = this.env.model.getters.getColSize(sheetId, col);
         if (offset.x + shiftAmount >= colSize) {
           col++;
+          while (col <= maxAnchor.col && this.env.model.getters.isColHiddenByUser(sheetId, col)) {
+            col++;
+          }
           offset.x = offset.x + shiftAmount - colSize;
         } else {
           offset.x += shiftAmount;
         }
+    }
+    if (col < 0) {
+      col = 0;
+      offset.x = 0;
+    } else if (col > maxAnchor.col || (col === maxAnchor.col && offset.x > maxAnchor.offset.x)) {
+      col = maxAnchor.col;
+      offset.x = maxAnchor.offset.x;
+    }
+    if (row < 0) {
+      row = 0;
+      offset.y = 0;
+    } else if (row > maxAnchor.row || (row === maxAnchor.row && offset.y > maxAnchor.offset.y)) {
+      row = maxAnchor.row;
+      offset.y = maxAnchor.offset.y;
     }
     return { col, row, offset };
   }
