@@ -4,8 +4,8 @@
       <Section title.translate="Suggested charts">
         <t t-if="this.store.hasData">
           <div class="px-2 pb-2">
-            <div t-if="this.chartSuggestions.length" class="o-chart-suggestions-grid">
-              <t t-foreach="this.chartSuggestions" t-as="suggestion" t-key="suggestion_index">
+            <div t-if="this.store.chartSuggestions.length" class="o-chart-suggestions-grid">
+              <t t-foreach="this.store.chartSuggestions" t-as="suggestion" t-key="suggestion_index">
                 <ChartSuggestionPreview
                   definition="suggestion.definition"
                   title="suggestion.title"

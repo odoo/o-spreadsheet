@@ -1,9 +1,4 @@
 import { props, proxy, types } from "@odoo/owl";
-import {
-  ChartSuggestion,
-  getChartSuggestions,
-} from "../../../helpers/figures/charts/chart_suggestion_engine";
-import { toZone } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../store_engine/store_hooks";
 import { ChartDefinition } from "../../../types/chart/chart";
@@ -28,13 +23,6 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
 
   setup() {
     this.store = useLocalStore(DataAnalysisStore);
-  }
-
-  get chartSuggestions(): ChartSuggestion[] {
-    return getChartSuggestions(
-      this.store.ranges?.map((range) => toZone(range)) ?? [],
-      this.env.model.getters
-    );
   }
 
   onStartChartSuggestionDrag(definition: ChartDefinition, ev: MouseEvent) {

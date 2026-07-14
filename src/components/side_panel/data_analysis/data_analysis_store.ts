@@ -1,3 +1,8 @@
+import {
+  ChartSuggestion,
+  getChartSuggestions,
+} from "../../../helpers/figures/charts/chart_suggestion_engine";
+import { deepEquals } from "../../../helpers/misc";
 import { zoneToXc } from "../../../helpers/zones";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { CellValueType } from "../../../types/cells";
@@ -7,6 +12,7 @@ import { Get } from "../../../types/store_engine";
 export class DataAnalysisStore extends SpreadsheetStore {
   mutators = [] as const;
   hasData: boolean = false;
+  chartSuggestions: ChartSuggestion[] = [];
   private isDirty = false;
   ranges?: string[];
 
@@ -59,5 +65,10 @@ export class DataAnalysisStore extends SpreadsheetStore {
         .getEvaluatedCellsInZone(sheetId, zone)
         .some((cell) => cell.type !== CellValueType.empty)
     );
+
+    const suggestions = this.hasData ? getChartSuggestions(zones, getters) : [];
+    if (!deepEquals(suggestions, this.chartSuggestions)) {
+      this.chartSuggestions = suggestions;
+    }
   }
 }
