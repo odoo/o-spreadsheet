@@ -522,7 +522,7 @@ test("Commands rejected on locked sheet trigger a notification", async () => {
   const result = deleteSheet(model, model.getters.getActiveSheetId());
   expect(result.reasons).toContain(CommandResult.SheetLocked);
   expect(notifyFn).toHaveBeenCalledWith({
-    text: "This sheet is locked and cannot be modified. Please unlock it first.",
+    text: "Sheet is locked. Unlock it first.",
     type: "info",
     sticky: false,
   });

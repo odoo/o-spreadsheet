@@ -65,9 +65,7 @@ export async function interactivePasteFromOS(
   if (parsedClipboardContent.data && parsedClipboardContent.data.version !== getCurrentVersion()) {
     env.notifyUser({
       type: "warning",
-      text: _t(
-        "You copied content from a different version of the application. Only text and image content will be pasted."
-      ),
+      text: _t("Only text and images will be pasted."),
       sticky: false,
     });
   }

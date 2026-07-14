@@ -248,7 +248,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       if (result.isCancelledBecause(CommandResult.SheetLocked)) {
         this.notificationStore.notifyUser({
           type: "info",
-          text: _t("This sheet is locked and cannot be modified. Please unlock it first."),
+          text: _t("Sheet is locked. Unlock it first."),
           sticky: false,
         });
       }
@@ -282,9 +282,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
         return;
       }
       this.notificationStore.notifyUser({
-        text: _t(
-          "The current window is too small to display this sheet properly. Consider resizing your browser window or adjusting frozen rows and columns."
-        ),
+        text: _t("Window too small. Resize or adjust frozen rows/columns."),
         type: "warning",
         sticky: false,
       });
