@@ -155,7 +155,8 @@ export function getRangeString(
       range.parts[0].rowFixed ||
       range.parts[0].colFixed ||
       range.parts[1].rowFixed ||
-      range.parts[1].colFixed
+      range.parts[1].colFixed ||
+      options.doNotSimplifyRange
     ) {
       rangeString += ":";
       rangeString += getRangePartString(range, 1, options);

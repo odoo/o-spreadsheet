@@ -104,7 +104,14 @@ export class Unsquisher {
           this.previousOffset = current as SquishedFormula;
           for (const position of positionsOfKey) {
             const result = this.unsquish(current as SquishedFormula, sheetId, getters);
-            yield { position, compiled: result };
+            if (!result.areRangeShapesInLineWithNormalizedFormula()) {
+              // not optimum, but needed to recover badly squished sheets
+              const formulaString = result.toFormulaString(getters);
+              const newCompiledFormula = CompiledFormula.Compile(formulaString, sheetId, getters);
+              yield { position, compiled: newCompiledFormula };
+            } else {
+              yield { position, compiled: result };
+            }
           }
           break;
         case "COMBINE_OFFSET":
@@ -117,7 +124,14 @@ export class Unsquisher {
           this.previousOffset.R = currentOffset.R ?? this.previousOffset.R;
           for (const position of positionsOfKey) {
             const result = this.unsquish(this.previousOffset, sheetId, getters);
-            yield { position, compiled: result };
+            if (!result.areRangeShapesInLineWithNormalizedFormula()) {
+              // not optimum, but needed to recover badly squished sheets
+              const formulaString = result.toFormulaString(getters);
+              const newCompiledFormula = CompiledFormula.Compile(formulaString, sheetId, getters);
+              yield { position, compiled: newCompiledFormula };
+            } else {
+              yield { position, compiled: result };
+            }
           }
           break;
       }
