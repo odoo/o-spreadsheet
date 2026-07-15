@@ -1,6 +1,14 @@
+import { FormulaCell } from "../../src";
 import { createRangeFromXc } from "../../src/helpers/range";
 import { Model } from "../../src/model";
-import { createSheet, setFormatting } from "../test_helpers";
+import {
+  createSheet,
+  deleteColumns,
+  getCell,
+  getCellContent,
+  getCellText,
+  setFormatting,
+} from "../test_helpers";
 import { createModelFromGrid } from "../test_helpers/helpers";
 
 describe("squish - unsquish", () => {
@@ -81,6 +89,119 @@ describe("squish - unsquish", () => {
 });
 
 describe("squish - unsquish specific cases", () => {
+  test("squish the same formula on a range that becomes a cell reference by removing column, show autocorrection steps", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "Sheet1",
+          name: "Sheet1",
+          colNumber: 10,
+          rowNumber: 10,
+          cells: {
+            A1: "=isnumber(B1:C1)", // becomes B1
+            A2: "=isnumber(B1:D1)", // becomes B1:C1
+            A3: "=isnumber(B1:C1)", // becomes B1
+          },
+        },
+      ],
+    });
+
+    deleteColumns(model, ["C"]);
+    const squished = model._exportData(true);
+    expect(squished.sheets[0].cells).toEqual({
+      A1: "=isnumber(B1:B1)",
+      A2: { R: "B1:C1" },
+      A3: { R: "B1:B1" },
+    });
+    const newModel = new Model(squished);
+    expect((getCell(newModel, "A1") as FormulaCell).compiledFormula.normalizedFormula).toEqual(
+      "=isnumber(|R|)"
+      // it was explicitly saved with a range, it stays a range (that is the origin of the bug)
+    );
+    expect((getCell(newModel, "A2") as FormulaCell).compiledFormula.normalizedFormula).toEqual(
+      "=isnumber(|R|)"
+    );
+    expect((getCell(newModel, "A3") as FormulaCell).compiledFormula.normalizedFormula).toEqual(
+      "=isnumber(|C|)" // this updated reference becomes a cell
+    );
+
+    const exportedSecondTime = newModel._exportData(true);
+    expect(exportedSecondTime.sheets[0].cells).toEqual({
+      A1: "=isnumber(B1)",
+      A2: { R: "B1:C1" },
+      A3: "=isnumber(B1)",
+    });
+    const modelImportedSecondTime = new Model(exportedSecondTime);
+    expect(
+      (getCell(modelImportedSecondTime, "A1") as FormulaCell).compiledFormula.normalizedFormula
+    ).toEqual(
+      "=isnumber(|C|)" // normal, the second export corrected the range to a cell
+    );
+    expect(
+      (getCell(modelImportedSecondTime, "A2") as FormulaCell).compiledFormula.normalizedFormula
+    ).toEqual(
+      "=isnumber(|R|)" // the import corrected the cell to a range
+    );
+    expect(
+      (getCell(modelImportedSecondTime, "A3") as FormulaCell).compiledFormula.normalizedFormula
+    ).toEqual(
+      "=isnumber(|C|)" // the export corrected the range to cell
+    );
+    expect(getCellContent(modelImportedSecondTime, "A3")).toEqual("FALSE");
+
+    const exportThirdTime = modelImportedSecondTime._exportData(true);
+    expect(exportThirdTime.sheets[0].cells).toEqual({
+      A1: "=isnumber(B1)",
+      A2: "=isnumber(B1:C1)", // completely corrected
+      A3: "=isnumber(B1)",
+    });
+  });
+
+  test("range/cell normalized formula squished together", () => {
+    const squishedData = {
+      sheets: [
+        {
+          cells: {
+            A1: "=isNumber(C1)",
+            A2: { R: "D1:E1" },
+            "A3:A4": { R: "D2:E2" },
+          },
+        },
+      ],
+    };
+
+    const model = new Model(squishedData);
+    expect(getCellText(model, "A1")).toEqual("=isNumber(C1)");
+    expect(getCellText(model, "A2")).toEqual("=isNumber(D1:E1)");
+    expect(getCellText(model, "A3")).toEqual("=isNumber(D2:E2)");
+    expect(getCellText(model, "A4")).toEqual("=isNumber(D2:E2)");
+    expect(getCellContent(model, "B4")).toEqual("FALSE");
+    expect(getCellContent(model, "B3")).toEqual("FALSE");
+  });
+
+  test("range/cell normalized formula squished together extended", () => {
+    const squishedData = {
+      sheets: [
+        {
+          cells: {
+            A1: "=iferror(isNumber(C1),F1)",
+            A2: { R: "D1:E1|+R1" },
+            "A3:A4": { R: "D2:E2|+R1" },
+          },
+        },
+      ],
+    };
+
+    const model = new Model(squishedData);
+    expect(getCellContent(model, "A1")).toEqual("FALSE");
+    expect(getCellContent(model, "A2")).toEqual("FALSE");
+    expect(getCellContent(model, "A3")).toEqual("FALSE");
+    expect(getCellContent(model, "A4")).toEqual("FALSE");
+    expect(getCellContent(model, "B4")).toEqual("FALSE");
+    expect(getCellContent(model, "B3")).toEqual("FALSE");
+    expect(getCellText(model, "A4")).toEqual("=iferror(isNumber(D2:E2),F4)");
+  });
+
   test("squish always reset when changing sheet", () => {
     const model = new Model({
       sheets: [
