@@ -239,7 +239,14 @@ export class Unsquisher {
         this.previousOffset = currentOffset;
         for (const position of targetPositions) {
           const result = this.unsquishFormula(currentOffset, sheetId, getters);
-          yield { position, compiled: result };
+          if (!result.areRangeShapesInLineWithNormalizedFormula()) {
+            // not optimum, but needed to recover badly squished sheets
+            const formulaString = result.toFormulaString(getters);
+            const newCompiledFormula = CompiledFormula.Compile(formulaString, sheetId, getters);
+            yield { position, compiled: newCompiledFormula };
+          } else {
+            yield { position, compiled: result };
+          }
         }
         break;
       }
@@ -254,7 +261,14 @@ export class Unsquisher {
         this.previousOffset.R = currentOffset.R ?? this.previousOffset.R;
         for (const position of targetPositions) {
           const result = this.unsquishFormula(this.previousOffset, sheetId, getters);
-          yield { position, compiled: result };
+          if (!result.areRangeShapesInLineWithNormalizedFormula()) {
+            // not optimum, but needed to recover badly squished sheets
+            const formulaString = result.toFormulaString(getters);
+            const newCompiledFormula = CompiledFormula.Compile(formulaString, sheetId, getters);
+            yield { position, compiled: newCompiledFormula };
+          } else {
+            yield { position, compiled: result };
+          }
         }
         break;
       }

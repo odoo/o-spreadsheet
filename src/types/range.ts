@@ -26,6 +26,7 @@ export interface BoundedRange {
 export interface RangeStringOptions {
   useBoundedReference?: boolean;
   useFixedReference?: boolean;
+  doNotSimplifyRange?: boolean;
 }
 
 export interface RangeData {
