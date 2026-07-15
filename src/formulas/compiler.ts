@@ -261,6 +261,23 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
       params.execute
     );
   }
+
+  /*
+   * If you create a formula with a range as parameter, then delete all the dimensions of this range except one by removing columns and rows,
+   * it is possible that the formula AST and normalized formula says this range is a |R| kind of parameter while it is actually a |C| kind of parameter.
+   * This is useful because when squishing formulas, the kind of parameter must be correct according to the actual shape of the range to be compacted
+   * */
+  areRangeShapesInLineWithNormalizedFormula() {
+    const matches = Array.from(this.normalizedFormula.matchAll(/\|C\||\|R\|/g));
+    return matches.every((value, index) => {
+      return (
+        (this.rangeDependencies[index].parts.length === 1 && value[0] === "|C|") ||
+        (this.rangeDependencies[index].parts.length === 2 && value[0] === "|R|") ||
+        this.rangeDependencies[index].invalidXc ||
+        this.rangeDependencies[index].invalidSheetName
+      );
+    });
+  }
 }
 
 /**

@@ -42,6 +42,8 @@ export class Squisher {
   // whether the base formula was already transformed. Formulas that have already been transformed must continue to be transformed
   private baseFormulaWasTransformed: boolean = false;
 
+  private rangeToStringOptions = { doNotSimplifyRange: true };
+
   constructor(getters: CoreGetters) {
     this.getters = getters;
   }
@@ -124,14 +126,14 @@ export class Squisher {
       this.baseFormula.normalizedFormula !== cell.compiledFormula.normalizedFormula
     ) {
       this.resetBaseTo(cell.compiledFormula);
-      return cell.compiledFormula.toFormulaString(this.getters);
+      return cell.compiledFormula.toFormulaString(this.getters, this.rangeToStringOptions);
     } else {
       if (
         !this.baseFormulaWasTransformed &&
         deepEquals(cell.compiledFormula.literalValues, this.baseFormula.literalValues) &&
         deepEquals(cell.compiledFormula.rangeDependencies, this.baseFormula.rangeDependencies)
       ) {
-        return cell.compiledFormula.toFormulaString(this.getters);
+        return cell.compiledFormula.toFormulaString(this.getters, this.rangeToStringOptions);
       }
       numbers = this.squishNumbers(cell.compiledFormula.literalValues.numbers);
       strings = this.squishStrings(cell.compiledFormula.literalValues.strings);
@@ -207,11 +209,17 @@ export class Squisher {
       previousReference.sheetId !== reference.sheetId ||
       previousReference.prefixSheet !== reference.prefixSheet ||
       previousReference.invalidSheetName !== reference.invalidSheetName ||
-      previousReference.invalidXc !== reference.invalidXc
+      previousReference.invalidXc !== reference.invalidXc ||
+      previousReference.parts.length !== reference.parts.length
     ) {
       // sheet changed or valid/invalid changed, cannot squish
       previousReferences[index] = deepCopy(reference);
-      return getRangeString(reference, forSheetId, this.getters.getSheetName);
+      return getRangeString(
+        reference,
+        forSheetId,
+        this.getters.getSheetName,
+        this.rangeToStringOptions
+      );
     }
     if (
       previousReference.unboundedZone.bottom === undefined ||
@@ -221,7 +229,12 @@ export class Squisher {
     ) {
       // unbounded ranges, cannot squish
       previousReferences[index] = deepCopy(reference);
-      return getRangeString(reference, forSheetId, this.getters.getSheetName);
+      return getRangeString(
+        reference,
+        forSheetId,
+        this.getters.getSheetName,
+        this.rangeToStringOptions
+      );
     }
     for (let i = 0; i < reference.parts.length; i++) {
       if (
@@ -230,7 +243,12 @@ export class Squisher {
       ) {
         // absolute/relative parts changed, cannot squish
         previousReferences[index] = deepCopy(reference);
-        return getRangeString(reference, forSheetId, this.getters.getSheetName);
+        return getRangeString(
+          reference,
+          forSheetId,
+          this.getters.getSheetName,
+          this.rangeToStringOptions
+        );
       }
     }
     const currentZone = reference.zone;
@@ -243,7 +261,12 @@ export class Squisher {
     ) {
       // ranges, cannot squish
       previousReferences[index] = deepCopy(reference);
-      return getRangeString(reference, forSheetId, this.getters.getSheetName);
+      return getRangeString(
+        reference,
+        forSheetId,
+        this.getters.getSheetName,
+        this.rangeToStringOptions
+      );
     }
 
     // 1D range squishing
@@ -257,7 +280,12 @@ export class Squisher {
       return `${diffRow > 0 ? "+" : "-"}R${Math.abs(diffRow)}`; // ex. +R5 or -R4
     }
 
-    return getRangeString(reference, forSheetId, this.getters.getSheetName);
+    return getRangeString(
+      reference,
+      forSheetId,
+      this.getters.getSheetName,
+      this.rangeToStringOptions
+    );
   }
 
   /**
