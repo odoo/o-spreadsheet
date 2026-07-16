@@ -1,7 +1,7 @@
-import { Model, Style, TableStyle, UID } from "../../src";
+import { EvaluationError, Model, Style, TableStyle, UID } from "../../src";
 import { PIVOT_TABLE_PRESETS } from "../../src/helpers/pivot_table_presets";
 import { getTables, hideColumns, hideRows, setCellContent } from "../test_helpers";
-import { getGridStyle } from "../test_helpers/helpers";
+import { getGridStyle, toCellPosition } from "../test_helpers/helpers";
 import { createModelWithPivot, updatePivot } from "../test_helpers/pivot_helpers";
 
 let model: Model;
@@ -367,5 +367,29 @@ describe("Pivot table style", () => {
   test("Pivot table style are not editable", () => {
     expect(model.getters.isTableStyleEditable("TestStyle")).toBe(false);
     expect(model.getters.isTableStyleEditable("PivotTableStyleLight1")).toBe(false);
+  });
+
+  test("Cell table style/border do not throw and recover when computing the pivot structure throws an EvaluationError", () => {
+    tableStyle.wholeTable = { style: wholePivotStyle };
+    updatePivot(model, "1", {
+      rows: [{ fieldName: "Salesperson" }],
+      style: { tableStyleId: "TestStyle" },
+    });
+
+    const pivot = model.getters.getPivot("1");
+    const position = toCellPosition(sheetId, "A25"); // top-left cell of the pivot table
+
+    const spy = jest.spyOn(pivot, "getCollapsedTableStructure").mockImplementation(() => {
+      throw new EvaluationError("Pivot data is not loaded yet");
+    });
+
+    expect(model.getters.getCellTableStyle(position)).toBeUndefined();
+    expect(() => model.getters.getCellTableBorder(position)).not.toThrow();
+
+    spy.mockRestore();
+
+    // once the transient error is gone, the getters recover on their own (no cache invalidation needed)
+    expect(model.getters.getCellTableStyle(position)).toMatchObject(wholePivotStyle);
+    expect(() => model.getters.getCellTableBorder(position)).not.toThrow();
   });
 });
