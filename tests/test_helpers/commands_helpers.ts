@@ -46,15 +46,15 @@ import { Model } from "../../src/model";
 import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
 import { ICON_SETS } from "../../src/components/icons/icons";
+import {
+  SplitToColumnsSeparatorValue,
+  SplitToColumnsStore,
+} from "../../src/components/side_panel/split_to_columns_panel/split_to_columns_store";
 import { colorToNumber } from "../../src/helpers/color";
 import { lettersToNumber, toCartesian } from "../../src/helpers/coordinates";
 import { SpreadsheetChart } from "../../src/helpers/figures/chart";
 import { UuidGenerator } from "../../src/helpers/uuid";
 import { isInside, toZone } from "../../src/helpers/zones";
-import {
-  SplitToColumnsSeparatorValue,
-  SplitToColumnsStore,
-} from "../../src/plugins/ui_feature/split_to_columns";
 import { chartDataSourceRegistry } from "../../src/registries/chart_data_source_registry";
 import { chartTypeRegistry } from "../../src/registries/chart_registry";
 import { ViewportsStore } from "../../src/stores/viewports_store";

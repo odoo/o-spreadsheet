@@ -1,7 +1,7 @@
 import { EditionMode, Model } from "../../src";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { SplitIntoColumnsPanel } from "../../src/components/side_panel/split_to_columns_panel/split_to_columns_panel";
-import { SplitToColumnsStore } from "../../src/plugins/ui_feature/split_to_columns";
+import { SplitToColumnsStore } from "../../src/components/side_panel/split_to_columns_panel/split_to_columns_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { getCellContent } from "../test_helpers";

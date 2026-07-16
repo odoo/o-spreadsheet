@@ -1,7 +1,7 @@
 import { CommandResult, DEFAULT_LOCALE, UID } from "../../src";
+import { SplitToColumnsStore } from "../../src/components/side_panel/split_to_columns_panel/split_to_columns_store";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
-import { SplitToColumnsStore } from "../../src/plugins/ui_feature/split_to_columns";
 import { Store } from "../../src/types/store_engine";
 import {
   merge,
