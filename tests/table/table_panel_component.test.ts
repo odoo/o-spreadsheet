@@ -13,11 +13,11 @@ import { getCellRawContent } from "../test_helpers/getters_helpers";
 import { mountComponentWithPortalTarget, nextTick, setGrid } from "../test_helpers/helpers";
 
 import { Model } from "../../src";
+import { AutofillStore } from "../../src/components/autofill/autofill_store";
+import { TableAutofillStore } from "../../src/components/autofill/table_autofill_store";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import { TableTerms } from "../../src/components/translations_terms";
 import { TABLE_PRESETS } from "../../src/helpers/table_presets";
-import { AutofillStore } from "../../src/plugins/ui_feature/autofill";
-import { TableAutofillStore } from "../../src/plugins/ui_feature/table_autofill";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { addPivot } from "../test_helpers/pivot_helpers";
 

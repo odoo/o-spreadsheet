@@ -7,6 +7,7 @@ import {
   Model,
   UIPlugin,
 } from "../../src";
+import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { range } from "../../src/helpers/misc";
@@ -14,7 +15,6 @@ import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { getDefaultCellHeight } from "../../src/helpers/text_helper";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { featurePluginRegistry } from "../../src/plugins/plugin_registries";
-import { AutofillStore } from "../../src/plugins/ui_feature/autofill";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { toChartDataSource } from "../test_helpers/chart_helpers";

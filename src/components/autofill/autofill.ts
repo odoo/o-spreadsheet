@@ -1,8 +1,6 @@
 import { proxy, useProps, xml } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
 import { Component } from "../../owl3_compatibility_layer";
-import { AutofillStore } from "../../plugins/ui_feature/autofill";
-import { TableAutofillStore } from "../../plugins/ui_feature/table_autofill";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { HeaderIndex } from "../../types/misc";
@@ -13,6 +11,8 @@ import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { withZoom } from "../helpers/zoom";
 import { types } from "../props_validation";
+import { AutofillStore } from "./autofill_store";
+import { TableAutofillStore } from "./table_autofill_store";
 
 // -----------------------------------------------------------------------------
 // Autofill

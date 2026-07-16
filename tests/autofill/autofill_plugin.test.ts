@@ -43,8 +43,8 @@ import {
 } from "../test_helpers/helpers";
 
 import { DIRECTION, Model } from "../../src";
+import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import { functionRegistry } from "../../src/functions/function_registry";
-import { AutofillStore } from "../../src/plugins/ui_feature/autofill";
 import { Store } from "../../src/types/store_engine";
 import { makeStoreWithModel } from "../test_helpers/stores";
 
