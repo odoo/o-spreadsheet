@@ -46,7 +46,6 @@ import { HistoryPlugin } from "./ui_feature/local_history";
 import { LockSheetPlugin } from "./ui_feature/lock_sheet";
 import { PivotPresencePlugin } from "./ui_feature/pivot_presence_plugin";
 import { SortPlugin } from "./ui_feature/sort";
-import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
 import { SubtotalEvaluationPlugin } from "./ui_feature/subtotal_evaluation";
 import { TableComputedStylePlugin } from "./ui_feature/table_computed_style";
 import { TableResizeUI } from "./ui_feature/table_resize_ui";
@@ -89,7 +88,6 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("format", FormatPlugin)
   .add("insert_pivot", InsertPivotPlugin)
   .add("pivot_presence", PivotPresencePlugin)
-  .add("split_to_columns", SplitToColumnsPlugin)
   .add("subtotal_evaluation", SubtotalEvaluationPlugin)
   .add("collaborative", CollaborativePlugin)
   .add("history", HistoryPlugin)

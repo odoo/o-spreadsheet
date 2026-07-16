@@ -1,12 +1,17 @@
-import { onMounted, proxy, useProps } from "@odoo/owl";
+import { onMounted, useProps } from "@odoo/owl";
 import { NEWLINE } from "../../../constants";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
+import {
+  SplitToColumnsSeparatorValue,
+  SplitToColumnsStore,
+} from "../../../plugins/ui_feature/split_to_columns";
 import { useStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
 import { CommandResult } from "../../../types/commands";
 import { ValueAndLabel } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { Store } from "../../../types/store_engine";
 import { types } from "../../props_validation";
 import { Select } from "../../select/select";
 import { SplitToColumnsTerms } from "../../translations_terms";
@@ -14,8 +19,6 @@ import { ValidationMessages } from "../../validation_messages/validation_message
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 import { ComposerFocusStore } from "./../../composer/composer_focus_store";
-
-type SeparatorValue = "auto" | "custom" | " " | "," | ";" | typeof NEWLINE;
 
 const SEPARATORS: ValueAndLabel[] = [
   { label: _t("Detect automatically"), value: "auto" },
@@ -26,12 +29,6 @@ const SEPARATORS: ValueAndLabel[] = [
   { label: _t("Line Break"), value: NEWLINE },
 ];
 
-interface State {
-  separatorValue: SeparatorValue;
-  customSeparator: string;
-  addNewColumns: boolean;
-}
-
 export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SplitIntoColumnsPanel";
   static components = { ValidationMessages, Section, Checkbox, Select };
@@ -40,10 +37,11 @@ export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
     onCloseSidePanel: types.function(),
   });
 
-  state = proxy<State>({ separatorValue: "auto", addNewColumns: false, customSeparator: "" });
+  store!: Store<SplitToColumnsStore>;
 
   setup() {
     const composerFocusStore = useStore(ComposerFocusStore);
+    this.store = useStore(SplitToColumnsStore);
     // The feature makes no sense if we are editing a cell, because then the selection isn't active
     // Stop the edition when the panel is mounted, and close the panel if the user start editing a cell
     useLayoutEffect(
@@ -60,27 +58,23 @@ export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
     });
   }
 
-  onSeparatorChange(value: SeparatorValue) {
-    this.state.separatorValue = value;
+  onSeparatorChange(value: SplitToColumnsSeparatorValue) {
+    this.store.setSeparatorValue(value);
   }
 
   updateCustomSeparator(ev: InputEvent) {
     if (!ev.target) {
       return;
     }
-    this.state.customSeparator = (ev.target as HTMLInputElement).value;
+    this.store.setCustomSeparator((ev.target as HTMLInputElement).value);
   }
 
   updateAddNewColumnsCheckbox(addNewColumns: boolean) {
-    this.state.addNewColumns = addNewColumns;
+    this.store.setShouldAddNewColumns(addNewColumns);
   }
 
   confirm() {
-    const result = interactiveSplitToColumns(
-      this.env,
-      this.separatorValue,
-      this.state.addNewColumns
-    );
+    const result = interactiveSplitToColumns(this.env);
 
     if (result.isSuccessful) {
       this.props.onCloseSidePanel();
@@ -88,11 +82,7 @@ export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
   }
 
   get errorMessages(): string[] {
-    const cancelledReasons = this.env.model.canDispatch("SPLIT_TEXT_INTO_COLUMNS", {
-      separator: this.separatorValue,
-      addNewColumns: this.state.addNewColumns,
-      force: true,
-    }).reasons;
+    const cancelledReasons = this.store.canSplitIntoColumns({ force: true }).reasons;
 
     const errors = new Set<string>();
 
@@ -110,11 +100,7 @@ export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
 
   get warningMessages(): string[] {
     const warnings: string[] = [];
-    const cancelledReasons = this.env.model.canDispatch("SPLIT_TEXT_INTO_COLUMNS", {
-      separator: this.separatorValue,
-      addNewColumns: this.state.addNewColumns,
-      force: false,
-    }).reasons;
+    const cancelledReasons = this.store.canSplitIntoColumns({ force: false }).reasons;
 
     if (cancelledReasons.includes(CommandResult.SplitWillOverwriteContent)) {
       warnings.push(SplitToColumnsTerms.Errors[CommandResult.SplitWillOverwriteContent]);
@@ -123,20 +109,11 @@ export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
     return warnings;
   }
 
-  get separatorValue(): string {
-    if (this.state.separatorValue === "custom") {
-      return this.state.customSeparator;
-    } else if (this.state.separatorValue === "auto") {
-      return this.env.model.getters.getAutomaticSeparator();
-    }
-    return this.state.separatorValue;
-  }
-
   get separators(): ValueAndLabel[] {
     return SEPARATORS;
   }
 
   get isConfirmDisabled(): boolean {
-    return !this.separatorValue || this.errorMessages.length > 0;
+    return !this.store.separatorString || this.errorMessages.length > 0;
   }
 }

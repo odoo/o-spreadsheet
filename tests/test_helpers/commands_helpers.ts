@@ -32,7 +32,6 @@ import {
   SheetViewDimensions,
   SortDirection,
   SortOptions,
-  SplitTextIntoColumnsCommand,
   Style,
   UID,
   UpdateCellCommand,
@@ -52,6 +51,10 @@ import { lettersToNumber, toCartesian } from "../../src/helpers/coordinates";
 import { SpreadsheetChart } from "../../src/helpers/figures/chart";
 import { UuidGenerator } from "../../src/helpers/uuid";
 import { isInside, toZone } from "../../src/helpers/zones";
+import {
+  SplitToColumnsSeparatorValue,
+  SplitToColumnsStore,
+} from "../../src/plugins/ui_feature/split_to_columns";
 import { chartDataSourceRegistry } from "../../src/registries/chart_data_source_registry";
 import { chartTypeRegistry } from "../../src/registries/chart_registry";
 import { ViewportsStore } from "../../src/stores/viewports_store";
@@ -69,6 +72,7 @@ import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart"
 import { AnchorOffset, CarouselItem, FigureSize } from "../../src/types/figure";
 import { Image } from "../../src/types/image";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { Store } from "../../src/types/store_engine";
 import { CoreTableType, CriterionFilter, TableConfig } from "../../src/types/table";
 import { toChartDataSource } from "./chart_helpers";
 
@@ -1533,17 +1537,21 @@ export function setFormat(
 
 export function splitTextToColumns(
   model: Model,
-  separator: string,
+  store: Store<SplitToColumnsStore>,
+  separator: SplitToColumnsSeparatorValue,
   target?: string,
-  options: Partial<Omit<SplitTextIntoColumnsCommand, "type" | "separator">> = {}
+  options?: { force?: boolean; addNewColumns?: boolean; customSeparator?: string }
 ) {
   if (target) {
     setSelection(model, [target]);
   }
+  store.setSeparatorValue(separator);
+  if (options?.customSeparator) {
+    store.setCustomSeparator(options.customSeparator);
+  }
+  store.setShouldAddNewColumns(options?.addNewColumns || false);
   return model.dispatch("SPLIT_TEXT_INTO_COLUMNS", {
-    separator,
-    force: options.force || false,
-    addNewColumns: options.addNewColumns || false,
+    force: options?.force || false,
   });
 }
 
