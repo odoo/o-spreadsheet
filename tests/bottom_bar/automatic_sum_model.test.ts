@@ -1,12 +1,15 @@
 import { Model } from "../../src";
+import { AutomaticSumStore } from "../../src/plugins/ui_feature/automatic_sum";
 import { merge, setCellContent } from "../test_helpers/commands_helpers";
 import { automaticSum, automaticSumMulti, getCellText } from "../test_helpers/getters_helpers";
+import { makeStoreWithModel } from "../test_helpers/stores";
 
 describe("automatic sum", () => {
   let model: Model;
 
   beforeEach(() => {
     model = new Model();
+    makeStoreWithModel(model, AutomaticSumStore);
   });
 
   test("vertical", () => {

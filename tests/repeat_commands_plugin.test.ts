@@ -16,6 +16,7 @@ import {
 } from "../src/types/commands";
 
 import { CoreCommand, Dimension, UID } from "../src";
+import { AutomaticSumStore } from "../src/plugins/ui_feature/automatic_sum";
 import {
   repeatCommandTransformRegistry,
   repeatCoreCommand,
@@ -52,6 +53,7 @@ import {
   getStyle,
 } from "./test_helpers/getters_helpers";
 import { makeTestComposerStore, target, toRangesData } from "./test_helpers/helpers";
+import { makeStoreWithModel } from "./test_helpers/stores";
 
 let model: Model;
 let sheetId: UID;
@@ -547,6 +549,7 @@ describe("Repeat local commands", () => {
   });
 
   test("Repeat sum selection", () => {
+    makeStoreWithModel(model, AutomaticSumStore);
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
 
