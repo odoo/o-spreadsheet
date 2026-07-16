@@ -52,7 +52,6 @@ import {
   GridClickModifiers,
   HeaderIndex,
   Pixel,
-  PixelOffset,
 } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -935,9 +934,5 @@ export class Grid extends Component<SpreadsheetChildEnv> {
 
   get displaySelectionHandler() {
     return this.env.isMobile() && this.composerFocusStore.activeComposer.editionMode === "inactive";
-  }
-
-  onScroll(offset: PixelOffset) {
-    this.viewStore.setViewportOffset(offset);
   }
 }

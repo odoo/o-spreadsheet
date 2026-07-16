@@ -11,6 +11,7 @@ import {
   Zone,
 } from "..";
 import { FOOTER_HEIGHT, getDefaultSheetViewSize, SCROLLBAR_WIDTH } from "../constants";
+import { deepEquals } from "../helpers/misc";
 import { ViewportCollection } from "../helpers/viewport_collection";
 import { findCellInNewZone, isEqual } from "../helpers/zones";
 import { Command, invalidateEvaluationCommands } from "../types/commands";
@@ -24,6 +25,12 @@ import {
 } from "../types/rendering";
 import { Get } from "../types/store_engine";
 import { SpreadsheetStore } from "./spreadsheet_store";
+
+type getHeaderDimensionsCallback = (
+  sheetId: UID,
+  dimension: "COL" | "ROW",
+  index: number
+) => HeaderDimensions;
 
 /**
  * Viewport store.
@@ -39,11 +46,11 @@ export class ViewportsStore extends SpreadsheetStore {
     "shiftViewportDown",
     "shiftViewportUp",
     "scrollToCell",
-    "setGetHeaderDimensionsCallback",
-    "setZoneToDisplay",
+    "setViewportArgs",
   ] as const;
 
   private getHeaderDimensionsCallback = this.getters.getHeaderDimensions;
+  private getFooterSizeCallback = this.getFooterSize.bind(this);
   private zoneToDisplay: Zone | undefined = undefined;
 
   viewports: ViewportCollection = new ViewportCollection({
@@ -52,7 +59,7 @@ export class ViewportsStore extends SpreadsheetStore {
     sheetViewHeight: getDefaultSheetViewSize(),
     sheetViewWidth: getDefaultSheetViewSize(),
     zoomLevel: 1,
-    getFooterSize: this.getFooterSize.bind(this),
+    getFooterSize: this.getFooterSizeCallback,
   });
   private sheetsWithDirtyViewports: Set<UID> = new Set();
   private shouldRepositionViewports: boolean = false;
@@ -351,16 +358,28 @@ export class ViewportsStore extends SpreadsheetStore {
     return this.getters.isReadonly() ? 0 : FOOTER_HEIGHT;
   }
 
-  setGetHeaderDimensionsCallback(
-    callback: (sheetId: UID, dimension: "COL" | "ROW", index: number) => HeaderDimensions
-  ) {
-    this.getHeaderDimensionsCallback = callback;
-    this.rebuildViewports();
-  }
+  setViewportArgs(args: {
+    getHeaderDimensions?: getHeaderDimensionsCallback;
+    getFooterSize?: () => Pixel;
+    zoneToDisplay?: Zone;
+  }) {
+    let hasChanged = false;
+    if (args.getHeaderDimensions) {
+      hasChanged = true;
+      this.getHeaderDimensionsCallback = args.getHeaderDimensions;
+    }
+    if (args.getFooterSize) {
+      hasChanged = true;
+      this.getFooterSizeCallback = args.getFooterSize;
+    }
+    if (args.zoneToDisplay && !deepEquals(args.zoneToDisplay, this.zoneToDisplay)) {
+      hasChanged = true;
+      this.zoneToDisplay = args.zoneToDisplay;
+    }
 
-  setZoneToDisplay(zone: Zone) {
-    this.zoneToDisplay = zone;
-    this.rebuildViewports();
+    if (hasChanged) {
+      this.rebuildViewports();
+    }
   }
 
   private rebuildViewports() {
@@ -370,7 +389,7 @@ export class ViewportsStore extends SpreadsheetStore {
       sheetViewHeight: this.viewports.getSheetViewDimension().height,
       sheetViewWidth: this.viewports.getSheetViewDimension().width,
       zoomLevel: this.viewports.getZoomLevel(),
-      getFooterSize: this.getFooterSize.bind(this),
+      getFooterSize: this.getFooterSizeCallback,
       zoneToDisplay: this.zoneToDisplay,
     });
   }

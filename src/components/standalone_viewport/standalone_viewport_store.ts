@@ -123,7 +123,7 @@ export class StandaloneViewportStore extends SpreadsheetStore {
   }
 
   getRenderingContext(): Omit<GridRenderingContext, "ctx" | "thinLineWidth"> {
-    const { sheetId, zone } = this.range;
+    const { sheetId } = this.range;
 
     // const viewports = new ViewportCollection({
     //   getters: this.viewportGetters,

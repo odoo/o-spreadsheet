@@ -28,8 +28,8 @@
           onClosePopover.bind="this.onClosePopover"
         />
       </div>
-      <VerticalScrollBar onScroll.bind="this.onScroll"/>
-      <HorizontalScrollBar onScroll.bind="this.onScroll"/>
+      <VerticalScrollBar/>
+      <HorizontalScrollBar/>
       <div class="o-scrollbar corner"/>
     </div>
   </t>

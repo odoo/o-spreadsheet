@@ -156,6 +156,7 @@ export class GridOverlay extends Component<SpreadsheetRenderingEnv> {
       .optional(() => () => {}),
     onGridResized: types.function().optional(() => () => {}),
     gridOverlayDimensions: types.string(),
+    hasFooter: types.boolean().optional(() => true),
   });
   private gridOverlayRef: Signal<HTMLElement | null> = signal(null);
   private cellPopovers!: Store<CellPopoverStore>;
