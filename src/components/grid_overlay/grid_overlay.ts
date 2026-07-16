@@ -7,9 +7,8 @@ import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { GridClickModifiers, HeaderIndex, Position } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetRenderingEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
-import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { cssPropertiesToCss } from "../helpers/css";
@@ -23,7 +22,7 @@ import { HoveredTableStore } from "../tables/hovered_table_store";
 import { HoveredIconStore } from "./hovered_icon_store";
 
 function useCellHovered(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetRenderingEnv,
   gridRef: Signal<HTMLElement | null>
 ): Partial<Position> {
   const delayedHoveredCell = useStore(DelayedHoveredCellStore);
@@ -42,9 +41,8 @@ function useCellHovered(
     if (x === undefined || y === undefined) {
       return { col: -1, row: -1 };
     }
-    const sheetId = env.model.getters.getActiveSheetId();
-    const col = viewStore.viewports.getColIndex(sheetId, x);
-    const row = viewStore.viewports.getRowIndex(sheetId, y);
+    const col = viewStore.viewports.getColIndex(env.sheetId, x);
+    const row = viewStore.viewports.getRowIndex(env.sheetId, y);
     return { col, row };
   }
 
@@ -133,10 +131,9 @@ function useCellHovered(
   return hoveredPosition;
 }
 
-export class GridOverlay extends Component<SpreadsheetChildEnv> {
+export class GridOverlay extends Component<SpreadsheetRenderingEnv> {
   static template = "o-spreadsheet-GridOverlay";
   static components = {
-    FiguresContainer,
     GridAddRowsFooter,
   };
 
@@ -159,6 +156,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
       .optional(() => () => {}),
     onGridResized: types.function().optional(() => () => {}),
     gridOverlayDimensions: types.string(),
+    hasFooter: types.boolean().optional(() => true),
   });
   private gridOverlayRef: Signal<HTMLElement | null> = signal(null);
   private cellPopovers!: Store<CellPopoverStore>;
@@ -280,20 +278,25 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
   private getCartesianCoordinates(
     zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>
   ): [HeaderIndex, HeaderIndex] {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const colIndex = this.viewStore.viewports.getColIndex(sheetId, zoomedMouseEvent.offsetX);
-    const rowIndex = this.viewStore.viewports.getRowIndex(sheetId, zoomedMouseEvent.offsetY);
+    const colIndex = this.viewStore.viewports.getColIndex(
+      this.env.sheetId,
+      zoomedMouseEvent.offsetX
+    );
+    const rowIndex = this.viewStore.viewports.getRowIndex(
+      this.env.sheetId,
+      zoomedMouseEvent.offsetY
+    );
     return [colIndex, rowIndex];
   }
 
   private getInteractiveIconAtEvent(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>) {
     const gridOverLayRect = getElBoundingRect(this.gridOverlayRef());
-    const gridOffset = this.viewStore.gridOffset;
+    const gridOffset = this.viewStore.viewports.getGridOffset();
     const x = zoomedMouseEvent.clientX - gridOverLayRect.x + gridOffset.x;
     const y = zoomedMouseEvent.clientY - gridOverLayRect.y + gridOffset.y;
 
     const [col, row] = this.getCartesianCoordinates(zoomedMouseEvent);
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.env.sheetId;
 
     let position = { col, row, sheetId };
     const merge = this.env.model.getters.getMerge(position);
@@ -305,7 +308,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
     const icon = icons.find((icon) => {
       const merge = this.env.model.getters.getMerge(position);
       const zone = merge || positionToZone(position);
-      const cellRect = this.viewStore.viewports.getRect(sheetId, zone);
+      const cellRect = this.viewStore.viewports.getRect(this.env.sheetId, zone);
 
       return isPointInsideRect(x, y, this.env.model.getters.getCellIconRect(icon, cellRect));
     });

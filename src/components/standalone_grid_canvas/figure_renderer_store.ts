@@ -109,8 +109,7 @@ export class FigureRendererStore extends DisposableStore {
     } else if (title.text) {
       ctx.save();
 
-      ctx.fillStyle =
-        chartDefinition?.background || this.getters.getSpreadsheetTheme().backgroundColor;
+      ctx.fillStyle = chartDefinition?.background || renderingCtx.theme.backgroundColor;
       ctx.fillRect(x, y, figure.width, headerSize);
 
       const font = computeTextFont(chartStyleToCellStyle(title));

@@ -62,6 +62,7 @@ import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag"
 import { ComposerSelection } from "../composer/composer/abstract_composer_store";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
+import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
@@ -135,6 +136,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     HorizontalScrollBar,
     TableResizer,
     Selection,
+    FiguresContainer,
   };
 
   protected props = props({
@@ -178,6 +180,12 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     useStore(ArrayFormulaHighlight);
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
+    const model = this.env.model;
+    useChildSubEnv({
+      get sheetId() {
+        return model.getters.getActiveSheetId();
+      },
+    });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
@@ -185,11 +193,19 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     this.props.exposeFocus(() => this.focusDefaultElement());
     useGridDrawing({
       canvasRef: this.canvasRef,
-      renderingCtx: () => ({
-        dpr: window.devicePixelRatio || 1,
-        viewports: this.viewStore.viewports,
-        ...this.env.model.getters.getSelectionState(),
-      }),
+      renderingCtx: () => {
+        const selectionState = this.env.model.getters.getSelectionState();
+        const theme = this.env.model.getters.getSpreadsheetTheme();
+        const sheet = this.env.model.getters.getSheet(selectionState.sheetId);
+        return {
+          dpr: window.devicePixelRatio || 1,
+          viewports: this.viewStore.viewports,
+          ...selectionState,
+          hideGridLines: !this.env.model.getters.getGridLinesVisibility(selectionState.sheetId),
+          theme,
+          backgroundColor: sheet.backgroundColor || theme.backgroundColor,
+        };
+      },
     });
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);

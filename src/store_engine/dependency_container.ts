@@ -12,6 +12,17 @@ export class DependencyContainer extends EventBus<StoreUpdateEvent> {
   private dependencies: Map<StoreConstructor, any> = new Map();
   private factory = new StoreFactory(this.get.bind(this));
 
+  private parent?: DependencyContainer;
+
+  /** If the dependency container has a parent, those are the store that will be owned by this container instead of its parent */
+  private ownStores: Set<StoreConstructor>;
+
+  constructor(parent?: DependencyContainer, extendedStores: StoreConstructor[] = []) {
+    super();
+    this.parent = parent;
+    this.ownStores = new Set(extendedStores);
+  }
+
   /**
    * Injects a store instance in the dependency container.
    * Useful for injecting an external store that is not created by the container.
@@ -28,6 +39,9 @@ export class DependencyContainer extends EventBus<StoreUpdateEvent> {
    * Get an instance of a store.
    */
   get<T>(Store: StoreConstructor<T>): T {
+    if (this.parent && !this.ownStores.has(Store)) {
+      return this.parent.get(Store);
+    }
     if (!this.dependencies.has(Store)) {
       this.dependencies.set(Store, this.instantiate(Store));
     }
@@ -48,6 +62,13 @@ export class DependencyContainer extends EventBus<StoreUpdateEvent> {
         instance.dispose();
       }
     }
+  }
+
+  trigger(type: StoreUpdateEvent["type"], payload?: Omit<StoreUpdateEvent, "type">) {
+    if (this.parent) {
+      this.parent.trigger(type, payload);
+    }
+    super.trigger(type, payload);
   }
 }
 

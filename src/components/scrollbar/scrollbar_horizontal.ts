@@ -2,12 +2,12 @@ import { props, xml } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetRenderingEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { types } from "../props_validation";
 import { ScrollBar } from "./scrollbar";
 
-export class HorizontalScrollBar extends Component<SpreadsheetChildEnv> {
+export class HorizontalScrollBar extends Component<SpreadsheetRenderingEnv> {
   static components = { ScrollBar };
   private viewStore!: Store<ViewportsStore>;
   static template = xml/*xml*/ `
@@ -29,23 +29,21 @@ export class HorizontalScrollBar extends Component<SpreadsheetChildEnv> {
   });
 
   get offset() {
-    return this.viewStore.activeSheetScrollInfo.scrollX;
+    return this.viewStore.viewports.getSheetScrollInfo(this.env.sheetId).scrollX;
   }
 
   get width() {
-    return this.viewStore.mainViewportRect.width;
+    return this.viewStore.viewports.getMainViewportRect(this.env.sheetId).width;
   }
 
   get isDisplayed() {
-    const { xRatio } = this.viewStore.viewports.getFrozenSheetViewRatio(
-      this.env.model.getters.getActiveSheetId()
-    );
+    const { xRatio } = this.viewStore.viewports.getFrozenSheetViewRatio(this.env.sheetId);
     return xRatio < 1;
   }
 
   get position() {
-    const { x } = this.viewStore.mainViewportRect;
-    const scrollbarWidth = this.viewStore.scrollBarWidth;
+    const { x } = this.viewStore.viewports.getMainViewportRect(this.env.sheetId);
+    const scrollbarWidth = this.viewStore.viewports.getScrollBarWidth();
     return {
       left: `${this.props.leftOffset + x}px`,
       bottom: "0px",
@@ -55,7 +53,10 @@ export class HorizontalScrollBar extends Component<SpreadsheetChildEnv> {
   }
 
   onScroll(offset) {
-    const { scrollY } = this.viewStore.activeSheetScrollInfo;
-    this.viewStore.setViewportOffset({ offsetX: offset, offsetY: scrollY });
+    const { scrollY } = this.viewStore.viewports.getSheetScrollInfo(this.env.sheetId);
+    this.viewStore.setViewportOffset({
+      offsetX: offset,
+      offsetY: scrollY, // offsetY is the same
+    });
   }
 }

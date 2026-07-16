@@ -171,15 +171,18 @@ export class SpreadsheetPrintStore extends SpreadsheetStore {
 
     const sheetViewWidth = lastColEnd - firstColStart;
     const sheetViewHeight = lastRowEnd - firstRowStart;
-    const viewports = new ViewportCollection(
-      this.getters,
-      { [sheetId]: { xSplit: 0, ySplit: 0 } },
+    const viewports = new ViewportCollection({
+      getters: this.getters,
+      paneDivision: { [sheetId]: { xSplit: 0, ySplit: 0 } },
       sheetViewWidth,
       sheetViewHeight,
-      zoom
-    );
+      zoomLevel: zoom,
+      getFooterSize: () => 0,
+    });
     viewports.setSheetViewOffset(sheetId, firstColStart, firstRowStart);
 
+    const theme = this.getters.getSpreadsheetTheme();
+    const sheet = this.getters.getSheet(sheetId);
     return {
       sheetId,
       viewports,
@@ -189,6 +192,8 @@ export class SpreadsheetPrintStore extends SpreadsheetStore {
       activeCols: new Set(),
       activeRows: new Set(),
       activePosition: undefined,
+      theme,
+      backgroundColor: sheet.backgroundColor || theme.backgroundColor,
     };
   }
 

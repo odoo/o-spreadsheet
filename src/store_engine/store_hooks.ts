@@ -23,6 +23,27 @@ export function useStoreProvider() {
   return container;
 }
 
+/**
+ * This hook should be used at the root of your app to provide the store container.
+ */
+export function useChildStoreProvider(extendedStores: StoreConstructor[]) {
+  const env = useEnv();
+  const parentContainer = env.__spreadsheet_stores__;
+  if (!(parentContainer instanceof DependencyContainer)) {
+    throw new Error("No parent store provider found.");
+  }
+  const container = new DependencyContainer(parentContainer, extendedStores);
+  useSubEnv({
+    __spreadsheet_stores__: container,
+    getStore: <T extends StoreConstructor>(Store: T) => {
+      const store = container.get(Store);
+      return proxifyStoreMutation(store, () => container.trigger("store-updated"));
+    },
+  });
+  onWillUnmount(() => container.dispose());
+  return container;
+}
+
 type Env = ReturnType<typeof useEnv>;
 
 /**

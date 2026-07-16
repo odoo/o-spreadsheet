@@ -1,0 +1,38 @@
+<templates>
+  <t t-name="o-spreadsheet-StandaloneViewport">
+    <div
+      class="o-standalone-viewport h-100 w-100 overflow-hidden d-flex"
+      t-on-wheel="this.onMouseWheel">
+      <div
+        class="o-standalone-viewport-content position-relative flex-grow-1 overflow-hidden"
+        t-ref="this.containerRef">
+        <GridOverlay
+          onCellClicked.bind="this.onCellClicked"
+          onGridResized="() => {}"
+          hasFooter="false"
+          gridOverlayDimensions="this.gridOverlayDimensions">
+          <div
+            t-foreach="this.colResizers"
+            t-as="colResizer"
+            t-key="colResizer_index"
+            class="o-col-resizer h-100"
+            t-att-class="{ 'dragging': this.dndState.col === colResizer.col }"
+            t-att-style="colResizer.style"
+            t-on-pointerdown.stop="(ev) => this.onResizerPointerDown(ev, colResizer)"
+            t-on-dblclick.stop="(ev) => this.onResizerDoubleClick(ev, colResizer)">
+            <div class="o-col-resizer-handle position-absolute h-100"/>
+          </div>
+
+          <!-- <ClickableCellsOverlay/> -->
+        </GridOverlay>
+        <canvas class="" t-ref="this.canvasRef"/>
+      </div>
+      <div
+        class="position-relative"
+        t-if="this.hasVerticalScrollBar"
+        t-att-style="this.scrollBarContainerStyle">
+        <VerticalScrollBar onScroll.bind="this.onScroll" hasFooter="false"/>
+      </div>
+    </div>
+  </t>
+</templates>
