@@ -69,8 +69,12 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
       width: this.containerWidth,
     });
     // @ts-ignore ADRM TODO
-    this.viewStore.setGetHeaderDimensionsCallback(this.store.headerDimensionsCallback);
-    this.viewStore.setZoneToDisplay(this.props.range.zone);
+    const getHeaderDimensionsCallback = this.store.headerDimensionsCallback;
+    this.viewStore.setViewportArgs({
+      getHeaderDimensions: getHeaderDimensionsCallback,
+      zoneToDisplay: this.props.range.zone,
+      getFooterSize: () => 0,
+    });
     this.rendererStore = useLocalStore(RendererStore, ["Background", "Chart"]);
     useLayoutEffect(
       () => {
@@ -85,7 +89,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     useLayoutEffect(
       () => {
         this.store.setRange(this.props.range);
-        this.viewStore.setZoneToDisplay(this.props.range.zone);
+        this.viewStore.setViewportArgs({ zoneToDisplay: this.props.range.zone });
       },
       () => [this.props.range.sheetId, this.env.model.getters.getRangeString(this.props.range)]
     );

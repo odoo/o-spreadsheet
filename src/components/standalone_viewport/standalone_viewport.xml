@@ -9,6 +9,7 @@
         <GridOverlay
           onCellClicked.bind="this.onCellClicked"
           onGridResized="() => {}"
+          hasFooter="false"
           gridOverlayDimensions="this.gridOverlayDimensions">
           <div
             t-foreach="this.colResizers"

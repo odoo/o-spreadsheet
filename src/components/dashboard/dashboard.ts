@@ -3,7 +3,7 @@ import { Component, useChildSubEnv } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
-import { Pixel, PixelOffset } from "../../types/misc";
+import { Pixel } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
@@ -174,9 +174,5 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
           "background-color": sheet.backgroundColor,
         })
       : "";
-  }
-
-  onScroll(offset: PixelOffset) {
-    this.viewStore.setViewportOffset(offset);
   }
 }

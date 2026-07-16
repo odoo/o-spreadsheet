@@ -63,8 +63,8 @@
         t-key="table.id">
         <TableResizer table="table"/>
       </t>
-      <VerticalScrollBar topOffset="this.HEADER_HEIGHT" onScroll.bind="this.onScroll"/>
-      <HorizontalScrollBar leftOffset="this.HEADER_WIDTH" onScroll.bind="this.onScroll"/>
+      <VerticalScrollBar topOffset="this.HEADER_HEIGHT"/>
+      <HorizontalScrollBar leftOffset="this.HEADER_WIDTH"/>
       <div class="o-scrollbar corner border-top border-start"/>
     </div>
   </t>

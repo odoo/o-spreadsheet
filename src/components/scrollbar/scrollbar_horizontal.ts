@@ -2,7 +2,6 @@ import { useProps, xml } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
-import { PixelOffset } from "../../types/misc";
 import { SpreadsheetRenderingEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { types } from "../props_validation";
@@ -27,8 +26,6 @@ export class HorizontalScrollBar extends Component<SpreadsheetRenderingEnv> {
 
   protected props = useProps({
     leftOffset: types.number().optional(0),
-    // FIXME CAROUSELS: this props should be gone when the viewports are transformed into stores
-    onScroll: types.function<(offset: PixelOffset) => void>(),
   });
 
   get offset() {
@@ -59,7 +56,7 @@ export class HorizontalScrollBar extends Component<SpreadsheetRenderingEnv> {
 
   onScroll(offset) {
     const { scrollY } = this.viewStore.viewports.getSheetScrollInfo(this.env.sheetId);
-    this.props.onScroll({
+    this.viewStore.setViewportOffset({
       offsetX: offset,
       offsetY: scrollY, // offsetY is the same
     });

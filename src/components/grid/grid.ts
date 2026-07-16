@@ -54,7 +54,6 @@ import {
   GridClickModifiers,
   HeaderIndex,
   Pixel,
-  PixelOffset,
 } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -947,9 +946,5 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   get clientsToDisplay(): Required<Client>[] {
     const sheetId = this.env.model.getters.getActiveSheetId();
     return this.env.model.getters.getClientsToDisplay(sheetId);
-  }
-
-  onScroll(offset: PixelOffset) {
-    this.viewStore.setViewportOffset(offset);
   }
 }
