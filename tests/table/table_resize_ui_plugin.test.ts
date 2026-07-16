@@ -1,7 +1,7 @@
 import { CommandResult, Model, UID } from "../../src";
+import { AutofillStore } from "../../src/components/autofill/autofill_store";
+import { TableAutofillStore } from "../../src/components/autofill/table_autofill_store";
 import { toZone } from "../../src/helpers/zones";
-import { AutofillStore } from "../../src/plugins/ui_feature/autofill";
-import { TableAutofillStore } from "../../src/plugins/ui_feature/table_autofill";
 import {
   createDynamicTable,
   createTable,

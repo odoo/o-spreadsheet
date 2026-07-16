@@ -1,10 +1,10 @@
 import { useProps, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
+import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import { types } from "../../src/components/props_validation";
 import { DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { Component } from "../../src/owl3_compatibility_layer";
-import { AutofillStore } from "../../src/plugins/ui_feature/autofill";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { setCellContent, setSelection, setViewportOffset } from "../test_helpers/commands_helpers";

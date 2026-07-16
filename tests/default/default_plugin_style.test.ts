@@ -1,9 +1,9 @@
 import { ClipboardPasteTarget, Model, Style, UID, Zone } from "../../src";
+import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import { getClipboardDataPositions } from "../../src/helpers/clipboard/clipboard_helpers";
 import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { deepEquals } from "../../src/helpers/misc";
 import { toZone } from "../../src/helpers/zones";
-import { AutofillStore } from "../../src/plugins/ui_feature/autofill";
 import { clipboardHandlersRegistries } from "../../src/registries/clipboardHandlersRegistries";
 import {
   addColumns,
