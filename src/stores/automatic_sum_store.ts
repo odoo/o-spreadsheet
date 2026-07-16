@@ -1,10 +1,10 @@
-import { isDateTimeFormat } from "../../helpers/format/format";
-import { groupConsecutive, largeMax, largeMin, range } from "../../helpers/misc";
-import { isInside, isOneDimensional, positions, union, zoneToDimension } from "../../helpers/zones";
-import { SpreadsheetStore } from "../../stores/spreadsheet_store";
-import { CellValueType, EvaluatedCell } from "../../types/cells";
-import { Command } from "../../types/commands";
-import { Dimension, HeaderIndex, Position, Sheet, UID, Zone } from "../../types/misc";
+import { isDateTimeFormat } from "../helpers/format/format";
+import { groupConsecutive, largeMax, largeMin, range } from "../helpers/misc";
+import { isInside, isOneDimensional, positions, union, zoneToDimension } from "../helpers/zones";
+import { CellValueType, EvaluatedCell } from "../types/cells";
+import { Command } from "../types/commands";
+import { Dimension, HeaderIndex, Position, Sheet, UID, Zone } from "../types/misc";
+import { SpreadsheetStore } from "./spreadsheet_store";
 
 interface AutomaticSum {
   position: Position;

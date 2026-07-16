@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { AutomaticSumStore } from "../../src/plugins/ui_feature/automatic_sum";
+import { AutomaticSumStore } from "../../src/stores/automatic_sum_store";
 import { merge, setCellContent } from "../test_helpers/commands_helpers";
 import { automaticSum, automaticSumMulti, getCellText } from "../test_helpers/getters_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
