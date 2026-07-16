@@ -32,7 +32,6 @@ import { FingerprintPlugin } from "./ui_core_views/fingerprint";
 import { FormulaTrackerPlugin } from "./ui_core_views/formula_tracker";
 import { HeaderSizeUIPlugin } from "./ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "./ui_core_views/pivot_ui";
-import { AutomaticSumPlugin } from "./ui_feature/automatic_sum";
 import { CellComputedStylePlugin } from "./ui_feature/cell_computed_style";
 import { CheckboxTogglePlugin } from "./ui_feature/checkbox_toggle";
 import { CollaborativePlugin } from "./ui_feature/collaborative";
@@ -89,7 +88,6 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("ui_sheet", SheetUIPlugin)
   .add("ui_options", UIOptionsPlugin)
   .add("sort", SortPlugin)
-  .add("automatic_sum", AutomaticSumPlugin)
   .add("format", FormatPlugin)
   .add("insert_pivot", InsertPivotPlugin)
   .add("pivot_presence", PivotPresencePlugin)

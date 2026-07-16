@@ -28,6 +28,7 @@ import {
   useExternalListener,
   useLayoutEffect,
 } from "../../owl3_compatibility_layer";
+import { AutomaticSumStore } from "../../plugins/ui_feature/automatic_sum";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {
@@ -35,7 +36,7 @@ import {
   unGroupHeadersMenuRegistry,
 } from "../../registries/menus/header_group_registry";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
-import { useStore } from "../../store_engine/store_hooks";
+import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
 import { ClientFocusStore } from "../../stores/client_focus_store";
@@ -160,6 +161,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   onMouseWheel!: (ev: WheelEvent) => void;
   hoveredCell!: Store<DelayedHoveredCellStore>;
   sidePanel!: Store<SidePanelStore>;
+  private automaticSumStore!: Store<AutomaticSumStore>;
 
   setup() {
     this.highlightStore = useStore(HighlightStore);
@@ -176,6 +178,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     this.paintFormatStore = useStore(PaintFormatStore);
     this.clientFocusStore = useStore(ClientFocusStore);
     useStore(ArrayFormulaHighlight);
+    this.automaticSumStore = useLocalStore(AutomaticSumStore);
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
@@ -305,8 +308,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
       const sheetId = this.env.model.getters.getActiveSheetId();
 
       const mainSelectedZone = this.env.model.getters.getSelectedZone();
-      const { anchor } = this.env.model.getters.getSelection();
-      const sums = this.env.model.getters.getAutomaticSums(sheetId, mainSelectedZone, anchor.cell);
+      const sums = this.automaticSumStore.automaticSumsOnMainSelectedZone;
       if (
         this.env.model.getters.isSingleCellOrMerge(sheetId, mainSelectedZone) ||
         (this.env.model.getters.isEmpty(sheetId, mainSelectedZone) && sums.length <= 1)

@@ -1,17 +1,17 @@
 import { isDateTimeFormat } from "../../helpers/format/format";
 import { groupConsecutive, largeMax, largeMin, range } from "../../helpers/misc";
 import { isInside, isOneDimensional, positions, union, zoneToDimension } from "../../helpers/zones";
+import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { CellValueType, EvaluatedCell } from "../../types/cells";
 import { Command } from "../../types/commands";
 import { Dimension, HeaderIndex, Position, Sheet, UID, Zone } from "../../types/misc";
-import { UIPlugin } from "../ui_plugin";
 
 interface AutomaticSum {
   position: Position;
   zone: Zone;
 }
 
-export class AutomaticSumPlugin extends UIPlugin {
+export class AutomaticSumStore extends SpreadsheetStore {
   static getters = ["getAutomaticSums"] as const;
 
   handle(cmd: Command) {
@@ -31,6 +31,14 @@ export class AutomaticSumPlugin extends UIPlugin {
     return this.shouldFindData(sheetId, zone)
       ? this.sumAdjacentData(sheetId, zone, anchor)
       : this.sumData(sheetId, zone);
+  }
+
+  get automaticSumsOnMainSelectedZone(): AutomaticSum[] {
+    const sheetId = this.getters.getActiveSheetId();
+
+    const mainSelectedZone = this.getters.getSelectedZone();
+    const { anchor } = this.getters.getSelection();
+    return this.getAutomaticSums(sheetId, mainSelectedZone, anchor.cell);
   }
 
   // ---------------------------------------------------------------------------
@@ -271,7 +279,7 @@ export class AutomaticSumPlugin extends UIPlugin {
   private dispatchCellUpdates(sheetId: UID, sums: AutomaticSum[]): void {
     for (const sum of sums) {
       const { col, row } = sum.position;
-      this.dispatch("UPDATE_CELL", {
+      this.model.dispatch("UPDATE_CELL", {
         sheetId,
         col,
         row,
