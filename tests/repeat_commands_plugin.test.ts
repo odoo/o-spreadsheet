@@ -16,12 +16,12 @@ import {
 } from "../src/types/commands";
 
 import { CoreCommand, Dimension, UID } from "../src";
-import { AutomaticSumStore } from "../src/plugins/ui_feature/automatic_sum";
 import {
   repeatCommandTransformRegistry,
   repeatCoreCommand,
   repeatLocalCommandTransformRegistry,
 } from "../src/registries/repeat_transform_registry";
+import { AutomaticSumStore } from "../src/stores/automatic_sum_store";
 import {
   activateSheet,
   addEqualCf,

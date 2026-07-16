@@ -28,7 +28,6 @@ import {
   useExternalListener,
   useLayoutEffect,
 } from "../../owl3_compatibility_layer";
-import { AutomaticSumStore } from "../../plugins/ui_feature/automatic_sum";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {
@@ -39,6 +38,7 @@ import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
+import { AutomaticSumStore } from "../../stores/automatic_sum_store";
 import { ClientFocusStore } from "../../stores/client_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
 import { ViewportsStore } from "../../stores/viewports_store";
