@@ -4,6 +4,7 @@ import { types } from "../../src/components/props_validation";
 import { DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
 import { Component } from "../../src/owl3_compatibility_layer";
+import { AutofillStore } from "../../src/plugins/ui_feature/autofill";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { setCellContent, setSelection, setViewportOffset } from "../test_helpers/commands_helpers";
@@ -208,6 +209,7 @@ describe("Autofill component", () => {
   });
 
   test("Can display tooltip with a custom component", async () => {
+    const autofillStore = env.getStore(AutofillStore);
     const autofill = fixture.querySelector(".o-autofill");
     class CustomTooltip extends Component {
       static template = xml/* xml */ `
@@ -218,11 +220,11 @@ describe("Autofill component", () => {
       });
     }
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    model.getters.getAutofillTooltip = jest.fn(() => {
-      return {
+    Object.assign(autofillStore, {
+      tooltip: {
         props: { content: "blabla" },
         component: CustomTooltip,
-      };
+      },
     });
     setCellContent(model, "A1", "test");
     await nextTick();

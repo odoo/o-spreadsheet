@@ -32,7 +32,6 @@ import { FingerprintPlugin } from "./ui_core_views/fingerprint";
 import { FormulaTrackerPlugin } from "./ui_core_views/formula_tracker";
 import { HeaderSizeUIPlugin } from "./ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "./ui_core_views/pivot_ui";
-import { AutofillPlugin } from "./ui_feature/autofill";
 import { AutomaticSumPlugin } from "./ui_feature/automatic_sum";
 import { CellComputedStylePlugin } from "./ui_feature/cell_computed_style";
 import { CheckboxTogglePlugin } from "./ui_feature/checkbox_toggle";
@@ -52,7 +51,6 @@ import { PivotPresencePlugin } from "./ui_feature/pivot_presence_plugin";
 import { SortPlugin } from "./ui_feature/sort";
 import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
 import { SubtotalEvaluationPlugin } from "./ui_feature/subtotal_evaluation";
-import { TableAutofillPlugin } from "./ui_feature/table_autofill";
 import { TableComputedStylePlugin } from "./ui_feature/table_computed_style";
 import { TableResizeUI } from "./ui_feature/table_resize_ui";
 import { UIOptionsPlugin } from "./ui_feature/ui_options";
@@ -90,7 +88,6 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
 export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("ui_sheet", SheetUIPlugin)
   .add("ui_options", UIOptionsPlugin)
-  .add("autofill", AutofillPlugin)
   .add("sort", SortPlugin)
   .add("automatic_sum", AutomaticSumPlugin)
   .add("format", FormatPlugin)
@@ -100,7 +97,6 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("subtotal_evaluation", SubtotalEvaluationPlugin)
   .add("collaborative", CollaborativePlugin)
   .add("history", HistoryPlugin)
-  .add("table_autofill", TableAutofillPlugin)
   .add("table_ui_resize", TableResizeUI)
   .add("datavalidation_insert", DataValidationInsertionPlugin)
   .add("checkbox_toggle", CheckboxTogglePlugin)

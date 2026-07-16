@@ -1,6 +1,9 @@
 import { Model, UID } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
+import { AutofillStore } from "../../src/plugins/ui_feature/autofill";
+import { TableAutofillStore } from "../../src/plugins/ui_feature/table_autofill";
+import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import {
   copy,
   createTable,
@@ -12,17 +15,20 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellRawContent } from "../test_helpers/getters_helpers";
-import { makeStore } from "../test_helpers/stores";
+import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
 
 const TABLE_CONFIG_NO_HEADERS = { ...DEFAULT_TABLE_CONFIG, numberOfHeaders: 0, hasFilters: false };
 
 let model: Model;
+let container: DependencyContainer;
 let sheetId: UID;
 
 describe("Table formula autofill ", () => {
   beforeEach(() => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
+    ({ container } = makeStoreWithModel(model, AutofillStore));
+    container.get(TableAutofillStore);
   });
 
   test("Can autofill a formula on a table column", () => {
@@ -95,7 +101,9 @@ describe("Table autofill with composer", () => {
   }
 
   beforeEach(() => {
-    ({ model, store: composerStore } = makeStore(CellComposerStore));
+    ({ model, store: composerStore, container } = makeStore(CellComposerStore));
+    container.get(AutofillStore);
+    container.get(TableAutofillStore);
   });
 
   test("Editing a cell autofill the table column", () => {
@@ -134,6 +142,8 @@ describe("Table autofill with composer", () => {
 describe("Table autofill with copy/paste", () => {
   beforeEach(() => {
     model = new Model();
+    const { container } = makeStoreWithModel(model, AutofillStore);
+    container.get(TableAutofillStore);
   });
 
   test("Copy paste a formula autofill the table column", () => {

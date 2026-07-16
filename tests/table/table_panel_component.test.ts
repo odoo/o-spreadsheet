@@ -16,6 +16,8 @@ import { Model } from "../../src";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import { TableTerms } from "../../src/components/translations_terms";
 import { TABLE_PRESETS } from "../../src/helpers/table_presets";
+import { AutofillStore } from "../../src/plugins/ui_feature/autofill";
+import { TableAutofillStore } from "../../src/plugins/ui_feature/table_autofill";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { addPivot } from "../test_helpers/pivot_helpers";
 
@@ -38,6 +40,8 @@ describe("Table side panel", () => {
     sheetId = model.getters.getActiveSheetId();
     createTable(model, "A1:C3");
     ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
+    env.getStore(AutofillStore);
+    env.getStore(TableAutofillStore);
     env.openSidePanel("TableSidePanel", {});
     await nextTick();
   });

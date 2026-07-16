@@ -1,9 +1,11 @@
 import { CoreCommand, Model, RemoteRevisionMessage } from "../../src";
 import { CommandSquisher, SquishedCoreCommand } from "../../src/collaborative/command_squisher";
 import { toZone } from "../../src/helpers/zones";
+import { AutofillStore } from "../../src/plugins/ui_feature/autofill";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { addRows, autofill, deleteRows, getCellContent, undo } from "../test_helpers";
 import { setCellContent } from "../test_helpers/commands_helpers";
+import { makeStoreWithModel } from "../test_helpers/stores";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 describe("Collaborative session", () => {
@@ -13,6 +15,7 @@ describe("Collaborative session", () => {
       { sheets: [{ id: "sheet1", name: "Sheet 1", cells: { A1: "Hello" } }] },
       { transportService: transport, client: { id: "alice", name: "Alice" } }
     );
+    makeStoreWithModel(model, AutofillStore);
     const spy = jest.spyOn(transport, "sendMessage");
 
     autofill(model, "A1", "A5");
@@ -528,6 +531,7 @@ describe("Collaborative session - clientId preservation", () => {
     const { network, alice, bob } = setupCollaborativeEnv({
       sheets: [{ id: "sheet1", cells: { A1: { content: "hello" } } }],
     });
+    makeStoreWithModel(bob, AutofillStore);
 
     // Alice adds 4 rows sequentially — all clients now have 5 rows (rows 0–4).
     addRows(alice, "after", 0, 4);
@@ -572,6 +576,7 @@ describe("Collaborative session - clientId preservation", () => {
     const { network, alice, bob } = setupCollaborativeEnv({
       sheets: [{ id: "sheet1", cells: { A1: { content: "1" }, A2: { content: "2" } } }],
     });
+    makeStoreWithModel(bob, AutofillStore);
 
     const spy = jest.spyOn(network, "sendMessage");
 

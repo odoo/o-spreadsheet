@@ -1,5 +1,7 @@
 import { CommandResult, Model, UID } from "../../src";
 import { toZone } from "../../src/helpers/zones";
+import { AutofillStore } from "../../src/plugins/ui_feature/autofill";
+import { TableAutofillStore } from "../../src/plugins/ui_feature/table_autofill";
 import {
   createDynamicTable,
   createTable,
@@ -7,6 +9,7 @@ import {
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import { getActivePosition, getCellRawContent } from "../test_helpers/getters_helpers";
+import { makeStoreWithModel } from "../test_helpers/stores";
 
 let model: Model;
 let sheetId: UID;
@@ -15,6 +18,8 @@ describe("Table resize", () => {
   beforeEach(() => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
+    const { container } = makeStoreWithModel(model, AutofillStore);
+    container.get(TableAutofillStore);
   });
 
   describe("dispatch result", () => {
