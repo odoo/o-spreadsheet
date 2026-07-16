@@ -11,7 +11,7 @@ export function makeStore<T extends StoreConstructor>(Store: T, ...args: StorePa
   return makeStoreWithModel(new Model(), Store, ...args);
 }
 
-export function makeGlobalStoreWithModel(model: Model) {
+export function makeGlobalStoresWithModel(model: Model) {
   const container = new DependencyContainer();
   registerCleanup(() => {
     container.dispose();
@@ -34,7 +34,7 @@ export function makeStoreWithModel<T extends StoreConstructor>(
   Store: T,
   ...args: StoreParams<T>
 ) {
-  const { container } = makeGlobalStoreWithModel(model);
+  const { container } = makeGlobalStoresWithModel(model);
   // Use container.get instead of container.instantiate where we can, otherwise the store won't be in the dependency
   // container, and calls to container.get will create a new instance of the store.
   // If we have args, that means the store is a local store and shouldn't be in the dependency container

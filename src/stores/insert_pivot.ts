@@ -1,30 +1,30 @@
-import { PIVOT_INSERT_TABLE_STYLE_ID, PIVOT_STATIC_TABLE_CONFIG } from "../../constants";
-import { getUniqueText, range, sanitizeSheetName } from "../../helpers/misc";
-import { createPivotFormula } from "../../helpers/pivot/pivot_helpers";
-import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
-import { pivotTableStyleIdToTableStyleId } from "../../helpers/pivot_table_presets";
-import { getZoneArea, positionToZone } from "../../helpers/zones";
-import { _t } from "../../translation";
-import { Command, CommandResult } from "../../types/commands";
-import { CellPosition, HeaderIndex, UID } from "../../types/misc";
-import { PivotTableData } from "../../types/pivot";
-import { UIPlugin } from "../ui_plugin";
+import { PIVOT_INSERT_TABLE_STYLE_ID, PIVOT_STATIC_TABLE_CONFIG } from "../constants";
+import { getUniqueText, range, sanitizeSheetName } from "../helpers/misc";
+import { createPivotFormula } from "../helpers/pivot/pivot_helpers";
+import { SpreadsheetPivotTable } from "../helpers/pivot/table_spreadsheet_pivot";
+import { pivotTableStyleIdToTableStyleId } from "../helpers/pivot_table_presets";
+import { getZoneArea, positionToZone } from "../helpers/zones";
+import { _t } from "../translation";
+import {
+  Command,
+  CommandResult,
+  DispatchResult,
+  DuplicatePivotInNewSheetCommand,
+} from "../types/commands";
+import { CellPosition, HeaderIndex, UID } from "../types/misc";
+import { PivotTableData } from "../types/pivot";
+import { SpreadsheetStore } from "./spreadsheet_store";
 
-export class InsertPivotPlugin extends UIPlugin {
-  static getters = [] as const;
+export class InsertPivotStore extends SpreadsheetStore {
+  storeGetters = ["canDuplicatePivot"] as const;
 
-  allowDispatch(cmd: Command) {
-    switch (cmd.type) {
-      case "DUPLICATE_PIVOT_IN_NEW_SHEET":
-        if (!this.getters.isExistingPivot(cmd.pivotId)) {
-          return CommandResult.PivotIdNotFound;
-        }
-        if (!this.getters.getPivot(cmd.pivotId).isValid()) {
-          return CommandResult.PivotInError;
-        }
-        break;
+  canDuplicatePivot(cmd: DuplicatePivotInNewSheetCommand): DispatchResult {
+    if (!this.getters.isExistingPivot(cmd.pivotId)) {
+      return new DispatchResult([CommandResult.PivotIdNotFound]);
+    } else if (!this.getters.getPivot(cmd.pivotId).isValid()) {
+      return new DispatchResult([CommandResult.PivotInError]);
     }
-    return CommandResult.Success;
+    return new DispatchResult([CommandResult.Success]);
   }
 
   handle(cmd: Command) {
@@ -33,7 +33,9 @@ export class InsertPivotPlugin extends UIPlugin {
         this.insertNewPivot(cmd.pivotId, cmd.newSheetId);
         break;
       case "DUPLICATE_PIVOT_IN_NEW_SHEET":
-        this.duplicatePivotInNewSheet(cmd.pivotId, cmd.newPivotId, cmd.newSheetId);
+        if (this.canDuplicatePivot(cmd).isSuccessful) {
+          this.duplicatePivotInNewSheet(cmd.pivotId, cmd.newPivotId, cmd.newSheetId);
+        }
         break;
       case "INSERT_PIVOT_WITH_TABLE":
         this.insertPivotWithTable(
@@ -52,10 +54,10 @@ export class InsertPivotPlugin extends UIPlugin {
 
   private insertNewPivot(pivotId: UID, sheetId: UID) {
     if (getZoneArea(this.getters.getSelectedZone()) === 1) {
-      this.selection.selectTableAroundSelection();
+      this.model.selection.selectTableAroundSelection();
     }
     const currentSheetId = this.getters.getActiveSheetId();
-    this.dispatch("ADD_PIVOT", {
+    this.model.dispatch("ADD_PIVOT", {
       pivotId,
       pivot: {
         dataSet: {
@@ -75,12 +77,12 @@ export class InsertPivotPlugin extends UIPlugin {
     const position =
       this.getters.getSheetIds().findIndex((sheetId) => sheetId === currentSheetId) + 1;
     const formulaId = this.getters.getPivotFormulaId(pivotId);
-    this.dispatch("CREATE_SHEET", {
+    this.model.dispatch("CREATE_SHEET", {
       sheetId,
       name: _t("Pivot #%(formulaId)s", { formulaId }),
       position,
     });
-    this.dispatch("ACTIVATE_SHEET", {
+    this.model.dispatch("ACTIVATE_SHEET", {
       sheetIdFrom: currentSheetId,
       sheetIdTo: sheetId,
     });
@@ -96,7 +98,7 @@ export class InsertPivotPlugin extends UIPlugin {
   }
 
   private duplicatePivotInNewSheet(pivotId: UID, newPivotId: UID, newSheetId: UID) {
-    this.dispatch("DUPLICATE_PIVOT", {
+    this.model.dispatch("DUPLICATE_PIVOT", {
       pivotId,
       newPivotId,
       duplicatedPivotName: _t("%s (copy)", this.getters.getPivotCoreDefinition(pivotId).name),
@@ -105,7 +107,7 @@ export class InsertPivotPlugin extends UIPlugin {
     const position = this.getters.getSheetIds().indexOf(activeSheetId) + 1;
     const formulaId = this.getters.getPivotFormulaId(newPivotId);
     const newPivotName = this.getters.getPivotName(newPivotId);
-    const result = this.dispatch("CREATE_SHEET", {
+    const result = this.model.dispatch("CREATE_SHEET", {
       sheetId: newSheetId,
       name: this.getPivotDuplicateSheetName(
         _t("%(newPivotName)s (Pivot #%(formulaId)s)", {
@@ -116,7 +118,7 @@ export class InsertPivotPlugin extends UIPlugin {
       position,
     });
     if (result.isSuccessful) {
-      this.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: newSheetId });
+      this.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: newSheetId });
       const pivot = this.getters.getPivot(pivotId);
       this.insertPivotWithTable(
         newSheetId,
@@ -135,7 +137,7 @@ export class InsertPivotPlugin extends UIPlugin {
     return getUniqueText(sanitizedName, names);
   }
 
-  insertPivotWithTable(
+  private insertPivotWithTable(
     sheetId: UID,
     col: HeaderIndex,
     row: HeaderIndex,
@@ -149,14 +151,14 @@ export class InsertPivotPlugin extends UIPlugin {
     this.resizeSheet(sheetId, col, row, pivotTable);
 
     if (mode === "dynamic") {
-      this.dispatch("UPDATE_CELL", {
+      this.model.dispatch("UPDATE_CELL", {
         sheetId,
         col,
         row,
         content: `=PIVOT(${this.getters.getPivotFormulaId(pivotId)})`,
       });
     } else {
-      this.dispatch("INSERT_PIVOT", {
+      this.model.dispatch("INSERT_PIVOT", {
         sheetId,
         col,
         row,
@@ -169,7 +171,7 @@ export class InsertPivotPlugin extends UIPlugin {
         top: row,
         bottom: row + numberOfHeaders + pivotTable.rows.length,
       };
-      this.dispatch("CREATE_TABLE", {
+      this.model.dispatch("CREATE_TABLE", {
         tableType: "static",
         sheetId,
         ranges: [this.getters.getRangeDataFromZone(sheetId, zone)],
@@ -188,7 +190,7 @@ export class InsertPivotPlugin extends UIPlugin {
     const numberCols = this.getters.getNumberCols(sheetId);
     const deltaCol = numberCols - col;
     if (deltaCol < colLimit) {
-      this.dispatch("ADD_COLUMNS_ROWS", {
+      this.model.dispatch("ADD_COLUMNS_ROWS", {
         dimension: "COL",
         base: numberCols - 1,
         sheetId: sheetId,
@@ -201,7 +203,7 @@ export class InsertPivotPlugin extends UIPlugin {
     const numberRows = this.getters.getNumberRows(sheetId);
     const deltaRow = numberRows - row;
     if (deltaRow < rowLimit) {
-      this.dispatch("ADD_COLUMNS_ROWS", {
+      this.model.dispatch("ADD_COLUMNS_ROWS", {
         dimension: "ROW",
         base: numberRows - 1,
         sheetId: sheetId,
@@ -212,7 +214,7 @@ export class InsertPivotPlugin extends UIPlugin {
     }
   }
 
-  splitPivotFormula(sheetId: UID, col: HeaderIndex, row: HeaderIndex, pivotId: UID) {
+  private splitPivotFormula(sheetId: UID, col: HeaderIndex, row: HeaderIndex, pivotId: UID) {
     const position: CellPosition = { sheetId, col, row };
     const spreadZone = this.getters.getSpreadZone(position);
     const table = this.getters.getTable(position);
@@ -241,7 +243,7 @@ export class InsertPivotPlugin extends UIPlugin {
         const pivotCell = pivotCells[i][j];
         if (pivotCell) {
           const position = { sheetId, col: spreadZone.left + i, row: spreadZone.top + j };
-          this.dispatch("UPDATE_CELL", {
+          this.model.dispatch("UPDATE_CELL", {
             ...position,
             content: createPivotFormula(formulaId, pivotCell),
           });
@@ -250,7 +252,7 @@ export class InsertPivotPlugin extends UIPlugin {
     }
 
     if (this.getters.getCoreTable(position)) {
-      this.dispatch("REMOVE_TABLE", { sheetId, target: [positionToZone(position)] });
+      this.model.dispatch("REMOVE_TABLE", { sheetId, target: [positionToZone(position)] });
     }
 
     if (table?.isPivotTable) {
@@ -260,7 +262,7 @@ export class InsertPivotPlugin extends UIPlugin {
         top: spreadZone.top,
         bottom: spreadZone.top + numberOfRows - 1,
       });
-      this.dispatch("CREATE_TABLE", {
+      this.model.dispatch("CREATE_TABLE", {
         tableType: "static",
         sheetId,
         ranges: [rangeData],

@@ -2,9 +2,12 @@ import { useProps } from "@odoo/owl";
 import { ActionSpec } from "../../../../actions/action";
 import { UuidGenerator } from "../../../../helpers/uuid";
 import { Component } from "../../../../owl3_compatibility_layer";
+import { useStore } from "../../../../store_engine/store_hooks";
+import { InsertPivotStore } from "../../../../stores/insert_pivot";
 import { _t } from "../../../../translation";
 import { CommandResult } from "../../../../types/commands";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { Store } from "../../../../types/store_engine";
 import { types } from "../../../props_validation";
 import { TextInput } from "../../../text_input/text_input";
 import { CogWheelMenu } from "../../components/cog_wheel_menu/cog_wheel_menu";
@@ -13,10 +16,16 @@ import { Section } from "../../components/section/section";
 export class PivotTitleSection extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotTitleSection";
   static components = { CogWheelMenu, Section, TextInput };
+  insertPivot!: Store<InsertPivotStore>;
+
   protected props = useProps({
     pivotId: types.UID(),
     flipAxis: types.function(),
   });
+
+  setup() {
+    this.insertPivot = useStore(InsertPivotStore);
+  }
 
   get cogWheelMenuItems(): ActionSpec[] {
     return [
@@ -52,13 +61,18 @@ export class PivotTitleSection extends Component<SpreadsheetChildEnv> {
   duplicatePivot() {
     const newPivotId = UuidGenerator.smallUuid();
     const newSheetId = UuidGenerator.smallUuid();
-    const result = this.env.model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
+    const command = {
       pivotId: this.props.pivotId,
       newPivotId,
       newSheetId,
+    };
+    const result = this.insertPivot.canDuplicatePivot({
+      type: "DUPLICATE_PIVOT_IN_NEW_SHEET",
+      ...command,
     });
     let text: string;
     if (result.isSuccessful) {
+      this.env.model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", command);
       text = _t("Pivot duplicated.");
     } else if (result.isCancelledBecause(CommandResult.PivotInError)) {
       text = _t("Cannot duplicate a pivot in error.");

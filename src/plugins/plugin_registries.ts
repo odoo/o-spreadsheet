@@ -41,7 +41,6 @@ import { FigureUIPlugin } from "./ui_feature/figure";
 import { FormatPlugin } from "./ui_feature/format";
 import { GeoFeaturePlugin } from "./ui_feature/geo_features";
 import { HeaderVisibilityUIPlugin } from "./ui_feature/header_visibility_ui";
-import { InsertPivotPlugin } from "./ui_feature/insert_pivot";
 import { HistoryPlugin } from "./ui_feature/local_history";
 import { LockSheetPlugin } from "./ui_feature/lock_sheet";
 import { PivotPresencePlugin } from "./ui_feature/pivot_presence_plugin";
@@ -87,7 +86,6 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("ui_options", UIOptionsPlugin)
   .add("sort", SortPlugin)
   .add("format", FormatPlugin)
-  .add("insert_pivot", InsertPivotPlugin)
   .add("pivot_presence", PivotPresencePlugin)
   .add("split_to_columns", SplitToColumnsPlugin)
   .add("subtotal_evaluation", SubtotalEvaluationPlugin)
