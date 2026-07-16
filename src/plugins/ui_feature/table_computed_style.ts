@@ -1,6 +1,8 @@
+import { isEvaluationError } from "../../functions/helpers";
 import { lazy } from "../../helpers/misc";
 import { getComputedTableStyle } from "../../helpers/table_helpers";
 import { Command, CommandTypes, invalidateEvaluationCommands } from "../../types/commands";
+import { EvaluationError } from "../../types/errors";
 import { Border, CellPosition, Lazy, Style, TableId, UID } from "../../types/misc";
 import { Table, TableConfig, TableMetaData } from "../../types/table";
 import { UIPlugin } from "../ui_plugin";
@@ -60,7 +62,14 @@ export class TableComputedStylePlugin extends UIPlugin {
       return undefined;
     }
 
-    return this.tableStyles[position.sheetId][table.id]().styles[position.col]?.[position.row];
+    try {
+      return this.tableStyles[position.sheetId][table.id]().styles[position.col]?.[position.row];
+    } catch (e) {
+      if (isEvaluationError(e) || e instanceof EvaluationError) {
+        return undefined;
+      }
+      throw e;
+    }
   }
 
   getCellTableBorder(position: CellPosition): Border | undefined {
@@ -68,7 +77,14 @@ export class TableComputedStylePlugin extends UIPlugin {
     if (!table) {
       return undefined;
     }
-    return this.tableStyles[position.sheetId][table.id]().borders[position.col]?.[position.row];
+    try {
+      return this.tableStyles[position.sheetId][table.id]().borders[position.col]?.[position.row];
+    } catch (e) {
+      if (isEvaluationError(e) || e instanceof EvaluationError) {
+        return undefined;
+      }
+      throw e;
+    }
   }
 
   private computeTableStyle(sheetId: UID, table: Table): Lazy<ComputedTableStyle> {
