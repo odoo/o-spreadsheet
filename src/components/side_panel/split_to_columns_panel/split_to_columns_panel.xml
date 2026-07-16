@@ -5,22 +5,22 @@
         <Select
           class="'mb-3'"
           values="this.separators"
-          selectedValue="this.state.separatorValue"
+          selectedValue="this.store.separatorValue"
           onChange.bind="this.onSeparatorChange"
         />
 
         <input
           class="o-input mb-3"
           type="text"
-          t-if="this.state.separatorValue === 'custom'"
-          t-att-value="this.state.customSeparator"
+          t-if="this.store.separatorValue === 'custom'"
+          t-att-value="this.store.customSeparator"
           t-on-input="this.updateCustomSeparator"
           placeholder="Add any characters or symbol"
         />
 
         <t t-set="addColumnsLabel">Add new columns to avoid overwriting cells</t>
         <Checkbox
-          value="this.state.addNewColumns"
+          value="this.store.addNewColumns"
           label="addColumnsLabel"
           onChange.bind="this.updateAddNewColumnsCheckbox"
         />

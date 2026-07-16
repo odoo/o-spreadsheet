@@ -1,34 +1,59 @@
 import { NEWLINE } from "../../constants";
 import { canonicalizeNumberContent } from "../../helpers/locale";
 import { range } from "../../helpers/misc";
+import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { CellValueType } from "../../types/cells";
-import { Command, CommandResult, SplitTextIntoColumnsCommand } from "../../types/commands";
+import { Command, CommandResult, DispatchResult } from "../../types/commands";
 import { CellPosition, Zone } from "../../types/misc";
-import { UIPlugin } from "../ui_plugin";
 
-export class SplitToColumnsPlugin extends UIPlugin {
-  static getters = ["getAutomaticSeparator"] as const;
+export type SplitToColumnsSeparatorValue = "auto" | "custom" | " " | "," | ";" | typeof NEWLINE;
 
-  allowDispatch(cmd: Command) {
-    switch (cmd.type) {
-      case "SPLIT_TEXT_INTO_COLUMNS":
-        return this.chainValidations(
-          this.batchValidations(this.checkSingleColSelected, this.checkNonEmptySelector),
-          this.batchValidations(this.checkNotOverwritingContent, this.checkSeparatorInSelection)
-        )(cmd);
+export class SplitToColumnsStore extends SpreadsheetStore {
+  mutators = ["setSeparatorValue", "setCustomSeparator", "setShouldAddNewColumns"] as const;
+  storeGetters = ["canSplitIntoColumns"] as const;
+
+  separatorValue: SplitToColumnsSeparatorValue = "auto";
+  customSeparator: string = "";
+  addNewColumns: boolean = false;
+
+  setSeparatorValue(separatorValue: SplitToColumnsSeparatorValue) {
+    this.separatorValue = separatorValue;
+  }
+
+  setCustomSeparator(customSeparator: string) {
+    this.customSeparator = customSeparator;
+  }
+
+  setShouldAddNewColumns(addNewColumns: boolean) {
+    this.addNewColumns = addNewColumns;
+  }
+
+  canSplitIntoColumns(args: { force: boolean }): DispatchResult {
+    const result = new DispatchResult([
+      this.checkSingleColSelected(),
+      this.checkNonEmptySelector(),
+    ]);
+    if (!result.isSuccessful) {
+      return result;
     }
-    return CommandResult.Success;
+    return new DispatchResult([
+      this.checkNotOverwritingContent(args.force),
+      this.checkSeparatorInSelection(),
+    ]);
   }
 
   handle(cmd: Command) {
     switch (cmd.type) {
       case "SPLIT_TEXT_INTO_COLUMNS":
-        this.splitIntoColumns(cmd);
+        if (!this.canSplitIntoColumns({ force: !!cmd.force }).isSuccessful) {
+          return;
+        }
+        this.splitIntoColumns();
         break;
     }
   }
 
-  getAutomaticSeparator(): string {
+  get automaticSeparatorOfSelection(): string {
     const cells = this.getters.getSelectedCells();
     for (const cell of cells) {
       if (cell.value && cell.type === CellValueType.text) {
@@ -51,11 +76,11 @@ export class SplitToColumnsPlugin extends UIPlugin {
     return;
   }
 
-  private splitIntoColumns({ separator, addNewColumns }: SplitTextIntoColumnsCommand) {
+  private splitIntoColumns() {
     const selection = this.getters.getSelectedZone();
     const sheetId = this.getters.getActiveSheetId();
-    const splitted = this.getSplittedCols(selection, separator);
-    if (addNewColumns) {
+    const splitted = this.getSplittedCols(selection, this.separatorString);
+    if (this.addNewColumns) {
       this.addColsToAvoidCollisions(selection, splitted);
     }
     this.removeMergesInSplitZone(selection, splitted);
@@ -77,7 +102,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
       }
 
       for (const [index, content] of splittedContent.entries()) {
-        this.dispatch("UPDATE_CELL", {
+        this.model.dispatch("UPDATE_CELL", {
           sheetId,
           col: col + index,
           row,
@@ -133,7 +158,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
     const colsInSplitZone = Math.max(...splittedCols.map((s) => s.length));
     const splitZone = { ...selection, right: selection.left + colsInSplitZone - 1 };
     const merges = this.getters.getMergesInZone(sheetId, splitZone);
-    this.dispatch("REMOVE_MERGE", { sheetId, target: merges });
+    this.model.dispatch("REMOVE_MERGE", { sheetId, target: merges });
   }
 
   private addColsToAvoidCollisions(selection: Zone, splittedCols: string[][]) {
@@ -149,7 +174,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
     }
 
     if (colsToAdd) {
-      this.dispatch("ADD_COLUMNS_ROWS", {
+      this.model.dispatch("ADD_COLUMNS_ROWS", {
         dimension: "COL",
         base: selection.left,
         sheetId,
@@ -179,7 +204,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
     const maxColumnsToSpread = Math.max(...splittedCols.map((s) => s.length - 1));
     const maxColIndex = this.getters.getNumberCols(sheetId) - 1;
     if (selection.left + maxColumnsToSpread > maxColIndex) {
-      this.dispatch("ADD_COLUMNS_ROWS", {
+      this.model.dispatch("ADD_COLUMNS_ROWS", {
         dimension: "COL",
         base: maxColIndex,
         sheetId,
@@ -197,32 +222,41 @@ export class SplitToColumnsPlugin extends UIPlugin {
     return CommandResult.Success;
   }
 
-  private checkNonEmptySelector(cmd: SplitTextIntoColumnsCommand): CommandResult {
-    if (cmd.separator === "") {
+  private checkNonEmptySelector(): CommandResult {
+    if (this.separatorString === "") {
       return CommandResult.EmptySplitSeparator;
     }
     return CommandResult.Success;
   }
 
-  private checkNotOverwritingContent(cmd: SplitTextIntoColumnsCommand): CommandResult {
-    if (cmd.addNewColumns || cmd.force) {
+  private checkNotOverwritingContent(force: boolean): CommandResult {
+    if (this.addNewColumns || force) {
       return CommandResult.Success;
     }
     const selection = this.getters.getSelectedZones()[0];
-    const splitted = this.getSplittedCols(selection, cmd.separator);
+    const splitted = this.getSplittedCols(selection, this.separatorString);
     if (this.willSplittedColsOverwriteContent(selection, splitted)) {
       return CommandResult.SplitWillOverwriteContent;
     }
     return CommandResult.Success;
   }
 
-  private checkSeparatorInSelection({ separator }: SplitTextIntoColumnsCommand): CommandResult {
+  private checkSeparatorInSelection(): CommandResult {
     const cells = this.getters.getSelectedCells();
     for (const cell of cells) {
-      if (cell.formattedValue.includes(separator)) {
+      if (cell.formattedValue.includes(this.separatorString)) {
         return CommandResult.Success;
       }
     }
     return CommandResult.NoSplitSeparatorInSelection;
+  }
+
+  get separatorString(): string {
+    if (this.separatorValue === "custom") {
+      return this.customSeparator;
+    } else if (this.separatorValue === "auto") {
+      return this.automaticSeparatorOfSelection;
+    }
+    return this.separatorValue;
   }
 }

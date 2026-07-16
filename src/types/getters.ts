@@ -21,7 +21,6 @@ import { HistoryPlugin } from "../plugins/ui_feature/local_history";
 import { LockSheetPlugin } from "../plugins/ui_feature/lock_sheet";
 import { PivotPresencePlugin } from "../plugins/ui_feature/pivot_presence_plugin";
 import { SortPlugin } from "../plugins/ui_feature/sort";
-import { SplitToColumnsPlugin } from "../plugins/ui_feature/split_to_columns";
 import { SubtotalEvaluationPlugin } from "../plugins/ui_feature/subtotal_evaluation";
 import { TableComputedStylePlugin } from "../plugins/ui_feature/table_computed_style";
 import { UIOptionsPlugin } from "../plugins/ui_feature/ui_options";
@@ -57,7 +56,6 @@ export type RenderingGetters = {
   PluginGetters<typeof SheetUIPlugin> &
   PluginGetters<typeof FilterEvaluationPlugin> &
   PluginGetters<typeof FingerprintPlugin> &
-  PluginGetters<typeof SplitToColumnsPlugin> &
   PluginGetters<typeof SubtotalEvaluationPlugin> &
   PluginGetters<typeof HeaderSizeUIPlugin> &
   PluginGetters<typeof EvaluationDataValidationPlugin> &

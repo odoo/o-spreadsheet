@@ -1143,8 +1143,6 @@ export interface ActivatePreviousSheetCommand {
 
 export interface SplitTextIntoColumnsCommand {
   type: "SPLIT_TEXT_INTO_COLUMNS";
-  separator: string;
-  addNewColumns: boolean;
   force?: boolean;
 }
 

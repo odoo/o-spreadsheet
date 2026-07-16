@@ -1,7 +1,10 @@
 import { EditionMode, Model } from "../../src";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { SplitIntoColumnsPanel } from "../../src/components/side_panel/split_to_columns_panel/split_to_columns_panel";
+import { SplitToColumnsStore } from "../../src/plugins/ui_feature/split_to_columns";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { Store } from "../../src/types/store_engine";
+import { getCellContent } from "../test_helpers";
 import { setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import {
   click,
@@ -10,28 +13,23 @@ import {
   setInputValueAndTrigger,
   simulateClick,
 } from "../test_helpers/dom_helper";
-import {
-  mountComponentWithPortalTarget,
-  nextTick,
-  setGrid,
-  spyModelDispatch,
-} from "../test_helpers/helpers";
+import { mountComponentWithPortalTarget, nextTick, setGrid } from "../test_helpers/helpers";
 
 describe("split to columns sidePanel component", () => {
   let model: Model;
   let fixture: HTMLElement;
-  let dispatch: jest.SpyInstance;
   let confirmButton: HTMLButtonElement;
   let checkBox: HTMLInputElement;
   let onCloseSidePanel: jest.Mock;
   let env: SpreadsheetChildEnv;
+  let splitToColumnsStore: Store<SplitToColumnsStore>;
 
   beforeEach(async () => {
     onCloseSidePanel = jest.fn();
     ({ model, fixture, env } = await mountComponentWithPortalTarget(SplitIntoColumnsPanel, {
       props: { onCloseSidePanel: () => onCloseSidePanel() },
     }));
-    dispatch = spyModelDispatch(model);
+    splitToColumnsStore = env.getStore(SplitToColumnsStore);
     confirmButton = fixture.querySelector(".o-split-to-cols-panel button")!;
     checkBox = fixture.querySelector('.o-split-to-cols-panel input[type="checkbox"]')!;
   });
@@ -51,23 +49,16 @@ describe("split to columns sidePanel component", () => {
     expect(values).toContain("auto");
   });
 
-  test("Selected separator is dispatched on confirm", async () => {
+  test("Editing the separator select updates the store", async () => {
     await editSelectComponent(".o-split-to-cols-panel .o-select", ",");
-    await click(confirmButton);
-    expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
-      separator: ",",
-      addNewColumns: expect.any(Boolean),
-    });
+    expect(splitToColumnsStore.separatorValue).toBe(",");
 
     await editSelectComponent(".o-split-to-cols-panel .o-select", ";");
-    await click(confirmButton);
-    expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
-      separator: ";",
-      addNewColumns: expect.any(Boolean),
-    });
+    expect(splitToColumnsStore.separatorValue).toBe(";");
   });
 
   test("Custom separator", async () => {
+    setCellContent(model, "A1", "HELLOcustomSeparatorTHERE");
     let input = fixture.querySelector('.o-split-to-cols-panel input[type="text"]')!;
     expect(input).toBeFalsy();
     await editSelectComponent(".o-split-to-cols-panel .o-select", "custom");
@@ -76,26 +67,16 @@ describe("split to columns sidePanel component", () => {
     expect(input).toBeTruthy();
     await setInputValueAndTrigger(input, "customSeparator");
     await click(confirmButton);
-    expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
-      separator: "customSeparator",
-      addNewColumns: expect.any(Boolean),
-    });
+    expect(getCellContent(model, "A1")).toBe("HELLO");
+    expect(getCellContent(model, "B1")).toBe("THERE");
   });
 
   test("Add new columns checkbox", async () => {
     setCheckboxValueAndTrigger(checkBox, true, "change");
-    await click(confirmButton);
-    expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
-      separator: expect.any(String),
-      addNewColumns: true,
-    });
+    expect(splitToColumnsStore.addNewColumns).toBe(true);
 
     setCheckboxValueAndTrigger(checkBox, false, "change");
-    await click(confirmButton);
-    expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
-      separator: expect.any(String),
-      addNewColumns: true,
-    });
+    expect(splitToColumnsStore.addNewColumns).toBe(false);
   });
 
   test("Multiple columns selected : confirm button disabled + error message", async () => {
