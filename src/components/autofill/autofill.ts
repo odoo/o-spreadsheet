@@ -1,6 +1,8 @@
 import { proxy, useProps, xml } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
 import { Component } from "../../owl3_compatibility_layer";
+import { AutofillStore } from "../../plugins/ui_feature/autofill";
+import { TableAutofillStore } from "../../plugins/ui_feature/table_autofill";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { HeaderIndex } from "../../types/misc";
@@ -35,9 +37,12 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
   private viewStore!: Store<ViewportsStore>;
+  private autofillStore!: Store<AutofillStore>;
 
   setup(): void {
     this.viewStore = useStore(ViewportsStore);
+    this.autofillStore = useStore(AutofillStore);
+    useStore(TableAutofillStore);
   }
 
   get style() {
@@ -65,7 +70,7 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
   }
 
   getTooltip() {
-    const tooltip = this.env.model.getters.getAutofillTooltip();
+    const tooltip = this.autofillStore.tooltip;
     if (tooltip && !tooltip.component) {
       tooltip.component = TooltipComponent;
     }

@@ -334,6 +334,8 @@ import "./registries/auto_completes/autocompelete_registration";
 import "./registries/chart_types";
 import "./registries/interactive_icon_on_cell_registry";
 
+import { AutofillStore } from "./components/autofill/autofill_store";
+import { TableAutofillStore } from "./components/autofill/table_autofill_store";
 import { Composer } from "./components/composer/composer/composer";
 import { StandaloneComposer } from "./components/composer/standalone_composer/standalone_composer";
 import { Select } from "./components/select/select";
@@ -547,6 +549,8 @@ export const stores = {
   SidePanelStore,
   PivotSidePanelStore,
   PivotMeasureDisplayPanelStore,
+  TableAutofillStore,
+  AutofillStore,
   ClientFocusStore,
   GridRenderer,
   ViewportsStore,

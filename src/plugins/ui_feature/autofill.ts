@@ -4,6 +4,7 @@ import { recomputeZones } from "../../helpers/recompute_zones";
 import { isInside, positionToZone, toZone } from "../../helpers/zones";
 import { autofillModifiersRegistry } from "../../registries/autofill_modifiers";
 import { autofillRulesRegistry } from "../../registries/autofill_rules";
+import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import {
   AutofillData,
   AutofillModifier,
@@ -12,11 +13,10 @@ import {
   Tooltip,
 } from "../../types/autofill";
 import { Cell, CellValueType } from "../../types/cells";
-import { AutoFillCellCommand, Command, CommandResult, LocalCommand } from "../../types/commands";
+import { AutoFillCellCommand, Command } from "../../types/commands";
 import { Getters } from "../../types/getters";
 import { Border, DIRECTION, HeaderIndex, Style, UID, Zone } from "../../types/misc";
 import { GridRenderingContext } from "../../types/rendering";
-import { UIPlugin } from "../ui_plugin";
 
 type AutofillCellData = Omit<AutoFillCellCommand, "type">;
 
@@ -77,42 +77,29 @@ class AutofillGenerator {
   }
 }
 
-/**
- * Autofill Plugin
- *
- */
-export class AutofillPlugin extends UIPlugin {
+export class AutofillStore extends SpreadsheetStore {
   static layers = ["Autofill"] as const;
-  static getters = ["getAutofillTooltip"] as const;
 
   private autofillZone: Zone | undefined;
   private steps: number | undefined;
   private lastCellSelected: { col?: number; row?: number } = {};
   private direction: DIRECTION | undefined;
-  private tooltip: Tooltip | undefined;
+  tooltip: Tooltip | undefined;
 
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: LocalCommand): CommandResult {
-    switch (cmd.type) {
-      case "AUTOFILL_SELECT":
-        const sheetId = this.getters.getActiveSheetId();
-        this.lastCellSelected.col =
-          cmd.col === -1
-            ? this.lastCellSelected.col
-            : clip(cmd.col, 0, this.getters.getNumberCols(sheetId));
-        this.lastCellSelected.row =
-          cmd.row === -1
-            ? this.lastCellSelected.row
-            : clip(cmd.row, 0, this.getters.getNumberRows(sheetId));
-        if (this.lastCellSelected.col !== undefined && this.lastCellSelected.row !== undefined) {
-          return CommandResult.Success;
-        }
-        return CommandResult.InvalidAutofillSelection;
+  canAutofillSelect(col: HeaderIndex, row: HeaderIndex): boolean {
+    const sheetId = this.getters.getActiveSheetId();
+    this.lastCellSelected.col =
+      col === -1 ? this.lastCellSelected.col : clip(col, 0, this.getters.getNumberCols(sheetId));
+    this.lastCellSelected.row =
+      row === -1 ? this.lastCellSelected.row : clip(row, 0, this.getters.getNumberRows(sheetId));
+    if (this.lastCellSelected.col !== undefined && this.lastCellSelected.row !== undefined) {
+      return true;
     }
-    return CommandResult.Success;
+    return false;
   }
 
   handle(cmd: Command) {
@@ -121,20 +108,15 @@ export class AutofillPlugin extends UIPlugin {
         this.autofill(true);
         break;
       case "AUTOFILL_SELECT":
+        if (!this.canAutofillSelect(cmd.col, cmd.row)) {
+          break;
+        }
         this.select(cmd.col, cmd.row);
         break;
       case "AUTOFILL_AUTO":
         this.autofillAuto();
         break;
     }
-  }
-
-  // ---------------------------------------------------------------------------
-  // Getters
-  // ---------------------------------------------------------------------------
-
-  getAutofillTooltip(): Tooltip | undefined {
-    return this.tooltip;
   }
 
   // ---------------------------------------------------------------------------
@@ -222,7 +204,7 @@ export class AutofillPlugin extends UIPlugin {
       this.autofillConditionalFormats(sheetId, cfNewRanges);
       this.autofillDataValidations(sheetId, dvNewZones);
       this.autofillZone = undefined;
-      this.selection.resizeAnchorZone(this.direction, this.steps);
+      this.model.selection.resizeAnchorZone(this.direction, this.steps);
       this.lastCellSelected = {};
       this.direction = undefined;
       this.steps = 0;
@@ -272,7 +254,7 @@ export class AutofillPlugin extends UIPlugin {
   }
 
   private autofillCell(sheetId: UID, data: AutofillCellData) {
-    this.dispatch("UPDATE_CELL", {
+    this.model.dispatch("UPDATE_CELL", {
       sheetId,
       col: data.col,
       row: data.row,
@@ -281,14 +263,14 @@ export class AutofillPlugin extends UIPlugin {
       format: data.format || "",
     });
     // Still usefull in odoo ATM to autofill field sync
-    this.dispatch("AUTOFILL_CELL", data);
+    this.model.dispatch("AUTOFILL_CELL", data);
   }
 
   private autofillBorders(sheetId: UID, bordersPositions: Record<string, Zone[]>) {
     for (const stringifiedBorder in bordersPositions) {
       const border =
         stringifiedBorder === "undefined" ? undefined : (JSON.parse(stringifiedBorder) as Border);
-      this.dispatch("SET_BORDERS_ON_TARGET", {
+      this.model.dispatch("SET_BORDERS_ON_TARGET", {
         sheetId,
         border,
         target: recomputeZones(bordersPositions[stringifiedBorder]),
@@ -305,7 +287,7 @@ export class AutofillPlugin extends UIPlugin {
       }
       const newCfRanges = this.getters.getAdaptedCfRanges(sheetId, cf, changes.map(toZone), []);
       if (newCfRanges) {
-        this.dispatch("ADD_CONDITIONAL_FORMAT", {
+        this.model.dispatch("ADD_CONDITIONAL_FORMAT", {
           cf: {
             id: cf.id,
             rule: cf.rule,
@@ -327,7 +309,7 @@ export class AutofillPlugin extends UIPlugin {
       }
       const dvRangesXcs = dvOrigin.ranges.map((range) => range.zone);
       const newDvRanges = recomputeZones(dvRangesXcs.concat(changes), []);
-      this.dispatch("ADD_DATA_VALIDATION_RULE", {
+      this.model.dispatch("ADD_DATA_VALIDATION_RULE", {
         rule: dvOrigin,
         ranges: newDvRanges.map((zone) => this.getters.getRangeDataFromZone(sheetId, zone)),
         sheetId,
@@ -529,7 +511,7 @@ export class AutofillPlugin extends UIPlugin {
     if (this.getters.isInMerge(position) && !this.getters.isInMerge(originPosition)) {
       const zone = this.getters.getMerge(position);
       if (zone) {
-        this.dispatch("REMOVE_MERGE", {
+        this.model.dispatch("REMOVE_MERGE", {
           sheetId,
           target: [zone],
         });
@@ -537,7 +519,7 @@ export class AutofillPlugin extends UIPlugin {
     }
     const originMerge = this.getters.getMerge(originPosition);
     if (originMerge?.left === originCol && originMerge?.top === originRow) {
-      this.dispatch("ADD_MERGE", {
+      this.model.dispatch("ADD_MERGE", {
         sheetId,
         target: [
           {

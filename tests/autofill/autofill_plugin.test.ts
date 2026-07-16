@@ -39,20 +39,21 @@ import {
   addToRegistry,
   getDataValidationRules,
   getMergeCellMap,
-  getPlugin,
   makeTestComposerStore,
 } from "../test_helpers/helpers";
 
 import { DIRECTION, Model } from "../../src";
 import { functionRegistry } from "../../src/functions/function_registry";
-import { AutofillPlugin } from "../../src/plugins/ui_feature/autofill";
+import { AutofillStore } from "../../src/plugins/ui_feature/autofill";
+import { Store } from "../../src/types/store_engine";
+import { makeStoreWithModel } from "../test_helpers/stores";
 
-let autoFill: AutofillPlugin;
+let autoFill: Store<AutofillStore>;
 let model: Model;
 
 function autofillTooltip(from: string, to: string): string | undefined {
   autofillSelect(model, from, to);
-  return model.getters.getAutofillTooltip()?.props.content;
+  return autoFill.tooltip?.props.content;
 }
 
 /**
@@ -66,7 +67,7 @@ function getDirection(from: string, xc: string): DIRECTION {
 
 beforeEach(() => {
   model = new Model();
-  autoFill = getPlugin(model, AutofillPlugin);
+  autoFill = makeStoreWithModel(model, AutofillStore).store;
 });
 
 describe("Autofill", () => {
@@ -829,6 +830,7 @@ describe("Autofill", () => {
 
   test("autofill with merge greater than the grid size", () => {
     model = new Model({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
+    autoFill = makeStoreWithModel(model, AutofillStore).store;
     merge(model, "A1:A2");
     autofill(model, "A1:A2", "A5");
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["A1", "A2", "A3", "A4"]));

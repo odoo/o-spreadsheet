@@ -10,7 +10,6 @@ import { FingerprintPlugin } from "../plugins/ui_core_views/fingerprint";
 import { FormulaTrackerPlugin } from "../plugins/ui_core_views/formula_tracker";
 import { HeaderSizeUIPlugin } from "../plugins/ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "../plugins/ui_core_views/pivot_ui";
-import { AutofillPlugin } from "../plugins/ui_feature/autofill";
 import { AutomaticSumPlugin } from "../plugins/ui_feature/automatic_sum";
 import { CellComputedStylePlugin } from "../plugins/ui_feature/cell_computed_style";
 import { CheckboxTogglePlugin } from "../plugins/ui_feature/checkbox_toggle";
@@ -47,7 +46,6 @@ export type RenderingGetters = {
   isReadonly: () => boolean;
   isDashboard: () => boolean;
 } & CoreGetters &
-  PluginGetters<typeof AutofillPlugin> &
   PluginGetters<typeof AutomaticSumPlugin> &
   PluginGetters<typeof HistoryPlugin> &
   PluginGetters<typeof ClipboardPlugin> &

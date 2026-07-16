@@ -1,11 +1,11 @@
 import { getTableContentZone } from "../../helpers/table_helpers";
 import { isInside } from "../../helpers/zones";
+import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { CellValueType } from "../../types/cells";
 import { Command } from "../../types/commands";
 import { CellPosition, Zone } from "../../types/misc";
-import { UIPlugin } from "../ui_plugin";
 
-export class TableAutofillPlugin extends UIPlugin {
+export class TableAutofillStore extends SpreadsheetStore {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "AUTOFILL_TABLE_COLUMN":
@@ -49,14 +49,14 @@ export class TableAutofillPlugin extends UIPlugin {
       cell: this.getters.getActivePosition(),
     };
 
-    this.selection.selectCell(col, row);
-    this.dispatch("AUTOFILL_SELECT", { col, row: zone.bottom });
-    this.dispatch("AUTOFILL");
+    this.model.selection.selectCell(col, row);
+    this.model.dispatch("AUTOFILL_SELECT", { col, row: zone.bottom });
+    this.model.dispatch("AUTOFILL");
 
-    this.selection.selectCell(col, row);
-    this.dispatch("AUTOFILL_SELECT", { col, row: zone.top });
-    this.dispatch("AUTOFILL");
+    this.model.selection.selectCell(col, row);
+    this.model.dispatch("AUTOFILL_SELECT", { col, row: zone.top });
+    this.model.dispatch("AUTOFILL");
 
-    this.selection.selectZone(oldSelection);
+    this.model.selection.selectZone(oldSelection);
   }
 }
