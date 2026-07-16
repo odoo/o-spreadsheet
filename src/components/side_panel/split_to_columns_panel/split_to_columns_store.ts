@@ -1,10 +1,10 @@
-import { NEWLINE } from "../../constants";
-import { canonicalizeNumberContent } from "../../helpers/locale";
-import { range } from "../../helpers/misc";
-import { SpreadsheetStore } from "../../stores/spreadsheet_store";
-import { CellValueType } from "../../types/cells";
-import { Command, CommandResult, DispatchResult } from "../../types/commands";
-import { CellPosition, Zone } from "../../types/misc";
+import { NEWLINE } from "../../../constants";
+import { canonicalizeNumberContent } from "../../../helpers/locale";
+import { range } from "../../../helpers/misc";
+import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
+import { CellValueType } from "../../../types/cells";
+import { Command, CommandResult, DispatchResult } from "../../../types/commands";
+import { CellPosition, Zone } from "../../../types/misc";
 
 export type SplitToColumnsSeparatorValue = "auto" | "custom" | " " | "," | ";" | typeof NEWLINE;
 

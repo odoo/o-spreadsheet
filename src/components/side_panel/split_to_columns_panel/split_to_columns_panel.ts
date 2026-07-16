@@ -2,10 +2,6 @@ import { onMounted, useProps } from "@odoo/owl";
 import { NEWLINE } from "../../../constants";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
-import {
-  SplitToColumnsSeparatorValue,
-  SplitToColumnsStore,
-} from "../../../plugins/ui_feature/split_to_columns";
 import { useStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
 import { CommandResult } from "../../../types/commands";
@@ -19,6 +15,7 @@ import { ValidationMessages } from "../../validation_messages/validation_message
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 import { ComposerFocusStore } from "./../../composer/composer_focus_store";
+import { SplitToColumnsSeparatorValue, SplitToColumnsStore } from "./split_to_columns_store";
 
 const SEPARATORS: ValueAndLabel[] = [
   { label: _t("Detect automatically"), value: "auto" },

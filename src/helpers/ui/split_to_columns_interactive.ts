@@ -1,4 +1,4 @@
-import { SplitToColumnsStore } from "../../plugins/ui_feature/split_to_columns";
+import { SplitToColumnsStore } from "../../components/side_panel/split_to_columns_panel/split_to_columns_store";
 import { _t } from "../../translation";
 import { CommandResult, DispatchResult } from "../../types/commands";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
