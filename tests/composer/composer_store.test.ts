@@ -801,6 +801,28 @@ describe("edition", () => {
     }
   );
 
+  test.each(["0%", "#,##0", "#,##0[$ THUNE ]", "@"])(
+    "Set number to a cell formatted with format %s, format should be adapted",
+    (format: string) => {
+      setFormat(model, "A1", format);
+      composerStore.startEdition();
+      composerStore.setCurrentContent("25");
+      composerStore.stopEdition();
+      expect(getEvaluatedCell(model, "A1").format).toBe(format);
+    }
+  );
+
+  test.each(["d/m/yyyy", "mm/dd/yyyy"])(
+    "Set number to a cell formatted with format %s, format should not be adapted",
+    (format: string) => {
+      setFormat(model, "A1", format);
+      composerStore.startEdition();
+      composerStore.setCurrentContent("25");
+      composerStore.stopEdition();
+      expect(getEvaluatedCell(model, "A1").format).toBeUndefined();
+    }
+  );
+
   test("write too long formulas raises an error", async () => {
     const notificationStore = container.get(NotificationStore);
     const spyNotify = jest.spyOn(notificationStore, "raiseError");
