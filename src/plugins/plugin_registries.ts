@@ -33,7 +33,6 @@ import { FormulaTrackerPlugin } from "./ui_core_views/formula_tracker";
 import { HeaderSizeUIPlugin } from "./ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "./ui_core_views/pivot_ui";
 import { CellComputedStylePlugin } from "./ui_feature/cell_computed_style";
-import { CheckboxTogglePlugin } from "./ui_feature/checkbox_toggle";
 import { CollaborativePlugin } from "./ui_feature/collaborative";
 import { ColorThemeUIPlugin } from "./ui_feature/color_theme";
 import { DataCleanupPlugin } from "./ui_feature/data_cleanup";
@@ -97,7 +96,6 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("history", HistoryPlugin)
   .add("table_ui_resize", TableResizeUI)
   .add("datavalidation_insert", DataValidationInsertionPlugin)
-  .add("checkbox_toggle", CheckboxTogglePlugin)
   .add("dynamic_translate", DynamicTranslate)
   .add("geo_features", GeoFeaturePlugin)
   .add("data_cleanup", DataCleanupPlugin)

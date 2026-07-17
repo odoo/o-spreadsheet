@@ -1,9 +1,9 @@
-import { Command } from "../../types/commands";
-import { UID, Zone } from "../../types/misc";
-import { UIPlugin } from "../ui_plugin";
+import { Command } from "../types/commands";
+import { UID, Zone } from "../types/misc";
+import { SpreadsheetStore } from "./spreadsheet_store";
 
-export class CheckboxTogglePlugin extends UIPlugin {
-  static getters = ["hasBooleanValidationInZones"] as const;
+export class CheckboxToggleStore extends SpreadsheetStore {
+  storeGetters = ["hasBooleanValidationInZones"] as const;
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -34,7 +34,7 @@ export class CheckboxTogglePlugin extends UIPlugin {
           const position = { col, row, sheetId };
           if (this.getters.isCellValidCheckbox(position)) {
             const content = this.getters.getEvaluatedCell(position).value ? "FALSE" : "TRUE";
-            this.dispatch("UPDATE_CELL", {
+            this.model.dispatch("UPDATE_CELL", {
               ...position,
               content,
             });

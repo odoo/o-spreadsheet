@@ -11,7 +11,6 @@ import { FormulaTrackerPlugin } from "../plugins/ui_core_views/formula_tracker";
 import { HeaderSizeUIPlugin } from "../plugins/ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "../plugins/ui_core_views/pivot_ui";
 import { CellComputedStylePlugin } from "../plugins/ui_feature/cell_computed_style";
-import { CheckboxTogglePlugin } from "../plugins/ui_feature/checkbox_toggle";
 import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
 import { ColorThemeUIPlugin } from "../plugins/ui_feature/color_theme";
 import { DynamicTranslate } from "../plugins/ui_feature/dynamic_translate";
@@ -71,7 +70,6 @@ export type RenderingGetters = {
   PluginGetters<typeof GeoFeaturePlugin> &
   PluginGetters<typeof PivotPresencePlugin> &
   PluginGetters<typeof TableComputedStylePlugin> &
-  PluginGetters<typeof CheckboxTogglePlugin> &
   PluginGetters<typeof CellIconPlugin> &
   PluginGetters<typeof DynamicTranslate> &
   PluginGetters<typeof FormulaTrackerPlugin> &
