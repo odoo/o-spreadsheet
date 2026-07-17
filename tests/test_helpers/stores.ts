@@ -1,5 +1,6 @@
 import { Model, StoreConstructor, StoreParams } from "../../src";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
+import { globalStores } from "../../src/store_engine/store_registries";
 
 import { ModelStore } from "../../src/stores/model_store";
 import { NotificationStore } from "../../src/stores/notification_store";
@@ -10,11 +11,7 @@ export function makeStore<T extends StoreConstructor>(Store: T, ...args: StorePa
   return makeStoreWithModel(new Model(), Store, ...args);
 }
 
-export function makeStoreWithModel<T extends StoreConstructor>(
-  model: Model,
-  Store: T,
-  ...args: StoreParams<T>
-) {
+export function makeGlobalStoreWithModel(model: Model) {
   const container = new DependencyContainer();
   registerCleanup(() => {
     container.dispose();
@@ -22,7 +19,22 @@ export function makeStoreWithModel<T extends StoreConstructor>(
 
   container.inject(ModelStore, model);
   container.inject(NotificationStore, makeTestNotificationStore());
+  for (const store of globalStores.getAll()) {
+    container.get(store);
+  }
 
+  return {
+    container,
+    model: container.get(ModelStore),
+  };
+}
+
+export function makeStoreWithModel<T extends StoreConstructor>(
+  model: Model,
+  Store: T,
+  ...args: StoreParams<T>
+) {
+  const { container } = makeGlobalStoreWithModel(model);
   // Use container.get instead of container.instantiate where we can, otherwise the store won't be in the dependency
   // container, and calls to container.get will create a new instance of the store.
   // If we have args, that means the store is a local store and shouldn't be in the dependency container
