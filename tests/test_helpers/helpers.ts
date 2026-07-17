@@ -58,6 +58,7 @@ import { detectDateFormat } from "../../src/helpers/format/format";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { proxifyStoreMutation, useStore } from "../../src/store_engine/store_hooks";
+import { globalStores } from "../../src/store_engine/store_registries";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
 import { ModelStore } from "../../src/stores/model_store";
@@ -229,6 +230,9 @@ export function makeTestEnv(
 
   const store = container.get(SidePanelStore);
   const sidePanelStore = proxifyStoreMutation(store, () => container.trigger("store-updated"));
+  for (const store of globalStores.getAll()) {
+    container.get(store);
+  }
   return {
     model,
     openSidePanel: mockEnv.openSidePanel || sidePanelStore.open.bind(sidePanelStore),

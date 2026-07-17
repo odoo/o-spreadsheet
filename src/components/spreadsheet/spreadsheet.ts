@@ -21,6 +21,7 @@ import {
   useSubEnv,
 } from "../../owl3_compatibility_layer";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
+import { globalStores } from "../../store_engine/store_registries";
 import { ModelStore } from "../../stores/model_store";
 import { NotificationStore } from "../../stores/notification_store";
 import { ScreenWidthStore } from "../../stores/screen_width_store";
@@ -149,6 +150,9 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
     this.notificationStore = useStore(NotificationStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.sidePanel = useStore(SidePanelStore);
+    for (const store of globalStores.getAll()) {
+      useStore(store);
+    }
     const fileStore = this.model.config.external.fileStore;
 
     useSubEnv({
