@@ -39,6 +39,7 @@ import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
 import { AutomaticSumStore } from "../../stores/automatic_sum_store";
+import { CheckboxToggleStore } from "../../stores/checkbox_toggle";
 import { ClientFocusStore } from "../../stores/client_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -155,6 +156,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
   private clientFocusStore!: Store<ClientFocusStore>;
+  private checkboxToggleStore!: Store<CheckboxToggleStore>;
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
@@ -177,6 +179,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     this.sidePanel = useStore(SidePanelStore);
     this.paintFormatStore = useStore(PaintFormatStore);
     this.clientFocusStore = useStore(ClientFocusStore);
+    this.checkboxToggleStore = useStore(CheckboxToggleStore);
     useStore(ArrayFormulaHighlight);
     this.automaticSumStore = useLocalStore(AutomaticSumStore);
 
@@ -539,7 +542,9 @@ export class Grid extends Component<SpreadsheetChildEnv> {
 
   private processSpaceKey(ev: KeyboardEvent) {
     if (
-      this.env.model.getters.hasBooleanValidationInZones(this.env.model.getters.getSelectedZones())
+      this.checkboxToggleStore.hasBooleanValidationInZones(
+        this.env.model.getters.getSelectedZones()
+      )
     ) {
       ev.preventDefault();
       ev.stopPropagation();
