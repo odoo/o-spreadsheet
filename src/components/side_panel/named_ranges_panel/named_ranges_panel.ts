@@ -6,14 +6,14 @@ import { SelectionInput } from "../../selection_input/selection_input";
 import { TextInput } from "../../text_input/text_input";
 import { NamedRangePreview } from "./named_range_preview/named_range_preview";
 
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 
 export class NamedRangesPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-NamedRangesPanel";
   static components = { NamedRangePreview, SelectionInput, TextInput };
 
-  protected props = props({
+  protected props = useProps({
     onCloseSidePanel: types.function(),
   });
 

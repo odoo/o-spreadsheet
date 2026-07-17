@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, props, signal } from "@odoo/owl";
+import { onMounted, onWillUnmount, signal, useProps } from "@odoo/owl";
 import { rectIntersection } from "../../helpers/rectangle";
 import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { CSSProperties } from "../../types/misc";
@@ -13,7 +13,7 @@ type DisplayValue = "none" | "block";
 export class Popover extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Popover";
 
-  protected props = props({
+  protected props = useProps({
     anchorRect: types.Rect(),
     containerRect: types.object({}).optional(),
     positioning: types

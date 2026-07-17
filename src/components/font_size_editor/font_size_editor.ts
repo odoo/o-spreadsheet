@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { FONT_SIZES } from "../../constants";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { NumberEditor } from "../number_editor/number_editor";
@@ -9,7 +9,7 @@ export class FontSizeEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FontSizeEditor";
   static components = { NumberEditor };
 
-  protected props = props({
+  protected props = useProps({
     currentFontSize: types.number(),
     onFontSizeChanged: types.function<(fontSize: number) => void>(),
     onToggle: types.function().optional(),

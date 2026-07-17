@@ -1,4 +1,4 @@
-import { onWillUpdateProps, props, proxy, signal } from "@odoo/owl";
+import { onWillUpdateProps, proxy, signal, useProps } from "@odoo/owl";
 import { deepEquals } from "../../../helpers/misc";
 import { fuzzyLookup } from "../../../helpers/search";
 import { Component } from "../../../owl3_compatibility_layer";
@@ -25,7 +25,7 @@ export class FilterMenuValueList extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FilterMenuValueList";
   static components = { FilterMenuValueItem };
 
-  protected props = props({
+  protected props = useProps({
     values: types.array(
       types.object({
         checked: types.boolean(),

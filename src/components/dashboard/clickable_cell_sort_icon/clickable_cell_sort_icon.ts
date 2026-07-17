@@ -8,14 +8,14 @@ import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { HoveredTableStore } from "../../tables/hovered_table_store";
 
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { types } from "../../props_validation";
 
 export class ClickableCellSortIcon extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ClickableCellSortIcon";
 
-  protected props = props({
+  protected props = useProps({
     position: types.CellPosition(),
     sortDirection: types.or([types.SortDirection, types.literal("none")]),
   });

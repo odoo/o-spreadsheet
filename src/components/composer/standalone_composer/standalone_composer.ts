@@ -1,4 +1,4 @@
-import { onMounted, props } from "@odoo/owl";
+import { onMounted, useProps } from "@odoo/owl";
 import { Token } from "../../../formulas/tokenizer";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../../store_engine/store_hooks";
@@ -17,7 +17,7 @@ export class StandaloneComposer extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-StandaloneComposer";
   static components = { Composer };
 
-  protected props = props({
+  protected props = useProps({
     onConfirm: types.function<(content: string) => void>(),
     composerContent: types.string().optional(""),
     defaultRangeSheetId: types.UID(),

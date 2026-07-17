@@ -6,7 +6,7 @@ import { CellValueType } from "../../types/cells";
 import { CellErrorType } from "../../types/errors";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { types } from "../props_validation";
 const ERROR_TOOLTIP_MAX_HEIGHT = 80;
@@ -15,7 +15,7 @@ export class ErrorToolTip extends Component<SpreadsheetChildEnv> {
   static maxSize = { maxHeight: ERROR_TOOLTIP_MAX_HEIGHT };
   static template = "o-spreadsheet-ErrorToolTip";
 
-  protected props = props({
+  protected props = useProps({
     cellPosition: types.CellPosition(),
     onClosed: types.function().optional(),
   });

@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { CHART_AXIS_TITLE_FONT_SIZE } from "../../../../../constants";
 import { toNumber } from "../../../../../functions/helpers";
 import { getDefinedAxis } from "../../../../../helpers/figures/charts/chart_common";
@@ -33,7 +33,7 @@ export class AxisDesignEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-AxisDesignEditor";
   static components = { Section, ChartTitle, BadgeSelection, Checkbox, NumberInput, DateInput };
 
-  protected props = props({
+  protected props = useProps({
     chartId: types.UID(),
     definition: types.ChartWithAxisDefinition(),
     updateChart: types.function<ChartUpdateFunction>(),

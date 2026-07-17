@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, props, proxy, signal } from "@odoo/owl";
+import { onMounted, onWillUnmount, proxy, signal, useProps } from "@odoo/owl";
 import { NEWLINE, SCROLLBAR_WIDTH } from "../../../constants";
 import { setColorAlpha } from "../../../helpers/color";
 import { debounce, deepEquals, isFormula } from "../../../helpers/misc";
@@ -62,7 +62,7 @@ export class Composer extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Composer";
   static components = { TextValueProvider, FunctionDescriptionProvider, SpeechBubble };
 
-  protected props = props({
+  protected props = useProps({
     focus: types.ComposerFocusType(),
     inputStyle: types.string().optional(""),
     rect: types.Rect().optional(),

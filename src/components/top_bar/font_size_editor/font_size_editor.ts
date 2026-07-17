@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { setStyle } from "../../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../../constants";
 import { Component } from "../../../owl3_compatibility_layer";
@@ -11,7 +11,7 @@ export class TopBarFontSizeEditor extends Component<SpreadsheetChildEnv> {
   static components = { FontSizeEditor };
   static template = "o-spreadsheet-TopBarFontSizeEditor";
 
-  protected props = props({ class: types.string() });
+  protected props = useProps({ class: types.string() });
   topBarToolStore!: ToolBarDropdownStore;
 
   setup() {

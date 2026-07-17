@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, props, signal } from "@odoo/owl";
+import { onMounted, onWillUnmount, signal, useProps } from "@odoo/owl";
 import { drawScoreChart } from "../../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../../helpers/figures/charts/scorecard_chart_config_builder";
 import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
@@ -14,7 +14,7 @@ import { types } from "../../../props_validation";
 export class ScorecardChart extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChart";
 
-  protected props = props({
+  protected props = useProps({
     chartId: types.string(),
     isFullScreen: types.boolean().optional(),
   });

@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { positionToZone } from "../../helpers/zones";
 import { useStore } from "../../store_engine/store_hooks";
@@ -14,7 +14,7 @@ import { Store } from "../../types/store_engine";
 export class UnhideRowHeaders extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-UnhideRowHeaders";
 
-  protected props = props({
+  protected props = useProps({
     headersGroups: types.array(),
     headerRange: types.object({
       start: types.HeaderIndex(),
@@ -67,7 +67,7 @@ export class UnhideRowHeaders extends Component<SpreadsheetChildEnv> {
 export class UnhideColumnHeaders extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-UnhideColumnHeaders";
 
-  protected props = props({
+  protected props = useProps({
     headersGroups: types.array(),
     headerRange: types.object({
       start: types.HeaderIndex(),

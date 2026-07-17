@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { isMultipleElementMatrix, toScalar } from "../../../../functions/helper_matrices";
 import { tryToNumber } from "../../../../functions/helpers";
 import { deepCopy } from "../../../../helpers/misc";
@@ -39,7 +39,7 @@ export class GaugeChartDesignPanel extends Component<SpreadsheetChildEnv> {
     ChartHumanizeNumbers,
     Select,
   };
-  protected props = props(
+  protected props = useProps(
     chartSidePanelPropsDefinition
   ) as unknown as ChartSidePanelProps<GaugeChartDefinition>;
 

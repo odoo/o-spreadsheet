@@ -2,7 +2,7 @@ import { CSSProperties, UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 
-import { props, signal } from "@odoo/owl";
+import { signal, useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { getElBoundingRect, isCtrlKey } from "../../helpers/dom_helpers";
 import { types } from "../../props_validation";
@@ -10,7 +10,7 @@ import { types } from "../../props_validation";
 export class ImageFigure extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ImageFigure";
 
-  protected props = props({
+  protected props = useProps({
     figureUI: types.FigureUI(),
     editFigureStyle: types.function<(properties: CSSProperties) => void>().optional(),
     openContextMenu: types.function<(anchorRect: Rect, onClose?: () => void) => void>(),

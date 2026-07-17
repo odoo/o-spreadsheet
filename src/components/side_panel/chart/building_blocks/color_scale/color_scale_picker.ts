@@ -1,4 +1,4 @@
-import { props, proxy, signal } from "@odoo/owl";
+import { proxy, signal, useProps } from "@odoo/owl";
 import { DEFAULT_CHART_COLOR_SCALE } from "../../../../../constants";
 import { ColorScale, COLORSCALES, COLORSCHEMES } from "../../../../../helpers/color";
 import { Component, useExternalListener } from "../../../../../owl3_compatibility_layer";
@@ -26,7 +26,7 @@ export class ColorScalePicker extends Component<SpreadsheetChildEnv> {
     Popover,
   };
 
-  protected props = props({
+  protected props = useProps({
     definition: types.object({ colorScale: types.ChartColorScale().optional() }),
     onUpdateColorScale: types.function<(colorscale: ChartColorScale) => void>(),
   });

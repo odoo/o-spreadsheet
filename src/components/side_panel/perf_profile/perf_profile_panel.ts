@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { formatValue, humanizeNumber } from "../../../helpers/format/format";
 import { Component } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
@@ -15,7 +15,7 @@ export class PerfProfilePanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PerfProfilePanel";
   static components = { Section };
 
-  protected props = props({
+  protected props = useProps({
     onCloseSidePanel: types.function(),
   });
 

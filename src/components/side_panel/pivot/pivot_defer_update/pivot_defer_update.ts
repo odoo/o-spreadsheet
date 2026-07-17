@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
@@ -8,7 +8,7 @@ import { Section } from "../../components/section/section";
 
 export class PivotDeferUpdate extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotDeferUpdate";
-  protected props = props({
+  protected props = useProps({
     deferUpdate: types.boolean(),
     isDirty: types.boolean(),
     toggleDeferUpdate: types.function<(value: boolean) => void>(),

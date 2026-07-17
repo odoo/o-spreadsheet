@@ -1,4 +1,4 @@
-import { onWillUpdateProps, props, proxy, signal } from "@odoo/owl";
+import { onWillUpdateProps, proxy, signal, useProps } from "@odoo/owl";
 import { DEFAULT_BORDER_DESC } from "../../constants";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
@@ -22,7 +22,7 @@ export class BorderEditorWidget extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BorderEditorWidget";
   static components = { BorderEditor };
 
-  protected props = props({
+  protected props = useProps({
     disabled: types.boolean().optional(),
     dropdownMaxHeight: types.Pixel().optional(),
     class: types.string().optional(),

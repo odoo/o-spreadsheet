@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { _t } from "../../../../../translation";
 import { LegendPosition } from "../../../../../types/chart/common_chart";
 import { ValueAndLabel } from "../../../../../types/misc";
@@ -17,7 +17,7 @@ export class ChartLegend extends Component<SpreadsheetChildEnv> {
     Select,
   };
 
-  protected props = props({
+  protected props = useProps({
     chartId: types.string(),
     definition: types.ChartDefinitionWithDataSource(),
     canUpdateChart: types.function<ChartUpdateFunction>(),

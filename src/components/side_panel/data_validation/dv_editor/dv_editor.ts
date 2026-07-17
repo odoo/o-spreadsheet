@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { zoneToXc } from "../../../../helpers/zones";
 import { Component, ComponentConstructor } from "../../../../owl3_compatibility_layer";
 import {
@@ -32,7 +32,7 @@ interface State {
 export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationEditor";
   static components = { SelectionInput, Select, Section, ValidationMessages };
-  protected props = props({
+  protected props = useProps({
     ruleId: types.UID(),
     onCancel: types.function().optional(),
     onCloseSidePanel: types.function(),

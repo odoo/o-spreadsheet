@@ -1,4 +1,4 @@
-import { onMounted, onPatched, props, proxy, signal } from "@odoo/owl";
+import { onMounted, onPatched, proxy, signal, useProps } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -21,7 +21,7 @@ export class SmallBottomBar extends Component<SpreadsheetChildEnv> {
   static components = { Composer, BottomBar, Ripple, RibbonMenu };
   static template = "o-spreadsheet-SmallBottomBar";
 
-  protected props = props({
+  protected props = useProps({
     onClick: types.function(),
   });
 

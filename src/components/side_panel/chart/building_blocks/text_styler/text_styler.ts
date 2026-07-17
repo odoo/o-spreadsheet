@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { ActionSpec } from "../../../../../actions/action";
 import { DEFAULT_STYLE } from "../../../../../constants";
 import { Component, useExternalListener } from "../../../../../owl3_compatibility_layer";
@@ -19,7 +19,7 @@ export class TextStyler extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.TextStyler";
   static components = { ColorPickerWidget, ActionButton, FontSizeEditor };
 
-  protected props = props({
+  protected props = useProps({
     style: types.ChartStyle(),
     updateStyle: types.function<(style: ChartStyle) => void>(),
     defaultStyle: types.object<Partial<ChartStyle>>().optional(),

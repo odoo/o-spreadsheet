@@ -1,4 +1,4 @@
-import { props, xml } from "@odoo/owl";
+import { useProps, xml } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -24,7 +24,7 @@ export class HorizontalScrollBar extends Component<SpreadsheetChildEnv> {
     this.viewStore = useStore(ViewportsStore);
   }
 
-  protected props = props({
+  protected props = useProps({
     leftOffset: types.number().optional(0),
   });
 

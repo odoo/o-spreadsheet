@@ -1,4 +1,4 @@
-import { props, signal } from "@odoo/owl";
+import { signal, useProps } from "@odoo/owl";
 import { isDefined } from "../../../../helpers/misc";
 import {
   AGGREGATORS,
@@ -46,7 +46,7 @@ export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
     PivotCustomGroupsCollapsible,
     SidePanelCollapsible,
   };
-  protected props = props({
+  protected props = useProps({
     definition: types.instanceOf(PivotRuntimeDefinition),
     onDimensionsUpdated: types.function<(definition: Partial<PivotCoreDefinition>) => void>(),
     onFiltersUpdated: types.function<(definition: Partial<PivotCoreDefinition>) => void>(),

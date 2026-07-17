@@ -1,4 +1,4 @@
-import { props, xml } from "@odoo/owl";
+import { useProps, xml } from "@odoo/owl";
 import { ActionSpec } from "../src/actions/action";
 import { ActionButton } from "../src/components/action_button/action_button";
 import { types } from "../src/components/props_validation";
@@ -8,7 +8,7 @@ import { mountComponent, nextTick } from "./test_helpers/helpers";
 
 class Parent extends Component<SpreadsheetChildEnv> {
   static components = { ActionButton };
-  protected props = props({
+  protected props = useProps({
     getAction: types.function<() => ActionSpec>(),
   });
   static template = xml/*xml*/ `

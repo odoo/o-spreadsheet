@@ -1,4 +1,4 @@
-import { onWillUpdateProps, props } from "@odoo/owl";
+import { onWillUpdateProps, useProps } from "@odoo/owl";
 import { deepCopy, deepEquals } from "../../../helpers/misc";
 import { SpreadsheetPivotRuntimeDefinition } from "../../../helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { Component } from "../../../owl3_compatibility_layer";
@@ -26,7 +26,7 @@ export class PivotFilterMenu extends Component<SpreadsheetChildEnv> {
   private criterionCategory: CriterionCategory = "char";
   private updatedCriterionValue: DataFilterValue | undefined;
 
-  protected props = props({
+  protected props = useProps({
     pivotId: types.UID(),
     definition: types.instanceOf(SpreadsheetPivotRuntimeDefinition),
     filter: types.PivotFilter(),

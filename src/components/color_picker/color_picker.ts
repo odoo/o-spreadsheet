@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { COLOR_PICKER_DEFAULTS, ICON_EDGE_LENGTH } from "../../constants";
 import {
   hexToHSLA,
@@ -41,7 +41,7 @@ export class ColorPicker extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ColorPicker";
   static components = { Popover };
 
-  protected props = props({
+  protected props = useProps({
     onColorPicked: types.function<(color: string) => void>(),
     currentColor: types.string().optional(""),
     maxHeight: types.Pixel().optional(),

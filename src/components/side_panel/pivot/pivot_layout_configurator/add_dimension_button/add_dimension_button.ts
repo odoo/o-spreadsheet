@@ -1,4 +1,4 @@
-import { props, proxy, signal } from "@odoo/owl";
+import { proxy, signal, useProps } from "@odoo/owl";
 import { COMPOSER_ASSISTANT_COLOR } from "../../../../../constants";
 import { fuzzyLookup } from "../../../../../helpers/search";
 import { Component, useExternalListener } from "../../../../../owl3_compatibility_layer";
@@ -20,7 +20,7 @@ import { types } from "../../../../props_validation";
 export class AddDimensionButton extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-AddDimensionButton";
   static components = { Popover, TextValueProvider };
-  protected props = props({
+  protected props = useProps({
     onFieldPicked: types.function<(field: string) => void>(),
     fields: types.array(),
   });

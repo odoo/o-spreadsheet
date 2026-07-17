@@ -1,4 +1,4 @@
-import { props, proxy, signal } from "@odoo/owl";
+import { proxy, signal, useProps } from "@odoo/owl";
 import { Component, useExternalListener } from "../../../../owl3_compatibility_layer";
 import { chartDataSourceRegistry } from "../../../../registries/chart_data_source_registry";
 import { chartSubtypeRegistry } from "../../../../registries/chart_subtype_registry";
@@ -26,7 +26,7 @@ export class ChartTypePicker extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartTypePicker";
   static components = { Section, Popover };
 
-  protected props = props({
+  protected props = useProps({
     chartId: types.UID(),
     chartPanelStore: types.Store<MainChartPanelStore>(),
   });

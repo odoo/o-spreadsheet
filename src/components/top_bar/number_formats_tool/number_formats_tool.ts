@@ -1,4 +1,4 @@
-import { props, proxy, signal } from "@odoo/owl";
+import { proxy, signal, useProps } from "@odoo/owl";
 import { Action, createAction } from "../../../actions/action";
 import { Component } from "../../../owl3_compatibility_layer";
 import { formatNumberMenuItemSpec } from "../../../registries/menus/number_format_menu_registry";
@@ -19,7 +19,7 @@ export class NumberFormatsTool extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-NumberFormatsTool";
   static components = { MenuPopover, ActionButton };
 
-  protected props = props({ class: types.string() });
+  protected props = useProps({ class: types.string() });
   formatNumberMenuItemSpec = formatNumberMenuItemSpec;
   topBarToolStore!: ToolBarDropdownStore;
 

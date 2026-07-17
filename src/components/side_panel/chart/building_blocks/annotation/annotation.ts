@@ -1,4 +1,4 @@
-import { props, proxy, signal } from "@odoo/owl";
+import { proxy, signal, useProps } from "@odoo/owl";
 import { withHttps } from "../../../../../helpers/links";
 import { Component, useLayoutEffect } from "../../../../../owl3_compatibility_layer";
 import { _t } from "../../../../../translation";
@@ -16,7 +16,7 @@ interface annotationState {
 export class ChartAnnotation extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartAnnotation";
   static components = { SidePanelCollapsible, Section, TextInput };
-  protected props = props(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<any>;
+  protected props = useProps(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<any>;
 
   private editorRef = signal<HTMLElement | null>(null);
 

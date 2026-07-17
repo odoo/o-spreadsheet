@@ -1,4 +1,4 @@
-import { props, xml } from "@odoo/owl";
+import { useProps, xml } from "@odoo/owl";
 import { NumberInput } from "../../src/components/number_input/number_input";
 import { Component } from "../../src/owl3_compatibility_layer";
 import { PropsOf } from "../../src/types/props_of";
@@ -21,7 +21,7 @@ class NumberInputContainer extends Component<SpreadsheetChildEnv> {
     </div>
   `;
   static components = { NumberInput };
-  protected props = props();
+  protected props = useProps();
 }
 
 async function mountNumberInput(props: PropsOf<NumberInput>) {

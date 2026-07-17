@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { TitleDesign } from "../../../../../types/chart/chart";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { TextInput } from "../../../../text_input/text_input";
@@ -11,7 +11,7 @@ export class ChartTitle extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartTitle";
   static components = { Section, TextStyler, TextInput };
 
-  protected props = props({
+  protected props = useProps({
     title: types.string().optional(""),
     placeholder: types.string().optional(""),
     updateTitle: types.function<(title: string) => void>(),

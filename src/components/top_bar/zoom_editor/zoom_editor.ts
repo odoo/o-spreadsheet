@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { ZOOM_VALUES } from "../../../constants";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
@@ -13,7 +13,7 @@ export class ToolBarZoom extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBarZoom";
   static components = { NumberEditor };
 
-  protected props = props({ class: types.string() });
+  protected props = useProps({ class: types.string() });
   topBarToolStore!: ToolBarDropdownStore;
   private viewStore!: Store<ViewportsStore>;
 

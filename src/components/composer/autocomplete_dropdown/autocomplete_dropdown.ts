@@ -1,4 +1,4 @@
-import { props, signal, useEffect } from "@odoo/owl";
+import { signal, useEffect, useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { AutoCompleteProposal } from "../../../registries/auto_completes/auto_complete_registry";
 import { cssPropertiesToCss } from "../../helpers/css";
@@ -8,7 +8,7 @@ import { HtmlContent } from "../composer/composer";
 export class TextValueProvider extends Component<any> {
   static template = "o-spreadsheet-TextValueProvider";
 
-  protected props = props({
+  protected props = useProps({
     proposals: types.array(types.AutoCompleteProposal()),
     selectedIndex: types.number().optional(),
     onValueSelected: types.function<(proposal: AutoCompleteProposal) => void>(),

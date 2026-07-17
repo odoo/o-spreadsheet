@@ -16,7 +16,7 @@ import { SeriesWithAxisDesignEditor } from "../building_blocks/series_design/ser
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 export class ChartWithAxisDesignPanel<
   P extends ChartSidePanelProps<ChartDefinitionWithDataSource<string>>
@@ -33,7 +33,7 @@ export class ChartWithAxisDesignPanel<
     ChartShowValues,
     ChartHumanizeNumbers,
   };
-  protected props = props(chartSidePanelPropsDefinition) as unknown as P;
+  protected props = useProps(chartSidePanelPropsDefinition) as unknown as P;
 
   get axesList(): AxisDefinition[] {
     const { useLeftAxis, useRightAxis } = getDefinedAxis(this.props.definition);

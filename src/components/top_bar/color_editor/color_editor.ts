@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { setStyle } from "../../../actions/menu_items_actions";
 import { deepEquals } from "../../../helpers/misc";
 import { Component } from "../../../owl3_compatibility_layer";
@@ -11,7 +11,7 @@ export class TopBarColorEditor extends Component<SpreadsheetChildEnv> {
   static components = { ColorPickerWidget };
   static template = "o-spreadsheet-ColorEditor";
 
-  protected props = props({
+  protected props = useProps({
     class: types.string(),
     style: types.or([types.literal("textColor"), types.literal("fillColor")]),
     icon: types.string(),

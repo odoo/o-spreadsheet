@@ -1,4 +1,4 @@
-import { props, proxy, signal } from "@odoo/owl";
+import { proxy, signal, useProps } from "@odoo/owl";
 import { createActions } from "../../../../actions/action";
 import { UuidGenerator } from "../../../../helpers/uuid";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -11,7 +11,7 @@ import { types } from "../../../props_validation";
 export class CogWheelMenu extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CogWheelMenu";
   static components = { MenuPopover };
-  protected props = props({
+  protected props = useProps({
     items: types.array(types.ActionSpec()),
   });
 
