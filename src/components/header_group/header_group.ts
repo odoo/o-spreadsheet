@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { GROUP_LAYER_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { interactiveToggleGroup } from "../../helpers/ui/toggle_group_interactive";
@@ -20,7 +20,7 @@ interface GroupBox {
 abstract class AbstractHeaderGroup extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-HeaderGroup";
 
-  protected props = props({
+  protected props = useProps({
     group: types.HeaderGroup(),
     layerOffset: types.number(),
     openContextMenu: types.function<(position: DOMCoordinates, menuItems: Action[]) => void>(),

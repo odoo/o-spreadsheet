@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { ValueAndLabel } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
@@ -12,7 +12,7 @@ export class GeoChartRegionSelectSection extends Component<SpreadsheetChildEnv> 
   static template = "o-spreadsheet-GeoChartRegionSelectSection";
   static components = { Section, Select };
 
-  protected props = props({
+  protected props = useProps({
     chartId: types.UID(),
     definition: types.GeoChartDefinition(),
     updateChart: types.function<ChartUpdateFunction<GeoChartDefinition<string>>>(),

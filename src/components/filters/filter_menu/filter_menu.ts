@@ -1,4 +1,4 @@
-import { onWillUpdateProps, props, proxy } from "@odoo/owl";
+import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
 import { isDateTimeFormat } from "../../../helpers/format/format";
 import { deepCopy, deepEquals } from "../../../helpers/misc";
 import { interactiveSort } from "../../../helpers/sort_interactive";
@@ -38,7 +38,7 @@ export class FilterMenu extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FilterMenu";
   static components = { FilterMenuValueList, SidePanelCollapsible, FilterMenuCriterion };
 
-  private props = props({
+  private props = useProps({
     filterPosition: types.Position(),
     onClosed: types.function().optional(),
   });

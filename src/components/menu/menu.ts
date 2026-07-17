@@ -1,4 +1,4 @@
-import { props, signal } from "@odoo/owl";
+import { signal, useProps } from "@odoo/owl";
 import {
   Action,
   adaptShortcutStringToMacOs,
@@ -31,7 +31,7 @@ export class Menu extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Menu";
   static components = {};
 
-  protected props = props({
+  protected props = useProps({
     menuItems: types.ArrayOf<MenuItemOrSeparator>(),
     onClose: types.function(),
     onClickMenu: types.function<(menu: Action, ev: PointerEvent) => void>().optional(),

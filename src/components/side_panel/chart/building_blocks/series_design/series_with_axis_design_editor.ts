@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { DEFAULT_WINDOW_SIZE } from "../../../../../constants";
 import { getColorsPalette, getNthColor, setColorAlpha, toHex } from "../../../../../helpers/color";
 import { CHART_AXIS_CHOICES } from "../../../../../helpers/figures/charts/chart_common";
@@ -34,7 +34,7 @@ export class SeriesWithAxisDesignEditor extends Component<SpreadsheetChildEnv> {
     Select,
   };
 
-  protected props = props({
+  protected props = useProps({
     chartId: types.UID(),
     definition: types.ChartDefinitionWithDataSource(),
     updateChart: types.function<ChartUpdateFunction<ChartDefinitionWithDataSource<string>>>(),

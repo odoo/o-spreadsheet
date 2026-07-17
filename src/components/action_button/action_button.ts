@@ -1,4 +1,4 @@
-import { onWillUpdateProps, props } from "@odoo/owl";
+import { onWillUpdateProps, useProps } from "@odoo/owl";
 import { adaptShortcutStringToMacOs, createAction } from "../../actions/action";
 import { Component } from "../../owl3_compatibility_layer";
 import { PropsOf } from "../../types/props_of";
@@ -9,7 +9,7 @@ import { types } from "../props_validation";
 export class ActionButton extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ActionButton";
 
-  protected props = props({
+  protected props = useProps({
     action: types.ActionSpec(),
     hasTriangleDownIcon: types.boolean().optional(),
     selectedColor: types.string().optional(),

@@ -20,7 +20,7 @@ import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 import { TreeMapCategoryColors } from "./treemap_category_color/treemap_category_color";
 import { TreeMapColorScale } from "./treemap_color_scale/treemap_color_scale";
 
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 const DEFAULT_COLOR_SCALE: TreeMapColorScaleOptions = {
   type: "colorScale",
@@ -51,7 +51,7 @@ export class TreeMapChartDesignPanel extends Component<SpreadsheetChildEnv> {
     TreeMapColorScale,
     ChartHumanizeNumbers,
   };
-  protected props = props(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<
+  protected props = useProps(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<
     TreeMapChartDefinition<string>
   >;
 

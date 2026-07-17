@@ -1,4 +1,4 @@
-import { props, signal } from "@odoo/owl";
+import { signal, useProps } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -10,7 +10,7 @@ export class ColorPickerWidget extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ColorPickerWidget";
   static components = { ColorPicker };
 
-  protected props = props({
+  protected props = useProps({
     currentColor: types.string().optional(),
     toggleColorPicker: types.function(),
     showColorPicker: types.boolean(),

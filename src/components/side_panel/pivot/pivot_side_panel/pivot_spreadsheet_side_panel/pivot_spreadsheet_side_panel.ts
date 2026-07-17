@@ -1,4 +1,4 @@
-import { props, proxy, signal } from "@odoo/owl";
+import { proxy, signal, useProps } from "@odoo/owl";
 import { SpreadsheetPivotRuntimeDefinition } from "../../../../../helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { SpreadsheetPivot } from "../../../../../helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { Component } from "../../../../../owl3_compatibility_layer";
@@ -30,7 +30,7 @@ export class PivotSpreadsheetSidePanel extends Component<SpreadsheetChildEnv> {
     PivotFilterEditor,
   };
 
-  protected props = props({
+  protected props = useProps({
     pivotId: types.UID(),
     onCloseSidePanel: types.function(),
   });

@@ -18,7 +18,7 @@ import { GeneralDesignEditor } from "../building_blocks/general_design/general_d
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 type ColorPickerId = undefined | "backgroundColor" | "baselineColorUp" | "baselineColorDown";
 
@@ -34,7 +34,7 @@ export class ScorecardChartDesignPanel extends Component<SpreadsheetChildEnv> {
     ChartTitle,
     ChartHumanizeNumbers,
   };
-  protected props = props(
+  protected props = useProps(
     chartSidePanelPropsDefinition
   ) as unknown as ChartSidePanelProps<ScorecardChartDefinition>;
 

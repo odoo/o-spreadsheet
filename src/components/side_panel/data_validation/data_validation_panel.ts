@@ -3,14 +3,14 @@ import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { types } from "../../props_validation";
 import { DataValidationPreview } from "./dv_preview/dv_preview";
 
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 
 export class DataValidationPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationPanel";
   static components = { DataValidationPreview };
 
-  protected props = props({
+  protected props = useProps({
     onCloseSidePanel: types.function(),
   });
 

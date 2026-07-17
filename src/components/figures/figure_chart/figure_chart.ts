@@ -5,7 +5,7 @@ import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ChartMenu } from "../chart/chart_menu/chart_menu";
 
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { types } from "../../props_validation";
 
@@ -13,7 +13,7 @@ export class ChartFigure extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartFigure";
   static components = { ChartMenu };
 
-  protected props = props({
+  protected props = useProps({
     figureUI: types.FigureUI(),
     editFigureStyle: types.function<(properties: CSSProperties) => void>().optional(),
     isFullScreen: types.boolean().optional(),

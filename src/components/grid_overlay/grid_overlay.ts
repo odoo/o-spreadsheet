@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, props, Signal, signal, useListener } from "@odoo/owl";
+import { onMounted, onWillUnmount, signal, Signal, useListener, useProps } from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { positionToZone } from "../../helpers/zones";
@@ -140,7 +140,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
     GridAddRowsFooter,
   };
 
-  protected props = props({
+  protected props = useProps({
     onCellDoubleClicked: types
       .function<(col: HeaderIndex, row: HeaderIndex) => void>()
       .optional(() => () => {}),

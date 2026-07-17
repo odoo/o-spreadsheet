@@ -1,4 +1,4 @@
-import { onWillUpdateProps, props, signal } from "@odoo/owl";
+import { onWillUpdateProps, signal, useProps } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import {
@@ -26,7 +26,7 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CarouselPanel";
   static components = { Section, TextInput, TextStyler, CogWheelMenu };
 
-  protected props = props({
+  protected props = useProps({
     onCloseSidePanel: types.function(),
     figureId: types.UID(),
   });

@@ -1,4 +1,4 @@
-import { props, signal } from "@odoo/owl";
+import { signal, useProps } from "@odoo/owl";
 import { HIGHLIGHT_COLOR } from "../../../../constants";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
@@ -10,7 +10,7 @@ import { types } from "../../../props_validation";
 export class DataValidationPreview extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationPreview";
 
-  protected props = props({
+  protected props = useProps({
     rule: types.DataValidationRule(),
   });
 

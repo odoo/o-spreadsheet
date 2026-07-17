@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { localizeContent } from "../../../../helpers/locale";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
@@ -19,7 +19,7 @@ export class IconSetRuleEditor extends Component<SpreadsheetChildEnv> {
     StandaloneComposer,
     Select,
   };
-  protected props = props({
+  protected props = useProps({
     store: types.Store<ConditionalFormattingEditorStore>(),
   });
 

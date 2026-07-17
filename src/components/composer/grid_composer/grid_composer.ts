@@ -1,4 +1,4 @@
-import { onWillUpdateProps, props } from "@odoo/owl";
+import { onWillUpdateProps, useProps } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../../constants";
 import { toXC } from "../../../helpers/coordinates";
 import { deepEquals, isFormula } from "../../../helpers/misc";
@@ -30,7 +30,7 @@ export class GridComposer extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridComposer";
   static components = { Composer };
 
-  protected props = props({
+  protected props = useProps({
     gridDims: types.DOMDimension(),
     onInputContextMenu: types.function<(event: MouseEvent) => void>(),
   });

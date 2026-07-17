@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/misc";
 import {
   Component,
@@ -33,7 +33,7 @@ export class ConditionalFormattingEditor extends Component<SpreadsheetChildEnv> 
     IconSetRuleEditor,
     DataBarRuleEditor,
   };
-  protected props = props({
+  protected props = useProps({
     cf: types.ConditionalFormat(),
     isNewCf: types.boolean(),
     onCloseSidePanel: types.function(),

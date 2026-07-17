@@ -1,4 +1,4 @@
-import { props, xml } from "@odoo/owl";
+import { useProps, xml } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../src/actions/action";
 import { MenuPopover } from "../../src/components/menu_popover/menu_popover";
 import {
@@ -191,7 +191,7 @@ class ContextMenuParent extends Component {
     </div>
   `;
   static components = { MenuPopover };
-  protected props: Props = props({
+  protected props: Props = useProps({
     x: types.number(),
     y: types.number(),
     width: types.number(),

@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, props, signal } from "@odoo/owl";
+import { onMounted, onWillUnmount, signal, useProps } from "@odoo/owl";
 import { drawGaugeChart } from "../../../../helpers/figures/charts/gauge_chart_rendering";
 import { deepEquals } from "../../../../helpers/misc";
 import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
@@ -16,7 +16,7 @@ const ANIMATION_DURATION = 1000;
 export class GaugeChartComponent extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GaugeChartComponent";
 
-  protected props = props({
+  protected props = useProps({
     chartId: types.string(),
     isFullScreen: types.boolean().optional(),
   });

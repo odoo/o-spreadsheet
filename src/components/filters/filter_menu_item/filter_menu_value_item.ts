@@ -1,4 +1,4 @@
-import { onWillPatch, props, signal } from "@odoo/owl";
+import { onWillPatch, signal, useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { types } from "../../props_validation";
@@ -8,7 +8,7 @@ export class FilterMenuValueItem extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FilterMenuValueItem";
   static components = { Checkbox };
 
-  protected props = props({
+  protected props = useProps({
     value: types.string(),
     isChecked: types.boolean(),
     isSelected: types.boolean(),

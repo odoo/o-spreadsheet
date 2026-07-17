@@ -1,4 +1,4 @@
-import { props, signal } from "@odoo/owl";
+import { signal, useProps } from "@odoo/owl";
 import { parseDateTime } from "../../../../helpers/dates";
 import { formatValue } from "../../../../helpers/format/format";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -8,7 +8,7 @@ import { types } from "../../../props_validation";
 
 export class CalendarButton extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CalendarButton";
-  protected props = props({
+  protected props = useProps({
     value: types.string().optional(""),
     onChange: types.function<(value: string) => void>(),
   });

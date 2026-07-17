@@ -1,4 +1,4 @@
-import { onWillUpdateProps, props, proxy, signal, useEffect } from "@odoo/owl";
+import { onWillUpdateProps, proxy, signal, useEffect, useProps } from "@odoo/owl";
 import { deepEquals } from "../../../helpers/misc";
 import { getComputedTableStyle } from "../../../helpers/table_helpers";
 import { Component } from "../../../owl3_compatibility_layer";
@@ -14,7 +14,7 @@ export class TableStylePreview extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableStylePreview";
   static components = { MenuPopover };
 
-  protected props = props({
+  protected props = useProps({
     tableConfig: types.TableConfig(),
     tableStyle: types.TableStyle(),
     type: types.or([types.literal("table"), types.literal("pivot")]),

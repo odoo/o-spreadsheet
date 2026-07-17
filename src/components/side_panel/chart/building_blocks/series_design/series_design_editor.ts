@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { getColorsPalette, getNthColor, toHex } from "../../../../../helpers/color";
 import { Component } from "../../../../../owl3_compatibility_layer";
 import {
@@ -23,7 +23,7 @@ export class SeriesDesignEditor extends Component<SpreadsheetChildEnv> {
     Select,
   };
 
-  protected props = props({
+  protected props = useProps({
     chartId: types.UID(),
     definition: types.ChartDefinitionWithDataSource(),
     updateChart: types.function<ChartUpdateFunction<ChartDefinitionWithDataSource<string>>>(),

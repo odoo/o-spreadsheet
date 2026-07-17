@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -11,7 +11,7 @@ import { Store } from "../../../types/store_engine";
 export class Border extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Border";
 
-  protected props = props({
+  protected props = useProps({
     zone: types.Zone(),
     orientation: types.or([
       types.literal("n"),

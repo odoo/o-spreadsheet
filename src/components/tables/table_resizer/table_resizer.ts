@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ViewportsStore } from "../../../stores/viewports_store";
@@ -21,7 +21,7 @@ interface State {
 export class TableResizer extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableResizer";
 
-  protected props = props({
+  protected props = useProps({
     table: types.Table(),
   });
 

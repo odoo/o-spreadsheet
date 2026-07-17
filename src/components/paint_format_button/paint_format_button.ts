@@ -3,13 +3,13 @@ import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { PaintFormatStore } from "./paint_format_store";
 
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { types } from "../props_validation";
 export class PaintFormatButton extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PaintFormatButton";
 
-  protected props = props({
+  protected props = useProps({
     class: types.string().optional(),
   });
 

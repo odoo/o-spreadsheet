@@ -1,4 +1,4 @@
-import { onWillUpdateProps, props, proxy } from "@odoo/owl";
+import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
 import { numberToLetters } from "../../../helpers/coordinates";
 import { zoneToDimension } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
@@ -19,7 +19,7 @@ export class RemoveDuplicatesPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-RemoveDuplicatesPanel";
   static components = { ValidationMessages, Section, Checkbox };
 
-  protected props = props({
+  protected props = useProps({
     onCloseSidePanel: types.function(),
   });
 

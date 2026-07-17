@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/misc";
 import { getUniquePivotGroupName } from "../../../../helpers/pivot/pivot_helpers";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -16,7 +16,7 @@ import { SidePanelCollapsible } from "../../components/collapsible/side_panel_co
 
 export class PivotCustomGroupsCollapsible extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotCustomGroupsCollapsible";
-  protected props = props({
+  protected props = useProps({
     pivotId: types.UID(),
     customField: types.PivotCustomGroupedField(),
     onCustomFieldUpdated: types.function<(definition: Partial<PivotCoreDefinition>) => void>(),

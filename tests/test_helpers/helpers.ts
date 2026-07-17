@@ -1,4 +1,4 @@
-import { props, proxy, xml } from "@odoo/owl";
+import { proxy, useProps, xml } from "@odoo/owl";
 import { type ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { functionCache, type StoreConstructor } from "../../src";
@@ -285,7 +285,7 @@ class ParentWithPortalTarget extends Component<SpreadsheetChildEnv> {
       <t t-component="this.props.childComponent" t-props="this.props.childProps"/>
     </div>
   `;
-  protected props = props() as unknown as ParentProps;
+  protected props = useProps() as unknown as ParentProps;
 }
 
 interface MountComponentArgs<Props extends ComponentProps> {
@@ -1122,7 +1122,7 @@ export class ComposerWrapper extends Component<SpreadsheetChildEnv> {
     <div class="o-spreadsheet"/>
     <Composer t-props="this.composerProps"/>
   `;
-  protected props = props() as unknown as ComposerWrapperProps;
+  protected props = useProps() as unknown as ComposerWrapperProps;
   state = proxy({ focusComposer: <ComposerFocusType>"inactive" });
   composerStore!: Store<CellComposerStore>;
 

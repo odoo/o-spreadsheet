@@ -1,4 +1,4 @@
-import { onWillUnmount, props, proxy, signal } from "@odoo/owl";
+import { onWillUnmount, proxy, signal, useProps } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { FIRST_CHART_COLOR } from "../../../helpers/color";
 import { numberToLetters } from "../../../helpers/coordinates";
@@ -22,7 +22,7 @@ export class ColumnStatsPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ColumnStatsPanel";
   static components = { NumberInput, SidePanelCollapsible, BadgeSelection, Section };
 
-  protected props = props({
+  protected props = useProps({
     onCloseSidePanel: types.function(),
   });
 

@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberToHex } from "../../../../helpers/color";
 import { localizeContent } from "../../../../helpers/locale";
@@ -22,7 +22,7 @@ export class ColorScaleRuleEditorThreshold extends Component<SpreadsheetChildEnv
     StandaloneComposer,
     Select,
   };
-  protected props = props({
+  protected props = useProps({
     store: types.Store<ConditionalFormattingEditorStore>(),
     thresholdType: types.or([
       types.literal("minimum"),

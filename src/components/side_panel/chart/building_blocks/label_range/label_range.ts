@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { _t } from "../../../../../translation";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { SelectionInput } from "../../../../selection_input/selection_input";
@@ -11,7 +11,7 @@ export class ChartLabelRange extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartLabelRange";
   static components = { SelectionInput, Checkbox, Section };
 
-  protected props = props({
+  protected props = useProps({
     title: types.string().optional(_t("Categories / Labels")),
     range: types.string(),
     class: types.string().optional(),

@@ -1,4 +1,4 @@
-import { onWillUpdateProps, props, proxy, signal } from "@odoo/owl";
+import { onWillUpdateProps, proxy, signal, useProps } from "@odoo/owl";
 import { CellPosition, GenericCriterion } from "../../../..";
 import { deepEquals } from "../../../../helpers/misc";
 import { SpreadsheetPivotRuntimeDefinition } from "../../../../helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
@@ -36,7 +36,7 @@ export class PivotFilterEditor extends Component<SpreadsheetChildEnv> {
     PivotFilterMenu,
   };
 
-  protected props = props({
+  protected props = useProps({
     pivotId: types.UID(),
     definition: types.instanceOf(SpreadsheetPivotRuntimeDefinition),
     filter: types.PivotFilter(),

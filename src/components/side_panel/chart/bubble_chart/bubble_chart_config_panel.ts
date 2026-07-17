@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { numberToLetters } from "../../../../helpers/coordinates";
 import { createValidRange } from "../../../../helpers/range";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -28,7 +28,7 @@ export class BubbleChartConfigPanel extends Component<SpreadsheetChildEnv> {
     ChartLabelRange,
     ChartErrorSection,
   };
-  protected props = props(chartSidePanelPropsDefinition) as unknown as Props;
+  protected props = useProps(chartSidePanelPropsDefinition) as unknown as Props;
 
   protected state: BubbleChartPanelState = proxy({
     datasetDispatchResult: undefined,

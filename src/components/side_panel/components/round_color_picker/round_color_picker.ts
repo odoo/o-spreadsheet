@@ -1,4 +1,4 @@
-import { props, proxy, signal } from "@odoo/owl";
+import { proxy, signal, useProps } from "@odoo/owl";
 import { Component, useExternalListener } from "../../../../owl3_compatibility_layer";
 import { Rect } from "../../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
@@ -22,7 +22,7 @@ interface State {
 export class RoundColorPicker extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet.RoundColorPicker";
   static components = { Section, ColorPicker };
-  protected props = props({
+  protected props = useProps({
     currentColor: types.string().optional(),
     title: types.string().optional(),
     onColorPicked: types.function<(color: string) => void>(),

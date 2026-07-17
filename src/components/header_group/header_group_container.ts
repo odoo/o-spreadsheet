@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { GROUP_LAYER_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { Component } from "../../owl3_compatibility_layer";
@@ -18,7 +18,7 @@ export class HeaderGroupContainer extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-HeaderGroupContainer";
   static components = { RowGroup, ColGroup, MenuPopover };
 
-  protected props = props({
+  protected props = useProps({
     dimension: types.Dimension(),
     layers: types.array(),
   });

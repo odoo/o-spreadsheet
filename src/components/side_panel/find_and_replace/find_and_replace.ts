@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, props, proxy, signal } from "@odoo/owl";
+import { onMounted, onWillUnmount, proxy, signal, useProps } from "@odoo/owl";
 import { debounce } from "../../../helpers/misc";
 import { zoneToXc } from "../../../helpers/zones";
 import { Component, useExternalListener } from "../../../owl3_compatibility_layer";
@@ -20,7 +20,7 @@ import { FindAndReplaceStore } from "./find_and_replace_store";
 export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FindAndReplacePanel";
   static components = { SelectionInput, Section, Checkbox, ValidationMessages, Select };
-  protected props = props({
+  protected props = useProps({
     onCloseSidePanel: types.function(),
   });
 

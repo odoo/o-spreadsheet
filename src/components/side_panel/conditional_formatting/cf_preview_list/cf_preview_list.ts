@@ -1,4 +1,4 @@
-import { props, signal } from "@odoo/owl";
+import { signal, useProps } from "@odoo/owl";
 import { UuidGenerator } from "../../../../helpers/uuid";
 import { zoneToXc } from "../../../../helpers/zones";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -14,7 +14,7 @@ export class ConditionalFormatPreviewList extends Component<SpreadsheetChildEnv>
   static template = "o-spreadsheet-ConditionalFormatPreviewList";
   static components = { ConditionalFormatPreview };
 
-  protected props = props({
+  protected props = useProps({
     onCloseSidePanel: types.function(),
   });
 

@@ -1,4 +1,4 @@
-import { props } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { collapseHierarchicalDisplayName } from "../../../../../helpers/pivot/pivot_helpers";
 import {
   PivotDimension as PivotDimensionType,
@@ -14,7 +14,7 @@ import { Component } from "../../../../../owl3_compatibility_layer";
 
 export class PivotDimension extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotDimension";
-  protected props = props({
+  protected props = useProps({
     dimension: types.or([types.PivotDimension(), types.PivotMeasure(), types.PivotFilter()]),
     onRemoved: types
       .function<(dimension: PivotDimensionType | PivotMeasure | PivotFilter) => void>()

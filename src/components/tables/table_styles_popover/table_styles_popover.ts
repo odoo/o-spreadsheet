@@ -1,4 +1,4 @@
-import { props, proxy, signal } from "@odoo/owl";
+import { proxy, signal, useProps } from "@odoo/owl";
 import { TABLE_STYLE_CATEGORIES } from "../../../helpers/table_presets";
 import { Component, useExternalListener } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
@@ -20,7 +20,7 @@ export class TableStylesPopover extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableStylesPopover";
   static components = { Popover, TableStylePreview };
 
-  protected props = props({
+  protected props = useProps({
     tableConfig: types.object<Omit<TableConfig, "styleId">>(),
     popoverProps: types.object<PropsOf<Popover>>().optional(),
     closePopover: types.function(),

@@ -1,4 +1,4 @@
-import { onMounted, onWillUpdateProps, props, signal, useListener } from "@odoo/owl";
+import { onMounted, onWillUpdateProps, signal, useListener, useProps } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { useAutofocus } from "../helpers/autofocus_hook";
@@ -34,7 +34,7 @@ export const genericInputPropsDefinition = {
 };
 
 export class GenericInput<T extends GenericInputProps> extends Component<SpreadsheetChildEnv> {
-  protected props: T = props(genericInputPropsDefinition) as unknown as T;
+  protected props: T = useProps(genericInputPropsDefinition) as unknown as T;
 
   protected genericInputRef = signal.ref(HTMLInputElement);
 

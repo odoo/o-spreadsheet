@@ -1,4 +1,4 @@
-import { onWillStart, onWillUpdateProps, props, proxy, signal, useEffect } from "@odoo/owl";
+import { onWillStart, onWillUpdateProps, proxy, signal, useEffect, useProps } from "@odoo/owl";
 import { deepEquals, range } from "../../helpers/misc";
 import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
@@ -34,7 +34,7 @@ interface SelectionRange extends Omit<RangeInputValue, "color"> {
 export class SelectionInput extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SelectionInput";
 
-  protected props = props({
+  protected props = useProps({
     ranges: types.array(types.string()),
     hasSingleRange: types.boolean().optional(),
     required: types.boolean().optional(),

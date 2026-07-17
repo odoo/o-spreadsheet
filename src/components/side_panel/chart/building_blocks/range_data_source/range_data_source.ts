@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { proxy, useProps } from "@odoo/owl";
 import { numberToLetters } from "../../../../../helpers/coordinates";
 import { createDataSets } from "../../../../../helpers/figures/charts/helpers_index";
 import { getChartColorsGenerator } from "../../../../../helpers/figures/charts/runtime/chartjs_dataset";
@@ -43,7 +43,7 @@ export class ChartRangeDataSourceComponent extends Component<SpreadsheetChildEnv
     ChartLabelRange,
   };
 
-  protected props = props({
+  protected props = useProps({
     chartId: types.UID(),
     definition: types.ChartDefinitionWithDataSource(),
     dataSource: types.ChartRangeDataSource(),
