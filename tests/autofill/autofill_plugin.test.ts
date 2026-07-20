@@ -60,9 +60,9 @@ function autofillTooltip(from: string, to: string): string | undefined {
  * Retrieve the direction from a zone to a cell
  */
 function getDirection(from: string, xc: string): DIRECTION {
-  setSelection(model, [from]);
   const { col, row } = toCartesian(xc);
-  return autoFill["getDirection"](col, row);
+  const source = toZone(from);
+  return autoFill["getDirection"](source, col, row);
 }
 
 beforeEach(() => {
@@ -103,7 +103,7 @@ describe("Autofill", () => {
     ["C3:D4", "E4", "E3:E4"],
   ])("From %s, selecting %s should select the good zone (%s)", (from, xc, expected) => {
     autofillSelect(model, from, xc);
-    expect(autoFill["autofillZone"]).toEqual(toZone(expected));
+    expect(autoFill["autofillZone"].zone).toEqual(toZone(expected));
   });
 
   test.each([

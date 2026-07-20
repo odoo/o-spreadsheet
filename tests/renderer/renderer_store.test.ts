@@ -1512,7 +1512,7 @@ describe("renderer", () => {
     "compatible copied zones %s are all outlined with dots",
     (targetXc) => {
       const { drawGridRenderer, model, container } = setRenderer(new Model(), ["Clipboard"]);
-      copy(model, ...targetXc.split(","));
+      copy(model, targetXc);
       const { ctx, isDotOutlined, reset } = watchClipboardOutline(model, container);
       drawGridRenderer(ctx);
       const copiedTarget = target(targetXc);
@@ -1528,7 +1528,7 @@ describe("renderer", () => {
     "only last copied non-compatible zones %s is outlined with dots",
     (targetXc) => {
       const { drawGridRenderer, model, container } = setRenderer(new Model(), ["Clipboard"]);
-      copy(model, ...targetXc.split(","));
+      copy(model, targetXc);
       const { ctx, isDotOutlined, reset } = watchClipboardOutline(model, container);
       drawGridRenderer(ctx);
       const copiedTarget = target(targetXc);

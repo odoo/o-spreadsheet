@@ -650,21 +650,23 @@ export function updateChartDataSource(
 /**
  * Copy a zone
  */
-export function copy(model: Model, ...ranges: string[]): DispatchResult {
-  if (ranges && ranges.length) {
-    setSelection(model, ranges);
-  }
-  return model.dispatch("COPY");
+export function copy(
+  model: Model,
+  ranges?: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("COPY", { sheetId, target: target(ranges || "A1") });
 }
 
 /**
  * Cut a zone
  */
-export function cut(model: Model, ...ranges: string[]): DispatchResult {
-  if (ranges && ranges.length) {
-    setSelection(model, ranges);
-  }
-  return model.dispatch("CUT");
+export function cut(
+  model: Model,
+  ranges?: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("CUT", { sheetId, target: target(ranges || "A1") });
 }
 
 /**
@@ -673,9 +675,10 @@ export function cut(model: Model, ...ranges: string[]): DispatchResult {
 export function paste(
   model: Model,
   range: string,
-  pasteOption?: ClipboardPasteOptions
+  pasteOption?: ClipboardPasteOptions,
+  sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
-  return model.dispatch("PASTE", { target: target(range), pasteOption });
+  return model.dispatch("PASTE", { sheetId, target: target(range), pasteOption });
 }
 
 /**
@@ -691,6 +694,7 @@ export function pasteFromOSClipboard(
     clipboardContent: content,
     target: target(range),
     pasteOption,
+    sheetId: model.getters.getActiveSheetId(),
   });
 }
 
@@ -698,21 +702,27 @@ export function pasteFromOSClipboard(
  * Copy cells above a zone and paste on zone
  */
 export function copyPasteAboveCells(model: Model): DispatchResult {
-  return model.dispatch("COPY_PASTE_CELLS_ABOVE");
+  const sheetId = model.getters.getActiveSheetId();
+  const target = model.getters.getSelectedZones();
+  return model.dispatch("COPY_PASTE_CELLS_ABOVE", { sheetId, target });
 }
 
 /**
  * Copy cells to the left of a zone and paste on zone
  */
 export function copyPasteCellsOnLeft(model: Model): DispatchResult {
-  return model.dispatch("COPY_PASTE_CELLS_ON_LEFT");
+  const sheetId = model.getters.getActiveSheetId();
+  const target = model.getters.getSelectedZones();
+  return model.dispatch("COPY_PASTE_CELLS_ON_LEFT", { sheetId, target });
 }
 
 /**
  * Copy cell and paste on zone
  */
 export function copyPasteCellsOnZone(model: Model): DispatchResult {
-  return model.dispatch("COPY_PASTE_CELLS_ON_ZONE");
+  const sheetId = model.getters.getActiveSheetId();
+  const target = model.getters.getSelectedZones();
+  return model.dispatch("COPY_PASTE_CELLS_ON_ZONE", { sheetId, target });
 }
 
 /**
@@ -910,6 +920,7 @@ export function deleteCells(model: Model, range: string, shift: "left" | "up"): 
   return model.dispatch("DELETE_CELL", {
     zone: toZone(range),
     shiftDimension: shift === "left" ? "COL" : "ROW",
+    sheetId: model.getters.getActiveSheetId(),
   });
 }
 
@@ -926,6 +937,7 @@ export function deleteContent(
 
 export function insertCells(model: Model, range: string, shift: "right" | "down"): DispatchResult {
   return model.dispatch("INSERT_CELL", {
+    sheetId: model.getters.getActiveSheetId(),
     zone: toZone(range),
     shiftDimension: shift === "right" ? "COL" : "ROW",
   });
@@ -1544,6 +1556,8 @@ export function splitTextToColumns(
     separator,
     force: options.force || false,
     addNewColumns: options.addNewColumns || false,
+    sheetId: model.getters.getActiveSheetId(),
+    zone: toZone(target || "A1"),
   });
 }
 
@@ -1963,7 +1977,10 @@ export function deleteUnfilteredContent(
 }
 
 export function autofillAuto(model: Model) {
-  return model.dispatch("AUTOFILL_AUTO");
+  const { col, row } = model.getters.getActivePosition();
+  const sheetId = model.getters.getActiveSheetId();
+  const source = model.getters.getSelectedZone();
+  return model.dispatch("AUTOFILL_AUTO", { col, row, sheetId, source });
 }
 
 export function selectFigure(model: Model, figureId: UID, selectMultiple?: boolean) {
@@ -1998,13 +2015,16 @@ export function setZoom(env: SpreadsheetChildEnv, zoom: number) {
 }
 
 export function autofillSelect(model: Model, from: string, to: string) {
-  setSelection(model, [from]);
-  return model.dispatch("AUTOFILL_SELECT", toCartesian(to));
+  const sheetId = model.getters.getActiveSheetId();
+  const source = toZone(from);
+  return model.dispatch("AUTOFILL_SELECT", { ...toCartesian(to), sheetId, source });
 }
 
 export function autofill(model: Model, from: string, to: string) {
   autofillSelect(model, from, to);
-  return model.dispatch("AUTOFILL");
+  const sheetId = model.getters.getActiveSheetId();
+  const source = toZone(from);
+  return model.dispatch("AUTOFILL", { sheetId, source });
 }
 
 export function setFormulaVisibility(model: Model, show: boolean) {
@@ -2033,6 +2053,7 @@ export function removeTableStyle(model: Model, tableStyleId: UID) {
 export function startChangeHighlight(model: Model, xc: string) {
   return model.dispatch("START_CHANGE_HIGHLIGHT", {
     zone: toZone(xc),
+    sheetId: model.getters.getActiveSheetId(),
   });
 }
 

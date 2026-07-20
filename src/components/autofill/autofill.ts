@@ -90,7 +90,9 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
     const onMouseUp = () => {
       this.state.handler = false;
       this.state.position = { ...this.props.position };
-      this.env.model.dispatch("AUTOFILL");
+      const sheetId = this.env.model.getters.getActiveSheetId();
+      const source = this.env.model.getters.getSelectedZone();
+      this.env.model.dispatch("AUTOFILL", { sheetId, source });
     };
 
     const onMouseMove = (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => {
@@ -105,7 +107,14 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
         lastCol = col === -1 ? lastCol : clip(col, 0, numberOfCols);
         lastRow = row === -1 ? lastRow : clip(row, 0, numberOfRows);
         if (lastCol !== undefined && lastRow !== undefined) {
-          this.env.model.dispatch("AUTOFILL_SELECT", { col: lastCol, row: lastRow });
+          const sheetId = this.env.model.getters.getActiveSheetId();
+          const source = this.env.model.getters.getSelectedZone();
+          this.env.model.dispatch("AUTOFILL_SELECT", {
+            col: lastCol,
+            row: lastRow,
+            sheetId,
+            source,
+          });
         }
       }
     };
@@ -113,7 +122,10 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
   }
 
   onDblClick() {
-    this.env.model.dispatch("AUTOFILL_AUTO");
+    const { col, row } = this.env.model.getters.getActivePosition();
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const source = this.env.model.getters.getSelectedZone();
+    this.env.model.dispatch("AUTOFILL_AUTO", { col, row, sheetId, source });
   }
 }
 

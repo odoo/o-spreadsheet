@@ -149,6 +149,7 @@ export function repeatPasteCommand(getters: Getters, cmd: PasteCommand): RepeatP
     type: "REPEAT_PASTE",
     pasteOption: deepCopy(cmd.pasteOption),
     target: getters.getSelectedZones(),
+    sheetId: getters.getActiveSheetId(),
   };
 }
 

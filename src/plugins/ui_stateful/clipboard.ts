@@ -71,65 +71,75 @@ export class ClipboardPlugin extends UIPlugin {
   allowDispatch(cmd: LocalCommand): CommandResult {
     switch (cmd.type) {
       case "CUT":
-        const zones = this.getters.getSelectedZones();
-        return this.isCutAllowedOn(zones);
+        return this.isCutAllowedOn(cmd.sheetId, cmd.target);
       case "PASTE_FROM_OS_CLIPBOARD": {
         const copiedData = this.convertTextToClipboardData(cmd.clipboardContent.text ?? "");
         const pasteOption = cmd.pasteOption;
-        return this.isPasteAllowed(cmd.target, copiedData, { pasteOption, isCutOperation: false });
+        return this.isPasteAllowed(cmd.sheetId, cmd.target, copiedData, {
+          pasteOption,
+          isCutOperation: false,
+        });
       }
       case "PASTE": {
         if (!this.copiedData) {
           return CommandResult.EmptyClipboard;
         }
         const pasteOption = cmd.pasteOption;
-        return this.isPasteAllowed(cmd.target, this.copiedData, {
+        return this.isPasteAllowed(cmd.sheetId, cmd.target, this.copiedData, {
           pasteOption: pasteOption,
           isCutOperation: this._isCutOperation,
         });
       }
       case "COPY_PASTE_CELLS_ABOVE": {
-        const zones = this.getters.getSelectedZones();
+        const zones = cmd.target;
         if (zones.length > 1 || (zones[0].top === 0 && zones[0].bottom === 0)) {
           return CommandResult.InvalidCopyPasteSelection;
         }
-        const zone = this.getters.getSelectedZone();
-        const copiedData = this.getCopiedDataAbove(zone);
-        return this.isPasteAllowed(zones, copiedData, {
+        const zone = cmd.target[0];
+        const copiedData = this.getCopiedDataAbove(cmd.sheetId, zone);
+        return this.isPasteAllowed(cmd.sheetId, zones, copiedData, {
           isCutOperation: false,
         });
       }
       case "COPY_PASTE_CELLS_ON_LEFT": {
-        const zones = this.getters.getSelectedZones();
+        const zones = cmd.target;
         if (zones.length > 1 || (zones[0].left === 0 && zones[0].right === 0)) {
           return CommandResult.InvalidCopyPasteSelection;
         }
-        const zone = this.getters.getSelectedZone();
-        const copiedData = this.getCopiedDataOnLeft(zone);
-        return this.isPasteAllowed(zones, copiedData, {
+        const zone = cmd.target[0];
+        const copiedData = this.getCopiedDataOnLeft(cmd.sheetId, zone);
+        return this.isPasteAllowed(cmd.sheetId, zones, copiedData, {
           isCutOperation: false,
         });
       }
       case "COPY_PASTE_CELLS_ON_ZONE": {
-        const zones = this.getters.getSelectedZones();
+        const zones = cmd.target;
         if (zones.length > 1) {
           return CommandResult.InvalidCopyPasteSelection;
         }
-        const zone = this.getters.getSelectedZone();
-        const copiedData = this.getCopiedDataOnLeft(zone);
-        return this.isPasteAllowed(zones, copiedData, {
+        const zone = cmd.target[0];
+        const copiedData = this.getCopiedDataOnLeft(cmd.sheetId, zone);
+        return this.isPasteAllowed(cmd.sheetId, zones, copiedData, {
           isCutOperation: false,
         });
       }
       case "INSERT_CELL": {
-        const { cut, paste } = this.getInsertCellsTargets(cmd.zone, cmd.shiftDimension);
-        const copiedData = this.copy(cut, "shiftCells");
-        return this.isPasteAllowed(paste, copiedData, { isCutOperation: true });
+        const { cut, paste } = this.getInsertCellsTargets(
+          cmd.sheetId,
+          cmd.zone,
+          cmd.shiftDimension
+        );
+        const copiedData = this.copy(cmd.sheetId, cut, "shiftCells");
+        return this.isPasteAllowed(cmd.sheetId, paste, copiedData, { isCutOperation: true });
       }
       case "DELETE_CELL": {
-        const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
-        const copiedData = this.copy(cut, "shiftCells");
-        return this.isPasteAllowed(paste, copiedData, { isCutOperation: true });
+        const { cut, paste } = this.getDeleteCellsTargets(
+          cmd.sheetId,
+          cmd.zone,
+          cmd.shiftDimension
+        );
+        const copiedData = this.copy(cmd.sheetId, cut, "shiftCells");
+        return this.isPasteAllowed(cmd.sheetId, paste, copiedData, { isCutOperation: true });
       }
     }
     return CommandResult.Success;
@@ -139,11 +149,10 @@ export class ClipboardPlugin extends UIPlugin {
     switch (cmd.type) {
       case "COPY":
       case "CUT":
-        const zones = this.getters.getSelectedZones();
         this.status = "visible";
-        this.originSheetId = this.getters.getActiveSheetId();
+        this.originSheetId = cmd.sheetId;
         this._isCutOperation = cmd.type === "CUT";
-        this.copiedData = this.copy(zones);
+        this.copiedData = this.copy(cmd.sheetId, cmd.target);
         break;
       case "PASTE_FROM_OS_CLIPBOARD": {
         this._isCutOperation = false;
@@ -158,7 +167,7 @@ export class ClipboardPlugin extends UIPlugin {
 
         // TODO: support multiple image import
         if (contentToPaste.imageData) {
-          const sheetId = this.getters.getActiveSheetId();
+          const sheetId = cmd.sheetId;
           const figureId = UuidGenerator.uuidv4();
           const definition = contentToPaste.imageData;
 
@@ -179,7 +188,7 @@ export class ClipboardPlugin extends UIPlugin {
           this.copiedData = this.convertTextToClipboardData(contentToPaste.text ?? "");
         }
         const pasteOption = cmd.pasteOption;
-        this.paste(cmd.target, this.copiedData, {
+        this.paste(cmd.sheetId, cmd.target, this.copiedData, {
           pasteOption,
           selectTarget: true,
           isCutOperation: false,
@@ -190,7 +199,7 @@ export class ClipboardPlugin extends UIPlugin {
       }
       case "PASTE": {
         const pasteOption = cmd.pasteOption;
-        this.paste(cmd.target, this.copiedData, {
+        this.paste(cmd.sheetId, cmd.target, this.copiedData, {
           pasteOption,
           selectTarget: true,
           isCutOperation: this._isCutOperation,
@@ -204,10 +213,10 @@ export class ClipboardPlugin extends UIPlugin {
       }
       case "COPY_PASTE_CELLS_ABOVE":
         {
-          const zone = this.getters.getSelectedZone();
-          this.originSheetId = this.getters.getActiveSheetId();
-          const copiedData = this.getCopiedDataAbove(zone);
-          this.paste([zone], copiedData, {
+          const zone = cmd.target[0];
+          this.originSheetId = cmd.sheetId;
+          const copiedData = this.getCopiedDataAbove(cmd.sheetId, zone);
+          this.paste(cmd.sheetId, [zone], copiedData, {
             isCutOperation: false,
             selectTarget: true,
           });
@@ -215,10 +224,10 @@ export class ClipboardPlugin extends UIPlugin {
         break;
       case "COPY_PASTE_CELLS_ON_LEFT":
         {
-          const zone = this.getters.getSelectedZone();
-          this.originSheetId = this.getters.getActiveSheetId();
-          const copiedData = this.getCopiedDataOnLeft(zone);
-          this.paste([zone], copiedData, {
+          const zone = cmd.target[0];
+          this.originSheetId = cmd.sheetId;
+          const copiedData = this.getCopiedDataOnLeft(cmd.sheetId, zone);
+          this.paste(cmd.sheetId, [zone], copiedData, {
             isCutOperation: false,
             selectTarget: true,
           });
@@ -226,10 +235,10 @@ export class ClipboardPlugin extends UIPlugin {
         break;
       case "COPY_PASTE_CELLS_ON_ZONE":
         {
-          const zone = this.getters.getSelectedZone();
-          this.originSheetId = this.getters.getActiveSheetId();
-          const copiedData = this.getCopiedDataAboveOnLeft(zone);
-          this.paste([zone], copiedData, {
+          const zone = cmd.target[0];
+          this.originSheetId = cmd.sheetId;
+          const copiedData = this.getCopiedDataAboveOnLeft(cmd.sheetId, zone);
+          this.paste(cmd.sheetId, [zone], copiedData, {
             isCutOperation: false,
             selectTarget: true,
           });
@@ -239,22 +248,30 @@ export class ClipboardPlugin extends UIPlugin {
         this.status = "invisible";
         break;
       case "DELETE_CELL": {
-        const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
+        const { cut, paste } = this.getDeleteCellsTargets(
+          cmd.sheetId,
+          cmd.zone,
+          cmd.shiftDimension
+        );
         if (!isZoneValid(cut[0])) {
           this.dispatch("CLEAR_CELLS", {
             target: [cmd.zone],
-            sheetId: this.getters.getActiveSheetId(),
+            sheetId: cmd.sheetId,
           });
           break;
         }
-        const copiedData = this.copy(cut, "shiftCells");
-        this.paste(paste, copiedData, { isCutOperation: true });
+        const copiedData = this.copy(cmd.sheetId, cut, "shiftCells");
+        this.paste(cmd.sheetId, paste, copiedData, { isCutOperation: true });
         break;
       }
       case "INSERT_CELL": {
-        const { cut, paste } = this.getInsertCellsTargets(cmd.zone, cmd.shiftDimension);
-        const copiedData = this.copy(cut, "shiftCells");
-        this.paste(paste, copiedData, { isCutOperation: true });
+        const { cut, paste } = this.getInsertCellsTargets(
+          cmd.sheetId,
+          cmd.zone,
+          cmd.shiftDimension
+        );
+        const copiedData = this.copy(cmd.sheetId, cut, "shiftCells");
+        this.paste(cmd.sheetId, paste, copiedData, { isCutOperation: true });
         break;
       }
       case "ADD_COLUMNS_ROWS": {
@@ -291,7 +308,7 @@ export class ClipboardPlugin extends UIPlugin {
         break;
       }
       case "REPEAT_PASTE": {
-        this.paste(cmd.target, this.copiedData, {
+        this.paste(cmd.sheetId, cmd.target, this.copiedData, {
           isCutOperation: false,
           pasteOption: cmd.pasteOption,
           selectTarget: true,
@@ -314,33 +331,33 @@ export class ClipboardPlugin extends UIPlugin {
     }
   }
 
-  private getCopiedDataAbove(zone: Zone) {
+  private getCopiedDataAbove(sheetId: UID, zone: Zone) {
     const multipleRowsInSelection = zone.top !== zone.bottom;
     const copyTarget = {
       ...zone,
       bottom: multipleRowsInSelection ? zone.top : zone.top - 1,
       top: multipleRowsInSelection ? zone.top : zone.top - 1,
     };
-    return this.copy([copyTarget]);
+    return this.copy(sheetId, [copyTarget]);
   }
 
-  private getCopiedDataOnLeft(zone: Zone) {
+  private getCopiedDataOnLeft(sheetId: UID, zone: Zone) {
     const multipleColsInSelection = zone.left !== zone.right;
     const copyTarget = {
       ...zone,
       right: multipleColsInSelection ? zone.left : zone.left - 1,
       left: multipleColsInSelection ? zone.left : zone.left - 1,
     };
-    return this.copy([copyTarget]);
+    return this.copy(sheetId, [copyTarget]);
   }
 
-  private getCopiedDataAboveOnLeft(zone: Zone) {
+  private getCopiedDataAboveOnLeft(sheetId: UID, zone: Zone) {
     const copyTarget = {
       ...zone,
       right: zone.left,
       bottom: zone.top,
     };
-    return this.copy([copyTarget]);
+    return this.copy(sheetId, [copyTarget]);
   }
 
   private convertTextToClipboardData(clipboardData: string): {} {
@@ -375,8 +392,8 @@ export class ClipboardPlugin extends UIPlugin {
     });
   }
 
-  private isCutAllowedOn(zones: Zone[]) {
-    const clipboardData = this.getClipboardData(zones);
+  private isCutAllowedOn(sheetId: UID, zones: Zone[]) {
+    const clipboardData = this.getClipboardData(sheetId, zones);
     for (const { handler } of this.selectClipboardHandlers(clipboardData)) {
       const result = handler.isCutAllowed(clipboardData);
       if (result !== CommandResult.Success) {
@@ -386,9 +403,9 @@ export class ClipboardPlugin extends UIPlugin {
     return CommandResult.Success;
   }
 
-  private isPasteAllowed(target: Zone[], copiedData: {}, options: ClipboardOptions) {
+  private isPasteAllowed(sheetId: UID, target: Zone[], copiedData: {}, options: ClipboardOptions) {
     for (const { handler } of this.selectClipboardHandlers(copiedData)) {
-      const result = handler.isPasteAllowed(this.getters.getActiveSheetId(), target, copiedData, {
+      const result = handler.isPasteAllowed(sheetId, target, copiedData, {
         ...options,
       });
       if (result !== CommandResult.Success) {
@@ -414,9 +431,13 @@ export class ClipboardPlugin extends UIPlugin {
     return false;
   }
 
-  private copy(zones: Zone[], mode: ClipboardCopyOptions = "copyPaste"): MinimalClipboardData {
+  private copy(
+    sheetId: UID,
+    zones: Zone[],
+    mode: ClipboardCopyOptions = "copyPaste"
+  ): MinimalClipboardData {
     const copiedData = {};
-    const clipboardData = this.getClipboardData(zones);
+    const clipboardData = this.getClipboardData(sheetId, zones);
     for (const { handlerName, handler } of this.selectClipboardHandlers(clipboardData)) {
       const data = handler.copy(clipboardData, this._isCutOperation, mode);
       copiedData[handlerName] = data;
@@ -431,6 +452,7 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   private paste(
+    sheetId: UID,
     zones: Zone[],
     copiedData: MinimalClipboardData | undefined,
     options: ClipboardOptions
@@ -438,7 +460,6 @@ export class ClipboardPlugin extends UIPlugin {
     if (!copiedData) {
       return;
     }
-    const sheetId = this.getters.getActiveSheetId();
     const handlers = this.selectClipboardHandlers(copiedData);
     const { target, zone, selectedZones } = getPasteTargetFromHandlers(
       sheetId,
@@ -696,8 +717,11 @@ export class ClipboardPlugin extends UIPlugin {
   // Private methods
   // ---------------------------------------------------------------------------
 
-  private getDeleteCellsTargets(zone: Zone, dimension: Dimension): InsertDeleteCellsTargets {
-    const sheetId = this.getters.getActiveSheetId();
+  private getDeleteCellsTargets(
+    sheetId: UID,
+    zone: Zone,
+    dimension: Dimension
+  ): InsertDeleteCellsTargets {
     let cut: Zone;
     if (dimension === "COL") {
       cut = {
@@ -715,8 +739,11 @@ export class ClipboardPlugin extends UIPlugin {
     return { cut: [cut], paste: [zone] };
   }
 
-  private getInsertCellsTargets(zone: Zone, dimension: Dimension): InsertDeleteCellsTargets {
-    const sheetId = this.getters.getActiveSheetId();
+  private getInsertCellsTargets(
+    sheetId: UID,
+    zone: Zone,
+    dimension: Dimension
+  ): InsertDeleteCellsTargets {
     let cut: Zone;
     let paste: Zone;
     if (dimension === "COL") {
@@ -739,8 +766,7 @@ export class ClipboardPlugin extends UIPlugin {
     return { cut: [cut], paste: [paste] };
   }
 
-  private getClipboardData(zones: Zone[]): ClipboardData {
-    const sheetId = this.getters.getActiveSheetId();
+  private getClipboardData(sheetId: UID, zones: Zone[]): ClipboardData {
     const selectedFiguresIds = this.getters.getSelectedFigureIds();
     if (selectedFiguresIds.length) {
       return { figureIds: selectedFiguresIds, sheetId };

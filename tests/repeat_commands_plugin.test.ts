@@ -402,8 +402,7 @@ describe("Repeat local commands", () => {
     addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "1");
     createTableWithFilter(model, "A1:A2");
 
-    setSelection(model, ["A1:A2"]);
-    copy(model);
+    copy(model, "A1:A2");
     paste(model, "B1");
 
     setSelection(model, ["C1"]);

@@ -13,14 +13,19 @@ import {
   CopyPasteCellsOnZoneCommand,
   DispatchResult,
 } from "../../types/commands";
-import { Zone } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 export const handleCopyPasteResult = (
   env: SpreadsheetChildEnv,
-  command: CopyPasteCellsAboveCommand | CopyPasteCellsOnLeftCommand | CopyPasteCellsOnZoneCommand
+  commandType: (
+    | CopyPasteCellsAboveCommand
+    | CopyPasteCellsOnLeftCommand
+    | CopyPasteCellsOnZoneCommand
+  )["type"]
 ) => {
-  const result = env.model.dispatch(command.type);
+  const sheetId = env.model.getters.getActiveSheetId();
+  const target = env.model.getters.getSelectedZones();
+  const result = env.model.dispatch(commandType, { sheetId, target });
   if (result.isCancelledBecause(CommandResult.WillRemoveExistingMerge)) {
     env.raiseError(MergeErrorMessage);
   }
@@ -47,21 +52,22 @@ export function handlePasteResult(env: SpreadsheetChildEnv, result: DispatchResu
   }
 }
 
-export function interactivePaste(
-  env: SpreadsheetChildEnv,
-  target: Zone[],
-  pasteOption?: ClipboardPasteOptions
-) {
-  const result = env.model.dispatch("PASTE", { target, pasteOption });
+export function interactivePaste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptions) {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const target = env.model.getters.getSelectedZones();
+
+  const result = env.model.dispatch("PASTE", { target, sheetId, pasteOption });
   handlePasteResult(env, result);
 }
 
 export async function interactivePasteFromOS(
   env: SpreadsheetChildEnv,
-  target: Zone[],
   parsedClipboardContent: ParsedOSClipboardContent,
   pasteOption?: ClipboardPasteOptions
 ) {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const target = env.model.getters.getSelectedZones();
+
   if (parsedClipboardContent.data && parsedClipboardContent.data.version !== getCurrentVersion()) {
     env.notifyUser({
       type: "warning",
@@ -86,6 +92,7 @@ export async function interactivePasteFromOS(
   }
 
   const result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+    sheetId,
     target,
     clipboardContent: parsedClipboardContent,
     pasteOption,

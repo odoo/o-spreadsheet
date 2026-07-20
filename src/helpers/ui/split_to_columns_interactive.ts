@@ -11,13 +11,23 @@ export function interactiveSplitToColumns(
   separator: string,
   addNewColumns: boolean
 ): DispatchResult {
-  let result = env.model.dispatch("SPLIT_TEXT_INTO_COLUMNS", { separator, addNewColumns });
+  const sheetId = env.model.getters.getActiveSheetId();
+  const zone = env.model.getters.getSelectedZone();
+
+  let result = env.model.dispatch("SPLIT_TEXT_INTO_COLUMNS", {
+    separator,
+    addNewColumns,
+    sheetId,
+    zone,
+  });
   if (result.isCancelledBecause(CommandResult.SplitWillOverwriteContent)) {
     env.askConfirmation(SplitToColumnsInteractiveContent.SplitIsDestructive, () => {
       result = env.model.dispatch("SPLIT_TEXT_INTO_COLUMNS", {
         separator,
         addNewColumns,
         force: true,
+        sheetId,
+        zone,
       });
     });
   }

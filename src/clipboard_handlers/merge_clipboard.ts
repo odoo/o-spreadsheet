@@ -13,7 +13,7 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
   Maybe<Merge>
 > {
   copy(data: ClipboardCellData): ClipboardContent | undefined {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = data.sheetId;
     const { rowsIndexes, columnsIndexes } = data;
     const merges: Maybe<Merge>[][] = [];
 

@@ -1,5 +1,5 @@
 import { getTableContentZone } from "../../helpers/table_helpers";
-import { isInside } from "../../helpers/zones";
+import { isInside, positionToZone } from "../../helpers/zones";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { CellValueType } from "../../types/cells";
 import { Command } from "../../types/commands";
@@ -49,13 +49,21 @@ export class TableAutofillStore extends SpreadsheetStore {
       cell: this.getters.getActivePosition(),
     };
 
-    this.model.selection.selectCell(col, row);
-    this.model.dispatch("AUTOFILL_SELECT", { col, row: zone.bottom });
-    this.model.dispatch("AUTOFILL");
+    this.model.dispatch("AUTOFILL_SELECT", {
+      col,
+      row: zone.bottom,
+      sheetId,
+      source: positionToZone(autofillSource),
+    });
+    this.model.dispatch("AUTOFILL", { sheetId, source: positionToZone(autofillSource) });
 
-    this.model.selection.selectCell(col, row);
-    this.model.dispatch("AUTOFILL_SELECT", { col, row: zone.top });
-    this.model.dispatch("AUTOFILL");
+    this.model.dispatch("AUTOFILL_SELECT", {
+      col,
+      row: zone.top,
+      sheetId,
+      source: positionToZone(autofillSource),
+    });
+    this.model.dispatch("AUTOFILL", { sheetId, source: positionToZone(autofillSource) });
 
     this.model.selection.selectZone(oldSelection);
   }

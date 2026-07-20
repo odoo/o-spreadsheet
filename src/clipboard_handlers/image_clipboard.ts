@@ -69,7 +69,7 @@ export class ImageClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     const { zones } = target;
     for (const clippedFigure of clippedContent.figures) {
       const figureId = target.figureIds[clippedFigure.figureId];
-      const sheetId = this.getters.getActiveSheetId();
+      const sheetId = target.sheetId;
       const { width, height } = clippedFigure.copiedFigure;
       const copy = deepCopy(clippedFigure.copiedImage);
       const { col, row, offset } = boundColRowOffsetInSheet(

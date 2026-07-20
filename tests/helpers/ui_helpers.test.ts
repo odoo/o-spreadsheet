@@ -175,7 +175,8 @@ describe("UI Helpers", () => {
 
   describe("Interactive paste", () => {
     test("paste without copied value interactively", () => {
-      interactivePaste(env, target("D2"));
+      setSelection(model, ["D2"]);
+      interactivePaste(env);
       expect(getCellContent(model, "D2")).toBe("");
     });
 
@@ -186,9 +187,12 @@ describe("UI Helpers", () => {
 
       copy(model, "A1");
       const env = makeTestEnv({ model });
-      interactivePaste(env, target("B1"), "onlyFormat");
-      interactivePaste(env, target("B2"), "asValue");
-      interactivePaste(env, target("B3"));
+      setSelection(model, ["B1"]);
+      interactivePaste(env, "onlyFormat");
+      setSelection(model, ["B2"]);
+      interactivePaste(env, "asValue");
+      setSelection(model, ["B3"]);
+      interactivePaste(env);
 
       expect(getCellText(model, "B1")).toBe("");
       expect(getCell(model, "B1")!.style).toEqual(style);
@@ -205,7 +209,7 @@ describe("UI Helpers", () => {
 
       selectCell(model, "C4");
       addCellToSelection(model, "F6");
-      interactivePaste(env, model.getters.getSelectedZones());
+      interactivePaste(env);
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         PasteInteractiveContent.wrongPasteSelection.toString()
       );
@@ -218,15 +222,16 @@ describe("UI Helpers", () => {
       selectCell(model, "C4");
       addCellToSelection(model, "F6");
 
-      interactivePaste(env, model.getters.getSelectedZones());
+      interactivePaste(env);
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         PasteInteractiveContent.wrongPasteSelection.toString()
       );
     });
 
     test("will warn user if paste in several selection", () => {
-      copy(model, "A1", "C1");
-      interactivePaste(env, target("A2, B2"));
+      copy(model, "A1, C1");
+      setSelection(model, ["A2", "B2"]);
+      interactivePaste(env);
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         PasteInteractiveContent.wrongPasteSelection.toString()
       );
@@ -236,7 +241,8 @@ describe("UI Helpers", () => {
       createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figureId" });
       selectFigure(model, "figureId");
       copy(model);
-      interactivePaste(env, target("A1"), "onlyFormat");
+      selectCell(model, "A1");
+      interactivePaste(env, "onlyFormat");
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         PasteInteractiveContent.wrongFigurePasteOption.toString()
       );
@@ -244,9 +250,9 @@ describe("UI Helpers", () => {
 
     test("Pasting content that will destroy a merge will notify the user", async () => {
       merge(model, "B2:C3");
-      copy(model, "B2");
+      copy(model, "B2:C3");
       selectCell(model, "A1");
-      interactivePaste(env, model.getters.getSelectedZones());
+      interactivePaste(env);
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         PasteInteractiveContent.willRemoveExistingMerge.toString()
       );
@@ -256,7 +262,8 @@ describe("UI Helpers", () => {
       const clipboardString = "a\t1\nb\t2";
 
       test("Can interactive paste", async () => {
-        await interactivePasteFromOS(env, target("D2"), { text: clipboardString });
+        setSelection(model, ["D2"]);
+        await interactivePasteFromOS(env, { text: clipboardString });
         expect(getCellContent(model, "D2")).toBe("a");
         expect(getCellContent(model, "E2")).toBe("1");
         expect(getCellContent(model, "D3")).toBe("b");
@@ -266,7 +273,7 @@ describe("UI Helpers", () => {
       test("Pasting content that will destroy a merge will notify the user", async () => {
         merge(model, "B2:C3");
         selectCell(model, "A1");
-        await interactivePasteFromOS(env, model.getters.getSelectedZones(), {
+        await interactivePasteFromOS(env, {
           text: clipboardString,
         });
         expect(notifyUserTextSpy).toHaveBeenCalledWith(
@@ -281,7 +288,7 @@ describe("UI Helpers", () => {
       copy(model, "F4:G5");
 
       selectCell(model, "B4");
-      interactivePaste(env, model.getters.getSelectedZones());
+      interactivePaste(env);
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         PasteInteractiveContent.frozenPaneOverlap.toString()
       );
@@ -293,7 +300,7 @@ describe("UI Helpers", () => {
       copy(model, "F4:G5");
 
       selectCell(model, "B2");
-      interactivePaste(env, model.getters.getSelectedZones());
+      interactivePaste(env);
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         PasteInteractiveContent.frozenPaneOverlap.toString()
       );

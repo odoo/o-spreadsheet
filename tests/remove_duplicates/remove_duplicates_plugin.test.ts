@@ -23,7 +23,9 @@ export function removeDuplicates(
   }
   store.setColumns(columns);
   store.setHasHeader(hasHeader);
-  return model.dispatch("REMOVE_DUPLICATES", { columns, hasHeader });
+  const sheetId = model.getters.getActiveSheetId();
+  const zone = model.getters.getSelectedZone();
+  return model.dispatch("REMOVE_DUPLICATES", { sheetId, zone });
 }
 
 describe("remove duplicates", () => {
