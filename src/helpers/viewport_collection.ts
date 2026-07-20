@@ -597,25 +597,11 @@ export class ViewportCollection {
     const canScrollVertically = yRatio < 1.0;
     const previousOffset = this.getViewportOffset(sheetId);
 
-    const bottomRightViewport = new InternalViewport({
-      getters: this.getters,
-      sheetId,
-      boundaries: this.getViewportZone(sheetId, "bottomRight")!,
-      sizeInGrid: { width: unfrozenWidth, height: unfrozenHeight },
-      canScrollHorizontally,
-      canScrollVertically,
-      offsets: {
-        x: canScrollHorizontally ? previousOffset.x : 0,
-        y: canScrollVertically ? previousOffset.y : 0,
-      },
-      getFooterSize: this.getFooterSize,
-    });
-
-    const sheetViewports: SheetViewports = {
+    const sheetViewports: Record<keyof SheetViewports, InternalViewport | undefined> = {
       topLeft: undefined,
       topRight: undefined,
       bottomLeft: undefined,
-      bottomRight: bottomRightViewport,
+      bottomRight: undefined,
     };
 
     const topLeftZone = this.getViewportZone(sheetId, "topLeft");
@@ -660,7 +646,39 @@ export class ViewportCollection {
       });
     }
 
-    this.viewports[sheetId] = sheetViewports;
+    const bottomRightZone = this.getViewportZone(sheetId, "bottomRight");
+    if (bottomRightZone) {
+      sheetViewports.bottomRight = new InternalViewport({
+        getters: this.getters,
+        sheetId,
+        boundaries: this.getViewportZone(sheetId, "bottomRight")!,
+        sizeInGrid: { width: unfrozenWidth, height: unfrozenHeight },
+        canScrollHorizontally,
+        canScrollVertically,
+        offsets: {
+          x: canScrollHorizontally ? previousOffset.x : 0,
+          y: canScrollVertically ? previousOffset.y : 0,
+        },
+        getFooterSize: this.getFooterSize,
+      });
+    }
+
+    if (!sheetViewports.bottomRight && sheetViewports.bottomLeft) {
+      sheetViewports.bottomRight = sheetViewports.bottomLeft;
+      sheetViewports.bottomLeft = undefined;
+    } else if (!sheetViewports.bottomRight && sheetViewports.topRight) {
+      sheetViewports.bottomRight = sheetViewports.topRight;
+      sheetViewports.topRight = undefined;
+    } else if (!sheetViewports.bottomRight && sheetViewports.topLeft) {
+      sheetViewports.bottomRight = sheetViewports.topLeft;
+      sheetViewports.topLeft = undefined;
+    }
+
+    if (!sheetViewports.bottomRight) {
+      throw new Error(`ViewportCollection: Malformed viewports for ${sheetId}`);
+    }
+
+    this.viewports[sheetId] = sheetViewports as SheetViewports;
   }
 
   private getViewportZone(sheetId: UID, position: keyof SheetViewports): Zone | undefined {
@@ -687,13 +705,7 @@ export class ViewportCollection {
       }
       case "bottomRight": {
         const zone = { left: xSplit, right: nCols - 1, top: ySplit, bottom: nRows - 1 };
-        const intersectingZone = this.zoneToDisplay ? intersection(zone, this.zoneToDisplay) : zone;
-        if (!intersectingZone) {
-          throw new Error(
-            "The main viewport zone should always be intersecting with the zone to display"
-          );
-        }
-        returnZone = intersectingZone;
+        returnZone = this.zoneToDisplay ? intersection(zone, this.zoneToDisplay) : zone;
         break;
       }
     }

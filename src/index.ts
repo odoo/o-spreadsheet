@@ -336,6 +336,7 @@ import "./registries/interactive_icon_on_cell_registry";
 
 import { Composer } from "./components/composer/composer/composer";
 import { StandaloneComposer } from "./components/composer/standalone_composer/standalone_composer";
+import { isMobileOS } from "./components/helpers/dom_helpers";
 import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
 import { CalendarButton } from "./components/side_panel/criterion_form/calendar_button/calendar_button";
@@ -435,6 +436,7 @@ export const helpers = {
   replaceSymbolInFormula,
   isSingleCellReference,
   computeCachedTextDimension,
+  isMobileOS,
 };
 
 export const links = {

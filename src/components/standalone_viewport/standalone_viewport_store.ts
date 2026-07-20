@@ -19,14 +19,11 @@ export class StandaloneViewportStore extends SpreadsheetStore {
 
   private viewStore = this.get(ViewportsStore);
 
-  renderingContext: Omit<GridRenderingContext, "ctx" | "thinLineWidth">;
-
   constructor(get: Get, range: Range, customColWeights?: number[]) {
     super(get);
     this.range = range;
     this.customColWeights = customColWeights;
     this.colDimensions = this.computeColDimensions();
-    this.renderingContext = this.getRenderingContext();
   }
 
   private shouldRecomputeColDimensions = false;
@@ -49,10 +46,8 @@ export class StandaloneViewportStore extends SpreadsheetStore {
       this.containerWidth = width;
       this.containerHeight = height;
       this.colDimensions = this.computeColDimensions();
-      this.renderingContext = this.getRenderingContext();
+      return;
     }
-    // ADR TODO DISCUSS: a bit hacky, but since we always call this during a render, it avoid an useless render. Would
-    // break if we ever call it somewhere else. Worth to keep it ?
     return "noStateChange";
   }
 
@@ -62,7 +57,6 @@ export class StandaloneViewportStore extends SpreadsheetStore {
     }
     this.range = range;
     this.colDimensions = this.computeColDimensions();
-    this.renderingContext = this.getRenderingContext();
     return;
   }
 
@@ -72,7 +66,6 @@ export class StandaloneViewportStore extends SpreadsheetStore {
     }
     this.customColWeights = weights;
     this.colDimensions = this.computeColDimensions();
-    this.renderingContext = this.getRenderingContext();
     return;
   }
 
@@ -89,31 +82,23 @@ export class StandaloneViewportStore extends SpreadsheetStore {
     const totalWeightAtRight = sumArray(colsAtRight.map((col) => startWeights[col]));
     const newColWeights = { ...startWeights };
 
-    if (weightDelta < 0) {
-      // Make sure we don't decrease the resized column below the minimum weight
-      const newSize = Math.max(startWeights[resizedCol] + weightDelta, minWeight);
-      weightDelta = newSize - startWeights[resizedCol];
+    // Make sure we don't decrease the resized column below the minimum weight
+    const newWeight = Math.max(startWeights[resizedCol] + weightDelta, minWeight);
+    weightDelta = newWeight - startWeights[resizedCol];
 
-      newColWeights[resizedCol] = startWeights[resizedCol] + weightDelta;
-      for (const col of colsAtRight) {
-        const weight = startWeights[col];
-        const weightDecrease = (weight / totalWeightAtRight) * weightDelta;
-        newColWeights[col] = Math.max(startWeights[col] - weightDecrease, minWeight);
-      }
-    } else if (weightDelta > 0) {
-      // Make sure the columns right of the resized column don't go below the minimum weight
-      const availableWeightToDecrease = totalWeightAtRight - colsAtRight.length * minWeight;
-      if (weightDelta > availableWeightToDecrease) {
-        weightDelta = availableWeightToDecrease;
-      }
-
-      newColWeights[resizedCol] = startWeights[resizedCol] + weightDelta;
-      for (const col of colsAtRight) {
-        const weight = startWeights[col];
-        const weightDecrease = ((weight - minWeight) / availableWeightToDecrease) * weightDelta;
-        newColWeights[col] = Math.max(startWeights[col] - weightDecrease, minWeight);
-      }
+    // Make sure the columns right of the resized column don't go below the minimum weight
+    const availableWeightOnRight = totalWeightAtRight - colsAtRight.length * minWeight;
+    if (weightDelta > availableWeightOnRight) {
+      weightDelta = availableWeightOnRight;
     }
+
+    newColWeights[resizedCol] = startWeights[resizedCol] + weightDelta;
+    for (const col of colsAtRight) {
+      const weight = startWeights[col];
+      const weightChange = ((weight - minWeight) / availableWeightOnRight) * weightDelta;
+      newColWeights[col] = Math.max(startWeights[col] - weightChange, minWeight);
+    }
+    // }
 
     const newColWeightsArray = range(this.range.zone.left, this.range.zone.right + 1).map(
       (col) => newColWeights[col] || 0
@@ -122,18 +107,8 @@ export class StandaloneViewportStore extends SpreadsheetStore {
     this.colDimensions = this.computeColDimensions();
   }
 
-  getRenderingContext(): Omit<GridRenderingContext, "ctx" | "thinLineWidth"> {
+  get renderingContext(): Omit<GridRenderingContext, "ctx" | "thinLineWidth"> {
     const { sheetId } = this.range;
-
-    // const viewports = new ViewportCollection({
-    //   getters: this.viewportGetters,
-    //   paneDivision: { [sheetId]: { xSplit: 0, ySplit: 0 } },
-    //   sheetViewWidth: this.containerWidth,
-    //   sheetViewHeight: this.containerHeight,
-    //   zoomLevel: this.viewStore.zoomLevel,
-    //   zoneToDisplay: zone,
-    //   getFooterSize: () => 0,
-    // });
 
     const theme = this.getters.getSpreadsheetTheme();
     const sheet = this.getters.getSheet(sheetId);
@@ -187,6 +162,7 @@ export class StandaloneViewportStore extends SpreadsheetStore {
     for (const col of range(zone.left, zone.right + 1)) {
       if (this.getters.isColHidden(sheetId, col)) {
         colWeights.push(0);
+        continue;
       }
       const zone = { ...this.range.zone, left: col, right: col };
       colWeights.push(Math.floor(this.getters.getZoneMaxWidth(sheetId, zone)));
