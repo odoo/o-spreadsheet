@@ -2150,7 +2150,7 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "A1", "a1");
     merge(model, "A2:A3");
     setSelection(model, ["A1:A3"]);
-    handleCopyPasteResult(env, { type: "COPY_PASTE_CELLS_ON_ZONE" });
+    handleCopyPasteResult(env, "COPY_PASTE_CELLS_ON_ZONE");
     const notificationStore = env.getStore(NotificationStore);
     expect(notificationStore.raiseError).toHaveBeenCalled();
   });

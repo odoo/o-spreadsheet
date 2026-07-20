@@ -3,7 +3,12 @@ import { getClipboardDataPositions } from "../helpers/clipboard/clipboard_helper
 import { deepEquals, range } from "../helpers/misc";
 import { zoneToDimension } from "../helpers/zones";
 import { _t } from "../translation";
-import { CancelledReason, Command, CommandResult } from "../types/commands";
+import {
+  CancelledReason,
+  Command,
+  CommandResult,
+  RemoveDuplicatesCommand,
+} from "../types/commands";
 import { HeaderIndex, UID, Zone } from "../types/misc";
 import { Get } from "../types/store_engine";
 import { NotificationStore } from "./notification_store";
@@ -85,7 +90,7 @@ export class DataCleanupStore extends SpreadsheetStore {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "REMOVE_DUPLICATES":
-        this.removeDuplicates();
+        this.removeDuplicates(cmd);
         break;
     }
   }
@@ -94,9 +99,7 @@ export class DataCleanupStore extends SpreadsheetStore {
   // Private
   // ---------------------------------------------------------------------------
 
-  private removeDuplicates() {
-    const sheetId = this.getters.getActiveSheetId();
-    const zone = this.getters.getSelectedZone();
+  private removeDuplicates({ sheetId, zone }: RemoveDuplicatesCommand) {
     if (this.hasHeader) {
       zone.top += 1;
     }

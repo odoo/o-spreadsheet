@@ -30,7 +30,9 @@ export const copy: ActionSpec = {
   shortcut: "Ctrl+C",
   isReadonlyAllowed: true,
   execute: async (env) => {
-    env.model.dispatch("COPY");
+    const sheetId = env.model.getters.getActiveSheetId();
+    const target = env.model.getters.getSelectedZones();
+    env.model.dispatch("COPY", { sheetId, target });
     await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
   },
   isEnabledOnLockedSheet: true,
@@ -134,8 +136,9 @@ export const deleteCells: ActionSpec = {
 export const deleteCellShiftUp: ActionSpec = {
   name: _t("Delete cell and shift up"),
   execute: (env) => {
+    const sheetId = env.model.getters.getActiveSheetId();
     const zone = env.model.getters.getSelectedZone();
-    const result = env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "ROW" });
+    const result = env.model.dispatch("DELETE_CELL", { sheetId, zone, shiftDimension: "ROW" });
     handlePasteResult(env, result);
   },
 };
@@ -143,8 +146,9 @@ export const deleteCellShiftUp: ActionSpec = {
 export const deleteCellShiftLeft: ActionSpec = {
   name: _t("Delete cell and shift left"),
   execute: (env) => {
+    const sheetId = env.model.getters.getActiveSheetId();
     const zone = env.model.getters.getSelectedZone();
-    const result = env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "COL" });
+    const result = env.model.dispatch("DELETE_CELL", { sheetId, zone, shiftDimension: "COL" });
     handlePasteResult(env, result);
   },
 };

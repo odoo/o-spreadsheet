@@ -1582,7 +1582,8 @@ describe("Delete cell", () => {
   test("Undo/redo is correctly supported", () => {
     setCellContent(model, "A2", "=A3");
     setFormatting(model, "A3", { fillColor: "orange" });
-    testUndoRedo(model, expect, "DELETE_CELL", { zone: toZone("A1"), dimension: "ROW" });
+    const sheetId = model.getters.getActiveSheetId();
+    testUndoRedo(model, expect, "DELETE_CELL", { sheetId, zone: toZone("A1"), dimension: "ROW" });
   });
 
   test.each(["up", "left"] as const)("can delete the last cell of the grid", (direction) => {
@@ -1675,7 +1676,8 @@ describe("Insert cell", () => {
   test("Undo/redo is correctly supported", () => {
     setCellContent(model, "A2", "=A3");
     setFormatting(model, "A3", { fillColor: "orange" });
-    testUndoRedo(model, expect, "INSERT_CELL", { zone: toZone("A1"), dimension: "ROW" });
+    const sheetId = model.getters.getActiveSheetId();
+    testUndoRedo(model, expect, "INSERT_CELL", { sheetId, zone: toZone("A1"), dimension: "ROW" });
   });
 });
 

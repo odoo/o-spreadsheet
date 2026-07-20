@@ -189,7 +189,10 @@ describe("Menu Item actions", () => {
   test("Edit -> copy", async () => {
     const spyWriteClipboard = jest.spyOn(env.clipboard!, "write");
     await doAction(["edit", "copy"], env);
-    expect(dispatch).toHaveBeenCalledWith("COPY");
+    expect(dispatch).toHaveBeenCalledWith("COPY", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: model.getters.getSelectedZones(),
+    });
     expect(spyWriteClipboard).toHaveBeenCalledWith(
       await model.getters.getClipboardTextAndImageContent()
     );
@@ -198,7 +201,10 @@ describe("Menu Item actions", () => {
   test("Edit -> cut", async () => {
     const spyWriteClipboard = jest.spyOn(env.clipboard!, "write");
     await doAction(["edit", "cut"], env);
-    expect(dispatch).toHaveBeenCalledWith("CUT");
+    expect(dispatch).toHaveBeenCalledWith("CUT", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: model.getters.getSelectedZones(),
+    });
     expect(spyWriteClipboard).toHaveBeenCalledWith(
       await model.getters.getClipboardTextAndImageContent()
     );
@@ -218,7 +224,7 @@ describe("Menu Item actions", () => {
     await env.clipboard!.writeText("First copy in OS clipboard");
     await doAction(["edit", "copy"], env); // then copy from grid
     await doAction(["edit", "paste"], env);
-    interactivePaste(env, target("A1"));
+    interactivePaste(env);
     expect(getCellContent(model, "A1")).toEqual("");
   });
 
@@ -228,7 +234,8 @@ describe("Menu Item actions", () => {
     setCellContent(model, "A1", "os clipboard");
     selectCell(model, "C3");
     await doAction(["edit", "paste"], env);
-    expect(dispatch).toHaveBeenCalledWith("PASTE", {
+    expect(dispatch).toHaveBeenLastCalledWith("PASTE", {
+      sheetId: model.getters.getSheetIds()[0],
       target: env.model.getters.getSelectedZones(),
       pasteOption: undefined,
     });
@@ -239,7 +246,8 @@ describe("Menu Item actions", () => {
     await env.clipboard!.writeText("Copy in OS clipboard");
     selectCell(model, "A1");
     await doAction(["edit", "paste_special", "paste_special_format"], env);
-    expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
+    expect(dispatch).toHaveBeenLastCalledWith("PASTE_FROM_OS_CLIPBOARD", {
+      sheetId: model.getters.getSheetIds()[0],
       clipboardContent: { text: "Copy in OS clipboard" },
       target: target("A1"),
       pasteOption: "onlyFormat",
@@ -303,7 +311,8 @@ describe("Menu Item actions", () => {
   test("Edit -> paste_special -> paste_special_value", async () => {
     await doAction(["edit", "copy"], env);
     await doAction(["edit", "paste_special", "paste_special_value"], env);
-    expect(dispatch).toHaveBeenCalledWith("PASTE", {
+    expect(dispatch).toHaveBeenLastCalledWith("PASTE", {
+      sheetId: model.getters.getSheetIds()[0],
       target: env.model.getters.getSelectedZones(),
       pasteOption: "asValue",
     });
@@ -313,7 +322,8 @@ describe("Menu Item actions", () => {
     const text = "in OS clipboard";
     await env.clipboard!.writeText(text);
     await doAction(["edit", "paste_special", "paste_special_value"], env);
-    expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
+    expect(dispatch).toHaveBeenLastCalledWith("PASTE_FROM_OS_CLIPBOARD", {
+      sheetId: model.getters.getSheetIds()[0],
       target: target("A1"),
       clipboardContent: { text },
       pasteOption: "asValue",
@@ -323,7 +333,8 @@ describe("Menu Item actions", () => {
   test("Edit -> paste_special -> paste_special_format", async () => {
     await doAction(["edit", "copy"], env);
     await doAction(["edit", "paste_special", "paste_special_format"], env);
-    expect(dispatch).toHaveBeenCalledWith("PASTE", {
+    expect(dispatch).toHaveBeenLastCalledWith("PASTE", {
+      sheetId: model.getters.getSheetIds()[0],
       target: env.model.getters.getSelectedZones(),
       pasteOption: "onlyFormat",
     });
@@ -333,7 +344,8 @@ describe("Menu Item actions", () => {
     const text = "in OS clipboard";
     await env.clipboard!.writeText(text);
     await doAction(["edit", "paste_special", "paste_special_format"], env);
-    expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
+    expect(dispatch).toHaveBeenLastCalledWith("PASTE_FROM_OS_CLIPBOARD", {
+      sheetId: model.getters.getSheetIds()[0],
       target: target("A1"),
       clipboardContent: { text },
       pasteOption: "onlyFormat",
@@ -937,6 +949,7 @@ describe("Menu Item actions", () => {
       expect(getName(insertCellShiftDownPath, env)).toBe("Shift down");
       await doAction(insertCellShiftDownPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("INSERT_CELL", {
+        sheetId: model.getters.getSheetIds()[0],
         zone: env.model.getters.getSelectedZone(),
         shiftDimension: "ROW",
       });
@@ -949,6 +962,7 @@ describe("Menu Item actions", () => {
       expect(getName(insertCellShiftDownPath, env)).toBe("Shift down");
       await doAction(insertCellShiftDownPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("INSERT_CELL", {
+        sheetId: model.getters.getSheetIds()[0],
         zone: env.model.getters.getSelectedZone(),
         shiftDimension: "ROW",
       });
@@ -998,6 +1012,7 @@ describe("Menu Item actions", () => {
       expect(getName(insertCellShiftRightPath, env)).toBe("Shift right");
       await doAction(insertCellShiftRightPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("INSERT_CELL", {
+        sheetId: model.getters.getSheetIds()[0],
         zone: env.model.getters.getSelectedZone(),
         shiftDimension: "COL",
       });
@@ -1010,6 +1025,7 @@ describe("Menu Item actions", () => {
       expect(getName(insertCellShiftRightPath, env)).toBe("Shift right");
       await doAction(insertCellShiftRightPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("INSERT_CELL", {
+        sheetId: model.getters.getSheetIds()[0],
         zone: env.model.getters.getSelectedZone(),
         shiftDimension: "COL",
       });

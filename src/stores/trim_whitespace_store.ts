@@ -13,7 +13,10 @@ export class TrimWhitespaceStore extends SpreadsheetStore {
 
   trimWhitespace() {
     // Command for history step
-    this.model.dispatch("TRIM_WHITESPACE");
+    this.model.dispatch("TRIM_WHITESPACE", {
+      sheetId: this.getters.getActiveSheetId(),
+      target: this.getters.getSelectedZones(),
+    });
   }
 
   handle(cmd: Command) {

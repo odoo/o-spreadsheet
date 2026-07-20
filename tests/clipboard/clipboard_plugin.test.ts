@@ -163,8 +163,7 @@ describe("clipboard", () => {
   test("cut command will cut the selection if no target were given", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
-    setSelection(model, ["B2"]);
-    cut(model);
+    cut(model, "B2");
     paste(model, "D2");
     expect(getCellRawContent(model, "D2")).toBe("b2");
   });
@@ -450,7 +449,7 @@ describe("clipboard", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     merge(model, "B2:C3");
-    copy(model, "B2");
+    copy(model, "B2:C3");
     const result = paste(model, "A1");
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
     expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual(["B2:C3"]);
@@ -484,7 +483,7 @@ describe("clipboard", () => {
     const model = new Model({
       sheets: [{ id: "s1", merges: ["A1:A3", "C1:C3"] }],
     });
-    copy(model, "A1", "C1");
+    copy(model, "A1, C1");
     paste(model, "E1");
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual([
@@ -763,7 +762,7 @@ describe("clipboard", () => {
     setCellContent(model, "A1", "a1");
     setCellContent(model, "A2", "a2");
     setCellContent(model, "C1", "c1");
-    copy(model, "A1:A2", "C1");
+    copy(model, "A1:A2, C1");
 
     expect(getClipboardVisibleZones(model).length).toBe(1);
 
@@ -779,7 +778,7 @@ describe("clipboard", () => {
     setCellContent(model, "A2", "a2");
     setCellContent(model, "C1", "c1");
     setCellContent(model, "C2", "c2");
-    copy(model, "A1:A2", " C1:C2");
+    copy(model, "A1:A2,  C1:C2");
 
     expect(getClipboardVisibleZones(model).length).toBe(2);
 
@@ -972,7 +971,7 @@ describe("clipboard", () => {
   describe("cut/paste several zones", () => {
     test("cutting is not allowed if multiple selection", () => {
       const model = new Model();
-      const result = cut(model, "A1", "A2");
+      const result = cut(model, "A1, A2");
       expect(result).toBeCancelledBecause(CommandResult.WrongCutSelection);
     });
   });
@@ -993,7 +992,7 @@ describe("clipboard", () => {
 
     describe("if they have same left and same right", () => {
       test("copy all zones", () => {
-        copy(model, "A1:B1", " A2:B2");
+        copy(model, "A1:B1,  A2:B2");
         expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:B1"));
         expect(getClipboardVisibleZones(model)[1]).toEqual(toZone("A2:B2"));
         expect(getClipboardVisibleZones(model).length).toBe(2);
@@ -1005,7 +1004,7 @@ describe("clipboard", () => {
       });
 
       test("Copy cells only once", () => {
-        copy(model, "A1:A3", "A1:A2", "A2:A3", "A1", "A2", "A3");
+        copy(model, "A1:A3, A1:A2, A2:A3, A1, A2, A3");
         expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:A3"));
         expect(getClipboardVisibleZones(model).length).toBe(1);
         paste(model, "F6");
@@ -1017,7 +1016,7 @@ describe("clipboard", () => {
 
       test("paste zones without gap", () => {
         // gap between 1st selection and 2nd selection is one row
-        copy(model, "A1:B1", "A3:B3");
+        copy(model, "A1:B1, A3:B3");
         expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:B1"));
         expect(getClipboardVisibleZones(model)[1]).toEqual(toZone("A3:B3"));
         expect(getClipboardVisibleZones(model).length).toBe(2);
@@ -1029,12 +1028,12 @@ describe("clipboard", () => {
       });
 
       test("paste zones selected from different orders does not influence the final result", () => {
-        copy(model, "A1", "A2");
+        copy(model, "A1, A2");
         paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "F7")).toBe("a2");
 
-        copy(model, "A2", "A1");
+        copy(model, "A2, A1");
         paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "F7")).toBe("a2");
@@ -1043,7 +1042,7 @@ describe("clipboard", () => {
 
     describe("if zones have same top and same bottom", () => {
       test("copy all zones", () => {
-        copy(model, "A1:A2", "B1:B2");
+        copy(model, "A1:A2, B1:B2");
         expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:A2"));
         expect(getClipboardVisibleZones(model)[1]).toEqual(toZone("B1:B2"));
         expect(getClipboardVisibleZones(model).length).toBe(2);
@@ -1055,7 +1054,7 @@ describe("clipboard", () => {
       });
 
       test("Copy cells only once", () => {
-        copy(model, "A1:C1", "A1:B1", "B1:C1", "A1", "B1", "C1");
+        copy(model, "A1:C1, A1:B1, B1:C1, A1, B1, C1");
         expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:C1"));
         expect(getClipboardVisibleZones(model).length).toBe(1);
         paste(model, "F6");
@@ -1067,7 +1066,7 @@ describe("clipboard", () => {
 
       test("paste zones without gap", () => {
         // gap between 1st selection and 2nd selection is one column
-        copy(model, "A1:A2", "C1:C2");
+        copy(model, "A1:A2, C1:C2");
         paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "F7")).toBe("a2");
@@ -1076,12 +1075,12 @@ describe("clipboard", () => {
       });
 
       test("paste zones selected from different orders does not influence the final result", () => {
-        copy(model, "A1", "B1");
+        copy(model, "A1, B1");
         paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "G6")).toBe("b1");
 
-        copy(model, "A1", "B1");
+        copy(model, "A1, B1");
         paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "G6")).toBe("b1");
@@ -1090,7 +1089,7 @@ describe("clipboard", () => {
 
     describe("copy/paste the last zone if zones don't have [same top and same bottom] or [same left and same right]", () => {
       test("test with dissociated zones", () => {
-        copy(model, "A1:A2", "B2:B3");
+        copy(model, "A1:A2, B2:B3");
         expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("B2:B3"));
         expect(getClipboardVisibleZones(model).length).toBe(1);
         paste(model, "F6");
@@ -1099,7 +1098,7 @@ describe("clipboard", () => {
       });
 
       test("test with overlapped zones", () => {
-        copy(model, "A1:B2", "B2:B3");
+        copy(model, "A1:B2, B2:B3");
         expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("B2:B3"));
         expect(getClipboardVisibleZones(model).length).toBe(1);
         paste(model, "F6");
@@ -1109,7 +1108,7 @@ describe("clipboard", () => {
     });
 
     test("can paste zones in a larger selection", () => {
-      copy(model, "A1", "C1");
+      copy(model, "A1, C1");
       paste(model, "E1:I1");
       expect(getCellContent(model, "E1")).toBe("a1");
       expect(getCellContent(model, "F1")).toBe("c1");
@@ -1119,7 +1118,7 @@ describe("clipboard", () => {
     });
 
     test("is not allowed if paste in several selection", () => {
-      copy(model, "A1", "C1");
+      copy(model, "A1, C1");
       const result = paste(model, "A2, B2");
       expect(result).toBeCancelledBecause(CommandResult.WrongPasteSelection);
     });
@@ -1892,8 +1891,7 @@ describe("clipboard", () => {
     const model = new Model({ sheets: [{ id: "sheet1" }, { id: "sheet2" }] });
     addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "1");
     cut(model, "A1:A2");
-    activateSheet(model, "sheet2");
-    paste(model, "A1");
+    paste(model, "A1", undefined, "sheet2");
     expect(model.getters.getConditionalFormats("sheet2")).toMatchObject([
       { ranges: ["A1:A2"], rule: { style: { fillColor: "#FF0000" } } },
     ]);
@@ -2622,7 +2620,7 @@ describe("clipboard: pasting outside of sheet", () => {
 
     createImage(model, { figureId: "test" });
     selectFigure(model, "test");
-    copy(model);
+    copy(model, "A1");
     await model.getters.getClipboardTextAndImageContent();
     expect(spyNotifyUI).toHaveBeenCalledWith({
       sticky: false,

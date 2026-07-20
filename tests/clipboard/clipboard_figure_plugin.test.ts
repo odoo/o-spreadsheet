@@ -218,7 +218,8 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     test("Cannot paste with empty target", () => {
       selectFigure(model, figureId);
       copy(model);
-      const result = model.dispatch("PASTE", { target: [] });
+      const sheetId = model.getters.getActiveSheetId();
+      const result = model.dispatch("PASTE", { sheetId, target: [] });
       expect(result).toBeCancelledBecause(CommandResult.EmptyTarget);
     });
 

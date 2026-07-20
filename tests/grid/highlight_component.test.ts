@@ -193,7 +193,10 @@ describe("Corner component", () => {
 
       // select B2 nw corner
       await selectNWCellCorner(cornerEl, "B2");
-      expect(spyDispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", { zone: toZone("B2") });
+      expect(spyDispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+        sheetId: model.getters.getSheetIds()[0],
+        zone: toZone("B2"),
+      });
       // move to A1
       await moveToCell(cornerEl, "A1");
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("A1:B2"));
@@ -205,7 +208,8 @@ describe("Corner component", () => {
 
       // select B2 ne corner
       await selectNECellCorner(cornerEl, "B2");
-      expect(model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+        sheetId: model.getters.getSheetIds()[0],
         zone: toZone("B2"),
       });
 
@@ -220,7 +224,8 @@ describe("Corner component", () => {
 
       // select B2 sw corner
       await selectSWCellCorner(cornerEl, "B2");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+        sheetId: model.getters.getSheetIds()[0],
         zone: toZone("B2"),
       });
 
@@ -235,7 +240,8 @@ describe("Corner component", () => {
 
       // select B2 se corner
       await selectSECellCorner(cornerEl, "B2");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+        sheetId: model.getters.getSheetIds()[0],
         zone: toZone("B2"),
       });
 
@@ -334,7 +340,8 @@ describe("Corner component", () => {
     // select A1 nw corner
     await selectNWCellCorner(cornerEl, "A1");
 
-    expect(spyDispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(spyDispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+      sheetId: model.getters.getSheetIds()[0],
       zone: toZone("A1"),
     });
 
@@ -369,7 +376,8 @@ describe("Corner component", () => {
 
       // select B2 ne corner
       await selectNWCellCorner(cornerEl, "B2");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+        sheetId: model.getters.getSheetIds()[0],
         zone: toZone("B2"),
       });
 
@@ -384,7 +392,8 @@ describe("Corner component", () => {
       cornerEl = fixture.querySelector(".o-corner-ne")!;
 
       await selectNECellCorner(cornerEl, "A1");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+        sheetId: model.getters.getSheetIds()[0],
         zone: toZone("A1:A10"),
       });
 
@@ -398,7 +407,8 @@ describe("Corner component", () => {
       cornerEl = fixture.querySelector(".o-corner-sw")!;
 
       await selectSWCellCorner(cornerEl, "A1");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+        sheetId: model.getters.getSheetIds()[0],
         zone: toZone("A1:J1"),
       });
 
@@ -422,7 +432,8 @@ describe("Corner component", () => {
 
     // select B1 nw corner
     await selectNWCellCorner(cornerEl, "B1");
-    expect(model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+      sheetId: model.getters.getSheetIds()[0],
       zone: toZone("B1"),
     });
 
@@ -446,7 +457,8 @@ describe("Corner component", () => {
 
     // select A2 nw corner
     await selectTopCellBorder(cornerEl, "A2");
-    expect(model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+      sheetId: model.getters.getSheetIds()[0],
       zone: toZone("A2"),
     });
 
@@ -471,7 +483,8 @@ describe("Border component", () => {
 
       // select B2 top border
       await selectTopCellBorder(borderEl, "B2");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+        sheetId: model.getters.getSheetIds()[0],
         zone: toZone("B2"),
       });
 
@@ -486,7 +499,8 @@ describe("Border component", () => {
 
       // select B2 left border
       await selectLeftCellBorder(borderEl, "B2");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+        sheetId: model.getters.getSheetIds()[0],
         zone: toZone("B2"),
       });
 
@@ -501,7 +515,8 @@ describe("Border component", () => {
 
       // select B2 right border
       await selectRightCellBorder(borderEl, "B2");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+        sheetId: model.getters.getSheetIds()[0],
         zone: toZone("B2"),
       });
 
@@ -516,7 +531,8 @@ describe("Border component", () => {
 
       // select B2 bottom border
       await selectBottomCellBorder(borderEl, "B2");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+        sheetId: model.getters.getSheetIds()[0],
         zone: toZone("B2"),
       });
 
@@ -605,7 +621,8 @@ describe("Border component", () => {
 
     // select A1 top border
     await selectTopCellBorder(borderEl, "A1");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+      sheetId: model.getters.getSheetIds()[0],
       zone: toZone("A1:B2"),
     });
 
@@ -624,7 +641,8 @@ describe("Border component", () => {
 
     // select B1 top border
     await selectTopCellBorder(borderEl, "B1");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+      sheetId: model.getters.getSheetIds()[0],
       zone: toZone("A1:B2"),
     });
 
@@ -639,7 +657,8 @@ describe("Border component", () => {
 
     // select B2 bottom border
     await selectBottomCellBorder(borderEl, "B2");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+      sheetId: model.getters.getSheetIds()[0],
       zone: toZone("A1:B2"),
     });
 
@@ -667,7 +686,8 @@ describe("Border component", () => {
 
       // select A1 top border
       await selectTopCellBorder(borderEl, "A1");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+        sheetId: model.getters.getSheetIds()[0],
         zone: toZone("A1"),
       });
 
@@ -682,7 +702,8 @@ describe("Border component", () => {
       borderEl = fixture.querySelector(".o-border-n")!;
 
       await selectTopCellBorder(borderEl, "A1");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+        sheetId: model.getters.getSheetIds()[0],
         zone: toZone("A1:A10"),
       });
 
@@ -696,7 +717,8 @@ describe("Border component", () => {
       borderEl = fixture.querySelector(".o-border-n")!;
 
       await selectTopCellBorder(borderEl, "A1");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+        sheetId: model.getters.getSheetIds()[0],
         zone: toZone("A1:J1"),
       });
 
@@ -719,7 +741,8 @@ describe("Border component", () => {
 
     // select B1 top border
     await selectTopCellBorder(borderEl, "B1");
-    expect(model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+      sheetId: model.getters.getSheetIds()[0],
       zone: toZone("B1"),
     });
 
@@ -742,7 +765,8 @@ describe("Border component", () => {
 
     // select A2 top border
     await selectTopCellBorder(borderEl, "A2");
-    expect(model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(model.dispatch).toHaveBeenLastCalledWith("START_CHANGE_HIGHLIGHT", {
+      sheetId: model.getters.getSheetIds()[0],
       zone: toZone("A2"),
     });
 

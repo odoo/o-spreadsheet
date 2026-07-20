@@ -1,6 +1,7 @@
 import { EditionMode, Model } from "../../src";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { SplitIntoColumnsPanel } from "../../src/components/side_panel/split_to_columns_panel/split_to_columns_panel";
+import { toZone } from "../../src/helpers/zones";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import {
@@ -25,6 +26,7 @@ describe("split to columns sidePanel component", () => {
   let checkBox: HTMLInputElement;
   let onCloseSidePanel: jest.Mock;
   let env: SpreadsheetChildEnv;
+  let sheetId: string;
 
   beforeEach(async () => {
     onCloseSidePanel = jest.fn();
@@ -34,6 +36,7 @@ describe("split to columns sidePanel component", () => {
     dispatch = spyModelDispatch(model);
     confirmButton = fixture.querySelector(".o-split-to-cols-panel button")!;
     checkBox = fixture.querySelector('.o-split-to-cols-panel input[type="checkbox"]')!;
+    sheetId = model.getters.getActiveSheetId();
   });
 
   test("Separator values", async () => {
@@ -55,6 +58,8 @@ describe("split to columns sidePanel component", () => {
     await editSelectComponent(".o-split-to-cols-panel .o-select", ",");
     await click(confirmButton);
     expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
+      sheetId,
+      zone: toZone("A1"),
       separator: ",",
       addNewColumns: expect.any(Boolean),
     });
@@ -62,6 +67,8 @@ describe("split to columns sidePanel component", () => {
     await editSelectComponent(".o-split-to-cols-panel .o-select", ";");
     await click(confirmButton);
     expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
+      sheetId,
+      zone: toZone("A1"),
       separator: ";",
       addNewColumns: expect.any(Boolean),
     });
@@ -77,6 +84,8 @@ describe("split to columns sidePanel component", () => {
     await setInputValueAndTrigger(input, "customSeparator");
     await click(confirmButton);
     expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
+      sheetId,
+      zone: toZone("A1"),
       separator: "customSeparator",
       addNewColumns: expect.any(Boolean),
     });
@@ -86,6 +95,8 @@ describe("split to columns sidePanel component", () => {
     setCheckboxValueAndTrigger(checkBox, true, "change");
     await click(confirmButton);
     expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
+      sheetId,
+      zone: toZone("A1"),
       separator: expect.any(String),
       addNewColumns: true,
     });
@@ -93,6 +104,8 @@ describe("split to columns sidePanel component", () => {
     setCheckboxValueAndTrigger(checkBox, false, "change");
     await click(confirmButton);
     expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
+      sheetId,
+      zone: toZone("A1"),
       separator: expect.any(String),
       addNewColumns: true,
     });

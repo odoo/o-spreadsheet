@@ -40,7 +40,9 @@ export class RemoveDuplicatesPanel extends Component<SpreadsheetChildEnv> {
   }
 
   onRemoveDuplicates() {
-    this.env.model.dispatch("REMOVE_DUPLICATES");
+    const zone = this.env.model.getters.getSelectedZone();
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    this.env.model.dispatch("REMOVE_DUPLICATES", { sheetId, zone });
   }
 
   getColLabel(colKey: string): string {

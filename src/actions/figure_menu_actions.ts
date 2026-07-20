@@ -192,7 +192,9 @@ function getCopyMenuItem(
       if (!env.model.getters.getSelectedFigureIds().includes(figureId)) {
         env.model.dispatch("SELECT_FIGURE", { figureId });
       }
-      env.model.dispatch("COPY");
+      const sheetId = env.model.getters.getActiveSheetId();
+      const target = env.model.getters.getSelectedZones();
+      env.model.dispatch("COPY", { sheetId, target });
       const osClipboardContent = await env.model.getters.getClipboardTextAndImageContent();
       await env.clipboard.write(osClipboardContent);
       if (copiedNotificationMessage) {
@@ -213,7 +215,9 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
       if (!env.model.getters.getSelectedFigureIds().includes(figureId)) {
         env.model.dispatch("SELECT_FIGURE", { figureId });
       }
-      env.model.dispatch("CUT");
+      const sheetId = env.model.getters.getActiveSheetId();
+      const target = env.model.getters.getSelectedZones();
+      env.model.dispatch("CUT", { sheetId, target });
       await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
     },
     icon: "o-spreadsheet-Icon.CUT",

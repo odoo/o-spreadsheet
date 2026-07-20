@@ -519,7 +519,7 @@ describe("automatic sum", () => {
   });
 
   test("multiple selected zones in an empty sheet", () => {
-    automaticSumMulti(model, ["A1:A2", "B1:B3"]);
+    automaticSumMulti(model, ["A1:A2", "B1:B3"], { anchor: "A1" });
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.getEvaluatedCells(sheetId)).toEqual([]);
   });
@@ -529,14 +529,14 @@ describe("automatic sum", () => {
     setCellContent(model, "B1", "4");
     setCellContent(model, "B2", "4");
     setCellContent(model, "B3", "4");
-    automaticSumMulti(model, ["A1:A2", "B1:B3"]);
+    automaticSumMulti(model, ["A1:A2", "B1:B3"], { anchor: "A1" });
     expect(getCellText(model, "A2")).toBe("=SUM(A1)");
     expect(getCellText(model, "B4")).toBe("=SUM(B1:B3)");
   });
 
   test("first sum is taken into account for the second zone", () => {
     setCellContent(model, "A1", "4");
-    automaticSumMulti(model, ["B1", "C1:C2"]);
+    automaticSumMulti(model, ["B1", "C1:C2"], { anchor: "B1" });
     expect(getCellText(model, "B1")).toBe("=SUM(A1)");
     expect(getCellText(model, "C1")).toBe("=SUM(A1:B1)");
     expect(getCellText(model, "C2")).toBe("=SUM(A2:B2)");

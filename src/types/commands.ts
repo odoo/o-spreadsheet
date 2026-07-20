@@ -840,11 +840,11 @@ export interface DuplicatePivotCommand {
 // DATA CLEANUP
 // ------------------------------------------------
 
-export interface RemoveDuplicatesCommand {
+export interface RemoveDuplicatesCommand extends ZoneDependentCommand {
   type: "REMOVE_DUPLICATES";
 }
 
-export interface TrimWhitespaceCommand {
+export interface TrimWhitespaceCommand extends TargetDependentCommand {
   type: "TRIM_WHITESPACE";
 }
 
@@ -934,35 +934,33 @@ export interface DeleteNamedRangeCommand {
 
 //#region Local Commands
 // ------------------------------------------------
-export interface CopyCommand {
+export interface CopyCommand extends TargetDependentCommand {
   type: "COPY";
 }
 
-export interface CutCommand {
+export interface CutCommand extends TargetDependentCommand {
   type: "CUT";
 }
 
-export interface PasteCommand {
+export interface PasteCommand extends TargetDependentCommand {
   type: "PASTE";
-  target: Zone[];
   pasteOption?: ClipboardPasteOptions;
 }
 
-export interface CopyPasteCellsAboveCommand {
+export interface CopyPasteCellsAboveCommand extends TargetDependentCommand {
   type: "COPY_PASTE_CELLS_ABOVE";
 }
 
-export interface CopyPasteCellsOnLeftCommand {
+export interface CopyPasteCellsOnLeftCommand extends TargetDependentCommand {
   type: "COPY_PASTE_CELLS_ON_LEFT";
 }
 
-export interface CopyPasteCellsOnZoneCommand {
+export interface CopyPasteCellsOnZoneCommand extends TargetDependentCommand {
   type: "COPY_PASTE_CELLS_ON_ZONE";
 }
 
-export interface RepeatPasteCommand {
+export interface RepeatPasteCommand extends TargetDependentCommand {
   type: "REPEAT_PASTE";
-  target: Zone[];
   pasteOption?: ClipboardPasteOptions;
 }
 
@@ -970,21 +968,18 @@ export interface CleanClipBoardHighlightCommand {
   type: "CLEAN_CLIPBOARD_HIGHLIGHT";
 }
 
-export interface AutoFillCellCommand {
+export interface AutoFillCellCommand extends PositionDependentCommand {
   type: "AUTOFILL_CELL";
   originCol: number;
   originRow: number;
-  col: HeaderIndex;
-  row: HeaderIndex;
   content?: string;
   style?: Style | null;
   border?: Border;
   format?: Format;
 }
 
-export interface PasteFromOSClipboardCommand {
+export interface PasteFromOSClipboardCommand extends TargetDependentCommand {
   type: "PASTE_FROM_OS_CLIPBOARD";
-  target: Zone[];
   clipboardContent: ParsedOsClipboardContentWithImageData;
   pasteOption?: ClipboardPasteOptions;
 }
@@ -1017,9 +1012,8 @@ export interface EvaluateChartsCommand {
   type: "EVALUATE_CHARTS";
 }
 
-export interface StartChangeHighlightCommand {
+export interface StartChangeHighlightCommand extends ZoneDependentCommand {
   type: "START_CHANGE_HIGHLIGHT";
-  zone: Zone;
 }
 
 export interface ShowFormulaCommand {
@@ -1068,18 +1062,23 @@ export interface StartCommand {
   type: "START";
 }
 
-export interface AutofillCommand {
+export interface AutofillCommand extends SheetDependentCommand {
   type: "AUTOFILL";
+  source: Zone;
 }
 
-export interface AutofillSelectCommand {
+export interface AutofillSelectCommand extends SheetDependentCommand {
   type: "AUTOFILL_SELECT";
   col: HeaderIndex;
   row: HeaderIndex;
+  source: Zone;
 }
 
-export interface AutofillAutoCommand {
+export interface AutofillAutoCommand extends SheetDependentCommand {
   type: "AUTOFILL_AUTO";
+  col: HeaderIndex;
+  row: HeaderIndex;
+  source: Zone;
 }
 
 export interface SelectFigureCommand {
@@ -1115,20 +1114,18 @@ export interface SortCommand {
  * Sum data according to the selected zone(s) in the appropriated
  * cells.
  */
-export interface SumSelectionCommand {
+export interface SumSelectionCommand extends PositionDependentCommand, TargetDependentCommand {
   type: "SUM_SELECTION";
 }
 
-export interface DeleteCellCommand {
+export interface DeleteCellCommand extends ZoneDependentCommand {
   type: "DELETE_CELL";
   shiftDimension: Dimension;
-  zone: Zone;
 }
 
-export interface InsertCellCommand {
+export interface InsertCellCommand extends ZoneDependentCommand {
   type: "INSERT_CELL";
   shiftDimension: Dimension;
-  zone: Zone;
 }
 
 //#endregion
@@ -1141,7 +1138,7 @@ export interface ActivatePreviousSheetCommand {
   type: "ACTIVATE_PREVIOUS_SHEET";
 }
 
-export interface SplitTextIntoColumnsCommand {
+export interface SplitTextIntoColumnsCommand extends ZoneDependentCommand {
   type: "SPLIT_TEXT_INTO_COLUMNS";
   separator: string;
   addNewColumns: boolean;

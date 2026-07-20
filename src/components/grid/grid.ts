@@ -321,7 +321,9 @@ export class Grid extends Component<SpreadsheetChildEnv> {
         const formula = `=SUM(${zoneXc})`;
         this.onComposerCellFocused(formula, { start: 5, end: 5 + zoneXc.length });
       } else {
-        this.env.model.dispatch("SUM_SELECTION");
+        const target = this.env.model.getters.getSelectedZones();
+        const position = this.env.model.getters.getActivePosition();
+        this.env.model.dispatch("SUM_SELECTION", { target, ...position });
       }
     },
     "Alt+Enter": () => {
@@ -376,13 +378,13 @@ export class Grid extends Component<SpreadsheetChildEnv> {
       this.env.model.selection.selectZone({ cell: position, zone: newZone });
     },
     "Ctrl+D": () => {
-      handleCopyPasteResult(this.env, { type: "COPY_PASTE_CELLS_ABOVE" });
+      handleCopyPasteResult(this.env, "COPY_PASTE_CELLS_ABOVE");
     },
     "Ctrl+R": () => {
-      handleCopyPasteResult(this.env, { type: "COPY_PASTE_CELLS_ON_LEFT" });
+      handleCopyPasteResult(this.env, "COPY_PASTE_CELLS_ON_LEFT");
     },
     "Ctrl+Enter": () => {
-      handleCopyPasteResult(this.env, { type: "COPY_PASTE_CELLS_ON_ZONE" });
+      handleCopyPasteResult(this.env, "COPY_PASTE_CELLS_ON_ZONE");
     },
     "Ctrl+H": () => this.sidePanel.open("FindAndReplace", {}),
     "Ctrl+F": () => this.sidePanel.open("FindAndReplace", {}),
@@ -741,7 +743,9 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     if (cut) {
       interactiveCut(this.env);
     } else {
-      this.env.model.dispatch("COPY");
+      const target = this.env.model.getters.getSelectedZones();
+      const sheetId = this.env.model.getters.getActiveSheetId();
+      this.env.model.dispatch("COPY", { sheetId, target });
     }
     const osContent = await this.env.model.getters.getClipboardTextAndImageContent();
     await this.env.clipboard.write(osContent);
@@ -773,7 +777,6 @@ export class Grid extends Component<SpreadsheetChildEnv> {
       osClipboard.content[image.type] = image;
     }
 
-    const target = this.env.model.getters.getSelectedZones();
     const isCutOperation = this.env.model.getters.isCutOperation();
 
     const clipboardId = this.env.model.getters.getClipboardId();
@@ -781,10 +784,10 @@ export class Grid extends Component<SpreadsheetChildEnv> {
       osClipboard.content[ClipboardMIMEType.Html]
     );
     if (clipboardId === htmlClipboardId) {
-      interactivePaste(this.env, target);
+      interactivePaste(this.env);
     } else {
       const osClipboardContent = parseOSClipboardContent(osClipboard.content);
-      await interactivePasteFromOS(this.env, target, osClipboardContent);
+      await interactivePasteFromOS(this.env, osClipboardContent);
     }
     if (isCutOperation) {
       await this.env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });

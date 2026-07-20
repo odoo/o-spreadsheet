@@ -16,8 +16,7 @@ import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui_stateful/clipboard";
-import { setSelection } from "./commands_helpers";
-import { getPlugin } from "./helpers";
+import { getPlugin, target } from "./helpers";
 
 /**
  * Get the active XC
@@ -237,17 +236,24 @@ export function automaticSum(
   { anchor }: { anchor?: string } = {},
   sheetId?: UID
 ) {
+  if (!anchor) {
+    const zone = toZone(xc);
+    anchor = toXC(zone.left, zone.top);
+  }
   return automaticSumMulti(model, [xc], { anchor }, sheetId);
 }
 
 export function automaticSumMulti(
   model: Model,
   xcs: string[],
-  { anchor }: { anchor?: string } = {},
-  sheetId?: UID
+  { anchor }: { anchor: string },
+  sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  setSelection(model, xcs, { anchor });
-  return model.dispatch("SUM_SELECTION");
+  return model.dispatch("SUM_SELECTION", {
+    ...toCartesian(anchor),
+    sheetId,
+    target: target(xcs.join(",")),
+  });
 }
 
 export function getTable(

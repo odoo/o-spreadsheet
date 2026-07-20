@@ -3,6 +3,7 @@ import { Spreadsheet } from "../../src";
 import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import { types } from "../../src/components/props_validation";
 import { DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
+import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { Component } from "../../src/owl3_compatibility_layer";
 import { ViewportsStore } from "../../src/stores/viewports_store";
@@ -27,11 +28,14 @@ let fixture: HTMLElement;
 let model: Model;
 let parent: Spreadsheet;
 let env: SpreadsheetChildEnv;
+let sheetId: string;
 
 describe("Autofill component", () => {
   beforeEach(async () => {
     ({ parent, model, fixture, env } = await mountSpreadsheet());
+    sheetId = model.getters.getActiveSheetId();
   });
+
   test("Can drag and drop autofill on columns", async () => {
     const dispatch = spyDispatch(parent);
     const autofill = fixture.querySelector(".o-autofill-handler");
@@ -40,14 +44,19 @@ describe("Autofill component", () => {
     triggerMouseEvent(
       autofill,
       "pointermove",
-      model.getters.getColDimensions(model.getters.getActiveSheetId(), 0)!.start + 10,
-      model.getters.getRowDimensions(model.getters.getActiveSheetId(), 1)!.end + 10
+      model.getters.getColDimensions(sheetId, 0)!.start + 10,
+      model.getters.getRowDimensions(sheetId, 1)!.end + 10
     );
     await nextTick();
-    expect(dispatch).toHaveBeenCalledWith("AUTOFILL_SELECT", { col: 0, row: 2 });
+    expect(dispatch).toHaveBeenCalledWith("AUTOFILL_SELECT", {
+      col: 0,
+      row: 2,
+      sheetId,
+      source: toZone("A1"),
+    });
     triggerMouseEvent(autofill, "pointerup");
     await nextTick();
-    expect(dispatch).toHaveBeenCalledWith("AUTOFILL");
+    expect(dispatch).toHaveBeenCalledWith("AUTOFILL", { sheetId, source: toZone("A1") });
   });
 
   test("Can drag and drop autofill on rows", async () => {
@@ -58,14 +67,19 @@ describe("Autofill component", () => {
     triggerMouseEvent(
       autofill,
       "pointermove",
-      model.getters.getColDimensions(model.getters.getActiveSheetId(), 1)!.end + 10,
-      model.getters.getRowDimensions(model.getters.getActiveSheetId(), 0)!.start + 10
+      model.getters.getColDimensions(sheetId, 1)!.end + 10,
+      model.getters.getRowDimensions(sheetId, 0)!.start + 10
     );
     await nextTick();
-    expect(dispatch).toHaveBeenCalledWith("AUTOFILL_SELECT", { col: 2, row: 0 });
+    expect(dispatch).toHaveBeenCalledWith("AUTOFILL_SELECT", {
+      col: 2,
+      row: 0,
+      sheetId,
+      source: toZone("A1"),
+    });
     triggerMouseEvent(autofill, "pointerup");
     await nextTick();
-    expect(dispatch).toHaveBeenCalledWith("AUTOFILL");
+    expect(dispatch).toHaveBeenCalledWith("AUTOFILL", { sheetId, source: toZone("A1") });
   });
 
   test("Can auto-autofill with dblclick", async () => {
@@ -73,7 +87,12 @@ describe("Autofill component", () => {
     const autofill = fixture.querySelector(".o-autofill-handler");
     triggerMouseEvent(autofill, "dblclick", 4, 4);
     await nextTick();
-    expect(dispatch).toHaveBeenCalledWith("AUTOFILL_AUTO");
+    expect(dispatch).toHaveBeenCalledWith("AUTOFILL_AUTO", {
+      sheetId: sheetId,
+      col: 0,
+      row: 0,
+      source: toZone("A1"),
+    });
   });
 
   test("tooltip position when moving the mouse", async () => {
@@ -84,7 +103,6 @@ describe("Autofill component", () => {
     triggerMouseEvent(autofill, "pointerdown", 40, 40);
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    const sheetId = model.getters.getActiveSheetId();
     const x = HEADER_WIDTH + model.getters.getColDimensions(sheetId, 1)!.end + 20;
     const y = model.getters.getRowDimensions(sheetId, 0)!.start + 20;
     triggerMouseEvent(autofill, "pointermove", x, y);
@@ -110,7 +128,6 @@ describe("Autofill component", () => {
     triggerMouseEvent(autofill, "pointerdown", 40, 40);
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    const sheetId = model.getters.getActiveSheetId();
     const x = HEADER_WIDTH + model.getters.getColDimensions(sheetId, 1)!.end + 20;
     const y = model.getters.getRowDimensions(sheetId, 0)!.start + 20;
     triggerWheelEvent(".o-grid", { clientX: x, clientY: y });
@@ -139,7 +156,6 @@ describe("Autofill component", () => {
     triggerMouseEvent(autofill, "pointerdown", 40, 40);
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    const sheetId = model.getters.getActiveSheetId();
     const x = HEADER_WIDTH + model.getters.getColDimensions(sheetId, 1)!.end + 20;
     const y = model.getters.getRowDimensions(sheetId, 0)!.start + 20;
     triggerMouseEvent(autofill, "pointermove", x, y);
@@ -167,10 +183,8 @@ describe("Autofill component", () => {
     triggerMouseEvent(
       autofill,
       "pointermove",
-      HEADER_WIDTH +
-        model.getters.getColDimensions(model.getters.getActiveSheetId(), 0)!.start +
-        10,
-      model.getters.getRowDimensions(model.getters.getActiveSheetId(), 1)!.end + 10
+      HEADER_WIDTH + model.getters.getColDimensions(sheetId, 0)!.start + 10,
+      model.getters.getRowDimensions(sheetId, 1)!.end + 10
     );
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).not.toBeNull();
@@ -187,20 +201,16 @@ describe("Autofill component", () => {
     triggerMouseEvent(
       autofill,
       "pointermove",
-      HEADER_WIDTH +
-        model.getters.getColDimensions(model.getters.getActiveSheetId(), 0)!.start +
-        10,
-      model.getters.getRowDimensions(model.getters.getActiveSheetId(), 1)!.end + 10
+      HEADER_WIDTH + model.getters.getColDimensions(sheetId, 0)!.start + 10,
+      model.getters.getRowDimensions(sheetId, 1)!.end + 10
     );
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).not.toBeNull();
     triggerMouseEvent(
       autofill,
       "pointermove",
-      HEADER_WIDTH +
-        model.getters.getColDimensions(model.getters.getActiveSheetId(), 0)!.start +
-        10,
-      model.getters.getRowDimensions(model.getters.getActiveSheetId(), 0)!.start + 10
+      HEADER_WIDTH + model.getters.getColDimensions(sheetId, 0)!.start + 10,
+      model.getters.getRowDimensions(sheetId, 0)!.start + 10
     );
     await nextTick();
     triggerMouseEvent(autofill, "pointerup");
@@ -233,11 +243,9 @@ describe("Autofill component", () => {
     triggerMouseEvent(
       autofill,
       "pointermove",
-      HEADER_WIDTH +
-        model.getters.getColDimensions(model.getters.getActiveSheetId(), 0)!.start +
-        10,
+      HEADER_WIDTH + model.getters.getColDimensions(sheetId, 0)!.start + 10,
 
-      model.getters.getRowDimensions(model.getters.getActiveSheetId(), 1)!.end + 10
+      model.getters.getRowDimensions(sheetId, 1)!.end + 10
     );
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).not.toBeNull();
@@ -254,7 +262,7 @@ describe("Autofill component", () => {
     await nextTick();
     const newX =
       HEADER_WIDTH +
-      parent.model.getters.getColDimensions(parent.model.getters.getActiveSheetId(), 0)!.start +
+      parent.model.getters.getColDimensions(sheetId, 0)!.start +
       2 * DEFAULT_CELL_WIDTH;
     triggerMouseEvent(autofill, "pointermove", newX, HEADER_HEIGHT + 4);
     await nextTick();

@@ -8,6 +8,7 @@ import { clipboardHandlersRegistries } from "../../src/registries/clipboardHandl
 import {
   addColumns,
   addRows,
+  autofill,
   deleteCells,
   deleteColumns,
   deleteRows,
@@ -15,7 +16,6 @@ import {
   merge,
   moveColumns,
   moveRows,
-  setSelection,
   unMerge,
 } from "../test_helpers";
 import { target } from "../test_helpers/helpers";
@@ -1011,9 +1011,7 @@ describe("Default Plugin: Style", () => {
       style,
     });
 
-    setSelection(model, ["B2"]);
-    model.dispatch("AUTOFILL_SELECT", toCartesian("B4"));
-    model.dispatch("AUTOFILL");
+    autofill(model, "B2", "B4");
 
     expect(getCellStyle(model, "B3")).toEqual(style);
     expect(getCellStyle(model, "B4")).toEqual(style);
@@ -1026,9 +1024,7 @@ describe("Default Plugin: Style", () => {
       style,
     });
 
-    setSelection(model, ["B2"]);
-    model.dispatch("AUTOFILL_SELECT", toCartesian("D2"));
-    model.dispatch("AUTOFILL");
+    autofill(model, "B2", "D2");
 
     expect(getCellStyle(model, "C2")).toEqual(style);
     expect(getCellStyle(model, "D2")).toEqual(style);

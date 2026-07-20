@@ -17,10 +17,9 @@ export class AutomaticSumStore extends SpreadsheetStore {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "SUM_SELECTION":
-        const sheetId = this.getters.getActiveSheetId();
-        const { zones, anchor } = this.getters.getSelection();
-        for (const zone of zones) {
-          const sums = this.getAutomaticSums(sheetId, zone, anchor.cell);
+        const sheetId = cmd.sheetId;
+        for (const zone of cmd.target) {
+          const sums = this.getAutomaticSums(sheetId, zone, { col: cmd.col, row: cmd.row });
           this.dispatchCellUpdates(sheetId, sums);
         }
         break;

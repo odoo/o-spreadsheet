@@ -3,7 +3,7 @@ import { canonicalizeNumberContent } from "../../helpers/locale";
 import { range } from "../../helpers/misc";
 import { CellValueType } from "../../types/cells";
 import { Command, CommandResult, SplitTextIntoColumnsCommand } from "../../types/commands";
-import { CellPosition, Zone } from "../../types/misc";
+import { CellPosition, UID, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class SplitToColumnsPlugin extends UIPlugin {
@@ -51,21 +51,24 @@ export class SplitToColumnsPlugin extends UIPlugin {
     return;
   }
 
-  private splitIntoColumns({ separator, addNewColumns }: SplitTextIntoColumnsCommand) {
-    const selection = this.getters.getSelectedZone();
-    const sheetId = this.getters.getActiveSheetId();
-    const splitted = this.getSplittedCols(selection, separator);
+  private splitIntoColumns({
+    separator,
+    addNewColumns,
+    zone,
+    sheetId,
+  }: SplitTextIntoColumnsCommand) {
+    const splitted = this.getSplittedCols(sheetId, zone, separator);
     if (addNewColumns) {
-      this.addColsToAvoidCollisions(selection, splitted);
+      this.addColsToAvoidCollisions(sheetId, zone, splitted);
     }
-    this.removeMergesInSplitZone(selection, splitted);
-    this.addColumnsToNotOverflowSheet(selection, splitted);
+    this.removeMergesInSplitZone(sheetId, zone, splitted);
+    this.addColumnsToNotOverflowSheet(sheetId, zone, splitted);
 
     for (let i = 0; i < splitted.length; i++) {
-      const row = selection.top + i;
+      const row = zone.top + i;
       const splittedContent = splitted[i];
 
-      const col = selection.left;
+      const col = zone.left;
       const mainCell = this.getters.getCell({ sheetId, col, row });
 
       if (
@@ -89,11 +92,10 @@ export class SplitToColumnsPlugin extends UIPlugin {
     }
   }
 
-  private getSplittedCols(selection: Zone, separator: string): string[][] {
+  private getSplittedCols(sheetId: UID, selection: Zone, separator: string): string[][] {
     if (!separator) {
       throw new Error("Separator cannot be empty");
     }
-    const sheetId = this.getters.getActiveSheetId();
     const splitted: string[][] = [];
     for (const row of range(selection.top, selection.bottom + 1)) {
       const text = this.getters.getEvaluatedCell({
@@ -114,8 +116,11 @@ export class SplitToColumnsPlugin extends UIPlugin {
     return splitted;
   }
 
-  private willSplittedColsOverwriteContent(selection: Zone, splittedCols: string[][]) {
-    const sheetId = this.getters.getActiveSheetId();
+  private willSplittedColsOverwriteContent(
+    sheetId: UID,
+    selection: Zone,
+    splittedCols: string[][]
+  ) {
     for (const row of range(selection.top, selection.bottom + 1)) {
       const splittedText = splittedCols[row - selection.top];
       for (let i = 1; i < splittedText.length; i++) {
@@ -128,17 +133,14 @@ export class SplitToColumnsPlugin extends UIPlugin {
     return false;
   }
 
-  private removeMergesInSplitZone(selection: Zone, splittedCols: string[][]) {
-    const sheetId = this.getters.getActiveSheetId();
+  private removeMergesInSplitZone(sheetId: UID, selection: Zone, splittedCols: string[][]) {
     const colsInSplitZone = Math.max(...splittedCols.map((s) => s.length));
     const splitZone = { ...selection, right: selection.left + colsInSplitZone - 1 };
     const merges = this.getters.getMergesInZone(sheetId, splitZone);
     this.dispatch("REMOVE_MERGE", { sheetId, target: merges });
   }
 
-  private addColsToAvoidCollisions(selection: Zone, splittedCols: string[][]) {
-    const sheetId = this.getters.getActiveSheetId();
-
+  private addColsToAvoidCollisions(sheetId: UID, selection: Zone, splittedCols: string[][]) {
     let colsToAdd = 0;
 
     for (const row of range(selection.top, selection.bottom + 1)) {
@@ -174,8 +176,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
     return 0;
   }
 
-  private addColumnsToNotOverflowSheet(selection: Zone, splittedCols: string[][]) {
-    const sheetId = this.getters.getActiveSheetId();
+  private addColumnsToNotOverflowSheet(sheetId: UID, selection: Zone, splittedCols: string[][]) {
     const maxColumnsToSpread = Math.max(...splittedCols.map((s) => s.length - 1));
     const maxColIndex = this.getters.getNumberCols(sheetId) - 1;
     if (selection.left + maxColumnsToSpread > maxColIndex) {
@@ -209,8 +210,8 @@ export class SplitToColumnsPlugin extends UIPlugin {
       return CommandResult.Success;
     }
     const selection = this.getters.getSelectedZones()[0];
-    const splitted = this.getSplittedCols(selection, cmd.separator);
-    if (this.willSplittedColsOverwriteContent(selection, splitted)) {
+    const splitted = this.getSplittedCols(cmd.sheetId, selection, cmd.separator);
+    if (this.willSplittedColsOverwriteContent(cmd.sheetId, selection, splitted)) {
       return CommandResult.SplitWillOverwriteContent;
     }
     return CommandResult.Success;

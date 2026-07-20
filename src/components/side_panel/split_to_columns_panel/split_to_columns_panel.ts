@@ -88,10 +88,14 @@ export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
   }
 
   get errorMessages(): string[] {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const zone = this.env.model.getters.getSelectedZone();
     const cancelledReasons = this.env.model.canDispatch("SPLIT_TEXT_INTO_COLUMNS", {
       separator: this.separatorValue,
       addNewColumns: this.state.addNewColumns,
       force: true,
+      sheetId,
+      zone,
     }).reasons;
 
     const errors = new Set<string>();
@@ -109,8 +113,12 @@ export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
   }
 
   get warningMessages(): string[] {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const zone = this.env.model.getters.getSelectedZone();
     const warnings: string[] = [];
     const cancelledReasons = this.env.model.canDispatch("SPLIT_TEXT_INTO_COLUMNS", {
+      sheetId,
+      zone,
       separator: this.separatorValue,
       addNewColumns: this.state.addNewColumns,
       force: false,

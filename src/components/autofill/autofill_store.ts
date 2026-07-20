@@ -13,7 +13,7 @@ import {
   Tooltip,
 } from "../../types/autofill";
 import { Cell, CellValueType } from "../../types/cells";
-import { AutoFillCellCommand, Command } from "../../types/commands";
+import { AutofillAutoCommand, AutoFillCellCommand, Command } from "../../types/commands";
 import { Getters } from "../../types/getters";
 import { Border, DIRECTION, HeaderIndex, Style, UID, Zone } from "../../types/misc";
 import { GridRenderingContext } from "../../types/rendering";
@@ -80,7 +80,7 @@ class AutofillGenerator {
 export class AutofillStore extends SpreadsheetStore {
   static layers = ["Autofill"] as const;
 
-  private autofillZone: Zone | undefined;
+  private autofillZone: { zone: Zone; sheetId: UID } | undefined;
   private steps: number | undefined;
   private lastCellSelected: { col?: number; row?: number } = {};
   private direction: DIRECTION | undefined;
@@ -90,8 +90,7 @@ export class AutofillStore extends SpreadsheetStore {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  canAutofillSelect(col: HeaderIndex, row: HeaderIndex): boolean {
-    const sheetId = this.getters.getActiveSheetId();
+  canAutofillSelect(sheetId, col: HeaderIndex, row: HeaderIndex): boolean {
     this.lastCellSelected.col =
       col === -1 ? this.lastCellSelected.col : clip(col, 0, this.getters.getNumberCols(sheetId));
     this.lastCellSelected.row =
@@ -105,16 +104,16 @@ export class AutofillStore extends SpreadsheetStore {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "AUTOFILL":
-        this.autofill(true);
+        this.autofill(cmd.source, true);
         break;
       case "AUTOFILL_SELECT":
-        if (!this.canAutofillSelect(cmd.col, cmd.row)) {
+        if (!this.canAutofillSelect(cmd.sheetId, cmd.col, cmd.row)) {
           break;
         }
-        this.select(cmd.col, cmd.row);
+        this.select(cmd.sheetId, cmd.source, cmd.col, cmd.row);
         break;
       case "AUTOFILL_AUTO":
-        this.autofillAuto();
+        this.autofillAuto(cmd);
         break;
     }
   }
@@ -128,13 +127,13 @@ export class AutofillStore extends SpreadsheetStore {
    * @param apply Flag set to true to apply the autofill in the model. It's
    *              useful to set it to false when we need to fill the tooltip
    */
-  private autofill(apply: boolean) {
+  private autofill(source: Zone, apply: boolean) {
     if (!this.autofillZone || !this.steps || this.direction === undefined) {
       this.tooltip = undefined;
       return;
     }
-    const source = this.getters.getSelectedZone();
-    const target = this.autofillZone;
+    const target = this.autofillZone.zone;
+    const sheetId = this.autofillZone.sheetId;
     const autofillCellsData: AutofillCellData[] = [];
 
     switch (this.direction) {
@@ -146,7 +145,7 @@ export class AutofillStore extends SpreadsheetStore {
           }
           const generator = this.createGenerator(xcs);
           for (let row = target.top; row <= target.bottom; row++) {
-            autofillCellsData.push(this.computeNewCell(generator, col, row));
+            autofillCellsData.push(this.computeNewCell(sheetId, generator, col, row));
           }
         }
         break;
@@ -158,7 +157,7 @@ export class AutofillStore extends SpreadsheetStore {
           }
           const generator = this.createGenerator(xcs);
           for (let row = target.bottom; row >= target.top; row--) {
-            autofillCellsData.push(this.computeNewCell(generator, col, row));
+            autofillCellsData.push(this.computeNewCell(sheetId, generator, col, row));
           }
         }
         break;
@@ -170,7 +169,7 @@ export class AutofillStore extends SpreadsheetStore {
           }
           const generator = this.createGenerator(xcs);
           for (let col = target.right; col >= target.left; col--) {
-            autofillCellsData.push(this.computeNewCell(generator, col, row));
+            autofillCellsData.push(this.computeNewCell(sheetId, generator, col, row));
           }
         }
         break;
@@ -182,7 +181,7 @@ export class AutofillStore extends SpreadsheetStore {
           }
           const generator = this.createGenerator(xcs);
           for (let col = target.left; col <= target.right; col++) {
-            autofillCellsData.push(this.computeNewCell(generator, col, row));
+            autofillCellsData.push(this.computeNewCell(sheetId, generator, col, row));
           }
         }
         break;
@@ -320,62 +319,56 @@ export class AutofillStore extends SpreadsheetStore {
   /**
    * Select a cell which becomes the last cell of the autofillZone
    */
-  private select(col: HeaderIndex, row: HeaderIndex) {
-    const source = this.getters.getSelectedZone();
+  private select(sheetId: UID, source: Zone, col: HeaderIndex, row: HeaderIndex) {
     if (isInside(col, row, source)) {
       this.autofillZone = undefined;
       return;
     }
-    this.direction = this.getDirection(col, row);
+    this.direction = this.getDirection(source, col, row);
     switch (this.direction) {
       case DIRECTION.UP:
-        this.saveZone(row, source.top - 1, source.left, source.right);
+        this.saveZone(sheetId, row, source.top - 1, source.left, source.right);
         this.steps = source.top - row;
         break;
       case DIRECTION.DOWN:
-        this.saveZone(source.bottom + 1, row, source.left, source.right);
+        this.saveZone(sheetId, source.bottom + 1, row, source.left, source.right);
         this.steps = row - source.bottom;
         break;
       case DIRECTION.LEFT:
-        this.saveZone(source.top, source.bottom, col, source.left - 1);
+        this.saveZone(sheetId, source.top, source.bottom, col, source.left - 1);
         this.steps = source.left - col;
         break;
       case DIRECTION.RIGHT:
-        this.saveZone(source.top, source.bottom, source.right + 1, col);
+        this.saveZone(sheetId, source.top, source.bottom, source.right + 1, col);
         this.steps = col - source.right;
         break;
     }
-    this.autofill(false);
+    this.autofill(source, false);
   }
 
   /**
    * Computes the autofillZone to autofill when the user double click on the
    * autofiller
    */
-  private autofillAuto() {
-    const activePosition = this.getters.getActivePosition();
-
-    const table = this.getters.getTable(activePosition);
-    let autofillRow = table ? table.range.zone.bottom : this.getAutofillAutoLastRow();
+  private autofillAuto(cmd: AutofillAutoCommand) {
+    const table = this.getters.getTable(cmd);
+    let autofillRow = table ? table.range.zone.bottom : this.getAutofillAutoLastRow(cmd);
 
     // Stop autofill at the next non-empty cell
-    const selection = this.getters.getSelectedZone();
-    for (let row = selection.bottom + 1; row <= autofillRow; row++) {
-      if (this.getters.getEvaluatedCell({ ...activePosition, row }).type !== CellValueType.empty) {
+    for (let row = cmd.source.bottom + 1; row <= autofillRow; row++) {
+      if (this.getters.getEvaluatedCell({ ...cmd, row }).type !== CellValueType.empty) {
         autofillRow = row - 1;
         break;
       }
     }
 
-    if (autofillRow > selection.bottom) {
-      this.select(activePosition.col, autofillRow);
-      this.autofill(true);
+    if (autofillRow > cmd.source.bottom) {
+      this.select(cmd.sheetId, cmd.source, cmd.col, autofillRow);
+      this.autofill(cmd.source, true);
     }
   }
 
-  private getAutofillAutoLastRow() {
-    const zone = this.getters.getSelectedZone();
-    const sheetId = this.getters.getActiveSheetId();
+  private getAutofillAutoLastRow({ source: zone, sheetId }: AutofillAutoCommand) {
     let col: HeaderIndex = zone.left;
     let row: HeaderIndex = zone.bottom;
 
@@ -403,6 +396,7 @@ export class AutofillStore extends SpreadsheetStore {
    * Generate the next cell
    */
   private computeNewCell(
+    sheetId: UID,
     generator: AutofillGenerator,
     col: HeaderIndex,
     row: HeaderIndex
@@ -411,6 +405,7 @@ export class AutofillStore extends SpreadsheetStore {
     const { content, style, border, format } = cellData;
     this.tooltip = tooltip;
     return {
+      sheetId,
       originCol: origin.col,
       originRow: origin.row,
       col,
@@ -473,16 +468,21 @@ export class AutofillStore extends SpreadsheetStore {
     return new AutofillGenerator(nextCells, this.getters, this.direction!);
   }
 
-  private saveZone(top: HeaderIndex, bottom: HeaderIndex, left: HeaderIndex, right: HeaderIndex) {
-    this.autofillZone = { top, bottom, left, right };
+  private saveZone(
+    sheetId: UID,
+    top: HeaderIndex,
+    bottom: HeaderIndex,
+    left: HeaderIndex,
+    right: HeaderIndex
+  ) {
+    this.autofillZone = { zone: { top, bottom, left, right }, sheetId };
   }
 
   /**
    * Compute the direction of the autofill from the last selected zone and
    * a given cell (col, row)
    */
-  private getDirection(col: HeaderIndex, row: HeaderIndex): DIRECTION {
-    const source = this.getters.getSelectedZone();
+  private getDirection(source: Zone, col: HeaderIndex, row: HeaderIndex): DIRECTION {
     const position = {
       up: { number: source.top - row, value: DIRECTION.UP },
       down: { number: row - source.bottom, value: DIRECTION.DOWN },
@@ -538,11 +538,11 @@ export class AutofillStore extends SpreadsheetStore {
   // ---------------------------------------------------------------------------
 
   drawLayer(renderingContext: GridRenderingContext) {
-    if (!this.autofillZone) {
+    const { ctx, thinLineWidth, viewports, sheetId } = renderingContext;
+    if (!this.autofillZone || sheetId !== this.autofillZone.sheetId) {
       return;
     }
-    const { ctx, thinLineWidth, viewports, sheetId } = renderingContext;
-    const { x, y, width, height } = viewports.getVisibleRect(sheetId, this.autofillZone);
+    const { x, y, width, height } = viewports.getVisibleRect(sheetId, this.autofillZone.zone);
     if (width > 0 && height > 0) {
       ctx.strokeStyle = "black";
       ctx.lineWidth = thinLineWidth;

@@ -96,6 +96,7 @@ describe("Model", () => {
         if (cmd.type === "COPY") {
           result = this.dispatch("PASTE", {
             target: [toZone("A2")],
+            sheetId: model.getters.getSheetIds()[0],
           });
         }
       }
