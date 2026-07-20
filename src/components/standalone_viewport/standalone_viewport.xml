@@ -12,6 +12,7 @@
           hasFooter="false"
           gridOverlayDimensions="this.gridOverlayDimensions">
           <div
+            t-if="this.props.canResizeColumns"
             t-foreach="this.colResizers"
             t-as="colResizer"
             t-key="colResizer_index"

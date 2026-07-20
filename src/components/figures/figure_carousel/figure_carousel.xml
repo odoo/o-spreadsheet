@@ -92,6 +92,7 @@
         <StandaloneViewport
           range="this.removeEmptyHeadersFromRange(selectedItem.range)"
           columnWeights="selectedItem.columnWeights"
+          canResizeColumns="this.canResizeDataViewColumns"
           onResizeColumns.bind="this.onResizeColumns"
         />
       </div>

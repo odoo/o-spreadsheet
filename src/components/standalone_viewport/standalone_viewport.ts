@@ -42,6 +42,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
 
   protected props = useProps({
     range: types.Range(),
+    canResizeColumns: types.boolean().optional(true),
     onResizeColumns: types.function<(columnWeights: number[] | undefined) => void>().optional(),
     columnWeights: types.array<number>().optional(),
   });
@@ -64,10 +65,6 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     useChildStoreProvider([ViewportsStore, HoveredIconStore, HoveredTableStore]);
     this.store = useLocalStore(StandaloneViewportStore, this.props.range, this.props.columnWeights);
     this.viewStore = useStore(ViewportsStore);
-    this.viewStore.resizeSheetView({
-      height: this.containerHeight,
-      width: this.containerWidth,
-    });
     // @ts-ignore ADRM TODO
     const getHeaderDimensionsCallback = this.store.headerDimensionsCallback;
     this.viewStore.setViewportArgs({
@@ -118,9 +115,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
         ev.stopPropagation();
         ev.preventDefault();
 
-        const scroll = this.store.renderingContext.viewports.getSheetScrollInfo(
-          this.props.range.sheetId
-        );
+        const scroll = this.viewStore.viewports.getSheetScrollInfo(this.props.range.sheetId);
         this.onScroll({ offsetX: scroll.scrollX + deltaX, offsetY: scroll.scrollY + deltaY });
       }
     });
@@ -135,7 +130,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
   }
 
   onScroll(offset: PixelOffset) {
-    this.store.renderingContext.viewports.setSheetViewOffset(
+    this.viewStore.viewports.setSheetViewOffset(
       this.props.range.sheetId,
       offset.offsetX,
       offset.offsetY
@@ -145,14 +140,14 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
 
   get hasVerticalScrollBar() {
     return (
-      this.store.renderingContext.viewports.getMainViewportRect(this.props.range.sheetId).height >
+      this.viewStore.viewports.getMainViewportRect(this.props.range.sheetId).height >
       this.containerHeight
     );
   }
 
   get scrollBarContainerStyle() {
     return cssPropertiesToCss({
-      width: `${this.store.renderingContext.viewports.getScrollBarWidth()}px`,
+      width: `${this.viewStore.viewports.getScrollBarWidth()}px`,
     });
   }
 
@@ -179,10 +174,10 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     const zone = this.props.range.zone;
     const sheetId = this.props.range.sheetId;
     for (let col = zone.left; col < zone.right; col++) {
-      const colDimensions = this.store.renderingContext.viewports.getColDimensionsInViewport(
-        sheetId,
-        col
-      );
+      if (this.env.model.getters.isColHidden(sheetId, col)) {
+        continue;
+      }
+      const colDimensions = this.viewStore.viewports.getColDimensionsInViewport(sheetId, col);
 
       const left = this.dndState.col === col ? colDimensions.end : colDimensions.end;
 

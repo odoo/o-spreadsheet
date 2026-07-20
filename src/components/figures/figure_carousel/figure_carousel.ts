@@ -243,4 +243,11 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
       definition: this.env.model.getters.carouselToCarouselData({ ...carousel, items: newItems }),
     });
   }
+
+  get canResizeDataViewColumns() {
+    return (
+      !this.env.model.getters.isReadonly() &&
+      !this.env.model.getters.isSheetLocked(this.env.model.getters.getActiveSheetId())
+    );
+  }
 }
