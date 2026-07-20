@@ -919,4 +919,12 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   get displaySelectionHandler() {
     return this.env.isMobile() && this.composerFocusStore.activeComposer.editionMode === "inactive";
   }
+
+  get displayTableResizer() {
+    return (
+      this.env.model.getters.isGridSelectionActive() &&
+      !this.env.model.getters.isReadonly() &&
+      !this.env.model.getters.isSheetLocked(this.env.model.getters.getActiveSheetId())
+    );
+  }
 }
