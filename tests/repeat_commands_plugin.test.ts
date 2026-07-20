@@ -21,6 +21,7 @@ import {
   repeatCoreCommand,
   repeatLocalCommandTransformRegistry,
 } from "../src/registries/repeat_transform_registry";
+import { ClipboardStore } from "../src/stores/clipboard_store";
 import {
   activateSheet,
   addEqualCf,
@@ -52,6 +53,7 @@ import {
   getStyle,
 } from "./test_helpers/getters_helpers";
 import { makeTestComposerStore, target, toRangesData } from "./test_helpers/helpers";
+import { makeStoreWithModel } from "./test_helpers/stores";
 
 let model: Model;
 let sheetId: UID;
@@ -59,6 +61,7 @@ let sheetId: UID;
 beforeEach(() => {
   model = new Model();
   sheetId = model.getters.getActiveSheetId();
+  makeStoreWithModel(model, ClipboardStore);
 });
 
 describe("Repeat commands basics", () => {

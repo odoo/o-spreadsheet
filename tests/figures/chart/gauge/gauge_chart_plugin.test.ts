@@ -1,5 +1,6 @@
 import { CellErrorType, CommandResult, Model } from "../../../../src";
 import { deepCopy } from "../../../../src/helpers/misc";
+import { ClipboardStore } from "../../../../src/stores/clipboard_store";
 import { ViewportsStore } from "../../../../src/stores/viewports_store";
 import {
   GaugeChartDefinition,
@@ -78,6 +79,7 @@ const randomSectionRule: SectionRule = {
 
 beforeEach(() => {
   model = new Model();
+  makeStoreWithModel(model, ClipboardStore);
 });
 
 describe("datasource tests", function () {

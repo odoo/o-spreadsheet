@@ -7,6 +7,7 @@ import { getCanonicalSymbolName } from "../../src/helpers/misc";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { NotificationStore } from "../../src/stores/notification_store";
 import { Store } from "../../src/types/store_engine";
@@ -52,6 +53,7 @@ let container: DependencyContainer;
 
 beforeEach(() => {
   ({ model, container, store: composerStore } = makeStore(CellComposerStore));
+  container.get(ClipboardStore); // Instantiate a clipboard store
 });
 
 function editCell(model: Model, xc: string, content: string) {

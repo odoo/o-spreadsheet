@@ -1,19 +1,19 @@
-import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
-import { convertImageToPng } from "../../components/helpers/convert_image_to_png";
-import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers/css";
-import { SELECTION_BORDER_COLOR } from "../../constants";
+import { ClipboardHandler } from "../clipboard_handlers/abstract_clipboard_handler";
+import { convertImageToPng } from "../components/helpers/convert_image_to_png";
+import { cellStyleToCss, cssPropertiesToCss } from "../components/helpers/css";
+import { SELECTION_BORDER_COLOR } from "../constants";
 import {
   applyClipboardHandlersPaste,
   getClipboardDataPositions,
   getPasteTargetFromHandlers,
   selectPastedZone,
-} from "../../helpers/clipboard/clipboard_helpers";
-import { getMaxFigureSize } from "../../helpers/figures/figure/figure";
-import { UuidGenerator } from "../../helpers/uuid";
-import { isZoneValid } from "../../helpers/zones";
-import { getCurrentVersion } from "../../migrations/data";
-import { clipboardHandlersRegistries } from "../../registries/clipboardHandlersRegistries";
-import { _t } from "../../translation";
+} from "../helpers/clipboard/clipboard_helpers";
+import { getMaxFigureSize } from "../helpers/figures/figure/figure";
+import { UuidGenerator } from "../helpers/uuid";
+import { isZoneValid } from "../helpers/zones";
+import { getCurrentVersion } from "../migrations/data";
+import { clipboardHandlersRegistries } from "../registries/clipboardHandlersRegistries";
+import { _t } from "../translation";
 import {
   ClipboardCopyOptions,
   ClipboardData,
@@ -22,13 +22,13 @@ import {
   MinimalClipboardData,
   OSClipboardContent,
   SpreadsheetClipboardData,
-} from "../../types/clipboard";
-import { Command, CommandResult, isCoreCommand, LocalCommand } from "../../types/commands";
-import { FileStore } from "../../types/files";
-import { Dimension, HeaderIndex, UID, Zone } from "../../types/misc";
-import { GridRenderingContext } from "../../types/rendering";
-import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
-import { UIPlugin, UIPluginConfig } from "../ui_plugin";
+} from "../types/clipboard";
+import { Command, CommandResult, DispatchResult, isCoreCommand } from "../types/commands";
+import { Dimension, HeaderIndex, UID, Zone } from "../types/misc";
+import { GridRenderingContext } from "../types/rendering";
+import { xmlEscape } from "../xlsx/helpers/xml_helpers";
+import { NotificationStore } from "./notification_store";
+import { SpreadsheetStore } from "./spreadsheet_store";
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
@@ -38,18 +38,18 @@ interface InsertDeleteCellsTargets {
 }
 
 /**
- * Clipboard Plugin
+ * Clipboard Store
  *
  * This clipboard manages all cut/copy/paste interactions internal to the
  * application, and with the OS clipboard as well.
  */
-export class ClipboardPlugin extends UIPlugin {
-  static layers = ["Clipboard"] as const;
-  static getters = [
+export class ClipboardStore extends SpreadsheetStore {
+  storeGetters = [
     "getClipboardTextAndImageContent",
     "getClipboardId",
     "getClipboardTextContent",
     "isCutOperation",
+    "isCommandValid",
   ] as const;
 
   private status: "visible" | "invisible" = "invisible";
@@ -57,18 +57,22 @@ export class ClipboardPlugin extends UIPlugin {
   private copiedData?: MinimalClipboardData;
   private _isCutOperation: boolean = false;
   private clipboardId = UuidGenerator.uuidv4();
-  private fileStore?: FileStore;
 
-  constructor(config: UIPluginConfig) {
-    super(config);
-    this.fileStore = config.external.fileStore;
+  private notificationStore = this.get(NotificationStore);
+
+  get renderingLayers() {
+    return ["Clipboard"] as const;
   }
 
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: LocalCommand): CommandResult {
+  isCommandValid(cmd: Command): DispatchResult {
+    return new DispatchResult(this.getCommandResult(cmd));
+  }
+
+  private getCommandResult(cmd: Command): CommandResult {
     switch (cmd.type) {
       case "CUT":
         const zones = this.getters.getSelectedZones();
@@ -136,6 +140,9 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   handle(cmd: Command) {
+    if (!this.isCommandValid(cmd).isSuccessful) {
+      return;
+    }
     switch (cmd.type) {
       case "COPY":
       case "CUT":
@@ -163,7 +170,7 @@ export class ClipboardPlugin extends UIPlugin {
           const definition = contentToPaste.imageData;
 
           const size = getMaxFigureSize(definition.size);
-          this.dispatch("CREATE_IMAGE", {
+          this.model.dispatch("CREATE_IMAGE", {
             definition,
             size,
             col: cmd.target[0].left,
@@ -241,7 +248,7 @@ export class ClipboardPlugin extends UIPlugin {
       case "DELETE_CELL": {
         const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
         if (!isZoneValid(cut[0])) {
-          this.dispatch("CLEAR_CELLS", {
+          this.model.dispatch("CLEAR_CELLS", {
             target: [cmd.zone],
             sheetId: this.getters.getActiveSheetId(),
           });
@@ -371,7 +378,7 @@ export class ClipboardPlugin extends UIPlugin {
         : clipboardHandlersRegistries.cellHandlers;
     return handlersRegistry.getKeys().map((handlerName) => {
       const Handler = handlersRegistry.get(handlerName);
-      return { handlerName, handler: new Handler(this.getters, this.dispatch) };
+      return { handlerName, handler: new Handler(this.getters, this.model.dispatch) };
     });
   }
 
@@ -458,13 +465,13 @@ export class ClipboardPlugin extends UIPlugin {
     }
     if (copiedData.figureIds) {
       // Deselect current figure before adding new figure to selection
-      this.dispatch("SELECT_FIGURE", { figureId: null });
+      this.model.dispatch("SELECT_FIGURE", { figureId: null });
     }
     applyClipboardHandlersPaste(handlers, copiedData, target, options);
     if (!options?.selectTarget) {
       return;
     }
-    selectPastedZone(this.selection, zones, selectedZones);
+    selectPastedZone(this.model.selection, zones, selectedZones);
   }
 
   /**
@@ -480,7 +487,7 @@ export class ClipboardPlugin extends UIPlugin {
   ) {
     const missingRows = height + row - this.getters.getNumberRows(sheetId);
     if (missingRows > 0) {
-      this.dispatch("ADD_COLUMNS_ROWS", {
+      this.model.dispatch("ADD_COLUMNS_ROWS", {
         dimension: "ROW",
         base: this.getters.getNumberRows(sheetId) - 1,
         sheetId,
@@ -491,7 +498,7 @@ export class ClipboardPlugin extends UIPlugin {
     }
     const missingCols = width + col - this.getters.getNumberCols(sheetId);
     if (missingCols > 0) {
-      this.dispatch("ADD_COLUMNS_ROWS", {
+      this.model.dispatch("ADD_COLUMNS_ROWS", {
         dimension: "COL",
         base: this.getters.getNumberCols(sheetId) - 1,
         sheetId,
@@ -536,7 +543,7 @@ export class ClipboardPlugin extends UIPlugin {
       content[ClipboardMIMEType.PlainText] = this.getPlainTextContent();
       content[ClipboardMIMEType.Html] = await this.getHTMLContent();
     } catch (error) {
-      this.ui.notifyUI({
+      this.notificationStore.notifyUser({
         type: "danger",
         text: "Your selection was too large for the browser to copy it.\nPlease select a smaller zone.",
         sticky: true,
@@ -634,11 +641,7 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   private async craftImageHTML(figureId: UID): Promise<string> {
-    if (!this.fileStore) {
-      return "\t";
-    }
-    const imageUrl = this.getters.getImage(figureId).path;
-    const file = (await this.fileStore?.getFile(imageUrl)) || null;
+    const file = (await this.getters.getImageFile(figureId)) || null;
 
     if (file) {
       const imageUrl = (await this.readFileAsDataURL(file)) as string;
@@ -658,17 +661,17 @@ export class ClipboardPlugin extends UIPlugin {
     const figure = this.getters.getFigure(figureSheetId, figureId)!;
     let file: File | Blob | null | undefined;
     if (figure.tag === "image") {
-      if (!this.fileStore) {
+      const imageUrl = this.getters.getImage(figureId).path;
+      file = await this.getters.getImageFile(figureId);
+      if (!file) {
         return;
       }
-      const imageUrl = this.getters.getImage(figureId).path;
-      file = await this.fileStore?.getFile(imageUrl);
 
       // we can only write on image/png format in the clipboard
       // So we convert the image to png if it's not already
       if (file.type !== "image/png") {
         if (file.size > MAX_FILE_SIZE) {
-          this.ui.notifyUI({
+          this.notificationStore.notifyUser({
             text: _t(
               "The file you are trying to copy is too large (>%sMB).\nIt will not be added to your OS clipboard.\nYou can download it directly instead.",
               Math.round(MAX_FILE_SIZE / (1024 * 1024))

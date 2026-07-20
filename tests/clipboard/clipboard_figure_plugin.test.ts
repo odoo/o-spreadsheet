@@ -2,6 +2,7 @@ import { CommandResult, Model, UID } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { parseOSClipboardContent } from "../../src/helpers/clipboard/clipboard_helpers";
 import { UuidGenerator } from "../../src/helpers/uuid";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   activateSheet,
@@ -24,17 +25,25 @@ import {
   updateFigure,
 } from "../test_helpers/commands_helpers";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { getFigureDefinition, getFigureIds, mockChart, nextTick } from "../test_helpers/helpers";
+import {
+  getFigureDefinition,
+  getFigureIds,
+  mockChart,
+  nextTick,
+  target,
+} from "../test_helpers/helpers";
+import { makeStore } from "../test_helpers/stores";
 
 mockChart();
 
 describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => {
   let model: Model;
+  let clipboardStore: ClipboardStore;
   let sheetId: UID;
   let figureId: UID;
 
   beforeEach(async () => {
-    model = new Model();
+    ({ model, store: clipboardStore } = makeStore(ClipboardStore));
     sheetId = model.getters.getActiveSheetId();
     figureId = UuidGenerator.uuidv4();
     if (type === "chart") {
@@ -169,7 +178,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
   });
 
   test("Can paste a chart with ranges that were deleted between the copy and the paste", () => {
-    const model = new Model();
+    const { model } = makeStore(ClipboardStore);
     createSheet(model, { sheetId: "sheet2Id", name: "Sheet2" });
     createChart(
       model,
@@ -206,7 +215,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     copy(model);
 
     const clipboardSpreadsheetContent = await parseOSClipboardContent(
-      await model.getters.getClipboardTextAndImageContent()
+      await clipboardStore.getClipboardTextAndImageContent()
     );
     const clipboardData = clipboardSpreadsheetContent.data;
     expect(clipboardData?.figureId).toBe(undefined);
@@ -218,14 +227,18 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     test("Cannot paste with empty target", () => {
       selectFigure(model, figureId);
       copy(model);
-      const result = model.dispatch("PASTE", { target: [] });
+      const result = clipboardStore.isCommandValid({ type: "PASTE", target: [] });
       expect(result).toBeCancelledBecause(CommandResult.EmptyTarget);
     });
 
     test("Cannot paste with clipboard options when pasting a figure", () => {
       selectFigure(model, figureId);
       copy(model);
-      const result = paste(model, "A1", "onlyFormat");
+      const result = clipboardStore.isCommandValid({
+        type: "PASTE",
+        target: target("A1"),
+        pasteOption: "onlyFormat",
+      });
       expect(result).toBeCancelledBecause(CommandResult.WrongFigurePasteOption);
     });
   });
@@ -233,7 +246,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
 
 describe("chart specific Clipboard test", () => {
   test("Can copy paste chart on another sheet", () => {
-    const model = new Model();
+    const { model } = makeStore(ClipboardStore);
     const chartId = "thisIsAnId";
     createChart(model, { type: "bar" }, chartId);
     updateChart(
@@ -260,7 +273,7 @@ describe("Carousel clipboard test", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    ({ model } = makeStore(ClipboardStore));
     sheetId = model.getters.getActiveSheetId();
   });
 

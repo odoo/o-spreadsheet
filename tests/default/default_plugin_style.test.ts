@@ -4,6 +4,7 @@ import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { deepEquals } from "../../src/helpers/misc";
 import { toZone } from "../../src/helpers/zones";
 import { clipboardHandlersRegistries } from "../../src/registries/clipboardHandlersRegistries";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   addColumns,
   addRows,
@@ -18,6 +19,7 @@ import {
   unMerge,
 } from "../test_helpers";
 import { target } from "../test_helpers/helpers";
+import { makeStoreWithModel } from "../test_helpers/stores";
 
 const ALIGN_STYLE: Style = { align: "left" };
 const FCOLOR_STYLE = { fillColor: "#abcdef" };
@@ -67,6 +69,7 @@ describe("Default Plugin: Style", () => {
     model = new Model({
       sheets: [{ id: "sh1", colNumber: 25, rowNumber: 20 }],
     });
+    makeStoreWithModel(model, ClipboardStore);
     sheetId = model.getters.getActiveSheetId();
   });
 

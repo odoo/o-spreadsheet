@@ -355,6 +355,7 @@ import { chartSubtypeRegistry } from "./registries/chart_subtype_registry";
 import { clipboardHandlersRegistries } from "./registries/clipboardHandlersRegistries";
 import { onIterationEndEvaluationRegistry } from "./registries/evaluation_registry";
 import { specificRangeTransformRegistry } from "./registries/srt_registry";
+import { ClipboardStore } from "./stores/clipboard_store";
 import { ViewportsStore } from "./stores/viewports_store";
 
 export const helpers = {
@@ -550,6 +551,7 @@ export const stores = {
   ClientFocusStore,
   GridRenderer,
   ViewportsStore,
+  ClipboardStore,
 };
 
 export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";

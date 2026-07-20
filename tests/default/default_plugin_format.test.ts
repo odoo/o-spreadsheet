@@ -3,6 +3,7 @@ import { getClipboardDataPositions } from "../../src/helpers/clipboard/clipboard
 import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { clipboardHandlersRegistries } from "../../src/registries/clipboardHandlersRegistries";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   addColumns,
   addRows,
@@ -16,6 +17,7 @@ import {
   unMerge,
 } from "../test_helpers";
 import { target } from "../test_helpers/helpers";
+import { makeStoreWithModel } from "../test_helpers/stores";
 
 const DATE_FORMAT = "yy/mm/dd";
 const PERCENT_FORMAT = "0%";
@@ -46,6 +48,7 @@ describe("Default Plugin: Format", () => {
     model = new Model({
       sheets: [{ id: "sh1", colNumber: 25, rowNumber: 20 }],
     });
+    makeStoreWithModel(model, ClipboardStore);
     sheetId = model.getters.getActiveSheetId();
   });
 

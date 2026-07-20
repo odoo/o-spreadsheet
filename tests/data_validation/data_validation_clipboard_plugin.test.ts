@@ -1,5 +1,6 @@
 import { Command, DataValidationCriterion, Model, UID, UIPlugin } from "../../src";
 import { featurePluginRegistry } from "../../src/plugins/plugin_registries";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   activateSheet,
   addDataValidation,
@@ -11,13 +12,14 @@ import {
   removeDataValidation,
 } from "../test_helpers/commands_helpers";
 import { addTestPlugin, getDataValidationRules } from "../test_helpers/helpers";
+import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
 
 describe("Data validation", () => {
   let model: Model;
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    ({ model } = makeStore(ClipboardStore));
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -114,7 +116,6 @@ describe("Data validation", () => {
   });
 
   test("copy paste DV in another sheet => change DV => copy paste again doesnt overwrite the previously pasted DV", () => {
-    const model = new Model();
     createSheet(model, { sheetId: "sheet2" });
     const sheet1Id = model.getters.getSheetIds()[0];
     const sheet2Id = model.getters.getSheetIds()[1];
@@ -210,6 +211,7 @@ describe("Data validation", () => {
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
 
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
+    makeStoreWithModel(model, ClipboardStore);
     const sheetId = model.getters.getActiveSheetId();
     addDataValidation(model, "A1:A2", "id", { type: "containsText", values: ["1"] });
 

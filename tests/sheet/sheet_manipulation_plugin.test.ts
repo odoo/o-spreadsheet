@@ -3,6 +3,7 @@ import { DEFAULT_BORDER_DESC, DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "..
 import { lettersToNumber, toXC } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { Store } from "../../src/types/store_engine";
 import {
@@ -44,7 +45,7 @@ import {
   makeTestFixture,
   testUndoRedo,
 } from "../test_helpers/helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
+import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
 
 let model: Model;
 
@@ -1509,7 +1510,7 @@ describe("Rows", () => {
 describe("Delete cell", () => {
   let model: Model;
   beforeEach(() => {
-    model = new Model();
+    ({ model } = makeStore(ClipboardStore));
   });
 
   test("Do not move cell positioned before the deleted ones", () => {
@@ -1600,7 +1601,7 @@ describe("Delete cell", () => {
 describe("Insert cell", () => {
   let model: Model;
   beforeEach(() => {
-    model = new Model();
+    ({ model } = makeStore(ClipboardStore));
   });
 
   test("Do not move cell positioned before the inserted ones", () => {
@@ -1681,25 +1682,25 @@ describe("Insert cell", () => {
 
 describe("Insert/Delete cells with merge", () => {
   test("Insert/Delete cell is rejected if a merge is blocking left-right", () => {
-    model = new Model();
+    const { model, store } = makeStore(ClipboardStore);
     merge(model, "B1:B2");
-    expect(deleteCells(model, "A1", "left")).toBeCancelledBecause(
-      CommandResult.WillRemoveExistingMerge
-    );
-    expect(insertCells(model, "A1", "right")).toBeCancelledBecause(
-      CommandResult.WillRemoveExistingMerge
-    );
+    expect(
+      store.isCommandValid({ type: "DELETE_CELL", zone: toZone("A1"), shiftDimension: "COL" })
+    ).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
+    expect(
+      store.isCommandValid({ type: "INSERT_CELL", zone: toZone("A1"), shiftDimension: "COL" })
+    ).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
 
   test("Insert/Delete cell is rejected if a merge is blocking up-down", () => {
-    model = new Model();
+    const { model, store } = makeStore(ClipboardStore);
     merge(model, "A2:B2");
-    expect(deleteCells(model, "A1", "up")).toBeCancelledBecause(
-      CommandResult.WillRemoveExistingMerge
-    );
-    expect(insertCells(model, "A1", "down")).toBeCancelledBecause(
-      CommandResult.WillRemoveExistingMerge
-    );
+    expect(
+      store.isCommandValid({ type: "DELETE_CELL", zone: toZone("A1"), shiftDimension: "ROW" })
+    ).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
+    expect(
+      store.isCommandValid({ type: "INSERT_CELL", zone: toZone("A1"), shiftDimension: "ROW" })
+    ).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
 });
 

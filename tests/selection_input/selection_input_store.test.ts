@@ -2,6 +2,7 @@ import { CellComposerStore } from "../../src/components/composer/composer/cell_c
 import { SelectionInputStore } from "../../src/components/selection_input/selection_input_store";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import {
   activateSheet,
@@ -624,7 +625,8 @@ describe("selection input plugin", () => {
   });
 
   test("Selection input is deactivated/ falls back on grid selection on a PASTE", () => {
-    const { store, model } = makeStore(SelectionInputStore, ["B1:B2"]);
+    const { store, model, container } = makeStore(SelectionInputStore, ["B1:B2"]);
+    container.get(ClipboardStore);
     setCellContent(model, "A1", "1");
     setSelection(model, ["A1:A2"]);
     copy(model, "A1:A2");

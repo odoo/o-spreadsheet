@@ -1,5 +1,6 @@
 import { MergeErrorMessage, RemoveDuplicateTerms } from "../../components/translations_terms";
 import { getCurrentVersion } from "../../migrations/data";
+import { ClipboardStore } from "../../stores/clipboard_store";
 import { _t } from "../../translation";
 import {
   ClipboardPasteOptions,
@@ -20,9 +21,12 @@ export const handleCopyPasteResult = (
   env: SpreadsheetChildEnv,
   command: CopyPasteCellsAboveCommand | CopyPasteCellsOnLeftCommand | CopyPasteCellsOnZoneCommand
 ) => {
-  const result = env.model.dispatch(command.type);
+  const clipboardStore = env.getStore(ClipboardStore);
+  const result = clipboardStore.isCommandValid(command);
   if (result.isCancelledBecause(CommandResult.WillRemoveExistingMerge)) {
     env.raiseError(MergeErrorMessage);
+  } else {
+    env.model.dispatch(command.type, command);
   }
 };
 
@@ -52,8 +56,13 @@ export function interactivePaste(
   target: Zone[],
   pasteOption?: ClipboardPasteOptions
 ) {
-  const result = env.model.dispatch("PASTE", { target, pasteOption });
-  handlePasteResult(env, result);
+  const clipboardStore = env.getStore(ClipboardStore);
+  const result = clipboardStore.isCommandValid({ type: "PASTE", target, pasteOption });
+  if (!result.isSuccessful) {
+    handlePasteResult(env, result);
+  } else {
+    env.model.dispatch("PASTE", { target, pasteOption });
+  }
 }
 
 export async function interactivePasteFromOS(
@@ -85,11 +94,18 @@ export async function interactivePasteFromOS(
     delete parsedClipboardContent.imageBlob;
   }
 
-  const result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+  const payload = {
     target,
     clipboardContent: parsedClipboardContent,
     pasteOption,
-  });
+  };
 
-  handlePasteResult(env, result);
+  const clipboardStore = env.getStore(ClipboardStore);
+  const result = clipboardStore.isCommandValid({ type: "PASTE_FROM_OS_CLIPBOARD", ...payload });
+
+  if (!result.isSuccessful) {
+    handlePasteResult(env, result);
+  } else {
+    env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", payload);
+  }
 }

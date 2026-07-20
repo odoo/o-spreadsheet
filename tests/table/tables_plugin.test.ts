@@ -43,7 +43,9 @@ import {
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { DEFAULT_TABLE_CONFIG, TABLE_PRESETS } from "../../src/helpers/table_presets";
 import { EvaluationPlugin } from "../../src/plugins/ui_core_views/cell_evaluation/evaluation_plugin";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { TABLE_STYLE_ALL_RED } from "../test_helpers/constants";
+import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
 
 beforeEach(() => {
   TABLE_PRESETS.TestStyleAllRed = TABLE_STYLE_ALL_RED;
@@ -59,6 +61,7 @@ describe("Table plugin", () => {
 
   beforeEach(() => {
     model = new Model();
+    makeStoreWithModel(model, ClipboardStore);
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -828,7 +831,7 @@ describe("Table plugin", () => {
         ...TABLE_PRESETS.TestStyleAllRed,
         wholeTable: { style: { fillColor: "#FF0000", hideGridLines: true } },
       };
-      const model = new Model();
+      const { model } = makeStore(ClipboardStore);
       createTable(model, "B2:B3");
       updateTableConfig(model, "B2", { styleId: "TestStyleAllRed", numberOfHeaders: 1 });
       expect(getStyle(model, "B2")).toEqual({

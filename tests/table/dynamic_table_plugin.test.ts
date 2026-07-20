@@ -1,5 +1,6 @@
 import { BorderDescr, Model, UID } from "../../src";
 import { toZone } from "../../src/helpers/zones";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   copy,
   createDynamicTable,
@@ -22,6 +23,7 @@ import {
   toCellPosition,
 } from "../test_helpers/helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
+import { makeStoreWithModel } from "../test_helpers/stores";
 
 let model: Model;
 let sheetId: UID;
@@ -186,6 +188,7 @@ describe("Dynamic tables", () => {
   });
 
   test("Can copy/paste a dynamic table", () => {
+    makeStoreWithModel(model, ClipboardStore);
     setCellContent(model, "A1", "=MUNIT(2)");
     createDynamicTable(model, "A1");
 
@@ -196,6 +199,7 @@ describe("Dynamic tables", () => {
   });
 
   test("Can cut/paste a dynamic table", () => {
+    makeStoreWithModel(model, ClipboardStore);
     setCellContent(model, "A1", "=MUNIT(2)");
     createDynamicTable(model, "A1");
 
@@ -206,6 +210,7 @@ describe("Dynamic tables", () => {
   });
 
   test("Can copy/paste a cell of a dynamic table", () => {
+    makeStoreWithModel(model, ClipboardStore);
     setCellContent(model, "A1", "=MUNIT(2)");
     createDynamicTable(model, "A1");
     updateTableConfig(model, "A1", { styleId: "TableStyleDark11" });

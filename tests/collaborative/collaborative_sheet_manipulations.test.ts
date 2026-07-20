@@ -2,6 +2,7 @@ import { CellIsRule, FormulaCell, LiteralCell, Model } from "../../src";
 import { lettersToNumber, numberToLetters } from "../../src/helpers/coordinates";
 import { range } from "../../src/helpers/misc";
 import { toZone } from "../../src/helpers/zones";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
@@ -41,6 +42,7 @@ import {
 import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import { createEqualCF, getDataValidationRules } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
+import { makeStoreWithModel } from "../test_helpers/stores";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 function toNumbers(letters: string[][]): number[][] {
@@ -521,6 +523,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("Delete cells on columns deleted", () => {
+    makeStoreWithModel(bob, ClipboardStore);
     setCellContent(alice, "F1", "hello");
     network.concurrent(() => {
       deleteColumns(alice, ["D"]);

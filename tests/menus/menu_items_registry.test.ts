@@ -62,6 +62,7 @@ import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry"
 import { colMenuRegistry } from "../../src/registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../../src/registries/menus/row_menu_registry";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { FR_LOCALE } from "../test_helpers/constants";
 
@@ -190,8 +191,9 @@ describe("Menu Item actions", () => {
     const spyWriteClipboard = jest.spyOn(env.clipboard!, "write");
     await doAction(["edit", "copy"], env);
     expect(dispatch).toHaveBeenCalledWith("COPY");
+    const clipboardStore = env.getStore(ClipboardStore);
     expect(spyWriteClipboard).toHaveBeenCalledWith(
-      await model.getters.getClipboardTextAndImageContent()
+      await clipboardStore.getClipboardTextAndImageContent()
     );
   });
 
@@ -199,8 +201,9 @@ describe("Menu Item actions", () => {
     const spyWriteClipboard = jest.spyOn(env.clipboard!, "write");
     await doAction(["edit", "cut"], env);
     expect(dispatch).toHaveBeenCalledWith("CUT");
+    const clipboardStore = env.getStore(ClipboardStore);
     expect(spyWriteClipboard).toHaveBeenCalledWith(
-      await model.getters.getClipboardTextAndImageContent()
+      await clipboardStore.getClipboardTextAndImageContent()
     );
   });
 
@@ -936,7 +939,7 @@ describe("Menu Item actions", () => {
       selectCell(model, "D4");
       expect(getName(insertCellShiftDownPath, env)).toBe("Shift down");
       await doAction(insertCellShiftDownPath, env);
-      expect(dispatch).toHaveBeenLastCalledWith("INSERT_CELL", {
+      expect(dispatch).toHaveBeenCalledWith("INSERT_CELL", {
         zone: env.model.getters.getSelectedZone(),
         shiftDimension: "ROW",
       });
@@ -948,7 +951,7 @@ describe("Menu Item actions", () => {
       setAnchorCorner(model, "E5");
       expect(getName(insertCellShiftDownPath, env)).toBe("Shift down");
       await doAction(insertCellShiftDownPath, env);
-      expect(dispatch).toHaveBeenLastCalledWith("INSERT_CELL", {
+      expect(dispatch).toHaveBeenCalledWith("INSERT_CELL", {
         zone: env.model.getters.getSelectedZone(),
         shiftDimension: "ROW",
       });
@@ -997,7 +1000,7 @@ describe("Menu Item actions", () => {
       selectCell(model, "D4");
       expect(getName(insertCellShiftRightPath, env)).toBe("Shift right");
       await doAction(insertCellShiftRightPath, env);
-      expect(dispatch).toHaveBeenLastCalledWith("INSERT_CELL", {
+      expect(dispatch).toHaveBeenCalledWith("INSERT_CELL", {
         zone: env.model.getters.getSelectedZone(),
         shiftDimension: "COL",
       });
@@ -1009,7 +1012,7 @@ describe("Menu Item actions", () => {
       setAnchorCorner(model, "E5");
       expect(getName(insertCellShiftRightPath, env)).toBe("Shift right");
       await doAction(insertCellShiftRightPath, env);
-      expect(dispatch).toHaveBeenLastCalledWith("INSERT_CELL", {
+      expect(dispatch).toHaveBeenCalledWith("INSERT_CELL", {
         zone: env.model.getters.getSelectedZone(),
         shiftDimension: "COL",
       });

@@ -4,6 +4,7 @@ import { getPoppedOutChartAnchor } from "../helpers/carousel_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts/chart_ui_common";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { deepEquals } from "../helpers/misc";
+import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { Action, ActionSpec, createActions } from "./action";
@@ -193,7 +194,8 @@ function getCopyMenuItem(
         env.model.dispatch("SELECT_FIGURE", { figureId });
       }
       env.model.dispatch("COPY");
-      const osClipboardContent = await env.model.getters.getClipboardTextAndImageContent();
+      const clipboardStore = env.getStore(ClipboardStore);
+      const osClipboardContent = await clipboardStore.getClipboardTextAndImageContent();
       await env.clipboard.write(osClipboardContent);
       if (copiedNotificationMessage) {
         env.notifyUser({ sticky: false, type: "success", text: copiedNotificationMessage });
@@ -214,7 +216,8 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
         env.model.dispatch("SELECT_FIGURE", { figureId });
       }
       env.model.dispatch("CUT");
-      await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
+      const clipboardStore = env.getStore(ClipboardStore);
+      await env.clipboard.write(await clipboardStore.getClipboardTextAndImageContent());
     },
     icon: "o-spreadsheet-Icon.CUT",
   };

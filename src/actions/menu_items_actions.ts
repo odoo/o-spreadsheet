@@ -18,6 +18,7 @@ import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_in
 import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { UuidGenerator } from "../helpers/uuid";
 import { areZonesContinuous, getZoneArea, isEqual } from "../helpers/zones";
+import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
 import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
 import { Format } from "../types/format";
@@ -54,9 +55,10 @@ export const PASTE_AS_VALUE_ACTION = async (env: SpreadsheetChildEnv) => paste(e
 
 async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptions) {
   const osClipboard = await env.clipboard.read();
+  const clipboardStore = env.getStore(ClipboardStore);
   switch (osClipboard.status) {
     case "ok":
-      const clipboardId = env.model.getters.getClipboardId();
+      const clipboardId = clipboardStore.getClipboardId();
       const target = env.model.getters.getSelectedZones();
       const htmlClipboardId = getOSheetClipboardIdFromHTML(
         osClipboard.content[ClipboardMIMEType.Html]
@@ -67,7 +69,7 @@ async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptio
         const osClipboardContent = parseOSClipboardContent(osClipboard.content);
         await interactivePasteFromOS(env, target, osClipboardContent, pasteOption);
       }
-      if (env.model.getters.isCutOperation() && pasteOption !== "asValue") {
+      if (clipboardStore.isCutOperation() && pasteOption !== "asValue") {
         await env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
       }
       break;
