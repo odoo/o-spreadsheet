@@ -389,6 +389,32 @@ export const HIDE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
   }
 };
 
+export const RESIZE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
+  const cols = [...env.model.getters.getActiveCols()].sort((a, b) => a - b);
+  const first = cols[0];
+  const last = cols[cols.length - 1];
+  if (cols.length === 1) {
+    return _t("Resize column %s", numberToLetters(first));
+  } else if (last - first + 1 === cols.length) {
+    return _t("Resize columns %s - %s", numberToLetters(first), numberToLetters(last));
+  } else {
+    return _t("Resize columns");
+  }
+};
+
+export const RESIZE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
+  const rows = [...env.model.getters.getActiveRows()].sort((a, b) => a - b);
+  const first = rows[0];
+  const last = rows[rows.length - 1];
+  if (rows.length === 1) {
+    return _t("Resize row %s", first + 1);
+  } else if (last - first + 1 === rows.length) {
+    return _t("Resize rows %s - %s", first + 1, last + 1);
+  } else {
+    return _t("Resize rows");
+  }
+};
+
 //------------------------------------------------------------------------------
 // Charts
 //------------------------------------------------------------------------------
