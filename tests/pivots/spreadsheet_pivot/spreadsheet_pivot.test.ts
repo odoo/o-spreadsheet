@@ -38,6 +38,7 @@ import {
   removePivot,
   updatePivot,
 } from "../../test_helpers/pivot_helpers";
+import { makeGlobalStoresWithModel } from "../../test_helpers/stores";
 
 describe("Spreadsheet Pivot", () => {
   test("Pivot is correctly registered", () => {
@@ -2658,6 +2659,7 @@ describe("Spreadsheet Pivot", () => {
 
   test("Splitting a pivot in tabular form transform it to a normal pivot", () => {
     const model = createModelWithPivot("A1:I22");
+    makeGlobalStoresWithModel(model);
     updatePivot(model, "1", {
       columns: [],
       rows: [

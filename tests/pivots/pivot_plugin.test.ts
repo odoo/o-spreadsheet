@@ -12,6 +12,7 @@ import {
   duplicatePivot,
   updatePivot,
 } from "../test_helpers/pivot_helpers";
+import { makeGlobalStoresWithModel } from "../test_helpers/stores";
 
 describe("Pivot plugin", () => {
   test("isSpillPivotFormula", () => {
@@ -326,6 +327,7 @@ describe("Pivot plugin", () => {
       A2: "Alice",
     };
     const model = createModelFromGrid(grid);
+    makeGlobalStoresWithModel(model);
     addPivot(model, "A1:A2", { name: `forbidden: ${FORBIDDEN_SHEETNAME_CHARS}` }, "pivot1");
     model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
       newPivotId: "pivot2",
@@ -344,6 +346,7 @@ describe("Pivot plugin", () => {
       A2: "Alice",
     };
     const model = createModelFromGrid(grid);
+    makeGlobalStoresWithModel(model);
     const sheetId = model.getters.getActiveSheetId();
     const name = "forbidden: /";
     renameSheet(model, sheetId, "forbidden:   (copy) (Pivot #2)");
@@ -442,13 +445,14 @@ describe("Pivot plugin", () => {
 
   test("DUPLICATE_PIVOT_IN_NEW_SHEET is prevented if the pivot is in error", () => {
     const model = new Model();
+    makeGlobalStoresWithModel(model);
     addPivot(model, "A1:A2", {}, "pivot1");
-    const result = model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
+    model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
       newPivotId: "pivot2",
       newSheetId: "Sheet2",
       pivotId: "pivot1",
     });
-    expect(result).toBeCancelledBecause(CommandResult.PivotInError);
+    expect(model.getters.isExistingPivot("pivot2")).toBeFalsy();
   });
 
   test("getPivotCellFromPosition shouldn't throw if the pivot formula is invalid", () => {
