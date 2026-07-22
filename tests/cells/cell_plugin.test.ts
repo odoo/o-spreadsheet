@@ -361,7 +361,7 @@ describe("link cell", () => {
 
   test("can create a sheet link", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const sheetLink = buildSheetLink(sheetId);
     setCellContent(model, "A1", `[my label](${sheetLink})`);
     const cell = getEvaluatedCell(model, "A1");
@@ -373,7 +373,7 @@ describe("link cell", () => {
 
   test("sheet url representation is updated when sheet is renamed", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const sheetLink = buildSheetLink(sheetId);
     setCellContent(model, "A1", `[my label](${sheetLink})`);
     const cell = getEvaluatedCell(model, "A1");
@@ -458,7 +458,7 @@ describe("link cell", () => {
 
   test("copy-paste sheet links", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const sheetLink = buildSheetLink(sheetId);
     setCellContent(model, "B2", `[my label](${sheetLink})`);
     const B2 = getEvaluatedCell(model, "B2")!;

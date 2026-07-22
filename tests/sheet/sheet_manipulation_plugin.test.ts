@@ -49,7 +49,7 @@ import { makeStoreWithModel } from "../test_helpers/stores";
 let model: Model;
 
 function clearColumns(indexes: string[]) {
-  const sheetId = model.getters.getActiveSheetId();
+  const sheetId = model.getters.getSheetIds()[0];
   const ranges = indexes
     .map((index) => lettersToNumber(index))
     .map((col) => {
@@ -60,7 +60,7 @@ function clearColumns(indexes: string[]) {
 }
 
 function clearRows(indexes: number[]) {
-  const sheetId = model.getters.getActiveSheetId();
+  const sheetId = model.getters.getSheetIds()[0];
   const ranges = indexes.map((index) => {
     const zone = model.getters.getRowsZone(sheetId, index, index);
     return `${toXC(zone.left, zone.top)}:${toXC(zone.right, zone.bottom)}`;
@@ -139,7 +139,7 @@ describe("Clear columns", () => {
     clearColumns(["B", "C"]);
     const style = { textColor: "#fe0000" };
     expect(getCell(model, "B2")).toBeUndefined();
-    expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(5);
+    expect(Object.keys(model.getters.getCells(model.getters.getSheetIds()[0]))).toHaveLength(5);
     expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
     expect(getCell(model, "A2")).toMatchObject({ content: "A2" });
     expect(getCell(model, "A3")).toMatchObject({ content: "A3" });
@@ -190,7 +190,7 @@ describe("Clear rows", () => {
     clearRows([1, 2]);
     const style = { textColor: "#fe0000" };
     expect(getCell(model, "B2")).toBeUndefined();
-    expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(5);
+    expect(Object.keys(model.getters.getCells(model.getters.getSheetIds()[0]))).toHaveLength(5);
     expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
     expect(getCell(model, "A2")).toMatchObject({ style });
     expect(getBorder(model, "A2")).toEqual(border);
@@ -221,7 +221,7 @@ describe("Columns", () => {
     });
     test("On deletion", () => {
       deleteColumns(model, ["A", "C"]);
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       expect(model.getters.getColSize(sheetId, 0)).toBe(10);
       expect(model.getters.getColSize(sheetId, 1)).toBe(DEFAULT_CELL_WIDTH);
       expect(model.getters.getActiveSheet().numberOfCols).toBe(2);
@@ -247,7 +247,7 @@ describe("Columns", () => {
     test("On addition before", () => {
       addColumns(model, "before", "B", 2);
       const size = DEFAULT_CELL_WIDTH;
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       expect(model.getters.getColSize(sheetId, 0)).toBe(size);
       expect(model.getters.getColSize(sheetId, 1)).toBe(10);
       expect(model.getters.getColSize(sheetId, 2)).toBe(10);
@@ -259,7 +259,7 @@ describe("Columns", () => {
     test("On addition after", () => {
       addColumns(model, "after", "C", 2);
       const size = DEFAULT_CELL_WIDTH;
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       expect(model.getters.getColSize(sheetId, 0)).toBe(size);
       expect(model.getters.getColSize(sheetId, 1)).toBe(10);
       expect(model.getters.getColSize(sheetId, 2)).toBe(20);
@@ -278,7 +278,7 @@ describe("Columns", () => {
     });
 
     test("can add a huge number of columns", () => {
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       const initialCols = model.getters.getNumberCols(sheetId);
       addColumns(model, "after", "A", 1000000);
       expect(model.getters.getNumberCols(sheetId)).toBe(1000000 + initialCols);
@@ -848,7 +848,7 @@ describe("Rows", () => {
     test("On deletion", () => {
       deleteRows(model, [0, 2]);
       const size = DEFAULT_CELL_HEIGHT;
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       expect(model.getters.getRowSize(sheetId, 0)).toBe(10);
       expect(model.getters.getRowSize(sheetId, 1)).toBe(size);
       expect(model.getters.getNumberRows(sheetId)).toBe(2);
@@ -949,7 +949,7 @@ describe("Rows", () => {
     test("On addition before", () => {
       addRows(model, "before", 1, 2);
       const size = DEFAULT_CELL_HEIGHT;
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       expect(model.getters.getRowSize(sheetId, 0)).toBe(size);
       expect(model.getters.getRowSize(sheetId, 1)).toBe(10);
       expect(model.getters.getRowSize(sheetId, 2)).toBe(10);
@@ -969,7 +969,7 @@ describe("Rows", () => {
     test("On addition after", () => {
       addRows(model, "after", 2, 2);
       const size = DEFAULT_CELL_HEIGHT;
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       expect(model.getters.getRowSize(sheetId, 0)).toBe(size);
       expect(model.getters.getRowSize(sheetId, 1)).toBe(10);
       expect(model.getters.getRowSize(sheetId, 2)).toBe(20);
@@ -1001,7 +1001,7 @@ describe("Rows", () => {
         width: DEFAULT_CELL_WIDTH, // sum of col sizes
         height: 142, // sum of row sizes + 46px for adding rows footer
       });
-      const to = model.getters.getActiveSheetId();
+      const to = model.getters.getSheetIds()[0];
       createSheet(model, { activate: true, sheetId: "42" });
       activateSheet(model, to);
       dimensions = viewStore.mainViewportRect;
@@ -1012,7 +1012,7 @@ describe("Rows", () => {
     });
 
     test("can add a huge number of rows", () => {
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       const initialRows = model.getters.getNumberRows(sheetId);
       addRows(model, "after", 0, 1000000);
       expect(model.getters.getNumberRows(sheetId)).toBe(1000000 + initialRows);
@@ -1096,7 +1096,7 @@ describe("Rows", () => {
     test("On deletion", () => {
       const s = { style: "thin", color: "#000000" };
       const style = { textColor: "#fe0000" };
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       deleteRows(model, [1]);
       expect(getCell(model, "A2")).toBeUndefined();
       expect(getCell(model, "B2")).toBeUndefined();
@@ -1586,7 +1586,7 @@ describe("Delete cell", () => {
   });
 
   test.each(["up", "left"] as const)("can delete the last cell of the grid", (direction) => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const col = model.getters.getNumberCols(sheetId) - 1;
     const row = model.getters.getNumberRows(sheetId) - 1;
     const xc = toXC(col, row);
@@ -1706,7 +1706,7 @@ describe("Insert/Delete cells with merge", () => {
 describe("Freeze columns", () => {
   test(`Removing columns impacts frozen columns`, () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     freezeColumns(model, 4);
     deleteColumns(model, ["G"]);
     expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 4, ySplit: 0 });
@@ -1721,7 +1721,7 @@ describe("Freeze columns", () => {
 
   test(`Adding columns impacts frozen columns`, () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     freezeColumns(model, 4);
     addColumns(model, "after", "G", 5);
     expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 4, ySplit: 0 });
@@ -1740,7 +1740,7 @@ describe("Freeze columns", () => {
 
   test("Can undo/redo", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     freezeColumns(model, 4);
     expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 4, ySplit: 0 });
     freezeColumns(model, 5);
@@ -1759,7 +1759,7 @@ describe("Freeze columns", () => {
 describe("Freeze rows", () => {
   test(`Removing rows impacts frozen rows`, () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     freezeRows(model, 4);
     deleteRows(model, [6]);
     expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 4 });
@@ -1774,7 +1774,7 @@ describe("Freeze rows", () => {
 
   test(`Adding rows impact frozen rows`, () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     freezeRows(model, 4);
     addRows(model, "after", 6, 5);
     expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 4 });
@@ -1793,7 +1793,7 @@ describe("Freeze rows", () => {
 
   test("Can undo/redo", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     freezeRows(model, 4);
     expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 4 });
     freezeRows(model, 5);

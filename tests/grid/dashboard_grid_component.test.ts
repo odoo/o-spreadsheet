@@ -74,6 +74,7 @@ describe("Grid component in dashboard mode", () => {
   });
 
   test("Filter icon is correctly rendered", async () => {
+    const sheetId = model.getters.getSheetIds()[0];
     createTableWithFilter(model, "B2:C3");
     model.updateMode("dashboard");
     await nextTick();
@@ -86,13 +87,13 @@ describe("Grid component in dashboard mode", () => {
     const iconB = getCellIcons(model, "B2")[0];
     const rectB = model.getters.getCellIconRect(
       iconB,
-      viewStore.viewports.getRect(model.getters.getActiveSheetId(), toZone("B2"))
+      viewStore.viewports.getRect(sheetId, toZone("B2"))
     );
     expect(rectB).toMatchObject({ y, x: leftB });
     const iconC = getCellIcons(model, "C2")[0];
     const rectC = model.getters.getCellIconRect(
       iconC,
-      viewStore.viewports.getRect(model.getters.getActiveSheetId(), toZone("C2"))
+      viewStore.viewports.getRect(sheetId, toZone("C2"))
     );
     expect(rectC).toMatchObject({ y, x: leftC });
   });

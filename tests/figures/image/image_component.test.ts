@@ -6,7 +6,7 @@ import { mountSpreadsheet } from "../../test_helpers/helpers";
 describe("Image component", () => {
   test("Can reset the image size", async () => {
     const model = new Model({});
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     createImage(model, { sheetId, figureId: "test", size: { width: 200, height: 200 } });
     await mountSpreadsheet({ model });
     updateFigure(model, {

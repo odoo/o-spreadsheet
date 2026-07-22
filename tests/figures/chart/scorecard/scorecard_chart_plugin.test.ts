@@ -199,7 +199,7 @@ describe("datasource tests", function () {
   });
 
   test("Scorecard chart is copied on sheet duplication", () => {
-    const firstSheetId = model.getters.getActiveSheetId();
+    const firstSheetId = model.getters.getSheetIds()[0];
     const secondSheetId = "42";
     createScorecardChart(
       model,
@@ -240,7 +240,7 @@ describe("datasource tests", function () {
       baseline: "A2",
       baselineMode: "percentage",
     });
-    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    const [scorecardId] = model.getters.getChartIds(model.getters.getSheetIds()[0]);
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "down",
       baselineColor: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
@@ -257,7 +257,7 @@ describe("datasource tests", function () {
       baseline: "A2",
       baselineMode: "percentage",
     });
-    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    const [scorecardId] = model.getters.getChartIds(model.getters.getSheetIds()[0]);
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "up",
       baselineColor: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
@@ -274,7 +274,7 @@ describe("datasource tests", function () {
       baseline: "A2",
       baselineMode: "percentage",
     });
-    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    const [scorecardId] = model.getters.getChartIds(model.getters.getSheetIds()[0]);
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "neutral",
       baselineColor: undefined,
@@ -290,7 +290,7 @@ describe("datasource tests", function () {
       baseline: "A2",
       baselineMode: "percentage",
     });
-    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    const [scorecardId] = model.getters.getChartIds(model.getters.getSheetIds()[0]);
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "neutral",
       baselineColor: undefined,
@@ -306,7 +306,7 @@ describe("datasource tests", function () {
       baseline: "A2",
       baselineMode: "percentage",
     });
-    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    const [scorecardId] = model.getters.getChartIds(model.getters.getSheetIds()[0]);
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "neutral",
       baselineColor: undefined,
@@ -321,7 +321,7 @@ describe("datasource tests", function () {
       baseline: "A2",
       baselineMode: "percentage",
     });
-    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    const [scorecardId] = model.getters.getChartIds(model.getters.getSheetIds()[0]);
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "neutral",
       baselineColor: undefined,
@@ -338,7 +338,7 @@ describe("datasource tests", function () {
       baseline: "A2",
       baselineMode: "percentage",
     });
-    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    const [scorecardId] = model.getters.getChartIds(model.getters.getSheetIds()[0]);
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "up",
       baselineColor: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
@@ -354,7 +354,7 @@ describe("datasource tests", function () {
       baseline: "A2",
       baselineMode: "percentage",
     });
-    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    const [scorecardId] = model.getters.getChartIds(model.getters.getSheetIds()[0]);
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "neutral",
       baselineColor: undefined,
@@ -370,7 +370,7 @@ describe("datasource tests", function () {
       baseline: "A2",
       baselineMode: "progress",
     });
-    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    const [scorecardId] = model.getters.getChartIds(model.getters.getSheetIds()[0]);
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineColor: undefined,
       baselineDisplay: "40.0%",
@@ -390,7 +390,7 @@ describe("datasource tests", function () {
       baseline: "A2",
       baselineMode: "progress",
     });
-    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    const [scorecardId] = model.getters.getChartIds(model.getters.getSheetIds()[0]);
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineColor: undefined,
       baselineDisplay: "-40.0%",

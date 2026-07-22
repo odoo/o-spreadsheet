@@ -1595,24 +1595,26 @@ describe("composer highlights color", () => {
   });
 
   test("highlight cross-sheet ranges", async () => {
+    const firstSheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "42" });
     setCellContent(model, "A1", "=B1+Sheet2!A1");
     await startComposition();
     const highlights = composerStore.highlights;
     expect(highlights).toHaveLength(2);
-    expect(highlights[0].range.sheetId).toBe(model.getters.getActiveSheetId());
+    expect(highlights[0].range.sheetId).toBe(firstSheetId);
     expect(highlights[0].range.zone).toEqual({ left: 1, right: 1, top: 0, bottom: 0 });
     expect(highlights[1].range.sheetId).toBe("42");
     expect(highlights[1].range.zone).toEqual({ left: 0, right: 0, top: 0, bottom: 0 });
   });
 
   test("highlight cross-sheet ranges using +", async () => {
+    const firstSheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "42" });
     setCellContent(model, "A1", "+B1+Sheet2!A1");
     await startComposition();
     const highlights = composerStore.highlights;
     expect(highlights).toHaveLength(2);
-    expect(highlights[0].range.sheetId).toBe(model.getters.getActiveSheetId());
+    expect(highlights[0].range.sheetId).toBe(firstSheetId);
     expect(highlights[0].range.zone).toEqual({ left: 1, right: 1, top: 0, bottom: 0 });
     expect(highlights[1].range.sheetId).toBe("42");
     expect(highlights[1].range.zone).toEqual({ left: 0, right: 0, top: 0, bottom: 0 });

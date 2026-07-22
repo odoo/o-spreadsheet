@@ -138,7 +138,7 @@ describe("Spreadsheet pivot side panel", () => {
         aggregator: "sum",
         computedBy: {
           formula: "=0",
-          sheetId: model.getters.getActiveSheetId(),
+          sheetId: model.getters.getSheetIds()[0],
         },
       },
     ]);
@@ -150,7 +150,7 @@ describe("Spreadsheet pivot side panel", () => {
         aggregator: "sum",
         computedBy: {
           formula: "=1+1",
-          sheetId: model.getters.getActiveSheetId(),
+          sheetId: model.getters.getSheetIds()[0],
         },
       },
     ]);
@@ -174,7 +174,7 @@ describe("Spreadsheet pivot side panel", () => {
         aggregator: "sum",
         computedBy: {
           formula: "=1+1",
-          sheetId: model.getters.getActiveSheetId(),
+          sheetId: model.getters.getSheetIds()[0],
         },
       },
     ]);
@@ -193,7 +193,7 @@ describe("Spreadsheet pivot side panel", () => {
     setCellContent(model, "A2", "10");
     setCellContent(model, "A3", "20");
     addPivot(model, "A1:A3", {}, "3");
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     await click(fixture.querySelectorAll(".add-dimension")[2]);
@@ -214,7 +214,7 @@ describe("Spreadsheet pivot side panel", () => {
     setCellContent(model, "A2", "10");
     setCellContent(model, "A3", "20");
     addPivot(model, "A1:A3", {}, "3");
-    const sheet1Id = model.getters.getActiveSheetId();
+    const sheet1Id = model.getters.getSheetIds()[0];
     const sheet2Id = "sheet2";
     createSheet(model, { sheetId: sheet2Id });
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
@@ -364,8 +364,9 @@ describe("Spreadsheet pivot side panel", () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe(
       "Pivot (copy) (Pivot #2)"
     );
-    expect(getCellText(model, "A1")).toBe("=PIVOT(2)");
-    expect(getTable(model, "A1")).toMatchObject({
+    const duplicatePivotSheetId = model.getters.getActiveSheetId();
+    expect(getCellText(model, "A1", duplicatePivotSheetId)).toBe("=PIVOT(2)");
+    expect(getTable(model, "A1", duplicatePivotSheetId)).toMatchObject({
       range: { zone: toZone("A1:A3") },
       config: { styleId: PIVOT_INSERT_TABLE_STYLE_ID },
     });
@@ -374,7 +375,7 @@ describe("Spreadsheet pivot side panel", () => {
 
     expect(model.getters.getPivotId("2")).toBeUndefined();
     expect(model.getters.getSheetIds()).toHaveLength(1);
-    expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
+    expect(model.getters.getSheetName(model.getters.getSheetIds()[0])).toBe("Sheet1");
     expect(getTable(model, "A1")).toBe(undefined);
   });
 
@@ -390,7 +391,7 @@ describe("Spreadsheet pivot side panel", () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe(
       "Pivot (copy) (Pivot #2) (1)"
     );
-    expect(getCellText(model, "A1")).toBe("=PIVOT(2)");
+    expect(getCellText(model, "A1", model.getters.getActiveSheetId())).toBe("=PIVOT(2)");
   });
 
   test("Can flip axes of a pivot", async () => {
@@ -808,7 +809,7 @@ describe("Spreadsheet pivot side panel", () => {
   test("Can update the name of a computed measure", async () => {
     setCellContent(model, "B1", "person");
     setCellContent(model, "B2", "Alice");
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(
       model,
       "B1:B2",

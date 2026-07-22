@@ -52,7 +52,7 @@ import { addPivot } from "../test_helpers/pivot_helpers";
 
 function setContextualFormat(model: Model, targetXc: string, format: Format) {
   model.dispatch("SET_FORMATTING_WITH_PIVOT", {
-    sheetId: model.getters.getActiveSheetId(),
+    sheetId: model.getters.getSheetIds()[0],
     target: target(targetXc),
     format,
   });
@@ -625,7 +625,7 @@ describe("Autoresize", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
     ctx = document.createElement("canvas").getContext("2d")!;
     ctx.font = `${fontSizeInPixels(DEFAULT_FONT_SIZE)}px ${DEFAULT_FONT}`;
     sizes = [TEXT, LONG_TEXT].map((text) => ctx.measureText(text).width);

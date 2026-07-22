@@ -80,7 +80,7 @@ describe("Export data to xlsx then import it", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   test("Sheet Name", async () => {
@@ -601,7 +601,7 @@ describe("Export data to xlsx then import it", () => {
 
   test("Pie chart slices colors are imported from xlsx", async () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
 
     createChart(
       model,
@@ -633,17 +633,17 @@ describe("Col/row default styles round-trip", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   function getCellStyle(importedModel: Model, xc: string) {
-    const importedSheetId = importedModel.getters.getActiveSheetId();
+    const importedSheetId = importedModel.getters.getSheetIds()[0];
     const { col, row } = toCartesian(xc);
     return importedModel.getters.getCellStyle({ sheetId: importedSheetId, col, row });
   }
 
   function getCellFormat(importedModel: Model, xc: string) {
-    const importedSheetId = importedModel.getters.getActiveSheetId();
+    const importedSheetId = importedModel.getters.getSheetIds()[0];
     const { col, row } = toCartesian(xc);
     return importedModel.getters.getCellFormat({ sheetId: importedSheetId, col, row });
   }

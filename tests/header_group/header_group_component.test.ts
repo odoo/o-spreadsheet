@@ -128,7 +128,7 @@ describe("Header group component test", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   async function mountHeaderGroups(model: Model, dimension: Dimension) {

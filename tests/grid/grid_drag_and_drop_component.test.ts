@@ -79,7 +79,7 @@ afterAll(() => {
 beforeEach(async () => {
   ({ model, app, env, viewStore } = await mountComponent(FakeGridComponent));
   selectedCol = selectedRow = undefined;
-  sheetId = model.getters.getActiveSheetId();
+  sheetId = model.getters.getSheetIds()[0];
   await nextTick();
 });
 

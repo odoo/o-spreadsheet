@@ -179,14 +179,14 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "A1", "a1");
     cut(model, "A1");
-    const to = model.getters.getActiveSheetId();
+    const to = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "42", activate: true });
-    setCellContent(model, "A1", "a1Sheet2");
+    setCellContent(model, "A1", "a1Sheet2", "42");
     paste(model, "B2");
-    expect(getCell(model, "A1")).toMatchObject({
+    expect(getCell(model, "A1", "42")).toMatchObject({
       content: "a1Sheet2",
     });
-    expect(getCell(model, "B2")).toMatchObject({
+    expect(getCell(model, "B2", "42")).toMatchObject({
       content: "a1",
     });
     activateSheet(model, to);
@@ -253,7 +253,7 @@ describe("clipboard", () => {
 
   test("Cut clipboard should be invalidated when sheet is deleted", () => {
     const model = new Model();
-    const sheet1Id = model.getters.getActiveSheetId();
+    const sheet1Id = model.getters.getSheetIds()[0];
     const sheet2Id = "sheet2";
     createSheet(model, { sheetId: sheet2Id });
 
@@ -269,7 +269,7 @@ describe("clipboard", () => {
 
   test("can paste even if sheet containing copy zone has been deleted", () => {
     const model = new Model();
-    const sheet1Id = model.getters.getActiveSheetId();
+    const sheet1Id = model.getters.getSheetIds()[0];
     const sheet2Id = "sheet2";
     createSheet(model, { sheetId: sheet2Id });
 
@@ -336,7 +336,7 @@ describe("clipboard", () => {
 
   test("paste cell does not overwrite existing borders", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setZoneBorders(model, { position: "all" }, ["A1"]);
     copy(model, "B2");
     paste(model, "A1");
@@ -448,7 +448,7 @@ describe("clipboard", () => {
 
   test("Pasting content that will destroy a merge will fail", async () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     merge(model, "B2:C3");
     copy(model, "B2");
     const result = paste(model, "A1");
@@ -471,7 +471,7 @@ describe("clipboard", () => {
     });
     copy(model, "A1:C3");
     paste(model, "E1");
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual([
       "A1:A3",
       "C1:C3",
@@ -486,7 +486,7 @@ describe("clipboard", () => {
     });
     copy(model, "A1", "C1");
     paste(model, "E1");
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual([
       "A1:A3",
       "C1:C3",
@@ -497,7 +497,7 @@ describe("clipboard", () => {
 
   test("copy zones with one merge => unmerge origin cell => paste => it should paste with original merge", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
 
     merge(model, "A1:C3");
     copy(model, "A1");
@@ -510,7 +510,7 @@ describe("clipboard", () => {
 
   test("copy zones with multiple compatible merges => unmerge origin zones => paste => it should paste with all merges", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
 
     merge(model, "A1:A3");
     merge(model, "C1:C3");
@@ -525,7 +525,7 @@ describe("clipboard", () => {
 
   test("copy zones with multiple compatible merges => delete origin sheet => paste => it should paste with all merges", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
 
     merge(model, "A1:A3");
     merge(model, "C1:C3");
@@ -730,7 +730,7 @@ describe("clipboard", () => {
 
   test("Pasting content from os that will destroy a merge will fail", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     merge(model, "B2:C3");
     const result = pasteFromOSClipboard(model, "B2", {
       text: "a\t1\nb\t2",
@@ -1601,8 +1601,8 @@ describe("clipboard", () => {
 
     activateSheet(model, "sh2");
     paste(model, "A1");
-    expect(getCellText(model, "A1")).toBe("=SUM(Sheet1!C1:C2)");
-    expect(getCellText(model, "B1")).toBe("=A1+Sheet1!A2");
+    expect(getCellText(model, "A1", "sh2")).toBe("=SUM(Sheet1!C1:C2)");
+    expect(getCellText(model, "B1", "sh2")).toBe("=A1+Sheet1!A2");
   });
 
   test("copy/paste a zone present in formulas references does not update references", () => {
@@ -1760,7 +1760,7 @@ describe("clipboard", () => {
 
   test("can cut and paste a conditional format in another sheet", () => {
     const model = new Model();
-    const sheet1Id = model.getters.getActiveSheetId();
+    const sheet1Id = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "sheet2Id" });
     addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "1");
     cut(model, "A1:A2");
@@ -1778,14 +1778,14 @@ describe("clipboard", () => {
     copy(model, "A1:A3");
     removeCF(model, "cfId");
     paste(model, "D1");
-    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toMatchObject([
+    expect(model.getters.getConditionalFormats(model.getters.getSheetIds()[0])).toMatchObject([
       { ranges: ["D1:D3"], rule: { style: { fillColor: "#00FF00" } } },
     ]);
   });
 
   test("copy cells with multiple independent CF => remove all copied CF => paste => it should paste with all original CF in the correct positions", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addEqualCf(model, "A1:A3", { fillColor: "#00FF00" }, "1", "cf1");
     addEqualCf(model, "C1:C3", { fillColor: "#0000FF" }, "1", "cf2");
     copy(model, "A1:C3");
@@ -1800,7 +1800,7 @@ describe("clipboard", () => {
 
   test("copy cells with multiple independent CF => remove origin sheet => paste => it should paste with all original CF in the correct positions", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addEqualCf(model, "A1:A3", { fillColor: "#00FF00" }, "1", "cf1");
     addEqualCf(model, "C1:C3", { fillColor: "#0000FF" }, "1", "cf2");
     copy(model, "A1:C3");
@@ -1880,8 +1880,8 @@ describe("clipboard", () => {
       fillColor: "#FF0000",
     });
     expect(getStyle(model, "A2", "s2")).toEqual({});
-    setCellContent(model, "A1", "2");
-    setCellContent(model, "A2", "1");
+    setCellContent(model, "A1", "2", "s2");
+    setCellContent(model, "A2", "1", "s2");
     expect(getStyle(model, "A1", "s2")).toEqual({});
     expect(getStyle(model, "A2", "s2")).toEqual({
       fillColor: "#FF0000",
@@ -1933,7 +1933,7 @@ describe("clipboard", () => {
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
 
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
 
     copy(model, "A1:A2");
@@ -2297,7 +2297,7 @@ describe("clipboard: pasting outside of sheet", () => {
   test("can copy and paste a full column", () => {
     const model = new Model();
     setCellContent(model, "A1", "txt");
-    const activeSheetId = model.getters.getActiveSheetId();
+    const activeSheetId = model.getters.getSheetIds()[0];
     const currentRowNumber = model.getters.getNumberRows(activeSheetId);
 
     copy(model, zoneToXc(model.getters.getColsZone(activeSheetId, 0, 0)));
@@ -2311,7 +2311,7 @@ describe("clipboard: pasting outside of sheet", () => {
     const model = new Model();
     setCellContent(model, "A1", "txt");
 
-    const activeSheetId = model.getters.getActiveSheetId();
+    const activeSheetId = model.getters.getSheetIds()[0];
     const currentColNumber = model.getters.getNumberCols(activeSheetId);
 
     copy(model, zoneToXc(model.getters.getRowsZone(activeSheetId, 0, 0)));
@@ -2555,10 +2555,10 @@ describe("clipboard: pasting outside of sheet", () => {
     const model = new Model();
     createSheet(model, { activate: true, sheetId: "2", rows: 2, cols: 2 });
     pasteFromOSClipboard(model, "B2", { text: "A\nque\tcoucou\nBOB" });
-    expect(getCellContent(model, "B2")).toBe("A");
-    expect(getCellContent(model, "B3")).toBe("que");
-    expect(getCellContent(model, "C3")).toBe("coucou");
-    expect(getCellContent(model, "B4")).toBe("BOB");
+    expect(getCellContent(model, "B2", "2")).toBe("A");
+    expect(getCellContent(model, "B3", "2")).toBe("que");
+    expect(getCellContent(model, "C3", "2")).toBe("coucou");
+    expect(getCellContent(model, "B4", "2")).toBe("BOB");
 
     createSheet(model, {
       activate: true,
@@ -2567,10 +2567,10 @@ describe("clipboard: pasting outside of sheet", () => {
       cols: 2,
     });
     pasteFromOSClipboard(model, "B2", { text: "A\nque\tcoucou\tPatrick" });
-    expect(getCellContent(model, "B2")).toBe("A");
-    expect(getCellContent(model, "B3")).toBe("que");
-    expect(getCellContent(model, "C3")).toBe("coucou");
-    expect(getCellContent(model, "D3")).toBe("Patrick");
+    expect(getCellContent(model, "B2", "3")).toBe("A");
+    expect(getCellContent(model, "B3", "3")).toBe("que");
+    expect(getCellContent(model, "C3", "3")).toBe("coucou");
+    expect(getCellContent(model, "D3", "3")).toBe("Patrick");
   });
 
   test("Can paste localized formula from the OS", () => {
@@ -2596,7 +2596,7 @@ describe("clipboard: pasting outside of sheet", () => {
         size: { width, height },
       },
     });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(getCellContent(model, "B2")).toBe("");
     const figures = model.getters.getFigures(sheetId);
     expect(figures).toHaveLength(1);
@@ -2826,11 +2826,12 @@ describe("clipboard: pasting outside of sheet", () => {
       cut(model, "A1:A2");
 
       createSheet(model, { activate: true });
-      addRows(model, "after", 0, 5);
+      const sheetId = model.getters.getActiveSheetId();
+      addRows(model, "after", 0, 5, sheetId);
 
       paste(model, "A1");
-      expect(getCellContent(model, "A1")).toBe("1");
-      expect(getCellContent(model, "A2")).toBe("2");
+      expect(getCellContent(model, "A1", sheetId)).toBe("1");
+      expect(getCellContent(model, "A2", sheetId)).toBe("2");
     });
   });
 
@@ -2922,11 +2923,12 @@ describe("clipboard: pasting outside of sheet", () => {
       cut(model, "A1:A2");
 
       createSheet(model, { activate: true });
-      deleteRows(model, [1]);
+      const sheetId = model.getters.getActiveSheetId();
+      deleteRows(model, [1], sheetId);
 
       paste(model, "A1");
-      expect(getCellContent(model, "A1")).toBe("1");
-      expect(getCellContent(model, "A2")).toBe("2");
+      expect(getCellContent(model, "A1", sheetId)).toBe("1");
+      expect(getCellContent(model, "A2", sheetId)).toBe("2");
     });
   });
 });
@@ -3026,7 +3028,7 @@ describe("cross spreadsheet copy/paste", () => {
     const modelB = new Model();
 
     createTable(modelA, "A1:B2");
-    const tableA = modelA.getters.getCoreTables(modelA.getters.getActiveSheetId())[0];
+    const tableA = modelA.getters.getCoreTables(modelA.getters.getSheetIds()[0])[0];
 
     expect(tableA).toMatchObject({ range: { zone: toZone("A1:B2") }, type: "static" });
 
@@ -3035,7 +3037,7 @@ describe("cross spreadsheet copy/paste", () => {
     const osClipboardContent = await parseOSClipboardContent(clipboardContent);
     pasteFromOSClipboard(modelB, "D1", osClipboardContent);
 
-    const tableB = modelB.getters.getCoreTables(modelA.getters.getActiveSheetId())[0];
+    const tableB = modelB.getters.getCoreTables(modelA.getters.getSheetIds()[0])[0];
 
     expect(tableB).toMatchObject({ range: { zone: toZone("D1:E2") }, type: "static" });
     expect(tableB.config).toEqual(tableA.config);
@@ -3166,7 +3168,7 @@ describe("cross spreadsheet copy/paste", () => {
 
 test("Can use clipboard handlers to paste in a sheet other than the active sheet", () => {
   model = new Model();
-  const sheetId = model.getters.getActiveSheetId();
+  const sheetId = model.getters.getSheetIds()[0];
   createSheet(model, { sheetId: "sh2" });
 
   setCellContent(model, "A1", "1");

@@ -8,7 +8,7 @@ import {
 import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
 
 function moveFormula(model: Model, formula: string, offsetX: number, offsetY: number): string {
-  const sheetId = model.getters.getActiveSheetId();
+  const sheetId = model.getters.getSheetIds()[0];
   setCellContent(model, "A1", formula);
   const cell = getCell(model, "A1") as FormulaCell;
   return model.getters.getTranslatedCellFormula(sheetId, offsetX, offsetY, cell.compiledFormula);

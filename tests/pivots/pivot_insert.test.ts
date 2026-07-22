@@ -10,7 +10,7 @@ describe("Insert pivot command", () => {
     const model = new Model();
     insertPivot(model, "A1", "pivot1", "Sheet2");
     expect(model.getters.getActiveSheetId()).toEqual("Sheet2");
-    expect(getCellText(model, "A1")).toEqual("=PIVOT(1)");
+    expect(getCellText(model, "A1", "Sheet2")).toEqual("=PIVOT(1)");
     expect(model.getters.getPivotIds()).toHaveLength(1);
     expect(model.getters.getPivotCoreDefinition("pivot1")["dataSet"].zone).toEqual(toZone("A1"));
   });
@@ -57,7 +57,7 @@ describe("Check the style when copying and pasting a pivot table", () => {
     insertPivot(model, "A1:A2", "pivot1", "Sheet2");
     copy(model, "A2");
     paste(model, "C1");
-    expect(getCell(model, "C1")?.style).toStrictEqual({
+    expect(getCell(model, "C1", "Sheet2")?.style).toStrictEqual({
       bold: true,
       fillColor: "#6C4E65",
       textColor: "#FFFFFF",

@@ -206,7 +206,7 @@ describe("charts", () => {
       figureId: "figureId",
     });
     const data = model.exportData();
-    const activeSheetId = model.getters.getActiveSheetId();
+    const activeSheetId = model.getters.getSheetIds()[0];
     const sheet = data.sheets.find((s) => s.id === activeSheetId)!;
     expect(sheet.figures).toMatchObject([
       {
@@ -1577,7 +1577,7 @@ describe("charts", () => {
   test("deleting another chart does not close the side panel", async () => {
     createTestChart("basicChart", "chartId1", { figureId: "figureId1" });
     createTestChart("basicChart", "chartId2", { figureId: "figureId2" });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     await mountChartSidePanel("chartId1");
     expect(fixture.querySelector(".o-chart")).toBeTruthy();
     deleteFigure(model, "figureId2", sheetId); // could be deleted by another user
@@ -1780,7 +1780,7 @@ describe("charts", () => {
     );
 
     undo(model);
-    expect(model.getters.getFigures(model.getters.getActiveSheetId())).toHaveLength(0);
+    expect(model.getters.getFigures(model.getters.getSheetIds()[0])).toHaveLength(0);
   });
 
   test("Custom design is kept when removing a data series", async () => {
@@ -2137,7 +2137,7 @@ describe("charts", () => {
     await mountSpreadsheet();
     await openChartConfigSidePanel(model, env, chartId);
     const store = env.getStore(SidePanelStore);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
 
     const figures = model.getters.getFigures(sheetId);
     expect(store.mainPanelProps?.chartId).toBe(chartId);
@@ -3238,8 +3238,8 @@ describe("charts with multiple sheets", () => {
   });
 
   test("delete sheet containing chart data does not crash", async () => {
-    expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
-    deleteSheet(model, model.getters.getActiveSheetId());
+    expect(model.getters.getSheetName(model.getters.getSheetIds()[0])).toBe("Sheet1");
+    deleteSheet(model, model.getters.getSheetIds()[0]);
     const runtimeChart = model.getters.getChartRuntime(chartId);
     expect(runtimeChart).toBeDefined();
     await nextTick();

@@ -149,7 +149,7 @@ describe("describe", () => {
   });
 
   test("Delete sheet & Don't notify cell is deleted when composer is active", () => {
-    const activeSheetId = model.getters.getActiveSheetId();
+    const activeSheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "42" });
     selectCell(model, "A4");
     composerStore.startEdition("hello");
@@ -177,7 +177,7 @@ describe("describe", () => {
   });
 
   test("Delete sheet & Don't notify cell is deleted when composer is not active", () => {
-    const activeSheetId = model.getters.getActiveSheetId();
+    const activeSheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "42" });
     selectCell(model, "A4");
     composerStore.startEdition("hello");
@@ -188,7 +188,7 @@ describe("describe", () => {
   });
 
   test("Delete sheet & Don't notify cell is deleted when composer is in selecting mode", () => {
-    const activeSheetId = model.getters.getActiveSheetId();
+    const activeSheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "42" });
     selectCell(model, "A4");
     setCellContent(model, "A4", "=A1+");

@@ -255,7 +255,7 @@ describe("evaluateCells", () => {
 
   test("error in range vlookup", () => {
     const model = new Model();
-    expect(model.getters.getNumberRows(model.getters.getActiveSheetId())).toBeLessThan(200);
+    expect(model.getters.getNumberRows(model.getters.getSheetIds()[0])).toBeLessThan(200);
     setCellContent(model, "A1", "=VLOOKUP(D12, A2:A200, 2, false)");
 
     expect(getCellError(model, "A1")).toBe("VLOOKUP evaluates to an out of bounds range.");
@@ -449,7 +449,7 @@ describe("evaluateCells", () => {
 
   test("evaluate formula returns the cell error value when we pass an invalid formula", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(model.getters.evaluateFormula(sheetId, "=min(abc)")).toBe("#BAD_EXPR");
   });
 
@@ -1152,7 +1152,7 @@ describe("evaluateCells", () => {
 
   test("error original position from the cell itself", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A1", "=0/0");
     expect(getEvaluatedCell(model, "A1").errorOriginPosition).toEqual(
       toCellPosition(sheetId, "A1")
@@ -1161,7 +1161,7 @@ describe("evaluateCells", () => {
 
   test("error original position from simple references", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A1", "=0/0");
     setCellContent(model, "A2", "=A1");
     setCellContent(model, "A3", "=A2");
@@ -1172,7 +1172,7 @@ describe("evaluateCells", () => {
 
   test("error original position from a range reference", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "=0/0");
     setCellContent(model, "A3", "=MAX(A1:A2)");
@@ -1183,7 +1183,7 @@ describe("evaluateCells", () => {
 
   test("error original position in a spilled result", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "=0/0");
     setCellContent(model, "A3", "=TRANSPOSE(A1:A2)");
@@ -1200,7 +1200,7 @@ describe("evaluateCells", () => {
     let model: Model, sheetId: UID;
     beforeEach(() => {
       model = new Model();
-      sheetId = model.getters.getActiveSheetId();
+      sheetId = model.getters.getSheetIds()[0];
     });
 
     test("on literal", () => {
@@ -1366,7 +1366,7 @@ describe("evaluate formula getter", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   test("a ref in the current sheet", () => {
@@ -1472,7 +1472,7 @@ describe("evaluate formula getter", () => {
   });
 
   test("cell is evaluated when changing sheet and coming back", () => {
-    const firstSheetId = model.getters.getActiveSheetId();
+    const firstSheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "sheet2" });
     setCellContent(model, "A3", "=5");
     activateSheet(model, "sheet2");

@@ -37,7 +37,7 @@ let env: SpreadsheetChildEnv;
 describe("Table side panel", () => {
   beforeEach(async () => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
     createTable(model, "A1:C3");
     ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
     env.getStore(AutofillStore);

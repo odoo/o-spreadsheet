@@ -234,7 +234,7 @@ describe("Aggregate statistic functions", () => {
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "3");
     selectAll(model);
-    const sId1 = model.getters.getActiveSheetId();
+    const sId1 = model.getters.getSheetIds()[0];
     const sId2 = "sh2";
     createSheet(model, { sheetId: sId2 });
     setCellContent(model, "A2", "4", sId2);

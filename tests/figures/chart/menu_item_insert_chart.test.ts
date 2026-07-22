@@ -155,7 +155,7 @@ describe("Insert chart menu item", () => {
     await mountTestSpreadsheet();
     setSelection(model, ["B2"]);
     await insertChart();
-    const figureId = model.getters.getFigures(model.getters.getActiveSheetId())[0].id;
+    const figureId = model.getters.getFigures(model.getters.getSheetIds()[0])[0].id;
     expect(dispatchSpy).toHaveBeenCalledWith("SELECT_FIGURE", { figureId });
     await nextTick();
     expect(document.activeElement?.classList).toContain("o-figure");
@@ -168,7 +168,7 @@ describe("Insert chart menu item", () => {
   });
 
   test("Chart is inserted at correct position for rows freeze", async () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     freezeRows(model, 5, sheetId);
     setSelection(model, ["B2"]);
     await insertChart();
@@ -190,7 +190,7 @@ describe("Insert chart menu item", () => {
   });
 
   test("Chart is inserted at correct position inside bottomRight pane for columns freeze", async () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     freezeColumns(model, 4, sheetId);
     setSelection(model, ["B2"]);
     await insertChart();
@@ -212,7 +212,7 @@ describe("Insert chart menu item", () => {
   });
 
   test("Chart is inserted at correct position inside bottomRight pane for both freeze", async () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     freezeColumns(model, 4, sheetId);
     freezeRows(model, 5, sheetId);
     setSelection(model, ["B2"]);
@@ -306,7 +306,7 @@ describe("Insert chart menu item", () => {
   });
 
   test("Chart is inserted at correct position on a scrolled viewport with frozen rows", async () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     freezeRows(model, 5, sheetId);
     setSelection(model, ["B2:B3"]);
     const { width, height } = viewStore.sheetViewDimension;
@@ -331,7 +331,7 @@ describe("Insert chart menu item", () => {
   });
 
   test("Chart is inserted at correct position on a scrolled viewport with columns frozen", async () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     freezeColumns(model, 4, sheetId);
     setSelection(model, ["B2:B3"]);
     const { width, height } = viewStore.sheetViewDimension;
@@ -356,7 +356,7 @@ describe("Insert chart menu item", () => {
   });
 
   test("Chart is inserted at correct position on a scrolled viewport with both directions frozen", async () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     freezeColumns(model, 4, sheetId);
     freezeRows(model, 5, sheetId);
     setSelection(model, ["B2:B3"]);
@@ -411,7 +411,7 @@ describe("Insert chart menu item", () => {
   test("Chart can be inserted with unbounded ranges", async () => {
     setSelection(model, ["A1:B100"], { unbounded: true });
     await insertChart();
-    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+    const chartId = model.getters.getChartIds(model.getters.getSheetIds()[0])[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject(
       toChartDataSource({
         dataSets: [{ dataRange: "B:B" }],
@@ -470,7 +470,7 @@ describe("Smart chart type detection", () => {
     setCellContent(model, "C3", "100");
     setSelection(model, ["C3"]);
     await doAction(["insert", "insert_chart"], env);
-    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+    const chartId = model.getters.getChartIds(model.getters.getSheetIds()[0])[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       type: "scorecard",
       keyValue: "C3",
@@ -488,7 +488,7 @@ describe("Smart chart type detection", () => {
     createDatasetFromDescription([...datasetPattern]);
     await doAction(["insert", "insert_chart"], env);
 
-    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+    const chartId = model.getters.getChartIds(model.getters.getSheetIds()[0])[0];
 
     const definition = model.getters.getChartDefinition(chartId);
     expect(definition).toMatchObject({
@@ -521,7 +521,7 @@ describe("Smart chart type detection", () => {
       expected.type === "treemap" ? [{ dataRange: "A1:A6" }] : [{ dataRange: "B1:B6" }];
     const expectedLabelRange = expected.type === "treemap" ? "B1:B6" : "A1:A6";
 
-    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+    const chartId = model.getters.getChartIds(model.getters.getSheetIds()[0])[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       type: expected.type,
       ...toChartDataSource({
@@ -554,7 +554,7 @@ describe("Smart chart type detection", () => {
       }
       const expectedLabelRange = toXC(datasetLastCol, 0) + ":" + toXC(datasetLastCol, 5);
 
-      const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+      const chartId = model.getters.getChartIds(model.getters.getSheetIds()[0])[0];
       expect(model.getters.getChartDefinition(chartId)).toMatchObject({
         type: expected.type,
         ...toChartDataSource({
@@ -593,7 +593,7 @@ describe("Smart chart type detection", () => {
       });
     }
 
-    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+    const chartId = model.getters.getChartIds(model.getters.getSheetIds()[0])[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       type: expected.type,
       ...toChartDataSource({
@@ -607,7 +607,7 @@ describe("Smart chart type detection", () => {
   test("Empty columns are passed in the chart dataset if the whole selection is empty", async () => {
     setSelection(model, ["A1:B6"]);
     await doAction(["insert", "insert_chart"], env);
-    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+    const chartId = model.getters.getChartIds(model.getters.getSheetIds()[0])[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       type: "bar",
       ...toChartDataSource({
@@ -621,7 +621,7 @@ describe("Smart chart type detection", () => {
     createDatasetFromDescription(["number", "empty", "number"]);
     setSelection(model, ["A1:C6"]);
     await doAction(["insert", "insert_chart"], env);
-    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+    const chartId = model.getters.getChartIds(model.getters.getSheetIds()[0])[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       type: "scatter",
       ...toChartDataSource({
@@ -643,7 +643,7 @@ describe("Smart chart type detection", () => {
       createDatasetFromDescription(datasetPattern);
       await doAction(["insert", "insert_chart"], env);
 
-      const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+      const chartId = model.getters.getChartIds(model.getters.getSheetIds()[0])[0];
       expect(model.getters.getChartDefinition(chartId)).toMatchObject(expected);
     }
   );

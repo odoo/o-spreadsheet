@@ -475,7 +475,7 @@ describe("selection input plugin", () => {
     expect(store.selectionInputs[0].xc).toBe("Sheet2!A2");
     store.focusById(idOfRange(store, 0));
     expect(highlightedZones(container)).toEqual([]);
-    const firstSheetId = model.getters.getActiveSheetId();
+    const firstSheetId = model.getters.getSheetIds()[0];
     activateSheet(model, "42", firstSheetId);
     expect(highlightedZones(container)).toEqual(["A2"]);
     flattenHighlightRange;
@@ -490,7 +490,7 @@ describe("selection input plugin", () => {
     selectCell(model, "A1");
     expect(store.selectionInputs[0].xc).toBe("A1");
     expect(highlightedZones(container)).toEqual(["A1"]);
-    const firstSheetId = model.getters.getActiveSheetId();
+    const firstSheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "42", activate: true });
     addCellToSelection(model, "B2");
     expect(store.selectionInputs).toHaveLength(2);
@@ -588,7 +588,7 @@ describe("selection input plugin", () => {
     activateSheet(model, "42");
     moveAnchorCell(model, "down");
     expect(highlightedZones(container)).toEqual(["A2"]);
-    activateSheet(model, "42");
+    activateSheet(model, "42", "42");
     moveAnchorCell(model, "down");
     expect(highlightedZones(container)).toEqual(["A3"]);
   });

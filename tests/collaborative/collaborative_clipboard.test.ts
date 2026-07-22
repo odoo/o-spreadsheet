@@ -64,7 +64,7 @@ describe("Collaborative range manipulation", () => {
     setCellContent(alice, "A2", "hello");
     cut(alice, "A2");
     createSheet(alice, { sheetId: "Sheet2", activate: true });
-    setCellContent(alice, "A1", "=Sheet1!A2");
+    setCellContent(alice, "A1", "=Sheet1!A2", "Sheet2");
     network.concurrent(() => {
       deleteSheet(bob, "Sheet1");
       paste(alice, "D4");

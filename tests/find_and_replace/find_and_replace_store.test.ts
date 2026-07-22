@@ -71,7 +71,7 @@ beforeEach(() => {
   // Create the viewport store before the f&r store to have the finalize in the correct order (see FIXME in SpreadsheetStore)
   ({ store: viewStore, model, container } = makeStore(ViewportsStore));
   store = container.get(FindAndReplaceStore);
-  sheetId1 = model.getters.getActiveSheetId();
+  sheetId1 = model.getters.getSheetIds()[0];
 });
 
 describe("basic search", () => {
@@ -79,8 +79,8 @@ describe("basic search", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "test");
     createSheet(model, { sheetId: "sh2", activate: true });
-    setCellContent(model, "A1", "test");
-    setCellContent(model, "A2", "test");
+    setCellContent(model, "A1", "test", "sh2");
+    setCellContent(model, "A2", "test", "sh2");
     updateSearch(model, "test", { searchScope: "activeSheet" });
     expect(store.searchMatches).toEqual([match("sh2", "A1"), match("sh2", "A2")]);
     expect(store.selectedMatchIndex).toStrictEqual(0);
@@ -93,8 +93,8 @@ describe("basic search", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "test");
     createSheet(model, { sheetId: "sh2", activate: true });
-    setCellContent(model, "A1", "test");
-    setCellContent(model, "A2", "test");
+    setCellContent(model, "A1", "test", "sh2");
+    setCellContent(model, "A2", "test", "sh2");
     updateSearch(model, "test");
     expect(store.searchMatches).toEqual([match("sh2", "A1"), match("sh2", "A2")]);
     expect(store.selectedMatchIndex).toStrictEqual(0);
@@ -981,8 +981,8 @@ describe("replace warnings", () => {
     setCellContent(model, "A1", "2024");
     setCellContent(model, "A2", "=DATE(2024, 1, 1)");
     createSheet(model, { sheetId: "sh2", activate: true });
-    setCellContent(model, "A1", "2024");
-    setCellContent(model, "A2", "=DATE(2024, 1, 1)");
+    setCellContent(model, "A1", "2024", "sh2");
+    setCellContent(model, "A2", "=DATE(2024, 1, 1)", "sh2");
 
     const notificationStore = container.get(NotificationStore);
     const spyNotify = jest.spyOn(notificationStore, "notifyUser");

@@ -92,7 +92,7 @@ describe("Pivot collapse", () => {
           id: "calc",
           fieldName: "calc",
           aggregator: "sum",
-          computedBy: { formula: "=Price*2", sheetId: model.getters.getActiveSheetId() },
+          computedBy: { formula: "=Price*2", sheetId: model.getters.getSheetIds()[0] },
         },
       ],
       collapsedDomains: { ROW: [[{ field: "Customer", value: "Alice", type: "char" }]], COL: [] },
@@ -225,7 +225,7 @@ describe("Pivot collapse icon", () => {
 
   function getPivotIconsInZone(model: Model, xc: string) {
     const result: Record<string, { content: string; icon: GridIcon }> = {};
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     for (const position of positions(toZone(xc))) {
       const icon = model.getters.getCellIcons({ ...position, sheetId });
       if (!icon[0]) {

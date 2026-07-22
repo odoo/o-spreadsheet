@@ -37,14 +37,13 @@ import {
   getCellRawContent,
   getCellStyle,
   getEvaluatedCell,
-  getMerges,
 } from "../test_helpers/getters_helpers";
 import { mockGeoJsonService } from "../test_helpers/helpers";
 
 describe("data", () => {
   test("give default col size if not specified", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     // 96 is default cell width
     expect(model.getters.getColSize(sheetId, 0)).toEqual(DEFAULT_CELL_WIDTH);
     expect(model.getters.getColSize(sheetId, 1)).toEqual(DEFAULT_CELL_WIDTH);
@@ -688,7 +687,7 @@ describe("Migrations", () => {
     });
 
     const migratedTypes = model.getters
-      .getConditionalFormats(model.getters.getActiveSheetId())
+      .getConditionalFormats(model.getters.getSheetIds()[0])
       .map((cf) => (cf.rule as CellIsRule).operator);
 
     expect(migratedTypes).toEqual([
@@ -725,7 +724,7 @@ describe("Migrations", () => {
     });
 
     const migratedTypes = model.getters
-      .getDataValidationRules(model.getters.getActiveSheetId())
+      .getDataValidationRules(model.getters.getSheetIds()[0])
       .map((dv) => dv.criterion.type);
 
     expect(migratedTypes).toEqual([
@@ -914,7 +913,7 @@ describe("Import", () => {
         { colNumber: 2, rowNumber: 2, cols: { 0: { size: 42 } }, rows: { 1: { size: 13 } } },
       ],
     });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(model.getters.getColSize(sheetId, 0)).toBe(42);
     expect(model.getters.getColSize(sheetId, 1)).toBe(DEFAULT_CELL_WIDTH);
     expect(model.getters.getRowSize(sheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
@@ -931,10 +930,11 @@ describe("Import", () => {
     const sheet1 = model.getters.getSheetIds()[0];
     const sheet2 = model.getters.getSheetIds()[1];
     activateSheet(model, sheet2);
-    expect(Object.keys(getMerges(model))).toHaveLength(0);
+    expect(model.getters.getMerges(sheet2)).toHaveLength(0);
     activateSheet(model, sheet1);
-    expect(Object.keys(getMerges(model))).toHaveLength(1);
-    expect(getMerges(model)[1]).toMatchObject(toZone("A2:B2"));
+    const merges = model.getters.getMerges(sheet1);
+    expect(merges).toHaveLength(1);
+    expect(merges[0]).toMatchObject(toZone("A2:B2"));
   });
 
   test("can import cell without content", () => {
@@ -1155,7 +1155,7 @@ test("can import cells outside sheet size", () => {
 test("Data of a duplicate sheet are correctly duplicated", () => {
   const model = new Model();
   setCellContent(model, "A1", "hello");
-  const sheetId = model.getters.getActiveSheetId();
+  const sheetId = model.getters.getSheetIds()[0];
   duplicateSheet(model, sheetId, "42");
   expect(getCellContent(model, "A1", sheetId)).toBe("hello");
   expect(getCellContent(model, "A1", "42")).toBe("hello");

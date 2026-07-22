@@ -76,12 +76,12 @@ describe("Context MenuPopover add/remove row/col", () => {
       target: [
         {
           top: 0,
-          bottom: model.getters.getNumberRows(model.getters.getActiveSheetId()) - 1,
+          bottom: model.getters.getNumberRows(model.getters.getSheetIds()[0]) - 1,
           left: 3,
           right: 3,
         },
       ],
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
     });
   });
 
@@ -96,10 +96,10 @@ describe("Context MenuPopover add/remove row/col", () => {
           top: 4,
           bottom: 4,
           left: 0,
-          right: model.getters.getNumberCols(model.getters.getActiveSheetId()) - 1,
+          right: model.getters.getNumberCols(model.getters.getSheetIds()[0]) - 1,
         },
       ],
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
     });
   });
 
@@ -112,13 +112,13 @@ describe("Context MenuPopover add/remove row/col", () => {
     expect(dispatch).toHaveBeenCalledWith("REMOVE_COLUMNS_ROWS", {
       elements: [3],
       dimension: "COL",
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       sheetName: model.getters.getActiveSheetName(),
     });
   });
 
   test("cannot delete nor hide all cols with contextmenu", async () => {
-    setSelection(model, [zoneToXc(model.getters.getSheetZone(model.getters.getActiveSheetId()))]);
+    setSelection(model, [zoneToXc(model.getters.getSheetZone(model.getters.getSheetIds()[0]))]);
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='delete_column']")).toBeNull();
@@ -126,7 +126,7 @@ describe("Context MenuPopover add/remove row/col", () => {
   });
 
   test("cannot delete nor hide all non-hidden cols with contextmenu", async () => {
-    const sheetZone = model.getters.getSheetZone(model.getters.getActiveSheetId());
+    const sheetZone = model.getters.getSheetZone(model.getters.getSheetIds()[0]);
     setSelection(model, [zoneToXc({ ...sheetZone, left: sheetZone.left + 1 })]);
     hideColumns(model, ["A"]);
     simulateContextMenu(".o-col-resizer", COLUMN_D);
@@ -143,13 +143,13 @@ describe("Context MenuPopover add/remove row/col", () => {
     expect(dispatch).toHaveBeenCalledWith("REMOVE_COLUMNS_ROWS", {
       elements: [4],
       dimension: "ROW",
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       sheetName: model.getters.getActiveSheetName(),
     });
   });
 
   test("cannot delete nor hide all rows with contextmenu", async () => {
-    setSelection(model, [zoneToXc(model.getters.getSheetZone(model.getters.getActiveSheetId()))]);
+    setSelection(model, [zoneToXc(model.getters.getSheetZone(model.getters.getSheetIds()[0]))]);
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='delete_row']")).toBeNull();
@@ -157,7 +157,7 @@ describe("Context MenuPopover add/remove row/col", () => {
   });
 
   test("cannot delete nor hide all non-hidden rows with contextmenu", async () => {
-    const sheetZone = model.getters.getSheetZone(model.getters.getActiveSheetId());
+    const sheetZone = model.getters.getSheetZone(model.getters.getSheetIds()[0]);
     setSelection(model, [zoneToXc({ ...sheetZone, top: sheetZone.top + 1 })]);
     hideRows(model, [0]);
     simulateContextMenu(".o-row-resizer", ROW_5);
@@ -176,7 +176,7 @@ describe("Context MenuPopover add/remove row/col", () => {
       dimension: "COL",
       base: 3,
       quantity: 1,
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       sheetName: model.getters.getActiveSheetName(),
     });
   });
@@ -191,7 +191,7 @@ describe("Context MenuPopover add/remove row/col", () => {
       base: 4,
       dimension: "ROW",
       quantity: 1,
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       sheetName: model.getters.getActiveSheetName(),
     });
   });
@@ -206,7 +206,7 @@ describe("Context MenuPopover add/remove row/col", () => {
       dimension: "COL",
       base: 3,
       quantity: 1,
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       sheetName: model.getters.getActiveSheetName(),
     });
   });
@@ -221,7 +221,7 @@ describe("Context MenuPopover add/remove row/col", () => {
       base: 4,
       dimension: "ROW",
       quantity: 1,
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       sheetName: model.getters.getActiveSheetName(),
     });
   });
@@ -235,7 +235,7 @@ describe("Context MenuPopover hide col/row", () => {
     await simulateClick(".o-menu div[data-name='hide_columns']");
     expect(dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
       elements: [3],
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       dimension: "COL",
     });
   });
@@ -250,7 +250,7 @@ describe("Context MenuPopover hide col/row", () => {
     await simulateClick(".o-menu div[data-name='unhide_columns']");
     expect(dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
       elements: [1, 2, 3],
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       dimension: "COL",
     });
   });
@@ -261,7 +261,7 @@ describe("Context MenuPopover hide col/row", () => {
     await simulateClick(".o-menu div[data-name='hide_rows']");
     expect(dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
       elements: [4],
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       dimension: "ROW",
     });
   });
@@ -276,7 +276,7 @@ describe("Context MenuPopover hide col/row", () => {
     await simulateClick(".o-menu div[data-name='unhide_rows']");
     expect(dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
       elements: [2, 3, 4],
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       dimension: "ROW",
     });
   });
@@ -306,7 +306,7 @@ describe("Adding rows footer at the end of sheet", () => {
   );
 
   test("will at the bottom of the sheet view, if the sheet is too short to scroll", async () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const { height } = parent.env.getStore(ViewportsStore).sheetViewDimension;
     const numberOfRows = model.getters.getNumberRows(sheetId);
     expect(".o-grid-add-rows").toHaveStyle({ top: `${numberOfRows * DEFAULT_CELL_HEIGHT}px` });
@@ -322,7 +322,7 @@ describe("Adding rows footer at the end of sheet", () => {
 
   test("can add the specified number of rows at the end of sheet by clicking ADD button", async () => {
     await scrollGrid({ deltaY: 10000 });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const input = fixture.querySelector(".o-grid-add-rows input");
     await setInputValueAndTrigger(input, "10");
@@ -332,7 +332,7 @@ describe("Adding rows footer at the end of sheet", () => {
 
   test("can add the specified number of rows at the end of sheet via Enter key", async () => {
     await scrollGrid({ deltaY: 10000 });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const input = fixture.querySelector(".o-grid-add-rows input")! as HTMLInputElement;
     await setInputValueAndTrigger(input, "10");
@@ -343,7 +343,7 @@ describe("Adding rows footer at the end of sheet", () => {
 
   test("cannot input a non-positive number", async () => {
     await scrollGrid({ deltaY: 10000 });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const input = fixture.querySelector(".o-grid-add-rows input")!;
     await setInputValueAndTrigger(input, "0");
@@ -354,7 +354,7 @@ describe("Adding rows footer at the end of sheet", () => {
 
   test("cannot input a number greater than 10000", async () => {
     await scrollGrid({ deltaY: 10000 });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const input = fixture.querySelector(".o-grid-add-rows input")!;
     await setInputValueAndTrigger(input, "10001");
@@ -365,7 +365,7 @@ describe("Adding rows footer at the end of sheet", () => {
 
   test("cannot input a string", async () => {
     await scrollGrid({ deltaY: 10000 });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const input = fixture.querySelector(".o-grid-add-rows input")!;
     await setInputValueAndTrigger(input, "abc");
@@ -379,7 +379,7 @@ describe("Adding rows footer at the end of sheet", () => {
     const input = fixture.querySelector(".o-grid-add-rows input");
     await setInputValueAndTrigger(input, "1000");
     await click(fixture, ".o-grid-add-rows button");
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const numberOfRows = model.getters.getNumberRows(sheetId);
     expect(parent.env.getStore(ViewportsStore).visibleRows).toContain(numberOfRows - 1);
   });

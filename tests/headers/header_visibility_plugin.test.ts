@@ -296,7 +296,7 @@ describe("Hide Rows", () => {
 
   test("Cannot hide unexisting columns", () => {
     model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const originalNumberCols = model.getters.getNumberCols(sheetId);
     const result = hideColumns(model, [1, 2, originalNumberCols + 10].map(numberToLetters));
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
@@ -306,7 +306,7 @@ describe("Hide Rows", () => {
 
   test("Cannot hide unexisting rows", () => {
     model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const originalNumberRows = model.getters.getNumberRows(sheetId);
     const result = hideRows(model, [1, 2, originalNumberRows + 1]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
@@ -316,7 +316,7 @@ describe("Hide Rows", () => {
 
   test("Do not compute row of empty cell", () => {
     model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     // Will force an UPDATE_CELL subcommand upon addRows
     setFormatting(model, "A100", { fillColor: "red" });
     addRows(model, "after", 99, 1);

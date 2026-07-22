@@ -76,7 +76,7 @@ describe("BottomBar component", () => {
   test("Can create a new sheet", async () => {
     const { model } = await mountBottomBar();
     const dispatch = jest.spyOn(model, "dispatch");
-    const activeSheetId = model.getters.getActiveSheetId();
+    const activeSheetId = model.getters.getSheetIds()[0];
     await click(fixture, ".o-add-sheet");
     const newSheetId = model.getters.getSheetIds()[1];
     expect(dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
@@ -191,7 +191,7 @@ describe("BottomBar component", () => {
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     await click(fixture, ".o-menu-item[data-name='move_right'");
     expect(dispatch).toHaveBeenCalledWith("MOVE_SHEET", {
       sheetId,
@@ -224,7 +224,7 @@ describe("BottomBar component", () => {
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     await click(fixture, ".o-menu-item[data-name='hide_sheet']");
     expect(dispatch).toHaveBeenCalledWith("HIDE_SHEET", {
       sheetId,
@@ -304,7 +304,7 @@ describe("BottomBar component", () => {
       await doubleClick(sheetName);
       sheetName.textContent = "New name";
       await keyDown({ key: "Enter" });
-      expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toEqual("New name");
+      expect(model.getters.getSheetName(model.getters.getSheetIds()[0])).toEqual("New name");
     });
 
     test("Losing focus confirms the change in sheet name", async () => {
@@ -312,7 +312,7 @@ describe("BottomBar component", () => {
       await doubleClick(sheetName);
       sheetName.textContent = "New name";
       sheetName.blur();
-      expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toEqual("New name");
+      expect(model.getters.getSheetName(model.getters.getSheetIds()[0])).toEqual("New name");
     });
 
     test("Pressing escape cancels the change in sheet name", async () => {
@@ -321,7 +321,7 @@ describe("BottomBar component", () => {
       sheetName.textContent = "New name";
       await keyDown({ key: "Escape" });
       expect(sheetName.textContent).toEqual("Sheet1");
-      expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toEqual("Sheet1");
+      expect(model.getters.getSheetName(model.getters.getSheetIds()[0])).toEqual("Sheet1");
     });
 
     test("Renaming sheet is interactive", async () => {
@@ -408,7 +408,7 @@ describe("BottomBar component", () => {
     const raiseError = jest.fn();
     const model = new Model({}, { mode: "readonly" });
     const env = makeTestEnv({ model, raiseError });
-    interactiveRenameSheet(env, model.getters.getActiveSheetId(), sheetName, raiseError);
+    interactiveRenameSheet(env, model.getters.getSheetIds()[0], sheetName, raiseError);
     expect(raiseError).not.toHaveBeenCalled();
     expect(model.getters.getActiveSheet().name).toEqual("Sheet1");
   });
@@ -419,7 +419,7 @@ describe("BottomBar component", () => {
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     await click(fixture, ".o-menu-item[data-name='duplicate'");
     expect(dispatch).toHaveBeenCalledWith("DUPLICATE_SHEET", {
       sheetId,
@@ -437,7 +437,7 @@ describe("BottomBar component", () => {
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const sheetName = model.getters.getActiveSheetName();
     await click(fixture, ".o-menu-item[data-name='delete'");
     expect(dispatch).toHaveBeenCalledWith("DELETE_SHEET", { sheetId, sheetName });
@@ -461,7 +461,7 @@ describe("BottomBar component", () => {
 
   test("Can open the list of sheets", async () => {
     const { model } = await mountBottomBar();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "42" });
 
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
@@ -476,7 +476,7 @@ describe("BottomBar component", () => {
   test("Can activate a sheet from the list of sheets", async () => {
     const { model } = await mountBottomBar();
     const dispatch = jest.spyOn(model, "dispatch");
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "42" });
 
     await click(fixture, ".o-list-sheets");
@@ -995,7 +995,7 @@ describe("BottomBar component", () => {
 
     test("Cannot drag & drop sheets by clicking the sheetName in edit mode", async () => {
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       await doubleClick(sheetName);
       await nextTick();
       await clickAndDrag(
@@ -1012,7 +1012,7 @@ describe("BottomBar component", () => {
       setMobileMode();
       await nextTick();
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       await clickAndDrag(
         `.o-sheet[data-id="${sheetId}"] .o-sheet-name`,
         { x: 10, y: 0 },
@@ -1039,7 +1039,7 @@ describe("BottomBar component", () => {
       await click(fixture, ".o-color-picker-line-item[data-color='#FFFF00'");
 
       expect(getSheetTabColor()).toBeSameColorAs("#FFFF00");
-      expect(model.getters.getSheet(model.getters.getActiveSheetId()).color).toBe("#FFFF00");
+      expect(model.getters.getSheet(model.getters.getSheetIds()[0]).color).toBe("#FFFF00");
     });
 
     test("Can color a sheet background", async () => {
@@ -1051,7 +1051,7 @@ describe("BottomBar component", () => {
       await click(fixture, ".o-menu-item[data-name='change_sheet_background'");
       await click(fixture, ".o-color-picker-line-item[data-color='#FFFF00'");
 
-      expect(model.getters.getSheet(model.getters.getActiveSheetId()).backgroundColor).toBe(
+      expect(model.getters.getSheet(model.getters.getSheetIds()[0]).backgroundColor).toBe(
         "#FFFF00"
       );
     });
@@ -1086,7 +1086,7 @@ describe("BottomBar component", () => {
       const { model } = await mountBottomBar();
 
       // Tab color
-      colorSheetTab(model, model.getters.getActiveSheetId(), "#FFFF00");
+      colorSheetTab(model, model.getters.getSheetIds()[0], "#FFFF00");
       triggerMouseEvent(".o-sheet", "contextmenu");
       await nextTick();
       await click(fixture, ".o-menu-item[data-name='change_tab_color'");
@@ -1103,7 +1103,7 @@ describe("BottomBar component", () => {
 
   test("Attempt to modify a locked sheet will trigger an animation", async () => {
     const { model } = await mountBottomBar();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     lockSheet(model, sheetId);
 
     model.trigger("command-rejected", { result: new DispatchResult(CommandResult.SheetLocked) });

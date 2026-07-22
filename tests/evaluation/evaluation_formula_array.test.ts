@@ -29,7 +29,7 @@ let sheetId: UID;
 describe("evaluate formulas that use/return an array", () => {
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
     addToRegistry(functionRegistry, "MFILL", {
       description: "Return an n*n matrix filled with n.",
       args: [
@@ -255,7 +255,7 @@ describe("evaluate formulas that use/return an array", () => {
 
   describe("result array can collides with other cell", () => {
     test("throw error on the formula when collide with cell having content", () => {
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       setCellContent(model, "B2", "kikou");
       setCellContent(model, "A1", "=MFILL(2,2, 42)");
       expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
@@ -743,7 +743,7 @@ describe("evaluate formulas that use/return an array", () => {
       setCellContent(model, "A3", "3");
       setCellContent(model, "A4", "4");
       expect(getEvaluatedCell(model, "B1").value).toEqual(4);
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       expect(model.getters.getCorrespondingFormulaCell({ sheetId, ...toCartesian("B1") })).toBe(
         model.getters.getCorrespondingFormulaCell({ sheetId, ...toCartesian("A1") })
       );
@@ -989,7 +989,7 @@ describe("evaluate formulas that use/return an array", () => {
 
     test("getSpreadZone getter returns the cells the formula spread on, as well as the cell the formula is on", () => {
       setCellContent(model, "A1", "=MFILL(2,2,42)");
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       expect(model.getters.getSpreadZone({ sheetId, col: 0, row: 0 })).toEqual(toZone("A1:B2"));
     });
 

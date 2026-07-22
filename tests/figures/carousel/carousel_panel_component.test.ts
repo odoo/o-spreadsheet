@@ -87,7 +87,7 @@ describe("Carousel panel component", () => {
     await click(fixture, ".o-carousel-preview .os-cog-wheel-menu-icon");
     await click(fixture, '.o-menu-item[title="Delete item"]');
     expect(model.getters.getCarousel("carouselId").items).toHaveLength(0);
-    expect(model.getters.getChartIds(model.getters.getActiveSheetId())).toHaveLength(0);
+    expect(model.getters.getChartIds(model.getters.getSheetIds()[0])).toHaveLength(0);
   });
 
   test("Can pop a carousel item out", async () => {
@@ -101,8 +101,8 @@ describe("Carousel panel component", () => {
     await click(fixture, ".o-carousel-preview .os-cog-wheel-menu-icon");
     await click(fixture, '.o-menu-item[title="Pop out chart"]');
     expect(model.getters.getCarousel("carouselId").items).toHaveLength(0);
-    expect(model.getters.getFigures(model.getters.getActiveSheetId())).toHaveLength(2);
-    expect(model.getters.getChartIds(model.getters.getActiveSheetId())).toHaveLength(1);
+    expect(model.getters.getFigures(model.getters.getSheetIds()[0])).toHaveLength(2);
+    expect(model.getters.getChartIds(model.getters.getSheetIds()[0])).toHaveLength(1);
   });
 
   test("Can duplicate a carousel chart", async () => {

@@ -57,7 +57,7 @@ let viewStore: Store<ViewportsStore>;
 
 function getPanes() {
   const viewports = viewStore.viewports;
-  const sheetId = model.getters.getActiveSheetId();
+  const sheetId = model.getters.getSheetIds()[0];
   return Object.fromEntries(
     Object.entries(viewports["viewports"][sheetId]!).filter((entry) => isDefined(entry[1]))
   );
@@ -251,7 +251,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Horizontal scroll correctly affects bottomRight offset with frozen panes", () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     freezeColumns(model, 4, sheetId);
     freezeRows(model, 5, sheetId);
     viewStore.setViewportOffset({ offsetX: DEFAULT_CELL_WIDTH * 2, offsetY: 0 });
@@ -348,7 +348,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Vertical scroll correctly affects bottomRight offset with frozen panes", () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     freezeColumns(model, 4, sheetId);
     freezeRows(model, 5, sheetId);
     viewStore.setViewportOffset({ offsetX: 0, offsetY: DEFAULT_CELL_HEIGHT * 2 });
@@ -432,7 +432,7 @@ describe("Viewport of Simple sheet", () => {
 
     // too large
     viewStore.resizeSheetView({ height: 10 * DEFAULT_CELL_HEIGHT, width: 10 * DEFAULT_CELL_WIDTH });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const nCols = model.getters.getNumberCols(sheetId);
     const nRows = model.getters.getNumberRows(sheetId);
     viewStore.setViewportOffset({
@@ -449,7 +449,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Resize (increase) columns correctly affects viewport without changing the offset", () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     viewStore.setViewportOffset({ offsetX: DEFAULT_CELL_WIDTH * 2, offsetY: 0 });
     const { scrollX } = viewStore.activeSheetScrollInfo;
     resizeColumns(
@@ -470,7 +470,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Resize (reduce) columns correctly changes offset", () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     //scroll max
     selectCell(model, "Z1");
     selectAll(model);
@@ -494,7 +494,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Resize rows correctly affects viewport without changing the offset", () => {
-    const numberRows = model.getters.getNumberRows(model.getters.getActiveSheetId());
+    const numberRows = model.getters.getNumberRows(model.getters.getSheetIds()[0]);
     viewStore.setViewportOffset({ offsetX: 0, offsetY: DEFAULT_CELL_HEIGHT * 2 });
     const { scrollY } = viewStore.activeSheetScrollInfo;
     resizeRows(model, [...Array(numberRows).keys()], DEFAULT_CELL_HEIGHT * 2);
@@ -511,7 +511,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Resize (reduce) rows correctly changes offset", () => {
-    const numberRows = model.getters.getNumberRows(model.getters.getActiveSheetId());
+    const numberRows = model.getters.getNumberRows(model.getters.getSheetIds()[0]);
     //scroll max
     selectCell(model, "A100");
     model.selection.selectAll();
@@ -893,7 +893,7 @@ describe("Viewport of Simple sheet", () => {
       top: 0,
     });
 
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     for (let i = 0; i < 20; ++i) {
       model.dispatch("UPDATE_CELL", { sheetId, col: 0, row: i, style: {} });
     }
@@ -909,12 +909,8 @@ describe("Viewport of Simple sheet", () => {
     const width = 4.5 * DEFAULT_CELL_WIDTH;
     const height = 5.5 * DEFAULT_CELL_HEIGHT;
     viewStore.resizeSheetView({ height: height, width: width });
-    expect(
-      viewStore.viewports.getVisibleRect(
-        model.getters.getActiveSheetId(),
-        viewStore.activeMainViewport
-      )
-    ).toEqual({
+    const sheetId = model.getters.getSheetIds()[0];
+    expect(viewStore.viewports.getVisibleRect(sheetId, viewStore.activeMainViewport)).toEqual({
       x: 0,
       y: 0,
       width,
@@ -929,14 +925,14 @@ describe("Viewport of Simple sheet", () => {
     const height = 5.5 * DEFAULT_CELL_HEIGHT;
     viewStore.resizeSheetView({ height: height, width: width });
     const zone = viewStore.activeMainViewport;
-    expect(viewStore.viewports.getVisibleRect(model.getters.getActiveSheetId(), zone)).toEqual({
+    expect(viewStore.viewports.getVisibleRect(model.getters.getSheetIds()[0], zone)).toEqual({
       x: DEFAULT_CELL_WIDTH,
       y: DEFAULT_CELL_HEIGHT,
       width: 3.5 * DEFAULT_CELL_WIDTH,
       height: 4.5 * DEFAULT_CELL_HEIGHT,
     });
     viewStore.setViewportOffset({ offsetX: DEFAULT_CELL_WIDTH, offsetY: DEFAULT_CELL_HEIGHT });
-    expect(viewStore.viewports.getVisibleRect(model.getters.getActiveSheetId(), zone)).toEqual({
+    expect(viewStore.viewports.getVisibleRect(model.getters.getSheetIds()[0], zone)).toEqual({
       x: DEFAULT_CELL_WIDTH,
       y: DEFAULT_CELL_HEIGHT,
       width: 3 * DEFAULT_CELL_WIDTH,
@@ -947,14 +943,14 @@ describe("Viewport of Simple sheet", () => {
   test("getVisibleRect takes the scroll into account", () => {
     merge(model, "A1:B2");
     const zone = toZone("A1:B2");
-    expect(viewStore.viewports.getVisibleRect(model.getters.getActiveSheetId(), zone)).toEqual({
+    expect(viewStore.viewports.getVisibleRect(model.getters.getSheetIds()[0], zone)).toEqual({
       x: 0,
       y: 0,
       width: DEFAULT_CELL_WIDTH * 2,
       height: DEFAULT_CELL_HEIGHT * 2,
     });
     viewStore.setViewportOffset({ offsetX: DEFAULT_CELL_WIDTH, offsetY: DEFAULT_CELL_HEIGHT });
-    expect(viewStore.viewports.getVisibleRect(model.getters.getActiveSheetId(), zone)).toEqual({
+    expect(viewStore.viewports.getVisibleRect(model.getters.getSheetIds()[0], zone)).toEqual({
       x: 0,
       y: 0,
       width: DEFAULT_CELL_WIDTH,
@@ -966,9 +962,8 @@ describe("Viewport of Simple sheet", () => {
     const width = 4.5 * DEFAULT_CELL_WIDTH;
     const height = 5.5 * DEFAULT_CELL_HEIGHT;
     viewStore.resizeSheetView({ height: height, width: width });
-    expect(
-      viewStore.viewports.getRect(model.getters.getActiveSheetId(), viewStore.activeMainViewport)
-    ).toEqual({
+    const sheetId = model.getters.getSheetIds()[0];
+    expect(viewStore.viewports.getRect(sheetId, viewStore.activeMainViewport)).toEqual({
       x: 0,
       y: 0,
       width: 5 * DEFAULT_CELL_WIDTH,
@@ -983,14 +978,14 @@ describe("Viewport of Simple sheet", () => {
     const height = 5.5 * DEFAULT_CELL_HEIGHT;
     viewStore.resizeSheetView({ height: height, width: width });
     const zone = viewStore.activeMainViewport;
-    expect(viewStore.viewports.getRect(model.getters.getActiveSheetId(), zone)).toEqual({
+    expect(viewStore.viewports.getRect(model.getters.getSheetIds()[0], zone)).toEqual({
       x: DEFAULT_CELL_WIDTH,
       y: DEFAULT_CELL_HEIGHT,
       width: 4 * DEFAULT_CELL_WIDTH,
       height: 5 * DEFAULT_CELL_HEIGHT,
     });
     viewStore.setViewportOffset({ offsetX: DEFAULT_CELL_WIDTH, offsetY: DEFAULT_CELL_HEIGHT });
-    expect(viewStore.viewports.getRect(model.getters.getActiveSheetId(), zone)).toEqual({
+    expect(viewStore.viewports.getRect(model.getters.getSheetIds()[0], zone)).toEqual({
       x: 0,
       y: 0,
       width: 4 * DEFAULT_CELL_WIDTH,
@@ -1001,14 +996,14 @@ describe("Viewport of Simple sheet", () => {
   test("getRect takes the scroll into account", () => {
     merge(model, "A1:B2");
     const zone = toZone("A1:B2");
-    expect(viewStore.viewports.getRect(model.getters.getActiveSheetId(), zone)).toEqual({
+    expect(viewStore.viewports.getRect(model.getters.getSheetIds()[0], zone)).toEqual({
       x: 0,
       y: 0,
       width: DEFAULT_CELL_WIDTH * 2,
       height: DEFAULT_CELL_HEIGHT * 2,
     });
     viewStore.setViewportOffset({ offsetX: DEFAULT_CELL_WIDTH, offsetY: DEFAULT_CELL_HEIGHT });
-    expect(viewStore.viewports.getRect(model.getters.getActiveSheetId(), zone)).toEqual({
+    expect(viewStore.viewports.getRect(model.getters.getSheetIds()[0], zone)).toEqual({
       x: -DEFAULT_CELL_WIDTH,
       y: -DEFAULT_CELL_HEIGHT,
       width: DEFAULT_CELL_WIDTH * 2,
@@ -1102,7 +1097,7 @@ describe("Multi Panes viewport", () => {
   });
 
   test("Undo and redo keep frozen panes in sync with history", () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const getPanesEntries = () => Object.keys(getPanes());
 
     freezeColumns(model, 4);
@@ -1128,7 +1123,7 @@ describe("Multi Panes viewport", () => {
   });
 
   test("Adding and removing headers before frozen panes keeps viewports in sync", () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
 
     freezeColumns(model, 4);
     freezeRows(model, 5);
@@ -1145,7 +1140,7 @@ describe("Multi Panes viewport", () => {
   });
 
   test("Duplicated sheets keep frozen pane viewports", () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const duplicatedSheetId = "duplicateSheetId";
 
     freezeColumns(model, 4);
@@ -1227,7 +1222,7 @@ describe("Multi Panes viewport", () => {
 
   test("Viewport remains unaffected when hiding all rows below frozen pane or columns right to frozen panes", () => {
     const model = new Model({ sheets: [{ colNumber: 8, rowNumber: 8 }] });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
 
     freezeRows(model, 4, sheetId);
     let originalActiveMainViewport = viewStore.activeMainViewport;
@@ -1241,7 +1236,7 @@ describe("Multi Panes viewport", () => {
   });
 
   test("filtered row rect after updating another sheet", () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "sh2" });
     setCellContent(model, "A1", "Hi");
     setCellContent(model, "A2", "Hello");
@@ -1256,20 +1251,16 @@ describe("Multi Panes viewport", () => {
       width: DEFAULT_CELL_WIDTH,
       height: 0,
     };
-    expect(
-      viewStore.viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A2"))
-    ).toEqual(rectA2);
+    expect(viewStore.viewports.getVisibleRect(sheetId, toZone("A2"))).toEqual(rectA2);
     activateSheet(model, "sh2");
     setCellContent(model, "A1", "hi");
     activateSheet(model, sheetId);
-    expect(
-      viewStore.viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A2"))
-    ).toEqual(rectA2);
+    expect(viewStore.viewports.getVisibleRect(sheetId, toZone("A2"))).toEqual(rectA2);
   });
 
   test("Viewport remains unaffected when hiding all rows below frozen panes by data filter", () => {
     const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
 
     setCellContent(model, "A2", "2808");
     setCellContent(model, "A3", "2808");
@@ -1394,7 +1385,7 @@ describe("multi sheet with different sizes", () => {
   });
 
   test("deleting the column that has the active cell doesn't crash", () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(model.getters.getSheetName(sheetId)).toBe("small");
     selectCell(model, "B2");
     deleteColumns(model, ["B"]);
@@ -1409,7 +1400,7 @@ describe("multi sheet with different sizes", () => {
   });
 
   test("deleting the row that has the active cell doesn't crash", () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(model.getters.getSheetName(sheetId)).toBe("small");
     selectCell(model, "B2");
     deleteRows(model, [1]);
@@ -1489,7 +1480,7 @@ describe("shift viewport up/down", () => {
   });
 
   test("move all the way down and up again", () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const { bottom } = viewStore.activeMainViewport;
     viewStore.shiftViewportDown();
@@ -1615,7 +1606,7 @@ describe("shift viewport up/down", () => {
 
   test("anchor ends up at the last row", () => {
     const { bottom } = viewStore.activeMainViewport;
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     viewStore.resizeSheetView({
       height: bottom * DEFAULT_CELL_HEIGHT,
       width: getDefaultSheetViewSize(),
@@ -1657,7 +1648,7 @@ describe("shift viewport up/down", () => {
     });
 
     test("shift down scrolls until the last row if there are frozen rows", () => {
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       const numberOfRows = model.getters.getNumberRows(sheetId);
       freezeRows(model, 10);
       let { bottom } = viewStore.activeMainViewport;
@@ -1676,7 +1667,7 @@ describe("shift viewport up/down", () => {
   test.each(["A1", "A2"])(
     "viewport and selection %s do not move when its already the end of the sheet",
     (selectedCell) => {
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       // delete all rows except the first two ones
       deleteRows(model, range(2, model.getters.getNumberRows(sheetId)));
       selectCell(model, selectedCell);
@@ -1693,7 +1684,7 @@ describe("shift viewport up/down", () => {
     "anchor %s is shifted by the correct amount when the sheet end is reached",
     (selectedCell) => {
       const { bottom } = viewStore.activeMainViewport;
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       // delete all rows after the viewport except three
       deleteRows(model, range(bottom + 3, model.getters.getNumberRows(sheetId)));
       selectCell(model, selectedCell);
@@ -1714,7 +1705,7 @@ describe("shift viewport up/down", () => {
     viewStore.resizeSheetView({ height: 100, width: 100 });
     setCellContent(model, "A1", "apple");
     selectCell(model, "A1");
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const { col, row } = model.getters.getActivePosition();
     viewStore.setViewportOffset({ offsetX: 0, offsetY: 200 });
     expect(viewStore.viewports.isVisibleInViewport({ sheetId, col, row })).toBeFalsy();
@@ -1726,46 +1717,32 @@ describe("shift viewport up/down", () => {
 describe("Partially Scrolled Viewport", () => {
   test("getRowIndex takes the partial scroll into account", () => {
     const model = new Model();
+    const sheetId = model.getters.getSheetIds()[0];
     const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
     const rowSize = 10; // to avoid rounding issues
     resizeRows(model, range(0, 10), rowSize);
     viewStore.setViewportOffset({ offsetX: 0, offsetY: 2.3 * rowSize });
-    expect(viewStore.viewports.getRowIndex(model.getters.getActiveSheetId(), 0)).toBe(2);
-    expect(viewStore.viewports.getRowIndex(model.getters.getActiveSheetId(), 0.5 * rowSize)).toBe(
-      2
-    );
-    expect(viewStore.viewports.getRowIndex(model.getters.getActiveSheetId(), 0.6 * rowSize)).toBe(
-      2
-    );
-    expect(viewStore.viewports.getRowIndex(model.getters.getActiveSheetId(), 0.699 * rowSize)).toBe(
-      2
-    );
-    expect(viewStore.viewports.getRowIndex(model.getters.getActiveSheetId(), 0.7 * rowSize)).toBe(
-      3
-    );
-    expect(viewStore.viewports.getRowIndex(model.getters.getActiveSheetId(), rowSize)).toBe(3);
+    expect(viewStore.viewports.getRowIndex(sheetId, 0)).toBe(2);
+    expect(viewStore.viewports.getRowIndex(sheetId, 0.5 * rowSize)).toBe(2);
+    expect(viewStore.viewports.getRowIndex(sheetId, 0.6 * rowSize)).toBe(2);
+    expect(viewStore.viewports.getRowIndex(sheetId, 0.699 * rowSize)).toBe(2);
+    expect(viewStore.viewports.getRowIndex(sheetId, 0.7 * rowSize)).toBe(3);
+    expect(viewStore.viewports.getRowIndex(sheetId, rowSize)).toBe(3);
   });
 
   test("getColIndex takes the partial scroll into account", () => {
     const model = new Model();
+    const sheetId = model.getters.getSheetIds()[0];
     const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
     const colSize = 10; // to avoid rounding issues
     resizeColumns(model, range(0, 10).map(numberToLetters), colSize);
     viewStore.setViewportOffset({ offsetX: 2.3 * colSize, offsetY: 0 });
-    expect(viewStore.viewports.getColIndex(model.getters.getActiveSheetId(), 0)).toBe(2);
-    expect(viewStore.viewports.getColIndex(model.getters.getActiveSheetId(), 0.5 * colSize)).toBe(
-      2
-    );
-    expect(viewStore.viewports.getColIndex(model.getters.getActiveSheetId(), 0.6 * colSize)).toBe(
-      2
-    );
-    expect(viewStore.viewports.getColIndex(model.getters.getActiveSheetId(), 0.699 * colSize)).toBe(
-      2
-    );
-    expect(viewStore.viewports.getColIndex(model.getters.getActiveSheetId(), 0.7 * colSize)).toBe(
-      3
-    );
-    expect(viewStore.viewports.getColIndex(model.getters.getActiveSheetId(), colSize)).toBe(3);
+    expect(viewStore.viewports.getColIndex(sheetId, 0)).toBe(2);
+    expect(viewStore.viewports.getColIndex(sheetId, 0.5 * colSize)).toBe(2);
+    expect(viewStore.viewports.getColIndex(sheetId, 0.6 * colSize)).toBe(2);
+    expect(viewStore.viewports.getColIndex(sheetId, 0.699 * colSize)).toBe(2);
+    expect(viewStore.viewports.getColIndex(sheetId, 0.7 * colSize)).toBe(3);
+    expect(viewStore.viewports.getColIndex(sheetId, colSize)).toBe(3);
   });
 
   test("getVisibleRect takes the partial scroll into account", () => {
@@ -1776,7 +1753,7 @@ describe("Partially Scrolled Viewport", () => {
     resizeRows(model, range(0, 10), headerSize);
     viewStore.setViewportOffset({ offsetX: 0.3 * headerSize, offsetY: 0.3 * headerSize });
     expect(
-      viewStore.viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+      viewStore.viewports.getVisibleRect(model.getters.getSheetIds()[0], toZone("A1"))
     ).toEqual({
       x: 0,
       y: 0,

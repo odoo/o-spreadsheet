@@ -257,7 +257,7 @@ describe("Collaborative session", () => {
         client: { id: "alice", name: "Alice", customId: "1" } as Client,
       }
     );
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_JOINED",
       version: MESSAGE_VERSION,

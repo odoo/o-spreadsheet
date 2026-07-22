@@ -244,13 +244,13 @@ describe("functions", () => {
     addToRegistry(functionRegistry, "GETNUMBERCOLS", {
       description: "Get the number of columns",
       compute: function () {
-        const sheetId = (this as any).getters.getActiveSheetId();
+        const sheetId = (this as any).getters.getSheetIds()[0];
         return (this as any).getters.getNumberCols(sheetId);
       },
       args: [],
     });
     expect(evaluateCell("A1", { A1: "=GETNUMBERCOLS()" })).toBe(
-      model.getters.getNumberCols(model.getters.getActiveSheetId())
+      model.getters.getNumberCols(model.getters.getSheetIds()[0])
     );
   });
 

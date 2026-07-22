@@ -236,7 +236,7 @@ describe("TopBar component", () => {
 
   test("allows merging multiple non-overlapping zones", async () => {
     const { model } = await mountParent();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
 
     setSelection(model, ["A1:B2", "C1:D2"]);
     await nextTick();
@@ -254,7 +254,7 @@ describe("TopBar component", () => {
 
   test("toggles merge/unmerge based on selected zones containing merged cells", async () => {
     const { model } = await mountParent();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
 
     // First select zones without merged cells
     setSelection(model, ["A1:C3", "D1:E2"]);
@@ -453,7 +453,7 @@ describe("TopBar component", () => {
 
     test("When the whole sheet is selected, set the sheet background instead of individual cell background", async () => {
       const { model } = await mountParent();
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       setCellStyle(model, "A1", { fillColor: "#00FF00" });
 
       setSelection(model, [zoneToXc(model.getters.getSheetZone(sheetId))]);
@@ -832,7 +832,7 @@ describe("TopBar component", () => {
     const fileStore = new FileStore();
     const model = new Model({}, { external: { fileStore } });
     await mountParent(model);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     await simulateClick(".o-topbar-menu[data-id='insert']");
     await simulateClick(".o-menu-item[data-name='insert_image']");
     expect(getFigureIds(model, sheetId)).toHaveLength(1);
@@ -961,7 +961,7 @@ test("onCancel of dropdown dv editor removes the data validation rule", async ()
 describe("Topbar - menu item resizing with viewport", () => {
   test("color picker of fill color in top bar is resized with screen size change", async () => {
     const { model, fixture } = await mountParent();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     await click(fixture, '.o-menu-item-button[title="Fill Color"]');
     let height = getElComputedStyle(".o-popover", "maxHeight");
     expect(parseInt(height)).toBe(
@@ -979,7 +979,7 @@ describe("Topbar - menu item resizing with viewport", () => {
 
   test("color picker of text color in top bar is resized with screen size change", async () => {
     const { model, fixture } = await mountParent();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     await click(fixture, '.o-menu-item-button[title="Text Color"]');
     let height = getElComputedStyle(".o-popover", "maxHeight");
     expect(parseInt(height)).toBe(
@@ -1321,7 +1321,7 @@ describe("Keyboard navigation in topbar", () => {
 
   test("Can open & execute menu items with enter", async () => {
     const { model } = await mountParent();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(model.getters.getGridLinesVisibility(sheetId)).toBe(true);
 
     await simulateClick(".o-spreadsheet-topbar [data-id='view']");

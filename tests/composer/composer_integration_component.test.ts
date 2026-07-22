@@ -333,7 +333,7 @@ describe("Composer interactions", () => {
   });
 
   test("Starting the edition and change sheet should display the cell reference with the sheet name, with quotes if needed", async () => {
-    renameSheet(model, model.getters.getActiveSheetId(), "My beautiful name");
+    renameSheet(model, model.getters.getSheetIds()[0], "My beautiful name");
     createSheet(model, { sheetId: "sheet2" });
     await startComposition("=");
     activateSheet(model, "sheet2");
@@ -647,7 +647,7 @@ describe("Grid composer", () => {
 
   test("Composer is closed when changing sheet while not editing a formula", async () => {
     const composerStore = env.getStore(CellComposerStore);
-    const baseSheetId = model.getters.getActiveSheetId();
+    const baseSheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "42", name: "Sheet2" });
     await nextTick();
 

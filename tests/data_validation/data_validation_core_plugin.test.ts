@@ -24,7 +24,7 @@ describe("Data validation", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   describe("allowDispatch results", () => {

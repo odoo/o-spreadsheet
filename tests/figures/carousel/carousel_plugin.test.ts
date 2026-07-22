@@ -18,7 +18,7 @@ let sheetId: UID;
 
 beforeEach(() => {
   model = new Model();
-  sheetId = model.getters.getActiveSheetId();
+  sheetId = model.getters.getSheetIds()[0];
 });
 
 describe("Carousel figure", () => {
@@ -41,7 +41,7 @@ describe("Carousel figure", () => {
     test("Cannot add a new chart to a non carousel-figure", () => {
       createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "chartFigureId" });
 
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       let result = model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", { figureId: "invalidId", sheetId });
       expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
 

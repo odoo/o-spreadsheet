@@ -22,7 +22,7 @@ const PERCENT_FORMAT = "0%";
 
 const TEST_FORMATS = [DATE_FORMAT, PERCENT_FORMAT];
 
-function getCellFormat(model: Model, xc: string, sheetId: UID = model.getters.getActiveSheetId()) {
+function getCellFormat(model: Model, xc: string, sheetId: UID = model.getters.getSheetIds()[0]) {
   return model.getters.getCellFormat({ sheetId, ...toCartesian(xc) });
 }
 
@@ -30,7 +30,7 @@ function setFormat(
   model: Model,
   target: Zone[],
   format: string,
-  sheetId = model.getters.getActiveSheetId()
+  sheetId = model.getters.getSheetIds()[0]
 ) {
   return model.dispatch("SET_FORMATTING", {
     sheetId,
@@ -46,7 +46,7 @@ describe("Default Plugin: Format", () => {
     model = new Model({
       sheets: [{ id: "sh1", colNumber: 25, rowNumber: 20 }],
     });
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   describe.each(TEST_FORMATS)("Format : %s", (format) => {
@@ -797,7 +797,7 @@ describe("Default Plugin: setRowsFormat preserves cells outside the zone", () =>
   test("cells outside the zone column range keep their col-default format after setRowsFormat", () => {
     // 10 cols, 20 rows: zone cols 0-5 (6/10 = 60% > 50%) triggers setRowsFormat
     const model = new Model({ sheets: [{ id: "sh1", colNumber: 10, rowNumber: 20 }] });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
 
     setFormat(model, [model.getters.getColsZone(sheetId, 8, 8)], DATE_FORMAT);
 

@@ -14,7 +14,7 @@ describe("Checkbox in model", () => {
 
   beforeEach(async () => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   test("Adding a checkbox rule will make its cells align middle/center", () => {

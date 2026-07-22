@@ -26,7 +26,7 @@ class Parent extends Component<SpreadsheetChildEnv> {
 
 beforeEach(async () => {
   ({ model, fixture } = await mountComponent(Parent, {}));
-  sheetId = model.getters.getActiveSheetId();
+  sheetId = model.getters.getSheetIds()[0];
 });
 
 describe("Table dropdown button", () => {

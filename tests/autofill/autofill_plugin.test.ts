@@ -159,7 +159,7 @@ describe("Autofill", () => {
     setCellContent(model, "A1", "1");
     addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
     autofill(model, "A1", "A4");
-    expect(getDataValidationRules(model, model.getters.getActiveSheetId())).toMatchObject([
+    expect(getDataValidationRules(model, model.getters.getSheetIds()[0])).toMatchObject([
       {
         id: "id",
         criterion: { type: "containsText", values: ["1"] },

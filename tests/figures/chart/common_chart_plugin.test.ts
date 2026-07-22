@@ -28,7 +28,7 @@ describe("Single cell chart background color", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A1", "1");
   });
 
@@ -103,7 +103,7 @@ describe("Single cell chart background color", () => {
   );
 
   test("Duplicating a sheet preserves the figure dimensions", () => {
-    const firstSheetId = model.getters.getActiveSheetId();
+    const firstSheetId = model.getters.getSheetIds()[0];
     const secondSheetId = "42";
     createChart(model, { type: "bar" });
     const firstSheetFigures = model.getters.getFigures(firstSheetId);

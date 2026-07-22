@@ -38,7 +38,7 @@ export function getActivePosition(model: Model): string {
 export function getCell(
   model: Model,
   xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getSheetIds()[0]
 ): Cell | undefined {
   const { col, row } = toCartesian(xc);
   return model.getters.getCell({ sheetId, col, row });
@@ -50,7 +50,7 @@ export function getCell(
 export function getCellRawContent(
   model: Model,
   xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getSheetIds()[0]
 ): string | undefined {
   const cell = getCell(model, xc, sheetId);
   if (cell?.isFormula) {
@@ -62,7 +62,7 @@ export function getCellRawContent(
 export function getCellStyle(
   model: Model,
   xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getSheetIds()[0]
 ): Style | undefined {
   const { col, row } = toCartesian(xc);
   return model.getters.getCell({ sheetId, col, row })?.style;
@@ -71,7 +71,7 @@ export function getCellStyle(
 export function getCellFormat(
   model: Model,
   xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getSheetIds()[0]
 ): Format | undefined {
   const { col, row } = toCartesian(xc);
   return model.getters.getCell({ sheetId, col, row })?.format;
@@ -80,7 +80,7 @@ export function getCellFormat(
 export function getEvaluatedCell(
   model: Model,
   xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getSheetIds()[0]
 ): EvaluatedCell {
   const { col, row } = toCartesian(xc);
   return model.getters.getEvaluatedCell({ sheetId, col, row });
@@ -89,7 +89,7 @@ export function getEvaluatedCell(
 export function getCellError(
   model: Model,
   xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getSheetIds()[0]
 ): string | undefined {
   const cell = getEvaluatedCell(model, xc, sheetId);
   return cell.type === CellValueType.error ? cell.message : undefined;
@@ -102,7 +102,7 @@ export function getCellError(
 export function getCellContent(
   model: Model,
   xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getSheetIds()[0]
 ): string {
   const { col, row } = toCartesian(xc);
   return model.getters.getCellText(
@@ -117,7 +117,7 @@ export function getCellContent(
 export function getEvaluatedGrid(
   model: Model,
   range: string,
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getSheetIds()[0]
 ) {
   const zone = toZone(range);
   const content: string[][] = [];
@@ -134,7 +134,7 @@ export function getEvaluatedGrid(
 export function getEvaluatedCells(
   model: Model,
   range: string,
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getSheetIds()[0]
 ): EvaluatedCell[][] {
   const zone = toZone(range);
   const content: EvaluatedCell[][] = [];
@@ -155,7 +155,7 @@ export function getEvaluatedCells(
 export function getCellText(
   model: Model,
   xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getSheetIds()[0]
 ) {
   const { col, row } = toCartesian(xc);
   return model.getters.getCellText({ sheetId, col, row }, { showFormula: true });
@@ -164,7 +164,7 @@ export function getCellText(
 export function getStyle(
   model: Model,
   xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getSheetIds()[0]
 ): Style {
   const { col, row } = toCartesian(xc);
   return model.getters.getCellComputedStyle({ sheetId, col, row });
@@ -173,7 +173,7 @@ export function getStyle(
 export function getDataBarFill(
   model: Model,
   xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getSheetIds()[0]
 ) {
   const { col, row } = toCartesian(xc);
   return model.getters.getConditionalDataBar({ sheetId, col, row });
@@ -182,7 +182,7 @@ export function getDataBarFill(
 export function getRangeFormattedValues(
   model: Model,
   xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getSheetIds()[0]
 ): FormattedValue[] {
   return model.getters
     .getVisibleRangeValues(model.getters.getRangeFromSheetXC(sheetId, xc))
@@ -192,7 +192,7 @@ export function getRangeFormattedValues(
 export function getRangeValues(
   model: Model,
   xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getSheetIds()[0]
 ): (CellValue | undefined)[] {
   return model.getters
     .getVisibleRangeValues(model.getters.getRangeFromSheetXC(sheetId, xc))
@@ -205,7 +205,7 @@ export function getRangeValues(
 export function getBorder(
   model: Model,
   xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getSheetIds()[0]
 ): Border | null {
   const { col, row } = toCartesian(xc);
   return model.getters.getCellBorder({ sheetId, col, row });
@@ -217,7 +217,7 @@ export function getBorder(
 export function getComputedBorder(
   model: Model,
   xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getSheetIds()[0]
 ): Border | null {
   const { col, row } = toCartesian(xc);
   return model.getters.getCellComputedBorder({ sheetId, col, row });
@@ -227,7 +227,7 @@ export function getComputedBorder(
  * Get the list of the merges
  */
 export function getMerges(model: Model): Record<number, Merge> {
-  const merges = model.getters.getMerges(model.getters.getActiveSheetId());
+  const merges = model.getters.getMerges(model.getters.getSheetIds()[0]);
   return Object.fromEntries(merges.map((merge) => [merge.id, merge]));
 }
 
@@ -250,11 +250,7 @@ export function automaticSumMulti(
   return model.dispatch("SUM_SELECTION");
 }
 
-export function getTable(
-  model: Model,
-  xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
-) {
+export function getTable(model: Model, xc: string, sheetId: UID = model.getters.getSheetIds()[0]) {
   const { col, row } = toCartesian(xc);
   return model.getters.getTable({ sheetId, col, row });
 }
@@ -262,17 +258,13 @@ export function getTable(
 export function getCoreTable(
   model: Model,
   xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getSheetIds()[0]
 ) {
   const { col, row } = toCartesian(xc);
   return model.getters.getCoreTable({ sheetId, col, row });
 }
 
-export function getFilter(
-  model: Model,
-  xc: string,
-  sheetId: UID = model.getters.getActiveSheetId()
-) {
+export function getFilter(model: Model, xc: string, sheetId: UID = model.getters.getSheetIds()[0]) {
   const { col, row } = toCartesian(xc);
   return model.getters.getFilter({ sheetId, col, row });
 }
@@ -285,7 +277,7 @@ export function getClipboardVisibleZones(model: Model): Zone[] {
 }
 
 export function getCellIcons(model: Model, xc: string) {
-  const sheetId = model.getters.getActiveSheetId();
+  const sheetId = model.getters.getSheetIds()[0];
   return model.getters.getCellIcons({ ...toCartesian(xc), sheetId });
 }
 

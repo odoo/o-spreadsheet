@@ -34,7 +34,7 @@ describe("Header grouping plugin", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   describe.each(["COL", "ROW"] as const)("allowDispatch results for %s", (dimension) => {

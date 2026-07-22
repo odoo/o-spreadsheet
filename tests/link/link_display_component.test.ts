@@ -53,7 +53,7 @@ describe("link display component", () => {
   });
 
   test("sheet link title shows the sheet name and doesn't have a href", async () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A1", `[label](${buildSheetLink(sheetId)})`);
     await hoverCell(env, "A1", 400);
     expect(fixture.querySelector("a")?.innerHTML).toBe("Sheet1");

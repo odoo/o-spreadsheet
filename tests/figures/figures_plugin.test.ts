@@ -53,9 +53,9 @@ describe("figure plugin", () => {
     },
   ])("can create a simple figure", (figure) => {
     const { model, store: viewStore } = makeStore(ViewportsStore);
-    createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
+    createFigure(model, { sheetId: model.getters.getSheetIds()[0], ...figure });
     const data = model.exportData();
-    const sheet = data.sheets.find((s) => s.id === model.getters.getActiveSheetId())!;
+    const sheet = data.sheets.find((s) => s.id === model.getters.getSheetIds()[0])!;
 
     expect(sheet.figures).toEqual([figure]);
     expect(viewStore.visibleFigures).toEqual([
@@ -65,14 +65,14 @@ describe("figure plugin", () => {
 
   test("Sheet with no figure has no figure", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(model.getters.getFigures(sheetId)).toEqual([]);
   });
 
   test("can undo figure creation", () => {
     const { model, store: viewStore } = makeStore(ViewportsStore);
     createFigure(model, {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       id: "someuuid",
       width: 100,
       height: 100,
@@ -148,7 +148,7 @@ describe("figure plugin", () => {
     },
   ])("getVisibleFigures only returns visible figures", (figure) => {
     const { model, store: viewStore } = makeStore(ViewportsStore);
-    createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
+    createFigure(model, { sheetId: model.getters.getSheetIds()[0], ...figure });
     expect(viewStore.visibleFigures.length).toBe(1);
 
     viewStore.setViewportOffset({ offsetX: 200, offsetY: 200 });
@@ -179,13 +179,13 @@ describe("figure plugin", () => {
     },
   ])("getVisibleFigures only returns visible figures on sheet with frozen panes", (figure) => {
     const { model, store: viewStore } = makeStore(ViewportsStore);
-    createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
+    createFigure(model, { sheetId: model.getters.getSheetIds()[0], ...figure });
     expect(viewStore.visibleFigures.length).toBe(1);
     freezeColumns(model, 3);
     freezeRows(model, 3);
 
     createFigure(model, {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       id: "someuuid2",
       col: 0,
       row: 0,
@@ -206,7 +206,7 @@ describe("figure plugin", () => {
   test("selecting a figure, then clicking on a cell unselect figure", () => {
     const model = new Model();
     createFigure(model, {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       id: "someuuid",
       col: 0,
       row: 0,
@@ -224,7 +224,7 @@ describe("figure plugin", () => {
   test("can select multiple figures", () => {
     const model = new Model();
     createFigure(model, {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       id: "someuuid",
       col: 0,
       row: 0,
@@ -233,7 +233,7 @@ describe("figure plugin", () => {
       height: 100,
     });
     createFigure(model, {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       id: "bis",
       col: 0,
       row: 0,
@@ -242,7 +242,7 @@ describe("figure plugin", () => {
       height: 100,
     });
     createFigure(model, {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       id: "repetita",
       col: 0,
       row: 0,
@@ -265,7 +265,7 @@ describe("figure plugin", () => {
 
   test("can delete multiple figures and undo/redo", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     createFigure(model, {
       sheetId,
       id: "someuuid",
@@ -295,7 +295,7 @@ describe("figure plugin", () => {
 
   test("can move multiple figures and undo/redo", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const positions = [
       {
         col: 1,
@@ -346,7 +346,7 @@ describe("figure plugin", () => {
   test("some commands do not remove figure selection", () => {
     const model = new Model();
     createFigure(model, {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       id: "someuuid",
       col: 0,
       row: 0,
@@ -385,7 +385,7 @@ describe("figure plugin", () => {
     },
   ])("can move a figure", (figure) => {
     const { model, store: viewStore } = makeStore(ViewportsStore);
-    createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
+    createFigure(model, { sheetId: model.getters.getSheetIds()[0], ...figure });
 
     const figureUI = viewStore.visibleFigures[0];
     const { x, y } = figureUI;
@@ -394,7 +394,7 @@ describe("figure plugin", () => {
     expect(y).toBe(100);
 
     updateFigure(model, {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       figureId: "someuuid",
       offset: { x: figure.offset.x + 10, y: figure.offset.y + 100 },
       col: figure.col,
@@ -408,7 +408,7 @@ describe("figure plugin", () => {
   test("can undo an update operation", () => {
     const { model, store: viewStore } = makeStore(ViewportsStore);
     createFigure(model, {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       id: "someuuid",
       col: 0,
       row: 0,
@@ -418,7 +418,7 @@ describe("figure plugin", () => {
     });
 
     updateFigure(model, {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       figureId: "someuuid",
       col: 0,
       row: 0,
@@ -455,7 +455,7 @@ describe("figure plugin", () => {
     },
   ])("prevent moving a figure left or above of the sheet", (figure) => {
     const { model, store: viewStore } = makeStore(ViewportsStore);
-    createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
+    createFigure(model, { sheetId: model.getters.getSheetIds()[0], ...figure });
 
     const figureUI = viewStore.visibleFigures[0];
     const { x, y } = figureUI;
@@ -464,7 +464,7 @@ describe("figure plugin", () => {
     expect(y).toBe(100);
 
     const result = updateFigure(model, {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       figureId: "someuuid",
       offset: { x: figureUI.offset.x - 200, y: figureUI.offset.y - 50 },
       col: figure.col,
@@ -476,7 +476,7 @@ describe("figure plugin", () => {
   test("cannot update a figure which doesn't exist", () => {
     const model = new Model();
     const result = updateFigure(model, {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       figureId: "someuuid",
       col: 0,
       row: 0,
@@ -493,7 +493,7 @@ describe("figure plugin", () => {
 
   test("can delete a figure and UNDO will reselect it", () => {
     const { model, store: viewStore } = makeStore(ViewportsStore);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     createFigure(model, {
       sheetId,
       id: "someuuid",
@@ -522,7 +522,7 @@ describe("figure plugin", () => {
       ],
     });
     createFigure(model, {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       id: "someuuid",
       col: 0,
       row: 0,
@@ -540,7 +540,7 @@ describe("figure plugin", () => {
     const model = new Model();
     const composerStore = makeTestComposerStore(model);
     createFigure(model, {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       id: "someuuid",
       col: 0,
       row: 0,
@@ -561,7 +561,7 @@ describe("figure plugin", () => {
     const composerStore = makeTestComposerStore(model);
     setCellContent(model, "A1", "=A1+");
     createFigure(model, {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       id: "someuuid",
       offset: {
         x: 10,
@@ -587,11 +587,11 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     };
-    const cmd1 = createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
+    const cmd1 = createFigure(model, { sheetId: model.getters.getSheetIds()[0], ...figure });
     expect(cmd1).toBeSuccessfullyDispatched();
     createSheet(model, { sheetId: "42" });
 
-    const cmd2 = createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
+    const cmd2 = createFigure(model, { sheetId: model.getters.getSheetIds()[0], ...figure });
     expect(cmd2).toBeCancelledBecause(CommandResult.DuplicatedFigureId);
 
     const cmd3 = createFigure(model, { sheetId: "42", ...figure });
@@ -600,7 +600,7 @@ describe("figure plugin", () => {
 
   test("figure move on col delete", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const figure = {
       id: "someuuid",
       col: 3,
@@ -631,7 +631,7 @@ describe("figure plugin", () => {
 
   test("figure move on own col delete", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const figure = {
       id: "someuuid",
       col: 3,
@@ -656,7 +656,7 @@ describe("figure plugin", () => {
 
   test("figure move on column add", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const figure = {
       id: "someuuid",
       col: 1,
@@ -687,7 +687,7 @@ describe("figure plugin", () => {
 
   test("figure move on other column move after", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const figure = {
       id: "someuuid",
       col: 1,
@@ -718,7 +718,7 @@ describe("figure plugin", () => {
 
   test("figure move on other column move before", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const figure = {
       id: "someuuid",
       col: 3,
@@ -749,7 +749,7 @@ describe("figure plugin", () => {
 
   test("figure move on own column move before", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const figure = {
       id: "someuuid",
       col: 3,
@@ -774,7 +774,7 @@ describe("figure plugin", () => {
 
   test("figure move on own column move after", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const figure = {
       id: "someuuid",
       col: 3,
@@ -799,7 +799,7 @@ describe("figure plugin", () => {
 
   test("figure move on row delete", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const figure = {
       id: "someuuid",
       col: 3,
@@ -830,7 +830,7 @@ describe("figure plugin", () => {
 
   test("figure move on row add", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const figure = {
       id: "someuuid",
       col: 1,
@@ -861,7 +861,7 @@ describe("figure plugin", () => {
 
   test("figure move on other row move after", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const figure = {
       id: "someuuid",
       col: 1,
@@ -892,7 +892,7 @@ describe("figure plugin", () => {
 
   test("figure move on other row move before", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const figure = {
       id: "someuuid",
       col: 3,
@@ -923,7 +923,7 @@ describe("figure plugin", () => {
 
   test("figure move on own row move before", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const figure = {
       id: "someuuid",
       col: 3,
@@ -948,7 +948,7 @@ describe("figure plugin", () => {
 
   test("figure move on own row move after", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const figure = {
       id: "someuuid",
       col: 3,
@@ -992,7 +992,7 @@ describe("figure plugin", () => {
     },
   ])("Move image at (0,0) if not enough space after removing rows and columns", async (figure) => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const figureId = "someuuid";
     createFigure(model, { sheetId, ...figure });
 
@@ -1012,7 +1012,7 @@ describe("figure plugin", () => {
 
   test("Anchored figures should not move on col/row deletion after their anchor", async () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const figureId = "someuuid";
     createFigure(model, {
       sheetId,
@@ -1035,7 +1035,7 @@ describe("figure plugin", () => {
 
   test("Anchored figures should move on col/row deletion before their anchor", async () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const figureId = "someuuid";
     createFigure(model, {
       sheetId,

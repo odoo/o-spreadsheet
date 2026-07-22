@@ -1668,7 +1668,7 @@ describe("Measure display", () => {
     });
     const pivot = model.getters.getPivot(pivotId);
     model.dispatch("INSERT_PIVOT", {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       col: 0,
       row: 19,
       pivotId,
@@ -1694,7 +1694,7 @@ describe("Measure display", () => {
       value: 2,
     };
     const model = createModelWithTestPivotDataset();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     updatePivot(model, pivotId, {
       measures: [
         {
@@ -1731,7 +1731,7 @@ describe("Measure display", () => {
       value: 2,
     };
     const model = createModelWithTestPivotDataset();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     updatePivot(model, pivotId, {
       measures: [
         {

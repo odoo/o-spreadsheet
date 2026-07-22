@@ -28,7 +28,7 @@ describe("Simple filter test", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   test("Can update  a filter", () => {
@@ -105,7 +105,7 @@ describe("Filter Evaluation", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
 
     createTableWithFilter(model, "A1:A5");
     setCellContent(model, "A1", "A1");
@@ -295,7 +295,7 @@ describe("Filter Evaluation", () => {
 
   test("Folding a group after filtering some rows does not hide all rows of the sheet", () => {
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
 
     groupHeaders(model, "ROW", 0, 3);
 
@@ -310,7 +310,7 @@ describe("Filter Evaluation", () => {
 
   test("Grouping headers after filtering some rows does not break the data filter state", () => {
     const model = new Model({ sheets: [{ colNumber: 8, rowNumber: 8 }] });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
 
     groupHeaders(model, "ROW", 0, 5);
 
@@ -329,7 +329,7 @@ describe("Filter Evaluation", () => {
 
   test("row filtered in an inactive sheet", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
 
     createTableWithFilter(model, "A6:A8");
     setCellContent(model, "A7", "Hi");
@@ -346,7 +346,7 @@ describe("Filter criterion test", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   function getFilteredRows() {

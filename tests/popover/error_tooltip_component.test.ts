@@ -38,7 +38,7 @@ describe("Error tooltip component", () => {
   async function mountErrorTooltip(model: Model, xc: string) {
     ({ fixture } = await mountComponent(ErrorToolTip, {
       props: {
-        cellPosition: toCellPosition(model.getters.getActiveSheetId(), xc),
+        cellPosition: toCellPosition(model.getters.getSheetIds()[0], xc),
       },
       model,
     }));
@@ -240,7 +240,7 @@ describe("Grid integration", () => {
       row: 0,
       width: 200,
       height: 200,
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
     });
     await nextTick();
     setCellContent(model, "C3", "[label](url.com)");

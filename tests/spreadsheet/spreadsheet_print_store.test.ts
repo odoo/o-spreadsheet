@@ -10,7 +10,7 @@ describe("Spreadsheet print rendering", () => {
 
   beforeEach(async () => {
     ({ model, store: printStore } = makeStore(SpreadsheetPrintStore));
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   function getPrintedZones() {

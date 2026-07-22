@@ -388,7 +388,7 @@ type GridStyleDescr = { [xc: string]: Style | undefined };
 
 function getCellGrid(model: Model, range?: string): { [xc: string]: EvaluatedCell } {
   const result = {};
-  const sheetId = model.getters.getActiveSheetId();
+  const sheetId = model.getters.getSheetIds()[0];
   const cellPositions = range
     ? positions(toZone(range)).map(({ col, row }) => ({ sheetId, col, row }))
     : model.getters.getEvaluatedCellsPositions(sheetId);
@@ -425,7 +425,7 @@ export function getGridFormat(model: Model): GridFormatDescr {
 
 export function getGridStyle(model: Model, range?: string): GridStyleDescr {
   const result: GridStyleDescr = {};
-  const sheetId = model.getters.getActiveSheetId();
+  const sheetId = model.getters.getSheetIds()[0];
   for (const xc of Object.keys(getCellGrid(model, range))) {
     const { col, row } = toCartesian(xc);
     result[toXC(col, row)] = model.getters.getCellComputedStyle({ sheetId, col, row });
@@ -530,14 +530,14 @@ export function evaluateCell(xc: string, grid: GridDescr): any {
 }
 
 export function evaluateArrayFormula(model: Model, formula: string) {
-  const result = model.getters.evaluateFormula(model.getters.getActiveSheetId(), formula);
+  const result = model.getters.evaluateFormula(model.getters.getSheetIds()[0], formula);
   return Array.isArray(result) ? result : [[result]];
 }
 
 export function getRangeValuesAsMatrix(
   model: Model,
   rangeXc: string,
-  sheetId: string = model.getters.getActiveSheetId()
+  sheetId: string = model.getters.getSheetIds()[0]
 ): Matrix<CellValue> {
   return matrixMap(getRangeCellsAsMatrix(model, rangeXc, sheetId), (cell) => cell.value);
 }
@@ -545,7 +545,7 @@ export function getRangeValuesAsMatrix(
 export function getRangeFormatsAsMatrix(
   model: Model,
   rangeXc: string,
-  sheetId: string = model.getters.getActiveSheetId()
+  sheetId: string = model.getters.getSheetIds()[0]
 ): string[][] {
   return matrixMap(getRangeCellsAsMatrix(model, rangeXc, sheetId), (cell) => cell.format || "");
 }
@@ -553,7 +553,7 @@ export function getRangeFormatsAsMatrix(
 export function getRangeCellsAsMatrix(
   model: Model,
   rangeXc: string,
-  sheetId: string = model.getters.getActiveSheetId()
+  sheetId: string = model.getters.getSheetIds()[0]
 ): EvaluatedCell[][] {
   const rangeValue: EvaluatedCell[][] = [];
   const zone = toZone(rangeXc);
@@ -595,7 +595,7 @@ export function evaluateCellFormat(xc: string, grid: GridDescr): string {
 export function checkFunctionDoesntSpreadBeyondRange(
   model: Model,
   rangeXc: string,
-  sheetId: string = model.getters.getActiveSheetId()
+  sheetId: string = model.getters.getSheetIds()[0]
 ): boolean {
   const zone = toZone(rangeXc);
   for (const row of range(zone.top, zone.bottom + 2)) {
@@ -652,7 +652,7 @@ export function restoreDefaultFunctions() {
 
 export function getMergeCellMap(model: Model): Record<number, Record<number, number | undefined>> {
   const mergePlugin = getPlugin(model, MergePlugin);
-  const sheetCellMap = mergePlugin["mergeCellMap"][model.getters.getActiveSheetId()];
+  const sheetCellMap = mergePlugin["mergeCellMap"][model.getters.getSheetIds()[0]];
   return sheetCellMap
     ? (Object.fromEntries(
         Object.entries(sheetCellMap).filter(
@@ -667,7 +667,7 @@ export function XCToMergeCellMap(
   mergeXCList: string[]
 ): Record<number, Record<number, number | undefined>> {
   const mergeCellMap = {};
-  const sheetId = model.getters.getActiveSheetId();
+  const sheetId = model.getters.getSheetIds()[0];
   for (const mergeXC of mergeXCList) {
     const { col, row } = toCartesian(mergeXC);
     const merge = model.getters.getMerge({ sheetId, col, row });
@@ -1181,7 +1181,7 @@ export function toCellPosition(sheetId: UID, xc: string): CellPosition {
 }
 
 /** Get the data validation rules a sheet, transforming ranges into strings for easier testing */
-export function getDataValidationRules(model: Model, sheetId = model.getters.getActiveSheetId()) {
+export function getDataValidationRules(model: Model, sheetId = model.getters.getSheetIds()[0]) {
   return model.getters.getDataValidationRules(sheetId).map((rule) => ({
     ...rule,
     ranges: rule.ranges.map((range) => model.getters.getRangeString(range, sheetId)),
@@ -1244,7 +1244,7 @@ export function makeTestComposerStore(
 }
 
 /** Return the values of the first filter found in the sheet */
-export function getFilterHiddenValues(model: Model, sheetId = model.getters.getActiveSheetId()) {
+export function getFilterHiddenValues(model: Model, sheetId = model.getters.getSheetIds()[0]) {
   const table = model.getters.getTables(sheetId)[0];
   return table.filters.map((filter) => ({
     zone: zoneToXc(filter.rangeWithHeaders.zone),

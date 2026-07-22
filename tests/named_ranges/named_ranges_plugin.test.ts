@@ -212,7 +212,7 @@ describe("Named range plugin", () => {
     expect(newModel.getters.getNamedRanges()).toHaveLength(2);
     expect(newModel.getters.getNamedRanges()[0]).toMatchObject({
       name: "MyRange",
-      range: { zone: toZone("A1:B2"), sheetId: newModel.getters.getActiveSheetId() },
+      range: { zone: toZone("A1:B2"), sheetId: newModel.getters.getSheetIds()[0] },
     });
     expect(newModel.getters.getNamedRanges()[1]).toMatchObject({
       name: "AnotherRange",
@@ -289,12 +289,12 @@ describe("Named range plugin", () => {
   test("Can use named range in getter evaluateFormula", () => {
     createNamedRange(model, "MyRange", "A1:A2");
     setCellContent(model, "A1", "15");
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(model.getters.evaluateFormula(sheetId, "=SUM(MyRange) + 5")).toBe(20);
   });
 
   test("Named ranges works both for single cell and multiple cell ranges", () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A1", "42");
 
     createNamedRange(model, "SingleCellRange", "A1");

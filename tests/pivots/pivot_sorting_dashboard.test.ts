@@ -33,7 +33,7 @@ describe("Dashboard Pivot Sorting", () => {
     const { env, fixture } = await mountSpreadsheet({ model });
     model.updateMode("dashboard");
     await nextTick();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(env.getStore(ClickableCellsStore).clickableCells).toMatchObject([
       { position: toCellPosition(sheetId, "B5") },
     ]);
@@ -158,7 +158,7 @@ describe("Dashboard Pivot Sorting", () => {
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
     createTable(model, "A4", {}, "dynamic");
-    const table = model.getters.getTable(toCellPosition(model.getters.getActiveSheetId(), "B5"))!;
+    const table = model.getters.getTable(toCellPosition(model.getters.getSheetIds()[0], "B5"))!;
     const tableStyle = model.getters.getTableStyle(table.config.styleId);
     const { env } = await mountSpreadsheet({ model });
     model.updateMode("dashboard");

@@ -35,7 +35,7 @@ describe("data validation sidePanel component", () => {
 
   beforeEach(async () => {
     ({ model, env, fixture } = await mountComponentWithPortalTarget(SidePanels));
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
     env.openSidePanel("DataValidation", {});
     await nextTick();
   });

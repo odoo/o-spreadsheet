@@ -40,7 +40,7 @@ describe("Table resizer component", () => {
         getGridSize: () => ({ width: 1000, height: 1000 }),
       },
     }));
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   test("Can resize a table with drag & drop", async () => {

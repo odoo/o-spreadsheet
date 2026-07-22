@@ -791,7 +791,7 @@ describe("We did not add properties to Range without adding the behavior in Squi
     const range = createRangeFromXc(
       {
         xc: "B9:C11",
-        sheetId: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getSheetIds()[0],
       },
       model.getters.getSheetSize
     );

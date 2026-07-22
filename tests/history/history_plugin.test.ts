@@ -271,7 +271,7 @@ describe("Model history", () => {
 
   test("undo a sheet creation changes the active sheet", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "42", position: 1 });
     activateSheet(model, "42");
     undo(model);
@@ -291,7 +291,7 @@ describe("Model history", () => {
     // The active sheet is currently not changed when the sheet
     // creation is undone
     const model = new Model();
-    const originActiveSheetId = model.getters.getActiveSheetId();
+    const originActiveSheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "42" });
     activateSheet(model, "42");
     expect(model.getters.getActiveSheetId()).toBe("42");
@@ -301,7 +301,7 @@ describe("Model history", () => {
 
   test("ACTIVATE_SHEET with another command is saved", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "42", activate: true });
     undo(model);
     expect(model.getters.getActiveSheetId()).toBe(sheetId);
@@ -314,7 +314,7 @@ describe("Model history", () => {
       type: "UPDATE_CELL",
       col: 0,
       row: 0,
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       content: "hello",
     };
     model.dispatch(command.type, command);

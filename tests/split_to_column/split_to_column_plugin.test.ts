@@ -25,7 +25,7 @@ describe("Split text into columns", () => {
   let sheetId: UID;
   beforeEach(() => {
     model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   describe("allowDispatch results", () => {

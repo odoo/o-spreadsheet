@@ -21,7 +21,7 @@ describe("Collaborative selection", () => {
   });
 
   test("Everyone starts in A1", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => new Set(user.getters.getConnectedClients()),
       new Set([
@@ -51,7 +51,7 @@ describe("Collaborative selection", () => {
     selectCell(alice, "C3");
     moveAnchorCell(bob, "down");
     moveAnchorCell(bob, "right");
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => new Set(user.getters.getConnectedClients()),
       new Set([
@@ -85,7 +85,7 @@ describe("Collaborative selection", () => {
   });
 
   test("Cell selected is updated after insert column", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     selectCell(alice, "B1");
     addColumns(bob, "before", "B", 2);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -114,7 +114,7 @@ describe("Collaborative selection", () => {
   });
 
   test("Cell selected of remote client is updated after insert column", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     selectCell(bob, "B1");
     selectCell(alice, "B1");
     addColumns(alice, "before", "B", 2);
@@ -144,7 +144,7 @@ describe("Collaborative selection", () => {
   });
 
   test("Cell selected is updated select an entire column", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     selectColumn(bob, 1, "overrideSelection");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => new Set(user.getters.getConnectedClients()),
@@ -172,7 +172,7 @@ describe("Collaborative selection", () => {
   });
 
   test("Position is remove on client left", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => new Set(user.getters.getConnectedClients()),
       new Set([
@@ -256,7 +256,7 @@ describe("Collaborative selection", () => {
   });
 
   test("client positions are updated with fallback sheet", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     createSheet(alice, { sheetId: "42" });
     deleteSheet(alice, sheetId);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -285,7 +285,7 @@ describe("Collaborative selection", () => {
   });
 
   test("Client positions are updated when changing their active sheet", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     createSheet(alice, { sheetId: "42", activate: true });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => new Set(user.getters.getConnectedClients()),
@@ -313,7 +313,7 @@ describe("Collaborative selection", () => {
   });
 
   test("Can send custom data in client", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     new Model(alice.exportData(), {
       transportService: network,
       client: { id: "david", name: "David", customId: "1" } as Client,

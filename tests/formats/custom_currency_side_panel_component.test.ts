@@ -227,7 +227,7 @@ describe("custom currency sidePanel component", () => {
       await setInputValueAndTrigger(selectors.inputCode, "USD");
       await selectProposalAtIndex(proposalIndex);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING_WITH_PIVOT", {
-        sheetId: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getSheetIds()[0],
         target: model.getters.getSelectedZones(),
         format: formatResult,
       });
@@ -256,7 +256,7 @@ describe("custom currency sidePanel component", () => {
           await editSelectComponent(selectors.availableCurrencies, availableCurrencyIndex);
           await selectProposalAtIndex(concernedIndex);
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING_WITH_PIVOT", {
-            sheetId: model.getters.getActiveSheetId(),
+            sheetId: model.getters.getSheetIds()[0],
             target: model.getters.getSelectedZones(),
             format: expect.stringMatching(decimalPlacesRegexp),
           });
@@ -287,7 +287,7 @@ describe("custom currency sidePanel component", () => {
           await editSelectComponent(selectors.availableCurrencies, availableCurrencyIndex);
           await selectProposalAtIndex(concernedIndex);
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING_WITH_PIVOT", {
-            sheetId: model.getters.getActiveSheetId(),
+            sheetId: model.getters.getSheetIds()[0],
             target: model.getters.getSelectedZones(),
             format: expect.stringMatching(positionExpressionRegexp),
           });
@@ -304,7 +304,7 @@ describe("custom currency sidePanel component", () => {
           await setInputValueAndTrigger(selectors.inputSymbol, "SYMBOL");
           await selectProposalAtIndex(concernedIndex);
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING_WITH_PIVOT", {
-            sheetId: model.getters.getActiveSheetId(),
+            sheetId: model.getters.getSheetIds()[0],
             target: model.getters.getSelectedZones(),
             format: expect.stringMatching(twoDecimalPlacesRegex),
           });
@@ -328,7 +328,7 @@ describe("custom currency sidePanel component", () => {
           await setInputValueAndTrigger(selectors.inputSymbol, "SYMBOL");
           await selectProposalAtIndex(concernedIndex);
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING_WITH_PIVOT", {
-            sheetId: model.getters.getActiveSheetId(),
+            sheetId: model.getters.getSheetIds()[0],
             target: model.getters.getSelectedZones(),
             format: expect.stringMatching(positionExpressionRegexp),
           });

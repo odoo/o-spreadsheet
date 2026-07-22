@@ -175,7 +175,7 @@ describe("Grid renderer animations", () => {
     drawGrid();
     expect(gridRenderer["animations"].size).toEqual(1);
 
-    renameSheet(model, model.getters.getActiveSheetId(), "newName");
+    renameSheet(model, model.getters.getSheetIds()[0], "newName");
     setCellContent(model, "B12", "2");
     drawGrid();
     expect(gridRenderer["animations"].size).toEqual(1);
@@ -691,7 +691,7 @@ describe("Individual animation tests", () => {
       icons: {
         left: {
           svg: ICONS.arrowGood.svg,
-          clipRect: viewStore.viewports.getRect(model.getters.getActiveSheetId(), toZone("B3")),
+          clipRect: viewStore.viewports.getRect(model.getters.getSheetIds()[0], toZone("B3")),
         },
       },
       content: { textLines: ["8"] },
@@ -747,7 +747,7 @@ describe("Individual animation tests", () => {
       icons: {
         left: {
           svg: ICONS.arrowGood.svg,
-          clipRect: viewStore.viewports.getRect(model.getters.getActiveSheetId(), toZone("B3")),
+          clipRect: viewStore.viewports.getRect(model.getters.getSheetIds()[0], toZone("B3")),
         },
       },
       content: { textLines: ["9"] },

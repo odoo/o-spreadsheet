@@ -557,7 +557,7 @@ describe("Collaborative local history", () => {
   });
 
   test("Undo a create sheet command", () => {
-    const sheet1Id = alice.getters.getActiveSheetId();
+    const sheet1Id = alice.getters.getSheetIds()[0];
     const sheetId = "42";
     createSheet(alice, { sheetId, position: 0 });
     setCellContent(bob, "A1", "Hello in A1", sheetId);
@@ -685,7 +685,7 @@ describe("Collaborative local history", () => {
   });
 
   test("Active sheet is correctly recomputed after concurrent sheet modifications", () => {
-    const firstSheetId = alice.getters.getActiveSheetId();
+    const firstSheetId = alice.getters.getSheetIds()[0];
     createSheet(bob, { sheetId: "sheet2", name: "Sheet2", position: 1 });
     network.concurrent(() => {
       deleteSheet(bob, "sheet2");
@@ -774,7 +774,7 @@ describe("Collaborative local history", () => {
       type: "UPDATE_CELL",
       col: 0,
       row: 0,
-      sheetId: david.getters.getActiveSheetId(),
+      sheetId: david.getters.getSheetIds()[0],
       content: "hello",
     };
     network.concurrent(() => {
@@ -838,7 +838,7 @@ describe("Collaborative local history", () => {
   });
 
   test("dont remove last sheet with undo", () => {
-    const firstSheetId = alice.getters.getActiveSheetId();
+    const firstSheetId = alice.getters.getSheetIds()[0];
     createSheet(alice, {});
     deleteSheet(bob, firstSheetId);
     undo(alice);
@@ -926,7 +926,7 @@ describe("Collaborative local history", () => {
     network.concurrent(() => {
       setCellContent(charlie, "A10", "hello");
       updatePivot(alice, "1", {
-        dataSet: { sheetId: alice.getters.getActiveSheetId(), zone: toZone("A1:B1") },
+        dataSet: { sheetId: alice.getters.getSheetIds()[0], zone: toZone("A1:B1") },
       });
       renamePivot(alice, "1", "newName");
       undo(alice);
@@ -1158,7 +1158,7 @@ describe("Collaborative local history", () => {
   });
 
   test("undo operation before unfreeze and sheet creation", () => {
-    const firstSheetId = alice.getters.getActiveSheetId();
+    const firstSheetId = alice.getters.getSheetIds()[0];
     freezeColumns(alice, 1, firstSheetId);
     setCellContent(alice, "A1", "hello");
     unfreezeColumns(charlie, firstSheetId);

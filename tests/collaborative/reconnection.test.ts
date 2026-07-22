@@ -21,21 +21,21 @@ describe("reconnection recovery", () => {
 
     const commandWhileOnline: CoreCommand = {
       type: "UPDATE_CELL",
-      sheetId: alice.getters.getActiveSheetId(),
+      sheetId: alice.getters.getSheetIds()[0],
       col: 0,
       row: 0,
       content: "first command",
     };
     const commandWhileOFFLINE: CoreCommand = {
       type: "UPDATE_CELL",
-      sheetId: alice.getters.getActiveSheetId(),
+      sheetId: alice.getters.getSheetIds()[0],
       col: 0,
       row: 1,
       content: "second command",
     };
     const commandWhileOFFLINE2: CoreCommand = {
       type: "UPDATE_CELL",
-      sheetId: alice.getters.getActiveSheetId(),
+      sheetId: alice.getters.getSheetIds()[0],
       col: 0,
       row: 1,
       content: "third command",
@@ -43,7 +43,7 @@ describe("reconnection recovery", () => {
 
     const commandWhileBackOnline: CoreCommand = {
       type: "UPDATE_CELL",
-      sheetId: alice.getters.getActiveSheetId(),
+      sheetId: alice.getters.getSheetIds()[0],
       col: 0,
       row: 2,
       content: "fourth command",

@@ -45,7 +45,7 @@ let sheetId: UID;
 
 beforeEach(() => {
   model = new Model();
-  sheetId = model.getters.getActiveSheetId();
+  sheetId = model.getters.getSheetIds()[0];
 });
 
 describe("conditional format", () => {
@@ -58,7 +58,7 @@ describe("conditional format", () => {
     addEqualCf(model, "A:A", { fillColor: "#0000FF" }, "4", "2", sheetId);
     addEqualCf(model, "A3:A", { fillColor: "#0000FF" }, "5", "3", sheetId);
     addEqualCf(model, "C3:3", { fillColor: "#0000FF" }, "6", "4", sheetId);
-    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toEqual([
+    expect(model.getters.getConditionalFormats(model.getters.getSheetIds()[0])).toEqual([
       {
         rule: {
           values: ["2"],
@@ -185,7 +185,7 @@ describe("conditional format", () => {
   test("add conditional format outside the sheet", () => {
     model = new Model();
     createSheet(model, { sheetId: "42" });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(
       addEqualCf(model, "A1:A4000", { fillColor: "#0000FF" }, "4", "2", sheetId)
     ).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
@@ -1861,7 +1861,7 @@ describe("conditional formats types", () => {
       xc: string = "A1",
       iconSet: keyof typeof ICON_SETS = "arrows",
       cfId: UID = "cfId",
-      sheetId: UID = model.getters.getActiveSheetId()
+      sheetId: UID = model.getters.getSheetIds()[0]
     ) {
       return addCf(
         model,
@@ -2797,7 +2797,7 @@ describe("conditional formats types", () => {
     expect(() => model.getters.getConditionalIcon(badSheetIdPosition)).not.toThrow();
     expect(() => model.getters.getConditionalDataBar(badSheetIdPosition)).not.toThrow();
     const badXCPosition: CellPosition = {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       col: -1,
       row: -1,
     };

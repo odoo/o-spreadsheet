@@ -31,7 +31,7 @@ describe("Pivot table style", () => {
     };
     PIVOT_TABLE_PRESETS.TestStyle = tableStyle;
     model = createModelWithPivot("A1:I22");
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
     updatePivot(model, "1", {
       columns: [],
       rows: [],

@@ -54,7 +54,7 @@ describe("Filter menu component", () => {
 
   beforeEach(async () => {
     ({ env, model, fixture } = await mountSpreadsheet());
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   describe("Filter Tests", () => {

@@ -767,7 +767,7 @@ describe("spreadsheet pivot auto complete", () => {
     const pivot = model.getters.getPivot("1");
     const { store: composer } = makeStoreWithModel(model, StandaloneComposerStore, () => ({
       content: "=1+E",
-      defaultRangeSheetId: model.getters.getActiveSheetId(),
+      defaultRangeSheetId: model.getters.getSheetIds()[0],
       onConfirm: () => {},
       contextualAutocomplete: createMeasureAutoComplete(
         pivot.definition,
@@ -800,7 +800,7 @@ describe("spreadsheet pivot auto complete", () => {
     const pivot = model.getters.getPivot("1");
     const { store: composer } = makeStoreWithModel(model, StandaloneComposerStore, () => ({
       content: "=1+S",
-      defaultRangeSheetId: model.getters.getActiveSheetId(),
+      defaultRangeSheetId: model.getters.getSheetIds()[0],
       onConfirm: () => {},
       contextualAutocomplete: createMeasureAutoComplete(
         pivot.definition,
@@ -833,7 +833,7 @@ describe("spreadsheet pivot auto complete", () => {
     const pivot = model.getters.getPivot("1");
     const { store: composer } = makeStoreWithModel(model, StandaloneComposerStore, () => ({
       content: "=",
-      defaultRangeSheetId: model.getters.getActiveSheetId(),
+      defaultRangeSheetId: model.getters.getSheetIds()[0],
       onConfirm: () => {},
       contextualAutocomplete: createMeasureAutoComplete(
         pivot.definition,
@@ -866,7 +866,7 @@ describe("spreadsheet pivot auto complete", () => {
     const pivot = model.getters.getPivot("1");
     const { store: composer } = makeStoreWithModel(model, StandaloneComposerStore, () => ({
       content: "=0",
-      defaultRangeSheetId: model.getters.getActiveSheetId(),
+      defaultRangeSheetId: model.getters.getSheetIds()[0],
       onConfirm: () => {},
       contextualAutocomplete: createMeasureAutoComplete(
         pivot.definition,
@@ -910,7 +910,7 @@ describe("spreadsheet pivot auto complete", () => {
       const pivot = model.getters.getPivot("1");
       const { store: composer } = makeStoreWithModel(model, StandaloneComposerStore, () => ({
         content: "",
-        defaultRangeSheetId: model.getters.getActiveSheetId(),
+        defaultRangeSheetId: model.getters.getSheetIds()[0],
         onConfirm: () => {},
         contextualAutocomplete: createMeasureAutoComplete(
           pivot.definition,

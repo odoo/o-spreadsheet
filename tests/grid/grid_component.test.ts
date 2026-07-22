@@ -170,12 +170,11 @@ describe("Grid component", () => {
   });
 
   test("can click on a partially vertically scrolled cell to select it", async () => {
+    const sheetId = model.getters.getSheetIds()[0];
     setViewportOffset(env, 0, DEFAULT_CELL_HEIGHT / 2);
     await nextTick();
     expect(
-      env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+      env.getStore(ViewportsStore).viewports.getVisibleRect(sheetId, toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -199,9 +198,7 @@ describe("Grid component", () => {
     await nextTick();
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
     expect(
-      env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+      env.getStore(ViewportsStore).viewports.getVisibleRect(sheetId, toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -216,7 +213,7 @@ describe("Grid component", () => {
     expect(
       env
         .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+        .viewports.getVisibleRect(model.getters.getSheetIds()[0], toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -242,7 +239,7 @@ describe("Grid component", () => {
     expect(
       env
         .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+        .viewports.getVisibleRect(model.getters.getSheetIds()[0], toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -354,7 +351,7 @@ describe("Grid component", () => {
 
   test("Double clicking on gridOverlay opens composer in different edition modes", async () => {
     setCellContent(model, "A1", "things");
-    merge(model, "A1:A2", model.getters.getActiveSheetId(), true);
+    merge(model, "A1:A2", model.getters.getSheetIds()[0], true);
     await nextTick();
     // double click A1
     triggerMouseEvent(
@@ -471,7 +468,7 @@ describe("Grid component", () => {
       expect(composerStore.editionMode).toBe("inactive");
       expect(getCellContent(model, "A1")).toBe("");
       expect(dispatch).toHaveBeenCalledWith("DELETE_UNFILTERED_CONTENT", {
-        sheetId: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getSheetIds()[0],
         target: target("A1"),
       });
     });
@@ -596,7 +593,7 @@ describe("Grid component", () => {
 
       await pressCtrlA();
       expect(getSelectionAnchorCellXc(model)).toBe("A1");
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       expect(model.getters.getSelectedZone()).toEqual(model.getters.getSheetZone(sheetId));
 
       await pressCtrlA();
@@ -842,7 +839,7 @@ describe("Grid component", () => {
     });
 
     test("Pressing CTRL+ALT+= when a column is selected inserts a column left", () => {
-      const activeSheetId = model.getters.getActiveSheetId();
+      const activeSheetId = model.getters.getSheetIds()[0];
       const numOfCols = model.getters.getNumberCols(activeSheetId);
       setCellContent(model, "A1", "hello");
       selectColumn(model, 0, "overrideSelection");
@@ -856,7 +853,7 @@ describe("Grid component", () => {
     });
 
     test("Pressing CTRL+ALT+= when multiple columns are selected as one group inserts the same number of columns left", () => {
-      const activeSheetId = model.getters.getActiveSheetId();
+      const activeSheetId = model.getters.getSheetIds()[0];
       const numOfCols = model.getters.getNumberCols(activeSheetId);
       setCellContent(model, "A1", "hello");
       selectColumn(model, 0, "overrideSelection");
@@ -872,7 +869,7 @@ describe("Grid component", () => {
     });
 
     test("Pressing CTRL+ALT+= when multiple columns are selected as multiple groups won't insert columns left", () => {
-      const activeSheetId = model.getters.getActiveSheetId();
+      const activeSheetId = model.getters.getSheetIds()[0];
       const numOfCols = model.getters.getNumberCols(activeSheetId);
       setCellContent(model, "A1", "hello");
       selectColumn(model, 0, "overrideSelection");
@@ -885,7 +882,7 @@ describe("Grid component", () => {
     });
 
     test("Pressing CTRL+ALT+= when a row is selected inserts a row above", () => {
-      const activeSheetId = model.getters.getActiveSheetId();
+      const activeSheetId = model.getters.getSheetIds()[0];
       const numOfRows = model.getters.getNumberRows(activeSheetId);
       setCellContent(model, "A1", "hello");
       selectRow(model, 0, "overrideSelection");
@@ -899,7 +896,7 @@ describe("Grid component", () => {
     });
 
     test("Pressing CTRL+ALT+= when multiple rows are selected as one group inserts the same number of rows above", () => {
-      const activeSheetId = model.getters.getActiveSheetId();
+      const activeSheetId = model.getters.getSheetIds()[0];
       const numOfRows = model.getters.getNumberRows(activeSheetId);
       setCellContent(model, "A1", "hello");
       selectRow(model, 0, "overrideSelection");
@@ -915,7 +912,7 @@ describe("Grid component", () => {
     });
 
     test("Pressing CTRL+ALT+= when multiple rows are selected as multiple groups won't insert rows above", () => {
-      const activeSheetId = model.getters.getActiveSheetId();
+      const activeSheetId = model.getters.getSheetIds()[0];
       const numOfRows = model.getters.getNumberRows(activeSheetId);
       setCellContent(model, "A1", "hello");
       selectRow(model, 0, "overrideSelection");
@@ -928,7 +925,7 @@ describe("Grid component", () => {
     });
 
     test("Pressing CTRL+ALT+= when both row(s) and column(s) are selected will not work", () => {
-      const activeSheetId = model.getters.getActiveSheetId();
+      const activeSheetId = model.getters.getSheetIds()[0];
       const numOfRows = model.getters.getNumberRows(activeSheetId);
       const numOfCols = model.getters.getNumberCols(activeSheetId);
       setCellContent(model, "A1", "hello");
@@ -944,7 +941,7 @@ describe("Grid component", () => {
     });
 
     test("Pressing CTRL+ALT+- when a column is selected deletes this column", () => {
-      const activeSheetId = model.getters.getActiveSheetId();
+      const activeSheetId = model.getters.getSheetIds()[0];
       const numOfCols = model.getters.getNumberCols(activeSheetId);
       setCellContent(model, "A1", "hello1");
       setCellContent(model, "B1", "hello2");
@@ -959,7 +956,7 @@ describe("Grid component", () => {
     });
 
     test("Pressing CTRL+ALT+- when multiple columns are selected deletes these column", () => {
-      const activeSheetId = model.getters.getActiveSheetId();
+      const activeSheetId = model.getters.getSheetIds()[0];
       const numOfCols = model.getters.getNumberCols(activeSheetId);
       setCellContent(model, "A1", "hello1");
       setCellContent(model, "B1", "hello2");
@@ -974,7 +971,7 @@ describe("Grid component", () => {
     });
 
     test("Pressing CTRL+ALT+- when a row is selected deletes this row", () => {
-      const activeSheetId = model.getters.getActiveSheetId();
+      const activeSheetId = model.getters.getSheetIds()[0];
       const numOfRows = model.getters.getNumberRows(activeSheetId);
       setCellContent(model, "A1", "hello1");
       setCellContent(model, "A2", "hello2");
@@ -989,7 +986,7 @@ describe("Grid component", () => {
     });
 
     test("Pressing CTRL+ALT+- when multiple rows are selected deletes these rows", () => {
-      const activeSheetId = model.getters.getActiveSheetId();
+      const activeSheetId = model.getters.getSheetIds()[0];
       const numOfRows = model.getters.getNumberRows(activeSheetId);
       setCellContent(model, "A1", "hello1");
       setCellContent(model, "A2", "hello2");
@@ -1004,7 +1001,7 @@ describe("Grid component", () => {
     });
 
     test("Pressing CTRL+ALT+- when both row(s) and column(s) are selected will not work", () => {
-      const activeSheetId = model.getters.getActiveSheetId();
+      const activeSheetId = model.getters.getSheetIds()[0];
       const numOfRows = model.getters.getNumberRows(activeSheetId);
       const numOfCols = model.getters.getNumberCols(activeSheetId);
       setCellContent(model, "A1", "hello");
@@ -1020,7 +1017,7 @@ describe("Grid component", () => {
     });
 
     test("Pressing Shift+PageDown activates the next sheet", async () => {
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       createSheet(model, { sheetId: "second", activate: true });
       createSheet(model, { sheetId: "third", position: 2 });
 
@@ -1031,7 +1028,7 @@ describe("Grid component", () => {
       expect(model.getters.getActiveSheetId()).toBe(sheetId);
     });
     test("Pressing Shift+PageUp activates the previous sheet", async () => {
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       createSheet(model, { sheetId: "second", activate: true });
       createSheet(model, { sheetId: "third", position: 2 });
 
@@ -1070,6 +1067,7 @@ describe("Grid component", () => {
     });
 
     test("Filter icon is correctly rendered", () => {
+      const sheetId = model.getters.getSheetIds()[0];
       createTableWithFilter(model, "B2:C3");
 
       const y = DEFAULT_CELL_HEIGHT + 1 + MIN_CELL_TEXT_MARGIN + HEADER_HEIGHT; // +1 to skip grid lines
@@ -1081,17 +1079,13 @@ describe("Grid component", () => {
       const iconB = getCellIcons(model, "B2")[0];
       const rectB = model.getters.getCellIconRect(
         iconB,
-        env
-          .getStore(ViewportsStore)
-          .viewports.getRect(model.getters.getActiveSheetId(), toZone("B2"))
+        env.getStore(ViewportsStore).viewports.getRect(sheetId, toZone("B2"))
       );
       expect(rectB).toMatchObject({ y, x: leftB });
       const iconC = getCellIcons(model, "C2")[0];
       const rectC = model.getters.getCellIconRect(
         iconC,
-        env
-          .getStore(ViewportsStore)
-          .viewports.getRect(model.getters.getActiveSheetId(), toZone("C2"))
+        env.getStore(ViewportsStore).viewports.getRect(sheetId, toZone("C2"))
       );
       expect(rectC).toMatchObject({ y, x: leftC });
     });
@@ -1100,7 +1094,7 @@ describe("Grid component", () => {
       const activeFilterSVG = getDataFilterIcon(true, true, false);
       const inactiveFilterSVG = getDataFilterIcon(false, true, false);
       createTableWithFilter(model, "A1:A2");
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       expect(getCellIcons(model, "A1")[0].svg).toEqual(inactiveFilterSVG);
 
       updateFilter(model, "A1", ["5"]);
@@ -1156,7 +1150,7 @@ describe("Grid component", () => {
       await hoverCell(env, "A10", 400);
       expect(fixture.querySelector(".o-error-tooltip")).not.toBeNull();
       await scrollGrid({ deltaY: 100 });
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       expect(viewStore.viewports.isVisibleInViewport({ sheetId, col: 0, row: 9 })).toBe(true);
       expect(fixture.querySelector(".o-error-tooltip")).toBeNull();
     });
@@ -1167,7 +1161,7 @@ describe("Grid component", () => {
       await nextTick();
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
       await scrollGrid({ deltaY: DEFAULT_CELL_HEIGHT });
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       expect(viewStore.viewports.isVisibleInViewport({ sheetId, col: 0, row: 0 })).toBe(false);
       expect(fixture.querySelector(".o-link-editor")).toBeNull();
     });
@@ -1178,7 +1172,7 @@ describe("Grid component", () => {
       await nextTick();
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
       await scrollGrid({ deltaY: DEFAULT_CELL_HEIGHT - 5 });
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       expect(viewStore.viewports.isVisibleInViewport({ sheetId, col: 0, row: 0 })).toBe(true);
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
     });
@@ -1222,7 +1216,7 @@ describe("Grid component", () => {
     });
 
     test("Paste format works with conditional format", async () => {
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       addEqualCf(model, "A1", { fillColor: "#0000FF" }, "1", "cf2");
       selectCell(model, "A1");
       paintFormatStore.activate({ persistent: false });
@@ -1233,7 +1227,7 @@ describe("Grid component", () => {
     });
 
     test("Pasting format from merged cells applies merge and updates selection", async () => {
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       merge(model, "B1:B3");
       setSelection(model, ["B1:B3"]);
 
@@ -1447,7 +1441,7 @@ describe("Multi User selection", () => {
   });
 
   test("Render collaborative user when hovering the position", async () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     await transportService.sendMessage({
       type: "CLIENT_JOINED",
       version: MESSAGE_VERSION,
@@ -1472,7 +1466,7 @@ describe("Multi User selection", () => {
   });
 
   test("Do not render multi user selection with invalid col", async () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     await transportService.sendMessage({
       type: "CLIENT_JOINED",
       version: MESSAGE_VERSION,
@@ -1487,7 +1481,7 @@ describe("Multi User selection", () => {
   });
 
   test("Do not render multi user selection with invalid row", async () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     await transportService.sendMessage({
       type: "CLIENT_JOINED",
       version: MESSAGE_VERSION,
@@ -1502,7 +1496,7 @@ describe("Multi User selection", () => {
   });
 
   test("Render collaborative user when user is focused", async () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const clientFocusStore = env.getStore(ClientFocusStore);
     clientFocusStore.focusClient("david");
     await transportService.sendMessage({
@@ -1554,7 +1548,7 @@ describe("Multi User selection", () => {
 
   test("Render collaborative user with commands", async () => {
     useJestFakeTimers();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const clientFocusStore = env.getStore(ClientFocusStore);
     await transportService.sendMessage({
       type: "CLIENT_JOINED",
@@ -1818,13 +1812,12 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("Partially scrolled (horizontally) cell becomes fully visible when selected with the keyboard", async () => {
+    const sheetId = model.getters.getSheetIds()[0];
     setViewportOffset(env, DEFAULT_CELL_WIDTH / 2, 0);
     await clickCell(env, "B1");
     await nextTick();
     expect(
-      env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+      env.getStore(ViewportsStore).viewports.getVisibleRect(sheetId, toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -1833,9 +1826,7 @@ describe("Events on Grid update viewport correctly", () => {
     });
     await keyDown({ key: "ArrowLeft" });
     expect(
-      env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+      env.getStore(ViewportsStore).viewports.getVisibleRect(sheetId, toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -1845,6 +1836,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("Partially scrolled (vertically) cell becomes fully visible when selected with the keyboard", async () => {
+    const sheetId = model.getters.getSheetIds()[0];
     const offset = Math.round(DEFAULT_CELL_HEIGHT / 2);
     setViewportOffset(env, 0, offset);
     await nextTick();
@@ -1852,9 +1844,7 @@ describe("Events on Grid update viewport correctly", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone("A2"));
 
     expect(
-      env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+      env.getStore(ViewportsStore).viewports.getVisibleRect(sheetId, toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -1863,9 +1853,7 @@ describe("Events on Grid update viewport correctly", () => {
     });
     await keyDown({ key: "ArrowUp" });
     expect(
-      env
-        .getStore(ViewportsStore)
-        .viewports.getVisibleRect(model.getters.getActiveSheetId(), toZone("A1"))
+      env.getStore(ViewportsStore).viewports.getVisibleRect(sheetId, toZone("A1"))
     ).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,
@@ -1955,7 +1943,7 @@ describe("Copy paste keyboard shortcut", () => {
     ({ parent, model, fixture, env, viewStore } = await mountSpreadsheet({
       model: new Model({}, { external: { fileStore } }),
     }));
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   test("Default paste is prevented when handled by the grid", async () => {
@@ -2378,7 +2366,7 @@ describe("Header grouping shortcuts", () => {
 
   beforeEach(async () => {
     ({ parent, model, fixture } = await mountSpreadsheet());
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   describe.each(["COL", "ROW"] as const)("With selected header", (dimension) => {

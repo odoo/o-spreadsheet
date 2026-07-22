@@ -98,7 +98,7 @@ describe("COLUMN formula", () => {
 
   test("functional test without grid context", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A1", "kikoulol");
     expect(model.getters.evaluateFormula(sheetId, "=COLUMN()")).toBe("#ERROR"); // @compatibility: on google sheets, return #N/A
     expect(model.getters.evaluateFormula(sheetId, "=COLUMN(A1)")).toBe(1);
@@ -123,7 +123,7 @@ describe("COLUMN formula", () => {
   ])("functional tests on range arguments", (formula, [start, end]) => {
     const model = new Model();
     createSheet(model, { sheetId: "Sheet2", name: "Sheet2", cols: 5 });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const result = model.getters.evaluateFormula(sheetId, formula);
     expect(result).toEqual(range(start, end + 1).map((col) => [col]));
   });
@@ -566,7 +566,7 @@ describe("ROW formula", () => {
 
   test("functional test without grid context", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A1", "kikoulol");
     expect(model.getters.evaluateFormula(sheetId, "=ROW()")).toBe("#ERROR"); // @compatibility: on google sheets, return #N/A
     expect(model.getters.evaluateFormula(sheetId, "=ROW(A1)")).toBe(1);
@@ -591,7 +591,7 @@ describe("ROW formula", () => {
   ])("functional tests on range arguments", (formula, [start, end]) => {
     const model = new Model();
     createSheet(model, { sheetId: "Sheet2", name: "Sheet2", rows: 5 });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const result = model.getters.evaluateFormula(sheetId, formula);
     expect(result).toEqual([range(start, end + 1)]);
   });
@@ -1693,7 +1693,7 @@ describe("INDIRECT formula", () => {
 
   test("functional test without grid context", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A1", "kikoulol");
     expect(model.getters.evaluateFormula(sheetId, "=INDIRECT()")).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(model.getters.evaluateFormula(sheetId, '=INDIRECT("A1")')).toBe("kikoulol");
@@ -1774,10 +1774,10 @@ describe("INDIRECT formula", () => {
 
   test("Reference to a cell and range of a different sheet (A1 notation)", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "sheet2", activate: true });
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
+    setCellContent(model, "A1", "1", "sheet2");
+    setCellContent(model, "A2", "2", "sheet2");
     activateSheet(model, sheetId);
     setCellContent(model, "A1", '=INDIRECT("sheet2!A1")');
     setCellContent(model, "A2", '=SUM(INDIRECT("sheet2!A1:A2"))');

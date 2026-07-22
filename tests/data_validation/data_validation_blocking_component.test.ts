@@ -18,7 +18,7 @@ describe("Data validation with blocking rule", () => {
 
   beforeEach(async () => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
     composerStore = makeTestComposerStore(model);
   });
 

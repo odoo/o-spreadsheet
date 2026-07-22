@@ -113,7 +113,7 @@ describe("CELL formula", () => {
 
   test("CELL can be called without grid context", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "sh2", name: "Sh2" });
     setCellContent(model, "D5", "=1+1", sheetId);
 

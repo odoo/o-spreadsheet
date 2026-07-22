@@ -187,7 +187,7 @@ describe("Multi users synchronisation", () => {
     const transport = new MockTransportService();
     const command: CoreCommand = {
       type: "UPDATE_CELL",
-      sheetId: alice.getters.getActiveSheetId(),
+      sheetId: alice.getters.getSheetIds()[0],
       col: 0,
       row: 0,
       content: "fist command",
@@ -260,7 +260,7 @@ describe("Multi users synchronisation", () => {
   test("Update a cell and merge a cell concurrently", () => {
     network.concurrent(() => {
       setCellContent(alice, "B2", "Hi Bob");
-      merge(bob, "A1:B2", bob.getters.getActiveSheetId(), false);
+      merge(bob, "A1:B2", bob.getters.getSheetIds()[0], false);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "B2"),
@@ -313,7 +313,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("Merge a cell and update a cell concurrently", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     setCellContent(bob, "C1", "hello");
     network.concurrent(() => {
       merge(alice, "A1:B3");
@@ -347,7 +347,7 @@ describe("Multi users synchronisation", () => {
       merge(alice, "A1:B2");
       setCellContent(bob, "B2", "Hi Alice");
     });
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     expect(alice.getters.getMerges(sheetId)).toHaveLength(1);
     unMerge(alice, "A1:B2");
     expect(alice.getters.getMerges(sheetId)).toHaveLength(0);
@@ -376,7 +376,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("merge is transformed to fit sheet size", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     network.concurrent(() => {
       merge(alice, "A80:A100");
       deleteRows(bob, [98, 99]);
@@ -393,7 +393,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("concurrent overlapping and non overlapping merge operations", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     merge(alice, "A2:A3");
     merge(alice, "F1:F2");
     network.concurrent(() => {
@@ -424,7 +424,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("duplicate sheet does not activate sheet", () => {
-    const firstSheetId = alice.getters.getActiveSheetId();
+    const firstSheetId = alice.getters.getSheetIds()[0];
     duplicateSheet(alice, firstSheetId, "42");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getActiveSheetId(),
@@ -437,7 +437,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("cannot delete all sheets concurrently", () => {
-    const firstSheetId = alice.getters.getActiveSheetId();
+    const firstSheetId = alice.getters.getSheetIds()[0];
     createSheet(alice, { sheetId: "sheet2" });
     network.concurrent(() => {
       deleteSheet(alice, firstSheetId);
@@ -450,7 +450,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("hide all sheets concurrently", () => {
-    const firstSheetId = alice.getters.getActiveSheetId();
+    const firstSheetId = alice.getters.getSheetIds()[0];
     createSheet(charlie, { sheetId: "sheet2" });
     network.concurrent(() => {
       hideSheet(alice, firstSheetId);
@@ -463,7 +463,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("hide all columns concurrently", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     const nRows = alice.getters.getNumberRows(sheetId);
     network.concurrent(() => {
       hideRows(alice, range(0, 10));
@@ -528,7 +528,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("Delete the same figure concurrently", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     const figure = {
       id: "someuuid",
       tag: "hey",
@@ -554,15 +554,16 @@ describe("Multi users synchronisation", () => {
   });
 
   test("Do not handle duplicated message", async () => {
+    const sheetId = alice.getters.getSheetIds()[0];
     const serverRevisionId = alice["session"]["serverRevisionId"];
-    const length = alice.getters.getNumberCols(alice.getters.getActiveSheetId());
+    const length = alice.getters.getNumberCols(sheetId);
     const data = alice.exportData();
     const commands: CoreCommand[] = [
       {
         type: "ADD_COLUMNS_ROWS",
         dimension: "COL",
         position: "before",
-        sheetId: alice.getters.getActiveSheetId(),
+        sheetId,
         base: 1,
         quantity: 50,
         sheetName: "",
@@ -579,7 +580,7 @@ describe("Multi users synchronisation", () => {
     // The message is received once as initial message and once from the network
     const david = new Model(data, { transportService: network }, [message]);
     await network.sendMessage(message);
-    expect(david.getters.getNumberCols(david.getters.getActiveSheetId())).toBe(length + 50);
+    expect(david.getters.getNumberCols(sheetId)).toBe(length + 50);
   });
 
   test("Selected figure Id is not modified if the create sheet comes from someone else", () => {
@@ -716,7 +717,7 @@ describe("Multi users synchronisation", () => {
         compute: () => value,
         args: [],
       });
-      const firstSheetId = alice.getters.getActiveSheetId();
+      const firstSheetId = alice.getters.getSheetIds()[0];
       createSheet(alice, { sheetId: "sheet2" });
       activateSheet(bob, "sheet2");
 
@@ -740,7 +741,7 @@ describe("Multi users synchronisation", () => {
         compute: () => value,
         args: [],
       });
-      const firstSheetId = alice.getters.getActiveSheetId();
+      const firstSheetId = alice.getters.getSheetIds()[0];
       createSheet(alice, { sheetId: "sheet2" });
       setCellContent(alice, "A1", "=Sheet2!A1", firstSheetId);
       activateSheet(bob, "sheet2");
@@ -776,7 +777,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("Reorder formatting rules concurrently", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     setCellContent(alice, "A1", "1");
     addEqualCf(alice, "A1", { fillColor: "#FF0000" }, "1", "1");
     addEqualCf(alice, "A1", { fillColor: "#0000FF" }, "1", "2");
@@ -803,7 +804,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("Reorder and delete formatting rules concurrently", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     setCellContent(alice, "A1", "1");
     addEqualCf(alice, "A1", { fillColor: "#FF0000" }, "1", "1");
     addEqualCf(alice, "A1", { fillColor: "#0000FF" }, "1", "2");
@@ -817,7 +818,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("Create overlapping tables concurrently", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     network.concurrent(() => {
       createTable(alice, "A1:B4");
       createTable(bob, "B1:C4");
@@ -834,7 +835,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("Create overlapping tables then merges concurrently", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     network.concurrent(() => {
       createTable(alice, "A1:B4");
       merge(bob, "B1:C4");
@@ -850,7 +851,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("Create overlapping merges then tables concurrently", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     network.concurrent(() => {
       merge(bob, "B1:C4");
       createTable(alice, "A1:B4");
@@ -866,7 +867,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("duplicate sheet and create tables concurrently", () => {
-    const firstSheetId = alice.getters.getActiveSheetId();
+    const firstSheetId = alice.getters.getSheetIds()[0];
     network.concurrent(() => {
       duplicateSheet(alice, "Sheet1", "sheet2");
       createTableWithFilter(charlie, "A1:B4", undefined, undefined, firstSheetId);
@@ -882,7 +883,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("row size for a duplicated sheet and the original sheet deleted", () => {
-    const firstSheetId = alice.getters.getActiveSheetId();
+    const firstSheetId = alice.getters.getSheetIds()[0];
     network.concurrent(() => {
       setFormatting(bob, "A1", { fontSize: 36 });
       setCellContent(bob, "A1", "text");
@@ -917,7 +918,7 @@ describe("Multi users synchronisation", () => {
       "#FF0000"
     );
     alice.dispatch("CLEAR_FORMATTING", {
-      sheetId: alice.getters.getActiveSheetId(),
+      sheetId: alice.getters.getSheetIds()[0],
       target: [toZone("A1")],
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -927,7 +928,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("deleting a cell content properly deletes the table and invalidates its computed style", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     setCellContent(alice, "A1", "hello");
     createTable(alice, "A1:A2");
     const A1 = toCellPosition(sheetId, "A1");
@@ -943,7 +944,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test.each(["COL", "ROW"] as const)("Can group headers concurrently", (dimension) => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
 
     network.concurrent(() => {
       groupHeaders(bob, dimension, 0, 1);
@@ -960,7 +961,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test.each(["COL", "ROW"] as const)("Can ungroup headers concurrently", (dimension) => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     groupHeaders(alice, dimension, 0, 1);
     groupHeaders(alice, dimension, 0, 5);
 
@@ -1104,7 +1105,7 @@ describe("Multi users synchronisation", () => {
         createTable(bob, "A1:B4", { styleId: "MyStyle" });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
-        (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
+        (user) => user.getters.getTables(user.getters.getSheetIds()[0])[0].config.styleId,
         DEFAULT_TABLE_CONFIG.styleId
       );
     });
@@ -1117,7 +1118,7 @@ describe("Multi users synchronisation", () => {
         updateTableConfig(bob, "A1:B4", { styleId: "MyStyle" });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
-        (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
+        (user) => user.getters.getTables(user.getters.getSheetIds()[0])[0].config.styleId,
         DEFAULT_TABLE_CONFIG.styleId
       );
     });
@@ -1126,19 +1127,19 @@ describe("Multi users synchronisation", () => {
       createTableStyle(alice, "MyStyle");
       createTable(bob, "A1:B4", { styleId: "MyStyle" });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
-        (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
+        (user) => user.getters.getTables(user.getters.getSheetIds()[0])[0].config.styleId,
         "MyStyle"
       );
 
       undo(alice);
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
-        (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
+        (user) => user.getters.getTables(user.getters.getSheetIds()[0])[0].config.styleId,
         DEFAULT_TABLE_CONFIG.styleId
       );
 
       redo(alice);
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
-        (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
+        (user) => user.getters.getTables(user.getters.getSheetIds()[0])[0].config.styleId,
         "MyStyle"
       );
     });
@@ -1150,13 +1151,13 @@ describe("Multi users synchronisation", () => {
         createTable(bob, "A1:B4", { styleId: "MyStyle" });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
-        (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
+        (user) => user.getters.getTables(user.getters.getSheetIds()[0])[0].config.styleId,
         DEFAULT_TABLE_CONFIG.styleId
       );
 
       undo(alice);
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
-        (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
+        (user) => user.getters.getTables(user.getters.getSheetIds()[0])[0].config.styleId,
         DEFAULT_TABLE_CONFIG.styleId
       );
     });

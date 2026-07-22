@@ -1829,7 +1829,7 @@ describe("Test XLSX export", () => {
         undefined,
         { figureId: "1" }
       );
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       const end = model.getters.getColDimensions(
         sheetId,
         model.getters.getNumberCols(sheetId) - 1
@@ -1910,7 +1910,7 @@ describe("Test XLSX export", () => {
     test("image overflowing outside the sheet", async () => {
       const model = new Model(getModelData());
       createImage(model, {});
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       const end = model.getters.getColDimensions(
         sheetId,
         model.getters.getNumberCols(sheetId) - 1
@@ -1965,11 +1965,11 @@ describe("Test XLSX export", () => {
     const model = new Model();
     setCellContent(model, "A1", "[label](url.com)");
     setCellContent(model, "A2", "[label](http://url.com)");
-    setCellContent(model, "A3", `[Sheet1](${buildSheetLink(model.getters.getActiveSheetId())})`);
+    setCellContent(model, "A3", `[Sheet1](${buildSheetLink(model.getters.getSheetIds()[0])})`);
     setCellContent(
       model,
       "A4",
-      `[custom link label](${buildSheetLink(model.getters.getActiveSheetId())})`
+      `[custom link label](${buildSheetLink(model.getters.getSheetIds()[0])})`
     );
     setCellContent(
       model,

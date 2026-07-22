@@ -57,7 +57,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("create and delete sheet concurrently", () => {
-    const sheet1 = alice.getters.getActiveSheetId();
+    const sheet1 = alice.getters.getSheetIds()[0];
     createSheet(alice, { sheetId: "42" });
     network.concurrent(() => {
       createSheet(alice, { sheetId: "2" });
@@ -71,7 +71,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("color and delete sheet concurrently", () => {
-    const sheet1 = alice.getters.getActiveSheetId();
+    const sheet1 = alice.getters.getSheetIds()[0];
     createSheet(alice, { sheetId: "42" });
     network.concurrent(() => {
       colorSheetTab(alice, "42", "#FF0000");
@@ -85,7 +85,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("Create two sheets concurrently", () => {
-    const sheet1 = alice.getters.getActiveSheetId();
+    const sheet1 = alice.getters.getSheetIds()[0];
     network.concurrent(() => {
       createSheet(alice, { sheetId: "2" });
       createSheet(bob, { sheetId: "3" });
@@ -117,7 +117,7 @@ describe("Collaborative Sheet manipulation", () => {
 
   test("recreate a sheet with the same id from an undo", () => {
     const { network, alice, bob, charlie } = setupCollaborativeEnv();
-    const firstSheetId = alice.getters.getActiveSheetId();
+    const firstSheetId = alice.getters.getSheetIds()[0];
     createSheet(alice, { sheetId: "sheet2" });
     deleteSheet(alice, firstSheetId);
     network.concurrent(() => {
@@ -153,7 +153,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("create sheet and move sheet concurrently", () => {
-    const sheet1 = alice.getters.getActiveSheetId();
+    const sheet1 = alice.getters.getSheetIds()[0];
     createSheet(bob, { sheetId: "42", activate: true });
     network.concurrent(() => {
       createSheet(alice, { sheetId: "2", position: 1 });
@@ -167,7 +167,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("Move two sheets concurrently", () => {
-    const sheet1 = alice.getters.getActiveSheetId();
+    const sheet1 = alice.getters.getSheetIds()[0];
     createSheet(bob, { sheetId: "1", activate: true, position: 1 });
     createSheet(bob, { sheetId: "2", activate: true, position: 2 });
     network.concurrent(() => {
@@ -245,7 +245,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("rename sheet and update cell with sheet ref concurrently", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     const sheetName = bob.getters.getSheet(sheetId).name;
     network.concurrent(() => {
       renameSheet(alice, sheetId, "NewName");
@@ -317,7 +317,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("remove the selected row and all following rows", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     selectCell(bob, "A10");
     const nRows = bob.getters.getNumberRows(sheetId);
     deleteRows(alice, range(2, nRows));
@@ -325,7 +325,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("remove the selected col when it is the last col", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     selectCell(bob, "F1");
     const nCols = bob.getters.getNumberCols(sheetId);
     deleteColumns(alice, range(2, nCols).map(numberToLetters));
@@ -388,19 +388,19 @@ describe("Collaborative Sheet manipulation", () => {
     activateSheet(charlie, "42");
     selectCell(charlie, "D4");
     /** Columns */
-    addColumns(alice, "before", "A", 5);
-    deleteColumns(alice, ["A"]);
+    addColumns(alice, "before", "A", 5, "42");
+    deleteColumns(alice, ["A"], "42");
     expect(bob.getters.getSelectedZone()).toEqual(toZone("D4"));
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("H4"));
     /** Rows */
-    addRows(alice, "before", 0, 5);
-    deleteRows(alice, [0]);
+    addRows(alice, "before", 0, 5, "42");
+    deleteRows(alice, [0], "42");
     expect(bob.getters.getSelectedZone()).toEqual(toZone("D4"));
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("H8"));
   });
 
   test("Hide and add columns concurrently", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     network.concurrent(() => {
       addColumns(alice, "before", "A", 10, sheetId);
       hideColumns(bob, ["C"], sheetId);
@@ -412,7 +412,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("Hide and remove rows concurrently", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     network.concurrent(() => {
       deleteRows(alice, [2], sheetId);
       hideRows(bob, [4], sheetId);
@@ -424,7 +424,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("Hide and add rows concurrently", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     network.concurrent(() => {
       addRows(alice, "after", 5, 10, sheetId);
       hideRows(bob, [2], sheetId);
@@ -436,7 +436,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("Unhide and add rows concurrently", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     hideRows(alice, [2], sheetId);
     network.concurrent(() => {
       addRows(alice, "before", 0, 10, sheetId);
@@ -449,7 +449,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("Unhide and remove columns concurrently", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     hideColumns(alice, ["F", "H"], sheetId);
     network.concurrent(() => {
       deleteColumns(alice, ["F"], sheetId);
@@ -462,7 +462,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("Unhide and add columns concurrently", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     hideColumns(alice, ["C", "D"], sheetId);
     network.concurrent(() => {
       addColumns(alice, "after", "F", 10, sheetId);
@@ -475,7 +475,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("Hide different rows concurrent", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     network.concurrent(() => {
       hideRows(alice, [1], sheetId);
       expect(alice.getters.getHiddenRowsGroups(sheetId)).toEqual([[1]]);
@@ -489,7 +489,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("Unhide different rows concurrent", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     hideRows(alice, [5, 6, 8], sheetId);
     network.concurrent(() => {
       unhideRows(alice, [5], sheetId);
@@ -504,7 +504,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("Hide and unhide columns concurrently", () => {
-    const sheetId = alice.getters.getActiveSheetId();
+    const sheetId = alice.getters.getSheetIds()[0];
     hideColumns(alice, ["C"], sheetId);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getHiddenColsGroups(sheetId),
@@ -534,7 +534,7 @@ describe("Collaborative Sheet manipulation", () => {
 
   describe("conditional formatting", () => {
     test("Concurrent new conditional format and new columns", () => {
-      const sheetId = bob.getters.getActiveSheetId();
+      const sheetId = bob.getters.getSheetIds()[0];
       const rule = createEqualCF("1", { fillColor: "#FF0000" }, "1").rule;
       network.concurrent(() => {
         addColumns(alice, "before", "D", 2);
@@ -553,7 +553,7 @@ describe("Collaborative Sheet manipulation", () => {
     });
 
     test("Concurrent new conditional format and removed columns", () => {
-      const sheetId = bob.getters.getActiveSheetId();
+      const sheetId = bob.getters.getSheetIds()[0];
       const rule = createEqualCF("1", { fillColor: "#FF0000" }, "1").rule;
       network.concurrent(() => {
         deleteColumns(alice, ["C", "D", "F"]);
@@ -572,7 +572,7 @@ describe("Collaborative Sheet manipulation", () => {
     });
 
     test("Concurrent new conditional format and new rows", () => {
-      const sheetId = bob.getters.getActiveSheetId();
+      const sheetId = bob.getters.getSheetIds()[0];
       const rule = createEqualCF("1", { fillColor: "#FF0000" }, "1").rule;
       network.concurrent(() => {
         addRows(alice, "before", 9, 2);
@@ -591,7 +591,7 @@ describe("Collaborative Sheet manipulation", () => {
     });
 
     test("Concurrent new conditional format and removed rows", () => {
-      const sheetId = bob.getters.getActiveSheetId();
+      const sheetId = bob.getters.getSheetIds()[0];
       const rule = createEqualCF("1", { fillColor: "#FF0000" }, "1").rule;
       network.concurrent(() => {
         deleteRows(alice, [3, 4, 10]);
@@ -610,7 +610,7 @@ describe("Collaborative Sheet manipulation", () => {
     });
 
     test("Concurrent conditional format update and rename sheet", () => {
-      const sheetId = bob.getters.getActiveSheetId();
+      const sheetId = bob.getters.getSheetIds()[0];
       const sheetName = bob.getters.getSheetName(sheetId);
       const newSheetName = "NewName";
       const rule = createEqualCF(`=${sheetName}!A1`, { fillColor: "#FF0000" }, "1").rule;
@@ -648,7 +648,7 @@ describe("Collaborative Sheet manipulation", () => {
     });
 
     test("Concurrent conditional format update and delete sheet", () => {
-      const sheetId = bob.getters.getActiveSheetId();
+      const sheetId = bob.getters.getSheetIds()[0];
       const secondSheetId = "42";
       const secondSheetName = "SecondSheet";
       createSheet(alice, { sheetId: secondSheetId, name: secondSheetName, activate: true });
@@ -937,7 +937,7 @@ describe("Collaborative Sheet manipulation", () => {
     });
 
     test("Rename a sheet and update a chart concurrently", () => {
-      const sheetId = alice.getters.getActiveSheetId();
+      const sheetId = alice.getters.getSheetIds()[0];
       const chartId = "42";
       const sheetName2 = "sheet2";
       const sheetId2 = "sh2";
@@ -983,7 +983,7 @@ describe("Collaborative Sheet manipulation", () => {
       freezeColumns(bob, 4);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      (user) => user.getters.getPaneDivisions(user.getters.getSheetIds()[0]),
       {
         xSplit: 4,
         ySplit: 0,
@@ -997,7 +997,7 @@ describe("Collaborative Sheet manipulation", () => {
       freezeColumns(bob, 4);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      (user) => user.getters.getPaneDivisions(user.getters.getSheetIds()[0]),
       {
         xSplit: 3,
         ySplit: 0,
@@ -1008,7 +1008,7 @@ describe("Collaborative Sheet manipulation", () => {
       unfreezeColumns(bob);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      (user) => user.getters.getPaneDivisions(user.getters.getSheetIds()[0]),
       {
         xSplit: 0,
         ySplit: 0,
@@ -1022,7 +1022,7 @@ describe("Collaborative Sheet manipulation", () => {
       freezeColumns(bob, 4);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      (user) => user.getters.getPaneDivisions(user.getters.getSheetIds()[0]),
       {
         xSplit: 4,
         ySplit: 0,
@@ -1036,7 +1036,7 @@ describe("Collaborative Sheet manipulation", () => {
       freezeColumns(bob, 4);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      (user) => user.getters.getPaneDivisions(user.getters.getSheetIds()[0]),
       {
         xSplit: 5,
         ySplit: 0,
@@ -1047,7 +1047,7 @@ describe("Collaborative Sheet manipulation", () => {
       unfreezeColumns(bob);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      (user) => user.getters.getPaneDivisions(user.getters.getSheetIds()[0]),
       {
         xSplit: 0,
         ySplit: 0,
@@ -1061,7 +1061,7 @@ describe("Collaborative Sheet manipulation", () => {
       freezeRows(bob, 4);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      (user) => user.getters.getPaneDivisions(user.getters.getSheetIds()[0]),
       {
         xSplit: 0,
         ySplit: 4,
@@ -1075,7 +1075,7 @@ describe("Collaborative Sheet manipulation", () => {
       freezeRows(bob, 4);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      (user) => user.getters.getPaneDivisions(user.getters.getSheetIds()[0]),
       {
         xSplit: 0,
         ySplit: 3,
@@ -1086,7 +1086,7 @@ describe("Collaborative Sheet manipulation", () => {
       unfreezeRows(bob);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      (user) => user.getters.getPaneDivisions(user.getters.getSheetIds()[0]),
       {
         xSplit: 0,
         ySplit: 0,
@@ -1100,7 +1100,7 @@ describe("Collaborative Sheet manipulation", () => {
       freezeRows(bob, 4);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      (user) => user.getters.getPaneDivisions(user.getters.getSheetIds()[0]),
       {
         xSplit: 0,
         ySplit: 4,
@@ -1114,7 +1114,7 @@ describe("Collaborative Sheet manipulation", () => {
       freezeRows(bob, 4);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      (user) => user.getters.getPaneDivisions(user.getters.getSheetIds()[0]),
       {
         xSplit: 0,
         ySplit: 5,
@@ -1125,7 +1125,7 @@ describe("Collaborative Sheet manipulation", () => {
       unfreezeRows(bob);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
+      (user) => user.getters.getPaneDivisions(user.getters.getSheetIds()[0]),
       {
         xSplit: 0,
         ySplit: 0,
@@ -1134,7 +1134,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("merge does not prevent freeze in other sheet", () => {
-    const firstSheetId = alice.getters.getActiveSheetId();
+    const firstSheetId = alice.getters.getSheetIds()[0];
     createSheet(bob, { sheetId: "sheet2", activate: true });
     merge(alice, "A1:A10");
     // Bob's active sheet is sheet2, Alice's is sheet1

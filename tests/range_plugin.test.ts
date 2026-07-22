@@ -93,7 +93,7 @@ class PluginTestRange extends CorePlugin {
   }
 }
 
-function useRange(m: any, xc: string, sheetId: UID = m.getters.getActiveSheetId()) {
+function useRange(m: any, xc: string, sheetId: UID = m.getters.getSheetIds()[0]) {
   return m.dispatch("USE_RANGE", { sheetId, rangesXC: [xc] });
 }
 
@@ -800,7 +800,7 @@ test.each([
   ["A:A$1", "B$1:B"],
 ])("adapt ranges", (value, expected) => {
   const model = new Model();
-  const sheetId = model.getters.getActiveSheetId();
+  const sheetId = model.getters.getSheetIds()[0];
   const range = model.getters.getRangeFromSheetXC(sheetId, value);
   const adaptedRange = model.getters.createAdaptedRanges([range], 1, 1, sheetId);
   expect(model.getters.getRangeString(adaptedRange[0], sheetId)).toBe(expected);

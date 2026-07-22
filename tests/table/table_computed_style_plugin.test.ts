@@ -53,7 +53,7 @@ function getFullTableStyle(xc: string) {
 describe("Table style", () => {
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   describe("Table cell style", () => {

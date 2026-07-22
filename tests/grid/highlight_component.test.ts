@@ -34,19 +34,19 @@ jest.mock("../../src/components/helpers/dom_helpers", () => {
 });
 
 function getColStartPosition(col: number) {
-  return model.getters.getColDimensions(model.getters.getActiveSheetId(), col).start;
+  return model.getters.getColDimensions(model.getters.getSheetIds()[0], col).start;
 }
 
 function getColEndPosition(col: number) {
-  return model.getters.getColDimensions(model.getters.getActiveSheetId(), col).end;
+  return model.getters.getColDimensions(model.getters.getSheetIds()[0], col).end;
 }
 
 function getRowStartPosition(row: number) {
-  return model.getters.getRowDimensions(model.getters.getActiveSheetId(), row).start;
+  return model.getters.getRowDimensions(model.getters.getSheetIds()[0], row).start;
 }
 
 function getRowEndPosition(row: number) {
-  return model.getters.getRowDimensions(model.getters.getActiveSheetId(), row).end;
+  return model.getters.getRowDimensions(model.getters.getSheetIds()[0], row).end;
 }
 
 async function selectNWCellCorner(el: Element, xc: string) {
@@ -161,7 +161,7 @@ class Parent extends Component {
 
 async function mountHighlight(zone: string, color: Color) {
   let parent: Component;
-  const sheetId = model.getters.getActiveSheetId();
+  const sheetId = model.getters.getSheetIds()[0];
   ({ fixture, parent, env, viewStore } = await mountComponent(Parent, {
     props: { range: model.getters.getRangeFromZone(sheetId, toZone(zone)), color, model },
   }));
@@ -412,7 +412,7 @@ describe("Corner component", () => {
     const width = viewStore.sheetViewDimensionWithHeaders.width;
     model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "COL",
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       elements: [0, 1],
       size: width / 2,
     });
@@ -436,7 +436,7 @@ describe("Corner component", () => {
     const { height } = viewStore.sheetViewDimensionWithHeaders;
     model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "ROW",
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       elements: [0, 1],
       size: height / 2,
     });
@@ -709,7 +709,7 @@ describe("Border component", () => {
     const width = getDefaultSheetViewSize();
     model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "COL",
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       elements: [0, 1],
       size: width / 2,
     });
@@ -732,7 +732,7 @@ describe("Border component", () => {
     const height = getDefaultSheetViewSize();
     model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "ROW",
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       elements: [0, 1],
       size: height / 2,
     });

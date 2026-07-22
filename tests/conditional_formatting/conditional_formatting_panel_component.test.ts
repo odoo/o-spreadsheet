@@ -165,7 +165,7 @@ describe("UI of conditional formats", () => {
           props: { onCloseSidePanel: () => {} },
         }
       ));
-      sheetId = model.getters.getActiveSheetId();
+      sheetId = model.getters.getSheetIds()[0];
       addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
       const rule = createColorScale(
         "2",
@@ -246,7 +246,7 @@ describe("UI of conditional formats", () => {
       await click(previews[0], selectors.buttonDelete);
       expect(dispatch).toHaveBeenCalledWith("REMOVE_CONDITIONAL_FORMAT", {
         id: "1",
-        sheetId: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getSheetIds()[0],
       });
     });
 
@@ -303,7 +303,7 @@ describe("UI of conditional formats", () => {
       ({ model, fixture } = await mountComponentWithPortalTarget(ConditionalFormattingEditor, {
         props: { cf: { ...cf, ranges }, isNewCf: false, onCloseSidePanel: () => {} },
       }));
-      sheetId = model.getters.getActiveSheetId();
+      sheetId = model.getters.getSheetIds()[0];
       addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
       await nextTick();
     });
@@ -622,7 +622,7 @@ describe("UI of conditional formats", () => {
   describe("Conditional Formatting panel changes auto-apply to model", () => {
     beforeEach(async () => {
       ({ model, fixture, env } = await mountComponentWithPortalTarget(SidePanels));
-      sheetId = model.getters.getActiveSheetId();
+      sheetId = model.getters.getSheetIds()[0];
       env.openSidePanel("ConditionalFormatting");
       await nextTick();
     });
@@ -697,7 +697,7 @@ describe("UI of conditional formats", () => {
   describe("Conditional Formatting panel interactions", () => {
     beforeEach(async () => {
       ({ model, fixture, env } = await mountComponentWithPortalTarget(SidePanels));
-      sheetId = model.getters.getActiveSheetId();
+      sheetId = model.getters.getSheetIds()[0];
       env.openSidePanel("ConditionalFormatting");
       await nextTick();
     });
@@ -713,7 +713,7 @@ describe("UI of conditional formats", () => {
       await click(fixture, selectors.ruleEditor.editor.bold);
       await click(fixture, selectors.buttonSave);
 
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       expect(model.getters.getConditionalFormats(sheetId)[0]?.rule).toMatchObject({
         type: "CellIsRule",
         operator: "top10",
@@ -922,7 +922,7 @@ describe("UI of conditional formats", () => {
         const dispatch = spyModelDispatch(model);
         //  click save
         await click(fixture, selectors.buttonSave);
-        const sheetId = model.getters.getActiveSheetId();
+        const sheetId = model.getters.getSheetIds()[0];
         expect(dispatch).toHaveBeenNthCalledWith(1, "ADD_CONDITIONAL_FORMAT", {
           cf: {
             id: expect.any(String),
@@ -1076,8 +1076,8 @@ describe("UI of conditional formats", () => {
               type: "ColorScaleRule",
             },
           },
-          ranges: toRangesData(model.getters.getActiveSheetId(), "B2:B5"),
-          sheetId: model.getters.getActiveSheetId(),
+          ranges: toRangesData(model.getters.getSheetIds()[0], "B2:B5"),
+          sheetId: model.getters.getSheetIds()[0],
         });
       });
 
@@ -1102,7 +1102,7 @@ describe("UI of conditional formats", () => {
         //  click save
         await click(fixture, selectors.buttonSave);
 
-        const sheetId = model.getters.getActiveSheetId();
+        const sheetId = model.getters.getSheetIds()[0];
         expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
           cf: {
             id: expect.any(String),
@@ -1146,7 +1146,7 @@ describe("UI of conditional formats", () => {
         //  click save
         await click(fixture, selectors.buttonSave);
 
-        const sheetId = model.getters.getActiveSheetId();
+        const sheetId = model.getters.getSheetIds()[0];
         expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
           cf: {
             id: expect.any(String),
@@ -1190,7 +1190,7 @@ describe("UI of conditional formats", () => {
         //  click save
         await click(fixture, selectors.buttonSave);
 
-        const sheetId = model.getters.getActiveSheetId();
+        const sheetId = model.getters.getSheetIds()[0];
         expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
           cf: {
             id: expect.any(String),
@@ -1240,7 +1240,7 @@ describe("UI of conditional formats", () => {
         //  click save
         await click(fixture, selectors.buttonSave);
 
-        const sheetId = model.getters.getActiveSheetId();
+        const sheetId = model.getters.getSheetIds()[0];
         expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
           cf: {
             id: expect.any(String),
@@ -1326,7 +1326,7 @@ describe("UI of conditional formats", () => {
         //  click save
         await click(fixture, selectors.buttonSave);
 
-        const sheetId = model.getters.getActiveSheetId();
+        const sheetId = model.getters.getSheetIds()[0];
         expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
           cf: {
             id: expect.any(String),
@@ -1375,7 +1375,7 @@ describe("UI of conditional formats", () => {
         await editSelectComponent(operatorinflectionUpper, "ge");
         await setInputValueAndTrigger(inputinflectionUpper, "0");
 
-        const sheetId = model.getters.getActiveSheetId();
+        const sheetId = model.getters.getSheetIds()[0];
         expect(dispatch).toHaveBeenLastCalledWith("ADD_CONDITIONAL_FORMAT", {
           cf: {
             id: expect.any(String),
@@ -1423,7 +1423,7 @@ describe("UI of conditional formats", () => {
         //  click save
         await click(fixture, selectors.buttonSave);
 
-        const sheetId = model.getters.getActiveSheetId();
+        const sheetId = model.getters.getSheetIds()[0];
         expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
           cf: {
             id: expect.any(String),
@@ -1545,7 +1545,7 @@ describe("UI of conditional formats", () => {
         //  click save
         await click(fixture, selectors.buttonSave);
 
-        const sheetId = model.getters.getActiveSheetId();
+        const sheetId = model.getters.getSheetIds()[0];
         expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
           cf: {
             id: expect.any(String),
@@ -1569,7 +1569,7 @@ describe("UI of conditional formats", () => {
       await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "3,59");
 
       await click(fixture, selectors.buttonSave);
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
 
       const lastCfIndex = model.getters.getConditionalFormats(sheetId).length - 1;
       expect(
@@ -1586,7 +1586,7 @@ describe("UI of conditional formats", () => {
       await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "01/05/2012");
 
       await click(fixture, selectors.buttonSave);
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
 
       const lastCfIndex = model.getters.getConditionalFormats(sheetId).length - 1;
       expect(
@@ -1605,7 +1605,7 @@ describe("UI of conditional formats", () => {
       await setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "1,5");
 
       await click(fixture, selectors.buttonSave);
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       const lastCf = model.getters.getConditionalFormats(sheetId).at(-1)!;
       expect((lastCf.rule as ColorScaleRule).minimum.value).toBe("1.5");
     });
@@ -1622,7 +1622,7 @@ describe("UI of conditional formats", () => {
       await setInputValueAndTrigger(inputinflectionLower, "1,5");
 
       await click(fixture, selectors.buttonSave);
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       const lastCf = model.getters.getConditionalFormats(sheetId).at(-1)!;
       expect((lastCf.rule as IconSetRule).lowerInflectionPoint.value).toBe("1.5");
     });

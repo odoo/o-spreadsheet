@@ -78,7 +78,7 @@ describe("Spreadsheet print rendering", () => {
 
   beforeEach(async () => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
     ({ getStores } = spyStoreCreation());
   });
 

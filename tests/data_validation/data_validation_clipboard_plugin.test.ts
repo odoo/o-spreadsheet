@@ -18,7 +18,7 @@ describe("Data validation", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   test("Can copy data validation rule on same sheet", () => {
@@ -210,7 +210,7 @@ describe("Data validation", () => {
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
 
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addDataValidation(model, "A1:A2", "id", { type: "containsText", values: ["1"] });
 
     copy(model, "A1:A2");

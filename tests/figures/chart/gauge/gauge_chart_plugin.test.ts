@@ -424,7 +424,7 @@ describe("datasource tests", function () {
   });
 
   test("Gauge chart is copied on sheet duplication", () => {
-    const firstSheetId = model.getters.getActiveSheetId();
+    const firstSheetId = model.getters.getSheetIds()[0];
     const secondSheetId = "sheet2";
     createGaugeChart(
       model,

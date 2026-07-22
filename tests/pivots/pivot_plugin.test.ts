@@ -28,7 +28,7 @@ describe("Pivot plugin", () => {
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
 
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const isSpillPivotFormula = (xc: string) =>
       model.getters.isSpillPivotFormula(toCellPosition(sheetId, xc));
     expect(isSpillPivotFormula("A1")).toBe(false); //Dataset
@@ -84,7 +84,7 @@ describe("Pivot plugin", () => {
       A2: "Alice",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const creationResult = addPivot(model, "A1:A2", {
       measures: [
         { id: "Customer", fieldName: "Customer", aggregator: "sum" },
@@ -124,7 +124,7 @@ describe("Pivot plugin", () => {
       A2: "Alice",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:A2", {
       measures: [],
     });
@@ -153,7 +153,7 @@ describe("Pivot plugin", () => {
       A2: "Alice",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:A2", {
       measures: [{ id: "Customer", fieldName: "Customer", aggregator: "sum" }],
     });
@@ -286,7 +286,7 @@ describe("Pivot plugin", () => {
       dataSet: { sheetId: "BADSHEETID", zone: toZone("A1:A2") },
     });
     expect(createResult1).toBeCancelledBecause(CommandResult.InvalidDataSet);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const createResult2 = addPivot(model, "", {
       dataSet: { sheetId, zone: { top: -1, left: 1, bottom: 2, right: 2 } },
     });
@@ -307,7 +307,7 @@ describe("Pivot plugin", () => {
       dataSet: { sheetId: "BADSHEETID", zone: toZone("A1:A2") },
     });
     expect(updateResult1).toBeCancelledBecause(CommandResult.InvalidDataSet);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const updateResult2 = updatePivot(model, "1", {
       dataSet: { sheetId, zone: { top: -1, left: 1, bottom: 2, right: 2 } },
     });
@@ -344,7 +344,7 @@ describe("Pivot plugin", () => {
       A2: "Alice",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const name = "forbidden: /";
     renameSheet(model, sheetId, "forbidden:   (copy) (Pivot #2)");
     addPivot(model, "A1:A2", { name }, "pivot1");
@@ -369,7 +369,7 @@ describe("Pivot plugin", () => {
       rows: [{ fieldName: "Price" }],
       measures: [{ id: "testCount", fieldName: "__count", aggregator: "sum" }],
     });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "C1", "=PIVOT(1,,,false)");
     expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
       type: "MEASURE_HEADER",
@@ -428,7 +428,7 @@ describe("Pivot plugin", () => {
       rows: [{ fieldName: "Price" }],
       measures: [{ id: "testCount", fieldName: "__count", aggregator: "sum" }],
     });
-    const D1 = toCellPosition(model.getters.getActiveSheetId(), "D1");
+    const D1 = toCellPosition(model.getters.getSheetIds()[0], "D1");
 
     setCellContent(model, "C1", "=PIVOT(1)");
     expect(model.getters.getPivotCellFromPosition(D1)).toMatchObject({ type: "HEADER" });
@@ -456,7 +456,7 @@ describe("Pivot plugin", () => {
     setCellContent(model, "A40", "=PIVOT(1, 10, false.false)");
     expect(getEvaluatedCell(model, "A40").value).toBe(CellErrorType.BadExpression);
 
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "A40"))).toEqual(
       EMPTY_PIVOT_CELL
     );
@@ -483,7 +483,7 @@ describe("Pivot plugin", () => {
             aggregator: "sum",
             computedBy: {
               formula: "=PIVOT(2)",
-              sheetId: model.getters.getActiveSheetId(),
+              sheetId: model.getters.getSheetIds()[0],
             },
           },
         ],

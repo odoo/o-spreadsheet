@@ -17,7 +17,7 @@ let sheetId: UID;
 describe("Table resize", () => {
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
     const { container } = makeStoreWithModel(model, AutofillStore);
     container.get(TableAutofillStore);
   });

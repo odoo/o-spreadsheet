@@ -49,7 +49,7 @@ describe("navigation", () => {
 
   test("move right from right row", () => {
     const { model } = makeStore(ViewportsStore);
-    const activeSheetId = model.getters.getActiveSheetId();
+    const activeSheetId = model.getters.getSheetIds()[0];
     const colNumber = model.getters.getNumberCols(activeSheetId);
     const xc = toXC(colNumber - 1, 0);
     selectCell(model, xc);
@@ -61,7 +61,7 @@ describe("navigation", () => {
 
   test("move bottom from bottom row", () => {
     const { model } = makeStore(ViewportsStore);
-    const activeSheetId = model.getters.getActiveSheetId();
+    const activeSheetId = model.getters.getSheetIds()[0];
     const rowNumber = model.getters.getNumberRows(activeSheetId);
     const xc = toXC(0, rowNumber - 1);
     selectCell(model, xc);
@@ -72,7 +72,7 @@ describe("navigation", () => {
 
   test("move bottom from merge in last position", () => {
     const { model } = makeStore(ViewportsStore);
-    const activeSheetId = model.getters.getActiveSheetId();
+    const activeSheetId = model.getters.getSheetIds()[0];
     const rowNumber = model.getters.getNumberRows(activeSheetId);
     merge(model, `${toXC(0, rowNumber - 2)}:${toXC(0, rowNumber - 1)}`, activeSheetId);
     const xc = toXC(0, rowNumber - 2);
@@ -84,7 +84,7 @@ describe("navigation", () => {
 
   test("Cannot move bottom from merge in last position if last row is hidden", () => {
     const { model } = makeStore(ViewportsStore);
-    const activeSheetId = model.getters.getActiveSheetId();
+    const activeSheetId = model.getters.getSheetIds()[0];
     const rowNumber = model.getters.getNumberRows(activeSheetId);
     merge(model, `${toXC(0, rowNumber - 3)}:${toXC(0, rowNumber - 2)}`, activeSheetId);
     hideRows(model, [rowNumber - 1]);
@@ -97,7 +97,7 @@ describe("navigation", () => {
 
   test("move right from merge in last position", () => {
     const { model } = makeStore(ViewportsStore);
-    const activeSheetId = model.getters.getActiveSheetId();
+    const activeSheetId = model.getters.getSheetIds()[0];
     const colNumber = model.getters.getNumberCols(activeSheetId);
     merge(model, `${toXC(colNumber - 2, 0)}:${toXC(colNumber - 1, 0)}`, activeSheetId);
     const xc = toXC(colNumber - 2, 0);

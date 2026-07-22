@@ -60,7 +60,7 @@ let sheetId: UID;
 
 beforeEach(() => {
   model = new Model();
-  sheetId = model.getters.getActiveSheetId();
+  sheetId = model.getters.getSheetIds()[0];
 });
 
 describe("Repeat commands basics", () => {
@@ -543,9 +543,9 @@ describe("Repeat local commands", () => {
     activateSheet(model, "42");
     setSelection(model, ["A1:A3"]);
     redo(model);
-    expect(getCellContent(model, "A1")).toEqual("A3");
-    expect(getCellContent(model, "A2")).toEqual("A2");
-    expect(getCellContent(model, "A3")).toEqual("A1");
+    expect(getCellContent(model, "A1", "42")).toEqual("A3");
+    expect(getCellContent(model, "A2", "42")).toEqual("A2");
+    expect(getCellContent(model, "A3", "42")).toEqual("A1");
   });
 
   test("Repeat sum selection", () => {

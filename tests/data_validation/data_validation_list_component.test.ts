@@ -50,7 +50,7 @@ let env: SpreadsheetChildEnv;
 
 beforeEach(async () => {
   model = new Model();
-  sheetId = model.getters.getActiveSheetId();
+  sheetId = model.getters.getSheetIds()[0];
 });
 
 describe("Edit criterion in side panel", () => {
@@ -522,12 +522,12 @@ describe("Selection arrow icon in grid", () => {
     const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
     const rect = model.getters.getCellIconRect(
       icon,
-      viewStore.viewports.getRect(model.getters.getActiveSheetId(), toZone("A1"))
+      viewStore.viewports.getRect(model.getters.getSheetIds()[0], toZone("A1"))
     );
     const cellStyle = model.getters.getCellComputedStyle({
       col: 0,
       row: 0,
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
     });
     const textSize = computeTextFontSizeInPixels(cellStyle);
     expect(rect.x).toEqual(DEFAULT_CELL_WIDTH - 4 - textSize); // Cell width - icon margin - icon size;

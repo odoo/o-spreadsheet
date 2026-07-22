@@ -33,7 +33,7 @@ import {
 import { getMergeCellMap, makeTestComposerStore, XCToMergeCellMap } from "../test_helpers/helpers";
 
 function getCellsXC(model: Model): string[] {
-  return model.getters.getCells(model.getters.getActiveSheetId()).map((cell) => {
+  return model.getters.getCells(model.getters.getSheetIds()[0]).map((cell) => {
     const { col, row } = model.getters.getCellPosition(cell.id);
     return toXC(col, row);
   });
@@ -76,7 +76,7 @@ describe("merges", () => {
 
   test("add a merge cells in a duplicated sheet", () => {
     const model = new Model();
-    const firstSheetId = model.getters.getActiveSheetId();
+    const firstSheetId = model.getters.getSheetIds()[0];
     const secondSheetId = "42";
     merge(model, "C2:C3", firstSheetId);
     duplicateSheet(model, firstSheetId, secondSheetId);
@@ -91,7 +91,7 @@ describe("merges", () => {
 
   test("delete a duplicated sheet with merge", () => {
     const model = new Model();
-    const firstSheetId = model.getters.getActiveSheetId();
+    const firstSheetId = model.getters.getSheetIds()[0];
     const secondSheetId = "42";
     merge(model, "C2:C3", firstSheetId);
     duplicateSheet(model, firstSheetId, secondSheetId);
@@ -113,7 +113,7 @@ describe("merges", () => {
 
   test("merge outside the sheet is refused", () => {
     const model = new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(merge(model, "A1:C3")).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
     const { col, row } = toCartesian("A1");
 
@@ -202,7 +202,7 @@ describe("merges", () => {
 
   test("Merge with two zone overlap is now allowed", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(
       model.dispatch("ADD_MERGE", { sheetId, target: [toZone("A1:B2"), toZone("A2:B3")] })
     ).toBeCancelledBecause(CommandResult.MergeOverlap);
@@ -566,7 +566,7 @@ describe("merges", () => {
       styles: { 1: { textColor: "#fe0000" } },
       borders: { 1: { top: { style: "medium", color: "#ff0000" } } },
     });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     let col: number, row: number;
     ({ col, row } = toCartesian("B4"));
     expect(model.getters.getMerge({ sheetId, col, row })).toBeTruthy();
@@ -591,7 +591,7 @@ describe("merges", () => {
 
   test("move duplicated merge when col is inserted before", () => {
     const model = new Model();
-    const firstSheetId = model.getters.getActiveSheetId();
+    const firstSheetId = model.getters.getSheetIds()[0];
     const secondSheetId = "42";
     merge(model, "C1:C2");
     duplicateSheet(model, firstSheetId, secondSheetId);
@@ -603,7 +603,7 @@ describe("merges", () => {
   describe("isSingleCellOrMerge getter", () => {
     test("simple zone without merges", () => {
       const model = new Model();
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       expect(model.getters.isSingleCellOrMerge(sheetId, toZone("A1"))).toBe(true);
       setCellContent(model, "A1", "hello");
       expect(model.getters.isSingleCellOrMerge(sheetId, toZone("A1"))).toBe(true);
@@ -612,7 +612,7 @@ describe("merges", () => {
 
     test("merged zones", () => {
       const model = new Model();
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       merge(model, "A1:A2");
       merge(model, "B1:B2");
       expect(model.getters.isSingleCellOrMerge(sheetId, toZone("A1:A2"))).toBe(true);
@@ -622,7 +622,7 @@ describe("merges", () => {
 
     test("zone outside of sheet", () => {
       const model = new Model();
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       const singleCellZone = { top: 999, bottom: 999, left: 999, right: 999 };
       const zone = { top: 0, bottom: 999, left: 0, right: 999 };
       expect(model.getters.isSingleCellOrMerge(sheetId, singleCellZone)).toBe(true);

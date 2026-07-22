@@ -24,7 +24,7 @@ function drawHighlight(highlight: Highlight) {
 describe("Highlight store", () => {
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
     ({ store: highlightStore, container } = makeStoreWithModel(model, HighlightStore));
 
     ctxInstructions = [];

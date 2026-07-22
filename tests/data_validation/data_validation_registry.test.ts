@@ -28,7 +28,7 @@ describe("Data validation registry", () => {
   beforeEach(() => {
     model = new Model();
     getters = model.getters;
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   beforeEach(() => {

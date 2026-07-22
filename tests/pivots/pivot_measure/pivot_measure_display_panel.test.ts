@@ -40,7 +40,7 @@ describe("Standalone side panel tests", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A1", "TestMeasure");
     addPivot(
       model,

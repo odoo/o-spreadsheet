@@ -45,7 +45,7 @@ const TEST_STYLES = [
   MULTI_STYLE,
 ];
 
-function getCellStyle(model: Model, xc: string, sheetId: UID = model.getters.getActiveSheetId()) {
+function getCellStyle(model: Model, xc: string, sheetId: UID = model.getters.getSheetIds()[0]) {
   return model.getters.getCellStyle({ sheetId, ...toCartesian(xc) });
 }
 
@@ -53,7 +53,7 @@ function setStyle(
   model: Model,
   target: Zone[],
   style: Style | undefined,
-  sheetId = model.getters.getActiveSheetId()
+  sheetId = model.getters.getSheetIds()[0]
 ) {
   return model.dispatch("SET_FORMATTING", {
     sheetId,
@@ -70,7 +70,7 @@ describe("Default Plugin: Style", () => {
       sheets: [{ id: "sh1", colNumber: 25, rowNumber: 20 }],
     });
     makeStoreWithModel(model, AutofillStore);
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   const COL = (col) => {
@@ -1053,7 +1053,7 @@ describe("Default Plugin: setRowsStyle preserves cells outside the zone", () => 
   test("cells outside the zone column range keep their col-default style after setRowsStyle", () => {
     // 10 cols, 20 rows: zone cols 0-5 (6/10 = 60% > 50%) triggers setRowsStyle
     const model = new Model({ sheets: [{ id: "sh1", colNumber: 10, rowNumber: 20 }] });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
 
     setStyle(model, [model.getters.getColsZone(sheetId, 8, 8)], FCOLOR_STYLE);
 

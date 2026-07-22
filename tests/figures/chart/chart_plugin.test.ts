@@ -1004,7 +1004,7 @@ describe("datasource tests", function () {
     createSheet(model, { sheetId: "42" });
     const result = model.dispatch("UPDATE_CHART", {
       definition: model.getters.getChartDefinition("1"),
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       figureId: "2",
       chartId: "2",
     });
@@ -1027,7 +1027,7 @@ describe("datasource tests", function () {
         title: { text: "test" },
         type: "bar",
       },
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       figureId: "2",
       chartId: "2",
     });
@@ -1270,7 +1270,7 @@ describe("datasource tests", function () {
   });
 
   test("Chart is copied on sheet duplication", () => {
-    const firstSheetId = model.getters.getActiveSheetId();
+    const firstSheetId = model.getters.getSheetIds()[0];
     const secondSheetId = "42";
     const dataSets = [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }];
 
@@ -1309,7 +1309,7 @@ describe("datasource tests", function () {
   });
 
   test("Duplicate sheet > export > import > duplicate sheet contains 2 distinct charts", () => {
-    const firstSheetId = model.getters.getActiveSheetId();
+    const firstSheetId = model.getters.getSheetIds()[0];
     const secondSheetId = "42";
     const thirdSheetId = "third";
     createChart(
@@ -1358,7 +1358,7 @@ describe("datasource tests", function () {
   });
 
   test("Chart foreign ranges unchanged on sheet duplication", () => {
-    const firstSheetId = model.getters.getActiveSheetId();
+    const firstSheetId = model.getters.getSheetIds()[0];
     const secondSheetName = "FixedRef";
     const secondSheetId = "41";
     const thirdSheetId = "42";
@@ -1432,7 +1432,7 @@ describe("datasource tests", function () {
 });
 
 test("Top level command DELETE_CHART does not delete chart", () => {
-  const sheetId = model.getters.getActiveSheetId();
+  const sheetId = model.getters.getSheetIds()[0];
   createChart(model, { type: "line" }, "chartId");
   expect(model.dispatch("DELETE_CHART", { sheetId, chartId: "chartId" })).toBeCancelledBecause(
     CommandResult.SubCommandOnly
@@ -1765,7 +1765,8 @@ describe("multiple sheets", function () {
           labelRange: "Sheet1!A2:A4",
         }),
       },
-      "1"
+      "1",
+      "42"
     );
     const dataSets = getChartConfiguration(model, "1").data.datasets;
     const chartDefinition = model.getters.getChartDefinition("1");
@@ -1788,7 +1789,8 @@ describe("multiple sheets", function () {
           labelRange: "Sheet1!A2:A4",
         }),
       },
-      "1"
+      "1",
+      "42"
     );
     const chartDefinition = model.getters.getChartDefinition("1");
     expect(getChartConfiguration(model, "1").data.labels).toEqual(["P1", "P2", "P3"]);
@@ -1846,7 +1848,8 @@ describe("multiple sheets", function () {
           labelRange: "Sheet1!A2:A4",
         }),
       },
-      "28"
+      "28",
+      "42"
     );
     const dataSets = getChartConfiguration(model, "28").data.datasets;
     const chartDefinition = model.getters.getChartDefinition("28");
@@ -1918,7 +1921,7 @@ describe("multiple sheets", function () {
   });
 
   test("export with chart data from a sheet that was deleted, than import data does not crash", () => {
-    const originSheet = model.getters.getActiveSheetId();
+    const originSheet = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "42", activate: true });
     createChart(
       model,
@@ -1929,7 +1932,8 @@ describe("multiple sheets", function () {
           labelRange: "Sheet1!A2:A4",
         }),
       },
-      "28"
+      "28",
+      "42"
     );
     deleteSheet(model, originSheet);
     const exportedData = model.exportData();
@@ -2259,7 +2263,7 @@ describe("Chart design configuration", () => {
     (formatting) => {
       const model = new Model();
       model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getSheetIds()[0],
         target: target("A2:A3"),
         ...formatting,
       });
@@ -2283,7 +2287,7 @@ describe("Chart design configuration", () => {
     (formatting) => {
       const model = new Model();
       model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getSheetIds()[0],
         target: target("B1:B3"),
         ...formatting,
       });
@@ -3787,7 +3791,7 @@ test("Duplicating a sheet dispatches CREATE_CHART for each chart", () => {
   // @ts-ignore
   const spyFigureDispatch = jest.spyOn(figurePlugin, "dispatch");
 
-  const sheetId = model.getters.getActiveSheetId();
+  const sheetId = model.getters.getSheetIds()[0];
   duplicateSheet(model, sheetId);
   expect(spyChartDispatch).toHaveBeenNthCalledWith(1, "CREATE_CHART", expect.any(Object));
   expect(spyChartDispatch).toHaveBeenNthCalledWith(2, "CREATE_CHART", expect.any(Object));

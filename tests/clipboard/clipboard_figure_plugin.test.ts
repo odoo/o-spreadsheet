@@ -35,7 +35,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
 
   beforeEach(async () => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
     figureId = UuidGenerator.uuidv4();
     if (type === "chart") {
       createChart(model, { type: "bar" }, "chartId", undefined, { figureId });
@@ -261,7 +261,7 @@ describe("Carousel clipboard test", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   test("Can copy/paste an empty carousel", () => {

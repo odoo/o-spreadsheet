@@ -66,7 +66,7 @@ describe("Lock Sheet plugin", () => {
 
   test("sheet navigation commands are allowed on locked sheets", () => {
     const model = new Model();
-    const firstSheetId = model.getters.getActiveSheetId();
+    const firstSheetId = model.getters.getSheetIds()[0];
     const lockedSheetId = "locked";
     createSheet(model, {
       name: "Another sheet",

@@ -107,7 +107,7 @@ describe("Pivot side panel", () => {
     expect(
       (model.getters.getPivotCoreDefinition("1") as SpreadsheetPivotCoreDefinition).dataSet
     ).toMatchObject({
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       zone: toZone("A1:A100"),
     });
   });
@@ -138,7 +138,7 @@ describe("Pivot side panel", () => {
       A5: "=PIVOT(1)"
     });
 
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     updatePivot(model, "1", {
       measures: [
         { id: "Price", fieldName: "Amount", aggregator: "sum" },
@@ -180,7 +180,7 @@ describe("Pivot side panel", () => {
         COL: [[{ field: "Customer", value: "Alice", type: "char" }]],
         ROW: [[{ field: "Client", value: "Marc", type: "char" }]],
       },
-      dataSet: { sheetId: model.getters.getActiveSheetId(), zone: toZone("A1:E5") },
+      dataSet: { sheetId: model.getters.getSheetIds()[0], zone: toZone("A1:E5") },
     });
 
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
@@ -210,7 +210,7 @@ describe("Pivot side panel", () => {
       A5: "=PIVOT(1)"
     });
 
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const calculatedMeasure = {
       id: "calc",
       fieldName: "calc",
@@ -253,7 +253,7 @@ describe("Pivot side panel", () => {
         COL: [[{ field: "Customer", value: "NotARealPerson", type: "char" }]],
         ROW: [],
       },
-      dataSet: { sheetId: model.getters.getActiveSheetId(), zone: toZone("A1:C3") },
+      dataSet: { sheetId: model.getters.getSheetIds()[0], zone: toZone("A1:C3") },
     });
 
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
@@ -286,7 +286,7 @@ describe("Pivot side panel", () => {
           display: { type: "%_of", fieldNameWithGranularity: "Customer", value: "Alice" },
         },
       ],
-      dataSet: { sheetId: model.getters.getActiveSheetId(), zone: toZone("A1:C3") },
+      dataSet: { sheetId: model.getters.getSheetIds()[0], zone: toZone("A1:C3") },
     });
 
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
@@ -313,7 +313,7 @@ describe("Pivot side panel", () => {
           display: { type: "%_of", fieldNameWithGranularity: "Customer", value: "(previous)" },
         },
       ],
-      dataSet: { sheetId: model.getters.getActiveSheetId(), zone: toZone("A1:C3") },
+      dataSet: { sheetId: model.getters.getSheetIds()[0], zone: toZone("A1:C3") },
     });
 
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
@@ -329,7 +329,7 @@ describe("Pivot side panel", () => {
       A5: "=PIVOT(1)"
     });
 
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     updatePivot(model, "1", {
       measures: [
         { id: "Amount:sum", fieldName: "Amount", aggregator: "sum" },
@@ -375,7 +375,7 @@ describe("Pivot side panel", () => {
       A5: "=PIVOT(1)"
     });
 
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     updatePivot(model, "1", {
       measures: [
         {

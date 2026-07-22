@@ -694,9 +694,9 @@ describe("Spreadsheet Pivot", () => {
 
   test("Deleting the sheet that contains data would set the pivot in error", () => {
     const model = createModelWithPivot("A1:I5");
-    const sheetId = model.getters.getActiveSheetId();
-    createSheet(model, { activate: true });
-    setCellContent(model, "A1", `=pivot(1)`);
+    const sheetId = model.getters.getSheetIds()[0];
+    createSheet(model, { sheetId: "sh2" });
+    setCellContent(model, "A1", `=pivot(1)`, "sh2");
     expect(model.getters.getPivot("1").isValid()).toBeTruthy();
     deleteSheet(model, sheetId);
     expect(model.getters.getPivot("1").isValid()).toBeFalsy();
@@ -1048,7 +1048,7 @@ describe("Spreadsheet Pivot", () => {
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
 
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const cellsWithMargins: (EvaluatedCell & { iconMargin: number })[] = [];
     for (const position of positions(toZone("C1:C10"))) {
       const iconMargin = model.getters.getCellIcons({ sheetId, ...position })[0]?.margin;
@@ -2158,7 +2158,7 @@ describe("Spreadsheet Pivot", () => {
       pivotId,
       col: 2,
       row: 0,
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       table: {
         ...table,
         fieldsType: undefined,
@@ -2175,7 +2175,7 @@ describe("Spreadsheet Pivot", () => {
       pivotId,
       col: 2,
       row: 0,
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       table,
     });
     setFormulaVisibility(model, false);
@@ -2388,7 +2388,7 @@ describe("Spreadsheet Pivot", () => {
       setCellContent(model, "A25", "=PIVOT(1)");
 
       for (const position of positions(toZone("A25:B35"))) {
-        const cellPosition = { ...position, sheetId: model.getters.getActiveSheetId() };
+        const cellPosition = { ...position, sheetId: model.getters.getSheetIds()[0] };
         expect(model.getters.getCellIcons(cellPosition)).toEqual([]);
       }
     });
@@ -2671,7 +2671,7 @@ describe("Spreadsheet Pivot", () => {
 
     updatePivot(model, "1", { style: { tabularForm: true } });
 
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     model.dispatch("SPLIT_PIVOT_FORMULA", { sheetId, col: 0, row: 24, pivotId: "1" });
 
     delete standardPivotGrid["A25"]; // Pivot title is removed in split
@@ -2919,7 +2919,7 @@ describe("Spreadsheet arguments parsing", () => {
       A5: "=PIVOT(1)",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const measures = [
       { id: "Price:sum", fieldName: "Price", aggregator: "sum" },
       {

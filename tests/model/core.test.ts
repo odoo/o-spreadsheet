@@ -241,7 +241,7 @@ describe("core", () => {
 
   test("core cell getter does not crash if invalid col/row", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(model.getters.getCell({ sheetId, col: -1, row: -1 })).toBeUndefined();
   });
 
@@ -249,7 +249,7 @@ describe("core", () => {
     const model = new Model({});
     expect(
       model.getters.zoneToXC(
-        model.getters.getActiveSheetId(),
+        model.getters.getSheetIds()[0],
         /*A1*/ { top: 0, left: 0, right: 0, bottom: 0 }
       )
     ).toBe("A1");
@@ -259,7 +259,7 @@ describe("core", () => {
     const model = new Model({});
     expect(
       model.getters.zoneToXC(
-        model.getters.getActiveSheetId(),
+        model.getters.getSheetIds()[0],
         /*A1:B2*/ { top: 0, left: 0, right: 1, bottom: 1 }
       )
     ).toBe("A1:B2");
@@ -269,7 +269,7 @@ describe("core", () => {
     const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }] });
     expect(
       model.getters.zoneToXC(
-        model.getters.getActiveSheetId(),
+        model.getters.getSheetIds()[0],
         /*A2:B3*/ { top: 1, bottom: 2, left: 0, right: 1 }
       )
     ).toBe("A1:B3");
@@ -281,7 +281,7 @@ describe("core", () => {
     });
     expect(
       model.getters.zoneToXC(
-        model.getters.getActiveSheetId(),
+        model.getters.getSheetIds()[0],
         /*A2:B4*/ { top: 1, bottom: 3, left: 0, right: 1 }
       )
     ).toBe("A1:B5");
@@ -291,7 +291,7 @@ describe("core", () => {
     const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }] });
     expect(
       model.getters.zoneToXC(
-        model.getters.getActiveSheetId(),
+        model.getters.getSheetIds()[0],
         /*A2:B2*/ { top: 1, bottom: 1, left: 0, right: 1 }
       )
     ).toBe("A1");
@@ -634,7 +634,7 @@ describe("Generic allowDispatch", () => {
     //@ts-ignore
     coreTypes.add("MY_CORE_CMD");
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   afterEach(() => {

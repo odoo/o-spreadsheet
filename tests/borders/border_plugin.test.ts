@@ -467,7 +467,7 @@ describe("borders", () => {
     selectCell(model, "A1");
 
     setAnchorCorner(model, "Z100");
-    const activeSheetId = model.getters.getActiveSheetId();
+    const activeSheetId = model.getters.getSheetIds()[0];
     expect(model.getters.getSelectedZones()[0]).toEqual({
       left: 0,
       top: 0,
@@ -529,7 +529,7 @@ describe("Grid manipulation", () => {
 
   test("move duplicated border when col is inserted before", () => {
     const model = new Model();
-    const firstSheetId = model.getters.getActiveSheetId();
+    const firstSheetId = model.getters.getSheetIds()[0];
     const secondSheetId = "42";
     setZoneBorders(model, { position: "external" }, ["B2"]);
     expect(getBorder(model, "B2", firstSheetId)).toEqual({
@@ -558,7 +558,7 @@ describe("Grid manipulation", () => {
 
   test("move duplicated border when row is inserted before", () => {
     const model = new Model();
-    const firstSheetId = model.getters.getActiveSheetId();
+    const firstSheetId = model.getters.getSheetIds()[0];
     const secondSheetId = "42";
     setZoneBorders(model, { position: "external" }, ["B2"]);
     duplicateSheet(model, firstSheetId, secondSheetId);
@@ -665,7 +665,7 @@ describe("Grid manipulation", () => {
 
   test("Borders are correctly duplicated on sheet dup", () => {
     setZoneBorders(model, { position: "external" }, ["B2"]);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const sheetIdTo = "42";
     duplicateSheet(model, sheetId, sheetIdTo);
     activateSheet(model, sheetIdTo);
@@ -990,7 +990,7 @@ describe("Grid manipulation", () => {
   });
 
   test("no lingering border when deleting a cell with a border", () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setZoneBorders(model, { position: "top", color: "#123456" }, ["C3"]);
     expect(model.getters.getBordersColors(sheetId)).toEqual(["#123456"]);
     deleteRows(model, [2]);

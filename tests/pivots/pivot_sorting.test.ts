@@ -196,7 +196,7 @@ describe("Pivot sorting", () => {
 
   test("Can sort on a calculated measure", () => {
     const model = createModelWithTestPivotDataset();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     updatePivot(model, "pivotId", {
       measures: [
         {

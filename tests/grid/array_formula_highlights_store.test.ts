@@ -11,7 +11,7 @@ describe("array function highlights", () => {
     setCellContent(model, "A2", "=TRANSPOSE(A1:C1)");
     expect(getHighlightsFromStore(container)).toEqual([]);
     const highlight = {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       zone: toZone("A2:A4"),
       color: "#17A2B8",
       noFill: true,
@@ -32,7 +32,7 @@ describe("array function highlights", () => {
     selectCell(model, "A2"); // main cell
     expect(getHighlightsFromStore(container).map(flattenHighlightRange)).toEqual([
       {
-        sheetId: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getSheetIds()[0],
         zone: toZone("A2:A4"),
         color: "#17A2B8",
         noFill: true,
@@ -58,7 +58,7 @@ describe("array function highlights", () => {
     setCellContent(model, "A4", "=A1:B2");
 
     const highlight = {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       zone: toZone("A4:B5"),
       color: "#17A2B8",
       noFill: true,
@@ -78,7 +78,7 @@ describe("array function highlights", () => {
     selectCell(model, "A2"); // main cell
     expect(getHighlightsFromStore(container).map(flattenHighlightRange)).toEqual([
       {
-        sheetId: model.getters.getActiveSheetId(),
+        sheetId: model.getters.getSheetIds()[0],
         zone: toZone("A2:A4"),
         color: "#17A2B8",
         noFill: true,

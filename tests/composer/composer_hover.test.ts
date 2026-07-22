@@ -407,7 +407,7 @@ describe("Composer hover integration test", () => {
   });
 
   test("Hover is deactivated in a standalone composer", async () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addEqualCf(model, "B1:D3", { fillColor: "#b6d7a8" }, "=ROW() + COLUMN() + B2");
     const cf = model.getters.getConditionalFormats(sheetId)[0];
     env.openSidePanel("ConditionalFormattingEditor", { cf, isNewCf: false });

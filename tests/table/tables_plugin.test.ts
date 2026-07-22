@@ -59,14 +59,14 @@ describe("Table plugin", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   describe("Dispatch results", () => {
     test("Create table is correctly rejected if given invalid zone", () => {
       expect(
         model.dispatch("CREATE_TABLE", {
-          sheetId: model.getters.getActiveSheetId(),
+          sheetId: model.getters.getSheetIds()[0],
           ranges: [{ _sheetId: sheetId, _zone: { top: -1, bottom: 0, right: 5, left: 9 } }],
           tableType: "static",
           config: DEFAULT_TABLE_CONFIG,
@@ -185,7 +185,7 @@ describe("Table plugin", () => {
     });
 
     test("reject data range targeting a different sheet", () => {
-      const firstSheetId = model.getters.getActiveSheetId();
+      const firstSheetId = model.getters.getSheetIds()[0];
       createSheet(model, { sheetId: "sheet2" });
       const result = model.dispatch("CREATE_TABLE", {
         ranges: toRangesData(firstSheetId, "A1"),
@@ -413,7 +413,7 @@ describe("Table plugin", () => {
       updateFilter(model, "D3", ["D"]);
       updateFilter(model, "E3", ["E"]);
       updateFilter(model, "F3", ["F"]);
-      sheetId = model.getters.getActiveSheetId();
+      sheetId = model.getters.getSheetIds()[0];
     });
 
     describe("Add columns", () => {
@@ -679,7 +679,7 @@ describe("Table plugin", () => {
     test("Can undo/redo creating a table", () => {
       const model = new Model();
       createTable(model, "C1:C4");
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       expect(model.getters.getTables(sheetId).length).toBe(1);
       undo(model);
       expect(model.getters.getTables(sheetId).length).toBe(0);
@@ -757,7 +757,7 @@ describe("Table plugin", () => {
     });
 
     test("Can cut and paste a whole table in another sheet", () => {
-      const sheet1Id = model.getters.getActiveSheetId();
+      const sheet1Id = model.getters.getSheetIds()[0];
       createTable(model, "A1:B4");
       createSheet(model, { sheetId: "sheet2Id" });
 
@@ -923,7 +923,7 @@ describe("Table plugin", () => {
     });
 
     test("Copy table and adjacent cells", () => {
-      const sheet1Id = model.getters.getActiveSheetId();
+      const sheet1Id = model.getters.getSheetIds()[0];
       createTableWithFilter(model, "B2:C4");
       setCellContent(model, "B3", "4");
       updateFilter(model, "B2", ["4"]);
@@ -935,7 +935,7 @@ describe("Table plugin", () => {
     });
 
     test("Cut table and adjacent cells", () => {
-      const sheet1Id = model.getters.getActiveSheetId();
+      const sheet1Id = model.getters.getSheetIds()[0];
       createTableWithFilter(model, "B2:C4");
       setCellContent(model, "B3", "4");
       updateFilter(model, "B2", ["4"]);

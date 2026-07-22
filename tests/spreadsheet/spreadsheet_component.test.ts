@@ -519,7 +519,7 @@ test("Commands rejected on locked sheet trigger a notification", async () => {
   const notifyFn = jest.fn();
   ({ parent, fixture } = await mountSpreadsheet({ model, notifyUser: notifyFn }));
   lockSheet(model);
-  const result = deleteSheet(model, model.getters.getActiveSheetId());
+  const result = deleteSheet(model, model.getters.getSheetIds()[0]);
   expect(result.reasons).toContain(CommandResult.SheetLocked);
   expect(notifyFn).toHaveBeenCalledWith({
     text: "This sheet is locked and cannot be modified. Please unlock it first.",

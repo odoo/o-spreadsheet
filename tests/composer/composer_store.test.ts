@@ -62,7 +62,7 @@ function editCell(model: Model, xc: string, content: string) {
 
 describe("edition", () => {
   test("adding and removing a cell (by setting its content to empty string", () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     // adding
     composerStore.startEdition("a");
     composerStore.stopEdition();
@@ -113,7 +113,7 @@ describe("edition", () => {
     expect(model.getters.getActiveSheetId()).toBe(sheet1);
     expect(getCellText(model, "A1")).toBe("=");
     activateSheet(model, "42");
-    expect(getCell(model, "A1")).toBeUndefined();
+    expect(getCell(model, "A1", "42")).toBeUndefined();
   });
 
   test("ignore stopping composer selection if not selecting", () => {
@@ -282,7 +282,7 @@ describe("edition", () => {
     expect(composerStore.highlights.map((h) => h.range.zone)).toEqual([
       toZone("B2:B3"),
       toZone("C5"),
-      model.getters.getRangeFromSheetXC(model.getters.getActiveSheetId(), "B2:B").zone,
+      model.getters.getRangeFromSheetXC(model.getters.getSheetIds()[0], "B2:B").zone,
     ]);
   });
 
@@ -452,7 +452,7 @@ describe("edition", () => {
   });
 
   test("set value of the active cell when switching sheet", () => {
-    const sheet1Id = model.getters.getActiveSheetId();
+    const sheet1Id = model.getters.getSheetIds()[0];
     setCellContent(model, "A1", "Hello from sheet1");
     createSheet(model, { sheetId: "42", activate: true });
     expect(composerStore.currentContent).toBe("");
@@ -549,7 +549,7 @@ describe("edition", () => {
     activateSheet(model, "42");
     moveAnchorCell(model, "down");
     expect(composerStore.currentContent).toEqual("=Sheet2!A2");
-    activateSheet(model, "42");
+    activateSheet(model, "42", "42");
     moveAnchorCell(model, "down");
     expect(composerStore.currentContent).toEqual("=Sheet2!A3");
   });
@@ -561,7 +561,7 @@ describe("edition", () => {
     selectCell(model, "B2"); // Sheet1!B2
     activateSheet(model, sheet2);
     selectCell(model, "D3"); // Sheet2!D3
-    activateSheet(model, sheet1);
+    activateSheet(model, sheet1, sheet2);
     composerStore.startEdition("=");
     activateSheet(model, sheet2);
     moveAnchorCell(model, "down");
@@ -615,7 +615,7 @@ describe("edition", () => {
   });
 
   test("start editing where theres a merge on other sheet, change sheet, and stop edition", () => {
-    const sheetId1 = model.getters.getActiveSheetId();
+    const sheetId1 = model.getters.getSheetIds()[0];
     const sheetId2 = "42";
     merge(model, "A1:D5");
     createSheet(model, { sheetId: sheetId2, activate: true });
@@ -809,7 +809,7 @@ describe("edition", () => {
 
   test("type '=', select a cell in another sheet, select a cell in the active sheet", async () => {
     composerStore.startEdition("=");
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "42", activate: true });
     selectCell(model, "C8");
     activateSheet(model, sheetId);
@@ -1111,7 +1111,7 @@ describe("edition", () => {
   });
 
   test("Adding a spreading formula at the bottom of the sheet add enough rows for the formula to spread", () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const numberOfRows = model.getters.getNumberRows(sheetId);
 
     const cellOnLastRow = toXC(0, numberOfRows - 1);
@@ -1122,7 +1122,7 @@ describe("edition", () => {
   });
 
   test("Adding a spreading formula at the right of the sheet add enough cols for the formula to spread", () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const numberOfCols = model.getters.getNumberCols(sheetId);
 
     const cellOnLastCol = toXC(numberOfCols - 1, 0);
@@ -1134,7 +1134,7 @@ describe("edition", () => {
 
   describe("Row addition works with position dependant functions", () => {
     test("Adding rows below with ROW function", () => {
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       const numberOfRows = model.getters.getNumberRows(sheetId);
 
       const cellOnLastRow = toXC(0, numberOfRows - 1);
@@ -1144,7 +1144,7 @@ describe("edition", () => {
     });
 
     test("Adding rows below with ROW function", () => {
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       const numberOfCols = model.getters.getNumberCols(sheetId);
 
       const cellOnLastCols = toXC(numberOfCols - 1, 0);
@@ -1155,7 +1155,7 @@ describe("edition", () => {
   });
 
   test("Can undo/redo after adding a spreading formula at the end of the sheet", () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const numberOfCols = model.getters.getNumberCols(sheetId);
 
     const cellOnLastCol = toXC(numberOfCols - 1, 0);

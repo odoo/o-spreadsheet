@@ -115,7 +115,7 @@ function setRenderer(model: Model = new Model(), layers: LayerName[] = ["Backgro
       }
     }
   };
-  const sheetId = model.getters.getActiveSheetId();
+  const sheetId = model.getters.getSheetIds()[0];
   return { model, gridRendererStore, drawGridRenderer, container, sheetId };
 }
 
@@ -855,9 +855,9 @@ describe("renderer", () => {
   test("horizontal align on pivot header", () => {
     const pivotModel = createModelWithTestPivotDataset();
     createSheet(pivotModel, { sheetId: "2", activate: true });
-    setCellContent(pivotModel, "A1", "=PIVOT(1)");
+    setCellContent(pivotModel, "A1", "=PIVOT(1)", "2");
     const { drawGridRenderer, model, gridRendererStore, container } = setRenderer(pivotModel);
-    setFormatting(model, "B1", { align: "right" });
+    setFormatting(model, "B1", { align: "right" }, "2");
     const contex2D = new MockGridRenderingContext(model, container, 1000, 1000, {});
     drawGridRenderer(contex2D);
     const box = getBoxFromText(gridRendererStore, "Alice");
@@ -1565,7 +1565,7 @@ describe("renderer", () => {
     ["normal" as Mode, { x: 0, y: 0, width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT }],
   ])("A1 starts at the upper left corner with mode %s", (mode, expectedRect) => {
     const model = new Model({}, { mode });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
     const rect = viewStore.viewports.getVisibleRect(sheetId, toZone("A1"));
     expect(rect).toEqual(expectedRect);

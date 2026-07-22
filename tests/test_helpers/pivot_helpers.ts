@@ -33,7 +33,7 @@ export function addPivot(
   init = true
 ): DispatchResult {
   const pivot: SpreadsheetPivotCoreDefinition = {
-    ...defaultPivotDefinition(model.getters.getActiveSheetId()),
+    ...defaultPivotDefinition(model.getters.getSheetIds()[0]),
     ...pivotData,
   };
   if (zone) {

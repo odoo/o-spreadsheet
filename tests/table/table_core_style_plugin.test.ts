@@ -22,7 +22,7 @@ describe("Table core style plugin", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   test("Can add a table style", () => {

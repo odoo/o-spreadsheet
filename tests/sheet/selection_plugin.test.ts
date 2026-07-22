@@ -484,7 +484,7 @@ describe("simple selection", () => {
   test("Selecting figure and undo cleanup selectedFigureId in selection plugin", () => {
     const model = new Model();
     createFigure(model, {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       id: "someuuid",
       offset: {
         x: 10,
@@ -545,7 +545,7 @@ describe("multiple sheets", () => {
 
     const sheet1 = model.getters.getSheetIds()[0];
     const sheet2 = model.getters.getSheetIds()[1];
-    activateSheet(model, sheet1);
+    activateSheet(model, sheet1, sheet2);
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
     activateSheet(model, sheet2);
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2")]);
@@ -554,11 +554,11 @@ describe("multiple sheets", () => {
   test("Selection is updated when deleting the active sheet", () => {
     const model = new Model();
     selectCell(model, "B2");
-    const firstSheetId = model.getters.getActiveSheetId();
+    const firstSheetId = model.getters.getSheetIds()[0];
     const secondSheetId = "42";
     createSheet(model, { sheetId: secondSheetId, activate: true });
     selectCell(model, "C4");
-    activateSheet(model, firstSheetId);
+    activateSheet(model, firstSheetId, secondSheetId);
     deleteSheet(model, firstSheetId);
     expect(model.getters.getSelectedZone()).toEqual(toZone("C4"));
     expect(model.getters.getActiveSheetId()).toBe(secondSheetId);
@@ -570,10 +570,10 @@ describe("multiple sheets", () => {
   test("Do not share selections between sheets", () => {
     const model = new Model();
     selectCell(model, "B2");
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "42", activate: true });
     selectCell(model, "C4");
-    activateSheet(model, sheetId);
+    activateSheet(model, sheetId, "42");
     // any action that can be undone
     createSheet(model, { sheetId: "test to undo" });
     undo(model);
@@ -1000,7 +1000,7 @@ describe("move elements(s)", () => {
     resizeColumns(model, ["A"], 10);
     resizeColumns(model, ["C"], 20);
     moveColumns(model, "C", ["A"], "after");
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(model.getters.getColSize(sheetId, 0)).toEqual(DEFAULT_CELL_WIDTH);
     expect(model.getters.getColSize(sheetId, 1)).toEqual(20);
     expect(model.getters.getColSize(sheetId, 2)).toEqual(10);
@@ -1028,7 +1028,7 @@ describe("move elements(s)", () => {
 
     moveColumns(model, "A", ["C", "D"]);
 
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(model.getters.getColSize(sheetId, 0)).toEqual(20);
     expect(model.getters.getColSize(sheetId, 1)).toEqual(20);
     expect(model.getters.getColSize(sheetId, 2)).toEqual(10);
@@ -1048,7 +1048,7 @@ describe("move elements(s)", () => {
     resizeRows(model, [0], 10);
     resizeRows(model, [2], 20);
     moveRows(model, 2, [0], "after");
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(model.getters.getRowSize(sheetId, 0)).toEqual(DEFAULT_CELL_HEIGHT);
     expect(model.getters.getRowSize(sheetId, 1)).toEqual(20);
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(10);
@@ -1077,7 +1077,7 @@ describe("move elements(s)", () => {
 
     moveRows(model, 1, [3, 4]);
 
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(model.getters.getRowSize(sheetId, 1)).toEqual(20);
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(20);
     expect(model.getters.getRowSize(sheetId, 3)).toEqual(10);
@@ -1094,7 +1094,7 @@ describe("move elements(s)", () => {
 
   test("Move multiline row preserves its size", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A3", "Hello\nWorld");
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(36);
     moveRows(model, 1, [2], "before");
@@ -1105,7 +1105,7 @@ describe("move elements(s)", () => {
 
   test("Moving a row with wrapped text should not convert its height to fixed row size", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A3", "Hello\nWorld");
     setFormatting(model, "A3", { wrapping: "wrap" });
     moveRows(model, 1, [2], "before");
@@ -1114,7 +1114,7 @@ describe("move elements(s)", () => {
 
   test("Moving a resized row above does not change next row's size", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A2", "Hello\nRow1");
     resizeRows(model, [1], 50);
     setCellContent(model, "A3", "Hello\nRow2");
@@ -1125,7 +1125,7 @@ describe("move elements(s)", () => {
 
   test("Moving a row above a resized row should not inherit its size", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A1", "Hello\nWorld");
     resizeRows(model, [0], 50);
     setCellContent(model, "A2", "Hello");
@@ -1136,7 +1136,7 @@ describe("move elements(s)", () => {
 
   test("Preserves wrapped row height when a row is moved above it", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A2", "Hello\nWorld");
     setFormatting(model, "A2", { wrapping: "wrap" });
     moveRows(model, 1, [2], "before");
@@ -1164,7 +1164,7 @@ describe("move elements(s)", () => {
     result = moveColumns(model, "A", ["AAA"]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
     result = model.dispatch("MOVE_COLUMNS_ROWS", {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       sheetName: model.getters.getActiveSheetName(),
       base: -1,
       elements: [0],
@@ -1296,7 +1296,7 @@ describe("move elements(s)", () => {
 
 test("Preserves wrapped row height when inserting a row above", () => {
   const model = new Model();
-  const sheetId = model.getters.getActiveSheetId();
+  const sheetId = model.getters.getSheetIds()[0];
   setCellContent(model, "A2", "Hello\nWorld");
   setFormatting(model, "A2", { wrapping: "wrap" });
   addRows(model, "before", 1, 1);

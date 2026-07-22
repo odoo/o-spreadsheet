@@ -250,7 +250,7 @@ describe("Pivot fix formula menu item", () => {
 
     selectCell(model, "C1");
     createTable(model, "C1", {}, "dynamic");
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const activePosition = model.getters.getActivePosition();
     expect(model.getters.getCoreTable(activePosition)).toMatchObject({
       type: "dynamic",
@@ -275,7 +275,7 @@ describe("Pivot fix formula menu item", () => {
       A3: "=PIVOT(1)",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const env = makeTestEnv({ model });
     addPivot(model, "A1:A2", {
       columns: [],
@@ -348,7 +348,7 @@ describe("Pivot fix formula menu item", () => {
       A4: "=PIVOT(1)",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:A3", {
       columns: [],
       rows: [],
@@ -452,7 +452,7 @@ describe("Pivot reinsertion menu item", () => {
       createSheet(model, { sheetId: "smallSheet", rows: 1, cols: 1, activate: true });
       const env = makeTestEnv({ model });
       await doAction(reinsertDynamicPivotPath, env, topbarMenuRegistry);
-      expect(getCellText(model, "A1")).toEqual(`=PIVOT(1)`);
+      expect(getCellText(model, "A1", "smallSheet")).toEqual(`=PIVOT(1)`);
       expect(model.getters.getPivot(model.getters.getPivotId("1")!).isValid()).toBeTruthy();
       expect(model.getters.getNumberCols("smallSheet")).toEqual(2);
       expect(model.getters.getNumberRows("smallSheet")).toEqual(4); // title, col group, row header, total
@@ -504,7 +504,7 @@ describe("Pivot reinsertion menu item", () => {
       expect(getCellText(model, "B10")).toEqual(`=PIVOT.HEADER(1,"Customer","Alice")`);
       expect(
         model.getters.getCoreTable({
-          sheetId: model.getters.getActiveSheetId(),
+          sheetId: model.getters.getSheetIds()[0],
           ...toCartesian("B8"),
         })
       ).toMatchObject({
@@ -529,7 +529,7 @@ describe("Pivot reinsertion menu item", () => {
       createSheet(model, { sheetId: "smallSheet", rows: 1, cols: 1, activate: true });
       const env = makeTestEnv({ model });
       await doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
-      expect(getCellText(model, "A3")).toEqual(`=PIVOT.HEADER(1,"Customer","Alice")`);
+      expect(getCellText(model, "A3", "smallSheet")).toEqual(`=PIVOT.HEADER(1,"Customer","Alice")`);
       expect(model.getters.getPivot(model.getters.getPivotId("1")!).isValid()).toBeTruthy();
       expect(model.getters.getNumberCols("smallSheet")).toEqual(2);
       expect(model.getters.getNumberRows("smallSheet")).toEqual(4); // title, col group, row header, total
@@ -625,15 +625,16 @@ describe("Pivot reinsertion menu item", () => {
 
   test("Insert a pivot", async () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const env = makeTestEnv({ model });
     setGrid(model, { A1: "Header1", B1: "Header2", A2: "Data1", B2: "Data2" });
     setSelection(model, ["A1:B2"]);
     await doAction(insertPivotPath, env, topbarMenuRegistry);
     expect(model.getters.getActiveSheetId()).not.toEqual(sheetId);
     expect(model.getters.getPivotIds()).toHaveLength(1);
-    expect(getCellText(model, "A1")).toEqual(`=PIVOT(1)`);
-    expect(getTable(model, "A1")).toMatchObject({
+    const pivotSheetId = model.getters.getActiveSheetId();
+    expect(getCellText(model, "A1", pivotSheetId)).toEqual(`=PIVOT(1)`);
+    expect(getTable(model, "A1", pivotSheetId)).toMatchObject({
       range: { zone: toZone("A1:A3") },
       config: { styleId: PIVOT_INSERT_TABLE_STYLE_ID },
     });
@@ -732,7 +733,7 @@ describe("Pivot sorting menu item", () => {
   test("Sort menu item is not visible on static pivot formulas", () => {
     const pivotId = model.getters.getPivotIds()[0];
     model.dispatch("SPLIT_PIVOT_FORMULA", {
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       col: 0,
       row: 91,
       pivotId,
@@ -850,7 +851,7 @@ describe("Pivot (un)grouping menu items", () => {
       updatePivot(model, pivotId, {
         rows: [{ fieldName: "Salesperson" }, { fieldName: "Stage" }],
       });
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       model.dispatch("SPLIT_PIVOT_FORMULA", { sheetId, col: 0, row: 24, pivotId });
 
       setSelection(model, ["A27", "A32"]); // Salesperson headers

@@ -145,7 +145,7 @@ describe("styles", () => {
 
   test("getCellWidth use computed style", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A1", "H");
     setCellContent(model, "A2", "H");
     const fontSize = 36;
@@ -167,7 +167,7 @@ describe("styles", () => {
       values: ["A"],
       displayStyle: "chip",
     });
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     setCellContent(model, "A1", "A");
     const A1 = { sheetId, col: 0, row: 0 };
     const chipIcon = model.getters.getCellIcons(A1)[0];

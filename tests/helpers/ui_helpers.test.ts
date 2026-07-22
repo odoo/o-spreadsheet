@@ -84,7 +84,7 @@ describe("Interactive rename sheet", () => {
     "Rename a sheet with interaction with wrong name %s",
     async (sheetName, expectedErrorMessage) => {
       const errorCallback = jest.fn();
-      interactiveRenameSheet(env, model.getters.getActiveSheetId(), sheetName, errorCallback);
+      interactiveRenameSheet(env, model.getters.getSheetIds()[0], sheetName, errorCallback);
       expect(raiseErrorSpy).toHaveBeenCalledTimes(1);
       expect(errorCallback).toHaveBeenCalled();
       expect(errorTextSpy).toHaveBeenCalledWith(expectedErrorMessage);
@@ -95,7 +95,7 @@ describe("Interactive rename sheet", () => {
     const sheetName = "ThisSheetExistsAlready";
     createSheet(model, { name: sheetName });
     const errorCallback = jest.fn();
-    interactiveRenameSheet(env, model.getters.getActiveSheetId(), sheetName, errorCallback);
+    interactiveRenameSheet(env, model.getters.getSheetIds()[0], sheetName, errorCallback);
     expect(raiseErrorSpy).toHaveBeenCalledTimes(1);
     expect(errorCallback).toHaveBeenCalled();
     expect(errorTextSpy).toHaveBeenCalledWith(
@@ -127,7 +127,7 @@ describe("UI Helpers", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
     notifyUserTextSpy = jest.fn();
     askConfirmationTextSpy = jest.fn();
     const raiseError = (content: string) => {
@@ -537,7 +537,7 @@ describe("UI Helpers", () => {
     });
 
     test("Failed Sort of merges with adjacent merge with and without interactive mode", () => {
-      const sheetId = model.getters.getActiveSheetId();
+      const sheetId = model.getters.getSheetIds()[0];
       //add merge [cols:2, rows: 1] above existing merges
       setCellContent(model, "B1", "Bad Merge!", sheetId);
       merge(model, "B1:C1");

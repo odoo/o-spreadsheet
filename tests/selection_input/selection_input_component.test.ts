@@ -540,7 +540,7 @@ describe("Selection Input", () => {
 
   test("go back to initial sheet when selection is finished", async () => {
     const { model, fixture } = await createSelectionInput();
-    const sheet1Id = model.getters.getActiveSheetId();
+    const sheet1Id = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "42", activate: true });
     await createSelectionInput({}, fixture);
     activateSheet(model, "42");
@@ -553,7 +553,7 @@ describe("Selection Input", () => {
 
   test("undo after selection won't change active sheet", async () => {
     const { model } = await createSelectionInput();
-    const sheet1Id = model.getters.getActiveSheetId();
+    const sheet1Id = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "42" });
     await createSelectionInput();
     activateSheet(model, "42");

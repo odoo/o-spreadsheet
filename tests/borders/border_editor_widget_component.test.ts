@@ -78,7 +78,7 @@ describe("BorderEditorWidget", () => {
 
   test("The border style and color are persistent when toggling the editor", async () => {
     await mountBorderWidgetContainer();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const dispatch = jest.spyOn(model, "dispatch");
     await simulateClick(".border-widget");
     await setBorder({ position: "all", color: toHex("#ff0000"), style: "dashed" });
@@ -102,7 +102,7 @@ describe("BorderEditorWidget", () => {
 
   test("The border position is reset when toggling the editor", async () => {
     await mountBorderWidgetContainer();
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const dispatch = jest.spyOn(model, "dispatch");
     await simulateClick(".border-widget");
     await click(fixture, 'span[name="all"]');

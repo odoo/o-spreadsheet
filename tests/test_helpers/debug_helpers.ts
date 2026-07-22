@@ -77,7 +77,7 @@ export function printDebugModel(model: Model) {
  * Display the result of a PIVOT formula (the spill one)
  */
 export function printPivot(model: Model, xc: string) {
-  const sheetId = model.getters.getActiveSheetId();
+  const sheetId = model.getters.getSheetIds()[0];
   const position = toCellPosition(sheetId, xc);
   const zone = model.getters.getSpreadZone(position);
   if (!zone) {

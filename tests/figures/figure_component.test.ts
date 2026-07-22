@@ -84,7 +84,7 @@ let notifyUser: jest.Mock;
 function createFigure(
   model: Model,
   figureParameters: Partial<Figure & { anchor: Position }> = {},
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getSheetIds()[0]
 ) {
   const params: Figure = {
     id: "someuuid",
@@ -167,7 +167,7 @@ describe("figures", () => {
     };
     mockFigureMenuItemRect = { top: 500, left: 500 };
     ({ model, parent, fixture, env } = await mountSpreadsheet(undefined, { notifyUser }));
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   test("can create a figure with some data", () => {
@@ -730,14 +730,12 @@ describe("figures", () => {
         });
         triggerMouseEvent(figureEl, "pointerup");
         await nextTick();
-        expect(model.getters.getFigure(model.getters.getActiveSheetId(), "someuuid")).toMatchObject(
-          {
-            col: 5 + wheelCol,
-            row: 6 + wheelRow,
-          }
-        );
+        expect(model.getters.getFigure(model.getters.getSheetIds()[0], "someuuid")).toMatchObject({
+          col: 5 + wheelCol,
+          row: 6 + wheelRow,
+        });
         expect(
-          model.getters.getFigure(model.getters.getActiveSheetId(), "someuuid")!.offset
+          model.getters.getFigure(model.getters.getSheetIds()[0], "someuuid")!.offset
         ).toMatchObject({
           x: 8,
           y: 7,
@@ -777,14 +775,12 @@ describe("figures", () => {
         });
         triggerMouseEvent(figureEl, "pointerup");
         await nextTick();
-        expect(model.getters.getFigure(model.getters.getActiveSheetId(), "someuuid")).toMatchObject(
-          {
-            col: 5 + wheelCol,
-            row: 6 + wheelRow,
-          }
-        );
+        expect(model.getters.getFigure(model.getters.getSheetIds()[0], "someuuid")).toMatchObject({
+          col: 5 + wheelCol,
+          row: 6 + wheelRow,
+        });
         expect(
-          model.getters.getFigure(model.getters.getActiveSheetId(), "someuuid")!.offset
+          model.getters.getFigure(model.getters.getSheetIds()[0], "someuuid")!.offset
         ).toMatchObject({
           x: 5,
           y: 5,
@@ -958,7 +954,7 @@ describe("figures", () => {
   });
 
   test("images don't have a menu button in dashboard mode", async () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     createImage(model, { sheetId, figureId: "figureId" });
     model.updateMode("dashboard");
     await nextTick();
@@ -973,7 +969,7 @@ describe("figures", () => {
       let figureId: UID;
       let menuSelector: string;
       beforeEach(async () => {
-        sheetId = model.getters.getActiveSheetId();
+        sheetId = model.getters.getSheetIds()[0];
         figureId = "figureId";
         switch (type) {
           case "image":
@@ -2278,7 +2274,7 @@ describe.each(ZOOM_VALUES.map((zoom) => zoom / 100))("figures with zoom %s", (zo
     mockSpreadsheetRect = { top: 100, left: 200, height: 1000, width: 1000 };
     mockFigureMenuItemRect = { top: 500, left: 500 };
     ({ model, parent, fixture, env } = await mountSpreadsheet(undefined, { notifyUser }));
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
     setZoom(env, zoom);
   });
 
@@ -2370,7 +2366,7 @@ describe.each(ZOOM_VALUES.map((zoom) => zoom / 100))("figures with zoom %s", (zo
       true
     );
 
-    expect(model.getters.getFigure(model.getters.getActiveSheetId(), "someuuid")).toMatchObject({
+    expect(model.getters.getFigure(model.getters.getSheetIds()[0], "someuuid")).toMatchObject({
       col: 4,
       row: 6,
       offset: { x: expect.toBeBetween(39, 41), y: expect.toBeBetween(19, 21) },

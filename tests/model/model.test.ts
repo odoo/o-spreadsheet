@@ -43,7 +43,7 @@ describe("Model", () => {
           result = this.dispatch("UPDATE_CELL", {
             col: 0,
             row: 0,
-            sheetId: this.getters.getActiveSheetId(),
+            sheetId: this.getters.getSheetIds()[0],
             content: "hello",
           });
         }
@@ -169,7 +169,7 @@ describe("Model", () => {
       createSheet(model, { sheetId: "42", position: 1, name: "Sheet42" })
     ).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
 
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     expect(
       model.canDispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, content: "hey" })
     ).toBeSuccessfullyDispatched();
@@ -202,7 +202,7 @@ describe("Model", () => {
     const payload = {
       col: 0,
       row: 0,
-      sheetId: model.getters.getActiveSheetId(),
+      sheetId: model.getters.getSheetIds()[0],
       content: "hello",
       type: "greeting",
     };
@@ -346,7 +346,7 @@ describe("Model", () => {
       "3"
     );
     //@ts-ignore
-    alice.dispatch("MY_CMD_1", { sheetId: alice.getters.getActiveSheetId() });
+    alice.dispatch("MY_CMD_1", { sheetId: alice.getters.getSheetIds()[0] });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
       "5"

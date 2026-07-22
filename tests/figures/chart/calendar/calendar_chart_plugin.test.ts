@@ -203,9 +203,14 @@ describe("calendar chart", () => {
     (grouping: { stamp: CalendarChartGranularity; labels: readonly string[] }) => {
       const model = new Model();
       createSheet(model, { sheetId: "calendar", activate: true, rows: 365, cols: 2 });
-      setCellContent(model, "A1", "=DATE(1,1,1) + SEQUENCE(365,1,1,1) + SEQUENCE(365,1, 0, 1/366)");
-      setFormat(model, "A1:A365", "mm/dd/yyyy hh:mm:ss");
-      setCellContent(model, "B1", "=RANDARRAY(365,1)");
+      setCellContent(
+        model,
+        "A1",
+        "=DATE(1,1,1) + SEQUENCE(365,1,1,1) + SEQUENCE(365,1, 0, 1/366)",
+        "calendar"
+      );
+      setFormat(model, "A1:A365", "mm/dd/yyyy hh:mm:ss", "calendar");
+      setCellContent(model, "B1", "=RANDARRAY(365,1)", "calendar");
       const chartId = UuidGenerator.uuidv4();
       createCalendarChart(
         model,
@@ -232,9 +237,14 @@ describe("calendar chart", () => {
     (grouping: { stamp: CalendarChartGranularity; labels: readonly string[] }) => {
       const model = new Model();
       createSheet(model, { sheetId: "calendar", activate: true, rows: 365, cols: 2 });
-      setCellContent(model, "A1", "=DATE(1,1,1) + SEQUENCE(365,1,1,1) + SEQUENCE(365,1, 0, 1/366)");
-      setFormat(model, "A1:A365", "mm/dd/yyyy hh:mm:ss");
-      setCellContent(model, "B1", "=RANDARRAY(365,1)");
+      setCellContent(
+        model,
+        "A1",
+        "=DATE(1,1,1) + SEQUENCE(365,1,1,1) + SEQUENCE(365,1, 0, 1/366)",
+        "calendar"
+      );
+      setFormat(model, "A1:A365", "mm/dd/yyyy hh:mm:ss", "calendar");
+      setCellContent(model, "B1", "=RANDARRAY(365,1)", "calendar");
       const chartId = UuidGenerator.uuidv4();
       createCalendarChart(
         model,

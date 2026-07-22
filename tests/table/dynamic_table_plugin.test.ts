@@ -28,7 +28,7 @@ let sheetId: UID;
 
 beforeEach(() => {
   model = new Model();
-  sheetId = model.getters.getActiveSheetId();
+  sheetId = model.getters.getSheetIds()[0];
 });
 
 describe("Dynamic tables", () => {

@@ -11,7 +11,7 @@ describe("Hovered Table Store", () => {
 
   beforeEach(() => {
     ({ model, store: hoveredTableStore } = makeStore(HoveredTableStore));
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
 
   test("Should not store overlay for header cells, regardless of data", () => {

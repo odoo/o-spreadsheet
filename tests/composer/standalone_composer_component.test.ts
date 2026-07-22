@@ -46,7 +46,7 @@ async function openSidePanelWithComposer(props?: Partial<StandaloneComposer["pro
     ...props,
     onConfirm,
     composerContent: props?.composerContent || "",
-    defaultRangeSheetId: props?.defaultRangeSheetId || model.getters.getActiveSheetId(),
+    defaultRangeSheetId: props?.defaultRangeSheetId || model.getters.getSheetIds()[0],
     defaultStatic: props?.defaultStatic || false,
   });
   await nextTick();
@@ -164,7 +164,7 @@ describe("Spreadsheet integrations tests", () => {
   });
 
   test("content with references from another sheet", async () => {
-    const sheet1Id = model.getters.getActiveSheetId();
+    const sheet1Id = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "sheet2", activate: true });
     await openSidePanelWithComposer({
       composerContent: "=A1",

@@ -24,7 +24,7 @@ describe("Pivot calculated measure", () => {
       A2: "Alice",    B2: "10",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:B2", {
       measures: [
         { id: "Price", fieldName: "Price", aggregator: "sum" },
@@ -51,7 +51,7 @@ describe("Pivot calculated measure", () => {
       A2: "Alice",    B2: "10",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:B2", {
       measures: [
         { id: "Expected revenue", fieldName: "Expected revenue", aggregator: "sum" },
@@ -78,7 +78,7 @@ describe("Pivot calculated measure", () => {
       A2: "Alice",    B2: "10",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:B2", {
       measures: [
         {
@@ -102,7 +102,7 @@ describe("Pivot calculated measure", () => {
       A4: "=PIVOT(1)",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:A2", {
       measures: [
         {
@@ -132,7 +132,7 @@ describe("Pivot calculated measure", () => {
       A5: "=PIVOT(1)"
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:C4", {
       rows: [{ fieldName: "Customer" }, { fieldName: "Category" }],
       measures: [
@@ -175,7 +175,7 @@ describe("Pivot calculated measure", () => {
       A5: "=PIVOT(1)"
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:C4", {
       columns: [{ fieldName: "Customer" }, { fieldName: "Category" }],
       measures: [
@@ -214,7 +214,7 @@ describe("Pivot calculated measure", () => {
       A5: "=PIVOT(1)"
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:C4", {
       columns: [{ fieldName: "Customer" }],
       rows: [{ fieldName: "Category" }],
@@ -248,7 +248,7 @@ describe("Pivot calculated measure", () => {
       A5: "=PIVOT(1)"
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:C3", {
       columns: [],
       rows: [{ fieldName: "Product" }],
@@ -284,7 +284,7 @@ describe("Pivot calculated measure", () => {
       A5: "=PIVOT(1)"
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:B3", {
       rows: [{ fieldName: "Product" }, { fieldName: "Color" }],
       measures: [
@@ -324,7 +324,7 @@ describe("Pivot calculated measure", () => {
       A5: "=PIVOT(1)"
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:B3", {
       columns: [{ fieldName: "Product" }, { fieldName: "Color" }],
       rows: [],
@@ -364,7 +364,7 @@ describe("Pivot calculated measure", () => {
       A5: "=PIVOT(1)"
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:C4", {
       columns: [{ fieldName: "Price" }],
       rows: [{ fieldName: "Customer" }, { fieldName: "Category" }],
@@ -398,7 +398,7 @@ describe("Pivot calculated measure", () => {
       A5: "2",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:B2", {
       measures: [
         { id: "Price", fieldName: "Price", aggregator: "sum" },
@@ -423,7 +423,7 @@ describe("Pivot calculated measure", () => {
       A5: "2",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:B2", {
       measures: [
         { id: "Price", fieldName: "Price", aggregator: "sum" },
@@ -455,7 +455,7 @@ describe("Pivot calculated measure", () => {
       A10: "=PIVOT(1)"
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:C4", {
       rows: [{ fieldName: "Customer" }, { fieldName: "Category" }],
       measures: [
@@ -496,7 +496,7 @@ describe("Pivot calculated measure", () => {
       A5: "A5 in sheet 1",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     createSheet(model, { sheetId: "sheet2" });
     setCellContent(model, "A5", "A5 in sheet 2", "sheet2");
     addPivot(model, "A1:A2", {
@@ -527,7 +527,7 @@ describe("Pivot calculated measure", () => {
       A3: '=PIVOT.VALUE(1, "Price times 4")',
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:B2", {
       measures: [
         { id: "Price", fieldName: "Price", aggregator: "sum" },
@@ -556,7 +556,7 @@ describe("Pivot calculated measure", () => {
       A3: '=PIVOT.VALUE(1, "Price times 4")',
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:B2", {
       measures: [
         { id: "Price", fieldName: "Price", aggregator: "sum" },
@@ -584,7 +584,7 @@ describe("Pivot calculated measure", () => {
       A3: '=PIVOT.VALUE(1, "calculated")',
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:A2", {
       measures: [
         {
@@ -606,7 +606,7 @@ describe("Pivot calculated measure", () => {
       A3: '=PIVOT.VALUE(1, "calculated")',
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:A2", {
       measures: [
         {
@@ -629,7 +629,7 @@ describe("Pivot calculated measure", () => {
       A4: '=PIVOT.VALUE(1, "basedOnCalculated")',
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:A2", {
       measures: [
         {
@@ -662,7 +662,7 @@ describe("Pivot calculated measure", () => {
       A6: "=PIVOT(1)",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:A2", {
       measures: [
         {
@@ -692,7 +692,7 @@ describe("Pivot calculated measure", () => {
       A3: "Alice",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A2:A3", {
       rows: [{ fieldName: "Customer" }],
       measures: [
@@ -716,7 +716,7 @@ describe("Pivot calculated measure", () => {
       A3: "Alice",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A2:A3", {
       measures: [
         { id: "Customer", fieldName: "Customer", aggregator: "sum" },
@@ -743,7 +743,7 @@ describe("Pivot calculated measure", () => {
       A4: "=Price",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:B2", {
       measures: [
         { id: "Price", fieldName: "Price", aggregator: "sum" },
@@ -767,7 +767,7 @@ describe("Pivot calculated measure", () => {
       A3: "Alice",    B3: "20",     C3: "2021",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:C3", {
       rows: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       measures: [
@@ -802,7 +802,7 @@ describe("Pivot calculated measure", () => {
       A6: "=PIVOT(1)"
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:D5", {
       columns: [{ fieldName: "Category" }],
       rows: [{ fieldName: "Customer" }],
@@ -833,7 +833,7 @@ describe("Pivot calculated measure", () => {
       A6: '=PIVOT.VALUE(1,"calc", "Type", "10")',
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:A2", {
       columns: [],
       rows: [{ fieldName: "Type" }],
@@ -860,7 +860,7 @@ describe("Pivot calculated measure", () => {
       A8: '=PIVOT.VALUE(1,"calc","Name","Bob","Date:month_number",1)',
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Name" }, { fieldName: "Date", granularity: "month_number" }],
@@ -889,7 +889,7 @@ describe("Pivot calculated measure", () => {
     };
     const model = createModelFromGrid(grid);
     setFormat(model, "B2:B3", "#,##0[$€]");
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:B3", {
       rows: [{ fieldName: "Customer" }],
       measures: [
@@ -920,7 +920,7 @@ describe("Pivot calculated measure", () => {
     };
     const model = createModelFromGrid(grid);
     setFormat(model, "C2:C3", "#,##0[$€]");
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:C3", {
       rows: [
         { fieldName: "Customer", order: "asc" },
@@ -961,7 +961,7 @@ describe("Pivot calculated measure", () => {
       A4: "Alice",    B4: "1",      C4: "2021",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:C4", {
       rows: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       measures: [
@@ -993,7 +993,7 @@ describe("Pivot calculated measure", () => {
       A3: "=PIVOT(1)"
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:A2", {
       measures: [
         {
@@ -1016,7 +1016,7 @@ describe("Pivot calculated measure", () => {
       A3: "=PIVOT(1)",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:A2", {
       measures: [
         {
@@ -1038,7 +1038,7 @@ describe("Pivot calculated measure", () => {
       A3: "=PIVOT(1)",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:A2", {
       rows: [{ fieldName: "Customer" }],
       measures: [
@@ -1066,7 +1066,7 @@ describe("Pivot calculated measure", () => {
       A3: '=PIVOT.VALUE(1, "calculated")',
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:A2", {
       measures: [
         {
@@ -1087,7 +1087,7 @@ describe("Pivot calculated measure", () => {
       A3: '=PIVOT.VALUE(1, "calculated")',
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:A2", {
       measures: [
         {
@@ -1120,7 +1120,7 @@ describe("Pivot calculated measure", () => {
       A4: '=PIVOT.VALUE(1, "calculated")',
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:A2", {
       measures: [
         {
@@ -1157,7 +1157,7 @@ describe("Pivot calculated measure", () => {
       A4: '=PIVOT.VALUE(1, "calculated")',
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const sheetName = model.getters.getSheetName(sheetId);
     addPivot(model, "A1:A2", {
       measures: [
@@ -1189,7 +1189,7 @@ describe("Pivot calculated measure", () => {
       A4: '=PIVOT.VALUE(1, "calculated")',
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     const sheetId2 = "sheetId2";
     createSheet(model, { sheetId: sheetId2 });
     addPivot(model, "A1:A2", {
@@ -1203,7 +1203,7 @@ describe("Pivot calculated measure", () => {
       ],
     });
     activateSheet(model, sheetId2);
-    setCellContent(model, "A3", "42");
+    setCellContent(model, "A3", "42", sheetId2);
     expect(getEvaluatedCell(model, "A4", sheetId).value).toEqual(42);
     deleteSheet(model, sheetId2);
     expect(model.getters.getPivotCoreDefinition("1").measures).toEqual([
@@ -1227,7 +1227,7 @@ describe("Pivot calculated measure", () => {
       A5: "Bob",      B5: "40",     C5: "2021",
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:C5", {
       columns: [{ fieldName: "Year" }, { fieldName: "Customer" }],
       measures: [
@@ -1270,7 +1270,7 @@ describe("Pivot calculated measure", () => {
       A6: '=PIVOT.VALUE(1, "calculated", "Country", "IN")', // aggregated value
     };
     const model = createModelFromGrid(grid);
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:C2", {
       rows: [{ fieldName: "Country" }, { fieldName: "Customer" }],
       measures: [
@@ -1297,7 +1297,7 @@ describe("Pivot calculated measure", () => {
     };
     const model = createModelFromGrid(grid);
     createNamedRange(model, "MyNamedRange", "A5");
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:B2", {
       measures: [
         {
@@ -1329,7 +1329,7 @@ describe("Pivot calculated measure", () => {
     const model = createModelFromGrid(grid);
     createNamedRange(model, "MyNamedRange", "A10");
     createNamedRange(model, "AnotherNamedRange", "A11");
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     addPivot(model, "A1:B2", {
       measures: [
         {
@@ -1384,7 +1384,7 @@ test("measure takes indirect dependency into account for recalculation", () => {
     A5: '=PIVOT.VALUE(1, "basedOnCalculated")',
   };
   const model = createModelFromGrid(grid);
-  const sheetId = model.getters.getActiveSheetId();
+  const sheetId = model.getters.getSheetIds()[0];
   addPivot(model, "A1:A2", {
     measures: [
       {

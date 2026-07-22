@@ -88,7 +88,7 @@ describe("custom colors are correctly handled when editing charts", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
   });
   test("Chart background colors are taken into account", () => {
     expect(model.getters.getCustomColors()).toEqual([]);
@@ -167,7 +167,7 @@ describe("custom colors are correctly handled when editing charts", () => {
   });
 
   test("Sheet colors are taken into account", () => {
-    colorSheetTab(model, model.getters.getActiveSheetId(), "#FFFF16");
+    colorSheetTab(model, model.getters.getSheetIds()[0], "#FFFF16");
     setSheetBackground(model, "#FF16FF");
 
     expect(model.getters.getCustomColors()).toEqual(["#FFFF16", "#FF16FF"]);

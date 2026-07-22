@@ -15,7 +15,7 @@ describe("Data validation evaluation", () => {
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
+    sheetId = model.getters.getSheetIds()[0];
     A1 = { sheetId, col: 0, row: 0 };
   });
 
@@ -223,7 +223,7 @@ describe("Data validation evaluation", () => {
   });
 
   test("DV evaluation can be based on position-related formulas", () => {
-    const sheetId = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getSheetIds()[0];
     //prettier-ignore
     setGrid(model, {
       A1: "1", A2: "5", A3: "3", A4: "4",
