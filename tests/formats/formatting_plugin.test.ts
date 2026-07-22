@@ -691,6 +691,16 @@ describe("Autoresize", () => {
     expect(model.getters.getColSize(sheetId, 0)).toBe(newCellWidth);
   });
 
+  test("Autoresize with works on a non-active sheet and text wrapping", () => {
+    createSheet(model, { sheetId: "sh2" });
+    setFormatting(model, "A1", { wrapping: "wrap" }, "sh2");
+    setCellContent(model, "A1", LONG_TEXT, "sh2");
+    resizeColumns(model, ["A"], 5, "sh2");
+    expect(model.getters.getColSize("sh2", 0)).toBe(5);
+    model.dispatch("AUTORESIZE_COLUMNS", { sheetId: "sh2", cols: [0] });
+    expect(model.getters.getColSize("sh2", 0)).toBe(5);
+  });
+
   test("Can autoresize two columns", () => {
     setCellContent(model, "A1", TEXT);
     setCellContent(model, "C1", LONG_TEXT);
