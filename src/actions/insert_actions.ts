@@ -215,7 +215,7 @@ export const insertTable: ActionSpec = {
   shortcut: "Alt+T",
   execute: ACTIONS.INSERT_TABLE,
   isVisible: (env) =>
-    ACTIONS.IS_SELECTION_CONTINUOUS(env) && !env.model.getters.getFirstTableInSelection(),
+    ACTIONS.IS_SELECTION_CONTINUOUS(env) && !ACTIONS.FIRST_TABLE_IN_SELECTION(env),
   isEnabled: (env) => !env.isSmall,
   icon: "o-spreadsheet-Icon.PAINT_TABLE",
 };
