@@ -7,6 +7,8 @@ import { Range } from "../../../types/range";
 import { TableConfig } from "../../../types/table";
 
 import { getTableTopLeft } from "../../../helpers/table_helpers";
+import { TableResizeStore } from "../../../plugins/ui_feature/table_resize_ui";
+import { useStore } from "../../../store_engine/store_hooks";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { NumberInput } from "../../number_input/number_input";
 import { types } from "../../props_validation";
@@ -49,6 +51,7 @@ export class TablePanel extends Component<SpreadsheetChildEnv> {
       tableXc: this.env.model.getters.getRangeString(this.props.table.range, sheetId),
       filtersEnabledIfPossible: this.props.table.config.hasFilters,
     });
+    useStore(TableResizeStore);
   }
 
   updateHasFilters(hasFilters: boolean) {
