@@ -1,5 +1,6 @@
 import { proxy, useProps } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
+import { FIRST_TABLE_IN_SELECTION } from "../../../actions/menu_items_actions";
 import { DEFAULT_TABLE_CONFIG } from "../../../helpers/table_presets";
 import { interactiveCreateTable } from "../../../helpers/ui/table_interactive";
 import { cellPositions } from "../../../helpers/zones";
@@ -57,7 +58,7 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
       this.env.openSidePanel("PivotSidePanel", { pivotId, openTab: "design" });
       return;
     }
-    if (this.env.model.getters.getFirstTableInSelection()) {
+    if (FIRST_TABLE_IN_SELECTION(this.env)) {
       this.topBarToolStore.closeDropdowns();
       this.env.toggleSidePanel("TableSidePanel", {});
       return;
@@ -87,10 +88,9 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
     }
 
     return {
-      name: (env) =>
-        env.model.getters.getFirstTableInSelection() ? _t("Edit table") : _t("Insert table"),
+      name: (env) => (FIRST_TABLE_IN_SELECTION(env) ? _t("Edit table") : _t("Insert table")),
       icon: (env) =>
-        env.model.getters.getFirstTableInSelection()
+        FIRST_TABLE_IN_SELECTION(env)
           ? "o-spreadsheet-Icon.EDIT_TABLE"
           : "o-spreadsheet-Icon.PAINT_TABLE",
     };

@@ -23,6 +23,7 @@ import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
 import { Format } from "../types/format";
 import { Dimension, Style } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
+import { Table } from "../types/table";
 import { ActionSpec } from "./action";
 
 //------------------------------------------------------------------------------
@@ -573,7 +574,7 @@ export const INSERT_LINK_NAME = (env: SpreadsheetChildEnv) => {
 //------------------------------------------------------------------------------
 
 export const SELECTED_TABLE_HAS_FILTERS = (env: SpreadsheetChildEnv): boolean => {
-  const table = env.model.getters.getFirstTableInSelection();
+  const table = FIRST_TABLE_IN_SELECTION(env);
   return table?.config.hasFilters || false;
 };
 
@@ -588,9 +589,15 @@ export const IS_SELECTION_CONTINUOUS = (env: SpreadsheetChildEnv): boolean => {
   return areZonesContinuous(env.model.getters.getSelectedZones());
 };
 
+export const FIRST_TABLE_IN_SELECTION = (env: SpreadsheetChildEnv): Table | undefined => {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const selection = env.model.getters.getSelectedZones();
+  return env.model.getters.getTablesOverlappingZones(sheetId, selection)[0];
+};
+
 export const ADD_DATA_FILTER = (env: SpreadsheetChildEnv) => {
   const sheetId = env.model.getters.getActiveSheetId();
-  const table = env.model.getters.getFirstTableInSelection();
+  const table = FIRST_TABLE_IN_SELECTION(env);
   if (table) {
     env.model.dispatch("UPDATE_TABLE", {
       sheetId,
@@ -610,7 +617,7 @@ export const ADD_DATA_FILTER = (env: SpreadsheetChildEnv) => {
 
 export const REMOVE_DATA_FILTER = (env: SpreadsheetChildEnv) => {
   const sheetId = env.model.getters.getActiveSheetId();
-  const table = env.model.getters.getFirstTableInSelection();
+  const table = FIRST_TABLE_IN_SELECTION(env);
   if (!table) {
     return;
   }
@@ -631,7 +638,7 @@ export const INSERT_TABLE = (env: SpreadsheetChildEnv) => {
 };
 
 export const DELETE_SELECTED_TABLE = (env: SpreadsheetChildEnv) => {
-  const table = env.model.getters.getFirstTableInSelection();
+  const table = FIRST_TABLE_IN_SELECTION(env);
   if (!table) {
     return;
   }
