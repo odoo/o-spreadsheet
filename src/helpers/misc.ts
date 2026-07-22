@@ -806,6 +806,18 @@ export function getMissingHeadersForSpreadResult(
   return { missingRows, missingCols };
 }
 
+export function isObjectEmpty(obj: any) {
+  if (!obj || Object.keys(obj).length === 0) {
+    return true;
+  }
+  for (const value of Object.values(obj)) {
+    if (value !== undefined && (typeof value !== "object" || !isObjectEmpty(value))) {
+      return false;
+    }
+  }
+  return true;
+}
+
 /*
  * Simple object that mimic the defaultDict behaviour in python
  * It is a dictionary with the get function setting returning a copy of the default value

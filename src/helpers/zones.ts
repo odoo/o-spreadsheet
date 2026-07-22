@@ -814,3 +814,13 @@ export function splitZone(z1: Zone, z2: Zone): Zone[] {
   }
   return zones;
 }
+
+export function extendZone(
+  zone: Zone,
+  direction: "left" | "top" | "right" | "bottom",
+  quantity: number
+): Zone {
+  zone = { ...zone };
+  zone[direction] += direction === "left" || direction === "top" ? -quantity : quantity;
+  return zone;
+}
