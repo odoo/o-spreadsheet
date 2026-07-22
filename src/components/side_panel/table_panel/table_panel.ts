@@ -7,8 +7,8 @@ import { Range } from "../../../types/range";
 import { TableConfig } from "../../../types/table";
 
 import { getTableTopLeft } from "../../../helpers/table_helpers";
-import { TableResizeStore } from "../../../plugins/ui_feature/table_resize_ui";
 import { useStore } from "../../../store_engine/store_hooks";
+import { TableResizeStore } from "../../../stores/table_resize_store";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { NumberInput } from "../../number_input/number_input";
 import { types } from "../../props_validation";
