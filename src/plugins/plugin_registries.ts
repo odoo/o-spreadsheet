@@ -49,7 +49,6 @@ import { SortPlugin } from "./ui_feature/sort";
 import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
 import { SubtotalEvaluationPlugin } from "./ui_feature/subtotal_evaluation";
 import { TableComputedStylePlugin } from "./ui_feature/table_computed_style";
-import { TableResizeUI } from "./ui_feature/table_resize_ui";
 import { UIOptionsPlugin } from "./ui_feature/ui_options";
 import { SheetUIPlugin } from "./ui_feature/ui_sheet";
 import { UIPluginConstructor } from "./ui_plugin";
@@ -93,7 +92,6 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("subtotal_evaluation", SubtotalEvaluationPlugin)
   .add("collaborative", CollaborativePlugin)
   .add("history", HistoryPlugin)
-  .add("table_ui_resize", TableResizeUI)
   .add("datavalidation_insert", DataValidationInsertionPlugin)
   .add("dynamic_translate", DynamicTranslate)
   .add("geo_features", GeoFeaturePlugin)

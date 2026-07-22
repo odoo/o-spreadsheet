@@ -1,5 +1,6 @@
 import { proxy, useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
+import { TableResizeStore } from "../../../plugins/ui_feature/table_resize_ui";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { HeaderIndex, Highlight, Zone } from "../../../types/misc";
@@ -32,6 +33,7 @@ export class TableResizer extends Component<SpreadsheetChildEnv> {
   setup(): void {
     useHighlights(this);
     this.viewStore = useStore(ViewportsStore);
+    useStore(TableResizeStore);
   }
 
   get containerStyle(): string {

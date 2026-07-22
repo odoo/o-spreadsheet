@@ -1,18 +1,21 @@
-import { CommandResult, Model, UID } from "../../src";
+import { CommandResult, Model, ResizeTableCommand, UID } from "../../src";
 import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import { TableAutofillStore } from "../../src/components/autofill/table_autofill_store";
 import { toZone } from "../../src/helpers/zones";
+import { TableResizeStore } from "../../src/plugins/ui_feature/table_resize_ui";
 import {
   createDynamicTable,
   createTable,
   resizeTable,
   setCellContent,
 } from "../test_helpers/commands_helpers";
-import { getActivePosition, getCellRawContent } from "../test_helpers/getters_helpers";
+import { getActivePosition, getCellRawContent, getTable } from "../test_helpers/getters_helpers";
+import { toRangeData } from "../test_helpers/helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 
 let model: Model;
 let sheetId: UID;
+let tableResizeStore: TableResizeStore;
 
 describe("Table resize", () => {
   beforeEach(() => {
@@ -20,23 +23,43 @@ describe("Table resize", () => {
     sheetId = model.getters.getActiveSheetId();
     const { container } = makeStoreWithModel(model, AutofillStore);
     container.get(TableAutofillStore);
+    tableResizeStore = container.get(TableResizeStore);
   });
 
   describe("dispatch result", () => {
     test("Cannot resize a table zone to a wrong zone", () => {
       createTable(model, "A1:A5");
 
-      expect(resizeTable(model, "A1", "A1:A600")).toBeCancelledBecause(
+      let cmd: ResizeTableCommand = {
+        type: "RESIZE_TABLE",
+        sheetId,
+        zone: getTable(model, "A1")!.range.zone,
+        newTableRange: toRangeData(sheetId, "A1:A600"),
+      };
+
+      expect(tableResizeStore.canResizeTable(cmd)).toBeCancelledBecause(
         CommandResult.TargetOutOfSheet
       );
 
       createTable(model, "B1:B5");
-      expect(resizeTable(model, "A1", "A1:B5")).toBeCancelledBecause(CommandResult.TableOverlap);
+      cmd = {
+        type: "RESIZE_TABLE",
+        sheetId,
+        zone: getTable(model, "A1")!.range.zone,
+        newTableRange: toRangeData(sheetId, "A1:B5"),
+      };
+      expect(tableResizeStore.canResizeTable(cmd)).toBeCancelledBecause(CommandResult.TableOverlap);
     });
 
     test("Cannot resize a table while changing it's top-left", () => {
       createTable(model, "A1:A5");
-      expect(resizeTable(model, "A1", "B1:B5")).toBeCancelledBecause(
+      const cmd: ResizeTableCommand = {
+        type: "RESIZE_TABLE",
+        sheetId,
+        zone: getTable(model, "A1")!.range.zone,
+        newTableRange: toRangeData(sheetId, "B1:B5"),
+      };
+      expect(tableResizeStore.canResizeTable(cmd)).toBeCancelledBecause(
         CommandResult.InvalidTableResize
       );
     });
