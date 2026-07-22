@@ -2,17 +2,17 @@ import {
   changeDecimalPlaces,
   createDefaultFormat,
   isDateTimeFormat,
-} from "../../helpers/format/format";
-import { recomputeZones } from "../../helpers/recompute_zones";
-import { positions, positionToZone } from "../../helpers/zones";
-import { CellValueType } from "../../types/cells";
-import { Command } from "../../types/commands";
-import { Format } from "../../types/format";
-import { CellPosition, Position, SetDecimalStep, UID, Zone } from "../../types/misc";
-import { PivotTableCell, PivotValueCell } from "../../types/pivot";
-import { UIPlugin } from "../ui_plugin";
+} from "../helpers/format/format";
+import { recomputeZones } from "../helpers/recompute_zones";
+import { positions, positionToZone } from "../helpers/zones";
+import { CellValueType } from "../types/cells";
+import { Command } from "../types/commands";
+import { Format } from "../types/format";
+import { CellPosition, Position, SetDecimalStep, UID, Zone } from "../types/misc";
+import { PivotTableCell, PivotValueCell } from "../types/pivot";
+import { SpreadsheetStore } from "./spreadsheet_store";
 
-export class FormatPlugin extends UIPlugin {
+export class FormatStore extends SpreadsheetStore {
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
@@ -50,7 +50,7 @@ export class FormatPlugin extends UIPlugin {
     for (const pivotId in measuresByPivotId) {
       const measures = measuresByPivotId[pivotId];
       const pivotDefinition = this.getters.getPivotCoreDefinition(pivotId);
-      this.dispatch("UPDATE_PIVOT", {
+      this.model.dispatch("UPDATE_PIVOT", {
         pivotId,
         pivot: {
           ...pivotDefinition,
@@ -63,12 +63,12 @@ export class FormatPlugin extends UIPlugin {
         },
       });
     }
-    this.dispatch("SET_FORMATTING", {
+    this.model.dispatch("SET_FORMATTING", {
       sheetId,
       target: measureZones,
       format: "",
     });
-    this.dispatch("SET_FORMATTING", {
+    this.model.dispatch("SET_FORMATTING", {
       sheetId,
       target: recomputeZones(zones, measureZones),
       format,

@@ -49,6 +49,7 @@ import {
   target,
 } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
+import { makeGlobalStoreWithModel } from "../test_helpers/stores";
 
 function setContextualFormat(model: Model, targetXc: string, format: Format) {
   model.dispatch("SET_FORMATTING_WITH_PIVOT", {
@@ -180,6 +181,7 @@ describe("formatting values (with formatters)", () => {
       },
     });
     const model = new Model();
+    makeGlobalStoreWithModel(model);
     setCellContent(model, "A1", '=SET.DYN.FORMAT(5, "0.00")');
     selectCell(model, "A1");
     setDecimal(model, "A1", 1);
@@ -188,6 +190,7 @@ describe("formatting values (with formatters)", () => {
 
   test("SET_DECIMAL on long number that are truncated due to default format don't lose truncated digits", () => {
     const model = new Model();
+    makeGlobalStoreWithModel(model);
     setCellContent(model, "A1", "10.123456789123");
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.12345679");
 
@@ -210,6 +213,7 @@ describe("formatting values (with formatters)", () => {
 
   test("SET_DECIMAL on format with escaped string", () => {
     const model = new Model();
+    makeGlobalStoreWithModel(model);
     setCellContent(model, "A1", "10");
 
     setFormat(model, "A1", "0.0\\€");
@@ -229,6 +233,7 @@ describe("formatting values (with formatters)", () => {
 
   test("SET_DECIMAL on multi-part format", () => {
     const model = new Model();
+    makeGlobalStoreWithModel(model);
     setCellContent(model, "A1", "10");
 
     setFormat(model, "A1", "0.0\\€;$0.#; 0 ;@");
@@ -250,6 +255,7 @@ describe("formatting values (with formatters)", () => {
 
   test("SET_DECIMAL on scientific format", () => {
     const model = new Model();
+    makeGlobalStoreWithModel(model);
     setCellContent(model, "A1", "1234");
 
     setFormat(model, "A1", "0.00e");
@@ -276,6 +282,7 @@ describe("formatting values (with formatters)", () => {
 describe("pivot contextual formatting", () => {
   test("format without pivot", () => {
     const model = new Model();
+    makeGlobalStoreWithModel(model);
     setContextualFormat(model, "A1", "0.00%");
     expect(getCell(model, "A1")?.format).toBe("0.00%");
   });
@@ -288,6 +295,7 @@ describe("pivot contextual formatting", () => {
       A3: "Bob",      B3: "12",
     };
     const model = createModelFromGrid(grid);
+    makeGlobalStoreWithModel(model);
     addPivot(model, "A1:B3", {
       columns: [{ fieldName: "Customer" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
@@ -314,6 +322,7 @@ describe("pivot contextual formatting", () => {
       A3: "=PIVOT(1)",
     };
     const model = createModelFromGrid(grid);
+    makeGlobalStoreWithModel(model);
     addPivot(model, "A1:A2", {
       measures: [
         { id: "Price:sum", fieldName: "Price", aggregator: "sum" },
@@ -345,6 +354,7 @@ describe("pivot contextual formatting", () => {
       A3: "=PIVOT(1)",
     };
     const model = createModelFromGrid(grid);
+    makeGlobalStoreWithModel(model);
     addPivot(model, "A1:A2", {
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
     });
@@ -361,6 +371,7 @@ describe("pivot contextual formatting", () => {
       A3: "=PIVOT(1)",
     };
     const model = createModelFromGrid(grid);
+    makeGlobalStoreWithModel(model);
     addPivot(model, "A1:A2", {
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
     });
@@ -377,6 +388,7 @@ describe("pivot contextual formatting", () => {
       A2: "Alice",    B2: "10",
     };
     const model = createModelFromGrid(grid);
+    makeGlobalStoreWithModel(model);
     addPivot(model, "A1:B2", {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "count" }],
@@ -398,6 +410,7 @@ describe("pivot contextual formatting", () => {
       A2: "Alice",    B2: "10",
     };
     const model = createModelFromGrid(grid);
+    makeGlobalStoreWithModel(model);
     addPivot(model, "A1:B2", {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "count" }],
@@ -429,6 +442,7 @@ describe("pivot contextual formatting", () => {
 describe("formatting values (when change decimal)", () => {
   test("Can't change decimal format of a cell that isn't 'number' type", () => {
     const model = new Model();
+    makeGlobalStoreWithModel(model);
     setCellContent(model, "A1", "kikou");
     expect(getCellContent(model, "A1")).toBe("kikou");
     selectCell(model, "A1");
@@ -439,6 +453,7 @@ describe("formatting values (when change decimal)", () => {
 
   test("Can't change decimal format of a cell when value not exist", () => {
     const model = new Model();
+    makeGlobalStoreWithModel(model);
     setCellContent(model, "A1", "42%");
     deleteContent(model, ["A1"]);
     expect(getCell(model, "A1")!.format).toBe("0%");
@@ -459,6 +474,7 @@ describe("formatting values (when change decimal)", () => {
     "Can change decimal format of a cell that already has format",
     (noneDecimal, oneDecimal, twoDecimal) => {
       const model = new Model();
+      makeGlobalStoreWithModel(model);
 
       setCellContent(model, "A1", "42");
       selectCell(model, "A1");
@@ -488,6 +504,7 @@ describe("formatting values (when change decimal)", () => {
 
   test("Can change decimal format of a cell that hasn't format (case 'number' type only)", () => {
     const model = new Model();
+    makeGlobalStoreWithModel(model);
 
     setCellContent(model, "A1", "123");
     expect(getCell(model, "A1")!.format).toBe(undefined);
@@ -516,6 +533,7 @@ describe("formatting values (when change decimal)", () => {
 
   test("Decimal format is limited to 20 zeros after the decimal point", () => {
     const model = new Model();
+    makeGlobalStoreWithModel(model);
 
     const nineteenZerosA1 = "0.0000000000000000000";
     const twentyZerosA1 = "0.00000000000000000000";
@@ -551,6 +569,7 @@ describe("formatting values (when change decimal)", () => {
 
   test("Change decimal format on a range does nothing if there isn't 'number' type", () => {
     const model = new Model();
+    makeGlobalStoreWithModel(model);
 
     // give values ​​with different formats
 
@@ -585,6 +604,8 @@ describe("formatting values (when change decimal)", () => {
 
   test("Check multiple format in selected zone", async () => {
     const model = new Model();
+    makeGlobalStoreWithModel(model);
+
     setCellContent(model, "A1", "100%");
     setCellContent(model, "B1", "$190.12");
     setCellContent(model, "C1", "$21");
@@ -596,6 +617,8 @@ describe("formatting values (when change decimal)", () => {
 
   test("Check multiple format in multiple zone", async () => {
     const model = new Model();
+    makeGlobalStoreWithModel(model);
+
     setCellContent(model, "A1", "100%");
     setCellContent(model, "B1", "$190.12");
     setCellContent(model, "C1", "$21");
