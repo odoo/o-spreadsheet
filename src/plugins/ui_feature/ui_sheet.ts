@@ -110,7 +110,7 @@ export class SheetUIPlugin extends UIPlugin {
 
     contentWidth += 2 * PADDING_AUTORESIZE_HORIZONTAL;
     if (style.wrapping === "wrap") {
-      const colWidth = this.getters.getColSize(this.getters.getActiveSheetId(), position.col);
+      const colWidth = this.getters.getColSize(position.sheetId, position.col);
       return Math.min(colWidth, contentWidth);
     }
 
