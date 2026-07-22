@@ -1,3 +1,4 @@
+import { UID } from "../..";
 import { ClientDisconnectedError } from "../../collaborative/session";
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE } from "../../constants";
 import { AlternatingColorMap } from "../../helpers/color";
@@ -58,7 +59,7 @@ export class CollaborativePlugin extends UIPlugin {
    * Get the list of others connected clients which are present in the same sheet
    * and with a valid position
    */
-  getClientsToDisplay(): ClientToDisplay[] {
+  getClientsToDisplay(sheetId: UID): ClientToDisplay[] {
     try {
       this.getters.getCurrentClient();
     } catch (e) {
@@ -68,7 +69,6 @@ export class CollaborativePlugin extends UIPlugin {
         throw e;
       }
     }
-    const sheetId = this.getters.getActiveSheetId();
     const clients: ClientToDisplay[] = [];
     for (const client of this.getters.getConnectedClients()) {
       if (
@@ -89,7 +89,7 @@ export class CollaborativePlugin extends UIPlugin {
     }
     const { ctx, thinLineWidth, viewports, sheetId } = renderingContext;
 
-    for (const client of this.getClientsToDisplay()) {
+    for (const client of this.getClientsToDisplay(sheetId)) {
       const { row, col } = client.position!;
       const zone = this.getters.expandZone(sheetId, {
         top: row,
