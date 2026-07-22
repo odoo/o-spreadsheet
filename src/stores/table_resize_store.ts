@@ -1,5 +1,5 @@
-import { SpreadsheetStore } from "../../stores/spreadsheet_store";
-import { Command, CommandResult, DispatchResult, ResizeTableCommand } from "../../types/commands";
+import { Command, CommandResult, DispatchResult, ResizeTableCommand } from "../types/commands";
+import { SpreadsheetStore } from "./spreadsheet_store";
 
 export class TableResizeStore extends SpreadsheetStore {
   canResizeTable(cmd: ResizeTableCommand): DispatchResult {

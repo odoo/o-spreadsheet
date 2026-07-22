@@ -2,7 +2,7 @@ import { CommandResult, Model, ResizeTableCommand, UID } from "../../src";
 import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import { TableAutofillStore } from "../../src/components/autofill/table_autofill_store";
 import { toZone } from "../../src/helpers/zones";
-import { TableResizeStore } from "../../src/plugins/ui_feature/table_resize_ui";
+import { TableResizeStore } from "../../src/stores/table_resize_store";
 import {
   createDynamicTable,
   createTable,
