@@ -45,7 +45,6 @@ import { InsertPivotPlugin } from "./ui_feature/insert_pivot";
 import { HistoryPlugin } from "./ui_feature/local_history";
 import { LockSheetPlugin } from "./ui_feature/lock_sheet";
 import { PivotPresencePlugin } from "./ui_feature/pivot_presence_plugin";
-import { SortPlugin } from "./ui_feature/sort";
 import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
 import { SubtotalEvaluationPlugin } from "./ui_feature/subtotal_evaluation";
 import { TableComputedStylePlugin } from "./ui_feature/table_computed_style";
@@ -85,7 +84,6 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
 export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("ui_sheet", SheetUIPlugin)
   .add("ui_options", UIOptionsPlugin)
-  .add("sort", SortPlugin)
   .add("format", FormatPlugin)
   .add("insert_pivot", InsertPivotPlugin)
   .add("pivot_presence", PivotPresencePlugin)

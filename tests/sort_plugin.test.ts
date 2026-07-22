@@ -1,10 +1,14 @@
 import { CellErrorType, CellValueType, CommandResult, DEFAULT_LOCALE, UID } from "../src";
+import { toCartesian } from "../src/helpers/coordinates";
 import { parseDateTime } from "../src/helpers/dates";
 import { toZone, zoneToXc } from "../src/helpers/zones";
 import { Model } from "../src/model";
+import { SortStore } from "../src/plugins/ui_feature/sort";
+import { Store } from "../src/types/store_engine";
 import { merge, redo, setCellContent, sort, undo } from "./test_helpers/commands_helpers";
 import { getEvaluatedCell } from "./test_helpers/getters_helpers";
 import { getCellsObject } from "./test_helpers/helpers";
+import { makeGlobalStoresWithModel } from "./test_helpers/stores";
 
 let model: Model;
 const dateFormat = "mm/dd/yyyy";
@@ -22,6 +26,7 @@ describe("Basic Sorting", () => {
       A6: "15",
     };
     model = new Model({ sheets: [{ id: sheetId, colNumber: 1, rowNumber: 6, cells: cells }] });
+    makeGlobalStoresWithModel(model);
     sort(model, {
       zone: "A1:A6",
       anchor: "A2",
@@ -72,6 +77,7 @@ describe("Basic Sorting", () => {
         },
       ],
     });
+    makeGlobalStoresWithModel(model);
     sort(model, {
       zone: "A1:A6",
       anchor: "A2",
@@ -106,6 +112,7 @@ describe("Basic Sorting", () => {
       ],
       formats: { 1: dateFormat },
     });
+    makeGlobalStoresWithModel(model);
     sort(model, {
       zone: "A1:A6",
       anchor: "A1",
@@ -143,6 +150,7 @@ describe("Basic Sorting", () => {
         },
       ],
     });
+    makeGlobalStoresWithModel(model);
     sort(model, {
       zone: "C1:C6",
       anchor: "C1",
@@ -189,6 +197,7 @@ describe("Basic Sorting", () => {
         1: "yyyy/mm/dd",
       },
     });
+    makeGlobalStoresWithModel(model);
     sort(model, {
       zone: "A1:A11",
       anchor: "A1",
@@ -264,6 +273,7 @@ describe("Basic Sorting", () => {
       ],
       styles: { 1: myStyle },
     });
+    makeGlobalStoresWithModel(model);
     sort(model, {
       zone: "A1:A3",
       anchor: "A2",
@@ -293,6 +303,7 @@ describe("Basic Sorting", () => {
         },
       ],
     });
+    makeGlobalStoresWithModel(model);
     sort(model, {
       zone: "A1:A7",
       anchor: "A2",
@@ -324,6 +335,7 @@ describe("Basic Sorting", () => {
         },
       ],
     });
+    makeGlobalStoresWithModel(model);
     sort(model, {
       zone: "A1:A7",
       anchor: "A2",
@@ -367,6 +379,7 @@ describe("Basic Sorting", () => {
         },
       ],
     });
+    makeGlobalStoresWithModel(model);
     sort(model, {
       zone: "A2:A3",
       anchor: "A2",
@@ -380,38 +393,66 @@ describe("Basic Sorting", () => {
 });
 
 describe("Sorting allowDispatch", () => {
+  let store!: Store<SortStore>;
+
   beforeEach(() => {
     model = new Model();
+    const { container } = makeGlobalStoresWithModel(model);
+    store = container.get(SortStore);
   });
 
   test("Sort with anchor outside of the sorting zone", () => {
-    expect(sort(model, { zone: "A1:A3", anchor: "A6", direction: "asc" })).toBeCancelledBecause(
-      CommandResult.InvalidSortAnchor
-    );
+    expect(
+      store.canSort({
+        type: "SORT_CELLS",
+        sheetId: model.getters.getActiveSheetId(),
+        zone: toZone("A1:A3"),
+        ...toCartesian("A6"),
+        sortDirection: "asc",
+      })
+    ).toBeCancelledBecause(CommandResult.InvalidSortAnchor);
   });
 
   test("Sort with both merges and cells", () => {
     merge(model, "A1:A2");
-    expect(sort(model, { zone: "A1:A3", anchor: "A1", direction: "asc" })).toBeCancelledBecause(
-      CommandResult.InvalidSortZone
-    );
+    expect(
+      store.canSort({
+        type: "SORT_CELLS",
+        sheetId: model.getters.getActiveSheetId(),
+        zone: toZone("A1:A3"),
+        ...toCartesian("A1"),
+        sortDirection: "asc",
+      })
+    ).toBeCancelledBecause(CommandResult.InvalidSortZone);
   });
 
   test("Sort with merges of difference sizes", () => {
     merge(model, "A1:A2");
     merge(model, "A3:A5");
-    expect(sort(model, { zone: "A1:A5", anchor: "A1", direction: "asc" })).toBeCancelledBecause(
-      CommandResult.InvalidSortZone
-    );
+    expect(
+      store.canSort({
+        type: "SORT_CELLS",
+        sheetId: model.getters.getActiveSheetId(),
+        zone: toZone("A1:A5"),
+        ...toCartesian("A1"),
+        sortDirection: "asc",
+      })
+    ).toBeCancelledBecause(CommandResult.InvalidSortZone);
   });
 
   test("Sort with array formula", () => {
     setCellContent(model, "A1", "8");
     setCellContent(model, "A2", "4");
     setCellContent(model, "A3", "=FILTER(A1:A2, A1:A2 > 1)");
-    expect(sort(model, { zone: "A1:A4", anchor: "A1", direction: "asc" })).toBeCancelledBecause(
-      CommandResult.SortZoneWithArrayFormulas
-    );
+    expect(
+      store.canSort({
+        type: "SORT_CELLS",
+        sheetId: model.getters.getActiveSheetId(),
+        zone: toZone("A1:A4"),
+        ...toCartesian("A1"),
+        sortDirection: "asc",
+      })
+    ).toBeCancelledBecause(CommandResult.SortZoneWithArrayFormulas);
   });
 });
 
@@ -445,6 +486,7 @@ describe("Sort multi adjacent columns", () => {
    */
   test("Sort on second column w/ contiguous", () => {
     model = new Model(modelData);
+    makeGlobalStoresWithModel(model);
     const zone = toZone("B2:B3");
     const sheetId = model.getters.getActiveSheetId();
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
@@ -468,6 +510,7 @@ describe("Sort multi adjacent columns", () => {
   });
   test("Sort on third column  w/ contiguous", () => {
     model = new Model(modelData);
+    makeGlobalStoresWithModel(model);
     const zone = toZone("C2:C4");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
     sort(model, {
@@ -490,6 +533,7 @@ describe("Sort multi adjacent columns", () => {
   });
   test("Sort on fourth column w/ contiguous", () => {
     model = new Model(modelData);
+    makeGlobalStoresWithModel(model);
     const zone = toZone("D2:D5");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
     sort(model, {
@@ -513,6 +557,7 @@ describe("Sort multi adjacent columns", () => {
 
   test("Sort w/ multicolumn selection", () => {
     model = new Model(modelData);
+    makeGlobalStoresWithModel(model);
     sort(model, {
       zone: "B2:C3",
       anchor: "B3",
@@ -561,6 +606,7 @@ describe("Sort adjacent columns with headers", () => {
       ],
       formats: { 1: "mm/dd/yyyy" },
     });
+    makeGlobalStoresWithModel(model);
   });
   test("Presence of header", () => {
     sort(model, {
@@ -713,6 +759,7 @@ describe("Sort Merges", () => {
   };
   beforeEach(() => {
     model = new Model(modelData);
+    makeGlobalStoresWithModel(model);
   });
   test("Sort of merges w/ contiguous", () => {
     const zone = toZone("B2:B4");

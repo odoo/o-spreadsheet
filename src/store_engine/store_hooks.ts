@@ -99,7 +99,7 @@ export function proxifyStoreMutation<S extends { mutators: readonly (keyof S)[] 
   return proxy as S;
 }
 
-function getDependencyContainer(env: Env) {
+export function getDependencyContainer(env: Env) {
   const container = env.__spreadsheet_stores__;
   if (!(container instanceof DependencyContainer)) {
     throw new Error("No store provider found. Did you forget to call useStoreProvider()?");
