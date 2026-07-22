@@ -53,13 +53,14 @@ import {
   getStyle,
 } from "./test_helpers/getters_helpers";
 import { makeTestComposerStore, target, toRangesData } from "./test_helpers/helpers";
-import { makeStoreWithModel } from "./test_helpers/stores";
+import { makeGlobalStoresWithModel, makeStoreWithModel } from "./test_helpers/stores";
 
 let model: Model;
 let sheetId: UID;
 
 beforeEach(() => {
   model = new Model();
+  makeGlobalStoresWithModel(model);
   sheetId = model.getters.getActiveSheetId();
 });
 

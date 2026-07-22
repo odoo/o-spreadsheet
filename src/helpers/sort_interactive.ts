@@ -1,3 +1,5 @@
+import { SortStore } from "../plugins/ui_feature/sort";
+import { getDependencyContainer } from "../store_engine/store_hooks";
 import { _t } from "../translation";
 import { CommandResult } from "../types/commands";
 import { Position, SortDirection, SortOptions, UID, Zone } from "../types/misc";
@@ -58,24 +60,29 @@ export function interactiveSort(
   sortDirection: SortDirection,
   sortOptions?: SortOptions
 ) {
-  const result = env.model.dispatch("SORT_CELLS", {
+  const command = {
     sheetId,
     col: anchor.col,
     row: anchor.row,
     zone,
     sortDirection,
     sortOptions,
-  });
+  };
+
+  const container = getDependencyContainer(env);
+  const store = container.get(SortStore);
+  const result = store.canSort({ type: "SORT_CELLS", ...command });
   if (result.isCancelledBecause(CommandResult.InvalidSortZone)) {
     const { col, row } = anchor;
     env.model.selection.selectZone({ cell: { col, row }, zone });
     env.raiseError(
       _t("Cannot sort. To sort, select only cells or only merges that have the same size.")
     );
-  }
-  if (result.isCancelledBecause(CommandResult.SortZoneWithArrayFormulas)) {
+  } else if (result.isCancelledBecause(CommandResult.SortZoneWithArrayFormulas)) {
     const { col, row } = anchor;
     env.model.selection.selectZone({ cell: { col, row }, zone });
     env.raiseError(_t("Cannot sort a zone with array formulas."));
+  } else {
+    env.model.dispatch("SORT_CELLS", command);
   }
 }

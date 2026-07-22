@@ -19,8 +19,10 @@ import {
   ToggleGroupInteractiveContent,
   interactiveToggleGroup,
 } from "../../src/helpers/ui/toggle_group_interactive";
-import { toZone, zoneToXc } from "../../src/helpers/zones";
+import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { SortStore } from "../../src/plugins/ui_feature/sort";
+import { getDependencyContainer } from "../../src/store_engine/store_hooks";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   addCellToSelection,
@@ -38,7 +40,6 @@ import {
   setCellContent,
   setCellStyle,
   setSelection,
-  sort,
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
@@ -527,11 +528,14 @@ describe("UI Helpers", () => {
         zones: [contiguousZone],
       });
       undo(model);
+      const store = getDependencyContainer(env).get(SortStore);
       expect(
-        sort(model, {
-          zone: zoneToXc(contiguousZone),
-          anchor: "B2",
-          direction: "asc",
+        store.canSort({
+          type: "SORT_CELLS",
+          sheetId: model.getters.getActiveSheetId(),
+          zone: contiguousZone,
+          ...toCartesian("B2"),
+          sortDirection: "asc",
         })
       ).toBeCancelledBecause(CommandResult.InvalidSortZone);
     });
@@ -554,11 +558,14 @@ describe("UI Helpers", () => {
         zones: [contiguousZone],
       });
       undo(model);
+      const store = getDependencyContainer(env).get(SortStore);
       expect(
-        sort(model, {
-          zone: zoneToXc(contiguousZone),
-          anchor: "B2",
-          direction: "asc",
+        store.canSort({
+          type: "SORT_CELLS",
+          sheetId: model.getters.getActiveSheetId(),
+          zone: contiguousZone,
+          ...toCartesian("B2"),
+          sortDirection: "asc",
         })
       ).toBeCancelledBecause(CommandResult.InvalidSortZone);
     });

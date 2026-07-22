@@ -20,7 +20,6 @@ import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibilit
 import { HistoryPlugin } from "../plugins/ui_feature/local_history";
 import { LockSheetPlugin } from "../plugins/ui_feature/lock_sheet";
 import { PivotPresencePlugin } from "../plugins/ui_feature/pivot_presence_plugin";
-import { SortPlugin } from "../plugins/ui_feature/sort";
 import { SplitToColumnsPlugin } from "../plugins/ui_feature/split_to_columns";
 import { SubtotalEvaluationPlugin } from "../plugins/ui_feature/subtotal_evaluation";
 import { TableComputedStylePlugin } from "../plugins/ui_feature/table_computed_style";
@@ -52,7 +51,6 @@ export type RenderingGetters = {
   PluginGetters<typeof HeaderVisibilityUIPlugin> &
   PluginGetters<typeof CustomColorsPlugin> &
   PluginGetters<typeof CollaborativePlugin> &
-  PluginGetters<typeof SortPlugin> &
   PluginGetters<typeof UIOptionsPlugin> &
   PluginGetters<typeof SheetUIPlugin> &
   PluginGetters<typeof FilterEvaluationPlugin> &

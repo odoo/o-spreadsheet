@@ -1,10 +1,12 @@
 import { deepEquals, range } from "../../helpers/misc";
 import { sortCells } from "../../helpers/sort";
 import { isInside, overlap, positions, zoneToDimension } from "../../helpers/zones";
+import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { CellValueType } from "../../types/cells";
 import {
   Command,
   CommandResult,
+  DispatchResult,
   LocalCommand,
   SortCommand,
   UpdateCellCommand,
@@ -18,29 +20,31 @@ import {
   UID,
   Zone,
 } from "../../types/misc";
-import { UIPlugin } from "../ui_plugin";
 
-export class SortPlugin extends UIPlugin {
-  allowDispatch(cmd: LocalCommand): CommandResult | CommandResult[] {
+export class SortStore extends SpreadsheetStore {
+  storeGetters = ["canSort"] as const;
+
+  canSort(cmd: LocalCommand): DispatchResult {
     switch (cmd.type) {
       case "SORT_CELLS":
         if (!isInside(cmd.col, cmd.row, cmd.zone)) {
-          return CommandResult.InvalidSortAnchor;
+          return new DispatchResult([CommandResult.InvalidSortAnchor]);
         }
-        return this.checkValidations(
-          cmd,
-          this.checkMerge,
-          this.checkMergeSizes,
-          this.checkArrayFormulaInSortZone
-        );
+        return new DispatchResult([
+          this.checkMerge(cmd),
+          this.checkMergeSizes(cmd),
+          this.checkArrayFormulaInSortZone(cmd),
+        ]);
     }
-    return CommandResult.Success;
+    return new DispatchResult([CommandResult.Success]);
   }
 
   handle(cmd: Command) {
     switch (cmd.type) {
       case "SORT_CELLS":
-        this.sortZone(cmd.sheetId, cmd, cmd.zone, cmd.sortDirection, cmd.sortOptions || {});
+        if (this.canSort(cmd).isSuccessful) {
+          this.sortZone(cmd.sheetId, cmd, cmd.zone, cmd.sortDirection, cmd.sortOptions || {});
+        }
         break;
     }
   }
@@ -186,7 +190,7 @@ export class SortPlugin extends UIPlugin {
         updateCellCommands.push(newCellValues);
       }
     }
-    updateCellCommands.forEach((cmdPayload) => this.dispatch("UPDATE_CELL", cmdPayload));
+    updateCellCommands.forEach((cmdPayload) => this.model.dispatch("UPDATE_CELL", cmdPayload));
   }
 
   /**
