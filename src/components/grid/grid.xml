@@ -22,10 +22,7 @@
       />
       <canvas t-ref="this.canvasRef" class="os-theme-dependant pe-none"/>
       <t t-set="focused" t-value="this.focusedClients"/>
-      <t
-        t-foreach="this.env.model.getters.getClientsToDisplay()"
-        t-as="client"
-        t-key="this.getClientPositionKey(client)">
+      <t t-foreach="this.clientsToDisplay" t-as="client" t-key="this.getClientPositionKey(client)">
         <ClientTag
           name="client.name"
           color="client.color"

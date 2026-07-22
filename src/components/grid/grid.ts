@@ -910,4 +910,9 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   get displaySelectionHandler() {
     return this.env.isMobile() && this.composerFocusStore.activeComposer.editionMode === "inactive";
   }
+
+  get clientsToDisplay(): Required<Client>[] {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    return this.env.model.getters.getClientsToDisplay(sheetId);
+  }
 }
