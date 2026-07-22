@@ -658,7 +658,8 @@ describe("Multi users synchronisation", () => {
   );
 
   test("readonly client is visible to other users", async () => {
-    expect(alice.getters.getClientsToDisplay().map((client) => client.name)).toEqual([
+    const sheetId = alice.getters.getSheetIds()[0];
+    expect(alice.getters.getClientsToDisplay(sheetId).map((client) => client.name)).toEqual([
       "Bob",
       "Charlie",
     ]);
@@ -667,18 +668,18 @@ describe("Multi users synchronisation", () => {
       mode: "readonly",
       client: { id: "david", name: "David" },
     });
-    expect(alice.getters.getClientsToDisplay().map((client) => client.name)).toEqual([
+    expect(alice.getters.getClientsToDisplay(sheetId).map((client) => client.name)).toEqual([
       "Bob",
       "Charlie",
       "David",
     ]);
-    expect(david.getters.getClientsToDisplay().map((client) => client.name)).toEqual([
+    expect(david.getters.getClientsToDisplay(sheetId).map((client) => client.name)).toEqual([
       "Alice",
       "Bob",
       "Charlie",
     ]);
     await david.leaveSession();
-    expect(alice.getters.getClientsToDisplay().map((client) => client.name)).toEqual([
+    expect(alice.getters.getClientsToDisplay(sheetId).map((client) => client.name)).toEqual([
       "Bob",
       "Charlie",
     ]);
