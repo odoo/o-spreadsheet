@@ -3,6 +3,7 @@ import { HoveredIconStore } from "../../../src/components/grid_overlay/hovered_i
 import { StandaloneViewport } from "../../../src/components/standalone_viewport/standalone_viewport";
 import { DEFAULT_CELL_HEIGHT } from "../../../src/constants";
 import { toXC } from "../../../src/helpers/coordinates";
+import { buildSheetLink } from "../../../src/helpers/misc";
 import { ViewportCollection } from "../../../src/helpers/viewport_collection";
 import { positions, toZone, zoneToXc } from "../../../src/helpers/zones";
 import { GridRenderer } from "../../../src/stores/grid_renderer_store";
@@ -12,11 +13,13 @@ import {
   clickAndDrag,
   clickCell,
   clickGridIcon,
+  createSheet,
   extendMockGetBoundingClientRect,
   getCellContent,
   hideColumns,
   hoverGridIcon,
   setCellContent,
+  simulateClick,
   triggerWheelEvent,
 } from "../../test_helpers";
 import { mountComponent, nextTick, setGrid } from "../../test_helpers/helpers";
@@ -196,6 +199,23 @@ describe("Standalone viewport", () => {
 
     await clickGridIcon(env, "A1", viewports);
     expect(getCellContent(model, "A1")).toEqual("TRUE");
+  });
+
+  test("Can use clickable cells inside standalone viewport", async () => {
+    createSheet(model, { sheetId: "sh2" });
+    setCellContent(model, "A1", `[label](${buildSheetLink("sh2")})`);
+    model.updateMode("dashboard");
+
+    await mountViewport("A1");
+    expect(".o-dashboard-clickable-cell").toHaveCount(1);
+
+    await simulateClick(".o-dashboard-clickable-cell");
+    expect(model.getters.getActiveSheetId()).toEqual("sh2");
+  });
+
+  test("Can use cell popover standalone viewport", async () => {
+    // ADRM TODO
+    expect(true).toBe(false);
   });
 
   describe("Column resize", () => {

@@ -5,6 +5,7 @@ import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engi
 import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { HeaderIndex, PixelOffset } from "../../types/misc";
+import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
@@ -12,6 +13,7 @@ import { ClickableCellsStore } from "../dashboard/clickable_cell_store";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { HoveredIconStore } from "../grid_overlay/hovered_icon_store";
+import { GridPopover } from "../grid_popover/grid_popover";
 import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect } from "../helpers/dom_helpers";
 import { startDnd } from "../helpers/drag_and_drop";
@@ -41,7 +43,7 @@ interface DnDResizeState {
 
 export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-StandaloneViewport";
-  static components = { VerticalScrollBar, GridOverlay, ClickableCellsOverlay };
+  static components = { VerticalScrollBar, GridOverlay, ClickableCellsOverlay, GridPopover };
 
   protected props = useProps({
     range: types.Range(),
@@ -63,6 +65,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
 
   rendererStore!: Store<RendererStore>;
   viewStore!: Store<ViewportsStore>;
+  cellPopoverStore!: Store<CellPopoverStore>;
 
   setup() {
     useChildStoreProvider([
@@ -75,6 +78,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     ]);
     this.store = useLocalStore(StandaloneViewportStore, this.props.range, this.props.columnWeights);
     this.viewStore = useStore(ViewportsStore);
+    this.cellPopoverStore = useStore(CellPopoverStore);
     // @ts-ignore ADRM TODO
     const getHeaderDimensionsCallback = this.store.headerDimensionsCallback;
     this.viewStore.setDisplayedSheetId(this.props.range.sheetId);
@@ -221,5 +225,12 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
 
   onResizerDoubleClick() {
     this.props.onResizeColumns?.(undefined);
+  }
+
+  getGridRect(): Rect {
+    return {
+      ...getElBoundingRect(this.containerRef()),
+      ...this.viewStore.sheetViewDimensionWithHeaders,
+    };
   }
 }

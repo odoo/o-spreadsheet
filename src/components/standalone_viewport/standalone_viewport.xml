@@ -26,6 +26,11 @@
 
           <ClickableCellsOverlay/>
         </GridOverlay>
+        <GridPopover
+          gridRect="this.getGridRect()"
+          onMouseWheel.bind="this.onMouseWheel"
+          onClosePopover="() => this.cellPopoverStore.close()"
+        />
         <canvas class="" t-ref="this.canvasRef"/>
       </div>
       <div
