@@ -18,7 +18,6 @@ import { FigureUIPlugin } from "../plugins/ui_feature/figure";
 import { GeoFeaturePlugin } from "../plugins/ui_feature/geo_features";
 import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibility_ui";
 import { HistoryPlugin } from "../plugins/ui_feature/local_history";
-import { LockSheetPlugin } from "../plugins/ui_feature/lock_sheet";
 import { PivotPresencePlugin } from "../plugins/ui_feature/pivot_presence_plugin";
 import { SortPlugin } from "../plugins/ui_feature/sort";
 import { SplitToColumnsPlugin } from "../plugins/ui_feature/split_to_columns";
@@ -73,7 +72,6 @@ export type RenderingGetters = {
   PluginGetters<typeof CellIconPlugin> &
   PluginGetters<typeof DynamicTranslate> &
   PluginGetters<typeof FormulaTrackerPlugin> &
-  PluginGetters<typeof LockSheetPlugin> &
   PluginGetters<typeof CarouselUIPlugin> &
   PluginGetters<typeof ColorThemeUIPlugin> &
   PluginGetters<typeof FigureUIPlugin>;

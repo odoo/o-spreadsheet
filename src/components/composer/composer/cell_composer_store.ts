@@ -21,6 +21,7 @@ import {
   updateSelectionOnInsertion,
 } from "../../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../../registries/criterion_registry";
+import { LockSheetStore } from "../../../stores/lock_sheet_store";
 import { _t } from "../../../translation";
 import { CellValueType, FormulaCell } from "../../../types/cells";
 import {
@@ -39,6 +40,8 @@ import { AbstractComposerStore, ComposerSelection } from "./abstract_composer_st
 const CELL_DELETED_MESSAGE = _t("The cell you are trying to edit has been deleted.");
 
 export class CellComposerStore extends AbstractComposerStore {
+  private lockSheetStore = this.get(LockSheetStore);
+
   private canStopEdition(): boolean {
     if (this.editionMode === "inactive") {
       return true;
@@ -362,7 +365,7 @@ export class CellComposerStore extends AbstractComposerStore {
   }
 
   startEdition(text?: string, selection?: ComposerSelection) {
-    if (this.getters.isCurrentSheetLocked()) {
+    if (this.lockSheetStore.isCurrentSheetLocked) {
       this.model.trigger("command-rejected", {
         result: new DispatchResult(CommandResult.SheetLocked),
         command: { sheetId: this.getters.getActiveSheetId() },

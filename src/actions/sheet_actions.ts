@@ -1,5 +1,6 @@
 import { buildSheetLink, markdownLink } from "../helpers/misc";
 import { UuidGenerator } from "../helpers/uuid";
+import { LockSheetStore } from "../stores/lock_sheet_store";
 import { _t } from "../translation";
 import { ActionSpec } from "./action";
 
@@ -124,7 +125,7 @@ export const hideSheet: ActionSpec = {
 export const lockSheet: ActionSpec = {
   name: _t("Lock sheet"),
   isVisible: (env) => {
-    return !env.model.getters.isCurrentSheetLocked();
+    return !env.getStore(LockSheetStore).isCurrentSheetLocked;
   },
   execute: (env) => {
     env.model.dispatch("LOCK_SHEET", {
@@ -137,7 +138,7 @@ export const lockSheet: ActionSpec = {
 export const unlockSheet: ActionSpec = {
   name: _t("Unlock sheet"),
   isVisible: (env) => {
-    return env.model.getters.isCurrentSheetLocked();
+    return env.getStore(LockSheetStore).isCurrentSheetLocked;
   },
   execute: (env) => {
     env.model.dispatch("UNLOCK_SHEET", {

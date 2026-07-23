@@ -1,8 +1,11 @@
 import { onWillUpdateProps, useProps } from "@odoo/owl";
 import { adaptShortcutStringToMacOs, createAction } from "../../actions/action";
 import { Component } from "../../owl3_compatibility_layer";
+import { useStore } from "../../store_engine/store_hooks";
+import { LockSheetStore } from "../../stores/lock_sheet_store";
 import { PropsOf } from "../../types/props_of";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { types } from "../props_validation";
 
@@ -18,8 +21,10 @@ export class ActionButton extends Component<SpreadsheetChildEnv> {
   });
 
   private actionButton = createAction(this.props.action);
+  private lockSheetStore!: Store<LockSheetStore>;
 
   setup() {
+    this.lockSheetStore = useStore(LockSheetStore);
     onWillUpdateProps((nextProps: PropsOf<ActionButton>) => {
       if (nextProps.action !== this.props.action) {
         this.actionButton = createAction(nextProps.action);
@@ -33,7 +38,7 @@ export class ActionButton extends Component<SpreadsheetChildEnv> {
 
   get isEnabled() {
     const isLockedAvailable =
-      this.actionButton.isEnabledOnLockedSheet || !this.env.model.getters.isCurrentSheetLocked();
+      this.actionButton.isEnabledOnLockedSheet || !this.lockSheetStore.isCurrentSheetLocked;
     return this.actionButton.isEnabled(this.env) && isLockedAvailable;
   }
 

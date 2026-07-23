@@ -42,6 +42,7 @@ import { AutomaticSumStore } from "../../stores/automatic_sum_store";
 import { CheckboxToggleStore } from "../../stores/checkbox_toggle";
 import { ClientFocusStore } from "../../stores/client_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
+import { LockSheetStore } from "../../stores/lock_sheet_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { CellValueType } from "../../types/cells";
 import { ClipboardMIMEType } from "../../types/clipboard";
@@ -164,10 +165,12 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   hoveredCell!: Store<DelayedHoveredCellStore>;
   sidePanel!: Store<SidePanelStore>;
   private automaticSumStore!: Store<AutomaticSumStore>;
+  private lockSheetStore!: Store<LockSheetStore>;
 
   setup() {
     this.highlightStore = useStore(HighlightStore);
     this.viewStore = useStore(ViewportsStore);
+    this.lockSheetStore = useStore(LockSheetStore);
     this.menuState = proxy({
       isOpen: false,
       anchorRect: null,
@@ -509,7 +512,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   }
 
   get isAutofillVisible(): boolean {
-    if (this.env.model.getters.isCurrentSheetLocked()) {
+    if (this.lockSheetStore.isCurrentSheetLocked) {
       return false;
     }
     const zone = this.env.model.getters.getSelectedZone();

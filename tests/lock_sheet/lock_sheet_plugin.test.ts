@@ -11,6 +11,7 @@ import {
 import { createChart, createSheet, lockSheet } from "../test_helpers/commands_helpers";
 import { TEST_COMMANDS } from "../test_helpers/constants";
 import { addPivot } from "../test_helpers/pivot_helpers";
+import { makeGlobalStoreWithModel } from "../test_helpers/stores";
 
 const allowedCommands: Command["type"][] = [];
 const rejectedCommands: Command["type"][] = [];
@@ -34,7 +35,7 @@ describe("Lock Sheet plugin", () => {
   test.each<Command["type"]>(rejectedCommands)(
     "Cannot dispatch blacklisted command %s on a locked sheet",
     (cmdType) => {
-      const model = new Model();
+      const { model } = makeGlobalStoreWithModel(new Model());
       lockSheet(model);
       const result = model.dispatch(cmdType, TEST_COMMANDS[cmdType]);
       expect(result.reasons).toContain(CommandResult.SheetLocked);
@@ -42,7 +43,7 @@ describe("Lock Sheet plugin", () => {
   );
 
   test("Can dispatch white-listed commands on a locked sheet", () => {
-    const model = new Model();
+    const { model } = makeGlobalStoreWithModel(new Model());
     createSheet(model, { name: "Another sheet", position: 0 });
     lockSheet(model);
     for (const cmdType of allowedCommands) {
@@ -53,7 +54,7 @@ describe("Lock Sheet plugin", () => {
 
   test("read only commands bypass lock in dashboard mode", () => {
     for (const cmdType of readonlyCommands) {
-      const model = new Model();
+      const { model } = makeGlobalStoreWithModel(new Model());
       createSheet(model, { name: "Another sheet", position: 0 });
       createChart(model, { type: "bar" }, "chartId");
       addPivot(model);
@@ -65,7 +66,7 @@ describe("Lock Sheet plugin", () => {
   });
 
   test("sheet navigation commands are allowed on locked sheets", () => {
-    const model = new Model();
+    const { model } = makeGlobalStoreWithModel(new Model());
     const firstSheetId = model.getters.getActiveSheetId();
     const lockedSheetId = "locked";
     createSheet(model, {

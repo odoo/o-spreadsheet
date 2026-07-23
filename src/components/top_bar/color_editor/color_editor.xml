@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-ColorEditor">
     <div
       class="d-flex align-items-center"
-      t-att-class="{'o-disabled': this.env.model.getters.isCurrentSheetLocked() }">
+      t-att-class="{'o-disabled': this.lockSheetStore.isCurrentSheetLocked }">
       <ColorPickerWidget
         currentColor="this.currentColor"
         toggleColorPicker.bind="this.onClick"

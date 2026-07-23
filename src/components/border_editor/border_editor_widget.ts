@@ -2,6 +2,7 @@ import { onWillUpdateProps, proxy, signal, useProps } from "@odoo/owl";
 import { DEFAULT_BORDER_DESC } from "../../constants";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
+import { LockSheetStore } from "../../stores/lock_sheet_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { BorderPosition, BorderStyle, Color, Pixel } from "../../types/misc";
 import { Rect } from "../../types/rendering";
@@ -29,6 +30,7 @@ export class BorderEditorWidget extends Component<SpreadsheetChildEnv> {
   });
   topBarToolStore!: ToolBarDropdownStore;
   private viewStore!: Store<ViewportsStore>;
+  lockSheetStore!: Store<LockSheetStore>;
 
   borderEditorButtonRef = signal<HTMLElement | null>(null);
   state: State = proxy({
@@ -40,6 +42,7 @@ export class BorderEditorWidget extends Component<SpreadsheetChildEnv> {
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();
     this.viewStore = useStore(ViewportsStore);
+    this.lockSheetStore = useStore(LockSheetStore);
     onWillUpdateProps(() => {
       if (!this.isActive) {
         this.state.currentPosition = undefined;
