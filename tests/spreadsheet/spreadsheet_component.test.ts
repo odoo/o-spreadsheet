@@ -12,12 +12,15 @@ import { functionRegistry } from "../../src/functions/function_registry";
 import { toZone } from "../../src/helpers/zones";
 import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
 import { HighlightStore } from "../../src/stores/highlight_store";
+import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
+  activateSheet,
   addDataValidation,
   addRows,
   createChart,
+  createSheet,
   deleteSheet,
   freezeRows,
   lockSheet,
@@ -526,4 +529,23 @@ test("Commands rejected on locked sheet trigger a notification", async () => {
     type: "info",
     sticky: false,
   });
+});
+
+test("Spreadsheet main viewport store follows the active sheet", async () => {
+  ({ env, fixture, model } = await mountSpreadsheet({ model: new Model() }));
+  createSheet(env.model, { sheetId: "sh2" });
+  const viewportsStore = env.getStore(ViewportsStore);
+
+  expect(model.getters.getActiveSheetId()).toBe("Sheet1");
+  expect(viewportsStore.displayedSheetId).toBe("Sheet1");
+
+  activateSheet(model, "sh2");
+  await nextTick();
+  expect(model.getters.getActiveSheetId()).toBe("sh2");
+  expect(viewportsStore.displayedSheetId).toBe("sh2");
+
+  deleteSheet(model, "sh2");
+  await nextTick();
+  expect(model.getters.getActiveSheetId()).toBe("Sheet1");
+  expect(viewportsStore.displayedSheetId).toBe("Sheet1");
 });

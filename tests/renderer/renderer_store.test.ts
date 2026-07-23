@@ -472,6 +472,7 @@ describe("renderer", () => {
     const { drawGridRenderer, model, container } = setRenderer(
       new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
+    const sheetId = model.getters.getSheetIds()[0];
     const background = "#DC6CDF";
     const hoverColor = blendColors(background, TABLE_HOVER_BACKGROUND_COLOR);
     createTable(model, "A1", { numberOfHeaders: 0 });
@@ -503,7 +504,7 @@ describe("renderer", () => {
     ]);
 
     fillStyles = [];
-    container.get(HoveredTableStore).hover({ col: 0, row: 0 });
+    container.get(HoveredTableStore).hover({ sheetId, col: 0, row: 0 });
     drawGridRenderer(ctx);
 
     expect(removeOffsetOfFillStyles(fillStyles)).toEqual([

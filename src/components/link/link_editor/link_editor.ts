@@ -4,9 +4,12 @@ import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { markdownLink } from "../../../helpers/misc";
 import { fuzzyLookup } from "../../../helpers/search";
 import { Component } from "../../../owl3_compatibility_layer";
+import { useStore } from "../../../store_engine/store_hooks";
+import { ViewportsStore } from "../../../stores/viewports_store";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { Link } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { Store } from "../../../types/store_engine";
 import { MenuPopover } from "../../menu_popover/menu_popover";
 import { types } from "../../props_validation";
 
@@ -40,9 +43,12 @@ export class LinkEditor extends Component<SpreadsheetChildEnv> {
   suggestionListRef = signal<HTMLElement | null>(null);
   urlInputContainer = signal<HTMLElement | null>(null);
 
-  private state: LinkState = proxy(this.defaultState);
+  private state!: LinkState;
+  private viewStore!: Store<ViewportsStore>;
 
   setup() {
+    this.viewStore = useStore(ViewportsStore);
+    this.state = proxy(this.defaultState);
     this.computeLinks();
     onMounted(() => this.urlInput()?.focus());
   }
@@ -93,7 +99,7 @@ export class LinkEditor extends Component<SpreadsheetChildEnv> {
 
   get defaultState(): LinkState {
     const { col, row } = this.props.cellPosition;
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.viewStore.displayedSheetId;
     const cell = this.env.model.getters.getEvaluatedCell({ sheetId, col, row });
     if (cell.link) {
       return {
@@ -134,7 +140,7 @@ export class LinkEditor extends Component<SpreadsheetChildEnv> {
     this.env.model.dispatch("UPDATE_CELL", {
       col: col,
       row: row,
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.viewStore.displayedSheetId,
       content: markdownLink(label, this.state.url),
     });
     this.props.onClosed?.();
