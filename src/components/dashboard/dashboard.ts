@@ -139,7 +139,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   }
 
   private getMaxSheetWidth(): Pixel {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.viewStore.displayedSheetId;
     const { right } = this.env.model.getters.getSheetZone(sheetId);
     return this.env.model.getters.getColDimensions(sheetId, right).end;
   }

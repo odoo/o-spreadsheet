@@ -38,7 +38,7 @@ export class HorizontalScrollBar extends Component<SpreadsheetChildEnv> {
 
   get isDisplayed() {
     const { xRatio } = this.viewStore.viewports.getFrozenSheetViewRatio(
-      this.env.model.getters.getActiveSheetId()
+      this.viewStore.displayedSheetId
     );
     return xRatio < 1;
   }
