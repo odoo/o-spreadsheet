@@ -214,6 +214,8 @@ export const DEFAULT_REVISION_ID = "START_REVISION";
 // Figure
 export const DEFAULT_FIGURE_HEIGHT = 335;
 export const DEFAULT_FIGURE_WIDTH = 536;
+export const DEFAULT_SCORECARD_HEIGHT = 101;
+export const DEFAULT_SCORECARD_WIDTH = 213;
 export const FIGURE_BORDER_WIDTH = 1;
 export const ACTIVE_BORDER_WIDTH = 2;
 export const MIN_FIG_SIZE = 80;
@@ -235,6 +237,10 @@ export const DEFAULT_SCORECARD_BASELINE_FONT_SIZE = 16;
 export const LINE_FILL_TRANSPARENCY = 0.4;
 export const LINE_DATA_POINT_RADIUS = 3;
 export const DEFAULT_WINDOW_SIZE = 2;
+
+// Maximum number of data points rendered by Chart.js in lightweight previews (drag preview,
+// chart suggestions), sampled down from the full dataset for performance.
+export const MAX_CHART_PREVIEW_DATA_POINTS = 150;
 
 // session
 export const MESSAGE_VERSION = 1;

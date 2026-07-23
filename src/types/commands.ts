@@ -688,6 +688,26 @@ export interface MergeIntoCarouselCommand extends SheetDependentCommand {
   chartFigureIds: UID[];
 }
 
+export interface CreateChartIntoCarouselCommand extends SheetDependentCommand {
+  type: "CREATE_CHART_INTO_CAROUSEL";
+  carouselId: UID;
+  chartId: UID;
+  definition: ChartDefinition<string>;
+  figureId: UID;
+  offset?: PixelPosition;
+  size?: FigureSize;
+  col?: number;
+  row?: number;
+}
+
+export interface CreateChartAndMergeIntoCarouselCommand extends SheetDependentCommand {
+  type: "CREATE_CHART_AND_MERGE_INTO_CAROUSEL";
+  baseFigureId: UID;
+  chartId: UID;
+  definition: ChartDefinition<string>;
+  figureId: UID;
+}
+
 //------------------------------------------------------------------------------
 // Image
 //------------------------------------------------------------------------------
@@ -1376,6 +1396,8 @@ export type LocalCommand =
   | MoveFiguresCommand
   | DeleteFiguresCommand
   | MergeIntoCarouselCommand
+  | CreateChartIntoCarouselCommand
+  | CreateChartAndMergeIntoCarouselCommand
   | ColorAllCellsBackground;
 
 export type Command = CoreCommand | LocalCommand;

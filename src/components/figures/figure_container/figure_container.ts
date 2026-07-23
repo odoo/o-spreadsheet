@@ -364,7 +364,9 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       let overlappingChartOrCarousel: FigureUI | undefined = undefined;
       const otherFigures = this.getOtherFigures(selectedFigures.map((f) => f.id));
       if (draggedFigure && !selectedFigures.find((f) => f.tag !== "chart")) {
-        overlappingChartOrCarousel = this.getOverlappingFigure(draggedFigure, otherFigures);
+        overlappingChartOrCarousel = getCarouselOverlappingChart(draggedFigure, otherFigures, [
+          "carousel", "chart"
+        ]);
       }
       this.dnd.overlappingChartOrCarousel = overlappingChartOrCarousel;
 
@@ -598,39 +600,43 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       });
     }
   }
+}
 
-  private getOverlappingFigure(figureUI: FigureUI, otherFigures: FigureUI[]): FigureUI | undefined {
-    if (figureUI.tag !== "chart") {
-      return undefined;
-    }
-
-    const figureCenterX = figureUI.x + figureUI.width / 2;
-    const figureCenterY = figureUI.y + figureUI.height / 2;
-
-    let bestMatch: FigureUI | undefined;
-    let smallestDistance = Infinity;
-
-    for (const figure of otherFigures) {
-      if (figure.tag !== "chart" && figure.tag !== "carousel") {
-        continue;
-      }
-      const targetCenterX = figure.x + figure.width / 2;
-      const targetCenterY = figure.y + figure.height / 2;
-
-      const distanceX = Math.abs(figureCenterX - targetCenterX);
-      const distanceY = Math.abs(figureCenterY - targetCenterY);
-      const squaredDistance = distanceX ** 2 + distanceY ** 2;
-
-      if (
-        distanceX <= figureUI.width / 2 &&
-        distanceY <= figureUI.height / 2 &&
-        squaredDistance < smallestDistance
-      ) {
-        smallestDistance = squaredDistance;
-        bestMatch = figure;
-      }
-    }
-
-    return bestMatch;
+export function getCarouselOverlappingChart(
+  figureUI: { tag: string; x: number; y: number; width: number; height: number },
+  otherFigures: FigureUI[],
+  matchTags: FigureUI["tag"][]
+): FigureUI | undefined {
+  if (figureUI.tag !== "chart") {
+    return undefined;
   }
+
+  const figureCenterX = figureUI.x + figureUI.width / 2;
+  const figureCenterY = figureUI.y + figureUI.height / 2;
+
+  let bestMatch: FigureUI | undefined;
+  let smallestDistance = Infinity;
+
+  for (const figure of otherFigures) {
+    if (!matchTags.includes(figure.tag)) {
+      continue;
+    }
+    const targetCenterX = figure.x + figure.width / 2;
+    const targetCenterY = figure.y + figure.height / 2;
+
+    const distanceX = Math.abs(figureCenterX - targetCenterX);
+    const distanceY = Math.abs(figureCenterY - targetCenterY);
+    const squaredDistance = distanceX ** 2 + distanceY ** 2;
+
+    if (
+      distanceX <= figureUI.width / 2 &&
+      distanceY <= figureUI.height / 2 &&
+      squaredDistance < smallestDistance
+    ) {
+      smallestDistance = squaredDistance;
+      bestMatch = figure;
+    }
+  }
+
+  return bestMatch;
 }
