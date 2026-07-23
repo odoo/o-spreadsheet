@@ -710,11 +710,11 @@ describe("Context MenuPopover internal tests", () => {
       },
     ]);
     await renderContextMenu(300, 300, { menuItems });
-    expect(fixture.querySelector(".fa-search")).not.toBeNull();
+    expect(fixture.querySelector("[data-icon='search']")).not.toBeNull();
     visible = false;
     parent.render(true);
     await nextTick();
-    expect(fixture.querySelector(".fa-search")).toBeNull();
+    expect(fixture.querySelector("[data-icon='search']")).toBeNull();
   });
 
   test("Can change icon color", async () => {

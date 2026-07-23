@@ -34,11 +34,14 @@ describe("full screen carousel", () => {
     addNewChartToCarousel(model, "carouselId");
     model.updateMode("dashboard");
     await nextTick();
-    expect(".o-carousel-full-screen-button").toHaveClass("fa-expand");
+    expect(".o-carousel-full-screen-button").toHaveAttribute("data-icon", "open_in_full");
 
     await click(fixture, ".o-figure .o-carousel-full-screen-button");
     expect(".o-fullscreen-figure").toHaveCount(1);
-    expect(".o-fullscreen-figure .o-carousel-full-screen-button").toHaveClass("fa-compress");
+    expect(".o-fullscreen-figure .o-carousel-full-screen-button").toHaveAttribute(
+      "data-icon",
+      "close_fullscreen"
+    );
 
     await click(fixture, ".o-fullscreen-figure .o-carousel-full-screen-button");
     expect(".o-fullscreen-figure").toHaveCount(0);

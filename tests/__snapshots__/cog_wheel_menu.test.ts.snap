@@ -6,7 +6,8 @@ exports[`CogWheelMenu Can render a cog wheel menu 1`] = `
     class="o-spreadsheet"
   >
     <span
-      class="fa fa-cog os-cog-wheel-menu-icon o-button-icon"
+      class="oi oi-filled os-cog-wheel-menu-icon o-button-icon"
+      data-icon="settings"
     />
     
   </div>

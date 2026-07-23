@@ -94,10 +94,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   class="o-hoverable-button"
                 >
                   <div
-                    class="o-icon fa-small"
+                    class="o-icon oi-small"
                   >
                     <i
-                      class="fa fa-caret-down"
+                      class="oi"
+                      data-icon="arrow_drop_down"
                     />
                   </div>
                 </div>
@@ -205,10 +206,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                     
                     <span>
                       <div
-                        class="o-icon fa-small"
+                        class="o-icon oi-small"
                       >
                         <i
-                          class="fa fa-caret-down"
+                          class="oi"
+                          data-icon="arrow_drop_down"
                         />
                       </div>
                     </span>
@@ -288,10 +290,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   </span>
                   
                   <div
-                    class="o-icon fa-small"
+                    class="o-icon oi-small"
                   >
                     <i
-                      class="fa fa-caret-down"
+                      class="oi"
+                      data-icon="arrow_drop_down"
                     />
                   </div>
                   
@@ -327,10 +330,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   
                   <span>
                     <div
-                      class="o-icon fa-small"
+                      class="o-icon oi-small"
                     >
                       <i
-                        class="fa fa-caret-down"
+                        class="oi"
+                        data-icon="arrow_drop_down"
                       />
                     </div>
                   </span>
@@ -555,10 +559,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   </span>
                   
                   <div
-                    class="o-icon fa-small"
+                    class="o-icon oi-small"
                   >
                     <i
-                      class="fa fa-caret-down"
+                      class="oi"
+                      data-icon="arrow_drop_down"
                     />
                   </div>
                   
@@ -587,10 +592,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   </span>
                   
                   <div
-                    class="o-icon fa-small"
+                    class="o-icon oi-small"
                   >
                     <i
-                      class="fa fa-caret-down"
+                      class="oi"
+                      data-icon="arrow_drop_down"
                     />
                   </div>
                   
@@ -619,10 +625,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   </span>
                   
                   <div
-                    class="o-icon fa-small"
+                    class="o-icon oi-small"
                   >
                     <i
-                      class="fa fa-caret-down"
+                      class="oi"
+                      data-icon="arrow_drop_down"
                     />
                   </div>
                   
@@ -651,10 +658,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   </span>
                   
                   <div
-                    class="o-icon fa-small"
+                    class="o-icon oi-small"
                   >
                     <i
-                      class="fa fa-caret-down"
+                      class="oi"
+                      data-icon="arrow_drop_down"
                     />
                   </div>
                   
@@ -694,10 +702,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   </span>
                   
                   <div
-                    class="o-icon fa-small"
+                    class="o-icon oi-small"
                   >
                     <i
-                      class="fa fa-caret-down"
+                      class="oi"
+                      data-icon="arrow_drop_down"
                     />
                   </div>
                   
@@ -714,7 +723,8 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                     class="o-icon filter-icon-active"
                   >
                     <i
-                      class="fa fa-filter"
+                      class="oi oi-filled"
+                      data-icon="filter_alt"
                     />
                   </div>
                 </span>
@@ -1101,10 +1111,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="o-icon fa-small"
+                    class="o-icon oi-small"
                   >
                     <i
-                      class="fa fa-caret-down"
+                      class="oi"
+                      data-icon="arrow_drop_down"
                     />
                   </div>
                 </span>
@@ -1172,10 +1183,11 @@ exports[`components take the small screen into account 1`] = `
                   class="o-hoverable-button"
                 >
                   <div
-                    class="o-icon fa-small"
+                    class="o-icon oi-small"
                   >
                     <i
-                      class="fa fa-caret-down"
+                      class="oi"
+                      data-icon="arrow_drop_down"
                     />
                   </div>
                 </div>
@@ -1283,10 +1295,11 @@ exports[`components take the small screen into account 1`] = `
                     
                     <span>
                       <div
-                        class="o-icon fa-small"
+                        class="o-icon oi-small"
                       >
                         <i
-                          class="fa fa-caret-down"
+                          class="oi"
+                          data-icon="arrow_drop_down"
                         />
                       </div>
                     </span>
@@ -1366,10 +1379,11 @@ exports[`components take the small screen into account 1`] = `
                   </span>
                   
                   <div
-                    class="o-icon fa-small"
+                    class="o-icon oi-small"
                   >
                     <i
-                      class="fa fa-caret-down"
+                      class="oi"
+                      data-icon="arrow_drop_down"
                     />
                   </div>
                   
@@ -1405,10 +1419,11 @@ exports[`components take the small screen into account 1`] = `
                   
                   <span>
                     <div
-                      class="o-icon fa-small"
+                      class="o-icon oi-small"
                     >
                       <i
-                        class="fa fa-caret-down"
+                        class="oi"
+                        data-icon="arrow_drop_down"
                       />
                     </div>
                   </span>
@@ -1633,10 +1648,11 @@ exports[`components take the small screen into account 1`] = `
                   </span>
                   
                   <div
-                    class="o-icon fa-small"
+                    class="o-icon oi-small"
                   >
                     <i
-                      class="fa fa-caret-down"
+                      class="oi"
+                      data-icon="arrow_drop_down"
                     />
                   </div>
                   
@@ -1665,10 +1681,11 @@ exports[`components take the small screen into account 1`] = `
                   </span>
                   
                   <div
-                    class="o-icon fa-small"
+                    class="o-icon oi-small"
                   >
                     <i
-                      class="fa fa-caret-down"
+                      class="oi"
+                      data-icon="arrow_drop_down"
                     />
                   </div>
                   
@@ -1697,10 +1714,11 @@ exports[`components take the small screen into account 1`] = `
                   </span>
                   
                   <div
-                    class="o-icon fa-small"
+                    class="o-icon oi-small"
                   >
                     <i
-                      class="fa fa-caret-down"
+                      class="oi"
+                      data-icon="arrow_drop_down"
                     />
                   </div>
                   
@@ -1729,10 +1747,11 @@ exports[`components take the small screen into account 1`] = `
                   </span>
                   
                   <div
-                    class="o-icon fa-small"
+                    class="o-icon oi-small"
                   >
                     <i
-                      class="fa fa-caret-down"
+                      class="oi"
+                      data-icon="arrow_drop_down"
                     />
                   </div>
                   
@@ -1772,10 +1791,11 @@ exports[`components take the small screen into account 1`] = `
                   </span>
                   
                   <div
-                    class="o-icon fa-small"
+                    class="o-icon oi-small"
                   >
                     <i
-                      class="fa fa-caret-down"
+                      class="oi"
+                      data-icon="arrow_drop_down"
                     />
                   </div>
                   
@@ -1792,7 +1812,8 @@ exports[`components take the small screen into account 1`] = `
                     class="o-icon filter-icon-active"
                   >
                     <i
-                      class="fa fa-filter"
+                      class="oi oi-filled"
+                      data-icon="filter_alt"
                     />
                   </div>
                 </span>
@@ -2087,7 +2108,8 @@ exports[`components take the small screen into account 1`] = `
               class="py-1 px-1 mx-2 ribbon-toggler"
             >
               <i
-                class="o-icon fa fa-cog"
+                class="o-icon oi oi-filled"
+                data-icon="settings"
               />
             </div>
           </div>
@@ -2208,10 +2230,11 @@ exports[`components take the small screen into account 1`] = `
                       tabindex="-1"
                     >
                       <div
-                        class="o-icon fa-small"
+                        class="o-icon oi-small"
                       >
                         <i
-                          class="fa fa-caret-down"
+                          class="oi"
+                          data-icon="arrow_drop_down"
                         />
                       </div>
                     </span>

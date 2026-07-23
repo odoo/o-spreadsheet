@@ -66,12 +66,12 @@
   </t>
   <t t-name="o-spreadsheet-Icon.CLIPBOARD">
     <div class="o-icon">
-      <i class="fa fa-clipboard"/>
+      <i class="oi" data-icon="assignment"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.COPY">
     <div class="o-icon">
-      <i class="fa fa-clone"/>
+      <i class="oi" data-icon="content_copy"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.CUT">
@@ -129,7 +129,7 @@
   </t>
   <t t-name="o-spreadsheet-Icon.SHOW">
     <div class="o-icon">
-      <i class="fa fa-eye"/>
+      <i class="oi" data-icon="visibility"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.FORMULA">
@@ -262,22 +262,22 @@
   </t>
   <t t-name="o-spreadsheet-Icon.INSERT_CHART">
     <div class="o-icon">
-      <i class="fa fa-bar-chart"/>
+      <i class="oi" data-icon="bar_chart"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.INSERT_IMAGE">
     <div class="o-icon">
-      <i class="fa fa-file-image-o"/>
+      <i class="oi" data-icon="image"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.INSERT_LINK">
     <div class="o-icon">
-      <i class="fa fa-link"/>
+      <i class="oi" data-icon="link"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.INSERT_CHECKBOX">
     <div class="o-icon">
-      <i class="fa fa-check-square-o"/>
+      <i class="oi" data-icon="check_box"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.INSERT_DROPDOWN">
@@ -385,7 +385,7 @@
   </t>
   <t t-name="o-spreadsheet-Icon.IRREGULARITY_MAP">
     <div class="o-icon">
-      <i class="fa fa-align-center fa-rotate-270"/>
+      <i class="oi oi-rotate-270" data-icon="format_align_center"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.ALIGN_RIGHT">
@@ -568,67 +568,67 @@
 
   <t t-name="o-spreadsheet-Icon.FULLSCREEN_OUT">
     <div class="o-icon">
-      <i class="fa fa-compress"/>
+      <i class="oi" data-icon="close_fullscreen"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.FULLSCREEN_IN">
     <div class="o-icon">
-      <i class="fa fa-expand"/>
+      <i class="oi" data-icon="open_in_full"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.EDIT">
     <div class="o-icon">
-      <i class="fa fa-pencil-square-o"/>
+      <i class="oi" data-icon="edit_square"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.EXTERNAL">
     <div class="o-icon">
-      <i class="fa fa-external-link"/>
+      <i class="oi" data-icon="open_in_new"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.UNLINK">
     <div class="o-icon">
-      <i class="fa fa-chain-broken"/>
+      <i class="oi" data-icon="link_off"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.CARET_UP">
-    <div class="o-icon fa-small">
-      <i class="fa fa-caret-up"/>
+    <div class="o-icon oi-small">
+      <i class="oi" data-icon="arrow_drop_up"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.CARET_DOWN">
-    <div class="o-icon fa-small">
-      <i class="fa fa-caret-down"/>
+    <div class="o-icon oi-small">
+      <i class="oi" data-icon="arrow_drop_down"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.CARET_RIGHT">
-    <div class="o-icon fa-small">
-      <i class="fa fa-caret-right"/>
+    <div class="o-icon oi-small">
+      <i class="oi" data-icon="arrow_right"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.CARET_LEFT">
-    <div class="o-icon fa-small">
-      <i class="fa fa-caret-left"/>
+    <div class="o-icon oi-small">
+      <i class="oi" data-icon="arrow_left"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.TRASH">
     <div class="o-icon">
-      <i class="fa fa-trash-o"/>
+      <i class="oi" data-icon="delete"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.TRASH_FILLED">
     <div class="o-icon">
-      <i class="fa fa-trash"/>
+      <i class="oi oi-filled" data-icon="delete"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.REFRESH">
     <div class="o-icon">
-      <i class="fa fa-refresh"/>
+      <i class="oi" data-icon="refresh"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.EXCHANGE">
     <div class="o-icon">
-      <i class="fa fa-exchange"/>
+      <i class="oi" data-icon="swap_horiz"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.ARROW_DOWN">
@@ -731,17 +731,17 @@
   </t>
   <t t-name="o-spreadsheet-Icon.SORT_ASCENDING">
     <div class="o-icon">
-      <i class="fa fa-sort-alpha-asc"/>
+      <i class="oi" data-icon="sort_by_alpha"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.SORT_DESCENDING">
     <div class="o-icon">
-      <i class="fa fa-sort-alpha-desc"/>
+      <i class="oi" data-icon="sort_by_alpha"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.DATA_CLEANUP">
     <div class="o-icon">
-      <i class="fa fa-magic"/>
+      <i class="oi" data-icon="wand_stars"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.FILTER_ICON">
@@ -754,17 +754,17 @@
   </t>
   <t t-name="o-spreadsheet-Icon.FILTER_ICON_ACTIVE">
     <div class="o-icon filter-icon-active">
-      <i class="fa fa-filter"/>
+      <i class="oi oi-filled" data-icon="filter_alt"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.SEARCH">
     <div class="o-icon">
-      <i class="fa fa-search"/>
+      <i class="oi" data-icon="search"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.ZOOM">
     <div class="o-icon">
-      <i class="fa fa-search-plus"/>
+      <i class="oi" data-icon="zoom_in"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.CHECK">
@@ -798,8 +798,8 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.TRIANGLE_EXCLAMATION">
-    <div class="o-icon fa-small">
-      <i class="fa fa-exclamation-triangle"/>
+    <div class="o-icon oi-small">
+      <i class="oi" data-icon="warning"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.SPLIT_TEXT">
@@ -812,7 +812,7 @@
   </t>
   <t t-name="o-spreadsheet-Icon.ERROR">
     <div class="o-icon">
-      <i class="fa fa-exclamation-circle"/>
+      <i class="oi" data-icon="error"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.DISPLAY_HEADER">
@@ -950,7 +950,7 @@
   </t>
   <t t-name="o-spreadsheet-Icon.INFO">
     <div class="o-icon">
-      <i class="fa fa-info"/>
+      <i class="oi" data-icon="info"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.PIVOT">
@@ -1045,12 +1045,12 @@
   </t>
   <t t-name="o-spreadsheet-Icon.HIDE_SHEET">
     <div class="o-icon">
-      <i class="fa fa-eye-slash"/>
+      <i class="oi" data-icon="visibility_off"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.DOWNLOAD">
     <div class="o-icon">
-      <i class="fa fa-download"/>
+      <i class="oi" data-icon="download"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.CAROUSEL">
@@ -1095,7 +1095,7 @@
   </t>
   <t t-name="o-spreadsheet-Icon.DARK_MODE">
     <div class="o-icon">
-      <i class="fa fa-moon-o"/>
+      <i class="oi" data-icon="dark_mode"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.ROTATION-0">
@@ -1141,22 +1141,22 @@
   </t>
   <t t-name="o-spreadsheet-Icon.THUMB_TACK">
     <div class="o-icon">
-      <i class="fa fa-thumb-tack"/>
+      <i class="oi" data-icon="keep"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.LOCK">
     <div class="o-icon">
-      <i class="fa fa-lock"/>
+      <i class="oi" data-icon="lock"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.UNLOCK">
     <div class="o-icon">
-      <i class="fa fa-unlock"/>
+      <i class="oi" data-icon="lock_open"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.PRINT">
     <div class="o-icon">
-      <i class="fa fa-print"/>
+      <i class="oi" data-icon="print"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.COLUMN_STATS">

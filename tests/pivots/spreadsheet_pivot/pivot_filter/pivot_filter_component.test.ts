@@ -83,7 +83,7 @@ describe("Spreadsheet pivot side panel", () => {
     const { model, fixture, env } = await setupPivotWithFilter();
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
     await nextTick();
-    await click(fixture.querySelectorAll(".fa-trash")[2]);
+    await click(fixture.querySelectorAll("[data-icon='delete']")[2]);
     expect(model.getters.getPivotCoreDefinition("1").filters).toEqual([]);
   });
 

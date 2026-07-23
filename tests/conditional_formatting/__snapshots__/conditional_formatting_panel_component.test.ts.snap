@@ -82,7 +82,8 @@ exports[`UI of conditional formats Conditional formatting list panel simple snap
               class="o-icon"
             >
               <i
-                class="fa fa-trash"
+                class="oi oi-filled"
+                data-icon="delete"
               />
             </div>
           </div>
@@ -164,7 +165,8 @@ exports[`UI of conditional formats Conditional formatting list panel simple snap
               class="o-icon"
             >
               <i
-                class="fa fa-trash"
+                class="oi oi-filled"
+                data-icon="delete"
               />
             </div>
           </div>

@@ -1,7 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-CogWheelMenu">
     <span
-      class="fa fa-cog os-cog-wheel-menu-icon o-button-icon"
+      class="oi oi-filled os-cog-wheel-menu-icon o-button-icon"
+      data-icon="settings"
       t-on-click="this.toggleMenu"
       t-ref="this.buttonRef"
     />

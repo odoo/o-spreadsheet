@@ -31,11 +31,11 @@
           </t>
         </div>
         <div
-          class="o-carousel-tabs-dropdown o-carousel-button flex-shrink-0 rounded p-1"
+          class="o-carousel-button o-carousel-tabs-dropdown flex-shrink-0 rounded"
           t-att-class="{'active': this.menuState.isOpen}"
           t-ref="this.carouselTabsDropdownRef"
           t-on-click="this.toggleMenu">
-          <div class="fa fa-angle-down"/>
+          <div class="oi" data-icon="keyboard_arrow_down"/>
           <MenuPopover
             t-if="this.menuState.isOpen"
             menuId="this.menuId"
@@ -48,19 +48,19 @@
         <div
           t-if="this.env.model.getters.isDashboard()"
           t-att-title="this.fullScreenButtonTitle"
-          class="o-carousel-full-screen-button fa o-carousel-button rounded p-1 ms-1"
+          class="o-carousel-full-screen-button oi o-carousel-button rounded p-1 ms-1"
+          t-att-data-icon="this.props.isFullScreen ? 'close_fullscreen' : 'open_in_full'"
           t-att-class="{
-            'fa-compress': this.props.isFullScreen,
-            'fa-expand': !this.props.isFullScreen,
             'invisible': this.selectedCarouselItem?.type !== 'chart',
           }"
           t-on-click="this.toggleFullScreen"
         />
         <div
           t-if="!this.env.model.getters.isDashboard()"
-          class="o-carousel-menu-button o-carousel-button fa fa-ellipsis-v rounded ms-1"
-          t-on-click="this.openContextMenu"
-        />
+          class="o-carousel-menu-button o-carousel-button rounded ms-1"
+          t-on-click="this.openContextMenu">
+          <div class="oi" data-icon="more_vert"/>
+        </div>
       </div>
       <div
         t-if="!selectedItem"
