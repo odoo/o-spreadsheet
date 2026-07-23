@@ -12,6 +12,7 @@ import { CellPopoverStore } from "../../popover/cell_popover_store";
 
 import { useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
+import { ViewportsStore } from "../../../stores/viewports_store";
 import { types } from "../../props_validation";
 
 export class LinkDisplay extends Component<SpreadsheetChildEnv> {
@@ -23,14 +24,16 @@ export class LinkDisplay extends Component<SpreadsheetChildEnv> {
   });
 
   protected cellPopovers!: Store<CellPopoverStore>;
+  private viewStore!: Store<ViewportsStore>;
 
   setup() {
     this.cellPopovers = useStore(CellPopoverStore);
+    this.viewStore = useStore(ViewportsStore);
   }
 
   get cell(): EvaluatedCell {
     const { col, row } = this.props.cellPosition;
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.viewStore.displayedSheetId;
     return this.env.model.getters.getEvaluatedCell({ sheetId, col, row });
   }
 
@@ -59,7 +62,7 @@ export class LinkDisplay extends Component<SpreadsheetChildEnv> {
   }
 
   unlink() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.viewStore.displayedSheetId;
     const { col, row } = this.props.cellPosition;
     const style = this.env.model.getters.getCellComputedStyle({ sheetId, col, row });
     const textColor = style?.textColor === LINK_COLOR ? undefined : style?.textColor;

@@ -38,7 +38,7 @@ export class VerticalScrollBar extends Component<SpreadsheetChildEnv> {
 
   get isDisplayed() {
     const { yRatio } = this.viewStore.viewports.getFrozenSheetViewRatio(
-      this.env.model.getters.getActiveSheetId()
+      this.viewStore.displayedSheetId
     );
     return yRatio < 1;
   }

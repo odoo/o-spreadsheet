@@ -29,7 +29,7 @@ export class CellPopoverStore extends SpreadsheetStore {
   }
 
   open({ col, row }: Position, type: CellPopoverType): void {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = this.viewStore.displayedSheetId;
     if (!cellPopoverRegistry.contains(type)) {
       return;
     }
@@ -55,10 +55,11 @@ export class CellPopoverStore extends SpreadsheetStore {
   }
 
   get cellPopover(): ClosedCellPopover | PositionedCellPopoverComponent {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = this.viewStore.displayedSheetId;
 
     if (
       this.persistentPopover &&
+      this.persistentPopover.sheetId === sheetId &&
       this.viewStore.viewports.isVisibleInViewport(this.persistentPopover)
     ) {
       const position = this.getters.getMainCellPosition(this.persistentPopover);
@@ -94,7 +95,7 @@ export class CellPopoverStore extends SpreadsheetStore {
   }
 
   private computePopoverAnchorRect({ col, row }: Position): Rect {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = this.viewStore.displayedSheetId;
     const merge = this.getters.getMerge({ sheetId, col, row });
     if (merge) {
       return this.viewStore.viewports.getVisibleRect(sheetId, merge);

@@ -27,7 +27,7 @@ export class ClientTag extends Component<SpreadsheetChildEnv> {
   get tagStyle(): string {
     const { col, row, color } = this.props;
     const { height } = this.viewStore.sheetViewDimensionWithHeaders;
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.viewStore.displayedSheetId;
     const visible = this.viewStore.viewports.isVisibleInViewport({ sheetId, col, row });
     const { x, y } = this.viewStore.viewports.getVisibleRect(sheetId, {
       left: col,

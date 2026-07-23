@@ -63,7 +63,7 @@ export class GridAddRowsFooter extends Component<SpreadsheetChildEnv> {
       return;
     }
     const quantity = Number(this.state.inputValue);
-    const activeSheetId = this.env.model.getters.getActiveSheetId();
+    const activeSheetId = this.viewStore.displayedSheetId;
     const rowNumber = this.env.model.getters.getNumberRows(activeSheetId);
     this.env.model.dispatch("ADD_COLUMNS_ROWS", {
       sheetId: activeSheetId,

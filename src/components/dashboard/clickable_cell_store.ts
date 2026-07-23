@@ -90,10 +90,7 @@ export class ClickableCellsStore extends SpreadsheetStore {
 
   private getClickableCellRect(position: CellPosition): Rect | undefined {
     const zone = this.getters.expandZone(position.sheetId, positionToZone(position));
-    const clickableRect = this.viewStore.viewports.getVisibleRect(
-      this.getters.getActiveSheetId(),
-      zone
-    );
+    const clickableRect = this.viewStore.viewports.getVisibleRect(position.sheetId, zone);
 
     const icons = this.getters.getCellIcons(position);
     const iconsAtPosition = {
@@ -105,12 +102,12 @@ export class ClickableCellsStore extends SpreadsheetStore {
       return undefined;
     }
     if (iconsAtPosition.right?.onClick) {
-      const cellRect = this.viewStore.viewports.getRect(this.getters.getActiveSheetId(), zone);
+      const cellRect = this.viewStore.viewports.getRect(position.sheetId, zone);
       const iconRect = this.getters.getCellIconRect(iconsAtPosition.right, cellRect);
       clickableRect.width -= iconRect.width + iconsAtPosition.right.margin;
     }
     if (iconsAtPosition.left?.onClick) {
-      const cellRect = this.viewStore.viewports.getRect(this.getters.getActiveSheetId(), zone);
+      const cellRect = this.viewStore.viewports.getRect(position.sheetId, zone);
       const iconRect = this.getters.getCellIconRect(iconsAtPosition.left, cellRect);
       clickableRect.x += iconRect.width + iconsAtPosition.left.margin;
       clickableRect.width -= iconRect.width + iconsAtPosition.left.margin;

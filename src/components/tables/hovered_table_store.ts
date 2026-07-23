@@ -1,47 +1,35 @@
 import { TABLE_HOVER_BACKGROUND_COLOR } from "../../constants";
 import { PositionMap } from "../../helpers/cells/position_map";
-import { range } from "../../helpers/misc";
+import { deepEquals, range } from "../../helpers/misc";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
-import { Command } from "../../types/commands";
-import { Color, Position } from "../../types/misc";
+import { CellPosition, Color } from "../../types/misc";
 
 export class HoveredTableStore extends SpreadsheetStore {
   mutators = ["clear", "hover"] as const;
 
-  col: number | undefined;
-  row: number | undefined;
+  position: CellPosition | undefined;
 
   overlayColors: PositionMap<Color> = new PositionMap();
 
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "ACTIVATE_SHEET":
-        this.clear();
-    }
-  }
-
-  hover(position: Partial<Position>) {
-    if (!this.getters.isDashboard() || (position.col === this.col && position.row === this.row)) {
+  hover(position: CellPosition | undefined) {
+    if (!this.getters.isDashboard() || deepEquals(this.position, position)) {
       return "noStateChange";
     }
-    this.col = position.col;
-    this.row = position.row;
+    this.position = position;
     this.computeOverlay();
     return;
   }
 
   clear() {
-    this.col = undefined;
-    this.row = undefined;
+    this.position = undefined;
   }
 
   private computeOverlay() {
     this.overlayColors = new PositionMap();
-    const { col, row } = this;
-    if (col === undefined || row === undefined) {
+    if (!this.position) {
       return;
     }
-    const sheetId = this.getters.getActiveSheetId();
+    const { sheetId, col, row } = this.position;
     const table = this.getters.getTable({ sheetId, col, row });
     if (!table) {
       return;

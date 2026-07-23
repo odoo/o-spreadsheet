@@ -43,7 +43,11 @@ export class ClientFocusStore extends SpreadsheetStore {
         sheetIdTo: client.position.sheetId,
         sheetIdFrom: this.getters.getActiveSheetId(),
       });
-      this.viewStore.scrollToCell(client.position.col, client.position.row);
+      this.viewStore.scrollToCell(
+        client.position.sheetId,
+        client.position.col,
+        client.position.row
+      );
     }
   }
 

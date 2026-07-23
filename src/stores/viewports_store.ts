@@ -36,6 +36,7 @@ export class ViewportsStore extends SpreadsheetStore {
     "shiftViewportDown",
     "shiftViewportUp",
     "scrollToCell",
+    "setDisplayedSheetId",
   ] as const;
 
   viewports: ViewportCollection = new ViewportCollection({
@@ -49,6 +50,8 @@ export class ViewportsStore extends SpreadsheetStore {
   private sheetsWithDirtyViewports: Set<UID> = new Set();
   private shouldRepositionViewports: boolean = false;
 
+  displayedSheetId: UID = this.model.getters.getActiveSheetId();
+
   constructor(get: Get) {
     super(get);
     this.model.selection.observe(this, {
@@ -57,7 +60,7 @@ export class ViewportsStore extends SpreadsheetStore {
     this.onDispose(() => {
       this.model.selection.unobserve(this);
     });
-    this.viewports.resetViewports(this.getters.getActiveSheetId());
+    this.viewports.resetViewports(this.displayedSheetId);
   }
 
   // ---------------------------------------------------------------------------
@@ -65,7 +68,7 @@ export class ViewportsStore extends SpreadsheetStore {
   // ---------------------------------------------------------------------------
 
   private handleEvent(event: SelectionEvent) {
-    const sheetId = this.getters.getActiveSheetId();
+    const eventSheetId = this.getters.getActiveSheetId();
     if (event.options.scrollIntoView) {
       const oldZone = event.previousAnchor.zone;
       const newZone = event.anchor.zone;
@@ -75,7 +78,7 @@ export class ViewportsStore extends SpreadsheetStore {
         isUpdateAnchorEvent && sameZone ? event.anchor.cell : findCellInNewZone(oldZone, newZone);
       if (isUpdateAnchorEvent && !sameZone) {
         // altering a zone should not move the viewport in a dimension that wasn't changed
-        const { top, bottom, left, right } = this.viewports.getMainInternalViewport(sheetId);
+        const { top, bottom, left, right } = this.viewports.getMainInternalViewport(eventSheetId);
         if (oldZone.left === newZone.left && oldZone.right === newZone.right) {
           col = left > col || col > right ? left : col;
         }
@@ -83,10 +86,10 @@ export class ViewportsStore extends SpreadsheetStore {
           row = top > row || row > bottom ? top : row;
         }
       }
-      col = Math.min(col, this.getters.getNumberCols(sheetId) - 1);
-      row = Math.min(row, this.getters.getNumberRows(sheetId) - 1);
-      if (!this.sheetsWithDirtyViewports.has(sheetId)) {
-        this.viewports.refreshViewport(sheetId, { col, row });
+      col = Math.min(col, this.getters.getNumberCols(eventSheetId) - 1);
+      row = Math.min(row, this.getters.getNumberRows(eventSheetId) - 1);
+      if (!this.sheetsWithDirtyViewports.has(eventSheetId)) {
+        this.viewports.refreshViewport(eventSheetId, { col, row });
       }
     }
   }
@@ -151,9 +154,6 @@ export class ViewportsStore extends SpreadsheetStore {
         this.viewports.cleanViewports();
         this.sheetsWithDirtyViewports.delete(cmd.sheetId);
         break;
-      case "ACTIVATE_SHEET":
-        this.sheetsWithDirtyViewports.add(cmd.sheetIdTo);
-        break;
     }
   }
 
@@ -185,8 +185,13 @@ export class ViewportsStore extends SpreadsheetStore {
     this.viewports.setPaneDivision(sheetId, this.getters.getPaneDivisions(sheetId));
   }
 
+  setDisplayedSheetId(sheetId: UID) {
+    this.displayedSheetId = sheetId;
+    this.viewports.resetViewports(sheetId);
+  }
+
   setViewportOffset(offset: { offsetX: Pixel; offsetY: Pixel }) {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = this.displayedSheetId;
     if (
       !this.viewports.checkScrollingDirection(sheetId, offset) ||
       !this.viewports.checkIfViewportsWillChange(sheetId, offset)
@@ -217,21 +222,21 @@ export class ViewportsStore extends SpreadsheetStore {
   }
 
   shiftViewportDown() {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = this.displayedSheetId;
     const { top, viewportHeight, boundaryTopY } = this.viewports.getMainInternalViewport(sheetId);
     const topRowDims = this.getters.getRowDimensions(sheetId, top);
     this.shiftVertically(topRowDims.start + viewportHeight - boundaryTopY);
   }
 
   shiftViewportUp() {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = this.displayedSheetId;
     const { top, viewportHeight, boundaryTopY } = this.viewports.getMainInternalViewport(sheetId);
     const topRowDims = this.getters.getRowDimensions(sheetId, top);
     this.shiftVertically(topRowDims.end - boundaryTopY - viewportHeight);
   }
 
-  scrollToCell(col: HeaderIndex, row: HeaderIndex) {
-    this.viewports.refreshViewport(this.getters.getActiveSheetId(), { col, row });
+  scrollToCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex) {
+    this.viewports.refreshViewport(sheetId, { col, row });
   }
 
   // ---------------------------------------------------------------------------
@@ -252,7 +257,7 @@ export class ViewportsStore extends SpreadsheetStore {
 
   /** type as pane, not viewport but basically pane extends viewport */
   get activeMainViewport(): Viewport {
-    return this.viewports.getMainViewport(this.getters.getActiveSheetId());
+    return this.viewports.getMainViewport(this.displayedSheetId);
   }
 
   /**
@@ -260,33 +265,33 @@ export class ViewportsStore extends SpreadsheetStore {
    * the grid left/top side, corresponding to the scroll of the scrollbars and not snapped to the grid.
    */
   get activeSheetScrollInfo(): SheetDOMScrollInfo {
-    return this.viewports.getSheetScrollInfo(this.getters.getActiveSheetId());
+    return this.viewports.getSheetScrollInfo(this.displayedSheetId);
   }
 
   get visibleCols(): HeaderIndex[] {
-    return this.viewports.getSheetViewVisibleCols(this.getters.getActiveSheetId());
+    return this.viewports.getSheetViewVisibleCols(this.displayedSheetId);
   }
 
   get visibleRows(): HeaderIndex[] {
-    return this.viewports.getSheetViewVisibleRows(this.getters.getActiveSheetId());
+    return this.viewports.getSheetViewVisibleRows(this.displayedSheetId);
   }
 
   /**
    * Get the positions of all the cells that are visible in the viewport, taking merges into account.
    */
   get visibleCellPositions(): CellPosition[] {
-    return this.viewports.getVisibleCellPositions(this.getters.getActiveSheetId());
+    return this.viewports.getVisibleCellPositions(this.displayedSheetId);
   }
 
   /**
    * Return the main viewport maximum size relative to the client size.
    */
   get mainViewportRect(): Rect {
-    return this.viewports.getMainViewportRect(this.getters.getActiveSheetId());
+    return this.viewports.getMainViewportRect(this.displayedSheetId);
   }
 
   get maximumSheetOffset(): { maxOffsetX: Pixel; maxOffsetY: Pixel } {
-    return this.viewports.getMaximumSheetOffset(this.getters.getActiveSheetId());
+    return this.viewports.getMaximumSheetOffset(this.displayedSheetId);
   }
 
   get scrollBarWidth(): Pixel {
@@ -299,7 +304,7 @@ export class ViewportsStore extends SpreadsheetStore {
    * situated before the pane divisions.
    */
   get mainViewportCoordinates(): DOMCoordinates {
-    return this.viewports.getMainViewportCoordinates(this.getters.getActiveSheetId());
+    return this.viewports.getMainViewportCoordinates(this.displayedSheetId);
   }
 
   get zoomLevel(): number {
@@ -307,7 +312,7 @@ export class ViewportsStore extends SpreadsheetStore {
   }
 
   get visibleFigures(): FigureUI[] {
-    return this.viewports.getVisibleFigures(this.getters.getActiveSheetId());
+    return this.viewports.getVisibleFigures(this.displayedSheetId);
   }
 
   // ---------------------------------------------------------------------------
@@ -320,7 +325,7 @@ export class ViewportsStore extends SpreadsheetStore {
    * viewport top.
    */
   private shiftVertically(offset: Pixel) {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = this.displayedSheetId;
     const { top } = this.viewports.getMainInternalViewport(sheetId);
     const { scrollX } = this.activeSheetScrollInfo;
     this.viewports.setSheetViewOffset(sheetId, scrollX, offset);
