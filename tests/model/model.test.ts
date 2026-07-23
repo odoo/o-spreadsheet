@@ -420,4 +420,42 @@ describe("Model", () => {
       type: "SNAPSHOT",
     });
   });
+
+  test("Can register an external allow dispatch handler", () => {
+    const receivedCommands: CommandTypes[] = [];
+    class TestHandler {
+      allowDispatch(cmd: Command): CommandResult {
+        receivedCommands.push(cmd.type);
+        return CommandResult.CancelledForUnknownReason;
+      }
+    }
+    const model = new Model();
+    model.registerExternalAllowDispatch(new TestHandler());
+    expect(model.dispatch("EVALUATE_CELLS")).toBeCancelledBecause(
+      CommandResult.CancelledForUnknownReason
+    );
+    expect(setCellContent(model, "A1", "hello")).toBeCancelledBecause(
+      CommandResult.CancelledForUnknownReason
+    );
+    expect(receivedCommands).toEqual(["EVALUATE_CELLS", "UPDATE_CELL"]);
+  });
+
+  test("External allow dispatch handler do not receive remote commands", () => {
+    const receivedCommands: CommandTypes[] = [];
+    class TestHandler {
+      allowDispatch(cmd: Command): CommandResult {
+        receivedCommands.push(cmd.type);
+        return CommandResult.CancelledForUnknownReason;
+      }
+    }
+    const { alice, bob, charlie } = setupCollaborativeEnv();
+    bob.registerExternalAllowDispatch(new TestHandler());
+
+    expect(setCellContent(alice, "A1", "hello")).toBeSuccessfullyDispatched();
+    expect(receivedCommands).toEqual([]);
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A1"),
+      "hello"
+    );
+  });
 });
