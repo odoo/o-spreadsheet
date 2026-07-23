@@ -1,4 +1,3 @@
-import { CommandTypes } from "./commands";
 import { UID } from "./misc";
 import { Range } from "./range";
 
@@ -22,7 +21,17 @@ export interface FormulaOwnerRecord {
    * e.g. a pivot measure referencing another calculated measure by symbol.
    */
   readonly extraDependencies?: Range[];
+  /**
+   * Called with the range-adapted formula string whenever a structural
+   * change (row/col insert-delete, sheet rename/delete, named range rename)
+   * changes it. Must persist the new string into this owner's own state
+   * (typically via `this.history.update(...)`). Required, not optional — an
+   * owner with nothing to do here (e.g. because it already adapts this
+   * string through some other mechanism) must say so explicitly with a
+   * documented no-op, so range adaptation can never be silently forgotten
+   * for a newly declared formula.
+   */
+  readonly onAdapt: (newFormulaString: string) => void;
 }
 
 export type FormulaOwnerProvider = () => Iterable<FormulaOwnerRecord>;
-export type FormulaOwnerExtraInvalidationProvider = () => Iterable<CommandTypes>;

@@ -2,15 +2,20 @@ import { Model } from "../../src/model";
 import { CorePlugin } from "../../src/plugins/core_plugin";
 import { corePluginRegistry } from "../../src/plugins/plugin_registries";
 import { GenericFormulaEvaluator } from "../../src/plugins/ui_core_views/formula_manager/generic_formula_evaluator";
+import { CommandTypes } from "../../src/types/commands";
 import { FormulaOwnerRecord, makeFormulaOwnerId } from "../../src/types/formula_owner";
-import { setCellContent } from "../test_helpers/commands_helpers";
+import { merge, setCellContent } from "../test_helpers/commands_helpers";
 
 const TEST_OWNER_ID = makeFormulaOwnerId("test", "owner1");
 
 class TestFormulaOwnerPlugin extends CorePlugin {
   getFormulaOwners(): Iterable<FormulaOwnerRecord> {
     const sheetId = this.getters.getSheetIds()[0];
-    return [{ id: TEST_OWNER_ID, sheetId, formulaString: "=C1+1" }];
+    return [{ id: TEST_OWNER_ID, sheetId, formulaString: "=C1+1", onAdapt: () => {} }];
+  }
+
+  getExtraInvalidationCommands(): Iterable<CommandTypes> {
+    return ["ADD_MERGE"];
   }
 }
 
@@ -55,5 +60,20 @@ describe("FormulaManagerPlugin end-to-end with a registered test formula owner",
     expect(evaluateSpy).toHaveBeenCalledTimes(2);
 
     evaluateSpy.mockRestore();
+  });
+
+  test("getExtraInvalidationCommands is called once, at construction, not per command", () => {
+    const spy = jest.spyOn(TestFormulaOwnerPlugin.prototype, "getExtraInvalidationCommands");
+
+    const model = new Model();
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "B1", "=A1+1");
+    merge(model, "D1:D2");
+
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    spy.mockRestore();
   });
 });

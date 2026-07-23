@@ -69,9 +69,11 @@ export class ConditionalFormatPlugin
     "getRulesSelection",
     "getRulesByCell",
     "getAdaptedCfRanges",
+    "getCellIsRuleFormulaOwnerId",
   ] as const;
 
   readonly cfRules: { [sheet: string]: ConditionalFormatInternal[] } = {};
+  private cellIsRuleFormulaOwnerIds = new WeakMap<ConditionalFormatInternal, FormulaOwnerId[]>();
 
   adaptCFFormulas({ applyChange, adaptFormulaString }: RangeAdapterFunctions) {
     for (const sheetId in this.cfRules) {
@@ -103,19 +105,6 @@ export class ConditionalFormatPlugin
                 change.range
               );
               break;
-          }
-        } else if (rule.rule.type === "CellIsRule") {
-          for (let i = 0; i < rule.rule.values.length; i++) {
-            this.history.update(
-              "cfRules",
-              sheetId,
-              this.cfRules[sheetId].indexOf(rule),
-              "rule",
-              //@ts-expect-error
-              "values",
-              i,
-              adaptFormulaString(sheetId, rule.rule.values[i])
-            );
           }
         } else if (rule.rule.type === "IconSetRule") {
           for (const inflectionPoint of ["lowerInflectionPoint", "upperInflectionPoint"] as const) {
@@ -209,18 +198,83 @@ export class ConditionalFormatPlugin
         if (cf.rule.type !== "CellIsRule") {
           continue;
         }
+        const ids = this.getOrComputeCellIsRuleFormulaOwnerIds(sheetId, cf);
         cf.rule.values.forEach((value, i) => {
           if (value.startsWith("=")) {
             records.push({
-              id: getCellIsRuleFormulaOwnerId(sheetId, cf.id, i),
+              id: ids[i],
               sheetId,
               formulaString: value,
+              onAdapt: (newValue) => this.setCellIsRuleValue(sheetId, cf, i, newValue),
             });
           }
         });
       }
     }
     return records;
+  }
+
+  /**
+   * The formula owner id for a `CellIsRule`'s formula-valued `values[valueIndex]`,
+   * looked up through a cache keyed by the rule's own object reference so it's
+   * computed once per actual rule change rather than on every read (used by
+   * `evaluation_conditional_format.ts`; `getFormulaOwners` above uses the
+   * lower-level cached array directly since it already holds the rule object).
+   */
+  getCellIsRuleFormulaOwnerId(
+    sheetId: UID,
+    cfId: UID,
+    valueIndex: number
+  ): FormulaOwnerId | undefined {
+    const cf = this.cfRules[sheetId]?.find((c) => c.id === cfId);
+    return cf && this.getOrComputeCellIsRuleFormulaOwnerIds(sheetId, cf)[valueIndex];
+  }
+
+  private getOrComputeCellIsRuleFormulaOwnerIds(
+    sheetId: UID,
+    cf: ConditionalFormatInternal
+  ): FormulaOwnerId[] {
+    let ids = this.cellIsRuleFormulaOwnerIds.get(cf);
+    if (!ids) {
+      ids = this.buildCellIsRuleFormulaOwnerIds(sheetId, cf);
+      this.cellIsRuleFormulaOwnerIds.set(cf, ids);
+    }
+    return ids;
+  }
+
+  private buildCellIsRuleFormulaOwnerIds(
+    sheetId: UID,
+    cf: ConditionalFormatInternal
+  ): FormulaOwnerId[] {
+    return cf.rule.type === "CellIsRule"
+      ? cf.rule.values.map((_, i) => getCellIsRuleFormulaOwnerId(sheetId, cf.id, i))
+      : [];
+  }
+
+  private setCellIsRuleValue(
+    sheetId: UID,
+    cf: ConditionalFormatInternal,
+    valueIndex: number,
+    newValue: string
+  ) {
+    // Looked up by array position (object identity), not `cf.id`: CF ids are
+    // not guaranteed unique across every internal representation this method
+    // may be called with (e.g. raw imported data), matching how every other
+    // range-adaptation method in this plugin already resolves a rule's index.
+    const ruleIndex = this.cfRules[sheetId]?.indexOf(cf);
+    if (ruleIndex === undefined || ruleIndex === -1) {
+      return;
+    }
+    this.history.update(
+      "cfRules",
+      sheetId,
+      ruleIndex,
+      "rule",
+      //@ts-expect-error
+      "values",
+      valueIndex,
+      newValue
+    );
   }
 
   // ---------------------------------------------------------------------------

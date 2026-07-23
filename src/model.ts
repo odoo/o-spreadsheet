@@ -194,6 +194,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     );
     this.coreGetters.getFormulaOwnerExtraInvalidationCommands =
       this.formulaOwners.getFormulaOwnerExtraInvalidationCommands.bind(this.formulaOwners);
+    this.range.addRangeProvider(this.formulaOwners.adaptRanges.bind(this.formulaOwners));
 
     // Initiate stream processor
     this.selection = new SelectionStreamProcessorImpl(this.getters);

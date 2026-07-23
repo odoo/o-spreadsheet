@@ -19,7 +19,6 @@ import {
 import { GenericCriterion } from "../../types/generic_criterion";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { CellPosition, HeaderIndex, Lazy, Matrix, Offset, Style, UID } from "../../types/misc";
-import { getDataValidationFormulaOwnerId } from "../core/data_validation";
 import { CoreViewPlugin } from "../core_view_plugin";
 
 interface InvalidValidationResult {
@@ -300,9 +299,8 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
         return parseLiteral(value, DEFAULT_LOCALE);
       }
 
-      const formula = this.getters.getFormulaOwnerCompiledFormula(
-        getDataValidationFormulaOwnerId(sheetId, ruleId, i)
-      );
+      const id = this.getters.getDataValidationFormulaOwnerId(sheetId, ruleId, i);
+      const formula = id && this.getters.getFormulaOwnerCompiledFormula(id);
       if (!formula) {
         return "";
       }

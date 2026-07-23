@@ -23,7 +23,6 @@ import {
 import { EvaluatedCriterion, EvaluatedDateCriterion } from "../../types/generic_criterion";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { CellPosition, DataBarFill, HeaderIndex, Lazy, Style, UID, Zone } from "../../types/misc";
-import { getCellIsRuleFormulaOwnerId } from "../core/conditional_format";
 import { CoreViewPlugin } from "../core_view_plugin";
 
 type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
@@ -113,9 +112,8 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
         case "CellIsRule":
           const formulas = cf.rule.values.map((value, i) => {
             if (value.startsWith("=")) {
-              return this.getters.getFormulaOwnerCompiledFormula(
-                getCellIsRuleFormulaOwnerId(sheetId, cf.id, i)
-              );
+              const id = this.getters.getCellIsRuleFormulaOwnerId(sheetId, cf.id, i);
+              return id && this.getters.getFormulaOwnerCompiledFormula(id);
             } else {
               return undefined;
             }

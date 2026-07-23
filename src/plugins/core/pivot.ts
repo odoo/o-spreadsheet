@@ -7,7 +7,7 @@ import { CommandResult, CoreCommand } from "../../types/commands";
 import { CellPosition, RangeAdapterFunctions, UID } from "../../types/misc";
 
 import { CellValue } from "../../types/cells";
-import { FormulaOwnerRecord, makeFormulaOwnerId } from "../../types/formula_owner";
+import { FormulaOwnerId, FormulaOwnerRecord, makeFormulaOwnerId } from "../../types/formula_owner";
 import { Position } from "../../types/misc";
 import { PivotCoreDefinition, PivotCoreMeasure } from "../../types/pivot";
 import { Range } from "../../types/range";
@@ -48,6 +48,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   public readonly pivots: {
     [pivotId: UID]: Pivot | undefined;
   } = {};
+  private measureFormulaOwnerIds = new Map<string, FormulaOwnerId>();
   public readonly formulaIds: { [formulaId: UID]: UID | undefined } = {};
   public readonly compiledMeasureFormulas: Record<UID, Record<string, MeasureState>> = {};
 
@@ -232,13 +233,38 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
           continue;
         }
         records.push({
-          id: makeFormulaOwnerId("pivot", pivotId, "measure", measureId),
+          id: this.getOrComputeMeasureFormulaOwnerId(pivotId, measureId),
           sheetId: measure.computedBy.sheetId,
           formulaString: measure.computedBy.formula,
+          // No-op: pivot measures are declare-only (see Phase 5 finding —
+          // PivotCorePlugin can't delegate storage to the formula manager).
+          // Range adaptation for measure formulas is already handled by this
+          // plugin's own `adaptRanges` (see `replaceMeasureFormula`);
+          // adapting here too would double-adapt.
+          onAdapt: () => {},
         });
       }
     }
     return records;
+  }
+
+  /**
+   * Computed once per (pivotId, measureId) pair and cached, rather than on
+   * every `getFormulaOwners()` re-pull — the id is a stable function of
+   * these two already-stable identifiers, it never actually changes.
+   */
+  private getOrComputeMeasureFormulaOwnerId(pivotId: UID, measureId: string): FormulaOwnerId {
+    const key = `${pivotId}:${measureId}`;
+    let id = this.measureFormulaOwnerIds.get(key);
+    if (!id) {
+      id = this.buildMeasureFormulaOwnerId(pivotId, measureId);
+      this.measureFormulaOwnerIds.set(key, id);
+    }
+    return id;
+  }
+
+  private buildMeasureFormulaOwnerId(pivotId: UID, measureId: string): FormulaOwnerId {
+    return makeFormulaOwnerId("pivot", pivotId, "measure", measureId);
   }
 
   // -------------------------------------------------------------------------

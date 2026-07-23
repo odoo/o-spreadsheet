@@ -48,12 +48,12 @@ export class CorePlugin<State = any>
     canDispatch,
   }: CorePluginConfig) {
     super(stateObserver);
-    range.addRangeProvider(this.adaptRanges.bind(this));
-    formulaOwners.addProvider(this.getFormulaOwners.bind(this));
-    formulaOwners.addExtraInvalidationProvider(this.getExtraInvalidationCommands.bind(this));
     this.getters = getters;
     this.dispatch = dispatch;
     this.canDispatch = canDispatch;
+    range.addRangeProvider(this.adaptRanges.bind(this));
+    formulaOwners.addProvider(this.getFormulaOwners.bind(this));
+    formulaOwners.addExtraInvalidationCommands(this.getExtraInvalidationCommands());
   }
 
   // ---------------------------------------------------------------------------
@@ -78,7 +78,7 @@ export class CorePlugin<State = any>
 
   /**
    * Override to declare, in a pull-based way, the formulas this plugin
-   * currently owns outside of a cell (e.g. a conditional formatting rule's
+   * currently owns outside a cell (e.g. a conditional formatting rule's
    * custom formula). This is queried by `FormulaManagerPlugin` whenever a
    * relevant command is dispatched — there is no push/registration call to
    * make elsewhere, the returned list should always reflect current truth.
@@ -90,7 +90,11 @@ export class CorePlugin<State = any>
   /**
    * Override to declare extra command types (beyond the shared default set)
    * that should make `FormulaManagerPlugin` re-pull this plugin's formula
-   * owners.
+   * owners. Called exactly once, at construction time — this is a static
+   * property of the plugin's command-handling logic (which of its own
+   * commands add/remove/change formula-bearing state), not something that
+   * changes over its lifetime, so it must not depend on any instance state
+   * that isn't already available in the constructor.
    */
   getExtraInvalidationCommands(): Iterable<CommandTypes> {
     return [];

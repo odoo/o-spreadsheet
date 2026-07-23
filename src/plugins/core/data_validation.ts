@@ -44,15 +44,16 @@ export class DataValidationPlugin
     "getDataValidationRule",
     "getDataValidationRules",
     "getValidationRuleForCell",
+    "getDataValidationFormulaOwnerId",
   ] as const;
 
   readonly rules: { [sheet: string]: DataValidationRule[] } = {};
+  private dataValidationFormulaOwnerIds = new WeakMap<DataValidationRule, FormulaOwnerId[]>();
 
   adaptRanges(rangeAdapters: RangeAdapterFunctions) {
     for (const sheetId in this.rules) {
       this.adaptDVRanges(sheetId, rangeAdapters);
     }
-    this.adaptDVFormulas(rangeAdapters);
   }
 
   getExtraInvalidationCommands(): Iterable<CommandTypes> {
@@ -63,12 +64,31 @@ export class DataValidationPlugin
     const records: FormulaOwnerRecord[] = [];
     for (const sheetId in this.rules) {
       for (const rule of this.rules[sheetId]) {
+        const ids = this.getOrComputeDataValidationFormulaOwnerIds(sheetId, rule);
         rule.criterion.values.forEach((value, i) => {
           if (value.startsWith("=")) {
             records.push({
-              id: getDataValidationFormulaOwnerId(sheetId, rule.id, i),
+              id: ids[i],
               sheetId,
               formulaString: value,
+              onAdapt: (newValue) => {
+                // Looked up by array position (object identity), not `rule.id`, matching
+                // how every other range-adaptation method in this plugin already
+                // resolves a rule's index.
+                const ruleIndex = this.rules[sheetId]?.indexOf(rule);
+                if (ruleIndex === undefined || ruleIndex === -1) {
+                  return;
+                }
+                this.history.update(
+                  "rules",
+                  sheetId,
+                  ruleIndex,
+                  "criterion",
+                  "values",
+                  i,
+                  newValue
+                );
+              },
             });
           }
         });
@@ -77,25 +97,40 @@ export class DataValidationPlugin
     return records;
   }
 
-  private adaptDVFormulas({ adaptFormulaString }: RangeAdapterFunctions) {
-    for (const sheetId in this.rules) {
-      const rules = this.rules[sheetId];
-      for (let ruleIndex = rules.length - 1; ruleIndex >= 0; ruleIndex--) {
-        const rule = this.rules[sheetId][ruleIndex];
-        for (let valueIndex = 0; valueIndex < rule.criterion.values.length; valueIndex++) {
-          const value = adaptFormulaString(sheetId, rule.criterion.values[valueIndex]);
-          this.history.update(
-            "rules",
-            sheetId,
-            ruleIndex,
-            "criterion",
-            "values",
-            valueIndex,
-            value
-          );
-        }
-      }
+  /**
+   * The formula owner id for a data validation rule's formula-valued
+   * `criterion.values[valueIndex]`, looked up through a cache keyed by the
+   * rule's own object reference so it's computed once per actual rule
+   * change rather than on every read (used by `evaluation_data_validation.ts`).
+   */
+  getDataValidationFormulaOwnerId(
+    sheetId: UID,
+    ruleId: UID,
+    valueIndex: number
+  ): FormulaOwnerId | undefined {
+    const rule = this.rules[sheetId]?.find((r) => r.id === ruleId);
+    return rule && this.getOrComputeDataValidationFormulaOwnerIds(sheetId, rule)[valueIndex];
+  }
+
+  private getOrComputeDataValidationFormulaOwnerIds(
+    sheetId: UID,
+    rule: DataValidationRule
+  ): FormulaOwnerId[] {
+    let ids = this.dataValidationFormulaOwnerIds.get(rule);
+    if (!ids) {
+      ids = this.buildDataValidationFormulaOwnerIds(sheetId, rule);
+      this.dataValidationFormulaOwnerIds.set(rule, ids);
     }
+    return ids;
+  }
+
+  private buildDataValidationFormulaOwnerIds(
+    sheetId: UID,
+    rule: DataValidationRule
+  ): FormulaOwnerId[] {
+    return rule.criterion.values.map((_, i) =>
+      getDataValidationFormulaOwnerId(sheetId, rule.id, i)
+    );
   }
 
   private adaptDVRanges(sheetId: UID, { applyChange }: RangeAdapterFunctions) {
