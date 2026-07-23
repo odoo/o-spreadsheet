@@ -1,16 +1,19 @@
 import { StateObserver } from "../state_observer";
-import { CoreCommand, CoreCommandDispatcher } from "../types/commands";
+import { CommandTypes, CoreCommand, CoreCommandDispatcher } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
+import { FormulaOwnerRecord } from "../types/formula_owner";
 import { RangeAdapterFunctions, RangeProvider } from "../types/misc";
 import { ModelConfig } from "../types/model";
 import { WorkbookData } from "../types/workbook_data";
 import { BasePlugin } from "./base_plugin";
+import { FormulaOwnerRegistry } from "./core/formula_owner_registry";
 import { RangeAdapterPlugin } from "./core/range";
 
 export interface CorePluginConfig {
   readonly getters: CoreGetters;
   readonly stateObserver: StateObserver;
   readonly range: RangeAdapterPlugin;
+  readonly formulaOwners: FormulaOwnerRegistry;
   readonly dispatch: CoreCommandDispatcher["dispatch"];
   readonly canDispatch: CoreCommandDispatcher["dispatch"];
   readonly custom: ModelConfig["custom"];
@@ -36,9 +39,18 @@ export class CorePlugin<State = any>
   protected dispatch: CoreCommandDispatcher["dispatch"];
   protected canDispatch: CoreCommandDispatcher["dispatch"];
 
-  constructor({ getters, stateObserver, range, dispatch, canDispatch }: CorePluginConfig) {
+  constructor({
+    getters,
+    stateObserver,
+    range,
+    formulaOwners,
+    dispatch,
+    canDispatch,
+  }: CorePluginConfig) {
     super(stateObserver);
     range.addRangeProvider(this.adaptRanges.bind(this));
+    formulaOwners.addProvider(this.getFormulaOwners.bind(this));
+    formulaOwners.addExtraInvalidationProvider(this.getExtraInvalidationCommands.bind(this));
     this.getters = getters;
     this.dispatch = dispatch;
     this.canDispatch = canDispatch;
@@ -63,4 +75,24 @@ export class CorePlugin<State = any>
    * @param sheetName couple of old and new sheet names to adapt ranges pointing to that sheet
    */
   adaptRanges(rangeAdapterFunctions: RangeAdapterFunctions): void {}
+
+  /**
+   * Override to declare, in a pull-based way, the formulas this plugin
+   * currently owns outside of a cell (e.g. a conditional formatting rule's
+   * custom formula). This is queried by `FormulaManagerPlugin` whenever a
+   * relevant command is dispatched — there is no push/registration call to
+   * make elsewhere, the returned list should always reflect current truth.
+   */
+  getFormulaOwners(): Iterable<FormulaOwnerRecord> {
+    return [];
+  }
+
+  /**
+   * Override to declare extra command types (beyond the shared default set)
+   * that should make `FormulaManagerPlugin` re-pull this plugin's formula
+   * owners.
+   */
+  getExtraInvalidationCommands(): Iterable<CommandTypes> {
+    return [];
+  }
 }

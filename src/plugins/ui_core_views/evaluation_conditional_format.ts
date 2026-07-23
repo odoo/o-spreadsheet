@@ -1,4 +1,3 @@
-import { CompiledFormula } from "../../formulas/compiler";
 import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
 import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import { colorNumberToHex, getColorScale } from "../../helpers/color";
@@ -24,6 +23,7 @@ import {
 import { EvaluatedCriterion, EvaluatedDateCriterion } from "../../types/generic_criterion";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { CellPosition, DataBarFill, HeaderIndex, Lazy, Style, UID, Zone } from "../../types/misc";
+import { getCellIsRuleFormulaOwnerId } from "../core/conditional_format";
 import { CoreViewPlugin } from "../core_view_plugin";
 
 type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
@@ -111,9 +111,11 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
           }
           break;
         case "CellIsRule":
-          const formulas = cf.rule.values.map((value) => {
+          const formulas = cf.rule.values.map((value, i) => {
             if (value.startsWith("=")) {
-              return CompiledFormula.Compile(value, sheetId, this.getters);
+              return this.getters.getFormulaOwnerCompiledFormula(
+                getCellIsRuleFormulaOwnerId(sheetId, cf.id, i)
+              );
             } else {
               return undefined;
             }

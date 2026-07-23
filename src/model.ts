@@ -14,6 +14,7 @@ import {
   repairInitialMessages,
 } from "./migrations/data";
 import { BasePlugin } from "./plugins/base_plugin";
+import { FormulaOwnerRegistry } from "./plugins/core/formula_owner_registry";
 import { RangeAdapterPlugin } from "./plugins/core/range";
 import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
 import { CoreViewPluginConfig, CoreViewPluginConstructor } from "./plugins/core_view_plugin";
@@ -87,6 +88,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private statefulUIPlugins: UIPlugin[] = [];
 
   private range: RangeAdapterPlugin;
+
+  private formulaOwners: FormulaOwnerRegistry;
 
   private session: Session;
 
@@ -184,6 +187,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.coreGetters.copyFormulaStringForSheet = this.range.copyFormulaStringForSheet.bind(
       this.range
     );
+
+    this.formulaOwners = new FormulaOwnerRegistry();
+    this.coreGetters.getFormulaOwnerRecords = this.formulaOwners.getFormulaOwnerRecords.bind(
+      this.formulaOwners
+    );
+    this.coreGetters.getFormulaOwnerExtraInvalidationCommands =
+      this.formulaOwners.getFormulaOwnerExtraInvalidationCommands.bind(this.formulaOwners);
 
     // Initiate stream processor
     this.selection = new SelectionStreamProcessorImpl(this.getters);
@@ -408,6 +418,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       getters: this.coreGetters,
       stateObserver: this.state,
       range: this.range,
+      formulaOwners: this.formulaOwners,
       dispatch: this.dispatchFromCorePlugin,
       canDispatch: this.canDispatch,
       custom: this.config.custom,

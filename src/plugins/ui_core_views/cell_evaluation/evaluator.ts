@@ -66,6 +66,15 @@ export class Evaluator {
   private blockedArrayFormulas = new PositionSet({});
   private spreadingRelations = new SpreadingRelation();
   private perfProfile: PerfProfile | undefined;
+  /**
+   * The full set of ranges recomputed by the last `evaluate*` call, including
+   * everything the cell dependency graph cascaded to (not just the ranges
+   * initially requested). Consumed by `FormulaManagerPlugin` to invalidate
+   * non-cell formula owners that read a cell whose value changed as a
+   * consequence of an edit, even if they never registered a dependency on
+   * the originally edited cell itself.
+   */
+  private lastRecomputedRanges: BoundedRange[] = [];
 
   constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
@@ -74,6 +83,10 @@ export class Evaluator {
       this.getters,
       this.computeAndSave.bind(this)
     );
+  }
+
+  getLastRecomputedRanges(): BoundedRange[] {
+    return this.lastRecomputedRanges;
   }
 
   getPerfProfile(): PerfProfile | undefined {
@@ -195,6 +208,7 @@ export class Evaluator {
     rangesToCompute.addMany(this.getCellsDependingOn(rangesToCompute));
     rangesToCompute.addMany(arrayFormulasPositions);
     rangesToCompute.addMany(this.getCellsDependingOn(arrayFormulasPositions));
+    this.lastRecomputedRanges = Array.from(rangesToCompute);
     this.evaluate(rangesToCompute);
     console.debug("evaluate Cells", performance.now() - start, "ms");
   }
@@ -207,6 +221,7 @@ export class Evaluator {
   evaluateCellsWithoutCascade(positions: CellPosition[]) {
     const rangesToCompute = new RangeSet();
     rangesToCompute.addManyPositions(positions);
+    this.lastRecomputedRanges = Array.from(rangesToCompute);
     this.evaluate(rangesToCompute);
   }
 
@@ -256,6 +271,7 @@ export class Evaluator {
       const zone = this.getters.getSheetZone(sheetId);
       ranges.push({ sheetId, zone });
     }
+    this.lastRecomputedRanges = ranges;
     this.evaluate(ranges, profiling);
     console.debug("evaluate all cells", performance.now() - start, "ms");
   }
@@ -764,7 +780,7 @@ function forEachSpreadPositionInMatrix(
  * rather than appearing empty. This indicates that the
  * cell is the result of a non-empty content.
  */
-function nullValueToZeroValue(functionResult: FunctionResultObject): FunctionResultObject {
+export function nullValueToZeroValue(functionResult: FunctionResultObject): FunctionResultObject {
   if (functionResult.value === null || functionResult.value === undefined) {
     // 'functionResult.value === undefined' is supposed to never happen, it's a safety net for javascript use
     return { ...functionResult, value: 0 };

@@ -2,16 +2,60 @@ import { BoundedRange } from "../../../types/range";
 
 /**
  * Represents a numeric range [top, bottom].
- * Optional 'dependents' link the interval to the range of cells that depend on
- * the interval.
+ * Optional 'dependents' link the interval to the range of cells (or, more
+ * generally, whatever `T` represents) that depend on the interval.
  */
-export interface Interval {
+export interface Interval<T = BoundedRange> {
   top: number;
   bottom: number;
-  dependents?: BoundedRange;
+  dependents?: T;
 }
 
-class IntervalNode {
+/**
+ * Pluggable identity/merge behaviour for a given `dependents` payload type,
+ * so `IntervalTree` can be reused for payloads other than `BoundedRange`
+ * (e.g. a `FormulaOwnerId[]`) without changing its traversal/balancing logic.
+ */
+export interface IntervalTreeOptions<T> {
+  /** Total order used to sort/group intervals sharing the same [top, bottom]. */
+  compareDependents(a: T, b: T): number;
+  /** Whether two dependents sharing the same [top, bottom] may be compacted together. */
+  canMerge(a: T, b: T): boolean;
+  /**
+   * Attempt to merge two contiguous same-[top,bottom] dependents into one.
+   * Return `undefined` if they should be kept as separate intervals.
+   */
+  mergeContiguous(a: T, b: T): T | undefined;
+}
+
+export const defaultIntervalTreeOptions: IntervalTreeOptions<BoundedRange> = {
+  compareDependents(a, b) {
+    if (a.sheetId !== b.sheetId) {
+      return a.sheetId > b.sheetId ? 1 : -1;
+    }
+    return (
+      a.zone.left - b.zone.left ||
+      a.zone.right - b.zone.right ||
+      a.zone.top - b.zone.top ||
+      a.zone.bottom - b.zone.bottom
+    );
+  },
+  canMerge(a, b) {
+    return a.zone.left === b.zone.left && a.zone.right === b.zone.right && a.sheetId === b.sheetId;
+  },
+  mergeContiguous(a, b) {
+    if (b.zone.top - 1 === a.zone.bottom) {
+      // Extend the vertical boundary of the dependents
+      return { sheetId: a.sheetId, zone: { ...a.zone, bottom: b.zone.bottom } };
+    } else if (b.zone.top === a.zone.top && b.zone.bottom === a.zone.bottom) {
+      // Exact same, ignore it
+      return a;
+    }
+    return undefined;
+  },
+};
+
+class IntervalNode<T> {
   /**
    * Augmented value: the highest 'bottom' boundary in this subtree.
    * Allows O(log n) pruning during overlap searches.
@@ -20,9 +64,9 @@ class IntervalNode {
   max: number;
 
   constructor(
-    public interval: Interval,
-    public left: IntervalNode | null = null,
-    public right: IntervalNode | null = null
+    public interval: Interval<T>,
+    public left: IntervalNode<T> | null = null,
+    public right: IntervalNode<T> | null = null
   ) {
     this.max = interval.bottom;
   }
@@ -39,29 +83,31 @@ class IntervalNode {
  * `buffer` (O(1) insert).
  * The tree is only rebuilt and balanced when a `query` is performed or the buffer exceeds a threshold.
  */
-export class IntervalTree {
-  private root: IntervalNode | null = null;
-  private buffer: Required<Interval>[] = [];
+export class IntervalTree<T = BoundedRange> {
+  private root: IntervalNode<T> | null = null;
+  private buffer: Required<Interval<T>>[] = [];
+
+  constructor(private options: IntervalTreeOptions<T>) {}
 
   /**
    * Adds an interval to the uncommitted buffer.
    * O(1) operation until the buffer needs to be merged into the main tree on the next query.
    */
-  insert(interval: Required<Interval>) {
+  insert(interval: Required<Interval<T>>) {
     this.buffer.push(interval);
   }
 
   /**
    * Finds all intervals overlapping the target.
    */
-  query(target: Interval): Required<Interval>[] {
+  query(target: Interval<T>): Required<Interval<T>>[] {
     if (this.buffer.length) {
       // If rebuilding the tree is too expensive (e.g. many inserts, interleaved with queries),
       // consider switching to a self-balancing tree (once it has been built a first time).
       // But rebuilding is already very fast, even with 10k intervals, so we keep it simple for now.
       this.rebuild();
     }
-    const results: Required<Interval>[] = [];
+    const results: Required<Interval<T>>[] = [];
     this.searchTree(this.root, target, results);
     return results;
   }
@@ -69,9 +115,9 @@ export class IntervalTree {
   private rebuild() {
     // Sort only the buffer, as the current tree is already sorted,
     // and we merge them in O(n) afterwards
-    const currentSortedIntervals: Required<Interval>[] = [];
+    const currentSortedIntervals: Required<Interval<T>>[] = [];
     this.inOrderTraversal(this.root, currentSortedIntervals);
-    const sortedBuffer = this.buffer.sort(compareIntervals);
+    const sortedBuffer = this.buffer.sort((a, b) => this.compareIntervals(a, b));
     const allIntervals = this.mergeSortedIntervals(currentSortedIntervals, sortedBuffer);
     this.bulkLoad(allIntervals);
     this.buffer = [];
@@ -81,28 +127,16 @@ export class IntervalTree {
    * Compacts consecutive intervals with consecutive dependents into a single
    * interval.
    */
-  private compactSortedIntervals(sortedIntervals: Required<Interval>[]): Interval[] {
+  private compactSortedIntervals(sortedIntervals: Required<Interval<T>>[]): Interval<T>[] {
     let current = sortedIntervals[0];
-    const compacted: Interval[] = [];
+    const compacted: Interval<T>[] = [];
     for (let i = 1; i < sortedIntervals.length; i++) {
       const next = sortedIntervals[i];
       const isSameInterval = next.top === current.top && next.bottom === current.bottom;
-      if (
-        isSameInterval &&
-        // Is same column
-        next.dependents.zone.left === current.dependents.zone.left &&
-        next.dependents.zone.right === current.dependents.zone.right &&
-        next.dependents.sheetId === current.dependents.sheetId
-      ) {
-        if (next.dependents.zone.top - 1 === current.dependents.zone.bottom) {
-          // Extend the vertical boundary of the dependents
-          current.dependents.zone.bottom = next.dependents.zone.bottom;
-        } else if (
-          next.dependents.zone.top === current.dependents.zone.top &&
-          next.dependents.zone.bottom === current.dependents.zone.bottom
-        ) {
-          // Exact same, ignore it
-          continue;
+      if (isSameInterval && this.options.canMerge(current.dependents, next.dependents)) {
+        const merged = this.options.mergeContiguous(current.dependents, next.dependents);
+        if (merged !== undefined) {
+          current = { ...current, dependents: merged };
         } else {
           compacted.push(current);
           current = next;
@@ -117,15 +151,15 @@ export class IntervalTree {
   }
 
   private mergeSortedIntervals(
-    a: Required<Interval>[],
-    b: Required<Interval>[]
-  ): Required<Interval>[] {
-    const merged: Required<Interval>[] = [];
+    a: Required<Interval<T>>[],
+    b: Required<Interval<T>>[]
+  ): Required<Interval<T>>[] {
+    const merged: Required<Interval<T>>[] = [];
     let i = 0;
     let j = 0;
 
     while (i < a.length && j < b.length) {
-      if (compareIntervals(a[i], b[j]) <= 0) {
+      if (this.compareIntervals(a[i], b[j]) <= 0) {
         merged.push(a[i++]);
       } else {
         merged.push(b[j++]);
@@ -135,16 +169,16 @@ export class IntervalTree {
     return merged.concat(i < a.length ? a.slice(i) : b.slice(j));
   }
 
-  private bulkLoad(sortedIntervals: Required<Interval>[]) {
+  private bulkLoad(sortedIntervals: Required<Interval<T>>[]) {
     const compacted = this.compactSortedIntervals(sortedIntervals);
     this.root = this.buildBalancedTree(compacted);
   }
 
   private buildBalancedTree(
-    sortedIntervals: Interval[],
+    sortedIntervals: Interval<T>[],
     start = 0,
     end = sortedIntervals.length
-  ): IntervalNode | null {
+  ): IntervalNode<T> | null {
     if (start >= end) {
       return null;
     }
@@ -165,7 +199,7 @@ export class IntervalTree {
     return node;
   }
 
-  private searchTree(node: IntervalNode | null, target: Interval, results: Interval[]) {
+  private searchTree(node: IntervalNode<T> | null, target: Interval<T>, results: Interval<T>[]) {
     if (!node || target.top > node.max) {
       return;
     }
@@ -186,7 +220,7 @@ export class IntervalTree {
     }
   }
 
-  private inOrderTraversal(node: IntervalNode | null, results: Interval[]) {
+  private inOrderTraversal(node: IntervalNode<T> | null, results: Interval<T>[]) {
     if (!node) {
       return;
     }
@@ -195,26 +229,21 @@ export class IntervalTree {
     this.inOrderTraversal(node.right, results);
   }
 
-  private isOverlapping(a: Interval, b: Interval): boolean {
+  private isOverlapping(a: Interval<T>, b: Interval<T>): boolean {
     return a.top <= b.bottom && a.bottom >= b.top;
   }
-}
 
-/**
- * Extracted comparison logic for consistency between sort and merge.
- */
-function compareIntervals(a: Required<Interval>, b: Required<Interval>): number {
-  // Primary sort by interval boundaries
-  if (a.top !== b.top) {
-    return a.top - b.top;
-  } else if (a.bottom !== b.bottom) {
-    return a.bottom - b.bottom;
+  /**
+   * Extracted comparison logic for consistency between sort and merge.
+   */
+  private compareIntervals(a: Required<Interval<T>>, b: Required<Interval<T>>): number {
+    // Primary sort by interval boundaries
+    if (a.top !== b.top) {
+      return a.top - b.top;
+    } else if (a.bottom !== b.bottom) {
+      return a.bottom - b.bottom;
+    }
+    // Secondary sort by dependent for compaction
+    return this.options.compareDependents(a.dependents, b.dependents);
   }
-  // Secondary sort by dependent for compaction
-  const { zone: zA, sheetId: sheetIdA } = a.dependents;
-  const { zone: zB, sheetId: sheetIdB } = b.dependents;
-  if (sheetIdA !== sheetIdB) {
-    return sheetIdA > sheetIdB ? 1 : -1;
-  }
-  return zA.left - zB.left || zA.right - zB.right || zA.top - zB.top || zA.bottom - zB.bottom;
 }

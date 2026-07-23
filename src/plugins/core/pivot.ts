@@ -7,6 +7,7 @@ import { CommandResult, CoreCommand } from "../../types/commands";
 import { CellPosition, RangeAdapterFunctions, UID } from "../../types/misc";
 
 import { CellValue } from "../../types/cells";
+import { FormulaOwnerRecord, makeFormulaOwnerId } from "../../types/formula_owner";
 import { Position } from "../../types/misc";
 import { PivotCoreDefinition, PivotCoreMeasure } from "../../types/pivot";
 import { Range } from "../../types/range";
@@ -209,6 +210,35 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         }
       }
     }
+  }
+
+  /**
+   * Declares calculated measures for discoverability alongside other formula
+   * owners (conditional formatting, data validation). Purely informational:
+   * pivot measures keep being compiled/cached/adapted entirely by this
+   * plugin (`compiledMeasureFormulas`) rather than by `FormulaManagerPlugin`,
+   * because their real consumers (`getMeasureCompiledFormula`/
+   * `getMeasureFullDependencies`, used by `helper_lookup.ts` to register a
+   * PIVOT.VALUE() cell's dependencies during formula execution) need
+   * synchronous `CoreGetters`-level access that a `CoreViewPlugin`-owned
+   * cache could never provide.
+   */
+  getFormulaOwners(): Iterable<FormulaOwnerRecord> {
+    const records: FormulaOwnerRecord[] = [];
+    for (const pivotId in this.compiledMeasureFormulas) {
+      for (const measureId in this.compiledMeasureFormulas[pivotId]) {
+        const measure = this.pivots[pivotId]?.definition.measures.find((m) => m.id === measureId);
+        if (!measure?.computedBy?.formula) {
+          continue;
+        }
+        records.push({
+          id: makeFormulaOwnerId("pivot", pivotId, "measure", measureId),
+          sheetId: measure.computedBy.sheetId,
+          formulaString: measure.computedBy.formula,
+        });
+      }
+    }
+    return records;
   }
 
   // -------------------------------------------------------------------------

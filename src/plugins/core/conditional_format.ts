@@ -8,6 +8,7 @@ import {
   CancelledReason,
   Command,
   CommandResult,
+  CommandTypes,
   CoreCommand,
 } from "../../types/commands";
 import {
@@ -21,6 +22,7 @@ import {
   IconThreshold,
   availableConditionalFormatOperators,
 } from "../../types/conditional_formatting";
+import { FormulaOwnerId, FormulaOwnerRecord, makeFormulaOwnerId } from "../../types/formula_owner";
 import { RangeAdapterFunctions, UID, UnboundedZone, Validation, Zone } from "../../types/misc";
 import { RangeData } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
@@ -32,6 +34,19 @@ import { CorePlugin } from "../core_plugin";
 
 function stringToNumber(value: string | undefined): number {
   return value === "" ? NaN : Number(value);
+}
+
+/**
+ * Formula manager owner id for a `CellIsRule`'s formula-valued `values[index]`.
+ * Shared with `evaluation_conditional_format.ts`, which reads the evaluated
+ * result back through `getFormulaOwnerValue`.
+ */
+export function getCellIsRuleFormulaOwnerId(
+  sheetId: UID,
+  cfId: UID,
+  index: number
+): FormulaOwnerId {
+  return makeFormulaOwnerId("cf", sheetId, cfId, String(index));
 }
 
 type ThresholdValidation = (
@@ -181,6 +196,31 @@ export class ConditionalFormatPlugin
       this.adaptCFRanges(sheetId, rangeAdapters);
     }
     this.adaptCFFormulas(rangeAdapters);
+  }
+
+  getExtraInvalidationCommands(): Iterable<CommandTypes> {
+    return ["ADD_CONDITIONAL_FORMAT", "REMOVE_CONDITIONAL_FORMAT"];
+  }
+
+  getFormulaOwners(): Iterable<FormulaOwnerRecord> {
+    const records: FormulaOwnerRecord[] = [];
+    for (const sheetId in this.cfRules) {
+      for (const cf of this.cfRules[sheetId]) {
+        if (cf.rule.type !== "CellIsRule") {
+          continue;
+        }
+        cf.rule.values.forEach((value, i) => {
+          if (value.startsWith("=")) {
+            records.push({
+              id: getCellIsRuleFormulaOwnerId(sheetId, cf.id, i),
+              sheetId,
+              formulaString: value,
+            });
+          }
+        });
+      }
+    }
+    return records;
   }
 
   // ---------------------------------------------------------------------------

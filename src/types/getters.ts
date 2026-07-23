@@ -7,6 +7,7 @@ import { EvaluationChartPlugin } from "../plugins/ui_core_views/evaluation_chart
 import { EvaluationConditionalFormatPlugin } from "../plugins/ui_core_views/evaluation_conditional_format";
 import { EvaluationDataValidationPlugin } from "../plugins/ui_core_views/evaluation_data_validation";
 import { FingerprintPlugin } from "../plugins/ui_core_views/fingerprint";
+import { FormulaManagerPlugin } from "../plugins/ui_core_views/formula_manager/formula_manager_plugin";
 import { FormulaTrackerPlugin } from "../plugins/ui_core_views/formula_tracker";
 import { HeaderSizeUIPlugin } from "../plugins/ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "../plugins/ui_core_views/pivot_ui";
@@ -47,6 +48,7 @@ export type RenderingGetters = {
   PluginGetters<typeof HistoryPlugin> &
   PluginGetters<typeof ClipboardPlugin> &
   PluginGetters<typeof EvaluationPlugin> &
+  PluginGetters<typeof FormulaManagerPlugin> &
   PluginGetters<typeof EvaluationChartPlugin> &
   PluginGetters<typeof EvaluationConditionalFormatPlugin> &
   PluginGetters<typeof HeaderVisibilityUIPlugin> &

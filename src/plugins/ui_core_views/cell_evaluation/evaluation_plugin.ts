@@ -22,7 +22,7 @@ import {
   UID,
   Zone,
 } from "../../../types/misc";
-import { Range } from "../../../types/range";
+import { BoundedRange, Range } from "../../../types/range";
 import { ExcelWorkbookData } from "../../../types/workbook_data";
 import { SquishedFormula } from "../../core/squisher";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../../core_view_plugin";
@@ -159,6 +159,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "isArrayFormulaSpillBlocked",
     "isEmpty",
     "getPerfProfile",
+    "getLastRecomputedRanges",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
@@ -326,6 +327,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
 
   getPerfProfile(): PerfProfile | undefined {
     return this.evaluator.getPerfProfile();
+  }
+
+  getLastRecomputedRanges(): BoundedRange[] {
+    return this.evaluator.getLastRecomputedRanges();
   }
 
   shouldPerformEvaluation(): boolean {

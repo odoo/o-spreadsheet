@@ -29,6 +29,7 @@ import { EvaluationChartPlugin } from "./ui_core_views/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "./ui_core_views/evaluation_conditional_format";
 import { EvaluationDataValidationPlugin } from "./ui_core_views/evaluation_data_validation";
 import { FingerprintPlugin } from "./ui_core_views/fingerprint";
+import { FormulaManagerPlugin } from "./ui_core_views/formula_manager/formula_manager_plugin";
 import { FormulaTrackerPlugin } from "./ui_core_views/formula_tracker";
 import { HeaderSizeUIPlugin } from "./ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "./ui_core_views/pivot_ui";
@@ -115,6 +116,7 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
 // Plugins which have a derived state from core data
 export const coreViewsPluginRegistry = new Registry<CoreViewPluginConstructor>()
   .add("evaluation", EvaluationPlugin)
+  .add("formula_manager", FormulaManagerPlugin)
   .add("evaluation_chart", EvaluationChartPlugin)
   .add("fingerprints", FingerprintPlugin)
   .add("evaluation_cf", EvaluationConditionalFormatPlugin)

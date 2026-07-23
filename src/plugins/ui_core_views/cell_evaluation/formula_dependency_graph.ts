@@ -1,7 +1,7 @@
 import { positionToZone } from "../../../helpers/zones";
 import { CellPosition, HeaderIndex, UID } from "../../../types/misc";
 import { BoundedRange, Range } from "../../../types/range";
-import { IntervalTree } from "./interval_tree";
+import { IntervalTree, defaultIntervalTreeOptions } from "./interval_tree";
 import { RangeSet } from "./range_set";
 
 /**
@@ -79,7 +79,7 @@ export class FormulaDependencyGraph {
       if (!this.forest[sheetId]) {
         this.forest[sheetId] = {};
       }
-      tree = new IntervalTree();
+      tree = new IntervalTree(defaultIntervalTreeOptions);
       this.forest[sheetId][col] = tree;
     }
     return tree;

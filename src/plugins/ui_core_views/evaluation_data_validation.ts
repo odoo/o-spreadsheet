@@ -19,6 +19,7 @@ import {
 import { GenericCriterion } from "../../types/generic_criterion";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { CellPosition, HeaderIndex, Lazy, Matrix, Offset, Style, UID } from "../../types/misc";
+import { getDataValidationFormulaOwnerId } from "../core/data_validation";
 import { CoreViewPlugin } from "../core_view_plugin";
 
 interface InvalidValidationResult {
@@ -245,7 +246,8 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
       sheetId,
       cellPosition,
       offset,
-      criterion
+      criterion,
+      rule.id
     );
     if (evaluatedCriterionValues.some(isMultipleElementMatrix)) {
       return undefined;
@@ -290,14 +292,20 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
     sheetId: UID,
     cellPosition: CellPosition,
     offset: Offset,
-    criterion: DataValidationCriterion
+    criterion: DataValidationCriterion,
+    ruleId: UID
   ): (CellValue | Matrix<CellValue>)[] {
-    return criterion.values.map((value) => {
+    return criterion.values.map((value, i) => {
       if (!value.startsWith("=")) {
         return parseLiteral(value, DEFAULT_LOCALE);
       }
 
-      const formula = CompiledFormula.Compile(value, sheetId, this.getters);
+      const formula = this.getters.getFormulaOwnerCompiledFormula(
+        getDataValidationFormulaOwnerId(sheetId, ruleId, i)
+      );
+      if (!formula) {
+        return "";
+      }
       const translatedFormula = this.getters.getTranslatedCellFormula(
         sheetId,
         offset.col,

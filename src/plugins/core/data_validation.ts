@@ -9,13 +9,27 @@ import {
   AddDataValidationCommand,
   Command,
   CommandResult,
+  CommandTypes,
   CoreCommand,
 } from "../../types/commands";
 import { DataValidationRule } from "../../types/data_validation";
+import { FormulaOwnerId, FormulaOwnerRecord, makeFormulaOwnerId } from "../../types/formula_owner";
 import { CellPosition, RangeAdapterFunctions, Style, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
+
+/**
+ * Formula manager owner id for a data validation rule's formula-valued
+ * `criterion.values[index]`. Shared with `evaluation_data_validation.ts`.
+ */
+export function getDataValidationFormulaOwnerId(
+  sheetId: UID,
+  ruleId: UID,
+  index: number
+): FormulaOwnerId {
+  return makeFormulaOwnerId("dv", sheetId, ruleId, String(index));
+}
 
 interface DataValidationState {
   readonly rules: { [sheet: string]: DataValidationRule[] };
@@ -39,6 +53,28 @@ export class DataValidationPlugin
       this.adaptDVRanges(sheetId, rangeAdapters);
     }
     this.adaptDVFormulas(rangeAdapters);
+  }
+
+  getExtraInvalidationCommands(): Iterable<CommandTypes> {
+    return ["ADD_DATA_VALIDATION_RULE", "REMOVE_DATA_VALIDATION_RULE", "DELETE_CONTENT"];
+  }
+
+  getFormulaOwners(): Iterable<FormulaOwnerRecord> {
+    const records: FormulaOwnerRecord[] = [];
+    for (const sheetId in this.rules) {
+      for (const rule of this.rules[sheetId]) {
+        rule.criterion.values.forEach((value, i) => {
+          if (value.startsWith("=")) {
+            records.push({
+              id: getDataValidationFormulaOwnerId(sheetId, rule.id, i),
+              sheetId,
+              formulaString: value,
+            });
+          }
+        });
+      }
+    }
+    return records;
   }
 
   private adaptDVFormulas({ adaptFormulaString }: RangeAdapterFunctions) {
