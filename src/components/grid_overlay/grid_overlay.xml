@@ -15,7 +15,7 @@
       t-on-contextmenu.stop.prevent="this.onContextMenu">
       <GridAddRowsFooter
         t-if="!this.env.model.getters.isReadonly()"
-        t-key="this.env.model.getters.getActiveSheetId()"
+        t-key="this.viewStore.displayedSheetId"
       />
       <t t-call-slot="default"/>
     </div>

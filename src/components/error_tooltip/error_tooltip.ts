@@ -8,6 +8,9 @@ import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 import { useProps } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
+import { useStore } from "../../store_engine/store_hooks";
+import { ViewportsStore } from "../../stores/viewports_store";
+import { Store } from "../../types/store_engine";
 import { types } from "../props_validation";
 const ERROR_TOOLTIP_MAX_HEIGHT = 80;
 
@@ -19,6 +22,12 @@ export class ErrorToolTip extends Component<SpreadsheetChildEnv> {
     cellPosition: types.CellPosition(),
     onClosed: types.function().optional(),
   });
+
+  private viewStore!: Store<ViewportsStore>;
+
+  setup() {
+    this.viewStore = useStore(ViewportsStore);
+  }
 
   get dataValidationErrorMessage() {
     return this.env.model.getters.getInvalidDataValidationMessage(this.props.cellPosition);
@@ -44,7 +53,7 @@ export class ErrorToolTip extends Component<SpreadsheetChildEnv> {
     const sheetId = position.sheetId;
     return this.env.model.getters.getRangeString(
       this.env.model.getters.getRangeFromZone(sheetId, positionToZone(position)),
-      this.env.model.getters.getActiveSheetId()
+      this.viewStore.displayedSheetId
     );
   }
 
