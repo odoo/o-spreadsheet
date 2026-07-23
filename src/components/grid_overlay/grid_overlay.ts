@@ -5,7 +5,7 @@ import { positionToZone } from "../../helpers/zones";
 import { Component, useExternalListener } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
-import { GridClickModifiers, HeaderIndex, Position } from "../../types/misc";
+import { CellPosition, GridClickModifiers, HeaderIndex, Position } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
@@ -38,14 +38,14 @@ function useCellHovered(
   let y: number | undefined = undefined;
   let lastMoved = 0;
 
-  function getPosition(): Position {
+  function getPosition(): CellPosition {
+    const sheetId = viewStore.displayedSheetId;
     if (x === undefined || y === undefined) {
-      return { col: -1, row: -1 };
+      return { sheetId, col: -1, row: -1 };
     }
-    const sheetId = env.model.getters.getActiveSheetId();
     const col = viewStore.viewports.getColIndex(sheetId, x);
     const row = viewStore.viewports.getRowIndex(sheetId, y);
-    return { col, row };
+    return { sheetId, col, row };
   }
 
   function getOffsetRelativeToOverlay(
@@ -164,7 +164,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
   private cellPopovers!: Store<CellPopoverStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
   private hoveredIconStore!: Store<HoveredIconStore>;
-  private viewStore!: Store<ViewportsStore>;
+  viewStore!: Store<ViewportsStore>;
 
   setup() {
     useCellHovered(this.env, this.gridOverlayRef);
@@ -280,7 +280,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
   private getCartesianCoordinates(
     zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>
   ): [HeaderIndex, HeaderIndex] {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.viewStore.displayedSheetId;
     const colIndex = this.viewStore.viewports.getColIndex(sheetId, zoomedMouseEvent.offsetX);
     const rowIndex = this.viewStore.viewports.getRowIndex(sheetId, zoomedMouseEvent.offsetY);
     return [colIndex, rowIndex];
@@ -293,7 +293,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
     const y = zoomedMouseEvent.clientY - gridOverLayRect.y + gridOffset.y;
 
     const [col, row] = this.getCartesianCoordinates(zoomedMouseEvent);
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.viewStore.displayedSheetId;
 
     let position = { col, row, sheetId };
     const merge = this.env.model.getters.getMerge(position);

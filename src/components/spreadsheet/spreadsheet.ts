@@ -276,7 +276,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
 
   private checkViewportSize() {
     const { xRatio, yRatio } = this.viewStore.viewports.getFrozenSheetViewRatio(
-      this.env.model.getters.getActiveSheetId()
+      this.viewStore.displayedSheetId
     );
 
     if (!isFinite(xRatio) || !isFinite(yRatio)) {
