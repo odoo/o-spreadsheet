@@ -7,6 +7,7 @@ import {
   ChartTypeBuilder,
   chartTypeRegistry,
 } from "../../registries/chart_registry";
+import { CellValue } from "../../types/cells";
 import {
   ChartCreationContext,
   ChartData,
@@ -15,13 +16,32 @@ import {
   ChartType,
 } from "../../types/chart/chart";
 import { CoreGetters } from "../../types/core_getters";
+import { FormulaOwnerId, makeFormulaOwnerId } from "../../types/formula_owner";
 import { Getters } from "../../types/getters";
-import { RangeAdapterFunctions, UID } from "../../types/misc";
+import { Matrix, RangeAdapterFunctions, UID, isMatrix } from "../../types/misc";
 import { Range } from "../../types/range";
 import { Validator } from "../../types/validator";
 
+/**
+ * Formula manager owner id for a chart's formula-valued `title.text`.
+ * Shared with `ChartPlugin.getFormulaOwners`.
+ */
+export function getChartTitleFormulaOwnerId(chartId: UID): FormulaOwnerId {
+  return makeFormulaOwnerId("chart", chartId, "title");
+}
+
+function formatChartTitleValue(value: CellValue | Matrix<CellValue> | undefined): string {
+  if (value === undefined) {
+    return "";
+  }
+  const scalar = isMatrix(value) ? value[0]?.[0] : value;
+  return scalar === null || scalar === undefined ? "" : String(scalar);
+}
+
 export class SpreadsheetChart {
   private readonly dataSource: ChartDataSource<Range> | undefined;
+  private titleFormulaOwnerIdComputed = false;
+  private titleFormulaOwnerId: FormulaOwnerId | undefined;
 
   private constructor(
     private readonly getters: CoreGetters,
@@ -219,11 +239,51 @@ export class SpreadsheetChart {
     };
     return this.chartTypeBuilder.getRuntime(
       getters,
-      this.definition,
+      this.getResolvedDefinition(getters, chartId),
       dataExtractors,
       this.sheetId,
       eventHandlers
     );
+  }
+
+  /**
+   * The formula owner id for this chart's title, if `title.text` is a
+   * formula (starts with "="); `undefined` for a literal title. Computed
+   * once and memoized for this instance's lifetime — `SpreadsheetChart`
+   * instances are already reconstructed wholesale on every relevant
+   * definition change, so this naturally stays correct without needing to
+   * re-derive the id from `chartId` on every call.
+   */
+  getTitleFormulaOwnerId(chartId: UID): FormulaOwnerId | undefined {
+    if (!this.titleFormulaOwnerIdComputed) {
+      this.titleFormulaOwnerId = this.computeTitleFormulaOwnerId(chartId);
+      this.titleFormulaOwnerIdComputed = true;
+    }
+    return this.titleFormulaOwnerId;
+  }
+
+  private computeTitleFormulaOwnerId(chartId: UID): FormulaOwnerId | undefined {
+    const text = this.definition.title?.text;
+    return text?.startsWith("=") ? getChartTitleFormulaOwnerId(chartId) : undefined;
+  }
+
+  /**
+   * If `title.text` is a formula, resolve it to its evaluated value through
+   * the formula manager and return a definition with `title.text` replaced
+   * by that computed string. Every chart type builder downstream keeps
+   * treating `title.text` as a plain string, unaware of whether it came
+   * from a literal or a formula.
+   */
+  private getResolvedDefinition(getters: Getters, chartId: UID): ChartDefinition<Range> {
+    const id = this.getTitleFormulaOwnerId(chartId);
+    if (!id) {
+      return this.definition;
+    }
+    const value = getters.getFormulaOwnerValue(id);
+    return {
+      ...this.definition,
+      title: { ...this.definition.title, text: formatChartTitleValue(value) },
+    };
   }
 
   static deleteInvalidKeys(definition: ChartDefinition<any>) {

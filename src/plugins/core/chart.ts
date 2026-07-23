@@ -5,11 +5,13 @@ import { ChartCreationContext, ChartDefinition, ChartType } from "../../types/ch
 import {
   Command,
   CommandResult,
+  CommandTypes,
   CoreCommand,
   CreateChartCommand,
   DeleteChartCommand,
   UpdateChartCommand,
 } from "../../types/commands";
+import { FormulaOwnerRecord } from "../../types/formula_owner";
 import { HeaderIndex, PixelPosition, RangeAdapterFunctions, UID } from "../../types/misc";
 import { DOMDimension } from "../../types/rendering";
 import { FigureData, WorkbookData } from "../../types/workbook_data";
@@ -53,6 +55,43 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         newChart ? { figureId: chart.figureId, chart: newChart } : undefined
       );
     }
+  }
+
+  getExtraInvalidationCommands(): Iterable<CommandTypes> {
+    return ["CREATE_CHART", "UPDATE_CHART", "DELETE_CHART"];
+  }
+
+  getFormulaOwners(): Iterable<FormulaOwnerRecord> {
+    const records: FormulaOwnerRecord[] = [];
+    for (const chartId in this.charts) {
+      const chart = this.charts[chartId]?.chart;
+      if (!chart) {
+        continue;
+      }
+      const id = chart.getTitleFormulaOwnerId(chartId);
+      if (id) {
+        records.push({
+          id,
+          sheetId: chart.sheetId,
+          formulaString: chart.getRangeDefinition().title!.text!,
+          onAdapt: (newText) => this.setChartTitleFormula(chartId, newText),
+        });
+      }
+    }
+    return records;
+  }
+
+  private setChartTitleFormula(chartId: UID, newFormulaString: string) {
+    const figureChart = this.charts[chartId];
+    if (!figureChart) {
+      return;
+    }
+    const definition = figureChart.chart.getRangeDefinition();
+    const newChart = SpreadsheetChart.fromDefinition(this.getters, figureChart.chart.sheetId, {
+      ...definition,
+      title: { ...definition.title, text: newFormulaString },
+    });
+    this.history.update("charts", chartId, { figureId: figureChart.figureId, chart: newChart });
   }
 
   // ---------------------------------------------------------------------------
