@@ -1,7 +1,7 @@
 import { ViewportsStore } from "../../stores/viewports_store";
 import { Pixel } from "../../types/misc";
 import { DOMCoordinates, Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv, SpreadsheetRenderingEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { zoomCorrectedElementRect } from "./dom_helpers";
 
 export type ZoomedMouseEvent<T extends MouseEvent | PointerEvent> = {
@@ -20,7 +20,7 @@ export type ZoomedMouseEvent<T extends MouseEvent | PointerEvent> = {
  * @returns a ZoomedMouseEvent
  */
 export function withZoom<T extends MouseEvent>(
-  env: SpreadsheetChildEnv | SpreadsheetRenderingEnv,
+  env: SpreadsheetChildEnv | SpreadsheetChildEnv,
   ev: T,
   originalTargetPosition?: DOMCoordinates | null
 ): ZoomedMouseEvent<T> {

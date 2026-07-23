@@ -62,16 +62,6 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
     useChildSubEnv({
       getPopoverContainerRect: () => getZoomedRect(this.viewStore.zoomLevel, this.getGridRect()),
     });
-    const model = this.env.model;
-    const self = this;
-    useChildSubEnv({
-      get viewports() {
-        return self.viewStore.viewports;
-      },
-      get sheetId() {
-        return model.getters.getActiveSheetId();
-      },
-    });
 
     useGridDrawing({
       canvasRef: this.canvasRef,

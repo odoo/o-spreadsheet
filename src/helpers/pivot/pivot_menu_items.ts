@@ -12,7 +12,7 @@ import {
   PivotFields,
   PivotHeaderCell,
 } from "../../types/pivot";
-import { SpreadsheetChildEnv, SpreadsheetRenderingEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { deepCopy, deepEquals } from "../misc";
 import { cellPositions } from "../zones";
 import { domainToColRowDomain } from "./pivot_domain_helpers";
@@ -366,7 +366,7 @@ export function canSortPivot(getters: Getters, position: CellPosition): boolean 
 }
 
 export function sortPivot(
-  env: SpreadsheetChildEnv | SpreadsheetRenderingEnv,
+  env: SpreadsheetChildEnv | SpreadsheetChildEnv,
   position: CellPosition,
   order: SortDirection | "none"
 ) {

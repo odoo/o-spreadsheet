@@ -2,7 +2,7 @@ import { toRaw } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMCoordinates, Rect } from "../../types/rendering";
-import { SpreadsheetRenderingEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ClickableCell, ClickableCellsStore } from "../dashboard/clickable_cell_store";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
@@ -10,7 +10,7 @@ import { cssPropertiesToCss } from "../helpers/css";
 import { isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 
-export class ClickableCellsOverlay extends Component<SpreadsheetRenderingEnv> {
+export class ClickableCellsOverlay extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ClickableCellsOverlay";
   static components = {};
 

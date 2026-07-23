@@ -24,7 +24,7 @@
             <div class="o-col-resizer-handle position-absolute h-100"/>
           </div>
 
-          <!-- <ClickableCellsOverlay/> -->
+          <ClickableCellsOverlay/>
         </GridOverlay>
         <canvas class="" t-ref="this.canvasRef"/>
       </div>

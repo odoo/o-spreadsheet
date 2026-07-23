@@ -2,12 +2,12 @@ import { useProps, xml } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
-import { SpreadsheetRenderingEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { types } from "../props_validation";
 import { ScrollBar } from "./scrollbar";
 
-export class HorizontalScrollBar extends Component<SpreadsheetRenderingEnv> {
+export class HorizontalScrollBar extends Component<SpreadsheetChildEnv> {
   static components = { ScrollBar };
   private viewStore!: Store<ViewportsStore>;
   static template = xml/*xml*/ `
@@ -29,11 +29,11 @@ export class HorizontalScrollBar extends Component<SpreadsheetRenderingEnv> {
   });
 
   get offset() {
-    return this.viewStore.viewports.getSheetScrollInfo(this.env.sheetId).scrollX;
+    return this.viewStore.viewports.getSheetScrollInfo(this.viewStore.displayedSheetId).scrollX;
   }
 
   get width() {
-    return this.viewStore.viewports.getMainViewportRect(this.env.sheetId).width;
+    return this.viewStore.viewports.getMainViewportRect(this.viewStore.displayedSheetId).width;
   }
 
   get isDisplayed() {
@@ -44,7 +44,7 @@ export class HorizontalScrollBar extends Component<SpreadsheetRenderingEnv> {
   }
 
   get position() {
-    const { x } = this.viewStore.viewports.getMainViewportRect(this.env.sheetId);
+    const { x } = this.viewStore.viewports.getMainViewportRect(this.viewStore.displayedSheetId);
     const scrollbarWidth = this.viewStore.viewports.getScrollBarWidth();
     return {
       left: `${this.props.leftOffset + x}px`,
@@ -55,7 +55,9 @@ export class HorizontalScrollBar extends Component<SpreadsheetRenderingEnv> {
   }
 
   onScroll(offset) {
-    const { scrollY } = this.viewStore.viewports.getSheetScrollInfo(this.env.sheetId);
+    const { scrollY } = this.viewStore.viewports.getSheetScrollInfo(
+      this.viewStore.displayedSheetId
+    );
     this.viewStore.setViewportOffset({
       offsetX: offset,
       offsetY: scrollY, // offsetY is the same

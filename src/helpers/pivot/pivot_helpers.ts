@@ -30,7 +30,7 @@ import {
   PivotTableCell,
 } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
-import { SpreadsheetChildEnv, SpreadsheetRenderingEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { replaceSymbolInFormula } from "../formulas";
 import { deepEquals, getUniqueText, isDefined } from "../misc";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
@@ -445,7 +445,7 @@ export function getCustomFieldWithParentField(
 
 export function togglePivotCollapse(
   position: CellPosition,
-  env: SpreadsheetChildEnv | SpreadsheetRenderingEnv
+  env: SpreadsheetChildEnv | SpreadsheetChildEnv
 ) {
   const pivotCell = env.model.getters.getPivotCellFromPosition(position);
   const pivotId = env.model.getters.getPivotIdFromPosition(position);

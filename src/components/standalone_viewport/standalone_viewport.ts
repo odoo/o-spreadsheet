@@ -1,6 +1,6 @@
 import { proxy, signal, useProps } from "@odoo/owl";
 import { sumArray } from "../../helpers/misc";
-import { Component, useChildSubEnv, useLayoutEffect } from "../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -8,6 +8,8 @@ import { HeaderIndex, PixelOffset } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
+import { ClickableCellsStore } from "../dashboard/clickable_cell_store";
+import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { HoveredIconStore } from "../grid_overlay/hovered_icon_store";
 import { cssPropertiesToCss } from "../helpers/css";
@@ -16,6 +18,7 @@ import { startDnd } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { withZoom } from "../helpers/zoom";
+import { CellPopoverStore } from "../popover/cell_popover_store";
 import { types } from "../props_validation";
 import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
 import { HoveredTableStore } from "../tables/hovered_table_store";
@@ -62,11 +65,19 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
   viewStore!: Store<ViewportsStore>;
 
   setup() {
-    useChildStoreProvider([ViewportsStore, HoveredIconStore, HoveredTableStore]);
+    useChildStoreProvider([
+      ViewportsStore,
+      HoveredIconStore,
+      HoveredTableStore,
+      ClickableCellsStore,
+      DelayedHoveredCellStore,
+      CellPopoverStore,
+    ]);
     this.store = useLocalStore(StandaloneViewportStore, this.props.range, this.props.columnWeights);
     this.viewStore = useStore(ViewportsStore);
     // @ts-ignore ADRM TODO
     const getHeaderDimensionsCallback = this.store.headerDimensionsCallback;
+    this.viewStore.setDisplayedSheetId(this.props.range.sheetId);
     this.viewStore.setViewportArgs({
       getHeaderDimensions: getHeaderDimensionsCallback,
       zoneToDisplay: this.props.range.zone,
@@ -86,6 +97,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     useLayoutEffect(
       () => {
         this.store.setRange(this.props.range);
+        this.viewStore.setDisplayedSheetId(this.props.range.sheetId);
         this.viewStore.setViewportArgs({ zoneToDisplay: this.props.range.zone });
       },
       () => [this.props.range.sheetId, this.env.model.getters.getRangeString(this.props.range)]
@@ -100,14 +112,6 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
       renderingCtx: () => this.store.renderingContext,
       rendererStore: this.rendererStore,
       changeCanvasSizeOnZoom: true,
-    });
-    const self = this;
-    // FIXME CAROUSELS: this is not great, as nothing prevents the child components to use getters.getViewportCollection()
-    // instead of env.viewports. The clean way would probably be to make the viewports/selection into a store.
-    useChildSubEnv({
-      get sheetId() {
-        return self.store.renderingContext.sheetId;
-      },
     });
 
     this.onMouseWheel = useWheelHandler((deltaX, deltaY, ev) => {

@@ -186,12 +186,6 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     this.automaticSumStore = useLocalStore(AutomaticSumStore);
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
-    const model = this.env.model;
-    useChildSubEnv({
-      get sheetId() {
-        return model.getters.getActiveSheetId();
-      },
-    });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);

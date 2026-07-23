@@ -4,7 +4,7 @@ import { CellValue } from "../types/cells";
 import { CommandResult } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
 import { Link } from "../types/misc";
-import { SpreadsheetChildEnv, SpreadsheetRenderingEnv } from "../types/spreadsheet_env";
+import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import {
   buildSheetLink,
   isMarkdownLink,
@@ -37,7 +37,7 @@ export interface LinkSpec {
   readonly urlRepresentation: (url: string, getters: CoreGetters) => string;
   readonly open: (
     url: string,
-    env: SpreadsheetChildEnv | SpreadsheetRenderingEnv,
+    env: SpreadsheetChildEnv | SpreadsheetChildEnv,
     isMiddleClick?: boolean
   ) => void;
   readonly sequence: number;
@@ -75,7 +75,7 @@ urlRegistry.add("sheet_URL", {
   open(url, env) {
     const sheetId = parseSheetUrl(url);
     const result = env.model.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: "sheetId" in env ? env.sheetId : env.model.getters.getActiveSheetId(),
+      sheetIdFrom: env.model.getters.getActiveSheetId(),
       sheetIdTo: sheetId,
     });
     if (result.isCancelledBecause(CommandResult.SheetIsHidden)) {
@@ -123,7 +123,7 @@ export function urlRepresentation(link: Link, getters: CoreGetters): string {
 
 export function openLink(
   link: Link,
-  env: SpreadsheetChildEnv | SpreadsheetRenderingEnv,
+  env: SpreadsheetChildEnv | SpreadsheetChildEnv,
   isMiddleClick?: boolean
 ) {
   findMatchingSpec(link.url).open(link.url, env, isMiddleClick);

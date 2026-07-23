@@ -7,7 +7,7 @@ import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { CellPosition, GridClickModifiers, HeaderIndex, Position } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
-import { SpreadsheetRenderingEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
@@ -22,7 +22,7 @@ import { HoveredTableStore } from "../tables/hovered_table_store";
 import { HoveredIconStore } from "./hovered_icon_store";
 
 function useCellHovered(
-  env: SpreadsheetRenderingEnv,
+  env: SpreadsheetChildEnv,
   gridRef: Signal<HTMLElement | null>
 ): Partial<Position> {
   const delayedHoveredCell = useStore(DelayedHoveredCellStore);
@@ -132,7 +132,7 @@ function useCellHovered(
   return hoveredPosition;
 }
 
-export class GridOverlay extends Component<SpreadsheetRenderingEnv> {
+export class GridOverlay extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridOverlay";
   static components = {
     GridAddRowsFooter,
@@ -304,7 +304,7 @@ export class GridOverlay extends Component<SpreadsheetRenderingEnv> {
     const icon = icons.find((icon) => {
       const merge = this.env.model.getters.getMerge(position);
       const zone = merge || positionToZone(position);
-      const cellRect = this.viewStore.viewports.getRect(this.env.sheetId, zone);
+      const cellRect = this.viewStore.viewports.getRect(sheetId, zone);
 
       return isPointInsideRect(x, y, this.env.model.getters.getCellIconRect(icon, cellRect));
     });
