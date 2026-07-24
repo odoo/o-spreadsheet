@@ -130,7 +130,9 @@ sidePanelRegistry.add("TableSidePanel", {
   title: _t("Edit table"),
   Body: TablePanel,
   computeState: (getters: Getters) => {
-    const table = getters.getFirstTableInSelection();
+    const sheetId = getters.getActiveSheetId();
+    const selection = getters.getSelectedZones();
+    const table = getters.getTablesOverlappingZones(sheetId, selection)[0];
     if (!table || table.isPivotTable) {
       return { isOpen: false };
     }
