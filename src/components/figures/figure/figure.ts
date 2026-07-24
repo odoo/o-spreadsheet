@@ -1,11 +1,14 @@
 import { proxy, signal, useProps } from "@odoo/owl";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
+import { useStore } from "../../../store_engine/store_hooks";
+import { LockSheetStore } from "../../../stores/lock_sheet_store";
 import { MoveFiguresPayload } from "../../../types/commands";
 import { AnchorOffset, ResizeDirection } from "../../../types/figure";
 import { CSSProperties, Pixel } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { withZoom } from "../../helpers/zoom";
@@ -42,6 +45,8 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
       .function<(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) => void>()
       .optional(() => () => {}),
   });
+
+  private lockSheetStore!: Store<LockSheetStore>;
 
   private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
@@ -101,6 +106,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
   }
 
   setup() {
+    this.lockSheetStore = useStore(LockSheetStore);
     const borderWidth = figureRegistry.get(this.props.figureUI.tag).borderWidth;
     this.borderWidth = borderWidth !== undefined ? borderWidth : BORDER_WIDTH;
     useLayoutEffect(
@@ -278,7 +284,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
       this.isSelected &&
       !this.env.isMobile() &&
       !this.env.model.getters.isDashboard() &&
-      !this.env.model.getters.isCurrentSheetLocked()
+      !this.lockSheetStore.isCurrentSheetLocked
     );
   }
 }

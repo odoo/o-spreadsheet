@@ -10,6 +10,7 @@ import { Composer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 
 import { Component } from "../../../owl3_compatibility_layer";
+import { LockSheetStore } from "../../../stores/lock_sheet_store";
 const COMPOSER_MAX_HEIGHT = 300;
 
 export class TopBarComposer extends Component<SpreadsheetChildEnv> {
@@ -19,10 +20,12 @@ export class TopBarComposer extends Component<SpreadsheetChildEnv> {
   private composerFocusStore!: Store<ComposerFocusStore>;
   private composerStore!: Store<CellComposerStore>;
   private composerInterface!: ComposerInterface;
+  private lockSheetStore!: Store<LockSheetStore>;
 
   setup() {
     this.composerFocusStore = useStore(ComposerFocusStore);
     const composerStore = useStore(CellComposerStore);
+    this.lockSheetStore = useStore(LockSheetStore);
     this.composerStore = composerStore;
     this.composerInterface = {
       id: "topbarComposer",
@@ -55,7 +58,7 @@ export class TopBarComposer extends Component<SpreadsheetChildEnv> {
       "max-height": `${COMPOSER_MAX_HEIGHT}px`,
       "line-height": "24px",
     };
-    if (this.env.model.getters.isCurrentSheetLocked()) {
+    if (this.lockSheetStore.isCurrentSheetLocked) {
       style["pointer-events"] = "none";
     }
     style.height = this.focus === "inactive" ? `${DESKTOP_TOPBAR_TOOLBAR_HEIGHT}px` : "fit-content";

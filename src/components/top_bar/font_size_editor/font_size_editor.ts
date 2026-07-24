@@ -2,7 +2,10 @@ import { useProps } from "@odoo/owl";
 import { setStyle } from "../../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../../constants";
 import { Component } from "../../../owl3_compatibility_layer";
+import { useStore } from "../../../store_engine/store_hooks";
+import { LockSheetStore } from "../../../stores/lock_sheet_store";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { Store } from "../../../types/store_engine";
 import { FontSizeEditor } from "../../font_size_editor/font_size_editor";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 import { types } from "../../props_validation";
@@ -13,9 +16,11 @@ export class TopBarFontSizeEditor extends Component<SpreadsheetChildEnv> {
 
   protected props = useProps({ class: types.string() });
   topBarToolStore!: ToolBarDropdownStore;
+  lockSheetStore!: Store<LockSheetStore>;
 
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();
+    this.lockSheetStore = useStore(LockSheetStore);
   }
 
   get currentFontSize(): number {
@@ -42,8 +47,6 @@ export class TopBarFontSizeEditor extends Component<SpreadsheetChildEnv> {
   }
 
   get class() {
-    return `${this.props.class} ${
-      this.env.model.getters.isCurrentSheetLocked() ? "o-disabled" : ""
-    }`;
+    return `${this.props.class} ${this.lockSheetStore.isCurrentSheetLocked ? "o-disabled" : ""}`;
   }
 }

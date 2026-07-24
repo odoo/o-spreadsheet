@@ -5,6 +5,7 @@ import { PaintFormatStore } from "./paint_format_store";
 
 import { useProps } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
+import { LockSheetStore } from "../../stores/lock_sheet_store";
 import { types } from "../props_validation";
 export class PaintFormatButton extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PaintFormatButton";
@@ -14,9 +15,11 @@ export class PaintFormatButton extends Component<SpreadsheetChildEnv> {
   });
 
   private paintFormatStore!: Store<PaintFormatStore>;
+  lockSheetStore!: Store<LockSheetStore>;
 
   setup() {
     this.paintFormatStore = useStore(PaintFormatStore);
+    this.lockSheetStore = useStore(LockSheetStore);
   }
 
   get isActive() {

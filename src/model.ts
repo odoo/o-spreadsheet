@@ -29,6 +29,7 @@ import { StateObserver } from "./state_observer";
 import { _t, setDefaultTranslationMethod } from "./translation";
 import { StateUpdateMessage } from "./types/collaborative/transport_service";
 import {
+  AllowDispatchHandler,
   canExecuteInReadonly,
   Command,
   CommandDispatcher,
@@ -38,6 +39,7 @@ import {
   CoreCommand,
   DispatchResult,
   isCoreCommand,
+  LocalCommand,
 } from "./types/commands";
 import { CoreGetters } from "./types/core_getters";
 import { Getters } from "./types/getters";
@@ -139,6 +141,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private readonly uiHandlers: CommandHandler<Command>[] = [];
   private readonly coreHandlers: CommandHandler<CoreCommand>[] = [];
 
+  // TODO FIXME: Remove this and do something better for the stores
+  private readonly allowDispatchHandlers: AllowDispatchHandler<Command>[] = [];
+  private readonly uiAllowDispatchHandlers: AllowDispatchHandler<Command>[] = [];
+
   constructor(
     data: any = {},
     config: Partial<ModelConfig> = {},
@@ -190,6 +196,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.coreHandlers.push(this.range);
     this.handlers.push(this.range);
+    this.allowDispatchHandlers.push(this.range);
 
     this.corePluginConfig = this.setupCorePluginConfig();
     this.coreViewPluginConfig = this.setupCoreViewPluginConfig();
@@ -206,19 +213,25 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     for (const Plugin of coreViewsPluginRegistry.getAll()) {
       const plugin = this.setupCoreViewPlugin(Plugin);
       this.handlers.push(plugin);
+      this.allowDispatchHandlers.push(plugin);
       this.uiHandlers.push(plugin);
+      this.uiAllowDispatchHandlers.push(plugin);
       this.coreHandlers.push(plugin);
     }
     for (const Plugin of statefulUIPluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
       this.statefulUIPlugins.push(plugin);
       this.handlers.push(plugin);
+      this.allowDispatchHandlers.push(plugin);
       this.uiHandlers.push(plugin);
+      this.uiAllowDispatchHandlers.push(plugin);
     }
     for (const Plugin of featurePluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
       this.handlers.push(plugin);
+      this.allowDispatchHandlers.push(plugin);
       this.uiHandlers.push(plugin);
+      this.uiAllowDispatchHandlers.push(plugin);
     }
 
     if (this.config.mode !== "export_verification") {
@@ -312,6 +325,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.corePlugins.push(plugin);
     this.coreHandlers.push(plugin);
     this.handlers.push(plugin);
+    this.allowDispatchHandlers.push(plugin);
   }
 
   private onRemoteRevisionReceived({ commands }: { commands: readonly CoreCommand[] }) {
@@ -472,11 +486,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   private checkDispatchAllowedCoreCommand(command: CoreCommand) {
-    return this.handlers.map((handler) => handler.allowDispatch(command));
+    return this.allowDispatchHandlers.map((handler) => handler.allowDispatch(command));
   }
 
-  private checkDispatchAllowedLocalCommand(command: Command) {
-    return this.uiHandlers.map((handler) => handler.allowDispatch(command));
+  private checkDispatchAllowedLocalCommand(command: LocalCommand) {
+    return this.uiAllowDispatchHandlers.map((handler) => handler.allowDispatch(command));
   }
 
   private finalize() {
@@ -698,6 +712,22 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     data = deepCopy(data);
 
     return getXLSX(data);
+  }
+
+  registerExternalAllowDispatch(allowDispatchHandler: AllowDispatchHandler<Command>) {
+    this.allowDispatchHandlers.push(allowDispatchHandler);
+    this.uiAllowDispatchHandlers.push(allowDispatchHandler);
+  }
+
+  unregisterExternalAllowDispatch(allowDispatchHandler: AllowDispatchHandler<Command>) {
+    const uiIndex = this.uiAllowDispatchHandlers.indexOf(allowDispatchHandler);
+    if (uiIndex !== -1) {
+      this.uiAllowDispatchHandlers.splice(uiIndex, 1);
+    }
+    const index = this.allowDispatchHandlers.indexOf(allowDispatchHandler);
+    if (index !== -1) {
+      this.allowDispatchHandlers.splice(index, 1);
+    }
   }
 }
 

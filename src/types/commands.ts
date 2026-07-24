@@ -1564,6 +1564,10 @@ export interface CommandHandler<T> {
   finalize(): void;
 }
 
+export interface AllowDispatchHandler<T> {
+  allowDispatch(command: T): CommandResult | CommandResult[];
+}
+
 export interface CommandDispatcher {
   dispatch<T extends CommandTypes, C extends Extract<Command, { type: T }>>(
     type: {} extends Omit<C, "type"> ? T : never

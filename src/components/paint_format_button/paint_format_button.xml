@@ -3,7 +3,7 @@
     <span
       class="o-menu-item-button"
       title="Paint Format"
-      t-att-class="{'active': this.isActive, 'o-disabled': this.env.model.getters.isCurrentSheetLocked()}"
+      t-att-class="{'active': this.isActive, 'o-disabled': this.lockSheetStore.isCurrentSheetLocked}"
       t-attf-class="{{this.props.class}}"
       t-on-click="this.togglePaintFormat"
       t-on-dblclick="this.onDblClick">

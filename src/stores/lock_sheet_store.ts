@@ -3,12 +3,11 @@ import {
   CommandResult,
   isCoreCommand,
   lockedSheetAllowedCommands,
-} from "../../types/commands";
-import { UIPlugin } from "../ui_plugin";
+} from "../types/commands";
+import { Get } from "../types/store_engine";
+import { SpreadsheetStore } from "./spreadsheet_store";
 
-export class LockSheetPlugin extends UIPlugin {
-  static getters = ["isCurrentSheetLocked"] as const;
-
+export class LockSheetStore extends SpreadsheetStore {
   allowDispatch(cmd: Command): CommandResult | CommandResult[] {
     /**
      * isDashboard() implies that the user is not connected
@@ -20,14 +19,22 @@ export class LockSheetPlugin extends UIPlugin {
     }
     if (
       ("sheetId" in cmd && this.getters.isSheetLocked(cmd.sheetId)) ||
-      (!isCoreCommand(cmd) && this.isCurrentSheetLocked())
+      (!isCoreCommand(cmd) && this.isCurrentSheetLocked)
     ) {
       return CommandResult.SheetLocked;
     }
     return CommandResult.Success;
   }
 
-  isCurrentSheetLocked() {
+  get isCurrentSheetLocked() {
     return this.getters.isSheetLocked(this.getters.getActiveSheetId());
+  }
+
+  constructor(get: Get) {
+    super(get);
+    this.model.registerExternalAllowDispatch(this);
+    this.onDispose(() => {
+      this.model.unregisterExternalAllowDispatch(this);
+    });
   }
 }

@@ -5,6 +5,7 @@ import { rectUnion } from "../../../helpers/rectangle";
 import { Component } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { useStore } from "../../../store_engine/store_hooks";
+import { LockSheetStore } from "../../../stores/lock_sheet_store";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { AnchorOffset, Figure, FigureUI, ResizeDirection } from "../../../types/figure";
 import { UID } from "../../../types/misc";
@@ -123,9 +124,11 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
     overlappingChartOrCarousel: undefined,
   });
   private viewStore!: Store<ViewportsStore>;
+  private lockSheetStore!: Store<LockSheetStore>;
 
   setup() {
     this.viewStore = useStore(ViewportsStore);
+    this.lockSheetStore = useStore(LockSheetStore);
     onMounted(() => {
       // horrible, but necessary
       // the following line ensures that we render the figures with the correct
@@ -311,7 +314,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       }
     }
 
-    if (this.env.isMobile() || this.env.model.getters.isCurrentSheetLocked()) {
+    if (this.env.isMobile() || this.lockSheetStore.isCurrentSheetLocked) {
       return;
     }
 

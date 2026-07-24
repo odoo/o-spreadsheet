@@ -4,10 +4,13 @@ import { DEFAULT_TABLE_CONFIG } from "../../../helpers/table_presets";
 import { interactiveCreateTable } from "../../../helpers/ui/table_interactive";
 import { cellPositions } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
+import { useStore } from "../../../store_engine/store_hooks";
+import { LockSheetStore } from "../../../stores/lock_sheet_store";
 import { _t } from "../../../translation";
 import { UID } from "../../../types/misc";
 import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { Store } from "../../../types/store_engine";
 import { TableConfig } from "../../../types/table";
 import { ActionButton } from "../../action_button/action_button";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
@@ -32,9 +35,11 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
 
   topBarToolStore!: ToolBarDropdownStore;
   state = proxy<State>({ popoverProps: undefined });
+  lockSheetStore!: Store<LockSheetStore>;
 
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();
+    this.lockSheetStore = useStore(LockSheetStore);
   }
 
   onStylePicked(styleId: string) {
@@ -133,7 +138,7 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
 
   get class() {
     return `${this.props.class ? this.props.class : ""} ${
-      this.env.model.getters.isCurrentSheetLocked() ? "o-disabled" : ""
+      this.lockSheetStore.isCurrentSheetLocked ? "o-disabled" : ""
     }`;
   }
 }

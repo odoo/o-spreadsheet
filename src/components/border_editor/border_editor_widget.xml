@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-BorderEditorWidget">
     <div
       class="d-flex position-relative"
-      t-att-class="{'o-disabled': this.env.model.getters.isCurrentSheetLocked()}"
+      t-att-class="{'o-disabled': this.lockSheetStore.isCurrentSheetLocked}"
       title="Borders">
       <span
         t-ref="this.borderEditorButtonRef"
