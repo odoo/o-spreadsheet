@@ -355,6 +355,7 @@ import {
   getNumberOfPivotFunctions,
 } from "./helpers/pivot/pivot_composer_helpers";
 import { domainToColRowDomain } from "./helpers/pivot/pivot_domain_helpers";
+import { drawHighlight } from "./helpers/rendering";
 import { fuzzyLookup } from "./helpers/search";
 import { chartDataSourceSidePanelComponentRegistry } from "./registries/chart_data_source_component_registry";
 import { chartDataSourceRegistry } from "./registries/chart_data_source_registry";
@@ -446,6 +447,7 @@ export const helpers = {
   computeCachedTextDimension,
   createComputeFunction,
   isMobileOS,
+  drawHighlight,
 };
 
 export const links = {
