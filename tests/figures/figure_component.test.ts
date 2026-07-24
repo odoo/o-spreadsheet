@@ -26,6 +26,8 @@ import {
   createSheet,
   freezeColumns,
   freezeRows,
+  hideColumns,
+  hideRows,
   paste,
   selectCell,
   setCellContent,
@@ -275,6 +277,121 @@ describe("figures", () => {
       col: 0,
       row: 0,
       offset: { x: 2, y: 2 },
+    });
+  });
+
+  test("a figure cannot be moved past the bottom-right edge of the grid", async () => {
+    const width = 100;
+    const height = 100;
+    const maxAnchor = model.getters.getMaxAnchorOffset(sheetId, height, width);
+    // place the figure just inside the bottom-right boundary
+    createFigure(model, {
+      id: "someuuid",
+      col: maxAnchor.col,
+      row: maxAnchor.row,
+      offset: { x: maxAnchor.offset.x - 1, y: maxAnchor.offset.y - 1 },
+      width,
+      height,
+    });
+
+    model.dispatch("SCROLL_TO_CELL", { col: maxAnchor.col, row: maxAnchor.row });
+    await nextTick();
+    await simulateClick(".o-figure");
+    await nextTick();
+    const selectedFigure = model.getters.getSelectedFigureId();
+    expect(selectedFigure).toBe("someuuid");
+
+    // pushing further right/down clamps the figure to the last valid position
+    await keyDown({ key: "ArrowRight" });
+    await keyDown({ key: "ArrowRight" });
+    await keyDown({ key: "ArrowDown" });
+    await keyDown({ key: "ArrowDown" });
+
+    expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject(maxAnchor);
+  });
+
+  test("a figure cannot be moved past the top-left edge of the grid", async () => {
+    createFigure(model, {
+      id: "someuuid",
+      col: 0,
+      row: 0,
+      offset: { x: 0, y: 0 },
+      width: 100,
+      height: 100,
+    });
+
+    await nextTick();
+    await simulateClick(".o-figure");
+    await nextTick();
+    const selectedFigure = model.getters.getSelectedFigureId();
+    expect(selectedFigure).toBe("someuuid");
+
+    await keyDown({ key: "ArrowLeft" });
+    await keyDown({ key: "ArrowUp" });
+    expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
+      col: 0,
+      row: 0,
+      offset: { x: 0, y: 0 },
+    });
+  });
+
+  test("moving a figure with arrow keys skips hidden columns and rows", async () => {
+    hideColumns(model, ["B"]); // hide the column right after the figure's anchor
+    hideRows(model, [1]); // hide the row right after the figure's anchor
+    createFigure(model, {
+      id: "someuuid",
+      col: 0,
+      row: 0,
+      offset: { x: cellWidth - 1, y: cellHeight - 1 },
+      width: 100,
+      height: 100,
+    });
+    await nextTick();
+    await simulateClick(".o-figure");
+    await nextTick();
+    const selectedFigure = model.getters.getSelectedFigureId();
+    expect(selectedFigure).toBe("someuuid");
+    // crossing the cell boundary lands on the next visible column/row (C and row 3), not the hidden one
+    await keyDown({ key: "ArrowRight" });
+    await keyDown({ key: "ArrowRight" });
+
+    await keyDown({ key: "ArrowDown" });
+    await keyDown({ key: "ArrowDown" });
+
+    expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
+      col: 2,
+      row: 2,
+      offset: { x: 0, y: 0 },
+    });
+  });
+
+  test("moving a figure backwards with arrow keys skips hidden columns and rows", async () => {
+    hideColumns(model, ["B"]); // hidden column between the figure's anchor and the target column
+    hideRows(model, [1]); // hidden row between the figure's anchor and the target row
+    createFigure(model, {
+      id: "someuuid",
+      col: 2,
+      row: 2,
+      offset: { x: 1, y: 1 },
+      width: 100,
+      height: 100,
+    });
+    await nextTick();
+    await simulateClick(".o-figure");
+    await nextTick();
+    const selectedFigure = model.getters.getSelectedFigureId();
+    expect(selectedFigure).toBe("someuuid");
+    // crossing the cell boundary lands on the previous visible column/row (A and row 1), not the hidden one
+    await keyDown({ key: "ArrowLeft" });
+    await keyDown({ key: "ArrowLeft" });
+
+    await keyDown({ key: "ArrowUp" });
+    await keyDown({ key: "ArrowUp" });
+
+    expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
+      col: 0,
+      row: 0,
+      offset: { x: cellWidth - 1, y: cellHeight - 1 },
     });
   });
 
