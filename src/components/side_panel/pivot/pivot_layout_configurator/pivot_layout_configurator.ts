@@ -6,8 +6,13 @@ import {
   isDateOrDatetimeField,
 } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
+<<<<<<< 31ff8d1991e24ca573a646f159a997bc50536b13
 import { Component } from "../../../../owl3_compatibility_layer";
 import { useStore } from "../../../../store_engine/store_hooks";
+||||||| b2c5cb95dc9e90137e7b5b1dfe087507eef16c70
+import { Store, useStore } from "../../../../store_engine";
+=======
+>>>>>>> 8beaeb2ab99f081efc41e6753bfda708e6878b8f
 import { _t } from "../../../../translation";
 import { SortDirection } from "../../../../types/misc";
 import {
@@ -21,8 +26,14 @@ import {
   PivotMeasure,
 } from "../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+<<<<<<< 31ff8d1991e24ca573a646f159a997bc50536b13
 import { Store } from "../../../../types/store_engine";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";
+||||||| b2c5cb95dc9e90137e7b5b1dfe087507eef16c70
+import { ComposerFocusStore } from "../../../composer/composer_focus_store";
+=======
+import { hasInteractiveElementInEventTree } from "../../../helpers/dom_helpers";
+>>>>>>> 8beaeb2ab99f081efc41e6753bfda708e6878b8f
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
 import { types } from "../../../props_validation";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -62,16 +73,11 @@ export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
   private dimensionsRef = signal<HTMLElement | null>(null);
   private dragAndDrop = useDragAndDropListItems();
   AGGREGATORS = AGGREGATORS;
-  private composerFocus!: Store<ComposerFocusStore>;
 
   isDateOrDatetimeField = isDateOrDatetimeField;
 
-  setup() {
-    this.composerFocus = useStore(ComposerFocusStore);
-  }
-
   startDragAndDrop(dimension: PivotDimensionType, event: MouseEvent) {
-    if (event.button !== 0 || (event.target as HTMLElement).tagName === "SELECT") {
+    if (event.button !== 0 || hasInteractiveElementInEventTree(event)) {
       return;
     }
 
@@ -133,12 +139,7 @@ export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
   }
 
   startDragAndDropMeasures(measure: PivotMeasure, event: MouseEvent) {
-    if (
-      event.button !== 0 ||
-      (event.target as HTMLElement).tagName === "SELECT" ||
-      (event.target as HTMLElement).tagName === "INPUT" ||
-      this.composerFocus.focusMode !== "inactive"
-    ) {
+    if (event.button !== 0 || hasInteractiveElementInEventTree(event)) {
       return;
     }
 

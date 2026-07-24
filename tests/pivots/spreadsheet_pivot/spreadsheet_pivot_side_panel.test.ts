@@ -863,34 +863,49 @@ describe("Spreadsheet pivot side panel", () => {
     ]);
   });
 
-  test("Cannot drag a dimension when clicking its upper right icons", async () => {
+  test("Cannot drag a dimension when clicking on one of its clickable element", async () => {
     extendMockGetBoundingClientRect({
-      /**
-       * 'pt-1' is the class of the main div of the pivot dimension
-       */
-      "pt-1": () => ({
-        height: 10,
-        y: 0,
-      }),
-      "o-section-title": () => ({
-        height: 10,
-        y: 10,
-      }),
-      "pivot-dimensions": () => ({
-        height: 40,
-        y: 0,
-      }),
+      "h-100": () => ({ height: 40, y: 0 }), // side panel, it is the parent container of the drag & drop
+      "pt-1": () => ({ height: 10, y: 0 }), // main div of a pivot dimension
+      "o-section-title": () => ({ height: 10, y: 10 }),
     });
-    await click(fixture.querySelector(".add-dimension")!);
-    await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
-    await editSelectComponent(".pivot-dimension .o-select", "desc");
-    expect(model.getters.getPivotCoreDefinition("1").columns).toEqual([
-      { fieldName: "Amount", order: "desc" },
-    ]);
-    await clickAndDrag(".pivot-dimension .fa-trash", { x: 0, y: 30 }, undefined, true);
-    expect(model.getters.getPivotCoreDefinition("1").columns).toEqual([
-      { fieldName: "Amount", order: "desc" },
-    ]);
+    updatePivot(model, "1", { columns: [{ fieldName: "Amount" }] });
+    await nextTick();
+
+    const dragAndDropContainer = () => fixture.querySelector(".pivot-dimension")?.parentElement;
+
+    expect(dragAndDropContainer()).not.toHaveStyle({ position: "relative" }); // this style is added during the drag & drop
+
+    await clickAndDrag(".pivot-dimension .fa-trash", { x: 0, y: 30 }, undefined, false);
+    expect(dragAndDropContainer()).not.toHaveStyle({ position: "relative" });
+
+    await clickAndDrag(".pivot-dimension .o-select", { x: 0, y: 30 }, undefined, false);
+    expect(dragAndDropContainer()).not.toHaveStyle({ position: "relative" });
+  });
+
+  test("Cannot drag a measure when clicking on one of its clickable element", async () => {
+    extendMockGetBoundingClientRect({
+      "h-100": () => ({ height: 40, y: 0 }), // side panel, it is the parent container of the drag & drop
+      "pt-1": () => ({ height: 10, y: 0 }), // main div of a pivot measure
+    });
+    updatePivot(model, "1", {
+      measures: [
+        { id: "amount:sum", fieldName: "amount", aggregator: "sum" },
+        { id: "amount:avg", fieldName: "person", aggregator: "avg" },
+      ],
+    });
+    await nextTick();
+
+    expect(".pivot-measure").not.toHaveStyle({ position: "relative" }); // this style is added during the drag & drop
+
+    await clickAndDrag(".pivot-measure .fa-trash", { x: 0, y: 30 }, undefined, false);
+    expect(".pivot-measure").not.toHaveStyle({ position: "relative" });
+
+    await clickAndDrag(".pivot-measure .o-select", { x: 0, y: 30 }, undefined, false);
+    expect(".pivot-measure").not.toHaveStyle({ position: "relative" });
+
+    await clickAndDrag(".pivot-measure .os-input", { x: 0, y: 30 }, undefined, false);
+    expect(".pivot-measure").not.toHaveStyle({ position: "relative" });
   });
 
   test("Pivot with multiple time the same dimension does not crash the side panel", async () => {
