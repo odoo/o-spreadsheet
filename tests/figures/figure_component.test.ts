@@ -12,6 +12,7 @@ import {
 import { Component } from "../../src/owl3_compatibility_layer";
 
 import { downloadFile } from "../../src/components/helpers/dom_helpers";
+import { toXC } from "../../src/helpers/coordinates";
 import { figureRegistry } from "../../src/registries/figures_registry";
 import { ClipboardMIMEType } from "../../src/types/clipboard";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
@@ -26,6 +27,8 @@ import {
   deleteFigure,
   freezeColumns,
   freezeRows,
+  hideColumns,
+  hideRows,
   paste,
   selectCell,
   selectFigure,
@@ -448,6 +451,99 @@ describe("figures", () => {
     await keyDown({ key: "ArrowUp", shiftKey: true });
     expectXY("fig1", 2, 2);
     expectXY("fig2", 3, 3);
+  });
+
+  test("a figure cannot be moved past the bottom-right edge of the grid", async () => {
+    const width = 100;
+    const height = 100;
+    const maxAnchor = model.getters.getMaxAnchorOffset(sheetId, height, width);
+    // place the figure just inside the bottom-right boundary
+    createFigure(model, {
+      id: "someuuid",
+      col: maxAnchor.col,
+      row: maxAnchor.row,
+      offset: { x: maxAnchor.offset.x - 2, y: maxAnchor.offset.y - 2 },
+      width,
+      height,
+    });
+
+    await nextTick();
+    selectCell(model, toXC(maxAnchor.col, maxAnchor.row));
+    selectFigure(model, "someuuid");
+    await nextTick();
+    // pushing further right/down clamps the figure to the last valid position
+    await keyDown({ key: "ArrowRight" });
+    await keyDown({ key: "ArrowDown" });
+    expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject(maxAnchor);
+  });
+
+  test("a figure cannot be moved past the top-left edge of the grid", async () => {
+    createFigure(model, {
+      id: "someuuid",
+      col: 0,
+      row: 0,
+      offset: { x: 3, y: 3 },
+      width: 100,
+      height: 100,
+    });
+    await nextTick();
+    selectFigure(model, "someuuid");
+    await nextTick();
+    await keyDown({ key: "ArrowLeft" });
+    await keyDown({ key: "ArrowUp" });
+    expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
+      col: 0,
+      row: 0,
+      offset: { x: 0, y: 0 },
+    });
+  });
+
+  test("moving a figure with arrow keys skips hidden columns and rows", async () => {
+    hideColumns(model, ["B"]); // hide the column right after the figure's anchor
+    hideRows(model, [1]); // hide the row right after the figure's anchor
+    createFigure(model, {
+      id: "someuuid",
+      col: 0,
+      row: 0,
+      offset: { x: cellWidth - 1, y: cellHeight - 1 },
+      width: 100,
+      height: 100,
+    });
+    await nextTick();
+    selectFigure(model, "someuuid");
+    await nextTick();
+    // crossing the cell boundary lands on the next visible column/row (C and row 3), not the hidden one
+    await keyDown({ key: "ArrowRight" });
+    await keyDown({ key: "ArrowDown" });
+    expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
+      col: 2,
+      row: 2,
+      offset: { x: 4, y: 4 },
+    });
+  });
+
+  test("moving a figure backwards with arrow keys skips hidden columns and rows", async () => {
+    hideColumns(model, ["B"]); // hidden column between the figure's anchor and the target column
+    hideRows(model, [1]); // hidden row between the figure's anchor and the target row
+    createFigure(model, {
+      id: "someuuid",
+      col: 2,
+      row: 2,
+      offset: { x: 1, y: 1 },
+      width: 100,
+      height: 100,
+    });
+    await nextTick();
+    selectFigure(model, "someuuid");
+    await nextTick();
+    // crossing the cell boundary lands on the previous visible column/row (A and row 1), not the hidden one
+    await keyDown({ key: "ArrowLeft" });
+    await keyDown({ key: "ArrowUp" });
+    expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
+      col: 0,
+      row: 0,
+      offset: { x: cellWidth - 4, y: cellHeight - 4 },
+    });
   });
 
   test("figure is focused after a SELECT_FIGURE", async () => {
