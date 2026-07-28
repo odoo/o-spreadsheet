@@ -3145,6 +3145,7 @@ test("ChartJS charts extensions are loaded when mounting a spreadsheet, are only
     "calendar", // Calendar controller
     "zoomWindowPlugin",
     "background",
+    "geoProjection",
   ]);
 
   createChart(model, { type: "line" }, "chart2");

@@ -84,7 +84,7 @@ describe("Geo chart side panel", () => {
       const choices = [
         ...fixture.querySelectorAll<HTMLOptionElement>(".o-popover .o-select-option"),
       ];
-      expect(choices.map((el) => el.dataset.id)).toEqual(["world", "usa"]);
+      expect(choices.map((el) => el.dataset.id)).toEqual(["world", "usa", "northAmerica"]);
 
       await simulateClick(`.o-popover .o-select-option[data-id="usa"]`);
       expect(getGeoChartDefinition(chartId)?.region).toEqual("usa");
