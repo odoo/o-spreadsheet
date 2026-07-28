@@ -28,9 +28,11 @@ import { DynamicTablesPlugin } from "./ui_core_views/dynamic_tables";
 import { EvaluationChartPlugin } from "./ui_core_views/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "./ui_core_views/evaluation_conditional_format";
 import { EvaluationDataValidationPlugin } from "./ui_core_views/evaluation_data_validation";
+import { FilterEvaluationPlugin } from "./ui_core_views/filter_evaluation";
 import { FingerprintPlugin } from "./ui_core_views/fingerprint";
 import { FormulaTrackerPlugin } from "./ui_core_views/formula_tracker";
 import { HeaderSizeUIPlugin } from "./ui_core_views/header_sizes_ui";
+import { PivotPresencePlugin } from "./ui_core_views/pivot_presence_plugin";
 import { PivotUIPlugin } from "./ui_core_views/pivot_ui";
 import { CollaborativePlugin } from "./ui_feature/collaborative";
 import { ColorThemeUIPlugin } from "./ui_feature/color_theme";
@@ -40,7 +42,6 @@ import { FormatPlugin } from "./ui_feature/format";
 import { GeoFeaturePlugin } from "./ui_feature/geo_features";
 import { InsertPivotPlugin } from "./ui_feature/insert_pivot";
 import { HistoryPlugin } from "./ui_feature/local_history";
-import { PivotPresencePlugin } from "./ui_feature/pivot_presence_plugin";
 import { SortPlugin } from "./ui_feature/sort";
 import { SubtotalEvaluationPlugin } from "./ui_feature/subtotal_evaluation";
 import { UIOptionsPlugin } from "./ui_feature/ui_options";
@@ -50,7 +51,6 @@ import { CarouselUIPlugin } from "./ui_stateful/carousel_ui";
 import { CellComputedStylePlugin } from "./ui_stateful/cell_computed_style";
 import { ClipboardPlugin } from "./ui_stateful/clipboard";
 import { FigureUIPlugin } from "./ui_stateful/figure";
-import { FilterEvaluationPlugin } from "./ui_stateful/filter_evaluation";
 import { HeaderPositionsUIPlugin } from "./ui_stateful/header_positions";
 import { HeaderVisibilityUIPlugin } from "./ui_stateful/header_visibility_ui";
 import { LockSheetPlugin } from "./ui_stateful/lock_sheet";
@@ -86,7 +86,6 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("sort", SortPlugin)
   .add("format", FormatPlugin)
   .add("insert_pivot", InsertPivotPlugin)
-  .add("pivot_presence", PivotPresencePlugin)
   .add("subtotal_evaluation", SubtotalEvaluationPlugin)
   .add("collaborative", CollaborativePlugin)
   .add("history", HistoryPlugin)
@@ -98,7 +97,6 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
 // Plugins which have a state, but which should not be shared in collaborative
 export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("selection", GridSelectionPlugin)
-  .add("evaluation_filter", FilterEvaluationPlugin)
   .add("header_visibility_ui", HeaderVisibilityUIPlugin)
   .add("cell_computed_style", CellComputedStylePlugin)
   .add("table_computed_style", TableComputedStylePlugin)
@@ -119,5 +117,7 @@ export const coreViewsPluginRegistry = new Registry<CoreViewPluginConstructor>()
   .add("dynamic_tables", DynamicTablesPlugin)
   .add("custom_colors", CustomColorsPlugin)
   .add("pivot_ui", PivotUIPlugin)
+  .add("pivot_presence", PivotPresencePlugin)
   .add("cell_icon", CellIconPlugin)
-  .add("formula_tracker", FormulaTrackerPlugin);
+  .add("formula_tracker", FormulaTrackerPlugin)
+  .add("evaluation_filter", FilterEvaluationPlugin);

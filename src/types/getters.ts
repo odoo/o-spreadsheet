@@ -6,16 +6,17 @@ import { DynamicTablesPlugin } from "../plugins/ui_core_views/dynamic_tables";
 import { EvaluationChartPlugin } from "../plugins/ui_core_views/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "../plugins/ui_core_views/evaluation_conditional_format";
 import { EvaluationDataValidationPlugin } from "../plugins/ui_core_views/evaluation_data_validation";
+import { FilterEvaluationPlugin } from "../plugins/ui_core_views/filter_evaluation";
 import { FingerprintPlugin } from "../plugins/ui_core_views/fingerprint";
 import { FormulaTrackerPlugin } from "../plugins/ui_core_views/formula_tracker";
 import { HeaderSizeUIPlugin } from "../plugins/ui_core_views/header_sizes_ui";
+import { PivotPresencePlugin } from "../plugins/ui_core_views/pivot_presence_plugin";
 import { PivotUIPlugin } from "../plugins/ui_core_views/pivot_ui";
 import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
 import { ColorThemeUIPlugin } from "../plugins/ui_feature/color_theme";
 import { DynamicTranslate } from "../plugins/ui_feature/dynamic_translate";
 import { GeoFeaturePlugin } from "../plugins/ui_feature/geo_features";
 import { HistoryPlugin } from "../plugins/ui_feature/local_history";
-import { PivotPresencePlugin } from "../plugins/ui_feature/pivot_presence_plugin";
 import { SortPlugin } from "../plugins/ui_feature/sort";
 import { SubtotalEvaluationPlugin } from "../plugins/ui_feature/subtotal_evaluation";
 import { UIOptionsPlugin } from "../plugins/ui_feature/ui_options";
@@ -24,7 +25,6 @@ import { CarouselUIPlugin } from "../plugins/ui_stateful/carousel_ui";
 import { CellComputedStylePlugin } from "../plugins/ui_stateful/cell_computed_style";
 import { ClipboardPlugin } from "../plugins/ui_stateful/clipboard";
 import { FigureUIPlugin } from "../plugins/ui_stateful/figure";
-import { FilterEvaluationPlugin } from "../plugins/ui_stateful/filter_evaluation";
 import { HeaderPositionsUIPlugin } from "../plugins/ui_stateful/header_positions";
 import { HeaderVisibilityUIPlugin } from "../plugins/ui_stateful/header_visibility_ui";
 import { LockSheetPlugin } from "../plugins/ui_stateful/lock_sheet";
@@ -36,6 +36,25 @@ import { CoreGetters, PluginGetters } from "./core_getters";
 // -----------------------------------------------------------------------------
 
 /**
+ * Getters available to formula evaluation. Restricted to core and core view
+ * plugins so the evaluation layer cannot depend on any UIPlugin.
+ */
+export type EvaluationGetters = CoreGetters &
+  PluginGetters<typeof CellIconPlugin> &
+  PluginGetters<typeof CustomColorsPlugin> &
+  PluginGetters<typeof DynamicTablesPlugin> &
+  PluginGetters<typeof EvaluationChartPlugin> &
+  PluginGetters<typeof EvaluationConditionalFormatPlugin> &
+  PluginGetters<typeof EvaluationDataValidationPlugin> &
+  PluginGetters<typeof EvaluationPlugin> &
+  PluginGetters<typeof FilterEvaluationPlugin> &
+  PluginGetters<typeof FingerprintPlugin> &
+  PluginGetters<typeof FormulaTrackerPlugin> &
+  PluginGetters<typeof HeaderSizeUIPlugin> &
+  PluginGetters<typeof PivotPresencePlugin> &
+  PluginGetters<typeof PivotUIPlugin>;
+
+/**
  * The getters that can be used in the rendering-related stores and helpers. The SheetView and Selection getters should
  * not be used in those, they should use the values in the GridRenderingContext instead.
  */
@@ -43,34 +62,22 @@ export type RenderingGetters = {
   isReadonly: () => boolean;
   isDashboard: () => boolean;
 } & CoreGetters &
+  EvaluationGetters &
   PluginGetters<typeof HistoryPlugin> &
   PluginGetters<typeof ClipboardPlugin> &
-  PluginGetters<typeof EvaluationPlugin> &
-  PluginGetters<typeof EvaluationChartPlugin> &
-  PluginGetters<typeof EvaluationConditionalFormatPlugin> &
   PluginGetters<typeof HeaderVisibilityUIPlugin> &
-  PluginGetters<typeof CustomColorsPlugin> &
   PluginGetters<typeof CollaborativePlugin> &
   PluginGetters<typeof SortPlugin> &
   PluginGetters<typeof UIOptionsPlugin> &
   PluginGetters<typeof SheetUIPlugin> &
-  PluginGetters<typeof FilterEvaluationPlugin> &
-  PluginGetters<typeof FingerprintPlugin> &
   PluginGetters<typeof SubtotalEvaluationPlugin> &
-  PluginGetters<typeof HeaderSizeUIPlugin> &
-  PluginGetters<typeof EvaluationDataValidationPlugin> &
   PluginGetters<typeof HeaderPositionsUIPlugin> &
   PluginGetters<typeof TableStylePlugin> &
   PluginGetters<typeof CellComputedStylePlugin> &
-  PluginGetters<typeof DynamicTablesPlugin> &
-  PluginGetters<typeof PivotUIPlugin> &
   PluginGetters<typeof TableComputedStylePlugin> &
   PluginGetters<typeof GeoFeaturePlugin> &
-  PluginGetters<typeof PivotPresencePlugin> &
   PluginGetters<typeof TableComputedStylePlugin> &
-  PluginGetters<typeof CellIconPlugin> &
   PluginGetters<typeof DynamicTranslate> &
-  PluginGetters<typeof FormulaTrackerPlugin> &
   PluginGetters<typeof LockSheetPlugin> &
   PluginGetters<typeof CarouselUIPlugin> &
   PluginGetters<typeof ColorThemeUIPlugin> &

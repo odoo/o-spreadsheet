@@ -6,18 +6,17 @@ import { criterionEvaluatorRegistry } from "../../registries/criterion_registry"
 import { Command, CommandResult, LocalCommand, UpdateFilterCommand } from "../../types/commands";
 import { GenericCriterion } from "../../types/generic_criterion";
 import { CellPosition, FilterId, UID } from "../../types/misc";
-import { CriterionFilter, DataFilterValue, Table } from "../../types/table";
+import { CriterionFilter, DataFilterValue } from "../../types/table";
 import { ExcelFilterData, ExcelWorkbookData } from "../../types/workbook_data";
-import { UIPlugin } from "../ui_plugin";
+import { CoreViewPlugin } from "../core_view_plugin";
 
 const EMPTY_CRITERION: CriterionFilter = { filterType: "criterion", type: "none", values: [] };
 
-export class FilterEvaluationPlugin extends UIPlugin {
+export class FilterEvaluationPlugin extends CoreViewPlugin {
   static getters = [
     "getFilterValue",
     "getFilterHiddenValues",
     "getFilterCriterionValue",
-    "getFirstTableInSelection",
     "isRowFiltered",
     "isFilterActive",
   ] as const;
@@ -133,12 +132,6 @@ export class FilterEvaluationPlugin extends UIPlugin {
       return false;
     }
     return value.filterType === "values" ? value.hiddenValues.length > 0 : value.type !== "none";
-  }
-
-  getFirstTableInSelection(): Table | undefined {
-    const sheetId = this.getters.getActiveSheetId();
-    const selection = this.getters.getSelectedZones();
-    return this.getters.getTablesOverlappingZones(sheetId, selection)[0];
   }
 
   private updateFilter({ col, row, value, sheetId }: UpdateFilterCommand) {
