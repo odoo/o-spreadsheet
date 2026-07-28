@@ -978,6 +978,7 @@ export const mockChart = (options: any = {}) => {
 const getAvailableRegions: () => GeoChartRegion[] = () => [
   { id: "world", label: "World", defaultProjection: "mercator" },
   { id: "usa", label: "United States", defaultProjection: "albersUsa" },
+  { id: "northAmerica", label: "North America", defaultProjection: "conicConformal" },
 ];
 
 export const mockGeoJsonService: ModelExternalConfig["geoJsonService"] = {

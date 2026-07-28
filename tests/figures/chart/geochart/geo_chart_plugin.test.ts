@@ -1,4 +1,5 @@
 import { Model } from "../../../../src";
+import { geoProjectionPlugin } from "../../../../src/components/figures/chart/chartJs/chartjs_geo_projection_plugin";
 import { GeoChartRuntime } from "../../../../src/types/chart/geo_chart";
 import {
   createChart,
@@ -148,6 +149,12 @@ describe("Geo charts plugin tests", () => {
     updateChart(model, "chartId", { region: "usa" });
     const runtime2 = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
     expect(runtime2.chartJsConfig.options?.scales?.projection?.["projection"]).toBe("albersUsa");
+
+    updateChart(model, "chartId", { region: "northAmerica" });
+    const runtime3 = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
+    expect(runtime3.chartJsConfig.options?.scales?.projection?.["projection"]).toBe(
+      "conicConformal"
+    );
   });
 
   test("Can define colors of countries not in the dataset", () => {
@@ -157,6 +164,28 @@ describe("Geo charts plugin tests", () => {
 
     // The countries that have no data should still be in the runtime, otherwise the missing color won't be applied
     expect(runtime.chartJsConfig.data.datasets[0].data.length).toBe(3);
+  });
+
+  describe("geoProjectionPlugin", () => {
+    test("applies rotation for conicConformal projection", () => {
+      const rotateFn = jest.fn();
+      const chart = {
+        options: { scales: { projection: { projection: "conicConformal" } } },
+        scales: { projection: { projection: { rotate: rotateFn } } },
+      };
+      (geoProjectionPlugin.beforeUpdate as Function)(chart);
+      expect(rotateFn).toHaveBeenCalledWith([100, 0]);
+    });
+
+    test("does not rotate non-conicConformal projections", () => {
+      const rotateFn = jest.fn();
+      const chart = {
+        options: { scales: { projection: { projection: "mercator" } } },
+        scales: { projection: { projection: { rotate: rotateFn } } },
+      };
+      (geoProjectionPlugin.beforeUpdate as Function)(chart);
+      expect(rotateFn).not.toHaveBeenCalled();
+    });
   });
 
   describe("UPDATE_CHART_REGION", () => {
@@ -171,7 +200,7 @@ describe("Geo charts plugin tests", () => {
     test("getAvailableChartRegions returns alternatives for a world chart", () => {
       createGeoChart(model, { region: "world" });
       const regions = model.getters.getAvailableChartRegions("chartId");
-      expect(regions.map((r) => r.id)).toEqual(["world"]);
+      expect(regions.map((r) => r.id)).toEqual(["world", "northAmerica"]);
       expect(regions.find((r) => r.id === "usa")).toBeUndefined();
     });
 
