@@ -41,6 +41,8 @@ UI plugins include:
 1. Stateful Plugins: have a state, but which should not be shared in collaborative
 2. Feature Plugins: handle a specific feature, without handling any core commands
 
+Unsure which of the four plugin types (or which store) your feature belongs in? See [Where should this code live?](./where_to_put_code.md).
+
 ## Plugin skeleton
 
 ```typescript

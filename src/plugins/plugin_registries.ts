@@ -32,30 +32,30 @@ import { FingerprintPlugin } from "./ui_core_views/fingerprint";
 import { FormulaTrackerPlugin } from "./ui_core_views/formula_tracker";
 import { HeaderSizeUIPlugin } from "./ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "./ui_core_views/pivot_ui";
-import { CellComputedStylePlugin } from "./ui_feature/cell_computed_style";
 import { CollaborativePlugin } from "./ui_feature/collaborative";
 import { ColorThemeUIPlugin } from "./ui_feature/color_theme";
 import { DataValidationInsertionPlugin } from "./ui_feature/datavalidation_insertion";
 import { DynamicTranslate } from "./ui_feature/dynamic_translate";
-import { FigureUIPlugin } from "./ui_feature/figure";
 import { FormatPlugin } from "./ui_feature/format";
 import { GeoFeaturePlugin } from "./ui_feature/geo_features";
-import { HeaderVisibilityUIPlugin } from "./ui_feature/header_visibility_ui";
 import { InsertPivotPlugin } from "./ui_feature/insert_pivot";
 import { HistoryPlugin } from "./ui_feature/local_history";
-import { LockSheetPlugin } from "./ui_feature/lock_sheet";
 import { PivotPresencePlugin } from "./ui_feature/pivot_presence_plugin";
 import { SortPlugin } from "./ui_feature/sort";
 import { SubtotalEvaluationPlugin } from "./ui_feature/subtotal_evaluation";
-import { TableComputedStylePlugin } from "./ui_feature/table_computed_style";
 import { UIOptionsPlugin } from "./ui_feature/ui_options";
 import { SheetUIPlugin } from "./ui_feature/ui_sheet";
 import { UIPluginConstructor } from "./ui_plugin";
 import { CarouselUIPlugin } from "./ui_stateful/carousel_ui";
+import { CellComputedStylePlugin } from "./ui_stateful/cell_computed_style";
 import { ClipboardPlugin } from "./ui_stateful/clipboard";
+import { FigureUIPlugin } from "./ui_stateful/figure";
 import { FilterEvaluationPlugin } from "./ui_stateful/filter_evaluation";
 import { HeaderPositionsUIPlugin } from "./ui_stateful/header_positions";
+import { HeaderVisibilityUIPlugin } from "./ui_stateful/header_visibility_ui";
+import { LockSheetPlugin } from "./ui_stateful/lock_sheet";
 import { GridSelectionPlugin } from "./ui_stateful/selection";
+import { TableComputedStylePlugin } from "./ui_stateful/table_computed_style";
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("settings", SettingsPlugin)

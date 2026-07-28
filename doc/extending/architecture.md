@@ -66,6 +66,8 @@ Each UI plugin is responsible of one feature.
 
 More details about plugins here: [Adding a new feature](./business_feature.md)
 
+Not sure whether your new code belongs in a core plugin, a UI plugin, or a store? See [Where should this code live?](./where_to_put_code.md).
+
 ## UI rendering
 
 The grid itself is rendered on an HTML canvas.
