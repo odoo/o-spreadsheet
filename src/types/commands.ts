@@ -1563,6 +1563,7 @@ export const enum CommandResult {
   NamedRangeNameLooksLikeCellReference = "NamedRangeNameLooksLikeCellReference",
   NamedRangeNotFound = "NamedRangeNotFound",
   SubCommandOnly = "SubCommandOnly",
+  NoChangeInAutomaticEvaluation = "NoChangeInAutomaticEvaluation",
 }
 
 export interface CommandHandler<T> {

@@ -6,7 +6,7 @@ import { positions } from "../../../helpers/zones";
 import { CellValue, CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
   Command,
-  CoreViewCommand,
+  CommandResult,
   invalidateDependenciesCommands,
   invalidateEvaluationCommands,
 } from "../../../types/commands";
@@ -159,10 +159,12 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "isArrayFormulaSpillBlocked",
     "isEmpty",
     "getPerfProfile",
+    "isAutomaticEvaluationEnabled",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
   private forceEvaluation = false;
+  private automaticEvaluation: boolean = true;
 
   private evaluator: Evaluator;
   private positionsToUpdate: CellPosition[] = [];
@@ -176,6 +178,17 @@ export class EvaluationPlugin extends CoreViewPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
+  allowDispatch(cmd: Command) {
+    switch (cmd.type) {
+      case "SET_AUTOMATIC_EVALUATION":
+        if (cmd.enabled === this.automaticEvaluation) {
+          return CommandResult.NoChangeInAutomaticEvaluation;
+        }
+        return CommandResult.Success;
+    }
+    return CommandResult.Success;
+  }
+
   beforeHandle(cmd: Command) {
     this.forceEvaluation = false;
     if (
@@ -186,7 +199,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     }
   }
 
-  handle(cmd: CoreViewCommand) {
+  handle(cmd: Command) {
     switch (cmd.type) {
       case "UPDATE_CELL":
         if (!("content" in cmd || "format" in cmd) || this.shouldRebuildDependenciesGraph) {
@@ -199,9 +212,15 @@ export class EvaluationPlugin extends CoreViewPlugin {
           this.evaluator.updateDependencies(position);
         }
         break;
+      case "SET_AUTOMATIC_EVALUATION":
+        this.automaticEvaluation = cmd.enabled;
+        if (cmd.enabled) {
+          this.shouldRebuildDependenciesGraph = true;
+        }
+        break;
       case "EVALUATE_CELLS":
         this.forceEvaluation = true;
-        if (!this.getters.isAutomaticEvaluationEnabled()) {
+        if (!this.automaticEvaluation) {
           // When automatic evaluation is disabled, EVALUATE_CELLS should rebuild dependencies
           // and evaluate all cells to ensure consistency
           this.shouldRebuildDependenciesGraph = true;
@@ -240,6 +259,14 @@ export class EvaluationPlugin extends CoreViewPlugin {
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
+
+  /**
+   * Returns whether automatic evaluation is enabled.
+   * When disabled, cells are only re-evaluated on explicit EVALUATE_CELLS commands (F9).
+   */
+  isAutomaticEvaluationEnabled(): boolean {
+    return this.automaticEvaluation;
+  }
 
   evaluateFormula(
     sheetId: UID,
@@ -329,7 +356,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
   }
 
   shouldPerformEvaluation(): boolean {
-    return this.forceEvaluation || this.getters.isAutomaticEvaluationEnabled();
+    return this.forceEvaluation || this.isAutomaticEvaluationEnabled();
   }
 
   /**
