@@ -78,8 +78,6 @@ class AutofillGenerator {
 }
 
 export class AutofillStore extends SpreadsheetStore {
-  static layers = ["Autofill"] as const;
-
   private autofillZone: Zone | undefined;
   private steps: number | undefined;
   private lastCellSelected: { col?: number; row?: number } = {};
@@ -536,6 +534,10 @@ export class AutofillStore extends SpreadsheetStore {
   // ---------------------------------------------------------------------------
   // Grid rendering
   // ---------------------------------------------------------------------------
+
+  get renderingLayers() {
+    return ["Autofill"] as const;
+  }
 
   drawLayer(renderingContext: GridRenderingContext) {
     if (!this.autofillZone) {
