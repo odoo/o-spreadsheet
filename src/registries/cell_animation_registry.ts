@@ -78,8 +78,8 @@ cellAnimationRegistry.add("textFadeIn", {
   id: "textFadeIn",
   easingFn: "easeInCubic",
   hasAnimation: (oldBox, newBox) => {
-    const oldText = oldBox?.content?.textLines?.join("\n");
-    const newText = newBox?.content?.textLines?.join("\n");
+    const oldText = oldBox?.content?.textLines?.join("\n").trim();
+    const newText = newBox?.content?.textLines?.join("\n").trim();
     return Boolean(!oldText && newText);
   },
   updateAnimation: function (progress, animatedBox, oldBox, newBox) {
@@ -91,8 +91,8 @@ cellAnimationRegistry.add("textFadeOut", {
   id: "textFadeOut",
   easingFn: "easeOutCubic",
   hasAnimation: (oldBox, newBox) => {
-    const oldText = oldBox?.content?.textLines?.join("\n");
-    const newText = newBox?.content?.textLines?.join("\n");
+    const oldText = oldBox?.content?.textLines?.join("\n").trim();
+    const newText = newBox?.content?.textLines?.join("\n").trim();
     return Boolean(oldText && !newText);
   },
   updateAnimation: function (progress, animatedBox, oldBox, newBox) {
@@ -161,8 +161,8 @@ cellAnimationRegistry.add("textChange", {
   id: "textChange",
   easingFn: "easeOutCubic",
   hasAnimation: (oldBox, newBox) => {
-    const oldText = oldBox?.content?.textLines?.join("\n");
-    const newText = newBox?.content?.textLines?.join("\n");
+    const oldText = oldBox?.content?.textLines?.join("\n").trim();
+    const newText = newBox?.content?.textLines?.join("\n").trim();
     // Note: here, we also animate changes to icons layout (margins/size change, or icon appearing/disappearing)
     // because a change to the icon layout will impact where the text is positioned.
     return Boolean(
