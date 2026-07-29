@@ -340,6 +340,21 @@ describe("Individual animation tests", () => {
     });
   });
 
+  test("No fade in/out animation on text that has only whitespace", async () => {
+    setCellContent(model, "A2", "=CONCAT(A1, A1)");
+    setCellContent(model, "A1", "");
+    drawGrid();
+    expect(spyRequestAnimationFrame).not.toHaveBeenCalled();
+
+    setCellContent(model, "A1", "   ");
+    drawGrid();
+    expect(spyRequestAnimationFrame).not.toHaveBeenCalled();
+
+    setCellContent(model, "A1", "");
+    drawGrid();
+    expect(spyRequestAnimationFrame).not.toHaveBeenCalled();
+  });
+
   test("Can animate a text changing", () => {
     setCellContent(model, "A2", "=A1");
     setCellContent(model, "A1", "oldText");
@@ -453,6 +468,18 @@ describe("Individual animation tests", () => {
     const emptyIcon = { ...a2Box.icons.left, svg: undefined, component: undefined };
     expect(getBoxFromXc("A2-text-slide-in").icons.left).toEqual(emptyIcon);
     expect(getBoxFromXc("A2-text-slide-out").icons.left).toEqual(emptyIcon);
+  });
+
+  test("Text change animation is not triggered on whitespace change", () => {
+    setGrid(model, { A1: "hello", A2: "=A1" });
+    drawGrid();
+    setCellContent(model, "A1", "hello    ");
+    drawGrid();
+    expect(spyRequestAnimationFrame).not.toHaveBeenCalled();
+
+    setCellContent(model, "A1", "   hello");
+    drawGrid();
+    expect(spyRequestAnimationFrame).not.toHaveBeenCalled();
   });
 
   test("Can animate a background color change", () => {
