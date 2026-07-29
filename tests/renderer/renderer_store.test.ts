@@ -66,7 +66,7 @@ import {
 import { getCell } from "../test_helpers/getters_helpers";
 import { getFingerprint, target } from "../test_helpers/helpers";
 import { createModelWithTestPivotDataset } from "../test_helpers/pivot_helpers";
-import { MockGridRenderingContext, watchClipboardOutline } from "../test_helpers/renderer_helpers";
+import { MockGridRenderingContext, watchDashedOutline } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 
 MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
@@ -1513,7 +1513,7 @@ describe("renderer", () => {
     (targetXc) => {
       const { drawGridRenderer, model, container } = setRenderer(new Model(), ["Clipboard"]);
       copy(model, ...targetXc.split(","));
-      const { ctx, isDotOutlined, reset } = watchClipboardOutline(model, container);
+      const { ctx, isDotOutlined, reset } = watchDashedOutline(model, container);
       drawGridRenderer(ctx);
       const copiedTarget = target(targetXc);
       expect(isDotOutlined(copiedTarget)).toBeTruthy();
@@ -1529,7 +1529,7 @@ describe("renderer", () => {
     (targetXc) => {
       const { drawGridRenderer, model, container } = setRenderer(new Model(), ["Clipboard"]);
       copy(model, ...targetXc.split(","));
-      const { ctx, isDotOutlined, reset } = watchClipboardOutline(model, container);
+      const { ctx, isDotOutlined, reset } = watchDashedOutline(model, container);
       drawGridRenderer(ctx);
       const copiedTarget = target(targetXc);
       const expectedOutlinedZone = copiedTarget.slice(-1);
@@ -1548,7 +1548,7 @@ describe("renderer", () => {
   ])("copied zone outline is removed at first change to the grid", (coreOperation) => {
     const { drawGridRenderer, model, container } = setRenderer(new Model(), ["Clipboard"]);
     copy(model, "A1:A2");
-    const { ctx, isDotOutlined, reset } = watchClipboardOutline(model, container);
+    const { ctx, isDotOutlined, reset } = watchDashedOutline(model, container);
     drawGridRenderer(ctx);
 
     const copiedTarget = target("A1:A2");

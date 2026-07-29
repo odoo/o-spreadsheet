@@ -118,10 +118,9 @@ export class MockGridRenderingContext implements GridRenderingContext {
 }
 
 /**
- * Create a rendering context watching the blue dotted
- * outline around copied zones
+ * Create a rendering context watching dashed outlines around zones.
  */
-export function watchClipboardOutline(model: Model, container: DependencyContainer) {
+export function watchDashedOutline(model: Model, container: DependencyContainer) {
   const sheetViewSize = getDefaultSheetViewSize();
   let lineDash = false;
   let outlinedRects: any[][] = [];

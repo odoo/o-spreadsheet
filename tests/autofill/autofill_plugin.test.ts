@@ -45,10 +45,14 @@ import {
 import { DIRECTION, Model } from "../../src";
 import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import { functionRegistry } from "../../src/functions/function_registry";
+import { DependencyContainer } from "../../src/store_engine/dependency_container";
+import { RendererStore } from "../../src/stores/renderer_store";
 import { Store } from "../../src/types/store_engine";
+import { watchDashedOutline } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 
 let autoFill: Store<AutofillStore>;
+let container: DependencyContainer;
 let model: Model;
 
 function autofillTooltip(from: string, to: string): string | undefined {
@@ -67,7 +71,9 @@ function getDirection(from: string, xc: string): DIRECTION {
 
 beforeEach(() => {
   model = new Model();
-  autoFill = makeStoreWithModel(model, AutofillStore).store;
+  const storeData = makeStoreWithModel(model, AutofillStore);
+  autoFill = storeData.store;
+  container = storeData.container;
 });
 
 describe("Autofill", () => {
@@ -104,6 +110,15 @@ describe("Autofill", () => {
   ])("From %s, selecting %s should select the good zone (%s)", (from, xc, expected) => {
     autofillSelect(model, from, xc);
     expect(autoFill["autofillZone"]).toEqual(toZone(expected));
+  });
+
+  test("Autofill zone is rendered through the renderer store", () => {
+    const { ctx, isDotOutlined } = watchDashedOutline(model, container);
+
+    autofillSelect(model, "A1", "A2");
+    container.get(RendererStore).draw(ctx);
+
+    expect(isDotOutlined([toZone("A2")])).toBeTruthy();
   });
 
   test.each([
