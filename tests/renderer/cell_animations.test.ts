@@ -455,6 +455,14 @@ describe("Individual animation tests", () => {
     expect(getBoxFromXc("A2-text-slide-out").icons.left).toEqual(emptyIcon);
   });
 
+  test("Text change animation is not triggered on whitespace change", () => {
+    setGrid(model, { A1: "hello", A2: "=A1" });
+    drawGrid();
+    setCellContent(model, "A1", "hello    ");
+    drawGrid();
+    expect(spyRequestAnimationFrame).not.toHaveBeenCalled();
+  });
+
   test("Can animate a background color change", () => {
     addEqualCf(model, "A1", { fillColor: "#0000FF" }, "15");
     setCellContent(model, "A1", "=A2");
