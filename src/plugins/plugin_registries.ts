@@ -40,6 +40,7 @@ import { FormatPlugin } from "./ui_feature/format";
 import { GeoFeaturePlugin } from "./ui_feature/geo_features";
 import { InsertPivotPlugin } from "./ui_feature/insert_pivot";
 import { HistoryPlugin } from "./ui_feature/local_history";
+import { LockSheetPlugin } from "./ui_feature/lock_sheet";
 import { PivotPresencePlugin } from "./ui_feature/pivot_presence_plugin";
 import { SortPlugin } from "./ui_feature/sort";
 import { SubtotalEvaluationPlugin } from "./ui_feature/subtotal_evaluation";
@@ -53,7 +54,6 @@ import { FigureUIPlugin } from "./ui_stateful/figure";
 import { FilterEvaluationPlugin } from "./ui_stateful/filter_evaluation";
 import { HeaderPositionsUIPlugin } from "./ui_stateful/header_positions";
 import { HeaderVisibilityUIPlugin } from "./ui_stateful/header_visibility_ui";
-import { LockSheetPlugin } from "./ui_stateful/lock_sheet";
 import { GridSelectionPlugin } from "./ui_stateful/selection";
 import { TableComputedStylePlugin } from "./ui_stateful/table_computed_style";
 
@@ -93,7 +93,8 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("datavalidation_insert", DataValidationInsertionPlugin)
   .add("dynamic_translate", DynamicTranslate)
   .add("geo_features", GeoFeaturePlugin)
-  .add("color_theme", ColorThemeUIPlugin);
+  .add("color_theme", ColorThemeUIPlugin)
+  .add("lock_sheet", LockSheetPlugin);
 
 // Plugins which have a state, but which should not be shared in collaborative
 export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
@@ -105,7 +106,6 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("header_positions", HeaderPositionsUIPlugin)
   .add("clipboard", ClipboardPlugin)
   .add("carousel_ui", CarouselUIPlugin)
-  .add("lock_sheet", LockSheetPlugin)
   .add("figure_ui", FigureUIPlugin);
 
 // Plugins which have a derived state from core data
