@@ -30,6 +30,7 @@ import {
   Zone,
 } from "../../types/misc";
 import { Rect } from "../../types/rendering";
+import { Table } from "../../types/table";
 import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {
@@ -40,6 +41,7 @@ export class SheetUIPlugin extends UIPlugin {
     "getCellMultiLineText",
     "getMultilineTextSize",
     "getContiguousZone",
+    "getFirstTableInSelection",
     "computeTextYCoordinate",
   ] as const;
 
@@ -208,6 +210,12 @@ export class SheetUIPlugin extends UIPlugin {
       }
     }
     return y + MIN_CELL_TEXT_MARGIN;
+  }
+
+  getFirstTableInSelection(): Table | undefined {
+    const sheetId = this.getters.getActiveSheetId();
+    const selection = this.getters.getSelectedZones();
+    return this.getters.getTablesOverlappingZones(sheetId, selection)[0];
   }
 
   /**

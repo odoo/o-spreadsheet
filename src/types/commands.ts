@@ -1189,6 +1189,7 @@ export interface DeleteUnfilteredContentCommand extends TargetDependentCommand {
 export interface PivotStartPresenceTracking {
   type: "PIVOT_START_PRESENCE_TRACKING";
   pivotId: UID;
+  sheetId: UID;
 }
 
 export interface PivotStopPresenceTracking {

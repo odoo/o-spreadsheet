@@ -1,5 +1,5 @@
 import { CellValue } from "./cells";
-import { Getters } from "./getters";
+import { EvaluationGetters } from "./getters";
 import { Locale } from "./locale";
 import { Arg, CellPosition, FunctionResultObject, Matrix, UID } from "./misc";
 import { Range } from "./range";
@@ -76,7 +76,7 @@ export type EvalContext = {
   __originCellPosition?: CellPosition;
   __timingEntries?: FunctionTimingLog;
   locale: Locale;
-  getters: Getters;
+  getters: EvaluationGetters;
   getFormulaResult: (position: CellPosition) => FunctionResultObject;
   [key: string]: any;
   updateDependencies?: (position: CellPosition) => void;
