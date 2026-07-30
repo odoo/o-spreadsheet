@@ -90,7 +90,7 @@ return computeFunctions[1](ctx,_5); // ARRAY.LITERAL;
 exports[`expression compiler cells are converted to ranges if function require a range 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
 ) {
-const _1 = range(deps[0]);
+const _1 = [[ref(deps[0])]];
 return computeFunctions[0](ctx,_1); // SUM;
 }"
 `;
@@ -109,7 +109,7 @@ return computeFunctions[1](ctx,_3,_4); // ADD;
 exports[`expression compiler expression with cell# 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
 ) {
-const _1 = range(deps[0]);
+const _1 = [[ref(deps[0])]];
 return computeFunctions[0](ctx,_1); // SPILLED.RANGE;
 }"
 `;
@@ -286,9 +286,9 @@ return computeFunctions[0](ctx,_1); // UNARY.PERCENT;
 exports[`expression compiler with the same reference multiple times 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
 ) {
-const _1 = range(deps[0]);
-const _2 = range(deps[1]);
-const _3 = range(deps[2]);
+const _1 = [[ref(deps[0])]];
+const _2 = [[ref(deps[1])]];
+const _3 = [[ref(deps[2])]];
 return computeFunctions[0](ctx,_1,_2,_3); // SUM;
 }"
 `;

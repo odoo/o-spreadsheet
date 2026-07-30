@@ -518,11 +518,11 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
         case "STRING":
           return code.return(jsStr`this.literalValues.strings[${stringCount++}]`);
         case "REFERENCE":
-          const isRange = ast.value.includes(":") || acceptMatrix;
-          return code.return(
-            jsStr`${isRange ? jsStr`range` : jsStr`ref`}(deps[${dependencyCount++}])`,
-            isRange
-          );
+          if (ast.value.includes(":")) {
+            return code.return(jsStr`range(deps[${dependencyCount++}])`, true);
+          }
+          const str = jsStr`${jsStr`ref`}(deps[${dependencyCount++}])`;
+          return code.return(acceptMatrix ? jsStr`[[${str}]]` : str, acceptMatrix ? true : false);
         case "FUNCALL":
           const compiledArgs = compileFunctionArgs(ast);
           const args = compiledArgs.map((compileArg) => compileArg.argAST.assignResultToVariable());
