@@ -1,10 +1,11 @@
 import { Model, UID } from "../../../src";
 import { HoveredIconStore } from "../../../src/components/grid_overlay/hovered_icon_store";
 import { StandaloneViewport } from "../../../src/components/standalone_viewport/standalone_viewport";
-import { DEFAULT_CELL_HEIGHT } from "../../../src/constants";
+import { DEFAULT_CELL_HEIGHT, TABLE_HOVER_BACKGROUND_COLOR } from "../../../src/constants";
 import { buildSheetLink, range } from "../../../src/helpers/misc";
 import { zoneToXc } from "../../../src/helpers/zones";
 import { useChildSubEnv } from "../../../src/owl3_compatibility_layer";
+import { CellHoverOverlayStore } from "../../../src/stores/cell_hover_overlay_store";
 import { GridRenderer } from "../../../src/stores/grid_renderer_store";
 import { ViewportsStore } from "../../../src/stores/viewports_store";
 import { ZoomStore } from "../../../src/stores/zoom_store";
@@ -36,6 +37,7 @@ import {
   mountSpreadsheet,
   nextTick,
   setGrid,
+  toCellPosition,
   toRangeData,
 } from "../../test_helpers/helpers";
 import { spyStoreCreation, StoreSpy } from "../../test_helpers/stores";
@@ -334,6 +336,26 @@ describe("Standalone viewport", () => {
       { id: "A1", height: DEFAULT_CELL_HEIGHT, width: 1000, x: 0, y: 0 },
       { id: "B1", height: DEFAULT_CELL_HEIGHT, width: 1000, x: 1000, y: 0 },
     ]);
+  });
+
+  test("Row is highlighted when hovering a cell", async () => {
+    jest.useFakeTimers();
+    setGrid(model, { A1: "Hello", B1: "World", C1: "!" }, "sh2");
+
+    await mountViewport("A1:C3", { sheetId: "sh2" });
+    const overlayStore = subEnv.getStore(CellHoverOverlayStore);
+    expect(overlayStore.overlayColors.get(toCellPosition("sh2", "A1"))).toBeUndefined();
+
+    await hoverCell(subEnv, "A1", 500);
+    const color = TABLE_HOVER_BACKGROUND_COLOR;
+
+    expect(overlayStore.overlayColors.get(toCellPosition("sh2", "A1"))).toEqual(color);
+    expect(overlayStore.overlayColors.get(toCellPosition("sh2", "B1"))).toEqual(color);
+    expect(overlayStore.overlayColors.get(toCellPosition("sh2", "C1"))).toEqual(color);
+    expect(overlayStore.overlayColors.get(toCellPosition("sh2", "A2"))).toBeUndefined();
+    expect(overlayStore.overlayColors.get(toCellPosition("sh2", "B2"))).toBeUndefined();
+    expect(overlayStore.overlayColors.get(toCellPosition("sh2", "C2"))).toBeUndefined();
+    jest.useRealTimers();
   });
 
   describe("Column resize", () => {

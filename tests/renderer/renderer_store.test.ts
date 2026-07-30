@@ -31,6 +31,7 @@ import {
   BACKGROUND_HEADER_SELECTED_COLOR,
 } from "../../src/plugins/ui_feature/color_theme";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
+import { CellHoverOverlayStore } from "../../src/stores/cell_hover_overlay_store";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { RendererStore } from "../../src/stores/renderer_store";
@@ -480,6 +481,7 @@ describe("renderer", () => {
     setFormatting(model, "A1", { fillColor: background });
     setCellContent(model, "A1", "Data");
     model.updateMode("dashboard");
+    container.get(HoveredTableStore); // Instantiate hovered table store
 
     let fillStyle = "";
     let fillStyles: any[] = [];
@@ -505,7 +507,7 @@ describe("renderer", () => {
     ]);
 
     fillStyles = [];
-    container.get(HoveredTableStore).hover({ sheetId, col: 0, row: 0 });
+    container.get(CellHoverOverlayStore).hover({ sheetId, col: 0, row: 0 });
     drawGridRenderer(ctx);
 
     expect(removeOffsetOfFillStyles(fillStyles)).toEqual([

@@ -23,6 +23,7 @@ import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
 import { HorizontalScrollBar } from "../scrollbar/scrollbar_horizontal";
 import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
+import { HoveredTableStore } from "../tables/hovered_table_store";
 
 export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SpreadsheetDashboard";
@@ -55,6 +56,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
     this.hoveredCell = useStore(DelayedHoveredCellStore);
     this.viewStore = useStore(ViewportsStore);
     this.zoomStore = useStore(ZoomStore);
+    useLocalStore(HoveredTableStore);
 
     const layers = OrderedLayers().filter((layer) => layer !== "Headers");
     const rendererStore = useLocalStore(RendererStore, layers);
