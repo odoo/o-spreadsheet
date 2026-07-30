@@ -27,12 +27,13 @@ import {
 } from "./code_builder";
 import { AST, ASTFuncall, iterateAstNodes, parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
-import { Token } from "./tokenizer";
+import { Token, tokenize } from "./tokenizer";
 
 const functions = functionRegistry.content;
 
 export const OPERATOR_MAP = {
   // export for test
+  ":": "RANGE",
   "=": "EQ",
   "+": "ADD",
   "-": "MINUS",
@@ -345,7 +346,7 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
    * Make a new instance of CompiledFormula by compiling the formula string as input by the user.
    * */
   static Compile(formula: string, sheetId: UID, getters: CoreGetters): CompiledFormula {
-    const tokens = rangeTokenize(formula);
+    const tokens = tokenize(formula);
     const params = compileTokens(tokens);
 
     return new CompiledFormula(
@@ -445,7 +446,6 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
     const baseFunction = new Function(
       "deps", // the dependencies in the current formula
       "ref", // a function to access a certain dependency at a given index
-      "range", // same as above, but guarantee that the result is in the form of a range
       "getSymbolValue",
       "ctx",
       "computeFunctions",
@@ -518,9 +518,6 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
         case "STRING":
           return code.return(jsStr`this.literalValues.strings[${stringCount++}]`);
         case "REFERENCE":
-          if (ast.value.includes(":")) {
-            return code.return(jsStr`range(deps[${dependencyCount++}])`, true);
-          }
           const str = jsStr`${jsStr`ref`}(deps[${dependencyCount++}])`;
           return code.return(acceptMatrix ? jsStr`[[${str}]]` : str, acceptMatrix ? true : false);
         case "FUNCALL":

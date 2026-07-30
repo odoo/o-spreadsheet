@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`compile functions same symbol twice 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = getSymbolValue(this.symbols[0], false);
 const _2 = getSymbolValue(this.symbols[0], false);
@@ -10,7 +10,7 @@ return computeFunctions[0](ctx,_1,_2); // ADD;
 `;
 
 exports[`compile functions simple in a function 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = getSymbolValue(this.symbols[1], true);
 return computeFunctions[0](ctx,_1); // SUM;
@@ -18,28 +18,28 @@ return computeFunctions[0](ctx,_1); // SUM;
 `;
 
 exports[`compile functions simple symbol 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 return getSymbolValue(this.symbols[0], false);
 }"
 `;
 
 exports[`compile functions symbol with optional single quotes 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 return getSymbolValue(this.symbols[0], false);
 }"
 `;
 
 exports[`compile functions symbol with space and with single quotes 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 return getSymbolValue(this.symbols[0], false);
 }"
 `;
 
 exports[`compile functions two different symbols 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = getSymbolValue(this.symbols[0], false);
 const _2 = getSymbolValue(this.symbols[1], false);
@@ -48,7 +48,7 @@ return computeFunctions[0](ctx,_1,_2); // ADD;
 `;
 
 exports[`expression compiler array literal expression 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
@@ -61,7 +61,7 @@ return computeFunctions[2](ctx,_5,_6); // ARRAY.LITERAL;
 `;
 
 exports[`expression compiler array literal expression with one column only 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = this.literalValues.numbers[0];
 const _5 = computeFunctions[0](ctx,_1); // ARRAY.ROW;
@@ -76,7 +76,7 @@ return computeFunctions[4](ctx,_5,_6,_7,_8); // ARRAY.LITERAL;
 `;
 
 exports[`expression compiler array literal expression with one row only 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
@@ -88,7 +88,7 @@ return computeFunctions[1](ctx,_5); // ARRAY.LITERAL;
 `;
 
 exports[`expression compiler cells are converted to ranges if function require a range 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = [[ref(deps[0])]];
 return computeFunctions[0](ctx,_1); // SUM;
@@ -96,7 +96,7 @@ return computeFunctions[0](ctx,_1); // SUM;
 `;
 
 exports[`expression compiler expression with $ref 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = ref(deps[0]);
 const _2 = ref(deps[1]);
@@ -107,7 +107,7 @@ return computeFunctions[1](ctx,_3,_4); // ADD;
 `;
 
 exports[`expression compiler expression with cell# 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = [[ref(deps[0])]];
 return computeFunctions[0](ctx,_1); // SPILLED.RANGE;
@@ -115,22 +115,24 @@ return computeFunctions[0](ctx,_1); // SPILLED.RANGE;
 `;
 
 exports[`expression compiler expression with range# 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
-const _1 = range(deps[0]);
-return computeFunctions[0](ctx,_1); // SPILLED.RANGE;
+const _1 = [[ref(deps[0])]];
+const _2 = [[ref(deps[1])]];
+const _3 = computeFunctions[0](ctx,_1,_2); // RANGE;
+return computeFunctions[1](ctx,_3); // SPILLED.RANGE;
 }"
 `;
 
 exports[`expression compiler expression with references with a sheet 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 return ref(deps[0]);
 }"
 `;
 
 exports[`expression compiler expressions with a debugger 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 debugger;
 ctx["debug"] = true;
@@ -141,38 +143,40 @@ return computeFunctions[0](ctx,_1,_2); // DIVIDE;
 `;
 
 exports[`expression compiler read some values and functions 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
-const _2 = ref(deps[0]);
-const _1 = range(deps[1]);
-const _3 = computeFunctions[0](ctx,_1); // SUM;
-return computeFunctions[1](ctx,_2,_3); // ADD;
+const _4 = ref(deps[0]);
+const _1 = [[ref(deps[1])]];
+const _2 = [[ref(deps[2])]];
+const _3 = computeFunctions[0](ctx,_1,_2); // RANGE;
+const _5 = computeFunctions[1](ctx,_3); // SUM;
+return computeFunctions[2](ctx,_4,_5); // ADD;
 }"
 `;
 
 exports[`expression compiler some arithmetic expressions 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 return this.literalValues.numbers[0];
 }"
 `;
 
 exports[`expression compiler some arithmetic expressions 2`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 return { value: true };
 }"
 `;
 
 exports[`expression compiler some arithmetic expressions 3`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 return this.literalValues.strings[0];
 }"
 `;
 
 exports[`expression compiler some arithmetic expressions 4`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
@@ -181,7 +185,7 @@ return computeFunctions[0](ctx,_1,_2); // ADD;
 `;
 
 exports[`expression compiler some arithmetic expressions 5`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
@@ -190,7 +194,7 @@ return computeFunctions[0](ctx,_1,_2); // MULTIPLY;
 `;
 
 exports[`expression compiler some arithmetic expressions 6`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
@@ -199,7 +203,7 @@ return computeFunctions[0](ctx,_1,_2); // MINUS;
 `;
 
 exports[`expression compiler some arithmetic expressions 7`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
@@ -208,7 +212,7 @@ return computeFunctions[0](ctx,_1,_2); // DIVIDE;
 `;
 
 exports[`expression compiler some arithmetic expressions 8`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = this.literalValues.numbers[0];
 return computeFunctions[0](ctx,_1); // UMINUS;
@@ -216,7 +220,7 @@ return computeFunctions[0](ctx,_1); // UMINUS;
 `;
 
 exports[`expression compiler some arithmetic expressions 9`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
@@ -230,7 +234,7 @@ return computeFunctions[3](ctx,_6,_7); // MULTIPLY;
 `;
 
 exports[`expression compiler some arithmetic expressions 10`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
@@ -239,7 +243,7 @@ return computeFunctions[0](ctx,_1,_2); // SUM;
 `;
 
 exports[`expression compiler some arithmetic expressions 11`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = { value: true };
 const _2 = this.literalValues.strings[0];
@@ -248,7 +252,7 @@ return computeFunctions[0](ctx,_1,_2); // SUM;
 `;
 
 exports[`expression compiler some arithmetic expressions 12`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = this.literalValues.numbers[0];
 const _2 = undefined;
@@ -258,7 +262,7 @@ return computeFunctions[0](ctx,_1,_2,_3); // SUM;
 `;
 
 exports[`expression compiler some arithmetic expressions 13`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = this.literalValues.numbers[0];
 return computeFunctions[0](ctx,_1); // UNARY.PERCENT;
@@ -266,7 +270,7 @@ return computeFunctions[0](ctx,_1); // UNARY.PERCENT;
 `;
 
 exports[`expression compiler some arithmetic expressions 14`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
@@ -276,7 +280,7 @@ return computeFunctions[1](ctx,_3); // UNARY.PERCENT;
 `;
 
 exports[`expression compiler some arithmetic expressions 15`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = ref(deps[0]);
 return computeFunctions[0](ctx,_1); // UNARY.PERCENT;
@@ -284,7 +288,7 @@ return computeFunctions[0](ctx,_1); // UNARY.PERCENT;
 `;
 
 exports[`expression compiler with the same reference multiple times 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+"function anonymous(deps,ref,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = [[ref(deps[0])]];
 const _2 = [[ref(deps[1])]];

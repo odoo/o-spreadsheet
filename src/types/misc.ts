@@ -180,7 +180,6 @@ export type GetSymbolValue = (symbolName: string, isRange: boolean) => Arg;
 export type FormulaToExecute = (
   deps: Range[],
   refFn: ReferenceDenormalizer,
-  range: EnsureRange,
   getSymbolValue: GetSymbolValue,
   ctx: object,
   functions: ComputeFunction[]

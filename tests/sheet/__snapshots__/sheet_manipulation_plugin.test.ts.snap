@@ -115,13 +115,13 @@ exports[`Columns Correctly update references On deletion 1`] = `
     "value": "#REF",
   },
   "A6": {
-    "content": "=SUM(B1)",
+    "content": "=SUM(#REF:B1)",
     "format": undefined,
     "style": undefined,
     "value": "#REF",
   },
   "A7": {
-    "content": "=SUM(#REF)",
+    "content": "=SUM(#REF:#REF)",
     "format": undefined,
     "style": undefined,
     "value": "#REF",
@@ -315,13 +315,13 @@ exports[`Rows Correctly update references On deletion 1`] = `
     "value": "#REF",
   },
   "F1": {
-    "content": "=SUM(A2)",
+    "content": "=SUM(#REF:A2)",
     "format": undefined,
     "style": undefined,
     "value": "#REF",
   },
   "G1": {
-    "content": "=SUM(#REF)",
+    "content": "=SUM(#REF:#REF)",
     "format": undefined,
     "style": undefined,
     "value": "#REF",

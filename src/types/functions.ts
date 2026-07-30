@@ -96,6 +96,7 @@ export type EvalContext = {
   addDependencies?: (position: CellPosition, ranges: Range[]) => void;
   debug?: boolean;
   lookupCaches?: LookupCaches;
+  rangeCache?: Record<string, Matrix<FunctionResultObject>>;
 };
 
 /**

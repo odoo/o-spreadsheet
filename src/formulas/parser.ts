@@ -115,6 +115,7 @@ export type AST =
   | ASTEmpty;
 
 export const OP_PRIORITY = {
+  ":": 50,
   "#": 40,
   "%": 40,
   "^": 30,
@@ -171,16 +172,6 @@ function parseOperand(tokens: TokenList): AST {
       };
 
     case "REFERENCE":
-      if (tokens.current?.value === ":" && tokens.next?.type === "REFERENCE") {
-        tokens.shift();
-        const rightReference = tokens.shift();
-        return {
-          type: "REFERENCE",
-          value: `${current.value}:${rightReference?.value}`,
-          tokenStartIndex: current.tokenIndex,
-          tokenEndIndex: rightReference.tokenIndex,
-        };
-      }
       return {
         type: "REFERENCE",
         value: current.value,
