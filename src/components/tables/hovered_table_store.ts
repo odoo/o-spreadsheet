@@ -1,38 +1,28 @@
-import { TABLE_HOVER_BACKGROUND_COLOR } from "../../constants";
-import { PositionMap } from "../../helpers/cells/position_map";
-import { deepEquals, range } from "../../helpers/misc";
+import { range } from "../../helpers/misc";
+import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
-import { CellPosition, Color } from "../../types/misc";
+import { CellPosition } from "../../types/misc";
+import { Get } from "../../types/store_engine";
 
 export class HoveredTableStore extends SpreadsheetStore {
-  mutators = ["clear", "hover"] as const;
+  mutators = ["hover"] as const;
+  storeGetters = ["getCellHoverOverlayColor"] as const;
 
   position: CellPosition | undefined;
 
-  overlayColors: PositionMap<Color> = new PositionMap();
-
-  hover(position: CellPosition | undefined) {
-    if (!this.getters.isDashboard() || deepEquals(this.position, position)) {
-      return "noStateChange";
-    }
-    this.position = position;
-    this.computeOverlay();
-    return;
+  constructor(get: Get) {
+    super(get);
+    const cellHoverOverlayStore = this.get(CellHoverOverlayStore);
+    cellHoverOverlayStore.register(this);
+    this.onDispose(() => cellHoverOverlayStore.unRegister(this));
   }
 
-  clear() {
-    this.position = undefined;
-  }
-
-  private computeOverlay() {
-    this.overlayColors = new PositionMap();
-    if (!this.position) {
-      return;
-    }
-    const { sheetId, col, row } = this.position;
-    const table = this.getters.getTable({ sheetId, col, row });
+  getHighlightedPositions(hoveredPosition: CellPosition): CellPosition[] {
+    const highlightedPositions: CellPosition[] = [];
+    const { sheetId, row } = hoveredPosition;
+    const table = this.getters.getTable(hoveredPosition);
     if (!table) {
-      return;
+      return highlightedPositions;
     }
     const { left, right, top } = table.range.zone;
     const isTableHeader = row < top + table.config.numberOfHeaders;
@@ -45,8 +35,10 @@ export class HoveredTableStore extends SpreadsheetStore {
 
     if (!isTableHeader && doesTableRowHaveContent) {
       for (let col = left; col <= right; col++) {
-        this.overlayColors.set({ sheetId, col, row }, TABLE_HOVER_BACKGROUND_COLOR);
+        highlightedPositions.push({ sheetId, col, row });
       }
     }
+
+    return highlightedPositions;
   }
 }

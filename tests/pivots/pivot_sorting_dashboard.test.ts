@@ -1,6 +1,6 @@
 import { ClickableCellsStore } from "../../src/components/dashboard/clickable_cell_store";
-import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
 import { TEXT_BODY_MUTED } from "../../src/constants";
+import { CellHoverOverlayStore } from "../../src/stores/cell_hover_overlay_store";
 import { createTable, setFormatting } from "../test_helpers/commands_helpers";
 import { click, getElComputedStyle } from "../test_helpers/dom_helper";
 import { getCellIcons } from "../test_helpers/getters_helpers";
@@ -171,7 +171,7 @@ describe("Dashboard Pivot Sorting", () => {
     ).toBeSameColorAs(TEXT_BODY_MUTED);
 
     // hover the row -> background should follow the overlay color
-    env.getStore(HoveredTableStore).hover(toCellPosition(sheetId, "B5"));
+    env.getStore(CellHoverOverlayStore).hover(toCellPosition(sheetId, "B5"));
     await nextTick();
     expect(
       getElComputedStyle(".o-dashboard-clickable-cell .sorting-icon", "background-color")

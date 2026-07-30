@@ -1,10 +1,11 @@
 import { DEFAULT_CELL_WIDTH } from "../../constants";
 import { deepEquals, range, sumArray } from "../../helpers/misc";
-import { isZoneValid } from "../../helpers/zones";
+import { isInside, isZoneValid } from "../../helpers/zones";
+import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { Command } from "../../types/commands";
-import { HeaderDimensions, HeaderIndex, UID } from "../../types/misc";
+import { CellPosition, HeaderDimensions, HeaderIndex, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { GridRenderingContext } from "../../types/rendering";
 import { Get } from "../../types/store_engine";
@@ -32,6 +33,9 @@ export class StandaloneViewportStore extends SpreadsheetStore {
       zoneToDisplay: this.range.zone,
       getFooterSize: () => 0,
     });
+    const cellHoverOverlayStore = this.get(CellHoverOverlayStore);
+    cellHoverOverlayStore.register(this);
+    this.onDispose(() => cellHoverOverlayStore.unRegister(this));
   }
 
   handle(cmd: Command) {
@@ -226,5 +230,20 @@ export class StandaloneViewportStore extends SpreadsheetStore {
     }
 
     return normalizedWeights;
+  }
+
+  getHighlightedPositions(position: CellPosition): CellPosition[] {
+    const highlightedPositions: CellPosition[] = [];
+
+    const { col, row, sheetId } = position;
+    if (sheetId !== this.range.sheetId || !isInside(col, row, this.range.zone)) {
+      return highlightedPositions;
+    }
+
+    for (let col = this.range.zone.left; col <= this.range.zone.right; col++) {
+      highlightedPositions.push({ ...position, col });
+    }
+
+    return highlightedPositions;
   }
 }

@@ -4,6 +4,7 @@ import { isPointInsideRect } from "../../helpers/rectangle";
 import { positionToZone } from "../../helpers/zones";
 import { Component, useExternalListener } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
+import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { CellPosition, GridClickModifiers, HeaderIndex, Position } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
@@ -18,7 +19,6 @@ import { withZoom, ZoomedMouseEvent } from "../helpers/zoom";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { types } from "../props_validation";
-import { HoveredTableStore } from "../tables/hovered_table_store";
 import { HoveredIconStore } from "./hovered_icon_store";
 
 function useCellHovered(
@@ -26,7 +26,7 @@ function useCellHovered(
   gridRef: Signal<HTMLElement | null>
 ): Partial<Position> {
   const delayedHoveredCell = useStore(DelayedHoveredCellStore);
-  const hoveredTable = useStore(HoveredTableStore);
+  const cellHoverOverlay = useStore(CellHoverOverlayStore);
   const viewStore = useStore(ViewportsStore);
   const hoveredPosition: Partial<Position> = {
     col: undefined,
@@ -76,7 +76,7 @@ function useCellHovered(
     if (isChildEvent(gridRef(), zoomedMouseEvent.ev)) {
       ({ x, y } = getOffsetRelativeToOverlay(zoomedMouseEvent));
       lastMoved = Date.now();
-      hoveredTable.hover(getPosition());
+      cellHoverOverlay.hover(getPosition());
     }
   }
 

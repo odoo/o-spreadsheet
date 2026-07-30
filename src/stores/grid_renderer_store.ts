@@ -1,6 +1,5 @@
 import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
 import { getPath2D } from "../components/icons/icons";
-import { HoveredTableStore } from "../components/tables/hovered_table_store";
 import {
   CANVAS_SHIFT,
   DATA_VALIDATION_CHIP_MARGIN,
@@ -48,6 +47,7 @@ import {
   Viewport,
 } from "../types/rendering";
 import { Get, Store } from "../types/store_engine";
+import { CellHoverOverlayStore } from "./cell_hover_overlay_store";
 import { FormulaFingerprintStore } from "./formula_fingerprints_store";
 import { ModelStore } from "./model_store";
 import { RendererStore } from "./renderer_store";
@@ -64,7 +64,7 @@ interface Animation {
 
 export class GridRenderer extends DisposableStore {
   private fingerprints: Store<FormulaFingerprintStore>;
-  private hoveredTables: Store<HoveredTableStore>;
+  private cellHoverOverlayStore = this.get(CellHoverOverlayStore);
   private hoveredIcon: Store<HoveredIconStore>;
 
   private lastRenderSheetId: UID | undefined = undefined;
@@ -79,7 +79,6 @@ export class GridRenderer extends DisposableStore {
     const model = get(ModelStore) as Model;
     this.getters = model.getters;
     this.fingerprints = get(FormulaFingerprintStore);
-    this.hoveredTables = get(HoveredTableStore);
     this.hoveredIcon = get(HoveredIconStore);
 
     model.on("command-dispatched", this, this.handle);
@@ -771,7 +770,7 @@ export class GridRenderer extends DisposableStore {
       border: this.getters.getCellComputedBorder(position) || undefined,
       style,
       dataBarFill,
-      overlayColor: this.hoveredTables.overlayColors.get(position),
+      overlayColor: this.cellHoverOverlayStore.overlayColors.get(position),
       isError:
         (cell.type === CellValueType.error && !!cell.message) ||
         this.getters.isDataValidationInvalid(position),

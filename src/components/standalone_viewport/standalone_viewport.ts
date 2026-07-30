@@ -2,6 +2,7 @@ import { proxy, signal, useEffect, useProps } from "@odoo/owl";
 import { sumArray } from "../../helpers/misc";
 import { Component } from "../../owl3_compatibility_layer";
 import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
+import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
@@ -24,7 +25,6 @@ import { withZoom } from "../helpers/zoom";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { types } from "../props_validation";
 import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
-import { HoveredTableStore } from "../tables/hovered_table_store";
 import { StandaloneViewportStore } from "./standalone_viewport_store";
 
 interface ColResizer {
@@ -67,8 +67,8 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     useChildStoreProvider([
       ViewportsStore,
       HoveredIconStore,
-      HoveredTableStore,
       ClickableCellsStore,
+      CellHoverOverlayStore,
       DelayedHoveredCellStore,
       CellPopoverStore,
     ]);
