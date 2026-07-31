@@ -24,8 +24,9 @@ import {
   Viewport,
 } from "../types/rendering";
 import { scrollDelay } from "./edge_scrolling";
-import { InternalViewport } from "./internal_viewport";
+import { InternalViewport, PositionedViewport } from "./internal_viewport";
 import { clip, isDefined, range } from "./misc";
+import { translateRect } from "./rectangle";
 import { intersection, positionToZone } from "./zones";
 
 interface ViewportZones {
@@ -41,12 +42,6 @@ type SheetViewports = {
   topRight?: InternalViewport;
   bottomRight: InternalViewport;
 };
-
-interface PositionedViewport {
-  viewport: InternalViewport;
-  viewportX: Pixel;
-  viewportY: Pixel;
-}
 
 interface ViewportCollectionArgs {
   getters: ViewportsGetters;
@@ -134,12 +129,7 @@ export class ViewportCollection {
    */
   getColIndex(sheetId: UID, x: Pixel): HeaderIndex {
     return Math.max(
-      ...this.getPositionedViewports(sheetId).map(({ viewport, viewportX }) => {
-        if (x < viewportX || x > viewportX + viewport.viewportWidth) {
-          return -1;
-        }
-        return viewport.getColIndex(x - viewportX);
-      })
+      ...this.getPositionedViewports(sheetId).map((viewport) => viewport.getColIndex(x))
     );
   }
 
@@ -150,12 +140,7 @@ export class ViewportCollection {
    */
   getRowIndex(sheetId: UID, y: Pixel): HeaderIndex {
     return Math.max(
-      ...this.getPositionedViewports(sheetId).map(({ viewport, viewportY }) => {
-        if (y < viewportY || y > viewportY + viewport.viewportHeight) {
-          return -1;
-        }
-        return viewport.getRowIndex(y - viewportY);
-      })
+      ...this.getPositionedViewports(sheetId).map((viewport) => viewport.getRowIndex(y))
     );
   }
 
@@ -190,7 +175,7 @@ export class ViewportCollection {
   }
 
   getSheetViewVisibleCols(sheetId: UID): HeaderIndex[] {
-    const viewports = this.getSubViewports(sheetId).map((viewport) => viewport);
+    const viewports = this.getSubViewports(sheetId);
 
     //TODO make another commit to improve this
     return [...new Set(viewports.map((v) => range(v.left, v.right + 1)).flat())].filter(
@@ -199,7 +184,7 @@ export class ViewportCollection {
   }
 
   getSheetViewVisibleRows(sheetId: UID): HeaderIndex[] {
-    const viewports = this.getSubViewports(sheetId).map((viewport) => viewport);
+    const viewports = this.getSubViewports(sheetId);
     return [...new Set(viewports.map((v) => range(v.top, v.bottom + 1)).flat())].filter(
       (row) => row >= 0 && !this.getters.isHeaderHidden(sheetId, "ROW", row)
     );
@@ -373,7 +358,7 @@ export class ViewportCollection {
    */
   getVisibleRect(sheetId: UID, zone: Zone): Rect {
     const rect = this.getVisibleRectWithoutHeaders(sheetId, zone);
-    return { ...rect, x: rect.x + this.gridOffsetX, y: rect.y + this.gridOffsetY };
+    return translateRect(rect, this.gridOffsetX, this.gridOffsetY);
   }
 
   /**
@@ -402,7 +387,7 @@ export class ViewportCollection {
    */
   getRect(sheetId: UID, zone: Zone): Rect {
     const rect = this.mapViewportsToRect(sheetId, (viewport) => viewport.getFullRect(zone));
-    return { ...rect, x: rect.x + this.gridOffsetX, y: rect.y + this.gridOffsetY };
+    return translateRect(rect, this.gridOffsetX, this.gridOffsetY);
   }
 
   /**
@@ -458,14 +443,14 @@ export class ViewportCollection {
   }
 
   getAllSheetViewportsZonesAndRect(sheetId: UID): { zone: Zone; rect: Rect }[] {
-    return this.getPositionedViewports(sheetId).map(({ viewport, viewportX, viewportY }) => {
+    return this.getPositionedViewports(sheetId).map((positionedViewport) => {
       return {
-        zone: viewport,
-        rect: {
-          x: viewportX + this.gridOffsetX,
-          y: viewportY + this.gridOffsetY,
-          ...viewport.getMaxSize(),
-        },
+        zone: positionedViewport.viewport,
+        rect: translateRect(
+          positionedViewport.getMaxSizeRect(),
+          this.gridOffsetX,
+          this.gridOffsetY
+        ),
       };
     });
   }
@@ -500,30 +485,35 @@ export class ViewportCollection {
     return { paneWidth, paneHeight };
   }
 
+  /**
+   * Return the panes of the sheet, each paired with the position of its top-left
+   * corner in the sheet-view coordinate space. Use this when the coordinates
+   * returned by (or passed to) a pane must be mapped back to the sheet-view.
+   */
   getPositionedViewports(sheetId: UID): PositionedViewport[] {
     this.ensureMainViewportExist(sheetId);
 
     const viewports = this.viewports[sheetId]!;
     const { paneWidth, paneHeight } = this.getPanesDimensions(sheetId);
 
-    const viewPorts: PositionedViewport[] = [];
+    const positionedViewports: PositionedViewport[] = [];
     if (viewports.topLeft) {
-      viewPorts.push({ viewport: viewports.topLeft, viewportX: 0, viewportY: 0 });
+      positionedViewports.push(new PositionedViewport(viewports.topLeft, 0, 0));
     }
     if (viewports.topRight) {
-      viewPorts.push({ viewport: viewports.topRight, viewportX: paneWidth, viewportY: 0 });
+      positionedViewports.push(new PositionedViewport(viewports.topRight, paneWidth, 0));
     }
     if (viewports.bottomLeft) {
-      viewPorts.push({ viewport: viewports.bottomLeft, viewportX: 0, viewportY: paneHeight });
+      positionedViewports.push(new PositionedViewport(viewports.bottomLeft, 0, paneHeight));
     }
-    viewPorts.push({
-      viewport: viewports.bottomRight,
-      viewportX: paneWidth,
-      viewportY: paneHeight,
-    });
-    return viewPorts;
+    positionedViewports.push(new PositionedViewport(viewports.bottomRight, paneWidth, paneHeight));
+    return positionedViewports;
   }
 
+  /**
+   * Return the panes of the sheet, without their position in the sheet-view.
+   * Use this when the position of the pane on screen is irrelevant.
+   */
   getSubViewports(sheetId: UID): InternalViewport[] {
     this.ensureMainViewportExist(sheetId);
     return Object.values(this.viewports[sheetId]!).filter(isDefined);
@@ -905,7 +895,7 @@ export class ViewportCollection {
 
   private mapViewportsToRect(
     sheetId: UID,
-    rectCallBack: (viewport: InternalViewport) => Rect | undefined
+    rectCallBack: (viewport: PositionedViewport) => Rect | undefined
   ): Rect {
     let x: Pixel = Infinity;
     let y: Pixel = Infinity;
@@ -913,11 +903,8 @@ export class ViewportCollection {
     let height: Pixel = 0;
     let hasViewports: boolean = false;
     for (const positionedViewport of this.getPositionedViewports(sheetId)) {
-      const rect = rectCallBack(positionedViewport.viewport);
+      const rect = rectCallBack(positionedViewport);
       if (rect) {
-        rect.x += positionedViewport.viewportX;
-        rect.y += positionedViewport.viewportY;
-
         hasViewports = true;
         x = Math.min(x, rect.x);
         y = Math.min(y, rect.y);

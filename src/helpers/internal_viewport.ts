@@ -1,6 +1,7 @@
 import { ViewportsGetters } from "../types/getters";
 import { Dimension, HeaderIndex, Pixel, Position, UID, Zone } from "../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../types/rendering";
+import { translateRect } from "./rectangle";
 import { intersection, isInside } from "./zones";
 
 interface InternalViewportArgs {
@@ -386,5 +387,59 @@ export class InternalViewport {
           )
       ),
     };
+  }
+}
+
+/**
+ * An `InternalViewport` is position-agnostic: it displays a zone and answers in
+ * coordinates relative to that zone's own origin. This wrapper pairs it with the
+ * position of its top-left corner in the sheet-view coordinate space and owns the
+ * single translation between both spaces, so that no caller has to add/subtract
+ * `sheetviewX/sheetviewY` by hand.
+ */
+export class PositionedViewport {
+  constructor(
+    readonly viewport: InternalViewport,
+    readonly sheetviewX: Pixel,
+    readonly sheetviewY: Pixel
+  ) {}
+
+  /**
+   * Return the column index at the given sheet-view x coordinate, or -1 if x
+   * falls outside this pane horizontally.
+   */
+  getColIndex(x: Pixel): HeaderIndex {
+    if (x < this.sheetviewX || x > this.sheetviewX + this.viewport.viewportWidth) {
+      return -1;
+    }
+    return this.viewport.getColIndex(x - this.sheetviewX);
+  }
+
+  /**
+   * Return the row index at the given sheet-view y coordinate, or -1 if y falls
+   * outside this pane vertically.
+   */
+  getRowIndex(y: Pixel): HeaderIndex {
+    if (y < this.sheetviewY || y > this.sheetviewY + this.viewport.viewportHeight) {
+      return -1;
+    }
+    return this.viewport.getRowIndex(y - this.sheetviewY);
+  }
+
+  /** Visible rect of the zone in this pane, in sheet-view coordinates. */
+  getVisibleRect(zone: Zone): Rect | undefined {
+    const rect = this.viewport.getVisibleRect(zone);
+    return rect && translateRect(rect, this.sheetviewX, this.sheetviewY);
+  }
+
+  /** Full rect of the zone in this pane, in sheet-view coordinates. */
+  getFullRect(zone: Zone): Rect | undefined {
+    const rect = this.viewport.getFullRect(zone);
+    return rect && translateRect(rect, this.sheetviewX, this.sheetviewY);
+  }
+
+  /** Max size of this pane as a rect positioned in sheet-view coordinates. */
+  getMaxSizeRect(): Rect {
+    return { x: this.sheetviewX, y: this.sheetviewY, ...this.viewport.getMaxSize() };
   }
 }

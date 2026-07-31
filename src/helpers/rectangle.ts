@@ -1,4 +1,4 @@
-import { Zone } from "../types/misc";
+import { Pixel, Zone } from "../types/misc";
 import { Rect } from "../types/rendering";
 import { intersection, union } from "./zones";
 
@@ -37,4 +37,9 @@ function zoneToRect(zone: Zone | undefined): Rect | undefined {
 
 export function isPointInsideRect(x: number, y: number, rect: Rect): boolean {
   return x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height;
+}
+
+/** Translate a rectangle by the given offset, returning a new rectangle. */
+export function translateRect(rect: Rect, offsetX: Pixel, offsetY: Pixel): Rect {
+  return { ...rect, x: rect.x + offsetX, y: rect.y + offsetY };
 }
