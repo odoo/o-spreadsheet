@@ -24,7 +24,12 @@ import {
   Viewport,
 } from "../types/rendering";
 import { scrollDelay } from "./edge_scrolling";
-import { InternalViewport, PositionedViewport } from "./internal_viewport";
+import {
+  ExtendedViewportGetters,
+  extendViewportGetters,
+  InternalViewport,
+  PositionedViewport,
+} from "./internal_viewport";
 import { clip, isDefined, range } from "./misc";
 import { translateRect } from "./rectangle";
 import { intersection, positionToZone } from "./zones";
@@ -90,7 +95,7 @@ interface ViewportCollectionArgs {
  */
 
 export class ViewportCollection {
-  getters: ViewportsGetters;
+  getters: ExtendedViewportGetters;
   viewports: Record<UID, SheetViewports | undefined> = {};
 
   private gridOffsetX: Pixel = 0;
@@ -104,7 +109,7 @@ export class ViewportCollection {
   private zoneToDisplay?: Zone;
 
   constructor(args: ViewportCollectionArgs) {
-    this.getters = args.getters;
+    this.getters = extendViewportGetters(args.getters);
     this.paneDivision = args.paneDivision;
     this.sheetViewWidth = args.sheetViewWidth;
     this.sheetViewHeight = args.sheetViewHeight;
@@ -115,7 +120,11 @@ export class ViewportCollection {
 
   changeViewportArgs(args: Partial<ViewportCollectionArgs>) {
     for (const key in args) {
-      this[key] = args[key];
+      if (key === "getters") {
+        this.getters = extendViewportGetters(args.getters!);
+      } else {
+        this[key] = args[key];
+      }
     }
     for (const sheetId of this.getters.getSheetIds()) {
       this.resetViewports(sheetId);

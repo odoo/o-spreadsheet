@@ -56,7 +56,7 @@ export class ViewportsStore extends SpreadsheetStore {
   private zoneToDisplay: Zone | undefined = undefined;
 
   viewports: ViewportCollection = new ViewportCollection({
-    getters: this.buildViewportGetters(this.getHeaderDimensionsCallback),
+    getters: this.viewportGetters(),
     paneDivision: this.getPaneDivisions(),
     sheetViewHeight: getDefaultSheetViewSize(),
     sheetViewWidth: getDefaultSheetViewSize(),
@@ -390,7 +390,7 @@ export class ViewportsStore extends SpreadsheetStore {
 
   rebuildViewports() {
     this.viewports.changeViewportArgs({
-      getters: this.buildViewportGetters(this.getHeaderDimensionsCallback),
+      getters: this.viewportGetters(),
       paneDivision: this.getPaneDivisions(),
       sheetViewHeight: this.viewports.getSheetViewDimension().height,
       sheetViewWidth: this.viewports.getSheetViewDimension().width,
@@ -400,36 +400,7 @@ export class ViewportsStore extends SpreadsheetStore {
     });
   }
 
-  buildViewportGetters(
-    getHeaderDimensions: (sheetId: UID, dimension: "COL" | "ROW", index: number) => HeaderDimensions
-  ): ViewportsGetters {
-    return {
-      findLastVisibleColRowIndex: this.getters.findLastVisibleColRowIndex,
-      isReadonly: this.getters.isReadonly,
-      getMainCellPosition: this.getters.getMainCellPosition,
-      getNextVisibleCellPosition: this.getters.getNextVisibleCellPosition,
-      isColHidden: this.getters.isColHidden,
-      isRowHidden: this.getters.isRowHidden,
-      isHeaderHidden: this.getters.isHeaderHidden,
-      getNumberHeaders: this.getters.getNumberHeaders,
-      getSheetIds: this.getters.getSheetIds,
-      tryGetSheet: this.getters.tryGetSheet,
-      getNumberCols: this.getters.getNumberCols,
-      getNumberRows: this.getters.getNumberRows,
-      getFigures: this.getters.getFigures,
-
-      getColDimensions: (sheetId, index) => getHeaderDimensions(sheetId, "COL", index),
-      getRowDimensions: (sheetId, index) => getHeaderDimensions(sheetId, "ROW", index),
-      getHeaderSize: (sheetId, dim, index) =>
-        dim === "COL"
-          ? getHeaderDimensions(sheetId, "COL", index).size
-          : getHeaderDimensions(sheetId, "ROW", index).size,
-      getColSize: (sheetId, col) => getHeaderDimensions(sheetId, "COL", col).size,
-
-      getRowSize: (sheetId, row) => getHeaderDimensions(sheetId, "ROW", row).size,
-      getColRowOffset: (dim, refIndex, index, sheetId) =>
-        getHeaderDimensions(sheetId, dim, index).start -
-        getHeaderDimensions(sheetId, dim, refIndex).start,
-    };
+  private viewportGetters(): ViewportsGetters {
+    return { ...this.getters, getHeaderDimensions: this.getHeaderDimensionsCallback };
   }
 }
