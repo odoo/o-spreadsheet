@@ -79,20 +79,15 @@ export type RenderingGetters = {
 export type Getters = RenderingGetters & PluginGetters<typeof GridSelectionPlugin>;
 
 export interface ViewportsGetters {
-  getColDimensions: Getters["getColDimensions"];
-  getRowDimensions: Getters["getRowDimensions"];
+  getHeaderDimensions: Getters["getHeaderDimensions"];
   findLastVisibleColRowIndex: Getters["findLastVisibleColRowIndex"];
   isReadonly: Getters["isReadonly"];
   getMainCellPosition: Getters["getMainCellPosition"];
   getNextVisibleCellPosition: Getters["getNextVisibleCellPosition"];
-  getColRowOffset: Getters["getColRowOffset"];
   isColHidden: Getters["isColHidden"];
   isRowHidden: Getters["isRowHidden"];
   isHeaderHidden: Getters["isHeaderHidden"];
   getNumberHeaders: Getters["getNumberHeaders"];
-  getHeaderSize: Getters["getHeaderSize"];
-  getColSize: Getters["getColSize"];
-  getRowSize: Getters["getRowSize"];
   getSheetIds: Getters["getSheetIds"];
   tryGetSheet: Getters["tryGetSheet"];
   getNumberCols: Getters["getNumberCols"];

@@ -1,11 +1,36 @@
-import { ViewportsGetters } from "../types/getters";
+import { Getters, ViewportsGetters } from "../types/getters";
 import { Dimension, HeaderIndex, Pixel, Position, UID, Zone } from "../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../types/rendering";
 import { translateRect } from "./rectangle";
 import { intersection, isInside } from "./zones";
 
+export type ExtendedViewportGetters = ViewportsGetters & {
+  getColDimensions: Getters["getColDimensions"];
+  getRowDimensions: Getters["getRowDimensions"];
+  getColSize: Getters["getColSize"];
+  getRowSize: Getters["getRowSize"];
+  getHeaderSize: Getters["getHeaderSize"];
+  getColRowOffset: Getters["getColRowOffset"];
+};
+
+export function extendViewportGetters(getters: ViewportsGetters): ExtendedViewportGetters {
+  const getHeaderDimensions = getters.getHeaderDimensions;
+  return {
+    ...getters,
+    getColDimensions: (sheetId, col) => getHeaderDimensions(sheetId, "COL", col),
+    getRowDimensions: (sheetId, row) => getHeaderDimensions(sheetId, "ROW", row),
+    getColSize: (sheetId, col) => getHeaderDimensions(sheetId, "COL", col).size,
+    getRowSize: (sheetId, row) => getHeaderDimensions(sheetId, "ROW", row).size,
+    getHeaderSize: (sheetId, dimension, index) =>
+      getHeaderDimensions(sheetId, dimension, index).size,
+    getColRowOffset: (dimension, referenceIndex, index, sheetId) =>
+      getHeaderDimensions(sheetId, dimension, index).start -
+      getHeaderDimensions(sheetId, dimension, referenceIndex).start,
+  };
+}
+
 interface InternalViewportArgs {
-  getters: ViewportsGetters;
+  getters: ExtendedViewportGetters;
   sheetId: UID;
   boundaries: Zone;
   sizeInGrid: DOMDimension;
@@ -27,7 +52,7 @@ export class InternalViewport {
   viewportWidth: Pixel;
   viewportHeight: Pixel;
 
-  private getters: ViewportsGetters;
+  private getters: ExtendedViewportGetters;
   private sheetId: UID;
   private boundaries: Zone;
   private getFooterSize: () => number;
