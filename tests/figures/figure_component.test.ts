@@ -145,6 +145,7 @@ beforeEach(() => {
   addToRegistry(figureRegistry, "text", {
     Component: TextFigure,
     menuBuilder: () => [],
+    isThemeDependant: true,
   });
 });
 
@@ -2364,6 +2365,21 @@ describe("figures", () => {
         });
       });
     });
+  });
+
+  test("Charts are aware of the spreadsheet theme", async () => {
+    sheetId = model.getters.getActiveSheetId();
+    const figureId = "figureId";
+    createChart(model, TEST_CHART_DATA.basicChart, undefined, undefined, { figureId });
+    await nextTick();
+    expect(".o-figure-wrapper").toHaveClass("os-theme-dependant");
+  });
+
+  test("Images are agnostic to the spreadsheet theme", async () => {
+    const figureId = "figureId";
+    createImage(model, { sheetId, figureId });
+    await nextTick();
+    expect(".o-figure-wrapper").not.toHaveClass("os-theme-dependant");
   });
 });
 

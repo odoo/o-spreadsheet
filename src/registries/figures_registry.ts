@@ -25,6 +25,7 @@ import { Registry } from "./registry";
 export interface FigureContent {
   Component: any;
   menuBuilder: (figureId: UID, env: SpreadsheetChildEnv) => Action[];
+  isThemeDependant: boolean;
   SidePanelComponent?: string;
   keepRatio?: boolean;
   minFigSize?: number;
@@ -36,6 +37,7 @@ figureRegistry.add("chart", {
   Component: ChartFigure,
   SidePanelComponent: "ChartPanel",
   menuBuilder: getChartMenuActions,
+  isThemeDependant: true,
 });
 figureRegistry.add("image", {
   Component: ImageFigure,
@@ -43,8 +45,10 @@ figureRegistry.add("image", {
   minFigSize: 20,
   borderWidth: 0,
   menuBuilder: getImageMenuActions,
+  isThemeDependant: false,
 });
 figureRegistry.add("carousel", {
   Component: CarouselFigure,
   menuBuilder: getCarouselMenuActions,
+  isThemeDependant: true,
 });
