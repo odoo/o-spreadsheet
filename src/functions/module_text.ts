@@ -3,7 +3,7 @@ import { escapeRegExp, trimContent } from "../helpers/misc";
 import { _t } from "../translation";
 import { CellErrorType, EvaluationError, NotAvailableError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
+import { Arg, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
 import {
   matrixMap,
@@ -165,10 +165,14 @@ export const FORMAT_LARGE_NUMBER = {
       ]
     ),
   ],
-  compute: function (
-    value: Maybe<FunctionResultObject>,
-    unite: Maybe<FunctionResultObject>
-  ): FunctionResultNumber {
+  compute: function (value: Maybe<FunctionResultObject>, unite: Maybe<FunctionResultObject>) {
+    const uniteValue = unite?.value;
+    if (
+      uniteValue !== undefined &&
+      (typeof uniteValue !== "string" || !["k", "m", "b"].includes(uniteValue))
+    ) {
+      return new EvaluationError(_t("The formatting unit should be 'k', 'm' or 'b'."));
+    }
     return {
       value: toNumber(value, this.locale),
       format: formatLargeNumber(value, unite, this.locale),

@@ -2,7 +2,6 @@ import { toNumber, tryToNumber } from "../../functions/helpers";
 import { _t } from "../../translation";
 import { CellValue } from "../../types/cells";
 import { Currency } from "../../types/currency";
-import { EvaluationError } from "../../types/errors";
 import { Format, FormattedValue, LocaleFormat } from "../../types/format";
 import { DEFAULT_LOCALE, DEFAULT_LOCALE_DIGIT_GROUPING, Locale } from "../../types/locale";
 import { FunctionResultObject, Maybe } from "../../types/misc";
@@ -773,7 +772,7 @@ export function formatLargeNumber(
   }
   const format = arg?.format;
   if (unit !== undefined) {
-    const postFix = unit?.value;
+    const postFix = unit.value;
     switch (postFix) {
       case "k":
         return createLargeNumberFormat(format, 1, "k");
@@ -782,7 +781,7 @@ export function formatLargeNumber(
       case "b":
         return createLargeNumberFormat(format, 3, "b");
       default:
-        throw new EvaluationError(_t("The formatting unit should be 'k', 'm' or 'b'."));
+        throw new Error("The formatting unit should be 'k', 'm' or 'b'.");
     }
   }
   if (value < 1e5) {

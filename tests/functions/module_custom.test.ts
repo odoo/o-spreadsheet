@@ -129,6 +129,8 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
     expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(10000000000, "b")' })).toBe("10b");
 
     expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(100, "something")' })).toBe("#ERROR");
+    expect(evaluateCellText("A1", { A1: "=FORMAT.LARGE.NUMBER(1000, True)" })).toBe("#ERROR");
+    expect(evaluateCellText("A1", { A1: "=FORMAT.LARGE.NUMBER(1000, 0)" })).toBe("#ERROR");
   });
 
   test("Original currency format is kept", () => {
