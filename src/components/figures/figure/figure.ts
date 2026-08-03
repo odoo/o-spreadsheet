@@ -54,6 +54,10 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
     return this.env.model.getters.getSelectedFigureIds().includes(this.props.figureUI.id);
   }
 
+  get isThemeDependant(): boolean {
+    return figureRegistry.get(this.props.figureUI.tag).isThemeDependant;
+  }
+
   get figureRegistry() {
     return figureRegistry;
   }

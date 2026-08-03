@@ -1,0 +1,14 @@
+.o-spreadsheet {
+  .o-figure-menu-item {
+    cursor: pointer;
+    color: var(--os-gray-900) !important;
+    height: 20px;
+    width: 20px;
+    &.active,
+    &:hover,
+    &:target {
+      cursor: pointer;
+      background-color: var(--os-background-gray-color-hover);
+    }
+  }
+}
