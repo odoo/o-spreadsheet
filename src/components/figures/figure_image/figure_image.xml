@@ -1,14 +1,15 @@
 <templates>
   <t t-name="o-spreadsheet-ImageFigure">
     <img t-att-src="this.getImagePath" class="w-100 h-100"/>
-    <div class="o-figure-menu position-absolute m-2" t-if="this.shouldShowMenuButton">
+    <div
+      class="o-figure-menu position-absolute m-2 align-items-center"
+      t-if="this.shouldShowMenuButton">
       <div
-        class="o-figure-menu-item d-flex-align-items-center"
+        class="o-figure-menu-item btn fa fa-ellipsis-v rounded p-1"
         t-on-click="this.showMenu"
         t-ref="this.menuButtonRef"
-        t-on-contextmenu.prevent.stop="this.showMenu">
-        <t t-call="o-spreadsheet-Icon.LIST"/>
-      </div>
+        t-on-contextmenu.prevent.stop="this.showMenu"
+      />
     </div>
   </t>
 </templates>
