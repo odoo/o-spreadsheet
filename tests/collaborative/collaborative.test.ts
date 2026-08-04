@@ -20,6 +20,7 @@ import { MockTransportService } from "../__mocks__/transport_service";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   activateSheet,
+  addChartFigureToCarousel,
   addDataValidation,
   addEqualCf,
   addRows,
@@ -27,6 +28,7 @@ import {
   changeCFPriority,
   clearCell,
   copy,
+  createCarousel,
   createCarouselWithDataView,
   createChart,
   createFigure,
@@ -557,6 +559,28 @@ describe("Multi users synchronisation", () => {
       (user) => user.getters.getFigures(sheetId),
       []
     );
+  });
+
+  test("Undo the creation of a chart that another user moved into a carousel", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    createChart(alice, { type: "bar" }, "chartId", sheetId, { figureId: "chartFigureId" });
+    createCarousel(bob, { items: [] }, "carouselId");
+    addChartFigureToCarousel(bob, "carouselId", "chartFigureId", sheetId);
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getCarousel("carouselId").items,
+      [{ type: "chart", chartId: "chartId" }]
+    );
+
+    undo(alice);
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getCarousel("carouselId").items,
+      []
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getChartIds(sheetId),
+      []
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
   test("Do not handle duplicated message", async () => {
