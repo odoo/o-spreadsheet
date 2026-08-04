@@ -139,6 +139,17 @@ export function formatValue(
   }
 }
 
+export function formatTime(ms: number, locale: Locale): string {
+  if (ms >= 1000) {
+    return _t("%(seconds)s s", {
+      seconds: formatValue(ms / 1000, { format: "0.00", locale }),
+    });
+  }
+  return _t("%(milliseconds)s ms", {
+    milliseconds: formatValue(ms, { format: "0.00", locale }),
+  });
+}
+
 function getFormatToApply(
   value: CellValue,
   internalFormat: MultiPartInternalFormat
