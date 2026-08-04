@@ -113,6 +113,7 @@ export type GridRenderingContext = {
   thinLineWidth: number;
   viewports: ViewportCollection;
   hideGridLines?: boolean;
+  hideFrozenPaneBorder?: boolean;
 } & SelectionState;
 
 const LAYERS = {
