@@ -377,18 +377,19 @@ export class ClipboardPlugin extends UIPlugin {
         return { handlerName, handler: new Handler(this.getters, this.dispatch) };
       });
     }
-    const cellEntries = clipboardHandlersRegistries.cellHandlers.getKeys().map((handlerName) => {
-      const Handler = clipboardHandlersRegistries.cellHandlers.get(handlerName);
-      return {
-        handlerName,
-        handler: new Handler(this.getters, this.dispatch) as ClipboardHandler<any>,
-      };
-    });
     const sheetEntries = clipboardHandlersRegistries.sheetHandlers.getKeys().map((handlerName) => {
       const Handler = clipboardHandlersRegistries.sheetHandlers.get(handlerName);
       return { handlerName, handler: new Handler(this.getters, this.dispatch) };
     });
-    return [...cellEntries, ...sheetEntries];
+    const cellEntries = clipboardHandlersRegistries.cellHandlers.getKeys().map((handlerName) => {
+      const Handler = clipboardHandlersRegistries.cellHandlers.get(handlerName);
+      return { handlerName, handler: new Handler(this.getters, this.dispatch) };
+    });
+    const rangeEntries = clipboardHandlersRegistries.rangeHandlers.getKeys().map((handlerName) => {
+      const Handler = clipboardHandlersRegistries.rangeHandlers.get(handlerName);
+      return { handlerName, handler: new Handler(this.getters, this.dispatch) };
+    });
+    return [...sheetEntries, ...cellEntries, ...rangeEntries];
   }
 
   private isCutAllowedOn(zones: Zone[]) {
@@ -498,7 +499,7 @@ export class ClipboardPlugin extends UIPlugin {
       rowsIndexes: copiedData.rowsIndexes,
       columnsIndexes: copiedData.columnsIndexes,
     });
-    if (!options?.selectTarget) {
+    if (!options.selectTarget) {
       return;
     }
     selectPastedZone(this.selection, zones, selectedZones);

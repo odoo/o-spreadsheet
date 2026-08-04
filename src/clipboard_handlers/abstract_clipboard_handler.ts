@@ -9,7 +9,18 @@ import { CommandDispatcher, CommandResult } from "../types/commands";
 import { Getters } from "../types/getters";
 import { UID, Zone } from "../types/misc";
 
-export class ClipboardHandler<T> {
+/**
+ * A concrete (instantiable) clipboard handler class, as stored in the clipboard
+ * handler registries. Registries hold classes, not instances: `typeof ClipboardHandler`
+ * would resolve to an *abstract* construct signature, which cannot be `new`ed and
+ * would wrongly accept the abstract base classes themselves.
+ */
+export type ClipboardHandlerConstructor<H extends ClipboardHandler<any>> = new (
+  getters: Getters,
+  dispatch: CommandDispatcher["dispatch"]
+) => H;
+
+export abstract class ClipboardHandler<T> {
   constructor(protected getters: Getters, protected dispatch: CommandDispatcher["dispatch"]) {}
 
   copy(

@@ -10,7 +10,7 @@ import {
 } from "../types/clipboard";
 import { Format } from "../types/format";
 import { HeaderIndex, Style, UID, Zone } from "../types/misc";
-import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
+import { ClipboardHandler } from "./abstract_clipboard_handler";
 
 type ClipboardContent = {
   style: { [J in keyof Style]: defaultValue<Style[J]> | undefined };
@@ -21,10 +21,7 @@ type ClipboardContent = {
   sheetId: UID;
 };
 
-export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
-  ClipboardContent,
-  ClipboardContent
-> {
+export class DefaultClipboardHandler extends ClipboardHandler<ClipboardContent[][]> {
   copy(
     data: ClipboardCellData,
     _isCutOperation: boolean,

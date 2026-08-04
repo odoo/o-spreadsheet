@@ -706,6 +706,7 @@ export class GridSelectionPlugin extends UIPlugin {
     const registries = [
       clipboardHandlersRegistries.cellHandlers,
       clipboardHandlersRegistries.sheetHandlers,
+      clipboardHandlersRegistries.rangeHandlers,
     ];
 
     const handlers = registries.flatMap((registry) =>
