@@ -150,16 +150,16 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
       }
     }
     const selection = target[0];
-    this.pasteZone(sheetId, selection.left, selection.top, content, options);
+    this.pasteZone(sheetId, selection.left, selection.top, content, options, positions);
   }
 
-  protected pasteZone(
+  pasteZone(
     sheetId: UID,
     col: HeaderIndex,
     row: HeaderIndex,
     tableCells: ClipboardTableCell[][],
-    clipboardOptions?: ClipboardOptions,
-    _positions?: ClipboardPositions
+    clipboardOptions: ClipboardOptions,
+    _positions: ClipboardPositions
   ) {
     for (let r = 0; r < tableCells.length; r++) {
       const rowCells = tableCells[r];
@@ -184,9 +184,9 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     sheetId: UID,
     tableCell: ClipboardTableCell,
     position: CellPosition,
-    options?: ClipboardOptions
+    options: ClipboardOptions
   ) {
-    if (tableCell.table && !options?.pasteOption) {
+    if (tableCell.table && !options.pasteOption) {
       const { range: tableRange } = tableCell.table;
       const zoneDims = zoneToDimension(this.getters.getRangeFromRangeData(tableRange).zone);
       const newTableZone = {
@@ -205,12 +205,12 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
 
     // We cannot check for dynamic tables, because at this point the paste can have changed the evaluation, and the
     // dynamic tables are not yet computed
-    if (this.getters.getCoreTable(position) || options?.pasteOption === "asValue") {
+    if (this.getters.getCoreTable(position) || options.pasteOption === "asValue") {
       return;
     }
     if (
-      (!options?.pasteOption && !tableCell.isWholeTableCopied) ||
-      options?.pasteOption === "onlyFormat"
+      (!options.pasteOption && !tableCell.isWholeTableCopied) ||
+      options.pasteOption === "onlyFormat"
     ) {
       if (tableCell.style?.style) {
         this.dispatch("UPDATE_CELL", { ...position, style: tableCell.style.style });

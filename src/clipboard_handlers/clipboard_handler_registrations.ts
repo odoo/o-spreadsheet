@@ -19,7 +19,6 @@ clipboardHandlersRegistries.figureHandlers
 
 clipboardHandlersRegistries.cellHandlers
   .add("dataValidation", DataValidationClipboardHandler)
-  .add("default", DefaultClipboardHandler)
   .add("cell", CellClipboardHandler)
   .add("merge", MergeClipboardHandler)
   .add("border", BorderClipboardHandler)
@@ -27,5 +26,7 @@ clipboardHandlersRegistries.cellHandlers
   .add("conditionalFormat", ConditionalFormatClipboardHandler);
 
 clipboardHandlersRegistries.sheetHandlers
-  .add("frozenPane", FrozenPaneClipboardHandler)
-  .add("zones", ZoneClipboardHandler);
+  .add("default", DefaultClipboardHandler)
+  .add("frozenPane", FrozenPaneClipboardHandler);
+
+clipboardHandlersRegistries.rangeHandlers.add("zones", ZoneClipboardHandler);
