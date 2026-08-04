@@ -2477,6 +2477,29 @@ describe("renderer", () => {
     expect(spyFn).toHaveBeenNthCalledWith(8, "clip", []);
   });
 
+  test("frozen pane border is drawn by default", () => {
+    const model = new Model({ sheets: [{ colNumber: 7, rowNumber: 7 }] });
+    const { drawGridRenderer, container } = setRenderer(model, ["Background"]);
+    freezeColumns(model, 2);
+    freezeRows(model, 1);
+    const ctx = new MockGridRenderingContext(model, container, 300, 150, {}, "nodeCanvas");
+
+    drawGridRenderer(ctx);
+    expect(ctx.screenshot()).toMatchImageSnapshot();
+  });
+
+  test("frozen pane border is not drawn when hideFrozenPaneBorder is set", () => {
+    const model = new Model({ sheets: [{ colNumber: 7, rowNumber: 7 }] });
+    const { drawGridRenderer, container } = setRenderer(model, ["Background"]);
+    freezeColumns(model, 2);
+    freezeRows(model, 1);
+    const ctx = new MockGridRenderingContext(model, container, 300, 150, {}, "nodeCanvas");
+    (ctx as GridRenderingContext).hideFrozenPaneBorder = true;
+
+    drawGridRenderer(ctx);
+    expect(ctx.screenshot()).toMatchImageSnapshot();
+  });
+
   test("Applying style hideGridLines on a cell skips the drawing of the grid lines for this cell", () => {
     const model = new Model();
     const { drawGridRenderer, container } = setRenderer(model);
