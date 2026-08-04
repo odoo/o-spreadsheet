@@ -19,13 +19,16 @@ async function mountPanel(modelArg?: Model) {
 }
 
 describe("PerfProfilePanel", () => {
-  test("shows 'Analyze performance' button before profiling", async () => {
-    await mountPanel();
+  test("shows 'Re-analyze' primary button at all times", async () => {
+    const model = createModelFromGrid({ A1: "=SUM(1, 2)" });
+    await mountPanel(model);
     expect(".o-perf-profile-panel .o-button.primary").toHaveCount(1);
-    expect(fixture.querySelector(".o-button.primary")!.textContent).toContain(
-      "Analyze performance"
-    );
+    expect(".o-button.primary").toHaveText(" Re-analyze ");
     expect(".o-perf-range-entry").toHaveCount(0);
+    await click(fixture, ".o-button.primary");
+
+    expect(".o-perf-profile-panel .o-button.primary").toHaveCount(1);
+    expect(".o-button.primary").toHaveText(" Re-analyze ");
   });
 
   test("clicking 'Analyze performance' triggers profiling and shows results", async () => {
@@ -97,15 +100,6 @@ describe("PerfProfilePanel", () => {
     await click(fixture, ".o-perf-range-entry");
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
     expect(model.getters.getActiveSheetId()).toBe(model.getters.getSheetIds()[0]);
-  });
-
-  test("'Re-analyze' button is shown after profiling", async () => {
-    const model = createModelFromGrid({ A1: "=SUM(1, 2)" });
-    await mountPanel(model);
-    await click(fixture, ".o-button.primary");
-
-    expect(fixture.querySelector(".o-button.primary")).toBeNull();
-    expect(".o-button:not(.primary)").toHaveText(" Re-analyze ");
   });
 
   test("re-analyze clears selection and re-profiles", async () => {
