@@ -126,6 +126,7 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
     } else {
       cssProperties["background-color"] = backgroundColor;
     }
+
     return cssPropertiesToCss(cssProperties);
   }
 

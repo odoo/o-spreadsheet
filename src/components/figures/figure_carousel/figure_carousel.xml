@@ -5,7 +5,9 @@
       t-att-style="this.carouselStyle"
       t-on-dblclick="this.onCarouselDoubleClick">
       <t t-set="selectedItem" t-value="this.selectedCarouselItem"/>
-      <div class="o-carousel-header d-flex align-items-baseline flex-shrink-0 pt-1 pe-auto">
+      <div
+        class="o-carousel-header d-flex align-items-baseline flex-shrink-0 pt-1 pe-auto"
+        t-att-style="this.headerStyle">
         <div
           class="o-carousel-title text-truncate flex-shrink-0 pe-2"
           t-out="this.title"
@@ -63,12 +65,14 @@
       <div t-if="this.title" class="w-100 mt-2 border-bottom"/>
       <div
         t-if="!selectedItem"
-        class="o-carousel-empty o-carousel-content w-100 flex-fill d-flex align-items-center justify-content-center">
+        class="o-carousel-empty o-carousel-content w-100 flex-fill d-flex align-items-center justify-content-center"
+        t-att-style="this.contentStyle">
         <t t-call="o-spreadsheet-Icon.CAROUSEL"/>
       </div>
       <div
         t-elif="selectedItem.type === 'chart'"
-        class="o-carousel-content w-100 flex-fill position-relative">
+        class="o-carousel-content w-100 flex-fill position-relative"
+        t-att-style="this.contentStyle">
         <div
           class="o-chart-container w-100 h-100"
           t-on-dblclick.stop="this.onCarouselChartDoubleClick">
@@ -88,7 +92,8 @@
       </div>
       <div
         t-elif="selectedItem.type === 'carouselDataView' and selectedItem.range"
-        class="o-carousel-content mb-2 mt-3 h-100 w-100 overflow-hidden">
+        class="o-carousel-content mb-2 mt-3 h-100 w-100 overflow-hidden"
+        t-att-style="this.contentStyle">
         <StandaloneViewport
           range="this.removeEmptyHeadersFromRange(selectedItem.range)"
           columnWeights="selectedItem.columnWeights"

@@ -298,6 +298,17 @@ export const DEFAULT_CAROUSEL_TITLE_STYLE = {
   color: TEXT_BODY,
 } satisfies ChartStyle;
 
+export const CAROUSEL_LAYOUT = {
+  paddingX: 24,
+  paddingY: 8,
+  headerPaddingTop: 4,
+  headerPaddingBeforeSeparator: 8,
+  headerBorderBottomWidth: 1,
+  dataViewContentPaddingTop: 16,
+  dataViewContentPaddingBottom: 8,
+  minHeaderHeight: 24,
+};
+
 export const DEFAULT_TOKEN_COLOR: Color = "light-dark(#000000, #ffffff)";
 const functionColor = DEFAULT_TOKEN_COLOR;
 const operatorColor = "#3da4ab";

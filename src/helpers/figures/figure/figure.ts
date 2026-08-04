@@ -1,4 +1,5 @@
-import { Position, UID } from "../../..";
+import { Carousel, CarouselItem, Position, Rect, UID } from "../../..";
+import { CAROUSEL_LAYOUT, DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { AnchorOffset, Figure, FigureSize } from "../../../types/figure";
 import { Getters } from "../../../types/getters";
@@ -72,4 +73,39 @@ export function boundColRowOffsetInSheet(
     offset.y = maxPosition.offset.y;
   }
   return { col, row, offset };
+}
+
+export function getCarouselLayout(fullRect: Rect, carousel: Carousel, selectedItem: CarouselItem) {
+  const layout = CAROUSEL_LAYOUT;
+  const { paddingY, paddingX } = layout;
+
+  const innerWidth = fullRect.width - paddingX * 2;
+  const innerHeight = fullRect.height - layout.paddingY * 2;
+
+  const title = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...carousel.title };
+  const headerSize = Math.max(title.fontSize * 1.5, layout.minHeaderHeight);
+  const headerGap = title.text
+    ? layout.headerPaddingBeforeSeparator + layout.headerBorderBottomWidth
+    : 0;
+
+  const headerRect: Rect = {
+    x: fullRect.x + paddingX,
+    y: fullRect.y + layout.paddingY + layout.headerPaddingTop,
+    width: innerWidth,
+    height: headerSize,
+  };
+
+  const contentY = headerRect.y + headerSize + headerGap;
+  const isDataView = selectedItem.type === "carouselDataView";
+  const contentPaddingTop = isDataView ? layout.dataViewContentPaddingTop : 0;
+  const contentPaddingBottom = isDataView ? layout.dataViewContentPaddingBottom : 0;
+  const contentRect: Rect = {
+    x: fullRect.x + paddingX + contentPaddingTop,
+    y: contentY,
+    width: innerWidth,
+    height:
+      innerHeight - headerSize - headerGap - contentPaddingTop - contentPaddingBottom - paddingY,
+  };
+
+  return { fullRect, headerRect, contentRect };
 }
