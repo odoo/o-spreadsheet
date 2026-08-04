@@ -11,19 +11,21 @@
         </Section>
       </t>
     </GeneralDesignEditor>
-    <ChartTitle
-      title="this.props.definition.keyDescr?.text ?? ''"
-      updateTitle="(text) => this.setKeyText(text)"
-      name.translate="Key Value Style"
-      placeholder.translate="Add a key value description"
-      updateStyle.bind="this.updateKeyStyle"
-      style="this.keyStyle"
-    />
-    <SidePanelCollapsible isInitiallyCollapsed="false" title.translate="Baseline">
+    <SidePanelCollapsible isInitiallyCollapsed="false" title.translate="Scorecard Design">
       <t t-set-slot="content">
         <ChartTitle
+          class="'pt-0'"
+          title="this.props.definition.keyDescr?.text ?? ''"
+          updateTitle.bind="this.setKeyText"
+          name.translate="Key Value Style"
+          placeholder.translate="Add a key value description"
+          updateStyle.bind="this.updateKeyStyle"
+          style="this.keyStyle"
+        />
+        <ChartTitle
+          class="'pt-0'"
           title="this.props.definition.baselineDescr?.text ?? ''"
-          updateTitle="(text) => this.setBaselineText(text)"
+          updateTitle.bind="this.setBaselineText"
           name.translate="Baseline Style"
           placeholder.translate="Add a baseline description"
           updateStyle.bind="this.updateBaselineStyle"

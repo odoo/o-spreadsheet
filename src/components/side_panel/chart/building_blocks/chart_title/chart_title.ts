@@ -12,6 +12,7 @@ export class ChartTitle extends Component<SpreadsheetChildEnv> {
   static components = { Section, TextStyler, TextInput };
 
   protected props = useProps({
+    class: types.string().optional(),
     title: types.string().optional(""),
     placeholder: types.string().optional(""),
     updateTitle: types.function<(title: string) => void>(),

@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet.ChartTitle">
-    <Section class="'o-chart-title'" title="this.props.name">
+    <Section class="'o-chart-title ' + (this.props.class ?? '')" title="this.props.name">
       <TextInput
         value="this.props.title"
         onChange.bind="this.updateTitle"
