@@ -8,6 +8,7 @@ import {
   CreateFigureCommand,
   CreateSheetCommand,
   CreateTableStyleCommand,
+  DeleteChartCommand,
   DeleteFigureCommand,
   DeleteSheetCommand,
   DuplicateSheetCommand,
@@ -127,8 +128,11 @@ function inverseCreateFigure(cmd: CreateFigureCommand): DeleteFigureCommand[] {
   return [{ type: "DELETE_FIGURE", figureId: cmd.figureId, sheetId: cmd.sheetId }];
 }
 
-function inverseCreateChart(cmd: CreateChartCommand): DeleteFigureCommand[] {
-  return [{ type: "DELETE_FIGURE", figureId: cmd.figureId, sheetId: cmd.sheetId }];
+function inverseCreateChart(cmd: CreateChartCommand): (DeleteFigureCommand | DeleteChartCommand)[] {
+  return [
+    { type: "DELETE_CHART", chartId: cmd.chartId, sheetId: cmd.sheetId },
+    { type: "DELETE_FIGURE", figureId: cmd.figureId, sheetId: cmd.sheetId },
+  ];
 }
 
 function inverseHideColumnsRows(cmd: HideColumnsRowsCommand): UnhideColumnsRowsCommand[] {
