@@ -57,7 +57,7 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     sheetId: UID,
     target: Zone[],
     content: ClipboardContent,
-    options?: ClipboardOptions
+    options: ClipboardOptions
   ): ClipboardPasteTarget {
     const figureIds = {};
     for (const figure of content.figures) {

@@ -432,7 +432,7 @@ export function expandSparse2DArray<T>(
  * object where each handler's data is already in its full expanded form.
  */
 export function expandHandlerData(
-  handlers: { handlerName: string; handler: ClipboardHandler<any> }[],
+  handlers: { handlerName: string; handler: ClipboardHandler<unknown> }[],
   copiedData: MinimalClipboardData
 ): MinimalClipboardData {
   const expandedData: MinimalClipboardData = { ...copiedData };
@@ -449,7 +449,7 @@ export function expandHandlerData(
  * Applies each clipboard handler to paste its corresponding data into the target.
  */
 export const applyClipboardHandlersPaste = (
-  handlers: { handlerName: string; handler: ClipboardHandler<any> }[],
+  handlers: { handlerName: string; handler: ClipboardHandler<unknown> }[],
   expandedData: MinimalClipboardData,
   target: ClipboardPasteTarget,
   options: ClipboardOptions,

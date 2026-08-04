@@ -9,12 +9,12 @@ import {
 import { CellPosition, HeaderIndex, UID, Zone } from "../types/misc";
 import { ClipboardHandler } from "./abstract_clipboard_handler";
 
-export class AbstractCellClipboardHandler<T, T1> extends ClipboardHandler<(T | null)[][]> {
+export abstract class AbstractCellClipboardHandler<T, U> extends ClipboardHandler<(T | null)[][]> {
   copy(
     data: ClipboardCellData,
     isCutOperation: boolean,
     mode: ClipboardCopyOptions = "copyPaste"
-  ): T1 | undefined {
+  ): U | undefined {
     return;
   }
 
@@ -46,14 +46,14 @@ export class AbstractCellClipboardHandler<T, T1> extends ClipboardHandler<(T | n
     }
   }
 
-  protected pasteZone(
+  abstract pasteZone(
     sheetId: UID,
     col: HeaderIndex,
     row: HeaderIndex,
     data: (T | null)[][],
     clipboardOptions: ClipboardOptions,
     clipboardPositions: ClipboardPositions
-  ) {}
+  ): void;
 
   protected getOriginPosition(r: number, c: number, positions: ClipboardPositions): CellPosition {
     return {
@@ -63,10 +63,11 @@ export class AbstractCellClipboardHandler<T, T1> extends ClipboardHandler<(T | n
     };
   }
 
-  protected compact(data: T[][]): T1 {
-    return data as T1;
+  protected compact(data: T[][]): U {
+    return data as U;
   }
-  expand(data: T1): T[][] {
+
+  expand(data: U): T[][] {
     return data as T[][];
   }
 }

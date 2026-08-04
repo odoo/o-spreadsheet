@@ -88,7 +88,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
       for (const [c, origin] of rowCells.entries()) {
         const target = { col: col + c, row: row + r, sheetId };
         const originPosition = this.getOriginPosition(r, c, clipboardPositions);
-        this.pasteCf(origin, target, originPosition, clipboardOptions?.isCutOperation);
+        this.pasteCf(origin, target, originPosition, clipboardOptions.isCutOperation);
       }
     }
   }
