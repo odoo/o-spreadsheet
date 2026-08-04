@@ -149,7 +149,6 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         };
       }
     }
-
     return this.compact(result);
   }
 
@@ -162,7 +161,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     if (content.length === 0) {
       return CommandResult.Success;
     }
-    if (clipboardOptions?.isCutOperation && clipboardOptions?.pasteOption !== undefined) {
+    if (clipboardOptions.isCutOperation && clipboardOptions.pasteOption !== undefined) {
       // cannot paste only format or only value if the previous operation is a CUT
       return CommandResult.WrongPasteOption;
     }
@@ -212,11 +211,11 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     sheetId: UID,
     target: Zone[],
     content: (ClipboardCell | null)[][],
-    options?: ClipboardOptions
+    options: ClipboardOptions
   ): ClipboardPasteTarget {
     const width = content[0].length;
     const height = content.length;
-    if (options?.isCutOperation) {
+    if (options.isCutOperation) {
       return {
         sheetId,
         zones: [
@@ -281,11 +280,11 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
           // Empty source cell: clear the target cell if it exists.
           // But for onlyFormat paste, we only clear the format, not the content.
           if (
-            clipboardOptions?.pasteOption !== "onlyFormat" &&
+            clipboardOptions.pasteOption !== "onlyFormat" &&
             this.getters.getEvaluatedCell(position).type !== CellValueType.empty
           ) {
             this.dispatch("CLEAR_CELL", position);
-          } else if (clipboardOptions?.pasteOption === "onlyFormat") {
+          } else if (clipboardOptions.pasteOption === "onlyFormat") {
             // Remove only the format/style from the target cell.
             const targetCell = this.getters.getCell(position);
             if (targetCell?.format || targetCell?.style) {

@@ -385,18 +385,19 @@ export class ClipboardStore extends SpreadsheetStore {
         return { handlerName, handler: new Handler(this.getters, this.model.dispatch) };
       });
     }
-    const cellEntries = clipboardHandlersRegistries.cellHandlers.getKeys().map((handlerName) => {
-      const Handler = clipboardHandlersRegistries.cellHandlers.get(handlerName);
-      return {
-        handlerName,
-        handler: new Handler(this.getters, this.model.dispatch) as ClipboardHandler<any>,
-      };
-    });
     const sheetEntries = clipboardHandlersRegistries.sheetHandlers.getKeys().map((handlerName) => {
       const Handler = clipboardHandlersRegistries.sheetHandlers.get(handlerName);
       return { handlerName, handler: new Handler(this.getters, this.model.dispatch) };
     });
-    return [...cellEntries, ...sheetEntries];
+    const cellEntries = clipboardHandlersRegistries.cellHandlers.getKeys().map((handlerName) => {
+      const Handler = clipboardHandlersRegistries.cellHandlers.get(handlerName);
+      return { handlerName, handler: new Handler(this.getters, this.model.dispatch) };
+    });
+    const rangeEntries = clipboardHandlersRegistries.rangeHandlers.getKeys().map((handlerName) => {
+      const Handler = clipboardHandlersRegistries.rangeHandlers.get(handlerName);
+      return { handlerName, handler: new Handler(this.getters, this.model.dispatch) };
+    });
+    return [...sheetEntries, ...cellEntries, ...rangeEntries];
   }
 
   private isCutAllowedOn(zones: Zone[]) {
@@ -506,7 +507,7 @@ export class ClipboardStore extends SpreadsheetStore {
       rowsIndexes: copiedData.rowsIndexes,
       columnsIndexes: copiedData.columnsIndexes,
     });
-    if (!options?.selectTarget) {
+    if (!options.selectTarget) {
       return;
     }
     selectPastedZone(this.model.selection, zones, selectedZones);
