@@ -1,4 +1,6 @@
 import { onWillStart, onWillUpdateProps, signal, useProps } from "@odoo/owl";
+import { getCarouselLayout } from "../../helpers/carousel_helpers";
+import { isDefined } from "../../helpers/misc";
 import { Component } from "../../owl3_compatibility_layer";
 import { useLocalStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
@@ -8,10 +10,12 @@ import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { types } from "../props_validation";
+import { CarouselDataViewPrint } from "./carousel_data_view_print";
 import { FigureRendererStore } from "./figure_renderer_store";
 
 export class StandaloneGridCanvas extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-StandaloneGridCanvas";
+  static components = { CarouselDataViewPrint };
 
   protected props = useProps({
     sheetId: types.UID(),
@@ -53,5 +57,32 @@ export class StandaloneGridCanvas extends Component<SpreadsheetChildEnv> {
         this.figureRendererStore.addLoadedImage(path, await createImageBitmap(blob));
       })
     );
+  }
+
+  get carouselDataViews(): PropsOf<CarouselDataViewPrint>[] {
+    const { sheetId, viewports } = this.props.renderingCtx;
+    return viewports
+      .getVisibleFigures(sheetId)
+      .filter((figure) => figure.tag === "carousel")
+      .map((figure) => {
+        const carouselItem = this.env.model.getters.getSelectedCarouselItem(figure.id);
+        if (carouselItem?.type !== "carouselDataView" || !carouselItem.range) {
+          return undefined;
+        }
+
+        const carousel = this.env.model.getters.getCarousel(figure.id);
+        const scroll = viewports.getViewportOffset(sheetId);
+        const { x, y, width, height } = figure;
+        const mainRect = { x: x - scroll.x, y: y - scroll.y, width, height };
+        const layout = getCarouselLayout(mainRect, carousel, carouselItem);
+
+        return {
+          range: carouselItem.range,
+          columnWeights: carouselItem.columnWeights,
+          rect: layout.contentRect,
+          rendererStore: this.rendererStore,
+        };
+      })
+      .filter(isDefined);
   }
 }

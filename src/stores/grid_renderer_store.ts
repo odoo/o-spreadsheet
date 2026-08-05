@@ -63,6 +63,8 @@ interface Animation {
 }
 
 export class GridRenderer extends DisposableStore {
+  storeGetters = ["drawLayer"] as const;
+
   private fingerprints: Store<FormulaFingerprintStore>;
   private cellHoverOverlayStore = this.get(CellHoverOverlayStore);
   private hoveredIcon: Store<HoveredIconStore>;
@@ -74,7 +76,7 @@ export class GridRenderer extends DisposableStore {
   private animations: Map<string, Animation> = new Map();
   protected getters: RenderingGetters;
 
-  constructor(get: Get, private renderer: Store<RendererStore> = get(RendererStore)) {
+  constructor(get: Get, private renderer: Store<RendererStore> | null = get(RendererStore)) {
     super(get);
     const model = get(ModelStore) as Model;
     this.getters = model.getters;
@@ -83,12 +85,16 @@ export class GridRenderer extends DisposableStore {
 
     model.on("command-dispatched", this, this.handle);
     model.on("command-finalized", this, this.finalize);
-    this.renderer.register(this);
+    if (this.renderer) {
+      this.renderer.register(this);
+    }
 
     this.onDispose(() => {
       model.off("command-dispatched", this);
       model.off("command-finalized", this);
-      this.renderer.unRegister(this);
+      if (this.renderer) {
+        this.renderer.unRegister(this);
+      }
     });
   }
 
@@ -985,6 +991,9 @@ export class GridRenderer extends DisposableStore {
     oldBoxes: Map<string, Box>,
     timeStamp: number | undefined
   ) {
+    if (!this.renderer) {
+      return boxes;
+    }
     this.updateAnimationsProgress(timeStamp);
     this.addNewAnimations(boxes, oldBoxes, timeStamp);
 

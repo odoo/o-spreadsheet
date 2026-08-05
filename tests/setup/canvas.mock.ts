@@ -226,12 +226,13 @@ function mockFillText(this: NodeCanvasRenderingContext2D, text: string, x: numbe
       const w = this.measureText(text).width;
       x -= align === "center" ? w / 2 : w;
     }
-    if (this.textBaseline === "middle") {
-      y -= fontHeight / 2;
-    }
 
     const fontSize = parseInt(this.font.match(/([0-9]+)px/)![1], 10);
     const scale = fontSize / fontSizeInPixels(DEFAULT_FONT_SIZE);
+
+    if (this.textBaseline === "middle") {
+      y -= fontHeight / 2;
+    }
 
     for (let i = 0; i < text.length; ++i) {
       const charCode = text.charCodeAt(i);

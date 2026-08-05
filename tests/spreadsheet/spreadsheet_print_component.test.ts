@@ -1,10 +1,13 @@
+import { createCanvas } from "canvas";
 import { Model } from "../../src";
 import { SpreadsheetPrint } from "../../src/components/spreadsheet_print/spreadsheet_print";
 import { SpreadsheetPrintStore } from "../../src/components/spreadsheet_print/spreadsheet_print_store";
 import { FigureRendererStore } from "../../src/components/standalone_grid_canvas/figure_renderer_store";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, PRINT_DPR } from "../../src/constants";
 import { Store } from "../../src/types/store_engine";
 import { registerCleanup } from "../setup/jest.setup";
 import {
+  createCarousel,
   createChart,
   createSheet,
   editSelectComponent,
@@ -17,6 +20,8 @@ import {
   mountComponentWithPortalTarget,
   mountSpreadsheet,
   nextTick,
+  setGrid,
+  toRangeData,
 } from "../test_helpers/helpers";
 import { getLastZonesRendered, spyStoreCreation, StoreSpy } from "../test_helpers/stores";
 
@@ -211,5 +216,33 @@ describe("Spreadsheet print rendering", () => {
 
     window.dispatchEvent(new Event("afterprint"));
     expect(document.head).toHaveText("");
+  });
+
+  test("Can print a carousel data view", async () => {
+    createSheet(model, { sheetId: "sh2" });
+    setGrid(model, { A1: "I'm in the grid" }, sheetId);
+    setGrid(model, { A1: "I'm in the carousel", B2: "=MUNIT(4)" }, "sh2");
+    createCarousel(
+      model,
+      {
+        title: { text: "My Carousel" },
+        items: [{ type: "carouselDataView", rangeData: toRangeData("sh2", "A1:E5") }],
+      },
+      "fig1",
+      sheetId,
+      { col: 1, row: 1, size: { width: 400, height: 200 } }
+    );
+
+    const canvas = createCanvas(
+      DEFAULT_CELL_WIDTH * 6 * PRINT_DPR,
+      DEFAULT_CELL_HEIGHT * 10 * PRINT_DPR
+    );
+
+    const ctx = canvas.getContext("2d") as unknown as CanvasRenderingContext2D;
+    jest.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(ctx);
+
+    await mountSpreadsheetPrint();
+
+    expect(canvas.toBuffer("image/png")).toMatchImageSnapshot();
   });
 });
