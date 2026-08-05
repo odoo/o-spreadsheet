@@ -207,6 +207,7 @@ import { ModelStore } from "./stores/model_store";
 import { NotificationStore } from "./stores/notification_store";
 import { RendererStore } from "./stores/renderer_store";
 import { SpreadsheetStore } from "./stores/spreadsheet_store";
+import { ZoomStore } from "./stores/zoom_store";
 import { CHART_TYPES, schemeToColorScale } from "./types/chart/chart";
 import { AddFunctionDescription } from "./types/functions";
 import { DEFAULT_LOCALE } from "./types/locale";
@@ -567,6 +568,7 @@ export const stores = {
   ClientFocusStore,
   GridRenderer,
   ViewportsStore,
+  ZoomStore,
   globalStores,
 };
 

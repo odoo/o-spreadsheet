@@ -38,3 +38,15 @@ function zoneToRect(zone: Zone | undefined): Rect | undefined {
 export function isPointInsideRect(x: number, y: number, rect: Rect): boolean {
   return x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height;
 }
+
+/**
+ * Return a Rect with position and size on the zoomed canvas
+ */
+export function getZoomedRect(zoom: number, rect: Rect): Rect {
+  return {
+    height: rect.height * zoom,
+    width: rect.width * zoom,
+    x: rect.x * zoom,
+    y: rect.y * zoom,
+  };
+}

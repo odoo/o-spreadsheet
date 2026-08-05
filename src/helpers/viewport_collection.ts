@@ -1,4 +1,3 @@
-import { SCROLLBAR_WIDTH } from "../constants";
 import { AnchorOffset, Figure, FigureUI } from "../types/figure";
 import { ViewportsGetters } from "../types/getters";
 import {
@@ -53,7 +52,7 @@ interface ViewportCollectionArgs {
   paneDivision: Record<UID, PaneDivision>;
   sheetViewWidth: Pixel;
   sheetViewHeight: Pixel;
-  zoomLevel: number;
+  getZoomLevel: () => number;
   getFooterSize: () => number;
   zoneToDisplay?: Zone;
 }
@@ -104,7 +103,7 @@ export class ViewportCollection {
   private paneDivision: Record<UID, PaneDivision>;
   private sheetViewWidth: Pixel;
   private sheetViewHeight: Pixel;
-  private zoomLevel: number;
+  getZoomLevel: () => number;
   private getFooterSize: () => number;
   private zoneToDisplay?: Zone;
 
@@ -113,7 +112,7 @@ export class ViewportCollection {
     this.paneDivision = args.paneDivision;
     this.sheetViewWidth = args.sheetViewWidth;
     this.sheetViewHeight = args.sheetViewHeight;
-    this.zoomLevel = args.zoomLevel;
+    this.getZoomLevel = args.getZoomLevel;
     this.getFooterSize = args.getFooterSize;
     this.zoneToDisplay = args.zoneToDisplay;
   }
@@ -272,7 +271,7 @@ export class ViewportCollection {
     for (const i of relevantIndexes) {
       offset += this.getters.getHeaderSize(sheetId, dimension, i);
     }
-    return offset * this.zoomLevel;
+    return offset * this.getZoomLevel();
   }
 
   /**
@@ -284,10 +283,6 @@ export class ViewportCollection {
 
   isZoneVisibleInViewport(sheetId: UID, zone: Zone): boolean {
     return this.getSubViewports(sheetId).some((viewport) => viewport.isZoneVisible(zone));
-  }
-
-  getScrollBarWidth(): Pixel {
-    return SCROLLBAR_WIDTH / this.zoomLevel;
   }
 
   // => returns the new offset
@@ -380,7 +375,7 @@ export class ViewportCollection {
    * Computes the coordinates and size to draw the zone on the canvas after it has been zoomed
    */
   getVisibleRectWithZoom(sheetId: UID, zone: Zone): Rect {
-    const zoom = this.getViewportZoomLevel();
+    const zoom = this.getZoomLevel();
     const rect = this.getVisibleRectWithoutHeaders(sheetId, zone);
     rect.width = rect.width * zoom;
     rect.height = rect.height * zoom;
@@ -468,10 +463,6 @@ export class ViewportCollection {
         },
       };
     });
-  }
-
-  getViewportZoomLevel(): number {
-    return this.zoomLevel;
   }
 
   ensureMainViewportExist(sheetId: UID) {
@@ -936,14 +927,6 @@ export class ViewportCollection {
 
   getGridOffsetY(): Pixel {
     return this.gridOffsetY;
-  }
-
-  getZoomLevel(): number {
-    return this.zoomLevel;
-  }
-
-  setZoomLevel(zoomLevel: number) {
-    this.zoomLevel = zoomLevel;
   }
 
   private getPaneDivisions(sheetId: UID): PaneDivision {

@@ -10,7 +10,7 @@ import {
   ViewportsGetters,
   Zone,
 } from "..";
-import { FOOTER_HEIGHT, getDefaultSheetViewSize, SCROLLBAR_WIDTH } from "../constants";
+import { FOOTER_HEIGHT, getDefaultSheetViewSize } from "../constants";
 import { deepEquals } from "../helpers/misc";
 import { ViewportCollection } from "../helpers/viewport_collection";
 import { findCellInNewZone, isEqual } from "../helpers/zones";
@@ -25,6 +25,7 @@ import {
 } from "../types/rendering";
 import { Get } from "../types/store_engine";
 import { SpreadsheetStore } from "./spreadsheet_store";
+import { ZoomStore } from "./zoom_store";
 
 type getHeaderDimensionsCallback = (
   sheetId: UID,
@@ -42,7 +43,6 @@ export class ViewportsStore extends SpreadsheetStore {
   mutators = [
     "setViewportOffset",
     "resizeSheetView",
-    "setZoom",
     "shiftViewportDown",
     "shiftViewportUp",
     "scrollToCell",
@@ -51,8 +51,10 @@ export class ViewportsStore extends SpreadsheetStore {
     "rebuildViewports",
   ] as const;
 
+  private zoomStore = this.get(ZoomStore);
   private getHeaderDimensionsCallback = this.getters.getHeaderDimensions;
   private getFooterSizeCallback = this.getFooterSize.bind(this);
+  private getZoomLevelCallback = () => this.zoomStore.zoomLevel;
   private zoneToDisplay: Zone | undefined = undefined;
 
   viewports: ViewportCollection = new ViewportCollection({
@@ -60,7 +62,7 @@ export class ViewportsStore extends SpreadsheetStore {
     paneDivision: this.getPaneDivisions(),
     sheetViewHeight: getDefaultSheetViewSize(),
     sheetViewWidth: getDefaultSheetViewSize(),
-    zoomLevel: 1,
+    getZoomLevel: this.getZoomLevelCallback,
     getFooterSize: this.getFooterSizeCallback,
   });
   private sheetsWithDirtyViewports: Set<UID> = new Set();
@@ -229,14 +231,6 @@ export class ViewportsStore extends SpreadsheetStore {
     return;
   }
 
-  setZoom(zoom: number) {
-    if (zoom > 2 || zoom < 0.5 || zoom === this.viewports.getZoomLevel()) {
-      return "noStateChange";
-    }
-    this.viewports.setZoomLevel(zoom);
-    return;
-  }
-
   shiftViewportDown() {
     const sheetId = this.displayedSheetId;
     const { top, viewportHeight, boundaryTopY } = this.viewports.getMainInternalViewport(sheetId);
@@ -310,10 +304,6 @@ export class ViewportsStore extends SpreadsheetStore {
     return this.viewports.getMaximumSheetOffset(this.displayedSheetId);
   }
 
-  get scrollBarWidth(): Pixel {
-    return SCROLLBAR_WIDTH / this.viewports.getZoomLevel();
-  }
-
   /**
    * Returns the position of the MainViewport relatively to the start of the grid (without headers)
    * It corresponds to the summed dimensions of the visible cols/rows (in x/y respectively)
@@ -321,10 +311,6 @@ export class ViewportsStore extends SpreadsheetStore {
    */
   get mainViewportCoordinates(): DOMCoordinates {
     return this.viewports.getMainViewportCoordinates(this.displayedSheetId);
-  }
-
-  get zoomLevel(): number {
-    return this.viewports.getZoomLevel();
   }
 
   get visibleFigures(): FigureUI[] {
@@ -394,7 +380,7 @@ export class ViewportsStore extends SpreadsheetStore {
       paneDivision: this.getPaneDivisions(),
       sheetViewHeight: this.viewports.getSheetViewDimension().height,
       sheetViewWidth: this.viewports.getSheetViewDimension().width,
-      zoomLevel: this.viewports.getZoomLevel(),
+      getZoomLevel: this.getZoomLevelCallback,
       getFooterSize: this.getFooterSizeCallback,
       zoneToDisplay: this.zoneToDisplay,
     });

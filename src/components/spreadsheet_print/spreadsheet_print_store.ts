@@ -176,7 +176,7 @@ export class SpreadsheetPrintStore extends SpreadsheetStore {
       paneDivision: { [sheetId]: { xSplit: 0, ySplit: 0 } },
       sheetViewWidth,
       sheetViewHeight,
-      zoomLevel: zoom,
+      getZoomLevel: () => zoom,
       getFooterSize: () => 0,
     });
     viewports.setSheetViewOffset(sheetId, firstColStart, firstRowStart);

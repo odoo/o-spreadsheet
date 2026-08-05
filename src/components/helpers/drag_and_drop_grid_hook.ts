@@ -2,6 +2,7 @@ import { onWillUnmount } from "@odoo/owl";
 import { MAX_DELAY } from "../../helpers/edge_scrolling";
 import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { ViewportsStore } from "../../stores/viewports_store";
+import { ZoomStore } from "../../stores/zoom_store";
 import { HeaderIndex, Pixel } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { gridOverlayPosition } from "./dom_helpers";
@@ -28,6 +29,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
   let scrollDirection: DnDDirection = "all";
   const getters = env.model.getters;
   const viewStore = env.getStore(ViewportsStore);
+  const zoomStore = env.getStore(ZoomStore);
 
   const blockKeyboard = (ev: KeyboardEvent) => ev.preventDefault();
   const cleanUpBlockKeyboard = () =>
@@ -52,7 +54,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     }
 
     const sheetId = getters.getActiveSheetId();
-    const zoomLevel = viewStore.zoomLevel;
+    const zoomLevel = zoomStore.zoomLevel;
     const position = gridOverlayPosition(zoomLevel);
     const zoomedMouseEvent = withZoom(env, currentEv, position);
     const { x: offsetCorrectionX, y: offsetCorrectionY } = viewStore.mainViewportCoordinates;
@@ -163,7 +165,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     startScrollDirection: DnDDirection = "all"
   ) => {
     cleanUp();
-    const zoomLevel = viewStore.zoomLevel;
+    const zoomLevel = zoomStore.zoomLevel;
     const position = gridOverlayPosition(zoomLevel);
     scrollDirection = startScrollDirection;
     startingX = initialPointerCoordinates.clientX - position.x;

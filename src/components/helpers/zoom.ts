@@ -1,6 +1,6 @@
-import { ViewportsStore } from "../../stores/viewports_store";
+import { ZoomStore } from "../../stores/zoom_store";
 import { Pixel } from "../../types/misc";
-import { DOMCoordinates, Rect } from "../../types/rendering";
+import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { zoomCorrectedElementRect } from "./dom_helpers";
 
@@ -24,7 +24,7 @@ export function withZoom<T extends MouseEvent>(
   ev: T,
   originalTargetPosition?: DOMCoordinates | null
 ): ZoomedMouseEvent<T> {
-  const zoomLevel = env.getStore(ViewportsStore).zoomLevel;
+  const zoomLevel = env.getStore(ZoomStore).zoomLevel;
   if (originalTargetPosition === undefined) {
     originalTargetPosition = getZoomTargetPosition(ev, zoomLevel);
   }
@@ -51,18 +51,6 @@ function withNoZoom<T extends MouseEvent>(ev: T): ZoomedMouseEvent<T> {
     clientY: ev.clientY,
     offsetX: ev.offsetX,
     offsetY: ev.offsetY,
-  };
-}
-
-/**
- * Return a Rect with position and size on the zoomed canvas
- */
-export function getZoomedRect(zoom: number, rect: Rect): Rect {
-  return {
-    height: rect.height * zoom,
-    width: rect.width * zoom,
-    x: rect.x * zoom,
-    y: rect.y * zoom,
   };
 }
 

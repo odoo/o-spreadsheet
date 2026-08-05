@@ -3,6 +3,7 @@ import { Component, useChildSubEnv } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
+import { ZoomStore } from "../../stores/zoom_store";
 import { Pixel } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -17,7 +18,6 @@ import { getElBoundingRect } from "../helpers/dom_helpers";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useTouchHandlers } from "../helpers/touch_handlers_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
-import { getZoomedRect } from "../helpers/zoom";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
@@ -46,6 +46,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   canvasPosition!: DOMCoordinates;
   hoveredCell!: Store<DelayedHoveredCellStore>;
   private viewStore!: Store<ViewportsStore>;
+  private zoomStore!: Store<ZoomStore>;
 
   private gridRef = signal<HTMLElement | null>(null);
   private canvasRef = signal<HTMLElement | null>(null);
@@ -53,11 +54,12 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   setup() {
     this.hoveredCell = useStore(DelayedHoveredCellStore);
     this.viewStore = useStore(ViewportsStore);
+    this.zoomStore = useStore(ZoomStore);
 
     const layers = OrderedLayers().filter((layer) => layer !== "Headers");
     const rendererStore = useLocalStore(RendererStore, layers);
     useChildSubEnv({
-      getPopoverContainerRect: () => getZoomedRect(this.viewStore.zoomLevel, this.getGridRect()),
+      getPopoverContainerRect: () => this.zoomStore.getZoomedRect(this.getGridRect()),
     });
 
     useGridDrawing({
@@ -87,8 +89,8 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
         const { scrollY } = this.viewStore.activeSheetScrollInfo;
         return scrollY < maxOffsetY;
       },
-      getZoom: () => this.viewStore.zoomLevel,
-      setZoom: (zoom: number) => this.viewStore.setZoom(zoom),
+      getZoom: () => this.zoomStore.zoomLevel,
+      setZoom: (zoom: number) => this.zoomStore.setZoom(zoom),
     });
   }
 
@@ -138,8 +140,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   }
 
   get dashboardStyle() {
-    const zoomLevel = this.viewStore.zoomLevel;
-    const style = { zoom: `${zoomLevel}` };
+    const style = { zoom: this.zoomStore.cssZoom };
     const sheet = this.env.model.getters.getActiveSheet();
     if (sheet.backgroundColor) {
       style["background-color"] = "transparent";

@@ -4,6 +4,7 @@ import { isEqual } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ViewportsStore } from "../../../stores/viewports_store";
+import { ZoomStore } from "../../../stores/zoom_store";
 import { ResizeDirection } from "../../../types/figure";
 import { HeaderIndex, Zone } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -38,9 +39,11 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
   });
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
   private viewStore!: Store<ViewportsStore>;
+  private zoomStore!: Store<ZoomStore>;
 
   setup(): void {
     this.viewStore = useStore(ViewportsStore);
+    this.zoomStore = useStore(ZoomStore);
   }
 
   get cornerOrientations(): Array<"nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w"> {
@@ -126,7 +129,7 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
     this.highlightState.shiftingMode = "isMoving";
     const z = this.props.range.zone;
 
-    const zoomLevel = this.viewStore.zoomLevel;
+    const zoomLevel = this.zoomStore.zoomLevel;
     const position = gridOverlayPosition(zoomLevel);
     const zoomedMouseEvent = withZoom(this.env, ev, position);
 

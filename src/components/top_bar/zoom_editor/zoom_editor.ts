@@ -2,7 +2,7 @@ import { useProps } from "@odoo/owl";
 import { ZOOM_VALUES } from "../../../constants";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
-import { ViewportsStore } from "../../../stores/viewports_store";
+import { ZoomStore } from "../../../stores/zoom_store";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
@@ -15,22 +15,22 @@ export class ToolBarZoom extends Component<SpreadsheetChildEnv> {
 
   protected props = useProps({ class: types.string() });
   topBarToolStore!: ToolBarDropdownStore;
-  private viewStore!: Store<ViewportsStore>;
+  private zoomStore!: Store<ZoomStore>;
 
   valueList = ZOOM_VALUES;
 
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();
-    this.viewStore = useStore(ViewportsStore);
+    this.zoomStore = useStore(ZoomStore);
   }
 
   get currentFontSize(): number {
-    const zoom = this.viewStore.zoomLevel || 1;
+    const zoom = this.zoomStore.zoomLevel || 1;
     return zoom * 100;
   }
 
   setZoom(fontSize: number) {
-    this.viewStore.setZoom(fontSize / 100);
+    this.zoomStore.setZoom(fontSize / 100);
   }
 
   toggle() {
