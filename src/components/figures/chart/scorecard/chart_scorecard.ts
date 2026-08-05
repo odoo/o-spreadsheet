@@ -1,14 +1,14 @@
 import { onMounted, onWillUnmount, signal, useProps } from "@odoo/owl";
 import { drawScoreChart } from "../../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../../helpers/figures/charts/scorecard_chart_config_builder";
+import { getZoomedRect } from "../../../../helpers/rectangle";
 import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { useStore } from "../../../../store_engine/store_hooks";
-import { ViewportsStore } from "../../../../stores/viewports_store";
+import { ZoomStore } from "../../../../stores/zoom_store";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 import { Rect } from "../../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
-import { getZoomedRect } from "../../../helpers/zoom";
 import { types } from "../../../props_validation";
 
 export class ScorecardChart extends Component<SpreadsheetChildEnv> {
@@ -19,7 +19,7 @@ export class ScorecardChart extends Component<SpreadsheetChildEnv> {
     isFullScreen: types.boolean().optional(),
   });
   private canvas = signal<HTMLCanvasElement | null>(null);
-  private viewStore!: Store<ViewportsStore>;
+  private zoomStore!: Store<ZoomStore>;
 
   get runtime(): ScorecardChartRuntime {
     return this.env.model.getters.getChartRuntime(this.props.chartId) as ScorecardChartRuntime;
@@ -31,7 +31,7 @@ export class ScorecardChart extends Component<SpreadsheetChildEnv> {
   }
 
   setup() {
-    this.viewStore = useStore(ViewportsStore);
+    this.zoomStore = useStore(ZoomStore);
     useLayoutEffect(this.createChart.bind(this), () => {
       const canvas = this.canvas();
       if (!canvas) {
@@ -59,7 +59,7 @@ export class ScorecardChart extends Component<SpreadsheetChildEnv> {
     if (!canvas) {
       return;
     }
-    const zoom = this.viewStore.zoomLevel;
+    const zoom = this.zoomStore.zoomLevel;
     const config = this.config(canvas.getBoundingClientRect(), zoom);
     drawScoreChart(config, canvas, zoom);
   }

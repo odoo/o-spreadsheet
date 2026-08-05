@@ -6,6 +6,7 @@ import { Component } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ViewportsStore } from "../../../stores/viewports_store";
+import { ZoomStore } from "../../../stores/zoom_store";
 import { AnchorOffset, Figure, FigureUI, ResizeDirection } from "../../../types/figure";
 import { UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
@@ -123,9 +124,11 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
     overlappingChartOrCarousel: undefined,
   });
   private viewStore!: Store<ViewportsStore>;
+  private zoomStore!: Store<ZoomStore>;
 
   setup() {
     this.viewStore = useStore(ViewportsStore);
+    this.zoomStore = useStore(ZoomStore);
     onMounted(() => {
       // horrible, but necessary
       // the following line ensures that we render the figures with the correct
@@ -316,7 +319,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
     }
 
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const zoom = this.viewStore.zoomLevel;
+    const zoom = this.zoomStore.zoomLevel;
 
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const initialScrollPosition = this.viewStore.activeSheetScrollInfo;
@@ -450,7 +453,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
 
     const keepRatio = figureRegistry.get(figureUI.tag).keepRatio || false;
     const minFigSize = figureRegistry.get(figureUI.tag).minFigSize || MIN_FIG_SIZE;
-    const zoom = this.viewStore.zoomLevel;
+    const zoom = this.zoomStore.zoomLevel;
     const sheetId = this.env.model.getters.getActiveSheetId();
 
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };

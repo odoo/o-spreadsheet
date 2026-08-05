@@ -170,6 +170,9 @@ export const MENU_SEPARATOR_HEIGHT = MENU_SEPARATOR_BORDER_WIDTH + 2 * MENU_SEPA
 
 // Zoom
 export const ZOOM_VALUES = [50, 75, 100, 125, 150, 200];
+export const MIN_ZOOM = 0.5;
+export const MAX_ZOOM = 2;
+export const DEFAULT_ZOOM = 1;
 
 // Style
 export const DEFAULT_STYLE = {

@@ -2,6 +2,7 @@ import { useProps, xml } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
+import { ZoomStore } from "../../stores/zoom_store";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { types } from "../props_validation";
@@ -10,6 +11,7 @@ import { ScrollBar } from "./scrollbar";
 export class VerticalScrollBar extends Component<SpreadsheetChildEnv> {
   static components = { ScrollBar };
   private viewStore!: Store<ViewportsStore>;
+  private zoomStore!: Store<ZoomStore>;
   static template = xml/*xml*/ `
     <ScrollBar
       t-if="this.isDisplayed"
@@ -22,6 +24,7 @@ export class VerticalScrollBar extends Component<SpreadsheetChildEnv> {
 
   setup(): void {
     this.viewStore = useStore(ViewportsStore);
+    this.zoomStore = useStore(ZoomStore);
   }
 
   protected props = useProps({
@@ -46,7 +49,7 @@ export class VerticalScrollBar extends Component<SpreadsheetChildEnv> {
 
   get position() {
     const { y } = this.viewStore.viewports.getMainViewportRect(this.viewStore.displayedSheetId);
-    const scrollbarWidth = this.viewStore.viewports.getScrollBarWidth();
+    const scrollbarWidth = this.zoomStore.scrollBarWidth;
     return {
       top: `${this.props.topOffset + y}px`,
       right: "0px",

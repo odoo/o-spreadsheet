@@ -7,6 +7,7 @@ import { MIN_DELAY, scrollDelay } from "../../src/helpers/edge_scrolling";
 import { ViewportCollection } from "../../src/helpers/viewport_collection";
 import { positionToZone, toZone } from "../../src/helpers/zones";
 import { ViewportsStore } from "../../src/stores/viewports_store";
+import { ZoomStore } from "../../src/stores/zoom_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { nextTick } from "./helpers";
 
@@ -176,7 +177,7 @@ export async function clickCell(
   const viewStore = env.getStore(ViewportsStore);
   const zone = toZone(xc);
   const sheetId = env.model.getters.getActiveSheetId();
-  const zoom = viewStore.zoomLevel;
+  const zoom = env.getStore(ZoomStore).zoomLevel;
   if (!viewStore.viewports.isVisibleInViewport({ sheetId, col: zone.left, row: zone.top })) {
     throw new Error(`You can't click on ${xc} because it is not visible`);
   }
@@ -459,7 +460,7 @@ export async function selectColumnByClicking(
 ) {
   const model = env.model;
   const index = lettersToNumber(letter);
-  const zoom = env.getStore(ViewportsStore).zoomLevel;
+  const zoom = env.getStore(ZoomStore).zoomLevel;
   const x =
     model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.start * zoom + 1;
   triggerMouseEvent(".o-overlay .o-col-resizer", "pointermove", x, 10);

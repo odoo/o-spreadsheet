@@ -2,7 +2,7 @@ import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_s
 import { numberToLetters } from "../helpers/coordinates";
 import { interactiveFreezeColumnsRows } from "../helpers/ui/freeze_interactive";
 import { FormulaFingerprintStore } from "../stores/formula_fingerprints_store";
-import { ViewportsStore } from "../stores/viewports_store";
+import { ZoomStore } from "../stores/zoom_store";
 import { _t } from "../translation";
 import { Dimension } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
@@ -224,9 +224,9 @@ export function zoomAction(zoom: number): ActionSpec {
   return {
     name: _t("%(zoom_percentage)s%", { zoom_percentage: zoom }),
     execute: (env) => {
-      env.getStore(ViewportsStore).setZoom(zoom / 100);
+      env.getStore(ZoomStore).setZoom(zoom / 100);
     },
-    isActive: (env: SpreadsheetChildEnv) => env.getStore(ViewportsStore).zoomLevel === zoom / 100,
+    isActive: (env: SpreadsheetChildEnv) => env.getStore(ZoomStore).zoomLevel === zoom / 100,
     isReadonlyAllowed: true,
     isEnabledOnLockedSheet: true,
     sequence: zoom,

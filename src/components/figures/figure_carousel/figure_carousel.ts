@@ -7,7 +7,6 @@ import { cellPositions } from "../../../helpers/zones";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { useStore } from "../../../store_engine/store_hooks";
-import { ViewportsStore } from "../../../stores/viewports_store";
 import { _t } from "../../../translation";
 import { CellValueType } from "../../../types/cells";
 import { Carousel, CarouselItem } from "../../../types/figure";
@@ -44,12 +43,10 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
 
   protected animationStore: Store<ChartAnimationStore> | undefined;
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
-  viewStore!: Store<ViewportsStore>;
 
   setup(): void {
     this.animationStore = useStore(ChartAnimationStore);
     this.fullScreenFigureStore = useStore(FullScreenFigureStore);
-    this.viewStore = useStore(ViewportsStore);
 
     useLayoutEffect(() => {
       this.updateTabsVisibility();

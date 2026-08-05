@@ -2,7 +2,7 @@ import { proxy, useProps, xml } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
-import { ViewportsStore } from "../../stores/viewports_store";
+import { ZoomStore } from "../../stores/zoom_store";
 import { HeaderIndex } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -36,11 +36,11 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
   });
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
-  private viewStore!: Store<ViewportsStore>;
+  private zoomStore!: Store<ZoomStore>;
   private autofillStore!: Store<AutofillStore>;
 
   setup(): void {
-    this.viewStore = useStore(ViewportsStore);
+    this.zoomStore = useStore(ZoomStore);
     this.autofillStore = useStore(AutofillStore);
     useStore(TableAutofillStore);
   }
@@ -81,7 +81,7 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
   onMouseDown(ev: PointerEvent) {
     this.state.handler = true;
     const zoomedMouseEvent = withZoom(this.env, ev);
-    const zoom = this.viewStore.zoomLevel;
+    const zoom = this.zoomStore.zoomLevel;
     let lastCol: HeaderIndex | undefined;
     let lastRow: HeaderIndex | undefined;
     const start = {

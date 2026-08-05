@@ -1,9 +1,8 @@
 import { useStore } from "../../store_engine/store_hooks";
-import { ViewportsStore } from "../../stores/viewports_store";
+import { ZoomStore } from "../../stores/zoom_store";
 import { ClosedCellPopover, PositionedCellPopoverComponent } from "../../types/cell_popovers";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
-import { getZoomedRect } from "../helpers/zoom";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
@@ -21,11 +20,11 @@ export class GridPopover extends Component<SpreadsheetChildEnv> {
     gridRect: types.Rect(),
   });
   protected cellPopovers!: Store<CellPopoverStore>;
-  private viewStore!: Store<ViewportsStore>;
+  private zoomStore!: Store<ZoomStore>;
 
   setup() {
     this.cellPopovers = useStore(CellPopoverStore);
-    this.viewStore = useStore(ViewportsStore);
+    this.zoomStore = useStore(ZoomStore);
   }
 
   get cellPopover(): PositionedCellPopoverComponent | ClosedCellPopover {
@@ -33,8 +32,7 @@ export class GridPopover extends Component<SpreadsheetChildEnv> {
     if (!popover.isOpen) {
       return { isOpen: false };
     }
-    const zoom = this.viewStore.zoomLevel;
-    const anchorRect = getZoomedRect(zoom, popover.anchorRect);
+    const anchorRect = this.zoomStore.getZoomedRect(popover.anchorRect);
     return {
       ...popover,
       // transform from the "canvas coordinate system" to the "body coordinate system"

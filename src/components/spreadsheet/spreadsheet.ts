@@ -26,6 +26,7 @@ import { ModelStore } from "../../stores/model_store";
 import { NotificationStore } from "../../stores/notification_store";
 import { ScreenWidthStore } from "../../stores/screen_width_store";
 import { ViewportsStore } from "../../stores/viewports_store";
+import { ZoomStore } from "../../stores/zoom_store";
 import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
 import { InformationNotification } from "../../types/env";
@@ -99,6 +100,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   private notificationStore!: Store<NotificationStore>;
   private composerFocusStore!: Store<ComposerFocusStore>;
   private viewStore!: Store<ViewportsStore>;
+  private zoomStore!: Store<ZoomStore>;
 
   get model(): Model {
     return this.props.model;
@@ -106,7 +108,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
 
   getStyle(): string {
     const properties: CSSProperties = {};
-    const scrollbarWidth = this.viewStore.scrollBarWidth;
+    const scrollbarWidth = this.zoomStore.scrollBarWidth;
     properties["--os-scrollbar-width"] = `${scrollbarWidth}px`;
     properties["--os-dark-mode-filter"] = DARK_MODE_FILTER_STRING;
     properties["color-scheme"] = this.props.model.getters.isDarkMode() ? "dark" : "light";
@@ -141,6 +143,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
     const stores = useStoreProvider();
     stores.inject(ModelStore, this.model);
     this.viewStore = useStore(ViewportsStore);
+    this.zoomStore = useStore(ZoomStore);
 
     const env = this.env;
     stores.get(ScreenWidthStore).setSmallThreshhold(() => {
@@ -315,11 +318,10 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   get gridContainerStyle(): string {
     const gridColSize = GROUP_LAYER_WIDTH * this.rowLayers.length;
     const gridRowSize = GROUP_LAYER_WIDTH * this.colLayers.length;
-    const zoom = this.viewStore.zoomLevel;
     return cssPropertiesToCss({
       "grid-template-columns": `${gridColSize ? gridColSize + 2 : 0}px auto`, // +2: margins
       "grid-template-rows": `${gridRowSize ? gridRowSize + 2 : 0}px auto`,
-      zoom: `${zoom}`,
+      zoom: this.zoomStore.cssZoom,
     });
   }
 
@@ -339,8 +341,8 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       return { width: 0, height: 0 };
     }
 
-    const zoom = this.viewStore.zoomLevel;
-    const scrollbarWidth = this.viewStore.scrollBarWidth;
+    const zoom = this.zoomStore.zoomLevel;
+    const scrollbarWidth = this.zoomStore.scrollBarWidth;
 
     const getHeight = (s: string) =>
       (el.querySelector(s) && zoomCorrectedElementRect(el.querySelector(s)!, zoom).height) || 0;

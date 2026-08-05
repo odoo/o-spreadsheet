@@ -43,6 +43,7 @@ import { CheckboxToggleStore } from "../../stores/checkbox_toggle";
 import { ClientFocusStore } from "../../stores/client_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
 import { ViewportsStore } from "../../stores/viewports_store";
+import { ZoomStore } from "../../stores/zoom_store";
 import { CellValueType } from "../../types/cells";
 import { ClipboardMIMEType } from "../../types/clipboard";
 import { Client } from "../../types/collaborative/session";
@@ -153,6 +154,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   private canvasRef = signal<HTMLElement | null>(null);
   private highlightStore!: Store<HighlightStore>;
   viewStore!: Store<ViewportsStore>;
+  private zoomStore!: Store<ZoomStore>;
   private cellPopovers!: Store<CellPopoverStore>;
   private composerFocusStore!: Store<ComposerFocusStore>;
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
@@ -170,6 +172,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   setup() {
     this.highlightStore = useStore(HighlightStore);
     this.viewStore = useStore(ViewportsStore);
+    this.zoomStore = useStore(ZoomStore);
     this.menuState = proxy({
       isOpen: false,
       anchorRect: null,
@@ -225,8 +228,8 @@ export class Grid extends Component<SpreadsheetChildEnv> {
         const { scrollY } = this.viewStore.activeSheetScrollInfo;
         return scrollY < maxOffsetY;
       },
-      getZoom: () => this.viewStore.zoomLevel,
-      setZoom: (zoom: number) => this.viewStore.setZoom(zoom),
+      getZoom: () => this.zoomStore.zoomLevel,
+      setZoom: (zoom: number) => this.zoomStore.setZoom(zoom),
     });
   }
 
@@ -235,7 +238,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   }
 
   get gridOverlayDimensions() {
-    const scrollbarWidth = this.viewStore.scrollBarWidth;
+    const scrollbarWidth = this.zoomStore.scrollBarWidth;
     return cssPropertiesToCss({
       top: `${HEADER_HEIGHT}px`,
       left: `${HEADER_WIDTH}px`,
@@ -570,7 +573,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   }
 
   private getGridRect(): Rect {
-    const zoom = this.viewStore.zoomLevel;
+    const zoom = this.zoomStore.zoomLevel;
     const { width, height } = this.viewStore.sheetViewDimensionWithHeaders;
     return {
       ...getElBoundingRect(this.gridRef()),

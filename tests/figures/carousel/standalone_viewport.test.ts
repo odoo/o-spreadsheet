@@ -7,6 +7,7 @@ import { zoneToXc } from "../../../src/helpers/zones";
 import { useChildSubEnv } from "../../../src/owl3_compatibility_layer";
 import { GridRenderer } from "../../../src/stores/grid_renderer_store";
 import { ViewportsStore } from "../../../src/stores/viewports_store";
+import { ZoomStore } from "../../../src/stores/zoom_store";
 import { PropsOf } from "../../../src/types/props_of";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import {
@@ -86,7 +87,7 @@ async function mountViewport(zone: string, args: MountViewportArgs = {}) {
   const range = model.getters.getRangeFromSheetXC(sheetId, zone);
   const returnValue = await mountComponentWithPortalTarget(StandaloneViewport, {
     model,
-    props: { ...args, range, zoomLevel: 1 },
+    props: { ...args, range },
   });
   await nextTick(); // Need another render for the size to be correct
   return returnValue;
@@ -308,7 +309,7 @@ describe("Standalone viewport", () => {
     createCarouselWithDataView(model, toRangeData(sheetId, "A1:B1"), "carouselId");
     const { env } = await mountSpreadsheet({ model });
 
-    const mainViewportStore = env.getStore(ViewportsStore);
+    const mainZoomStore = env.getStore(ZoomStore);
     const standaloneViewportStore = subEnv.getStore(ViewportsStore);
     expect(standaloneViewportStore.sheetViewDimension).toEqual({ width: 1000, height: 1000 });
     expect(getLastRenderedBoxes()).toMatchObject([
@@ -316,18 +317,18 @@ describe("Standalone viewport", () => {
       { id: "B1", height: DEFAULT_CELL_HEIGHT, width: 500, x: 500, y: 0 },
     ]);
 
-    mainViewportStore.setZoom(2);
+    mainZoomStore.setZoom(2);
     await nextTick();
-    expect(standaloneViewportStore.zoomLevel).toEqual(2);
+    expect(subEnv.getStore(ZoomStore).zoomLevel).toEqual(2);
     expect(standaloneViewportStore.sheetViewDimension).toEqual({ width: 500, height: 500 });
     expect(getLastRenderedBoxes()).toMatchObject([
       { id: "A1", height: DEFAULT_CELL_HEIGHT, width: 250, x: 0, y: 0 },
       { id: "B1", height: DEFAULT_CELL_HEIGHT, width: 250, x: 250, y: 0 },
     ]);
 
-    mainViewportStore.setZoom(0.5);
+    mainZoomStore.setZoom(0.5);
     await nextTick();
-    expect(standaloneViewportStore.zoomLevel).toEqual(0.5);
+    expect(subEnv.getStore(ZoomStore).zoomLevel).toEqual(0.5);
     expect(standaloneViewportStore.sheetViewDimension).toEqual({ width: 2000, height: 2000 });
     expect(getLastRenderedBoxes()).toMatchObject([
       { id: "A1", height: DEFAULT_CELL_HEIGHT, width: 1000, x: 0, y: 0 },

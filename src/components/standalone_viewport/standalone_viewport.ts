@@ -4,6 +4,7 @@ import { Component } from "../../owl3_compatibility_layer";
 import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
+import { ZoomStore } from "../../stores/zoom_store";
 import { HeaderIndex } from "../../types/misc";
 import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -44,7 +45,6 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     canResizeColumns: types.boolean().optional(true),
     onResizeColumns: types.function<(columnWeights: number[] | undefined) => void>().optional(),
     columnWeights: types.array<number>().optional(),
-    zoomLevel: types.number(),
   });
 
   private canvasRef = signal<HTMLElement | null>(null);
@@ -60,6 +60,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
 
   rendererStore!: Store<RendererStore>;
   viewStore!: Store<ViewportsStore>;
+  zoomStore!: Store<ZoomStore>;
   cellPopoverStore!: Store<CellPopoverStore>;
 
   setup() {
@@ -73,6 +74,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     ]);
     this.store = useLocalStore(StandaloneViewportStore, this.props.range, this.props.columnWeights);
     this.viewStore = useStore(ViewportsStore);
+    this.zoomStore = useStore(ZoomStore);
     this.cellPopoverStore = useStore(CellPopoverStore);
     this.rendererStore = useLocalStore(RendererStore, ["Background", "Chart"]);
     const resizeObserver = new ResizeObserver(() => {
@@ -90,7 +92,6 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
       if (this.dndState.col === undefined) {
         this.store.setCustomColWeights(this.props.columnWeights);
       }
-      this.viewStore.setZoom(this.props.zoomLevel);
       this.store.setContainerSize(this.containerWidth, this.containerHeight);
     });
 
@@ -115,11 +116,11 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
   }
 
   get containerWidth() {
-    return Math.floor(getElBoundingRect(this.containerRef()).width / this.viewStore.zoomLevel);
+    return Math.floor(getElBoundingRect(this.containerRef()).width / this.zoomStore.zoomLevel);
   }
 
   get containerHeight() {
-    return Math.floor(getElBoundingRect(this.containerRef()).height / this.viewStore.zoomLevel);
+    return Math.floor(getElBoundingRect(this.containerRef()).height / this.zoomStore.zoomLevel);
   }
 
   get hasVerticalScrollBar() {
@@ -132,7 +133,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
 
   get scrollBarContainerStyle() {
     return cssPropertiesToCss({
-      width: `${this.viewStore.scrollBarWidth}px`,
+      width: `${this.zoomStore.scrollBarWidth}px`,
     });
   }
 
