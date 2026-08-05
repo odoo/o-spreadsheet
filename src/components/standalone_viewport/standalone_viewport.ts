@@ -7,7 +7,7 @@ import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { HeaderIndex } from "../../types/misc";
-import { Rect } from "../../types/rendering";
+import { DOMDimension, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
@@ -45,6 +45,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     canResizeColumns: types.boolean().optional(true),
     onResizeColumns: types.function<(columnWeights: number[] | undefined) => void>().optional(),
     columnWeights: types.array<number>().optional(),
+    size: types.object<DOMDimension>(),
   });
 
   private canvasRef = signal.ref(HTMLCanvasElement);
@@ -77,22 +78,12 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     this.zoomStore = useStore(ZoomStore);
     this.cellPopoverStore = useStore(CellPopoverStore);
     this.rendererStore = useLocalStore(RendererStore, ["Background", "Chart"]);
-    const resizeObserver = new ResizeObserver(() => {
-      this.store.setContainerSize(this.containerWidth, this.containerHeight);
-    });
-    useEffect(() => {
-      const el = this.containerRef();
-      if (el) {
-        resizeObserver.observe(el);
-      }
-      return () => resizeObserver.disconnect();
-    });
     useEffect(() => {
       this.store.setRange(this.props.range);
       if (this.dndState.col === undefined) {
         this.store.setCustomColWeights(this.props.columnWeights);
       }
-      this.store.setContainerSize(this.containerWidth, this.containerHeight);
+      this.store.setContainerSize(this.contentWidth, this.props.size.height);
     });
 
     useGridDrawing({
@@ -115,19 +106,16 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     });
   }
 
-  get containerWidth() {
-    return Math.floor(getElBoundingRect(this.containerRef()).width / this.zoomStore.zoomLevel);
-  }
-
-  get containerHeight() {
-    return Math.floor(getElBoundingRect(this.containerRef()).height / this.zoomStore.zoomLevel);
+  get contentWidth() {
+    return this.hasVerticalScrollBar
+      ? this.props.size.width - this.zoomStore.scrollBarWidth
+      : this.props.size.width;
   }
 
   get hasVerticalScrollBar() {
     return (
-      this.containerHeight &&
       this.viewStore.mainViewportCoordinates.y + this.viewStore.mainViewportRect.height >
-        this.containerHeight
+      this.props.size.height
     );
   }
 
@@ -193,7 +181,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     const onMouseMove = (ev: MouseEvent) => {
       deltaX = withZoom(this.env, ev).clientX - initialX;
 
-      const weightDelta = (deltaX / this.containerWidth) * totalWeight;
+      const weightDelta = (deltaX / this.props.size.width) * totalWeight;
       this.store.resizeColumn(resizer.col, weightDelta, startingColWeights);
     };
     startDnd(onMouseMove, onMouseUp);

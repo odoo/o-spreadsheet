@@ -1,7 +1,7 @@
 import { proxy, signal, useProps } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
-import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
+import { getCarouselItemTitle, getCarouselLayout } from "../../../helpers/carousel_helpers";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers/misc";
 import { cellPositions } from "../../../helpers/zones";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
@@ -126,6 +126,22 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
     return cssPropertiesToCss(cssProperties);
   }
 
+  get contentStyle(): string {
+    return cssPropertiesToCss(this.rectToCss(this.carouselLayout.contentRect));
+  }
+
+  get headerStyle(): string {
+    return cssPropertiesToCss({
+      ...this.rectToCss(this.carouselLayout.headerRect),
+      "line-height": String(this.carouselLayout.headerLineHeight),
+    });
+  }
+
+  get separatorStyle(): string {
+    const separatorRect = this.carouselLayout.separatorRect;
+    return separatorRect ? cssPropertiesToCss(this.rectToCss(separatorRect)) : "";
+  }
+
   get title(): string {
     return this.env.model.getters.dynamicTranslate(this.carousel.title?.text ?? "");
   }
@@ -133,6 +149,15 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
   get titleStyle(): string {
     const style = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...this.carousel.title };
     return cssPropertiesToCss(cellTextStyleToCss(chartStyleToCellStyle(style)));
+  }
+
+  private rectToCss(rect: Rect): CSSProperties {
+    return {
+      top: `${rect.y}px`,
+      left: `${rect.x}px`,
+      width: `${rect.width}px`,
+      height: `${rect.height}px`,
+    };
   }
 
   private updateTabsVisibility(): void {
@@ -253,5 +278,10 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
       !this.env.model.getters.isReadonly() &&
       !this.env.model.getters.isSheetLocked(this.env.model.getters.getActiveSheetId())
     );
+  }
+
+  get carouselLayout() {
+    const rect: Rect = { ...this.props.figureUI, x: 0, y: 0 }; // {0, 0} to have positions relative to the figure
+    return getCarouselLayout(rect, this.carousel, this.selectedCarouselItem);
   }
 }

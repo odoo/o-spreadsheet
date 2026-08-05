@@ -1838,13 +1838,15 @@ export function createCarouselWithDataView(
   model: Model,
   rangeData: RangeData,
   carouselId?: UID,
-  sheetId?: UID
+  sheetId?: UID,
+  figureData: Partial<CreateFigureCommand> = {}
 ) {
   return createCarousel(
     model,
     { items: [{ type: "carouselDataView", rangeData }] },
     carouselId,
-    sheetId
+    sheetId,
+    figureData
   );
 }
 

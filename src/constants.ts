@@ -199,7 +199,7 @@ export const DEFAULT_WRAPPING_MODE = DEFAULT_STYLE.wrapping;
 export const DEFAULT_TEXT_HIGHLIGHT_PERCENT = 0.25;
 
 // Fonts
-export const DEFAULT_FONT_WEIGHT = "400";
+export const DEFAULT_FONT_WEIGHT = 400;
 export const DEFAULT_FONT_SIZE = DEFAULT_STYLE.fontSize;
 export const HEADER_FONT_SIZE = 11;
 export const DEFAULT_FONT = "'Roboto', arial, 'Liberation Sans'";
@@ -300,6 +300,15 @@ export const DEFAULT_CAROUSEL_TITLE_STYLE = {
   fontSize: 18,
   color: TEXT_BODY,
 } satisfies ChartStyle;
+
+export const CAROUSEL_LAYOUT = {
+  paddingX: 24,
+  paddingY: 8,
+  headerPaddingTop: 4,
+  separatorWidth: 1,
+  headerLineHeight: 1.5,
+  minHeaderHeight: 25,
+} as const;
 
 export const DEFAULT_TOKEN_COLOR: Color = "light-dark(#000000, #ffffff)";
 const functionColor = DEFAULT_TOKEN_COLOR;

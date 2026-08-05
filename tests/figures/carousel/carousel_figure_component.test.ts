@@ -3,6 +3,7 @@ import { Model, UID } from "../../../src";
 import { getCarouselMenuActions } from "../../../src/actions/figure_menu_actions";
 import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
 import { downloadFile } from "../../../src/components/helpers/dom_helpers";
+import { CAROUSEL_LAYOUT } from "../../../src/constants";
 import { toZone } from "../../../src/helpers/zones";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
@@ -16,6 +17,7 @@ import {
   paste,
   selectCarouselItem,
   selectFigure,
+  setCellContent,
   undo,
   updateCarousel,
 } from "../../test_helpers/commands_helpers";
@@ -117,6 +119,73 @@ describe("Carousel figure component", () => {
     expect(tabs).toHaveLength(2);
     expect(tabs[0]).toHaveText("Data");
     expect(tabs[1]).toHaveText("Radar");
+  });
+
+  test("Carousel without a title has the correct layout", async () => {
+    setCellContent(model, "A1", "Hello");
+    createCarouselWithDataView(model, toRangeData(sheetId, "A1"), "carouselId", sheetId, {
+      size: { width: 500, height: 400 },
+    });
+    await mountSpreadsheet({ model });
+
+    const layout = CAROUSEL_LAYOUT;
+
+    const headerY = layout.paddingY + layout.headerPaddingTop;
+    const headerHeight = layout.minHeaderHeight; // No title
+    expect(".o-carousel-header").toHaveStyle({
+      left: `${layout.paddingX}px`,
+      top: `${headerY}px`,
+      width: `${500 - layout.paddingX * 2}px`,
+      height: `${headerHeight}px`,
+    });
+    expect(".o-carousel-separator").toHaveCount(0); // No title
+    const contentY = headerY + headerHeight + layout.paddingY;
+    expect(".o-carousel-content").toHaveStyle({
+      left: `${layout.paddingX}px`,
+      top: `${contentY}px`,
+      width: `${500 - layout.paddingX * 2}px`,
+      height: `${400 - contentY - layout.paddingY}px`,
+    });
+  });
+
+  test("Carousel with a title has the correct layout", async () => {
+    setCellContent(model, "A1", "Hello");
+    createCarousel(
+      model,
+      {
+        title: { text: "Hello!", fontSize: 24 },
+        items: [{ type: "carouselDataView", rangeData: toRangeData(sheetId, "A1") }],
+      },
+      "carouselId",
+      sheetId,
+      { size: { width: 500, height: 400 } }
+    );
+    await mountSpreadsheet({ model });
+
+    const layout = CAROUSEL_LAYOUT;
+
+    const headerY = layout.paddingY + layout.headerPaddingTop;
+    const headerHeight = 24 * layout.headerLineHeight;
+    expect(".o-carousel-header").toHaveStyle({
+      left: `${layout.paddingX}px`,
+      top: `${headerY}px`,
+      width: `${500 - layout.paddingX * 2}px`,
+      height: `${headerHeight}px`,
+    });
+    const separatorY = headerY + headerHeight + layout.paddingY;
+    expect(".o-carousel-separator").toHaveStyle({
+      left: `${layout.paddingX}px`,
+      top: `${separatorY}px`,
+      width: `${500 - layout.paddingX * 2}px`,
+      height: `1px`,
+    });
+    const contentY = separatorY + 1 + layout.paddingY;
+    expect(".o-carousel-content").toHaveStyle({
+      left: `${layout.paddingX}px`,
+      top: `${contentY}px`,
+      width: `${500 - layout.paddingX * 2}px`,
+      height: `${400 - contentY - layout.paddingY}px`,
+    });
   });
 
   test("Can drag & drop a chart on a carousel to combine them", async () => {
