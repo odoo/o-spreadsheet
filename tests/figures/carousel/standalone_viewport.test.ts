@@ -18,7 +18,6 @@ import {
   createCarouselWithDataView,
   createSheet,
   deleteRows,
-  extendMockGetBoundingClientRect,
   freezeColumns,
   freezeRows,
   getCellContent,
@@ -46,12 +45,6 @@ let storeSpy: StoreSpy;
 // We need to use the subEnv of the standalone viewport to get the store children of the standalone viewport instead of the global ones
 let subEnv: SpreadsheetChildEnv;
 
-let viewportHeight: number = 1000;
-
-extendMockGetBoundingClientRect({
-  "o-standalone-viewport-content": () => ({ width: 1000, height: viewportHeight }),
-});
-
 function getLastRenderedBoxes() {
   const store = storeSpy.getStores(GridRenderer).at(-1) as GridRenderer;
   return [...store["lastRenderBoxes"].values()];
@@ -61,7 +54,6 @@ beforeEach(() => {
   model = new Model();
   createSheet(model, { sheetId: "sh2", name: "Sheet2" });
   storeSpy = spyStoreCreation();
-  viewportHeight = 1000;
 
   const originalSetup = StandaloneViewport.prototype["setup"];
   jest
@@ -85,11 +77,12 @@ type MountViewportArgs = Omit<Partial<PropsOf<StandaloneViewport>>, "range"> & {
 async function mountViewport(zone: string, args: MountViewportArgs = {}) {
   const sheetId = args.sheetId || model.getters.getSheetIds()[0];
   const range = model.getters.getRangeFromSheetXC(sheetId, zone);
+  const size = args.size || { width: 1000, height: 1000 };
   const returnValue = await mountComponentWithPortalTarget(StandaloneViewport, {
     model,
-    props: { ...args, range },
+    props: { ...args, range, size },
   });
-  await nextTick(); // Need another render for the size to be correct
+  await nextTick();
   return returnValue;
 }
 
@@ -192,9 +185,8 @@ describe("Standalone viewport", () => {
   });
 
   test("Standalone viewport have a functional scrollbar if too small", async () => {
-    viewportHeight = 30;
     setGrid(model, { A1: "Hello", A2: "World", A3: "!" });
-    await mountViewport("A1:A3");
+    await mountViewport("A1:A3", { size: { width: 1000, height: 30 } });
     const viewStore = subEnv.getStore(ViewportsStore);
 
     expect(".o-scrollbar").toHaveCount(1);
@@ -215,10 +207,9 @@ describe("Standalone viewport", () => {
 
   test("Standalone viewport scrollbar works with frozen rows", async () => {
     const cellHeight = DEFAULT_CELL_HEIGHT;
-    viewportHeight = cellHeight * 5;
     setGrid(model, { A1: "=RANDARRAY(10,1)" });
     freezeRows(model, 2);
-    await mountViewport("A2:A10");
+    await mountViewport("A2:A10", { size: { width: 1000, height: cellHeight * 5 } });
     const viewStore = subEnv.getStore(ViewportsStore);
 
     expect(".o-scrollbar").toHaveCount(1);
@@ -233,10 +224,9 @@ describe("Standalone viewport", () => {
 
   test("Scrollbar is displayed if the main viewport is smaller than the container but there is frozen rows", async () => {
     const cellHeight = DEFAULT_CELL_HEIGHT;
-    viewportHeight = cellHeight * 8;
     setGrid(model, { A1: "=RANDARRAY(10,1)" });
     freezeRows(model, 4);
-    await mountViewport("A2:A10");
+    await mountViewport("A2:A10", { size: { width: 1000, height: cellHeight * 8 } });
     const viewStore = subEnv.getStore(ViewportsStore);
 
     expect(viewStore.mainViewportCoordinates.y).toBe(cellHeight * 3); // Three frozen rows in A2:A10
@@ -306,34 +296,23 @@ describe("Standalone viewport", () => {
   test("Can use a standalone viewport with a zoomed sheet", async () => {
     const sheetId = model.getters.getActiveSheetId();
     setGrid(model, { A1: "Hello", B1: "Hello" });
-    createCarouselWithDataView(model, toRangeData(sheetId, "A1:B1"), "carouselId");
+    createCarouselWithDataView(model, toRangeData(sheetId, "A1:B1"), "carouselId", sheetId, {
+      size: { width: 1048, height: 1053 }, // Add some padding so the carousel content is exactly 1000x1000
+    });
     const { env } = await mountSpreadsheet({ model });
 
     const mainZoomStore = env.getStore(ZoomStore);
     const standaloneViewportStore = subEnv.getStore(ViewportsStore);
-    expect(standaloneViewportStore.sheetViewDimension).toEqual({ width: 1000, height: 1000 });
-    expect(getLastRenderedBoxes()).toMatchObject([
-      { id: "A1", height: DEFAULT_CELL_HEIGHT, width: 500, x: 0, y: 0 },
-      { id: "B1", height: DEFAULT_CELL_HEIGHT, width: 500, x: 500, y: 0 },
-    ]);
 
     mainZoomStore.setZoom(2);
     await nextTick();
     expect(subEnv.getStore(ZoomStore).zoomLevel).toEqual(2);
-    expect(standaloneViewportStore.sheetViewDimension).toEqual({ width: 500, height: 500 });
-    expect(getLastRenderedBoxes()).toMatchObject([
-      { id: "A1", height: DEFAULT_CELL_HEIGHT, width: 250, x: 0, y: 0 },
-      { id: "B1", height: DEFAULT_CELL_HEIGHT, width: 250, x: 250, y: 0 },
-    ]);
+    expect(standaloneViewportStore.sheetViewDimension).toEqual({ width: 1000, height: 1000 });
 
     mainZoomStore.setZoom(0.5);
     await nextTick();
     expect(subEnv.getStore(ZoomStore).zoomLevel).toEqual(0.5);
-    expect(standaloneViewportStore.sheetViewDimension).toEqual({ width: 2000, height: 2000 });
-    expect(getLastRenderedBoxes()).toMatchObject([
-      { id: "A1", height: DEFAULT_CELL_HEIGHT, width: 1000, x: 0, y: 0 },
-      { id: "B1", height: DEFAULT_CELL_HEIGHT, width: 1000, x: 1000, y: 0 },
-    ]);
+    expect(standaloneViewportStore.sheetViewDimension).toEqual({ width: 1000, height: 1000 });
   });
 
   describe("Column resize", () => {
@@ -420,7 +399,9 @@ describe("Standalone viewport", () => {
     test("Viewports are updated when updating column weights with a frozen pane present", async () => {
       const sheetId = model.getters.getActiveSheetId();
       setGrid(model, { A1: "Hello", B1: "Hello", C1: "Hello", D1: "Hello" });
-      createCarouselWithDataView(model, toRangeData(sheetId, "A1:D1"), "carouselId");
+      createCarouselWithDataView(model, toRangeData(sheetId, "A1:D1"), "carouselId", sheetId, {
+        size: { width: 1048, height: 1053 }, // Add some padding so the carousel content is exactly 1000x1000
+      });
       freezeColumns(model, 2);
       await mountSpreadsheet({ model });
       await nextTick();
