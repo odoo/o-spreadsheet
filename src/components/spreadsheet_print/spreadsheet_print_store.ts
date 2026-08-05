@@ -1,3 +1,4 @@
+import { PRINT_DPR } from "../../constants";
 import { ViewportCollection } from "../../helpers/viewport_collection";
 import { cellPositions, intersection } from "../../helpers/zones";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
@@ -185,7 +186,7 @@ export class SpreadsheetPrintStore extends SpreadsheetStore {
       sheetId,
       viewports,
       hideGridLines: this.hideGridLines,
-      dpr: 3, // Increase the canvas' dpr on print so the image is of better quality
+      dpr: PRINT_DPR, // Increase the canvas' dpr on print so the image is of better quality
       selectedZones: [],
       activeCols: new Set(),
       activeRows: new Set(),

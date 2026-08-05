@@ -163,9 +163,13 @@ export function fontSizeInPixels(fontSize: number) {
   return Math.round((fontSize * 96) / 72);
 }
 
-export function computeTextFont(style: Style, fontUnit: "px" | "pt" = "pt"): string {
+export function computeTextFont(
+  style: Style,
+  fontUnit: "px" | "pt" = "pt",
+  fontWeight: number = DEFAULT_FONT_WEIGHT
+): string {
   const italic = style.italic ? "italic " : "";
-  const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
+  const weight = style.bold ? "bold" : fontWeight;
   const size = fontUnit === "pt" ? computeTextFontSizeInPixels(style) : style.fontSize;
   return `${italic}${weight} ${size ?? DEFAULT_FONT_SIZE}px ${DEFAULT_FONT}`;
 }

@@ -327,3 +327,5 @@ export const tokenColors = {
 } as const;
 
 export const DRAG_THRESHOLD = 5; // in pixels, to avoid unwanted drag when clicking
+
+export const PRINT_DPR = 3;

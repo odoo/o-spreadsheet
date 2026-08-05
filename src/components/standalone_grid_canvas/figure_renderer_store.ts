@@ -1,4 +1,5 @@
 import { DEFAULT_CAROUSEL_TITLE_STYLE, GRAY_400 } from "../../constants";
+import { getCarouselLayout } from "../../helpers/carousel_helpers";
 import { drawChartOnCanvas } from "../../helpers/figures/charts/chart_ui_common";
 import { chartStyleToCellStyle, deepCopy } from "../../helpers/misc";
 import { computeTextFont } from "../../helpers/text_helper";
@@ -38,31 +39,30 @@ export class FigureRendererStore extends DisposableStore {
   drawLayer(renderingCtx: GridRenderingContext): void {
     const { viewports, ctx } = renderingCtx;
     const visibleFigures = viewports.getVisibleFigures(renderingCtx.sheetId);
-    const { x: offsetX, y: offsetY } = viewports.getViewportOffset(renderingCtx.sheetId);
+    const scrollOffset = viewports.getViewportOffset(renderingCtx.sheetId);
 
     for (const figure of visibleFigures) {
-      const x = figure.x - offsetX;
-      const y = figure.y - offsetY;
+      const figureRect = { ...figure, x: figure.x - scrollOffset.x, y: figure.y - scrollOffset.y };
+      const { x, y, width, height } = figureRect;
 
       if (figure.tag === "chart") {
         const chartId = this.getters.getChartIdFromFigureId(figure.id);
         if (chartId) {
-          const chartRect = { x, y, width: figure.width, height: figure.height };
-          this.drawChart(renderingCtx, chartId, chartRect);
+          this.drawChart(renderingCtx, chartId, figureRect);
         }
       } else if (figure.tag === "image") {
         const loadedImage = this.loadedImages[this.getters.getImagePath(figure.id)];
         if (loadedImage) {
-          ctx.drawImage(loadedImage, x, y, figure.width, figure.height);
+          ctx.drawImage(loadedImage, x, y, width, height);
         }
       } else if (figure.tag === "carousel") {
-        this.drawCarousel(renderingCtx, figure);
+        this.drawCarousel(renderingCtx, figure, figureRect);
       }
 
       if (!this.getters.isDashboard()) {
         ctx.strokeStyle = GRAY_400;
         ctx.lineWidth = 1;
-        ctx.strokeRect(x, y, figure.width, figure.height);
+        ctx.strokeRect(x, y, width, height);
       }
     }
   }
@@ -86,57 +86,46 @@ export class FigureRendererStore extends DisposableStore {
     cleanUp();
   }
 
-  private drawCarousel(renderingCtx: GridRenderingContext, figure: FigureUI) {
-    const { viewports: sheetView, ctx } = renderingCtx;
-    const { x: offsetX, y: offsetY } = sheetView.getViewportOffset(renderingCtx.sheetId);
-
-    const x = figure.x - offsetX;
-    const y = figure.y - offsetY;
+  private drawCarousel(renderingCtx: GridRenderingContext, figure: FigureUI, figureRect: Rect) {
+    const { ctx } = renderingCtx;
 
     const carousel = this.getters.getCarousel(figure.id);
     const chartId = this.getters.getChartIdFromFigureId(figure.id);
     if (!carousel) {
       return;
     }
+    const selectedItem = this.getters.getSelectedCarouselItem(figure.id);
+    const layout = getCarouselLayout(figureRect, carousel, selectedItem);
     const chartDefinition = chartId ? this.getters.getChartDefinition(chartId) : undefined;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(figureRect.x, figureRect.y, figureRect.width, figureRect.height);
+    ctx.clip();
+
+    ctx.fillStyle =
+      chartDefinition?.background || this.getters.getSpreadsheetTheme().backgroundColor;
+    ctx.fillRect(figureRect.x, figureRect.y, figureRect.width, figureRect.height);
+
     const title = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...carousel.title };
-    const headerPadding = 4;
-    const headerSize = title.fontSize + headerPadding * 2;
-
-    if (!title.text && chartId) {
-      const chartRect = { x, y, width: figure.width, height: figure.height };
-      this.drawChart(renderingCtx, chartId, chartRect);
-    } else if (title.text) {
-      ctx.save();
-
-      ctx.fillStyle =
-        chartDefinition?.background || this.getters.getSpreadsheetTheme().backgroundColor;
-      ctx.fillRect(x, y, figure.width, headerSize);
-
-      const font = computeTextFont(chartStyleToCellStyle(title));
-      ctx.font = font;
+    if (title.text) {
+      const style = chartStyleToCellStyle(title);
+      ctx.font = computeTextFont(style, "px", 500);
       ctx.fillStyle = title.color;
+      ctx.textBaseline = "middle";
+      const textY = Math.ceil(layout.headerRect.y + layout.headerRect.height / 2);
+      ctx.fillText(title.text, layout.headerRect.x, textY);
+    }
 
-      ctx.fillText(title.text, x + headerPadding, y + headerPadding + title.fontSize);
-      ctx.restore();
+    const separator = layout.separatorRect;
+    if (separator) {
+      ctx.fillStyle = GRAY_400;
+      ctx.fillRect(separator.x, separator.y, separator.width, separator.height);
+    }
+    ctx.restore();
 
-      const chartRect = {
-        x: x,
-        y: y + headerSize,
-        width: figure.width,
-        height: figure.height - headerSize,
-      };
-      if (chartId) {
-        this.drawChart(renderingCtx, chartId, chartRect);
-      } else if (!this.getters.isDashboard()) {
-        // Border below the carousel header for data view
-        ctx.strokeStyle = GRAY_400;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(x, y + headerSize);
-        ctx.lineTo(x + figure.width, y + headerSize);
-        ctx.stroke();
-      }
+    if (chartId) {
+      this.drawChart(renderingCtx, chartId, layout.contentRect);
     }
   }
 }
