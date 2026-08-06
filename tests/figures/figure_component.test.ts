@@ -146,6 +146,9 @@ beforeEach(() => {
   addToRegistry(figureRegistry, "text", {
     Component: TextFigure,
     menuBuilder: () => [],
+    borderWidth: () => 1,
+    hasShadow: () => false,
+    isRounded: () => false,
   });
 });
 
@@ -1008,39 +1011,69 @@ describe("figures", () => {
     test("Border for figure", async () => {
       createFigure(model);
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border-top-width")).toEqual(`1px`);
-      expect(".o-figure-border").not.toHaveClass("o-selected");
+      expect(".o-figure").toHaveStyle({ ["border-width"]: "1px" });
+      expect(".o-figure-selection-border").toHaveCount(0);
     });
 
     test("Border for selected figure", async () => {
       createFigure(model, { id: "figureId" });
       selectFigure(model, "figureId");
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border-top-width")).toEqual(`2px`);
-      expect(".o-figure-border").toHaveClass("o-selected");
+      expect(".o-figure").toHaveStyle({ ["border-width"]: "1px" });
+      expect(".o-figure-selection-border").toHaveCount(1);
     });
 
     test("Border for image figure", async () => {
       createImage(model, { figureId: "figureId" });
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border-top-width")).toEqual(`0px`);
+      expect(".o-figure").toHaveStyle({ ["border-width"]: "0px" });
+      expect(".o-figure-selection-border").toHaveCount(0);
     });
 
     test("Border for selected image figure", async () => {
       createImage(model, { figureId: "figureId" });
       selectFigure(model, "figureId");
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border-top-width")).toEqual(`2px`);
-      expect(".o-figure-border").toHaveClass("o-selected");
+      expect(".o-figure").toHaveStyle({ ["border-width"]: "0px" });
+      expect(".o-figure-selection-border").toHaveCount(1);
     });
 
-    test("No border in dashboard mode", async () => {
-      createFigure(model, { id: "figureId" });
+    test("Chart has shadow and is rounded in dashboard mode", async () => {
+      createChart(model, { type: "bar" }, "chartId", sheetId, {
+        offset: { x: 0, y: 0 },
+        size: { width: 200, height: 100 },
+      });
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border-top-width")).toEqual("1px");
+      expect(".o-figure-wrapper").toHaveStyle({
+        left: "0px",
+        top: "0px",
+        width: "200px",
+        height: "100px",
+      });
+      expect(".o-figure").toHaveStyle({ ["border-width"]: "1px" });
+      expect(".o-figure").not.toHaveClass("o-figure-shadow");
+      expect(".o-figure").not.toHaveClass("o-figure-rounded");
+
       model.updateMode("dashboard");
       await nextTick();
-      expect(".o-figure-border").toHaveCount(0);
+      expect(".o-figure").toHaveStyle({ ["border-width"]: "0px" });
+      expect(".o-figure").toHaveClass("o-figure-shadow");
+      expect(".o-figure").toHaveClass("o-figure-rounded");
+      expect(".o-figure-wrapper").toHaveStyle({
+        left: "2px", // 2px padding for shadow
+        top: "2px",
+        width: "196px",
+        height: "96px",
+      });
+    });
+
+    test("No border/shadow in dashboard mode for images", async () => {
+      createImage(model, { figureId: "figureId" });
+      model.updateMode("dashboard");
+      await nextTick();
+      expect(".o-figure").toHaveStyle({ ["border-width"]: "0px" });
+      expect(".o-figure").not.toHaveClass("o-figure-shadow");
+      expect(".o-figure").not.toHaveClass("o-figure-rounded");
     });
   });
 

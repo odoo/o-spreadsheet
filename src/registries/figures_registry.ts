@@ -7,6 +7,7 @@ import {
 import { CarouselFigure } from "../components/figures/figure_carousel/figure_carousel";
 import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
 import { ImageFigure } from "../components/figures/figure_image/figure_image";
+import { Getters } from "../types/getters";
 import { UID } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { Registry } from "./registry";
@@ -28,7 +29,9 @@ export interface FigureContent {
   SidePanelComponent?: string;
   keepRatio?: boolean;
   minFigSize?: number;
-  borderWidth?: number;
+  borderWidth: (getters: Getters) => number;
+  hasShadow: (getters: Getters) => boolean;
+  isRounded: (getters: Getters) => boolean;
 }
 
 export const figureRegistry = new Registry<FigureContent>();
@@ -36,15 +39,23 @@ figureRegistry.add("chart", {
   Component: ChartFigure,
   SidePanelComponent: "ChartPanel",
   menuBuilder: getChartMenuActions,
+  borderWidth: (getters) => (getters.isDashboard() ? 0 : 1),
+  hasShadow: (getters) => getters.isDashboard(),
+  isRounded: (getters) => getters.isDashboard(),
 });
 figureRegistry.add("image", {
   Component: ImageFigure,
   keepRatio: true,
   minFigSize: 20,
-  borderWidth: 0,
+  borderWidth: () => 0,
+  hasShadow: () => false,
+  isRounded: () => false,
   menuBuilder: getImageMenuActions,
 });
 figureRegistry.add("carousel", {
   Component: CarouselFigure,
   menuBuilder: getCarouselMenuActions,
+  borderWidth: (getters) => (getters.isDashboard() ? 0 : 1),
+  hasShadow: (getters) => getters.isDashboard(),
+  isRounded: (getters) => getters.isDashboard(),
 });

@@ -3,7 +3,7 @@ import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { MoveFiguresPayload } from "../../../types/commands";
 import { AnchorOffset, FigureUI, ResizeDirection } from "../../../types/figure";
-import { CSSProperties, Pixel, UID } from "../../../types/misc";
+import { CSSProperties, UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
@@ -26,7 +26,6 @@ type ResizeAnchor =
 // STYLE
 // -----------------------------------------------------------------------------
 const ANCHOR_SIZE = 8;
-const BORDER_WIDTH = 1;
 const ACTIVE_BORDER_WIDTH = 2;
 
 export class FigureComponent extends Component<SpreadsheetChildEnv> {
@@ -47,35 +46,56 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
 
   private figureRef = signal<HTMLElement | null>(null);
 
-  private borderWidth!: number;
-
   get isSelected(): boolean {
-    return this.env.model.getters.getSelectedFigureIds().includes(this.props.figureUI.id);
+    return (
+      !this.env.model.getters.isDashboard() &&
+      this.env.model.getters.getSelectedFigureIds().includes(this.props.figureUI.id)
+    );
   }
 
   get figureRegistry() {
     return figureRegistry;
   }
 
-  private getBorderWidth(): Pixel {
-    if (this.env.model.getters.isDashboard()) {
-      return 0;
-    }
-    return this.isSelected ? ACTIVE_BORDER_WIDTH : this.borderWidth;
+  get borderWidth() {
+    return figureRegistry.get(this.props.figureUI.tag).borderWidth(this.env.model.getters);
   }
 
-  getBorderStyle(position: "top" | "right" | "bottom" | "left"): string {
-    return `border-${position}-width: ${this.getBorderWidth()}px;`;
+  get hasShadow() {
+    return figureRegistry.get(this.props.figureUI.tag).hasShadow(this.env.model.getters);
+  }
+
+  get isRounded() {
+    return figureRegistry.get(this.props.figureUI.tag).isRounded(this.env.model.getters);
   }
 
   get wrapperStyle() {
     const { x, y, width, height } = this.props.figureUI;
+    const padding = this.hasShadow ? 2 : 0; // Leave some space for the shadow, so it's not cut by overflow: hidden
     return cssPropertiesToCss({
-      left: `${x}px`,
-      top: `${y}px`,
-      width: `${width}px`,
-      height: `${height}px`,
+      left: `${x + padding}px`,
+      top: `${y + padding}px`,
+      width: `${width - padding * 2}px`,
+      height: `${height - padding * 2}px`,
     });
+  }
+
+  get figureStyle() {
+    const properties: CSSProperties = {
+      "border-width": `${this.borderWidth}px`,
+    };
+    return cssPropertiesToCss(properties) + ";" + this.props.style;
+  }
+
+  get figureClass() {
+    const classes = [this.props.class];
+    if (this.hasShadow) {
+      classes.push("o-figure-shadow");
+    }
+    if (this.isRounded) {
+      classes.push("o-figure-rounded");
+    }
+    return classes.join(" ");
   }
 
   getResizerPosition(resizer: ResizeAnchor): string {
@@ -100,8 +120,6 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
   }
 
   setup() {
-    const borderWidth = figureRegistry.get(this.props.figureUI.tag).borderWidth;
-    this.borderWidth = borderWidth !== undefined ? borderWidth : BORDER_WIDTH;
     useLayoutEffect(
       () => {
         const selectedFigureIds = this.env.model.getters.getSelectedFigureIds();
