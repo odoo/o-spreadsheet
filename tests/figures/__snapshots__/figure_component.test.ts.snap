@@ -6,8 +6,9 @@ exports[`figures selected figure snapshot 1`] = `
   style="left: 1px; top: 1px; width: 100px; height: 100px;"
 >
   <div
-    class="o-figure w-100 h-100"
+    class="o-figure w-100 h-100 overflow-hidden"
     data-id="someuuid"
+    style="border-width: 1px;"
     tabindex="0"
   >
     <div
@@ -17,28 +18,11 @@ exports[`figures selected figure snapshot 1`] = `
     </div>
     
     
-    <div
-      class="position-absolute top-0 start-0 pe-none w-100 h-100"
-    >
-      <div
-        class="o-figure-border pe-auto w-100 h-0 position-absolute pb-2 o-selected"
-        style="border-top-width: 2px;"
-      />
-      <div
-        class="o-figure-border pe-auto h-100 position-absolute start-0 ps-2 o-selected"
-        style="border-left-width: 2px;"
-      />
-      <div
-        class="o-figure-border pe-auto w-100 position-absolute bottom-0 pt-2 o-selected"
-        style="border-bottom-width: 2px;"
-      />
-      <div
-        class="o-figure-border pe-auto h-100 position-absolute end-0 pe-2 o-selected"
-        style="border-right-width: 2px;"
-      />
-    </div>
-    
   </div>
+  <div
+    class="o-figure-selection-border position-absolute pe-none w-100 h-100"
+  />
+  
   <div
     class="o-fig-anchor o-top pe-auto"
     style="top: -3px; right: calc(50% - 3px);"

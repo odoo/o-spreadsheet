@@ -2,6 +2,7 @@
   div.o-figure {
     color-scheme: light;
     color: var(--os-text-body);
+    border: 0px solid var(--os-figure-border-color);
 
     position: absolute;
     width: 100%;
@@ -11,15 +12,19 @@
     &:focus {
       outline: none;
     }
+
+    &.o-figure-shadow {
+      box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+    }
+
+    &.o-figure-rounded {
+      border-radius: 6px;
+    }
   }
 
-  div.o-figure-border {
+  .o-figure-selection-border {
     z-index: 1;
-    border: 0px solid var(--os-figure-border-color);
-
-    &.o-selected {
-      border-color: var(--os-selection-border-color);
-    }
+    border: 2px solid var(--os-selection-border-color);
   }
 
   .o-figure-wrapper {
