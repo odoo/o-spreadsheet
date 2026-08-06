@@ -39,7 +39,7 @@ export function getCarouselItemPreview(getters: Getters, item: CarouselItem): st
 
 export function getCarouselItemTitle(getters: Getters, item: CarouselItem): string {
   if (item.title) {
-    return item.title;
+    return getters.dynamicTranslate(item.title);
   }
   if (item.type === "carouselDataView") {
     return _t("Data");
