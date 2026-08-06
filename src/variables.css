@@ -14,7 +14,7 @@
   --os-white-bg: light-dark(#ffffff, var(--os-gray-200));
   --os-popover-bg: light-dark(#ffffff, var(--os-gray-200));
 
-  --os-default-font: "Roboto", "Arial";
+  --os-default-font: "Roboto", "Arial", "Liberation Sans";
   --os-default-font-size: 10px;
   --os-link-color: light-dark(#017e84, #02c7b5);
   --os-link-hover-color: light-dark(#01585c, #4ed8cb);
