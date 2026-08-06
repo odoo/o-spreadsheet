@@ -130,7 +130,7 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
   }
 
   get title(): string {
-    return this.carousel.title?.text ?? "";
+    return this.env.model.getters.dynamicTranslate(this.carousel.title?.text ?? "");
   }
 
   get titleStyle(): string {
