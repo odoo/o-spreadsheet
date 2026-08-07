@@ -336,6 +336,7 @@ import "./registries/interactive_icon_on_cell_registry";
 
 import { Composer } from "./components/composer/composer/composer";
 import { StandaloneComposer } from "./components/composer/standalone_composer/standalone_composer";
+import { CarouselFigure } from "./components/figures/figure_carousel/figure_carousel";
 import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
 import { TopBar } from "./components/top_bar/top_bar";
@@ -504,6 +505,7 @@ export const components = {
   NumberInput,
   TopBar,
   Composer,
+  CarouselFigure,
 };
 
 export const hooks = {
