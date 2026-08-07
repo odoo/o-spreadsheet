@@ -81,6 +81,17 @@ export function getBoundingRectAsPOJO(el: Element): Rect {
   };
 }
 
+export function getBoundingRectWithMargins(el: Element): Rect {
+  const style = getComputedStyle(el);
+  const rect = el.getBoundingClientRect();
+  return {
+    x: rect.x,
+    y: rect.y,
+    width: rect.width + parseInt(style.marginLeft || "0") + parseInt(style.marginRight || "0"),
+    height: rect.height + parseInt(style.marginTop || "0") + parseInt(style.marginBottom || "0"),
+  };
+}
+
 /**
  * Iterate over all the children of `el` in the dom tree starting at `el`, depth first.
  */
