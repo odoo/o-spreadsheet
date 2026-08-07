@@ -340,6 +340,7 @@ import { AutofillStore } from "./components/autofill/autofill_store";
 import { TableAutofillStore } from "./components/autofill/table_autofill_store";
 import { Composer } from "./components/composer/composer/composer";
 import { StandaloneComposer } from "./components/composer/standalone_composer/standalone_composer";
+import { CarouselFigure } from "./components/figures/figure_carousel/figure_carousel";
 import { isMobileOS } from "./components/helpers/dom_helpers";
 import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
@@ -523,6 +524,7 @@ export const components = {
   Composer,
   CalendarButton,
   Spreadsheet,
+  CarouselFigure,
 };
 
 export const hooks = {
