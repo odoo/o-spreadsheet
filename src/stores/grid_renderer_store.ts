@@ -245,7 +245,10 @@ export class GridRenderer extends DisposableStore {
         ctx.fillStyle = box.dataBarFill.color;
         const percentage = box.dataBarFill.percentage;
         const width = box.width * (percentage / 100);
-        ctx.fillRect(box.x, box.y, width, box.height);
+        const isDashboard = this.getters.isDashboard();
+        const y = isDashboard ? box.y + 2 : box.y;
+        const height = isDashboard ? box.height - 4 : box.height;
+        ctx.fillRect(box.x, y, width, height);
       }
       if (box.overlayColor) {
         ctx.fillStyle = blendColors(

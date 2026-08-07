@@ -40,6 +40,7 @@ import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
   addCfRule,
   addColumns,
+  addDataBarCF,
   addDataValidation,
   addEqualCf,
   addIconCF,
@@ -64,7 +65,7 @@ import {
   setZoneBorders,
 } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
-import { getFingerprint, target } from "../test_helpers/helpers";
+import { createModelFromGrid, getFingerprint, target } from "../test_helpers/helpers";
 import { createModelWithTestPivotDataset } from "../test_helpers/pivot_helpers";
 import { MockGridRenderingContext, watchClipboardOutline } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
@@ -2541,6 +2542,27 @@ describe("renderer", () => {
       gridOffsetX: HEADER_WIDTH,
       gridOffsetY: HEADER_HEIGHT,
     });
+
+    drawGridRenderer(ctx);
+    expect(ctx.screenshot()).toMatchImageSnapshot();
+  });
+
+  test("data bar fills the whole cell height in normal mode", () => {
+    const model = createModelFromGrid({ A1: "5", A2: "10" });
+    const { drawGridRenderer, container } = setRenderer(model, ["Background"]);
+    addDataBarCF(model, "A1:A2", "#3498db");
+    const ctx = new MockGridRenderingContext(model, container, 100, 50, {}, "nodeCanvas");
+
+    drawGridRenderer(ctx);
+    expect(ctx.screenshot()).toMatchImageSnapshot();
+  });
+
+  test("data bar is vertically inset in dashboard mode", () => {
+    const model = createModelFromGrid({ A1: "5", A2: "10" });
+    const { drawGridRenderer, container } = setRenderer(model, ["Background"]);
+    addDataBarCF(model, "A1:A2", "#3498db");
+    model.updateMode("dashboard");
+    const ctx = new MockGridRenderingContext(model, container, 100, 50, {}, "nodeCanvas");
 
     drawGridRenderer(ctx);
     expect(ctx.screenshot()).toMatchImageSnapshot();
