@@ -20,7 +20,10 @@ import {
   PivotMeasure,
 } from "../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
-import { hasInteractiveElementInEventTree } from "../../../helpers/dom_helpers";
+import {
+  getBoundingRectWithMargins,
+  hasInteractiveElementInEventTree,
+} from "../../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
 import { types } from "../../../props_validation";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -163,17 +166,7 @@ export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
   }
 
   getDimensionElementsRects() {
-    return Array.from(this.dimensionsRef()!.children).map((el) => {
-      const style = getComputedStyle(el)!;
-      const rect = el.getBoundingClientRect();
-      return {
-        x: rect.x,
-        y: rect.y,
-        width: rect.width + parseInt(style.marginLeft || "0") + parseInt(style.marginRight || "0"),
-        height:
-          rect.height + parseInt(style.marginTop || "0") + parseInt(style.marginBottom || "0"),
-      };
-    });
+    return Array.from(this.dimensionsRef()!.children).map((el) => getBoundingRectWithMargins(el));
   }
 
   removeDimension(dimension: PivotDimensionType) {
