@@ -1,8 +1,12 @@
-import { FormulaCell } from "../../src";
+import { FormulaCell, FunctionResultObject, Maybe } from "../../src";
+import {
+  functionRegistry,
+  NonSquishableFunctionRegistry,
+} from "../../src/functions/function_registry";
 import { createRangeFromXc } from "../../src/helpers/range";
 import { Model } from "../../src/model";
 import { createSheet, deleteColumns, getCell, getCellContent, getCellText } from "../test_helpers";
-import { createModelFromGrid } from "../test_helpers/helpers";
+import { addToRegistry, createModelFromGrid } from "../test_helpers/helpers";
 
 describe("squish - unsquish", () => {
   let model: Model;
@@ -588,6 +592,36 @@ describe("squish - unsquish specific cases", () => {
     const importedFromSquished = new Model(exportSquished);
     const exportUnSquished = importedFromSquished._exportData(false);
     expect(exportUnSquished.sheets[0].cells).toEqual(sheetContent);
+  });
+
+  test("formulas using a non-squishable function are exported as is", () => {
+    addToRegistry(functionRegistry, "NOSQUISH", {
+      description: "DO no squish",
+      compute: (term: Maybe<FunctionResultObject>) => term?.value ?? "",
+      args: [{ name: "term", description: "", type: ["ANY"] }],
+    });
+    NonSquishableFunctionRegistry.add("NOSQUISH", "NOSQUISH");
+    const sheetContent = {
+      A1: "=SUM(B1)",
+      A2: "=SUM(B2)",
+      A3: '=NOSQUISH("hello")',
+      A4: '=NOSQUISH("hello")',
+      A5: '=NOSQUISH("world")',
+    };
+    const model = createModelFromGrid(sheetContent);
+
+    const exportSquished = model._exportData(true);
+    expect(exportSquished.sheets[0].cells).toEqual({
+      A1: "=SUM(B1)",
+      A2: { R: "+R1" },
+      "A3:A4": '=NOSQUISH("hello")',
+      A5: '=NOSQUISH("world")',
+    });
+
+    const importedFromSquished = new Model(exportSquished);
+    const exportUnSquished = importedFromSquished._exportData(false);
+    expect(exportUnSquished.sheets[0].cells).toEqual(sheetContent);
+    NonSquishableFunctionRegistry.remove("NOSQUISH");
   });
 });
 

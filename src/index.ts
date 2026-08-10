@@ -140,7 +140,7 @@ import { HoveredTableStore } from "./components/tables/hovered_table_store";
 import { TextInput } from "./components/text_input/text_input";
 import { ChartTerms } from "./components/translations_terms";
 import { arg } from "./functions/arguments";
-import { functionRegistry } from "./functions/function_registry";
+import { NonSquishableFunctionRegistry, functionRegistry } from "./functions/function_registry";
 import { PositionMap } from "./helpers/cells/position_map";
 import * as CHART_HELPERS from "./helpers/figures/charts";
 import { chartJsExtensionRegistry } from "./helpers/figures/charts/chart_js_extension";
@@ -325,6 +325,7 @@ export const registries = {
   pivotToFunctionValueRegistry,
   migrationStepRegistry,
   chartJsExtensionRegistry,
+  NonSquishableFunctionRegistry,
 };
 
 import "./registries/chart_types";
@@ -519,7 +520,10 @@ export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";
 
 export { createAutocompleteArgumentsProvider } from "./functions/autocomplete_arguments_provider";
 export { categories } from "./functions/function_registry";
-export type { FunctionRegistry } from "./functions/function_registry";
+export type {
+  FunctionRegistry,
+  NonSquishableFunctionRegistry,
+} from "./functions/function_registry";
 export type { StoreConstructor, StoreParams } from "./store_engine";
 export function addFunction(functionName: string, functionDescription: AddFunctionDescription) {
   functionRegistry.add(functionName, functionDescription);
