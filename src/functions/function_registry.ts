@@ -85,3 +85,7 @@ for (const category of categories) {
     functionRegistry.add(name, { isExported: false, ...addDescr });
   }
 }
+
+/** Formulas using one of these functions are never squished: they are always exported
+ * as a full formula string, and they don't become the base formula of the next cells. */
+export const NonSquishableFunctionRegistry = new Registry<FunctionDescription["name"]>();
