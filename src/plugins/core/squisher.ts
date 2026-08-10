@@ -1,4 +1,5 @@
 import { CompiledFormula } from "../../formulas/compiler";
+import { NonSquishableFunctionRegistry } from "../../functions/function_registry";
 import { createCell } from "../../helpers/cells/cell_evaluation";
 import { toCartesian, toXC } from "../../helpers/coordinates";
 import { deepCopy, deepEquals } from "../../helpers/misc";
@@ -110,7 +111,8 @@ export class Squisher {
    * The result of this method is:
    * - if the cell is not a formula, returns the content as is and resets the base formula
    * - if the cell is a formula:
-   *   - if there is no previous formula, or the normalized formula is different from the previous one, resets the base formula to this one and returns the full formula string
+   *   - if there is no previous formula, or the normalized formula is different from the previous one or it contains blacklisted functions (see NonSquishableFunctionRegistry),
+   *        resets the base formula to this one and returns the full formula string
    *   - else, compares the literal values and range dependencies to the previous formula, and for each parameter:
    *     - for numbers: returns a relative change (+N or -N) if possible, else the full number or "=" if unchanged
    *     - for strings: returns the full string if changed, else "="
@@ -118,6 +120,14 @@ export class Squisher {
    * */
   squish(cell: Cell, forSheetId: UID): SquishedContent {
     if (cell.isFormula) {
+      if (
+        NonSquishableFunctionRegistry.getAll().some((functionName) =>
+          cell.compiledFormula.usesSymbol(functionName)
+        )
+      ) {
+        this.resetBaseFormula();
+        return cell.compiledFormula.toFormulaString(this.getters, this.rangeToStringOptions);
+      }
       let numbers: string[] = [];
       let strings: string[] = [];
       let references: string[] = [];
