@@ -133,7 +133,7 @@ import { HoveredTableStore } from "./components/tables/hovered_table_store";
 import { TextInput } from "./components/text_input/text_input";
 import { ChartTerms } from "./components/translations_terms";
 import { arg } from "./functions/arguments";
-import { functionRegistry } from "./functions/function_registry";
+import { functionRegistry, NonSquishableFunctionRegistry } from "./functions/function_registry";
 import { chartJsExtensionRegistry } from "./helpers/figures/charts/chart_js_extension";
 import * as CHART_HELPERS from "./helpers/figures/charts/helpers_index";
 import * as CHART_RUNTIME_HELPERS from "./helpers/figures/charts/runtime/helpers_index";
@@ -325,6 +325,7 @@ export const registries = {
   onIterationEndEvaluationRegistry,
   specificRangeTransformRegistry,
   unusedDataSourceRegistry,
+  NonSquishableFunctionRegistry,
 };
 
 /** Registries Population */
@@ -577,7 +578,10 @@ export const stores = {
 export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";
 
 export { createAutocompleteArgumentsProvider } from "./functions/autocomplete_arguments_provider";
-export type { FunctionRegistry } from "./functions/function_registry";
+export type {
+  FunctionRegistry,
+  NonSquishableFunctionRegistry,
+} from "./functions/function_registry";
 export { categories } from "./functions/function_registry_population";
 export type { StoreConstructor, StoreParams } from "./types/store_engine";
 export function addFunction(functionName: string, functionDescription: AddFunctionDescription) {
