@@ -103,8 +103,7 @@ export class FigureRendererStore extends DisposableStore {
     ctx.rect(figureRect.x, figureRect.y, figureRect.width, figureRect.height);
     ctx.clip();
 
-    ctx.fillStyle =
-      chartDefinition?.background || this.getters.getSpreadsheetTheme().backgroundColor;
+    ctx.fillStyle = chartDefinition?.background || renderingCtx.backgroundColor;
     ctx.fillRect(figureRect.x, figureRect.y, figureRect.width, figureRect.height);
 
     const title = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...carousel.title };
