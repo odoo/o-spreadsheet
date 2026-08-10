@@ -1,4 +1,4 @@
-import { onWillStart, onWillUpdateProps, signal, useProps } from "@odoo/owl";
+import { onWillStart, onWillUpdateProps, useProps, xml } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { useLocalStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
@@ -11,15 +11,14 @@ import { types } from "../props_validation";
 import { FigureRendererStore } from "./figure_renderer_store";
 
 export class StandaloneGridCanvas extends Component<SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-StandaloneGridCanvas";
+  static template = xml/*xml*/ ``;
 
   protected props = useProps({
     sheetId: types.UID(),
     zone: types.Zone(),
     renderingCtx: types.object<Omit<GridRenderingContext, "ctx" | "thinLineWidth">>(),
+    canvas: types.object<HTMLCanvasElement>(),
   });
-
-  private canvasRef = signal<HTMLElement | null>(null);
 
   rendererStore!: Store<RendererStore>;
   figureRendererStore!: Store<FigureRendererStore>;
@@ -28,7 +27,7 @@ export class StandaloneGridCanvas extends Component<SpreadsheetChildEnv> {
     this.rendererStore = useLocalStore(RendererStore, ["Background", "Chart"]);
     this.figureRendererStore = useLocalStore(FigureRendererStore, this.rendererStore);
     useGridDrawing({
-      canvasRef: this.canvasRef,
+      canvasRef: () => this.props.canvas,
       renderingCtx: () => this.props.renderingCtx,
       rendererStore: this.rendererStore,
       changeCanvasSizeOnZoom: true,

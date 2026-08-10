@@ -1,5 +1,5 @@
-import { onWillUnmount, useProps } from "@odoo/owl";
-import { Component, useExternalListener } from "../../owl3_compatibility_layer";
+import { signal, useProps } from "@odoo/owl";
+import { Component } from "../../owl3_compatibility_layer";
 import { useLocalStore } from "../../store_engine/store_hooks";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
@@ -10,6 +10,7 @@ import { BadgeSelection } from "../side_panel/components/badge_selection/badge_s
 import { Checkbox } from "../side_panel/components/checkbox/checkbox";
 import { Section } from "../side_panel/components/section/section";
 import { StandaloneGridCanvas } from "../standalone_grid_canvas/standalone_grid_canvas";
+import { PrintIframe, usePrintIframe } from "./print_iframe";
 import {
   Orientation,
   PrintPageLayout,
@@ -26,25 +27,23 @@ export class SpreadsheetPrint extends Component<SpreadsheetChildEnv> {
   static components = { StandaloneGridCanvas, Section, Select, BadgeSelection, Checkbox };
 
   printStore!: Store<SpreadsheetPrintStore>;
+  printIframe!: PrintIframe;
+
+  private iframeRef = signal<HTMLIFrameElement | null>(null);
 
   setup() {
     this.printStore = useLocalStore(SpreadsheetPrintStore);
-    let styleElement: HTMLStyleElement | null = null;
-    useExternalListener(window, "beforeprint", () => {
-      styleElement = document.createElement("style");
-      styleElement.id = "o-spreadsheet-print-style";
-      const size = `${this.printStore.pageLayout} ${this.printStore.orientation}`;
-      styleElement.textContent = `@media print { @page { size: ${size}; margin: ${this.printStore.printMargin}px;}}`;
-      document.head.appendChild(styleElement);
+    this.printIframe = usePrintIframe({
+      iframeRef: this.iframeRef,
+      pageCount: () => this.printStore.printPages.length,
+      pageStyle: () => this.pageStyle,
+      pageRule: () => this.pageRule,
     });
-    const removePrintStyle = () => {
-      if (styleElement) {
-        document.head.removeChild(styleElement);
-        styleElement = null;
-      }
-    };
-    useExternalListener(window, "afterprint", () => removePrintStyle());
-    onWillUnmount(() => removePrintStyle());
+  }
+
+  get pageRule(): string {
+    const size = `${this.printStore.pageLayout} ${this.printStore.orientation}`;
+    return `@page { size: ${size}; margin: ${this.printStore.printMargin}px; }`;
   }
 
   get pageStyle(): string {
@@ -77,7 +76,7 @@ export class SpreadsheetPrint extends Component<SpreadsheetChildEnv> {
   }
 
   onPrint() {
-    window.print();
+    this.printIframe.print();
     this.props.onExitPrintMode();
   }
 }
