@@ -414,6 +414,32 @@ describe("commands", () => {
     expect(new CommandSquisher(model.getters).unsquish(result)).toStrictEqual(commands);
   });
 
+  test("squish should restart on a cell with an empty content", () => {
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "=2", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "=0", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 3, content: "=0", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 4, content: "=0", type: "UPDATE_CELL" },
+    ];
+    const result: (CoreCommand | SquishedCoreCommand)[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "=2", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "=0", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "", type: "UPDATE_CELL" },
+      {
+        sheetId: "Sheet1",
+        targetRange: "A4:A5",
+        content: "=0",
+        type: "SQUISHED_UPDATE_CELL",
+      },
+    ];
+    const model = new Model();
+    const squishedCommands = new CommandSquisher(model.getters).squish(commands);
+    expect(squishedCommands).toStrictEqual(result);
+    expect(new CommandSquisher(model.getters).unsquish(squishedCommands)).toStrictEqual(commands);
+    expect(new CommandSquisher(model.getters).unsquish(result)).toStrictEqual(commands);
+  });
+
   test("commands in incorrect order cannot be unsquish and generate an error", () => {
     const commands: readonly CoreCommand[] | (CoreCommand | SquishedCoreCommand)[] = [
       {

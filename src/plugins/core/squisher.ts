@@ -164,7 +164,7 @@ export class Squisher {
   }
 
   public squishCommand(command: UpdateCellCommand): string | SquishedFormula | undefined {
-    if (command.content) {
+    if (command.content !== undefined) {
       const cell = createCell(
         this.getters,
         -1,
