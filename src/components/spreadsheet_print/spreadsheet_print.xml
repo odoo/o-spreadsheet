@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-SpreadsheetPrint">
     <div class="o-spreadsheet-print d-flex flex-column h-100 w-100">
       <t t-set="pages" t-value="this.printStore.printPages"/>
-      <div class="o-print-header flex-shrink-0 d-flex align-items-center d-print-none">
+      <div class="o-print-header flex-shrink-0 d-flex align-items-center">
         <h3 class="m-0 p-3 ps-4 text-white">Print Preview</h3>
         <span class="text-white">
           <t t-out="pages.length"/>
@@ -14,30 +14,8 @@
         <button class="o-button primary flex-grow-0 me-4" t-on-click="this.onPrint">Next</button>
       </div>
       <div class="o-print-container d-flex flex-grow-1 overflow-hidden">
-        <div class="o-print-preview w-100 overflow-auto d-flex flex-column">
-          <div class="mx-auto">
-            <div
-              t-if="pages.length === 0"
-              class="o-print-page o-empty-print-page m-4 shadow d-flex flex-column align-items-center justify-content-center flex-shrink-0"
-              t-att-style="this.pageStyle">
-              <h4 class="fst-italic text-muted">No content to print</h4>
-            </div>
-            <div
-              t-else=""
-              t-foreach="pages"
-              t-as="page"
-              t-key="page_index"
-              class="o-print-page m-4 shadow d-flex justify-content-center flex-shrink-0"
-              t-att-style="this.pageStyle">
-              <StandaloneGridCanvas
-                sheetId="page.sheetId"
-                zone="page.zone"
-                renderingCtx="page.renderingCtx"
-              />
-            </div>
-          </div>
-        </div>
-        <div class="o-sidePanel flex-shrink-0 bg-white border-top border-start d-print-none">
+        <iframe class="o-print-preview" t-ref="this.iframeRef" title="Print preview"/>
+        <div class="o-sidePanel flex-shrink-0 bg-white border-top border-start">
           <div class="o-sidePanelBody pt-4">
             <Section t-if="!this.env.model.getters.isDashboard()">
               <div class="o-section-title">Print content</div>
@@ -91,6 +69,16 @@
           </div>
         </div>
       </div>
+
+      <t t-foreach="pages" t-as="page" t-key="page_index">
+        <StandaloneGridCanvas
+          t-if="this.printIframe.canvases()[page_index]"
+          canvas="this.printIframe.canvases()[page_index]"
+          sheetId="page.sheetId"
+          zone="page.zone"
+          renderingCtx="page.renderingCtx"
+        />
+      </t>
     </div>
   </t>
 </templates>

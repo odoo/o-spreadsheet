@@ -3,7 +3,6 @@ import { SpreadsheetPrint } from "../../src/components/spreadsheet_print/spreads
 import { SpreadsheetPrintStore } from "../../src/components/spreadsheet_print/spreadsheet_print_store";
 import { FigureRendererStore } from "../../src/components/standalone_grid_canvas/figure_renderer_store";
 import { Store } from "../../src/types/store_engine";
-import { registerCleanup } from "../setup/jest.setup";
 import {
   createChart,
   createSheet,
@@ -20,18 +19,23 @@ import {
 } from "../test_helpers/helpers";
 import { getLastZonesRendered, spyStoreCreation, StoreSpy } from "../test_helpers/stores";
 
+function getPrintIframe() {
+  return document.querySelector<HTMLIFrameElement>("iframe.o-print-preview")!;
+}
+
+function getPrintPages() {
+  return [...getPrintIframe().contentDocument!.body.querySelectorAll(".o-print-page")];
+}
+
+function mockIframePrint() {
+  const contentWindow = getPrintIframe().contentWindow!;
+  const mockPrint = jest.fn();
+  contentWindow.print = mockPrint;
+  contentWindow.focus = jest.fn(); // Not implemented in jsdom
+  return mockPrint;
+}
+
 describe("Spreadsheet integration tests", () => {
-  let mockWindowPrint: jest.Mock;
-
-  beforeEach(() => {
-    const originalPrint = window.print;
-    mockWindowPrint = jest.fn();
-    window.print = mockWindowPrint;
-    registerCleanup(() => {
-      window.print = originalPrint;
-    });
-  });
-
   test("Can open the print mode with CTRL+P shortcut", async () => {
     await mountSpreadsheet();
     expect(".o-spreadsheet-print").toHaveCount(0);
@@ -51,20 +55,22 @@ describe("Spreadsheet integration tests", () => {
     await mountSpreadsheet();
     await keyDown({ key: "p", ctrlKey: true });
     expect(".o-spreadsheet-print").toHaveCount(1);
+    const iframePrint = mockIframePrint();
 
     await simulateClick(".o-print-header button:not(.primary)");
     expect(".o-spreadsheet-print").toHaveCount(0);
-    expect(mockWindowPrint).not.toHaveBeenCalled();
+    expect(iframePrint).not.toHaveBeenCalled();
   });
 
   test("Can trigger the browser print dialog", async () => {
     await mountSpreadsheet();
     await keyDown({ key: "p", ctrlKey: true });
     expect(".o-spreadsheet-print").toHaveCount(1);
+    const iframePrint = mockIframePrint();
 
     await simulateClick(".o-print-header button.primary");
     expect(".o-spreadsheet-print").toHaveCount(0);
-    expect(mockWindowPrint).toHaveBeenCalledTimes(1);
+    expect(iframePrint).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -84,10 +90,11 @@ describe("Spreadsheet print rendering", () => {
   });
 
   async function mountSpreadsheetPrint() {
-    return await mountComponentWithPortalTarget(SpreadsheetPrint, {
+    await mountComponentWithPortalTarget(SpreadsheetPrint, {
       props: { onExitPrintMode: () => {} },
       model,
     });
+    await nextTick(); // Need to wait a render for the iframe to be loaded/initialized before we draw the pages
   }
 
   function getPrintStore() {
@@ -109,7 +116,7 @@ describe("Spreadsheet print rendering", () => {
     const drawChartSpy = jest.spyOn(figureRendererStore, "drawChart").mockImplementation(() => {});
     const figure = { figureId: "figureId", col: 0, row: 0, size: { width: 200, height: 200 } };
 
-    expect(".o-print-page").toHaveCount(1);
+    expect(getPrintPages()).toHaveLength(1);
     expect(getLastZonesRendered(storeSpy)).toEqual([
       { sheetId, left: 0, top: 0, right: 0, bottom: 0 },
     ]);
@@ -118,7 +125,7 @@ describe("Spreadsheet print rendering", () => {
     createChart(model, { type: "bar" }, "chartId", undefined, figure);
     await nextTick();
 
-    expect(".o-print-page").toHaveCount(1);
+    expect(getPrintPages()).toHaveLength(1);
     expect(getLastZonesRendered(storeSpy)).toEqual([
       { sheetId, left: 0, top: 0, right: 2, bottom: 8 },
     ]);
@@ -130,12 +137,12 @@ describe("Spreadsheet print rendering", () => {
     await mountSpreadsheetPrint();
 
     expect(".o-print-layout").toHaveText("A4 (210 x 297 mm)");
-    expect(".o-print-page").toHaveStyle({ height: "1122px", width: "793px" });
+    expect(getPrintPages()[0]).toHaveStyle({ height: "1122px", width: "793px" });
     expect(getPrintStore().pageLayout).toBe("A4");
 
     await editSelectComponent(".o-print-layout", "A3");
     expect(".o-print-layout").toHaveText("A3 (297 x 420 mm)");
-    expect(".o-print-page").toHaveStyle({ height: "1587px", width: "1122px" });
+    expect(getPrintPages()[0]).toHaveStyle({ height: "1587px", width: "1122px" });
     expect(getPrintStore().pageLayout).toBe("A3");
   });
 
@@ -144,12 +151,12 @@ describe("Spreadsheet print rendering", () => {
     await mountSpreadsheetPrint();
 
     expect(".o-badge-selection .selected").toHaveAttribute("data-id", "portrait");
-    expect(".o-print-page").toHaveStyle({ height: "1122px", width: "793px" });
+    expect(getPrintPages()[0]).toHaveStyle({ height: "1122px", width: "793px" });
     expect(getPrintStore().orientation).toBe("portrait");
 
     await simulateClick(".o-badge-selection button[data-id='landscape']");
     expect(".o-badge-selection .selected").toHaveAttribute("data-id", "landscape");
-    expect(".o-print-page").toHaveStyle({ height: "793px", width: "1122px" });
+    expect(getPrintPages()[0]).toHaveStyle({ height: "793px", width: "1122px" });
     expect(getPrintStore().orientation).toBe("landscape");
   });
 
@@ -187,29 +194,31 @@ describe("Spreadsheet print rendering", () => {
 
   test("Mock print page is shown if there is no content to print", async () => {
     await mountSpreadsheetPrint();
-    expect(".o-print-page.o-empty-print-page").toHaveCount(1);
+    expect(getPrintPages()[0]).toHaveClass("o-empty-print-page");
 
     setSelection(model, ["B2:D3"]);
     setCellContent(model, "A1", "=MUNIT(5)");
     await editSelectComponent(".o-print-selection", "selection");
 
-    expect(".o-print-page.o-empty-print-page").toHaveCount(0);
+    expect(getPrintPages()[0]).not.toHaveClass("o-empty-print-page");
 
     setSelection(model, ["A25"]);
     await nextTick();
-    expect(".o-print-page.o-empty-print-page").toHaveCount(1);
+    expect(getPrintPages()[0]).toHaveClass("o-empty-print-page");
   });
 
-  test("Style is injected in beforePrint depending on the print setting used", async () => {
+  test("Correct @page css is injected in the iframe", async () => {
     await mountSpreadsheetPrint();
     await simulateClick(".o-badge-selection button[data-id='landscape']");
+
+    const iframe = getPrintIframe();
+    expect(iframe.contentDocument?.head.textContent).toContain(
+      "@page { size: A4 landscape; margin: 50px; }"
+    );
+
     await editSelectComponent(".o-print-layout", "A3");
-
-    expect(document.head).toHaveText("");
-    window.dispatchEvent(new Event("beforeprint"));
-    expect(document.head).toHaveText("@media print { @page { size: A3 landscape; margin: 50px;}}");
-
-    window.dispatchEvent(new Event("afterprint"));
-    expect(document.head).toHaveText("");
+    expect(iframe.contentDocument?.head.textContent).toContain(
+      "@page { size: A3 landscape; margin: 50px; }"
+    );
   });
 });
