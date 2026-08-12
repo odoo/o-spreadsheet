@@ -430,7 +430,9 @@ export class Session extends EventBus<CollaborativeEvent> {
       }
       message = {
         ...message,
-        commands: this.commandSquisher.squish(revision.commands),
+        commands: revision.commands,
+        // deactivated squishing for now, as it is causing issues with empty cells & literals with inlined formats
+        //this.commandSquisher.squish(revision.commands),
       };
     }
     if (this.isReplayingInitialRevisions) {
