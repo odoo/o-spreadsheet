@@ -319,7 +319,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
             ? squisher.squish(cell, _sheet.id)
             : cell.compiledFormula.toFormulaString(this.getters);
         } else if (cell.content) {
-          cells[xc] = shouldSquish ? squisher.squish(cell, _sheet.id) : cell.content;
+          // the cell content is what is exported when the cell is not squished
+          cells[xc] = shouldSquish ? squisher.squish(cell, _sheet.id, cell.content) : cell.content;
         }
       }
       _sheet.styles = groupItemIdsByZones(positionsByStyle);

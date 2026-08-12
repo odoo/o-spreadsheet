@@ -151,6 +151,108 @@ describe("commands", () => {
     expect(new CommandSquisher(model.getters).unsquish(commands)).toStrictEqual(commands);
   });
 
+  test("squish should respect implicit formats", () => {
+    const commands: readonly CoreCommand[] = [
+      {
+        sheetId: "Sheet1",
+        col: 0,
+        row: 0,
+        content: "100%",
+        type: "UPDATE_CELL",
+      },
+      {
+        sheetId: "Sheet1",
+        col: 0,
+        row: 1,
+        content: "2",
+        type: "UPDATE_CELL",
+      },
+      {
+        sheetId: "Sheet1",
+        col: 0,
+        row: 2,
+        content: "3",
+        type: "UPDATE_CELL",
+      },
+      {
+        sheetId: "Sheet1",
+        col: 0,
+        row: 3,
+        content: "$4",
+        type: "UPDATE_CELL",
+      },
+    ]; // mimics a paste from clipboard behaviour, requires 3 commands to actually squish
+    const result: (CoreCommand | SquishedCoreCommand)[] = [
+      {
+        sheetId: "Sheet1",
+        col: 0,
+        row: 0,
+        content: "100%",
+        type: "UPDATE_CELL",
+      },
+      {
+        sheetId: "Sheet1",
+        col: 0,
+        row: 1,
+        content: "2",
+        type: "UPDATE_CELL",
+      },
+      {
+        sheetId: "Sheet1",
+        col: 0,
+        row: 2,
+        content: "3",
+        type: "UPDATE_CELL",
+      },
+      {
+        sheetId: "Sheet1",
+        col: 0,
+        row: 3,
+        content: "$4",
+        type: "UPDATE_CELL",
+      },
+    ];
+    const model = new Model();
+    const squishedCommands = new CommandSquisher(model.getters).squish(commands);
+    expect(squishedCommands).toStrictEqual(result);
+    expect(new CommandSquisher(model.getters).unsquish(squishedCommands)).toStrictEqual(commands);
+    expect(new CommandSquisher(model.getters).unsquish(result)).toStrictEqual(commands);
+  });
+
+  test("squish should respect implicit formats hidden behind an explicit format", () => {
+    // plain text cells keep the format inlined in their content: "$1" is not
+    // converted to the content "1" with a currency format
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "$1", format: "@", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "2", format: "@", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "3", format: "@", type: "UPDATE_CELL" },
+    ];
+    const model = new Model();
+    expect(new CommandSquisher(model.getters).squish(commands)).toStrictEqual(commands);
+    expect(new CommandSquisher(model.getters).unsquish(commands)).toStrictEqual(commands);
+  });
+
+  test("squish contents sharing the same implicit format", () => {
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "$1", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "$2", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "$3", type: "UPDATE_CELL" },
+    ];
+    const result: (CoreCommand | SquishedCoreCommand)[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "$1", type: "UPDATE_CELL" },
+      {
+        sheetId: "Sheet1",
+        targetRange: "A2:A3",
+        content: { N: "+1" },
+        type: "SQUISHED_UPDATE_CELL",
+      },
+    ];
+    const model = new Model();
+    const squishedCommands = new CommandSquisher(model.getters).squish(commands);
+    expect(squishedCommands).toStrictEqual(result);
+    expect(new CommandSquisher(model.getters).unsquish(squishedCommands)).toStrictEqual(commands);
+  });
+
   test("squish should respect differences in style", () => {
     const commands: readonly CoreCommand[] = [
       {

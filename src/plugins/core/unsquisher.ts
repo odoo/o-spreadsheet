@@ -1,6 +1,5 @@
 import { SquishedCoreCommand } from "../../collaborative/command_squisher";
 import { CompiledFormula } from "../../formulas/compiler";
-import { createLiteralCell } from "../../helpers/cells/cell_evaluation";
 import { toCartesian } from "../../helpers/coordinates";
 import { expandRange, expandXc } from "../../helpers/expand_range";
 import { formatValue } from "../../helpers/format/format";
@@ -9,7 +8,13 @@ import { CoreCommand, UpdateCellCommand } from "../../types/commands";
 import { CoreGetters } from "../../types/core_getters";
 import { Position, UID } from "../../types/misc";
 import { Range } from "../../types/range";
-import { NO_CHANGE, SEPARATOR, SquishedContent, SquishedFormula } from "./squisher";
+import {
+  NO_CHANGE,
+  parseSquishableLiteral,
+  SEPARATOR,
+  SquishedContent,
+  SquishedFormula,
+} from "./squisher";
 
 type UnsquishMethod =
   | "NOT_A_FORMULA"
@@ -165,15 +170,15 @@ export class Unsquisher {
         this.previousNumber = undefined;
         this.previousNumberFormat = undefined;
       } else {
-        const squishableLiteral = this.parseSquishableLiteral(current, getters);
+        const squishableLiteral = parseSquishableLiteral(getters, current);
         if (squishableLiteral) {
           strategy = "NEW_NUMBER";
           this.rebase();
           this.previousNumber = squishableLiteral.value;
           this.previousNumberFormat = squishableLiteral.format;
         } else {
-          this.rebase();
           strategy = "NOT_A_FORMULA";
+          this.rebase();
         }
       }
     } else {
@@ -285,20 +290,6 @@ export class Unsquisher {
         break;
       }
     }
-  }
-
-  private parseSquishableLiteral(
-    content: string,
-    getters: CoreGetters
-  ): { value: number; format?: Format } | undefined {
-    const cell = createLiteralCell(getters, -1, content, undefined, undefined);
-    if (typeof cell.parsedValue !== "number" || cell.parsedValue % 1 !== 0) {
-      return undefined;
-    }
-    return {
-      value: cell.parsedValue,
-      format: cell.format,
-    };
   }
 
   /**

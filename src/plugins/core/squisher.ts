@@ -1,11 +1,12 @@
 import { CompiledFormula } from "../../formulas/compiler";
 import { deepCopy, deepEquals } from "../../helpers";
-import { createCell } from "../../helpers/cells/cell_evaluation";
+import { createCell, createLiteralCell } from "../../helpers/cells/cell_evaluation";
 import { toCartesian, toXC } from "../../helpers/coordinates";
 import { getRangeString } from "../../helpers/range";
 import { Cell } from "../../types/cells";
 import { UpdateCellCommand } from "../../types/commands";
 import { CoreGetters } from "../../types/core_getters";
+import { Format } from "../../types/format";
 import { UID } from "../../types/misc";
 import { Range } from "../../types/range";
 
@@ -33,6 +34,27 @@ export type SquishedContent = string | SquishedFormula;
 export const SEPARATOR = "|";
 export const NO_CHANGE = "=";
 
+/**
+ * Parse a content which could be squished as a relative number change (e.g. { N: "+1" }).
+ *
+ * Both the squisher and the unsquisher must agree on the result: the unsquisher only
+ * knows the content it receives, it infers the number and its format from it. The
+ * squisher must therefore look at the very same thing, and not at the format of the
+ * cell: they differ when the format is transported aside from the content (the format
+ * of an UPDATE_CELL command, or the formats of an exported sheet) or when the content
+ * keeps its inline format (plain text cells).
+ */
+export function parseSquishableLiteral(
+  getters: CoreGetters,
+  content: string
+): { value: number; format?: Format } | undefined {
+  const cell = createLiteralCell(getters, -1, content, undefined, undefined);
+  if (typeof cell.parsedValue !== "number" || cell.parsedValue % 1 !== 0) {
+    return undefined;
+  }
+  return { value: cell.parsedValue, format: cell.format };
+}
+
 export class Squisher {
   private readonly getters: CoreGetters;
   // the base formula to compare against
@@ -45,6 +67,8 @@ export class Squisher {
   private baseFormulaWasTransformed: boolean = false;
 
   private baseNumber: number | undefined = undefined;
+  // the format the unsquisher will infer from the content of the base number
+  private baseFormat: Format | undefined = undefined;
 
   constructor(getters: CoreGetters) {
     this.getters = getters;
@@ -89,6 +113,7 @@ export class Squisher {
     this.previousStrings = formula.literalValues.strings.map((x) => x.value);
     this.baseFormulaWasTransformed = false;
     this.baseNumber = undefined;
+    this.baseFormat = undefined;
   }
 
   /** Reset the base formula to undefined, resetting all offsets */
@@ -113,8 +138,14 @@ export class Squisher {
    *     - for numbers: returns a relative change (+N or -N) if possible, else the full number or "=" if unchanged
    *     - for strings: returns the full string if changed, else "="
    *     - for references: returns a relative change (+Ck or +Rk) if possible, else the full reference or "=" if unchanged
+   *
+   * @param emittedContent the content the unsquisher will receive when this cell is not
+   *  squished. It is the cell content for an exported sheet, but callers sending something
+   *  else must say so: `squishCommand` sends the command content, which keeps its inline
+   *  format ("$100" instead of the cell content "100"). Numbers are not squished at all
+   *  when it is omitted, as we cannot know which format the unsquisher will infer.
    * */
-  squish(cell: Cell, forSheetId: UID): SquishedContent {
+  squish(cell: Cell, forSheetId: UID, emittedContent?: string): SquishedContent {
     if (cell.isFormula) {
       let numbers: string[] = [];
       let strings: string[] = [];
@@ -142,24 +173,41 @@ export class Squisher {
       return this.buildResult(numbers, strings, references);
     }
 
-    if (typeof cell.parsedValue === "number" && cell.parsedValue % 1 === 0) {
+    // the unsquisher rebuilds the numbers from the content it receives, it has to be
+    // squishable on its side too, with the very same value and format. Without knowing
+    // which content it will receive, we cannot squish: we would guess its format.
+    const squishableLiteral =
+      emittedContent !== undefined && typeof cell.parsedValue === "number"
+        ? parseSquishableLiteral(this.getters, emittedContent)
+        : undefined;
+    if (squishableLiteral) {
       this.resetBaseFormula();
       // for number cells, we can also apply squishing to get relative change if needed. We will treat them as formulas with only one number and no references or strings, and we will not set them as the base formula because they are not formulas.
-      const numberValue = cell.parsedValue;
+      const { value: numberValue, format: numberFormat } = squishableLiteral;
       if (this.baseNumber === undefined) {
+        this.baseFormat = numberFormat;
         this.baseNumber = numberValue;
         return cell.content;
       }
       const numberOffset = numberValue - this.baseNumber;
       if (numberOffset === 0) {
+        this.baseFormat = numberFormat;
         return cell.content;
       } else {
         this.baseNumber = numberValue;
+        if (this.baseFormat !== numberFormat) {
+          // the offsets are rendered with the format of the base number: a different
+          // format has to restart the squishing, otherwise the unsquisher would rebuild
+          // a content with the format of the base number.
+          this.baseFormat = numberFormat;
+          return cell.content;
+        }
         return { N: (numberOffset > 0 ? "+" : "") + numberOffset.toString() };
       }
     }
     this.resetBaseFormula();
     this.baseNumber = undefined;
+    this.baseFormat = undefined;
     return cell.content;
   }
 
@@ -173,7 +221,13 @@ export class Squisher {
         command.style ?? undefined,
         command.sheetId
       );
-      const squished = this.squish(cell, command.sheetId);
+      // createCell will alter the content/format duo by extracting all the format from the
+      // content. If there are multiple formats (inline + command.format), the content will be normalized
+      // to a number (or other base w/h) and the squisher can then no longer compare the cells
+      // in order to both preserve the inline format and the other.
+
+      //
+      const squished = this.squish(cell, command.sheetId, command.content);
       // Otherwise, cell.content might be different from command.content.
       // For example, if command.content is "$100", cell.content becomes "100"
       // and the format is stored separately. Here we want to keep the original

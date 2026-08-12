@@ -1,6 +1,6 @@
 import { createRangeFromXc } from "../../src/helpers/range";
 import { Model } from "../../src/model";
-import { createSheet, setFormatting } from "../test_helpers";
+import { createSheet, setCellContent, setFormat, setFormatting } from "../test_helpers";
 import { createModelFromGrid } from "../test_helpers/helpers";
 
 describe("squish - unsquish", () => {
@@ -544,6 +544,34 @@ describe("squish - unsquish specific cases", () => {
       expect(exportUnSquished.sheets[0].cells).toEqual(sheetContent);
     }
   );
+
+  test("plain text cells keeping a format in their content are not squished together", () => {
+    // the format is not extracted from the content of a plain text cell: "$1" stays "$1"
+    // while the cell format is "@", like its neighbours which hold plain numbers
+    const model = new Model();
+    setFormat(model, "A1:A3", "@");
+    setCellContent(model, "A1", "$1");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "A3", "3");
+    const exportSquished = model._exportData(true);
+    expect(exportSquished.sheets[0].cells).toEqual({ A1: "$1", A2: "2", A3: "3" });
+
+    const importedFromSquished = new Model(exportSquished);
+    expect(importedFromSquished._exportData(false)).toEqual(model._exportData(false));
+  });
+
+  test("plain text cells sharing the format of their content are squished together", () => {
+    const model = new Model();
+    setFormat(model, "A1:A3", "@");
+    setCellContent(model, "A1", "$1");
+    setCellContent(model, "A2", "$2");
+    setCellContent(model, "A3", "$3");
+    const exportSquished = model._exportData(true);
+    expect(exportSquished.sheets[0].cells).toEqual({ A1: "$1", "A2:A3": { N: "+1" } });
+
+    const importedFromSquished = new Model(exportSquished);
+    expect(importedFromSquished._exportData(false)).toEqual(model._exportData(false));
+  });
 
   test("empty cell do not generate positions", () => {
     const sheetContent = {};
