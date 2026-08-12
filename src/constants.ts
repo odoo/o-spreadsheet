@@ -138,6 +138,7 @@ export const COLOR_PICKER_DEFAULTS: Color[] = [
 // Dimensions
 export const MIN_ROW_HEIGHT = 10;
 export const MIN_COL_WIDTH = 5;
+export const MAX_HEADER_SIZE = 2000;
 export const HEADER_HEIGHT = 26;
 export const HEADER_WIDTH = 48;
 export const DESKTOP_TOPBAR_TOOLBAR_HEIGHT = 34;

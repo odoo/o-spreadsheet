@@ -2,6 +2,7 @@ import {
   DATA_VALIDATION_CHIP_MARGIN,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_VERTICAL_ALIGN,
+  MAX_HEADER_SIZE,
   MIN_CELL_TEXT_MARGIN,
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "../../constants";
@@ -61,7 +62,7 @@ export class SheetUIPlugin extends UIPlugin {
     switch (cmd.type) {
       case "AUTORESIZE_COLUMNS":
         for (const col of cmd.cols) {
-          const size = this.getColMaxWidth(cmd.sheetId, col);
+          const size = Math.min(this.getColMaxWidth(cmd.sheetId, col), MAX_HEADER_SIZE);
           if (size !== 0) {
             this.dispatch("RESIZE_COLUMNS_ROWS", {
               elements: [col],
@@ -333,7 +334,7 @@ export class SheetUIPlugin extends UIPlugin {
           }
         }
       }
-      rowSizes.push(evaluatedRowSize || null);
+      rowSizes.push(evaluatedRowSize ? Math.min(evaluatedRowSize, MAX_HEADER_SIZE) : null);
     }
 
     const groupedSizes = new Map<number | null, HeaderIndex[]>(rowSizes.map((size) => [size, []]));
