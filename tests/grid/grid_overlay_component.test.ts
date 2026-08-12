@@ -5,6 +5,7 @@ import {
   DEFAULT_CELL_WIDTH,
   HEADER_HEIGHT,
   HEADER_WIDTH,
+  MAX_HEADER_SIZE,
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
   PADDING_AUTORESIZE_HORIZONTAL,
@@ -51,8 +52,8 @@ let fixture: HTMLElement;
 let model: Model;
 let env: SpreadsheetChildEnv;
 
-ColResizer.prototype._getMaxSize = () => 1000;
-RowResizer.prototype._getMaxSize = () => 1000;
+ColResizer.prototype._getMaxSize = () => MAX_HEADER_SIZE * 2;
+RowResizer.prototype._getMaxSize = () => MAX_HEADER_SIZE * 2;
 
 function fillData() {
   for (let i = 0; i < 8; i++) {
@@ -404,12 +405,12 @@ describe("Resizer component", () => {
 
   test("Max boundaries resizing columns", async () => {
     await resizeColumn("C", 10000000);
-    expect(model.getters.getColSize(model.getters.getActiveSheetId(), 1)).toBe(904);
+    expect(model.getters.getColSize(model.getters.getActiveSheetId(), 1)).toBe(MAX_HEADER_SIZE);
   });
 
   test("Max boundaries resizing rows", async () => {
     await resizeRow(2, 10000000);
-    expect(model.getters.getRowSize(model.getters.getActiveSheetId(), 1)).toBe(977);
+    expect(model.getters.getRowSize(model.getters.getActiveSheetId(), 1)).toBe(MAX_HEADER_SIZE);
   });
 
   test("Double click: Modify the size of a column", async () => {
