@@ -1,4 +1,4 @@
-import { DEFAULT_CELL_HEIGHT } from "../../constants";
+import { DEFAULT_CELL_HEIGHT, MAX_HEADER_SIZE } from "../../constants";
 import {
   deepCopy,
   getAddHeaderStartIndex,
@@ -216,7 +216,10 @@ export class HeaderSizeUIPlugin
 
     const cell = this.getters.getCell(position);
     const colSize = this.getters.getColSize(position.sheetId, position.col);
-    return getDefaultCellHeight(this.ctx, cell, this.getters.getLocale(), colSize);
+    return Math.min(
+      getDefaultCellHeight(this.ctx, cell, this.getters.getLocale(), colSize),
+      MAX_HEADER_SIZE
+    );
   }
 
   private isInMultiRowMerge(position: CellPosition): boolean {
