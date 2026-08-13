@@ -919,7 +919,7 @@ export const mockChart = () => {
   return mockChartData;
 };
 
-export const mockGeoJsonService: ModelExternalConfig["geoJsonService"] = {
+export const mockGeoJsonService: NonNullable<ModelExternalConfig["geoJsonService"]> = {
   getAvailableRegions: () => [
     { id: "world", label: "World", defaultProjection: "mercator" },
     { id: "usa", label: "United States", defaultProjection: "albersUsa" },
