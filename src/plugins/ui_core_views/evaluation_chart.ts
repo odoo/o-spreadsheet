@@ -3,6 +3,7 @@ import { SpreadsheetChart } from "../../helpers/figures/chart";
 import { chartFontColor } from "../../helpers/figures/charts/chart_common";
 import { chartToImageUrl } from "../../helpers/figures/charts/chart_ui_common";
 import { generateMasterChartConfig } from "../../helpers/figures/charts/runtime/chart_zoom";
+import { isDefined } from "../../helpers/misc";
 import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
 import {
   CoreViewCommand,
@@ -98,6 +99,13 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
   }
 
   async exportForExcel(data: ExcelWorkbookData) {
+    const loadChartDataPromises = this.getters
+      .getSheetIds()
+      .flatMap((sheetId) => this.getters.getChartIds(sheetId))
+      .map((chartId) => this.getters.getChart(chartId)?.loadDataForExport(this.getters))
+      .filter(isDefined);
+    await Promise.all(loadChartDataPromises);
+
     for (const sheet of data.sheets) {
       if (!sheet.images) {
         sheet.images = [];

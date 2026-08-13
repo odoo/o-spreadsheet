@@ -14,17 +14,6 @@ import { mockChart, mockGeoJsonService, nextTick } from "../../../test_helpers/h
 mockChart();
 let model: Model;
 
-beforeEach(async () => {
-  model = new Model({}, { external: { geoJsonService: mockGeoJsonService } });
-  // Wait for the geoJsonService to resolve the promise and cache the geoJson features
-  model.getters.getGeoChartAvailableRegions();
-  model.getters.getGeoJsonFeatures("world");
-  for (const country of ["France", "Germany", "Spain"]) {
-    model.getters.geoFeatureNameToId("world", country);
-  }
-  await nextTick();
-});
-
 /**
  * Get the data points of the chart that have a value.
  * It's useful because the chart dataset always contains a point for ALL the features, even if they have no value
@@ -41,6 +30,17 @@ function getGeoChartNonEmptyData(runtime: GeoChartRuntime) {
 }
 
 describe("Geo charts plugin tests", () => {
+  beforeEach(async () => {
+    model = new Model({}, { external: { geoJsonService: mockGeoJsonService } });
+    // Wait for the geoJsonService to resolve the promise and cache the geoJson features
+    model.getters.getGeoChartAvailableRegions();
+    model.getters.getGeoJsonFeatures("world");
+    for (const country of ["France", "Germany", "Spain"]) {
+      model.getters.geoFeatureNameToId("world", country);
+    }
+    await nextTick();
+  });
+
   test("Basic geo chart runtime", () => {
     setCellContent(model, "A2", "France");
     setCellContent(model, "A3", "Germany");
@@ -249,4 +249,16 @@ describe("Geo charts plugin tests", () => {
       expect(model.getters.getAvailableChartRegions("barChartId")).toEqual([]);
     });
   });
+});
+
+test("Excel export loads all the used geo json", async () => {
+  const spy = jest.spyOn(mockGeoJsonService, "getTopoJson");
+  const model = new Model({}, { external: { geoJsonService: mockGeoJsonService } });
+  createGeoChart(model, { region: undefined }, "chart1"); // Defaults to world (first available region)
+  createGeoChart(model, { region: "usa" }, "chart2");
+
+  await model.exportXLSX();
+  expect(spy).toHaveBeenCalledTimes(2);
+  expect(spy).toHaveBeenCalledWith("world");
+  expect(spy).toHaveBeenCalledWith("usa");
 });
