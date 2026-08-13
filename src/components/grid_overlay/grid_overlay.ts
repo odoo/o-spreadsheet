@@ -76,7 +76,12 @@ function useCellHovered(
     if (isChildEvent(gridRef(), zoomedMouseEvent.ev)) {
       ({ x, y } = getOffsetRelativeToOverlay(zoomedMouseEvent));
       lastMoved = Date.now();
-      cellHoverOverlay.hover(getPosition());
+      const position = getPosition();
+      if (position.col < 0 || position.row < 0) {
+        cellHoverOverlay.hover(undefined);
+      } else {
+        cellHoverOverlay.hover(getPosition());
+      }
     }
   }
 
@@ -92,7 +97,7 @@ function useCellHovered(
     const { x, y } = getOffsetRelativeToOverlay(zoomedMouseEvent);
     const gridRect = getElBoundingRect(gridRef());
 
-    if (y < 0 || y > gridRect.height || x < 0 || x > gridRect.width) {
+    if (y <= 0 || y >= gridRect.height || x <= 0 || x >= gridRect.width) {
       return updateMousePosition(zoomedMouseEvent);
     } else {
       return pause();
