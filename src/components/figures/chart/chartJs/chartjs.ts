@@ -90,7 +90,7 @@ export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
     isFullScreen: types.boolean().optional(),
   });
 
-  protected canvas = signal<HTMLCanvasElement | null>(null);
+  protected canvas = signal.ref(HTMLCanvasElement);
   protected chart?: Chart;
   protected currentRuntime!: ChartJSRuntime;
   protected animationStore: Store<ChartAnimationStore> | undefined;

@@ -10,7 +10,7 @@ export class Collapse extends Component<SpreadsheetChildEnv> {
     isCollapsed: types.boolean(),
   });
 
-  private contentRef = signal<HTMLElement | null>(null);
+  private contentRef = signal.ref();
 
   setup() {
     onMounted(() => {

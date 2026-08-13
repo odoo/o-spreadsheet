@@ -44,7 +44,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
 
   private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
-  private figureRef = signal<HTMLElement | null>(null);
+  private figureRef = signal.ref();
 
   get isSelected(): boolean {
     return (

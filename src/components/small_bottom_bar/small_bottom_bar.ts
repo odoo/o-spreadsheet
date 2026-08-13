@@ -29,7 +29,7 @@ export class SmallBottomBar extends Component<SpreadsheetChildEnv> {
   private composerStore!: Store<CellComposerStore>;
   private viewStore!: Store<ViewportsStore>;
   private composerInterface!: ComposerInterface;
-  private composerRef = signal<HTMLElement | null>(null);
+  private composerRef = signal.ref();
 
   private menuState = proxy({
     isOpen: false,

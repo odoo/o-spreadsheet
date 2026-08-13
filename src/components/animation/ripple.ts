@@ -47,7 +47,7 @@ class RippleEffect extends Component<SpreadsheetChildEnv> {
     style: types.string(),
   });
 
-  private rippleRef = signal<HTMLElement | null>(null);
+  private rippleRef = signal.ref();
 
   setup() {
     let animation: Animation | undefined = undefined;
@@ -109,7 +109,7 @@ export class Ripple extends Component<SpreadsheetChildEnv> {
     class: types.string().optional(""),
   });
 
-  private childContainerRef = signal<HTMLElement | null>(null);
+  private childContainerRef = signal.ref();
 
   private state = proxy<RippleState>({ ripples: [] });
 

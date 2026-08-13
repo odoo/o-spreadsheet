@@ -29,8 +29,8 @@ export class Popover extends Component<SpreadsheetChildEnv> {
     class: types.string().optional(),
   });
 
-  private popoverRef = signal<HTMLElement | null>(null);
-  private popoverContentRef = signal<HTMLElement | null>(null);
+  private popoverRef = signal.ref();
+  private popoverContentRef = signal.ref();
   private currentPosition: PopoverPosition | undefined = undefined;
   private currentDisplayValue: DisplayValue | undefined = undefined;
 

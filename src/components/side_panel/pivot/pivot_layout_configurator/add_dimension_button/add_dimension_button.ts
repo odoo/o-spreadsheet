@@ -25,11 +25,11 @@ export class AddDimensionButton extends Component<SpreadsheetChildEnv> {
     fields: types.array(),
   });
 
-  private buttonRef = signal<HTMLElement | null>(null);
+  private buttonRef = signal.ref(HTMLButtonElement);
   private popover = proxy({ isOpen: false });
   private search = proxy({ input: "" });
   private autoComplete!: Store<AutoCompleteStore>;
-  private autofocusRef = signal<HTMLElement | null>(null);
+  private autofocusRef = signal.ref(HTMLInputElement);
 
   // TODO navigation keys. (this looks a lot like auto-complete list. Could maybe be factorized)
   setup() {

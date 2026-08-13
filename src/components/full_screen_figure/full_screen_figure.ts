@@ -14,7 +14,7 @@ export class FullScreenFigure extends Component<SpreadsheetChildEnv> {
   static components = { ChartFigure };
 
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
-  private fullScreenFigureRef = signal<HTMLElement | null>(null);
+  private fullScreenFigureRef = signal.ref();
 
   spreadsheetRect = useSpreadsheetRect();
 

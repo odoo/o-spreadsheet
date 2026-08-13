@@ -79,8 +79,8 @@ export class Composer extends Component<SpreadsheetChildEnv> {
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
-  composerRef = signal<HTMLElement | null>(null);
-  containerRef = signal<HTMLElement | null>(null);
+  composerRef = signal.ref();
+  containerRef = signal.ref();
 
   contentHelper: ContentEditableHelper = new ContentEditableHelper(
     this.composerRef() as unknown as HTMLElement

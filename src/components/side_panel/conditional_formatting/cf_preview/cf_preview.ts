@@ -20,7 +20,7 @@ export class ConditionalFormatPreview extends Component<SpreadsheetChildEnv> {
   });
 
   icons = ICONS;
-  private cfPreviewRef = signal<HTMLElement | null>(null);
+  private cfPreviewRef = signal.ref();
 
   setup() {
     useHighlightsOnHover(this.cfPreviewRef, this);

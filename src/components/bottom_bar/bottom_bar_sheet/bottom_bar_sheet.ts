@@ -49,9 +49,9 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
 
   private state = proxy<State>({ isEditing: false, openedPicker: undefined });
 
-  private sheetDivRef = signal<HTMLElement | null>(null);
-  private iconRef = signal<HTMLElement | null>(null);
-  private sheetNameRef = signal<HTMLElement | null>(null);
+  private sheetDivRef = signal.ref();
+  private iconRef = signal.ref();
+  private sheetNameRef = signal.ref();
 
   private editionState: "initializing" | "editing" = "initializing";
 

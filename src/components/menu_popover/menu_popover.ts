@@ -72,7 +72,7 @@ export class MenuPopover extends Component<SpreadsheetChildEnv> {
   private state: State = proxy({
     hoveredMenu: this.props.autoSelectFirstItem ? this.getNextEnabledMenuItem() : undefined,
   });
-  private menuRef = signal<HTMLElement | null>(null);
+  private menuRef = signal.ref();
 
   private openingTimeOut = useTimeOut();
 

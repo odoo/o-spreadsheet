@@ -38,7 +38,7 @@ export class ColorScalePicker extends Component<SpreadsheetChildEnv> {
   }));
 
   state = proxy<ColorScalePickerState>({ popoverProps: undefined, popoverStyle: "" });
-  popoverRef = signal<HTMLElement | null>(null);
+  popoverRef = signal.ref(HTMLTableElement);
 
   setup() {
     useExternalListener(window, "click", this.closePopover);

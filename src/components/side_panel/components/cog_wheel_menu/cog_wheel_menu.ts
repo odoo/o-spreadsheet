@@ -15,7 +15,7 @@ export class CogWheelMenu extends Component<SpreadsheetChildEnv> {
     items: types.array(types.ActionSpec()),
   });
 
-  private buttonRef = signal<HTMLElement | null>(null);
+  private buttonRef = signal.ref();
   private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
   private menuId = UuidGenerator.uuidv4();

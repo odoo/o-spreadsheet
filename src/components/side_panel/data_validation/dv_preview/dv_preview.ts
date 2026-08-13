@@ -14,7 +14,7 @@ export class DataValidationPreview extends Component<SpreadsheetChildEnv> {
     rule: types.DataValidationRule(),
   });
 
-  private dvPreviewRef = signal<HTMLElement | null>(null);
+  private dvPreviewRef = signal.ref();
 
   setup() {
     useHighlightsOnHover(this.dvPreviewRef, this);

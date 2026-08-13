@@ -45,7 +45,7 @@ export class Menu extends Component<SpreadsheetChildEnv> {
     disableKeyboardNavigation: types.boolean().optional(),
   });
 
-  private menuRef = signal<HTMLElement | null>(null);
+  private menuRef = signal.ref();
 
   setup(): void {
     useLayoutEffect(() => {

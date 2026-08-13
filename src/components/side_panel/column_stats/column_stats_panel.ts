@@ -33,7 +33,7 @@ export class ColumnStatsPanel extends Component<SpreadsheetChildEnv> {
   });
 
   store!: Store<ColumnStatisticsStore>;
-  private chartCanvasRef = signal<HTMLCanvasElement | null>(null);
+  private chartCanvasRef = signal.ref(HTMLCanvasElement);
   private chart?: Chart;
 
   setup() {

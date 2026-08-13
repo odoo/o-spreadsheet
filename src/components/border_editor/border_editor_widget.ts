@@ -30,7 +30,7 @@ export class BorderEditorWidget extends Component<SpreadsheetChildEnv> {
   topBarToolStore!: ToolBarDropdownStore;
   private viewStore!: Store<ViewportsStore>;
 
-  borderEditorButtonRef = signal<HTMLElement | null>(null);
+  borderEditorButtonRef = signal.ref();
   state: State = proxy({
     currentColor: DEFAULT_BORDER_DESC.color,
     currentStyle: DEFAULT_BORDER_DESC.style,

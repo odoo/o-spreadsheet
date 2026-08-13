@@ -54,8 +54,8 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
   DEFAULT_CAROUSEL_TITLE_STYLE = DEFAULT_CAROUSEL_TITLE_STYLE;
 
   private dragAndDrop = useDragAndDropListItems();
-  private previewListRef = signal<HTMLElement | null>(null);
-  addChartButton = signal<HTMLElement | null>(null);
+  private previewListRef = signal.ref();
+  addChartButton = signal.ref(HTMLButtonElement);
 
   state = proxy<CarouselPanelState>({ popoverProps: undefined, currentRange: undefined });
 

@@ -19,7 +19,7 @@ export class ConditionalFormatPreviewList extends Component<SpreadsheetChildEnv>
   });
 
   private dragAndDrop = useDragAndDropListItems();
-  private cfListRef = signal<HTMLElement | null>(null);
+  private cfListRef = signal.ref();
 
   get conditionalFormats(): ConditionalFormat[] {
     const cfs = this.env.model.getters.getConditionalFormats(

@@ -69,13 +69,13 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
   fingerprints!: Store<FormulaFingerprintStore>;
   topBarToolStore!: Store<TopBarToolStore>;
 
-  toolBarContainerRef = signal<HTMLElement | null>(null);
-  toolbarRef = signal<HTMLElement | null>(null);
-  namedRangesRef = signal<HTMLElement | null>(null);
-  topBarTopRef = signal<HTMLElement | null>(null);
+  toolBarContainerRef = signal.ref();
+  toolbarRef = signal.ref();
+  namedRangesRef = signal.ref();
+  topBarTopRef = signal.ref();
 
-  moreToolsContainerRef = signal<HTMLElement | null>(null);
-  moreToolsButtonRef = signal<HTMLElement | null>(null);
+  moreToolsContainerRef = signal.ref();
+  moreToolsButtonRef = signal.ref();
 
   spreadsheetRect = useSpreadsheetRect();
 

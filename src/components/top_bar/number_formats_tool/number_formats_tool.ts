@@ -23,7 +23,7 @@ export class NumberFormatsTool extends Component<SpreadsheetChildEnv> {
   formatNumberMenuItemSpec = formatNumberMenuItemSpec;
   topBarToolStore!: ToolBarDropdownStore;
 
-  buttonRef = signal<HTMLElement | null>(null);
+  buttonRef = signal.ref();
   state: State = proxy({
     anchorRect: { x: 0, y: 0, width: 0, height: 0 },
     menuItems: [],

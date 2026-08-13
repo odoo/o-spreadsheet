@@ -28,7 +28,7 @@ export class ChartTypePickerPopover extends Component<SpreadsheetChildEnv> {
   categories = chartCategories;
   chartTypeByCategories: Record<string, ChartSubtypeProperties[]> = {};
 
-  popoverRef = signal<HTMLElement | null>(null);
+  popoverRef = signal.ref();
 
   setup(): void {
     useListener(window, "pointerdown", this.onExternalClick.bind(this), { capture: true });

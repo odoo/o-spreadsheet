@@ -53,7 +53,7 @@ export class BorderEditor extends Component<SpreadsheetChildEnv> {
   });
   BORDER_POSITIONS = BORDER_POSITIONS;
 
-  lineStyleButtonRef = signal<HTMLElement | null>(null);
+  lineStyleButtonRef = signal.ref();
   borderStyles = borderStyles;
   state: State = proxy({
     activeTool: undefined,

@@ -38,7 +38,7 @@ export class PivotSpreadsheetSidePanel extends Component<SpreadsheetChildEnv> {
 
   state!: { range?: string; rangeHasChanged: boolean };
 
-  pivotSidePanelRef = signal<HTMLElement | null>(null);
+  pivotSidePanelRef = signal.ref();
 
   setup() {
     this.store = useLocalStore(PivotSidePanelStore, this.props.pivotId);

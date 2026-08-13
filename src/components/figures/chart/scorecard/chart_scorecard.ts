@@ -18,7 +18,7 @@ export class ScorecardChart extends Component<SpreadsheetChildEnv> {
     chartId: types.string(),
     isFullScreen: types.boolean().optional(),
   });
-  private canvas = signal<HTMLCanvasElement | null>(null);
+  private canvas = signal.ref(HTMLCanvasElement);
   private zoomStore!: Store<ZoomStore>;
 
   get runtime(): ScorecardChartRuntime {

@@ -19,7 +19,7 @@ export class StandaloneGridCanvas extends Component<SpreadsheetChildEnv> {
     renderingCtx: types.object<Omit<GridRenderingContext, "ctx" | "thinLineWidth">>(),
   });
 
-  private canvasRef = signal<HTMLElement | null>(null);
+  private canvasRef = signal.ref(HTMLCanvasElement);
 
   rendererStore!: Store<RendererStore>;
   figureRendererStore!: Store<FigureRendererStore>;

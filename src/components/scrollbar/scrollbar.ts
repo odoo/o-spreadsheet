@@ -28,7 +28,7 @@ export class ScrollBar extends Component<any> {
     onScroll: types.function<(offset: Pixel) => void>(),
   });
 
-  private scrollbarRef = signal<HTMLElement | null>(null);
+  private scrollbarRef = signal.ref();
   private scrollbar!: ScrollBarElement;
 
   setup() {

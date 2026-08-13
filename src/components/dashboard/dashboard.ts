@@ -48,8 +48,8 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
 
-  private gridRef = signal<HTMLElement | null>(null);
-  private canvasRef = signal<HTMLElement | null>(null);
+  private gridRef = signal.ref();
+  private canvasRef = signal.ref(HTMLCanvasElement);
 
   setup() {
     this.hoveredCell = useStore(DelayedHoveredCellStore);

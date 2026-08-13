@@ -26,7 +26,7 @@ export class ChartTypePicker extends Component<SpreadsheetChildEnv> {
     chartPanelStore: types.Store<MainChartPanelStore>(),
   });
 
-  selectRef = signal<HTMLElement | null>(null);
+  selectRef = signal.ref();
 
   state = proxy<ChartTypePickerState>({ popoverProps: undefined });
 

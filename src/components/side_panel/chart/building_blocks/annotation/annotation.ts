@@ -18,7 +18,7 @@ export class ChartAnnotation extends Component<SpreadsheetChildEnv> {
   static components = { SidePanelCollapsible, Section, TextInput };
   protected props = useProps(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<any>;
 
-  private editorRef = signal<HTMLElement | null>(null);
+  private editorRef = signal.ref();
 
   private state: annotationState = proxy({
     annotationTextInput: this.props.definition.annotationText || "",

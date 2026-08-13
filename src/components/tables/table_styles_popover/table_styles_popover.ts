@@ -30,7 +30,7 @@ export class TableStylesPopover extends Component<SpreadsheetChildEnv> {
     type: types.or([types.literal("table"), types.literal("pivot")]),
   });
 
-  private tableStyleListRef = signal<HTMLElement | null>(null);
+  private tableStyleListRef = signal.ref();
   state = proxy<State>({ selectedCategory: this.initialSelectedCategory });
 
   setup(): void {
