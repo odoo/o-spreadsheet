@@ -48,6 +48,7 @@ topbarMenuRegistry.addChild("xlsx", ["file"], {
   name: "Save as XLSX",
   sequence: 20,
   execute: async (env) => {
+    await env.model.getters.loadUsedGeoJsonFeatures();
     const doc = await env.model.exportXLSX();
     const zip = new JSZip();
     for (const file of doc.files) {

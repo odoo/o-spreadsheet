@@ -1,5 +1,6 @@
 import * as GeoJSON from "geojson";
 import TopoJSON from "topojson-specification";
+import { isDefined } from "../../helpers";
 import { ModelConfig } from "../../model";
 import { GeoChartRegion } from "../../types/chart/geo_chart";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
@@ -9,6 +10,7 @@ export class GeoFeaturePlugin extends UIPlugin {
     "getGeoJsonFeatures",
     "geoFeatureNameToId",
     "getGeoChartAvailableRegions",
+    "loadUsedGeoJsonFeatures",
   ] as const;
 
   private readonly geoJsonService: ModelConfig["external"]["geoJsonService"];
@@ -58,6 +60,36 @@ export class GeoFeaturePlugin extends UIPlugin {
       return;
     }
     return this.geoJsonService.geoFeatureNameToId(region, featureName);
+  }
+
+  loadUsedGeoJsonFeatures(): Promise<void> {
+    const regions = this.getters
+      .getSheetIds()
+      .flatMap((sheetId) =>
+        this.getters.getChartIds(sheetId).map((chartId) => {
+          const definition = this.getters.getChartDefinition(chartId);
+          return definition.type === "geo"
+            ? definition.region || this.getters.getGeoChartAvailableRegions()[0]?.id
+            : undefined;
+        })
+      )
+      .filter(isDefined);
+
+    const uniqueRegions = Array.from(new Set(regions));
+    if (uniqueRegions.length && !this.geoJsonService) {
+      console.error("No geoJsonService provided to the model");
+      return Promise.resolve();
+    }
+
+    for (const region of uniqueRegions) {
+      this.getGeoJsonFeatures(region); // Trigger the loading of the regions
+    }
+
+    const promises = uniqueRegions.map((region) => {
+      const cachedGeoJson = this.geoJsonCache[region];
+      return cachedGeoJson instanceof Promise ? cachedGeoJson : Promise.resolve();
+    });
+    return Promise.all(promises).then(() => {});
   }
 
   private convertToGeoJson(
