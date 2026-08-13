@@ -47,8 +47,8 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     columnWeights: types.array<number>().optional(),
   });
 
-  private canvasRef = signal<HTMLElement | null>(null);
-  private containerRef = signal<HTMLElement | null>(null);
+  private canvasRef = signal.ref(HTMLCanvasElement);
+  private containerRef = signal.ref();
 
   private store!: Store<StandaloneViewportStore>;
 

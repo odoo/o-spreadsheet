@@ -15,7 +15,7 @@ export class ImageFigure extends Component<SpreadsheetChildEnv> {
     openContextMenu: types.function<(anchorRect: Rect, onClose?: () => void) => void>(),
   });
 
-  private menuButtonRef = signal<HTMLElement | null>(null);
+  private menuButtonRef = signal.ref();
 
   showMenu(ev: MouseEvent) {
     if (!this.env.model.getters.getSelectedFigureIds().includes(this.props.figureUI.id)) {

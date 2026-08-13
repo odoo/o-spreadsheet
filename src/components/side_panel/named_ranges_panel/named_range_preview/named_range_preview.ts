@@ -24,7 +24,7 @@ export class NamedRangePreview extends Component<SpreadsheetChildEnv> {
 
   state = proxy<State>({});
 
-  private namedRangePreviewRef = signal<HTMLElement | null>(null);
+  private namedRangePreviewRef = signal.ref();
 
   setup() {
     useHighlightsOnHover(this.namedRangePreviewRef, this);

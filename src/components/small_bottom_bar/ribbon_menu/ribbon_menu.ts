@@ -25,8 +25,8 @@ export class RibbonMenu extends Component<SpreadsheetChildEnv> {
   });
 
   rootItems = topbarMenuRegistry.getMenuItems();
-  private menuRef = signal<HTMLElement | null>(null);
-  private containerRef = signal<HTMLElement | null>(null);
+  private menuRef = signal.ref();
+  private containerRef = signal.ref();
 
   state: State = proxy({
     menuItems: this.rootItems,

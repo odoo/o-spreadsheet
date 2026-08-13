@@ -19,7 +19,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
 
   private store!: Store<ZoomableChartStore>;
 
-  private masterChartCanvas = signal<HTMLCanvasElement | null>(null);
+  private masterChartCanvas = signal.ref(HTMLCanvasElement);
   private masterChart?: Chart;
   private mode?: "selectInMaster" | "moveInMaster";
   private hasLinearScale?: boolean;

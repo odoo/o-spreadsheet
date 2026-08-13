@@ -26,8 +26,8 @@ export class Select extends Component<SpreadsheetChildEnv> {
     title: types.string().optional(),
   });
 
-  private selectRef = signal<HTMLElement | null>(null);
-  private dropdownRef = signal<HTMLElement | null>(null);
+  private selectRef = signal.ref();
+  private dropdownRef = signal.ref();
 
   private state = proxy<State>({ isPopoverOpen: false, hoveredValue: undefined });
 

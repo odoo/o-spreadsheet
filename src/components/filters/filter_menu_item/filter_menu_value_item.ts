@@ -17,7 +17,7 @@ export class FilterMenuValueItem extends Component<SpreadsheetChildEnv> {
     scrolledTo: types.or([types.literal("top"), types.literal("bottom")]).optional(),
   });
 
-  itemRef = signal<HTMLElement | null>(null);
+  itemRef = signal.ref();
 
   setup() {
     onWillPatch(() => {

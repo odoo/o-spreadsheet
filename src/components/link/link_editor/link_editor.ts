@@ -39,9 +39,9 @@ export class LinkEditor extends Component<SpreadsheetChildEnv> {
   });
   static size = { maxHeight: 500 };
 
-  urlInput = signal<HTMLElement | null>(null);
-  suggestionListRef = signal<HTMLElement | null>(null);
-  urlInputContainer = signal<HTMLElement | null>(null);
+  urlInput = signal.ref(HTMLInputElement);
+  suggestionListRef = signal.ref();
+  urlInputContainer = signal.ref();
 
   private state!: LinkState;
   private viewStore!: Store<ViewportsStore>;

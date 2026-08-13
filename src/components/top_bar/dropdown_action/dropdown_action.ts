@@ -20,7 +20,7 @@ export class DropdownAction extends Component<SpreadsheetChildEnv> {
   });
 
   topBarToolStore!: ToolBarDropdownStore;
-  actionRef = signal<HTMLElement | null>(null);
+  actionRef = signal.ref();
 
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();

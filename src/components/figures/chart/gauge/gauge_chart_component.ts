@@ -21,7 +21,7 @@ export class GaugeChartComponent extends Component<SpreadsheetChildEnv> {
     isFullScreen: types.boolean().optional(),
   });
 
-  private canvas = signal<HTMLCanvasElement | null>(null);
+  private canvas = signal.ref(HTMLCanvasElement);
 
   private animationStore: Store<ChartAnimationStore> | undefined;
   private zoomStore!: Store<ZoomStore>;

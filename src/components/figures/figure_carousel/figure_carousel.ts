@@ -35,8 +35,8 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
     openContextMenu: types.function<(anchorRect: Rect, onClose?: () => void) => void>().optional(),
   });
 
-  private carouselTabsRef = signal<HTMLElement | null>(null);
-  private carouselTabsDropdownRef = signal<HTMLElement | null>(null);
+  private carouselTabsRef = signal.ref();
+  private carouselTabsDropdownRef = signal.ref();
 
   private menuState = proxy<MenuState>({ isOpen: false, anchorRect: null, menuItems: [] });
   private hiddenItems: CarouselItem[] = [];

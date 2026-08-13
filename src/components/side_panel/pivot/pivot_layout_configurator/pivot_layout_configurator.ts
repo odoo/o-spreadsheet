@@ -57,7 +57,7 @@ export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
     pivotId: types.UID(),
   });
 
-  private dimensionsRef = signal<HTMLElement | null>(null);
+  private dimensionsRef = signal.ref();
   private dragAndDrop = useDragAndDropListItems();
   AGGREGATORS = AGGREGATORS;
 

@@ -46,7 +46,7 @@ export class PivotFilterEditor extends Component<SpreadsheetChildEnv> {
 
   private state!: State;
 
-  private buttonFilter = signal<HTMLElement | null>(null);
+  private buttonFilter = signal.ref();
   private popover!: { isOpen: boolean };
 
   setup() {

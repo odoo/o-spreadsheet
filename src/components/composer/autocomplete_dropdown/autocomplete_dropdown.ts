@@ -14,7 +14,7 @@ export class TextValueProvider extends Component<any> {
     onValueSelected: types.function<(proposal: AutoCompleteProposal) => void>(),
     onValueHovered: types.function<(index: string) => void>(),
   });
-  autoCompleteListRef = signal<HTMLElement | null>(null);
+  autoCompleteListRef = signal.ref();
 
   setup() {
     useEffect(() => {

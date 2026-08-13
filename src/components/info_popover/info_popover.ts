@@ -23,7 +23,7 @@ export class InfoPopover extends Component<SpreadsheetChildEnv> {
     useExternalListener(window, "click", this.onExternalClick, { capture: true });
   }
 
-  private infoRef = signal<HTMLElement | null>(null);
+  private infoRef = signal.ref();
 
   get popoverProps(): PropsOf<Popover> {
     return {

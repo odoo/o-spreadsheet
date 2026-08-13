@@ -17,7 +17,7 @@ export class SpeechBubble extends Component<SpreadsheetChildEnv> {
   });
 
   private spreadsheetRect = useSpreadsheetRect();
-  private bubbleRef = signal<HTMLElement | null>(null);
+  private bubbleRef = signal.ref();
 
   setup(): void {
     useEffect(() => {

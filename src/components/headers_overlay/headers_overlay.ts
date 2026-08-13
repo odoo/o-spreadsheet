@@ -349,7 +349,7 @@ export class ColResizer extends AbstractResizer {
   static template = "o-spreadsheet-ColResizer";
   static components = { UnhideColumnHeaders };
 
-  private colResizerRef = signal<HTMLElement | null>(null);
+  private colResizerRef = signal.ref();
 
   setup() {
     super.setup();
@@ -518,7 +518,7 @@ export class RowResizer extends AbstractResizer {
   static template = "o-spreadsheet-RowResizer";
   static components = { UnhideRowHeaders };
 
-  private rowResizerRef = signal<HTMLElement | null>(null);
+  private rowResizerRef = signal.ref();
 
   setup() {
     super.setup();

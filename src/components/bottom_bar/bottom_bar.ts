@@ -37,8 +37,8 @@ export class BottomBar extends Component<SpreadsheetChildEnv> {
 
   static components = { MenuPopover, Ripple, BottomBarSheet, BottomBarStatistic };
 
-  private bottomBarRef = signal<HTMLElement | null>(null);
-  private sheetListRef = signal<HTMLElement | null>(null);
+  private bottomBarRef = signal.ref();
+  private sheetListRef = signal.ref();
 
   private dragAndDrop = useDragAndDropListItems();
   private targetScroll: number | undefined = undefined;

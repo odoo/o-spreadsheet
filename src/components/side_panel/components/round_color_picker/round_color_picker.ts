@@ -29,7 +29,7 @@ export class RoundColorPicker extends Component<SpreadsheetChildEnv> {
     disableNoColor: types.boolean().optional(),
   });
 
-  colorPickerButtonRef = signal<HTMLElement | null>(null);
+  colorPickerButtonRef = signal.ref();
 
   private state!: State;
 

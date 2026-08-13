@@ -89,7 +89,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   };
 
   sidePanel!: Store<SidePanelStore>;
-  spreadsheetRef = signal<HTMLElement | null>(null);
+  spreadsheetRef = signal.ref();
   spreadsheetRect = useSpreadsheetRect();
 
   state = proxy({ printModeEnabled: false });

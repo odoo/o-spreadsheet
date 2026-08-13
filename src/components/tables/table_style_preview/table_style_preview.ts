@@ -23,7 +23,7 @@ export class TableStylePreview extends Component<SpreadsheetChildEnv> {
     onClick: types.function().optional(),
   });
 
-  private canvasRef = signal<HTMLCanvasElement | null>(null);
+  private canvasRef = signal.ref(HTMLCanvasElement);
   menu: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
   setup() {

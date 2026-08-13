@@ -36,7 +36,7 @@ export class NamedRangeSelector extends Component<SpreadsheetChildEnv> {
   topBarToolStore!: ToolBarDropdownStore;
   menuState = proxy<State>({ anchorRect: null, menuItems: [] });
 
-  private namedRangeSelectorRef = signal<HTMLElement | null>(null);
+  private namedRangeSelectorRef = signal.ref();
 
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();

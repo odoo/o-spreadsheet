@@ -150,8 +150,8 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly HEADER_WIDTH = HEADER_WIDTH;
   private menuState!: MenuState;
-  private gridRef = signal<HTMLElement | null>(null);
-  private canvasRef = signal<HTMLElement | null>(null);
+  private gridRef = signal.ref();
+  private canvasRef = signal.ref(HTMLCanvasElement);
   private highlightStore!: Store<HighlightStore>;
   viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;

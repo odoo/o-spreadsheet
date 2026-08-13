@@ -22,7 +22,7 @@ export class ColorPickerWidget extends Component<SpreadsheetChildEnv> {
     class: types.string().optional(),
   });
 
-  colorPickerButtonRef = signal<HTMLElement | null>(null);
+  colorPickerButtonRef = signal.ref();
 
   get iconStyle() {
     return this.props.currentColor
