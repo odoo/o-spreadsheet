@@ -92,4 +92,8 @@ export const GeoChart: ChartTypeBuilder<"geo"> = {
 
     return { chartJsConfig: config };
   },
+
+  loadDataForExport: async (getters) => {
+    return getters.loadUsedGeoJsonFeatures();
+  },
 };
