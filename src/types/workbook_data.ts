@@ -87,6 +87,8 @@ export interface WorkbookData {
   pivots: { [key: string]: PivotData };
   pivotNextId: number;
   revisionId: UID;
+  /** Stable identifier for this spreadsheet document. Never changes after creation, unlike revisionId. */
+  spreadsheetId: UID;
   uniqueFigureIds: boolean;
   settings: WorkbookSettings;
   customTableStyles: { [key: string]: TableStyleData };

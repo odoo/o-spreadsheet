@@ -70,9 +70,11 @@ expect.extend({
   toExport(model: Model, expected: any) {
     const exportData = model.exportData();
     if (
-      !this.equals(exportData, { ...expected, revisionId: expect.any(String) }, [
-        this.utils.iterableEquality,
-      ])
+      !this.equals(
+        exportData,
+        { ...expected, revisionId: expect.any(String), spreadsheetId: expect.any(String) },
+        [this.utils.iterableEquality]
+      )
     ) {
       return {
         pass: !!this.isNot,

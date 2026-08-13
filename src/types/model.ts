@@ -1,3 +1,4 @@
+import { PendingMessagesStorage } from "../collaborative/pending_messages_storage";
 import { GeoChartRegion } from "./chart/geo_chart";
 import { Client, ClientPosition } from "./collaborative/session";
 import { TransportService } from "./collaborative/transport_service";
@@ -33,6 +34,12 @@ export interface ModelConfig {
   readonly raiseBlockingErrorUI: (text: string) => void;
   readonly customColors: Color[];
   readonly colorScheme?: "light" | "dark";
+  /**
+   * When provided, pending collaborative messages are persisted across page reloads.
+   * Call `await storage.init()` before constructing the Model, then call
+   * `await model.restoreOfflineChanges()` after construction to replay stored messages.
+   */
+  readonly pendingChangesStorage?: PendingMessagesStorage;
 }
 
 export interface ModelExternalConfig {

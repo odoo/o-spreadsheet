@@ -4,6 +4,7 @@ import { getItemId } from "../helpers/data_normalization";
 import { getUniqueText, sanitizeSheetName } from "../helpers/misc";
 import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
+import { UuidGenerator } from "../helpers/uuid";
 import { overlap, toZone, zoneToXc } from "../helpers/zones";
 import { Registry } from "../registries/registry";
 import { CustomizedDataSet, schemeToColorScale } from "../types/chart/chart";
@@ -636,6 +637,14 @@ migrationStepRegistry
             }
           }
         }
+      }
+      return data;
+    },
+  })
+  .add("19.4.0", {
+    migrate(data: any): any {
+      if (!data.spreadsheetId) {
+        data.spreadsheetId = UuidGenerator.uuidv4();
       }
       return data;
     },
