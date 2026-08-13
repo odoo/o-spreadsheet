@@ -242,4 +242,8 @@ export class SpreadsheetChart {
     }
     return definition;
   }
+
+  async loadDataForExport(getters: EvaluationGetters) {
+    return this.chartTypeBuilder.loadDataForExport?.(getters);
+  }
 }
