@@ -13,8 +13,10 @@ import {
 import { lettersToNumber, toXC } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { CellHoverOverlayStore } from "../../src/stores/cell_hover_overlay_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { extendMockGetBoundingClientRect } from "../test_helpers";
 import {
   deleteColumns,
   deleteRows,
@@ -1387,4 +1389,33 @@ describe("Can select de-select headers", () => {
     await selectRow(2, { ctrlKey: true });
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 3, 4]));
   });
+});
+
+test("Mouse leave events correctly change the hovered cell", async () => {
+  jest.useFakeTimers();
+  extendMockGetBoundingClientRect({
+    "o-grid-overlay": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+  });
+  const { model, env } = await mountSpreadsheet();
+  const sheetId = model.getters.getActiveSheetId();
+
+  const hoverStore = env.getStore(CellHoverOverlayStore);
+  const spy = jest.spyOn(hoverStore, "hover");
+
+  triggerMouseEvent(".o-grid-overlay", "pointermove", 10, 10);
+  expect(spy).toHaveBeenCalledTimes(1);
+  expect(spy).toHaveBeenLastCalledWith({ sheetId, col: 0, row: 0 });
+
+  triggerMouseEvent(".o-grid-overlay", "mouseleave", 500, 500);
+  expect(spy).toHaveBeenCalledTimes(1); // mouseleave while still inside the grid overlay => do not trigger an hover
+
+  triggerMouseEvent(".o-grid-overlay", "mouseenter", 500, 500);
+  triggerMouseEvent(".o-grid-overlay", "mouseleave", 2000, 500); // mouseleave outside the grid
+  expect(spy).toHaveBeenLastCalledWith(undefined);
+
+  triggerMouseEvent(".o-grid-overlay", "mouseenter", 500, 500);
+  triggerMouseEvent(".o-grid-overlay", "mouseleave", 1000, 1000); // mouseleave exactly at the limit of the grid
+  expect(spy).toHaveBeenLastCalledWith(undefined);
+
+  jest.useRealTimers();
 });
