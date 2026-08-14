@@ -392,6 +392,36 @@ describe("Filter menu component", () => {
     });
   });
 
+  test("Sort filter with non-1 number of headers", async () => {
+    createTableWithFilter(model, "A10:A14", { numberOfHeaders: 2 });
+    setCellContent(model, "A10", "header 1");
+    setCellContent(model, "A11", "header 2");
+    setCellContent(model, "A12", "1");
+    setCellContent(model, "A13", "-1");
+    setCellContent(model, "A14", "2");
+    await nextTick();
+
+    await openFilterMenu("A10");
+    await simulateClick(".o-filter-menu-item:nth-of-type(1)");
+    expect(getCellsObject(model, sheetId)).toMatchObject({
+      A10: { content: "header 1" },
+      A11: { content: "header 2" },
+      A12: { content: "-1" },
+      A13: { content: "1" },
+      A14: { content: "2" },
+    });
+
+    await openFilterMenu("A10");
+    await simulateClick(".o-filter-menu-item:nth-of-type(2)");
+    expect(getCellsObject(model, sheetId)).toMatchObject({
+      A10: { content: "header 1" },
+      A11: { content: "header 2" },
+      A12: { content: "2" },
+      A13: { content: "1" },
+      A14: { content: "-1" },
+    });
+  });
+
   test("cannot sort filter table in readonly mode", async () => {
     createTableWithFilter(model, "A10:B15");
     await nextTick();
