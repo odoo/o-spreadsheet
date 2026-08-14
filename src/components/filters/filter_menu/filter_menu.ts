@@ -201,7 +201,7 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const contentZone = { ...tableZone, top: tableZone.top + 1 };
+    const contentZone = { ...tableZone, top: tableZone.top + table.config.numberOfHeaders };
     const sortAnchor = { col: filterPosition.col, row: contentZone.top };
     const sortOptions = { emptyCellAsZero: true, sortHeaders: true };
     interactiveSort(this.env, sheetId, sortAnchor, contentZone, sortDirection, sortOptions);
