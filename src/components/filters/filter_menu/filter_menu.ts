@@ -292,7 +292,7 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const contentZone = { ...tableZone, top: tableZone.top + 1 };
+    const contentZone = { ...tableZone, top: tableZone.top + table.config.numberOfHeaders };
     this.env.model.dispatch("SORT_CELLS", {
       sheetId,
       col: filterPosition.col,
