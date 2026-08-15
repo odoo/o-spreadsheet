@@ -20,11 +20,11 @@ exports[`Grid composer grid composer basic style Grid composer snapshot 1`] = `
         style="max-height: 982.6px;"
         tabindex="1"
       >
-        <p>
+        <div>
           <span>
             A
           </span>
-        </p>
+        </div>
       </div>
     </div>
     
