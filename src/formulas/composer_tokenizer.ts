@@ -95,6 +95,7 @@ function mapParenthesis(tokens: EnrichedToken[]): EnrichedToken[] {
 function mapParentFunction(tokens: EnrichedToken[]): EnrichedToken[] {
   const stack: FunctionContext[] = [];
   let functionStarted = "";
+  let braceDepth = 0;
 
   function pushTokenToFunctionContext(token: Token) {
     if (stack.length === 0) {
@@ -110,7 +111,7 @@ function mapParentFunction(tokens: EnrichedToken[]): EnrichedToken[] {
     }
   }
 
-  const res = tokens.map((token, i) => {
+  const res = tokens.map((token) => {
     if (!["SPACE", "LEFT_PAREN"].includes(token.type)) {
       functionStarted = "";
     }
@@ -130,9 +131,17 @@ function mapParentFunction(tokens: EnrichedToken[]): EnrichedToken[] {
         child?.argsTokens?.flat().forEach(pushTokenToFunctionContext);
         pushTokenToFunctionContext(token);
         break;
+      case "LEFT_BRACE":
+        braceDepth++;
+        pushTokenToFunctionContext(token);
+        break;
+      case "RIGHT_BRACE":
+        braceDepth--;
+        pushTokenToFunctionContext(token);
+        break;
       case "ARG_SEPARATOR":
         pushTokenToFunctionContext(token);
-        if (stack.length) {
+        if (stack.length && braceDepth === 0) {
           // increment position on current function
           stack[stack.length - 1].argPosition++;
         }

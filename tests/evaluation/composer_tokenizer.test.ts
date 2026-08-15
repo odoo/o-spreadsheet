@@ -258,6 +258,24 @@ describe("composerTokenizer base tests", () => {
     ]);
   });
 
+  test("comma after array literal increments argPosition of parent function", () => {
+    const firstArgContext = { parent: "SUM", argPosition: 0 };
+    const secondArgContext = { parent: "SUM", argPosition: 1 };
+    expect(composerTokenize("=SUM({1,2},3)", DEFAULT_LOCALE)).toMatchObject([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "SUM" },
+      { type: "LEFT_PAREN", value: "(", functionContext: firstArgContext },
+      { type: "LEFT_BRACE", value: "{", functionContext: firstArgContext },
+      { type: "NUMBER", value: "1", functionContext: firstArgContext },
+      { type: "ARG_SEPARATOR", value: ",", functionContext: firstArgContext },
+      { type: "NUMBER", value: "2", functionContext: firstArgContext },
+      { type: "RIGHT_BRACE", value: "}", functionContext: firstArgContext },
+      { type: "ARG_SEPARATOR", value: ",", functionContext: secondArgContext },
+      { type: "NUMBER", value: "3", functionContext: secondArgContext },
+      { type: "RIGHT_PAREN", value: ")" },
+    ]);
+  });
+
   test("debug formula token", () => {
     expect(composerTokenize("=?1", DEFAULT_LOCALE)).toEqual([
       { start: 0, end: 1, length: 1, type: "OPERATOR", value: "=" },
