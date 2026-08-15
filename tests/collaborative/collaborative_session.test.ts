@@ -1,12 +1,17 @@
 import { Client, CommandResult, CoreCommand, Model, WorkbookData } from "../../src";
 import { ICommandSquisher, SquishedCoreCommand } from "../../src/collaborative/command_squisher";
 import { Session } from "../../src/collaborative/session";
-import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
+import {
+  DEFAULT_REVISION_ID,
+  MESSAGE_VERSION,
+  SAVE_VERSION_EVERY_N_MINUTES,
+} from "../../src/constants";
 import { lazy } from "../../src/helpers/misc";
 import { buildRevisionLog } from "../../src/history/factory";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { nextTick, useJestFakeTimers } from "../test_helpers/helpers";
+import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 class MockCommandSquisher implements ICommandSquisher {
   public squish(
@@ -191,7 +196,14 @@ describe("Collaborative session", () => {
     const spy = jest.spyOn(transport, "sendMessage");
     const data = { sheets: [{}] } as WorkbookData;
     await session.leave(lazy(data));
-    expect(spy).toHaveBeenCalledTimes(1);
+    // with other connected clients we don't snapshot, but we save an
+    // intermediary version of the data before leaving
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenCalledWith({
+      type: "INTERMEDIARY_VERSION_SAVED",
+      version: MESSAGE_VERSION,
+      data,
+    });
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_LEFT",
       version: MESSAGE_VERSION,
@@ -341,5 +353,103 @@ describe("Collaborative session", () => {
         message,
       ]);
     }).not.toThrow();
+  });
+});
+
+describe("Intermediary version save", () => {
+  const MS_PER_MINUTE = 60 * 1000;
+  const ABOVE_THRESHOLD = (SAVE_VERSION_EVERY_N_MINUTES + 1) * MS_PER_MINUTE;
+  const BELOW_THRESHOLD = (SAVE_VERSION_EVERY_N_MINUTES - 1) * MS_PER_MINUTE;
+
+  function setupModel() {
+    useJestFakeTimers();
+    const transport = new MockTransportService();
+    const model = new Model(
+      {},
+      { transportService: transport, client: { id: "alice", name: "Alice" } }
+    );
+    return { model, transport };
+  }
+
+  function intermediaryVersionCalls(spy: jest.SpyInstance) {
+    return spy.mock.calls.filter(([message]) => message.type === "INTERMEDIARY_VERSION_SAVED");
+  }
+
+  test("an intermediary version is saved after the time threshold", () => {
+    const { model, transport } = setupModel();
+    setCellContent(model, "A1", "hello"); // a first revision, so there is something to save
+    const spy = jest.spyOn(transport, "sendMessage");
+    jest.advanceTimersByTime(ABOVE_THRESHOLD);
+    setCellContent(model, "A2", "world");
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "INTERMEDIARY_VERSION_SAVED",
+        version: MESSAGE_VERSION,
+        data: expect.objectContaining({
+          sheets: [expect.objectContaining({ cells: { A1: "hello", A2: "world" } })],
+        }),
+      })
+    );
+  });
+
+  test("no intermediary version is saved before the time threshold", () => {
+    const { model, transport } = setupModel();
+    setCellContent(model, "A1", "hello");
+    const spy = jest.spyOn(transport, "sendMessage");
+    jest.advanceTimersByTime(BELOW_THRESHOLD);
+    setCellContent(model, "A2", "world");
+    expect(spy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: "INTERMEDIARY_VERSION_SAVED" })
+    );
+  });
+
+  test("the timer is reset after saving an intermediary version", () => {
+    const { model, transport } = setupModel();
+    setCellContent(model, "A1", "hello");
+    const spy = jest.spyOn(transport, "sendMessage");
+    jest.advanceTimersByTime(ABOVE_THRESHOLD);
+    setCellContent(model, "A2", "world"); // saves an intermediary version and resets the timer
+    jest.advanceTimersByTime(BELOW_THRESHOLD);
+    setCellContent(model, "A3", "!"); // below the threshold since the last save: no new version
+    expect(intermediaryVersionCalls(spy)).toHaveLength(1);
+  });
+
+  test("no intermediary version is saved if no revision has been committed yet", () => {
+    const { model, transport } = setupModel();
+    const spy = jest.spyOn(transport, "sendMessage");
+    // the threshold elapses before any revision is committed
+    jest.advanceTimersByTime(ABOVE_THRESHOLD);
+    setCellContent(model, "A1", "hello");
+    expect(spy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: "INTERMEDIARY_VERSION_SAVED" })
+    );
+  });
+
+  test("an intermediary version is saved when leaving with other connected clients", async () => {
+    const { network, alice } = setupCollaborativeEnv();
+    setCellContent(alice, "A1", "hello"); // a revision, so there is something to save
+    const spy = jest.spyOn(network, "sendMessage");
+    await alice.leaveSession();
+    // with other connected clients we don't snapshot, but we save an intermediary version
+    expect(spy).not.toHaveBeenCalledWith(expect.objectContaining({ type: "SNAPSHOT" }));
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "INTERMEDIARY_VERSION_SAVED" })
+    );
+    expect(spy).toHaveBeenCalledWith(expect.objectContaining({ type: "CLIENT_LEFT" }));
+  });
+
+  test("no intermediary version is saved when leaving with pending messages", async () => {
+    const { network, alice } = setupCollaborativeEnv();
+    setCellContent(alice, "A1", "hello"); // acknowledged revision
+    const spy = jest.spyOn(network, "sendMessage");
+    network.concurrent(() => {
+      setCellContent(alice, "A2", "world"); // a pending message, not yet acknowledged
+      void alice.leaveSession();
+    });
+    await nextTick();
+    expect(spy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: "INTERMEDIARY_VERSION_SAVED" })
+    );
+    expect(spy).toHaveBeenCalledWith(expect.objectContaining({ type: "CLIENT_LEFT" }));
   });
 });
