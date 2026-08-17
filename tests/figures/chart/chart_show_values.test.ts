@@ -1,8 +1,13 @@
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
+<<<<<<< d72cc0bc38db22968f3f9cfde82eb0f1a2725645
 import { BubbleChartDefinition } from "../../../src/types/chart/bubble_chart";
 import { CalendarChartDefinition } from "../../../src/types/chart/calendar_chart";
 import { ComboChartDefinition } from "../../../src/types/chart/combo_chart";
 import { FunnelChartDefinition } from "../../../src/types/chart/funnel_chart";
+||||||| 0646064cc2847215892e396c0539c7e9df7d951e
+=======
+import { BubbleChartDefinition } from "../../../src/types/chart/bubble_chart";
+>>>>>>> cdfff905fcc0fd29c3a9540ccb7c025b17e045f7
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { PieChartDefinition } from "../../../src/types/chart/pie_chart";
 import { RadarChartDefinition } from "../../../src/types/chart/radar_chart";
@@ -472,6 +477,44 @@ describe("Combo chart show value", () => {
         dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }],
         dataSetsHaveTitle: false,
       }),
+      showValues: true,
+      title: { text: "" },
+      legendPosition: "none",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+});
+
+describe("bubble chart show value", () => {
+  test("Can show values on a bubble chart", () => {
+    const model = createModelFromGrid({ A1: "30", A2: "20", A3: "15", A4: "7", A5: "2" });
+    const definition: Partial<BubbleChartDefinition<string>> & { type: "bubble" } = {
+      yRanges: ["A1:A5"],
+      xRange: "A1:A5",
+      sizeRange: "A1:A5",
+      bubbleColor: { color: "multiple" },
+      type: "bubble",
+      showValues: true,
+      title: { text: "" },
+      legendPosition: "none",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+
+  test("Can show values on a bubble chart without bubble size", () => {
+    const model = createModelFromGrid({ A1: "30", A2: "20", A3: "15", A4: "7", A5: "2" });
+    const definition: Partial<BubbleChartDefinition<string>> & { type: "bubble" } = {
+      yRanges: ["A1:A5"],
+      xRange: "A1:A5",
+      sizeRange: undefined,
+      bubbleColor: { color: "multiple" },
+      type: "bubble",
       showValues: true,
       title: { text: "" },
       legendPosition: "none",

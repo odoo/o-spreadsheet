@@ -1,7 +1,24 @@
+<<<<<<< d72cc0bc38db22968f3f9cfde82eb0f1a2725645
 import type { Chart, ChartMeta, ChartType, Plugin, PointElement } from "chart.js";
 import { colorToRGBA } from "../../../../helpers/color";
+||||||| 0646064cc2847215892e396c0539c7e9df7d951e
+import type { ChartMeta, ChartType, Plugin } from "chart.js";
+import { hexToHSLA, toHex } from "../../../../helpers/color";
+=======
+import type { ChartMeta, ChartType, Plugin, PointElement } from "chart.js";
+>>>>>>> cdfff905fcc0fd29c3a9540ccb7c025b17e045f7
 import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
+<<<<<<< d72cc0bc38db22968f3f9cfde82eb0f1a2725645
 import { computeCachedTextDimension, computeTextFont } from "../../../../helpers/text_helper";
+||||||| 0646064cc2847215892e396c0539c7e9df7d951e
+import { computeTextWidth } from "../../../../helpers/text_helper";
+=======
+import {
+  computeCachedTextDimension,
+  computeTextFont,
+  computeTextWidth,
+} from "../../../../helpers/text_helper";
+>>>>>>> cdfff905fcc0fd29c3a9540ccb7c025b17e045f7
 import type { ChartType as AllChartType } from "../../../../types/chart/chart";
 import { Color } from "../../../../types/misc";
 
@@ -146,24 +163,165 @@ function drawValues(args: {
         chart,
       };
 
+<<<<<<< d72cc0bc38db22968f3f9cfde82eb0f1a2725645
       const position = args.getValuePosition(callbackArgs);
       if (args.shouldSkipValue?.(callbackArgs)) {
-        continue;
+||||||| 0646064cc2847215892e396c0539c7e9df7d951e
+      let yPosition = 0;
+      const yZeroLine = yAxisScale.getPixelForValue(0);
+      const distanceFromAxisOrigin = Math.abs(yZeroLine - point.y);
+      const textHeight = globalThis.Chart?.defaults.font.size ?? 12; // ChartJS default text height
+
+      if (distanceFromAxisOrigin < textHeight) {
+        yPosition = value < 0 ? yZeroLine + textHeight / 2 : yZeroLine - textHeight / 2;
+      } else {
+        yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;
       }
 
+      yPosition = Math.min(yPosition, yMax);
+      yPosition = Math.max(yPosition, yMin);
+
+      ctx.strokeStyle = point.options.backgroundColor;
+      ctx.fillStyle = options.background(Number(value), dataset, i) || "#ffffff";
+      const valueToDisplay = options.callback(Number(value), dataset, i);
+      const measures = ctx.measureText(valueToDisplay);
+      const height = measures.actualBoundingBoxAscent + measures.actualBoundingBoxDescent;
+      if (height + 2 > Math.abs(point.height) - 2) {
+        continue; // Skip drawing the value if there is not enough space in the bar
+      }
+      drawTextWithBackground(valueToDisplay, xPosition, yPosition, ctx);
+    }
+  }
+}
+
+function drawBubbleChartValues(
+  chart: any,
+  options: ChartShowValuesPluginOptions,
+  ctx: CanvasRenderingContext2D
+) {
+  const yMax = chart.chartArea.bottom;
+  const yMin = chart.chartArea.top;
+  const textsPositions: Record<number, number[]> = {};
+
+  for (const dataset of chart._metasets) {
+    for (let i = 0; i < dataset._parsed.length; i++) {
+      const parsedValue = dataset._parsed[i];
+      const value = parsedValue.y;
+      if (isNaN(value)) {
+=======
+      let yPosition = 0;
+      const yZeroLine = yAxisScale.getPixelForValue(0);
+      const distanceFromAxisOrigin = Math.abs(yZeroLine - point.y);
+      const textHeight = globalThis.Chart?.defaults.font.size ?? 12; // ChartJS default text height
+
+      if (distanceFromAxisOrigin < textHeight) {
+        yPosition = value < 0 ? yZeroLine + textHeight / 2 : yZeroLine - textHeight / 2;
+      } else {
+        yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;
+      }
+
+      yPosition = Math.min(yPosition, yMax);
+      yPosition = Math.max(yPosition, yMin);
+
+      ctx.strokeStyle = point.options.backgroundColor;
+      ctx.fillStyle = options.background(Number(value), dataset, i) || "#ffffff";
+      const valueToDisplay = options.callback(Number(value), dataset, i);
+      const measures = ctx.measureText(valueToDisplay);
+      const height = measures.actualBoundingBoxAscent + measures.actualBoundingBoxDescent;
+      if (height + 2 > Math.abs(point.height) - 2) {
+        continue; // Skip drawing the value if there is not enough space in the bar
+      }
+      drawTextWithBackground(valueToDisplay, xPosition, yPosition, ctx);
+    }
+  }
+}
+
+function drawBubbleChartValues(
+  chart: any,
+  options: ChartShowValuesPluginOptions,
+  ctx: CanvasRenderingContext2D
+) {
+  const yMax = chart.chartArea.bottom;
+  const yMin = chart.chartArea.top;
+  const textsPositions: Record<number, number[]> = {};
+
+  const canDrawTextInsideBubble = (chartElement: PointElement, textSize: { height: number }) => {
+    const radius =
+      chartElement.options.radius ?? globalThis.Chart?.defaults.elements.point.radius ?? 3;
+    // Only compare the height; The goal is to make sure the text doesn't totally hide the point, not to avoid any overflow
+    return textSize.height < radius * 2;
+  };
+
+  for (const dataset of chart._metasets) {
+    for (let i = 0; i < dataset._parsed.length; i++) {
+      const parsedValue = dataset._parsed[i];
+      const value = parsedValue.y;
+      if (isNaN(value)) {
+>>>>>>> cdfff905fcc0fd29c3a9540ccb7c025b17e045f7
+        continue;
+      }
+      const valueToDisplay = options.callback(Number(value), dataset, i);
+
+<<<<<<< d72cc0bc38db22968f3f9cfde82eb0f1a2725645
       if (direction === "vertical") {
         const key = Math.round(position.x);
         // Avoid overlapping texts with same X
         if (!textsPositions[key]) {
           textsPositions[key] = [];
+||||||| 0646064cc2847215892e396c0539c7e9df7d951e
+      const point = dataset.data[i];
+      const xPosition = point.x;
+      let yPosition = Math.max(Math.min(point.y, yMax), yMin);
+
+      // Avoid overlapping texts with same X
+      if (!textsPositions[xPosition]) {
+        textsPositions[xPosition] = [];
+      }
+      for (const otherPosition of textsPositions[xPosition] || []) {
+        if (Math.abs(otherPosition - yPosition) < MINIMAL_VERTICAL_DISTANCE) {
+          yPosition = otherPosition + MINIMAL_VERTICAL_DISTANCE * (value < 0 ? 1 : -1);
+=======
+      const point = dataset.data[i];
+      const xPosition = point.x;
+      let yPosition = Math.max(Math.min(point.y, yMax), yMin);
+      const textSize = getTextDimensions(valueToDisplay, ctx);
+      if (!canDrawTextInsideBubble(point, textSize)) {
+        yPosition = value < 0 ? point.y + 10 : point.y - 10;
+      }
+
+      // Avoid overlapping texts with same X
+      if (!textsPositions[xPosition]) {
+        textsPositions[xPosition] = [];
+      }
+      for (const otherPosition of textsPositions[xPosition] || []) {
+        if (Math.abs(otherPosition - yPosition) < MINIMAL_VERTICAL_DISTANCE) {
+          yPosition = otherPosition + MINIMAL_VERTICAL_DISTANCE * (value < 0 ? 1 : -1);
+>>>>>>> cdfff905fcc0fd29c3a9540ccb7c025b17e045f7
         }
+<<<<<<< d72cc0bc38db22968f3f9cfde82eb0f1a2725645
         for (const otherPosition of textsPositions[key] || []) {
           if (Math.abs(otherPosition - position.y) < MINIMAL_VERTICAL_DISTANCE) {
             position.y = otherPosition + MINIMAL_VERTICAL_DISTANCE * (numberValue < 0 ? 1 : -1);
           }
         }
         textsPositions[key].push(position.y);
+||||||| 0646064cc2847215892e396c0539c7e9df7d951e
+      }
+      textsPositions[xPosition].push(yPosition);
+      const color = point.options.backgroundColor ?? "#ffffff";
+      const hsla = hexToHSLA(toHex(color));
+      if (hsla.a === 1) {
+        ctx.fillStyle = chartFontColor(color);
+=======
+      }
+      textsPositions[xPosition].push(yPosition);
+
+      if (canDrawTextInsideBubble(point, textSize)) {
+        ctx.strokeStyle = point.options.backgroundColor;
+        ctx.fillStyle = options.background(Number(value), dataset, i) || "#ffffff";
+>>>>>>> cdfff905fcc0fd29c3a9540ccb7c025b17e045f7
       } else {
+<<<<<<< d72cc0bc38db22968f3f9cfde82eb0f1a2725645
         const key = Math.round(position.y);
         // Avoid overlapping texts with same Y
         if (!textsPositions[key]) {
@@ -178,7 +336,14 @@ function drawValues(args: {
           }
         }
         textsPositions[key].push(position.x);
+||||||| 0646064cc2847215892e396c0539c7e9df7d951e
+        ctx.fillStyle = "#000000";
+=======
+        ctx.strokeStyle = options.background(Number(value), dataset, i) || "#ffffff";
+        ctx.fillStyle = point.options.backgroundColor;
+>>>>>>> cdfff905fcc0fd29c3a9540ccb7c025b17e045f7
       }
+<<<<<<< d72cc0bc38db22968f3f9cfde82eb0f1a2725645
 
       const { strokeColor, textColor } = args.getTextColors(callbackArgs);
       if (!!strokeColor) {
@@ -189,6 +354,12 @@ function drawValues(args: {
       ctx.fillStyle = textColor;
       ctx.lineWidth = 1;
       ctx.fillText(valueToDisplay, position.x, position.y);
+||||||| 0646064cc2847215892e396c0539c7e9df7d951e
+      const valueToDisplay = options.callback(Number(value), dataset, i);
+      ctx.fillText(valueToDisplay, xPosition, yPosition);
+=======
+      drawTextWithBackground(valueToDisplay, xPosition, yPosition, ctx);
+>>>>>>> cdfff905fcc0fd29c3a9540ccb7c025b17e045f7
     }
   }
 
@@ -405,4 +576,9 @@ function getVerticalBarValuePosition(args: CallbackArgs) {
   }
 
   return { x: chartElement.x, y: yPosition };
+}
+
+function getTextDimensions(text: string, ctx: CanvasRenderingContext2D): { height: number } {
+  const font = computeTextFont({ fontSize: globalThis.Chart?.defaults.font.size ?? 12 }, "px");
+  return computeCachedTextDimension(ctx, text, font);
 }
