@@ -137,7 +137,7 @@ export function computeTextDimension(
   };
 }
 
-function computeCachedTextDimension(
+export function computeCachedTextDimension(
   context: Canvas2DContext,
   text: string,
   font: string
