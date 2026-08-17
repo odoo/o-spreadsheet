@@ -1,6 +1,7 @@
 import {
   BarChartDefinition,
   BarChartRuntime,
+  FunnelChartDefinition,
   LineChartDefinition,
   PieChartDefinition,
 } from "../../../src/types/chart";
@@ -112,6 +113,44 @@ describe("Chart show value", () => {
       showValues: true,
       stacked: true,
       horizontal: true,
+      title: { text: "" },
+      legendPosition: "none",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+});
+
+describe("Funnel chart show value", () => {
+  test("Can show values on a funnel chart", () => {
+    const model = createModelFromGrid({ A1: "30", A2: "20", A3: "15", A4: "7", A5: "2" });
+    const definition: Partial<FunnelChartDefinition<string>> & { type: "funnel" } = {
+      type: "funnel",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A5" }],
+        dataSetsHaveTitle: false,
+      }),
+      showValues: true,
+      title: { text: "" },
+      legendPosition: "none",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+
+  test("Values are centered on very small funnel bars", () => {
+    const model = createModelFromGrid({ A1: "2000", A2: "152", A3: "100", A4: "99", A5: "98" });
+    const definition: Partial<FunnelChartDefinition<string>> & { type: "funnel" } = {
+      type: "funnel",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A5" }],
+        dataSetsHaveTitle: false,
+      }),
+      showValues: true,
       title: { text: "" },
       legendPosition: "none",
     };
