@@ -1,12 +1,11 @@
-- [Where should this code live?](#where-should-this-code-live)
-  - [The decision tree](#the-decision-tree)
-  - [Why `ui_feature` vs `ui_stateful`: the collaborative-replay rule](#why-ui_feature-vs-ui_stateful-the-collaborative-replay-rule)
-  - [Why global store vs local store: the container mechanics](#why-global-store-vs-local-store-the-container-mechanics)
-  - [Capability matrix](#capability-matrix)
-  - [Gotchas: where the codebase itself blurs the line](#gotchas-where-the-codebase-itself-blurs-the-line)
-  - [Quick reference](#quick-reference)
-
 # Where should this code live?
+
+- [The decision tree](#the-decision-tree)
+- [Why `ui_feature` vs `ui_stateful`: the collaborative-replay rule](#why-ui_feature-vs-ui_stateful-the-collaborative-replay-rule)
+- [Why global store vs local store: the container mechanics](#why-global-store-vs-local-store-the-container-mechanics)
+- [Capability matrix](#capability-matrix)
+- [Gotchas: where the codebase itself blurs the line](#gotchas-where-the-codebase-itself-blurs-the-line)
+- [Quick reference](#quick-reference)
 
 o-spreadsheet gives you six legitimate places to put a new feature's code:
 
@@ -17,7 +16,7 @@ o-spreadsheet gives you six legitimate places to put a new feature's code:
 5. **Global store** (`src/stores/`, obtained with `useStore`)
 6. **Local store** (co-located with a component, obtained with `useLocalStore`)
 
-This page gives a walkable decision tree to pick one, then explains the two forks that are usually the confusing ones (`ui_feature` vs `ui_stateful`, global vs local store) with the actual mechanical rule behind them — not just the soft convention. It ends with a table of known cases where the existing codebase doesn't cleanly follow its own rule, so you don't panic when you find one.
+This page gives a walkable decision tree to pick one, then explains the two forks that are usually the confusing ones (`ui_feature` vs `ui_stateful`, global vs local store) with the actual mechanical rule behind them — not just the soft convention. It ends with a list of known cases where the existing codebase doesn't cleanly follow its own rule, so you don't panic when you find one.
 
 This page assumes you already know what a plugin and a command are — see [architecture.md](./architecture.md), [plugin.md](./plugin.md) and [business_feature.md](./business_feature.md) for that. For stores, see [`src/store_engine/README.md`](../../src/store_engine/README.md), which this page complements rather than repeats.
 
@@ -127,15 +126,14 @@ The practical test for Q5: **if this component were mounted twice (e.g. the same
 
 The tree above is the _target_ rule. In practice, several existing plugins and stores don't cleanly follow it — usually because a case turned out messier once written, or because the code predates today's convention. Don't take these as a license to ignore the tree, but don't be surprised by them either:
 
-- **Folder vs. registry mismatch.** Five of the ten `statefulUIPluginRegistry` entries physically live under `src/plugins/ui_feature/`, not `ui_stateful/`: `HeaderVisibilityUIPlugin`, `CellComputedStylePlugin`, `TableComputedStylePlugin`, `LockSheetPlugin`, `FigureUIPlugin`. File location is not a reliable signal of the actual category — the registry in `plugin_registries.ts` is the source of truth.
-- **`HeaderVisibilityUIPlugin`** (`src/plugins/ui_feature/header_visibility_ui.ts`) has no state of its own — pure getters, which by Q2 looks like a core-view plugin. It's `ui_stateful` instead because it depends on `FilterEvaluationPlugin`'s getters, and `FilterEvaluationPlugin` is itself `ui_stateful` — a core-view plugin can't safely depend on non-core-view state, since it must stay re-derivable in lockstep purely from replayed core commands.
+- **The registry, not the folder, is the source of truth.** Every plugin folder currently lines up with its registry, but nothing enforces it — a plugin's category is whichever registry in `plugin_registries.ts` it is added to, and files have drifted between folders before. If the two ever disagree, believe the registry.
+- **`HeaderVisibilityUIPlugin`** (`src/plugins/ui_stateful/header_visibility_ui.ts`) has no state of its own — pure getters, which by Q2 looks like a core-view plugin. It's `ui_stateful` instead because it depends on `FilterEvaluationPlugin`'s getters, and `FilterEvaluationPlugin` is itself `ui_stateful` — a core-view plugin can't safely depend on non-core-view state, since it must stay re-derivable in lockstep purely from replayed core commands.
 - **`CellComputedStylePlugin` / `TableComputedStylePlugin`** are, in spirit, textbook core-view plugins (100% derived from core data), but are registered `ui_stateful`.
-- **`LockSheetPlugin`** is a pure `allowDispatch` guard with no state at all — arguably the purest possible `ui_feature`, yet it's registered `ui_stateful`.
 - **`FigureUIPlugin`** expands local commands (`MOVE_FIGURES`, `DELETE_FIGURES`) into per-figure core commands, exactly like a `ui_feature` plugin — yet it's registered `ui_stateful`.
 - Conversely, some `featurePluginRegistry` plugins hold real, persistent-for-the-session state despite the registry comment saying features don't need one: `GeoFeaturePlugin` (geo-JSON cache), `PivotPresencePlugin` (presence tracker), `HistoryPlugin` (the local undo/redo stack itself).
-- **`HighlightStore`** is used as _both_ a global store (`useStore` in `grid.ts`, `named_range_selector.ts`) and a local store (`useLocalStore` in `components/helpers/highlight_hook.ts`) at the same time in the same running app. These are separate, uncoordinated instances of the same class — not one shared highlight registry — so don't assume every `HighlightStore` consumer sees the same highlights unless you check which hook it used.
+- **`HighlightStore`** is used as _both_ a global store (`useStore` in `grid.ts`, `env.getStore` in `named_range_selector.ts` — both resolve through the shared container) and a local store (`useLocalStore` in `components/helpers/highlight_hook.ts`) at the same time in the same running app. These are separate, uncoordinated instances of the same class — not one shared highlight registry — so don't assume every `HighlightStore` consumer sees the same highlights unless you check which hook it used.
 - **`RendererStore`** defaults to global (most stores get it via `this.get(RendererStore)` in `SpreadsheetStore`), but is explicitly re-instantiated locally for secondary/standalone canvases (`components/dashboard/dashboard.ts`, `components/standalone_grid_canvas/standalone_grid_canvas.ts`) that need to render an independent subset of layers.
-- **`ComposerFocusStore`** and **`SidePanelStore`** live under `src/components/**`, which by convention suggests "local," but are used exclusively via `useStore` — they're de facto global singletons despite the file location. As with plugins, file location isn't a reliable signal here either — check the hook used at the call site.
+- **`ComposerFocusStore`** and **`SidePanelStore`** live under `src/components/**`, which by convention suggests "local," but are used exclusively via `useStore` — they're de facto global singletons despite the file location. As with plugins, file location isn't the signal — for stores, check the hook used at the call site.
 - **Feature-subtree-scoped stores** — `ConditionalFormattingEditorStore`, `PivotSidePanelStore`, `FindAndReplaceStore` — are instantiated once with `useLocalStore` at the root of a panel and then prop-drilled to child components, rather than re-fetched. They're neither purely global nor purely single-component-local. Nothing in the type system stops a descendant from mistakenly calling `useStore` on the same class and silently getting a second, disconnected instance — if you add a child to one of these subtrees, take the store as a prop, don't re-fetch it.
 - **The boundary keeps moving.** `git log` on `plugin_registries.ts` shows an ongoing trend of migrating plugins into stores (`split_to_columns`, `automatic_sum`, the viewport/`SheetView` plugin) once their state turns out to be component-owned after all. If you're touching one of these areas, check whether it has already moved before assuming the plugin is still authoritative.
 
