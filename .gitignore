@@ -6,6 +6,7 @@ build/
 .npmrc
 /coverage/
 logs/
+.claude/settings.local.json
 
 debug.log
 .git.cache
