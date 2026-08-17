@@ -307,6 +307,7 @@ export function getRadarChartDatasets(
       hidden,
       borderColor,
       backgroundColor: borderColor,
+      pointBackgroundColor: borderColor,
     };
     if (fill) {
       dataset.backgroundColor = setColorAlpha(borderColor, LINE_FILL_TRANSPARENCY);
