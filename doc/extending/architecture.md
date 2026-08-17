@@ -17,9 +17,9 @@ You can interact with the model by two means:
 ```javascript
 const col = 0;
 const row = 0;
-const sheetId = "1";
 
 const model = new Model();
+const sheetId = model.getters.getActiveSheetId();
 
 // Update A1's content by dispatching a command
 model.dispatch("UPDATE_CELL", {
@@ -30,7 +30,7 @@ model.dispatch("UPDATE_CELL", {
 });
 ```
 
-All existing commands are available [https://github.com/odoo/o-spreadsheet/blob/16.0/src/types/commands.ts#L906](here)
+All existing commands are available [here](../../src/types/commands.ts).
 
 ### Getters
 
@@ -38,9 +38,12 @@ All existing commands are available [https://github.com/odoo/o-spreadsheet/blob/
 
 ```javascript
 // Read the cell content
-const cell = model.getters.getCell(sheetId, col, row);
+const cell = model.getters.getCell({ sheetId, col, row });
 console.log(cell.content); // Will display "Hello world"
 ```
+
+Note: `content` is only available on literal cells. A formula cell exposes its `compiledFormula`
+instead, and the two are discriminated by `cell.isFormula`.
 
 Commands are handled internally by **plugins**.
 
@@ -58,9 +61,9 @@ Core plugins are responsible to manage the data persistence and all associated b
 
 UI plugins are separated in three different categories, with the following responsibility:
 
-- Manage the ui state (active sheet, current selection, ...)
-- Manage the derived state from the core part (cell evaluation, computed style, ...)
-- Handle high-level features that could be described with lower-level features (Sort a zone can be described with different cell updates)
+- Manage the derived state from the core part (cell evaluation, computed style, ...) — `src/plugins/ui_core_views/`
+- Manage the ui state (active sheet, current selection, ...) — `src/plugins/ui_stateful/`
+- Handle high-level features that could be described with lower-level features (Sort a zone can be described with different cell updates) — `src/plugins/ui_feature/`
 
 Each UI plugin is responsible of one feature.
 
