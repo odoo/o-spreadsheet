@@ -62,7 +62,7 @@ export class FigureRendererStore extends DisposableStore {
       if (!this.getters.isDashboard()) {
         ctx.strokeStyle = GRAY_400;
         ctx.lineWidth = 1;
-        ctx.strokeRect(x, y, width, height);
+        ctx.strokeRect(x + 0.5, y + 0.5, width - 1, height - 1);
       }
     }
   }
