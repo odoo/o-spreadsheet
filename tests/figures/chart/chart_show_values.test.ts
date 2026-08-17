@@ -1,4 +1,5 @@
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
+import { BubbleChartDefinition } from "../../../src/types/chart/bubble_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { PieChartDefinition } from "../../../src/types/chart/pie_chart";
 import { drawChartOnNodeCanvas, toChartDataSource } from "../../test_helpers/chart_helpers";
@@ -155,6 +156,44 @@ describe("Chart show value", () => {
       legendPosition: "none",
     };
 
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+});
+
+describe("bubble chart show value", () => {
+  test("Can show values on a bubble chart", () => {
+    const model = createModelFromGrid({ A1: "30", A2: "20", A3: "15", A4: "7", A5: "2" });
+    const definition: Partial<BubbleChartDefinition<string>> & { type: "bubble" } = {
+      yRanges: ["A1:A5"],
+      xRange: "A1:A5",
+      sizeRange: "A1:A5",
+      bubbleColor: { color: "multiple" },
+      type: "bubble",
+      showValues: true,
+      title: { text: "" },
+      legendPosition: "none",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+
+  test("Can show values on a bubble chart without bubble size", () => {
+    const model = createModelFromGrid({ A1: "30", A2: "20", A3: "15", A4: "7", A5: "2" });
+    const definition: Partial<BubbleChartDefinition<string>> & { type: "bubble" } = {
+      yRanges: ["A1:A5"],
+      xRange: "A1:A5",
+      sizeRange: undefined,
+      bubbleColor: { color: "multiple" },
+      type: "bubble",
+      showValues: true,
+      title: { text: "" },
+      legendPosition: "none",
+    };
     createChart(model, definition, "chartId");
 
     const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;

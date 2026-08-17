@@ -1,7 +1,10 @@
-import type { ChartMeta, ChartType, Plugin } from "chart.js";
-import { hexToHSLA, toHex } from "../../../../helpers/color";
+import type { ChartMeta, ChartType, Plugin, PointElement } from "chart.js";
 import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
-import { computeTextWidth } from "../../../../helpers/text_helper";
+import {
+  computeCachedTextDimension,
+  computeTextFont,
+  computeTextWidth,
+} from "../../../../helpers/text_helper";
 import type { ChartType as AllChartType } from "../../../../types/chart/chart";
 import { Color } from "../../../../types/misc";
 
@@ -208,6 +211,13 @@ function drawBubbleChartValues(
   const yMin = chart.chartArea.top;
   const textsPositions: Record<number, number[]> = {};
 
+  const canDrawTextInsideBubble = (chartElement: PointElement, textSize: { height: number }) => {
+    const radius =
+      chartElement.options.radius ?? globalThis.Chart?.defaults.elements.point.radius ?? 3;
+    // Only compare the height; The goal is to make sure the text doesn't totally hide the point, not to avoid any overflow
+    return textSize.height < radius * 2;
+  };
+
   for (const dataset of chart._metasets) {
     for (let i = 0; i < dataset._parsed.length; i++) {
       const parsedValue = dataset._parsed[i];
@@ -215,10 +225,15 @@ function drawBubbleChartValues(
       if (isNaN(value)) {
         continue;
       }
+      const valueToDisplay = options.callback(Number(value), dataset, i);
 
       const point = dataset.data[i];
       const xPosition = point.x;
       let yPosition = Math.max(Math.min(point.y, yMax), yMin);
+      const textSize = getTextDimensions(valueToDisplay, ctx);
+      if (!canDrawTextInsideBubble(point, textSize)) {
+        yPosition = value < 0 ? point.y + 10 : point.y - 10;
+      }
 
       // Avoid overlapping texts with same X
       if (!textsPositions[xPosition]) {
@@ -230,15 +245,15 @@ function drawBubbleChartValues(
         }
       }
       textsPositions[xPosition].push(yPosition);
-      const color = point.options.backgroundColor ?? "#ffffff";
-      const hsla = hexToHSLA(toHex(color));
-      if (hsla.a === 1) {
-        ctx.fillStyle = chartFontColor(color);
+
+      if (canDrawTextInsideBubble(point, textSize)) {
+        ctx.strokeStyle = point.options.backgroundColor;
+        ctx.fillStyle = options.background(Number(value), dataset, i) || "#ffffff";
       } else {
-        ctx.fillStyle = "#000000";
+        ctx.strokeStyle = options.background(Number(value), dataset, i) || "#ffffff";
+        ctx.fillStyle = point.options.backgroundColor;
       }
-      const valueToDisplay = options.callback(Number(value), dataset, i);
-      ctx.fillText(valueToDisplay, xPosition, yPosition);
+      drawTextWithBackground(valueToDisplay, xPosition, yPosition, ctx);
     }
   }
 }
@@ -342,4 +357,9 @@ function drawPieChartValues(
       drawTextWithBackground(displayValue, x, y, ctx);
     }
   }
+}
+
+function getTextDimensions(text: string, ctx: CanvasRenderingContext2D): { height: number } {
+  const font = computeTextFont({ fontSize: globalThis.Chart?.defaults.font.size ?? 12 }, "px");
+  return computeCachedTextDimension(ctx, text, font);
 }
