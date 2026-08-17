@@ -13,7 +13,7 @@
         </t>
         <t t-foreach="this.getMenuItems()" t-as="item" t-key="item.id">
           <div
-            class="o-chart-menu-item border-0 lh-1 p-1 d-flex align-items-center justify-content-center rounded"
+            class="o-chart-menu-item lh-1 p-1 d-flex align-items-center justify-content-center rounded"
             t-att-title="item.label"
             t-on-click="item.onClick"
             t-att-data-id="item.id">
@@ -21,8 +21,8 @@
           </div>
         </t>
         <t t-if="this.isMenuAvailable()">
-          <button
-            class="o-chart-menu-item btn text-muted lh-1 p-1 fa fa-ellipsis-v"
+          <div
+            class="o-chart-menu-item lh-1 p-1 d-flex align-items-center justify-content-center rounded fa fa-ellipsis-v"
             t-on-click="this.openContextMenu"
           />
         </t>
