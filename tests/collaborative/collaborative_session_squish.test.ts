@@ -7,8 +7,7 @@ import { setCellContent } from "../test_helpers/commands_helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 describe("Collaborative session", () => {
-  // FIXME: reactivate the test when we resquish the commands on the network
-  test.skip("Update_cell on same value and contiguous cells", () => {
+  test("Update_cell on same value and contiguous cells", () => {
     const transport = new MockTransportService();
     const model = new Model(
       { sheets: [{ id: "sheet1", name: "Sheet 1", cells: { A1: "Hello" } }] },
