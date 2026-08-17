@@ -43,11 +43,11 @@ export const chartShowValuesPlugin: Plugin = {
       case "line":
       case "radar":
         options.horizontal
-          ? drawHorizontalBarChartValues(chart, options, ctx)
+          ? drawHorizontalBarChartValues(chart, options, ctx, { offsetFromAxisOrigin: true })
           : drawLineOrBarOrRadarChartValues(chart, options, ctx);
         break;
       case "funnel":
-        drawHorizontalBarChartValues(chart, options, ctx);
+        drawHorizontalBarChartValues(chart, options, ctx, { offsetFromAxisOrigin: false });
         break;
     }
 
@@ -122,7 +122,8 @@ function drawLineOrBarOrRadarChartValues(
 function drawHorizontalBarChartValues(
   chart: any,
   options: ChartShowValuesPluginOptions,
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
+  args: { offsetFromAxisOrigin?: boolean }
 ) {
   const textsPositions: Record<number, number[]> = {};
 
@@ -147,7 +148,7 @@ function drawHorizontalBarChartValues(
 
       const PADDING = 3;
       let xPosition: number;
-      if (distanceFromAxisOrigin < textWidth) {
+      if (args.offsetFromAxisOrigin && distanceFromAxisOrigin < textWidth) {
         xPosition =
           value < 0 ? xZeroLine - textWidth / 2 - PADDING : xZeroLine + textWidth / 2 + PADDING;
       } else {
