@@ -84,23 +84,25 @@
       </div>
       <div
         t-if="this.fingerprints.isEnabled"
-        class="topbar-banner irregularity-map d-flex align-items-center justify-content-between border-top">
+        class="topbar-banner irregularity-map d-flex align-items-stretch justify-content-between border-top">
         <div
           t-on-click="() => this.fingerprints.disable()"
           role="button"
           title="This tool analyzes spreadsheet formulas for patterns and highlights inconsistencies. Irregularities may indicate potential errors in formula structures, references, or arguments. (Click to turn off)"
-          class="h-100 d-flex align-items-center text-info px-3">
-          <t t-call="o-spreadsheet-Icon.IRREGULARITY_MAP"/>
+          class="d-flex align-items-center text-info px-3 text-nowrap">
+          <span class="pe-2">
+            <t t-call="o-spreadsheet-Icon.IRREGULARITY_MAP"/>
+          </span>
           Irregularity map
         </div>
         <div
-          class="ps-3 h-100 flex-fill d-flex justify-content-between rounded-0 alert alert-info ps-0 py-0 my-0">
+          class="ps-3 flex-fill d-flex justify-content-between align-items-center rounded-0 alert alert-info ps-0 py-1 my-0">
           <span class="d-flex align-items-center">
             This tool analyzes formulas for patterns and highlights inconsistencies. Irregularities
             may indicate potential errors in formula structures, references or arguments.
           </span>
           <div
-            class="ps-3 btn o-button-link flex-shrink-0"
+            class="ps-3 btn o-button-link flex-shrink-0 py-0"
             t-on-click="() => this.fingerprints.disable()">
             Turn off
           </div>
@@ -108,18 +110,18 @@
       </div>
       <div
         t-if="!this.env.model.getters.isAutomaticEvaluationEnabled()"
-        class="topbar-banner manual-evaluation d-flex align-items-center justify-content-between border-top">
-        <div class="h-100 d-flex align-items-center text-warning px-3">
-          <i class="oi me-1" data-icon="pause_circle"/>
+        class="topbar-banner manual-evaluation d-flex align-items-stretch justify-content-between border-top">
+        <div class="d-flex align-items-center text-warning px-3 text-nowrap">
+          <i class="oi me-2" data-icon="pause_circle"/>
           Manual calculation
         </div>
         <div
-          class="ps-3 h-100 flex-fill d-flex justify-content-between rounded-0 alert alert-warning ps-0 py-0 my-0">
+          class="ps-3 flex-fill d-flex justify-content-between align-items-center rounded-0 alert alert-warning ps-0 py-1 my-0">
           <span class="d-flex align-items-center">
             Automatic evaluation is disabled. Press F9 to recalculate.
           </span>
           <div
-            class="ps-3 btn o-button-link flex-shrink-0"
+            class="ps-3 btn o-button-link flex-shrink-0 py-0"
             t-on-click="() => this.env.model.dispatch('SET_AUTOMATIC_EVALUATION', { enabled: true })">
             Re-enable
           </div>

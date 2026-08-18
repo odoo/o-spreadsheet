@@ -5,13 +5,6 @@
     }
   }
 
-  @media (max-width: 768px) {
-    .topbar-banner span {
-      overflow: auto;
-      align-items: normal !important;
-    }
-  }
-
   .tool-container {
     display: flex;
     justify-content: center;
@@ -53,7 +46,11 @@
     }
 
     .topbar-banner {
-      height: var(--os-desktop-topbar-toolbar-height);
+      min-height: var(--os-desktop-topbar-toolbar-height);
+
+      .alert {
+        border: none; /* Remove default bootstrap border */
+      }
 
       .alert-info {
         border-left: 3px solid var(--os-alert-info-border);
