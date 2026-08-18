@@ -88,8 +88,8 @@ export class InternalViewport {
 
     const leftColIndex = this.searchHeaderIndex("COL", lastColEnd - this.viewportWidth, 0);
     const leftColSize = this.getters.getColSize(this.sheetId, leftColIndex);
-    const leftRowIndex = this.searchHeaderIndex("ROW", lastRowEnd - this.viewportHeight, 0);
-    const topRowSize = this.getters.getRowSize(this.sheetId, leftRowIndex);
+    const topRowIndex = this.searchHeaderIndex("ROW", lastRowEnd - this.viewportHeight, 0);
+    const topRowSize = this.getters.getRowSize(this.sheetId, topRowIndex);
 
     let width = lastColEnd - this.offsetCorrectionX;
     if (this.canScrollHorizontally) {
@@ -385,7 +385,20 @@ export class InternalViewport {
       return;
     }
     if (this.left === -1) {
-      this.left = this.boundaries.left;
+      const colsHeight = this.getters.getColRowOffset(
+        "COL",
+        this.boundaries.left,
+        this.boundaries.right
+      );
+      if (
+        // Edge case: the user wants to scroll right but the last column is smaller than the viewport width, we snap to the right
+        0 < colsHeight &&
+        colsHeight <= this.offsetScrollbarX
+      ) {
+        this.left = this.boundaries.right;
+      } else {
+        this.left = this.boundaries.left;
+      }
     }
     if (this.right === -1) {
       this.right = this.boundaries.right;
@@ -408,7 +421,20 @@ export class InternalViewport {
       return;
     }
     if (this.top === -1) {
-      this.top = this.boundaries.top;
+      const rowsHeight = this.getters.getColRowOffset(
+        "ROW",
+        this.boundaries.top,
+        this.boundaries.bottom
+      );
+      if (
+        // Edge case: the user wants to scroll down but the last row is smaller than the viewport height, we snap to the bottom
+        0 < rowsHeight &&
+        rowsHeight <= this.offsetScrollbarY
+      ) {
+        this.top = this.boundaries.bottom;
+      } else {
+        this.top = this.boundaries.top;
+      }
     }
     if (this.bottom === -1) {
       this.bottom = this.boundaries.bottom;
