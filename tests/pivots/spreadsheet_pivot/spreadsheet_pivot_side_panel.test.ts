@@ -171,13 +171,16 @@ describe("Spreadsheet pivot side panel", () => {
     ]);
   });
 
-  test("Invalid calculated measure formula have an invalid class on the composer", async () => {
-    await click(fixture.querySelectorAll(".add-dimension")[2]);
-    expect(fixture.querySelector(".o-popover")).toBeDefined();
-    await click(fixture, ".add-calculated-measure");
-    await editStandaloneComposer(".pivot-dimension .o-composer", "=abcdefg()");
-    expect(fixture.querySelector(".o-standalone-composer")).toHaveClass("o-invalid");
-  });
+  test.each(["=abcdefg()", "=InvalidMeasureName", "=1/0a", "=NotAnExistingSheetName!a1"])(
+    "Invalid calculated measure formula have an invalid class on the composer",
+    async (formula) => {
+      await click(fixture.querySelectorAll(".add-dimension")[2]);
+      expect(fixture.querySelector(".o-popover")).toBeDefined();
+      await click(fixture, ".add-calculated-measure");
+      await editStandaloneComposer(".pivot-dimension .o-composer", formula);
+      expect(".o-standalone-composer.o-invalid").toHaveCount(1);
+    }
+  );
 
   test("can have a computed measure without aggregate", async () => {
     setCellContent(model, "A1", "amount");

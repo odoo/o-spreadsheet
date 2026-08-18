@@ -38,7 +38,7 @@ interface LiteralValues {
   strings: { value: string }[];
 }
 
-type InternalCompiledFormula = CompiledFormula & {
+export type InternalCompiledFormula = CompiledFormula & {
   literalValues: LiteralValues;
   symbols: string[];
 };
