@@ -754,7 +754,7 @@
   </t>
   <t t-name="o-spreadsheet-Icon.FILTER_ICON_ACTIVE">
     <div class="o-icon filter-icon-active">
-      <i class="oi oi-filled" data-icon="filter_alt"/>
+      <i class="oi oi-filled" data-icon="filter_alt_f"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.SEARCH">
