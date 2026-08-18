@@ -1,5 +1,5 @@
-import { onWillUnmount, useProps } from "@odoo/owl";
-import { Component, useExternalListener } from "../../owl3_compatibility_layer";
+import { onWillUnmount, useListener, useProps } from "@odoo/owl";
+import { Component } from "../../owl3_compatibility_layer";
 import { useLocalStore } from "../../store_engine/store_hooks";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
@@ -30,7 +30,7 @@ export class SpreadsheetPrint extends Component<SpreadsheetChildEnv> {
   setup() {
     this.printStore = useLocalStore(SpreadsheetPrintStore);
     let styleElement: HTMLStyleElement | null = null;
-    useExternalListener(window, "beforeprint", () => {
+    useListener(window, "beforeprint", () => {
       styleElement = document.createElement("style");
       styleElement.id = "o-spreadsheet-print-style";
       const size = `${this.printStore.pageLayout} ${this.printStore.orientation}`;
@@ -43,7 +43,7 @@ export class SpreadsheetPrint extends Component<SpreadsheetChildEnv> {
         styleElement = null;
       }
     };
-    useExternalListener(window, "afterprint", () => removePrintStyle());
+    useListener(window, "afterprint", () => removePrintStyle());
     onWillUnmount(() => removePrintStyle());
   }
 

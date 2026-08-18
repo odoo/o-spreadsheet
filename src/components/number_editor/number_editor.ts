@@ -1,6 +1,6 @@
-import { onMounted, onWillUpdateProps, proxy, signal, useProps } from "@odoo/owl";
+import { onMounted, onWillUpdateProps, proxy, signal, useListener, useProps } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
-import { Component, useExternalListener } from "../../owl3_compatibility_layer";
+import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { PropsOf } from "../../types/props_of";
@@ -42,7 +42,7 @@ export class NumberEditor extends Component<SpreadsheetChildEnv> {
   setup() {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
 
-    useExternalListener(window, "click", this.onExternalClick, { capture: true });
+    useListener(window, "click", this.onExternalClick.bind(this), { capture: true });
     onWillUpdateProps((nextProps) => {
       const input = this.inputRef();
       if (input && document.activeElement !== input) {

@@ -2,7 +2,7 @@ import { onMounted, onWillUnmount, signal, Signal, useListener, useProps } from 
 import { deepEquals } from "../../helpers/misc";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { positionToZone } from "../../helpers/zones";
-import { Component, useExternalListener } from "../../owl3_compatibility_layer";
+import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -118,7 +118,8 @@ function useCellHovered(
     (ev: MouseEvent) => env.isMobile() && updateMousePosition(withZoom(env, ev))
   );
 
-  useExternalListener(window, "click", handleGlobalClick);
+  useListener(window, "click", handleGlobalClick);
+
   function handleGlobalClick(e: MouseEvent) {
     const target = e.target as HTMLElement;
     const grid = gridRef();

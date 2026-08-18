@@ -1,6 +1,6 @@
-import { proxy, signal } from "@odoo/owl";
+import { proxy, signal, useListener } from "@odoo/owl";
 import { FOOTER_HEIGHT } from "../../constants";
-import { Component, useExternalListener } from "../../owl3_compatibility_layer";
+import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -26,7 +26,7 @@ export class GridAddRowsFooter extends Component<SpreadsheetChildEnv> {
   setup() {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     this.viewStore = useStore(ViewportsStore);
-    useExternalListener(window, "click", this.onExternalClick, { capture: true });
+    useListener(window, "click", this.onExternalClick.bind(this), { capture: true });
   }
 
   get addRowsPosition() {

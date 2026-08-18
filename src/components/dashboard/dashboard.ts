@@ -1,5 +1,5 @@
 import { signal, useProps } from "@odoo/owl";
-import { Component, useChildSubEnv } from "../../owl3_compatibility_layer";
+import { Component, useSubEnv } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -60,7 +60,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
 
     const layers = OrderedLayers().filter((layer) => layer !== "Headers");
     const rendererStore = useLocalStore(RendererStore, layers);
-    useChildSubEnv({
+    useSubEnv({
       getPopoverContainerRect: () => this.zoomStore.getZoomedRect(this.getGridRect()),
     });
 

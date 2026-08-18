@@ -1,6 +1,5 @@
 import { Signal, useListener } from "@odoo/owl";
 
-import { useExternalListener } from "../../owl3_compatibility_layer";
 const friction = 0.95;
 
 const verticalScrollFactor = 1;
@@ -40,7 +39,7 @@ export function useTouchHandlers(
 
   useListener(ref, "pointerdown", onPointerdown, { passive: false, capture: false });
   useListener(ref, "pointermove", onPointermove, { passive: false, capture: false });
-  useExternalListener(window, "pointerup", onPointerUp, { passive: false, capture: true });
+  useListener(window, "pointerup", onPointerUp, { passive: false, capture: true });
   useListener(ref, "pointercancel", onPointerUp, { passive: false });
 
   function onTouchStart(event: TouchEvent) {

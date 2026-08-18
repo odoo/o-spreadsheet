@@ -1,6 +1,6 @@
-import { signal, useProps } from "@odoo/owl";
+import { signal, useListener, useProps } from "@odoo/owl";
 import { withHttps } from "../../helpers/links";
-import { Component, useExternalListener } from "../../owl3_compatibility_layer";
+import { Component } from "../../owl3_compatibility_layer";
 import { MenuMouseEvent } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -20,7 +20,7 @@ export class InfoPopover extends Component<SpreadsheetChildEnv> {
   static components = { Popover };
 
   setup() {
-    useExternalListener(window, "click", this.onExternalClick, { capture: true });
+    useListener(window, "click", this.onExternalClick.bind(this), { capture: true });
   }
 
   private infoRef = signal.ref();

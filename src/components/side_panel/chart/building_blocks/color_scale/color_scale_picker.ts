@@ -1,7 +1,7 @@
-import { proxy, signal, useProps } from "@odoo/owl";
+import { proxy, signal, useListener, useProps } from "@odoo/owl";
 import { DEFAULT_CHART_COLOR_SCALE } from "../../../../../constants";
 import { ColorScale, COLORSCALES, COLORSCHEMES } from "../../../../../helpers/color";
-import { Component, useExternalListener } from "../../../../../owl3_compatibility_layer";
+import { Component } from "../../../../../owl3_compatibility_layer";
 import { ChartColorScale, schemeToColorScale } from "../../../../../types/chart/chart";
 import { Color } from "../../../../../types/misc";
 import { PropsOf } from "../../../../../types/props_of";
@@ -41,7 +41,7 @@ export class ColorScalePicker extends Component<SpreadsheetChildEnv> {
   popoverRef = signal.ref(HTMLTableElement);
 
   setup() {
-    useExternalListener(window, "click", this.closePopover);
+    useListener(window, "click", this.closePopover.bind(this));
   }
 
   get currentColorScale(): ChartColorScale {

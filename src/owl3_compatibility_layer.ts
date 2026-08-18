@@ -45,16 +45,13 @@ const {
   App: OwlApp,
   Component: OwlComponent, // Exported by Odoo compat layer
   EnvPlugin: OwlEnvPlugin, // Exported by Odoo compat layer
-  useChildEnv: OwlUseChildEnv, // Exported by Odoo compat layer
-  useChildSubEnv: OwlUseChildSubEnv,
   useComponent: OwlUseComponent, // Exported by Odoo compat layer
   useEnv: OwlUseEnv, // Exported by Odoo compat layer
-  useExternalListener: OwlUseExternalListener, // Exported by Odoo compat layer
   useLayoutEffect: OwlUseLayoutEffect, // Exported by Odoo compat layer
   useSubEnv: OwlUseSubEnv, // Exported by Odoo compat layer
   Plugin,
-  plugin,
-  props,
+  usePlugin,
+  useProps,
   providePlugins, // Exported by Odoo compat layer
   useScope,
   xml,
@@ -67,13 +64,12 @@ export interface ComponentConstructor<Env = any> {
 }
 
 class _Component<Env = any> extends OwlComponent {
-  static template = "";
   // @ts-ignore
   public env: Env;
 
   constructor(node) {
     super(node);
-    this.env = useChildEnv();
+    this.env = _useEnv();
     this.__owl__ = node;
   }
 
@@ -86,13 +82,6 @@ class _Component<Env = any> extends OwlComponent {
 
 function _useComponent() {
   return useScope().component;
-}
-
-function _useExternalListener(target, eventName, handler, eventParams?) {
-  const node = useScope();
-  const boundHandler = handler.bind(node.component);
-  onMounted(() => target.addEventListener(eventName, boundHandler, eventParams));
-  onWillUnmount(() => target.removeEventListener(eventName, boundHandler, eventParams));
 }
 
 function onWillRender(cb) {
@@ -140,32 +129,15 @@ class _EnvPlugin extends Plugin {
 }
 
 function _useEnv() {
-  return useScope().component.env;
-}
-
-function provideEnv(env) {
-  providePlugins([_EnvPlugin], { env });
-  return env;
-}
-
-function extendEnv(extension) {
-  const env = useChildEnv();
-  const subEnv = Object.create(env);
-  Object.defineProperties(subEnv, Object.getOwnPropertyDescriptors(extension));
-  return provideEnv(subEnv);
+  return usePlugin(_EnvPlugin).env;
 }
 
 function _useSubEnv(extension) {
-  const component = useScope().component;
-  component.env = extendEnv(extension);
-}
-
-function _useChildSubEnv(extension) {
-  extendEnv(extension);
-}
-
-function _useChildEnv() {
-  return plugin(_EnvPlugin).env;
+  const subEnv = Object.create(_useEnv());
+  Object.defineProperties(subEnv, Object.getOwnPropertyDescriptors(extension));
+  providePlugins([_EnvPlugin], { env: subEnv });
+  const component = _useComponent();
+  component.env = subEnv;
 }
 
 class VPortal extends blockDom.text("").constructor {
@@ -225,7 +197,7 @@ class Portal extends OwlComponent {
 
   constructor(node) {
     super(node);
-    this.props = props();
+    this.props = useProps();
     this.__owl__ = node;
   }
 
@@ -355,7 +327,7 @@ class _App extends OwlApp {
       component = {
         [component.name]: class extends component {
           constructor(node) {
-            provideEnv(config.env);
+            providePlugins([_EnvPlugin], { env: config.env });
             super(node);
           }
         },
@@ -367,40 +339,19 @@ class _App extends OwlApp {
 
 const Component = isOdooCompatLoaded ? (OwlComponent as typeof _Component) : _Component;
 const useComponent = isOdooCompatLoaded ? (OwlUseComponent as typeof _useComponent) : _useComponent;
-const useExternalListener = isOdooCompatLoaded
-  ? (OwlUseExternalListener as typeof _useExternalListener)
-  : _useExternalListener;
 const useLayoutEffect = isOdooCompatLoaded
   ? (OwlUseLayoutEffect as typeof _useLayoutEffect)
   : _useLayoutEffect;
 const EnvPlugin = isOdooCompatLoaded ? (OwlEnvPlugin as typeof _EnvPlugin) : _EnvPlugin;
 const useEnv = isOdooCompatLoaded ? (OwlUseEnv as typeof _useEnv) : _useEnv;
 const useSubEnv = isOdooCompatLoaded ? (OwlUseSubEnv as typeof _useSubEnv) : _useSubEnv;
-const useChildEnv = isOdooCompatLoaded ? (OwlUseChildEnv as typeof _useChildEnv) : _useChildEnv;
-const useChildSubEnv = isOdooCompatLoaded
-  ? (OwlUseChildSubEnv as typeof _useChildSubEnv)
-  : _useChildSubEnv;
 const App = isOdooCompatLoaded ? (OwlApp as typeof _App) : _App;
 
-export {
-  App,
-  Component,
-  EnvPlugin,
-  useChildEnv,
-  useChildSubEnv,
-  useComponent,
-  useEnv,
-  useExternalListener,
-  useLayoutEffect,
-  useSubEnv,
-};
+export { App, Component, EnvPlugin, useComponent, useEnv, useLayoutEffect, useSubEnv };
 export type Component<Env = any> = _Component<Env>;
 export type useComponent = () => any;
-export type useExternalListener = (target, eventName, handler, eventParams?) => void;
 export type useLayoutEffect = (effect, computeDependencies: () => any) => void;
 export type EnvPlugin = _EnvPlugin;
 export type useEnv = () => any;
 export type useSubEnv = () => any;
-export type useChildEnv = () => any;
-export type useChildSubEnv = () => any;
 export type App = _App;
