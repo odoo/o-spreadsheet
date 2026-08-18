@@ -135,6 +135,13 @@ describe("evaluate formulas that use/return an array", () => {
     expect(model.getters.getArrayFormulaSpreadingOn(positionA1)).not.toBeDefined();
   });
 
+  test("Changing a cell of a spreaded formula to reference another cell of the spreaded formula", () => {
+    setCellContent(model, "A1", "=MFILL(3,3, 42)");
+    setCellContent(model, "A2", "=B2");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
+    expect(getEvaluatedCell(model, "A2").value).toBe(0);
+  });
+
   test("Spreading relations are properly cleared upon cell content change", () => {
     setCellContent(model, "A1", "=MUNIT(2)");
     const positionA1 = model.getters.getActivePosition();
