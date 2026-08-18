@@ -61,6 +61,20 @@ export class FormulaDependencyGraph {
   getCellsDependingOn(ranges: RTreeBoundingBox[], ignore: PositionSet): PositionSet {
     const visited = this.createEmptyPositionSet();
     const queue: RTreeBoundingBox[] = Array.from(ranges).reverse();
+
+    // At the end we want to remove from the visited set all the initial range positions, except the ones we're actually depending on
+    // Some of the cells of the initial ranges might be depending on other cells of the initial ranges, and we want to keep those in the visited set
+    const initialPositionsToRemove = this.createEmptyPositionSet();
+    for (const range of ranges) {
+      const zone = range.zone;
+      const sheetId = range.sheetId;
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          initialPositionsToRemove.add({ sheetId, col, row });
+        }
+      }
+    }
+
     while (queue.length > 0) {
       const range = queue.pop()!;
       const zone = range.zone;
@@ -74,7 +88,11 @@ export class FormulaDependencyGraph {
       const impactedPositions = this.rTree.search(range).map((dep) => dep.data);
       const nextInQueue: Record<UID, Zone[]> = {};
       for (const position of impactedPositions) {
-        if (!visited.has(position) && !ignore.has(position)) {
+        if (ignore.has(position)) {
+          continue;
+        }
+        initialPositionsToRemove.delete(position);
+        if (!visited.has(position)) {
           if (!nextInQueue[position.sheetId]) {
             nextInQueue[position.sheetId] = [];
           }
@@ -87,16 +105,10 @@ export class FormulaDependencyGraph {
       }
     }
 
-    // remove initial ranges
-    for (const range of ranges) {
-      const zone = range.zone;
-      const sheetId = range.sheetId;
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          visited.delete({ sheetId, col, row });
-        }
-      }
+    for (const position of initialPositionsToRemove) {
+      visited.delete(position);
     }
+
     return visited;
   }
 }
