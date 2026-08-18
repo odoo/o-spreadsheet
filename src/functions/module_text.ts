@@ -169,6 +169,13 @@ export const FORMAT_LARGE_NUMBER = {
     value: Maybe<FunctionResultObject>,
     unite: Maybe<FunctionResultObject>
   ): FunctionResultNumber {
+    const uniteValue = unite?.value;
+    if (
+      uniteValue !== undefined &&
+      (typeof uniteValue !== "string" || !["k", "m", "b"].includes(uniteValue))
+    ) {
+      throw new EvaluationError(_t("The formatting unit should be 'k', 'm' or 'b'."));
+    }
     return {
       value: toNumber(value, this.locale),
       format: formatLargeNumber(value, unite, this.locale),
