@@ -39,6 +39,7 @@ import {
   setCellContent,
   setFormat,
   setSelection,
+  setSheetviewSize,
   setStyle,
   setViewportOffset,
   undo,
@@ -1208,6 +1209,38 @@ describe("Multi Panes viewport", () => {
     originalActiveMainViewport = model.getters.getActiveMainViewport();
     hideColumns(model, ["E", "F", "G", "H"]);
     expect(model.getters.getActiveMainViewport()).toEqual(originalActiveMainViewport);
+  });
+
+  test("can scroll to the last row on a very small scrollable viewport", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const { width } = model.getters.getSheetViewDimension();
+    setSheetviewSize(model, 7.5 * DEFAULT_CELL_HEIGHT, width);
+    freezeRows(model, 7);
+    // scroll at more than max value knowing that the command handler clips the payload
+    setViewportOffset(model, 0, model.getters.getNumberRows(sheetId) * DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getActiveMainViewport()).toEqual({
+      top: 99,
+      bottom: 99,
+      left: 0,
+      right: 10,
+    });
+  });
+
+  test("can scroll to the last column on a very small scrollable viewport", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const { height } = model.getters.getSheetViewDimension();
+    setSheetviewSize(model, height, 7.5 * DEFAULT_CELL_WIDTH);
+    freezeColumns(model, 7);
+    // scroll at more than max value knowing that the command handler clips the payload
+    setViewportOffset(model, model.getters.getNumberCols(sheetId) * DEFAULT_CELL_WIDTH, 0);
+    expect(model.getters.getActiveMainViewport()).toEqual({
+      top: 0,
+      bottom: 43,
+      left: 25,
+      right: 25,
+    });
   });
 
   test("filtered row rect after updating another sheet", () => {
