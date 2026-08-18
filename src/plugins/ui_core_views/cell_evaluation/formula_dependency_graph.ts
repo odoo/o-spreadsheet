@@ -59,18 +59,25 @@ export class FormulaDependencyGraph {
    */
   getCellsDependingOn(ranges: Iterable<BoundedRange>, visited = new RangeSet()): RangeSet {
     visited = visited.copy();
+
+    // At the end we want to remove from the visited set all the initial range positions, except the ones we're actually depending on
+    // Some of the cells of the initial ranges might be depending on other cells of the initial ranges, and we want to keep those in the visited set
+    let initialRangesToRemove = visited.copy();
+
     const queue: BoundedRange[] = Array.from(ranges).reverse();
     while (queue.length > 0) {
       const range = queue.pop()!;
       visited.add(range);
       const impactedRanges = this.rTree.search(range);
       queue.push(...impactedRanges.difference(visited));
+      initialRangesToRemove = initialRangesToRemove.difference(impactedRanges);
     }
 
     // remove initial ranges
-    for (const range of ranges) {
+    for (const range of initialRangesToRemove) {
       visited.delete(range);
     }
+
     return visited;
   }
 }
