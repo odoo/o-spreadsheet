@@ -724,7 +724,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   >
                     <i
                       class="oi oi-filled"
-                      data-icon="filter_alt"
+                      data-icon="filter_alt_f"
                     />
                   </div>
                 </span>
@@ -1831,7 +1831,7 @@ exports[`components take the small screen into account 1`] = `
                   >
                     <i
                       class="oi oi-filled"
-                      data-icon="filter_alt"
+                      data-icon="filter_alt_f"
                     />
                   </div>
                 </span>
@@ -2127,7 +2127,7 @@ exports[`components take the small screen into account 1`] = `
             >
               <i
                 class="o-icon oi oi-filled"
-                data-icon="settings"
+                data-icon="settings_f"
               />
             </div>
           </div>

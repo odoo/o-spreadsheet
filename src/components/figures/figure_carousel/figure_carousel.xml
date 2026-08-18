@@ -36,7 +36,9 @@
           t-att-class="{'active': this.menuState.isOpen}"
           t-ref="this.carouselTabsDropdownRef"
           t-on-click="this.toggleMenu">
-          <div class="oi" data-icon="keyboard_arrow_down"/>
+          <div class="o-icon">
+            <i class="oi" data-icon="keyboard_arrow_down"/>
+          </div>
           <MenuPopover
             t-if="this.menuState.isOpen"
             menuId="this.menuId"
@@ -50,14 +52,14 @@
           t-if="this.env.model.getters.isDashboard()"
           t-att-title="this.fullScreenButtonTitle"
           class="o-carousel-full-screen-button oi o-carousel-button rounded p-1 ms-1"
-          t-att-data-icon="this.props.isFullScreen ? 'close_fullscreen' : 'open_in_full'"
+          t-att-data-icon="this.props.isFullScreen ? 'close_fullscreen' : 'expand_content'"
           t-on-click="this.toggleFullScreen"
         />
         <div
           t-if="!this.env.model.getters.isDashboard()"
           class="o-carousel-menu-button o-carousel-button rounded ms-1"
           t-on-click="this.openContextMenu">
-          <div class="oi" data-icon="more_vert"/>
+          <t t-call="o-spreadsheet-Icon.MORE_MENU"/>
         </div>
       </div>
       <div

@@ -36,8 +36,7 @@ describe("chart menu for dashboard", () => {
 
   test("Can open menu to copy/download chart in dashboard mode", async () => {
     extendMockGetBoundingClientRect({
-      "o-chart-dashboard-item": () => ({ x: 100, y: 100, width: 20, height: 20 }),
-      oi: () => ({ x: 100, y: 100, width: 20, height: 20 }),
+      "o-chart-menu-item": () => ({ x: 100, y: 100, width: 20, height: 20 }),
     });
     createChart(model, { type: "bar" }, chartId);
     model.updateMode("dashboard");

@@ -14,7 +14,7 @@
         t-att-title="this.sheetName"
         t-att-data-id="this.props.sheetId"
         t-att-class="{active: this.isSheetActive}">
-        <span t-if="this.isSheetLocked" class="me-1">
+        <span t-if="this.isSheetLocked" class="me-1 lock-icon">
           <t t-call="o-spreadsheet-Icon.LOCK"/>
         </span>
         <span

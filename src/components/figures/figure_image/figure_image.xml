@@ -5,12 +5,11 @@
       class="o-figure-menu position-absolute m-2 align-items-center"
       t-if="this.shouldShowMenuButton">
       <div
-        class="o-figure-menu-item btn oi rounded p-1"
-        data-icon="more_vert"
-        t-on-click="this.showMenu"
+        class="o-figure-menu-item d-flex align-items-center justify-content-center rounded p-1"
         t-ref="this.menuButtonRef"
-        t-on-contextmenu.prevent.stop="this.showMenu"
-      />
+        t-on-click="this.showMenu">
+        <t t-call="o-spreadsheet-Icon.MORE_MENU"/>
+      </div>
     </div>
   </t>
 </templates>

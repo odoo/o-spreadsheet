@@ -12,6 +12,11 @@
         line-height: calc(
           var(--os-desktop-menu-item-height) - 2 * var(--os-menu-item-padding-vertical)
         );
+        display: inline-block;
+        margin: 0px 8px 0px 0px;
+        .oi {
+          --os-icon-font-size: calc(var(--os-icon-edge-length) - 1px);
+        }
       }
       & {
         &.o-menu-item-active {
@@ -30,10 +35,6 @@
       }
       .o-menu-item-name {
         min-width: 40%;
-      }
-      .o-menu-item-icon {
-        display: inline-block;
-        margin: 0px 8px 0px 0px;
       }
     }
   }

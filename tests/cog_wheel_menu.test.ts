@@ -15,7 +15,7 @@ async function mountCogWheelMenu(
 }
 
 const SELECTORS = {
-  COG: "[data-icon='settings']",
+  COG: "[data-icon='settings_f']",
   MENU: ".o-menu",
   MENU_ITEM: ".o-menu-item",
 };
