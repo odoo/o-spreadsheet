@@ -44,7 +44,8 @@
     "model-in-node": "npm run dist && node tools/run_in_node.mjs",
     "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
     "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
-    "runbot": "npm run check-formatting && npm run model-in-node && npm run test --"
+    "runbot": "npm run check-formatting && npm run model-in-node && npm run test --",
+    "update-icons": "node tools/bundle_icons/update_icons.cjs"
   },
   "browserslist": [
     "last 1 Chrome versions"
