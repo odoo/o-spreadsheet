@@ -63,7 +63,7 @@
       left: -1px;
       top: -1px;
 
-      [data-icon="help"] {
+      [data-icon="help_f"] {
         color: var(--os-primary-button-bg);
       }
     }
@@ -80,7 +80,7 @@
     }
 
     .o-composer-assistant-container {
-      [data-icon="cancel"] {
+      [data-icon="cancel_f"] {
         color: var(--os-primary-button-bg);
       }
     }

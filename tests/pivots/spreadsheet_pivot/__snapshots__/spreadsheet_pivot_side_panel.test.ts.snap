@@ -76,19 +76,19 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
           class="o-panel d-flex"
         >
           <div
-            class="o-sidePanel-tab o-panel-configuration d-flew flex-grow-1 text-center"
+            class="o-sidePanel-tab o-panel-configuration d-flex flex-grow-1 justify-content-center"
           >
             <i
-              class="oi me-1"
+              class="oi me-2"
               data-icon="tune"
             />
              Configuration 
           </div>
           <div
-            class="o-sidePanel-tab o-panel-design d-flew flex-grow-1 text-center inactive"
+            class="o-sidePanel-tab o-panel-design d-flex flex-grow-1 justify-content-center inactive"
           >
             <i
-              class="oi me-1"
+              class="oi me-2"
               data-icon="design_services"
             />
              Design 
@@ -121,7 +121,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                          Name 
                         <span
                           class="oi oi-filled os-cog-wheel-menu-icon o-button-icon"
-                          data-icon="settings"
+                          data-icon="settings_f"
                         />
                         
                         
@@ -1076,19 +1076,19 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
           class="o-panel d-flex"
         >
           <div
-            class="o-sidePanel-tab o-panel-configuration d-flew flex-grow-1 text-center"
+            class="o-sidePanel-tab o-panel-configuration d-flex flex-grow-1 justify-content-center"
           >
             <i
-              class="oi me-1"
+              class="oi me-2"
               data-icon="tune"
             />
              Configuration 
           </div>
           <div
-            class="o-sidePanel-tab o-panel-design d-flew flex-grow-1 text-center inactive"
+            class="o-sidePanel-tab o-panel-design d-flex flex-grow-1 justify-content-center inactive"
           >
             <i
-              class="oi me-1"
+              class="oi me-2"
               data-icon="design_services"
             />
              Design 
@@ -1121,7 +1121,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                          Name 
                         <span
                           class="oi oi-filled os-cog-wheel-menu-icon o-button-icon"
-                          data-icon="settings"
+                          data-icon="settings_f"
                         />
                         
                         

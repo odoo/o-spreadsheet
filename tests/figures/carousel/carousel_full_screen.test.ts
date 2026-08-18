@@ -38,7 +38,7 @@ describe("full screen carousel", () => {
     addNewChartToCarousel(model, "carouselId");
     model.updateMode("dashboard");
     await nextTick();
-    expect(".o-carousel-full-screen-button").toHaveAttribute("data-icon", "open_in_full");
+    expect(".o-carousel-full-screen-button").toHaveAttribute("data-icon", "expand_content");
 
     await click(fixture, ".o-figure .o-carousel-full-screen-button");
     expect(".o-fullscreen-figure").toHaveCount(1);

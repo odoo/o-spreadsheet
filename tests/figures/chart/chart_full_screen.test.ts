@@ -41,10 +41,10 @@ describe("chart menu for dashboard", () => {
     model.updateMode("dashboard");
     await nextTick();
 
-    expect(".o-figure [data-icon='open_in_full']").toHaveCount(1);
+    expect(".o-figure [data-icon='expand_content']").toHaveCount(1);
     expect(".o-fullscreen-figure").toHaveCount(0);
 
-    await click(fixture, ".o-figure [data-icon='open_in_full']");
+    await click(fixture, ".o-figure [data-icon='expand_content']");
     expect(".o-fullscreen-figure").toHaveCount(1);
     expect(".o-figure [data-icon='close_fullscreen']").toHaveCount(2); // One in the original chart, one in the full screen overlay
   });

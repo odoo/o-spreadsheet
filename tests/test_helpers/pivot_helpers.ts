@@ -75,7 +75,7 @@ export function removePivot(model: Model, pivotId: UID) {
 }
 
 export const SELECTORS = {
-  COG_WHEEL: "[data-icon='settings']",
+  COG_WHEEL: "[data-icon='settings_f']",
   DUPLICATE_PIVOT: ".o-menu [data-icon='content_copy']",
   DELETE_PIVOT: ".o-menu [data-icon='delete']",
   FLIP_AXIS_PIVOT: ".o-menu [data-icon='swap_horiz']",

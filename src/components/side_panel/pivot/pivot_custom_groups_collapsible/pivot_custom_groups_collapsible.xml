@@ -19,7 +19,7 @@
               />
               <i
                 class="o-button-icon ps-3 oi oi-filled"
-                data-icon="delete"
+                data-icon="delete_f"
                 t-on-click="() => this.onDeleteGroup(group_index)"
               />
             </div>

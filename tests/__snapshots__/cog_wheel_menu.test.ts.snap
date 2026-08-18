@@ -7,7 +7,7 @@ exports[`CogWheelMenu Can render a cog wheel menu 1`] = `
   >
     <span
       class="oi oi-filled os-cog-wheel-menu-icon o-button-icon"
-      data-icon="settings"
+      data-icon="settings_f"
     />
     
   </div>

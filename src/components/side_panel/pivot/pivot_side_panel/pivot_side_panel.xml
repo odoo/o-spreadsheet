@@ -3,17 +3,17 @@
     <div class="o-pivot-panel d-flex flex-column h-100">
       <div class="o-panel d-flex">
         <div
-          class="o-sidePanel-tab o-panel-configuration d-flew flex-grow-1 text-center"
+          class="o-sidePanel-tab o-panel-configuration d-flex flex-grow-1 justify-content-center"
           t-att-class="this.state.panel !== 'configuration' ? 'inactive' : ''"
           t-on-click="this.switchPanel.bind(this, 'configuration')">
-          <i class="oi me-1" data-icon="tune"/>
+          <i class="oi me-2" data-icon="tune"/>
           Configuration
         </div>
         <div
-          class="o-sidePanel-tab o-panel-design d-flew flex-grow-1 text-center"
+          class="o-sidePanel-tab o-panel-design d-flex flex-grow-1 justify-content-center"
           t-att-class="this.state.panel !== 'design' ? 'inactive' : ''"
           t-on-click="this.switchPanel.bind(this, 'design')">
-          <i class="oi me-1" data-icon="design_services"/>
+          <i class="oi me-2" data-icon="design_services"/>
           Design
         </div>
       </div>

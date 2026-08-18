@@ -29,6 +29,7 @@
 
     .o-carousel-button {
       cursor: pointer;
+      --os-icon-edge-length: 14px;
 
       &.o-carousel-full-screen-button {
         margin: 1px;
@@ -36,7 +37,7 @@
 
       &.o-carousel-menu-button,
       &.o-carousel-tabs-dropdown {
-        padding: 1px 2px;
+        padding: 3px 2px;
       }
 
       &.active,

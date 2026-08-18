@@ -187,7 +187,7 @@ describe("Pivot side panel", () => {
     await nextTick();
 
     const customerDimEl = fixture.querySelectorAll(".pivot-dimension")[0];
-    await click(customerDimEl, "[data-icon='delete']");
+    await click(customerDimEl, "[data-icon='delete_f']");
 
     let definition = model.getters.getPivotCoreDefinition("1");
     expect(definition.columns).toHaveLength(1);
@@ -195,7 +195,7 @@ describe("Pivot side panel", () => {
     expect(definition.collapsedDomains?.ROW).toHaveLength(1);
 
     const clientDimEl = fixture.querySelectorAll(".pivot-dimension")[1];
-    await click(clientDimEl, "[data-icon='delete']");
+    await click(clientDimEl, "[data-icon='delete_f']");
     definition = model.getters.getPivotCoreDefinition("1");
     expect(definition.rows).toHaveLength(1);
     expect(definition.collapsedDomains?.COL).toHaveLength(0);
@@ -260,7 +260,7 @@ describe("Pivot side panel", () => {
     await nextTick();
 
     const yearDimensionEl = fixture.querySelectorAll(".pivot-dimension")[1];
-    await click(yearDimensionEl, "[data-icon='delete']");
+    await click(yearDimensionEl, "[data-icon='delete_f']");
 
     const definition = model.getters.getPivotCoreDefinition("1");
     expect(definition.columns).toHaveLength(1);

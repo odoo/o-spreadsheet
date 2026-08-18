@@ -284,10 +284,10 @@ describe("formula assistant", () => {
       await typeInComposer("=FUNC1(");
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelector(".o-formula-assistant")).toBeDefined();
-      expect(fixture.querySelector("[data-icon='help']")).toBe(null);
-      await click(fixture, "[data-icon='cancel']");
+      expect(fixture.querySelector("[data-icon='help_f']")).toBe(null);
+      await click(fixture, "[data-icon='cancel_f']");
       expect(fixture.querySelector(".o-formula-assistant")).toBe(null);
-      await click(fixture, "[data-icon='help']");
+      await click(fixture, "[data-icon='help_f']");
       expect(fixture.querySelector(".o-formula-assistant")).toBeDefined();
     });
 

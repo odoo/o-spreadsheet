@@ -7,6 +7,7 @@
     width: var(--os-icon-edge-length);
     height: var(--os-icon-edge-length);
     font-size: var(--os-icon-edge-length);
+    --os-icon-font-size: var(--os-icon-edge-length);
     .small-text {
       font: bold 9px sans-serif;
     }
@@ -25,20 +26,17 @@
    * the `material-symbols` package whose variable font exposes a FILL axis.
    */
   .oi {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: inline-block;
     font-family: var(--icon-font-family, "Material Symbols Outlined");
     font-style: normal;
-    font-size: var(--oi-font-size, 1em);
+    font-size: var(--os-icon-font-size, 1em);
     font-weight: 400 !important;
-    line-height: 1;
+    line-height: inherit; /* override of Odoo, we want to keep the line height consistent with the surrounding text */
     letter-spacing: normal;
     text-transform: none;
     white-space: nowrap;
     word-wrap: normal;
     direction: ltr;
-    speak: never;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }

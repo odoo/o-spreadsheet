@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-CogWheelMenu">
     <span
       class="oi oi-filled os-cog-wheel-menu-icon o-button-icon"
-      data-icon="settings"
+      data-icon="settings_f"
       t-on-click="this.toggleMenu"
       t-ref="this.buttonRef"
     />

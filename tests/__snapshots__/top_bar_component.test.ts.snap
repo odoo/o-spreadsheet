@@ -715,7 +715,7 @@ exports[`TopBar component simple rendering 1`] = `
               >
                 <i
                   class="oi oi-filled"
-                  data-icon="filter_alt"
+                  data-icon="filter_alt_f"
                 />
               </div>
             </span>

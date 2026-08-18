@@ -21,11 +21,11 @@
           </div>
         </t>
         <t t-if="this.isMenuAvailable()">
-          <button
-            class="o-chart-menu-item btn text-muted lh-1 p-1 oi"
-            data-icon="more_vert"
-            t-on-click="this.openContextMenu"
-          />
+          <div
+            class="o-chart-menu-item border-0 lh-1 p-1 d-flex align-items-center justify-content-center rounded"
+            t-on-click="this.openContextMenu">
+            <t t-call="o-spreadsheet-Icon.MORE_MENU"/>
+          </div>
         </t>
       </div>
       <InfoPopover

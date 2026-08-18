@@ -348,7 +348,7 @@ describe("Functions autocomplete", () => {
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(1);
 
       // hide the auto-complete
-      await click(fixture, "[data-icon='cancel']");
+      await click(fixture, "[data-icon='cancel_f']");
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
 
       // Enter should CONFIRM as-typed (no autocomplete) and stop edition
@@ -358,7 +358,7 @@ describe("Functions autocomplete", () => {
 
       // show it again
       await typeInComposer("=SU");
-      await click(fixture, "[data-icon='help']");
+      await click(fixture, "[data-icon='help_f']");
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(1);
       await keyDown({ key: "Enter" });
       expect(composerStore.currentContent).toBe("=SUM(");
@@ -367,7 +367,7 @@ describe("Functions autocomplete", () => {
     test("after force-closing assistant, plain text in another cell still confirms", async () => {
       await typeInComposer("=SU");
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(1);
-      await click(fixture, "[data-icon='cancel']");
+      await click(fixture, "[data-icon='cancel_f']");
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
       await keyDown({ key: "Enter" });
 
@@ -451,7 +451,7 @@ describe("Data validation autocomplete", () => {
     });
     await typeInComposer("");
     expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
-    expect(fixture.querySelector("[data-icon='cancel']")).toBeFalsy();
+    expect(fixture.querySelector("[data-icon='cancel_f']")).toBeFalsy();
   });
 
   test("closing formula assistant should not affect data validation autocomplete visibility", async () => {
@@ -463,18 +463,18 @@ describe("Data validation autocomplete", () => {
 
     await typeInComposer("=SU");
     expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(1);
-    expect(fixture.querySelector("[data-icon='cancel']")).toBeTruthy();
+    expect(fixture.querySelector("[data-icon='cancel_f']")).toBeTruthy();
 
-    await click(fixture, "[data-icon='cancel']");
+    await click(fixture, "[data-icon='cancel_f']");
     expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
-    expect(fixture.querySelector("[data-icon='cancel']")).toBeFalsy();
+    expect(fixture.querySelector("[data-icon='cancel_f']")).toBeFalsy();
 
     await keyDown({ key: "Escape" });
     await typeInComposer("");
 
     expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
-    expect(fixture.querySelector("[data-icon='cancel']")).toBeFalsy();
-    expect(fixture.querySelector("[data-icon='help']")).toBeFalsy();
+    expect(fixture.querySelector("[data-icon='cancel_f']")).toBeFalsy();
+    expect(fixture.querySelector("[data-icon='help_f']")).toBeFalsy();
   });
 
   test("after force-closing formula assistant, Enter in data validation still selects from dropdown", async () => {
@@ -485,9 +485,9 @@ describe("Data validation autocomplete", () => {
     });
 
     await typeInComposer("=SU");
-    await click(fixture, "[data-icon='cancel']");
+    await click(fixture, "[data-icon='cancel_f']");
     expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
-    expect(fixture.querySelector("[data-icon='cancel']")).toBeFalsy();
+    expect(fixture.querySelector("[data-icon='cancel_f']")).toBeFalsy();
 
     await keyDown({ key: "Escape" });
     await typeInComposer("");

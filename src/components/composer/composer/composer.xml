@@ -16,8 +16,8 @@
           t-on-pointerdown.prevent.stop=""
           t-on-pointerup.stop=""
           class="oi-stack position-absolute translate-middle force-open-assistant fs-4">
-          <i class="oi oi-filled oi-stack-1x o-composer-assistant-icon-bg" data-icon="circle"/>
-          <i class="oi oi-filled oi-stack-1x" data-icon="help"/>
+          <i class="oi oi-filled oi-stack-1x o-composer-assistant-icon-bg" data-icon="circle_f"/>
+          <i class="oi oi-filled oi-stack-1x" data-icon="help_f"/>
         </span>
         <div
           class="o-composer w-100 text-start"
@@ -59,8 +59,8 @@
           t-on-click="this.closeAssistant"
           t-on-pointerdown.prevent.stop=""
           class="oi-stack position-absolute top-0 start-100 translate-middle fs-4">
-          <i class="oi oi-filled oi-stack-1x o-composer-assistant-icon-bg" data-icon="circle"/>
-          <i class="oi oi-filled oi-stack-1x" data-icon="cancel"/>
+          <i class="oi oi-filled oi-stack-1x o-composer-assistant-icon-bg" data-icon="circle_f"/>
+          <i class="oi oi-filled oi-stack-1x" data-icon="cancel_f"/>
         </span>
         <div class="o-composer-assistant overflow-auto" t-att-style="this.assistantStyle">
           <FunctionDescriptionProvider

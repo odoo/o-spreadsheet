@@ -22,9 +22,7 @@
       }
 
       .o-icon {
-        width: 14px;
-        height: 14px;
-        font-size: 14px !important;
+        --os-icon-edge-length: 14px;
       }
 
       .o-chart-preview {

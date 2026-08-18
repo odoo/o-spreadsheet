@@ -777,7 +777,7 @@ describe("Spreadsheet pivot side panel", () => {
     env.openSidePanel("PivotSidePanel", { pivotId: "2" });
     await nextTick();
     // update the pivot
-    await click(fixture.querySelector(".pivot-measure [data-icon='visibility']")!);
+    await click(fixture.querySelector(".pivot-measure [data-icon='visibility_f']")!);
     expect(mockNotify).toHaveBeenCalledTimes(0);
   });
 
@@ -854,11 +854,11 @@ describe("Spreadsheet pivot side panel", () => {
     );
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
     await nextTick();
-    await click(fixture.querySelector(".pivot-measure [data-icon='visibility']")!);
+    await click(fixture.querySelector(".pivot-measure [data-icon='visibility_f']")!);
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
       { id: "amount:sum", fieldName: "amount", aggregator: "sum", isHidden: true },
     ]);
-    await click(fixture.querySelector(".pivot-measure [data-icon='visibility_off']")!);
+    await click(fixture.querySelector(".pivot-measure [data-icon='visibility_off_f']")!);
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
       { id: "amount:sum", fieldName: "amount", aggregator: "sum", isHidden: false },
     ]);
@@ -877,7 +877,12 @@ describe("Spreadsheet pivot side panel", () => {
 
     expect(dragAndDropContainer()).not.toHaveStyle({ position: "relative" }); // this style is added during the drag & drop
 
-    await clickAndDrag(".pivot-dimension [data-icon='delete']", { x: 0, y: 30 }, undefined, false);
+    await clickAndDrag(
+      ".pivot-dimension [data-icon='delete_f']",
+      { x: 0, y: 30 },
+      undefined,
+      false
+    );
     expect(dragAndDropContainer()).not.toHaveStyle({ position: "relative" });
 
     await clickAndDrag(".pivot-dimension .o-select", { x: 0, y: 30 }, undefined, false);
@@ -899,7 +904,7 @@ describe("Spreadsheet pivot side panel", () => {
 
     expect(".pivot-measure").not.toHaveStyle({ position: "relative" }); // this style is added during the drag & drop
 
-    await clickAndDrag(".pivot-measure [data-icon='delete']", { x: 0, y: 30 }, undefined, false);
+    await clickAndDrag(".pivot-measure [data-icon='delete_f']", { x: 0, y: 30 }, undefined, false);
     expect(".pivot-measure").not.toHaveStyle({ position: "relative" });
 
     await clickAndDrag(".pivot-measure .o-select", { x: 0, y: 30 }, undefined, false);
@@ -963,14 +968,14 @@ describe("Spreadsheet pivot side panel", () => {
 
     test("Pivot sorting is removed when removing the sorted measure", async () => {
       expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toEqual(sortedColumn);
-      await click(fixture, ".pivot-measure [data-icon='delete']");
+      await click(fixture, ".pivot-measure [data-icon='delete_f']");
       expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toBeUndefined();
     });
 
     test("Pivot sorting is removed when removing a column", async () => {
       expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toEqual(sortedColumn);
       const column = fixture.querySelectorAll(".pivot-dimension")[0];
-      await click(column, "[data-icon='delete']");
+      await click(column, "[data-icon='delete_f']");
       expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toBeUndefined();
     });
 
