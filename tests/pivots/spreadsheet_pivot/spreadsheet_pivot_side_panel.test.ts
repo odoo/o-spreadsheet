@@ -29,6 +29,7 @@ import {
   getComposerColors,
   keyDown,
   setInputValueAndTrigger,
+  simulateClick,
 } from "../../test_helpers/dom_helper";
 import { getCellText, getEvaluatedCell, getTable } from "../../test_helpers/getters_helpers";
 import {
@@ -80,6 +81,15 @@ describe("Spreadsheet pivot side panel", () => {
     await nextTick();
     await setInputValueAndTrigger(".os-pivot-title", "New Pivot Name");
     expect(model.getters.getPivotName("1")).toEqual("New Pivot Name");
+  });
+
+  test("Cannot add an unbounded zone as the pivot dataset", async () => {
+    await setInputValueAndTrigger(".o-selection-input input", "A:C");
+    await nextTick();
+    await simulateClick(".o-selection-ok");
+
+    expect(".o-selection-input input").toHaveValue("Sheet1!A1:C100");
+    expect(model.getters.getPivotCoreDefinition("1")["dataSet"].zone).toEqual(toZone("A1:C100"));
   });
 
   test("It should be able to defer updates", async () => {

@@ -79,7 +79,15 @@ export class PivotSpreadsheetSidePanel extends Component<SpreadsheetChildEnv> {
 
   onSelectionChanged(ranges: string[]) {
     this.state.rangeHasChanged = true;
-    this.state.range = ranges[0];
+    if (ranges.length === 0) {
+      this.state.range = undefined;
+      return;
+    }
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const range = this.env.model.getters.getRangeFromSheetXC(sheetId, ranges[0]);
+    this.state.range = this.env.model.getters.getRangeString(range, "forceSheetReference", {
+      useBoundedReference: true,
+    });
   }
 
   onSelectionConfirmed() {
