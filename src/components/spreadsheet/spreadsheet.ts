@@ -6,6 +6,7 @@ import {
   proxy,
   signal,
   useEffect,
+  useListener,
   useProps,
 } from "@odoo/owl";
 import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO } from "../../constants";
@@ -14,12 +15,7 @@ import { unregisterChartJsExtensions } from "../../helpers/figures/charts/chart_
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { batched } from "../../helpers/misc";
 import { Model } from "../../model";
-import {
-  Component,
-  useExternalListener,
-  useLayoutEffect,
-  useSubEnv,
-} from "../../owl3_compatibility_layer";
+import { Component, useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
 import { ModelStore } from "../../stores/model_store";
@@ -192,12 +188,12 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       }
     });
 
-    useExternalListener(window, "resize", () => this.render(true));
+    useListener(window, "resize", () => this.render(true));
     // For some reason, the wheel event is not properly registered inside templates
     // in Chromium-based browsers based on chromium 125
     // This hack ensures the event declared in the template is properly registered/working
-    useExternalListener(document.body, "wheel", () => {});
-    useExternalListener(
+    useListener(document.body, "wheel", () => {});
+    useListener(
       window,
       "keydown",
       async (event: KeyboardEvent) => {

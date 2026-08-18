@@ -1,8 +1,8 @@
-import { onMounted, onPatched, proxy, signal, useProps } from "@odoo/owl";
+import { onMounted, onPatched, proxy, signal, useListener, useProps } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../constants";
-import { Component, useExternalListener } from "../../owl3_compatibility_layer";
+import { Component } from "../../owl3_compatibility_layer";
 import { formatNumberMenuItemSpec } from "../../registries/menus/number_format_menu_registry";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../../registries/topbar_component_registry";
@@ -84,8 +84,8 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
     this.fingerprints = useStore(FormulaFingerprintStore);
     this.topBarToolStore = useStore(TopBarToolStore);
 
-    useExternalListener(window, "click", this.onExternalClick);
-    useExternalListener(window, "keydown", this.onKeydown);
+    useListener(window, "click", this.onExternalClick.bind(this));
+    useListener(window, "keydown", this.onKeydown.bind(this));
     this.menus = topbarMenuRegistry.getMenuItems();
 
     let lastWidth: number | undefined;

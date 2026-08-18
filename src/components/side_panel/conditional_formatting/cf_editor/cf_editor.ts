@@ -1,10 +1,6 @@
-import { useProps } from "@odoo/owl";
+import { useListener, useProps } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/misc";
-import {
-  Component,
-  useExternalListener,
-  useLayoutEffect,
-} from "../../../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
 import { UID } from "../../../../types/misc";
@@ -60,7 +56,7 @@ export class ConditionalFormattingEditor extends Component<SpreadsheetChildEnv> 
       },
       () => [this.env.model.getters.getActiveSheetId(), this.isEditedCfRemoved]
     );
-    useExternalListener(window as any, "click", () => this.store.closeMenus());
+    useListener(window as any, "click", () => this.store.closeMenus());
   }
 
   get isEditedCfRemoved() {

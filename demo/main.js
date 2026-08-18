@@ -7,12 +7,22 @@ import { WebsocketTransport } from "./transport.js";
 import { FileStore } from "./file_store.js";
 import { geoJsonService } from "./geo_json/geo_json_service.js";
 
-const { xml, whenReady, onWillStart, onMounted, proxy, onWillUnmount, onError, markRaw } = owl;
+const {
+  xml,
+  whenReady,
+  onWillStart,
+  onMounted,
+  proxy,
+  onWillUnmount,
+  onError,
+  markRaw,
+  useListener,
+} = owl;
 const { Spreadsheet, Model } = o_spreadsheet;
 const { topbarMenuRegistry } = o_spreadsheet.registries;
 const { useStoreProvider } = o_spreadsheet.stores;
 const { UuidGenerator } = o_spreadsheet.helpers;
-const { Component, useExternalListener, App } = o_spreadsheet.compatibility;
+const { Component, App } = o_spreadsheet.compatibility;
 
 topbarMenuRegistry.addChild("reload", ["file"], {
   name: "Clear & reload demo",
@@ -269,9 +279,9 @@ class Demo extends Component {
 
     const stores = useStoreProvider();
 
-    useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
-    useExternalListener(window, "unhandledrejection", this.notifyError.bind(this));
-    useExternalListener(window, "error", (ev) => {
+    useListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
+    useListener(window, "unhandledrejection", this.notifyError.bind(this));
+    useListener(window, "error", (ev) => {
       console.error("Global error caught: ", ev.error || ev.message);
       this.notifyError();
     });

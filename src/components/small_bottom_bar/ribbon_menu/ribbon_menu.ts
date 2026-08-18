@@ -1,6 +1,6 @@
-import { onMounted, proxy, signal, useProps } from "@odoo/owl";
+import { onMounted, proxy, signal, useListener, useProps } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators } from "../../../actions/action";
-import { Component, useExternalListener } from "../../../owl3_compatibility_layer";
+import { Component } from "../../../owl3_compatibility_layer";
 import { topbarMenuRegistry } from "../../../registries/menus/topbar_menu_registry";
 import { _t } from "../../../translation";
 import { PropsOf } from "../../../types/props_of";
@@ -35,7 +35,7 @@ export class RibbonMenu extends Component<SpreadsheetChildEnv> {
   });
 
   setup() {
-    useExternalListener(window, "click", this.onExternalClick, { capture: true });
+    useListener(window, "click", this.onExternalClick.bind(this), { capture: true });
     onMounted(this.updateShadows);
   }
 

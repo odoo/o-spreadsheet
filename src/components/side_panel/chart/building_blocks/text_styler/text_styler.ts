@@ -1,7 +1,7 @@
-import { proxy, useProps } from "@odoo/owl";
+import { proxy, useListener, useProps } from "@odoo/owl";
 import { ActionSpec } from "../../../../../actions/action";
 import { DEFAULT_STYLE } from "../../../../../constants";
-import { Component, useExternalListener } from "../../../../../owl3_compatibility_layer";
+import { Component } from "../../../../../owl3_compatibility_layer";
 import { _t } from "../../../../../translation";
 import { ChartStyle } from "../../../../../types/chart/chart";
 import { Align, Color, VerticalAlign } from "../../../../../types/misc";
@@ -31,7 +31,7 @@ export class TextStyler extends Component<SpreadsheetChildEnv> {
   openedEl: HTMLElement | null = null;
 
   setup() {
-    useExternalListener(window, "click", this.onExternalClick);
+    useListener(window, "click", this.onExternalClick.bind(this));
   }
 
   state = proxy({

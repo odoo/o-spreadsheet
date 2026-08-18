@@ -106,7 +106,7 @@ import {
   toZone,
   union,
 } from "./helpers/zones";
-import { App, Component, EnvPlugin, useExternalListener } from "./owl3_compatibility_layer";
+import { App, Component, EnvPlugin } from "./owl3_compatibility_layer";
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
 import { ClickableCellSortIcon } from "./components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
@@ -542,12 +542,10 @@ export const hooks = {
 
 export const compatibility: {
   Component: any;
-  useExternalListener: any;
   EnvPlugin: any;
   App: any;
 } = {
   Component,
-  useExternalListener,
   EnvPlugin,
   App,
 };

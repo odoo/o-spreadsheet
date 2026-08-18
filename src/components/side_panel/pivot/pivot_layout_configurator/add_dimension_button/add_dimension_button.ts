@@ -1,7 +1,7 @@
-import { proxy, signal, useProps } from "@odoo/owl";
+import { proxy, signal, useListener, useProps } from "@odoo/owl";
 import { COMPOSER_ASSISTANT_COLOR } from "../../../../../constants";
 import { fuzzyLookup } from "../../../../../helpers/search";
-import { Component, useExternalListener } from "../../../../../owl3_compatibility_layer";
+import { Component } from "../../../../../owl3_compatibility_layer";
 import {
   AutoCompleteProposal,
   AutoCompleteProvider,
@@ -35,7 +35,7 @@ export class AddDimensionButton extends Component<SpreadsheetChildEnv> {
   setup() {
     this.autoComplete = useLocalStore(AutoCompleteStore);
     this.autoComplete.useProvider(this.getProvider());
-    useExternalListener(window, "click", (ev) => {
+    useListener(window, "click", (ev) => {
       if (ev.target !== this.buttonRef()) {
         this.popover.isOpen = false;
       }

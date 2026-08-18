@@ -1,7 +1,15 @@
-import { onMounted, onPatched, onWillUnmount, proxy, signal, useProps } from "@odoo/owl";
+import {
+  onMounted,
+  onPatched,
+  onWillUnmount,
+  proxy,
+  signal,
+  useListener,
+  useProps,
+} from "@odoo/owl";
 import { throttle } from "../../../helpers/misc";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
-import { Component, useExternalListener, useLayoutEffect } from "../../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { getSheetMenuRegistry } from "../../../registries/menus/sheet_menu_registry";
 import { useStore } from "../../../store_engine/store_hooks";
@@ -58,7 +66,7 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   setup() {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
-    useExternalListener(window, "click", this.onExternalClick.bind(this), { capture: true });
+    useListener(window, "click", this.onExternalClick.bind(this), { capture: true });
 
     // Subscribe BottomBarSheet to isEditing so onPatched fires when it changes.
     // (Without this, isEditing is read inside Ripple's slot render, which subscribes

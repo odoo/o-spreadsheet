@@ -1,7 +1,7 @@
-import { onMounted, onWillUnmount, proxy, signal, useProps } from "@odoo/owl";
+import { onMounted, onWillUnmount, proxy, signal, useListener, useProps } from "@odoo/owl";
 import { debounce } from "../../../helpers/misc";
 import { zoneToXc } from "../../../helpers/zones";
-import { Component, useExternalListener } from "../../../owl3_compatibility_layer";
+import { Component } from "../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
 import { SearchOptions } from "../../../types/find_and_replace";
@@ -127,7 +127,7 @@ export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
     onMounted(() => this.searchInputRef()?.focus());
     onWillUnmount(() => this.updateSearchContent.stopDebounce());
     this.updateSearchContent = debounce(this.store.updateSearchContent, 200);
-    useExternalListener(
+    useListener(
       window,
       "keydown",
       (ev: KeyboardEvent) => {
