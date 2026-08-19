@@ -127,17 +127,22 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   private spreadsheetRect = useSpreadsheetRect();
   private lastHoveredTokenIndex: number | undefined = undefined;
 
-  private debouncedHover = debounce((tokenIndex: number | undefined, hoveredRect?: Rect) => {
-    const selection = this.contentHelper.getCurrentSelection();
-    if (selection.start !== selection.end) {
-      return;
-    }
-    const currentHoveredContext = this.props.composerStore.hoveredTokens;
-    this.props.composerStore.hoverToken(tokenIndex);
-    if (!deepEquals(currentHoveredContext, this.props.composerStore.hoveredTokens)) {
-      this.composerState.hoveredRect = hoveredRect;
-    }
-  }, 120);
+  private debouncedHover = debounce(
+    (tokenIndex: number | undefined, composerContent: string, hoveredRect?: Rect) => {
+      const selection = this.contentHelper.getCurrentSelection();
+      // If the composer content changed since the hover event was triggered, the tokenIndex might not be valid
+      const currentContent = this.props.composerStore.currentContent;
+      if (selection.start !== selection.end || currentContent !== composerContent) {
+        return;
+      }
+      const currentHoveredContext = this.props.composerStore.hoveredTokens;
+      this.props.composerStore.hoverToken(tokenIndex);
+      if (!deepEquals(currentHoveredContext, this.props.composerStore.hoveredTokens)) {
+        this.composerState.hoveredRect = hoveredRect;
+      }
+    },
+    120
+  );
 
   get assistantStyleProperties(): CSSProperties {
     const composerRect = this.composerRef.el!.getBoundingClientRect();
@@ -686,7 +691,8 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     // if the user keeps moving its mouse over the same token.
     if (this.lastHoveredTokenIndex !== tokenIndex) {
       this.lastHoveredTokenIndex = tokenIndex;
-      this.debouncedHover(tokenIndex, hoveredRect);
+      const composerContent = this.props.composerStore.currentContent;
+      this.debouncedHover(tokenIndex, composerContent, hoveredRect);
     }
   }
 
