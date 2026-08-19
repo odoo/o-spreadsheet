@@ -72,7 +72,7 @@ export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
 
   get specificRangeMatchesCount() {
     const range = this.searchOptions.specificRange;
-    if (!range) {
+    if (!range || range.invalidSheetName || range.invalidXc) {
       return "";
     }
     const {
