@@ -1283,6 +1283,42 @@ describe("Multi Panes viewport", () => {
     expect(viewStore.activeMainViewport).toEqual(originalActiveMainViewport);
   });
 
+  test("can scroll to the last row on a very small scrollable viewport", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    const { width } = viewStore.viewports.getSheetViewDimension();
+    viewStore.resizeSheetView({ height: 7.5 * DEFAULT_CELL_HEIGHT, width });
+    freezeRows(model, 7);
+    // scroll at more than max value knowing that the command handler clips the payload
+    viewStore.setViewportOffset({
+      offsetX: 0,
+      offsetY: model.getters.getNumberRows(sheetId) * DEFAULT_CELL_HEIGHT,
+    });
+    expect(viewStore.activeMainViewport).toEqual({
+      top: 99,
+      bottom: 99,
+      left: 0,
+      right: 10,
+    });
+  });
+
+  test("can scroll to the last column on a very small scrollable viewport", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    const { height } = viewStore.viewports.getSheetViewDimension();
+    viewStore.resizeSheetView({ height, width: 7.5 * DEFAULT_CELL_WIDTH });
+    freezeColumns(model, 7);
+    // scroll at more than max value knowing that the command handler clips the payload
+    viewStore.setViewportOffset({
+      offsetX: model.getters.getNumberCols(sheetId) * DEFAULT_CELL_WIDTH,
+      offsetY: 0,
+    });
+    expect(viewStore.activeMainViewport).toEqual({
+      top: 0,
+      bottom: 43,
+      left: 25,
+      right: 25,
+    });
+  });
+
   test("Visible Cols and Rows are correctly computed when the sheetview has a 0 width", () => {
     viewStore.resizeSheetView({ height: 100, width: 0 });
     expect(viewStore.visibleCols).toEqual([]);

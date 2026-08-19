@@ -10,10 +10,7 @@
       t-on-click="this.onClick"
       t-on-dblclick.self="this.onDoubleClick"
       t-on-contextmenu.stop.prevent="this.onContextMenu">
-      <GridAddRowsFooter
-        t-if="!this.env.model.getters.isReadonly() and this.props.hasFooter"
-        t-key="this.viewStore.displayedSheetId"
-      />
+      <GridAddRowsFooter t-if="this.isFooterVisible" t-key="this.viewStore.displayedSheetId"/>
       <t t-call-slot="default"/>
     </div>
   </t>

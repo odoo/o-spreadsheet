@@ -88,7 +88,11 @@ export class InternalViewport {
     if (this.canScrollVertically) {
       height = Math.max(height, this.viewportHeight); // if the viewport grid size is smaller than its client height, return client height
 
-      if (lastRowEnd + this.getFooterSize() > height) {
+      // add footer size if its visible & the viewport height is not too shallow
+      if (
+        lastRowEnd + this.getFooterSize() > height &&
+        this.viewportHeight > this.getFooterSize()
+      ) {
         height += this.getFooterSize();
       }
     }
