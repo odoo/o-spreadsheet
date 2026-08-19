@@ -1,4 +1,5 @@
 import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
+import { FOOTER_HEIGHT } from "../../constants";
 import { deepEquals, positionToZone } from "../../helpers";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { Store, useStore } from "../../store_engine";
@@ -309,5 +310,11 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
       return isPointInsideRect(x, y, this.env.model.getters.getCellIconRect(icon, cellRect));
     });
     return icon?.onClick ? icon : undefined;
+  }
+
+  get isFooterVisible() {
+    const { y } = this.env.model.getters.getMainViewportCoordinates();
+    const { height } = this.env.model.getters.getSheetViewDimension();
+    return !this.env.model.getters.isReadonly() && height - y > FOOTER_HEIGHT;
   }
 }
