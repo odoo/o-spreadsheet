@@ -362,6 +362,21 @@ describe("Composer hover", () => {
     expect(getElStyle(".o-speech-bubble", "left")).toEqual("-30px");
     jest.restoreAllMocks();
   });
+
+  test("Debounced hover callback does not crash if the content change before the callback has time to execute", async () => {
+    await typeInComposer("=SUM(1,2)");
+    const spans = fixture.querySelectorAll(".o-composer span");
+    const hoveredSpan = Array.from(spans).find((s) => s.textContent === "2")!;
+    const hoverTokenSpy = jest.spyOn(composerStore, "hoverToken");
+
+    triggerMouseEvent(hoveredSpan, "mousemove");
+    composerStore.setCurrentContent("=4");
+    await nextTick();
+
+    jest.runAllTimers();
+    await nextTick();
+    expect(hoverTokenSpy).toHaveBeenCalledTimes(0);
+  });
 });
 
 describe("Composer hover integration test", () => {
