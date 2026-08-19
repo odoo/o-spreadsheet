@@ -14,6 +14,7 @@ import { ViewportsStore } from "../../src/stores/viewports_store";
 
 import { downloadFile } from "../../src/components/helpers/dom_helpers";
 import { toXC } from "../../src/helpers/coordinates";
+import { render } from "../../src/helpers/owl3_helpers";
 import { figureRegistry } from "../../src/registries/figures_registry";
 import { ClipboardMIMEType } from "../../src/types/clipboard";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
@@ -1215,7 +1216,7 @@ describe("figures", () => {
       test(`figure menu position is correct when clicking on menu button for ${type}`, async () => {
         mockSpreadsheetRect = { top: 25, left: 25, height: 1000, width: 1000 };
         mockFigureMenuItemRect = { top: 500, left: 500 };
-        parent.render(true); // force a render to update `useAbsoluteBoundingRect` with new mocked values
+        render(parent, true); // force a render to update `useAbsoluteBoundingRect` with new mocked values
         await nextTick();
         await simulateClick(menuSelector);
         const menuPopover = fixture.querySelector<HTMLElement>(".o-popover")!;
@@ -1226,7 +1227,7 @@ describe("figures", () => {
       test(`figure menu position is correct when menu button position < MENU_WIDTH for ${type}`, async () => {
         mockSpreadsheetRect = { top: 25, left: 25, height: 1000, width: 1000 };
         mockFigureMenuItemRect = { top: 500, left: MENU_WIDTH - 50, width: 32 };
-        parent.render(true); // force a render to update `useAbsoluteBoundingRect` with new mocked values
+        render(parent, true); // force a render to update `useAbsoluteBoundingRect` with new mocked values
         await nextTick();
         await simulateClick(menuSelector);
         const MenuPopover = fixture.querySelector<HTMLElement>(".o-popover")!;

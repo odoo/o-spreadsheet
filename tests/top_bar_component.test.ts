@@ -5,6 +5,7 @@ import { PaintFormatStore } from "../src/components/paint_format_button/paint_fo
 import { TopBar } from "../src/components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_registry";
 import { DEFAULT_FONT_SIZE } from "../src/constants";
+import { render } from "../src/helpers/owl3_helpers";
 import { toZone, zoneToXc } from "../src/helpers/zones";
 import { Component } from "../src/owl3_compatibility_layer";
 import { topbarMenuRegistry } from "../src/registries/menus/topbar_menu_registry";
@@ -748,7 +749,7 @@ describe("TopBar component", () => {
     expect(fixture.querySelectorAll(".o-topbar-test2")).toHaveLength(1);
 
     comp1Visibility = true;
-    parent.render(true);
+    render(parent, true);
     await nextTick();
     expect(fixture.querySelectorAll(".o-topbar-test1")).toHaveLength(1);
     expect(fixture.querySelectorAll(".o-topbar-test2")).toHaveLength(1);
@@ -1164,7 +1165,7 @@ describe("Responsive Top bar behaviour", () => {
     expect(fixture.querySelector(".o-popover")).not.toBeNull();
     spreadsheetWidth += 10;
 
-    parent.render(true);
+    render(parent, true);
     await nextTick();
     expect(fixture.querySelector(".o-popover")).toBeNull();
   });

@@ -2,6 +2,7 @@ import { useProps, xml } from "@odoo/owl";
 import { ActionSpec } from "../src/actions/action";
 import { ActionButton } from "../src/components/action_button/action_button";
 import { types } from "../src/components/props_validation";
+import { render } from "../src/helpers/owl3_helpers";
 import { Component } from "../src/owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../src/types/spreadsheet_env";
 import { mountComponent, nextTick } from "./test_helpers/helpers";
@@ -25,7 +26,7 @@ test("ActionButton is updated when its props are updated", async () => {
   expect(actionButton.classList).toContain("active");
 
   action = { isActive: () => false, name: "TestAction" };
-  parent.render(true);
+  render(parent, true);
   await nextTick();
   expect(actionButton.classList).not.toContain("active");
 });

@@ -1,5 +1,6 @@
 import { batched, onMounted, props, xml } from "@odoo/owl";
 import { types } from "../../src/components/props_validation";
+import { render } from "../../src/helpers/owl3_helpers";
 import { Component } from "../../src/owl3_compatibility_layer";
 import {
   useChildStoreProvider,
@@ -44,11 +45,11 @@ describe("Children stores", () => {
     store!: Store<TestStore>;
 
     setup() {
-      const render = batched(this.render.bind(this, true));
+      const batchedRender = batched(() => render(this, true));
       const stores = useStoreProvider();
       this.store = useStore(TestStore);
       onMounted(() => {
-        stores.on("store-updated", this, render);
+        stores.on("store-updated", this, batchedRender);
         this.store.setValue("parent");
       });
     }

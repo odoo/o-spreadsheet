@@ -1,6 +1,7 @@
 import { onMounted, onWillUpdateProps, proxy } from "@odoo/owl";
 import { DRAG_THRESHOLD, MIN_FIG_SIZE } from "../../../constants";
 import { isDefined } from "../../../helpers/misc";
+import { render } from "../../../helpers/owl3_helpers";
 import { rectUnion } from "../../../helpers/rectangle";
 import { Component } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
@@ -139,7 +140,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       // first owl rendering is done with an empty viewport.  Only then we can
       // compute which figures should be displayed, so we have to force a
       // new rendering
-      this.render();
+      render(this);
     });
     onWillUpdateProps(() => {
       const sheetId = this.env.model.getters.getActiveSheetId();

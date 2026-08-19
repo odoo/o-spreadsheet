@@ -28,6 +28,7 @@ import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/gette
 
 import { Rect } from "../../src";
 import { types } from "../../src/components/props_validation";
+import { render } from "../../src/helpers/owl3_helpers";
 import { PopoverPropsPosition } from "../../src/types/cell_popovers";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
@@ -674,7 +675,7 @@ describe("Context MenuPopover internal tests", () => {
     expect(fixture.querySelector("div[data-name='menuItem']")?.classList).not.toContain("disabled");
 
     enabled = false;
-    parent.render(true);
+    render(parent, true);
     await nextTick();
     expect(fixture.querySelector("div[data-name='menuItem']")?.classList).toContain("disabled");
   });
@@ -688,7 +689,7 @@ describe("Context MenuPopover internal tests", () => {
     expect(fixture.querySelector("div[data-name='menuItem']")).toBeTruthy();
 
     visible = false;
-    parent.render(true);
+    render(parent, true);
     await nextTick();
     expect(fixture.querySelector("div[data-name='menuItem']")).toBeFalsy();
   });
@@ -702,7 +703,7 @@ describe("Context MenuPopover internal tests", () => {
     await renderContextMenu(300, 300, { menuItems });
     expect(fixture.querySelectorAll(".o-menu-item-icon").length).toBe(0);
     visible = true;
-    parent.render(true);
+    render(parent, true);
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu-item-icon").length).toBe(2);
   });

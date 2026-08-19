@@ -15,6 +15,7 @@ import { matrixMap } from "../../src/functions/helpers";
 import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
 import { batched, range } from "../../src/helpers/misc";
+import { render } from "../../src/helpers/owl3_helpers";
 import { createRangeFromXc } from "../../src/helpers/range";
 import { positions, toUnboundedZone, toZone, zoneToXc } from "../../src/helpers/zones";
 import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
@@ -337,12 +338,12 @@ export async function mountComponent<Props extends { [key: string]: any }>(
   const parent = await root.mount(fixture);
 
   //@ts-ignore
-  const render = batched(parent.render.bind(parent, true));
+  const batchedRender = batched(() => render(parent, true));
   if (optionalArgs.renderOnModelUpdate === undefined || optionalArgs.renderOnModelUpdate) {
-    model.on("update", null, render);
+    model.on("update", null, batchedRender);
   }
   // @ts-ignore
-  env.__spreadsheet_stores__.on("store-updated", null, render);
+  env.__spreadsheet_stores__.on("store-updated", null, batchedRender);
 
   registerCleanup(() => {
     app.destroy();

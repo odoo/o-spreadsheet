@@ -1,5 +1,6 @@
 import { useProps, xml } from "@odoo/owl";
 import { NumberInput } from "../../src/components/number_input/number_input";
+import { render } from "../../src/helpers/owl3_helpers";
 import { Component } from "../../src/owl3_compatibility_layer";
 import { PropsOf } from "../../src/types/props_of";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
@@ -126,7 +127,7 @@ describe("NumberInput", () => {
     // focus the input and change its value
     input.focus();
     input.value = "12";
-    parent.render(true);
+    render(parent, true);
     await nextTick();
     expect(input.value).toEqual("12");
   });
