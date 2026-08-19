@@ -154,6 +154,7 @@ css/* scss */ `
       width: 100%;
       outline: none;
       border-color: ${GRAY_300};
+      border-style: solid;
       color: ${GRAY_900};
 
       &::placeholder {
