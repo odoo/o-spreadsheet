@@ -64,7 +64,6 @@ export class ViewportsStore extends SpreadsheetStore {
     getFooterSize: this.getFooterSizeCallback,
   });
   private sheetsWithDirtyViewports: Set<UID> = new Set();
-  private shouldRepositionViewports: boolean = false;
 
   displayedSheetId: UID = this.model.getters.getActiveSheetId();
 
@@ -89,7 +88,6 @@ export class ViewportsStore extends SpreadsheetStore {
           this.sheetsWithDirtyViewports.add(sheetId);
           this.syncPaneDivision(sheetId);
         }
-        this.shouldRepositionViewports = !this.getters.getSelectedFigureIds().length;
         break;
       case "UNFREEZE_ROWS":
       case "UNFREEZE_COLUMNS":
@@ -139,15 +137,8 @@ export class ViewportsStore extends SpreadsheetStore {
   finalize() {
     for (const sheetId of this.sheetsWithDirtyViewports) {
       this.viewports.resetViewports(sheetId);
-      if (this.shouldRepositionViewports) {
-        const position = this.getters.getSheetPosition(sheetId);
-        this.viewports.getSubViewports(sheetId).forEach((viewport) => {
-          viewport.repositionViewport(position);
-        });
-      }
     }
     this.sheetsWithDirtyViewports = new Set();
-    this.shouldRepositionViewports = false;
     this.setViewports();
   }
 
