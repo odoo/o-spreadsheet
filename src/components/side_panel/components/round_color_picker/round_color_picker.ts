@@ -1,5 +1,5 @@
-import { proxy, signal, useProps } from "@odoo/owl";
-import { Component, useExternalListener } from "../../../../owl3_compatibility_layer";
+import { proxy, signal, useListener, useProps } from "@odoo/owl";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { Rect } from "../../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { ColorPicker } from "../../../color_picker/color_picker";
@@ -35,7 +35,7 @@ export class RoundColorPicker extends Component<SpreadsheetChildEnv> {
 
   setup() {
     this.state = proxy({ pickerOpened: false });
-    useExternalListener(window as any, "click", this.closePicker);
+    useListener(window as any, "click", this.closePicker.bind(this));
   }
 
   closePicker() {

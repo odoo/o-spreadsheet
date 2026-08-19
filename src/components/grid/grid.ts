@@ -1,4 +1,4 @@
-import { onMounted, proxy, signal, useProps } from "@odoo/owl";
+import { onMounted, proxy, signal, useListener, useProps } from "@odoo/owl";
 import { insertSheet, insertTable } from "../../actions/insert_actions";
 import {
   CREATE_IMAGE,
@@ -22,12 +22,7 @@ import {
   interactivePasteFromOS,
 } from "../../helpers/ui/paste_interactive";
 import { isInside } from "../../helpers/zones";
-import {
-  Component,
-  useChildSubEnv,
-  useExternalListener,
-  useLayoutEffect,
-} from "../../owl3_compatibility_layer";
+import { Component, useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {
@@ -188,10 +183,10 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     useStore(ArrayFormulaHighlight);
     this.automaticSumStore = useLocalStore(AutomaticSumStore);
 
-    useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
-    useExternalListener(document.body, "cut", this.copy.bind(this, true));
-    useExternalListener(document.body, "copy", this.copy.bind(this, false));
-    useExternalListener(document.body, "paste", this.paste);
+    useSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
+    useListener(document.body, "cut", this.copy.bind(this, true));
+    useListener(document.body, "copy", this.copy.bind(this, false));
+    useListener(document.body, "paste", this.paste.bind(this));
     onMounted(() => this.focusDefaultElement());
     this.props.exposeFocus(() => this.focusDefaultElement());
     useGridDrawing({

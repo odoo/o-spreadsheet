@@ -6,6 +6,7 @@ import {
   proxy,
   signal,
   useEffect,
+  useListener,
   useProps,
 } from "@odoo/owl";
 import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO } from "../../constants";
@@ -13,13 +14,9 @@ import { DARK_MODE_FILTER_STRING } from "../../helpers/color";
 import { unregisterChartJsExtensions } from "../../helpers/figures/charts/chart_js_extension";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { batched } from "../../helpers/misc";
+import { render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
-import {
-  Component,
-  useExternalListener,
-  useLayoutEffect,
-  useSubEnv,
-} from "../../owl3_compatibility_layer";
+import { Component, useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
 import { ModelStore } from "../../stores/model_store";
@@ -192,12 +189,12 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       }
     });
 
-    useExternalListener(window, "resize", () => this.render(true));
+    useListener(window, "resize", () => render(this, true));
     // For some reason, the wheel event is not properly registered inside templates
     // in Chromium-based browsers based on chromium 125
     // This hack ensures the event declared in the template is properly registered/working
-    useExternalListener(document.body, "wheel", () => {});
-    useExternalListener(
+    useListener(document.body, "wheel", () => {});
+    useListener(
       window,
       "keydown",
       async (event: KeyboardEvent) => {
@@ -236,11 +233,11 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       return () => resizeObserver.disconnect();
     });
 
-    const render = batched(this.render.bind(this, true));
+    const batchedRender = batched(() => render(this, true));
     onMounted(() => {
       this.bindModelEvents();
       this.checkViewportSize();
-      stores.on("store-updated", this, render);
+      stores.on("store-updated", this, batchedRender);
     });
     onWillUnmount(() => {
       this.unbindModelEvents();
@@ -253,7 +250,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   }
 
   private bindModelEvents() {
-    this.model.on("update", this, () => this.render(true));
+    this.model.on("update", this, () => render(this, true));
     this.model.on("command-rejected", this, ({ result }) => {
       if (result.isCancelledBecause(CommandResult.SheetLocked)) {
         this.notificationStore.notifyUser({

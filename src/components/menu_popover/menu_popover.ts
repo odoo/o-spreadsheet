@@ -1,7 +1,7 @@
-import { onWillUnmount, onWillUpdateProps, proxy, signal, useProps } from "@odoo/owl";
+import { onWillUnmount, onWillUpdateProps, proxy, signal, useListener, useProps } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators, isMenuItemEnabled } from "../../actions/action";
 import { DESKTOP_MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../constants";
-import { Component, useExternalListener, useLayoutEffect } from "../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { MenuMouseEvent, Pixel, UID } from "../../types/misc";
@@ -89,8 +89,8 @@ export class MenuPopover extends Component<SpreadsheetChildEnv> {
       }
     });
 
-    useExternalListener(window, "click", this.onExternalClick, { capture: true });
-    useExternalListener(window, "contextmenu", this.onExternalClick, { capture: true });
+    useListener(window, "click", this.onExternalClick.bind(this), { capture: true });
+    useListener(window, "contextmenu", this.onExternalClick.bind(this), { capture: true });
     onWillUpdateProps((nextProps: PropsOf<MenuPopover>) => {
       if (nextProps.menuItems !== this.props.menuItems) {
         this.closeSubMenu();

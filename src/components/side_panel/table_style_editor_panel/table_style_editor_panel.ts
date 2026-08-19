@@ -1,8 +1,8 @@
-import { proxy, useProps } from "@odoo/owl";
+import { proxy, useListener, useProps } from "@odoo/owl";
 import { isColorValid } from "../../../helpers/color";
 import { TABLE_STYLES_TEMPLATES, buildTableStyle } from "../../../helpers/table_presets";
 import { UuidGenerator } from "../../../helpers/uuid";
-import { Component, useExternalListener } from "../../../owl3_compatibility_layer";
+import { Component } from "../../../owl3_compatibility_layer";
 import { Color } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableConfig, TableStyle, TableStyleTemplateName } from "../../../types/table";
@@ -33,7 +33,7 @@ export class TableStyleEditorPanel extends Component<SpreadsheetChildEnv> {
   state = proxy<State>(this.getInitialState());
 
   setup() {
-    useExternalListener(window as any, "click", () => (this.state.pickerOpened = false));
+    useListener(window as any, "click", () => (this.state.pickerOpened = false));
   }
 
   getInitialState(): State {

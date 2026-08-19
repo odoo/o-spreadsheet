@@ -1,6 +1,6 @@
-import { proxy, signal, useProps } from "@odoo/owl";
+import { proxy, signal, useListener, useProps } from "@odoo/owl";
 import { TABLE_STYLE_CATEGORIES } from "../../../helpers/table_presets";
-import { Component, useExternalListener } from "../../../owl3_compatibility_layer";
+import { Component } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
 import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -34,7 +34,7 @@ export class TableStylesPopover extends Component<SpreadsheetChildEnv> {
   state = proxy<State>({ selectedCategory: this.initialSelectedCategory });
 
   setup(): void {
-    useExternalListener(window, "click", this.onExternalClick, { capture: true });
+    useListener(window, "click", this.onExternalClick.bind(this), { capture: true });
   }
 
   onExternalClick(ev: CustomTablePopoverMouseEvent) {

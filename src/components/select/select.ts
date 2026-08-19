@@ -1,5 +1,5 @@
-import { proxy, signal, useProps } from "@odoo/owl";
-import { Component, useExternalListener, useLayoutEffect } from "../../owl3_compatibility_layer";
+import { proxy, signal, useListener, useProps } from "@odoo/owl";
+import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { ValueAndLabel } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -32,7 +32,7 @@ export class Select extends Component<SpreadsheetChildEnv> {
   private state = proxy<State>({ isPopoverOpen: false, hoveredValue: undefined });
 
   setup() {
-    useExternalListener(window, "pointerdown", this.onExternalClick, { capture: true });
+    useListener(window, "pointerdown", this.onExternalClick.bind(this), { capture: true });
 
     useLayoutEffect(() => {
       const el = this.dropdownRef();

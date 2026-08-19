@@ -1,10 +1,10 @@
-import { onWillUpdateProps, proxy, signal, useProps } from "@odoo/owl";
+import { onWillUpdateProps, proxy, signal, useListener, useProps } from "@odoo/owl";
 import { CellPosition, GenericCriterion } from "../../../..";
 import { deepEquals } from "../../../../helpers/misc";
 import { SpreadsheetPivotRuntimeDefinition } from "../../../../helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { SpreadsheetPivot } from "../../../../helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { toTrimmedLowerCase } from "../../../../helpers/text_helper";
-import { Component, useExternalListener } from "../../../../owl3_compatibility_layer";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { _t } from "../../../../translation";
 import { Cell } from "../../../../types/cells";
@@ -50,7 +50,7 @@ export class PivotFilterEditor extends Component<SpreadsheetChildEnv> {
   private popover!: { isOpen: boolean };
 
   setup() {
-    useExternalListener(window, "click", (ev) => {
+    useListener(window, "click", (ev) => {
       if (!isChildEvent(this.buttonFilter(), ev)) {
         this.popover.isOpen = false;
       }
