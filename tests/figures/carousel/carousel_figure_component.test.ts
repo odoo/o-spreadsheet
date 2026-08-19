@@ -103,7 +103,9 @@ describe("Carousel figure component", () => {
   test("Empty rows are not rendered in the data view", async () => {
     const sheetId = model.getters.getActiveSheetId();
     setGrid(model, { A1: "Hello", C3: "World" });
-    createCarouselWithDataView(model, toRangeData(sheetId, "A1:C100"), "carouselId");
+    createCarouselWithDataView(model, toRangeData(sheetId, "A1:C100"), "carouselId", sheetId, {
+      size: { width: 500, height: 400 },
+    });
     const stores = spyStoreCreation();
 
     await mountSpreadsheet({ model });
@@ -144,7 +146,7 @@ describe("Carousel figure component", () => {
       left: `${layout.paddingX}px`,
       top: `${contentY}px`,
       width: `${500 - layout.paddingX * 2}px`,
-      height: `${400 - contentY - layout.paddingY}px`,
+      height: `${400 - contentY - 2 * layout.paddingY}px`,
     });
   });
 
@@ -184,7 +186,7 @@ describe("Carousel figure component", () => {
       left: `${layout.paddingX}px`,
       top: `${contentY}px`,
       width: `${500 - layout.paddingX * 2}px`,
-      height: `${400 - contentY - layout.paddingY}px`,
+      height: `${400 - contentY - 2 * layout.paddingY}px`,
     });
   });
 

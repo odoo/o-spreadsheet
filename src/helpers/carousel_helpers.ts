@@ -80,7 +80,7 @@ export function getCarouselLayout(
   const contentPaddingTop = selectedItem?.type === "carouselDataView" ? layout.paddingY : 0;
   const rectAboveContent = separatorRect || headerRect;
   const contentY = rectAboveContent.y + rectAboveContent.height + contentPaddingTop;
-  const contentBottom = figureRect.y + figureRect.height - layout.paddingY;
+  const contentBottom = figureRect.y + figureRect.height - 2 * layout.paddingY;
   const contentRect: Rect = {
     x,
     y: contentY,
