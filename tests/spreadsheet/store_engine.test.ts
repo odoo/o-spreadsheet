@@ -1,4 +1,4 @@
-import { batched, onMounted, props, xml } from "@odoo/owl";
+import { batched, onMounted, useProps, xml } from "@odoo/owl";
 import { types } from "../../src/components/props_validation";
 import { render } from "../../src/helpers/owl3_helpers";
 import { Component } from "../../src/owl3_compatibility_layer";
@@ -23,7 +23,7 @@ class TestStore extends SpreadsheetStore {
 describe("Children stores", () => {
   class Child extends Component<any> {
     static template = xml/* xml */ `<div class="childText" t-out="this.store.value" />`;
-    props = props({ childOwnStores: types.array() });
+    props = useProps({ childOwnStores: types.array() });
     store!: Store<TestStore>;
 
     setup() {
@@ -41,7 +41,7 @@ describe("Children stores", () => {
         <Child t-props="this.props"/>
     `;
     static components = { Child };
-    props = props({ childOwnStores: types.array() });
+    props = useProps({ childOwnStores: types.array() });
     store!: Store<TestStore>;
 
     setup() {
