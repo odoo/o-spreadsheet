@@ -1,4 +1,5 @@
 import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
+import { FOOTER_HEIGHT } from "../../constants";
 import { Store, useStore } from "../../store_engine";
 import {
   DOMCoordinates,
@@ -243,5 +244,11 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     const colIndex = this.env.model.getters.getColIndex(x);
     const rowIndex = this.env.model.getters.getRowIndex(y);
     return [colIndex, rowIndex];
+  }
+
+  get isFooterVisible() {
+    const { y } = this.env.model.getters.getMainViewportCoordinates();
+    const { height } = this.env.model.getters.getSheetViewDimension();
+    return !this.env.model.getters.isReadonly() && height - y > FOOTER_HEIGHT;
   }
 }

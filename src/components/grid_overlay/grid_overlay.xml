@@ -13,10 +13,7 @@
       t-on-contextmenu.stop.prevent="onContextMenu">
       <DataValidationOverlay/>
       <FilterIconsOverlay/>
-      <GridAddRowsFooter
-        t-if="!env.model.getters.isReadonly()"
-        t-key="env.model.getters.getActiveSheetId()"
-      />
+      <GridAddRowsFooter t-if="this.isFooterVisible" t-key="env.model.getters.getActiveSheetId()"/>
       <t t-slot="default"/>
     </div>
   </t>
