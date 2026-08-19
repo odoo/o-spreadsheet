@@ -1,5 +1,5 @@
 import { proxy, signal, useEffect, useProps } from "@odoo/owl";
-import { sumArray } from "../../helpers/misc";
+import { deepEquals, sumArray } from "../../helpers/misc";
 import { Component } from "../../owl3_compatibility_layer";
 import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
@@ -94,14 +94,17 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
 
     this.onMouseWheel = useWheelHandler((deltaX, deltaY, ev) => {
       if (this.hasVerticalScrollBar) {
-        ev.stopPropagation();
-        ev.preventDefault();
-
         const scroll = this.viewStore.activeSheetScrollInfo;
         this.viewStore.setViewportOffset({
           offsetX: scroll.scrollX + deltaX,
           offsetY: scroll.scrollY + deltaY,
         });
+
+        const newScroll = this.viewStore.activeSheetScrollInfo;
+        if (!deepEquals(scroll, newScroll)) {
+          ev.stopPropagation();
+          ev.preventDefault();
+        }
       }
     });
   }
