@@ -140,11 +140,19 @@ export function createAction(item: ActionSpec): Action {
       : undefined,
     children: children
       ? (env) => {
-          return children
-            .map((child) => (typeof child === "function" ? child(env) : child))
-            .flat()
-            .map(createAction)
-            .sort((a, b) => a.sequence - b.sequence);
+          const uniqueChildren: Record<string, Action> = {};
+          children
+            .flatMap((child) => (typeof child === "function" ? child(env) : child))
+            .forEach((childSpec) => {
+              const childAction = createAction(childSpec);
+              if (uniqueChildren[childAction.id]) {
+                throw new Error(
+                  `Duplicate child action id "${childAction.id}" in action "${itemId}".`
+                );
+              }
+              uniqueChildren[childAction.id] = childAction;
+            });
+          return Object.values(uniqueChildren).sort((a, b) => a.sequence - b.sequence);
         }
       : () => [],
     isReadonlyAllowed: item.isReadonlyAllowed || false,
