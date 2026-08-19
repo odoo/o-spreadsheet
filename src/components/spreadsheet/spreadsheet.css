@@ -120,6 +120,7 @@
     width: 100%;
     outline: none;
     border-color: var(--os-border-color);
+    border-style: solid;
     color: var(--os-gray-900);
 
     &::placeholder {

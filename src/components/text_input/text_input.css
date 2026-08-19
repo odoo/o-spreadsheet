@@ -2,6 +2,7 @@
   .os-input {
     border-width: 0 0 1px 0;
     border-color: transparent;
+    border-style: solid;
     outline: none;
     text-overflow: ellipsis;
     color: var(--os-text-body);
