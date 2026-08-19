@@ -7,6 +7,7 @@ import {
   MIN_SHEET_VIEW_WIDTH,
   SidePanelStore,
 } from "../../src/components/side_panel/side_panel/side_panel_store";
+import { render } from "../../src/helpers/owl3_helpers";
 import { Component } from "../../src/owl3_compatibility_layer";
 import { SidePanelContent, sidePanelRegistry } from "../../src/registries/side_panel_registry";
 import { Store } from "../../src/types/store_engine";
@@ -282,7 +283,7 @@ describe("Side Panel", () => {
     expect(document.querySelector(".o-sidePanel .props_body")!.textContent).toBe("test text");
 
     text = "";
-    parent.render(true);
+    render(parent, true);
     await nextTick();
     expect(document.querySelector(".o-sidePanel")).toBeNull();
   });
@@ -301,13 +302,13 @@ describe("Side Panel", () => {
     expect(document.querySelector(".o-sidePanel .props_body")!.textContent).toBe("test text");
 
     text = "";
-    parent.render(true);
+    render(parent, true);
     await nextTick();
     expect(document.querySelector(".o-sidePanel")).toBeNull();
     expect(onCloseSidePanel).toHaveBeenCalled();
 
     text = "new text. This should not re-open the side panel";
-    parent.render(true);
+    render(parent, true);
     await nextTick();
     expect(document.querySelector(".o-sidePanel")).toBeNull();
   });

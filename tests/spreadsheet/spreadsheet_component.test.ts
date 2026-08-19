@@ -9,6 +9,7 @@ import {
   getDefaultSheetViewSize,
 } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
+import { render } from "../../src/helpers/owl3_helpers";
 import { toZone } from "../../src/helpers/zones";
 import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
 import { HighlightStore } from "../../src/stores/highlight_store";
@@ -504,7 +505,7 @@ test("*isSmall* is properly recomputed when changing window size", async () => {
   const { parent } = await mountComponent(Parent, { env });
   expect(parent.env.isSmall).toBeFalsy();
   spreadsheetWidth = 500;
-  parent.render();
+  render(parent);
   await nextTick();
 
   expect(parent.env.isSmall).toBeTruthy();

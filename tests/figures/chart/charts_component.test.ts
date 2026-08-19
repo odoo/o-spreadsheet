@@ -15,6 +15,7 @@ import { ChartTerms } from "../../../src/components/translations_terms";
 import { LINE_DATA_POINT_RADIUS } from "../../../src/constants";
 import { ColorGenerator, toHex } from "../../../src/helpers/color";
 import { deepCopy } from "../../../src/helpers/misc";
+import { render } from "../../../src/helpers/owl3_helpers";
 import { toZone } from "../../../src/helpers/zones";
 import { App } from "../../../src/owl3_compatibility_layer";
 import { chartSubtypeRegistry } from "../../../src/registries/chart_subtype_registry";
@@ -3086,7 +3087,7 @@ describe("charts", () => {
     await nextTick();
     expect(updateChart).not.toHaveBeenCalled();
     window.devicePixelRatio = 2;
-    parent.render(true);
+    render(parent, true);
     await nextTick();
     expect(updateChart).toHaveBeenCalled();
   });

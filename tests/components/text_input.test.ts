@@ -1,5 +1,6 @@
 import { useProps, xml } from "@odoo/owl";
 import { TextInput } from "../../src/components/text_input/text_input";
+import { render } from "../../src/helpers/owl3_helpers";
 import { Component } from "../../src/owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
@@ -115,7 +116,7 @@ describe("TextInput", () => {
     // focus the input and change its value
     input.focus();
     input.value = "world";
-    parent.render(true);
+    render(parent, true);
     await nextTick();
     expect(input.value).toEqual("world");
   });
