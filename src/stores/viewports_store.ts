@@ -13,9 +13,7 @@ import {
 import { FOOTER_HEIGHT, getDefaultSheetViewSize } from "../constants";
 import { deepEquals } from "../helpers/misc";
 import { ViewportCollection } from "../helpers/viewport_collection";
-import { findCellInNewZone, isEqual } from "../helpers/zones";
 import { Command, invalidateEvaluationCommands } from "../types/commands";
-import { SelectionEvent } from "../types/event_stream/selection_events";
 import {
   DOMCoordinates,
   DOMDimension,
@@ -72,44 +70,7 @@ export class ViewportsStore extends SpreadsheetStore {
 
   constructor(get: Get) {
     super(get);
-    this.model.selection.observe(this, {
-      handleEvent: this.handleEvent.bind(this),
-    });
-    this.onDispose(() => {
-      this.model.selection.unobserve(this);
-    });
     this.viewports.resetViewports(this.displayedSheetId);
-  }
-
-  // ---------------------------------------------------------------------------
-  // Command Handling
-  // ---------------------------------------------------------------------------
-
-  private handleEvent(event: SelectionEvent) {
-    const eventSheetId = this.getters.getActiveSheetId();
-    if (event.options.scrollIntoView) {
-      const oldZone = event.previousAnchor.zone;
-      const newZone = event.anchor.zone;
-      const isUpdateAnchorEvent = event.mode === "updateAnchor";
-      const sameZone = isEqual(oldZone, newZone);
-      let { col, row } =
-        isUpdateAnchorEvent && sameZone ? event.anchor.cell : findCellInNewZone(oldZone, newZone);
-      if (isUpdateAnchorEvent && !sameZone) {
-        // altering a zone should not move the viewport in a dimension that wasn't changed
-        const { top, bottom, left, right } = this.viewports.getMainInternalViewport(eventSheetId);
-        if (oldZone.left === newZone.left && oldZone.right === newZone.right) {
-          col = left > col || col > right ? left : col;
-        }
-        if (oldZone.top === newZone.top && oldZone.bottom === newZone.bottom) {
-          row = top > row || row > bottom ? top : row;
-        }
-      }
-      col = Math.min(col, this.getters.getNumberCols(eventSheetId) - 1);
-      row = Math.min(row, this.getters.getNumberRows(eventSheetId) - 1);
-      if (!this.sheetsWithDirtyViewports.has(eventSheetId)) {
-        this.viewports.refreshViewport(eventSheetId, { col, row });
-      }
-    }
   }
 
   handle(cmd: Command) {
@@ -246,6 +207,10 @@ export class ViewportsStore extends SpreadsheetStore {
   }
 
   scrollToCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex) {
+    if (this.sheetsWithDirtyViewports.has(sheetId)) {
+      // we mark the viewports dirty when we cannot update them without waiting for finalize. Trying to refreshViewport would crash.
+      return;
+    }
     this.viewports.refreshViewport(sheetId, { col, row });
   }
 

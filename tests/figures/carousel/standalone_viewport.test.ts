@@ -25,6 +25,7 @@ import {
   hideColumns,
   hoverCell,
   hoverGridIcon,
+  selectCell,
   setCellContent,
   setFormatting,
   simulateClick,
@@ -234,6 +235,17 @@ describe("Standalone viewport", () => {
     expect(viewStore.mainViewportCoordinates.y).toBe(cellHeight * 3); // Three frozen rows in A2:A10
     expect(viewStore.mainViewportRect.height).toBe(cellHeight * 6); // 6 non-frozen rows in A2:A10
     expect(".o-scrollbar").toHaveCount(1);
+  });
+
+  test("Standalone viewport does not scroll to follow the selection", async () => {
+    setGrid(model, { A1: "Hello", A2: "World", A3: "!" });
+    await mountViewport("A1:A3", { size: { width: 1000, height: 30 } });
+    const viewStore = subEnv.getStore(ViewportsStore);
+    expect(viewStore.activeSheetScrollInfo.scrollY).toBe(0);
+
+    selectCell(model, "A3");
+    await nextTick();
+    expect(viewStore.activeSheetScrollInfo.scrollY).toBe(0);
   });
 
   test("Double clicking on a cell selects the cell", async () => {
