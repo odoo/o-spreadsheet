@@ -299,7 +299,7 @@ describe("Standalone viewport", () => {
     const sheetId = model.getters.getActiveSheetId();
     setGrid(model, { A1: "Hello", B1: "Hello" });
     createCarouselWithDataView(model, toRangeData(sheetId, "A1:B1"), "carouselId", sheetId, {
-      size: { width: 1048, height: 1053 }, // Add some padding so the carousel content is exactly 1000x1000
+      size: { width: 1048, height: 1061 }, // Add some padding so the carousel content is exactly 1000x1000
     });
     const { env } = await mountSpreadsheet({ model });
 
