@@ -1,4 +1,4 @@
-import { proxy, useProps, xml } from "@odoo/owl";
+import { proxy, signal, useProps, xml } from "@odoo/owl";
 import { type ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { functionCache, type StoreConstructor } from "../../src";
@@ -170,6 +170,7 @@ export function getChildFromComponent<T extends new (...args: any) => any>(
 
 export function makeTestFixture() {
   const fixture = document.createElement("div");
+  fixture.id = "testFixture";
   document.body.appendChild(fixture);
   return fixture;
 }
@@ -285,11 +286,18 @@ interface ParentProps {
 
 class ParentWithPortalTarget extends Component<SpreadsheetChildEnv> {
   static template = xml/*xml*/ `
-    <div class="o-spreadsheet" >
-      <t t-component="this.props.childComponent" t-props="this.props.childProps"/>
+    <div class="o-spreadsheet" t-ref="this.portalTarget">
+      <!-- Need to wait for the portal target to be mounted, otherwise portals won't work -->
+      <t t-if="this.shouldShow()" t-component="this.props.childComponent" t-props="this.props.childProps"/>
     </div>
   `;
   protected props = useProps() as unknown as ParentProps;
+
+  portalTarget = signal.ref();
+
+  shouldShow() {
+    return !!this.portalTarget();
+  }
 }
 
 interface MountComponentArgs<Props extends ComponentProps> {

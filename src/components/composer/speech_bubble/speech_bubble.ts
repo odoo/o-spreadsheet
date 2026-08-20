@@ -1,4 +1,4 @@
-import { signal, useEffect, useProps } from "@odoo/owl";
+import { Portal, signal, useEffect, useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
@@ -9,7 +9,7 @@ const BUBBLE_ARROW_SIZE = 7;
 
 export class SpeechBubble extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SpeechBubble";
-  static components = {};
+  static components = { Portal };
 
   protected props = useProps({
     content: types.string(),
