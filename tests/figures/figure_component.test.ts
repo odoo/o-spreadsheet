@@ -122,8 +122,20 @@ const anchorSelectors = {
   left: ".o-fig-anchor.o-left",
   topLeft: ".o-fig-anchor.o-topLeft",
 };
-async function dragAnchor(anchor: string, dragX: number, dragY: number, mouseUp = false) {
-  await clickAndDrag(anchorSelectors[anchor], { x: dragX, y: dragY }, { x: 0, y: 0 }, mouseUp);
+async function dragAnchor(
+  anchor: string,
+  dragX: number,
+  dragY: number,
+  mouseUp = false,
+  shiftKey = false
+) {
+  await clickAndDrag(
+    anchorSelectors[anchor],
+    { x: dragX, y: dragY },
+    { x: 0, y: 0 },
+    mouseUp,
+    shiftKey
+  );
 }
 
 //Test Component required as we don't especially want/need to load an entire chart
@@ -150,6 +162,7 @@ beforeEach(() => {
     hasShadow: () => false,
     isRounded: () => false,
     isThemeDependant: true,
+    minFigSize: 20,
   });
 });
 
@@ -669,6 +682,45 @@ describe("figures", () => {
       expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(expectedSize);
     }
   );
+
+  test("Resize a chart figure while pressing shift key should keep the ratio", async () => {
+    createChart(model, { type: "bar" }, "chartId", sheetId, {
+      offset: { x: 0, y: 0 },
+      size: { width: 100, height: 100 },
+    });
+    await nextTick();
+    const figureId = model.getters.getFigureIdFromChartId("chartId")!;
+    selectFigure(model, figureId);
+    await nextTick();
+    await dragAnchor("bottomRight", 100, 0, true, true);
+    expect(model.getters.getFigure(sheetId, figureId)).toMatchObject({ width: 200, height: 200 });
+    await dragAnchor("bottomRight", 100, 0, true, false);
+    expect(model.getters.getFigure(sheetId, figureId)).toMatchObject({ width: 300, height: 200 });
+  });
+
+  test("Resize all selected figures with ratio", async () => {
+    createFigure(model, { id: "fig1", offset: { x: 0, y: 0 }, width: 100, height: 100 });
+    createFigure(model, { id: "fig2", offset: { x: 100, y: 100 }, width: 100, height: 100 });
+    await nextTick();
+    selectFigure(model, "fig1");
+    selectFigure(model, "fig2", true);
+    await nextTick();
+    await dragAnchor("bottomRight", 50, 50, true);
+    expect(model.getters.getFigure(sheetId, "fig1")).toMatchObject({ width: 125, height: 125 });
+    expect(model.getters.getFigure(sheetId, "fig2")).toMatchObject({ width: 125, height: 125 });
+  });
+
+  test("Resize all selected figures without ratio", async () => {
+    createFigure(model, { id: "fig1", offset: { x: 0, y: 0 }, width: 100, height: 100 });
+    createFigure(model, { id: "fig2", offset: { x: 100, y: 100 }, width: 100, height: 100 });
+    await nextTick();
+    selectFigure(model, "fig1");
+    selectFigure(model, "fig2", true);
+    await nextTick();
+    await dragAnchor("bottom", 0, 50, true);
+    expect(model.getters.getFigure(sheetId, "fig1")).toMatchObject({ width: 100, height: 125 });
+    expect(model.getters.getFigure(sheetId, "fig2")).toMatchObject({ width: 100, height: 125 });
+  });
 
   test.each([
     ["top", { mouseOffsetX: 0, mouseOffsetY: -100 }],

@@ -29,7 +29,7 @@ export interface FigureContent {
   isThemeDependant: boolean;
   SidePanelComponent?: string;
   keepRatio?: boolean;
-  minFigSize?: number;
+  minFigSize: number;
   borderWidth: (getters: Getters) => number;
   hasShadow: (getters: Getters) => boolean;
   isRounded: (getters: Getters) => boolean;
@@ -40,6 +40,7 @@ figureRegistry.add("chart", {
   Component: ChartFigure,
   SidePanelComponent: "ChartPanel",
   menuBuilder: getChartMenuActions,
+  minFigSize: 80,
   borderWidth: (getters) => (getters.isDashboard() ? 0 : 1),
   hasShadow: (getters) => getters.isDashboard(),
   isRounded: (getters) => getters.isDashboard(),
@@ -58,6 +59,7 @@ figureRegistry.add("image", {
 figureRegistry.add("carousel", {
   Component: CarouselFigure,
   menuBuilder: getCarouselMenuActions,
+  minFigSize: 80,
   borderWidth: (getters) => (getters.isDashboard() ? 0 : 1),
   hasShadow: (getters) => getters.isDashboard(),
   isRounded: (getters) => getters.isDashboard(),

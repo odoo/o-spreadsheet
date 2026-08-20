@@ -1,7 +1,7 @@
 import { clip } from "../../helpers/misc";
 import { FigureUI } from "../../types/figure";
 import { PixelPosition } from "../../types/misc";
-import { SheetDOMScrollInfo } from "../../types/rendering";
+import { DOMDimension, Rect, SheetDOMScrollInfo } from "../../types/rendering";
 
 export function dragFigureForMove(
   { x: mouseX, y: mouseY }: PixelPosition,
@@ -25,27 +25,27 @@ export function dragFigureForMove(
 }
 
 export function dragFigureForResize(
-  initialFigure: FigureUI,
+  initialRect: Rect,
   dirX: -1 | 0 | 1,
   dirY: -1 | 0 | 1,
   { x: mouseX, y: mouseY }: PixelPosition,
   { x: mouseInitialX, y: mouseInitialY }: PixelPosition,
   keepRatio: boolean,
-  minFigSize: number,
+  minFigSize: DOMDimension,
   { scrollX: initialScrollX, scrollY: initialScrollY }: SheetDOMScrollInfo,
   { scrollX, scrollY }: SheetDOMScrollInfo,
   { maxX, maxY }: { maxX: number; maxY: number }
-): FigureUI {
-  let { x, y, width, height } = initialFigure;
+): Rect {
+  let { x, y, width, height } = initialRect;
 
   if (keepRatio && dirX !== 0 && dirY !== 0) {
     const deltaX = Math.min(
       dirX * (mouseInitialX - mouseX + scrollX - initialScrollX),
-      width - minFigSize
+      width - minFigSize.width
     );
     const deltaY = Math.min(
       dirY * (mouseInitialY - mouseY + scrollY - initialScrollY),
-      height - minFigSize
+      height - minFigSize.height
     );
     const fraction = Math.min(deltaX / width, deltaY / height);
     if (dirX < 0) {
@@ -59,11 +59,11 @@ export function dragFigureForResize(
   } else {
     const deltaX = Math.max(
       dirX * (mouseX - mouseInitialX + scrollX - initialScrollX),
-      minFigSize - width
+      minFigSize.width - width
     );
     const deltaY = Math.max(
       dirY * (mouseY - mouseInitialY + scrollY - initialScrollY),
-      minFigSize - height
+      minFigSize.height - height
     );
     width = width + deltaX;
     height = height + deltaY;
@@ -90,5 +90,5 @@ export function dragFigureForResize(
     height = maxY - y;
   }
 
-  return { ...initialFigure, x, y, width, height };
+  return { x, y, width, height };
 }
