@@ -46,7 +46,7 @@ export interface ChartDataSourceBuilder<TExternal, TInternal> {
     dataSource: TInternal,
     dataSetStyles: DataSetStyle,
     getters: CoreGetters
-  ): Pick<ExcelChartDefinition, "dataSets" | "labelRange"> | undefined;
+  ): Pick<ExcelChartDefinition, "dataSets" | "labelRanges"> | undefined;
   onDataSetClick?: (
     chartType: ChartType,
     chartId: UID,

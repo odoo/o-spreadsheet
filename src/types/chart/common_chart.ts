@@ -22,6 +22,12 @@ export interface DataSourceChartDefinition<T extends string | Range = Range>
   readonly aggregated?: boolean;
   readonly axesDesign?: AxesDesign;
   readonly showValues?: boolean;
+  /**
+   * When multiple label ranges are configured, reorder data points so that
+   * entries sharing the same outermost secondary label are grouped together.
+   * When false/undefined the data points keep the original dataset order.
+   */
+  readonly groupBySecondaryLabels?: boolean;
 }
 
 export interface NonDataSourceBaseChartDefinition extends BaseChartDefinition {

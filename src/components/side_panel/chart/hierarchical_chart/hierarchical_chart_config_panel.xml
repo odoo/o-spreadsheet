@@ -10,6 +10,7 @@
         getLabelRangeOptions.bind="this.getLabelRangeOptions"
         dataSeriesTitle.translate="Hierarchy"
         labelRangeTitle.translate="Values"
+        hasSingleLabelRange="true"
       />
 
       <ChartErrorSection t-if="this.errorMessages.length" messages="this.errorMessages"/>

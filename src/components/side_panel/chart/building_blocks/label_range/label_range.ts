@@ -13,11 +13,13 @@ export class ChartLabelRange extends Component<SpreadsheetChildEnv> {
 
   protected props = useProps({
     title: types.string().optional(_t("Categories / Labels")),
-    range: types.string(),
+    ranges: types.array(types.string()),
+    hasSingleRange: types.boolean().optional(),
     class: types.string().optional(),
     isInvalid: types.boolean(),
     onSelectionChanged: types.function<(range: string) => void>(),
     onSelectionConfirmed: types.function(),
+    onSelectionReordered: types.function<(indexes: number[]) => void>().optional(),
     options: types
       .ArrayOf<{
         name: string;

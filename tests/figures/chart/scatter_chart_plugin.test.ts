@@ -13,7 +13,7 @@ describe("scatter chart", () => {
       ...GENERAL_CHART_CREATION_CONTEXT,
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
         dataSetsHaveTitle: true,
       }),
     };
@@ -25,7 +25,7 @@ describe("scatter chart", () => {
       title: { text: "hello there" },
       ...toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-        labelRange: "Sheet1!A1:A4",
+        labelRanges: ["Sheet1!A1:A4"],
         dataSetsHaveTitle: true,
       }),
       legendPosition: "bottom",
@@ -35,6 +35,7 @@ describe("scatter chart", () => {
       humanize: false,
       annotationText: "This is an annotation text",
       annotationLink: "https://www.odoo.com",
+      groupBySecondaryLabels: false,
     });
   });
 
@@ -53,7 +54,7 @@ describe("scatter chart", () => {
       {
         type: "scatter",
         ...toChartDataSource({
-          labelRange: "A2:A3",
+          labelRanges: ["A2:A3"],
           dataSets: [{ dataRange: "B2:B3", yAxisId: "y" }],
         }),
         labelsAsText: false,

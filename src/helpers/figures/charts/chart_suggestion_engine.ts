@@ -184,9 +184,9 @@ function buildSingleCategoricalContext(
 ): SingleCategoricalContext {
   const hasTitle = col.hasHeader;
   const title = col.header ?? _t("Category");
-  const range = getUnboundRange(getters, col.zone);
-  const source = rangeSource([dataset(col.zone, getters)], hasTitle, range);
-  return { title, source, range };
+  const ranges = [getUnboundRange(getters, col.zone)];
+  const source = rangeSource([dataset(col.zone, getters)], hasTitle, ranges);
+  return { title, source, ranges };
 }
 
 /** Pattern E — Single label column */
@@ -201,7 +201,7 @@ function buildCategoricalVsNumberContext(
   [catCol, numCol]: ColumnAnalysis[],
   getters: Getters
 ): CategoricalVsNumberContext {
-  const labelRange = getUnboundRange(getters, catCol.zone);
+  const labelRanges = [getUnboundRange(getters, catCol.zone)];
   const hasTitle = numCol.hasHeader;
   const title = numCol.header
     ? _t("%(numberHeader)s by %(categoryHeader)s", {
@@ -209,12 +209,10 @@ function buildCategoricalVsNumberContext(
         categoryHeader: catCol.header ?? _t("Category"),
       })
     : _t("By Category");
-  const source = rangeSource([dataset(numCol.zone, getters)], hasTitle, labelRange);
-  const treemapSource = rangeSource(
-    [dataset(catCol.zone, getters)],
-    hasTitle,
-    getUnboundRange(getters, numCol.zone)
-  );
+  const source = rangeSource([dataset(numCol.zone, getters)], hasTitle, labelRanges);
+  const treemapSource = rangeSource([dataset(catCol.zone, getters)], hasTitle, [
+    getUnboundRange(getters, numCol.zone),
+  ]);
   return { title, source, treemapSource };
 }
 
@@ -224,14 +222,14 @@ function buildDateVsSeriesContext(
   getters: Getters
 ): DateVsSeriesContext {
   const isPercentage = seriesCol.type === "percentage";
-  const labelRange = getUnboundRange(getters, dateCol.zone);
+  const labelRanges = [getUnboundRange(getters, dateCol.zone)];
   const hasTitle = isDatasetTitled(getters, dateCol.zone);
   const title = seriesCol.header
     ? _t("%(seriesHeader)s over time", { seriesHeader: seriesCol.header })
     : isPercentage
     ? _t("Rate over Time")
     : _t("Over Time");
-  const source = rangeSource([dataset(seriesCol.zone, getters)], hasTitle, labelRange);
+  const source = rangeSource([dataset(seriesCol.zone, getters)], hasTitle, labelRanges);
   return { title, source, isPercentage };
 }
 
@@ -245,11 +243,9 @@ function buildNumberVsNumberContext(
       ? _t("%(col2Header)s vs %(col1Header)s", { col2Header: col2.header, col1Header: col1.header })
       : _t("Correlation");
   const hasTitle = col1.hasHeader || col2.hasHeader;
-  const source2 = rangeSource(
-    [dataset(col2.zone, getters)],
-    col2.hasHeader,
-    getUnboundRange(getters, col1.zone)
-  );
+  const source2 = rangeSource([dataset(col2.zone, getters)], col2.hasHeader, [
+    getUnboundRange(getters, col1.zone),
+  ]);
   const sourceBoth = rangeSource(
     [dataset(col1.zone, getters, "0"), dataset(col2.zone, getters, "1")],
     hasTitle
@@ -272,7 +268,7 @@ function buildCategoricalVsPercentageContext(
   [catCol, pctCol]: ColumnAnalysis[],
   getters: Getters
 ): CategoricalVsPercentageContext {
-  const labelRange = getUnboundRange(getters, catCol.zone);
+  const labelRanges = [getUnboundRange(getters, catCol.zone)];
   const hasTitle = pctCol.hasHeader;
   const title = pctCol.header
     ? _t("%(percentageHeader)s by %(categoryHeader)s", {
@@ -280,7 +276,7 @@ function buildCategoricalVsPercentageContext(
         categoryHeader: catCol.header ?? _t("Category"),
       })
     : _t("Rates by Category");
-  const source = rangeSource([dataset(pctCol.zone, getters)], hasTitle, labelRange);
+  const source = rangeSource([dataset(pctCol.zone, getters)], hasTitle, labelRanges);
   return { title, source, rowCount: catCol.rowCount };
 }
 
@@ -289,7 +285,7 @@ function buildLabelVsNumberContext(
   [labelCol, numCol]: ColumnAnalysis[],
   getters: Getters
 ): LabelVsNumberContext {
-  const labelRange = getUnboundRange(getters, labelCol.zone);
+  const labelRanges = [getUnboundRange(getters, labelCol.zone)];
   const hasTitle = numCol.hasHeader;
   const title = numCol.header
     ? _t("%(numberHeader)s by %(labelHeader)s", {
@@ -297,7 +293,7 @@ function buildLabelVsNumberContext(
         labelHeader: labelCol.header ?? _t("Name"),
       })
     : _t("By Name");
-  const source = rangeSource([dataset(numCol.zone, getters)], hasTitle, labelRange);
+  const source = rangeSource([dataset(numCol.zone, getters)], hasTitle, labelRanges);
   const { lastCellXC } = interestingCellsXc(numCol);
   const { lastCellXC: prevCellXC } = interestingCellsXc(labelCol);
   return { title, source, rowCount: labelCol.rowCount, lastCellXC, prevCellXC };
@@ -308,11 +304,11 @@ function buildCategoricalVsMultipleNumbersContext(
   [catCol, ...numCols]: ColumnAnalysis[],
   getters: Getters
 ): CategoricalVsMultipleNumbersContext {
-  const labelRange = getUnboundRange(getters, catCol.zone);
+  const labelRanges = [getUnboundRange(getters, catCol.zone)];
   const hasTitle = numCols.some((c) => c.hasHeader);
   const title = catCol.header ? _t("By %(header)s", { header: catCol.header }) : _t("Multi-series");
   const dataSets = numCols.map((c, i) => dataset(c.zone, getters, String(i)));
-  const source = rangeSource(dataSets, hasTitle, labelRange);
+  const source = rangeSource(dataSets, hasTitle, labelRanges);
   return { title, source, rowCount: catCol.rowCount };
 }
 
@@ -321,14 +317,14 @@ function buildDateVsMultipleNumbersContext(
   [dateCol, ...numCols]: ColumnAnalysis[],
   getters: Getters
 ): DateVsMultipleNumbersContext {
-  const labelRange = getUnboundRange(getters, dateCol.zone);
+  const labelRanges = [getUnboundRange(getters, dateCol.zone)];
   const hasTitle = numCols.some((c) => c.hasHeader) || isDatasetTitled(getters, dateCol.zone);
   const title =
     numCols.length === 1 && numCols[0].header
       ? _t("%(header)s over time", { header: numCols[0].header })
       : _t("Multi-series over Time");
   const dataSets = numCols.map((c, i) => dataset(c.zone, getters, String(i)));
-  const source = rangeSource(dataSets, hasTitle, labelRange);
+  const source = rangeSource(dataSets, hasTitle, labelRanges);
   return { title, source };
 }
 
@@ -348,13 +344,11 @@ function buildMultipleCategoricalsVsNumberContext(
   const hierarchySource = rangeSource(
     [dataset(cat1.zone, getters, "0"), dataset(cat2.zone, getters, "1")],
     hasTitle,
-    getUnboundRange(getters, numCol.zone)
+    [getUnboundRange(getters, numCol.zone)]
   );
-  const barSource = rangeSource(
-    [dataset(numCol.zone, getters)],
-    hasTitle,
-    getUnboundRange(getters, cat1.zone)
-  );
+  const barSource = rangeSource([dataset(numCol.zone, getters)], hasTitle, [
+    getUnboundRange(getters, cat1.zone),
+  ]);
   return { title, hierarchySource, barSource };
 }
 
@@ -373,8 +367,8 @@ function buildCategoricalDateNumberContext(
         dateHeader: dateCol.header ?? _t("Time"),
       })
     : _t("Multi-series over Time");
-  const sourceByDate = rangeSource([dataset(numCol.zone, getters)], hasTitle, dateRange);
-  const sourceByCat = rangeSource([dataset(numCol.zone, getters)], hasTitle, catRange);
+  const sourceByDate = rangeSource([dataset(numCol.zone, getters)], hasTitle, [dateRange]);
+  const sourceByCat = rangeSource([dataset(numCol.zone, getters)], hasTitle, [catRange]);
   return { title, sourceByDate, sourceByCat };
 }
 
@@ -389,12 +383,10 @@ function buildLabelVsMultipleNumbersContext(
     ? _t("By %(header)s", { header: labelCol.header })
     : _t("Profile Comparison");
   const dataSets = numCols.map((c, i) => dataset(c.zone, getters, String(i)));
-  const source = rangeSource(dataSets, hasTitle, labelRange);
-  const scatterSource = rangeSource(
-    [dataset(numCols[1].zone, getters)],
-    numCols[1].hasHeader,
-    getUnboundRange(getters, numCols[0].zone)
-  );
+  const source = rangeSource(dataSets, hasTitle, [labelRange]);
+  const scatterSource = rangeSource([dataset(numCols[1].zone, getters)], numCols[1].hasHeader, [
+    getUnboundRange(getters, numCols[0].zone),
+  ]);
   const bubble =
     numCols.length === 3
       ? {
@@ -420,7 +412,7 @@ function buildCategoricalTwoNumbersContext(
   [catCol, numCol1, numCol2]: ColumnAnalysis[],
   getters: Getters
 ): CategoricalTwoNumbersContext {
-  const catRange = getUnboundRange(getters, catCol.zone);
+  const catRanges = [getUnboundRange(getters, catCol.zone)];
   const hasTitle = numCol1.hasHeader || numCol2.hasHeader;
   const title =
     numCol1.header && numCol2.header
@@ -436,7 +428,7 @@ function buildCategoricalTwoNumbersContext(
   const sourceBoth = rangeSource(
     [dataset(numCol1.zone, getters, "0"), dataset(numCol2.zone, getters, "1")],
     hasTitle,
-    catRange
+    catRanges
   );
   return { title, sourceBoth, isPyramid };
 }

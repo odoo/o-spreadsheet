@@ -85,9 +85,9 @@ function isImageData(data: ExcelChartDefinition | ExcelImage): data is ExcelImag
 function convertChartData(chartData: ExcelChartDefinition): ChartDefinition<string> | undefined {
   const dataSetsHaveTitle = chartData.dataSets.some((ds) => "reference" in (ds.label ?? {}));
   const dataSetsStyling: DataSetStyle = {};
-  const labelRange = chartData.labelRange
-    ? convertExcelRangeToSheetXC(chartData.labelRange, dataSetsHaveTitle)
-    : undefined;
+  const labelRanges = chartData.labelRanges?.map((range) =>
+    convertExcelRangeToSheetXC(range, dataSetsHaveTitle)
+  );
   const dataSets = chartData.dataSets.map((data, i) => {
     let label: string | undefined = undefined;
     if (data.label && "text" in data.label) {
@@ -109,9 +109,9 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition<stri
     dataSets.reverse();
   }
   const creationContext: ChartCreationContext = {
-    dataSource: { dataSets, dataSetsHaveTitle, labelRange, type: "range" },
+    dataSource: { dataSets, dataSetsHaveTitle, labelRanges, type: "range" },
     dataSetStyles: dataSetsStyling,
-    auxiliaryRange: labelRange,
+    auxiliaryRange: labelRanges?.[0],
     title: chartData.title ?? { text: "" },
     background: convertColor({ rgb: chartData.backgroundColor }) || "#FFFFFF",
     legendPosition: chartData.legendPosition,
