@@ -59,7 +59,7 @@ import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/ba
 import { LineChartRuntime } from "../../../src/types/chart/line_chart";
 import { PieChartDefinition, PieChartRuntime } from "../../../src/types/chart/pie_chart";
 import { ScatterChartRuntime } from "../../../src/types/chart/scatter_chart";
-import { getChartDataSource } from "../../test_helpers";
+import { getChartDataSource, updateColorScheme } from "../../test_helpers";
 import {
   drawChartOnNodeCanvas,
   getCategoryAxisTickLabels,
@@ -3384,7 +3384,7 @@ describe("Linear/Time charts", () => {
     let runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     expect(runtime.chartJsConfig.options?.plugins?.background?.color).toBe("#FFFFFF");
 
-    model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "dark" });
+    updateColorScheme(model, "dark");
     runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     expect(runtime.chartJsConfig.options?.plugins?.background?.color).toBe(
       COLOR_THEMES.dark.backgroundColor

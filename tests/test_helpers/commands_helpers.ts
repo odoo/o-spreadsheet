@@ -2087,3 +2087,7 @@ export function deleteNamedRange(model: Model, name: string): DispatchResult {
     name: name,
   });
 }
+
+export function updateColorScheme(model: Model, colorScheme: "light" | "dark") {
+  return model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme });
+}
