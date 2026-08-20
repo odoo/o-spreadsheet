@@ -40,7 +40,12 @@ export type RenderingBorder = {
   left?: BorderDescrWithOpacity;
 };
 
-export type RenderingGridIcon = GridIcon & { clipRect?: Rect; opacity?: number };
+export type RenderingGridIcon = GridIcon & {
+  clipRect?: Rect;
+  opacity?: number;
+  rect: Rect;
+  isHovered: boolean;
+};
 
 export interface RenderingBox {
   id: string;
@@ -114,6 +119,9 @@ export type GridRenderingContext = {
   viewports: ViewportCollection;
   hideGridLines?: boolean;
   hideFrozenPaneBorder?: boolean;
+  theme: GridRenderingTheme;
+  backgroundColor: Color;
+  dataBarVerticalPadding?: number;
 } & SelectionState;
 
 const LAYERS = {

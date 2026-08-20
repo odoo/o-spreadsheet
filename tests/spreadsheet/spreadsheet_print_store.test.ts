@@ -1,6 +1,12 @@
 import { Model } from "../../src";
 import { SpreadsheetPrintStore } from "../../src/components/spreadsheet_print/spreadsheet_print_store";
-import { createChart, createSheet, setCellContent, setSelection } from "../test_helpers";
+import {
+  createChart,
+  createSheet,
+  setCellContent,
+  setSelection,
+  updateColorScheme,
+} from "../test_helpers";
 import { makeStore } from "../test_helpers/stores";
 
 describe("Spreadsheet print rendering", () => {
@@ -157,5 +163,12 @@ describe("Spreadsheet print rendering", () => {
       // Nothing is printed between rows 44 and 89
       { sheetId, left: 0, top: 88, right: 0, bottom: 89 },
     ]);
+  });
+
+  test("The spreadsheet is not printed with dark mode style", () => {
+    updateColorScheme(model, "dark");
+    setCellContent(model, "A1", "Hello");
+
+    expect(printStore.printPages[0].renderingCtx.theme?.backgroundColor).toBeSameColorAs("#FFFFFF");
   });
 });
