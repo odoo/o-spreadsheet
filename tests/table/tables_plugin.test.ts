@@ -16,6 +16,8 @@ import {
   duplicateSheet,
   insertCells,
   merge,
+  moveColumns,
+  moveRows,
   paste,
   redo,
   setCellContent,
@@ -944,6 +946,70 @@ describe("Table plugin", () => {
       expect(model.getters.getTables(sheet1Id)).toHaveLength(1);
       const copiedTable = getTable(model, "F7");
       expect(copiedTable).toMatchObject({ range: { zone: toZone("F7:G9") } });
+    });
+  });
+
+  describe("Move range", () => {
+    test("can't move a whole table column onto another table", () => {
+      const model = new Model();
+      createTable(model, "A1:B3");
+      const initialTableId = model.getters.getCoreTables(model.getters.getActiveSheetId())[0].id;
+      createTable(model, "D1:E3");
+      // moving the whole D:E table between A and B would drop it inside the A:B table
+      moveColumns(model, "B", ["D", "E"]);
+      expect(model.getters.getCoreTables(model.getters.getActiveSheetId()).length).toBe(1);
+      expect(model.getters.getCoreTables(model.getters.getActiveSheetId())[0].id).toBe(
+        initialTableId
+      );
+    });
+
+    test("can't move a whole table row onto another table", () => {
+      const model = new Model();
+      createTable(model, "A1:C2");
+      const initialTableId = model.getters.getCoreTables(model.getters.getActiveSheetId())[0].id;
+      createTable(model, "A4:C5");
+      moveRows(model, 1, [3, 4]);
+      expect(model.getters.getCoreTables(model.getters.getActiveSheetId()).length).toBe(1);
+      expect(model.getters.getCoreTables(model.getters.getActiveSheetId())[0].id).toBe(
+        initialTableId
+      );
+    });
+
+    test("allows splitting a table by moving some of its columns away", () => {
+      const model = new Model();
+      createTable(model, "B1:D3");
+      // moving a column out of the single table only shrinks it, no overlap
+      expect(moveColumns(model, "H", ["C"])).toBeSuccessfullyDispatched();
+      expect(getTable(model, "B1")!.range.zone).toEqual(toZone("B1:C3"));
+    });
+
+    test("allows moving a column into a table when no other table is overlapped", () => {
+      const model = new Model();
+      createTable(model, "B1:D3");
+      expect(moveColumns(model, "C", ["F"])).toBeSuccessfullyDispatched();
+      expect(getTable(model, "B1")!.range.zone).toEqual(toZone("B1:E3"));
+    });
+
+    test("allows moving a whole table to an empty area", () => {
+      const model = new Model();
+      createTable(model, "A1:B3");
+      createTable(model, "D1:E3");
+      expect(moveColumns(model, "H", ["D", "E"], "after")).toBeSuccessfullyDispatched();
+      expect(getTable(model, "G1")!.range.zone).toEqual(toZone("G1:H3"));
+    });
+
+    test("allows moving a column that does not overlap any table", () => {
+      const model = new Model();
+      createTable(model, "B1:D3");
+      expect(moveColumns(model, "J", ["G"])).toBeSuccessfullyDispatched();
+      expect(getTable(model, "B1")!.range.zone).toEqual(toZone("B1:D3"));
+    });
+
+    test("allows moving the whole table columns", () => {
+      const model = new Model();
+      createTable(model, "B1:C3");
+      expect(moveColumns(model, "G", ["B", "C"], "after")).toBeSuccessfullyDispatched();
+      expect(getTable(model, "F1")!.range.zone).toEqual(toZone("F1:G3"));
     });
   });
 
