@@ -164,6 +164,7 @@ export const invalidateChartEvaluationCommands = new Set<CommandTypes>([
   "UPDATE_FILTER",
   "UNDO",
   "REDO",
+  "UPDATE_COLOR_SCHEME",
 ]);
 
 export const invalidateDependenciesCommands = new Set<CommandTypes>(["MOVE_RANGES"]);
