@@ -4,6 +4,7 @@ import {
   BorderData,
   CellPosition,
   Color,
+  ColorScheme,
   Dimension,
   HeaderIndex,
   Pixel,
@@ -1255,7 +1256,7 @@ export interface ToggleCheckboxCommand extends TargetDependentCommand {
 
 export interface UpdateColorSchemeCommand {
   type: "UPDATE_COLOR_SCHEME";
-  colorScheme: "light" | "dark";
+  colorScheme: ColorScheme;
 }
 
 export type CoreCommand =
