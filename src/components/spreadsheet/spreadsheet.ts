@@ -27,7 +27,7 @@ import { ScreenWidthStore } from "../../stores/screen_width_store";
 import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
 import { InformationNotification } from "../../types/env";
-import { CSSProperties, HeaderGroup, Pixel } from "../../types/misc";
+import { ColorScheme, CSSProperties, HeaderGroup, Pixel } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
@@ -58,6 +58,11 @@ import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipbo
 // SpreadSheet
 // -----------------------------------------------------------------------------
 
+interface State {
+  printModeEnabled: boolean;
+  colorThemeBeforePrint: ColorScheme;
+}
+
 export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Spreadsheet";
   protected props = useProps({
@@ -82,7 +87,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   spreadsheetRef = signal<HTMLElement | null>(null);
   spreadsheetRect = useSpreadsheetRect();
 
-  state = proxy({ printModeEnabled: false });
+  state = proxy<State>({ printModeEnabled: false, colorThemeBeforePrint: "light" });
 
   private _focusGrid?: () => void;
 
@@ -99,7 +104,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
     const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
     properties["--os-scrollbar-width"] = `${scrollbarWidth}px`;
     properties["--os-dark-mode-filter"] = DARK_MODE_FILTER_STRING;
-    properties["color-scheme"] = this.props.model.getters.isDarkMode() ? "dark" : "light";
+    properties["color-scheme"] = this.colorScheme;
 
     if (this.state.printModeEnabled) {
       properties["display"] = `block`;
@@ -157,7 +162,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
         this.notificationStore.askConfirmation(text, confirm, cancel),
       raiseError: (text, cb) => this.notificationStore.raiseError(text, cb),
       isMobile: isMobileOS,
-      printSpreadsheet: () => (this.state.printModeEnabled = true),
+      printSpreadsheet: this.enterPrintMode.bind(this),
     } satisfies Partial<SpreadsheetChildEnv>);
 
     this.notificationStore.updateNotificationCallbacks({ ...this.props });
@@ -186,7 +191,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       async (event: KeyboardEvent) => {
         const keyDownString = keyboardEventToShortcutString(event);
         if (keyDownString === "Ctrl+P") {
-          this.state.printModeEnabled = true;
+          this.enterPrintMode();
           event.stopPropagation();
           event.preventDefault();
         }
@@ -354,7 +359,30 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
     ].join(" ");
   }
 
+  enterPrintMode() {
+    if (this.state.printModeEnabled) {
+      return;
+    }
+    this.state.colorThemeBeforePrint = this.props.model.getters.isDarkMode() ? "dark" : "light";
+    this.env.model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "light" });
+    this.state.printModeEnabled = true;
+  }
+
   exitPrintMode() {
+    if (!this.state.printModeEnabled) {
+      return;
+    }
+    this.env.model.dispatch("UPDATE_COLOR_SCHEME", {
+      colorScheme: this.state.colorThemeBeforePrint,
+    });
     this.state.printModeEnabled = false;
+  }
+
+  get colorScheme(): ColorScheme {
+    if (this.state.printModeEnabled) {
+      // We want to have the canvas/charts (the model) in light mode when printing, but the UI can be in dark mode
+      return this.state.colorThemeBeforePrint;
+    }
+    return this.props.model.getters.isDarkMode() ? "dark" : "light";
   }
 }
