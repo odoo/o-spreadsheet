@@ -1,0 +1,27 @@
+<templates>
+  <t t-name="o-spreadsheet-PerfItem">
+    <t t-if="this.props.time > 0">
+      <div
+        class="o-perf-range-entry position-relative overflow-hidden rounded"
+        t-att-class="{ 'o-perf-entry-selected': this.props.isSelected }"
+        t-on-click="this.props.onClick">
+        <div
+          class="o-perf-bar position-absolute top-0 start-0 bottom-0"
+          t-attf-style="width: {{ this.barWidth }}%"
+        />
+        <div class="position-relative d-flex justify-content-between py-1 px-2 text-nowrap">
+          <span class="text-truncate me-2">
+            <t t-out="this.props.label"/>
+            <small t-if="this.props.subLabel" class="text-muted ms-1" t-out="this.props.subLabel"/>
+          </span>
+          <small class="flex-shrink-0 text-muted">
+            <t t-out="this.formatTime(this.props.time)"/>
+            (
+            <t t-out="this.formatPercent(this.props.time)"/>
+            )
+          </small>
+        </div>
+      </div>
+    </t>
+  </t>
+</templates>
