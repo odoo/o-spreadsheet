@@ -10,7 +10,7 @@ import { CustomizedDataSet, schemeToColorScale } from "../types/chart/chart";
 import { Format } from "../types/format";
 import { DEFAULT_LOCALE } from "../types/locale";
 import { Zone } from "../types/misc";
-import { WorkbookData } from "../types/workbook_data";
+import { TableData, WorkbookData } from "../types/workbook_data";
 import { normalizeV9 } from "./legacy_tools";
 import { WEEK_START } from "./locale";
 
@@ -677,6 +677,30 @@ migrationStepRegistry
      * TODO: This migration should be removed as soon as a real new migration step will be added.
      */
     migrate(data: WorkbookData): any {
+      return data;
+    },
+  })
+  .add("20.1.1", {
+    migrate(data: WorkbookData): any {
+      for (const sheet of data.sheets || []) {
+        const existingTablesZones: Zone[] = [];
+        const remainingTables: TableData[] = [];
+        for (const table of sheet.tables || []) {
+          let conflict = false;
+          const tableZone = toZone(table.range);
+          for (const zone of existingTablesZones) {
+            if (overlap(zone, tableZone)) {
+              conflict = true;
+              break;
+            }
+          }
+          if (!conflict) {
+            existingTablesZones.push(tableZone);
+            remainingTables.push(table);
+          }
+        }
+        sheet.tables = remainingTables;
+      }
       return data;
     },
   });
