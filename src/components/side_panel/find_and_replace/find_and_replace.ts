@@ -62,8 +62,8 @@ export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
     );
     let label =
       count === 1
-        ? _t("1 match in %(sheetName)s", { sheetName })
-        : _t("%(count)s matches in %(sheetName)s", { count, sheetName });
+        ? _t("1 match in '%(sheetName)s'", { sheetName })
+        : _t("%(count)s matches in '%(sheetName)s'", { count, sheetName });
     if (searchOptions.includeHidden) {
       label += this.hiddenLabel(hidden);
     }
@@ -83,11 +83,11 @@ export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
     const { sheetId, zone } = range;
     let label =
       count === 1
-        ? _t("1 match in range %(range)s of %(sheetName)s", {
+        ? _t("1 match in range %(range)s of '%(sheetName)s'", {
             range: zoneToXc(zone),
             sheetName: this.env.model.getters.getSheetName(sheetId),
           })
-        : _t("%(count)s matches in range %(range)s of %(sheetName)s", {
+        : _t("%(count)s matches in range %(range)s of '%(sheetName)s'", {
             count,
             range: zoneToXc(zone),
             sheetName: this.env.model.getters.getSheetName(sheetId),
