@@ -232,8 +232,8 @@ function bubbleChart(
 function scorecardChart(
   titleText: string,
   keyValue: string,
-  opts: Partial<ScorecardChartDefinition<string>> = {}
-): ScorecardChartDefinition<string> {
+  opts: Partial<ScorecardChartDefinition> = {}
+): ScorecardChartDefinition {
   return {
     ...opts,
     type: "scorecard",
@@ -277,8 +277,8 @@ export const SINGLE_NUMBER_COLUMN_SUGGESTIONS: Suggestion<SingleNumberContext>[]
     description: _t("Highlights the most recent value compared to the previous one."),
     isApplicable: ({ rowCount }) => rowCount < 3,
     build: (ctx) =>
-      scorecardChart(ctx.title, ctx.lastCellXC, {
-        baseline: ctx.prevCellXC,
+      scorecardChart(ctx.title, `=${ctx.lastCellXC}`, {
+        baseline: ctx.prevCellXC ? `=${ctx.prevCellXC}` : undefined,
         baselineMode: "difference",
       }),
   },
@@ -311,8 +311,8 @@ export const SINGLE_PERCENTAGE_COLUMN_SUGGESTIONS: Suggestion<SinglePercentageCo
     description: _t("Shows the last percentage value with its baseline."),
     isApplicable: ({ rowCount }) => rowCount < 3,
     build: (ctx) =>
-      scorecardChart(ctx.title, ctx.lastCellXC, {
-        baseline: ctx.prevCellXC,
+      scorecardChart(ctx.title, `=${ctx.lastCellXC}`, {
+        baseline: ctx.prevCellXC ? `=${ctx.prevCellXC}` : undefined,
         baselineMode: "percentage",
       }),
   },
@@ -345,7 +345,7 @@ export const SINGLE_DATE_COLUMN_SUGGESTIONS: Suggestion<SingleDateContext>[] = [
   {
     description: _t("Shows the last date value."),
     isApplicable: ({ rowCount }) => rowCount === 1,
-    build: (ctx) => scorecardChart(ctx.title, ctx.lastCellXC),
+    build: (ctx) => scorecardChart(ctx.title, `=${ctx.lastCellXC}`),
   },
 ];
 
@@ -381,7 +381,7 @@ export const SINGLE_LABEL_COLUMN_SUGGESTIONS: Suggestion<SingleLabelContext>[] =
     description: _t("Displays a key performance indicator."),
     isApplicable: ({ rowCount }) => rowCount === 1,
     build: (ctx) =>
-      scorecardChart(ctx.title, ctx.lastCellXC, { baselineMode: "text", humanize: false }),
+      scorecardChart(ctx.title, `=${ctx.lastCellXC}`, { baselineMode: "text", humanize: false }),
   },
 ];
 
@@ -432,8 +432,8 @@ export const NUMBER_VS_NUMBER_SUGGESTIONS: Suggestion<NumberVsNumberContext>[] =
     description: _t("Highlights the second metric compared to the first one."),
     isApplicable: ({ rowCount1, rowCount2 }) => rowCount1 === 1 && rowCount2 === 1,
     build: (ctx) =>
-      scorecardChart(ctx.title, ctx.lastCellXC, {
-        baseline: ctx.prevCellXC,
+      scorecardChart(ctx.title, `=${ctx.lastCellXC}`, {
+        baseline: ctx.prevCellXC ? `=${ctx.prevCellXC}` : undefined,
         baselineMode: "difference",
       }),
   },
@@ -496,10 +496,10 @@ export const LABEL_VS_NUMBER_SUGGESTIONS: Suggestion<LabelVsNumberContext>[] = [
     isApplicable: ({ rowCount }) => rowCount === 1,
     // TODO(ANHE): remove falsy humanize when it's fixed in the scorecard chart.
     build: (ctx) =>
-      scorecardChart("", ctx.lastCellXC, {
+      scorecardChart("", `=${ctx.lastCellXC}`, {
         humanize: false,
         baselineMode: "text",
-        baseline: ctx.prevCellXC,
+        baseline: ctx.prevCellXC ? `=${ctx.prevCellXC}` : undefined,
       }),
   },
   {
