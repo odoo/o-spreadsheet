@@ -431,17 +431,23 @@ describe("find and replace sidePanel component", () => {
       expect(fixture.querySelector(".o-matches-count")).toBeNull();
       expect(getMatchesCountContent()).toEqual([]);
       await inputSearchValue("hello");
-      expect(getMatchesCountContent()).toEqual(["3 matches in Sheet1", "5 matches in all sheets"]);
+      expect(getMatchesCountContent()).toEqual([
+        "3 matches in 'Sheet1'",
+        "5 matches in all sheets",
+      ]);
       await changeSearchScope("specificRange");
       await nextTick();
-      expect(getMatchesCountContent()).toEqual(["3 matches in Sheet1", "5 matches in all sheets"]);
+      expect(getMatchesCountContent()).toEqual([
+        "3 matches in 'Sheet1'",
+        "5 matches in all sheets",
+      ]);
       await simulateClick(selectors.searchRange);
       await setInputValueAndTrigger(selectors.searchRange, "A1:B2");
       await nextTick();
       await click(fixture, selectors.confirmSearchRange);
       expect(getMatchesCountContent()).toEqual([
-        "2 matches in range A1:B2 of Sheet1",
-        "3 matches in Sheet1",
+        "2 matches in range A1:B2 of 'Sheet1'",
+        "3 matches in 'Sheet1'",
         "5 matches in all sheets",
       ]);
     });
@@ -460,7 +466,7 @@ describe("find and replace sidePanel component", () => {
       await inputSearchValue("hello");
       await simulateClick(selectors.checkboxIncludeHidden);
       expect(getMatchesCountContent()).toEqual([
-        "3 matches in Sheet1 (1 is hidden)",
+        "3 matches in 'Sheet1' (1 is hidden)",
         "5 matches in all sheets (2 are hidden)",
       ]);
       await changeSearchScope("specificRange");
@@ -470,8 +476,8 @@ describe("find and replace sidePanel component", () => {
       await nextTick();
       await click(fixture, selectors.confirmSearchRange);
       expect(getMatchesCountContent()).toEqual([
-        "2 matches in range A1:B2 of Sheet1 (1 is hidden)",
-        "3 matches in Sheet1 (1 is hidden)",
+        "2 matches in range A1:B2 of 'Sheet1' (1 is hidden)",
+        "3 matches in 'Sheet1' (1 is hidden)",
         "5 matches in all sheets (2 are hidden)",
       ]);
     });
