@@ -73,8 +73,8 @@ describe("Chart tooltip", () => {
     expect(".o-tooltip-label").toHaveText("Ds 1");
     expect(".o-tooltip-value").toHaveText("20");
 
-    const colorBadge = fixture.querySelector(".badge") as HTMLElement;
-    expect(colorBadge.style.backgroundColor).toBeSameColorAs("#FFF000");
+    const colorIndicator = fixture.querySelector(".o-tooltip-color-indicator") as HTMLElement;
+    expect(colorIndicator.style.borderLeftColor).toBeSameColorAs("#FFF000");
   });
 
   test("Opening a new tooltip closes the previous one", () => {

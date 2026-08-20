@@ -86,7 +86,8 @@ export const chartShowValuesPlugin: Plugin = {
         drawHorizontalBarValues(chart, options);
         break;
       case "calendar":
-        drawCalendarValues(chart, options);
+      case "heatmap":
+        drawColorGridValues(chart, options);
         break;
       case "bubble":
         drawBubbleValues(chart, options);
@@ -255,7 +256,7 @@ function drawComboValues(chart: any, options: ChartShowValuesPluginOptions) {
   });
 }
 
-function drawCalendarValues(chart: any, options: ChartShowValuesPluginOptions) {
+function drawColorGridValues(chart: any, options: ChartShowValuesPluginOptions) {
   drawValues({
     chart,
     options,
