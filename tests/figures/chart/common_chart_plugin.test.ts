@@ -42,7 +42,7 @@ describe("Single cell chart background color", () => {
 
   function createTestChart(chartType: string, mainCell: string, background?: Color) {
     if (chartType === "scorecard") {
-      createScorecardChart(model, { background, keyValue: mainCell }, chartId);
+      createScorecardChart(model, { background, keyValue: `=${mainCell}` }, chartId);
     } else if (chartType === "gauge") {
       createGaugeChart(model, { background, dataRange: mainCell }, chartId);
     }

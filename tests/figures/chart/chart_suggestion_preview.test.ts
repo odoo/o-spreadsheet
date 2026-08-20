@@ -105,7 +105,7 @@ describe("Chart suggestion preview snapshots", () => {
     ],
     [
       "Scorecard (KPI card, forces a legible key value font size)",
-      { type: "scorecard", keyValue: "B4", baseline: "B1", title: { text: "" } },
+      { type: "scorecard", keyValue: "=B4", baseline: "=B1", title: { text: "" } },
     ],
     [
       "Gauge (hides the chart title)",
