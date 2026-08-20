@@ -5,7 +5,7 @@ import { Currency } from "./currency";
 import { InformationNotification } from "./env";
 import { FileStore } from "./files";
 import { Locale } from "./locale";
-import { Color } from "./misc";
+import { Color, ColorScheme } from "./misc";
 
 export type Mode = "normal" | "readonly" | "dashboard" | "export_verification";
 
@@ -32,7 +32,7 @@ export interface ModelConfig {
   readonly notifyUI: (payload: InformationNotification) => void;
   readonly raiseBlockingErrorUI: (text: string) => void;
   readonly customColors: Color[];
-  readonly colorScheme?: "light" | "dark";
+  readonly colorScheme?: ColorScheme;
 }
 
 export interface ModelExternalConfig {
