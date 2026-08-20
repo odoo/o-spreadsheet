@@ -27,6 +27,7 @@
     }
 
     .o-print-preview {
+      background-color: white !important;
       box-shadow: none !important;
       overflow: visible !important;
       height: 100% !important;

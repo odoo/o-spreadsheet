@@ -15,6 +15,7 @@ import {
   setCellContent,
   setSelection,
   simulateClick,
+  updateColorScheme,
 } from "../test_helpers";
 import {
   mountComponentWithPortalTarget,
@@ -68,6 +69,25 @@ describe("Spreadsheet integration tests", () => {
     await simulateClick(".o-print-header button.primary");
     expect(".o-spreadsheet-print").toHaveCount(0);
     expect(mockWindowPrint).toHaveBeenCalledTimes(1);
+  });
+
+  test("Printing is always done with a model in light mode", async () => {
+    const { model } = await mountSpreadsheet();
+    updateColorScheme(model, "dark");
+    await nextTick();
+
+    expect(model.getters.isDarkMode()).toBe(true);
+    expect(".o-spreadsheet").toHaveStyle({ "color-scheme": "dark" });
+
+    await keyDown({ key: "p", ctrlKey: true });
+    expect(".o-spreadsheet-print").toHaveCount(1);
+    expect(model.getters.isDarkMode()).toBe(false); // Model in light mode
+    expect(".o-spreadsheet").toHaveStyle({ "color-scheme": "dark" }); // UI stays in dark mode
+
+    await simulateClick(".o-print-header button:not(.primary)");
+    expect(".o-spreadsheet-print").toHaveCount(0);
+    expect(model.getters.isDarkMode()).toBe(true);
+    expect(".o-spreadsheet").toHaveStyle({ "color-scheme": "dark" });
   });
 });
 
