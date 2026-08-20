@@ -134,14 +134,16 @@ export class SpreadsheetPrintStore extends SpreadsheetStore {
 
     const start = dimension === "COL" ? printZone.left : printZone.top;
     const end = dimension === "COL" ? printZone.right : printZone.bottom;
-    const getHeaderSize =
-      dimension === "COL" ? this.getters.getColDimensions : this.getters.getRowDimensions;
+    const getHeaderSize = (index: HeaderIndex) =>
+      this.getters.isHeaderHidden(sheetId, dimension, index)
+        ? 0
+        : this.getters.getHeaderDimensions(sheetId, dimension, index).size;
     const max = dimension === "COL" ? printWidth : printHeight;
 
     const breaks: number[] = [];
     let current = 0;
     for (let i = start; i <= end; i++) {
-      const headerSize = getHeaderSize(sheetId, i).size * zoom;
+      const headerSize = getHeaderSize(i) * zoom;
       current += headerSize;
       if (current >= max) {
         breaks.push(i);
