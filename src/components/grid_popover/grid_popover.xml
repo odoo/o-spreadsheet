@@ -10,6 +10,7 @@
       onMouseWheel="this.props.onMouseWheel"
       class="'o-popover-grid-index'">
       <t
+        t-if="this.cellPopover.isOpen"
         t-component="this.cellPopover.Component"
         t-props="{...this.cellPopover.props, onClosed : () => this.props.onClosePopover()}"
       />
