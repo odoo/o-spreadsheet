@@ -54,6 +54,7 @@ import { toNumber } from "../../../src/functions/helpers";
 import { convertDateFormatForLuxon } from "../../../src/helpers/chart_date";
 import { ChartPlugin } from "../../../src/plugins/core/chart";
 import { FigurePlugin } from "../../../src/plugins/core/figures";
+import { COLOR_THEMES } from "../../../src/plugins/ui_feature/color_theme";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import { LineChartRuntime } from "../../../src/types/chart/line_chart";
 import { PieChartDefinition, PieChartRuntime } from "../../../src/types/chart/pie_chart";
@@ -3375,6 +3376,19 @@ describe("Linear/Time charts", () => {
 
     const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual(["2024-01-01"]);
+  });
+
+  test("Chart runtime background follows the spreadsheet theme", () => {
+    createChart(model, { type: "bar" }, "chartId");
+
+    let runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(runtime.chartJsConfig.options?.plugins?.background?.color).toBe("#FFFFFF");
+
+    model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "dark" });
+    runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(runtime.chartJsConfig.options?.plugins?.background?.color).toBe(
+      COLOR_THEMES.dark.backgroundColor
+    );
   });
 });
 
