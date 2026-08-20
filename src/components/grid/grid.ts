@@ -68,6 +68,8 @@ import { GridComposer } from "../composer/grid_composer/grid_composer";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
+import { HeaderResizeEditor } from "../header_resize_editor/header_resize_editor";
+import { HeaderResizeEditorStore } from "../header_resize_editor/header_resize_editor_store";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect, keyboardEventToShortcutString } from "../helpers/dom_helpers";
@@ -129,6 +131,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     GridComposer,
     GridOverlay,
     GridPopover,
+    HeaderResizeEditor,
     HeadersOverlay,
     MenuPopover,
     Autofill,
@@ -152,6 +155,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   private menuState!: MenuState;
   private gridRef = signal.ref();
   private canvasRef = signal.ref(HTMLCanvasElement);
+  private headerResizeEditorStore!: Store<HeaderResizeEditorStore>;
   private highlightStore!: Store<HighlightStore>;
   viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
@@ -173,6 +177,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     this.highlightStore = useStore(HighlightStore);
     this.viewStore = useStore(ViewportsStore);
     this.zoomStore = useStore(ZoomStore);
+    this.headerResizeEditorStore = useStore(HeaderResizeEditorStore);
     this.menuState = proxy({
       isOpen: false,
       anchorRect: null,
@@ -702,7 +707,12 @@ export class Grid extends Component<SpreadsheetChildEnv> {
       lastZone
     );
     const gridRect = this.getGridRect();
-    this.toggleContextMenu(type, gridRect.x + x + width, gridRect.y + y);
+    this.toggleContextMenu(
+      type,
+      gridRect.x + x + width,
+      gridRect.y + y,
+      type === "COL" ? col : type === "ROW" ? row : undefined
+    );
   }
 
   onCellRightClicked(col: HeaderIndex, row: HeaderIndex, { x, y }: DOMCoordinates) {
@@ -719,19 +729,56 @@ export class Grid extends Component<SpreadsheetChildEnv> {
         type = "ROW";
       }
     }
-    this.toggleContextMenu(type, x, y);
+    this.toggleContextMenu(type, x, y, type === "COL" ? col : type === "ROW" ? row : undefined);
   }
 
   /**
    * expects x and y coordinates in true pixels (not zoomed)
    */
-  toggleContextMenu(type: ContextMenuType, x: Pixel, y: Pixel) {
+  toggleContextMenu(type: ContextMenuType, x: Pixel, y: Pixel, headerIndex?: HeaderIndex) {
     if (this.cellPopovers.isOpen) {
       this.cellPopovers.close();
+    }
+    if ((type === "COL" || type === "ROW") && headerIndex !== undefined) {
+      this.headerResizeEditorStore.setTarget(type, headerIndex);
+    } else {
+      this.headerResizeEditorStore.close();
     }
     this.menuState.isOpen = true;
     this.menuState.anchorRect = { x, y, width: 0, height: 0 };
     this.menuState.menuItems = registries[type].getMenuItems();
+  }
+
+  closeHeaderResizeEditor() {
+    this.headerResizeEditorStore.close();
+    this.focusDefaultElement();
+  }
+
+  get headerResizeEditorAnchorRect(): Rect | null {
+    const state = this.headerResizeEditorStore.state;
+    if (!state) {
+      return null;
+    }
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const zoom = this.zoomStore.zoomLevel;
+    const gridRect = this.getGridRect();
+    const { dimension, index } = state;
+    if (dimension === "COL") {
+      const { start, size } = this.viewStore.viewports.getColDimensionsInViewport(sheetId, index);
+      return {
+        x: gridRect.x + (HEADER_WIDTH + start) * zoom,
+        y: gridRect.y,
+        width: size * zoom,
+        height: HEADER_HEIGHT * zoom,
+      };
+    }
+    const { start, size } = this.viewStore.viewports.getRowDimensionsInViewport(sheetId, index);
+    return {
+      x: gridRect.x,
+      y: gridRect.y + (HEADER_HEIGHT + start) * zoom,
+      width: HEADER_WIDTH * zoom,
+      height: size * zoom,
+    };
   }
 
   async copy(cut: boolean, ev: ClipboardEvent) {

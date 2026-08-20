@@ -1,5 +1,5 @@
 import { proxy, signal, useProps } from "@odoo/owl";
-import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../constants";
+import { MAX_HEADER_SIZE, MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../constants";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -39,7 +39,8 @@ interface ResizerState {
 }
 
 export const resizerPropsDefinition = {
-  onOpenContextMenu: types.function<(type: ContextMenuType, x: Pixel, y: Pixel) => void>(),
+  onOpenContextMenu:
+    types.function<(type: ContextMenuType, x: Pixel, y: Pixel, headerIndex: HeaderIndex) => void>(),
 };
 
 abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
@@ -190,7 +191,7 @@ abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
     const styleValue = this.state.draggerLinePosition;
     const size = this._getElementSize(this.state.activeElement);
     const minSize = styleValue - size + this.MIN_ELEMENT_SIZE;
-    const maxSize = this._getMaxSize();
+    const maxSize = Math.min(this._getMaxSize(), styleValue - size + MAX_HEADER_SIZE);
     const onMouseUp = (ev: MouseEvent) => {
       this.state.isResizing = false;
       if (this.state.delta !== 0) {
@@ -341,7 +342,7 @@ abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
       this._selectElement(index, false);
     }
     const type = this._getType();
-    this.props.onOpenContextMenu(type, ev.clientX, ev.clientY);
+    this.props.onOpenContextMenu(type, ev.clientX, ev.clientY, index);
   }
 }
 
