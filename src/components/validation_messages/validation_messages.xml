@@ -9,7 +9,7 @@
               <t t-else="" t-call="o-spreadsheet-Icon.TRIANGLE_EXCLAMATION"/>
             </div>
             <div class="d-flex flex-column overflow-hidden">
-              <span class="ps-2 text-truncate" t-out="msg"/>
+              <span class="ps-2" t-out="msg"/>
             </div>
           </div>
         </div>

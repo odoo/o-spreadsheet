@@ -29,7 +29,7 @@ exports[`Chart error section Can render a chart error section component 1`] = `
           class="d-flex flex-column overflow-hidden"
         >
           <span
-            class="ps-2 text-truncate"
+            class="ps-2"
           >
             error_1
           </span>
@@ -59,7 +59,7 @@ exports[`Chart error section Can render a chart error section component 1`] = `
           class="d-flex flex-column overflow-hidden"
         >
           <span
-            class="ps-2 text-truncate"
+            class="ps-2"
           >
             error_2
           </span>
