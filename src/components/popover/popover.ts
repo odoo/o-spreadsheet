@@ -1,6 +1,6 @@
-import { onMounted, onWillUnmount, signal, useProps } from "@odoo/owl";
+import { onMounted, onWillUnmount, Portal, signal, useEffect, useProps } from "@odoo/owl";
 import { rectIntersection } from "../../helpers/rectangle";
-import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
+import { Component } from "../../owl3_compatibility_layer";
 import { CSSProperties } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -12,6 +12,7 @@ type DisplayValue = "none" | "block";
 
 export class Popover extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Popover";
+  static components = { Portal };
 
   protected props = useProps({
     anchorRect: types.Rect(),
@@ -51,7 +52,7 @@ export class Popover extends Component<SpreadsheetChildEnv> {
       resizeObserver.disconnect();
     });
 
-    useLayoutEffect(this.computePopoverPosition.bind(this));
+    useEffect(this.computePopoverPosition.bind(this));
   }
 
   private computePopoverPosition() {
