@@ -153,6 +153,8 @@ export const DVTerms = {
   },
   Errors: {
     [CommandResult.InvalidRange]: _t("The range is invalid."),
+    [CommandResult.InvalidSheetId]: _t("The range is invalid."),
+    [CommandResult.EmptyRange]: _t("The range is empty."),
     [CommandResult.InvalidDataValidationCriterionValue]: _t(
       "One or more of the provided criteria values are invalid. Please review and correct them."
     ),

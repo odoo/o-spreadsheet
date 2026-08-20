@@ -1,5 +1,5 @@
 import { ColorGenerator } from "../../helpers/color";
-import { splitReference } from "../../helpers/references";
+import { getFullReference, splitReference } from "../../helpers/references";
 import { isEqual, positionToZone } from "../../helpers/zones";
 import { HighlightStore } from "../../stores/highlight_store";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
@@ -50,7 +50,9 @@ export class SelectionInputStore extends SpreadsheetStore {
     private initialRanges: string[] = [],
     private readonly inputHasSingleRange: boolean = false,
     public colors: Color[] = [],
-    public disabledRanges: boolean[] = []
+    public disabledRanges: boolean[] = [],
+    private readonly prefixSheet: boolean = false,
+    private readonly goBackToSheet: boolean = true
   ) {
     super(get);
     if (inputHasSingleRange && initialRanges.length > 1) {
@@ -77,7 +79,7 @@ export class SelectionInputStore extends SpreadsheetStore {
     const zone = event.options.unbounded
       ? this.getters.getUnboundedZone(activeSheetId, event.anchor.zone)
       : event.anchor.zone;
-    const range = this.getters.getRangeFromZone(activeSheetId, zone);
+    const range = this.getters.getRangeFromZone(activeSheetId, zone, this.prefixSheet);
 
     const willAddNewRange =
       event.mode === "newAnchor" &&
@@ -193,8 +195,17 @@ export class SelectionInputStore extends SpreadsheetStore {
         this.removeRange(range.id);
       }
     }
+    if (this.prefixSheet) {
+      const activeSheetName = this.getters.getActiveSheetName();
+      this.ranges = this.ranges.map((range) => {
+        return {
+          ...range,
+          xc: getFullReference(activeSheetName, range.xc),
+        };
+      });
+    }
     const activeSheetId = this.getters.getActiveSheetId();
-    if (this.inputSheetId !== activeSheetId) {
+    if (this.goBackToSheet && this.inputSheetId !== activeSheetId) {
       this.model.dispatch("ACTIVATE_SHEET", {
         sheetIdFrom: activeSheetId,
         sheetIdTo: this.inputSheetId,
