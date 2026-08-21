@@ -271,7 +271,8 @@ export function getLineChartData(
           formatValue(value, { format, locale: getters.getLocale() })
         );
 
-  ({ labels, dataSetsValues } = filterInvalidDataPoints(labels, dataSetsValues));
+  const invalidDataValue = definition.fillArea && definition.stacked ? ZERO : EMPTY;
+  ({ labels, dataSetsValues } = filterInvalidDataPoints(labels, dataSetsValues, invalidDataValue));
   if (axisType === "time") {
     ({ labels, dataSetsValues } = fixEmptyLabelsForDateCharts(labels, dataSetsValues));
   }
@@ -840,7 +841,8 @@ function fixEmptyLabelsForDateCharts(
  */
 function filterInvalidDataPoints(
   labels: string[],
-  datasets: DatasetValues[]
+  datasets: DatasetValues[],
+  invalidDataValue: FunctionResultObject = EMPTY
 ): { labels: string[]; dataSetsValues: DatasetValues[] } {
   const numberOfDataPoints = Math.max(
     labels.length,
@@ -855,9 +857,10 @@ function filterInvalidDataPoints(
     labels: dataPointsIndexes.map((i) => labels[i] || ""),
     dataSetsValues: datasets.map((dataset) => ({
       ...dataset,
-      data: dataPointsIndexes.map((i) =>
-        isNumberResult(dataset.data[i]) ? dataset.data[i] : EMPTY
-      ),
+      data: dataPointsIndexes.map((i) => {
+        const cell = dataset.data[i];
+        return isNumberResult(cell) ? cell : invalidDataValue;
+      }),
     })),
   };
 }
