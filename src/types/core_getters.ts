@@ -69,11 +69,6 @@ type GetterNames<Plugin extends { getters: readonly string[] }> = Plugin["getter
 export type PluginGetters<
   Plugin extends { new (...args: unknown[]): any; getters: readonly string[] }
 > = Pick<InstanceType<Plugin>, GetterNames<Plugin>>;
-type RangeAdapterGetters = Pick<RangeAdapterPlugin, GetterNames<typeof RangeAdapterPlugin>>;
-type FormulasGetters = Pick<
-  FormulaProviderAggregator,
-  GetterNames<typeof FormulaProviderAggregator>
->;
 
 export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof HeaderSizePlugin> &
@@ -86,8 +81,8 @@ export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof ImagePlugin> &
   PluginGetters<typeof CarouselPlugin> &
   PluginGetters<typeof FigurePlugin> &
-  RangeAdapterGetters &
-  FormulasGetters &
+  PluginGetters<typeof RangeAdapterPlugin> &
+  PluginGetters<typeof FormulaProviderAggregator> &
   PluginGetters<typeof ConditionalFormatPlugin> &
   PluginGetters<typeof TablePlugin> &
   PluginGetters<typeof SettingsPlugin> &

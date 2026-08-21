@@ -14,8 +14,7 @@ import { recomputeZones } from "../../helpers/recompute_zones";
 import { rangeReference, splitReference } from "../../helpers/references";
 
 import { isZoneValid, unionUnboundedZones } from "../../helpers/zones";
-import { Command, CommandHandler, CommandResult, CoreCommand } from "../../types/commands";
-import { CoreGetters } from "../../types/core_getters";
+import { CommandResult, CoreCommand } from "../../types/commands";
 import { CellErrorType } from "../../types/errors";
 import {
   Dimension,
@@ -26,14 +25,11 @@ import {
   Zone,
 } from "../../types/misc";
 import { Range, RangeData, RangeStringOptions } from "../../types/range";
+import { CoreService } from "../core_service";
 
-export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
-  private getters: CoreGetters;
+export class RangeAdapterPlugin extends CoreService {
   private providers: Array<RangeProvider["adaptRanges"]> = [];
   private isAdaptingRanges: boolean = false;
-  constructor(getters: CoreGetters) {
-    this.getters = getters;
-  }
 
   static getters = [
     "copyFormulaStringForSheet",
@@ -61,7 +57,6 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
     }
     return CommandResult.Success;
   }
-  beforeHandle(command: Command) {}
 
   handle(cmd: CoreCommand) {
     if (this.isAdaptingRanges) {
@@ -72,8 +67,6 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
       this.executeOnAllRanges(adapterFunctions);
     }
   }
-
-  finalize() {}
 
   private executeOnAllRanges(adapterFunctions: RangeAdapterFunctions) {
     this.isAdaptingRanges = true;

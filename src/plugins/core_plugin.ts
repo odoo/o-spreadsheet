@@ -1,19 +1,14 @@
 import { CompiledFormula } from "../formulas/compiler";
-import { StateObserver } from "../state_observer";
 import { CoreCommand, CoreCommandDispatcher } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
 import { FormulaProvider, RangeAdapterFunctions, RangeProvider } from "../types/misc";
 import { ModelConfig } from "../types/model";
 import { WorkbookData } from "../types/workbook_data";
 import { BasePlugin } from "./base_plugin";
-import { FormulaProviderAggregator } from "./core/formulas_provider";
-import { RangeAdapterPlugin } from "./core/range";
+import { CoreServiceConfig, CoreServices } from "./core_service";
 
-export interface CorePluginConfig {
-  readonly getters: CoreGetters;
-  readonly stateObserver: StateObserver;
-  readonly range: RangeAdapterPlugin;
-  readonly formulasPlugin: FormulaProviderAggregator;
+export interface CorePluginConfig extends CoreServiceConfig {
+  readonly services: CoreServices;
   readonly dispatch: CoreCommandDispatcher["dispatch"];
   readonly canDispatch: CoreCommandDispatcher["dispatch"];
   readonly custom: ModelConfig["custom"];
@@ -39,17 +34,10 @@ export class CorePlugin<State = any>
   protected dispatch: CoreCommandDispatcher["dispatch"];
   protected canDispatch: CoreCommandDispatcher["dispatch"];
 
-  constructor({
-    getters,
-    stateObserver,
-    range,
-    dispatch,
-    canDispatch,
-    formulasPlugin,
-  }: CorePluginConfig) {
+  constructor({ getters, stateObserver, services, dispatch, canDispatch }: CorePluginConfig) {
     super(stateObserver);
-    range.addRangeProvider(this.adaptRanges.bind(this));
-    formulasPlugin.addFormulaProvider(this.getFormulas.bind(this));
+    services.get("range").addRangeProvider(this.adaptRanges.bind(this));
+    services.get("formulas").addFormulaProvider(this.getFormulas.bind(this));
     this.getters = getters;
     this.dispatch = dispatch;
     this.canDispatch = canDispatch;
