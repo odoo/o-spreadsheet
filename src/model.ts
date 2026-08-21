@@ -14,12 +14,12 @@ import {
   repairInitialMessages,
 } from "./migrations/data";
 import { BasePlugin } from "./plugins/base_plugin";
-import { FormulaProviderAggregator } from "./plugins/core/formulas_provider";
-import { RangeAdapterPlugin } from "./plugins/core/range";
 import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
+import { CoreServiceConfig, CoreServices } from "./plugins/core_service";
 import { CoreViewPluginConfig, CoreViewPluginConstructor } from "./plugins/core_view_plugin";
 import {
   corePluginRegistry,
+  coreServiceRegistry,
   coreViewsPluginRegistry,
   featurePluginRegistry,
   statefulUIPluginRegistry,
@@ -87,8 +87,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private statefulUIPlugins: UIPlugin[] = [];
 
-  private range: RangeAdapterPlugin;
-  private formulasPlugin: FormulaProviderAggregator;
+  private coreServices = new CoreServices();
 
   private session: Session;
 
@@ -169,31 +168,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.coreGetters = {} as CoreGetters;
 
-    this.range = new RangeAdapterPlugin(this.coreGetters);
-    this.coreGetters.getRangeString = this.range.getRangeString.bind(this.range);
-    this.coreGetters.getRangeFromSheetXC = this.range.getRangeFromSheetXC.bind(this.range);
-    this.coreGetters.createAdaptedRanges = this.range.createAdaptedRanges.bind(this.range);
-    this.coreGetters.getRangeData = this.range.getRangeData.bind(this.range);
-    this.coreGetters.getRangeDataFromXc = this.range.getRangeDataFromXc.bind(this.range);
-    this.coreGetters.getRangeDataFromZone = this.range.getRangeDataFromZone.bind(this.range);
-    this.coreGetters.getRangeFromRangeData = this.range.getRangeFromRangeData.bind(this.range);
-    this.coreGetters.getRangeFromZone = this.range.getRangeFromZone.bind(this.range);
-    this.coreGetters.recomputeRanges = this.range.recomputeRanges.bind(this.range);
-    this.coreGetters.isRangeValid = this.range.isRangeValid.bind(this.range);
-    this.coreGetters.extendRange = this.range.extendRange.bind(this.range);
-    this.coreGetters.getRangesUnion = this.range.getRangesUnion.bind(this.range);
-    this.coreGetters.removeRangesSheetPrefix = this.range.removeRangesSheetPrefix.bind(this.range);
-    this.coreGetters.copyFormulaStringForSheet = this.range.copyFormulaStringForSheet.bind(
-      this.range
-    );
-    this.formulasPlugin = new FormulaProviderAggregator();
-    this.coreGetters.getAllFormulas = this.formulasPlugin.getAllFormulas.bind(this.formulasPlugin);
+    // Core services come first: their getters must be bound before any core
+    // plugin is created, since plugins use them right away (e.g. in `import`),
+    // and they must handle every command before all core plugins.
+    this.setupCoreServices();
 
     // Initiate stream processor
     this.selection = new SelectionStreamProcessorImpl(this.getters);
-
-    this.coreHandlers.push(this.range);
-    this.handlers.push(this.range);
 
     this.corePluginConfig = this.setupCorePluginConfig();
     this.coreViewPluginConfig = this.setupCoreViewPluginConfig();
@@ -261,17 +242,40 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     await this.session.leave(snapshot);
   }
 
-  private setupUiPlugin(Plugin: UIPluginConstructor) {
-    const plugin = new Plugin(this.uiPluginConfig);
+  private setupCoreServices() {
+    for (const name of coreServiceRegistry.getKeys()) {
+      const Service = coreServiceRegistry.get(name);
+      const service = new Service(this.setupCoreServiceConfig());
+      this.bindGetters(Service, service, this.coreGetters);
+      this.coreServices.add(name, service);
+      this.coreHandlers.push(service);
+      this.handlers.push(service);
+    }
+  }
+
+  /**
+   * Bind the getters declared in the `getters` static array of a plugin on the
+   * given getters object.
+   */
+  private bindGetters(
+    Plugin: { getters: readonly string[] },
+    plugin: object,
+    getters: Record<string, any>
+  ) {
     for (const name of Plugin.getters) {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
       }
-      if (name in this.getters) {
+      if (name in getters) {
         throw new Error(`Getter "${name}" is already defined.`);
       }
-      this.getters[name] = plugin[name].bind(plugin);
+      getters[name] = plugin[name].bind(plugin);
     }
+  }
+
+  private setupUiPlugin(Plugin: UIPluginConstructor) {
+    const plugin = new Plugin(this.uiPluginConfig);
+    this.bindGetters(Plugin, plugin, this.getters);
     for (const layer of Plugin.layers) {
       if (!this.renderers[layer]) {
         this.renderers[layer] = [];
@@ -283,15 +287,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private setupCoreViewPlugin(Plugin: CoreViewPluginConstructor) {
     const plugin = new Plugin(this.coreViewPluginConfig);
-    for (const name of Plugin.getters) {
-      if (!(name in plugin)) {
-        throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
-      }
-      if (name in this.getters) {
-        throw new Error(`Getter "${name}" is already defined.`);
-      }
-      this.getters[name] = plugin[name].bind(plugin);
-    }
+    this.bindGetters(Plugin, plugin, this.getters);
     return plugin;
   }
 
@@ -303,15 +299,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   private setupCorePlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
     const plugin = new Plugin(this.corePluginConfig);
-    for (const name of Plugin.getters) {
-      if (!(name in plugin)) {
-        throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
-      }
-      if (name in this.coreGetters) {
-        throw new Error(`Getter "${name}" is already defined.`);
-      }
-      this.coreGetters[name] = plugin[name].bind(plugin);
-    }
+    this.bindGetters(Plugin, plugin, this.coreGetters);
     plugin.import(data);
     this.corePlugins.push(plugin);
     this.coreHandlers.push(plugin);
@@ -407,12 +395,17 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     };
   }
 
-  private setupCorePluginConfig(): CorePluginConfig {
+  private setupCoreServiceConfig(): CoreServiceConfig {
     return {
       getters: this.coreGetters,
       stateObserver: this.state,
-      range: this.range,
-      formulasPlugin: this.formulasPlugin,
+    };
+  }
+
+  private setupCorePluginConfig(): CorePluginConfig {
+    return {
+      ...this.setupCoreServiceConfig(),
+      services: this.coreServices,
       dispatch: this.dispatchFromCorePlugin,
       canDispatch: this.canDispatch,
       custom: this.config.custom,

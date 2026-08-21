@@ -6,7 +6,7 @@ import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { DataValidationPlugin } from "../plugins/core/data_validation";
 import { DefaultPlugin } from "../plugins/core/default";
 import { FigurePlugin } from "../plugins/core/figures";
-import { FormulaProviderAggregator } from "../plugins/core/formulas_provider";
+import { FormulaProviderService } from "../plugins/core/formulas_provider";
 import { HeaderGroupingPlugin } from "../plugins/core/header_grouping";
 import { HeaderSizePlugin } from "../plugins/core/header_size";
 import { HeaderVisibilityPlugin } from "../plugins/core/header_visibility";
@@ -14,7 +14,7 @@ import { ImagePlugin } from "../plugins/core/image";
 import { MergePlugin } from "../plugins/core/merge";
 import { NamedRangesPlugin } from "../plugins/core/named_range";
 import { PivotCorePlugin } from "../plugins/core/pivot";
-import { RangeAdapterPlugin } from "../plugins/core/range";
+import { RangeAdapterService } from "../plugins/core/range";
 import { SettingsPlugin } from "../plugins/core/settings";
 import { SheetPlugin } from "../plugins/core/sheet";
 import { TablePlugin } from "../plugins/core/tables";
@@ -69,11 +69,6 @@ type GetterNames<Plugin extends { getters: readonly string[] }> = Plugin["getter
 export type PluginGetters<
   Plugin extends { new (...args: unknown[]): any; getters: readonly string[] }
 > = Pick<InstanceType<Plugin>, GetterNames<Plugin>>;
-type RangeAdapterGetters = Pick<RangeAdapterPlugin, GetterNames<typeof RangeAdapterPlugin>>;
-type FormulasGetters = Pick<
-  FormulaProviderAggregator,
-  GetterNames<typeof FormulaProviderAggregator>
->;
 
 export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof HeaderSizePlugin> &
@@ -86,8 +81,8 @@ export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof ImagePlugin> &
   PluginGetters<typeof CarouselPlugin> &
   PluginGetters<typeof FigurePlugin> &
-  RangeAdapterGetters &
-  FormulasGetters &
+  PluginGetters<typeof RangeAdapterService> &
+  PluginGetters<typeof FormulaProviderService> &
   PluginGetters<typeof ConditionalFormatPlugin> &
   PluginGetters<typeof TablePlugin> &
   PluginGetters<typeof SettingsPlugin> &

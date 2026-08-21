@@ -7,6 +7,7 @@ import { ConditionalFormatPlugin } from "./core/conditional_format";
 import { DataValidationPlugin } from "./core/data_validation";
 import { DefaultPlugin } from "./core/default";
 import { FigurePlugin } from "./core/figures";
+import { FormulaProviderService } from "./core/formulas_provider";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
 import { HeaderSizePlugin } from "./core/header_size";
 import { HeaderVisibilityPlugin } from "./core/header_visibility";
@@ -14,12 +15,14 @@ import { ImagePlugin } from "./core/image";
 import { MergePlugin } from "./core/merge";
 import { NamedRangesPlugin } from "./core/named_range";
 import { PivotCorePlugin } from "./core/pivot";
+import { RangeAdapterService } from "./core/range";
 import { SettingsPlugin } from "./core/settings";
 import { SheetPlugin } from "./core/sheet";
 import { SpreadsheetPivotCorePlugin } from "./core/spreadsheet_pivot";
 import { TableStylePlugin } from "./core/table_style";
 import { TablePlugin } from "./core/tables";
 import { CorePluginConstructor } from "./core_plugin";
+import { CoreServiceConstructor } from "./core_service";
 import { CoreViewPluginConstructor } from "./core_view_plugin";
 import { EvaluationPlugin } from "./ui_core_views/cell_evaluation/evaluation_plugin";
 import { CellIconPlugin } from "./ui_core_views/cell_icon_plugin";
@@ -56,6 +59,13 @@ import { HeaderPositionsUIPlugin } from "./ui_stateful/header_positions";
 import { HeaderVisibilityUIPlugin } from "./ui_stateful/header_visibility_ui";
 import { GridSelectionPlugin } from "./ui_stateful/selection";
 import { TableComputedStylePlugin } from "./ui_stateful/table_computed_style";
+
+// Shared, model-wide objects used by the core plugins. They are instantiated
+// before all core plugins, in registration order, and handle core commands
+// before them: `range` must stay the first one.
+export const coreServiceRegistry = new Registry<CoreServiceConstructor>()
+  .add("range", RangeAdapterService)
+  .add("formulas", FormulaProviderService);
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("settings", SettingsPlugin)
