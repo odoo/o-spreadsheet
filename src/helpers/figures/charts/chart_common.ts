@@ -11,8 +11,8 @@ import {
   ExcelChartTrendConfiguration,
 } from "../../../types/chart/chart";
 import { CommandResult } from "../../../types/commands";
-import { CoreGetters } from "../../../types/core_getters";
 import { LocaleFormat } from "../../../types/format";
+import { CoreGetters } from "../../../types/getters";
 import { Locale } from "../../../types/locale";
 import { Color, RangeAdapterFunctions, UID, UnboundedZone, Zone } from "../../../types/misc";
 import { Range } from "../../../types/range";

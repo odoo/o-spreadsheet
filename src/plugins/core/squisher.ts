@@ -6,8 +6,8 @@ import { deepCopy, deepEquals } from "../../helpers/misc";
 import { getRangeString } from "../../helpers/range";
 import { Cell } from "../../types/cells";
 import { UpdateCellCommand } from "../../types/commands";
-import { CoreGetters } from "../../types/core_getters";
 import { Format } from "../../types/format";
+import { CoreGetters } from "../../types/getters";
 import { UID } from "../../types/misc";
 import { Range } from "../../types/range";
 

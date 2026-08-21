@@ -40,8 +40,7 @@ import {
   DispatchResult,
   isCoreCommand,
 } from "./types/commands";
-import { CoreGetters } from "./types/core_getters";
-import { Getters } from "./types/getters";
+import { CoreGetters, Getters } from "./types/getters";
 import { DEFAULT_LOCALES } from "./types/locale";
 import { UID } from "./types/misc";
 import { Mode, ModelConfig, ModelExternalConfig } from "./types/model";

@@ -1,8 +1,8 @@
 import { isZoneInside, positionToZone, zoneToXc } from "../helpers/zones";
 import { _t } from "../translation";
-import { CoreGetters } from "../types/core_getters";
 import { CircularDependencyError, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { EvalContext } from "../types/functions";
+import { CoreGetters } from "../types/getters";
 import { FunctionResultObject, Maybe, UID } from "../types/misc";
 import { PivotCoreMeasure } from "../types/pivot";
 import { Range } from "../types/range";

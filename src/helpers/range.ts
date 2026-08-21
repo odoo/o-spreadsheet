@@ -8,8 +8,8 @@ import {
   RemoveColumnsRowsCommand,
   RenameSheetCommand,
 } from "../types/commands";
-import { CoreGetters } from "../types/core_getters";
 import { CellErrorType } from "../types/errors";
+import { CoreGetters } from "../types/getters";
 import {
   ApplyRangeChange,
   CellPosition,
