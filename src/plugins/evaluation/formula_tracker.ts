@@ -1,11 +1,11 @@
 import { doesCellContainFunction } from "../../helpers/misc";
 import { Command } from "../../types/commands";
 import { UID } from "../../types/misc";
-import { CoreViewPlugin } from "../core_view_plugin";
+import { EvaluationPlugin } from "../evaluation_plugin";
 
 const trackedFormulas = ["SUBTOTAL", "PIVOT"];
 
-export class FormulaTrackerPlugin extends CoreViewPlugin {
+export class FormulaTrackerPlugin extends EvaluationPlugin {
   static getters = ["getCellsWithTrackedFormula"] as const;
 
   private trackedCells: Record<string, Record<UID, number | undefined>> = {};

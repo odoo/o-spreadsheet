@@ -1607,10 +1607,10 @@ export interface CoreCommandDispatcher {
 export type CommandTypes = Command["type"];
 export type CoreCommandTypes = CoreCommand["type"];
 
-export type CoreViewCommand =
+export type EvaluationCommand =
   | CoreCommand
   | EvaluateCellsCommand
   | EvaluateChartsCommand
   | UndoCommand
   | RedoCommand;
-export type CoreViewCommandTypes = CoreViewCommand["type"];
+export type EvaluationCommandTypes = EvaluationCommand["type"];

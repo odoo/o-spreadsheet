@@ -1,7 +1,4 @@
-import {
-  Interval,
-  IntervalTree,
-} from "../../src/plugins/ui_core_views/cell_evaluation/interval_tree";
+import { Interval, IntervalTree } from "../../src/plugins/evaluation/cell_evaluation/interval_tree";
 import { toBoundedRange } from "../test_helpers/helpers";
 
 describe("IntervalTree", () => {

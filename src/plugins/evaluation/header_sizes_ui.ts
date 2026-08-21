@@ -20,7 +20,7 @@ import {
   UID,
   Zone,
 } from "../../types/misc";
-import { CoreViewPlugin } from "../core_view_plugin";
+import { EvaluationPlugin } from "../evaluation_plugin";
 
 interface HeaderSizeState {
   tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>>;
@@ -31,7 +31,10 @@ interface CellWithSize {
   size: Pixel;
 }
 
-export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implements HeaderSizeState {
+export class HeaderSizeUIPlugin
+  extends EvaluationPlugin<HeaderSizeState>
+  implements HeaderSizeState
+{
   static getters = ["getRowSize", "getHeaderSize", "getMaxAnchorOffset"] as const;
 
   readonly tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>> = {};

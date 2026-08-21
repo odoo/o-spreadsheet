@@ -7,7 +7,7 @@ import { Color } from "../types/misc";
 import { ModelConfig } from "../types/model";
 import { BasePlugin } from "./base_plugin";
 
-export interface CoreViewPluginConfig {
+export interface EvaluationPluginConfig {
   readonly getters: Getters;
   readonly stateObserver: StateObserver;
   readonly custom: ModelConfig["custom"];
@@ -17,18 +17,18 @@ export interface CoreViewPluginConfig {
   readonly external: ModelConfig["external"];
 }
 
-export interface CoreViewPluginConstructor {
-  new (config: CoreViewPluginConfig): CoreViewPlugin;
+export interface EvaluationPluginConstructor {
+  new (config: EvaluationPluginConfig): EvaluationPlugin;
   getters: readonly string[];
 }
 
 /**
- * Core view plugins handle any data derived from core date (i.e. evaluation).
+ * Evaluation plugins handle any data derived from core data (i.e. evaluation).
  * They cannot impact the model data (i.e. cannot dispatch commands).
  */
-export class CoreViewPlugin<State = any> extends BasePlugin<State, Command> {
+export class EvaluationPlugin<State = any> extends BasePlugin<State, Command> {
   protected getters: Getters;
-  constructor({ getters, stateObserver }: CoreViewPluginConfig) {
+  constructor({ getters, stateObserver }: EvaluationPluginConfig) {
     super(stateObserver);
     this.getters = getters;
   }

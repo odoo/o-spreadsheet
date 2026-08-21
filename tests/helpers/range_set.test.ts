@@ -1,4 +1,4 @@
-import { RangeSet } from "../../src/plugins/ui_core_views/cell_evaluation/range_set";
+import { RangeSet } from "../../src/plugins/evaluation/cell_evaluation/range_set";
 import { toBoundedRange } from "../test_helpers/helpers";
 
 describe("RangeSet", () => {

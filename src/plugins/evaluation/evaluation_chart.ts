@@ -6,7 +6,7 @@ import { chartToImageUrl } from "../../helpers/figures/charts/chart_ui_common";
 import { generateMasterChartConfig } from "../../helpers/figures/charts/runtime/chart_zoom";
 import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
 import {
-  CoreViewCommand,
+  EvaluationCommand,
   invalidateCFEvaluationCommands,
   invalidateChartEvaluationCommands,
   invalidateEvaluationCommands,
@@ -15,7 +15,7 @@ import { Color, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { ColorThemeName } from "../../types/rendering";
 import { ExcelWorkbookData, FigureData } from "../../types/workbook_data";
-import { CoreViewPlugin } from "../core_view_plugin";
+import { EvaluationPlugin } from "../evaluation_plugin";
 
 interface EvaluationChartStyle {
   background: Color;
@@ -26,12 +26,12 @@ interface EvaluationChartState {
   charts: Record<UID, Partial<Record<ColorThemeName, ChartRuntime | undefined>>>;
 }
 
-export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> {
+export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState> {
   static getters = ["getStyleOfSingleCellChart", "getChartRuntimeWithTheme"] as const;
 
   charts: Record<UID, Partial<Record<ColorThemeName, ChartRuntime | undefined>>> = {};
 
-  handle(cmd: CoreViewCommand) {
+  handle(cmd: EvaluationCommand) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       invalidateCFEvaluationCommands.has(cmd.type) ||

@@ -30,7 +30,7 @@ Plugins are divided into two main categories: CorePlugin and UIPlugin, with each
 Core plugins include:
 
 1. Core Plugins: manage data persistence
-2. Core views Plugins: have a derived state from core data
+2. Evaluation Plugins: have a derived state from core data
 
 ### II. UIPlugin
 

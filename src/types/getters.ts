@@ -19,17 +19,17 @@ import { SettingsPlugin } from "../plugins/core/settings";
 import { SheetPlugin } from "../plugins/core/sheet";
 import { TableStylePlugin } from "../plugins/core/table_style";
 import { TablePlugin } from "../plugins/core/tables";
-import { EvaluationPlugin } from "../plugins/ui_core_views/cell_evaluation/evaluation_plugin";
-import { CellIconPlugin } from "../plugins/ui_core_views/cell_icon_plugin";
-import { CustomColorsPlugin } from "../plugins/ui_core_views/custom_colors";
-import { DynamicTablesPlugin } from "../plugins/ui_core_views/dynamic_tables";
-import { EvaluationChartPlugin } from "../plugins/ui_core_views/evaluation_chart";
-import { EvaluationConditionalFormatPlugin } from "../plugins/ui_core_views/evaluation_conditional_format";
-import { EvaluationDataValidationPlugin } from "../plugins/ui_core_views/evaluation_data_validation";
-import { FingerprintPlugin } from "../plugins/ui_core_views/fingerprint";
-import { FormulaTrackerPlugin } from "../plugins/ui_core_views/formula_tracker";
-import { HeaderSizeUIPlugin } from "../plugins/ui_core_views/header_sizes_ui";
-import { PivotUIPlugin } from "../plugins/ui_core_views/pivot_ui";
+import { CellEvaluationPlugin } from "../plugins/evaluation/cell_evaluation/cell_evaluation_plugin";
+import { CellIconPlugin } from "../plugins/evaluation/cell_icon_plugin";
+import { CustomColorsPlugin } from "../plugins/evaluation/custom_colors";
+import { DynamicTablesPlugin } from "../plugins/evaluation/dynamic_tables";
+import { EvaluationChartPlugin } from "../plugins/evaluation/evaluation_chart";
+import { EvaluationConditionalFormatPlugin } from "../plugins/evaluation/evaluation_conditional_format";
+import { EvaluationDataValidationPlugin } from "../plugins/evaluation/evaluation_data_validation";
+import { FingerprintPlugin } from "../plugins/evaluation/fingerprint";
+import { FormulaTrackerPlugin } from "../plugins/evaluation/formula_tracker";
+import { HeaderSizeUIPlugin } from "../plugins/evaluation/header_sizes_ui";
+import { PivotUIPlugin } from "../plugins/evaluation/pivot_ui";
 import { ChartUIPlugin } from "../plugins/ui_feature/chart_ui";
 import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
 import { ColorThemeUIPlugin } from "../plugins/ui_feature/color_theme";
@@ -142,7 +142,7 @@ export type RenderingGetters = {
 } & CoreGetters &
   PluginGetters<typeof HistoryPlugin> &
   PluginGetters<typeof ClipboardPlugin> &
-  PluginGetters<typeof EvaluationPlugin> &
+  PluginGetters<typeof CellEvaluationPlugin> &
   PluginGetters<typeof EvaluationChartPlugin> &
   PluginGetters<typeof EvaluationConditionalFormatPlugin> &
   PluginGetters<typeof HeaderVisibilityUIPlugin> &
