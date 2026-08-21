@@ -2,13 +2,13 @@ import { Session } from "../collaborative/session";
 import { StateObserver } from "../state_observer";
 import { Command } from "../types/commands";
 import { Currency } from "../types/currency";
-import { Getters } from "../types/getters";
+import { EvaluationGetters } from "../types/getters";
 import { Color } from "../types/misc";
 import { ModelConfig } from "../types/model";
 import { BasePlugin } from "./base_plugin";
 
 export interface EvaluationPluginConfig {
-  readonly getters: Getters;
+  readonly getters: EvaluationGetters;
   readonly stateObserver: StateObserver;
   readonly custom: ModelConfig["custom"];
   readonly session: Session;
@@ -27,7 +27,7 @@ export interface EvaluationPluginConstructor {
  * They cannot impact the model data (i.e. cannot dispatch commands).
  */
 export class EvaluationPlugin<State = any> extends BasePlugin<State, Command> {
-  protected getters: Getters;
+  protected getters: EvaluationGetters;
   constructor({ getters, stateObserver }: EvaluationPluginConfig) {
     super(stateObserver);
     this.getters = getters;

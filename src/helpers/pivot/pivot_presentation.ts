@@ -5,7 +5,7 @@ import { toNumber, transposeMatrix } from "../../functions/helpers";
 import { _t } from "../../translation";
 import { CellValue } from "../../types/cells";
 import { CellErrorType, NotAvailableError } from "../../types/errors";
-import { Getters } from "../../types/getters";
+import { EvaluationGetters } from "../../types/getters";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { FunctionResultObject, isMatrix, SortDirection, UID } from "../../types/misc";
 import { ModelConfig } from "../../types/model";
@@ -54,7 +54,7 @@ type DomainGroups<T> = { [colDomain: string]: { [rowDomain: string]: T } };
  */
 export default function (PivotClass: PivotUIConstructor) {
   class PivotPresentationLayer extends PivotClass {
-    private getters: Getters;
+    private getters: EvaluationGetters;
     private pivotId: UID;
     private cache: Record<string, FunctionResultObject> = {};
     private rankAsc: CacheForMeasureAndField<DomainGroups<number> | undefined> = {};

@@ -1,7 +1,7 @@
 import { UID } from "..";
 import { isMultipleElementMatrix, toScalar } from "../functions/helper_matrices";
 import { criterionEvaluatorRegistry } from "../registries/criterion_registry";
-import { Getters } from "../types/getters";
+import { EvaluationGetters } from "../types/getters";
 import { DEFAULT_LOCALE } from "../types/locale";
 import { DataFilterValue } from "../types/table";
 import { parseLiteral } from "./cells/cell_evaluation";
@@ -12,7 +12,7 @@ import { toTrimmedLowerCase } from "./text_helper";
  *Determines whether a given value should be filtered out (hidden)
  */
 export function isValueFiltered(
-  getters: Getters,
+  getters: EvaluationGetters,
   sheetId: UID,
   data: FieldValue,
   filter: DataFilterValue,

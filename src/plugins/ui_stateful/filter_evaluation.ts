@@ -12,6 +12,7 @@ import { UIPlugin } from "../ui_plugin";
 
 const EMPTY_CRITERION: CriterionFilter = { filterType: "criterion", type: "none", values: [] };
 
+// FIXME: this should/could be an evaluation plugin.
 export class FilterEvaluationPlugin extends UIPlugin {
   static getters = [
     "getFilterValue",

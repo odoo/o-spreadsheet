@@ -32,7 +32,7 @@ import {
   PerfProfile,
   RangeTiming,
 } from "../../../types/functions";
-import { Getters } from "../../../types/getters";
+import { EvaluationGetters } from "../../../types/getters";
 import {
   CellPosition,
   FunctionResultObject,
@@ -58,7 +58,7 @@ for (const [op, fn] of Object.entries(UNARY_OPERATOR_MAP)) {
 }
 
 export class Evaluator {
-  private readonly getters: Getters;
+  private readonly getters: EvaluationGetters;
   private compilationParams: CompilationParameters;
 
   private evaluatedCells: PositionMap<EvaluatedCell> = new PositionMap();
@@ -67,7 +67,7 @@ export class Evaluator {
   private spreadingRelations = new SpreadingRelation();
   private perfProfile: PerfProfile | undefined;
 
-  constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
+  constructor(private readonly context: ModelConfig["custom"], getters: EvaluationGetters) {
     this.getters = getters;
     this.compilationParams = buildCompilationParameters(
       this.context,

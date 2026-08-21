@@ -170,6 +170,7 @@ import { UNDO_REDO_PIVOT_COMMANDS } from "./plugins/evaluation/pivot_ui";
 import {
   corePluginRegistry,
   evaluationPluginRegistry,
+  evaluationUIPluginRegistry,
   featurePluginRegistry,
   statefulUIPluginRegistry,
 } from "./plugins/plugin_registries";
@@ -292,6 +293,7 @@ export const registries = {
   iconsOnCellRegistry,
   statefulUIPluginRegistry,
   evaluationPluginRegistry,
+  evaluationUIPluginRegistry,
   corePluginRegistry,
   rowMenuRegistry,
   sidePanelRegistry,
