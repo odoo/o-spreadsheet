@@ -1,4 +1,4 @@
-import { Getters } from "../types/getters";
+import { EvaluationGetters } from "../types/getters";
 import { Registry } from "./registry";
 
 /**
@@ -7,9 +7,11 @@ import { Registry } from "./registry";
  * to avoid to reload the data of the pivot at each function call (PIVOT.VALUE and PIVOT.HEADER). After each
  * evaluation iteration, the pivot has to be re-evaluated during the next iteration.
  */
-export const onIterationEndEvaluationRegistry = new Registry<(getters: Getters) => void>();
+export const onIterationEndEvaluationRegistry = new Registry<
+  (getters: EvaluationGetters) => void
+>();
 
-onIterationEndEvaluationRegistry.add("pivots", (getters: Getters) => {
+onIterationEndEvaluationRegistry.add("pivots", (getters: EvaluationGetters) => {
   for (const pivotId of getters.getPivotIds()) {
     const pivot = getters.getPivot(pivotId);
     pivot.markAsDirtyForEvaluation?.();

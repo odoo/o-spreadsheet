@@ -1,4 +1,4 @@
-import { Getters } from "../../../types/getters";
+import { EvaluationGetters } from "../../../types/getters";
 import { PivotFields, SpreadsheetPivotCoreDefinition } from "../../../types/pivot";
 import { Range } from "../../../types/range";
 import { PivotRuntimeDefinition } from "../pivot_runtime_definition";
@@ -6,7 +6,11 @@ import { PivotRuntimeDefinition } from "../pivot_runtime_definition";
 export class SpreadsheetPivotRuntimeDefinition extends PivotRuntimeDefinition {
   readonly range?: Range;
 
-  constructor(definition: SpreadsheetPivotCoreDefinition, fields: PivotFields, getters: Getters) {
+  constructor(
+    definition: SpreadsheetPivotCoreDefinition,
+    fields: PivotFields,
+    getters: EvaluationGetters
+  ) {
     super(definition, fields);
     if (definition.dataSet) {
       const { sheetId, zone } = definition.dataSet;

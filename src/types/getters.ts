@@ -125,6 +125,7 @@ export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   RangeAdapterGetters &
   FormulasGetters &
   PluginGetters<typeof ConditionalFormatPlugin> &
+  PluginGetters<typeof TableStylePlugin> &
   PluginGetters<typeof TablePlugin> &
   PluginGetters<typeof SettingsPlugin> &
   PluginGetters<typeof HeaderGroupingPlugin> &
@@ -132,6 +133,31 @@ export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof NamedRangesPlugin> &
   PluginGetters<typeof PivotCorePlugin>;
 
+export type EvaluationGetters = {
+  isReadonly: () => boolean;
+  isDashboard: () => boolean;
+} & CoreGetters &
+  PluginGetters<typeof CellEvaluationPlugin> &
+  PluginGetters<typeof EvaluationChartPlugin> &
+  PluginGetters<typeof EvaluationConditionalFormatPlugin> &
+  PluginGetters<typeof EvaluationDataValidationPlugin> &
+  PluginGetters<typeof FilterEvaluationPlugin> &
+  PluginGetters<typeof CustomColorsPlugin> &
+  PluginGetters<typeof FingerprintPlugin> &
+  PluginGetters<typeof HeaderSizeUIPlugin> &
+  PluginGetters<typeof PivotUIPlugin> &
+  PluginGetters<typeof CellIconPlugin> &
+  PluginGetters<typeof DynamicTablesPlugin> &
+  PluginGetters<typeof HeaderVisibilityUIPlugin> & //FIXME should not contains getters from ui
+  PluginGetters<typeof SheetUIPlugin> & //FIXME should not contains getters from ui
+  PluginGetters<typeof ColorThemeUIPlugin> & //FIXME should not contains getters from ui
+  PluginGetters<typeof CellComputedStylePlugin> & //FIXME should not contains getters from ui
+  PluginGetters<typeof UIOptionsPlugin> & //FIXME should not contains getters from ui
+  PluginGetters<typeof PivotPresencePlugin> & //FIXME should not contains getters from ui
+  PluginGetters<typeof GridSelectionPlugin> & //FIXME should not contains getters from ui
+  PluginGetters<typeof GeoFeaturePlugin> & //FIXME should not contains getters from ui
+  PluginGetters<typeof DynamicTranslate> & //FIXME should not contains getters from ui
+  PluginGetters<typeof FormulaTrackerPlugin>;
 /**
  * The getters that can be used in the rendering-related stores and helpers. The SheetView and Selection getters should
  * not be used in those, they should use the values in the GridRenderingContext instead.
@@ -140,34 +166,22 @@ export type RenderingGetters = {
   isReadonly: () => boolean;
   isDashboard: () => boolean;
 } & CoreGetters &
+  EvaluationGetters &
   PluginGetters<typeof HistoryPlugin> &
   PluginGetters<typeof ClipboardPlugin> &
-  PluginGetters<typeof CellEvaluationPlugin> &
-  PluginGetters<typeof EvaluationChartPlugin> &
-  PluginGetters<typeof EvaluationConditionalFormatPlugin> &
   PluginGetters<typeof HeaderVisibilityUIPlugin> &
-  PluginGetters<typeof CustomColorsPlugin> &
   PluginGetters<typeof CollaborativePlugin> &
   PluginGetters<typeof SortPlugin> &
   PluginGetters<typeof UIOptionsPlugin> &
   PluginGetters<typeof SheetUIPlugin> &
-  PluginGetters<typeof FilterEvaluationPlugin> &
-  PluginGetters<typeof FingerprintPlugin> &
   PluginGetters<typeof SubtotalEvaluationPlugin> &
-  PluginGetters<typeof HeaderSizeUIPlugin> &
-  PluginGetters<typeof EvaluationDataValidationPlugin> &
   PluginGetters<typeof HeaderPositionsUIPlugin> &
-  PluginGetters<typeof TableStylePlugin> &
   PluginGetters<typeof CellComputedStylePlugin> &
-  PluginGetters<typeof DynamicTablesPlugin> &
   PluginGetters<typeof PivotUIPlugin> &
   PluginGetters<typeof TableComputedStylePlugin> &
   PluginGetters<typeof GeoFeaturePlugin> &
   PluginGetters<typeof PivotPresencePlugin> &
-  PluginGetters<typeof TableComputedStylePlugin> &
-  PluginGetters<typeof CellIconPlugin> &
   PluginGetters<typeof DynamicTranslate> &
-  PluginGetters<typeof FormulaTrackerPlugin> &
   PluginGetters<typeof LockSheetPlugin> &
   PluginGetters<typeof CarouselUIPlugin> &
   PluginGetters<typeof ColorThemeUIPlugin> &

@@ -1,5 +1,5 @@
 import { Registry } from "../../registries/registry";
-import { CoreGetters, Getters } from "../../types/getters";
+import { CoreGetters, EvaluationGetters } from "../../types/getters";
 import { ApplyRangeChange, UID } from "../../types/misc";
 import { ModelConfig } from "../../types/model";
 import { PivotCoreDefinition, PivotField, PivotFields } from "../../types/pivot";
@@ -11,7 +11,7 @@ import { SpreadsheetPivot } from "./spreadsheet_pivot/spreadsheet_pivot";
 
 export interface PivotParams {
   definition: PivotCoreDefinition;
-  getters: Getters;
+  getters: EvaluationGetters;
 }
 
 export interface PivotCoreParams {
@@ -24,7 +24,7 @@ export type PivotUIConstructor = new (custom: ModelConfig["custom"], params: Piv
 type PivotDefinitionConstructor = new (
   definition: PivotCoreDefinition,
   fields: PivotFields,
-  getters: Getters
+  getters: EvaluationGetters
 ) => PivotRuntimeDefinition;
 
 export interface PivotRegistryItem {
@@ -35,7 +35,7 @@ export interface PivotRegistryItem {
   isMeasureCandidate: (field: PivotField) => boolean;
   isGroupable: (field: PivotField) => boolean;
   canHaveCustomGroup: (field: PivotField) => boolean;
-  isPivotUnused: (getters: Getters, pivotId: UID) => boolean;
+  isPivotUnused: (getters: EvaluationGetters, pivotId: UID) => boolean;
   adaptRanges?: (
     getters: CoreGetters,
     definition: PivotCoreDefinition,

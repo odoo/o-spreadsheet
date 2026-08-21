@@ -9,7 +9,7 @@ import {
   ExcelChartDefinition,
 } from "../types/chart/chart";
 import { CommandResult } from "../types/commands";
-import { CoreGetters, Getters } from "../types/getters";
+import { CoreGetters, EvaluationGetters } from "../types/getters";
 import { RangeAdapterFunctions, UID } from "../types/misc";
 import { Range } from "../types/range";
 import { Validator } from "../types/validator";
@@ -90,12 +90,12 @@ export interface ChartTypeBuilder<T extends ChartType> {
    * If the chart is not supported by Excel, this function returns undefined.
    */
   getDefinitionForExcel(
-    getters: Getters,
+    getters: EvaluationGetters,
     definition: ChartTypeDefinition<T, Range>,
     params: Pick<ExcelChartDefinition, "dataSets" | "labelRange">
   ): ExcelChartDefinition | undefined;
   getRuntime(
-    getters: Getters,
+    getters: EvaluationGetters,
     definition: ChartTypeDefinition<T, Range>,
     chartDataExtractors: ChartDataExtractors,
     sheetId: UID,
