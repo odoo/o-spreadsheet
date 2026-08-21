@@ -25,7 +25,7 @@ import {
 import { Range } from "../../../types/range";
 import { ExcelWorkbookData } from "../../../types/workbook_data";
 import { SquishedFormula } from "../../core/squisher";
-import { CoreViewPlugin, CoreViewPluginConfig } from "../../core_view_plugin";
+import { EvaluationPlugin, EvaluationPluginConfig } from "../../evaluation_plugin";
 import { Evaluator } from "./evaluator";
 
 //#region
@@ -143,7 +143,7 @@ import { Evaluator } from "./evaluator";
 // of other cells depending on it, at the next iteration.
 
 //#endregion
-export class EvaluationPlugin extends CoreViewPlugin {
+export class CellEvaluationPlugin extends EvaluationPlugin {
   static getters = [
     "evaluateFormula",
     "evaluateFormulaResult",
@@ -169,7 +169,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
   private evaluator: Evaluator;
   private positionsToUpdate: CellPosition[] = [];
 
-  constructor(config: CoreViewPluginConfig) {
+  constructor(config: EvaluationPluginConfig) {
     super(config);
     this.evaluator = new Evaluator(config.custom, this.getters);
   }

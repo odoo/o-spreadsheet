@@ -10,7 +10,7 @@ import { isInside, positions } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { _t } from "../../translation";
 import { CellValue, CellValueType } from "../../types/cells";
-import { CoreViewCommand, invalidateEvaluationCommands } from "../../types/commands";
+import { EvaluationCommand, invalidateEvaluationCommands } from "../../types/commands";
 import {
   DataValidationCriterion,
   DataValidationCriterionType,
@@ -19,7 +19,7 @@ import {
 import { GenericCriterion } from "../../types/generic_criterion";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { CellPosition, HeaderIndex, Lazy, Matrix, Offset, Style, UID } from "../../types/misc";
-import { CoreViewPlugin } from "../core_view_plugin";
+import { EvaluationPlugin } from "../evaluation_plugin";
 
 interface InvalidValidationResult {
   readonly isValid: false;
@@ -37,7 +37,7 @@ type ValidationResult = ValidValidationResult | InvalidValidationResult;
 
 type SheetValidationResult = { [col: HeaderIndex]: Array<Lazy<ValidationResult>> };
 
-export class EvaluationDataValidationPlugin extends CoreViewPlugin {
+export class EvaluationDataValidationPlugin extends EvaluationPlugin {
   static getters = [
     "getDataValidationInvalidCriterionValueMessage",
     "getInvalidDataValidationMessage",
@@ -52,7 +52,7 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
   validationResults: Record<UID, SheetValidationResult> = {};
   criterionPreComputeResult: Record<UID, { [dvRuleId: UID]: unknown }> = {};
 
-  handle(cmd: CoreViewCommand) {
+  handle(cmd: EvaluationCommand) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       cmd.type === "EVALUATE_CELLS" ||

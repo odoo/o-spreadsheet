@@ -1,5 +1,5 @@
 import { toUnboundedZone, toZone } from "../../src/helpers/zones";
-import { ZoneSet } from "../../src/plugins/ui_core_views/cell_evaluation/zone_set";
+import { ZoneSet } from "../../src/plugins/evaluation/cell_evaluation/zone_set";
 
 describe("ZoneSet", () => {
   test("empty ZoneSet has nothing", () => {

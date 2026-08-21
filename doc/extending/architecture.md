@@ -61,7 +61,7 @@ Core plugins are responsible to manage the data persistence and all associated b
 
 UI plugins are separated in three different categories, with the following responsibility:
 
-- Manage the derived state from the core part (cell evaluation, computed style, ...) — `src/plugins/ui_core_views/`
+- Manage the derived state from the core part (cell evaluation, computed style, ...) — `src/plugins/evaluation/`
 - Manage the ui state (active sheet, current selection, ...) — `src/plugins/ui_stateful/`
 - Handle high-level features that could be described with lower-level features (Sort a zone can be described with different cell updates) — `src/plugins/ui_feature/`
 

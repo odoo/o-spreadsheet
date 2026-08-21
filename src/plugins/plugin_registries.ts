@@ -20,18 +20,18 @@ import { SpreadsheetPivotCorePlugin } from "./core/spreadsheet_pivot";
 import { TableStylePlugin } from "./core/table_style";
 import { TablePlugin } from "./core/tables";
 import { CorePluginConstructor } from "./core_plugin";
-import { CoreViewPluginConstructor } from "./core_view_plugin";
-import { EvaluationPlugin } from "./ui_core_views/cell_evaluation/evaluation_plugin";
-import { CellIconPlugin } from "./ui_core_views/cell_icon_plugin";
-import { CustomColorsPlugin } from "./ui_core_views/custom_colors";
-import { DynamicTablesPlugin } from "./ui_core_views/dynamic_tables";
-import { EvaluationChartPlugin } from "./ui_core_views/evaluation_chart";
-import { EvaluationConditionalFormatPlugin } from "./ui_core_views/evaluation_conditional_format";
-import { EvaluationDataValidationPlugin } from "./ui_core_views/evaluation_data_validation";
-import { FingerprintPlugin } from "./ui_core_views/fingerprint";
-import { FormulaTrackerPlugin } from "./ui_core_views/formula_tracker";
-import { HeaderSizeUIPlugin } from "./ui_core_views/header_sizes_ui";
-import { PivotUIPlugin } from "./ui_core_views/pivot_ui";
+import { CellEvaluationPlugin } from "./evaluation/cell_evaluation/cell_evaluation_plugin";
+import { CellIconPlugin } from "./evaluation/cell_icon_plugin";
+import { CustomColorsPlugin } from "./evaluation/custom_colors";
+import { DynamicTablesPlugin } from "./evaluation/dynamic_tables";
+import { EvaluationChartPlugin } from "./evaluation/evaluation_chart";
+import { EvaluationConditionalFormatPlugin } from "./evaluation/evaluation_conditional_format";
+import { EvaluationDataValidationPlugin } from "./evaluation/evaluation_data_validation";
+import { FingerprintPlugin } from "./evaluation/fingerprint";
+import { FormulaTrackerPlugin } from "./evaluation/formula_tracker";
+import { HeaderSizeUIPlugin } from "./evaluation/header_sizes_ui";
+import { PivotUIPlugin } from "./evaluation/pivot_ui";
+import { EvaluationPluginConstructor } from "./evaluation_plugin";
 import { ChartUIPlugin } from "./ui_feature/chart_ui";
 import { CollaborativePlugin } from "./ui_feature/collaborative";
 import { ColorThemeUIPlugin } from "./ui_feature/color_theme";
@@ -111,8 +111,8 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("figure_ui", FigureUIPlugin);
 
 // Plugins which have a derived state from core data
-export const coreViewsPluginRegistry = new Registry<CoreViewPluginConstructor>()
-  .add("evaluation", EvaluationPlugin)
+export const evaluationPluginRegistry = new Registry<EvaluationPluginConstructor>()
+  .add("evaluation", CellEvaluationPlugin)
   .add("evaluation_chart", EvaluationChartPlugin)
   .add("fingerprints", FingerprintPlugin)
   .add("evaluation_cf", EvaluationConditionalFormatPlugin)

@@ -2,7 +2,7 @@ import { isFullColRange, isFullRowRange } from "../../helpers/range";
 import { reorderZone } from "../../helpers/zones";
 import { Cell, CellValueType, FormulaCell } from "../../types/cells";
 import { CellPosition } from "../../types/misc";
-import { CoreViewPlugin } from "../core_view_plugin";
+import { EvaluationPlugin } from "../evaluation_plugin";
 
 /**
  * This implements formula "fingerprints" to efficient detect formula patterns and anomalies.
@@ -55,7 +55,7 @@ type ReferenceVector = {
  */
 export type Fingerprint = string;
 
-export class FingerprintPlugin extends CoreViewPlugin {
+export class FingerprintPlugin extends EvaluationPlugin {
   static getters = ["getCellFingerprint"] as const;
 
   getCellFingerprint(cell: Cell): Fingerprint | undefined {
