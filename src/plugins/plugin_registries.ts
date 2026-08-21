@@ -7,7 +7,7 @@ import { ConditionalFormatPlugin } from "./core/conditional_format";
 import { DataValidationPlugin } from "./core/data_validation";
 import { DefaultPlugin } from "./core/default";
 import { FigurePlugin } from "./core/figures";
-import { FormulaProviderAggregator } from "./core/formulas_provider";
+import { FormulaProviderService } from "./core/formulas_provider";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
 import { HeaderSizePlugin } from "./core/header_size";
 import { HeaderVisibilityPlugin } from "./core/header_visibility";
@@ -15,7 +15,7 @@ import { ImagePlugin } from "./core/image";
 import { MergePlugin } from "./core/merge";
 import { NamedRangesPlugin } from "./core/named_range";
 import { PivotCorePlugin } from "./core/pivot";
-import { RangeAdapterPlugin } from "./core/range";
+import { RangeAdapterService } from "./core/range";
 import { SettingsPlugin } from "./core/settings";
 import { SheetPlugin } from "./core/sheet";
 import { SpreadsheetPivotCorePlugin } from "./core/spreadsheet_pivot";
@@ -64,8 +64,8 @@ import { TableComputedStylePlugin } from "./ui_stateful/table_computed_style";
 // before all core plugins, in registration order, and handle core commands
 // before them: `range` must stay the first one.
 export const coreServiceRegistry = new Registry<CoreServiceConstructor>()
-  .add("range", RangeAdapterPlugin)
-  .add("formulas", FormulaProviderAggregator);
+  .add("range", RangeAdapterService)
+  .add("formulas", FormulaProviderService);
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("settings", SettingsPlugin)

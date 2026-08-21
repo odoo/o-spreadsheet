@@ -6,8 +6,8 @@ import { BasePlugin } from "./base_plugin";
 // /!\ Type-only imports: those modules import this one at runtime, since their
 // classes extend `CoreService`. `import type` is erased at emit time, which
 // keeps the dependency cycle at the type level only.
-import type { FormulaProviderAggregator } from "./core/formulas_provider";
-import type { RangeAdapterPlugin } from "./core/range";
+import type { FormulaProviderService } from "./core/formulas_provider";
+import type { RangeAdapterService } from "./core/range";
 
 export interface CoreServiceConfig {
   readonly getters: CoreGetters;
@@ -42,13 +42,13 @@ export class CoreService<State = any> extends BasePlugin<State, CoreCommand> {
  * The type of each core service, by key of `coreServiceRegistry`.
  */
 interface CoreServiceTypes {
-  range: RangeAdapterPlugin;
-  formulas: FormulaProviderAggregator;
+  range: RangeAdapterService;
+  formulas: FormulaProviderService;
 }
 
 /**
  * The core service instances of a model. It's a registry whose `get` is typed
- * per key, so that `services.get("range")` returns a `RangeAdapterPlugin`.
+ * per key, so that `services.get("range")` returns a `RangeAdapterService`.
  */
 export class CoreServices extends Registry<CoreService> {
   get<K extends keyof CoreServiceTypes>(key: K): CoreServiceTypes[K];

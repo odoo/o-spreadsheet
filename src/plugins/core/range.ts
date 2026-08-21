@@ -27,7 +27,7 @@ import {
 import { Range, RangeData, RangeStringOptions } from "../../types/range";
 import { CoreService } from "../core_service";
 
-export class RangeAdapterPlugin extends CoreService {
+export class RangeAdapterService extends CoreService {
   private providers: Array<RangeProvider["adaptRanges"]> = [];
   private isAdaptingRanges: boolean = false;
 
