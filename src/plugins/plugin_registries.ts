@@ -123,3 +123,16 @@ export const evaluationPluginRegistry = new Registry<EvaluationPluginConstructor
   .add("pivot_ui", PivotUIPlugin)
   .add("cell_icon", CellIconPlugin)
   .add("formula_tracker", FormulaTrackerPlugin);
+
+// Plugins which are UI plugins but on which evaluation plugins depend on
+export const evaluationUIPluginRegistry = new Registry<UIPluginConstructor>()
+  .add("header_visibility_ui", HeaderVisibilityUIPlugin)
+  .add("filter_evaluation", FilterEvaluationPlugin)
+  .add("ui_sheet", SheetUIPlugin)
+  .add("color_theme", ColorThemeUIPlugin)
+  .add("cell_computed_style", CellComputedStylePlugin)
+  .add("ui_options", UIOptionsPlugin)
+  .add("pivot_presence", PivotPresencePlugin)
+  .add("selection", GridSelectionPlugin)
+  .add("geo_features", GeoFeaturePlugin)
+  .add("dynamic_translate", DynamicTranslate);

@@ -14,7 +14,7 @@ import {
 } from "../../../types/chart/chart";
 import { CommandResult } from "../../../types/commands";
 import { CellErrorType } from "../../../types/errors";
-import { Getters } from "../../../types/getters";
+import { EvaluationGetters } from "../../../types/getters";
 import { FunctionResultObject } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import {
@@ -262,7 +262,10 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<
   },
 };
 
-export function getChartData(getters: Getters, dataSource: ChartRangeDataSource): ChartData {
+export function getChartData(
+  getters: EvaluationGetters,
+  dataSource: ChartRangeDataSource
+): ChartData {
   const dataSets = dataSource.dataSets;
   const labelRange = dataSource.labelRange;
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
@@ -285,7 +288,7 @@ export function getChartData(getters: Getters, dataSource: ChartRangeDataSource)
 }
 
 function getChartDatasetValues(
-  getters: Getters,
+  getters: EvaluationGetters,
   dataSets: DataSet[],
   labelRange: Range | undefined
 ): DatasetValues[] {
@@ -334,7 +337,7 @@ function getChartDatasetValues(
 }
 
 function getChartLabelValues(
-  getters: Getters,
+  getters: EvaluationGetters,
   dataSets: DataSet[],
   labelRange: Range | undefined
 ): LabelValues {
@@ -368,7 +371,10 @@ function getChartLabelValues(
  * 2024    Q1    W1    100
  * 2024    Q1    W2    200
  */
-function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {
+function getHierarchicalDatasetValues(
+  getters: EvaluationGetters,
+  dataSets: DataSet[]
+): DatasetValues[] {
   dataSets = dataSets.filter(
     (ds) => !getters.isColHidden(ds.dataRange.sheetId, ds.dataRange.zone.left)
   );
@@ -412,7 +418,7 @@ function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): Da
 /**
  * Get the data from a dataSet
  */
-export function getData(getters: Getters, ds: DataSet): FunctionResultObject[] {
+export function getData(getters: EvaluationGetters, ds: DataSet): FunctionResultObject[] {
   if (ds.dataRange) {
     const labelCellZone = ds.labelCell ? [ds.labelCell.zone] : [];
     const dataZone = recomputeZones([ds.dataRange.zone], labelCellZone)[0];

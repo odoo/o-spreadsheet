@@ -41,7 +41,7 @@ import {
   GenericCriterion,
   GenericCriterionType,
 } from "../types/generic_criterion";
-import { Getters } from "../types/getters";
+import { EvaluationGetters, Getters } from "../types/getters";
 import { DEFAULT_LOCALE, Locale } from "../types/locale";
 import { UID } from "../types/misc";
 import { Range } from "../types/range";
@@ -70,14 +70,18 @@ export type CriterionEvaluator<T = unknown> = {
   preComputeCriterion?: (
     criterion: GenericCriterion,
     criterionRanges: Range[],
-    getters: Getters
+    getters: EvaluationGetters
   ) => T;
   /**
    * Returns the error string to display when the value is not valid.
    *
    * The criterion values should be in canonical form (non-localized), and formulas should be evaluated.
    */
-  getErrorString: (criterion: EvaluatedCriterion, getters: Getters, sheetId: UID) => string;
+  getErrorString: (
+    criterion: EvaluatedCriterion,
+    getters: EvaluationGetters,
+    sheetId: UID
+  ) => string;
   /**
    * Checks if a criterion value is valid.
    *
@@ -87,7 +91,7 @@ export type CriterionEvaluator<T = unknown> = {
   /** Return the number of values that the criterion must contains. Return undefined if the criterion can have any number of values */
   numberOfValues: (criterion: GenericCriterion) => number | undefined;
   name: string;
-  getPreview: (criterion: GenericCriterion, getters: Getters) => string;
+  getPreview: (criterion: GenericCriterion, getters: EvaluationGetters) => string;
 
   /** Error string when a criterion value is invalid */
   criterionValueErrorString: string;
