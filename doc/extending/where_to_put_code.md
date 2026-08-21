@@ -10,7 +10,7 @@
 o-spreadsheet gives you six legitimate places to put a new feature's code:
 
 1. **Core plugin** (`src/plugins/core/`)
-2. **Core-view plugin**, a.k.a. "CoreUi" (`src/plugins/ui_core_views/`)
+2. **Evaluation plugin** (`src/plugins/evaluation/`)
 3. **`ui_feature` plugin** (`src/plugins/ui_feature/`)
 4. **`ui_stateful` plugin** (`src/plugins/ui_stateful/`)
 5. **Global store** (`src/stores/`, obtained with `useStore`)
@@ -32,7 +32,7 @@ flowchart TD
     Q5{"If this component were<br/>mounted twice, should both<br/>mounts share the same<br/>state instance?"}
 
     Core["Core plugin<br/>src/plugins/core/"]
-    CoreView["Core-view (CoreUi) plugin<br/>src/plugins/ui_core_views/"]
+    Evaluation["Evaluation plugin<br/>src/plugins/evaluation/"]
     Stateful["ui_stateful plugin<br/>src/plugins/ui_stateful/"]
     Feature["ui_feature plugin<br/>src/plugins/ui_feature/"]
     GlobalStore["Global store<br/>useStore(...)"]
@@ -41,7 +41,7 @@ flowchart TD
     Start --> Q1
     Q1 -- yes --> Core
     Q1 -- no --> Q2
-    Q2 -- yes --> CoreView
+    Q2 -- yes --> Evaluation
     Q2 -- no --> Q3
     Q3 -- "shared / app-wide UI" --> Q4
     Q3 -- "one component" --> Q5
@@ -54,7 +54,7 @@ flowchart TD
 Notes on the tree:
 
 - **Q1** is the only question about _persistence_. If the answer is yes, it's a core plugin, full stop — everything downstream (import/export, `this.history.update`, collaborative sync) is a consequence of this one answer.
-- **Q2** is the "derived, not owned" test. Cell evaluation, computed styles, dynamic table ranges — none of these are their own source of truth, they're recomputed from core data (and possibly other core-view getters). Because every collaborator recomputes the same thing from the same replayed core commands, a core-view plugin's state never needs to be transmitted itself.
+- **Q2** is the "derived, not owned" test. Cell evaluation, computed styles, dynamic table ranges — none of these are their own source of truth, they're recomputed from core data (and possibly other evaluation getters). Because every collaborator recomputes the same thing from the same replayed core commands, an evaluation plugin's state never needs to be transmitted itself.
 - **Q3** is the plugin-vs-store fork, already documented in detail in [`src/store_engine/README.md#when-to-use-a-store-and-when-to-use-a-plugin`](../../src/store_engine/README.md#when-to-use-a-store-and-when-to-use-a-plugin) — read that section for the full reasoning (rendering cost, boilerplate, multiple mounts). This tree just routes you there.
 - **Q4** and **Q5** are each expanded below, because the answer isn't a matter of taste — it's enforced by actual code paths (`src/model.ts` for Q4, `src/store_engine/dependency_container.ts` for Q5).
 
@@ -75,15 +75,15 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()...
 ```mermaid
 flowchart LR
     subgraph Local["Locally dispatched command"]
-        L1["core plugins"] --> L2["core-view plugins"] --> L3["ui_stateful plugins"] --> L4["ui_feature plugins"]
+        L1["core plugins"] --> L2["evaluation plugins"] --> L3["ui_stateful plugins"] --> L4["ui_feature plugins"]
     end
     subgraph Remote["Remote command replay (onRemoteRevisionReceived)"]
-        R1["core plugins<br/>(coreHandlers, can allowDispatch)"] --> R2["core-view plugins<br/>(coreHandlers, can allowDispatch)"] --> R3["ui_stateful plugins<br/>(statefulUIPlugins, handle only)"]
+        R1["core plugins<br/>(coreHandlers, can allowDispatch)"] --> R2["evaluation plugins<br/>(coreHandlers, can allowDispatch)"] --> R3["ui_stateful plugins<br/>(statefulUIPlugins, handle only)"]
         R4["ui_feature plugins — never called"]
     end
 ```
 
-- Core and core-view plugins are in `coreHandlers`: they replay every remote command and can even `allowDispatch`/reject it.
+- Core and evaluation plugins are in `coreHandlers`: they replay every remote command and can even `allowDispatch`/reject it.
 - `ui_stateful` plugins are replayed too (via a separate `statefulUIPlugins` list, `handle()` only, no veto power) — this is what lets `GridSelectionPlugin` adjust the local selection when a remote user deletes the row it was pointing at, for example.
 - `ui_feature` plugins are **never** replayed remotely. `model.ts` explicitly guards against it (`isReplayingCommand`), because a feature plugin's job is to expand one local, high-level command (e.g. `SORT_CELLS`) into a sequence of core commands — and only those resulting core commands are what actually gets sent to other collaborators. Replaying the feature plugin itself on a remote peer would be redundant (or wrong, since the _inputs_ to the expansion may no longer make sense after other changes).
 
@@ -113,7 +113,7 @@ The practical test for Q5: **if this component were mounted twice (e.g. the same
 
 ## Capability matrix
 
-|                                    | Core plugin    | Core-view plugin         | `ui_feature` plugin | `ui_stateful` plugin | Global store                                                                                                                       | Local store                                        |
+|                                    | Core plugin    | Evaluation plugin        | `ui_feature` plugin | `ui_stateful` plugin | Global store                                                                                                                       | Local store                                        |
 | ---------------------------------- | -------------- | ------------------------ | ------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
 | Persisted (import/export)          | ✔              | ✘                        | ✘                   | ✘                    | ✘                                                                                                                                  | ✘                                                  |
 | Undo/redo history (`this.history`) | ✔              | ✔ (cache only)           | ✔                   | ✔                    | ✘                                                                                                                                  | ✘                                                  |
@@ -139,11 +139,11 @@ The tree above is the _target_ rule. In practice, several existing plugins and s
 
 ## Quick reference
 
-| I want to...                                                                | Put it in...         | Example                                    |
-| --------------------------------------------------------------------------- | -------------------- | ------------------------------------------ |
-| Add a new spreadsheet-data concept (e.g. a new persisted object type)       | Core plugin          | `SheetPlugin`, `MergePlugin`               |
-| Compute something purely from core data (evaluation, computed style caches) | Core-view plugin     | `EvaluationPlugin`, `HeaderSizeUIPlugin`   |
-| Translate one high-level user action into several core commands             | `ui_feature` plugin  | `SortPlugin`, `InsertPivotPlugin`          |
-| Keep per-user transient state consistent even under remote edits            | `ui_stateful` plugin | `GridSelectionPlugin`, `ClipboardPlugin`   |
-| Share UI state/logic across many unrelated components, app-wide             | Global store         | `NotificationStore`, `ViewportsStore`      |
-| Back a single component's own state/business logic (one instance per mount) | Local store          | `AutomaticSumStore`, `FindAndReplaceStore` |
+| I want to...                                                                | Put it in...         | Example                                      |
+| --------------------------------------------------------------------------- | -------------------- | -------------------------------------------- |
+| Add a new spreadsheet-data concept (e.g. a new persisted object type)       | Core plugin          | `SheetPlugin`, `MergePlugin`                 |
+| Compute something purely from core data (evaluation, computed style caches) | Evaluation plugin    | `CellEvaluationPlugin`, `HeaderSizeUIPlugin` |
+| Translate one high-level user action into several core commands             | `ui_feature` plugin  | `SortPlugin`, `InsertPivotPlugin`            |
+| Keep per-user transient state consistent even under remote edits            | `ui_stateful` plugin | `GridSelectionPlugin`, `ClipboardPlugin`     |
+| Share UI state/logic across many unrelated components, app-wide             | Global store         | `NotificationStore`, `ViewportsStore`        |
+| Back a single component's own state/business logic (one instance per mount) | Local store          | `AutomaticSumStore`, `FindAndReplaceStore`   |

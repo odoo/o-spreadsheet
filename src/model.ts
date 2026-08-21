@@ -17,10 +17,10 @@ import { BasePlugin } from "./plugins/base_plugin";
 import { FormulaProviderAggregator } from "./plugins/core/formulas_provider";
 import { RangeAdapterPlugin } from "./plugins/core/range";
 import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
-import { CoreViewPluginConfig, CoreViewPluginConstructor } from "./plugins/core_view_plugin";
+import { EvaluationPluginConfig, EvaluationPluginConstructor } from "./plugins/evaluation_plugin";
 import {
   corePluginRegistry,
-  coreViewsPluginRegistry,
+  evaluationPluginRegistry,
   featurePluginRegistry,
   statefulUIPluginRegistry,
 } from "./plugins/plugin_registries";
@@ -116,7 +116,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   readonly config: ModelConfig;
   private corePluginConfig: CorePluginConfig;
-  private coreViewPluginConfig: CoreViewPluginConfig;
+  private evaluationPluginConfig: EvaluationPluginConfig;
   private uiPluginConfig: UIPluginConfig;
 
   private state: StateObserver;
@@ -195,7 +195,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.handlers.push(this.range);
 
     this.corePluginConfig = this.setupCorePluginConfig();
-    this.coreViewPluginConfig = this.setupCoreViewPluginConfig();
+    this.evaluationPluginConfig = this.setupEvaluationPluginConfig();
     this.uiPluginConfig = this.setupUiPluginConfig();
 
     // registering plugins
@@ -206,8 +206,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.session.loadInitialMessages(stateUpdateMessages);
 
-    for (const Plugin of coreViewsPluginRegistry.getAll()) {
-      const plugin = this.setupCoreViewPlugin(Plugin);
+    for (const Plugin of evaluationPluginRegistry.getAll()) {
+      const plugin = this.setupEvaluationPlugin(Plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
       this.coreHandlers.push(plugin);
@@ -280,8 +280,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     return plugin;
   }
 
-  private setupCoreViewPlugin(Plugin: CoreViewPluginConstructor) {
-    const plugin = new Plugin(this.coreViewPluginConfig);
+  private setupEvaluationPlugin(Plugin: EvaluationPluginConstructor) {
+    const plugin = new Plugin(this.evaluationPluginConfig);
     for (const name of Plugin.getters) {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
@@ -335,7 +335,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         dispatch: (command: CoreCommand) => {
           const result = this.checkDispatchAllowedRemoteCommand(command);
           if (!result.isSuccessful) {
-            // core views plugins need to be invalidated
+            // evaluation plugins need to be invalidated
             this.dispatchToHandlers(this.coreHandlers, {
               type: "UNDO",
               commands: [command],
@@ -419,7 +419,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     };
   }
 
-  private setupCoreViewPluginConfig(): CoreViewPluginConfig {
+  private setupEvaluationPluginConfig(): EvaluationPluginConfig {
     return {
       getters: this.getters,
       stateObserver: this.state,

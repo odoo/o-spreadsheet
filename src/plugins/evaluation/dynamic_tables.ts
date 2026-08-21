@@ -19,9 +19,9 @@ import { PivotStyle } from "../../types/pivot";
 import { CoreTable, DynamicTable, Filter, Table, TableConfig } from "../../types/table";
 import { ExcelTableData, ExcelWorkbookData } from "../../types/workbook_data";
 
-import { CoreViewPlugin } from "../core_view_plugin";
+import { EvaluationPlugin } from "../evaluation_plugin";
 
-export class DynamicTablesPlugin extends CoreViewPlugin {
+export class DynamicTablesPlugin extends EvaluationPlugin {
   static getters = [
     "canCreateDynamicTableOnZones",
     "doesZonesContainFilter",

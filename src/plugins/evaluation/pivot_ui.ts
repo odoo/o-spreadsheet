@@ -33,7 +33,7 @@ import {
 } from "../../types/misc";
 import { PivotCoreMeasure, PivotStyle, PivotTableCell } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
-import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
+import { EvaluationPlugin, EvaluationPluginConfig } from "../evaluation_plugin";
 import { UIPluginConfig } from "../ui_plugin";
 
 export const UNDO_REDO_PIVOT_COMMANDS = ["ADD_PIVOT", "UPDATE_PIVOT", "REMOVE_PIVOT"];
@@ -47,7 +47,7 @@ interface PivotEvaluatedArgs {
   args: (CellValue | Matrix<CellValue> | undefined)[];
 }
 
-export class PivotUIPlugin extends CoreViewPlugin {
+export class PivotUIPlugin extends EvaluationPlugin {
   static getters = [
     "getPivot",
     "getFirstPivotFunction",
@@ -68,7 +68,7 @@ export class PivotUIPlugin extends CoreViewPlugin {
   private pivotPositionCache: PositionMap<UID[]> = new PositionMap();
   private shouldInvalidateCache: boolean = false;
 
-  constructor(config: CoreViewPluginConfig) {
+  constructor(config: EvaluationPluginConfig) {
     super(config);
     this.custom = config.custom;
   }

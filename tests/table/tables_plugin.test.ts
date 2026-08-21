@@ -42,7 +42,7 @@ import {
 
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { DEFAULT_TABLE_CONFIG, TABLE_PRESETS } from "../../src/helpers/table_presets";
-import { EvaluationPlugin } from "../../src/plugins/ui_core_views/cell_evaluation/evaluation_plugin";
+import { CellEvaluationPlugin } from "../../src/plugins/evaluation/cell_evaluation/cell_evaluation_plugin";
 import { TABLE_STYLE_ALL_RED } from "../test_helpers/constants";
 
 beforeEach(() => {
@@ -128,7 +128,7 @@ describe("Table plugin", () => {
       test("Inserting a table only invalidates the evaluation if it overlaps a merge", () => {
         merge(model, "A1:B1");
 
-        const evaluator = getPlugin(model, EvaluationPlugin)["evaluator"];
+        const evaluator = getPlugin(model, CellEvaluationPlugin)["evaluator"];
         const evaluateSpy = jest.spyOn(evaluator, "evaluateAllCells");
 
         createTable(model, "D1:E5");

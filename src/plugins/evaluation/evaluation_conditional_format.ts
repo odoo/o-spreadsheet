@@ -8,7 +8,7 @@ import { isInside } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { CellValueType, EvaluatedCell, NumberCell } from "../../types/cells";
 import {
-  CoreViewCommand,
+  EvaluationCommand,
   invalidateCFEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types/commands";
@@ -24,13 +24,13 @@ import {
 import { EvaluatedCriterion, EvaluatedDateCriterion } from "../../types/generic_criterion";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { CellPosition, DataBarFill, HeaderIndex, Lazy, Style, UID, Zone } from "../../types/misc";
-import { CoreViewPlugin } from "../core_view_plugin";
+import { EvaluationPlugin } from "../evaluation_plugin";
 
 type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
 type ComputedIcons = { [col: HeaderIndex]: (string | undefined)[] };
 type ComputedDataBars = { [col: HeaderIndex]: (DataBarFill | undefined)[] };
 
-export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
+export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
   static getters = [
     "getConditionalIcon",
     "getCellConditionalFormatStyle",
@@ -46,7 +46,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  handle(cmd: CoreViewCommand) {
+  handle(cmd: EvaluationCommand) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       invalidateCFEvaluationCommands.has(cmd.type) ||
