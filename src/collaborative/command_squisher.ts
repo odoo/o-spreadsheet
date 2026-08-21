@@ -3,7 +3,7 @@ import { deepEquals } from "../helpers/misc";
 import { SquishedFormula, Squisher } from "../plugins/core/squisher";
 import { Unsquisher } from "../plugins/core/unsquisher";
 import { CoreCommand, UpdateCellCommand } from "../types/commands";
-import { CoreGetters } from "../types/core_getters";
+import { CoreGetters } from "../types/getters";
 import { UpdateCellData } from "../types/misc";
 
 /**

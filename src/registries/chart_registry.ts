@@ -9,8 +9,7 @@ import {
   ExcelChartDefinition,
 } from "../types/chart/chart";
 import { CommandResult } from "../types/commands";
-import { CoreGetters } from "../types/core_getters";
-import { Getters } from "../types/getters";
+import { CoreGetters, Getters } from "../types/getters";
 import { RangeAdapterFunctions, UID } from "../types/misc";
 import { Range } from "../types/range";
 import { Validator } from "../types/validator";

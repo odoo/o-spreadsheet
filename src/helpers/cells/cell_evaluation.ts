@@ -12,8 +12,8 @@ import {
   LiteralCell,
   NumberCell,
 } from "../../types/cells";
-import { CoreGetters } from "../../types/core_getters";
 import { Format, LocaleFormat } from "../../types/format";
+import { CoreGetters } from "../../types/getters";
 import { DEFAULT_LOCALE, Locale } from "../../types/locale";
 import { CellPosition, FunctionResultObject, Style, UID } from "../../types/misc";
 import { parseDateTime } from "../dates";
