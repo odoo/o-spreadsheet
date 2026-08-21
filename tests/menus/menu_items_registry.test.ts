@@ -49,6 +49,7 @@ import { createModelWithPivot } from "../test_helpers/pivot_helpers";
 import { Currency, Model } from "../../src";
 
 import { ActionSpec, createAction, createActions } from "../../src/actions/action";
+import { FIRST_TABLE_IN_SELECTION } from "../../src/actions/menu_items_actions";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { FONT_SIZES } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
@@ -1747,9 +1748,10 @@ describe("Menu Item actions", () => {
       test("Edit -> Table (topbar)", async () => {
         const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
         createTable(model, "A1:A5");
+        const table = FIRST_TABLE_IN_SELECTION(env);
         expect(getName(editTablePath, env)).toBe("Edit table");
         await doAction(editTablePath, env);
-        expect(spyOpenSidePanel).toHaveBeenCalledWith("TableSidePanel", {});
+        expect(spyOpenSidePanel).toHaveBeenCalledWith("TableSidePanel", { table });
       });
 
       test("Edit -> Table (topbar) is not visible if there is no table in the selection", () => {
@@ -1761,9 +1763,10 @@ describe("Menu Item actions", () => {
       test("Edit table (cellRegistry)", async () => {
         const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
         createTable(model, "A1:A5");
+        const table = FIRST_TABLE_IN_SELECTION(env);
         expect(getName(["edit_table"], env, cellMenuRegistry)).toBe("Edit table");
         await doAction(["edit_table"], env, cellMenuRegistry);
-        expect(spyOpenSidePanel).toHaveBeenCalledWith("TableSidePanel", {});
+        expect(spyOpenSidePanel).toHaveBeenCalledWith("TableSidePanel", { table });
       });
 
       test("Delete table (cellRegistry)", async () => {
