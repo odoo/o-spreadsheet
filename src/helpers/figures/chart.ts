@@ -15,8 +15,7 @@ import {
   ChartDefinition,
   ChartType,
 } from "../../types/chart/chart";
-import { CoreGetters } from "../../types/core_getters";
-import { Getters } from "../../types/getters";
+import { CoreGetters, Getters } from "../../types/getters";
 import { RangeAdapterFunctions, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { ColorThemeName } from "../../types/rendering";

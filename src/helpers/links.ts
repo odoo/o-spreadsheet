@@ -2,7 +2,7 @@ import { Registry } from "../registries/registry";
 import { _t } from "../translation";
 import { CellValue } from "../types/cells";
 import { CommandResult } from "../types/commands";
-import { CoreGetters } from "../types/core_getters";
+import { CoreGetters } from "../types/getters";
 import { Link } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import {

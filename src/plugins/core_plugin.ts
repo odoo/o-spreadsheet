@@ -1,7 +1,7 @@
 import { CompiledFormula } from "../formulas/compiler";
 import { StateObserver } from "../state_observer";
 import { CoreCommand, CoreCommandDispatcher } from "../types/commands";
-import { CoreGetters } from "../types/core_getters";
+import { CoreGetters } from "../types/getters";
 import { FormulaProvider, RangeAdapterFunctions, RangeProvider } from "../types/misc";
 import { ModelConfig } from "../types/model";
 import { WorkbookData } from "../types/workbook_data";

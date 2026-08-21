@@ -1,6 +1,5 @@
 import { Registry } from "../../registries/registry";
-import { CoreGetters } from "../../types/core_getters";
-import { Getters } from "../../types/getters";
+import { CoreGetters, Getters } from "../../types/getters";
 import { ApplyRangeChange, UID } from "../../types/misc";
 import { ModelConfig } from "../../types/model";
 import { PivotCoreDefinition, PivotField, PivotFields } from "../../types/pivot";

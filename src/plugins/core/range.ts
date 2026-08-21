@@ -15,8 +15,8 @@ import { rangeReference, splitReference } from "../../helpers/references";
 
 import { isZoneValid, unionUnboundedZones } from "../../helpers/zones";
 import { Command, CommandHandler, CommandResult, CoreCommand } from "../../types/commands";
-import { CoreGetters } from "../../types/core_getters";
 import { CellErrorType } from "../../types/errors";
+import { CoreGetters } from "../../types/getters";
 import {
   Dimension,
   RangeAdapterFunctions,
