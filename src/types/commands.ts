@@ -214,6 +214,8 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "UPDATE_CAROUSEL_ACTIVE_ITEM",
 
   "UPDATE_PIVOT",
+
+  "UPDATE_COLOR_SCHEME",
 ]);
 
 export const lockedSheetAllowedCommands = new Set<Command["type"]>([
