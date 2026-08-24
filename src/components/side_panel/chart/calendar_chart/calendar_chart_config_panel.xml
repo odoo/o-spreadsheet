@@ -26,7 +26,7 @@
             t-att-value="getGroupByType('horizontal')"
             class="o-input o-horizontal-group-by"
             t-on-change="ev => this.updateGroupBy('horizontal', ev.target.value)">
-            <t t-foreach="getGroupByOptions()" t-as="groupBy" t-key="groupBy.value">
+            <t t-foreach="this.groupByChoices" t-as="groupBy" t-key="groupBy.value">
               <option
                 t-att-selected="getGroupByType('horizontal') === groupBy.value"
                 t-att-value="groupBy.value">
@@ -41,7 +41,7 @@
             t-att-value="getGroupByType('vertical')"
             class="o-input o-vertical-group-by"
             t-on-change="ev => this.updateGroupBy('vertical', ev.target.value)">
-            <t t-foreach="getGroupByOptions()" t-as="groupBy" t-key="groupBy.value">
+            <t t-foreach="this.groupByChoices" t-as="groupBy" t-key="groupBy.value">
               <option
                 t-att-selected="getGroupByType('vertical') === groupBy.value"
                 t-att-value="groupBy.value">
