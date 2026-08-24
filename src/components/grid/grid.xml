@@ -58,6 +58,7 @@
         anchorRect="this.menuState.anchorRect"
         onClose="() => this.closeMenu()"
       />
+      <HeaderResizeEditor target="this.headerResizeEditorTarget" gridRect="this.getGridRect()"/>
       <t
         t-if="this.displayTableResizer"
         t-foreach="this.staticTables"
