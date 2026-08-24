@@ -1,4 +1,5 @@
 import { onMounted, providePlugins, proxy, signal, useListener, useProps } from "@odoo/owl";
+import { Action, createAction } from "../../actions/action";
 import { insertSheet, insertTable } from "../../actions/insert_actions";
 import {
   CREATE_IMAGE,
@@ -21,7 +22,7 @@ import {
   interactivePaste,
   interactivePasteFromOS,
 } from "../../helpers/ui/paste_interactive";
-import { isInside } from "../../helpers/zones";
+import { isInside, positionToZone } from "../../helpers/zones";
 import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
@@ -40,6 +41,7 @@ import { ClipboardStore } from "../../stores/clipboard_store";
 import { HighlightStore } from "../../stores/highlight_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
+import { _t } from "../../translation";
 import { CellValueType } from "../../types/cells";
 import { ClipboardMIMEType } from "../../types/clipboard";
 import { Client } from "../../types/collaborative/session";
@@ -64,6 +66,10 @@ import { GridComposer } from "../composer/grid_composer/grid_composer";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
+import {
+  HeaderResizeEditor,
+  HeaderResizeEditorTarget,
+} from "../header_resize_editor/header_resize_editor";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect, keyboardEventToShortcutString } from "../helpers/dom_helpers";
@@ -126,6 +132,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     GridComposer,
     GridOverlay,
     GridPopover,
+    HeaderResizeEditor,
     HeadersOverlay,
     MenuPopover,
     Autofill,
@@ -147,6 +154,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly HEADER_WIDTH = HEADER_WIDTH;
   private menuState!: MenuState;
+  private headerResizeEditorTarget = signal<HeaderResizeEditorTarget | null>(null);
   private gridRef = signal.ref();
   private canvasRef = signal.ref(HTMLCanvasElement);
   private highlightStore!: Store<HighlightStore>;
@@ -687,8 +695,8 @@ export class Grid extends Component<SpreadsheetChildEnv> {
 
   onInputContextMenu(ev: MouseEvent) {
     ev.preventDefault();
-    const lastZone = this.env.model.getters.getSelectedZone();
-    const { left: col, top: row } = lastZone;
+    const position = this.env.model.getters.getActivePosition();
+    const { col, row, sheetId } = position;
     let type: ContextMenuType = "CELL";
     this.composerFocusStore.activeComposer.stopEdition();
     if (this.env.model.getters.getActiveCols().has(col)) {
@@ -696,12 +704,18 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     } else if (this.env.model.getters.getActiveRows().has(row)) {
       type = "ROW";
     }
-    const { x, y, width } = this.viewStore.viewports.getVisibleRectWithZoom(
-      this.env.model.getters.getActiveSheetId(),
-      lastZone
-    );
+
+    let anchorZone = positionToZone(position);
+    const sheetZone = this.env.model.getters.getSheetZone(sheetId);
+    // Full-height/full-width header zones remain visible when the active cell is offscreen.
+    if (type === "COL") {
+      anchorZone = { ...sheetZone, left: col, right: col };
+    } else if (type === "ROW") {
+      anchorZone = { ...sheetZone, top: row, bottom: row };
+    }
+    const { x, y } = this.viewStore.viewports.getVisibleRectWithZoom(sheetId, anchorZone);
     const gridRect = this.getGridRect();
-    this.toggleContextMenu(type, gridRect.x + x + width, gridRect.y + y);
+    this.toggleContextMenu(type, gridRect.x + x, gridRect.y + y);
   }
 
   onCellRightClicked(col: HeaderIndex, row: HeaderIndex, { x, y }: DOMCoordinates) {
@@ -721,6 +735,60 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     this.toggleContextMenu(type, x, y);
   }
 
+  private getMenuItems(type: ContextMenuType, col: HeaderIndex, row: HeaderIndex): Action[] {
+    const menuItems = registries[type].getMenuItems();
+    const headerIndex = type === "COL" ? col : type === "ROW" ? row : -1;
+    if (headerIndex === -1) {
+      return menuItems;
+    }
+
+    // Build the resize action on demand so it captures the target header index.
+    const isColumn = type === "COL";
+    const unhideAction = menuItems.find(
+      ({ id }) => id === (isColumn ? "unhide_columns" : "unhide_rows")
+    );
+    if (!unhideAction) {
+      throw new Error("Missing unhide action in the header menu");
+    }
+    menuItems.push(
+      createAction({
+        id: isColumn ? "resize_columns" : "resize_rows",
+        name: isColumn ? _t("Resize column") : _t("Resize row"),
+        sequence: unhideAction.sequence + 1,
+        separator: true,
+        icon: isColumn
+          ? "o-spreadsheet-Icon.RESIZE_HORIZONTAL"
+          : "o-spreadsheet-Icon.RESIZE_VERTICAL",
+        children: [
+          {
+            name: _t("Fit to data"),
+            execute: (env) => {
+              const sheetId = env.model.getters.getActiveSheetId();
+              return isColumn
+                ? env.model.dispatch("AUTORESIZE_COLUMNS", {
+                    sheetId,
+                    cols: [...env.model.getters.getActiveCols()],
+                  })
+                : env.model.dispatch("AUTORESIZE_ROWS", {
+                    sheetId,
+                    rows: [...env.model.getters.getActiveRows()],
+                  });
+            },
+          },
+          {
+            name: _t("Custom size"),
+            execute: () =>
+              this.headerResizeEditorTarget.set({
+                dimension: isColumn ? "COL" : "ROW",
+                index: headerIndex,
+              }),
+          },
+        ],
+      })
+    );
+    return menuItems.sort((a, b) => a.sequence - b.sequence);
+  }
+
   /**
    * expects x and y coordinates in true pixels (not zoomed)
    */
@@ -728,9 +796,18 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     if (this.cellPopovers.isOpen) {
       this.cellPopovers.close();
     }
+    const gridRect = this.getGridRect();
+    const zoom = this.zoomStore.zoomLevel;
+    const gridOffset = this.viewStore.gridOffset;
+    // x/y are client coords; getCartesianCoordinates expects unzoomed offsets
+    // relative to the top-left of the cell grid.
+    const [col, row] = this.viewStore.getCartesianCoordinates(
+      (x - gridRect.x) / zoom - gridOffset.x,
+      (y - gridRect.y) / zoom - gridOffset.y
+    );
     this.menuState.isOpen = true;
     this.menuState.anchorRect = { x, y, width: 0, height: 0 };
-    this.menuState.menuItems = registries[type].getMenuItems();
+    this.menuState.menuItems = this.getMenuItems(type, col, row);
   }
 
   async copy(cut: boolean, ev: ClipboardEvent) {

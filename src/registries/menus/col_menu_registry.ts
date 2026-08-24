@@ -80,12 +80,10 @@ colMenuRegistry
   .add("hide_columns", {
     ...ACTION_VIEW.hideCols,
     sequence: 105,
-    separator: true,
   })
   .add("unhide_columns", {
     ...ACTION_VIEW.unhideCols,
     sequence: 106,
-    separator: true,
   })
   .add("conditional_formatting", {
     ...ACTION_FORMAT.formatCF,
