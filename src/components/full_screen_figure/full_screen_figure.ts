@@ -1,4 +1,4 @@
-import { onWillUpdateProps, signal, useEffect } from "@odoo/owl";
+import { onWillUpdateProps, proxy, signal, useEffect } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { figureRegistry } from "../../registries/figures_registry";
 import { useStore } from "../../store_engine/store_hooks";
@@ -15,6 +15,7 @@ export class FullScreenFigure extends Component<SpreadsheetChildEnv> {
 
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
   private fullScreenFigureRef = signal.ref();
+  private containerSize = proxy({ width: 0, height: 0 });
 
   spreadsheetRect = useSpreadsheetRect();
 
@@ -33,10 +34,30 @@ export class FullScreenFigure extends Component<SpreadsheetChildEnv> {
     });
 
     useEffect(() => this.fullScreenFigureRef()?.focus());
+    useEffect(() => {
+      const el = this.fullScreenFigureRef();
+      if (!el) {
+        return;
+      }
+      const resizeObserver = new ResizeObserver(([entry]) => {
+        this.containerSize.width = entry.contentRect.width;
+        this.containerSize.height = entry.contentRect.height;
+      });
+      resizeObserver.observe(el);
+      return () => resizeObserver.disconnect();
+    });
   }
 
   get figureUI() {
-    return this.fullScreenFigureStore.fullScreenFigure;
+    const figureUI = this.fullScreenFigureStore.fullScreenFigure;
+    if (!figureUI) {
+      return undefined;
+    }
+    return {
+      ...figureUI,
+      width: this.containerSize.width,
+      height: this.containerSize.height,
+    };
   }
 
   get chartId() {
