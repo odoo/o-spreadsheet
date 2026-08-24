@@ -24,7 +24,7 @@
           <span class="w-100">Horizontal axis</span>
           <Select
             selectedValue="getGroupByType('horizontal') || ''"
-            values="getGroupByOptions()"
+            values="this.groupByChoices"
             class="'o-horizontal-group-by'"
             onChange="(value) => this.updateGroupBy('horizontal', value)"
           />
@@ -33,7 +33,7 @@
           <span class="w-100">Vertical axis</span>
           <Select
             selectedValue="getGroupByType('vertical') || ''"
-            values="getGroupByOptions()"
+            values="this.groupByChoices"
             class="'o-vertical-group-by'"
             onChange="(value) => this.updateGroupBy('vertical', value)"
           />
