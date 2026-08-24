@@ -11,7 +11,7 @@
       align-items: center;
       margin: 2px;
       padding: 3px;
-      border-radius: 2px;
+      border-radius: 4px;
       cursor: pointer;
       &:not([disabled]):hover {
         background-color: var(--os-background-gray-color-hover);

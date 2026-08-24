@@ -2,7 +2,7 @@
   background-color: var(--os-background-gray-color);
 
   .o-selection-button {
-    border-radius: 2px;
+    border-radius: 4px;
     background-color: var(--os-gray-200);
     .o-icon {
       width: 24px;
