@@ -3,4 +3,9 @@
     position: absolute;
     cursor: pointer;
   }
+
+  .o-dashboard-grid {
+    /* Grid itself is transparent, background is applied on another div on which the dark mode filter is applied */
+    background-color: transparent;
+  }
 }
