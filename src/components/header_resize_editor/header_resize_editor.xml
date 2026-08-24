@@ -1,0 +1,24 @@
+<templates>
+  <t t-name="o-spreadsheet-HeaderResizeEditor">
+    <Popover t-props="this.popoverProps">
+      <div class="p-3" t-ref="this.editorRef">
+        <div class="d-flex align-items-center gap-3">
+          <input
+            type="number"
+            class="o-input"
+            t-on-input="this.onInput"
+            t-on-keydown="this.onKeydown"
+            t-ref="this.inputRef"
+          />
+          <button type="button" class="o-button primary" t-on-click="this.apply">Apply</button>
+        </div>
+        <small t-if="this.isInputEmpty()" class="text-muted" t-out="this.emptyInputHint"/>
+        <div
+          t-if="this.errorMessage()"
+          class="o-validation o-validation-error mt-2 px-2 py-1"
+          t-out="this.errorMessage()"
+        />
+      </div>
+    </Popover>
+  </t>
+</templates>
