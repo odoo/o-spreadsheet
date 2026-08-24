@@ -166,19 +166,14 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   get dashboardStyle() {
     const zoomLevel = this.env.model.getters.getViewportZoomLevel();
     const style = { zoom: `${zoomLevel}` };
-    const sheet = this.env.model.getters.getActiveSheet();
-    if (sheet.backgroundColor) {
-      style["background-color"] = "transparent";
-    }
     return cssPropertiesToCss(style);
   }
 
   get backgroundStyle() {
     const sheet = this.env.model.getters.getActiveSheet();
-    return sheet.backgroundColor
-      ? cssPropertiesToCss({
-          "background-color": sheet.backgroundColor,
-        })
-      : "";
+    const theme = this.env.model.getters.getSpreadsheetTheme();
+    return cssPropertiesToCss({
+      "background-color": sheet.backgroundColor || theme.backgroundColor,
+    });
   }
 }

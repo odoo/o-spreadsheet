@@ -9,6 +9,7 @@ import {
 } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { COLOR_THEMES } from "../../src/plugins/ui_feature/color_theme";
 import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";
 import { GridIcon, iconsOnCellRegistry } from "../../src/registries/icons_on_cell_registry";
 import {
@@ -320,5 +321,19 @@ describe("Grid component in dashboard mode", () => {
     model.updateMode("dashboard");
     await nextTick();
     expect(".o-dashboard-background").toHaveStyle({ "background-color": "#FF0000" });
+  });
+
+  test("Dashboard backgrounds is present even if the sheet has no explicit background", async () => {
+    model.updateMode("dashboard");
+    await nextTick();
+    expect(".o-dashboard-background").toHaveStyle({ "background-color": "#FFFFFF" });
+
+    model.updateMode("normal");
+    model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "dark" });
+    model.updateMode("dashboard");
+    await nextTick();
+    expect(".o-dashboard-background").toHaveStyle({
+      "background-color": COLOR_THEMES.dark.backgroundColor,
+    });
   });
 });
