@@ -22,6 +22,7 @@
           t-on-keydown="(ev) => this.onKeyDown(ev)">
           <t>
             <t
+              t-if="this.figureUI.width and this.figureUI.height"
               t-component="this.figureComponent"
               figureUI="this.figureUI"
               isFullScreen="true"

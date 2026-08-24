@@ -1,4 +1,5 @@
 import { Model } from "../../../src";
+import { CAROUSEL_LAYOUT } from "../../../src/constants";
 import {
   addNewChartToCarousel,
   createCarousel,
@@ -62,5 +63,17 @@ describe("full screen carousel", () => {
     expect(".o-fullscreen-figure .o-carousel-tab").toHaveCount(2);
     expect(".o-fullscreen-figure .o-carousel-tab:nth-child(1)").toHaveText("Data");
     expect(".o-fullscreen-figure .o-carousel-tab:nth-child(2)").toHaveText("Radar");
+  });
+
+  test("Full screen carousel uses the actual full screen container size for layout", async () => {
+    createCarousel(model, { items: [] }, "carouselId");
+    addNewChartToCarousel(model, "carouselId");
+    model.updateMode("dashboard");
+    await nextTick();
+
+    await click(fixture, ".o-figure .o-carousel-full-screen-button");
+    const content = fixture.querySelector<HTMLElement>(".o-fullscreen-figure .o-carousel-content");
+    expect(content!.style.width).toBe(`${1000 - 2 * CAROUSEL_LAYOUT.paddingX}px`);
+    expect(content!.style.height).not.toBe("0px");
   });
 });
