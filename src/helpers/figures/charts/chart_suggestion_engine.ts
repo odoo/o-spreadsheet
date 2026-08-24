@@ -150,6 +150,18 @@ function interestingCellsXc(col: ColumnAnalysis): {
   return { firstCellXC, lastCellXC, prevCellXC };
 }
 
+function getCategoryHeader(getters: Getters, catCol: ColumnAnalysis): string {
+  let catHeader = catCol.header ?? "";
+  if (!catHeader && catCol.rowCount > 0) {
+    const { left, top } = catCol.zone;
+    catHeader = (
+      getters.getEvaluatedCell({ sheetId: getters.getActiveSheetId(), col: left, row: top })
+        ?.value || _t("Category")
+    ).toString();
+  }
+  return catHeader;
+}
+
 /** Pattern A — Single numeric column */
 function buildSingleNumberContext([col]: ColumnAnalysis[], getters: Getters): SingleNumberContext {
   const title = col.header ?? _t("Value");
@@ -191,9 +203,8 @@ function buildSingleCategoricalContext(
 
 /** Pattern E — Single label column */
 function buildSingleLabelContext([col]: ColumnAnalysis[]): SingleLabelContext {
-  const title = col.header ?? _t("Label");
   const { lastCellXC } = interestingCellsXc(col);
-  return { title, lastCellXC, rowCount: col.rowCount };
+  return { title: "", lastCellXC, rowCount: col.rowCount };
 }
 
 /** Pattern F — Categorical + Number */
@@ -203,10 +214,11 @@ function buildCategoricalVsNumberContext(
 ): CategoricalVsNumberContext {
   const labelRange = getUnboundRange(getters, catCol.zone);
   const hasTitle = numCol.hasHeader;
+  const categoryHeader = hasTitle ? getCategoryHeader(getters, catCol) : _t("Category");
   const title = numCol.header
     ? _t("%(numberHeader)s by %(categoryHeader)s", {
         numberHeader: numCol.header,
-        categoryHeader: catCol.header ?? _t("Category"),
+        categoryHeader,
       })
     : _t("By Category");
   const source = rangeSource([dataset(numCol.zone, getters)], hasTitle, labelRange);
@@ -274,10 +286,11 @@ function buildCategoricalVsPercentageContext(
 ): CategoricalVsPercentageContext {
   const labelRange = getUnboundRange(getters, catCol.zone);
   const hasTitle = pctCol.hasHeader;
+  const categoryHeader = hasTitle ? getCategoryHeader(getters, catCol) : _t("Category");
   const title = pctCol.header
     ? _t("%(percentageHeader)s by %(categoryHeader)s", {
         percentageHeader: pctCol.header,
-        categoryHeader: catCol.header ?? _t("Category"),
+        categoryHeader,
       })
     : _t("Rates by Category");
   const source = rangeSource([dataset(pctCol.zone, getters)], hasTitle, labelRange);
@@ -310,7 +323,8 @@ function buildCategoricalVsMultipleNumbersContext(
 ): CategoricalVsMultipleNumbersContext {
   const labelRange = getUnboundRange(getters, catCol.zone);
   const hasTitle = numCols.some((c) => c.hasHeader);
-  const title = catCol.header ? _t("By %(header)s", { header: catCol.header }) : _t("Multi-series");
+  const categoryHeader = hasTitle ? getCategoryHeader(getters, catCol) : _t("Category");
+  const title = _t("Multi-series By %(categoryHeader)s", { categoryHeader });
   const dataSets = numCols.map((c, i) => dataset(c.zone, getters, String(i)));
   const source = rangeSource(dataSets, hasTitle, labelRange);
   return { title, source, rowCount: catCol.rowCount };
@@ -366,10 +380,11 @@ function buildCategoricalDateNumberContext(
   const dateRange = getUnboundRange(getters, dateCol.zone);
   const catRange = getUnboundRange(getters, catCol.zone);
   const hasTitle = numCol.hasHeader;
+  const catHeader = hasTitle ? getCategoryHeader(getters, catCol) : _t("Category");
   const title = numCol.header
     ? _t("%(numHeader)s by %(catHeader)s over %(dateHeader)s", {
         numHeader: numCol.header,
-        catHeader: catCol.header ?? _t("Category"),
+        catHeader: catHeader,
         dateHeader: dateCol.header ?? _t("Time"),
       })
     : _t("Multi-series over Time");
@@ -422,16 +437,15 @@ function buildCategoricalTwoNumbersContext(
 ): CategoricalTwoNumbersContext {
   const catRange = getUnboundRange(getters, catCol.zone);
   const hasTitle = numCol1.hasHeader || numCol2.hasHeader;
+  const catHeader = hasTitle ? getCategoryHeader(getters, catCol) : _t("Category");
   const title =
     numCol1.header && numCol2.header
       ? _t("%(num1Header)s vs %(num2Header)s by %(catHeader)s", {
           num1Header: numCol1.header,
           num2Header: numCol2.header,
-          catHeader: catCol.header ?? _t("Category"),
+          catHeader: catHeader,
         })
-      : catCol.header
-      ? _t("By %(header)s", { header: catCol.header })
-      : _t("Category Comparison");
+      : _t("By %(header)s", { header: catHeader });
   const isPyramid = isPyramidLike(numCol1, numCol2);
   const sourceBoth = rangeSource(
     [dataset(numCol1.zone, getters, "0"), dataset(numCol2.zone, getters, "1")],

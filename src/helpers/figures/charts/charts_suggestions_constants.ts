@@ -237,7 +237,7 @@ function scorecardChart(
   return {
     ...opts,
     type: "scorecard",
-    title: { text: titleText },
+    title: titleText ? { text: titleText } : {},
     keyValue,
     baselineMode: opts.baselineMode ?? "difference",
     baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
