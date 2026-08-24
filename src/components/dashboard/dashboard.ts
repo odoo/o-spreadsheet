@@ -30,6 +30,9 @@ css/* scss */ `
     position: absolute;
     cursor: pointer;
   }
+  .o-grid.o-dashboard-grid {
+    background: #ffffff;
+  }
 `;
 
 export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> {
