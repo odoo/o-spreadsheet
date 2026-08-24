@@ -338,9 +338,7 @@ describe("Grid component in dashboard mode", () => {
     await nextTick();
     expect(".o-dashboard-background").toHaveStyle({ "background-color": "#FFFFFF" });
 
-    model.updateMode("normal");
     model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "dark" });
-    model.updateMode("dashboard");
     await nextTick();
     expect(".o-dashboard-background").toHaveStyle({
       "background-color": COLOR_THEMES.dark.backgroundColor,
