@@ -1,5 +1,5 @@
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constants";
-import { UuidGenerator } from "../helpers";
+import { deepEquals, UuidGenerator } from "../helpers";
 import { EventBus } from "../helpers/event_bus";
 import { isDefined } from "../helpers/misc";
 import { SelectiveHistory as RevisionLog } from "../history/selective_history";
@@ -79,12 +79,14 @@ export class Session extends EventBus<CollaborativeEvent> {
    * between all connected clients
    * @param serverRevisionId
    * @param commandSquisher used to squish and unsquish commands to reduce the size of messages sent to the server
+   * @param shouldVerifySquish either the commands should be unsquished and verified before being sent to the server
    */
   constructor(
     private revisions: RevisionLog<Revision>,
     private transportService: TransportService<CollaborationMessage>,
     private serverRevisionId: UID = DEFAULT_REVISION_ID,
-    private commandSquisher: ICommandSquisher
+    private commandSquisher: ICommandSquisher,
+    private shouldVerifySquish: boolean = true
   ) {
     super();
   }
@@ -429,10 +431,34 @@ export class Session extends EventBus<CollaborativeEvent> {
         this.revisions.rebase(revision.id);
         revision = this.revisions.get(message.nextRevisionId);
       }
-      message = {
-        ...message,
-        commands: this.commandSquisher.squish(revision.commands),
-      };
+
+      const squishedCommands = this.commandSquisher.squish(revision.commands);
+      const containsSquishedCommands = squishedCommands.some(
+        (x) => x.type === "SQUISHED_UPDATE_CELL"
+      );
+      if (!containsSquishedCommands) {
+        // if nothing was squished, safely keep the revision.commands, as the squishing process does change b.e. the casing of references
+        message = {
+          ...message,
+          commands: revision.commands,
+        };
+      } else {
+        if (
+          this.shouldVerifySquish &&
+          !deepEquals(revision.commands, this.commandSquisher.unsquish(squishedCommands))
+        ) {
+          message = {
+            ...message,
+            commands: revision.commands,
+            squishedFailed: true,
+          };
+        } else {
+          message = {
+            ...message,
+            commands: squishedCommands,
+          };
+        }
+      }
     }
     if (this.isReplayingInitialRevisions) {
       throw new Error(`Trying to send a new revision while replaying initial revision. This can lead to endless dispatches every time the spreadsheet is open.

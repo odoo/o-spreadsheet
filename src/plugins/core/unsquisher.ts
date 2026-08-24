@@ -53,7 +53,14 @@ export class Unsquisher {
       }
 
       const current = command.content;
-      if (current === undefined || current === null || current === "") {
+      const isEmpty = current === undefined || current === null || current === "";
+      if (isEmpty) {
+        // Clearing a cell breaks the chain of consecutive formulas/numbers: reset the state so a
+        // later offset/transformation cannot get wrongly applied on top of a formula/number that
+        // preceded the cleared cell. Leaving `strategy` as "NOT_A_FORMULA" for the next iteration
+        // is safe: chooseStrategy's `default` case throws if an offset ever follows it without a
+        // legitimate new base in between.
+        this.rebase();
         strategy = "NOT_A_FORMULA";
       } else {
         strategy = this.chooseStrategy(current, strategy, command.sheetId, getters);
@@ -130,6 +137,11 @@ export class Unsquisher {
     for (const { key } of keys) {
       const current = squished[key];
       if (current === undefined || current === null || current === "") {
+        // Clearing a cell breaks the chain of consecutive formulas/numbers: reset the state so a
+        // later offset/transformation cannot get wrongly applied on top of a formula/number that
+        // preceded this empty entry.
+        this.rebase();
+        strategy = undefined;
         continue; // skip empty entries
       } else {
         strategy = this.chooseStrategy(current, strategy, sheetId, getters);
@@ -197,6 +209,14 @@ export class Unsquisher {
           case "FIRST_OFFSET":
             strategy = "COMBINE_OFFSET";
             break;
+          case "COMBINE_OFFSET":
+          case "OFFSET_NUMBER":
+            break;
+          default:
+            // e.g. a stale "NOT_A_FORMULA" surviving from a previous, unrelated cell: there is no
+            // formula/number to apply this offset on top of. Fail loudly instead of silently
+            // forwarding the raw offset object as if it were literal cell content.
+            throw new Error(`Cannot unsquish an offset without a preceding base cell: ${strategy}`);
         }
       }
     }

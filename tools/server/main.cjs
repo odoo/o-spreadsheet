@@ -76,7 +76,24 @@ function log(message) {
 function logMessage(msg) {
   switch (msg.type) {
     case "REMOTE_REVISION":
-      log(`${msg.type}: ${msg.nextRevisionId} : ${JSON.stringify(msg.commands)}`);
+      if (msg.squishedFailed) {
+        const redBackground = "\x1b[41m";
+        const reset = "\x1b[0m";
+        log(
+          `${msg.type}: ${
+            msg.nextRevisionId
+          } ${redBackground}Squish Failed${reset}:\n\t${msg.commands
+            .map((x) => JSON.stringify(x))
+            .join("\n\t")}`
+        );
+      } else {
+        log(
+          `${msg.type}: ${msg.nextRevisionId} :\n\t${msg.commands
+            .map((x) => JSON.stringify(x))
+            .join("\n\t")}`
+        );
+      }
+
       break;
     case "REVISION_UNDONE":
       log(`${msg.type}: ${msg.undoneRevisionId}`);

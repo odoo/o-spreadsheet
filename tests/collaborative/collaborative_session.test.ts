@@ -4,7 +4,7 @@ import { Session } from "../../src/collaborative/session";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { lazy } from "../../src/helpers";
 import { buildRevisionLog } from "../../src/history/factory";
-import { Client, CommandResult, WorkbookData } from "../../src/types";
+import { Client, Command, CommandResult, HistoryChange, WorkbookData } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { nextTick } from "../test_helpers/helpers";
@@ -20,6 +20,37 @@ class MockCommandSquisher implements ICommandSquisher {
   ): CoreCommand[] {
     return commands as CoreCommand[];
   }
+}
+
+/** A squisher whose unsquish does not reproduce what was squished, simulating a squishing bug. */
+class LossyCommandSquisher implements ICommandSquisher {
+  public squish(commands: readonly CoreCommand[]): (CoreCommand | SquishedCoreCommand)[] {
+    return commands.map((x) => Object.assign(x, { type: "SQUISHED_UPDATE_CELL" }));
+  }
+  public unsquish(): CoreCommand[] {
+    return [];
+  }
+}
+
+function createSession(
+  transport: MockTransportService,
+  squisher: ICommandSquisher,
+  shouldVerifySquish?: boolean
+): Session {
+  const revisionLog = buildRevisionLog({
+    initialRevisionId: DEFAULT_REVISION_ID,
+    recordChanges: () => ({ changes: [], commands: [] }),
+    dispatch: () => CommandResult.Success,
+  });
+  const session = new Session(
+    revisionLog,
+    transport,
+    DEFAULT_REVISION_ID,
+    squisher,
+    shouldVerifySquish
+  );
+  session.join({ id: "alice", name: "Alice" });
+  return session;
 }
 
 describe("Collaborative session", () => {
@@ -342,5 +373,60 @@ describe("Collaborative session", () => {
         message,
       ]);
     }).not.toThrow();
+  });
+});
+
+describe("Command squish verification", () => {
+  const command = {
+    type: "UPDATE_CELL",
+    sheetId: "sheet1",
+    col: 0,
+    row: 0,
+    content: "hello",
+  } as CoreCommand;
+
+  test("falls back to the original commands and flags the message when the squish round-trip does not match", () => {
+    const transport = new MockTransportService();
+    const session = createSession(transport, new LossyCommandSquisher(), true);
+    const spy = jest.spyOn(transport, "sendMessage");
+
+    session.save({ type: "UPDATE_CELL" } as Command, [command], [{} as HistoryChange]);
+
+    expect(spy).toHaveBeenCalledWith({
+      type: "REMOTE_REVISION",
+      version: MESSAGE_VERSION,
+      clientId: "alice",
+      commands: [command],
+      squishedFailed: true,
+      nextRevisionId: expect.any(String),
+      serverRevisionId: DEFAULT_REVISION_ID,
+    });
+  });
+
+  test("skips verification and sends the (possibly incorrect) squished commands when shouldVerifySquish is false", () => {
+    const transport = new MockTransportService();
+    const session = createSession(transport, new LossyCommandSquisher(), false);
+    const spy = jest.spyOn(transport, "sendMessage");
+
+    session.save({ type: "UPDATE_CELL" } as Command, [command], [{} as HistoryChange]);
+
+    expect(spy).toHaveBeenCalledWith({
+      type: "REMOTE_REVISION",
+      version: MESSAGE_VERSION,
+      clientId: "alice",
+      commands: [command], // LossyCommandSquisher.squish is the identity here
+      nextRevisionId: expect.any(String),
+      serverRevisionId: DEFAULT_REVISION_ID,
+    });
+  });
+
+  test("verifies by default when shouldVerifySquish is not provided", () => {
+    const transport = new MockTransportService();
+    const session = createSession(transport, new LossyCommandSquisher());
+    const spy = jest.spyOn(transport, "sendMessage");
+
+    session.save({ type: "UPDATE_CELL" } as Command, [command], [{} as HistoryChange]);
+
+    expect(spy).toHaveBeenCalledWith(expect.objectContaining({ squishedFailed: true }));
   });
 });

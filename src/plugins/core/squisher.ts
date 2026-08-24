@@ -7,6 +7,7 @@ import { getRangeString } from "../../helpers/range";
 import { Cell } from "../../types/cells";
 import { UpdateCellCommand } from "../../types/commands";
 import { CoreGetters } from "../../types/core_getters";
+import { Format } from "../../types/format";
 import { UID } from "../../types/misc";
 import { Range } from "../../types/range";
 
@@ -48,6 +49,7 @@ export class Squisher {
   private rangeToStringOptions = { doNotSimplifyRange: true };
 
   private baseNumber: number | undefined = undefined;
+  private baseNumberFormat: Format | undefined = undefined;
 
   constructor(getters: CoreGetters) {
     this.getters = getters;
@@ -104,6 +106,12 @@ export class Squisher {
     }
   }
 
+  /** Reset the base number literal chain, so the next literal number cannot be squished as an offset of it */
+  resetBaseNumber() {
+    this.baseNumber = undefined;
+    this.baseNumberFormat = undefined;
+  }
+
   /**
    * Takes a cell and squish their formulas against the previous one (in the previous call).
    * We should call this method for each cell in the sheet, in order from top to bottom, then from left to right (all cells of a columns, for each columns left to right).
@@ -158,8 +166,9 @@ export class Squisher {
       this.resetBaseFormula();
       // for number cells, we can also apply squishing to get relative change if needed. We will treat them as formulas with only one number and no references or strings, and we will not set them as the base formula because they are not formulas.
       const numberValue = cell.parsedValue;
-      if (this.baseNumber === undefined) {
+      if (this.baseNumber === undefined || cell.format !== this.baseNumberFormat) {
         this.baseNumber = numberValue;
+        this.baseNumberFormat = cell.format;
         return cell.content;
       }
       const numberOffset = numberValue - this.baseNumber;
@@ -171,7 +180,7 @@ export class Squisher {
       }
     }
     this.resetBaseFormula();
-    this.baseNumber = undefined;
+    this.resetBaseNumber();
     return cell.content;
   }
 
@@ -185,6 +194,7 @@ export class Squisher {
         command.style ?? undefined,
         command.sheetId
       );
+
       const squished = this.squish(cell, command.sheetId);
       // Otherwise, cell.content might be different from command.content.
       // For example, if command.content is "$100", cell.content becomes "100"
@@ -192,6 +202,11 @@ export class Squisher {
       // command.content so the collaborative history stays lossless.
       return typeof squished === "string" ? command.content : squished;
     }
+    // An empty content clears the cell: it breaks the chain of consecutive formulas/numbers,
+    // so the next cell must not be squished as an offset/transformation of a cell that came
+    // before this one, even though this cell itself is not run through `squish` above.
+    this.resetBaseFormula();
+    this.resetBaseNumber();
     return command.content;
   }
 
