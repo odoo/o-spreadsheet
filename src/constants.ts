@@ -242,7 +242,7 @@ export const DEFAULT_WINDOW_SIZE = 2;
 
 // Maximum number of data points rendered by Chart.js in lightweight previews (drag preview,
 // chart suggestions), sampled down from the full dataset for performance.
-export const MAX_CHART_PREVIEW_DATA_POINTS = 150;
+export const MAX_CHART_PREVIEW_DATA_POINTS = 20;
 
 // session
 export const MESSAGE_VERSION = 1;
