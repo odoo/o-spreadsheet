@@ -219,6 +219,28 @@ describe("getChartSuggestions", () => {
         "bar"
       );
     });
+
+    test("Title uses the first cell value instead of a generic 'Category' label", () => {
+      const model = createModelFromGrid({
+        A1: "Fruit",
+        A2: "banana",
+        A3: "apple",
+        A4: "banana",
+        A5: "apple",
+      });
+      const defs = suggestions(model, "A1:A5").map((s) => s.definition);
+      expect(defs[0].title.text).toBe("Fruit");
+    });
+
+    test("blank first cell in the zone → title falls back to 'Category'", () => {
+      const model = createModelFromGrid({
+        A2: "apple",
+        A3: "banana",
+        A4: "apple",
+      });
+      const defs = suggestions(model, "A1:A4").map((s) => s.definition);
+      expect(defs[0].title.text).toBe("Category");
+    });
   });
 
   // Pattern E — single label column
@@ -232,6 +254,7 @@ describe("getChartSuggestions", () => {
         (d) => d.type === "scorecard"
       ) as ScorecardChartRuntime;
       expect(runtime.keyValue).toBe("Alice");
+      expect(runtime.title.text).toBe("");
     });
 
     test(">1 row → no suggestions yet", () => {
@@ -266,6 +289,33 @@ describe("getChartSuggestions", () => {
       expect(
         (runtimeFor(model, ["A1:A3", "B1:B3"], (d) => d.type === "pie") as any).chartJsConfig.type
       ).toBe("pie");
+    });
+
+    test("Title uses 'Category' if there is no header", () => {
+      const model = createModelFromGrid({
+        A1: "apple",
+        A2: "apple",
+        A3: "cherry",
+        B1: "10",
+        B2: "5",
+        B3: "30",
+      });
+      const defs = suggestions(model, ["A1:A3", "B1:B3"]).map((s) => s.definition);
+      expect(defs[0].title.text).toBe("By Category");
+    });
+
+    test("number column has a header → title combines it with the category's first value", () => {
+      const model = createModelFromGrid({
+        A1: "apple",
+        A2: "apple",
+        A3: "cherry",
+        B1: "Sales",
+        B2: "10",
+        B3: "5",
+        B4: "30",
+      });
+      const defs = suggestions(model, ["A1:A3", "B1:B4"]).map((s) => s.definition);
+      expect(defs[0].title.text).toBe("Sales by apple");
     });
   });
 
@@ -376,6 +426,20 @@ describe("getChartSuggestions", () => {
       setFormat(model, "B1:B2", "0%");
       expect(suggestionTypes(model, ["A1:A2", "B1:B2"])).not.toContain("radar");
     });
+
+    test("Title uses 'Category' if there is no header", () => {
+      const model = createModelFromGrid({
+        A1: "North",
+        A2: "South",
+        A3: "North",
+        B1: "0.3",
+        B2: "0.5",
+        B3: "0.2",
+      });
+      setFormat(model, "B1:B3", "0%");
+      const defs = suggestions(model, ["A1:A3", "B1:B3"]).map((s) => s.definition);
+      expect(defs[0].title.text).toBe("Rates by Category");
+    });
   });
 
   // Pattern K — label + number
@@ -461,6 +525,27 @@ describe("getChartSuggestions", () => {
       });
       expect(suggestionTypes(model, ["A1:A2", "B1:B2", "C1:C2", "D1:D2"])).not.toContain("radar");
     });
+
+    test("no header at all → title falls back to the generic 'Category' label", () => {
+      const model = createModelFromGrid({
+        A1: "North",
+        A2: "South",
+        A3: "North",
+        B1: "10",
+        B2: "20",
+        B3: "30",
+        C1: "1",
+        C2: "2",
+        C3: "3",
+        D1: "5",
+        D2: "6",
+        D3: "7",
+      });
+      const defs = suggestions(model, ["A1:A3", "B1:B3", "C1:C3", "D1:D3"]).map(
+        (s) => s.definition
+      );
+      expect(defs[0].title.text).toBe("Multi-series By Category");
+    });
   });
 
   // Pattern N — date + multiple numbers
@@ -520,6 +605,26 @@ describe("getChartSuggestions", () => {
       setCellContent(model, "C3", "30");
       const types = suggestionTypes(model, ["A1:A3", "B1:B3", "C1:C3"]);
       expect(types).toEqual(["line", "line", "bar", "bar"]);
+    });
+
+    test("no category header, number column has a header → title uses the category's first value", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "Direction");
+      setCellContent(model, "A2", "South");
+      setCellContent(model, "A3", "North");
+      setCellContent(model, "A4", "South");
+      setCellContent(model, "A5", "South");
+      setCellContent(model, "B1", "1/1/2024");
+      setCellContent(model, "B2", "1/1/2024");
+      setCellContent(model, "B3", "2/1/2024");
+      setCellContent(model, "B4", "3/1/2024");
+      setFormat(model, "B1:B4", "mm/dd/yyyy");
+      setCellContent(model, "C1", "Sales");
+      setCellContent(model, "C2", "10");
+      setCellContent(model, "C3", "20");
+      setCellContent(model, "C4", "30");
+      const defs = suggestions(model, ["A1:A5", "B1:B4", "C1:C4"]).map((s) => s.definition);
+      expect(defs[0].title.text).toBe("Sales by Direction over Time");
     });
   });
 
@@ -584,6 +689,26 @@ describe("getChartSuggestions", () => {
       const defs = suggestions(model, ["A1:A4", "B1:B4", "C1:C4"]).map((s) => s.definition);
       expect(defs.some((d) => d.type === "pyramid")).toBe(true);
       expect(defs.some((d) => d.type === "bar" && (d as any).stacked)).toBe(false);
+      expect(defs[0].title.text).toBe("Male vs Female by North");
+    });
+
+    test("no headers at all → title falls back to the generic 'Category' label", () => {
+      const model = createModelFromGrid({
+        A1: "North",
+        A2: "North",
+        A3: "South",
+        A4: "South",
+        B1: "10",
+        B2: "20",
+        B3: "15",
+        B4: "5",
+        C1: "12",
+        C2: "18",
+        C3: "20",
+        C4: "8",
+      });
+      const defs = suggestions(model, ["A1:A4", "B1:B4", "C1:C4"]).map((s) => s.definition);
+      expect(defs[0].title.text).toBe("By Category");
     });
 
     test("non-pyramid headers → no pyramid chart, stacked bar produced instead", () => {
