@@ -19,6 +19,7 @@ export interface RemoteRevisionMessage extends AbstractMessage {
 
 export interface RemoteRevisionsSquishedMessage extends Omit<RemoteRevisionMessage, "commands"> {
   commands: (CoreCommand | SquishedCoreCommand)[];
+  squishedFailed?: boolean;
 }
 
 export interface RevisionUndoneMessage extends AbstractMessage {
