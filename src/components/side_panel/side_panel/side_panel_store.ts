@@ -121,12 +121,9 @@ export class SidePanelStore extends SpreadsheetStore {
     }
 
     // Try to open secondary panel if main panel is pinned
-    const nonCollapsedPanelSize = this.mainPanel.isCollapsed
-      ? DEFAULT_SIDE_PANEL_SIZE
-      : this.mainPanel.size;
     if (
       !this.secondaryPanel &&
-      nonCollapsedPanelSize + DEFAULT_SIDE_PANEL_SIZE > this.availableWidth
+      COLLAPSED_SIDE_PANEL_SIZE + DEFAULT_SIDE_PANEL_SIZE > this.availableWidth
     ) {
       this.notificationPlugin.notifyUser({
         sticky: false,
@@ -134,6 +131,10 @@ export class SidePanelStore extends SpreadsheetStore {
         text: _t("The window is too small to display multiple side panels."),
       });
       return;
+    }
+
+    if (!this.mainPanel.isCollapsed) {
+      this.toggleCollapsePanel("mainPanel");
     }
 
     this._openPanel("secondaryPanel", newPanelInfo, state);
@@ -208,13 +209,20 @@ export class SidePanelStore extends SpreadsheetStore {
   close() {
     if (this.mainPanel?.isPinned) {
       if (this.secondaryPanel) {
-        this.secondaryPanel.currentPanelProps.onCloseSidePanel?.();
-        this.secondaryPanel = undefined;
+        this.closeSecondaryPanel();
       }
       return;
     }
     this.mainPanel?.currentPanelProps.onCloseSidePanel?.();
     this.mainPanel = undefined;
+  }
+
+  private closeSecondaryPanel() {
+    this.secondaryPanel?.currentPanelProps.onCloseSidePanel?.();
+    this.secondaryPanel = undefined;
+    if (this.mainPanel?.isCollapsed) {
+      this.toggleCollapsePanel("mainPanel");
+    }
   }
 
   closeMainPanel() {
@@ -268,8 +276,7 @@ export class SidePanelStore extends SpreadsheetStore {
       return;
     }
     if (this.secondaryPanel?.componentTag === componentTag && this.isSecondaryPanelOpen) {
-      this.secondaryPanel?.currentPanelProps.onCloseSidePanel?.();
-      this.secondaryPanel = undefined;
+      this.closeSecondaryPanel();
       return;
     }
     this.open(componentTag, panelProps);
@@ -306,8 +313,7 @@ export class SidePanelStore extends SpreadsheetStore {
   changeSpreadsheetWidth(width: number) {
     this.availableWidth = width - MIN_SHEET_VIEW_WIDTH;
     if (this.secondaryPanel && width - this.totalPanelSize < MIN_SHEET_VIEW_WIDTH) {
-      this.secondaryPanel?.currentPanelProps.onCloseSidePanel?.();
-      this.secondaryPanel = undefined;
+      this.closeSecondaryPanel();
     }
     if (this.mainPanel && width - this.totalPanelSize < MIN_SHEET_VIEW_WIDTH) {
       this.mainPanel.size = Math.max(width - MIN_SHEET_VIEW_WIDTH, DEFAULT_SIDE_PANEL_SIZE);
