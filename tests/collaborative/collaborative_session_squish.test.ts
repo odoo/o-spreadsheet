@@ -2,15 +2,29 @@ import { CoreCommand, Model, RemoteRevisionMessage } from "../../src";
 import { CommandSquisher, SquishedCoreCommand } from "../../src/collaborative/command_squisher";
 import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import { toZone } from "../../src/helpers/zones";
+import { RemoteRevisionsSquishedMessage } from "../../src/types/collaborative/transport_service";
 import { MockTransportService } from "../__mocks__/transport_service";
-import { addRows, autofill, deleteRows, getCellContent, undo } from "../test_helpers";
-import { setCellContent } from "../test_helpers/commands_helpers";
+import {
+  addRows,
+  autofill,
+  deleteRows,
+  getCellContent,
+  getEvaluatedCell,
+  undo,
+} from "../test_helpers";
+import {
+  copy,
+  paste,
+  pasteFromOSClipboard,
+  setCellContent,
+  setCellStyle,
+  setFormat,
+} from "../test_helpers/commands_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 describe("Collaborative session", () => {
-  // FIXME: reactivate the test when we resquish the commands on the network
-  test.skip("Update_cell on same value and contiguous cells", () => {
+  test("Update_cell on same value and contiguous cells", () => {
     const transport = new MockTransportService();
     const model = new Model(
       { sheets: [{ id: "sheet1", name: "Sheet 1", cells: { A1: "Hello" } }] },
@@ -42,6 +56,135 @@ describe("Collaborative session", () => {
       type: "REMOTE_REVISION",
       version: 1,
     });
+  });
+
+  test("pasting OS clipboard text with a blank line does not corrupt cells for other clients", () => {
+    const { alice, bob } = setupCollaborativeEnv();
+    setFormat(alice, "A1:A100", "0.00%");
+
+    const result = pasteFromOSClipboard(alice, "A1", { text: "=2\n=0\n\n=0\n=0" });
+    expect(result.isSuccessful).toBe(true);
+
+    for (const xc of ["A1", "A2", "A3", "A4", "A5"]) {
+      expect(getCellContent(bob, xc)).toBe(getCellContent(alice, xc));
+    }
+  });
+
+  test("pasting OS clipboard text with an inline format does not corrupt following plain values", () => {
+    const { alice, bob } = setupCollaborativeEnv();
+
+    const result = pasteFromOSClipboard(alice, "A1", { text: "100%\n2\n3" });
+    expect(result.isSuccessful).toBe(true);
+
+    expect(getCellContent(alice, "A1")).toBe("100%");
+    expect(getCellContent(alice, "A2")).toBe("2");
+    expect(getCellContent(alice, "A3")).toBe("3");
+    for (const xc of ["A1", "A2", "A3"]) {
+      expect(getCellContent(bob, xc)).toBe(getCellContent(alice, xc));
+    }
+  });
+
+  test("copy/pasting a range with a blank-but-styled cell does not corrupt a formula chain", () => {
+    const { alice, bob } = setupCollaborativeEnv();
+    setCellContent(alice, "A1", "=2");
+    setCellContent(alice, "A2", "=0");
+    setCellStyle(alice, "A3", { bold: true }); // blank but styled
+    setCellContent(alice, "A4", "=0");
+    setCellContent(alice, "A5", "=0");
+
+    copy(alice, "A1:A5");
+    const result = paste(alice, "B1");
+    expect(result.isSuccessful).toBe(true);
+
+    for (const xc of ["B1", "B2", "B3", "B4", "B5"]) {
+      expect(getCellContent(bob, xc)).toBe(getCellContent(alice, xc));
+    }
+  });
+
+  test("internal copy/paste (not just OS-clipboard text) mixing percent and plain numbers does not corrupt values", () => {
+    const { alice, bob } = setupCollaborativeEnv();
+    setCellContent(alice, "A1", "100%");
+    setCellContent(alice, "A2", "2");
+    setCellContent(alice, "A3", "3");
+
+    copy(alice, "A1:A3");
+    const result = paste(alice, "B1");
+    expect(result.isSuccessful).toBe(true);
+
+    expect(getCellContent(alice, "B1")).toBe("100%");
+    expect(getCellContent(alice, "B2")).toBe("2");
+    expect(getCellContent(alice, "B3")).toBe("3");
+    for (const xc of ["B1", "B2", "B3"]) {
+      expect(getCellContent(bob, xc)).toBe(getCellContent(alice, xc));
+    }
+  });
+
+  test("autofill across a blank source cell does not corrupt the surrounding formulas", () => {
+    const { alice, bob } = setupCollaborativeEnv();
+    setCellContent(alice, "A1", "=B1");
+    // A2 left blank on purpose
+    setCellContent(alice, "A3", "=B3");
+
+    const result = autofill(alice, "A1:A3", "A9");
+    expect(result.isSuccessful).toBe(true);
+
+    for (const xc of ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9"]) {
+      expect(getCellContent(bob, xc)).toBe(getCellContent(alice, xc));
+    }
+  });
+
+  test("squish should respect implicit formats", () => {
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "100%", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "2", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "3", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 3, content: "$4", type: "UPDATE_CELL" },
+    ]; // mimics a paste from clipboard behavior, requires 3 commands to actually squish
+    const result: (CoreCommand | SquishedCoreCommand)[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "100%", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "2", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "3", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 3, content: "$4", type: "UPDATE_CELL" },
+    ];
+    const model = new Model();
+    const squishedCommands = new CommandSquisher(model.getters).squish(commands);
+    expect(squishedCommands).toStrictEqual(result);
+    expect(new CommandSquisher(model.getters).unsquish(squishedCommands)).toStrictEqual(commands);
+    expect(new CommandSquisher(model.getters).unsquish(result)).toStrictEqual(commands);
+  });
+
+  test.skip("squish should respect implicit formats hidden behind an explicit format", () => {
+    // plain text cells keep the format inlined in their content: "$1" is not
+    // converted to the content "1" with a currency format
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "$1", format: "@", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "2", format: "@", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "3", format: "@", type: "UPDATE_CELL" },
+    ];
+    const model = new Model();
+    const squishedCommands = new CommandSquisher(model.getters).squish(commands);
+    expect(new CommandSquisher(model.getters).unsquish(squishedCommands)).toStrictEqual(commands);
+  });
+
+  test("squish contents sharing the same implicit format", () => {
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "$1", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "$2", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "$3", type: "UPDATE_CELL" },
+    ];
+    const result: (CoreCommand | SquishedCoreCommand)[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "$1", type: "UPDATE_CELL" },
+      {
+        sheetId: "Sheet1",
+        targetRange: "A2:A3",
+        content: { N: "+1" },
+        type: "SQUISHED_UPDATE_CELL",
+      },
+    ];
+    const model = new Model();
+    const squishedCommands = new CommandSquisher(model.getters).squish(commands);
+    expect(squishedCommands).toStrictEqual(result);
+    expect(new CommandSquisher(model.getters).unsquish(squishedCommands)).toStrictEqual(commands);
   });
 
   test("receiving an SQUISHED_UPDATE_CELL message should unsquish", () => {
@@ -486,6 +629,44 @@ describe("commands", () => {
     );
   });
 
+  test("squish does not corrupt a formula chain interrupted by an empty cell", () => {
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "=2", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "=0", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 3, content: "=0", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 4, content: "=0", type: "UPDATE_CELL" },
+    ];
+    const result: (CoreCommand | SquishedCoreCommand)[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "=2", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "=0", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "", type: "UPDATE_CELL" },
+      {
+        sheetId: "Sheet1",
+        targetRange: "A4:A5",
+        content: "=0",
+        type: "SQUISHED_UPDATE_CELL",
+      },
+    ];
+    const model = new Model();
+    expect(new CommandSquisher(model.getters).squish(commands)).toStrictEqual(result);
+    expect(new CommandSquisher(model.getters).unsquish(result)).toStrictEqual(commands);
+  });
+
+  test("squish does not offset a number literal whose format differs from the base cell", () => {
+    // Regression test: pasting "100%" followed by plain numbers "2" and "3" used to squish "2"
+    // and "3" as a relative offset from "100%"'s underlying value (1), then reconstruct them
+    // using the base cell's percent format on unsquish, turning "2"/"3" into "200%"/"300%".
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "100%", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "2", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "3", type: "UPDATE_CELL" },
+    ];
+    const model = new Model();
+    expect(new CommandSquisher(model.getters).squish(commands)).toStrictEqual(commands);
+    expect(new CommandSquisher(model.getters).unsquish(commands)).toStrictEqual(commands);
+  });
+
   test("does not squish a single update_cell command", () => {
     const transport = new MockTransportService();
     const model = new Model(
@@ -599,5 +780,151 @@ describe("Collaborative session - clientId preservation", () => {
     }
 
     expect([alice, bob]).toHaveSynchronizedExportedData();
+  });
+});
+
+describe("Collaborative session", () => {
+  test("a revision rebased after a concurrent row insertion is not flagged as a failed squish", () => {
+    const { network, alice, bob } = setupCollaborativeEnv();
+    const spy = jest.spyOn(network, "sendMessage");
+
+    network.concurrent(() => {
+      addRows(alice, "after", 0, 1);
+      setCellContent(bob, "A5", "bobEdit");
+    });
+
+    const bobRevisions = spy.mock.calls
+      .map(([msg]) => msg)
+      .filter(
+        (msg: RemoteRevisionsSquishedMessage) =>
+          msg.type === "REMOTE_REVISION" && msg.clientId === "bob"
+      );
+
+    expect(bobRevisions.length).toBe(2);
+    // The resent commands must reflect the transformed position (row 5)
+    const resent = bobRevisions[bobRevisions.length - 1] as RemoteRevisionsSquishedMessage;
+    expect(resent.commands).toContainEqual(
+      expect.objectContaining({ type: "UPDATE_CELL", row: 5, content: "bobEdit" })
+    );
+    expect(resent.squishedFailed).toBeFalsy();
+
+    expect([alice, bob]).toHaveSynchronizedExportedData();
+  });
+
+  test("revisions that do not result in squished commands are sent unmodified", () => {
+    const { network, alice } = setupCollaborativeEnv();
+    const spy = jest.spyOn(network, "sendMessage");
+    setCellContent(alice, "A1", "=sum(b1:b2)");
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "REMOTE_REVISION",
+        clientId: "alice",
+        commands: [
+          expect.objectContaining({ type: "UPDATE_CELL", row: 0, content: "=sum(b1:b2)" }),
+        ], // stays lowercase b1
+      })
+    );
+    expect((spy.mock.calls[0][0] as any).squishedFailed).toBeUndefined();
+  });
+});
+
+describe("Collaborative session - copy/paste squish dates", () => {
+  test("consecutive dates squish into an offset and the reconstructed day is exact", () => {
+    const { alice, bob } = setupCollaborativeEnv();
+    setCellContent(alice, "A1", "2026-01-16");
+    setCellContent(alice, "A2", "2026-02-20"); // +35 days
+    setCellContent(alice, "A3", "2026-03-27"); // +35 days again -> forces an actual offset merge
+
+    copy(alice, "A1:A3");
+    const result = paste(alice, "B1");
+    expect(result.isSuccessful).toBe(true);
+
+    for (const xc of ["B1", "B2", "B3"]) {
+      expect(getEvaluatedCell(bob, xc).value).toBe(getEvaluatedCell(alice, xc).value);
+      expect(getCellContent(bob, xc)).toBe(getCellContent(alice, xc));
+    }
+  });
+
+  test("a day-omitting custom format (mm/yyyy) does not lose the day when offset-squished", () => {
+    const { alice, bob } = setupCollaborativeEnv();
+    setCellContent(alice, "A1", "2026-01-16");
+    setCellContent(alice, "A2", "2026-02-20");
+    setCellContent(alice, "A3", "2026-03-27");
+    setFormat(alice, "A1:A3", "mm/yyyy");
+
+    copy(alice, "A1:A3");
+    const result = paste(alice, "B1");
+    expect(result.isSuccessful).toBe(true);
+
+    for (const xc of ["B1", "B2", "B3"]) {
+      expect(getEvaluatedCell(bob, xc).value).toBe(getEvaluatedCell(alice, xc).value);
+      expect(getCellContent(bob, xc)).toBe(getCellContent(alice, xc)); // both still show e.g. "01/2026"
+    }
+  });
+
+  test("a date column with one differently-formatted date does not corrupt its neighbors", () => {
+    const { alice, bob } = setupCollaborativeEnv();
+    setCellContent(alice, "A1", "2026-01-01");
+    setCellContent(alice, "A2", "2026-01-02");
+    setCellContent(alice, "A3", "2026-01-03");
+    setFormat(alice, "A3", "dddd d mmmm yyyy"); // custom format, different from A1/A2's default
+
+    copy(alice, "A1:A3");
+    const result = paste(alice, "B1");
+    expect(result.isSuccessful).toBe(true);
+
+    for (const xc of ["B1", "B2", "B3"]) {
+      expect(getEvaluatedCell(bob, xc).value).toBe(getEvaluatedCell(alice, xc).value);
+      expect(getCellContent(bob, xc)).toBe(getCellContent(alice, xc));
+    }
+  });
+
+  test("a date next to a plain number with a coincidentally close value does not corrupt either", () => {
+    const { alice, bob } = setupCollaborativeEnv();
+    setCellContent(alice, "A1", "2026-01-01"); // serial 46023
+    setCellContent(alice, "A2", "46024"); // plain number, no format, one more than the date's serial
+    setCellContent(alice, "A3", "2026-01-03");
+
+    copy(alice, "A1:A3");
+    const result = paste(alice, "B1");
+    expect(result.isSuccessful).toBe(true);
+
+    for (const xc of ["B1", "B2", "B3"]) {
+      expect(getEvaluatedCell(bob, xc).value).toBe(getEvaluatedCell(alice, xc).value);
+      expect(getCellContent(bob, xc)).toBe(getCellContent(alice, xc));
+    }
+  });
+
+  test("OS-clipboard paste of a date followed by unrelated plain numbers does not corrupt values", () => {
+    // Unlike internal copy/paste, OS-clipboard text never carries an explicit format, so the
+    // number-offset chain's format-mismatch guard (not the format comparison done when merging
+    // wire commands) is the only thing preventing a date from being chained with an unrelated
+    // number that happens to produce the same offset pattern.
+    const { alice, bob } = setupCollaborativeEnv();
+    const result = pasteFromOSClipboard(alice, "A1", { text: "2026-01-01\n2\n3" });
+    expect(result.isSuccessful).toBe(true);
+
+    for (const xc of ["A1", "A2", "A3"]) {
+      expect(getEvaluatedCell(bob, xc).value).toBe(getEvaluatedCell(alice, xc).value);
+      expect(getCellContent(bob, xc)).toBe(getCellContent(alice, xc));
+    }
+  });
+
+  test("a datetime with a time-of-day component is never offset-squished", () => {
+    // Only whole-number (day-granularity) literals are eligible for the number-offset chain;
+    // a fractional serial (a date with a time component) always falls back to full content.
+    const { alice, bob } = setupCollaborativeEnv();
+    setCellContent(alice, "A1", "2026/01/01 10:00:00");
+    setCellContent(alice, "A2", "2026/01/01 11:00:00");
+    setCellContent(alice, "A3", "2026/01/01 12:00:00");
+
+    copy(alice, "A1:A3");
+    const result = paste(alice, "B1");
+    expect(result.isSuccessful).toBe(true);
+
+    for (const xc of ["B1", "B2", "B3"]) {
+      expect(getEvaluatedCell(bob, xc).value).toBe(getEvaluatedCell(alice, xc).value);
+      expect(getCellContent(bob, xc)).toBe(getCellContent(alice, xc));
+    }
   });
 });
