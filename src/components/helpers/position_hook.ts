@@ -1,6 +1,6 @@
-import { onMounted, onPatched, proxy } from "@odoo/owl";
-import { useComponent } from "../../owl3_compatibility_layer";
+import { onMounted, onPatched, proxy, usePlugin } from "@odoo/owl";
 import { Rect } from "../../types/rendering";
+import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 
 /**
  * Return the o-spreadsheet element position relative
@@ -35,14 +35,9 @@ export function useSpreadsheetRect(): Rect {
  */
 export function usePopoverContainer(): Rect {
   const container = proxy({ x: 0, y: 0, width: 0, height: 0 });
-  const component = useComponent();
-  const spreadsheetRect = useSpreadsheetRect();
+  const popoverContainerPlugin = usePlugin(PopoverContainerPlugin);
   function updateRect() {
-    const env = component.env;
-    const newRect =
-      "getPopoverContainerRect" in env && env.getPopoverContainerRect
-        ? env.getPopoverContainerRect()
-        : spreadsheetRect;
+    const newRect = popoverContainerPlugin.getContainerRect();
     container.x = newRect.x;
     container.y = newRect.y;
     container.width = newRect.width;

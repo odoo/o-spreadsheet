@@ -1,7 +1,8 @@
-import { xml } from "@odoo/owl";
+import { providePlugins, xml } from "@odoo/owl";
 import { Currency, Model, Pixel, Style } from "../src";
 import { CellComposerStore } from "../src/components/composer/composer/cell_composer_store";
 import { PaintFormatStore } from "../src/components/paint_format_button/paint_format_store";
+import { PopoverContainerPlugin } from "../src/components/popover/popover_container_owl_plugin";
 import { TopBar } from "../src/components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_registry";
 import { DEFAULT_FONT_SIZE } from "../src/constants";
@@ -126,6 +127,17 @@ class Parent extends Component<SpreadsheetChildEnv> {
   get gridHeight(): Pixel {
     const { height } = this.env.getStore(ViewportsStore).sheetViewDimension;
     return height;
+  }
+
+  setup() {
+    providePlugins([PopoverContainerPlugin], {
+      getPopoverContainerRect: () => ({
+        x: 0,
+        y: 0,
+        height: spreadsheetHeight,
+        width: spreadsheetWidth,
+      }),
+    });
   }
 }
 

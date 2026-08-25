@@ -1,4 +1,4 @@
-import { useProps, xml } from "@odoo/owl";
+import { providePlugins, useProps, xml } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../src/actions/action";
 import { MenuPopover } from "../../src/components/menu_popover/menu_popover";
 import {
@@ -27,6 +27,7 @@ import {
 import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
 
 import { Rect } from "../../src";
+import { PopoverContainerPlugin } from "../../src/components/popover/popover_container_owl_plugin";
 import { types } from "../../src/components/props_validation";
 import { render } from "../../src/helpers/owl3_helpers";
 import { PopoverPropsPosition } from "../../src/types/cell_popovers";
@@ -214,6 +215,12 @@ class ContextMenuParent extends Component {
     };
     this.menus = this.props.config.menuItems || createActions([makeTestMenuItem("Action")]);
     resizeSheetView(this.env, { height: this.props.height, width: this.props.width });
+  }
+
+  setup() {
+    providePlugins([PopoverContainerPlugin], {
+      getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
+    });
   }
 }
 

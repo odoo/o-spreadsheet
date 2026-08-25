@@ -1,6 +1,7 @@
-import { proxy, xml } from "@odoo/owl";
+import { providePlugins, proxy, xml } from "@odoo/owl";
 import { BorderPosition, BorderStyle, Color, Model } from "../../src";
 import { BorderEditorWidget } from "../../src/components/border_editor/border_editor_widget";
+import { PopoverContainerPlugin } from "../../src/components/popover/popover_container_owl_plugin";
 import { toHex } from "../../src/helpers/color";
 import { toZone } from "../../src/helpers/zones";
 import { Component } from "../../src/owl3_compatibility_layer";
@@ -49,6 +50,10 @@ class BorderWidgetContainer extends Component<SpreadsheetChildEnv> {
   setup() {
     this.state = proxy({
       showBorderEditor: false,
+    });
+
+    providePlugins([PopoverContainerPlugin], {
+      getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
     });
   }
 
