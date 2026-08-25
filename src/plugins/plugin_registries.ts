@@ -21,7 +21,6 @@ import { TableStylePlugin } from "./core/table_style";
 import { TablePlugin } from "./core/tables";
 import { CorePluginConstructor } from "./core_plugin";
 import { CellEvaluationPlugin } from "./evaluation/cell_evaluation/cell_evaluation_plugin";
-import { CellIconPlugin } from "./evaluation/cell_icon_plugin";
 import { CustomColorsPlugin } from "./evaluation/custom_colors";
 import { DynamicTablesPlugin } from "./evaluation/dynamic_tables";
 import { DynamicTranslate } from "./evaluation/dynamic_translate";
@@ -50,6 +49,7 @@ import { SheetUIPlugin } from "./ui_feature/ui_sheet";
 import { UIPluginConstructor } from "./ui_plugin";
 import { CarouselUIPlugin } from "./ui_stateful/carousel_ui";
 import { CellComputedStylePlugin } from "./ui_stateful/cell_computed_style";
+import { CellIconPlugin } from "./ui_stateful/cell_icon_plugin";
 import { ClipboardPlugin } from "./ui_stateful/clipboard";
 import { FigureUIPlugin } from "./ui_stateful/figure";
 import { FilterEvaluationPlugin } from "./ui_stateful/filter_evaluation";
@@ -106,6 +106,7 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("header_positions", HeaderPositionsUIPlugin)
   .add("clipboard", ClipboardPlugin)
   .add("carousel_ui", CarouselUIPlugin)
+  .add("cell_icon", CellIconPlugin)
   .add("figure_ui", FigureUIPlugin);
 
 // Plugins which have a derived state from core data
@@ -119,7 +120,6 @@ export const evaluationPluginRegistry = new Registry<EvaluationPluginConstructor
   .add("dynamic_tables", DynamicTablesPlugin)
   .add("custom_colors", CustomColorsPlugin)
   .add("pivot_ui", PivotUIPlugin)
-  .add("cell_icon", CellIconPlugin)
   .add("pivot_presence", PivotPresencePlugin)
   .add("dynamic_translate", DynamicTranslate)
   .add("formula_tracker", FormulaTrackerPlugin);
