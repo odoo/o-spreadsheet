@@ -347,6 +347,7 @@ import {
   hasInteractiveElementInEventTree,
   isMobileOS,
 } from "./components/helpers/dom_helpers";
+import { PopoverContainerPlugin } from "./components/popover/popover_container_owl_plugin";
 import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
 import { CalendarButton } from "./components/side_panel/criterion_form/calendar_button/calendar_button";
@@ -577,6 +578,10 @@ export const stores = {
   ViewportsStore,
   ZoomStore,
   globalStores,
+};
+
+export const owlPlugins = {
+  PopoverContainerPlugin,
 };
 
 export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";

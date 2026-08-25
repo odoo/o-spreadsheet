@@ -1,4 +1,4 @@
-import { proxy, useProps, xml } from "@odoo/owl";
+import { providePlugins, proxy, useProps, xml } from "@odoo/owl";
 import { type ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { functionCache, type StoreConstructor } from "../../src";
@@ -54,6 +54,7 @@ import {
   UID,
   Zone,
 } from "../../src";
+import { PopoverContainerPlugin } from "../../src/components/popover/popover_container_owl_plugin";
 import { computeFunctionsCache } from "../../src/formulas/compiler";
 import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
@@ -291,6 +292,12 @@ class ParentWithPortalTarget extends Component<SpreadsheetChildEnv> {
     </div>
   `;
   protected props = useProps() as unknown as ParentProps;
+
+  setup() {
+    providePlugins([PopoverContainerPlugin], {
+      getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
+    });
+  }
 }
 
 interface MountComponentArgs<Props extends ComponentProps> {
