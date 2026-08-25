@@ -68,7 +68,8 @@ export class PivotHTMLRenderer extends Component<SpreadsheetChildEnv> {
   }
 
   get tracker() {
-    return this.env.model.getters.getPivotPresenceTracker(this.props.pivotId);
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    return this.env.model.getters.getPivotPresenceTracker(this.props.pivotId, sheetId);
   }
 
   // ---------------------------------------------------------------------

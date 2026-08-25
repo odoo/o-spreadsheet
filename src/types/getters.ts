@@ -154,7 +154,6 @@ export type EvaluationGetters = {
   PluginGetters<typeof ColorThemeUIPlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof CellComputedStylePlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof UIOptionsPlugin> & //FIXME should not contains getters from ui
-  PluginGetters<typeof GridSelectionPlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof GeoFeaturePlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof DynamicTranslate> & //FIXME should not contains getters from ui
   PluginGetters<typeof FormulaTrackerPlugin>;

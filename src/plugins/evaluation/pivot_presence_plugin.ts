@@ -7,6 +7,7 @@ export class PivotPresencePlugin extends EvaluationPlugin {
   static getters = ["getPivotPresenceTracker"] as const;
 
   private trackPresencePivotId?: UID;
+  private sheetId?: UID;
   private tracker?: PivotPresenceTracker;
 
   handle(cmd: Command) {
@@ -14,15 +15,17 @@ export class PivotPresencePlugin extends EvaluationPlugin {
       case "PIVOT_START_PRESENCE_TRACKING":
         this.tracker = new PivotPresenceTracker();
         this.trackPresencePivotId = cmd.pivotId;
+        this.sheetId = cmd.sheetId;
         break;
       case "PIVOT_STOP_PRESENCE_TRACKING":
         this.trackPresencePivotId = undefined;
+        this.sheetId = undefined;
         break;
     }
   }
 
-  getPivotPresenceTracker(pivotId: UID) {
-    if (this.trackPresencePivotId !== pivotId) {
+  getPivotPresenceTracker(pivotId: UID, sheetId: UID) {
+    if (this.trackPresencePivotId !== pivotId || this.sheetId !== sheetId) {
       return undefined;
     }
     if (!this.tracker) {
