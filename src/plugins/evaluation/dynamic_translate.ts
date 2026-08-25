@@ -1,4 +1,4 @@
-import { UIPlugin } from "../ui_plugin";
+import { EvaluationPlugin } from "../evaluation_plugin";
 
 /**
  * This plugin provides dynamic translation getter. In o-spreadsheet, it has
@@ -8,7 +8,7 @@ import { UIPlugin } from "../ui_plugin";
  * For example, in Odoo, the plugin is replaced by a plugin that used the
  * module namespace to dynamically translate terms.
  */
-export class DynamicTranslate extends UIPlugin {
+export class DynamicTranslate extends EvaluationPlugin {
   static getters = ["dynamicTranslate"] as const;
 
   dynamicTranslate(term: string) {

@@ -24,6 +24,7 @@ import { CellEvaluationPlugin } from "./evaluation/cell_evaluation/cell_evaluati
 import { CellIconPlugin } from "./evaluation/cell_icon_plugin";
 import { CustomColorsPlugin } from "./evaluation/custom_colors";
 import { DynamicTablesPlugin } from "./evaluation/dynamic_tables";
+import { DynamicTranslate } from "./evaluation/dynamic_translate";
 import { EvaluationChartPlugin } from "./evaluation/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "./evaluation/evaluation_conditional_format";
 import { EvaluationDataValidationPlugin } from "./evaluation/evaluation_data_validation";
@@ -37,7 +38,6 @@ import { ChartUIPlugin } from "./ui_feature/chart_ui";
 import { CollaborativePlugin } from "./ui_feature/collaborative";
 import { ColorThemeUIPlugin } from "./ui_feature/color_theme";
 import { DataValidationInsertionPlugin } from "./ui_feature/datavalidation_insertion";
-import { DynamicTranslate } from "./ui_feature/dynamic_translate";
 import { FormatPlugin } from "./ui_feature/format";
 import { GeoFeaturePlugin } from "./ui_feature/geo_features";
 import { InsertPivotPlugin } from "./ui_feature/insert_pivot";
@@ -91,7 +91,6 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("collaborative", CollaborativePlugin)
   .add("history", HistoryPlugin)
   .add("datavalidation_insert", DataValidationInsertionPlugin)
-  .add("dynamic_translate", DynamicTranslate)
   .add("geo_features", GeoFeaturePlugin)
   .add("color_theme", ColorThemeUIPlugin)
   .add("lock_sheet", LockSheetPlugin)
@@ -122,6 +121,7 @@ export const evaluationPluginRegistry = new Registry<EvaluationPluginConstructor
   .add("pivot_ui", PivotUIPlugin)
   .add("cell_icon", CellIconPlugin)
   .add("pivot_presence", PivotPresencePlugin)
+  .add("dynamic_translate", DynamicTranslate)
   .add("formula_tracker", FormulaTrackerPlugin);
 
 // Plugins which are UI plugins but on which evaluation plugins depend on
@@ -133,5 +133,4 @@ export const evaluationUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("cell_computed_style", CellComputedStylePlugin)
   .add("ui_options", UIOptionsPlugin)
   .add("selection", GridSelectionPlugin)
-  .add("geo_features", GeoFeaturePlugin)
-  .add("dynamic_translate", DynamicTranslate);
+  .add("geo_features", GeoFeaturePlugin);
