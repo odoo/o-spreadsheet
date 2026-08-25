@@ -361,6 +361,9 @@ export class Session extends EventBus<CollaborativeEvent> {
         this.lastLocalOperation = undefined;
         break;
       }
+      case "RELOAD": {
+        window.location.reload();
+      }
     }
     this.acknowledge(message);
     this.trigger("collaborative-event-received");
