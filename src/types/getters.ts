@@ -20,7 +20,6 @@ import { SheetPlugin } from "../plugins/core/sheet";
 import { TableStylePlugin } from "../plugins/core/table_style";
 import { TablePlugin } from "../plugins/core/tables";
 import { CellEvaluationPlugin } from "../plugins/evaluation/cell_evaluation/cell_evaluation_plugin";
-import { CellIconPlugin } from "../plugins/evaluation/cell_icon_plugin";
 import { CustomColorsPlugin } from "../plugins/evaluation/custom_colors";
 import { DynamicTablesPlugin } from "../plugins/evaluation/dynamic_tables";
 import { DynamicTranslate } from "../plugins/evaluation/dynamic_translate";
@@ -44,6 +43,7 @@ import { UIOptionsPlugin } from "../plugins/ui_feature/ui_options";
 import { SheetUIPlugin } from "../plugins/ui_feature/ui_sheet";
 import { CarouselUIPlugin } from "../plugins/ui_stateful/carousel_ui";
 import { CellComputedStylePlugin } from "../plugins/ui_stateful/cell_computed_style";
+import { CellIconPlugin } from "../plugins/ui_stateful/cell_icon_plugin";
 import { ClipboardPlugin } from "../plugins/ui_stateful/clipboard";
 import { FigureUIPlugin } from "../plugins/ui_stateful/figure";
 import { FilterEvaluationPlugin } from "../plugins/ui_stateful/filter_evaluation";
@@ -146,14 +146,11 @@ export type EvaluationGetters = {
   PluginGetters<typeof FingerprintPlugin> &
   PluginGetters<typeof HeaderSizeUIPlugin> &
   PluginGetters<typeof PivotUIPlugin> &
-  PluginGetters<typeof CellIconPlugin> &
   PluginGetters<typeof DynamicTablesPlugin> &
   PluginGetters<typeof PivotPresencePlugin> &
   PluginGetters<typeof HeaderVisibilityUIPlugin> & //FIXME should not contains getters from ui
-  PluginGetters<typeof SheetUIPlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof ColorThemeUIPlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof CellComputedStylePlugin> & //FIXME should not contains getters from ui
-  PluginGetters<typeof UIOptionsPlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof GeoFeaturePlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof DynamicTranslate> &
   PluginGetters<typeof FormulaTrackerPlugin>;
@@ -178,6 +175,7 @@ export type RenderingGetters = {
   PluginGetters<typeof CellComputedStylePlugin> &
   PluginGetters<typeof PivotUIPlugin> &
   PluginGetters<typeof TableComputedStylePlugin> &
+  PluginGetters<typeof CellIconPlugin> &
   PluginGetters<typeof GeoFeaturePlugin> &
   PluginGetters<typeof LockSheetPlugin> &
   PluginGetters<typeof CarouselUIPlugin> &
