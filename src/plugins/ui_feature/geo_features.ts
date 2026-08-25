@@ -5,16 +5,9 @@ import { ModelConfig } from "../../types/model";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 export class GeoFeaturePlugin extends UIPlugin {
-  static getters = [
-    "getGeoJsonFeatures",
-    "geoFeatureNameToId",
-    "getGeoChartAvailableRegions",
-    "getAvailableChartRegions",
-  ] as const;
+  static getters = ["getAvailableChartRegions"] as const;
 
   private readonly geoJsonService: ModelConfig["external"]["geoJsonService"];
-
-  private geoJsonCache: { [region: string]: GeoJSON.Feature[] | null | Promise<void> } = {};
 
   /** Stores the initial region of each geo chart at the time of the START command */
   private initialRegions: Record<UID, string> = {};
@@ -60,17 +53,9 @@ export class GeoFeaturePlugin extends UIPlugin {
   private trackInitialRegion(chartId: UID) {
     const def = this.getters.getChartDefinition(chartId) as GeoChartDefinition<string>;
     if (def?.type === "geo") {
-      const availableRegions = this.getGeoChartAvailableRegions();
+      const availableRegions = this.getters.getGeoChartAvailableRegions();
       this.initialRegions[chartId] = def.region || availableRegions[0]?.id || "";
     }
-  }
-
-  getGeoChartAvailableRegions(): GeoChartRegion[] {
-    if (!this.geoJsonService) {
-      console.error("No geoJsonService provided to the model");
-      return [];
-    }
-    return this.geoJsonService.getAvailableRegions() || [];
   }
 
   /**
@@ -90,59 +75,5 @@ export class GeoFeaturePlugin extends UIPlugin {
       return [];
     }
     return this.geoJsonService.getAlternativeRegions?.(initialRegion) || [];
-  }
-
-  getGeoJsonFeatures(region: string): GeoJSON.Feature[] | undefined {
-    if (!this.geoJsonService) {
-      console.error("No geoJsonService provided to the model");
-      return;
-    }
-
-    const cachedGeoJson = this.geoJsonCache[region];
-
-    if (cachedGeoJson instanceof Promise) {
-      return undefined;
-    }
-    if (cachedGeoJson !== undefined) {
-      return cachedGeoJson ?? undefined;
-    }
-
-    this.geoJsonCache[region] = new Promise<void>(async (resolve) => {
-      const json = await this.geoJsonService?.getTopoJson(region);
-      this.geoJsonCache[region] = this.convertToGeoJson(json);
-      this.dispatch("EVALUATE_CHARTS");
-      resolve();
-    });
-    return undefined;
-  }
-
-  geoFeatureNameToId(region: string, featureName: string): string | undefined {
-    if (!this.geoJsonService) {
-      console.error("No geoJsonService provided to the model");
-      return;
-    }
-    return this.geoJsonService.geoFeatureNameToId(region, featureName);
-  }
-
-  private convertToGeoJson(
-    json: GeoJSON.FeatureCollection | TopoJSON.Topology
-  ): GeoJSON.Feature[] | null {
-    if (!json) {
-      return null;
-    }
-    // TopoJSON
-    if (json.type === "Topology") {
-      if (!globalThis.ChartGeo) {
-        return null;
-      }
-      const features = globalThis.ChartGeo.topojson.feature(json, Object.values(json.objects)[0]);
-      return features.type === "FeatureCollection" ? features.features : [features];
-    }
-    // GeoJSON
-    else if (json.type === "FeatureCollection") {
-      return json.features;
-    }
-
-    throw new Error("Invalid TopoJSON");
   }
 }
