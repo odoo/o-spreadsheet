@@ -1,5 +1,5 @@
-import { signal, useProps } from "@odoo/owl";
-import { Component, useSubEnv } from "../../owl3_compatibility_layer";
+import { providePlugins, signal, useProps } from "@odoo/owl";
+import { Component } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -20,6 +20,7 @@ import { useTouchHandlers } from "../helpers/touch_handlers_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
+import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 import { types } from "../props_validation";
 import { HorizontalScrollBar } from "../scrollbar/scrollbar_horizontal";
 import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
@@ -60,7 +61,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
 
     const layers = OrderedLayers().filter((layer) => layer !== "Headers");
     const rendererStore = useLocalStore(RendererStore, layers);
-    useSubEnv({
+    providePlugins([PopoverContainerPlugin], {
       getPopoverContainerRect: () => this.zoomStore.getZoomedRect(this.getGridRect()),
     });
 

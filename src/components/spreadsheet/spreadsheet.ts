@@ -3,6 +3,7 @@ import {
   onPatched,
   onWillUnmount,
   onWillUpdateProps,
+  providePlugins,
   proxy,
   signal,
   useEffect,
@@ -40,12 +41,14 @@ import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { cssPropertiesToCss } from "../helpers/css";
 import {
+  getElBoundingRect,
   isMobileOS,
   keyboardEventToShortcutString,
   zoomCorrectedElementRect,
 } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";
+import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 import { types } from "../props_validation";
 import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../side_panel/side_panels/side_panels";
@@ -134,6 +137,10 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
     stores.inject(ModelStore, this.model);
     this.viewStore = useStore(ViewportsStore);
     this.zoomStore = useStore(ZoomStore);
+
+    providePlugins([PopoverContainerPlugin], {
+      getPopoverContainerRect: () => getElBoundingRect(this.spreadsheetRef()),
+    });
 
     const env = this.env;
     stores.get(ScreenWidthStore).setSmallThreshhold(() => {
