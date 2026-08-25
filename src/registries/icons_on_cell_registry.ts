@@ -18,7 +18,7 @@ import {
 import { deepEquals } from "../helpers/misc";
 import { DEFAULT_PIVOT_STYLE, togglePivotCollapse } from "../helpers/pivot/pivot_helpers";
 import { computeTextFontSizeInPixels } from "../helpers/text_helper";
-import { EvaluationGetters } from "../types/getters";
+import { Getters } from "../types/getters";
 import { ImageSVG } from "../types/image";
 import { Align, CellPosition } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
@@ -38,10 +38,7 @@ export interface GridIcon {
   onClick?: (position: CellPosition, env: SpreadsheetChildEnv) => void;
 }
 
-type ImageSvgCallback = (
-  getters: EvaluationGetters,
-  position: CellPosition
-) => GridIcon | undefined;
+type ImageSvgCallback = (getters: Getters, position: CellPosition) => GridIcon | undefined;
 
 /**
  * Registry to draw icons on cells

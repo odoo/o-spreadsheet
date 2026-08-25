@@ -7,9 +7,9 @@ import {
 import { Command } from "../../types/commands";
 import { Align, CellPosition } from "../../types/misc";
 import { Rect } from "../../types/rendering";
-import { EvaluationPlugin } from "../evaluation_plugin";
+import { UIPlugin } from "../ui_plugin";
 
-export class CellIconPlugin extends EvaluationPlugin {
+export class CellIconPlugin extends UIPlugin {
   static getters = ["doesCellHaveGridIcon", "getCellIcons", "getCellIconRect"] as const;
 
   private cellIconsCache: Record<string, Record<number, Record<number, GridIcon[]>>> = {};
