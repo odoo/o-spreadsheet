@@ -14,6 +14,12 @@
         background-color: var(--os-action-color);
         border-color: var(--os-action-color) !important;
       }
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 0.25rem rgba(113, 75, 103, 0.25);
+        border-color: var(--os-action-color);
+      }
     }
   }
 }
