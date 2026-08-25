@@ -28,6 +28,7 @@ import { EvaluationConditionalFormatPlugin } from "../plugins/evaluation/evaluat
 import { EvaluationDataValidationPlugin } from "../plugins/evaluation/evaluation_data_validation";
 import { FingerprintPlugin } from "../plugins/evaluation/fingerprint";
 import { FormulaTrackerPlugin } from "../plugins/evaluation/formula_tracker";
+import { GeoLoaderEvaluation } from "../plugins/evaluation/geo_loader";
 import { HeaderSizeUIPlugin } from "../plugins/evaluation/header_sizes_ui";
 import { PivotPresencePlugin } from "../plugins/evaluation/pivot_presence_plugin";
 import { PivotUIPlugin } from "../plugins/evaluation/pivot_ui";
@@ -151,7 +152,7 @@ export type EvaluationGetters = {
   PluginGetters<typeof HeaderVisibilityUIPlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof ColorThemeUIPlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof CellComputedStylePlugin> & //FIXME should not contains getters from ui
-  PluginGetters<typeof GeoFeaturePlugin> & //FIXME should not contains getters from ui
+  PluginGetters<typeof GeoLoaderEvaluation> &
   PluginGetters<typeof DynamicTranslate> &
   PluginGetters<typeof FormulaTrackerPlugin>;
 /**
