@@ -560,6 +560,10 @@ export interface ClearFormattingCommand extends TargetDependentCommand {
   type: "CLEAR_FORMATTING";
 }
 
+export interface ClearAllStylingCommand extends TargetDependentCommand {
+  type: "CLEAR_ALL_STYLING";
+}
+
 export interface SetDecimalCommand extends TargetDependentCommand {
   type: "SET_DECIMAL";
   step: SetDecimalStep;
@@ -1161,6 +1165,7 @@ export type LocalCommand =
   | DeleteFiguresCommand
   | MergeIntoCarouselCommand
   | CreateChartAndMergeIntoCarouselCommand
+  | ClearAllStylingCommand
   | ColorAllCellsBackground;
 
 export type Command = CoreCommand | LocalCommand;

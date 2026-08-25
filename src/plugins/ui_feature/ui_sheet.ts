@@ -9,7 +9,8 @@ import {
 import { isColorValid } from "../../helpers/color";
 import { formatValue } from "../../helpers/format/format";
 import { localizeFormula } from "../../helpers/locale";
-import { groupConsecutive, largeMax, range } from "../../helpers/misc";
+import { deepCopy, groupConsecutive, largeMax, range } from "../../helpers/misc";
+import { recomputeZones } from "../../helpers/recompute_zones";
 import {
   computeMultilineTextSize,
   computeTextLinesHeight,
@@ -18,11 +19,12 @@ import {
   getCellContentHeight,
   splitTextToWidth,
 } from "../../helpers/text_helper";
-import { isEqual, positions } from "../../helpers/zones";
+import { isEqual, isZoneInside, overlap, positions } from "../../helpers/zones";
 import { CellValueType } from "../../types/cells";
 import {
   AutoresizeColumnsCommand,
   AutoresizeRowsCommand,
+  ClearAllStylingCommand,
   ColorAllCellsBackground,
   Command,
   CommandResult,
@@ -68,6 +70,7 @@ export class SheetUIPlugin extends UIPlugin {
     AUTORESIZE_ROWS: this.onAutoresizeRows,
     DELETE_UNFILTERED_CONTENT: this.onDeleteUnfilteredContent,
     SET_BACKGROUND_FOR_ALL_CELLS: this.onSetBackgroundForAllCells,
+    CLEAR_ALL_STYLING: this.onClearAllStyling,
   };
 
   private onSetBackgroundForAllCells(cmd: ColorAllCellsBackground) {
@@ -373,6 +376,72 @@ export class SheetUIPlugin extends UIPlugin {
         size,
         sheetId,
       });
+    }
+  }
+
+  private onClearAllStyling(cmd: ClearAllStylingCommand) {
+    const { sheetId, target } = cmd;
+    const tables = this.getters.getTables(sheetId);
+    for (const table of tables) {
+      if (target.some((zone) => isZoneInside(table.range.zone, zone))) {
+        if (table.isPivotTable) {
+          const position = { sheetId, col: table.range.zone.left, row: table.range.zone.top };
+          const pivotId = this.getters.getPivotIdFromPosition(position);
+          if (pivotId) {
+            const definition = deepCopy(this.getters.getPivotCoreDefinition(pivotId));
+            definition.style = { ...definition.style, tableStyleId: "None" };
+            this.dispatch("UPDATE_PIVOT", { pivotId, pivot: definition });
+          }
+        } else {
+          this.dispatch("UPDATE_TABLE", {
+            sheetId,
+            zone: table.range.zone,
+            config: { ...table.config, styleId: "None" },
+          });
+        }
+      }
+    }
+
+    this.dispatch("CLEAR_FORMATTING", { sheetId, target });
+
+    const merges = this.getters.getMerges(sheetId);
+    const mergesInsideTarget = merges.filter((merge) =>
+      target.some((zone) => isZoneInside(merge, zone))
+    );
+    if (mergesInsideTarget.length > 0) {
+      this.dispatch("REMOVE_MERGE", { sheetId, target: mergesInsideTarget });
+    }
+
+    const conditionalFormats = this.getters.getConditionalFormats(sheetId);
+    // Make the target ranges unbounded (if they take the whole sheet) so unbounded CF zones are properly cropped
+    const unboundedTarget = target.map((zone) =>
+      this.getters.getUnboundedZone(sheetId, zone, true)
+    );
+
+    for (const cf of conditionalFormats) {
+      const cfRanges = cf.ranges.map((range) => this.getters.getRangeFromSheetXC(sheetId, range));
+      const hasOverlap = target.some((zone) =>
+        cfRanges
+          .map((range) => range.zone)
+          .some((cfZone) => isZoneInside(cfZone, zone) || overlap(cfZone, zone))
+      );
+      if (!hasOverlap) {
+        continue;
+      }
+
+      const newZones = recomputeZones(
+        cfRanges.map((range) => range.unboundedZone),
+        unboundedTarget
+      );
+      if (newZones.length === 0) {
+        this.dispatch("REMOVE_CONDITIONAL_FORMAT", { sheetId, id: cf.id });
+      } else {
+        this.dispatch("ADD_CONDITIONAL_FORMAT", {
+          sheetId,
+          cf,
+          ranges: newZones.map((zone) => this.getters.getRangeDataFromZone(sheetId, zone)),
+        });
+      }
     }
   }
 }

@@ -600,6 +600,7 @@ registerCommand("SET_DECIMAL", { category: "local" });
 registerCommand("SET_FORMATTING_WITH_PIVOT", { category: "local" });
 registerCommand("PAINT_FORMAT", { category: "local" });
 registerCommand("SET_BACKGROUND_FOR_ALL_CELLS", { category: "local" });
+registerCommand("CLEAR_ALL_STYLING", { category: "local" });
 
 // FILTERS / TABLES
 registerCommand("UPDATE_FILTER", {

@@ -882,7 +882,7 @@ export class Grid extends OSComponent {
   }
 
   private clearFormatting() {
-    this.model().dispatch("CLEAR_FORMATTING", {
+    this.model().dispatch("CLEAR_ALL_STYLING", {
       sheetId: this.model().getters.getActiveSheetId(),
       target: this.model().getters.getSelectedZones(),
     });
