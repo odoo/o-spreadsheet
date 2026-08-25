@@ -2,7 +2,7 @@
   .o-bottom-bar-statistic {
     .o-selection-statistic {
       margin-right: 10px;
-      padding: 0px 4px 0px 8px;
+      padding: 4px 4px 4px 8px;
       cursor: pointer;
       &:hover {
         background-color: var(--os-background-gray-color-hover) !important;
