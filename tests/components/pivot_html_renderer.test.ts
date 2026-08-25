@@ -16,7 +16,8 @@ async function mountPivotHtmlRenderer(
     pivotId,
     onCellClicked,
   };
-  model.dispatch("PIVOT_START_PRESENCE_TRACKING", { pivotId });
+  const sheetId = model.getters.getActiveSheetId();
+  model.dispatch("PIVOT_START_PRESENCE_TRACKING", { pivotId, sheetId });
   evaluateCells(model);
   ({ fixture } = await mountComponent(PivotHTMLRenderer, { env: { model }, props }));
 }
