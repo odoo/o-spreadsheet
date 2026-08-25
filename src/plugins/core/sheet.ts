@@ -517,12 +517,26 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     };
   }
 
-  getUnboundedZone(sheetId: UID, zone: Zone | UnboundedZone): UnboundedZone {
+  /**
+   * Return the zone with unbounded bottom and/or right if the zone takes the whole sheet in that dimension.
+   *
+   * @param allowUnboundedHeader if true, the zone will be considered unbounded if it reaches the last row/column,
+   * even if it doesn't start at the first row/column (eg. A5:A100 -> A5:A).
+   */
+  getUnboundedZone(
+    sheetId: UID,
+    zone: Zone | UnboundedZone,
+    allowUnboundedHeader = false
+  ): UnboundedZone {
     if (zone.bottom === undefined || zone.right === undefined) {
       return zone;
     }
-    const isFullRow = zone.left === 0 && zone.right === this.getNumberCols(sheetId) - 1;
-    const isFullCol = zone.top === 0 && zone.bottom === this.getNumberRows(sheetId) - 1;
+    const isFullRow = allowUnboundedHeader
+      ? zone.right === this.getNumberCols(sheetId) - 1
+      : zone.left === 0 && zone.right === this.getNumberCols(sheetId) - 1;
+    const isFullCol = allowUnboundedHeader
+      ? zone.bottom === this.getNumberRows(sheetId) - 1
+      : zone.top === 0 && zone.bottom === this.getNumberRows(sheetId) - 1;
     return {
       ...zone,
       bottom: isFullCol ? undefined : zone.bottom,

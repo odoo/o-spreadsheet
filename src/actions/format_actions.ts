@@ -398,7 +398,7 @@ export const clearFormat: ActionSpec = {
   name: _t("Clear formatting"),
   shortcut: "Ctrl+<",
   execute: (env) =>
-    env.model.dispatch("CLEAR_FORMATTING", {
+    env.model.dispatch("CLEAR_ALL_STYLING", {
       sheetId: env.model.getters.getActiveSheetId(),
       target: env.model.getters.getSelectedZones(),
     }),

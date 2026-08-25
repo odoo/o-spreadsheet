@@ -27,6 +27,7 @@ import {
   addEqualCf,
   autoresizeColumns,
   autoresizeRows,
+  clearAllStyling,
   copy,
   createSheet,
   createTableWithFilter,
@@ -49,6 +50,7 @@ import {
   automaticSum,
   getCellContent,
   getCellRawContent,
+  getCellStyle,
   getEvaluatedCell,
   getStyle,
 } from "./test_helpers/getters_helpers";
@@ -106,6 +108,7 @@ describe("Repeat commands basics", () => {
       "SUM_SELECTION",
       "SET_DECIMAL",
       "DELETE_UNFILTERED_CONTENT",
+      "CLEAR_ALL_STYLING",
     ].sort();
     const registryKeys = repeatLocalCommandTransformRegistry.getKeys().sort();
     expect(repeatableCommands).toEqual(registryKeys);
@@ -571,5 +574,19 @@ describe("Repeat local commands", () => {
     setSelection(model, ["A2"]);
     redo(model);
     expect(getCellContent(model, "A2")).toEqual("");
+  });
+
+  test("Repeat clear all styling", () => {
+    setFormatting(model, "A1:A2", { bold: true });
+    addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "1");
+    clearAllStyling(model, "A1");
+
+    expect(getCellStyle(model, "A1")).toEqual(undefined);
+    expect(model.getters.getConditionalFormats(sheetId)[0].ranges).toEqual(["A2"]);
+
+    setSelection(model, ["A2"]);
+    redo(model);
+    expect(getCellStyle(model, "A2")).toEqual(undefined);
+    expect(model.getters.getConditionalFormats(sheetId)).toHaveLength(0);
   });
 });
