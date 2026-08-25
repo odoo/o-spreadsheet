@@ -1608,10 +1608,16 @@ export interface CoreCommandDispatcher {
 export type CommandTypes = Command["type"];
 export type CoreCommandTypes = CoreCommand["type"];
 
-export type EvaluationCommand =
-  | CoreCommand
-  | EvaluateCellsCommand
-  | EvaluateChartsCommand
-  | UndoCommand
-  | RedoCommand;
+export type EvaluationCommand = EvaluateCellsCommand | EvaluateChartsCommand;
+
 export type EvaluationCommandTypes = EvaluationCommand["type"];
+
+export interface EvaluationCommandDispatcher {
+  dispatch<T extends EvaluationCommandTypes, C extends Extract<EvaluationCommand, { type: T }>>(
+    type: {} extends Omit<C, "type"> ? T : never
+  ): DispatchResult;
+  dispatch<T extends EvaluationCommandTypes, C extends Extract<EvaluationCommand, { type: T }>>(
+    type: T,
+    r: Omit<C, "type">
+  ): DispatchResult;
+}

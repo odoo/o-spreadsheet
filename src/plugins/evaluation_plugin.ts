@@ -1,6 +1,6 @@
 import { Session } from "../collaborative/session";
 import { StateObserver } from "../state_observer";
-import { Command } from "../types/commands";
+import { Command, EvaluationCommandDispatcher } from "../types/commands";
 import { Currency } from "../types/currency";
 import { EvaluationGetters } from "../types/getters";
 import { Color } from "../types/misc";
@@ -12,6 +12,7 @@ export interface EvaluationPluginConfig {
   readonly stateObserver: StateObserver;
   readonly custom: ModelConfig["custom"];
   readonly session: Session;
+  readonly dispatch: EvaluationCommandDispatcher["dispatch"];
   readonly defaultCurrency?: Partial<Currency>;
   readonly customColors: Color[];
   readonly external: ModelConfig["external"];
@@ -28,8 +29,10 @@ export interface EvaluationPluginConstructor {
  */
 export class EvaluationPlugin<State = any> extends BasePlugin<State, Command> {
   protected getters: EvaluationGetters;
-  constructor({ getters, stateObserver }: EvaluationPluginConfig) {
+  protected dispatch: EvaluationCommandDispatcher["dispatch"];
+  constructor({ getters, stateObserver, dispatch }: EvaluationPluginConfig) {
     super(stateObserver);
     this.getters = getters;
+    this.dispatch = dispatch;
   }
 }

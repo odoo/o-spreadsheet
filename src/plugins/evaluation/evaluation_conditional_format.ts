@@ -8,7 +8,7 @@ import { isInside } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { CellValueType, EvaluatedCell, NumberCell } from "../../types/cells";
 import {
-  EvaluationCommand,
+  Command,
   invalidateCFEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types/commands";
@@ -46,7 +46,7 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  handle(cmd: EvaluationCommand) {
+  handle(cmd: Command) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       invalidateCFEvaluationCommands.has(cmd.type) ||
