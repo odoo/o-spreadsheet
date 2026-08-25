@@ -6,12 +6,17 @@ import {
   CoreCommand,
   CorePlugin,
   DispatchResult,
+  EvaluationPlugin,
   coreTypes,
 } from "../../src";
 import { MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
-import { corePluginRegistry, featurePluginRegistry } from "../../src/plugins/plugin_registries";
+import {
+  corePluginRegistry,
+  evaluationPluginRegistry,
+  featurePluginRegistry,
+} from "../../src/plugins/plugin_registries";
 import { UIPlugin } from "../../src/plugins/ui_plugin";
 import { ModelConfig } from "../../src/types/model";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -149,6 +154,32 @@ describe("Model", () => {
     const model = new Model();
     copy(model);
     expect(receivedCommands).not.toContain("COPY");
+  });
+
+  test("An evaluation plugin cannot dispatch non-evaluation commands", () => {
+    class MyEvaluationPlugin extends EvaluationPlugin {
+      handle(cmd: Command) {
+        if (cmd.type === "COPY") {
+          /**
+           * TS ensure that the command is an evaluation command, but we want to
+           * test that the runtime will throw an error if we try to dispatch a
+           * non-evaluation command
+           */
+          //@ts-ignore
+          this.dispatch("UPDATE_CELL", {
+            col: 0,
+            row: 0,
+            sheetId: "sheetId",
+            content: "hello",
+          });
+        }
+      }
+    }
+    addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
+    const model = new Model();
+    expect(() => copy(model)).toThrow(
+      "An evaluation plugin cannot dispatch non-evaluation commands (UPDATE_CELL)"
+    );
   });
 
   test("canDispatch method is exposed and works", () => {

@@ -43,6 +43,7 @@ import {
   CommandTypes,
   CoreCommand,
   DispatchResult,
+  EvaluationCommandDispatcher,
   isCoreCommand,
 } from "./types/commands";
 import { CoreGetters, EvaluationGetters, Getters } from "./types/getters";
@@ -59,6 +60,7 @@ const enum Status {
   Ready,
   Running,
   RunningCore,
+  RunningEvaluation,
   Finalizing,
 }
 
@@ -148,6 +150,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private readonly handlers: CommandHandler<Command>[] = [];
   private readonly uiHandlers: CommandHandler<Command>[] = [];
   private readonly coreHandlers: CommandHandler<CoreCommand>[] = [];
+  private readonly evaluationHandlers: CommandHandler<Command>[] = [];
 
   constructor(
     data: any = {},
@@ -211,6 +214,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
       this.coreHandlers.push(plugin);
+      this.evaluationHandlers.push(plugin);
     }
 
     for (const Plugin of statefulUIPluginRegistry.getAll()) {
@@ -218,11 +222,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.statefulUIPlugins.push(plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
+      this.evaluationHandlers.push(plugin);
     }
     for (const Plugin of featurePluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
+      this.evaluationHandlers.push(plugin);
     }
 
     if (this.config.mode !== "export_verification") {
@@ -445,6 +451,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       stateObserver: this.state,
       custom: this.config.custom,
       session: this.session,
+      dispatch: this.dispatchFromEvaluationPlugin,
       defaultCurrency: this.config.defaultCurrency,
       customColors: this.config.customColors || [],
       external: this.config.external,
@@ -600,6 +607,18 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     const handlers = this.isReplayingCommand ? this.coreHandlers : this.handlers;
     this.dispatchToHandlers(handlers, command);
     this.status = previousStatus;
+    return DispatchResult.Success;
+  };
+
+  private dispatchFromEvaluationPlugin: EvaluationCommandDispatcher["dispatch"] = (
+    type: string,
+    payload?: any
+  ) => {
+    const command = createCommand(type, payload);
+    if (!isEvaluationCommand(command)) {
+      throw new Error(`An evaluation plugin cannot dispatch non-evaluation commands (${type})`);
+    }
+    this.dispatchToHandlers(this.evaluationHandlers, command);
     return DispatchResult.Success;
   };
 
