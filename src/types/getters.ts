@@ -23,6 +23,7 @@ import { CellEvaluationPlugin } from "../plugins/evaluation/cell_evaluation/cell
 import { CellIconPlugin } from "../plugins/evaluation/cell_icon_plugin";
 import { CustomColorsPlugin } from "../plugins/evaluation/custom_colors";
 import { DynamicTablesPlugin } from "../plugins/evaluation/dynamic_tables";
+import { DynamicTranslate } from "../plugins/evaluation/dynamic_translate";
 import { EvaluationChartPlugin } from "../plugins/evaluation/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "../plugins/evaluation/evaluation_conditional_format";
 import { EvaluationDataValidationPlugin } from "../plugins/evaluation/evaluation_data_validation";
@@ -34,7 +35,6 @@ import { PivotUIPlugin } from "../plugins/evaluation/pivot_ui";
 import { ChartUIPlugin } from "../plugins/ui_feature/chart_ui";
 import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
 import { ColorThemeUIPlugin } from "../plugins/ui_feature/color_theme";
-import { DynamicTranslate } from "../plugins/ui_feature/dynamic_translate";
 import { GeoFeaturePlugin } from "../plugins/ui_feature/geo_features";
 import { HistoryPlugin } from "../plugins/ui_feature/local_history";
 import { LockSheetPlugin } from "../plugins/ui_feature/lock_sheet";
@@ -155,7 +155,7 @@ export type EvaluationGetters = {
   PluginGetters<typeof CellComputedStylePlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof UIOptionsPlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof GeoFeaturePlugin> & //FIXME should not contains getters from ui
-  PluginGetters<typeof DynamicTranslate> & //FIXME should not contains getters from ui
+  PluginGetters<typeof DynamicTranslate> &
   PluginGetters<typeof FormulaTrackerPlugin>;
 /**
  * The getters that can be used in the rendering-related stores and helpers. The SheetView and Selection getters should
@@ -179,7 +179,6 @@ export type RenderingGetters = {
   PluginGetters<typeof PivotUIPlugin> &
   PluginGetters<typeof TableComputedStylePlugin> &
   PluginGetters<typeof GeoFeaturePlugin> &
-  PluginGetters<typeof DynamicTranslate> &
   PluginGetters<typeof LockSheetPlugin> &
   PluginGetters<typeof CarouselUIPlugin> &
   PluginGetters<typeof ColorThemeUIPlugin> &
