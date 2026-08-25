@@ -73,6 +73,7 @@ describe("Repeat commands basics", () => {
       "ADD_MERGE",
       "REMOVE_MERGE",
       "SET_FORMATTING",
+      "CLEAR_ALL_STYLING",
       "CLEAR_FORMATTING",
       "SET_BORDER",
       "CREATE_TABLE",
