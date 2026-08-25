@@ -10,7 +10,7 @@ import { isInside, positions } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { _t } from "../../translation";
 import { CellValue, CellValueType } from "../../types/cells";
-import { EvaluationCommand, invalidateEvaluationCommands } from "../../types/commands";
+import { Command, invalidateEvaluationCommands } from "../../types/commands";
 import {
   DataValidationCriterion,
   DataValidationCriterionType,
@@ -52,7 +52,7 @@ export class EvaluationDataValidationPlugin extends EvaluationPlugin {
   validationResults: Record<UID, SheetValidationResult> = {};
   criterionPreComputeResult: Record<UID, { [dvRuleId: UID]: unknown }> = {};
 
-  handle(cmd: EvaluationCommand) {
+  handle(cmd: Command) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       cmd.type === "EVALUATE_CELLS" ||
