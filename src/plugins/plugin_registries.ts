@@ -30,6 +30,7 @@ import { EvaluationDataValidationPlugin } from "./evaluation/evaluation_data_val
 import { FingerprintPlugin } from "./evaluation/fingerprint";
 import { FormulaTrackerPlugin } from "./evaluation/formula_tracker";
 import { HeaderSizeUIPlugin } from "./evaluation/header_sizes_ui";
+import { PivotPresencePlugin } from "./evaluation/pivot_presence_plugin";
 import { PivotUIPlugin } from "./evaluation/pivot_ui";
 import { EvaluationPluginConstructor } from "./evaluation_plugin";
 import { ChartUIPlugin } from "./ui_feature/chart_ui";
@@ -42,7 +43,6 @@ import { GeoFeaturePlugin } from "./ui_feature/geo_features";
 import { InsertPivotPlugin } from "./ui_feature/insert_pivot";
 import { HistoryPlugin } from "./ui_feature/local_history";
 import { LockSheetPlugin } from "./ui_feature/lock_sheet";
-import { PivotPresencePlugin } from "./ui_feature/pivot_presence_plugin";
 import { SortPlugin } from "./ui_feature/sort";
 import { SubtotalEvaluationPlugin } from "./ui_feature/subtotal_evaluation";
 import { UIOptionsPlugin } from "./ui_feature/ui_options";
@@ -87,7 +87,6 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("sort", SortPlugin)
   .add("format", FormatPlugin)
   .add("insert_pivot", InsertPivotPlugin)
-  .add("pivot_presence", PivotPresencePlugin)
   .add("subtotal_evaluation", SubtotalEvaluationPlugin)
   .add("collaborative", CollaborativePlugin)
   .add("history", HistoryPlugin)
@@ -122,6 +121,7 @@ export const evaluationPluginRegistry = new Registry<EvaluationPluginConstructor
   .add("custom_colors", CustomColorsPlugin)
   .add("pivot_ui", PivotUIPlugin)
   .add("cell_icon", CellIconPlugin)
+  .add("pivot_presence", PivotPresencePlugin)
   .add("formula_tracker", FormulaTrackerPlugin);
 
 // Plugins which are UI plugins but on which evaluation plugins depend on
@@ -132,7 +132,6 @@ export const evaluationUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("color_theme", ColorThemeUIPlugin)
   .add("cell_computed_style", CellComputedStylePlugin)
   .add("ui_options", UIOptionsPlugin)
-  .add("pivot_presence", PivotPresencePlugin)
   .add("selection", GridSelectionPlugin)
   .add("geo_features", GeoFeaturePlugin)
   .add("dynamic_translate", DynamicTranslate);
