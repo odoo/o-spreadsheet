@@ -1,4 +1,4 @@
-import { onMounted, proxy, signal, useListener, useProps } from "@odoo/owl";
+import { onMounted, providePlugins, proxy, signal, useListener, useProps } from "@odoo/owl";
 import { insertSheet, insertTable } from "../../actions/insert_actions";
 import {
   CREATE_IMAGE,
@@ -22,7 +22,7 @@ import {
   interactivePasteFromOS,
 } from "../../helpers/ui/paste_interactive";
 import { isInside } from "../../helpers/zones";
-import { Component, useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {
@@ -80,6 +80,7 @@ import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
+import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 import { types } from "../props_validation";
 import { HorizontalScrollBar } from "../scrollbar/scrollbar_horizontal";
 import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
@@ -183,7 +184,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     useStore(ArrayFormulaHighlight);
     this.automaticSumStore = useLocalStore(AutomaticSumStore);
 
-    useSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
+    providePlugins([PopoverContainerPlugin], { getPopoverContainerRect: () => this.getGridRect() });
     useListener(document.body, "cut", this.copy.bind(this, true));
     useListener(document.body, "copy", this.copy.bind(this, false));
     useListener(document.body, "paste", this.paste.bind(this));
