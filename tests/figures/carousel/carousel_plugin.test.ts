@@ -166,6 +166,15 @@ describe("Carousel figure", () => {
     expect(model.getters.getFigures(sheetId)).toHaveLength(1);
   });
 
+  test("Cannot add a non-existing chart to a carousel", () => {
+    createCarousel(model, { items: [] }, "carouselId");
+    const result = updateCarousel(model, "carouselId", {
+      items: [{ type: "chart", chartId: "fakeChartId" }],
+    });
+    expect(result).toBeCancelledBecause(CommandResult.ChartDoesNotExist);
+    expect(model.getters.getCarousel("carouselId").items).toEqual([]);
+  });
+
   test("Can pop a chart out of a carousel", () => {
     createCarousel(model, { items: [] }, "carouselId");
     addNewChartToCarousel(model, "carouselId");
