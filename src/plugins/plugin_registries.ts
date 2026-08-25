@@ -29,6 +29,7 @@ import { EvaluationConditionalFormatPlugin } from "./evaluation/evaluation_condi
 import { EvaluationDataValidationPlugin } from "./evaluation/evaluation_data_validation";
 import { FingerprintPlugin } from "./evaluation/fingerprint";
 import { FormulaTrackerPlugin } from "./evaluation/formula_tracker";
+import { GeoLoaderEvaluation } from "./evaluation/geo_loader";
 import { HeaderSizeUIPlugin } from "./evaluation/header_sizes_ui";
 import { PivotPresencePlugin } from "./evaluation/pivot_presence_plugin";
 import { PivotUIPlugin } from "./evaluation/pivot_ui";
@@ -122,6 +123,7 @@ export const evaluationPluginRegistry = new Registry<EvaluationPluginConstructor
   .add("pivot_ui", PivotUIPlugin)
   .add("pivot_presence", PivotPresencePlugin)
   .add("dynamic_translate", DynamicTranslate)
+  .add("geo_loader", GeoLoaderEvaluation)
   .add("formula_tracker", FormulaTrackerPlugin);
 
 // Plugins which are UI plugins but on which evaluation plugins depend on
@@ -132,5 +134,4 @@ export const evaluationUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("color_theme", ColorThemeUIPlugin)
   .add("cell_computed_style", CellComputedStylePlugin)
   .add("ui_options", UIOptionsPlugin)
-  .add("selection", GridSelectionPlugin)
-  .add("geo_features", GeoFeaturePlugin);
+  .add("selection", GridSelectionPlugin);
