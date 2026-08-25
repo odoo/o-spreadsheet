@@ -1,9 +1,9 @@
 import { PivotPresenceTracker } from "../../helpers/pivot/pivot_presence_tracker";
 import { Command } from "../../types/commands";
 import { UID } from "../../types/misc";
-import { UIPlugin } from "../ui_plugin";
+import { EvaluationPlugin } from "../evaluation_plugin";
 
-export class PivotPresencePlugin extends UIPlugin {
+export class PivotPresencePlugin extends EvaluationPlugin {
   static getters = ["getPivotPresenceTracker"] as const;
 
   private trackPresencePivotId?: UID;

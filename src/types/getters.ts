@@ -29,6 +29,7 @@ import { EvaluationDataValidationPlugin } from "../plugins/evaluation/evaluation
 import { FingerprintPlugin } from "../plugins/evaluation/fingerprint";
 import { FormulaTrackerPlugin } from "../plugins/evaluation/formula_tracker";
 import { HeaderSizeUIPlugin } from "../plugins/evaluation/header_sizes_ui";
+import { PivotPresencePlugin } from "../plugins/evaluation/pivot_presence_plugin";
 import { PivotUIPlugin } from "../plugins/evaluation/pivot_ui";
 import { ChartUIPlugin } from "../plugins/ui_feature/chart_ui";
 import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
@@ -37,7 +38,6 @@ import { DynamicTranslate } from "../plugins/ui_feature/dynamic_translate";
 import { GeoFeaturePlugin } from "../plugins/ui_feature/geo_features";
 import { HistoryPlugin } from "../plugins/ui_feature/local_history";
 import { LockSheetPlugin } from "../plugins/ui_feature/lock_sheet";
-import { PivotPresencePlugin } from "../plugins/ui_feature/pivot_presence_plugin";
 import { SortPlugin } from "../plugins/ui_feature/sort";
 import { SubtotalEvaluationPlugin } from "../plugins/ui_feature/subtotal_evaluation";
 import { UIOptionsPlugin } from "../plugins/ui_feature/ui_options";
@@ -148,12 +148,12 @@ export type EvaluationGetters = {
   PluginGetters<typeof PivotUIPlugin> &
   PluginGetters<typeof CellIconPlugin> &
   PluginGetters<typeof DynamicTablesPlugin> &
+  PluginGetters<typeof PivotPresencePlugin> &
   PluginGetters<typeof HeaderVisibilityUIPlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof SheetUIPlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof ColorThemeUIPlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof CellComputedStylePlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof UIOptionsPlugin> & //FIXME should not contains getters from ui
-  PluginGetters<typeof PivotPresencePlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof GridSelectionPlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof GeoFeaturePlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof DynamicTranslate> & //FIXME should not contains getters from ui
@@ -180,7 +180,6 @@ export type RenderingGetters = {
   PluginGetters<typeof PivotUIPlugin> &
   PluginGetters<typeof TableComputedStylePlugin> &
   PluginGetters<typeof GeoFeaturePlugin> &
-  PluginGetters<typeof PivotPresencePlugin> &
   PluginGetters<typeof DynamicTranslate> &
   PluginGetters<typeof LockSheetPlugin> &
   PluginGetters<typeof CarouselUIPlugin> &
