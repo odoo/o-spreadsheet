@@ -30,6 +30,11 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
         if (!this.carousels[cmd.sheetId]?.[cmd.figureId]) {
           return CommandResult.InvalidFigureId;
         }
+        for (const item of cmd.definition.items) {
+          if (item.type === "chart" && !this.getters.getChart(item.chartId)) {
+            return CommandResult.ChartDoesNotExist;
+          }
+        }
         return CommandResult.Success;
       }
     }
