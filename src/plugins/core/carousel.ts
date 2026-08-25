@@ -60,6 +60,11 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
         if (!this.areDataViewRangesValid(cmd.definition.items)) {
           return CommandResult.InvalidRange;
         }
+        for (const item of cmd.definition.items) {
+          if (item.type === "chart" && !this.getters.getChart(item.chartId)) {
+            return CommandResult.ChartDoesNotExist;
+          }
+        }
         return CommandResult.Success;
       }
     }
