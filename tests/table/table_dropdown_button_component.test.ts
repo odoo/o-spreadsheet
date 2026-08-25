@@ -1,5 +1,6 @@
-import { xml } from "@odoo/owl";
+import { providePlugins, xml } from "@odoo/owl";
 import { Model, UID } from "../../src";
+import { PopoverContainerPlugin } from "../../src/components/popover/popover_container_owl_plugin";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import { TableDropdownButton } from "../../src/components/tables/table_dropdown_button/table_dropdown_button";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
@@ -22,6 +23,12 @@ class Parent extends Component<SpreadsheetChildEnv> {
     <SidePanels />
   </div>
   `;
+
+  setup() {
+    providePlugins([PopoverContainerPlugin], {
+      getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
+    });
+  }
 }
 
 beforeEach(async () => {

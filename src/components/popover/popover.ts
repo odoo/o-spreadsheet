@@ -15,7 +15,6 @@ export class Popover extends Component<SpreadsheetChildEnv> {
 
   protected props = useProps({
     anchorRect: types.Rect(),
-    containerRect: types.object({}).optional(),
     positioning: types
       .or([types.literal("top-right"), types.literal("bottom-left")])
       .optional("bottom-left"),
