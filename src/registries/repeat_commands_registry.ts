@@ -33,6 +33,7 @@ repeatCommandTransformRegistry.add("REMOVE_MERGE", genericRepeat);
 
 repeatCommandTransformRegistry.add("SET_FORMATTING", genericRepeat);
 repeatCommandTransformRegistry.add("CLEAR_FORMATTING", genericRepeat);
+repeatCommandTransformRegistry.add("CLEAR_ALL_STYLING", genericRepeat);
 repeatCommandTransformRegistry.add("SET_BORDER", genericRepeat);
 
 repeatCommandTransformRegistry.add("CREATE_TABLE", genericRepeat);
