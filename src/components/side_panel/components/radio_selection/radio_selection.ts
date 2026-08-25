@@ -40,6 +40,12 @@ css/* scss */ `
         background-color: ${ACTION_COLOR};
         border-color: ${ACTION_COLOR};
       }
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 0.25rem rgba(113, 75, 103, 0.25);
+        border-color: ${ACTION_COLOR};
+      }
     }
   }
 `;
