@@ -4,7 +4,7 @@
       <t t-set-slot="content">
         <Section class="'o-chart-background-color pt-0 pb-0'" title.translate="Background color">
           <RoundColorPicker
-            currentColor="this.props.definition.background"
+            currentColor="this.backgroundColor"
             onColorPicked.bind="this.updateBackgroundColor"
           />
         </Section>

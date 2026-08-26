@@ -77,8 +77,8 @@ export class ChartMenu extends Component<SpreadsheetChildEnv> {
   }
 
   get backgroundColor() {
-    const color = this.chartDefinition.background;
-    return "background-color: " + (color || "#FFFFFF");
+    const theme = this.env.model.getters.getSpreadsheetTheme();
+    return "background-color: " + (this.chartDefinition.background || theme.backgroundColor);
   }
 
   onClose() {

@@ -45,6 +45,17 @@ export class GeneralDesignEditor extends Component<SpreadsheetChildEnv> {
     return this.props.definition.title;
   }
 
+  /**
+   * The color the chart is actually drawn on. A chart without an explicit background is drawn on
+   * the spreadsheet theme background, which is what the picker should display rather than nothing.
+   */
+  get backgroundColor(): Color {
+    return (
+      this.props.definition.background ||
+      this.env.model.getters.getSpreadsheetTheme().backgroundColor
+    );
+  }
+
   toggleDropdownTool(tool: string, ev: MouseEvent) {
     const isOpen = this.state.activeTool === tool;
     this.state.activeTool = isOpen ? "" : tool;

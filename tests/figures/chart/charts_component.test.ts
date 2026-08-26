@@ -18,6 +18,7 @@ import { deepCopy } from "../../../src/helpers/misc";
 import { render } from "../../../src/helpers/owl3_helpers";
 import { toZone } from "../../../src/helpers/zones";
 import { App } from "../../../src/owl3_compatibility_layer";
+import { COLOR_THEMES } from "../../../src/plugins/ui_feature/color_theme";
 import { chartSubtypeRegistry } from "../../../src/registries/chart_subtype_registry";
 import { HighlightStore } from "../../../src/stores/highlight_store";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
@@ -66,6 +67,7 @@ import {
   doubleClick,
   editSelectComponent,
   focusAndKeyDown,
+  getRoundColorPickerValue,
   keyDown,
   setCheckboxValueAndTrigger,
   setInputValueAndTrigger,
@@ -1286,6 +1288,34 @@ describe("charts", () => {
       }
     }
   );
+
+  describe("background color picker of a chart without background", () => {
+    test.each(["light", "dark"] as const)(
+      "displays the %s theme background color",
+      async (colorScheme) => {
+        createChart(model, { ...TEST_CHART_DATA.basicChart, background: undefined }, chartId);
+        model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme });
+        await mountSpreadsheet();
+        await openChartDesignSidePanel(model, env, fixture, chartId);
+
+        expect(model.getters.getChartDefinition(chartId).background).toBeUndefined();
+        expect(getRoundColorPickerValue(".o-chart-background-color")).toEqual(
+          toHex(COLOR_THEMES[colorScheme].backgroundColor)
+        );
+      }
+    );
+
+    test("does not save the displayed color as long as no color is picked", async () => {
+      createChart(model, { ...TEST_CHART_DATA.basicChart, background: undefined }, chartId);
+      await mountSpreadsheet();
+      await openChartDesignSidePanel(model, env, fixture, chartId);
+      const dispatch = spyModelDispatch(model);
+
+      await simulateClick(".o-chart-background-color .o-round-color-picker-button");
+      expect(dispatch).not.toHaveBeenCalledWith("UPDATE_CHART", expect.anything());
+      expect(model.getters.getChartDefinition(chartId).background).toBeUndefined();
+    });
+  });
 
   test.each(TEST_CHART_TYPES)(
     "can close color picker when click elsewhere %s",
