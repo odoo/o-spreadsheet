@@ -1,12 +1,11 @@
 import { onWillUpdateProps, useProps } from "@odoo/owl";
 import { adaptShortcutStringToMacOs, createAction } from "../../actions/action";
-import { Component } from "../../owl3_compatibility_layer";
 import { PropsOf } from "../../types/props_of";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 import { types } from "../props_validation";
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
 
-export class ActionButton extends Component<SpreadsheetChildEnv> {
+export class ActionButton extends SpreadsheetComponent {
   static template = "o-spreadsheet-ActionButton";
 
   protected props = useProps({

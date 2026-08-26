@@ -1,13 +1,12 @@
 import { useProps } from "@odoo/owl";
-import { Component } from "../../../../../owl3_compatibility_layer";
 import { ChartDefinitionWithDataSource } from "../../../../../types/chart/chart";
 import { DispatchResult } from "../../../../../types/commands";
 import { UID } from "../../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { types } from "../../../../props_validation";
+import { SpreadsheetComponent } from "../../../../spreadsheet/spreadsheet_component";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 
-export class ChartShowValues extends Component<SpreadsheetChildEnv> {
+export class ChartShowValues extends SpreadsheetComponent {
   static template = "o-spreadsheet-ChartShowValues";
   static components = {
     Checkbox,

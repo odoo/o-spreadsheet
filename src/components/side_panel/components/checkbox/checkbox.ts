@@ -1,8 +1,7 @@
 import { useProps } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 
-import { Component } from "../../../../owl3_compatibility_layer";
 import { types } from "../../../props_validation";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 // FIXME Encoding version used in css
 // const CHECK_SVG = /*xml*/ `
 // <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'>
@@ -10,7 +9,7 @@ import { types } from "../../../props_validation";
 // </svg>
 // `;
 
-export class Checkbox extends Component<SpreadsheetChildEnv> {
+export class Checkbox extends SpreadsheetComponent {
   static template = "o-spreadsheet.Checkbox";
 
   protected props = useProps({

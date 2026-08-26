@@ -1,15 +1,15 @@
 import { onMounted, useProps } from "@odoo/owl";
 import { NEWLINE } from "../../../constants";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
-import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
+import { useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
 import { CommandResult } from "../../../types/commands";
 import { ValueAndLabel } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { types } from "../../props_validation";
 import { Select } from "../../select/select";
+import { SpreadsheetComponent } from "../../spreadsheet/spreadsheet_component";
 import { SplitToColumnsTerms } from "../../translations_terms";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
@@ -26,7 +26,7 @@ const SEPARATORS: ValueAndLabel[] = [
   { label: _t("Line Break"), value: NEWLINE },
 ];
 
-export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
+export class SplitIntoColumnsPanel extends SpreadsheetComponent {
   static template = "o-spreadsheet-SplitIntoColumnsPanel";
   static components = { ValidationMessages, Section, Checkbox, Select };
 

@@ -1,13 +1,12 @@
 import { useProps } from "@odoo/owl";
-import { Component } from "../../../../../owl3_compatibility_layer";
 import { _t } from "../../../../../translation";
 import { ValueAndLabel } from "../../../../../types/misc";
 import { PivotDimension } from "../../../../../types/pivot";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { types } from "../../../../props_validation";
 import { Select } from "../../../../select/select";
+import { SpreadsheetComponent } from "../../../../spreadsheet/spreadsheet_component";
 
-export class PivotDimensionOrder extends Component<SpreadsheetChildEnv> {
+export class PivotDimensionOrder extends SpreadsheetComponent {
   static template = "o-spreadsheet-PivotDimensionOrder";
   protected props = useProps({
     dimension: types.PivotDimension(),

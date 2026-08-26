@@ -1,13 +1,11 @@
 import { proxy, useProps } from "@odoo/owl";
 import { Action } from "../../../../actions/action";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { MenuMouseEvent, ValueAndLabel } from "../../../../types/misc";
 import { Rect } from "../../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { FullScreenFigureStore } from "../../../full_screen_figure/full_screen_figure_store";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
@@ -16,6 +14,7 @@ import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
 
 import { InfoPopover } from "../../../info_popover/info_popover";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 
 interface MenuItem {
   id: string;
@@ -30,7 +29,7 @@ interface ChartMenuState {
   menuItems: Action[];
 }
 
-export class ChartMenu extends Component<SpreadsheetChildEnv> {
+export class ChartMenu extends SpreadsheetComponent {
   static template = "o-spreadsheet-ChartMenu";
   static components = { MenuPopover, InfoPopover, Select };
   protected props = useProps({

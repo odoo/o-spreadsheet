@@ -1,19 +1,19 @@
 import { onMounted, onWillUnmount, signal, useProps } from "@odoo/owl";
 import { drawGaugeChart } from "../../../../helpers/figures/charts/gauge_chart_rendering";
 import { deepEquals } from "../../../../helpers/misc";
-import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
+import { useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { EASING_FN } from "../../../../registries/cell_animation_registry";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { ZoomStore } from "../../../../stores/zoom_store";
 import { GaugeChartRuntime } from "../../../../types/chart/gauge_chart";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { types } from "../../../props_validation";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 import { ChartAnimationStore } from "../chartJs/chartjs_animation_store";
 
 const ANIMATION_DURATION = 1000;
 
-export class GaugeChartComponent extends Component<SpreadsheetChildEnv> {
+export class GaugeChartComponent extends SpreadsheetComponent {
   static template = "o-spreadsheet-GaugeChartComponent";
 
   protected props = useProps({

@@ -1,5 +1,4 @@
 import { signal, useListener, useProps } from "@odoo/owl";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { chartSubtypeRegistry } from "../../../../registries/chart_subtype_registry";
 import { ChartType } from "../../../../types/chart/chart";
 import {
@@ -7,12 +6,12 @@ import {
   ChartSubtypeProperties,
 } from "../../../../types/chart_subtype_properties";
 import { PropsOf } from "../../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { isChildEvent } from "../../../helpers/dom_helpers";
 import { Popover } from "../../../popover/popover";
 import { types } from "../../../props_validation";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 
-export class ChartTypePickerPopover extends Component<SpreadsheetChildEnv> {
+export class ChartTypePickerPopover extends SpreadsheetComponent {
   static template = "o-spreadsheet-ChartTypePickerPopover";
   static components = { Popover };
 

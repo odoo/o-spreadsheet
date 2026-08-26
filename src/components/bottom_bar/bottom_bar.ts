@@ -1,16 +1,15 @@
 import { onWillUpdateProps, proxy, signal, useProps } from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
 import { UuidGenerator } from "../../helpers/uuid";
-import { Component } from "../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { _t } from "../../translation";
 import { MenuMouseEvent, Pixel, UID } from "../../types/misc";
 import { Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Ripple } from "../animation/ripple";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { types } from "../props_validation";
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
 import { BottomBarSheet } from "./bottom_bar_sheet/bottom_bar_sheet";
 import { BottomBarStatistic } from "./bottom_bar_statistic/bottom_bar_statistic";
 
@@ -30,7 +29,7 @@ interface BottomBarMenuState extends MenuState {
   maxHeight?: Pixel;
 }
 
-export class BottomBar extends Component<SpreadsheetChildEnv> {
+export class BottomBar extends SpreadsheetComponent {
   static template = "o-spreadsheet-BottomBar";
 
   protected props = useProps({ onClick: types.function<(ev: MouseEvent) => void>() });

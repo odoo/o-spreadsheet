@@ -3,6 +3,7 @@ import { Currency, Model, Pixel, Style } from "../src";
 import { CellComposerStore } from "../src/components/composer/composer/cell_composer_store";
 import { PaintFormatStore } from "../src/components/paint_format_button/paint_format_store";
 import { PopoverContainerPlugin } from "../src/components/popover/popover_container_owl_plugin";
+import { SpreadsheetComponent } from "../src/components/spreadsheet/spreadsheet_component";
 import { TopBar } from "../src/components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_registry";
 import { DEFAULT_FONT_SIZE } from "../src/constants";
@@ -114,7 +115,7 @@ let parent: Parent;
 let env: SpreadsheetChildEnv;
 let viewStore: Store<ViewportsStore>;
 
-class Parent extends Component<SpreadsheetChildEnv> {
+class Parent extends SpreadsheetComponent {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
       <TopBar

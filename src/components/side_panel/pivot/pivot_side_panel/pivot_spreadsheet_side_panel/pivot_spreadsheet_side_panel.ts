@@ -1,13 +1,12 @@
 import { proxy, signal, useProps } from "@odoo/owl";
 import { SpreadsheetPivotRuntimeDefinition } from "../../../../../helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { SpreadsheetPivot } from "../../../../../helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
-import { Component } from "../../../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../../../store_engine/store_hooks";
 import { SpreadsheetPivotCoreDefinition } from "../../../../../types/pivot";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Store } from "../../../../../types/store_engine";
 import { types } from "../../../../props_validation";
 import { SelectionInput } from "../../../../selection_input/selection_input";
+import { SpreadsheetComponent } from "../../../../spreadsheet/spreadsheet_component";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
 import { PivotDeferUpdate } from "../../pivot_defer_update/pivot_defer_update";
@@ -17,7 +16,7 @@ import { PivotLayoutConfigurator } from "../../pivot_layout_configurator/pivot_l
 import { PivotTitleSection } from "../../pivot_title_section/pivot_title_section";
 import { PivotSidePanelStore } from "../pivot_side_panel_store";
 
-export class PivotSpreadsheetSidePanel extends Component<SpreadsheetChildEnv> {
+export class PivotSpreadsheetSidePanel extends SpreadsheetComponent {
   static template = "o-spreadsheet-PivotSpreadsheetSidePanel";
   static components = {
     PivotLayoutConfigurator,

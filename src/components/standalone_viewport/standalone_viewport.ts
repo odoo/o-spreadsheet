@@ -1,6 +1,5 @@
 import { proxy, signal, useEffect, useProps } from "@odoo/owl";
 import { sumArray } from "../../helpers/misc";
-import { Component } from "../../owl3_compatibility_layer";
 import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { RendererStore } from "../../stores/renderer_store";
@@ -8,7 +7,6 @@ import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { HeaderIndex } from "../../types/misc";
 import { DOMDimension, Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
 import { ClickableCellsStore } from "../dashboard/clickable_cell_store";
@@ -25,6 +23,7 @@ import { withZoom } from "../helpers/zoom";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { types } from "../props_validation";
 import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
 import { StandaloneViewportStore } from "./standalone_viewport_store";
 
 interface ColResizer {
@@ -36,7 +35,7 @@ interface DnDResizeState {
   col: HeaderIndex | undefined;
 }
 
-export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
+export class StandaloneViewport extends SpreadsheetComponent {
   static template = "o-spreadsheet-StandaloneViewport";
   static components = { VerticalScrollBar, GridOverlay, ClickableCellsOverlay, GridPopover };
 

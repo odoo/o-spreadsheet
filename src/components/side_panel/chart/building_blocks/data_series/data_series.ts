@@ -1,15 +1,14 @@
 import { useProps } from "@odoo/owl";
 import { _t } from "../../../../../translation";
 import { Color, UID } from "../../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { SelectionInput } from "../../../../selection_input/selection_input";
 import { Section } from "../../../components/section/section";
 
 import { onWillUpdateProps } from "@odoo/owl";
-import { Component } from "../../../../../owl3_compatibility_layer";
 import { types } from "../../../../props_validation";
+import { SpreadsheetComponent } from "../../../../spreadsheet/spreadsheet_component";
 
-export class ChartDataSeries extends Component<SpreadsheetChildEnv> {
+export class ChartDataSeries extends SpreadsheetComponent {
   static template = "o-spreadsheet.ChartDataSeries";
   static components = { SelectionInput, Section };
 

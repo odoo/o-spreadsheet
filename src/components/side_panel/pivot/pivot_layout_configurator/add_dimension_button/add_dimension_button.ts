@@ -1,14 +1,12 @@
 import { proxy, signal, useListener, useProps } from "@odoo/owl";
 import { COMPOSER_ASSISTANT_COLOR } from "../../../../../constants";
 import { fuzzyLookup } from "../../../../../helpers/search";
-import { Component } from "../../../../../owl3_compatibility_layer";
 import {
   AutoCompleteProposal,
   AutoCompleteProvider,
 } from "../../../../../registries/auto_completes/auto_complete_registry";
 import { useLocalStore } from "../../../../../store_engine/store_hooks";
 import { PivotField } from "../../../../../types/pivot";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Store } from "../../../../../types/store_engine";
 import { TextValueProvider } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown";
 import { AutoCompleteStore } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown_store";
@@ -16,8 +14,9 @@ import { useAutofocus } from "../../../../helpers/autofocus_hook";
 import { getHtmlContentFromPattern } from "../../../../helpers/html_content_helpers";
 import { Popover } from "../../../../popover/popover";
 import { types } from "../../../../props_validation";
+import { SpreadsheetComponent } from "../../../../spreadsheet/spreadsheet_component";
 
-export class AddDimensionButton extends Component<SpreadsheetChildEnv> {
+export class AddDimensionButton extends SpreadsheetComponent {
   static template = "o-spreadsheet-AddDimensionButton";
   static components = { Popover, TextValueProvider };
   protected props = useProps({

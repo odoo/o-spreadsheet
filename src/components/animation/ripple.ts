@@ -1,11 +1,10 @@
 import { onMounted, onWillUnmount, proxy, signal, useProps } from "@odoo/owl";
-import { Component } from "../../owl3_compatibility_layer";
 import { PropsOf } from "../../types/props_of";
 import { Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss, getElementMargins } from "../helpers/css";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
 import { types } from "../props_validation";
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
 
 const RIPPLE_KEY_FRAMES = [
   { transform: "scale(0)" },
@@ -27,7 +26,7 @@ interface RectWithMargins extends Rect {
   marginLeft: number;
 }
 
-class RippleEffect extends Component<SpreadsheetChildEnv> {
+class RippleEffect extends SpreadsheetComponent {
   static template = "o-spreadsheet-RippleEffect";
 
   protected props = useProps({
@@ -86,7 +85,7 @@ class RippleEffect extends Component<SpreadsheetChildEnv> {
   }
 }
 
-export class Ripple extends Component<SpreadsheetChildEnv> {
+export class Ripple extends SpreadsheetComponent {
   static template = "o-spreadsheet-Ripple";
   static components = { RippleEffect };
 

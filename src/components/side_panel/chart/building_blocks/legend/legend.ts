@@ -2,15 +2,14 @@ import { useProps } from "@odoo/owl";
 import { _t } from "../../../../../translation";
 import { LegendPosition } from "../../../../../types/chart/common_chart";
 import { ValueAndLabel } from "../../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Select } from "../../../../select/select";
 import { Section } from "../../../components/section/section";
 
-import { Component } from "../../../../../owl3_compatibility_layer";
 import { types } from "../../../../props_validation";
+import { SpreadsheetComponent } from "../../../../spreadsheet/spreadsheet_component";
 import { ChartUpdateFunction } from "../../common";
 
-export class ChartLegend extends Component<SpreadsheetChildEnv> {
+export class ChartLegend extends SpreadsheetComponent {
   static template = "o-spreadsheet-ChartLegend";
   static components = {
     Section,

@@ -1,6 +1,6 @@
 import { proxy, useProps } from "@odoo/owl";
 import { zoneToXc } from "../../../../helpers/zones";
-import { Component, ComponentConstructor } from "../../../../owl3_compatibility_layer";
+import { ComponentConstructor } from "../../../../owl3_compatibility_layer";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,
@@ -14,11 +14,11 @@ import {
   DataValidationCriterionType,
 } from "../../../../types/data_validation";
 import { UID, ValueAndLabel } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { DataValidationRuleData } from "../../../../types/workbook_data";
 import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 import { DVTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { Section } from "../../components/section/section";
@@ -29,7 +29,7 @@ interface State {
   isTypeUpdated: boolean;
 }
 
-export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
+export class DataValidationEditor extends SpreadsheetComponent {
   static template = "o-spreadsheet-DataValidationEditor";
   static components = { SelectionInput, Select, Section, ValidationMessages };
   protected props = useProps({

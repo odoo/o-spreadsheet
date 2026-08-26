@@ -1,11 +1,10 @@
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { types } from "../../props_validation";
 
 import { useProps } from "@odoo/owl";
-import { Component } from "../../../owl3_compatibility_layer";
+import { SpreadsheetComponent } from "../../spreadsheet/spreadsheet_component";
 
-export class SidePanel extends Component<SpreadsheetChildEnv> {
+export class SidePanel extends SpreadsheetComponent {
   static template = "o-spreadsheet-SidePanel";
 
   protected props = useProps({

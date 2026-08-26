@@ -1,12 +1,11 @@
 import { proxy, useProps } from "@odoo/owl";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { BaselineMode, ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
 import { CommandResult, DispatchResult } from "../../../../types/commands";
 import { ValueAndLabel } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 import { ChartTerms } from "../../../translations_terms";
 import { Section } from "../../components/section/section";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
@@ -17,7 +16,7 @@ interface PanelState {
   baselineDispatchResult?: DispatchResult;
 }
 
-export class ScorecardChartConfigPanel extends Component<SpreadsheetChildEnv> {
+export class ScorecardChartConfigPanel extends SpreadsheetComponent {
   static template = "o-spreadsheet-ScorecardChartConfigPanel";
   static components = { SelectionInput, ChartErrorSection, Section, Select };
   protected props = useProps(

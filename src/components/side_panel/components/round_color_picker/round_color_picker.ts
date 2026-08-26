@@ -1,11 +1,10 @@
 import { proxy, signal, useListener, useProps } from "@odoo/owl";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { Rect } from "../../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { ColorPicker } from "../../../color_picker/color_picker";
 import { cssPropertiesToCss } from "../../../helpers/css";
 import { getElBoundingRect } from "../../../helpers/dom_helpers";
 import { types } from "../../../props_validation";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 import { Section } from "../section/section";
 
 interface State {
@@ -19,7 +18,7 @@ interface State {
 // </svg>
 // `;
 
-export class RoundColorPicker extends Component<SpreadsheetChildEnv> {
+export class RoundColorPicker extends SpreadsheetComponent {
   static template = "o-spreadsheet.RoundColorPicker";
   static components = { Section, ColorPicker };
   protected props = useProps({

@@ -5,12 +5,12 @@ import { useStore } from "../../store_engine/store_hooks";
 import { ZoomStore } from "../../stores/zoom_store";
 import { HeaderIndex } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { withZoom } from "../helpers/zoom";
 import { types } from "../props_validation";
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
 import { AutofillStore } from "./autofill_store";
 import { TableAutofillStore } from "./table_autofill_store";
 
@@ -23,7 +23,7 @@ interface State {
   handler: boolean;
 }
 
-export class Autofill extends Component<SpreadsheetChildEnv> {
+export class Autofill extends SpreadsheetComponent {
   static template = "o-spreadsheet-Autofill";
 
   protected props = useProps({

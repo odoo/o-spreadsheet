@@ -1,7 +1,5 @@
 import { onWillUnmount, useListener, useProps } from "@odoo/owl";
-import { Component } from "../../owl3_compatibility_layer";
 import { useLocalStore } from "../../store_engine/store_hooks";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { types } from "../props_validation";
@@ -9,6 +7,7 @@ import { Select } from "../select/select";
 import { BadgeSelection } from "../side_panel/components/badge_selection/badge_selection";
 import { Checkbox } from "../side_panel/components/checkbox/checkbox";
 import { Section } from "../side_panel/components/section/section";
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
 import { StandaloneGridCanvas } from "../standalone_grid_canvas/standalone_grid_canvas";
 import {
   Orientation,
@@ -18,7 +17,7 @@ import {
   SpreadsheetPrintStore,
 } from "./spreadsheet_print_store";
 
-export class SpreadsheetPrint extends Component<SpreadsheetChildEnv> {
+export class SpreadsheetPrint extends SpreadsheetComponent {
   static template = "o-spreadsheet-SpreadsheetPrint";
   protected props = useProps({
     onExitPrintMode: types.function(),

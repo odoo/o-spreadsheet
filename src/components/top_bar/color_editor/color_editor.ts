@@ -1,13 +1,12 @@
 import { proxy, useProps } from "@odoo/owl";
 import { setStyle } from "../../../actions/menu_items_actions";
 import { deepEquals } from "../../../helpers/misc";
-import { Component } from "../../../owl3_compatibility_layer";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ColorPickerWidget } from "../../color_picker/color_picker_widget";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 import { types } from "../../props_validation";
+import { SpreadsheetComponent } from "../../spreadsheet/spreadsheet_component";
 
-export class TopBarColorEditor extends Component<SpreadsheetChildEnv> {
+export class TopBarColorEditor extends SpreadsheetComponent {
   static components = { ColorPickerWidget };
   static template = "o-spreadsheet-ColorEditor";
 

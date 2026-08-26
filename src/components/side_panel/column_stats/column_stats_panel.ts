@@ -4,21 +4,21 @@ import { FIRST_CHART_COLOR } from "../../../helpers/color";
 import { numberToLetters } from "../../../helpers/coordinates";
 import { clipTextWithEllipsis } from "../../../helpers/text_helper";
 import { positionToZone } from "../../../helpers/zones";
-import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
+import { useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
 import { Highlight } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { useHighlights } from "../../helpers/highlight_hook";
 import { NumberInput } from "../../number_input/number_input";
 import { types } from "../../props_validation";
+import { SpreadsheetComponent } from "../../spreadsheet/spreadsheet_component";
 import { BadgeSelection } from "../components/badge_selection/badge_selection";
 import { SidePanelCollapsible } from "../components/collapsible/side_panel_collapsible";
 import { Section } from "../components/section/section";
 import { ColumnStatisticsStore } from "./column_stats_store";
 
-export class ColumnStatsPanel extends Component<SpreadsheetChildEnv> {
+export class ColumnStatsPanel extends SpreadsheetComponent {
   static template = "o-spreadsheet-ColumnStatsPanel";
   static components = { NumberInput, SidePanelCollapsible, BadgeSelection, Section };
 

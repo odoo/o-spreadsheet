@@ -2,14 +2,14 @@ import { chartComponentRegistry } from "../../../registries/chart_component_regi
 import { ChartType } from "../../../types/chart/chart";
 import { UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ChartMenu } from "../chart/chart_menu/chart_menu";
 
 import { useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { types } from "../../props_validation";
+import { SpreadsheetComponent } from "../../spreadsheet/spreadsheet_component";
 
-export class ChartFigure extends Component<SpreadsheetChildEnv> {
+export class ChartFigure extends SpreadsheetComponent {
   static template = "o-spreadsheet-ChartFigure";
   static components = { ChartMenu };
 

@@ -5,7 +5,6 @@ import {
   SunburstChartJSDataset,
   SunburstChartRuntime,
 } from "../../../../types/chart/sunburst_chart";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
@@ -20,8 +19,8 @@ import { TextStyler } from "../building_blocks/text_styler/text_styler";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 import { useProps } from "@odoo/owl";
-import { Component } from "../../../../owl3_compatibility_layer";
-export class SunburstChartDesignPanel extends Component<SpreadsheetChildEnv> {
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
+export class SunburstChartDesignPanel extends SpreadsheetComponent {
   static template = "o-spreadsheet-SunburstChartDesignPanel";
   static components = {
     GeneralDesignEditor,

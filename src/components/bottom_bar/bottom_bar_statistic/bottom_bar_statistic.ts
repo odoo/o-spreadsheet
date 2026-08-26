@@ -1,21 +1,20 @@
 import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
 import { formatValue } from "../../../helpers/format/format";
-import { Component } from "../../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { MenuMouseEvent } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { Ripple } from "../../animation/ripple";
 import { types } from "../../props_validation";
 import { SidePanelStore } from "../../side_panel/side_panel/side_panel_store";
+import { SpreadsheetComponent } from "../../spreadsheet/spreadsheet_component";
 import { AggregateStatisticsStore } from "./aggregate_statistics_store";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
 // -----------------------------------------------------------------------------
 
-export class BottomBarStatistic extends Component<SpreadsheetChildEnv> {
+export class BottomBarStatistic extends SpreadsheetComponent {
   static template = "o-spreadsheet-BottomBarStatistic";
   static components = { Ripple };
 

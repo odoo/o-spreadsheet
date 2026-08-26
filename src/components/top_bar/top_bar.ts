@@ -2,7 +2,6 @@ import { onMounted, onPatched, proxy, signal, useListener, useProps } from "@odo
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../constants";
-import { Component } from "../../owl3_compatibility_layer";
 import { formatNumberMenuItemSpec } from "../../registries/menus/number_format_menu_registry";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../../registries/topbar_component_registry";
@@ -10,7 +9,6 @@ import { useStore } from "../../store_engine/store_hooks";
 import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store";
 import { Color, UID } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
@@ -24,6 +22,7 @@ import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { NamedRangeSelector } from "../named_range_selector/named_range_selector";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
 import { TopBarToolStore } from "./top_bar_tool_store";
 import { topBarToolBarRegistry } from "./top_bar_tools_registry";
 
@@ -37,7 +36,7 @@ interface State {
 // TopBar
 // -----------------------------------------------------------------------------
 
-export class TopBar extends Component<SpreadsheetChildEnv> {
+export class TopBar extends SpreadsheetComponent {
   static template = "o-spreadsheet-TopBar";
   protected props = useProps({
     onClick: types.function(),

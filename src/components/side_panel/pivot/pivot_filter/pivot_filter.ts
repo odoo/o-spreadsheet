@@ -4,18 +4,17 @@ import { deepEquals } from "../../../../helpers/misc";
 import { SpreadsheetPivotRuntimeDefinition } from "../../../../helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { SpreadsheetPivot } from "../../../../helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { toTrimmedLowerCase } from "../../../../helpers/text_helper";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { _t } from "../../../../translation";
 import { Cell } from "../../../../types/cells";
 import { PivotFilter, SpreadsheetPivotCoreDefinition } from "../../../../types/pivot";
 import { PropsOf } from "../../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { DataFilterValue } from "../../../../types/table";
 import { PivotFilterMenu } from "../../../filters/pivot_filter_menu/pivot_filter_menu";
 import { isChildEvent } from "../../../helpers/dom_helpers";
 import { Popover } from "../../../popover/popover";
 import { types } from "../../../props_validation";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 import { PivotDimension } from "../pivot_layout_configurator/pivot_dimension/pivot_dimension";
 
 interface Value {
@@ -28,7 +27,7 @@ interface State {
   values: Value[];
 }
 
-export class PivotFilterEditor extends Component<SpreadsheetChildEnv> {
+export class PivotFilterEditor extends SpreadsheetComponent {
   static template = "o-spreadsheet-PivotFilterEditor";
   static components = {
     PivotDimension,

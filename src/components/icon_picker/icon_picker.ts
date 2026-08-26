@@ -1,11 +1,10 @@
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { ICONS, ICON_SETS } from "../icons/icons";
 
 import { useProps } from "@odoo/owl";
-import { Component } from "../../owl3_compatibility_layer";
 import { types } from "../props_validation";
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
 
-export class IconPicker extends Component<SpreadsheetChildEnv> {
+export class IconPicker extends SpreadsheetComponent {
   static template = "o-spreadsheet-IconPicker";
 
   protected props = useProps({

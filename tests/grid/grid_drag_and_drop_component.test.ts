@@ -1,9 +1,9 @@
 import { App, xml } from "@odoo/owl";
 import { Model, UID } from "../../src";
 import { useDragAndDropBeyondTheViewport } from "../../src/components/helpers/drag_and_drop_grid_hook";
+import { SpreadsheetComponent } from "../../src/components/spreadsheet/spreadsheet_component";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { numberToLetters } from "../../src/helpers/coordinates";
-import { Component } from "../../src/owl3_compatibility_layer";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
@@ -50,7 +50,7 @@ let selectedRow: number | undefined = undefined;
 
 const mouseUpFn = jest.fn();
 
-class FakeGridComponent extends Component<SpreadsheetChildEnv> {
+class FakeGridComponent extends SpreadsheetComponent {
   static template = TEMPLATE;
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);

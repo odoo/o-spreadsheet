@@ -2,10 +2,9 @@ import { providePlugins, xml } from "@odoo/owl";
 import { Model, UID } from "../../src";
 import { PopoverContainerPlugin } from "../../src/components/popover/popover_container_owl_plugin";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
+import { SpreadsheetComponent } from "../../src/components/spreadsheet/spreadsheet_component";
 import { TableDropdownButton } from "../../src/components/tables/table_dropdown_button/table_dropdown_button";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
-import { Component } from "../../src/owl3_compatibility_layer";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { createTable, setSelection } from "../test_helpers/commands_helpers";
 import { click } from "../test_helpers/dom_helper";
 import { mountComponent, nextTick, setGrid } from "../test_helpers/helpers";
@@ -15,7 +14,7 @@ let model: Model;
 let sheetId: UID;
 let fixture: HTMLElement;
 
-class Parent extends Component<SpreadsheetChildEnv> {
+class Parent extends SpreadsheetComponent {
   static components = { TableDropdownButton, SidePanels };
   static template = xml/*xml*/ `
   <div class="o-spreadsheet">

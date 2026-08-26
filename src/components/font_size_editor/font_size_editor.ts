@@ -1,11 +1,10 @@
 import { useProps } from "@odoo/owl";
 import { FONT_SIZES } from "../../constants";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { NumberEditor } from "../number_editor/number_editor";
 
-import { Component } from "../../owl3_compatibility_layer";
 import { types } from "../props_validation";
-export class FontSizeEditor extends Component<SpreadsheetChildEnv> {
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
+export class FontSizeEditor extends SpreadsheetComponent {
   static template = "o-spreadsheet-FontSizeEditor";
   static components = { NumberEditor };
 

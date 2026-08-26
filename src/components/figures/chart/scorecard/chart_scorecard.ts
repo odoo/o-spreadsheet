@@ -2,16 +2,16 @@ import { onMounted, onWillUnmount, signal, useProps } from "@odoo/owl";
 import { drawScoreChart } from "../../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../../helpers/figures/charts/scorecard_chart_config_builder";
 import { getZoomedRect } from "../../../../helpers/rectangle";
-import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
+import { useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { ZoomStore } from "../../../../stores/zoom_store";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 import { Rect } from "../../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { types } from "../../../props_validation";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 
-export class ScorecardChart extends Component<SpreadsheetChildEnv> {
+export class ScorecardChart extends SpreadsheetComponent {
   static template = "o-spreadsheet-ScorecardChart";
 
   protected props = useProps({

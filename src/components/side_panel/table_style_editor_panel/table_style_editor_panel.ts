@@ -2,12 +2,11 @@ import { proxy, useListener, useProps } from "@odoo/owl";
 import { isColorValid } from "../../../helpers/color";
 import { TABLE_STYLES_TEMPLATES, buildTableStyle } from "../../../helpers/table_presets";
 import { UuidGenerator } from "../../../helpers/uuid";
-import { Component } from "../../../owl3_compatibility_layer";
 import { Color } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableConfig, TableStyle, TableStyleTemplateName } from "../../../types/table";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { types } from "../../props_validation";
+import { SpreadsheetComponent } from "../../spreadsheet/spreadsheet_component";
 import { TableStylePreview } from "../../tables/table_style_preview/table_style_preview";
 import { RoundColorPicker } from "../components/round_color_picker/round_color_picker";
 import { Section } from "../components/section/section";
@@ -21,7 +20,7 @@ interface State {
   styleName: string;
 }
 
-export class TableStyleEditorPanel extends Component<SpreadsheetChildEnv> {
+export class TableStyleEditorPanel extends SpreadsheetComponent {
   static template = "o-spreadsheet-TableStyleEditorPanel";
   static components = { Section, RoundColorPicker, TableStylePreview };
   protected props = useProps({

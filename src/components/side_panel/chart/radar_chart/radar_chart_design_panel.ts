@@ -1,5 +1,4 @@
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { Section } from "../../components/section/section";
 import { ChartAnnotation } from "../building_blocks/annotation/annotation";
@@ -12,8 +11,8 @@ import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 import { useProps } from "@odoo/owl";
-import { Component } from "../../../../owl3_compatibility_layer";
-export class RadarChartDesignPanel extends Component<SpreadsheetChildEnv> {
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
+export class RadarChartDesignPanel extends SpreadsheetComponent {
   static template = "o-spreadsheet-RadarChartDesignPanel";
   static components = {
     GeneralDesignEditor,

@@ -1,14 +1,13 @@
 import { toRaw } from "@odoo/owl";
-import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ClickableCell, ClickableCellsStore } from "../dashboard/clickable_cell_store";
 import { cssPropertiesToCss } from "../helpers/css";
 import { isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
 
-export class ClickableCellsOverlay extends Component<SpreadsheetChildEnv> {
+export class ClickableCellsOverlay extends SpreadsheetComponent {
   static template = "o-spreadsheet-ClickableCellsOverlay";
   static components = {};
 

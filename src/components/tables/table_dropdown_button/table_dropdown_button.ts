@@ -4,16 +4,15 @@ import { FIRST_TABLE_IN_SELECTION } from "../../../actions/menu_items_actions";
 import { DEFAULT_TABLE_CONFIG } from "../../../helpers/table_presets";
 import { interactiveCreateTable } from "../../../helpers/ui/table_interactive";
 import { cellPositions } from "../../../helpers/zones";
-import { Component } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
 import { UID } from "../../../types/misc";
 import { PropsOf } from "../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableConfig } from "../../../types/table";
 import { ActionButton } from "../../action_button/action_button";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 import { Popover } from "../../popover/popover";
 import { types } from "../../props_validation";
+import { SpreadsheetComponent } from "../../spreadsheet/spreadsheet_component";
 import {
   CustomTablePopoverMouseEvent,
   TableStylesPopover,
@@ -23,7 +22,7 @@ interface State {
   popoverProps: PropsOf<Popover> | undefined;
 }
 
-export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
+export class TableDropdownButton extends SpreadsheetComponent {
   static template = "o-spreadsheet-TableDropdownButton";
   static components = { TableStylesPopover, ActionButton };
 

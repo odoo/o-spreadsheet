@@ -4,14 +4,12 @@ import { deepCopy, deepEquals } from "../../../helpers/misc";
 import { interactiveSort } from "../../../helpers/sort_interactive";
 import { toTrimmedLowerCase } from "../../../helpers/text_helper";
 import { positions } from "../../../helpers/zones";
-import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { CellValueType } from "../../../types/cells";
 import { Position, SortDirection } from "../../../types/misc";
 import { PropsOf } from "../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import {
   CriterionFilter,
@@ -22,6 +20,7 @@ import {
 } from "../../../types/table";
 import { types } from "../../props_validation";
 import { SidePanelCollapsible } from "../../side_panel/components/collapsible/side_panel_collapsible";
+import { SpreadsheetComponent } from "../../spreadsheet/spreadsheet_component";
 import { FilterMenuCriterion } from "../filter_menu_criterion/filter_menu_criterion";
 import { FilterMenuValueList } from "../filter_menu_value_list/filter_menu_value_list";
 
@@ -37,7 +36,7 @@ interface Value {
 
 type CriterionCategory = "text" | "number" | "date";
 
-export class FilterMenu extends Component<SpreadsheetChildEnv> {
+export class FilterMenu extends SpreadsheetComponent {
   static template = "o-spreadsheet-FilterMenu";
   static components = { FilterMenuValueList, SidePanelCollapsible, FilterMenuCriterion };
 

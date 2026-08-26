@@ -1,16 +1,16 @@
 import { onWillStart, onWillUpdateProps, proxy, signal, useEffect, useProps } from "@odoo/owl";
 import { deepEquals, range } from "../../helpers/misc";
-import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
+import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { Color } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { types } from "../props_validation";
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
 import { RangeInputValue, SelectionInputStore } from "./selection_input_store";
 
 interface State {
@@ -31,7 +31,7 @@ interface SelectionRange extends Omit<RangeInputValue, "color"> {
  * onSelectionChanged is called every time the input value
  * changes.
  */
-export class SelectionInput extends Component<SpreadsheetChildEnv> {
+export class SelectionInput extends SpreadsheetComponent {
   static template = "o-spreadsheet-SelectionInput";
 
   protected props = useProps({

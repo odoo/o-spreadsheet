@@ -3,7 +3,6 @@ import { getFunnelLabelColors } from "../../../../helpers/figures/charts/runtime
 import { replaceItemAtIndex } from "../../../../helpers/misc";
 import { _t } from "../../../../translation";
 import { FunnelChartDefinition, FunnelChartRuntime } from "../../../../types/chart/funnel_chart";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { types } from "../../../props_validation";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
@@ -14,11 +13,11 @@ import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humani
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
-import { Component } from "../../../../owl3_compatibility_layer";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 
 type Props = ChartSidePanelProps<FunnelChartDefinition<string>>;
 
-export class FunnelChartDesignPanel extends Component<SpreadsheetChildEnv> {
+export class FunnelChartDesignPanel extends SpreadsheetComponent {
   static template = "o-spreadsheet-FunnelChartDesignPanel";
   static components = {
     ChartShowValues,

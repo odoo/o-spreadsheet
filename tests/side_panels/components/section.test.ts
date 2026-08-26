@@ -1,8 +1,7 @@
 import { useProps, xml } from "@odoo/owl";
 import { types } from "../../../src/components/props_validation";
 import { Section } from "../../../src/components/side_panel/components/section/section";
-import { Component } from "../../../src/owl3_compatibility_layer";
-import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
+import { SpreadsheetComponent } from "../../../src/components/spreadsheet/spreadsheet_component";
 import { mountComponent } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;
@@ -13,7 +12,7 @@ interface Props {
 
 describe("Section", () => {
   test("Can render a section without a title", async () => {
-    class SectionContainer extends Component<SpreadsheetChildEnv> {
+    class SectionContainer extends SpreadsheetComponent {
       static template = xml/* xml */ `
     <div class="container">
       <Section t-props="this.props">
@@ -31,7 +30,7 @@ describe("Section", () => {
   });
 
   test("Can render a section with a title slot", async () => {
-    class SectionContainer extends Component<SpreadsheetChildEnv> {
+    class SectionContainer extends SpreadsheetComponent {
       static template = xml/* xml */ `
     <div class="container">
       <Section t-props="this.props">
@@ -50,7 +49,7 @@ describe("Section", () => {
   });
 
   test("Can render a section with a title props", async () => {
-    class SectionContainer extends Component<SpreadsheetChildEnv> {
+    class SectionContainer extends SpreadsheetComponent {
       static template = xml/* xml */ `
     <div class="container">
       <Section t-props="this.props" title.translate="My title">
@@ -68,7 +67,7 @@ describe("Section", () => {
   });
 
   test("Can render a section with both title props and slot", async () => {
-    class SectionContainer extends Component<SpreadsheetChildEnv> {
+    class SectionContainer extends SpreadsheetComponent {
       static template = xml/* xml */ `
     <div class="container">
       <Section t-props="this.props" title.translate="My title from props">

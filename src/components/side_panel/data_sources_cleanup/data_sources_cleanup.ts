@@ -1,9 +1,8 @@
 import { proxy } from "@odoo/owl";
-import { Component } from "../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../store_engine/store_hooks";
 import { UID } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
+import { SpreadsheetComponent } from "../../spreadsheet/spreadsheet_component";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 import { DataSourcesCleanupStore } from "./data_sources_cleanup_store";
@@ -12,7 +11,7 @@ interface State {
   uncheckedDataSources: Record<UID, boolean>;
 }
 
-export class DataSourcesCleanup extends Component<SpreadsheetChildEnv> {
+export class DataSourcesCleanup extends SpreadsheetComponent {
   static template = "o-spreadsheet-DataSourcesCleanup";
   static components = { Section, Checkbox };
 

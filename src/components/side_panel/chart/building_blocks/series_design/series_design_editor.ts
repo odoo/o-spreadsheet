@@ -1,20 +1,19 @@
 import { proxy, useProps } from "@odoo/owl";
 import { getColorsPalette, getNthColor, toHex } from "../../../../../helpers/color";
-import { Component } from "../../../../../owl3_compatibility_layer";
 import {
   ChartDefinitionWithDataSource,
   CustomizableSeriesChartRuntime,
 } from "../../../../../types/chart/chart";
 import { ValueAndLabel } from "../../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { types } from "../../../../props_validation";
 import { Select } from "../../../../select/select";
+import { SpreadsheetComponent } from "../../../../spreadsheet/spreadsheet_component";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
 import { ChartUpdateFunction } from "../../common";
 
-export class SeriesDesignEditor extends Component<SpreadsheetChildEnv> {
+export class SeriesDesignEditor extends SpreadsheetComponent {
   static template = "o-spreadsheet-SeriesDesignEditor";
   static components = {
     SidePanelCollapsible,

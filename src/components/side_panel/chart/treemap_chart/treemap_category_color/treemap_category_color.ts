@@ -9,14 +9,13 @@ import {
 } from "../../../../../types/chart/tree_map_chart";
 import { DispatchResult } from "../../../../../types/commands";
 import { DeepPartial } from "../../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { types } from "../../../../props_validation";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 
-import { Component } from "../../../../../owl3_compatibility_layer";
+import { SpreadsheetComponent } from "../../../../spreadsheet/spreadsheet_component";
 
-export class TreeMapCategoryColors extends Component<SpreadsheetChildEnv> {
+export class TreeMapCategoryColors extends SpreadsheetComponent {
   static template = "o-spreadsheet-TreeMapCategoryColors";
   static components = {
     Checkbox,

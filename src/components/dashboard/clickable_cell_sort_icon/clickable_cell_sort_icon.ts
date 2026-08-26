@@ -3,16 +3,15 @@ import { blendColors } from "../../../helpers/color";
 import { computeTextFontSizeInPixels } from "../../../helpers/text_helper";
 import { useStore } from "../../../store_engine/store_hooks";
 import { Color, Style } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 
 import { useProps } from "@odoo/owl";
-import { Component } from "../../../owl3_compatibility_layer";
 import { CellHoverOverlayStore } from "../../../stores/cell_hover_overlay_store";
 import { types } from "../../props_validation";
+import { SpreadsheetComponent } from "../../spreadsheet/spreadsheet_component";
 
-export class ClickableCellSortIcon extends Component<SpreadsheetChildEnv> {
+export class ClickableCellSortIcon extends SpreadsheetComponent {
   static template = "o-spreadsheet-ClickableCellSortIcon";
 
   protected props = useProps({

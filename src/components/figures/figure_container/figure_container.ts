@@ -3,7 +3,6 @@ import { DRAG_THRESHOLD, MIN_FIG_SIZE } from "../../../constants";
 import { isDefined } from "../../../helpers/misc";
 import { render } from "../../../helpers/owl3_helpers";
 import { rectUnion } from "../../../helpers/rectangle";
-import { Component } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ChartDragStore } from "../../../stores/chart_drag_store";
@@ -12,7 +11,6 @@ import { ZoomStore } from "../../../stores/zoom_store";
 import { AnchorOffset, Figure, FigureUI, ResizeDirection } from "../../../types/figure";
 import { UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { getCarouselOverlappingChart } from "../../helpers/chart_drag_and_drop";
 import { cssPropertiesToCss } from "../../helpers/css";
@@ -26,6 +24,7 @@ import {
   snapForMove,
   snapForResize,
 } from "../../helpers/figure_snap_helper";
+import { SpreadsheetComponent } from "../../spreadsheet/spreadsheet_component";
 import { FigureComponent } from "../figure/figure";
 
 type ContainerType = "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "dnd";
@@ -112,7 +111,7 @@ interface DndState {
  * that occurred during the drag & drop, and to position the figure on the correct pane.
  *
  */
-export class FiguresContainer extends Component<SpreadsheetChildEnv> {
+export class FiguresContainer extends SpreadsheetComponent {
   static template = "o-spreadsheet-FiguresContainer";
   static components = { FigureComponent };
 

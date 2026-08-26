@@ -1,12 +1,11 @@
 import { useProps } from "@odoo/owl";
 import { FIRST_CHART_COLOR } from "../../../../helpers/color";
 import { CHART_AXIS_CHOICES } from "../../../../helpers/figures/charts/chart_common";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
 import { VerticalAxisPosition } from "../../../../types/chart/common_chart";
 import { Color } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
@@ -23,7 +22,7 @@ import { ChartLegend } from "../building_blocks/legend/legend";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
-export class BubbleChartDesignPanel extends Component<SpreadsheetChildEnv> {
+export class BubbleChartDesignPanel extends SpreadsheetComponent {
   static template = "o-spreadsheet-BubbleChartDesignPanel";
   static components = {
     GeneralDesignEditor,

@@ -2,7 +2,7 @@ import { onMounted, onWillUnmount, proxy, signal, useProps } from "@odoo/owl";
 import { NEWLINE, SCROLLBAR_WIDTH } from "../../../constants";
 import { setColorAlpha } from "../../../helpers/color";
 import { debounce, deepEquals, isFormula } from "../../../helpers/misc";
-import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
+import { useLayoutEffect } from "../../../owl3_compatibility_layer";
 
 import { DEFAULT_TOKEN_COLOR } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
@@ -14,13 +14,13 @@ import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import { FunctionDescription } from "../../../types/functions";
 import { CSSProperties, Color, Direction } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { isIOS, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
 import { types } from "../../props_validation";
+import { SpreadsheetComponent } from "../../spreadsheet/spreadsheet_component";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";
@@ -58,7 +58,7 @@ interface FunctionDescriptionState {
   repeatingArgGroupIndex: number | undefined;
 }
 
-export class Composer extends Component<SpreadsheetChildEnv> {
+export class Composer extends SpreadsheetComponent {
   static template = "o-spreadsheet-Composer";
   static components = { TextValueProvider, FunctionDescriptionProvider, SpeechBubble };
 

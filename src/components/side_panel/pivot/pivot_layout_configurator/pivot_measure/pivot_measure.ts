@@ -4,19 +4,18 @@ import { CompiledFormula } from "../../../../../formulas/compiler";
 import { Token } from "../../../../../formulas/tokenizer";
 import { unquote } from "../../../../../helpers/misc";
 import { getFieldDisplayName } from "../../../../../helpers/pivot/pivot_helpers";
-import { Component } from "../../../../../owl3_compatibility_layer";
 import { createMeasureAutoComplete } from "../../../../../registries/auto_completes/pivot_dimension_auto_complete";
 import { _t } from "../../../../../translation";
 import { Color, ValueAndLabel } from "../../../../../types/misc";
 import { PivotMeasure } from "../../../../../types/pivot";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../../composer/standalone_composer/standalone_composer";
 import { types } from "../../../../props_validation";
 import { Select } from "../../../../select/select";
+import { SpreadsheetComponent } from "../../../../spreadsheet/spreadsheet_component";
 import { measureDisplayTerms } from "../../../../translations_terms";
 import { PivotDimension } from "../pivot_dimension/pivot_dimension";
 
-export class PivotMeasureEditor extends Component<SpreadsheetChildEnv> {
+export class PivotMeasureEditor extends SpreadsheetComponent {
   static template = "o-spreadsheet-PivotMeasureEditor";
   static components = {
     PivotDimension,

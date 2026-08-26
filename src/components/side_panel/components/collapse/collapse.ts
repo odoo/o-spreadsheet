@@ -1,10 +1,9 @@
 import { onMounted, onWillUpdateProps, signal, useProps } from "@odoo/owl";
-import { Component } from "../../../../owl3_compatibility_layer";
 
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { types } from "../../../props_validation";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 
-export class Collapse extends Component<SpreadsheetChildEnv> {
+export class Collapse extends SpreadsheetComponent {
   static template = "o-spreadsheet-Collapse";
   protected props = useProps({
     isCollapsed: types.boolean(),

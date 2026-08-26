@@ -8,7 +8,6 @@ import {
   interactiveUpdateNamedRange,
 } from "../../helpers/ui/named_range_interactive";
 import { zoneToXc } from "../../helpers/zones";
-import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
@@ -16,18 +15,18 @@ import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
 import { Highlight } from "../../types/misc";
 import { Range } from "../../types/range";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { getElBoundingRect } from "../helpers/dom_helpers";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../helpers/top_bar_tool_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
 import { TextInput } from "../text_input/text_input";
 
 interface State extends Omit<MenuState, "isOpen"> {
   searchedText?: string;
 }
 
-export class NamedRangeSelector extends Component<SpreadsheetChildEnv> {
+export class NamedRangeSelector extends SpreadsheetComponent {
   static template = "o-spreadsheet-NamedRangeSelector";
   static components = { TextInput, MenuPopover };
 

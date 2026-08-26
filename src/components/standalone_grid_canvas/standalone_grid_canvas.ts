@@ -1,19 +1,18 @@
 import { onWillStart, onWillUpdateProps, signal, useProps } from "@odoo/owl";
 import { getCarouselLayout } from "../../helpers/carousel_helpers";
 import { isDefined } from "../../helpers/misc";
-import { Component } from "../../owl3_compatibility_layer";
 import { useLocalStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
 import { PropsOf } from "../../types/props_of";
 import { GridRenderingContext } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { types } from "../props_validation";
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
 import { CarouselDataViewPrint } from "./carousel_data_view_print";
 import { FigureRendererStore } from "./figure_renderer_store";
 
-export class StandaloneGridCanvas extends Component<SpreadsheetChildEnv> {
+export class StandaloneGridCanvas extends SpreadsheetComponent {
   static template = "o-spreadsheet-StandaloneGridCanvas";
   static components = { CarouselDataViewPrint };
 

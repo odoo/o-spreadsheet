@@ -1,20 +1,19 @@
 import { useProps } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/misc";
 import { getUniquePivotGroupName } from "../../../../helpers/pivot/pivot_helpers";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import {
   PivotCoreDefinition,
   PivotCustomGroup,
   PivotCustomGroupedField,
 } from "../../../../types/pivot";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { types } from "../../../props_validation";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 import { TextInput } from "../../../text_input/text_input";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 
-export class PivotCustomGroupsCollapsible extends Component<SpreadsheetChildEnv> {
+export class PivotCustomGroupsCollapsible extends SpreadsheetComponent {
   static template = "o-spreadsheet-PivotCustomGroupsCollapsible";
   protected props = useProps({
     pivotId: types.UID(),

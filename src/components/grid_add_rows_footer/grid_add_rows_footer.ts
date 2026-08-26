@@ -1,16 +1,15 @@
 import { proxy, signal, useListener } from "@odoo/owl";
 import { FOOTER_HEIGHT } from "../../constants";
-import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { _t } from "../../translation";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
 import { ValidationMessages } from "../validation_messages/validation_messages";
 
-export class GridAddRowsFooter extends Component<SpreadsheetChildEnv> {
+export class GridAddRowsFooter extends SpreadsheetComponent {
   static template = "o-spreadsheet-GridAddRowsFooter";
   static components = { ValidationMessages };
 

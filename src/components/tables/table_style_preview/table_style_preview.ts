@@ -1,16 +1,15 @@
 import { onWillUpdateProps, proxy, signal, useEffect, useProps } from "@odoo/owl";
 import { deepEquals } from "../../../helpers/misc";
 import { getComputedTableStyle } from "../../../helpers/table_helpers";
-import { Component } from "../../../owl3_compatibility_layer";
 import { createTableStyleContextMenuActions } from "../../../registries/menus/table_style_menu_registry";
 import { PropsOf } from "../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableMetaData } from "../../../types/table";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { types } from "../../props_validation";
+import { SpreadsheetComponent } from "../../spreadsheet/spreadsheet_component";
 import { drawPreviewTable } from "./table_canvas_helpers";
 
-export class TableStylePreview extends Component<SpreadsheetChildEnv> {
+export class TableStylePreview extends SpreadsheetComponent {
   static template = "o-spreadsheet-TableStylePreview";
   static components = { MenuPopover };
 

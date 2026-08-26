@@ -1,8 +1,8 @@
 import { useProps, xml } from "@odoo/owl";
+import { SpreadsheetComponent } from "../../src/components/spreadsheet/spreadsheet_component";
 import { TextInput } from "../../src/components/text_input/text_input";
 import { render } from "../../src/helpers/owl3_helpers";
 import { Component } from "../../src/owl3_compatibility_layer";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   click,
   keyDown,
@@ -15,7 +15,7 @@ let fixture: HTMLElement;
 let parent: Component;
 type Props = TextInput["props"];
 
-class TextInputContainer extends Component<SpreadsheetChildEnv> {
+class TextInputContainer extends SpreadsheetComponent {
   static template = xml/* xml */ `
     <div class="container">
       <TextInput t-props="this.props"/>

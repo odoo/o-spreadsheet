@@ -1,13 +1,12 @@
 import { signal, useEffect, useProps } from "@odoo/owl";
-import { Component } from "../../../owl3_compatibility_layer";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { types } from "../../props_validation";
+import { SpreadsheetComponent } from "../../spreadsheet/spreadsheet_component";
 
 const BUBBLE_ARROW_SIZE = 7;
 
-export class SpeechBubble extends Component<SpreadsheetChildEnv> {
+export class SpeechBubble extends SpreadsheetComponent {
   static template = "o-spreadsheet-SpeechBubble";
   static components = {};
 

@@ -1,15 +1,14 @@
 import { getUniqueText } from "../../../helpers/misc";
 import { _t } from "../../../translation";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { types } from "../../props_validation";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { TextInput } from "../../text_input/text_input";
 import { NamedRangePreview } from "./named_range_preview/named_range_preview";
 
 import { useProps } from "@odoo/owl";
-import { Component } from "../../../owl3_compatibility_layer";
+import { SpreadsheetComponent } from "../../spreadsheet/spreadsheet_component";
 
-export class NamedRangesPanel extends Component<SpreadsheetChildEnv> {
+export class NamedRangesPanel extends SpreadsheetComponent {
   static template = "o-spreadsheet-NamedRangesPanel";
   static components = { NamedRangePreview, SelectionInput, TextInput };
 

@@ -1,13 +1,12 @@
 import { onWillUnmount, onWillUpdateProps, proxy, signal, useListener, useProps } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators, isMenuItemEnabled } from "../../actions/action";
 import { DESKTOP_MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../constants";
-import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
+import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { MenuMouseEvent, Pixel, UID } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
 import { Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 import {
   getBoundingRectAsPOJO,
@@ -20,6 +19,7 @@ import { useTimeOut } from "../helpers/time_hooks";
 import { Menu } from "../menu/menu";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
 
 //------------------------------------------------------------------------------
 // Context MenuPopover Component
@@ -41,7 +41,7 @@ interface State {
   hoveredMenu?: Action;
 }
 
-export class MenuPopover extends Component<SpreadsheetChildEnv> {
+export class MenuPopover extends SpreadsheetComponent {
   static template = "o-spreadsheet-Menu-Popover";
   static components = { MenuPopover, Menu, Popover };
 

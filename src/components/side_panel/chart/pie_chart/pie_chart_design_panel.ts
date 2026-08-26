@@ -1,11 +1,10 @@
 import { proxy, useProps } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/misc";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { PieChartDefinition, PieChartRuntime } from "../../../../types/chart/pie_chart";
 import { ValueAndLabel } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { DEFAULT_DOUGHNUT_CHART_HOLE_SIZE } from "../../../../xlsx/constants";
 import { Select } from "../../../select/select";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
@@ -18,7 +17,7 @@ import { PieHoleSize } from "../building_blocks/pie_hole_size/pie_hole_size";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
-export class PieChartDesignPanel extends Component<SpreadsheetChildEnv> {
+export class PieChartDesignPanel extends SpreadsheetComponent {
   static template = "o-spreadsheet-PieChartDesignPanel";
   static components = {
     GeneralDesignEditor,

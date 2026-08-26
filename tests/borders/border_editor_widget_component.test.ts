@@ -2,11 +2,10 @@ import { providePlugins, proxy, xml } from "@odoo/owl";
 import { BorderPosition, BorderStyle, Color, Model } from "../../src";
 import { BorderEditorWidget } from "../../src/components/border_editor/border_editor_widget";
 import { PopoverContainerPlugin } from "../../src/components/popover/popover_container_owl_plugin";
+import { SpreadsheetComponent } from "../../src/components/spreadsheet/spreadsheet_component";
 import { toHex } from "../../src/helpers/color";
 import { toZone } from "../../src/helpers/zones";
-import { Component } from "../../src/owl3_compatibility_layer";
 import { PropsOf } from "../../src/types/props_of";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { click, simulateClick } from "../test_helpers/dom_helper";
 import { mountComponent } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
@@ -36,7 +35,7 @@ async function setBorder({
   await simulateClick(`.o-line-item[name="${position}"]`);
 }
 
-class BorderWidgetContainer extends Component<SpreadsheetChildEnv> {
+class BorderWidgetContainer extends SpreadsheetComponent {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
       <div class="container">

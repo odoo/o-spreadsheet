@@ -1,12 +1,10 @@
 import { providePlugins, signal, useProps } from "@odoo/owl";
-import { Component } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { Pixel } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
@@ -24,9 +22,10 @@ import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin"
 import { types } from "../props_validation";
 import { HorizontalScrollBar } from "../scrollbar/scrollbar_horizontal";
 import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
 import { HoveredTableStore } from "../tables/hovered_table_store";
 
-export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
+export class SpreadsheetDashboard extends SpreadsheetComponent {
   static template = "o-spreadsheet-SpreadsheetDashboard";
   static components = {
     GridOverlay,

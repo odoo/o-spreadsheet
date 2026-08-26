@@ -1,9 +1,9 @@
 import { useProps, xml } from "@odoo/owl";
 import { NumberInput } from "../../src/components/number_input/number_input";
+import { SpreadsheetComponent } from "../../src/components/spreadsheet/spreadsheet_component";
 import { render } from "../../src/helpers/owl3_helpers";
 import { Component } from "../../src/owl3_compatibility_layer";
 import { PropsOf } from "../../src/types/props_of";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   click,
   keyDown,
@@ -15,7 +15,7 @@ import { mountComponent, nextTick, useJestFakeTimers } from "../test_helpers/hel
 let fixture: HTMLElement;
 let parent: Component;
 
-class NumberInputContainer extends Component<SpreadsheetChildEnv> {
+class NumberInputContainer extends SpreadsheetComponent {
   static template = xml/* xml */ `
     <div class="container">
       <NumberInput t-props="this.props"/>

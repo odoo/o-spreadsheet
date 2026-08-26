@@ -6,7 +6,6 @@ import {
   isDateOrDatetimeField,
 } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { SortDirection } from "../../../../types/misc";
 import {
@@ -19,13 +18,13 @@ import {
   PivotField,
   PivotMeasure,
 } from "../../../../types/pivot";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import {
   getBoundingRectWithMargins,
   hasInteractiveElementInEventTree,
 } from "../../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
 import { types } from "../../../props_validation";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { PivotCustomGroupsCollapsible } from "../pivot_custom_groups_collapsible/pivot_custom_groups_collapsible";
 import { AddDimensionButton } from "./add_dimension_button/add_dimension_button";
@@ -35,7 +34,7 @@ import { PivotDimensionOrder } from "./pivot_dimension_order/pivot_dimension_ord
 import { PivotMeasureEditor } from "./pivot_measure/pivot_measure";
 import { PivotSortSection } from "./pivot_sort_section/pivot_sort_section";
 
-export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
+export class PivotLayoutConfigurator extends SpreadsheetComponent {
   static template = "o-spreadsheet-PivotLayoutConfigurator";
   static components = {
     AddDimensionButton,

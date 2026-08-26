@@ -1,12 +1,11 @@
 import { proxy, signal, useProps } from "@odoo/owl";
 import { HIGHLIGHT_COLOR } from "../../../../constants";
 import { interactiveUpdateNamedRange } from "../../../../helpers/ui/named_range_interactive";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { Highlight } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
 import { types } from "../../../props_validation";
 import { SelectionInput } from "../../../selection_input/selection_input";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 import { TextInput } from "../../../text_input/text_input";
 
 interface State {
@@ -14,7 +13,7 @@ interface State {
   currentRange?: string;
 }
 
-export class NamedRangePreview extends Component<SpreadsheetChildEnv> {
+export class NamedRangePreview extends SpreadsheetComponent {
   static template = "o-spreadsheet-NamedRangePreview";
   static components = { SelectionInput, TextInput };
 

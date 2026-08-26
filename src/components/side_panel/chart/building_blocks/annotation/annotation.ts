@@ -1,8 +1,8 @@
 import { proxy, signal, useProps } from "@odoo/owl";
 import { withHttps } from "../../../../../helpers/links";
-import { Component, useLayoutEffect } from "../../../../../owl3_compatibility_layer";
+import { useLayoutEffect } from "../../../../../owl3_compatibility_layer";
 import { _t } from "../../../../../translation";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { SpreadsheetComponent } from "../../../../spreadsheet/spreadsheet_component";
 import { TextInput } from "../../../../text_input/text_input";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { Section } from "../../../components/section/section";
@@ -13,7 +13,7 @@ interface annotationState {
   isOverflowing: boolean;
 }
 
-export class ChartAnnotation extends Component<SpreadsheetChildEnv> {
+export class ChartAnnotation extends SpreadsheetComponent {
   static template = "o-spreadsheet.ChartAnnotation";
   static components = { SidePanelCollapsible, Section, TextInput };
   protected props = useProps(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<any>;

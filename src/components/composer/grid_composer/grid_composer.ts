@@ -5,16 +5,15 @@ import { deepEquals, isFormula } from "../../../helpers/misc";
 import { getFullReference } from "../../../helpers/references";
 import { fontSizeInPixels } from "../../../helpers/text_helper";
 import { positionToZone } from "../../../helpers/zones";
-import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { CellPosition, ComposerFocusType } from "../../../types/misc";
 import { PropsOf } from "../../../types/props_of";
 import { Rect } from "../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss, getTextDecoration } from "../../helpers/css";
 import { types } from "../../props_validation";
+import { SpreadsheetComponent } from "../../spreadsheet/spreadsheet_component";
 import { CellComposerStore } from "../composer/cell_composer_store";
 import { Composer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
@@ -26,7 +25,7 @@ const GRID_CELL_REFERENCE_TOP_OFFSET = 28;
  * This component is a composer which positions itself on the grid at the anchor cell.
  * It also applies the style of the cell to the composer input.
  */
-export class GridComposer extends Component<SpreadsheetChildEnv> {
+export class GridComposer extends SpreadsheetComponent {
   static template = "o-spreadsheet-GridComposer";
   static components = { Composer };
 

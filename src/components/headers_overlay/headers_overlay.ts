@@ -1,12 +1,10 @@
 import { proxy, signal, useProps } from "@odoo/owl";
 import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../constants";
-import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { CommandResult } from "../../types/commands";
 import { HeaderDimensions, HeaderIndex, Pixel } from "../../types/misc";
 import { EdgeScrollInfo } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ContextMenuType } from "../grid/grid";
 import { cssPropertiesToCss } from "../helpers/css";
@@ -15,6 +13,7 @@ import { startDnd } from "../helpers/drag_and_drop";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { withZoom, ZoomedMouseEvent } from "../helpers/zoom";
 import { types } from "../props_validation";
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
 import { MergeErrorMessage, TableHeaderMoveErrorMessage } from "../translations_terms";
 import { ComposerFocusStore } from "./../composer/composer_focus_store";
 import { UnhideColumnHeaders, UnhideRowHeaders } from "./unhide_headers";
@@ -42,7 +41,7 @@ export const resizerPropsDefinition = {
   onOpenContextMenu: types.function<(type: ContextMenuType, x: Pixel, y: Pixel) => void>(),
 };
 
-abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
+abstract class AbstractResizer extends SpreadsheetComponent {
   protected props = useProps(resizerPropsDefinition);
   private composerFocusStore!: Store<ComposerFocusStore>;
   protected viewStore!: Store<ViewportsStore>;
@@ -680,7 +679,7 @@ export class RowResizer extends AbstractResizer {
   }
 }
 
-export class HeadersOverlay extends Component<SpreadsheetChildEnv> {
+export class HeadersOverlay extends SpreadsheetComponent {
   static template = "o-spreadsheet-HeadersOverlay";
 
   protected props = useProps(resizerPropsDefinition);

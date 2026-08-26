@@ -55,6 +55,7 @@ import {
   Zone,
 } from "../../src";
 import { PopoverContainerPlugin } from "../../src/components/popover/popover_container_owl_plugin";
+import { SpreadsheetComponent } from "../../src/components/spreadsheet/spreadsheet_component";
 import { computeFunctionsCache } from "../../src/formulas/compiler";
 import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
@@ -285,7 +286,7 @@ interface ParentProps {
   childProps: ComponentProps;
 }
 
-class ParentWithPortalTarget extends Component<SpreadsheetChildEnv> {
+class ParentWithPortalTarget extends SpreadsheetComponent {
   static template = xml/*xml*/ `
     <div class="o-spreadsheet" >
       <t t-component="this.props.childComponent" t-props="this.props.childProps"/>
@@ -1125,7 +1126,7 @@ type ComposerWrapperProps = {
   composerProps: Partial<PropsOf<Composer>>;
 };
 
-export class ComposerWrapper extends Component<SpreadsheetChildEnv> {
+export class ComposerWrapper extends SpreadsheetComponent {
   static components = { Composer };
   static template = xml/*xml*/ `
     <div class="o-spreadsheet"/>

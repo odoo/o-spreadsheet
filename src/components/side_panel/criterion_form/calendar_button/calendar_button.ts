@@ -1,12 +1,11 @@
 import { signal, useProps } from "@odoo/owl";
 import { parseDateTime } from "../../../../helpers/dates";
 import { formatValue } from "../../../../helpers/format/format";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { DEFAULT_LOCALE } from "../../../../types/locale";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { types } from "../../../props_validation";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 
-export class CalendarButton extends Component<SpreadsheetChildEnv> {
+export class CalendarButton extends SpreadsheetComponent {
   static template = "o-spreadsheet-CalendarButton";
   protected props = useProps({
     value: types.string().optional(""),

@@ -1,10 +1,9 @@
 import { useProps } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 
-import { Component } from "../../../../owl3_compatibility_layer";
 import { types } from "../../../props_validation";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 
-export class Section extends Component<SpreadsheetChildEnv> {
+export class Section extends SpreadsheetComponent {
   static template = "o_spreadsheet.Section";
 
   protected props = useProps({

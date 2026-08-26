@@ -2,20 +2,19 @@ import { useProps } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberToHex } from "../../../../helpers/color";
 import { localizeContent } from "../../../../helpers/locale";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { CommandResult } from "../../../../types/commands";
 import { ColorScaleThreshold } from "../../../../types/conditional_formatting";
 import { ValueAndLabel } from "../../../../types/misc";
 import { PropsOf } from "../../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { ConditionalFormattingEditorStore } from "./cf_editor_store";
 
-export class ColorScaleRuleEditorThreshold extends Component<SpreadsheetChildEnv> {
+export class ColorScaleRuleEditorThreshold extends SpreadsheetComponent {
   static template = "o-spreadsheet-ColorScaleRuleEditorThreshold";
   static components = {
     RoundColorPicker,

@@ -1,16 +1,15 @@
 import { onMounted, onWillUnmount, useEffect, useProps, xml } from "@odoo/owl";
-import { Component } from "../../owl3_compatibility_layer";
 import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { GridRenderer } from "../../stores/grid_renderer_store";
 import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { GridRenderingContext, Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { types } from "../props_validation";
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
 import { StandaloneViewportStore } from "../standalone_viewport/standalone_viewport_store";
 
-export class CarouselDataViewPrint extends Component<SpreadsheetChildEnv> {
+export class CarouselDataViewPrint extends SpreadsheetComponent {
   static template = xml/* xml */ ``;
 
   props = useProps({

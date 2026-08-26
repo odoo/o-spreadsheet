@@ -1,8 +1,7 @@
 import { onMounted, onWillUpdateProps, signal, useListener, useProps } from "@odoo/owl";
-import { Component } from "../../owl3_compatibility_layer";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { useAutofocus } from "../helpers/autofocus_hook";
 import { types } from "../props_validation";
+import { SpreadsheetComponent } from "../spreadsheet/spreadsheet_component";
 
 export interface GenericInputProps {
   value: string | number;
@@ -33,7 +32,7 @@ export const genericInputPropsDefinition = {
   resetOnBlur: types.boolean().optional(),
 };
 
-export class GenericInput<T extends GenericInputProps> extends Component<SpreadsheetChildEnv> {
+export class GenericInput<T extends GenericInputProps> extends SpreadsheetComponent {
   protected props: T = useProps(genericInputPropsDefinition) as unknown as T;
 
   protected genericInputRef = signal.ref(HTMLInputElement);

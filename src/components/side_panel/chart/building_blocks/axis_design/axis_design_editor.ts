@@ -4,7 +4,6 @@ import { toNumber } from "../../../../../functions/helpers";
 import { getDefinedAxis } from "../../../../../helpers/figures/charts/chart_common";
 import { formatValue } from "../../../../../helpers/format/format";
 import { deepCopy } from "../../../../../helpers/misc";
-import { Component } from "../../../../../owl3_compatibility_layer";
 import { _t } from "../../../../../translation";
 import {
   AxisDesign,
@@ -14,10 +13,10 @@ import {
   TitleDesign,
 } from "../../../../../types/chart/chart";
 import { LineChartRuntime } from "../../../../../types/chart/line_chart";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { DateInput } from "../../../../date_input/date_input";
 import { NumberInput } from "../../../../number_input/number_input";
 import { types } from "../../../../props_validation";
+import { SpreadsheetComponent } from "../../../../spreadsheet/spreadsheet_component";
 import { BadgeSelection } from "../../../components/badge_selection/badge_selection";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
@@ -29,7 +28,7 @@ export interface AxisDefinition {
   name: string;
 }
 
-export class AxisDesignEditor extends Component<SpreadsheetChildEnv> {
+export class AxisDesignEditor extends SpreadsheetComponent {
   static template = "o-spreadsheet-AxisDesignEditor";
   static components = { Section, ChartTitle, BadgeSelection, Checkbox, NumberInput, DateInput };
 

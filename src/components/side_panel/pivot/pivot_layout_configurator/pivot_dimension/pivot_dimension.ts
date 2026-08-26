@@ -5,14 +5,13 @@ import {
   PivotFilter,
   PivotMeasure,
 } from "../../../../../types/pivot";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { types } from "../../../../props_validation";
 import { TextInput } from "../../../../text_input/text_input";
 import { CogWheelMenu } from "../../../components/cog_wheel_menu/cog_wheel_menu";
 
-import { Component } from "../../../../../owl3_compatibility_layer";
+import { SpreadsheetComponent } from "../../../../spreadsheet/spreadsheet_component";
 
-export class PivotDimension extends Component<SpreadsheetChildEnv> {
+export class PivotDimension extends SpreadsheetComponent {
   static template = "o-spreadsheet-PivotDimension";
   protected props = useProps({
     dimension: types.or([types.PivotDimension(), types.PivotMeasure(), types.PivotFilter()]),

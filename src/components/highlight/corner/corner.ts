@@ -3,17 +3,16 @@ import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { ResizeDirection } from "../../../types/figure";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { types } from "../../props_validation";
 
-import { Component } from "../../../owl3_compatibility_layer";
 import { Store } from "../../../types/store_engine";
+import { SpreadsheetComponent } from "../../spreadsheet/spreadsheet_component";
 const MOBILE_HANDLER_WIDTH = 40;
 
 type Orientation = "nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w";
 
-export class Corner extends Component<SpreadsheetChildEnv> {
+export class Corner extends SpreadsheetComponent {
   static template = "o-spreadsheet-Corner";
 
   protected props = useProps({

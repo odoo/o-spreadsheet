@@ -2,7 +2,6 @@ import { _t } from "../../../../translation";
 import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import { LegendPosition } from "../../../../types/chart/common_chart";
 import { Color, ValueAndLabel } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Select } from "../../../select/select";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
@@ -18,8 +17,8 @@ import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 import { useProps } from "@odoo/owl";
-import { Component } from "../../../../owl3_compatibility_layer";
-export class CalendarChartDesignPanel extends Component<SpreadsheetChildEnv> {
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
+export class CalendarChartDesignPanel extends SpreadsheetComponent {
   static template = "o-spreadsheet-CalendarChartDesignPanel";
   static components = {
     GeneralDesignEditor,

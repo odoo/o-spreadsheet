@@ -5,7 +5,6 @@ import {
   TreeMapChartDefinition,
   TreeMapColorScaleOptions,
 } from "../../../../types/chart/tree_map_chart";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { BadgeSelection } from "../../components/badge_selection/badge_selection";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -21,7 +20,7 @@ import { TreeMapCategoryColors } from "./treemap_category_color/treemap_category
 import { TreeMapColorScale } from "./treemap_color_scale/treemap_color_scale";
 
 import { useProps } from "@odoo/owl";
-import { Component } from "../../../../owl3_compatibility_layer";
+import { SpreadsheetComponent } from "../../../spreadsheet/spreadsheet_component";
 const DEFAULT_COLOR_SCALE: TreeMapColorScaleOptions = {
   type: "colorScale",
   minColor: "#FFF5EB",
@@ -35,7 +34,7 @@ const DEFAULT_SOLID_COLOR: TreeMapCategoryColorOptions = {
   useValueBasedGradient: true,
 };
 
-export class TreeMapChartDesignPanel extends Component<SpreadsheetChildEnv> {
+export class TreeMapChartDesignPanel extends SpreadsheetComponent {
   static template = "o-spreadsheet-TreeMapChartDesignPanel";
   static components = {
     GeneralDesignEditor,

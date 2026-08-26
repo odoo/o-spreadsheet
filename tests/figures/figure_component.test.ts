@@ -9,10 +9,10 @@ import {
   MENU_WIDTH,
   ZOOM_VALUES,
 } from "../../src/constants";
-import { Component } from "../../src/owl3_compatibility_layer";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 
 import { downloadFile } from "../../src/components/helpers/dom_helpers";
+import { SpreadsheetComponent } from "../../src/components/spreadsheet/spreadsheet_component";
 import { toXC } from "../../src/helpers/coordinates";
 import { render } from "../../src/helpers/owl3_helpers";
 import { figureRegistry } from "../../src/registries/figures_registry";
@@ -134,7 +134,7 @@ const TEMPLATE = xml/* xml */ `
   </div>
 `;
 
-class TextFigure extends Component<SpreadsheetChildEnv> {
+class TextFigure extends SpreadsheetComponent {
   static template = TEMPLATE;
 }
 
