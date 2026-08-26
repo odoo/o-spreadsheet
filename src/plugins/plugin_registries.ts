@@ -59,7 +59,7 @@ import { FigureUIPlugin } from "./ui_stateful/figure";
 import { HeaderPositionsUIPlugin } from "./ui_stateful/header_positions";
 import { GridSelectionPlugin } from "./ui_stateful/selection";
 
-class PluginRegistry<T extends new (config: any) => any> extends Registry<T> {
+export class PluginRegistry<T extends new (config: any) => any> extends Registry<T> {
   constructor(private readonly PluginClass: new (config: any) => any) {
     super();
   }
