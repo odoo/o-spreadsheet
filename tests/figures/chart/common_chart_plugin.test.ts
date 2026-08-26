@@ -1,4 +1,4 @@
-import { Color, Model, UID } from "../../../src";
+import { ChartJSRuntime, Color, Model, UID } from "../../../src";
 import { GaugeChartRuntime } from "../../../src/types/chart/gauge_chart";
 import { ScorecardChartRuntime } from "../../../src/types/chart/scorecard_chart";
 import {
@@ -52,11 +52,11 @@ describe("Single cell chart background color", () => {
     "chart %s background color change with main cell CF background color",
     (chartType: string) => {
       createTestChart(chartType, "A1");
-      expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#FFFFFF");
+      expect(getGaugeOrScorecardRuntime(model, chartId).background).toBeUndefined();
       addCfToA1("#FF0000");
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#FF0000");
       setCellContent(model, "A1", "random value not in CF");
-      expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#FFFFFF");
+      expect(getGaugeOrScorecardRuntime(model, chartId).background).toBeUndefined();
     }
   );
 
@@ -64,11 +64,30 @@ describe("Single cell chart background color", () => {
     "chart %s background color change with main cell background color",
     (chartType: string) => {
       createTestChart(chartType, "A1");
-      expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#FFFFFF");
+      expect(getGaugeOrScorecardRuntime(model, chartId).background).toBeUndefined();
       addFillToA1("#00FF00");
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#00FF00");
     }
   );
+
+  test.each(["scorecard", "gauge"])(
+    "chart %s background color does not depend on the color scheme",
+    (chartType: string) => {
+      createTestChart(chartType, "A1");
+      model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "dark" });
+      expect(getGaugeOrScorecardRuntime(model, chartId).background).toBeUndefined();
+    }
+  );
+
+  test("chartJs chart background color does not depend on the color scheme", () => {
+    createChart(model, { type: "bar" }, chartId);
+    const getBackground = () =>
+      (model.getters.getChartRuntime(chartId) as ChartJSRuntime).chartJsConfig.options?.plugins
+        ?.background?.color;
+    expect(getBackground()).toBeUndefined();
+    model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "dark" });
+    expect(getBackground()).toBeUndefined();
+  });
 
   test.each(["scorecard", "gauge"])(
     "CF color have priority over cell background color",

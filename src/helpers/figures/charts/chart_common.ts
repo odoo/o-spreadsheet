@@ -13,7 +13,6 @@ import {
 import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
 import { LocaleFormat } from "../../../types/format";
-import { Getters } from "../../../types/getters";
 import { Locale } from "../../../types/locale";
 import { Color, RangeAdapterFunctions, UID, UnboundedZone, Zone } from "../../../types/misc";
 import { Range } from "../../../types/range";
@@ -363,15 +362,4 @@ export function truncateLabel(label: string | undefined, maxLen: number = MAX_CH
 
 export function isTrendLineAxis(axisID: string) {
   return axisID === TREND_LINE_XAXIS_ID || axisID === MOVING_AVERAGE_TREND_LINE_XAXIS_ID;
-}
-
-export function getChartBackgroundColor(
-  { background }: { background?: Color },
-  getters: Getters
-): Color {
-  const defaultColor = getters.getSpreadsheetTheme().backgroundColor;
-  if (!background) {
-    return defaultColor;
-  }
-  return background;
 }

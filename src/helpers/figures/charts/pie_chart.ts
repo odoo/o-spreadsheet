@@ -97,7 +97,7 @@ export const PieChart: ChartTypeBuilder<"pie"> = {
           legend: getPieChartLegend(definition, chartData),
           tooltip: getPieChartTooltip(definition, chartData),
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
-          background: { color: chartData.background },
+          background: { color: definition.background },
         },
         ...eventHandlers,
       },

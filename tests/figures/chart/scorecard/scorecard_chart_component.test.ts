@@ -2,6 +2,7 @@ import { CellIsRule, Model, Pixel, UID } from "../../../../src";
 import { ChartPanel } from "../../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import {
+  DEFAULT_CHART_BACKGROUND_COLOR,
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
 } from "../../../../src/constants";
@@ -14,6 +15,7 @@ import {
 } from "../../../../src/helpers/figures/charts/scorecard_chart_config_builder";
 import { createAccountingFormat } from "../../../../src/helpers/format/format";
 import { getContextFontSize } from "../../../../src/helpers/text_helper";
+import { COLOR_THEMES } from "../../../../src/plugins/ui_feature/color_theme";
 import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
@@ -431,6 +433,36 @@ describe("Scorecard charts computation", () => {
     const chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.baseline?.style.font.includes("bold")).toBeFalsy();
     expect(chartDesign.baseline?.text).toEqual("100.0%");
+  });
+
+  test("The background defaults to white when the runtime has none", () => {
+    createScorecardChart(model, { keyValue: "=A1", title: { text: "title" } }, chartId);
+    const runtime = model.getters.getChartRuntime(chartId) as ScorecardChartRuntime;
+    expect(runtime.background).toBeUndefined();
+    expect(runtime.fontColor).toBeUndefined();
+
+    const chartDesign = getChartDesign(model, chartId, sheetId);
+    expect(chartDesign.canvas.backgroundColor).toBeSameColorAs(DEFAULT_CHART_BACKGROUND_COLOR);
+    expect(chartDesign.key?.style.color).toBeSameColorAs("#000000");
+  });
+
+  test("The component paints the spreadsheet theme when the runtime has no background", async () => {
+    createScorecardChart(model, { keyValue: "=A1" }, chartId);
+    const backgrounds: string[] = [];
+    jest
+      .spyOn(MockCanvasRenderingContext2D.prototype, "fillRect")
+      .mockImplementation(function (this: MockCanvasRenderingContext2D) {
+        backgrounds.push(this.fillStyle as string);
+      });
+    await mountSpreadsheet({ model });
+    expect(backgrounds).toContain(COLOR_THEMES.light.backgroundColor);
+
+    backgrounds.length = 0;
+    model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "dark" });
+    await nextTick();
+    expect(backgrounds).toContain(COLOR_THEMES.dark.backgroundColor);
+
+    jest.spyOn(MockCanvasRenderingContext2D.prototype, "fillRect").mockRestore();
   });
 
   test("High contrast font colors with dark background", () => {

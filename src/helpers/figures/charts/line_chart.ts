@@ -105,7 +105,7 @@ export const LineChart: ChartTypeBuilder<"line"> = {
           legend: getLineChartLegend(definition, chartData),
           tooltip: getLineChartTooltip(definition, chartData),
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
-          background: { color: chartData.background },
+          background: { color: definition.background },
         },
         ...eventHandlers,
       },

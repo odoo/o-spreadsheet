@@ -1,12 +1,17 @@
 import { Model, readonlyAllowedCommands, Rect } from "../../../../src";
 import { GaugeChartComponent } from "../../../../src/components/figures/chart/gauge/gauge_chart_component";
-import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../src/constants";
+import {
+  CHART_PADDING,
+  CHART_TITLE_FONT_SIZE,
+  DEFAULT_CHART_BACKGROUND_COLOR,
+} from "../../../../src/constants";
 import { chartMutedFontColor } from "../../../../src/helpers/figures/charts/chart_common";
 import {
   GAUGE_DEFAULT_VALUE_FONT_SIZE,
   GAUGE_LABELS_FONT_SIZE,
   getGaugeRenderingConfig,
 } from "../../../../src/helpers/figures/charts/gauge_chart_rendering";
+import { COLOR_THEMES } from "../../../../src/plugins/ui_feature/color_theme";
 import { GaugeAnimatedRuntime, GaugeChartRuntime } from "../../../../src/types/chart/gauge_chart";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
 import {
@@ -47,6 +52,12 @@ function getRenderingConfig(
 describe("Gauge rendering config", () => {
   test("Background color is propagated", () => {
     expect(getRenderingConfig(testRuntime).backgroundColor).toEqual(testRuntime.background);
+  });
+
+  test("Background color defaults to white when the runtime has none", () => {
+    const config = getRenderingConfig({ ...testRuntime, background: undefined });
+    expect(config.backgroundColor).toEqual(DEFAULT_CHART_BACKGROUND_COLOR);
+    expect(config.title.color).toEqual(chartMutedFontColor(DEFAULT_CHART_BACKGROUND_COLOR));
   });
 
   test("Chart size is propagated", () => {
@@ -237,6 +248,50 @@ describe("Gauge rendering config", () => {
     expect(config.gaugeValue.color).toEqual(chartMutedFontColor("#000000"));
     expect(config.inflectionValues[0].color).toEqual(chartMutedFontColor("#000000"));
     expect(config.inflectionValues[1].color).toEqual(chartMutedFontColor("#000000"));
+  });
+});
+
+describe("Gauge chart component background", () => {
+  function trackDrawnBackgrounds(): string[] {
+    const backgrounds: string[] = [];
+    jest
+      .spyOn(MockCanvasRenderingContext2D.prototype, "fillRect")
+      .mockImplementation(function (this: MockCanvasRenderingContext2D) {
+        backgrounds.push(this.fillStyle as string);
+      });
+    return backgrounds;
+  }
+
+  afterEach(() => {
+    jest.spyOn(MockCanvasRenderingContext2D.prototype, "fillRect").mockRestore();
+  });
+
+  test("The component paints the spreadsheet theme when the runtime has no background", async () => {
+    const model = new Model();
+    createGaugeChart(model, {}, "gaugeId");
+    const backgrounds = trackDrawnBackgrounds();
+    await mountSpreadsheet({ model });
+
+    const runtime = model.getters.getChartRuntime("gaugeId") as GaugeChartRuntime;
+    expect(runtime.background).toBeUndefined();
+    expect(backgrounds).toContain(COLOR_THEMES.light.backgroundColor);
+
+    backgrounds.length = 0;
+    model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "dark" });
+    await nextTick();
+    expect(backgrounds).toContain(COLOR_THEMES.dark.backgroundColor);
+  });
+
+  test("The component keeps the background of the definition over the theme", async () => {
+    const model = new Model();
+    createGaugeChart(model, { background: "#FF0000" }, "gaugeId");
+    const backgrounds = trackDrawnBackgrounds();
+    await mountSpreadsheet({ model });
+
+    model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "dark" });
+    await nextTick();
+    expect(backgrounds).toContain("#FF0000");
+    expect(backgrounds).not.toContain(COLOR_THEMES.dark.backgroundColor);
   });
 });
 

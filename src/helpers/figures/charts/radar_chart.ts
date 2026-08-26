@@ -95,7 +95,7 @@ export const RadarChart: ChartTypeBuilder<"radar"> = {
           legend: getRadarChartLegend(definition, chartData),
           tooltip: getRadarChartTooltip(definition, chartData),
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
-          background: { color: chartData.background },
+          background: { color: definition.background },
         },
         ...eventHandlers,
       },

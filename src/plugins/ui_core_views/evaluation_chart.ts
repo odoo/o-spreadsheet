@@ -16,8 +16,8 @@ import { ExcelWorkbookData, FigureData } from "../../types/workbook_data";
 import { CoreViewPlugin } from "../core_view_plugin";
 
 interface EvaluationChartStyle {
-  background: Color;
-  fontColor: Color;
+  background: Color | undefined;
+  fontColor: Color | undefined;
 }
 
 interface EvaluationChartState {
@@ -76,24 +76,20 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
     chartBackground: Color | undefined,
     mainRange: Range | undefined
   ): EvaluationChartStyle {
-    const themeBackground = this.getters.getSpreadsheetTheme().backgroundColor;
     if (chartBackground) {
       return { background: chartBackground, fontColor: chartFontColor(chartBackground) };
     }
     if (!mainRange) {
-      return {
-        background: themeBackground,
-        fontColor: chartFontColor(themeBackground),
-      };
+      return { background: undefined, fontColor: undefined };
     }
     const col = mainRange.zone.left;
     const row = mainRange.zone.top;
     const sheetId = mainRange.sheetId;
     const style = this.getters.getCellComputedStyle({ sheetId, col, row });
-    const background = style.fillColor || themeBackground;
+    const background = style.fillColor;
     return {
       background,
-      fontColor: style.textColor || chartFontColor(background),
+      fontColor: style.textColor || (background ? chartFontColor(background) : undefined),
     };
   }
 

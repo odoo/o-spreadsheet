@@ -2,6 +2,7 @@ import {
   CHART_PADDING,
   CHART_PADDING_TOP,
   CHART_TITLE_FONT_SIZE,
+  DEFAULT_CHART_BACKGROUND_COLOR,
   DEFAULT_FONT,
 } from "../../../constants";
 import { Canvas2DContext, CanvasSurface } from "../../../types/canvas";
@@ -240,7 +241,8 @@ export function getGaugeRenderingConfig(
     y: gaugeRect.y + gaugeRect.height + labelFontSize,
   };
 
-  const textColor = chartMutedFontColor(runtime.background);
+  const backgroundColor = runtime.background ?? DEFAULT_CHART_BACKGROUND_COLOR;
+  const textColor = chartMutedFontColor(backgroundColor);
 
   const inflectionValues = getInflectionValues(runtime, gaugeRect, textColor, ctx, labelFontSize);
 
@@ -282,7 +284,7 @@ export function getGaugeRenderingConfig(
       bold: runtime.title.bold,
       italic: runtime.title.italic,
     },
-    backgroundColor: runtime.background,
+    backgroundColor,
     gauge: {
       rect: gaugeRect,
       arcWidth: gaugeArcWidth,

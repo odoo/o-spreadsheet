@@ -31,8 +31,8 @@ export interface ScorecardChartRuntime {
   readonly baselineArrow: BaselineArrowDirection;
   readonly baselineDescr?: string;
   readonly baselineHighlight?: boolean;
-  readonly background: Color;
-  readonly fontColor: Color;
+  readonly background: Color | undefined;
+  readonly fontColor: Color | undefined;
   readonly keyValueStyle?: Style;
   readonly keyValueDescrStyle?: Style;
   readonly baselineStyle?: Style;

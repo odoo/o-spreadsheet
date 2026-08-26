@@ -6,6 +6,7 @@ import { EASING_FN } from "../../../../registries/cell_animation_registry";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { ZoomStore } from "../../../../stores/zoom_store";
 import { GaugeChartRuntime } from "../../../../types/chart/gauge_chart";
+import { Color } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { types } from "../../../props_validation";
@@ -28,6 +29,15 @@ export class GaugeChartComponent extends Component<SpreadsheetChildEnv> {
 
   get runtime(): GaugeChartRuntime {
     return this.env.model.getters.getChartRuntime(this.props.chartId) as GaugeChartRuntime;
+  }
+
+  get themedRuntime(): GaugeChartRuntime {
+    const runtime = this.runtime;
+    return { ...runtime, background: runtime.background ?? this.themeBackgroundColor };
+  }
+
+  get themeBackgroundColor(): Color {
+    return this.env.model.getters.getSpreadsheetTheme().backgroundColor;
   }
 
   setup() {
@@ -56,7 +66,7 @@ export class GaugeChartComponent extends Component<SpreadsheetChildEnv> {
           this.animationStore?.disableAnimationForChart(this.animationChartId, "gauge");
         } else {
           const zoom = this.zoomStore.zoomLevel;
-          drawGaugeChart(this.canvasEl, this.runtime, zoom);
+          drawGaugeChart(this.canvasEl, this.themedRuntime, zoom);
         }
 
         lastRuntime = this.runtime;
@@ -68,7 +78,14 @@ export class GaugeChartComponent extends Component<SpreadsheetChildEnv> {
           return [];
         }
         const rect = canvas.getBoundingClientRect();
-        return [rect.width, rect.height, this.runtime, canvas, window.devicePixelRatio];
+        return [
+          rect.width,
+          rect.height,
+          this.runtime,
+          this.themeBackgroundColor,
+          canvas,
+          window.devicePixelRatio,
+        ];
       }
     );
     const resizeObserver = new ResizeObserver(() => {
@@ -76,7 +93,7 @@ export class GaugeChartComponent extends Component<SpreadsheetChildEnv> {
         animation.stop();
         animation = null;
       }
-      drawGaugeChart(this.canvasEl, this.runtime, this.zoomStore.zoomLevel);
+      drawGaugeChart(this.canvasEl, this.themedRuntime, this.zoomStore.zoomLevel);
     });
     onMounted(() => {
       const canvas = this.canvas();
@@ -88,7 +105,7 @@ export class GaugeChartComponent extends Component<SpreadsheetChildEnv> {
   }
 
   drawGaugeWithAnimation() {
-    drawGaugeChart(this.canvasEl, { ...this.runtime, animationValue: 0 }, undefined);
+    drawGaugeChart(this.canvasEl, { ...this.themedRuntime, animationValue: 0 }, undefined);
 
     const gaugeValue = this.runtime.gaugeValue?.value || 0;
     const upperBound = this.runtime.maxValue.value;
@@ -99,7 +116,7 @@ export class GaugeChartComponent extends Component<SpreadsheetChildEnv> {
 
     const lowerBound = this.runtime.minValue.value;
     const animation = new Animation(lowerBound, finalValue, ANIMATION_DURATION, (animationValue) =>
-      drawGaugeChart(this.canvasEl, { ...this.runtime, animationValue }, undefined)
+      drawGaugeChart(this.canvasEl, { ...this.themedRuntime, animationValue }, undefined)
     );
     animation.start();
     return animation;

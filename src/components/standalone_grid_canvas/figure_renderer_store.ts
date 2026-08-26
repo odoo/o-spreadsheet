@@ -75,10 +75,16 @@ export class FigureRendererStore extends DisposableStore {
     if (!chart) {
       return;
     }
-    const runtime = deepCopy(this.getters.getChartRuntime(chartId));
-    if ("chartJsConfig" in runtime && runtime.chartJsConfig.options) {
-      runtime.chartJsConfig.options.devicePixelRatio = renderingCtx.dpr;
-      runtime.chartJsConfig.options.responsive = false; // otherwise the canvas will be resized based on the DPR
+    let runtime = deepCopy(this.getters.getChartRuntime(chartId));
+    const themeBackground = this.getters.getSpreadsheetTheme().backgroundColor;
+    if ("chartJsConfig" in runtime) {
+      const options = (runtime.chartJsConfig.options ||= {});
+      options.devicePixelRatio = renderingCtx.dpr;
+      options.responsive = false; // otherwise the canvas will be resized based on the DPR
+      const plugins = (options.plugins ||= {});
+      plugins.background = { color: plugins.background?.color || themeBackground };
+    } else {
+      runtime = { ...runtime, background: runtime.background || themeBackground };
     }
 
     const cleanUp = drawChartOnCanvas(chartCanvas, runtime, rect, chart.type);

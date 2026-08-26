@@ -41,7 +41,7 @@ export interface GaugeInflectionValue extends GaugeValue {
 }
 
 export interface GaugeChartRuntime {
-  background: Color;
+  background: Color | undefined;
   title: TitleDesign;
   minValue: GaugeValue;
   maxValue: GaugeValue;

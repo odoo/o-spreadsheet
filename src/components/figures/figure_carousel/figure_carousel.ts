@@ -10,7 +10,7 @@ import { useStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
 import { CellValueType } from "../../../types/cells";
 import { Carousel, CarouselItem } from "../../../types/figure";
-import { CSSProperties, MenuMouseEvent } from "../../../types/misc";
+import { Color, CSSProperties, MenuMouseEvent } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -110,20 +110,20 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
   }
 
   get carouselStyle(): string {
-    const cssProperties: CSSProperties = {};
-    const backgroundColor = this.env.model.getters.getSpreadsheetTheme().backgroundColor;
-    if (this.selectedCarouselItem?.type === "chart") {
-      const chart = this.env.model.getters.getChartRuntime(this.selectedCarouselItem.chartId);
-      if ("background" in chart && chart.background) {
-        cssProperties["background-color"] = chart.background;
-      } else if ("chartJsConfig" in chart) {
-        cssProperties["background-color"] =
-          chart.chartJsConfig.options?.plugins?.background?.color || backgroundColor;
-      }
-    } else {
-      cssProperties["background-color"] = backgroundColor;
-    }
+    const backgroundColor =
+      this.selectedChartBackground || this.env.model.getters.getSpreadsheetTheme().backgroundColor;
+    const cssProperties: CSSProperties = { "background-color": backgroundColor };
     return cssPropertiesToCss(cssProperties);
+  }
+
+  private get selectedChartBackground(): Color | undefined {
+    if (this.selectedCarouselItem?.type !== "chart") {
+      return undefined;
+    }
+    const chart = this.env.model.getters.getChartRuntime(this.selectedCarouselItem.chartId);
+    return "chartJsConfig" in chart
+      ? chart.chartJsConfig.options?.plugins?.background?.color
+      : chart.background;
   }
 
   get contentStyle(): string {

@@ -8,6 +8,7 @@ import { deepCopy, deepEquals } from "../../../../helpers/misc";
 import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
+import { Color } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { types } from "../../../props_validation";
@@ -96,6 +97,7 @@ export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
   protected animationStore: Store<ChartAnimationStore> | undefined;
 
   private currentDevicePixelRatio = window.devicePixelRatio;
+  private currentThemeBackgroundColor: Color | undefined;
 
   get chartRuntime(): ChartJSRuntime {
     const runtime = this.env.model.getters.getChartRuntime(this.props.chartId);
@@ -103,6 +105,32 @@ export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
       throw new Error("Unsupported chart runtime");
     }
     return runtime;
+  }
+
+  get themeBackgroundColor(): Color {
+    return this.env.model.getters.getSpreadsheetTheme().backgroundColor;
+  }
+
+  /**
+   * Copy the runtime and resolve its theme-dependent colors. The runtime is theme-agnostic: it only
+   * carries the background explicitly set on the chart definition.
+   *
+   * Note: chartJS modifies the runtime in place, so it's important to give it a copy anyway.
+   */
+  private prepareRuntime(runtime: ChartJSRuntime): ChartJSRuntime {
+    const copy = deepCopy(runtime) as ChartJSRuntime & {
+      masterChartConfig?: ChartConfiguration<any>;
+    };
+    const backgroundColor = this.themeBackgroundColor;
+    for (const config of [copy.chartJsConfig, copy.masterChartConfig]) {
+      if (!config) {
+        continue;
+      }
+      const options = (config.options ||= {});
+      const plugins = (options.plugins ||= {});
+      plugins.background = { color: plugins.background?.color || backgroundColor };
+    }
+    return copy;
   }
 
   setup() {
@@ -113,8 +141,8 @@ export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
       registerChartJSExtensions();
       const runtime = this.chartRuntime;
       this.currentRuntime = runtime;
-      // Note: chartJS modify the runtime in place, so it's important to give it a copy
-      this.createChart(deepCopy(runtime));
+      this.currentThemeBackgroundColor = this.themeBackgroundColor;
+      this.createChart(this.prepareRuntime(runtime));
     });
     onWillUnmount(this.unmount.bind(this));
     useLayoutEffect(() => {
@@ -122,14 +150,17 @@ export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
       if (runtime !== this.currentRuntime) {
         if (runtime.chartJsConfig.type !== this.currentRuntime.chartJsConfig.type) {
           this.chart?.destroy();
-          this.createChart(deepCopy(runtime));
+          this.createChart(this.prepareRuntime(runtime));
         } else {
-          this.updateChartJs(deepCopy(runtime));
+          this.updateChartJs(this.prepareRuntime(runtime));
         }
         this.currentRuntime = runtime;
       } else if (this.currentDevicePixelRatio !== window.devicePixelRatio) {
         this.currentDevicePixelRatio = window.devicePixelRatio;
-        this.updateChartJs(deepCopy(this.currentRuntime));
+        this.updateChartJs(this.prepareRuntime(this.currentRuntime));
+      } else if (this.currentThemeBackgroundColor !== this.themeBackgroundColor) {
+        this.currentThemeBackgroundColor = this.themeBackgroundColor;
+        this.updateChartJs(this.prepareRuntime(this.currentRuntime));
       }
     });
   }

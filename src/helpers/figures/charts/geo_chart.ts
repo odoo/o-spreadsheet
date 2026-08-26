@@ -76,7 +76,7 @@ export const GeoChart: ChartTypeBuilder<"geo"> = {
           title: getChartTitle(definition, getters),
           tooltip: getGeoChartTooltip(definition, chartData),
           legend: { display: false },
-          background: { color: chartData.background },
+          background: { color: definition.background },
         },
         ...eventHandlers,
       },
