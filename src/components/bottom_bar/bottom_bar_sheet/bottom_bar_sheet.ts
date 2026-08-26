@@ -8,6 +8,7 @@ import {
   useProps,
 } from "@odoo/owl";
 import { throttle } from "../../../helpers/misc";
+import { useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
@@ -54,6 +55,8 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
     style: types.string().optional(""),
     onMouseDown: types.function<(ev: PointerEvent) => void>().optional(() => () => {}),
   });
+
+  spEnv = useSpreadsheetEnv();
 
   private state = proxy<State>({ isEditing: false, openedPicker: undefined });
 
@@ -223,7 +226,7 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
 
     const inputValue = this.getInputContent() || "";
 
-    interactiveRenameSheet(this.env, this.props.sheetId, inputValue, () => this.startEdition());
+    interactiveRenameSheet(this.spEnv, this.props.sheetId, inputValue, () => this.startEdition());
   }
 
   private cancelEdition() {

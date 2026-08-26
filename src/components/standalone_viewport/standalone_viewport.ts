@@ -1,5 +1,6 @@
 import { proxy, signal, useEffect, useProps } from "@odoo/owl";
 import { sumArray } from "../../helpers/misc";
+import { useSpreadsheetEnv } from "../../helpers/owl3_helpers";
 import { Component } from "../../owl3_compatibility_layer";
 import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
@@ -46,6 +47,8 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     columnWeights: types.array<number>().optional(),
     size: types.object<DOMDimension>(),
   });
+
+  spEnv = useSpreadsheetEnv();
 
   private canvasRef = signal.ref(HTMLCanvasElement);
   private containerRef = signal.ref();

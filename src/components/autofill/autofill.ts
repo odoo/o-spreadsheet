@@ -1,5 +1,6 @@
 import { proxy, useProps, xml } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
+import { useSpreadsheetEnv } from "../../helpers/owl3_helpers";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ZoomStore } from "../../stores/zoom_store";
@@ -29,12 +30,14 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
     position: types.DOMCoordinates(),
     isVisible: types.boolean(),
   });
+
+  spEnv = useSpreadsheetEnv();
   state: State = proxy({
     position: { x: 0, y: 0 },
     handler: false,
   });
 
-  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
   private zoomStore!: Store<ZoomStore>;
   private autofillStore!: Store<AutofillStore>;
 

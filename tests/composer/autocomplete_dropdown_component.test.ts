@@ -4,6 +4,7 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { Model } from "../../src/model";
 import { autoCompleteProviders } from "../../src/registries/auto_completes/auto_complete_registry";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { addDataValidation, selectCell } from "../test_helpers/commands_helpers";
 import {
@@ -31,6 +32,7 @@ let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
 let parent: ComposerWrapper;
+let env: SpreadsheetChildEnv;
 let composerStore: Store<CellComposerStore>;
 
 async function typeInComposer(text: string, fromScratch: boolean = true) {
@@ -69,12 +71,12 @@ beforeEach(() => {
 
 describe("Functions autocomplete", () => {
   beforeEach(async () => {
-    ({ model, fixture, parent } = await mountComposerWrapper());
+    ({ model, fixture, parent, env } = await mountComposerWrapper());
     // start composition
     parent.startComposition();
     await nextTick();
     composerEl = fixture.querySelector("div.o-composer")!;
-    composerStore = parent.env.getStore(CellComposerStore);
+    composerStore = env.getStore(CellComposerStore);
   });
 
   describe("autocomplete", () => {
@@ -374,7 +376,7 @@ describe("Functions autocomplete", () => {
       await typeInComposer("hello");
       await keyDown({ key: "Enter" });
       expect(getCellText(model, "A2")).toBe("hello");
-      expect(parent.env.getStore(CellComposerStore).editionMode).toBe("inactive");
+      expect(env.getStore(CellComposerStore).editionMode).toBe("inactive");
     });
 
     test("autocomplete proposal can be automatically expanded", async () => {
@@ -440,7 +442,7 @@ describe("Functions autocomplete", () => {
 
 describe("Data validation autocomplete", () => {
   beforeEach(async () => {
-    ({ model, fixture, parent } = await mountComposerWrapper());
+    ({ model, fixture, parent, env } = await mountComposerWrapper());
   });
 
   test("should not display close button in autocomplete for data validation", async () => {
@@ -501,12 +503,12 @@ describe("Data validation autocomplete", () => {
 
 describe("Autocomplete parenthesis", () => {
   beforeEach(async () => {
-    ({ model, fixture, parent } = await mountComposerWrapper());
+    ({ model, fixture, parent, env } = await mountComposerWrapper());
     // start composition
     parent.startComposition();
     await nextTick();
     composerEl = fixture.querySelector("div.o-composer")!;
-    composerStore = parent.env.getStore(CellComposerStore);
+    composerStore = env.getStore(CellComposerStore);
   });
 
   test("=sum(1,2 + enter adds closing parenthesis", async () => {
@@ -609,7 +611,7 @@ describe("Autocomplete parenthesis", () => {
 
 describe("composer Assistant", () => {
   test("render below the cell by default", async () => {
-    ({ model, fixture, parent } = await mountComposerWrapper(new Model(), {
+    ({ model, fixture, parent, env } = await mountComposerWrapper(new Model(), {
       delimitation: { width: 500, height: 500 },
       rect: { width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
     }));
@@ -624,7 +626,7 @@ describe("composer Assistant", () => {
 
   test("render above the cell when not enough place below", async () => {
     const rect = { width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 };
-    ({ model, fixture, parent } = await mountComposerWrapper(new Model(), {
+    ({ model, fixture, parent, env } = await mountComposerWrapper(new Model(), {
       delimitation: { width: 200, height: 200 },
       rect,
     }));
@@ -639,7 +641,7 @@ describe("composer Assistant", () => {
   });
 
   test("composer assistant min-width is the same as the underlying cell", async () => {
-    ({ model, fixture, parent } = await mountComposerWrapper(new Model(), {
+    ({ model, fixture, parent, env } = await mountComposerWrapper(new Model(), {
       rect: { width: 60, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
     }));
     await typeInComposer("=s");
@@ -647,7 +649,7 @@ describe("composer Assistant", () => {
   });
 
   test("composer assistant min-width is capped for large cells", async () => {
-    ({ model, fixture, parent } = await mountComposerWrapper(new Model(), {
+    ({ model, fixture, parent, env } = await mountComposerWrapper(new Model(), {
       rect: { width: 1000, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
     }));
     await typeInComposer("=s");
@@ -668,7 +670,7 @@ describe("autocomplete boolean functions", () => {
       args: [],
       compute: () => ({ value: false }),
     });
-    ({ model, fixture, parent } = await mountComposerWrapper());
+    ({ model, fixture, parent, env } = await mountComposerWrapper());
     parent.startComposition();
     await nextTick();
   });
@@ -737,7 +739,7 @@ describe("composer entries", () => {
       });
   });
   test("Autocomplente entries are sorted by length and then alphanumerically", async () => {
-    ({ fixture, parent } = await mountComposerWrapper());
+    ({ fixture, parent, env } = await mountComposerWrapper());
     await typeInComposer("=S");
     const entries = fixture.querySelectorAll(".o-autocomplete-value");
     expect(entries[0].textContent).toBe("SEC");
@@ -761,13 +763,13 @@ test("aucomplete supports values with similar names", async () => {
     },
     selectProposal() {},
   });
-  ({ fixture, parent } = await mountComposerWrapper());
+  ({ fixture, parent, env } = await mountComposerWrapper());
   // start composition
   parent.startComposition();
   await nextTick();
   composerEl = fixture.querySelector("div.o-composer")!;
 
-  composerStore = parent.env.getStore(CellComposerStore);
+  composerStore = env.getStore(CellComposerStore);
   await typeInComposer("=s");
   expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(2);
 });

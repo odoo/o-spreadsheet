@@ -3,6 +3,7 @@ import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { types } from "../../props_validation";
 
 import { useProps } from "@odoo/owl";
+import { useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { Component } from "../../../owl3_compatibility_layer";
 
 export class SidePanel extends Component<SpreadsheetChildEnv> {
@@ -19,12 +20,14 @@ export class SidePanel extends Component<SpreadsheetChildEnv> {
     onToggleCollapsePanel: types.function().optional(),
     isCollapsed: types.boolean().optional(),
   });
+
+  spEnv = useSpreadsheetEnv();
   spreadsheetRect = useSpreadsheetRect();
 
   getTitle() {
     const panel = this.props.panelContent;
     return typeof panel.title === "function"
-      ? panel.title(this.env, this.props.panelProps)
+      ? panel.title(this.spEnv, this.props.panelProps)
       : panel.title;
   }
 }

@@ -14,8 +14,11 @@ import { ChartJsComponent } from "../chartjs";
 import { Boundaries, ZoomableChartStore } from "./zoomable_chart_store";
 
 import { signal } from "@odoo/owl";
+import { useSpreadsheetEnv } from "../../../../../helpers/owl3_helpers";
 export class ZoomableChartJsComponent extends ChartJsComponent {
   static template = "o-spreadsheet-ZoomableChartJsComponent";
+
+  spEnv = useSpreadsheetEnv();
 
   private store!: Store<ZoomableChartStore>;
   private zoomStore!: Store<ZoomStore>;

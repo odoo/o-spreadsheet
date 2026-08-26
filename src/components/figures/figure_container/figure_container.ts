@@ -1,7 +1,7 @@
 import { onMounted, onWillUpdateProps, proxy } from "@odoo/owl";
 import { DRAG_THRESHOLD } from "../../../constants";
 import { isDefined } from "../../../helpers/misc";
-import { render } from "../../../helpers/owl3_helpers";
+import { render, useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { rectUnion } from "../../../helpers/rectangle";
 import { Component } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
@@ -115,6 +115,8 @@ interface DndState {
 export class FiguresContainer extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FiguresContainer";
   static components = { FigureComponent };
+
+  spEnv = useSpreadsheetEnv();
 
   dnd = proxy<DndState>({
     draggedFigure: undefined,
@@ -382,7 +384,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       this.chartDragStore.setHighlightedFigure(overlappingChartOrCarousel?.id);
 
       if (!overlappingChartOrCarousel) {
-        const snapReturn = snapForMove(this.env, selectedFigures, otherFigures);
+        const snapReturn = snapForMove(this.spEnv, selectedFigures, otherFigures);
         this.dnd.selectedFigures = snapReturn.snappedFigures;
         this.dnd.selectedRect = this.getDndFigureRect();
         this.dnd.draggedFigure = selectedFigures.find((f) => f.id === draggedFigureId);
@@ -525,7 +527,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       );
 
       const { snappedRect, verticalSnapLine, horizontalSnapLine } = snapForResize(
-        this.env,
+        this.spEnv,
         dirX,
         dirY,
         resizedRect,

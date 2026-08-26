@@ -1,5 +1,6 @@
 import { onMounted, onWillUnmount, signal, Signal, useListener, useProps } from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
+import { useSpreadsheetEnv } from "../../helpers/owl3_helpers";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { positionToZone } from "../../helpers/zones";
 import { Component } from "../../owl3_compatibility_layer";
@@ -167,6 +168,8 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
     gridOverlayDimensions: types.string(),
     hasFooter: types.boolean().optional(() => true),
   });
+
+  spEnv = useSpreadsheetEnv();
   private gridOverlayRef = signal.ref();
   private cellPopovers!: Store<CellPopoverStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
@@ -175,7 +178,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
   private zoomStore!: Store<ZoomStore>;
 
   setup() {
-    useCellHovered(this.env, this.gridOverlayRef);
+    useCellHovered(this.spEnv, this.gridOverlayRef);
     const resizeObserver = new ResizeObserver(() => {
       this.props.onGridResized();
     });
@@ -257,7 +260,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
     );
 
     if (clickedIcon?.onClick) {
-      clickedIcon.onClick(clickedIcon.position, this.env);
+      clickedIcon.onClick(clickedIcon.position, this.spEnv);
     }
 
     if (

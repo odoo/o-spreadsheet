@@ -9,6 +9,7 @@ import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 import { types } from "../props_validation";
 
+import { useSpreadsheetEnv } from "../../helpers/owl3_helpers";
 import { Component } from "../../owl3_compatibility_layer";
 
 interface GroupBox {
@@ -26,12 +27,14 @@ abstract class AbstractHeaderGroup extends Component<SpreadsheetChildEnv> {
     openContextMenu: types.function<(position: DOMCoordinates, menuItems: Action[]) => void>(),
   });
 
+  spEnv = useSpreadsheetEnv();
+
   abstract dimension: Dimension;
 
   toggleGroup() {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const { start, end } = this.props.group;
-    interactiveToggleGroup(this.env, sheetId, this.dimension, start, end);
+    interactiveToggleGroup(this.spEnv, sheetId, this.dimension, start, end);
   }
 
   get groupBoxStyle(): string {

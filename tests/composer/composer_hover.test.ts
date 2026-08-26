@@ -66,7 +66,7 @@ describe("Composer hover", () => {
   beforeEach(async () => {
     ({ model, parent, fixture, env } = await mountComposerWrapper());
     useJestFakeTimers();
-    composerStore = parent.env.getStore(CellComposerStore);
+    composerStore = env.getStore(CellComposerStore);
   });
 
   afterEach(() => {

@@ -1,5 +1,6 @@
 import { proxy, signal, useProps } from "@odoo/owl";
 import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../constants";
+import { useSpreadsheetEnv } from "../../helpers/owl3_helpers";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -45,6 +46,8 @@ export const resizerPropsDefinition = {
 
 abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
   protected props = useProps(resizerPropsDefinition);
+
+  spEnv = useSpreadsheetEnv();
   private composerFocusStore!: Store<ComposerFocusStore>;
   protected viewStore!: Store<ViewportsStore>;
   protected zoomStore!: Store<ZoomStore>;
@@ -69,7 +72,7 @@ abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
     position: "before",
   });
 
-  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
 
   abstract _getEvOffset(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>): Pixel;
 

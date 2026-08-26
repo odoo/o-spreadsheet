@@ -1,5 +1,6 @@
 import { onMounted, useProps } from "@odoo/owl";
 import { NEWLINE } from "../../../constants";
+import { useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
@@ -33,6 +34,8 @@ export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
   protected props = useProps({
     onCloseSidePanel: types.function(),
   });
+
+  spEnv = useSpreadsheetEnv();
 
   store!: Store<SplitToColumnsStore>;
 
@@ -71,7 +74,7 @@ export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
   }
 
   confirm() {
-    const result = interactiveSplitToColumns(this.env);
+    const result = interactiveSplitToColumns(this.spEnv);
 
     if (result.isSuccessful) {
       this.props.onCloseSidePanel();

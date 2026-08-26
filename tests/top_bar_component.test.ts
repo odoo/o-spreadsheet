@@ -1010,8 +1010,8 @@ describe("Topbar - menu item resizing with viewport", () => {
 });
 
 test("The composer helper should be closed on toggle topbar context menu", async () => {
-  const { parent, fixture } = await mountSpreadsheet();
-  const composerStore = parent.env.getStore(CellComposerStore);
+  const { fixture, env } = await mountSpreadsheet();
+  const composerStore = env.getStore(CellComposerStore);
   await typeInComposerTopBar("=sum(");
   expect(composerStore.editionMode).not.toBe("inactive");
   expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(1);

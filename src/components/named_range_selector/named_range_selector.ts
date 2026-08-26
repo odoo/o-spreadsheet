@@ -1,6 +1,7 @@
 import { proxy, signal } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../actions/action";
 import { HIGHLIGHT_COLOR } from "../../constants";
+import { useSpreadsheetEnv } from "../../helpers/owl3_helpers";
 import { rangeReference } from "../../helpers/references";
 import { fuzzyLookup } from "../../helpers/search";
 import {
@@ -30,6 +31,8 @@ interface State extends Omit<MenuState, "isOpen"> {
 export class NamedRangeSelector extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-NamedRangeSelector";
   static components = { TextInput, MenuPopover };
+
+  spEnv = useSpreadsheetEnv();
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
@@ -71,12 +74,12 @@ export class NamedRangeSelector extends Component<SpreadsheetChildEnv> {
 
     const namedRangeInZone = this.env.model.getters.getNamedRangeFromZone(sheetId, selection);
     if (!namedRangeInZone) {
-      interactiveCreateNamedRange(this.env, {
+      interactiveCreateNamedRange(this.spEnv, {
         name: newValue,
         ranges: [this.env.model.getters.getRangeDataFromZone(sheetId, selection)],
       });
     } else {
-      interactiveUpdateNamedRange(this.env, {
+      interactiveUpdateNamedRange(this.spEnv, {
         newRangeName: newValue,
         oldRangeName: namedRangeInZone.name,
         ranges: [this.env.model.getters.getRangeData(namedRangeInZone.range)],

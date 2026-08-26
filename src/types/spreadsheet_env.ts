@@ -16,8 +16,11 @@ export interface SpreadsheetChildEnv extends NotificationStoreMethods {
   startCellEdition: (content?: string) => void;
   loadCurrencies?: () => Promise<Currency[]>;
   loadLocales: () => Promise<Locale[]>;
-  getStore: Get;
   isSmall: boolean;
   isMobile: () => boolean;
   printSpreadsheet: () => void;
+}
+
+export interface SpreadsheetChildEnv extends SpreadsheetChildEnv {
+  getStore: Get;
 }

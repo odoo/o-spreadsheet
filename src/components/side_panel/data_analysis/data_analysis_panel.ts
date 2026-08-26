@@ -1,3 +1,4 @@
+import { useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../store_engine/store_hooks";
 import { ChartDefinition } from "../../../types/chart/chart";
@@ -15,6 +16,8 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
     ChartSuggestionPreview,
   };
 
+  spEnv = useSpreadsheetEnv();
+
   store!: Store<DataAnalysisStore>;
 
   setup() {
@@ -22,6 +25,6 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
   }
 
   onStartChartSuggestionDrag(definition: ChartDefinition, ev: MouseEvent) {
-    startChartDragAndDrop(this.env, definition, ev);
+    startChartDragAndDrop(this.spEnv, definition, ev);
   }
 }
