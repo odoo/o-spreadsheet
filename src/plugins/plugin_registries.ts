@@ -28,6 +28,7 @@ import { DynamicTranslate } from "./evaluation/dynamic_translate";
 import { EvaluationChartPlugin } from "./evaluation/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "./evaluation/evaluation_conditional_format";
 import { EvaluationDataValidationPlugin } from "./evaluation/evaluation_data_validation";
+import { FilterEvaluationPlugin } from "./evaluation/filter_evaluation";
 import { FingerprintPlugin } from "./evaluation/fingerprint";
 import { FormulaTrackerPlugin } from "./evaluation/formula_tracker";
 import { GeoLoaderEvaluation } from "./evaluation/geo_loader";
@@ -55,7 +56,6 @@ import { CarouselUIPlugin } from "./ui_stateful/carousel_ui";
 import { CellIconPlugin } from "./ui_stateful/cell_icon_plugin";
 import { ClipboardPlugin } from "./ui_stateful/clipboard";
 import { FigureUIPlugin } from "./ui_stateful/figure";
-import { FilterEvaluationPlugin } from "./ui_stateful/filter_evaluation";
 import { HeaderPositionsUIPlugin } from "./ui_stateful/header_positions";
 import { GridSelectionPlugin } from "./ui_stateful/selection";
 
@@ -120,7 +120,6 @@ export const featurePluginRegistry = new PluginRegistry<UIPluginConstructor>(UIP
 // Plugins which have a state, but which should not be shared in collaborative
 export const statefulUIPluginRegistry = new PluginRegistry<UIPluginConstructor>(UIPlugin)
   .add("selection", GridSelectionPlugin)
-  .add("evaluation_filter", FilterEvaluationPlugin)
   .add("header_positions", HeaderPositionsUIPlugin)
   .add("clipboard", ClipboardPlugin)
   .add("carousel_ui", CarouselUIPlugin)
@@ -146,9 +145,11 @@ export const evaluationPluginRegistry = new PluginRegistry<EvaluationPluginConst
   .add("geo_loader", GeoLoaderEvaluation)
   .add("formula_tracker", FormulaTrackerPlugin)
   .add("table_computed_style", TableComputedStylePlugin)
-  .add("cell_computed_style", CellComputedStylePlugin);
+  .add("cell_computed_style", CellComputedStylePlugin)
+  .add("evaluation_filter", FilterEvaluationPlugin);
 
 // Plugins which are UI plugins but on which evaluation plugins depend on
-export const evaluationUIPluginRegistry = new PluginRegistry<UIPluginConstructor>(UIPlugin)
-  .add("filter_evaluation", FilterEvaluationPlugin)
-  .add("color_theme", ColorThemeUIPlugin);
+export const evaluationUIPluginRegistry = new PluginRegistry<UIPluginConstructor>(UIPlugin).add(
+  "color_theme",
+  ColorThemeUIPlugin
+);

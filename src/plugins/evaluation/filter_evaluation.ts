@@ -8,12 +8,11 @@ import { GenericCriterion } from "../../types/generic_criterion";
 import { CellPosition, FilterId, UID } from "../../types/misc";
 import { CriterionFilter, DataFilterValue } from "../../types/table";
 import { ExcelFilterData, ExcelWorkbookData } from "../../types/workbook_data";
-import { UIPlugin } from "../ui_plugin";
+import { EvaluationPlugin } from "../evaluation_plugin";
 
 const EMPTY_CRITERION: CriterionFilter = { filterType: "criterion", type: "none", values: [] };
 
-// FIXME: this should/could be an evaluation plugin.
-export class FilterEvaluationPlugin extends UIPlugin {
+export class FilterEvaluationPlugin extends EvaluationPlugin {
   static getters = [
     "getFilterValue",
     "getFilterHiddenValues",
