@@ -48,7 +48,7 @@ import { DAYS, formatValue, isDateTimeFormat, MONTHS } from "../../../format/for
 import { deepCopy, findNextDefinedValue, range } from "../../../misc";
 import { createDate } from "../../../pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { BubbleChartData } from "../bubble_chart";
-import { getChartBackgroundColor, shouldRemoveFirstLabel } from "../chart_common";
+import { shouldRemoveFirstLabel } from "../chart_common";
 
 const EMPTY = Object.freeze({ value: null });
 const ZERO = Object.freeze({ value: 0 });
@@ -93,7 +93,6 @@ export function getBarChartData(
     labels,
     locale: getters.getLocale(),
     topPadding: getTopPaddingForDashboard(definition, getters),
-    background: getChartBackgroundColor(definition, getters),
   };
 }
 
@@ -222,7 +221,6 @@ export function getCalendarChartData(
     labels: labels.map(({ value }) => String(value ?? "")),
     locale: getters.getLocale(),
     topPadding: getTopPaddingForDashboard(definition, getters),
-    background: getChartBackgroundColor(definition, getters),
   };
 }
 
@@ -309,7 +307,6 @@ export function getLineChartData(
     trendDataSetsValues,
     axisType,
     topPadding: getTopPaddingForDashboard(definition, getters),
-    background: getChartBackgroundColor(definition, getters),
   };
 }
 
@@ -338,7 +335,6 @@ export function getPieChartData(
     labels,
     locale: getters.getLocale(),
     topPadding: getTopPaddingForDashboard(definition, getters),
-    background: getChartBackgroundColor(definition, getters),
   };
 }
 
@@ -366,7 +362,6 @@ export function getRadarChartData(
     axisFormats,
     labels,
     locale: getters.getLocale(),
-    background: getChartBackgroundColor(definition, getters),
   };
 }
 
@@ -393,7 +388,6 @@ export function getGeoChartData(
     availableRegions: getters.getGeoChartAvailableRegions(),
     geoFeatureNameToId: getters.geoFeatureNameToId,
     getGeoJsonFeatures: getters.getGeoJsonFeatures,
-    background: getChartBackgroundColor(definition, getters),
   };
 }
 
@@ -422,7 +416,6 @@ export function getFunnelChartData(
     axisFormats: { x: format },
     labels,
     locale: getters.getLocale(),
-    background: getChartBackgroundColor(definition, getters),
   };
 }
 
@@ -441,7 +434,6 @@ export function getHierarchalChartData(
     axisFormats: { y: getChartLabelFormat(labels) },
     labels: labels.map(({ value }) => String(value ?? "")),
     locale: getters.getLocale(),
-    background: getChartBackgroundColor(definition, getters),
   };
 }
 

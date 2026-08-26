@@ -94,7 +94,7 @@ export const TreeMapChart: ChartTypeBuilder<"treemap"> = {
           title: getChartTitle(definition, getters),
           legend: { display: false },
           tooltip: getTreeMapChartTooltip(definition, chartData),
-          background: { color: chartData.background },
+          background: { color: definition.background },
         },
         ...eventHandlers,
       },

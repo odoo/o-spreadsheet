@@ -9,10 +9,11 @@ import {
   TrendConfiguration,
   UID,
 } from "../../../src";
+import { chartBackgroundPlugin } from "../../../src/components/figures/chart/chartJs/chartjs_background_plugin";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
 import { ChartTerms } from "../../../src/components/translations_terms";
-import { LINE_DATA_POINT_RADIUS } from "../../../src/constants";
+import { DEFAULT_CHART_BACKGROUND_COLOR, LINE_DATA_POINT_RADIUS } from "../../../src/constants";
 import { ColorGenerator, toHex } from "../../../src/helpers/color";
 import { deepCopy } from "../../../src/helpers/misc";
 import { render } from "../../../src/helpers/owl3_helpers";
@@ -31,6 +32,7 @@ import {
 } from "../../../src/types/chart/scorecard_chart";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
+import { MockCanvasRenderingContext2D } from "../../setup/canvas.mock";
 import {
   getChartConfiguration,
   openChartConfigSidePanel,
@@ -3239,6 +3241,42 @@ describe("chart is drawn on the spreadsheet theme background", () => {
 
     expect(mockChartData.options?.plugins?.background?.color).toBe("#FF0000");
   });
+
+  test("the chart is redrawn when the color scheme changes", async () => {
+    mockChartData = mockChart();
+    model = new Model();
+    createChart(model, { ...TEST_CHART_DATA.basicChart, background: undefined }, chartId);
+    await mountSpreadsheet();
+    expect(mockChartData.options?.plugins?.background?.color).toBe(
+      COLOR_THEMES.light.backgroundColor
+    );
+
+    model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "dark" });
+    await nextTick();
+    expect(mockChartData.options?.plugins?.background?.color).toBe(
+      COLOR_THEMES.dark.backgroundColor
+    );
+  });
+
+  test.each(["light", "dark"] as const)(
+    "an undefined background is painted white on a theme-less surface, in %s mode",
+    (colorScheme) => {
+      // image and xlsx exports are not affected by the dark mode CSS filter
+      model = new Model();
+      createChart(model, { ...TEST_CHART_DATA.basicChart, background: undefined }, chartId);
+      model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme });
+      const runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
+      const options = runtime.chartJsConfig.options!.plugins!.background!;
+
+      const ctx = new MockCanvasRenderingContext2D();
+      chartBackgroundPlugin.beforeDraw!(
+        { ctx, width: 100, height: 50 } as any,
+        {} as any,
+        options as any
+      );
+      expect(ctx.fillStyle).toBe(DEFAULT_CHART_BACKGROUND_COLOR);
+    }
+  );
 });
 
 describe("Default background on runtime tests", () => {
@@ -3246,7 +3284,7 @@ describe("Default background on runtime tests", () => {
     model = new Model();
   });
 
-  test("Creating a 'basicChart' without background should have white background on runtime", async () => {
+  test("Creating a 'basicChart' without background should have no background on runtime", async () => {
     createChart(
       model,
       { type: "bar", ...toChartDataSource({ dataSets: [{ dataRange: "A1" }] }) },
@@ -3255,10 +3293,10 @@ describe("Default background on runtime tests", () => {
     );
     expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
     const runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
-    expect(runtime.chartJsConfig.options?.plugins?.background?.color).toBe("#FFFFFF");
+    expect(runtime.chartJsConfig.options?.plugins?.background?.color).toBeUndefined();
   });
 
-  test("Creating a 'basicChart' without background and updating its type should have default background on runtime", async () => {
+  test("Creating a 'basicChart' without background and updating its type should have no background on runtime", async () => {
     createChart(
       model,
       { type: "bar", ...toChartDataSource({ dataSets: [{ dataRange: "A1" }] }) },
@@ -3268,7 +3306,7 @@ describe("Default background on runtime tests", () => {
     updateChart(model, chartId, { type: "line" }, sheetId);
     const runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
     expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
-    expect(runtime.chartJsConfig.options?.plugins?.background?.color).toBe("#FFFFFF");
+    expect(runtime.chartJsConfig.options?.plugins?.background?.color).toBeUndefined();
   });
 
   test("Creating a 'basicChart' on a single cell with style and converting into scorecard should have cell background as chart background", () => {
@@ -3284,6 +3322,32 @@ describe("Default background on runtime tests", () => {
     expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
     expect(runtime.background).toBe("#FA0000");
   });
+
+  test.each(["light", "dark"] as const)(
+    "the runtime background is theme-agnostic in %s mode",
+    (colorScheme) => {
+      model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme });
+      createChart(
+        model,
+        { type: "bar", ...toChartDataSource({ dataSets: [{ dataRange: "A1" }] }) },
+        chartId,
+        sheetId
+      );
+      const runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
+      expect(runtime.chartJsConfig.options?.plugins?.background?.color).toBeUndefined();
+    }
+  );
+
+  test.each(["light", "dark"] as const)(
+    "a scorecard on an unfilled cell has no runtime background in %s mode",
+    (colorScheme) => {
+      model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme });
+      createScorecardChart(model, { keyValue: "=A1" }, chartId, sheetId);
+      const runtime = model.getters.getChartRuntime(chartId) as ScorecardChartRuntime;
+      expect(runtime.background).toBeUndefined();
+      expect(runtime.fontColor).toBeUndefined();
+    }
+  );
 });
 
 test("ChartJS charts are correctly destroyed on chart deletion", async () => {

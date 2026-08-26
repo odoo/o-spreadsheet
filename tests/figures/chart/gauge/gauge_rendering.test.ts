@@ -1,6 +1,10 @@
 import { Model, readonlyAllowedCommands, Rect } from "../../../../src";
 import { GaugeChartComponent } from "../../../../src/components/figures/chart/gauge/gauge_chart_component";
-import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../src/constants";
+import {
+  CHART_PADDING,
+  CHART_TITLE_FONT_SIZE,
+  DEFAULT_CHART_BACKGROUND_COLOR,
+} from "../../../../src/constants";
 import { chartMutedFontColor } from "../../../../src/helpers/figures/charts/chart_common";
 import {
   GAUGE_DEFAULT_VALUE_FONT_SIZE,
@@ -47,6 +51,14 @@ function getRenderingConfig(
 describe("Gauge rendering config", () => {
   test("Background color is propagated", () => {
     expect(getRenderingConfig(testRuntime).backgroundColor).toEqual(testRuntime.background);
+  });
+
+  test("A runtime without background is rendered on white", () => {
+    const runtime = { ...testRuntime, background: undefined };
+    expect(getRenderingConfig(runtime).backgroundColor).toEqual(DEFAULT_CHART_BACKGROUND_COLOR);
+    expect(getRenderingConfig(runtime).title.color).toEqual(
+      getRenderingConfig(testRuntime).title.color
+    );
   });
 
   test("Chart size is propagated", () => {

@@ -2,6 +2,7 @@ import { CellIsRule, Model, Pixel, UID } from "../../../../src";
 import { ChartPanel } from "../../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import {
+  DEFAULT_CHART_BACKGROUND_COLOR,
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
 } from "../../../../src/constants";
@@ -452,6 +453,21 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.baselineDescr?.style.color).toBeSameColorAs("#C8C8C8");
     expect(chartDesign.key?.style.color).toBeSameColorAs("#FFFFFF");
   });
+
+  test.each(["light", "dark"] as const)(
+    "a runtime without background is rendered on white, whatever the %s theme",
+    (colorScheme) => {
+      model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme });
+      createScorecardChart(model, { keyValue: "=A1", title: { text: "title" } }, chartId);
+      const runtime = model.getters.getChartRuntime(chartId) as ScorecardChartRuntime;
+      expect(runtime.background).toBeUndefined();
+
+      const chartDesign = getChartDesign(model, chartId, sheetId);
+      expect(chartDesign.canvas.backgroundColor).toBeSameColorAs(DEFAULT_CHART_BACKGROUND_COLOR);
+      expect(chartDesign.key?.style.color).toBeSameColorAs("#000000");
+      expect(chartDesign.title?.style.color).toBeSameColorAs("#666666");
+    }
+  );
 
   test("Font size stays the same if we put a long key value", () => {
     createScorecardChart(

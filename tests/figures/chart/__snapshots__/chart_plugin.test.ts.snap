@@ -57,7 +57,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
       "onHover": [Function],
       "plugins": {
         "background": {
-          "color": "#FFFFFF",
+          "color": undefined,
         },
         "chartShowValuesPlugin": {
           "background": [Function],
@@ -204,7 +204,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
       "onHover": [Function],
       "plugins": {
         "background": {
-          "color": "#FFFFFF",
+          "color": undefined,
         },
         "chartShowValuesPlugin": undefined,
         "legend": {
@@ -338,7 +338,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
       "onHover": [Function],
       "plugins": {
         "background": {
-          "color": "#FFFFFF",
+          "color": undefined,
         },
         "chartShowValuesPlugin": {
           "background": [Function],
@@ -507,7 +507,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
       "onHover": [Function],
       "plugins": {
         "background": {
-          "color": "#FFFFFF",
+          "color": undefined,
         },
         "chartShowValuesPlugin": undefined,
         "legend": {

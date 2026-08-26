@@ -104,7 +104,7 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
           legend: getBarChartLegend(definition, chartData),
           tooltip: getBarChartTooltip(definition, chartData),
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
-          background: { color: chartData.background },
+          background: { color: definition.background },
         },
         ...eventHandlers,
       },

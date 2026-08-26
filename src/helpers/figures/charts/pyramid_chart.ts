@@ -120,7 +120,7 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
           legend: getPyramidChartLegend(definition, chartData),
           tooltip: getPyramidChartTooltip(definition, chartData),
           chartShowValuesPlugin: getPyramidChartShowValues(definition, chartData),
-          background: { color: chartData.background },
+          background: { color: definition.background },
         },
         ...eventHandlers,
       },

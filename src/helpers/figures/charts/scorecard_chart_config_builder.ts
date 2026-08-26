@@ -2,6 +2,7 @@
 import {
   CHART_PADDING,
   CHART_PADDING_BOTTOM,
+  DEFAULT_CHART_BACKGROUND_COLOR,
   DEFAULT_SCORECARD_BASELINE_FONT_SIZE,
   DEFAULT_SCORECARD_KEY_VALUE_FONT_SIZE,
   SCORECARD_CHART_TITLE_FONT_SIZE,
@@ -13,7 +14,7 @@ import {
 import { Color, Pixel, PixelPosition } from "../../../types/misc";
 import { DOMDimension } from "../../../types/rendering";
 import { getDefaultContextFont } from "../../text_helper";
-import { chartMutedFontColor } from "./chart_common";
+import { chartFontColor, chartMutedFontColor } from "./chart_common";
 
 const BOTTOM_PADDING_RATIO = 0.05;
 
@@ -288,8 +289,12 @@ class ScorecardChartConfigBuilder {
     return this.runtime.baselineArrow;
   }
 
-  private get backgroundColor() {
-    return this.runtime.background;
+  private get backgroundColor(): Color {
+    return this.runtime.background ?? DEFAULT_CHART_BACKGROUND_COLOR;
+  }
+
+  private get fontColor(): Color {
+    return this.runtime.fontColor ?? chartFontColor(this.backgroundColor);
   }
 
   private get secondaryFontColor() {
@@ -335,7 +340,7 @@ class ScorecardChartConfigBuilder {
         color: this.runtime.title.color ?? this.secondaryFontColor,
       },
       keyValue: {
-        color: this.runtime.keyValueStyle?.textColor || this.runtime.fontColor,
+        color: this.runtime.keyValueStyle?.textColor || this.fontColor,
         font: getDefaultContextFont(
           keyValueFontSize,
           this.runtime.keyValueStyle?.bold,
@@ -346,7 +351,7 @@ class ScorecardChartConfigBuilder {
         highlightText: this.runtime.keyHighlight,
       },
       keyDescr: {
-        color: this.runtime.keyValueDescrStyle?.textColor || this.runtime.fontColor,
+        color: this.runtime.keyValueDescrStyle?.textColor || this.fontColor,
         font: getDefaultContextFont(
           keyValueDescrFontSize,
           this.runtime.keyValueDescrStyle?.bold,
