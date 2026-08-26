@@ -13,10 +13,10 @@ import {
 } from "../../types/commands";
 import { Border, CellPosition, Style } from "../../types/misc";
 import { ExcelWorkbookData } from "../../types/workbook_data";
-import { UIPlugin } from "../ui_plugin";
+import { EvaluationPlugin } from "../evaluation_plugin";
 import { doesCommandInvalidatesTableStyle } from "./table_computed_style";
 
-export class CellComputedStylePlugin extends UIPlugin {
+export class CellComputedStylePlugin extends EvaluationPlugin {
   static getters = ["getCellComputedBorder", "getCellComputedStyle"] as const;
 
   private styles: PositionMap<Style> = new PositionMap();
