@@ -22,7 +22,13 @@ import { ModelConfig } from "../../src/types/model";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
 import { setupCollaborativeEnv } from "../collaborative/collaborative_helpers";
-import { copy, createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import {
+  copy,
+  createSheet,
+  evaluateCells,
+  selectCell,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
 import {
   getCellContent,
   getCellRawContent,
@@ -206,6 +212,26 @@ describe("Model", () => {
     ).toBeSuccessfullyDispatched();
     expect(setCellContent(model, "A1", "hey")).toBeSuccessfullyDispatched();
     corePluginRegistry.remove("myCorePlugin");
+  });
+
+  test("Non evaluation command cannot be dispatch in a top level evaluation command", () => {
+    class MyUIPlugin extends UIPlugin {
+      handle(cmd: Command) {
+        if (cmd.type === "EVALUATE_CELLS") {
+          this.dispatch("UPDATE_CELL", {
+            col: 0,
+            row: 0,
+            sheetId: this.getters.getActiveSheetId(),
+            content: "hello",
+          });
+        }
+      }
+    }
+    addTestPlugin(featurePluginRegistry, MyUIPlugin);
+    const model = new Model();
+    expect(() => evaluateCells(model)).toThrow(
+      "A top level evaluation command cannot dispatch non-evaluation commands (UPDATE_CELL)"
+    );
   });
 
   test("Can open a model in readonly mode", () => {
