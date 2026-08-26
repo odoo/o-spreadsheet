@@ -351,8 +351,14 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "DUPLICATE_PIVOT",
 ]);
 
+export const evaluationCommandTypes = new Set<CommandTypes>(["EVALUATE_CELLS", "EVALUATE_CHARTS"]);
+
 export function isCoreCommand(cmd: Command): cmd is CoreCommand {
   return coreTypes.has(cmd.type as any);
+}
+
+export function isEvaluationCommand(cmd: Command): cmd is EvaluationCommand {
+  return evaluationCommandTypes.has(cmd.type as any);
 }
 
 export function canExecuteInReadonly(cmd: Command): boolean {
