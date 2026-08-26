@@ -25,7 +25,6 @@ import {
 import {
   corePluginRegistry,
   evaluationPluginRegistry,
-  evaluationUIPluginRegistry,
   featurePluginRegistry,
   statefulUIPluginRegistry,
 } from "./plugins/plugin_registries";
@@ -299,11 +298,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     }
     if (name in this.getters) {
       throw new Error(`Getter "${name}" is already defined.`);
-    }
-    //FIXME This is a hack to make it work while evaluation process still depends
-    //on UI Getters. It will be removed as soon as possible
-    if (evaluationUIPluginRegistry.getAll().some((Plugin) => plugin instanceof Plugin)) {
-      this.evaluationGetters[name] = plugin[name].bind(plugin);
     }
     this.getters[name] = plugin[name].bind(plugin);
   }
