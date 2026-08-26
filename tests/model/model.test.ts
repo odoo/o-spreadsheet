@@ -16,6 +16,7 @@ import {
   corePluginRegistry,
   evaluationPluginRegistry,
   featurePluginRegistry,
+  statefulUIPluginRegistry,
 } from "../../src/plugins/plugin_registries";
 import { UIPlugin } from "../../src/plugins/ui_plugin";
 import { ModelConfig } from "../../src/types/model";
@@ -231,6 +232,46 @@ describe("Model", () => {
     const model = new Model();
     expect(() => evaluateCells(model)).toThrow(
       "A top level evaluation command cannot dispatch non-evaluation commands (UPDATE_CELL)"
+    );
+  });
+
+  test("Cannot add UI plugin in the wrong registry", () => {
+    class MyUIPlugin extends UIPlugin {}
+    expect(() => addTestPlugin(corePluginRegistry, MyUIPlugin)).toThrow(
+      "Plugin MyUIPlugin does not extend CorePlugin"
+    );
+    expect(() => addTestPlugin(evaluationPluginRegistry, MyUIPlugin)).toThrow(
+      "Plugin MyUIPlugin does not extend EvaluationPlugin"
+    );
+    expect(() => addTestPlugin(featurePluginRegistry, MyUIPlugin)).not.toThrow();
+    expect(() => addTestPlugin(statefulUIPluginRegistry, MyUIPlugin)).not.toThrow();
+  });
+
+  test("Cannot add Evaluation plugin in the wrong registry", () => {
+    class MyEvaluationPlugin extends EvaluationPlugin {}
+    expect(() => addTestPlugin(corePluginRegistry, MyEvaluationPlugin)).toThrow(
+      "Plugin MyEvaluationPlugin does not extend CorePlugin"
+    );
+    expect(() => addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin)).not.toThrow();
+    expect(() => addTestPlugin(featurePluginRegistry, MyEvaluationPlugin)).toThrow(
+      "Plugin MyEvaluationPlugin does not extend UIPlugin"
+    );
+    expect(() => addTestPlugin(statefulUIPluginRegistry, MyEvaluationPlugin)).toThrow(
+      "Plugin MyEvaluationPlugin does not extend UIPlugin"
+    );
+  });
+
+  test("Cannot add Core plugin in the wrong registry", () => {
+    class MyCorePlugin extends CorePlugin {}
+    expect(() => addTestPlugin(corePluginRegistry, MyCorePlugin)).not.toThrow();
+    expect(() => addTestPlugin(evaluationPluginRegistry, MyCorePlugin)).toThrow(
+      "Plugin MyCorePlugin does not extend EvaluationPlugin"
+    );
+    expect(() => addTestPlugin(featurePluginRegistry, MyCorePlugin)).toThrow(
+      "Plugin MyCorePlugin does not extend UIPlugin"
+    );
+    expect(() => addTestPlugin(statefulUIPluginRegistry, MyCorePlugin)).toThrow(
+      "Plugin MyCorePlugin does not extend UIPlugin"
     );
   });
 
