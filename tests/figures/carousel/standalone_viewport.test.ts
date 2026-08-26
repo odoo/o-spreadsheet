@@ -190,6 +190,8 @@ describe("Standalone viewport", () => {
     setGrid(model, { A1: "Hello", A2: "World", A3: "!" });
     await mountViewport("A1:A3", { size: { width: 1000, height: 30 } });
     const viewStore = subEnv.getStore(ViewportsStore);
+    const stores = storeSpy.getStores(ViewportsStore);
+    console.log(viewStore.id, stores[0].id, stores[1].id);
 
     expect(".o-scrollbar").toHaveCount(1);
     expect(viewStore.activeSheetScrollInfo.scrollY).toBe(0);

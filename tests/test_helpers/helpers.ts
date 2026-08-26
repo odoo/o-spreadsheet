@@ -55,6 +55,7 @@ import {
   Zone,
 } from "../../src";
 import { PopoverContainerPlugin } from "../../src/components/popover/popover_container_owl_plugin";
+import { EnvPlugin } from "../../src/components/spreadsheet/env_owl_plugin";
 import { SpreadsheetComponent } from "../../src/components/spreadsheet/spreadsheet_component";
 import { computeFunctionsCache } from "../../src/formulas/compiler";
 import { getItemId } from "../../src/helpers/data_normalization";
@@ -340,6 +341,8 @@ export async function mountComponent<Props extends { [key: string]: any }>(
   const app = new App({
     test: true,
     translateFn: _t,
+    plugins: [EnvPlugin],
+    config: { envProperties: env },
   });
   const root = app.createRoot(component, { props, env });
   const fixture = optionalArgs?.fixture || makeTestFixture();

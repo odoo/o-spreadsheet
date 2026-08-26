@@ -151,8 +151,6 @@ export class Spreadsheet extends SpreadsheetComponent {
       });
     }
 
-    console.log(this.envPlugin.env.isSmall);
-
     const stores = useStoreProvider();
     stores.inject(ModelStore, this.model);
     this.viewStore = useStore(ViewportsStore);

@@ -74,6 +74,7 @@ export class StandaloneViewport extends SpreadsheetComponent {
     ]);
     this.store = useLocalStore(StandaloneViewportStore, this.props.range, this.props.columnWeights);
     this.viewStore = useStore(ViewportsStore);
+    console.log(this.viewStore.id, this.env.getStore(ViewportsStore)?.id);
     this.zoomStore = useStore(ZoomStore);
     this.cellPopoverStore = useStore(CellPopoverStore);
     this.rendererStore = useLocalStore(RendererStore, ["Background", "Chart"]);

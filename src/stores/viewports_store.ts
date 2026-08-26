@@ -33,6 +33,7 @@ type getHeaderDimensionsCallback = (
   index: number
 ) => HeaderDimensions;
 
+let id = 0;
 /**
  * Viewport store.
  *
@@ -70,8 +71,11 @@ export class ViewportsStore extends SpreadsheetStore {
 
   displayedSheetId: UID = this.model.getters.getActiveSheetId();
 
+  id: number;
+
   constructor(get: Get) {
     super(get);
+    this.id = id++;
     this.model.selection.observe(this, {
       handleEvent: this.handleEvent.bind(this),
     });

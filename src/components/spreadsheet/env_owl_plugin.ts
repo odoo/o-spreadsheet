@@ -12,6 +12,12 @@ export function useSpreadsheetEnv(): PluginInstance<typeof EnvPlugin> {
   return envPlugin;
 }
 
+export function useSpreadsheetChildEnv(): PluginInstance<typeof EnvPlugin> {
+  const parentEnv = usePlugin(EnvPlugin);
+  providePlugins([EnvPlugin], { parentEnv });
+  return usePlugin(EnvPlugin);
+}
+
 export class EnvPlugin extends Plugin {
   private parentEnv: EnvPlugin | undefined = useConfig("parentEnv");
   private properties: Partial<SpreadsheetChildEnv> = useConfig("envProperties") || {};

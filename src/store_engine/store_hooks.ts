@@ -1,5 +1,9 @@
 import { onWillUnmount, status } from "@odoo/owl";
-import { useComponent, useEnv, useSubEnv } from "../owl3_compatibility_layer";
+import {
+  useSpreadsheetChildEnv,
+  useSpreadsheetEnv,
+} from "../components/spreadsheet/env_owl_plugin";
+import { useComponent, useEnv } from "../owl3_compatibility_layer";
 import { LocalStoreConstructor, Store, StoreConstructor, StoreParams } from "../types/store_engine";
 import { DependencyContainer } from "./dependency_container";
 
@@ -7,18 +11,18 @@ import { DependencyContainer } from "./dependency_container";
  * This hook should be used at the root of your app to provide the store container.
  */
 export function useStoreProvider() {
-  const env = useEnv();
-  if (env.__spreadsheet_stores__ instanceof DependencyContainer) {
-    return env.__spreadsheet_stores__;
+  const envPlugin = useSpreadsheetEnv();
+  if ((envPlugin.env as any).__spreadsheet_stores__ instanceof DependencyContainer) {
+    return (envPlugin.env as any).__spreadsheet_stores__;
   }
   const container = new DependencyContainer();
-  useSubEnv({
+  envPlugin.registerProperties({
     __spreadsheet_stores__: container,
     getStore: <T extends StoreConstructor>(Store: T) => {
       const store = container.get(Store);
       return proxifyStoreMutation(store, () => container.trigger("store-updated"));
     },
-  });
+  } as any);
   onWillUnmount(() => container.dispose());
   return container;
 }
@@ -28,19 +32,20 @@ export function useStoreProvider() {
  * new container, the other stores will be owned by the parent container.
  */
 export function useChildStoreProvider(extendedStores: StoreConstructor[]) {
-  const env = useEnv();
-  const parentContainer = env.__spreadsheet_stores__;
+  const parentEnv = useSpreadsheetEnv().env;
+  const parentContainer = getDependencyContainer(parentEnv);
   if (!(parentContainer instanceof DependencyContainer)) {
     throw new Error("No parent store provider found.");
   }
+  const subEnv = useSpreadsheetChildEnv();
   const container = new DependencyContainer(parentContainer, extendedStores);
-  useSubEnv({
+  subEnv.registerProperties({
     __spreadsheet_stores__: container,
     getStore: <T extends StoreConstructor>(Store: T) => {
       const store = container.get(Store);
       return proxifyStoreMutation(store, () => container.trigger("store-updated"));
     },
-  });
+  } as any);
   onWillUnmount(() => container.dispose());
   return container;
 }
@@ -51,7 +56,7 @@ type Env = ReturnType<typeof useEnv>;
  * Get the instance of a store.
  */
 export function useStore<T extends StoreConstructor>(Store: T): Store<InstanceType<T>> {
-  const env: Env = useEnv();
+  const env: Env = useSpreadsheetEnv().env;
   const container = getDependencyContainer(env);
   const store = container.get(Store);
   return useStoreRenderProxy(container, store);
@@ -61,7 +66,7 @@ export function useLocalStore<T extends LocalStoreConstructor<any>>(
   Store: T,
   ...args: StoreParams<T> extends never ? [] : StoreParams<T>
 ): Store<InstanceType<T>> {
-  const env = useEnv();
+  const env = useSpreadsheetEnv().env;
   const container = getDependencyContainer(env);
   const store = container.instantiate(Store, ...args);
   onWillUnmount(() => store.dispose());
