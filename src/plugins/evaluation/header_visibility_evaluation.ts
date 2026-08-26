@@ -1,9 +1,9 @@
 import { range } from "../../helpers/misc";
 import { CellPosition, Dimension, HeaderIndex, UID } from "../../types/misc";
 import { ExcelWorkbookData } from "../../types/workbook_data";
-import { UIPlugin } from "../ui_plugin";
+import { EvaluationPlugin } from "../evaluation_plugin";
 
-export class HeaderVisibilityUIPlugin extends UIPlugin {
+export class HeaderVisibilityEvaluationPlugin extends EvaluationPlugin {
   static getters = [
     "getNextVisibleCellPosition",
     "findVisibleHeader",

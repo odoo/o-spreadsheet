@@ -31,6 +31,7 @@ import { FingerprintPlugin } from "./evaluation/fingerprint";
 import { FormulaTrackerPlugin } from "./evaluation/formula_tracker";
 import { GeoLoaderEvaluation } from "./evaluation/geo_loader";
 import { HeaderSizeUIPlugin } from "./evaluation/header_sizes_ui";
+import { HeaderVisibilityEvaluationPlugin } from "./evaluation/header_visibility_evaluation";
 import { PivotPresencePlugin } from "./evaluation/pivot_presence_plugin";
 import { PivotUIPlugin } from "./evaluation/pivot_ui";
 import { EvaluationPluginConstructor } from "./evaluation_plugin";
@@ -55,7 +56,6 @@ import { ClipboardPlugin } from "./ui_stateful/clipboard";
 import { FigureUIPlugin } from "./ui_stateful/figure";
 import { FilterEvaluationPlugin } from "./ui_stateful/filter_evaluation";
 import { HeaderPositionsUIPlugin } from "./ui_stateful/header_positions";
-import { HeaderVisibilityUIPlugin } from "./ui_stateful/header_visibility_ui";
 import { GridSelectionPlugin } from "./ui_stateful/selection";
 import { TableComputedStylePlugin } from "./ui_stateful/table_computed_style";
 
@@ -101,7 +101,6 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
 export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("selection", GridSelectionPlugin)
   .add("evaluation_filter", FilterEvaluationPlugin)
-  .add("header_visibility_ui", HeaderVisibilityUIPlugin)
   .add("cell_computed_style", CellComputedStylePlugin)
   .add("table_computed_style", TableComputedStylePlugin)
   .add("header_positions", HeaderPositionsUIPlugin)
@@ -113,6 +112,7 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
 // Plugins which have a derived state from core data
 export const evaluationPluginRegistry = new Registry<EvaluationPluginConstructor>()
   .add("evaluation", CellEvaluationPlugin)
+  .add("header_visibility_ui", HeaderVisibilityEvaluationPlugin)
   .add("evaluation_chart", EvaluationChartPlugin)
   .add("fingerprints", FingerprintPlugin)
   .add("evaluation_cf", EvaluationConditionalFormatPlugin)
@@ -128,7 +128,6 @@ export const evaluationPluginRegistry = new Registry<EvaluationPluginConstructor
 
 // Plugins which are UI plugins but on which evaluation plugins depend on
 export const evaluationUIPluginRegistry = new Registry<UIPluginConstructor>()
-  .add("header_visibility_ui", HeaderVisibilityUIPlugin)
   .add("filter_evaluation", FilterEvaluationPlugin)
   .add("color_theme", ColorThemeUIPlugin)
   .add("cell_computed_style", CellComputedStylePlugin);
