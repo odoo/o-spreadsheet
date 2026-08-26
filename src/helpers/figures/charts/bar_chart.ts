@@ -1,4 +1,5 @@
 import type { ChartConfiguration } from "chart.js";
+import { DEFAULT_CHART_BACKGROUND_COLOR } from "../../../constants";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { BarChartRuntime } from "../../../types/chart/bar_chart";
 import { CommandResult } from "../../../types/commands";
@@ -76,7 +77,7 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
   getDefinitionForExcel(getters, definition, { dataSets, labelRange }) {
     return {
       ...definition,
-      backgroundColor: toXlsxHexColor(definition.background || "#FFFFFF"),
+      backgroundColor: toXlsxHexColor(definition.background || DEFAULT_CHART_BACKGROUND_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
       labelRange,

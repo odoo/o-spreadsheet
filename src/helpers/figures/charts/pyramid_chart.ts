@@ -1,4 +1,5 @@
 import { ChartConfiguration, ChartDataset } from "chart.js";
+import { DEFAULT_CHART_BACKGROUND_COLOR } from "../../../constants";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { PyramidChartRuntime } from "../../../types/chart/pyramid_chart";
 import { CommandResult } from "../../../types/commands";
@@ -90,8 +91,8 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
     return {
       ...definition,
       horizontal: true,
-      backgroundColor: toXlsxHexColor(chartData.background || "#FFFFFF"),
-      fontColor: toXlsxHexColor(chartFontColor(chartData.background)),
+      backgroundColor: toXlsxHexColor(definition.background || DEFAULT_CHART_BACKGROUND_COLOR),
+      fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
       labelRange,
       verticalAxis: getDefinedAxis(definition),
