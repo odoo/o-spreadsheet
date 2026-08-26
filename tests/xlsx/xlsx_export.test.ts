@@ -1543,6 +1543,27 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
+    test.each(["bar", "line", "pie", "radar", "scatter", "combo", "pyramid"] as const)(
+      "%s chart without background is exported on white, even in dark mode",
+      async (type) => {
+        const model = new Model(chartData, { colorScheme: "dark" });
+        createChart(
+          model,
+          {
+            ...toChartDataSource({
+              dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+              labelRange: "Sheet1!A2:A4",
+            }),
+            type,
+          },
+          "2"
+        );
+        const exportedData = await getExportedExcelData(model);
+        expect(exportedData.sheets[0].charts[0].data.backgroundColor).toBe("FFFFFF");
+        expect(exportedData.sheets[0].charts[0].data.fontColor).toBe("000000");
+      }
+    );
+
     test.each(["bar", "line", "pie", "radar", "scatter", "combo"] as const)(
       "%s chart that aggregate labels is exported as normal chart, ignoring the aggregation",
       async (type) => {
