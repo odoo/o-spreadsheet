@@ -45,6 +45,7 @@ import {
   DispatchResult,
   EvaluationCommandDispatcher,
   isCoreCommand,
+  isEvaluationCommand,
 } from "./types/commands";
 import { CoreGetters, EvaluationGetters, Getters } from "./types/getters";
 import { DEFAULT_LOCALES } from "./types/locale";
@@ -552,6 +553,19 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     }
     switch (status) {
       case Status.Ready:
+        if (isEvaluationCommand(command)) {
+          this.status = Status.RunningEvaluation;
+          const start = performance.now();
+          this.dispatchToHandlers(this.handlers, command);
+          this.finalize();
+          const time = performance.now() - start;
+          if (time > 5) {
+            console.debug(type, time, "ms");
+          }
+          this.status = Status.Ready;
+          this.trigger("update");
+          break;
+        }
         const result = this.checkDispatchAllowed(command);
         if (!result.isSuccessful) {
           this.trigger("update");
@@ -592,6 +606,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           throw new Error(`A UI plugin cannot dispatch ${type} while handling a core command`);
         }
         this.dispatchToHandlers(this.handlers, command);
+        break;
+      case Status.RunningEvaluation:
+        if (!isEvaluationCommand(command)) {
+          throw new Error(
+            `A top level evaluation command cannot dispatch non-evaluation commands (${type})`
+          );
+        }
+        break;
     }
     return DispatchResult.Success;
   };
