@@ -150,7 +150,6 @@ export type EvaluationGetters = {
   PluginGetters<typeof DynamicTablesPlugin> &
   PluginGetters<typeof PivotPresencePlugin> &
   PluginGetters<typeof HeaderVisibilityEvaluationPlugin> &
-  PluginGetters<typeof ColorThemeUIPlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof CellComputedStylePlugin> &
   PluginGetters<typeof SubtotalEvaluationPlugin> &
   PluginGetters<typeof TableComputedStylePlugin> &

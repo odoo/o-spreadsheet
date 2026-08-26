@@ -147,9 +147,3 @@ export const evaluationPluginRegistry = new PluginRegistry<EvaluationPluginConst
   .add("cell_computed_style", CellComputedStylePlugin)
   .add("evaluation_filter", FilterEvaluationPlugin)
   .add("subtotal_evaluation", SubtotalEvaluationPlugin);
-
-// Plugins which are UI plugins but on which evaluation plugins depend on
-export const evaluationUIPluginRegistry = new PluginRegistry<UIPluginConstructor>(UIPlugin).add(
-  "color_theme",
-  ColorThemeUIPlugin
-);
