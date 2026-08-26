@@ -17,7 +17,7 @@ import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { batched } from "../../helpers/misc";
 import { render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
-import { Component, useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
+import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
 import { ModelStore } from "../../stores/model_store";
@@ -30,7 +30,6 @@ import { CommandResult } from "../../types/commands";
 import { InformationNotification } from "../../types/env";
 import { CSSProperties, HeaderGroup, Pixel } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { NotificationStoreMethods } from "../../types/stores/notification_store_methods";
 import { BottomBar } from "../bottom_bar/bottom_bar";
@@ -56,6 +55,8 @@ import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
 import { SpreadsheetPrint } from "../spreadsheet_print/spreadsheet_print";
 import { TopBar } from "../top_bar/top_bar";
 import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
+import { useSpreadsheetEnv } from "./env_owl_plugin";
+import { SpreadsheetComponent } from "./spreadsheet_component";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -68,7 +69,7 @@ import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipbo
 // </svg>
 // `;
 
-export class Spreadsheet extends Component<SpreadsheetChildEnv> {
+export class Spreadsheet extends SpreadsheetComponent {
   static template = "o-spreadsheet-Spreadsheet";
   protected props = useProps({
     model: types.Model(),
@@ -130,15 +131,27 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
     return cssPropertiesToCss(properties);
   }
 
+  envPlugin = useSpreadsheetEnv();
+
   setup() {
-    if (!("isSmall" in this.env)) {
+    // if (!("isSmall" in this.env)) {
+    //   const screenSize = useScreenWidth();
+    //   useSubEnv({
+    //     get isSmall() {
+    //       return screenSize.isSmall;
+    //     },
+    //   } satisfies Partial<SpreadsheetChildEnv>);
+    // }
+    if (!("isSmall" in this.envPlugin.env)) {
       const screenSize = useScreenWidth();
-      useSubEnv({
+      this.envPlugin.registerProperties({
         get isSmall() {
           return screenSize.isSmall;
         },
-      } satisfies Partial<SpreadsheetChildEnv>);
+      });
     }
+
+    console.log(this.envPlugin.env.isSmall);
 
     const stores = useStoreProvider();
     stores.inject(ModelStore, this.model);
@@ -162,7 +175,25 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
     }
     const fileStore = this.model.config.external.fileStore;
 
-    useSubEnv({
+    // useSubEnv({
+    //   model: this.model,
+    //   imageProvider: fileStore ? new ImageProvider(fileStore) : undefined,
+    //   loadCurrencies: this.model.config.external.loadCurrencies,
+    //   loadLocales: this.model.config.external.loadLocales,
+    //   openSidePanel: this.sidePanel.open.bind(this.sidePanel),
+    //   replaceSidePanel: this.sidePanel.replace.bind(this.sidePanel),
+    //   toggleSidePanel: this.sidePanel.toggle.bind(this.sidePanel),
+    //   clipboard: this.env.clipboard || instantiateClipboard(),
+    //   startCellEdition: (content?: string) =>
+    //     this.composerFocusStore.focusActiveComposer({ content }),
+    //   notifyUser: (notification) => this.notificationStore.notifyUser(notification),
+    //   askConfirmation: (text, confirm, cancel) =>
+    //     this.notificationStore.askConfirmation(text, confirm, cancel),
+    //   raiseError: (text, cb) => this.notificationStore.raiseError(text, cb),
+    //   isMobile: isMobileOS,
+    //   printSpreadsheet: () => (this.state.printModeEnabled = true),
+    // } satisfies Partial<SpreadsheetChildEnv>);
+    this.envPlugin.registerProperties({
       model: this.model,
       imageProvider: fileStore ? new ImageProvider(fileStore) : undefined,
       loadCurrencies: this.model.config.external.loadCurrencies,
@@ -179,7 +210,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       raiseError: (text, cb) => this.notificationStore.raiseError(text, cb),
       isMobile: isMobileOS,
       printSpreadsheet: () => (this.state.printModeEnabled = true),
-    } satisfies Partial<SpreadsheetChildEnv>);
+    });
 
     this.notificationStore.updateNotificationCallbacks({ ...this.props });
 
