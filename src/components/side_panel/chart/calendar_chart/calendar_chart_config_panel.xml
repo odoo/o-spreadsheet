@@ -7,7 +7,7 @@
         updateChart="props.updateChart"
         canUpdateChart="props.canUpdateChart"
         onErrorMessagesChanged.bind="onErrorMessagesChanged"
-        getLabelRangeOptions.bind="getLabelRangeOptions"
+        getLabelRangeOptions="() => []"
         labelRangeTitle.translate="Date range"
       />
 

@@ -61,6 +61,7 @@ describe("Calendar chart side panel", () => {
       expect(".o-data-labels input").toHaveValue("A1:A3");
       expect(".o-horizontal-group-by").toHaveText("Day of Week");
       expect(".o-vertical-group-by").toHaveText("Month");
+      expect('input[name="aggregated"]').toHaveCount(0);
     });
 
     test("Only one data range is enabled", async () => {
