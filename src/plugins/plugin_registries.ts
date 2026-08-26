@@ -36,6 +36,7 @@ import { HeaderSizeUIPlugin } from "./evaluation/header_sizes_ui";
 import { HeaderVisibilityEvaluationPlugin } from "./evaluation/header_visibility_evaluation";
 import { PivotPresencePlugin } from "./evaluation/pivot_presence_plugin";
 import { PivotUIPlugin } from "./evaluation/pivot_ui";
+import { SubtotalEvaluationPlugin } from "./evaluation/subtotal_evaluation";
 import { TableComputedStylePlugin } from "./evaluation/table_computed_style";
 import { EvaluationPlugin, EvaluationPluginConstructor } from "./evaluation_plugin";
 import { ChartUIPlugin } from "./ui_feature/chart_ui";
@@ -48,7 +49,6 @@ import { InsertPivotPlugin } from "./ui_feature/insert_pivot";
 import { HistoryPlugin } from "./ui_feature/local_history";
 import { LockSheetPlugin } from "./ui_feature/lock_sheet";
 import { SortPlugin } from "./ui_feature/sort";
-import { SubtotalEvaluationPlugin } from "./ui_feature/subtotal_evaluation";
 import { UIOptionsPlugin } from "./ui_feature/ui_options";
 import { SheetUIPlugin } from "./ui_feature/ui_sheet";
 import { UIPlugin, UIPluginConstructor } from "./ui_plugin";
@@ -108,7 +108,6 @@ export const featurePluginRegistry = new PluginRegistry<UIPluginConstructor>(UIP
   .add("sort", SortPlugin)
   .add("format", FormatPlugin)
   .add("insert_pivot", InsertPivotPlugin)
-  .add("subtotal_evaluation", SubtotalEvaluationPlugin)
   .add("collaborative", CollaborativePlugin)
   .add("history", HistoryPlugin)
   .add("datavalidation_insert", DataValidationInsertionPlugin)
@@ -146,7 +145,8 @@ export const evaluationPluginRegistry = new PluginRegistry<EvaluationPluginConst
   .add("formula_tracker", FormulaTrackerPlugin)
   .add("table_computed_style", TableComputedStylePlugin)
   .add("cell_computed_style", CellComputedStylePlugin)
-  .add("evaluation_filter", FilterEvaluationPlugin);
+  .add("evaluation_filter", FilterEvaluationPlugin)
+  .add("subtotal_evaluation", SubtotalEvaluationPlugin);
 
 // Plugins which are UI plugins but on which evaluation plugins depend on
 export const evaluationUIPluginRegistry = new PluginRegistry<UIPluginConstructor>(UIPlugin).add(
