@@ -30,6 +30,7 @@ import { FingerprintPlugin } from "../plugins/evaluation/fingerprint";
 import { FormulaTrackerPlugin } from "../plugins/evaluation/formula_tracker";
 import { GeoLoaderEvaluation } from "../plugins/evaluation/geo_loader";
 import { HeaderSizeUIPlugin } from "../plugins/evaluation/header_sizes_ui";
+import { HeaderVisibilityEvaluationPlugin } from "../plugins/evaluation/header_visibility_evaluation";
 import { PivotPresencePlugin } from "../plugins/evaluation/pivot_presence_plugin";
 import { PivotUIPlugin } from "../plugins/evaluation/pivot_ui";
 import { ChartUIPlugin } from "../plugins/ui_feature/chart_ui";
@@ -49,7 +50,6 @@ import { ClipboardPlugin } from "../plugins/ui_stateful/clipboard";
 import { FigureUIPlugin } from "../plugins/ui_stateful/figure";
 import { FilterEvaluationPlugin } from "../plugins/ui_stateful/filter_evaluation";
 import { HeaderPositionsUIPlugin } from "../plugins/ui_stateful/header_positions";
-import { HeaderVisibilityUIPlugin } from "../plugins/ui_stateful/header_visibility_ui";
 import { GridSelectionPlugin } from "../plugins/ui_stateful/selection";
 import { TableComputedStylePlugin } from "../plugins/ui_stateful/table_computed_style";
 // -----------------------------------------------------------------------------
@@ -149,7 +149,7 @@ export type EvaluationGetters = {
   PluginGetters<typeof PivotUIPlugin> &
   PluginGetters<typeof DynamicTablesPlugin> &
   PluginGetters<typeof PivotPresencePlugin> &
-  PluginGetters<typeof HeaderVisibilityUIPlugin> & //FIXME should not contains getters from ui
+  PluginGetters<typeof HeaderVisibilityEvaluationPlugin> &
   PluginGetters<typeof ColorThemeUIPlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof CellComputedStylePlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof GeoLoaderEvaluation> &
@@ -166,7 +166,6 @@ export type RenderingGetters = {
   EvaluationGetters &
   PluginGetters<typeof HistoryPlugin> &
   PluginGetters<typeof ClipboardPlugin> &
-  PluginGetters<typeof HeaderVisibilityUIPlugin> &
   PluginGetters<typeof CollaborativePlugin> &
   PluginGetters<typeof SortPlugin> &
   PluginGetters<typeof UIOptionsPlugin> &
