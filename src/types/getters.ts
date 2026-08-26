@@ -35,6 +35,7 @@ import { HeaderSizeUIPlugin } from "../plugins/evaluation/header_sizes_ui";
 import { HeaderVisibilityEvaluationPlugin } from "../plugins/evaluation/header_visibility_evaluation";
 import { PivotPresencePlugin } from "../plugins/evaluation/pivot_presence_plugin";
 import { PivotUIPlugin } from "../plugins/evaluation/pivot_ui";
+import { SubtotalEvaluationPlugin } from "../plugins/evaluation/subtotal_evaluation";
 import { TableComputedStylePlugin } from "../plugins/evaluation/table_computed_style";
 import { ChartUIPlugin } from "../plugins/ui_feature/chart_ui";
 import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
@@ -43,7 +44,6 @@ import { GeoFeaturePlugin } from "../plugins/ui_feature/geo_features";
 import { HistoryPlugin } from "../plugins/ui_feature/local_history";
 import { LockSheetPlugin } from "../plugins/ui_feature/lock_sheet";
 import { SortPlugin } from "../plugins/ui_feature/sort";
-import { SubtotalEvaluationPlugin } from "../plugins/ui_feature/subtotal_evaluation";
 import { UIOptionsPlugin } from "../plugins/ui_feature/ui_options";
 import { SheetUIPlugin } from "../plugins/ui_feature/ui_sheet";
 import { CarouselUIPlugin } from "../plugins/ui_stateful/carousel_ui";
@@ -152,6 +152,7 @@ export type EvaluationGetters = {
   PluginGetters<typeof HeaderVisibilityEvaluationPlugin> &
   PluginGetters<typeof ColorThemeUIPlugin> & //FIXME should not contains getters from ui
   PluginGetters<typeof CellComputedStylePlugin> &
+  PluginGetters<typeof SubtotalEvaluationPlugin> &
   PluginGetters<typeof TableComputedStylePlugin> &
   PluginGetters<typeof GeoLoaderEvaluation> &
   PluginGetters<typeof DynamicTranslate> &
@@ -171,7 +172,6 @@ export type RenderingGetters = {
   PluginGetters<typeof SortPlugin> &
   PluginGetters<typeof UIOptionsPlugin> &
   PluginGetters<typeof SheetUIPlugin> &
-  PluginGetters<typeof SubtotalEvaluationPlugin> &
   PluginGetters<typeof HeaderPositionsUIPlugin> &
   PluginGetters<typeof PivotUIPlugin> &
   PluginGetters<typeof CellIconPlugin> &
