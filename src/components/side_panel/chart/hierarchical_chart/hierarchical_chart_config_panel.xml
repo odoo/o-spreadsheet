@@ -7,7 +7,7 @@
         updateChart="this.props.updateChart"
         canUpdateChart="this.props.canUpdateChart"
         onErrorMessagesChanged.bind="this.onErrorMessagesChanged"
-        getLabelRangeOptions.bind="this.getLabelRangeOptions"
+        getLabelRangeOptions="() => []"
         dataSeriesTitle.translate="Hierarchy"
         labelRangeTitle.translate="Values"
       />
