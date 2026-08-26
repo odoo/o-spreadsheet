@@ -6,7 +6,10 @@ import {
   DRAG_THRESHOLD,
 } from "../../constants";
 import { SpreadsheetChart } from "../../helpers/figures/chart";
-import { drawChartOnCanvas } from "../../helpers/figures/charts/chart_ui_common";
+import {
+  drawChartOnCanvas,
+  withChartBackground,
+} from "../../helpers/figures/charts/chart_ui_common";
 import { UuidGenerator } from "../../helpers/uuid";
 import { ChartDragStore } from "../../stores/chart_drag_store";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -147,7 +150,18 @@ export function startChartDragAndDrop(
         getters,
         "newChart"
       );
-      destroyChart = drawChartOnCanvas(canvas, runtime, { width, height }, definition.type, zoom);
+      // the preview container is `os-theme-dependant`, it needs the theme background
+      const themedRuntime = withChartBackground(
+        runtime,
+        getters.getSpreadsheetTheme().backgroundColor
+      );
+      destroyChart = drawChartOnCanvas(
+        canvas,
+        themedRuntime,
+        { width, height },
+        definition.type,
+        zoom
+      );
     }
 
     container.style.left = `${Math.max(gridPosition.x, (e.clientX - halfWidth) / zoom)}px`;

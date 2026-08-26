@@ -4,6 +4,7 @@ import { ChartRuntime, ChartType } from "../../../types/chart/chart";
 import { GaugeChartRuntime } from "../../../types/chart/gauge_chart";
 import { ScorecardChartRuntime } from "../../../types/chart/scorecard_chart";
 import { Figure } from "../../../types/figure";
+import { Color } from "../../../types/misc";
 import { DOMDimension } from "../../../types/rendering";
 import { deepCopy } from "../../misc";
 import {
@@ -30,6 +31,42 @@ export const CHART_COMMON_OPTIONS = {
   animation: false,
   events: ["mousemove", "mouseout", "click", "touchstart", "touchmove", "mouseup"],
 } satisfies ChartOptions;
+
+/**
+ * The background the runtime carries, `undefined` when the chart definition defines none.
+ */
+export function getChartRuntimeBackground(runtime: ChartRuntime): Color | undefined {
+  return "chartJsConfig" in runtime
+    ? runtime.chartJsConfig.options?.plugins?.background?.color
+    : runtime.background;
+}
+
+/**
+ * Copy the runtime and substitute `background` for the background it doesn't define. Painting a
+ * background is a rendering concern: on screen the caller passes the current spreadsheet theme,
+ * theme-less surfaces (image and xlsx exports, print) fall back to DEFAULT_CHART_BACKGROUND_COLOR
+ * down in the rendering helpers.
+ *
+ * Note: chartJS modifies the config in place, so a copy is needed anyway.
+ */
+export function withChartBackground<T extends ChartRuntime>(runtime: T, background: Color): T {
+  if (!("chartJsConfig" in runtime)) {
+    return { ...runtime, background: runtime.background || background };
+  }
+  const copy = deepCopy(runtime);
+  // the master chart config of zoomable charts is added on the runtime after its creation
+  const masterChartConfig = (copy as { masterChartConfig?: ChartConfiguration<any> })
+    .masterChartConfig;
+  for (const config of [copy.chartJsConfig as ChartConfiguration<any>, masterChartConfig]) {
+    if (!config) {
+      continue;
+    }
+    const options = (config.options ||= {});
+    const plugins = (options.plugins ||= {});
+    plugins.background = { color: plugins.background?.color || background };
+  }
+  return copy;
+}
 
 /**
  * Sample down a Chart.js configuration's data points to at most `maxPoints`, evenly spaced.

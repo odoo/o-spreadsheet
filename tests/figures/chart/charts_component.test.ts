@@ -3214,6 +3214,33 @@ describe("charts with multiple sheets", () => {
   });
 });
 
+describe("chart is drawn on the spreadsheet theme background", () => {
+  test.each(["light", "dark"] as const)(
+    "a chart without background is drawn on the %s theme background",
+    async (colorScheme) => {
+      mockChartData = mockChart();
+      model = new Model();
+      createChart(model, { ...TEST_CHART_DATA.basicChart, background: undefined }, chartId);
+      model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme });
+      await mountSpreadsheet();
+
+      expect(mockChartData.options?.plugins?.background?.color).toBe(
+        COLOR_THEMES[colorScheme].backgroundColor
+      );
+    }
+  );
+
+  test("an explicit background wins over the theme", async () => {
+    mockChartData = mockChart();
+    model = new Model();
+    createChart(model, { ...TEST_CHART_DATA.basicChart, background: "#FF0000" }, chartId);
+    model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "dark" });
+    await mountSpreadsheet();
+
+    expect(mockChartData.options?.plugins?.background?.color).toBe("#FF0000");
+  });
+});
+
 describe("Default background on runtime tests", () => {
   beforeEach(() => {
     model = new Model();

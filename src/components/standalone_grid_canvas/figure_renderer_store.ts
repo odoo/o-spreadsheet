@@ -1,7 +1,10 @@
 import { DEFAULT_CAROUSEL_TITLE_STYLE, GRAY_400 } from "../../constants";
 import { getCarouselLayout } from "../../helpers/carousel_helpers";
-import { drawChartOnCanvas } from "../../helpers/figures/charts/chart_ui_common";
-import { chartStyleToCellStyle, deepCopy } from "../../helpers/misc";
+import {
+  drawChartOnCanvas,
+  withChartBackground,
+} from "../../helpers/figures/charts/chart_ui_common";
+import { chartStyleToCellStyle } from "../../helpers/misc";
 import { computeTextFont } from "../../helpers/text_helper";
 import { DisposableStore } from "../../store_engine/store";
 import { ModelStore } from "../../stores/model_store";
@@ -75,7 +78,8 @@ export class FigureRendererStore extends DisposableStore {
     if (!chart) {
       return;
     }
-    const runtime = deepCopy(this.getters.getChartRuntime(chartId));
+    const themeBackground = this.getters.getSpreadsheetTheme().backgroundColor;
+    const runtime = withChartBackground(this.getters.getChartRuntime(chartId), themeBackground);
     if ("chartJsConfig" in runtime && runtime.chartJsConfig.options) {
       runtime.chartJsConfig.options.devicePixelRatio = renderingCtx.dpr;
       runtime.chartJsConfig.options.responsive = false; // otherwise the canvas will be resized based on the DPR

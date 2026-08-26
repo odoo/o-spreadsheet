@@ -2,7 +2,10 @@ import { onMounted, onWillUnmount, signal, useProps } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { SpreadsheetChart } from "../../../helpers/figures/chart";
 import { registerChartJSExtensions } from "../../../helpers/figures/charts/chart_js_extension";
-import { limitChartConfigDataPoints } from "../../../helpers/figures/charts/chart_ui_common";
+import {
+  limitChartConfigDataPoints,
+  withChartBackground,
+} from "../../../helpers/figures/charts/chart_ui_common";
 import { drawGaugeChart } from "../../../helpers/figures/charts/gauge_chart_rendering";
 import { drawScoreChart } from "../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../helpers/figures/charts/scorecard_chart_config_builder";
@@ -41,7 +44,11 @@ export class ChartSuggestionPreview extends Component<SpreadsheetChildEnv> {
     const getters = this.env.model.getters;
     const activeSheetId = getters.getActiveSheetId();
     const chart = SpreadsheetChart.fromStrDefinition(getters, activeSheetId, this.props.definition);
-    const runtime = chart.getRuntime(getters, "myChart");
+    // the preview wrapper is `os-theme-dependant`, it needs the theme background
+    const runtime = withChartBackground(
+      chart.getRuntime(getters, "myChart"),
+      getters.getSpreadsheetTheme().backgroundColor
+    );
     if (!("chartJsConfig" in runtime)) {
       return null;
     }
@@ -146,7 +153,10 @@ export class ChartSuggestionPreview extends Component<SpreadsheetChildEnv> {
       getters.getActiveSheetId(),
       this.props.definition
     );
-    let runtime = chart.getRuntime(getters, "myChart");
+    let runtime = withChartBackground(
+      chart.getRuntime(getters, "myChart"),
+      getters.getSpreadsheetTheme().backgroundColor
+    );
     const { type } = this.props.definition;
     if (type === "scorecard") {
       const rect = canvas.getBoundingClientRect();
