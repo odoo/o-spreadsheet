@@ -27,6 +27,7 @@ import { DynamicTranslate } from "../plugins/evaluation/dynamic_translate";
 import { EvaluationChartPlugin } from "../plugins/evaluation/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "../plugins/evaluation/evaluation_conditional_format";
 import { EvaluationDataValidationPlugin } from "../plugins/evaluation/evaluation_data_validation";
+import { FilterEvaluationPlugin } from "../plugins/evaluation/filter_evaluation";
 import { FingerprintPlugin } from "../plugins/evaluation/fingerprint";
 import { FormulaTrackerPlugin } from "../plugins/evaluation/formula_tracker";
 import { GeoLoaderEvaluation } from "../plugins/evaluation/geo_loader";
@@ -49,7 +50,6 @@ import { CarouselUIPlugin } from "../plugins/ui_stateful/carousel_ui";
 import { CellIconPlugin } from "../plugins/ui_stateful/cell_icon_plugin";
 import { ClipboardPlugin } from "../plugins/ui_stateful/clipboard";
 import { FigureUIPlugin } from "../plugins/ui_stateful/figure";
-import { FilterEvaluationPlugin } from "../plugins/ui_stateful/filter_evaluation";
 import { HeaderPositionsUIPlugin } from "../plugins/ui_stateful/header_positions";
 import { GridSelectionPlugin } from "../plugins/ui_stateful/selection";
 // -----------------------------------------------------------------------------
