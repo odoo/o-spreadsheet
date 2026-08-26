@@ -1,4 +1,12 @@
-import { onMounted, onWillUnmount, signal, Signal, useListener, useProps } from "@odoo/owl";
+import {
+  onMounted,
+  onWillUnmount,
+  signal,
+  Signal,
+  useListener,
+  useProps,
+  useScope,
+} from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { positionToZone } from "../../helpers/zones";
@@ -165,6 +173,8 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
     gridOverlayDimensions: types.string(),
     hasFooter: types.boolean().optional(() => true),
   });
+
+  scope = useScope();
   private gridOverlayRef = signal.ref();
   private cellPopovers!: Store<CellPopoverStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
@@ -212,7 +222,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
     if (this.env.isMobile()) {
       return;
     }
-    const icon = this.getInteractiveIconAtEvent(withZoom(this.env, ev));
+    const icon = this.getInteractiveIconAtEvent(this.scope.run(() => withZoom(this.env, ev)));
     const hoveredIcon = icon?.type ? { id: icon.type, position: icon.position } : undefined;
     if (!deepEquals(hoveredIcon, this.hoveredIconStore.hoveredIcon)) {
       this.hoveredIconStore.setHoveredIcon(hoveredIcon);
@@ -224,7 +234,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
       // not main button, probably a context menu
       return;
     }
-    this.onCellClicked(withZoom(this.env, ev));
+    this.onCellClicked(this.scope.run(() => withZoom(this.env, ev)));
   }
 
   onClick(ev: MouseEvent) {
@@ -232,7 +242,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
       // not main button, probably a context menu
       return;
     }
-    this.onCellClicked(withZoom(this.env, ev));
+    this.onCellClicked(this.scope.run(() => withZoom(this.env, ev)));
   }
 
   onCellClicked(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent | PointerEvent>) {
@@ -252,8 +262,9 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
       zoomedMouseEvent
     );
 
-    if (clickedIcon?.onClick) {
-      clickedIcon.onClick(clickedIcon.position, this.env);
+    const onClickIcon = clickedIcon?.onClick;
+    if (onClickIcon) {
+      this.scope.run(() => onClickIcon(clickedIcon.position, this.env));
     }
 
     if (
@@ -268,7 +279,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
   }
 
   onDoubleClick(ev: MouseEvent) {
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = this.scope.run(() => withZoom(this.env, ev));
     if (this.getInteractiveIconAtEvent(zoomedMouseEvent)) {
       return;
     }
@@ -278,7 +289,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
   }
 
   onContextMenu(ev: MouseEvent) {
-    const [col, row] = this.getCartesianCoordinates(withZoom(this.env, ev));
+    const [col, row] = this.getCartesianCoordinates(this.scope.run(() => withZoom(this.env, ev)));
     this.props.onCellRightClicked(col, row, { x: ev.clientX, y: ev.clientY });
   }
 

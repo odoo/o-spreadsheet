@@ -1,4 +1,4 @@
-import { onWillUpdateProps, proxy, signal, useEffect, useProps } from "@odoo/owl";
+import { onWillUpdateProps, proxy, signal, useEffect, useProps, useScope } from "@odoo/owl";
 import { deepEquals } from "../../../helpers/misc";
 import { getComputedTableStyle } from "../../../helpers/table_helpers";
 import { Component } from "../../../owl3_compatibility_layer";
@@ -22,6 +22,8 @@ export class TableStylePreview extends Component<SpreadsheetChildEnv> {
     selected: types.boolean().optional(),
     onClick: types.function().optional(),
   });
+
+  scope = useScope();
 
   private canvasRef = signal.ref(HTMLCanvasElement);
   menu: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
@@ -85,10 +87,13 @@ export class TableStylePreview extends Component<SpreadsheetChildEnv> {
   }
 
   onContextMenu(event: MouseEvent) {
-    if (!this.props.styleId) {
+    const styleId = this.props.styleId;
+    if (!styleId) {
       return;
     }
-    this.menu.menuItems = createTableStyleContextMenuActions(this.env, this.props.styleId);
+    this.menu.menuItems = this.scope.run(() =>
+      createTableStyleContextMenuActions(this.env, styleId)
+    );
     this.menu.isOpen = true;
     this.menu.anchorRect = { x: event.clientX, y: event.clientY, width: 0, height: 0 };
   }

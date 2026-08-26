@@ -1,4 +1,4 @@
-import { proxy, useProps, xml } from "@odoo/owl";
+import { proxy, useProps, useScope, xml } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
@@ -30,6 +30,8 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
     position: types.DOMCoordinates(),
     isVisible: types.boolean(),
   });
+
+  scope = useScope();
   state: State = proxy({
     position: { x: 0, y: 0 },
     handler: false,
@@ -80,7 +82,7 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
 
   onMouseDown(ev: PointerEvent) {
     this.state.handler = true;
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = this.scope.run(() => withZoom(this.env, ev));
     const zoom = this.zoomStore.zoomLevel;
     let lastCol: HeaderIndex | undefined;
     let lastRow: HeaderIndex | undefined;

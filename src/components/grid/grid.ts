@@ -1,4 +1,12 @@
-import { onMounted, providePlugins, proxy, signal, useListener, useProps } from "@odoo/owl";
+import {
+  onMounted,
+  providePlugins,
+  proxy,
+  signal,
+  useListener,
+  useProps,
+  useScope,
+} from "@odoo/owl";
 import { insertSheet, insertTable } from "../../actions/insert_actions";
 import {
   CREATE_IMAGE,
@@ -142,6 +150,8 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     exposeFocus: types.function<(focus: () => void) => void>(),
     getGridSize: types.function<() => DOMDimension>(),
   });
+
+  scope = useScope();
 
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly HEADER_WIDTH = HEADER_WIDTH;
@@ -307,7 +317,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
         target: this.env.model.getters.getSelectedZones(),
         style: { underline: !this.env.model.getters.getCurrentStyle().underline },
       }),
-    "Ctrl+O": () => CREATE_IMAGE(this.env),
+    "Ctrl+O": () => this.scope.run(() => CREATE_IMAGE(this.env)),
     "Alt+=": () => {
       const sheetId = this.env.model.getters.getActiveSheetId();
 
@@ -327,8 +337,9 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     },
     "Alt+Enter": () => {
       const cell = this.env.model.getters.getActiveCell();
-      if (cell.link) {
-        openLink(cell.link, this.env);
+      const link = cell.link;
+      if (link) {
+        this.scope.run(() => openLink(link, this.env));
       }
     },
     "Ctrl+Home": () => {
@@ -377,20 +388,20 @@ export class Grid extends Component<SpreadsheetChildEnv> {
       this.env.model.selection.selectZone({ cell: position, zone: newZone });
     },
     "Ctrl+D": () => {
-      handleCopyPasteResult(this.env, { type: "COPY_PASTE_CELLS_ABOVE" });
+      this.scope.run(() => handleCopyPasteResult(this.env, { type: "COPY_PASTE_CELLS_ABOVE" }));
     },
     "Ctrl+R": () => {
-      handleCopyPasteResult(this.env, { type: "COPY_PASTE_CELLS_ON_LEFT" });
+      this.scope.run(() => handleCopyPasteResult(this.env, { type: "COPY_PASTE_CELLS_ON_LEFT" }));
     },
     "Ctrl+Enter": () => {
-      handleCopyPasteResult(this.env, { type: "COPY_PASTE_CELLS_ON_ZONE" });
+      this.scope.run(() => handleCopyPasteResult(this.env, { type: "COPY_PASTE_CELLS_ON_ZONE" }));
     },
     "Ctrl+H": () => this.sidePanel.open("FindAndReplace", {}),
     "Ctrl+F": () => this.sidePanel.open("FindAndReplace", {}),
     "Ctrl+Shift+E": () => this.setHorizontalAlign("center"),
     "Ctrl+Shift+L": () => this.setHorizontalAlign("left"),
     "Ctrl+Shift+R": () => this.setHorizontalAlign("right"),
-    "Ctrl+Shift+V": () => PASTE_AS_VALUE_ACTION(this.env),
+    "Ctrl+Shift+V": () => this.scope.run(() => PASTE_AS_VALUE_ACTION(this.env)),
     "Ctrl+Shift+<": () => this.clearFormatting(), // for qwerty
     "Ctrl+<": () => this.clearFormatting(), // for azerty
     "Ctrl+Shift+ ": () => {
@@ -403,9 +414,9 @@ export class Grid extends Component<SpreadsheetChildEnv> {
       const areFullCols = activeCols.size > 0 && isSingleSelection;
       const areFullRows = activeRows.size > 0 && isSingleSelection;
       if (areFullCols && !areFullRows) {
-        INSERT_COLUMNS_BEFORE_ACTION(this.env);
+        this.scope.run(() => INSERT_COLUMNS_BEFORE_ACTION(this.env));
       } else if (areFullRows && !areFullCols) {
-        INSERT_ROWS_BEFORE_ACTION(this.env);
+        this.scope.run(() => INSERT_ROWS_BEFORE_ACTION(this.env));
       }
     },
     "Ctrl+Alt+-": () => {
@@ -434,16 +445,16 @@ export class Grid extends Component<SpreadsheetChildEnv> {
       this.env.model.dispatch("ACTIVATE_PREVIOUS_SHEET");
     },
     "Shift+F11": () => {
-      insertSheet.execute?.(this.env);
+      this.scope.run(() => insertSheet.execute?.(this.env));
     },
     "Alt+T": () => {
-      insertTable.execute?.(this.env);
+      this.scope.run(() => insertTable.execute?.(this.env));
     },
     PageDown: () => this.viewStore.shiftViewportDown(),
     PageUp: () => this.viewStore.shiftViewportUp(),
     "Ctrl+Shift+K": () => {
       this.closeMenu();
-      INSERT_LINK(this.env);
+      this.scope.run(() => INSERT_LINK(this.env));
     },
     "Alt+Shift+ArrowRight": () => this.processHeaderGroupingKey("right"),
     "Alt+Shift+ArrowLeft": () => this.processHeaderGroupingKey("left"),
@@ -740,7 +751,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
       return;
     }
     if (cut) {
-      interactiveCut(this.env);
+      this.scope.run(() => interactiveCut(this.env));
     } else {
       this.env.model.dispatch("COPY");
     }
@@ -782,10 +793,10 @@ export class Grid extends Component<SpreadsheetChildEnv> {
       osClipboard.content[ClipboardMIMEType.Html]
     );
     if (clipboardId === htmlClipboardId) {
-      interactivePaste(this.env, target);
+      this.scope.run(() => interactivePaste(this.env, target));
     } else {
       const osClipboardContent = parseOSClipboardContent(osClipboard.content);
-      await interactivePasteFromOS(this.env, target, osClipboardContent);
+      await this.scope.run(() => interactivePasteFromOS(this.env, target, osClipboardContent));
     }
     if (isCutOperation) {
       await this.env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
@@ -900,7 +911,10 @@ export class Grid extends Component<SpreadsheetChildEnv> {
         break;
       }
       case "left": {
-        if (!canUngroupHeaders(this.env, "COL") && !canUngroupHeaders(this.env, "ROW")) {
+        if (
+          !this.scope.run(() => canUngroupHeaders(this.env, "COL")) &&
+          !this.scope.run(() => canUngroupHeaders(this.env, "ROW"))
+        ) {
           return;
         }
         const { x, y, width } = this.viewStore.viewports.getVisibleRectWithZoom(sheetId, zone);

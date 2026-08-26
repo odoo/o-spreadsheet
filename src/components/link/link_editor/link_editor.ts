@@ -1,4 +1,4 @@
-import { onMounted, proxy, signal, useProps } from "@odoo/owl";
+import { onMounted, proxy, signal, useProps, useScope } from "@odoo/owl";
 import { urlRegistry, urlRepresentation } from "../../../helpers/links";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { markdownLink } from "../../../helpers/misc";
@@ -39,6 +39,8 @@ export class LinkEditor extends Component<SpreadsheetChildEnv> {
   });
   static size = { maxHeight: 500 };
 
+  scope = useScope();
+
   urlInput = signal.ref(HTMLInputElement);
   suggestionListRef = signal.ref();
   urlInputContainer = signal.ref();
@@ -65,7 +67,7 @@ export class LinkEditor extends Component<SpreadsheetChildEnv> {
     const inputVal = this.state.url;
     for (const category of urlRegistry.getKeys()) {
       const spec = urlRegistry.get(category);
-      const linkProposals = spec.getLinkProposals?.(this.env) || [];
+      const linkProposals = this.scope.run(() => spec.getLinkProposals?.(this.env)) || [];
       const links =
         inputVal && this.state.isUrlEditable
           ? fuzzyLookup(inputVal, linkProposals, (link) =>

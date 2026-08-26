@@ -39,7 +39,7 @@
               />
               <t
                 t-set="description"
-                t-value="menuItem.description(this.env) or this.getShortcut(menuItem)"
+                t-value="this.getDescription(menuItem) or this.getShortcut(menuItem)"
               />
               <div
                 t-if="description"

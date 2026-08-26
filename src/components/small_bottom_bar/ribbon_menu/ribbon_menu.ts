@@ -1,4 +1,4 @@
-import { onMounted, proxy, signal, useListener, useProps } from "@odoo/owl";
+import { onMounted, proxy, signal, useListener, useProps, useScope } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators } from "../../../actions/action";
 import { Component } from "../../../owl3_compatibility_layer";
 import { topbarMenuRegistry } from "../../../registries/menus/topbar_menu_registry";
@@ -24,6 +24,8 @@ export class RibbonMenu extends Component<SpreadsheetChildEnv> {
     onClose: types.function(),
   });
 
+  scope = useScope();
+
   rootItems = topbarMenuRegistry.getMenuItems();
   private menuRef = signal.ref();
   private containerRef = signal.ref();
@@ -46,24 +48,24 @@ export class RibbonMenu extends Component<SpreadsheetChildEnv> {
   }
 
   onClickMenu(menu: Action) {
-    const children = menu.children(this.env);
+    const children = this.scope.run(() => menu.children(this.env));
     if (children.length) {
       this.state.parentState = { ...this.state };
       this.state.menuItems = children;
-      this.state.title = menu.name(this.env);
+      this.state.title = this.scope.run(() => menu.name(this.env));
       this.containerRef()?.scrollTo({ top: 0 });
     } else {
       this.state.menuItems = this.rootItems;
       this.state.title = undefined;
       this.state.parentState = undefined;
-      menu.execute?.(this.env);
+      this.scope.run(() => menu.execute?.(this.env));
       this.props.onClose();
     }
   }
 
   get menuProps(): PropsOf<Menu> {
     return {
-      menuItems: getMenuItemsAndSeparators(this.env, this.state.menuItems),
+      menuItems: this.scope.run(() => getMenuItemsAndSeparators(this.env, this.state.menuItems)),
       onClose: this.props.onClose,
       onClickMenu: this.onClickMenu.bind(this),
     };

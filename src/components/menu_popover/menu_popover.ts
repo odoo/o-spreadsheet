@@ -1,4 +1,12 @@
-import { onWillUnmount, onWillUpdateProps, proxy, signal, useListener, useProps } from "@odoo/owl";
+import {
+  onWillUnmount,
+  onWillUpdateProps,
+  proxy,
+  signal,
+  useListener,
+  useProps,
+  useScope,
+} from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators, isMenuItemEnabled } from "../../actions/action";
 import { DESKTOP_MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../constants";
 import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
@@ -62,6 +70,8 @@ export class MenuPopover extends Component<SpreadsheetChildEnv> {
     disableKeyboardNavigation: types.boolean().optional(),
     onKeyboardNavigation: types.function<(ev: KeyboardEvent) => void>().optional(),
   });
+
+  scope = useScope();
   private subMenu: MenuState = proxy({
     isOpen: false,
     anchorRect: null,
@@ -97,7 +107,7 @@ export class MenuPopover extends Component<SpreadsheetChildEnv> {
       }
     });
     onWillUnmount(() => {
-      this.state.hoveredMenu?.onStopHover?.(this.env);
+      this.scope.run(() => this.state.hoveredMenu?.onStopHover?.(this.env));
       if (this.menuRef()?.contains(document.activeElement)) {
         domFocusableElementStore.focus();
       }
@@ -152,10 +162,10 @@ export class MenuPopover extends Component<SpreadsheetChildEnv> {
   }
 
   getIconName(menu: Action) {
-    if (menu.icon(this.env)) {
-      return menu.icon(this.env);
+    if (this.scope.run(() => menu.icon(this.env))) {
+      return this.scope.run(() => menu.icon(this.env));
     }
-    if (menu.isActive?.(this.env)) {
+    if (this.scope.run(() => menu.isActive?.(this.env))) {
       return "o-spreadsheet-Icon.CHECK";
     }
 
@@ -171,7 +181,7 @@ export class MenuPopover extends Component<SpreadsheetChildEnv> {
   }
 
   async activateMenu(menu: Action, isMiddleClick?: boolean) {
-    const result = await menu.execute?.(this.env, isMiddleClick);
+    const result = await this.scope.run(() => menu.execute?.(this.env, isMiddleClick));
     this.close();
     this.props.onMenuClicked?.({ detail: result } as CustomEvent);
   }
@@ -192,11 +202,11 @@ export class MenuPopover extends Component<SpreadsheetChildEnv> {
   }
 
   get menuItems() {
-    return getMenuItemsAndSeparators(this.env, this.props.menuItems);
+    return this.scope.run(() => getMenuItemsAndSeparators(this.env, this.props.menuItems));
   }
 
   getName(menu: Action) {
-    return menu.name(this.env);
+    return this.scope.run(() => menu.name(this.env));
   }
 
   isRoot(menu: Action) {
@@ -225,7 +235,7 @@ export class MenuPopover extends Component<SpreadsheetChildEnv> {
       width: this.props.width || MENU_WIDTH,
       height: DESKTOP_MENU_ITEM_HEIGHT,
     };
-    this.subMenu.menuItems = menu.children(this.env);
+    this.subMenu.menuItems = this.scope.run(() => menu.children(this.env));
     this.subMenu.isOpen = true;
     this.subMenu.parentMenu = menu;
     this.subMenu.autoSelectFirstItem = autoSelectFirstItem;
@@ -250,7 +260,7 @@ export class MenuPopover extends Component<SpreadsheetChildEnv> {
 
   onMenuItemMouseEnter(menu: Action, ev: PointerEvent) {
     this.state.hoveredMenu = menu;
-    menu.onStartHover?.(this.env);
+    this.scope.run(() => menu.onStartHover?.(this.env));
 
     if (this.isParentMenu(this.subMenu, menu)) {
       this.openingTimeOut.clear();
@@ -276,7 +286,7 @@ export class MenuPopover extends Component<SpreadsheetChildEnv> {
 
   onMouseLeave(menu: Action) {
     this.state.hoveredMenu = undefined;
-    menu.onStopHover?.(this.env);
+    this.scope.run(() => menu.onStopHover?.(this.env));
 
     this.openingTimeOut.schedule(this.closeSubMenu.bind(this), TIMEOUT_DELAY);
   }
@@ -303,7 +313,10 @@ export class MenuPopover extends Component<SpreadsheetChildEnv> {
             this.openSubMenu(selectedMenuItem, rect.y, true);
             return "eventHandled";
           }
-        } else if (selectedMenuItem && isMenuItemEnabled(this.env, selectedMenuItem)) {
+        } else if (
+          selectedMenuItem &&
+          this.scope.run(() => isMenuItemEnabled(this.env, selectedMenuItem))
+        ) {
           void this.activateMenu(selectedMenuItem);
           return "eventHandled";
         }
@@ -362,7 +375,7 @@ export class MenuPopover extends Component<SpreadsheetChildEnv> {
 
     for (let offset = 1; offset <= menuItems.length; offset++) {
       const item = menuItems[(start + offset) % menuItems.length];
-      if (isMenuItemEnabled(this.env, item)) {
+      if (this.scope.run(() => isMenuItemEnabled(this.env, item))) {
         return item;
       }
     }
@@ -379,7 +392,7 @@ export class MenuPopover extends Component<SpreadsheetChildEnv> {
 
     for (let offset = 1; offset <= menuItems.length; offset++) {
       const item = menuItems[(start - offset + menuItems.length) % menuItems.length];
-      if (isMenuItemEnabled(this.env, item)) {
+      if (this.scope.run(() => isMenuItemEnabled(this.env, item))) {
         return item;
       }
     }

@@ -5,6 +5,7 @@ import { PopoverContainerPlugin } from "../../../src/components/popover/popover_
 import { StandaloneViewport } from "../../../src/components/standalone_viewport/standalone_viewport";
 import { DEFAULT_CELL_HEIGHT, TABLE_HOVER_BACKGROUND_COLOR } from "../../../src/constants";
 import { buildSheetLink, range } from "../../../src/helpers/misc";
+import { useSpreadsheetEnv } from "../../../src/helpers/owl3_helpers";
 import { zoneToXc } from "../../../src/helpers/zones";
 import { CellHoverOverlayStore } from "../../../src/stores/cell_hover_overlay_store";
 import { GridRenderer } from "../../../src/stores/grid_renderer_store";
@@ -67,7 +68,7 @@ beforeEach(() => {
       providePlugins([PopoverContainerPlugin], {
         getPopoverContainerRect: () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
       });
-      subEnv = this.env;
+      subEnv = useSpreadsheetEnv();
     });
 });
 

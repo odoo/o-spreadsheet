@@ -1,4 +1,4 @@
-import { proxy, useProps } from "@odoo/owl";
+import { proxy, useProps, useScope } from "@odoo/owl";
 import { Action } from "../../../../actions/action";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -38,6 +38,8 @@ export class ChartMenu extends Component<SpreadsheetChildEnv> {
     hasFullScreenButton: types.boolean().optional(true),
     displayEllipsisButton: types.boolean().optional(true),
   });
+
+  scope = useScope();
 
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
 
@@ -94,7 +96,7 @@ export class ChartMenu extends Component<SpreadsheetChildEnv> {
     }
     this.state.openedPopover = "menu";
     this.state.anchorRect = getBoundingRectAsPOJO(ev.currentTarget as HTMLElement);
-    this.state.menuItems = getChartMenuActions(this.figureId, this.env);
+    this.state.menuItems = this.scope.run(() => getChartMenuActions(this.figureId, this.env));
   }
 
   showInfo(ev: MenuMouseEvent) {

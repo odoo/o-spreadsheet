@@ -1,4 +1,4 @@
-import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
+import { onWillUpdateProps, proxy, useProps, useScope } from "@odoo/owl";
 import { getPivotHighlights } from "../../../../helpers/pivot/pivot_highlight";
 import { pivotSidePanelRegistry } from "../../../../helpers/pivot/pivot_side_panel_registry";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -30,6 +30,8 @@ export class PivotSidePanel extends Component<SpreadsheetChildEnv> {
       .optional("configuration"),
   });
 
+  scope = useScope();
+
   state = proxy<State>({ panel: this.props.openTab || "configuration" });
 
   setup() {
@@ -51,7 +53,7 @@ export class PivotSidePanel extends Component<SpreadsheetChildEnv> {
 
   get highlights() {
     return this.state.panel === "configuration"
-      ? getPivotHighlights(this.env, this.props.pivotId)
+      ? this.scope.run(() => getPivotHighlights(this.env, this.props.pivotId))
       : [];
   }
 

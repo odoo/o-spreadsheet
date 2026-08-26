@@ -1,4 +1,4 @@
-import { proxy, signal, useProps } from "@odoo/owl";
+import { proxy, signal, useProps, useScope } from "@odoo/owl";
 import { HIGHLIGHT_COLOR } from "../../../../constants";
 import { interactiveUpdateNamedRange } from "../../../../helpers/ui/named_range_interactive";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -21,6 +21,8 @@ export class NamedRangePreview extends Component<SpreadsheetChildEnv> {
   protected props = useProps({
     namedRange: types.NamedRange(),
   });
+
+  scope = useScope();
 
   state = proxy<State>({});
 
@@ -45,11 +47,13 @@ export class NamedRangePreview extends Component<SpreadsheetChildEnv> {
 
   updateNamedRangeName(newName: string) {
     newName = newName.replace(/ /g, "_");
-    interactiveUpdateNamedRange(this.env, {
-      oldRangeName: this.props.namedRange.name,
-      newRangeName: newName,
-      ranges: [this.env.model.getters.getRangeData(this.props.namedRange.range)],
-    });
+    this.scope.run(() =>
+      interactiveUpdateNamedRange(this.env, {
+        oldRangeName: this.props.namedRange.name,
+        newRangeName: newName,
+        ranges: [this.env.model.getters.getRangeData(this.props.namedRange.range)],
+      })
+    );
   }
 
   onSelectionInputChanged(ranges: string[]) {
@@ -67,11 +71,13 @@ export class NamedRangePreview extends Component<SpreadsheetChildEnv> {
         return;
       }
 
-      interactiveUpdateNamedRange(this.env, {
-        oldRangeName: this.props.namedRange.name,
-        newRangeName: this.props.namedRange.name,
-        ranges: [this.env.model.getters.getRangeData(range)],
-      });
+      this.scope.run(() =>
+        interactiveUpdateNamedRange(this.env, {
+          oldRangeName: this.props.namedRange.name,
+          newRangeName: this.props.namedRange.name,
+          ranges: [this.env.model.getters.getRangeData(range)],
+        })
+      );
     }
   }
 

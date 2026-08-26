@@ -1,4 +1,4 @@
-import { proxy, useProps } from "@odoo/owl";
+import { proxy, useProps, useScope } from "@odoo/owl";
 import { setStyle } from "../../../actions/menu_items_actions";
 import { deepEquals } from "../../../helpers/misc";
 import { Component } from "../../../owl3_compatibility_layer";
@@ -17,6 +17,8 @@ export class TopBarColorEditor extends Component<SpreadsheetChildEnv> {
     icon: types.string(),
     title: types.string(),
   });
+
+  scope = useScope();
   topBarToolStore!: ToolBarDropdownStore;
 
   state = proxy({
@@ -39,7 +41,7 @@ export class TopBarColorEditor extends Component<SpreadsheetChildEnv> {
       this.env.model.dispatch("SET_BACKGROUND_FOR_ALL_CELLS", { sheetId, color });
       return;
     }
-    setStyle(this.env, { [this.props.style]: color });
+    this.scope.run(() => setStyle(this.env, { [this.props.style]: color }));
     this.state.isOpen = false;
   }
 

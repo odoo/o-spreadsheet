@@ -10,7 +10,7 @@ import { Store } from "../../../types/store_engine";
 import { isMiddleClickOrCtrlClick } from "../../helpers/dom_helpers";
 import { CellPopoverStore } from "../../popover/cell_popover_store";
 
-import { useProps } from "@odoo/owl";
+import { useProps, useScope } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { types } from "../../props_validation";
@@ -22,6 +22,8 @@ export class LinkDisplay extends Component<SpreadsheetChildEnv> {
     cellPosition: types.CellPosition(),
     onClosed: types.function().optional(),
   });
+
+  scope = useScope();
 
   protected cellPopovers!: Store<CellPopoverStore>;
   private viewStore!: Store<ViewportsStore>;
@@ -52,7 +54,7 @@ export class LinkDisplay extends Component<SpreadsheetChildEnv> {
   }
 
   openLink(ev: MouseEvent) {
-    openLink(this.link, this.env, isMiddleClickOrCtrlClick(ev));
+    this.scope.run(() => openLink(this.link, this.env, isMiddleClickOrCtrlClick(ev)));
   }
 
   edit() {

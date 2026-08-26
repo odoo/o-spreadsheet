@@ -6,6 +6,7 @@ import {
   signal,
   useListener,
   useProps,
+  useScope,
 } from "@odoo/owl";
 import { throttle } from "../../../helpers/misc";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
@@ -54,6 +55,8 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
     style: types.string().optional(""),
     onMouseDown: types.function<(ev: PointerEvent) => void>().optional(() => () => {}),
   });
+
+  scope = useScope();
 
   private state = proxy<State>({ isEditing: false, openedPicker: undefined });
 
@@ -223,7 +226,9 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
 
     const inputValue = this.getInputContent() || "";
 
-    interactiveRenameSheet(this.env, this.props.sheetId, inputValue, () => this.startEdition());
+    this.scope.run(() =>
+      interactiveRenameSheet(this.env, this.props.sheetId, inputValue, () => this.startEdition())
+    );
   }
 
   private cancelEdition() {

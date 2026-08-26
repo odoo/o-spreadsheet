@@ -1,4 +1,4 @@
-import { proxy, signal } from "@odoo/owl";
+import { proxy, signal, useScope } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../actions/action";
 import { HIGHLIGHT_COLOR } from "../../constants";
 import { rangeReference } from "../../helpers/references";
@@ -30,6 +30,8 @@ interface State extends Omit<MenuState, "isOpen"> {
 export class NamedRangeSelector extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-NamedRangeSelector";
   static components = { TextInput, MenuPopover };
+
+  scope = useScope();
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
@@ -71,16 +73,20 @@ export class NamedRangeSelector extends Component<SpreadsheetChildEnv> {
 
     const namedRangeInZone = this.env.model.getters.getNamedRangeFromZone(sheetId, selection);
     if (!namedRangeInZone) {
-      interactiveCreateNamedRange(this.env, {
-        name: newValue,
-        ranges: [this.env.model.getters.getRangeDataFromZone(sheetId, selection)],
-      });
+      this.scope.run(() =>
+        interactiveCreateNamedRange(this.env, {
+          name: newValue,
+          ranges: [this.env.model.getters.getRangeDataFromZone(sheetId, selection)],
+        })
+      );
     } else {
-      interactiveUpdateNamedRange(this.env, {
-        newRangeName: newValue,
-        oldRangeName: namedRangeInZone.name,
-        ranges: [this.env.model.getters.getRangeData(namedRangeInZone.range)],
-      });
+      this.scope.run(() =>
+        interactiveUpdateNamedRange(this.env, {
+          newRangeName: newValue,
+          oldRangeName: namedRangeInZone.name,
+          ranges: [this.env.model.getters.getRangeData(namedRangeInZone.range)],
+        })
+      );
     }
   }
 

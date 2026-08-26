@@ -1,3 +1,4 @@
+import { useScope } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../store_engine/store_hooks";
 import { ChartDefinition } from "../../../types/chart/chart";
@@ -15,6 +16,8 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
     ChartSuggestionPreview,
   };
 
+  scope = useScope();
+
   store!: Store<DataAnalysisStore>;
 
   setup() {
@@ -22,6 +25,6 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
   }
 
   onStartChartSuggestionDrag(definition: ChartDefinition, ev: MouseEvent) {
-    startChartDragAndDrop(this.env, definition, ev);
+    this.scope.run(() => startChartDragAndDrop(this.env, definition, ev));
   }
 }

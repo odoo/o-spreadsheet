@@ -3,6 +3,7 @@ import { CellComposerStore } from "../../src/components/composer/composer/cell_c
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
 import { SearchOptions } from "../../src/types/find_and_replace";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   createSheet,
   hideColumns,
@@ -90,11 +91,12 @@ function getSelectedMatchIndex() {
 describe("find and replace sidePanel component", () => {
   let fixture: HTMLElement;
   let parent: Spreadsheet;
+  let env: SpreadsheetChildEnv;
   let model: Model;
 
   beforeEach(async () => {
     useJestFakeTimers();
-    ({ parent, model, fixture } = await mountSpreadsheet());
+    ({ parent, model, fixture, env } = await mountSpreadsheet());
     parent.env.openSidePanel("FindAndReplace");
     await nextTick();
   });
@@ -482,7 +484,7 @@ describe("find and replace sidePanel component", () => {
     await inputSearchValue("hello");
     await nextTick();
     expect(model.getters.getSelectedZones()).toMatchObject([toZone("B1")]);
-    const composerStore = parent.env.getStore(CellComposerStore);
+    const composerStore = env.getStore(CellComposerStore);
     selectCell(model, "C11");
     composerStore.startEdition("hello");
     composerStore.stopEdition("down");

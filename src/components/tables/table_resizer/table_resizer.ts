@@ -1,4 +1,4 @@
-import { proxy, useProps } from "@odoo/owl";
+import { proxy, useProps, useScope } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { TableResizeStore } from "../../../stores/table_resize_store";
@@ -25,6 +25,8 @@ export class TableResizer extends Component<SpreadsheetChildEnv> {
   protected props = useProps({
     table: types.Table(),
   });
+
+  scope = useScope();
 
   state = proxy<State>({ highlightZone: undefined });
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
@@ -55,7 +57,7 @@ export class TableResizer extends Component<SpreadsheetChildEnv> {
     const tableZone = this.props.table.range.zone;
     const topLeft = { col: tableZone.left, row: tableZone.top };
     document.body.style.cursor = "nwse-resize";
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = this.scope.run(() => withZoom(this.env, ev));
 
     const onMouseUp = () => {
       document.body.style.cursor = "";

@@ -1,4 +1,4 @@
-import { proxy, signal, useProps } from "@odoo/owl";
+import { proxy, signal, useProps, useScope } from "@odoo/owl";
 import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../constants";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
@@ -44,6 +44,8 @@ export const resizerPropsDefinition = {
 
 abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
   protected props = useProps(resizerPropsDefinition);
+
+  scope = useScope();
   private composerFocusStore!: Store<ComposerFocusStore>;
   protected viewStore!: Store<ViewportsStore>;
 
@@ -160,7 +162,7 @@ abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
     ) {
       return;
     }
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = this.scope.run(() => withZoom(this.env, ev));
     this._computeHandleDisplay(zoomedMouseEvent);
     this._computeGrabDisplay(zoomedMouseEvent);
   }
@@ -171,7 +173,7 @@ abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
   }
 
   onDblClick(ev: MouseEvent) {
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = this.scope.run(() => withZoom(this.env, ev));
     this._fitElementSize(this.state.activeElement);
     this.state.isResizing = false;
     this._computeHandleDisplay(zoomedMouseEvent);
@@ -184,7 +186,7 @@ abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
     }
     this.state.isResizing = true;
     this.state.delta = 0;
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = this.scope.run(() => withZoom(this.env, ev));
 
     const initialPosition = this._getClientPosition(zoomedMouseEvent);
     const styleValue = this.state.draggerLinePosition;
@@ -198,7 +200,8 @@ abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
       }
     };
     const onMouseMove = (ev: MouseEvent) => {
-      this.state.delta = this._getClientPosition(withZoom(this.env, ev)) - initialPosition;
+      this.state.delta =
+        this._getClientPosition(this.scope.run(() => withZoom(this.env, ev))) - initialPosition;
       this.state.draggerLinePosition = styleValue + this.state.delta;
       if (this.state.draggerLinePosition < minSize) {
         this.state.draggerLinePosition = minSize;
@@ -220,7 +223,7 @@ abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
       // not main button, probably a context menu
       return;
     }
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = this.scope.run(() => withZoom(this.env, ev));
     const index = this._getElementIndex(this._getEvOffset(zoomedMouseEvent));
     this._selectElement(index, false);
   }
@@ -233,7 +236,7 @@ abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
       // not main button, probably a context menu
       return;
     }
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = this.scope.run(() => withZoom(this.env, ev));
     const index = this._getElementIndex(this._getEvOffset(zoomedMouseEvent));
     if (index < 0) {
       return;
@@ -261,7 +264,7 @@ abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
   private startMovement(ev: PointerEvent) {
     this.state.waitingForMove = false;
     this.state.isMoving = true;
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = this.scope.run(() => withZoom(this.env, ev));
     const startDimensions = this._getDimensionsInViewport(this._getSelectedZoneStart());
     const endDimensions = this._getDimensionsInViewport(this._getSelectedZoneEnd());
     const defaultPosition = startDimensions.start;
@@ -296,7 +299,7 @@ abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
       if (this.state.base !== this._getSelectedZoneStart()) {
         this._moveElements();
       }
-      const zoomedMouseEvent = withZoom(this.env, ev);
+      const zoomedMouseEvent = this.scope.run(() => withZoom(this.env, ev));
       this._computeGrabDisplay(zoomedMouseEvent);
     };
     this.dragNDropGrid.start(zoomedMouseEvent, mouseMoveMovement, mouseUpMovement);
@@ -313,7 +316,7 @@ abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
       this._selectElement(index, isCtrlKey(ev));
     }
     this.lastSelectedElementIndex = index;
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = this.scope.run(() => withZoom(this.env, ev));
 
     const mouseMoveSelect = (col: HeaderIndex, row: HeaderIndex) => {
       const newIndex = this._getType() === "COL" ? col : row;
@@ -333,7 +336,9 @@ abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
 
   onContextMenu(ev: MouseEvent) {
     ev.preventDefault();
-    const index = this._getElementIndex(this._getEvOffset(withZoom(this.env, ev)));
+    const index = this._getElementIndex(
+      this._getEvOffset(this.scope.run(() => withZoom(this.env, ev)))
+    );
     if (index < 0) {
       return;
     }

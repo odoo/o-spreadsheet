@@ -1,4 +1,4 @@
-import { onMounted, onWillUpdateProps, proxy } from "@odoo/owl";
+import { onMounted, onWillUpdateProps, proxy, useScope } from "@odoo/owl";
 import { DRAG_THRESHOLD } from "../../../constants";
 import { isDefined } from "../../../helpers/misc";
 import { render } from "../../../helpers/owl3_helpers";
@@ -116,6 +116,8 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FiguresContainer";
   static components = { FigureComponent };
 
+  scope = useScope();
+
   dnd = proxy<DndState>({
     draggedFigure: undefined,
     selectedFigures: undefined,
@@ -129,6 +131,10 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
   private chartDragStore!: Store<ChartDragStore>;
 
   setup() {
+    // the drag & drop listeners are registered on the window: they must be
+    // removed when the component is destroyed, otherwise they keep running
+    // (in a destroyed scope) after the component is gone.
+    this.scope.onDestroy(() => this.dnd.cancelDnd?.());
     this.viewStore = useStore(ViewportsStore);
     this.zoomStore = useStore(ZoomStore);
     this.chartDragStore = useStore(ChartDragStore);
@@ -382,7 +388,9 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       this.chartDragStore.setHighlightedFigure(overlappingChartOrCarousel?.id);
 
       if (!overlappingChartOrCarousel) {
-        const snapReturn = snapForMove(this.env, selectedFigures, otherFigures);
+        const snapReturn = this.scope.run(() =>
+          snapForMove(this.env, selectedFigures, otherFigures)
+        );
         this.dnd.selectedFigures = snapReturn.snappedFigures;
         this.dnd.selectedRect = this.getDndFigureRect();
         this.dnd.draggedFigure = selectedFigures.find((f) => f.id === draggedFigureId);
@@ -524,12 +532,8 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
         maxDimensions
       );
 
-      const { snappedRect, verticalSnapLine, horizontalSnapLine } = snapForResize(
-        this.env,
-        dirX,
-        dirY,
-        resizedRect,
-        otherFiguresUI
+      const { snappedRect, verticalSnapLine, horizontalSnapLine } = this.scope.run(() =>
+        snapForResize(this.env, dirX, dirY, resizedRect, otherFiguresUI)
       );
 
       const scaleX = snappedRect.width / initialRect.width;

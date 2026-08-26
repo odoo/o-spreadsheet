@@ -1,4 +1,4 @@
-import { onWillUpdateProps, proxy, signal, useProps } from "@odoo/owl";
+import { onWillUpdateProps, proxy, signal, useProps, useScope } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import {
@@ -50,6 +50,8 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
     onCloseSidePanel: types.function(),
     figureId: types.UID(),
   });
+
+  scope = useScope();
 
   DEFAULT_CAROUSEL_TITLE_STYLE = DEFAULT_CAROUSEL_TITLE_STYLE;
 
@@ -192,7 +194,9 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
     if (item.type !== "chart") {
       return;
     }
-    const anchor = getPoppedOutChartAnchor(this.env, this.carouselSheetId, this.props.figureId);
+    const anchor = this.scope.run(() =>
+      getPoppedOutChartAnchor(this.env, this.carouselSheetId, this.props.figureId)
+    );
     this.env.model.dispatch("POPOUT_CHART_FROM_CAROUSEL", {
       sheetId: this.carouselSheetId,
       carouselId: this.props.figureId,

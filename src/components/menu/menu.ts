@@ -1,4 +1,4 @@
-import { signal, useProps } from "@odoo/owl";
+import { signal, useProps, useScope } from "@odoo/owl";
 import {
   Action,
   adaptShortcutStringToMacOs,
@@ -47,6 +47,8 @@ export class Menu extends Component<SpreadsheetChildEnv> {
 
   private menuRef = signal.ref();
 
+  scope = useScope();
+
   setup(): void {
     useLayoutEffect(() => {
       const menuEl = this.menuRef();
@@ -70,14 +72,18 @@ export class Menu extends Component<SpreadsheetChildEnv> {
   }
 
   getIconName(menu: Action) {
-    if (menu.icon(this.env)) {
-      return menu.icon(this.env);
+    if (this.scope.run(() => menu.icon(this.env))) {
+      return this.scope.run(() => menu.icon(this.env));
     }
-    if (menu.isActive?.(this.env)) {
+    if (this.scope.run(() => menu.isActive?.(this.env))) {
       return "o-spreadsheet-Icon.CHECK";
     }
 
     return "";
+  }
+
+  getDescription(menu: Action) {
+    return this.scope.run(() => menu.description(this.env));
   }
 
   getShortcut(menu: Action) {
@@ -93,7 +99,7 @@ export class Menu extends Component<SpreadsheetChildEnv> {
   }
 
   getName(menu: Action) {
-    return menu.name(this.env);
+    return this.scope.run(() => menu.name(this.env));
   }
 
   isRoot(menu: Action) {
@@ -101,7 +107,7 @@ export class Menu extends Component<SpreadsheetChildEnv> {
   }
 
   isEnabled(menu: Action) {
-    return isMenuItemEnabled(this.env, menu);
+    return this.scope.run(() => isMenuItemEnabled(this.env, menu));
   }
 
   get menuStyle() {

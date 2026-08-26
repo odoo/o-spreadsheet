@@ -1,4 +1,4 @@
-import { onMounted, onPatched, proxy, signal, useListener, useProps } from "@odoo/owl";
+import { onMounted, onPatched, proxy, signal, useListener, useProps, useScope } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../constants";
@@ -49,6 +49,8 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
     Popover,
     NamedRangeSelector,
   };
+
+  scope = useScope();
 
   toolsCategories = topBarToolBarRegistry.getCategories();
 
@@ -148,9 +150,10 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
   }
 
   get topbarComponents() {
-    return topbarComponentRegistry
-      .getAllOrdered()
-      .filter((item) => !item.isVisible || item.isVisible(this.env));
+    return topbarComponentRegistry.getAllOrdered().filter((item) => {
+      const isVisible = item.isVisible;
+      return !isVisible || this.scope.run(() => isVisible(this.env));
+    });
   }
 
   get currentFontSize(): number {
@@ -219,9 +222,9 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
     this.state.toolsPopoverState.isOpen = false;
     this.state.menuState.isOpen = true;
     this.state.menuState.anchorRect = getBoundingRectAsPOJO(target);
-    this.state.menuState.menuItems = menu
-      .children(this.env)
-      .sort((a, b) => a.sequence - b.sequence);
+    this.state.menuState.menuItems = this.scope.run(() =>
+      menu.children(this.env).sort((a, b) => a.sequence - b.sequence)
+    );
     this.state.menuState.parentMenu = menu;
     this.state.menuState.autoSelectFirstItem = autoSelectFirstItem;
     this.isSelectingMenu = true;
@@ -241,16 +244,16 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
   }
 
   getMenuName(menu: Action) {
-    return menu.name(this.env);
+    return this.scope.run(() => menu.name(this.env));
   }
 
   setColor(target: string, color: Color) {
-    setStyle(this.env, { [target]: color });
+    this.scope.run(() => setStyle(this.env, { [target]: color }));
     this.onClick();
   }
 
   setFontSize(fontSize: number) {
-    setStyle(this.env, { fontSize });
+    this.scope.run(() => setStyle(this.env, { fontSize }));
   }
 
   toggleMoreTools() {

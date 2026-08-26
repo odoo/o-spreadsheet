@@ -1,4 +1,4 @@
-import { useProps } from "@odoo/owl";
+import { useProps, useScope } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { GROUP_LAYER_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { interactiveToggleGroup } from "../../helpers/ui/toggle_group_interactive";
@@ -26,12 +26,14 @@ abstract class AbstractHeaderGroup extends Component<SpreadsheetChildEnv> {
     openContextMenu: types.function<(position: DOMCoordinates, menuItems: Action[]) => void>(),
   });
 
+  scope = useScope();
+
   abstract dimension: Dimension;
 
   toggleGroup() {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const { start, end } = this.props.group;
-    interactiveToggleGroup(this.env, sheetId, this.dimension, start, end);
+    this.scope.run(() => interactiveToggleGroup(this.env, sheetId, this.dimension, start, end));
   }
 
   get groupBoxStyle(): string {

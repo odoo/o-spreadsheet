@@ -1,4 +1,4 @@
-import { proxy, signal, useProps } from "@odoo/owl";
+import { proxy, signal, useProps, useScope } from "@odoo/owl";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { UpdateFiguresPayload } from "../../../types/commands";
@@ -41,6 +41,8 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
       .function<(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) => void>()
       .optional(() => () => {}),
   });
+
+  scope = useScope();
 
   private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
@@ -304,7 +306,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
     if (this.env.model.getters.isDashboard()) {
       return;
     }
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = this.scope.run(() => withZoom(this.env, ev));
     this.openContextMenu({
       x: zoomedMouseEvent.clientX,
       y: zoomedMouseEvent.clientY,
@@ -316,9 +318,9 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
   openContextMenu(anchorRect: Rect) {
     this.menuState.isOpen = true;
     this.menuState.anchorRect = anchorRect;
-    this.menuState.menuItems = figureRegistry
-      .get(this.props.figureUI.tag)
-      .menuBuilder(this.props.figureUI.id, this.env);
+    this.menuState.menuItems = this.scope.run(() =>
+      figureRegistry.get(this.props.figureUI.tag).menuBuilder(this.props.figureUI.id, this.env)
+    );
   }
 
   get isFigureResizable(): boolean {

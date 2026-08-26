@@ -1,4 +1,4 @@
-import { proxy, signal, useEffect, useProps } from "@odoo/owl";
+import { proxy, signal, useEffect, useProps, useScope } from "@odoo/owl";
 import { sumArray } from "../../helpers/misc";
 import { Component } from "../../owl3_compatibility_layer";
 import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
@@ -47,6 +47,8 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     columnWeights: types.array<number>().optional(),
     size: types.object<DOMDimension>(),
   });
+
+  scope = useScope();
 
   private canvasRef = signal.ref(HTMLCanvasElement);
   private containerRef = signal.ref();
@@ -167,7 +169,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     }
     this.dndState.col = resizer.col;
 
-    const initialX = withZoom(this.env, ev).clientX;
+    const initialX = this.scope.run(() => withZoom(this.env, ev)).clientX;
     const startingColWeights = this.store.columnWeights;
     const totalWeight = sumArray(startingColWeights);
     let deltaX = 0;
@@ -179,7 +181,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
       }
     };
     const onMouseMove = (ev: MouseEvent) => {
-      deltaX = withZoom(this.env, ev).clientX - initialX;
+      deltaX = this.scope.run(() => withZoom(this.env, ev)).clientX - initialX;
 
       const weightDelta = (deltaX / this.props.size.width) * totalWeight;
       this.store.resizeColumn(resizer.col, weightDelta, startingColWeights);

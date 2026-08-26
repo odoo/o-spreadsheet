@@ -1,4 +1,4 @@
-import { proxy, useProps } from "@odoo/owl";
+import { proxy, useProps, useScope } from "@odoo/owl";
 import { clip } from "../../../helpers/misc";
 import { isEqual } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
@@ -34,6 +34,8 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
     color: types.Color(),
   });
 
+  scope = useScope();
+
   highlightState: HighlightState = proxy({
     shiftingMode: "none",
   });
@@ -62,7 +64,7 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
 
   onResizeHighlight(ev: PointerEvent, dirX: ResizeDirection, dirY: ResizeDirection) {
     const activeSheetId = this.env.model.getters.getActiveSheetId();
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = this.scope.run(() => withZoom(this.env, ev));
     this.highlightState.shiftingMode = "isResizing";
     const z = this.props.range.zone;
 
@@ -131,7 +133,7 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
 
     const zoomLevel = this.zoomStore.zoomLevel;
     const position = gridOverlayPosition(zoomLevel);
-    const zoomedMouseEvent = withZoom(this.env, ev, position);
+    const zoomedMouseEvent = this.scope.run(() => withZoom(this.env, ev, position));
 
     const activeSheetId = this.env.model.getters.getActiveSheetId();
 
