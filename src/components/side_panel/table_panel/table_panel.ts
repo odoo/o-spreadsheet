@@ -9,7 +9,7 @@ import { TableConfig } from "../../../types/table";
 import { getTableTopLeft } from "../../../helpers/table_helpers";
 import { useStore } from "../../../store_engine/store_hooks";
 import { TableResizeStore } from "../../../stores/table_resize_store";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { NumberInput } from "../../number_input/number_input";
 import { types } from "../../props_validation";
 import { SelectionInput } from "../../selection_input/selection_input";
@@ -27,7 +27,7 @@ interface State {
   filtersEnabledIfPossible: boolean;
 }
 
-export class TablePanel extends Component<SpreadsheetChildEnv> {
+export class TablePanel extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-TablePanel";
   static components = {
     TableStylePicker,

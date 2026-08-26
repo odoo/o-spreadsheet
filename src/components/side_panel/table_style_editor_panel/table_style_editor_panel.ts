@@ -4,7 +4,7 @@ import { TABLE_STYLES_TEMPLATES, buildTableStyle } from "../../../helpers/table_
 import { UuidGenerator } from "../../../helpers/uuid";
 import { Component } from "../../../owl3_compatibility_layer";
 import { Color } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { TableConfig, TableStyle, TableStyleTemplateName } from "../../../types/table";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { types } from "../../props_validation";
@@ -21,7 +21,7 @@ interface State {
   styleName: string;
 }
 
-export class TableStyleEditorPanel extends Component<SpreadsheetChildEnv> {
+export class TableStyleEditorPanel extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-TableStyleEditorPanel";
   static components = { Section, RoundColorPicker, TableStylePreview };
   protected props = useProps({

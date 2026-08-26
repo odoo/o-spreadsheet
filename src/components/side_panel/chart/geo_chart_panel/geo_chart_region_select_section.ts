@@ -1,14 +1,14 @@
 import { useProps } from "@odoo/owl";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { ValueAndLabel } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { Select } from "../../../select/select";
 import { Section } from "../../components/section/section";
 
 import { Component } from "../../../../owl3_compatibility_layer";
 import { types } from "../../../props_validation";
 import { ChartUpdateFunction } from "../common";
-export class GeoChartRegionSelectSection extends Component<SpreadsheetChildEnv> {
+export class GeoChartRegionSelectSection extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-GeoChartRegionSelectSection";
   static components = { Section, Select };
 

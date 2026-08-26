@@ -5,7 +5,7 @@ import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { Color } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
@@ -31,7 +31,7 @@ interface SelectionRange extends Omit<RangeInputValue, "color"> {
  * onSelectionChanged is called every time the input value
  * changes.
  */
-export class SelectionInput extends Component<SpreadsheetChildEnv> {
+export class SelectionInput extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-SelectionInput";
 
   protected props = useProps({

@@ -5,7 +5,7 @@ import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
 import { CommandResult, DispatchResult } from "../../../../types/commands";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { ChartTerms } from "../../../translations_terms";
 import { ChartDataSeries } from "../building_blocks/data_series/data_series";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
@@ -21,7 +21,7 @@ interface BubbleChartPanelState {
 
 type Props = ChartSidePanelProps<BubbleChartDefinition>;
 
-export class BubbleChartConfigPanel extends Component<SpreadsheetChildEnv> {
+export class BubbleChartConfigPanel extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-BubbleChartConfigPanel";
   static components = {
     ChartDataSeries,

@@ -14,7 +14,7 @@ import {
   DataValidationCriterionType,
 } from "../../../../types/data_validation";
 import { UID, ValueAndLabel } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { DataValidationRuleData } from "../../../../types/workbook_data";
 import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
@@ -29,7 +29,7 @@ interface State {
   isTypeUpdated: boolean;
 }
 
-export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
+export class DataValidationEditor extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-DataValidationEditor";
   static components = { SelectionInput, Select, Section, ValidationMessages };
   protected props = useProps({

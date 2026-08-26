@@ -14,7 +14,7 @@ import {
   TitleDesign,
 } from "../../../../../types/chart/chart";
 import { LineChartRuntime } from "../../../../../types/chart/line_chart";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../../types/spreadsheet_env";
 import { DateInput } from "../../../../date_input/date_input";
 import { NumberInput } from "../../../../number_input/number_input";
 import { types } from "../../../../props_validation";
@@ -29,7 +29,7 @@ export interface AxisDefinition {
   name: string;
 }
 
-export class AxisDesignEditor extends Component<SpreadsheetChildEnv> {
+export class AxisDesignEditor extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-AxisDesignEditor";
   static components = { Section, ChartTitle, BadgeSelection, Checkbox, NumberInput, DateInput };
 

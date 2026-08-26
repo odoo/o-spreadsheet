@@ -5,7 +5,7 @@ import {
   TreeMapChartDefinition,
   TreeMapColorScaleOptions,
 } from "../../../../types/chart/tree_map_chart";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { BadgeSelection } from "../../components/badge_selection/badge_selection";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -35,7 +35,7 @@ const DEFAULT_SOLID_COLOR: TreeMapCategoryColorOptions = {
   useValueBasedGradient: true,
 };
 
-export class TreeMapChartDesignPanel extends Component<SpreadsheetChildEnv> {
+export class TreeMapChartDesignPanel extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-TreeMapChartDesignPanel";
   static components = {
     GeneralDesignEditor,

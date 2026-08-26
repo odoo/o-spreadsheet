@@ -1,12 +1,12 @@
 import { useStore } from "../../store_engine/store_hooks";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { PaintFormatStore } from "./paint_format_store";
 
 import { useProps } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { types } from "../props_validation";
-export class PaintFormatButton extends Component<SpreadsheetChildEnv> {
+export class PaintFormatButton extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-PaintFormatButton";
 
   protected props = useProps({

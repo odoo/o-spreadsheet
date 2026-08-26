@@ -6,7 +6,7 @@ import { useLocalStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
 import { SearchOptions } from "../../../types/find_and_replace";
 import { DebouncedFunction, ValueAndLabel } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { types } from "../../props_validation";
@@ -17,7 +17,7 @@ import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 import { FindAndReplaceStore } from "./find_and_replace_store";
 
-export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
+export class FindAndReplacePanel extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-FindAndReplacePanel";
   static components = { SelectionInput, Section, Checkbox, ValidationMessages, Select };
   protected props = useProps({

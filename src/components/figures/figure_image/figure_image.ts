@@ -1,13 +1,13 @@
 import { UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 
 import { signal, useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { getElBoundingRect, isCtrlKey } from "../../helpers/dom_helpers";
 import { types } from "../../props_validation";
 
-export class ImageFigure extends Component<SpreadsheetChildEnv> {
+export class ImageFigure extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-ImageFigure";
 
   protected props = useProps({

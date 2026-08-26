@@ -6,7 +6,7 @@ import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { Pixel } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
@@ -26,7 +26,7 @@ import { HorizontalScrollBar } from "../scrollbar/scrollbar_horizontal";
 import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
 import { HoveredTableStore } from "../tables/hovered_table_store";
 
-export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
+export class SpreadsheetDashboard extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-SpreadsheetDashboard";
   static components = {
     GridOverlay,

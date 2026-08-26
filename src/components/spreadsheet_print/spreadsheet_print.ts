@@ -1,7 +1,7 @@
 import { onWillUnmount, useListener, useProps } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { useLocalStore } from "../../store_engine/store_hooks";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { types } from "../props_validation";
@@ -18,7 +18,7 @@ import {
   SpreadsheetPrintStore,
 } from "./spreadsheet_print_store";
 
-export class SpreadsheetPrint extends Component<SpreadsheetChildEnv> {
+export class SpreadsheetPrint extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-SpreadsheetPrint";
   protected props = useProps({
     onExitPrintMode: types.function(),

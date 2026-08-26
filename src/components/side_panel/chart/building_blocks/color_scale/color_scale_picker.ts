@@ -5,7 +5,7 @@ import { Component } from "../../../../../owl3_compatibility_layer";
 import { ChartColorScale, schemeToColorScale } from "../../../../../types/chart/chart";
 import { Color } from "../../../../../types/misc";
 import { PropsOf } from "../../../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../../../helpers/css";
 import { Popover } from "../../../../popover/popover";
 import { types } from "../../../../props_validation";
@@ -18,7 +18,7 @@ interface ColorScalePickerState {
   popoverStyle: string;
 }
 
-export class ColorScalePicker extends Component<SpreadsheetChildEnv> {
+export class ColorScalePicker extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-ColorScalePicker";
   static components = {
     Section,

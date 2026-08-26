@@ -2,7 +2,7 @@ import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { sidePanelRegistry } from "../../../registries/side_panel_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { PropsOf } from "../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { startDnd } from "../../helpers/drag_and_drop";
@@ -10,7 +10,7 @@ import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { SidePanel } from "../side_panel/side_panel";
 import { SidePanelStore } from "../side_panel/side_panel_store";
 
-export class SidePanels extends Component<SpreadsheetChildEnv> {
+export class SidePanels extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-SidePanels";
   static components = { SidePanel };
   sidePanelStore!: Store<SidePanelStore>;

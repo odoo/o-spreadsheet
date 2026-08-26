@@ -9,13 +9,13 @@ import { getScorecardConfiguration } from "../../../helpers/figures/charts/score
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { GaugeChartRuntime } from "../../../types/chart/gauge_chart";
 import { ScorecardChartRuntime } from "../../../types/chart/scorecard_chart";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { types } from "../../props_validation";
 
 const PREVIEW_BUBBLE_RADIUS_RATIO = 0.3;
 const MIN_PREVIEW_BUBBLE_RADIUS = 1;
 
-export class ChartSuggestionPreview extends Component<SpreadsheetChildEnv> {
+export class ChartSuggestionPreview extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-ChartSuggestionPreview";
   protected props = useProps({
     definition: types.ChartDefinition(),

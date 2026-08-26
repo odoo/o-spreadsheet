@@ -3,6 +3,7 @@ import { CellComposerStore } from "../../src/components/composer/composer/cell_c
 import { arg } from "../../src/functions/arguments";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { _t } from "../../src/translation";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { registerCleanup } from "../setup/jest.setup";
 import { updateLocale } from "../test_helpers/commands_helpers";
@@ -20,6 +21,7 @@ import {
 let composerEl: Element;
 let fixture: HTMLElement;
 let parent: ComposerWrapper;
+let env: SpreadsheetChildEnv;
 let composerStore: Store<CellComposerStore>;
 
 const queryFormulaArgName =
@@ -48,12 +50,12 @@ async function typeInComposer(text: string, fromScratch: boolean = true) {
 }
 
 beforeEach(async () => {
-  ({ fixture, parent } = await mountComposerWrapper());
+  ({ fixture, parent, env } = await mountComposerWrapper());
   // start composition
   parent.startComposition();
   await nextTick();
   composerEl = fixture.querySelector("div.o-composer")!;
-  composerStore = parent.env.getStore(CellComposerStore);
+  composerStore = env.getStore(CellComposerStore);
 });
 
 describe("formula assistant", () => {

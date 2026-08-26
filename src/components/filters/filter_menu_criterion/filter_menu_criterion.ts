@@ -8,7 +8,7 @@ import {
 import { _t } from "../../../translation";
 import { ValueAndLabel } from "../../../types/misc";
 import { PropsOf } from "../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { CriterionFilter } from "../../../types/table";
 import { types } from "../../props_validation";
 import { Select } from "../../select/select";
@@ -17,7 +17,7 @@ interface State {
   criterion: CriterionFilter;
 }
 
-export class FilterMenuCriterion extends Component<SpreadsheetChildEnv> {
+export class FilterMenuCriterion extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-FilterMenuCriterion";
   static components = { Select };
 

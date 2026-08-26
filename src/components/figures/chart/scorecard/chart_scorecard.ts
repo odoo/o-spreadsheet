@@ -7,11 +7,11 @@ import { useStore } from "../../../../store_engine/store_hooks";
 import { ZoomStore } from "../../../../stores/zoom_store";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 import { Rect } from "../../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { types } from "../../../props_validation";
 
-export class ScorecardChart extends Component<SpreadsheetChildEnv> {
+export class ScorecardChart extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-ScorecardChart";
 
   protected props = useProps({

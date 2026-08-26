@@ -1,9 +1,10 @@
 import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
+import { useSpreadsheetEnv } from "../../../../helpers/owl3_helpers";
 import { getPivotHighlights } from "../../../../helpers/pivot/pivot_highlight";
 import { pivotSidePanelRegistry } from "../../../../helpers/pivot/pivot_side_panel_registry";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { PropsOf } from "../../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { useHighlights } from "../../../helpers/highlight_hook";
 import { types } from "../../../props_validation";
 import { Section } from "../../components/section/section";
@@ -14,7 +15,7 @@ interface State {
   panel: "configuration" | "design";
 }
 
-export class PivotSidePanel extends Component<SpreadsheetChildEnv> {
+export class PivotSidePanel extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-PivotSidePanel";
   static components = {
     PivotLayoutConfigurator,
@@ -29,6 +30,8 @@ export class PivotSidePanel extends Component<SpreadsheetChildEnv> {
       .or([types.literal("configuration"), types.literal("design")])
       .optional("configuration"),
   });
+
+  spEnv = useSpreadsheetEnv();
 
   state = proxy<State>({ panel: this.props.openTab || "configuration" });
 
@@ -51,7 +54,7 @@ export class PivotSidePanel extends Component<SpreadsheetChildEnv> {
 
   get highlights() {
     return this.state.panel === "configuration"
-      ? getPivotHighlights(this.env, this.props.pivotId)
+      ? getPivotHighlights(this.spEnv, this.props.pivotId)
       : [];
   }
 

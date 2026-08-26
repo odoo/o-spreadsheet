@@ -3,12 +3,12 @@ import { createActions } from "../../../../actions/action";
 import { UuidGenerator } from "../../../../helpers/uuid";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { MenuMouseEvent } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
 import { types } from "../../../props_validation";
 
-export class CogWheelMenu extends Component<SpreadsheetChildEnv> {
+export class CogWheelMenu extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-CogWheelMenu";
   static components = { MenuPopover };
   protected props = useProps({

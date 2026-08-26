@@ -14,8 +14,11 @@ import { ChartJsComponent } from "../chartjs";
 import { Boundaries, ZoomableChartStore } from "./zoomable_chart_store";
 
 import { signal } from "@odoo/owl";
+import { useSpreadsheetEnv } from "../../../../../helpers/owl3_helpers";
 export class ZoomableChartJsComponent extends ChartJsComponent {
   static template = "o-spreadsheet-ZoomableChartJsComponent";
+
+  spEnv = useSpreadsheetEnv();
 
   private store!: Store<ZoomableChartStore>;
 
@@ -369,7 +372,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
 
   onMasterChartPointerDown(ev: PointerEvent) {
     this.removeEventListeners();
-    const zoomedEvent = withZoom(this.env, ev, this.masterChartCanvas()?.getBoundingClientRect());
+    const zoomedEvent = withZoom(this.spEnv, ev, this.masterChartCanvas()?.getBoundingClientRect());
     const position = zoomedEvent.offsetX;
     if (!this.masterChart?.chartArea || !this.chart?.scales?.x) {
       return;
@@ -440,7 +443,11 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     };
 
     const onMasterChartDrag = (ev: PointerEvent) => {
-      const zoomedEvent = withZoom(this.env, ev, this.masterChartCanvas()?.getBoundingClientRect());
+      const zoomedEvent = withZoom(
+        this.spEnv,
+        ev,
+        this.masterChartCanvas()?.getBoundingClientRect()
+      );
       const position = zoomedEvent.offsetX;
       if (Math.abs(position - startingEventPosition) < 5) {
         return;
@@ -478,7 +485,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   updateMasterChartCursor(ev: PointerEvent) {
     const target = ev.target;
     const { offsetX: x, offsetY: y } = withZoom(
-      this.env,
+      this.spEnv,
       ev,
       (target as HTMLElement)?.getBoundingClientRect()
     );
@@ -515,7 +522,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
 
   onMasterChartDoubleClick(ev: PointerEvent) {
     this.mode = undefined;
-    const zoomedEvent = withZoom(this.env, ev, this.masterChartCanvas()?.getBoundingClientRect());
+    const zoomedEvent = withZoom(this.spEnv, ev, this.masterChartCanvas()?.getBoundingClientRect());
     const position = zoomedEvent.offsetX;
     if (!this.masterChart?.chartArea || !this.chart?.scales.x) {
       return;

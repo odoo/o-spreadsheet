@@ -1,12 +1,12 @@
 import { useProps } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { types } from "../../../props_validation";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { Section } from "../../components/section/section";
 
-export class PivotDeferUpdate extends Component<SpreadsheetChildEnv> {
+export class PivotDeferUpdate extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-PivotDeferUpdate";
   protected props = useProps({
     deferUpdate: types.boolean(),

@@ -5,7 +5,7 @@ import { Component } from "../../../../../owl3_compatibility_layer";
 import { _t } from "../../../../../translation";
 import { ChartStyle } from "../../../../../types/chart/chart";
 import { Align, Color, VerticalAlign } from "../../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../../types/spreadsheet_env";
 import { ActionButton } from "../../../../action_button/action_button";
 import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
 import { FontSizeEditor } from "../../../../font_size_editor/font_size_editor";
@@ -15,7 +15,7 @@ export interface TextStylerState {
   activeTool: string;
 }
 
-export class TextStyler extends Component<SpreadsheetChildEnv> {
+export class TextStyler extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet.TextStyler";
   static components = { ColorPickerWidget, ActionButton, FontSizeEditor };
 

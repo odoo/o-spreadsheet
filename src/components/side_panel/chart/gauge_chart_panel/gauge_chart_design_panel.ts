@@ -8,7 +8,7 @@ import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge
 import { CommandResult } from "../../../../types/commands";
 import { Color, ValueAndLabel } from "../../../../types/misc";
 import { PropsOf } from "../../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { Select } from "../../../select/select";
 import { ChartTerms } from "../../../translations_terms";
@@ -26,7 +26,7 @@ interface PanelState {
   sectionRule: SectionRule;
 }
 
-export class GaugeChartDesignPanel extends Component<SpreadsheetChildEnv> {
+export class GaugeChartDesignPanel extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-GaugeChartDesignPanel";
   static components = {
     SidePanelCollapsible,

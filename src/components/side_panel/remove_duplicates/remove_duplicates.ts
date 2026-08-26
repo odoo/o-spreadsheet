@@ -5,7 +5,7 @@ import { Component } from "../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../store_engine/store_hooks";
 import { DataCleanupStore } from "../../../stores/data_cleanup_store";
 import { _t } from "../../../translation";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { types } from "../../props_validation";
 import { RemoveDuplicateTerms } from "../../translations_terms";
@@ -13,7 +13,7 @@ import { ValidationMessages } from "../../validation_messages/validation_message
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 
-export class RemoveDuplicatesPanel extends Component<SpreadsheetChildEnv> {
+export class RemoveDuplicatesPanel extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-RemoveDuplicatesPanel";
   static components = { ValidationMessages, Section, Checkbox };
 

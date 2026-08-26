@@ -6,7 +6,7 @@ import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { _t } from "../../translation";
 import { MenuMouseEvent, Pixel, UID } from "../../types/misc";
 import { Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Ripple } from "../animation/ripple";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
@@ -30,7 +30,7 @@ interface BottomBarMenuState extends MenuState {
   maxHeight?: Pixel;
 }
 
-export class BottomBar extends Component<SpreadsheetChildEnv> {
+export class BottomBar extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-BottomBar";
 
   protected props = useProps({ onClick: types.function<(ev: MouseEvent) => void>() });

@@ -2,7 +2,7 @@ import { proxy, useProps } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { GaugeChartDefinition } from "../../../../types/chart/gauge_chart";
 import { CommandResult, DispatchResult } from "../../../../types/commands";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { ChartTerms } from "../../../translations_terms";
 import { ChartDataSeries } from "../building_blocks/data_series/data_series";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
@@ -12,7 +12,7 @@ interface PanelState {
   dataRangeDispatchResult?: DispatchResult;
 }
 
-export class GaugeChartConfigPanel extends Component<SpreadsheetChildEnv> {
+export class GaugeChartConfigPanel extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-GaugeChartConfigPanel";
   static components = { ChartErrorSection, ChartDataSeries };
   protected props = useProps(

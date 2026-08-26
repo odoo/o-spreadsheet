@@ -1,7 +1,7 @@
 import { DESKTOP_TOPBAR_TOOLBAR_HEIGHT } from "../../../constants";
 import { useStore } from "../../../store_engine/store_hooks";
 import { CSSProperties, ComposerFocusType } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { ComposerSelection } from "../composer/abstract_composer_store";
@@ -12,7 +12,7 @@ import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 import { Component } from "../../../owl3_compatibility_layer";
 const COMPOSER_MAX_HEIGHT = 300;
 
-export class TopBarComposer extends Component<SpreadsheetChildEnv> {
+export class TopBarComposer extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-TopBarComposer";
   static components = { Composer };
 

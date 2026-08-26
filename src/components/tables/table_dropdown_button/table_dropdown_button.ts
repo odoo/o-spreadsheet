@@ -1,6 +1,7 @@
 import { proxy, useProps } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { FIRST_TABLE_IN_SELECTION } from "../../../actions/menu_items_actions";
+import { useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../../helpers/table_presets";
 import { interactiveCreateTable } from "../../../helpers/ui/table_interactive";
 import { cellPositions } from "../../../helpers/zones";
@@ -8,7 +9,7 @@ import { Component } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
 import { UID } from "../../../types/misc";
 import { PropsOf } from "../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { TableConfig } from "../../../types/table";
 import { ActionButton } from "../../action_button/action_button";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
@@ -23,13 +24,15 @@ interface State {
   popoverProps: PropsOf<Popover> | undefined;
 }
 
-export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
+export class TableDropdownButton extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-TableDropdownButton";
   static components = { TableStylesPopover, ActionButton };
 
   protected props = useProps({
     class: types.string().optional(),
   });
+
+  spEnv = useSpreadsheetEnv();
 
   topBarToolStore!: ToolBarDropdownStore;
   state = proxy<State>({ popoverProps: undefined });
@@ -41,7 +44,7 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
   onStylePicked(styleId: string) {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const tableConfig = { ...this.tableConfig, styleId };
-    const result = interactiveCreateTable(this.env, sheetId, tableConfig);
+    const result = interactiveCreateTable(this.spEnv, sheetId, tableConfig);
     if (result.isSuccessful) {
       this.env.openSidePanel("TableSidePanel", {});
     }
@@ -58,7 +61,7 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
       this.env.openSidePanel("PivotSidePanel", { pivotId, openTab: "design" });
       return;
     }
-    if (FIRST_TABLE_IN_SELECTION(this.env)) {
+    if (FIRST_TABLE_IN_SELECTION(this.spEnv)) {
       this.topBarToolStore.closeDropdowns();
       this.env.toggleSidePanel("TableSidePanel", {});
       return;

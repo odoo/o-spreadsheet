@@ -4,7 +4,7 @@ import { _t } from "../../translation";
 import { CellPopoverComponent, PopoverBuilders } from "../../types/cell_popovers";
 import { CellValueType } from "../../types/cells";
 import { CellErrorType } from "../../types/errors";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 
 import { useProps } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
@@ -14,7 +14,7 @@ import { Store } from "../../types/store_engine";
 import { types } from "../props_validation";
 const ERROR_TOOLTIP_MAX_HEIGHT = 80;
 
-export class ErrorToolTip extends Component<SpreadsheetChildEnv> {
+export class ErrorToolTip extends Component<SpreadsheetComponentEnv> {
   static maxSize = { maxHeight: ERROR_TOOLTIP_MAX_HEIGHT };
   static template = "o-spreadsheet-ErrorToolTip";
 

@@ -5,14 +5,14 @@ import { deepEquals } from "../../../helpers/misc";
 import { Component } from "../../../owl3_compatibility_layer";
 import { Locale, LocaleCode } from "../../../types/locale";
 import { ValueAndLabel } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { types } from "../../props_validation";
 import { Select } from "../../select/select";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { BadgeSelection } from "../components/badge_selection/badge_selection";
 import { Section } from "../components/section/section";
 
-export class SettingsPanel extends Component<SpreadsheetChildEnv> {
+export class SettingsPanel extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-SettingsPanel";
   static components = { Section, ValidationMessages, BadgeSelection, Select };
 

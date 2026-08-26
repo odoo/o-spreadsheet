@@ -1,7 +1,7 @@
 import { onMounted, onWillUpdateProps, proxy } from "@odoo/owl";
 import { DRAG_THRESHOLD } from "../../../constants";
 import { isDefined } from "../../../helpers/misc";
-import { render } from "../../../helpers/owl3_helpers";
+import { render, useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { rectUnion } from "../../../helpers/rectangle";
 import { Component } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
@@ -12,7 +12,7 @@ import { ZoomStore } from "../../../stores/zoom_store";
 import { AnchorOffset, Figure, FigureUI, ResizeDirection } from "../../../types/figure";
 import { UID } from "../../../types/misc";
 import { DOMDimension, Rect } from "../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { getCarouselOverlappingChart } from "../../helpers/chart_drag_and_drop";
 import { cssPropertiesToCss } from "../../helpers/css";
@@ -112,9 +112,11 @@ interface DndState {
  * that occurred during the drag & drop, and to position the figure on the correct pane.
  *
  */
-export class FiguresContainer extends Component<SpreadsheetChildEnv> {
+export class FiguresContainer extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-FiguresContainer";
   static components = { FigureComponent };
+
+  spEnv = useSpreadsheetEnv();
 
   dnd = proxy<DndState>({
     draggedFigure: undefined,
@@ -382,7 +384,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       this.chartDragStore.setHighlightedFigure(overlappingChartOrCarousel?.id);
 
       if (!overlappingChartOrCarousel) {
-        const snapReturn = snapForMove(this.env, selectedFigures, otherFigures);
+        const snapReturn = snapForMove(this.spEnv, selectedFigures, otherFigures);
         this.dnd.selectedFigures = snapReturn.snappedFigures;
         this.dnd.selectedRect = this.getDndFigureRect();
         this.dnd.draggedFigure = selectedFigures.find((f) => f.id === draggedFigureId);
@@ -525,7 +527,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
       );
 
       const { snappedRect, verticalSnapLine, horizontalSnapLine } = snapForResize(
-        this.env,
+        this.spEnv,
         dirX,
         dirY,
         resizedRect,

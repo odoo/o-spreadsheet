@@ -14,7 +14,7 @@ import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import { FunctionDescription } from "../../../types/functions";
 import { CSSProperties, Color, Direction } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { isIOS, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
@@ -58,7 +58,7 @@ interface FunctionDescriptionState {
   repeatingArgGroupIndex: number | undefined;
 }
 
-export class Composer extends Component<SpreadsheetChildEnv> {
+export class Composer extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-Composer";
   static components = { TextValueProvider, FunctionDescriptionProvider, SpeechBubble };
 

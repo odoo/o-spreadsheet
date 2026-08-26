@@ -2,13 +2,14 @@ import { onMounted, proxy, signal, useProps } from "@odoo/owl";
 import { urlRegistry, urlRepresentation } from "../../../helpers/links";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { markdownLink } from "../../../helpers/misc";
+import { useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { fuzzyLookup } from "../../../helpers/search";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { Link } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { MenuPopover } from "../../menu_popover/menu_popover";
 import { types } from "../../props_validation";
@@ -29,7 +30,7 @@ interface LinkState {
   linksList: LinkProposal[];
 }
 
-export class LinkEditor extends Component<SpreadsheetChildEnv> {
+export class LinkEditor extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-LinkEditor";
   static components = { MenuPopover };
 
@@ -38,6 +39,8 @@ export class LinkEditor extends Component<SpreadsheetChildEnv> {
     onClosed: types.function().optional(),
   });
   static size = { maxHeight: 500 };
+
+  spEnv = useSpreadsheetEnv();
 
   urlInput = signal.ref(HTMLInputElement);
   suggestionListRef = signal.ref();
@@ -65,7 +68,7 @@ export class LinkEditor extends Component<SpreadsheetChildEnv> {
     const inputVal = this.state.url;
     for (const category of urlRegistry.getKeys()) {
       const spec = urlRegistry.get(category);
-      const linkProposals = spec.getLinkProposals?.(this.env) || [];
+      const linkProposals = spec.getLinkProposals?.(this.spEnv) || [];
       const links =
         inputVal && this.state.isUrlEditable
           ? fuzzyLookup(inputVal, linkProposals, (link) =>

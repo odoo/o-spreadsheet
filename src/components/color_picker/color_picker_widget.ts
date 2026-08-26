@@ -1,12 +1,12 @@
 import { signal, useProps } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { getElBoundingRect } from "../helpers/dom_helpers";
 import { types } from "../props_validation";
 import { ColorPicker } from "./color_picker";
 
-export class ColorPickerWidget extends Component<SpreadsheetChildEnv> {
+export class ColorPickerWidget extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-ColorPickerWidget";
   static components = { ColorPicker };
 

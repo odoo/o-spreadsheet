@@ -1,13 +1,13 @@
 import { useProps } from "@odoo/owl";
 import { TitleDesign } from "../../../../../types/chart/chart";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../../types/spreadsheet_env";
 import { TextInput } from "../../../../text_input/text_input";
 import { Section } from "../../../components/section/section";
 import { TextStyler } from "../text_styler/text_styler";
 
 import { Component } from "../../../../../owl3_compatibility_layer";
 import { types } from "../../../../props_validation";
-export class ChartTitle extends Component<SpreadsheetChildEnv> {
+export class ChartTitle extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet.ChartTitle";
   static components = { Section, TextStyler, TextInput };
 

@@ -1,5 +1,6 @@
 import { proxy, signal, useEffect, useProps } from "@odoo/owl";
 import { sumArray } from "../../helpers/misc";
+import { useSpreadsheetEnv } from "../../helpers/owl3_helpers";
 import { Component } from "../../owl3_compatibility_layer";
 import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
@@ -8,7 +9,7 @@ import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { HeaderIndex } from "../../types/misc";
 import { DOMDimension, Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
 import { ClickableCellsStore } from "../dashboard/clickable_cell_store";
@@ -36,7 +37,7 @@ interface DnDResizeState {
   col: HeaderIndex | undefined;
 }
 
-export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
+export class StandaloneViewport extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-StandaloneViewport";
   static components = { VerticalScrollBar, GridOverlay, ClickableCellsOverlay, GridPopover };
 
@@ -47,6 +48,8 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     columnWeights: types.array<number>().optional(),
     size: types.object<DOMDimension>(),
   });
+
+  spEnv = useSpreadsheetEnv();
 
   private canvasRef = signal.ref(HTMLCanvasElement);
   private containerRef = signal.ref();
@@ -167,7 +170,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     }
     this.dndState.col = resizer.col;
 
-    const initialX = withZoom(this.env, ev).clientX;
+    const initialX = withZoom(this.spEnv, ev).clientX;
     const startingColWeights = this.store.columnWeights;
     const totalWeight = sumArray(startingColWeights);
     let deltaX = 0;
@@ -179,7 +182,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
       }
     };
     const onMouseMove = (ev: MouseEvent) => {
-      deltaX = withZoom(this.env, ev).clientX - initialX;
+      deltaX = withZoom(this.spEnv, ev).clientX - initialX;
 
       const weightDelta = (deltaX / this.props.size.width) * totalWeight;
       this.store.resizeColumn(resizer.col, weightDelta, startingColWeights);

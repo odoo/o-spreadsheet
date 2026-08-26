@@ -4,7 +4,7 @@ import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer
 import { useLocalStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
 import { UID } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { types } from "../../../props_validation";
 import { SelectionInput } from "../../../selection_input/selection_input";
@@ -17,7 +17,7 @@ import { ColorScaleRuleEditor } from "./color_scale_rule_editor";
 import { DataBarRuleEditor } from "./data_bar_rule_editor";
 import { IconSetRuleEditor } from "./icon_set_rule_editor";
 
-export class ConditionalFormattingEditor extends Component<SpreadsheetChildEnv> {
+export class ConditionalFormattingEditor extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-ConditionalFormattingEditor";
   static components = {
     SelectionInput,

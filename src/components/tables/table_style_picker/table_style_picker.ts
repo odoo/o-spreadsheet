@@ -1,7 +1,7 @@
 import { proxy, useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
 import { PropsOf } from "../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { TableStyle } from "../../../types/table";
 import { Popover } from "../../popover/popover";
 import { types } from "../../props_validation";
@@ -15,7 +15,7 @@ interface TableStylePickerState {
   popoverProps: PropsOf<Popover> | undefined;
 }
 
-export class TableStylePicker extends Component<SpreadsheetChildEnv> {
+export class TableStylePicker extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-TableStylePicker";
   static components = { TableStylesPopover, TableStylePreview };
 

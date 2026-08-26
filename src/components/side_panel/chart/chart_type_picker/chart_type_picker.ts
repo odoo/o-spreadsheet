@@ -6,7 +6,7 @@ import { CHART_TYPES, ChartDefinition, ChartType } from "../../../../types/chart
 import { ChartSubtypeProperties } from "../../../../types/chart_subtype_properties";
 import { UID } from "../../../../types/misc";
 import { PropsOf } from "../../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { Popover } from "../../../popover/popover";
 import { types } from "../../../props_validation";
 import { Section } from "../../components/section/section";
@@ -17,7 +17,7 @@ interface ChartTypePickerState {
   popoverProps: PropsOf<Popover> | undefined;
 }
 
-export class ChartTypePicker extends Component<SpreadsheetChildEnv> {
+export class ChartTypePicker extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-ChartTypePicker";
   static components = { Section, ChartTypePickerPopover };
 

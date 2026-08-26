@@ -1,11 +1,12 @@
 import { proxy, signal, useProps } from "@odoo/owl";
+import { useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { UpdateFiguresPayload } from "../../../types/commands";
 import { AnchorOffset, FigureUI, ResizeDirection } from "../../../types/figure";
 import { CSSProperties, UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { withZoom } from "../../helpers/zoom";
@@ -28,7 +29,7 @@ type ResizeAnchor =
 const ANCHOR_SIZE = 8;
 const ACTIVE_BORDER_WIDTH = 2;
 
-export class FigureComponent extends Component<SpreadsheetChildEnv> {
+export class FigureComponent extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-FigureComponent";
   static components = { MenuPopover };
 
@@ -41,6 +42,8 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
       .function<(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) => void>()
       .optional(() => () => {}),
   });
+
+  spEnv = useSpreadsheetEnv();
 
   private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
@@ -304,7 +307,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
     if (this.env.model.getters.isDashboard()) {
       return;
     }
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = withZoom(this.spEnv, ev);
     this.openContextMenu({
       x: zoomedMouseEvent.clientX,
       y: zoomedMouseEvent.clientY,
@@ -318,7 +321,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
     this.menuState.anchorRect = anchorRect;
     this.menuState.menuItems = figureRegistry
       .get(this.props.figureUI.tag)
-      .menuBuilder(this.props.figureUI.id, this.env);
+      .menuBuilder(this.props.figureUI.id, this.spEnv);
   }
 
   get isFigureResizable(): boolean {

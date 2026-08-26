@@ -1,10 +1,10 @@
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { PropsOf } from "../../types/props_of";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Highlight } from "../highlight/highlight/highlight";
 
 import { Component } from "../../owl3_compatibility_layer";
-export class Selection extends Component<SpreadsheetChildEnv> {
+export class Selection extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-Selection";
   static components = { Highlight };
 

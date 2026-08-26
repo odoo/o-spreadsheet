@@ -10,7 +10,7 @@ import { _t } from "../../../../translation";
 import { Cell } from "../../../../types/cells";
 import { PivotFilter, SpreadsheetPivotCoreDefinition } from "../../../../types/pivot";
 import { PropsOf } from "../../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { DataFilterValue } from "../../../../types/table";
 import { PivotFilterMenu } from "../../../filters/pivot_filter_menu/pivot_filter_menu";
 import { isChildEvent } from "../../../helpers/dom_helpers";
@@ -28,7 +28,7 @@ interface State {
   values: Value[];
 }
 
-export class PivotFilterEditor extends Component<SpreadsheetChildEnv> {
+export class PivotFilterEditor extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-PivotFilterEditor";
   static components = {
     PivotDimension,

@@ -4,14 +4,14 @@ import { positionToZone } from "../../helpers/zones";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { HeaderIndex } from "../../types/misc";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 import { types } from "../props_validation";
 
 import { Component } from "../../owl3_compatibility_layer";
 import { Store } from "../../types/store_engine";
 
-export class UnhideRowHeaders extends Component<SpreadsheetChildEnv> {
+export class UnhideRowHeaders extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-UnhideRowHeaders";
 
   protected props = useProps({
@@ -64,7 +64,7 @@ export class UnhideRowHeaders extends Component<SpreadsheetChildEnv> {
   }
 }
 
-export class UnhideColumnHeaders extends Component<SpreadsheetChildEnv> {
+export class UnhideColumnHeaders extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-UnhideColumnHeaders";
 
   protected props = useProps({

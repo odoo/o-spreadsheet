@@ -1,4 +1,4 @@
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 
 import { useProps } from "@odoo/owl";
@@ -8,7 +8,7 @@ import { ViewportsStore } from "../../stores/viewports_store";
 import { Store } from "../../types/store_engine";
 import { types } from "../props_validation";
 
-export class ClientTag extends Component<SpreadsheetChildEnv> {
+export class ClientTag extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-ClientTag";
 
   private viewStore!: Store<ViewportsStore>;

@@ -9,14 +9,14 @@ import { createMeasureAutoComplete } from "../../../../../registries/auto_comple
 import { _t } from "../../../../../translation";
 import { Color, ValueAndLabel } from "../../../../../types/misc";
 import { PivotMeasure } from "../../../../../types/pivot";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../../composer/standalone_composer/standalone_composer";
 import { types } from "../../../../props_validation";
 import { Select } from "../../../../select/select";
 import { measureDisplayTerms } from "../../../../translations_terms";
 import { PivotDimension } from "../pivot_dimension/pivot_dimension";
 
-export class PivotMeasureEditor extends Component<SpreadsheetChildEnv> {
+export class PivotMeasureEditor extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-PivotMeasureEditor";
   static components = {
     PivotDimension,

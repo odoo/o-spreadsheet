@@ -5,12 +5,12 @@ import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { _t } from "../../translation";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { ValidationMessages } from "../validation_messages/validation_messages";
 
-export class GridAddRowsFooter extends Component<SpreadsheetChildEnv> {
+export class GridAddRowsFooter extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-GridAddRowsFooter";
   static components = { ValidationMessages };
 

@@ -7,11 +7,11 @@ import {
 import { Component } from "../../../../../owl3_compatibility_layer";
 import { _t } from "../../../../../translation";
 import { PivotDomain } from "../../../../../types/pivot";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../../types/spreadsheet_env";
 import { types } from "../../../../props_validation";
 import { Section } from "../../../components/section/section";
 
-export class PivotSortSection extends Component<SpreadsheetChildEnv> {
+export class PivotSortSection extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-PivotSortSection";
   static components = {
     Section,

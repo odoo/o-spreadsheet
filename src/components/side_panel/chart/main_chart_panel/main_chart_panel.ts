@@ -3,7 +3,7 @@ import { Component } from "../../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../../store_engine/store_hooks";
 import { ChartDefinition, ChartType } from "../../../../types/chart/chart";
 import { UID } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { types } from "../../../props_validation";
 import { Section } from "../../components/section/section";
@@ -11,7 +11,7 @@ import { ChartSidePanel, chartSidePanelComponentRegistry } from "../chart_side_p
 import { ChartTypePicker } from "../chart_type_picker/chart_type_picker";
 import { MainChartPanelStore } from "./main_chart_panel_store";
 
-export class ChartPanel extends Component<SpreadsheetChildEnv> {
+export class ChartPanel extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-ChartPanel";
   static components = { Section, ChartTypePicker };
 

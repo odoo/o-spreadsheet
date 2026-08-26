@@ -3,11 +3,11 @@ import { Component } from "../../../../../owl3_compatibility_layer";
 import { ChartDefinitionWithDataSource } from "../../../../../types/chart/chart";
 import { DispatchResult } from "../../../../../types/commands";
 import { UID } from "../../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../../types/spreadsheet_env";
 import { types } from "../../../../props_validation";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 
-export class ChartShowValues extends Component<SpreadsheetChildEnv> {
+export class ChartShowValues extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-ChartShowValues";
   static components = {
     Checkbox,

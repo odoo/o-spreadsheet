@@ -3,7 +3,7 @@ import { CHART_TITLE_FONT_SIZE } from "../../../../../constants";
 import { Component } from "../../../../../owl3_compatibility_layer";
 import { TitleDesign } from "../../../../../types/chart/chart";
 import { Color } from "../../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../../types/spreadsheet_env";
 import { types } from "../../../../props_validation";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "../../../components/radio_selection/radio_selection";
@@ -16,7 +16,7 @@ interface GeneralDesignEditorState {
   activeTool: string;
 }
 
-export class GeneralDesignEditor extends Component<SpreadsheetChildEnv> {
+export class GeneralDesignEditor extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-GeneralDesignEditor";
   static components = {
     RoundColorPicker,

@@ -1,5 +1,5 @@
 import { useProps } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 
 import { Component } from "../../../../owl3_compatibility_layer";
 import { types } from "../../../props_validation";
@@ -10,7 +10,7 @@ import { types } from "../../../props_validation";
 // </svg>
 // `;
 
-export class Checkbox extends Component<SpreadsheetChildEnv> {
+export class Checkbox extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet.Checkbox";
 
   protected props = useProps({

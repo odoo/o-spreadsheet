@@ -1,16 +1,19 @@
 import { toRaw } from "@odoo/owl";
+import { useSpreadsheetEnv } from "../../helpers/owl3_helpers";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ClickableCell, ClickableCellsStore } from "../dashboard/clickable_cell_store";
 import { cssPropertiesToCss } from "../helpers/css";
 import { isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
 
-export class ClickableCellsOverlay extends Component<SpreadsheetChildEnv> {
+export class ClickableCellsOverlay extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-ClickableCellsOverlay";
   static components = {};
+
+  spEnv = useSpreadsheetEnv();
 
   clickableCellsStore!: Store<ClickableCellsStore>;
 
@@ -42,6 +45,6 @@ export class ClickableCellsOverlay extends Component<SpreadsheetChildEnv> {
       return;
     }
     const { position, action } = clickableCell;
-    action(position, this.env, isMiddleClickOrCtrlClick(ev));
+    action(position, this.spEnv, isMiddleClickOrCtrlClick(ev));
   }
 }

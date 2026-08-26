@@ -4,11 +4,11 @@ import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { _t } from "../../../../translation";
 import { PropsOf } from "../../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { types } from "../../../props_validation";
 
-export class CriterionInput extends Component<SpreadsheetChildEnv> {
+export class CriterionInput extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-CriterionInput";
   static components = { StandaloneComposer: StandaloneComposer };
 

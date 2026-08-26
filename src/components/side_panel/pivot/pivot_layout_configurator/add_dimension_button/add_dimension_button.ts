@@ -8,7 +8,7 @@ import {
 } from "../../../../../registries/auto_completes/auto_complete_registry";
 import { useLocalStore } from "../../../../../store_engine/store_hooks";
 import { PivotField } from "../../../../../types/pivot";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../../types/spreadsheet_env";
 import { Store } from "../../../../../types/store_engine";
 import { TextValueProvider } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown";
 import { AutoCompleteStore } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown_store";
@@ -17,7 +17,7 @@ import { getHtmlContentFromPattern } from "../../../../helpers/html_content_help
 import { Popover } from "../../../../popover/popover";
 import { types } from "../../../../props_validation";
 
-export class AddDimensionButton extends Component<SpreadsheetChildEnv> {
+export class AddDimensionButton extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-AddDimensionButton";
   static components = { Popover, TextValueProvider };
   protected props = useProps({

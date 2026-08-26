@@ -7,12 +7,12 @@ import {
   ChartSubtypeProperties,
 } from "../../../../types/chart_subtype_properties";
 import { PropsOf } from "../../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { isChildEvent } from "../../../helpers/dom_helpers";
 import { Popover } from "../../../popover/popover";
 import { types } from "../../../props_validation";
 
-export class ChartTypePickerPopover extends Component<SpreadsheetChildEnv> {
+export class ChartTypePickerPopover extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-ChartTypePickerPopover";
   static components = { Popover };
 

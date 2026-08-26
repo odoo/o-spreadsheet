@@ -1,7 +1,7 @@
 import { useStore } from "../../store_engine/store_hooks";
 import { ZoomStore } from "../../stores/zoom_store";
 import { ClosedCellPopover, PositionedCellPopoverComponent } from "../../types/cell_popovers";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
@@ -10,7 +10,7 @@ import { types } from "../props_validation";
 import { useProps } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 
-export class GridPopover extends Component<SpreadsheetChildEnv> {
+export class GridPopover extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-GridPopover";
   static components = { Popover };
 

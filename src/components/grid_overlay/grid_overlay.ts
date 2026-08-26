@@ -1,5 +1,6 @@
 import { onMounted, onWillUnmount, signal, Signal, useListener, useProps } from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
+import { useSpreadsheetEnv } from "../../helpers/owl3_helpers";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { positionToZone } from "../../helpers/zones";
 import { Component } from "../../owl3_compatibility_layer";
@@ -8,7 +9,7 @@ import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { CellPosition, GridClickModifiers, HeaderIndex, Position } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetChildEnv, SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
@@ -138,7 +139,7 @@ function useCellHovered(
   return hoveredPosition;
 }
 
-export class GridOverlay extends Component<SpreadsheetChildEnv> {
+export class GridOverlay extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-GridOverlay";
   static components = {
     GridAddRowsFooter,
@@ -165,6 +166,8 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
     gridOverlayDimensions: types.string(),
     hasFooter: types.boolean().optional(() => true),
   });
+
+  spEnv = useSpreadsheetEnv();
   private gridOverlayRef = signal.ref();
   private cellPopovers!: Store<CellPopoverStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
@@ -172,7 +175,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
   viewStore!: Store<ViewportsStore>;
 
   setup() {
-    useCellHovered(this.env, this.gridOverlayRef);
+    useCellHovered(this.spEnv, this.gridOverlayRef);
     const resizeObserver = new ResizeObserver(() => {
       this.props.onGridResized();
     });
@@ -212,7 +215,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
     if (this.env.isMobile()) {
       return;
     }
-    const icon = this.getInteractiveIconAtEvent(withZoom(this.env, ev));
+    const icon = this.getInteractiveIconAtEvent(withZoom(this.spEnv, ev));
     const hoveredIcon = icon?.type ? { id: icon.type, position: icon.position } : undefined;
     if (!deepEquals(hoveredIcon, this.hoveredIconStore.hoveredIcon)) {
       this.hoveredIconStore.setHoveredIcon(hoveredIcon);
@@ -224,7 +227,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
       // not main button, probably a context menu
       return;
     }
-    this.onCellClicked(withZoom(this.env, ev));
+    this.onCellClicked(withZoom(this.spEnv, ev));
   }
 
   onClick(ev: MouseEvent) {
@@ -232,7 +235,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
       // not main button, probably a context menu
       return;
     }
-    this.onCellClicked(withZoom(this.env, ev));
+    this.onCellClicked(withZoom(this.spEnv, ev));
   }
 
   onCellClicked(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent | PointerEvent>) {
@@ -253,7 +256,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
     );
 
     if (clickedIcon?.onClick) {
-      clickedIcon.onClick(clickedIcon.position, this.env);
+      clickedIcon.onClick(clickedIcon.position, this.spEnv);
     }
 
     if (
@@ -268,7 +271,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
   }
 
   onDoubleClick(ev: MouseEvent) {
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = withZoom(this.spEnv, ev);
     if (this.getInteractiveIconAtEvent(zoomedMouseEvent)) {
       return;
     }
@@ -278,7 +281,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
   }
 
   onContextMenu(ev: MouseEvent) {
-    const [col, row] = this.getCartesianCoordinates(withZoom(this.env, ev));
+    const [col, row] = this.getCartesianCoordinates(withZoom(this.spEnv, ev));
     this.props.onCellRightClicked(col, row, { x: ev.clientX, y: ev.clientY });
   }
 

@@ -1,5 +1,6 @@
 import { proxy, useProps } from "@odoo/owl";
 import { clip } from "../../../helpers/misc";
+import { useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { isEqual } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
@@ -7,7 +8,7 @@ import { ViewportsStore } from "../../../stores/viewports_store";
 import { ZoomStore } from "../../../stores/zoom_store";
 import { ResizeDirection } from "../../../types/figure";
 import { HeaderIndex, Zone } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { gridOverlayPosition } from "../../helpers/dom_helpers";
 import {
@@ -22,7 +23,7 @@ import { Corner } from "../corner/corner";
 interface HighlightState {
   shiftingMode: "isMoving" | "isResizing" | "none";
 }
-export class Highlight extends Component<SpreadsheetChildEnv> {
+export class Highlight extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-Highlight";
   static components = {
     Corner,
@@ -34,10 +35,12 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
     color: types.Color(),
   });
 
+  spEnv = useSpreadsheetEnv();
+
   highlightState: HighlightState = proxy({
     shiftingMode: "none",
   });
-  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
 
@@ -62,7 +65,7 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
 
   onResizeHighlight(ev: PointerEvent, dirX: ResizeDirection, dirY: ResizeDirection) {
     const activeSheetId = this.env.model.getters.getActiveSheetId();
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = withZoom(this.spEnv, ev);
     this.highlightState.shiftingMode = "isResizing";
     const z = this.props.range.zone;
 
@@ -131,7 +134,7 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
 
     const zoomLevel = this.zoomStore.zoomLevel;
     const position = gridOverlayPosition(zoomLevel);
-    const zoomedMouseEvent = withZoom(this.env, ev, position);
+    const zoomedMouseEvent = withZoom(this.spEnv, ev, position);
 
     const activeSheetId = this.env.model.getters.getActiveSheetId();
 

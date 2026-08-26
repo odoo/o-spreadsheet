@@ -6,10 +6,11 @@ import {
   isRootMenu,
   MenuItemOrSeparator,
 } from "../../actions/action";
+import { useSpreadsheetEnv } from "../../helpers/owl3_helpers";
 import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { Pixel } from "../../types/misc";
 import { Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 import { types } from "../props_validation";
 
@@ -27,7 +28,7 @@ export interface MenuState {
   isHoveringChild?: boolean;
 }
 
-export class Menu extends Component<SpreadsheetChildEnv> {
+export class Menu extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-Menu";
   static components = {};
 
@@ -46,6 +47,8 @@ export class Menu extends Component<SpreadsheetChildEnv> {
   });
 
   private menuRef = signal.ref();
+
+  spEnv = useSpreadsheetEnv();
 
   setup(): void {
     useLayoutEffect(() => {
@@ -70,10 +73,10 @@ export class Menu extends Component<SpreadsheetChildEnv> {
   }
 
   getIconName(menu: Action) {
-    if (menu.icon(this.env)) {
-      return menu.icon(this.env);
+    if (menu.icon(this.spEnv)) {
+      return menu.icon(this.spEnv);
     }
-    if (menu.isActive?.(this.env)) {
+    if (menu.isActive?.(this.spEnv)) {
       return "o-spreadsheet-Icon.CHECK";
     }
 
@@ -93,7 +96,7 @@ export class Menu extends Component<SpreadsheetChildEnv> {
   }
 
   getName(menu: Action) {
-    return menu.name(this.env);
+    return menu.name(this.spEnv);
   }
 
   isRoot(menu: Action) {
@@ -101,7 +104,7 @@ export class Menu extends Component<SpreadsheetChildEnv> {
   }
 
   isEnabled(menu: Action) {
-    return isMenuItemEnabled(this.env, menu);
+    return isMenuItemEnabled(this.spEnv, menu);
   }
 
   get menuStyle() {

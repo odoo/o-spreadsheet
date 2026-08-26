@@ -8,7 +8,7 @@ import { _t } from "../../../../translation";
 import { VerticalAxisPosition } from "../../../../types/chart/common_chart";
 import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
 import { Color } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
@@ -27,7 +27,7 @@ import { Checkbox } from "./../../components/checkbox/checkbox";
 
 import { useProps } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
-export class WaterfallChartDesignPanel extends Component<SpreadsheetChildEnv> {
+export class WaterfallChartDesignPanel extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-WaterfallChartDesignPanel";
   static components = {
     GeneralDesignEditor,

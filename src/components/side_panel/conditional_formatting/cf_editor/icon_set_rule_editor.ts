@@ -5,14 +5,14 @@ import { _t } from "../../../../translation";
 import { CommandResult } from "../../../../types/commands";
 import { ValueAndLabel } from "../../../../types/misc";
 import { PropsOf } from "../../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { IconPicker } from "../../../icon_picker/icon_picker";
 import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
 import { ConditionalFormattingEditorStore } from "./cf_editor_store";
 
-export class IconSetRuleEditor extends Component<SpreadsheetChildEnv> {
+export class IconSetRuleEditor extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-IconSetRuleEditor";
   static components = {
     IconPicker,

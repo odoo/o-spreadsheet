@@ -3,7 +3,7 @@ import { Token } from "../../../formulas/tokenizer";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../../store_engine/store_hooks";
 import { Color, ComposerFocusType } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
@@ -13,7 +13,7 @@ import { Composer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 import { StandaloneComposerStore } from "./standalone_composer_store";
 
-export class StandaloneComposer extends Component<SpreadsheetChildEnv> {
+export class StandaloneComposer extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-StandaloneComposer";
   static components = { Composer };
 

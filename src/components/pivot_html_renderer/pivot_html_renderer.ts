@@ -4,7 +4,7 @@ import { toString } from "../../functions/helpers";
 import { formatValue } from "../../helpers/format/format";
 import { generatePivotArgs } from "../../helpers/pivot/pivot_helpers";
 import { Component } from "../../owl3_compatibility_layer";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { types } from "../props_validation";
 import { Checkbox } from "../side_panel/components/checkbox/checkbox";
 
@@ -39,7 +39,7 @@ interface TableData {
   values: PivotDialogValue[][];
 }
 
-export class PivotHTMLRenderer extends Component<SpreadsheetChildEnv> {
+export class PivotHTMLRenderer extends Component<SpreadsheetComponentEnv> {
   static template = "o_spreadsheet.PivotHTMLRenderer";
   static components = { Checkbox };
   protected props = useProps({

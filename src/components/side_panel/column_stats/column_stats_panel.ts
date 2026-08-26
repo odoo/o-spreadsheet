@@ -8,7 +8,7 @@ import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
 import { Highlight } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { useHighlights } from "../../helpers/highlight_hook";
 import { NumberInput } from "../../number_input/number_input";
@@ -18,7 +18,7 @@ import { SidePanelCollapsible } from "../components/collapsible/side_panel_colla
 import { Section } from "../components/section/section";
 import { ColumnStatisticsStore } from "./column_stats_store";
 
-export class ColumnStatsPanel extends Component<SpreadsheetChildEnv> {
+export class ColumnStatsPanel extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-ColumnStatsPanel";
   static components = { NumberInput, SidePanelCollapsible, BadgeSelection, Section };
 

@@ -1,9 +1,10 @@
 import { proxy, signal, useProps } from "@odoo/owl";
 import { HIGHLIGHT_COLOR } from "../../../../constants";
+import { useSpreadsheetEnv } from "../../../../helpers/owl3_helpers";
 import { interactiveUpdateNamedRange } from "../../../../helpers/ui/named_range_interactive";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { Highlight } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
 import { types } from "../../../props_validation";
 import { SelectionInput } from "../../../selection_input/selection_input";
@@ -14,13 +15,15 @@ interface State {
   currentRange?: string;
 }
 
-export class NamedRangePreview extends Component<SpreadsheetChildEnv> {
+export class NamedRangePreview extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-NamedRangePreview";
   static components = { SelectionInput, TextInput };
 
   protected props = useProps({
     namedRange: types.NamedRange(),
   });
+
+  spEnv = useSpreadsheetEnv();
 
   state = proxy<State>({});
 
@@ -45,7 +48,7 @@ export class NamedRangePreview extends Component<SpreadsheetChildEnv> {
 
   updateNamedRangeName(newName: string) {
     newName = newName.replace(/ /g, "_");
-    interactiveUpdateNamedRange(this.env, {
+    interactiveUpdateNamedRange(this.spEnv, {
       oldRangeName: this.props.namedRange.name,
       newRangeName: newName,
       ranges: [this.env.model.getters.getRangeData(this.props.namedRange.range)],
@@ -67,7 +70,7 @@ export class NamedRangePreview extends Component<SpreadsheetChildEnv> {
         return;
       }
 
-      interactiveUpdateNamedRange(this.env, {
+      interactiveUpdateNamedRange(this.spEnv, {
         oldRangeName: this.props.namedRange.name,
         newRangeName: this.props.namedRange.name,
         ranges: [this.env.model.getters.getRangeData(range)],

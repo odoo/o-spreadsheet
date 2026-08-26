@@ -5,7 +5,7 @@ import { ViewportsStore } from "../../stores/viewports_store";
 import { ComposerFocusType } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
 import { Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { Ripple } from "../animation/ripple";
 import { BottomBar } from "../bottom_bar/bottom_bar";
@@ -17,7 +17,7 @@ import { getElBoundingRect } from "../helpers/dom_helpers";
 import { types } from "../props_validation";
 import { RibbonMenu } from "./ribbon_menu/ribbon_menu";
 
-export class SmallBottomBar extends Component<SpreadsheetChildEnv> {
+export class SmallBottomBar extends Component<SpreadsheetComponentEnv> {
   static components = { Composer, BottomBar, Ripple, RibbonMenu };
   static template = "o-spreadsheet-SmallBottomBar";
 

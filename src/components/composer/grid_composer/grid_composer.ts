@@ -11,7 +11,7 @@ import { ViewportsStore } from "../../../stores/viewports_store";
 import { CellPosition, ComposerFocusType } from "../../../types/misc";
 import { PropsOf } from "../../../types/props_of";
 import { Rect } from "../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss, getTextDecoration } from "../../helpers/css";
 import { types } from "../../props_validation";
@@ -26,7 +26,7 @@ const GRID_CELL_REFERENCE_TOP_OFFSET = 28;
  * This component is a composer which positions itself on the grid at the anchor cell.
  * It also applies the style of the cell to the composer input.
  */
-export class GridComposer extends Component<SpreadsheetChildEnv> {
+export class GridComposer extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-GridComposer";
   static components = { Composer };
 

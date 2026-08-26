@@ -7,7 +7,7 @@ import { _t } from "../../../../translation";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { MenuMouseEvent, ValueAndLabel } from "../../../../types/misc";
 import { Rect } from "../../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { FullScreenFigureStore } from "../../../full_screen_figure/full_screen_figure_store";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
@@ -15,6 +15,7 @@ import { MenuPopover } from "../../../menu_popover/menu_popover";
 import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
 
+import { useSpreadsheetEnv } from "../../../../helpers/owl3_helpers";
 import { InfoPopover } from "../../../info_popover/info_popover";
 
 interface MenuItem {
@@ -30,7 +31,7 @@ interface ChartMenuState {
   menuItems: Action[];
 }
 
-export class ChartMenu extends Component<SpreadsheetChildEnv> {
+export class ChartMenu extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-ChartMenu";
   static components = { MenuPopover, InfoPopover, Select };
   protected props = useProps({
@@ -38,6 +39,8 @@ export class ChartMenu extends Component<SpreadsheetChildEnv> {
     hasFullScreenButton: types.boolean().optional(true),
     displayEllipsisButton: types.boolean().optional(true),
   });
+
+  spEnv = useSpreadsheetEnv();
 
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
 
@@ -94,7 +97,7 @@ export class ChartMenu extends Component<SpreadsheetChildEnv> {
     }
     this.state.openedPopover = "menu";
     this.state.anchorRect = getBoundingRectAsPOJO(ev.currentTarget as HTMLElement);
-    this.state.menuItems = getChartMenuActions(this.figureId, this.env);
+    this.state.menuItems = getChartMenuActions(this.figureId, this.spEnv);
   }
 
   showInfo(ev: MenuMouseEvent) {

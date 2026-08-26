@@ -6,7 +6,7 @@ import {
   CustomizableSeriesChartRuntime,
 } from "../../../../../types/chart/chart";
 import { ValueAndLabel } from "../../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../../types/spreadsheet_env";
 import { types } from "../../../../props_validation";
 import { Select } from "../../../../select/select";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
@@ -14,7 +14,7 @@ import { RoundColorPicker } from "../../../components/round_color_picker/round_c
 import { Section } from "../../../components/section/section";
 import { ChartUpdateFunction } from "../../common";
 
-export class SeriesDesignEditor extends Component<SpreadsheetChildEnv> {
+export class SeriesDesignEditor extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-SeriesDesignEditor";
   static components = {
     SidePanelCollapsible,

@@ -24,7 +24,7 @@ import {
 } from "../../../../../types/chart/chart";
 import { CommandResult, DispatchResult } from "../../../../../types/commands";
 import { UID, Zone } from "../../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../../types/spreadsheet_env";
 import { types } from "../../../../props_validation";
 import { ChartTerms } from "../../../../translations_terms";
 import { ChartUpdateFunction } from "../../common";
@@ -36,7 +36,7 @@ interface ChartRangeDataSourceState {
   labelsDispatchResult?: DispatchResult;
 }
 
-export class ChartRangeDataSourceComponent extends Component<SpreadsheetChildEnv> {
+export class ChartRangeDataSourceComponent extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-ChartRangeDataSource";
   static components = {
     ChartDataSeries,

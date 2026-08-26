@@ -2,6 +2,7 @@ import { onMounted, onPatched, proxy, signal, useListener, useProps } from "@odo
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../constants";
+import { useSpreadsheetEnv } from "../../helpers/owl3_helpers";
 import { Component } from "../../owl3_compatibility_layer";
 import { formatNumberMenuItemSpec } from "../../registries/menus/number_format_menu_registry";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
@@ -10,7 +11,7 @@ import { useStore } from "../../store_engine/store_hooks";
 import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store";
 import { Color, UID } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
@@ -37,7 +38,7 @@ interface State {
 // TopBar
 // -----------------------------------------------------------------------------
 
-export class TopBar extends Component<SpreadsheetChildEnv> {
+export class TopBar extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-TopBar";
   protected props = useProps({
     onClick: types.function(),
@@ -49,6 +50,8 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
     Popover,
     NamedRangeSelector,
   };
+
+  spEnv = useSpreadsheetEnv();
 
   toolsCategories = topBarToolBarRegistry.getCategories();
 
@@ -150,7 +153,7 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
   get topbarComponents() {
     return topbarComponentRegistry
       .getAllOrdered()
-      .filter((item) => !item.isVisible || item.isVisible(this.env));
+      .filter((item) => !item.isVisible || item.isVisible(this.spEnv));
   }
 
   get currentFontSize(): number {
@@ -220,7 +223,7 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
     this.state.menuState.isOpen = true;
     this.state.menuState.anchorRect = getBoundingRectAsPOJO(target);
     this.state.menuState.menuItems = menu
-      .children(this.env)
+      .children(this.spEnv)
       .sort((a, b) => a.sequence - b.sequence);
     this.state.menuState.parentMenu = menu;
     this.state.menuState.autoSelectFirstItem = autoSelectFirstItem;
@@ -241,16 +244,16 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
   }
 
   getMenuName(menu: Action) {
-    return menu.name(this.env);
+    return menu.name(this.spEnv);
   }
 
   setColor(target: string, color: Color) {
-    setStyle(this.env, { [target]: color });
+    setStyle(this.spEnv, { [target]: color });
     this.onClick();
   }
 
   setFontSize(fontSize: number) {
-    setStyle(this.env, { fontSize });
+    setStyle(this.spEnv, { fontSize });
   }
 
   toggleMoreTools() {

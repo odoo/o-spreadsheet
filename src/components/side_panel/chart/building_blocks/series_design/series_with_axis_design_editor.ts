@@ -11,7 +11,7 @@ import {
   TrendConfiguration,
 } from "../../../../../types/chart/chart";
 import { Color, UID, ValueAndLabel } from "../../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../../types/spreadsheet_env";
 import { NumberInput } from "../../../../number_input/number_input";
 import { types } from "../../../../props_validation";
 import { Select } from "../../../../select/select";
@@ -22,7 +22,7 @@ import { Section } from "../../../components/section/section";
 import { ChartUpdateFunction } from "../../common";
 import { SeriesDesignEditor } from "./series_design_editor";
 
-export class SeriesWithAxisDesignEditor extends Component<SpreadsheetChildEnv> {
+export class SeriesWithAxisDesignEditor extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-SeriesWithAxisDesignEditor";
   static components = {
     SeriesDesignEditor,

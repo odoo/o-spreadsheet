@@ -1,17 +1,20 @@
 import { useProps } from "@odoo/owl";
 import { setStyle } from "../../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../../constants";
+import { useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { Component } from "../../../owl3_compatibility_layer";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { FontSizeEditor } from "../../font_size_editor/font_size_editor";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 import { types } from "../../props_validation";
 
-export class TopBarFontSizeEditor extends Component<SpreadsheetChildEnv> {
+export class TopBarFontSizeEditor extends Component<SpreadsheetComponentEnv> {
   static components = { FontSizeEditor };
   static template = "o-spreadsheet-TopBarFontSizeEditor";
 
   protected props = useProps({ class: types.string() });
+
+  spEnv = useSpreadsheetEnv();
   topBarToolStore!: ToolBarDropdownStore;
 
   setup() {
@@ -22,7 +25,7 @@ export class TopBarFontSizeEditor extends Component<SpreadsheetChildEnv> {
     return this.env.model.getters.getCurrentStyle().fontSize || DEFAULT_FONT_SIZE;
   }
   setFontSize(fontSize: number) {
-    setStyle(this.env, { fontSize });
+    setStyle(this.spEnv, { fontSize });
   }
 
   onToggle() {

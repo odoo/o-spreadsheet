@@ -1,5 +1,5 @@
 import { useProps } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 
 import { Component } from "../../../../owl3_compatibility_layer";
 import { types } from "../../../props_validation";
@@ -15,7 +15,7 @@ interface Choice {
 // </svg>
 // `;
 
-export class RadioSelection extends Component<SpreadsheetChildEnv> {
+export class RadioSelection extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet.RadioSelection";
 
   protected props = useProps({

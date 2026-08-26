@@ -8,14 +8,14 @@ import { CommandResult } from "../../../../types/commands";
 import { ColorScaleThreshold } from "../../../../types/conditional_formatting";
 import { ValueAndLabel } from "../../../../types/misc";
 import { PropsOf } from "../../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { ConditionalFormattingEditorStore } from "./cf_editor_store";
 
-export class ColorScaleRuleEditorThreshold extends Component<SpreadsheetChildEnv> {
+export class ColorScaleRuleEditorThreshold extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-ColorScaleRuleEditorThreshold";
   static components = {
     RoundColorPicker,

@@ -6,7 +6,7 @@ import { _t } from "../../../../translation";
 import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
 import { VerticalAxisPosition } from "../../../../types/chart/common_chart";
 import { Color } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
@@ -23,7 +23,7 @@ import { ChartLegend } from "../building_blocks/legend/legend";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
-export class BubbleChartDesignPanel extends Component<SpreadsheetChildEnv> {
+export class BubbleChartDesignPanel extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-BubbleChartDesignPanel";
   static components = {
     GeneralDesignEditor,

@@ -8,6 +8,7 @@ import {
   useProps,
 } from "@odoo/owl";
 import { throttle } from "../../../helpers/misc";
+import { useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
@@ -17,7 +18,7 @@ import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import { Command, CommandResult, DispatchResult, isSheetDependent } from "../../../types/commands";
 import { UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { Ripple } from "../../animation/ripple";
 import { ColorPicker } from "../../color_picker/color_picker";
@@ -45,7 +46,7 @@ const getSheetLockAnimation = (
   ];
 };
 
-export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
+export class BottomBarSheet extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-BottomBarSheet";
   static components = { Ripple, ColorPicker };
   protected props = useProps({
@@ -54,6 +55,8 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
     style: types.string().optional(""),
     onMouseDown: types.function<(ev: PointerEvent) => void>().optional(() => () => {}),
   });
+
+  spEnv = useSpreadsheetEnv();
 
   private state = proxy<State>({ isEditing: false, openedPicker: undefined });
 
@@ -223,7 +226,7 @@ export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
 
     const inputValue = this.getInputContent() || "";
 
-    interactiveRenameSheet(this.env, this.props.sheetId, inputValue, () => this.startEdition());
+    interactiveRenameSheet(this.spEnv, this.props.sheetId, inputValue, () => this.startEdition());
   }
 
   private cancelEdition() {

@@ -3,14 +3,14 @@ import { rectIntersection } from "../../helpers/rectangle";
 import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { CSSProperties } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { usePopoverContainer, useSpreadsheetRect } from "../helpers/position_hook";
 import { types } from "../props_validation";
 
 type PopoverPosition = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 type DisplayValue = "none" | "block";
 
-export class Popover extends Component<SpreadsheetChildEnv> {
+export class Popover extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-Popover";
 
   protected props = useProps({

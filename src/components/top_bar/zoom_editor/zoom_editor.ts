@@ -3,13 +3,13 @@ import { ZOOM_VALUES } from "../../../constants";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ZoomStore } from "../../../stores/zoom_store";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 import { NumberEditor } from "../../number_editor/number_editor";
 import { types } from "../../props_validation";
 
-export class ToolBarZoom extends Component<SpreadsheetChildEnv> {
+export class ToolBarZoom extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-TopBarZoom";
   static components = { NumberEditor };
 

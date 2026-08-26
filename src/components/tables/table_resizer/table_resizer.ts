@@ -1,10 +1,11 @@
 import { proxy, useProps } from "@odoo/owl";
+import { useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { TableResizeStore } from "../../../stores/table_resize_store";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { HeaderIndex, Highlight, Zone } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop_grid_hook";
@@ -19,15 +20,17 @@ interface State {
   highlightZone: Zone | undefined;
 }
 
-export class TableResizer extends Component<SpreadsheetChildEnv> {
+export class TableResizer extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-TableResizer";
 
   protected props = useProps({
     table: types.Table(),
   });
 
+  spEnv = useSpreadsheetEnv();
+
   state = proxy<State>({ highlightZone: undefined });
-  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
   private viewStore!: Store<ViewportsStore>;
 
   setup(): void {
@@ -55,7 +58,7 @@ export class TableResizer extends Component<SpreadsheetChildEnv> {
     const tableZone = this.props.table.range.zone;
     const topLeft = { col: tableZone.left, row: tableZone.top };
     document.body.style.cursor = "nwse-resize";
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = withZoom(this.spEnv, ev);
 
     const onMouseUp = () => {
       document.body.style.cursor = "";

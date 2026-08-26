@@ -72,7 +72,7 @@ import { _t } from "../../src/translation";
 import { GeoChartRegion } from "../../src/types/chart/geo_chart";
 import { Image } from "../../src/types/image";
 import { ModelExternalConfig } from "../../src/types/model";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetChildEnv, SpreadsheetComponentEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { XLSXExport } from "../../src/types/xlsx";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
@@ -281,11 +281,11 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
 type ComponentProps = { [key: string]: any };
 
 interface ParentProps {
-  childComponent: ComponentConstructor<SpreadsheetChildEnv>;
+  childComponent: ComponentConstructor<SpreadsheetComponentEnv>;
   childProps: ComponentProps;
 }
 
-class ParentWithPortalTarget extends Component<SpreadsheetChildEnv> {
+class ParentWithPortalTarget extends Component<SpreadsheetComponentEnv> {
   static template = xml/*xml*/ `
     <div class="o-spreadsheet" >
       <t t-component="this.props.childComponent" t-props="this.props.childProps"/>
@@ -310,7 +310,7 @@ interface MountComponentArgs<Props extends ComponentProps> {
 
 interface MountComponentReturn<Props extends ComponentProps> {
   app: App;
-  parent: Component<SpreadsheetChildEnv>;
+  parent: Component<SpreadsheetComponentEnv>;
   model: Model;
   fixture: HTMLElement;
   env: SpreadsheetChildEnv;
@@ -318,7 +318,7 @@ interface MountComponentReturn<Props extends ComponentProps> {
 }
 
 export async function mountComponentWithPortalTarget<Props extends ComponentProps>(
-  component: ComponentConstructor<SpreadsheetChildEnv>,
+  component: ComponentConstructor<SpreadsheetComponentEnv>,
   optionalArgs: MountComponentArgs<Props> = {}
 ): Promise<MountComponentReturn<ParentProps>> {
   const args = {
@@ -329,7 +329,7 @@ export async function mountComponentWithPortalTarget<Props extends ComponentProp
 }
 
 export async function mountComponent<Props extends { [key: string]: any }>(
-  component: ComponentConstructor<SpreadsheetChildEnv>,
+  component: ComponentConstructor<SpreadsheetComponentEnv>,
   optionalArgs: MountComponentArgs<Props> = {}
 ): Promise<MountComponentReturn<Props>> {
   const model = optionalArgs.model || optionalArgs.env?.model || new Model();
@@ -1125,7 +1125,7 @@ type ComposerWrapperProps = {
   composerProps: Partial<PropsOf<Composer>>;
 };
 
-export class ComposerWrapper extends Component<SpreadsheetChildEnv> {
+export class ComposerWrapper extends Component<SpreadsheetComponentEnv> {
   static components = { Composer };
   static template = xml/*xml*/ `
     <div class="o-spreadsheet"/>

@@ -2,7 +2,7 @@ import { proxy, signal, useListener, useProps } from "@odoo/owl";
 import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { ValueAndLabel } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { getElBoundingRect, isChildEvent } from "../helpers/dom_helpers";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
@@ -12,7 +12,7 @@ interface State {
   hoveredValue: string | undefined;
 }
 
-export class Select extends Component<SpreadsheetChildEnv> {
+export class Select extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-Select";
   static components = { Popover };
 

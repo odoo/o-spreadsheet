@@ -6,14 +6,14 @@ import { EASING_FN } from "../../../../registries/cell_animation_registry";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { ZoomStore } from "../../../../stores/zoom_store";
 import { GaugeChartRuntime } from "../../../../types/chart/gauge_chart";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { types } from "../../../props_validation";
 import { ChartAnimationStore } from "../chartJs/chartjs_animation_store";
 
 const ANIMATION_DURATION = 1000;
 
-export class GaugeChartComponent extends Component<SpreadsheetChildEnv> {
+export class GaugeChartComponent extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-GaugeChartComponent";
 
   protected props = useProps({

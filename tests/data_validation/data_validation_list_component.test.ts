@@ -399,8 +399,8 @@ describe("autocomplete in composer", () => {
 
     test("Values displayed are not filtered when the user opens the composer with a valid value", async () => {
       setCellContent(model, "A1", "hello");
-      ({ fixture, parent } = await mountComposerWrapper(model));
-      const composerStore = parent.env.getStore(CellComposerStore);
+      ({ fixture, parent, env } = await mountComposerWrapper(model));
+      const composerStore = env.getStore(CellComposerStore);
       await typeInComposer("");
       expect(composerStore.currentContent).toBe("hello");
       expect(fixture.querySelectorAll<HTMLElement>(".o-autocomplete-value")).toHaveLength(3);
@@ -422,8 +422,8 @@ describe("autocomplete in composer", () => {
     });
 
     test("Enter overwrite composer content with selected value and stops edition", async () => {
-      ({ fixture, parent } = await mountComposerWrapper(model));
-      const composerStore = parent.env.getStore(CellComposerStore);
+      ({ fixture, parent, env } = await mountComposerWrapper(model));
+      const composerStore = env.getStore(CellComposerStore);
       await typeInComposer("hel");
       await keyDown({ key: "ArrowDown" });
       await keyDown({ key: "Enter" });

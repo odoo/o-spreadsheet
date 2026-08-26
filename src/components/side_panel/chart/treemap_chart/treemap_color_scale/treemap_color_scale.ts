@@ -4,12 +4,12 @@ import {
   TreeMapColorScaleOptions,
 } from "../../../../../types/chart/tree_map_chart";
 import { DispatchResult } from "../../../../../types/commands";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../../types/spreadsheet_env";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 
 import { Component } from "../../../../../owl3_compatibility_layer";
 import { types } from "../../../../props_validation";
-export class TreeMapColorScale extends Component<SpreadsheetChildEnv> {
+export class TreeMapColorScale extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-TreeMapColorScale";
   static components = { RoundColorPicker };
 

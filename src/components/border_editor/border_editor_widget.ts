@@ -5,7 +5,7 @@ import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { BorderPosition, BorderStyle, Color, Pixel } from "../../types/misc";
 import { Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { getElBoundingRect } from "../helpers/dom_helpers";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../helpers/top_bar_tool_hook";
@@ -18,7 +18,7 @@ interface State {
   currentPosition: BorderPosition | undefined;
 }
 
-export class BorderEditorWidget extends Component<SpreadsheetChildEnv> {
+export class BorderEditorWidget extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-BorderEditorWidget";
   static components = { BorderEditor };
 

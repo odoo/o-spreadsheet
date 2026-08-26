@@ -3,7 +3,7 @@ import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { ResizeDirection } from "../../../types/figure";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { types } from "../../props_validation";
 
@@ -13,7 +13,7 @@ const MOBILE_HANDLER_WIDTH = 40;
 
 type Orientation = "nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w";
 
-export class Corner extends Component<SpreadsheetChildEnv> {
+export class Corner extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-Corner";
 
   protected props = useProps({

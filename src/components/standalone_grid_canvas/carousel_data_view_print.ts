@@ -5,12 +5,12 @@ import { GridRenderer } from "../../stores/grid_renderer_store";
 import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { GridRenderingContext, Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { types } from "../props_validation";
 import { StandaloneViewportStore } from "../standalone_viewport/standalone_viewport_store";
 
-export class CarouselDataViewPrint extends Component<SpreadsheetChildEnv> {
+export class CarouselDataViewPrint extends Component<SpreadsheetComponentEnv> {
   static template = xml/* xml */ ``;
 
   props = useProps({

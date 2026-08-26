@@ -1,6 +1,7 @@
 import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
 import { isDateTimeFormat } from "../../../helpers/format/format";
 import { deepCopy, deepEquals } from "../../../helpers/misc";
+import { useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { interactiveSort } from "../../../helpers/sort_interactive";
 import { toTrimmedLowerCase } from "../../../helpers/text_helper";
 import { positions } from "../../../helpers/zones";
@@ -11,7 +12,7 @@ import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popov
 import { CellValueType } from "../../../types/cells";
 import { Position, SortDirection } from "../../../types/misc";
 import { PropsOf } from "../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import {
   CriterionFilter,
@@ -37,7 +38,7 @@ interface Value {
 
 type CriterionCategory = "text" | "number" | "date";
 
-export class FilterMenu extends Component<SpreadsheetChildEnv> {
+export class FilterMenu extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-FilterMenu";
   static components = { FilterMenuValueList, SidePanelCollapsible, FilterMenuCriterion };
 
@@ -45,6 +46,8 @@ export class FilterMenu extends Component<SpreadsheetChildEnv> {
     filterPosition: types.Position(),
     onClosed: types.function().optional(),
   });
+
+  spEnv = useSpreadsheetEnv();
 
   private state!: State;
   private criterionCategory: CriterionCategory = "text";
@@ -168,7 +171,7 @@ export class FilterMenu extends Component<SpreadsheetChildEnv> {
     const contentZone = { ...tableZone, top: tableZone.top + table.config.numberOfHeaders };
     const sortAnchor = { col: filterPosition.col, row: contentZone.top };
     const sortOptions = { emptyCellAsZero: true, sortHeaders: true };
-    interactiveSort(this.env, sheetId, sortAnchor, contentZone, sortDirection, sortOptions);
+    interactiveSort(this.spEnv, sheetId, sortAnchor, contentZone, sortDirection, sortOptions);
     this.props.onClosed?.();
   }
 

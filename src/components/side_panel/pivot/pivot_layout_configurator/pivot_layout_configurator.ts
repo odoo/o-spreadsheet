@@ -19,7 +19,7 @@ import {
   PivotField,
   PivotMeasure,
 } from "../../../../types/pivot";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import {
   getBoundingRectWithMargins,
   hasInteractiveElementInEventTree,
@@ -35,7 +35,7 @@ import { PivotDimensionOrder } from "./pivot_dimension_order/pivot_dimension_ord
 import { PivotMeasureEditor } from "./pivot_measure/pivot_measure";
 import { PivotSortSection } from "./pivot_sort_section/pivot_sort_section";
 
-export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
+export class PivotLayoutConfigurator extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-PivotLayoutConfigurator";
   static components = {
     AddDimensionButton,

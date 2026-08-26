@@ -13,7 +13,7 @@ import { clip } from "../../helpers/misc";
 import { Component } from "../../owl3_compatibility_layer";
 import { Color, HSLA, Pixel, PixelPosition } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 import { startDnd } from "../helpers/drag_and_drop";
 import { Popover } from "../popover/popover";
@@ -37,7 +37,7 @@ interface State {
   customHexColor: Color;
 }
 
-export class ColorPicker extends Component<SpreadsheetChildEnv> {
+export class ColorPicker extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-ColorPicker";
   static components = { Popover };
 

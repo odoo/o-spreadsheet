@@ -4,7 +4,7 @@ import { PIVOT_TABLE_PRESETS } from "../../../../../helpers/pivot_table_presets"
 import { Component } from "../../../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../../../store_engine/store_hooks";
 import { PivotStyle } from "../../../../../types/pivot";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../../types/spreadsheet_env";
 import { Store } from "../../../../../types/store_engine";
 import { TableConfig, TableStyle } from "../../../../../types/table";
 import { NumberInput } from "../../../../number_input/number_input";
@@ -14,7 +14,7 @@ import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
 import { PivotSidePanelStore } from "../pivot_side_panel_store";
 
-export class PivotDesignPanel extends Component<SpreadsheetChildEnv> {
+export class PivotDesignPanel extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-PivotDesignPanel";
   static components = { Section, Checkbox, NumberInput, TableStylePicker };
 

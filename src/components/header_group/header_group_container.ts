@@ -7,14 +7,14 @@ import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { CSSProperties, Pixel } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { types } from "../props_validation";
 import { ColGroup, RowGroup } from "./header_group";
 
-export class HeaderGroupContainer extends Component<SpreadsheetChildEnv> {
+export class HeaderGroupContainer extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-HeaderGroupContainer";
   static components = { RowGroup, ColGroup, MenuPopover };
 

@@ -2,14 +2,14 @@ import { onWillUpdateProps, signal, useEffect } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
 import { figureRegistry } from "../../registries/figures_registry";
 import { useStore } from "../../store_engine/store_hooks";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ChartAnimationStore } from "../figures/chart/chartJs/chartjs_animation_store";
 import { ChartFigure } from "../figures/figure_chart/figure_chart";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { FullScreenFigureStore } from "./full_screen_figure_store";
 
-export class FullScreenFigure extends Component<SpreadsheetChildEnv> {
+export class FullScreenFigure extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-FullScreenFigure";
   static components = { ChartFigure };
 

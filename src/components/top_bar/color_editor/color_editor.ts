@@ -1,13 +1,14 @@
 import { proxy, useProps } from "@odoo/owl";
 import { setStyle } from "../../../actions/menu_items_actions";
 import { deepEquals } from "../../../helpers/misc";
+import { useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { Component } from "../../../owl3_compatibility_layer";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { ColorPickerWidget } from "../../color_picker/color_picker_widget";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 import { types } from "../../props_validation";
 
-export class TopBarColorEditor extends Component<SpreadsheetChildEnv> {
+export class TopBarColorEditor extends Component<SpreadsheetComponentEnv> {
   static components = { ColorPickerWidget };
   static template = "o-spreadsheet-ColorEditor";
 
@@ -17,6 +18,8 @@ export class TopBarColorEditor extends Component<SpreadsheetChildEnv> {
     icon: types.string(),
     title: types.string(),
   });
+
+  spEnv = useSpreadsheetEnv();
   topBarToolStore!: ToolBarDropdownStore;
 
   state = proxy({
@@ -39,7 +42,7 @@ export class TopBarColorEditor extends Component<SpreadsheetChildEnv> {
       this.env.model.dispatch("SET_BACKGROUND_FOR_ALL_CELLS", { sheetId, color });
       return;
     }
-    setStyle(this.env, { [this.props.style]: color });
+    setStyle(this.spEnv, { [this.props.style]: color });
     this.state.isOpen = false;
   }
 

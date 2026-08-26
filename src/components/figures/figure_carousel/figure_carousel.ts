@@ -13,7 +13,7 @@ import { Carousel, CarouselItem } from "../../../types/figure";
 import { CSSProperties, MenuMouseEvent } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { Rect } from "../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { FullScreenFigureStore } from "../../full_screen_figure/full_screen_figure_store";
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers/css";
@@ -24,7 +24,7 @@ import { StandaloneViewport } from "../../standalone_viewport/standalone_viewpor
 import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";
 import { ChartMenu } from "../chart/chart_menu/chart_menu";
 
-export class CarouselFigure extends Component<SpreadsheetChildEnv> {
+export class CarouselFigure extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-CarouselFigure";
   static components = { ChartMenu, MenuPopover, StandaloneViewport };
 

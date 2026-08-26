@@ -4,7 +4,7 @@ import { _t } from "../../../../translation";
 import { BaselineMode, ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
 import { CommandResult, DispatchResult } from "../../../../types/commands";
 import { ValueAndLabel } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { Select } from "../../../select/select";
 import { ChartTerms } from "../../../translations_terms";
@@ -17,7 +17,7 @@ interface PanelState {
   baselineDispatchResult?: DispatchResult;
 }
 
-export class ScorecardChartConfigPanel extends Component<SpreadsheetChildEnv> {
+export class ScorecardChartConfigPanel extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-ScorecardChartConfigPanel";
   static components = { ChartErrorSection, Section, Select, StandaloneComposer };
   protected props = useProps(

@@ -1,11 +1,11 @@
 import { useProps } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../../types/spreadsheet_env";
 import { Section } from "../../../components/section/section";
 
 import { Component } from "../../../../../owl3_compatibility_layer";
 import { types } from "../../../../props_validation";
 import { ValidationMessages } from "../../../../validation_messages/validation_messages";
-export class ChartErrorSection extends Component<SpreadsheetChildEnv> {
+export class ChartErrorSection extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet.ChartErrorSection";
   static components = { Section, ValidationMessages };
 

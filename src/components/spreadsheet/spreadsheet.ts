@@ -30,7 +30,7 @@ import { CommandResult } from "../../types/commands";
 import { InformationNotification } from "../../types/env";
 import { CSSProperties, HeaderGroup, Pixel } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetChildEnv, SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { NotificationStoreMethods } from "../../types/stores/notification_store_methods";
 import { BottomBar } from "../bottom_bar/bottom_bar";
@@ -68,7 +68,7 @@ import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipbo
 // </svg>
 // `;
 
-export class Spreadsheet extends Component<SpreadsheetChildEnv> {
+export class Spreadsheet extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-Spreadsheet";
   protected props = useProps({
     model: types.Model(),

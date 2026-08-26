@@ -1,14 +1,14 @@
 import { useProps } from "@odoo/owl";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ViewportsStore } from "../../../stores/viewports_store";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { types } from "../../props_validation";
 
 import { Component } from "../../../owl3_compatibility_layer";
 import { Store } from "../../../types/store_engine";
 
-export class Border extends Component<SpreadsheetChildEnv> {
+export class Border extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-Border";
 
   protected props = useProps({

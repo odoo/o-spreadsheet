@@ -1,7 +1,7 @@
 import { proxy, useProps } from "@odoo/owl";
 import { Component } from "../../../../../owl3_compatibility_layer";
 import { ChartDefinitionWithDataSource } from "../../../../../types/chart/chart";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../../types/spreadsheet_env";
 import { ChartTerms } from "../../../../translations_terms";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
@@ -17,7 +17,7 @@ export class GenericChartConfigPanel<
   P extends ChartSidePanelProps<ChartDefinitionWithDataSource<string>> = ChartSidePanelProps<
     ChartDefinitionWithDataSource<string>
   >
-> extends Component<SpreadsheetChildEnv> {
+> extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-GenericChartConfigPanel";
   static components = {
     ChartDataSourceComponent,

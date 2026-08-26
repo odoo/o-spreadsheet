@@ -3,7 +3,7 @@ import { deepCopy } from "../../../../helpers/misc";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { PieChartDefinition, PieChartRuntime } from "../../../../types/chart/pie_chart";
 import { ValueAndLabel } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../../../types/spreadsheet_env";
 import { DEFAULT_DOUGHNUT_CHART_HOLE_SIZE } from "../../../../xlsx/constants";
 import { Select } from "../../../select/select";
 import { Checkbox } from "../../components/checkbox/checkbox";
@@ -18,7 +18,7 @@ import { PieHoleSize } from "../building_blocks/pie_hole_size/pie_hole_size";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
-export class PieChartDesignPanel extends Component<SpreadsheetChildEnv> {
+export class PieChartDesignPanel extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-PieChartDesignPanel";
   static components = {
     GeneralDesignEditor,

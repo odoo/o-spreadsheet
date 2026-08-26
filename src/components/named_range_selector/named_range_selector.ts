@@ -1,6 +1,7 @@
 import { proxy, signal } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../actions/action";
 import { HIGHLIGHT_COLOR } from "../../constants";
+import { useSpreadsheetEnv } from "../../helpers/owl3_helpers";
 import { rangeReference } from "../../helpers/references";
 import { fuzzyLookup } from "../../helpers/search";
 import {
@@ -16,7 +17,7 @@ import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
 import { Highlight } from "../../types/misc";
 import { Range } from "../../types/range";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { getElBoundingRect } from "../helpers/dom_helpers";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../helpers/top_bar_tool_hook";
@@ -27,9 +28,11 @@ interface State extends Omit<MenuState, "isOpen"> {
   searchedText?: string;
 }
 
-export class NamedRangeSelector extends Component<SpreadsheetChildEnv> {
+export class NamedRangeSelector extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-NamedRangeSelector";
   static components = { TextInput, MenuPopover };
+
+  spEnv = useSpreadsheetEnv();
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
@@ -71,12 +74,12 @@ export class NamedRangeSelector extends Component<SpreadsheetChildEnv> {
 
     const namedRangeInZone = this.env.model.getters.getNamedRangeFromZone(sheetId, selection);
     if (!namedRangeInZone) {
-      interactiveCreateNamedRange(this.env, {
+      interactiveCreateNamedRange(this.spEnv, {
         name: newValue,
         ranges: [this.env.model.getters.getRangeDataFromZone(sheetId, selection)],
       });
     } else {
-      interactiveUpdateNamedRange(this.env, {
+      interactiveUpdateNamedRange(this.spEnv, {
         newRangeName: newValue,
         oldRangeName: namedRangeInZone.name,
         ranges: [this.env.model.getters.getRangeData(namedRangeInZone.range)],

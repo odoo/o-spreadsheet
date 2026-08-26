@@ -1,11 +1,12 @@
 import { proxy, useProps, xml } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
+import { useSpreadsheetEnv } from "../../helpers/owl3_helpers";
 import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ZoomStore } from "../../stores/zoom_store";
 import { HeaderIndex } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetComponentEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
@@ -23,19 +24,21 @@ interface State {
   handler: boolean;
 }
 
-export class Autofill extends Component<SpreadsheetChildEnv> {
+export class Autofill extends Component<SpreadsheetComponentEnv> {
   static template = "o-spreadsheet-Autofill";
 
   protected props = useProps({
     position: types.DOMCoordinates(),
     isVisible: types.boolean(),
   });
+
+  spEnv = useSpreadsheetEnv();
   state: State = proxy({
     position: { x: 0, y: 0 },
     handler: false,
   });
 
-  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
   private zoomStore!: Store<ZoomStore>;
   private autofillStore!: Store<AutofillStore>;
 
@@ -80,7 +83,7 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
 
   onMouseDown(ev: PointerEvent) {
     this.state.handler = true;
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = withZoom(this.spEnv, ev);
     const zoom = this.zoomStore.zoomLevel;
     let lastCol: HeaderIndex | undefined;
     let lastRow: HeaderIndex | undefined;
