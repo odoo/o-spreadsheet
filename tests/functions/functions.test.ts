@@ -242,13 +242,13 @@ describe("functions", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe("Raoul");
   });
 
-  test("Can use a getter in a function", () => {
+  test("Can use an evaluation getter in a function", () => {
     const model = new Model();
     addToRegistry(functionRegistry, "GETNUMBERCOLS", {
       description: "Get the number of columns",
       compute: function () {
-        const sheetId = (this as any).getters.getActiveSheetId();
-        return { value: (this as any).getters.getNumberCols(sheetId) };
+        const sheetId = this.getters.getSheetIds()[0];
+        return { value: this.getters.getNumberCols(sheetId) };
       },
       args: [],
     });

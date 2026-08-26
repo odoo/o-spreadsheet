@@ -130,8 +130,5 @@ export const evaluationPluginRegistry = new Registry<EvaluationPluginConstructor
 export const evaluationUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("header_visibility_ui", HeaderVisibilityUIPlugin)
   .add("filter_evaluation", FilterEvaluationPlugin)
-  .add("ui_sheet", SheetUIPlugin)
   .add("color_theme", ColorThemeUIPlugin)
-  .add("cell_computed_style", CellComputedStylePlugin)
-  .add("ui_options", UIOptionsPlugin)
-  .add("selection", GridSelectionPlugin);
+  .add("cell_computed_style", CellComputedStylePlugin);
