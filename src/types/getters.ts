@@ -19,6 +19,7 @@ import { SettingsPlugin } from "../plugins/core/settings";
 import { SheetPlugin } from "../plugins/core/sheet";
 import { TableStylePlugin } from "../plugins/core/table_style";
 import { TablePlugin } from "../plugins/core/tables";
+import { CellComputedStylePlugin } from "../plugins/evaluation/cell_computed_style";
 import { CellEvaluationPlugin } from "../plugins/evaluation/cell_evaluation/cell_evaluation_plugin";
 import { CustomColorsPlugin } from "../plugins/evaluation/custom_colors";
 import { DynamicTablesPlugin } from "../plugins/evaluation/dynamic_tables";
@@ -33,6 +34,7 @@ import { HeaderSizeUIPlugin } from "../plugins/evaluation/header_sizes_ui";
 import { HeaderVisibilityEvaluationPlugin } from "../plugins/evaluation/header_visibility_evaluation";
 import { PivotPresencePlugin } from "../plugins/evaluation/pivot_presence_plugin";
 import { PivotUIPlugin } from "../plugins/evaluation/pivot_ui";
+import { TableComputedStylePlugin } from "../plugins/evaluation/table_computed_style";
 import { ChartUIPlugin } from "../plugins/ui_feature/chart_ui";
 import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
 import { ColorThemeUIPlugin } from "../plugins/ui_feature/color_theme";
@@ -44,14 +46,12 @@ import { SubtotalEvaluationPlugin } from "../plugins/ui_feature/subtotal_evaluat
 import { UIOptionsPlugin } from "../plugins/ui_feature/ui_options";
 import { SheetUIPlugin } from "../plugins/ui_feature/ui_sheet";
 import { CarouselUIPlugin } from "../plugins/ui_stateful/carousel_ui";
-import { CellComputedStylePlugin } from "../plugins/ui_stateful/cell_computed_style";
 import { CellIconPlugin } from "../plugins/ui_stateful/cell_icon_plugin";
 import { ClipboardPlugin } from "../plugins/ui_stateful/clipboard";
 import { FigureUIPlugin } from "../plugins/ui_stateful/figure";
 import { FilterEvaluationPlugin } from "../plugins/ui_stateful/filter_evaluation";
 import { HeaderPositionsUIPlugin } from "../plugins/ui_stateful/header_positions";
 import { GridSelectionPlugin } from "../plugins/ui_stateful/selection";
-import { TableComputedStylePlugin } from "../plugins/ui_stateful/table_computed_style";
 // -----------------------------------------------------------------------------
 // Getters
 // -----------------------------------------------------------------------------
@@ -151,7 +151,8 @@ export type EvaluationGetters = {
   PluginGetters<typeof PivotPresencePlugin> &
   PluginGetters<typeof HeaderVisibilityEvaluationPlugin> &
   PluginGetters<typeof ColorThemeUIPlugin> & //FIXME should not contains getters from ui
-  PluginGetters<typeof CellComputedStylePlugin> & //FIXME should not contains getters from ui
+  PluginGetters<typeof CellComputedStylePlugin> &
+  PluginGetters<typeof TableComputedStylePlugin> &
   PluginGetters<typeof GeoLoaderEvaluation> &
   PluginGetters<typeof DynamicTranslate> &
   PluginGetters<typeof FormulaTrackerPlugin>;
@@ -172,9 +173,7 @@ export type RenderingGetters = {
   PluginGetters<typeof SheetUIPlugin> &
   PluginGetters<typeof SubtotalEvaluationPlugin> &
   PluginGetters<typeof HeaderPositionsUIPlugin> &
-  PluginGetters<typeof CellComputedStylePlugin> &
   PluginGetters<typeof PivotUIPlugin> &
-  PluginGetters<typeof TableComputedStylePlugin> &
   PluginGetters<typeof CellIconPlugin> &
   PluginGetters<typeof GeoFeaturePlugin> &
   PluginGetters<typeof LockSheetPlugin> &

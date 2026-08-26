@@ -5,7 +5,7 @@ import { Command, CommandTypes, invalidateEvaluationCommands } from "../../types
 import { EvaluationError } from "../../types/errors";
 import { Border, CellPosition, Lazy, Style, TableId, UID } from "../../types/misc";
 import { Table, TableConfig, TableMetaData } from "../../types/table";
-import { UIPlugin } from "../ui_plugin";
+import { EvaluationPlugin } from "../evaluation_plugin";
 
 interface ComputedTableStyle {
   styles: Record<number, Record<number, Style | undefined>>;
@@ -18,7 +18,7 @@ interface TableRuntime {
   numberOfRows: number;
 }
 
-export class TableComputedStylePlugin extends UIPlugin {
+export class TableComputedStylePlugin extends EvaluationPlugin {
   static getters = ["getCellTableStyle", "getCellTableBorder"] as const;
 
   private tableStyles: Record<UID, Record<TableId, Lazy<ComputedTableStyle>>> = {};
