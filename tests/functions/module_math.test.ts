@@ -2200,8 +2200,9 @@ describe("RANDBETWEEN formula", () => {
   });
 
   test("stays within range when Math.random() returns 0", () => {
-    jest.spyOn(Math, "random").mockReturnValue(0);
+    const mock = jest.spyOn(Math, "random").mockReturnValue(0);
     expect(evaluateCell("A1", { A1: "=RANDBETWEEN(1, 6)" })).toBe(1);
+    mock.mockRestore();
   });
 
   test("special value testing", () => {
