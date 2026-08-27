@@ -16,12 +16,6 @@ interface Props {
   direction: "horizontal" | "vertical";
 }
 
-const CIRCLE_SVG = /*xml*/ `
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'>
-  <circle r="2" fill="#FFF"/>
-</svg>
-`;
-
 css/* scss */ `
   .o-radio {
     input {
@@ -36,7 +30,7 @@ css/* scss */ `
       border-radius: 8px;
 
       &:checked {
-        background: url("data:image/svg+xml,${encodeURIComponent(CIRCLE_SVG)}");
+        background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%27-4%20-4%208%208%27%3E%3Ccircle%20r%3D%222%22%20fill%3D%22%23FFF%22/%3E%3C/svg%3E");
         background-color: ${ACTION_COLOR};
         border-color: ${ACTION_COLOR};
       }
