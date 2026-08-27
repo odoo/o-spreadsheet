@@ -118,7 +118,7 @@ export const RemoveDuplicateTerms = {
     [CommandResult.NoColumnsProvided]: _t("Please select at latest one column to analyze."),
     //TODO: Remove it when accept to copy and paste merge cells
     [CommandResult.WillRemoveExistingMerge]: _t(
-      "This operation is not possible due to a merge. Please remove the merges first than try again."
+      "Cannot perform this action on merged cells. Unmerge the cells and try again."
     ),
   },
 };
