@@ -9,10 +9,11 @@ in all cells which contains the content `party`.
 
 ## Plugin creation
 
-A plugin should extend either `CorePlugin` or `UIPlugin` depending on its role.
-The plugin should also be register in the registry of plugins, in order to load
-it at the model startup. (`corePluginRegistry` or `uiPluginRegistry`). Mode details
-about plugins can be found in the [plugin section]("plugin.md)
+A plugin should extend `CorePlugin`, `EvaluationPlugin` or `UIPlugin` depending on its role.
+The plugin should also be registered in the registry matching its base class, in order to load
+it at the model startup (`corePluginRegistry`, `evaluationPluginRegistry`, `statefulUIPluginRegistry`
+or `featurePluginRegistry` — registering a plugin in a registry expecting another base class throws).
+More details about plugins can be found in the [plugin section](plugin.md)
 
 In our example, we will create two plugins, a new `CorePlugin` which will manage
 wether the party mode is active, and a new `UIPlugin` that will be responsible
@@ -25,9 +26,9 @@ class PartyPlugin extends CorePlugin {}
 
 class PartyDrawerPlugin extends UIPlugin {}
 
-// Register the plugins in order to load it at the model startup
+// Register the plugins in order to load them at the model startup
 corePluginRegistry.add("party_plugin", PartyPlugin);
-uiPluginRegistry.add("party_drawer_plugin", PartyDrawerPlugin);
+statefulUIPluginRegistry.add("party_drawer_plugin", PartyDrawerPlugin);
 ```
 
 ## Adding an internal state

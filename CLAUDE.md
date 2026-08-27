@@ -25,12 +25,14 @@ Two layers: **Model** (headless data + logic) and **UI** (Owl components + canva
 ### Model: CQS via commands, getters, plugins
 
 - `Model` (`src/model.ts`) is the entry point. Mutate via `model.dispatch("CMD_NAME", payload)`; read via `model.getters.someGetter(...)`. All command types are in `src/types/commands.ts`. Commands run through a chain (`allowDispatch` → `beforeHandle` → `handle` → `finalize`) on every registered plugin.
-- **Plugins** (`src/plugins/`) own slices of state and expose getters. Categories:
-  - `core/` — persistent business data (cells, sheets, ranges, charts, pivots, conditional formats, tables, figures, named ranges…). One plugin per data structure. Participate in import/export.
-  - `evaluation/` — derived state computed from core (cell evaluation, computed style, chart runtime, dynamic tables, custom colors…).
-  - `ui_stateful/` — UI-only state (active sheet, selection, viewport, edition…).
-  - `ui_feature/` — high-level features expressible as lower-level command sequences (sort, autofill, find/replace, clipboard handlers, etc.).
-    Registries in `src/plugins/plugin_registries.ts` declare which plugins are loaded.
+- **Plugins** (`src/plugins/`) own slices of state and expose getters. Three base classes, four categories:
+  - `CorePlugin` → `core/` — persistent business data (cells, sheets, ranges, charts, pivots, conditional formats, tables, figures, named ranges…). One plugin per data structure. Participate in import/export.
+  - `EvaluationPlugin` → `evaluation/` — derived state computed from core (cell evaluation, computed style, chart runtime, dynamic tables, filter/subtotal evaluation, custom colors…).
+  - `UIPlugin` → `ui_stateful/` — UI-only state (selection, clipboard, header positions, figures…).
+  - `UIPlugin` → `ui_feature/` — high-level features expressible as lower-level command sequences (sort, format, insert pivot, local history…).
+    Registries in `src/plugins/plugin_registries.ts` declare which plugins are loaded. They are `PluginRegistry` instances that check at `add()`/`replace()` time that the plugin extends the expected base class, so a plugin cannot be registered in the wrong category.
+- **Getter scopes** (`src/types/getters.ts`): `CoreGetters` ⊂ `EvaluationGetters` ⊂ `RenderingGetters` ⊂ `Getters`. Each plugin only receives the scope of its category — a core plugin cannot read evaluation getters, and an evaluation plugin cannot read UI getters.
+- **Evaluation commands** (`EVALUATE_CELLS`, `EVALUATE_CHARTS`, see `evaluationCommandTypes`/`isEvaluationCommand` in `src/types/commands.ts`) are a distinct dispatch path: they skip `allowDispatch`, an `EvaluationPlugin` may dispatch them (and nothing else), and no non-evaluation command may be dispatched while a top-level evaluation command is being handled. Both violations throw.
 - **Range / cell coordinates** flow through `range.ts` plugin; never store `A1` strings directly in plugin state.
 - **History**: `src/history/` provides undo/redo by recording inverse commands; plugins use `this.history.update(...)` to make mutations trackable.
 - **Collaborative**: `src/collaborative/` synchronizes commands across clients; `state_observer.ts` and command transforms keep concurrent edits consistent.
@@ -46,7 +48,7 @@ Two layers: **Model** (headless data + logic) and **UI** (Owl components + canva
 ### UI
 
 - `src/components/` — Owl components (sidepanels, top bar, bottom bar, composer, popovers, figures, charts wrappers, etc.).
-- `src/components/grid/` and renderer plugins draw the grid on `<canvas>` (`renderer` family in `evaluation`). The DOM only hosts overlays, composer, figures, popovers.
+- `src/components/grid/` draws the grid on `<canvas>`. Draw layers come from `UIPlugin.drawLayer` (`ui_stateful/selection`, `ui_stateful/clipboard`, `ui_feature/collaborative`) and from stores extending `SpreadsheetStore`; `EvaluationPlugin` cannot draw. The DOM only hosts overlays, composer, figures, popovers.
 - `src/stores/` + `src/store_engine/` — Owl-store-style reactive stores for UI state that doesn't belong in the Model (notifications, sidepanels, hovered link, etc.). Components access them via the store engine, not directly.
 - `src/registries/` — extension points (menus, side panels, autofill rules, clipboard handlers, topbar components, cell popovers…). Adding a feature usually means registering in one of these plus a plugin.
 - `src/selection_stream/` — keyboard/mouse selection state machine, observed by composer, find-and-replace, etc.

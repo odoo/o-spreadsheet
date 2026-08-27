@@ -202,14 +202,14 @@ Ensure that changes are made using a single command handled by a plugin. This al
 
 For features impacting only the UI, both **stores** and **UI plugins** are viable options depending on the use case.
 
-- If what's displayed can be derived solely from plugins (e.g., evaluated cells are derived from content and formulas), opt for a **plugin**.
+- If what's displayed can be derived solely from plugins (e.g., evaluated cells are derived from content and formulas), opt for a **plugin** — an [evaluation plugin](../../doc/extending/plugin.md) in that case.
 
 - If your component requires state of its own or the business logic relies on state in another store, choose a **store**.
   Avoid introducing commands and plugins solely to manage component state.
 
 - For state owned by a specific component, consider using a **local store**.
 
-- Avoid using UI plugins with their own state unless that state is derived from other plugins. Typically, a UI plugin should not update its state based on a UI command but only based on core commands.
+- Avoid using UI plugins with their own state unless that state is derived from other plugins. Typically, a UI plugin should not update its state based on a UI command but only based on core commands. If the state is purely derived from core data, it belongs in an evaluation plugin rather than a UI plugin.
 
 ### Why not plugins for UI?
 
