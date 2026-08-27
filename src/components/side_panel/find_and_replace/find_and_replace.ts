@@ -150,6 +150,10 @@ export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
     this.updateSearchContent((ev.target as HTMLInputElement).value);
   }
 
+  onReplaceInput(ev: InputEvent) {
+    this.store.updateReplaceContent((ev.target as HTMLInputElement).value);
+  }
+
   onKeydownPanel(ev: KeyboardEvent) {
     if (ev.key === "Escape") {
       ev.preventDefault();

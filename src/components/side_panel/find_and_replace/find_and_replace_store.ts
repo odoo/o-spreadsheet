@@ -29,6 +29,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   mutators = [
     "updateSearchOptions",
     "updateSearchContent",
+    "updateReplaceContent",
     "searchFormulas",
     "selectPreviousMatch",
     "selectNextMatch",
@@ -93,6 +94,10 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
 
   updateSearchContent(toSearch: string) {
     this._updateSearch(toSearch, this.searchOptions);
+  }
+
+  updateReplaceContent(toReplace: string) {
+    this.toReplace = toReplace;
   }
 
   updateSearchOptions(searchOptions: Partial<SearchOptions>) {
