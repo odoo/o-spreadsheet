@@ -1,8 +1,8 @@
 import { CellValueType, EvaluatedCell } from "../types/cells";
 import { Getters } from "../types/getters";
-import { Zone } from "../types/misc";
+import { CellPosition, UID, Zone } from "../types/misc";
 import { isDateTimeFormat } from "./format/format";
-import { getZonesByColumns } from "./zones";
+import { getZonesByColumns, isInside } from "./zones";
 
 export type ExtendedColumnType =
   | "error"
@@ -17,8 +17,8 @@ export type ExtendedColumnType =
 export interface ColumnAnalysis {
   zone: Zone;
   type: ExtendedColumnType;
-  header?: string;
-  hasHeader: boolean;
+  title?: string;
+  headerInZone: boolean;
   rowCount: number;
   uniqueCount: number;
   uniqueRatio: number;
@@ -40,7 +40,7 @@ function analyzeColumn(zone: Zone, getters: Getters): ColumnAnalysis {
     return {
       zone,
       type: "empty",
-      hasHeader: false,
+      headerInZone: false,
       rowCount: 0,
       uniqueCount: 0,
       uniqueRatio: 0,
@@ -51,11 +51,36 @@ function analyzeColumn(zone: Zone, getters: Getters): ColumnAnalysis {
   const firstCell = cells[0];
   const rest = cells.slice(1);
 
-  // Header: first cell is text AND rest has at least one non-text, non-empty cell
-  const hasHeader =
-    firstCell.type === CellValueType.text && rest.some((c) => c.type !== CellValueType.text);
+  let title: string | undefined;
+  let dataCells: EvaluatedCell[] = [];
+  let headerInZone = false;
+  let analyzedZone: Zone = zone;
+  const tableHeaderPosition = getColumnTableHeaderPosition(sheetId, zone, getters);
 
-  const dataCells: EvaluatedCell[] = hasHeader ? rest : cells;
+  if (tableHeaderPosition) {
+    title = getters.getCellText(tableHeaderPosition) || undefined;
+    dataCells = cells.filter((c) => c.position && c.position.row > tableHeaderPosition.row);
+    headerInZone =
+      !!title && tableHeaderPosition.row >= zone.top && tableHeaderPosition.row <= zone.bottom;
+    if (headerInZone) {
+      analyzedZone = {
+        top: tableHeaderPosition.row,
+        bottom: zone.bottom,
+        left: zone.left,
+        right: zone.right,
+      };
+    }
+  } else if (
+    firstCell.type === CellValueType.text &&
+    rest.some((c) => c.type !== CellValueType.text)
+  ) {
+    //first cell is text AND rest has at least one non-text, non-empty cell
+    title = firstCell.value;
+    dataCells = rest;
+    headerInZone = true;
+  } else {
+    dataCells = cells;
+  }
 
   const numericValues = dataCells
     .filter((c) => c.type === CellValueType.number)
@@ -65,10 +90,10 @@ function analyzeColumn(zone: Zone, getters: Getters): ColumnAnalysis {
   const uniqueCount = new Set(allVals).size;
 
   return {
-    zone,
+    zone: analyzedZone,
     type: computeColumnType(dataCells),
-    header: hasHeader ? firstCell.value : undefined,
-    hasHeader,
+    title,
+    headerInZone,
     rowCount: dataCells.length,
     uniqueCount,
     uniqueRatio: allVals.length > 0 ? uniqueCount / allVals.length : 0,
@@ -109,4 +134,40 @@ function computeColumnType(cells: EvaluatedCell[]): ExtendedColumnType {
     }
   }
   return "empty";
+}
+
+/*
+ * Get the position of the table header for a given zone.
+ * The zone needs to be a single column and all non-empty cells in the zone must be inside the same table.
+ */
+export function getColumnTableHeaderPosition(
+  sheetId: UID,
+  zone: Zone,
+  getters: Getters
+): CellPosition | undefined {
+  if (zone.left !== zone.right) {
+    return undefined;
+  }
+  const tables = getters.getTablesOverlappingZones(sheetId, [zone]);
+  if (tables.length !== 1) {
+    return undefined;
+  }
+  const table = tables[0];
+  const firstCell = { sheetId, col: zone.left, row: zone.top };
+  const lastCell = { sheetId, col: zone.left, row: zone.bottom };
+  if (firstCell.row < table.range.zone.top || lastCell.row > table.range.zone.bottom) {
+    const cells = getters
+      .getEvaluatedCellsInZone(sheetId, zone)
+      .filter((c) => c.type !== CellValueType.empty);
+    for (const cell of cells) {
+      if (cell.position && !isInside(cell.position.col, cell.position.row, table.range.zone)) {
+        return undefined;
+      }
+    }
+  }
+  const numberOfHeaders = table.config.numberOfHeaders;
+  if (numberOfHeaders === 0) {
+    return undefined;
+  }
+  return { sheetId, col: zone.left, row: table.range.zone.top + numberOfHeaders - 1 };
 }
