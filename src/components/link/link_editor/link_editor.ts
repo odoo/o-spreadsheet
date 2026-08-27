@@ -53,6 +53,11 @@ export class LinkEditor extends Component<SpreadsheetChildEnv> {
     onMounted(() => this.urlInput()?.focus());
   }
 
+  onLinkUrlInput(ev: InputEvent) {
+    this.state.url = (ev.target as HTMLInputElement).value;
+    this.computeLinks();
+  }
+
   computeLinks() {
     this.state.selectedIndex = null;
     this.state.linksByCategory = this.linkProposalByCategory;

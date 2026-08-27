@@ -13,7 +13,8 @@
             title="Link label"
             placeholder="e.g. 'Link label'"
             class="o-input"
-            t-custom-model="this.state.label"
+            t-att-value="this.state.label"
+            t-on-input="(ev) => this.state.label = ev.target.value"
           />
         </div>
 
@@ -30,8 +31,8 @@
               placeholder="e.g. 'http://www.odoo.com'"
               title="Link URL"
               t-ref="this.urlInput"
-              t-custom-model="this.state.url"
-              t-on-input="this.computeLinks"
+              t-att-value="this.state.url"
+              t-on-input="this.onLinkUrlInput"
             />
           </t>
           <t t-else="">

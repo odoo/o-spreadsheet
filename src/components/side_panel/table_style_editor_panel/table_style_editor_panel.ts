@@ -9,6 +9,7 @@ import { TableConfig, TableStyle, TableStyleTemplateName } from "../../../types/
 import { cssPropertiesToCss } from "../../helpers/css";
 import { types } from "../../props_validation";
 import { TableStylePreview } from "../../tables/table_style_preview/table_style_preview";
+import { TextInput } from "../../text_input/text_input";
 import { RoundColorPicker } from "../components/round_color_picker/round_color_picker";
 import { Section } from "../components/section/section";
 
@@ -23,7 +24,7 @@ interface State {
 
 export class TableStyleEditorPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableStyleEditorPanel";
-  static components = { Section, RoundColorPicker, TableStylePreview };
+  static components = { Section, RoundColorPicker, TableStylePreview, TextInput };
   protected props = useProps({
     onCloseSidePanel: types.function(),
     onStylePicked: types.function<(styleId: string) => void>().optional(),

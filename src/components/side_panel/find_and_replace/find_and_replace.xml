@@ -117,7 +117,8 @@
               type="text"
               class="o-input o-input-without-count o-replace"
               t-on-keydown="this.onKeydownReplace"
-              t-custom-model="this.store.toReplace"
+              t-att-value="this.store.toReplace"
+              t-on-input="this.onReplaceInput"
               placeholder="e.g. 'replace me'"
             />
           </div>

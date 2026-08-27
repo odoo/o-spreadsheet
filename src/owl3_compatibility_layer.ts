@@ -12,7 +12,6 @@
  *
  * 1. Update template directives:
  *    - replace `t-portal` → `t-custom-portal`
- *    - replace `t-model`  → `t-custom-model`
  *
  * 2. Load this file immediately after Owl 3.
  *
@@ -27,7 +26,6 @@
  * Gradually remove the compatibility layer by migrating to native Owl 3:
  *
  * - replace `t-custom-portal` with proper Owl 3 portal usage
- * - replace `t-custom-model` with `t-model` + signals
  * - convert `useLayoutEffect` back to `useEffect` where appropriate
  *
  * The end goal is to eliminate all compatibility shims.
@@ -234,20 +232,6 @@ const customDirectives = {
   /**
    * @param {HTMLElement} node
    * @param {string} value
-   * @param {string[]} modifiers
-   */
-  model: (node, value, modifiers) => {
-    let attribute = "t-model";
-    for (const modifier of modifiers) {
-      attribute += `.${modifier}`;
-    }
-    const getter = `() => ${value}`;
-    const setter = `(nv) => {${value} = nv;}`;
-    node.setAttribute(attribute, `__globals__.createModelSignal(${getter}, ${setter})`);
-  },
-  /**
-   * @param {HTMLElement} node
-   * @param {string} value
    */
   portal: (node, value) => {
     if (node.nodeName.toLowerCase() !== "t") {
@@ -284,11 +268,6 @@ const globalValues = {
       },
     };
   },
-  /**
-   * @param {Function} getter
-   * @param {Function} setter
-   */
-  createModelSignal: (getter, setter) => Object.assign(getter, { set: setter }),
   Portal,
 };
 
