@@ -10,7 +10,7 @@ import {
 export const PasteInteractiveContent = {
   wrongPasteSelection: _t("This operation is not allowed with multiple selections."),
   willRemoveExistingMerge: _t(
-    "This operation is not possible due to a merge. Please remove the merges first than try again."
+    "Cannot perform this action on merged cells. Unmerge the cells and try again."
   ),
   wrongFigurePasteOption: _t("Cannot do a special paste of a figure."),
   frozenPaneOverlap: _t("This operation is not allowed due to an overlapping frozen pane."),
