@@ -9,6 +9,7 @@ import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { startChartDragAndDrop } from "../../helpers/chart_drag_and_drop";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { types } from "../../props_validation";
+import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Section } from "../components/section/section";
 
 export class DataStatistics extends Component<SpreadsheetChildEnv> {
@@ -17,6 +18,7 @@ export class DataStatistics extends Component<SpreadsheetChildEnv> {
   static components = {
     Section,
     MenuPopover,
+    ValidationMessages,
   };
 
   private menuState = proxy<MenuState>({ isOpen: false, anchorRect: null, menuItems: [] });

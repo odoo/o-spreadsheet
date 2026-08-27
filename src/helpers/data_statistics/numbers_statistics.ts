@@ -15,9 +15,10 @@ export function interpretAverage(
 
   const fmt = (num: number | undefined) => Number(num?.toFixed(2));
 
+  const main = _t("Values are highly dispersed. The average may not reflect a typical result.");
   if (highOutliers > 0 && lowOutliers > 0) {
     return {
-      main: _t("Values are highly dispersed. The average may not reflect a typical result."),
+      main,
       details: _t(
         "This average is unstable because your data contains exceptionally high AND exceptionally low values."
       ),
@@ -35,7 +36,7 @@ export function interpretAverage(
 
   if (hasHighOutliers) {
     return {
-      main: _t("Values are highly dispersed. The average may not reflect a typical result."),
+      main,
       details: _t("This average is pulled upward by a few exceptionally high values."),
       technicalData: [
         { title: _t("Data Distribution"), value: _t("Positively Skewed") },
@@ -51,7 +52,7 @@ export function interpretAverage(
 
   if (hasLowOutliers) {
     return {
-      main: _t("Values are highly dispersed. The average may not reflect a typical result."),
+      main,
       details: _t("This average is pulled downward by a few exceptionally low values."),
       technicalData: [
         { title: _t("Data Distribution"), value: _t("Negatively Skewed") },
@@ -67,7 +68,7 @@ export function interpretAverage(
 
   if (isHighlyDispersed) {
     return {
-      main: _t("Values are highly dispersed. The average may not reflect a typical result."),
+      main,
       details: _t(
         "The standard deviation is high, indicating that the values are spread out over a wide range."
       ),

@@ -48,11 +48,15 @@
                     />
                   </t>
                 </ul>
-                <span class="o-stat-description small">Recommandation:</span>
-                <div
-                  class="o-stat-description text-muted small"
-                  t-out="stat.interpretation.recommandation"
-                />
+                <ValidationMessages msgType="'warning'">
+                  <t t-set-slot="info-text">
+                    <span class="o-stat-description small">Recommandation:</span>
+                    <div
+                      class="o-stat-description text-muted small"
+                      t-out="stat.interpretation.recommandation"
+                    />
+                  </t>
+                </ValidationMessages>
               </div>
             </div>
           </t>
