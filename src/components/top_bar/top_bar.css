@@ -28,6 +28,7 @@
 
     .o-topbar-top {
       padding: 2px 10px;
+      background-color: var(--os-gray-100);
 
       /* Menus */
       .o-topbar-topleft {
