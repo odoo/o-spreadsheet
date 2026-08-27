@@ -2,6 +2,7 @@ import { CellValueType, EvaluatedCell } from "../types/cells";
 import { Getters } from "../types/getters";
 import { Zone } from "../types/misc";
 import { isDateTimeFormat } from "./format/format";
+import { getColumnTableHeaderPosition } from "./table_helpers";
 import { getZonesByColumns } from "./zones";
 
 export type ExtendedColumnType =
@@ -18,7 +19,7 @@ export interface ColumnAnalysis {
   zone: Zone;
   type: ExtendedColumnType;
   header?: string;
-  hasHeader: boolean;
+  headerInZone: boolean;
   rowCount: number;
   uniqueCount: number;
   uniqueRatio: number;
@@ -40,7 +41,7 @@ function analyzeColumn(zone: Zone, getters: Getters): ColumnAnalysis {
     return {
       zone,
       type: "empty",
-      hasHeader: false,
+      headerInZone: false,
       rowCount: 0,
       uniqueCount: 0,
       uniqueRatio: 0,
@@ -51,11 +52,27 @@ function analyzeColumn(zone: Zone, getters: Getters): ColumnAnalysis {
   const firstCell = cells[0];
   const rest = cells.slice(1);
 
-  // Header: first cell is text AND rest has at least one non-text, non-empty cell
-  const hasHeader =
-    firstCell.type === CellValueType.text && rest.some((c) => c.type !== CellValueType.text);
+  let header: string | undefined;
+  let dataCells: EvaluatedCell[] = [];
+  let headerInZone = false;
+  const tableHeaderPosition = getColumnTableHeaderPosition(sheetId, zone, getters);
 
-  const dataCells: EvaluatedCell[] = hasHeader ? rest : cells;
+  if (tableHeaderPosition) {
+    header = getters.getCellText(tableHeaderPosition) || undefined;
+    dataCells = cells.filter((c) => c.position && c.position.row > tableHeaderPosition.row);
+    headerInZone =
+      !!header && tableHeaderPosition.row >= zone.top && tableHeaderPosition.row <= zone.bottom;
+  } else if (
+    firstCell.type === CellValueType.text &&
+    rest.some((c) => c.type !== CellValueType.text)
+  ) {
+    //first cell is text AND rest has at least one non-text, non-empty cell
+    header = firstCell.value;
+    dataCells = rest;
+    headerInZone = true;
+  } else {
+    dataCells = cells;
+  }
 
   const numericValues = dataCells
     .filter((c) => c.type === CellValueType.number)
@@ -67,8 +84,8 @@ function analyzeColumn(zone: Zone, getters: Getters): ColumnAnalysis {
   return {
     zone,
     type: computeColumnType(dataCells),
-    header: hasHeader ? firstCell.value : undefined,
-    hasHeader,
+    header,
+    headerInZone,
     rowCount: dataCells.length,
     uniqueCount,
     uniqueRatio: allVals.length > 0 ? uniqueCount / allVals.length : 0,
