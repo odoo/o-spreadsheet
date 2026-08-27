@@ -1,7 +1,15 @@
 import { clip } from "../../helpers/misc";
 import { FigureUI } from "../../types/figure";
-import { PixelPosition } from "../../types/misc";
+import { Getters } from "../../types/getters";
+import { PixelPosition, UID } from "../../types/misc";
 import { DOMDimension, Rect, SheetDOMScrollInfo } from "../../types/rendering";
+
+export function getMaxDimensions(sheetId: UID, getters: Getters): { maxX: number; maxY: number } {
+  return {
+    maxX: getters.getColDimensions(sheetId, getters.getNumberCols(sheetId) - 1).end,
+    maxY: getters.getRowDimensions(sheetId, getters.getNumberRows(sheetId) - 1).end,
+  };
+}
 
 export function dragFigureForMove(
   { x: mouseX, y: mouseY }: PixelPosition,

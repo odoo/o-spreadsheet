@@ -18,7 +18,11 @@ import { getOverlappedFigure } from "../../helpers/chart_drag_and_drop";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { isCtrlKey } from "../../helpers/dom_helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
-import { dragFigureForMove, dragFigureForResize } from "../../helpers/figure_drag_helper";
+import {
+  dragFigureForMove,
+  dragFigureForResize,
+  getMaxDimensions,
+} from "../../helpers/figure_drag_helper";
 import {
   HFigureAxisType,
   SnapLine,
@@ -233,20 +237,6 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
     return this.dnd.selectedRect ? this.rectToCss(this.dnd.selectedRect) : "";
   }
 
-  get maxDimensions() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    return {
-      maxX: this.env.model.getters.getColDimensions(
-        sheetId,
-        this.env.model.getters.getNumberCols(sheetId) - 1
-      ).end,
-      maxY: this.env.model.getters.getRowDimensions(
-        sheetId,
-        this.env.model.getters.getNumberRows(sheetId) - 1
-      ).end,
-    };
-  }
-
   private getInverseViewportPositionStyle(container: ContainerType): string {
     const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
     const { x: viewportX, y: viewportY } = this.viewStore.mainViewportCoordinates;
@@ -339,7 +329,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
     const zoom = this.zoomStore.zoomLevel;
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const initialScrollPosition = this.viewStore.activeSheetScrollInfo;
-    const maxDimensions = this.maxDimensions;
+    const maxDimensions = getMaxDimensions(sheetId, this.env.model.getters);
     const selectedFiguresIds = this.env.model.getters.getSelectedFigureIds();
     const initialFigures = selectedFiguresIds
       .map((id) => this.env.model.getters.getFigure(sheetId, id))
@@ -461,7 +451,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
     const zoom = this.zoomStore.zoomLevel;
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const initialScrollPosition = this.viewStore.activeSheetScrollInfo;
-    const maxDimensions = this.maxDimensions;
+    const maxDimensions = getMaxDimensions(sheetId, this.env.model.getters);
     const selectedFiguresIds = this.env.model.getters.getSelectedFigureIds();
     const initialFigures = selectedFiguresIds
       .map((id) => this.env.model.getters.getFigure(sheetId, id))
