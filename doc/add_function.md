@@ -454,13 +454,13 @@ The `compute` function inside the function definition can use external dependenc
 
 To adhere to the o-spreadsheet's architecture, we'll use a dedicated [plugin](./extending/architecture.md#plugins) for this purpose. The `compute` function can access relevant data using its getters.
 
-First, let's create the `CurrencyPlugin` class that extends `UIPlugin` and registers the necessary getters:
+First, let's create the `CurrencyPlugin` class that extends `EvaluationPlugin` and registers the necessary getters. It has to be an evaluation plugin (or a core plugin): the `compute` function only receives `EvaluationGetters`, so a getter defined on a `UIPlugin` would not be reachable from a spreadsheet function.
 
 ```ts
-const { uiPluginRegistry } = o_spreadsheet.registries;
-const { UIPlugin } = o_spreadsheet;
+const { evaluationPluginRegistry } = o_spreadsheet.registries;
+const { EvaluationPlugin } = o_spreadsheet;
 
-class CurrencyPlugin extends UIPlugin {
+class CurrencyPlugin extends EvaluationPlugin {
   static getters = ["getCurrencyRate"];
 
   constructor(config) {
@@ -472,7 +472,7 @@ class CurrencyPlugin extends UIPlugin {
   }
 }
 
-uiPluginRegistry.add("currencyPlugin", CurrencyPlugin);
+evaluationPluginRegistry.add("currencyPlugin", CurrencyPlugin);
 ```
 
 Next, we need to update the `compute` function to use the `getCurrencyRate` getter:
@@ -496,7 +496,7 @@ To handle this requirement and enable caching of API results, we'll introduce a 
 The `getCurrencyRate` function reads from the cache and returns the status. If the status is `"missing"`, the `fetch` method handles data fetching and updates the cache. The `getFromCache` and `fetch` methods are described below:
 
 ```ts
-class CurrencyPlugin extends UIPlugin {
+class CurrencyPlugin extends EvaluationPlugin {
   static getters = ["getCurrencyRate"];
 
   constructor(config) {
@@ -526,7 +526,7 @@ class CurrencyPlugin extends UIPlugin {
 Let's explore a possible implementation of the `getFromCache` and `fetch` methods:
 
 ```ts
-class CurrencyPlugin extends UIPlugin {
+class CurrencyPlugin extends EvaluationPlugin {
   // ...
 
   private getFromCache(from: string, to: string) {
@@ -570,7 +570,7 @@ class CurrencyPlugin extends UIPlugin {
 Instead of using the native `fetch` method, you can inject your own service through the configuration:
 
 ```ts
-class CurrencyPlugin extends UIPlugin {
+class CurrencyPlugin extends EvaluationPlugin {
   constructor(config) {
     super(config);
     /**
