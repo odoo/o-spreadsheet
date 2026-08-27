@@ -7,9 +7,9 @@ import {
   GRID_ICON_MARGIN,
   MIN_CELL_TEXT_MARGIN,
 } from "../../src/constants";
+import { COLOR_THEMES } from "../../src/helpers/color_themes";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
-import { COLOR_THEMES } from "../../src/plugins/ui_feature/color_theme";
 import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";
 import { GridIcon, iconsOnCellRegistry } from "../../src/registries/icons_on_cell_registry";
 import { ViewportsStore } from "../../src/stores/viewports_store";

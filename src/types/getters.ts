@@ -10,6 +10,7 @@ import { FingerprintPlugin } from "../plugins/ui_core_views/fingerprint";
 import { FormulaTrackerPlugin } from "../plugins/ui_core_views/formula_tracker";
 import { HeaderSizeUIPlugin } from "../plugins/ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "../plugins/ui_core_views/pivot_ui";
+import { ChartUIPlugin } from "../plugins/ui_feature/chart_ui";
 import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
 import { ColorThemeUIPlugin } from "../plugins/ui_feature/color_theme";
 import { DynamicTranslate } from "../plugins/ui_feature/dynamic_translate";
@@ -74,6 +75,7 @@ export type RenderingGetters = {
   PluginGetters<typeof LockSheetPlugin> &
   PluginGetters<typeof CarouselUIPlugin> &
   PluginGetters<typeof ColorThemeUIPlugin> &
+  PluginGetters<typeof ChartUIPlugin> &
   PluginGetters<typeof FigureUIPlugin>;
 
 export type Getters = RenderingGetters & PluginGetters<typeof GridSelectionPlugin>;

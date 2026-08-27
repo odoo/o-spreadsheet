@@ -7,6 +7,7 @@ import {
 } from "../../../types/chart/calendar_chart";
 import { LegendPosition } from "../../../types/chart/common_chart";
 import { CommandResult } from "../../../types/commands";
+import { ColorThemeName } from "../../../types/rendering";
 import { Validator } from "../../../types/validator";
 import { AbstractChart } from "./abstract_chart";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
@@ -90,9 +91,16 @@ export const CalendarChart: ChartTypeBuilder<"calendar"> = {
 
   getDefinitionForExcel: () => undefined,
 
-  getRuntime(getters, definition, { extractData }): CalendarChartRuntime {
+  getRuntime(
+    getters,
+    definition,
+    { extractData },
+    sheetId,
+    eventHandlers,
+    colorThemeName: ColorThemeName
+  ): CalendarChartRuntime {
     const data = extractData();
-    const chartData = getCalendarChartData(definition, data, getters);
+    const chartData = getCalendarChartData(definition, data, getters, colorThemeName);
     const { labels, datasets } = getCalendarChartDatasetAndLabels(definition, chartData);
 
     const config: ChartConfiguration<"calendar"> = {

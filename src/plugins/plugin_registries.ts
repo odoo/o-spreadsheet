@@ -32,6 +32,7 @@ import { FingerprintPlugin } from "./ui_core_views/fingerprint";
 import { FormulaTrackerPlugin } from "./ui_core_views/formula_tracker";
 import { HeaderSizeUIPlugin } from "./ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "./ui_core_views/pivot_ui";
+import { ChartUIPlugin } from "./ui_feature/chart_ui";
 import { CollaborativePlugin } from "./ui_feature/collaborative";
 import { ColorThemeUIPlugin } from "./ui_feature/color_theme";
 import { DataValidationInsertionPlugin } from "./ui_feature/datavalidation_insertion";
@@ -94,7 +95,8 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("dynamic_translate", DynamicTranslate)
   .add("geo_features", GeoFeaturePlugin)
   .add("color_theme", ColorThemeUIPlugin)
-  .add("lock_sheet", LockSheetPlugin);
+  .add("lock_sheet", LockSheetPlugin)
+  .add("chart_ui", ChartUIPlugin);
 
 // Plugins which have a state, but which should not be shared in collaborative
 export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()

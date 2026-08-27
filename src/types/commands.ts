@@ -27,6 +27,7 @@ import { Image } from "./image";
 import { Locale } from "./locale";
 import { PivotCoreDefinition, PivotTableData } from "./pivot";
 import { RangeData } from "./range";
+import { ColorThemeName } from "./rendering";
 import { CoreTableType, DataFilterValue, TableConfig, TableStyleTemplateName } from "./table";
 
 // -----------------------------------------------------------------------------
@@ -1217,7 +1218,7 @@ export interface ToggleCheckboxCommand extends TargetDependentCommand {
 
 export interface UpdateColorSchemeCommand {
   type: "UPDATE_COLOR_SCHEME";
-  colorScheme: "light" | "dark";
+  colorScheme: ColorThemeName;
 }
 
 export type CoreCommand =

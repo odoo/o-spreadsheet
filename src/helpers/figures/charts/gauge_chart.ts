@@ -1,3 +1,4 @@
+import { ColorThemeName } from "../../..";
 import {
   DEFAULT_GAUGE_LOWER_COLOR,
   DEFAULT_GAUGE_MIDDLE_COLOR,
@@ -262,7 +263,14 @@ export const GaugeChart: ChartTypeBuilder<"gauge"> = {
       .map((formula) => CompiledFormula.Compile(formula, sheetId, getters));
   },
 
-  getRuntime(getters: Getters, definition, dataSource, sheetId): GaugeChartRuntime {
+  getRuntime(
+    getters: Getters,
+    definition,
+    dataSource,
+    sheetId,
+    eventHandlers,
+    colorThemeName: ColorThemeName
+  ): GaugeChartRuntime {
     const locale = getters.getLocale();
     const chartColors = definition.sectionRule.colors;
 
@@ -287,7 +295,7 @@ export const GaugeChart: ChartTypeBuilder<"gauge"> = {
     let minValue = getFormulaNumberValue(sheetId, definition.sectionRule.rangeMin, getters);
     let maxValue = getFormulaNumberValue(sheetId, definition.sectionRule.rangeMax, getters);
     if (minValue === undefined || maxValue === undefined) {
-      return getInvalidGaugeRuntime(definition, getters);
+      return getInvalidGaugeRuntime(definition, getters, colorThemeName);
     }
     if (maxValue < minValue) {
       [minValue, maxValue] = [maxValue, minValue];
@@ -345,7 +353,11 @@ export const GaugeChart: ChartTypeBuilder<"gauge"> = {
     colors.push(chartColors.upperColor);
 
     return {
-      background: getters.getStyleOfSingleCellChart(definition.background, dataRange).background,
+      background: getters.getStyleOfSingleCellChart(
+        definition.background,
+        dataRange,
+        colorThemeName
+      ).background,
       title: {
         ...title,
         text: title.text ? getters.dynamicTranslate(title.text) : "",
@@ -400,11 +412,15 @@ function getFormulaNumberValue(sheetId: UID, formula: string, getters: Getters) 
 
 function getInvalidGaugeRuntime(
   definition: GaugeChartDefinition<Range>,
-  getters: Getters
+  getters: Getters,
+  colorThemeName: ColorThemeName
 ): GaugeChartRuntime {
   return {
-    background: getters.getStyleOfSingleCellChart(definition.background, definition.dataRange)
-      .background,
+    background: getters.getStyleOfSingleCellChart(
+      definition.background,
+      definition.dataRange,
+      colorThemeName
+    ).background,
     title: definition.title ?? { text: "" },
     minValue: { value: 0, label: "" },
     maxValue: { value: 100, label: "" },

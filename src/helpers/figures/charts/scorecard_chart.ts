@@ -1,3 +1,4 @@
+import { ColorThemeName } from "../../..";
 import {
   CHART_PADDING,
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
@@ -317,7 +318,14 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
     return formulas;
   },
 
-  getRuntime(getters, definition, _dataExtractor, sheetId): ScorecardChartRuntime {
+  getRuntime(
+    getters,
+    definition,
+    _dataExtractor,
+    sheetId,
+    eventHandlers,
+    colorThemeName: ColorThemeName
+  ): ScorecardChartRuntime {
     let formattedKeyValue = "";
     const { scalar: keyValue, range: keyValueRange } = getData(
       definition.keyValue,
@@ -338,7 +346,8 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
     );
     const { background, fontColor } = getters.getStyleOfSingleCellChart(
       definition.background,
-      keyValueRange
+      keyValueRange,
+      colorThemeName
     );
 
     const baselineDisplay = getBaselineText(

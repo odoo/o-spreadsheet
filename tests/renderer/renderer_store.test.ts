@@ -24,12 +24,9 @@ import {
   TABLE_HOVER_BACKGROUND_COLOR,
 } from "../../src/constants";
 import { blendColors, toHex } from "../../src/helpers/color";
+import { COLOR_THEMES } from "../../src/helpers/color_themes";
 import { fontSizeInPixels, getContextFontSize } from "../../src/helpers/text_helper";
 import { toZone } from "../../src/helpers/zones";
-import {
-  BACKGROUND_HEADER_ACTIVE_COLOR,
-  BACKGROUND_HEADER_SELECTED_COLOR,
-} from "../../src/plugins/ui_feature/color_theme";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { CellHoverOverlayStore } from "../../src/stores/cell_hover_overlay_store";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
@@ -204,9 +201,9 @@ describe("renderer", () => {
       drawGridRenderer(ctx);
 
       const fillColHeaderInstr = getFirstColHeaderFillColor();
-      expect(fillColHeaderInstr).toEqual(BACKGROUND_HEADER_SELECTED_COLOR);
+      expect(fillColHeaderInstr).toEqual(COLOR_THEMES.light.headerSelectedBackgroundColor);
       const fillRowHeaderInstr = getFirstRowHeaderFillColor();
-      expect(fillRowHeaderInstr).toEqual(BACKGROUND_HEADER_SELECTED_COLOR);
+      expect(fillRowHeaderInstr).toEqual(COLOR_THEMES.light.headerSelectedBackgroundColor);
     });
 
     test("Color of active headers", () => {
@@ -214,9 +211,9 @@ describe("renderer", () => {
       drawGridRenderer(ctx);
 
       const fillColHeaderInstr = getFirstColHeaderFillColor();
-      expect(fillColHeaderInstr).toEqual(BACKGROUND_HEADER_ACTIVE_COLOR);
+      expect(fillColHeaderInstr).toEqual(COLOR_THEMES.light.headerActiveBackgroundColor);
       const fillRowHeaderInstr = getFirstRowHeaderFillColor();
-      expect(fillRowHeaderInstr).toEqual(BACKGROUND_HEADER_ACTIVE_COLOR);
+      expect(fillRowHeaderInstr).toEqual(COLOR_THEMES.light.headerActiveBackgroundColor);
     });
   });
 

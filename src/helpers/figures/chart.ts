@@ -19,6 +19,7 @@ import { CoreGetters } from "../../types/core_getters";
 import { Getters } from "../../types/getters";
 import { RangeAdapterFunctions, UID } from "../../types/misc";
 import { Range } from "../../types/range";
+import { ColorThemeName } from "../../types/rendering";
 import { Validator } from "../../types/validator";
 
 export class SpreadsheetChart {
@@ -190,7 +191,7 @@ export class SpreadsheetChart {
     return this.chartTypeBuilder.getFormulas(getters, this.sheetId, this.definition);
   }
 
-  getRuntime(getters: Getters, chartId: UID) {
+  getRuntime(getters: Getters, chartId: UID, colorThemeName: ColorThemeName) {
     const dataSource = this.dataSource;
     const dataExtractors = dataSource
       ? {
@@ -227,7 +228,8 @@ export class SpreadsheetChart {
       this.definition,
       dataExtractors,
       this.sheetId,
-      eventHandlers
+      eventHandlers,
+      colorThemeName
     );
   }
 

@@ -39,7 +39,8 @@ export class CalendarChartConfigPanel extends GenericChartConfigPanel<
     const data = getBarChartData(
       definition,
       getChartData(this.env.model.getters, definition.dataSource as ChartRangeDataSource),
-      this.env.model.getters
+      this.env.model.getters,
+      this.env.model.getters.getSpreadsheetTheme().colorThemeName
     );
     const labels = data.labels.filter((l) => isDateTime(l, DEFAULT_LOCALE));
     if (labels.length === 0) {

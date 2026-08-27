@@ -2,6 +2,7 @@ import { ChartConfiguration } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { GeoChartRuntime } from "../../../types/chart/geo_chart";
 import { CommandResult } from "../../../types/commands";
+import { ColorThemeName } from "../../../types/rendering";
 import { AbstractChart } from "./abstract_chart";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import { getGeoChartData } from "./runtime/chart_data_extractor";
@@ -59,9 +60,16 @@ export const GeoChart: ChartTypeBuilder<"geo"> = {
 
   getDefinitionForExcel: () => undefined,
 
-  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): GeoChartRuntime {
+  getRuntime(
+    getters,
+    definition,
+    { extractData },
+    sheetId,
+    eventHandlers,
+    colorThemeName: ColorThemeName
+  ): GeoChartRuntime {
     const data = extractData();
-    const chartData = getGeoChartData(definition, data, getters);
+    const chartData = getGeoChartData(definition, data, getters, colorThemeName);
 
     const config: ChartConfiguration = {
       type: "choropleth",

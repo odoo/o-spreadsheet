@@ -2,6 +2,7 @@ import type { ChartConfiguration } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { BarChartRuntime } from "../../../types/chart/bar_chart";
 import { CommandResult } from "../../../types/commands";
+import { ColorThemeName } from "../../../types/rendering";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { AbstractChart } from "./abstract_chart";
 import { chartFontColor, getDefinedAxis } from "./chart_common";
@@ -84,9 +85,16 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): BarChartRuntime {
+  getRuntime(
+    getters,
+    definition,
+    { extractData },
+    sheetId,
+    eventHandlers,
+    colorThemeName: ColorThemeName
+  ): BarChartRuntime {
     const data = extractData();
-    const chartData = getBarChartData(definition, data, getters);
+    const chartData = getBarChartData(definition, data, getters, colorThemeName);
     const config: ChartConfiguration<"bar" | "line"> = {
       type: "bar",
       data: {

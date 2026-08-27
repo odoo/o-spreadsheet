@@ -93,7 +93,10 @@ export interface SheetDOMScrollInfo {
   scrollY: Pixel;
 }
 
+export type ColorThemeName = "light" | "dark";
+
 export interface GridRenderingTheme {
+  colorThemeName: ColorThemeName;
   backgroundColor: string;
   gridBorderColor: string;
   headerBackgroundColor: string;

@@ -2,6 +2,7 @@ import { ChartConfiguration } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { ScatterChartRuntime } from "../../../types/chart/scatter_chart";
 import { CommandResult } from "../../../types/commands";
+import { ColorThemeName } from "../../../types/rendering";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { AbstractChart } from "./abstract_chart";
 import { chartFontColor, getDefinedAxis } from "./chart_common";
@@ -75,9 +76,16 @@ export const ScatterChart: ChartTypeBuilder<"scatter"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): ScatterChartRuntime {
+  getRuntime(
+    getters,
+    definition,
+    { extractData },
+    sheetId,
+    eventHandlers,
+    colorThemeName: ColorThemeName
+  ): ScatterChartRuntime {
     const data = extractData();
-    const chartData = getLineChartData(definition, data, getters);
+    const chartData = getLineChartData(definition, data, getters, colorThemeName);
 
     const config: ChartConfiguration<"line"> = {
       // use chartJS line chart and disable the lines instead of chartJS scatter chart. This is because the scatter chart

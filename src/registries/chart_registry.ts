@@ -1,5 +1,5 @@
 import { CoreChartOptions } from "chart.js";
-import { CompiledFormula } from "..";
+import { ColorThemeName, CompiledFormula } from "..";
 import {
   ChartCreationContext,
   ChartData,
@@ -100,7 +100,8 @@ export interface ChartTypeBuilder<T extends ChartType> {
     definition: ChartTypeDefinition<T, Range>,
     chartDataExtractors: ChartDataExtractors,
     sheetId: UID,
-    eventHandlers: ChartJsEventHandlers
+    eventHandlers: ChartJsEventHandlers,
+    colorThemeName: ColorThemeName
   ): ChartRuntime;
   /** Get all the formulas used in the chart */
   getFormulas(

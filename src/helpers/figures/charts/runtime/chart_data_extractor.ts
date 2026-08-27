@@ -42,6 +42,7 @@ import { Getters } from "../../../../types/getters";
 import { DEFAULT_LOCALE, Locale } from "../../../../types/locale";
 import { FunctionResultObject } from "../../../../types/misc";
 import { Range } from "../../../../types/range";
+import { ColorThemeName } from "../../../../types/rendering";
 import { isNumberResult } from "../../../cells/cell_evaluation";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
 import { DAYS, formatValue, isDateTimeFormat, MONTHS } from "../../../format/format";
@@ -56,7 +57,8 @@ const ZERO = Object.freeze({ value: 0 });
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
   { labelValues, dataSetsValues }: ChartData,
-  getters: Getters
+  getters: Getters,
+  colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   const locale = getters.getLocale();
   let labels = labelValues.map(({ value, format }) => formatValue(value, { format, locale }));
@@ -93,7 +95,7 @@ export function getBarChartData(
     labels,
     locale: getters.getLocale(),
     topPadding: getTopPaddingForDashboard(definition, getters),
-    background: getChartBackgroundColor(definition, getters),
+    background: getChartBackgroundColor(definition, colorThemeName),
   };
 }
 
@@ -191,7 +193,8 @@ function computeValuesAndLabels(
 export function getCalendarChartData(
   definition: GenericDefinition<CalendarChartDefinition>,
   { labelValues, dataSetsValues }: ChartData,
-  getters: Getters
+  getters: Getters,
+  colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   let labels = labelValues;
 
@@ -222,19 +225,21 @@ export function getCalendarChartData(
     labels: labels.map(({ value }) => String(value ?? "")),
     locale: getters.getLocale(),
     topPadding: getTopPaddingForDashboard(definition, getters),
-    background: getChartBackgroundColor(definition, getters),
+    background: getChartBackgroundColor(definition, colorThemeName),
   };
 }
 
 export function getPyramidChartData(
   definition: PyramidChartDefinition,
   { labelValues, dataSetsValues }: ChartData,
-  getters: Getters
+  getters: Getters,
+  colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   const barChartData = getBarChartData(
     definition,
     { labelValues, dataSetsValues: dataSetsValues.slice(0, 2) },
-    getters
+    getters,
+    colorThemeName
   );
   const barDataset = barChartData.dataSetsValues.filter((ds) => !ds.hidden);
 
@@ -261,7 +266,8 @@ export function getPyramidChartData(
 export function getLineChartData(
   definition: GenericDefinition<LineChartDefinition>,
   { labelValues, dataSetsValues }: ChartData,
-  getters: Getters
+  getters: Getters,
+  colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   const axisType = getChartAxisType(definition, { labelValues, dataSetsValues });
   let labels =
@@ -309,14 +315,15 @@ export function getLineChartData(
     trendDataSetsValues,
     axisType,
     topPadding: getTopPaddingForDashboard(definition, getters),
-    background: getChartBackgroundColor(definition, getters),
+    background: getChartBackgroundColor(definition, colorThemeName),
   };
 }
 
 export function getPieChartData(
   definition: GenericDefinition<PieChartDefinition>,
   { labelValues, dataSetsValues }: ChartData,
-  getters: Getters
+  getters: Getters,
+  colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   let labels = labelValues.map(({ value, format }) =>
     formatValue(value, { format, locale: getters.getLocale() })
@@ -338,14 +345,15 @@ export function getPieChartData(
     labels,
     locale: getters.getLocale(),
     topPadding: getTopPaddingForDashboard(definition, getters),
-    background: getChartBackgroundColor(definition, getters),
+    background: getChartBackgroundColor(definition, colorThemeName),
   };
 }
 
 export function getRadarChartData(
   definition: GenericDefinition<RadarChartDefinition>,
   { labelValues, dataSetsValues }: ChartData,
-  getters: Getters
+  getters: Getters,
+  colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   let labels = labelValues.map(({ value, format }) =>
     formatValue(value, { format, locale: getters.getLocale() })
@@ -366,14 +374,15 @@ export function getRadarChartData(
     axisFormats,
     labels,
     locale: getters.getLocale(),
-    background: getChartBackgroundColor(definition, getters),
+    background: getChartBackgroundColor(definition, colorThemeName),
   };
 }
 
 export function getGeoChartData(
   definition: GeoChartDefinition,
   { labelValues, dataSetsValues }: ChartData,
-  getters: Getters
+  getters: Getters,
+  colorThemeName: ColorThemeName
 ): GeoChartRuntimeGenerationArgs {
   dataSetsValues = dataSetsValues.slice(0, 1);
   let labels = labelValues.map(({ value, format }) =>
@@ -393,14 +402,15 @@ export function getGeoChartData(
     availableRegions: getters.getGeoChartAvailableRegions(),
     geoFeatureNameToId: getters.geoFeatureNameToId,
     getGeoJsonFeatures: getters.getGeoJsonFeatures,
-    background: getChartBackgroundColor(definition, getters),
+    background: getChartBackgroundColor(definition, colorThemeName),
   };
 }
 
 export function getFunnelChartData(
   definition: GenericDefinition<FunnelChartDefinition>,
   { labelValues, dataSetsValues }: ChartData,
-  getters: Getters
+  getters: Getters,
+  colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   let labels = labelValues.map(({ value, format }) =>
     formatValue(value, { format, locale: getters.getLocale() })
@@ -422,14 +432,15 @@ export function getFunnelChartData(
     axisFormats: { x: format },
     labels,
     locale: getters.getLocale(),
-    background: getChartBackgroundColor(definition, getters),
+    background: getChartBackgroundColor(definition, colorThemeName),
   };
 }
 
 export function getHierarchalChartData(
   definition: SunburstChartDefinition | TreeMapChartDefinition,
   { labelValues, dataSetsValues }: ChartData,
-  getters: Getters
+  getters: Getters,
+  colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   // In hierarchical charts, labels are the leaf values (numbers), and the hierarchy is defined in the dataSets (strings)
   let labels = labelValues;
@@ -441,16 +452,17 @@ export function getHierarchalChartData(
     axisFormats: { y: getChartLabelFormat(labels) },
     labels: labels.map(({ value }) => String(value ?? "")),
     locale: getters.getLocale(),
-    background: getChartBackgroundColor(definition, getters),
+    background: getChartBackgroundColor(definition, colorThemeName),
   };
 }
 
 export function getBubbleChartData(
   definition: BubbleChartDefinition<Range>,
-  getters: Getters
+  getters: Getters,
+  colorThemeName: ColorThemeName
 ): BubbleChartData {
   const chartData = getBubbleChartSourceData(definition, getters);
-  const data = getLineChartData(definition, chartData, getters);
+  const data = getLineChartData(definition, chartData, getters, colorThemeName);
 
   let labelValues = definition.labelRange
     ? getters.getVisibleRangeValues(definition.labelRange)

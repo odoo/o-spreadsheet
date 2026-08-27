@@ -234,7 +234,12 @@ function getCopyAsImageMenuItem(figureId: UID, env: SpreadsheetChildEnv): Action
       }
       const chartType = env.model.getters.getChartType(chartId);
       const runtime = env.model.getters.getChartRuntime(chartId);
-      const blob = await chartToImageFile(runtime, figure, chartType);
+      const blob = await chartToImageFile(
+        runtime,
+        figure,
+        chartType,
+        env.model.getters.getSpreadsheetTheme().colorThemeName
+      );
       if (!blob) {
         return;
       }
@@ -280,7 +285,12 @@ function getDownloadChartMenuItem(figureId: UID, env: SpreadsheetChildEnv): Acti
       }
       const chartType = env.model.getters.getChartType(chartId);
       const runtime = env.model.getters.getChartRuntime(chartId);
-      const url = await chartToImageUrl(runtime, figure, chartType);
+      const url = await chartToImageUrl(
+        runtime,
+        figure,
+        chartType,
+        env.model.getters.getSpreadsheetTheme().colorThemeName
+      );
       if (!url) {
         return;
       }

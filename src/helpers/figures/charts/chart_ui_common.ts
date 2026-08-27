@@ -4,7 +4,8 @@ import { ChartRuntime, ChartType } from "../../../types/chart/chart";
 import { GaugeChartRuntime } from "../../../types/chart/gauge_chart";
 import { ScorecardChartRuntime } from "../../../types/chart/scorecard_chart";
 import { Figure } from "../../../types/figure";
-import { DOMDimension } from "../../../types/rendering";
+import { ColorThemeName, DOMDimension } from "../../../types/rendering";
+import { DARK_MODE_FILTER_STRING } from "../../color";
 import { deepCopy } from "../../misc";
 import {
   areChartJSExtensionsLoaded,
@@ -87,12 +88,15 @@ function sampleIndices(length: number, maxPoints: number): number[] {
 export async function chartToImageUrl(
   runtime: ChartRuntime,
   figure: Figure,
-  type: ChartType
+  type: ChartType,
+  colorThemeName: ColorThemeName = "light"
 ): Promise<string | undefined> {
   try {
     const canvas = createRenderingSurface(figure.width, figure.height);
     const cleanup = drawChartOnCanvas(canvas, runtime, figure, type);
-    const imageUrl = await canvasToObjectUrl(canvas);
+    const imageUrl = await canvasToObjectUrl(
+      colorThemeName === "dark" ? applyDarkMode(canvas) : canvas
+    );
     cleanup();
     return imageUrl;
   } catch (error) {
@@ -101,15 +105,36 @@ export async function chartToImageUrl(
   return undefined;
 }
 
+/**
+ * Charts are drawn with pre-inverted colors (see `adaptForDarkMode`) because they are displayed
+ * through the `os-theme-dependant` CSS filter. An exported image doesn't get that filter, so it
+ * has to be applied to the pixels to obtain what is actually displayed on screen.
+ */
+function applyDarkMode(canvas: OffscreenCanvas): OffscreenCanvas {
+  const filtered = createRenderingSurface(canvas.width, canvas.height);
+  const ctx = filtered.getContext("2d");
+  // Safari does not support the `filter` property...
+  const isFilterSupportedInCanvas = !ctx || !("filter" in ctx);
+  if (isFilterSupportedInCanvas) {
+    return canvas;
+  }
+  ctx.filter = DARK_MODE_FILTER_STRING;
+  ctx.drawImage(canvas, 0, 0);
+  return filtered;
+}
+
 export async function chartToImageFile(
   runtime: ChartRuntime,
   figure: Figure,
-  type: ChartType
+  type: ChartType,
+  colorThemeName: ColorThemeName = "light"
 ): Promise<Blob | null> {
   try {
     const canvas = createRenderingSurface(figure.width, figure.height);
     const cleanup = drawChartOnCanvas(canvas, runtime, figure, type);
-    const chartBlob = await canvasToBlob(canvas);
+    const chartBlob = await canvasToBlob(
+      colorThemeName === "dark" ? applyDarkMode(canvas) : canvas
+    );
     cleanup();
     return chartBlob;
   } catch (error) {

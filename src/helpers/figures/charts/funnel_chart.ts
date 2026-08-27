@@ -2,6 +2,7 @@ import { ChartConfiguration } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { FunnelChartRuntime } from "../../../types/chart/funnel_chart";
 import { CommandResult } from "../../../types/commands";
+import { ColorThemeName } from "../../../types/rendering";
 import { AbstractChart } from "./abstract_chart";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import { getFunnelChartData } from "./runtime/chart_data_extractor";
@@ -68,9 +69,16 @@ export const FunnelChart: ChartTypeBuilder<"funnel"> = {
 
   getDefinitionForExcel: () => undefined,
 
-  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): FunnelChartRuntime {
+  getRuntime(
+    getters,
+    definition,
+    { extractData },
+    sheetId,
+    eventHandlers,
+    colorThemeName: ColorThemeName
+  ): FunnelChartRuntime {
     const data = extractData();
-    const chartData = getFunnelChartData(definition, data, getters);
+    const chartData = getFunnelChartData(definition, data, getters, colorThemeName);
 
     const config: ChartConfiguration = {
       type: "funnel",

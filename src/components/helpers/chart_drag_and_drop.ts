@@ -145,7 +145,8 @@ export function startChartDragAndDrop(
 
       const runtime = SpreadsheetChart.fromStrDefinition(getters, sheetId, definition).getRuntime(
         getters,
-        "newChart"
+        "newChart",
+        getters.getSpreadsheetTheme().colorThemeName
       );
       destroyChart = drawChartOnCanvas(canvas, runtime, { width, height }, definition.type, zoom);
     }

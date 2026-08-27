@@ -2,6 +2,7 @@ import { ChartConfiguration } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { ComboChartDataSetStyle, ComboChartRuntime } from "../../../types/chart/combo_chart";
 import { CommandResult } from "../../../types/commands";
+import { ColorThemeName } from "../../../types/rendering";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { AbstractChart } from "./abstract_chart";
 import { chartFontColor, getDefinedAxis } from "./chart_common";
@@ -87,9 +88,16 @@ export const ComboChart: ChartTypeBuilder<"combo"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): ComboChartRuntime {
+  getRuntime(
+    getters,
+    definition,
+    { extractData },
+    sheetId,
+    eventHandlers,
+    colorThemeName: ColorThemeName
+  ): ComboChartRuntime {
     const data = extractData();
-    const chartData = getBarChartData(definition, data, getters);
+    const chartData = getBarChartData(definition, data, getters, colorThemeName);
 
     const config: ChartConfiguration<"bar" | "line"> = {
       type: "bar",

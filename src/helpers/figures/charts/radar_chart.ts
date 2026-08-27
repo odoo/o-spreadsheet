@@ -2,6 +2,7 @@ import { ChartConfiguration } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { RadarChartRuntime } from "../../../types/chart/radar_chart";
 import { CommandResult } from "../../../types/commands";
+import { ColorThemeName } from "../../../types/rendering";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { AbstractChart } from "./abstract_chart";
 import { chartFontColor } from "./chart_common";
@@ -76,9 +77,16 @@ export const RadarChart: ChartTypeBuilder<"radar"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): RadarChartRuntime {
+  getRuntime(
+    getters,
+    definition,
+    { extractData },
+    sheetId,
+    eventHandlers,
+    colorThemeName: ColorThemeName
+  ): RadarChartRuntime {
     const data = extractData();
-    const chartData = getRadarChartData(definition, data, getters);
+    const chartData = getRadarChartData(definition, data, getters, colorThemeName);
 
     const config: ChartConfiguration<"radar"> = {
       type: "radar",
