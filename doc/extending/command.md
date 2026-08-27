@@ -1,7 +1,7 @@
 # Commands
 
 Commands are essential for modifying the spreadsheet state. They are dispatched to the model, which in turn relays them to each plugin.
-There are two types of commands: `CoreCommand` and `LocalCommand`.
+There are two types of commands: `CoreCommand` and `LocalCommand`. Among the local commands, the _evaluation commands_ form a special subset with its own dispatch rules (see below).
 
 ## Types of Commands
 
@@ -19,10 +19,30 @@ There are two types of commands: `CoreCommand` and `LocalCommand`.
 - **Sub-Commands**: Can dispatch sub-commands, which can be either core or local commands.
 - **Collaboration**: Not broadcast to other connected users (but sub-core commands are).
 
+### DispatcheableEvaluationCommand
+
+- **Purpose**: Trigger the (re)computation of a derived state. Currently `EVALUATE_CELLS` and `EVALUATE_CHARTS`, listed in `dispatcheableEvaluationCommandTypes` (`src/types/commands.ts`).
+- **Handling**: Handled by evaluation plugins and UI plugins. Core plugins never handle them (`CorePlugin.handle` only accepts a `CoreCommand`).
+- **Dispatch**: They bypass `allowDispatch` entirely — an evaluation command can never be refused. When dispatched by an evaluation plugin, they are relayed to evaluation and UI plugins only.
+- **Sub-Commands**: This is the only kind of command an `EvaluationPlugin` may dispatch. Dispatching anything else from an evaluation plugin throws (`An evaluation plugin cannot dispatch non-evaluation commands`), and so does dispatching a non-evaluation command from any plugin while a top-level evaluation command is being handled (`A top level evaluation command cannot dispatch non-evaluation commands`).
+- **Collaboration**: Not broadcast — each client re-evaluates on its own.
+
+## What an evaluation plugin sees: `EvaluationCommand`
+
+`EvaluationPlugin` does not receive every command. `EvaluationCommand` (backed by the `evaluationCommandTypes` set) is the union of what it may handle:
+
+- every `CoreCommand`, plus `UNDO`/`REDO` which replay them,
+- the dispatcheable evaluation commands (`EVALUATE_CELLS`, `EVALUATE_CHARTS`),
+- `START`, dispatched once at the model creation,
+- the few local commands that only impact derived state: `UPDATE_FILTER`, `SET_AUTOMATIC_EVALUATION`, `REFRESH_PIVOT`, `PIVOT_START_PRESENCE_TRACKING`, `PIVOT_STOP_PRESENCE_TRACKING`.
+
+Any other local command is a UI concern: the model filters it out, so neither `allowDispatch`, `beforeHandle` nor `handle` of an evaluation plugin is called for it. Adding a local command to this set is a deliberate decision — if the command carries UI intent, handle it in a UI plugin and let it dispatch a core or evaluation command instead.
+
 ### Example
 
 - `RESIZE_COLUMNS_ROWS`: A `CoreCommand` handled by a core plugin to adjust the size of rows or columns.
 - `AUTORESIZE_COLUMNS`: A `LocalCommand` handled by a UI plugin, which dispatches the sub-command `RESIZE_COLUMNS_ROWS` based on the current cell content.
+- `EVALUATE_CELLS`: A `DispatcheableEvaluationCommand` handled by `CellEvaluationPlugin` to evaluate the cells that were invalidated.
 
 ### Device Agnosticism
 
