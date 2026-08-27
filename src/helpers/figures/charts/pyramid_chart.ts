@@ -2,6 +2,7 @@ import { ChartConfiguration, ChartDataset } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { PyramidChartRuntime } from "../../../types/chart/pyramid_chart";
 import { CommandResult } from "../../../types/commands";
+import { ColorThemeName } from "../../../types/rendering";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { isNumberResult } from "../../cells/cell_evaluation";
 import { AbstractChart } from "./abstract_chart";
@@ -78,7 +79,7 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
       return undefined;
     }
     const data = getChartData(getters, definition.dataSource);
-    const chartData = getPyramidChartData(definition, data, getters);
+    const chartData = getPyramidChartData(definition, data, getters, "light");
     const { dataSetsValues } = chartData;
     const maxValue = Math.max(
       ...dataSetsValues.map((dataSet) =>
@@ -99,9 +100,16 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): PyramidChartRuntime {
+  getRuntime(
+    getters,
+    definition,
+    { extractData },
+    sheetId,
+    eventHandlers,
+    colorThemeName: ColorThemeName
+  ): PyramidChartRuntime {
     const data = extractData();
-    const chartData = getPyramidChartData(definition, data, getters);
+    const chartData = getPyramidChartData(definition, data, getters, colorThemeName);
 
     const config: ChartConfiguration<"bar"> = {
       type: "bar",

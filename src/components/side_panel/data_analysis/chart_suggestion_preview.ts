@@ -41,7 +41,11 @@ export class ChartSuggestionPreview extends Component<SpreadsheetChildEnv> {
     const getters = this.env.model.getters;
     const activeSheetId = getters.getActiveSheetId();
     const chart = SpreadsheetChart.fromStrDefinition(getters, activeSheetId, this.props.definition);
-    const runtime = chart.getRuntime(getters, "myChart");
+    const runtime = chart.getRuntime(
+      getters,
+      "myChart",
+      getters.getSpreadsheetTheme().colorThemeName
+    );
     if (!("chartJsConfig" in runtime)) {
       return null;
     }
@@ -146,7 +150,11 @@ export class ChartSuggestionPreview extends Component<SpreadsheetChildEnv> {
       getters.getActiveSheetId(),
       this.props.definition
     );
-    let runtime = chart.getRuntime(getters, "myChart");
+    let runtime = chart.getRuntime(
+      getters,
+      "myChart",
+      getters.getSpreadsheetTheme().colorThemeName
+    );
     const { type } = this.props.definition;
     if (type === "scorecard") {
       const rect = canvas.getBoundingClientRect();

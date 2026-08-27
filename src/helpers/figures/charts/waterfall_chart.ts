@@ -2,6 +2,7 @@ import type { ChartConfiguration } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { WaterfallChartRuntime } from "../../../types/chart/waterfall_chart";
 import { CommandResult } from "../../../types/commands";
+import { ColorThemeName } from "../../../types/rendering";
 import { AbstractChart } from "./abstract_chart";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import { getBarChartData } from "./runtime/chart_data_extractor";
@@ -75,9 +76,16 @@ export const WaterfallChart: ChartTypeBuilder<"waterfall"> = {
 
   getDefinitionForExcel: () => undefined,
 
-  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): WaterfallChartRuntime {
+  getRuntime(
+    getters,
+    definition,
+    { extractData },
+    sheetId,
+    eventHandlers,
+    colorThemeName: ColorThemeName
+  ): WaterfallChartRuntime {
     const data = extractData();
-    const chartData = getBarChartData(definition, data, getters);
+    const chartData = getBarChartData(definition, data, getters, colorThemeName);
 
     const { labels, datasets } = getWaterfallDatasetAndLabels(definition, chartData);
     const config: ChartConfiguration = {

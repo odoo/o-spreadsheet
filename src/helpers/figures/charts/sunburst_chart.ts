@@ -2,6 +2,7 @@ import type { ChartConfiguration, ChartOptions } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { SunburstChartRuntime } from "../../../types/chart/sunburst_chart";
 import { CommandResult } from "../../../types/commands";
+import { ColorThemeName } from "../../../types/rendering";
 import { AbstractChart } from "./abstract_chart";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import { getHierarchalChartData } from "./runtime/chart_data_extractor";
@@ -75,10 +76,11 @@ export const SunburstChart: ChartTypeBuilder<"sunburst"> = {
     definition,
     { extractHierarchicalData },
     sheetId,
-    eventHandlers
+    eventHandlers,
+    colorThemeName: ColorThemeName
   ): SunburstChartRuntime {
     const data = extractHierarchicalData();
-    const chartData = getHierarchalChartData(definition, data, getters);
+    const chartData = getHierarchalChartData(definition, data, getters, colorThemeName);
 
     const config: ChartConfiguration<"doughnut"> = {
       type: "doughnut",

@@ -4,6 +4,7 @@ import { BubbleChartDefinition } from "../../../types/chart/bubble_chart";
 import { ChartCreationContext, ChartRuntimeGenerationArgs } from "../../../types/chart/chart";
 import { CommandResult } from "../../../types/commands";
 import { Range } from "../../../types/range";
+import { ColorThemeName } from "../../../types/rendering";
 import { isDefined } from "../../misc";
 import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
@@ -185,8 +186,15 @@ export const BubbleChart: ChartTypeBuilder<"bubble"> = {
 
   copyInSheetId: (definition) => definition,
 
-  getRuntime(getters, definition) {
-    const chartData = getBubbleChartData(definition, getters);
+  getRuntime(
+    getters,
+    definition,
+    chartDataExtractors,
+    sheetId,
+    eventHandlers,
+    colorThemeName: ColorThemeName
+  ) {
+    const chartData = getBubbleChartData(definition, getters, colorThemeName);
     const config: ChartConfiguration<"line"> = {
       type: "line",
       data: {

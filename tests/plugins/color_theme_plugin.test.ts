@@ -1,5 +1,5 @@
+import { COLOR_THEMES } from "../../src/helpers/color_themes";
 import { Model } from "../../src/model";
-import { COLOR_THEMES } from "../../src/plugins/ui_feature/color_theme";
 import { MockTransportService } from "../__mocks__/transport_service";
 
 const expectedLightTheme = COLOR_THEMES.light;
@@ -18,7 +18,10 @@ describe("ColorThemeUIPlugin via Model getters", () => {
     );
     const theme = model.getters.getSpreadsheetTheme();
     for (const key of THEME_KEYS) {
-      expect(theme[key].toUpperCase()).toBe(expectedLightTheme[key]);
+      if (key === "colorThemeName") {
+        continue;
+      }
+      expect(theme[key]).toBeSameColorAs(expectedLightTheme[key]);
     }
   });
 
@@ -33,7 +36,10 @@ describe("ColorThemeUIPlugin via Model getters", () => {
     );
     const theme = model.getters.getSpreadsheetTheme();
     for (const key of THEME_KEYS) {
-      expect(theme[key].toUpperCase()).toBe(expectedDarkTheme[key]);
+      if (key === "colorThemeName") {
+        continue;
+      }
+      expect(theme[key]).toBeSameColorAs(expectedDarkTheme[key]);
     }
   });
 

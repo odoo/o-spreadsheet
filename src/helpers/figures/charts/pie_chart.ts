@@ -2,6 +2,7 @@ import type { ChartConfiguration } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { PieChartRuntime } from "../../../types/chart/pie_chart";
 import { CommandResult } from "../../../types/commands";
+import { ColorThemeName } from "../../../types/rendering";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { AbstractChart } from "./abstract_chart";
 import { chartFontColor } from "./chart_common";
@@ -75,9 +76,16 @@ export const PieChart: ChartTypeBuilder<"pie"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): PieChartRuntime {
+  getRuntime(
+    getters,
+    definition,
+    { extractData },
+    sheetId,
+    eventHandlers,
+    colorThemeName: ColorThemeName
+  ): PieChartRuntime {
     const data = extractData();
-    const chartData = getPieChartData(definition, data, getters);
+    const chartData = getPieChartData(definition, data, getters, colorThemeName);
 
     const config: ChartConfiguration<"doughnut" | "pie"> = {
       type: definition.isDoughnut ? "doughnut" : "pie",

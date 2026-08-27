@@ -1,4 +1,5 @@
 import { ChartConfiguration } from "chart.js";
+import { COLOR_THEMES } from "../../helpers/color_themes";
 import { SpreadsheetChart } from "../../helpers/figures/chart";
 import { chartFontColor } from "../../helpers/figures/charts/chart_common";
 import { chartToImageUrl } from "../../helpers/figures/charts/chart_ui_common";
@@ -12,6 +13,7 @@ import {
 } from "../../types/commands";
 import { Color, UID } from "../../types/misc";
 import { Range } from "../../types/range";
+import { ColorThemeName } from "../../types/rendering";
 import { ExcelWorkbookData, FigureData } from "../../types/workbook_data";
 import { CoreViewPlugin } from "../core_view_plugin";
 
@@ -21,13 +23,13 @@ interface EvaluationChartStyle {
 }
 
 interface EvaluationChartState {
-  charts: Record<UID, ChartRuntime | undefined>;
+  charts: Record<UID, Partial<Record<ColorThemeName, ChartRuntime | undefined>>>;
 }
 
 export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> {
-  static getters = ["getChartRuntime", "getStyleOfSingleCellChart"] as const;
+  static getters = ["getStyleOfSingleCellChart", "getChartRuntimeWithTheme"] as const;
 
-  charts: Record<UID, ChartRuntime | undefined> = {};
+  charts: Record<UID, Partial<Record<ColorThemeName, ChartRuntime | undefined>>> = {};
 
   handle(cmd: CoreViewCommand) {
     if (
@@ -36,37 +38,44 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
       invalidateChartEvaluationCommands.has(cmd.type)
     ) {
       for (const chartId in this.charts) {
-        this.charts[chartId] = undefined;
+        this.charts[chartId] = {};
       }
     }
 
     switch (cmd.type) {
       case "UPDATE_CHART":
       case "CREATE_CHART":
-        this.charts[cmd.chartId] = undefined;
+        this.charts[cmd.chartId] = {};
         break;
       case "DELETE_CHART":
-        this.charts[cmd.chartId] = undefined;
+        this.charts[cmd.chartId] = {};
         break;
       case "DELETE_SHEET":
         for (const chartId in this.charts) {
           if (!this.getters.isChartDefined(chartId)) {
-            this.charts[chartId] = undefined;
+            this.charts[chartId] = {};
           }
         }
         break;
     }
   }
 
-  getChartRuntime(chartId: UID): ChartRuntime {
+  getChartRuntimeWithTheme(chartId: UID, colorThemeName: ColorThemeName): ChartRuntime {
     if (!this.charts[chartId]) {
+      this.charts[chartId] = {};
+    }
+    if (!this.charts[chartId][colorThemeName]) {
       const chart = this.getters.getChart(chartId);
       if (!chart) {
         throw new Error(`No chart for the given id: ${chartId}`);
       }
-      this.charts[chartId] = this.createRuntimeChart(chartId, chart);
+      this.charts[chartId][colorThemeName] = this.createRuntimeChart(
+        chartId,
+        chart,
+        colorThemeName
+      );
     }
-    return this.charts[chartId] as ChartRuntime;
+    return this.charts[chartId][colorThemeName] as ChartRuntime;
   }
 
   /**
@@ -74,9 +83,10 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
    */
   getStyleOfSingleCellChart(
     chartBackground: Color | undefined,
-    mainRange: Range | undefined
+    mainRange: Range | undefined,
+    colorThemeName: ColorThemeName
   ): EvaluationChartStyle {
-    const themeBackground = this.getters.getSpreadsheetTheme().backgroundColor;
+    const themeBackground = COLOR_THEMES[colorThemeName].backgroundColor;
     if (chartBackground) {
       return { background: chartBackground, fontColor: chartFontColor(chartBackground) };
     }
@@ -126,7 +136,8 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
             continue;
           }
           const type = this.getters.getChartType(chartId);
-          const runtime = this.getters.getChartRuntime(chartId);
+          // Export excel should always export its chart using light theme.
+          const runtime = this.getChartRuntimeWithTheme(chartId, "light");
           const img = await chartToImageUrl(runtime, figure, type);
           if (img) {
             sheet.images.push({
@@ -145,9 +156,13 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
     }
   }
 
-  private createRuntimeChart(chartId: UID, chart: SpreadsheetChart): ChartRuntime {
+  private createRuntimeChart(
+    chartId: UID,
+    chart: SpreadsheetChart,
+    colorThemeName: ColorThemeName
+  ): ChartRuntime {
     const definition = chart.getRangeDefinition();
-    const runtime = chart.getRuntime(this.getters, chartId);
+    const runtime = chart.getRuntime(this.getters, chartId, colorThemeName);
     if ("chartJsConfig" in runtime && /line|combo|bar|scatter|waterfall/.test(definition.type)) {
       const chartJsConfig = runtime.chartJsConfig as ChartConfiguration<any>;
       runtime["masterChartConfig"] = generateMasterChartConfig(chartJsConfig);

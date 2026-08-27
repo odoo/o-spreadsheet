@@ -2,6 +2,7 @@ import { ChartConfiguration } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { LineChartRuntime } from "../../../types/chart/line_chart";
 import { CommandResult } from "../../../types/commands";
+import { ColorThemeName } from "../../../types/rendering";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { AbstractChart } from "./abstract_chart";
 import { chartFontColor, getDefinedAxis } from "./chart_common";
@@ -86,9 +87,16 @@ export const LineChart: ChartTypeBuilder<"line"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): LineChartRuntime {
+  getRuntime(
+    getters,
+    definition,
+    { extractData },
+    sheetId,
+    eventHandlers,
+    colorThemeName: ColorThemeName
+  ): LineChartRuntime {
     const data = extractData();
-    const chartData = getLineChartData(definition, data, getters);
+    const chartData = getLineChartData(definition, data, getters, colorThemeName);
 
     const config: ChartConfiguration<"line"> = {
       type: "line",

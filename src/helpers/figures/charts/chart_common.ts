@@ -13,12 +13,13 @@ import {
 import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
 import { LocaleFormat } from "../../../types/format";
-import { Getters } from "../../../types/getters";
 import { Locale } from "../../../types/locale";
 import { Color, RangeAdapterFunctions, UID, UnboundedZone, Zone } from "../../../types/misc";
 import { Range } from "../../../types/range";
+import { ColorThemeName } from "../../../types/rendering";
 import { MAX_XLSX_POLYNOMIAL_DEGREE } from "../../../xlsx/constants";
 import { ColorGenerator, relativeLuminance } from "../../color";
+import { COLOR_THEMES } from "../../color_themes";
 import { formatValue, humanizeNumber } from "../../format/format";
 import { largeMax } from "../../misc";
 import { createRange, duplicateRangeInDuplicatedSheet } from "../../range";
@@ -367,11 +368,10 @@ export function isTrendLineAxis(axisID: string) {
 
 export function getChartBackgroundColor(
   { background }: { background?: Color },
-  getters: Getters
+  colorThemeName: ColorThemeName
 ): Color {
-  const defaultColor = getters.getSpreadsheetTheme().backgroundColor;
   if (!background) {
-    return defaultColor;
+    return COLOR_THEMES[colorThemeName].backgroundColor;
   }
   return background;
 }
