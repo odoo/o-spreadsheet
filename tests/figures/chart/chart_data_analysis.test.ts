@@ -51,7 +51,7 @@ test("shows a message when the selection has data but no chart can be suggested"
   selectCell(model, "A1");
   await simulateClick(".o-data-analysis-button");
   expect(fixture.querySelector(".o-data-analysis-empty")?.textContent?.trim()).toBe(
-    "No chart suggestions available for the selected data."
+    "No chart suggestions available for the selected data. Note that the order of selected columns can impact chart suggestions."
   );
 });
 

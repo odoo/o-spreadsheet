@@ -12,7 +12,8 @@
           </t>
         </div>
         <div t-else="" class="o-data-analysis-empty text-muted p-3 text-center">
-          No chart suggestions available for the selected data.
+          No chart suggestions available for the selected data. Note that the order of selected
+        columns can impact chart suggestions.
         </div>
       </div>
       <div t-else="" class="o-data-analysis-empty text-muted p-3 text-center">
