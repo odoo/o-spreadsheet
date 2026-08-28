@@ -414,7 +414,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       moveClient: () => {},
       snapshotRequested: false,
       notifyUI: (payload) => this.trigger("notify-ui", payload),
-      raiseBlockingErrorUI: (text) => this.trigger("raise-error-ui", { text }),
       customColors: config.customColors || [],
     };
   }
