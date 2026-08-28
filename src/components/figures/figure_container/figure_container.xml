@@ -33,14 +33,20 @@
       t-if="this.dnd.horizontalSnap"
       t-att-style="this.dnd.horizontalSnap.containerStyle"
       t-att-data-id="'HorizontalSnapContainer'">
-      <div class="o-figure-snap-line horizontal" t-att-style="this.dnd.horizontalSnap.lineStyle"/>
+      <div
+        class="o-figure-snap-line horizontal os-theme-dependant"
+        t-att-style="this.dnd.horizontalSnap.lineStyle"
+      />
     </div>
     <div
       class="o-figure-container position-absolute pe-none overflow-hidden"
       t-if="this.dnd.verticalSnap"
       t-att-style="this.dnd.verticalSnap.containerStyle"
       t-att-data-id="'VerticalSnapContainer'">
-      <div class="o-figure-snap-line vertical" t-att-style="this.dnd.verticalSnap.lineStyle"/>
+      <div
+        class="o-figure-snap-line vertical os-theme-dependant"
+        t-att-style="this.dnd.verticalSnap.lineStyle"
+      />
     </div>
   </t>
 </templates>
