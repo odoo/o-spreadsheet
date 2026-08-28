@@ -1,6 +1,7 @@
 import { UID } from "..";
 import { downloadFile } from "../components/helpers/dom_helpers";
 import { getPoppedOutChartAnchor } from "../helpers/carousel_helpers";
+import { writeClipboardTextAndImageContent } from "../helpers/clipboard/clipboard_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts/chart_ui_common";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { deepEquals } from "../helpers/misc";
@@ -193,8 +194,8 @@ function getCopyMenuItem(
         env.model.dispatch("SELECT_FIGURE", { figureId });
       }
       env.model.dispatch("COPY");
-      const osClipboardContent = await env.model.getters.getClipboardTextAndImageContent();
-      await env.clipboard.write(osClipboardContent);
+      await writeClipboardTextAndImageContent(env);
+
       if (copiedNotificationMessage) {
         env.notifyUser({ sticky: false, type: "success", text: copiedNotificationMessage });
       }
@@ -214,7 +215,7 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
         env.model.dispatch("SELECT_FIGURE", { figureId });
       }
       env.model.dispatch("CUT");
-      await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
+      await writeClipboardTextAndImageContent(env);
     },
     icon: "o-spreadsheet-Icon.CUT",
   };

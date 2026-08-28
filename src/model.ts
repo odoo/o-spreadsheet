@@ -413,7 +413,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       client,
       moveClient: () => {},
       snapshotRequested: false,
-      notifyUI: (payload) => this.trigger("notify-ui", payload),
       customColors: config.customColors || [],
     };
   }
@@ -461,7 +460,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       selection: this.selection,
       moveClient: this.session.move.bind(this.session),
       custom: this.config.custom,
-      uiActions: this.config,
       session: this.session,
       defaultCurrency: this.config.defaultCurrency,
       customColors: this.config.customColors || [],

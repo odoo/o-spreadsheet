@@ -1,4 +1,5 @@
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
+import { _t } from "../../translation";
 import {
   ClipboardCellData,
   ClipboardMIMEType,
@@ -12,7 +13,13 @@ import {
 import { AllowedImageMimeTypes } from "../../types/image";
 import { UID, Zone } from "../../types/misc";
 import { SelectionStreamProcessor } from "../../types/selection_stream_processor";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { mergeOverlappingZones, positions, union } from "../zones";
+
+export class FileTooBigError extends Error {}
+export class SelectionTooBigError extends Error {}
+
+export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 export function getClipboardDataPositions(sheetId: UID, zones: Zone[]): ClipboardCellData {
   const lefts = new Set(zones.map((z) => z.left));
@@ -204,3 +211,29 @@ export const selectPastedZone = (
     { scrollIntoView: false }
   );
 };
+
+export async function writeClipboardTextAndImageContent(env: SpreadsheetChildEnv) {
+  try {
+    const content = await env.model.getters.getClipboardTextAndImageContent();
+    await env.clipboard.write(content);
+  } catch (error) {
+    if (error instanceof FileTooBigError) {
+      env.notifyUser({
+        text: _t(
+          "The file you are trying to copy is too large (>%sMB).\nIt will not be added to your OS clipboard.\nYou can download it directly instead.",
+          Math.round(MAX_FILE_SIZE / (1024 * 1024))
+        ),
+        sticky: false,
+        type: "warning",
+      });
+    } else {
+      env.notifyUser({
+        text: _t(
+          "Your selection was too large for the browser to copy it.\nPlease select a smaller zone."
+        ),
+        sticky: true,
+        type: "danger",
+      });
+    }
+  }
+}

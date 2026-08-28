@@ -2,7 +2,6 @@ import { GeoChartRegion } from "./chart/geo_chart";
 import { Client, ClientPosition } from "./collaborative/session";
 import { TransportService } from "./collaborative/transport_service";
 import { Currency } from "./currency";
-import { InformationNotification } from "./env";
 import { FileStore } from "./files";
 import { Locale } from "./locale";
 import { Color } from "./misc";
@@ -30,7 +29,6 @@ export interface ModelConfig {
   readonly transportService: TransportService;
   readonly client: Client;
   readonly snapshotRequested: boolean;
-  readonly notifyUI: (payload: InformationNotification) => void;
   readonly customColors: Color[];
   readonly colorScheme?: ColorThemeName;
 }
