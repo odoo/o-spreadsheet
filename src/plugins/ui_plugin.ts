@@ -10,7 +10,7 @@ import { GridRenderingContext, LayerName } from "../types/rendering";
 import { SelectionStreamProcessor } from "../types/selection_stream_processor";
 import { BasePlugin } from "./base_plugin";
 
-export type UIActions = Pick<ModelConfig, "notifyUI" | "raiseBlockingErrorUI">;
+export type UIActions = Pick<ModelConfig, "notifyUI">;
 
 export interface UIPluginConfig {
   readonly getters: Getters;

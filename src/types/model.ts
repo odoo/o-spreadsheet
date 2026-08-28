@@ -31,7 +31,6 @@ export interface ModelConfig {
   readonly client: Client;
   readonly snapshotRequested: boolean;
   readonly notifyUI: (payload: InformationNotification) => void;
-  readonly raiseBlockingErrorUI: (text: string) => void;
   readonly customColors: Color[];
   readonly colorScheme?: ColorThemeName;
 }
