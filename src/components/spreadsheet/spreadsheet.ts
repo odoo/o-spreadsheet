@@ -264,14 +264,12 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
     this.model.on("notify-ui", this, (notification: InformationNotification) =>
       this.notificationStore.notifyUser(notification)
     );
-    this.model.on("raise-error-ui", this, ({ text }) => this.notificationStore.raiseError(text));
   }
 
   private unbindModelEvents() {
     this.model.off("update", this);
     this.model.off("command-rejected", this);
     this.model.off("notify-ui", this);
-    this.model.off("raise-error-ui", this);
   }
 
   private checkViewportSize() {
