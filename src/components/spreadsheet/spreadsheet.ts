@@ -27,7 +27,6 @@ import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
-import { InformationNotification } from "../../types/env";
 import { CSSProperties, HeaderGroup, Pixel } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
 import { ColorThemeName } from "../../types/rendering";
@@ -266,16 +265,11 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
         });
       }
     });
-
-    this.model.on("notify-ui", this, (notification: InformationNotification) =>
-      this.notificationStore.notifyUser(notification)
-    );
   }
 
   private unbindModelEvents() {
     this.model.off("update", this);
     this.model.off("command-rejected", this);
-    this.model.off("notify-ui", this);
   }
 
   private checkViewportSize() {
