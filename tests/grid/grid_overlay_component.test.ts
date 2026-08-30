@@ -29,6 +29,7 @@ import {
 import {
   click,
   edgeScrollDelay,
+  gridMouseEvent,
   selectColumnByClicking,
   simulateClick,
   triggerMouseEvent,
@@ -1004,7 +1005,7 @@ describe("move selected element(s)", () => {
       ],
     };
     model = new Model(data);
-    ({ fixture } = await mountSpreadsheet({ model }));
+    ({ fixture, env } = await mountSpreadsheet({ model }));
   });
 
   test("select the last selected cols/rows keep all selected zone active", async () => {
@@ -1301,5 +1302,21 @@ describe("move selected element(s)", () => {
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1]));
     await selectRow(2, { shiftKey: true });
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2]));
+  });
+
+  test("Moving the mouse around does not trigger useless renders", async () => {
+    const storeRender = jest.fn();
+    env["__spreadsheet_stores__"].on("store-updated", null, storeRender);
+
+    await gridMouseEvent(model, "pointermove", "A1");
+    expect(storeRender).not.toHaveBeenCalled();
+
+    model.updateMode("dashboard");
+    await nextTick();
+    await gridMouseEvent(model, "pointermove", "A2");
+    expect(storeRender).toHaveBeenCalledTimes(1);
+
+    await gridMouseEvent(model, "pointermove", "A2");
+    expect(storeRender).toHaveBeenCalledTimes(1);
   });
 });
