@@ -14,6 +14,7 @@ import { isZoneValid } from "../../helpers/zones";
 import { getCurrentVersion } from "../../migrations/data";
 import { clipboardHandlersRegistries } from "../../registries/clipboardHandlersRegistries";
 import { _t } from "../../translation";
+import { CellValue } from "../../types/cells";
 import {
   ClipboardCopyOptions,
   ClipboardData,
@@ -144,6 +145,13 @@ export class ClipboardPlugin extends UIPlugin {
         this.originSheetId = this.getters.getActiveSheetId();
         this._isCutOperation = cmd.type === "CUT";
         this.copiedData = this.copy(zones);
+        break;
+      case "COPY_TO_CLIPBOARD":
+        const { value, formula } = cmd.data;
+        this.status = "visible";
+        this.originSheetId = this.getters.getActiveSheetId();
+        this._isCutOperation = false;
+        this.copiedData = this.convertCellDataToClipboardData({ formula, value });
         break;
       case "PASTE_FROM_OS_CLIPBOARD": {
         this._isCutOperation = false;
@@ -350,6 +358,24 @@ export class ClipboardPlugin extends UIPlugin {
     const copiedData = {};
     for (const { handlerName, handler } of handlers) {
       const data = handler.convertTextToClipboardData(clipboardData);
+      copiedData[handlerName] = data;
+      const minimalKeys = ["sheetId", "cells", "zones", "figureId"];
+      for (const key of minimalKeys) {
+        if (data && key in data) {
+          copiedData[key] = data[key];
+        }
+      }
+    }
+    return copiedData;
+  }
+
+  private convertCellDataToClipboardData(cellData: { formula: string; value: CellValue }): {} {
+    const handlers = this.selectClipboardHandlers({ figureId: true }).concat(
+      this.selectClipboardHandlers({})
+    );
+    const copiedData = {};
+    for (const { handlerName, handler } of handlers) {
+      const data = handler.convertCellDataToClipboardData(cellData);
       copiedData[handlerName] = data;
       const minimalKeys = ["sheetId", "cells", "zones", "figureId"];
       for (const key of minimalKeys) {
