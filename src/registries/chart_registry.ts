@@ -112,6 +112,7 @@ export interface ChartTypeBuilder<T extends ChartType> {
   allowedDefinitionKeys: readonly string[];
   sequence: number;
   dataSeriesLimit?: number;
+  loadDataForExport?: (getters: Getters) => Promise<void> | undefined;
 }
 
 interface ChartDataExtractors {

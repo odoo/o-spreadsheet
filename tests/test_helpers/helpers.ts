@@ -986,7 +986,7 @@ const getAvailableRegions: () => GeoChartRegion[] = () => [
   { id: "northAmerica", label: "North America", defaultProjection: "conicConformal" },
 ];
 
-export const mockGeoJsonService: ModelExternalConfig["geoJsonService"] = {
+export const mockGeoJsonService: NonNullable<ModelExternalConfig["geoJsonService"]> = {
   getAvailableRegions,
   getTopoJson: async () => ({
     type: "FeatureCollection",

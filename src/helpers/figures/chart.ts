@@ -243,4 +243,8 @@ export class SpreadsheetChart {
     }
     return definition;
   }
+
+  loadDataForExport(getters: Getters): Promise<void> | undefined {
+    return this.chartTypeBuilder.loadDataForExport?.(getters);
+  }
 }
