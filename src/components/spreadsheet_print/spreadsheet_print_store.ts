@@ -1,6 +1,7 @@
 import { PRINT_DPR } from "../../constants";
 import { ViewportCollection } from "../../helpers/viewport_collection";
 import { cellPositions, intersection } from "../../helpers/zones";
+import { COLOR_THEMES } from "../../plugins/ui_feature/color_theme";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { _t } from "../../translation";
 import { CellValueType } from "../../types/cells";
@@ -182,6 +183,8 @@ export class SpreadsheetPrintStore extends SpreadsheetStore {
     });
     viewports.setSheetViewOffset(sheetId, firstColStart, firstRowStart);
 
+    const theme = COLOR_THEMES.light;
+    const sheet = this.getters.getSheet(sheetId);
     return {
       sheetId,
       viewports,
@@ -191,6 +194,8 @@ export class SpreadsheetPrintStore extends SpreadsheetStore {
       activeCols: new Set(),
       activeRows: new Set(),
       activePosition: undefined,
+      theme,
+      backgroundColor: sheet.backgroundColor || theme.backgroundColor,
     };
   }
 

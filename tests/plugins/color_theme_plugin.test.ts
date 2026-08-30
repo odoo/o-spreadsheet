@@ -1,6 +1,7 @@
 import { COLOR_THEMES } from "../../src/helpers/color_themes";
 import { Model } from "../../src/model";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { updateColorScheme } from "../test_helpers";
 
 const expectedLightTheme = COLOR_THEMES.light;
 const expectedDarkTheme = COLOR_THEMES.dark;
@@ -56,7 +57,7 @@ describe("ColorThemeUIPlugin via Model getters", () => {
     expect(theme.backgroundColor.toUpperCase()).toBe(expectedLightTheme.backgroundColor);
 
     // Simulate color scheme change
-    model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "dark" });
+    updateColorScheme(model, "dark");
     theme = model.getters.getSpreadsheetTheme();
     expect(theme.backgroundColor.toUpperCase()).toBe(expectedDarkTheme.backgroundColor);
   });

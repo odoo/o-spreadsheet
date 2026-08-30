@@ -3,7 +3,7 @@ import { ColorPicker } from "../../src/components/color_picker/color_picker";
 import { toHex } from "../../src/helpers/color";
 import { PropsOf } from "../../src/types/props_of";
 import { registerCleanup } from "../setup/jest.setup";
-import { setFormatting } from "../test_helpers/commands_helpers";
+import { setFormatting, updateColorScheme } from "../test_helpers/commands_helpers";
 import {
   getElComputedStyle,
   setInputValueAndTrigger,
@@ -232,7 +232,7 @@ describe("Color Picker buttons", () => {
     const model = await mountColorPicker({});
     expect(".eyedropper").toHaveCount(1);
 
-    model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "dark" });
+    updateColorScheme(model, "dark");
     await nextTick();
     expect(".eyedropper").toHaveCount(0);
   });
