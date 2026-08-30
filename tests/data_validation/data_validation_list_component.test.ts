@@ -141,6 +141,17 @@ describe("Edit criterion in side panel", () => {
       expect(getDataValidationRules(model)[0].criterion.values).toEqual(["hello", "okay"]);
     });
 
+    test("Can change the criterion type after removing all the values", async () => {
+      let deleteButtons = fixture.querySelectorAll(".o-dv-list-item-delete");
+      while (deleteButtons.length) {
+        await click(deleteButtons[0]);
+        deleteButtons = fixture.querySelectorAll(".o-dv-list-item-delete");
+      }
+      expect(fixture.querySelectorAll(".o-dv-list-values .o-input")).toHaveLength(0);
+      await editSelectComponent(".o-dv-type", "containsText");
+      expect(fixture.querySelector(".o-dv-input")).not.toBeNull();
+    });
+
     test.each(["plainText", "chip", "arrow"])(
       "Can change display style to %s",
       async (displayStyle) => {
