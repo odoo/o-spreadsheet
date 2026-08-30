@@ -8,31 +8,31 @@ exports[`Composer string is correctly translated to DOM Multi-line formula 1`] =
   spellcheck="false"
   tabindex="1"
 >
-  <p>
+  <div>
     <span
       style="color: #3da4ab;"
     >
       =
     </span>
-  </p>
-  <p>
+  </div>
+  <div>
     <span
       style="color: #eb6d00;"
     >
       A1: 
     </span>
-  </p>
-  <p>
+  </div>
+  <div>
     <span
       style="color: #eb6d00;"
     >
       A2
     </span>
-  </p>
-  <p>
+  </div>
+  <div>
     <span />
-  </p>
-  <p>
+  </div>
+  <div>
     <span
       style="color: #3da4ab;"
     >
@@ -49,8 +49,8 @@ exports[`Composer string is correctly translated to DOM Multi-line formula 1`] =
     >
       (
     </span>
-  </p>
-  <p>
+  </div>
+  <div>
     <span
       style="color: #02c39a;"
     >
@@ -62,7 +62,7 @@ exports[`Composer string is correctly translated to DOM Multi-line formula 1`] =
     >
       )
     </span>
-  </p>
+  </div>
 </div>
 `;
 
@@ -74,32 +74,30 @@ exports[`Composer string is correctly translated to DOM Multi-line string 1`] = 
   spellcheck="false"
   tabindex="1"
 >
-  <p>
+  <div>
     <span />
-  </p>
-  <p>
+  </div>
+  <div>
     <span>
       I'm
     </span>
-  </p>
-  <p>
+  </div>
+  <div>
     <span>
       multi
     </span>
-  </p>
-  <p>
+  </div>
+  <div>
     <span />
-  </p>
-  <p>
+  </div>
+  <div>
     <span>
       line
     </span>
-  </p>
-  <p>
-    <span>
-      <br />
-    </span>
-  </p>
+  </div>
+  <div>
+    <span />
+  </div>
 </div>
 `;
 
@@ -111,22 +109,22 @@ exports[`Composer string is correctly translated to DOM Selection indicator in m
   spellcheck="false"
   tabindex="1"
 >
-  <p>
+  <div>
     <span
       style="color: #3da4ab;"
     >
       =
     </span>
-  </p>
-  <p>
+  </div>
+  <div>
     <span />
-  </p>
-  <p>
+  </div>
+  <div>
     <span
       class="selector-flag"
       style="color: light-dark(#000000, #ffffff);"
     />
-  </p>
+  </div>
 </div>
 `;
 
@@ -138,14 +136,14 @@ exports[`Composer string is correctly translated to DOM Selection indicator in s
   spellcheck="false"
   tabindex="1"
 >
-  <p>
+  <div>
     <span
       class="selector-flag"
       style="color: #3da4ab;"
     >
       =
     </span>
-  </p>
+  </div>
 </div>
 `;
 
@@ -157,7 +155,7 @@ exports[`Composer string is correctly translated to DOM Simple formula 1`] = `
   spellcheck="false"
   tabindex="1"
 >
-  <p>
+  <div>
     <span
       style="color: #3da4ab;"
     >
@@ -188,7 +186,7 @@ exports[`Composer string is correctly translated to DOM Simple formula 1`] = `
     >
       A1
     </span>
-  </p>
+  </div>
 </div>
 `;
 
@@ -200,10 +198,10 @@ exports[`Composer string is correctly translated to DOM Simple string 1`] = `
   spellcheck="false"
   tabindex="1"
 >
-  <p>
+  <div>
     <span>
       I'm a simple content
     </span>
-  </p>
+  </div>
 </div>
 `;
