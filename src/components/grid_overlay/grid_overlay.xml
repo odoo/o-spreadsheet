@@ -13,10 +13,23 @@
       t-on-click="onClick"
       t-on-dblclick.self="onDoubleClick"
       t-on-contextmenu.stop.prevent="onContextMenu">
+<<<<<<< cd0aed5bdff7e781fc2cbb79b02dae346bea5b6f
       <GridAddRowsFooter
         t-if="!env.model.getters.isReadonly()"
         t-key="env.model.getters.getActiveSheetId()"
       />
+||||||| d5d5d14122a3448b89acfe525240da020167d916
+      <DataValidationOverlay/>
+      <FilterIconsOverlay/>
+      <GridAddRowsFooter
+        t-if="!env.model.getters.isReadonly()"
+        t-key="env.model.getters.getActiveSheetId()"
+      />
+=======
+      <DataValidationOverlay/>
+      <FilterIconsOverlay/>
+      <GridAddRowsFooter t-if="this.isFooterVisible" t-key="env.model.getters.getActiveSheetId()"/>
+>>>>>>> 2ee78a003370e7d484508679361fc8202e3484cd
       <t t-slot="default"/>
     </div>
   </t>

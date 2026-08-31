@@ -6,11 +6,13 @@ import {
   activateSheet,
   createSheet,
   deleteRows,
+  freezeRows,
   hideColumns,
   hideRows,
   selectColumn,
   selectRow,
   setSelection,
+  setViewportOffset,
 } from "../test_helpers/commands_helpers";
 import {
   click,
@@ -403,5 +405,16 @@ describe("Adding rows footer at the end of sheet", () => {
     activateSheet(model, "sheet2");
     await nextTick();
     expect(fixture.querySelector<HTMLInputElement>(".o-grid-add-rows input")!.value).toBe("100");
+  });
+
+  test("Footer will not show if the main viewport is too small to show the footer", async () => {
+    const { bottom } = model.getters.getActiveMainViewport();
+    expect(fixture.querySelector(".o-grid-add-rows")).toBeTruthy();
+
+    // only let a very small part of the viewport to be scrollable
+    freezeRows(model, bottom + 1);
+    setViewportOffset(model, 0, 10000);
+    await nextTick();
+    expect(fixture.querySelector(".o-grid-add-rows")).toBeFalsy();
   });
 });

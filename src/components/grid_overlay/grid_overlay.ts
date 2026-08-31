@@ -1,6 +1,11 @@
 import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
+<<<<<<< cd0aed5bdff7e781fc2cbb79b02dae346bea5b6f
 import { deepEquals, positionToZone } from "../../helpers";
 import { isPointInsideRect } from "../../helpers/rectangle";
+||||||| d5d5d14122a3448b89acfe525240da020167d916
+=======
+import { FOOTER_HEIGHT } from "../../constants";
+>>>>>>> 2ee78a003370e7d484508679361fc8202e3484cd
 import { Store, useStore } from "../../store_engine";
 import {
   DOMCoordinates,
@@ -297,6 +302,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     const rowIndex = this.env.model.getters.getRowIndex(y);
     return [colIndex, rowIndex];
   }
+<<<<<<< cd0aed5bdff7e781fc2cbb79b02dae346bea5b6f
 
   private getInteractiveIconAtEvent(ev: MouseEvent) {
     const gridOverLayRect = getRefBoundingRect(this.gridOverlay);
@@ -323,4 +329,13 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     });
     return icon?.onClick ? icon : undefined;
   }
+||||||| d5d5d14122a3448b89acfe525240da020167d916
+=======
+
+  get isFooterVisible() {
+    const { y } = this.env.model.getters.getMainViewportCoordinates();
+    const { height } = this.env.model.getters.getSheetViewDimension();
+    return !this.env.model.getters.isReadonly() && height - y > FOOTER_HEIGHT;
+  }
+>>>>>>> 2ee78a003370e7d484508679361fc8202e3484cd
 }
