@@ -256,6 +256,22 @@ describe("functions", () => {
       model.getters.getNumberCols(model.getters.getActiveSheetId())
     );
   });
+  test("Cannot use a UI getter in a function", () => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    const model = new Model();
+    addToRegistry(functionRegistry, "GETNUMBERCOLS", {
+      description: "Get the number of columns",
+      compute: function () {
+        //@ts-ignore UI Getter should not be available
+        const sheetId = this.getters.getActiveSheetId();
+        return { value: this.getters.getNumberCols(sheetId) };
+      },
+      args: [],
+    });
+    setCellContent(model, "A1", "=GETNUMBERCOLS()");
+    expect(getEvaluatedCell(model, "A1").value).toBe(CellErrorType.GenericError);
+    expect(getCellError(model, "A1")).toContain("this.getters.getActiveSheetId is not a function");
+  });
 
   test("undefined fallback to the zero value in a function", () => {
     addToRegistry(functionRegistry, "UNDEFINED", {
