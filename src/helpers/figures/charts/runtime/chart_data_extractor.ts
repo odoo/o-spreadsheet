@@ -277,7 +277,9 @@ export function getLineChartData(
           formatValue(value, { format, locale: getters.getLocale() })
         );
 
-  ({ labels, dataSetsValues } = filterInvalidDataPoints(labels, dataSetsValues));
+  // Area charts use non-numeric values as zero.
+  const invalidDataValue = definition.fillArea ? ZERO : EMPTY;
+  ({ labels, dataSetsValues } = filterInvalidDataPoints(labels, dataSetsValues, invalidDataValue));
   if (axisType === "time") {
     ({ labels, dataSetsValues } = fixEmptyLabelsForDateCharts(labels, dataSetsValues));
   }
@@ -852,7 +854,8 @@ function fixEmptyLabelsForDateCharts(
  */
 function filterInvalidDataPoints(
   labels: string[],
-  datasets: DatasetValues[]
+  datasets: DatasetValues[],
+  invalidDataValue: FunctionResultObject = EMPTY
 ): { labels: string[]; dataSetsValues: DatasetValues[] } {
   const numberOfDataPoints = Math.max(
     labels.length,
@@ -868,7 +871,7 @@ function filterInvalidDataPoints(
     dataSetsValues: datasets.map((dataset) => ({
       ...dataset,
       data: dataPointsIndexes.map((i) =>
-        isNumberResult(dataset.data[i]) ? dataset.data[i] : EMPTY
+        isNumberResult(dataset.data[i]) ? dataset.data[i] : invalidDataValue
       ),
     })),
   };
