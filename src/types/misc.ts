@@ -446,3 +446,5 @@ export interface NamedRange {
   name: string;
   range: Range;
 }
+
+export type ColorScheme = "light" | "dark";

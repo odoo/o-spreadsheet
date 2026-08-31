@@ -4,6 +4,7 @@ import {
   BorderData,
   CellPosition,
   Color,
+  ColorScheme,
   Dimension,
   HeaderIndex,
   Pixel,
@@ -164,6 +165,7 @@ export const invalidateChartEvaluationCommands = new Set<CommandTypes>([
   "UPDATE_FILTER",
   "UNDO",
   "REDO",
+  "UPDATE_COLOR_SCHEME",
 ]);
 
 export const invalidateDependenciesCommands = new Set<CommandTypes>(["MOVE_RANGES"]);
@@ -1256,7 +1258,7 @@ export interface ToggleCheckboxCommand extends TargetDependentCommand {
 
 export interface UpdateColorSchemeCommand {
   type: "UPDATE_COLOR_SCHEME";
-  colorScheme: "light" | "dark";
+  colorScheme: ColorScheme;
 }
 
 export type CoreCommand =

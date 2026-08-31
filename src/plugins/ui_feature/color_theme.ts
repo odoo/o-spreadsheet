@@ -1,5 +1,6 @@
 import { adaptForDarkMode } from "../../helpers/color";
 import { Command } from "../../types/commands";
+import { ColorScheme } from "../../types/misc";
 import { GridRenderingTheme } from "../../types/rendering";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
@@ -41,7 +42,7 @@ export const COLOR_THEMES: Record<string, GridRenderingTheme> = {
 };
 export class ColorThemeUIPlugin extends UIPlugin {
   static getters = ["isDarkMode", "getSpreadsheetTheme"] as const;
-  private colorScheme?: "light" | "dark";
+  private colorScheme?: ColorScheme;
 
   constructor(config: UIPluginConfig) {
     super(config);
