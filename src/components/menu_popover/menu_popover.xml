@@ -3,6 +3,7 @@
     <Popover t-if="this.menuItems.length" t-props="this.popoverProps">
       <div
         t-ref="this.menuRef"
+        t-att-title="console.log('menuPopover render')"
         tabIndex="-1"
         class="o-menu-wrapper"
         t-on-mouseover="() => this.onMouseOverMainMenu()"

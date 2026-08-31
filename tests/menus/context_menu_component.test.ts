@@ -1,4 +1,4 @@
-import { useProps, xml } from "@odoo/owl";
+import { onMounted, useProps, xml } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../src/actions/action";
 import { MenuPopover } from "../../src/components/menu_popover/menu_popover";
 import {
@@ -34,7 +34,7 @@ import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   getStylePropertyInPx,
   makeTestFixture,
-  mountComponent,
+  mountComponentWithPortalTarget,
   mountSpreadsheet,
   nextTick,
   useJestFakeTimers,
@@ -146,7 +146,7 @@ async function renderContextMenu(
   // x, y are relative to the upper left grid corner, but the menu
   // props must take the top bar into account.
   fixture = makeTestFixture();
-  ({ fixture, model, parent } = await mountComponent(ContextMenuParent, {
+  ({ fixture, model, parent } = await mountComponentWithPortalTarget(ContextMenuParent, {
     props: {
       x,
       y,
@@ -156,6 +156,7 @@ async function renderContextMenu(
     },
     fixture,
   }));
+  await nextTick();
 
   return [x, y];
 }
@@ -181,15 +182,13 @@ interface Props {
 
 class ContextMenuParent extends Component {
   static template = xml/* xml */ `
-    <div class="o-spreadsheet">
-      <MenuPopover
-        onClose="() => this.onClose()"
-        anchorRect="this.anchorRect"
-        menuItems="this.menus"
-        width="this.props.config.menuWidth"
-        popoverPositioning="this.props.config.popoverPositioning"
-      />
-    </div>
+    <MenuPopover
+      onClose="() => this.onClose()"
+      anchorRect="this.anchorRect"
+      menuItems="this.menus"
+      width="console.log('render contex menu parten') || this.props.config.menuWidth"
+      popoverPositioning="this.props.config.popoverPositioning"
+    />
   `;
   static components = { MenuPopover };
   protected props: Props = useProps({
@@ -213,7 +212,9 @@ class ContextMenuParent extends Component {
       height: 0,
     };
     this.menus = this.props.config.menuItems || createActions([makeTestMenuItem("Action")]);
-    resizeSheetView(this.env, { height: this.props.height, width: this.props.width });
+    onMounted(() => {
+      resizeSheetView(this.env, { height: this.props.height, width: this.props.width });
+    });
   }
 }
 

@@ -2,6 +2,7 @@
   <t t-name="o-spreadsheet-Menu">
     <div
       t-ref="this.menuRef"
+      t-att-title="console.log('menu render')"
       class="o-menu"
       t-att-style="this.menuStyle"
       t-on-scroll="this.props.onScroll"

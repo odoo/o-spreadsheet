@@ -3,10 +3,13 @@ import {
   onPatched,
   onWillUnmount,
   onWillUpdateProps,
+  PluginInstance,
+  providePlugins,
   proxy,
   signal,
   useEffect,
   useListener,
+  usePlugin,
   useProps,
 } from "@odoo/owl";
 import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO } from "../../constants";
@@ -53,6 +56,7 @@ import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
 import { SpreadsheetPrint } from "../spreadsheet_print/spreadsheet_print";
 import { TopBar } from "../top_bar/top_bar";
 import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
+import { SpreadsheetRenderPlugin } from "./spreadsheet_render_owl_plugin";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -99,6 +103,8 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
 
+  private renderPlugin!: PluginInstance<typeof SpreadsheetRenderPlugin>;
+
   get model(): Model {
     return this.props.model;
   }
@@ -136,6 +142,10 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
         },
       } satisfies Partial<SpreadsheetChildEnv>);
     }
+
+    providePlugins([SpreadsheetRenderPlugin]);
+
+    this.renderPlugin = usePlugin(SpreadsheetRenderPlugin);
 
     const stores = useStoreProvider();
     stores.inject(ModelStore, this.model);
@@ -189,7 +199,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       }
     });
 
-    useListener(window, "resize", () => render(this, true));
+    useListener(window, "resize", () => this.render());
     // For some reason, the wheel event is not properly registered inside templates
     // in Chromium-based browsers based on chromium 125
     // This hack ensures the event declared in the template is properly registered/working
@@ -233,7 +243,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       return () => resizeObserver.disconnect();
     });
 
-    const batchedRender = batched(() => render(this, true));
+    const batchedRender = batched(() => this.render());
     onMounted(() => {
       this.bindModelEvents();
       this.checkViewportSize();
@@ -249,8 +259,13 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
     });
   }
 
+  private render() {
+    this.renderPlugin.render();
+    render(this, true);
+  }
+
   private bindModelEvents() {
-    this.model.on("update", this, () => render(this, true));
+    this.model.on("update", this, () => this.render());
     this.model.on("command-rejected", this, ({ result }) => {
       if (result.isCancelledBecause(CommandResult.SheetLocked)) {
         this.notificationStore.notifyUser({

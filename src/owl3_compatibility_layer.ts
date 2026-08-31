@@ -11,7 +11,6 @@
  * ---------------------------------------------------------------------------
  *
  * 1. Update template directives:
- *    - replace `t-portal` → `t-custom-portal`
  *
  * 2. Load this file immediately after Owl 3.
  *
@@ -25,7 +24,6 @@
  *
  * Gradually remove the compatibility layer by migrating to native Owl 3:
  *
- * - replace `t-custom-portal` with proper Owl 3 portal usage
  * - convert `useLayoutEffect` back to `useEffect` where appropriate
  *
  * The end goal is to eliminate all compatibility shims.
@@ -133,92 +131,6 @@ function _useSubEnv(extension) {
   component.env = subEnv;
 }
 
-class VPortal extends blockDom.text("").constructor {
-  /**
-   * @param {any} selector
-   * @param {any} content
-   */
-  constructor(selector, content) {
-    super("");
-    this.content = content;
-    this.selector = selector;
-    this.target = null;
-  }
-
-  /**
-   * @param {any} parent
-   * @param {any} anchor
-   */
-  mount(parent, anchor) {
-    super.mount(parent, anchor);
-    this.target = document.querySelector(this.selector);
-    if (this.target) {
-      this.content.mount(this.target, null);
-    } else {
-      this.content.mount(parent, anchor);
-    }
-  }
-
-  beforeRemove() {
-    this.content.beforeRemove();
-  }
-
-  remove() {
-    if (this.content) {
-      super.remove();
-      this.content.remove();
-      this.content = null;
-    }
-  }
-
-  /**
-   * @param {any} other
-   */
-  patch(other) {
-    super.patch(other);
-    if (this.content) {
-      this.content.patch(other.content, true);
-    } else {
-      this.content = other.content;
-      this.content.mount(this.target, null);
-    }
-  }
-}
-
-class Portal extends OwlComponent {
-  static template = xml`<t t-call-slot="default"/>`;
-
-  constructor(node) {
-    super(node);
-    this.props = useProps();
-    this.__owl__ = node;
-  }
-
-  setup() {
-    const node = this.__owl__;
-    const renderContent = node.renderFn;
-    node.renderFn = (/** @type {any[]} */ ...args) =>
-      new VPortal(node.props.selector, renderContent(...args));
-
-    onMounted(() => {
-      const portal = node.bdom;
-      if (!portal.target) {
-        const target = document.querySelector(node.props.selector);
-        if (target) {
-          portal.content.moveBeforeDOMNode(target.firstChild, target);
-        } else {
-          throw new Error("invalid portal target");
-        }
-      }
-    });
-
-    onWillUnmount(() => {
-      const portal = node.bdom;
-      portal.remove();
-    });
-  }
-}
-
 let refId = 0;
 const customDirectives = {
   /**
@@ -228,17 +140,6 @@ const customDirectives = {
   ref: (node, value) => {
     const refName = `"` + value.replaceAll(/\{\{(.+?)\}\}/g, `" + $1 + "`) + `"`;
     node.setAttribute("t-ref", `__globals__.createRefSignal(this, ${refName}, ${++refId})`);
-  },
-  /**
-   * @param {HTMLElement} node
-   * @param {string} value
-   */
-  portal: (node, value) => {
-    if (node.nodeName.toLowerCase() !== "t") {
-      throw new Error("t-custom-portal should be on a 't' element");
-    }
-    node.setAttribute("t-component", "__globals__.Portal");
-    node.setAttribute("selector", value);
   },
 };
 
@@ -268,7 +169,6 @@ const globalValues = {
       },
     };
   },
-  Portal,
 };
 
 class _App extends OwlApp {
