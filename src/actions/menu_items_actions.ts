@@ -18,6 +18,7 @@ import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_in
 import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { UuidGenerator } from "../helpers/uuid";
 import { areZonesContinuous, getZoneArea, isEqual } from "../helpers/zones";
+import { Model } from "../model";
 import { _t } from "../translation";
 import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
 import { Format } from "../types/format";
@@ -30,18 +31,18 @@ import { ActionSpec } from "./action";
 // Helpers
 //------------------------------------------------------------------------------
 
-export function setFormatter(env: SpreadsheetChildEnv, format: Format) {
-  env.model.dispatch("SET_FORMATTING_WITH_PIVOT", {
-    sheetId: env.model.getters.getActiveSheetId(),
-    target: env.model.getters.getSelectedZones(),
+export function setFormatter(model: Model, format: Format) {
+  model.dispatch("SET_FORMATTING_WITH_PIVOT", {
+    sheetId: model.getters.getActiveSheetId(),
+    target: model.getters.getSelectedZones(),
     format,
   });
 }
 
-export function setStyle(env: SpreadsheetChildEnv, style: Style) {
-  env.model.dispatch("SET_FORMATTING", {
-    sheetId: env.model.getters.getActiveSheetId(),
-    target: env.model.getters.getSelectedZones(),
+export function setStyle(model: Model, style: Style) {
+  model.dispatch("SET_FORMATTING", {
+    sheetId: model.getters.getActiveSheetId(),
+    target: model.getters.getSelectedZones(),
     style,
   });
 }
@@ -537,7 +538,7 @@ export const CREATE_IMAGE = async (env: SpreadsheetChildEnv) => {
 // Style/Format
 //------------------------------------------------------------------------------
 
-export const FORMAT_PERCENT_ACTION = (env: SpreadsheetChildEnv) => setFormatter(env, "0.00%");
+export const FORMAT_PERCENT_ACTION = (env: SpreadsheetChildEnv) => setFormatter(env.model, "0.00%");
 
 //------------------------------------------------------------------------------
 // Side panel

@@ -49,7 +49,7 @@ export function createFormatActionSpec({
         format: formatCallback(env),
         locale: env.model.getters.getLocale(),
       }),
-    execute: (env) => setFormatter(env, formatCallback(env)),
+    execute: (env) => setFormatter(env.model, formatCallback(env)),
     isActive: (env) => isFormatSelected(env, formatCallback(env)),
     format,
   };
@@ -57,13 +57,13 @@ export function createFormatActionSpec({
 
 export const formatNumberAutomatic: NumberFormatActionSpec = {
   name: _t("Automatic"),
-  execute: (env) => setFormatter(env, ""),
+  execute: (env) => setFormatter(env.model, ""),
   isActive: (env) => isAutomaticFormatSelected(env),
 };
 
 export const formatNumberPlainText: NumberFormatActionSpec = {
   name: _t("Plain text"),
-  execute: (env) => setFormatter(env, "@"),
+  execute: (env) => setFormatter(env.model, "@"),
   isActive: (env) => isFormatSelected(env, "@"),
 };
 
@@ -197,7 +197,7 @@ export const decreaseDecimalPlaces: ActionSpec = {
 export const formatBold: ActionSpec = {
   name: _t("Bold"),
   shortcut: "Ctrl+B",
-  execute: (env) => setStyle(env, { bold: !env.model.getters.getCurrentStyle().bold }),
+  execute: (env) => setStyle(env.model, { bold: !env.model.getters.getCurrentStyle().bold }),
   icon: "o-spreadsheet-Icon.BOLD",
   isActive: (env) => !!env.model.getters.getCurrentStyle().bold,
 };
@@ -205,7 +205,7 @@ export const formatBold: ActionSpec = {
 export const formatItalic: ActionSpec = {
   name: _t("Italic"),
   shortcut: "Ctrl+I",
-  execute: (env) => setStyle(env, { italic: !env.model.getters.getCurrentStyle().italic }),
+  execute: (env) => setStyle(env.model, { italic: !env.model.getters.getCurrentStyle().italic }),
   icon: "o-spreadsheet-Icon.ITALIC",
   isActive: (env) => !!env.model.getters.getCurrentStyle().italic,
 };
@@ -213,7 +213,8 @@ export const formatItalic: ActionSpec = {
 export const formatUnderline: ActionSpec = {
   name: _t("Underline"),
   shortcut: "Ctrl+U",
-  execute: (env) => setStyle(env, { underline: !env.model.getters.getCurrentStyle().underline }),
+  execute: (env) =>
+    setStyle(env.model, { underline: !env.model.getters.getCurrentStyle().underline }),
   icon: "o-spreadsheet-Icon.UNDERLINE",
   isActive: (env) => !!env.model.getters.getCurrentStyle().underline,
 };
@@ -225,7 +226,7 @@ export const formatRotation: ActionSpec = {
 
 function setRotation(env: SpreadsheetChildEnv, rotation: number) {
   rotation = Math.trunc(rotation / ROTATION_EPSILON) * ROTATION_EPSILON;
-  setStyle(env, { rotation });
+  setStyle(env.model, { rotation });
 }
 
 function currentRotationEqual(env: SpreadsheetChildEnv, rotation: number): boolean {
@@ -238,7 +239,7 @@ function currentRotationEqual(env: SpreadsheetChildEnv, rotation: number): boole
 
 export const formatNoRotation: ActionSpec = {
   name: _t("No rotation"),
-  execute: (env) => setStyle(env, { rotation: 0 }),
+  execute: (env) => setStyle(env.model, { rotation: 0 }),
   icon: "o-spreadsheet-Icon.ROTATION-0",
   isActive: (env) => currentRotationEqual(env, 0),
 };
@@ -274,7 +275,7 @@ export const formatRotation315: ActionSpec = {
 export const formatStrikethrough: ActionSpec = {
   name: _t("Strikethrough"),
   execute: (env) =>
-    setStyle(env, { strikethrough: !env.model.getters.getCurrentStyle().strikethrough }),
+    setStyle(env.model, { strikethrough: !env.model.getters.getCurrentStyle().strikethrough }),
   icon: "o-spreadsheet-Icon.STRIKE",
   isActive: (env) => !!env.model.getters.getCurrentStyle().strikethrough,
 };
@@ -298,7 +299,7 @@ export const formatAlignmentHorizontal: ActionSpec = {
 export const formatAlignmentLeft: ActionSpec = {
   name: _t("Left"),
   shortcut: "Ctrl+Shift+L",
-  execute: (env) => ACTIONS.setStyle(env, { align: "left" }),
+  execute: (env) => ACTIONS.setStyle(env.model, { align: "left" }),
   isActive: (env) => getHorizontalAlign(env) === "left",
   icon: "o-spreadsheet-Icon.ALIGN_LEFT",
 };
@@ -306,7 +307,7 @@ export const formatAlignmentLeft: ActionSpec = {
 export const formatAlignmentCenter: ActionSpec = {
   name: _t("Center"),
   shortcut: "Ctrl+Shift+E",
-  execute: (env) => ACTIONS.setStyle(env, { align: "center" }),
+  execute: (env) => ACTIONS.setStyle(env.model, { align: "center" }),
   isActive: (env) => getHorizontalAlign(env) === "center",
   icon: "o-spreadsheet-Icon.ALIGN_CENTER",
 };
@@ -314,7 +315,7 @@ export const formatAlignmentCenter: ActionSpec = {
 export const formatAlignmentRight: ActionSpec = {
   name: _t("Right"),
   shortcut: "Ctrl+Shift+R",
-  execute: (env) => ACTIONS.setStyle(env, { align: "right" }),
+  execute: (env) => ACTIONS.setStyle(env.model, { align: "right" }),
   isActive: (env) => getHorizontalAlign(env) === "right",
   icon: "o-spreadsheet-Icon.ALIGN_RIGHT",
 };
@@ -326,21 +327,21 @@ export const formatAlignmentVertical: ActionSpec = {
 
 export const formatAlignmentTop: ActionSpec = {
   name: _t("Top"),
-  execute: (env) => ACTIONS.setStyle(env, { verticalAlign: "top" }),
+  execute: (env) => ACTIONS.setStyle(env.model, { verticalAlign: "top" }),
   isActive: (env) => getVerticalAlign(env) === "top",
   icon: "o-spreadsheet-Icon.ALIGN_TOP",
 };
 
 export const formatAlignmentMiddle: ActionSpec = {
   name: _t("Middle"),
-  execute: (env) => ACTIONS.setStyle(env, { verticalAlign: "middle" }),
+  execute: (env) => ACTIONS.setStyle(env.model, { verticalAlign: "middle" }),
   isActive: (env) => getVerticalAlign(env) === "middle",
   icon: "o-spreadsheet-Icon.ALIGN_MIDDLE",
 };
 
 export const formatAlignmentBottom: ActionSpec = {
   name: _t("Bottom"),
-  execute: (env) => ACTIONS.setStyle(env, { verticalAlign: "bottom" }),
+  execute: (env) => ACTIONS.setStyle(env.model, { verticalAlign: "bottom" }),
   isActive: (env) => getVerticalAlign(env) === "bottom",
   icon: "o-spreadsheet-Icon.ALIGN_BOTTOM",
 };
@@ -357,21 +358,21 @@ export const formatWrapping: ActionSpec = {
 
 export const formatWrappingOverflow: ActionSpec = {
   name: _t("Overflow"),
-  execute: (env) => ACTIONS.setStyle(env, { wrapping: "overflow" }),
+  execute: (env) => ACTIONS.setStyle(env.model, { wrapping: "overflow" }),
   isActive: (env) => getWrappingMode(env) === "overflow",
   icon: "o-spreadsheet-Icon.WRAPPING_OVERFLOW",
 };
 
 export const formatWrappingWrap: ActionSpec = {
   name: _t("Wrap"),
-  execute: (env) => ACTIONS.setStyle(env, { wrapping: "wrap" }),
+  execute: (env) => ACTIONS.setStyle(env.model, { wrapping: "wrap" }),
   isActive: (env) => getWrappingMode(env) === "wrap",
   icon: "o-spreadsheet-Icon.WRAPPING_WRAP",
 };
 
 export const formatWrappingClip: ActionSpec = {
   name: _t("Clip"),
-  execute: (env) => ACTIONS.setStyle(env, { wrapping: "clip" }),
+  execute: (env) => ACTIONS.setStyle(env.model, { wrapping: "clip" }),
   isActive: (env) => getWrappingMode(env) === "clip",
   icon: "o-spreadsheet-Icon.WRAPPING_CLIP",
 };
@@ -412,7 +413,7 @@ function fontSizeMenuBuilder(): ActionSpec[] {
       name: fs.toString(),
       sequence: fs,
       id: `font_size_${fs}`,
-      execute: (env) => ACTIONS.setStyle(env, { fontSize: fs }),
+      execute: (env) => ACTIONS.setStyle(env.model, { fontSize: fs }),
       isActive: (env) => isFontSizeSelected(env, fs),
     };
   });
