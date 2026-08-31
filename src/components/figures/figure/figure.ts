@@ -1,14 +1,16 @@
 import { proxy, signal, useProps } from "@odoo/owl";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
+import { useStore } from "../../../store_engine/store_hooks";
+import { ZoomStore } from "../../../stores/zoom_store";
 import { UpdateFiguresPayload } from "../../../types/commands";
 import { AnchorOffset, FigureUI, ResizeDirection } from "../../../types/figure";
 import { CSSProperties, UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
-import { withZoom } from "../../helpers/zoom";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { types } from "../../props_validation";
 
@@ -45,6 +47,8 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
   private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
   private figureRef = signal.ref();
+
+  private zoomStore!: Store<ZoomStore>;
 
   get isSelected(): boolean {
     return (
@@ -124,6 +128,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
   }
 
   setup() {
+    this.zoomStore = useStore(ZoomStore);
     useLayoutEffect(
       () => {
         const selectedFigureIds = this.env.model.getters.getSelectedFigureIds();
@@ -304,7 +309,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
     if (this.env.model.getters.isDashboard()) {
       return;
     }
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
     this.openContextMenu({
       x: zoomedMouseEvent.clientX,
       y: zoomedMouseEvent.clientY,

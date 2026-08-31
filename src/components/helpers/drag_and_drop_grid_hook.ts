@@ -7,7 +7,6 @@ import { HeaderIndex, Pixel } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { gridOverlayPosition } from "./dom_helpers";
 import { startDnd } from "./drag_and_drop";
-import { withZoom } from "./zoom";
 
 export type DnDDirection = "all" | "vertical" | "horizontal";
 
@@ -56,7 +55,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     const sheetId = getters.getActiveSheetId();
     const zoomLevel = zoomStore.zoomLevel;
     const position = gridOverlayPosition(zoomLevel);
-    const zoomedMouseEvent = withZoom(env, currentEv, position);
+    const zoomedMouseEvent = zoomStore.getZoomedEvent(currentEv, position);
     const { x: offsetCorrectionX, y: offsetCorrectionY } = viewStore.mainViewportCoordinates;
     const { top, left, bottom, right } = viewStore.activeMainViewport;
     let { scrollX, scrollY } = viewStore.activeSheetScrollInfo;

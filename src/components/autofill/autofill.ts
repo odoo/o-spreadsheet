@@ -9,7 +9,6 @@ import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
-import { withZoom } from "../helpers/zoom";
 import { types } from "../props_validation";
 import { AutofillStore } from "./autofill_store";
 import { TableAutofillStore } from "./table_autofill_store";
@@ -80,7 +79,7 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
 
   onMouseDown(ev: PointerEvent) {
     this.state.handler = true;
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
     const zoom = this.zoomStore.zoomLevel;
     let lastCol: HeaderIndex | undefined;
     let lastRow: HeaderIndex | undefined;
