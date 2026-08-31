@@ -14,7 +14,6 @@ import {
   DnDDirection,
   useDragAndDropBeyondTheViewport,
 } from "../../helpers/drag_and_drop_grid_hook";
-import { withZoom } from "../../helpers/zoom";
 import { types } from "../../props_validation";
 import { Border } from "../border/border";
 import { Corner } from "../corner/corner";
@@ -62,7 +61,7 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
 
   onResizeHighlight(ev: PointerEvent, dirX: ResizeDirection, dirY: ResizeDirection) {
     const activeSheetId = this.env.model.getters.getActiveSheetId();
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
     this.highlightState.shiftingMode = "isResizing";
     const z = this.props.range.zone;
 
@@ -131,7 +130,7 @@ export class Highlight extends Component<SpreadsheetChildEnv> {
 
     const zoomLevel = this.zoomStore.zoomLevel;
     const position = gridOverlayPosition(zoomLevel);
-    const zoomedMouseEvent = withZoom(this.env, ev, position);
+    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev, position);
 
     const activeSheetId = this.env.model.getters.getActiveSheetId();
 

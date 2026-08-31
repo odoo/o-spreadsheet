@@ -3,13 +3,13 @@ import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { TableResizeStore } from "../../../stores/table_resize_store";
 import { ViewportsStore } from "../../../stores/viewports_store";
+import { ZoomStore } from "../../../stores/zoom_store";
 import { HeaderIndex, Highlight, Zone } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop_grid_hook";
 import { useHighlights } from "../../helpers/highlight_hook";
-import { withZoom } from "../../helpers/zoom";
 import { types } from "../../props_validation";
 
 const SIZE = 3;
@@ -29,11 +29,13 @@ export class TableResizer extends Component<SpreadsheetChildEnv> {
   state = proxy<State>({ highlightZone: undefined });
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
   private viewStore!: Store<ViewportsStore>;
+  private zoomStore!: Store<ZoomStore>;
 
   setup(): void {
     useHighlights(this);
     this.viewStore = useStore(ViewportsStore);
     useStore(TableResizeStore);
+    this.zoomStore = useStore(ZoomStore);
   }
 
   get containerStyle(): string {
@@ -55,7 +57,7 @@ export class TableResizer extends Component<SpreadsheetChildEnv> {
     const tableZone = this.props.table.range.zone;
     const topLeft = { col: tableZone.left, row: tableZone.top };
     document.body.style.cursor = "nwse-resize";
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
 
     const onMouseUp = () => {
       document.body.style.cursor = "";

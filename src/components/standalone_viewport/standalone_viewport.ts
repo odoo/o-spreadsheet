@@ -21,7 +21,6 @@ import { getElBoundingRect } from "../helpers/dom_helpers";
 import { startDnd } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
-import { withZoom } from "../helpers/zoom";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { types } from "../props_validation";
 import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
@@ -167,7 +166,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     }
     this.dndState.col = resizer.col;
 
-    const initialX = withZoom(this.env, ev).clientX;
+    const initialX = this.zoomStore.getZoomedEvent(ev).clientX;
     const startingColWeights = this.store.columnWeights;
     const totalWeight = sumArray(startingColWeights);
     let deltaX = 0;
@@ -179,7 +178,7 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
       }
     };
     const onMouseMove = (ev: MouseEvent) => {
-      deltaX = withZoom(this.env, ev).clientX - initialX;
+      deltaX = this.zoomStore.getZoomedEvent(ev).clientX - initialX;
 
       const weightDelta = (deltaX / this.props.size.width) * totalWeight;
       this.store.resizeColumn(resizer.col, weightDelta, startingColWeights);

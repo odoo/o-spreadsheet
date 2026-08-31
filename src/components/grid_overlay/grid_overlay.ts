@@ -6,6 +6,7 @@ import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { ViewportsStore } from "../../stores/viewports_store";
+import { ZoomStore } from "../../stores/zoom_store";
 import { CellPosition, GridClickModifiers, HeaderIndex, Position } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -15,7 +16,7 @@ import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer"
 import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect, isChildEvent, isCtrlKey } from "../helpers/dom_helpers";
 import { useInterval } from "../helpers/time_hooks";
-import { withZoom, ZoomedMouseEvent } from "../helpers/zoom";
+import { ZoomedMouseEvent } from "../helpers/zoom";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { types } from "../props_validation";
@@ -28,6 +29,7 @@ function useCellHovered(
   const delayedHoveredCell = useStore(DelayedHoveredCellStore);
   const cellHoverOverlay = useStore(CellHoverOverlayStore);
   const viewStore = useStore(ViewportsStore);
+  const zoomStore = useStore(ZoomStore);
   const hoveredPosition: Partial<Position> = {
     col: undefined,
     row: undefined,
@@ -93,7 +95,7 @@ function useCellHovered(
   }
 
   function onMouseLeave(e: MouseEvent) {
-    const zoomedMouseEvent = withZoom(env, e);
+    const zoomedMouseEvent = zoomStore.getZoomedEvent(e);
     const { x, y } = getOffsetRelativeToOverlay(zoomedMouseEvent);
     const gridRect = getElBoundingRect(gridRef());
 
@@ -107,7 +109,7 @@ function useCellHovered(
   useListener(
     gridRef,
     "pointermove",
-    (ev: MouseEvent) => !env.isMobile() && updateMousePosition(withZoom(env, ev))
+    (ev: MouseEvent) => !env.isMobile() && updateMousePosition(zoomStore.getZoomedEvent(ev))
   );
   useListener(gridRef, "mouseleave", onMouseLeave);
   useListener(gridRef, "mouseenter", resume);
@@ -115,7 +117,7 @@ function useCellHovered(
   useListener(
     gridRef,
     "pointerdown",
-    (ev: MouseEvent) => env.isMobile() && updateMousePosition(withZoom(env, ev))
+    (ev: MouseEvent) => env.isMobile() && updateMousePosition(zoomStore.getZoomedEvent(ev))
   );
 
   useListener(window, "click", handleGlobalClick);
@@ -170,6 +172,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
   private paintFormatStore!: Store<PaintFormatStore>;
   private hoveredIconStore!: Store<HoveredIconStore>;
   viewStore!: Store<ViewportsStore>;
+  private zoomStore!: Store<ZoomStore>;
 
   setup() {
     useCellHovered(this.env, this.gridOverlayRef);
@@ -187,6 +190,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
     this.paintFormatStore = useStore(PaintFormatStore);
     this.hoveredIconStore = useStore(HoveredIconStore);
     this.viewStore = useStore(ViewportsStore);
+    this.zoomStore = useStore(ZoomStore);
   }
 
   get gridOverlayEl(): HTMLElement {
@@ -212,7 +216,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
     if (this.env.isMobile()) {
       return;
     }
-    const icon = this.getInteractiveIconAtEvent(withZoom(this.env, ev));
+    const icon = this.getInteractiveIconAtEvent(this.zoomStore.getZoomedEvent(ev));
     const hoveredIcon = icon?.type ? { id: icon.type, position: icon.position } : undefined;
     if (!deepEquals(hoveredIcon, this.hoveredIconStore.hoveredIcon)) {
       this.hoveredIconStore.setHoveredIcon(hoveredIcon);
@@ -224,7 +228,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
       // not main button, probably a context menu
       return;
     }
-    this.onCellClicked(withZoom(this.env, ev));
+    this.onCellClicked(this.zoomStore.getZoomedEvent(ev));
   }
 
   onClick(ev: MouseEvent) {
@@ -232,7 +236,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
       // not main button, probably a context menu
       return;
     }
-    this.onCellClicked(withZoom(this.env, ev));
+    this.onCellClicked(this.zoomStore.getZoomedEvent(ev));
   }
 
   onCellClicked(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent | PointerEvent>) {
@@ -268,7 +272,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
   }
 
   onDoubleClick(ev: MouseEvent) {
-    const zoomedMouseEvent = withZoom(this.env, ev);
+    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
     if (this.getInteractiveIconAtEvent(zoomedMouseEvent)) {
       return;
     }
@@ -278,7 +282,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
   }
 
   onContextMenu(ev: MouseEvent) {
-    const [col, row] = this.getCartesianCoordinates(withZoom(this.env, ev));
+    const [col, row] = this.getCartesianCoordinates(this.zoomStore.getZoomedEvent(ev));
     this.props.onCellRightClicked(col, row, { x: ev.clientX, y: ev.clientY });
   }
 

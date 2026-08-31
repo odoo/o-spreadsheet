@@ -6,10 +6,10 @@ import {
 } from "../../../../../helpers/figures/charts/chart_common";
 import { clip } from "../../../../../helpers/misc";
 import { useStore } from "../../../../../store_engine/store_hooks";
+import { ZoomStore } from "../../../../../stores/zoom_store";
 import { ChartJSRuntime } from "../../../../../types/chart/chart";
 import { Store } from "../../../../../types/store_engine";
 import { cssPropertiesToCss } from "../../../../helpers/css";
-import { withZoom } from "../../../../helpers/zoom";
 import { ChartJsComponent } from "../chartjs";
 import { Boundaries, ZoomableChartStore } from "./zoomable_chart_store";
 
@@ -18,6 +18,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   static template = "o-spreadsheet-ZoomableChartJsComponent";
 
   private store!: Store<ZoomableChartStore>;
+  private zoomStore!: Store<ZoomStore>;
 
   private masterChartCanvas = signal.ref(HTMLCanvasElement);
   private masterChart?: Chart;
@@ -31,6 +32,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
 
   setup() {
     this.store = useStore(ZoomableChartStore);
+    this.zoomStore = useStore(ZoomStore);
     super.setup();
   }
 
@@ -369,7 +371,10 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
 
   onMasterChartPointerDown(ev: PointerEvent) {
     this.removeEventListeners();
-    const zoomedEvent = withZoom(this.env, ev, this.masterChartCanvas()?.getBoundingClientRect());
+    const zoomedEvent = this.zoomStore.getZoomedEvent(
+      ev,
+      this.masterChartCanvas()?.getBoundingClientRect()
+    );
     const position = zoomedEvent.offsetX;
     if (!this.masterChart?.chartArea || !this.chart?.scales?.x) {
       return;
@@ -440,7 +445,10 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     };
 
     const onMasterChartDrag = (ev: PointerEvent) => {
-      const zoomedEvent = withZoom(this.env, ev, this.masterChartCanvas()?.getBoundingClientRect());
+      const zoomedEvent = this.zoomStore.getZoomedEvent(
+        ev,
+        this.masterChartCanvas()?.getBoundingClientRect()
+      );
       const position = zoomedEvent.offsetX;
       if (Math.abs(position - startingEventPosition) < 5) {
         return;
@@ -477,8 +485,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
 
   updateMasterChartCursor(ev: PointerEvent) {
     const target = ev.target;
-    const { offsetX: x, offsetY: y } = withZoom(
-      this.env,
+    const { offsetX: x, offsetY: y } = this.zoomStore.getZoomedEvent(
       ev,
       (target as HTMLElement)?.getBoundingClientRect()
     );
@@ -515,7 +522,10 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
 
   onMasterChartDoubleClick(ev: PointerEvent) {
     this.mode = undefined;
-    const zoomedEvent = withZoom(this.env, ev, this.masterChartCanvas()?.getBoundingClientRect());
+    const zoomedEvent = this.zoomStore.getZoomedEvent(
+      ev,
+      this.masterChartCanvas()?.getBoundingClientRect()
+    );
     const position = zoomedEvent.offsetX;
     if (!this.masterChart?.chartArea || !this.chart?.scales.x) {
       return;
