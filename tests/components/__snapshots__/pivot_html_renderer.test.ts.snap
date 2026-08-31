@@ -3,7 +3,7 @@
 exports[`Pivot HTML Renderer Rendering a simple pivot table 1`] = `
 <div>
   <div
-    class="o_pivot_html_renderer"
+    class="w-100"
   >
     <label
       class="o-checkbox d-flex align-items-center m-2"
