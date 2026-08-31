@@ -4081,7 +4081,7 @@ describe("trending line", () => {
       model,
       {
         type: "line",
-        fillArea: true,
+        fillArea: false,
         ...toChartDataSource({
           dataSets: [
             { dataRange: "B1:B4", trend: { type: "polynomial", order: 2, display: true } },
@@ -4102,6 +4102,36 @@ describe("trending line", () => {
       expect(value.x).toEqual(expectedLabel);
       expect(value.y).toBeCloseTo(expectedValue);
     }
+  });
+
+  test("area chart trend line uses invalid values as zero", () => {
+    // prettier-ignore
+    const model = createModelFromGrid({
+      A1: "1", B1: "1",
+      A2: "2", B2: "not a number",
+      A3: "3", B3: "9",
+    });
+    createChart(
+      model,
+      {
+        type: "line",
+        fillArea: true,
+        ...toChartDataSource({
+          dataSets: [
+            { dataRange: "B1:B3", trend: { type: "polynomial", order: 1, display: true } },
+          ],
+          labelRange: "A1:A3",
+          dataSetsHaveTitle: false,
+        }),
+      },
+      "chartId"
+    );
+    let runtime = model.getters.getChartRuntime("chartId") as LineChartRuntime;
+    const trendData = runtime.chartJsConfig.data.datasets[1].data;
+
+    setCellContent(model, "B2", "0");
+    runtime = model.getters.getChartRuntime("chartId") as LineChartRuntime;
+    expect(runtime.chartJsConfig.data.datasets[1].data).toEqual(trendData);
   });
 
   test("Trend line dataset is correctly styled", () => {

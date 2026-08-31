@@ -166,6 +166,41 @@ describe("line chart", () => {
     expect(isChartAxisStacked(model, "chartId", "y")).toBe(true);
   });
 
+  test("Area charts treat non-numeric values as zero", () => {
+    // prettier-ignore
+    const model = createModelFromGrid({
+      A1: "A", B1: "1", C1: "4",
+      A2: "B",          C2: "invalid",
+    });
+    createChart(
+      model,
+      {
+        type: "line",
+        fillArea: true,
+        stacked: false,
+        ...toChartDataSource({
+          labelRange: "A1:A2",
+          dataSets: [{ dataRange: "B1:B2" }, { dataRange: "C1:C2" }],
+          dataSetsHaveTitle: false,
+        }),
+      },
+      "chartId"
+    );
+    let datasets = getChartConfiguration(model, "chartId").data.datasets!;
+    expect(datasets[0].data).toEqual([1, 0]);
+    expect(datasets[1].data).toEqual([4, 0]);
+
+    updateChart(model, "chartId", { stacked: true });
+    datasets = getChartConfiguration(model, "chartId").data.datasets!;
+    expect(datasets[0].data).toEqual([1, 0]);
+    expect(datasets[1].data).toEqual([4, 0]);
+
+    updateChart(model, "chartId", { fillArea: false });
+    datasets = getChartConfiguration(model, "chartId").data.datasets!;
+    expect(datasets[0].data).toEqual([1, NaN]);
+    expect(datasets[1].data).toEqual([4, NaN]);
+  });
+
   test("Trend lines have no fill color in area chart", () => {
     const model = new Model();
     setCellContent(model, "A1", "data");
