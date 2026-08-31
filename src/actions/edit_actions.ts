@@ -1,3 +1,4 @@
+import { writeClipboardTextAndImageContent } from "../helpers/clipboard/clipboard_helpers";
 import { interactiveCut } from "../helpers/ui/cut_interactive";
 import { interactiveAddMerge } from "../helpers/ui/merge_interactive";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
@@ -31,7 +32,7 @@ export const copy: ActionSpec = {
   isReadonlyAllowed: true,
   execute: async (env) => {
     env.model.dispatch("COPY");
-    await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
+    await writeClipboardTextAndImageContent(env);
   },
   isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.CLIPBOARD",
@@ -42,7 +43,7 @@ export const cut: ActionSpec = {
   shortcut: "Ctrl+X",
   execute: async (env) => {
     interactiveCut(env);
-    await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
+    await writeClipboardTextAndImageContent(env);
   },
   icon: "o-spreadsheet-Icon.CUT",
 };

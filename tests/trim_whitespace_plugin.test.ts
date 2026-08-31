@@ -30,8 +30,6 @@ describe("trim whitespace", () => {
       A4: "   Space Cake  ???    ",
     });
     const { store } = makeStoreWithModel(model, TrimWhitespaceStore);
-    const notifyUserTextSpy = jest.fn();
-    jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
     setSelection(model, ["A1:A2", "A2:A3", "A4"]);
     store.trimWhitespace();
     expect(getCellContent(model, "A1")).toBe("Space Opera");

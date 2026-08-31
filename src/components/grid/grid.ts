@@ -12,6 +12,7 @@ import { AUTOFILL_EDGE_LENGTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constan
 import {
   getOSheetClipboardIdFromHTML,
   parseOSClipboardContent,
+  writeClipboardTextAndImageContent,
 } from "../../helpers/clipboard/clipboard_helpers";
 import { openLink } from "../../helpers/links";
 import { isStaticTable } from "../../helpers/table_helpers";
@@ -743,8 +744,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     } else {
       this.env.model.dispatch("COPY");
     }
-    const osContent = await this.env.model.getters.getClipboardTextAndImageContent();
-    await this.env.clipboard.write(osContent);
+    await writeClipboardTextAndImageContent(this.env);
     ev.preventDefault();
   }
 

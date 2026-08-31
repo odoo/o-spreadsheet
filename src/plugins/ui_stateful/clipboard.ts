@@ -4,8 +4,11 @@ import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers/css
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import {
   applyClipboardHandlersPaste,
+  FileTooBigError,
   getClipboardDataPositions,
   getPasteTargetFromHandlers,
+  MAX_FILE_SIZE,
+  SelectionTooBigError,
   selectPastedZone,
 } from "../../helpers/clipboard/clipboard_helpers";
 import { getMaxFigureSize } from "../../helpers/figures/figure/figure";
@@ -13,7 +16,6 @@ import { UuidGenerator } from "../../helpers/uuid";
 import { isZoneValid } from "../../helpers/zones";
 import { getCurrentVersion } from "../../migrations/data";
 import { clipboardHandlersRegistries } from "../../registries/clipboardHandlersRegistries";
-import { _t } from "../../translation";
 import {
   ClipboardCopyOptions,
   ClipboardData,
@@ -29,8 +31,6 @@ import { Dimension, HeaderIndex, UID, Zone } from "../../types/misc";
 import { GridRenderingContext } from "../../types/rendering";
 import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
-
-export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 interface InsertDeleteCellsTargets {
   cut: Zone[];
@@ -535,12 +535,8 @@ export class ClipboardPlugin extends UIPlugin {
     try {
       content[ClipboardMIMEType.PlainText] = this.getPlainTextContent();
       content[ClipboardMIMEType.Html] = await this.getHTMLContent();
-    } catch (error) {
-      this.ui.notifyUI({
-        type: "danger",
-        text: "Your selection was too large for the browser to copy it.\nPlease select a smaller zone.",
-        sticky: true,
-      });
+    } catch (e) {
+      throw new SelectionTooBigError();
     }
     if (mime && file) {
       content[mime] = file;
@@ -668,15 +664,7 @@ export class ClipboardPlugin extends UIPlugin {
       // So we convert the image to png if it's not already
       if (file.type !== "image/png") {
         if (file.size > MAX_FILE_SIZE) {
-          this.ui.notifyUI({
-            text: _t(
-              "The file you are trying to copy is too large (>%sMB).\nIt will not be added to your OS clipboard.\nYou can download it directly instead.",
-              Math.round(MAX_FILE_SIZE / (1024 * 1024))
-            ),
-            sticky: false,
-            type: "warning",
-          });
-          return undefined;
+          throw new FileTooBigError();
         }
         file = await convertImageToPng(imageUrl);
       }
