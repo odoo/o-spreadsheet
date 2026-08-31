@@ -3,12 +3,6 @@ import { ACTION_COLOR, GRAY_300 } from "../../../../constants";
 import { SpreadsheetChildEnv } from "../../../../types";
 import { css } from "../../../helpers/css";
 
-const CHECK_SVG = /*xml*/ `
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'>
-  <path fill='none' stroke='#FFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/>
-</svg>
-`;
-
 interface Props {
   label?: string;
   value: boolean;
@@ -40,7 +34,7 @@ css/* scss */ `
       }
 
       &:checked {
-        background: url("data:image/svg+xml,${encodeURIComponent(CHECK_SVG)}");
+        background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2020%2020%27%3E%3Cpath%20fill%3D%27none%27%20stroke%3D%27%23FFF%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%20stroke-width%3D%273%27%20d%3D%27m6%2010%203%203%206-6%27/%3E%3C/svg%3E");
         background-color: ${ACTION_COLOR};
         border-color: ${ACTION_COLOR};
       }
