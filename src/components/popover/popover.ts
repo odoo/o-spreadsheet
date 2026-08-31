@@ -1,4 +1,13 @@
-import { onMounted, onWillUnmount, Portal, signal, useEffect, useProps } from "@odoo/owl";
+import {
+  onMounted,
+  onWillUnmount,
+  Portal,
+  signal,
+  useEffect,
+  usePlugin,
+  useProps,
+} from "@odoo/owl";
+import { render } from "../../helpers/owl3_helpers";
 import { rectIntersection } from "../../helpers/rectangle";
 import { Component } from "../../owl3_compatibility_layer";
 import { CSSProperties } from "../../types/misc";
@@ -6,6 +15,7 @@ import { DOMCoordinates, DOMDimension, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { usePopoverContainer, useSpreadsheetRect } from "../helpers/position_hook";
 import { types } from "../props_validation";
+import { SpreadsheetRenderPlugin } from "../spreadsheet/spreadsheet_render_owl_plugin";
 
 type PopoverPosition = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 type DisplayValue = "none" | "block";
@@ -13,6 +23,8 @@ type DisplayValue = "none" | "block";
 export class Popover extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Popover";
   static components = { Portal };
+
+  renderPlugin = usePlugin(SpreadsheetRenderPlugin);
 
   protected props = useProps({
     anchorRect: types.Rect(),
@@ -53,6 +65,16 @@ export class Popover extends Component<SpreadsheetChildEnv> {
     });
 
     useEffect(this.computePopoverPosition.bind(this));
+
+    const spreadsheetRender = usePlugin(SpreadsheetRenderPlugin);
+    useEffect(() => {
+      spreadsheetRender.counter();
+      console.log("useEffect", spreadsheetRender.counter());
+      render(this, true);
+      setTimeout(() => {
+        render(this, true);
+      }, 1);
+    });
   }
 
   private computePopoverPosition() {
