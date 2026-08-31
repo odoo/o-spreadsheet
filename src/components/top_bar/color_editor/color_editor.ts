@@ -39,7 +39,7 @@ export class TopBarColorEditor extends Component<SpreadsheetChildEnv> {
       this.env.model.dispatch("SET_BACKGROUND_FOR_ALL_CELLS", { sheetId, color });
       return;
     }
-    setStyle(this.env, { [this.props.style]: color });
+    setStyle(this.env.model, { [this.props.style]: color });
     this.state.isOpen = false;
   }
 

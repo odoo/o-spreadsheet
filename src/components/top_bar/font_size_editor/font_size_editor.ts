@@ -22,7 +22,7 @@ export class TopBarFontSizeEditor extends Component<SpreadsheetChildEnv> {
     return this.env.model.getters.getCurrentStyle().fontSize || DEFAULT_FONT_SIZE;
   }
   setFontSize(fontSize: number) {
-    setStyle(this.env, { fontSize });
+    setStyle(this.env.model, { fontSize });
   }
 
   onToggle() {

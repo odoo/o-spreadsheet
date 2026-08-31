@@ -245,12 +245,12 @@ export class TopBar extends Component<SpreadsheetChildEnv> {
   }
 
   setColor(target: string, color: Color) {
-    setStyle(this.env, { [target]: color });
+    setStyle(this.env.model, { [target]: color });
     this.onClick();
   }
 
   setFontSize(fontSize: number) {
-    setStyle(this.env, { fontSize });
+    setStyle(this.env.model, { fontSize });
   }
 
   toggleMoreTools() {
