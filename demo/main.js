@@ -145,8 +145,8 @@ class Demo extends Component {
       name: "fake notify (sticky)",
       sequence: 13,
       isReadonlyAllowed: true,
-      execute: () =>
-        this.notifyUser({
+      execute: (env) =>
+        env.notifyUser({
           text: "I'm a sticky notification ! You want me to leave ? COME FIGHT WITH ME !!!",
           sticky: true,
           type: "warning",
@@ -158,8 +158,8 @@ class Demo extends Component {
       name: "fake notify (no sticky)",
       sequence: 14,
       isReadonlyAllowed: true,
-      execute: () =>
-        this.notifyUser({
+      execute: (env) =>
+        env.notifyUser({
           text: "I'm not a sticky notification, Just a simple notification. So... CiaoByeBye, see you in another universe...",
           sticky: false,
           type: "warning",

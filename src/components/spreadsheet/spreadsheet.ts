@@ -18,6 +18,7 @@ import { batched } from "../../helpers/misc";
 import { render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
 import { Component, useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
+import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
 import { ModelStore } from "../../stores/model_store";
@@ -148,6 +149,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
     providePlugins([PopoverContainerPlugin], {
       getPopoverContainerRect: () => getElBoundingRect(this.spreadsheetRef()),
     });
+    providePlugins([NotificationPlugin]);
 
     const env = this.env;
     stores.get(ScreenWidthStore).setSmallThreshhold(() => {
@@ -173,10 +175,10 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       clipboard: this.env.clipboard || instantiateClipboard(),
       startCellEdition: (content?: string) =>
         this.composerFocusStore.focusActiveComposer({ content }),
-      notifyUser: (notification) => this.notificationStore.notifyUser(notification),
-      askConfirmation: (text, confirm, cancel) =>
-        this.notificationStore.askConfirmation(text, confirm, cancel),
-      raiseError: (text, cb) => this.notificationStore.raiseError(text, cb),
+      // notifyUser: (notification) => this.notificationStore.notifyUser(notification),
+      // askConfirmation: (text, confirm, cancel) =>
+      //   this.notificationStore.askConfirmation(text, confirm, cancel),
+      // raiseError: (text, cb) => this.notificationStore.raiseError(text, cb),
       isMobile: isMobileOS,
       printSpreadsheet: () => (this.state.printModeEnabled = true),
     } satisfies Partial<SpreadsheetChildEnv>);

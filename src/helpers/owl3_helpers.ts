@@ -1,9 +1,7 @@
 import { usePlugin } from "@odoo/owl";
-import { SpreadsheetEnvPlugin } from "../components/spreadsheet/spreadsheet_env_owl_plugin";
+import { spreadsheetEnvRegistry } from "../components/spreadsheet/spreadsheet_env_owl_plugin";
 import { useEnv } from "../owl3_compatibility_layer";
-import { proxifyStoreMutation } from "../store_engine/store_hooks";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
-import { StoreConstructor } from "../types/store_engine";
 
 /**
  * Comes from https://github.com/odoo/odoo/blob/master/addons/web/static/src/owl2/utils.js
@@ -14,21 +12,21 @@ export function render(component: any, deep = false) {
 
 export function useSpreadsheetEnv(): SpreadsheetChildEnv {
   const env = useEnv();
-  const spreadsheetEnv = usePlugin(SpreadsheetEnvPlugin);
-  const container = env.__spreadsheet_stores__;
-  if (!container) {
-    throw new Error("No store provider found.");
+  const spreadsheetEnv: Record<string, any> = {};
+  for (const key of spreadsheetEnvRegistry.getKeys()) {
+    try {
+      const plugin = usePlugin(spreadsheetEnvRegistry.get(key).owlPlugin);
+      const keys = spreadsheetEnvRegistry.get(key).envKeys;
+      for (const k of keys) {
+        spreadsheetEnv[k] = plugin[k];
+      }
+    } catch {}
   }
-  const overriddenEnv = {
-    getStore: <T extends StoreConstructor>(Store: T) => {
-      const store = container.get(Store);
-      return proxifyStoreMutation(store, () => container.trigger("store-updated"));
-    },
-  };
+
   return new Proxy(env, {
     get(target, prop, receiver) {
-      if (prop in overriddenEnv) {
-        return overriddenEnv[prop];
+      if (prop in spreadsheetEnv) {
+        return spreadsheetEnv[String(prop)];
       }
       return Reflect.get(target, prop, receiver);
     },
