@@ -357,7 +357,9 @@ export function isCoreCommand(cmd: Command): cmd is CoreCommand {
   return coreTypes.has(cmd.type as any);
 }
 
-export function isEvaluationCommand(cmd: Command): cmd is EvaluationCommand {
+export function isDispatcheableEvaluationCommand(
+  cmd: Command
+): cmd is DispatcheableEvaluationCommand {
   return evaluationCommandTypes.has(cmd.type as any);
 }
 
@@ -1614,15 +1616,21 @@ export interface CoreCommandDispatcher {
 export type CommandTypes = Command["type"];
 export type CoreCommandTypes = CoreCommand["type"];
 
-export type EvaluationCommand = EvaluateCellsCommand | EvaluateChartsCommand;
+export type DispatcheableEvaluationCommand = EvaluateCellsCommand | EvaluateChartsCommand;
 
-export type EvaluationCommandTypes = EvaluationCommand["type"];
+export type DispatcheableEvaluationCommandTypes = DispatcheableEvaluationCommand["type"];
 
 export interface EvaluationCommandDispatcher {
-  dispatch<T extends EvaluationCommandTypes, C extends Extract<EvaluationCommand, { type: T }>>(
+  dispatch<
+    T extends DispatcheableEvaluationCommandTypes,
+    C extends Extract<DispatcheableEvaluationCommand, { type: T }>
+  >(
     type: {} extends Omit<C, "type"> ? T : never
   ): DispatchResult;
-  dispatch<T extends EvaluationCommandTypes, C extends Extract<EvaluationCommand, { type: T }>>(
+  dispatch<
+    T extends DispatcheableEvaluationCommandTypes,
+    C extends Extract<DispatcheableEvaluationCommand, { type: T }>
+  >(
     type: T,
     r: Omit<C, "type">
   ): DispatchResult;
