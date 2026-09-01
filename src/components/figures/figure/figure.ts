@@ -323,7 +323,7 @@ export class FigureComponent extends OSComponent {
     this.menuState.anchorRect = anchorRect;
     this.menuState.menuItems = figureRegistry
       .get(this.props.figureUI.tag)
-      .menuBuilder(this.props.figureUI.id, this.env);
+      .menuBuilder(this.props.figureUI.id, this.spEnv);
   }
 
   get isFigureResizable(): boolean {

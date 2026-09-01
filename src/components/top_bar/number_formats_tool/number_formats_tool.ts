@@ -37,7 +37,7 @@ export class NumberFormatsTool extends OSComponent {
       this.topBarToolStore.closeDropdowns();
     } else {
       const menu = createAction(this.formatNumberMenuItemSpec);
-      this.state.menuItems = menu.children(this.env).sort((a, b) => a.sequence - b.sequence);
+      this.state.menuItems = menu.children(this.spEnv).sort((a, b) => a.sequence - b.sequence);
       this.state.anchorRect = getBoundingRectAsPOJO(this.buttonRef()!);
       this.topBarToolStore.openDropdown();
     }

@@ -9,7 +9,7 @@ import {
 import { toXC } from "../../../src/helpers/coordinates";
 import { zoneToXc } from "../../../src/helpers/zones";
 import { ViewportsStore } from "../../../src/stores/viewports_store";
-import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import { Store } from "../../../src/types/store_engine";
 import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
@@ -86,7 +86,7 @@ describe("Insert chart menu item", () => {
   let dispatchSpy: jest.SpyInstance;
   let defaultPayload: any;
   let model: Model;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
   let openSidePanelSpy: jest.SpyInstance;
   let viewStore: Store<ViewportsStore>;
 
@@ -426,7 +426,7 @@ describe("Smart chart type detection", () => {
   type DatasetDescriptor = string[];
 
   let model: Model;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
 
   beforeEach(() => {
     model = new Model();

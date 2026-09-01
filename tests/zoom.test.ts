@@ -1,6 +1,6 @@
 import { Model } from "../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, ZOOM_VALUES } from "../src/constants";
-import { SpreadsheetChildEnv } from "../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../src/types/spreadsheet_env";
 import { setCellContent, setZoom } from "./test_helpers/commands_helpers";
 import { clickCell, clickHeader, hoverCell } from "./test_helpers/dom_helper";
 import { getSelectionAnchorCellXc } from "./test_helpers/getters_helpers";
@@ -8,7 +8,7 @@ import { mountSpreadsheet, nextTick, useJestFakeTimers } from "./test_helpers/he
 
 let fixture: HTMLElement;
 let model: Model;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 useJestFakeTimers();
 

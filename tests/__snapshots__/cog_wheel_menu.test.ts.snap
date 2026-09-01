@@ -11,5 +11,6 @@ exports[`CogWheelMenu Can render a cog wheel menu 1`] = `
     />
     
   </div>
+  
 </div>
 `;

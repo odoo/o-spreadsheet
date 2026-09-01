@@ -37,6 +37,8 @@ jest.mock("../../src/helpers/figures/charts/chart_ui_common", () => {
 });
 
 window.Chart = Object.assign(Chart, ChartHelpers);
+window.alert = () => {};
+window.confirm = () => true;
 
 declare global {
   interface Window {

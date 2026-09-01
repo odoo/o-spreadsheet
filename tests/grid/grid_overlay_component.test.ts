@@ -15,7 +15,7 @@ import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { CellHoverOverlayStore } from "../../src/stores/cell_hover_overlay_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { extendMockGetBoundingClientRect } from "../test_helpers";
 import {
   deleteColumns,
@@ -51,7 +51,7 @@ import {
 
 let fixture: HTMLElement;
 let model: Model;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 ColResizer.prototype._getMaxSize = () => 1000;
 RowResizer.prototype._getMaxSize = () => 1000;
