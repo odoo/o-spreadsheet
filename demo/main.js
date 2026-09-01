@@ -23,6 +23,7 @@ const { topbarMenuRegistry } = o_spreadsheet.registries;
 const { useStoreProvider } = o_spreadsheet.stores;
 const { UuidGenerator } = o_spreadsheet.helpers;
 const { Component, App } = o_spreadsheet.compatibility;
+const { NotificationPlugin } = o_spreadsheet.owlPlugins;
 
 topbarMenuRegistry.addChild("reload", ["file"], {
   name: "Clear & reload demo",
@@ -158,12 +159,15 @@ class Demo extends Component {
       name: "fake notify (no sticky)",
       sequence: 14,
       isReadonlyAllowed: true,
-      execute: (env) =>
+      execute: (env) => {
+        const p = env.getPlugin(NotificationPlugin);
+        console.log(p);
         env.notifyUser({
           text: "I'm not a sticky notification, Just a simple notification. So... CiaoByeBye, see you in another universe...",
           sticky: false,
           type: "warning",
-        }),
+        });
+      },
       isEnabledOnLockedSheet: true,
     });
 

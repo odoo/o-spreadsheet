@@ -1,5 +1,6 @@
 import { MergeErrorMessage, RemoveDuplicateTerms } from "../../components/translations_terms";
 import { getCurrentVersion } from "../../migrations/data";
+import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { _t } from "../../translation";
 import {
   ClipboardPasteOptions,
@@ -14,7 +15,7 @@ import {
   DispatchResult,
 } from "../../types/commands";
 import { Zone } from "../../types/misc";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetActionEnv, SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 export const handleCopyPasteResult = (
   env: SpreadsheetChildEnv,
@@ -33,16 +34,17 @@ export const PasteInteractiveContent = {
   frozenPaneOverlap: _t("This operation is not allowed due to an overlapping frozen pane."),
 };
 
-export function handlePasteResult(env: SpreadsheetChildEnv, result: DispatchResult) {
+export function handlePasteResult(env: SpreadsheetActionEnv, result: DispatchResult) {
+  const notificationPlugin = env.getPlugin(NotificationPlugin);
   if (!result.isSuccessful) {
     if (result.reasons.includes(CommandResult.WrongPasteSelection)) {
-      env.raiseError(PasteInteractiveContent.wrongPasteSelection);
+      notificationPlugin.raiseError(PasteInteractiveContent.wrongPasteSelection);
     } else if (result.reasons.includes(CommandResult.WillRemoveExistingMerge)) {
-      env.raiseError(PasteInteractiveContent.willRemoveExistingMerge);
+      notificationPlugin.raiseError(PasteInteractiveContent.willRemoveExistingMerge);
     } else if (result.reasons.includes(CommandResult.WrongFigurePasteOption)) {
-      env.raiseError(PasteInteractiveContent.wrongFigurePasteOption);
+      notificationPlugin.raiseError(PasteInteractiveContent.wrongFigurePasteOption);
     } else if (result.reasons.includes(CommandResult.FrozenPaneOverlap)) {
-      env.raiseError(PasteInteractiveContent.frozenPaneOverlap);
+      notificationPlugin.raiseError(PasteInteractiveContent.frozenPaneOverlap);
     }
   }
 }
