@@ -27,35 +27,35 @@ export class ActionButton extends OSComponent {
   }
 
   get isVisible() {
-    return this.actionButton.isVisible(this.env);
+    return this.actionButton.isVisible(this.spEnv);
   }
 
   get isEnabled() {
     const isLockedAvailable =
       this.actionButton.isEnabledOnLockedSheet || !this.env.model.getters.isCurrentSheetLocked();
-    return this.actionButton.isEnabled(this.env) && isLockedAvailable;
+    return this.actionButton.isEnabled(this.spEnv) && isLockedAvailable;
   }
 
   get isActive() {
-    return this.actionButton.isActive?.(this.env);
+    return this.actionButton.isActive?.(this.spEnv);
   }
 
   get title() {
-    const name = this.actionButton.name(this.env);
+    const name = this.actionButton.name(this.spEnv);
     const description =
-      this.actionButton.description(this.env) ||
+      this.actionButton.description(this.spEnv) ||
       adaptShortcutStringToMacOs(this.actionButton.shortcut);
     return name + (description ? ` (${description})` : "");
   }
 
   get iconTitle() {
-    return this.actionButton.icon(this.env);
+    return this.actionButton.icon(this.spEnv);
   }
 
   onClick(ev: MouseEvent) {
     if (this.isEnabled) {
       this.props.onClick?.(ev);
-      this.actionButton.execute?.(this.env);
+      this.actionButton.execute?.(this.spEnv);
     }
   }
 

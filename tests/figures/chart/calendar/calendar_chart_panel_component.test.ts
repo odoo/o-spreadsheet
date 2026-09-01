@@ -1,7 +1,7 @@
 import { Model, schemeToColorScale, UID } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { CalendarChartDefinition } from "../../../../src/types/chart/calendar_chart";
-import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../../src/types/spreadsheet_env";
 import {
   changeRoundColorPickerColor,
   click,
@@ -22,7 +22,7 @@ import { mockChart, mountComponentWithPortalTarget } from "../../../test_helpers
 
 let model: Model;
 let fixture: HTMLElement;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 mockChart();
 

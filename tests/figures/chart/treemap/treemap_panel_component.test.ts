@@ -2,7 +2,7 @@ import { Model, UID } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { ColorGenerator } from "../../../../src/helpers/color";
 import { TreeMapChartDefinition } from "../../../../src/types/chart/tree_map_chart";
-import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../../src/types/spreadsheet_env";
 import {
   changeColorPickerWidgetColor,
   changeRoundColorPickerColor,
@@ -25,7 +25,7 @@ import { mountComponentWithPortalTarget, setGrid } from "../../../test_helpers/h
 
 let model: Model;
 let fixture: HTMLElement;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 function getTreeMapChartDefinition(chartId: UID): TreeMapChartDefinition<string> {
   return model.getters.getChartDefinition(chartId) as TreeMapChartDefinition<string>;

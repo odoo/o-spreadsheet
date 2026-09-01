@@ -69,7 +69,7 @@ export class LinkEditor extends OSComponent {
     const inputVal = this.state.url;
     for (const category of urlRegistry.getKeys()) {
       const spec = urlRegistry.get(category);
-      const linkProposals = spec.getLinkProposals?.(this.env) || [];
+      const linkProposals = spec.getLinkProposals?.(this.spEnv) || [];
       const links =
         inputVal && this.state.isUrlEditable
           ? fuzzyLookup(inputVal, linkProposals, (link) =>

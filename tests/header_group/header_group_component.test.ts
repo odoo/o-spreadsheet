@@ -7,7 +7,7 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "../../src/constants";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   foldHeaderGroup,
   freezeColumns,
@@ -124,7 +124,7 @@ describe("Header group component test", () => {
   let fixture: HTMLElement;
   let model: Model;
   let sheetId: UID;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
 
   beforeEach(() => {
     model = new Model();

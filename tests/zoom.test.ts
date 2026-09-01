@@ -6,7 +6,7 @@ import {
   ZOOM_VALUES,
 } from "../src/constants";
 import { ZoomStore } from "../src/stores/zoom_store";
-import { SpreadsheetChildEnv } from "../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../src/types/spreadsheet_env";
 import { setCellContent, setZoom } from "./test_helpers/commands_helpers";
 import { clickCell, clickHeader, hoverCell } from "./test_helpers/dom_helper";
 import { getSelectionAnchorCellXc } from "./test_helpers/getters_helpers";
@@ -14,7 +14,7 @@ import { makeTestEnv, mountSpreadsheet, nextTick, useJestFakeTimers } from "./te
 
 let fixture: HTMLElement;
 let model: Model;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 useJestFakeTimers();
 

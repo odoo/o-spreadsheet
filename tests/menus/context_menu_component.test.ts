@@ -31,7 +31,7 @@ import { PopoverContainerPlugin } from "../../src/components/popover/popover_con
 import { types } from "../../src/components/props_validation";
 import { render } from "../../src/helpers/owl3_helpers";
 import { PopoverPropsPosition } from "../../src/types/cell_popovers";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   getStylePropertyInPx,
   makeTestFixture,
@@ -48,7 +48,7 @@ const ROW_5 = { x: 30, y: 100 };
 let fixture: HTMLElement;
 let model: Model;
 let parent: Component;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 useJestFakeTimers();
 

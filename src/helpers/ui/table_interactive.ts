@@ -1,3 +1,4 @@
+import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { CommandResult, DispatchResult } from "../../types/commands";
 import { UID } from "../../types/misc";
 
@@ -32,10 +33,11 @@ export function interactiveCreateTable(
     config: tableConfig,
     tableType: isDynamic ? "dynamic" : "static",
   });
+  const notificationPlugin = env.getPlugin(NotificationPlugin);
   if (result.isCancelledBecause(CommandResult.TableOverlap)) {
-    env.raiseError(TableTerms.Errors.TableOverlap);
+    notificationPlugin.raiseError(TableTerms.Errors.TableOverlap);
   } else if (result.isCancelledBecause(CommandResult.NonContinuousTargets)) {
-    env.raiseError(TableTerms.Errors.NonContinuousTargets);
+    notificationPlugin.raiseError(TableTerms.Errors.NonContinuousTargets);
   }
   return result;
 }

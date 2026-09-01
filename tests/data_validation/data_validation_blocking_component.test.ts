@@ -7,6 +7,7 @@ import { keyDown } from "../test_helpers/dom_helper";
 import { getCellContent, getCellRawContent } from "../test_helpers/getters_helpers";
 import {
   makeTestComposerStore,
+  mockNotificationMethods,
   mountSpreadsheet,
   typeInComposerGrid,
 } from "../test_helpers/helpers";
@@ -24,8 +25,8 @@ describe("Data validation with blocking rule", () => {
 
   test("Interactive raiseError on inputting invalid value", async () => {
     const raiseError = jest.fn();
-    const env = { raiseError };
-    await mountSpreadsheet({ model }, env);
+    const { getPlugin } = await mountSpreadsheet({ model });
+    mockNotificationMethods(getPlugin, { raiseError });
     addDataValidation(model, "A1", "id", { type: "containsText", values: ["ok"] }, "blocking");
 
     await typeInComposerGrid("hey");
