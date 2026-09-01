@@ -16,9 +16,14 @@ export class CellHoverOverlayStore extends SpreadsheetStore {
   overlayColors: PositionMap<Color> = new PositionMap();
 
   hover(hoveredPosition: CellPosition | undefined) {
+    if (!this.providers.length) {
+      return "noStateChange";
+    }
+
+    const oldOverlayColors = this.overlayColors;
     this.overlayColors = new PositionMap();
     if (!hoveredPosition) {
-      return;
+      return oldOverlayColors.keys().length === 0 ? "noStateChange" : undefined;
     }
 
     for (const provider of this.providers) {
@@ -27,13 +32,24 @@ export class CellHoverOverlayStore extends SpreadsheetStore {
         this.overlayColors.set(position, TABLE_HOVER_BACKGROUND_COLOR);
       }
     }
+
+    let hasChanged = false;
+    for (const position of [...this.overlayColors.keys(), ...oldOverlayColors.keys()]) {
+      if (this.overlayColors.get(position) !== oldOverlayColors.get(position)) {
+        hasChanged = true;
+        break;
+      }
+    }
+    return hasChanged ? undefined : "noStateChange";
   }
 
   register(highlightProvider: CellHoverOverlayProvider) {
     this.providers.push(highlightProvider);
+    this.overlayColors = new PositionMap();
   }
 
   unRegister(highlightProvider: CellHoverOverlayProvider) {
     this.providers = this.providers.filter((h) => h !== highlightProvider);
+    this.overlayColors = new PositionMap();
   }
 }
