@@ -45,24 +45,24 @@ export class RibbonMenu extends OSComponent {
   }
 
   onClickMenu(menu: Action) {
-    const children = menu.children(this.env);
+    const children = menu.children(this.spEnv);
     if (children.length) {
       this.state.parentState = { ...this.state };
       this.state.menuItems = children;
-      this.state.title = menu.name(this.env);
+      this.state.title = menu.name(this.spEnv);
       this.containerRef()?.scrollTo({ top: 0 });
     } else {
       this.state.menuItems = this.rootItems;
       this.state.title = undefined;
       this.state.parentState = undefined;
-      menu.execute?.(this.env);
+      menu.execute?.(this.spEnv);
       this.props.onClose();
     }
   }
 
   get menuProps(): PropsOf<Menu> {
     return {
-      menuItems: getMenuItemsAndSeparators(this.env, this.state.menuItems),
+      menuItems: getMenuItemsAndSeparators(this.spEnv, this.state.menuItems),
       onClose: this.props.onClose,
       onClickMenu: this.onClickMenu.bind(this),
     };

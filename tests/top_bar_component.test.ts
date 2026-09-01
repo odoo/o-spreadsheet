@@ -14,7 +14,7 @@ import { topbarMenuRegistry } from "../src/registries/menus/topbar_menu_registry
 import { topbarComponentRegistry } from "../src/registries/topbar_component_registry";
 import { DOMFocusableElementStore } from "../src/stores/DOM_focus_store";
 import { ViewportsStore } from "../src/stores/viewports_store";
-import { SpreadsheetChildEnv } from "../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv, SpreadsheetChildEnv } from "../src/types/spreadsheet_env";
 import { Store } from "../src/types/store_engine";
 import { FileStore } from "./__mocks__/mock_file_store";
 import { MockTransportService } from "./__mocks__/transport_service";
@@ -112,7 +112,7 @@ afterEach(() => {
 
 let fixture: HTMLElement;
 let parent: Parent;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 let viewStore: Store<ViewportsStore>;
 
 class Parent extends OSComponent {
@@ -326,9 +326,9 @@ describe("TopBar component", () => {
 
   test("irregularity map tool", async () => {
     const { parent } = await mountParent();
-    const menu = getNode(["view", "view_irregularity_map"], parent.env, topbarMenuRegistry);
+    const menu = getNode(["view", "view_irregularity_map"], parent.spEnv, topbarMenuRegistry);
     expect(".irregularity-map").toHaveCount(0);
-    menu.execute?.(parent.env);
+    menu.execute?.(parent.spEnv);
     await nextTick();
     expect(".irregularity-map").toHaveCount(1);
     await click(fixture, ".irregularity-map");
@@ -660,7 +660,7 @@ describe("TopBar component", () => {
   test("Can open a Topbar menu", async () => {
     const { parent } = await mountParent();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
-    const env = parent.env;
+    const env = parent.spEnv;
     const items = topbarMenuRegistry.getMenuItems();
     const number = items.filter(
       (item) => item.children(env).length !== 0 && item.isVisible(env)
@@ -669,7 +669,7 @@ describe("TopBar component", () => {
     await click(fixture, ".o-topbar-menu[data-id='edit']");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     const edit = getNode(["edit"], env, topbarMenuRegistry);
-    const numberChild = edit.children(parent.env).filter((item) => item.isVisible(env)).length;
+    const numberChild = edit.children(parent.spEnv).filter((item) => item.isVisible(env)).length;
     expect(fixture.querySelectorAll(".o-menu-item")).toHaveLength(numberChild);
     await click(fixture, ".o-spreadsheet-topbar");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
@@ -677,7 +677,7 @@ describe("TopBar component", () => {
 
   test("Can open a Topbar menu with pointermove", async () => {
     const { parent } = await mountParent();
-    const env = parent.env;
+    const env = parent.spEnv;
     await click(fixture, ".o-topbar-menu[data-id='edit']");
     const edit = getNode(["edit"], env, topbarMenuRegistry);
     let numberChild = edit.children(env).filter((item) => item.isVisible(env)).length;
@@ -686,7 +686,9 @@ describe("TopBar component", () => {
     triggerMouseEvent(".o-topbar-menu[data-id='insert']", "mouseover");
     await nextTick();
     const insert = getNode(["insert"], env, topbarMenuRegistry);
-    numberChild = insert?.children(parent.env).filter((item) => item.isVisible(parent.env)).length;
+    numberChild = insert
+      ?.children(parent.spEnv)
+      .filter((item) => item.isVisible(parent.spEnv)).length;
     expect(fixture.querySelectorAll(".o-menu-item")).toHaveLength(numberChild);
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
   });

@@ -2,6 +2,7 @@
 
 exports[`Data Series Can render a data series component 1`] = `
 <div>
+  
   <div
     class="o-section o-data-series"
   >

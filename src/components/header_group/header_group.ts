@@ -29,7 +29,7 @@ abstract class AbstractHeaderGroup extends OSComponent {
   toggleGroup() {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const { start, end } = this.props.group;
-    interactiveToggleGroup(this.env, sheetId, this.dimension, start, end);
+    interactiveToggleGroup(this.spEnv, sheetId, this.dimension, start, end);
   }
 
   get groupBoxStyle(): string {

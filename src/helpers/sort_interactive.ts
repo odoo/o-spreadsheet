@@ -1,3 +1,4 @@
+import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
 import { _t } from "../translation";
 import { CommandResult } from "../types/commands";
 import { Position, SortDirection, SortOptions, UID, Zone } from "../types/misc";
@@ -40,7 +41,7 @@ export function interactiveSortSelection(
   if (isEqual(contiguousZone, zone)) {
     interactiveSort(env, sheetId, anchor, zone, sortDirection);
   } else {
-    env.askConfirmation(
+    env.getPlugin(NotificationPlugin).askConfirmation(
       _t(
         "We found data next to your selection. Since this data was not selected, it will not be sorted. Do you want to extend your selection?"
       ),
@@ -66,16 +67,17 @@ export function interactiveSort(
     sortDirection,
     sortOptions,
   });
+  const notificationPlugin = env.getPlugin(NotificationPlugin);
   if (result.isCancelledBecause(CommandResult.InvalidSortZone)) {
     const { col, row } = anchor;
     env.model.selection.selectZone({ cell: { col, row }, zone });
-    env.raiseError(
+    notificationPlugin.raiseError(
       _t("Cannot sort. To sort, select only cells or only merges that have the same size.")
     );
   }
   if (result.isCancelledBecause(CommandResult.SortZoneWithArrayFormulas)) {
     const { col, row } = anchor;
     env.model.selection.selectZone({ cell: { col, row }, zone });
-    env.raiseError(_t("Cannot sort a zone with array formulas."));
+    notificationPlugin.raiseError(_t("Cannot sort a zone with array formulas."));
   }
 }

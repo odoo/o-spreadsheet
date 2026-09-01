@@ -2,7 +2,7 @@ import { Model, SpreadsheetPivotCoreDefinition } from "../../src";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { HighlightStore } from "../../src/stores/highlight_store";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { createSheet, deleteSheet } from "../test_helpers/commands_helpers";
 import {
   click,
@@ -12,6 +12,7 @@ import {
 } from "../test_helpers/dom_helper";
 import {
   getHighlightsFromStore,
+  mockNotificationMethods,
   mountSpreadsheet,
   nextTick,
   setGrid,
@@ -21,13 +22,14 @@ import { SELECTORS, addPivot, removePivot, updatePivot } from "../test_helpers/p
 describe("Pivot side panel", () => {
   let model: Model;
   let fixture: HTMLElement;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
+  let getPlugin: OwlPluginGetter;
 
   beforeEach(async () => {
-    ({ env, model, fixture } = await mountSpreadsheet(
-      { model: new Model() },
-      { askConfirmation: jest.fn((title, callback) => callback()) }
-    ));
+    ({ env, model, fixture, getPlugin } = await mountSpreadsheet({ model: new Model() }));
+    const askConfirmation = jest.fn((title, callback) => callback());
+    mockNotificationMethods(getPlugin, { askConfirmation });
+
     addPivot(model, "A1:B2", {}, "1");
     addPivot(model, "A1:B2", {}, "2");
   });

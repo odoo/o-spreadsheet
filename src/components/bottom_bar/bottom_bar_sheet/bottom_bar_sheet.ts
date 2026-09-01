@@ -223,7 +223,7 @@ export class BottomBarSheet extends OSComponent {
 
     const inputValue = this.getInputContent() || "";
 
-    interactiveRenameSheet(this.env, this.props.sheetId, inputValue, () => this.startEdition());
+    interactiveRenameSheet(this.spEnv, this.props.sheetId, inputValue, () => this.startEdition());
   }
 
   private cancelEdition() {

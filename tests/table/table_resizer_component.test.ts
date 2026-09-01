@@ -3,7 +3,7 @@ import { CellComposerStore } from "../../src/components/composer/composer/cell_c
 import { Grid } from "../../src/components/grid/grid";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { createDynamicTable, createTable, setCellContent } from "../test_helpers/commands_helpers";
 import { clickAndDrag, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCellRawContent } from "../test_helpers/getters_helpers";
@@ -32,7 +32,7 @@ extendMockGetBoundingClientRect({
 describe("Table resizer component", () => {
   let model: Model;
   let sheetId: UID;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
 
   beforeEach(async () => {
     ({ env, model } = await mountComponent(Grid, {

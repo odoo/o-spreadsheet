@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { NamedRangesPanel } from "../../src/components/side_panel/named_ranges_panel/named_ranges_panel";
 import { toZone } from "../../src/helpers/zones";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   createNamedRange,
   setInputValueAndTrigger,
@@ -9,11 +9,17 @@ import {
   simulateClick,
   triggerMouseEvent,
 } from "../test_helpers";
-import { getHighlightsFromStore, mountComponent, nextTick } from "../test_helpers/helpers";
+import {
+  getHighlightsFromStore,
+  mockNotificationMethods,
+  mountComponent,
+  nextTick,
+} from "../test_helpers/helpers";
 
 let model: Model;
 let raiseError: jest.Mock;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
+let getPlugin: OwlPluginGetter;
 
 beforeEach(() => {
   model = new Model();
@@ -21,11 +27,11 @@ beforeEach(() => {
 
 async function mountNamedRangesPanel() {
   raiseError = jest.fn();
-  ({ model, env } = await mountComponent(NamedRangesPanel, {
+  ({ model, env, getPlugin } = await mountComponent(NamedRangesPanel, {
     props: { onCloseSidePanel: () => {} },
     model,
-    env: { raiseError },
   }));
+  mockNotificationMethods(getPlugin, { raiseError });
 }
 
 describe("Named ranges side panel", () => {
