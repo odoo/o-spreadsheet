@@ -6,6 +6,7 @@ import {
   CoreCommand,
   CorePlugin,
   DispatchResult,
+  EvaluationCommand,
   EvaluationPlugin,
   coreTypes,
 } from "../../src";
@@ -165,8 +166,8 @@ describe("Model", () => {
 
   test("An evaluation plugin cannot dispatch non-evaluation commands", () => {
     class MyEvaluationPlugin extends EvaluationPlugin {
-      handle(cmd: Command) {
-        if (cmd.type === "COPY") {
+      handle(cmd: EvaluationCommand) {
+        if (cmd.type === "CREATE_SHEET") {
           /**
            * TS ensure that the command is an evaluation command, but we want to
            * test that the runtime will throw an error if we try to dispatch a
@@ -184,9 +185,44 @@ describe("Model", () => {
     }
     addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
     const model = new Model();
-    expect(() => copy(model)).toThrow(
+    expect(() => createSheet(model, { sheetId: "42" })).toThrow(
       "An evaluation plugin cannot dispatch non-evaluation commands (UPDATE_CELL)"
     );
+  });
+
+  test("Evaluation plugins allowDispatch don't receive UI commands", () => {
+    const receivedCommands: CommandTypes[] = [];
+    class MyEvaluationPlugin extends EvaluationPlugin {
+      allowDispatch(cmd: EvaluationCommand): CommandResult {
+        receivedCommands.push(cmd.type);
+        return CommandResult.Success;
+      }
+    }
+    addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
+    const model = new Model();
+    copy(model);
+    selectCell(model, "A2");
+    expect(receivedCommands).not.toContain("COPY");
+    expect(receivedCommands).not.toContain("SELECT_CELL");
+  });
+
+  test("Evaluation plugins handle don't receive UI commands", () => {
+    const receivedCommands: CommandTypes[] = [];
+    class MyEvaluationPlugin extends EvaluationPlugin {
+      handle(cmd: EvaluationCommand) {
+        receivedCommands.push(cmd.type);
+      }
+    }
+    addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
+    const model = new Model();
+    copy(model);
+    selectCell(model, "A2");
+    setCellContent(model, "A1", "hello");
+    expect(receivedCommands).not.toContain("COPY");
+    expect(receivedCommands).not.toContain("SELECT_CELL");
+    // core and evaluation commands are still received
+    expect(receivedCommands).toContain("UPDATE_CELL");
+    expect(receivedCommands).toContain("START");
   });
 
   test("canDispatch method is exposed and works", () => {

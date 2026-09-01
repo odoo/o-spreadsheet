@@ -1,5 +1,5 @@
 import { PivotPresenceTracker } from "../../helpers/pivot/pivot_presence_tracker";
-import { Command } from "../../types/commands";
+import { EvaluationCommand } from "../../types/commands";
 import { UID } from "../../types/misc";
 import { EvaluationPlugin } from "../evaluation_plugin";
 
@@ -10,7 +10,7 @@ export class PivotPresencePlugin extends EvaluationPlugin {
   private sheetId?: UID;
   private tracker?: PivotPresenceTracker;
 
-  handle(cmd: Command) {
+  handle(cmd: EvaluationCommand) {
     switch (cmd.type) {
       case "PIVOT_START_PRESENCE_TRACKING":
         this.tracker = new PivotPresenceTracker();

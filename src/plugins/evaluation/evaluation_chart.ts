@@ -6,7 +6,7 @@ import { chartToImageUrl } from "../../helpers/figures/charts/chart_ui_common";
 import { generateMasterChartConfig } from "../../helpers/figures/charts/runtime/chart_zoom";
 import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
 import {
-  Command,
+  EvaluationCommand,
   invalidateCFEvaluationCommands,
   invalidateChartEvaluationCommands,
   invalidateEvaluationCommands,
@@ -31,7 +31,7 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
 
   charts: Record<UID, Partial<Record<ColorThemeName, ChartRuntime | undefined>>> = {};
 
-  handle(cmd: Command) {
+  handle(cmd: EvaluationCommand) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       invalidateCFEvaluationCommands.has(cmd.type) ||

@@ -1,5 +1,5 @@
 import { doesCellContainFunction } from "../../helpers/misc";
-import { Command } from "../../types/commands";
+import { EvaluationCommand } from "../../types/commands";
 import { UID } from "../../types/misc";
 import { EvaluationPlugin } from "../evaluation_plugin";
 
@@ -10,7 +10,7 @@ export class FormulaTrackerPlugin extends EvaluationPlugin {
 
   private trackedCells: Record<string, Record<UID, number | undefined>> = {};
 
-  handle(cmd: Command) {
+  handle(cmd: EvaluationCommand) {
     switch (cmd.type) {
       case "START": {
         for (const formula of trackedFormulas) {

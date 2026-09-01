@@ -45,6 +45,7 @@ import {
   EvaluationCommandDispatcher,
   isCoreCommand,
   isDispatcheableEvaluationCommand,
+  isEvaluationCommand,
 } from "./types/commands";
 import { CoreGetters, EvaluationGetters, Getters } from "./types/getters";
 import { DEFAULT_LOCALES } from "./types/locale";
@@ -501,7 +502,19 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   private checkDispatchAllowedLocalCommand(command: Command) {
-    return this.uiHandlers.map((handler) => handler.allowDispatch(command));
+    return this.uiHandlers
+      .filter((handler) => this.canHandle(handler, command))
+      .map((handler) => handler.allowDispatch(command));
+  }
+
+  private canHandle(handler: CommandHandler<Command>, command: Command): boolean {
+    if (handler instanceof CorePlugin) {
+      return isCoreCommand(command);
+    }
+    if (handler instanceof EvaluationPlugin) {
+      return isEvaluationCommand(command);
+    }
+    return true;
   }
 
   private finalize() {
@@ -642,17 +655,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * It will call `beforeHandle` and `handle`
    */
   private dispatchToHandlers(handlers: CommandHandler<Command>[], command: Command) {
-    const isCommandCore = isCoreCommand(command);
-    for (const handler of handlers) {
-      if (!isCommandCore && handler instanceof CorePlugin) {
-        continue;
-      }
+    const concernedHandlers = handlers.filter((handler) => this.canHandle(handler, command));
+    for (const handler of concernedHandlers) {
       handler.beforeHandle(command);
     }
-    for (const handler of handlers) {
-      if (!isCommandCore && handler instanceof CorePlugin) {
-        continue;
-      }
+    for (const handler of concernedHandlers) {
       handler.handle(command);
     }
     this.trigger("command-dispatched", command);

@@ -176,7 +176,6 @@ export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
 ]);
 
 export const invalidateBordersCommands = new Set<CommandTypes>([
-  "AUTOFILL_CELL",
   "SET_BORDER",
   "SET_ZONE_BORDERS",
   "SET_BORDERS_ON_TARGET",
@@ -351,7 +350,21 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "DUPLICATE_PIVOT",
 ]);
 
-export const evaluationCommandTypes = new Set<CommandTypes>(["EVALUATE_CELLS", "EVALUATE_CHARTS"]);
+export const dispatcheableEvaluationCommandTypes =
+  new Set<DispatcheabledispatcheableEvaluationCommandTypes>(["EVALUATE_CELLS", "EVALUATE_CHARTS"]);
+
+export const evaluationCommandTypes = new Set<dispatcheableEvaluationCommandTypes>([
+  ...coreTypes,
+  ...dispatcheableEvaluationCommandTypes,
+  "UNDO",
+  "REDO",
+  "START",
+  "UPDATE_FILTER",
+  "SET_AUTOMATIC_EVALUATION",
+  "REFRESH_PIVOT",
+  "PIVOT_START_PRESENCE_TRACKING",
+  "PIVOT_STOP_PRESENCE_TRACKING",
+]);
 
 export function isCoreCommand(cmd: Command): cmd is CoreCommand {
   return coreTypes.has(cmd.type as any);
@@ -360,6 +373,10 @@ export function isCoreCommand(cmd: Command): cmd is CoreCommand {
 export function isDispatcheableEvaluationCommand(
   cmd: Command
 ): cmd is DispatcheableEvaluationCommand {
+  return dispatcheableEvaluationCommandTypes.has(cmd.type as any);
+}
+
+export function isEvaluationCommand(cmd: Command): cmd is EvaluationCommand {
   return evaluationCommandTypes.has(cmd.type as any);
 }
 
@@ -1618,17 +1635,32 @@ export type CoreCommandTypes = CoreCommand["type"];
 
 export type DispatcheableEvaluationCommand = EvaluateCellsCommand | EvaluateChartsCommand;
 
-export type DispatcheableEvaluationCommandTypes = DispatcheableEvaluationCommand["type"];
+export type DispatcheabledispatcheableEvaluationCommandTypes =
+  DispatcheableEvaluationCommand["type"];
+
+export type EvaluationCommand =
+  | CoreCommand
+  | DispatcheableEvaluationCommand
+  | UndoCommand
+  | RedoCommand
+  | StartCommand
+  | UpdateFilterCommand
+  | SetAutomaticEvaluationCommand
+  | RefreshPivotCommand
+  | PivotStartPresenceTracking
+  | PivotStopPresenceTracking;
+
+export type dispatcheableEvaluationCommandTypes = EvaluationCommand["type"];
 
 export interface EvaluationCommandDispatcher {
   dispatch<
-    T extends DispatcheableEvaluationCommandTypes,
+    T extends DispatcheabledispatcheableEvaluationCommandTypes,
     C extends Extract<DispatcheableEvaluationCommand, { type: T }>
   >(
     type: {} extends Omit<C, "type"> ? T : never
   ): DispatchResult;
   dispatch<
-    T extends DispatcheableEvaluationCommandTypes,
+    T extends DispatcheabledispatcheableEvaluationCommandTypes,
     C extends Extract<DispatcheableEvaluationCommand, { type: T }>
   >(
     type: T,
