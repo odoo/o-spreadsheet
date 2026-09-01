@@ -117,6 +117,136 @@ function drawValues(args: {
 
   const textsPositions: Record<number, number[]> = {};
   for (const dataset of chart._metasets) {
+<<<<<<< f6cc865beb8f4af4ed1a883136890962e56f8676
+||||||| d05a4c1d8af956ba7caf03b6658122c86838f260
+    if (
+      isTrendLineAxis(dataset.xAxisID) ||
+      dataset.hidden ||
+      isLineOverlayOnBarChart(options, dataset)
+    ) {
+      continue;
+    }
+
+    const yAxisScale = chart.scales[dataset.yAxisID];
+    for (let i = 0; i < dataset._parsed.length; i++) {
+      const parsedValue = dataset._parsed[i];
+      const value = Number(chart.config.type === "radar" ? parsedValue.r : parsedValue.y);
+      if (isNaN(value)) {
+        continue;
+      }
+      const point = dataset.data[i];
+      const xPosition = point.x;
+
+      let yPosition = 0;
+      if (chart.config.type === "line" || chart.config.type === "radar") {
+        yPosition = value < 0 ? point.y + 10 : point.y - 10;
+      } else if (chart.config.type === "bubble") {
+        yPosition = point.y;
+      } else {
+        const yZeroLine = yAxisScale.getPixelForValue(0);
+        const distanceFromAxisOrigin = Math.abs(yZeroLine - point.y);
+        const textHeight = globalThis.Chart?.defaults.font.size ?? 12; // ChartJS default text height
+
+        if (distanceFromAxisOrigin < textHeight) {
+          yPosition = value < 0 ? yZeroLine + textHeight / 2 : yZeroLine - textHeight / 2;
+        } else {
+          yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;
+        }
+      }
+
+      // Avoid overlapping texts with same X
+      if (!textsPositions[xPosition]) {
+        textsPositions[xPosition] = [];
+      }
+      for (const otherPosition of textsPositions[xPosition] || []) {
+        if (Math.abs(otherPosition - yPosition) < MINIMAL_VERTICAL_DISTANCE) {
+          yPosition = otherPosition + MINIMAL_VERTICAL_DISTANCE * (value < 0 ? 1 : -1);
+        }
+      }
+      textsPositions[xPosition].push(yPosition);
+
+      ctx.fillStyle = point.options.backgroundColor;
+      ctx.strokeStyle = options.background(Number(value), dataset, i) || "#ffffff";
+      const valueToDisplay = options.callback(Number(value), dataset, i);
+      drawTextWithBackground(valueToDisplay, xPosition, yPosition, ctx);
+    }
+  }
+}
+
+function drawBarChartValues(
+  chart: any,
+  options: ChartShowValuesPluginOptions,
+  ctx: CanvasRenderingContext2D
+) {
+  const yMax = chart.chartArea.bottom;
+  const yMin = chart.chartArea.top;
+
+  for (const dataset of chart._metasets) {
+=======
+    if (
+      isTrendLineAxis(dataset.xAxisID) ||
+      dataset.hidden ||
+      isLineOverlayOnBarChart(options, dataset)
+    ) {
+      continue;
+    }
+
+    const yAxisScale = chart.scales[dataset.yAxisID];
+    for (let i = 0; i < dataset._parsed.length; i++) {
+      const parsedValue = dataset._parsed[i];
+      const value = Number(chart.config.type === "radar" ? parsedValue.r : parsedValue.y);
+      if (isNaN(value)) {
+        continue;
+      }
+      const point = dataset.data[i];
+      const xPosition = point.x;
+
+      let yPosition = 0;
+      if (dataset.type === "line" || dataset.type === "radar") {
+        yPosition = value < 0 ? point.y + 10 : point.y - 10;
+      } else if (chart.config.type === "bubble") {
+        yPosition = point.y;
+      } else {
+        const yZeroLine = yAxisScale.getPixelForValue(0);
+        const distanceFromAxisOrigin = Math.abs(yZeroLine - point.y);
+        const textHeight = globalThis.Chart?.defaults.font.size ?? 12; // ChartJS default text height
+
+        if (distanceFromAxisOrigin < textHeight) {
+          yPosition = value < 0 ? yZeroLine + textHeight / 2 : yZeroLine - textHeight / 2;
+        } else {
+          yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;
+        }
+      }
+
+      // Avoid overlapping texts with same X
+      if (!textsPositions[xPosition]) {
+        textsPositions[xPosition] = [];
+      }
+      for (const otherPosition of textsPositions[xPosition] || []) {
+        if (Math.abs(otherPosition - yPosition) < MINIMAL_VERTICAL_DISTANCE) {
+          yPosition = otherPosition + MINIMAL_VERTICAL_DISTANCE * (value < 0 ? 1 : -1);
+        }
+      }
+      textsPositions[xPosition].push(yPosition);
+
+      ctx.fillStyle = point.options.backgroundColor;
+      ctx.strokeStyle = options.background(Number(value), dataset, i) || "#ffffff";
+      const valueToDisplay = options.callback(Number(value), dataset, i);
+      drawTextWithBackground(valueToDisplay, xPosition, yPosition, ctx);
+    }
+  }
+}
+
+function drawBarChartValues(
+  chart: any,
+  options: ChartShowValuesPluginOptions,
+  ctx: CanvasRenderingContext2D
+) {
+  const yMax = chart.chartArea.bottom;
+  const yMin = chart.chartArea.top;
+
+  for (const dataset of chart._metasets) {
+>>>>>>> 1fb1351683a31bf7d8ad7b0c99c760ce4b19f5d6
     if (isTrendLineAxis(dataset.xAxisID) || dataset.hidden) {
       continue;
     }
