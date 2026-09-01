@@ -106,11 +106,11 @@ describe("COLUMN formula", () => {
 
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=COLUMN(G2)" })).toBe(7);
-    expect(evaluateCell("A1", { A1: "=COLUMN(ABC2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return 731
+    expect(evaluateCell("A1", { A1: "=COLUMN(ABC2)" })).toBe(731);
     expect(evaluateCell("A1", { A1: "=COLUMN($G$2)" })).toBe(7);
-    expect(evaluateCell("A1", { A1: "=COLUMN($ABC$2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return 731
+    expect(evaluateCell("A1", { A1: "=COLUMN($ABC$2)" })).toBe(731);
     expect(evaluateCell("A1", { A1: "=COLUMN(Sheet1!$G$2)" })).toBe(7);
-    expect(evaluateCell("A1", { A1: "=COLUMN(Sheet1!$ABC$2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return 731
+    expect(evaluateCell("A1", { A1: "=COLUMN(Sheet1!$ABC$2)" })).toBe(731);
   });
 
   test.each([
@@ -161,9 +161,9 @@ describe("COLUMNS formula", () => {
     expect(evaluateCell("A1", { A1: "=COLUMNS(H2)" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=COLUMNS($H$2)" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=COLUMNS(Sheet1!$H$2)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=COLUMNS(ABC2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return 1
-    expect(evaluateCell("A1", { A1: "=COLUMNS($ABC$2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return 1
-    expect(evaluateCell("A1", { A1: "=COLUMNS(Sheet1!$ABC$2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return 1
+    expect(evaluateCell("A1", { A1: "=COLUMNS(ABC2)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=COLUMNS($ABC$2)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=COLUMNS(Sheet1!$ABC$2)" })).toBe(1);
   });
 
   test("functional tests on range arguments", () => {
@@ -574,11 +574,11 @@ describe("ROW formula", () => {
 
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=ROW(H2)" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=ROW(A234)" })).toBe("#ERROR"); // @compatibility: on google sheets, return 234
+    expect(evaluateCell("A1", { A1: "=ROW(A234)" })).toBe(234);
     expect(evaluateCell("A1", { A1: "=ROW($H$2)" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=ROW($A$234)" })).toBe("#ERROR"); // @compatibility: on google sheets, return 234
+    expect(evaluateCell("A1", { A1: "=ROW($A$234)" })).toBe(234);
     expect(evaluateCell("A1", { A1: "=ROW(Sheet1!$H$2)" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=ROW(Sheet1!$A$234)" })).toBe("#ERROR"); // @compatibility: on google sheets, return 234
+    expect(evaluateCell("A1", { A1: "=ROW(Sheet1!$A$234)" })).toBe(234);
   });
 
   test.each([
@@ -629,9 +629,9 @@ describe("ROWS formula", () => {
     expect(evaluateCell("A1", { A1: "=ROWS(H2)" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=ROWS($H$2)" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=ROWS(Sheet1!$H$2)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ROWS(ABC2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return 1
-    expect(evaluateCell("A1", { A1: "=ROWS($ABC$2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return 1
-    expect(evaluateCell("A1", { A1: "=ROWS(Sheet1!$ABC$2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return 1
+    expect(evaluateCell("A1", { A1: "=ROWS(ABC2)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=ROWS($ABC$2)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=ROWS(Sheet1!$ABC$2)" })).toBe(1);
   });
 
   test("functional tests on range arguments", () => {

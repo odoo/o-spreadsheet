@@ -20,6 +20,7 @@ import {
   handleError,
   implementationErrorMessage,
 } from "../../../functions/create_compute_function";
+import { evaluateRange } from "../../../functions/helper_operators";
 import { matrixMap } from "../../../functions/helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { lazy } from "../../../helpers/misc";
@@ -134,14 +135,6 @@ export class Evaluator {
 
   private addDependencies(position: CellPosition, dependencies: Range[]) {
     this.formulaDependencies().addDependencies(position, dependencies);
-    this.computeDependencies(dependencies);
-  }
-
-  private computeDependencies(dependencies: Range[]) {
-    for (const range of dependencies) {
-      // ensure that all ranges are computed
-      this.compilationParams.ensureRange(range);
-    }
   }
 
   private updateCompilationParametersForIsolatedFormula(originCellPosition?: CellPosition) {
@@ -158,6 +151,8 @@ export class Evaluator {
       forwardSearch: new Map(),
       reverseSearch: new Map(),
     };
+    this.compilationParams.evalContext.rangeCache =
+      this.compilationParams.evalContext.rangeCache || {};
   }
 
   private updateCompilationParameters(functionTimingLog?: FunctionTimingLog) {
@@ -174,6 +169,7 @@ export class Evaluator {
       forwardSearch: new Map(),
       reverseSearch: new Map(),
     };
+    this.compilationParams.evalContext.rangeCache = {};
   }
 
   private createEmptyPositionSet() {
@@ -642,15 +638,30 @@ export class Evaluator {
       try {
         const namedRange = this.getters.getNamedRange(symbolName);
         if (namedRange) {
-          const ctx = this.compilationParams.evalContext;
-          ctx.__originCellPosition
-            ? this.addDependencies(ctx.__originCellPosition, [namedRange.range])
-            : this.computeDependencies([namedRange.range]);
-
           const isMultiCellZone = getZoneArea(namedRange.range.zone) > 1;
-          return isMultiCellZone || isRange
-            ? this.compilationParams.ensureRange(namedRange.range)
-            : this.compilationParams.referenceDenormalizer(namedRange.range);
+          if (!isMultiCellZone && !isRange) {
+            return this.compilationParams.referenceDenormalizer(namedRange.range);
+          }
+
+          const cell1 = this.compilationParams.referenceDenormalizer({
+            ...namedRange.range,
+            zone: {
+              top: namedRange.range.zone.top,
+              bottom: namedRange.range.zone.top,
+              left: namedRange.range.zone.left,
+              right: namedRange.range.zone.left,
+            },
+          });
+          const cell2 = this.compilationParams.referenceDenormalizer({
+            ...namedRange.range,
+            zone: {
+              top: namedRange.range.zone.bottom,
+              bottom: namedRange.range.zone.bottom,
+              left: namedRange.range.zone.right,
+              right: namedRange.range.zone.right,
+            },
+          });
+          return evaluateRange.call(this.compilationParams.evalContext, cell1, cell2);
         }
         const symbolValue = getContextualSymbolValue?.(symbolName, isRange);
         if (symbolValue) {
@@ -794,7 +805,6 @@ export function updateEvalContextAndExecute(
   const result = compiledFormula.execute(
     compiledFormula.rangeDependencies,
     compilationParams.referenceDenormalizer,
-    compilationParams.ensureRange,
     getSymbolValue,
     evalContext,
     compiledFormula.computeFunctions

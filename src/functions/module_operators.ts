@@ -3,6 +3,7 @@ import { DivisionByZeroError, EvaluationError, InvalidReferenceError } from "../
 import { AddFunctionDescription } from "../types/functions";
 import { Arg, FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
+import { evaluateRange } from "./helper_operators";
 import {
   expectReferenceError,
   generateMatrix,
@@ -305,6 +306,49 @@ export const POW = {
 } satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
+// RANGE
+// -----------------------------------------------------------------------------
+
+/**
+ * Internal formula implementing the : operator.
+ * It allows to get the range of data between two references, including references
+ * returned by other functions.
+ * e.g. =XLOOKUP(...):XLOOKUP(...)
+ **/
+export const RANGE = {
+  description: _t("Gets the range of data between two references."),
+  args: [
+    arg("ref1 (any, range<any>)", _t("The first reference.")),
+    arg("ref2 (any, range<any>)", _t("The second reference.")),
+  ],
+  computeArray: function (ref1: Arg, ref2: Arg) {
+    if (ref1 === undefined || ref2 === undefined) {
+      return new InvalidReferenceError(expectReferenceError);
+    }
+
+    const _ref1 = toMatrix(ref1);
+    const _ref2 = toMatrix(ref2);
+
+    if (
+      _ref1.length !== 1 ||
+      _ref1[0].length !== 1 ||
+      _ref2.length !== 1 ||
+      _ref2[0].length !== 1
+    ) {
+      return new EvaluationError(
+        _t("Only single-cell references are allowed to get the range between two references.")
+      );
+    }
+
+    const firstCell = _ref1[0][0];
+    const secondCell = _ref2[0][0];
+
+    return evaluateRange.call(this, firstCell, secondCell);
+  },
+  hidden: true,
+} satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
 // SPILLED_RANGE
 // -----------------------------------------------------------------------------
 
@@ -317,7 +361,7 @@ export const POW = {
 export const SPILLED_RANGE = {
   description: _t("Gets the spilled range of an array formula."),
   args: [arg("ref (any, range<any>)", _t("The reference to get the spilled range from."))],
-  computeArray: function (ref: Arg | undefined) {
+  computeArray: function (ref: Arg) {
     if (ref === undefined) {
       return new InvalidReferenceError(expectReferenceError);
     }
