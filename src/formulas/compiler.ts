@@ -5,9 +5,9 @@ import { canBeNamedRangeToken } from "../helpers/formulas";
 import { concat, unquote } from "../helpers/misc";
 import { parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
-import { CoreGetters } from "../types/core_getters";
 import { BadExpressionError, EvaluationError, UnknownFunctionError } from "../types/errors";
 import { ComputeFunction } from "../types/functions";
+import { CoreGetters } from "../types/getters";
 import { DEFAULT_LOCALE } from "../types/locale";
 import {
   ApplyRangeChange,

@@ -17,7 +17,7 @@ import {
   ScorecardChartRuntime,
 } from "../../../types/chart/scorecard_chart";
 import { CommandResult } from "../../../types/commands";
-import { Getters } from "../../../types/getters";
+import { EvaluationGetters } from "../../../types/getters";
 import { Locale } from "../../../types/locale";
 import { Color, FunctionResultObject, RangeAdapterFunctions, UID } from "../../../types/misc";
 import { Range } from "../../../types/range";
@@ -33,7 +33,7 @@ import { ScorecardChartConfig } from "./scorecard_chart_config_builder";
 
 function getData(
   value: string | undefined,
-  getters: Getters,
+  getters: EvaluationGetters,
   sheetId: UID
 ): { scalar: FunctionResultObject | undefined; range: Range | undefined } {
   if (!value) {

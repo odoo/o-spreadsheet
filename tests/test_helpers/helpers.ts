@@ -57,6 +57,7 @@ import {
 import { computeFunctionsCache } from "../../src/formulas/compiler";
 import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
+import { EvaluationPluginConstructor } from "../../src/plugins/evaluation_plugin";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { proxifyStoreMutation, useStore } from "../../src/store_engine/store_hooks";
@@ -115,8 +116,8 @@ export function getPlugin<T extends new (...args: any) => any>(
 }
 
 export function addTestPlugin(
-  registry: Registry<CorePluginConstructor | UIPluginConstructor>,
-  Plugin: CorePluginConstructor | UIPluginConstructor
+  registry: Registry<CorePluginConstructor | UIPluginConstructor | EvaluationPluginConstructor>,
+  Plugin: CorePluginConstructor | UIPluginConstructor | EvaluationPluginConstructor
 ) {
   const key = `test-plugin-${Plugin.name}`;
   addToRegistry(registry, key, Plugin);

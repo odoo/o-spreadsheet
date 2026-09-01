@@ -38,7 +38,7 @@ import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { SunburstChartDefinition } from "../../../../types/chart/sunburst_chart";
 import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
 import { Format } from "../../../../types/format";
-import { Getters } from "../../../../types/getters";
+import { EvaluationGetters } from "../../../../types/getters";
 import { DEFAULT_LOCALE, Locale } from "../../../../types/locale";
 import { FunctionResultObject } from "../../../../types/misc";
 import { Range } from "../../../../types/range";
@@ -57,7 +57,7 @@ const ZERO = Object.freeze({ value: 0 });
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
   { labelValues, dataSetsValues }: ChartData,
-  getters: Getters,
+  getters: EvaluationGetters,
   colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   const locale = getters.getLocale();
@@ -193,7 +193,7 @@ function computeValuesAndLabels(
 export function getCalendarChartData(
   definition: GenericDefinition<CalendarChartDefinition>,
   { labelValues, dataSetsValues }: ChartData,
-  getters: Getters,
+  getters: EvaluationGetters,
   colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   let labels = labelValues;
@@ -232,7 +232,7 @@ export function getCalendarChartData(
 export function getPyramidChartData(
   definition: PyramidChartDefinition,
   { labelValues, dataSetsValues }: ChartData,
-  getters: Getters,
+  getters: EvaluationGetters,
   colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   const barChartData = getBarChartData(
@@ -266,7 +266,7 @@ export function getPyramidChartData(
 export function getLineChartData(
   definition: GenericDefinition<LineChartDefinition>,
   { labelValues, dataSetsValues }: ChartData,
-  getters: Getters,
+  getters: EvaluationGetters,
   colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   const axisType = getChartAxisType(definition, { labelValues, dataSetsValues });
@@ -322,7 +322,7 @@ export function getLineChartData(
 export function getPieChartData(
   definition: GenericDefinition<PieChartDefinition>,
   { labelValues, dataSetsValues }: ChartData,
-  getters: Getters,
+  getters: EvaluationGetters,
   colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   let labels = labelValues.map(({ value, format }) =>
@@ -352,7 +352,7 @@ export function getPieChartData(
 export function getRadarChartData(
   definition: GenericDefinition<RadarChartDefinition>,
   { labelValues, dataSetsValues }: ChartData,
-  getters: Getters,
+  getters: EvaluationGetters,
   colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   let labels = labelValues.map(({ value, format }) =>
@@ -381,7 +381,7 @@ export function getRadarChartData(
 export function getGeoChartData(
   definition: GeoChartDefinition,
   { labelValues, dataSetsValues }: ChartData,
-  getters: Getters,
+  getters: EvaluationGetters,
   colorThemeName: ColorThemeName
 ): GeoChartRuntimeGenerationArgs {
   dataSetsValues = dataSetsValues.slice(0, 1);
@@ -409,7 +409,7 @@ export function getGeoChartData(
 export function getFunnelChartData(
   definition: GenericDefinition<FunnelChartDefinition>,
   { labelValues, dataSetsValues }: ChartData,
-  getters: Getters,
+  getters: EvaluationGetters,
   colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   let labels = labelValues.map(({ value, format }) =>
@@ -439,7 +439,7 @@ export function getFunnelChartData(
 export function getHierarchalChartData(
   definition: SunburstChartDefinition | TreeMapChartDefinition,
   { labelValues, dataSetsValues }: ChartData,
-  getters: Getters,
+  getters: EvaluationGetters,
   colorThemeName: ColorThemeName
 ): ChartRuntimeGenerationArgs {
   // In hierarchical charts, labels are the leaf values (numbers), and the hierarchy is defined in the dataSets (strings)
@@ -458,7 +458,7 @@ export function getHierarchalChartData(
 
 export function getBubbleChartData(
   definition: BubbleChartDefinition<Range>,
-  getters: Getters,
+  getters: EvaluationGetters,
   colorThemeName: ColorThemeName
 ): BubbleChartData {
   const chartData = getBubbleChartSourceData(definition, getters);
@@ -525,7 +525,7 @@ export function getBubbleChartData(
 
 function getBubbleChartSourceData(
   definition: BubbleChartDefinition<Range>,
-  getters: Getters
+  getters: EvaluationGetters
 ): ChartData & { shouldRemoveFirstLabel: boolean } {
   const yRange = definition.yRanges[0];
   const labelValues = definition.xRange
@@ -1056,7 +1056,7 @@ export function makeDatasetsCumulative(
 
 export function getTopPaddingForDashboard(
   definition: GenericDefinition<PieChartDefinition | LineChartDefinition | BarChartDefinition>,
-  getters: Getters
+  getters: EvaluationGetters
 ) {
   const { title, legendPosition } = definition;
   const hasTitleOrLegendTop = (title && title.text) || legendPosition === "top";

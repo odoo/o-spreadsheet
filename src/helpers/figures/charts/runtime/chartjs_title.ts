@@ -1,7 +1,7 @@
 import { TitleOptions } from "chart.js";
 import { TitleDesign } from "../../../..";
 import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../constants";
-import { Getters } from "../../../../types/getters";
+import { EvaluationGetters } from "../../../../types/getters";
 import { DeepPartial } from "../../../../types/misc";
 import { chartMutedFontColor } from "../chart_common";
 
@@ -11,7 +11,7 @@ export function getChartTitle(
     legendPosition,
     background,
   }: { title: TitleDesign; legendPosition: string; background?: string },
-  getters: Getters
+  getters: EvaluationGetters
 ): DeepPartial<TitleOptions> {
   const fontColor = chartMutedFontColor(background);
   return {

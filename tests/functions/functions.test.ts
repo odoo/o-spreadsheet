@@ -242,19 +242,35 @@ describe("functions", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe("Raoul");
   });
 
-  test("Can use a getter in a function", () => {
+  test("Can use an evaluation getter in a function", () => {
     const model = new Model();
     addToRegistry(functionRegistry, "GETNUMBERCOLS", {
       description: "Get the number of columns",
       compute: function () {
-        const sheetId = (this as any).getters.getActiveSheetId();
-        return { value: (this as any).getters.getNumberCols(sheetId) };
+        const sheetId = this.getters.getSheetIds()[0];
+        return { value: this.getters.getNumberCols(sheetId) };
       },
       args: [],
     });
     expect(evaluateCell("A1", { A1: "=GETNUMBERCOLS()" })).toBe(
       model.getters.getNumberCols(model.getters.getActiveSheetId())
     );
+  });
+  test("Cannot use a UI getter in a function", () => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    const model = new Model();
+    addToRegistry(functionRegistry, "GETNUMBERCOLS", {
+      description: "Get the number of columns",
+      compute: function () {
+        //@ts-ignore UI Getter should not be available
+        const sheetId = this.getters.getActiveSheetId();
+        return { value: this.getters.getNumberCols(sheetId) };
+      },
+      args: [],
+    });
+    setCellContent(model, "A1", "=GETNUMBERCOLS()");
+    expect(getEvaluatedCell(model, "A1").value).toBe(CellErrorType.GenericError);
+    expect(getCellError(model, "A1")).toContain("this.getters.getActiveSheetId is not a function");
   });
 
   test("undefined fallback to the zero value in a function", () => {

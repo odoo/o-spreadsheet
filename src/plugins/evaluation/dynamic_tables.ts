@@ -12,16 +12,16 @@ import {
   toZone,
   union,
 } from "../../helpers/zones";
-import { Command, invalidateEvaluationCommands } from "../../types/commands";
+import { EvaluationCommand, invalidateEvaluationCommands } from "../../types/commands";
 import { CellErrorType } from "../../types/errors";
 import { CellPosition, FilterId, TableId, UID, Zone } from "../../types/misc";
 import { PivotStyle } from "../../types/pivot";
 import { CoreTable, DynamicTable, Filter, Table, TableConfig } from "../../types/table";
 import { ExcelTableData, ExcelWorkbookData } from "../../types/workbook_data";
 
-import { CoreViewPlugin } from "../core_view_plugin";
+import { EvaluationPlugin } from "../evaluation_plugin";
 
-export class DynamicTablesPlugin extends CoreViewPlugin {
+export class DynamicTablesPlugin extends EvaluationPlugin {
   static getters = [
     "canCreateDynamicTableOnZones",
     "doesZonesContainFilter",
@@ -37,7 +37,7 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
 
   tables: Record<UID, Table[]> = {};
 
-  handle(cmd: Command) {
+  handle(cmd: EvaluationCommand) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd)) ||

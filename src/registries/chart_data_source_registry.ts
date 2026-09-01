@@ -9,8 +9,7 @@ import {
   ExcelChartDefinition,
 } from "../types/chart/chart";
 import { CommandResult } from "../types/commands";
-import { CoreGetters } from "../types/core_getters";
-import { Getters } from "../types/getters";
+import { CoreGetters, EvaluationGetters } from "../types/getters";
 import { RangeAdapterFunctions, UID } from "../types/misc";
 import { Validator } from "../types/validator";
 import { Registry } from "./registry";
@@ -30,8 +29,12 @@ export interface ChartDataSourceBuilder<TExternal, TInternal> {
     defaultSheetId: UID,
     rangeAdapters: RangeAdapterFunctions
   ): TExternal;
-  extractData(dataSource: TInternal, chartId: UID, getters: Getters): ChartData;
-  extractHierarchicalData(dataSource: TInternal, chartId: UID, getters: Getters): ChartData;
+  extractData(dataSource: TInternal, chartId: UID, getters: EvaluationGetters): ChartData;
+  extractHierarchicalData(
+    dataSource: TInternal,
+    chartId: UID,
+    getters: EvaluationGetters
+  ): ChartData;
   adaptRanges(dataSource: TInternal, rangeAdapters: RangeAdapterFunctions): TInternal;
   duplicateInDuplicatedSheet(
     dataSource: TInternal,
@@ -53,7 +56,7 @@ export interface ChartDataSourceBuilder<TExternal, TInternal> {
     event: ChartJS.ChartEvent,
     items: ChartJS.ActiveElement[],
     chartJsChart: ChartJS.Chart,
-    getters: Getters
+    getters: EvaluationGetters
   ) => void;
   onDataSetHover?: (
     chartType: ChartType,

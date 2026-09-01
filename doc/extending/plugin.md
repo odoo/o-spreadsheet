@@ -19,29 +19,39 @@ A plugin can :
   functions
 - react to any existing command
 
-Plugins are divided into two main categories: CorePlugin and UIPlugin, with each category featuring two specific types.
+Plugins are divided into three base classes: `CorePlugin`, `EvaluationPlugin` and `UIPlugin`. Each base class is tied to a registry in `src/plugins/plugin_registries.ts`, and these registries refuse a plugin that does not extend the expected base class:
+
+| Base class         | Registry                   | Folder                     | Getters it receives                     |
+| ------------------ | -------------------------- | -------------------------- | --------------------------------------- |
+| `CorePlugin`       | `corePluginRegistry`       | `src/plugins/core/`        | `CoreGetters`                           |
+| `EvaluationPlugin` | `evaluationPluginRegistry` | `src/plugins/evaluation/`  | `EvaluationGetters` (core + evaluation) |
+| `UIPlugin`         | `statefulUIPluginRegistry` | `src/plugins/ui_stateful/` | `Getters` (everything)                  |
+| `UIPlugin`         | `featurePluginRegistry`    | `src/plugins/ui_feature/`  | `Getters` (everything)                  |
 
 ### I. CorePlugin
 
 - manages data that is persistent
 - can make changes to its state using the history interface (allowing `undo` and `redo`)
 - import and export its state to be stored in the o-spreadsheet file
+- can only dispatch core commands
 
-Core plugins include:
+### II. EvaluationPlugin
 
-1. Core Plugins: manage data persistence
-2. Core views Plugins: have a derived state from core data
+- has a state mainly derived from core data (cell evaluation, computed styles, chart runtime, ...)
+- never persisted, never transmitted to other collaborators: every client recomputes it from the same replayed core commands
+- cannot change the model data: it can only dispatch _evaluation_ commands (see [Commands](./command.md))
+- only handles `EvaluationCommand`: core commands, `UNDO`/`REDO`, evaluation commands and a short list of local commands impacting derived state. UI commands never reach it (see [Commands](./command.md))
 
-### II. UIPlugin
+### III. UIPlugin
 
-- manages transient state, user specific state and everything that is needed to display the spreadsheet without changing the persistent data (like evaluation)
+- manages transient state, user specific state and everything that is needed to display the spreadsheet without changing the persistent data
 
 UI plugins include:
 
 1. Stateful Plugins: have a state, but which should not be shared in collaborative
 2. Feature Plugins: handle a specific feature, without handling any core commands
 
-Unsure which of the four plugin types (or which store) your feature belongs in? See [Where should this code live?](./where_to_put_code.md).
+Unsure which of the four plugin categories (or which store) your feature belongs in? See [Where should this code live?](./where_to_put_code.md).
 
 ## Plugin skeleton
 
@@ -92,10 +102,11 @@ class MyPlugin extends CorePlugin {
 // makes the function getSomething accessible from anywhere that has a reference to model.getters
 MyPlugin.getters = ["getSomething"];
 
-// add the new "MyPlugin" to the plugin registry.
+// add the new "MyPlugin" to the registry matching its base class
+// (corePluginRegistry, evaluationPluginRegistry, statefulUIPluginRegistry or featurePluginRegistry).
 // It will be automatically instantiated by o-spreadsheet when you mount the spreadsheet component or when you create a new Model()
-const pluginRegistry = spreadsheet.registries.pluginRegistry;
-pluginRegistry.add("MyPlugin", MyPlugin);
+const { corePluginRegistry } = o_spreadsheet.registries;
+corePluginRegistry.add("MyPlugin", MyPlugin);
 ```
 
 ## Dispatch lifecycle and methods

@@ -17,10 +17,14 @@ import { BasePlugin } from "./plugins/base_plugin";
 import { FormulaProviderAggregator } from "./plugins/core/formulas_provider";
 import { RangeAdapterPlugin } from "./plugins/core/range";
 import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
-import { CoreViewPluginConfig, CoreViewPluginConstructor } from "./plugins/core_view_plugin";
+import {
+  EvaluationPlugin,
+  EvaluationPluginConfig,
+  EvaluationPluginConstructor,
+} from "./plugins/evaluation_plugin";
 import {
   corePluginRegistry,
-  coreViewsPluginRegistry,
+  evaluationPluginRegistry,
   featurePluginRegistry,
   statefulUIPluginRegistry,
 } from "./plugins/plugin_registries";
@@ -38,10 +42,12 @@ import {
   CommandTypes,
   CoreCommand,
   DispatchResult,
+  EvaluationCommandDispatcher,
   isCoreCommand,
+  isDispatcheableEvaluationCommand,
+  isEvaluationCommand,
 } from "./types/commands";
-import { CoreGetters } from "./types/core_getters";
-import { Getters } from "./types/getters";
+import { CoreGetters, EvaluationGetters, Getters } from "./types/getters";
 import { DEFAULT_LOCALES } from "./types/locale";
 import { UID } from "./types/misc";
 import { Mode, ModelConfig, ModelExternalConfig } from "./types/model";
@@ -55,6 +61,7 @@ const enum Status {
   Ready,
   Running,
   RunningCore,
+  RunningEvaluation,
   Finalizing,
 }
 
@@ -83,8 +90,6 @@ const enum Status {
  * programmatically a spreadsheet.
  */
 export class Model extends EventBus<any> implements CommandDispatcher {
-  private corePlugins: CorePlugin[] = [];
-
   private statefulUIPlugins: UIPlugin[] = [];
 
   private range: RangeAdapterPlugin;
@@ -117,7 +122,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   readonly config: ModelConfig;
   private corePluginConfig: CorePluginConfig;
-  private coreViewPluginConfig: CoreViewPluginConfig;
+  private evaluationPluginConfig: EvaluationPluginConfig;
   private uiPluginConfig: UIPluginConfig;
 
   private state: StateObserver;
@@ -133,13 +138,20 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   /**
    * Getters that are accessible from the core plugins. It's a subset of `getters`,
-   * without the UI getters
+   * without the UI getters and without the evaluation getters
    */
   private coreGetters: CoreGetters;
+
+  /**
+   * Getters that are accessible from the evaluation plugins. It's a subset of
+   * `getters`, without the UI getters.
+   */
+  private evaluationGetters: EvaluationGetters;
 
   private readonly handlers: CommandHandler<Command>[] = [];
   private readonly uiHandlers: CommandHandler<Command>[] = [];
   private readonly coreHandlers: CommandHandler<CoreCommand>[] = [];
+  private readonly evaluationHandlers: CommandHandler<Command>[] = [];
 
   constructor(
     data: any = {},
@@ -164,30 +176,22 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
       isDashboard: () => this.config.mode === "dashboard",
     } as Getters;
+    this.evaluationGetters = {
+      isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
+      isDashboard: () => this.config.mode === "dashboard",
+    } as EvaluationGetters;
+    this.coreGetters = {} as CoreGetters;
 
     this.session = this.setupSession(workbookData.revisionId);
 
-    this.coreGetters = {} as CoreGetters;
-
     this.range = new RangeAdapterPlugin(this.coreGetters);
-    this.coreGetters.getRangeString = this.range.getRangeString.bind(this.range);
-    this.coreGetters.getRangeFromSheetXC = this.range.getRangeFromSheetXC.bind(this.range);
-    this.coreGetters.createAdaptedRanges = this.range.createAdaptedRanges.bind(this.range);
-    this.coreGetters.getRangeData = this.range.getRangeData.bind(this.range);
-    this.coreGetters.getRangeDataFromXc = this.range.getRangeDataFromXc.bind(this.range);
-    this.coreGetters.getRangeDataFromZone = this.range.getRangeDataFromZone.bind(this.range);
-    this.coreGetters.getRangeFromRangeData = this.range.getRangeFromRangeData.bind(this.range);
-    this.coreGetters.getRangeFromZone = this.range.getRangeFromZone.bind(this.range);
-    this.coreGetters.recomputeRanges = this.range.recomputeRanges.bind(this.range);
-    this.coreGetters.isRangeValid = this.range.isRangeValid.bind(this.range);
-    this.coreGetters.extendRange = this.range.extendRange.bind(this.range);
-    this.coreGetters.getRangesUnion = this.range.getRangesUnion.bind(this.range);
-    this.coreGetters.removeRangesSheetPrefix = this.range.removeRangesSheetPrefix.bind(this.range);
-    this.coreGetters.copyFormulaStringForSheet = this.range.copyFormulaStringForSheet.bind(
-      this.range
-    );
+    for (const name of RangeAdapterPlugin.getters) {
+      this.registerCoreGetter(this.range, name);
+    }
     this.formulasPlugin = new FormulaProviderAggregator();
-    this.coreGetters.getAllFormulas = this.formulasPlugin.getAllFormulas.bind(this.formulasPlugin);
+    for (const name of FormulaProviderAggregator.getters) {
+      this.registerCoreGetter(this.formulasPlugin, name);
+    }
 
     // Initiate stream processor
     this.selection = new SelectionStreamProcessorImpl(this.getters);
@@ -195,34 +199,36 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.coreHandlers.push(this.range);
     this.handlers.push(this.range);
 
-    this.corePluginConfig = this.setupCorePluginConfig();
-    this.coreViewPluginConfig = this.setupCoreViewPluginConfig();
-    this.uiPluginConfig = this.setupUiPluginConfig();
+    this.corePluginConfig = this.getCorePluginConfig();
+    this.evaluationPluginConfig = this.getEvaluationPluginConfig();
+    this.uiPluginConfig = this.getUiPluginConfig();
 
     // registering plugins
     for (const Plugin of corePluginRegistry.getAll()) {
       this.setupCorePlugin(Plugin, workbookData);
     }
-    Object.assign(this.getters, this.coreGetters);
 
     this.session.loadInitialMessages(stateUpdateMessages);
 
-    for (const Plugin of coreViewsPluginRegistry.getAll()) {
-      const plugin = this.setupCoreViewPlugin(Plugin);
+    for (const Plugin of evaluationPluginRegistry.getAll()) {
+      const plugin = this.setupEvaluationPlugin(Plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
       this.coreHandlers.push(plugin);
+      this.evaluationHandlers.push(plugin);
     }
     for (const Plugin of statefulUIPluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
       this.statefulUIPlugins.push(plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
+      this.evaluationHandlers.push(plugin);
     }
     for (const Plugin of featurePluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
+      this.evaluationHandlers.push(plugin);
     }
 
     if (this.config.mode !== "export_verification") {
@@ -261,16 +267,46 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     await this.session.leave(snapshot);
   }
 
+  private registerCoreGetter(
+    plugin: CorePlugin | RangeAdapterPlugin | FormulaProviderAggregator,
+    name: string
+  ) {
+    if (!(name in plugin)) {
+      throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
+    }
+    if (name in this.coreGetters) {
+      throw new Error(`Getter "${name}" is already defined.`);
+    }
+    this.coreGetters[name] = plugin[name].bind(plugin);
+    this.evaluationGetters[name] = plugin[name].bind(plugin);
+    this.getters[name] = plugin[name].bind(plugin);
+  }
+
+  private registerEvaluationGetter(plugin: EvaluationPlugin, name: string) {
+    if (!(name in plugin)) {
+      throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
+    }
+    if (name in this.evaluationGetters) {
+      throw new Error(`Getter "${name}" is already defined.`);
+    }
+    this.evaluationGetters[name] = plugin[name].bind(plugin);
+    this.getters[name] = plugin[name].bind(plugin);
+  }
+
+  private registerUiGetter(plugin: UIPlugin, name: string) {
+    if (!(name in plugin)) {
+      throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
+    }
+    if (name in this.getters) {
+      throw new Error(`Getter "${name}" is already defined.`);
+    }
+    this.getters[name] = plugin[name].bind(plugin);
+  }
+
   private setupUiPlugin(Plugin: UIPluginConstructor) {
     const plugin = new Plugin(this.uiPluginConfig);
     for (const name of Plugin.getters) {
-      if (!(name in plugin)) {
-        throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
-      }
-      if (name in this.getters) {
-        throw new Error(`Getter "${name}" is already defined.`);
-      }
-      this.getters[name] = plugin[name].bind(plugin);
+      this.registerUiGetter(plugin, name);
     }
     for (const layer of Plugin.layers) {
       if (!this.renderers[layer]) {
@@ -281,39 +317,23 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     return plugin;
   }
 
-  private setupCoreViewPlugin(Plugin: CoreViewPluginConstructor) {
-    const plugin = new Plugin(this.coreViewPluginConfig);
+  private setupEvaluationPlugin(Plugin: EvaluationPluginConstructor) {
+    const plugin = new Plugin(this.evaluationPluginConfig);
     for (const name of Plugin.getters) {
-      if (!(name in plugin)) {
-        throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
-      }
-      if (name in this.getters) {
-        throw new Error(`Getter "${name}" is already defined.`);
-      }
-      this.getters[name] = plugin[name].bind(plugin);
+      this.registerEvaluationGetter(plugin, name);
     }
     return plugin;
   }
 
   /**
    * Initialize and properly configure a plugin.
-   *
-   * This method is private for now, but if the need arise, there is no deep
-   * reason why the model could not add dynamically a plugin while it is running.
    */
   private setupCorePlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
     const plugin = new Plugin(this.corePluginConfig);
     for (const name of Plugin.getters) {
-      if (!(name in plugin)) {
-        throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
-      }
-      if (name in this.coreGetters) {
-        throw new Error(`Getter "${name}" is already defined.`);
-      }
-      this.coreGetters[name] = plugin[name].bind(plugin);
+      this.registerCoreGetter(plugin, name);
     }
     plugin.import(data);
-    this.corePlugins.push(plugin);
     this.coreHandlers.push(plugin);
     this.handlers.push(plugin);
   }
@@ -336,7 +356,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         dispatch: (command: CoreCommand) => {
           const result = this.checkDispatchAllowedRemoteCommand(command);
           if (!result.isSuccessful) {
-            // core views plugins need to be invalidated
+            // evaluation plugins need to be invalidated
             this.dispatchToHandlers(this.coreHandlers, {
               type: "UNDO",
               commands: [command],
@@ -407,7 +427,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     };
   }
 
-  private setupCorePluginConfig(): CorePluginConfig {
+  private getCorePluginConfig(): CorePluginConfig {
     return {
       getters: this.coreGetters,
       stateObserver: this.state,
@@ -420,19 +440,20 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     };
   }
 
-  private setupCoreViewPluginConfig(): CoreViewPluginConfig {
+  private getEvaluationPluginConfig(): EvaluationPluginConfig {
     return {
-      getters: this.getters,
+      getters: this.evaluationGetters,
       stateObserver: this.state,
       custom: this.config.custom,
       session: this.session,
+      dispatch: this.dispatchFromEvaluationPlugin,
       defaultCurrency: this.config.defaultCurrency,
       customColors: this.config.customColors || [],
       external: this.config.external,
     };
   }
 
-  private setupUiPluginConfig(): UIPluginConfig {
+  private getUiPluginConfig(): UIPluginConfig {
     return {
       getters: this.getters,
       stateObserver: this.state,
@@ -481,7 +502,19 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   private checkDispatchAllowedLocalCommand(command: Command) {
-    return this.uiHandlers.map((handler) => handler.allowDispatch(command));
+    return this.uiHandlers
+      .filter((handler) => this.canHandle(handler, command))
+      .map((handler) => handler.allowDispatch(command));
+  }
+
+  private canHandle(handler: CommandHandler<Command>, command: Command): boolean {
+    if (handler instanceof CorePlugin) {
+      return isCoreCommand(command);
+    }
+    if (handler instanceof EvaluationPlugin) {
+      return isEvaluationCommand(command);
+    }
+    return true;
   }
 
   private finalize() {
@@ -526,6 +559,19 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     }
     switch (status) {
       case Status.Ready:
+        if (isDispatcheableEvaluationCommand(command)) {
+          this.status = Status.RunningEvaluation;
+          const start = performance.now();
+          this.dispatchToHandlers(this.handlers, command);
+          this.finalize();
+          const time = performance.now() - start;
+          if (time > 5) {
+            console.debug(type, time, "ms");
+          }
+          this.status = Status.Ready;
+          this.trigger("update");
+          break;
+        }
         const result = this.checkDispatchAllowed(command);
         if (!result.isSuccessful) {
           this.trigger("update");
@@ -566,6 +612,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           throw new Error(`A UI plugin cannot dispatch ${type} while handling a core command`);
         }
         this.dispatchToHandlers(this.handlers, command);
+        break;
+      case Status.RunningEvaluation:
+        if (!isDispatcheableEvaluationCommand(command)) {
+          throw new Error(
+            `A top level evaluation command cannot dispatch non-evaluation commands (${type})`
+          );
+        }
+        break;
     }
     return DispatchResult.Success;
   };
@@ -584,22 +638,28 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     return DispatchResult.Success;
   };
 
+  private dispatchFromEvaluationPlugin: EvaluationCommandDispatcher["dispatch"] = (
+    type: string,
+    payload?: any
+  ) => {
+    const command = createCommand(type, payload);
+    if (!isDispatcheableEvaluationCommand(command)) {
+      throw new Error(`An evaluation plugin cannot dispatch non-evaluation commands (${type})`);
+    }
+    this.dispatchToHandlers(this.evaluationHandlers, command);
+    return DispatchResult.Success;
+  };
+
   /**
    * Dispatch the given command to the given handlers.
    * It will call `beforeHandle` and `handle`
    */
   private dispatchToHandlers(handlers: CommandHandler<Command>[], command: Command) {
-    const isCommandCore = isCoreCommand(command);
-    for (const handler of handlers) {
-      if (!isCommandCore && handler instanceof CorePlugin) {
-        continue;
-      }
+    const concernedHandlers = handlers.filter((handler) => this.canHandle(handler, command));
+    for (const handler of concernedHandlers) {
       handler.beforeHandle(command);
     }
-    for (const handler of handlers) {
-      if (!isCommandCore && handler instanceof CorePlugin) {
-        continue;
-      }
+    for (const handler of concernedHandlers) {
       handler.handle(command);
     }
     this.trigger("command-dispatched", command);

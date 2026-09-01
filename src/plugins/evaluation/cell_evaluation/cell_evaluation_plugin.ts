@@ -5,8 +5,8 @@ import { getItemId } from "../../../helpers/data_normalization";
 import { positions } from "../../../helpers/zones";
 import { CellValue, CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
-  Command,
   CommandResult,
+  EvaluationCommand,
   invalidateDependenciesCommands,
   invalidateEvaluationCommands,
 } from "../../../types/commands";
@@ -25,7 +25,7 @@ import {
 import { Range } from "../../../types/range";
 import { ExcelWorkbookData } from "../../../types/workbook_data";
 import { SquishedFormula } from "../../core/squisher";
-import { CoreViewPlugin, CoreViewPluginConfig } from "../../core_view_plugin";
+import { EvaluationPlugin, EvaluationPluginConfig } from "../../evaluation_plugin";
 import { Evaluator } from "./evaluator";
 
 //#region
@@ -143,7 +143,7 @@ import { Evaluator } from "./evaluator";
 // of other cells depending on it, at the next iteration.
 
 //#endregion
-export class EvaluationPlugin extends CoreViewPlugin {
+export class CellEvaluationPlugin extends EvaluationPlugin {
   static getters = [
     "evaluateFormula",
     "evaluateFormulaResult",
@@ -169,7 +169,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
   private evaluator: Evaluator;
   private positionsToUpdate: CellPosition[] = [];
 
-  constructor(config: CoreViewPluginConfig) {
+  constructor(config: EvaluationPluginConfig) {
     super(config);
     this.evaluator = new Evaluator(config.custom, this.getters);
   }
@@ -178,7 +178,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: Command) {
+  allowDispatch(cmd: EvaluationCommand) {
     switch (cmd.type) {
       case "SET_AUTOMATIC_EVALUATION":
         if (cmd.enabled === this.automaticEvaluation) {
@@ -189,7 +189,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     return CommandResult.Success;
   }
 
-  beforeHandle(cmd: Command) {
+  beforeHandle(cmd: EvaluationCommand) {
     this.forceEvaluation = false;
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
@@ -199,7 +199,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     }
   }
 
-  handle(cmd: Command) {
+  handle(cmd: EvaluationCommand) {
     switch (cmd.type) {
       case "UPDATE_CELL":
         if (!("content" in cmd || "format" in cmd) || this.shouldRebuildDependenciesGraph) {

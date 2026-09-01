@@ -3,7 +3,7 @@ import { _t } from "../../../translation";
 import { EvaluatedCell } from "../../../types/cells";
 import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
 import { EvalContext } from "../../../types/functions";
-import { Getters } from "../../../types/getters";
+import { EvaluationGetters } from "../../../types/getters";
 import {
   CellPosition,
   EnsureRange,
@@ -28,7 +28,7 @@ export type CompilationParameters = {
  */
 export function buildCompilationParameters(
   context: ModelConfig["custom"],
-  getters: Getters,
+  getters: EvaluationGetters,
   computeCell: (position: CellPosition) => EvaluatedCell
 ): CompilationParameters {
   const builder = new CompilationParametersBuilder(context, getters, computeCell);
@@ -42,7 +42,7 @@ class CompilationParametersBuilder {
 
   constructor(
     context: ModelConfig["custom"],
-    private getters: Getters,
+    private getters: EvaluationGetters,
     private computeCell: (position: CellPosition) => EvaluatedCell
   ) {
     this.evalContext = Object.assign({}, context, {

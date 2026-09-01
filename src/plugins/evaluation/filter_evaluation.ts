@@ -3,16 +3,16 @@ import { isValueFiltered } from "../../helpers/filter_helpers";
 import { deepCopy, getUniqueText, range } from "../../helpers/misc";
 import { positions, toZone, zoneToDimension } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
-import { Command, CommandResult, LocalCommand, UpdateFilterCommand } from "../../types/commands";
+import { CommandResult, EvaluationCommand, UpdateFilterCommand } from "../../types/commands";
 import { GenericCriterion } from "../../types/generic_criterion";
 import { CellPosition, FilterId, UID } from "../../types/misc";
 import { CriterionFilter, DataFilterValue } from "../../types/table";
 import { ExcelFilterData, ExcelWorkbookData } from "../../types/workbook_data";
-import { UIPlugin } from "../ui_plugin";
+import { EvaluationPlugin } from "../evaluation_plugin";
 
 const EMPTY_CRITERION: CriterionFilter = { filterType: "criterion", type: "none", values: [] };
 
-export class FilterEvaluationPlugin extends UIPlugin {
+export class FilterEvaluationPlugin extends EvaluationPlugin {
   static getters = [
     "getFilterValue",
     "getFilterHiddenValues",
@@ -26,7 +26,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
   hiddenRows: Record<UID, Set<number> | undefined> = {};
   isEvaluationDirty = false;
 
-  allowDispatch(cmd: LocalCommand): CommandResult {
+  allowDispatch(cmd: EvaluationCommand): CommandResult {
     switch (cmd.type) {
       case "UPDATE_FILTER":
         if (!this.getters.getFilterId(cmd)) {
@@ -37,13 +37,12 @@ export class FilterEvaluationPlugin extends UIPlugin {
     return CommandResult.Success;
   }
 
-  handle(cmd: Command) {
+  handle(cmd: EvaluationCommand) {
     switch (cmd.type) {
       case "UNDO":
       case "REDO":
       case "UPDATE_CELL":
       case "EVALUATE_CELLS":
-      case "ACTIVATE_SHEET":
       case "REMOVE_TABLE":
       case "ADD_COLUMNS_ROWS":
       case "REMOVE_COLUMNS_ROWS":

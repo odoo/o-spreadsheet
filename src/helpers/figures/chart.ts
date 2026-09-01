@@ -15,8 +15,7 @@ import {
   ChartDefinition,
   ChartType,
 } from "../../types/chart/chart";
-import { CoreGetters } from "../../types/core_getters";
-import { Getters } from "../../types/getters";
+import { CoreGetters, EvaluationGetters } from "../../types/getters";
 import { RangeAdapterFunctions, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { ColorThemeName } from "../../types/rendering";
@@ -167,7 +166,7 @@ export class SpreadsheetChart {
     };
   }
 
-  getDefinitionForExcel(getters: Getters) {
+  getDefinitionForExcel(getters: EvaluationGetters) {
     const definition = this.definition;
     const excelDataSets = this.dataSourceBuilder.toExcelDataSets(
       this.dataSource,
@@ -180,7 +179,7 @@ export class SpreadsheetChart {
     return this.chartTypeBuilder.getDefinitionForExcel(getters, definition, excelDataSets);
   }
 
-  getData(getters: Getters, chartId: UID): ChartData {
+  getData(getters: EvaluationGetters, chartId: UID): ChartData {
     const dataSource = this.dataSource;
     return dataSource
       ? this.dataSourceBuilder.extractData(dataSource, chartId, getters)
@@ -191,7 +190,7 @@ export class SpreadsheetChart {
     return this.chartTypeBuilder.getFormulas(getters, this.sheetId, this.definition);
   }
 
-  getRuntime(getters: Getters, chartId: UID, colorThemeName: ColorThemeName) {
+  getRuntime(getters: EvaluationGetters, chartId: UID, colorThemeName: ColorThemeName) {
     const dataSource = this.dataSource;
     const dataExtractors = dataSource
       ? {

@@ -3,7 +3,7 @@ import { toString } from "../../../functions/helpers";
 import { _t } from "../../../translation";
 import { CellValueType, EvaluatedCell } from "../../../types/cells";
 import { CellErrorType, EvaluationError } from "../../../types/errors";
-import { Getters } from "../../../types/getters";
+import { EvaluationGetters } from "../../../types/getters";
 import { FunctionResultObject, Maybe, UID, ValueAndLabel, Zone } from "../../../types/misc";
 import { ModelConfig } from "../../../types/model";
 import {
@@ -71,7 +71,7 @@ enum ReloadType {
  */
 export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition> {
   readonly type = "SPREADSHEET";
-  private getters: Getters;
+  private getters: EvaluationGetters;
   private _definition: SpreadsheetPivotRuntimeDefinition | undefined;
   private coreDefinition: SpreadsheetPivotCoreDefinition;
   private metaData: MetaData = { fields: {}, fieldKeys: [] };

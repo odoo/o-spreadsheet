@@ -3,7 +3,7 @@ import { tokenColors } from "../../constants";
 import { CompiledFormula } from "../../formulas/compiler";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
 import { AutoCompleteProposal } from "../../registries/auto_completes/auto_complete_registry";
-import { CoreGetters } from "../../types/core_getters";
+import { CoreGetters } from "../../types/getters";
 import { Granularity, PivotField, PivotMeasure } from "../../types/pivot";
 
 const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];

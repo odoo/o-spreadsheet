@@ -176,7 +176,6 @@ export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
 ]);
 
 export const invalidateBordersCommands = new Set<CommandTypes>([
-  "AUTOFILL_CELL",
   "SET_BORDER",
   "SET_ZONE_BORDERS",
   "SET_BORDERS_ON_TARGET",
@@ -351,8 +350,34 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "DUPLICATE_PIVOT",
 ]);
 
+export const dispatcheableEvaluationCommandTypes =
+  new Set<DispatcheabledispatcheableEvaluationCommandTypes>(["EVALUATE_CELLS", "EVALUATE_CHARTS"]);
+
+export const evaluationCommandTypes = new Set<dispatcheableEvaluationCommandTypes>([
+  ...coreTypes,
+  ...dispatcheableEvaluationCommandTypes,
+  "UNDO",
+  "REDO",
+  "START",
+  "UPDATE_FILTER",
+  "SET_AUTOMATIC_EVALUATION",
+  "REFRESH_PIVOT",
+  "PIVOT_START_PRESENCE_TRACKING",
+  "PIVOT_STOP_PRESENCE_TRACKING",
+]);
+
 export function isCoreCommand(cmd: Command): cmd is CoreCommand {
   return coreTypes.has(cmd.type as any);
+}
+
+export function isDispatcheableEvaluationCommand(
+  cmd: Command
+): cmd is DispatcheableEvaluationCommand {
+  return dispatcheableEvaluationCommandTypes.has(cmd.type as any);
+}
+
+export function isEvaluationCommand(cmd: Command): cmd is EvaluationCommand {
+  return evaluationCommandTypes.has(cmd.type as any);
 }
 
 export function canExecuteInReadonly(cmd: Command): boolean {
@@ -1201,6 +1226,7 @@ export interface DeleteUnfilteredContentCommand extends TargetDependentCommand {
 export interface PivotStartPresenceTracking {
   type: "PIVOT_START_PRESENCE_TRACKING";
   pivotId: UID;
+  sheetId: UID;
 }
 
 export interface PivotStopPresenceTracking {
@@ -1607,10 +1633,37 @@ export interface CoreCommandDispatcher {
 export type CommandTypes = Command["type"];
 export type CoreCommandTypes = CoreCommand["type"];
 
-export type CoreViewCommand =
+export type DispatcheableEvaluationCommand = EvaluateCellsCommand | EvaluateChartsCommand;
+
+export type DispatcheabledispatcheableEvaluationCommandTypes =
+  DispatcheableEvaluationCommand["type"];
+
+export type EvaluationCommand =
   | CoreCommand
-  | EvaluateCellsCommand
-  | EvaluateChartsCommand
+  | DispatcheableEvaluationCommand
   | UndoCommand
-  | RedoCommand;
-export type CoreViewCommandTypes = CoreViewCommand["type"];
+  | RedoCommand
+  | StartCommand
+  | UpdateFilterCommand
+  | SetAutomaticEvaluationCommand
+  | RefreshPivotCommand
+  | PivotStartPresenceTracking
+  | PivotStopPresenceTracking;
+
+export type dispatcheableEvaluationCommandTypes = EvaluationCommand["type"];
+
+export interface EvaluationCommandDispatcher {
+  dispatch<
+    T extends DispatcheabledispatcheableEvaluationCommandTypes,
+    C extends Extract<DispatcheableEvaluationCommand, { type: T }>
+  >(
+    type: {} extends Omit<C, "type"> ? T : never
+  ): DispatchResult;
+  dispatch<
+    T extends DispatcheabledispatcheableEvaluationCommandTypes,
+    C extends Extract<DispatcheableEvaluationCommand, { type: T }>
+  >(
+    type: T,
+    r: Omit<C, "type">
+  ): DispatchResult;
+}

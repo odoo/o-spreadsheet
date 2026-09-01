@@ -166,13 +166,13 @@ import {
 } from "./migrations/data";
 import { migrationStepRegistry } from "./migrations/migration_steps";
 
+import { UNDO_REDO_PIVOT_COMMANDS } from "./plugins/evaluation/pivot_ui";
 import {
   corePluginRegistry,
-  coreViewsPluginRegistry,
+  evaluationPluginRegistry,
   featurePluginRegistry,
   statefulUIPluginRegistry,
 } from "./plugins/plugin_registries";
-import { UNDO_REDO_PIVOT_COMMANDS } from "./plugins/ui_core_views/pivot_ui";
 import { autoCompleteProviders } from "./registries/auto_completes/auto_complete_registry";
 import { autofillModifiersRegistry } from "./registries/autofill_modifiers";
 import { autofillRulesRegistry } from "./registries/autofill_rules";
@@ -236,7 +236,7 @@ export { findCellInNewZone } from "./helpers/zones";
 export { load } from "./migrations/data";
 export { Model } from "./model";
 export { CorePlugin } from "./plugins/core_plugin";
-export { CoreViewPlugin } from "./plugins/core_view_plugin";
+export { EvaluationPlugin } from "./plugins/evaluation_plugin";
 export { UIPlugin } from "./plugins/ui_plugin";
 export { Registry } from "./registries/registry";
 export { setTranslationMethod } from "./translation";
@@ -255,7 +255,9 @@ export {
   canExecuteInReadonly,
   CommandResult,
   coreTypes,
+  dispatcheableEvaluationCommandTypes,
   DispatchResult,
+  evaluationCommandTypes,
   invalidateCFEvaluationCommands,
   invalidateChartEvaluationCommands,
   invalidateDependenciesCommands,
@@ -291,7 +293,7 @@ export const registries = {
   featurePluginRegistry,
   iconsOnCellRegistry,
   statefulUIPluginRegistry,
-  coreViewsPluginRegistry,
+  evaluationPluginRegistry,
   corePluginRegistry,
   rowMenuRegistry,
   sidePanelRegistry,

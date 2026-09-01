@@ -6,23 +6,23 @@ import { isObjectEmptyRecursive, removeFalsyAttributes } from "../../helpers/mis
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isZoneInside, toZone, zoneToXc } from "../../helpers/zones";
 import {
-  Command,
+  EvaluationCommand,
   invalidateBordersCommands,
   invalidateCFEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types/commands";
 import { Border, CellPosition, Style } from "../../types/misc";
 import { ExcelWorkbookData } from "../../types/workbook_data";
-import { UIPlugin } from "../ui_plugin";
+import { EvaluationPlugin } from "../evaluation_plugin";
 import { doesCommandInvalidatesTableStyle } from "./table_computed_style";
 
-export class CellComputedStylePlugin extends UIPlugin {
+export class CellComputedStylePlugin extends EvaluationPlugin {
   static getters = ["getCellComputedBorder", "getCellComputedStyle"] as const;
 
   private styles: PositionMap<Style> = new PositionMap();
   private borders: PositionMap<Border | null> = new PositionMap();
 
-  handle(cmd: Command) {
+  handle(cmd: EvaluationCommand) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       cmd.type === "UPDATE_CELL" ||

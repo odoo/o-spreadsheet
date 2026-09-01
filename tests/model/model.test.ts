@@ -6,18 +6,31 @@ import {
   CoreCommand,
   CorePlugin,
   DispatchResult,
+  EvaluationCommand,
+  EvaluationPlugin,
   coreTypes,
 } from "../../src";
 import { MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
-import { corePluginRegistry, featurePluginRegistry } from "../../src/plugins/plugin_registries";
+import {
+  corePluginRegistry,
+  evaluationPluginRegistry,
+  featurePluginRegistry,
+  statefulUIPluginRegistry,
+} from "../../src/plugins/plugin_registries";
 import { UIPlugin } from "../../src/plugins/ui_plugin";
 import { ModelConfig } from "../../src/types/model";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
 import { setupCollaborativeEnv } from "../collaborative/collaborative_helpers";
-import { copy, createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import {
+  copy,
+  createSheet,
+  evaluateCells,
+  selectCell,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
 import {
   getCellContent,
   getCellRawContent,
@@ -151,6 +164,67 @@ describe("Model", () => {
     expect(receivedCommands).not.toContain("COPY");
   });
 
+  test("An evaluation plugin cannot dispatch non-evaluation commands", () => {
+    class MyEvaluationPlugin extends EvaluationPlugin {
+      handle(cmd: EvaluationCommand) {
+        if (cmd.type === "CREATE_SHEET") {
+          /**
+           * TS ensure that the command is an evaluation command, but we want to
+           * test that the runtime will throw an error if we try to dispatch a
+           * non-evaluation command
+           */
+          //@ts-ignore
+          this.dispatch("UPDATE_CELL", {
+            col: 0,
+            row: 0,
+            sheetId: "sheetId",
+            content: "hello",
+          });
+        }
+      }
+    }
+    addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
+    const model = new Model();
+    expect(() => createSheet(model, { sheetId: "42" })).toThrow(
+      "An evaluation plugin cannot dispatch non-evaluation commands (UPDATE_CELL)"
+    );
+  });
+
+  test("Evaluation plugins allowDispatch don't receive UI commands", () => {
+    const receivedCommands: CommandTypes[] = [];
+    class MyEvaluationPlugin extends EvaluationPlugin {
+      allowDispatch(cmd: EvaluationCommand): CommandResult {
+        receivedCommands.push(cmd.type);
+        return CommandResult.Success;
+      }
+    }
+    addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
+    const model = new Model();
+    copy(model);
+    selectCell(model, "A2");
+    expect(receivedCommands).not.toContain("COPY");
+    expect(receivedCommands).not.toContain("SELECT_CELL");
+  });
+
+  test("Evaluation plugins handle don't receive UI commands", () => {
+    const receivedCommands: CommandTypes[] = [];
+    class MyEvaluationPlugin extends EvaluationPlugin {
+      handle(cmd: EvaluationCommand) {
+        receivedCommands.push(cmd.type);
+      }
+    }
+    addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
+    const model = new Model();
+    copy(model);
+    selectCell(model, "A2");
+    setCellContent(model, "A1", "hello");
+    expect(receivedCommands).not.toContain("COPY");
+    expect(receivedCommands).not.toContain("SELECT_CELL");
+    // core and evaluation commands are still received
+    expect(receivedCommands).toContain("UPDATE_CELL");
+    expect(receivedCommands).toContain("START");
+  });
+
   test("canDispatch method is exposed and works", () => {
     class MyCorePlugin extends CorePlugin {
       allowDispatch(cmd: CoreCommand) {
@@ -175,6 +249,66 @@ describe("Model", () => {
     ).toBeSuccessfullyDispatched();
     expect(setCellContent(model, "A1", "hey")).toBeSuccessfullyDispatched();
     corePluginRegistry.remove("myCorePlugin");
+  });
+
+  test("Non evaluation command cannot be dispatch in a top level evaluation command", () => {
+    class MyUIPlugin extends UIPlugin {
+      handle(cmd: Command) {
+        if (cmd.type === "EVALUATE_CELLS") {
+          this.dispatch("UPDATE_CELL", {
+            col: 0,
+            row: 0,
+            sheetId: this.getters.getActiveSheetId(),
+            content: "hello",
+          });
+        }
+      }
+    }
+    addTestPlugin(featurePluginRegistry, MyUIPlugin);
+    const model = new Model();
+    expect(() => evaluateCells(model)).toThrow(
+      "A top level evaluation command cannot dispatch non-evaluation commands (UPDATE_CELL)"
+    );
+  });
+
+  test("Cannot add UI plugin in the wrong registry", () => {
+    class MyUIPlugin extends UIPlugin {}
+    expect(() => addTestPlugin(corePluginRegistry, MyUIPlugin)).toThrow(
+      "Plugin MyUIPlugin does not extend CorePlugin"
+    );
+    expect(() => addTestPlugin(evaluationPluginRegistry, MyUIPlugin)).toThrow(
+      "Plugin MyUIPlugin does not extend EvaluationPlugin"
+    );
+    expect(() => addTestPlugin(featurePluginRegistry, MyUIPlugin)).not.toThrow();
+    expect(() => addTestPlugin(statefulUIPluginRegistry, MyUIPlugin)).not.toThrow();
+  });
+
+  test("Cannot add Evaluation plugin in the wrong registry", () => {
+    class MyEvaluationPlugin extends EvaluationPlugin {}
+    expect(() => addTestPlugin(corePluginRegistry, MyEvaluationPlugin)).toThrow(
+      "Plugin MyEvaluationPlugin does not extend CorePlugin"
+    );
+    expect(() => addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin)).not.toThrow();
+    expect(() => addTestPlugin(featurePluginRegistry, MyEvaluationPlugin)).toThrow(
+      "Plugin MyEvaluationPlugin does not extend UIPlugin"
+    );
+    expect(() => addTestPlugin(statefulUIPluginRegistry, MyEvaluationPlugin)).toThrow(
+      "Plugin MyEvaluationPlugin does not extend UIPlugin"
+    );
+  });
+
+  test("Cannot add Core plugin in the wrong registry", () => {
+    class MyCorePlugin extends CorePlugin {}
+    expect(() => addTestPlugin(corePluginRegistry, MyCorePlugin)).not.toThrow();
+    expect(() => addTestPlugin(evaluationPluginRegistry, MyCorePlugin)).toThrow(
+      "Plugin MyCorePlugin does not extend EvaluationPlugin"
+    );
+    expect(() => addTestPlugin(featurePluginRegistry, MyCorePlugin)).toThrow(
+      "Plugin MyCorePlugin does not extend UIPlugin"
+    );
+    expect(() => addTestPlugin(statefulUIPluginRegistry, MyCorePlugin)).toThrow(
+      "Plugin MyCorePlugin does not extend UIPlugin"
+    );
   });
 
   test("Can open a model in readonly mode", () => {
