@@ -13,7 +13,7 @@ import { Model } from "../../src/model";
 import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";
 import { GridIcon, iconsOnCellRegistry } from "../../src/registries/icons_on_cell_registry";
 import { ViewportsStore } from "../../src/stores/viewports_store";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   createTableWithFilter,
   evaluateCells,
@@ -29,7 +29,7 @@ import { addToRegistry, mountSpreadsheet, nextTick, spyDispatch } from "../test_
 let fixture: HTMLElement;
 let parent: Spreadsheet;
 let model: Model;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 function getEmptyClipboardEvent(type: "copy" | "paste" | "cut") {
   const event = new Event(type, { bubbles: true });

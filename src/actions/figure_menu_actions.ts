@@ -4,6 +4,7 @@ import { getPoppedOutChartAnchor } from "../helpers/carousel_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts/chart_ui_common";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { deepEquals } from "../helpers/misc";
+import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
 import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
 import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
@@ -198,7 +199,9 @@ function getCopyMenuItem(
       const osClipboardContent = await clipboardStore.getClipboardTextAndImageContent();
       await env.clipboard.write(osClipboardContent);
       if (copiedNotificationMessage) {
-        env.notifyUser({ sticky: false, type: "success", text: copiedNotificationMessage });
+        env
+          .getPlugin(NotificationPlugin)
+          .notifyUser({ sticky: false, type: "success", text: copiedNotificationMessage });
       }
     },
     icon: "o-spreadsheet-Icon.CLIPBOARD",
@@ -266,7 +269,9 @@ function getCopyAsImageMenuItem(figureId: UID, env: SpreadsheetActionEnv): Actio
         "text/html": innerHTML,
         "image/png": blob,
       });
-      env.notifyUser({ sticky: false, type: "success", text: _t("Chart copied to clipboard") });
+      env
+        .getPlugin(NotificationPlugin)
+        .notifyUser({ sticky: false, type: "success", text: _t("Chart copied to clipboard") });
     },
     isVisible: (env) => env.model.getters.getSelectedFigureIds().length <= 1,
     isReadonlyAllowed: true,

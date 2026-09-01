@@ -1,6 +1,6 @@
 import { Model } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
-import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../../src/types/spreadsheet_env";
 import { createChart } from "../../../test_helpers";
 import { openChartConfigSidePanel, toChartDataSource } from "../../../test_helpers/chart_helpers";
 import { setInputValueAndTrigger, simulateClick } from "../../../test_helpers/dom_helper";
@@ -8,7 +8,7 @@ import { mountComponentWithPortalTarget, nextTick } from "../../../test_helpers/
 
 let model: Model;
 let fixture: HTMLElement;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 describe("Pyramid chart side panel", () => {
   beforeEach(async () => {

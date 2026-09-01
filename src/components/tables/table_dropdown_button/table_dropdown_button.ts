@@ -40,9 +40,9 @@ export class TableDropdownButton extends OSComponent {
   onStylePicked(styleId: string) {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const tableConfig = { ...this.tableConfig, styleId };
-    const result = interactiveCreateTable(this.env, sheetId, tableConfig);
+    const result = interactiveCreateTable(this.spEnv, sheetId, tableConfig);
     if (result.isSuccessful) {
-      const table = FIRST_TABLE_IN_SELECTION(this.env);
+      const table = FIRST_TABLE_IN_SELECTION(this.spEnv);
       if (table) {
         this.env.openSidePanel("TableSidePanel", { table });
       }
@@ -60,7 +60,7 @@ export class TableDropdownButton extends OSComponent {
       this.env.openSidePanel("PivotSidePanel", { pivotId, openTab: "design" });
       return;
     }
-    const table = FIRST_TABLE_IN_SELECTION(this.env);
+    const table = FIRST_TABLE_IN_SELECTION(this.spEnv);
     if (table) {
       this.topBarToolStore.closeDropdowns();
       this.env.toggleSidePanel("TableSidePanel", { table });

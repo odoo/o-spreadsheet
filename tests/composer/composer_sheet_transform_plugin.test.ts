@@ -1,6 +1,5 @@
 import { Model } from "../../src";
 import type { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
-import { NotificationStore } from "../../src/stores/notification_store";
 import { Store } from "../../src/types/store_engine";
 import {
   activateSheet,
@@ -16,19 +15,17 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { makeTestComposerStore, makeTestNotificationStore } from "../test_helpers/helpers";
+import { makeTestComposerStore } from "../test_helpers/helpers";
 
 describe("describe", () => {
   let model: Model;
   let composerStore: Store<CellComposerStore>;
-  let notificationStore: NotificationStore;
-  let raiseErrorSpy: jest.SpyInstance;
+  let raiseErrorSpy: jest.Mock;
 
   beforeEach(() => {
     model = new Model();
-    notificationStore = makeTestNotificationStore();
-    raiseErrorSpy = jest.spyOn(notificationStore, "raiseError");
-    composerStore = makeTestComposerStore(model, notificationStore);
+    raiseErrorSpy = jest.fn();
+    composerStore = makeTestComposerStore(model, { raiseError: raiseErrorSpy });
   });
 
   test("Updatecell & composer on different cells", () => {

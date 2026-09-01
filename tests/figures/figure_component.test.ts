@@ -18,7 +18,7 @@ import { render } from "../../src/helpers/owl3_helpers";
 import { figureRegistry } from "../../src/registries/figures_registry";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { ClipboardMIMEType } from "../../src/types/clipboard";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   activateSheet,
   addColumns,
@@ -55,6 +55,7 @@ import {
   getFigureDefinition,
   getFigureIds,
   mockChart,
+  mockNotificationMethods,
   mountSpreadsheet,
   nextTick,
 } from "../test_helpers/helpers";
@@ -83,8 +84,9 @@ let fixture: HTMLElement;
 let model: Model;
 let parent: Spreadsheet;
 let sheetId: UID;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 let notifyUser: jest.Mock;
+let getPlugin: OwlPluginGetter;
 
 function createFigure(
   model: Model,
@@ -188,7 +190,8 @@ describe("figures", () => {
       width: 1000 + HEADER_WIDTH,
     };
     mockFigureMenuItemRect = { top: 500, left: 500 };
-    ({ model, parent, fixture, env } = await mountSpreadsheet(undefined, { notifyUser }));
+    ({ model, parent, fixture, env, getPlugin } = await mountSpreadsheet(undefined));
+    mockNotificationMethods(getPlugin, { notifyUser });
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -2478,7 +2481,8 @@ describe.each(ZOOM_VALUES.map((zoom) => zoom / 100))("figures with zoom %s", (zo
     notifyUser = jest.fn();
     mockSpreadsheetRect = { top: 100, left: 200, height: 1000, width: 1000 };
     mockFigureMenuItemRect = { top: 500, left: 500 };
-    ({ model, parent, fixture, env } = await mountSpreadsheet(undefined, { notifyUser }));
+    ({ model, parent, fixture, env, getPlugin } = await mountSpreadsheet());
+    mockNotificationMethods(getPlugin, { notifyUser });
     sheetId = model.getters.getActiveSheetId();
     setZoom(env, zoom);
   });

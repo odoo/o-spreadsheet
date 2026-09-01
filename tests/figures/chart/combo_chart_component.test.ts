@@ -1,6 +1,6 @@
 import { Model } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
-import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import { openChartDesignSidePanel, toChartDataSource } from "../../test_helpers/chart_helpers";
 import { createChart } from "../../test_helpers/commands_helpers";
 import { click } from "../../test_helpers/dom_helper";
@@ -16,7 +16,7 @@ let model: Model;
 const chartId = "someuuid";
 let sheetId: string;
 
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 describe("combo charts", () => {
   beforeEach(async () => {

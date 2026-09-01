@@ -1,4 +1,4 @@
-import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
+import { ComponentConstructor, onWillUpdateProps, proxy, useProps } from "@odoo/owl";
 import { getPivotHighlights } from "../../../../helpers/pivot/pivot_highlight";
 import { pivotSidePanelRegistry } from "../../../../helpers/pivot/pivot_side_panel_registry";
 import { PropsOf } from "../../../../types/props_of";
@@ -40,7 +40,7 @@ export class PivotSidePanel extends OSComponent {
     });
   }
 
-  get sidePanelEditor() {
+  get sidePanelEditor(): ComponentConstructor {
     const pivot = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
     if (!pivot) {
       throw new Error("pivotId does not correspond to a pivot.");

@@ -14,7 +14,7 @@ import { SidePanels } from "../../src/components/side_panel/side_panels/side_pan
 import { toHex } from "../../src/helpers/color";
 import { toZone } from "../../src/helpers/zones";
 import { ConditionalFormatPlugin } from "../../src/plugins/core/conditional_format";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   activateSheet,
   addCfRule,
@@ -141,7 +141,7 @@ describe("UI of conditional formats", () => {
   let fixture: HTMLElement;
   let model: Model;
   let sheetId: UID;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
 
   describe("Conditional formatting list panel", () => {
     extendMockGetBoundingClientRect({
@@ -1632,7 +1632,7 @@ describe("UI of conditional formats", () => {
 describe("Integration tests", () => {
   let fixture: HTMLElement;
   let model: Model;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
 
   beforeEach(async () => {
     ({ model, fixture, env } = await mountSpreadsheet());

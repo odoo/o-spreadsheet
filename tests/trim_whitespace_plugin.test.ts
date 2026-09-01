@@ -1,4 +1,4 @@
-import { NotificationStore } from "../src/stores/notification_store";
+import { NotificationPlugin } from "../src/owl_plugins/notification_owl_plugin";
 import { TrimWhitespaceStore } from "../src/stores/trim_whitespace_store";
 import { getCellContent } from "./test_helpers";
 import { selectCell, setCellContent, setSelection } from "./test_helpers/commands_helpers";
@@ -82,9 +82,9 @@ describe("notify user", () => {
       A2: "  SPACES   INVADERS   !  ",
       A3: "NO SPACES INVADERS",
     });
-    const { store, container } = makeStoreWithModel(model, TrimWhitespaceStore);
-    const notificationStore = container.get(NotificationStore);
-    const notifyUserTextSpy = jest.spyOn(notificationStore, "notifyUser");
+    const { store, getPlugin } = makeStoreWithModel(model, TrimWhitespaceStore);
+    const notificationPlugin = getPlugin(NotificationPlugin);
+    const notifyUserTextSpy = jest.spyOn(notificationPlugin, "notifyUser");
     setSelection(model, ["A1:A3"]);
     store.trimWhitespace();
     expect(notifyUserTextSpy).toHaveBeenCalledWith({
@@ -100,9 +100,9 @@ describe("notify user", () => {
       A2: "Space invaders",
       A3: "Space mountain",
     });
-    const { store, container } = makeStoreWithModel(model, TrimWhitespaceStore);
-    const notificationStore = container.get(NotificationStore);
-    const notifyUserTextSpy = jest.spyOn(notificationStore, "notifyUser");
+    const { store, getPlugin } = makeStoreWithModel(model, TrimWhitespaceStore);
+    const notificationPlugin = getPlugin(NotificationPlugin);
+    const notifyUserTextSpy = jest.spyOn(notificationPlugin, "notifyUser");
     setSelection(model, ["A1:A3"]);
     store.trimWhitespace();
     expect(notifyUserTextSpy).toHaveBeenCalledWith({

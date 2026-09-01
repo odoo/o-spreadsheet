@@ -2,10 +2,11 @@ import { DEFAULT_LOCALE, Model, UID } from "../../src";
 import { FindAndReplaceStore } from "../../src/components/side_panel/find_and_replace/find_and_replace_store";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
+import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
-import { NotificationStore } from "../../src/stores/notification_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SearchOptions } from "../../src/types/find_and_replace";
+import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import {
   activateSheet,
   addRows,
@@ -38,6 +39,7 @@ import { makeStore } from "../test_helpers/stores";
 let model: Model;
 let store: FindAndReplaceStore;
 let container: DependencyContainer;
+let getPlugin: OwlPluginGetter;
 let viewStore: ViewportsStore;
 
 function p(xc: string) {
@@ -69,7 +71,7 @@ let sheetId1: string;
 const sheetId2 = "s2";
 beforeEach(() => {
   // Create the viewport store before the f&r store to have the finalize in the correct order (see FIXME in SpreadsheetStore)
-  ({ store: viewStore, model, container } = makeStore(ViewportsStore));
+  ({ store: viewStore, model, container, getPlugin } = makeStore(ViewportsStore));
   store = container.get(FindAndReplaceStore);
   sheetId1 = model.getters.getActiveSheetId();
 });
@@ -952,8 +954,8 @@ describe("replace warnings", () => {
   test("no warning when replacing a match successfully", () => {
     setCellContent(model, "A1", "2024");
 
-    const notificationStore = container.get(NotificationStore);
-    const spyNotify = jest.spyOn(notificationStore, "notifyUser");
+    const notificationPlugin = getPlugin(NotificationPlugin);
+    const spyNotify = jest.spyOn(notificationPlugin, "notifyUser");
 
     updateSearch(model, "2024");
     replaceSearch("2025");
@@ -964,8 +966,8 @@ describe("replace warnings", () => {
   test("warns when trying to replace a match in a formula", () => {
     setCellContent(model, "A2", "=DATE(2024, 1, 1)");
 
-    const notificationStore = container.get(NotificationStore);
-    const spyNotify = jest.spyOn(notificationStore, "notifyUser");
+    const notificationPlugin = getPlugin(NotificationPlugin);
+    const spyNotify = jest.spyOn(notificationPlugin, "notifyUser");
 
     updateSearch(model, "2024");
     replaceSearch("2025");
@@ -984,8 +986,8 @@ describe("replace warnings", () => {
     setCellContent(model, "A1", "2024");
     setCellContent(model, "A2", "=DATE(2024, 1, 1)");
 
-    const notificationStore = container.get(NotificationStore);
-    const spyNotify = jest.spyOn(notificationStore, "notifyUser");
+    const notificationPlugin = getPlugin(NotificationPlugin);
+    const spyNotify = jest.spyOn(notificationPlugin, "notifyUser");
 
     updateSearch(model, "2024", { searchScope: "allSheets" });
     replaceAll("2025");
@@ -1001,8 +1003,8 @@ describe("replace warnings", () => {
     setCellContent(model, "A1", "2024");
     setCellContent(model, "A2", "=DATE(2024, 1, 1)");
 
-    const notificationStore = container.get(NotificationStore);
-    const spyNotify = jest.spyOn(notificationStore, "notifyUser");
+    const notificationPlugin = getPlugin(NotificationPlugin);
+    const spyNotify = jest.spyOn(notificationPlugin, "notifyUser");
 
     updateSearch(model, "2024", { searchScope: "activeSheet" });
     replaceAll("2025");
@@ -1019,8 +1021,8 @@ describe("replace warnings", () => {
     createSheet(model, { sheetId: "sh2", activate: true });
     setCellContent(model, "A2", "=DATE(2024, 1, 1)");
 
-    const notificationStore = container.get(NotificationStore);
-    const spyNotify = jest.spyOn(notificationStore, "notifyUser");
+    const notificationPlugin = getPlugin(NotificationPlugin);
+    const spyNotify = jest.spyOn(notificationPlugin, "notifyUser");
 
     updateSearch(model, "2024", { searchScope: "allSheets" });
     replaceAll("2025");
@@ -1043,8 +1045,8 @@ describe("replace warnings", () => {
   test("warns when trying to replace a match in locked sheet", () => {
     setCellContent(model, "A2", "=DATE(2024, 1, 1)");
 
-    const notificationStore = container.get(NotificationStore);
-    const spyNotify = jest.spyOn(notificationStore, "notifyUser");
+    const notificationPlugin = getPlugin(NotificationPlugin);
+    const spyNotify = jest.spyOn(notificationPlugin, "notifyUser");
 
     lockSheet(model);
     updateSearch(model, "2024");

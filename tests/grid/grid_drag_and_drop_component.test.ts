@@ -5,7 +5,7 @@ import { OSComponent } from "../../src/components/os_component";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { numberToLetters } from "../../src/helpers/coordinates";
 import { ViewportsStore } from "../../src/stores/viewports_store";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import {
   addColumns,
@@ -35,7 +35,7 @@ jest.mock("../../src/components/helpers/dom_helpers", () => {
 let model: Model;
 let sheetId: UID;
 let app: App;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 let viewStore: Store<ViewportsStore>;
 
 //Test Component required

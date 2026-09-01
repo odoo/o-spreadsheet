@@ -2,10 +2,10 @@ import { Model } from "../../src";
 import { NamedRangeSelector } from "../../src/components/named_range_selector/named_range_selector";
 import { HIGHLIGHT_COLOR } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
+import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { HighlightStore } from "../../src/stores/highlight_store";
-import { NotificationStore } from "../../src/stores/notification_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   createNamedRange,
   createSheet,
@@ -16,13 +16,18 @@ import {
   simulateClick,
   triggerMouseEvent,
 } from "../test_helpers";
-import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
+import {
+  mockNotificationMethods,
+  mountComponentWithPortalTarget,
+  nextTick,
+} from "../test_helpers/helpers";
 
 let model: Model;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 let fixture: HTMLElement;
 let raiseError: jest.Mock;
 let openSidePanel: jest.Mock;
+let getPlugin: OwlPluginGetter;
 
 beforeEach(() => {
   model = new Model();
@@ -31,10 +36,11 @@ beforeEach(() => {
 async function mountRangeSelector() {
   raiseError = jest.fn();
   openSidePanel = jest.fn();
-  ({ model, env, fixture } = await mountComponentWithPortalTarget(NamedRangeSelector, {
+  ({ model, env, fixture, getPlugin } = await mountComponentWithPortalTarget(NamedRangeSelector, {
     model,
-    env: { raiseError, openSidePanel },
+    env: { openSidePanel },
   }));
+  mockNotificationMethods(getPlugin, { raiseError });
 }
 
 describe("Named ranges topbar selector", () => {
@@ -249,8 +255,8 @@ describe("Named ranges topbar selector", () => {
     createSheet(model, { name: "Sheet2", sheetId: "Sheet2" });
     createNamedRange(model, "MyRange", "B1:B2");
     await mountRangeSelector();
-    const notificationStore = env.getStore(NotificationStore);
-    const spyNotify = jest.spyOn(notificationStore, "notifyUser");
+    const notificationPlugin = getPlugin(NotificationPlugin);
+    const spyNotify = jest.spyOn(notificationPlugin, "notifyUser");
     hideSheet(model, "Sheet1");
 
     await simulateClick(".o-named-range-selector [data-icon='arrow_drop_down']");

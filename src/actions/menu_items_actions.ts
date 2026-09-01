@@ -19,6 +19,7 @@ import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { UuidGenerator } from "../helpers/uuid";
 import { areZonesContinuous, getZoneArea, isEqual } from "../helpers/zones";
 import { Model } from "../model";
+import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
 import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
 import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
@@ -56,6 +57,7 @@ export const PASTE_ACTION = async (env: SpreadsheetActionEnv) => paste(env);
 export const PASTE_AS_VALUE_ACTION = async (env: SpreadsheetActionEnv) => paste(env, "asValue");
 
 async function paste(env: SpreadsheetActionEnv, pasteOption?: ClipboardPasteOptions) {
+  const notificationPlugin = env.getPlugin(NotificationPlugin);
   const osClipboard = await env.clipboard.read();
   const clipboardStore = env.getStore(ClipboardStore);
   switch (osClipboard.status) {
@@ -76,14 +78,14 @@ async function paste(env: SpreadsheetActionEnv, pasteOption?: ClipboardPasteOpti
       }
       break;
     case "notImplemented":
-      env.raiseError(
+      notificationPlugin.raiseError(
         _t(
           "Pasting from the context menu is not supported in this browser. Use keyboard shortcuts ctrl+c / ctrl+v instead."
         )
       );
       break;
     case "permissionDenied":
-      env.raiseError(
+      notificationPlugin.raiseError(
         _t(
           "Access to the clipboard denied by the browser. Please enable clipboard permission for this page in your browser settings."
         )
@@ -493,7 +495,7 @@ export const REINSERT_STATIC_PIVOT_CHILDREN = (env: SpreadsheetActionEnv) =>
       const zone = env.model.getters.getSelectedZone();
       const table = env.model.getters.getPivot(pivotId).getExpandedTableStructure();
       if (table.numberOfCells > PIVOT_MAX_NUMBER_OF_CELLS) {
-        env.notifyUser({
+        env.getPlugin(NotificationPlugin).notifyUser({
           type: "warning",
           text: getPivotTooBigErrorMessage(table.numberOfCells, env.model.getters.getLocale()),
           sticky: true,

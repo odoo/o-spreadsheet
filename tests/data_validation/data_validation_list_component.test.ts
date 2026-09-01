@@ -10,7 +10,7 @@ import {
 import { computeTextFontSizeInPixels } from "../../src/helpers/text_helper";
 import { toZone } from "../../src/helpers/zones";
 import { ViewportsStore } from "../../src/stores/viewports_store";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   addDataValidation,
   createTableWithFilter,
@@ -46,7 +46,7 @@ import { makeStoreWithModel } from "../test_helpers/stores";
 let model: Model;
 let fixture: HTMLElement;
 let sheetId: UID;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 beforeEach(async () => {
   model = new Model();

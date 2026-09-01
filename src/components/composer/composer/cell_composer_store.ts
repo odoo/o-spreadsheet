@@ -72,7 +72,7 @@ export class CellComposerStore extends AbstractComposerStore {
 
     const evaluator = criterionEvaluatorRegistry.get(rule.criterion.type);
     const errorStr = evaluator.getErrorString(rule.criterion, this.getters, editedCell.sheetId);
-    this.notificationStore.raiseError(
+    this.notificationPlugin.raiseError(
       _t(
         "The data you entered in %s violates the data validation rule set on the cell:\n%s",
         cellXc,
@@ -122,7 +122,7 @@ export class CellComposerStore extends AbstractComposerStore {
           this.sheetId = this.getters.getActiveSheetId();
           this.resetContent();
           this.cancelEditionAndActivateSheet();
-          this.notificationStore.raiseError(CELL_DELETED_MESSAGE);
+          this.notificationPlugin.raiseError(CELL_DELETED_MESSAGE);
         }
         break;
     }
@@ -152,7 +152,7 @@ export class CellComposerStore extends AbstractComposerStore {
   private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
     if (cmd.elements.includes(this.col) && this.editionMode !== "inactive") {
       this.cancelEdition();
-      this.notificationStore.raiseError(CELL_DELETED_MESSAGE);
+      this.notificationPlugin.raiseError(CELL_DELETED_MESSAGE);
       return;
     }
     const { top, left } = updateSelectionOnDeletion(
@@ -167,7 +167,7 @@ export class CellComposerStore extends AbstractComposerStore {
   private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
     if (cmd.elements.includes(this.row) && this.editionMode !== "inactive") {
       this.cancelEdition();
-      this.notificationStore.raiseError(CELL_DELETED_MESSAGE);
+      this.notificationPlugin.raiseError(CELL_DELETED_MESSAGE);
       return;
     }
     const { top, left } = updateSelectionOnDeletion(

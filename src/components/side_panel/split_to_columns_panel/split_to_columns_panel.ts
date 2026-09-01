@@ -71,7 +71,7 @@ export class SplitIntoColumnsPanel extends OSComponent {
   }
 
   confirm() {
-    const result = interactiveSplitToColumns(this.env);
+    const result = interactiveSplitToColumns(this.spEnv);
 
     if (result.isSuccessful) {
       this.props.onCloseSidePanel();

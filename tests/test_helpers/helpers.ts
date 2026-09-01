@@ -1,4 +1,13 @@
-import { providePlugins, proxy, useProps, xml } from "@odoo/owl";
+import {
+  PluginConstructor,
+  providePlugins,
+  proxy,
+  types,
+  usePlugin,
+  useProps,
+  useScope,
+  xml,
+} from "@odoo/owl";
 import { type ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { functionCache, type StoreConstructor } from "../../src";
@@ -8,7 +17,11 @@ import { CellComposerStore } from "../../src/components/composer/composer/cell_c
 import { Composer } from "../../src/components/composer/composer/composer";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { getCurrentSelection, isMobileOS } from "../../src/components/helpers/dom_helpers";
-import { OSComponent } from "../../src/components/os_component";
+import {
+  createGetPluginFunctionFromScope,
+  OSComponent,
+  useSpreadsheetEnv,
+} from "../../src/components/os_component";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { Spreadsheet } from "../../src/components/spreadsheet/spreadsheet";
 import { functionRegistry } from "../../src/functions/function_registry";
@@ -21,7 +34,12 @@ import { createRangeFromXc } from "../../src/helpers/range";
 import { positions, toUnboundedZone, toZone, zoneToXc } from "../../src/helpers/zones";
 import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
-import { App, Component, ComponentConstructor } from "../../src/owl3_compatibility_layer";
+import {
+  App,
+  Component,
+  ComponentConstructor,
+  useSubEnv,
+} from "../../src/owl3_compatibility_layer";
 import { BasePlugin } from "../../src/plugins/base_plugin";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { CorePluginConstructor } from "../../src/plugins/core_plugin";
@@ -59,24 +77,33 @@ import { PopoverContainerPlugin } from "../../src/components/popover/popover_con
 import { computeFunctionsCache } from "../../src/formulas/compiler";
 import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
+import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { EvaluationPluginConstructor } from "../../src/plugins/evaluation_plugin";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
-import { proxifyStoreMutation, useStore } from "../../src/store_engine/store_hooks";
+import {
+  proxifyStoreMutation,
+  useStore,
+  useStoreProvider,
+} from "../../src/store_engine/store_hooks";
 import { globalStores } from "../../src/store_engine/store_registries";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
 import { ModelStore } from "../../src/stores/model_store";
-import { NotificationStore } from "../../src/stores/notification_store";
 import { RendererStore } from "../../src/stores/renderer_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { _t } from "../../src/translation";
 import { GeoChartRegion } from "../../src/types/chart/geo_chart";
 import { Image } from "../../src/types/image";
 import { ModelExternalConfig } from "../../src/types/model";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import {
+  OwlPluginGetter,
+  SpreadsheetActionEnv,
+  SpreadsheetChildEnv,
+} from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
+import { NotificationCallbacks } from "../../src/types/stores/notification_store_methods";
 import { XLSXExport } from "../../src/types/xlsx";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
 import { fixLengthySheetNames, purgeSingleRowTables } from "../../src/xlsx/xlsx_writer";
@@ -92,8 +119,10 @@ import {
   undo,
 } from "./commands_helpers";
 import { EN_LOCALE } from "./constants";
-import { DOMTarget, click, getTarget, getTextNodes, keyDown, keyUp } from "./dom_helper";
+import { click, DOMTarget, getTarget, getTextNodes, keyDown, keyUp } from "./dom_helper";
 import { getCellContent, getEvaluatedCell } from "./getters_helpers";
+import { makeOwlPluginManager } from "./owl_plugins_helpers";
+import { makeStoreWithModel } from "./stores";
 
 const functionsContent = functionRegistry.content;
 
@@ -192,31 +221,24 @@ class FakeRendererStore extends RendererStore {
   }
 }
 
-interface SpreadsheetChildEnvWithStores extends SpreadsheetChildEnv {
+interface SpreadsheetChildEnvWithStores extends SpreadsheetActionEnv {
   __spreadsheet_stores__: DependencyContainer;
 }
 
 export function makeTestEnv(
-  mockEnv: Partial<SpreadsheetChildEnvWithStores> = {}
+  mockEnv: Partial<SpreadsheetChildEnvWithStores & { useTrueRenderer?: boolean }> = {}
 ): SpreadsheetChildEnvWithStores {
   const model = mockEnv.model || new Model();
   if (mockEnv.__spreadsheet_stores__) {
     throw new Error("Cannot call makeTestEnv on a partial env that already have a store container");
   }
-  const container = new DependencyContainer();
-  registerCleanup(() => {
-    container.dispose();
-  });
+
+  const { getPlugin, container } = makeOwlPluginManager([NotificationPlugin]);
 
   container.inject(ModelStore, model);
-  container.inject(RendererStore, new FakeRendererStore(container.get.bind(container)));
-
-  const notificationStore = container.get(NotificationStore);
-  notificationStore.updateNotificationCallbacks({
-    notifyUser: mockEnv.notifyUser || jest.fn(),
-    raiseError: mockEnv.raiseError || jest.fn(),
-    askConfirmation: mockEnv.askConfirmation || jest.fn(),
-  });
+  if (!mockEnv.useTrueRenderer) {
+    container.inject(RendererStore, new FakeRendererStore(container.get.bind(container)));
+  }
 
   // For tests without the grid composer mounted, we register fake composer
   const composerFocusStore = container.get(ComposerFocusStore);
@@ -249,9 +271,6 @@ export function makeTestEnv(
     //FIXME : image provider is not built on top of the file store of the model if provided
     // and imageProvider is defined even when there is no file store on the model
     imageProvider: new ImageProvider(new FileStore()),
-    notifyUser: notificationStore.notifyUser,
-    raiseError: notificationStore.raiseError,
-    askConfirmation: notificationStore.askConfirmation,
     startCellEdition: mockEnv.startCellEdition || (() => {}),
     loadCurrencies:
       mockEnv.loadCurrencies ||
@@ -270,6 +289,7 @@ export function makeTestEnv(
     printSpreadsheet: mockEnv.printSpreadsheet || (() => {}),
     // @ts-ignore
     __spreadsheet_stores__: container,
+    getPlugin,
   };
 }
 
@@ -285,22 +305,99 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
 
 type ComponentProps = { [key: string]: any };
 
-interface ParentProps {
+interface PortalParentProps {
+  isPortalTarget: boolean;
   childComponent: ComponentConstructor<SpreadsheetChildEnv>;
   childProps: ComponentProps;
+  model: Model;
+  mockEnv?: Partial<SpreadsheetChildEnv>;
 }
 
-class ParentWithPortalTarget extends OSComponent {
+class TestParent extends Component {
   static template = xml/*xml*/ `
-    <div class="o-spreadsheet" >
+    <div t-if="this.props.isPortalTarget" class="o-spreadsheet">
       <t t-component="this.props.childComponent" t-props="this.props.childProps"/>
     </div>
+    <t t-else="" >
+      <t t-component="this.props.childComponent" t-props="this.props.childProps"/>
+    </t>
   `;
-  protected props = useProps() as unknown as ParentProps;
+  protected props = useProps({
+    isPortalTarget: types.boolean().optional(),
+    childComponent: types.any(),
+    childProps: types.any(),
+    model: types.object<Model>(),
+    mockEnv: types.object<Partial<SpreadsheetChildEnv>>().optional(),
+  });
 
   setup() {
-    providePlugins([PopoverContainerPlugin], {
-      getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
+    providePlugins([NotificationPlugin]);
+    if (this.props.isPortalTarget) {
+      providePlugins([PopoverContainerPlugin], {
+        getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
+      });
+    }
+    const container = useStoreProvider();
+
+    container.inject(ModelStore, this.props.model);
+    container.inject(RendererStore, new FakeRendererStore(container.get.bind(container)));
+
+    const notificationPlugin = usePlugin(NotificationPlugin);
+    notificationPlugin.updateNotificationCallbacks({
+      notifyUser: jest.fn(),
+      raiseError: jest.fn(),
+      askConfirmation: jest.fn(),
+    });
+    useStore(ClipboardStore);
+
+    // For tests without the grid composer mounted, we register fake composer
+    const composerFocusStore = container.get(ComposerFocusStore);
+    composerFocusStore.focusComposer(
+      {
+        id: "mockTestComposer",
+        get editionMode(): EditionMode {
+          return "inactive";
+        },
+        startEdition: () => {},
+        stopEdition: () => {},
+        setCurrentContent: () => {},
+      },
+      { focusMode: "inactive" }
+    );
+
+    const store = container.get(SidePanelStore);
+    const sidePanelStore = proxifyStoreMutation(store, () => container.trigger("store-updated"));
+    for (const store of globalStores.getAll()) {
+      container.get(store);
+    }
+    const mockEnv = this.props.mockEnv || {};
+    useSubEnv({
+      model: this.props.model,
+      openSidePanel: mockEnv.openSidePanel || sidePanelStore.open.bind(sidePanelStore),
+      replaceSidePanel: mockEnv.replaceSidePanel || sidePanelStore.replace.bind(sidePanelStore),
+      toggleSidePanel: mockEnv.toggleSidePanel || sidePanelStore.toggle.bind(sidePanelStore),
+      clipboard: mockEnv.clipboard || new MockClipboard(),
+      //FIXME : image provider is not built on top of the file store of the model if provided
+      // and imageProvider is defined even when there is no file store on the model
+      imageProvider: new ImageProvider(new FileStore()),
+      startCellEdition: mockEnv.startCellEdition || (() => {}),
+      loadCurrencies:
+        mockEnv.loadCurrencies ||
+        (async () => {
+          return [] as Currency[];
+        }),
+      loadLocales: mockEnv.loadLocales || (async () => DEFAULT_LOCALES),
+      getStore<T extends StoreConstructor>(Store: T) {
+        const store = container.get(Store);
+        return proxifyStoreMutation(store, () => container.trigger("store-updated"));
+      },
+      get isSmall() {
+        return mockEnv.isSmall || false;
+      },
+      isMobile: mockEnv.isMobile || isMobileOS,
+      printSpreadsheet: mockEnv.printSpreadsheet || (() => {}),
+      // @ts-ignore
+      __spreadsheet_stores__: container,
     });
   }
 }
@@ -311,46 +408,96 @@ interface MountComponentArgs<Props extends ComponentProps> {
   model?: Model;
   fixture?: HTMLElement;
   renderOnModelUpdate?: boolean; // true by default
+  providedPlugins?: PluginConstructor[];
+  callbackInComponentSetup?: () => void;
 }
 
 interface MountComponentReturn<Props extends ComponentProps> {
   app: App;
   parent: Component<SpreadsheetChildEnv>;
+  testRoot: TestParent;
   model: Model;
   fixture: HTMLElement;
-  env: SpreadsheetChildEnv;
+  env: SpreadsheetActionEnv;
   viewStore: Store<ViewportsStore>;
+  getPlugin: OwlPluginGetter;
 }
 
 export async function mountComponentWithPortalTarget<Props extends ComponentProps>(
   component: ComponentConstructor<SpreadsheetChildEnv>,
   optionalArgs: MountComponentArgs<Props> = {}
-): Promise<MountComponentReturn<ParentProps>> {
+): Promise<MountComponentReturn<PortalParentProps>> {
+  const model = optionalArgs.model || optionalArgs.env?.model || new Model();
   const args = {
     ...optionalArgs,
-    props: { childComponent: component, childProps: optionalArgs.props || ({} as Props) },
+    props: {
+      childComponent: component,
+      model,
+      mockEnv: optionalArgs.env || {},
+      isPortalTarget: true,
+      childProps: optionalArgs.props || ({} as Props),
+    },
   };
-  return mountComponent(ParentWithPortalTarget, args);
+  return _mountComponent(model, TestParent, component, args);
 }
 
-export async function mountComponent<Props extends { [key: string]: any }>(
+export async function mountComponent<Props extends ComponentProps>(
   component: ComponentConstructor<SpreadsheetChildEnv>,
   optionalArgs: MountComponentArgs<Props> = {}
-): Promise<MountComponentReturn<Props>> {
+): Promise<MountComponentReturn<PortalParentProps>> {
   const model = optionalArgs.model || optionalArgs.env?.model || new Model();
+  const args = {
+    ...optionalArgs,
+    props: {
+      childComponent: component,
+      model,
+      mockEnv: optionalArgs.env || {},
+      isPortalTarget: false,
+      childProps: optionalArgs.props || ({} as Props),
+    },
+  };
+  return _mountComponent(model, TestParent, component, args);
+}
+
+async function _mountComponent<Props extends { [key: string]: any }>(
+  model: Model,
+  rootComponent: ComponentConstructor<SpreadsheetChildEnv>,
+  spiedComponent: ComponentConstructor<SpreadsheetChildEnv>,
+  optionalArgs: MountComponentArgs<Props> = {}
+): Promise<MountComponentReturn<Props>> {
+  if (jest.isMockFunction(spiedComponent.prototype.setup)) {
+    (spiedComponent.prototype.setup as jest.Mock).mockRestore();
+  }
+  const originalSetup = spiedComponent.prototype.setup;
+  let getPlugin: OwlPluginGetter | undefined = undefined;
+  let env: SpreadsheetActionEnv;
+  let parent: Component<SpreadsheetChildEnv> | undefined = undefined;
+  const spySetup = jest
+    .spyOn(spiedComponent.prototype, "setup")
+    .mockImplementation(function (this: Component) {
+      providePlugins(optionalArgs.providedPlugins || []);
+      originalSetup.call(this);
+      getPlugin = createGetPluginFunctionFromScope(useScope());
+      env = useSpreadsheetEnv();
+      parent = this;
+      optionalArgs.callbackInComponentSetup?.call(this);
+    });
+  registerCleanup(() => {
+    spySetup.mockRestore();
+  });
+
   model.drawLayer = () => {};
-  const env = makeTestEnv({ ...optionalArgs.env, model: model });
   const props = optionalArgs.props || ({} as Props);
   const app = new App({
     test: true,
     translateFn: _t,
   });
-  const root = app.createRoot(component, { props, env });
+  const root = app.createRoot(rootComponent, { props });
   const fixture = optionalArgs?.fixture || makeTestFixture();
-  const parent = await root.mount(fixture);
+  const testRoot = await root.mount(fixture);
 
   //@ts-ignore
-  const batchedRender = batched(() => render(parent, true));
+  const batchedRender = batched(() => render(testRoot, true));
   if (optionalArgs.renderOnModelUpdate === undefined || optionalArgs.renderOnModelUpdate) {
     model.on("update", null, batchedRender);
   }
@@ -364,10 +511,10 @@ export async function mountComponent<Props extends { [key: string]: any }>(
     // @ts-ignore
     env.__spreadsheet_stores__.off("store-updated", null);
   });
-  const viewStore = env.getStore(ViewportsStore);
+  const viewStore = env!.getStore(ViewportsStore);
 
   // @ts-ignore
-  return { app, parent, model, fixture, env: parent.env, viewStore };
+  return { app, parent, model, fixture, env, viewStore, getPlugin, testRoot };
 }
 
 // Requires to be called wit jest realTimers
@@ -379,22 +526,24 @@ export async function mountSpreadsheet(
   parent: Spreadsheet;
   model: Model;
   fixture: HTMLElement;
-  env: SpreadsheetChildEnv;
+  env: SpreadsheetActionEnv;
   viewStore: Store<ViewportsStore>;
+  getPlugin: OwlPluginGetter;
 }> {
-  const { app, parent, model, fixture, env, viewStore } = await mountComponent(Spreadsheet, {
-    props,
-    env: partialEnv,
-    model: props.model,
-    renderOnModelUpdate: false,
-  });
-
-  /**
-   * The following nextTick is necessary to ensure that a re-render is correctly
-   * done after the resize of the sheet view.
-   */
+  const model = props.model;
+  const args = {
+    props: {
+      childComponent: Spreadsheet,
+      model,
+      isPortalTarget: false,
+      childProps: { model },
+      mockEnv: partialEnv || {},
+    },
+    renderOnModelUpdate: false, // handled in spreadsheet component
+  };
+  const ret = await _mountComponent(model, TestParent, Spreadsheet, args);
   await nextTick();
-  return { app, parent: parent as Spreadsheet, model, fixture, env, viewStore };
+  return { ...ret, parent: ret.parent as Spreadsheet };
 }
 
 type GridDescr = { [xc: string]: string | undefined };
@@ -1052,7 +1201,7 @@ export function getCellsObject(model: Model, sheetId: UID): Record<string, CellO
 
 export async function doAction(
   path: string[],
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   menuRegistry: MenuItemRegistry = topbarMenuRegistry
 ) {
   const node = getNode(path, env, menuRegistry);
@@ -1061,7 +1210,7 @@ export async function doAction(
 
 export function getNode(
   _path: string[],
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   menuRegistry: MenuItemRegistry = topbarMenuRegistry
 ): Action {
   const path = [..._path];
@@ -1082,7 +1231,7 @@ export function getNode(
 
 export function getName(
   path: string[],
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   menuRegistry: MenuItemRegistry = topbarMenuRegistry
 ): string {
   const node = getNode(path, env, menuRegistry);
@@ -1179,7 +1328,7 @@ export async function mountComposerWrapper(
   parent: ComposerWrapper;
   model: Model;
   fixture: HTMLElement;
-  env: SpreadsheetChildEnv;
+  env: SpreadsheetActionEnv;
 }> {
   const { parent, fixture, env } = await mountComponent(ComposerWrapper, {
     props: { composerProps, focusComposer },
@@ -1232,29 +1381,25 @@ export function getFingerprint(store: FormulaFingerprintStore, xc: string, sheet
   return store.colors.get({ sheetId, col, row });
 }
 
-export function makeTestNotificationStore(): NotificationStore {
-  return {
-    mutators: ["notifyUser", "raiseError", "askConfirmation", "updateNotificationCallbacks"],
-    notifyUser: () => {},
-    raiseError: () => {},
-    askConfirmation: () => {},
-    updateNotificationCallbacks: () => {},
-  };
-}
-
 export function makeTestComposerStore(
   model: Model,
-  notificationStore?: NotificationStore
+  notificationMethods?: Partial<NotificationCallbacks>
 ): CellComposerStore {
-  const container = new DependencyContainer();
-  registerCleanup(() => {
-    container.dispose();
+  const { store: composerStore, getPlugin } = makeStoreWithModel(model, CellComposerStore);
+  mockNotificationMethods(getPlugin, {
+    raiseError: notificationMethods?.raiseError || (() => {}),
+    notifyUser: notificationMethods?.notifyUser || (() => {}),
+    askConfirmation: notificationMethods?.askConfirmation || (() => {}),
   });
+  return composerStore;
+}
 
-  container.inject(ModelStore, model);
-  notificationStore = notificationStore || makeTestNotificationStore();
-  container.inject(NotificationStore, notificationStore);
-  return container.get(CellComposerStore);
+export function mockNotificationMethods(
+  getPlugin: OwlPluginGetter,
+  notificationMethods: Partial<NotificationCallbacks> = {}
+) {
+  const notificationPlugin = getPlugin(NotificationPlugin);
+  notificationPlugin.updateNotificationCallbacks(notificationMethods);
 }
 
 /** Return the values of the first filter found in the sheet */

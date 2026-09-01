@@ -10,7 +10,7 @@ import {
 import { colors, toHex } from "../../src/helpers/color";
 import { toZone } from "../../src/helpers/zones";
 import { ViewportsStore } from "../../src/stores/viewports_store";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import {
   activateSheet,
@@ -67,7 +67,7 @@ import { addPivot } from "../test_helpers/pivot_helpers";
 let fixture: HTMLElement;
 let model: Model;
 let composerStore: Store<CellComposerStore>;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 async function startComposition(key?: string) {
   const composerEl = await startGridComposition(key);
@@ -637,7 +637,7 @@ describe("Composer interactions", () => {
 });
 
 describe("Grid composer", () => {
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
   beforeEach(async () => {
     ({ model, env, fixture } = await mountSpreadsheet({
       model: new Model(modelData),
@@ -982,7 +982,7 @@ describe("TopBar composer", () => {
   });
 
   test("Topbar composer cannot be focused if the sheet is locked", async () => {
-    let env: SpreadsheetChildEnv;
+    let env: SpreadsheetActionEnv;
     ({ model, fixture, env } = await mountSpreadsheet());
     composerStore = env.getStore(CellComposerStore);
     lockSheet(model);

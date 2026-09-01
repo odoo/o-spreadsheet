@@ -310,7 +310,7 @@ export class Grid extends OSComponent {
         target: this.env.model.getters.getSelectedZones(),
         style: { underline: !this.env.model.getters.getCurrentStyle().underline },
       }),
-    "Ctrl+O": () => CREATE_IMAGE(this.env),
+    "Ctrl+O": () => CREATE_IMAGE(this.spEnv),
     "Alt+=": () => {
       const sheetId = this.env.model.getters.getActiveSheetId();
 
@@ -331,7 +331,7 @@ export class Grid extends OSComponent {
     "Alt+Enter": () => {
       const cell = this.env.model.getters.getActiveCell();
       if (cell.link) {
-        openLink(cell.link, this.env);
+        openLink(cell.link, this.spEnv);
       }
     },
     "Ctrl+Home": () => {
@@ -380,20 +380,20 @@ export class Grid extends OSComponent {
       this.env.model.selection.selectZone({ cell: position, zone: newZone });
     },
     "Ctrl+D": () => {
-      handleCopyPasteResult(this.env, { type: "COPY_PASTE_CELLS_ABOVE" });
+      handleCopyPasteResult(this.spEnv, { type: "COPY_PASTE_CELLS_ABOVE" });
     },
     "Ctrl+R": () => {
-      handleCopyPasteResult(this.env, { type: "COPY_PASTE_CELLS_ON_LEFT" });
+      handleCopyPasteResult(this.spEnv, { type: "COPY_PASTE_CELLS_ON_LEFT" });
     },
     "Ctrl+Enter": () => {
-      handleCopyPasteResult(this.env, { type: "COPY_PASTE_CELLS_ON_ZONE" });
+      handleCopyPasteResult(this.spEnv, { type: "COPY_PASTE_CELLS_ON_ZONE" });
     },
     "Ctrl+H": () => this.sidePanel.open("FindAndReplace", {}),
     "Ctrl+F": () => this.sidePanel.open("FindAndReplace", {}),
     "Ctrl+Shift+E": () => this.setHorizontalAlign("center"),
     "Ctrl+Shift+L": () => this.setHorizontalAlign("left"),
     "Ctrl+Shift+R": () => this.setHorizontalAlign("right"),
-    "Ctrl+Shift+V": () => PASTE_AS_VALUE_ACTION(this.env),
+    "Ctrl+Shift+V": () => PASTE_AS_VALUE_ACTION(this.spEnv),
     "Ctrl+Shift+<": () => this.clearFormatting(), // for qwerty
     "Ctrl+<": () => this.clearFormatting(), // for azerty
     "Ctrl+Shift+ ": () => {
@@ -406,9 +406,9 @@ export class Grid extends OSComponent {
       const areFullCols = activeCols.size > 0 && isSingleSelection;
       const areFullRows = activeRows.size > 0 && isSingleSelection;
       if (areFullCols && !areFullRows) {
-        INSERT_COLUMNS_BEFORE_ACTION(this.env);
+        INSERT_COLUMNS_BEFORE_ACTION(this.spEnv);
       } else if (areFullRows && !areFullCols) {
-        INSERT_ROWS_BEFORE_ACTION(this.env);
+        INSERT_ROWS_BEFORE_ACTION(this.spEnv);
       }
     },
     "Ctrl+Alt+-": () => {
@@ -437,16 +437,16 @@ export class Grid extends OSComponent {
       this.env.model.dispatch("ACTIVATE_PREVIOUS_SHEET");
     },
     "Shift+F11": () => {
-      insertSheet.execute?.(this.env);
+      insertSheet.execute?.(this.spEnv);
     },
     "Alt+T": () => {
-      insertTable.execute?.(this.env);
+      insertTable.execute?.(this.spEnv);
     },
     PageDown: () => this.viewStore.shiftViewportDown(),
     PageUp: () => this.viewStore.shiftViewportUp(),
     "Ctrl+Shift+K": () => {
       this.closeMenu();
-      INSERT_LINK(this.env);
+      INSERT_LINK(this.spEnv);
     },
     "Alt+Shift+ArrowRight": () => this.processHeaderGroupingKey("right"),
     "Alt+Shift+ArrowLeft": () => this.processHeaderGroupingKey("left"),
@@ -743,7 +743,7 @@ export class Grid extends OSComponent {
       return;
     }
     if (cut) {
-      interactiveCut(this.env);
+      interactiveCut(this.spEnv);
     } else {
       this.env.model.dispatch("COPY");
     }
@@ -785,10 +785,10 @@ export class Grid extends OSComponent {
       osClipboard.content[ClipboardMIMEType.Html]
     );
     if (clipboardId === htmlClipboardId) {
-      interactivePaste(this.env, target);
+      interactivePaste(this.spEnv, target);
     } else {
       const osClipboardContent = parseOSClipboardContent(osClipboard.content);
-      await interactivePasteFromOS(this.env, target, osClipboardContent);
+      await interactivePasteFromOS(this.spEnv, target, osClipboardContent);
     }
     if (isCutOperation) {
       await this.env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
@@ -903,7 +903,7 @@ export class Grid extends OSComponent {
         break;
       }
       case "left": {
-        if (!canUngroupHeaders(this.env, "COL") && !canUngroupHeaders(this.env, "ROW")) {
+        if (!canUngroupHeaders(this.spEnv, "COL") && !canUngroupHeaders(this.spEnv, "ROW")) {
           return;
         }
         const { x, y, width } = this.viewStore.viewports.getVisibleRectWithZoom(sheetId, zone);

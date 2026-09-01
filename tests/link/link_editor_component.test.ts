@@ -1,7 +1,7 @@
 import { DEFAULT_LOCALE, Model } from "../../src";
 import { buildSheetLink } from "../../src/helpers/misc";
 import { CellValueType } from "../../src/types/cells";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   activateSheet,
   createSheet,
@@ -28,7 +28,7 @@ extendMockGetBoundingClientRect({
 describe("link editor component", () => {
   let fixture: HTMLElement;
   let model: Model;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
 
   async function openLinkEditor(model: Model, xc: string) {
     await rightClickCell(env, xc);

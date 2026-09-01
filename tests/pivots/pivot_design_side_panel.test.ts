@@ -1,9 +1,10 @@
 import { Model } from "../../src";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
 import {
+  mockNotificationMethods,
   mountComponentWithPortalTarget,
   nextTick,
   setGrid,
@@ -14,14 +15,15 @@ import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
 describe("Spreadsheet pivot side panel", () => {
   let model: Model;
   let fixture: HTMLElement;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
   let notifyUser: jest.Mock;
+  let getPlugin: OwlPluginGetter;
 
   beforeEach(async () => {
     notifyUser = jest.fn();
-    ({ env, model, fixture } = await mountComponentWithPortalTarget(SidePanels, {
-      env: { notifyUser },
-    }));
+    ({ env, model, fixture, getPlugin } = await mountComponentWithPortalTarget(SidePanels, {}));
+    mockNotificationMethods(getPlugin, { notifyUser });
+
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Product", C1: "Amount",

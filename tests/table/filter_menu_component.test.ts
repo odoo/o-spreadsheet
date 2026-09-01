@@ -5,7 +5,7 @@ import {
   Model,
   UID,
 } from "../../src";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   createDynamicTable,
   createTableWithFilter,
@@ -34,7 +34,7 @@ import {
 describe("Filter menu component", () => {
   let fixture: HTMLElement;
   let model: Model;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
   let sheetId: UID;
 
   async function openFilterMenu(xc = "A1") {

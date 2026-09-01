@@ -44,7 +44,7 @@ export class NamedRangePreview extends OSComponent {
 
   updateNamedRangeName(newName: string) {
     newName = newName.replace(/ /g, "_");
-    interactiveUpdateNamedRange(this.env, {
+    interactiveUpdateNamedRange(this.spEnv, {
       oldRangeName: this.props.namedRange.name,
       newRangeName: newName,
       ranges: [this.env.model.getters.getRangeData(this.props.namedRange.range)],
@@ -66,7 +66,7 @@ export class NamedRangePreview extends OSComponent {
         return;
       }
 
-      interactiveUpdateNamedRange(this.env, {
+      interactiveUpdateNamedRange(this.spEnv, {
         oldRangeName: this.props.namedRange.name,
         newRangeName: this.props.namedRange.name,
         ranges: [this.env.model.getters.getRangeData(range)],

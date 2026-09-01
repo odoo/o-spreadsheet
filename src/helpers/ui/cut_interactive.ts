@@ -1,3 +1,4 @@
+import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { ClipboardStore } from "../../stores/clipboard_store";
 import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
@@ -9,7 +10,9 @@ export function interactiveCut(env: SpreadsheetActionEnv) {
 
   if (!result.isSuccessful) {
     if (result.isCancelledBecause(CommandResult.WrongCutSelection)) {
-      env.raiseError(_t("This operation is not allowed with multiple selections."));
+      env
+        .getPlugin(NotificationPlugin)
+        .raiseError(_t("This operation is not allowed with multiple selections."));
     }
   } else {
     env.model.dispatch("CUT");

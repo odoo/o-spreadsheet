@@ -73,7 +73,7 @@ import { TreeMapChartDefinition } from "../../src/types/chart/tree_map_chart";
 import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart";
 import { AnchorOffset, CarouselItem, FigureSize } from "../../src/types/figure";
 import { Image } from "../../src/types/image";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { CoreTableType, CriterionFilter, TableConfig } from "../../src/types/table";
 import { toChartDataSource } from "./chart_helpers";
@@ -1306,7 +1306,7 @@ export function showSheet(model: Model, sheetId: UID) {
   return model.dispatch("SHOW_SHEET", { sheetId });
 }
 
-export function setViewportOffset(env: SpreadsheetChildEnv, offsetX: number, offsetY: number) {
+export function setViewportOffset(env: SpreadsheetActionEnv, offsetX: number, offsetY: number) {
   const store = env.getStore(ViewportsStore);
   return store.setViewportOffset({ offsetX, offsetY });
 }
@@ -1720,7 +1720,7 @@ export function insertPivot(
   return model.dispatch("INSERT_NEW_PIVOT", { pivotId, newSheetId });
 }
 
-export function resizeSheetView(env: SpreadsheetChildEnv, dimensions: SheetViewDimensions) {
+export function resizeSheetView(env: SpreadsheetActionEnv, dimensions: SheetViewDimensions) {
   const store = env.getStore(ViewportsStore);
   return store.resizeSheetView(dimensions);
 }
@@ -2008,17 +2008,17 @@ export function moveFigures(model: Model, payloads: UpdateFiguresPayload[]) {
   return model.dispatch("UPDATE_FIGURES", { figures: payloads });
 }
 
-export function shiftViewportDown(env: SpreadsheetChildEnv) {
+export function shiftViewportDown(env: SpreadsheetActionEnv) {
   const store = env.getStore(ViewportsStore);
   return store.shiftViewportDown();
 }
 
-export function shiftViewportUp(env: SpreadsheetChildEnv) {
+export function shiftViewportUp(env: SpreadsheetActionEnv) {
   const store = env.getStore(ViewportsStore);
   return store.shiftViewportUp();
 }
 
-export function setZoom(env: SpreadsheetChildEnv, zoom: number) {
+export function setZoom(env: SpreadsheetActionEnv, zoom: number) {
   const store = env.getStore(ZoomStore);
   return store.setZoom(zoom);
 }

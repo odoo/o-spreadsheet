@@ -2,6 +2,7 @@
 
 exports[`Chart error section Can render a chart error section component 1`] = `
 <div>
+  
   <div
     class="o-section"
   >

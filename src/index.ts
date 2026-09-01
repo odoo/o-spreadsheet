@@ -204,7 +204,6 @@ import { ClientFocusStore } from "./stores/client_focus_store";
 import { GridRenderer } from "./stores/grid_renderer_store";
 import { HighlightStore } from "./stores/highlight_store";
 import { ModelStore } from "./stores/model_store";
-import { NotificationStore } from "./stores/notification_store";
 import { RendererStore } from "./stores/renderer_store";
 import { SpreadsheetStore } from "./stores/spreadsheet_store";
 import { ZoomStore } from "./stores/zoom_store";
@@ -567,7 +566,6 @@ export const stores = {
   DelayedHoveredCellStore,
   HoveredTableStore,
   ModelStore,
-  NotificationStore,
   RendererStore,
   SelectionInputStore,
   SpreadsheetStore,

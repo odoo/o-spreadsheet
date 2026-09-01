@@ -70,10 +70,10 @@ export class Menu extends OSComponent {
   }
 
   getIconName(menu: Action) {
-    if (menu.icon(this.env)) {
-      return menu.icon(this.env);
+    if (menu.icon(this.spEnv)) {
+      return menu.icon(this.spEnv);
     }
-    if (menu.isActive?.(this.env)) {
+    if (menu.isActive?.(this.spEnv)) {
       return "o-spreadsheet-Icon.CHECK";
     }
 
@@ -93,7 +93,7 @@ export class Menu extends OSComponent {
   }
 
   getName(menu: Action) {
-    return menu.name(this.env);
+    return menu.name(this.spEnv);
   }
 
   isRoot(menu: Action) {
@@ -101,7 +101,7 @@ export class Menu extends OSComponent {
   }
 
   isEnabled(menu: Action) {
-    return isMenuItemEnabled(this.env, menu);
+    return isMenuItemEnabled(this.spEnv, menu);
   }
 
   get menuStyle() {

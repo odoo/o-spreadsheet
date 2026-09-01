@@ -1,3 +1,4 @@
+import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { _t } from "../../translation";
 import {
   CommandResult,
@@ -24,19 +25,20 @@ export function interactiveUpdateNamedRange(
 }
 
 function handleResult(env: SpreadsheetActionEnv, result: DispatchResult) {
+  const notificationPlugin = env.getPlugin(NotificationPlugin);
   if (!result.isSuccessful) {
     if (result.isCancelledBecause(CommandResult.NamedRangeNameAlreadyExists)) {
-      env.raiseError(_t("A named range with this name already exists."));
+      notificationPlugin.raiseError(_t("A named range with this name already exists."));
     } else if (result.isCancelledBecause(CommandResult.NamedRangeInvalidName)) {
-      env.raiseError(
+      notificationPlugin.raiseError(
         _t(
           "The named range name is invalid. Valid names can contain letters, digits, underscores, and periods. The name cannot be only a number, TRUE, or FALSE."
         )
       );
     } else if (result.isCancelledBecause(CommandResult.NamedRangeNameLooksLikeCellReference)) {
-      env.raiseError(_t("A named range name cannot resemble a cell reference."));
+      notificationPlugin.raiseError(_t("A named range name cannot resemble a cell reference."));
     } else if (result.isCancelledBecause(CommandResult.NamedRangeNotFound)) {
-      env.raiseError(_t("The named range to update was not found."));
+      notificationPlugin.raiseError(_t("The named range to update was not found."));
     }
   }
 }

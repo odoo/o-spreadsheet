@@ -3,12 +3,12 @@ import { getCell, getCellRawContent } from "../test_helpers/getters_helpers";
 import { doAction, makeTestEnv } from "../test_helpers/helpers";
 
 import { Model } from "../../src";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 
 describe("cross spreadsheet copy/paste", () => {
   test("should copy/paste from Edit menu", async () => {
-    const envA: SpreadsheetChildEnv = makeTestEnv();
-    const envB: SpreadsheetChildEnv = makeTestEnv();
+    const envA: SpreadsheetActionEnv = makeTestEnv();
+    const envB: SpreadsheetActionEnv = makeTestEnv();
     const modelA: Model = envA.model;
     const modelB: Model = envB.model;
 

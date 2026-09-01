@@ -1,4 +1,5 @@
 import { MergeErrorMessage } from "../../components/translations_terms";
+import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { CommandResult } from "../../types/commands";
 import { Dimension, HeaderIndex } from "../../types/misc";
 import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
@@ -13,6 +14,6 @@ export function interactiveFreezeColumnsRows(
   const result = env.model.dispatch(cmd, { sheetId, quantity: base });
 
   if (result.isCancelledBecause(CommandResult.MergeOverlap)) {
-    env.raiseError(MergeErrorMessage);
+    env.getPlugin(NotificationPlugin).raiseError(MergeErrorMessage);
   }
 }

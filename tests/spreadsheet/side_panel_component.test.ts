@@ -10,10 +10,17 @@ import {
 import { render } from "../../src/helpers/owl3_helpers";
 import { Component } from "../../src/owl3_compatibility_layer";
 import { SidePanelContent, sidePanelRegistry } from "../../src/registries/side_panel_registry";
+import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { createSheet } from "../test_helpers/commands_helpers";
 import { click, clickAndDrag, doubleClick, simulateClick } from "../test_helpers/dom_helper";
-import { addToRegistry, doAction, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import {
+  addToRegistry,
+  doAction,
+  mockNotificationMethods,
+  mountSpreadsheet,
+  nextTick,
+} from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 let spreadsheetWidth = 1000;
@@ -26,10 +33,12 @@ beforeEach(() => {
 
 let fixture: HTMLElement;
 let parent: Spreadsheet;
+let env: SpreadsheetActionEnv;
 let sidePanelContent: { [key: string]: SidePanelContent };
 let model: Model;
 let sidePanelStore: Store<SidePanelStore>;
 let notifyUser = jest.fn();
+let getPlugin: OwlPluginGetter;
 
 class Body extends Component<any> {
   static template = xml`
@@ -70,9 +79,11 @@ class BodyWithoutProps extends Component<any> {
 beforeEach(async () => {
   spreadsheetWidth = 1000;
   notifyUser = jest.fn();
-  ({ parent, fixture, model } = await mountSpreadsheet(undefined, { notifyUser }));
+  ({ parent, fixture, model, env, getPlugin } = await mountSpreadsheet());
+  mockNotificationMethods(getPlugin, { notifyUser });
+
   sidePanelContent = Object.assign({}, sidePanelRegistry.content);
-  sidePanelStore = parent.env.getStore(SidePanelStore);
+  sidePanelStore = env.getStore(SidePanelStore);
   sidePanelStore.changeSpreadsheetWidth(spreadsheetWidth);
 });
 
@@ -86,7 +97,7 @@ describe("Side Panel", () => {
       title: "Custom Panel",
       Body: Body,
     });
-    parent.env.openSidePanel("CUSTOM_PANEL");
+    env.openSidePanel("CUSTOM_PANEL");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Custom Panel");
@@ -99,7 +110,7 @@ describe("Side Panel", () => {
       title: "Custom Panel",
       Body: Body,
     });
-    parent.env.openSidePanel("CUSTOM_PANEL");
+    env.openSidePanel("CUSTOM_PANEL");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
     await simulateClick(".o-sidePanelClose");
@@ -112,10 +123,10 @@ describe("Side Panel", () => {
       title: "Custom Panel",
       Body: Body,
     });
-    parent.env.toggleSidePanel("CUSTOM_PANEL");
+    env.toggleSidePanel("CUSTOM_PANEL");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
-    parent.env.toggleSidePanel("CUSTOM_PANEL");
+    env.toggleSidePanel("CUSTOM_PANEL");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(0);
   });
@@ -129,10 +140,10 @@ describe("Side Panel", () => {
       title: "Custom Panel 2",
       Body: Body,
     });
-    parent.env.toggleSidePanel("CUSTOM_PANEL_1");
+    env.toggleSidePanel("CUSTOM_PANEL_1");
     await nextTick();
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Custom Panel 1");
-    parent.env.toggleSidePanel("CUSTOM_PANEL_2");
+    env.toggleSidePanel("CUSTOM_PANEL_2");
     await nextTick();
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Custom Panel 2");
   });
@@ -142,7 +153,7 @@ describe("Side Panel", () => {
       title: () => "Computed Title",
       Body: Body,
     });
-    parent.env.openSidePanel("CUSTOM_PANEL", { text: "context" });
+    env.openSidePanel("CUSTOM_PANEL", { text: "context" });
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Computed Title");
@@ -156,7 +167,7 @@ describe("Side Panel", () => {
       title: (env, props: any) => `Title: ${props.text}`,
       Body: Body,
     });
-    parent.env.openSidePanel("CUSTOM_PANEL", { text: "1" });
+    env.openSidePanel("CUSTOM_PANEL", { text: "1" });
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Title: 1");
@@ -170,7 +181,7 @@ describe("Side Panel", () => {
         return { isOpen: true };
       },
     });
-    parent.env.openSidePanel("CUSTOM_PANEL");
+    env.openSidePanel("CUSTOM_PANEL");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
     expect(document.querySelector(".main_body_3")).not.toBeNull();
@@ -188,9 +199,9 @@ describe("Side Panel", () => {
       title: "PANEL_2",
       Body: Body2,
     });
-    parent.env.openSidePanel("PANEL_1", { text: "test" });
+    env.openSidePanel("PANEL_1", { text: "test" });
     await nextTick();
-    parent.env.openSidePanel("PANEL_2", { field: "field" });
+    env.openSidePanel("PANEL_2", { field: "field" });
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("PANEL_2");
@@ -205,7 +216,7 @@ describe("Side Panel", () => {
       title: "Custom Panel",
       Body: Body,
     });
-    parent.env.openSidePanel("CUSTOM_PANEL");
+    env.openSidePanel("CUSTOM_PANEL");
     await nextTick();
     await simulateClick(".o-sidePanelClose");
     await nextTick();
@@ -218,7 +229,7 @@ describe("Side Panel", () => {
       title: "Custom Panel",
       Body: Body,
     });
-    parent.env.openSidePanel("CUSTOM_PANEL", { onCloseSidePanel });
+    env.openSidePanel("CUSTOM_PANEL", { onCloseSidePanel });
     await nextTick();
     await simulateClick(".o-sidePanelClose");
     await nextTick();
@@ -235,9 +246,9 @@ describe("Side Panel", () => {
       title: "Custom Panel 2",
       Body: Body,
     });
-    parent.env.openSidePanel("CUSTOM_PANEL_1", { onCloseSidePanel });
+    env.openSidePanel("CUSTOM_PANEL_1", { onCloseSidePanel });
     await nextTick();
-    parent.env.openSidePanel("CUSTOM_PANEL_2");
+    env.openSidePanel("CUSTOM_PANEL_2");
     await nextTick();
     expect(onCloseSidePanel).toHaveBeenCalled();
   });
@@ -248,7 +259,7 @@ describe("Side Panel", () => {
       title: "Custom Panel 1",
       Body: Body,
     });
-    parent.env.openSidePanel("CUSTOM_PANEL_1", { input: true });
+    env.openSidePanel("CUSTOM_PANEL_1", { input: true });
     await nextTick();
     const inputTarget = document.querySelector(".o-sidePanel input")! as HTMLInputElement;
     inputTarget.focus();
@@ -266,7 +277,7 @@ describe("Side Panel", () => {
       Body: Body,
       computeState: () => ({ isOpen: true, props: { text: "test text" } }),
     });
-    parent.env.openSidePanel("CUSTOM_PANEL", {});
+    env.openSidePanel("CUSTOM_PANEL", {});
     await nextTick();
     expect(document.querySelector(".props_body")!.textContent).toBe("test text");
   });
@@ -278,7 +289,7 @@ describe("Side Panel", () => {
       Body: Body,
       computeState: () => (text ? { isOpen: true, props: { text } } : { isOpen: false }),
     });
-    parent.env.openSidePanel("CUSTOM_PANEL", {});
+    env.openSidePanel("CUSTOM_PANEL", {});
     await nextTick();
     expect(document.querySelector(".o-sidePanel .props_body")!.textContent).toBe("test text");
 
@@ -297,7 +308,7 @@ describe("Side Panel", () => {
       computeState: () =>
         text ? { isOpen: true, props: { text, onCloseSidePanel } } : { isOpen: false },
     });
-    parent.env.openSidePanel("CUSTOM_PANEL", {});
+    env.openSidePanel("CUSTOM_PANEL", {});
     await nextTick();
     expect(document.querySelector(".o-sidePanel .props_body")!.textContent).toBe("test text");
 
@@ -316,7 +327,7 @@ describe("Side Panel", () => {
   describe("Side panel resize", () => {
     beforeEach(async () => {
       addToRegistry(sidePanelRegistry, "CUSTOM_PANEL_2", { title: "title", Body: Body });
-      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
     });
 
@@ -374,7 +385,7 @@ describe("Side Panel", () => {
     beforeEach(async () => {
       addToRegistry(sidePanelRegistry, "CUSTOM_PANEL", { title: "Custom Panel", Body: Body });
       addToRegistry(sidePanelRegistry, "CUSTOM_PANEL_2", { title: "Custom Panel 2", Body: Body });
-      parent.env.openSidePanel("CUSTOM_PANEL");
+      env.openSidePanel("CUSTOM_PANEL");
       await nextTick();
     });
 
@@ -382,12 +393,12 @@ describe("Side Panel", () => {
       expect(sidePanelStore.mainPanel?.isPinned).toBeFalsy();
       expect(".o-pin-panel").toHaveCount(0);
 
-      await doAction(["view", "toggle_pin_panel"], parent.env);
+      await doAction(["view", "toggle_pin_panel"], env);
       await nextTick();
       expect(sidePanelStore.mainPanel?.isPinned).toBe(true);
       expect(".o-pin-panel").toHaveCount(1);
 
-      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
 
       const panels = fixture.querySelectorAll(".o-sidePanel");
@@ -398,7 +409,7 @@ describe("Side Panel", () => {
     });
 
     test("Can unpin a side panel with the icon", async () => {
-      await doAction(["view", "toggle_pin_panel"], parent.env);
+      await doAction(["view", "toggle_pin_panel"], env);
       await nextTick();
       expect(sidePanelStore.mainPanel?.isPinned).toBe(true);
       await click(fixture, ".o-pin-panel");
@@ -406,16 +417,16 @@ describe("Side Panel", () => {
     });
 
     test("Can unpin a side panel with the menu", async () => {
-      await doAction(["view", "toggle_pin_panel"], parent.env);
+      await doAction(["view", "toggle_pin_panel"], env);
       expect(sidePanelStore.mainPanel?.isPinned).toBe(true);
       await nextTick();
-      await doAction(["view", "toggle_pin_panel"], parent.env);
+      await doAction(["view", "toggle_pin_panel"], env);
       expect(sidePanelStore.mainPanel?.isPinned).toBeFalsy();
     });
 
     test("Unpinning a panel close it if another panel is open", async () => {
       sidePanelStore.togglePinPanel();
-      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
 
       expect(".o-sidePanel").toHaveCount(2);
@@ -441,7 +452,7 @@ describe("Side Panel", () => {
 
     test("Can collapse both panels", async () => {
       sidePanelStore.togglePinPanel();
-      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
 
       let panels = fixture.querySelectorAll(".o-sidePanel");
@@ -477,60 +488,60 @@ describe("Side Panel", () => {
         }),
       });
 
-      await doAction(["view", "toggle_pin_panel"], parent.env);
-      parent.env.openSidePanel("OTHER_PANEL", { key: panelKey });
+      await doAction(["view", "toggle_pin_panel"], env);
+      env.openSidePanel("OTHER_PANEL", { key: panelKey });
       await nextTick();
       expect(".o-sidePanel").toHaveCount(1);
       expect(".o-sidePanelTitle").toHaveText("Custom Panel");
     });
 
     test("Reopening main panel from secondary panel closes secondary panel", async () => {
-      await doAction(["view", "toggle_pin_panel"], parent.env);
+      await doAction(["view", "toggle_pin_panel"], env);
 
-      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
       expect(".o-sidePanel").toHaveCount(2);
 
-      parent.env.replaceSidePanel("CUSTOM_PANEL", "CUSTOM_PANEL_2");
+      env.replaceSidePanel("CUSTOM_PANEL", "CUSTOM_PANEL_2");
       await nextTick();
       expect(".o-sidePanel").toHaveCount(1);
       expect(".o-sidePanelTitle").toHaveText("Custom Panel");
     });
 
     test("Reopening main panel directly does not close secondary panel", async () => {
-      await doAction(["view", "toggle_pin_panel"], parent.env);
+      await doAction(["view", "toggle_pin_panel"], env);
 
-      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
       expect(".o-sidePanel").toHaveCount(2);
 
-      parent.env.openSidePanel("CUSTOM_PANEL");
+      env.openSidePanel("CUSTOM_PANEL");
       await nextTick();
       expect(".o-sidePanel").toHaveCount(2);
     });
 
     test("Re-opening the same panel un-collapses it", async () => {
-      await doAction(["view", "toggle_pin_panel"], parent.env);
+      await doAction(["view", "toggle_pin_panel"], env);
       await click(fixture, ".o-collapse-panel");
 
       expect(".o-sidePanel").toHaveClass("collapsed");
       expect(sidePanelStore.mainPanel?.size).toBe(COLLAPSED_SIDE_PANEL_SIZE);
 
-      parent.env.openSidePanel("CUSTOM_PANEL");
+      env.openSidePanel("CUSTOM_PANEL");
       await nextTick();
       expect(".o-sidePanel").not.toHaveClass("collapsed");
       expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
     });
 
     test("Reopening main panel from secondary panel should expand it if collapsed", async () => {
-      await doAction(["view", "toggle_pin_panel"], parent.env);
+      await doAction(["view", "toggle_pin_panel"], env);
       await click(fixture, ".o-collapse-panel");
 
       expect(".o-sidePanel").toHaveClass("collapsed");
       expect(sidePanelStore.mainPanel?.size).toBe(COLLAPSED_SIDE_PANEL_SIZE);
 
-      parent.env.openSidePanel("CUSTOM_PANEL_2");
-      parent.env.replaceSidePanel("CUSTOM_PANEL", "CUSTOM_PANEL_2");
+      env.openSidePanel("CUSTOM_PANEL_2");
+      env.replaceSidePanel("CUSTOM_PANEL", "CUSTOM_PANEL_2");
       await nextTick();
       expect(".o-sidePanel").not.toHaveClass("collapsed");
       expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
@@ -538,7 +549,7 @@ describe("Side Panel", () => {
 
     test("Can resize panels when two panels are open", async () => {
       sidePanelStore.togglePinPanel();
-      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
 
       const handles = fixture.querySelectorAll(".o-sidePanel-handle");
@@ -555,7 +566,7 @@ describe("Side Panel", () => {
 
     test("Resizing the man panel reduces the size of the secondary panel if there is not enough space", async () => {
       sidePanelStore.togglePinPanel();
-      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
 
       const handles = fixture.querySelectorAll(".o-sidePanel-handle");
@@ -574,7 +585,7 @@ describe("Side Panel", () => {
 
     test("Secondary side panel closes if the sheet is too small", async () => {
       sidePanelStore.togglePinPanel();
-      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
       expect(".o-sidePanel").toHaveCount(2);
 
@@ -588,7 +599,7 @@ describe("Side Panel", () => {
     test("Cannot open second size panel if the spreadsheet is too small", async () => {
       sidePanelStore.changeSpreadsheetWidth(600);
       sidePanelStore.togglePinPanel();
-      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
 
       expect(".o-sidePanel").toHaveCount(1);

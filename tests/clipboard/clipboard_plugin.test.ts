@@ -18,11 +18,11 @@ import { urlRepresentation } from "../../src/helpers/links";
 import { markdownLink } from "../../src/helpers/misc";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { featurePluginRegistry } from "../../src/plugins/plugin_registries";
 import { clipboardHandlersRegistries } from "../../src/registries/clipboardHandlersRegistries";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { ClipboardStore, MAX_FILE_SIZE } from "../../src/stores/clipboard_store";
-import { NotificationStore } from "../../src/stores/notification_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { XMLString } from "../../src/types/xlsx";
 import { parseXML, xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
@@ -2647,8 +2647,8 @@ describe("clipboard: pasting outside of sheet", () => {
       }
     }
     model = new Model({}, { external: { fileStore: new FileStore() } });
-    const { store, container } = makeStoreWithModel(model, ClipboardStore);
-    const spyNotifyUI = jest.spyOn(container.get(NotificationStore), "notifyUser");
+    const { store, getPlugin } = makeStoreWithModel(model, ClipboardStore);
+    const spyNotifyUI = jest.spyOn(getPlugin(NotificationPlugin), "notifyUser");
 
     createImage(model, { figureId: "test" });
     selectFigure(model, "test");

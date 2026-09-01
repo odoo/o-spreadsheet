@@ -1,5 +1,6 @@
-import { proxy, signal, useProps } from "@odoo/owl";
+import { proxy, signal, usePlugin, useProps } from "@odoo/owl";
 import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../constants";
+import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
@@ -44,6 +45,8 @@ export const resizerPropsDefinition = {
 
 abstract class AbstractResizer extends OSComponent {
   protected props = useProps(resizerPropsDefinition);
+
+  protected notification = usePlugin(NotificationPlugin);
   private composerFocusStore!: Store<ComposerFocusStore>;
   protected viewStore!: Store<ViewportsStore>;
   protected zoomStore!: Store<ZoomStore>;
@@ -433,7 +436,7 @@ export class ColResizer extends AbstractResizer {
       position: this.state.position,
     });
     if (!result.isSuccessful && result.reasons.includes(CommandResult.WillRemoveExistingMerge)) {
-      this.env.raiseError(MergeErrorMessage);
+      this.notification.raiseError(MergeErrorMessage);
     }
   }
 
@@ -604,9 +607,9 @@ export class RowResizer extends AbstractResizer {
 
     if (!result.isSuccessful) {
       if (result.reasons.includes(CommandResult.WillRemoveExistingMerge)) {
-        this.env.raiseError(MergeErrorMessage);
+        this.notification.raiseError(MergeErrorMessage);
       } else if (result.reasons.includes(CommandResult.CannotMoveTableHeader)) {
-        this.env.raiseError(TableHeaderMoveErrorMessage);
+        this.notification.raiseError(TableHeaderMoveErrorMessage);
       }
     }
   }

@@ -1,12 +1,12 @@
+import { PluginConstructor, PluginInstance } from "@odoo/owl";
 import { Model } from "../model";
 import { ClipboardInterface } from "./clipboard/clipboard_interface";
 import { Currency } from "./currency";
 import { ImageProviderInterface } from "./files";
 import { Locale } from "./locale";
 import { Get } from "./store_engine";
-import { NotificationStoreMethods } from "./stores/notification_store_methods";
 
-export interface SpreadsheetChildEnv extends NotificationStoreMethods {
+export interface SpreadsheetChildEnv {
   model: Model;
   imageProvider?: ImageProviderInterface;
   openSidePanel: (panel: string, panelProps?: any) => void;
@@ -22,4 +22,8 @@ export interface SpreadsheetChildEnv extends NotificationStoreMethods {
   printSpreadsheet: () => void;
 }
 
-export interface SpreadsheetActionEnv extends SpreadsheetChildEnv {}
+export type OwlPluginGetter = <T extends PluginConstructor>(plugin: T) => PluginInstance<T>;
+
+export interface SpreadsheetActionEnv extends SpreadsheetChildEnv {
+  getPlugin: OwlPluginGetter;
+}

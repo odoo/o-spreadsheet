@@ -1,5 +1,6 @@
 import { buildSheetLink, markdownLink } from "../helpers/misc";
 import { UuidGenerator } from "../helpers/uuid";
+import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
 import { _t } from "../translation";
 import { ActionSpec } from "./action";
 
@@ -26,12 +27,14 @@ export const deleteSheet: ActionSpec = {
   },
 
   execute: (env) =>
-    env.askConfirmation(_t("Are you sure you want to delete this sheet?"), () => {
-      env.model.dispatch("DELETE_SHEET", {
-        sheetId: env.model.getters.getActiveSheetId(),
-        sheetName: env.model.getters.getActiveSheetName(),
-      });
-    }),
+    env
+      .getPlugin(NotificationPlugin)
+      .askConfirmation(_t("Are you sure you want to delete this sheet?"), () => {
+        env.model.dispatch("DELETE_SHEET", {
+          sheetId: env.model.getters.getActiveSheetId(),
+          sheetName: env.model.getters.getActiveSheetName(),
+        });
+      }),
   icon: "o-spreadsheet-Icon.TRASH",
 };
 

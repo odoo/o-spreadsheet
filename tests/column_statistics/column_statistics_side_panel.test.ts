@@ -2,7 +2,7 @@ import { ChartConfiguration } from "chart.js";
 import { Model } from "../../src";
 import { ColumnStatisticsStore } from "../../src/components/side_panel/column_stats/column_stats_store";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { click } from "../test_helpers";
 import { selectCell, setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import {
@@ -16,7 +16,7 @@ mockChart();
 
 describe("column statistics sidePanel component", () => {
   let model: Model;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
   let fixture: HTMLElement;
 
   beforeEach(async () => {

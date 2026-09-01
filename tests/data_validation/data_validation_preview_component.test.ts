@@ -4,7 +4,7 @@ import { toZone } from "../../src/helpers/zones";
 import { Component } from "../../src/owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../src/registries/criterion_registry";
 import { DataValidationCriterion } from "../../src/types/data_validation";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { updateLocale } from "../test_helpers/commands_helpers";
 import { click, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
@@ -24,7 +24,7 @@ describe("Data validation preview", () => {
   let fixture: HTMLElement;
   let model: Model;
   let parent: Component;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
 
   async function mountDataValidationPreview(ruleData: DataValidationRuleData) {
     model = new Model();

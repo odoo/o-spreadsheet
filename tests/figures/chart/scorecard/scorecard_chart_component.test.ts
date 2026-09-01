@@ -18,7 +18,7 @@ import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
 } from "../../../../src/types/chart/scorecard_chart";
-import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../../src/types/spreadsheet_env";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
 import { click, simulateClick } from "../../../test_helpers";
 import {
@@ -50,7 +50,7 @@ let model: Model;
 let chartId: string;
 let sheetId: string;
 let fixture: HTMLElement;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 const mutedFontColor = chartMutedFontColor("#fff");
 

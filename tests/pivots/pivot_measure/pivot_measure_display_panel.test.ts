@@ -2,7 +2,7 @@ import { Model, UID } from "../../../src";
 import { PivotMeasureDisplayPanel } from "../../../src/components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel";
 import { toZone } from "../../../src/helpers/zones";
 import { PivotCoreMeasure, PREVIOUS_VALUE } from "../../../src/types/pivot";
-import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import { setCellContent, setFormat } from "../../test_helpers";
 import { click, editSelectComponent } from "../../test_helpers/dom_helper";
 import {
@@ -18,7 +18,7 @@ const measureId: UID = "m1";
 let sheetId: UID;
 let fixture: HTMLElement;
 let replaceSidePanelSpy: jest.Mock;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 function getPivotMeasures() {
   return model.getters.getPivotCoreDefinition(pivotId).measures;

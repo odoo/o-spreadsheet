@@ -1,15 +1,16 @@
+import { usePlugin } from "@odoo/owl";
 import { trimContent } from "../helpers/misc";
 import { recomputeZones } from "../helpers/recompute_zones";
 import { positions } from "../helpers/zones";
+import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
 import { _t } from "../translation";
 import { Command } from "../types/commands";
-import { NotificationStore } from "./notification_store";
 import { SpreadsheetStore } from "./spreadsheet_store";
 
 export class TrimWhitespaceStore extends SpreadsheetStore {
   mutators = ["trimWhitespace"] as const;
 
-  private notificationStore = this.get(NotificationStore);
+  private notificationPlugin = usePlugin(NotificationPlugin);
 
   trimWhitespace() {
     // Command for history step
@@ -52,7 +53,7 @@ export class TrimWhitespaceStore extends SpreadsheetStore {
     const text = count
       ? _t("Trimmed whitespace from %s cells.", count)
       : _t("No selected cells had whitespace trimmed.");
-    this.notificationStore.notifyUser({
+    this.notificationPlugin.notifyUser({
       type: "info",
       text: text,
       sticky: false,

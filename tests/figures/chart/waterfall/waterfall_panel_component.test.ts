@@ -1,7 +1,7 @@
 import { Model, UID } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { WaterfallChartDefinition } from "../../../../src/types/chart/waterfall_chart";
-import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../../src/types/spreadsheet_env";
 import {
   changeRoundColorPickerColor,
   click,
@@ -20,7 +20,7 @@ import { mountComponentWithPortalTarget } from "../../../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 function getWaterfallDefinition(chartId: UID): WaterfallChartDefinition<string> {
   return model.getters.getChartDefinition(chartId) as WaterfallChartDefinition<string>;

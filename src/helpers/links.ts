@@ -1,3 +1,4 @@
+import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
 import { Registry } from "../registries/registry";
 import { _t } from "../translation";
 import { CellValue } from "../types/cells";
@@ -75,7 +76,7 @@ urlRegistry.add("sheet_URL", {
       sheetIdTo: sheetId,
     });
     if (result.isCancelledBecause(CommandResult.SheetIsHidden)) {
-      env.notifyUser({
+      env.getPlugin(NotificationPlugin).notifyUser({
         type: "warning",
         sticky: false,
         text: _t("Cannot open the link because the linked sheet is hidden."),

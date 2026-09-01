@@ -219,7 +219,7 @@ export class TopBar extends OSComponent {
     this.state.menuState.isOpen = true;
     this.state.menuState.anchorRect = getBoundingRectAsPOJO(target);
     this.state.menuState.menuItems = menu
-      .children(this.env)
+      .children(this.spEnv)
       .sort((a, b) => a.sequence - b.sequence);
     this.state.menuState.parentMenu = menu;
     this.state.menuState.autoSelectFirstItem = autoSelectFirstItem;
@@ -240,7 +240,7 @@ export class TopBar extends OSComponent {
   }
 
   getMenuName(menu: Action) {
-    return menu.name(this.env);
+    return menu.name(this.spEnv);
   }
 
   setColor(target: string, color: Color) {
