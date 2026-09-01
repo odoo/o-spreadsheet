@@ -51,7 +51,7 @@ export class LinkDisplay extends OSComponent {
   }
 
   openLink(ev: MouseEvent) {
-    openLink(this.link, this.env, isMiddleClickOrCtrlClick(ev));
+    openLink(this.link, this.spEnv, isMiddleClickOrCtrlClick(ev));
   }
 
   edit() {

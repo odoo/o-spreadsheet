@@ -1,3 +1,4 @@
+import { usePlugin } from "@odoo/owl";
 import { DEFAULT_TOKEN_COLOR, tokenColors } from "../../../constants";
 import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { AST, iterateAstNodes, parseTokens } from "../../../formulas/parser";
@@ -14,6 +15,7 @@ import { splitReference } from "../../../helpers/references";
 import { fuzzyLookup } from "../../../helpers/search";
 import { isSheetNameEqual } from "../../../helpers/sheet";
 import { getZoneArea, isEqual, positionToZone, zoneToDimension } from "../../../helpers/zones";
+import { NotificationPlugin } from "../../../owl_plugins/notification_owl_plugin";
 import {
   AutoCompleteProposal,
   AutoCompleteProvider,
@@ -21,7 +23,6 @@ import {
   autoCompleteProviders,
 } from "../../../registries/auto_completes/auto_complete_registry";
 import { HighlightStore } from "../../../stores/highlight_store";
-import { NotificationStore } from "../../../stores/notification_store";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { _t } from "../../../translation";
@@ -88,7 +89,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   hoveredContentEvaluation: string = "";
 
   private autoCompleteKeepLast = new KeepLast<AutoCompleteProvider | undefined>();
-  protected notificationStore = this.get(NotificationStore);
+  protected notificationPlugin = usePlugin(NotificationPlugin);
   private highlightStore = this.get(HighlightStore);
   private viewStore = this.get(ViewportsStore);
 
@@ -509,7 +510,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       ).length;
       if (nonSpaceTokensCount > 1000) {
         if (raise) {
-          this.notificationStore.raiseError(
+          this.notificationPlugin.raiseError(
             _t(
               "This formula has over 1000 parts. It can't be processed properly, consider splitting it into multiple cells"
             )

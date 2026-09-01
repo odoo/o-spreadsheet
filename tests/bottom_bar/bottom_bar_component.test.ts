@@ -4,7 +4,11 @@ import { toHex } from "../../src/helpers/color";
 import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
 import { Model } from "../../src/model";
 import { DOMFocusableElementStore } from "../../src/stores/DOM_focus_store";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import {
+  OwlPluginGetter,
+  SpreadsheetActionEnv,
+  SpreadsheetChildEnv,
+} from "../../src/types/spreadsheet_env";
 import {
   activateSheet,
   colorSheetTab,
@@ -33,6 +37,7 @@ import {
 } from "../test_helpers/dom_helper";
 import {
   makeTestEnv,
+  mockNotificationMethods,
   mountComponentWithPortalTarget,
   mountSpreadsheet,
   nextTick,
@@ -53,15 +58,14 @@ function isDragAndDropActive(): boolean {
 async function mountBottomBar(
   model: Model = new Model(),
   partialEnv: Partial<SpreadsheetChildEnv> = {}
-): Promise<{ parent: Component; model: Model; env: SpreadsheetChildEnv }> {
-  let parent: Component;
-  let env: SpreadsheetChildEnv;
-  ({ fixture, parent, env } = await mountComponentWithPortalTarget(BottomBar, {
+) {
+  const returnValue = await mountComponentWithPortalTarget(BottomBar, {
     model,
     env: partialEnv,
     props: { onClick: () => {} },
-  }));
-  return { parent, model, env };
+  });
+  fixture = returnValue.fixture;
+  return returnValue;
 }
 
 function getSheetNameSpan(): HTMLSpanElement | null {
@@ -256,12 +260,16 @@ describe("BottomBar component", () => {
   describe("Rename a sheet", () => {
     let model: Model;
     let raiseError: jest.Mock;
-    let env: SpreadsheetChildEnv;
+    let env: SpreadsheetActionEnv;
+    let getPlugin: OwlPluginGetter;
+
     beforeEach(async () => {
       raiseError = jest.fn((string, callback) => {
         callback();
       });
-      ({ model, env } = await mountBottomBar(new Model(), { raiseError }));
+      ({ model, env, getPlugin } = await mountBottomBar(new Model()));
+      mockNotificationMethods(getPlugin, { raiseError });
+
       //@ts-ignore
       env.getStore(DOMFocusableElementStore).focus = jest.fn();
     });
@@ -408,7 +416,7 @@ describe("BottomBar component", () => {
     const sheetName = "New name";
     const raiseError = jest.fn();
     const model = new Model({}, { mode: "readonly" });
-    const env = makeTestEnv({ model, raiseError });
+    const env = makeTestEnv({ model });
     interactiveRenameSheet(env, model.getters.getActiveSheetId(), sheetName, raiseError);
     expect(raiseError).not.toHaveBeenCalled();
     expect(model.getters.getActiveSheet().name).toEqual("Sheet1");
@@ -430,9 +438,9 @@ describe("BottomBar component", () => {
   });
 
   test("Can delete a sheet", async () => {
-    const { model } = await mountBottomBar(new Model(), {
-      askConfirmation: jest.fn((title, callback) => callback()),
-    });
+    const askConfirmation = jest.fn((title, callback) => callback());
+    const { model, getPlugin } = await mountBottomBar(new Model(), {});
+    mockNotificationMethods(getPlugin, { askConfirmation });
     const dispatch = jest.spyOn(model, "dispatch");
     createSheet(model, { sheetId: "42" });
 
@@ -510,7 +518,7 @@ describe("BottomBar component", () => {
 
   describe("Scroll on the list of sheets", () => {
     let model: Model;
-    let parent: Component;
+    let testRoot: Component;
     let sheetListEl: HTMLElement;
 
     jest
@@ -533,7 +541,7 @@ describe("BottomBar component", () => {
           { name: "Sheet6" },
         ],
       });
-      ({ parent } = await mountBottomBar(model));
+      ({ testRoot } = await mountBottomBar(model));
       sheetListEl = fixture.querySelector<HTMLElement>(".o-sheet-list")!;
     });
 
@@ -558,7 +566,7 @@ describe("BottomBar component", () => {
     test("Can scroll to the right: scroll arrow right enabled and fade-out effect", async () => {
       jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
       jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(500);
-      render(parent, true);
+      render(testRoot, true);
       await nextTick();
 
       expect(fixture.querySelector(".o-bottom-bar-arrow-left.o-disabled")).not.toBeNull();
@@ -571,7 +579,7 @@ describe("BottomBar component", () => {
       jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
       jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(500);
       sheetListEl.scrollLeft = 200;
-      render(parent, true);
+      render(testRoot, true);
       await nextTick();
       expect(fixture.querySelector(".o-bottom-bar-arrow-left:not(.o-disabled)")).not.toBeNull();
       expect(fixture.querySelector(".o-bottom-bar-arrow-right.o-disabled")).not.toBeNull();
@@ -583,7 +591,7 @@ describe("BottomBar component", () => {
       jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
       jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(500);
       sheetListEl.scrollLeft = 100;
-      render(parent, true);
+      render(testRoot, true);
       await nextTick();
       expect(fixture.querySelector(".o-bottom-bar-arrow-left:not(.o-disabled)")).not.toBeNull();
       expect(fixture.querySelector(".o-bottom-bar-arrow-right:not(.o-disabled)")).not.toBeNull();
@@ -594,7 +602,7 @@ describe("BottomBar component", () => {
     test("Scroll to the right with the arrow button", async () => {
       jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(100);
       jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(250);
-      render(parent, true);
+      render(testRoot, true);
       await nextTick();
       await simulateClick(".o-bottom-bar-arrow-right");
       await nextTick();
@@ -609,7 +617,7 @@ describe("BottomBar component", () => {
       jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(100);
       jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(250);
       sheetListEl.scrollLeft = 150;
-      render(parent, true);
+      render(testRoot, true);
       await nextTick();
       await simulateClick(".o-bottom-bar-arrow-left");
       await nextTick();
@@ -623,7 +631,7 @@ describe("BottomBar component", () => {
     test("Spam click on the arrow button scrolls a lot", async () => {
       jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(100);
       jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(800);
-      render(parent, true);
+      render(testRoot, true);
       await nextTick();
 
       await simulateClick(".o-bottom-bar-arrow-right");

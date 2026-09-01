@@ -1,17 +1,18 @@
+import { usePlugin } from "@odoo/owl";
 import { CellClipboardHandler } from "../clipboard_handlers/cell_clipboard";
 import { getClipboardDataPositions } from "../helpers/clipboard/clipboard_helpers";
 import { deepEquals, range } from "../helpers/misc";
 import { zoneToDimension } from "../helpers/zones";
+import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
 import { _t } from "../translation";
 import { CancelledReason, Command, CommandResult } from "../types/commands";
 import { HeaderIndex, UID, Zone } from "../types/misc";
 import { Get } from "../types/store_engine";
-import { NotificationStore } from "./notification_store";
 import { SpreadsheetStore } from "./spreadsheet_store";
 
 export class DataCleanupStore extends SpreadsheetStore {
   mutators = ["setHasHeader", "setColumns", "toggleAllColumns", "toggleColumn"] as const;
-  private notificationStore = this.get(NotificationStore);
+  private notificationPlugin = usePlugin(NotificationPlugin);
 
   hasHeader: boolean = false;
   columns: { [colIndex: number]: boolean } = {};
@@ -184,7 +185,7 @@ export class DataCleanupStore extends SpreadsheetStore {
   }
 
   private notifyRowsRemovedAndRemaining(removedRows: number, remainingRows: number) {
-    this.notificationStore.notifyUser({
+    this.notificationPlugin.notifyUser({
       type: "info",
       text: _t(
         "%s duplicate rows found and removed.\n%s unique rows remain.",

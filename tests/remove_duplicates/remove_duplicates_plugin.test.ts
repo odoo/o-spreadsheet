@@ -1,7 +1,7 @@
 import { CommandResult, HeaderIndex, Model } from "../../src";
 import { toZone } from "../../src/helpers/zones";
+import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { DataCleanupStore } from "../../src/stores/data_cleanup_store";
-import { NotificationStore } from "../../src/stores/notification_store";
 import { getCellRawContent, getEvaluatedCell } from "../test_helpers";
 import { merge, setFormat, setSelection } from "../test_helpers/commands_helpers";
 import {
@@ -242,12 +242,12 @@ describe("notify user", () => {
       A1: "42",
       A2: "42",
     };
-    const { model, store, container } = makeStoreWithModel(
+    const { model, store, getPlugin } = makeStoreWithModel(
       createModelFromGrid(grid),
       DataCleanupStore
     );
-    const notificationStore = container.get(NotificationStore);
-    const notifyUserTextSpy = jest.spyOn(notificationStore, "notifyUser");
+    const notificationPlugin = getPlugin(NotificationPlugin);
+    const notifyUserTextSpy = jest.spyOn(notificationPlugin, "notifyUser");
     setSelection(model, ["A1:A2"]);
     removeDuplicates(model, store, [0], false);
     expect(notifyUserTextSpy).toHaveBeenCalledWith({
@@ -262,12 +262,12 @@ describe("notify user", () => {
       A1: "42",
       A2: "24",
     };
-    const { model, store, container } = makeStoreWithModel(
+    const { model, store, getPlugin } = makeStoreWithModel(
       createModelFromGrid(grid),
       DataCleanupStore
     );
-    const notificationStore = container.get(NotificationStore);
-    const notifyUserTextSpy = jest.spyOn(notificationStore, "notifyUser");
+    const notificationPlugin = getPlugin(NotificationPlugin);
+    const notifyUserTextSpy = jest.spyOn(notificationPlugin, "notifyUser");
     setSelection(model, ["A1:A2"]);
     removeDuplicates(model, store, [0], false);
     expect(notifyUserTextSpy).toHaveBeenCalledWith({

@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { ColumnStatisticsStore } from "../../src/components/side_panel/column_stats/column_stats_store";
 import { formatValue } from "../../src/helpers/format/format";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import {
   deleteRows,
@@ -23,7 +23,7 @@ function getStoreStatistics(
 
 describe("column statistics sidePanel store", () => {
   let model: Model;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
 
   beforeEach(async () => {
     ({ model, env } = await mountSpreadsheet());

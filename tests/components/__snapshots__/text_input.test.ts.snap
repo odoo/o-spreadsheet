@@ -2,6 +2,7 @@
 
 exports[`TextInput Can render a text input 1`] = `
 <div>
+  
   <div
     class="container"
   >

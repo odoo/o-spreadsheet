@@ -6,7 +6,7 @@ import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_
 import { zoneToXc } from "../../src/helpers/zones";
 import { Component } from "../../src/owl3_compatibility_layer";
 import { sidePanelRegistry } from "../../src/registries/side_panel_registry";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { createSheet, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
@@ -18,7 +18,7 @@ import {
   nextTick,
 } from "../test_helpers/helpers";
 
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 const onConfirm = jest.fn();
 let fixture: HTMLElement;
 let composerEl: HTMLElement;

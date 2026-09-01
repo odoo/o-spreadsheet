@@ -93,7 +93,7 @@ export class ChartMenu extends OSComponent {
     }
     this.state.openedPopover = "menu";
     this.state.anchorRect = getBoundingRectAsPOJO(ev.currentTarget as HTMLElement);
-    this.state.menuItems = getChartMenuActions(this.figureId, this.env);
+    this.state.menuItems = getChartMenuActions(this.figureId, this.spEnv);
   }
 
   showInfo(ev: MenuMouseEvent) {

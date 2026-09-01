@@ -1,3 +1,4 @@
+import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
 import { Dimension, HeaderIndex, UID } from "../../types/misc";
@@ -32,7 +33,7 @@ export function interactiveToggleGroup(
         dimension === "ROW"
           ? ToggleGroupInteractiveContent.CannotHideAllRows
           : ToggleGroupInteractiveContent.CannotHideAllColumns;
-      env.raiseError(errorMessage);
+      env.getPlugin(NotificationPlugin).raiseError(errorMessage);
     }
   }
 }

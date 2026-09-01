@@ -21,7 +21,8 @@ import {
 } from "../../src/helpers/ui/toggle_group_interactive";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   addCellToSelection,
   copy,
@@ -58,7 +59,7 @@ function getCellsObject(model: Model, sheetId: UID) {
 }
 
 describe("Interactive rename sheet", () => {
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
   let raiseErrorSpy: jest.Mock;
   let errorTextSpy: jest.Mock;
   let model: Model;
@@ -70,7 +71,9 @@ describe("Interactive rename sheet", () => {
       callback();
     });
     model = new Model({});
-    env = makeTestEnv({ model, raiseError: raiseErrorSpy });
+    env = makeTestEnv({ model });
+    const notificationPlugin = env.getPlugin(NotificationPlugin);
+    notificationPlugin.updateNotificationCallbacks({ raiseError: raiseErrorSpy });
   });
 
   test.each([
@@ -112,14 +115,16 @@ describe("Interactive Freeze columns/rows", () => {
     const model = new Model();
     merge(model, "A1:D4");
     const raiseError = jest.fn();
-    const env = makeTestEnv({ model, raiseError });
+    const env = makeTestEnv({ model });
+    const notificationPlugin = env.getPlugin(NotificationPlugin);
+    notificationPlugin.updateNotificationCallbacks({ raiseError });
     interactiveFreezeColumnsRows(env, dimension as Dimension, 2);
     expect(raiseError).toHaveBeenCalled();
   });
 });
 
 describe("UI Helpers", () => {
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
   let notifyUserTextSpy: jest.Mock<any, any>;
   let askConfirmationTextSpy: jest.Mock<any, any>;
   let model: Model;
@@ -136,7 +141,13 @@ describe("UI Helpers", () => {
     const askConfirmation = (content: string, confirm: () => any, cancel?: () => any) => {
       askConfirmationTextSpy(content.toString());
     };
-    env = makeTestEnv({ model, raiseError, askConfirmation });
+    env = makeTestEnv({ model });
+    const notificationPlugin = env.getPlugin(NotificationPlugin);
+    notificationPlugin.updateNotificationCallbacks({
+      raiseError,
+      askConfirmation,
+      notifyUser: notifyUserTextSpy,
+    });
   });
 
   describe("Interactive Create table", () => {
@@ -394,7 +405,10 @@ describe("UI Helpers", () => {
       model = new Model(modelData);
       const zone = toZone("A2:A3");
       anchor = toCartesian("A2");
-      const env = makeTestEnv({ model, askConfirmation });
+      const env = makeTestEnv({ model });
+      const notificationPlugin = env.getPlugin(NotificationPlugin);
+      notificationPlugin.updateNotificationCallbacks({ askConfirmation });
+
       interactiveSortSelection(env, sheetId, anchor, zone, "desc");
       expect(askConfirmation).toHaveBeenCalled();
     });
@@ -403,7 +417,10 @@ describe("UI Helpers", () => {
       model = new Model(modelData);
       const zone = toZone("A2:A3");
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-      const env = makeTestEnv({ model, askConfirmation });
+      const env = makeTestEnv({ model });
+      const notificationPlugin = env.getPlugin(NotificationPlugin);
+      notificationPlugin.updateNotificationCallbacks({ askConfirmation });
+
       interactiveSortSelection(env, sheetId, anchor, contiguousZone, "desc");
       expect(askConfirmation).not.toHaveBeenCalled();
     });
@@ -413,7 +430,10 @@ describe("UI Helpers", () => {
       model = new Model(modelData);
       const zone = toZone("A3:A4");
       anchor = toCartesian("A3");
-      const env = makeTestEnv({ model, askConfirmation });
+      const env = makeTestEnv({ model });
+      const notificationPlugin = env.getPlugin(NotificationPlugin);
+      notificationPlugin.updateNotificationCallbacks({ askConfirmation });
+
       interactiveSortSelection(env, sheetId, anchor, zone, "desc");
       expect(getCellsObject(model, sheetId)).toMatchObject({
         A1: { content: "Zulu" },
@@ -433,7 +453,10 @@ describe("UI Helpers", () => {
       model = new Model(modelData);
       const zone = toZone("A3:A4");
       anchor = toCartesian("A3");
-      const env = makeTestEnv({ model, askConfirmation });
+      const env = makeTestEnv({ model });
+      const notificationPlugin = env.getPlugin(NotificationPlugin);
+      notificationPlugin.updateNotificationCallbacks({ askConfirmation });
+
       interactiveSortSelection(env, sheetId, anchor, zone, "desc");
       expect(getCellsObject(model, sheetId)).toMatchObject({
         A1: { content: "Alpha" },
@@ -453,7 +476,9 @@ describe("UI Helpers", () => {
   test("Cannot sort on zone with array formulas that spread", () => {
     const raiseError = jest.fn();
     model = createModelFromGrid({ A1: "9", A2: "8", A3: "=CHOOSECOLS(A1:A2, 1)" });
-    const env = makeTestEnv({ model, raiseError });
+    const env = makeTestEnv({ model });
+    const notificationPlugin = env.getPlugin(NotificationPlugin);
+    notificationPlugin.updateNotificationCallbacks({ raiseError });
 
     interactiveSortSelection(env, sheetId, toCartesian("A1"), toZone("A1:A4"), "asc");
     expect(raiseError).toHaveBeenCalledWith("Cannot sort a zone with array formulas.");
@@ -462,7 +487,9 @@ describe("UI Helpers", () => {
   test("Can sort on zone with array formulas that do not spread", () => {
     const raiseError = jest.fn();
     model = createModelFromGrid({ A1: "9", A2: "8", B1: "1", C1: "=MMULT(A1:A2, A1:B1)" });
-    const env = makeTestEnv({ model, raiseError });
+    const env = makeTestEnv({ model });
+    const notificationPlugin = env.getPlugin(NotificationPlugin);
+    notificationPlugin.updateNotificationCallbacks({ raiseError });
 
     interactiveSortSelection(env, sheetId, toCartesian("C1"), toZone("C1:D2"), "asc");
     expect(raiseError).toHaveBeenCalledTimes(1);
@@ -519,7 +546,10 @@ describe("UI Helpers", () => {
       const zone = toZone("B2:B8");
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
       anchor = toCartesian("B2");
-      const env = makeTestEnv({ model, raiseError });
+      const env = makeTestEnv({ model });
+      const notificationPlugin = env.getPlugin(NotificationPlugin);
+      notificationPlugin.updateNotificationCallbacks({ raiseError });
+
       interactiveSortSelection(env, sheetId, anchor, contiguousZone, "asc");
       expect(raiseError).toHaveBeenCalled();
       expect(model.getters.getSelection()).toEqual({
@@ -546,7 +576,10 @@ describe("UI Helpers", () => {
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
 
       const anchor = toCartesian("B2");
-      const env = makeTestEnv({ model, raiseError });
+      const env = makeTestEnv({ model });
+      const notificationPlugin = env.getPlugin(NotificationPlugin);
+      notificationPlugin.updateNotificationCallbacks({ raiseError });
+
       interactiveSortSelection(env, sheetId, anchor, contiguousZone, "asc");
       expect(raiseError).toHaveBeenCalled();
       expect(model.getters.getSelection()).toEqual({

@@ -2,7 +2,7 @@ import { Model, UID } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { parseDateTime } from "../../../src/helpers/dates";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
-import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import { openChartDesignSidePanel, toChartDataSource } from "../../test_helpers/chart_helpers";
 import { createChart } from "../../test_helpers/commands_helpers";
 import { setInputValueAndTrigger } from "../../test_helpers/dom_helper";
@@ -20,7 +20,7 @@ async function mountChartSidePanel(id: UID = chartId, _model: Model) {
 let fixture: HTMLElement;
 const chartId = "someuuid";
 
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 mockChart();
 
