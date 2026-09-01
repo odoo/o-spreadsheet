@@ -96,7 +96,7 @@ function drawLineOrBarOrRadarChartValues(
       const xPosition = point.x;
 
       let yPosition = 0;
-      if (chart.config.type === "line" || chart.config.type === "radar") {
+      if (dataset.type === "line" || dataset.type === "radar") {
         yPosition = value < 0 ? point.y + 10 : point.y - 10;
       } else {
         const yZeroLine = yAxisScale.getPixelForValue(0);
