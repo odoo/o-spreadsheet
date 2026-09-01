@@ -1,5 +1,6 @@
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import { BubbleChartDefinition } from "../../../src/types/chart/bubble_chart";
+import { ComboChartDefinition } from "../../../src/types/chart/combo_chart";
 import { FunnelChartDefinition } from "../../../src/types/chart/funnel_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { PieChartDefinition } from "../../../src/types/chart/pie_chart";
@@ -227,6 +228,26 @@ describe("Funnel chart show value", () => {
       type: "funnel",
       ...toChartDataSource({
         dataSets: [{ dataRange: "A1:A5" }],
+        dataSetsHaveTitle: false,
+      }),
+      showValues: true,
+      title: { text: "" },
+      legendPosition: "none",
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+});
+
+describe("Combo chart show value", () => {
+  test("Can show value on a combo chart", () => {
+    const model = createModelFromGrid({ A1: "1", A2: "2", A3: "3", B1: "0", B2: "1", B3: "2.5" });
+    const definition: Partial<ComboChartDefinition<string>> & { type: "combo" } = {
+      type: "combo",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }],
         dataSetsHaveTitle: false,
       }),
       showValues: true,
