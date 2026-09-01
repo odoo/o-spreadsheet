@@ -42,6 +42,7 @@ export const chartShowValuesPlugin: Plugin = {
       case "doughnut":
         drawPieChartValues(chart, options, ctx);
         break;
+      case "combo":
       case "bar":
       case "line":
         options.horizontal
@@ -80,7 +81,7 @@ function drawLineOrBarChartValues(
       const xPosition = point.x;
 
       let yPosition = 0;
-      if (chart.config.type === "line") {
+      if (dataset.type === "line") {
         yPosition = point.y - 10;
       } else {
         yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;

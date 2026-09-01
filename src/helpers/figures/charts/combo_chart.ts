@@ -248,6 +248,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
 
   const fontColor = chartFontColor(chart.background);
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
+  config.type = "bar";
   const legend: DeepPartial<LegendOptions<"bar">> = getChartJsLegend(fontColor);
 
   if (chart.legendPosition === "none") {
