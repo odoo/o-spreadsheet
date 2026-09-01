@@ -44,7 +44,7 @@ import {
   DispatchResult,
   EvaluationCommandDispatcher,
   isCoreCommand,
-  isEvaluationCommand,
+  isDispatcheableEvaluationCommand,
 } from "./types/commands";
 import { CoreGetters, EvaluationGetters, Getters } from "./types/getters";
 import { DEFAULT_LOCALES } from "./types/locale";
@@ -546,7 +546,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     }
     switch (status) {
       case Status.Ready:
-        if (isEvaluationCommand(command)) {
+        if (isDispatcheableEvaluationCommand(command)) {
           this.status = Status.RunningEvaluation;
           const start = performance.now();
           this.dispatchToHandlers(this.handlers, command);
@@ -601,7 +601,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         this.dispatchToHandlers(this.handlers, command);
         break;
       case Status.RunningEvaluation:
-        if (!isEvaluationCommand(command)) {
+        if (!isDispatcheableEvaluationCommand(command)) {
           throw new Error(
             `A top level evaluation command cannot dispatch non-evaluation commands (${type})`
           );
@@ -630,7 +630,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     payload?: any
   ) => {
     const command = createCommand(type, payload);
-    if (!isEvaluationCommand(command)) {
+    if (!isDispatcheableEvaluationCommand(command)) {
       throw new Error(`An evaluation plugin cannot dispatch non-evaluation commands (${type})`);
     }
     this.dispatchToHandlers(this.evaluationHandlers, command);
