@@ -6,7 +6,7 @@ import { isObjectEmptyRecursive, removeFalsyAttributes } from "../../helpers/mis
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isZoneInside, toZone, zoneToXc } from "../../helpers/zones";
 import {
-  Command,
+  EvaluationCommand,
   invalidateBordersCommands,
   invalidateCFEvaluationCommands,
   invalidateEvaluationCommands,
@@ -22,7 +22,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
   private styles: PositionMap<Style> = new PositionMap();
   private borders: PositionMap<Border | null> = new PositionMap();
 
-  handle(cmd: Command) {
+  handle(cmd: EvaluationCommand) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       cmd.type === "UPDATE_CELL" ||

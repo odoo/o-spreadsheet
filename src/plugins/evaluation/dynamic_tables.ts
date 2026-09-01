@@ -12,7 +12,7 @@ import {
   toZone,
   union,
 } from "../../helpers/zones";
-import { Command, invalidateEvaluationCommands } from "../../types/commands";
+import { EvaluationCommand, invalidateEvaluationCommands } from "../../types/commands";
 import { CellErrorType } from "../../types/errors";
 import { CellPosition, FilterId, TableId, UID, Zone } from "../../types/misc";
 import { PivotStyle } from "../../types/pivot";
@@ -37,7 +37,7 @@ export class DynamicTablesPlugin extends EvaluationPlugin {
 
   tables: Record<UID, Table[]> = {};
 
-  handle(cmd: Command) {
+  handle(cmd: EvaluationCommand) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd)) ||

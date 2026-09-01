@@ -10,7 +10,7 @@ import {
 } from "../../helpers/color";
 import { isDefined } from "../../helpers/misc";
 import { Cell } from "../../types/cells";
-import { Command } from "../../types/commands";
+import { EvaluationCommand } from "../../types/commands";
 import { Color, Immutable, RGBA, UID } from "../../types/misc";
 import { TableElementStyle } from "../../types/table";
 import { EvaluationPlugin, EvaluationPluginConfig } from "../evaluation_plugin";
@@ -83,7 +83,7 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
     this.tryToAddColors(config.customColors ?? []);
   }
 
-  handle(cmd: Command) {
+  handle(cmd: EvaluationCommand) {
     switch (cmd.type) {
       case "START":
         for (const sheetId of this.getters.getSheetIds()) {

@@ -17,8 +17,8 @@ import { _t } from "../../translation";
 import { CellValue, CellValueType, FormulaCell } from "../../types/cells";
 import {
   AddPivotCommand,
-  Command,
   CoreCommand,
+  EvaluationCommand,
   UpdatePivotCommand,
   invalidateEvaluationCommands,
   isCoreCommand,
@@ -73,7 +73,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     this.custom = config.custom;
   }
 
-  beforeHandle(cmd: Command) {
+  beforeHandle(cmd: EvaluationCommand) {
     switch (cmd.type) {
       case "START":
         for (const pivotId of this.getters.getPivotIds()) {
@@ -82,7 +82,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     }
   }
 
-  handle(cmd: Command) {
+  handle(cmd: EvaluationCommand) {
     if (isCoreCommand(cmd) || cmd.type === "UNDO" || cmd.type === "REDO") {
       this.unusedPivotsInFormulas = undefined;
     }

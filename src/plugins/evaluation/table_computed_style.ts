@@ -1,7 +1,12 @@
 import { isEvaluationError } from "../../functions/helpers";
 import { lazy } from "../../helpers/misc";
 import { getComputedTableStyle } from "../../helpers/table_helpers";
-import { Command, CommandTypes, invalidateEvaluationCommands } from "../../types/commands";
+import {
+  Command,
+  CommandTypes,
+  EvaluationCommand,
+  invalidateEvaluationCommands,
+} from "../../types/commands";
 import { EvaluationError } from "../../types/errors";
 import { Border, CellPosition, Lazy, Style, TableId, UID } from "../../types/misc";
 import { Table, TableConfig, TableMetaData } from "../../types/table";
@@ -23,7 +28,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
 
   private tableStyles: Record<UID, Record<TableId, Lazy<ComputedTableStyle>>> = {};
 
-  handle(cmd: Command) {
+  handle(cmd: EvaluationCommand) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd)) ||
@@ -296,15 +301,14 @@ const invalidateTableStyleCommands = [
   "UPDATE_TABLE",
   "UPDATE_FILTER",
   "REMOVE_TABLE",
-  "RESIZE_TABLE",
   "CREATE_TABLE_STYLE",
   "REMOVE_TABLE_STYLE",
   "DELETE_CONTENT",
 ] as const;
 const invalidateTableStyleCommandsSet = new Set<CommandTypes>(invalidateTableStyleCommands);
 
-export function doesCommandInvalidatesTableStyle(
-  cmd: Command
-): cmd is { type: (typeof invalidateTableStyleCommands)[number] } & Command {
+export function doesCommandInvalidatesTableStyle<C extends Command>(
+  cmd: C
+): cmd is Extract<C, { type: (typeof invalidateTableStyleCommands)[number] }> {
   return invalidateTableStyleCommandsSet.has(cmd.type);
 }

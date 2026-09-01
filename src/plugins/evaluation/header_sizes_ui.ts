@@ -9,7 +9,7 @@ import {
 import { getCanvas, getDefaultCellHeight } from "../../helpers/text_helper";
 import { positions } from "../../helpers/zones";
 import { Canvas2DContext } from "../../types/canvas";
-import { Command } from "../../types/commands";
+import { EvaluationCommand } from "../../types/commands";
 import { AnchorOffset } from "../../types/figure";
 import {
   CellPosition,
@@ -40,7 +40,7 @@ export class HeaderSizeUIPlugin
   readonly tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>> = {};
   ctx: Canvas2DContext = getCanvas();
 
-  beforeHandle(cmd: Command) {
+  beforeHandle(cmd: EvaluationCommand) {
     switch (cmd.type) {
       // Ensure rows are updated before "UPDATE_CELL" is dispatched from cell plugin.
       // "UPDATE_CELL" uses the Sheet core plugin to access row data.
@@ -62,7 +62,7 @@ export class HeaderSizeUIPlugin
     }
   }
 
-  handle(cmd: Command) {
+  handle(cmd: EvaluationCommand) {
     switch (cmd.type) {
       case "START":
       case "UPDATE_LOCALE":

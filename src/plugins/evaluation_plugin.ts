@@ -1,6 +1,6 @@
 import { Session } from "../collaborative/session";
 import { StateObserver } from "../state_observer";
-import { Command, EvaluationCommandDispatcher } from "../types/commands";
+import { EvaluationCommand, EvaluationCommandDispatcher } from "../types/commands";
 import { Currency } from "../types/currency";
 import { EvaluationGetters } from "../types/getters";
 import { Color } from "../types/misc";
@@ -25,9 +25,9 @@ export interface EvaluationPluginConstructor {
 
 /**
  * Evaluation plugins handle any data derived from core data (i.e. evaluation).
- * They cannot impact the model data (i.e. cannot dispatch commands).
+ * They cannot impact the model data (i.e. cannot dispatch core commands).
  */
-export class EvaluationPlugin<State = any> extends BasePlugin<State, Command> {
+export class EvaluationPlugin<State = any> extends BasePlugin<State, EvaluationCommand> {
   protected getters: EvaluationGetters;
   protected dispatch: EvaluationCommandDispatcher["dispatch"];
   constructor({ getters, stateObserver, dispatch }: EvaluationPluginConfig) {
