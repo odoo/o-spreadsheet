@@ -103,7 +103,7 @@ describe("Spreadsheet pivot side panel", () => {
     await setInputValueAndTrigger("input.o-pivot-n-of-rows", "12");
 
     expect(notifyUser).toHaveBeenCalledWith({
-      text: "Pivot updates only work with dynamic pivot tables. Use the formula '=PIVOT(1)' or re-insert the static pivot from the Data menu.",
+      text: "Only dynamic pivots can be updated.",
       sticky: true,
       type: "info",
     });

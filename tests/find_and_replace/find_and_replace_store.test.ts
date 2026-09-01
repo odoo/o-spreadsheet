@@ -973,7 +973,7 @@ describe("replace warnings", () => {
     expect(spyNotify).toHaveBeenCalledWith({
       type: "warning",
       sticky: false,
-      text: "Match(es) cannot be replaced as they are part of a formula or inside a locked sheet",
+      text: "Some matches can't be replaced.",
     });
   });
 
@@ -993,7 +993,7 @@ describe("replace warnings", () => {
     expect(spyNotify).toHaveBeenCalledWith({
       type: "warning",
       sticky: false,
-      text: "2 match(es) replaced. 2 match(es) cannot be replaced as they are part of a formula or inside a locked sheet",
+      text: "2 replaced, 2 skipped.",
     });
   });
 
@@ -1010,7 +1010,7 @@ describe("replace warnings", () => {
     expect(spyNotify).toHaveBeenCalledWith({
       type: "warning",
       sticky: false,
-      text: "1 match(es) replaced. 1 match(es) cannot be replaced as they are part of a formula or inside a locked sheet",
+      text: "1 replaced, 1 skipped.",
     });
   });
 
@@ -1028,7 +1028,7 @@ describe("replace warnings", () => {
     expect(spyNotify).toHaveBeenCalledWith({
       type: "warning",
       sticky: false,
-      text: "1 match(es) replaced. 1 match(es) cannot be replaced as they are part of a formula or inside a locked sheet",
+      text: "1 replaced, 1 skipped.",
     });
 
     replaceAll("2025");
@@ -1036,7 +1036,7 @@ describe("replace warnings", () => {
     expect(spyNotify).toHaveBeenCalledWith({
       type: "warning",
       sticky: false,
-      text: "Match(es) cannot be replaced as they are part of a formula or inside a locked sheet",
+      text: "Some matches can't be replaced.",
     });
   });
 
@@ -1053,7 +1053,7 @@ describe("replace warnings", () => {
     expect(spyNotify).toHaveBeenCalledWith({
       type: "warning",
       sticky: false,
-      text: "Match(es) cannot be replaced as they are part of a formula or inside a locked sheet",
+      text: "Some matches can't be replaced.",
     });
   });
 });
