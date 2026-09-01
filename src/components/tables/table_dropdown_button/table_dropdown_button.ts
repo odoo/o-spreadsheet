@@ -46,7 +46,7 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
     const tableConfig = { ...this.tableConfig, styleId };
     const result = interactiveCreateTable(this.spEnv, sheetId, tableConfig);
     if (result.isSuccessful) {
-      const table = FIRST_TABLE_IN_SELECTION(this.env);
+      const table = FIRST_TABLE_IN_SELECTION(this.spEnv);
       if (table) {
         this.env.openSidePanel("TableSidePanel", { table });
       }

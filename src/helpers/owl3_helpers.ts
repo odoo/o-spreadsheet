@@ -1,6 +1,6 @@
 import { PluginConstructor, PluginInstance, usePlugin, useScope } from "@odoo/owl";
 import { useEnv } from "../owl3_compatibility_layer";
-import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
 
 /**
  * Comes from https://github.com/odoo/odoo/blob/master/addons/web/static/src/owl2/utils.js
@@ -9,7 +9,7 @@ export function render(component: any, deep = false) {
   component.__owl__.render(deep);
 }
 
-export function useSpreadsheetEnv(): SpreadsheetChildEnv {
+export function useSpreadsheetEnv(): SpreadsheetActionEnv {
   const env = useEnv();
   const scope = useScope();
 

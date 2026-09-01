@@ -1,7 +1,8 @@
-import { useProps } from "@odoo/owl";
+import { usePlugin, useProps } from "@odoo/owl";
 import { ActionSpec } from "../../../../actions/action";
 import { UuidGenerator } from "../../../../helpers/uuid";
 import { Component } from "../../../../owl3_compatibility_layer";
+import { NotificationPlugin } from "../../../../owl_plugins/notification_owl_plugin";
 import { _t } from "../../../../translation";
 import { CommandResult } from "../../../../types/commands";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
@@ -17,6 +18,8 @@ export class PivotTitleSection extends Component<SpreadsheetChildEnv> {
     pivotId: types.UID(),
     flipAxis: types.function(),
   });
+
+  private notification = usePlugin(NotificationPlugin);
 
   get cogWheelMenuItems(): ActionSpec[] {
     return [
@@ -66,7 +69,7 @@ export class PivotTitleSection extends Component<SpreadsheetChildEnv> {
       text = _t("Pivot duplication failed.");
     }
     const type = result.isSuccessful ? "success" : "danger";
-    this.env.notifyUser({
+    this.notification.notifyUser({
       text,
       sticky: false,
       type,
@@ -77,7 +80,7 @@ export class PivotTitleSection extends Component<SpreadsheetChildEnv> {
   }
 
   delete() {
-    this.env.askConfirmation(_t("Are you sure you want to delete this pivot?"), () => {
+    this.notification.askConfirmation(_t("Are you sure you want to delete this pivot?"), () => {
       this.env.model.dispatch("REMOVE_PIVOT", { pivotId: this.props.pivotId });
     });
   }

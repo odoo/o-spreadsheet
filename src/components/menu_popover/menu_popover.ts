@@ -1,17 +1,8 @@
-import {
-  onWillUnmount,
-  onWillUpdateProps,
-  proxy,
-  signal,
-  useListener,
-  usePlugin,
-  useProps,
-} from "@odoo/owl";
+import { onWillUnmount, onWillUpdateProps, proxy, signal, useListener, useProps } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators, isMenuItemEnabled } from "../../actions/action";
 import { DESKTOP_MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../constants";
 import { useSpreadsheetEnv } from "../../helpers/owl3_helpers";
 import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
-import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { MenuMouseEvent, Pixel, UID } from "../../types/misc";
@@ -90,9 +81,6 @@ export class MenuPopover extends Component<SpreadsheetChildEnv> {
 
   setup() {
     const domFocusableElementStore = useStore(DOMFocusableElementStore);
-    const np = usePlugin(NotificationPlugin);
-    console.log(np);
-
     useLayoutEffect(() => {
       if (
         !this.props.disableKeyboardNavigation &&

@@ -9,7 +9,7 @@ import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
 import { ImageFigure } from "../components/figures/figure_image/figure_image";
 import { Getters } from "../types/getters";
 import { UID } from "../types/misc";
-import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
 import { Registry } from "./registry";
 
 //------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ import { Registry } from "./registry";
 
 export interface FigureContent {
   Component: any;
-  menuBuilder: (figureId: UID, env: SpreadsheetChildEnv) => Action[];
+  menuBuilder: (figureId: UID, env: SpreadsheetActionEnv) => Action[];
   isThemeDependant: boolean;
   SidePanelComponent?: string;
   keepRatio?: boolean;

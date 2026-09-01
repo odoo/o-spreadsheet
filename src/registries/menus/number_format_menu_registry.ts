@@ -4,7 +4,7 @@ import { isDateTimeFormat } from "../../helpers/format/format";
 import { memoize } from "../../helpers/misc";
 import { _t } from "../../translation";
 import { Format } from "../../types/format";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
 import { Registry } from "../registry";
 
 export const numberFormatMenuRegistry = new Registry<ACTION_FORMAT.NumberFormatActionSpec>();
@@ -92,7 +92,7 @@ numberFormatMenuRegistry
   });
 
 export function getCustomNumberFormats(
-  env: SpreadsheetChildEnv
+  env: SpreadsheetActionEnv
 ): ACTION_FORMAT.NumberFormatActionSpec[] {
   const defaultFormats = new Set(
     numberFormatMenuRegistry
