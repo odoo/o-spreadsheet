@@ -1,3 +1,5 @@
+import { usePlugin } from "@odoo/owl";
+import { SpreadsheetEnvPlugin } from "../components/spreadsheet/spreadsheet_env_owl_plugin";
 import { useEnv } from "../owl3_compatibility_layer";
 import { proxifyStoreMutation } from "../store_engine/store_hooks";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
@@ -12,6 +14,7 @@ export function render(component: any, deep = false) {
 
 export function useSpreadsheetEnv(): SpreadsheetChildEnv {
   const env = useEnv();
+  const spreadsheetEnv = usePlugin(SpreadsheetEnvPlugin);
   const container = env.__spreadsheet_stores__;
   if (!container) {
     throw new Error("No store provider found.");
