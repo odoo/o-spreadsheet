@@ -823,3 +823,13 @@ export function haveSameNumberOfCols(z1: Zone | UnboundedZone, z2: Zone | Unboun
   }
   return z1.right - z1.left === z2.right - z2.left;
 }
+
+export function extendZone(
+  zone: Zone,
+  direction: "left" | "top" | "right" | "bottom",
+  quantity: number
+): Zone {
+  zone = { ...zone };
+  zone[direction] += direction === "left" || direction === "top" ? -quantity : quantity;
+  return zone;
+}
