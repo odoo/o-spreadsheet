@@ -7,42 +7,15 @@
     }
   }
 
+  /* The pages are in the iframe document, styled by PRINT_IFRAME_CSS */
   .o-print-preview {
-    background-color: light-dark(var(--os-gray-200), var(--os-gray-100));
-
-    .o-print-page {
-      /* Don't use css variable to keep white on dark mode */
-      background-color: #ffffff;
-    }
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+    border: 0;
   }
 
   .o-sidePanel {
     width: 350px;
-  }
-
-  @media print {
-    .o-print-container {
-      overflow: visible !important;
-      height: 100% !important;
-    }
-
-    .o-print-preview {
-      box-shadow: none !important;
-      overflow: visible !important;
-      height: 100% !important;
-
-      .o-print-page {
-        box-shadow: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        break-after: page;
-
-        &:last-child {
-          break-after: auto;
-        }
-      }
-    }
   }
 }

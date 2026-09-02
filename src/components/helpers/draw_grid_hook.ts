@@ -1,4 +1,3 @@
-import type { Signal } from "@odoo/owl";
 import { CANVAS_SHIFT } from "../../constants";
 import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
@@ -9,7 +8,7 @@ import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "./css";
 
 interface GridDrawingArgs {
-  canvasRef: Signal<HTMLElement | null>;
+  canvasRef: () => HTMLElement | null;
   renderingCtx: () => Omit<GridRenderingContext, "ctx" | "thinLineWidth">;
   rendererStore?: Store<RendererStore>;
   changeCanvasSizeOnZoom?: boolean;
@@ -26,7 +25,10 @@ export function useGridDrawing({
   useLocalStore(GridRenderer, renderer);
 
   function drawGrid() {
-    const canvas = canvasRef() as HTMLCanvasElement;
+    const canvas = canvasRef() as HTMLCanvasElement | null;
+    if (!canvas) {
+      return;
+    }
     const ctx = canvas.getContext("2d", { alpha: false })!;
     const renderingContext: GridRenderingContext = {
       ctx,
@@ -55,6 +57,7 @@ export function useGridDrawing({
     // line will be drawn two pixels wide. To draw a line that is only one pixel wide,
     // you need to shift the coordinates by 0.5 perpendicular to the line's direction.
     // http://diveintohtml5.info/canvas.html#pixel-madness
+    ctx.resetTransform();
     ctx.translate(-CANVAS_SHIFT, -CANVAS_SHIFT);
     ctx.scale(dpr * zoom, dpr * zoom);
 
