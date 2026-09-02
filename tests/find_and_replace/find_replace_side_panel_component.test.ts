@@ -432,4 +432,18 @@ describe("find and replace sidePanel component", () => {
     composerStore.stopEdition("down");
     expect(model.getters.getSelectedZones()).toMatchObject([toZone("C12")]);
   });
+
+  test("Invalid ranges are not stored", async () => {
+    changeSearchScope("specificRange");
+    await nextTick();
+    await nextTick(); // selection input need 2 nextTicks because ¯\_(ツ)_/¯
+    (fixture.querySelector(selectors.searchRange) as HTMLInputElement).focus();
+    setInputValueAndTrigger(selectors.searchRange, "thisIsInvalid");
+    await nextTick();
+    (fixture.querySelector(selectors.inputSearch) as HTMLInputElement).focus();
+    inputSearchValue("hello");
+    await nextTick();
+    expect(selectors.searchRange).toHaveClass("o-invalid");
+    expect(getMatchesCount()).toMatchObject({ specificRange: 0 });
+  });
 });
