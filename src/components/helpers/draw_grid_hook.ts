@@ -55,6 +55,7 @@ export function useGridDrawing({
     // line will be drawn two pixels wide. To draw a line that is only one pixel wide,
     // you need to shift the coordinates by 0.5 perpendicular to the line's direction.
     // http://diveintohtml5.info/canvas.html#pixel-madness
+    ctx.resetTransform();
     ctx.translate(-CANVAS_SHIFT, -CANVAS_SHIFT);
     ctx.scale(dpr * zoom, dpr * zoom);
 
