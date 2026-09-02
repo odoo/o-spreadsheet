@@ -48,6 +48,7 @@ export class ViewportsStore extends SpreadsheetStore {
     "setViewportArgs",
     "rebuildViewports",
   ] as const;
+  storeGetters = ["getCartesianCoordinates"] as const;
 
   private zoomStore = this.get(ZoomStore);
   private getHeaderDimensionsCallback = this.getters.getHeaderDimensions;
@@ -219,6 +220,13 @@ export class ViewportsStore extends SpreadsheetStore {
 
   get gridOffset(): DOMCoordinates {
     return this.viewports.getGridOffset();
+  }
+
+  getCartesianCoordinates(x: Pixel, y: Pixel): [HeaderIndex, HeaderIndex] {
+    return [
+      this.viewports.getColIndex(this.displayedSheetId, x),
+      this.viewports.getRowIndex(this.displayedSheetId, y),
+    ];
   }
 
   /** type as pane, not viewport but basically pane extends viewport */
