@@ -1,6 +1,7 @@
 import { proxy, useProps } from "@odoo/owl";
 import { setStyle } from "../../../actions/menu_items_actions";
 import { deepEquals } from "../../../helpers/misc";
+import { useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { Component } from "../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ColorPickerWidget } from "../../color_picker/color_picker_widget";
@@ -17,6 +18,8 @@ export class TopBarColorEditor extends Component<SpreadsheetChildEnv> {
     icon: types.string(),
     title: types.string(),
   });
+
+  spEnv = useSpreadsheetEnv();
   topBarToolStore!: ToolBarDropdownStore;
 
   state = proxy({

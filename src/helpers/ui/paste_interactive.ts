@@ -1,5 +1,6 @@
 import { MergeErrorMessage, RemoveDuplicateTerms } from "../../components/translations_terms";
 import { getCurrentVersion } from "../../migrations/data";
+import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { _t } from "../../translation";
 import {
   ClipboardPasteOptions,
@@ -14,15 +15,15 @@ import {
   DispatchResult,
 } from "../../types/commands";
 import { Zone } from "../../types/misc";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
 
 export const handleCopyPasteResult = (
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   command: CopyPasteCellsAboveCommand | CopyPasteCellsOnLeftCommand | CopyPasteCellsOnZoneCommand
 ) => {
   const result = env.model.dispatch(command.type);
   if (result.isCancelledBecause(CommandResult.WillRemoveExistingMerge)) {
-    env.raiseError(MergeErrorMessage);
+    env.getPlugin(NotificationPlugin).raiseError(MergeErrorMessage);
   }
 };
 
@@ -33,22 +34,23 @@ export const PasteInteractiveContent = {
   frozenPaneOverlap: _t("This operation is not allowed due to an overlapping frozen pane."),
 };
 
-export function handlePasteResult(env: SpreadsheetChildEnv, result: DispatchResult) {
+export function handlePasteResult(env: SpreadsheetActionEnv, result: DispatchResult) {
+  const notificationPlugin = env.getPlugin(NotificationPlugin);
   if (!result.isSuccessful) {
     if (result.reasons.includes(CommandResult.WrongPasteSelection)) {
-      env.raiseError(PasteInteractiveContent.wrongPasteSelection);
+      notificationPlugin.raiseError(PasteInteractiveContent.wrongPasteSelection);
     } else if (result.reasons.includes(CommandResult.WillRemoveExistingMerge)) {
-      env.raiseError(PasteInteractiveContent.willRemoveExistingMerge);
+      notificationPlugin.raiseError(PasteInteractiveContent.willRemoveExistingMerge);
     } else if (result.reasons.includes(CommandResult.WrongFigurePasteOption)) {
-      env.raiseError(PasteInteractiveContent.wrongFigurePasteOption);
+      notificationPlugin.raiseError(PasteInteractiveContent.wrongFigurePasteOption);
     } else if (result.reasons.includes(CommandResult.FrozenPaneOverlap)) {
-      env.raiseError(PasteInteractiveContent.frozenPaneOverlap);
+      notificationPlugin.raiseError(PasteInteractiveContent.frozenPaneOverlap);
     }
   }
 }
 
 export function interactivePaste(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   target: Zone[],
   pasteOption?: ClipboardPasteOptions
 ) {
@@ -57,13 +59,14 @@ export function interactivePaste(
 }
 
 export async function interactivePasteFromOS(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   target: Zone[],
   parsedClipboardContent: ParsedOSClipboardContent,
   pasteOption?: ClipboardPasteOptions
 ) {
+  const notificationPlugin = env.getPlugin(NotificationPlugin);
   if (parsedClipboardContent.data && parsedClipboardContent.data.version !== getCurrentVersion()) {
-    env.notifyUser({
+    notificationPlugin.notifyUser({
       type: "warning",
       text: _t(
         "You copied content from a different version of the application. Only text and image content will be pasted."
@@ -80,7 +83,7 @@ export async function interactivePasteFromOS(
     } catch (e) {
       const msg = _t("An error occurred while uploading the image. %s", e.message);
       console.error(e);
-      env.raiseError(msg);
+      notificationPlugin.raiseError(msg);
     }
     delete parsedClipboardContent.imageBlob;
   }

@@ -1,10 +1,12 @@
+import { providePlugins } from "@odoo/owl";
 import { Model, UID } from "../../../src";
 import { HoveredIconStore } from "../../../src/components/grid_overlay/hovered_icon_store";
+import { PopoverContainerPlugin } from "../../../src/components/popover/popover_container_owl_plugin";
 import { StandaloneViewport } from "../../../src/components/standalone_viewport/standalone_viewport";
 import { DEFAULT_CELL_HEIGHT, TABLE_HOVER_BACKGROUND_COLOR } from "../../../src/constants";
 import { buildSheetLink, range } from "../../../src/helpers/misc";
+import { useSpreadsheetEnv } from "../../../src/helpers/owl3_helpers";
 import { zoneToXc } from "../../../src/helpers/zones";
-import { useSubEnv } from "../../../src/owl3_compatibility_layer";
 import { CellHoverOverlayStore } from "../../../src/stores/cell_hover_overlay_store";
 import { GridRenderer } from "../../../src/stores/grid_renderer_store";
 import { ViewportsStore } from "../../../src/stores/viewports_store";
@@ -63,11 +65,10 @@ beforeEach(() => {
     .spyOn(StandaloneViewport.prototype, "setup")
     .mockImplementation(function (this: StandaloneViewport) {
       originalSetup.call(this);
-      // In real life this is defined by the standalone viewport's parent (grid)
-      useSubEnv({
+      providePlugins([PopoverContainerPlugin], {
         getPopoverContainerRect: () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
       });
-      subEnv = this.env;
+      subEnv = useSpreadsheetEnv();
     });
 });
 

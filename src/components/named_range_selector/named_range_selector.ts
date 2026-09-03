@@ -1,6 +1,7 @@
-import { proxy, signal } from "@odoo/owl";
+import { proxy, signal, usePlugin } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../actions/action";
 import { HIGHLIGHT_COLOR } from "../../constants";
+import { useSpreadsheetEnv } from "../../helpers/owl3_helpers";
 import { rangeReference } from "../../helpers/references";
 import { fuzzyLookup } from "../../helpers/search";
 import {
@@ -9,6 +10,7 @@ import {
 } from "../../helpers/ui/named_range_interactive";
 import { zoneToXc } from "../../helpers/zones";
 import { Component } from "../../owl3_compatibility_layer";
+import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
@@ -30,6 +32,9 @@ interface State extends Omit<MenuState, "isOpen"> {
 export class NamedRangeSelector extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-NamedRangeSelector";
   static components = { TextInput, MenuPopover };
+
+  spEnv = useSpreadsheetEnv();
+  private notification = usePlugin(NotificationPlugin);
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
@@ -71,12 +76,12 @@ export class NamedRangeSelector extends Component<SpreadsheetChildEnv> {
 
     const namedRangeInZone = this.env.model.getters.getNamedRangeFromZone(sheetId, selection);
     if (!namedRangeInZone) {
-      interactiveCreateNamedRange(this.env, {
+      interactiveCreateNamedRange(this.spEnv, {
         name: newValue,
         ranges: [this.env.model.getters.getRangeDataFromZone(sheetId, selection)],
       });
     } else {
-      interactiveUpdateNamedRange(this.env, {
+      interactiveUpdateNamedRange(this.spEnv, {
         newRangeName: newValue,
         oldRangeName: namedRangeInZone.name,
         ranges: [this.env.model.getters.getRangeData(namedRangeInZone.range)],
@@ -157,7 +162,7 @@ export class NamedRangeSelector extends Component<SpreadsheetChildEnv> {
     const { sheetId, zone } = range;
     const doesRangeExist = this.env.model.getters.checkZonesExistInSheet(sheetId, [zone]);
     if (doesRangeExist !== CommandResult.Success) {
-      this.env.raiseError(
+      this.notification.raiseError(
         _t(
           "The range you specified is outside of the sheet.\n\nIf you meant to create a named range, named range cannot have the same name as a cell reference. Please choose another name."
         )
@@ -167,7 +172,7 @@ export class NamedRangeSelector extends Component<SpreadsheetChildEnv> {
     const activeSheetId = this.env.model.getters.getActiveSheetId();
     if (activeSheetId !== sheetId) {
       if (!this.env.model.getters.getSheet(sheetId).isVisible) {
-        this.env.notifyUser({
+        this.notification.notifyUser({
           text: _t("The sheet on which the range is defined is hidden."),
           type: "info",
           sticky: false,

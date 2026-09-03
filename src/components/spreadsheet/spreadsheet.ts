@@ -3,6 +3,7 @@ import {
   onPatched,
   onWillUnmount,
   onWillUpdateProps,
+  providePlugins,
   proxy,
   signal,
   useEffect,
@@ -17,6 +18,7 @@ import { batched } from "../../helpers/misc";
 import { render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
 import { Component, useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
+import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
 import { ModelStore } from "../../stores/model_store";
@@ -40,12 +42,14 @@ import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { cssPropertiesToCss } from "../helpers/css";
 import {
+  getElBoundingRect,
   isMobileOS,
   keyboardEventToShortcutString,
   zoomCorrectedElementRect,
 } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";
+import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 import { types } from "../props_validation";
 import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../side_panel/side_panels/side_panels";
@@ -135,6 +139,11 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
     this.viewStore = useStore(ViewportsStore);
     this.zoomStore = useStore(ZoomStore);
 
+    providePlugins([PopoverContainerPlugin], {
+      getPopoverContainerRect: () => getElBoundingRect(this.spreadsheetRef()),
+    });
+    providePlugins([NotificationPlugin]);
+
     const env = this.env;
     stores.get(ScreenWidthStore).setSmallThreshhold(() => {
       return env.isSmall;
@@ -159,10 +168,10 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       clipboard: this.env.clipboard || instantiateClipboard(),
       startCellEdition: (content?: string) =>
         this.composerFocusStore.focusActiveComposer({ content }),
-      notifyUser: (notification) => this.notificationStore.notifyUser(notification),
-      askConfirmation: (text, confirm, cancel) =>
-        this.notificationStore.askConfirmation(text, confirm, cancel),
-      raiseError: (text, cb) => this.notificationStore.raiseError(text, cb),
+      // notifyUser: (notification) => this.notificationStore.notifyUser(notification),
+      // askConfirmation: (text, confirm, cancel) =>
+      //   this.notificationStore.askConfirmation(text, confirm, cancel),
+      // raiseError: (text, cb) => this.notificationStore.raiseError(text, cb),
       isMobile: isMobileOS,
       printSpreadsheet: () => (this.state.printModeEnabled = true),
     } satisfies Partial<SpreadsheetChildEnv>);

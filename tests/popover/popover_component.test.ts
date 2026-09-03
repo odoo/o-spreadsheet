@@ -1,6 +1,7 @@
-import { App, useProps, xml } from "@odoo/owl";
+import { providePlugins, useProps, xml } from "@odoo/owl";
 import { Model, Pixel, Rect } from "../../src";
 import { Popover } from "../../src/components/popover/popover";
+import { PopoverContainerPlugin } from "../../src/components/popover/popover_container_owl_plugin";
 import { types } from "../../src/components/props_validation";
 import { getDefaultSheetViewSize } from "../../src/constants";
 import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
@@ -13,7 +14,6 @@ const POPOVER_WIDTH = 200;
 
 let fixture: HTMLElement;
 let model: Model;
-let app: App;
 
 interface MountPopoverArgs extends Partial<PropsOf<Popover>> {
   childWidth?: Pixel;
@@ -39,9 +39,10 @@ async function mountTestPopover(args: MountPopoverArgs) {
       const env: any = {
         model: this.props.model,
       };
-      if (args.containerRect) {
-        env.getPopoverContainerRect = () => args.containerRect;
-      }
+      providePlugins([PopoverContainerPlugin], {
+        getPopoverContainerRect: () =>
+          args.containerRect || { x: 0, y: 0, height: 1000, width: 1000 },
+      });
       useSubEnv(env);
     }
 
@@ -55,7 +56,7 @@ async function mountTestPopover(args: MountPopoverArgs) {
     }
   }
 
-  ({ fixture, app } = await mountComponent(Parent, { props: { model } }));
+  ({ fixture } = await mountComponent(Parent, { props: { model } }));
 }
 
 beforeEach(async () => {
@@ -312,40 +313,6 @@ describe("Popover positioning", () => {
     });
     const popover = fixture.querySelector(".o-popover")! as HTMLElement;
     expect(popover).toBeTruthy();
-    expect(popover.style.display).toEqual("none");
-  });
-
-  test("The containerRect is the spreadsheet element if it is not explicitly in the popover props", async () => {
-    extendMockGetBoundingClientRect({
-      "o-spreadsheet": () => ({ x: 200, y: 200, width: 1000, height: 1000 }),
-    });
-    await mountTestPopover({
-      anchorRect: { x: 0, y: 0, width: 0, height: 0 },
-      positioning: "bottom-left",
-      childHeight: 100,
-      childWidth: 100,
-    });
-    let popover = fixture.querySelector(".o-popover")! as HTMLElement;
-    expect(popover.style.display).toEqual("none");
-
-    app.destroy();
-    await mountTestPopover({
-      anchorRect: { x: 300, y: 300, width: 0, height: 0 },
-      positioning: "bottom-left",
-      childHeight: 100,
-      childWidth: 100,
-    });
-    popover = fixture.querySelector(".o-popover")! as HTMLElement;
-    expect(popover.style.display).toEqual("block");
-
-    app.destroy();
-    await mountTestPopover({
-      anchorRect: { x: 1400, y: 1400, width: 0, height: 0 },
-      positioning: "bottom-left",
-      childHeight: 100,
-      childWidth: 100,
-    });
-    popover = fixture.querySelector(".o-popover")! as HTMLElement;
     expect(popover.style.display).toEqual("none");
   });
 

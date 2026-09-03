@@ -15,6 +15,7 @@ import { MenuPopover } from "../../../menu_popover/menu_popover";
 import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
 
+import { useSpreadsheetEnv } from "../../../../helpers/owl3_helpers";
 import { InfoPopover } from "../../../info_popover/info_popover";
 
 interface MenuItem {
@@ -38,6 +39,8 @@ export class ChartMenu extends Component<SpreadsheetChildEnv> {
     hasFullScreenButton: types.boolean().optional(true),
     displayEllipsisButton: types.boolean().optional(true),
   });
+
+  spEnv = useSpreadsheetEnv();
 
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
 
@@ -94,7 +97,7 @@ export class ChartMenu extends Component<SpreadsheetChildEnv> {
     }
     this.state.openedPopover = "menu";
     this.state.anchorRect = getBoundingRectAsPOJO(ev.currentTarget as HTMLElement);
-    this.state.menuItems = getChartMenuActions(this.figureId, this.env);
+    this.state.menuItems = getChartMenuActions(this.figureId, this.spEnv);
   }
 
   showInfo(ev: MenuMouseEvent) {

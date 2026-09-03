@@ -19,13 +19,13 @@ import { CellValue } from "../types/cells";
 import { Format } from "../types/format";
 import { DEFAULT_LOCALE } from "../types/locale";
 import { Align, VerticalAlign, Wrapping } from "../types/misc";
-import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 import { setFormatter, setStyle } from "./menu_items_actions";
 
 export interface NumberFormatActionSpec extends ActionSpec {
-  format?: Format | ((env: SpreadsheetChildEnv) => Format);
+  format?: Format | ((env: SpreadsheetActionEnv) => Format);
 }
 
 /**
@@ -39,7 +39,7 @@ export function createFormatActionSpec({
 }: {
   name: string;
   descriptionValue: CellValue;
-  format: Format | ((env: SpreadsheetChildEnv) => Format);
+  format: Format | ((env: SpreadsheetActionEnv) => Format);
 }): NumberFormatActionSpec {
   const formatCallback = typeof format === "function" ? format : () => format;
   return {
@@ -224,12 +224,12 @@ export const formatRotation: ActionSpec = {
   icon: (env) => getRotationIcon(env),
 };
 
-function setRotation(env: SpreadsheetChildEnv, rotation: number) {
+function setRotation(env: SpreadsheetActionEnv, rotation: number) {
   rotation = Math.trunc(rotation / ROTATION_EPSILON) * ROTATION_EPSILON;
   setStyle(env.model, { rotation });
 }
 
-function currentRotationEqual(env: SpreadsheetChildEnv, rotation: number): boolean {
+function currentRotationEqual(env: SpreadsheetActionEnv, rotation: number): boolean {
   const current = env.model.getters.getCurrentStyle().rotation;
   if (current === undefined) {
     return rotation === 0;
@@ -419,7 +419,7 @@ function fontSizeMenuBuilder(): ActionSpec[] {
   });
 }
 
-function isAutomaticFormatSelected(env: SpreadsheetChildEnv): boolean {
+function isAutomaticFormatSelected(env: SpreadsheetActionEnv): boolean {
   const activePosition = env.model.getters.getActivePosition();
   const pivotCell = env.model.getters.getPivotCellFromPosition(activePosition);
   if (pivotCell.type === "VALUE") {
@@ -428,7 +428,7 @@ function isAutomaticFormatSelected(env: SpreadsheetChildEnv): boolean {
   return !env.model.getters.getCell(activePosition)?.format;
 }
 
-function isFormatSelected(env: SpreadsheetChildEnv, format: string): boolean {
+function isFormatSelected(env: SpreadsheetActionEnv, format: string): boolean {
   const activePosition = env.model.getters.getActivePosition();
   const pivotCell = env.model.getters.getPivotCellFromPosition(activePosition);
   if (pivotCell.type === "VALUE") {
@@ -437,12 +437,12 @@ function isFormatSelected(env: SpreadsheetChildEnv, format: string): boolean {
   return env.model.getters.getCell(activePosition)?.format === format;
 }
 
-function isFontSizeSelected(env: SpreadsheetChildEnv, fontSize: number): boolean {
+function isFontSizeSelected(env: SpreadsheetActionEnv, fontSize: number): boolean {
   const currentFontSize = env.model.getters.getCurrentStyle().fontSize || DEFAULT_FONT_SIZE;
   return currentFontSize === fontSize;
 }
 
-function getHorizontalAlign(env: SpreadsheetChildEnv): Align {
+function getHorizontalAlign(env: SpreadsheetActionEnv): Align {
   const style = env.model.getters.getCurrentStyle();
   if (style.align && style.align !== "default") {
     return style.align;
@@ -451,7 +451,7 @@ function getHorizontalAlign(env: SpreadsheetChildEnv): Align {
   return cell.defaultAlign;
 }
 
-function getVerticalAlign(env: SpreadsheetChildEnv): VerticalAlign {
+function getVerticalAlign(env: SpreadsheetActionEnv): VerticalAlign {
   const style = env.model.getters.getCurrentStyle();
   if (style.verticalAlign) {
     return style.verticalAlign;
@@ -459,7 +459,7 @@ function getVerticalAlign(env: SpreadsheetChildEnv): VerticalAlign {
   return DEFAULT_VERTICAL_ALIGN;
 }
 
-function getWrappingMode(env: SpreadsheetChildEnv): Wrapping {
+function getWrappingMode(env: SpreadsheetActionEnv): Wrapping {
   const style = env.model.getters.getCurrentStyle();
   if (style.wrapping) {
     return style.wrapping;
@@ -467,7 +467,7 @@ function getWrappingMode(env: SpreadsheetChildEnv): Wrapping {
   return DEFAULT_WRAPPING_MODE;
 }
 
-function getHorizontalAlignmentIcon(env: SpreadsheetChildEnv) {
+function getHorizontalAlignmentIcon(env: SpreadsheetActionEnv) {
   const horizontalAlign = getHorizontalAlign(env);
 
   switch (horizontalAlign) {
@@ -480,7 +480,7 @@ function getHorizontalAlignmentIcon(env: SpreadsheetChildEnv) {
   }
 }
 
-function getVerticalAlignmentIcon(env: SpreadsheetChildEnv) {
+function getVerticalAlignmentIcon(env: SpreadsheetActionEnv) {
   const verticalAlign = getVerticalAlign(env);
 
   switch (verticalAlign) {
@@ -493,7 +493,7 @@ function getVerticalAlignmentIcon(env: SpreadsheetChildEnv) {
   }
 }
 
-function getWrapModeIcon(env: SpreadsheetChildEnv) {
+function getWrapModeIcon(env: SpreadsheetActionEnv) {
   const wrapMode = getWrappingMode(env);
 
   switch (wrapMode) {
@@ -506,7 +506,7 @@ function getWrapModeIcon(env: SpreadsheetChildEnv) {
   }
 }
 
-function getRotationIcon(env: SpreadsheetChildEnv) {
+function getRotationIcon(env: SpreadsheetActionEnv) {
   if (currentRotationEqual(env, Math.PI / 2)) {
     return "o-spreadsheet-Icon.ROTATION-90";
   } else if (currentRotationEqual(env, -Math.PI / 2)) {

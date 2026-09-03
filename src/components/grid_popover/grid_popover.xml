@@ -6,7 +6,6 @@
       maxHeight="this.cellPopover.Component.size and this.cellPopover.Component.size.maxHeight"
       maxWidth="this.cellPopover.Component.size and this.cellPopover.Component.size.maxWidth"
       anchorRect="this.cellPopover.anchorRect"
-      containerRect="this.env.getPopoverContainerRect()"
       onMouseWheel="this.props.onMouseWheel"
       class="'o-popover-grid-index'">
       <t

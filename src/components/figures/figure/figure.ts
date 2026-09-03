@@ -1,4 +1,5 @@
 import { proxy, signal, useProps } from "@odoo/owl";
+import { useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { useStore } from "../../../store_engine/store_hooks";
@@ -43,6 +44,8 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
       .function<(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) => void>()
       .optional(() => () => {}),
   });
+
+  spEnv = useSpreadsheetEnv();
 
   private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
@@ -323,7 +326,7 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
     this.menuState.anchorRect = anchorRect;
     this.menuState.menuItems = figureRegistry
       .get(this.props.figureUI.tag)
-      .menuBuilder(this.props.figureUI.id, this.env);
+      .menuBuilder(this.props.figureUI.id, this.spEnv);
   }
 
   get isFigureResizable(): boolean {

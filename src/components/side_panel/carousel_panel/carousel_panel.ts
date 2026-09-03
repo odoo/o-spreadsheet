@@ -8,6 +8,7 @@ import {
 } from "../../../helpers/carousel_helpers";
 import { SpreadsheetChart } from "../../../helpers/figures/chart";
 import { deepEquals } from "../../../helpers/misc";
+import { useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { UuidGenerator } from "../../../helpers/uuid";
 import { Component } from "../../../owl3_compatibility_layer";
 import { chartDataSourceRegistry } from "../../../registries/chart_data_source_registry";
@@ -50,6 +51,8 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
     onCloseSidePanel: types.function(),
     figureId: types.UID(),
   });
+
+  spEnv = useSpreadsheetEnv();
 
   DEFAULT_CAROUSEL_TITLE_STYLE = DEFAULT_CAROUSEL_TITLE_STYLE;
 
@@ -192,7 +195,7 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
     if (item.type !== "chart") {
       return;
     }
-    const anchor = getPoppedOutChartAnchor(this.env, this.carouselSheetId, this.props.figureId);
+    const anchor = getPoppedOutChartAnchor(this.spEnv, this.carouselSheetId, this.props.figureId);
     this.env.model.dispatch("POPOUT_CHART_FROM_CAROUSEL", {
       sheetId: this.carouselSheetId,
       carouselId: this.props.figureId,

@@ -1,6 +1,6 @@
 import { isMacOS } from "../components/helpers/dom_helpers";
 import { Color } from "../types/misc";
-import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
 
 export type MenuItemOrSeparator = Action | "separator";
 
@@ -13,8 +13,8 @@ export interface ActionSpec {
   /**
    * String or a function to compute the name
    */
-  name: string | ((env: SpreadsheetChildEnv) => string);
-  description?: string | ((env: SpreadsheetChildEnv) => string);
+  name: string | ((env: SpreadsheetActionEnv) => string);
+  description?: string | ((env: SpreadsheetActionEnv) => string);
   shortcut?: string;
   /**
    * which represents its position inside the
@@ -28,19 +28,19 @@ export interface ActionSpec {
   /**
    * Can be defined to compute the visibility of the item
    */
-  isVisible?: (env: SpreadsheetChildEnv) => boolean;
+  isVisible?: (env: SpreadsheetActionEnv) => boolean;
   /**
    * Can be defined to compute if the user can click on the action
    */
-  isEnabled?: (env: SpreadsheetChildEnv) => boolean;
+  isEnabled?: (env: SpreadsheetActionEnv) => boolean;
   /**
    * Can be defined to compute if the action is active
    */
-  isActive?: (env: SpreadsheetChildEnv) => boolean;
+  isActive?: (env: SpreadsheetActionEnv) => boolean;
   /**
    * Can be defined to display an icon
    */
-  icon?: string | ((env: SpreadsheetChildEnv) => string);
+  icon?: string | ((env: SpreadsheetActionEnv) => string);
   iconColor?: Color;
   /**
    * is the action allowed when running spreadsheet in readonly mode
@@ -55,7 +55,7 @@ export interface ActionSpec {
    * Execute the action. The action can return a result.
    * The result will be carried by a `menu-clicked` event to the menu parent component.
    */
-  execute?: (env: SpreadsheetChildEnv, isMiddleClick?: boolean) => unknown;
+  execute?: (env: SpreadsheetActionEnv, isMiddleClick?: boolean) => unknown;
   /**
    * subitems associated to this item
    * NB: an action without an execute function or children is not displayed !
@@ -67,29 +67,29 @@ export interface ActionSpec {
    */
   separator?: boolean;
   textColor?: Color;
-  onStartHover?: (env: SpreadsheetChildEnv) => void;
-  onStopHover?: (env: SpreadsheetChildEnv) => void;
+  onStartHover?: (env: SpreadsheetActionEnv) => void;
+  onStopHover?: (env: SpreadsheetActionEnv) => void;
 }
 
 export interface Action {
-  name: (env: SpreadsheetChildEnv) => string;
-  description: (env: SpreadsheetChildEnv) => string;
+  name: (env: SpreadsheetActionEnv) => string;
+  description: (env: SpreadsheetActionEnv) => string;
   shortcut: string;
   sequence: number;
   id: string;
-  isVisible: (env: SpreadsheetChildEnv) => boolean;
-  isEnabled: (env: SpreadsheetChildEnv) => boolean;
-  isActive?: (env: SpreadsheetChildEnv) => boolean;
-  icon: (env: SpreadsheetChildEnv) => string;
+  isVisible: (env: SpreadsheetActionEnv) => boolean;
+  isEnabled: (env: SpreadsheetActionEnv) => boolean;
+  isActive?: (env: SpreadsheetActionEnv) => boolean;
+  icon: (env: SpreadsheetActionEnv) => string;
   iconColor?: Color;
   isReadonlyAllowed: boolean;
   isEnabledOnLockedSheet: boolean;
-  execute?: (env: SpreadsheetChildEnv, isMiddleClick?: boolean) => unknown;
-  children: (env: SpreadsheetChildEnv) => Action[];
+  execute?: (env: SpreadsheetActionEnv, isMiddleClick?: boolean) => unknown;
+  children: (env: SpreadsheetActionEnv) => Action[];
   separator: boolean;
   textColor?: Color;
-  onStartHover?: (env: SpreadsheetChildEnv) => void;
-  onStopHover?: (env: SpreadsheetChildEnv) => void;
+  onStartHover?: (env: SpreadsheetActionEnv) => void;
+  onStopHover?: (env: SpreadsheetActionEnv) => void;
 }
 
 export interface ComputedAction extends Omit<Action, "name" | "description" | "icon" | "children"> {
@@ -98,7 +98,7 @@ export interface ComputedAction extends Omit<Action, "name" | "description" | "i
   icon: string;
 }
 
-export type ActionBuilder = (env: SpreadsheetChildEnv) => ActionSpec[];
+export type ActionBuilder = (env: SpreadsheetActionEnv) => ActionSpec[];
 type ActionChildren = (ActionSpec | ActionBuilder)[];
 
 export function createActions(menuItems: ActionSpec[]): Action[] {
@@ -170,7 +170,7 @@ export function createAction(item: ActionSpec): Action {
 }
 
 export function getMenuItemsAndSeparators(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   actions: Action[]
 ): MenuItemOrSeparator[] {
   const menuItemsAndSeparators: MenuItemOrSeparator[] = [];
@@ -200,11 +200,11 @@ export function isRootMenu(menu: Action) {
   return !menu.execute;
 }
 
-export function hasVisibleChildren(env: SpreadsheetChildEnv, menu: Action) {
+export function hasVisibleChildren(env: SpreadsheetActionEnv, menu: Action) {
   return menu.children(env).some((child) => child.isVisible(env));
 }
 
-export function isMenuItemEnabled(env: SpreadsheetChildEnv, menu: Action): boolean {
+export function isMenuItemEnabled(env: SpreadsheetActionEnv, menu: Action): boolean {
   const children = menu.children?.(env);
   if (children.length) {
     return children.some((child) => isMenuItemEnabled(env, child));

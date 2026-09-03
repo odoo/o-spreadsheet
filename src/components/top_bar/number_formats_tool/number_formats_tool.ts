@@ -1,5 +1,6 @@
 import { proxy, signal, useProps } from "@odoo/owl";
 import { Action, createAction } from "../../../actions/action";
+import { useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { Component } from "../../../owl3_compatibility_layer";
 import { formatNumberMenuItemSpec } from "../../../registries/menus/number_format_menu_registry";
 import { Rect } from "../../../types/rendering";
@@ -20,6 +21,8 @@ export class NumberFormatsTool extends Component<SpreadsheetChildEnv> {
   static components = { MenuPopover, ActionButton };
 
   protected props = useProps({ class: types.string() });
+
+  spEnv = useSpreadsheetEnv();
   formatNumberMenuItemSpec = formatNumberMenuItemSpec;
   topBarToolStore!: ToolBarDropdownStore;
 
@@ -38,7 +41,7 @@ export class NumberFormatsTool extends Component<SpreadsheetChildEnv> {
       this.topBarToolStore.closeDropdowns();
     } else {
       const menu = createAction(this.formatNumberMenuItemSpec);
-      this.state.menuItems = menu.children(this.env).sort((a, b) => a.sequence - b.sequence);
+      this.state.menuItems = menu.children(this.spEnv).sort((a, b) => a.sequence - b.sequence);
       this.state.anchorRect = getBoundingRectAsPOJO(this.buttonRef()!);
       this.topBarToolStore.openDropdown();
     }

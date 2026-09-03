@@ -1,4 +1,5 @@
 import { proxy, useProps } from "@odoo/owl";
+import { useSpreadsheetEnv } from "../../../helpers/owl3_helpers";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { TableResizeStore } from "../../../stores/table_resize_store";
@@ -26,8 +27,10 @@ export class TableResizer extends Component<SpreadsheetChildEnv> {
     table: types.Table(),
   });
 
+  spEnv = useSpreadsheetEnv();
+
   state = proxy<State>({ highlightZone: undefined });
-  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
 

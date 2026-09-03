@@ -1,7 +1,8 @@
+import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
 import { UID, Zone } from "../../types/misc";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
 
 export const AddMergeInteractiveContent = {
   MergeIsDestructive: _t(
@@ -10,12 +11,13 @@ export const AddMergeInteractiveContent = {
   MergeInFilter: _t("You can't merge cells inside of an existing filter."),
 };
 
-export function interactiveAddMerge(env: SpreadsheetChildEnv, sheetId: UID, target: Zone[]) {
+export function interactiveAddMerge(env: SpreadsheetActionEnv, sheetId: UID, target: Zone[]) {
+  const notificationPlugin = env.getPlugin(NotificationPlugin);
   const result = env.model.dispatch("ADD_MERGE", { sheetId, target });
   if (result.isCancelledBecause(CommandResult.MergeInTable)) {
-    env.raiseError(AddMergeInteractiveContent.MergeInFilter);
+    notificationPlugin.raiseError(AddMergeInteractiveContent.MergeInFilter);
   } else if (result.isCancelledBecause(CommandResult.MergeIsDestructive)) {
-    env.askConfirmation(AddMergeInteractiveContent.MergeIsDestructive, () => {
+    notificationPlugin.askConfirmation(AddMergeInteractiveContent.MergeIsDestructive, () => {
       env.model.dispatch("ADD_MERGE", { sheetId, target, force: true });
     });
   }

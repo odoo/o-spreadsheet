@@ -4,13 +4,13 @@ import { canSortPivot, sortPivot } from "../helpers/pivot/pivot_menu_items";
 import { _t } from "../translation";
 import { Getters, RenderingGetters } from "../types/getters";
 import { CellPosition, SortDirection } from "../types/misc";
-import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
 import { Registry } from "./registry";
 
 import { ComponentConstructor } from "../owl3_compatibility_layer";
 export interface CellClickableItem {
   condition: (position: CellPosition, getters: Getters) => boolean;
-  execute: (position: CellPosition, env: SpreadsheetChildEnv, isMiddleClick?: boolean) => void;
+  execute: (position: CellPosition, env: SpreadsheetActionEnv, isMiddleClick?: boolean) => void;
   title?: string | ((position: CellPosition, getters: Getters) => string);
   sequence: number;
   component?: ComponentConstructor;
@@ -23,7 +23,7 @@ clickableCellRegistry.add("link", {
   condition: (position: CellPosition, getters: Getters) => {
     return !!getters.getEvaluatedCell(position).link;
   },
-  execute: (position: CellPosition, env: SpreadsheetChildEnv, isMiddleClick?: boolean) =>
+  execute: (position: CellPosition, env: SpreadsheetActionEnv, isMiddleClick?: boolean) =>
     openLink(env.model.getters.getEvaluatedCell(position).link!, env, isMiddleClick),
   title: (position, getters) => {
     const link = getters.getEvaluatedCell(position).link;
@@ -47,7 +47,7 @@ clickableCellRegistry.add("dashboard_pivot_sorting", {
     const pivotCell = getters.getPivotCellFromPosition(position);
     return canSortPivot(getters, position) && pivotCell.type === "MEASURE_HEADER";
   },
-  execute: (position: CellPosition, env: SpreadsheetChildEnv) => {
+  execute: (position: CellPosition, env: SpreadsheetActionEnv) => {
     sortPivot(env, position, getNextSortDirection(env.model.getters, position));
   },
   component: ClickableCellSortIcon,

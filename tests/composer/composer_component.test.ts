@@ -4,6 +4,7 @@ import { colors } from "../../src/helpers/color";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
 import {
@@ -45,6 +46,7 @@ let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
 let parent: ComposerWrapper;
+let env: SpreadsheetChildEnv;
 let composerStore: Store<CellComposerStore>;
 
 async function startComposition(text?: string): Promise<HTMLDivElement> {
@@ -88,8 +90,8 @@ async function moveToEnd(composerEl: Element) {
 }
 
 beforeEach(async () => {
-  ({ model, parent, fixture } = await mountComposerWrapper());
-  composerStore = parent.env.getStore(CellComposerStore);
+  ({ model, parent, fixture, env } = await mountComposerWrapper());
+  composerStore = env.getStore(CellComposerStore);
 });
 
 describe("ranges and highlights", () => {
@@ -1053,8 +1055,8 @@ describe("composer", () => {
   });
 
   test("Composer assistant can be hidden", async () => {
-    ({ fixture, parent } = await mountComposerWrapper(undefined, { showAssistant: false }));
-    composerStore = parent.env.getStore(CellComposerStore);
+    ({ fixture, env } = await mountComposerWrapper(undefined, { showAssistant: false }));
+    composerStore = env.getStore(CellComposerStore);
     await startComposition("=s");
     expect(fixture.querySelector(".o-composer-assistant-container")).toBeNull();
   });
