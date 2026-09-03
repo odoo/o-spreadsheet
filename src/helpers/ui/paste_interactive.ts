@@ -15,10 +15,10 @@ import {
   DispatchResult,
 } from "../../types/commands";
 import { Zone } from "../../types/misc";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetActionEnv, SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 export const handleCopyPasteResult = (
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   command: CopyPasteCellsAboveCommand | CopyPasteCellsOnLeftCommand | CopyPasteCellsOnZoneCommand
 ) => {
   const clipboardStore = env.getStore(ClipboardStore);
@@ -52,7 +52,7 @@ export function handlePasteResult(env: SpreadsheetChildEnv, result: DispatchResu
 }
 
 export function interactivePaste(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   target: Zone[],
   pasteOption?: ClipboardPasteOptions
 ) {
@@ -66,7 +66,7 @@ export function interactivePaste(
 }
 
 export async function interactivePasteFromOS(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   target: Zone[],
   parsedClipboardContent: ParsedOSClipboardContent,
   pasteOption?: ClipboardPasteOptions

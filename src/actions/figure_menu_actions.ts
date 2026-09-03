@@ -7,10 +7,10 @@ import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { deepEquals } from "../helpers/misc";
 import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
-import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
 import { Action, ActionSpec, createActions } from "./action";
 
-export function getChartMenuActions(figureId: UID, env: SpreadsheetChildEnv): Action[] {
+export function getChartMenuActions(figureId: UID, env: SpreadsheetActionEnv): Action[] {
   const chartId = env.model.getters.getChartIdFromFigureId(figureId);
   if (!chartId) {
     return [];
@@ -38,7 +38,7 @@ export function getChartMenuActions(figureId: UID, env: SpreadsheetChildEnv): Ac
   );
 }
 
-export function getImageMenuActions(figureId: UID, env: SpreadsheetChildEnv): Action[] {
+export function getImageMenuActions(figureId: UID, env: SpreadsheetActionEnv): Action[] {
   const menuItemSpecs: ActionSpec[] = [
     getCopyMenuItem(figureId, env, _t("Image copied to clipboard")),
     getCutMenuItem(figureId, env),
@@ -87,8 +87,8 @@ export function getImageMenuActions(figureId: UID, env: SpreadsheetChildEnv): Ac
   return createActions(menuItemSpecs);
 }
 
-export function getCarouselMenuActions(figureId: UID, env: SpreadsheetChildEnv): Action[] {
-  const isChartSelected = (env: SpreadsheetChildEnv) =>
+export function getCarouselMenuActions(figureId: UID, env: SpreadsheetActionEnv): Action[] {
+  const isChartSelected = (env: SpreadsheetActionEnv) =>
     env.model.getters.getSelectedCarouselItem(figureId)?.type === "chart";
   const menuItemSpecs: ActionSpec[] = [
     {
@@ -183,7 +183,7 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetChildEnv):
 
 function getCopyMenuItem(
   figureId: UID,
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   copiedNotificationMessage?: string
 ): ActionSpec {
   return {
@@ -207,7 +207,7 @@ function getCopyMenuItem(
   };
 }
 
-function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
+function getCutMenuItem(figureId: UID, env: SpreadsheetActionEnv): ActionSpec {
   return {
     id: "cut",
     name: _t("Cut"),
@@ -224,7 +224,7 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
   };
 }
 
-function getCopyAsImageMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
+function getCopyAsImageMenuItem(figureId: UID, env: SpreadsheetActionEnv): ActionSpec {
   return {
     id: "copy_as_image",
     name: _t("Copy as image"),
@@ -275,7 +275,7 @@ function getCopyAsImageMenuItem(figureId: UID, env: SpreadsheetChildEnv): Action
   };
 }
 
-function getDownloadChartMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
+function getDownloadChartMenuItem(figureId: UID, env: SpreadsheetActionEnv): ActionSpec {
   return {
     id: "download",
     name: _t("Download"),
@@ -306,7 +306,7 @@ function getDownloadChartMenuItem(figureId: UID, env: SpreadsheetChildEnv): Acti
   };
 }
 
-function getDeleteMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
+function getDeleteMenuItem(figureId: UID, env: SpreadsheetActionEnv): ActionSpec {
   return {
     id: "delete",
     name: _t("Delete"),
@@ -328,7 +328,7 @@ function getDeleteMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec 
   };
 }
 
-function getMergeCarouselMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
+function getMergeCarouselMenuItem(figureId: UID, env: SpreadsheetActionEnv): ActionSpec {
   return {
     id: "mergeCarousel",
     name: _t("Create carousel"),
