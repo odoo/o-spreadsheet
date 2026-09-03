@@ -2,10 +2,10 @@ import { FORBIDDEN_SHEETNAME_CHARS } from "../../constants";
 import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
 import { UID } from "../../types/misc";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
 
 export function interactiveRenameSheet(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   sheetId: UID,
   name: string,
   errorCallback: () => void
