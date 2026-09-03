@@ -1,10 +1,9 @@
 import { useProps } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { OSComponent } from "../../../os_component";
 
-import { Component } from "../../../../owl3_compatibility_layer";
 import { types } from "../../../props_validation";
 
-export class Checkbox extends Component<SpreadsheetChildEnv> {
+export class Checkbox extends OSComponent {
   static template = "o-spreadsheet.Checkbox";
 
   protected props = useProps({

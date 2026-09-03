@@ -1,10 +1,9 @@
 import { onWillPatch, signal, useProps } from "@odoo/owl";
-import { Component } from "../../../owl3_compatibility_layer";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { Checkbox } from "../../side_panel/components/checkbox/checkbox";
 
-export class FilterMenuValueItem extends Component<SpreadsheetChildEnv> {
+export class FilterMenuValueItem extends OSComponent {
   static template = "o-spreadsheet-FilterMenuValueItem";
   static components = { Checkbox };
 

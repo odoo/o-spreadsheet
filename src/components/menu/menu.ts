@@ -6,11 +6,11 @@ import {
   isRootMenu,
   MenuItemOrSeparator,
 } from "../../actions/action";
-import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
+import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { Pixel } from "../../types/misc";
 import { Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
+import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
 
 //------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ export interface MenuState {
   isHoveringChild?: boolean;
 }
 
-export class Menu extends Component<SpreadsheetChildEnv> {
+export class Menu extends OSComponent {
   static template = "o-spreadsheet-Menu";
   static components = {};
 

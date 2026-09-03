@@ -3,7 +3,6 @@ import { DEFAULT_WINDOW_SIZE } from "../../../../../constants";
 import { getColorsPalette, getNthColor, setColorAlpha, toHex } from "../../../../../helpers/color";
 import { CHART_AXIS_CHOICES } from "../../../../../helpers/figures/charts/chart_common";
 import { range } from "../../../../../helpers/misc";
-import { Component } from "../../../../../owl3_compatibility_layer";
 import { _t } from "../../../../../translation";
 import {
   ChartDefinitionWithDataSource,
@@ -11,8 +10,8 @@ import {
   TrendConfiguration,
 } from "../../../../../types/chart/chart";
 import { Color, UID, ValueAndLabel } from "../../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { NumberInput } from "../../../../number_input/number_input";
+import { OSComponent } from "../../../../os_component";
 import { types } from "../../../../props_validation";
 import { Select } from "../../../../select/select";
 import { Checkbox } from "../../../components/checkbox/checkbox";
@@ -22,7 +21,7 @@ import { Section } from "../../../components/section/section";
 import { ChartUpdateFunction } from "../../common";
 import { SeriesDesignEditor } from "./series_design_editor";
 
-export class SeriesWithAxisDesignEditor extends Component<SpreadsheetChildEnv> {
+export class SeriesWithAxisDesignEditor extends OSComponent {
   static template = "o-spreadsheet-SeriesWithAxisDesignEditor";
   static components = {
     SeriesDesignEditor,

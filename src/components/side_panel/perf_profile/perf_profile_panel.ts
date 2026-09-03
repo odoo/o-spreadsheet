@@ -1,17 +1,16 @@
 import { proxy, useProps } from "@odoo/owl";
 import { formatValue, humanizeNumber } from "../../../helpers/format/format";
-import { Component } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
 import { PerfProfile, RangeTiming } from "../../../types/functions";
 import { Highlight } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { useHighlights } from "../../helpers/highlight_hook";
+import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { Section } from "../components/section/section";
 
 const HIGHLIGHT_COLOR = "#e28f08";
 
-export class PerfProfilePanel extends Component<SpreadsheetChildEnv> {
+export class PerfProfilePanel extends OSComponent {
   static template = "o-spreadsheet-PerfProfilePanel";
   static components = { Section };
 
