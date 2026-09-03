@@ -1,10 +1,9 @@
 import { proxy, signal, useProps } from "@odoo/owl";
-import { Component } from "../../owl3_compatibility_layer";
 import { BorderPosition, BorderStyle, Color, borderStyles } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
 import { Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { ColorPickerWidget } from "../color_picker/color_picker_widget";
+import { OSComponent } from "../os_component";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
 
@@ -36,7 +35,7 @@ const BORDER_POSITIONS: [BorderPosition, string][][] = [
   ],
 ];
 
-export class BorderEditor extends Component<SpreadsheetChildEnv> {
+export class BorderEditor extends OSComponent {
   static template = "o-spreadsheet-BorderEditor";
   static components = { ColorPickerWidget, Popover };
 

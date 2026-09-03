@@ -1,9 +1,9 @@
 import { proxy, useProps } from "@odoo/owl";
-import { Component } from "../../../../owl3_compatibility_layer";
+import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
 import { Collapse } from "../collapse/collapse";
 
-export class SidePanelCollapsible extends Component<any> {
+export class SidePanelCollapsible extends OSComponent {
   static template = "o-spreadsheet-SidePanelCollapsible";
   static components = { Collapse };
 

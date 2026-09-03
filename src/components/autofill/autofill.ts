@@ -1,14 +1,13 @@
 import { proxy, useProps, xml } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
-import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ZoomStore } from "../../stores/zoom_store";
 import { HeaderIndex } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
+import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
 import { AutofillStore } from "./autofill_store";
 import { TableAutofillStore } from "./table_autofill_store";
@@ -22,7 +21,7 @@ interface State {
   handler: boolean;
 }
 
-export class Autofill extends Component<SpreadsheetChildEnv> {
+export class Autofill extends OSComponent {
   static template = "o-spreadsheet-Autofill";
 
   protected props = useProps({
@@ -117,7 +116,7 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
   }
 }
 
-class TooltipComponent extends Component<any> {
+class TooltipComponent extends OSComponent {
   protected props: { content: string } = useProps({
     content: types.string(),
   });

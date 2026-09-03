@@ -1,11 +1,11 @@
 import { signal, useEffect, useProps } from "@odoo/owl";
-import { Component } from "../../../owl3_compatibility_layer";
 import { AutoCompleteProposal } from "../../../registries/auto_completes/auto_complete_registry";
 import { cssPropertiesToCss } from "../../helpers/css";
+import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { HtmlContent } from "../composer/composer";
 
-export class TextValueProvider extends Component<any> {
+export class TextValueProvider extends OSComponent {
   static template = "o-spreadsheet-TextValueProvider";
 
   protected props = useProps({

@@ -1,12 +1,11 @@
 import { onMounted, onWillUpdateProps, proxy, signal, useListener, useProps } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
-import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { PropsOf } from "../../types/props_of";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { getElBoundingRect, isChildEvent } from "../helpers/dom_helpers";
+import { OSComponent } from "../os_component";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
 
@@ -14,7 +13,7 @@ interface State {
   isOpen: boolean;
 }
 
-export class NumberEditor extends Component<SpreadsheetChildEnv> {
+export class NumberEditor extends OSComponent {
   static template = "o-spreadsheet-NumberEditor";
   static components = { Popover };
 

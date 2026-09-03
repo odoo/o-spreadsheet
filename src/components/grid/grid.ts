@@ -23,7 +23,7 @@ import {
   interactivePasteFromOS,
 } from "../../helpers/ui/paste_interactive";
 import { isInside, positionToZone } from "../../helpers/zones";
-import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
+import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {
@@ -55,7 +55,6 @@ import {
   Pixel,
 } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { Table } from "../../types/table";
 import { Autofill } from "../autofill/autofill";
@@ -84,6 +83,7 @@ import { useWheelHandler } from "../helpers/wheel_hook";
 import { ZoomedMouseEvent } from "../helpers/zoom";
 import { Highlight } from "../highlight/highlight/highlight";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
+import { OSComponent } from "../os_component";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
@@ -126,7 +126,7 @@ const registries = {
 // -----------------------------------------------------------------------------
 // JS
 // -----------------------------------------------------------------------------
-export class Grid extends Component<SpreadsheetChildEnv> {
+export class Grid extends OSComponent {
   static template = "o-spreadsheet-Grid";
   static components = {
     GridComposer,

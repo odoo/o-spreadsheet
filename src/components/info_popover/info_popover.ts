@@ -1,14 +1,13 @@
 import { signal, useListener, useProps } from "@odoo/owl";
 import { withHttps } from "../../helpers/links";
-import { Component } from "../../owl3_compatibility_layer";
 import { MenuMouseEvent } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { isChildEvent } from "../helpers/dom_helpers";
+import { OSComponent } from "../os_component";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
 
-export class InfoPopover extends Component<SpreadsheetChildEnv> {
+export class InfoPopover extends OSComponent {
   static template = "o-spreadsheet-Info-Popover";
   protected props = useProps({
     anchorRect: types.Rect(),
