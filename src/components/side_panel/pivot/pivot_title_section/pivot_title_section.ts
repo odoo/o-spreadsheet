@@ -1,19 +1,18 @@
 import { useProps } from "@odoo/owl";
 import { ActionSpec } from "../../../../actions/action";
 import { UuidGenerator } from "../../../../helpers/uuid";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
 import { CommandResult } from "../../../../types/commands";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
+import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
 import { TextInput } from "../../../text_input/text_input";
 import { CogWheelMenu } from "../../components/cog_wheel_menu/cog_wheel_menu";
 import { Section } from "../../components/section/section";
 import { SidePanelStore } from "../../side_panel/side_panel_store";
 
-export class PivotTitleSection extends Component<SpreadsheetChildEnv> {
+export class PivotTitleSection extends OSComponent {
   static template = "o-spreadsheet-PivotTitleSection";
   static components = { CogWheelMenu, Section, TextInput };
   protected props = useProps({

@@ -5,13 +5,14 @@ import { useStore } from "../../../store_engine/store_hooks";
 import { ChartType } from "../../../types/chart/chart";
 import { UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
-import { types } from "../../props_validation";
-import { SidePanelStore } from "../../side_panel/side_panel/side_panel_store";
+import { OSComponent } from "../../os_component";
 import { ChartMenu } from "../chart/chart_menu/chart_menu";
 
-export class ChartFigure extends Component<SpreadsheetChildEnv> {
+import { types } from "../../props_validation";
+import { SidePanelStore } from "../../side_panel/side_panel/side_panel_store";
+
+export class ChartFigure extends OSComponent {
   static template = "o-spreadsheet-ChartFigure";
   static components = { ChartMenu };
 

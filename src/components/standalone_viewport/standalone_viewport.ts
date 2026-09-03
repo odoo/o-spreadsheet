@@ -1,6 +1,5 @@
 import { proxy, signal, useEffect, useProps } from "@odoo/owl";
 import { sumArray } from "../../helpers/misc";
-import { Component } from "../../owl3_compatibility_layer";
 import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { RendererStore } from "../../stores/renderer_store";
@@ -8,7 +7,6 @@ import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { HeaderIndex } from "../../types/misc";
 import { DOMDimension, Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
 import { ClickableCellsStore } from "../dashboard/clickable_cell_store";
@@ -21,6 +19,7 @@ import { getElBoundingRect } from "../helpers/dom_helpers";
 import { startDnd } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
+import { OSComponent } from "../os_component";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { types } from "../props_validation";
 import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
@@ -35,7 +34,7 @@ interface DnDResizeState {
   col: HeaderIndex | undefined;
 }
 
-export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
+export class StandaloneViewport extends OSComponent {
   static template = "o-spreadsheet-StandaloneViewport";
   static components = { VerticalScrollBar, GridOverlay, ClickableCellsOverlay, GridPopover };
 

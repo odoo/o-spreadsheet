@@ -1,20 +1,19 @@
 import { signal, useProps } from "@odoo/owl";
 import { HIGHLIGHT_COLOR, TEXT_BODY } from "../../../../constants";
 import { colorNumberToHex } from "../../../../helpers/color";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { Highlight } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { cellStyleToCss, cssPropertiesToCss } from "../../../helpers/css";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
 import { ICONS } from "../../../icons/icons";
+import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
 import { CfTerms } from "../../../translations_terms";
 import { SidePanelStore } from "../../side_panel/side_panel_store";
 
-export class ConditionalFormatPreview extends Component<SpreadsheetChildEnv> {
+export class ConditionalFormatPreview extends OSComponent {
   static template = "o-spreadsheet-ConditionalFormatPreview";
   protected props = useProps({
     conditionalFormat: types.ConditionalFormat(),
