@@ -1,3 +1,4 @@
+import { BooleanSection } from "../components/side_panel/data_analysis/data_statistics/boolean_section";
 import { CategorySection } from "../components/side_panel/data_analysis/data_statistics/category_section";
 import { NumberSection } from "../components/side_panel/data_analysis/data_statistics/number_section";
 import { Registry } from "./registry";
@@ -14,4 +15,8 @@ statisticsRegistry.add("categorical", {
 
 statisticsRegistry.add("number", {
   Body: NumberSection,
+});
+
+statisticsRegistry.add("boolean", {
+  Body: BooleanSection,
 });

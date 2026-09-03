@@ -35,7 +35,11 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
     if (numberOfColumns === 1) {
       switch (this.store.shape[0]) {
         case "categorical":
+        case "label":
           return statisticsRegistry.get("categorical")?.Body;
+        case "boolean":
+          return statisticsRegistry.get("boolean")?.Body;
+        case "date":
         case "number":
         case "percentage":
           return statisticsRegistry.get("number")?.Body;
@@ -51,7 +55,10 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
     if (numberOfColumns === 1) {
       switch (this.store.shape[0]) {
         case "categorical":
+        case "label":
           return { statSections: this.store.statSections };
+        case "boolean":
+        case "date":
         case "number":
         case "percentage":
           return { section: this.store.statSections?.[0] };

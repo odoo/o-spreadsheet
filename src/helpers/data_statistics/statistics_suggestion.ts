@@ -31,9 +31,13 @@ function sectionsForSingleColumn(
     case "number":
     case "percentage":
       return statsForNumberColumn(getters, sheetId, zoneToXc(col.zone));
+    case "date":
+      return statsForDateColumn(getters, sheetId, zoneToXc(col.zone));
     case "categorical":
     case "label":
       return statsForCategoricalColumn(getters, sheetId, col);
+    case "boolean":
+      return statForBooleanColumn(getters, sheetId, zoneToXc(col.zone));
     default:
       return [];
   }
@@ -49,6 +53,18 @@ function statsForNumberColumn(getters: Getters, sheetId: string, range: string):
         createStatItem(getters, sheetId, _t("Sum"), `=SUM(${range})`),
         createStatItem(getters, sheetId, _t("Median"), `=MEDIAN(${range})`),
         createStatItem(getters, sheetId, _t("Average"), `=AVERAGE(${range})`),
+      ],
+    },
+  ];
+}
+
+/** Pattern C — Single date column */
+function statsForDateColumn(getters: Getters, sheetId: string, range: string): StatSection[] {
+  return [
+    {
+      items: [
+        createStatItem(getters, sheetId, _t("Earliest"), `=MIN(${range})`),
+        createStatItem(getters, sheetId, _t("Latest"), `=MAX(${range})`),
       ],
     },
   ];
@@ -74,6 +90,17 @@ function statsForCategoricalColumn(
     })
     .sort((a, b) => Number(b.value) - Number(a.value) || a.name.localeCompare(b.name));
   return [{ items: [uniqueCount] }, { label: _t("Category occurrences"), items: categoryItems }];
+}
+
+function statForBooleanColumn(getters: Getters, sheetId: string, range: string): StatSection[] {
+  return [
+    {
+      items: [
+        createStatItem(getters, sheetId, _t("TRUE"), `=COUNTIF(${range},TRUE)`),
+        createStatItem(getters, sheetId, _t("FALSE"), `=COUNTIF(${range},FALSE)`),
+      ],
+    },
+  ];
 }
 
 function uniqueValues(
