@@ -57,9 +57,18 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
         if (!this.carousels[cmd.sheetId]?.[cmd.figureId]) {
           return CommandResult.InvalidFigureId;
         }
+<<<<<<< e8d059f38e166dd833cc6ae6b9c8ee175da076d7
         if (!this.areDataViewRangesValid(cmd.definition.items)) {
           return CommandResult.InvalidRange;
         }
+||||||| 59a9b1b0ec0a4cca5f29addc7ffe4784cdf1a0c9
+=======
+        for (const item of cmd.definition.items) {
+          if (item.type === "chart" && !this.getters.getChart(item.chartId)) {
+            return CommandResult.ChartDoesNotExist;
+          }
+        }
+>>>>>>> ce559a207287e3044f39bfbff452ff0847cee7d8
         return CommandResult.Success;
       }
     }
