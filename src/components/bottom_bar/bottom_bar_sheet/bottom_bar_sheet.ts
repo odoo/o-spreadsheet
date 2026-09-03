@@ -9,7 +9,7 @@ import {
 } from "@odoo/owl";
 import { throttle } from "../../../helpers/misc";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
-import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
+import { useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { getSheetMenuRegistry } from "../../../registries/menus/sheet_menu_registry";
 import { useStore } from "../../../store_engine/store_hooks";
@@ -17,12 +17,12 @@ import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import { Command, CommandResult, DispatchResult, isSheetDependent } from "../../../types/commands";
 import { UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { Ripple } from "../../animation/ripple";
 import { ColorPicker } from "../../color_picker/color_picker";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { getElBoundingRect } from "../../helpers/dom_helpers";
+import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 
 interface State {
@@ -45,7 +45,7 @@ const getSheetLockAnimation = (
   ];
 };
 
-export class BottomBarSheet extends Component<SpreadsheetChildEnv> {
+export class BottomBarSheet extends OSComponent {
   static template = "o-spreadsheet-BottomBarSheet";
   static components = { Ripple, ColorPicker };
   protected props = useProps({

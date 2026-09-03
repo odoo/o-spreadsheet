@@ -1,14 +1,13 @@
 import { useProps, xml } from "@odoo/owl";
-import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
+import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
 import { ScrollBar } from "./scrollbar";
 
-export class HorizontalScrollBar extends Component<SpreadsheetChildEnv> {
+export class HorizontalScrollBar extends OSComponent {
   static components = { ScrollBar };
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;

@@ -1,5 +1,6 @@
 import { xml } from "@odoo/owl";
 import { Figure, Model, Pixel, Position, Spreadsheet, UID } from "../../src";
+import { OSComponent } from "../../src/components/os_component";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -9,7 +10,6 @@ import {
   MENU_WIDTH,
   ZOOM_VALUES,
 } from "../../src/constants";
-import { Component } from "../../src/owl3_compatibility_layer";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 
 import { downloadFile } from "../../src/components/helpers/dom_helpers";
@@ -147,7 +147,7 @@ const TEMPLATE = xml/* xml */ `
   </div>
 `;
 
-class TextFigure extends Component<SpreadsheetChildEnv> {
+class TextFigure extends OSComponent {
   static template = TEMPLATE;
 }
 

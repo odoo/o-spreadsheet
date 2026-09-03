@@ -17,7 +17,7 @@ import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { batched } from "../../helpers/misc";
 import { render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
-import { Component, useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
+import { useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
 import { ModelStore } from "../../stores/model_store";
@@ -49,6 +49,7 @@ import {
 } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";
+import { OSComponent } from "../os_component";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 import { types } from "../props_validation";
 import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
@@ -67,7 +68,7 @@ interface State {
   colorThemeBeforePrint: ColorThemeName;
 }
 
-export class Spreadsheet extends Component<SpreadsheetChildEnv> {
+export class Spreadsheet extends OSComponent {
   static template = "o-spreadsheet-Spreadsheet";
   protected props = useProps({
     model: types.Model(),

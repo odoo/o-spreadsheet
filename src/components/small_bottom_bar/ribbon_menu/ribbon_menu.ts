@@ -1,11 +1,10 @@
 import { onMounted, proxy, signal, useListener, useProps } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators } from "../../../actions/action";
-import { Component } from "../../../owl3_compatibility_layer";
 import { topbarMenuRegistry } from "../../../registries/menus/topbar_menu_registry";
 import { _t } from "../../../translation";
 import { PropsOf } from "../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Menu } from "../../menu/menu";
+import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 
 export const itemHeight = 40;
@@ -16,7 +15,7 @@ interface State {
   parentState: State | undefined;
 }
 
-export class RibbonMenu extends Component<SpreadsheetChildEnv> {
+export class RibbonMenu extends OSComponent {
   static template = "o-spreadsheet-RibbonMenu";
   static components = { Menu };
 

@@ -9,7 +9,6 @@ import {
 import { SpreadsheetChart } from "../../../helpers/figures/chart";
 import { deepEquals } from "../../../helpers/misc";
 import { UuidGenerator } from "../../../helpers/uuid";
-import { Component } from "../../../owl3_compatibility_layer";
 import { chartDataSourceRegistry } from "../../../registries/chart_data_source_registry";
 import { chartTypeRegistry } from "../../../registries/chart_registry";
 import { chartSubtypeRegistry } from "../../../registries/chart_subtype_registry";
@@ -18,9 +17,9 @@ import { CHART_TYPES, ChartDefinition, TitleDesign } from "../../../types/chart/
 import { CarouselItem } from "../../../types/figure";
 import { UID } from "../../../types/misc";
 import { PropsOf } from "../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../helpers/drag_and_drop_dom_items_hook";
+import { OSComponent } from "../../os_component";
 import { Popover } from "../../popover/popover";
 import { types } from "../../props_validation";
 import { SelectionInput } from "../../selection_input/selection_input";
@@ -35,7 +34,7 @@ interface CarouselPanelState {
   currentRange?: string;
 }
 
-export class CarouselPanel extends Component<SpreadsheetChildEnv> {
+export class CarouselPanel extends OSComponent {
   static template = "o-spreadsheet-CarouselPanel";
   static components = {
     Section,

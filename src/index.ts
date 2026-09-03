@@ -349,6 +349,7 @@ import {
   hasInteractiveElementInEventTree,
   isMobileOS,
 } from "./components/helpers/dom_helpers";
+import { OSComponent } from "./components/os_component";
 import { PopoverContainerPlugin } from "./components/popover/popover_container_owl_plugin";
 import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
@@ -535,6 +536,7 @@ export const components = {
   Composer,
   CalendarButton,
   Spreadsheet,
+  OSComponent,
   CarouselFigure,
 };
 

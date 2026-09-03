@@ -1,5 +1,5 @@
 import { proxy, signal, useProps } from "@odoo/owl";
-import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
+import { useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ZoomStore } from "../../../stores/zoom_store";
@@ -7,11 +7,11 @@ import { UpdateFiguresPayload } from "../../../types/commands";
 import { AnchorOffset, FigureUI, ResizeDirection } from "../../../types/figure";
 import { CSSProperties, UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
+import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 
 type ResizeAnchor =
@@ -30,7 +30,7 @@ type ResizeAnchor =
 const ANCHOR_SIZE = 8;
 const ACTIVE_BORDER_WIDTH = 2;
 
-export class FigureComponent extends Component<SpreadsheetChildEnv> {
+export class FigureComponent extends OSComponent {
   static template = "o-spreadsheet-FigureComponent";
   static components = { MenuPopover };
 

@@ -3,14 +3,13 @@ import { urlRegistry, urlRepresentation } from "../../../helpers/links";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { markdownLink } from "../../../helpers/misc";
 import { fuzzyLookup } from "../../../helpers/search";
-import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { Link } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { MenuPopover } from "../../menu_popover/menu_popover";
+import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 
 interface LinkProposal {
@@ -29,7 +28,7 @@ interface LinkState {
   linksList: LinkProposal[];
 }
 
-export class LinkEditor extends Component<SpreadsheetChildEnv> {
+export class LinkEditor extends OSComponent {
   static template = "o-spreadsheet-LinkEditor";
   static components = { MenuPopover };
 

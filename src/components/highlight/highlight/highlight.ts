@@ -1,19 +1,18 @@
 import { proxy, useProps } from "@odoo/owl";
 import { clip } from "../../../helpers/misc";
 import { isEqual } from "../../../helpers/zones";
-import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { ZoomStore } from "../../../stores/zoom_store";
 import { ResizeDirection } from "../../../types/figure";
 import { HeaderIndex, Zone } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { gridOverlayPosition } from "../../helpers/dom_helpers";
 import {
   DnDDirection,
   useDragAndDropBeyondTheViewport,
 } from "../../helpers/drag_and_drop_grid_hook";
+import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { Border } from "../border/border";
 import { Corner } from "../corner/corner";
@@ -21,7 +20,7 @@ import { Corner } from "../corner/corner";
 interface HighlightState {
   shiftingMode: "isMoving" | "isResizing" | "none";
 }
-export class Highlight extends Component<SpreadsheetChildEnv> {
+export class Highlight extends OSComponent {
   static template = "o-spreadsheet-Highlight";
   static components = {
     Corner,

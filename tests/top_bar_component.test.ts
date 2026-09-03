@@ -1,6 +1,7 @@
 import { providePlugins, xml } from "@odoo/owl";
 import { Currency, Model, Pixel, Style } from "../src";
 import { CellComposerStore } from "../src/components/composer/composer/cell_composer_store";
+import { OSComponent } from "../src/components/os_component";
 import { PaintFormatStore } from "../src/components/paint_format_button/paint_format_store";
 import { PopoverContainerPlugin } from "../src/components/popover/popover_container_owl_plugin";
 import { TopBar } from "../src/components/top_bar/top_bar";
@@ -114,7 +115,7 @@ let parent: Parent;
 let env: SpreadsheetChildEnv;
 let viewStore: Store<ViewportsStore>;
 
-class Parent extends Component<SpreadsheetChildEnv> {
+class Parent extends OSComponent {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
       <TopBar

@@ -1,12 +1,10 @@
 import { providePlugins, signal, useProps } from "@odoo/owl";
-import { Component } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { Pixel } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
@@ -18,6 +16,7 @@ import { getElBoundingRect } from "../helpers/dom_helpers";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useTouchHandlers } from "../helpers/touch_handlers_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
+import { OSComponent } from "../os_component";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
@@ -26,7 +25,7 @@ import { HorizontalScrollBar } from "../scrollbar/scrollbar_horizontal";
 import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
 import { HoveredTableStore } from "../tables/hovered_table_store";
 
-export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
+export class SpreadsheetDashboard extends OSComponent {
   static template = "o-spreadsheet-SpreadsheetDashboard";
   static components = {
     GridOverlay,

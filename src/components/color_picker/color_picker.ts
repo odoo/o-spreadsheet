@@ -10,12 +10,11 @@ import {
 } from "../../helpers/color";
 import { chartFontColor } from "../../helpers/figures/charts/chart_common";
 import { clip } from "../../helpers/misc";
-import { Component } from "../../owl3_compatibility_layer";
 import { Color, HSLA, Pixel, PixelPosition } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 import { startDnd } from "../helpers/drag_and_drop";
+import { OSComponent } from "../os_component";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
 
@@ -37,7 +36,7 @@ interface State {
   customHexColor: Color;
 }
 
-export class ColorPicker extends Component<SpreadsheetChildEnv> {
+export class ColorPicker extends OSComponent {
   static template = "o-spreadsheet-ColorPicker";
   static components = { Popover };
 

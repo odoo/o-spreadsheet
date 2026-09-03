@@ -8,6 +8,7 @@ import { CellComposerStore } from "../../src/components/composer/composer/cell_c
 import { Composer } from "../../src/components/composer/composer/composer";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { getCurrentSelection, isMobileOS } from "../../src/components/helpers/dom_helpers";
+import { OSComponent } from "../../src/components/os_component";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { Spreadsheet } from "../../src/components/spreadsheet/spreadsheet";
 import { functionRegistry } from "../../src/functions/function_registry";
@@ -289,7 +290,7 @@ interface ParentProps {
   childProps: ComponentProps;
 }
 
-class ParentWithPortalTarget extends Component<SpreadsheetChildEnv> {
+class ParentWithPortalTarget extends OSComponent {
   static template = xml/*xml*/ `
     <div class="o-spreadsheet" >
       <t t-component="this.props.childComponent" t-props="this.props.childProps"/>
@@ -1129,7 +1130,7 @@ type ComposerWrapperProps = {
   composerProps: Partial<PropsOf<Composer>>;
 };
 
-export class ComposerWrapper extends Component<SpreadsheetChildEnv> {
+export class ComposerWrapper extends OSComponent {
   static components = { Composer };
   static template = xml/*xml*/ `
     <div class="o-spreadsheet"/>

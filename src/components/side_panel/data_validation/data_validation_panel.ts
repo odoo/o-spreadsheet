@@ -1,12 +1,11 @@
 import { UuidGenerator } from "../../../helpers/uuid";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { DataValidationPreview } from "./dv_preview/dv_preview";
 
 import { useProps } from "@odoo/owl";
-import { Component } from "../../../owl3_compatibility_layer";
 
-export class DataValidationPanel extends Component<SpreadsheetChildEnv> {
+export class DataValidationPanel extends OSComponent {
   static template = "o-spreadsheet-DataValidationPanel";
   static components = { DataValidationPreview };
 

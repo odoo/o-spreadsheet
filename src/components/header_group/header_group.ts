@@ -5,11 +5,9 @@ import { interactiveToggleGroup } from "../../helpers/ui/toggle_group_interactiv
 import { getHeaderGroupContextMenu } from "../../registries/menus/header_group_registry";
 import { Dimension } from "../../types/misc";
 import { DOMCoordinates, Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
+import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
-
-import { Component } from "../../owl3_compatibility_layer";
 
 interface GroupBox {
   groupRect: Rect;
@@ -17,7 +15,7 @@ interface GroupBox {
   isEndHidden: boolean;
 }
 
-abstract class AbstractHeaderGroup extends Component<SpreadsheetChildEnv> {
+abstract class AbstractHeaderGroup extends OSComponent {
   static template = "o-spreadsheet-HeaderGroup";
 
   protected props = useProps({
