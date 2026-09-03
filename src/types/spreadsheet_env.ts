@@ -21,3 +21,5 @@ export interface SpreadsheetChildEnv extends NotificationStoreMethods {
   isMobile: () => boolean;
   printSpreadsheet: () => void;
 }
+
+export interface SpreadsheetActionEnv extends SpreadsheetChildEnv {}
