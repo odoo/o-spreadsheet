@@ -1,19 +1,18 @@
 import { onWillUpdateProps, proxy, signal, useEffect, useProps } from "@odoo/owl";
 import { deepEquals } from "../../../helpers/misc";
 import { getComputedTableStyle } from "../../../helpers/table_helpers";
-import { Component } from "../../../owl3_compatibility_layer";
 import { createTableStyleContextMenuActions } from "../../../registries/menus/table_style_menu_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { PropsOf } from "../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { TableMetaData } from "../../../types/table";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
+import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { SidePanelStore } from "../../side_panel/side_panel/side_panel_store";
 import { drawPreviewTable } from "./table_canvas_helpers";
 
-export class TableStylePreview extends Component<SpreadsheetChildEnv> {
+export class TableStylePreview extends OSComponent {
   static template = "o-spreadsheet-TableStylePreview";
   static components = { MenuPopover };
 

@@ -1,9 +1,8 @@
 import { signal, useProps } from "@odoo/owl";
-import { Component } from "../../owl3_compatibility_layer";
 import { useLocalStore } from "../../store_engine/store_hooks";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
+import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
 import { Select } from "../select/select";
 import { BadgeSelection } from "../side_panel/components/badge_selection/badge_selection";
@@ -19,7 +18,7 @@ import {
   SpreadsheetPrintStore,
 } from "./spreadsheet_print_store";
 
-export class SpreadsheetPrint extends Component<SpreadsheetChildEnv> {
+export class SpreadsheetPrint extends OSComponent {
   static template = "o-spreadsheet-SpreadsheetPrint";
   protected props = useProps({
     onExitPrintMode: types.function(),

@@ -1,15 +1,14 @@
 import { proxy, useProps } from "@odoo/owl";
-import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { TableResizeStore } from "../../../stores/table_resize_store";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { ZoomStore } from "../../../stores/zoom_store";
 import { HeaderIndex, Highlight, Zone } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop_grid_hook";
 import { useHighlights } from "../../helpers/highlight_hook";
+import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 
 const SIZE = 3;
@@ -19,7 +18,7 @@ interface State {
   highlightZone: Zone | undefined;
 }
 
-export class TableResizer extends Component<SpreadsheetChildEnv> {
+export class TableResizer extends OSComponent {
   static template = "o-spreadsheet-TableResizer";
 
   protected props = useProps({
