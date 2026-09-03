@@ -62,7 +62,7 @@ describe("Edit criterion in side panel", () => {
         displayStyle: "arrow",
       });
       ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
-      env.openSidePanel("DataValidationEditor", { ruleId: "id" });
+      env.openSidePanel("DataValidationEditor", { ruleId: "id", sheetId });
       await nextTick();
     });
 
@@ -81,7 +81,7 @@ describe("Edit criterion in side panel", () => {
         type: "containsText",
         values: ["hola"],
       });
-      env.openSidePanel("DataValidationEditor", { ruleId: "dv1" });
+      env.openSidePanel("DataValidationEditor", { ruleId: "dv1", sheetId });
       await nextTick();
       const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-input .o-composer");
       expect(inputs).toHaveLength(1);
@@ -236,7 +236,7 @@ describe("Edit criterion in side panel", () => {
         displayStyle: "arrow",
       });
       ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
-      env.openSidePanel("DataValidationEditor", { ruleId: "id" });
+      env.openSidePanel("DataValidationEditor", { ruleId: "id", sheetId });
       await nextTick();
     });
 
