@@ -1,10 +1,10 @@
 import { MergeErrorMessage } from "../../components/translations_terms";
 import { CommandResult } from "../../types/commands";
 import { Dimension, HeaderIndex } from "../../types/misc";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
 
 export function interactiveFreezeColumnsRows(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   dimension: Dimension,
   base: HeaderIndex
 ) {

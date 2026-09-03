@@ -78,7 +78,6 @@ export class MenuPopover extends OSComponent {
 
   setup() {
     const domFocusableElementStore = useStore(DOMFocusableElementStore);
-
     useLayoutEffect(() => {
       if (
         !this.props.disableKeyboardNavigation &&
