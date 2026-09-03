@@ -1,11 +1,11 @@
 import { _t } from "../translation";
 import { CommandResult } from "../types/commands";
 import { Position, SortDirection, SortOptions, UID, Zone } from "../types/misc";
-import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
 import { isEqual } from "./zones";
 
 export function interactiveSortSelection(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   sheetId: UID,
   anchor: Position,
   zone: Zone,
@@ -51,7 +51,7 @@ export function interactiveSortSelection(
 }
 
 export function interactiveSort(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   sheetId: UID,
   anchor: Position,
   zone: Zone,

@@ -5,10 +5,10 @@ import {
   DispatchResult,
   UpdateNamedRangeCommand,
 } from "../../types/commands";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
 
 export function interactiveCreateNamedRange(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   payload: Omit<CreateNamedRangeCommand, "type">
 ) {
   const result = env.model.dispatch("CREATE_NAMED_RANGE", payload);
@@ -16,14 +16,14 @@ export function interactiveCreateNamedRange(
 }
 
 export function interactiveUpdateNamedRange(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   payload: Omit<UpdateNamedRangeCommand, "type">
 ) {
   const result = env.model.dispatch("UPDATE_NAMED_RANGE", payload);
   handleResult(env, result);
 }
 
-function handleResult(env: SpreadsheetChildEnv, result: DispatchResult) {
+function handleResult(env: SpreadsheetActionEnv, result: DispatchResult) {
   if (!result.isSuccessful) {
     if (result.isCancelledBecause(CommandResult.NamedRangeNameAlreadyExists)) {
       env.raiseError(_t("A named range with this name already exists."));
