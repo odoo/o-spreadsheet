@@ -10,42 +10,43 @@ import { useHighlights } from "../../../helpers/highlight_hook";
 import { types } from "../../../props_validation";
 import { StatisticItem } from "./statistic_item";
 
-export class NumberSection extends Component<SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-NumberSection";
+export class BooleanSection extends Component<SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-BooleanSection";
   protected props = useProps({
     section: types.StatSection(),
   });
   static components = {
     StatisticItem,
   };
-  private hoveredStat = proxy<StatValue>({ name: "", value: "", formula: "" });
+  private hoveredStat = proxy<{ name: string | undefined }>({ name: undefined });
 
   setup() {
     useHighlights(this);
   }
 
+  get total() {
+    return this.props.section.items.reduce((acc, item) => acc + Number(item.value), 0);
+  }
+
+  computePercentage(value: number) {
+    if (this.total === 0) {
+      return "0%";
+    }
+    return `(${Math.round((value / this.total) * 100)}%)`;
+  }
+
   hoverStat(stat: StatValue, isHovered: boolean) {
-    this.hoveredStat.name = isHovered ? stat.name : "";
-    this.hoveredStat.value = isHovered ? stat.value : "";
-    this.hoveredStat.formula = isHovered ? stat.formula : "";
+    this.hoveredStat.name = isHovered ? stat.name : undefined;
   }
 
   get highlights(): Highlight[] {
-    if (
-      this.hoveredStat.name !== "Max" &&
-      this.hoveredStat.name !== "Min" &&
-      this.hoveredStat.name !== "Earliest" &&
-      this.hoveredStat.name !== "Latest"
-    ) {
-      return [];
-    }
     const sheetId = this.env.model.getters.getActiveSheetId();
     const zones = this.env.model.getters.getSelectedZones();
     const matches: Range[] = [];
     for (const zone of zones) {
       const cells = this.env.model.getters.getEvaluatedCellsInZone(sheetId, zone);
       for (const cell of cells) {
-        if (cell.formattedValue === this.hoveredStat.value) {
+        if (cell.formattedValue === this.hoveredStat.name) {
           const cellXC = toXC(cell.position!.col, cell.position!.row);
           matches.push(this.env.model.getters.getRangeFromSheetXC(sheetId, cellXC));
         }
