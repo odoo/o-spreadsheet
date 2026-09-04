@@ -51,6 +51,7 @@ describe("TreeMap chart side panel", () => {
       expect(getHTMLInputValue(".o-data-series input")).toEqual("A1:A3");
       expect(getHTMLInputValue(".o-data-labels input")).toEqual("B1:B3");
       expect(getHTMLCheckboxValue('input[name="dataSetsHaveTitle"]')).toBe(true);
+      expect('input[name="aggregated"]').toHaveCount(0);
     });
 
     test("Can change chart values in config side panel", async () => {
