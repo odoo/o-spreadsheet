@@ -1,3 +1,6 @@
+import { analyzeColumns } from "../../../helpers/data_statistics/data_analysis";
+import { StatSection } from "../../../helpers/data_statistics/statistics_items";
+import { buildStatSections } from "../../../helpers/data_statistics/statistics_suggestion";
 import {
   ChartSuggestion,
   getChartSuggestions,
@@ -10,6 +13,8 @@ import { Get } from "../../../types/store_engine";
 
 export class DataAnalysisStore extends SpreadsheetStore {
   mutators = [] as const;
+  shape: String[] = [];
+  statSections: StatSection[] | undefined = undefined;
   hasData: boolean = false;
   chartSuggestions: ChartSuggestion[] = [];
   private isDirty = false;
@@ -66,8 +71,16 @@ export class DataAnalysisStore extends SpreadsheetStore {
         .getEvaluatedCellsInZone(sheetId, zone)
         .some((cell) => cell.type !== CellValueType.empty)
     );
+    const cols = analyzeColumns(zones, this.getters);
+    this.shape = cols.map((c) => c.type);
+    const nonEmpty = cols.filter((c) => c.type !== "empty");
 
-    const suggestions = this.hasData ? getChartSuggestions(zones, this.getters) : [];
+    const suggestions = this.hasData ? getChartSuggestions(nonEmpty, this.getters) : [];
     this.chartSuggestions = suggestions;
+    if (!this.hasData) {
+      this.statSections = undefined;
+      return;
+    }
+    this.statSections = buildStatSections(this.getters, nonEmpty, sheetId);
   }
 }

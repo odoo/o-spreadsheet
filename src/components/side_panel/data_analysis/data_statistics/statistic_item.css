@@ -1,0 +1,15 @@
+.o-spreadsheet {
+  .o-data-analysis-row:nth-child(even) {
+    background: var(--os-gray-100);
+  }
+  .o-data-analysis-row {
+    padding: 1px 0;
+    cursor: grab;
+    &:active {
+      cursor: grabbing;
+    }
+    &:hover {
+      background: var(--os-background-gray-color-hover);
+    }
+  }
+}

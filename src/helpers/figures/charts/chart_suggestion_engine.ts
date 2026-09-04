@@ -21,9 +21,8 @@ import {
   Suggestion,
 } from "../../../types/chart/chart_suggestion";
 import { Getters } from "../../../types/getters";
-import { Zone } from "../../../types/misc";
 import { toXC } from "../../coordinates";
-import { analyzeColumns, ColumnAnalysis, ExtendedColumnType } from "../../data_analysis";
+import { ColumnAnalysis, ExtendedColumnType } from "../../data_statistics/data_analysis";
 import {
   dataset,
   getUnboundRange,
@@ -578,24 +577,22 @@ const EXTENDABLE_PATTERNS: ChartSuggestionRule<any>[] = [
   },
 ];
 
-export function getChartSuggestions(zones: Zone[], getters: Getters): ChartSuggestion[] {
-  const cols = analyzeColumns(zones, getters);
+export function getChartSuggestions(cols: ColumnAnalysis[], getters: Getters): ChartSuggestion[] {
   if (cols.some((c) => c.type === "error")) {
     return [];
   }
-  const nonEmpty = cols.filter((c) => c.type !== "empty");
-  if (!nonEmpty.length) {
+  if (!cols.length) {
     return [];
   }
 
-  const shape = nonEmpty.map((c) => c.type);
+  const shape = cols.map((c) => c.type);
   const rule =
     EXACT_PATTERNS.find((rule) => matchesShape(rule.pattern, shape)) ??
     EXTENDABLE_PATTERNS.find((rule) => matchesShape(rule.pattern, shape));
   if (!rule) {
     return [];
   }
-  const ctx = rule.buildContext(nonEmpty, getters);
+  const ctx = rule.buildContext(cols, getters);
   return rule.suggestions
     .filter((suggestion) => suggestion.isApplicable?.(ctx) ?? true)
     .map((suggestion) => ({
