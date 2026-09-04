@@ -472,6 +472,7 @@ function buildManyNumbersContext(cols: ColumnAnalysis[], getters: Getters): Many
 }
 
 const NUMBER_OR_PERCENTAGE: readonly ExtendedColumnType[] = ["number", "percentage"];
+const CATEGORICAL_OR_BOOLEAN: readonly ExtendedColumnType[] = ["categorical", "boolean"];
 const EXACT_PATTERNS: ChartSuggestionRule<any>[] = [
   {
     pattern: { leadingTypes: ["number"] },
@@ -489,7 +490,7 @@ const EXACT_PATTERNS: ChartSuggestionRule<any>[] = [
     suggestions: SINGLE_DATE_COLUMN_SUGGESTIONS,
   },
   {
-    pattern: { leadingTypes: ["categorical"] },
+    pattern: { leadingTypes: [CATEGORICAL_OR_BOOLEAN] },
     buildContext: buildSingleCategoricalContext,
     suggestions: SINGLE_CATEGORICAL_COLUMN_SUGGESTIONS,
   },
@@ -499,7 +500,7 @@ const EXACT_PATTERNS: ChartSuggestionRule<any>[] = [
     suggestions: SINGLE_LABEL_COLUMN_SUGGESTIONS,
   },
   {
-    pattern: { leadingTypes: ["categorical", "number"] },
+    pattern: { leadingTypes: [CATEGORICAL_OR_BOOLEAN, "number"] },
     buildContext: buildCategoricalVsNumberContext,
     suggestions: CATEGORICAL_VS_NUMBER_SUGGESTIONS,
   },
@@ -514,7 +515,7 @@ const EXACT_PATTERNS: ChartSuggestionRule<any>[] = [
     suggestions: NUMBER_VS_NUMBER_SUGGESTIONS,
   },
   {
-    pattern: { leadingTypes: ["categorical", "percentage"] },
+    pattern: { leadingTypes: [CATEGORICAL_OR_BOOLEAN, "percentage"] },
     buildContext: buildCategoricalVsPercentageContext,
     suggestions: CATEGORICAL_VS_PERCENTAGE_SUGGESTIONS,
   },
@@ -529,22 +530,22 @@ const EXACT_PATTERNS: ChartSuggestionRule<any>[] = [
     suggestions: CATEGORICAL_VS_PERCENTAGE_SUGGESTIONS,
   },
   {
-    pattern: { leadingTypes: ["categorical", "categorical", "number"] },
+    pattern: { leadingTypes: [CATEGORICAL_OR_BOOLEAN, CATEGORICAL_OR_BOOLEAN, "number"] },
     buildContext: buildMultipleCategoricalsVsNumberContext,
     suggestions: MULTIPLE_CATEGORICALS_VS_NUMBER_SUGGESTIONS,
   },
   {
-    pattern: { leadingTypes: ["categorical", "label", "number"] },
+    pattern: { leadingTypes: [CATEGORICAL_OR_BOOLEAN, "label", "number"] },
     buildContext: buildMultipleCategoricalsVsNumberContext,
     suggestions: MULTIPLE_CATEGORICALS_VS_NUMBER_SUGGESTIONS,
   },
   {
-    pattern: { leadingTypes: ["categorical", "date", NUMBER_OR_PERCENTAGE] },
+    pattern: { leadingTypes: [CATEGORICAL_OR_BOOLEAN, "date", NUMBER_OR_PERCENTAGE] },
     buildContext: buildCategoricalDateNumberContext,
     suggestions: CATEGORICAL_DATE_NUMBER_SUGGESTIONS,
   },
   {
-    pattern: { leadingTypes: ["categorical", NUMBER_OR_PERCENTAGE, NUMBER_OR_PERCENTAGE] },
+    pattern: { leadingTypes: [CATEGORICAL_OR_BOOLEAN, NUMBER_OR_PERCENTAGE, NUMBER_OR_PERCENTAGE] },
     buildContext: buildCategoricalTwoNumbersContext,
     suggestions: CATEGORICAL_TWO_NUMBERS_SUGGESTIONS,
   },
