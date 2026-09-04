@@ -4,6 +4,7 @@ import {
   LineChartDefinition,
   PieChartDefinition,
 } from "../../../src/types/chart";
+import { ComboChartDefinition } from "../../../src/types/chart/combo_chart";
 import { drawChartOnNodeCanvas } from "../../test_helpers/chart_helpers";
 import { createChart } from "../../test_helpers/commands_helpers";
 import { createModelFromGrid } from "../../test_helpers/helpers";
@@ -90,6 +91,24 @@ describe("Chart show value", () => {
       showValues: true,
       stacked: true,
       horizontal: true,
+    };
+    createChart(model, definition, "chartId");
+
+    const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
+  });
+});
+
+describe("Combo chart show value", () => {
+  test("Can show value on a combo chart", () => {
+    const model = createModelFromGrid({ A1: "1", A2: "2", A3: "3", B1: "0", B2: "1", B3: "2.5" });
+    const definition: Partial<ComboChartDefinition> & { type: "combo" } = {
+      type: "combo",
+      dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }],
+      dataSetsHaveTitle: false,
+      showValues: true,
+      title: { text: "" },
+      legendPosition: "none",
     };
     createChart(model, definition, "chartId");
 
