@@ -17,6 +17,7 @@ import { PixelPosition } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { gridOverlayPosition } from "./dom_helpers";
 import { startDnd } from "./drag_and_drop";
+import { getSnapRenderInfo, snapForMove } from "./figure_snap_helper";
 
 function getDefaultChartFigureSize(type: ChartDefinition["type"]): FigureSize {
   if (type === "scorecard") {
@@ -90,6 +91,7 @@ export function startChartDragAndDrop(
 
   let container: HTMLDivElement | null = null;
   let destroyChart: (() => void) | undefined = undefined;
+  let snappedDropPosition: PixelPosition | undefined = undefined;
 
   const chartDragStore = env.getStore(ChartDragStore);
   const previousCursor = document.body.style.cursor;
@@ -151,16 +153,42 @@ export function startChartDragAndDrop(
       destroyChart = drawChartOnCanvas(canvas, runtime, { width, height }, definition.type, zoom);
     }
 
-    container.style.left = `${Math.max(gridPosition.x, (e.clientX - halfWidth) / zoom)}px`;
-    container.style.top = `${Math.max(gridPosition.y, (e.clientY - halfHeight) / zoom)}px`;
+    let left = Math.max(gridPosition.x, (e.clientX - halfWidth) / zoom);
+    let top = Math.max(gridPosition.y, (e.clientY - halfHeight) / zoom);
 
     const overlappingFigure = getOverlappingFigure(e.clientX - halfWidth, e.clientY - halfHeight);
     container.style.opacity = overlappingFigure?.id ? "0.6" : "0.9";
     chartDragStore.setHighlightedFigure(overlappingFigure?.id);
+
+    const position = getGridPosition(e.clientX - halfWidth, e.clientY - halfHeight);
+    if (!overlappingFigure && position) {
+      const otherFigures = env.getStore(ViewportsStore).visibleFigures;
+      const previewFigure = { ...position, width, height };
+      const { snappedFigures, horizontalSnapLine, verticalSnapLine } = snapForMove(
+        env,
+        [previewFigure],
+        otherFigures
+      );
+      const snapped = snappedFigures[0];
+      left += snapped.x - position.x;
+      top += snapped.y - position.y;
+      snappedDropPosition = snapped;
+      chartDragStore.setSnapLines(
+        getSnapRenderInfo(env, horizontalSnapLine, snapped, otherFigures),
+        getSnapRenderInfo(env, verticalSnapLine, snapped, otherFigures)
+      );
+    } else {
+      snappedDropPosition = undefined;
+      chartDragStore.setSnapLines(undefined, undefined);
+    }
+
+    container.style.left = `${left}px`;
+    container.style.top = `${top}px`;
   };
 
   const onMouseUp = (mouseEvent: MouseEvent) => {
     chartDragStore.setHighlightedFigure(undefined);
+    chartDragStore.setSnapLines(undefined, undefined);
     if (container !== null) {
       spreadsheet.removeChild(container);
       container = null;
@@ -176,6 +204,8 @@ export function startChartDragAndDrop(
       position = { x: 0, y: 0 };
     } else if (!position || position.x + halfWidth > gridPosition.width) {
       return;
+    } else if (snappedDropPosition) {
+      position = snappedDropPosition;
     }
 
     const { col, row, offset } = env
