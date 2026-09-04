@@ -219,6 +219,27 @@ describe("getChartSuggestions", () => {
         "bar"
       );
     });
+
+    test("boolean column → pie, donut, and bar (count) charts produced", () => {
+      const model = createModelFromGrid({
+        A1: "TRUE",
+        A2: "FALSE",
+        A3: "TRUE",
+        A4: "FALSE",
+        A5: "TRUE",
+      });
+      expect(
+        (runtimeFor(model, "A1:A5", (d) => d.type === "pie" && !d.isDoughnut) as any).chartJsConfig
+          .type
+      ).toBe("pie");
+      expect(
+        (runtimeFor(model, "A1:A5", (d) => d.type === "pie" && !!d.isDoughnut) as any).chartJsConfig
+          .type
+      ).toBe("doughnut");
+      expect((runtimeFor(model, "A1:A5", (d) => d.type === "bar") as any).chartJsConfig.type).toBe(
+        "bar"
+      );
+    });
   });
 
   // Pattern E — single label column

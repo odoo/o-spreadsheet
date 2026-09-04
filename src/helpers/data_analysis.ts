@@ -88,7 +88,7 @@ function computeColumnType(cells: EvaluatedCell[]): ExtendedColumnType {
   }
   cells = cells.filter((c) => c.type !== CellValueType.error);
   if (cells.every((c) => c.type === CellValueType.boolean)) {
-    return "boolean";
+    return "categorical";
   }
   if (
     cells.every((c) => c.type === CellValueType.number && !!c.format && isDateTimeFormat(c.format))

@@ -63,7 +63,7 @@ describe("analyzeColumns", () => {
 
   test("boolean column", () => {
     const model = createModelFromGrid({ A1: "=TRUE", A2: "=FALSE" });
-    expect(columnType(model, "A1:A2")).toBe("boolean");
+    expect(columnType(model, "A1:A2")).toBe("categorical");
   });
 
   test("header detection — first text cell, rest numeric", () => {
