@@ -792,7 +792,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   }
 
   private clearFormatting() {
-    this.env.model.dispatch("CLEAR_FORMATTING", {
+    this.env.model.dispatch("CLEAR_ALL_STYLING", {
       sheetId: this.env.model.getters.getActiveSheetId(),
       target: this.env.model.getters.getSelectedZones(),
     });
