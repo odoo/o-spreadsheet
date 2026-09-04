@@ -4,6 +4,7 @@ import process from "process";
 
 const commentPattern = /\/\/.*|\/\*[\s\S]*?\*\//g;
 const firstLevelSelectorPattern = /^(?!(\s|\}|:root)).+/gm;
+const ignoreFilePattern = /css-check-ignore/
 
 // Get css files in diff
 const files = execSync("git diff --name-only --cached")
@@ -16,6 +17,9 @@ const faultyFiles = [];
 for (const file of files) {
   if (!existsSync(file)) continue;
   let content = readFileSync(file, "utf8");
+  if(ignoreFilePattern.test(content)) {
+    continue;
+  }
 
   // Remove content of comments
   content = content.replace(commentPattern, "");
