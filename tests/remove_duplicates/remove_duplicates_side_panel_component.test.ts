@@ -200,7 +200,7 @@ describe("remove duplicates", () => {
     const errors = fixture.querySelectorAll(selectors.sidePanelError);
     expect(errors.length).toBe(1);
     expect(errors[0].textContent).toBe(
-      "This operation is not possible due to a merge. Please remove the merges first than try again."
+      "Cannot perform this action on merged cells. Unmerge the cells and try again."
     );
     expect(fixture.querySelector(selectors.removeDuplicateButton)!.classList).toContain(
       "o-disabled"
