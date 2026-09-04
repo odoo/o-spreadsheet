@@ -1,4 +1,4 @@
-import { intersection, isZoneValid } from "../../../helpers/zones";
+import { isZoneValid } from "../../../helpers/zones";
 import { _t } from "../../../translation";
 import { EvaluatedCell } from "../../../types/cells";
 import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
@@ -98,8 +98,7 @@ class CompilationParametersBuilder {
 
     // Performance issue: Avoid fetching data on positions that are out of the spreadsheet
     // e.g. A1:ZZZ9999 in a sheet with 10 cols and 10 rows should ignore everything past J10 and return a 10x10 array
-    const sheetZone = this.getters.getSheetZone(sheetId);
-    const _zone = intersection(zone, sheetZone);
+    const _zone = this.getters.clipRangeToSheet(range)?.zone;
     if (!_zone) {
       return [[]];
     }
