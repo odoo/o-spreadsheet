@@ -1,11 +1,16 @@
 import { Model } from "../../src";
-import { analyzeColumns } from "../../src/helpers/data_analysis";
+import { ColumnAnalysis, analyzeColumns } from "../../src/helpers/data_analysis";
 import { toZone } from "../../src/helpers/zones";
-import { setCellContent, setFormat } from "../test_helpers";
+import { createTable, setCellContent, setFormat } from "../test_helpers";
 import { createModelFromGrid } from "../test_helpers/helpers";
+import { createModelWithPivot, updatePivot } from "../test_helpers/pivot_helpers";
 
 function columnType(model: Model, xc: string): string {
   return analyzeColumns([toZone(xc)], model.getters)[0].type;
+}
+
+function analyzeColumn(model: Model, xc: string): ColumnAnalysis {
+  return analyzeColumns([toZone(xc)], model.getters)[0];
 }
 
 describe("analyzeColumns", () => {
@@ -65,19 +70,122 @@ describe("analyzeColumns", () => {
     const model = createModelFromGrid({ A1: "=TRUE", A2: "=FALSE" });
     expect(columnType(model, "A1:A2")).toBe("boolean");
   });
+});
 
+describe("header detection", () => {
   test("header detection — first text cell, rest numeric", () => {
     const model = createModelFromGrid({ A1: "Revenue", A2: "100", A3: "200" });
-    const col = analyzeColumns([toZone("A1:A3")], model.getters)[0];
-    expect(col.hasHeader).toBe(true);
+    const col = analyzeColumn(model, "A1:A3");
+    expect(col.headerInZone).toBe(true);
     expect(col.header).toBe("Revenue");
     expect(col.rowCount).toBe(2); // only data rows, not header
   });
 
   test("no header when first cell is numeric", () => {
     const model = createModelFromGrid({ A1: "100", A2: "200", A3: "300" });
-    const col = analyzeColumns([toZone("A1:A3")], model.getters)[0];
-    expect(col.hasHeader).toBe(false);
+    const col = analyzeColumn(model, "A1:A3");
+    expect(col.headerInZone).toBe(false);
     expect(col.rowCount).toBe(3);
+  });
+
+  test("header is taken from the table header row", () => {
+    const model = createModelFromGrid({ A1: "Revenue", A2: "100", A3: "200", A4: "300" });
+    createTable(model, "A1:A4");
+    const col = analyzeColumn(model, "A1:A4");
+    expect(col.headerInZone).toBe(true);
+    expect(col.header).toBe("Revenue");
+    expect(col.rowCount).toBe(3);
+  });
+
+  test("table header is detected even when the header row is not part of the analyzed zone", () => {
+    const model = createModelFromGrid({ A1: "Revenue", A2: "100", A3: "200", A4: "300" });
+    createTable(model, "A1:A4");
+    const col = analyzeColumn(model, "A2:A4");
+    expect(col.headerInZone).toBe(false);
+    expect(col.header).toBe("Revenue");
+    expect(col.rowCount).toBe(3);
+  });
+
+  test("table header is detected even when the header row is not part of the analyzed zone in multicolumn", () => {
+    const model = createModelFromGrid({
+      A1: "Revenue",
+      A2: "100",
+      A3: "200",
+      A4: "300",
+      B1: "Cost",
+      B2: "50",
+      B3: "100",
+      B4: "150",
+    });
+    createTable(model, "A1:B4");
+    const cols = analyzeColumns([toZone("A2:B4")], model.getters);
+    expect(cols[0].headerInZone).toBe(false);
+    expect(cols[0].header).toBe("Revenue");
+    expect(cols[0].rowCount).toBe(3);
+    expect(cols[1].headerInZone).toBe(false);
+    expect(cols[1].header).toBe("Cost");
+    expect(cols[1].rowCount).toBe(3);
+  });
+
+  test("last row of a multi-row table header is used as the header", () => {
+    const model = createModelFromGrid({
+      A1: "Category",
+      A2: "Revenue",
+      A3: "100",
+      A4: "200",
+    });
+    createTable(model, "A1:A4", { numberOfHeaders: 2 });
+    const col = analyzeColumn(model, "A1:A4");
+    expect(col.headerInZone).toBe(true);
+    expect(col.header).toBe("Revenue");
+    expect(col.rowCount).toBe(2);
+  });
+
+  test("empty table header row results in no header", () => {
+    const model = createModelFromGrid({ A2: "100", A3: "200" });
+    createTable(model, "A1:A3");
+    const col = analyzeColumn(model, "A1:A3");
+    expect(col.headerInZone).toBe(false);
+    expect(col.header).toBeUndefined();
+    expect(col.rowCount).toBe(2);
+  });
+
+  test("table without a header", () => {
+    const model = createModelFromGrid({ A1: "100", A2: "200", A3: "300" });
+    createTable(model, "A1:A3", { numberOfHeaders: 0 });
+    const col = analyzeColumn(model, "A1:A3");
+    expect(col.headerInZone).toBe(false);
+    expect(col.header).toBeUndefined();
+    expect(col.rowCount).toBe(3);
+  });
+
+  test("the analyzed zone extends past the table", () => {
+    const model = createModelFromGrid({
+      A1: "Revenue",
+      A2: "100",
+      A3: "200",
+      A4: "300",
+      A5: "400",
+    });
+    createTable(model, "A1:A3");
+    const col = analyzeColumn(model, "A2:A5");
+    expect(col.headerInZone).toBe(false);
+    expect(col.header).toBeUndefined();
+    expect(col.rowCount).toBe(4);
+  });
+
+  test("header is detected from a pivot table with a row groupby", () => {
+    const model = createModelWithPivot("A1:I22");
+    updatePivot(model, "1", {
+      columns: [],
+      rows: [{ fieldName: "Salesperson" }],
+      measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+      style: { tableStyleId: "PivotTableStyleMedium9" },
+    });
+    setCellContent(model, "A25", "=PIVOT(1)");
+    const col = analyzeColumn(model, "B27:B28");
+    expect(col.headerInZone).toBe(false);
+    expect(col.header).toBe("Expected Revenue");
+    expect(col.rowCount).toBe(2);
   });
 });

@@ -1,4 +1,6 @@
 import { generateMatrix } from "../functions/helpers";
+import { CellValueType } from "../types/cells";
+import { Getters } from "../types/getters";
 import { Border, BorderDescr, CellPosition, Style, UID, Zone } from "../types/misc";
 import { Range } from "../types/range";
 import {
@@ -11,6 +13,7 @@ import {
   TableMetaData,
   TableStyle,
 } from "../types/table";
+import { isInside } from "./zones";
 
 type TableElement = keyof Omit<
   TableStyle,
@@ -323,4 +326,36 @@ function getTableElementZones(
   }
 
   return zones;
+}
+
+export function getColumnTableHeaderPosition(
+  sheetId: UID,
+  zone: Zone,
+  getters: Getters
+): CellPosition | undefined {
+  if (zone.left !== zone.right) {
+    return undefined;
+  }
+  const tables = getters.getTablesOverlappingZones(sheetId, [zone]);
+  if (tables.length !== 1) {
+    return undefined;
+  }
+  const table = tables[0];
+  const firstCell = { sheetId, col: zone.left, row: zone.top };
+  const lastCell = { sheetId, col: zone.left, row: zone.bottom };
+  if (firstCell.row < table.range.zone.top || lastCell.row > table.range.zone.bottom) {
+    const cells = getters
+      .getEvaluatedCellsInZone(sheetId, zone)
+      .filter((c) => c.type !== CellValueType.empty);
+    for (const cell of cells) {
+      if (cell.position && !isInside(cell.position.col, cell.position.row, table.range.zone)) {
+        return undefined;
+      }
+    }
+  }
+  const numberOfHeaders = table.config.numberOfHeaders;
+  if (numberOfHeaders === 0) {
+    return undefined;
+  }
+  return { sheetId, col: zone.left, row: table.range.zone.top + numberOfHeaders - 1 };
 }
