@@ -40,6 +40,7 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
         case "boolean":
           return statisticsRegistry.get("boolean")?.Body;
         case "date":
+          return statisticsRegistry.get("date")?.Body;
         case "number":
         case "percentage":
           return statisticsRegistry.get("number")?.Body;
@@ -57,8 +58,9 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
         case "categorical":
         case "label":
           return { statSections: this.store.statSections };
-        case "boolean":
         case "date":
+          return { statSections: this.store.statSections };
+        case "boolean":
         case "number":
         case "percentage":
           return { section: this.store.statSections?.[0] };
