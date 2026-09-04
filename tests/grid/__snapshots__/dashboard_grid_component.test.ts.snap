@@ -2,8 +2,14 @@
 
 exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`] = `
 <div
+<<<<<<< 9e63c606e7a4ee9c7a8c30d6bfa158104bc3bab4
   class="o-grid o-two-columns o-zoomable"
   style="zoom:1; "
+||||||| 9ed12f3eaabe8e8973423831a256571492b784ac
+  class="o-grid o-two-columns"
+=======
+  class="o-grid o-dashboard-grid o-two-columns"
+>>>>>>> 214abff03cff0396cd89a89c4cd9387fcfb94c0f
   tabindex="-1"
 >
   <div
