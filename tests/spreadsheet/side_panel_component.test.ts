@@ -439,31 +439,49 @@ describe("Side Panel", () => {
       expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
     });
 
+    test("Opening a secondary panel collapses the pinned main panel", async () => {
+      sidePanelStore.togglePinPanel();
+      expect(sidePanelStore.mainPanel?.isCollapsed).toBeFalsy();
+
+      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      await nextTick();
+      expect(sidePanelStore.mainPanel?.isCollapsed).toBe(true);
+      expect(sidePanelStore.mainPanel?.size).toBe(COLLAPSED_SIDE_PANEL_SIZE);
+      expect(sidePanelStore.secondaryPanel?.isCollapsed).toBeFalsy();
+    });
+
+    test("Closing the secondary panel expands the pinned main panel back", async () => {
+      sidePanelStore.togglePinPanel();
+      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      await nextTick();
+      expect(sidePanelStore.mainPanel?.isCollapsed).toBe(true);
+
+      const closeButtons = fixture.querySelectorAll(".o-sidePanelClose");
+      await click(closeButtons[0]);
+      expect(sidePanelStore.secondaryPanel).toBeUndefined();
+      expect(sidePanelStore.mainPanel?.isCollapsed).toBe(false);
+      expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
+    });
+
     test("Can collapse both panels", async () => {
       sidePanelStore.togglePinPanel();
       parent.env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
 
+      // opening a secondary panel automatically collapses the pinned main panel
       let panels = fixture.querySelectorAll(".o-sidePanel");
-      const collapsePanelButtons = fixture.querySelectorAll(".o-collapse-panel");
-      expect(panels[1]).not.toHaveClass("collapsed");
-      expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
+      expect(panels[1]).toHaveClass("collapsed");
+      expect(sidePanelStore.mainPanel?.size).toBe(COLLAPSED_SIDE_PANEL_SIZE);
       expect(panels[0]).not.toHaveClass("collapsed");
       expect(sidePanelStore.secondaryPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
 
+      const collapsePanelButtons = fixture.querySelectorAll(".o-collapse-panel");
       await click(collapsePanelButtons[0]);
       panels = fixture.querySelectorAll(".o-sidePanel");
       expect(panels[0]).toHaveClass("collapsed");
       expect(sidePanelStore.secondaryPanel?.size).toBe(COLLAPSED_SIDE_PANEL_SIZE);
-      expect(panels[1]).not.toHaveClass("collapsed");
-      expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
-
-      await click(collapsePanelButtons[1]);
-      panels = fixture.querySelectorAll(".o-sidePanel");
-      expect(panels[0]).toHaveClass("collapsed");
-      expect(sidePanelStore.mainPanel?.size).toBe(COLLAPSED_SIDE_PANEL_SIZE);
       expect(panels[1]).toHaveClass("collapsed");
-      expect(sidePanelStore.secondaryPanel?.size).toBe(COLLAPSED_SIDE_PANEL_SIZE);
+      expect(sidePanelStore.mainPanel?.size).toBe(COLLAPSED_SIDE_PANEL_SIZE);
     });
 
     test("Cannot open two panels with the same key", async () => {
@@ -540,6 +558,9 @@ describe("Side Panel", () => {
       sidePanelStore.togglePinPanel();
       parent.env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
+      // opening the secondary panel auto-collapsed the main panel, expand it back
+      sidePanelStore.toggleCollapsePanel("mainPanel");
+      await nextTick();
 
       const handles = fixture.querySelectorAll(".o-sidePanel-handle");
       expect(handles).toHaveLength(2);
@@ -556,6 +577,9 @@ describe("Side Panel", () => {
     test("Resizing the man panel reduces the size of the secondary panel if there is not enough space", async () => {
       sidePanelStore.togglePinPanel();
       parent.env.openSidePanel("CUSTOM_PANEL_2");
+      await nextTick();
+      // opening the secondary panel auto-collapsed the main panel, expand it back
+      sidePanelStore.toggleCollapsePanel("mainPanel");
       await nextTick();
 
       const handles = fixture.querySelectorAll(".o-sidePanel-handle");
@@ -578,7 +602,7 @@ describe("Side Panel", () => {
       await nextTick();
       expect(".o-sidePanel").toHaveCount(2);
 
-      sidePanelStore.changeSpreadsheetWidth(600);
+      sidePanelStore.changeSpreadsheetWidth(500);
       await nextTick();
 
       expect(".o-sidePanel").toHaveCount(1);
@@ -586,7 +610,7 @@ describe("Side Panel", () => {
     });
 
     test("Cannot open second size panel if the spreadsheet is too small", async () => {
-      sidePanelStore.changeSpreadsheetWidth(600);
+      sidePanelStore.changeSpreadsheetWidth(400);
       sidePanelStore.togglePinPanel();
       parent.env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
