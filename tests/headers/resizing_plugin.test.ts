@@ -2,6 +2,7 @@ import { CommandResult, DEFAULT_LOCALE, Sheet, Wrapping } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
+  MAX_HEADER_SIZE,
   MIN_CELL_TEXT_MARGIN,
   PADDING_AUTORESIZE_VERTICAL,
 } from "../../src/constants";
@@ -108,6 +109,31 @@ describe("Model resizer", () => {
     undo(model);
     expect(model.getters.getRowSize(sheetId, 1)).toBe(initialSize);
     expect(viewStore.mainViewportRect.height).toBe(initialHeight);
+  });
+
+  test("Column autoresize cannot exceed the maximum header size", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "A".repeat(MAX_HEADER_SIZE));
+    autoresizeColumns(model, [0]);
+    expect(model.getters.getColSize(sheetId, 0)).toBe(MAX_HEADER_SIZE);
+  });
+
+  test("Row autoresize cannot exceed the maximum header size", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "=A2");
+    setCellContent(model, "A2", "A\n".repeat(200));
+    autoresizeRows(model, [0]);
+    expect(model.getters.getUserRowSize(sheetId, 0)).toBe(MAX_HEADER_SIZE);
+  });
+
+  test("Dynamic row height cannot exceed the maximum header size", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "A\n".repeat(200));
+    expect(model.getters.getUserRowSize(sheetId, 0)).toBeUndefined();
+    expect(model.getters.getRowSize(sheetId, 0)).toBe(MAX_HEADER_SIZE);
   });
 
   test("Can resize row of inactive sheet", async () => {

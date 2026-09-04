@@ -74,6 +74,7 @@ import {
   clickGridIcon,
   doubleClick,
   edgeScrollDelay,
+  focusAndKeyDown,
   getElComputedStyle,
   getGridIconEventPosition,
   gridMouseEvent,
@@ -1362,6 +1363,81 @@ describe("Grid component", () => {
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
   });
 
+  test("Column resize actions use the clicked column", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    selectColumn(model, 1, "overrideSelection");
+    selectColumn(model, 2, "updateAnchor");
+    const dispatch = spyModelDispatch(model);
+    const rightClickCellWithClientCoordinates = (xc: string) => {
+      const { col, row } = toCartesian(xc);
+      return rightClickCell(env, xc, {
+        clientX: HEADER_WIDTH + col * DEFAULT_CELL_WIDTH,
+        clientY: HEADER_HEIGHT + row * DEFAULT_CELL_HEIGHT,
+        bubbles: true,
+      });
+    };
+
+    await rightClickCellWithClientCoordinates("C5");
+    expect(".o-menu-item[data-name='resize_columns']").toHaveCount(1);
+    expect(".o-menu-item[data-name='resize_columns'] [data-icon='width']").toHaveCount(1);
+    const menuItems = [...fixture.querySelectorAll<HTMLElement>(".o-menu-item")];
+    const hideIndex = menuItems.findIndex((item) => item.dataset.name === "hide_columns");
+    const resizeIndex = menuItems.findIndex((item) => item.dataset.name === "resize_columns");
+    expect(resizeIndex).toBe(hideIndex + 1);
+    await simulateClick(".o-menu-item[data-name='resize_columns']");
+    expect(".o-menu-item[title='Fit to data']").toHaveCount(1);
+    expect(".o-menu-item[title='Custom size']").toHaveCount(1);
+
+    await simulateClick(".o-menu-item[title='Fit to data']");
+    expect(dispatch).toHaveBeenCalledWith("AUTORESIZE_COLUMNS", {
+      sheetId,
+      cols: [1, 2],
+    });
+
+    await rightClickCellWithClientCoordinates("C5");
+    await simulateClick(".o-menu-item[data-name='resize_columns']");
+    await simulateClick(".o-menu-item[title='Custom size']");
+    expect(".o-popover").toHaveStyle({
+      left: `${HEADER_WIDTH + 2 * DEFAULT_CELL_WIDTH}px`, // column C
+      top: `${HEADER_HEIGHT}px`,
+    });
+
+    await rightClickCellWithClientCoordinates("D5");
+    expect(".o-popover input").toHaveCount(0);
+    expect(".o-menu-item[data-name='resize_columns']").toHaveCount(0);
+  });
+
+  test("Row resize actions use the clicked row", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    selectRow(model, 0, "overrideSelection");
+    selectRow(model, 1, "updateAnchor");
+    const dispatch = spyModelDispatch(model);
+    const contextMenuOptions = { clientY: HEADER_HEIGHT + 10, bubbles: true };
+
+    triggerMouseEvent(".o-row-resizer", "contextmenu", 10, 10, contextMenuOptions);
+    await nextTick();
+    expect(".o-menu-item[data-name='resize_rows']").toHaveCount(1);
+    expect(".o-menu-item[data-name='resize_rows'] [data-icon='height']").toHaveCount(1);
+    await simulateClick(".o-menu-item[data-name='resize_rows']");
+    expect(".o-menu-item[title='Fit to data']").toHaveCount(1);
+    expect(".o-menu-item[title='Custom size']").toHaveCount(1);
+
+    await simulateClick(".o-menu-item[title='Fit to data']");
+    expect(dispatch).toHaveBeenCalledWith("AUTORESIZE_ROWS", {
+      sheetId,
+      rows: [0, 1],
+    });
+
+    triggerMouseEvent(".o-row-resizer", "contextmenu", 10, 10, contextMenuOptions);
+    await nextTick();
+    await simulateClick(".o-menu-item[data-name='resize_rows']");
+    await simulateClick(".o-menu-item[title='Custom size']");
+    expect(".o-popover").toHaveStyle({
+      left: `${HEADER_WIDTH}px`,
+      top: `${HEADER_HEIGHT}px`,
+    });
+  });
+
   test("can use keyboard to navigate the context menu", async () => {
     await rightClickCell(env, "B2");
     expect(document.activeElement).toHaveClass("o-menu-wrapper");
@@ -1389,6 +1465,66 @@ describe("Grid component", () => {
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
   });
 
+  test("Can open and close the column resize editor from the keyboard context menu", async () => {
+    selectColumn(model, 1, "overrideSelection");
+    selectColumn(model, 2, "updateAnchor");
+    triggerMouseEvent(".o-grid div.o-composer", "contextmenu");
+    await nextTick();
+
+    expect(".o-popover").toHaveStyle({
+      left: `${HEADER_WIDTH + DEFAULT_CELL_WIDTH}px`,
+      top: `${HEADER_HEIGHT}px`,
+    });
+    await simulateClick(".o-menu-item[data-name='resize_columns']");
+    await simulateClick(".o-menu-item[title='Custom size']");
+    expect(".o-popover").toHaveStyle({
+      left: `${HEADER_WIDTH + DEFAULT_CELL_WIDTH}px`,
+      top: `${HEADER_HEIGHT}px`,
+    });
+    await focusAndKeyDown(".o-popover input", { key: "Escape" });
+    expect(".o-popover input").toHaveCount(0);
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
+  });
+
+  test("Keyboard context menu follows the active column when its cell is offscreen", async () => {
+    selectColumn(model, 1, "overrideSelection");
+    selectColumn(model, 3, "updateAnchor");
+    await keyDown({ key: "Tab" });
+    expect(getSelectionAnchorCellXc(model)).toBe("C1");
+    setViewportOffset(env, 0, DEFAULT_CELL_HEIGHT);
+    expect(viewStore.viewports.isVisibleInViewport(model.getters.getActivePosition())).toBe(false);
+
+    triggerMouseEvent(".o-grid div.o-composer", "contextmenu");
+    await nextTick();
+
+    expect(".o-popover").toHaveStyle({
+      left: `${HEADER_WIDTH + 2 * DEFAULT_CELL_WIDTH}px`,
+      top: `${HEADER_HEIGHT}px`,
+    });
+    expect(".o-menu-item[data-name='resize_columns']").toHaveCount(1);
+  });
+
+  test("Keyboard context menu opens for an offscreen column selection", async () => {
+    selectColumn(model, 1, "overrideSelection");
+    selectColumn(model, 3, "updateAnchor");
+    await keyDown({ key: "Tab" });
+    expect(getSelectionAnchorCellXc(model)).toBe("C1");
+    setViewportOffset(env, 5 * DEFAULT_CELL_WIDTH, 0);
+    const sheetId = model.getters.getActiveSheetId();
+    expect(
+      viewStore.viewports.isZoneVisibleInViewport(sheetId, model.getters.getSelectedZone())
+    ).toBe(false);
+
+    triggerMouseEvent(".o-grid div.o-composer", "contextmenu");
+    await nextTick();
+
+    expect(".o-popover").toHaveStyle({
+      left: `${HEADER_WIDTH}px`,
+      top: `${HEADER_HEIGHT}px`,
+    });
+    expect(".o-menu-item[data-name='resize_columns']").toHaveCount(1);
+  });
+
   test("Can open context menu with a keyboard input ", async () => {
     const mockGridPosition = {
       x: 40,
@@ -1406,9 +1542,7 @@ describe("Grid component", () => {
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
     const popover = fixture.querySelector<HTMLElement>(".o-popover")!;
-    expect(parseInt(popover.style.left)).toBe(
-      mockGridPosition.x + HEADER_WIDTH + DEFAULT_CELL_WIDTH
-    );
+    expect(parseInt(popover.style.left)).toBe(mockGridPosition.x + HEADER_WIDTH);
     expect(parseInt(popover.style.top)).toBe(mockGridPosition.y + HEADER_HEIGHT);
   });
 

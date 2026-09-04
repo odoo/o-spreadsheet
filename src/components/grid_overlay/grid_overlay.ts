@@ -241,7 +241,10 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
 
   onCellClicked(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent | PointerEvent>) {
     const openedPopover = this.cellPopovers.persistentCellPopover;
-    const [col, row] = this.getCartesianCoordinates(zoomedMouseEvent);
+    const [col, row] = this.viewStore.getCartesianCoordinates(
+      zoomedMouseEvent.offsetX,
+      zoomedMouseEvent.offsetY
+    );
     const clickedIcon = this.getInteractiveIconAtEvent(zoomedMouseEvent);
     if (clickedIcon) {
       this.env.model.selection.getBackToDefault();
@@ -277,22 +280,20 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
       return;
     }
 
-    const [col, row] = this.getCartesianCoordinates(zoomedMouseEvent);
+    const [col, row] = this.viewStore.getCartesianCoordinates(
+      zoomedMouseEvent.offsetX,
+      zoomedMouseEvent.offsetY
+    );
     this.props.onCellDoubleClicked(col, row, ev);
   }
 
   onContextMenu(ev: MouseEvent) {
-    const [col, row] = this.getCartesianCoordinates(this.zoomStore.getZoomedEvent(ev));
+    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
+    const [col, row] = this.viewStore.getCartesianCoordinates(
+      zoomedMouseEvent.offsetX,
+      zoomedMouseEvent.offsetY
+    );
     this.props.onCellRightClicked(col, row, { x: ev.clientX, y: ev.clientY });
-  }
-
-  private getCartesianCoordinates(
-    zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>
-  ): [HeaderIndex, HeaderIndex] {
-    const sheetId = this.viewStore.displayedSheetId;
-    const colIndex = this.viewStore.viewports.getColIndex(sheetId, zoomedMouseEvent.offsetX);
-    const rowIndex = this.viewStore.viewports.getRowIndex(sheetId, zoomedMouseEvent.offsetY);
-    return [colIndex, rowIndex];
   }
 
   private getInteractiveIconAtEvent(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>) {
@@ -301,7 +302,10 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
     const x = zoomedMouseEvent.clientX - gridOverLayRect.x + gridOffset.x;
     const y = zoomedMouseEvent.clientY - gridOverLayRect.y + gridOffset.y;
 
-    const [col, row] = this.getCartesianCoordinates(zoomedMouseEvent);
+    const [col, row] = this.viewStore.getCartesianCoordinates(
+      zoomedMouseEvent.offsetX,
+      zoomedMouseEvent.offsetY
+    );
     const sheetId = this.viewStore.displayedSheetId;
 
     let position = { col, row, sheetId };
