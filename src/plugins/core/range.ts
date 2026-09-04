@@ -13,7 +13,7 @@ import {
 import { getRangeAdapterFunctions } from "../../helpers/range_adapter_functions";
 import { recomputeZones } from "../../helpers/recompute_zones";
 
-import { isZoneValid, unionUnboundedZones } from "../../helpers/zones";
+import { intersection, isZoneInside, isZoneValid, unionUnboundedZones } from "../../helpers/zones";
 import { Command, CommandHandler, CommandResult, CoreCommand } from "../../types/commands";
 import { CoreGetters } from "../../types/core_getters";
 import { CellErrorType } from "../../types/errors";
@@ -40,6 +40,8 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
     "extendRange",
     "getRangeString",
     "getRangeFromSheetXC",
+    "clipRangesToSheet",
+    "clipRangeToSheet",
     "createAdaptedRanges",
     "getRangeData",
     "getRangeDataFromXc",
@@ -98,6 +100,33 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
+
+  clipRangeToSheet(range: Range): Range | undefined {
+    if (range.invalidXc) {
+      return range;
+    }
+    const sheetZone = this.getters.getSheetZone(range.sheetId);
+    if (isZoneInside(range.zone, sheetZone)) {
+      // fast path: most ranges are within the sheet zone
+      return range;
+    }
+    const newZone = intersection(range.zone, sheetZone);
+    if (!newZone) {
+      return undefined;
+    }
+    return this.getters.getRangeFromZone(range.sheetId, newZone);
+  }
+
+  clipRangesToSheet(ranges: Range[]): Range[] {
+    const clippedRanges: Range[] = [];
+    for (const range of ranges) {
+      const clippedRange = this.clipRangeToSheet(range);
+      if (clippedRange) {
+        clippedRanges.push(clippedRange);
+      }
+    }
+    return clippedRanges;
+  }
 
   createAdaptedRanges(ranges: Range[], offsetX: number, offsetY: number, sheetId: UID): Range[] {
     return ranges.map((range) => {
