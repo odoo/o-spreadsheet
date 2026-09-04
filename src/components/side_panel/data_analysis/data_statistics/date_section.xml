@@ -1,0 +1,21 @@
+<templates>
+  <t t-name="o-spreadsheet-DateSection">
+    <div class="p-1 ">
+      <t t-foreach="this.props.statSections[0].items" t-as="stat" t-key="stat_index">
+        <StatisticItem stat="stat" onHover.bind="this.hoverStat"/>
+      </t>
+    </div>
+    <div class="fw-bold text-muted mt-2 d-flex justify-content-between">
+      <t t-out="this.props.statSections[1].label"/>
+    </div>
+    <t t-foreach="this.props.statSections[1].items" t-as="stat" t-key="stat_index">
+      <t t-if="stat.value !== '0'">
+        <StatisticItem
+          stat="stat"
+          onHover.bind="this.hoverStat"
+          computePercentage.bind="this.computePercentage"
+        />
+      </t>
+    </t>
+  </t>
+</templates>

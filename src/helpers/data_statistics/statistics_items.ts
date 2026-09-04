@@ -7,6 +7,7 @@ import { isMatrix } from "../../types/misc";
 import { formatValue } from "../format/format";
 
 export interface StatItem {
+  id: string | number;
   name: string;
   formula: string;
 }
@@ -20,6 +21,7 @@ export type StatSection = { label?: string; items: StatValue[] };
 export function createStatItem(
   getters: Getters,
   sheetId: string,
+  id: string | number,
   name: string,
   formula: string
 ): StatValue {
@@ -31,13 +33,14 @@ export function createStatItem(
       const displayValue =
         typeof value === "number" && !format ? parseFloat(value.toFixed(4)) : value;
       return {
+        id,
         name,
         value: formatValue(displayValue, { locale, format }),
         formula,
       };
     }
   }
-  return { name, value: "—", formula };
+  return { id, name, value: "—", formula };
 }
 
 export function getStatScorecardDefinition(stat: StatItem) {
