@@ -129,11 +129,17 @@ export class Evaluator {
     // The data structure is optimized for searches the other way around
     this.formulaDependencies().removeAllDependencies(position);
     const dependencies = this.getDirectDependencies(position);
-    this.formulaDependencies().addDependencies(position, dependencies);
+    this.formulaDependencies().addDependencies(
+      position,
+      this.getters.clipRangesToSheet(dependencies)
+    );
   }
 
   private addDependencies(position: CellPosition, dependencies: Range[]) {
-    this.formulaDependencies().addDependencies(position, dependencies);
+    this.formulaDependencies().addDependencies(
+      position,
+      this.getters.clipRangesToSheet(dependencies)
+    );
     this.computeDependencies(dependencies);
   }
 
@@ -240,7 +246,10 @@ export class Evaluator {
         for (const cell of this.getters.getCells(sheetId)) {
           if (cell.isFormula) {
             const cellPosition = this.getters.getCellPosition(cell.id);
-            graph.addDependencies(cellPosition, cell.compiledFormula.rangeDependencies);
+            const dependencies = this.getters.clipRangesToSheet(
+              cell.compiledFormula.rangeDependencies
+            );
+            graph.addDependencies(cellPosition, dependencies);
           }
         }
       }
