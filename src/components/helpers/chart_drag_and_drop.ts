@@ -169,12 +169,13 @@ export function startChartDragAndDrop(
     document.body.style.cursor = previousCursor;
 
     let position = getGridPosition(mouseEvent.clientX - halfWidth, mouseEvent.clientY - halfHeight);
+    const { scrollX } = env.getStore(ViewportsStore).activeSheetScrollInfo;
     if (
       Math.abs(mouseEvent.clientX / zoom - startX) <= DRAG_THRESHOLD &&
       Math.abs(mouseEvent.clientY / zoom - startY) <= DRAG_THRESHOLD
     ) {
       position = { x: 0, y: 0 };
-    } else if (!position || position.x + halfWidth > gridPosition.width) {
+    } else if (!position || position.x + halfWidth > gridPosition.width + scrollX) {
       return;
     }
 
