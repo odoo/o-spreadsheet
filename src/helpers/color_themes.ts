@@ -26,7 +26,7 @@ export const COLOR_THEMES: Record<ColorThemeName, GridRenderingTheme> = {
   },
   dark: {
     colorThemeName: "dark",
-    backgroundColor: adaptForDarkMode("#1A1C2E"),
+    backgroundColor: adaptForDarkMode("#25262b"),
     gridBorderColor: adaptForDarkMode("#6B706F"),
     headerBackgroundColor: adaptForDarkMode("#262A36"),
     headerActiveBackgroundColor: adaptForDarkMode("#3A4052"),
