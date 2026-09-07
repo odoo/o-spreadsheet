@@ -1,9 +1,26 @@
 <templates>
   <t t-name="o-spreadsheet-NumberSection">
     <div class="p-1 ">
-      <t t-foreach="this.props.section.items" t-as="stat" t-key="stat_index">
+      <t t-foreach="this.props.statSections[0].items" t-as="stat" t-key="stat_index">
         <StatisticItem stat="stat" onHover.bind="this.hoverStat"/>
       </t>
     </div>
+    <div class="fw-bold text-muted mt-2 d-flex justify-content-between">
+      <t t-out="this.occurrencySection.label"/>
+      <div t-on-click="this.sortItems" class="o-button-icon d-flex align-items-center">
+        <t t-if="this.listState.sortType === 'desc'" t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+        <t t-if="this.listState.sortType === 'asc'" t-call="o-spreadsheet-Icon.CARET_UP"/>
+        <t t-if="this.listState.sortType === 'none'" t-call="o-spreadsheet-Icon.CARET_SORT"/>
+      </div>
+    </div>
+    <t t-foreach="this.occurrencySection.items" t-as="stat" t-key="stat_index">
+      <t t-if="stat.value !== '0'">
+        <StatisticItem
+          stat="stat"
+          onHover.bind="this.hoverStat"
+          computePercentage.bind="this.computePercentage"
+        />
+      </t>
+    </t>
   </t>
 </templates>

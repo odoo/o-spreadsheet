@@ -57,12 +57,11 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
       switch (this.store.shape[0]) {
         case "categorical":
         case "label":
-          return { statSections: this.store.statSections };
         case "date":
-          return { statSections: this.store.statSections };
-        case "boolean":
         case "number":
         case "percentage":
+          return { statSections: this.store.statSections };
+        case "boolean":
           return { section: this.store.statSections?.[0] };
         default:
           return {};

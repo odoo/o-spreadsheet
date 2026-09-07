@@ -7,7 +7,7 @@ import { isMatrix } from "../../types/misc";
 import { formatValue } from "../format/format";
 
 export interface StatItem {
-  id: string | number;
+  id: string;
   name: string;
   formula: string;
 }
@@ -21,7 +21,7 @@ export type StatSection = { label?: string; items: StatValue[] };
 export function createStatItem(
   getters: Getters,
   sheetId: string,
-  id: string | number,
+  id: string,
   name: string,
   formula: string
 ): StatValue {

@@ -1,5 +1,4 @@
 import { proxy, useProps } from "@odoo/owl";
-import { HIGHLIGHT_COLOR } from "../../../../constants";
 import { toXC } from "../../../../helpers/coordinates";
 import { StatValue } from "../../../../helpers/data_statistics/statistics_items";
 import { Component } from "../../../../owl3_compatibility_layer";
@@ -54,8 +53,7 @@ export class BooleanSection extends Component<SpreadsheetChildEnv> {
     }
     return matches.map((range) => ({
       range,
-      color: HIGHLIGHT_COLOR,
-      noBorder: true,
+      color: "#ffeb3b9a",
       thinLine: true,
     }));
   }

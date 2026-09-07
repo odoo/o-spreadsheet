@@ -1,5 +1,4 @@
 import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
-import { HIGHLIGHT_COLOR } from "../../../../constants";
 import { toXC } from "../../../../helpers/coordinates";
 import { StatValue } from "../../../../helpers/data_statistics/statistics_items";
 import { deepEquals } from "../../../../helpers/misc";
@@ -11,7 +10,7 @@ import { useHighlights } from "../../../helpers/highlight_hook";
 import { types } from "../../../props_validation";
 import { StatisticItem } from "./statistic_item";
 
-interface ListState {
+export interface ListState {
   displayedValues: StatValue[];
   numberOfDisplayedValues: number;
   hasMoreValues: boolean;
@@ -111,8 +110,7 @@ export class CategorySection extends Component<SpreadsheetChildEnv> {
     }
     return matches.map((range) => ({
       range,
-      color: HIGHLIGHT_COLOR,
-      noBorder: true,
+      color: "#ffeb3b9a",
       thinLine: true,
     }));
   }

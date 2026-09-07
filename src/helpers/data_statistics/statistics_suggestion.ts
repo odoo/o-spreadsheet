@@ -1,6 +1,7 @@
 import { _t } from "../../translation";
 import { EvaluatedCell } from "../../types/cells";
 import { Getters } from "../../types/getters";
+import { DAYS, MONTHS } from "../format/format";
 import { toTrimmedLowerCase } from "../text_helper";
 import { zoneToXc } from "../zones";
 import { ColumnAnalysis } from "./data_analysis";
@@ -30,7 +31,7 @@ function sectionsForSingleColumn(
   switch (col.type) {
     case "number":
     case "percentage":
-      return statsForNumberColumn(getters, sheetId, zoneToXc(col.zone));
+      return statsForNumberColumn(getters, sheetId, col);
     case "date":
       return statsForDateColumn(getters, sheetId, zoneToXc(col.zone));
     case "categorical":
@@ -44,50 +45,61 @@ function sectionsForSingleColumn(
 }
 
 /** Pattern A + B — Single number (or percentage) column: min, max, sum, average. */
-function statsForNumberColumn(getters: Getters, sheetId: string, range: string): StatSection[] {
-  return [
-    {
-      items: [
-        createStatItem(getters, sheetId, "min", _t("Min"), `=MIN(${range})`),
-        createStatItem(getters, sheetId, "max", _t("Max"), `=MAX(${range})`),
-        createStatItem(getters, sheetId, "sum", _t("Sum"), `=SUM(${range})`),
-        createStatItem(getters, sheetId, "median", _t("Median"), `=MEDIAN(${range})`),
-        createStatItem(getters, sheetId, "average", _t("Average"), `=AVERAGE(${range})`),
-      ],
-    },
+function statsForNumberColumn(
+  getters: Getters,
+  sheetId: string,
+  col: ColumnAnalysis
+): StatSection[] {
+  const range = zoneToXc(col.zone);
+  const generalItems = [
+    createStatItem(getters, sheetId, "min", _t("Min"), `=MIN(${range})`),
+    createStatItem(getters, sheetId, "max", _t("Max"), `=MAX(${range})`),
+    createStatItem(getters, sheetId, "sum", _t("Sum"), `=SUM(${range})`),
+    createStatItem(getters, sheetId, "median", _t("Median"), `=MEDIAN(${range})`),
+    createStatItem(getters, sheetId, "average", _t("Average"), `=AVERAGE(${range})`),
   ];
+  const categoryItems = uniqueValues(col.nonEmpty)
+    .filter(({ formattedValue }) => formattedValue !== "")
+    .map(({ value, formattedValue }) => {
+      return createStatItem(
+        getters,
+        sheetId,
+        formattedValue,
+        formattedValue,
+        `=COUNTIF(${range},"${value}")`
+      );
+    })
+    .sort((a, b) => Number(b.value) - Number(a.value) || a.name.localeCompare(b.name));
+  return [{ items: generalItems }, { label: _t("Value occurrences"), items: categoryItems }];
 }
 
 /** Pattern C — Single date column */
 function statsForDateColumn(getters: Getters, sheetId: string, range: string): StatSection[] {
-  const generalSection = [
-    {
-      items: [
-        createStatItem(getters, sheetId, "earliest", _t("Earliest"), `=MIN(${range})`),
-        createStatItem(getters, sheetId, "latest", _t("Latest"), `=MAX(${range})`),
-      ],
-    },
+  const generalItems = [
+    createStatItem(getters, sheetId, "earliest", _t("Earliest"), `=MIN(${range})`),
+    createStatItem(getters, sheetId, "latest", _t("Latest"), `=MAX(${range})`),
   ];
-  const monthSection = [
-    {
-      label: _t("Occurrences by month"),
-      items: [
-        createStatItem(getters, sheetId, 0, _t("January"), `=SUM(--(MONTH(${range})=1))`),
-        createStatItem(getters, sheetId, 1, _t("February"), `=SUM(--(MONTH(${range})=2))`),
-        createStatItem(getters, sheetId, 2, _t("March"), `=SUM(--(MONTH(${range})=3))`),
-        createStatItem(getters, sheetId, 3, _t("April"), `=SUM(--(MONTH(${range})=4))`),
-        createStatItem(getters, sheetId, 4, _t("May"), `=SUM(--(MONTH(${range})=5))`),
-        createStatItem(getters, sheetId, 5, _t("June"), `=SUM(--(MONTH(${range})=6))`),
-        createStatItem(getters, sheetId, 6, _t("July"), `=SUM(--(MONTH(${range})=7))`),
-        createStatItem(getters, sheetId, 7, _t("August"), `=SUM(--(MONTH(${range})=8))`),
-        createStatItem(getters, sheetId, 8, _t("September"), `=SUM(--(MONTH(${range})=9))`),
-        createStatItem(getters, sheetId, 9, _t("October"), `=SUM(--(MONTH(${range})=10))`),
-        createStatItem(getters, sheetId, 10, _t("November"), `=SUM(--(MONTH(${range})=11))`),
-        createStatItem(getters, sheetId, 11, _t("December"), `=SUM(--(MONTH(${range})=12))`),
-      ],
-    },
+  const earliestYear = new Date(generalItems[0].value).getFullYear();
+  const latestYear = new Date(generalItems[1].value).getFullYear();
+  const yearRange = Array.from(
+    { length: latestYear - earliestYear + 1 },
+    (_, i) => earliestYear + i
+  );
+  const yearItems = yearRange.map((year) =>
+    createStatItem(getters, sheetId, String(year), String(year), `=SUM(--(YEAR(${range})=${year}))`)
+  );
+  const monthItems = Object.entries(MONTHS).map(([month, name]) =>
+    createStatItem(getters, sheetId, month, name, `=SUM(--(MONTH(${range})=${Number(month) + 1}))`)
+  );
+  const dayItems = Object.entries(DAYS).map(([day, name]) =>
+    createStatItem(getters, sheetId, day, name, `=SUM(--(WEEKDAY(${range})=${Number(day) + 1}))`)
+  );
+  return [
+    { items: generalItems },
+    { label: _t("Occurrences by year"), items: yearItems },
+    { label: _t("Occurrences by month"), items: monthItems },
+    { label: _t("Occurrences by day of week"), items: dayItems },
   ];
-  return [...generalSection, ...monthSection];
 }
 
 /** Pattern D + E — Single categorical/label column: count per category. */
