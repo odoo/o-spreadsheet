@@ -833,7 +833,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       row: range.zone.top,
     });
     if (spreadZone) {
-      return this.getters.getRangeFromZone(sheetId, spreadZone);
+      return this.getters.getRangeFromZone(range.sheetId, spreadZone);
     }
     return range;
   }
