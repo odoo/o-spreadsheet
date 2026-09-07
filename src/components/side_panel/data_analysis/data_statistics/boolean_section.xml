@@ -1,7 +1,0 @@
-<templates>
-  <t t-name="o-spreadsheet-BooleanSection">
-    <div class="p-1 ">
-      <Occurencies items="this.props.section.items"/>
-    </div>
-  </t>
-</templates>

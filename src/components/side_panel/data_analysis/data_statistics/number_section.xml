@@ -5,6 +5,5 @@
         <StatisticItem stat="stat" onHover.bind="this.hoverStat"/>
       </t>
     </div>
-    <Occurencies items="this.props.statSections[1].items" sortItemsFunction="this.sort"/>
   </t>
 </templates>

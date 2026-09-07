@@ -10,6 +10,7 @@ import { SidePanelCollapsible } from "../components/collapsible/side_panel_colla
 import { Section } from "../components/section/section";
 import { ChartSuggestionPreview } from "./chart_suggestion/chart_suggestion_preview";
 import { DataAnalysisStore } from "./data_analysis_store";
+import { Occurencies } from "./data_statistics/occurencies";
 
 export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataAnalysisPanel";
@@ -18,6 +19,7 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
     Section,
     ChartSuggestionPreview,
     SidePanelCollapsible,
+    Occurencies,
   };
 
   store!: Store<DataAnalysisStore>;
@@ -30,6 +32,33 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
     startChartDragAndDrop(this.env, definition, ev);
   }
 
+  get sortFunction() {
+    switch (this.store.shape[0]) {
+      case "categorical":
+      case "label":
+        return statisticsRegistry.get("categorical")?.sortItems;
+      case "number":
+      case "percentage":
+        return statisticsRegistry.get("number")?.sortItems;
+      default:
+        return undefined;
+    }
+  }
+
+  get occurencyItems() {
+    switch (this.store.shape[0]) {
+      case "categorical":
+      case "label":
+      case "number":
+      case "percentage":
+        return this.store.statSections?.[1]?.items || [];
+      case "boolean":
+        return this.store.statSections?.[0]?.items || [];
+      default:
+        return [];
+    }
+  }
+
   get statSectionComponent() {
     const numberOfColumns = this.store.shape.length;
     if (numberOfColumns === 1) {
@@ -37,8 +66,6 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
         case "categorical":
         case "label":
           return statisticsRegistry.get("categorical")?.Body;
-        case "boolean":
-          return statisticsRegistry.get("boolean")?.Body;
         case "date":
           return statisticsRegistry.get("date")?.Body;
         case "number":
@@ -61,8 +88,6 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
         case "number":
         case "percentage":
           return { statSections: this.store.statSections };
-        case "boolean":
-          return { section: this.store.statSections?.[0] };
         default:
           return {};
       }

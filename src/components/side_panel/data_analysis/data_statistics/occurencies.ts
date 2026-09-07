@@ -54,6 +54,9 @@ export class Occurencies extends Component<SpreadsheetChildEnv> {
 
   hoverStat(stat: StatValue, isHovered: boolean) {
     this.hoveredStat.name = isHovered ? stat.name : "";
+    this.hoveredStat.value = isHovered ? stat.value : "";
+    this.hoveredStat.id = isHovered ? stat.id : "";
+    this.hoveredStat.formula = isHovered ? stat.formula : "";
   }
 
   get label() {
@@ -103,7 +106,7 @@ export class Occurencies extends Component<SpreadsheetChildEnv> {
     for (const zone of zones) {
       const cells = this.env.model.getters.getEvaluatedCellsInZone(sheetId, zone);
       for (const cell of cells) {
-        if (cell.formattedValue === this.hoveredStat.name) {
+        if (cell.value === this.hoveredStat.id) {
           const cellXC = toXC(cell.position!.col, cell.position!.row);
           matches.push(this.env.model.getters.getRangeFromSheetXC(sheetId, cellXC));
         }

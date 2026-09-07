@@ -4,7 +4,6 @@
       <div class="my-4">
         <StatisticItem stat="this.props.statSections[0].items[0]"/>
       </div>
-      <Occurencies items="this.props.statSections[1].items" sortItemsFunction="this.sort"/>
     </div>
   </t>
 </templates>

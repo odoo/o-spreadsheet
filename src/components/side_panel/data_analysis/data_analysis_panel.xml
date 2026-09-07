@@ -14,14 +14,14 @@
           </div>
           <div t-else="" class="o-data-analysis-empty text-muted p-3">
             No chart suggestions available for the selected data. Note that the order of selected
-        columns can impact chart suggestions.
+            columns can impact chart suggestions.
           </div>
         </t>
       </SidePanelCollapsible>
       <SidePanelCollapsible
         title.translate="General statistics"
         isInitiallyCollapsed="false"
-        t-if="this.store.statSections and this.store.statSections.length">
+        t-if="this.statSectionComponent">
         <t t-set-slot="content">
           <Section class="'o-column-global-stats d-flex flex-column pt-0'">
             <t
@@ -32,10 +32,20 @@
           </Section>
         </t>
       </SidePanelCollapsible>
+      <SidePanelCollapsible
+        title.translate="Occurrences"
+        isInitiallyCollapsed="false"
+        t-if="this.occurencyItems.length">
+        <t t-set-slot="content">
+          <Section class="'o-column-global-stats d-flex flex-column pt-0'">
+            <Occurencies items="this.occurencyItems" sortItemsFunction="this.sortFunction"/>
+          </Section>
+        </t>
+      </SidePanelCollapsible>
     </div>
     <div t-else="" class="o-data-analysis-empty text-muted p-3">
       Select cells containing data to see suggestions. Note that the order of selected
-        columns can impact chart suggestions.
+      columns can impact chart suggestions.
     </div>
   </div>
 </templates>

@@ -7,7 +7,6 @@ import { Range } from "../../../../types/range";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlights } from "../../../helpers/highlight_hook";
 import { types } from "../../../props_validation";
-import { Occurencies } from "./occurencies";
 import { StatisticItem } from "./statistic_item";
 
 export class NumberSection extends Component<SpreadsheetChildEnv> {
@@ -17,40 +16,12 @@ export class NumberSection extends Component<SpreadsheetChildEnv> {
   });
   static components = {
     StatisticItem,
-    Occurencies,
   };
 
   private hoveredStat = proxy<StatValue>({ id: "", name: "", value: "", formula: "" });
 
   setup() {
     useHighlights(this);
-  }
-
-  get occurrencySection() {
-    return this.props.statSections[1];
-  }
-
-  sort(
-    items: StatValue[],
-    sortType: "asc" | "desc" | "none"
-  ): { sortedItems: StatValue[]; newSortType: "asc" | "desc" | "none" } {
-    switch (sortType) {
-      case "desc":
-        return {
-          sortedItems: items.sort((a, b) => Number(a.value) - Number(b.value)),
-          newSortType: "asc",
-        };
-      case "asc":
-        return {
-          sortedItems: items,
-          newSortType: "none",
-        };
-      case "none":
-        return {
-          sortedItems: items.sort((a, b) => Number(b.value) - Number(a.value)),
-          newSortType: "desc",
-        };
-    }
   }
 
   hoverStat(stat: StatValue, isHovered: boolean) {
@@ -61,7 +32,8 @@ export class NumberSection extends Component<SpreadsheetChildEnv> {
   }
 
   get highlights(): Highlight[] {
-    if (this.hoveredStat.id === "" || ["average", "median", "sum"].includes(this.hoveredStat.id)) {
+    const id = this.hoveredStat.id;
+    if (typeof id !== "string" || id === "" || ["average", "median", "sum"].includes(id)) {
       return [];
     }
     const sheetId = this.env.model.getters.getActiveSheetId();
@@ -71,7 +43,7 @@ export class NumberSection extends Component<SpreadsheetChildEnv> {
       const cells = this.env.model.getters.getEvaluatedCellsInZone(sheetId, zone);
       for (const cell of cells) {
         let doesMatch = false;
-        if (["min", "max"].includes(this.hoveredStat.id)) {
+        if (id === "min" || id === "max") {
           if (cell.formattedValue === this.hoveredStat.value) {
             doesMatch = true;
           }

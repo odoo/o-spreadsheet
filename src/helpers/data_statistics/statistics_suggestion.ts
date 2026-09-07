@@ -66,7 +66,7 @@ function statsForNumberColumn(
       return createStatItem(
         getters,
         sheetId,
-        formattedValue,
+        value,
         formattedValue,
         `=COUNTIF(${range},"${value}")`
       );
@@ -124,7 +124,7 @@ function statsForCategoricalColumn(
       return createStatItem(
         getters,
         sheetId,
-        formattedValue,
+        value,
         formattedValue,
         `=COUNTIF(${range},"${value}")`
       );
@@ -137,8 +137,8 @@ function statForBooleanColumn(getters: Getters, sheetId: string, range: string):
   return [
     {
       items: [
-        createStatItem(getters, sheetId, "true", _t("TRUE"), `=COUNTIF(${range},TRUE)`),
-        createStatItem(getters, sheetId, "false", _t("FALSE"), `=COUNTIF(${range},FALSE)`),
+        createStatItem(getters, sheetId, true, _t("TRUE"), `=COUNTIF(${range},TRUE)`),
+        createStatItem(getters, sheetId, false, _t("FALSE"), `=COUNTIF(${range},FALSE)`),
       ],
     },
   ];
