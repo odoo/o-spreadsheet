@@ -131,7 +131,7 @@ export class StandaloneViewportStore extends SpreadsheetStore {
       viewports: this.viewStore.viewports,
       hideGridLines: this.getters.isDashboard(),
       hideFrozenPaneBorder: true,
-      dpr: 1,
+      dpr: window.devicePixelRatio || 1,
       selectedZones: [],
       activeCols: new Set(),
       activeRows: new Set(),

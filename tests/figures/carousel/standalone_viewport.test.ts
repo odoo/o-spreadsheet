@@ -8,6 +8,7 @@ import { buildSheetLink, range } from "../../../src/helpers/misc";
 import { zoneToXc } from "../../../src/helpers/zones";
 import { CellHoverOverlayStore } from "../../../src/stores/cell_hover_overlay_store";
 import { GridRenderer } from "../../../src/stores/grid_renderer_store";
+import { RendererStore } from "../../../src/stores/renderer_store";
 import { ViewportsStore } from "../../../src/stores/viewports_store";
 import { ZoomStore } from "../../../src/stores/zoom_store";
 import { PropsOf } from "../../../src/types/props_of";
@@ -347,6 +348,29 @@ describe("Standalone viewport", () => {
     expect(overlayStore.overlayColors.get(toCellPosition("sh2", "B2"))).toBeUndefined();
     expect(overlayStore.overlayColors.get(toCellPosition("sh2", "C2"))).toBeUndefined();
     jest.useRealTimers();
+  });
+
+  test("Standalone viewport is drawn with the window devicePixelRatio", async () => {
+    await mountViewport("A1:A2");
+    const rendererStore: RendererStore = storeSpy.getStores(RendererStore).at(-1)!;
+
+    let lastDpr = 0;
+    rendererStore.register({
+      renderingLayers: ["Background"],
+      drawLayer: (ctx) => (lastDpr = ctx.dpr),
+    });
+
+    setCellContent(model, "A1", "Hello");
+    await nextTick();
+    expect(lastDpr).toEqual(1);
+
+    const originalDpr = window.devicePixelRatio;
+    window.devicePixelRatio = 2;
+    setCellContent(model, "A1", "There");
+    await nextTick();
+    expect(lastDpr).toEqual(2);
+
+    window.devicePixelRatio = originalDpr;
   });
 
   describe("Column resize", () => {
