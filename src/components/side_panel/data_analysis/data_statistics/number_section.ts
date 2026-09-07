@@ -7,7 +7,7 @@ import { Range } from "../../../../types/range";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlights } from "../../../helpers/highlight_hook";
 import { types } from "../../../props_validation";
-import { ListState } from "./category_section";
+import { Occurencies } from "./occurencies";
 import { StatisticItem } from "./statistic_item";
 
 export class NumberSection extends Component<SpreadsheetChildEnv> {
@@ -17,19 +17,12 @@ export class NumberSection extends Component<SpreadsheetChildEnv> {
   });
   static components = {
     StatisticItem,
+    Occurencies,
   };
-
-  private listState = proxy<ListState>({
-    displayedValues: [],
-    numberOfDisplayedValues: 50,
-    hasMoreValues: false,
-    sortType: "desc",
-  });
 
   private hoveredStat = proxy<StatValue>({ id: "", name: "", value: "", formula: "" });
 
   setup() {
-    this.computeDisplayedValues(this.occurrencySection.items);
     useHighlights(this);
   }
 
@@ -37,43 +30,27 @@ export class NumberSection extends Component<SpreadsheetChildEnv> {
     return this.props.statSections[1];
   }
 
-  computeDisplayedValues(items: StatValue[]) {
-    this.listState.displayedValues = items.slice(0, this.listState.numberOfDisplayedValues);
-    this.listState.hasMoreValues = items.length > this.listState.numberOfDisplayedValues;
-  }
-
-  loadMoreValues() {
-    this.listState.numberOfDisplayedValues += 50;
-    this.computeDisplayedValues(this.occurrencySection.items);
-  }
-
-  sortItems() {
-    const items = this.occurrencySection.items;
-    switch (this.listState.sortType) {
+  sort(
+    items: StatValue[],
+    sortType: "asc" | "desc" | "none"
+  ): { sortedItems: StatValue[]; newSortType: "asc" | "desc" | "none" } {
+    switch (sortType) {
       case "desc":
-        this.listState.sortType = "asc";
-        items.sort((a, b) => Number(a.value) - Number(b.value));
-        break;
+        return {
+          sortedItems: items.sort((a, b) => Number(a.value) - Number(b.value)),
+          newSortType: "asc",
+        };
       case "asc":
-        this.listState.sortType = "none";
-        break;
+        return {
+          sortedItems: items,
+          newSortType: "none",
+        };
       case "none":
-        this.listState.sortType = "desc";
-        items.sort((a, b) => Number(b.value) - Number(a.value));
-        break;
+        return {
+          sortedItems: items.sort((a, b) => Number(b.value) - Number(a.value)),
+          newSortType: "desc",
+        };
     }
-    this.computeDisplayedValues(items);
-  }
-
-  get total() {
-    return this.occurrencySection.items.reduce((acc, item) => acc + Number(item.value), 0);
-  }
-
-  computePercentage(value: number) {
-    if (this.total === 0) {
-      return "0%";
-    }
-    return `(${Math.round((value / this.total) * 100)}%)`;
   }
 
   hoverStat(stat: StatValue, isHovered: boolean) {

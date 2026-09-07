@@ -52,11 +52,13 @@ function statsForNumberColumn(
 ): StatSection[] {
   const range = zoneToXc(col.zone);
   const generalItems = [
-    createStatItem(getters, sheetId, "min", _t("Min"), `=MIN(${range})`),
-    createStatItem(getters, sheetId, "max", _t("Max"), `=MAX(${range})`),
+    createStatItem(getters, sheetId, "non_empty", _t("Non-empty cells"), `=COUNTA(${range})`),
+    createStatItem(getters, sheetId, "unique", _t("Unique values"), `=COUNTUNIQUE(${range})`),
     createStatItem(getters, sheetId, "sum", _t("Sum"), `=SUM(${range})`),
     createStatItem(getters, sheetId, "median", _t("Median"), `=MEDIAN(${range})`),
     createStatItem(getters, sheetId, "average", _t("Average"), `=AVERAGE(${range})`),
+    createStatItem(getters, sheetId, "min", _t("Minimum value"), `=MIN(${range})`),
+    createStatItem(getters, sheetId, "max", _t("Maximum value"), `=MAX(${range})`),
   ];
   const categoryItems = uniqueValues(col.nonEmpty)
     .filter(({ formattedValue }) => formattedValue !== "")
@@ -112,7 +114,7 @@ function statsForCategoricalColumn(
   const uniqueCount = createStatItem(
     getters,
     sheetId,
-    "unique_categories",
+    "unique",
     _t("Unique categories"),
     `=COUNTUNIQUE(${range})`
   );
