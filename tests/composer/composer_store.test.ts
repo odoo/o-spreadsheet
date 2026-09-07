@@ -289,6 +289,15 @@ describe("edition", () => {
     ]);
   });
 
+  test("spilled range is highlighted on the sheet of the reference", () => {
+    createSheetWithName(model, { sheetId: "sh2" }, "Sheet2");
+    setCellContent(model, "A1", "=SEQUENCE(2, 2)", "sh2");
+    composerStore.startEdition("=Sheet2!A1#");
+    expect(composerStore.highlights.map(flattenHighlightRange)).toMatchObject([
+      { zone: toZone("A1:B2"), sheetId: "sh2" },
+    ]);
+  });
+
   test("different ranges have different colors", () => {
     composerStore.startEdition("=SUM(A2:A3, B5)");
     const [firstColor, secondColor] = composerStore.highlights.map((h) => h.color);
