@@ -111,7 +111,7 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
 
   get carouselStyle(): string {
     const cssProperties: CSSProperties = {};
-    const backgroundColor = this.env.model.getters.getSpreadsheetTheme().backgroundColor;
+    const backgroundColor = this.env.model.getters.getSpreadsheetTheme().chartBackgroundColor;
     if (this.selectedCarouselItem?.type === "chart") {
       const chart = this.env.model.getters.getChartRuntime(this.selectedCarouselItem.chartId);
       if ("background" in chart && chart.background) {

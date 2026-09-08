@@ -149,9 +149,6 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
 
   get backgroundStyle() {
     const sheet = this.env.model.getters.getActiveSheet();
-    const theme = this.env.model.getters.getSpreadsheetTheme();
-    return cssPropertiesToCss({
-      "background-color": sheet.backgroundColor || theme.backgroundColor,
-    });
+    return cssPropertiesToCss({ "background-color": sheet.backgroundColor });
   }
 }

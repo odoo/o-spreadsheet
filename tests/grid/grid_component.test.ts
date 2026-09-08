@@ -151,6 +151,15 @@ describe("Grid component", () => {
     expect(fixture.querySelector(".o-grid")).toMatchSnapshot();
   });
 
+  test("the canvas background is not affected by the dark mode filter", async () => {
+    const background = fixture.querySelector(".os-canvas-background")!;
+    expect(background).not.toBeNull();
+    expect(background.closest(".os-theme-dependant")).toBeNull();
+    const canvas = background.querySelector("canvas")!;
+    expect(canvas.classList).toContain("os-theme-dependant");
+    expect(canvas.classList).toContain("pe-none");
+  });
+
   test("can render a sheet with a merge", async () => {
     const sheet1 = model.getters.getSheetIds()[0];
     merge(model, "B2:B3", sheet1);

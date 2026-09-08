@@ -112,7 +112,7 @@ describe("Dashboard Pivot Sorting", () => {
     await nextTick();
     expect(
       getElComputedStyle(".o-dashboard-clickable-cell .sorting-icon", "background-color")
-    ).toBeSameColorAs("#FFFFFF");
+    ).toBeSameColorAs("#0000");
     expect(
       getElComputedStyle(".o-dashboard-clickable-cell .sorting-icon", "color")
     ).toBeSameColorAs(TEXT_BODY_MUTED);

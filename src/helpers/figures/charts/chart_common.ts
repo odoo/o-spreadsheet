@@ -371,7 +371,7 @@ export function getChartBackgroundColor(
   colorThemeName: ColorThemeName
 ): Color {
   if (!background) {
-    return COLOR_THEMES[colorThemeName].backgroundColor;
+    return COLOR_THEMES[colorThemeName].chartBackgroundColor;
   }
   return background;
 }

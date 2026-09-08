@@ -199,10 +199,14 @@
       outline: none;
     }
 
-    > canvas {
-      box-sizing: content-box;
-      border-bottom: 1px solid var(--os-canvas-border-color);
-      border-right: 1px solid var(--os-canvas-border-color);
+    > .os-canvas-background {
+      width: fit-content;
+      > canvas {
+        display: block;
+        box-sizing: content-box;
+        border-bottom: 1px solid var(--os-canvas-border-color);
+        border-right: 1px solid var(--os-canvas-border-color);
+      }
     }
   }
 
@@ -300,4 +304,8 @@
   }
 
   --oi-font-size: var(--os-icon-font-size);
+
+  .os-canvas-background {
+    background-color: var(--os-canvas-background-color);
+  }
 }

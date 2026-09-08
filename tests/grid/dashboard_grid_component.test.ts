@@ -7,7 +7,6 @@ import {
   GRID_ICON_MARGIN,
   MIN_CELL_TEXT_MARGIN,
 } from "../../src/constants";
-import { COLOR_THEMES } from "../../src/helpers/color_themes";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";
@@ -330,18 +329,29 @@ describe("Grid component in dashboard mode", () => {
     setSheetBackground(model, "#FF0000");
     model.updateMode("dashboard");
     await nextTick();
-    expect(".o-dashboard-background").toHaveStyle({ "background-color": "#FF0000" });
+    expect(".o-dashboard-sheet-background").toHaveStyle({ "background-color": "#FF0000" });
   });
 
-  test("Dashboard backgrounds is present even if the sheet has no explicit background", async () => {
+  test("Dashboard has no sheet background color if the sheet has no explicit background", async () => {
     model.updateMode("dashboard");
     await nextTick();
-    expect(".o-dashboard-background").toHaveStyle({ "background-color": "#FFFFFF" });
+    // Transparent, it shows through for the integrators
+    expect(
+      fixture.querySelector(".o-dashboard-sheet-background")!.getAttribute("style")
+    ).toBeFalsy();
 
     model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "dark" });
     await nextTick();
-    expect(".o-dashboard-background").toHaveStyle({
-      "background-color": COLOR_THEMES.dark.backgroundColor,
-    });
+    expect(
+      fixture.querySelector(".o-dashboard-sheet-background")!.getAttribute("style")
+    ).toBeFalsy();
+  });
+
+  test("Dashboard background layer is not affected by the dark mode filter", async () => {
+    model.updateMode("dashboard");
+    await nextTick();
+    const background = fixture.querySelector(".o-dashboard-background")!;
+    expect(background.classList).toContain("os-canvas-background");
+    expect(background.closest(".os-theme-dependant")).toBeNull();
   });
 });
