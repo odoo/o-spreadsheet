@@ -12,7 +12,7 @@ import { StatisticItem } from "./statistic_item";
 export class GeneralStatsSection extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GeneralStatsSection";
   protected props = useProps({
-    statSections: types.array(types.StatSection()),
+    items: types.array(types.StatValue()),
   });
   static components = {
     StatisticItem,

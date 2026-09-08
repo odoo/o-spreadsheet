@@ -27,7 +27,7 @@
             <t
               t-if="this.statSectionComponent"
               t-component="this.statSectionComponent"
-              t-props="this.componentProps"
+              t-props="{ items: this.store.statSections?.[0]?.items }"
             />
           </Section>
         </t>
