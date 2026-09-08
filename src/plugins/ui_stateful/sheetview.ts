@@ -1,4 +1,4 @@
-import { SCROLLBAR_WIDTH } from "../../constants";
+import { MAX_ZOOM_LEVEL, MIN_ZOOM_LEVEL, SCROLLBAR_WIDTH } from "../../constants";
 import { ViewportCollection } from "../../helpers/viewport_collection";
 import { findCellInNewZone, isEqual } from "../../helpers/zones";
 import {
@@ -98,7 +98,7 @@ export class SheetViewPlugin extends UIPlugin {
           () => this.viewports.checkPositiveDimension(cmd)
         )(cmd);
       case "SET_ZOOM":
-        if (cmd.zoom > 2 || cmd.zoom < 0.5) {
+        if (isNaN(cmd.zoom) || cmd.zoom > MAX_ZOOM_LEVEL || cmd.zoom < MIN_ZOOM_LEVEL) {
           return CommandResult.InvalidZoomLevel;
         } else {
           return CommandResult.Success;
