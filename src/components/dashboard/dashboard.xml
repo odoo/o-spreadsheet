@@ -21,7 +21,9 @@
           gridOverlayDimensions="this.gridOverlayDimensions">
           <ClickableCellsOverlay/>
         </GridOverlay>
-        <canvas t-ref="this.canvasRef" class="os-theme-dependant"/>
+        <div class="os-canvas-background">
+          <canvas t-ref="this.canvasRef" class="os-theme-dependant"/>
+        </div>
         <GridPopover
           gridRect="this.getGridRect()"
           onMouseWheel.bind="this.onMouseWheel"

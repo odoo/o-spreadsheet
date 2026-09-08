@@ -27,7 +27,7 @@ export function useGridDrawing({
 
   function drawGrid() {
     const canvas = canvasRef() as HTMLCanvasElement;
-    const ctx = canvas.getContext("2d", { alpha: false })!;
+    const ctx = canvas.getContext("2d", { alpha: true })!;
     const renderingContext: GridRenderingContext = {
       ctx,
       thinLineWidth: 0.4,

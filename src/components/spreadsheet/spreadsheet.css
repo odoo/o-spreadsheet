@@ -300,4 +300,8 @@
   }
 
   --oi-font-size: var(--os-icon-font-size);
+
+  .os-canvas-background {
+    background-color: var(--os-canvas-background-color);
+  }
 }

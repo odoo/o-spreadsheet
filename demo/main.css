@@ -8,6 +8,10 @@ body {
     "Noto Color Emoji" !important;
   height: 100dvh !important;
   width: 100dvw !important;
+
+  .o-spreadsheet .o-grid {
+    --os-canvas-background-color: var(--os-white-bg, light-dark(#ffffff, #000000));
+  }
 }
 
 .o-spreadsheet .o-test-notification {
