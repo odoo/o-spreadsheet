@@ -33,6 +33,7 @@ export interface SingleDateContext {
   title: string;
   lastCellXC: string;
   rowCount: number;
+  source: ChartRangeDataSource<string>;
 }
 
 /** Pattern D — Single categorical column */

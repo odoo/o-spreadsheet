@@ -188,12 +188,15 @@ describe("getChartSuggestions", () => {
       expect(suggestionTypes(model, "A1")).toEqual(["scorecard"]);
     });
 
-    test(">1 row → no suggestions yet (date-bucketing not supported)", () => {
+    test(">1 row → calendar chart", () => {
       const model = new Model();
       setCellContent(model, "A1", "1/1/2024");
       setCellContent(model, "A2", "2/1/2024");
       setFormat(model, "A1:A2", "mm/dd/yyyy");
-      expect(suggestions(model, "A1:A2")).toHaveLength(0);
+      expect(suggestions(model, "A1:A2")).toHaveLength(1);
+      expect(
+        (runtimeFor(model, "A1:A2", (d) => d.type === "calendar") as any).chartJsConfig
+      ).toBeDefined();
     });
   });
 

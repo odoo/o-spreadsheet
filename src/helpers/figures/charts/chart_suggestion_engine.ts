@@ -184,9 +184,12 @@ function buildSinglePercentageContext(
 }
 
 /** Pattern C — Single date column */
-function buildSingleDateContext([col]: ColumnAnalysis[]): SingleDateContext {
+function buildSingleDateContext([col]: ColumnAnalysis[], getters: Getters): SingleDateContext {
   const { lastCellXC } = interestingCellsXc(col);
-  return { title: col.header ?? "", lastCellXC, rowCount: col.rowCount };
+  const hasTitle = col.hasHeader;
+  const labelRange = getUnboundRange(getters, col.zone);
+  const source = rangeSource([dataset(col.zone, getters)], hasTitle, labelRange);
+  return { title: col.header ?? "", lastCellXC, rowCount: col.rowCount, source };
 }
 
 /** Pattern D — Single categorical column */

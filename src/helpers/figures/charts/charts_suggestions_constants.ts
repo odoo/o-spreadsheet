@@ -340,12 +340,17 @@ export const SINGLE_PERCENTAGE_COLUMN_SUGGESTIONS: Suggestion<SinglePercentageCo
 ];
 
 /** Pattern C — Single date column */
-// TODO(ANHE): add line/bar/calendar suggestions once date-bucketing is supported.
+// TODO(ANHE): add line/bar suggestions once date-bucketing is supported.
 export const SINGLE_DATE_COLUMN_SUGGESTIONS: Suggestion<SingleDateContext>[] = [
   {
     description: _t("Shows the last date value."),
     isApplicable: ({ rowCount }) => rowCount === 1,
     build: (ctx) => scorecardChart(ctx.title, `=${ctx.lastCellXC}`),
+  },
+  {
+    description: _t("Shows occurrences for each time slot."),
+    isApplicable: ({ rowCount }) => rowCount > 1,
+    build: (ctx) => calendarChart(ctx.title, ctx.source),
   },
 ];
 
