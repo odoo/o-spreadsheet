@@ -49,11 +49,11 @@ export class ClickableCellSortIcon extends Component<SpreadsheetChildEnv> {
     }
   }
 
-  private getBackgroundColor(cellStyle: Style): Color {
+  private getBackgroundColor(cellStyle: Style): Color | undefined {
     const overlayColor = this.hoveredCellOverlayStore.overlayColors.get(this.props.position);
     if (overlayColor) {
-      return blendColors(cellStyle.fillColor || "#FFFFFF", overlayColor);
+      return cellStyle.fillColor ? blendColors(cellStyle.fillColor, overlayColor) : overlayColor;
     }
-    return cellStyle.fillColor || "#FFFFFF";
+    return cellStyle.fillColor;
   }
 }

@@ -29,7 +29,7 @@ export function useGridDrawing({
     if (!canvas) {
       return;
     }
-    const ctx = canvas.getContext("2d", { alpha: false })!;
+    const ctx = canvas.getContext("2d", { alpha: true })!;
     const renderingContext: GridRenderingContext = {
       ctx,
       thinLineWidth: 0.4,
