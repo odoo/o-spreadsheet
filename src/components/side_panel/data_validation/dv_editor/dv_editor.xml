@@ -24,6 +24,7 @@
             criterion="this.state.rule.criterion"
             onCriterionChanged.bind="this.onCriterionChanged"
             autofocus="this.state.isTypeUpdated"
+            sheetId="this.props.sheetId"
           />
         </div>
       </Section>

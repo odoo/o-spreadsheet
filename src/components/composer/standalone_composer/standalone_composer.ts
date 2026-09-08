@@ -2,7 +2,7 @@ import { onMounted, useProps } from "@odoo/owl";
 import { Token } from "../../../formulas/tokenizer";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../../store_engine/store_hooks";
-import { Color, ComposerFocusType } from "../../../types/misc";
+import { Color, ComposerFocusType, UID } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
@@ -18,7 +18,7 @@ export class StandaloneComposer extends Component<SpreadsheetChildEnv> {
   static components = { Composer };
 
   protected props = useProps({
-    onConfirm: types.function<(content: string) => void>(),
+    onConfirm: types.function<(content: string, sheetId: UID) => void>(),
     composerContent: types.string().optional(""),
     defaultRangeSheetId: types.UID(),
     defaultStatic: types.boolean().optional(false),

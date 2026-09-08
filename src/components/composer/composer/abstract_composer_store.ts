@@ -168,9 +168,21 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.updateAutoCompleteProvider();
   }
 
-  cancelEdition() {
-    this.resetContent();
-    this.cancelEditionAndActivateSheet();
+  cancelEdition({ resetContent = true, activateSheet = true } = {}) {
+    if (resetContent) {
+      this.resetContent();
+    }
+    if (this.editionMode === "inactive") {
+      return;
+    }
+    this._cancelEdition();
+    const sheetId = this.getters.getActiveSheetId();
+    if (activateSheet && sheetId !== this.sheetId) {
+      this.model.dispatch("ACTIVATE_SHEET", {
+        sheetIdFrom: sheetId,
+        sheetIdTo: this.sheetId,
+      });
+    }
   }
 
   setCurrentContent(content: string, selection?: ComposerSelection) {
@@ -192,8 +204,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     switch (cmd.type) {
       case "SELECT_FIGURE":
         if (cmd.figureId) {
-          this.resetContent();
-          this.cancelEditionAndActivateSheet();
+          this.cancelEdition();
         }
         break;
       case "START_CHANGE_HIGHLIGHT":
@@ -440,9 +451,9 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.captureSelection(zone, col, row);
   }
 
-  protected _stopEdition() {
+  protected _stopEdition({ resetContent = false, activateSheet = true } = {}) {
     if (this.editionMode !== "inactive") {
-      this.cancelEditionAndActivateSheet();
+      this.cancelEdition({ resetContent, activateSheet });
       let content = this.getCurrentCanonicalContent();
       const didChange = this.initialContent !== content;
       if (!didChange) {
@@ -455,20 +466,6 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
         }
       }
       this.confirmEdition(content);
-    }
-  }
-
-  protected cancelEditionAndActivateSheet() {
-    if (this.editionMode === "inactive") {
-      return;
-    }
-    this._cancelEdition();
-    const sheetId = this.getters.getActiveSheetId();
-    if (sheetId !== this.sheetId) {
-      this.model.dispatch("ACTIVATE_SHEET", {
-        sheetIdFrom: this.getters.getActiveSheetId(),
-        sheetIdTo: this.sheetId,
-      });
     }
   }
 

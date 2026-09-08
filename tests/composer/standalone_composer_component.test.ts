@@ -81,7 +81,7 @@ describe("Spreadsheet integrations tests", () => {
     });
     expect(composerEl.textContent).toBe("Hello world new text !");
     await keyDown({ key: "Enter" });
-    expect(onConfirm).toHaveBeenCalledWith("Hello world new text !");
+    expect(onConfirm).toHaveBeenCalledWith("Hello world new text !", "Sheet1");
   });
 
   test("Can use formula assistant using standalone composer", async () => {
@@ -122,28 +122,28 @@ describe("Spreadsheet integrations tests", () => {
     await openSidePanelWithComposer();
     await editStandaloneComposer(composerSelector, "=SUM(A1");
     await keyDown({ key: "Enter" });
-    expect(onConfirm).toHaveBeenCalledWith("=SUM(A1)");
+    expect(onConfirm).toHaveBeenCalledWith("=SUM(A1)", "Sheet1");
   });
 
   test("Brackets are closed when composer is confirmed", async () => {
     await openSidePanelWithComposer();
     await editStandaloneComposer(composerSelector, "={1,2");
     await keyDown({ key: "Enter" });
-    expect(onConfirm).toHaveBeenCalledWith("={1,2}");
+    expect(onConfirm).toHaveBeenCalledWith("={1,2}", "Sheet1");
   });
 
   test("Bracket then parenthesis are closed when composer is confirmed", async () => {
     await openSidePanelWithComposer();
     await editStandaloneComposer(composerSelector, "=SUM(A1,{2,3");
     await keyDown({ key: "Enter" });
-    expect(onConfirm).toHaveBeenCalledWith("=SUM(A1,{2,3})");
+    expect(onConfirm).toHaveBeenCalledWith("=SUM(A1,{2,3})", "Sheet1");
   });
 
   test("Parenthesis then bracket are closed when composer is confirmed", async () => {
     await openSidePanelWithComposer();
     await editStandaloneComposer(composerSelector, "={A1,SUM(2,3");
     await keyDown({ key: "Enter" });
-    expect(onConfirm).toHaveBeenCalledWith("={A1,SUM(2,3)}");
+    expect(onConfirm).toHaveBeenCalledWith("={A1,SUM(2,3)}", "Sheet1");
   });
 
   test("Standalone composer lose focus and is confirmed when clicking on another composer", async () => {
@@ -153,7 +153,7 @@ describe("Spreadsheet integrations tests", () => {
 
     await simulateClick(".o-spreadsheet-topbar .o-composer");
     expect(composerFocusStore.activeComposer.id).toBe("topbarComposer");
-    expect(onConfirm).toHaveBeenCalledWith("Hi !");
+    expect(onConfirm).toHaveBeenCalledWith("Hi !", "Sheet1");
   });
 
   test("Confirming standalone composer do not move the selection", async () => {
@@ -202,7 +202,7 @@ describe("Spreadsheet integrations tests", () => {
     });
     expect(composerEl.textContent).toBe("=SUM(1;2,5) + SUM(1,5;4)");
     await keyDown({ key: "Enter" });
-    expect(onConfirm).toHaveBeenCalledWith("=SUM(1,2.5) + SUM(1.5,4)");
+    expect(onConfirm).toHaveBeenCalledWith("=SUM(1,2.5) + SUM(1.5,4)", "Sheet1");
   });
 
   test("Can have title and placeholder", async () => {

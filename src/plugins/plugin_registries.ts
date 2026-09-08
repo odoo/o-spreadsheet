@@ -42,6 +42,7 @@ import { EvaluationPlugin, EvaluationPluginConstructor } from "./evaluation_plug
 import { ChartUIPlugin } from "./ui_feature/chart_ui";
 import { CollaborativePlugin } from "./ui_feature/collaborative";
 import { ColorThemeUIPlugin } from "./ui_feature/color_theme";
+import { ConditionalFormatUIPlugin } from "./ui_feature/conditional_formatting";
 import { DataValidationInsertionPlugin } from "./ui_feature/datavalidation_insertion";
 import { FormatPlugin } from "./ui_feature/format";
 import { GeoFeaturePlugin } from "./ui_feature/geo_features";
@@ -114,7 +115,8 @@ export const featurePluginRegistry = new PluginRegistry<UIPluginConstructor>(UIP
   .add("geo_features", GeoFeaturePlugin)
   .add("color_theme", ColorThemeUIPlugin)
   .add("lock_sheet", LockSheetPlugin)
-  .add("chart_ui", ChartUIPlugin);
+  .add("chart_ui", ChartUIPlugin)
+  .add("conditional_formatting", ConditionalFormatUIPlugin);
 
 // Plugins which have a state, but which should not be shared in collaborative
 export const statefulUIPluginRegistry = new PluginRegistry<UIPluginConstructor>(UIPlugin)

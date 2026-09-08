@@ -2,6 +2,7 @@
   <t t-name="o-spreadsheet-DoubleInputCriterionForm">
     <div class="d-flex align-items-center m-2">
       <CriterionInput
+        sheetId="this.props.sheetId"
         value="this.props.criterion.values[0]"
         onValueChanged.bind="this.onFirstValueChanged"
         criterionType="this.props.criterion.type"
@@ -16,6 +17,7 @@
     </div>
     <div class="d-flex align-items-center m-2">
       <CriterionInput
+        sheetId="this.props.sheetId"
         value="this.props.criterion.values[1]"
         onValueChanged.bind="this.onSecondValueChanged"
         criterionType="this.props.criterion.type"
