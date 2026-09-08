@@ -8,21 +8,74 @@ import { zoneToXc } from "../zones";
 import { ColumnAnalysis } from "./data_analysis";
 import { createStatItem, StatSection, StatValue } from "./statistics_items";
 
+const ALL_TYPES = ["number", "percentage", "date", "text", "boolean", "label", "categorical"];
+const NUMERIC_TYPES = ["number", "percentage"];
+
+interface StatItemConfig {
+  id: string;
+  getName: (type: string) => string;
+  formula: (range: string) => string;
+  types: string[];
+}
+
+const STATITEMS: StatItemConfig[] = [
+  {
+    id: "non_empty",
+    getName: () => _t("Non-empty cells"),
+    formula: (range) => `=COUNTA(${range})`,
+    types: ALL_TYPES,
+  },
+  {
+    id: "unique",
+    getName: () => _t("Unique values"),
+    formula: (range) => `=COUNTUNIQUE(${range})`,
+    types: ALL_TYPES,
+  },
+  {
+    id: "sum",
+    getName: () => _t("Sum"),
+    formula: (range) => `=SUM(${range})`,
+    types: NUMERIC_TYPES,
+  },
+  {
+    id: "median",
+    getName: () => _t("Median"),
+    formula: (range) => `=MEDIAN(${range})`,
+    types: [...NUMERIC_TYPES, "date"],
+  },
+  {
+    id: "average",
+    getName: () => _t("Average"),
+    formula: (range) => `=AVERAGE(${range})`,
+    types: [...NUMERIC_TYPES, "date"],
+  },
+  {
+    id: "min",
+    getName: (type) => (type === "date" ? _t("Earliest date") : _t("Minimum value")),
+    formula: (range) => `=MIN(${range})`,
+    types: [...NUMERIC_TYPES, "date"],
+  },
+  {
+    id: "max",
+    getName: (type) => (type === "date" ? _t("Latest date") : _t("Maximum value")),
+    formula: (range) => `=MAX(${range})`,
+    types: [...NUMERIC_TYPES, "date"],
+  },
+];
+
 export function buildGeneralStatItems(
   getters: Getters,
   col: ColumnAnalysis,
   sheetId: string
 ): StatValue[] {
   const range = zoneToXc(col.zone);
-  return [
-    createStatItem(getters, sheetId, "non_empty", _t("Non-empty cells"), `=COUNTA(${range})`),
-    createStatItem(getters, sheetId, "unique", _t("Unique values"), `=COUNTUNIQUE(${range})`),
-    createStatItem(getters, sheetId, "sum", _t("Sum"), `=SUM(${range})`),
-    createStatItem(getters, sheetId, "median", _t("Median"), `=MEDIAN(${range})`),
-    createStatItem(getters, sheetId, "average", _t("Average"), `=AVERAGE(${range})`),
-    createStatItem(getters, sheetId, "min", _t("Minimum value"), `=MIN(${range})`),
-    createStatItem(getters, sheetId, "max", _t("Maximum value"), `=MAX(${range})`),
-  ];
+
+  return STATITEMS.map((item) => {
+    const name = item.getName(col.type);
+    return item.types.includes(col.type)
+      ? createStatItem(getters, sheetId, item.id, name, item.formula(range))
+      : { id: item.id, name, value: "—" };
+  });
 }
 
 /** Pattern A + B + D + E — Single number/percentage or categorical/label column: general stats + occurrences per value. */
@@ -89,10 +142,22 @@ export function buildDateStatSections(
     createStatItem(getters, sheetId, String(year), String(year), `=SUM(--(YEAR(${range})=${year}))`)
   );
   const monthItems = Object.entries(MONTHS).map(([month, name]) =>
-    createStatItem(getters, sheetId, month, name, `=SUM(--(MONTH(${range})=${Number(month) + 1}))`)
+    createStatItem(
+      getters,
+      sheetId,
+      "m" + month,
+      name,
+      `=SUM(--(MONTH(${range})=${Number(month) + 1}))`
+    )
   );
   const dayItems = Object.entries(DAYS).map(([day, name]) =>
-    createStatItem(getters, sheetId, day, name, `=SUM(--(WEEKDAY(${range})=${Number(day) + 1}))`)
+    createStatItem(
+      getters,
+      sheetId,
+      "d" + day,
+      name,
+      `=SUM(--(WEEKDAY(${range})=${Number(day) + 1}))`
+    )
   );
   return [
     { label: _t("Occurrences by year"), items: yearItems },

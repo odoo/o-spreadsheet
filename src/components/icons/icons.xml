@@ -721,6 +721,21 @@
       <path fill="currentColor" d="M40 240 h320 l-160 -160 M40 280 h320 l-160 160"/>
     </svg>
   </t>
+  <t t-name="o-spreadsheet-Icon.ARROW_UPWARD">
+    <div class="o-icon">
+      <i class="oi" data-icon="arrow_upward"/>
+    </div>
+  </t>
+  <t t-name="o-spreadsheet-Icon.ARROW_DOWNWARD">
+    <div class="o-icon">
+      <i class="oi" data-icon="arrow_downward"/>
+    </div>
+  </t>
+  <t t-name="o-spreadsheet-Icon.SWAP_VERT">
+    <div class="o-icon">
+      <i class="oi" data-icon="swap_vert"/>
+    </div>
+  </t>
   <t t-name="o-spreadsheet-Icon.SORT_RANGE">
     <svg class="o-icon" viewBox="0 0 18 18">
       <path

@@ -25,6 +25,9 @@ export class StatisticItem extends Component<SpreadsheetChildEnv> {
   private menuState = proxy<MenuState>({ isOpen: false, anchorRect: null, menuItems: [] });
 
   startDragAndDrop(stat: StatValue, ev: MouseEvent) {
+    if (stat.formula === undefined) {
+      return;
+    }
     startChartDragAndDrop(this.env, getStatScorecardDefinition(stat), ev);
   }
 
@@ -35,7 +38,7 @@ export class StatisticItem extends Component<SpreadsheetChildEnv> {
   }
 
   openContextMenu(stat: StatValue, ev: MenuMouseEvent) {
-    if (!this.menuState.isOpen) {
+    if (!this.menuState.isOpen && stat.formula !== undefined) {
       this.menuState.isOpen = true;
       this.menuState.anchorRect = {
         x: ev.clientX,

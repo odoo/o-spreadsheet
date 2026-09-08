@@ -119,12 +119,12 @@ export class DateSection extends Component<SpreadsheetChildEnv> {
               }
               break;
             case "month":
-              if (date.getMonth() === Number(this.hoveredStat.id)) {
+              if ("m" + date.getMonth() === this.hoveredStat.id) {
                 doesMatch = true;
               }
               break;
             case "day":
-              if (date.getDay() === Number(this.hoveredStat.id)) {
+              if ("d" + date.getDay() === this.hoveredStat.id) {
                 doesMatch = true;
               }
               break;

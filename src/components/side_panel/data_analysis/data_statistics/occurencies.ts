@@ -60,7 +60,7 @@ export class Occurencies extends Component<SpreadsheetChildEnv> {
   }
 
   get label() {
-    return _t("Category occurrences");
+    return _t("");
   }
 
   get total() {

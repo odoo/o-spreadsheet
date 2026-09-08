@@ -4,6 +4,9 @@
   }
   .o-data-analysis-row {
     padding: 1px 0;
+  }
+
+  .o-data-analysis-row-draggable {
     cursor: grab;
     &:active {
       cursor: grabbing;

@@ -1,14 +1,14 @@
 <templates>
   <t t-name="o-spreadsheet-Occurencies">
-    <div class="fw-bold text-muted mt-2 d-flex justify-content-between">
+    <div class="fw-bold text-muted m-2 d-flex ms-auto justify-content-between">
       <t t-out="this.label"/>
       <div
         t-if="this.props.sortItemsFunction"
         t-on-click="this.sortItems"
-        class="o-button-icon d-flex align-items-center">
-        <t t-if="this.listState.sortType === 'desc'" t-call="o-spreadsheet-Icon.CARET_DOWN"/>
-        <t t-if="this.listState.sortType === 'asc'" t-call="o-spreadsheet-Icon.CARET_UP"/>
-        <t t-if="this.listState.sortType === 'none'" t-call="o-spreadsheet-Icon.CARET_SORT"/>
+        class="o-button-icon d-flex small text-end">
+        <t t-if="this.listState.sortType === 'desc'" t-call="o-spreadsheet-Icon.ARROW_DOWNWARD"/>
+        <t t-if="this.listState.sortType === 'asc'" t-call="o-spreadsheet-Icon.ARROW_UPWARD"/>
+        <t t-if="this.listState.sortType === 'none'" t-call="o-spreadsheet-Icon.SWAP_VERT"/>
       </div>
     </div>
     <t t-foreach="this.listState.displayedValues" t-as="stat" t-key="stat_index">

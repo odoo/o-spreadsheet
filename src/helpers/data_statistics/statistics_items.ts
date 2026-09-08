@@ -9,7 +9,7 @@ import { formatValue } from "../format/format";
 export interface StatItem {
   id: string | number | boolean | null;
   name: string;
-  formula: string;
+  formula?: string;
 }
 
 export interface StatValue extends StatItem {
@@ -40,7 +40,7 @@ export function createStatItem(
       };
     }
   }
-  return { id, name, value: "—", formula };
+  return { id, name, value: "—" };
 }
 
 export function getStatScorecardDefinition(stat: StatItem) {

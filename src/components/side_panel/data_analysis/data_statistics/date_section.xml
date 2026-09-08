@@ -9,10 +9,12 @@
         selectedValue="this.state.granularity"
         onChange.bind="this.onGranularitySelected"
       />
-      <div t-on-click="this.sortItems" class="o-button-icon ms-auto d-flex align-items-center">
-        <t t-if="this.state.sortType === 'desc'" t-call="o-spreadsheet-Icon.CARET_DOWN"/>
-        <t t-if="this.state.sortType === 'asc'" t-call="o-spreadsheet-Icon.CARET_UP"/>
-        <t t-if="this.state.sortType === 'chrono'" t-call="o-spreadsheet-Icon.CARET_SORT"/>
+      <div
+        t-on-click="this.sortItems"
+        class="o-button-icon ms-auto d-flex align-items-center small text-right">
+        <t t-if="this.state.sortType === 'desc'" t-call="o-spreadsheet-Icon.ARROW_DOWNWARD"/>
+        <t t-if="this.state.sortType === 'asc'" t-call="o-spreadsheet-Icon.ARROW_UPWARD"/>
+        <t t-if="this.state.sortType === 'chrono'" t-call="o-spreadsheet-Icon.SWAP_VERT"/>
       </div>
     </div>
     <t t-foreach="this.occurrencySection.items" t-as="stat" t-key="stat_index">
