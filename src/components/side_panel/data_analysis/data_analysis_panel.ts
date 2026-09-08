@@ -10,6 +10,7 @@ import { SidePanelCollapsible } from "../components/collapsible/side_panel_colla
 import { Section } from "../components/section/section";
 import { ChartSuggestionPreview } from "./chart_suggestion/chart_suggestion_preview";
 import { DataAnalysisStore } from "./data_analysis_store";
+import { DateSection } from "./data_statistics/date_section";
 import { GeneralStatsSection } from "./data_statistics/general_stats_section";
 import { Occurencies } from "./data_statistics/occurencies";
 
@@ -21,6 +22,8 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
     ChartSuggestionPreview,
     SidePanelCollapsible,
     Occurencies,
+    GeneralStatsSection,
+    DateSection,
   };
 
   store!: Store<DataAnalysisStore>;
@@ -44,24 +47,5 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
       default:
         return undefined;
     }
-  }
-
-  get statSectionComponent() {
-    const numberOfColumns = this.store.shape.length;
-    if (numberOfColumns === 1) {
-      switch (this.store.shape[0]) {
-        case "categorical":
-        case "label":
-        case "number":
-        case "percentage":
-        case "boolean":
-          return GeneralStatsSection;
-        case "date":
-          return statisticsRegistry.get("date")?.Body;
-        default:
-          return undefined;
-      }
-    }
-    return undefined;
   }
 }

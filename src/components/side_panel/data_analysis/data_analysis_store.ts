@@ -1,6 +1,11 @@
 import { analyzeColumns } from "../../../helpers/data_statistics/data_analysis";
-import { StatSection } from "../../../helpers/data_statistics/statistics_items";
-import { buildStatSections } from "../../../helpers/data_statistics/statistics_suggestion";
+import { StatSection, StatValue } from "../../../helpers/data_statistics/statistics_items";
+import {
+  buildBooleanItems,
+  buildDateStatSections,
+  buildGeneralStatItems,
+  buildOccurenciesItems,
+} from "../../../helpers/data_statistics/statistics_suggestion";
 import {
   ChartSuggestion,
   getChartSuggestions,
@@ -14,7 +19,9 @@ import { Get } from "../../../types/store_engine";
 export class DataAnalysisStore extends SpreadsheetStore {
   mutators = [] as const;
   shape: String[] = [];
-  statSections: StatSection[] | undefined = undefined;
+  generalStatItems: StatValue[] = [];
+  occurenciesItems: StatValue[] = [];
+  dateStatSections: StatSection[] = [];
   hasData: boolean = false;
   chartSuggestions: ChartSuggestion[] = [];
   private isDirty = false;
@@ -78,9 +85,26 @@ export class DataAnalysisStore extends SpreadsheetStore {
     const suggestions = this.hasData ? getChartSuggestions(nonEmpty, this.getters) : [];
     this.chartSuggestions = suggestions;
     if (!this.hasData) {
-      this.statSections = undefined;
+      this.generalStatItems = [];
+      this.occurenciesItems = [];
+      this.dateStatSections = [];
       return;
     }
-    this.statSections = buildStatSections(this.getters, nonEmpty, sheetId);
+    const numberOfColumns = nonEmpty.length;
+    if (numberOfColumns === 1) {
+      this.generalStatItems = buildGeneralStatItems(this.getters, nonEmpty[0], sheetId);
+      this.occurenciesItems =
+        nonEmpty[0].type === "boolean"
+          ? buildBooleanItems(this.getters, nonEmpty[0], sheetId)
+          : buildOccurenciesItems(this.getters, nonEmpty[0], sheetId);
+      this.dateStatSections =
+        nonEmpty[0].type === "date"
+          ? buildDateStatSections(this.getters, nonEmpty[0], sheetId)
+          : [];
+    } else {
+      this.generalStatItems = [];
+      this.occurenciesItems = [];
+      this.dateStatSections = [];
+    }
   }
 }

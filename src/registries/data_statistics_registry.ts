@@ -1,11 +1,8 @@
-import { DateSection } from "../components/side_panel/data_analysis/data_statistics/date_section";
-import { GeneralStatsSection } from "../components/side_panel/data_analysis/data_statistics/general_stats_section";
 import { StatValue } from "../helpers/data_statistics/statistics_items";
 import { Registry } from "./registry";
 
 interface StatisticsComponent {
-  Body: any;
-  sortItems?: (
+  sortItems: (
     items: StatValue[],
     sortType: "asc" | "desc" | "none"
   ) => { sortedItems: StatValue[]; newSortType: "asc" | "desc" | "none" };
@@ -14,7 +11,6 @@ interface StatisticsComponent {
 export const statisticsRegistry = new Registry<StatisticsComponent>();
 
 statisticsRegistry.add("categorical", {
-  Body: GeneralStatsSection,
   sortItems: (
     items: StatValue[],
     sortType: "asc" | "desc" | "none"
@@ -44,7 +40,6 @@ statisticsRegistry.add("categorical", {
 });
 
 statisticsRegistry.add("number", {
-  Body: GeneralStatsSection,
   sortItems: (
     items: StatValue[],
     sortType: "asc" | "desc" | "none"
@@ -67,12 +62,4 @@ statisticsRegistry.add("number", {
         };
     }
   },
-});
-
-statisticsRegistry.add("date", {
-  Body: DateSection,
-});
-
-statisticsRegistry.add("boolean", {
-  Body: GeneralStatsSection,
 });

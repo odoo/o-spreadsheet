@@ -10,7 +10,6 @@ import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlights } from "../../../helpers/highlight_hook";
 import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
-import { GeneralStatsSection } from "./general_stats_section";
 import { StatisticItem } from "./statistic_item";
 
 interface DateSectionState {
@@ -27,7 +26,6 @@ export class DateSection extends Component<SpreadsheetChildEnv> {
   static components = {
     StatisticItem,
     Select,
-    GeneralStatsSection,
   };
   private hoveredStat = proxy<StatValue>({ id: "", name: "", value: "", formula: "" });
   private state = proxy<DateSectionState>({
@@ -52,7 +50,7 @@ export class DateSection extends Component<SpreadsheetChildEnv> {
   }
 
   sortItems() {
-    const items = this.occurrencySection.items;
+    const items = [...this.occurrencySection.items];
     switch (this.state.sortType) {
       case "desc":
         this.state.sortType = "asc";
@@ -60,7 +58,7 @@ export class DateSection extends Component<SpreadsheetChildEnv> {
         break;
       case "asc":
         this.state.sortType = "chrono";
-        items.sort((a, b) => a.id.localeCompare(b.id));
+        items.sort((a, b) => String(a.id).localeCompare(String(b.id)));
         break;
       case "chrono":
         this.state.sortType = "desc";
@@ -77,11 +75,11 @@ export class DateSection extends Component<SpreadsheetChildEnv> {
   get occurrencySection() {
     switch (this.state.granularity) {
       case "year":
-        return this.props.statSections[1];
+        return this.props.statSections[0];
       case "month":
-        return this.props.statSections[2];
+        return this.props.statSections[1];
       case "day":
-        return this.props.statSections[3];
+        return this.props.statSections[2];
     }
   }
 

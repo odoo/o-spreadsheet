@@ -21,27 +21,28 @@
       <SidePanelCollapsible
         title.translate="General statistics"
         isInitiallyCollapsed="false"
-        t-if="this.statSectionComponent">
+        t-if="this.store.shape.length === 1">
         <t t-set-slot="content">
           <Section class="'o-column-global-stats d-flex flex-column pt-0'">
-            <t
-              t-if="this.statSectionComponent"
-              t-component="this.statSectionComponent"
-              t-props="{ items: this.store.statSections?.[0]?.items }"
-            />
+            <GeneralStatsSection items="this.store.generalStatItems"/>
           </Section>
         </t>
       </SidePanelCollapsible>
       <SidePanelCollapsible
         title.translate="Occurrences"
         isInitiallyCollapsed="false"
-        t-if="this.store.statSections?.[1]?.items.length">
+        t-if="this.store.shape.length === 1">
         <t t-set-slot="content">
           <Section class="'o-column-global-stats d-flex flex-column pt-0'">
-            <Occurencies
-              items="this.store.statSections?.[1]?.items || []"
-              sortItemsFunction="this.sortFunction"
-            />
+            <t t-if="this.store.shape[0] !== 'date'">
+              <Occurencies
+                items="this.store.occurenciesItems"
+                sortItemsFunction="this.sortFunction"
+              />
+            </t>
+            <t t-else="">
+              <DateSection statSections="this.store.dateStatSections"/>
+            </t>
           </Section>
         </t>
       </SidePanelCollapsible>

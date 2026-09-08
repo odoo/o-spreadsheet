@@ -89,7 +89,7 @@ export class Occurencies extends Component<SpreadsheetChildEnv> {
       return;
     }
     const { sortedItems, newSortType } = this.props.sortItemsFunction(
-      this.props.items,
+      [...this.props.items],
       this.listState.sortType
     );
     this.listState.sortType = newSortType;

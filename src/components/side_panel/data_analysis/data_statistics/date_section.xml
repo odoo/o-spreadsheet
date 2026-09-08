@@ -1,6 +1,5 @@
 <templates>
   <t t-name="o-spreadsheet-DateSection">
-    <GeneralStatsSection statSections="this.props.statSections"/>
     <div class="mt-2 d-flex align-items-center gap-1 p-1 rounded">
       Occurences by
       <Select

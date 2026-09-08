@@ -133,7 +133,7 @@ describe("data statistics", () => {
       const clipboard = await env.clipboard.read!();
       expect(clipboard.status).toBe("ok");
       if (clipboard.status === "ok") {
-        expect(clipboard.content[ClipboardMIMEType.PlainText]).toBe("=COUNTUNIQUE(A1:A3)");
+        expect(clipboard.content[ClipboardMIMEType.PlainText]).toBe("=COUNTA(A1:A3)");
       }
     });
   });
