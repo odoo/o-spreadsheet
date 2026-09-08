@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-NumberSection">
+  <t t-name="o-spreadsheet-GeneralStatsSection">
     <div class="p-1 ">
       <t t-foreach="this.props.statSections[0].items" t-as="stat" t-key="stat_index">
         <StatisticItem stat="stat" onHover.bind="this.hoverStat"/>

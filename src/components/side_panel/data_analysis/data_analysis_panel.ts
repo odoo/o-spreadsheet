@@ -45,20 +45,6 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
     }
   }
 
-  get occurencyItems() {
-    switch (this.store.shape[0]) {
-      case "categorical":
-      case "label":
-      case "number":
-      case "percentage":
-        return this.store.statSections?.[1]?.items || [];
-      case "boolean":
-        return this.store.statSections?.[0]?.items || [];
-      default:
-        return [];
-    }
-  }
-
   get statSectionComponent() {
     const numberOfColumns = this.store.shape.length;
     if (numberOfColumns === 1) {
@@ -71,6 +57,8 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
         case "number":
         case "percentage":
           return statisticsRegistry.get("number")?.Body;
+        case "boolean":
+          return statisticsRegistry.get("boolean")?.Body;
         default:
           return undefined;
       }
@@ -87,6 +75,7 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
         case "date":
         case "number":
         case "percentage":
+        case "boolean":
           return { statSections: this.store.statSections };
         default:
           return {};

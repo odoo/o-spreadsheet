@@ -1,9 +1,0 @@
-<templates>
-  <t t-name="o-spreadsheet-CategorySection">
-    <div class="p-1 ">
-      <div class="my-4">
-        <StatisticItem stat="this.props.statSections[0].items[0]"/>
-      </div>
-    </div>
-  </t>
-</templates>

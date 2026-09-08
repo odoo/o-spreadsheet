@@ -9,8 +9,8 @@ import { useHighlights } from "../../../helpers/highlight_hook";
 import { types } from "../../../props_validation";
 import { StatisticItem } from "./statistic_item";
 
-export class NumberSection extends Component<SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-NumberSection";
+export class GeneralStatsSection extends Component<SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-GeneralStatsSection";
   protected props = useProps({
     statSections: types.array(types.StatSection()),
   });

@@ -10,6 +10,7 @@ import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlights } from "../../../helpers/highlight_hook";
 import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
+import { GeneralStatsSection } from "./general_stats_section";
 import { StatisticItem } from "./statistic_item";
 
 interface DateSectionState {
@@ -26,6 +27,7 @@ export class DateSection extends Component<SpreadsheetChildEnv> {
   static components = {
     StatisticItem,
     Select,
+    GeneralStatsSection,
   };
   private hoveredStat = proxy<StatValue>({ id: "", name: "", value: "", formula: "" });
   private state = proxy<DateSectionState>({

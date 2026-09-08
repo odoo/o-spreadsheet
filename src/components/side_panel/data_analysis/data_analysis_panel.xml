@@ -35,10 +35,13 @@
       <SidePanelCollapsible
         title.translate="Occurrences"
         isInitiallyCollapsed="false"
-        t-if="this.occurencyItems.length">
+        t-if="this.store.statSections?.[1]?.items.length">
         <t t-set-slot="content">
           <Section class="'o-column-global-stats d-flex flex-column pt-0'">
-            <Occurencies items="this.occurencyItems" sortItemsFunction="this.sortFunction"/>
+            <Occurencies
+              items="this.store.statSections?.[1]?.items || []"
+              sortItemsFunction="this.sortFunction"
+            />
           </Section>
         </t>
       </SidePanelCollapsible>

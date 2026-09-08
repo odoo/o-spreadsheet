@@ -31,12 +31,12 @@ function sectionsForSingleColumn(
   switch (col.type) {
     case "number":
     case "percentage":
-      return statsForNumberColumn(getters, sheetId, col);
+      return statsWithOccurrences(getters, sheetId, col, _t("Value occurrences"));
     case "date":
       return statsForDateColumn(getters, sheetId, zoneToXc(col.zone));
     case "categorical":
     case "label":
-      return statsForCategoricalColumn(getters, sheetId, col);
+      return statsWithOccurrences(getters, sheetId, col, _t("Category occurrences"));
     case "boolean":
       return statForBooleanColumn(getters, sheetId, zoneToXc(col.zone));
     default:
@@ -44,14 +44,8 @@ function sectionsForSingleColumn(
   }
 }
 
-/** Pattern A + B — Single number (or percentage) column: min, max, sum, average. */
-function statsForNumberColumn(
-  getters: Getters,
-  sheetId: string,
-  col: ColumnAnalysis
-): StatSection[] {
-  const range = zoneToXc(col.zone);
-  const generalItems = [
+function createGeneralItems(getters: Getters, sheetId: string, range: string) {
+  return [
     createStatItem(getters, sheetId, "non_empty", _t("Non-empty cells"), `=COUNTA(${range})`),
     createStatItem(getters, sheetId, "unique", _t("Unique values"), `=COUNTUNIQUE(${range})`),
     createStatItem(getters, sheetId, "sum", _t("Sum"), `=SUM(${range})`),
@@ -60,27 +54,24 @@ function statsForNumberColumn(
     createStatItem(getters, sheetId, "min", _t("Minimum value"), `=MIN(${range})`),
     createStatItem(getters, sheetId, "max", _t("Maximum value"), `=MAX(${range})`),
   ];
-  const categoryItems = uniqueValues(col.nonEmpty)
-    .filter(({ formattedValue }) => formattedValue !== "")
-    .map(({ value, formattedValue }) => {
-      return createStatItem(
-        getters,
-        sheetId,
-        value,
-        formattedValue,
-        `=COUNTIF(${range},"${value}")`
-      );
-    })
-    .sort((a, b) => Number(b.value) - Number(a.value) || a.name.localeCompare(b.name));
-  return [{ items: generalItems }, { label: _t("Value occurrences"), items: categoryItems }];
+}
+
+/** Pattern A + B + D + E — Single number/percentage or categorical/label column: general stats + occurrences per value. */
+function statsWithOccurrences(
+  getters: Getters,
+  sheetId: string,
+  col: ColumnAnalysis,
+  occurrencesLabel: string
+): StatSection[] {
+  const range = zoneToXc(col.zone);
+  const generalItems = createGeneralItems(getters, sheetId, range);
+  const occurrenceItems = createOccurrenceItems(getters, sheetId, range, col.nonEmpty);
+  return [{ items: generalItems }, { label: occurrencesLabel, items: occurrenceItems }];
 }
 
 /** Pattern C — Single date column */
 function statsForDateColumn(getters: Getters, sheetId: string, range: string): StatSection[] {
-  const generalItems = [
-    createStatItem(getters, sheetId, "earliest", _t("Earliest"), `=MIN(${range})`),
-    createStatItem(getters, sheetId, "latest", _t("Latest"), `=MAX(${range})`),
-  ];
+  const generalItems = createGeneralItems(getters, sheetId, range);
   const earliestYear = new Date(generalItems[0].value).getFullYear();
   const latestYear = new Date(generalItems[1].value).getFullYear();
   const yearRange = Array.from(
@@ -104,37 +95,12 @@ function statsForDateColumn(getters: Getters, sheetId: string, range: string): S
   ];
 }
 
-/** Pattern D + E — Single categorical/label column: count per category. */
-function statsForCategoricalColumn(
-  getters: Getters,
-  sheetId: string,
-  col: ColumnAnalysis
-): StatSection[] {
-  const range = zoneToXc(col.zone);
-  const uniqueCount = createStatItem(
-    getters,
-    sheetId,
-    "unique",
-    _t("Unique categories"),
-    `=COUNTUNIQUE(${range})`
-  );
-  const categoryItems = uniqueValues(col.nonEmpty)
-    .filter(({ formattedValue }) => formattedValue !== "")
-    .map(({ value, formattedValue }) => {
-      return createStatItem(
-        getters,
-        sheetId,
-        value,
-        formattedValue,
-        `=COUNTIF(${range},"${value}")`
-      );
-    })
-    .sort((a, b) => Number(b.value) - Number(a.value) || a.name.localeCompare(b.name));
-  return [{ items: [uniqueCount] }, { label: _t("Category occurrences"), items: categoryItems }];
-}
-
 function statForBooleanColumn(getters: Getters, sheetId: string, range: string): StatSection[] {
+  const generalItems = createGeneralItems(getters, sheetId, range);
   return [
+    {
+      items: generalItems,
+    },
     {
       items: [
         createStatItem(getters, sheetId, true, _t("TRUE"), `=COUNTIF(${range},TRUE)`),
@@ -142,6 +108,20 @@ function statForBooleanColumn(getters: Getters, sheetId: string, range: string):
       ],
     },
   ];
+}
+
+function createOccurrenceItems(
+  getters: Getters,
+  sheetId: string,
+  range: string,
+  cells: EvaluatedCell[]
+) {
+  return uniqueValues(cells)
+    .filter(({ formattedValue }) => formattedValue !== "")
+    .map(({ value, formattedValue }) =>
+      createStatItem(getters, sheetId, value, formattedValue, `=COUNTIF(${range},"${value}")`)
+    )
+    .sort((a, b) => Number(b.value) - Number(a.value) || a.name.localeCompare(b.name));
 }
 
 function uniqueValues(
