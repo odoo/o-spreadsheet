@@ -45,6 +45,7 @@ import {
   setSelection,
   setSheetviewSize,
   setViewportOffset,
+  setZoom,
   shiftViewportDown,
   shiftViewportUp,
   undo,
@@ -1783,5 +1784,20 @@ describe("Partially Scrolled Viewport", () => {
       width: 0.7 * headerSize,
       height: 0.7 * headerSize,
     });
+  });
+});
+
+describe("Zoom", () => {
+  test("cannot set zoom outside of the [0.5, 2] range", () => {
+    model = new Model();
+    expect(setZoom(model, 0.4)).toBeCancelledBecause(CommandResult.InvalidZoomLevel);
+    expect(setZoom(model, 2.1)).toBeCancelledBecause(CommandResult.InvalidZoomLevel);
+  });
+
+  test("setting NaN as zoom is cancelled and keeps the current zoom level", () => {
+    model = new Model();
+    setZoom(model, 1.5);
+    expect(setZoom(model, NaN)).toBeCancelledBecause(CommandResult.InvalidZoomLevel);
+    expect(model.getters.getViewportZoomLevel()).toBe(1.5);
   });
 });
