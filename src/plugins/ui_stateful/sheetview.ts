@@ -98,7 +98,7 @@ export class SheetViewPlugin extends UIPlugin {
           () => this.viewports.checkPositiveDimension(cmd)
         )(cmd);
       case "SET_ZOOM":
-        if (cmd.zoom > 2 || cmd.zoom < 0.5) {
+        if (!cmd.zoom || cmd.zoom > 2 || cmd.zoom < 0.5) {
           return CommandResult.InvalidZoomLevel;
         } else {
           return CommandResult.Success;
