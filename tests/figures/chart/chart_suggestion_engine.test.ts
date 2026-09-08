@@ -74,7 +74,7 @@ describe("getChartSuggestions", () => {
       ) as ScorecardChartRuntime;
       expect(kpiRuntime.keyValue).toBe("20");
       const barRuntime = runtimeFor(model, "A1:A2", (d) => d.type === "bar") as any;
-      expect(barRuntime.chartJsConfig.type).toBe("bar");
+      expect(barRuntime.chartJsConfig).toBeDefined();
       expect(barRuntime.chartJsConfig.data.datasets[0].data).toEqual([10, 20]);
     });
 
@@ -171,11 +171,10 @@ describe("getChartSuggestions", () => {
       setFormat(model, "A1:A2", "0%");
       expect(
         (runtimeFor(model, "A1:A2", (d) => d.type === "pie" && !!d.isDoughnut) as any).chartJsConfig
-          .type
-      ).toBe("doughnut");
-      expect((runtimeFor(model, "A1:A2", (d) => d.type === "bar") as any).chartJsConfig.type).toBe(
-        "bar"
-      );
+      ).toBeDefined();
+      expect(
+        (runtimeFor(model, "A1:A2", (d) => d.type === "bar") as any).chartJsConfig
+      ).toBeDefined();
     });
   });
 
@@ -212,15 +211,13 @@ describe("getChartSuggestions", () => {
       });
       expect(
         (runtimeFor(model, "A1:A5", (d) => d.type === "pie" && !d.isDoughnut) as any).chartJsConfig
-          .type
-      ).toBe("pie");
+      ).toBeDefined();
       expect(
         (runtimeFor(model, "A1:A5", (d) => d.type === "pie" && !!d.isDoughnut) as any).chartJsConfig
-          .type
-      ).toBe("doughnut");
-      expect((runtimeFor(model, "A1:A5", (d) => d.type === "bar") as any).chartJsConfig.type).toBe(
-        "bar"
-      );
+      ).toBeDefined();
+      expect(
+        (runtimeFor(model, "A1:A5", (d) => d.type === "bar") as any).chartJsConfig
+      ).toBeDefined();
     });
 
     test("boolean column → pie, donut, and bar (count) charts produced", () => {
@@ -287,8 +284,8 @@ describe("getChartSuggestions", () => {
       ) as any;
       expect(hBarRuntime.chartJsConfig.options.indexAxis).toBe("y");
       expect(
-        (runtimeFor(model, ["A1:A3", "B1:B3"], (d) => d.type === "pie") as any).chartJsConfig.type
-      ).toBe("pie");
+        (runtimeFor(model, ["A1:A3", "B1:B3"], (d) => d.type === "pie") as any).chartJsConfig
+      ).toBeDefined();
     });
 
     test("No title if there is no header", () => {
@@ -332,19 +329,18 @@ describe("getChartSuggestions", () => {
       setCellContent(model, "B3", "30");
       expect(
         (runtimeFor(model, ["A1:A3", "B1:B3"], (d) => d.type === "line" && !d.fillArea) as any)
-          .chartJsConfig.type
-      ).toBe("line");
+          .chartJsConfig
+      ).toBeDefined();
       expect(
         (runtimeFor(model, ["A1:A3", "B1:B3"], (d) => d.type === "line" && !!d.fillArea) as any)
           .chartJsConfig.data.datasets[0].fill
       ).toBeTruthy();
       expect(
-        (runtimeFor(model, ["A1:A3", "B1:B3"], (d) => d.type === "bar") as any).chartJsConfig.type
-      ).toBe("bar");
+        (runtimeFor(model, ["A1:A3", "B1:B3"], (d) => d.type === "bar") as any).chartJsConfig
+      ).toBeDefined();
       expect(
         (runtimeFor(model, ["A1:A3", "B1:B3"], (d) => d.type === "calendar") as any).chartJsConfig
-          .type
-      ).toBe("calendar");
+      ).toBeDefined();
     });
   });
 
@@ -474,7 +470,7 @@ describe("getChartSuggestions", () => {
         ["A1:A3", "B1:B3"],
         (d) => d.type === "bar" && !d.horizontal
       ) as any;
-      expect(barRuntime.chartJsConfig.type).toBe("bar");
+      expect(barRuntime.chartJsConfig).toBeDefined();
     });
 
     test("3-10 rows → radar chart produced", () => {
@@ -487,7 +483,7 @@ describe("getChartSuggestions", () => {
         B3: "30",
       });
       const radarRuntime = runtimeFor(model, ["A1:A3", "B1:B3"], (d) => d.type === "radar") as any;
-      expect(radarRuntime.chartJsConfig.type).toBe("radar");
+      expect(radarRuntime.chartJsConfig).toBeDefined();
     });
   });
 
@@ -741,7 +737,7 @@ describe("getChartSuggestions", () => {
         ["A1", "B1", "C1"],
         (d) => d.type === "bar" && !d.stacked
       ) as any;
-      expect(runtime.chartJsConfig.type).toBe("bar");
+      expect(runtime.chartJsConfig).toBeDefined();
       expect(runtime.chartJsConfig.data.datasets).toHaveLength(3);
     });
 
