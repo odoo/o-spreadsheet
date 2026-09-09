@@ -12,11 +12,15 @@ import { AnchorOffset, Figure, FigureUI, ResizeDirection } from "../../../types/
 import { UID } from "../../../types/misc";
 import { DOMDimension, Rect } from "../../../types/rendering";
 import { Store } from "../../../types/store_engine";
-import { getCarouselOverlappingChart } from "../../helpers/chart_drag_and_drop";
+import { getOverlappedFigure } from "../../helpers/chart_drag_and_drop";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { isCtrlKey } from "../../helpers/dom_helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
-import { dragFigureForMove, dragFigureForResize } from "../../helpers/figure_drag_helper";
+import {
+  dragFigureForMove,
+  dragFigureForResize,
+  getSheetEndCoordinates,
+} from "../../helpers/figure_drag_helper";
 import {
   HFigureAxisType,
   SnapLine,
@@ -232,20 +236,6 @@ export class FiguresContainer extends OSComponent {
     return this.dnd.selectedRect ? this.rectToCss(this.dnd.selectedRect) : "";
   }
 
-  get maxDimensions() {
-    const sheetId = this.model().getters.getActiveSheetId();
-    return {
-      maxX: this.model().getters.getColDimensions(
-        sheetId,
-        this.model().getters.getNumberCols(sheetId) - 1
-      ).end,
-      maxY: this.model().getters.getRowDimensions(
-        sheetId,
-        this.model().getters.getNumberRows(sheetId) - 1
-      ).end,
-    };
-  }
-
   private getInverseViewportPositionStyle(container: ContainerType): string {
     const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
     const { x: viewportX, y: viewportY } = this.viewStore.mainViewportCoordinates;
@@ -338,7 +328,7 @@ export class FiguresContainer extends OSComponent {
     const zoom = this.zoomStore.zoomLevel;
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const initialScrollPosition = this.viewStore.activeSheetScrollInfo;
-    const maxDimensions = this.maxDimensions;
+    const maxDimensions = getSheetEndCoordinates(sheetId, this.model().getters);
     const selectedFiguresIds = this.model().getters.getSelectedFigureIds();
     const initialFigures = selectedFiguresIds
       .map((id) => this.model().getters.getFigure(sheetId, id))
@@ -349,7 +339,7 @@ export class FiguresContainer extends OSComponent {
     const draggedFigureId = figureUI.id;
 
     let hasStartedDnd = false;
-    let overlappingChartOrCarousel: FigureUI | undefined = undefined;
+    let overlappedFigure: FigureUI | undefined = undefined;
     const onMouseMove = (ev: MouseEvent) => {
       const currentMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
 
@@ -370,17 +360,14 @@ export class FiguresContainer extends OSComponent {
       );
       const draggedFigure = selectedFigures.find((f) => f.id === draggedFigureId);
 
-      overlappingChartOrCarousel = undefined;
+      overlappedFigure = undefined;
       const otherFigures = this.getOtherFigures(selectedFigures.map((f) => f.id));
       if (draggedFigure && !selectedFigures.find((f) => f.tag !== "chart")) {
-        overlappingChartOrCarousel = getCarouselOverlappingChart(draggedFigure, otherFigures, [
-          "carousel",
-          "chart",
-        ]);
+        overlappedFigure = getOverlappedFigure(draggedFigure, otherFigures, ["carousel", "chart"]);
       }
-      this.chartDragStore.setHighlightedFigure(overlappingChartOrCarousel?.id);
+      this.chartDragStore.setHighlightedFigure(overlappedFigure?.id);
 
-      if (!overlappingChartOrCarousel) {
+      if (!overlappedFigure) {
         const snapReturn = snapForMove(this.spEnv, selectedFigures, otherFigures);
         this.dnd.selectedFigures = snapReturn.snappedFigures;
         this.dnd.selectedRect = this.getDndFigureRect();
@@ -408,7 +395,7 @@ export class FiguresContainer extends OSComponent {
         }
         return;
       }
-      if (!overlappingChartOrCarousel) {
+      if (!overlappedFigure) {
         const payloads =
           this.dnd.selectedFigures?.map((f) => {
             return {
@@ -419,15 +406,15 @@ export class FiguresContainer extends OSComponent {
           }) || [];
         this.model().dispatch("UPDATE_FIGURES", { figures: payloads });
       } else {
-        const overlappingFigureId = overlappingChartOrCarousel.id;
+        const overlappingFigureId = overlappedFigure.id;
         const chartFigureIds = this.dnd.selectedFigures?.map((f) => f.id) || [];
-        if (overlappingChartOrCarousel.tag === "carousel") {
+        if (overlappedFigure.tag === "carousel") {
           this.model().dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
             sheetId,
             carouselFigureId: overlappingFigureId,
             chartFigureIds: chartFigureIds,
           });
-        } else if (overlappingChartOrCarousel.tag === "chart") {
+        } else if (overlappedFigure.tag === "chart") {
           this.model().dispatch("MERGE_CHART_FIGURES_INTO_CAROUSEL", {
             sheetId,
             baseFigureId: overlappingFigureId,
@@ -463,7 +450,7 @@ export class FiguresContainer extends OSComponent {
     const zoom = this.zoomStore.zoomLevel;
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const initialScrollPosition = this.viewStore.activeSheetScrollInfo;
-    const maxDimensions = this.maxDimensions;
+    const maxDimensions = getSheetEndCoordinates(sheetId, this.model().getters);
     const selectedFiguresIds = this.model().getters.getSelectedFigureIds();
     const initialFigures = selectedFiguresIds
       .map((id) => this.model().getters.getFigure(sheetId, id))
