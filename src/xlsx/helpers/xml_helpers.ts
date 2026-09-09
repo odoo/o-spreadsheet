@@ -77,10 +77,10 @@ function convertBorderDescr(descr: BorderDescr | undefined): XLSXBorderDescr | u
 export function getDefaultXLSXStructure(data: ExcelWorkbookData): XLSXStructure {
   const xlsxBorders: XLSXBorder[] = Object.values(data.borders).map((border) => {
     return {
-      left: convertBorderDescr(border.left),
-      right: convertBorderDescr(border.right),
-      bottom: convertBorderDescr(border.bottom),
-      top: convertBorderDescr(border.top),
+      left: convertBorderDescr(border.left ?? undefined),
+      right: convertBorderDescr(border.right ?? undefined),
+      bottom: convertBorderDescr(border.bottom ?? undefined),
+      top: convertBorderDescr(border.top ?? undefined),
     };
   });
   const borders = [{}, ...xlsxBorders];
