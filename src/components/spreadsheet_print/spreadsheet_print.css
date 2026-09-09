@@ -31,6 +31,12 @@
       overflow: visible !important;
       height: 100% !important;
 
+      div.mx-auto {
+        margin: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+      }
+
       .o-print-page {
         box-shadow: none !important;
         padding: 0 !important;
