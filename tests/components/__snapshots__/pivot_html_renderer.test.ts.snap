@@ -2,6 +2,7 @@
 
 exports[`Pivot HTML Renderer Rendering a simple pivot table 1`] = `
 <div>
+  
   <div
     class="o_pivot_html_renderer"
   >

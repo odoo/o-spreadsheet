@@ -1,7 +1,7 @@
 import { Model, schemeToColorScale, UID } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { GeoChartDefinition } from "../../../../src/types/chart/geo_chart";
-import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../../src/types/spreadsheet_env";
 import {
   changeRoundColorPickerColor,
   click,
@@ -24,7 +24,7 @@ import {
 
 let model: Model;
 let fixture: HTMLElement;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 mockChart();
 

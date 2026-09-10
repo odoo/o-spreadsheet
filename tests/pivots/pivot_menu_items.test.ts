@@ -6,7 +6,7 @@ import { toCartesian } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   createSheet,
   createTable,
@@ -30,6 +30,7 @@ import {
   doAction,
   getNode,
   makeTestEnv,
+  mockNotificationMethods,
   setGrid,
 } from "../test_helpers/helpers";
 import {
@@ -45,7 +46,7 @@ const insertPivotPath = ["insert", "insert_pivot"];
 
 describe("Pivot properties menu item", () => {
   let model: Model;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
 
   beforeEach(async () => {
     env = makeTestEnv();
@@ -541,7 +542,8 @@ describe("Pivot reinsertion menu item", () => {
       addPivot(model, "A1:B2", {});
 
       const notifyUser = jest.fn();
-      const env = makeTestEnv({ model, notifyUser });
+      const env = makeTestEnv({ model });
+      mockNotificationMethods(env.getPlugin, { notifyUser });
       jest.spyOn(SpreadsheetPivotTable.prototype, "numberOfCells", "get").mockReturnValue(1000000);
 
       await doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
@@ -642,7 +644,7 @@ describe("Pivot reinsertion menu item", () => {
 
 describe("Pivot sorting menu item", () => {
   let model: Model;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
   let sortAction: Action;
 
   async function sortPivot(order: SortDirection | "none") {
@@ -777,7 +779,7 @@ describe("Pivot sorting menu item", () => {
 describe("Pivot (un)grouping menu items", () => {
   let model: Model;
   let pivotId: string;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
   let openSidePanel: jest.Mock;
 
   beforeEach(() => {
@@ -1163,7 +1165,7 @@ describe("Pivot (un)grouping menu items", () => {
 describe("Pivot (un)collapse menu items", () => {
   let model: Model;
   let pivotId: string;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
 
   beforeEach(() => {
     model = createModelWithPivot("A1:I22");

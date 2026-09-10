@@ -1,12 +1,11 @@
 import { onWillStart, onWillUpdateProps, useProps } from "@odoo/owl";
-import { Component } from "../../../owl3_compatibility_layer";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
 import { useLocalStore } from "../../../store_engine/store_hooks";
 import { Currency } from "../../../types/currency";
 import { ValueAndLabel } from "../../../types/misc";
 import { PropsOf } from "../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
+import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { Select } from "../../select/select";
 import { TextInput } from "../../text_input/text_input";
@@ -15,7 +14,7 @@ import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 import { MoreFormatsStore } from "./more_formats_store";
 
-export class MoreFormatsPanel extends Component<SpreadsheetChildEnv> {
+export class MoreFormatsPanel extends OSComponent {
   static template = "o-spreadsheet-MoreFormatsPanel";
   static components = {
     BadgeSelection,

@@ -4,8 +4,9 @@ import { HighlightProvider, HighlightStore } from "../../../stores/highlight_sto
 import { Command } from "../../../types/commands";
 import { CellPosition, Color, Highlight, UID } from "../../../types/misc";
 
+import { usePlugin } from "@odoo/owl";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
-import { NotificationStore } from "../../../stores/notification_store";
+import { NotificationPlugin } from "../../../owl_plugins/notification_owl_plugin";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { _t } from "../../../translation";
@@ -51,7 +52,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   private isSearchDirty = false;
   private shouldFinalizeUpdateSelection = false;
 
-  private notificationStore = this.get(NotificationStore);
+  private notificationPlugin = usePlugin(NotificationPlugin);
   private viewStore = this.get(ViewportsStore);
 
   // fixme: why do we make selectedMatchIndex on top of a selected
@@ -428,7 +429,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     const replaceableMatches = totalMatches - irreplaceableMatches;
 
     if (replaceableMatches === 0) {
-      this.notificationStore.notifyUser({
+      this.notificationPlugin.notifyUser({
         type: "warning",
         sticky: false,
         text: _t(
@@ -436,7 +437,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
         ),
       });
     } else {
-      this.notificationStore.notifyUser({
+      this.notificationPlugin.notifyUser({
         type: "warning",
         sticky: false,
         text: _t(

@@ -3,11 +3,13 @@ import {
   onPatched,
   onWillUnmount,
   onWillUpdateProps,
+  PluginInstance,
   providePlugins,
   proxy,
   signal,
   useEffect,
   useListener,
+  usePlugin,
   useProps,
 } from "@odoo/owl";
 import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO } from "../../constants";
@@ -15,13 +17,14 @@ import { DARK_MODE_FILTER_STRING } from "../../helpers/color";
 import { unregisterChartJsExtensions } from "../../helpers/figures/charts/chart_js_extension";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { batched } from "../../helpers/misc";
-import { render } from "../../helpers/owl3_helpers";
+import { providePluginsIfNotPresent, render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
-import { Component, useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
+import { useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
+import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
+import { ClipboardStore } from "../../stores/clipboard_store";
 import { ModelStore } from "../../stores/model_store";
-import { NotificationStore } from "../../stores/notification_store";
 import { ScreenWidthStore } from "../../stores/screen_width_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
@@ -33,7 +36,7 @@ import { PropsOf } from "../../types/props_of";
 import { ColorThemeName } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
-import { NotificationStoreMethods } from "../../types/stores/notification_store_methods";
+import { NotificationCallbacks } from "../../types/stores/notification_store_methods";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
@@ -49,6 +52,7 @@ import {
 } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";
+import { OSComponent } from "../os_component";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 import { types } from "../props_validation";
 import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
@@ -67,13 +71,13 @@ interface State {
   colorThemeBeforePrint: ColorThemeName;
 }
 
-export class Spreadsheet extends Component<SpreadsheetChildEnv> {
+export class Spreadsheet extends OSComponent {
   static template = "o-spreadsheet-Spreadsheet";
   protected props = useProps({
     model: types.Model(),
-    notifyUser: types.function<NotificationStoreMethods["notifyUser"]>().optional(),
-    raiseError: types.function<NotificationStoreMethods["raiseError"]>().optional(),
-    askConfirmation: types.function<NotificationStoreMethods["askConfirmation"]>().optional(),
+    notifyUser: types.function<NotificationCallbacks["notifyUser"]>().optional(),
+    raiseError: types.function<NotificationCallbacks["raiseError"]>().optional(),
+    askConfirmation: types.function<NotificationCallbacks["askConfirmation"]>().optional(),
   });
   static components = {
     TopBar,
@@ -96,7 +100,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
   private _focusGrid?: () => void;
 
   private isViewportTooSmall: boolean = false;
-  private notificationStore!: Store<NotificationStore>;
+  private notificationPlugin!: PluginInstance<typeof NotificationPlugin>;
   private composerFocusStore!: Store<ComposerFocusStore>;
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
@@ -153,8 +157,10 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       return env.isSmall;
     });
 
-    this.notificationStore = useStore(NotificationStore);
+    providePluginsIfNotPresent([NotificationPlugin]);
+    this.notificationPlugin = usePlugin(NotificationPlugin);
     this.composerFocusStore = useStore(ComposerFocusStore);
+    useStore(ClipboardStore);
     this.sidePanel = useStore(SidePanelStore);
     for (const store of globalStores.getAll()) {
       useStore(store);
@@ -172,15 +178,11 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       clipboard: this.env.clipboard || instantiateClipboard(),
       startCellEdition: (content?: string) =>
         this.composerFocusStore.focusActiveComposer({ content }),
-      notifyUser: (notification) => this.notificationStore.notifyUser(notification),
-      askConfirmation: (text, confirm, cancel) =>
-        this.notificationStore.askConfirmation(text, confirm, cancel),
-      raiseError: (text, cb) => this.notificationStore.raiseError(text, cb),
       isMobile: isMobileOS,
       printSpreadsheet: this.enterPrintMode.bind(this),
     } satisfies Partial<SpreadsheetChildEnv>);
 
-    this.notificationStore.updateNotificationCallbacks({ ...this.props });
+    this.notificationPlugin.updateNotificationCallbacks({ ...this.props });
 
     useLayoutEffect(() => {
       /**
@@ -223,7 +225,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
         nextProps.askConfirmation !== this.props.askConfirmation ||
         nextProps.raiseError !== this.props.raiseError
       ) {
-        this.notificationStore.updateNotificationCallbacks({ ...nextProps });
+        this.notificationPlugin.updateNotificationCallbacks({ ...nextProps });
       }
     });
 
@@ -259,7 +261,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
     this.model.on("update", this, () => render(this, true));
     this.model.on("command-rejected", this, ({ result }) => {
       if (result.isCancelledBecause(CommandResult.SheetLocked)) {
-        this.notificationStore.notifyUser({
+        this.notificationPlugin.notifyUser({
           type: "info",
           text: _t("This sheet is locked and cannot be modified. Please unlock it first."),
           sticky: false,
@@ -268,9 +270,9 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
     });
 
     this.model.on("notify-ui", this, (notification: InformationNotification) =>
-      this.notificationStore.notifyUser(notification)
+      this.notificationPlugin.notifyUser(notification)
     );
-    this.model.on("raise-error-ui", this, ({ text }) => this.notificationStore.raiseError(text));
+    this.model.on("raise-error-ui", this, ({ text }) => this.notificationPlugin.raiseError(text));
   }
 
   private unbindModelEvents() {
@@ -294,7 +296,7 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       if (this.isViewportTooSmall) {
         return;
       }
-      this.notificationStore.notifyUser({
+      this.notificationPlugin.notifyUser({
         text: _t(
           "The current window is too small to display this sheet properly. Consider resizing your browser window or adjusting frozen rows and columns."
         ),

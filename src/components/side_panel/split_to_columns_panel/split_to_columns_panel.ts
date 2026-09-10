@@ -1,13 +1,13 @@
 import { onMounted, useProps } from "@odoo/owl";
 import { NEWLINE } from "../../../constants";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
-import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
+import { useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
 import { CommandResult } from "../../../types/commands";
 import { ValueAndLabel } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
+import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { Select } from "../../select/select";
 import { SplitToColumnsTerms } from "../../translations_terms";
@@ -26,7 +26,7 @@ const SEPARATORS: ValueAndLabel[] = [
   { label: _t("Line Break"), value: NEWLINE },
 ];
 
-export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
+export class SplitIntoColumnsPanel extends OSComponent {
   static template = "o-spreadsheet-SplitIntoColumnsPanel";
   static components = { ValidationMessages, Section, Checkbox, Select };
 
@@ -71,7 +71,7 @@ export class SplitIntoColumnsPanel extends Component<SpreadsheetChildEnv> {
   }
 
   confirm() {
-    const result = interactiveSplitToColumns(this.env);
+    const result = interactiveSplitToColumns(this.spEnv);
 
     if (result.isSuccessful) {
       this.props.onCloseSidePanel();

@@ -1,13 +1,12 @@
 import { signal, useProps } from "@odoo/owl";
 import { HIGHLIGHT_COLOR } from "../../../../constants";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { Highlight } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
+import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
 
-export class DataValidationPreview extends Component<SpreadsheetChildEnv> {
+export class DataValidationPreview extends OSComponent {
   static template = "o-spreadsheet-DataValidationPreview";
 
   protected props = useProps({

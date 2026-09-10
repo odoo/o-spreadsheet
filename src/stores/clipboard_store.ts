@@ -1,3 +1,4 @@
+import { usePlugin } from "@odoo/owl";
 import { ClipboardHandler } from "../clipboard_handlers/abstract_clipboard_handler";
 import { convertImageToPng } from "../components/helpers/convert_image_to_png";
 import { cellStyleToCss, cssPropertiesToCss } from "../components/helpers/css";
@@ -12,6 +13,7 @@ import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { UuidGenerator } from "../helpers/uuid";
 import { isZoneValid } from "../helpers/zones";
 import { getCurrentVersion } from "../migrations/data";
+import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
 import { clipboardHandlersRegistries } from "../registries/clipboardHandlersRegistries";
 import { _t } from "../translation";
 import {
@@ -27,7 +29,6 @@ import { Command, CommandResult, DispatchResult, isCoreCommand } from "../types/
 import { Dimension, HeaderIndex, UID, Zone } from "../types/misc";
 import { GridRenderingContext } from "../types/rendering";
 import { xmlEscape } from "../xlsx/helpers/xml_helpers";
-import { NotificationStore } from "./notification_store";
 import { SpreadsheetStore } from "./spreadsheet_store";
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -58,7 +59,7 @@ export class ClipboardStore extends SpreadsheetStore {
   private _isCutOperation: boolean = false;
   private clipboardId = UuidGenerator.uuidv4();
 
-  private notificationStore = this.get(NotificationStore);
+  private notificationPlugin = usePlugin(NotificationPlugin);
 
   get renderingLayers() {
     return ["Clipboard"] as const;
@@ -543,7 +544,7 @@ export class ClipboardStore extends SpreadsheetStore {
       content[ClipboardMIMEType.PlainText] = this.getPlainTextContent();
       content[ClipboardMIMEType.Html] = await this.getHTMLContent();
     } catch (error) {
-      this.notificationStore.notifyUser({
+      this.notificationPlugin.notifyUser({
         type: "danger",
         text: "Your selection was too large for the browser to copy it.\nPlease select a smaller zone.",
         sticky: true,
@@ -671,7 +672,7 @@ export class ClipboardStore extends SpreadsheetStore {
       // So we convert the image to png if it's not already
       if (file.type !== "image/png") {
         if (file.size > MAX_FILE_SIZE) {
-          this.notificationStore.notifyUser({
+          this.notificationPlugin.notifyUser({
             text: _t(
               "The file you are trying to copy is too large (>%sMB).\nIt will not be added to your OS clipboard.\nYou can download it directly instead.",
               Math.round(MAX_FILE_SIZE / (1024 * 1024))

@@ -12,9 +12,10 @@ import { functionRegistry } from "../../src/functions/function_registry";
 import { render } from "../../src/helpers/owl3_helpers";
 import { toZone } from "../../src/helpers/zones";
 import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
+import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   activateSheet,
@@ -43,6 +44,7 @@ import {
   addToRegistry,
   doAction,
   mockChart,
+  mockNotificationMethods,
   mountComponent,
   mountSpreadsheet,
   nextTick,
@@ -56,7 +58,8 @@ import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 let fixture: HTMLElement;
 let parent: Spreadsheet;
 let model: Model;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
+let getPlugin: OwlPluginGetter;
 
 let spreadsheetWidth = 1000;
 
@@ -248,9 +251,10 @@ test("Can instantiate a spreadsheet with a given client id-name", async () => {
 });
 
 test("Spreadsheet detects frozen panes that exceed the limit size at start", async () => {
-  const notifyUser = jest.fn();
   const model = new Model({ sheets: [{ panes: { xSplit: 12, ySplit: 50 } }] });
-  ({ parent, fixture } = await mountSpreadsheet({ model }, { notifyUser }));
+  ({ parent, fixture, getPlugin } = await mountSpreadsheet({ model }));
+  const notificationPlugin = getPlugin(NotificationPlugin);
+  const notifyUser = notificationPlugin.notifyUser;
   expect(notifyUser).toHaveBeenCalled();
 });
 
@@ -259,17 +263,20 @@ test("Warns user when viewport is too small for frozen panes but stops warning a
 
   // Setting the sheet viewport size to 0 to represent the "real life" scenario where the default size is 0
   setDefaultSheetViewSize(0);
-  const notifyUser = jest.fn();
   const model = new Model({ sheets: [{ panes: { xSplit: 0, ySplit: 20 } }] });
-  ({ parent, fixture } = await mountSpreadsheet({ model }, { notifyUser }));
+  ({ parent, fixture, getPlugin } = await mountSpreadsheet({ model }));
+  const notificationPlugin = getPlugin(NotificationPlugin);
+  const notifyUser = notificationPlugin.notifyUser;
+
   expect(notifyUser).toHaveBeenCalledTimes(0);
 
   setDefaultSheetViewSize(originalViewSize);
 });
 
 test("Warn user only once when the viewport is too small for its frozen panes", async () => {
-  const notifyUser = jest.fn();
-  ({ parent, model, fixture } = await mountSpreadsheet(undefined, { notifyUser }));
+  ({ parent, model, fixture, getPlugin } = await mountSpreadsheet());
+  const notificationPlugin = getPlugin(NotificationPlugin);
+  const notifyUser = notificationPlugin.notifyUser;
   expect(notifyUser).not.toHaveBeenCalled();
   freezeRows(model, 51);
   await nextTick();
@@ -291,8 +298,9 @@ test("Warn user only once when the viewport is too small for its frozen panes", 
 });
 
 test("Raise error to ui use 'raiseError' in the env", async () => {
-  const raiseError = jest.fn();
-  ({ model, fixture } = await mountSpreadsheet(undefined, { raiseError }));
+  ({ model, fixture, getPlugin } = await mountSpreadsheet());
+  const notificationPlugin = getPlugin(NotificationPlugin);
+  const raiseError = notificationPlugin.raiseError;
   model["config"].raiseBlockingErrorUI("windows has detected that your monitor is not plugged in");
   expect(raiseError).toHaveBeenCalledWith(
     "windows has detected that your monitor is not plugged in"
@@ -301,7 +309,8 @@ test("Raise error to ui use 'raiseError' in the env", async () => {
 
 test("Notify ui correctly, with type notification correctly use notifyUser in the env", async () => {
   const notifyUser = jest.fn();
-  ({ model, fixture } = await mountSpreadsheet(undefined, { notifyUser }));
+  ({ model, fixture, getPlugin } = await mountSpreadsheet());
+  mockNotificationMethods(getPlugin, { notifyUser });
   model["config"].notifyUI({
     text: "hello",
     type: "info",
@@ -488,6 +497,7 @@ test("cell popovers to be closed on clicking outside grid", async () => {
 });
 
 test("*isSmall* is properly recomputed when changing window size", async () => {
+  let env: any;
   class Parent extends Component {
     static template = xml`<div class="o-spreadsheet"/>`;
     static components = { Spreadsheet };
@@ -499,16 +509,16 @@ test("*isSmall* is properly recomputed when changing window size", async () => {
           return screenSize.isSmall;
         },
       });
+      env = this.env;
     }
   }
-  const env = { model };
-  const { parent } = await mountComponent(Parent, { env });
-  expect(parent.env.isSmall).toBeFalsy();
+  const { parent } = await mountComponent(Parent, { model });
+  expect(env.isSmall).toBeFalsy();
   spreadsheetWidth = 500;
-  render(parent);
+  render(parent, true);
   await nextTick();
 
-  expect(parent.env.isSmall).toBeTruthy();
+  expect(env.isSmall).toBeTruthy();
 });
 
 test("components take the small screen into account", async () => {
@@ -528,7 +538,8 @@ test("Spreadsheet color scheme can be set to dark", async () => {
 test("Commands rejected on locked sheet trigger a notification", async () => {
   const model = new Model();
   const notifyFn = jest.fn();
-  ({ parent, fixture } = await mountSpreadsheet({ model, notifyUser: notifyFn }));
+  ({ parent, fixture, getPlugin } = await mountSpreadsheet({ model }));
+  mockNotificationMethods(getPlugin, { notifyUser: notifyFn });
   lockSheet(model);
   const result = deleteSheet(model, model.getters.getActiveSheetId());
   expect(result.reasons).toContain(CommandResult.SheetLocked);

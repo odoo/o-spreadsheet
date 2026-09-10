@@ -5,7 +5,7 @@ import { ChartAnimationStore } from "../../../src/components/figures/chart/chart
 import { downloadFile } from "../../../src/components/helpers/dom_helpers";
 import { CAROUSEL_LAYOUT } from "../../../src/constants";
 import { toZone } from "../../../src/helpers/zones";
-import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
   addNewChartToCarousel,
@@ -574,7 +574,7 @@ describe("Carousel figure component", () => {
   });
 
   describe("Carousel menu items", () => {
-    let env: SpreadsheetChildEnv;
+    let env: SpreadsheetActionEnv;
     let openSidePanel: jest.Mock;
 
     function getCarouselMenuItem(figureId: UID, actionId: string) {

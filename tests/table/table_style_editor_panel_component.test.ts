@@ -3,14 +3,14 @@ import { SidePanels } from "../../src/components/side_panel/side_panels/side_pan
 import { TableStyleEditorPanel } from "../../src/components/side_panel/table_style_editor_panel/table_style_editor_panel";
 import { buildTableStyle } from "../../src/helpers/table_presets";
 import { PropsOf } from "../../src/types/props_of";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { createTableStyle } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 async function mountPanel(partialProps: Partial<PropsOf<TableStyleEditorPanel>> = {}) {
   ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));

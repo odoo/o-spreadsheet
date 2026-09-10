@@ -1,6 +1,6 @@
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { Model } from "../../src/model";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import {
   addEqualCf,
@@ -25,7 +25,7 @@ import {
 let model: Model;
 let fixture: HTMLElement;
 let composerStore: Store<CellComposerStore>;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 export async function hoverComposerContent(content: string) {
   const spans = fixture.querySelectorAll(".o-composer span");

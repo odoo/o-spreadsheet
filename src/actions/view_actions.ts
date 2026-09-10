@@ -5,7 +5,7 @@ import { FormulaFingerprintStore } from "../stores/formula_fingerprints_store";
 import { ZoomStore } from "../stores/zoom_store";
 import { _t } from "../translation";
 import { Dimension } from "../types/misc";
-import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 
@@ -34,7 +34,7 @@ export const unhideCols: ActionSpec = {
       elements: columns,
     });
   },
-  isVisible: (env: SpreadsheetChildEnv) => {
+  isVisible: (env: SpreadsheetActionEnv) => {
     const hiddenCols = env.model.getters
       .getHiddenColsGroups(env.model.getters.getActiveSheetId())
       .flat();
@@ -55,7 +55,7 @@ export const unhideAllCols: ActionSpec = {
       elements: Array.from(Array(env.model.getters.getNumberCols(sheetId)).keys()),
     });
   },
-  isVisible: (env: SpreadsheetChildEnv) =>
+  isVisible: (env: SpreadsheetActionEnv) =>
     env.model.getters.getHiddenColsGroups(env.model.getters.getActiveSheetId()).length > 0,
 
   icon: "o-spreadsheet-Icon.UNHIDE_COL",
@@ -86,7 +86,7 @@ export const unhideRows: ActionSpec = {
       elements: columns,
     });
   },
-  isVisible: (env: SpreadsheetChildEnv) => {
+  isVisible: (env: SpreadsheetActionEnv) => {
     const hiddenRows = env.model.getters
       .getHiddenRowsGroups(env.model.getters.getActiveSheetId())
       .flat();
@@ -107,7 +107,7 @@ export const unhideAllRows: ActionSpec = {
       elements: Array.from(Array(env.model.getters.getNumberRows(sheetId)).keys()),
     });
   },
-  isVisible: (env: SpreadsheetChildEnv) =>
+  isVisible: (env: SpreadsheetActionEnv) =>
     env.model.getters.getHiddenRowsGroups(env.model.getters.getActiveSheetId()).length > 0,
 
   icon: "o-spreadsheet-Icon.UNHIDE_ROW",
@@ -226,7 +226,7 @@ export function zoomAction(zoom: number): ActionSpec {
     execute: (env) => {
       env.getStore(ZoomStore).setZoom(zoom / 100);
     },
-    isActive: (env: SpreadsheetChildEnv) => env.getStore(ZoomStore).zoomLevel === zoom / 100,
+    isActive: (env: SpreadsheetActionEnv) => env.getStore(ZoomStore).zoomLevel === zoom / 100,
     isReadonlyAllowed: true,
     isEnabledOnLockedSheet: true,
     sequence: zoom,
@@ -235,7 +235,7 @@ export function zoomAction(zoom: number): ActionSpec {
 
 export const viewFormulas: ActionSpec = {
   name: _t("Formulas"),
-  isActive: (env: SpreadsheetChildEnv) => env.model.getters.shouldShowFormulas(),
+  isActive: (env: SpreadsheetActionEnv) => env.model.getters.shouldShowFormulas(),
   execute: (env) =>
     env.model.dispatch("SET_FORMULA_VISIBILITY", { show: !env.model.getters.shouldShowFormulas() }),
   isReadonlyAllowed: true,
@@ -322,7 +322,7 @@ export const ungroupRows: ActionSpec = {
   icon: "o-spreadsheet-Icon.UNGROUP_ROWS",
 };
 
-function groupHeadersAction(env: SpreadsheetChildEnv, dim: Dimension) {
+function groupHeadersAction(env: SpreadsheetActionEnv, dim: Dimension) {
   const selection = env.model.getters.getSelectedZone();
   const sheetId = env.model.getters.getActiveSheetId();
   env.model.dispatch("GROUP_HEADERS", {
@@ -333,7 +333,7 @@ function groupHeadersAction(env: SpreadsheetChildEnv, dim: Dimension) {
   });
 }
 
-function ungroupHeaders(env: SpreadsheetChildEnv, dim: Dimension) {
+function ungroupHeaders(env: SpreadsheetActionEnv, dim: Dimension) {
   const selection = env.model.getters.getSelectedZone();
   const sheetId = env.model.getters.getActiveSheetId();
   env.model.dispatch("UNGROUP_HEADERS", {
@@ -344,7 +344,7 @@ function ungroupHeaders(env: SpreadsheetChildEnv, dim: Dimension) {
   });
 }
 
-export function canUngroupHeaders(env: SpreadsheetChildEnv, dimension: Dimension): boolean {
+export function canUngroupHeaders(env: SpreadsheetActionEnv, dimension: Dimension): boolean {
   const sheetId = env.model.getters.getActiveSheetId();
   const selection = env.model.getters.getSelectedZones();
   return (

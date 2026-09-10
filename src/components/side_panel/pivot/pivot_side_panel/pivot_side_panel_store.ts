@@ -2,7 +2,6 @@ import { PIVOT_MAX_NUMBER_OF_CELLS } from "../../../../constants";
 import { deepCopy, deepEquals } from "../../../../helpers/misc";
 import { isDateOrDatetimeField } from "../../../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../../../helpers/pivot/pivot_registry";
-import { NotificationStore } from "../../../../stores/notification_store";
 import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
 import { ViewportsStore } from "../../../../stores/viewports_store";
 import { _t } from "../../../../translation";
@@ -20,7 +19,9 @@ import {
 } from "../../../../types/pivot";
 import { Get } from "../../../../types/store_engine";
 
+import { usePlugin } from "@odoo/owl";
 import { getFirstPivotFunction } from "../../../../helpers/pivot/pivot_composer_helpers";
+import { NotificationPlugin } from "../../../../owl_plugins/notification_owl_plugin";
 import { getPivotTooBigErrorMessage } from "../../../translations_terms";
 
 export class PivotSidePanelStore extends SpreadsheetStore {
@@ -28,7 +29,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
 
   private _updatesAreDeferred: boolean;
   private draft: PivotCoreDefinition | null = null;
-  private notification = this.get(NotificationStore);
+  private notification = usePlugin(NotificationPlugin);
   private viewStore = this.get(ViewportsStore);
   private alreadyNotified = false;
   private alreadyNotifiedForPivotSize = false;

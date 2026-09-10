@@ -6,10 +6,11 @@ import { DateTime, jsDateToRoundNumber } from "../../src/helpers/dates";
 import { getCanonicalSymbolName } from "../../src/helpers/misc";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { HighlightStore } from "../../src/stores/highlight_store";
-import { NotificationStore } from "../../src/stores/notification_store";
+import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import {
   activateSheet,
@@ -51,9 +52,10 @@ import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
 let model: Model;
 let composerStore: Store<CellComposerStore>;
 let container: DependencyContainer;
+let getPlugin: OwlPluginGetter;
 
 beforeEach(() => {
-  ({ model, container, store: composerStore } = makeStore(CellComposerStore));
+  ({ model, container, getPlugin, store: composerStore } = makeStore(CellComposerStore));
   container.get(ClipboardStore); // Instantiate a clipboard store
 });
 
@@ -807,8 +809,8 @@ describe("edition", () => {
   );
 
   test("write too long formulas raises an error", async () => {
-    const notificationStore = container.get(NotificationStore);
-    const spyNotify = jest.spyOn(notificationStore, "raiseError");
+    const notificationPlugin = getPlugin(NotificationPlugin);
+    const spyNotify = jest.spyOn(notificationPlugin, "raiseError");
     composerStore.startEdition();
     const content = "=" + "+1".repeat(500); // 1001 characters
     composerStore.setCurrentContent(content);

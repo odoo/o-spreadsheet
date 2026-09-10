@@ -13,7 +13,6 @@ import {
   toZone,
   zoneToXc,
 } from "../../../../../helpers/zones";
-import { Component } from "../../../../../owl3_compatibility_layer";
 import { chartTypeRegistry } from "../../../../../registries/chart_registry";
 import { _t } from "../../../../../translation";
 import {
@@ -24,7 +23,7 @@ import {
 } from "../../../../../types/chart/chart";
 import { CommandResult, DispatchResult } from "../../../../../types/commands";
 import { UID, Zone } from "../../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { OSComponent } from "../../../../os_component";
 import { types } from "../../../../props_validation";
 import { ChartTerms } from "../../../../translations_terms";
 import { ChartUpdateFunction } from "../../common";
@@ -36,7 +35,7 @@ interface ChartRangeDataSourceState {
   labelsDispatchResult?: DispatchResult;
 }
 
-export class ChartRangeDataSourceComponent extends Component<SpreadsheetChildEnv> {
+export class ChartRangeDataSourceComponent extends OSComponent {
   static template = "o-spreadsheet-ChartRangeDataSource";
   static components = {
     ChartDataSeries,

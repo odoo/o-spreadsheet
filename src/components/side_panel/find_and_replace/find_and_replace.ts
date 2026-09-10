@@ -1,14 +1,13 @@
 import { onMounted, onWillUnmount, proxy, signal, useListener, useProps } from "@odoo/owl";
 import { debounce } from "../../../helpers/misc";
 import { zoneToXc } from "../../../helpers/zones";
-import { Component } from "../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
 import { SearchOptions } from "../../../types/find_and_replace";
 import { DebouncedFunction, ValueAndLabel } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
+import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { Select } from "../../select/select";
 import { SelectionInput } from "../../selection_input/selection_input";
@@ -17,7 +16,7 @@ import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 import { FindAndReplaceStore } from "./find_and_replace_store";
 
-export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
+export class FindAndReplacePanel extends OSComponent {
   static template = "o-spreadsheet-FindAndReplacePanel";
   static components = { SelectionInput, Section, Checkbox, ValidationMessages, Select };
   protected props = useProps({

@@ -2,7 +2,7 @@ import { Model, UID } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { ColorGenerator } from "../../../../src/helpers/color";
 import { SunburstChartDefinition } from "../../../../src/types/chart/sunburst_chart";
-import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../../src/types/spreadsheet_env";
 import {
   changeColorPickerWidgetColor,
   changeRoundColorPickerColor,
@@ -29,7 +29,7 @@ import {
 
 let model: Model;
 let fixture: HTMLElement;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 function getSunburstDefinition(chartId: UID): SunburstChartDefinition<string> {
   return model.getters.getChartDefinition(chartId) as SunburstChartDefinition<string>;

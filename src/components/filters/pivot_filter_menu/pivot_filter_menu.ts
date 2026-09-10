@@ -1,9 +1,7 @@
 import { onWillUpdateProps, useProps } from "@odoo/owl";
 import { deepCopy, deepEquals } from "../../../helpers/misc";
 import { SpreadsheetPivotRuntimeDefinition } from "../../../helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
-import { Component } from "../../../owl3_compatibility_layer";
 import { PropsOf } from "../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import {
   CriterionFilter,
   DataFilterValue,
@@ -11,6 +9,7 @@ import {
   filterNumberCriterionOperators,
   filterTextCriterionOperators,
 } from "../../../types/table";
+import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { SidePanelCollapsible } from "../../side_panel/components/collapsible/side_panel_collapsible";
 import { FilterMenuCriterion } from "../filter_menu_criterion/filter_menu_criterion";
@@ -18,7 +17,7 @@ import { FilterMenuValueList } from "../filter_menu_value_list/filter_menu_value
 
 type CriterionCategory = "char" | "boolean" | "integer" | "datetime";
 
-export class PivotFilterMenu extends Component<SpreadsheetChildEnv> {
+export class PivotFilterMenu extends OSComponent {
   static template = "o-spreadsheet-PivotFilterMenu";
 
   static components = { FilterMenuValueList, SidePanelCollapsible, FilterMenuCriterion };

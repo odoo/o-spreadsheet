@@ -1,8 +1,9 @@
+import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { CommandResult, DispatchResult } from "../../types/commands";
 import { UID } from "../../types/misc";
 
 import { TableTerms } from "../../components/translations_terms";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
 import { TableConfig } from "../../types/table";
 import { DEFAULT_TABLE_CONFIG } from "../table_presets";
 import { getZoneArea } from "../zones";
@@ -12,7 +13,7 @@ import { getZoneArea } from "../zones";
  * If a single cell is selected, expand the selection to non-empty adjacent cells to create a table.
  */
 export function interactiveCreateTable(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   sheetId: UID,
   tableConfig: TableConfig = DEFAULT_TABLE_CONFIG
 ): DispatchResult {
@@ -32,10 +33,11 @@ export function interactiveCreateTable(
     config: tableConfig,
     tableType: isDynamic ? "dynamic" : "static",
   });
+  const notificationPlugin = env.getPlugin(NotificationPlugin);
   if (result.isCancelledBecause(CommandResult.TableOverlap)) {
-    env.raiseError(TableTerms.Errors.TableOverlap);
+    notificationPlugin.raiseError(TableTerms.Errors.TableOverlap);
   } else if (result.isCancelledBecause(CommandResult.NonContinuousTargets)) {
-    env.raiseError(TableTerms.Errors.NonContinuousTargets);
+    notificationPlugin.raiseError(TableTerms.Errors.NonContinuousTargets);
   }
   return result;
 }

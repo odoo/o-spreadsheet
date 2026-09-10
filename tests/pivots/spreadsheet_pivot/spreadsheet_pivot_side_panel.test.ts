@@ -10,10 +10,10 @@ import { toXC } from "../../../src/helpers/coordinates";
 import { datetimeGranularities } from "../../../src/helpers/pivot/pivot_registry";
 import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { toZone } from "../../../src/helpers/zones";
+import { NotificationPlugin } from "../../../src/owl_plugins/notification_owl_plugin";
 import { topbarMenuRegistry } from "../../../src/registries/menus/topbar_menu_registry";
-import { NotificationStore } from "../../../src/stores/notification_store";
 import { ViewportsStore } from "../../../src/stores/viewports_store";
-import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
+import { OwlPluginGetter, SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import {
   activateSheet,
   createSheet,
@@ -35,6 +35,7 @@ import { getCellText, getEvaluatedCell, getTable } from "../../test_helpers/gett
 import {
   doAction,
   editStandaloneComposer,
+  mockNotificationMethods,
   mountComponentWithPortalTarget,
   nextTick,
   setGrid,
@@ -45,14 +46,17 @@ import { SELECTORS, addPivot, updatePivot } from "../../test_helpers/pivot_helpe
 describe("Spreadsheet pivot side panel", () => {
   let model: Model;
   let fixture: HTMLElement;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
+  let getPlugin: OwlPluginGetter;
   let notifyUser: jest.Mock;
 
   beforeEach(async () => {
     notifyUser = jest.fn();
-    ({ env, model, fixture } = await mountComponentWithPortalTarget(SidePanels, {
-      env: { notifyUser },
+    ({ env, model, fixture, getPlugin } = await mountComponentWithPortalTarget(SidePanels, {
+      providedPlugins: [NotificationPlugin],
     }));
+    mockNotificationMethods(getPlugin, { notifyUser });
+
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Product", C1: "Amount",
@@ -741,10 +745,7 @@ describe("Spreadsheet pivot side panel", () => {
   test("notify when no dynamic pivot is visible", async () => {
     setCellContent(model, "A4", "=PIVOT(1)");
     const mockNotify = jest.fn();
-    const notificationStore = env.getStore(NotificationStore);
-    notificationStore.updateNotificationCallbacks({
-      notifyUser: mockNotify,
-    });
+    mockNotificationMethods(getPlugin, { notifyUser: mockNotify });
 
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
@@ -773,10 +774,7 @@ describe("Spreadsheet pivot side panel", () => {
 
   test("notification should not be triggered when the pivot opened in the side panel differs from the pivots visible in the viewport.", async () => {
     const mockNotify = jest.fn();
-    const notificationStore = env.getStore(NotificationStore);
-    notificationStore.updateNotificationCallbacks({
-      notifyUser: mockNotify,
-    });
+    mockNotificationMethods(getPlugin, { notifyUser: mockNotify });
     const pivotData = { measures: [{ id: "amount:sum", fieldName: "amount", aggregator: "sum" }] };
     addPivot(model, "B1:B2", pivotData, "2");
     // insert the first pivot as static pivot in a new empty sheet

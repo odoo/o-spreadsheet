@@ -2,7 +2,7 @@ import { EditionMode, Model } from "../../src";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { SplitIntoColumnsPanel } from "../../src/components/side_panel/split_to_columns_panel/split_to_columns_panel";
 import { SplitToColumnsStore } from "../../src/components/side_panel/split_to_columns_panel/split_to_columns_store";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { getCellContent } from "../test_helpers";
 import { setCellContent, setSelection } from "../test_helpers/commands_helpers";
@@ -21,7 +21,7 @@ describe("split to columns sidePanel component", () => {
   let confirmButton: HTMLButtonElement;
   let checkBox: HTMLInputElement;
   let onCloseSidePanel: jest.Mock;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
   let splitToColumnsStore: Store<SplitToColumnsStore>;
 
   beforeEach(async () => {

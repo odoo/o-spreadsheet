@@ -1,13 +1,12 @@
-import { proxy, signal, useProps } from "@odoo/owl";
+import { proxy, signal, usePlugin, useProps } from "@odoo/owl";
 import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../constants";
-import { Component } from "../../owl3_compatibility_layer";
+import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { CommandResult } from "../../types/commands";
 import { HeaderDimensions, HeaderIndex, Pixel } from "../../types/misc";
 import { EdgeScrollInfo } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ContextMenuType } from "../grid/grid";
 import { cssPropertiesToCss } from "../helpers/css";
@@ -15,6 +14,7 @@ import { isCtrlKey } from "../helpers/dom_helpers";
 import { startDnd } from "../helpers/drag_and_drop";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { ZoomedMouseEvent } from "../helpers/zoom";
+import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
 import { MergeErrorMessage, TableHeaderMoveErrorMessage } from "../translations_terms";
 import { ComposerFocusStore } from "./../composer/composer_focus_store";
@@ -43,8 +43,10 @@ export const resizerPropsDefinition = {
   onOpenContextMenu: types.function<(type: ContextMenuType, x: Pixel, y: Pixel) => void>(),
 };
 
-abstract class AbstractResizer extends Component<SpreadsheetChildEnv> {
+abstract class AbstractResizer extends OSComponent {
   protected props = useProps(resizerPropsDefinition);
+
+  protected notification = usePlugin(NotificationPlugin);
   private composerFocusStore!: Store<ComposerFocusStore>;
   protected viewStore!: Store<ViewportsStore>;
   protected zoomStore!: Store<ZoomStore>;
@@ -434,7 +436,7 @@ export class ColResizer extends AbstractResizer {
       position: this.state.position,
     });
     if (!result.isSuccessful && result.reasons.includes(CommandResult.WillRemoveExistingMerge)) {
-      this.env.raiseError(MergeErrorMessage);
+      this.notification.raiseError(MergeErrorMessage);
     }
   }
 
@@ -605,9 +607,9 @@ export class RowResizer extends AbstractResizer {
 
     if (!result.isSuccessful) {
       if (result.reasons.includes(CommandResult.WillRemoveExistingMerge)) {
-        this.env.raiseError(MergeErrorMessage);
+        this.notification.raiseError(MergeErrorMessage);
       } else if (result.reasons.includes(CommandResult.CannotMoveTableHeader)) {
-        this.env.raiseError(TableHeaderMoveErrorMessage);
+        this.notification.raiseError(TableHeaderMoveErrorMessage);
       }
     }
   }
@@ -684,7 +686,7 @@ export class RowResizer extends AbstractResizer {
   }
 }
 
-export class HeadersOverlay extends Component<SpreadsheetChildEnv> {
+export class HeadersOverlay extends OSComponent {
   static template = "o-spreadsheet-HeadersOverlay";
 
   protected props = useProps(resizerPropsDefinition);

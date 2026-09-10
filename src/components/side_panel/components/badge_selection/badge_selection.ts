@@ -1,7 +1,6 @@
 import { useProps } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { OSComponent } from "../../../os_component";
 
-import { Component } from "../../../../owl3_compatibility_layer";
 import { types } from "../../../props_validation";
 interface Choice {
   value: string;
@@ -9,7 +8,7 @@ interface Choice {
   icon?: string;
 }
 
-export class BadgeSelection extends Component<SpreadsheetChildEnv> {
+export class BadgeSelection extends OSComponent {
   static template = "o-spreadsheet.BadgeSelection";
 
   protected props = useProps({

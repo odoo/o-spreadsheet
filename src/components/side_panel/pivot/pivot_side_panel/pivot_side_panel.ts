@@ -1,10 +1,9 @@
-import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
+import { ComponentConstructor, onWillUpdateProps, proxy, useProps } from "@odoo/owl";
 import { getPivotHighlights } from "../../../../helpers/pivot/pivot_highlight";
 import { pivotSidePanelRegistry } from "../../../../helpers/pivot/pivot_side_panel_registry";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { PropsOf } from "../../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlights } from "../../../helpers/highlight_hook";
+import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
 import { Section } from "../../components/section/section";
 import { PivotLayoutConfigurator } from "../pivot_layout_configurator/pivot_layout_configurator";
@@ -14,7 +13,7 @@ interface State {
   panel: "configuration" | "design";
 }
 
-export class PivotSidePanel extends Component<SpreadsheetChildEnv> {
+export class PivotSidePanel extends OSComponent {
   static template = "o-spreadsheet-PivotSidePanel";
   static components = {
     PivotLayoutConfigurator,
@@ -41,7 +40,7 @@ export class PivotSidePanel extends Component<SpreadsheetChildEnv> {
     });
   }
 
-  get sidePanelEditor() {
+  get sidePanelEditor(): ComponentConstructor {
     const pivot = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
     if (!pivot) {
       throw new Error("pivotId does not correspond to a pivot.");

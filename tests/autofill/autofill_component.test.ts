@@ -6,7 +6,7 @@ import { DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../src/const
 import { Model } from "../../src/model";
 import { Component } from "../../src/owl3_compatibility_layer";
 import { ViewportsStore } from "../../src/stores/viewports_store";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { setCellContent, setSelection, setViewportOffset } from "../test_helpers/commands_helpers";
 import {
   clickCell,
@@ -26,7 +26,7 @@ import {
 let fixture: HTMLElement;
 let model: Model;
 let parent: Spreadsheet;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 describe("Autofill component", () => {
   beforeEach(async () => {

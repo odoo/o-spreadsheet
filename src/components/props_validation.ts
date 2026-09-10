@@ -66,7 +66,6 @@ import {
 import { Range } from "../types/range";
 import { DOMCoordinates, DOMDimension, Rect } from "../types/rendering";
 import { Store } from "../types/store_engine";
-import { NotificationStoreMethods } from "../types/stores/notification_store_methods";
 import {
   CoreTable,
   CriterionFilter,
@@ -283,7 +282,6 @@ export const types = {
   NamedRange: validateObject<NamedRange>,
   DataValidationRule: validateObject<DataValidationRule>,
   InformationNotification: validateObject<InformationNotification>,
-  NotificationStoreMethods: validateObject<NotificationStoreMethods>,
   SidePanelContent: validateObject<SidePanelContent>,
   SidePanelComponentProps: validateObject<SidePanelComponentProps>,
   DataValidationCriterionType: validateString<DataValidationCriterionType>,

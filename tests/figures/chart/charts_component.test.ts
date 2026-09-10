@@ -28,7 +28,11 @@ import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
 } from "../../../src/types/chart/scorecard_chart";
-import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
+import {
+  OwlPluginGetter,
+  SpreadsheetActionEnv,
+  SpreadsheetChildEnv,
+} from "../../../src/types/spreadsheet_env";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
   getChartConfiguration,
@@ -78,6 +82,7 @@ import {
   editStandaloneComposer,
   mockChart,
   mockGeoJsonService,
+  mockNotificationMethods,
   mountComponentWithPortalTarget,
   mountSpreadsheet as mountSpreadsheetHelper,
   nextTick,
@@ -148,7 +153,10 @@ async function mountChartSidePanel(id: UID = chartId, _model: Model = model) {
 }
 
 async function mountSpreadsheet(partialEnv?: Partial<SpreadsheetChildEnv>) {
-  ({ env, model, fixture, parent, app } = await mountSpreadsheetHelper({ model }, partialEnv));
+  return ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheetHelper(
+    { model },
+    partialEnv
+  ));
 }
 
 let fixture: HTMLElement;
@@ -158,8 +166,9 @@ let app: App;
 const chartId = "someuuid";
 let sheetId: string;
 let parent: Spreadsheet;
+let getPlugin: OwlPluginGetter;
 
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 const TEST_CHART_TYPES = ["basicChart", "scorecard", "gauge", "combo"] as const;
 // scorecard's key value is edited with a composer, not a SelectionInput: it has no
@@ -512,7 +521,8 @@ describe("charts", () => {
     "Copy a chart as a figure pushes it in the clipboard as a File",
     async (chartType) => {
       const notifyUser = jest.fn();
-      await mountSpreadsheet({ notifyUser });
+      await mountSpreadsheet({});
+      mockNotificationMethods(getPlugin, { notifyUser });
       createTestChart(chartType);
       await nextTick();
       await simulateClick(".o-figure");

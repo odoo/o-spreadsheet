@@ -15,7 +15,7 @@ import {
   registerChartJSExtensions,
 } from "../../src/helpers/figures/charts/chart_js_extension";
 import { deepCopy, range } from "../../src/helpers/misc";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { selectFigure } from "./commands_helpers";
 import { click, simulateClick } from "./dom_helper";
 import { nextTick } from "./helpers";
@@ -101,7 +101,7 @@ export function toChartDataSource(args: ChartDataInput): ChartDataOutput {
 
 export async function openChartConfigSidePanel(
   model: Model,
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   chartId: UID
 ) {
   const figureId = model.getters.getFigureIdFromChartId(chartId);
@@ -115,7 +115,7 @@ export async function openChartConfigSidePanel(
 
 export async function openChartDesignSidePanel(
   model: Model,
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   fixture: HTMLElement,
   chartId: UID
 ) {

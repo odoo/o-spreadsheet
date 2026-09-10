@@ -58,17 +58,6 @@ beforeEach(() => {
   model = new Model();
   createSheet(model, { sheetId: "sh2", name: "Sheet2" });
   storeSpy = spyStoreCreation();
-
-  const originalSetup = StandaloneViewport.prototype["setup"];
-  jest
-    .spyOn(StandaloneViewport.prototype, "setup")
-    .mockImplementation(function (this: StandaloneViewport) {
-      originalSetup.call(this);
-      providePlugins([PopoverContainerPlugin], {
-        getPopoverContainerRect: () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
-      });
-      subEnv = this.env;
-    });
 });
 
 afterEach(() => {
@@ -84,6 +73,13 @@ async function mountViewport(zone: string, args: MountViewportArgs = {}) {
   const returnValue = await mountComponentWithPortalTarget(StandaloneViewport, {
     model,
     props: { ...args, range, size },
+    callbackInComponentSetup: function (this: StandaloneViewport) {
+      // In real life this is defined by the standalone viewport's parent (grid)
+      providePlugins([PopoverContainerPlugin], {
+        getPopoverContainerRect: () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+      });
+      subEnv = this.env;
+    },
   });
   await nextTick();
   return returnValue;
@@ -313,6 +309,13 @@ describe("Standalone viewport", () => {
     createCarouselWithDataView(model, toRangeData(sheetId, "A1:B1"), "carouselId", sheetId, {
       size: { width: 1048, height: 1061 }, // Add some padding so the carousel content is exactly 1000x1000
     });
+    const originalSetup = StandaloneViewport.prototype["setup"];
+    const spy = jest
+      .spyOn(StandaloneViewport.prototype, "setup")
+      .mockImplementation(function (this: StandaloneViewport) {
+        originalSetup.call(this);
+        subEnv = this.env;
+      });
     const { env } = await mountSpreadsheet({ model });
 
     const mainZoomStore = env.getStore(ZoomStore);
@@ -327,6 +330,7 @@ describe("Standalone viewport", () => {
     await nextTick();
     expect(subEnv.getStore(ZoomStore).zoomLevel).toEqual(0.5);
     expect(standaloneViewportStore.sheetViewDimension).toEqual({ width: 1000, height: 1000 });
+    spy.mockRestore();
   });
 
   test("Row is highlighted when hovering a cell", async () => {

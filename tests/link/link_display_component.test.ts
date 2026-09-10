@@ -1,6 +1,6 @@
 import { Model, Spreadsheet } from "../../src";
 import { buildSheetLink } from "../../src/helpers/misc";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   clearCell,
   createSheet,
@@ -12,19 +12,26 @@ import {
 } from "../test_helpers/commands_helpers";
 import { clickCell, hoverCell, rightClickCell, simulateClick } from "../test_helpers/dom_helper";
 import { getCellRawContent, getCellStyle, getEvaluatedCell } from "../test_helpers/getters_helpers";
-import { mountSpreadsheet, nextTick, useJestFakeTimers } from "../test_helpers/helpers";
+import {
+  mockNotificationMethods,
+  mountSpreadsheet,
+  nextTick,
+  useJestFakeTimers,
+} from "../test_helpers/helpers";
 
 describe("link display component", () => {
   let fixture: HTMLElement;
   let model: Model;
   let parent: Spreadsheet;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
   let notifyUser: jest.Mock;
+  let getPlugin: OwlPluginGetter;
 
   beforeEach(async () => {
     useJestFakeTimers();
     notifyUser = jest.fn();
-    ({ parent, model, fixture, env } = await mountSpreadsheet(undefined, { notifyUser }));
+    ({ parent, model, fixture, env, getPlugin } = await mountSpreadsheet());
+    mockNotificationMethods(getPlugin, { notifyUser });
   });
 
   test("simple snapshot", async () => {

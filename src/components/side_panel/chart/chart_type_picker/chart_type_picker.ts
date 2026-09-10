@@ -1,12 +1,11 @@
 import { proxy, signal, useProps } from "@odoo/owl";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { chartDataSourceRegistry } from "../../../../registries/chart_data_source_registry";
 import { chartSubtypeRegistry } from "../../../../registries/chart_subtype_registry";
 import { CHART_TYPES, ChartDefinition, ChartType } from "../../../../types/chart/chart";
 import { ChartSubtypeProperties } from "../../../../types/chart_subtype_properties";
 import { UID } from "../../../../types/misc";
 import { PropsOf } from "../../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { OSComponent } from "../../../os_component";
 import { Popover } from "../../../popover/popover";
 import { types } from "../../../props_validation";
 import { Section } from "../../components/section/section";
@@ -17,7 +16,7 @@ interface ChartTypePickerState {
   popoverProps: PropsOf<Popover> | undefined;
 }
 
-export class ChartTypePicker extends Component<SpreadsheetChildEnv> {
+export class ChartTypePicker extends OSComponent {
   static template = "o-spreadsheet-ChartTypePicker";
   static components = { Section, ChartTypePickerPopover };
 

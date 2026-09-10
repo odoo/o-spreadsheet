@@ -1,17 +1,16 @@
 import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
 import { getZoneArea, positionToZone } from "../../../helpers/zones";
-import { Component } from "../../../owl3_compatibility_layer";
 import { CommandResult, DispatchResult } from "../../../types/commands";
 import { Zone } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { TableConfig } from "../../../types/table";
+import { OSComponent } from "../../os_component";
 
 import { HIGHLIGHT_COLOR } from "../../../constants";
 import { deepEquals } from "../../../helpers/misc";
 import { getTableTopLeft } from "../../../helpers/table_helpers";
 import { useStore } from "../../../store_engine/store_hooks";
 import { TableResizeStore } from "../../../stores/table_resize_store";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { useHighlights } from "../../helpers/highlight_hook";
 import { NumberInput } from "../../number_input/number_input";
 import { types } from "../../props_validation";
@@ -30,7 +29,7 @@ interface State {
   filtersEnabledIfPossible: boolean;
 }
 
-export class TablePanel extends Component<SpreadsheetChildEnv> {
+export class TablePanel extends OSComponent {
   static template = "o-spreadsheet-TablePanel";
   static components = {
     TableStylePicker,

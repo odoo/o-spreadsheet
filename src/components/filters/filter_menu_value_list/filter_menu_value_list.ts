@@ -1,9 +1,8 @@
 import { onWillUpdateProps, proxy, signal, useProps } from "@odoo/owl";
 import { deepEquals } from "../../../helpers/misc";
 import { fuzzyLookup } from "../../../helpers/search";
-import { Component } from "../../../owl3_compatibility_layer";
 import { PropsOf } from "../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { FilterMenuValueItem } from "../filter_menu_item/filter_menu_value_item";
 
@@ -21,7 +20,7 @@ interface State {
   hasMoreValues: boolean;
 }
 
-export class FilterMenuValueList extends Component<SpreadsheetChildEnv> {
+export class FilterMenuValueList extends OSComponent {
   static template = "o-spreadsheet-FilterMenuValueList";
   static components = { FilterMenuValueItem };
 

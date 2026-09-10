@@ -1,6 +1,6 @@
 import { Model, PivotCustomGroupedField } from "../../../src";
 import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
-import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import { setCellContent } from "../../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget, nextTick } from "../../test_helpers/helpers";
@@ -9,7 +9,7 @@ import { createModelWithPivot, updatePivot } from "../../test_helpers/pivot_help
 let model: Model;
 let pivotId: string;
 let fixture: HTMLElement;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 const TEST_CUSTOM_FIELD: PivotCustomGroupedField = {
   parentField: "Opportunity",

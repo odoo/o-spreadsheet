@@ -1,16 +1,15 @@
 import { signal, useProps } from "@odoo/owl";
 import { UuidGenerator } from "../../../../helpers/uuid";
 import { zoneToXc } from "../../../../helpers/zones";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { ConditionalFormat } from "../../../../types/conditional_formatting";
 import { UID } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
+import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
 import { ConditionalFormatPreview } from "../cf_preview/cf_preview";
 
-export class ConditionalFormatPreviewList extends Component<SpreadsheetChildEnv> {
+export class ConditionalFormatPreviewList extends OSComponent {
   static template = "o-spreadsheet-ConditionalFormatPreviewList";
   static components = { ConditionalFormatPreview };
 

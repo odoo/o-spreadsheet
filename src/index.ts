@@ -204,7 +204,6 @@ import { ClientFocusStore } from "./stores/client_focus_store";
 import { GridRenderer } from "./stores/grid_renderer_store";
 import { HighlightStore } from "./stores/highlight_store";
 import { ModelStore } from "./stores/model_store";
-import { NotificationStore } from "./stores/notification_store";
 import { RendererStore } from "./stores/renderer_store";
 import { SpreadsheetStore } from "./stores/spreadsheet_store";
 import { ZoomStore } from "./stores/zoom_store";
@@ -349,6 +348,7 @@ import {
   hasInteractiveElementInEventTree,
   isMobileOS,
 } from "./components/helpers/dom_helpers";
+import { OSComponent } from "./components/os_component";
 import { PopoverContainerPlugin } from "./components/popover/popover_container_owl_plugin";
 import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
@@ -535,6 +535,7 @@ export const components = {
   Composer,
   CalendarButton,
   Spreadsheet,
+  OSComponent,
   CarouselFigure,
 };
 
@@ -565,7 +566,6 @@ export const stores = {
   DelayedHoveredCellStore,
   HoveredTableStore,
   ModelStore,
-  NotificationStore,
   RendererStore,
   SelectionInputStore,
   SpreadsheetStore,

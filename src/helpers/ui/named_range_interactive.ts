@@ -1,3 +1,4 @@
+import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { _t } from "../../translation";
 import {
   CommandResult,
@@ -5,10 +6,10 @@ import {
   DispatchResult,
   UpdateNamedRangeCommand,
 } from "../../types/commands";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
 
 export function interactiveCreateNamedRange(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   payload: Omit<CreateNamedRangeCommand, "type">
 ) {
   const result = env.model.dispatch("CREATE_NAMED_RANGE", payload);
@@ -16,27 +17,28 @@ export function interactiveCreateNamedRange(
 }
 
 export function interactiveUpdateNamedRange(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   payload: Omit<UpdateNamedRangeCommand, "type">
 ) {
   const result = env.model.dispatch("UPDATE_NAMED_RANGE", payload);
   handleResult(env, result);
 }
 
-function handleResult(env: SpreadsheetChildEnv, result: DispatchResult) {
+function handleResult(env: SpreadsheetActionEnv, result: DispatchResult) {
+  const notificationPlugin = env.getPlugin(NotificationPlugin);
   if (!result.isSuccessful) {
     if (result.isCancelledBecause(CommandResult.NamedRangeNameAlreadyExists)) {
-      env.raiseError(_t("A named range with this name already exists."));
+      notificationPlugin.raiseError(_t("A named range with this name already exists."));
     } else if (result.isCancelledBecause(CommandResult.NamedRangeInvalidName)) {
-      env.raiseError(
+      notificationPlugin.raiseError(
         _t(
           "The named range name is invalid. Valid names can contain letters, digits, underscores, and periods. The name cannot be only a number, TRUE, or FALSE."
         )
       );
     } else if (result.isCancelledBecause(CommandResult.NamedRangeNameLooksLikeCellReference)) {
-      env.raiseError(_t("A named range name cannot resemble a cell reference."));
+      notificationPlugin.raiseError(_t("A named range name cannot resemble a cell reference."));
     } else if (result.isCancelledBecause(CommandResult.NamedRangeNotFound)) {
-      env.raiseError(_t("The named range to update was not found."));
+      notificationPlugin.raiseError(_t("The named range to update was not found."));
     }
   }
 }

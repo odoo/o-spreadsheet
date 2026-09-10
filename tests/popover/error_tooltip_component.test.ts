@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { ErrorToolTip } from "../../src/components/error_tooltip/error_tooltip";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { getCellContent } from "../test_helpers";
 import {
   addDataValidation,
@@ -155,7 +155,7 @@ describe("Error tooltip component", () => {
 describe("Grid integration", () => {
   let model: Model;
   let fixture: HTMLElement;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
 
   beforeEach(async () => {
     useJestFakeTimers();

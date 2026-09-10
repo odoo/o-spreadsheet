@@ -60,7 +60,7 @@ import { colMenuRegistry } from "../../src/registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../../src/registries/menus/row_menu_registry";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { FR_LOCALE } from "../test_helpers/constants";
 
 const TEST_CURRENCY: Partial<Currency> = {
@@ -175,7 +175,7 @@ describe("Top Bar MenuPopover Item Registry", () => {
 describe("Menu Item actions", () => {
   let model: Model;
   let sheetId: UID;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
   let dispatch: jest.SpyInstance;
 
   beforeEach(async () => {
@@ -2050,7 +2050,7 @@ describe("Menu Item actions", () => {
       const sheetId = model.getters.getActiveSheetId();
       const view = topbarMenuRegistry.getMenuItems().find((item) => item.id === "view")!;
       const unfreeze_panes = view
-        .children({} as SpreadsheetChildEnv)
+        .children({} as SpreadsheetActionEnv)
         .find((item) => item.id === "unfreeze_panes")!;
       expect(unfreeze_panes.isVisible(env)).toBe(false);
       freezeColumns(model, 1);

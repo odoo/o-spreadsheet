@@ -2,14 +2,13 @@ import { proxy, useProps } from "@odoo/owl";
 import { isMultipleElementMatrix, toScalar } from "../../../../functions/helper_matrices";
 import { tryToNumber } from "../../../../functions/helpers";
 import { deepCopy } from "../../../../helpers/misc";
-import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
 import { CommandResult } from "../../../../types/commands";
 import { Color, ValueAndLabel } from "../../../../types/misc";
 import { PropsOf } from "../../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
+import { OSComponent } from "../../../os_component";
 import { Select } from "../../../select/select";
 import { ChartTerms } from "../../../translations_terms";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -26,7 +25,7 @@ interface PanelState {
   sectionRule: SectionRule;
 }
 
-export class GaugeChartDesignPanel extends Component<SpreadsheetChildEnv> {
+export class GaugeChartDesignPanel extends OSComponent {
   static template = "o-spreadsheet-GaugeChartDesignPanel";
   static components = {
     SidePanelCollapsible,

@@ -1,7 +1,7 @@
 import { CommandResult, Model } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { ChartTerms } from "../../../../src/components/translations_terms";
-import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../../src/types/spreadsheet_env";
 import {
   createGaugeChart,
   editSelectComponent,
@@ -21,7 +21,7 @@ import {
 
 let model: Model;
 let fixture: HTMLElement;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 const chartId = "chartId";
 
 beforeEach(async () => {
