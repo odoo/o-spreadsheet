@@ -48,6 +48,7 @@ import { CheckboxToggleStore } from "../../stores/checkbox_toggle";
 import { ClientFocusStore } from "../../stores/client_focus_store";
 import { ClipboardStore } from "../../stores/clipboard_store";
 import { HighlightStore } from "../../stores/highlight_store";
+import { SelectionRendererStore } from "../../stores/selection_renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { _t } from "../../translation";
@@ -208,6 +209,7 @@ export class Grid extends OSComponent {
     useStore(ArrayFormulaHighlight);
     this.automaticSumStore = useLocalStore(AutomaticSumStore);
     this.clipboardStore = useStore(ClipboardStore);
+    useStore(SelectionRendererStore);
 
     providePlugins([PopoverContainerPlugin], { getPopoverContainerRect: () => this.getGridRect() });
     useListener(document.body, "cut", this.copy.bind(this, true));
