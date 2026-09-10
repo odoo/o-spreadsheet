@@ -160,6 +160,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   private clientFocusStore!: Store<ClientFocusStore>;
   private checkboxToggleStore!: Store<CheckboxToggleStore>;
   private clipboardStore!: Store<ClipboardStore>;
+  private selectionRenderStore!: Store<SelectionRendererStore>;
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
@@ -188,6 +189,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     this.automaticSumStore = useLocalStore(AutomaticSumStore);
     this.clipboardStore = useStore(ClipboardStore);
     useStore(SelectionRendererStore);
+    this.selectionRenderStore = useStore(SelectionRendererStore);
 
     providePlugins([PopoverContainerPlugin], { getPopoverContainerRect: () => this.getGridRect() });
     useListener(document.body, "cut", this.copy.bind(this, true));
@@ -603,6 +605,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
       if ((col !== prevCol && col !== -1) || (row !== prevRow && row !== -1)) {
         prevCol = col === -1 ? prevCol : col;
         prevRow = row === -1 ? prevRow : row;
+        this.selectionRenderStore.disableAnimationForNextRender();
         this.env.model.selection.setAnchorCorner(prevCol, prevRow);
       }
     };
