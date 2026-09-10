@@ -3,6 +3,10 @@
     height: fit-content;
     max-height: 200px;
     min-height: 1.2em;
+    border-style: none;
+    &:focus {
+      border-color: var(--os-action-color) !important;
+    }
   }
 
   .o-input-infotext:empty:before {
