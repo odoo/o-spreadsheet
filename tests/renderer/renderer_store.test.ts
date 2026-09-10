@@ -33,6 +33,7 @@ import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { RendererStore } from "../../src/stores/renderer_store";
+import { SelectionRendererStore } from "../../src/stores/selection_renderer_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { Mode } from "../../src/types/model";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
@@ -101,6 +102,7 @@ function removeOffsetOfFillStyles(fillStyles: any[]): any[] {
 function setRenderer(model: Model = new Model(), layers: LayerName[] = ["Background"]) {
   const { container, store: gridRendererStore } = makeStoreWithModel(model, GridRenderer);
   container.get(ClipboardStore); // Instantiate a ClipboardStore
+  container.get(SelectionRendererStore); // Instantiate a SelectionRendererStore
   gridRendererStore["getBoxesWithAnimations"] = function (boxes: Box[]) {
     for (const box of boxes) {
       this["lastRenderBoxes"].set(box.id, box);
