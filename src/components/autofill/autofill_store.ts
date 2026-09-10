@@ -5,6 +5,7 @@ import { recomputeZones } from "../../helpers/recompute_zones";
 import { isInside, positionToZone, toZone } from "../../helpers/zones";
 import { autofillModifiersRegistry } from "../../registries/autofill_modifiers";
 import { autofillRulesRegistry } from "../../registries/autofill_rules";
+import { SelectionRendererStore } from "../../stores/selection_renderer_store";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import {
@@ -89,6 +90,7 @@ export class AutofillStore extends SpreadsheetStore {
   tooltip: Tooltip | undefined;
 
   private viewStore = this.get(ViewportsStore);
+  private selectionRendererStore = this.get(SelectionRendererStore);
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -592,12 +594,16 @@ export class AutofillStore extends SpreadsheetStore {
     }
 
     const zone = this.getters.getSelectedZone();
-    const bottomRightRect = viewports.getVisibleRect(sheetId, {
-      left: zone.right,
-      right: zone.right,
-      top: zone.bottom,
-      bottom: zone.bottom,
-    });
+    const selectionAnimationRect =
+      this.selectionRendererStore.animatedSelection?.currentState?.selectedZonesRects[0];
+    const bottomRightRect =
+      selectionAnimationRect ||
+      viewports.getVisibleRect(sheetId, {
+        left: zone.right,
+        right: zone.right,
+        top: zone.bottom,
+        bottom: zone.bottom,
+      });
 
     const autofillSquareSize = AUTOFILL_EDGE_LENGTH - 2;
     const x = bottomRightRect.x + bottomRightRect.width - autofillSquareSize / 2;
@@ -605,8 +611,13 @@ export class AutofillStore extends SpreadsheetStore {
     const width = autofillSquareSize;
     const height = autofillSquareSize;
 
-    ctx.fillStyle = "white";
-    ctx.fillRect(x - 1 - CANVAS_SHIFT, y - 1 - CANVAS_SHIFT, width + 2, height + 2);
+    const background = this.getters.getSheet(sheetId).backgroundColor;
+    if (background) {
+      ctx.fillStyle = background;
+      ctx.fillRect(x - 1 - CANVAS_SHIFT, y - 1 - CANVAS_SHIFT, width + 2, height + 2);
+    } else {
+      ctx.clearRect(x - 1 - CANVAS_SHIFT, y - 1 - CANVAS_SHIFT, width + 2, height + 2);
+    }
 
     ctx.fillStyle = SELECTION_BORDER_COLOR;
     ctx.fillRect(x - CANVAS_SHIFT, y - CANVAS_SHIFT, width, height);
