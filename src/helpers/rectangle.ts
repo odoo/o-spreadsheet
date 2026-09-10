@@ -39,6 +39,15 @@ export function isPointInsideRect(x: number, y: number, rect: Rect): boolean {
   return x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height;
 }
 
+export function isRectInside(smallRect: Rect, biggerRect: Rect) {
+  return (
+    smallRect.x >= biggerRect.x &&
+    smallRect.y >= biggerRect.y &&
+    smallRect.x + smallRect.width <= biggerRect.x + biggerRect.width &&
+    smallRect.y + smallRect.height <= biggerRect.y + biggerRect.height
+  );
+}
+
 /**
  * Return a Rect with position and size on the zoomed canvas
  */
