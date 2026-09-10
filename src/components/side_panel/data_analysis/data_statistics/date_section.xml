@@ -17,7 +17,7 @@
         <t t-if="this.state.sortType === 'chrono'" t-call="o-spreadsheet-Icon.SWAP_VERT"/>
       </div>
     </div>
-    <t t-foreach="this.occurrencySection.items" t-as="stat" t-key="stat_index">
+    <t t-foreach="this.state.displayedValues" t-as="stat" t-key="stat_index">
       <t t-if="stat.value !== '0'">
         <StatisticItem
           stat="stat"

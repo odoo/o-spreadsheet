@@ -3,7 +3,6 @@ import { toXC } from "../../../../helpers/coordinates";
 import { StatValue } from "../../../../helpers/data_statistics/statistics_items";
 import { deepEquals } from "../../../../helpers/misc";
 import { Component } from "../../../../owl3_compatibility_layer";
-import { _t } from "../../../../translation";
 import { Highlight } from "../../../../types/misc";
 import { Range } from "../../../../types/range";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
@@ -15,21 +14,14 @@ export interface ListState {
   displayedValues: StatValue[];
   numberOfDisplayedValues: number;
   hasMoreValues: boolean;
-  sortType: "asc" | "desc" | "none";
+  namesSortType: "asc" | "desc" | "none";
+  valuesSortType: "asc" | "desc" | "none";
 }
 
 export class Occurencies extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Occurencies";
   protected props = useProps({
     items: types.array(types.StatValue()),
-    sortItemsFunction: types
-      .function<
-        (
-          items: StatValue[],
-          sortType: "asc" | "desc" | "none"
-        ) => { sortedItems: StatValue[]; newSortType: "asc" | "desc" | "none" }
-      >()
-      .optional(),
   });
   static components = {
     StatisticItem,
@@ -38,7 +30,8 @@ export class Occurencies extends Component<SpreadsheetChildEnv> {
     displayedValues: [],
     numberOfDisplayedValues: 50,
     hasMoreValues: false,
-    sortType: "desc",
+    namesSortType: "none",
+    valuesSortType: "desc",
   });
   private hoveredStat = proxy<StatValue>({ id: "", name: "", value: "", formula: "" });
 
@@ -57,10 +50,6 @@ export class Occurencies extends Component<SpreadsheetChildEnv> {
     this.hoveredStat.value = isHovered ? stat.value : "";
     this.hoveredStat.id = isHovered ? stat.id : "";
     this.hoveredStat.formula = isHovered ? stat.formula : "";
-  }
-
-  get label() {
-    return _t("");
   }
 
   get total() {
@@ -84,16 +73,40 @@ export class Occurencies extends Component<SpreadsheetChildEnv> {
     this.computeDisplayedValues(this.props.items);
   }
 
-  sortItems() {
-    if (!this.props.sortItemsFunction) {
-      return;
+  sortItemsByName() {
+    const items = [...this.props.items];
+    switch (this.listState.namesSortType) {
+      case "desc":
+        this.listState.namesSortType = "asc";
+        items.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case "asc":
+        this.listState.namesSortType = "none";
+        break;
+      case "none":
+        this.listState.namesSortType = "desc";
+        items.sort((a, b) => a.name.localeCompare(b.name));
+        break;
     }
-    const { sortedItems, newSortType } = this.props.sortItemsFunction(
-      [...this.props.items],
-      this.listState.sortType
-    );
-    this.listState.sortType = newSortType;
-    this.computeDisplayedValues(sortedItems);
+    this.computeDisplayedValues(items);
+  }
+
+  sortItemsByValues() {
+    const items = [...this.props.items];
+    switch (this.listState.valuesSortType) {
+      case "desc":
+        this.listState.valuesSortType = "asc";
+        items.sort((a, b) => Number(a.value) - Number(b.value));
+        break;
+      case "asc":
+        this.listState.valuesSortType = "none";
+        break;
+      case "none":
+        this.listState.valuesSortType = "desc";
+        items.sort((a, b) => Number(b.value) - Number(a.value));
+        break;
+    }
+    this.computeDisplayedValues(items);
   }
 
   get highlights(): Highlight[] {

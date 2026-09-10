@@ -1,4 +1,4 @@
-import { analyzeColumns } from "../../../helpers/data_statistics/data_analysis";
+import { analyzeColumns, ExtendedColumnType } from "../../../helpers/data_statistics/data_analysis";
 import { StatSection, StatValue } from "../../../helpers/data_statistics/statistics_items";
 import {
   buildBooleanItems,
@@ -18,7 +18,7 @@ import { Get } from "../../../types/store_engine";
 
 export class DataAnalysisStore extends SpreadsheetStore {
   mutators = [] as const;
-  shape: String[] = [];
+  shape: ExtendedColumnType[] = [];
   generalStatItems: StatValue[] = [];
   occurenciesItems: StatValue[] = [];
   dateStatSections: StatSection[] = [];
@@ -82,7 +82,7 @@ export class DataAnalysisStore extends SpreadsheetStore {
     this.shape = cols.map((c) => c.type);
     const nonEmpty = cols.filter((c) => c.type !== "empty");
 
-    const suggestions = this.hasData ? getChartSuggestions(nonEmpty, this.getters) : [];
+    const suggestions = this.hasData ? getChartSuggestions(this.shape, nonEmpty, this.getters) : [];
     this.chartSuggestions = suggestions;
     if (!this.hasData) {
       this.generalStatItems = [];

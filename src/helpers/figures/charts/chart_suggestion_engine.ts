@@ -577,15 +577,17 @@ const EXTENDABLE_PATTERNS: ChartSuggestionRule<any>[] = [
   },
 ];
 
-export function getChartSuggestions(cols: ColumnAnalysis[], getters: Getters): ChartSuggestion[] {
+export function getChartSuggestions(
+  shape: ExtendedColumnType[],
+  cols: ColumnAnalysis[],
+  getters: Getters
+): ChartSuggestion[] {
   if (cols.some((c) => c.type === "error")) {
     return [];
   }
   if (!cols.length) {
     return [];
   }
-
-  const shape = cols.map((c) => c.type);
   const rule =
     EXACT_PATTERNS.find((rule) => matchesShape(rule.pattern, shape)) ??
     EXTENDABLE_PATTERNS.find((rule) => matchesShape(rule.pattern, shape));

@@ -1,6 +1,5 @@
 import { types, useProps } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
-import { statisticsRegistry } from "../../../registries/data_statistics_registry";
 import { useLocalStore } from "../../../store_engine/store_hooks";
 import { ChartDefinition } from "../../../types/chart/chart";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -34,18 +33,5 @@ export class DataAnalysisPanel extends Component<SpreadsheetChildEnv> {
 
   onStartChartSuggestionDrag(definition: ChartDefinition, ev: MouseEvent) {
     startChartDragAndDrop(this.env, definition, ev);
-  }
-
-  get sortFunction() {
-    switch (this.store.shape[0]) {
-      case "categorical":
-      case "label":
-        return statisticsRegistry.get("categorical")?.sortItems;
-      case "number":
-      case "percentage":
-        return statisticsRegistry.get("number")?.sortItems;
-      default:
-        return undefined;
-    }
   }
 }
