@@ -43,7 +43,7 @@ describe("Menu component", () => {
     model.updateMode("readonly");
     const { fixture } = await mountComponent(Menu, {
       props: { menuItems, onClose: () => {}, onClickMenu: () => callback() },
-      env: { model },
+      model,
     });
 
     expect(fixture.querySelector(selector)!.classList).toContain("disabled");
