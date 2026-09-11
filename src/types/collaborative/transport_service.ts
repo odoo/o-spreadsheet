@@ -71,6 +71,13 @@ export interface SnapshotCreatedMessage extends AbstractMessage {
   nextRevisionId: UID;
 }
 
+/**
+ * Notify all client they need to reload in order to synchronize with the server.
+ */
+interface ForceReloadMessagee extends AbstractMessage {
+  type: "RELOAD";
+}
+
 export type CollaborationMessage =
   | RevisionUndoneMessage
   | RevisionRedoneMessage
@@ -80,7 +87,8 @@ export type CollaborationMessage =
   | SnapshotCreatedMessage
   | ClientMovedMessage
   | ClientJoinedMessage
-  | ClientLeftMessage;
+  | ClientLeftMessage
+  | ForceReloadMessagee;
 
 export type StateUpdateMessage = Extract<CollaborationMessage, { nextRevisionId: UID }>;
 
