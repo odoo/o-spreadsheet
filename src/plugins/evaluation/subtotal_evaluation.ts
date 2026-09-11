@@ -3,7 +3,10 @@ import { EvaluationPlugin } from "../evaluation_plugin";
 
 export class SubtotalEvaluationPlugin extends EvaluationPlugin {
   handle(cmd: EvaluationCommand) {
-    if (invalidSubtotalFormulasCommands.has(cmd.type)) {
+    if (
+      invalidSubtotalFormulasCommands.has(cmd.type) &&
+      this.getters.isAutomaticEvaluationEnabled()
+    ) {
       this.dispatch("EVALUATE_CELLS", {
         cellIds: this.getters.getCellsWithTrackedFormula("SUBTOTAL"),
       });
