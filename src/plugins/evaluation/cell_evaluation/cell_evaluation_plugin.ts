@@ -1,5 +1,6 @@
 import { CompiledFormula } from "../../../formulas/compiler";
 import { matrixMap } from "../../../functions/helpers";
+import { evaluateLiteral } from "../../../helpers/cells/cell_evaluation";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
 import { positions } from "../../../helpers/zones";
@@ -164,13 +165,14 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
 
   private shouldRebuildDependenciesGraph = true;
   private forceEvaluation = false;
-  private automaticEvaluation: boolean = true;
+  private automaticEvaluation: boolean;
 
   private evaluator: Evaluator;
   private positionsToUpdate: CellPosition[] = [];
 
   constructor(config: EvaluationPluginConfig) {
     super(config);
+    this.automaticEvaluation = config.automaticEvaluation ?? true;
     this.evaluator = new Evaluator(config.custom, this.getters);
   }
 
@@ -202,13 +204,18 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
   handle(cmd: EvaluationCommand) {
     switch (cmd.type) {
       case "UPDATE_CELL":
-        if (!("content" in cmd || "format" in cmd) || this.shouldRebuildDependenciesGraph) {
+        if (!("content" in cmd || "format" in cmd)) {
+          return;
+        }
+        if (this.shouldRebuildDependenciesGraph && this.shouldPerformEvaluation()) {
+          // every cell is about to be re-evaluated anyway
           return;
         }
         const position = { sheetId: cmd.sheetId, row: cmd.row, col: cmd.col };
         this.positionsToUpdate.push(position);
 
-        if ("content" in cmd) {
+        if ("content" in cmd && !this.shouldRebuildDependenciesGraph) {
+          // if the graph is pending, it's built from scratch by the next evaluation
           this.evaluator.updateDependencies(position);
         }
         break;
@@ -308,7 +315,23 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
   }
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
-    return this.evaluator.getEvaluatedCell(position);
+    const evaluatedCell = this.evaluator.getEvaluatedCell(position);
+    if (!this.automaticEvaluation && evaluatedCell.type === CellValueType.empty) {
+      return this.getLiteralFallback(position) || evaluatedCell;
+    }
+    return evaluatedCell;
+  }
+
+  private getLiteralFallback(position: CellPosition): EvaluatedCell | undefined {
+    const cell = this.getters.getCell(position);
+    if (!cell || cell.isFormula) {
+      return undefined;
+    }
+    return evaluateLiteral(
+      cell,
+      { format: this.getters.getCellFormat(position), locale: this.getters.getLocale() },
+      position
+    );
   }
 
   getEvaluatedCells(sheetId: UID): EvaluatedCell[] {
