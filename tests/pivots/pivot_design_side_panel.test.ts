@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { setCellContent } from "../test_helpers/commands_helpers";
@@ -31,7 +32,7 @@ describe("Spreadsheet pivot side panel", () => {
     setGrid(model, grid);
 
     addPivot(model, "A1:C3", {}, "1");
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
   });
 

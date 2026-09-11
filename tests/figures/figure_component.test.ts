@@ -13,6 +13,7 @@ import { Component } from "../../src/owl3_compatibility_layer";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 
 import { downloadFile } from "../../src/components/helpers/dom_helpers";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { toXC } from "../../src/helpers/coordinates";
 import { render } from "../../src/helpers/owl3_helpers";
 import { figureRegistry } from "../../src/registries/figures_registry";
@@ -1403,7 +1404,7 @@ describe("figures", () => {
   test("Deleting a figure does not change the DOM focus if the figure was not focused", async () => {
     createFigure(model);
     await nextTick();
-    env.openSidePanel("FindAndReplace");
+    env.getStore(SidePanelStore).open("FindAndReplace");
     await nextTick();
 
     const panelInput = fixture.querySelector<HTMLElement>(".o-sidePanel input");

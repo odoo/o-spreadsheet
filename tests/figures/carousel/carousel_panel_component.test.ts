@@ -1,4 +1,5 @@
 import { CarouselData, Model, UID } from "../../../src";
+import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
 import { toZone } from "../../../src/helpers/zones";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
@@ -37,7 +38,7 @@ beforeEach(() => {
 
 async function mountCarouselPanel(modelArg: Model, figureId: UID) {
   ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
-  env.openSidePanel("CarouselPanel", { figureId });
+  env.getStore(SidePanelStore).open("CarouselPanel", { figureId });
   await nextTick();
 }
 

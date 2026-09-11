@@ -5,6 +5,7 @@ import { resetTimeoutDuration } from "../../src/components/helpers/touch_handler
 import { getDataFilterIcon } from "../../src/components/icons/icons";
 import { PaintFormatStore } from "../../src/components/paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../../src/components/popover/cell_popover_store";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import {
   DEFAULT_BORDER_DESC,
   DEFAULT_CELL_HEIGHT,
@@ -272,7 +273,7 @@ describe("Grid component", () => {
   });
 
   test("Can open the Conditional Format side panel", async () => {
-    parent.env.openSidePanel("ConditionalFormatting");
+    parent.env.getStore(SidePanelStore).open("ConditionalFormatting");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
   });

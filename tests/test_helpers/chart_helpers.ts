@@ -9,6 +9,7 @@ import {
   PixelDimension,
   UID,
 } from "../../src";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { FIRST_CHART_COLOR, toHex } from "../../src/helpers/color";
 import {
   areChartJSExtensionsLoaded,
@@ -109,7 +110,7 @@ export async function openChartConfigSidePanel(
     throw new Error(`No figure found for chart ID: ${chartId}`);
   }
   selectFigure(model, figureId);
-  env.openSidePanel("ChartPanel");
+  env.getStore(SidePanelStore).open("ChartPanel");
   await nextTick();
 }
 

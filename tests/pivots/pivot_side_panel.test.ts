@@ -1,4 +1,5 @@
 import { Model, SpreadsheetPivotCoreDefinition } from "../../src";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
@@ -32,7 +33,7 @@ describe("Pivot side panel", () => {
   });
 
   test("readonly panel is not clickable and greyed but remains scrollable", async () => {
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
 
     const sidePanel = fixture.querySelector(".o-sidePanel")!;
@@ -57,27 +58,27 @@ describe("Pivot side panel", () => {
   });
 
   test("It should open the pivot editor when pivotId is provided", async () => {
-    env.openSidePanel("PivotSidePanel", { pivotId: "2" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "2" });
     await nextTick();
     expect(fixture.querySelector(".o-sidePanelTitle")?.textContent).toEqual("Pivot #2");
   });
 
   test("Can change the active panel tab with the panel props", async () => {
-    env.openSidePanel("PivotSidePanel", { pivotId: "2", openTab: "design" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "2", openTab: "design" });
     await nextTick();
     expect(".o-sidePanel-tab.o-panel-design").not.toHaveClass("inactive");
 
-    env.openSidePanel("PivotSidePanel", { pivotId: "2" }); // defaults to configuration
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "2" }); // defaults to configuration
     await nextTick();
     expect(".o-sidePanel-tab.o-panel-design").toHaveClass("inactive");
 
-    env.openSidePanel("PivotSidePanel", { pivotId: "2", openTab: "design" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "2", openTab: "design" });
     await nextTick();
     expect(".o-sidePanel-tab.o-panel-design").not.toHaveClass("inactive");
   });
 
   test("It should close the side panel when clicking on delete in the editor", async () => {
-    env.openSidePanel("PivotSidePanel", { pivotId: "2" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "2" });
     await nextTick();
     expect(fixture.querySelector(".o-sidePanelTitle")?.textContent).toEqual("Pivot #2");
     await click(fixture, SELECTORS.COG_WHEEL);
@@ -88,7 +89,7 @@ describe("Pivot side panel", () => {
 
   test("Sidepanel pivot definition is properly reinitialized", async () => {
     removePivot(model, "1");
-    env.openSidePanel("PivotSidePanel", { pivotId: "2" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "2" });
     await nextTick();
     createSheet(model, { sheetId: "toDelete", activate: true });
     await nextTick();
@@ -99,7 +100,7 @@ describe("Pivot side panel", () => {
   });
 
   test("Side panel supports unbounded zone in definition", async () => {
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     await setInputValueAndTrigger(SELECTORS.ZONE_INPUT, "A:A");
     await nextTick();
@@ -122,7 +123,7 @@ describe("Pivot side panel", () => {
     const highlightStore = env.getStore(HighlightStore);
     expect(highlightStore.highlights.map((h) => zoneToXc(h.range.zone))).toEqual([]);
 
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     expect(getHighlightsFromStore(env).map((h) => zoneToXc(h.range.zone))).toEqual(["A5:A7"]);
 
@@ -151,7 +152,7 @@ describe("Pivot side panel", () => {
       ],
       sortedColumn: { domain: [], order: "asc", measure: "Amount times 2" },
     });
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
 
     const measureEl = fixture.querySelectorAll(".pivot-measure")[1];
@@ -183,7 +184,7 @@ describe("Pivot side panel", () => {
       dataSet: { sheetId: model.getters.getActiveSheetId(), zone: toZone("A1:E5") },
     });
 
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
 
     const customerDimEl = fixture.querySelectorAll(".pivot-dimension")[0];
@@ -218,7 +219,7 @@ describe("Pivot side panel", () => {
       computedBy: { formula: "=25", sheetId },
     };
     updatePivot(model, "1", { measures: [calculatedMeasure] });
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
 
     expect(".o-sidePanel .o-composer").toHaveText("=25");
@@ -256,7 +257,7 @@ describe("Pivot side panel", () => {
       dataSet: { sheetId: model.getters.getActiveSheetId(), zone: toZone("A1:C3") },
     });
 
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
 
     const yearDimensionEl = fixture.querySelectorAll(".pivot-dimension")[1];
@@ -289,7 +290,7 @@ describe("Pivot side panel", () => {
       dataSet: { sheetId: model.getters.getActiveSheetId(), zone: toZone("A1:C3") },
     });
 
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     expect(".o-measure-description").toHaveText(`Displayed as % of "Customer" : Alice`);
   });
@@ -316,7 +317,7 @@ describe("Pivot side panel", () => {
       dataSet: { sheetId: model.getters.getActiveSheetId(), zone: toZone("A1:C3") },
     });
 
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     expect(".o-measure-description").toHaveText(`Displayed as % of previous "Customer"`);
   });
@@ -347,7 +348,7 @@ describe("Pivot side panel", () => {
         },
       ],
     });
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
 
     const priceMeasureEl = fixture.querySelectorAll(".pivot-measure")[0];
@@ -392,7 +393,7 @@ describe("Pivot side panel", () => {
         },
       ],
     });
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
 
     const priceMeasureEl = fixture.querySelectorAll(".pivot-measure")[0];

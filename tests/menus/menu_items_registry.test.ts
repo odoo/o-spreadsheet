@@ -51,6 +51,7 @@ import { Currency, Model } from "../../src";
 import { ActionSpec, createAction, createActions } from "../../src/actions/action";
 import { FIRST_TABLE_IN_SELECTION } from "../../src/actions/menu_items_actions";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { FONT_SIZES } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
@@ -1242,7 +1243,8 @@ describe("Menu Item actions", () => {
     });
 
     test("Custom formats", async () => {
-      const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
+      const sidePanelStore = env.getStore(SidePanelStore);
+      const spyOpenSidePanel = jest.spyOn(sidePanelStore, "open");
 
       await doAction(["format", "format_number", "format_custom_currency"], env);
       expect(spyOpenSidePanel).toHaveBeenCalledWith("MoreFormats", { category: "currency" });
@@ -1445,7 +1447,8 @@ describe("Menu Item actions", () => {
   });
 
   test("Data -> Split to columns action", async () => {
-    const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
+    const sidePanelStore = env.getStore(SidePanelStore);
+    const spyOpenSidePanel = jest.spyOn(sidePanelStore, "open");
     await doAction(["data", "split_to_columns"], env);
     expect(spyOpenSidePanel).toHaveBeenCalledWith("SplitToColumns", {});
   });
@@ -1749,7 +1752,8 @@ describe("Menu Item actions", () => {
       });
 
       test("Edit -> Table (topbar)", async () => {
-        const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
+        const sidePanelStore = env.getStore(SidePanelStore);
+        const spyOpenSidePanel = jest.spyOn(sidePanelStore, "open");
         createTable(model, "A1:A5");
         const table = FIRST_TABLE_IN_SELECTION(env);
         expect(getName(editTablePath, env)).toBe("Edit table");
@@ -1764,7 +1768,8 @@ describe("Menu Item actions", () => {
       });
 
       test("Edit table (cellRegistry)", async () => {
-        const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
+        const sidePanelStore = env.getStore(SidePanelStore);
+        const spyOpenSidePanel = jest.spyOn(sidePanelStore, "open");
         createTable(model, "A1:A5");
         const table = FIRST_TABLE_IN_SELECTION(env);
         expect(getName(["edit_table"], env, cellMenuRegistry)).toBe("Edit table");
