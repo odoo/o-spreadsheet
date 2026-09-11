@@ -31,16 +31,12 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
       
     </div>
     
-    <div
-      class="os-canvas-background"
-    >
-      <canvas
-        class="os-theme-dependant"
-        height="1011"
-        style="width:1033px; height:1011px; "
-        width="1033"
-      />
-    </div>
+    <canvas
+      class="os-theme-dependant"
+      height="1011"
+      style="width:1033px; height:1011px; "
+      width="1033"
+    />
     
     
   </div>

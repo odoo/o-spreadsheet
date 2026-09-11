@@ -199,8 +199,7 @@
       outline: none;
     }
 
-    > canvas {
-      box-sizing: content-box;
+    > .os-canvas-background > canvas {
       border-bottom: 1px solid var(--os-canvas-border-color);
       border-right: 1px solid var(--os-canvas-border-color);
     }
