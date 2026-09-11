@@ -1,0 +1,30 @@
+<templates>
+  <t t-name="o-spreadsheet-DateSection">
+    <div class="mt-2 d-flex align-items-center gap-1 p-1 rounded">
+      Occurences by
+      <Select
+        class="'position-relative w-auto py-0 px-1 text-muted text-nowrap rounded border-0'"
+        popoverClass="'w-auto'"
+        values="this.granularityOptions"
+        selectedValue="this.state.granularity"
+        onChange.bind="this.onGranularitySelected"
+      />
+      <div
+        t-on-click="this.sortItems"
+        class="o-button-icon ms-auto d-flex align-items-center small text-right">
+        <t t-if="this.state.sortType === 'desc'" t-call="o-spreadsheet-Icon.ARROW_DOWNWARD"/>
+        <t t-if="this.state.sortType === 'asc'" t-call="o-spreadsheet-Icon.ARROW_UPWARD"/>
+        <t t-if="this.state.sortType === 'chrono'" t-call="o-spreadsheet-Icon.SWAP_VERT"/>
+      </div>
+    </div>
+    <t t-foreach="this.state.displayedValues" t-as="stat" t-key="stat_index">
+      <t t-if="stat.value !== '0'">
+        <StatisticItem
+          stat="stat"
+          onHover.bind="this.hoverStat"
+          computePercentage.bind="this.computePercentage"
+        />
+      </t>
+    </t>
+  </t>
+</templates>

@@ -1,8 +1,8 @@
-import { CellValueType, EvaluatedCell } from "../types/cells";
-import { Getters } from "../types/getters";
-import { Zone } from "../types/misc";
-import { isDateTimeFormat } from "./format/format";
-import { getZonesByColumns } from "./zones";
+import { CellValueType, EvaluatedCell } from "../../types/cells";
+import { Getters } from "../../types/getters";
+import { Zone } from "../../types/misc";
+import { isDateTimeFormat } from "../format/format";
+import { getZonesByColumns } from "../zones";
 
 export type ExtendedColumnType =
   | "error"

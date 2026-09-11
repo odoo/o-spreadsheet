@@ -1,3 +1,11 @@
+import { analyzeColumns, ExtendedColumnType } from "../../../helpers/data_statistics/data_analysis";
+import { StatSection, StatValue } from "../../../helpers/data_statistics/statistics_items";
+import {
+  buildBooleanItems,
+  buildDateStatSections,
+  buildGeneralStatItems,
+  buildOccurenciesItems,
+} from "../../../helpers/data_statistics/statistics_suggestion";
 import {
   ChartSuggestion,
   getChartSuggestions,
@@ -10,6 +18,10 @@ import { Get } from "../../../types/store_engine";
 
 export class DataAnalysisStore extends SpreadsheetStore {
   mutators = [] as const;
+  shape: ExtendedColumnType[] = [];
+  generalStatItems: StatValue[] = [];
+  occurenciesItems: StatValue[] = [];
+  dateStatSections: StatSection[] = [];
   hasData: boolean = false;
   chartSuggestions: ChartSuggestion[] = [];
   private isDirty = false;
@@ -66,8 +78,33 @@ export class DataAnalysisStore extends SpreadsheetStore {
         .getEvaluatedCellsInZone(sheetId, zone)
         .some((cell) => cell.type !== CellValueType.empty)
     );
+    const cols = analyzeColumns(zones, this.getters);
+    this.shape = cols.map((c) => c.type);
+    const nonEmpty = cols.filter((c) => c.type !== "empty");
 
-    const suggestions = this.hasData ? getChartSuggestions(zones, this.getters) : [];
+    const suggestions = this.hasData ? getChartSuggestions(this.shape, nonEmpty, this.getters) : [];
     this.chartSuggestions = suggestions;
+    if (!this.hasData) {
+      this.generalStatItems = [];
+      this.occurenciesItems = [];
+      this.dateStatSections = [];
+      return;
+    }
+    const numberOfColumns = nonEmpty.length;
+    if (numberOfColumns === 1) {
+      this.generalStatItems = buildGeneralStatItems(this.getters, nonEmpty[0], sheetId);
+      this.occurenciesItems =
+        nonEmpty[0].type === "boolean"
+          ? buildBooleanItems(this.getters, nonEmpty[0], sheetId)
+          : buildOccurenciesItems(this.getters, nonEmpty[0], sheetId);
+      this.dateStatSections =
+        nonEmpty[0].type === "date"
+          ? buildDateStatSections(this.getters, nonEmpty[0], sheetId)
+          : [];
+    } else {
+      this.generalStatItems = [];
+      this.occurenciesItems = [];
+      this.dateStatSections = [];
+    }
   }
 }

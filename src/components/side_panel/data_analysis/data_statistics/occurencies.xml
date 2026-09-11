@@ -1,0 +1,43 @@
+<templates>
+  <t t-name="o-spreadsheet-Occurencies">
+    <div class="fw-bold text-muted d-flex justify-content-between">
+      <div class="d-flex">
+        <span>Categories</span>
+        <div t-on-click="this.sortItemsByName" class="o-button-icon mx-2 d-flex small text-end">
+          <t t-if="this.listState.namesSortType === 'desc'" t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+          <t t-if="this.listState.namesSortType === 'asc'" t-call="o-spreadsheet-Icon.CARET_UP"/>
+          <t t-if="this.listState.namesSortType === 'none'" t-call="o-spreadsheet-Icon.CARET_SORT"/>
+        </div>
+      </div>
+      <div class="d-flex">
+        <span>Count</span>
+        <div
+          t-on-click="this.sortItemsByValues"
+          class="o-button-icon ms-auto mx-2 d-flex small text-end">
+          <t
+            t-if="this.listState.valuesSortType === 'desc'"
+            t-call="o-spreadsheet-Icon.ARROW_DOWNWARD"
+          />
+          <t
+            t-if="this.listState.valuesSortType === 'asc'"
+            t-call="o-spreadsheet-Icon.ARROW_UPWARD"
+          />
+          <t t-if="this.listState.valuesSortType === 'none'" t-call="o-spreadsheet-Icon.SWAP_VERT"/>
+        </div>
+      </div>
+    </div>
+    <t t-foreach="this.listState.displayedValues" t-as="stat" t-key="stat_index">
+      <StatisticItem
+        stat="stat"
+        onHover.bind="this.hoverStat"
+        computePercentage.bind="this.computePercentage"
+      />
+    </t>
+    <div
+      t-if="this.listState.hasMoreValues"
+      class="o-button-link d-flex justify-content-center py-1"
+      t-on-click="this.loadMoreValues">
+      Load more...
+    </div>
+  </t>
+</templates>
