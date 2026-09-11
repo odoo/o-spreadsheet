@@ -1332,6 +1332,14 @@ export function clearFormatting(
   return model.dispatch("CLEAR_FORMATTING", { sheetId, target: target(targetXc) });
 }
 
+export function clearAllStyling(
+  model: Model,
+  targetXc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("CLEAR_ALL_STYLING", { sheetId, target: target(targetXc) });
+}
+
 /**
  * Freeze a given number of rows on top of the sheet
  */
