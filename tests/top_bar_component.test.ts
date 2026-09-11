@@ -154,12 +154,8 @@ class Comp2 extends Comp {
 }
 
 async function mountParent(model: Model = new Model(), testEnv?: Partial<SpreadsheetChildEnv>) {
-  const partialEnv = {
-    ...testEnv,
-    model,
-  };
   let parent: Component;
-  ({ parent, fixture, env, viewStore } = await mountComponent(Parent, { env: partialEnv }));
+  ({ parent, fixture, env, viewStore } = await mountComponent(Parent, { model, env: testEnv }));
   return { parent: parent as Parent, model, fixture, viewStore };
 }
 
