@@ -6,8 +6,10 @@ export class SubtotalEvaluationPlugin extends EvaluationPlugin {
   };
 
   private invalidateSubtotalFormulas() {
-    this.dispatch("EVALUATE_CELLS", {
-      cellIds: this.getters.getCellsWithTrackedFormula("SUBTOTAL"),
-    });
+    if (this.getters.isAutomaticEvaluationEnabled()) {
+      this.dispatch("EVALUATE_CELLS", {
+        cellIds: this.getters.getCellsWithTrackedFormula("SUBTOTAL"),
+      });
+    }
   }
 }
