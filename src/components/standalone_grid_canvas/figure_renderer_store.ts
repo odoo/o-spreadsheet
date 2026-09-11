@@ -104,7 +104,7 @@ export class FigureRendererStore extends DisposableStore {
     ctx.clip();
 
     ctx.fillStyle =
-      chartDefinition?.background || this.getters.getSpreadsheetTheme().backgroundColor;
+      chartDefinition?.background || this.getters.getSpreadsheetTheme().chartBackgroundColor;
     ctx.fillRect(figureRect.x, figureRect.y, figureRect.width, figureRect.height);
 
     const title = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...carousel.title };

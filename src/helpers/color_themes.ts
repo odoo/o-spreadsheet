@@ -1,3 +1,4 @@
+import { Color } from "../types/misc";
 import { ColorThemeName, GridRenderingTheme } from "../types/rendering";
 import { adaptForDarkMode } from "./color";
 
@@ -9,33 +10,59 @@ const BACKGROUND_HEADER_COLOR = "#F8F9FA";
 const BACKGROUND_HEADER_SELECTED_COLOR = "#E8EAED";
 const BACKGROUND_HEADER_ACTIVE_COLOR = "#595959";
 
+type ThemeColors = Omit<GridRenderingTheme, "colorThemeName">;
+
+/**
+ * Every colour of the theme is drawn on a surface carrying the `os-theme-dependant` class, so in
+ * dark mode it goes through the dark mode CSS filter. The values below are therefore the colours we
+ * want to *see*, and are pre-inverted in one pass so a new field cannot forget to be adapted.
+ *
+ * Note this only works because these colours are hand-picked: `adaptForDarkMode` is not a general
+ * purpose converter (it clamps, see its docstring), so a colour chosen at runtime by someone else —
+ * an integrator's background, for instance — cannot go through here. Those must not be drawn on the
+ * canvas at all; see `--os-canvas-background-color`.
+ */
+function adaptColorsForDarkMode(colors: ThemeColors): ThemeColors {
+  const adapted = {} as ThemeColors;
+  for (const key of Object.keys(colors) as (keyof ThemeColors)[]) {
+    adapted[key] = adaptForDarkMode(colors[key] as Color);
+  }
+  return adapted;
+}
+
+const LIGHT_COLORS: ThemeColors = {
+  chartBackgroundColor: "#FFFFFF",
+  gridBorderColor: "#CECFCF",
+  gridBorderColorOnDefaultBackground: "#E2E3E3",
+  headerBackgroundColor: BACKGROUND_HEADER_COLOR,
+  headerActiveBackgroundColor: BACKGROUND_HEADER_ACTIVE_COLOR,
+  headerSelectedBackgroundColor: BACKGROUND_HEADER_SELECTED_COLOR,
+  headerTextColor: TEXT_HEADER_COLOR,
+  headerBorderColor: HEADER_BORDER_COLOR,
+  frozenPaneBorderColor: FROZEN_PANE_BORDER_COLOR,
+  frozenPaneHeaderBorderColor: FROZEN_PANE_HEADER_BORDER_COLOR,
+  // Translucent so they composite over whatever is behind the cell, including the transparent
+  // canvas. These composite over white to #F3F7FE and #E9F0FF, the opaque colours they replace.
+  singleCellSelectionBackgroundColor: "#D2E1FB44",
+  multipleCellsSelectionBackgroundColor: "#ACC7FF44",
+};
+
+const DARK_DISPLAYED_COLORS: ThemeColors = {
+  chartBackgroundColor: "#25262b",
+  gridBorderColor: "#6B706F",
+  gridBorderColorOnDefaultBackground: "#4F5254",
+  headerBackgroundColor: "#262A36",
+  headerActiveBackgroundColor: "#3A4052",
+  headerSelectedBackgroundColor: "#4E566E",
+  headerTextColor: "#A1A6B3",
+  headerBorderColor: "#7A7F91",
+  frozenPaneBorderColor: "#7A7F91",
+  frozenPaneHeaderBorderColor: "#9FA5BD",
+  singleCellSelectionBackgroundColor: "#696E8044",
+  multipleCellsSelectionBackgroundColor: "#828AA044",
+};
+
 export const COLOR_THEMES: Record<ColorThemeName, GridRenderingTheme> = {
-  light: {
-    colorThemeName: "light",
-    backgroundColor: "#FFFFFF",
-    gridBorderColor: "#CECFCF",
-    headerBackgroundColor: BACKGROUND_HEADER_COLOR,
-    headerActiveBackgroundColor: BACKGROUND_HEADER_ACTIVE_COLOR,
-    headerSelectedBackgroundColor: BACKGROUND_HEADER_SELECTED_COLOR,
-    headerTextColor: TEXT_HEADER_COLOR,
-    headerBorderColor: HEADER_BORDER_COLOR,
-    frozenPaneBorderColor: FROZEN_PANE_BORDER_COLOR,
-    frozenPaneHeaderBorderColor: FROZEN_PANE_HEADER_BORDER_COLOR,
-    singleCellSelectionBackgroundColor: "#F3F7FE",
-    multipleCellsSelectionBackgroundColor: "#E9F0FF",
-  },
-  dark: {
-    colorThemeName: "dark",
-    backgroundColor: adaptForDarkMode("#25262b"),
-    gridBorderColor: adaptForDarkMode("#6B706F"),
-    headerBackgroundColor: adaptForDarkMode("#262A36"),
-    headerActiveBackgroundColor: adaptForDarkMode("#3A4052"),
-    headerSelectedBackgroundColor: adaptForDarkMode("#4E566E"),
-    headerTextColor: adaptForDarkMode("#A1A6B3"),
-    headerBorderColor: adaptForDarkMode("#7A7F91"),
-    frozenPaneBorderColor: adaptForDarkMode("#7A7F91"),
-    frozenPaneHeaderBorderColor: adaptForDarkMode("#9FA5BD"),
-    singleCellSelectionBackgroundColor: adaptForDarkMode("#696E8044"),
-    multipleCellsSelectionBackgroundColor: adaptForDarkMode("#828AA044"),
-  },
+  light: { colorThemeName: "light", ...LIGHT_COLORS },
+  dark: { colorThemeName: "dark", ...adaptColorsForDarkMode(DARK_DISPLAYED_COLORS) },
 };

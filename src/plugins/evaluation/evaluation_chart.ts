@@ -87,7 +87,7 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
     mainRange: Range | undefined,
     colorThemeName: ColorThemeName
   ): EvaluationChartStyle {
-    const themeBackground = COLOR_THEMES[colorThemeName].backgroundColor;
+    const themeBackground = COLOR_THEMES[colorThemeName].chartBackgroundColor;
     if (chartBackground) {
       return { background: chartBackground, fontColor: chartFontColor(chartBackground) };
     }

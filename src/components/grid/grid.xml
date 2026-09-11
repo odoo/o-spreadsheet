@@ -24,7 +24,7 @@
         onInputContextMenu.bind="this.onInputContextMenu"
       />
       <div class="os-canvas-background">
-        <canvas t-ref="this.canvasRef" class="os-canvas-background"/>
+        <canvas t-ref="this.canvasRef" class="os-theme-dependant pe-none"/>
       </div>
       <t t-set="focused" t-value="this.focusedClients"/>
       <t t-foreach="this.clientsToDisplay" t-as="client" t-key="this.getClientPositionKey(client)">

@@ -1,9 +1,16 @@
 <templates>
   <t t-name="o-spreadsheet-SpreadsheetDashboard">
-    <div
-      class="o-dashboard-background position-absolute w-100 h-100 z-0 os-theme-dependant"
-      t-att-style="this.backgroundStyle"
-    />
+    <!--
+      Two layers: the outer one carries the integrator's background and must stay outside the dark
+      mode filter to be displayed as-is. The inner one carries the sheet colour, a user colour, and
+      is filtered like any other user colour. It is transparent when no sheet colour is set.
+    -->
+    <div class="o-dashboard-background os-canvas-background position-absolute w-100 h-100 z-0">
+      <div
+        class="o-dashboard-sheet-background w-100 h-100 os-theme-dependant"
+        t-att-style="this.backgroundStyle"
+      />
+    </div>
     <div
       class="o-grid o-dashboard-grid o-two-columns o-zoomable z-1"
       tabindex="-1"

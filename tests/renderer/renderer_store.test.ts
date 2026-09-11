@@ -23,7 +23,13 @@ import {
   SELECTION_BORDER_COLOR,
   TABLE_HOVER_BACKGROUND_COLOR,
 } from "../../src/constants";
-import { blendColors, toHex } from "../../src/helpers/color";
+import {
+  blendColors,
+  colorToRGBA,
+  isColorValid,
+  isSameColor,
+  toHex,
+} from "../../src/helpers/color";
 import { COLOR_THEMES } from "../../src/helpers/color_themes";
 import { fontSizeInPixels, getContextFontSize } from "../../src/helpers/text_helper";
 import { toZone } from "../../src/helpers/zones";
@@ -52,6 +58,7 @@ import {
   paste,
   resizeColumns,
   resizeRows,
+  selectCell,
   setCellContent,
   setCellFormat,
   setFormat,
@@ -511,6 +518,78 @@ describe("renderer", () => {
       { color: background, h: 23, w: 96, x: 0, y: 0 },
       { color: hoverColor, h: 23, w: 96, x: 0, y: 0 },
     ]);
+  });
+
+  test("hovered clickable cell without a fill colour draws the overlay colour translucent", () => {
+    const { drawGridRenderer, model, container } = setRenderer(
+      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+    );
+    const sheetId = model.getters.getSheetIds()[0];
+    setCellContent(model, "A1", "Data");
+    // A1 has no fill colour of its own, so the overlay has nothing to blend against.
+    container
+      .get(CellHoverOverlayStore)
+      .register({ getHighlightedPositions: () => [{ sheetId, col: 0, row: 0 }] });
+
+    const fillStyles: string[] = [];
+    let fillStyle = "";
+    const ctx = new MockGridRenderingContext(model, container, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "fillStyle") {
+          fillStyle = value;
+        }
+      },
+      onFunctionCall: (val) => {
+        if (val === "fillRect") {
+          fillStyles.push(fillStyle);
+        }
+      },
+    });
+
+    container.get(CellHoverOverlayStore).hover({ sheetId, col: 0, row: 0 });
+    drawGridRenderer(ctx);
+
+    // There is nothing to pre-blend against: the cell is transparent and the colour behind it is
+    // the CSS background, outside the dark mode filter. The overlay must stay translucent so the
+    // canvas composites it, rather than being blended against an assumed white.
+    expect(fillStyles).toContain(TABLE_HOVER_BACKGROUND_COLOR);
+    expect(fillStyles).not.toContain(blendColors("#FFFFFF", TABLE_HOVER_BACKGROUND_COLOR));
+  });
+
+  test("selection is drawn translucent so it does not hide the background", () => {
+    const { drawGridRenderer, model, container } = setRenderer(
+      new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] }),
+      ["Selection"]
+    );
+
+    const fillStyles: string[] = [];
+    let fillStyle = "";
+    const ctx = new MockGridRenderingContext(model, container, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "fillStyle") {
+          fillStyle = value;
+        }
+      },
+      onFunctionCall: (val) => {
+        if (val === "fillRect") {
+          fillStyles.push(fillStyle);
+        }
+      },
+    });
+
+    selectCell(model, "A1");
+    drawGridRenderer(ctx);
+
+    // The selection is drawn with "multiply", which leaves the source untouched over the
+    // transparent parts of the canvas. An opaque colour would therefore paint a block hiding the
+    // background instead of shading it, so the colour has to be translucent.
+    const selectionFills = fillStyles.filter((color) =>
+      isSameColor(color, COLOR_THEMES.light.singleCellSelectionBackgroundColor)
+    );
+    expect(selectionFills).not.toHaveLength(0);
+    for (const color of selectionFills) {
+      expect(colorToRGBA(color).a).toBeLessThan(1);
+    }
   });
 
   test("fillstyle of merge works with CF", () => {
@@ -1689,7 +1768,8 @@ describe("renderer", () => {
     // Default Model displaying grid lines
     strokeColors = [];
     drawGridRenderer(ctx);
-    expect(strokeColors).toContain(toHex("#E2E3E3"));
+    // This sheet has no background of its own, so the lines use the pre-blended colour.
+    expect(strokeColors).toContain(toHex(COLOR_THEMES.light.gridBorderColorOnDefaultBackground));
     expect(strokeColors).toContain(toHex(SELECTION_BORDER_COLOR));
 
     // model without grid lines
@@ -1799,15 +1879,14 @@ describe("renderer", () => {
 
   describe("Overflowing cells background", () => {
     let model: Model;
-    let fillWhiteRectInstructions: number[][];
+    let clearRectInstructions: number[][];
+    let fillRectInstructionsByColor: Record<string, number[][]>;
     let ctx: MockGridRenderingContext;
     let drawGridRenderer: (ctx: GridRenderingContext) => void;
     let gridRendererStore: GridRenderer;
     let container: DependencyContainer;
 
-    function getCellOverflowingBackgroundDims() {
-      // first draw of white rectangle is the spreadsheet's background
-      const instruction = fillWhiteRectInstructions[1];
+    function toDims(instruction: number[] | undefined) {
       if (!instruction) {
         return undefined;
       }
@@ -1819,21 +1898,35 @@ describe("renderer", () => {
       };
     }
 
+    /**
+     * Without a sheet background the corridor is cleared rather than filled, so the canvas stays
+     * transparent and the CSS background shows through. The first clearRect is the whole-canvas
+     * clear done by drawGlobalBackground.
+     */
+    function getCellOverflowingBackgroundDims() {
+      return toDims(clearRectInstructions[1]);
+    }
+
     beforeEach(() => {
       ({ drawGridRenderer, model, gridRendererStore, container } = setRenderer(
         new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] })
       ));
-      fillWhiteRectInstructions = [];
-      let drawingWhiteBackground = false;
+      clearRectInstructions = [];
+      fillRectInstructionsByColor = {};
+      let currentFillStyle: string | undefined = undefined;
       ctx = new MockGridRenderingContext(model, container, 1000, 1000, {
         onSet: (key, value) => {
-          drawingWhiteBackground = key === "fillStyle" && toHex(value) === "#FFFFFF";
-        },
-        onFunctionCall: (key, args) => {
-          if (key !== "fillRect" || !drawingWhiteBackground) {
+          if (key !== "fillStyle") {
             return;
           }
-          fillWhiteRectInstructions.push(args);
+          currentFillStyle = isColorValid(value) ? toHex(value) : undefined;
+        },
+        onFunctionCall: (key, args) => {
+          if (key === "clearRect") {
+            clearRectInstructions.push(args);
+          } else if (key === "fillRect" && currentFillStyle) {
+            (fillRectInstructionsByColor[currentFillStyle] ||= []).push(args);
+          }
         },
       });
     });
@@ -1887,6 +1980,25 @@ describe("renderer", () => {
 
       const box = getBoxFromText(gridRendererStore, overflowingText);
       expect(getCellOverflowingBackgroundDims()).toMatchObject({
+        x: box.x + ctx.thinLineWidth / 2,
+        y: box.y + ctx.thinLineWidth / 2,
+        width: box.content!.width - ctx.thinLineWidth * 2,
+        height: box.height - ctx.thinLineWidth,
+      });
+    });
+
+    test("Overflowing background is filled with the sheet background, not cleared", () => {
+      const overflowingText = "Text longer than a column";
+      setSheetBackground(model, "#F2B2B7");
+      setCellContent(model, "A1", overflowingText);
+      resizeColumns(model, ["A"], 10);
+      drawGridRenderer(ctx);
+
+      // Clearing here would punch a transparent hole through the sheet background.
+      expect(clearRectInstructions).toHaveLength(0);
+      const box = getBoxFromText(gridRendererStore, overflowingText);
+      // The first fill of that colour is the whole-canvas background, the second is the corridor.
+      expect(toDims(fillRectInstructionsByColor["#F2B2B7"]?.[1])).toMatchObject({
         x: box.x + ctx.thinLineWidth / 2,
         y: box.y + ctx.thinLineWidth / 2,
         width: box.content!.width - ctx.thinLineWidth * 2,

@@ -97,8 +97,25 @@ export type ColorThemeName = "light" | "dark";
 
 export interface GridRenderingTheme {
   colorThemeName: ColorThemeName;
-  backgroundColor: string;
+  /**
+   * Default background of a chart. Deliberately NOT the background of the grid: the grid canvas is
+   * transparent where no cell colour is drawn, and its background comes from the
+   * `--os-canvas-background-color` CSS variable so integrators can override it. Painting this on the
+   * grid would ignore that override, so no such field exists here.
+   */
+  chartBackgroundColor: string;
+  /**
+   * Base colour of the grid lines. Blended with the sheet background at draw time so the lines pick
+   * up its tint while staying opaque — they are drawn opaque because adjacent boxes stroke their
+   * shared border twice, which a translucent stroke would darken.
+   */
   gridBorderColor: string;
+  /**
+   * Used instead when the sheet has no background: the canvas is transparent there and the colour
+   * behind it lives outside the dark mode filter, so there is nothing to blend against. This is
+   * `gridBorderColor` already blended with the default background.
+   */
+  gridBorderColorOnDefaultBackground: string;
   headerBackgroundColor: string;
   headerActiveBackgroundColor: string;
   headerSelectedBackgroundColor: string;

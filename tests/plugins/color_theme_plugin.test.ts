@@ -54,10 +54,10 @@ describe("ColorThemeUIPlugin via Model getters", () => {
       }
     );
     let theme = model.getters.getSpreadsheetTheme();
-    expect(theme.backgroundColor.toUpperCase()).toBe(expectedLightTheme.backgroundColor);
+    expect(theme.chartBackgroundColor.toUpperCase()).toBe(expectedLightTheme.chartBackgroundColor);
 
     updateColorScheme(model, "dark");
     theme = model.getters.getSpreadsheetTheme();
-    expect(theme.backgroundColor.toUpperCase()).toBe(expectedDarkTheme.backgroundColor);
+    expect(theme.chartBackgroundColor.toUpperCase()).toBe(expectedDarkTheme.chartBackgroundColor);
   });
 });
