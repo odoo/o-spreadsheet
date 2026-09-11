@@ -1,4 +1,4 @@
-import { ColorThemeName } from "../../..";
+import { ColorThemeName, EvaluationGetters } from "../../..";
 import {
   DEFAULT_GAUGE_LOWER_COLOR,
   DEFAULT_GAUGE_MIDDLE_COLOR,
@@ -20,7 +20,6 @@ import {
 import { CommandResult } from "../../../types/commands";
 import { CellErrorType } from "../../../types/errors";
 import { Format } from "../../../types/format";
-import { Getters } from "../../../types/getters";
 import { Color, UID, Validation } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { formatOrHumanizeValue, humanizeNumber } from "../../format/format";
@@ -264,7 +263,7 @@ export const GaugeChart: ChartTypeBuilder<"gauge"> = {
   },
 
   getRuntime(
-    getters: Getters,
+    getters,
     definition,
     dataSource,
     sheetId,
@@ -390,7 +389,7 @@ function getSectionThresholdValue(
   threshold: SectionThreshold,
   minValue: number,
   maxValue: number,
-  getters: Getters
+  getters: EvaluationGetters
 ): number | undefined {
   const numberValue = getFormulaNumberValue(sheetId, threshold.value, getters);
   if (numberValue === undefined) {
@@ -403,7 +402,7 @@ function getSectionThresholdValue(
   return clip(value, minValue, maxValue);
 }
 
-function getFormulaNumberValue(sheetId: UID, formula: string, getters: Getters) {
+function getFormulaNumberValue(sheetId: UID, formula: string, getters: EvaluationGetters) {
   const value = getters.evaluateFormula(sheetId, formula);
   return isMultipleElementMatrix(value)
     ? undefined
@@ -412,7 +411,7 @@ function getFormulaNumberValue(sheetId: UID, formula: string, getters: Getters) 
 
 function getInvalidGaugeRuntime(
   definition: GaugeChartDefinition<Range>,
-  getters: Getters,
+  getters: EvaluationGetters,
   colorThemeName: ColorThemeName
 ): GaugeChartRuntime {
   return {
