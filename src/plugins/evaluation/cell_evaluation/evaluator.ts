@@ -64,6 +64,7 @@ export class Evaluator {
   private evaluatedCells: PositionMap<EvaluatedCell> = new PositionMap();
   private formulaDependencies = lazy(new FormulaDependencyGraph());
   private blockedArrayFormulas = new PositionSet({});
+  private arePositionSetsInitialized = false;
   private spreadingRelations = new SpreadingRelation();
   private perfProfile: PerfProfile | undefined;
 
@@ -211,9 +212,25 @@ export class Evaluator {
    * directly modified cell without triggering a potentially expensive cascade.
    */
   evaluateCellsWithoutCascade(positions: CellPosition[]) {
+    // the dependency graph is never built while the evaluation is disabled, so
+    // the position sets it usually sizes may still be empty.
+    this.initializePositionSets();
     const rangesToCompute = new RangeSet();
     rangesToCompute.addManyPositions(positions);
     this.evaluate(rangesToCompute);
+  }
+
+  /**
+   * Size the position sets for the current sheets, unless it has already been
+   * done. They cannot be sized at construction because the sheets are not
+   * loaded yet.
+   */
+  private initializePositionSets() {
+    if (this.arePositionSetsInitialized) {
+      return;
+    }
+    this.blockedArrayFormulas = this.createEmptyPositionSet();
+    this.arePositionSetsInitialized = true;
   }
 
   private getArrayFormulasImpactedByChangesOf(positions: Iterable<CellPosition>): RangeSet {
@@ -239,6 +256,7 @@ export class Evaluator {
 
   buildDependencyGraph() {
     this.blockedArrayFormulas = this.createEmptyPositionSet();
+    this.arePositionSetsInitialized = true;
     this.spreadingRelations = new SpreadingRelation();
     this.formulaDependencies = lazy(() => {
       const graph = new FormulaDependencyGraph();

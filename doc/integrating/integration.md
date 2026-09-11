@@ -76,6 +76,7 @@ const model = new Model(data, config);
   - `client` Client information (name, id). Used in collaborative context to indicate the positions of all clients.
   - `defaultCurrencyFormat`: currency format proposed in the menu. e.g. `"[$€]#,##0.00"` for Euro (defaults to `"[$$]#,##0.00"`)
   - `snapshotRequested` Boolean that set to true will indicate to the session that a snapshot has to be done after the loading of revisions.
+  - `automaticEvaluation` Boolean, defaults to `true`. Set it to `false` to start the model in manual evaluation mode, without evaluating anything. Useful to open and inspect a spreadsheet whose evaluation is too heavy.
 
 - `stateUpdateMessages`
   An array with revisions to apply before the model is started
