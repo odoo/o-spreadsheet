@@ -16,6 +16,7 @@ export interface EvaluationPluginConfig {
   readonly defaultCurrency?: Partial<Currency>;
   readonly customColors: Color[];
   readonly external: ModelConfig["external"];
+  readonly automaticEvaluation?: boolean;
 }
 
 export interface EvaluationPluginConstructor {

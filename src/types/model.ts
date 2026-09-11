@@ -34,6 +34,16 @@ export interface ModelConfig {
   readonly raiseBlockingErrorUI: (text: string) => void;
   readonly customColors: Color[];
   readonly colorScheme?: ColorThemeName;
+  /**
+   * Initial state of the automatic evaluation mode. When `false`, the model starts
+   * with automatic evaluation disabled: no formula is evaluated at startup, and
+   * formula cells render blank until an `EVALUATE_CELLS` (F9) or
+   * `SET_AUTOMATIC_EVALUATION` command. Literal cells are still displayed, see the
+   * LITERAL FALLBACK section of the cell evaluation plugin.
+   * A cell modified afterwards is still evaluated on its own, without cascading to
+   * the cells depending on it, as in manual evaluation mode. Defaults to `true`.
+   */
+  readonly automaticEvaluation?: boolean;
 }
 
 export interface ModelExternalConfig {

@@ -1,5 +1,6 @@
 import { CompiledFormula } from "../../../formulas/compiler";
 import { matrixMap } from "../../../functions/helpers";
+import { evaluateLiteral } from "../../../helpers/cells/cell_evaluation";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
 import { positions } from "../../../helpers/zones";
@@ -164,13 +165,17 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
 
   private shouldRebuildDependenciesGraph = true;
   private forceEvaluation = false;
-  private automaticEvaluation: boolean = true;
+  private automaticEvaluation: boolean;
+  /** see LITERAL FALLBACK below */
+  private readonly literalFallback: boolean;
 
   private evaluator: Evaluator;
   private positionsToUpdate: CellPosition[] = [];
 
   constructor(config: EvaluationPluginConfig) {
     super(config);
+    this.automaticEvaluation = config.automaticEvaluation ?? true;
+    this.literalFallback = config.automaticEvaluation === false;
     this.evaluator = new Evaluator(config.custom, this.getters);
   }
 
@@ -202,13 +207,20 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
   handle(cmd: EvaluationCommand) {
     switch (cmd.type) {
       case "UPDATE_CELL":
-        if (!("content" in cmd || "format" in cmd) || this.shouldRebuildDependenciesGraph) {
+        if (!("content" in cmd || "format" in cmd)) {
+          return;
+        }
+        if (this.shouldRebuildDependenciesGraph && this.shouldPerformEvaluation()) {
+          // every cell is about to be re-evaluated anyway
           return;
         }
         const position = { sheetId: cmd.sheetId, row: cmd.row, col: cmd.col };
         this.positionsToUpdate.push(position);
 
-        if ("content" in cmd) {
+        if ("content" in cmd && !this.shouldRebuildDependenciesGraph) {
+          // the dependency graph does not exist yet. Building it here would defeat
+          // the purpose of disabling the evaluation: it is built from scratch by
+          // the next evaluation instead.
           this.evaluator.updateDependencies(position);
         }
         break;
@@ -308,8 +320,42 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
   }
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
-    return this.evaluator.getEvaluatedCell(position);
+    const evaluatedCell = this.evaluator.getEvaluatedCell(position);
+    if (this.literalFallback && evaluatedCell.type === CellValueType.empty) {
+      return this.getLiteralFallback(position) || evaluatedCell;
+    }
+    return evaluatedCell;
   }
+
+  // ---------------------------------------------------------------------------
+  // LITERAL FALLBACK - delete this section to get a fully blank grid back
+  // ---------------------------------------------------------------------------
+  // When the model is created with `automaticEvaluation: false`, nothing is
+  // evaluated, which means nothing is displayed either: a cell containing the
+  // text "hello" renders as blank, because the whole rendering path reads
+  // evaluated cells. That makes the spreadsheet impossible to inspect, which is
+  // the main reason to open one without evaluating it.
+  //
+  // So literal cells - and only those - are evaluated on the fly when read.
+  // It costs nothing close to a real evaluation: no dependency graph, no formula
+  // execution, no cascade. Formula cells are left empty, they are the expensive
+  // ones. Use `SET_FORMULA_VISIBILITY` to read their content.
+  //
+  // Note this is a display fallback only: the result is not stored, so
+  // `getEvaluatedCells` and `getEvaluatedCellsPositions` still report that
+  // nothing was evaluated, and the cell is re-evaluated on every read.
+  private getLiteralFallback(position: CellPosition): EvaluatedCell | undefined {
+    const cell = this.getters.getCell(position);
+    if (!cell || cell.isFormula) {
+      return undefined;
+    }
+    return evaluateLiteral(
+      cell,
+      { format: this.getters.getCellFormat(position), locale: this.getters.getLocale() },
+      position
+    );
+  }
+  // --------------------------- end LITERAL FALLBACK --------------------------
 
   getEvaluatedCells(sheetId: UID): EvaluatedCell[] {
     return this.evaluator

@@ -76,6 +76,7 @@ const model = new Model(data, config);
   - `client` Client information (name, id). Used in collaborative context to indicate the positions of all clients.
   - `defaultCurrencyFormat`: currency format proposed in the menu. e.g. `"[$€]#,##0.00"` for Euro (defaults to `"[$$]#,##0.00"`)
   - `snapshotRequested` Boolean that set to true will indicate to the session that a snapshot has to be done after the loading of revisions.
+  - `automaticEvaluation` Boolean, defaults to `true`. Set it to `false` to start the model with automatic evaluation disabled: no formula is evaluated at startup and formula cells stay blank until an `EVALUATE_CELLS` command (F9) or `SET_AUTOMATIC_EVALUATION` is dispatched. Literal cells are still displayed, and a cell modified in the meantime is still evaluated on its own, without cascading to the cells depending on it, as in manual evaluation mode. Useful to open a spreadsheet whose evaluation is too heavy, and inspect it.
   - `notifyUI` Function that will be called whenever something has to be asked to the user.
 
 - `stateUpdateMessages`

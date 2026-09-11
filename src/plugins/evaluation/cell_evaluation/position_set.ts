@@ -44,7 +44,9 @@ export class PositionSet {
   }
 
   has(position: CellPosition) {
-    return this.sheets[position.sheetId].getValue(position) === 1;
+    // the sheet is missing when the set has not been sized yet, which happens
+    // when the dependency graph was never built (evaluation never ran).
+    return this.sheets[position.sheetId]?.getValue(position) === 1;
   }
 
   clear(): CellPosition[] {
