@@ -438,7 +438,7 @@ export async function mountComponent<Props extends ComponentProps>(
   component: ComponentConstructor<SpreadsheetChildEnv>,
   optionalArgs: MountComponentArgs<Props> = {}
 ): Promise<MountComponentReturn<PortalParentProps>> {
-  const model = optionalArgs.model || optionalArgs.env?.model || new Model();
+  const model = optionalArgs.model || new Model();
   const args = {
     ...optionalArgs,
     props: {
