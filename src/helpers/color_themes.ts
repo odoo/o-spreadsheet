@@ -1,4 +1,3 @@
-import { Color } from "../types/misc";
 import { ColorThemeName, GridRenderingTheme } from "../types/rendering";
 import { adaptForDarkMode } from "./color";
 
@@ -23,11 +22,9 @@ type ThemeColors = Omit<GridRenderingTheme, "colorThemeName">;
  * canvas at all; see `--os-canvas-background-color`.
  */
 function adaptColorsForDarkMode(colors: ThemeColors): ThemeColors {
-  const adapted = {} as ThemeColors;
-  for (const key of Object.keys(colors) as (keyof ThemeColors)[]) {
-    adapted[key] = adaptForDarkMode(colors[key] as Color);
-  }
-  return adapted;
+  return Object.fromEntries(
+    Object.entries(colors).map(([key, color]) => [key, adaptForDarkMode(color)])
+  ) as ThemeColors;
 }
 
 const LIGHT_COLORS: ThemeColors = {
@@ -47,6 +44,10 @@ const LIGHT_COLORS: ThemeColors = {
   multipleCellsSelectionBackgroundColor: "#ACC7FF44",
 };
 
+/** Every colour defined explicitely in the theme is expected to be subject to color-inverter mask applied
+ * through the css class `os-theme-dependant`. They are therefore pre-inverted for dark mode.
+ * Note that  according to `adaptForDarkMode` documentation, the resulting color will be an approximation of the pre-inverted color.
+ */
 const DARK_DISPLAYED_COLORS: ThemeColors = {
   chartBackgroundColor: "#25262b",
   gridBorderColor: "#6B706F",

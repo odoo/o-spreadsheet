@@ -935,11 +935,6 @@ export class GridSelectionPlugin extends UIPlugin {
       const { x, y, width, height } = viewports.getVisibleRect(sheetId, zone);
       const currentLineWidth = ctx.lineWidth;
       if (!isDarkMode) {
-        // Multiplying shades the cell without washing out its colour. It relies on the selection
-        // colours being translucent: over the transparent parts of the canvas "multiply" leaves the
-        // source as-is, so an opaque colour would paint a block hiding the background instead of
-        // shading it. Over an opaque backdrop a translucent colour multiplies to exactly the same
-        // result as the opaque colour it replaced.
         ctx.globalCompositeOperation = "multiply";
       }
       if (height === 0 || width === 0) {

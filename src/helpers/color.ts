@@ -454,7 +454,7 @@ function getHueRotateMatrix(degrees: number): number[][] {
  * stored in the theme so that, after the dark-mode CSS filter is applied, the
  * desired color is actually shown.
  *
- * This function computes the exact inverse of the DARK_MODE_FILTER chain.
+ * This function computes an approximate inverse of the DARK_MODE_FILTER chain.
  */
 export function adaptForDarkMode(displayedColor: Color): Color {
   const { r, g, b, a } = colorToRGBA(displayedColor);

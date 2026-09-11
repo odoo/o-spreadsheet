@@ -110,8 +110,6 @@ describe("Dashboard Pivot Sorting", () => {
     await mountSpreadsheet({ model });
     model.updateMode("dashboard");
     await nextTick();
-    // The cell has no fill colour, so the icon stays transparent and the grid background shows
-    // through. Painting white here would show a white square on any other background.
     expect(
       getElComputedStyle(".o-dashboard-clickable-cell .sorting-icon", "background-color")
     ).toBe("rgba(0, 0, 0, 0)");

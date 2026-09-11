@@ -154,14 +154,10 @@ describe("Grid component", () => {
 
   test("the canvas background is not affected by the dark mode filter", async () => {
     const background = fixture.querySelector(".os-canvas-background")!;
-    // It carries `--os-canvas-background-color`, which integrators override and which must be
-    // displayed as-is. Nesting it under `os-theme-dependant` would invert it in dark mode.
     expect(background).not.toBeNull();
     expect(background.closest(".os-theme-dependant")).toBeNull();
-    // The canvas itself must stay filtered: it is drawn with pre-inverted theme colours.
     const canvas = background.querySelector("canvas")!;
     expect(canvas.classList).toContain("os-theme-dependant");
-    // And it must not swallow pointer events aimed at the overlays above it.
     expect(canvas.classList).toContain("pe-none");
   });
 

@@ -13,8 +13,8 @@
   --os-black: light-dark(#000000, #ffffff);
   --os-white-bg: light-dark(#ffffff, var(--os-gray-200));
   /**
-   * Background painted behind the grid canvas, which is transparent where no cell colour is drawn.
-   * Displayed as-is: it sits outside the dark mode filter, so integrators can override it freely.
+   * Background painted behind the grid canvas,
+   * can be overridden by integrators.
    */
   --os-canvas-background-color: var(--os-white-bg);
   --os-popover-bg: light-dark(#ffffff, var(--os-gray-200));

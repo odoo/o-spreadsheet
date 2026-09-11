@@ -335,7 +335,7 @@ describe("Grid component in dashboard mode", () => {
   test("Dashboard has no sheet background color if the sheet has no explicit background", async () => {
     model.updateMode("dashboard");
     await nextTick();
-    // Transparent, so the --os-canvas-background-color layer behind shows through.
+    // Transparent, it shows through for the integrators
     expect(
       fixture.querySelector(".o-dashboard-sheet-background")!.getAttribute("style")
     ).toBeFalsy();
@@ -351,7 +351,6 @@ describe("Grid component in dashboard mode", () => {
     model.updateMode("dashboard");
     await nextTick();
     const background = fixture.querySelector(".o-dashboard-background")!;
-    // It carries the integrator's color, which must be displayed as-is.
     expect(background.classList).toContain("os-canvas-background");
     expect(background.closest(".os-theme-dependant")).toBeNull();
   });

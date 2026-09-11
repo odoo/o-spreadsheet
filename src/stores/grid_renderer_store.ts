@@ -221,17 +221,12 @@ export class GridRenderer extends DisposableStore {
       const theme = this.getters.getSpreadsheetTheme();
       const background = this.getBackgroundColor(renderingContext);
       if (background) {
-        // Soften the lines against the sheet background so they pick up its tint, while staying
-        // opaque: adjacent boxes stroke their shared border twice, which would darken it if the
-        // stroke were translucent.
         const blendedGridColor = blendColors(
           theme.gridBorderColor + "aa",
           toHex(background) + "50"
         );
         ctx.strokeStyle = setColorAlpha(blendedGridColor, 1);
       } else {
-        // Nothing to blend against: the canvas is transparent here and the colour behind it lives
-        // outside the dark mode filter. Use the equivalent pre-blended colour.
         ctx.strokeStyle = theme.gridBorderColorOnDefaultBackground;
       }
       ctx.lineWidth = thinLineWidth;
@@ -272,9 +267,6 @@ export class GridRenderer extends DisposableStore {
         ctx.fillRect(box.x, y, width, height);
       }
       if (box.overlayColor) {
-        // With a cell fill we can pre-blend and stay opaque. Without one the backdrop is the CSS
-        // background, which lives outside the dark mode filter and cannot be blended against, so
-        // draw the overlay translucent and let the canvas composite it.
         const backdrop = style.fillColor || this.getBackgroundColor(renderingContext);
         ctx.fillStyle = backdrop ? blendColors(backdrop, box.overlayColor) : box.overlayColor;
         ctx.fillRect(
@@ -310,9 +302,6 @@ export class GridRenderer extends DisposableStore {
 
   private drawOverflowingCellBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx, thinLineWidth } = renderingContext;
-    // Clear the grid lines the overflowing text runs over. When the sheet has an explicit
-    // background we must repaint it rather than clear, or the corridor would punch a transparent
-    // hole through it down to the CSS background.
     const background = this.getBackgroundColor(renderingContext);
     for (const box of boxes) {
       if (box.content && box.isOverflow) {
@@ -549,9 +538,7 @@ export class GridRenderer extends DisposableStore {
     ctx.lineWidth = thinLineWidth;
     ctx.strokeStyle = theme.headerTextColor;
 
-    // Opaque undercoat so the sheet background (or the CSS background showing through the
-    // transparent canvas) does not bleed under the headers. It must match the headers, not the
-    // grid, otherwise it ignores any integrator background.
+    // Background for headers to separate from possible grid background color
     ctx.fillStyle = theme.headerBackgroundColor;
     ctx.fillRect(0, 0, HEADER_WIDTH, height);
     ctx.fillRect(0, 0, width, HEADER_HEIGHT);

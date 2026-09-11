@@ -548,10 +548,6 @@ describe("renderer", () => {
 
     container.get(CellHoverOverlayStore).hover({ sheetId, col: 0, row: 0 });
     drawGridRenderer(ctx);
-
-    // There is nothing to pre-blend against: the cell is transparent and the colour behind it is
-    // the CSS background, outside the dark mode filter. The overlay must stay translucent so the
-    // canvas composites it, rather than being blended against an assumed white.
     expect(fillStyles).toContain(TABLE_HOVER_BACKGROUND_COLOR);
     expect(fillStyles).not.toContain(blendColors("#FFFFFF", TABLE_HOVER_BACKGROUND_COLOR));
   });
@@ -580,9 +576,6 @@ describe("renderer", () => {
     selectCell(model, "A1");
     drawGridRenderer(ctx);
 
-    // The selection is drawn with "multiply", which leaves the source untouched over the
-    // transparent parts of the canvas. An opaque colour would therefore paint a block hiding the
-    // background instead of shading it, so the colour has to be translucent.
     const selectionFills = fillStyles.filter((color) =>
       isSameColor(color, COLOR_THEMES.light.singleCellSelectionBackgroundColor)
     );
