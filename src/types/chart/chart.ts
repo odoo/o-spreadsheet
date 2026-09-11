@@ -7,6 +7,7 @@ import { LegendPosition } from "./common_chart";
 import { FunnelChartColors, FunnelChartDefinition, FunnelChartRuntime } from "./funnel_chart";
 import { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";
 import { GeoChartDefinition, GeoChartRuntime } from "./geo_chart";
+import { HeatmapChartDefinition, HeatmapChartRuntime } from "./heatmap_chart";
 import { LineChartDefinition, LineChartRuntime } from "./line_chart";
 import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
 import { PyramidChartDefinition, PyramidChartRuntime } from "./pyramid_chart";
@@ -44,6 +45,7 @@ export const CHART_TYPES = [
   "sunburst",
   "treemap",
   "calendar",
+  "heatmap",
 ] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
@@ -60,7 +62,8 @@ export type ChartDefinitionWithDataSource<T extends string | Range = Range> =
   | FunnelChartDefinition<T>
   | SunburstChartDefinition<T>
   | TreeMapChartDefinition<T>
-  | CalendarChartDefinition<T>;
+  | CalendarChartDefinition<T>
+  | HeatmapChartDefinition<T>;
 
 export type ChartDefinition<T extends string | Range = string> =
   | ChartDefinitionWithDataSource<T>
@@ -101,7 +104,8 @@ export type ChartJSRuntime =
   | GeoChartRuntime
   | FunnelChartRuntime
   | SunburstChartRuntime
-  | TreeMapChartRuntime;
+  | TreeMapChartRuntime
+  | HeatmapChartRuntime;
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
 
@@ -277,6 +281,9 @@ export interface ChartCreationContext {
   readonly annotationLink?: string;
   readonly scorecardKeyValueFormula?: string;
   readonly scorecardBaselineFormula?: string;
+  readonly colorScale?: ChartColorScale;
+  readonly missingValueColor?: Color;
+  readonly rowRange?: string;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;
@@ -295,6 +302,8 @@ export interface ChartRuntimeGenerationArgs {
   axisType?: AxisType;
   topPadding?: number;
   background: Color;
+  /** For a heatmap axis binning a numeric range, the formatted value at each bin boundary (bin count + 1 labels) */
+  binBoundaryLabels?: { x?: string[]; y?: string[] };
 }
 
 /** Generic definition of chart to create a runtime: omit the chart type*/

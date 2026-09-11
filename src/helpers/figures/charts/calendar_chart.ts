@@ -5,19 +5,18 @@ import {
   CalendarChartDefinition,
   CalendarChartRuntime,
 } from "../../../types/chart/calendar_chart";
-import { LegendPosition } from "../../../types/chart/common_chart";
 import { CommandResult } from "../../../types/commands";
 import { ColorThemeName } from "../../../types/rendering";
 import { Validator } from "../../../types/validator";
 import { AbstractChart } from "./abstract_chart";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import { getCalendarChartData } from "./runtime/chart_data_extractor";
-import { getCalendarChartDatasetAndLabels } from "./runtime/chartjs_dataset";
-import { getCalendarChartLayout } from "./runtime/chartjs_layout";
-import { getCalendarChartScales, getCalendarColorScale } from "./runtime/chartjs_scales";
-import { getCalendarChartShowValues } from "./runtime/chartjs_show_values";
+import { getColorGridChartDatasetAndLabels } from "./runtime/chartjs_dataset";
+import { getColorGridChartLayout } from "./runtime/chartjs_layout";
+import { getColorGridChartScales, getColorScaleLegend } from "./runtime/chartjs_scales";
+import { getColorGridChartShowValues } from "./runtime/chartjs_show_values";
 import { getChartTitle } from "./runtime/chartjs_title";
-import { getCalendarChartTooltip } from "./runtime/chartjs_tooltip";
+import { getColorGridChartTooltip } from "./runtime/chartjs_tooltip";
 
 function checkDateGranularity(definition: CalendarChartDefinition<string>): CommandResult {
   if (!CALENDAR_CHART_GRANULARITIES.includes(definition.horizontalGroupBy)) {
@@ -69,10 +68,6 @@ export const CalendarChart: ChartTypeBuilder<"calendar"> = {
   getFormulas: () => [],
 
   getDefinitionFromContextCreation(context, dataSourceBuilder) {
-    let legendPosition: LegendPosition = "left";
-    if (context.legendPosition === "right") {
-      legendPosition = "right";
-    }
     return {
       background: context.background,
       dataSource: dataSourceBuilder.fromContextCreation(context),
@@ -81,7 +76,9 @@ export const CalendarChart: ChartTypeBuilder<"calendar"> = {
       type: "calendar",
       showValues: context.showValues,
       axesDesign: context.axesDesign,
-      legendPosition,
+      colorScale: context.colorScale,
+      missingValueColor: context.missingValueColor,
+      legendPosition: context.legendPosition ?? "left",
       horizontalGroupBy: "day_of_week",
       verticalGroupBy: "month_number",
       annotationLink: context.annotationLink,
@@ -101,7 +98,7 @@ export const CalendarChart: ChartTypeBuilder<"calendar"> = {
   ): CalendarChartRuntime {
     const data = extractData();
     const chartData = getCalendarChartData(definition, data, getters, colorThemeName);
-    const { labels, datasets } = getCalendarChartDatasetAndLabels(definition, chartData);
+    const { labels, datasets } = getColorGridChartDatasetAndLabels(definition, chartData);
 
     const config: ChartConfiguration<"calendar"> = {
       type: "calendar",
@@ -112,14 +109,14 @@ export const CalendarChart: ChartTypeBuilder<"calendar"> = {
       options: {
         ...CHART_COMMON_OPTIONS,
         indexAxis: "x",
-        layout: getCalendarChartLayout(definition, chartData),
-        scales: getCalendarChartScales(definition, datasets),
+        layout: getColorGridChartLayout(definition, chartData),
+        scales: getColorGridChartScales(definition, datasets),
         plugins: {
           title: getChartTitle(definition, getters),
           legend: { display: false },
-          tooltip: getCalendarChartTooltip(definition, chartData),
-          chartShowValuesPlugin: getCalendarChartShowValues(definition, chartData),
-          chartColorScalePlugin: getCalendarColorScale(definition, chartData),
+          tooltip: getColorGridChartTooltip(chartData),
+          chartShowValuesPlugin: getColorGridChartShowValues(definition, chartData, "calendar"),
+          chartColorScalePlugin: getColorScaleLegend(definition, chartData),
           background: { color: chartData.background },
         },
       },

@@ -1,5 +1,5 @@
 import { _t } from "../../../../translation";
-import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
+import { HeatmapChartDefinition } from "../../../../types/chart/heatmap_chart";
 import {
   AxisDefinition,
   AxisDesignEditor,
@@ -8,14 +8,15 @@ import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 import { useProps } from "@odoo/owl";
 import { ChartWithColorScaleDesignPanel } from "../chart_with_colorscale/chart_with_colorscale_design_panel";
-export class CalendarChartDesignPanel extends ChartWithColorScaleDesignPanel {
-  static template = "o-spreadsheet-CalendarChartDesignPanel";
+
+export class HeatmapChartDesignPanel extends ChartWithColorScaleDesignPanel {
+  static template = "o-spreadsheet-HeatmapChartDesignPanel";
   static components = {
     ...ChartWithColorScaleDesignPanel.components,
     AxisDesignEditor,
   };
   protected props = useProps(chartSidePanelPropsDefinition) as unknown as ChartSidePanelProps<
-    CalendarChartDefinition<string>
+    HeatmapChartDefinition<string>
   >;
 
   get axesList(): AxisDefinition[] {
