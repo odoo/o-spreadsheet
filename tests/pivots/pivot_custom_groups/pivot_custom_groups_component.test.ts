@@ -1,4 +1,5 @@
 import { Model, PivotCustomGroupedField } from "../../../src";
+import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import { setCellContent } from "../../test_helpers/commands_helpers";
@@ -25,7 +26,7 @@ beforeEach(async () => {
 });
 
 async function openPivotSidePanel() {
-  env.openSidePanel("PivotSidePanel", { pivotId });
+  env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId });
   await nextTick();
 }
 

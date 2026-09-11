@@ -1,6 +1,6 @@
 import { useProps } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
-import { useLocalStore } from "../../../../store_engine/store_hooks";
+import { useLocalStore, useStore } from "../../../../store_engine/store_hooks";
 import { ValueAndLabel } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
@@ -10,6 +10,7 @@ import { measureDisplayTerms } from "../../../translations_terms";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { Section } from "../../components/section/section";
+import { SidePanelStore } from "../../side_panel/side_panel_store";
 import { PivotMeasureDisplayPanelStore } from "./pivot_measure_display_panel_store";
 
 export class PivotMeasureDisplayPanel extends Component<SpreadsheetChildEnv> {
@@ -25,6 +26,7 @@ export class PivotMeasureDisplayPanel extends Component<SpreadsheetChildEnv> {
   measureDisplayDescription = measureDisplayTerms.documentation;
 
   store!: Store<PivotMeasureDisplayPanelStore>;
+  private sidePanelStore!: Store<SidePanelStore>;
 
   setup() {
     this.store = useLocalStore(
@@ -32,10 +34,11 @@ export class PivotMeasureDisplayPanel extends Component<SpreadsheetChildEnv> {
       this.props.pivotId,
       this.props.measure
     );
+    this.sidePanelStore = useStore(SidePanelStore);
   }
 
   onSave() {
-    this.env.replaceSidePanel(
+    this.sidePanelStore.replace(
       "PivotSidePanel",
       `pivot_measure_display_${this.props.pivotId}_${this.props.measure.id}`,
       {
@@ -46,7 +49,7 @@ export class PivotMeasureDisplayPanel extends Component<SpreadsheetChildEnv> {
 
   onCancel() {
     this.store.cancelMeasureDisplayEdition();
-    this.env.replaceSidePanel(
+    this.sidePanelStore.replace(
       "PivotSidePanel",
       `pivot_measure_display_${this.props.pivotId}_${this.props.measure.id}`,
       {

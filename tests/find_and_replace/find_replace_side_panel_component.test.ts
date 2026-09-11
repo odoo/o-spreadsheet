@@ -1,5 +1,6 @@
 import { Model, Spreadsheet } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
 import { SearchOptions } from "../../src/types/find_and_replace";
@@ -95,7 +96,7 @@ describe("find and replace sidePanel component", () => {
   beforeEach(async () => {
     useJestFakeTimers();
     ({ parent, model, fixture } = await mountSpreadsheet());
-    parent.env.openSidePanel("FindAndReplace");
+    parent.env.getStore(SidePanelStore).open("FindAndReplace");
     await nextTick();
   });
 
@@ -128,7 +129,7 @@ describe("find and replace sidePanel component", () => {
       ];
       for (const selector of panelSelectors) {
         // reopen the side panel for each selector test
-        parent.env.openSidePanel("FindAndReplace");
+        parent.env.getStore(SidePanelStore).open("FindAndReplace");
         await nextTick();
         expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
         await focusAndKeyDown(selector, { key: "Escape" });
@@ -346,7 +347,7 @@ describe("find and replace sidePanel component", () => {
       expect(model.getters.shouldShowFormulas()).toBe(false);
 
       setFormulaVisibility(model, true);
-      parent.env.openSidePanel("FindAndReplace");
+      parent.env.getStore(SidePanelStore).open("FindAndReplace");
       await nextTick();
 
       expect(model.getters.shouldShowFormulas()).toBe(true);
