@@ -18,6 +18,7 @@ import {
   createSheet,
   deleteColumns,
   evaluateCells,
+  hideRows,
   paste,
   setCellContent,
   setFormat,
@@ -1612,6 +1613,49 @@ describe("Automatic evaluation", () => {
     const cell = getCell(model, "A2");
     model.dispatch("EVALUATE_CELLS", { cellIds: [cell!.id] });
     expect(getEvaluatedCell(model, "A2").value).toBe(2);
+  });
+
+  test("hiding a row does not re-evaluate the SUBTOTAL formulas in manual mode", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "A3", "=SUBTOTAL(109, A1:A2)"); // 109: SUM ignoring hidden rows
+    setCellContent(model, "A4", "=A1");
+    expect(getEvaluatedCell(model, "A3").value).toBe(3);
+
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
+    setCellContent(model, "A1", "10");
+    hideRows(model, [0]);
+
+    // the SUBTOTAL formula is outdated like any other formula, and hiding the row
+    // did not trigger a full evaluation of the spreadsheet
+    expect(getEvaluatedCell(model, "A3").value).toBe(3);
+    expect(getEvaluatedCell(model, "A4").value).toBe(1);
+  });
+
+  test("hiding a row re-evaluates the SUBTOTAL formulas when the evaluation is automatic", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "A3", "=SUBTOTAL(109, A1:A2)");
+
+    hideRows(model, [0]);
+
+    expect(getEvaluatedCell(model, "A3").value).toBe(2);
+  });
+
+  test("EVALUATE_CELLS re-evaluates the SUBTOTAL formulas hidden in manual mode", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "A3", "=SUBTOTAL(109, A1:A2)");
+
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
+    hideRows(model, [0]);
+    expect(getEvaluatedCell(model, "A3").value).toBe(3);
+
+    evaluateCells(model);
+    expect(getEvaluatedCell(model, "A3").value).toBe(2);
   });
 
   test("EVALUATE_CELLS with cellIds re-evaluates cells outside cellIds in manual mode", () => {
