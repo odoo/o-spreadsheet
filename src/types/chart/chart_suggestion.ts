@@ -131,7 +131,7 @@ export interface LabelVsMultipleNumbersContext {
     yRanges: string[];
     sizeRange: string;
     labelRange: string;
-    hasTitle: boolean;
+    headerInZone: boolean;
   };
 }
 

@@ -649,7 +649,7 @@ export const LABEL_VS_MULTIPLE_NUMBERS_SUGGESTIONS: Suggestion<LabelVsMultipleNu
         bubble.yRanges,
         bubble.sizeRange,
         bubble.labelRange,
-        bubble.hasTitle
+        bubble.headerInZone
       );
     },
   },
