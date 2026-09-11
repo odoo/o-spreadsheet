@@ -1,17 +1,21 @@
+import { useProps } from "@odoo/owl";
+import { Component } from "../../../owl3_compatibility_layer";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
+import { useStore } from "../../../store_engine/store_hooks";
 import { ChartType } from "../../../types/chart/chart";
 import { UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-import { ChartMenu } from "../chart/chart_menu/chart_menu";
-
-import { useProps } from "@odoo/owl";
-import { Component } from "../../../owl3_compatibility_layer";
+import { Store } from "../../../types/store_engine";
 import { types } from "../../props_validation";
+import { SidePanelStore } from "../../side_panel/side_panel/side_panel_store";
+import { ChartMenu } from "../chart/chart_menu/chart_menu";
 
 export class ChartFigure extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartFigure";
   static components = { ChartMenu };
+
+  private sidePanelStore!: Store<SidePanelStore>;
 
   protected props = useProps({
     figureUI: types.FigureUI(),
@@ -19,9 +23,13 @@ export class ChartFigure extends Component<SpreadsheetChildEnv> {
     openContextMenu: types.function<(anchorRect: Rect, onClose?: () => void) => void>().optional(),
   });
 
+  setup() {
+    this.sidePanelStore = useStore(SidePanelStore);
+  }
+
   onDoubleClick() {
     this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });
-    this.env.openSidePanel("ChartPanel");
+    this.sidePanelStore.open("ChartPanel");
   }
 
   get chartType(): ChartType {

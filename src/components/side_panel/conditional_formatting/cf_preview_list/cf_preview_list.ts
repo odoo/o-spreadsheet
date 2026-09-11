@@ -8,6 +8,7 @@ import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
 import { types } from "../../../props_validation";
+import { SidePanelStore } from "../../side_panel/side_panel_store";
 import { ConditionalFormatPreview } from "../cf_preview/cf_preview";
 
 export class ConditionalFormatPreviewList extends Component<SpreadsheetChildEnv> {
@@ -74,15 +75,17 @@ export class ConditionalFormatPreviewList extends Component<SpreadsheetChildEnv>
       ranges: zones.map((zone) => this.env.model.getters.getRangeDataFromZone(sheetId, zone)),
       sheetId,
     });
-    return this.env.replaceSidePanel("ConditionalFormattingEditor", "ConditionalFormatting", {
-      cf: {
-        ...cf,
-        ranges: zones.map((zone) =>
-          zoneToXc(this.env.model.getters.getUnboundedZone(sheetId, zone))
-        ),
-      },
-      isNewCf: true,
-    });
+    return this.env
+      .getStore(SidePanelStore)
+      .replace("ConditionalFormattingEditor", "ConditionalFormatting", {
+        cf: {
+          ...cf,
+          ranges: zones.map((zone) =>
+            zoneToXc(this.env.model.getters.getUnboundedZone(sheetId, zone))
+          ),
+        },
+        isNewCf: true,
+      });
   }
 
   private onDragEnd(cfId: UID, finalIndex: number) {

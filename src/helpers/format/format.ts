@@ -61,6 +61,9 @@ export const DAYS: Readonly<Record<number, string>> = {
   6: _t("Saturday"),
 };
 
+/** Date used to preview date formats in the UI */
+export const EXAMPLE_DATE = parseDateTime("2023/09/26 10:43:00 PM", DEFAULT_LOCALE)!.value;
+
 interface FormatWidth {
   availableWidth: number;
   measureText: (text: string) => number;

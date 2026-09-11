@@ -3566,7 +3566,7 @@ test("Can update the chart data source from the side panel", async () => {
   createChart(model, { type: "bar" }, chartId);
   await mountSpreadsheet();
   selectFigure(model, model.getters.getFigureIdFromChartId(chartId)!);
-  env.openSidePanel("ChartPanel");
+  env.getStore(SidePanelStore).open("ChartPanel");
   await nextTick();
   const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0] as HTMLInputElement;
   const dataSeriesValues = dataSeries.querySelector("input")!;
@@ -3616,7 +3616,7 @@ test("Can edit a chart range", async () => {
   await mountSpreadsheet();
   selectFigure(model, model.getters.getFigureIdFromChartId(chartId)!);
   await simulateClick(".o-figure");
-  env.openSidePanel("ChartPanel");
+  env.getStore(SidePanelStore).open("ChartPanel");
   await nextTick();
   expect(document.activeElement).toBe(fixture.querySelector(".o-figure")!);
   await simulateClick(".o-selection-input input.o-input");

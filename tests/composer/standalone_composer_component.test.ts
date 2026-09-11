@@ -2,6 +2,7 @@ import { useProps, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { StandaloneComposer } from "../../src/components/composer/standalone_composer/standalone_composer";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { zoneToXc } from "../../src/helpers/zones";
 import { Component } from "../../src/owl3_compatibility_layer";
 import { sidePanelRegistry } from "../../src/registries/side_panel_registry";
@@ -42,7 +43,7 @@ class SidePanelWithComposer extends Component<any> {
 }
 
 async function openSidePanelWithComposer(props?: Partial<StandaloneComposer["props"]>) {
-  env.openSidePanel("SidePanelWithComposer", {
+  env.getStore(SidePanelStore).open("SidePanelWithComposer", {
     ...props,
     onConfirm,
     composerContent: props?.composerContent || "",

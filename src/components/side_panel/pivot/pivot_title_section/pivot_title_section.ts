@@ -2,13 +2,16 @@ import { useProps } from "@odoo/owl";
 import { ActionSpec } from "../../../../actions/action";
 import { UuidGenerator } from "../../../../helpers/uuid";
 import { Component } from "../../../../owl3_compatibility_layer";
+import { useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
 import { CommandResult } from "../../../../types/commands";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { Store } from "../../../../types/store_engine";
 import { types } from "../../../props_validation";
 import { TextInput } from "../../../text_input/text_input";
 import { CogWheelMenu } from "../../components/cog_wheel_menu/cog_wheel_menu";
 import { Section } from "../../components/section/section";
+import { SidePanelStore } from "../../side_panel/side_panel_store";
 
 export class PivotTitleSection extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotTitleSection";
@@ -17,6 +20,12 @@ export class PivotTitleSection extends Component<SpreadsheetChildEnv> {
     pivotId: types.UID(),
     flipAxis: types.function(),
   });
+
+  private sidePanelStore!: Store<SidePanelStore>;
+
+  setup() {
+    this.sidePanelStore = useStore(SidePanelStore);
+  }
 
   get cogWheelMenuItems(): ActionSpec[] {
     return [
@@ -72,7 +81,7 @@ export class PivotTitleSection extends Component<SpreadsheetChildEnv> {
       type,
     });
     if (result.isSuccessful) {
-      this.env.openSidePanel("PivotSidePanel", { pivotId: newPivotId });
+      this.sidePanelStore.open("PivotSidePanel", { pivotId: newPivotId });
     }
   }
 

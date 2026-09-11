@@ -8,6 +8,7 @@ import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableMetaData } from "../../../types/table";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { types } from "../../props_validation";
+import { SidePanelStore } from "../../side_panel/side_panel/side_panel_store";
 import { drawPreviewTable } from "./table_canvas_helpers";
 
 export class TableStylePreview extends Component<SpreadsheetChildEnv> {
@@ -114,6 +115,8 @@ export class TableStylePreview extends Component<SpreadsheetChildEnv> {
   }
 
   editTableStyle() {
-    this.env.openSidePanel("TableStyleEditorPanel", { styleId: this.props.styleId });
+    this.env
+      .getStore(SidePanelStore)
+      .open("TableStyleEditorPanel", { styleId: this.props.styleId });
   }
 }

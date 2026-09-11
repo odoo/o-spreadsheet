@@ -1,3 +1,4 @@
+import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import { functionRegistry } from "../functions/function_registry";
 import { isDefined } from "../helpers/misc";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
@@ -335,7 +336,7 @@ export const insertDropdown: ActionSpec = {
     if (!rule) {
       return;
     }
-    env.openSidePanel("DataValidationEditor", {
+    env.getStore(SidePanelStore).open("DataValidationEditor", {
       ruleId,
       onCancel: () => {
         env.model.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: ruleId });

@@ -21,6 +21,7 @@ import { Store } from "../../types/store_engine";
 import { getElBoundingRect } from "../helpers/dom_helpers";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../helpers/top_bar_tool_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
+import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { TextInput } from "../text_input/text_input";
 
 interface State extends Omit<MenuState, "isOpen"> {
@@ -32,6 +33,7 @@ export class NamedRangeSelector extends Component<SpreadsheetChildEnv> {
   static components = { TextInput, MenuPopover };
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
+  private sidePanelStore!: Store<SidePanelStore>;
 
   topBarToolStore!: ToolBarDropdownStore;
   menuState = proxy<State>({ anchorRect: null, menuItems: [] });
@@ -41,6 +43,7 @@ export class NamedRangeSelector extends Component<SpreadsheetChildEnv> {
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
+    this.sidePanelStore = useStore(SidePanelStore);
   }
 
   onInput(value: string) {
@@ -137,7 +140,7 @@ export class NamedRangeSelector extends Component<SpreadsheetChildEnv> {
       actionsSpecs.push({
         name: _t("Manage named ranges"),
         execute: () => {
-          this.env.openSidePanel("NamedRangesPanel", {});
+          this.sidePanelStore.open("NamedRangesPanel", {});
           this.stopEditingNamedRange();
         },
         icon: "o-spreadsheet-Icon.COG",

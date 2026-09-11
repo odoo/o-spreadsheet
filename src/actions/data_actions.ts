@@ -33,7 +33,7 @@ export const removeDuplicates: ActionSpec = {
     if (getZoneArea(env.model.getters.getSelectedZone()) === 1) {
       env.model.selection.selectTableAroundSelection();
     }
-    env.openSidePanel("RemoveDuplicates", {});
+    env.getStore(SidePanelStore).open("RemoveDuplicates", {});
   },
   isEnabled: (env) => !env.isSmall,
 };
@@ -47,7 +47,7 @@ export const trimWhitespace: ActionSpec = {
 
 export const cleanupDataSources: ActionSpec = {
   name: _t("Remove unused data sources"),
-  execute: (env) => env.openSidePanel("DataSourceCleanup", {}),
+  execute: (env) => env.getStore(SidePanelStore).open("DataSourceCleanup", {}),
   isEnabled: (env) => !env.isSmall,
 };
 
@@ -73,7 +73,7 @@ export const createRemoveFilterTool: ActionSpec = {
 export const splitToColumns: ActionSpec = {
   name: _t("Split text to columns"),
   sequence: 1,
-  execute: (env) => env.openSidePanel("SplitToColumns", {}),
+  execute: (env) => env.getStore(SidePanelStore).open("SplitToColumns", {}),
   isEnabled: (env) => !env.isSmall && env.model.getters.isSingleColSelected(),
   icon: "o-spreadsheet-Icon.SPLIT_TEXT",
 };
@@ -90,7 +90,7 @@ export const dataAnalysis: ActionSpec = {
 
 export const columnStatistics: ActionSpec = {
   name: _t("Column statistics"),
-  execute: (env) => env.openSidePanel("ColumnStats", {}),
+  execute: (env) => env.getStore(SidePanelStore).open("ColumnStats", {}),
   icon: "o-spreadsheet-Icon.COLUMN_STATS",
 };
 

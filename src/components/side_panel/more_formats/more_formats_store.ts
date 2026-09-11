@@ -1,5 +1,5 @@
-import { EXAMPLE_DATE } from "../../../actions/format_actions";
 import {
+  EXAMPLE_DATE,
   createAccountingFormat,
   createCurrencyFormat,
   formatValue,

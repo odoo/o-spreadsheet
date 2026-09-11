@@ -1,3 +1,4 @@
+import { SidePanelStore } from "../../../../src/components/side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import {
   click,
@@ -30,7 +31,7 @@ async function setupPivotWithFilter() {
 describe("Spreadsheet pivot side panel", () => {
   test("can only have a filter on a field once", async () => {
     const { fixture, env } = await setupPivotWithFilter();
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     await click(fixture.querySelectorAll(".add-dimension")[3]);
     expect(".o-autocomplete-value").toHaveCount(3);
@@ -45,7 +46,7 @@ describe("Spreadsheet pivot side panel", () => {
 
   test("shows a warning when there is a filter on a deleted field", async () => {
     const { model, env } = await setupPivotWithFilter();
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     deleteColumns(model, ["C"]);
     expect(model.getters.getPivot("1").definition.filters).toEqual([
@@ -61,7 +62,7 @@ describe("Spreadsheet pivot side panel", () => {
 
   test("can add a filter", async () => {
     const { model, fixture, env } = await setupPivotWithFilter();
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     await click(fixture.querySelectorAll(".add-dimension")[3]);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
@@ -81,7 +82,7 @@ describe("Spreadsheet pivot side panel", () => {
 
   test("can remove a filter", async () => {
     const { model, fixture, env } = await setupPivotWithFilter();
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     await click(fixture.querySelectorAll("[data-icon='delete_f']")[2]);
     expect(model.getters.getPivotCoreDefinition("1").filters).toEqual([]);
@@ -89,7 +90,7 @@ describe("Spreadsheet pivot side panel", () => {
 
   test("the list of values is correct", async () => {
     const { fixture, env } = await setupPivotWithFilter();
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     await click(fixture.querySelector(".o-pivot-filter-icon")!);
     expect(".o-popover").toHaveCount(1);
@@ -101,7 +102,7 @@ describe("Spreadsheet pivot side panel", () => {
 
   test("can update the hidden values of a values filter (caption and icon are updated as well)", async () => {
     const { model, fixture, env } = await setupPivotWithFilter();
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     expect(".o-pivot-filter-caption").toHaveText("showing all items");
     expect(".o-pivot-filter-icon .filter-icon").toHaveCount(1);
@@ -122,7 +123,7 @@ describe("Spreadsheet pivot side panel", () => {
 
   test("can update the criterion of a criterion filter", async () => {
     const { model, fixture, env } = await setupPivotWithFilter();
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     await click(fixture.querySelector(".o-pivot-filter-icon")!);
     await simulateClick(".o-filter-criterion-type");
@@ -144,7 +145,7 @@ describe("Spreadsheet pivot side panel", () => {
 
   test("can update the criterion of a criterion filter with date type", async () => {
     const { model, fixture, env } = await setupPivotWithFilter();
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     await click(fixture.querySelectorAll(".add-dimension")[3]);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);

@@ -3,6 +3,7 @@ import { CommandResult, Model, setDefaultSheetViewSize, Spreadsheet } from "../.
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { useScreenWidth } from "../../src/components/helpers/screen_width_hook";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -438,7 +439,7 @@ test("cell icon takes over a focused selection input", async () => {
     values: ["hello", "world"],
     displayStyle: "arrow",
   });
-  env.openSidePanel("DataValidation");
+  env.getStore(SidePanelStore).open("DataValidation");
   await nextTick();
   await simulateClick(fixture.querySelector(".o-dv-preview"));
   await simulateClick(fixture.querySelector(".o-selection-input input"));

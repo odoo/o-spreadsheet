@@ -1,6 +1,6 @@
 import { ActionSpec } from "../../actions/action";
 import * as ACTION_FORMAT from "../../actions/format_actions";
-import { isDateTimeFormat } from "../../helpers/format/format";
+import { EXAMPLE_DATE, isDateTimeFormat } from "../../helpers/format/format";
 import { memoize } from "../../helpers/misc";
 import { _t } from "../../translation";
 import { Format } from "../../types/format";
@@ -112,7 +112,7 @@ export function getCustomNumberFormats(
           customFormats.set(
             cell.format,
             ACTION_FORMAT.createFormatActionSpec({
-              descriptionValue: formatType === "currency" ? 1000 : ACTION_FORMAT.EXAMPLE_DATE,
+              descriptionValue: formatType === "currency" ? 1000 : EXAMPLE_DATE,
               format: cell.format,
               name: cell.format,
             })

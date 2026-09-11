@@ -1,4 +1,4 @@
-import { sidePanelRegistry } from "../../../registries/side_panel_registry";
+import { sidePanelRegistry } from "../../../registries/side_panel_registry_definition";
 import { NotificationStore } from "../../../stores/notification_store";
 import { ScreenWidthStore } from "../../../stores/screen_width_store";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
@@ -194,7 +194,7 @@ export class SidePanelStore extends SpreadsheetStore {
     }
   }
 
-  toggle(componentTag: string, panelProps: SidePanelComponentProps) {
+  toggle(componentTag: string, panelProps?: SidePanelComponentProps) {
     const panel = this.mainPanel?.isPinned ? this.secondaryPanel : this.mainPanel;
     if (panel && componentTag === panel.componentTag) {
       this.close();

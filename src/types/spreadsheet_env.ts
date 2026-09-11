@@ -9,9 +9,6 @@ import { NotificationStoreMethods } from "./stores/notification_store_methods";
 export interface SpreadsheetChildEnv extends NotificationStoreMethods {
   model: Model;
   imageProvider?: ImageProviderInterface;
-  openSidePanel: (panel: string, panelProps?: any) => void;
-  replaceSidePanel: (panel: string, currentPanel: string, panelProps?: any) => void;
-  toggleSidePanel: (panel: string, panelProps?: any) => void;
   clipboard: ClipboardInterface;
   startCellEdition: (content?: string) => void;
   loadCurrencies?: () => Promise<Currency[]>;

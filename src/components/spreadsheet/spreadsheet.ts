@@ -165,9 +165,6 @@ export class Spreadsheet extends Component<SpreadsheetChildEnv> {
       imageProvider: fileStore ? new ImageProvider(fileStore) : undefined,
       loadCurrencies: this.model.config.external.loadCurrencies,
       loadLocales: this.model.config.external.loadLocales,
-      openSidePanel: this.sidePanel.open.bind(this.sidePanel),
-      replaceSidePanel: this.sidePanel.replace.bind(this.sidePanel),
-      toggleSidePanel: this.sidePanel.toggle.bind(this.sidePanel),
       clipboard: this.env.clipboard || instantiateClipboard(),
       startCellEdition: (content?: string) =>
         this.composerFocusStore.focusActiveComposer({ content }),

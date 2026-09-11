@@ -1,4 +1,5 @@
 import { ChartDefinition, ChartRangeDataSource, Model } from "../../../src";
+import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -86,7 +87,7 @@ describe("Insert chart menu item", () => {
   let defaultPayload: any;
   let model: Model;
   let env: SpreadsheetChildEnv;
-  let openSidePanelSpy: jest.Mock<any, any>;
+  let openSidePanelSpy: jest.SpyInstance;
   let viewStore: Store<ViewportsStore>;
 
   async function insertChart() {
@@ -99,11 +100,11 @@ describe("Insert chart menu item", () => {
   }
 
   beforeEach(async () => {
-    openSidePanelSpy = jest.fn();
     env = makeTestEnv({
       model: new Model(data),
-      openSidePanel: (type, props) => openSidePanelSpy(type, props),
     });
+    const sidePanelStore = env.getStore(SidePanelStore);
+    openSidePanelSpy = jest.spyOn(sidePanelStore, "open");
     model = env.model;
     viewStore = env.getStore(ViewportsStore);
 
@@ -164,7 +165,7 @@ describe("Insert chart menu item", () => {
   test("Chart side panel was opened at chart insertion", async () => {
     setSelection(model, ["B2"]);
     await insertChart();
-    expect(openSidePanelSpy).toHaveBeenCalledWith("ChartPanel", undefined);
+    expect(openSidePanelSpy).toHaveBeenCalledWith("ChartPanel");
   });
 
   test("Chart is inserted at correct position for rows freeze", async () => {

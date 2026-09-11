@@ -1,3 +1,4 @@
+import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import { interactiveCut } from "../helpers/ui/cut_interactive";
 import { interactiveAddMerge } from "../helpers/ui/merge_interactive";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
@@ -84,7 +85,7 @@ export const findAndReplace: ActionSpec = {
   isReadonlyAllowed: true,
   isEnabledOnLockedSheet: true,
   execute: (env) => {
-    env.openSidePanel("FindAndReplace", {});
+    env.getStore(SidePanelStore).open("FindAndReplace", {});
   },
   isEnabled: (env) => !env.isSmall,
   icon: "o-spreadsheet-Icon.SEARCH",
@@ -167,7 +168,7 @@ export const editTable: ActionSpec = {
   execute: (env) => {
     const table = FIRST_TABLE_IN_SELECTION(env);
     if (table) {
-      env.openSidePanel("TableSidePanel", { table });
+      env.getStore(SidePanelStore).open("TableSidePanel", { table });
     }
   },
   icon: "o-spreadsheet-Icon.EDIT_TABLE",

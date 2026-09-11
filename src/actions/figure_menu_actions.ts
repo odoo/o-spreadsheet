@@ -1,5 +1,6 @@
 import { UID } from "..";
 import { downloadFile } from "../components/helpers/dom_helpers";
+import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import { getPoppedOutChartAnchor } from "../helpers/carousel_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts/chart_ui_common";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
@@ -21,7 +22,7 @@ export function getChartMenuActions(figureId: UID, env: SpreadsheetChildEnv): Ac
       name: _t("Edit"),
       execute: () => {
         env.model.dispatch("SELECT_FIGURE", { figureId });
-        env.openSidePanel("ChartPanel");
+        env.getStore(SidePanelStore).open("ChartPanel");
       },
       icon: "o-spreadsheet-Icon.EDIT",
       isEnabled: (env) => !env.isSmall,
@@ -95,7 +96,7 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetChildEnv):
       name: _t("Edit carousel"),
       execute: () => {
         env.model.dispatch("SELECT_FIGURE", { figureId });
-        env.openSidePanel("CarouselPanel", { figureId });
+        env.getStore(SidePanelStore).open("CarouselPanel", { figureId });
       },
       icon: "o-spreadsheet-Icon.EDIT",
       isEnabled: (env) => !env.isSmall,
@@ -116,7 +117,7 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetChildEnv):
       name: _t("Edit chart"),
       execute: () => {
         env.model.dispatch("SELECT_FIGURE", { figureId });
-        env.openSidePanel("ChartPanel", {});
+        env.getStore(SidePanelStore).open("ChartPanel", {});
       },
       icon: "o-spreadsheet-Icon.EDIT",
       isEnabled: (env) => !env.isSmall,
