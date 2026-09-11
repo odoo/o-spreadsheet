@@ -1,0 +1,7 @@
+.o-spreadsheet {
+  .o-chart-custom-tooltip {
+    .o-tooltip-table {
+      table-layout: auto;
+    }
+  }
+}

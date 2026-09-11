@@ -11,12 +11,12 @@ import {
   CHART_PADDING,
   CHART_PADDING_BOTTOM,
   CHART_PADDING_TOP,
+  COLOR_TRANSPARENT,
   DEFAULT_CHART_COLOR_SCALE,
   GRAY_300,
 } from "../../../../constants";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
-import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import {
   AxisDesign,
   AxisType,
@@ -25,7 +25,7 @@ import {
   ChartWithAxisDefinition,
   GenericDefinition,
 } from "../../../../types/chart/chart";
-import { LegendPosition } from "../../../../types/chart/common_chart";
+import { ColorGridChartDefinition, LegendPosition } from "../../../../types/chart/common_chart";
 import { FunnelChartDefinition } from "../../../../types/chart/funnel_chart";
 import {
   GeoChartDefinition,
@@ -106,56 +106,86 @@ export function getBarChartScales(
   return scales;
 }
 
-export function getCalendarChartScales(
-  definition: GenericDefinition<BarChartDefinition>,
-  datasets: ChartDataset[]
+const X_BOUNDARY_AXIS_ID = "xBoundary";
+
+export function getColorGridChartScales(
+  definition: ColorGridChartDefinition,
+  datasets: ChartDataset[],
+  args?: ChartRuntimeGenerationArgs
 ): ChartScales<"calendar"> {
   const yLabels = datasets.map((dataset) => dataset.label || "");
   const fontColor = chartFontColor(definition.background);
-  return {
+  const yTickLabels = args?.binBoundaryLabels?.y;
+  const xTickLabels = args?.binBoundaryLabels?.x;
+  const xTitle = getChartAxisTitleRuntime(definition.axesDesign?.x);
+  const scales: ChartScales<"calendar"> = {
     y: {
       title: getChartAxisTitleRuntime(definition.axesDesign?.y),
       stacked: true,
       min: 0,
       max: yLabels.length,
-      ticks: {
-        // Here we have to use a step of 0.5 and skip every even label to have the labels centered
-        // with the bars
-        stepSize: 0.5,
-        color: fontColor,
-        callback: function (label, index, labels) {
-          if (index % 2 === 0) {
-            return undefined;
+      ticks: yTickLabels
+        ? {
+            stepSize: 1,
+            autoSkip: false,
+            color: fontColor,
+            callback: (_, index) => yTickLabels[index] ?? "",
           }
-          return yLabels[Math.floor((index - 1) / 2)];
-        },
-      },
+        : {
+            stepSize: 0.5,
+            color: fontColor,
+            callback: function (_, index) {
+              if (index % 2 === 0) {
+                return undefined;
+              }
+              return yLabels[Math.floor((index - 1) / 2)];
+            },
+          },
       grid: {
         display: false,
       },
       border: { display: false },
     },
     x: {
-      title: getChartAxisTitleRuntime(definition.axesDesign?.x),
+      title: xTickLabels ? undefined : xTitle,
       stacked: true,
       grid: {
         display: false,
       },
       position: "top",
-      ticks: {
-        color: fontColor,
-      },
+      ticks: xTickLabels ? { display: false } : { color: fontColor },
       border: { display: false },
     },
   };
+  if (xTickLabels) {
+    scales[X_BOUNDARY_AXIS_ID] = {
+      axis: "x",
+      type: "linear",
+      title: xTitle,
+      position: "top",
+      min: 0,
+      max: xTickLabels.length - 1,
+      offset: false,
+      ticks: {
+        stepSize: 1,
+        autoSkip: false,
+        color: fontColor,
+        callback: (_, index) => xTickLabels[index] ?? "",
+      },
+      grid: { display: false },
+      border: { display: false },
+    };
+  }
+  return scales;
 }
 
-export function getCalendarColorScale(
-  definition: CalendarChartDefinition,
+export function getColorScaleLegend(
+  definition: ColorGridChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartColorScalePluginOptions | undefined {
   const { dataSetsValues } = args;
-  if (!dataSetsValues.length || definition.legendPosition === "none") {
+  const legendPosition = definition.legendPosition ?? "left";
+  if (!dataSetsValues.length || legendPosition === "none") {
     return undefined;
   }
   const allValues = dataSetsValues
@@ -174,13 +204,19 @@ export function getCalendarColorScale(
   } else {
     colorScale = [...COLORSCHEMES[definition.colorScale ?? "oranges"]];
   }
+  const hasMissingValue = dataSetsValues.some((ds) =>
+    ds.data.some((cell) => !isNumberResult(cell))
+  );
   return {
-    position: definition.legendPosition === "right" ? "right" : "left",
+    position: legendPosition,
     colorScale,
     fontColor: chartFontColor(definition.background),
     minValue,
     maxValue,
     locale: args.locale,
+    missingValueColor: hasMissingValue
+      ? definition.missingValueColor || COLOR_TRANSPARENT
+      : undefined,
   };
 }
 
