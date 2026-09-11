@@ -63,10 +63,10 @@ export class GridAddRowsFooter extends OSComponent {
     }
     const quantity = Number(this.state.inputValue);
     const activeSheetId = this.viewStore.displayedSheetId;
-    const rowNumber = this.env.model.getters.getNumberRows(activeSheetId);
-    this.env.model.dispatch("ADD_COLUMNS_ROWS", {
+    const rowNumber = this.model().getters.getNumberRows(activeSheetId);
+    this.model().dispatch("ADD_COLUMNS_ROWS", {
       sheetId: activeSheetId,
-      sheetName: this.env.model.getters.getSheetName(activeSheetId),
+      sheetName: this.model().getters.getSheetName(activeSheetId),
       position: "after",
       base: rowNumber - 1,
       quantity,
@@ -76,10 +76,7 @@ export class GridAddRowsFooter extends OSComponent {
 
     // After adding new rows, scroll down to the new last row
     const { scrollX } = this.viewStore.activeSheetScrollInfo;
-    const { end } = this.env.model.getters.getRowDimensions(
-      activeSheetId,
-      rowNumber + quantity - 1
-    );
+    const { end } = this.model().getters.getRowDimensions(activeSheetId, rowNumber + quantity - 1);
     this.viewStore.setViewportOffset({ offsetX: scrollX, offsetY: end });
   }
 

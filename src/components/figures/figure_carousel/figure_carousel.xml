@@ -49,14 +49,14 @@
           />
         </div>
         <div
-          t-if="this.env.model.getters.isDashboard()"
+          t-if="this.model().getters.isDashboard()"
           t-att-title="this.fullScreenButtonTitle"
           class="o-carousel-full-screen-button oi o-carousel-button rounded p-1 ms-1"
           t-att-data-icon="this.props.isFullScreen ? 'close_fullscreen' : 'expand_content'"
           t-on-click="this.toggleFullScreen"
         />
         <div
-          t-if="!this.env.model.getters.isDashboard()"
+          t-if="!this.model().getters.isDashboard()"
           class="o-carousel-menu-button o-carousel-button rounded ms-1"
           t-on-click="this.openContextMenu">
           <t t-call="o-spreadsheet-Icon.MORE_MENU"/>
@@ -90,7 +90,7 @@
         <ChartMenu
           chartId="selectedItem.chartId"
           hasFullScreenButton="false"
-          displayEllipsisButton="this.env.model.getters.isDashboard()"
+          displayEllipsisButton="this.model().getters.isDashboard()"
           t-key="selectedItem.chartId"
         />
       </div>

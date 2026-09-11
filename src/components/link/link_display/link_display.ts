@@ -33,7 +33,7 @@ export class LinkDisplay extends OSComponent {
   get cell(): EvaluatedCell {
     const { col, row } = this.props.cellPosition;
     const sheetId = this.viewStore.displayedSheetId;
-    return this.env.model.getters.getEvaluatedCell({ sheetId, col, row });
+    return this.model().getters.getEvaluatedCell({ sheetId, col, row });
   }
 
   get link(): Link {
@@ -47,7 +47,7 @@ export class LinkDisplay extends OSComponent {
   }
 
   getUrlRepresentation(link: Link): string {
-    return urlRepresentation(link, this.env.model.getters);
+    return urlRepresentation(link, this.model().getters);
   }
 
   openLink(ev: MouseEvent) {
@@ -56,16 +56,16 @@ export class LinkDisplay extends OSComponent {
 
   edit() {
     const { col, row } = this.props.cellPosition;
-    this.env.model.selection.selectCell(col, row);
+    this.model().selection.selectCell(col, row);
     this.cellPopovers.open({ col, row }, "LinkEditor");
   }
 
   unlink() {
     const sheetId = this.viewStore.displayedSheetId;
     const { col, row } = this.props.cellPosition;
-    const style = this.env.model.getters.getCellComputedStyle({ sheetId, col, row });
+    const style = this.model().getters.getCellComputedStyle({ sheetId, col, row });
     const textColor = style?.textColor === LINK_COLOR ? undefined : style?.textColor;
-    this.env.model.dispatch("UPDATE_CELL", {
+    this.model().dispatch("UPDATE_CELL", {
       col,
       row,
       sheetId,

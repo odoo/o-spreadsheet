@@ -11,7 +11,7 @@ import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
 import { Action, ActionSpec, createActions } from "./action";
 
 export function getChartMenuActions(figureId: UID, env: SpreadsheetActionEnv): Action[] {
-  const chartId = env.model.getters.getChartIdFromFigureId(figureId);
+  const chartId = env.model().getters.getChartIdFromFigureId(figureId);
   if (!chartId) {
     return [];
   }
@@ -21,7 +21,7 @@ export function getChartMenuActions(figureId: UID, env: SpreadsheetActionEnv): A
       id: "edit",
       name: _t("Edit"),
       execute: () => {
-        env.model.dispatch("SELECT_FIGURE", { figureId });
+        env.model().dispatch("SELECT_FIGURE", { figureId });
         env.openSidePanel("ChartPanel");
       },
       icon: "o-spreadsheet-Icon.EDIT",
@@ -34,7 +34,7 @@ export function getChartMenuActions(figureId: UID, env: SpreadsheetActionEnv): A
     getDeleteMenuItem(figureId, env),
   ];
   return createActions(menuItemSpecs).filter((action) =>
-    env.model.getters.isReadonly() ? action.isReadonlyAllowed : true
+    env.model().getters.isReadonly() ? action.isReadonlyAllowed : true
   );
 }
 
@@ -46,22 +46,22 @@ export function getImageMenuActions(figureId: UID, env: SpreadsheetActionEnv): A
       id: "reset_size",
       name: _t("Reset size"),
       execute: async () => {
-        const sheetId = env.model.getters.getActiveSheetId();
-        const figure = env.model.getters.getFigure(sheetId, figureId);
+        const sheetId = env.model().getters.getActiveSheetId();
+        const figure = env.model().getters.getFigure(sheetId, figureId);
         if (!figure) {
           return;
         }
-        const imagePath = env.model.getters.getImagePath(figureId);
+        const imagePath = env.model().getters.getImagePath(figureId);
         const size =
-          env.model.getters.getImageSize(figureId) ??
+          env.model().getters.getImageSize(figureId) ??
           (await env.imageProvider?.getImageOriginalSize(imagePath));
-        if (!env.model.getters.getImageSize(figureId)) {
-          const image = env.model.getters.getImage(figureId);
+        if (!env.model().getters.getImageSize(figureId)) {
+          const image = env.model().getters.getImage(figureId);
           image.size = size;
         }
         const { col, row } = figure;
         const { height, width } = getMaxFigureSize(size);
-        env.model.dispatch("UPDATE_FIGURE", {
+        env.model().dispatch("UPDATE_FIGURE", {
           sheetId,
           figureId,
           height,
@@ -76,8 +76,8 @@ export function getImageMenuActions(figureId: UID, env: SpreadsheetActionEnv): A
       id: "download",
       name: _t("Download"),
       execute: async () => {
-        env.model.dispatch("SELECT_FIGURE", { figureId });
-        const path = env.model.getters.getImagePath(figureId);
+        env.model().dispatch("SELECT_FIGURE", { figureId });
+        const path = env.model().getters.getImagePath(figureId);
         downloadFile(path, "image");
       },
       icon: "o-spreadsheet-Icon.DOWNLOAD",
@@ -89,13 +89,13 @@ export function getImageMenuActions(figureId: UID, env: SpreadsheetActionEnv): A
 
 export function getCarouselMenuActions(figureId: UID, env: SpreadsheetActionEnv): Action[] {
   const isChartSelected = (env: SpreadsheetActionEnv) =>
-    env.model.getters.getSelectedCarouselItem(figureId)?.type === "chart";
+    env.model().getters.getSelectedCarouselItem(figureId)?.type === "chart";
   const menuItemSpecs: ActionSpec[] = [
     {
       id: "edit_carousel",
       name: _t("Edit carousel"),
       execute: () => {
-        env.model.dispatch("SELECT_FIGURE", { figureId });
+        env.model().dispatch("SELECT_FIGURE", { figureId });
         env.openSidePanel("CarouselPanel", { figureId });
       },
       icon: "o-spreadsheet-Icon.EDIT",
@@ -116,7 +116,7 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetActionEnv)
       id: "edit_chart",
       name: _t("Edit chart"),
       execute: () => {
-        env.model.dispatch("SELECT_FIGURE", { figureId });
+        env.model().dispatch("SELECT_FIGURE", { figureId });
         env.openSidePanel("ChartPanel", {});
       },
       icon: "o-spreadsheet-Icon.EDIT",
@@ -138,13 +138,13 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetActionEnv)
       name: _t("Pop out chart"),
       icon: "o-spreadsheet-Icon.EXTERNAL",
       execute: () => {
-        const selectedItem = env.model.getters.getSelectedCarouselItem(figureId);
+        const selectedItem = env.model().getters.getSelectedCarouselItem(figureId);
         if (!selectedItem || selectedItem.type !== "chart") {
           return;
         }
-        const sheetId = env.model.getters.getActiveSheetId();
+        const sheetId = env.model().getters.getActiveSheetId();
         const anchor = getPoppedOutChartAnchor(env, sheetId, figureId);
-        env.model.dispatch("POPOUT_CHART_FROM_CAROUSEL", {
+        env.model().dispatch("POPOUT_CHART_FROM_CAROUSEL", {
           carouselId: figureId,
           chartId: selectedItem.chartId,
           sheetId,
@@ -156,28 +156,28 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetActionEnv)
     {
       id: "delete_carousel_item",
       name: (env) => {
-        const item = env.model.getters.getSelectedCarouselItem(figureId);
+        const item = env.model().getters.getSelectedCarouselItem(figureId);
         return item?.type === "chart" ? _t("Delete chart") : _t("Delete data view");
       },
       execute: () => {
-        const item = env.model.getters.getSelectedCarouselItem(figureId);
+        const item = env.model().getters.getSelectedCarouselItem(figureId);
         if (!item) {
           return;
         }
-        const carousel = env.model.getters.getCarousel(figureId);
+        const carousel = env.model().getters.getCarousel(figureId);
         const items = carousel.items.filter((itm) => !deepEquals(itm, item));
-        env.model.dispatch("UPDATE_CAROUSEL", {
+        env.model().dispatch("UPDATE_CAROUSEL", {
           figureId,
-          sheetId: env.model.getters.getActiveSheetId(),
-          definition: env.model.getters.carouselToCarouselData({ ...carousel, items }),
+          sheetId: env.model().getters.getActiveSheetId(),
+          definition: env.model().getters.carouselToCarouselData({ ...carousel, items }),
         });
       },
       icon: "o-spreadsheet-Icon.TRASH",
-      isVisible: (env) => env.model.getters.getCarousel(figureId).items.length >= 1,
+      isVisible: (env) => env.model().getters.getCarousel(figureId).items.length >= 1,
     },
   ];
   return createActions(menuItemSpecs).filter((action) =>
-    env.model.getters.isReadonly() ? action.isReadonlyAllowed : true
+    env.model().getters.isReadonly() ? action.isReadonlyAllowed : true
   );
 }
 
@@ -191,10 +191,10 @@ function getCopyMenuItem(
     name: _t("Copy"),
     shortcut: "Ctrl+C",
     execute: async () => {
-      if (!env.model.getters.getSelectedFigureIds().includes(figureId)) {
-        env.model.dispatch("SELECT_FIGURE", { figureId });
+      if (!env.model().getters.getSelectedFigureIds().includes(figureId)) {
+        env.model().dispatch("SELECT_FIGURE", { figureId });
       }
-      env.model.dispatch("COPY");
+      env.model().dispatch("COPY");
       const clipboardStore = env.getStore(ClipboardStore);
       const osClipboardContent = await clipboardStore.getClipboardTextAndImageContent();
       await env.clipboard.write(osClipboardContent);
@@ -215,10 +215,10 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetActionEnv): ActionSpec {
     name: _t("Cut"),
     shortcut: "Ctrl+X",
     execute: async () => {
-      if (!env.model.getters.getSelectedFigureIds().includes(figureId)) {
-        env.model.dispatch("SELECT_FIGURE", { figureId });
+      if (!env.model().getters.getSelectedFigureIds().includes(figureId)) {
+        env.model().dispatch("SELECT_FIGURE", { figureId });
       }
-      env.model.dispatch("CUT");
+      env.model().dispatch("CUT");
       const clipboardStore = env.getStore(ClipboardStore);
       await env.clipboard.write(await clipboardStore.getClipboardTextAndImageContent());
     },
@@ -232,19 +232,19 @@ function getCopyAsImageMenuItem(figureId: UID, env: SpreadsheetActionEnv): Actio
     name: _t("Copy as image"),
     icon: "o-spreadsheet-Icon.COPY_AS_IMAGE",
     execute: async () => {
-      const figureSheetId = env.model.getters.getFigureSheetId(figureId)!;
-      const figure = env.model.getters.getFigure(figureSheetId, figureId)!;
-      const chartId = env.model.getters.getChartIdFromFigureId(figureId);
+      const figureSheetId = env.model().getters.getFigureSheetId(figureId)!;
+      const figure = env.model().getters.getFigure(figureSheetId, figureId)!;
+      const chartId = env.model().getters.getChartIdFromFigureId(figureId);
       if (!chartId) {
         return;
       }
-      const chartType = env.model.getters.getChartType(chartId);
-      const runtime = env.model.getters.getChartRuntime(chartId);
+      const chartType = env.model().getters.getChartType(chartId);
+      const runtime = env.model().getters.getChartRuntime(chartId);
       const blob = await chartToImageFile(
         runtime,
         figure,
         chartType,
-        env.model.getters.getSpreadsheetTheme().colorThemeName
+        env.model().getters.getSpreadsheetTheme().colorThemeName
       );
       if (!blob) {
         return;
@@ -273,7 +273,7 @@ function getCopyAsImageMenuItem(figureId: UID, env: SpreadsheetActionEnv): Actio
         .getPlugin(NotificationPlugin)
         .notifyUser({ sticky: false, type: "success", text: _t("Chart copied to clipboard") });
     },
-    isVisible: (env) => env.model.getters.getSelectedFigureIds().length <= 1,
+    isVisible: (env) => env.model().getters.getSelectedFigureIds().length <= 1,
     isReadonlyAllowed: true,
     isEnabledOnLockedSheet: true,
   };
@@ -285,26 +285,26 @@ function getDownloadChartMenuItem(figureId: UID, env: SpreadsheetActionEnv): Act
     name: _t("Download"),
     icon: "o-spreadsheet-Icon.DOWNLOAD",
     execute: async () => {
-      const figureSheetId = env.model.getters.getFigureSheetId(figureId)!;
-      const figure = env.model.getters.getFigure(figureSheetId, figureId)!;
-      const chartId = env.model.getters.getChartIdFromFigureId(figureId);
+      const figureSheetId = env.model().getters.getFigureSheetId(figureId)!;
+      const figure = env.model().getters.getFigure(figureSheetId, figureId)!;
+      const chartId = env.model().getters.getChartIdFromFigureId(figureId);
       if (!chartId) {
         return;
       }
-      const chartType = env.model.getters.getChartType(chartId);
-      const runtime = env.model.getters.getChartRuntime(chartId);
+      const chartType = env.model().getters.getChartType(chartId);
+      const runtime = env.model().getters.getChartRuntime(chartId);
       const url = await chartToImageUrl(
         runtime,
         figure,
         chartType,
-        env.model.getters.getSpreadsheetTheme().colorThemeName
+        env.model().getters.getSpreadsheetTheme().colorThemeName
       );
       if (!url) {
         return;
       }
       downloadFile(url, "chart");
     },
-    isVisible: (env) => env.model.getters.getSelectedFigureIds().length <= 1,
+    isVisible: (env) => env.model().getters.getSelectedFigureIds().length <= 1,
     isReadonlyAllowed: true,
     isEnabledOnLockedSheet: true,
   };
@@ -315,15 +315,15 @@ function getDeleteMenuItem(figureId: UID, env: SpreadsheetActionEnv): ActionSpec
     id: "delete",
     name: _t("Delete"),
     execute: () => {
-      const selectedFiguresIds = env.model.getters.getSelectedFigureIds();
+      const selectedFiguresIds = env.model().getters.getSelectedFigureIds();
       if (selectedFiguresIds.includes(figureId)) {
-        env.model.dispatch("DELETE_FIGURES", {
-          sheetId: env.model.getters.getActiveSheetId(),
+        env.model().dispatch("DELETE_FIGURES", {
+          sheetId: env.model().getters.getActiveSheetId(),
           figureIds: selectedFiguresIds,
         });
       } else {
-        env.model.dispatch("DELETE_FIGURE", {
-          sheetId: env.model.getters.getActiveSheetId(),
+        env.model().dispatch("DELETE_FIGURE", {
+          sheetId: env.model().getters.getActiveSheetId(),
           figureId,
         });
       }
@@ -337,18 +337,18 @@ function getMergeCarouselMenuItem(figureId: UID, env: SpreadsheetActionEnv): Act
     id: "mergeCarousel",
     name: _t("Create carousel"),
     isVisible: (env) => {
-      const selectedFiguresIds = env.model.getters.getSelectedFigureIds();
+      const selectedFiguresIds = env.model().getters.getSelectedFigureIds();
       if (selectedFiguresIds.length < 2 || !selectedFiguresIds.includes(figureId)) {
         return false;
       }
-      const sheetId = env.model.getters.getActiveSheetId();
-      const figures = selectedFiguresIds.map((id) => env.model.getters.getFigure(sheetId, id));
+      const sheetId = env.model().getters.getActiveSheetId();
+      const figures = selectedFiguresIds.map((id) => env.model().getters.getFigure(sheetId, id));
       return !figures.some((f) => f === undefined || f.tag !== "chart");
     },
     execute: () => {
-      const sheetId = env.model.getters.getActiveSheetId();
-      const chartFigureIds = env.model.getters.getSelectedFigureIds();
-      env.model.dispatch("MERGE_CHART_FIGURES_INTO_CAROUSEL", {
+      const sheetId = env.model().getters.getActiveSheetId();
+      const chartFigureIds = env.model().getters.getSelectedFigureIds();
+      env.model().dispatch("MERGE_CHART_FIGURES_INTO_CAROUSEL", {
         sheetId,
         baseFigureId: figureId,
         chartFigureIds,

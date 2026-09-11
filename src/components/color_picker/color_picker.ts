@@ -210,7 +210,7 @@ export class ColorPicker extends OSComponent {
     // In dark mode we'd have to do the opposite color inversion than then dark mode color inversion to get the correct color.
     // But this mathematically cannot always be done, because our color inversion looses information with clipping and rounding.
     // dev note: the API is not available in all browsers and only in secure contexts (https) so we check for its existence first.
-    return !!globalThis.EyeDropper && !this.env.model.getters.isDarkMode();
+    return !!globalThis.EyeDropper && !this.model().getters.isDarkMode();
   }
 
   async activateEyedropper() {

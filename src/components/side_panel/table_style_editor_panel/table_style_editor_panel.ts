@@ -38,13 +38,13 @@ export class TableStyleEditorPanel extends OSComponent {
 
   getInitialState(): State {
     const editedStyle = this.props.styleId
-      ? this.env.model.getters.getTableStyle(this.props.styleId)
+      ? this.model().getters.getTableStyle(this.props.styleId)
       : null;
     return {
       pickerOpened: false,
       primaryColor: editedStyle?.primaryColor || DEFAULT_TABLE_STYLE_COLOR,
       selectedTemplateName: editedStyle?.templateName || "lightColoredText",
-      styleName: editedStyle?.displayName || this.env.model.getters.getNewCustomTableStyleName(),
+      styleName: editedStyle?.displayName || this.model().getters.getNewCustomTableStyleName(),
     };
   }
 
@@ -63,7 +63,7 @@ export class TableStyleEditorPanel extends OSComponent {
 
   onConfirm() {
     const tableStyleId = this.props.styleId || UuidGenerator.smallUuid();
-    this.env.model.dispatch("CREATE_TABLE_STYLE", {
+    this.model().dispatch("CREATE_TABLE_STYLE", {
       tableStyleId,
       tableStyleName: this.state.styleName,
       templateName: this.state.selectedTemplateName,
@@ -81,7 +81,7 @@ export class TableStyleEditorPanel extends OSComponent {
     if (!this.props.styleId) {
       return;
     }
-    this.env.model.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: this.props.styleId });
+    this.model().dispatch("REMOVE_TABLE_STYLE", { tableStyleId: this.props.styleId });
     this.props.onCloseSidePanel();
   }
 

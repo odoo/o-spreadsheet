@@ -43,7 +43,7 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
-import { createModelFromGrid, makeTestEnv, target } from "../test_helpers/helpers";
+import { createModelFromGrid, makeSpreadsheetActionTestEnv, target } from "../test_helpers/helpers";
 
 function getCellsObject(model: Model, sheetId: UID) {
   const cells = {};
@@ -71,7 +71,7 @@ describe("Interactive rename sheet", () => {
       callback();
     });
     model = new Model({});
-    env = makeTestEnv({ model });
+    env = makeSpreadsheetActionTestEnv(model);
     const notificationPlugin = env.getPlugin(NotificationPlugin);
     notificationPlugin.updateNotificationCallbacks({ raiseError: raiseErrorSpy });
   });
@@ -115,7 +115,7 @@ describe("Interactive Freeze columns/rows", () => {
     const model = new Model();
     merge(model, "A1:D4");
     const raiseError = jest.fn();
-    const env = makeTestEnv({ model });
+    const env = makeSpreadsheetActionTestEnv(model);
     const notificationPlugin = env.getPlugin(NotificationPlugin);
     notificationPlugin.updateNotificationCallbacks({ raiseError });
     interactiveFreezeColumnsRows(env, dimension as Dimension, 2);
@@ -141,7 +141,7 @@ describe("UI Helpers", () => {
     const askConfirmation = (content: string, confirm: () => any, cancel?: () => any) => {
       askConfirmationTextSpy(content.toString());
     };
-    env = makeTestEnv({ model });
+    env = makeSpreadsheetActionTestEnv(model);
     const notificationPlugin = env.getPlugin(NotificationPlugin);
     notificationPlugin.updateNotificationCallbacks({
       raiseError,
@@ -195,7 +195,7 @@ describe("UI Helpers", () => {
       setCellContent(model, "A1", "=42");
       setCellStyle(model, "A1", style);
 
-      const env = makeTestEnv({ model });
+      const env = makeSpreadsheetActionTestEnv(model);
       copy(model, "A1");
       interactivePaste(env, target("B1"), "onlyFormat");
       interactivePaste(env, target("B2"), "asValue");
@@ -405,7 +405,7 @@ describe("UI Helpers", () => {
       model = new Model(modelData);
       const zone = toZone("A2:A3");
       anchor = toCartesian("A2");
-      const env = makeTestEnv({ model });
+      const env = makeSpreadsheetActionTestEnv(model);
       const notificationPlugin = env.getPlugin(NotificationPlugin);
       notificationPlugin.updateNotificationCallbacks({ askConfirmation });
 
@@ -417,7 +417,7 @@ describe("UI Helpers", () => {
       model = new Model(modelData);
       const zone = toZone("A2:A3");
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-      const env = makeTestEnv({ model });
+      const env = makeSpreadsheetActionTestEnv(model);
       const notificationPlugin = env.getPlugin(NotificationPlugin);
       notificationPlugin.updateNotificationCallbacks({ askConfirmation });
 
@@ -430,7 +430,7 @@ describe("UI Helpers", () => {
       model = new Model(modelData);
       const zone = toZone("A3:A4");
       anchor = toCartesian("A3");
-      const env = makeTestEnv({ model });
+      const env = makeSpreadsheetActionTestEnv(model);
       const notificationPlugin = env.getPlugin(NotificationPlugin);
       notificationPlugin.updateNotificationCallbacks({ askConfirmation });
 
@@ -453,7 +453,7 @@ describe("UI Helpers", () => {
       model = new Model(modelData);
       const zone = toZone("A3:A4");
       anchor = toCartesian("A3");
-      const env = makeTestEnv({ model });
+      const env = makeSpreadsheetActionTestEnv(model);
       const notificationPlugin = env.getPlugin(NotificationPlugin);
       notificationPlugin.updateNotificationCallbacks({ askConfirmation });
 
@@ -476,7 +476,7 @@ describe("UI Helpers", () => {
   test("Cannot sort on zone with array formulas that spread", () => {
     const raiseError = jest.fn();
     model = createModelFromGrid({ A1: "9", A2: "8", A3: "=CHOOSECOLS(A1:A2, 1)" });
-    const env = makeTestEnv({ model });
+    const env = makeSpreadsheetActionTestEnv(model);
     const notificationPlugin = env.getPlugin(NotificationPlugin);
     notificationPlugin.updateNotificationCallbacks({ raiseError });
 
@@ -487,7 +487,7 @@ describe("UI Helpers", () => {
   test("Can sort on zone with array formulas that do not spread", () => {
     const raiseError = jest.fn();
     model = createModelFromGrid({ A1: "9", A2: "8", B1: "1", C1: "=MMULT(A1:A2, A1:B1)" });
-    const env = makeTestEnv({ model });
+    const env = makeSpreadsheetActionTestEnv(model);
     const notificationPlugin = env.getPlugin(NotificationPlugin);
     notificationPlugin.updateNotificationCallbacks({ raiseError });
 
@@ -546,7 +546,7 @@ describe("UI Helpers", () => {
       const zone = toZone("B2:B8");
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
       anchor = toCartesian("B2");
-      const env = makeTestEnv({ model });
+      const env = makeSpreadsheetActionTestEnv(model);
       const notificationPlugin = env.getPlugin(NotificationPlugin);
       notificationPlugin.updateNotificationCallbacks({ raiseError });
 
@@ -576,7 +576,7 @@ describe("UI Helpers", () => {
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
 
       const anchor = toCartesian("B2");
-      const env = makeTestEnv({ model });
+      const env = makeSpreadsheetActionTestEnv(model);
       const notificationPlugin = env.getPlugin(NotificationPlugin);
       notificationPlugin.updateNotificationCallbacks({ raiseError });
 

@@ -29,7 +29,7 @@ import {
   triggerMouseEvent,
 } from "../../test_helpers/dom_helper";
 import {
-  makeTestEnv,
+  makeSpreadsheetActionTestEnv,
   mockChart,
   mountSpreadsheet,
   nextTick,
@@ -583,7 +583,7 @@ describe("Carousel figure component", () => {
 
     beforeEach(() => {
       openSidePanel = jest.fn();
-      env = makeTestEnv({ model, openSidePanel });
+      env = makeSpreadsheetActionTestEnv(model, { openSidePanel });
     });
 
     test("Can edit the carousel", () => {

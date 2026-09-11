@@ -190,7 +190,7 @@ describe("Table side panel", () => {
   test("The table zone displayed in the side panel is updated when the user modifies the table range with the mouse", async () => {
     const table = getTable(model, sheetId);
     expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("A1:C3");
-    env.model.dispatch("UPDATE_TABLE", {
+    env.model().dispatch("UPDATE_TABLE", {
       sheetId,
       zone: table.range.zone,
       newTableRange: toRangeData(sheetId, "D1:D2"),
@@ -203,7 +203,7 @@ describe("Table side panel", () => {
   test("The highlighted zone is updated when the user modifies the table range with the mouse", async () => {
     const table = getTable(model, sheetId);
     expect(getHighlightsFromStore(env).map((h) => zoneToXc(h.range.zone))).toEqual(["A1:C3"]);
-    env.model.dispatch("UPDATE_TABLE", {
+    env.model().dispatch("UPDATE_TABLE", {
       sheetId,
       zone: table.range.zone,
       newTableRange: toRangeData(sheetId, "D1:D2"),

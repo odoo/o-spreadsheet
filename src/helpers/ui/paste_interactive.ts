@@ -27,7 +27,7 @@ export const handleCopyPasteResult = (
   if (result.isCancelledBecause(CommandResult.WillRemoveExistingMerge)) {
     env.getPlugin(NotificationPlugin).raiseError(MergeErrorMessage);
   } else {
-    env.model.dispatch(command.type, command);
+    env.model().dispatch(command.type, command);
   }
 };
 
@@ -63,7 +63,7 @@ export function interactivePaste(
   if (!result.isSuccessful) {
     handlePasteResult(env, result);
   } else {
-    env.model.dispatch("PASTE", { target, pasteOption });
+    env.model().dispatch("PASTE", { target, pasteOption });
   }
 }
 
@@ -109,6 +109,6 @@ export async function interactivePasteFromOS(
   if (!result.isSuccessful) {
     handlePasteResult(env, result);
   } else {
-    env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", payload);
+    env.model().dispatch("PASTE_FROM_OS_CLIPBOARD", payload);
   }
 }

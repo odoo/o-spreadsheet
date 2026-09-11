@@ -63,7 +63,7 @@ async function paste(env: SpreadsheetActionEnv, pasteOption?: ClipboardPasteOpti
   switch (osClipboard.status) {
     case "ok":
       const clipboardId = clipboardStore.getClipboardId();
-      const target = env.model.getters.getSelectedZones();
+      const target = env.model().getters.getSelectedZones();
       const htmlClipboardId = getOSheetClipboardIdFromHTML(
         osClipboard.content[ClipboardMIMEType.Html]
       );
@@ -101,17 +101,17 @@ export const PASTE_FORMAT_ACTION = (env: SpreadsheetActionEnv) => paste(env, "on
 //------------------------------------------------------------------------------
 
 export const DELETE_CONTENT_ROWS_NAME = (env: SpreadsheetActionEnv) => {
-  if (env.model.getters.getSelectedZones().length > 1) {
+  if (env.model().getters.getSelectedZones().length > 1) {
     return _t("Clear rows");
   }
   let first: number;
   let last: number;
-  const activesRows = env.model.getters.getActiveRows();
+  const activesRows = env.model().getters.getActiveRows();
   if (activesRows.size !== 0) {
     first = largeMin([...activesRows]);
     last = largeMax([...activesRows]);
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = env.model().getters.getSelectedZones()[0];
     first = zone.top;
     last = zone.bottom;
   }
@@ -122,28 +122,28 @@ export const DELETE_CONTENT_ROWS_NAME = (env: SpreadsheetActionEnv) => {
 };
 
 export const DELETE_CONTENT_ROWS_ACTION = (env: SpreadsheetActionEnv) => {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const target = [...env.model.getters.getActiveRows()].map((index) =>
-    env.model.getters.getRowsZone(sheetId, index, index)
+  const sheetId = env.model().getters.getActiveSheetId();
+  const target = [...env.model().getters.getActiveRows()].map((index) =>
+    env.model().getters.getRowsZone(sheetId, index, index)
   );
-  env.model.dispatch("DELETE_CONTENT", {
+  env.model().dispatch("DELETE_CONTENT", {
     target,
-    sheetId: env.model.getters.getActiveSheetId(),
+    sheetId: env.model().getters.getActiveSheetId(),
   });
 };
 
 export const DELETE_CONTENT_COLUMNS_NAME = (env: SpreadsheetActionEnv) => {
-  if (env.model.getters.getSelectedZones().length > 1) {
+  if (env.model().getters.getSelectedZones().length > 1) {
     return _t("Clear columns");
   }
   let first: number;
   let last: number;
-  const activeCols = env.model.getters.getActiveCols();
+  const activeCols = env.model().getters.getActiveCols();
   if (activeCols.size !== 0) {
     first = largeMin([...activeCols]);
     last = largeMax([...activeCols]);
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = env.model().getters.getSelectedZones()[0];
     first = zone.left;
     last = zone.right;
   }
@@ -154,28 +154,28 @@ export const DELETE_CONTENT_COLUMNS_NAME = (env: SpreadsheetActionEnv) => {
 };
 
 export const DELETE_CONTENT_COLUMNS_ACTION = (env: SpreadsheetActionEnv) => {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const target = [...env.model.getters.getActiveCols()].map((index) =>
-    env.model.getters.getColsZone(sheetId, index, index)
+  const sheetId = env.model().getters.getActiveSheetId();
+  const target = [...env.model().getters.getActiveCols()].map((index) =>
+    env.model().getters.getColsZone(sheetId, index, index)
   );
-  env.model.dispatch("DELETE_CONTENT", {
+  env.model().dispatch("DELETE_CONTENT", {
     target,
-    sheetId: env.model.getters.getActiveSheetId(),
+    sheetId: env.model().getters.getActiveSheetId(),
   });
 };
 
 export const REMOVE_ROWS_NAME = (env: SpreadsheetActionEnv) => {
-  if (env.model.getters.getSelectedZones().length > 1) {
+  if (env.model().getters.getSelectedZones().length > 1) {
     return _t("Delete rows");
   }
   let first: number;
   let last: number;
-  const activesRows = env.model.getters.getActiveRows();
+  const activesRows = env.model().getters.getActiveRows();
   if (activesRows.size !== 0) {
     first = largeMin([...activesRows]);
     last = largeMax([...activesRows]);
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = env.model().getters.getSelectedZones()[0];
     first = zone.top;
     last = zone.bottom;
   }
@@ -186,16 +186,16 @@ export const REMOVE_ROWS_NAME = (env: SpreadsheetActionEnv) => {
 };
 
 export const REMOVE_ROWS_ACTION = (env: SpreadsheetActionEnv) => {
-  const rows = [...env.model.getters.getActiveRows()];
+  const rows = [...env.model().getters.getActiveRows()];
   if (!rows.length) {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = env.model().getters.getSelectedZones()[0];
     for (let i = zone.top; i <= zone.bottom; i++) {
       rows.push(i);
     }
   }
-  env.model.dispatch("REMOVE_COLUMNS_ROWS", {
-    sheetId: env.model.getters.getActiveSheetId(),
-    sheetName: env.model.getters.getActiveSheetName(),
+  env.model().dispatch("REMOVE_COLUMNS_ROWS", {
+    sheetId: env.model().getters.getActiveSheetId(),
+    sheetName: env.model().getters.getActiveSheetName(),
     dimension: "ROW",
     elements: rows,
   });
@@ -206,40 +206,36 @@ export const CAN_REMOVE_COLUMNS_ROWS = (
   env: SpreadsheetActionEnv
 ): boolean => {
   if (
-    (dimension === "COL" && env.model.getters.getActiveRows().size > 0) ||
-    (dimension === "ROW" && env.model.getters.getActiveCols().size > 0)
+    (dimension === "COL" && env.model().getters.getActiveRows().size > 0) ||
+    (dimension === "ROW" && env.model().getters.getActiveCols().size > 0)
   ) {
     return false;
   }
-  const sheetId = env.model.getters.getActiveSheetId();
-  const selectedElements = env.model.getters.getElementsFromSelection(dimension);
+  const sheetId = env.model().getters.getActiveSheetId();
+  const selectedElements = env.model().getters.getElementsFromSelection(dimension);
 
-  const includesAllVisibleHeaders = env.model.getters.checkElementsIncludeAllVisibleHeaders(
-    sheetId,
-    dimension,
-    selectedElements
-  );
-  const includesAllNonFrozenHeaders = env.model.getters.checkElementsIncludeAllNonFrozenHeaders(
-    sheetId,
-    dimension,
-    selectedElements
-  );
+  const includesAllVisibleHeaders = env
+    .model()
+    .getters.checkElementsIncludeAllVisibleHeaders(sheetId, dimension, selectedElements);
+  const includesAllNonFrozenHeaders = env
+    .model()
+    .getters.checkElementsIncludeAllNonFrozenHeaders(sheetId, dimension, selectedElements);
 
   return !includesAllVisibleHeaders && !includesAllNonFrozenHeaders;
 };
 
 export const REMOVE_COLUMNS_NAME = (env: SpreadsheetActionEnv) => {
-  if (env.model.getters.getSelectedZones().length > 1) {
+  if (env.model().getters.getSelectedZones().length > 1) {
     return _t("Delete columns");
   }
   let first: number;
   let last: number;
-  const activeCols = env.model.getters.getActiveCols();
+  const activeCols = env.model().getters.getActiveCols();
   if (activeCols.size !== 0) {
     first = largeMin([...activeCols]);
     last = largeMax([...activeCols]);
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = env.model().getters.getSelectedZones()[0];
     first = zone.left;
     last = zone.right;
   }
@@ -250,48 +246,48 @@ export const REMOVE_COLUMNS_NAME = (env: SpreadsheetActionEnv) => {
 };
 
 export const NOT_ALL_VISIBLE_ROWS_SELECTED = (env: SpreadsheetActionEnv) => {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const selectedRows = env.model.getters.getElementsFromSelection("ROW");
-  return !env.model.getters.checkElementsIncludeAllVisibleHeaders(sheetId, "ROW", selectedRows);
+  const sheetId = env.model().getters.getActiveSheetId();
+  const selectedRows = env.model().getters.getElementsFromSelection("ROW");
+  return !env.model().getters.checkElementsIncludeAllVisibleHeaders(sheetId, "ROW", selectedRows);
 };
 
 export const REMOVE_COLUMNS_ACTION = (env: SpreadsheetActionEnv) => {
-  const columns = [...env.model.getters.getActiveCols()];
+  const columns = [...env.model().getters.getActiveCols()];
   if (!columns.length) {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = env.model().getters.getSelectedZones()[0];
     for (let i = zone.left; i <= zone.right; i++) {
       columns.push(i);
     }
   }
-  env.model.dispatch("REMOVE_COLUMNS_ROWS", {
-    sheetId: env.model.getters.getActiveSheetId(),
-    sheetName: env.model.getters.getActiveSheetName(),
+  env.model().dispatch("REMOVE_COLUMNS_ROWS", {
+    sheetId: env.model().getters.getActiveSheetId(),
+    sheetName: env.model().getters.getActiveSheetName(),
     dimension: "COL",
     elements: columns,
   });
 };
 
 export const NOT_ALL_VISIBLE_COLS_SELECTED = (env: SpreadsheetActionEnv) => {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const selectedCols = env.model.getters.getElementsFromSelection("COL");
-  return !env.model.getters.checkElementsIncludeAllVisibleHeaders(sheetId, "COL", selectedCols);
+  const sheetId = env.model().getters.getActiveSheetId();
+  const selectedCols = env.model().getters.getElementsFromSelection("COL");
+  return !env.model().getters.checkElementsIncludeAllVisibleHeaders(sheetId, "COL", selectedCols);
 };
 
 export const INSERT_ROWS_BEFORE_ACTION = (env: SpreadsheetActionEnv) => {
-  const activeRows = env.model.getters.getActiveRows();
+  const activeRows = env.model().getters.getActiveRows();
   let row: number;
   let quantity: number;
   if (activeRows.size) {
     row = largeMin([...activeRows]);
     quantity = activeRows.size;
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = env.model().getters.getSelectedZones()[0];
     row = zone.top;
     quantity = zone.bottom - zone.top + 1;
   }
-  env.model.dispatch("ADD_COLUMNS_ROWS", {
-    sheetId: env.model.getters.getActiveSheetId(),
-    sheetName: env.model.getters.getActiveSheetName(),
+  env.model().dispatch("ADD_COLUMNS_ROWS", {
+    sheetId: env.model().getters.getActiveSheetId(),
+    sheetName: env.model().getters.getActiveSheetName(),
     position: "before",
     base: row,
     quantity,
@@ -300,20 +296,20 @@ export const INSERT_ROWS_BEFORE_ACTION = (env: SpreadsheetActionEnv) => {
 };
 
 export const INSERT_ROWS_AFTER_ACTION = (env: SpreadsheetActionEnv) => {
-  const activeRows = env.model.getters.getActiveRows();
+  const activeRows = env.model().getters.getActiveRows();
   let row: number;
   let quantity: number;
   if (activeRows.size) {
     row = largeMax([...activeRows]);
     quantity = activeRows.size;
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = env.model().getters.getSelectedZones()[0];
     row = zone.bottom;
     quantity = zone.bottom - zone.top + 1;
   }
-  env.model.dispatch("ADD_COLUMNS_ROWS", {
-    sheetId: env.model.getters.getActiveSheetId(),
-    sheetName: env.model.getters.getActiveSheetName(),
+  env.model().dispatch("ADD_COLUMNS_ROWS", {
+    sheetId: env.model().getters.getActiveSheetId(),
+    sheetName: env.model().getters.getActiveSheetName(),
     position: "after",
     base: row,
     quantity,
@@ -322,20 +318,20 @@ export const INSERT_ROWS_AFTER_ACTION = (env: SpreadsheetActionEnv) => {
 };
 
 export const INSERT_COLUMNS_BEFORE_ACTION = (env: SpreadsheetActionEnv) => {
-  const activeCols = env.model.getters.getActiveCols();
+  const activeCols = env.model().getters.getActiveCols();
   let column: number;
   let quantity: number;
   if (activeCols.size) {
     column = largeMin([...activeCols]);
     quantity = activeCols.size;
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = env.model().getters.getSelectedZones()[0];
     column = zone.left;
     quantity = zone.right - zone.left + 1;
   }
-  env.model.dispatch("ADD_COLUMNS_ROWS", {
-    sheetId: env.model.getters.getActiveSheetId(),
-    sheetName: env.model.getters.getActiveSheetName(),
+  env.model().dispatch("ADD_COLUMNS_ROWS", {
+    sheetId: env.model().getters.getActiveSheetId(),
+    sheetName: env.model().getters.getActiveSheetName(),
     position: "before",
     dimension: "COL",
     base: column,
@@ -344,20 +340,20 @@ export const INSERT_COLUMNS_BEFORE_ACTION = (env: SpreadsheetActionEnv) => {
 };
 
 export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetActionEnv) => {
-  const activeCols = env.model.getters.getActiveCols();
+  const activeCols = env.model().getters.getActiveCols();
   let column: number;
   let quantity: number;
   if (activeCols.size) {
     column = largeMax([...activeCols]);
     quantity = activeCols.size;
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = env.model().getters.getSelectedZones()[0];
     column = zone.right;
     quantity = zone.right - zone.left + 1;
   }
-  env.model.dispatch("ADD_COLUMNS_ROWS", {
-    sheetId: env.model.getters.getActiveSheetId(),
-    sheetName: env.model.getters.getActiveSheetName(),
+  env.model().dispatch("ADD_COLUMNS_ROWS", {
+    sheetId: env.model().getters.getActiveSheetId(),
+    sheetName: env.model().getters.getActiveSheetName(),
     position: "after",
     dimension: "COL",
     base: column,
@@ -366,7 +362,7 @@ export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetActionEnv) => {
 };
 
 export const HIDE_COLUMNS_NAME = (env: SpreadsheetActionEnv) => {
-  const cols = env.model.getters.getElementsFromSelection("COL");
+  const cols = env.model().getters.getElementsFromSelection("COL");
   const first = cols[0];
   const last = cols[cols.length - 1];
   if (cols.length === 1) {
@@ -383,7 +379,7 @@ export const HIDE_COLUMNS_NAME = (env: SpreadsheetActionEnv) => {
 };
 
 export const HIDE_ROWS_NAME = (env: SpreadsheetActionEnv) => {
-  const rows = env.model.getters.getElementsFromSelection("ROW");
+  const rows = env.model().getters.getElementsFromSelection("ROW");
   const first = rows[0];
   const last = rows[rows.length - 1];
   if (rows.length === 1) {
@@ -400,20 +396,20 @@ export const HIDE_ROWS_NAME = (env: SpreadsheetActionEnv) => {
 //------------------------------------------------------------------------------
 
 export const CREATE_CHART = (env: SpreadsheetActionEnv) => {
-  const getters = env.model.getters;
+  const getters = env.model().getters;
   const figureId = UuidGenerator.smallUuid();
   const sheetId = getters.getActiveSheetId();
   let zones = getters.getSelectedZones();
 
   if (zones.length === 1 && getZoneArea(zones[0]) === 1) {
-    env.model.selection.selectTableAroundSelection();
+    env.model().selection.selectTableAroundSelection();
     zones = getters.getSelectedZones();
   }
 
   const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
   const { col, row, offset } = centerFigurePosition(env, size);
 
-  const result = env.model.dispatch("CREATE_CHART", {
+  const result = env.model().dispatch("CREATE_CHART", {
     sheetId,
     figureId,
     chartId: UuidGenerator.smallUuid(),
@@ -421,23 +417,23 @@ export const CREATE_CHART = (env: SpreadsheetActionEnv) => {
     row,
     offset,
     size,
-    definition: getSmartChartDefinition(zones, env.model.getters),
+    definition: getSmartChartDefinition(zones, env.model().getters),
   });
   if (result.isSuccessful) {
-    env.model.dispatch("SELECT_FIGURE", { figureId });
+    env.model().dispatch("SELECT_FIGURE", { figureId });
     env.openSidePanel("ChartPanel");
   }
 };
 
 export const CREATE_CAROUSEL = (env: SpreadsheetActionEnv) => {
-  const getters = env.model.getters;
+  const getters = env.model().getters;
   const figureId = UuidGenerator.smallUuid();
   const sheetId = getters.getActiveSheetId();
 
   const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
   const { col, row, offset } = centerFigurePosition(env, size);
 
-  const result = env.model.dispatch("CREATE_CAROUSEL", {
+  const result = env.model().dispatch("CREATE_CAROUSEL", {
     sheetId,
     figureId,
     col,
@@ -447,7 +443,7 @@ export const CREATE_CAROUSEL = (env: SpreadsheetActionEnv) => {
     definition: { items: [] },
   });
   if (result.isSuccessful) {
-    env.model.dispatch("SELECT_FIGURE", { figureId });
+    env.model().dispatch("SELECT_FIGURE", { figureId });
     env.openSidePanel("CarouselPanel", { figureId });
   }
 };
@@ -459,61 +455,67 @@ export const CREATE_CAROUSEL = (env: SpreadsheetActionEnv) => {
 export const CREATE_PIVOT = (env: SpreadsheetActionEnv) => {
   const pivotId = UuidGenerator.smallUuid();
   const newSheetId = UuidGenerator.smallUuid();
-  const result = env.model.dispatch("INSERT_NEW_PIVOT", { pivotId, newSheetId });
+  const result = env.model().dispatch("INSERT_NEW_PIVOT", { pivotId, newSheetId });
   if (result.isSuccessful) {
     env.openSidePanel("PivotSidePanel", { pivotId });
   }
 };
 
 export const REINSERT_DYNAMIC_PIVOT_CHILDREN = (env: SpreadsheetActionEnv) =>
-  env.model.getters.getPivotIds().map((pivotId, index) => ({
-    id: `reinsert_dynamic_pivot_${env.model.getters.getPivotFormulaId(pivotId)}`,
-    name: env.model.getters.getPivotDisplayName(pivotId),
-    sequence: index,
-    execute: (env: SpreadsheetActionEnv) => {
-      const zone = env.model.getters.getSelectedZone();
-      const table = env.model.getters.getPivot(pivotId).getCollapsedTableStructure().export();
-      env.model.dispatch("INSERT_PIVOT_WITH_TABLE", {
-        pivotId,
-        table,
-        col: zone.left,
-        row: zone.top,
-        sheetId: env.model.getters.getActiveSheetId(),
-        pivotMode: "dynamic",
-      });
-      env.model.dispatch("REFRESH_PIVOT", { id: pivotId });
-    },
-    isVisible: (env: SpreadsheetActionEnv) => env.model.getters.getPivot(pivotId).isValid(),
-  }));
+  env
+    .model()
+    .getters.getPivotIds()
+    .map((pivotId, index) => ({
+      id: `reinsert_dynamic_pivot_${env.model().getters.getPivotFormulaId(pivotId)}`,
+      name: env.model().getters.getPivotDisplayName(pivotId),
+      sequence: index,
+      execute: (env: SpreadsheetActionEnv) => {
+        const zone = env.model().getters.getSelectedZone();
+        const table = env.model().getters.getPivot(pivotId).getCollapsedTableStructure().export();
+        env.model().dispatch("INSERT_PIVOT_WITH_TABLE", {
+          pivotId,
+          table,
+          col: zone.left,
+          row: zone.top,
+          sheetId: env.model().getters.getActiveSheetId(),
+          pivotMode: "dynamic",
+        });
+        env.model().dispatch("REFRESH_PIVOT", { id: pivotId });
+      },
+      isVisible: (env: SpreadsheetActionEnv) => env.model().getters.getPivot(pivotId).isValid(),
+    }));
 
 export const REINSERT_STATIC_PIVOT_CHILDREN = (env: SpreadsheetActionEnv) =>
-  env.model.getters.getPivotIds().map((pivotId, index) => ({
-    id: `reinsert_static_pivot_${env.model.getters.getPivotFormulaId(pivotId)}`,
-    name: env.model.getters.getPivotDisplayName(pivotId),
-    sequence: index,
-    execute: (env: SpreadsheetActionEnv) => {
-      const zone = env.model.getters.getSelectedZone();
-      const table = env.model.getters.getPivot(pivotId).getExpandedTableStructure();
-      if (table.numberOfCells > PIVOT_MAX_NUMBER_OF_CELLS) {
-        env.getPlugin(NotificationPlugin).notifyUser({
-          type: "warning",
-          text: getPivotTooBigErrorMessage(table.numberOfCells, env.model.getters.getLocale()),
-          sticky: true,
+  env
+    .model()
+    .getters.getPivotIds()
+    .map((pivotId, index) => ({
+      id: `reinsert_static_pivot_${env.model().getters.getPivotFormulaId(pivotId)}`,
+      name: env.model().getters.getPivotDisplayName(pivotId),
+      sequence: index,
+      execute: (env: SpreadsheetActionEnv) => {
+        const zone = env.model().getters.getSelectedZone();
+        const table = env.model().getters.getPivot(pivotId).getExpandedTableStructure();
+        if (table.numberOfCells > PIVOT_MAX_NUMBER_OF_CELLS) {
+          env.getPlugin(NotificationPlugin).notifyUser({
+            type: "warning",
+            text: getPivotTooBigErrorMessage(table.numberOfCells, env.model().getters.getLocale()),
+            sticky: true,
+          });
+          return;
+        }
+        env.model().dispatch("INSERT_PIVOT_WITH_TABLE", {
+          pivotId,
+          table: table.export(),
+          col: zone.left,
+          row: zone.top,
+          sheetId: env.model().getters.getActiveSheetId(),
+          pivotMode: "static",
         });
-        return;
-      }
-      env.model.dispatch("INSERT_PIVOT_WITH_TABLE", {
-        pivotId,
-        table: table.export(),
-        col: zone.left,
-        row: zone.top,
-        sheetId: env.model.getters.getActiveSheetId(),
-        pivotMode: "static",
-      });
-      env.model.dispatch("REFRESH_PIVOT", { id: pivotId });
-    },
-    isVisible: (env: SpreadsheetActionEnv) => env.model.getters.getPivot(pivotId).isValid(),
-  }));
+        env.model().dispatch("REFRESH_PIVOT", { id: pivotId });
+      },
+      isVisible: (env: SpreadsheetActionEnv) => env.model().getters.getPivot(pivotId).isValid(),
+    }));
 
 //------------------------------------------------------------------------------
 // Image
@@ -521,12 +523,12 @@ export const REINSERT_STATIC_PIVOT_CHILDREN = (env: SpreadsheetActionEnv) =>
 
 export const CREATE_IMAGE = async (env: SpreadsheetActionEnv) => {
   if (env.imageProvider) {
-    const sheetId = env.model.getters.getActiveSheetId();
+    const sheetId = env.model().getters.getActiveSheetId();
     const figureId = UuidGenerator.smallUuid();
     const image = await env.imageProvider.requestImage();
     const size = getMaxFigureSize(image.size);
     const { col, row, offset } = centerFigurePosition(env, size);
-    env.model.dispatch("CREATE_IMAGE", {
+    env.model().dispatch("CREATE_IMAGE", {
       sheetId,
       figureId,
       col,
@@ -543,16 +545,16 @@ export const CREATE_IMAGE = async (env: SpreadsheetActionEnv) => {
 //------------------------------------------------------------------------------
 
 export const FORMAT_PERCENT_ACTION = (env: SpreadsheetActionEnv) =>
-  setFormatter(env.model, "0.00%");
+  setFormatter(env.model(), "0.00%");
 
 //------------------------------------------------------------------------------
 // Side panel
 //------------------------------------------------------------------------------
 export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetActionEnv) => {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const zones = env.model.getters.getSelectedZones();
-  const rules = env.model.getters.getConditionalFormats(sheetId);
-  const ruleIds = env.model.getters.getRulesSelection(sheetId, zones);
+  const sheetId = env.model().getters.getActiveSheetId();
+  const zones = env.model().getters.getSelectedZones();
+  const rules = env.model().getters.getConditionalFormats(sheetId);
+  const ruleIds = env.model().getters.getRulesSelection(sheetId, zones);
   if (ruleIds.length === 1) {
     return env.openSidePanel("ConditionalFormattingEditor", {
       cf: rules.find((r) => r.id === ruleIds[0]),
@@ -563,14 +565,14 @@ export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetActionEnv) => {
 };
 
 export const INSERT_LINK = (env: SpreadsheetActionEnv) => {
-  const { col, row } = env.model.getters.getActivePosition();
+  const { col, row } = env.model().getters.getActivePosition();
   env.getStore(CellPopoverStore).open({ col, row }, "LinkEditor");
 };
 
 export const INSERT_LINK_NAME = (env: SpreadsheetActionEnv) => {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const { col, row } = env.model.getters.getActivePosition();
-  const cell = env.model.getters.getEvaluatedCell({ sheetId, col, row });
+  const sheetId = env.model().getters.getActiveSheetId();
+  const { col, row } = env.model().getters.getActivePosition();
+  const cell = env.model().getters.getEvaluatedCell({ sheetId, col, row });
 
   return cell && cell.link ? _t("Edit link") : _t("Insert link");
 };
@@ -585,27 +587,27 @@ export const SELECTED_TABLE_HAS_FILTERS = (env: SpreadsheetActionEnv): boolean =
 };
 
 export const SELECTION_CONTAINS_SINGLE_TABLE = (env: SpreadsheetActionEnv): boolean => {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const selectedZones = env.model.getters.getSelectedZones();
-  const tables = env.model.getters.getTablesOverlappingZones(sheetId, selectedZones);
+  const sheetId = env.model().getters.getActiveSheetId();
+  const selectedZones = env.model().getters.getSelectedZones();
+  const tables = env.model().getters.getTablesOverlappingZones(sheetId, selectedZones);
   return tables.length === 1 && !tables[0].isPivotTable;
 };
 
 export const IS_SELECTION_CONTINUOUS = (env: SpreadsheetActionEnv): boolean => {
-  return areZonesContinuous(env.model.getters.getSelectedZones());
+  return areZonesContinuous(env.model().getters.getSelectedZones());
 };
 
 export const FIRST_TABLE_IN_SELECTION = (env: SpreadsheetActionEnv): Table | undefined => {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const selection = env.model.getters.getSelectedZones();
-  return env.model.getters.getTablesOverlappingZones(sheetId, selection)[0];
+  const sheetId = env.model().getters.getActiveSheetId();
+  const selection = env.model().getters.getSelectedZones();
+  return env.model().getters.getTablesOverlappingZones(sheetId, selection)[0];
 };
 
 export const ADD_DATA_FILTER = (env: SpreadsheetActionEnv) => {
-  const sheetId = env.model.getters.getActiveSheetId();
+  const sheetId = env.model().getters.getActiveSheetId();
   const table = FIRST_TABLE_IN_SELECTION(env);
   if (table) {
-    env.model.dispatch("UPDATE_TABLE", {
+    env.model().dispatch("UPDATE_TABLE", {
       sheetId,
       zone: table.range.zone,
       config: { hasFilters: true },
@@ -622,12 +624,12 @@ export const ADD_DATA_FILTER = (env: SpreadsheetActionEnv) => {
 };
 
 export const REMOVE_DATA_FILTER = (env: SpreadsheetActionEnv) => {
-  const sheetId = env.model.getters.getActiveSheetId();
+  const sheetId = env.model().getters.getActiveSheetId();
   const table = FIRST_TABLE_IN_SELECTION(env);
   if (!table) {
     return;
   }
-  env.model.dispatch("UPDATE_TABLE", {
+  env.model().dispatch("UPDATE_TABLE", {
     sheetId,
     zone: table.range.zone,
     config: { hasFilters: false },
@@ -635,7 +637,7 @@ export const REMOVE_DATA_FILTER = (env: SpreadsheetActionEnv) => {
 };
 
 export const INSERT_TABLE = (env: SpreadsheetActionEnv) => {
-  const sheetId = env.model.getters.getActiveSheetId();
+  const sheetId = env.model().getters.getActiveSheetId();
 
   const result = interactiveCreateTable(env, sheetId);
   if (result.isSuccessful) {
@@ -651,8 +653,8 @@ export const DELETE_SELECTED_TABLE = (env: SpreadsheetActionEnv) => {
   if (!table) {
     return;
   }
-  env.model.dispatch("REMOVE_TABLE", {
-    sheetId: env.model.getters.getActiveSheetId(),
+  env.model().dispatch("REMOVE_TABLE", {
+    sheetId: env.model().getters.getActiveSheetId(),
     target: [table.range.zone],
   });
 };
@@ -662,7 +664,7 @@ export const DELETE_SELECTED_TABLE = (env: SpreadsheetActionEnv) => {
 //------------------------------------------------------------------------------
 
 export const IS_ONLY_ONE_RANGE = (env: SpreadsheetActionEnv): boolean => {
-  return env.model.getters.getSelectedZones().length === 1;
+  return env.model().getters.getSelectedZones().length === 1;
 };
 
 export const CAN_INSERT_HEADER = (env: SpreadsheetActionEnv, dimension: Dimension): boolean => {
@@ -670,12 +672,12 @@ export const CAN_INSERT_HEADER = (env: SpreadsheetActionEnv, dimension: Dimensio
     return false;
   }
   const activeHeaders =
-    dimension === "COL" ? env.model.getters.getActiveCols() : env.model.getters.getActiveRows();
+    dimension === "COL" ? env.model().getters.getActiveCols() : env.model().getters.getActiveRows();
   const ortogonalActiveHeaders =
-    dimension === "COL" ? env.model.getters.getActiveRows() : env.model.getters.getActiveCols();
-  const sheetId = env.model.getters.getActiveSheetId();
-  const zone = env.model.getters.getSelectedZone();
-  const allSheetSelected = isEqual(zone, env.model.getters.getSheetZone(sheetId));
+    dimension === "COL" ? env.model().getters.getActiveRows() : env.model().getters.getActiveCols();
+  const sheetId = env.model().getters.getActiveSheetId();
+  const zone = env.model().getters.getSelectedZone();
+  const allSheetSelected = isEqual(zone, env.model().getters.getSheetZone(sheetId));
   return isConsecutive(activeHeaders) && (ortogonalActiveHeaders.size === 0 || allSheetSelected);
 };
 

@@ -52,8 +52,8 @@ export class ColumnStatsPanel extends OSComponent {
     if (this.store.selectedColumn === undefined) {
       return "";
     }
-    const cell = this.env.model.getters.getEvaluatedCell({
-      sheetId: this.env.model.getters.getActiveSheetId(),
+    const cell = this.model().getters.getEvaluatedCell({
+      sheetId: this.model().getters.getActiveSheetId(),
       col: this.store.selectedColumn,
       row: 0,
     });
@@ -284,7 +284,7 @@ export class ColumnStatsPanel extends OSComponent {
     }
     return [
       {
-        range: this.env.model.getters.getRangeFromZone(this.env.model.getters.getActiveSheetId(), {
+        range: this.model().getters.getRangeFromZone(this.model().getters.getActiveSheetId(), {
           top: this.store.ignoredRows,
           left: column,
           bottom: undefined,
@@ -294,8 +294,8 @@ export class ColumnStatsPanel extends OSComponent {
         interactive: false,
       },
       ...this.state.highlightPositions.map((position) => ({
-        range: this.env.model.getters.getRangeFromZone(
-          this.env.model.getters.getActiveSheetId(),
+        range: this.model().getters.getRangeFromZone(
+          this.model().getters.getActiveSheetId(),
           positionToZone(position)
         ),
         color: "#ffeb3b9a",

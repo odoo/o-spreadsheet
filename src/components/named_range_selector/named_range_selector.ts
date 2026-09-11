@@ -57,43 +57,43 @@ export class NamedRangeSelector extends OSComponent {
     }
     newValue = newValue.replace(/ /g, "_");
 
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const selection = this.selectedZone;
     if (rangeReference.test(newValue)) {
-      const range = this.env.model.getters.getRangeFromSheetXC(sheetId, newValue);
+      const range = this.model().getters.getRangeFromSheetXC(sheetId, newValue);
       this.navigateToRange(range);
       return;
     }
 
-    const namedRange = this.env.model.getters.getNamedRange(newValue);
+    const namedRange = this.model().getters.getNamedRange(newValue);
     if (namedRange) {
       this.navigateToRange(namedRange.range);
       return;
     }
 
-    const namedRangeInZone = this.env.model.getters.getNamedRangeFromZone(sheetId, selection);
+    const namedRangeInZone = this.model().getters.getNamedRangeFromZone(sheetId, selection);
     if (!namedRangeInZone) {
       interactiveCreateNamedRange(this.spEnv, {
         name: newValue,
-        ranges: [this.env.model.getters.getRangeDataFromZone(sheetId, selection)],
+        ranges: [this.model().getters.getRangeDataFromZone(sheetId, selection)],
       });
     } else {
       interactiveUpdateNamedRange(this.spEnv, {
         newRangeName: newValue,
         oldRangeName: namedRangeInZone.name,
-        ranges: [this.env.model.getters.getRangeData(namedRangeInZone.range)],
+        ranges: [this.model().getters.getRangeData(namedRangeInZone.range)],
       });
     }
   }
 
   get inputValue() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const namedRange = this.env.model.getters.getNamedRangeFromZone(sheetId, this.selectedZone);
+    const sheetId = this.model().getters.getActiveSheetId();
+    const namedRange = this.model().getters.getNamedRangeFromZone(sheetId, this.selectedZone);
     return namedRange?.name || zoneToXc(this.selectedZone);
   }
 
   get selectedZone() {
-    return this.env.model.getters.getSelectedZone();
+    return this.model().getters.getSelectedZone();
   }
 
   openDropdown() {
@@ -104,7 +104,7 @@ export class NamedRangeSelector extends OSComponent {
 
   getNamedRangeMenuItems(): Action[] {
     let actionsSpecs: ActionSpec[] = [];
-    for (const { name: name, range } of this.env.model.getters.getNamedRanges()) {
+    for (const { name: name, range } of this.model().getters.getNamedRanges()) {
       const highlightProvider = {
         get highlights(): Highlight[] {
           return [{ range, color: HIGHLIGHT_COLOR, noFill: true }];
@@ -116,7 +116,7 @@ export class NamedRangeSelector extends OSComponent {
           this.navigateToRange(range);
           this.stopEditingNamedRange();
         },
-        description: (env) => env.model.getters.getRangeString(range),
+        description: (env) => env.model().getters.getRangeString(range),
         icon: "o-spreadsheet-Icon.NAMED_RANGE",
         onStartHover: (env) => env.getStore(HighlightStore).register(highlightProvider),
         onStopHover: (env) => env.getStore(HighlightStore).unRegister(highlightProvider),
@@ -157,7 +157,7 @@ export class NamedRangeSelector extends OSComponent {
 
   private navigateToRange(range: Range) {
     const { sheetId, zone } = range;
-    const doesRangeExist = this.env.model.getters.checkZonesExistInSheet(sheetId, [zone]);
+    const doesRangeExist = this.model().getters.checkZonesExistInSheet(sheetId, [zone]);
     if (doesRangeExist !== CommandResult.Success) {
       this.notification.raiseError(
         _t(
@@ -166,9 +166,9 @@ export class NamedRangeSelector extends OSComponent {
       );
       return;
     }
-    const activeSheetId = this.env.model.getters.getActiveSheetId();
+    const activeSheetId = this.model().getters.getActiveSheetId();
     if (activeSheetId !== sheetId) {
-      if (!this.env.model.getters.getSheet(sheetId).isVisible) {
+      if (!this.model().getters.getSheet(sheetId).isVisible) {
         this.notification.notifyUser({
           text: _t("The sheet on which the range is defined is hidden."),
           type: "info",
@@ -176,14 +176,14 @@ export class NamedRangeSelector extends OSComponent {
         });
         return;
       }
-      this.env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
+      this.model().dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
     }
 
     // First select the bottom-right cell to try to scroll the sheet so that the whole range is visible
-    this.env.model.selection.selectCell(zone.right, zone.bottom, {
+    this.model().selection.selectCell(zone.right, zone.bottom, {
       allowsHiddenSelection: true,
     });
-    this.env.model.selection.selectZone(
+    this.model().selection.selectZone(
       {
         cell: { col: zone.left, row: zone.top },
         zone,
@@ -193,7 +193,7 @@ export class NamedRangeSelector extends OSComponent {
   }
 
   get selectionKey(): string {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     return `${sheetId}-${zoneToXc(this.selectedZone)}`;
   }
 

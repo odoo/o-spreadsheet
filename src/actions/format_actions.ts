@@ -47,9 +47,9 @@ export function createFormatActionSpec({
     description: (env) =>
       formatValue(descriptionValue, {
         format: formatCallback(env),
-        locale: env.model.getters.getLocale(),
+        locale: env.model().getters.getLocale(),
       }),
-    execute: (env) => setFormatter(env.model, formatCallback(env)),
+    execute: (env) => setFormatter(env.model(), formatCallback(env)),
     isActive: (env) => isFormatSelected(env, formatCallback(env)),
     format,
   };
@@ -57,13 +57,13 @@ export function createFormatActionSpec({
 
 export const formatNumberAutomatic: NumberFormatActionSpec = {
   name: _t("Automatic"),
-  execute: (env) => setFormatter(env.model, ""),
+  execute: (env) => setFormatter(env.model(), ""),
   isActive: (env) => isAutomaticFormatSelected(env),
 };
 
 export const formatNumberPlainText: NumberFormatActionSpec = {
   name: _t("Plain text"),
-  execute: (env) => setFormatter(env.model, "@"),
+  execute: (env) => setFormatter(env.model(), "@"),
   isActive: (env) => isFormatSelected(env, "@"),
 };
 
@@ -94,7 +94,7 @@ export const formatNumberScientific = createFormatActionSpec({
 export const formatNumberCurrency = createFormatActionSpec({
   name: _t("Currency"),
   descriptionValue: 1000.12,
-  format: (env) => createCurrencyFormat(env.model.config.defaultCurrency || DEFAULT_CURRENCY),
+  format: (env) => createCurrencyFormat(env.model().config.defaultCurrency || DEFAULT_CURRENCY),
 });
 
 export const formatNumberCurrencyRounded: NumberFormatActionSpec = {
@@ -102,11 +102,11 @@ export const formatNumberCurrencyRounded: NumberFormatActionSpec = {
     name: _t("Currency rounded"),
     descriptionValue: 1000,
     format: (env) =>
-      roundFormat(createCurrencyFormat(env.model.config.defaultCurrency || DEFAULT_CURRENCY)),
+      roundFormat(createCurrencyFormat(env.model().config.defaultCurrency || DEFAULT_CURRENCY)),
   }),
   isVisible: (env) => {
     const currencyFormat = createCurrencyFormat(
-      env.model.config.defaultCurrency || DEFAULT_CURRENCY
+      env.model().config.defaultCurrency || DEFAULT_CURRENCY
     );
     const roundedFormat = roundFormat(currencyFormat);
     return currencyFormat !== roundedFormat;
@@ -116,7 +116,7 @@ export const formatNumberCurrencyRounded: NumberFormatActionSpec = {
 export const formatNumberAccounting = createFormatActionSpec({
   name: _t("Accounting"),
   descriptionValue: -1000.12,
-  format: (env) => createAccountingFormat(env.model.config.defaultCurrency || DEFAULT_CURRENCY),
+  format: (env) => createAccountingFormat(env.model().config.defaultCurrency || DEFAULT_CURRENCY),
 });
 
 export const EXAMPLE_DATE = parseLiteral("2023/09/26 10:43:00 PM", DEFAULT_LOCALE);
@@ -130,20 +130,20 @@ export const formatCustomCurrency: ActionSpec = {
 export const formatNumberDate = createFormatActionSpec({
   name: _t("Date"),
   descriptionValue: EXAMPLE_DATE,
-  format: (env) => env.model.getters.getLocale().dateFormat,
+  format: (env) => env.model().getters.getLocale().dateFormat,
 });
 
 export const formatNumberTime = createFormatActionSpec({
   name: _t("Time"),
   descriptionValue: EXAMPLE_DATE,
-  format: (env) => env.model.getters.getLocale().timeFormat,
+  format: (env) => env.model().getters.getLocale().timeFormat,
 });
 
 export const formatNumberDateTime = createFormatActionSpec({
   name: _t("Date time"),
   descriptionValue: EXAMPLE_DATE,
   format: (env) => {
-    const locale = env.model.getters.getLocale();
+    const locale = env.model().getters.getLocale();
     return getDateTimeFormat(locale);
   },
 });
@@ -176,9 +176,9 @@ export const increaseDecimalPlaces: ActionSpec = {
   name: _t("Increase decimal places"),
   icon: "o-spreadsheet-Icon.INCREASE_DECIMAL",
   execute: (env) =>
-    env.model.dispatch("SET_DECIMAL", {
-      sheetId: env.model.getters.getActiveSheetId(),
-      target: env.model.getters.getSelectedZones(),
+    env.model().dispatch("SET_DECIMAL", {
+      sheetId: env.model().getters.getActiveSheetId(),
+      target: env.model().getters.getSelectedZones(),
       step: 1,
     }),
 };
@@ -187,9 +187,9 @@ export const decreaseDecimalPlaces: ActionSpec = {
   name: _t("Decrease decimal places"),
   icon: "o-spreadsheet-Icon.DECRASE_DECIMAL",
   execute: (env) =>
-    env.model.dispatch("SET_DECIMAL", {
-      sheetId: env.model.getters.getActiveSheetId(),
-      target: env.model.getters.getSelectedZones(),
+    env.model().dispatch("SET_DECIMAL", {
+      sheetId: env.model().getters.getActiveSheetId(),
+      target: env.model().getters.getSelectedZones(),
       step: -1,
     }),
 };
@@ -197,26 +197,27 @@ export const decreaseDecimalPlaces: ActionSpec = {
 export const formatBold: ActionSpec = {
   name: _t("Bold"),
   shortcut: "Ctrl+B",
-  execute: (env) => setStyle(env.model, { bold: !env.model.getters.getCurrentStyle().bold }),
+  execute: (env) => setStyle(env.model(), { bold: !env.model().getters.getCurrentStyle().bold }),
   icon: "o-spreadsheet-Icon.BOLD",
-  isActive: (env) => !!env.model.getters.getCurrentStyle().bold,
+  isActive: (env) => !!env.model().getters.getCurrentStyle().bold,
 };
 
 export const formatItalic: ActionSpec = {
   name: _t("Italic"),
   shortcut: "Ctrl+I",
-  execute: (env) => setStyle(env.model, { italic: !env.model.getters.getCurrentStyle().italic }),
+  execute: (env) =>
+    setStyle(env.model(), { italic: !env.model().getters.getCurrentStyle().italic }),
   icon: "o-spreadsheet-Icon.ITALIC",
-  isActive: (env) => !!env.model.getters.getCurrentStyle().italic,
+  isActive: (env) => !!env.model().getters.getCurrentStyle().italic,
 };
 
 export const formatUnderline: ActionSpec = {
   name: _t("Underline"),
   shortcut: "Ctrl+U",
   execute: (env) =>
-    setStyle(env.model, { underline: !env.model.getters.getCurrentStyle().underline }),
+    setStyle(env.model(), { underline: !env.model().getters.getCurrentStyle().underline }),
   icon: "o-spreadsheet-Icon.UNDERLINE",
-  isActive: (env) => !!env.model.getters.getCurrentStyle().underline,
+  isActive: (env) => !!env.model().getters.getCurrentStyle().underline,
 };
 
 export const formatRotation: ActionSpec = {
@@ -226,11 +227,11 @@ export const formatRotation: ActionSpec = {
 
 function setRotation(env: SpreadsheetActionEnv, rotation: number) {
   rotation = Math.trunc(rotation / ROTATION_EPSILON) * ROTATION_EPSILON;
-  setStyle(env.model, { rotation });
+  setStyle(env.model(), { rotation });
 }
 
 function currentRotationEqual(env: SpreadsheetActionEnv, rotation: number): boolean {
-  const current = env.model.getters.getCurrentStyle().rotation;
+  const current = env.model().getters.getCurrentStyle().rotation;
   if (current === undefined) {
     return rotation === 0;
   }
@@ -239,7 +240,7 @@ function currentRotationEqual(env: SpreadsheetActionEnv, rotation: number): bool
 
 export const formatNoRotation: ActionSpec = {
   name: _t("No rotation"),
-  execute: (env) => setStyle(env.model, { rotation: 0 }),
+  execute: (env) => setStyle(env.model(), { rotation: 0 }),
   icon: "o-spreadsheet-Icon.ROTATION-0",
   isActive: (env) => currentRotationEqual(env, 0),
 };
@@ -275,9 +276,9 @@ export const formatRotation315: ActionSpec = {
 export const formatStrikethrough: ActionSpec = {
   name: _t("Strikethrough"),
   execute: (env) =>
-    setStyle(env.model, { strikethrough: !env.model.getters.getCurrentStyle().strikethrough }),
+    setStyle(env.model(), { strikethrough: !env.model().getters.getCurrentStyle().strikethrough }),
   icon: "o-spreadsheet-Icon.STRIKE",
-  isActive: (env) => !!env.model.getters.getCurrentStyle().strikethrough,
+  isActive: (env) => !!env.model().getters.getCurrentStyle().strikethrough,
 };
 
 export const formatFontSize: ActionSpec = {
@@ -299,7 +300,7 @@ export const formatAlignmentHorizontal: ActionSpec = {
 export const formatAlignmentLeft: ActionSpec = {
   name: _t("Left"),
   shortcut: "Ctrl+Shift+L",
-  execute: (env) => ACTIONS.setStyle(env.model, { align: "left" }),
+  execute: (env) => ACTIONS.setStyle(env.model(), { align: "left" }),
   isActive: (env) => getHorizontalAlign(env) === "left",
   icon: "o-spreadsheet-Icon.ALIGN_LEFT",
 };
@@ -307,7 +308,7 @@ export const formatAlignmentLeft: ActionSpec = {
 export const formatAlignmentCenter: ActionSpec = {
   name: _t("Center"),
   shortcut: "Ctrl+Shift+E",
-  execute: (env) => ACTIONS.setStyle(env.model, { align: "center" }),
+  execute: (env) => ACTIONS.setStyle(env.model(), { align: "center" }),
   isActive: (env) => getHorizontalAlign(env) === "center",
   icon: "o-spreadsheet-Icon.ALIGN_CENTER",
 };
@@ -315,7 +316,7 @@ export const formatAlignmentCenter: ActionSpec = {
 export const formatAlignmentRight: ActionSpec = {
   name: _t("Right"),
   shortcut: "Ctrl+Shift+R",
-  execute: (env) => ACTIONS.setStyle(env.model, { align: "right" }),
+  execute: (env) => ACTIONS.setStyle(env.model(), { align: "right" }),
   isActive: (env) => getHorizontalAlign(env) === "right",
   icon: "o-spreadsheet-Icon.ALIGN_RIGHT",
 };
@@ -327,21 +328,21 @@ export const formatAlignmentVertical: ActionSpec = {
 
 export const formatAlignmentTop: ActionSpec = {
   name: _t("Top"),
-  execute: (env) => ACTIONS.setStyle(env.model, { verticalAlign: "top" }),
+  execute: (env) => ACTIONS.setStyle(env.model(), { verticalAlign: "top" }),
   isActive: (env) => getVerticalAlign(env) === "top",
   icon: "o-spreadsheet-Icon.ALIGN_TOP",
 };
 
 export const formatAlignmentMiddle: ActionSpec = {
   name: _t("Middle"),
-  execute: (env) => ACTIONS.setStyle(env.model, { verticalAlign: "middle" }),
+  execute: (env) => ACTIONS.setStyle(env.model(), { verticalAlign: "middle" }),
   isActive: (env) => getVerticalAlign(env) === "middle",
   icon: "o-spreadsheet-Icon.ALIGN_MIDDLE",
 };
 
 export const formatAlignmentBottom: ActionSpec = {
   name: _t("Bottom"),
-  execute: (env) => ACTIONS.setStyle(env.model, { verticalAlign: "bottom" }),
+  execute: (env) => ACTIONS.setStyle(env.model(), { verticalAlign: "bottom" }),
   isActive: (env) => getVerticalAlign(env) === "bottom",
   icon: "o-spreadsheet-Icon.ALIGN_BOTTOM",
 };
@@ -358,21 +359,21 @@ export const formatWrapping: ActionSpec = {
 
 export const formatWrappingOverflow: ActionSpec = {
   name: _t("Overflow"),
-  execute: (env) => ACTIONS.setStyle(env.model, { wrapping: "overflow" }),
+  execute: (env) => ACTIONS.setStyle(env.model(), { wrapping: "overflow" }),
   isActive: (env) => getWrappingMode(env) === "overflow",
   icon: "o-spreadsheet-Icon.WRAPPING_OVERFLOW",
 };
 
 export const formatWrappingWrap: ActionSpec = {
   name: _t("Wrap"),
-  execute: (env) => ACTIONS.setStyle(env.model, { wrapping: "wrap" }),
+  execute: (env) => ACTIONS.setStyle(env.model(), { wrapping: "wrap" }),
   isActive: (env) => getWrappingMode(env) === "wrap",
   icon: "o-spreadsheet-Icon.WRAPPING_WRAP",
 };
 
 export const formatWrappingClip: ActionSpec = {
   name: _t("Clip"),
-  execute: (env) => ACTIONS.setStyle(env.model, { wrapping: "clip" }),
+  execute: (env) => ACTIONS.setStyle(env.model(), { wrapping: "clip" }),
   isActive: (env) => getWrappingMode(env) === "clip",
   icon: "o-spreadsheet-Icon.WRAPPING_CLIP",
 };
@@ -399,9 +400,9 @@ export const clearFormat: ActionSpec = {
   name: _t("Clear formatting"),
   shortcut: "Ctrl+<",
   execute: (env) =>
-    env.model.dispatch("CLEAR_FORMATTING", {
-      sheetId: env.model.getters.getActiveSheetId(),
-      target: env.model.getters.getSelectedZones(),
+    env.model().dispatch("CLEAR_FORMATTING", {
+      sheetId: env.model().getters.getActiveSheetId(),
+      target: env.model().getters.getSelectedZones(),
     }),
 
   icon: "o-spreadsheet-Icon.CLEAR_FORMAT",
@@ -413,46 +414,46 @@ function fontSizeMenuBuilder(): ActionSpec[] {
       name: fs.toString(),
       sequence: fs,
       id: `font_size_${fs}`,
-      execute: (env) => ACTIONS.setStyle(env.model, { fontSize: fs }),
+      execute: (env) => ACTIONS.setStyle(env.model(), { fontSize: fs }),
       isActive: (env) => isFontSizeSelected(env, fs),
     };
   });
 }
 
 function isAutomaticFormatSelected(env: SpreadsheetActionEnv): boolean {
-  const activePosition = env.model.getters.getActivePosition();
-  const pivotCell = env.model.getters.getPivotCellFromPosition(activePosition);
+  const activePosition = env.model().getters.getActivePosition();
+  const pivotCell = env.model().getters.getPivotCellFromPosition(activePosition);
   if (pivotCell.type === "VALUE") {
-    return !env.model.getters.getEvaluatedCell(activePosition).format;
+    return !env.model().getters.getEvaluatedCell(activePosition).format;
   }
-  return !env.model.getters.getCell(activePosition)?.format;
+  return !env.model().getters.getCell(activePosition)?.format;
 }
 
 function isFormatSelected(env: SpreadsheetActionEnv, format: string): boolean {
-  const activePosition = env.model.getters.getActivePosition();
-  const pivotCell = env.model.getters.getPivotCellFromPosition(activePosition);
+  const activePosition = env.model().getters.getActivePosition();
+  const pivotCell = env.model().getters.getPivotCellFromPosition(activePosition);
   if (pivotCell.type === "VALUE") {
-    return env.model.getters.getEvaluatedCell(activePosition).format === format;
+    return env.model().getters.getEvaluatedCell(activePosition).format === format;
   }
-  return env.model.getters.getCell(activePosition)?.format === format;
+  return env.model().getters.getCell(activePosition)?.format === format;
 }
 
 function isFontSizeSelected(env: SpreadsheetActionEnv, fontSize: number): boolean {
-  const currentFontSize = env.model.getters.getCurrentStyle().fontSize || DEFAULT_FONT_SIZE;
+  const currentFontSize = env.model().getters.getCurrentStyle().fontSize || DEFAULT_FONT_SIZE;
   return currentFontSize === fontSize;
 }
 
 function getHorizontalAlign(env: SpreadsheetActionEnv): Align {
-  const style = env.model.getters.getCurrentStyle();
+  const style = env.model().getters.getCurrentStyle();
   if (style.align && style.align !== "default") {
     return style.align;
   }
-  const cell = env.model.getters.getActiveCell();
+  const cell = env.model().getters.getActiveCell();
   return cell.defaultAlign;
 }
 
 function getVerticalAlign(env: SpreadsheetActionEnv): VerticalAlign {
-  const style = env.model.getters.getCurrentStyle();
+  const style = env.model().getters.getCurrentStyle();
   if (style.verticalAlign) {
     return style.verticalAlign;
   }
@@ -460,7 +461,7 @@ function getVerticalAlign(env: SpreadsheetActionEnv): VerticalAlign {
 }
 
 function getWrappingMode(env: SpreadsheetActionEnv): Wrapping {
-  const style = env.model.getters.getCurrentStyle();
+  const style = env.model().getters.getCurrentStyle();
   if (style.wrapping) {
     return style.wrapping;
   }

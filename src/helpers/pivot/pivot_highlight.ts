@@ -1,11 +1,11 @@
 import { HIGHLIGHT_COLOR } from "../../constants";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { CellPosition, Highlight, UID } from "../../types/misc";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
 import { mergeContiguousZones, positionToZone } from "../zones";
 
-export function getPivotHighlights(env: SpreadsheetChildEnv, pivotId: UID): Highlight[] {
-  const getters = env.model.getters;
+export function getPivotHighlights(env: SpreadsheetActionEnv, pivotId: UID): Highlight[] {
+  const getters = env.model().getters;
   const sheetId = getters.getActiveSheetId();
   const pivotCellPositions = getVisiblePivotCellPositions(env, pivotId);
   const mergedZones = mergeContiguousZones(pivotCellPositions.map(positionToZone));
@@ -16,8 +16,8 @@ export function getPivotHighlights(env: SpreadsheetChildEnv, pivotId: UID): High
   }));
 }
 
-function getVisiblePivotCellPositions(env: SpreadsheetChildEnv, pivotId: UID) {
-  const getters = env.model.getters;
+function getVisiblePivotCellPositions(env: SpreadsheetActionEnv, pivotId: UID) {
+  const getters = env.model().getters;
   const viewStore = env.getStore(ViewportsStore);
   const positions: CellPosition[] = [];
   const sheetId = getters.getActiveSheetId();

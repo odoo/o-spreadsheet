@@ -1,5 +1,7 @@
-import { PluginInstance, Scope, usePlugin, useScope } from "@odoo/owl";
+import { PluginInstance, Scope, Signal, usePlugin, useScope } from "@odoo/owl";
+import { Model } from "../model";
 import { Component, useEnv } from "../owl3_compatibility_layer";
+import { ModelPlugin } from "../owl_plugins/model_owl_plugin";
 import {
   OwlPluginGetter,
   SpreadsheetActionEnv,
@@ -19,6 +21,7 @@ export function createGetPluginFunctionFromScope(scope: Scope): OwlPluginGetter 
 
 export function useSpreadsheetEnv(): SpreadsheetActionEnv {
   const env = useEnv();
+  env.model = usePlugin(ModelPlugin).model;
   const scope = useScope();
 
   const getPlugin = createGetPluginFunctionFromScope(scope);
@@ -37,5 +40,10 @@ export function useSpreadsheetEnv(): SpreadsheetActionEnv {
  * type, so that `this.env` is properly typed in every component.
  */
 export class OSComponent extends Component<SpreadsheetChildEnv> {
+  modelPlugin = usePlugin(ModelPlugin);
   spEnv = useSpreadsheetEnv();
+
+  get model(): Signal<Model> {
+    return this.modelPlugin.model;
+  }
 }

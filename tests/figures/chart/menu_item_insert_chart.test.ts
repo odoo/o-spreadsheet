@@ -23,7 +23,7 @@ import {
 } from "../../test_helpers/commands_helpers";
 import {
   doAction,
-  makeTestEnv,
+  makeSpreadsheetActionTestEnv,
   mockChart,
   mountSpreadsheet,
   nextTick,
@@ -100,11 +100,10 @@ describe("Insert chart menu item", () => {
 
   beforeEach(async () => {
     openSidePanelSpy = jest.fn();
-    env = makeTestEnv({
-      model: new Model(data),
+    env = makeSpreadsheetActionTestEnv(new Model(data), {
       openSidePanel: (type, props) => openSidePanelSpy(type, props),
     });
-    model = env.model;
+    model = env.model();
     viewStore = env.getStore(ViewportsStore);
 
     mockChart();
@@ -429,7 +428,7 @@ describe("Smart chart type detection", () => {
 
   beforeEach(() => {
     model = new Model();
-    env = makeTestEnv({ model });
+    env = makeSpreadsheetActionTestEnv(model);
   });
 
   /**

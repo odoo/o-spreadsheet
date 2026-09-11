@@ -69,15 +69,15 @@ export class CarouselPanel extends OSComponent {
   }
 
   get carouselItems(): CarouselItem[] {
-    return this.env.model.getters.getCarousel(this.props.figureId).items;
+    return this.model().getters.getCarousel(this.props.figureId).items;
   }
 
   get title(): TitleDesign | undefined {
-    return this.env.model.getters.getCarousel(this.props.figureId).title;
+    return this.model().getters.getCarousel(this.props.figureId).title;
   }
 
   get carousel() {
-    return this.env.model.getters.getCarousel(this.props.figureId);
+    return this.model().getters.getCarousel(this.props.figureId);
   }
 
   getPreviewDivStyle(item: CarouselItem): string {
@@ -120,13 +120,13 @@ export class CarouselPanel extends OSComponent {
       ...newChartInfo.subtypeDefinition,
     } as ChartDefinition);
 
-    this.env.model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
+    this.model().dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
       newChartId: UuidGenerator.smallUuid(),
       chartDefinition: definition,
     });
-    this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureId });
+    this.model().dispatch("SELECT_FIGURE", { figureId: this.props.figureId });
     this.env.openSidePanel("ChartPanel");
   }
 
@@ -135,25 +135,25 @@ export class CarouselPanel extends OSComponent {
   }
 
   isCarouselItemActive(item: CarouselItem): boolean {
-    const activeItem = this.env.model.getters.getSelectedCarouselItem(this.props.figureId);
+    const activeItem = this.model().getters.getSelectedCarouselItem(this.props.figureId);
     return deepEquals(activeItem, item);
   }
 
   addDataViewToCarousel() {
-    const carousel = this.env.model.getters.getCarousel(this.props.figureId);
-    const selection = this.env.model.getters.getSelectedZone();
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const carousel = this.model().getters.getCarousel(this.props.figureId);
+    const selection = this.model().getters.getSelectedZone();
+    const sheetId = this.model().getters.getActiveSheetId();
     this.updateItems([
       ...carousel.items,
       {
         type: "carouselDataView",
-        range: this.env.model.getters.getRangeFromZone(sheetId, selection),
+        range: this.model().getters.getRangeFromZone(sheetId, selection),
       },
     ]);
   }
 
   activateCarouselItem(item: CarouselItem) {
-    this.env.model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+    this.model().dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
       item,
@@ -163,7 +163,7 @@ export class CarouselPanel extends OSComponent {
   editCarouselItem(item: CarouselItem) {
     if (item.type === "chart") {
       this.activateCarouselItem(item);
-      this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureId });
+      this.model().dispatch("SELECT_FIGURE", { figureId: this.props.figureId });
       this.env.openSidePanel("ChartPanel", { chartId: item.chartId });
     }
   }
@@ -182,7 +182,7 @@ export class CarouselPanel extends OSComponent {
   }
 
   deleteCarouselItem(item: CarouselItem) {
-    const carousel = this.env.model.getters.getCarousel(this.props.figureId);
+    const carousel = this.model().getters.getCarousel(this.props.figureId);
     const items = carousel.items.filter((itm) => !deepEquals(itm, item));
     this.updateItems(items);
   }
@@ -191,8 +191,8 @@ export class CarouselPanel extends OSComponent {
     if (item.type !== "chart") {
       return;
     }
-    const anchor = getPoppedOutChartAnchor(this.env, this.carouselSheetId, this.props.figureId);
-    this.env.model.dispatch("POPOUT_CHART_FROM_CAROUSEL", {
+    const anchor = getPoppedOutChartAnchor(this.spEnv, this.carouselSheetId, this.props.figureId);
+    this.model().dispatch("POPOUT_CHART_FROM_CAROUSEL", {
       sheetId: this.carouselSheetId,
       carouselId: this.props.figureId,
       chartId: item.chartId,
@@ -204,7 +204,7 @@ export class CarouselPanel extends OSComponent {
     if (item.type !== "chart") {
       return;
     }
-    this.env.model.dispatch("DUPLICATE_CAROUSEL_CHART", {
+    this.model().dispatch("DUPLICATE_CAROUSEL_CHART", {
       sheetId: this.carouselSheetId,
       carouselId: this.props.figureId,
       chartId: item.chartId,
@@ -242,7 +242,7 @@ export class CarouselPanel extends OSComponent {
     if (originalIndex === -1 || originalIndex === finalIndex) {
       return;
     }
-    const carousel = this.env.model.getters.getCarousel(this.props.figureId);
+    const carousel = this.model().getters.getCarousel(this.props.figureId);
     const items = [...carousel.items];
     items.splice(originalIndex, 1);
     items.splice(finalIndex, 0, item);
@@ -250,27 +250,27 @@ export class CarouselPanel extends OSComponent {
   }
 
   getItemTitle(item: CarouselItem): string {
-    return getCarouselItemTitle(this.env.model.getters, item);
+    return getCarouselItemTitle(this.model().getters, item);
   }
 
   getItemPreview(item: CarouselItem): string {
-    return getCarouselItemPreview(this.env.model.getters, item);
+    return getCarouselItemPreview(this.model().getters, item);
   }
 
   updateItems(items: CarouselItem[]) {
-    this.env.model.dispatch("UPDATE_CAROUSEL", {
+    this.model().dispatch("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
-      definition: this.env.model.getters.carouselToCarouselData({ ...this.carousel, items }),
+      definition: this.model().getters.carouselToCarouselData({ ...this.carousel, items }),
     });
   }
 
   updateTitleText(title: string) {
-    const carousel = this.env.model.getters.getCarousel(this.props.figureId);
-    this.env.model.dispatch("UPDATE_CAROUSEL", {
+    const carousel = this.model().getters.getCarousel(this.props.figureId);
+    this.model().dispatch("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
-      definition: this.env.model.getters.carouselToCarouselData({
+      definition: this.model().getters.carouselToCarouselData({
         ...carousel,
         title: {
           ...carousel.title,
@@ -281,11 +281,11 @@ export class CarouselPanel extends OSComponent {
   }
 
   updateTitleStyle(style: TitleDesign) {
-    const carousel = this.env.model.getters.getCarousel(this.props.figureId);
-    this.env.model.dispatch("UPDATE_CAROUSEL", {
+    const carousel = this.model().getters.getCarousel(this.props.figureId);
+    this.model().dispatch("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
-      definition: this.env.model.getters.carouselToCarouselData({
+      definition: this.model().getters.carouselToCarouselData({
         ...carousel,
         title: {
           ...carousel.title,
@@ -329,7 +329,7 @@ export class CarouselPanel extends OSComponent {
   }
 
   get carouselSheetId(): UID {
-    const sheetId = this.env.model.getters.getFigureSheetId(this.props.figureId);
+    const sheetId = this.model().getters.getFigureSheetId(this.props.figureId);
     if (!sheetId) {
       throw new Error("Could not find the sheetId of the carousel figure");
     }
@@ -340,7 +340,7 @@ export class CarouselPanel extends OSComponent {
     if (item.type !== "carouselDataView" || !item.range) {
       return "";
     }
-    return this.env.model.getters.getRangeString(item.range);
+    return this.model().getters.getRangeString(item.range);
   }
 
   onSelectionInputChanged(ranges: string[]) {
@@ -355,8 +355,8 @@ export class CarouselPanel extends OSComponent {
     const items = [...this.carouselItems];
     items[index] = {
       ...(items[index] as Extract<CarouselItem, { type: "carouselDataView" }>),
-      range: this.env.model.getters.getRangeFromSheetXC(
-        this.env.model.getters.getActiveSheetId(),
+      range: this.model().getters.getRangeFromSheetXC(
+        this.model().getters.getActiveSheetId(),
         this.state.currentRange
       ),
     };

@@ -40,12 +40,12 @@
         onMouseWheel.bind="this.onMouseWheel"
         onClosePopover.bind="this.onClosePopover"
       />
-      <t t-if="this.env.model.getters.isGridSelectionActive() and !this.env.isMobile()">
+      <t t-if="this.model().getters.isGridSelectionActive() and !this.env.isMobile()">
         <Autofill position="this.getAutofillPosition()" isVisible="this.isAutofillVisible"/>
       </t>
       <t t-foreach="this.highlights" t-as="highlight" t-key="highlight_index">
         <t
-          t-if="highlight.interactive and highlight.range.sheetId === this.env.model.getters.getActiveSheetId()">
+          t-if="highlight.interactive and highlight.range.sheetId === this.model().getters.getActiveSheetId()">
           <Highlight range="highlight.range" color="highlight.color"/>
         </t>
       </t>

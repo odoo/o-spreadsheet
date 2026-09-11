@@ -20,16 +20,16 @@ export class ChartFigure extends OSComponent {
   });
 
   onDoubleClick() {
-    this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });
+    this.model().dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });
     this.env.openSidePanel("ChartPanel");
   }
 
   get chartType(): ChartType {
-    return this.env.model.getters.getChartType(this.chartId);
+    return this.model().getters.getChartType(this.chartId);
   }
 
   get chartId(): UID {
-    const chartId = this.env.model.getters.getChartIdFromFigureId(this.props.figureUI.id);
+    const chartId = this.model().getters.getChartIdFromFigureId(this.props.figureUI.id);
     if (!chartId) {
       throw new Error(`No chart found for figure ID: ${this.props.figureUI.id}`);
     }

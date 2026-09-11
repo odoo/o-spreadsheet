@@ -34,7 +34,7 @@ export class HeaderGroupContainer extends OSComponent {
   }
 
   onContextMenu(event: MouseEvent) {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const position = { x: event.clientX, y: event.clientY };
     const menuItems = createHeaderGroupContainerContextMenu(sheetId, this.props.dimension);
     this.openContextMenu(position, menuItems);

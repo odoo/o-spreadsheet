@@ -186,11 +186,11 @@ export class GaugeChartDesignPanel extends OSComponent {
   }
 
   private valueIsValidNumber(value: string): boolean {
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     if (!value.startsWith("=")) {
       return tryToNumber(value, locale) !== undefined;
     }
-    const evaluatedValue = this.env.model.getters.evaluateFormula(this.sheetId, value);
+    const evaluatedValue = this.model().getters.evaluateFormula(this.sheetId, value);
     if (isMultipleElementMatrix(evaluatedValue)) {
       return false;
     }
@@ -198,7 +198,7 @@ export class GaugeChartDesignPanel extends OSComponent {
   }
 
   get sheetId() {
-    const chart = this.env.model.getters.getChart(this.props.chartId);
+    const chart = this.model().getters.getChart(this.props.chartId);
     if (!chart) {
       throw new Error("Chart not found with id " + this.props.chartId);
     }
