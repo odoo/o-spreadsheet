@@ -32,8 +32,7 @@ export class GeneralStatsSection extends Component<SpreadsheetChildEnv> {
   }
 
   get highlights(): Highlight[] {
-    const id = this.hoveredStat.id;
-    if (typeof id !== "string" || id === "" || ["average", "median", "sum"].includes(id)) {
+    if (this.hoveredStat.id !== "min" && this.hoveredStat.id !== "max") {
       return [];
     }
     const sheetId = this.env.model.getters.getActiveSheetId();
@@ -42,17 +41,7 @@ export class GeneralStatsSection extends Component<SpreadsheetChildEnv> {
     for (const zone of zones) {
       const cells = this.env.model.getters.getEvaluatedCellsInZone(sheetId, zone);
       for (const cell of cells) {
-        let doesMatch = false;
-        if (id === "min" || id === "max") {
-          if (cell.formattedValue === this.hoveredStat.value) {
-            doesMatch = true;
-          }
-        } else {
-          if (cell.formattedValue === this.hoveredStat.name) {
-            doesMatch = true;
-          }
-        }
-        if (doesMatch) {
+        if (cell.formattedValue === this.hoveredStat.value) {
           const cellXC = toXC(cell.position!.col, cell.position!.row);
           matches.push(this.env.model.getters.getRangeFromSheetXC(sheetId, cellXC));
         }

@@ -4,15 +4,9 @@
       <div class="d-flex">
         <span>Categories</span>
         <div t-on-click="this.sortItemsByName" class="o-button-icon mx-2 d-flex small text-end">
-          <t
-            t-if="this.listState.namesSortType === 'desc'"
-            t-call="o-spreadsheet-Icon.ARROW_DOWNWARD"
-          />
-          <t
-            t-if="this.listState.namesSortType === 'asc'"
-            t-call="o-spreadsheet-Icon.ARROW_UPWARD"
-          />
-          <t t-if="this.listState.namesSortType === 'none'" t-call="o-spreadsheet-Icon.SWAP_VERT"/>
+          <t t-if="this.listState.namesSortType === 'desc'" t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+          <t t-if="this.listState.namesSortType === 'asc'" t-call="o-spreadsheet-Icon.CARET_UP"/>
+          <t t-if="this.listState.namesSortType === 'none'" t-call="o-spreadsheet-Icon.CARET_SORT"/>
         </div>
       </div>
       <div class="d-flex">

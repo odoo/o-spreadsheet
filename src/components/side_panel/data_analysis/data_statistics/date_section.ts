@@ -1,7 +1,8 @@
-import { proxy, useProps } from "@odoo/owl";
+import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
 import { toXC } from "../../../../helpers/coordinates";
-import { StatValue } from "../../../../helpers/data_statistics/statistics_items";
+import { StatSection, StatValue } from "../../../../helpers/data_statistics/statistics_items";
 import { numberToJsDate } from "../../../../helpers/dates";
+import { deepEquals } from "../../../../helpers/misc";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { Highlight } from "../../../../types/misc";
@@ -36,6 +37,11 @@ export class DateSection extends Component<SpreadsheetChildEnv> {
 
   setup() {
     useHighlights(this);
+    onWillUpdateProps((nextProps) => {
+      if (!deepEquals(nextProps.statSections, this.props.statSections)) {
+        this.refreshDisplayedValues(nextProps.statSections);
+      }
+    });
   }
 
   get granularityOptions() {
@@ -47,22 +53,46 @@ export class DateSection extends Component<SpreadsheetChildEnv> {
   }
   onGranularitySelected(granularity: "year" | "month" | "day") {
     this.state.granularity = granularity;
+    this.refreshDisplayedValues();
   }
 
   sortItems() {
-    const items = [...this.occurrencySection.items];
     switch (this.state.sortType) {
       case "desc":
         this.state.sortType = "asc";
-        items.sort((a, b) => Number(a.value) - Number(b.value) || a.name.localeCompare(b.name));
         break;
       case "asc":
         this.state.sortType = "chrono";
-        items.sort((a, b) => String(a.id).localeCompare(String(b.id)));
         break;
       case "chrono":
         this.state.sortType = "desc";
+        break;
+    }
+    this.refreshDisplayedValues();
+  }
+
+  private getSection(statSections: StatSection[]): StatSection {
+    switch (this.state.granularity) {
+      case "year":
+        return statSections[0];
+      case "month":
+        return statSections[1];
+      case "day":
+        return statSections[2];
+    }
+  }
+
+  private refreshDisplayedValues(statSections: StatSection[] = this.props.statSections) {
+    const items = [...this.getSection(statSections).items];
+    switch (this.state.sortType) {
+      case "asc":
+        items.sort((a, b) => Number(a.value) - Number(b.value) || a.name.localeCompare(b.name));
+        break;
+      case "desc":
         items.sort((a, b) => Number(b.value) - Number(a.value) || a.name.localeCompare(b.name));
+        break;
+      case "chrono":
+        items.sort((a, b) => String(a.id).localeCompare(String(b.id)));
         break;
     }
     this.state.displayedValues = items;
@@ -70,17 +100,6 @@ export class DateSection extends Component<SpreadsheetChildEnv> {
 
   get total() {
     return this.props.statSections[1].items.reduce((acc, item) => acc + Number(item.value), 0);
-  }
-
-  get occurrencySection() {
-    switch (this.state.granularity) {
-      case "year":
-        return this.props.statSections[0];
-      case "month":
-        return this.props.statSections[1];
-      case "day":
-        return this.props.statSections[2];
-    }
   }
 
   computePercentage(value: number) {
@@ -99,18 +118,12 @@ export class DateSection extends Component<SpreadsheetChildEnv> {
 
   get highlights(): Highlight[] {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const zones = this.env.model.getters.getSelectedZones();
     const matches: Range[] = [];
-    for (const zone of zones) {
+    for (const zone of this.env.model.getters.getSelectedZones()) {
       const cells = this.env.model.getters.getEvaluatedCellsInZone(sheetId, zone);
       for (const cell of cells) {
         let doesMatch = false;
-        if (
-          (this.hoveredStat.id === "earliest" || this.hoveredStat.id === "latest") &&
-          cell.formattedValue === this.hoveredStat.value
-        ) {
-          doesMatch = true;
-        } else if (typeof cell.value === "number") {
+        if (typeof cell.value === "number") {
           const date = numberToJsDate(cell.value);
           switch (this.state.granularity) {
             case "year":

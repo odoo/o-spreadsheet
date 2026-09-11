@@ -89,8 +89,7 @@ export function buildOccurenciesItems(
     .filter(({ formattedValue }) => formattedValue !== "")
     .map(({ value, formattedValue }) =>
       createStatItem(getters, sheetId, value, formattedValue, `=COUNTIF(${range},"${value}")`)
-    )
-    .sort((a, b) => Number(b.value) - Number(a.value) || a.name.localeCompare(b.name));
+    );
 }
 
 function uniqueValues(

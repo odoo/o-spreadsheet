@@ -31,7 +31,7 @@ export class Occurencies extends Component<SpreadsheetChildEnv> {
     numberOfDisplayedValues: 50,
     hasMoreValues: false,
     namesSortType: "none",
-    valuesSortType: "desc",
+    valuesSortType: "none",
   });
   private hoveredStat = proxy<StatValue>({ id: "", name: "", value: "", formula: "" });
 
@@ -74,6 +74,7 @@ export class Occurencies extends Component<SpreadsheetChildEnv> {
   }
 
   sortItemsByName() {
+    this.listState.valuesSortType = "none";
     const items = [...this.props.items];
     switch (this.listState.namesSortType) {
       case "desc":
@@ -92,6 +93,7 @@ export class Occurencies extends Component<SpreadsheetChildEnv> {
   }
 
   sortItemsByValues() {
+    this.listState.namesSortType = "none";
     const items = [...this.props.items];
     switch (this.listState.valuesSortType) {
       case "desc":
@@ -114,9 +116,8 @@ export class Occurencies extends Component<SpreadsheetChildEnv> {
       return [];
     }
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const zones = this.env.model.getters.getSelectedZones();
     const matches: Range[] = [];
-    for (const zone of zones) {
+    for (const zone of this.env.model.getters.getSelectedZones()) {
       const cells = this.env.model.getters.getEvaluatedCellsInZone(sheetId, zone);
       for (const cell of cells) {
         if (cell.value === this.hoveredStat.id) {
