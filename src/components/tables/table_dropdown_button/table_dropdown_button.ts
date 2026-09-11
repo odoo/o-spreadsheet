@@ -5,15 +5,18 @@ import { DEFAULT_TABLE_CONFIG } from "../../../helpers/table_presets";
 import { interactiveCreateTable } from "../../../helpers/ui/table_interactive";
 import { cellPositions } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
+import { useStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
 import { UID } from "../../../types/misc";
 import { PropsOf } from "../../../types/props_of";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { Store } from "../../../types/store_engine";
 import { TableConfig } from "../../../types/table";
 import { ActionButton } from "../../action_button/action_button";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 import { Popover } from "../../popover/popover";
 import { types } from "../../props_validation";
+import { SidePanelStore } from "../../side_panel/side_panel/side_panel_store";
 import {
   CustomTablePopoverMouseEvent,
   TableStylesPopover,
@@ -32,10 +35,12 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
   });
 
   topBarToolStore!: ToolBarDropdownStore;
+  private sidePanelStore!: Store<SidePanelStore>;
   state = proxy<State>({ popoverProps: undefined });
 
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();
+    this.sidePanelStore = useStore(SidePanelStore);
   }
 
   onStylePicked(styleId: string) {
@@ -45,7 +50,7 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
     if (result.isSuccessful) {
       const table = FIRST_TABLE_IN_SELECTION(this.env);
       if (table) {
-        this.env.openSidePanel("TableSidePanel", { table });
+        this.sidePanelStore.open("TableSidePanel", { table });
       }
     }
     this.closePopover();
@@ -58,13 +63,13 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
     }
     const pivotId = this.dynamicPivotIdInSelection;
     if (pivotId) {
-      this.env.openSidePanel("PivotSidePanel", { pivotId, openTab: "design" });
+      this.sidePanelStore.open("PivotSidePanel", { pivotId, openTab: "design" });
       return;
     }
     const table = FIRST_TABLE_IN_SELECTION(this.env);
     if (table) {
       this.topBarToolStore.closeDropdowns();
-      this.env.toggleSidePanel("TableSidePanel", { table });
+      this.sidePanelStore.toggle("TableSidePanel", { table });
       return;
     }
 

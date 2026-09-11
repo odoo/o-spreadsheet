@@ -4,6 +4,7 @@ import * as ACTION_FORMAT from "../../actions/format_actions";
 import * as ACTION_INSERT from "../../actions/insert_actions";
 import * as ACTIONS from "../../actions/menu_items_actions";
 import * as ACTION_VIEW from "../../actions/view_actions";
+import { SidePanelStore } from "../../components/side_panel/side_panel/side_panel_store";
 import { ZOOM_VALUES } from "../../constants";
 import { getPivotHighlights } from "../../helpers/pivot/pivot_highlight";
 import { HighlightStore } from "../../stores/highlight_store";
@@ -33,7 +34,7 @@ topbarMenuRegistry
   .addChild("settings", ["file"], {
     name: _t("Settings"),
     sequence: 200,
-    execute: (env) => env.openSidePanel("Settings"),
+    execute: (env) => env.getStore(SidePanelStore).open("Settings"),
     isEnabled: (env) => !env.isSmall,
     isEnabledOnLockedSheet: true,
     icon: "o-spreadsheet-Icon.COG",
@@ -228,7 +229,7 @@ topbarMenuRegistry
   .addChild("perf_profile", ["view"], {
     name: _t("Performance"),
     sequence: 45,
-    execute: (env) => env.openSidePanel("PerfProfile"),
+    execute: (env) => env.getStore(SidePanelStore).open("PerfProfile"),
     isVisible: (env) => !env.isSmall,
     isEnabledOnLockedSheet: true,
     icon: "o-spreadsheet-Icon.AVG_TIME",
@@ -501,7 +502,7 @@ topbarMenuRegistry
   .addChild("data_validation", ["data"], {
     name: _t("Data Validation"),
     execute: (env) => {
-      env.openSidePanel("DataValidation");
+      env.getStore(SidePanelStore).open("DataValidation");
     },
     isEnabled: (env) => !env.isSmall,
     isEnabledOnLockedSheet: true,
@@ -511,7 +512,7 @@ topbarMenuRegistry
   .addChild("named_range", ["data"], {
     name: _t("Named ranges"),
     execute: (env) => {
-      env.openSidePanel("NamedRangesPanel");
+      env.getStore(SidePanelStore).open("NamedRangesPanel");
     },
     isEnabled: (env) => !env.isSmall,
     isEnabledOnLockedSheet: true,
@@ -555,7 +556,7 @@ topbarMenuRegistry
             sequence,
             isReadonlyAllowed: true,
             isEnabledOnLockedSheet: true,
-            execute: () => env.openSidePanel("PivotSidePanel", { pivotId }),
+            execute: () => env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId }),
             isEnabled: () => !env.isSmall,
             onStartHover: () => env.getStore(HighlightStore).register(highlightProvider),
             onStopHover: () => env.getStore(HighlightStore).unRegister(highlightProvider),

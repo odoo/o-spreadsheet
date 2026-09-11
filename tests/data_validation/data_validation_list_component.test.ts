@@ -1,5 +1,6 @@
 import { IsValueInListCriterion, Model, UID } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -62,7 +63,7 @@ describe("Edit criterion in side panel", () => {
         displayStyle: "arrow",
       });
       ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
-      env.openSidePanel("DataValidationEditor", { ruleId: "id" });
+      env.getStore(SidePanelStore).open("DataValidationEditor", { ruleId: "id" });
       await nextTick();
     });
 
@@ -81,7 +82,7 @@ describe("Edit criterion in side panel", () => {
         type: "containsText",
         values: ["hola"],
       });
-      env.openSidePanel("DataValidationEditor", { ruleId: "dv1" });
+      env.getStore(SidePanelStore).open("DataValidationEditor", { ruleId: "dv1" });
       await nextTick();
       const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-input .o-composer");
       expect(inputs).toHaveLength(1);
@@ -236,7 +237,7 @@ describe("Edit criterion in side panel", () => {
         displayStyle: "arrow",
       });
       ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
-      env.openSidePanel("DataValidationEditor", { ruleId: "id" });
+      env.getStore(SidePanelStore).open("DataValidationEditor", { ruleId: "id" });
       await nextTick();
     });
 

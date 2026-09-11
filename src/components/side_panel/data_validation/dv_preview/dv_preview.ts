@@ -2,10 +2,13 @@ import { signal, useProps } from "@odoo/owl";
 import { HIGHLIGHT_COLOR } from "../../../../constants";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
+import { useStore } from "../../../../store_engine/store_hooks";
 import { Highlight } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { Store } from "../../../../types/store_engine";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
 import { types } from "../../../props_validation";
+import { SidePanelStore } from "../../side_panel/side_panel_store";
 
 export class DataValidationPreview extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationPreview";
@@ -15,13 +18,15 @@ export class DataValidationPreview extends Component<SpreadsheetChildEnv> {
   });
 
   private dvPreviewRef = signal.ref();
+  private sidePanelStore!: Store<SidePanelStore>;
 
   setup() {
+    this.sidePanelStore = useStore(SidePanelStore);
     useHighlightsOnHover(this.dvPreviewRef, this);
   }
 
   onPreviewClick() {
-    this.env.replaceSidePanel("DataValidationEditor", "DataValidation", {
+    this.sidePanelStore.replace("DataValidationEditor", "DataValidation", {
       ruleId: this.props.rule.id,
     });
   }

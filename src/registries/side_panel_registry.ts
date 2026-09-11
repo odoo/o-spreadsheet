@@ -15,7 +15,6 @@ import { PivotMeasureDisplayPanel } from "../components/side_panel/pivot/pivot_m
 import { PivotSidePanel } from "../components/side_panel/pivot/pivot_side_panel/pivot_side_panel";
 import { RemoveDuplicatesPanel } from "../components/side_panel/remove_duplicates/remove_duplicates";
 import { SettingsPanel } from "../components/side_panel/settings/settings_panel";
-import { SidePanelState } from "../components/side_panel/side_panel/side_panel_store";
 import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns_panel/split_to_columns_panel";
 import { TablePanel } from "../components/side_panel/table_panel/table_panel";
 import { TableStyleEditorPanel } from "../components/side_panel/table_style_editor_panel/table_style_editor_panel";
@@ -25,24 +24,10 @@ import { Getters } from "../types/getters";
 import { UID } from "../types/misc";
 import { PropsOf } from "../types/props_of";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
-import { Registry } from "./registry";
+import { sidePanelRegistry } from "./side_panel_registry_definition";
 
-//------------------------------------------------------------------------------
-// Side Panel Registry
-//------------------------------------------------------------------------------
-
-export interface SidePanelContent {
-  title: string | ((env: SpreadsheetChildEnv, props: object) => string);
-  Body: any;
-  Footer?: any;
-  /**
-   * A callback used to validate the props or generate new props
-   * based on the current state of the spreadsheet model, using the getters.
-   */
-  computeState?: (getters: Getters, initialProps: object) => SidePanelState;
-}
-
-export const sidePanelRegistry = new Registry<SidePanelContent>();
+export { sidePanelRegistry } from "./side_panel_registry_definition";
+export type { SidePanelContent } from "./side_panel_registry_definition";
 
 sidePanelRegistry.add("ConditionalFormatting", {
   title: _t("Conditional formatting"),

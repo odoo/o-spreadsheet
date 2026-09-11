@@ -10,6 +10,7 @@ import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
 import { ICONS } from "../../../icons/icons";
 import { types } from "../../../props_validation";
 import { CfTerms } from "../../../translations_terms";
+import { SidePanelStore } from "../../side_panel/side_panel_store";
 
 export class ConditionalFormatPreview extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ConditionalFormatPreview";
@@ -72,10 +73,12 @@ export class ConditionalFormatPreview extends Component<SpreadsheetChildEnv> {
   }
 
   editConditionalFormat() {
-    this.env.replaceSidePanel("ConditionalFormattingEditor", "ConditionalFormatting", {
-      cf: this.props.conditionalFormat,
-      isNewCf: false,
-    });
+    this.env
+      .getStore(SidePanelStore)
+      .replace("ConditionalFormattingEditor", "ConditionalFormatting", {
+        cf: this.props.conditionalFormat,
+        isNewCf: false,
+      });
   }
 
   deleteConditionalFormat() {

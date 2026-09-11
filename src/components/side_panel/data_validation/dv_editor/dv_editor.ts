@@ -22,6 +22,7 @@ import { SelectionInput } from "../../../selection_input/selection_input";
 import { DVTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { Section } from "../../components/section/section";
+import { SidePanelStore } from "../../side_panel/side_panel_store";
 
 interface State {
   rule: DataValidationRuleData;
@@ -80,7 +81,9 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
 
   onCancel() {
     this.props.onCancel?.();
-    this.env.replaceSidePanel("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
+    this.env
+      .getStore(SidePanelStore)
+      .replace("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
   }
 
   onSave() {
@@ -89,7 +92,9 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
       this.state.errors = result.reasons;
       return;
     }
-    this.env.replaceSidePanel("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
+    this.env
+      .getStore(SidePanelStore)
+      .replace("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
   }
 
   get dispatchPayload(): Omit<AddDataValidationCommand, "type"> {
