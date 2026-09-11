@@ -119,12 +119,9 @@ export class SidePanelStore extends SpreadsheetStore {
     }
 
     // Try to open secondary panel if main panel is pinned
-    const nonCollapsedPanelSize = this.mainPanel.isCollapsed
-      ? DEFAULT_SIDE_PANEL_SIZE
-      : this.mainPanel.size;
     if (
       !this.secondaryPanel &&
-      nonCollapsedPanelSize + DEFAULT_SIDE_PANEL_SIZE > this.availableWidth
+      COLLAPSED_SIDE_PANEL_SIZE + DEFAULT_SIDE_PANEL_SIZE > this.availableWidth
     ) {
       this.get(NotificationStore).notifyUser({
         sticky: false,
@@ -132,6 +129,10 @@ export class SidePanelStore extends SpreadsheetStore {
         text: _t("The window is too small to display multiple side panels."),
       });
       return;
+    }
+
+    if (!this.mainPanel.isCollapsed) {
+      this.toggleCollapsePanel("mainPanel");
     }
 
     this._openPanel("secondaryPanel", newPanelInfo, state);
@@ -208,6 +209,9 @@ export class SidePanelStore extends SpreadsheetStore {
       if (this.secondaryPanel) {
         this.secondaryPanel.currentPanelProps.onCloseSidePanel?.();
         this.secondaryPanel = undefined;
+        if (this.mainPanel.isCollapsed) {
+          this.toggleCollapsePanel("mainPanel");
+        }
       }
       return;
     }
