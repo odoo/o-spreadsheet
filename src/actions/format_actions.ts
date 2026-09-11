@@ -1,3 +1,4 @@
+import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import {
   DEFAULT_CURRENCY,
   DEFAULT_FONT_SIZE,
@@ -6,8 +7,8 @@ import {
   FONT_SIZES,
   ROTATION_EPSILON,
 } from "../constants";
-import { parseLiteral } from "../helpers/cells/cell_evaluation";
 import {
+  EXAMPLE_DATE,
   createAccountingFormat,
   createCurrencyFormat,
   formatValue,
@@ -17,7 +18,6 @@ import { getDateTimeFormat } from "../helpers/locale";
 import { _t } from "../translation";
 import { CellValue } from "../types/cells";
 import { Format } from "../types/format";
-import { DEFAULT_LOCALE } from "../types/locale";
 import { Align, VerticalAlign, Wrapping } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { ActionSpec } from "./action";
@@ -119,12 +119,10 @@ export const formatNumberAccounting = createFormatActionSpec({
   format: (env) => createAccountingFormat(env.model.config.defaultCurrency || DEFAULT_CURRENCY),
 });
 
-export const EXAMPLE_DATE = parseLiteral("2023/09/26 10:43:00 PM", DEFAULT_LOCALE);
-
 export const formatCustomCurrency: ActionSpec = {
   name: _t("Custom currency"),
   isVisible: (env) => env.loadCurrencies !== undefined && !env.isSmall,
-  execute: (env) => env.openSidePanel("MoreFormats", { category: "currency" }),
+  execute: (env) => env.getStore(SidePanelStore).open("MoreFormats", { category: "currency" }),
 };
 
 export const formatNumberDate = createFormatActionSpec({
@@ -157,13 +155,13 @@ export const formatNumberDuration = createFormatActionSpec({
 export const customDateFormat: ActionSpec = {
   name: _t("Custom date and time"),
   isVisible: (env) => !env.isSmall,
-  execute: (env) => env.openSidePanel("MoreFormats", { category: "date" }),
+  execute: (env) => env.getStore(SidePanelStore).open("MoreFormats", { category: "date" }),
 };
 
 export const customNumberFormat: ActionSpec = {
   name: _t("Custom number format"),
   isVisible: (env) => !env.isSmall,
-  execute: (env) => env.openSidePanel("MoreFormats", { category: "number" }),
+  execute: (env) => env.getStore(SidePanelStore).open("MoreFormats", { category: "number" }),
 };
 
 export const formatNumberFullDateTime = createFormatActionSpec({

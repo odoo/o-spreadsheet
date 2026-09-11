@@ -1,7 +1,7 @@
 import { useListener, useProps } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/misc";
 import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
-import { useLocalStore } from "../../../../store_engine/store_hooks";
+import { useLocalStore, useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
 import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
@@ -11,6 +11,7 @@ import { SelectionInput } from "../../../selection_input/selection_input";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { BadgeSelection } from "../../components/badge_selection/badge_selection";
 import { Section } from "../../components/section/section";
+import { SidePanelStore } from "../../side_panel/side_panel_store";
 import { CellIsRuleEditor } from "./cell_is_rule_editor";
 import { ConditionalFormattingEditorStore } from "./cf_editor_store";
 import { ColorScaleRuleEditor } from "./color_scale_rule_editor";
@@ -37,6 +38,7 @@ export class ConditionalFormattingEditor extends Component<SpreadsheetChildEnv> 
 
   private activeSheetId!: UID;
   private store!: Store<ConditionalFormattingEditorStore>;
+  private sidePanelStore!: Store<SidePanelStore>;
 
   setup() {
     this.activeSheetId = this.env.model.getters.getActiveSheetId();
@@ -45,10 +47,11 @@ export class ConditionalFormattingEditor extends Component<SpreadsheetChildEnv> 
       deepCopy(this.props.cf),
       this.props.isNewCf
     );
+    this.sidePanelStore = useStore(SidePanelStore);
     useLayoutEffect(
       (sheetId, isCfRemoved) => {
         if (this.activeSheetId !== sheetId || isCfRemoved) {
-          this.env.replaceSidePanel(
+          this.sidePanelStore.replace(
             "ConditionalFormatting",
             `ConditionalFormattingEditor_${this.props.cf.id}`
           );
@@ -80,7 +83,7 @@ export class ConditionalFormattingEditor extends Component<SpreadsheetChildEnv> 
     this.store.updateConditionalFormat({});
     const isSuccessful = this.store.state.errors.length === 0;
     if (isSuccessful) {
-      this.env.replaceSidePanel(
+      this.sidePanelStore.replace(
         "ConditionalFormatting",
         `ConditionalFormattingEditor_${this.props.cf.id}`
       );
@@ -104,7 +107,7 @@ export class ConditionalFormattingEditor extends Component<SpreadsheetChildEnv> 
         });
       }
     }
-    this.env.replaceSidePanel(
+    this.sidePanelStore.replace(
       "ConditionalFormatting",
       `ConditionalFormattingEditor_${this.props.cf.id}`
     );

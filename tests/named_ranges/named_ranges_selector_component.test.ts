@@ -1,5 +1,6 @@
 import { Model } from "../../src";
 import { NamedRangeSelector } from "../../src/components/named_range_selector/named_range_selector";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { HIGHLIGHT_COLOR } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
 import { HighlightStore } from "../../src/stores/highlight_store";
@@ -22,7 +23,7 @@ let model: Model;
 let env: SpreadsheetChildEnv;
 let fixture: HTMLElement;
 let raiseError: jest.Mock;
-let openSidePanel: jest.Mock;
+let openSidePanel: jest.SpyInstance;
 
 beforeEach(() => {
   model = new Model();
@@ -30,11 +31,12 @@ beforeEach(() => {
 
 async function mountRangeSelector() {
   raiseError = jest.fn();
-  openSidePanel = jest.fn();
   ({ model, env, fixture } = await mountComponentWithPortalTarget(NamedRangeSelector, {
     model,
-    env: { raiseError, openSidePanel },
+    env: { raiseError },
   }));
+  const sidePanelStore = env.getStore(SidePanelStore);
+  openSidePanel = jest.spyOn(sidePanelStore, "open");
 }
 
 describe("Named ranges topbar selector", () => {

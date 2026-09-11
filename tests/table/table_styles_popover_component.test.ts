@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { TableStylesPopover } from "../../src/components/tables/table_styles_popover/table_styles_popover";
 import { DEFAULT_TABLE_CONFIG, TABLE_PRESETS } from "../../src/helpers/table_presets";
 import { PropsOf } from "../../src/types/props_of";
@@ -8,7 +9,7 @@ import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helper
 
 let model: Model;
 let fixture: HTMLElement;
-let openSidePanel: jest.Mock;
+let openSidePanel: jest.SpyInstance;
 
 async function mountPopover(partialProps: Partial<PropsOf<TableStylesPopover>> = {}) {
   const props: PropsOf<TableStylesPopover> = {
@@ -24,9 +25,10 @@ async function mountPopover(partialProps: Partial<PropsOf<TableStylesPopover>> =
     type: "table",
     ...partialProps,
   };
-  openSidePanel = jest.fn();
-  const env = { openSidePanel };
-  ({ fixture } = await mountComponentWithPortalTarget(TableStylesPopover, { model, props, env }));
+  const result = await mountComponentWithPortalTarget(TableStylesPopover, { model, props });
+  fixture = result.fixture;
+  const sidePanelStore = result.env.getStore(SidePanelStore);
+  openSidePanel = jest.spyOn(sidePanelStore, "open");
   await nextTick();
 }
 

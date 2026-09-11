@@ -3,6 +3,7 @@ import { Model, UID } from "../../../src";
 import { getCarouselMenuActions } from "../../../src/actions/figure_menu_actions";
 import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
 import { downloadFile } from "../../../src/components/helpers/dom_helpers";
+import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
 import { CAROUSEL_LAYOUT } from "../../../src/constants";
 import { toZone } from "../../../src/helpers/zones";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
@@ -564,7 +565,8 @@ describe("Carousel figure component", () => {
     const chartId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
 
     const { fixture, env } = await mountSpreadsheet({ model }, {});
-    const openSidePanel = jest.spyOn(env, "openSidePanel");
+    const sidePanelStore = env.getStore(SidePanelStore);
+    const openSidePanel = jest.spyOn(sidePanelStore, "open");
 
     await doubleClick(fixture, ".o-chart-container");
     expect(openSidePanel).toHaveBeenLastCalledWith("ChartPanel", { chartId });
@@ -575,15 +577,16 @@ describe("Carousel figure component", () => {
 
   describe("Carousel menu items", () => {
     let env: SpreadsheetChildEnv;
-    let openSidePanel: jest.Mock;
+    let openSidePanel: jest.SpyInstance;
 
     function getCarouselMenuItem(figureId: UID, actionId: string) {
       return getCarouselMenuActions(figureId, env).find((action) => action.id === actionId);
     }
 
     beforeEach(() => {
-      openSidePanel = jest.fn();
-      env = makeTestEnv({ model, openSidePanel });
+      env = makeTestEnv({ model });
+      const sidePanelStore = env.getStore(SidePanelStore);
+      openSidePanel = jest.spyOn(sidePanelStore, "open");
     });
 
     test("Can edit the carousel", () => {

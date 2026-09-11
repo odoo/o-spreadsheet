@@ -10,6 +10,7 @@ import {
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { ConditionalFormattingEditor } from "../../src/components/side_panel/conditional_formatting/cf_editor/cf_editor";
 import { ConditionalFormatPreviewList } from "../../src/components/side_panel/conditional_formatting/cf_preview_list/cf_preview_list";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import { toHex } from "../../src/helpers/color";
 import { toZone } from "../../src/helpers/zones";
@@ -623,7 +624,7 @@ describe("UI of conditional formats", () => {
     beforeEach(async () => {
       ({ model, fixture, env } = await mountComponentWithPortalTarget(SidePanels));
       sheetId = model.getters.getActiveSheetId();
-      env.openSidePanel("ConditionalFormatting");
+      env.getStore(SidePanelStore).open("ConditionalFormatting");
       await nextTick();
     });
 
@@ -698,7 +699,7 @@ describe("UI of conditional formats", () => {
     beforeEach(async () => {
       ({ model, fixture, env } = await mountComponentWithPortalTarget(SidePanels));
       sheetId = model.getters.getActiveSheetId();
-      env.openSidePanel("ConditionalFormatting");
+      env.getStore(SidePanelStore).open("ConditionalFormatting");
       await nextTick();
     });
 
@@ -1640,7 +1641,7 @@ describe("Integration tests", () => {
 
   test("Make a multiple selection, open CF panel, create a rule => Should create one line per selection", async () => {
     setSelection(model, ["B2", "C3"]);
-    env.openSidePanel("ConditionalFormatting");
+    env.getStore(SidePanelStore).open("ConditionalFormatting");
     await nextTick();
     await click(fixture, selectors.buttonAdd);
     await nextTick();
@@ -1655,7 +1656,7 @@ describe("Integration tests", () => {
     const range = "A1:A2";
     addEqualCf(model, range, { bold: true, fillColor: "#ff0000" }, "2", "99");
     createSheet(model, { sheetId: "42" });
-    env.openSidePanel("ConditionalFormattingEditor", {
+    env.getStore(SidePanelStore).open("ConditionalFormattingEditor", {
       cf: { ...cf, ranges: [range] },
       isNewCf: true,
     });
@@ -1673,7 +1674,7 @@ describe("Integration tests", () => {
     const range = "A1:A2";
     addEqualCf(model, range, { bold: true, fillColor: "#ff0000" }, "2", "99");
     createSheet(model, { sheetId: "42" });
-    env.openSidePanel("ConditionalFormattingEditor", {
+    env.getStore(SidePanelStore).open("ConditionalFormattingEditor", {
       cf: { ...cf, ranges: [range] },
       isNewCf: true,
     });
