@@ -35,6 +35,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     UPDATE_TABLE: this.invalidateSheetComputedStyles,
     UPDATE_FILTER: this.invalidateSheetComputedStyles,
     ADD_CONDITIONAL_FORMAT: this.invalidateComputedCfStyles,
+    REMOVE_CONDITIONAL_FORMAT: this.invalidateComputedCfStyles,
   };
 
   private invalidateComputedCfStyles() {

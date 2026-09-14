@@ -83,6 +83,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     REMOVE_TABLE: this.invalidateUnusedPivots,
     UPDATE_TABLE: this.invalidateUnusedPivots,
     ADD_CONDITIONAL_FORMAT: this.invalidateUnusedPivots,
+    REMOVE_CONDITIONAL_FORMAT: this.invalidateUnusedPivots,
   };
 
   constructor(config: EvaluationPluginConfig) {

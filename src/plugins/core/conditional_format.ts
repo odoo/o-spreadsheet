@@ -9,6 +9,7 @@ import {
   Command,
   CommandResult,
   CoreCommand,
+  RemoveConditionalFormatCommand,
 } from "../../types/commands";
 import {
   CellIsRule,
@@ -60,7 +61,12 @@ export class ConditionalFormatPlugin
 
   handlers = {
     ADD_CONDITIONAL_FORMAT: this.addConditionalFormat,
+    REMOVE_CONDITIONAL_FORMAT: this.removeConditionalFormat,
   };
+
+  private removeConditionalFormat(cmd: RemoveConditionalFormatCommand) {
+    this.removeConditionalFormatting(cmd.id, cmd.sheetId);
+  }
 
   private addConditionalFormat(cmd: AddConditionalFormatCommand) {
     const cf = {
@@ -234,9 +240,6 @@ export class ConditionalFormatPlugin
         const cfRules = Object.assign({}, this.cfRules);
         delete cfRules[cmd.sheetId];
         this.history.update("cfRules", cfRules);
-        break;
-      case "REMOVE_CONDITIONAL_FORMAT":
-        this.removeConditionalFormatting(cmd.id, cmd.sheetId);
         break;
       case "CHANGE_CONDITIONAL_FORMAT_PRIORITY":
         this.changeCFPriority(cmd.cfId, cmd.delta, cmd.sheetId);
