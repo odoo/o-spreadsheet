@@ -849,7 +849,7 @@ export default function (PivotClass: PivotUIConstructor) {
     }
 
     private getPivotValueCells(measureId: string): PivotValueCell[][] {
-      return this.getCollapsedTableStructure()
+      return this.getExpandedTableStructure()
         .getPivotCells()
         .map((col) => col.filter((cell) => cell.type === "VALUE" && cell.measure === measureId))
         .filter((col) => col.length > 0) as PivotValueCell[][];
