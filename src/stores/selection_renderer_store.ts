@@ -1,12 +1,11 @@
 import { SELECTION_BORDER_COLOR } from "../constants";
 import { deepCopy, deepEquals } from "../helpers/misc";
-import { isRectInside } from "../helpers/rectangle";
 import { positionToZone } from "../helpers/zones";
 import { EASING_FN } from "../registries/cell_animation_registry";
 import { GridRenderingContext, LayerName, Rect } from "../types/rendering";
 import { SpreadsheetStore } from "./spreadsheet_store";
 
-export const SELECTION_ANIMATION_DURATION = 130;
+export const SELECTION_ANIMATION_DURATION = 17 * 6;
 
 interface SelectionRenderingState {
   fillStyle: string;
@@ -18,13 +17,20 @@ interface SelectionRenderingState {
 interface SelectionAnimation {
   startState: SelectionRenderingState;
   endState: SelectionRenderingState;
+  currentState?: SelectionRenderingState;
   startTime: number | undefined;
   progress: number;
 }
 
 export class SelectionRendererStore extends SpreadsheetStore {
-  lastRenderingState: SelectionRenderingState | undefined = undefined;
+  mutators = ["enableAnimationForNextRender"];
+
+  private lastRenderingState: SelectionRenderingState | undefined = undefined;
   animatedSelection: SelectionAnimation | undefined = undefined;
+
+  enableAnimationForNextRender() {
+    // TODO
+  }
 
   get renderingLayers() {
     return ["Selection"] as const;
@@ -126,25 +132,28 @@ export class SelectionRendererStore extends SpreadsheetStore {
   private getAnimatedSelectionState(
     currentState: SelectionRenderingState,
     timeStamp: number | undefined
-  ) {
+  ): SelectionRenderingState {
     const oldState = this.lastRenderingState;
     this.lastRenderingState = currentState;
 
     this.updateAnimationProgress(timeStamp);
     this.addNewAnimation(currentState, oldState, timeStamp);
+    this.updateCurrentAnimatedSelection();
 
     if (this.animatedSelection) {
       this.renderer.startAnimation("selection_renderer_animation");
-      return this.getCurrentAnimatedSelection(this.animatedSelection);
+      return this.animatedSelection.currentState || currentState;
     } else {
       this.renderer.stopAnimation("selection_renderer_animation");
       return currentState;
     }
   }
 
-  private getCurrentAnimatedSelection(
-    animatedSelection: SelectionAnimation
-  ): SelectionRenderingState {
+  private updateCurrentAnimatedSelection() {
+    const animatedSelection = this.animatedSelection!;
+    if (!animatedSelection) {
+      return;
+    }
     const { startState, endState } = animatedSelection;
 
     const animatedState = deepCopy(startState);
@@ -170,7 +179,7 @@ export class SelectionRendererStore extends SpreadsheetStore {
       animatedState.activeZoneRect = interpolateRect(startRect, endRect, value);
     }
 
-    return animatedState;
+    animatedSelection.currentState = animatedState;
   }
 
   private updateAnimationProgress(timeStamp: number | undefined) {
@@ -221,14 +230,14 @@ export class SelectionRendererStore extends SpreadsheetStore {
       return;
     }
 
-    // If a rect changed in both x and Y, no animation
-    const lastRect = lastState.selectedZonesRects[0];
-    const currentRect = currentState.selectedZonesRects[0];
-    const isInside = isRectInside(lastRect, currentRect) || isRectInside(currentRect, lastRect);
-    if (!isInside && lastRect.x !== currentRect.x && lastRect.y !== currentRect.y) {
-      this.animatedSelection = undefined;
-      return;
-    }
+    // // If a rect changed in both x and Y, no animation
+    // const lastRect = lastState.selectedZonesRects[0];
+    // const currentRect = currentState.selectedZonesRects[0];
+    // const isInside = isRectInside(lastRect, currentRect) || isRectInside(currentRect, lastRect);
+    // if (!isInside && lastRect.x !== currentRect.x && lastRect.y !== currentRect.y) {
+    //   this.animatedSelection = undefined;
+    //   return;
+    // }
 
     this.animatedSelection = {
       startState: lastState,
