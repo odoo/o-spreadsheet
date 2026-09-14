@@ -112,6 +112,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     UPDATE_CAROUSEL: this.invalidateUnusedPivots,
     SET_GRID_LINES_VISIBILITY: this.invalidateUnusedPivots,
     MOVE_SHEET: this.invalidateUnusedPivots,
+    LOCK_SHEET: this.invalidateUnusedPivots,
   };
 
   constructor(config: EvaluationPluginConfig) {
