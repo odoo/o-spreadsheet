@@ -42,7 +42,12 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
     FOLD_HEADER_GROUPS_IN_ZONE: this.refreshHiddenRows,
     UNFOLD_HEADER_GROUPS_IN_ZONE: this.refreshHiddenRows,
     CREATE_SHEET: this.initSheetFilterValues,
+    DUPLICATE_SHEET: this.duplicateSheetFilterValues,
   };
+
+  private duplicateSheetFilterValues(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    this.filterValues[cmd.sheetIdTo] = deepCopy(this.filterValues[cmd.sheetId]);
+  }
 
   private initSheetFilterValues(cmd: { sheetId: UID }) {
     this.filterValues[cmd.sheetId] = {};
@@ -85,9 +90,6 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
         for (const sheetId of this.getters.getSheetIds()) {
           this.filterValues[sheetId] = {};
         }
-        break;
-      case "DUPLICATE_SHEET":
-        this.filterValues[cmd.sheetIdTo] = deepCopy(this.filterValues[cmd.sheetId]);
         break;
       // If we don't handle DELETE_SHEET, on one hand we will have some residual data, on the other hand we keep the data
       // on DELETE_SHEET followed by undo

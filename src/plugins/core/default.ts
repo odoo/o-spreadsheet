@@ -55,7 +55,13 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
   handlers = {
     SET_FORMATTING: this.setFormatting,
     CLEAR_FORMATTING: this.clearFormatting,
+    DUPLICATE_SHEET: this.duplicateSheetDefaults,
   };
+
+  private duplicateSheetDefaults(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    this.history.update("style", cmd.sheetIdTo, deepCopy(this.style[cmd.sheetId]));
+    this.history.update("format", cmd.sheetIdTo, deepCopy(this.format[cmd.sheetId]));
+  }
 
   private clearFormatting(cmd: ClearFormattingCommand) {
     this.setStyle(cmd.sheetId, cmd.target, DEFAULT_STYLE);
@@ -95,10 +101,6 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
           }
           this.moveColRows(cmd.sheetId, cmd.dimension, el[0], -el.length);
         }
-        break;
-      case "DUPLICATE_SHEET":
-        this.history.update("style", cmd.sheetIdTo, deepCopy(this.style[cmd.sheetId]));
-        this.history.update("format", cmd.sheetIdTo, deepCopy(this.format[cmd.sheetId]));
         break;
     }
   }

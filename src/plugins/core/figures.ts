@@ -29,7 +29,26 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     CREATE_FIGURE: this.createFigure,
     DELETE_FIGURE: this.deleteFigure,
     CREATE_SHEET: this.initSheetFigures,
+    DUPLICATE_SHEET: this.duplicateSheetFigures,
   };
+
+  private duplicateSheetFigures(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    for (const figure of this.getFigures(cmd.sheetId)) {
+      const figureId = figure.id;
+      const fig = this.figures[cmd.sheetId]?.[figureId];
+      if (!fig) {
+        continue;
+      }
+      const figureIdBase = figureId.split(FIGURE_ID_SPLITTER).pop();
+      const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
+      this.dispatch("CREATE_FIGURE", {
+        figureId: duplicatedFigureId,
+        ...fig,
+        size: { width: fig.width, height: fig.height },
+        sheetId: cmd.sheetIdTo,
+      });
+    }
+  }
 
   private initSheetFigures(cmd: { sheetId: UID }) {
     this.figures[cmd.sheetId] = {};
@@ -132,24 +151,6 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
           this.onRowRemove(cmd.sheetId);
         }
         break;
-      case "DUPLICATE_SHEET": {
-        for (const figure of this.getFigures(cmd.sheetId)) {
-          const figureId = figure.id;
-          const fig = this.figures[cmd.sheetId]?.[figureId];
-          if (!fig) {
-            continue;
-          }
-          const figureIdBase = figureId.split(FIGURE_ID_SPLITTER).pop();
-          const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
-          this.dispatch("CREATE_FIGURE", {
-            figureId: duplicatedFigureId,
-            ...fig,
-            size: { width: fig.width, height: fig.height },
-            sheetId: cmd.sheetIdTo,
-          });
-        }
-        break;
-      }
     }
   }
 

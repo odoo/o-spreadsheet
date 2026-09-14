@@ -24,7 +24,42 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
     DELETE_FIGURE: this.deleteCarousel,
     CREATE_CAROUSEL: this.createCarousel,
     UPDATE_CAROUSEL: this.updateCarousel,
+    DUPLICATE_SHEET: this.duplicateSheetCarousels,
   };
+
+  private duplicateSheetCarousels(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
+    for (const fig of sheetFiguresFrom) {
+      if (fig.tag === "carousel") {
+        const figureIdBase = fig.id.split(FIGURE_ID_SPLITTER).pop();
+        const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
+        const carousel = this.getCarousel(fig.id);
+        if (carousel) {
+          const size = { width: fig.width, height: fig.height };
+          const carouselData = this.carouselToCarouselData(carousel);
+          this.dispatch("CREATE_CAROUSEL", {
+            sheetId: cmd.sheetIdTo,
+            figureId: duplicatedFigureId,
+            offset: fig.offset,
+            col: fig.col,
+            row: fig.row,
+            size,
+            definition: {
+              ...carouselData,
+              items: carouselData.items.map((item): CarouselItemData => {
+                if (item.type === "carouselDataView") {
+                  return { ...item };
+                }
+                const chartIdBase = item.chartId.split(FIGURE_ID_SPLITTER).pop();
+                const newChartId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${chartIdBase}`;
+                return { ...item, chartId: newChartId };
+              }),
+            },
+          });
+        }
+      }
+    }
+  }
 
   private updateCarousel(cmd: UpdateCarouselCommand) {
     this.removeDeletedCharts(cmd, this.getters.getCarousel(cmd.figureId).items);
@@ -104,40 +139,6 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "DUPLICATE_SHEET": {
-        const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
-        for (const fig of sheetFiguresFrom) {
-          if (fig.tag === "carousel") {
-            const figureIdBase = fig.id.split(FIGURE_ID_SPLITTER).pop();
-            const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
-            const carousel = this.getCarousel(fig.id);
-            if (carousel) {
-              const size = { width: fig.width, height: fig.height };
-              const carouselData = this.carouselToCarouselData(carousel);
-              this.dispatch("CREATE_CAROUSEL", {
-                sheetId: cmd.sheetIdTo,
-                figureId: duplicatedFigureId,
-                offset: fig.offset,
-                col: fig.col,
-                row: fig.row,
-                size,
-                definition: {
-                  ...carouselData,
-                  items: carouselData.items.map((item): CarouselItemData => {
-                    if (item.type === "carouselDataView") {
-                      return { ...item };
-                    }
-                    const chartIdBase = item.chartId.split(FIGURE_ID_SPLITTER).pop();
-                    const newChartId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${chartIdBase}`;
-                    return { ...item, chartId: newChartId };
-                  }),
-                },
-              });
-            }
-          }
-        }
-        break;
-      }
       case "DELETE_SHEET":
         this.history.update("carousels", cmd.sheetId, undefined);
         break;
