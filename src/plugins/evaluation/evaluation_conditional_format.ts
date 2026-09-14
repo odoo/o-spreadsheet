@@ -56,6 +56,7 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
     CREATE_NAMED_RANGE: this.markAsStale,
     UPDATE_NAMED_RANGE: this.markAsStale,
     DELETE_NAMED_RANGE: this.markAsStale,
+    RENAME_PIVOT: this.markAsStale,
   };
 
   private markAsStale() {

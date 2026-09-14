@@ -54,6 +54,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     CREATE_NAMED_RANGE: this.invalidateComputedStyles,
     UPDATE_NAMED_RANGE: this.invalidateComputedStyles,
     DELETE_NAMED_RANGE: this.invalidateComputedStyles,
+    RENAME_PIVOT: this.invalidateComputedStyles,
   };
 
   private invalidateComputedCfStyles() {
