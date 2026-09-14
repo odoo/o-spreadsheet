@@ -11,6 +11,7 @@ import {
   CommandResult,
   CoreCommand,
   DeleteContentCommand,
+  RemoveDataValidationCommand,
 } from "../../types/commands";
 import { DataValidationRule } from "../../types/data_validation";
 import { CellPosition, RangeAdapterFunctions, Style, UID } from "../../types/misc";
@@ -37,7 +38,12 @@ export class DataValidationPlugin
 
   handlers = {
     DELETE_CONTENT: this.removeRulesInDeletedContent,
+    REMOVE_DATA_VALIDATION_RULE: this.removeRule,
   };
+
+  private removeRule(cmd: RemoveDataValidationCommand) {
+    this.removeDataValidationRule(cmd.sheetId, cmd.id);
+  }
 
   adaptRanges(rangeAdapters: RangeAdapterFunctions) {
     for (const sheetId in this.rules) {
@@ -175,10 +181,6 @@ export class DataValidationPlugin
         const rules = { ...this.rules };
         delete rules[cmd.sheetId];
         this.history.update("rules", rules);
-        break;
-      }
-      case "REMOVE_DATA_VALIDATION_RULE": {
-        this.removeDataValidationRule(cmd.sheetId, cmd.id);
         break;
       }
       case "ADD_DATA_VALIDATION_RULE": {
