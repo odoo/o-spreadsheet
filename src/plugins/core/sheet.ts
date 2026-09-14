@@ -20,6 +20,7 @@ import { isZoneInside, isZoneValid, toZone } from "../../helpers/zones";
 import { Cell } from "../../types/cells";
 import {
   ColorSheetBackgroundCommand,
+  ColorSheetCommand,
   Command,
   CommandResult,
   CoreCommand,
@@ -115,6 +116,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     UNFREEZE_COLUMNS_ROWS: this.unfreezeColumnsAndRows,
     SHOW_SHEET: this.showSheetHandler,
     HIDE_SHEET: this.hideSheetHandler,
+    COLOR_SHEET: this.colorSheet,
   };
 
   private updateGridLinesVisibility(cmd: SetGridLinesVisibilityCommand) {
@@ -164,6 +166,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   private hideSheetHandler(cmd: HideSheetCommand) {
     this.hideSheet(cmd.sheetId);
+  }
+
+  private colorSheet(cmd: ColorSheetCommand) {
+    this.history.update("sheets", cmd.sheetId, "color", cmd.color);
   }
 
   // ---------------------------------------------------------------------------
@@ -299,9 +305,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         break;
       case "RENAME_SHEET":
         this.renameSheet(this.sheets[cmd.sheetId]!, cmd.newName);
-        break;
-      case "COLOR_SHEET":
-        this.history.update("sheets", cmd.sheetId, "color", cmd.color);
         break;
       case "DUPLICATE_SHEET":
         this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo, cmd.sheetNameTo);
