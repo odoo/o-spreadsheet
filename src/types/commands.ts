@@ -168,7 +168,6 @@ export const invalidateDependenciesCommands = new Set<CommandTypes>(["MOVE_RANGE
 
 export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
   "EVALUATE_CELLS",
-  "REMOVE_CONDITIONAL_FORMAT",
   "CHANGE_CONDITIONAL_FORMAT_PRIORITY",
 ]);
 

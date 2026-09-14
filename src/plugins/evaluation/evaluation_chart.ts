@@ -37,6 +37,7 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
     UPDATE_TABLE: this.invalidateChartRuntimes,
     UPDATE_FILTER: this.invalidateChartRuntimes,
     ADD_CONDITIONAL_FORMAT: this.invalidateChartRuntimes,
+    REMOVE_CONDITIONAL_FORMAT: this.invalidateChartRuntimes,
   };
 
   private invalidateChartRuntimes() {
