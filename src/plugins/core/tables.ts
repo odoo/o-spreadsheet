@@ -17,6 +17,7 @@ import {
 import {
   CommandResult,
   CoreCommand,
+  DeleteContentCommand,
   UpdateCellCommand,
   UpdateTableCommand,
 } from "../../types/commands";
@@ -58,6 +59,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
 
   handlers = {
     UPDATE_CELL: this.extendTablesOnCellUpdate,
+    DELETE_CONTENT: this.removeTablesInDeletedContent,
   };
 
   adaptRanges({ applyChange }: RangeAdapterFunctions) {
@@ -168,16 +170,6 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
         this.updateTable(cmd);
         break;
       }
-      case "DELETE_CONTENT": {
-        const tables: Record<TableId, CoreTable | undefined> = { ...this.tables[cmd.sheetId] };
-        for (const tableId in tables) {
-          const table = tables[tableId];
-          if (table && cmd.target.some((zone) => isZoneInside(table.range.zone, zone))) {
-            this.dispatch("REMOVE_TABLE", { sheetId: cmd.sheetId, target: [table.range.zone] });
-          }
-        }
-        break;
-      }
     }
   }
 
@@ -197,6 +189,17 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     return this.getCoreTables(sheetId).filter((table) =>
       zones.some((zone) => overlap(table.range.zone, zone))
     );
+  }
+
+  /** Remove the tables entirely contained in the cleared zones */
+  private removeTablesInDeletedContent(cmd: DeleteContentCommand) {
+    const tables: Record<TableId, CoreTable | undefined> = { ...this.tables[cmd.sheetId] };
+    for (const tableId in tables) {
+      const table = tables[tableId];
+      if (table && cmd.target.some((zone) => isZoneInside(table.range.zone, zone))) {
+        this.dispatch("REMOVE_TABLE", { sheetId: cmd.sheetId, target: [table.range.zone] });
+      }
+    }
   }
 
   /** Extend the tables of the sheet impacted by a cell update */

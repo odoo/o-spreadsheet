@@ -6,6 +6,7 @@ import { isObjectEmptyRecursive, removeFalsyAttributes } from "../../helpers/mis
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isZoneInside, toZone, zoneToXc } from "../../helpers/zones";
 import {
+  DeleteContentCommand,
   EvaluationCommand,
   invalidateBordersCommands,
   invalidateCFEvaluationCommands,
@@ -24,11 +25,17 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
 
   handlers = {
     UPDATE_CELL: this.invalidateComputedStyles,
+    DELETE_CONTENT: this.invalidateSheetComputedStyles,
   };
 
   private invalidateComputedStyles() {
     this.styles = new PositionMap();
     this.borders = new PositionMap();
+  }
+
+  private invalidateSheetComputedStyles(cmd: DeleteContentCommand) {
+    this.styles.clearSheet(cmd.sheetId);
+    this.borders.clearSheet(cmd.sheetId);
   }
 
   handle(cmd: EvaluationCommand) {

@@ -16,6 +16,7 @@ import {
   ClearCellCommand,
   CommandResult,
   CoreCommand,
+  DeleteContentCommand,
   PositionDependentCommand,
   UpdateCellCommand,
 } from "../../types/commands";
@@ -61,6 +62,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   handlers = {
     UPDATE_CELL: this.updateCell,
+    DELETE_CONTENT: this.clearZones,
   };
 
   adaptRanges(adapters: RangeAdapterFunctions) {
@@ -125,17 +127,15 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         this.clearCells(cmd.sheetId, cmd.target);
         break;
 
-      case "DELETE_CONTENT":
-        this.clearZones(cmd.sheetId, cmd.target);
-        break;
       case "DELETE_SHEET": {
         this.history.update("cells", cmd.sheetId, undefined);
       }
     }
   }
 
-  private clearZones(sheetId: UID, zones: Zone[]) {
-    for (const zone of recomputeZones(zones)) {
+  private clearZones(cmd: DeleteContentCommand) {
+    const sheetId = cmd.sheetId;
+    for (const zone of recomputeZones(cmd.target)) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const cell = this.getters.getCell({ sheetId, col, row });
