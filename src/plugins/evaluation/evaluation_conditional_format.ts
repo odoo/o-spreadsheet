@@ -64,6 +64,7 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
     UPDATE_PIVOT: this.markAsStale,
     ADD_MERGE: this.markAsStale,
     REMOVE_MERGE: this.markAsStale,
+    RENAME_SHEET: this.markAsStale,
   };
 
   private markAsStale() {

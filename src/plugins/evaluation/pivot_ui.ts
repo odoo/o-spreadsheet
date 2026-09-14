@@ -136,6 +136,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     UPDATE_PIVOT: this.setupUpdatedPivot,
     ADD_MERGE: this.invalidateAllPivots,
     REMOVE_MERGE: this.invalidateAllPivots,
+    RENAME_SHEET: this.invalidateAllPivots,
   };
 
   constructor(config: EvaluationPluginConfig) {
