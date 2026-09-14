@@ -9,7 +9,12 @@ import {
 import { getCanvas, getDefaultCellHeight } from "../../helpers/text_helper";
 import { positions } from "../../helpers/zones";
 import { Canvas2DContext } from "../../types/canvas";
-import { EvaluationCommand, SetFormattingCommand, UpdateCellCommand } from "../../types/commands";
+import {
+  EvaluationCommand,
+  ResizeColumnsRowsCommand,
+  SetFormattingCommand,
+  UpdateCellCommand,
+} from "../../types/commands";
 import { AnchorOffset } from "../../types/figure";
 import {
   CellPosition,
@@ -43,7 +48,25 @@ export class HeaderSizeUIPlugin
   handlers = {
     UPDATE_CELL: this.updateRowSizeForCellUpdate,
     SET_FORMATTING: this.updateRowSizesForFormatting,
+    RESIZE_COLUMNS_ROWS: this.updateRowSizesForResize,
   };
+
+  private updateRowSizesForResize(cmd: ResizeColumnsRowsCommand) {
+    const sheetId = cmd.sheetId;
+    if (cmd.dimension === "ROW") {
+      for (const row of cmd.elements) {
+        const tallestCell = this.getRowTallestCell(sheetId, row);
+        this.history.update("tallestCellInRow", sheetId, row, tallestCell);
+      }
+    } else {
+      // Recompute row heights on col size change, they might have changed because of wrapped text
+      for (const row of range(0, this.getters.getNumberRows(sheetId))) {
+        for (const col of cmd.elements) {
+          this.updateRowSizeForCellChange(sheetId, row, col);
+        }
+      }
+    }
+  }
 
   private updateRowSizesForFormatting(cmd: SetFormattingCommand) {
     if (
@@ -115,24 +138,6 @@ export class HeaderSizeUIPlugin
         this.history.update("tallestCellInRow", cmd.sheetId, tallestCells);
         break;
       }
-      case "RESIZE_COLUMNS_ROWS":
-        {
-          const sheetId = cmd.sheetId;
-          if (cmd.dimension === "ROW") {
-            for (const row of cmd.elements) {
-              const tallestCell = this.getRowTallestCell(sheetId, row);
-              this.history.update("tallestCellInRow", sheetId, row, tallestCell);
-            }
-          } else {
-            // Recompute row heights on col size change, they might have changed because of wrapped text
-            for (const row of range(0, this.getters.getNumberRows(sheetId))) {
-              for (const col of cmd.elements) {
-                this.updateRowSizeForCellChange(sheetId, row, col);
-              }
-            }
-          }
-        }
-        break;
       case "ADD_MERGE":
       case "REMOVE_MERGE":
         for (const target of cmd.target) {

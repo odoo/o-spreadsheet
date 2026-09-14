@@ -6,7 +6,7 @@ import {
   range,
   removeIndexesFromArray,
 } from "../../helpers/misc";
-import { Command } from "../../types/commands";
+import { Command, ResizeColumnsRowsCommand } from "../../types/commands";
 import { Dimension, HeaderIndex, Pixel, UID } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
@@ -18,6 +18,16 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
   static getters = ["getUserRowSize", "getColSize"] as const;
 
   readonly sizes: Record<UID, Record<Dimension, Array<Pixel | undefined>>> = {};
+
+  handlers = {
+    RESIZE_COLUMNS_ROWS: this.resizeHeaders,
+  };
+
+  private resizeHeaders(cmd: ResizeColumnsRowsCommand) {
+    for (const el of cmd.elements) {
+      this.history.update("sizes", cmd.sheetId, cmd.dimension, el, cmd.size || undefined);
+    }
+  }
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -50,18 +60,6 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
         this.history.update("sizes", cmd.sheetId, cmd.dimension, newSizes);
         break;
       }
-      case "RESIZE_COLUMNS_ROWS":
-        if (cmd.dimension === "ROW") {
-          for (const el of cmd.elements) {
-            this.history.update("sizes", cmd.sheetId, cmd.dimension, el, cmd.size || undefined);
-          }
-        } else {
-          for (const el of cmd.elements) {
-            this.history.update("sizes", cmd.sheetId, cmd.dimension, el, cmd.size || undefined);
-          }
-        }
-
-        break;
     }
     return;
   }
