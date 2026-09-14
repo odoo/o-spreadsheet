@@ -19,6 +19,7 @@ import {
 import { isZoneInside, isZoneValid, toZone } from "../../helpers/zones";
 import { Cell } from "../../types/cells";
 import {
+  ColorSheetBackgroundCommand,
   Command,
   CommandResult,
   CoreCommand,
@@ -91,6 +92,14 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   readonly orderedSheetIds: UID[] = [];
   readonly sheets: Record<UID, Sheet | undefined> = {};
   readonly cellPosition: Record<number, CellPosition | undefined> = {};
+
+  handlers = {
+    SET_SHEET_BACKGROUND_COLOR: this.setSheetBackgroundColor,
+  };
+
+  private setSheetBackgroundColor(cmd: ColorSheetBackgroundCommand) {
+    this.history.update("sheets", cmd.sheetId, "backgroundColor", cmd.color);
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -234,9 +243,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         break;
       case "COLOR_SHEET":
         this.history.update("sheets", cmd.sheetId, "color", cmd.color);
-        break;
-      case "SET_SHEET_BACKGROUND_COLOR":
-        this.history.update("sheets", cmd.sheetId, "backgroundColor", cmd.color);
         break;
       case "HIDE_SHEET":
         this.hideSheet(cmd.sheetId);
