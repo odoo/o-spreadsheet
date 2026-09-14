@@ -173,11 +173,6 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     return CommandResult.Success;
   }
 
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-    }
-  }
-
   adaptRanges(adapters: RangeAdapterFunctions) {
     const { applyChange, adaptFormulaString } = adapters;
     for (const pivotId in this.pivots) {
