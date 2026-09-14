@@ -78,6 +78,7 @@ export class CellIconPlugin extends UIPlugin {
     SHOW_SHEET: this.clearCellIconsCache,
     HIDE_SHEET: this.clearCellIconsCache,
     COLOR_SHEET: this.clearCellIconsCache,
+    UPDATE_CELL_POSITION: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
