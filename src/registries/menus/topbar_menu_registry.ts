@@ -495,10 +495,6 @@ topbarMenuRegistry
     ...ACTION_DATA.dataAnalysis,
     sequence: 24,
   })
-  .addChild("column_statistics", ["data"], {
-    ...ACTION_DATA.columnStatistics,
-    sequence: 25,
-  })
   .addChild("data_validation", ["data"], {
     name: _t("Data Validation"),
     execute: (env) => {
