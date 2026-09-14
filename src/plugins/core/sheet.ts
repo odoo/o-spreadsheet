@@ -27,6 +27,7 @@ import {
   FreezeColumnsCommand,
   FreezeRowsCommand,
   RenameSheetCommand,
+  SetGridLinesVisibilityCommand,
   UpdateCellPositionCommand,
   isRangeDependant,
   isTargetDependent,
@@ -95,7 +96,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   handlers = {
     SET_SHEET_BACKGROUND_COLOR: this.setSheetBackgroundColor,
+    SET_GRID_LINES_VISIBILITY: this.updateGridLinesVisibility,
   };
+
+  private updateGridLinesVisibility(cmd: SetGridLinesVisibilityCommand) {
+    this.setGridLinesVisibility(cmd.sheetId, cmd.areGridLinesVisible);
+  }
 
   private setSheetBackgroundColor(cmd: ColorSheetBackgroundCommand) {
     this.history.update("sheets", cmd.sheetId, "backgroundColor", cmd.color);
@@ -222,9 +228,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "SET_GRID_LINES_VISIBILITY":
-        this.setGridLinesVisibility(cmd.sheetId, cmd.areGridLinesVisible);
-        break;
       case "CREATE_SHEET":
         const sheet = this.createSheet(
           cmd.sheetId,
