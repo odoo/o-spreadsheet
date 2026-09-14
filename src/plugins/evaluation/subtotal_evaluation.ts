@@ -13,6 +13,7 @@ export class SubtotalEvaluationPlugin extends EvaluationPlugin {
     UNFOLD_HEADER_GROUP: this.invalidateSubtotalFormulas,
     FOLD_ALL_HEADER_GROUPS: this.invalidateSubtotalFormulas,
     UNFOLD_ALL_HEADER_GROUPS: this.invalidateSubtotalFormulas,
+    FOLD_HEADER_GROUPS_IN_ZONE: this.invalidateSubtotalFormulas,
   };
 
   private invalidateSubtotalFormulas() {
