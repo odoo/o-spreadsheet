@@ -61,6 +61,7 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
     INSERT_PIVOT: this.markAsStale,
     ADD_PIVOT: this.markAsStale,
     DUPLICATE_PIVOT: this.markAsStale,
+    UPDATE_PIVOT: this.markAsStale,
   };
 
   private markAsStale() {
