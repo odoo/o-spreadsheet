@@ -38,6 +38,14 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
 
   readonly charts: Record<UID, FigureChart | undefined> = {};
 
+  handlers = {
+    UPDATE_CHART: this.updateChart,
+  };
+
+  private updateChart(cmd: UpdateChartCommand) {
+    this.addChart(cmd.figureId, cmd.chartId, cmd.definition);
+  }
+
   adaptRanges(rangeAdapters: RangeAdapterFunctions) {
     for (const [chartId, chart] of Object.entries(this.charts)) {
       if (!chart) {
@@ -102,10 +110,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         }
         this.addChart(cmd.figureId, cmd.chartId, cmd.definition);
         break;
-      case "UPDATE_CHART": {
-        this.addChart(cmd.figureId, cmd.chartId, cmd.definition);
-        break;
-      }
       case "DUPLICATE_SHEET": {
         for (const chartId of this.getChartIds(cmd.sheetId)) {
           const { chart, figureId } = this.charts[chartId] || {};
