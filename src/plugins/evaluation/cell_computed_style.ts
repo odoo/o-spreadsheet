@@ -33,6 +33,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     CREATE_TABLE: this.invalidateSheetComputedStyles,
     REMOVE_TABLE: this.invalidateSheetComputedStyles,
     UPDATE_TABLE: this.invalidateSheetComputedStyles,
+    UPDATE_FILTER: this.invalidateSheetComputedStyles,
   };
 
   private invalidateComputedBorders() {

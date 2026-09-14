@@ -4,6 +4,7 @@ import { EvaluationPlugin } from "../evaluation_plugin";
 export class SubtotalEvaluationPlugin extends EvaluationPlugin {
   handlers = {
     UPDATE_TABLE: this.invalidateSubtotalFormulas,
+    UPDATE_FILTER: this.invalidateSubtotalFormulas,
   };
 
   private invalidateSubtotalFormulas() {

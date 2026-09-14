@@ -160,7 +160,6 @@ export const invalidateChartEvaluationCommands = new Set<CommandTypes>([
   "UNFOLD_ALL_HEADER_GROUPS",
   "UNFOLD_HEADER_GROUP",
   "UNFOLD_HEADER_GROUPS_IN_ZONE",
-  "UPDATE_FILTER",
   "UNDO",
   "REDO",
 ]);
@@ -185,7 +184,6 @@ export const invalidSubtotalFormulasCommands = new Set<CommandTypes>([
   "UNFOLD_ALL_HEADER_GROUPS",
   "UNFOLD_HEADER_GROUP",
   "UNFOLD_HEADER_GROUPS_IN_ZONE",
-  "UPDATE_FILTER",
 ]);
 
 export const readonlyAllowedCommands = new Set<CommandTypes>([

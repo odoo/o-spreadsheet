@@ -30,7 +30,13 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
     UPDATE_CELL: this.invalidateEvaluation,
     REMOVE_TABLE: this.invalidateEvaluation,
     UPDATE_TABLE: this.invalidateEvaluation,
+    UPDATE_FILTER: this.applyFilter,
   };
+
+  private applyFilter(cmd: UpdateFilterCommand) {
+    this.updateFilter(cmd);
+    this.updateHiddenRows(cmd.sheetId);
+  }
 
   private invalidateEvaluation() {
     this.isEvaluationDirty = true;
@@ -74,10 +80,6 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
       case "UNFOLD_ALL_HEADER_GROUPS":
       case "FOLD_HEADER_GROUPS_IN_ZONE":
       case "UNFOLD_HEADER_GROUPS_IN_ZONE":
-        this.updateHiddenRows(cmd.sheetId);
-        break;
-      case "UPDATE_FILTER":
-        this.updateFilter(cmd);
         this.updateHiddenRows(cmd.sheetId);
         break;
       case "DUPLICATE_SHEET":
