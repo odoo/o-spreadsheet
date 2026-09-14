@@ -14,6 +14,7 @@ import {
   AddMergeCommand,
   CommandResult,
   CoreCommand,
+  RemoveMergeCommand,
   TargetDependentCommand,
   UpdateCellCommand,
 } from "../../types/commands";
@@ -60,7 +61,14 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
 
   handlers = {
     ADD_MERGE: this.addMerges,
+    REMOVE_MERGE: this.removeMerges,
   };
+
+  private removeMerges(cmd: RemoveMergeCommand) {
+    for (const zone of cmd.target) {
+      this.removeMerge(cmd.sheetId, zone);
+    }
+  }
 
   private addMerges(cmd: AddMergeCommand) {
     for (const zone of cmd.target) {
@@ -112,11 +120,6 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         }
         for (const range of Object.values(merges).filter(isDefined)) {
           this.addMerge(cmd.sheetIdTo, range.zone);
-        }
-        break;
-      case "REMOVE_MERGE":
-        for (const zone of cmd.target) {
-          this.removeMerge(cmd.sheetId, zone);
         }
         break;
     }

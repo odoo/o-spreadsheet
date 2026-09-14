@@ -52,6 +52,7 @@ export class HeaderSizeUIPlugin
     RESIZE_COLUMNS_ROWS: this.updateRowSizesForResize,
     UPDATE_LOCALE: this.initializeAllSheets,
     ADD_MERGE: this.updateRowSizesForMergeChange,
+    REMOVE_MERGE: this.updateRowSizesForMergeChange,
   };
 
   private updateRowSizesForResize(cmd: ResizeColumnsRowsCommand) {
@@ -154,8 +155,6 @@ export class HeaderSizeUIPlugin
         this.history.update("tallestCellInRow", cmd.sheetId, tallestCells);
         break;
       }
-      case "REMOVE_MERGE":
-        this.updateRowSizesForMergeChange(cmd);
     }
     return;
   }
