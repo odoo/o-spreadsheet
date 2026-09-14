@@ -26,7 +26,21 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
 
   handlers = {
     UPDATE_FIGURE: this.updateFigure,
+    CREATE_FIGURE: this.createFigure,
   };
+
+  private createFigure(cmd: CreateFigureCommand) {
+    const figure: Figure = {
+      id: cmd.figureId,
+      col: cmd.col,
+      row: cmd.row,
+      offset: cmd.offset,
+      width: cmd.size.width,
+      height: cmd.size.height,
+      tag: cmd.tag,
+    };
+    this.addFigure(figure, cmd.sheetId);
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -103,18 +117,6 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
         break;
       case "DELETE_SHEET":
         this.deleteSheet(cmd.sheetId);
-        break;
-      case "CREATE_FIGURE":
-        const figure: Figure = {
-          id: cmd.figureId,
-          col: cmd.col,
-          row: cmd.row,
-          offset: cmd.offset,
-          width: cmd.size.width,
-          height: cmd.size.height,
-          tag: cmd.tag,
-        };
-        this.addFigure(figure, cmd.sheetId);
         break;
       case "DELETE_FIGURE":
         this.removeFigure(cmd.figureId, cmd.sheetId);
