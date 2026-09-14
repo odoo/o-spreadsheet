@@ -9,6 +9,7 @@ import {
   CoreCommand,
   CreateChartCommand,
   DeleteChartCommand,
+  DeleteFigureCommand,
   UpdateChartCommand,
 } from "../../types/commands";
 import { HeaderIndex, PixelPosition, RangeAdapterFunctions, UID } from "../../types/misc";
@@ -42,7 +43,16 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     UPDATE_CHART: this.updateChart,
     CREATE_CHART: this.createChart,
     DELETE_CHART: this.deleteChart,
+    DELETE_FIGURE: this.deleteChartsOfFigure,
   };
+
+  private deleteChartsOfFigure(cmd: DeleteFigureCommand) {
+    for (const chartId in this.charts) {
+      if (this.charts[chartId]?.figureId === cmd.figureId) {
+        this.dispatch("DELETE_CHART", { chartId, sheetId: cmd.sheetId });
+      }
+    }
+  }
 
   private deleteChart(cmd: DeleteChartCommand) {
     if (this.isChartDefined(cmd.chartId)) {
@@ -147,13 +157,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         }
         break;
       }
-      case "DELETE_FIGURE":
-        for (const chartId in this.charts) {
-          if (this.charts[chartId]?.figureId === cmd.figureId) {
-            this.dispatch("DELETE_CHART", { chartId, sheetId: cmd.sheetId });
-          }
-        }
-        break;
       case "DELETE_SHEET":
         for (const id of this.getChartIds(cmd.sheetId)) {
           this.history.update("charts", id, undefined);

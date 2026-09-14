@@ -1,6 +1,11 @@
 import { FIGURE_ID_SPLITTER } from "../../constants";
 import { haveSameNumberOfCols } from "../../helpers/zones";
-import { CommandResult, CoreCommand, UpdateCarouselCommand } from "../../types/commands";
+import {
+  CommandResult,
+  CoreCommand,
+  DeleteFigureCommand,
+  UpdateCarouselCommand,
+} from "../../types/commands";
 import { Carousel, CarouselData, CarouselItem, CarouselItemData } from "../../types/figure";
 import { RangeAdapterFunctions, UID } from "../../types/misc";
 import { WorkbookData } from "../../types/workbook_data";
@@ -13,6 +18,14 @@ interface CarouselState {
 export class CarouselPlugin extends CorePlugin<CarouselState> implements CarouselState {
   static getters = ["getCarousel", "doesCarouselExist", "carouselToCarouselData"] as const;
   readonly carousels: Record<UID, Record<UID, Carousel | undefined> | undefined> = {};
+
+  handlers = {
+    DELETE_FIGURE: this.deleteCarousel,
+  };
+
+  private deleteCarousel(cmd: DeleteFigureCommand) {
+    this.history.update("carousels", cmd.sheetId, cmd.figureId, undefined);
+  }
 
   adaptRanges(rangeAdapterFunctions: RangeAdapterFunctions): void {
     for (const sheetId in this.carousels) {
@@ -122,9 +135,6 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
         }
         break;
       }
-      case "DELETE_FIGURE":
-        this.history.update("carousels", cmd.sheetId, cmd.figureId, undefined);
-        break;
       case "DELETE_SHEET":
         this.history.update("carousels", cmd.sheetId, undefined);
         break;
