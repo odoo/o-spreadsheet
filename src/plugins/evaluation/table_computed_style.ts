@@ -48,6 +48,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
     REMOVE_TABLE_STYLE: this.clearTableStyles,
     UPDATE_LOCALE: this.clearTableStyles,
     CREATE_NAMED_RANGE: this.clearTableStyles,
+    UPDATE_NAMED_RANGE: this.clearTableStyles,
   };
 
   private clearTableStyles() {

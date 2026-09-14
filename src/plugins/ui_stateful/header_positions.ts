@@ -33,6 +33,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     RESIZE_COLUMNS_ROWS: this.computeSheetHeaderPositions,
     UPDATE_LOCALE: this.invalidateHeaderPositions,
     CREATE_NAMED_RANGE: this.invalidateHeaderPositions,
+    UPDATE_NAMED_RANGE: this.invalidateHeaderPositions,
   };
 
   private computeSheetHeaderPositions(cmd: { sheetId: UID }) {

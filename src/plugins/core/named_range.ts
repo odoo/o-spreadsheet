@@ -1,7 +1,13 @@
 import { deepEquals } from "../../helpers/misc";
 import { isNumber } from "../../helpers/numbers";
 import { rangeReference } from "../../helpers/references";
-import { Command, CommandResult, CoreCommand, CreateNamedRangeCommand } from "../../types/commands";
+import {
+  Command,
+  CommandResult,
+  CoreCommand,
+  CreateNamedRangeCommand,
+  UpdateNamedRangeCommand,
+} from "../../types/commands";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { NamedRange, RangeAdapterFunctions, UID, UnboundedZone, Zone } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
@@ -25,7 +31,16 @@ export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements Na
 
   handlers = {
     CREATE_NAMED_RANGE: this.createNamedRange,
+    UPDATE_NAMED_RANGE: this.updateNamedRange,
   };
+
+  private updateNamedRange(cmd: UpdateNamedRangeCommand) {
+    const index = this.getNamedRangeIndex(cmd.oldRangeName);
+    if (index !== -1) {
+      const range = this.getters.getRangeFromRangeData(cmd.ranges[0]);
+      this.history.update("namedRanges", index, { name: cmd.newRangeName, range });
+    }
+  }
 
   private createNamedRange(cmd: CreateNamedRangeCommand) {
     const range = this.getters.getRangeFromRangeData(cmd.ranges[0]);
@@ -78,14 +93,6 @@ export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements Na
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "UPDATE_NAMED_RANGE": {
-        const index = this.getNamedRangeIndex(cmd.oldRangeName);
-        if (index !== -1) {
-          const range = this.getters.getRangeFromRangeData(cmd.ranges[0]);
-          this.history.update("namedRanges", index, { name: cmd.newRangeName, range });
-        }
-        break;
-      }
       case "DELETE_NAMED_RANGE": {
         const index = this.getNamedRangeIndex(cmd.name);
         if (index !== -1) {
