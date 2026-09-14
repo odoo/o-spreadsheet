@@ -30,6 +30,7 @@ export class CellIconPlugin extends UIPlugin {
     UPDATE_TABLE: this.clearCellIconsCache,
     UPDATE_FILTER: this.clearCellIconsCache,
     ADD_CONDITIONAL_FORMAT: this.clearCellIconsCache,
+    REMOVE_CONDITIONAL_FORMAT: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
