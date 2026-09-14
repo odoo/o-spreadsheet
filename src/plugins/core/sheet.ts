@@ -26,6 +26,7 @@ import {
   CreateSheetCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
+  MoveSheetCommand,
   RenameSheetCommand,
   SetGridLinesVisibilityCommand,
   UpdateCellPositionCommand,
@@ -97,6 +98,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   handlers = {
     SET_SHEET_BACKGROUND_COLOR: this.setSheetBackgroundColor,
     SET_GRID_LINES_VISIBILITY: this.updateGridLinesVisibility,
+    MOVE_SHEET: this.moveSheetTo,
   };
 
   private updateGridLinesVisibility(cmd: SetGridLinesVisibilityCommand) {
@@ -105,6 +107,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   private setSheetBackgroundColor(cmd: ColorSheetBackgroundCommand) {
     this.history.update("sheets", cmd.sheetId, "backgroundColor", cmd.color);
+  }
+
+  private moveSheetTo(cmd: MoveSheetCommand) {
+    this.moveSheet(cmd.sheetId, cmd.delta);
   }
 
   // ---------------------------------------------------------------------------
@@ -237,9 +243,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           cmd.position
         );
         this.history.update("sheetIdsMapName", toStandardizedSheetName(sheet.name), sheet.id);
-        break;
-      case "MOVE_SHEET":
-        this.moveSheet(cmd.sheetId, cmd.delta);
         break;
       case "RENAME_SHEET":
         this.renameSheet(this.sheets[cmd.sheetId]!, cmd.newName);
