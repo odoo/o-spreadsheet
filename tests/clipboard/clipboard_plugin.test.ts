@@ -24,6 +24,7 @@ import { DependencyContainer } from "../../src/store_engine/dependency_container
 import { ClipboardStore, MAX_FILE_SIZE } from "../../src/stores/clipboard_store";
 import { NotificationStore } from "../../src/stores/notification_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
+import { AddConditionalFormatCommand } from "../../src/types/commands";
 import { XMLString } from "../../src/types/xlsx";
 import { parseXML, xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
 import { FileStore as MockFileStore } from "../__mocks__/mock_file_store";
@@ -66,8 +67,8 @@ import {
   setFormulaVisibility,
   setSelection,
   setZoneBorders,
-  unMerge,
   undo,
+  unMerge,
   updateFilter,
   updateLocale,
 } from "../test_helpers/commands_helpers";
@@ -1952,7 +1953,9 @@ describe("clipboard", () => {
   test("copy/paste a CF zone only dispatch a singled ADD_CONDITIONAL_FORMAT", () => {
     const commands: Command[] = [];
     class MyUIPlugin extends UIPlugin {
-      handle = (cmd: Command) => commands.push(cmd);
+      handlers = {
+        allCommands: (cmd: AddConditionalFormatCommand) => commands.push(cmd),
+      };
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
 
