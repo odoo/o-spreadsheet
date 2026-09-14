@@ -9,6 +9,7 @@ import {
   Command,
   CommandResult,
   CoreCommand,
+  MoveConditionalFormatCommand,
   RemoveConditionalFormatCommand,
 } from "../../types/commands";
 import {
@@ -62,7 +63,12 @@ export class ConditionalFormatPlugin
   handlers = {
     ADD_CONDITIONAL_FORMAT: this.addConditionalFormat,
     REMOVE_CONDITIONAL_FORMAT: this.removeConditionalFormat,
+    CHANGE_CONDITIONAL_FORMAT_PRIORITY: this.changeConditionalFormatPriority,
   };
+
+  private changeConditionalFormatPriority(cmd: MoveConditionalFormatCommand) {
+    this.changeCFPriority(cmd.cfId, cmd.delta, cmd.sheetId);
+  }
 
   private removeConditionalFormat(cmd: RemoveConditionalFormatCommand) {
     this.removeConditionalFormatting(cmd.id, cmd.sheetId);
@@ -240,9 +246,6 @@ export class ConditionalFormatPlugin
         const cfRules = Object.assign({}, this.cfRules);
         delete cfRules[cmd.sheetId];
         this.history.update("cfRules", cfRules);
-        break;
-      case "CHANGE_CONDITIONAL_FORMAT_PRIORITY":
-        this.changeCFPriority(cmd.cfId, cmd.delta, cmd.sheetId);
         break;
     }
   }
