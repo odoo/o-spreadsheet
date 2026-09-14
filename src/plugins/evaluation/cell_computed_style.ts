@@ -13,7 +13,6 @@ import {
 import { Border, CellPosition, Style, UID } from "../../types/misc";
 import { ExcelWorkbookData } from "../../types/workbook_data";
 import { EvaluationPlugin } from "../evaluation_plugin";
-import { doesCommandInvalidatesTableStyle } from "./table_computed_style";
 
 export class CellComputedStylePlugin extends EvaluationPlugin {
   static getters = ["getCellComputedBorder", "getCellComputedStyle"] as const;
@@ -48,6 +47,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     FOLD_HEADER_GROUPS_IN_ZONE: this.invalidateSheetComputedStyles,
     UNFOLD_HEADER_GROUPS_IN_ZONE: this.invalidateSheetComputedStyles,
     CREATE_TABLE_STYLE: this.invalidateComputedStyles,
+    REMOVE_TABLE_STYLE: this.invalidateComputedStyles,
   };
 
   private invalidateComputedCfStyles() {
@@ -75,12 +75,6 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
       cmd.type === "REMOVE_DATA_VALIDATION_RULE" ||
       cmd.type === "EVALUATE_CELLS"
     ) {
-      this.styles = new PositionMap();
-      this.borders = new PositionMap();
-      return;
-    }
-
-    if (doesCommandInvalidatesTableStyle(cmd)) {
       this.styles = new PositionMap();
       this.borders = new PositionMap();
       return;

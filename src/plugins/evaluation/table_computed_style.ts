@@ -2,8 +2,6 @@ import { isEvaluationError } from "../../functions/helpers";
 import { lazy } from "../../helpers/misc";
 import { getComputedTableStyle } from "../../helpers/table_helpers";
 import {
-  Command,
-  CommandTypes,
   EvaluationCommand,
   invalidateEvaluationCommands,
   UpdateCellCommand,
@@ -47,6 +45,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
     FOLD_HEADER_GROUPS_IN_ZONE: this.invalidateSheetTableStyles,
     UNFOLD_HEADER_GROUPS_IN_ZONE: this.invalidateSheetTableStyles,
     CREATE_TABLE_STYLE: this.clearTableStyles,
+    REMOVE_TABLE_STYLE: this.clearTableStyles,
   };
 
   private clearTableStyles() {
@@ -65,11 +64,6 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
 
   handle(cmd: EvaluationCommand) {
     if (invalidateEvaluationCommands.has(cmd.type) || cmd.type === "EVALUATE_CELLS") {
-      this.tableStyles = {};
-      return;
-    }
-
-    if (doesCommandInvalidatesTableStyle(cmd)) {
       this.tableStyles = {};
       return;
     }
@@ -312,13 +306,4 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
       rowMapping,
     };
   }
-}
-
-const invalidateTableStyleCommands = ["REMOVE_TABLE_STYLE"] as const;
-const invalidateTableStyleCommandsSet = new Set<CommandTypes>(invalidateTableStyleCommands);
-
-export function doesCommandInvalidatesTableStyle<C extends Command>(
-  cmd: C
-): cmd is Extract<C, { type: (typeof invalidateTableStyleCommands)[number] }> {
-  return invalidateTableStyleCommandsSet.has(cmd.type);
 }

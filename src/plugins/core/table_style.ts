@@ -8,7 +8,12 @@ import {
   buildTableStyle as buildCustomTableStyle,
 } from "../../helpers/table_presets";
 import { _t } from "../../translation";
-import { CommandResult, CoreCommand, CreateTableStyleCommand } from "../../types/commands";
+import {
+  CommandResult,
+  CoreCommand,
+  CreateTableStyleCommand,
+  RemoveTableStyleCommand,
+} from "../../types/commands";
 import { TableStyle } from "../../types/table";
 import { TableStyleData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
@@ -50,6 +55,7 @@ export class TableStylePlugin extends CorePlugin<TableStylesState> implements Ta
 
   handlers = {
     CREATE_TABLE_STYLE: this.createTableStyle,
+    REMOVE_TABLE_STYLE: this.removeTableStyle,
   };
 
   private createTableStyle(cmd: CreateTableStyleCommand) {
@@ -57,24 +63,20 @@ export class TableStylePlugin extends CorePlugin<TableStylesState> implements Ta
     this.history.update("styles", cmd.tableStyleId, style);
   }
 
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "REMOVE_TABLE_STYLE":
-        const styles = { ...this.styles };
-        delete styles[cmd.tableStyleId];
-        this.history.update("styles", styles);
-        for (const sheetId of this.getters.getSheetIds()) {
-          for (const table of this.getters.getCoreTables(sheetId)) {
-            if (table.config.styleId === cmd.tableStyleId) {
-              this.dispatch("UPDATE_TABLE", {
-                sheetId,
-                zone: table.range.zone,
-                config: { styleId: DEFAULT_TABLE_CONFIG.styleId },
-              });
-            }
-          }
+  private removeTableStyle(cmd: RemoveTableStyleCommand) {
+    const styles = { ...this.styles };
+    delete styles[cmd.tableStyleId];
+    this.history.update("styles", styles);
+    for (const sheetId of this.getters.getSheetIds()) {
+      for (const table of this.getters.getCoreTables(sheetId)) {
+        if (table.config.styleId === cmd.tableStyleId) {
+          this.dispatch("UPDATE_TABLE", {
+            sheetId,
+            zone: table.range.zone,
+            config: { styleId: DEFAULT_TABLE_CONFIG.styleId },
+          });
         }
-        break;
+      }
     }
   }
 
