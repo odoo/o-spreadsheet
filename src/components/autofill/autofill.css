@@ -1,12 +1,4 @@
 .o-spreadsheet {
-  .o-autofill {
-    position: absolute;
-    border: 1px solid white;
-    background-color: var(--os-selection-border-color);
-    height: var(--os-autofill-edge-length);
-    width: var(--os-autofill-edge-length);
-  }
-
   .o-autofill-handler {
     position: absolute;
     height: var(--os-autofill-edge-length);
