@@ -40,6 +40,7 @@ export class CellIconPlugin extends UIPlugin {
     UNFOLD_HEADER_GROUP: this.clearCellIconsCache,
     FOLD_ALL_HEADER_GROUPS: this.clearCellIconsCache,
     UNFOLD_ALL_HEADER_GROUPS: this.clearCellIconsCache,
+    FOLD_HEADER_GROUPS_IN_ZONE: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
