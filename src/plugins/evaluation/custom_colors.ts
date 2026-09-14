@@ -84,6 +84,7 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
     SET_BORDER: this.invalidateCustomColors,
     SET_ZONE_BORDERS: this.invalidateCustomColors,
     SET_SHEET_BACKGROUND_COLOR: this.addSheetBackgroundColor,
+    CREATE_TABLE: this.invalidateCustomColors,
   };
 
   private addSheetBackgroundColor(cmd: ColorSheetBackgroundCommand) {
@@ -123,7 +124,6 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
         }
         break;
       case "ADD_CONDITIONAL_FORMAT":
-      case "CREATE_TABLE":
       case "UPDATE_TABLE":
         this.history.update("shouldUpdateColors", true);
         break;
