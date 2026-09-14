@@ -20,7 +20,7 @@ import {
   statefulUIPluginRegistry,
 } from "../../src/plugins/plugin_registries";
 import { UIPlugin } from "../../src/plugins/ui_plugin";
-import { UpdateCellCommand } from "../../src/types/commands";
+import { CreateSheetCommand, UpdateCellCommand } from "../../src/types/commands";
 import { ModelConfig } from "../../src/types/model";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
@@ -80,16 +80,16 @@ describe("Model", () => {
         }
         return CommandResult.Success;
       }
-      handle(cmd: CoreCommand) {
-        if (cmd.type === "CREATE_SHEET") {
+      handlers = {
+        CREATE_SHEET: (cmd: CreateSheetCommand) => {
           result = this.dispatch("UPDATE_CELL", {
             col: 0,
             row: 0,
             sheetId: cmd.sheetId,
             content: "Hello",
           });
-        }
-      }
+        },
+      };
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
@@ -169,8 +169,8 @@ describe("Model", () => {
 
   test("An evaluation plugin cannot dispatch non-evaluation commands", () => {
     class MyEvaluationPlugin extends EvaluationPlugin {
-      handle(cmd: EvaluationCommand) {
-        if (cmd.type === "CREATE_SHEET") {
+      handlers = {
+        CREATE_SHEET: () => {
           /**
            * TS ensure that the command is an evaluation command, but we want to
            * test that the runtime will throw an error if we try to dispatch a
@@ -183,8 +183,8 @@ describe("Model", () => {
             sheetId: "sheetId",
             content: "hello",
           });
-        }
-      }
+        },
+      };
     }
     addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
     const model = new Model();
@@ -212,6 +212,10 @@ describe("Model", () => {
   test("Evaluation plugins handle don't receive UI commands", () => {
     const receivedCommands: CommandTypes[] = [];
     class MyEvaluationPlugin extends EvaluationPlugin {
+      handlers = {
+        CREATE_SHEET: (cmd: CreateSheetCommand) => receivedCommands.push(cmd.type),
+      };
+
       handle(cmd: EvaluationCommand) {
         receivedCommands.push(cmd.type);
       }
