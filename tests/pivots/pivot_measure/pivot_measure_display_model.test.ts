@@ -1518,6 +1518,58 @@ describe("Measure display", () => {
       expect(getEvaluatedCell(model, "A40").value).toBe(320200);
       expect(getEvaluatedCell(model, "A41").value).toBe("");
     });
+
+    test("Collapsed rows do not impact running total", () => {
+      const display: PivotMeasureDisplay = {
+        type: "running_total",
+        fieldNameWithGranularity: "Created on:month_number",
+      };
+      const model = createModelWithTestPivotDataset({
+        rows: [
+          { fieldName: "Created on", granularity: "month_number", order: "asc" },
+          { fieldName: "Active", order: "asc" },
+        ],
+        columns: [],
+        measures: [{ fieldName: "Expected Revenue", aggregator: "sum", id: measureId, display }],
+      });
+
+      // prettier-ignore
+      expect(getFormattedGrid(model)).toMatchObject({
+        A20: "Pivot",  B20: "Total",
+        A21: "",           B21: "Expected Revenue",
+        A22: "February",   B22: "22500",
+        A23: "FALSE",      B23: "22500",
+        A24: "March",      B24: "211900",
+        A25: "FALSE",      B25: "181100",
+        A26: "TRUE",       B26: "30800",
+        A27: "April",      B27: "320200",
+        A28: "FALSE",      B28: "246100",
+        A29: "TRUE",       B29: "74100",
+        A30: "Total",      B30: "",
+      });
+
+      updatePivot(model, pivotId, {
+        collapsedDomains: {
+          COL: [],
+          ROW: [
+            [{ type: "datetime", field: "Created on:month_number", value: 2 }],
+            [{ type: "datetime", field: "Created on:month_number", value: 3 }],
+          ],
+        },
+      });
+
+      // prettier-ignore
+      expect(getFormattedGrid(model)).toMatchObject({
+        A20: "Pivot",  B20: "Total",
+        A21: "",           B21: "Expected Revenue",
+        A22: "February",   B22: "22500",
+        A23: "March",      B23: "211900",
+        A24: "April",      B24: "320200",
+        A25: "FALSE",      B25: "246100", // Values shouldn't have changed because the rows are collapsed
+        A26: "TRUE",       B26: "74100",
+        A27: "Total",      B27: "",
+      });
+    });
   });
 
   describe("%_running_total", () => {
