@@ -9,6 +9,7 @@ import { recomputeZones } from "../../helpers/recompute_zones";
 import { toZone } from "../../helpers/zones";
 import {
   AddColumnsRowsCommand,
+  ClearFormattingCommand,
   CommandResult,
   CoreCommand,
   SetBorderCommand,
@@ -39,6 +40,14 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   static getters = ["getCellBorder", "getBordersColors"] as const;
 
   public readonly borders: BordersPluginState["borders"] = {};
+
+  handlers = {
+    CLEAR_FORMATTING: this.clearFormattingBorders,
+  };
+
+  private clearFormattingBorders(cmd: ClearFormattingCommand) {
+    this.clearBorders(cmd.sheetId, cmd.target);
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -103,9 +112,6 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
                 }
           );
         }
-        break;
-      case "CLEAR_FORMATTING":
-        this.clearBorders(cmd.sheetId, cmd.target);
         break;
       case "REMOVE_COLUMNS_ROWS":
         const elements = [...cmd.elements].sort((a, b) => b - a);
