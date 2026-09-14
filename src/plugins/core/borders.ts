@@ -13,6 +13,7 @@ import {
   CommandResult,
   CoreCommand,
   SetBorderCommand,
+  SetBorderTargetCommand,
   SetZoneBordersCommand,
 } from "../../types/commands";
 import {
@@ -46,7 +47,18 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     CLEAR_FORMATTING: this.clearFormattingBorders,
     SET_BORDER: this.setBorderOfCell,
     SET_ZONE_BORDERS: this.setZoneBorders,
+    SET_BORDERS_ON_TARGET: this.setBordersOnTarget,
   };
+
+  private setBordersOnTarget(cmd: SetBorderTargetCommand) {
+    for (const zone of cmd.target) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        for (let col = zone.left; col <= zone.right; col++) {
+          this.setBorder(cmd.sheetId, col, row, cmd.border);
+        }
+      }
+    }
+  }
 
   private setZoneBorders(cmd: SetZoneBordersCommand) {
     if (!cmd.border) {
@@ -109,15 +121,6 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
         const allBorders = { ...this.borders };
         delete allBorders[cmd.sheetId];
         this.history.update("borders", allBorders);
-        break;
-      case "SET_BORDERS_ON_TARGET":
-        for (const zone of cmd.target) {
-          for (let row = zone.top; row <= zone.bottom; row++) {
-            for (let col = zone.left; col <= zone.right; col++) {
-              this.setBorder(cmd.sheetId, col, row, cmd.border);
-            }
-          }
-        }
         break;
       case "REMOVE_COLUMNS_ROWS":
         const elements = [...cmd.elements].sort((a, b) => b - a);

@@ -175,8 +175,6 @@ export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
   "CHANGE_CONDITIONAL_FORMAT_PRIORITY",
 ]);
 
-export const invalidateBordersCommands = new Set<CommandTypes>(["SET_BORDERS_ON_TARGET"]);
-
 export const invalidSubtotalFormulasCommands = new Set<CommandTypes>([
   "UNHIDE_COLUMNS_ROWS",
   "HIDE_COLUMNS_ROWS",
