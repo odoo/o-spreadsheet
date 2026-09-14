@@ -3,7 +3,12 @@ import { deepCopy, deepEquals, getCanonicalSymbolName } from "../../helpers/misc
 import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
-import { CommandResult, CoreCommand, RenamePivotCommand } from "../../types/commands";
+import {
+  CommandResult,
+  CoreCommand,
+  RemovePivotCommand,
+  RenamePivotCommand,
+} from "../../types/commands";
 import { CellPosition, RangeAdapterFunctions, UID } from "../../types/misc";
 
 import { CellValue } from "../../types/cells";
@@ -48,7 +53,16 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     UPDATE_NAMED_RANGE: this.recompileCalculatedMeasures,
     DELETE_NAMED_RANGE: this.recompileCalculatedMeasures,
     RENAME_PIVOT: this.renamePivot,
+    REMOVE_PIVOT: this.removePivot,
   };
+
+  private removePivot(cmd: RemovePivotCommand) {
+    const pivots = { ...this.pivots };
+    delete pivots[cmd.pivotId];
+    const formulaId = this.getPivotFormulaId(cmd.pivotId);
+    this.history.update("formulaIds", formulaId, undefined);
+    this.history.update("pivots", pivots);
+  }
 
   private renamePivot(cmd: RenamePivotCommand) {
     this.history.update("pivots", cmd.pivotId, "definition", "name", cmd.name);
@@ -139,14 +153,6 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         const spTable = new SpreadsheetPivotTable(cols, rows, measures, fieldsType || {});
         const formulaId = this.getPivotFormulaId(pivotId);
         this.insertPivot(position, formulaId, spTable);
-        break;
-      }
-      case "REMOVE_PIVOT": {
-        const pivots = { ...this.pivots };
-        delete pivots[cmd.pivotId];
-        const formulaId = this.getPivotFormulaId(cmd.pivotId);
-        this.history.update("formulaIds", formulaId, undefined);
-        this.history.update("pivots", pivots);
         break;
       }
       case "DUPLICATE_PIVOT": {
