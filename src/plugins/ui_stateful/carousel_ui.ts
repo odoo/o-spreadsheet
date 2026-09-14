@@ -11,6 +11,7 @@ import {
   DuplicateCarouselChartCommand,
   LocalCommand,
   PopOutChartFromCarouselCommand,
+  UpdateCarouselActiveItemCommand,
   UpdateCarouselCommand,
 } from "../../types/commands";
 import { Carousel, CarouselItem } from "../../types/figure";
@@ -33,7 +34,12 @@ export class CarouselUIPlugin extends UIPlugin {
     ADD_NEW_CHART_TO_CAROUSEL: this.addNewChart,
     ADD_FIGURES_CHART_TO_CAROUSEL: this.addFigureCharts,
     DUPLICATE_CAROUSEL_CHART: this.duplicateCarouselChart,
+    UPDATE_CAROUSEL_ACTIVE_ITEM: this.updateActiveItem,
   };
+
+  private updateActiveItem(cmd: UpdateCarouselActiveItemCommand) {
+    this.carouselStates[cmd.figureId] = this.getCarouselItemId(cmd.item);
+  }
 
   private addFigureCharts(cmd: AddFiguresChartToCarouselCommand) {
     cmd.chartFigureIds.forEach((figureId) => {
@@ -103,9 +109,6 @@ export class CarouselUIPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "UPDATE_CAROUSEL_ACTIVE_ITEM":
-        this.carouselStates[cmd.figureId] = this.getCarouselItemId(cmd.item);
-        break;
       case "POPOUT_CHART_FROM_CAROUSEL":
         this.popOutChartFromCarousel(cmd);
         break;
