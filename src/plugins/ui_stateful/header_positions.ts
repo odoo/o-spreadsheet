@@ -19,6 +19,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     UPDATE_CELL: this.invalidateHeaderPositions,
     REMOVE_TABLE: this.invalidateHeaderPositions,
     UPDATE_TABLE: this.invalidateHeaderPositions,
+    UPDATE_FILTER: this.invalidateHeaderPositions,
   };
 
   private invalidateHeaderPositions() {
@@ -37,10 +38,6 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
         for (const sheetId of this.getters.getSheetIds()) {
           this.headerPositions[sheetId] = this.computeHeaderPositionsOfSheet(sheetId);
         }
-        break;
-      case "UPDATE_FILTER":
-        this.headerPositions = {};
-        this.isDirty = true;
         break;
       case "REMOVE_COLUMNS_ROWS":
       case "RESIZE_COLUMNS_ROWS":
