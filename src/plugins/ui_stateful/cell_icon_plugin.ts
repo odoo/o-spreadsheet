@@ -57,6 +57,7 @@ export class CellIconPlugin extends UIPlugin {
     CREATE_IMAGE: this.clearCellIconsCache,
     CREATE_CAROUSEL: this.clearCellIconsCache,
     UPDATE_CAROUSEL: this.clearCellIconsCache,
+    ADD_NEW_CHART_TO_CAROUSEL: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
