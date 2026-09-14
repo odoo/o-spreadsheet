@@ -80,6 +80,7 @@ export class CellIconPlugin extends UIPlugin {
     COLOR_SHEET: this.clearCellIconsCache,
     UPDATE_CELL_POSITION: this.clearCellIconsCache,
     AUTORESIZE_COLUMNS: this.clearCellIconsCache,
+    AUTORESIZE_ROWS: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
