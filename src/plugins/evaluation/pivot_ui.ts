@@ -70,6 +70,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
 
   handlers = {
     UPDATE_CELL: this.invalidatePivotCache,
+    DELETE_CONTENT: this.invalidateUnusedPivots,
   };
 
   constructor(config: EvaluationPluginConfig) {
@@ -87,8 +88,12 @@ export class PivotUIPlugin extends EvaluationPlugin {
   }
 
   private invalidatePivotCache() {
-    this.unusedPivotsInFormulas = undefined;
+    this.invalidateUnusedPivots();
     this.shouldInvalidateCache = true;
+  }
+
+  private invalidateUnusedPivots() {
+    this.unusedPivotsInFormulas = undefined;
   }
 
   handle(cmd: EvaluationCommand) {

@@ -4,6 +4,7 @@ import { getComputedTableStyle } from "../../helpers/table_helpers";
 import {
   Command,
   CommandTypes,
+  DeleteContentCommand,
   EvaluationCommand,
   invalidateEvaluationCommands,
   UpdateCellCommand,
@@ -31,12 +32,17 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
 
   handlers = {
     UPDATE_CELL: this.invalidateTableStyles,
+    DELETE_CONTENT: this.invalidateSheetTableStyles,
   };
 
   private invalidateTableStyles(cmd: UpdateCellCommand) {
     if ("content" in cmd || "format" in cmd) {
       this.tableStyles = {};
     }
+  }
+
+  private invalidateSheetTableStyles(cmd: DeleteContentCommand) {
+    delete this.tableStyles[cmd.sheetId];
   }
 
   handle(cmd: EvaluationCommand) {
@@ -310,7 +316,6 @@ const invalidateTableStyleCommands = [
   "REMOVE_TABLE",
   "CREATE_TABLE_STYLE",
   "REMOVE_TABLE_STYLE",
-  "DELETE_CONTENT",
 ] as const;
 const invalidateTableStyleCommandsSet = new Set<CommandTypes>(invalidateTableStyleCommands);
 

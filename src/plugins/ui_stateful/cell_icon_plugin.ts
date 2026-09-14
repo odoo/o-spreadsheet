@@ -16,6 +16,7 @@ export class CellIconPlugin extends UIPlugin {
 
   handlers = {
     UPDATE_CELL: this.clearCellIconsCache,
+    DELETE_CONTENT: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {

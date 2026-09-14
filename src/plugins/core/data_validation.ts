@@ -10,6 +10,7 @@ import {
   Command,
   CommandResult,
   CoreCommand,
+  DeleteContentCommand,
 } from "../../types/commands";
 import { DataValidationRule } from "../../types/data_validation";
 import { CellPosition, RangeAdapterFunctions, Style, UID } from "../../types/misc";
@@ -33,6 +34,10 @@ export class DataValidationPlugin
   ] as const;
 
   readonly rules: { [sheet: string]: DataValidationRule[] } = {};
+
+  handlers = {
+    DELETE_CONTENT: this.removeRulesInDeletedContent,
+  };
 
   adaptRanges(rangeAdapters: RangeAdapterFunctions) {
     for (const sheetId in this.rules) {
@@ -120,6 +125,37 @@ export class DataValidationPlugin
     return CommandResult.Success;
   }
 
+  /**
+   * Remove the data validation rules on the cleared cells, for the criteria
+   * which are meaningless without a value.
+   */
+  private removeRulesInDeletedContent(cmd: DeleteContentCommand) {
+    const zones = recomputeZones(cmd.target);
+    const sheetId = cmd.sheetId;
+    for (const zone of zones) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        for (let col = zone.left; col <= zone.right; col++) {
+          const dataValidation = this.getValidationRuleForCell({ sheetId, col, row });
+          if (!dataValidation) {
+            continue;
+          }
+          const cell = this.getters.getCell({ sheetId, col, row });
+          if (
+            dataValidation.criterion.type === "isBoolean" ||
+            (dataValidation.criterion.type === "isValueInList" &&
+              !cell?.isFormula &&
+              !cell?.content)
+          ) {
+            const rules = this.rules[sheetId];
+            const ranges = [this.getters.getRangeFromSheetXC(sheetId, toXC(col, row))];
+            const adaptedRules = this.removeRangesFromRules(sheetId, ranges, rules);
+            this.history.update("rules", sheetId, adaptedRules);
+          }
+        }
+      }
+    }
+  }
+
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_SHEET":
@@ -149,32 +185,6 @@ export class DataValidationPlugin
         const ranges = cmd.ranges.map((range) => this.getters.getRangeFromRangeData(range));
         this.addDataValidationRule(cmd.sheetId, { ...cmd.rule, ranges });
         break;
-      }
-      case "DELETE_CONTENT": {
-        const zones = recomputeZones(cmd.target);
-        const sheetId = cmd.sheetId;
-        for (const zone of zones) {
-          for (let row = zone.top; row <= zone.bottom; row++) {
-            for (let col = zone.left; col <= zone.right; col++) {
-              const dataValidation = this.getValidationRuleForCell({ sheetId, col, row });
-              if (!dataValidation) {
-                continue;
-              }
-              const cell = this.getters.getCell({ sheetId, col, row });
-              if (
-                dataValidation.criterion.type === "isBoolean" ||
-                (dataValidation.criterion.type === "isValueInList" &&
-                  !cell?.isFormula &&
-                  !cell?.content)
-              ) {
-                const rules = this.rules[sheetId];
-                const ranges = [this.getters.getRangeFromSheetXC(sheetId, toXC(col, row))];
-                const adaptedRules = this.removeRangesFromRules(sheetId, ranges, rules);
-                this.history.update("rules", sheetId, adaptedRules);
-              }
-            }
-          }
-        }
       }
     }
   }
