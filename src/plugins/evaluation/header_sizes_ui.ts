@@ -13,6 +13,7 @@ import {
   EvaluationCommand,
   ResizeColumnsRowsCommand,
   SetFormattingCommand,
+  TargetDependentCommand,
   UpdateCellCommand,
 } from "../../types/commands";
 import { AnchorOffset } from "../../types/figure";
@@ -50,6 +51,7 @@ export class HeaderSizeUIPlugin
     SET_FORMATTING: this.updateRowSizesForFormatting,
     RESIZE_COLUMNS_ROWS: this.updateRowSizesForResize,
     UPDATE_LOCALE: this.initializeAllSheets,
+    ADD_MERGE: this.updateRowSizesForMergeChange,
   };
 
   private updateRowSizesForResize(cmd: ResizeColumnsRowsCommand) {
@@ -76,6 +78,14 @@ export class HeaderSizeUIPlugin
     ) {
       for (const zone of cmd.target) {
         this.updateRowSizeForZoneChange(cmd.sheetId, zone);
+      }
+    }
+  }
+
+  private updateRowSizesForMergeChange(cmd: TargetDependentCommand) {
+    for (const target of cmd.target) {
+      for (const position of positions(target)) {
+        this.updateRowSizeForCellChange(cmd.sheetId, position.row, position.col);
       }
     }
   }
@@ -144,13 +154,8 @@ export class HeaderSizeUIPlugin
         this.history.update("tallestCellInRow", cmd.sheetId, tallestCells);
         break;
       }
-      case "ADD_MERGE":
       case "REMOVE_MERGE":
-        for (const target of cmd.target) {
-          for (const position of positions(target)) {
-            this.updateRowSizeForCellChange(cmd.sheetId, position.row, position.col);
-          }
-        }
+        this.updateRowSizesForMergeChange(cmd);
     }
     return;
   }
