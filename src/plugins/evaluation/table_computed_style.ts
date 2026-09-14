@@ -51,6 +51,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
     UPDATE_NAMED_RANGE: this.clearTableStyles,
     DELETE_NAMED_RANGE: this.clearTableStyles,
     RENAME_PIVOT: this.clearTableStyles,
+    REMOVE_PIVOT: this.clearTableStyles,
   };
 
   private clearTableStyles() {
