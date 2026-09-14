@@ -8,6 +8,7 @@ import {
   CoreCommand,
   FoldHeaderGroupCommand,
   GroupHeadersCommand,
+  UnfoldHeaderGroupCommand,
   UnGroupHeadersCommand,
 } from "../../types/commands";
 import { Dimension, HeaderGroup, HeaderIndex, UID, Zone } from "../../types/misc";
@@ -37,7 +38,15 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
     GROUP_HEADERS: this.handleGroupHeaders,
     UNGROUP_HEADERS: this.handleUnGroupHeaders,
     FOLD_HEADER_GROUP: this.handleFoldHeaderGroup,
+    UNFOLD_HEADER_GROUP: this.handleUnfoldHeaderGroup,
   };
+
+  private handleUnfoldHeaderGroup(cmd: UnfoldHeaderGroupCommand) {
+    const group = this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
+    if (group) {
+      this.unfoldHeaderGroup(cmd.sheetId, cmd.dimension, group);
+    }
+  }
 
   private handleFoldHeaderGroup(cmd: FoldHeaderGroupCommand) {
     const group = this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
@@ -134,13 +143,6 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
       case "REMOVE_COLUMNS_ROWS":
         this.moveGroupsOnHeaderDeletion(cmd.sheetId, cmd.dimension, cmd.elements);
         break;
-      case "UNFOLD_HEADER_GROUP": {
-        const group = this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
-        if (group) {
-          this.unfoldHeaderGroup(cmd.sheetId, cmd.dimension, group);
-        }
-        break;
-      }
       case "UNFOLD_ALL_HEADER_GROUPS": {
         const groups = this.getters.getHeaderGroups(cmd.sheetId, cmd.dimension);
         for (const group of groups) {
