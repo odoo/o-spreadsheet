@@ -53,6 +53,7 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
     REMOVE_CONDITIONAL_FORMAT: this.markAsStale,
     CHANGE_CONDITIONAL_FORMAT_PRIORITY: this.markAsStale,
     UPDATE_LOCALE: this.markAsStale,
+    CREATE_NAMED_RANGE: this.markAsStale,
   };
 
   private markAsStale() {
