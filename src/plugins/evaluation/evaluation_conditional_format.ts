@@ -65,6 +65,7 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
     ADD_MERGE: this.markAsStale,
     REMOVE_MERGE: this.markAsStale,
     RENAME_SHEET: this.markAsStale,
+    CREATE_SHEET: this.markAsStale,
   };
 
   private markAsStale() {

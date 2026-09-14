@@ -63,6 +63,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     ADD_MERGE: this.invalidateComputedStyles,
     REMOVE_MERGE: this.invalidateComputedStyles,
     RENAME_SHEET: this.invalidateComputedStyles,
+    CREATE_SHEET: this.invalidateComputedStyles,
   };
 
   private invalidateComputedCfStyles() {

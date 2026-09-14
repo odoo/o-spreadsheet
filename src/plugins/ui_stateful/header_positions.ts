@@ -44,7 +44,13 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     ADD_MERGE: this.invalidateHeaderPositions,
     REMOVE_MERGE: this.invalidateHeaderPositions,
     RENAME_SHEET: this.invalidateHeaderPositions,
+    CREATE_SHEET: this.invalidateAndComputeSheetPositions,
   };
+
+  private invalidateAndComputeSheetPositions(cmd: { sheetId: UID }) {
+    this.invalidateHeaderPositions();
+    this.computeSheetHeaderPositions(cmd);
+  }
 
   private computeSheetHeaderPositions(cmd: { sheetId: UID }) {
     if (this.getters.tryGetSheet(cmd.sheetId)) {
@@ -71,10 +77,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
         break;
       case "REMOVE_COLUMNS_ROWS":
       case "ADD_COLUMNS_ROWS":
-      case "CREATE_SHEET":
-        if (this.getters.tryGetSheet(cmd.sheetId)) {
-          this.headerPositions[cmd.sheetId] = this.computeHeaderPositionsOfSheet(cmd.sheetId);
-        }
+        this.computeSheetHeaderPositions(cmd);
         break;
       case "DUPLICATE_SHEET":
         this.headerPositions[cmd.sheetIdTo] = deepCopy(this.headerPositions[cmd.sheetId]);

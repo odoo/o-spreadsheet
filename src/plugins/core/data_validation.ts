@@ -40,7 +40,12 @@ export class DataValidationPlugin
     DELETE_CONTENT: this.removeRulesInDeletedContent,
     REMOVE_DATA_VALIDATION_RULE: this.removeRule,
     ADD_DATA_VALIDATION_RULE: this.addRule,
+    CREATE_SHEET: this.initSheetRules,
   };
+
+  private initSheetRules(cmd: { sheetId: UID }) {
+    this.history.update("rules", cmd.sheetId, []);
+  }
 
   private addRule(cmd: AddDataValidationCommand) {
     const ranges = cmd.ranges.map((range) => this.getters.getRangeFromRangeData(range));
@@ -170,9 +175,6 @@ export class DataValidationPlugin
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "CREATE_SHEET":
-        this.history.update("rules", cmd.sheetId, []);
-        break;
       case "DUPLICATE_SHEET": {
         const rules = deepCopy(this.rules[cmd.sheetId]).map((rule) => ({
           ...rule,

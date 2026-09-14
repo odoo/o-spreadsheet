@@ -53,7 +53,12 @@ export class HeaderSizeUIPlugin
     UPDATE_LOCALE: this.initializeAllSheets,
     ADD_MERGE: this.updateRowSizesForMergeChange,
     REMOVE_MERGE: this.updateRowSizesForMergeChange,
+    CREATE_SHEET: this.initializeCreatedSheet,
   };
+
+  private initializeCreatedSheet(cmd: { sheetId: UID }) {
+    this.initializeSheet(cmd.sheetId);
+  }
 
   private updateRowSizesForResize(cmd: ResizeColumnsRowsCommand) {
     const sheetId = cmd.sheetId;
@@ -130,10 +135,6 @@ export class HeaderSizeUIPlugin
           this.initializeSheet(sheetId);
         }
         break;
-      case "CREATE_SHEET": {
-        this.initializeSheet(cmd.sheetId);
-        break;
-      }
       case "DUPLICATE_SHEET": {
         const tallestCells = deepCopy(this.tallestCellInRow[cmd.sheetId]);
         this.history.update("tallestCellInRow", cmd.sheetIdTo, tallestCells);
