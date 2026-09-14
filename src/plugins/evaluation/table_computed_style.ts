@@ -57,6 +57,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
     DUPLICATE_PIVOT: this.clearTableStyles,
     UPDATE_PIVOT: this.clearTableStyles,
     ADD_MERGE: this.clearTableStyles,
+    REMOVE_MERGE: this.clearTableStyles,
   };
 
   private clearTableStyles() {

@@ -58,6 +58,7 @@ export class DynamicTablesPlugin extends EvaluationPlugin {
     DUPLICATE_PIVOT: this.clearTables,
     UPDATE_PIVOT: this.clearTables,
     ADD_MERGE: this.clearTables,
+    REMOVE_MERGE: this.clearTables,
   };
 
   private invalidateTables(cmd: UpdateCellCommand) {
