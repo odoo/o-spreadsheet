@@ -1122,6 +1122,15 @@ describe("figures", () => {
       });
     });
 
+    test("Charts are rounded in fullscreen mode", async () => {
+      createChart(model, { type: "bar" }, "chartId", sheetId);
+      model.updateMode("dashboard");
+      await nextTick();
+
+      await simulateClick(".o-figure [data-id='fullScreenChart']");
+      expect(".o-fullscreen-figure").toHaveClass("o-figure-rounded");
+    });
+
     test("No border/shadow in dashboard mode for images", async () => {
       createImage(model, { figureId: "figureId" });
       model.updateMode("dashboard");
