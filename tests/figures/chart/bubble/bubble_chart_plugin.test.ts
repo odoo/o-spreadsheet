@@ -306,4 +306,18 @@ describe("bubble chart", () => {
     expect(yValues).toEqual([30, 20, 15, 10]);
     expect(dataset.pointRadius).toEqual([30, 20, 15, 10]);
   });
+
+  test("bubble chart background", () => {
+    const model = createModelFromGrid({ A1: "1", B1: "2" });
+    createBubbleChart(model, { yRanges: ["B1"], xRange: "A1", background: "#123456" }, "1");
+    const config = getChartConfiguration(model, "1");
+    expect(config.options?.plugins?.background?.color).toEqual("#123456");
+  });
+
+  test("bubble chart without background has the default background", () => {
+    const model = createModelFromGrid({ A1: "1", B1: "2" });
+    createBubbleChart(model, { yRanges: ["B1"], xRange: "A1" }, "1");
+    const config = getChartConfiguration(model, "1");
+    expect(config.options?.plugins?.background?.color).toEqual("#FFFFFF");
+  });
 });
