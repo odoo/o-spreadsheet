@@ -9,6 +9,7 @@ import {
   DuplicateCarouselChartCommand,
   LocalCommand,
   PopOutChartFromCarouselCommand,
+  UpdateCarouselCommand,
 } from "../../types/commands";
 import { Carousel, CarouselItem } from "../../types/figure";
 import { UID } from "../../types/misc";
@@ -26,7 +27,12 @@ export class CarouselUIPlugin extends UIPlugin {
   handlers = {
     DELETE_CHART: this.fixWrongCarouselStates,
     DELETE_FIGURE: this.forgetCarouselState,
+    UPDATE_CAROUSEL: this.fixUpdatedCarouselState,
   };
+
+  private fixUpdatedCarouselState(cmd: UpdateCarouselCommand) {
+    this.fixWrongCarouselState(cmd.figureId);
+  }
 
   private forgetCarouselState(cmd: DeleteFigureCommand) {
     delete this.carouselStates[cmd.figureId];
@@ -98,9 +104,6 @@ export class CarouselUIPlugin extends UIPlugin {
         break;
       case "POPOUT_CHART_FROM_CAROUSEL":
         this.popOutChartFromCarousel(cmd);
-        break;
-      case "UPDATE_CAROUSEL":
-        this.fixWrongCarouselState(cmd.figureId);
         break;
       case "UNDO":
       case "REDO":
