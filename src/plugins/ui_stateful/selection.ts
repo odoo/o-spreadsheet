@@ -191,11 +191,16 @@ export class GridSelectionPlugin extends UIPlugin {
     this.currentStyle = undefined;
   }
 
+  handlers = {
+    DELETE_FIGURE: this.unselectDeletedFigure,
+  };
+
+  private unselectDeletedFigure(cmd: DeleteFigureCommand) {
+    this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
+  }
+
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "DELETE_FIGURE":
-        this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
-        break;
       case "START":
         const firstSheetId = this.getters.getVisibleSheetIds()[0];
         this.activateSheet(firstSheetId, firstSheetId);
