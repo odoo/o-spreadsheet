@@ -37,6 +37,7 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
     UNGROUP_HEADERS: this.refreshHiddenRows,
     FOLD_HEADER_GROUP: this.refreshHiddenRows,
     UNFOLD_HEADER_GROUP: this.refreshHiddenRows,
+    FOLD_ALL_HEADER_GROUPS: this.refreshHiddenRows,
   };
 
   private refreshHiddenRows(cmd: { sheetId: UID }) {
@@ -80,7 +81,6 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
       case "CREATE_SHEET":
         this.filterValues[cmd.sheetId] = {};
         break;
-      case "FOLD_ALL_HEADER_GROUPS":
       case "UNFOLD_ALL_HEADER_GROUPS":
       case "FOLD_HEADER_GROUPS_IN_ZONE":
       case "UNFOLD_HEADER_GROUPS_IN_ZONE":

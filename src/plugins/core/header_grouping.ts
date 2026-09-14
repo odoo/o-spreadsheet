@@ -6,6 +6,7 @@ import {
 import {
   CommandResult,
   CoreCommand,
+  FoldAllHeaderGroupsCommand,
   FoldHeaderGroupCommand,
   GroupHeadersCommand,
   UnfoldHeaderGroupCommand,
@@ -39,7 +40,15 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
     UNGROUP_HEADERS: this.handleUnGroupHeaders,
     FOLD_HEADER_GROUP: this.handleFoldHeaderGroup,
     UNFOLD_HEADER_GROUP: this.handleUnfoldHeaderGroup,
+    FOLD_ALL_HEADER_GROUPS: this.foldAllHeaderGroups,
   };
+
+  private foldAllHeaderGroups(cmd: FoldAllHeaderGroupsCommand) {
+    const groups = this.getters.getHeaderGroups(cmd.sheetId, cmd.dimension);
+    for (const group of groups) {
+      this.foldHeaderGroup(cmd.sheetId, cmd.dimension, group);
+    }
+  }
 
   private handleUnfoldHeaderGroup(cmd: UnfoldHeaderGroupCommand) {
     const group = this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
@@ -147,13 +156,6 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
         const groups = this.getters.getHeaderGroups(cmd.sheetId, cmd.dimension);
         for (const group of groups) {
           this.unfoldHeaderGroup(cmd.sheetId, cmd.dimension, group);
-        }
-        break;
-      }
-      case "FOLD_ALL_HEADER_GROUPS": {
-        const groups = this.getters.getHeaderGroups(cmd.sheetId, cmd.dimension);
-        for (const group of groups) {
-          this.foldHeaderGroup(cmd.sheetId, cmd.dimension, group);
         }
         break;
       }

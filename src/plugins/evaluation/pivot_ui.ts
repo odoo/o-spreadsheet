@@ -91,6 +91,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     UNGROUP_HEADERS: this.invalidateUnusedPivots,
     FOLD_HEADER_GROUP: this.invalidateUnusedPivots,
     UNFOLD_HEADER_GROUP: this.invalidateUnusedPivots,
+    FOLD_ALL_HEADER_GROUPS: this.invalidateUnusedPivots,
   };
 
   constructor(config: EvaluationPluginConfig) {
