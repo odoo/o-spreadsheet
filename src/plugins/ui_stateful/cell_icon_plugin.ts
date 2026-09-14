@@ -71,6 +71,7 @@ export class CellIconPlugin extends UIPlugin {
     LOCK_SHEET: this.clearCellIconsCache,
     UNLOCK_SHEET: this.clearCellIconsCache,
     FREEZE_COLUMNS: this.clearCellIconsCache,
+    FREEZE_ROWS: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
