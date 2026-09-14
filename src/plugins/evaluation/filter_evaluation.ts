@@ -28,6 +28,7 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
 
   handlers = {
     UPDATE_CELL: this.invalidateEvaluation,
+    REMOVE_TABLE: this.invalidateEvaluation,
   };
 
   private invalidateEvaluation() {
@@ -50,7 +51,6 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
       case "UNDO":
       case "REDO":
       case "EVALUATE_CELLS":
-      case "REMOVE_TABLE":
       case "ADD_COLUMNS_ROWS":
       case "REMOVE_COLUMNS_ROWS":
       case "UPDATE_TABLE":
