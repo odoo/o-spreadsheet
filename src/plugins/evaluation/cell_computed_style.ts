@@ -8,7 +8,6 @@ import { isZoneInside, toZone, zoneToXc } from "../../helpers/zones";
 import {
   DeleteContentCommand,
   EvaluationCommand,
-  invalidateBordersCommands,
   invalidateCFEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types/commands";
@@ -30,6 +29,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     CLEAR_FORMATTING: this.invalidateComputedStyles,
     SET_BORDER: this.invalidateComputedBorders,
     SET_ZONE_BORDERS: this.invalidateComputedBorders,
+    SET_BORDERS_ON_TARGET: this.invalidateComputedBorders,
   };
 
   private invalidateComputedBorders() {
@@ -72,10 +72,6 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
 
     if (invalidateCFEvaluationCommands.has(cmd.type)) {
       this.styles = new PositionMap();
-      return;
-    }
-    if (invalidateBordersCommands.has(cmd.type)) {
-      this.borders = new PositionMap();
       return;
     }
   }
