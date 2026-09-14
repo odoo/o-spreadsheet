@@ -34,6 +34,7 @@ export class CellIconPlugin extends UIPlugin {
     CHANGE_CONDITIONAL_FORMAT_PRIORITY: this.clearCellIconsCache,
     HIDE_COLUMNS_ROWS: this.clearCellIconsCache,
     UNHIDE_COLUMNS_ROWS: this.clearCellIconsCache,
+    GROUP_HEADERS: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {

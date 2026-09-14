@@ -150,7 +150,6 @@ export const invalidateChartEvaluationCommands = new Set<CommandTypes>([
   "EVALUATE_CELLS",
   "EVALUATE_CHARTS",
   "UPDATE_CELL",
-  "GROUP_HEADERS",
   "UNGROUP_HEADERS",
   "FOLD_ALL_HEADER_GROUPS",
   "FOLD_HEADER_GROUP",
@@ -167,7 +166,6 @@ export const invalidateDependenciesCommands = new Set<CommandTypes>(["MOVE_RANGE
 export const invalidateCFEvaluationCommands = new Set<CommandTypes>(["EVALUATE_CELLS"]);
 
 export const invalidSubtotalFormulasCommands = new Set<CommandTypes>([
-  "GROUP_HEADERS",
   "UNGROUP_HEADERS",
   "FOLD_ALL_HEADER_GROUPS",
   "FOLD_HEADER_GROUP",

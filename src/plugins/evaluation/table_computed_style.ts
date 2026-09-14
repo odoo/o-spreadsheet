@@ -38,6 +38,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
     UPDATE_FILTER: this.invalidateSheetTableStyles,
     HIDE_COLUMNS_ROWS: this.invalidateSheetTableStyles,
     UNHIDE_COLUMNS_ROWS: this.invalidateSheetTableStyles,
+    GROUP_HEADERS: this.invalidateSheetTableStyles,
   };
 
   private invalidateTableStyles(cmd: UpdateCellCommand) {
