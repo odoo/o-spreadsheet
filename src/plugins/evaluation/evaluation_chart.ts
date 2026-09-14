@@ -59,6 +59,7 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
     RENAME_PIVOT: this.invalidateChartRuntimes,
     REMOVE_PIVOT: this.invalidateChartRuntimes,
     INSERT_PIVOT: this.invalidateChartRuntimes,
+    ADD_PIVOT: this.invalidateChartRuntimes,
   };
 
   private invalidateChartRuntime(cmd: { chartId: UID }) {

@@ -130,6 +130,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     RENAME_PIVOT: this.invalidateAllPivots,
     REMOVE_PIVOT: this.invalidateAllPivots,
     INSERT_PIVOT: this.invalidateAllPivots,
+    ADD_PIVOT: this.setupAddedPivot,
   };
 
   constructor(config: EvaluationPluginConfig) {
@@ -167,6 +168,12 @@ export class PivotUIPlugin extends EvaluationPlugin {
    * Reset the cache of the date/datetime pivot values, as it depends on
    * the locale. (e.g. the first day of the week)
    */
+  private setupAddedPivot(cmd: AddPivotCommand) {
+    this.invalidateAllPivots();
+    this.unusedPivotsInFormulas?.push(cmd.pivotId);
+    this.setupPivot(cmd.pivotId);
+  }
+
   private invalidatePivotsOnLocaleUpdate() {
     this.invalidateAllPivots();
     resetMapValueDimensionDate();
@@ -187,11 +194,6 @@ export class PivotUIPlugin extends EvaluationPlugin {
       case "REFRESH_PIVOT":
         this.refreshPivot(cmd.id);
         break;
-      case "ADD_PIVOT": {
-        this.unusedPivotsInFormulas?.push(cmd.pivotId);
-        this.setupPivot(cmd.pivotId);
-        break;
-      }
       case "DUPLICATE_PIVOT": {
         this.unusedPivotsInFormulas?.push(cmd.newPivotId);
         this.setupPivot(cmd.newPivotId);

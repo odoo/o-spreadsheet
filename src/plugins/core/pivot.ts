@@ -4,6 +4,7 @@ import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_he
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import {
+  AddPivotCommand,
   CommandResult,
   CoreCommand,
   InsertPivotCommand,
@@ -56,7 +57,13 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     RENAME_PIVOT: this.renamePivot,
     REMOVE_PIVOT: this.removePivot,
     INSERT_PIVOT: this.insertPivotTable,
+    ADD_PIVOT: this.addPivotHandler,
   };
+
+  private addPivotHandler(cmd: AddPivotCommand) {
+    const { pivotId, pivot } = cmd;
+    this.addPivot(pivotId, pivot);
+  }
 
   private insertPivotTable(cmd: InsertPivotCommand) {
     const { sheetId, col, row, pivotId, table } = cmd;
@@ -152,11 +159,6 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "ADD_PIVOT": {
-        const { pivotId, pivot } = cmd;
-        this.addPivot(pivotId, pivot);
-        break;
-      }
       case "DUPLICATE_PIVOT": {
         const { pivotId, newPivotId } = cmd;
         const pivot = deepCopy(this.getPivotCore(pivotId).definition);

@@ -53,6 +53,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
     RENAME_PIVOT: this.clearTableStyles,
     REMOVE_PIVOT: this.clearTableStyles,
     INSERT_PIVOT: this.clearTableStyles,
+    ADD_PIVOT: this.clearTableStyles,
   };
 
   private clearTableStyles() {
