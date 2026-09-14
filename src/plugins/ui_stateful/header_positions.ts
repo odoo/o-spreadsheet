@@ -31,6 +31,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     FOLD_HEADER_GROUPS_IN_ZONE: this.computeSheetHeaderPositions,
     UNFOLD_HEADER_GROUPS_IN_ZONE: this.computeSheetHeaderPositions,
     RESIZE_COLUMNS_ROWS: this.computeSheetHeaderPositions,
+    UPDATE_LOCALE: this.invalidateHeaderPositions,
   };
 
   private computeSheetHeaderPositions(cmd: { sheetId: UID }) {

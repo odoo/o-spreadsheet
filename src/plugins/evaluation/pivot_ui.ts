@@ -123,6 +123,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     HIDE_SHEET: this.invalidateUnusedPivots,
     COLOR_SHEET: this.invalidateUnusedPivots,
     UPDATE_CELL_POSITION: this.invalidateUnusedPivots,
+    UPDATE_LOCALE: this.invalidatePivotsOnLocaleUpdate,
   };
 
   constructor(config: EvaluationPluginConfig) {
@@ -146,6 +147,23 @@ export class PivotUIPlugin extends EvaluationPlugin {
 
   private invalidateUnusedPivots() {
     this.unusedPivotsInFormulas = undefined;
+  }
+
+  private invalidateAllPivots() {
+    this.invalidateUnusedPivots();
+    this.shouldInvalidateCache = true;
+    for (const pivotId of this.getters.getPivotIds()) {
+      this.setupPivot(pivotId, { recreate: true });
+    }
+  }
+
+  /**
+   * Reset the cache of the date/datetime pivot values, as it depends on
+   * the locale. (e.g. the first day of the week)
+   */
+  private invalidatePivotsOnLocaleUpdate() {
+    this.invalidateAllPivots();
+    resetMapValueDimensionDate();
   }
 
   handle(cmd: EvaluationCommand) {
@@ -190,13 +208,6 @@ export class PivotUIPlugin extends EvaluationPlugin {
         }
         break;
       }
-      case "UPDATE_LOCALE":
-        /**
-         * Reset the cache of the date/datetime pivot values, as it depends on
-         * the locale. (e.g. the first day of the week)
-         */
-        resetMapValueDimensionDate();
-        break;
     }
   }
 

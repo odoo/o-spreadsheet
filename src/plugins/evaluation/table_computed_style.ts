@@ -46,6 +46,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
     UNFOLD_HEADER_GROUPS_IN_ZONE: this.invalidateSheetTableStyles,
     CREATE_TABLE_STYLE: this.clearTableStyles,
     REMOVE_TABLE_STYLE: this.clearTableStyles,
+    UPDATE_LOCALE: this.clearTableStyles,
   };
 
   private clearTableStyles() {
