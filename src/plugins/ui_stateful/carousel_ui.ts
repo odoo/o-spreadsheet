@@ -3,6 +3,7 @@ import { deepEquals, insertItemsAtIndex } from "../../helpers/misc";
 import { UuidGenerator } from "../../helpers/uuid";
 import { ChartDefinition } from "../../types/chart/chart";
 import {
+  AddNewChartToCarouselCommand,
   Command,
   CommandResult,
   DeleteFigureCommand,
@@ -28,7 +29,12 @@ export class CarouselUIPlugin extends UIPlugin {
     DELETE_CHART: this.fixWrongCarouselStates,
     DELETE_FIGURE: this.forgetCarouselState,
     UPDATE_CAROUSEL: this.fixUpdatedCarouselState,
+    ADD_NEW_CHART_TO_CAROUSEL: this.addNewChart,
   };
+
+  private addNewChart(cmd: AddNewChartToCarouselCommand) {
+    this.addNewChartToCarousel(cmd.figureId, cmd.newChartId, cmd.sheetId, cmd.chartDefinition);
+  }
 
   private fixUpdatedCarouselState(cmd: UpdateCarouselCommand) {
     this.fixWrongCarouselState(cmd.figureId);
@@ -88,9 +94,6 @@ export class CarouselUIPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "ADD_NEW_CHART_TO_CAROUSEL":
-        this.addNewChartToCarousel(cmd.figureId, cmd.newChartId, cmd.sheetId, cmd.chartDefinition);
-        break;
       case "ADD_FIGURES_CHART_TO_CAROUSEL":
         cmd.chartFigureIds.forEach((figureId) => {
           this.addFigureChartToCarousel(cmd.carouselFigureId, figureId, cmd.sheetId);
