@@ -115,6 +115,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     LOCK_SHEET: this.invalidateUnusedPivots,
     UNLOCK_SHEET: this.invalidateUnusedPivots,
     FREEZE_COLUMNS: this.invalidateUnusedPivots,
+    FREEZE_ROWS: this.invalidateUnusedPivots,
   };
 
   constructor(config: EvaluationPluginConfig) {
