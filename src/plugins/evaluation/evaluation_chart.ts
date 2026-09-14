@@ -48,6 +48,7 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
     FOLD_ALL_HEADER_GROUPS: this.invalidateChartRuntimes,
     UNFOLD_ALL_HEADER_GROUPS: this.invalidateChartRuntimes,
     FOLD_HEADER_GROUPS_IN_ZONE: this.invalidateChartRuntimes,
+    UNFOLD_HEADER_GROUPS_IN_ZONE: this.invalidateChartRuntimes,
   };
 
   private invalidateChartRuntimes() {
