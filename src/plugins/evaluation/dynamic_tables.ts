@@ -48,6 +48,7 @@ export class DynamicTablesPlugin extends EvaluationPlugin {
     REMOVE_TABLE: this.clearTables,
     UPDATE_TABLE: this.clearTables,
     UPDATE_LOCALE: this.clearTables,
+    CREATE_NAMED_RANGE: this.clearTables,
   };
 
   private invalidateTables(cmd: UpdateCellCommand) {
