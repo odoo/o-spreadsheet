@@ -23,7 +23,14 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
   handlers = {
     DELETE_FIGURE: this.deleteCarousel,
     CREATE_CAROUSEL: this.createCarousel,
+    UPDATE_CAROUSEL: this.updateCarousel,
   };
+
+  private updateCarousel(cmd: UpdateCarouselCommand) {
+    this.removeDeletedCharts(cmd, this.getters.getCarousel(cmd.figureId).items);
+    const carousel = this.carouselDataToCarousel(cmd.definition);
+    this.history.update("carousels", cmd.sheetId, cmd.figureId, carousel);
+  }
 
   private createCarousel(cmd: CreateCarouselCommand) {
     if (!this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
@@ -97,12 +104,6 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "UPDATE_CAROUSEL": {
-        this.removeDeletedCharts(cmd, this.getters.getCarousel(cmd.figureId).items);
-        const carousel = this.carouselDataToCarousel(cmd.definition);
-        this.history.update("carousels", cmd.sheetId, cmd.figureId, carousel);
-        break;
-      }
       case "DUPLICATE_SHEET": {
         const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
         for (const fig of sheetFiguresFrom) {
