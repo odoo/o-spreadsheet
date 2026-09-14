@@ -117,6 +117,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     SHOW_SHEET: this.showSheetHandler,
     HIDE_SHEET: this.hideSheetHandler,
     COLOR_SHEET: this.colorSheet,
+    UPDATE_CELL_POSITION: this.updateCellPositionHandler,
   };
 
   private updateGridLinesVisibility(cmd: SetGridLinesVisibilityCommand) {
@@ -170,6 +171,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   private colorSheet(cmd: ColorSheetCommand) {
     this.history.update("sheets", cmd.sheetId, "color", cmd.color);
+  }
+
+  private updateCellPositionHandler(cmd: UpdateCellPositionCommand) {
+    this.updateCellPosition(cmd);
   }
 
   // ---------------------------------------------------------------------------
@@ -326,9 +331,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         } else {
           this.addRows(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
         }
-        break;
-      case "UPDATE_CELL_POSITION":
-        this.updateCellPosition(cmd);
         break;
     }
   }
