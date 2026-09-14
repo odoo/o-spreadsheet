@@ -3,7 +3,12 @@ import {
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,
 } from "../../helpers/sheet";
-import { CommandResult, CoreCommand, GroupHeadersCommand } from "../../types/commands";
+import {
+  CommandResult,
+  CoreCommand,
+  GroupHeadersCommand,
+  UnGroupHeadersCommand,
+} from "../../types/commands";
 import { Dimension, HeaderGroup, HeaderIndex, UID, Zone } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { getSheetDataHeader } from "../../xlsx/helpers/misc";
@@ -29,7 +34,12 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
 
   handlers = {
     GROUP_HEADERS: this.handleGroupHeaders,
+    UNGROUP_HEADERS: this.handleUnGroupHeaders,
   };
+
+  private handleUnGroupHeaders(cmd: UnGroupHeadersCommand) {
+    this.unGroupHeaders(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
+  }
 
   private handleGroupHeaders(cmd: GroupHeadersCommand) {
     this.groupHeaders(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
@@ -97,10 +107,6 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
       case "CREATE_SHEET":
         this.history.update("groups", cmd.sheetId, { ROW: [], COL: [] });
         break;
-      case "UNGROUP_HEADERS": {
-        this.unGroupHeaders(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
-        break;
-      }
       case "DUPLICATE_SHEET": {
         const groups = deepCopy(this.groups[cmd.sheetId]);
         this.history.update("groups", cmd.sheetIdTo, groups);
