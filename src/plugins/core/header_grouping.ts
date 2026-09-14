@@ -46,6 +46,7 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
     FOLD_ALL_HEADER_GROUPS: this.foldAllHeaderGroups,
     UNFOLD_ALL_HEADER_GROUPS: this.unfoldAllHeaderGroups,
     FOLD_HEADER_GROUPS_IN_ZONE: this.toggleHeaderGroupsInZone,
+    UNFOLD_HEADER_GROUPS_IN_ZONE: this.toggleHeaderGroupsInZone,
   };
 
   private toggleHeaderGroupsInZone(
@@ -196,9 +197,6 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
         break;
       case "REMOVE_COLUMNS_ROWS":
         this.moveGroupsOnHeaderDeletion(cmd.sheetId, cmd.dimension, cmd.elements);
-        break;
-      case "UNFOLD_HEADER_GROUPS_IN_ZONE":
-        this.toggleHeaderGroupsInZone(cmd);
         break;
     }
   }

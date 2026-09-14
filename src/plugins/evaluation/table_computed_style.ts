@@ -45,6 +45,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
     FOLD_ALL_HEADER_GROUPS: this.invalidateSheetTableStyles,
     UNFOLD_ALL_HEADER_GROUPS: this.invalidateSheetTableStyles,
     FOLD_HEADER_GROUPS_IN_ZONE: this.invalidateSheetTableStyles,
+    UNFOLD_HEADER_GROUPS_IN_ZONE: this.invalidateSheetTableStyles,
   };
 
   private invalidateTableStyles(cmd: UpdateCellCommand) {
@@ -64,11 +65,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
     }
 
     if (doesCommandInvalidatesTableStyle(cmd)) {
-      if ("sheetId" in cmd) {
-        delete this.tableStyles[cmd.sheetId];
-      } else {
-        this.tableStyles = {};
-      }
+      this.tableStyles = {};
       return;
     }
   }
@@ -312,11 +309,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
   }
 }
 
-const invalidateTableStyleCommands = [
-  "UNFOLD_HEADER_GROUPS_IN_ZONE",
-  "CREATE_TABLE_STYLE",
-  "REMOVE_TABLE_STYLE",
-] as const;
+const invalidateTableStyleCommands = ["CREATE_TABLE_STYLE", "REMOVE_TABLE_STYLE"] as const;
 const invalidateTableStyleCommandsSet = new Set<CommandTypes>(invalidateTableStyleCommands);
 
 export function doesCommandInvalidatesTableStyle<C extends Command>(

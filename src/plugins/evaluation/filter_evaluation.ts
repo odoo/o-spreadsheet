@@ -40,6 +40,7 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
     FOLD_ALL_HEADER_GROUPS: this.refreshHiddenRows,
     UNFOLD_ALL_HEADER_GROUPS: this.refreshHiddenRows,
     FOLD_HEADER_GROUPS_IN_ZONE: this.refreshHiddenRows,
+    UNFOLD_HEADER_GROUPS_IN_ZONE: this.refreshHiddenRows,
   };
 
   private refreshHiddenRows(cmd: { sheetId: UID }) {
@@ -82,9 +83,6 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
         break;
       case "CREATE_SHEET":
         this.filterValues[cmd.sheetId] = {};
-        break;
-      case "UNFOLD_HEADER_GROUPS_IN_ZONE":
-        this.updateHiddenRows(cmd.sheetId);
         break;
       case "DUPLICATE_SHEET":
         this.filterValues[cmd.sheetIdTo] = deepCopy(this.filterValues[cmd.sheetId]);
