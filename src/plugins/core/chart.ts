@@ -41,7 +41,14 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   handlers = {
     UPDATE_CHART: this.updateChart,
     CREATE_CHART: this.createChart,
+    DELETE_CHART: this.deleteChart,
   };
+
+  private deleteChart(cmd: DeleteChartCommand) {
+    if (this.isChartDefined(cmd.chartId)) {
+      this.history.update("charts", cmd.chartId, undefined);
+    }
+  }
 
   private createChart(cmd: CreateChartCommand) {
     const { col, row, offset, size, sheetId, figureId } = cmd;
@@ -145,11 +152,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           if (this.charts[chartId]?.figureId === cmd.figureId) {
             this.dispatch("DELETE_CHART", { chartId, sheetId: cmd.sheetId });
           }
-        }
-        break;
-      case "DELETE_CHART":
-        if (this.isChartDefined(cmd.chartId)) {
-          this.history.update("charts", cmd.chartId, undefined);
         }
         break;
       case "DELETE_SHEET":
