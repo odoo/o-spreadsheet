@@ -50,6 +50,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     REMOVE_TABLE_STYLE: this.invalidateComputedStyles,
     REMOVE_DATA_VALIDATION_RULE: this.invalidateComputedStyles,
     ADD_DATA_VALIDATION_RULE: this.invalidateComputedStyles,
+    UPDATE_LOCALE: this.invalidateComputedStyles,
   };
 
   private invalidateComputedCfStyles() {

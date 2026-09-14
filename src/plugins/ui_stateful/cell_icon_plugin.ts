@@ -83,6 +83,7 @@ export class CellIconPlugin extends UIPlugin {
     AUTORESIZE_ROWS: this.clearCellIconsCache,
     DELETE_UNFILTERED_CONTENT: this.clearCellIconsCache,
     SET_BACKGROUND_FOR_ALL_CELLS: this.clearCellIconsCache,
+    UPDATE_LOCALE: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {

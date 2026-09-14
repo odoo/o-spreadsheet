@@ -49,6 +49,7 @@ export class HeaderSizeUIPlugin
     UPDATE_CELL: this.updateRowSizeForCellUpdate,
     SET_FORMATTING: this.updateRowSizesForFormatting,
     RESIZE_COLUMNS_ROWS: this.updateRowSizesForResize,
+    UPDATE_LOCALE: this.initializeAllSheets,
   };
 
   private updateRowSizesForResize(cmd: ResizeColumnsRowsCommand) {
@@ -76,6 +77,12 @@ export class HeaderSizeUIPlugin
       for (const zone of cmd.target) {
         this.updateRowSizeForZoneChange(cmd.sheetId, zone);
       }
+    }
+  }
+
+  private initializeAllSheets() {
+    for (const sheetId of this.getters.getSheetIds()) {
+      this.initializeSheet(sheetId);
     }
   }
 
@@ -108,7 +115,6 @@ export class HeaderSizeUIPlugin
   handle(cmd: EvaluationCommand) {
     switch (cmd.type) {
       case "START":
-      case "UPDATE_LOCALE":
         for (const sheetId of this.getters.getSheetIds()) {
           this.initializeSheet(sheetId);
         }

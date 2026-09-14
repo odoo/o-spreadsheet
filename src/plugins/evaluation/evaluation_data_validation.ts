@@ -60,7 +60,13 @@ export class EvaluationDataValidationPlugin extends EvaluationPlugin {
     UPDATE_CELL: this.invalidateValidationResults,
     REMOVE_DATA_VALIDATION_RULE: this.invalidateSheetValidationResults,
     ADD_DATA_VALIDATION_RULE: this.invalidateSheetValidationResults,
+    UPDATE_LOCALE: this.clearValidationResults,
   };
+
+  private clearValidationResults() {
+    this.validationResults = {};
+    this.criterionPreComputeResult = {};
+  }
 
   private invalidateSheetValidationResults(cmd: { sheetId: UID }) {
     delete this.validationResults[cmd.sheetId];
