@@ -32,6 +32,7 @@ export class CarouselUIPlugin extends UIPlugin {
     UPDATE_CAROUSEL: this.fixUpdatedCarouselState,
     ADD_NEW_CHART_TO_CAROUSEL: this.addNewChart,
     ADD_FIGURES_CHART_TO_CAROUSEL: this.addFigureCharts,
+    DUPLICATE_CAROUSEL_CHART: this.duplicateCarouselChart,
   };
 
   private addFigureCharts(cmd: AddFiguresChartToCarouselCommand) {
@@ -102,9 +103,6 @@ export class CarouselUIPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "DUPLICATE_CAROUSEL_CHART":
-        this.duplicateCarouselChart(cmd);
-        break;
       case "UPDATE_CAROUSEL_ACTIVE_ITEM":
         this.carouselStates[cmd.figureId] = this.getCarouselItemId(cmd.item);
         break;
