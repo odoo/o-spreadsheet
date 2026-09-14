@@ -47,6 +47,7 @@ export class CellIconPlugin extends UIPlugin {
     REMOVE_DATA_VALIDATION_RULE: this.clearCellIconsCache,
     ADD_DATA_VALIDATION_RULE: this.clearCellIconsCache,
     RESIZE_COLUMNS_ROWS: this.clearCellIconsCache,
+    MOVE_RANGES: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {

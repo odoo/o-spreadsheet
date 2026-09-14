@@ -20,6 +20,7 @@ import {
   CommandResult,
   CommandsHandlers,
   CoreCommand,
+  MoveRangeCommand,
 } from "../../types/commands";
 import { CellErrorType } from "../../types/errors";
 import { CoreGetters } from "../../types/getters";
@@ -37,7 +38,19 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   private getters: CoreGetters;
   private providers: Array<RangeProvider["adaptRanges"]> = [];
   private isAdaptingRanges: boolean = false;
-  readonly handlers: CommandsHandlers<CoreCommand> = {};
+  readonly handlers: CommandsHandlers<CoreCommand> = {
+    MOVE_RANGES: this.adaptRanges,
+  };
+
+  private adaptRanges(cmd: MoveRangeCommand) {
+    if (this.isAdaptingRanges) {
+      throw new Error("Plugins cannot dispatch commands during adaptRanges phase");
+    }
+    const adapterFunctions = getRangeAdapterFunctions(cmd);
+    if (adapterFunctions) {
+      this.executeOnAllRanges(adapterFunctions);
+    }
+  }
   constructor(getters: CoreGetters) {
     this.getters = getters;
   }
