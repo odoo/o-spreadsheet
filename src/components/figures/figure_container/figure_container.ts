@@ -21,8 +21,10 @@ import { startDnd } from "../../helpers/drag_and_drop";
 import { dragFigureForMove, dragFigureForResize } from "../../helpers/figure_drag_helper";
 import {
   HFigureAxisType,
+  RenderedSnap,
   SnapLine,
   VFigureAxisType,
+  getSnapRenderInfo,
   snapForMove,
   snapForResize,
 } from "../../helpers/figure_snap_helper";
@@ -37,18 +39,12 @@ interface Container {
   inverseViewportStyle: string;
 }
 
-interface Snap<T extends HFigureAxisType | VFigureAxisType> {
-  line: SnapLine<T>;
-  lineStyle: string;
-  containerStyle: string;
-}
-
 interface DndState {
   draggedFigure?: FigureUI;
   selectedFigures?: FigureUI[];
   selectedRect?: Rect;
-  horizontalSnap?: Snap<HFigureAxisType>;
-  verticalSnap?: Snap<VFigureAxisType>;
+  horizontalSnap?: RenderedSnap<HFigureAxisType>;
+  verticalSnap?: RenderedSnap<VFigureAxisType>;
   cancelDnd: (() => void) | undefined;
 }
 
@@ -126,7 +122,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
   });
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
-  private chartDragStore!: Store<ChartDragStore>;
+  chartDragStore!: Store<ChartDragStore>;
 
   setup() {
     this.viewStore = useStore(ViewportsStore);
@@ -602,58 +598,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
 
   private getSnap<T extends HFigureAxisType | VFigureAxisType>(
     snapLine: SnapLine<T> | undefined
-  ): Snap<T> | undefined {
-    if (!snapLine || !this.dnd.draggedFigure) {
-      return undefined;
-    }
-    const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
-    const figureVisibleRects = snapLine.matchedFigIds
-      .map((id) => this.getVisibleFigures().find((figureUI) => figureUI.id === id))
-      .filter(isDefined)
-      .map((figureUI) => {
-        return {
-          x: figureUI.x - scrollX,
-          y: figureUI.y - scrollY,
-          width: figureUI.width,
-          height: figureUI.height,
-        };
-      })
-      .filter(isDefined);
-    const containerRect = rectUnion(
-      {
-        ...this.dnd.draggedFigure,
-        x: this.dnd.draggedFigure.x - scrollX,
-        y: this.dnd.draggedFigure.y - scrollY,
-      },
-      ...figureVisibleRects
-    );
-    return {
-      line: snapLine,
-      containerStyle: this.rectToCss(containerRect),
-      lineStyle: this.getSnapLineStyle(snapLine, containerRect),
-    };
-  }
-
-  private getSnapLineStyle(
-    snapLine: SnapLine<HFigureAxisType | VFigureAxisType> | undefined,
-    containerRect: Rect
-  ): string {
-    if (!snapLine) {
-      return "";
-    }
-    const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
-    if (["top", "vCenter", "bottom"].includes(snapLine.snappedAxisType)) {
-      return cssPropertiesToCss({
-        top: `${snapLine.position - containerRect.y - scrollY}px`,
-        left: `0px`,
-        width: `100%`,
-      });
-    } else {
-      return cssPropertiesToCss({
-        top: `0px`,
-        left: `${snapLine.position - containerRect.x - scrollX}px`,
-        height: `100%`,
-      });
-    }
+  ): RenderedSnap<T> | undefined {
+    return getSnapRenderInfo(this.env, snapLine, this.dnd.draggedFigure, this.getVisibleFigures());
   }
 }

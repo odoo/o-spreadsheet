@@ -1,10 +1,12 @@
 import { FIGURE_BORDER_WIDTH } from "../../constants";
+import { isDefined } from "../../helpers/misc";
 import { rectUnion } from "../../helpers/rectangle";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { FigureUI } from "../../types/figure";
 import { Pixel, PixelPosition, UID } from "../../types/misc";
 import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { cssPropertiesToCss } from "./css";
 
 const SNAP_MARGIN: Pixel = 5;
 
@@ -23,8 +25,8 @@ export interface SnapLine<T extends HFigureAxisType | VFigureAxisType> {
   position: Pixel;
 }
 
-interface SnapMoveReturn extends SnapReturn {
-  snappedFigures: FigureUI[];
+interface SnapMoveReturn<T extends Rect> extends SnapReturn {
+  snappedFigures: T[];
 }
 
 export interface SnapReturn {
@@ -33,14 +35,23 @@ export interface SnapReturn {
 }
 
 /**
+ * Rendering information (as CSS) for a snap line, ready to be displayed by a component.
+ */
+export interface RenderedSnap<T extends HFigureAxisType | VFigureAxisType> {
+  line: SnapLine<T>;
+  lineStyle: string;
+  containerStyle: string;
+}
+
+/**
  * Try to snap the given figure to other figures when moving the figure, and return the snapped
  * figure and the possible snap lines, if any were found
  */
-export function snapForMove(
+export function snapForMove<T extends Rect>(
   env: SpreadsheetChildEnv,
-  figuresToSnap: FigureUI[],
+  figuresToSnap: T[],
   otherFigures: FigureUI[]
-): SnapMoveReturn {
+): SnapMoveReturn<T> {
   const aggregateRect = rectUnion(...figuresToSnap);
 
   const verticalSnapLine = getSnapLine(
@@ -146,6 +157,71 @@ export function snapForResize(
   };
 
   return { snappedRect, verticalSnapLine, horizontalSnapLine };
+}
+
+/**
+ * Compute the CSS rendering information (container + line position) for a snap line, so it can be
+ * displayed as an overlay above the grid. Used both for dragging existing figures and for dragging
+ * a chart suggestion that doesn't exist in the model yet.
+ */
+export function getSnapRenderInfo<T extends HFigureAxisType | VFigureAxisType>(
+  env: SpreadsheetChildEnv,
+  snapLine: SnapLine<T> | undefined,
+  draggedFigure: Rect | undefined,
+  visibleFigures: FigureUI[]
+): RenderedSnap<T> | undefined {
+  if (!snapLine || !draggedFigure) {
+    return undefined;
+  }
+  const { scrollX, scrollY } = env.getStore(ViewportsStore).activeSheetScrollInfo;
+  const figureVisibleRects = snapLine.matchedFigIds
+    .map((id) => visibleFigures.find((figureUI) => figureUI.id === id))
+    .filter(isDefined)
+    .map((figureUI) => ({
+      x: figureUI.x - scrollX,
+      y: figureUI.y - scrollY,
+      width: figureUI.width,
+      height: figureUI.height,
+    }));
+  const containerRect = rectUnion(
+    { ...draggedFigure, x: draggedFigure.x - scrollX, y: draggedFigure.y - scrollY },
+    ...figureVisibleRects
+  );
+  return {
+    line: snapLine,
+    containerStyle: rectToCss(containerRect),
+    lineStyle: getSnapLineStyle(snapLine, containerRect, scrollX, scrollY),
+  };
+}
+
+function rectToCss(rect: Rect): string {
+  return cssPropertiesToCss({
+    left: `${rect.x}px`,
+    top: `${rect.y}px`,
+    width: `${rect.width}px`,
+    height: `${rect.height}px`,
+  });
+}
+
+function getSnapLineStyle(
+  snapLine: SnapLine<HFigureAxisType | VFigureAxisType>,
+  containerRect: Rect,
+  scrollX: Pixel,
+  scrollY: Pixel
+): string {
+  if (["top", "vCenter", "bottom"].includes(snapLine.snappedAxisType)) {
+    return cssPropertiesToCss({
+      top: `${snapLine.position - containerRect.y - scrollY}px`,
+      left: `0px`,
+      width: `100%`,
+    });
+  } else {
+    return cssPropertiesToCss({
+      top: `0px`,
+      left: `${snapLine.position - containerRect.x - scrollX}px`,
+      height: `100%`,
+    });
+  }
 }
 
 /**
