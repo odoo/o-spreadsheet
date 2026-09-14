@@ -1,10 +1,8 @@
 import { LINK_COLOR } from "../../constants";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { toCartesian } from "../../helpers/coordinates";
-import { getItemId } from "../../helpers/data_normalization";
+import { addStyleToWorkbookData } from "../../helpers/data_normalization";
 import { isObjectEmptyRecursive, removeFalsyAttributes } from "../../helpers/misc";
-import { recomputeZones } from "../../helpers/recompute_zones";
-import { isZoneInside, toZone, zoneToXc } from "../../helpers/zones";
 import {
   Command,
   invalidateBordersCommands,
@@ -100,11 +98,6 @@ export class CellComputedStylePlugin extends UIPlugin {
 
   exportForExcel(data: ExcelWorkbookData) {
     for (const sheet of data.sheets) {
-      // Collect all link cells that need LINK_COLOR, grouped by their containing style zone to avoid O(n^2) calls to `recomputeZones`
-      const linkCellsByStyleZone: Record<string, string[]> = {};
-      // Some link cells might not be part of any style zone, handled separately
-      const linkCellsWithoutStyleZone: string[] = [];
-
       for (const xc in sheet.cells) {
         const position = { sheetId: sheet.id, ...toCartesian(xc) };
         const evaluatedCell = this.getters.getEvaluatedCell(position);
@@ -112,42 +105,8 @@ export class CellComputedStylePlugin extends UIPlugin {
         if (!evaluatedCell.link || computedStyle.textColor) {
           continue;
         }
-        const styleXc = Object.keys(sheet.styles).find((styleXc) =>
-          isZoneInside(toZone(xc), toZone(styleXc))
-        );
-        if (styleXc) {
-          if (!linkCellsByStyleZone[styleXc]) {
-            linkCellsByStyleZone[styleXc] = [];
-          }
-          linkCellsByStyleZone[styleXc].push(xc);
-        } else {
-          linkCellsWithoutStyleZone.push(xc);
-        }
-      }
-
-      for (const [styleXc, linkXcs] of Object.entries(linkCellsByStyleZone)) {
-        const existingStyleId = sheet.styles[styleXc];
-        if (data.styles[existingStyleId].textColor) {
-          continue;
-        }
-        const existingStyle = data.styles[existingStyleId];
-        const linkZones = linkXcs.map(toZone);
-        const remainingZones = recomputeZones([toZone(styleXc)], linkZones);
-
-        delete sheet.styles[styleXc];
-
-        for (const zone of remainingZones) {
-          sheet.styles[zoneToXc(zone)] = existingStyleId;
-        }
-        const linkStyleId = getItemId({ ...existingStyle, textColor: LINK_COLOR }, data.styles);
-        for (const xc of linkXcs) {
-          sheet.styles[xc] = linkStyleId;
-        }
-      }
-
-      for (const xc of linkCellsWithoutStyleZone) {
-        const cell = this.getters.getCell({ sheetId: sheet.id, ...toCartesian(xc) });
-        sheet.styles[xc] = getItemId({ ...cell?.style, textColor: LINK_COLOR }, data.styles);
+        const newStyle = { ...computedStyle, textColor: LINK_COLOR };
+        addStyleToWorkbookData(data, "styles", position, newStyle);
       }
     }
   }
