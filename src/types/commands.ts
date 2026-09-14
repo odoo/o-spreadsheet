@@ -1603,12 +1603,30 @@ export const enum CommandResult {
   NoChangeInAutomaticEvaluation = "NoChangeInAutomaticEvaluation",
 }
 
-export interface CommandHandler<T> {
+export interface CommandHandler<T extends Command> {
   allowDispatch(command: T): CommandResult | CommandResult[];
   beforeHandle(command: T): void;
   handle(command: T): void;
   finalize(): void;
+  handlers: CommandsHandlers<T>;
 }
+
+export type SingleCommandHandler<C extends Command> = (cmd: C) => void;
+export type CommandsHandlers<T extends Command> = {
+  [C in CommandTypes]?: SingleCommandHandler<Extract<T, { type: C }>>;
+};
+
+export type CommandsHandlersList<T extends Command> = {
+  [C in CommandTypes]?: SingleCommandHandler<Extract<T, { type: C }>>[];
+};
+
+export type CommandHandlerRegistry = {
+  get<C extends CommandTypes>(cmd: C): SingleCommandHandler<Extract<Command, { type: C }>>[];
+  add<C extends CommandTypes>(
+    cmd: C,
+    handler: SingleCommandHandler<Extract<Command, { type: C }>>
+  ): void;
+};
 
 export interface CommandDispatcher {
   dispatch<T extends CommandTypes, C extends Extract<Command, { type: T }>>(

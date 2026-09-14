@@ -1,5 +1,5 @@
 import { StateObserver } from "../state_observer";
-import { CommandHandler, CommandResult } from "../types/commands";
+import { Command, CommandHandler, CommandResult, CommandsHandlers } from "../types/commands";
 import type { WorkbookHistory } from "../types/history";
 import { Validation } from "../types/misc";
 import type { Validator } from "../types/validator";
@@ -16,8 +16,11 @@ import { ExcelWorkbookData } from "../types/workbook_data";
  * There are two kinds of plugins: core plugins handling persistent data
  * and UI plugins handling transient data.
  */
-export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Validator {
+export class BasePlugin<State = any, C extends Command = Command>
+  implements CommandHandler<C>, Validator
+{
   static getters: readonly string[] = [];
+  readonly handlers: CommandsHandlers<Command> = {};
 
   protected history: WorkbookHistory<State>;
 
