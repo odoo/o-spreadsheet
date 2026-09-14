@@ -51,6 +51,7 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
     UNFOLD_HEADER_GROUPS_IN_ZONE: this.invalidateChartRuntimes,
     UPDATE_CHART: this.invalidateChartRuntime,
     CREATE_CHART: this.invalidateChartRuntime,
+    DELETE_CHART: this.invalidateChartRuntime,
   };
 
   private invalidateChartRuntime(cmd: { chartId: UID }) {
@@ -75,9 +76,6 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
     }
 
     switch (cmd.type) {
-      case "DELETE_CHART":
-        this.charts[cmd.chartId] = {};
-        break;
       case "DELETE_SHEET":
         for (const chartId in this.charts) {
           if (!this.getters.isChartDefined(chartId)) {

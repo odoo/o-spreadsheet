@@ -22,6 +22,16 @@ export class CarouselUIPlugin extends UIPlugin {
 
   carouselStates: Record<UID, string | undefined> = {};
 
+  handlers = {
+    DELETE_CHART: this.fixWrongCarouselStates,
+  };
+
+  private fixWrongCarouselStates() {
+    for (const figureId in this.carouselStates) {
+      this.fixWrongCarouselState(figureId);
+    }
+  }
+
   allowDispatch(cmd: LocalCommand): CommandResult | CommandResult[] {
     switch (cmd.type) {
       case "ADD_FIGURES_CHART_TO_CAROUSEL":
@@ -89,7 +99,6 @@ export class CarouselUIPlugin extends UIPlugin {
       case "UPDATE_CAROUSEL":
         this.fixWrongCarouselState(cmd.figureId);
         break;
-      case "DELETE_CHART":
       case "UNDO":
       case "REDO":
       case "DELETE_SHEET":
