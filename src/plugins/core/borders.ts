@@ -43,7 +43,12 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
 
   handlers = {
     CLEAR_FORMATTING: this.clearFormattingBorders,
+    SET_BORDER: this.setBorderOfCell,
   };
+
+  private setBorderOfCell(cmd: SetBorderCommand) {
+    this.setBorder(cmd.sheetId, cmd.col, cmd.row, cmd.border);
+  }
 
   private clearFormattingBorders(cmd: ClearFormattingCommand) {
     this.clearBorders(cmd.sheetId, cmd.target);
@@ -84,9 +89,6 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
         const allBorders = { ...this.borders };
         delete allBorders[cmd.sheetId];
         this.history.update("borders", allBorders);
-        break;
-      case "SET_BORDER":
-        this.setBorder(cmd.sheetId, cmd.col, cmd.row, cmd.border);
         break;
       case "SET_BORDERS_ON_TARGET":
         for (const zone of cmd.target) {

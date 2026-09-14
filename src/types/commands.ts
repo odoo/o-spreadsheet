@@ -176,7 +176,6 @@ export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
 ]);
 
 export const invalidateBordersCommands = new Set<CommandTypes>([
-  "SET_BORDER",
   "SET_ZONE_BORDERS",
   "SET_BORDERS_ON_TARGET",
 ]);
