@@ -38,7 +38,9 @@ import {
   Command,
   CommandDispatcher,
   CommandHandler,
+  CommandHandlerRegistry,
   CommandResult,
+  CommandsHandlersList,
   CommandTypes,
   CoreCommand,
   DispatchResult,
@@ -46,6 +48,7 @@ import {
   isCoreCommand,
   isDispatcheableEvaluationCommand,
   isEvaluationCommand,
+  SingleCommandHandler,
 } from "./types/commands";
 import { CoreGetters, EvaluationGetters, Getters } from "./types/getters";
 import { DEFAULT_LOCALES } from "./types/locale";
@@ -63,6 +66,31 @@ const enum Status {
   RunningCore,
   RunningEvaluation,
   Finalizing,
+}
+
+class CommandHandlerRegistryClass<T extends Command> implements CommandHandlerRegistry {
+  private handlers: CommandsHandlersList<T> = {};
+
+  get<C extends CommandTypes>(cmd: C): SingleCommandHandler<Extract<T, { type: C }>>[] {
+    return this.handlers[cmd] ?? [];
+  }
+
+  add<C extends CommandTypes>(cmd: C, f: SingleCommandHandler<Extract<T, { type: C }>>) {
+    this.handlers[cmd] ??= [];
+    this.handlers[cmd].push(f);
+  }
+
+  registerPlugin(plugin: CommandHandler<T>) {
+    for (const command of Object.keys(plugin.handlers) as CommandTypes[]) {
+      this.add(
+        command,
+        // The relation between a cmd type and its handler is lost when iterating over the keys
+        plugin.handlers[command]?.bind(plugin) as SingleCommandHandler<
+          Extract<T, { type: CommandTypes }>
+        >
+      );
+    }
+  }
 }
 
 /**
@@ -149,9 +177,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private evaluationGetters: EvaluationGetters;
 
   private readonly handlers: CommandHandler<Command>[] = [];
+  private readonly commandHandlers = new CommandHandlerRegistryClass();
   private readonly uiHandlers: CommandHandler<Command>[] = [];
+  private readonly uiCommandHandlers = new CommandHandlerRegistryClass();
   private readonly coreHandlers: CommandHandler<CoreCommand>[] = [];
+  private readonly coreCommandHandlers = new CommandHandlerRegistryClass<CoreCommand>();
   private readonly evaluationHandlers: CommandHandler<Command>[] = [];
+  private readonly evaluationCommandHandlers = new CommandHandlerRegistryClass();
+  private readonly statefulUICommandHandlers = new CommandHandlerRegistryClass();
 
   constructor(
     data: any = {},
@@ -197,7 +230,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.selection = new SelectionStreamProcessorImpl(this.getters);
 
     this.coreHandlers.push(this.range);
+    this.coreCommandHandlers.registerPlugin(this.range);
     this.handlers.push(this.range);
+    this.commandHandlers.registerPlugin(this.range);
 
     this.corePluginConfig = this.getCorePluginConfig();
     this.evaluationPluginConfig = this.getEvaluationPluginConfig();
@@ -211,24 +246,15 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.session.loadInitialMessages(stateUpdateMessages);
 
     for (const Plugin of evaluationPluginRegistry.getAll()) {
-      const plugin = this.setupEvaluationPlugin(Plugin);
-      this.handlers.push(plugin);
-      this.uiHandlers.push(plugin);
-      this.coreHandlers.push(plugin);
-      this.evaluationHandlers.push(plugin);
+      this.setupEvaluationPlugin(Plugin);
     }
     for (const Plugin of statefulUIPluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
       this.statefulUIPlugins.push(plugin);
-      this.handlers.push(plugin);
-      this.uiHandlers.push(plugin);
-      this.evaluationHandlers.push(plugin);
+      this.statefulUICommandHandlers.registerPlugin(plugin);
     }
     for (const Plugin of featurePluginRegistry.getAll()) {
-      const plugin = this.setupUiPlugin(Plugin);
-      this.handlers.push(plugin);
-      this.uiHandlers.push(plugin);
-      this.evaluationHandlers.push(plugin);
+      this.setupUiPlugin(Plugin);
     }
 
     if (this.config.mode !== "export_verification") {
@@ -314,6 +340,12 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       }
       this.renderers[layer]!.push(plugin);
     }
+    this.handlers.push(plugin);
+    this.commandHandlers.registerPlugin(plugin);
+    this.uiHandlers.push(plugin);
+    this.uiCommandHandlers.registerPlugin(plugin);
+    this.evaluationHandlers.push(plugin);
+    this.evaluationCommandHandlers.registerPlugin(plugin);
     return plugin;
   }
 
@@ -322,6 +354,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     for (const name of Plugin.getters) {
       this.registerEvaluationGetter(plugin, name);
     }
+    this.handlers.push(plugin);
+    this.commandHandlers.registerPlugin(plugin);
+    this.uiHandlers.push(plugin);
+    this.uiCommandHandlers.registerPlugin(plugin);
+    this.coreHandlers.push(plugin);
+    this.coreCommandHandlers.registerPlugin(plugin);
+    this.evaluationHandlers.push(plugin);
+    this.evaluationCommandHandlers.registerPlugin(plugin);
     return plugin;
   }
 
@@ -335,14 +375,20 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     }
     plugin.import(data);
     this.coreHandlers.push(plugin);
+    this.coreCommandHandlers.registerPlugin(plugin);
     this.handlers.push(plugin);
+    this.commandHandlers.registerPlugin(plugin);
   }
 
   private onRemoteRevisionReceived({ commands }: { commands: readonly CoreCommand[] }) {
     for (const command of commands) {
       const previousStatus = this.status;
       this.status = Status.RunningCore;
-      this.dispatchToHandlers(this.statefulUIPlugins, command);
+      this.dispatchToHandlers(
+        this.statefulUICommandHandlers.get(command.type),
+        this.statefulUIPlugins,
+        command
+      );
       this.status = previousStatus;
     }
     this.finalize();
@@ -357,14 +403,18 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           const result = this.checkDispatchAllowedRemoteCommand(command);
           if (!result.isSuccessful) {
             // evaluation plugins need to be invalidated
-            this.dispatchToHandlers(this.coreHandlers, {
+            this.dispatchToHandlers(this.coreCommandHandlers.get("UNDO"), this.coreHandlers, {
               type: "UNDO",
               commands: [command],
             });
             return;
           }
           this.isReplayingCommand = true;
-          this.dispatchToHandlers(this.coreHandlers, command);
+          this.dispatchToHandlers(
+            this.coreCommandHandlers.get(command.type),
+            this.coreHandlers,
+            command
+          );
           this.isReplayingCommand = false;
         },
       }),
@@ -559,7 +609,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         if (isDispatcheableEvaluationCommand(command)) {
           this.status = Status.RunningEvaluation;
           const start = performance.now();
-          this.dispatchToHandlers(this.handlers, command);
+          this.dispatchToHandlers(this.commandHandlers.get(command.type), this.handlers, command);
           this.finalize();
           const time = performance.now() - start;
           if (time > 5) {
@@ -581,7 +631,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           if (isCoreCommand(command)) {
             this.state.addCommand(command);
           }
-          this.dispatchToHandlers(this.handlers, command);
+          this.dispatchToHandlers(this.commandHandlers.get(command.type), this.handlers, command);
           this.finalize();
           const time = performance.now() - start;
           if (time > 5) {
@@ -600,7 +650,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           }
           this.state.addCommand(command);
         }
-        this.dispatchToHandlers(this.handlers, command);
+        this.dispatchToHandlers(this.commandHandlers.get(command.type), this.handlers, command);
         break;
       case Status.Finalizing:
         throw new Error("Cannot dispatch commands in the finalize state");
@@ -608,7 +658,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         if (isCoreCommand(command)) {
           throw new Error(`A UI plugin cannot dispatch ${type} while handling a core command`);
         }
-        this.dispatchToHandlers(this.handlers, command);
+        this.dispatchToHandlers(this.commandHandlers.get(command.type), this.handlers, command);
         break;
       case Status.RunningEvaluation:
         if (!isDispatcheableEvaluationCommand(command)) {
@@ -630,7 +680,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     const previousStatus = this.status;
     this.status = Status.RunningCore;
     const handlers = this.isReplayingCommand ? this.coreHandlers : this.handlers;
-    this.dispatchToHandlers(handlers, command);
+    const specificHandlers = this.isReplayingCommand
+      ? this.coreCommandHandlers
+      : this.commandHandlers;
+    this.dispatchToHandlers(specificHandlers.get(command.type), handlers, command);
     this.status = previousStatus;
     return DispatchResult.Success;
   };
@@ -643,7 +696,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     if (!isDispatcheableEvaluationCommand(command)) {
       throw new Error(`An evaluation plugin cannot dispatch non-evaluation commands (${type})`);
     }
-    this.dispatchToHandlers(this.evaluationHandlers, command);
+    this.dispatchToHandlers(
+      this.evaluationCommandHandlers.get(command.type),
+      this.evaluationHandlers,
+      command
+    );
     return DispatchResult.Success;
   };
 
@@ -651,13 +708,23 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * Dispatch the given command to the given handlers.
    * It will call `beforeHandle` and `handle`
    */
-  private dispatchToHandlers(handlers: CommandHandler<Command>[], command: Command) {
+  private dispatchToHandlers<C extends Command>(
+    specificHandlers: SingleCommandHandler<C>[],
+    handlers: CommandHandler<Command>[],
+    command: C
+  ) {
     const concernedHandlers = handlers.filter((handler) => this.canHandle(handler, command));
     for (const handler of concernedHandlers) {
       handler.beforeHandle(command);
     }
-    for (const handler of concernedHandlers) {
-      handler.handle(command);
+    if (specificHandlers.length) {
+      for (const handler of specificHandlers) {
+        handler(command);
+      }
+    } else {
+      for (const handler of concernedHandlers) {
+        handler.handle(command);
+      }
     }
     this.trigger("command-dispatched", command);
   }
