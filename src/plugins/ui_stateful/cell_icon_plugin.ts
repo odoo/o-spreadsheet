@@ -36,6 +36,7 @@ export class CellIconPlugin extends UIPlugin {
     UNHIDE_COLUMNS_ROWS: this.clearCellIconsCache,
     GROUP_HEADERS: this.clearCellIconsCache,
     UNGROUP_HEADERS: this.clearCellIconsCache,
+    FOLD_HEADER_GROUP: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
