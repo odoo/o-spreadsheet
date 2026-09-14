@@ -19,6 +19,7 @@ import {
   CoreCommand,
   CreateTableCommand,
   DeleteContentCommand,
+  RemoveTableCommand,
   UpdateCellCommand,
   UpdateTableCommand,
 } from "../../types/commands";
@@ -62,7 +63,18 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     UPDATE_CELL: this.extendTablesOnCellUpdate,
     DELETE_CONTENT: this.removeTablesInDeletedContent,
     CREATE_TABLE: this.createTable,
+    REMOVE_TABLE: this.removeTable,
   };
+
+  private removeTable(cmd: RemoveTableCommand) {
+    const tables: Record<UID, CoreTable> = {};
+    for (const table of this.getCoreTables(cmd.sheetId)) {
+      if (cmd.target.every((zone) => !intersection(table.range.zone, zone))) {
+        tables[table.id] = table;
+      }
+    }
+    this.history.update("tables", cmd.sheetId, tables);
+  }
 
   private createTable(cmd: CreateTableCommand) {
     const ranges = cmd.ranges.map((rangeData) => this.getters.getRangeFromRangeData(rangeData));
@@ -156,16 +168,6 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
               : this.copyStaticTableForSheet(cmd.sheetIdTo, table);
         }
         this.history.update("tables", cmd.sheetIdTo, newTables);
-        break;
-      }
-      case "REMOVE_TABLE": {
-        const tables: Record<UID, CoreTable> = {};
-        for (const table of this.getCoreTables(cmd.sheetId)) {
-          if (cmd.target.every((zone) => !intersection(table.range.zone, zone))) {
-            tables[table.id] = table;
-          }
-        }
-        this.history.update("tables", cmd.sheetId, tables);
         break;
       }
       case "UPDATE_TABLE": {
