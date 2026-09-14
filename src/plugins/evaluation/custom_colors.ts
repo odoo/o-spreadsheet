@@ -81,6 +81,7 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
   handlers = {
     UPDATE_CELL: this.invalidateCustomColors,
     SET_FORMATTING: this.invalidateCustomColors,
+    SET_BORDER: this.invalidateCustomColors,
   };
 
   constructor(config: EvaluationPluginConfig) {
@@ -115,7 +116,6 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
         }
         break;
       case "ADD_CONDITIONAL_FORMAT":
-      case "SET_BORDER":
       case "SET_ZONE_BORDERS":
       case "CREATE_TABLE":
       case "UPDATE_TABLE":
