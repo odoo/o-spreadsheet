@@ -71,6 +71,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
   handlers = {
     UPDATE_CELL: this.invalidatePivotCache,
     DELETE_CONTENT: this.invalidateUnusedPivots,
+    SET_FORMATTING: this.invalidateUnusedPivots,
   };
 
   constructor(config: EvaluationPluginConfig) {

@@ -80,6 +80,7 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
 
   handlers = {
     UPDATE_CELL: this.invalidateCustomColors,
+    SET_FORMATTING: this.invalidateCustomColors,
   };
 
   constructor(config: EvaluationPluginConfig) {
@@ -116,7 +117,6 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
       case "ADD_CONDITIONAL_FORMAT":
       case "SET_BORDER":
       case "SET_ZONE_BORDERS":
-      case "SET_FORMATTING":
       case "CREATE_TABLE":
       case "UPDATE_TABLE":
         this.history.update("shouldUpdateColors", true);

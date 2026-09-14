@@ -9,7 +9,7 @@ import {
 import { getCanvas, getDefaultCellHeight } from "../../helpers/text_helper";
 import { positions } from "../../helpers/zones";
 import { Canvas2DContext } from "../../types/canvas";
-import { EvaluationCommand, UpdateCellCommand } from "../../types/commands";
+import { EvaluationCommand, SetFormattingCommand, UpdateCellCommand } from "../../types/commands";
 import { AnchorOffset } from "../../types/figure";
 import {
   CellPosition,
@@ -42,7 +42,19 @@ export class HeaderSizeUIPlugin
 
   handlers = {
     UPDATE_CELL: this.updateRowSizeForCellUpdate,
+    SET_FORMATTING: this.updateRowSizesForFormatting,
   };
+
+  private updateRowSizesForFormatting(cmd: SetFormattingCommand) {
+    if (
+      cmd.style &&
+      ("fontSize" in cmd.style || "wrapping" in cmd.style || "rotation" in cmd.style)
+    ) {
+      for (const zone of cmd.target) {
+        this.updateRowSizeForZoneChange(cmd.sheetId, zone);
+      }
+    }
+  }
 
   private updateRowSizeForCellUpdate(cmd: UpdateCellCommand) {
     this.updateRowSizeForCellChange(cmd.sheetId, cmd.row, cmd.col);
@@ -118,16 +130,6 @@ export class HeaderSizeUIPlugin
                 this.updateRowSizeForCellChange(sheetId, row, col);
               }
             }
-          }
-        }
-        break;
-      case "SET_FORMATTING":
-        if (
-          cmd.style &&
-          ("fontSize" in cmd.style || "wrapping" in cmd.style || "rotation" in cmd.style)
-        ) {
-          for (const zone of cmd.target) {
-            this.updateRowSizeForZoneChange(cmd.sheetId, zone);
           }
         }
         break;
