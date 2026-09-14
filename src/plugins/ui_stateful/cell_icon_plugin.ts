@@ -85,6 +85,7 @@ export class CellIconPlugin extends UIPlugin {
     SET_BACKGROUND_FOR_ALL_CELLS: this.clearCellIconsCache,
     UPDATE_LOCALE: this.clearCellIconsCache,
     CREATE_NAMED_RANGE: this.clearCellIconsCache,
+    UPDATE_NAMED_RANGE: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {

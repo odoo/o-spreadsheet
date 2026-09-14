@@ -62,6 +62,7 @@ export class EvaluationDataValidationPlugin extends EvaluationPlugin {
     ADD_DATA_VALIDATION_RULE: this.invalidateSheetValidationResults,
     UPDATE_LOCALE: this.clearValidationResults,
     CREATE_NAMED_RANGE: this.clearValidationResults,
+    UPDATE_NAMED_RANGE: this.clearValidationResults,
   };
 
   private clearValidationResults() {
