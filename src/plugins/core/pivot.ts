@@ -43,6 +43,20 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     "getMeasureFullDependencies",
   ] as const;
 
+  handlers = {
+    CREATE_NAMED_RANGE: this.recompileCalculatedMeasures,
+  };
+
+  private recompileCalculatedMeasures() {
+    for (const pivotId in this.pivots) {
+      const pivot = this.pivots[pivotId];
+      if (!pivot) {
+        continue;
+      }
+      this.compileCalculatedMeasures(pivotId, pivot.definition.measures);
+    }
+  }
+
   readonly nextFormulaId: number = 1;
   public readonly pivots: {
     [pivotId: UID]: Pivot | undefined;
@@ -144,16 +158,9 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         this.compileCalculatedMeasures(cmd.pivotId, cmd.pivot.measures);
         break;
       }
-      case "CREATE_NAMED_RANGE":
       case "UPDATE_NAMED_RANGE":
       case "DELETE_NAMED_RANGE": {
-        for (const pivotId in this.pivots) {
-          const pivot = this.pivots[pivotId];
-          if (!pivot) {
-            continue;
-          }
-          this.compileCalculatedMeasures(pivotId, pivot.definition.measures);
-        }
+        this.recompileCalculatedMeasures();
       }
     }
   }

@@ -124,6 +124,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     COLOR_SHEET: this.invalidateUnusedPivots,
     UPDATE_CELL_POSITION: this.invalidateUnusedPivots,
     UPDATE_LOCALE: this.invalidatePivotsOnLocaleUpdate,
+    CREATE_NAMED_RANGE: this.invalidateAllPivots,
   };
 
   constructor(config: EvaluationPluginConfig) {
