@@ -81,6 +81,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     SET_SHEET_BACKGROUND_COLOR: this.invalidateUnusedPivots,
     CREATE_TABLE: this.invalidateUnusedPivots,
     REMOVE_TABLE: this.invalidateUnusedPivots,
+    UPDATE_TABLE: this.invalidateUnusedPivots,
   };
 
   constructor(config: EvaluationPluginConfig) {

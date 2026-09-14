@@ -34,6 +34,7 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
 
   handlers = {
     UPDATE_CELL: this.invalidateChartRuntimes,
+    UPDATE_TABLE: this.invalidateChartRuntimes,
   };
 
   private invalidateChartRuntimes() {

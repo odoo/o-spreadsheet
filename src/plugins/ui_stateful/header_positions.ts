@@ -18,6 +18,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     // Either the content, format or style can impact the header sizes of a sheet
     UPDATE_CELL: this.invalidateHeaderPositions,
     REMOVE_TABLE: this.invalidateHeaderPositions,
+    UPDATE_TABLE: this.invalidateHeaderPositions,
   };
 
   private invalidateHeaderPositions() {
@@ -38,7 +39,6 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
         }
         break;
       case "UPDATE_FILTER":
-      case "UPDATE_TABLE":
         this.headerPositions = {};
         this.isDirty = true;
         break;
