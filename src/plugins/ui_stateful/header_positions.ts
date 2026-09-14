@@ -21,6 +21,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     UPDATE_TABLE: this.invalidateHeaderPositions,
     UPDATE_FILTER: this.invalidateHeaderPositions,
     HIDE_COLUMNS_ROWS: this.computeSheetHeaderPositions,
+    UNHIDE_COLUMNS_ROWS: this.computeSheetHeaderPositions,
   };
 
   private computeSheetHeaderPositions(cmd: { sheetId: UID }) {
@@ -49,7 +50,6 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
       case "REMOVE_COLUMNS_ROWS":
       case "RESIZE_COLUMNS_ROWS":
       case "ADD_COLUMNS_ROWS":
-      case "UNHIDE_COLUMNS_ROWS":
       case "FOLD_HEADER_GROUP":
       case "UNFOLD_HEADER_GROUP":
       case "FOLD_HEADER_GROUPS_IN_ZONE":

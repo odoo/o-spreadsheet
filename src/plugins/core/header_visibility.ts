@@ -7,7 +7,12 @@ import {
   largeMin,
   range,
 } from "../../helpers/misc";
-import { Command, CommandResult, HideColumnsRowsCommand } from "../../types/commands";
+import {
+  Command,
+  CommandResult,
+  HideColumnsRowsCommand,
+  UnhideColumnsRowsCommand,
+} from "../../types/commands";
 import { ConsecutiveIndexes, Dimension, HeaderIndex, UID } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
@@ -26,7 +31,14 @@ export class HeaderVisibilityPlugin extends CorePlugin {
 
   handlers = {
     HIDE_COLUMNS_ROWS: this.hideHeaders,
+    UNHIDE_COLUMNS_ROWS: this.unhideHeaders,
   };
+
+  private unhideHeaders(cmd: UnhideColumnsRowsCommand) {
+    for (const el of cmd.elements) {
+      this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, el, false);
+    }
+  }
 
   private hideHeaders(cmd: HideColumnsRowsCommand) {
     for (const el of cmd.elements) {
@@ -106,11 +118,6 @@ export class HeaderVisibilityPlugin extends CorePlugin {
         this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hiddenHeaders);
         break;
       }
-      case "UNHIDE_COLUMNS_ROWS":
-        for (const el of cmd.elements) {
-          this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, el, false);
-        }
-        break;
     }
     return;
   }
