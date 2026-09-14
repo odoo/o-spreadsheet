@@ -430,9 +430,9 @@ describe("Composer / selectionInput interactions", () => {
     OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
 
-    expect(fixture.querySelector(".o-autofill")).not.toBeNull();
+    expect(fixture.querySelector(".o-autofill-handler")).not.toBeNull();
     await simulateClick(".o-selection-input input");
-    expect(fixture.querySelector(".o-autofill")).toBeNull();
+    expect(fixture.querySelector(".o-autofill-handler")).toBeNull();
   });
 });
 

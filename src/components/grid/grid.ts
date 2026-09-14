@@ -512,23 +512,6 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     };
   }
 
-  get isAutofillVisible(): boolean {
-    if (this.env.model.getters.isCurrentSheetLocked()) {
-      return false;
-    }
-    const zone = this.env.model.getters.getSelectedZone();
-    const rect = this.viewStore.viewports.getVisibleRect(
-      this.env.model.getters.getActiveSheetId(),
-      {
-        left: zone.right,
-        right: zone.right,
-        top: zone.bottom,
-        bottom: zone.bottom,
-      }
-    );
-    return !(rect.width === 0 || rect.height === 0);
-  }
-
   onGridResized() {
     const { height, width } = this.props.getGridSize();
     this.viewStore.resizeSheetView({
