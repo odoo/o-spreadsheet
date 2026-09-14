@@ -47,6 +47,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     UNFOLD_ALL_HEADER_GROUPS: this.invalidateSheetComputedStyles,
     FOLD_HEADER_GROUPS_IN_ZONE: this.invalidateSheetComputedStyles,
     UNFOLD_HEADER_GROUPS_IN_ZONE: this.invalidateSheetComputedStyles,
+    CREATE_TABLE_STYLE: this.invalidateComputedStyles,
   };
 
   private invalidateComputedCfStyles() {
