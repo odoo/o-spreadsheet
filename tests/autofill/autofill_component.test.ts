@@ -89,7 +89,7 @@ describe("Autofill component", () => {
     const y = model.getters.getRowDimensions(sheetId, 0)!.start + 20;
     triggerMouseEvent(autofill, "pointermove", x, y);
     await nextTick();
-    expect(fixture.querySelector(".o-autofill")).not.toBeNull();
+    expect(fixture.querySelector(".o-autofill-handler")).not.toBeNull();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
       <div
         class="o-autofill-nextvalue"
@@ -115,7 +115,7 @@ describe("Autofill component", () => {
     const y = model.getters.getRowDimensions(sheetId, 0)!.start + 20;
     triggerWheelEvent(".o-grid", { clientX: x, clientY: y });
     await nextTick();
-    expect(fixture.querySelector(".o-autofill")).not.toBeNull();
+    expect(fixture.querySelector(".o-autofill-handler")).not.toBeNull();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
       <div
         class="o-autofill-nextvalue"
@@ -135,7 +135,7 @@ describe("Autofill component", () => {
     setCellContent(model, "F22", "test");
     await clickCell(env, "F22");
     await nextTick();
-    expect(fixture.querySelector(".o-autofill")).not.toBeNull();
+    expect(fixture.querySelector(".o-autofill-handler")).not.toBeNull();
     triggerMouseEvent(autofill, "pointerdown", 40, 40);
     await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
@@ -144,7 +144,7 @@ describe("Autofill component", () => {
     const y = model.getters.getRowDimensions(sheetId, 0)!.start + 20;
     triggerMouseEvent(autofill, "pointermove", x, y);
     await nextTick();
-    expect(fixture.querySelector(".o-autofill")).not.toBeNull();
+    expect(fixture.querySelector(".o-autofill-handler")).not.toBeNull();
     expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
       <div
         class="o-autofill-nextvalue"
@@ -210,7 +210,6 @@ describe("Autofill component", () => {
 
   test("Can display tooltip with a custom component", async () => {
     const autofillStore = env.getStore(AutofillStore);
-    const autofill = fixture.querySelector(".o-autofill");
     class CustomTooltip extends Component {
       static template = xml/* xml */ `
         <div class="custom_tooltip" t-out="this.props.content"/>
@@ -228,18 +227,6 @@ describe("Autofill component", () => {
     });
     setCellContent(model, "A1", "test");
     await nextTick();
-    triggerMouseEvent(autofill, "pointerdown", 4, 4);
-    await nextTick();
-    triggerMouseEvent(
-      autofill,
-      "pointermove",
-      HEADER_WIDTH +
-        model.getters.getColDimensions(model.getters.getActiveSheetId(), 0)!.start +
-        10,
-
-      model.getters.getRowDimensions(model.getters.getActiveSheetId(), 1)!.end + 10
-    );
-    await nextTick();
     expect(fixture.querySelector(".o-autofill-nextvalue")).not.toBeNull();
     expect(fixture.querySelector(".custom_tooltip")).not.toBeNull();
     expect(fixture.querySelector(".custom_tooltip")!.textContent).toBe("blabla");
@@ -249,7 +236,7 @@ describe("Autofill component", () => {
     setSelection(parent.model, ["A1:A100"]);
     setViewportOffset(env, 400, 400);
     const firstViewport = env.getStore(ViewportsStore).activeMainViewport;
-    const autofill = fixture.querySelector(".o-autofill");
+    const autofill = fixture.querySelector(".o-autofill-handler");
     triggerMouseEvent(autofill, "pointerdown", 4, 4);
     await nextTick();
     const newX =
@@ -264,13 +251,13 @@ describe("Autofill component", () => {
   });
 
   test("Autofill is not loaded when the grid selection does not have the focus", async () => {
-    const autofill = fixture.querySelector(".o-autofill");
+    const autofill = fixture.querySelector(".o-autofill-handler");
     triggerMouseEvent(autofill, "pointerdown", 4, 4);
     await nextTick();
-    expect(fixture.querySelector(".o-autofill")).not.toBeNull();
+    expect(fixture.querySelector(".o-autofill-handler")).not.toBeNull();
     // force composer to capture the selection
     await keyDown({ key: "Enter" });
-    expect(fixture.querySelector(".o-autofill")).toBeNull();
+    expect(fixture.querySelector(".o-autofill-handler")).toBeNull();
   });
 });
 

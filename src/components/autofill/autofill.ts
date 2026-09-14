@@ -27,7 +27,6 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
 
   protected props = useProps({
     position: types.DOMCoordinates(),
-    isVisible: types.boolean(),
   });
   state: State = proxy({
     position: { x: 0, y: 0 },
@@ -44,21 +43,18 @@ export class Autofill extends Component<SpreadsheetChildEnv> {
     useStore(TableAutofillStore);
   }
 
-  get style() {
-    const { x, y } = this.props.position;
-    return cssPropertiesToCss({
-      top: `${y}px`,
-      left: `${x}px`,
-      visibility: this.props.isVisible ? "visible" : "hidden",
-    });
-  }
   get handlerStyle() {
     const { x, y } = this.state.handler ? this.state.position : this.props.position;
     return cssPropertiesToCss({
       top: `${y}px`,
       left: `${x}px`,
-      visibility: this.props.isVisible ? "visible" : "hidden",
+      visibility: this.isVisible ? "visible" : "hidden",
     });
+  }
+
+  get isVisible() {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    return this.autofillStore.isAutofillVisible(sheetId);
   }
 
   get styleNextValue() {
