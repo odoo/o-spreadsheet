@@ -103,6 +103,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     MOVE_SHEET: this.moveSheetTo,
     LOCK_SHEET: this.lockSheet,
     UNLOCK_SHEET: this.unlockSheet,
+    FREEZE_COLUMNS: this.freezeColumns,
   };
 
   private updateGridLinesVisibility(cmd: SetGridLinesVisibilityCommand) {
@@ -123,6 +124,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   private unlockSheet(cmd: UnlockSheetCommand) {
     this.history.update("sheets", cmd.sheetId, "isLocked", false);
+  }
+
+  private freezeColumns(cmd: FreezeColumnsCommand) {
+    this.setPaneDivisions(cmd.sheetId, cmd.quantity, "COL");
   }
 
   // ---------------------------------------------------------------------------
@@ -291,9 +296,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         break;
       case "UPDATE_CELL_POSITION":
         this.updateCellPosition(cmd);
-        break;
-      case "FREEZE_COLUMNS":
-        this.setPaneDivisions(cmd.sheetId, cmd.quantity, "COL");
         break;
       case "FREEZE_ROWS":
         this.setPaneDivisions(cmd.sheetId, cmd.quantity, "ROW");
