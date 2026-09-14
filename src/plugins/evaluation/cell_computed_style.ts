@@ -32,6 +32,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     SET_SHEET_BACKGROUND_COLOR: this.invalidateComputedStyles,
     CREATE_TABLE: this.invalidateSheetComputedStyles,
     REMOVE_TABLE: this.invalidateSheetComputedStyles,
+    UPDATE_TABLE: this.invalidateSheetComputedStyles,
   };
 
   private invalidateComputedBorders() {

@@ -64,6 +64,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     DELETE_CONTENT: this.removeTablesInDeletedContent,
     CREATE_TABLE: this.createTable,
     REMOVE_TABLE: this.removeTable,
+    UPDATE_TABLE: this.updateTable,
   };
 
   private removeTable(cmd: RemoveTableCommand) {
@@ -168,10 +169,6 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
               : this.copyStaticTableForSheet(cmd.sheetIdTo, table);
         }
         this.history.update("tables", cmd.sheetIdTo, newTables);
-        break;
-      }
-      case "UPDATE_TABLE": {
-        this.updateTable(cmd);
         break;
       }
     }

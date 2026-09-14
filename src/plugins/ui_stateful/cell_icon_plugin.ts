@@ -27,6 +27,7 @@ export class CellIconPlugin extends UIPlugin {
     SET_SHEET_BACKGROUND_COLOR: this.clearCellIconsCache,
     CREATE_TABLE: this.clearCellIconsCache,
     REMOVE_TABLE: this.clearCellIconsCache,
+    UPDATE_TABLE: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {

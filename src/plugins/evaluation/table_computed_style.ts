@@ -34,6 +34,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
     DELETE_CONTENT: this.invalidateSheetTableStyles,
     CREATE_TABLE: this.invalidateSheetTableStyles,
     REMOVE_TABLE: this.invalidateSheetTableStyles,
+    UPDATE_TABLE: this.invalidateSheetTableStyles,
   };
 
   private invalidateTableStyles(cmd: UpdateCellCommand) {
@@ -311,7 +312,6 @@ const invalidateTableStyleCommands = [
   "UNFOLD_ALL_HEADER_GROUPS",
   "FOLD_HEADER_GROUPS_IN_ZONE",
   "UNFOLD_HEADER_GROUPS_IN_ZONE",
-  "UPDATE_TABLE",
   "UPDATE_FILTER",
   "CREATE_TABLE_STYLE",
   "REMOVE_TABLE_STYLE",
