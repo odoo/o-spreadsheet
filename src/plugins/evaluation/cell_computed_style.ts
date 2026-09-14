@@ -52,6 +52,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     ADD_DATA_VALIDATION_RULE: this.invalidateComputedStyles,
     UPDATE_LOCALE: this.invalidateComputedStyles,
     CREATE_NAMED_RANGE: this.invalidateComputedStyles,
+    UPDATE_NAMED_RANGE: this.invalidateComputedStyles,
   };
 
   private invalidateComputedCfStyles() {
