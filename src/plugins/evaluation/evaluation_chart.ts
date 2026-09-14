@@ -32,6 +32,16 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
 
   charts: Record<UID, Partial<Record<ColorThemeName, ChartRuntime | undefined>>> = {};
 
+  handlers = {
+    UPDATE_CELL: this.invalidateChartRuntimes,
+  };
+
+  private invalidateChartRuntimes() {
+    for (const chartId in this.charts) {
+      this.charts[chartId] = {};
+    }
+  }
+
   handle(cmd: EvaluationCommand) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||

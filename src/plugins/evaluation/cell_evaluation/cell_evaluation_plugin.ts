@@ -9,6 +9,7 @@ import {
   EvaluationCommand,
   invalidateDependenciesCommands,
   invalidateEvaluationCommands,
+  UpdateCellCommand,
 } from "../../../types/commands";
 import { CellErrorType } from "../../../types/errors";
 import { Format } from "../../../types/format";
@@ -169,6 +170,10 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
   private evaluator: Evaluator;
   private positionsToUpdate: CellPosition[] = [];
 
+  handlers = {
+    UPDATE_CELL: this.updateCell,
+  };
+
   constructor(config: EvaluationPluginConfig) {
     super(config);
     this.evaluator = new Evaluator(config.custom, this.getters);
@@ -189,6 +194,18 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
     return CommandResult.Success;
   }
 
+  private updateCell(cmd: UpdateCellCommand) {
+    if (!("content" in cmd || "format" in cmd) || this.shouldRebuildDependenciesGraph) {
+      return;
+    }
+    const position = { sheetId: cmd.sheetId, row: cmd.row, col: cmd.col };
+    this.positionsToUpdate.push(position);
+
+    if ("content" in cmd) {
+      this.evaluator.updateDependencies(position);
+    }
+  }
+
   beforeHandle(cmd: EvaluationCommand) {
     this.forceEvaluation = false;
     if (
@@ -201,17 +218,6 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
 
   handle(cmd: EvaluationCommand) {
     switch (cmd.type) {
-      case "UPDATE_CELL":
-        if (!("content" in cmd || "format" in cmd) || this.shouldRebuildDependenciesGraph) {
-          return;
-        }
-        const position = { sheetId: cmd.sheetId, row: cmd.row, col: cmd.col };
-        this.positionsToUpdate.push(position);
-
-        if ("content" in cmd) {
-          this.evaluator.updateDependencies(position);
-        }
-        break;
       case "SET_AUTOMATIC_EVALUATION":
         this.automaticEvaluation = cmd.enabled;
         if (cmd.enabled) {

@@ -68,6 +68,10 @@ export class PivotUIPlugin extends EvaluationPlugin {
   private pivotPositionCache: PositionMap<UID[]> = new PositionMap();
   private shouldInvalidateCache: boolean = false;
 
+  handlers = {
+    UPDATE_CELL: this.invalidatePivotCache,
+  };
+
   constructor(config: EvaluationPluginConfig) {
     super(config);
     this.custom = config.custom;
@@ -82,6 +86,11 @@ export class PivotUIPlugin extends EvaluationPlugin {
     }
   }
 
+  private invalidatePivotCache() {
+    this.unusedPivotsInFormulas = undefined;
+    this.shouldInvalidateCache = true;
+  }
+
   handle(cmd: EvaluationCommand) {
     if (isCoreCommand(cmd) || cmd.type === "UNDO" || cmd.type === "REDO") {
       this.unusedPivotsInFormulas = undefined;
@@ -92,9 +101,6 @@ export class PivotUIPlugin extends EvaluationPlugin {
       for (const pivotId of this.getters.getPivotIds()) {
         this.setupPivot(pivotId, { recreate: true });
       }
-    }
-    if (cmd.type === "UPDATE_CELL") {
-      this.shouldInvalidateCache = true;
     }
     switch (cmd.type) {
       case "REFRESH_PIVOT":

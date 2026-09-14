@@ -11,6 +11,7 @@ import {
   EvaluationCommand,
   invalidateCFEvaluationCommands,
   invalidateEvaluationCommands,
+  UpdateCellCommand,
 } from "../../types/commands";
 import {
   CellIsRule,
@@ -46,11 +47,20 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
+  handlers = {
+    UPDATE_CELL: this.invalidateConditionalFormats,
+  };
+
+  private invalidateConditionalFormats(cmd: UpdateCellCommand) {
+    if ("content" in cmd || "format" in cmd) {
+      this.isStale = true;
+    }
+  }
+
   handle(cmd: EvaluationCommand) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
-      invalidateCFEvaluationCommands.has(cmd.type) ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
+      invalidateCFEvaluationCommands.has(cmd.type)
     ) {
       this.isStale = true;
     }
