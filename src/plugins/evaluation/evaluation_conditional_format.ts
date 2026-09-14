@@ -51,6 +51,7 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
     UPDATE_CELL: this.invalidateConditionalFormats,
     ADD_CONDITIONAL_FORMAT: this.markAsStale,
     REMOVE_CONDITIONAL_FORMAT: this.markAsStale,
+    CHANGE_CONDITIONAL_FORMAT_PRIORITY: this.markAsStale,
   };
 
   private markAsStale() {

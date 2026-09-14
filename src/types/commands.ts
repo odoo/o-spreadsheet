@@ -166,10 +166,7 @@ export const invalidateChartEvaluationCommands = new Set<CommandTypes>([
 
 export const invalidateDependenciesCommands = new Set<CommandTypes>(["MOVE_RANGES"]);
 
-export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
-  "EVALUATE_CELLS",
-  "CHANGE_CONDITIONAL_FORMAT_PRIORITY",
-]);
+export const invalidateCFEvaluationCommands = new Set<CommandTypes>(["EVALUATE_CELLS"]);
 
 export const invalidSubtotalFormulasCommands = new Set<CommandTypes>([
   "UNHIDE_COLUMNS_ROWS",
