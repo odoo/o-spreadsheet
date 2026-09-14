@@ -17,6 +17,7 @@ import {
 import {
   CommandResult,
   CoreCommand,
+  CreateTableCommand,
   DeleteContentCommand,
   UpdateCellCommand,
   UpdateTableCommand,
@@ -60,7 +61,25 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   handlers = {
     UPDATE_CELL: this.extendTablesOnCellUpdate,
     DELETE_CONTENT: this.removeTablesInDeletedContent,
+    CREATE_TABLE: this.createTable,
   };
+
+  private createTable(cmd: CreateTableCommand) {
+    const ranges = cmd.ranges.map((rangeData) => this.getters.getRangeFromRangeData(rangeData));
+    const union = this.getters.getRangesUnion(ranges);
+    const mergesInTarget = this.getters.getMergesInZone(cmd.sheetId, union.zone);
+    if (mergesInTarget.length) {
+      this.dispatch("REMOVE_MERGE", { sheetId: cmd.sheetId, target: mergesInTarget });
+    }
+
+    const id = this.consumeNextId();
+    const config = cmd.config || DEFAULT_TABLE_CONFIG;
+    const newTable =
+      cmd.tableType === "dynamic"
+        ? this.createDynamicTable(id, union, config)
+        : this.createStaticTable(id, cmd.tableType, union, config);
+    this.history.update("tables", cmd.sheetId, newTable.id, newTable);
+  }
 
   adaptRanges({ applyChange }: RangeAdapterFunctions) {
     for (const sheetId in this.tables) {
@@ -137,23 +156,6 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
               : this.copyStaticTableForSheet(cmd.sheetIdTo, table);
         }
         this.history.update("tables", cmd.sheetIdTo, newTables);
-        break;
-      }
-      case "CREATE_TABLE": {
-        const ranges = cmd.ranges.map((rangeData) => this.getters.getRangeFromRangeData(rangeData));
-        const union = this.getters.getRangesUnion(ranges);
-        const mergesInTarget = this.getters.getMergesInZone(cmd.sheetId, union.zone);
-        if (mergesInTarget.length) {
-          this.dispatch("REMOVE_MERGE", { sheetId: cmd.sheetId, target: mergesInTarget });
-        }
-
-        const id = this.consumeNextId();
-        const config = cmd.config || DEFAULT_TABLE_CONFIG;
-        const newTable =
-          cmd.tableType === "dynamic"
-            ? this.createDynamicTable(id, union, config)
-            : this.createStaticTable(id, cmd.tableType, union, config);
-        this.history.update("tables", cmd.sheetId, newTable.id, newTable);
         break;
       }
       case "REMOVE_TABLE": {

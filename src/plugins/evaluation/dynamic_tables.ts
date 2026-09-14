@@ -44,6 +44,7 @@ export class DynamicTablesPlugin extends EvaluationPlugin {
   handlers = {
     UPDATE_CELL: this.invalidateTables,
     DELETE_CONTENT: this.clearTables,
+    CREATE_TABLE: this.clearTables,
   };
 
   private invalidateTables(cmd: UpdateCellCommand) {
@@ -62,7 +63,6 @@ export class DynamicTablesPlugin extends EvaluationPlugin {
       return;
     }
     switch (cmd.type) {
-      case "CREATE_TABLE":
       case "REMOVE_TABLE":
       case "UPDATE_TABLE":
       case "REFRESH_PIVOT":

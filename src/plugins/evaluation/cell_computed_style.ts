@@ -6,12 +6,11 @@ import { isObjectEmptyRecursive, removeFalsyAttributes } from "../../helpers/mis
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isZoneInside, toZone, zoneToXc } from "../../helpers/zones";
 import {
-  DeleteContentCommand,
   EvaluationCommand,
   invalidateCFEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types/commands";
-import { Border, CellPosition, Style } from "../../types/misc";
+import { Border, CellPosition, Style, UID } from "../../types/misc";
 import { ExcelWorkbookData } from "../../types/workbook_data";
 import { EvaluationPlugin } from "../evaluation_plugin";
 import { doesCommandInvalidatesTableStyle } from "./table_computed_style";
@@ -31,6 +30,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     SET_ZONE_BORDERS: this.invalidateComputedBorders,
     SET_BORDERS_ON_TARGET: this.invalidateComputedBorders,
     SET_SHEET_BACKGROUND_COLOR: this.invalidateComputedStyles,
+    CREATE_TABLE: this.invalidateSheetComputedStyles,
   };
 
   private invalidateComputedBorders() {
@@ -42,7 +42,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     this.borders = new PositionMap();
   }
 
-  private invalidateSheetComputedStyles(cmd: DeleteContentCommand) {
+  private invalidateSheetComputedStyles(cmd: { sheetId: UID }) {
     this.styles.clearSheet(cmd.sheetId);
     this.borders.clearSheet(cmd.sheetId);
   }
