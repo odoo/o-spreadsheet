@@ -50,6 +50,7 @@ export class CellIconPlugin extends UIPlugin {
     MOVE_RANGES: this.clearCellIconsCache,
     UPDATE_CHART: this.clearCellIconsCache,
     CREATE_CHART: this.clearCellIconsCache,
+    DELETE_CHART: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
