@@ -108,6 +108,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     CREATE_FIGURE: this.invalidateUnusedPivots,
     DELETE_FIGURE: this.invalidateUnusedPivots,
     CREATE_IMAGE: this.invalidateUnusedPivots,
+    CREATE_CAROUSEL: this.invalidateUnusedPivots,
   };
 
   constructor(config: EvaluationPluginConfig) {
