@@ -95,6 +95,7 @@ export class CellIconPlugin extends UIPlugin {
     UPDATE_PIVOT: this.clearCellIconsCache,
     ADD_MERGE: this.clearCellIconsCache,
     REMOVE_MERGE: this.clearCellIconsCache,
+    RENAME_SHEET: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {

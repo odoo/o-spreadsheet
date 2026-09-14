@@ -118,6 +118,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     HIDE_SHEET: this.hideSheetHandler,
     COLOR_SHEET: this.colorSheet,
     UPDATE_CELL_POSITION: this.updateCellPositionHandler,
+    RENAME_SHEET: this.renameSheetHandler,
   };
 
   private updateGridLinesVisibility(cmd: SetGridLinesVisibilityCommand) {
@@ -167,6 +168,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   private hideSheetHandler(cmd: HideSheetCommand) {
     this.hideSheet(cmd.sheetId);
+  }
+
+  private renameSheetHandler(cmd: RenameSheetCommand) {
+    this.renameSheet(this.sheets[cmd.sheetId]!, cmd.newName);
   }
 
   private colorSheet(cmd: ColorSheetCommand) {
@@ -307,9 +312,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           cmd.position
         );
         this.history.update("sheetIdsMapName", toStandardizedSheetName(sheet.name), sheet.id);
-        break;
-      case "RENAME_SHEET":
-        this.renameSheet(this.sheets[cmd.sheetId]!, cmd.newName);
         break;
       case "DUPLICATE_SHEET":
         this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo, cmd.sheetNameTo);
