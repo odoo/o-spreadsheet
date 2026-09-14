@@ -78,6 +78,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     SET_BORDERS_ON_TARGET: this.invalidateUnusedPivots,
     CLEAR_CELL: this.invalidateUnusedPivots,
     CLEAR_CELLS: this.invalidateUnusedPivots,
+    SET_SHEET_BACKGROUND_COLOR: this.invalidateUnusedPivots,
   };
 
   constructor(config: EvaluationPluginConfig) {

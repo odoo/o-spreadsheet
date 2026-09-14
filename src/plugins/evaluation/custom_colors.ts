@@ -10,7 +10,7 @@ import {
 } from "../../helpers/color";
 import { isDefined } from "../../helpers/misc";
 import { Cell } from "../../types/cells";
-import { EvaluationCommand } from "../../types/commands";
+import { ColorSheetBackgroundCommand, EvaluationCommand } from "../../types/commands";
 import { Color, Immutable, RGBA, UID } from "../../types/misc";
 import { TableElementStyle } from "../../types/table";
 import { EvaluationPlugin, EvaluationPluginConfig } from "../evaluation_plugin";
@@ -83,7 +83,14 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
     SET_FORMATTING: this.invalidateCustomColors,
     SET_BORDER: this.invalidateCustomColors,
     SET_ZONE_BORDERS: this.invalidateCustomColors,
+    SET_SHEET_BACKGROUND_COLOR: this.addSheetBackgroundColor,
   };
+
+  private addSheetBackgroundColor(cmd: ColorSheetBackgroundCommand) {
+    if (cmd.color) {
+      this.tryToAddColors([cmd.color]);
+    }
+  }
 
   constructor(config: EvaluationPluginConfig) {
     super(config);
@@ -110,7 +117,6 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
       case "UPDATE_CAROUSEL":
         this.tryToAddColors(this.getCarouselColors(cmd.sheetId, cmd.figureId));
         break;
-      case "SET_SHEET_BACKGROUND_COLOR":
       case "COLOR_SHEET":
         if (cmd.color) {
           this.tryToAddColors([cmd.color]);

@@ -30,6 +30,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     SET_BORDER: this.invalidateComputedBorders,
     SET_ZONE_BORDERS: this.invalidateComputedBorders,
     SET_BORDERS_ON_TARGET: this.invalidateComputedBorders,
+    SET_SHEET_BACKGROUND_COLOR: this.invalidateComputedStyles,
   };
 
   private invalidateComputedBorders() {
@@ -51,8 +52,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
       invalidateEvaluationCommands.has(cmd.type) ||
       cmd.type === "ADD_DATA_VALIDATION_RULE" ||
       cmd.type === "REMOVE_DATA_VALIDATION_RULE" ||
-      cmd.type === "EVALUATE_CELLS" ||
-      cmd.type === "SET_SHEET_BACKGROUND_COLOR"
+      cmd.type === "EVALUATE_CELLS"
     ) {
       this.styles = new PositionMap();
       this.borders = new PositionMap();
