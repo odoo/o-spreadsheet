@@ -88,6 +88,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     HIDE_COLUMNS_ROWS: this.invalidateUnusedPivots,
     UNHIDE_COLUMNS_ROWS: this.invalidateUnusedPivots,
     GROUP_HEADERS: this.invalidateUnusedPivots,
+    UNGROUP_HEADERS: this.invalidateUnusedPivots,
   };
 
   constructor(config: EvaluationPluginConfig) {
