@@ -26,6 +26,7 @@ import {
   CreateSheetCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
+  LockSheetCommand,
   MoveSheetCommand,
   RenameSheetCommand,
   SetGridLinesVisibilityCommand,
@@ -99,6 +100,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     SET_SHEET_BACKGROUND_COLOR: this.setSheetBackgroundColor,
     SET_GRID_LINES_VISIBILITY: this.updateGridLinesVisibility,
     MOVE_SHEET: this.moveSheetTo,
+    LOCK_SHEET: this.lockSheet,
   };
 
   private updateGridLinesVisibility(cmd: SetGridLinesVisibilityCommand) {
@@ -111,6 +113,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   private moveSheetTo(cmd: MoveSheetCommand) {
     this.moveSheet(cmd.sheetId, cmd.delta);
+  }
+
+  private lockSheet(cmd: LockSheetCommand) {
+    this.history.update("sheets", cmd.sheetId, "isLocked", true);
   }
 
   // ---------------------------------------------------------------------------
@@ -295,9 +301,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       case "UNFREEZE_COLUMNS_ROWS":
         this.setPaneDivisions(cmd.sheetId, 0, "COL");
         this.setPaneDivisions(cmd.sheetId, 0, "ROW");
-        break;
-      case "LOCK_SHEET":
-        this.history.update("sheets", cmd.sheetId, "isLocked", true);
         break;
       case "UNLOCK_SHEET":
         this.history.update("sheets", cmd.sheetId, "isLocked", false);
