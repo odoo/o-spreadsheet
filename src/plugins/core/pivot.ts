@@ -3,7 +3,7 @@ import { deepCopy, deepEquals, getCanonicalSymbolName } from "../../helpers/misc
 import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
-import { CommandResult, CoreCommand } from "../../types/commands";
+import { CommandResult, CoreCommand, RenamePivotCommand } from "../../types/commands";
 import { CellPosition, RangeAdapterFunctions, UID } from "../../types/misc";
 
 import { CellValue } from "../../types/cells";
@@ -47,7 +47,12 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     CREATE_NAMED_RANGE: this.recompileCalculatedMeasures,
     UPDATE_NAMED_RANGE: this.recompileCalculatedMeasures,
     DELETE_NAMED_RANGE: this.recompileCalculatedMeasures,
+    RENAME_PIVOT: this.renamePivot,
   };
+
+  private renamePivot(cmd: RenamePivotCommand) {
+    this.history.update("pivots", cmd.pivotId, "definition", "name", cmd.name);
+  }
 
   private recompileCalculatedMeasures() {
     for (const pivotId in this.pivots) {
@@ -134,10 +139,6 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         const spTable = new SpreadsheetPivotTable(cols, rows, measures, fieldsType || {});
         const formulaId = this.getPivotFormulaId(pivotId);
         this.insertPivot(position, formulaId, spTable);
-        break;
-      }
-      case "RENAME_PIVOT": {
-        this.history.update("pivots", cmd.pivotId, "definition", "name", cmd.name);
         break;
       }
       case "REMOVE_PIVOT": {
