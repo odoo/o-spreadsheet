@@ -23,6 +23,11 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     [sheet: string]: Record<UID, Figure | undefined> | undefined;
   } = {};
   readonly insertionOrders: UID[] = []; // TODO use a list in master
+
+  handlers = {
+    UPDATE_FIGURE: this.updateFigure,
+  };
+
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
@@ -110,9 +115,6 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
           tag: cmd.tag,
         };
         this.addFigure(figure, cmd.sheetId);
-        break;
-      case "UPDATE_FIGURE":
-        this.updateFigure(cmd);
         break;
       case "DELETE_FIGURE":
         this.removeFigure(cmd.figureId, cmd.sheetId);
