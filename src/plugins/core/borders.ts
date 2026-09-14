@@ -50,7 +50,20 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     SET_ZONE_BORDERS: this.setZoneBorders,
     SET_BORDERS_ON_TARGET: this.setBordersOnTarget,
     ADD_MERGE: this.addBordersToMerges,
+    DUPLICATE_SHEET: this.duplicateSheetBorders,
   };
+
+  private duplicateSheetBorders(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    const borders = this.borders[cmd.sheetId];
+    if (borders) {
+      // borders is a sparse 2D array.
+      // map and slice preserve empty values and do not set `undefined` instead
+      const bordersCopy = borders
+        .slice()
+        .map((col) => col?.slice().map((border) => deepCopy(border)));
+      this.history.update("borders", cmd.sheetIdTo, bordersCopy);
+    }
+  }
 
   private setBordersOnTarget(cmd: SetBorderTargetCommand) {
     for (const zone of cmd.target) {
@@ -103,17 +116,6 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "DUPLICATE_SHEET":
-        const borders = this.borders[cmd.sheetId];
-        if (borders) {
-          // borders is a sparse 2D array.
-          // map and slice preserve empty values and do not set `undefined` instead
-          const bordersCopy = borders
-            .slice()
-            .map((col) => col?.slice().map((border) => deepCopy(border)));
-          this.history.update("borders", cmd.sheetIdTo, bordersCopy);
-        }
-        break;
       case "DELETE_SHEET":
         const allBorders = { ...this.borders };
         delete allBorders[cmd.sheetId];

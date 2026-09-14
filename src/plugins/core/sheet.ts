@@ -25,6 +25,7 @@ import {
   CommandResult,
   CoreCommand,
   CreateSheetCommand,
+  DuplicateSheetCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
   HideSheetCommand,
@@ -120,7 +121,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     UPDATE_CELL_POSITION: this.updateCellPositionHandler,
     RENAME_SHEET: this.renameSheetHandler,
     CREATE_SHEET: this.createSheetHandler,
+    DUPLICATE_SHEET: this.duplicateSheetHandler,
   };
+
+  private duplicateSheetHandler(cmd: DuplicateSheetCommand) {
+    this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo, cmd.sheetNameTo);
+  }
 
   private updateGridLinesVisibility(cmd: SetGridLinesVisibilityCommand) {
     this.setGridLinesVisibility(cmd.sheetId, cmd.areGridLinesVisible);
@@ -315,9 +321,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "DUPLICATE_SHEET":
-        this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo, cmd.sheetNameTo);
-        break;
       case "DELETE_SHEET":
         this.deleteSheet(this.sheets[cmd.sheetId]!);
         break;

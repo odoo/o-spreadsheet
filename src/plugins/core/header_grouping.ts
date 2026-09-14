@@ -48,7 +48,13 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
     FOLD_HEADER_GROUPS_IN_ZONE: this.toggleHeaderGroupsInZone,
     UNFOLD_HEADER_GROUPS_IN_ZONE: this.toggleHeaderGroupsInZone,
     CREATE_SHEET: this.initSheetGroups,
+    DUPLICATE_SHEET: this.duplicateSheetGroups,
   };
+
+  private duplicateSheetGroups(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    const groups = deepCopy(this.groups[cmd.sheetId]);
+    this.history.update("groups", cmd.sheetIdTo, groups);
+  }
 
   private initSheetGroups(cmd: { sheetId: UID }) {
     this.history.update("groups", cmd.sheetId, { ROW: [], COL: [] });
@@ -182,11 +188,6 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "DUPLICATE_SHEET": {
-        const groups = deepCopy(this.groups[cmd.sheetId]);
-        this.history.update("groups", cmd.sheetIdTo, groups);
-        break;
-      }
       case "DELETE_SHEET": {
         const groups = { ...this.groups };
         delete groups[cmd.sheetId];

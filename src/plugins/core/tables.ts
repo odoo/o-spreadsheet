@@ -66,7 +66,19 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     REMOVE_TABLE: this.removeTable,
     UPDATE_TABLE: this.updateTable,
     CREATE_SHEET: this.initSheetTables,
+    DUPLICATE_SHEET: this.duplicateSheetTables,
   };
+
+  private duplicateSheetTables(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    const newTables: Record<UID, CoreTable | undefined> = {};
+    for (const table of this.getCoreTables(cmd.sheetId)) {
+      newTables[table.id] =
+        table.type === "dynamic"
+          ? this.copyDynamicTableForSheet(cmd.sheetIdTo, table)
+          : this.copyStaticTableForSheet(cmd.sheetIdTo, table);
+    }
+    this.history.update("tables", cmd.sheetIdTo, newTables);
+  }
 
   private initSheetTables(cmd: { sheetId: UID }) {
     this.history.update("tables", cmd.sheetId, {});
@@ -160,17 +172,6 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
         const tables = { ...this.tables };
         delete tables[cmd.sheetId];
         this.history.update("tables", tables);
-        break;
-      }
-      case "DUPLICATE_SHEET": {
-        const newTables: Record<UID, CoreTable | undefined> = {};
-        for (const table of this.getCoreTables(cmd.sheetId)) {
-          newTables[table.id] =
-            table.type === "dynamic"
-              ? this.copyDynamicTableForSheet(cmd.sheetIdTo, table)
-              : this.copyStaticTableForSheet(cmd.sheetIdTo, table);
-        }
-        this.history.update("tables", cmd.sheetIdTo, newTables);
         break;
       }
     }

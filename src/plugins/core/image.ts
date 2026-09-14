@@ -30,7 +30,31 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
   handlers = {
     DELETE_FIGURE: this.deleteImage,
     CREATE_IMAGE: this.createImage,
+    DUPLICATE_SHEET: this.duplicateSheetImages,
   };
+
+  private duplicateSheetImages(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
+    for (const fig of sheetFiguresFrom) {
+      if (fig.tag === "image") {
+        const figureIdBase = fig.id.split(FIGURE_ID_SPLITTER).pop();
+        const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
+        const image = this.getImage(fig.id);
+        if (image) {
+          const size = { width: fig.width, height: fig.height };
+          this.dispatch("CREATE_IMAGE", {
+            sheetId: cmd.sheetIdTo,
+            figureId: duplicatedFigureId,
+            offset: fig.offset,
+            col: fig.col,
+            row: fig.row,
+            size,
+            definition: deepCopy(image),
+          });
+        }
+      }
+    }
+  }
 
   private createImage(cmd: CreateImageOverCommand) {
     if (!this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
@@ -67,29 +91,6 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "DUPLICATE_SHEET": {
-        const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
-        for (const fig of sheetFiguresFrom) {
-          if (fig.tag === "image") {
-            const figureIdBase = fig.id.split(FIGURE_ID_SPLITTER).pop();
-            const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
-            const image = this.getImage(fig.id);
-            if (image) {
-              const size = { width: fig.width, height: fig.height };
-              this.dispatch("CREATE_IMAGE", {
-                sheetId: cmd.sheetIdTo,
-                figureId: duplicatedFigureId,
-                offset: fig.offset,
-                col: fig.col,
-                row: fig.row,
-                size,
-                definition: deepCopy(image),
-              });
-            }
-          }
-        }
-        break;
-      }
       case "DELETE_SHEET":
         this.history.update("images", cmd.sheetId, undefined);
         break;
