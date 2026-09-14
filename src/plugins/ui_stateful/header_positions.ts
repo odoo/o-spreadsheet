@@ -38,6 +38,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     RENAME_PIVOT: this.invalidateHeaderPositions,
     REMOVE_PIVOT: this.invalidateHeaderPositions,
     INSERT_PIVOT: this.invalidateHeaderPositions,
+    ADD_PIVOT: this.invalidateHeaderPositions,
   };
 
   private computeSheetHeaderPositions(cmd: { sheetId: UID }) {
