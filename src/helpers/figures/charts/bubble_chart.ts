@@ -210,7 +210,7 @@ export const BubbleChart: ChartTypeBuilder<"bubble"> = {
           legend: getBubbleChartLegend(definition, chartData),
           tooltip: getBubbleChartTooltip(definition, chartData),
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
-          background: { color: definition.background },
+          background: { color: chartData.background },
         },
       },
     };
