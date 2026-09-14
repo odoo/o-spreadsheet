@@ -60,6 +60,7 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
     REMOVE_PIVOT: this.markAsStale,
     INSERT_PIVOT: this.markAsStale,
     ADD_PIVOT: this.markAsStale,
+    DUPLICATE_PIVOT: this.markAsStale,
   };
 
   private markAsStale() {

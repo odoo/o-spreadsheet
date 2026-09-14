@@ -7,6 +7,7 @@ import {
   AddPivotCommand,
   CommandResult,
   CoreCommand,
+  DuplicatePivotCommand,
   InsertPivotCommand,
   RemovePivotCommand,
   RenamePivotCommand,
@@ -58,7 +59,15 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     REMOVE_PIVOT: this.removePivot,
     INSERT_PIVOT: this.insertPivotTable,
     ADD_PIVOT: this.addPivotHandler,
+    DUPLICATE_PIVOT: this.duplicatePivot,
   };
+
+  private duplicatePivot(cmd: DuplicatePivotCommand) {
+    const { pivotId, newPivotId } = cmd;
+    const pivot = deepCopy(this.getPivotCore(pivotId).definition);
+    pivot.name = cmd.duplicatedPivotName ?? pivot.name + " (copy)";
+    this.addPivot(newPivotId, pivot);
+  }
 
   private addPivotHandler(cmd: AddPivotCommand) {
     const { pivotId, pivot } = cmd;
@@ -159,13 +168,6 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "DUPLICATE_PIVOT": {
-        const { pivotId, newPivotId } = cmd;
-        const pivot = deepCopy(this.getPivotCore(pivotId).definition);
-        pivot.name = cmd.duplicatedPivotName ?? pivot.name + " (copy)";
-        this.addPivot(newPivotId, pivot);
-        break;
-      }
       case "UPDATE_PIVOT": {
         this.history.update("pivots", cmd.pivotId, "definition", deepCopy(cmd.pivot));
         this.compileCalculatedMeasures(cmd.pivotId, cmd.pivot.measures);

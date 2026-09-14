@@ -18,6 +18,7 @@ import { CellValue, CellValueType, FormulaCell } from "../../types/cells";
 import {
   AddPivotCommand,
   CoreCommand,
+  DuplicatePivotCommand,
   EvaluationCommand,
   UpdatePivotCommand,
   invalidateEvaluationCommands,
@@ -131,6 +132,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     REMOVE_PIVOT: this.invalidateAllPivots,
     INSERT_PIVOT: this.invalidateAllPivots,
     ADD_PIVOT: this.setupAddedPivot,
+    DUPLICATE_PIVOT: this.setupDuplicatedPivot,
   };
 
   constructor(config: EvaluationPluginConfig) {
@@ -168,6 +170,12 @@ export class PivotUIPlugin extends EvaluationPlugin {
    * Reset the cache of the date/datetime pivot values, as it depends on
    * the locale. (e.g. the first day of the week)
    */
+  private setupDuplicatedPivot(cmd: DuplicatePivotCommand) {
+    this.invalidateAllPivots();
+    this.unusedPivotsInFormulas?.push(cmd.newPivotId);
+    this.setupPivot(cmd.newPivotId);
+  }
+
   private setupAddedPivot(cmd: AddPivotCommand) {
     this.invalidateAllPivots();
     this.unusedPivotsInFormulas?.push(cmd.pivotId);
@@ -194,11 +202,6 @@ export class PivotUIPlugin extends EvaluationPlugin {
       case "REFRESH_PIVOT":
         this.refreshPivot(cmd.id);
         break;
-      case "DUPLICATE_PIVOT": {
-        this.unusedPivotsInFormulas?.push(cmd.newPivotId);
-        this.setupPivot(cmd.newPivotId);
-        break;
-      }
       case "UPDATE_PIVOT": {
         this.setupPivot(cmd.pivotId, { recreate: true });
         break;
