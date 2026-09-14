@@ -87,7 +87,12 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
     CREATE_TABLE: this.invalidateCustomColors,
     UPDATE_TABLE: this.invalidateCustomColors,
     ADD_CONDITIONAL_FORMAT: this.invalidateCustomColors,
+    UPDATE_CHART: this.addChartColors,
   };
+
+  private addChartColors(cmd: { chartId: UID }) {
+    this.tryToAddColors(this.getChartColors(cmd.chartId));
+  }
 
   private addSheetBackgroundColor(cmd: ColorSheetBackgroundCommand) {
     if (cmd.color) {
@@ -112,7 +117,6 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
           }
         }
         break;
-      case "UPDATE_CHART":
       case "CREATE_CHART":
         this.tryToAddColors(this.getChartColors(cmd.chartId));
         break;

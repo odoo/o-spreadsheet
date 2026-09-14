@@ -101,6 +101,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     ADD_DATA_VALIDATION_RULE: this.invalidateUnusedPivots,
     RESIZE_COLUMNS_ROWS: this.invalidateUnusedPivots,
     MOVE_RANGES: this.invalidateUnusedPivots,
+    UPDATE_CHART: this.invalidateUnusedPivots,
   };
 
   constructor(config: EvaluationPluginConfig) {
