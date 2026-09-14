@@ -9,6 +9,7 @@ import {
   FoldAllHeaderGroupsCommand,
   FoldHeaderGroupCommand,
   GroupHeadersCommand,
+  UnfoldAllHeaderGroupsCommand,
   UnfoldHeaderGroupCommand,
   UnGroupHeadersCommand,
 } from "../../types/commands";
@@ -41,7 +42,15 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
     FOLD_HEADER_GROUP: this.handleFoldHeaderGroup,
     UNFOLD_HEADER_GROUP: this.handleUnfoldHeaderGroup,
     FOLD_ALL_HEADER_GROUPS: this.foldAllHeaderGroups,
+    UNFOLD_ALL_HEADER_GROUPS: this.unfoldAllHeaderGroups,
   };
+
+  private unfoldAllHeaderGroups(cmd: UnfoldAllHeaderGroupsCommand) {
+    const groups = this.getters.getHeaderGroups(cmd.sheetId, cmd.dimension);
+    for (const group of groups) {
+      this.unfoldHeaderGroup(cmd.sheetId, cmd.dimension, group);
+    }
+  }
 
   private foldAllHeaderGroups(cmd: FoldAllHeaderGroupsCommand) {
     const groups = this.getters.getHeaderGroups(cmd.sheetId, cmd.dimension);
@@ -152,13 +161,6 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
       case "REMOVE_COLUMNS_ROWS":
         this.moveGroupsOnHeaderDeletion(cmd.sheetId, cmd.dimension, cmd.elements);
         break;
-      case "UNFOLD_ALL_HEADER_GROUPS": {
-        const groups = this.getters.getHeaderGroups(cmd.sheetId, cmd.dimension);
-        for (const group of groups) {
-          this.unfoldHeaderGroup(cmd.sheetId, cmd.dimension, group);
-        }
-        break;
-      }
       case "FOLD_HEADER_GROUPS_IN_ZONE":
       case "UNFOLD_HEADER_GROUPS_IN_ZONE": {
         const action = cmd.type === "UNFOLD_HEADER_GROUPS_IN_ZONE" ? "unfold" : "fold";
