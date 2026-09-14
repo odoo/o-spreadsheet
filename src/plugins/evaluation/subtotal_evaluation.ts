@@ -10,6 +10,7 @@ export class SubtotalEvaluationPlugin extends EvaluationPlugin {
     GROUP_HEADERS: this.invalidateSubtotalFormulas,
     UNGROUP_HEADERS: this.invalidateSubtotalFormulas,
     FOLD_HEADER_GROUP: this.invalidateSubtotalFormulas,
+    UNFOLD_HEADER_GROUP: this.invalidateSubtotalFormulas,
   };
 
   private invalidateSubtotalFormulas() {
