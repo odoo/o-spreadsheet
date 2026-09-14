@@ -21,6 +21,7 @@ import { isEqual, positions } from "../../helpers/zones";
 import { CellValueType } from "../../types/cells";
 import {
   AutoresizeColumnsCommand,
+  AutoresizeRowsCommand,
   Command,
   CommandResult,
   LocalCommand,
@@ -53,7 +54,12 @@ export class SheetUIPlugin extends UIPlugin {
 
   handlers = {
     AUTORESIZE_COLUMNS: this.autoResizeColumns,
+    AUTORESIZE_ROWS: this.autoResizeRowsHandler,
   };
+
+  private autoResizeRowsHandler(cmd: AutoresizeRowsCommand) {
+    this.autoResizeRows(cmd.sheetId, cmd.rows);
+  }
 
   private autoResizeColumns(cmd: AutoresizeColumnsCommand) {
     for (const col of cmd.cols) {
@@ -82,9 +88,6 @@ export class SheetUIPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "AUTORESIZE_ROWS":
-        this.autoResizeRows(cmd.sheetId, cmd.rows);
-        break;
       case "DELETE_UNFILTERED_CONTENT":
         const newTarget: Zone[] = [];
         for (const target of cmd.target) {
