@@ -59,6 +59,7 @@ export class EvaluationDataValidationPlugin extends EvaluationPlugin {
   handlers = {
     UPDATE_CELL: this.invalidateValidationResults,
     REMOVE_DATA_VALIDATION_RULE: this.invalidateSheetValidationResults,
+    ADD_DATA_VALIDATION_RULE: this.invalidateSheetValidationResults,
   };
 
   private invalidateSheetValidationResults(cmd: { sheetId: UID }) {
@@ -78,12 +79,6 @@ export class EvaluationDataValidationPlugin extends EvaluationPlugin {
       this.validationResults = {};
       this.criterionPreComputeResult = {};
       return;
-    }
-    switch (cmd.type) {
-      case "ADD_DATA_VALIDATION_RULE":
-        delete this.validationResults[cmd.sheetId];
-        delete this.criterionPreComputeResult[cmd.sheetId];
-        break;
     }
   }
 
