@@ -26,6 +26,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
   handlers = {
     UPDATE_CELL: this.invalidateComputedStyles,
     DELETE_CONTENT: this.invalidateSheetComputedStyles,
+    SET_FORMATTING: this.invalidateComputedStyles,
   };
 
   private invalidateComputedStyles() {
@@ -41,7 +42,6 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
   handle(cmd: EvaluationCommand) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
-      cmd.type === "SET_FORMATTING" ||
       cmd.type === "CLEAR_FORMATTING" ||
       cmd.type === "ADD_DATA_VALIDATION_RULE" ||
       cmd.type === "REMOVE_DATA_VALIDATION_RULE" ||

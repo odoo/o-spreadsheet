@@ -47,6 +47,19 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
   public readonly style: defaultStyles = {};
   public readonly format: defaultValues<Format> = {};
 
+  handlers = {
+    SET_FORMATTING: this.setFormatting,
+  };
+
+  private setFormatting(cmd: SetFormattingCommand) {
+    if (cmd.style !== undefined) {
+      this.setStyle(cmd.sheetId, cmd.target, cmd.style);
+    }
+    if (cmd.format !== undefined) {
+      this.setFormat(cmd.sheetId, cmd.target, cmd.format);
+    }
+  }
+
   allowDispatch(cmd: CoreCommand): CommandResult | CommandResult[] {
     if (cmd.type === "SET_FORMATTING") {
       return this.checkUselessSetFormatting(cmd);
@@ -56,14 +69,6 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
 
   handle(cmd: CoreCommand): void {
     switch (cmd.type) {
-      case "SET_FORMATTING":
-        if (cmd.style !== undefined) {
-          this.setStyle(cmd.sheetId, cmd.target, cmd.style);
-        }
-        if (cmd.format !== undefined) {
-          this.setFormat(cmd.sheetId, cmd.target, cmd.format);
-        }
-        break;
       case "CLEAR_FORMATTING":
         this.setStyle(cmd.sheetId, cmd.target, DEFAULT_STYLE);
         this.setFormat(cmd.sheetId, cmd.target, null);
