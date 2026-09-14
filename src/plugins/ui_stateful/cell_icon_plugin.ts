@@ -20,6 +20,7 @@ export class CellIconPlugin extends UIPlugin {
     SET_FORMATTING: this.clearCellIconsCache,
     CLEAR_FORMATTING: this.clearCellIconsCache,
     SET_BORDER: this.clearCellIconsCache,
+    SET_ZONE_BORDERS: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
