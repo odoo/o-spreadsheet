@@ -40,7 +40,22 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
 
   handlers = {
     UPDATE_CHART: this.updateChart,
+    CREATE_CHART: this.createChart,
   };
+
+  private createChart(cmd: CreateChartCommand) {
+    const { col, row, offset, size, sheetId, figureId } = cmd;
+    // If figure position is not defined, it means that the figure already exist (see allowDispatch)
+    if (
+      !this.getters.getFigure(sheetId, figureId) &&
+      offset !== undefined &&
+      col !== undefined &&
+      row !== undefined
+    ) {
+      this.addFigure(figureId, sheetId, col, row, offset, size);
+    }
+    this.addChart(cmd.figureId, cmd.chartId, cmd.definition);
+  }
 
   private updateChart(cmd: UpdateChartCommand) {
     this.addChart(cmd.figureId, cmd.chartId, cmd.definition);
@@ -97,19 +112,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "CREATE_CHART":
-        const { col, row, offset, size, sheetId, figureId } = cmd;
-        // If figure position is not defined, it means that the figure already exist (see allowDispatch)
-        if (
-          !this.getters.getFigure(sheetId, figureId) &&
-          offset !== undefined &&
-          col !== undefined &&
-          row !== undefined
-        ) {
-          this.addFigure(figureId, sheetId, col, row, offset, size);
-        }
-        this.addChart(cmd.figureId, cmd.chartId, cmd.definition);
-        break;
       case "DUPLICATE_SHEET": {
         for (const chartId of this.getChartIds(cmd.sheetId)) {
           const { chart, figureId } = this.charts[chartId] || {};

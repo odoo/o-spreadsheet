@@ -1,5 +1,5 @@
 import { GeoChartDefinition, GeoChartRegion } from "../../types/chart/geo_chart";
-import { Command } from "../../types/commands";
+import { Command, CreateChartCommand } from "../../types/commands";
 import { UID } from "../../types/misc";
 import { ModelConfig } from "../../types/model";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
@@ -17,6 +17,14 @@ export class GeoFeaturePlugin extends UIPlugin {
     this.geoJsonService = config.external.geoJsonService;
   }
 
+  handlers = {
+    CREATE_CHART: this.trackChartInitialRegion,
+  };
+
+  private trackChartInitialRegion(cmd: CreateChartCommand) {
+    this.trackInitialRegion(cmd.chartId);
+  }
+
   handle(cmd: Command) {
     switch (cmd.type) {
       case "START": {
@@ -25,10 +33,6 @@ export class GeoFeaturePlugin extends UIPlugin {
             this.trackInitialRegion(chartId);
           }
         }
-        break;
-      }
-      case "CREATE_CHART": {
-        this.trackInitialRegion(cmd.chartId);
         break;
       }
       case "UPDATE_CHART_REGION": {
