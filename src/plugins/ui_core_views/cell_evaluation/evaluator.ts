@@ -302,19 +302,21 @@ export class Evaluator {
   private evaluate(ranges: Iterable<BoundedRange>) {
     this.cellsBeingComputed = new Set<UID>();
     this.nextRangesToUpdate = new RangeSet(ranges);
-
-    let currentIteration = 0;
-    while (!this.nextRangesToUpdate.isEmpty() && currentIteration++ < MAX_ITERATION) {
+    const evaluatedRanges: Record<string, number> = {};
+    let lastIteration = false;
+    while (!this.nextRangesToUpdate.isEmpty() && !lastIteration) {
       this.updateCompilationParameters();
       const ranges = [...this.nextRangesToUpdate];
       this.nextRangesToUpdate.clear();
       this.clearEvaluatedRanges(ranges);
       for (const range of ranges) {
         const { left, bottom, right, top } = range.zone;
+        let entierlyEvaluated = true;
         for (let col = left; col <= right; col++) {
           for (let row = top; row <= bottom; row++) {
             const position = { sheetId: range.sheetId, col, row };
             if (this.nextRangesToUpdate.hasPosition(position)) {
+              entierlyEvaluated = false;
               continue;
             }
             const evaluatedCell = this.computeCell(position);
@@ -323,10 +325,18 @@ export class Evaluator {
             }
           }
         }
+        if (entierlyEvaluated) {
+          const rangeString = `${range.sheetId}-${left}-${right}-${top}-${bottom}`;
+          evaluatedRanges[rangeString] ??= 0;
+          evaluatedRanges[rangeString] += 1;
+          if (evaluatedRanges[rangeString] >= MAX_ITERATION) {
+            lastIteration = true;
+          }
+        }
       }
       onIterationEndEvaluationRegistry.getAll().forEach((callback) => callback(this.getters));
     }
-    if (currentIteration >= MAX_ITERATION) {
+    if (lastIteration) {
       console.warn("Maximum iteration reached while evaluating cells");
     }
   }

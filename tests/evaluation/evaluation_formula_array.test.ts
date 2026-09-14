@@ -635,10 +635,10 @@ describe("evaluate formulas that return an array", () => {
       const spy = jest.spyOn(console, "warn").mockImplementation(); // Avoid unwanted logs spam
       setCellContent(model, "A1", "=MFILL(2,1,D1+1)");
       setCellContent(model, "C1", "=MFILL(2,1,B1+1)");
-      expect(getEvaluatedCell(model, "A1").value).toBe(31);
-      expect(getEvaluatedCell(model, "B1").value).toBe(31);
-      expect(getEvaluatedCell(model, "C1").value).toBe(30);
-      expect(getEvaluatedCell(model, "D1").value).toBe(30);
+      expect(getEvaluatedCell(model, "A1").value).toBe(59);
+      expect(getEvaluatedCell(model, "B1").value).toBe(59);
+      expect(getEvaluatedCell(model, "C1").value).toBe(60);
+      expect(getEvaluatedCell(model, "D1").value).toBe(60);
       expect(spy).toHaveBeenCalledWith("Maximum iteration reached while evaluating cells");
     });
 
@@ -805,6 +805,55 @@ describe("evaluate formulas that return an array", () => {
       });
       // initially, cells are evaluated in this order: [sheet1!A1, sheet2!A1, sheet2!A4]
       expect(getEvaluatedCell(model, "A1").value).toBe(42);
+    });
+
+    test("Different ranges reevaluation does not stop the evaluation ", () => {
+      const model = new Model({
+        sheets: [
+          {
+            name: "sheet1",
+            cells: {
+              A1: "1",
+              A2: "2",
+              A3: "=A1:A2+1",
+              A5: "=A3:A4+1",
+              A7: "=A5:A6+1",
+              A9: "=A7:A8+1",
+              A11: "=A9:A10+1",
+              A13: "=A11:A12+1",
+              A15: "=A13:A14+1",
+              A17: "=A15:A16+1",
+              A19: "=A17:A18+1",
+              A21: "=A19:A20+1",
+              A23: "=A21:A22+1",
+              A25: "=A23:A24+1",
+              A27: "=A25:A26+1",
+              A29: "=A27:A28+1",
+              A31: "=A29:A30+1",
+              A33: "=A31:A32+1",
+              A35: "=A33:A34+1",
+              A37: "=A35:A36+1",
+              A39: "=A37:A38+1",
+              A41: "=A39:A40+1",
+              A43: "=A41:A42+1",
+              A45: "=A43:A44+1",
+              A47: "=A45:A46+1",
+              A49: "=A47:A48+1",
+              A51: "=A49:A50+1",
+              A53: "=A51:A52+1",
+              A55: "=A53:A54+1",
+              A57: "=A55:A56+1",
+              A59: "=A57:A58+1",
+              A61: "=A59:A60+1",
+              A63: "=A61:A62+1",
+              A65: "=A63:A64+1",
+              A67: "=A65:A66+1",
+              A69: "=A67:A68+1",
+            },
+          },
+        ],
+      });
+      expect(getEvaluatedCell(model, "A69").value).toBeDefined();
     });
 
     test("array formula evaluated first invalidated by other", () => {
