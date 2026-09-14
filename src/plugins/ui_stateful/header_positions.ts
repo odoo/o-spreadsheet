@@ -26,6 +26,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     UNGROUP_HEADERS: this.computeSheetHeaderPositions,
     FOLD_HEADER_GROUP: this.computeSheetHeaderPositions,
     UNFOLD_HEADER_GROUP: this.computeSheetHeaderPositions,
+    FOLD_ALL_HEADER_GROUPS: this.computeSheetHeaderPositions,
   };
 
   private computeSheetHeaderPositions(cmd: { sheetId: UID }) {
@@ -57,7 +58,6 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
       case "FOLD_HEADER_GROUPS_IN_ZONE":
       case "UNFOLD_HEADER_GROUPS_IN_ZONE":
       case "UNFOLD_ALL_HEADER_GROUPS":
-      case "FOLD_ALL_HEADER_GROUPS":
       case "CREATE_SHEET":
         if (this.getters.tryGetSheet(cmd.sheetId)) {
           this.headerPositions[cmd.sheetId] = this.computeHeaderPositionsOfSheet(cmd.sheetId);
