@@ -8,7 +8,7 @@ import {
   buildTableStyle as buildCustomTableStyle,
 } from "../../helpers/table_presets";
 import { _t } from "../../translation";
-import { CommandResult, CoreCommand } from "../../types/commands";
+import { CommandResult, CoreCommand, CreateTableStyleCommand } from "../../types/commands";
 import { TableStyle } from "../../types/table";
 import { TableStyleData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
@@ -48,12 +48,17 @@ export class TableStylePlugin extends CorePlugin<TableStylesState> implements Ta
     return CommandResult.Success;
   }
 
+  handlers = {
+    CREATE_TABLE_STYLE: this.createTableStyle,
+  };
+
+  private createTableStyle(cmd: CreateTableStyleCommand) {
+    const style = buildCustomTableStyle(cmd.tableStyleName, cmd.templateName, cmd.primaryColor);
+    this.history.update("styles", cmd.tableStyleId, style);
+  }
+
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "CREATE_TABLE_STYLE":
-        const style = buildCustomTableStyle(cmd.tableStyleName, cmd.templateName, cmd.primaryColor);
-        this.history.update("styles", cmd.tableStyleId, style);
-        break;
       case "REMOVE_TABLE_STYLE":
         const styles = { ...this.styles };
         delete styles[cmd.tableStyleId];
