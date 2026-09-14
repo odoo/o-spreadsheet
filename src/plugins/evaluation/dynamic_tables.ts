@@ -53,6 +53,7 @@ export class DynamicTablesPlugin extends EvaluationPlugin {
     DELETE_NAMED_RANGE: this.clearTables,
     RENAME_PIVOT: this.clearTables,
     REMOVE_PIVOT: this.clearTables,
+    INSERT_PIVOT: this.clearTables,
   };
 
   private invalidateTables(cmd: UpdateCellCommand) {
