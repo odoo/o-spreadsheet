@@ -31,6 +31,7 @@ import {
   RenameSheetCommand,
   SetGridLinesVisibilityCommand,
   UnfreezeColumnsCommand,
+  UnfreezeColumnsRowsCommand,
   UnfreezeRowsCommand,
   UnlockSheetCommand,
   UpdateCellPositionCommand,
@@ -109,6 +110,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     FREEZE_ROWS: this.freezeRows,
     UNFREEZE_ROWS: this.unfreezeRows,
     UNFREEZE_COLUMNS: this.unfreezeColumns,
+    UNFREEZE_COLUMNS_ROWS: this.unfreezeColumnsAndRows,
   };
 
   private updateGridLinesVisibility(cmd: SetGridLinesVisibilityCommand) {
@@ -145,6 +147,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   private unfreezeColumns(cmd: UnfreezeColumnsCommand) {
     this.setPaneDivisions(cmd.sheetId, 0, "COL");
+  }
+
+  private unfreezeColumnsAndRows(cmd: UnfreezeColumnsRowsCommand) {
+    this.setPaneDivisions(cmd.sheetId, 0, "COL");
+    this.setPaneDivisions(cmd.sheetId, 0, "ROW");
   }
 
   // ---------------------------------------------------------------------------
@@ -313,10 +320,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         break;
       case "UPDATE_CELL_POSITION":
         this.updateCellPosition(cmd);
-        break;
-      case "UNFREEZE_COLUMNS_ROWS":
-        this.setPaneDivisions(cmd.sheetId, 0, "COL");
-        this.setPaneDivisions(cmd.sheetId, 0, "ROW");
         break;
     }
   }
