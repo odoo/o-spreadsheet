@@ -6,6 +6,7 @@ import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_piv
 import {
   CommandResult,
   CoreCommand,
+  InsertPivotCommand,
   RemovePivotCommand,
   RenamePivotCommand,
 } from "../../types/commands";
@@ -54,7 +55,17 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     DELETE_NAMED_RANGE: this.recompileCalculatedMeasures,
     RENAME_PIVOT: this.renamePivot,
     REMOVE_PIVOT: this.removePivot,
+    INSERT_PIVOT: this.insertPivotTable,
   };
+
+  private insertPivotTable(cmd: InsertPivotCommand) {
+    const { sheetId, col, row, pivotId, table } = cmd;
+    const position = { sheetId, col, row };
+    const { cols, rows, measures, fieldsType } = table;
+    const spTable = new SpreadsheetPivotTable(cols, rows, measures, fieldsType || {});
+    const formulaId = this.getPivotFormulaId(pivotId);
+    this.insertPivot(position, formulaId, spTable);
+  }
 
   private removePivot(cmd: RemovePivotCommand) {
     const pivots = { ...this.pivots };
@@ -144,15 +155,6 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
       case "ADD_PIVOT": {
         const { pivotId, pivot } = cmd;
         this.addPivot(pivotId, pivot);
-        break;
-      }
-      case "INSERT_PIVOT": {
-        const { sheetId, col, row, pivotId, table } = cmd;
-        const position = { sheetId, col, row };
-        const { cols, rows, measures, fieldsType } = table;
-        const spTable = new SpreadsheetPivotTable(cols, rows, measures, fieldsType || {});
-        const formulaId = this.getPivotFormulaId(pivotId);
-        this.insertPivot(position, formulaId, spTable);
         break;
       }
       case "DUPLICATE_PIVOT": {

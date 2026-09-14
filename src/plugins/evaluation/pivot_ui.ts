@@ -129,6 +129,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     DELETE_NAMED_RANGE: this.invalidateAllPivots,
     RENAME_PIVOT: this.invalidateAllPivots,
     REMOVE_PIVOT: this.invalidateAllPivots,
+    INSERT_PIVOT: this.invalidateAllPivots,
   };
 
   constructor(config: EvaluationPluginConfig) {
