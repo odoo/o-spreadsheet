@@ -44,7 +44,36 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     CREATE_CHART: this.createChart,
     DELETE_CHART: this.deleteChart,
     DELETE_FIGURE: this.deleteChartsOfFigure,
+    DUPLICATE_SHEET: this.duplicateSheetCharts,
   };
+
+  private duplicateSheetCharts(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    for (const chartId of this.getChartIds(cmd.sheetId)) {
+      const { chart, figureId } = this.charts[chartId] || {};
+      if (!chart || !figureId) {
+        continue;
+      }
+      const fig = this.getters.getFigure(cmd.sheetId, figureId);
+      if (!fig) {
+        continue;
+      }
+      const figureIdBase = figureId.split(FIGURE_ID_SPLITTER).pop();
+      const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
+      const chartIdBase = chartId.split(FIGURE_ID_SPLITTER).pop();
+      const duplicatedChartId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${chartIdBase}`;
+      const definition = chart.duplicateInDuplicatedSheet(cmd.sheetId, cmd.sheetIdTo);
+      this.dispatch("CREATE_CHART", {
+        figureId: duplicatedFigureId,
+        chartId: duplicatedChartId,
+        col: fig.col,
+        row: fig.row,
+        offset: fig.offset,
+        size: { width: fig.width, height: fig.height },
+        definition,
+        sheetId: cmd.sheetIdTo,
+      });
+    }
+  }
 
   private deleteChartsOfFigure(cmd: DeleteFigureCommand) {
     for (const chartId in this.charts) {
@@ -129,34 +158,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "DUPLICATE_SHEET": {
-        for (const chartId of this.getChartIds(cmd.sheetId)) {
-          const { chart, figureId } = this.charts[chartId] || {};
-          if (!chart || !figureId) {
-            continue;
-          }
-          const fig = this.getters.getFigure(cmd.sheetId, figureId);
-          if (!fig) {
-            continue;
-          }
-          const figureIdBase = figureId.split(FIGURE_ID_SPLITTER).pop();
-          const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
-          const chartIdBase = chartId.split(FIGURE_ID_SPLITTER).pop();
-          const duplicatedChartId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${chartIdBase}`;
-          const definition = chart.duplicateInDuplicatedSheet(cmd.sheetId, cmd.sheetIdTo);
-          this.dispatch("CREATE_CHART", {
-            figureId: duplicatedFigureId,
-            chartId: duplicatedChartId,
-            col: fig.col,
-            row: fig.row,
-            offset: fig.offset,
-            size: { width: fig.width, height: fig.height },
-            definition,
-            sheetId: cmd.sheetIdTo,
-          });
-        }
-        break;
-      }
       case "DELETE_SHEET":
         for (const id of this.getChartIds(cmd.sheetId)) {
           this.history.update("charts", id, undefined);

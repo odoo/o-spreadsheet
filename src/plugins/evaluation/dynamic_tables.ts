@@ -61,6 +61,7 @@ export class DynamicTablesPlugin extends EvaluationPlugin {
     REMOVE_MERGE: this.clearTables,
     RENAME_SHEET: this.clearTables,
     CREATE_SHEET: this.clearTables,
+    DUPLICATE_SHEET: this.clearTables,
   };
 
   private invalidateTables(cmd: UpdateCellCommand) {

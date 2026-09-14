@@ -41,7 +41,18 @@ export class DataValidationPlugin
     REMOVE_DATA_VALIDATION_RULE: this.removeRule,
     ADD_DATA_VALIDATION_RULE: this.addRule,
     CREATE_SHEET: this.initSheetRules,
+    DUPLICATE_SHEET: this.duplicateSheetRules,
   };
+
+  private duplicateSheetRules(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    const rules = deepCopy(this.rules[cmd.sheetId]).map((rule) => ({
+      ...rule,
+      ranges: rule.ranges.map((range) =>
+        duplicateRangeInDuplicatedSheet(cmd.sheetId, cmd.sheetIdTo, range)
+      ),
+    }));
+    this.history.update("rules", cmd.sheetIdTo, rules);
+  }
 
   private initSheetRules(cmd: { sheetId: UID }) {
     this.history.update("rules", cmd.sheetId, []);
@@ -175,16 +186,6 @@ export class DataValidationPlugin
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "DUPLICATE_SHEET": {
-        const rules = deepCopy(this.rules[cmd.sheetId]).map((rule) => ({
-          ...rule,
-          ranges: rule.ranges.map((range) =>
-            duplicateRangeInDuplicatedSheet(cmd.sheetId, cmd.sheetIdTo, range)
-          ),
-        }));
-        this.history.update("rules", cmd.sheetIdTo, rules);
-        break;
-      }
       case "DELETE_SHEET": {
         const rules = { ...this.rules };
         delete rules[cmd.sheetId];
