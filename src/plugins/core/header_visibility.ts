@@ -7,7 +7,7 @@ import {
   largeMin,
   range,
 } from "../../helpers/misc";
-import { Command, CommandResult } from "../../types/commands";
+import { Command, CommandResult, HideColumnsRowsCommand } from "../../types/commands";
 import { ConsecutiveIndexes, Dimension, HeaderIndex, UID } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
@@ -23,6 +23,16 @@ export class HeaderVisibilityPlugin extends CorePlugin {
   ] as const;
 
   private readonly hiddenHeaders: Record<UID, Record<Dimension, Array<boolean>>> = {};
+
+  handlers = {
+    HIDE_COLUMNS_ROWS: this.hideHeaders,
+  };
+
+  private hideHeaders(cmd: HideColumnsRowsCommand) {
+    for (const el of cmd.elements) {
+      this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, el, true);
+    }
+  }
 
   allowDispatch(cmd: Command) {
     switch (cmd.type) {
@@ -96,11 +106,6 @@ export class HeaderVisibilityPlugin extends CorePlugin {
         this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hiddenHeaders);
         break;
       }
-      case "HIDE_COLUMNS_ROWS":
-        for (const el of cmd.elements) {
-          this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, el, true);
-        }
-        break;
       case "UNHIDE_COLUMNS_ROWS":
         for (const el of cmd.elements) {
           this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, el, false);
