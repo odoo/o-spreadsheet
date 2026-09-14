@@ -90,6 +90,7 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
     UPDATE_CHART: this.addChartColors,
     CREATE_CHART: this.addChartColors,
     CREATE_CAROUSEL: this.addCarouselColors,
+    UPDATE_CAROUSEL: this.addCarouselColors,
   };
 
   private addCarouselColors(cmd: { sheetId: UID; figureId: UID }) {
@@ -122,9 +123,6 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
             this.tryToAddColors(this.getCarouselColors(sheetId, figureId.id));
           }
         }
-        break;
-      case "UPDATE_CAROUSEL":
-        this.tryToAddColors(this.getCarouselColors(cmd.sheetId, cmd.figureId));
         break;
       case "COLOR_SHEET":
         if (cmd.color) {
