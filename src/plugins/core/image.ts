@@ -1,6 +1,11 @@
 import { FIGURE_ID_SPLITTER } from "../../constants";
 import { deepCopy } from "../../helpers/misc";
-import { CommandResult, CoreCommand, DeleteFigureCommand } from "../../types/commands";
+import {
+  CommandResult,
+  CoreCommand,
+  CreateImageOverCommand,
+  DeleteFigureCommand,
+} from "../../types/commands";
 import { FigureSize } from "../../types/figure";
 import { FileStore } from "../../types/files";
 import { Image } from "../../types/image";
@@ -24,7 +29,16 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
 
   handlers = {
     DELETE_FIGURE: this.deleteImage,
+    CREATE_IMAGE: this.createImage,
   };
+
+  private createImage(cmd: CreateImageOverCommand) {
+    if (!this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
+      this.addFigure(cmd.figureId, cmd.sheetId, cmd.col, cmd.row, cmd.offset, cmd.size);
+    }
+    this.history.update("images", cmd.sheetId, cmd.figureId, cmd.definition);
+    this.syncedImages.add(cmd.definition.path);
+  }
 
   private deleteImage(cmd: DeleteFigureCommand) {
     this.history.update("images", cmd.sheetId, cmd.figureId, undefined);
@@ -53,13 +67,6 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "CREATE_IMAGE":
-        if (!this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
-          this.addFigure(cmd.figureId, cmd.sheetId, cmd.col, cmd.row, cmd.offset, cmd.size);
-        }
-        this.history.update("images", cmd.sheetId, cmd.figureId, cmd.definition);
-        this.syncedImages.add(cmd.definition.path);
-        break;
       case "DUPLICATE_SHEET": {
         const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
         for (const fig of sheetFiguresFrom) {
