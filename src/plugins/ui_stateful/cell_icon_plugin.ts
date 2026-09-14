@@ -73,6 +73,7 @@ export class CellIconPlugin extends UIPlugin {
     FREEZE_COLUMNS: this.clearCellIconsCache,
     FREEZE_ROWS: this.clearCellIconsCache,
     UNFREEZE_ROWS: this.clearCellIconsCache,
+    UNFREEZE_COLUMNS: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
