@@ -58,6 +58,20 @@ export class ConditionalFormatPlugin
 
   readonly cfRules: { [sheet: string]: ConditionalFormatInternal[] } = {};
 
+  handlers = {
+    ADD_CONDITIONAL_FORMAT: this.addConditionalFormat,
+  };
+
+  private addConditionalFormat(cmd: AddConditionalFormatCommand) {
+    const cf = {
+      ...cmd.cf,
+      ranges: cmd.ranges.map((rangeData) =>
+        this.getters.getRangeString(this.getters.getRangeFromRangeData(rangeData), cmd.sheetId)
+      ),
+    };
+    this.addConditionalFormatting(cf, cmd.sheetId);
+  }
+
   adaptCFFormulas({ applyChange, adaptFormulaString }: RangeAdapterFunctions) {
     for (const sheetId in this.cfRules) {
       for (const rule of this.cfRules[sheetId]) {
@@ -220,15 +234,6 @@ export class ConditionalFormatPlugin
         const cfRules = Object.assign({}, this.cfRules);
         delete cfRules[cmd.sheetId];
         this.history.update("cfRules", cfRules);
-        break;
-      case "ADD_CONDITIONAL_FORMAT":
-        const cf = {
-          ...cmd.cf,
-          ranges: cmd.ranges.map((rangeData) =>
-            this.getters.getRangeString(this.getters.getRangeFromRangeData(rangeData), cmd.sheetId)
-          ),
-        };
-        this.addConditionalFormatting(cf, cmd.sheetId);
         break;
       case "REMOVE_CONDITIONAL_FORMAT":
         this.removeConditionalFormatting(cmd.id, cmd.sheetId);

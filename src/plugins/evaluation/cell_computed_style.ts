@@ -34,7 +34,12 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     REMOVE_TABLE: this.invalidateSheetComputedStyles,
     UPDATE_TABLE: this.invalidateSheetComputedStyles,
     UPDATE_FILTER: this.invalidateSheetComputedStyles,
+    ADD_CONDITIONAL_FORMAT: this.invalidateComputedCfStyles,
   };
+
+  private invalidateComputedCfStyles() {
+    this.styles = new PositionMap();
+  }
 
   private invalidateComputedBorders() {
     this.borders = new PositionMap();
