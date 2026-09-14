@@ -68,6 +68,7 @@ export class EvaluationDataValidationPlugin extends EvaluationPlugin {
     REMOVE_PIVOT: this.clearValidationResults,
     INSERT_PIVOT: this.clearValidationResults,
     ADD_PIVOT: this.clearValidationResults,
+    DUPLICATE_PIVOT: this.clearValidationResults,
   };
 
   private clearValidationResults() {
