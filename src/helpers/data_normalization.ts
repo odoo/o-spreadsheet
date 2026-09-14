@@ -1,6 +1,8 @@
-import { Position, UID } from "../types/misc";
+import { Border, Format, Style } from "../types";
+import { CellPosition, Position, UID } from "../types/misc";
+import { WorkbookData } from "../types/workbook_data";
 import { recomputeZones } from "./recompute_zones";
-import { positionToZone, toZone, zoneToXc } from "./zones";
+import { isZoneInside, positionToZone, toZone, zoneToXc } from "./zones";
 
 type ReverseLookup = Map<string, number>;
 type ItemsDic<T> = { [id: number]: T };
@@ -15,7 +17,8 @@ const globalIdCounter = new WeakMap<ItemsDic<any>, number>();
 export function getItemId<T>(item: T, itemsDic: ItemsDic<T>) {
   if (!globalReverseLookup.has(itemsDic)) {
     globalReverseLookup.set(itemsDic, new Map());
-    globalIdCounter.set(itemsDic, 0);
+    const maxId = Math.max(...Object.keys(itemsDic).map(parseInt), 0);
+    globalIdCounter.set(itemsDic, maxId);
   }
   const reverseLookup = globalReverseLookup.get(itemsDic)!;
   const canonical = getCanonicalRepresentation(item);
@@ -89,4 +92,38 @@ export function getCanonicalRepresentation(item: any): string {
   }
   repr += "}";
   return repr;
+}
+
+/**
+ * This adds a border/style/format to the cell position in the workbook data, updating the zonified structure accordingly.
+ */
+export function addStyleToWorkbookData(
+  workbookData: WorkbookData,
+  key: "borders" | "formats" | "styles",
+  position: CellPosition,
+  newItem: Border | Format | Style
+) {
+  const sheetData = workbookData.sheets.find((sheet) => sheet.id === position.sheetId);
+  if (!sheetData) {
+    throw new Error(`Sheet with id ${position.sheetId} not found`);
+  }
+
+  const id = getItemId(newItem, workbookData[key]);
+
+  const zonifiedData = sheetData[key];
+  const zone = positionToZone(position);
+  const styleXc = Object.keys(zonifiedData).find((styleXc) => isZoneInside(zone, toZone(styleXc)));
+
+  if (!styleXc) {
+    zonifiedData[zoneToXc(zone)] = id;
+    return;
+  }
+
+  const existingStyle = zonifiedData[styleXc];
+  const remainingZones = recomputeZones([toZone(styleXc)], [zone]);
+  delete zonifiedData[styleXc];
+  for (const remainingZone of remainingZones) {
+    zonifiedData[zoneToXc(remainingZone)] = existingStyle;
+  }
+  zonifiedData[zoneToXc(zone)] = id;
 }
