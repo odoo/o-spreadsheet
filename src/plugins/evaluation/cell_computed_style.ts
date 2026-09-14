@@ -46,6 +46,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     FOLD_ALL_HEADER_GROUPS: this.invalidateSheetComputedStyles,
     UNFOLD_ALL_HEADER_GROUPS: this.invalidateSheetComputedStyles,
     FOLD_HEADER_GROUPS_IN_ZONE: this.invalidateSheetComputedStyles,
+    UNFOLD_HEADER_GROUPS_IN_ZONE: this.invalidateSheetComputedStyles,
   };
 
   private invalidateComputedCfStyles() {
@@ -79,13 +80,8 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     }
 
     if (doesCommandInvalidatesTableStyle(cmd)) {
-      if ("sheetId" in cmd) {
-        this.styles.clearSheet(cmd.sheetId);
-        this.borders.clearSheet(cmd.sheetId);
-      } else {
-        this.styles = new PositionMap();
-        this.borders = new PositionMap();
-      }
+      this.styles = new PositionMap();
+      this.borders = new PositionMap();
       return;
     }
 
