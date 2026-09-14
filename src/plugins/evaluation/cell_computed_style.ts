@@ -41,6 +41,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     UNHIDE_COLUMNS_ROWS: this.invalidateSheetComputedStyles,
     GROUP_HEADERS: this.invalidateSheetComputedStyles,
     UNGROUP_HEADERS: this.invalidateSheetComputedStyles,
+    FOLD_HEADER_GROUP: this.invalidateSheetComputedStyles,
   };
 
   private invalidateComputedCfStyles() {
