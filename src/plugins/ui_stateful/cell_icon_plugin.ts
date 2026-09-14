@@ -45,6 +45,7 @@ export class CellIconPlugin extends UIPlugin {
     CREATE_TABLE_STYLE: this.clearCellIconsCache,
     REMOVE_TABLE_STYLE: this.clearCellIconsCache,
     REMOVE_DATA_VALIDATION_RULE: this.clearCellIconsCache,
+    ADD_DATA_VALIDATION_RULE: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
