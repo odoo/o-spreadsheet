@@ -126,6 +126,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     UPDATE_LOCALE: this.invalidatePivotsOnLocaleUpdate,
     CREATE_NAMED_RANGE: this.invalidateAllPivots,
     UPDATE_NAMED_RANGE: this.invalidateAllPivots,
+    DELETE_NAMED_RANGE: this.invalidateAllPivots,
   };
 
   constructor(config: EvaluationPluginConfig) {

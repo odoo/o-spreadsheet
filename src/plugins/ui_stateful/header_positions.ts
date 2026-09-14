@@ -34,6 +34,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     UPDATE_LOCALE: this.invalidateHeaderPositions,
     CREATE_NAMED_RANGE: this.invalidateHeaderPositions,
     UPDATE_NAMED_RANGE: this.invalidateHeaderPositions,
+    DELETE_NAMED_RANGE: this.invalidateHeaderPositions,
   };
 
   private computeSheetHeaderPositions(cmd: { sheetId: UID }) {

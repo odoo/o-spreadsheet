@@ -46,6 +46,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   handlers = {
     CREATE_NAMED_RANGE: this.recompileCalculatedMeasures,
     UPDATE_NAMED_RANGE: this.recompileCalculatedMeasures,
+    DELETE_NAMED_RANGE: this.recompileCalculatedMeasures,
   };
 
   private recompileCalculatedMeasures() {
@@ -158,9 +159,6 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         this.history.update("pivots", cmd.pivotId, "definition", deepCopy(cmd.pivot));
         this.compileCalculatedMeasures(cmd.pivotId, cmd.pivot.measures);
         break;
-      }
-      case "DELETE_NAMED_RANGE": {
-        this.recompileCalculatedMeasures();
       }
     }
   }
