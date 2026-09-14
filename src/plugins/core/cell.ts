@@ -14,6 +14,7 @@ import { Cell } from "../../types/cells";
 import {
   AddColumnsRowsCommand,
   ClearCellCommand,
+  ClearCellsCommand,
   CommandResult,
   CoreCommand,
   DeleteContentCommand,
@@ -64,6 +65,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     UPDATE_CELL: this.updateCell,
     DELETE_CONTENT: this.clearZones,
     CLEAR_CELL: this.clearCell,
+    CLEAR_CELLS: this.clearCells,
   };
 
   private clearCell(cmd: ClearCellCommand) {
@@ -124,10 +126,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           this.handleAddColumnsRows(cmd, this.copyRowStyle.bind(this));
         }
         break;
-      case "CLEAR_CELLS":
-        this.clearCells(cmd.sheetId, cmd.target);
-        break;
-
       case "DELETE_SHEET": {
         this.history.update("cells", cmd.sheetId, undefined);
       }
@@ -156,8 +154,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /**
    * Clear the styles, the format and the content of zones
    */
-  private clearCells(sheetId: UID, zones: Zone[]) {
-    for (const zone of zones) {
+  private clearCells(cmd: ClearCellsCommand) {
+    const sheetId = cmd.sheetId;
+    for (const zone of cmd.target) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           this.dispatch("UPDATE_CELL", {
