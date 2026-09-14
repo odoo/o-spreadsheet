@@ -63,7 +63,19 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   handlers = {
     UPDATE_CELL: this.updateCell,
     DELETE_CONTENT: this.clearZones,
+    CLEAR_CELL: this.clearCell,
   };
+
+  private clearCell(cmd: ClearCellCommand) {
+    this.dispatch("UPDATE_CELL", {
+      sheetId: cmd.sheetId,
+      col: cmd.col,
+      row: cmd.row,
+      content: "",
+      style: null,
+      format: null,
+    });
+  }
 
   adaptRanges(adapters: RangeAdapterFunctions) {
     for (const sheet of Object.keys(this.cells)) {
@@ -112,17 +124,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           this.handleAddColumnsRows(cmd, this.copyRowStyle.bind(this));
         }
         break;
-      case "CLEAR_CELL":
-        this.dispatch("UPDATE_CELL", {
-          sheetId: cmd.sheetId,
-          col: cmd.col,
-          row: cmd.row,
-          content: "",
-          style: null,
-          format: null,
-        });
-        break;
-
       case "CLEAR_CELLS":
         this.clearCells(cmd.sheetId, cmd.target);
         break;
