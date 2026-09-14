@@ -11,7 +11,12 @@ import {
 } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { cellPositions, getZoneArea } from "../../helpers/zones";
-import { CommandResult, CoreCommand, SetFormattingCommand } from "../../types/commands";
+import {
+  ClearFormattingCommand,
+  CommandResult,
+  CoreCommand,
+  SetFormattingCommand,
+} from "../../types/commands";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 
@@ -49,7 +54,13 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
 
   handlers = {
     SET_FORMATTING: this.setFormatting,
+    CLEAR_FORMATTING: this.clearFormatting,
   };
+
+  private clearFormatting(cmd: ClearFormattingCommand) {
+    this.setStyle(cmd.sheetId, cmd.target, DEFAULT_STYLE);
+    this.setFormat(cmd.sheetId, cmd.target, null);
+  }
 
   private setFormatting(cmd: SetFormattingCommand) {
     if (cmd.style !== undefined) {
@@ -69,10 +80,6 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
 
   handle(cmd: CoreCommand): void {
     switch (cmd.type) {
-      case "CLEAR_FORMATTING":
-        this.setStyle(cmd.sheetId, cmd.target, DEFAULT_STYLE);
-        this.setFormat(cmd.sheetId, cmd.target, null);
-        break;
       case "ADD_COLUMNS_ROWS":
         const startingIdx = cmd.position === "before" ? cmd.base : cmd.base + 1;
         this.moveColRows(cmd.sheetId, cmd.dimension, startingIdx, cmd.quantity);
