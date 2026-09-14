@@ -25,6 +25,7 @@ import {
   AutoresizeRowsCommand,
   Command,
   CommandResult,
+  DeleteUnfilteredContentCommand,
   LocalCommand,
 } from "../../types/commands";
 import {
@@ -56,7 +57,22 @@ export class SheetUIPlugin extends UIPlugin {
   handlers = {
     AUTORESIZE_COLUMNS: this.autoResizeColumns,
     AUTORESIZE_ROWS: this.autoResizeRowsHandler,
+    DELETE_UNFILTERED_CONTENT: this.deleteUnfilteredContent,
   };
+
+  private deleteUnfilteredContent(cmd: DeleteUnfilteredContentCommand) {
+    const newTarget: Zone[] = [];
+    for (const target of cmd.target) {
+      const nonFilteredRows = range(target.top, target.bottom + 1).filter(
+        (row) => !this.getters.isRowFiltered(cmd.sheetId, row)
+      );
+      const consecutiveRows = groupConsecutive(nonFilteredRows);
+      for (const group of consecutiveRows) {
+        newTarget.push({ ...target, top: group[0], bottom: group[group.length - 1] });
+      }
+    }
+    this.dispatch("DELETE_CONTENT", { sheetId: cmd.sheetId, target: newTarget });
+  }
 
   private autoResizeRowsHandler(cmd: AutoresizeRowsCommand) {
     this.autoResizeRows(cmd.sheetId, cmd.rows);
@@ -89,19 +105,6 @@ export class SheetUIPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "DELETE_UNFILTERED_CONTENT":
-        const newTarget: Zone[] = [];
-        for (const target of cmd.target) {
-          const nonFilteredRows = range(target.top, target.bottom + 1).filter(
-            (row) => !this.getters.isRowFiltered(cmd.sheetId, row)
-          );
-          const consecutiveRows = groupConsecutive(nonFilteredRows);
-          for (const group of consecutiveRows) {
-            newTarget.push({ ...target, top: group[0], bottom: group[group.length - 1] });
-          }
-        }
-        this.dispatch("DELETE_CONTENT", { sheetId: cmd.sheetId, target: newTarget });
-        break;
       case "SET_BACKGROUND_FOR_ALL_CELLS":
         this.dispatch("SET_FORMATTING", {
           sheetId: cmd.sheetId,
