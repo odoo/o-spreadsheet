@@ -1,6 +1,6 @@
 import { FIGURE_ID_SPLITTER } from "../../constants";
 import { deepCopy } from "../../helpers/misc";
-import { CommandResult, CoreCommand } from "../../types/commands";
+import { CommandResult, CoreCommand, DeleteFigureCommand } from "../../types/commands";
 import { FigureSize } from "../../types/figure";
 import { FileStore } from "../../types/files";
 import { Image } from "../../types/image";
@@ -21,6 +21,14 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
    * paths of images synced with the file store server.
    */
   readonly syncedImages: Set<Image["path"]> = new Set();
+
+  handlers = {
+    DELETE_FIGURE: this.deleteImage,
+  };
+
+  private deleteImage(cmd: DeleteFigureCommand) {
+    this.history.update("images", cmd.sheetId, cmd.figureId, undefined);
+  }
 
   constructor(config: CorePluginConfig) {
     super(config);
@@ -75,9 +83,6 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
         }
         break;
       }
-      case "DELETE_FIGURE":
-        this.history.update("images", cmd.sheetId, cmd.figureId, undefined);
-        break;
       case "DELETE_SHEET":
         this.history.update("images", cmd.sheetId, undefined);
         break;

@@ -27,7 +27,12 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   handlers = {
     UPDATE_FIGURE: this.updateFigure,
     CREATE_FIGURE: this.createFigure,
+    DELETE_FIGURE: this.deleteFigure,
   };
+
+  private deleteFigure(cmd: DeleteFigureCommand) {
+    this.removeFigure(cmd.figureId, cmd.sheetId);
+  }
 
   private createFigure(cmd: CreateFigureCommand) {
     const figure: Figure = {
@@ -117,9 +122,6 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
         break;
       case "DELETE_SHEET":
         this.deleteSheet(cmd.sheetId);
-        break;
-      case "DELETE_FIGURE":
-        this.removeFigure(cmd.figureId, cmd.sheetId);
         break;
       case "REMOVE_COLUMNS_ROWS":
         if (cmd.dimension === "COL") {
