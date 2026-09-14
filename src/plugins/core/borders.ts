@@ -13,6 +13,7 @@ import {
   CommandResult,
   CoreCommand,
   SetBorderCommand,
+  SetZoneBordersCommand,
 } from "../../types/commands";
 import {
   Border,
@@ -44,7 +45,26 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   handlers = {
     CLEAR_FORMATTING: this.clearFormattingBorders,
     SET_BORDER: this.setBorderOfCell,
+    SET_ZONE_BORDERS: this.setZoneBorders,
   };
+
+  private setZoneBorders(cmd: SetZoneBordersCommand) {
+    if (!cmd.border) {
+      return;
+    }
+    const target = cmd.target.map((zone) => this.getters.expandZone(cmd.sheetId, zone));
+    this.setBorders(
+      cmd.sheetId,
+      target,
+      cmd.border.position,
+      cmd.border.color === ""
+        ? undefined
+        : {
+            style: cmd.border.style || DEFAULT_BORDER_DESC.style,
+            color: cmd.border.color || DEFAULT_BORDER_DESC.color,
+          }
+    );
+  }
 
   private setBorderOfCell(cmd: SetBorderCommand) {
     this.setBorder(cmd.sheetId, cmd.col, cmd.row, cmd.border);
@@ -97,22 +117,6 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
               this.setBorder(cmd.sheetId, col, row, cmd.border);
             }
           }
-        }
-        break;
-      case "SET_ZONE_BORDERS":
-        if (cmd.border) {
-          const target = cmd.target.map((zone) => this.getters.expandZone(cmd.sheetId, zone));
-          this.setBorders(
-            cmd.sheetId,
-            target,
-            cmd.border.position,
-            cmd.border.color === ""
-              ? undefined
-              : {
-                  style: cmd.border.style || DEFAULT_BORDER_DESC.style,
-                  color: cmd.border.color || DEFAULT_BORDER_DESC.color,
-                }
-          );
         }
         break;
       case "REMOVE_COLUMNS_ROWS":

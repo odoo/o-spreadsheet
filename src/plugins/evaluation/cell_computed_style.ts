@@ -29,6 +29,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     SET_FORMATTING: this.invalidateComputedStyles,
     CLEAR_FORMATTING: this.invalidateComputedStyles,
     SET_BORDER: this.invalidateComputedBorders,
+    SET_ZONE_BORDERS: this.invalidateComputedBorders,
   };
 
   private invalidateComputedBorders() {
