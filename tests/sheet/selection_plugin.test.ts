@@ -5,6 +5,7 @@ import { positionToZone, toZone, zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { corePluginRegistry } from "../../src/plugins/plugin_registries";
 import { ViewportsStore } from "../../src/stores/viewports_store";
+import { ResizeColumnsRowsCommand } from "../../src/types/commands";
 import { Store } from "../../src/types/store_engine";
 import {
   activateSheet,
@@ -1014,11 +1015,9 @@ describe("move elements(s)", () => {
     const cmds: CoreCommand[] = [];
     class CommandSpy extends CorePlugin {
       static getters = [];
-      handle(command: CoreCommand) {
-        if (command.type === "RESIZE_COLUMNS_ROWS") {
-          cmds.push(command);
-        }
-      }
+      handlers = {
+        RESIZE_COLUMNS_ROWS: (command: ResizeColumnsRowsCommand) => cmds.push(command),
+      };
     }
     addTestPlugin(corePluginRegistry, CommandSpy);
 
@@ -1062,11 +1061,9 @@ describe("move elements(s)", () => {
     const cmds: CoreCommand[] = [];
     class CommandSpy extends CorePlugin {
       static getters = [];
-      handle(command: CoreCommand) {
-        if (command.type === "RESIZE_COLUMNS_ROWS") {
-          cmds.push(command);
-        }
-      }
+      handlers = {
+        RESIZE_COLUMNS_ROWS: (command: ResizeColumnsRowsCommand) => cmds.push(command),
+      };
     }
     addTestPlugin(corePluginRegistry, CommandSpy);
 
