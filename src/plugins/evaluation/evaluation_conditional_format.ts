@@ -49,7 +49,12 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
 
   handlers = {
     UPDATE_CELL: this.invalidateConditionalFormats,
+    ADD_CONDITIONAL_FORMAT: this.markAsStale,
   };
+
+  private markAsStale() {
+    this.isStale = true;
+  }
 
   private invalidateConditionalFormats(cmd: UpdateCellCommand) {
     if ("content" in cmd || "format" in cmd) {
