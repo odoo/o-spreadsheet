@@ -41,6 +41,7 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
     CHANGE_CONDITIONAL_FORMAT_PRIORITY: this.invalidateChartRuntimes,
     HIDE_COLUMNS_ROWS: this.invalidateChartRuntimes,
     UNHIDE_COLUMNS_ROWS: this.invalidateChartRuntimes,
+    GROUP_HEADERS: this.invalidateChartRuntimes,
   };
 
   private invalidateChartRuntimes() {

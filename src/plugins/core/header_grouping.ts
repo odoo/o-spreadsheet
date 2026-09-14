@@ -3,7 +3,7 @@ import {
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,
 } from "../../helpers/sheet";
-import { CommandResult, CoreCommand } from "../../types/commands";
+import { CommandResult, CoreCommand, GroupHeadersCommand } from "../../types/commands";
 import { Dimension, HeaderGroup, HeaderIndex, UID, Zone } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { getSheetDataHeader } from "../../xlsx/helpers/misc";
@@ -26,6 +26,14 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
   ] as const;
 
   private readonly groups: Record<UID, Record<Dimension, HeaderGroup[]>> = {};
+
+  handlers = {
+    GROUP_HEADERS: this.handleGroupHeaders,
+  };
+
+  private handleGroupHeaders(cmd: GroupHeadersCommand) {
+    this.groupHeaders(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
+  }
 
   allowDispatch(cmd: CoreCommand): CommandResult {
     switch (cmd.type) {
@@ -88,9 +96,6 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
     switch (cmd.type) {
       case "CREATE_SHEET":
         this.history.update("groups", cmd.sheetId, { ROW: [], COL: [] });
-        break;
-      case "GROUP_HEADERS":
-        this.groupHeaders(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
         break;
       case "UNGROUP_HEADERS": {
         this.unGroupHeaders(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
