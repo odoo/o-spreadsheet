@@ -49,7 +49,12 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
     UNFOLD_ALL_HEADER_GROUPS: this.invalidateChartRuntimes,
     FOLD_HEADER_GROUPS_IN_ZONE: this.invalidateChartRuntimes,
     UNFOLD_HEADER_GROUPS_IN_ZONE: this.invalidateChartRuntimes,
+    UPDATE_CHART: this.invalidateChartRuntime,
   };
+
+  private invalidateChartRuntime(cmd: { chartId: UID }) {
+    this.charts[cmd.chartId] = {};
+  }
 
   private invalidateChartRuntimes() {
     for (const chartId in this.charts) {
@@ -69,7 +74,6 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
     }
 
     switch (cmd.type) {
-      case "UPDATE_CHART":
       case "CREATE_CHART":
         this.charts[cmd.chartId] = {};
         break;
