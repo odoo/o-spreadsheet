@@ -9,7 +9,7 @@ import {
 import { getCanvas, getDefaultCellHeight } from "../../helpers/text_helper";
 import { positions } from "../../helpers/zones";
 import { Canvas2DContext } from "../../types/canvas";
-import { EvaluationCommand } from "../../types/commands";
+import { EvaluationCommand, UpdateCellCommand } from "../../types/commands";
 import { AnchorOffset } from "../../types/figure";
 import {
   CellPosition,
@@ -39,6 +39,14 @@ export class HeaderSizeUIPlugin
 
   readonly tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>> = {};
   ctx: Canvas2DContext = getCanvas();
+
+  handlers = {
+    UPDATE_CELL: this.updateRowSizeForCellUpdate,
+  };
+
+  private updateRowSizeForCellUpdate(cmd: UpdateCellCommand) {
+    this.updateRowSizeForCellChange(cmd.sheetId, cmd.row, cmd.col);
+  }
 
   beforeHandle(cmd: EvaluationCommand) {
     switch (cmd.type) {
@@ -122,9 +130,6 @@ export class HeaderSizeUIPlugin
             this.updateRowSizeForZoneChange(cmd.sheetId, zone);
           }
         }
-        break;
-      case "UPDATE_CELL":
-        this.updateRowSizeForCellChange(cmd.sheetId, cmd.row, cmd.col);
         break;
       case "ADD_MERGE":
       case "REMOVE_MERGE":

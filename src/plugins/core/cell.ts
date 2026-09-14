@@ -59,6 +59,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
 
+  handlers = {
+    UPDATE_CELL: this.updateCell,
+  };
+
   adaptRanges(adapters: RangeAdapterFunctions) {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
@@ -106,10 +110,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           this.handleAddColumnsRows(cmd, this.copyRowStyle.bind(this));
         }
         break;
-      case "UPDATE_CELL":
-        this.updateCell(cmd.sheetId, cmd.col, cmd.row, cmd);
-        break;
-
       case "CLEAR_CELL":
         this.dispatch("UPDATE_CELL", {
           sheetId: cmd.sheetId,
@@ -502,7 +502,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return id;
   }
 
-  private updateCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex, after: UpdateCellData) {
+  private updateCell(cmd: UpdateCellCommand) {
+    const { sheetId, col, row } = cmd;
+    const after: UpdateCellData = cmd;
     const position = { sheetId, col, row };
     const before = this.getters.getCell(position);
     const hasContent = after.content !== undefined || "formula" in after;

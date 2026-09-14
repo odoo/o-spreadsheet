@@ -1,5 +1,5 @@
 import { doesCellContainFunction } from "../../helpers/misc";
-import { EvaluationCommand } from "../../types/commands";
+import { EvaluationCommand, UpdateCellCommand } from "../../types/commands";
 import { UID } from "../../types/misc";
 import { EvaluationPlugin } from "../evaluation_plugin";
 
@@ -9,6 +9,10 @@ export class FormulaTrackerPlugin extends EvaluationPlugin {
   static getters = ["getCellsWithTrackedFormula"] as const;
 
   private trackedCells: Record<string, Record<UID, number | undefined>> = {};
+
+  handlers = {
+    UPDATE_CELL: this.trackFormulasOfUpdatedCell,
+  };
 
   handle(cmd: EvaluationCommand) {
     switch (cmd.type) {
@@ -27,24 +31,24 @@ export class FormulaTrackerPlugin extends EvaluationPlugin {
         }
         break;
       }
-      case "UPDATE_CELL": {
-        if (!("content" in cmd)) {
-          return;
-        }
-        const cell = this.getters.getCell(cmd);
-        // We don't update `this.trackedCells` and rely on `getCellsWithTrackedFormula` filtering out non-existing cells.
-        // We cannot store the id in the beforeHandle, because the cell is already deleted in the beforeHandle of the sheet plugin
-        if (!cell) {
-          return;
-        }
-        for (const formula of trackedFormulas) {
-          if (doesCellContainFunction(cell, formula)) {
-            this.history.update("trackedCells", formula, cell.id, cell.id);
-          } else if (this.trackedCells[formula][cell.id]) {
-            this.history.update("trackedCells", formula, cell.id, undefined);
-          }
-        }
-        break;
+    }
+  }
+
+  private trackFormulasOfUpdatedCell(cmd: UpdateCellCommand) {
+    if (!("content" in cmd)) {
+      return;
+    }
+    const cell = this.getters.getCell(cmd);
+    // We don't update `this.trackedCells` and rely on `getCellsWithTrackedFormula` filtering out non-existing cells.
+    // We cannot store the id in the beforeHandle, because the cell is already deleted in the beforeHandle of the sheet plugin
+    if (!cell) {
+      return;
+    }
+    for (const formula of trackedFormulas) {
+      if (doesCellContainFunction(cell, formula)) {
+        this.history.update("trackedCells", formula, cell.id, cell.id);
+      } else if (this.trackedCells[formula][cell.id]) {
+        this.history.update("trackedCells", formula, cell.id, undefined);
       }
     }
   }

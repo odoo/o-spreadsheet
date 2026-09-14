@@ -78,6 +78,10 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
   private readonly shouldUpdateColors = true;
   static getters = ["getCustomColors"] as const;
 
+  handlers = {
+    UPDATE_CELL: this.invalidateCustomColors,
+  };
+
   constructor(config: EvaluationPluginConfig) {
     super(config);
     this.tryToAddColors(config.customColors ?? []);
@@ -109,7 +113,6 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
           this.tryToAddColors([cmd.color]);
         }
         break;
-      case "UPDATE_CELL":
       case "ADD_CONDITIONAL_FORMAT":
       case "SET_BORDER":
       case "SET_ZONE_BORDERS":
@@ -119,6 +122,10 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
         this.history.update("shouldUpdateColors", true);
         break;
     }
+  }
+
+  private invalidateCustomColors() {
+    this.history.update("shouldUpdateColors", true);
   }
 
   finalize() {

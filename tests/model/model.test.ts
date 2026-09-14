@@ -20,6 +20,7 @@ import {
   statefulUIPluginRegistry,
 } from "../../src/plugins/plugin_registries";
 import { UIPlugin } from "../../src/plugins/ui_plugin";
+import { UpdateCellCommand } from "../../src/types/commands";
 import { ModelConfig } from "../../src/types/model";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
@@ -219,12 +220,30 @@ describe("Model", () => {
     const model = new Model();
     autoresizeColumns(model, [1]);
     selectCell(model, "A2");
-    setCellContent(model, "A1", "hello");
+    createSheet(model, { sheetId: "42" });
     expect(receivedCommands).not.toContain("AUTORESIZE_COLUMNS");
     expect(receivedCommands).not.toContain("SELECT_CELL");
     // core and evaluation commands are still received
-    expect(receivedCommands).toContain("UPDATE_CELL");
+    expect(receivedCommands).toContain("CREATE_SHEET");
     expect(receivedCommands).toContain("START");
+  });
+
+  test("A command with a dedicated handler is not dispatched to the generic handle", () => {
+    const handledByHandle: CommandTypes[] = [];
+    const handledBySpecificHandler: CommandTypes[] = [];
+    class MyEvaluationPlugin extends EvaluationPlugin {
+      handlers = {
+        UPDATE_CELL: (cmd: UpdateCellCommand) => handledBySpecificHandler.push(cmd.type),
+      };
+      handle(cmd: EvaluationCommand) {
+        handledByHandle.push(cmd.type);
+      }
+    }
+    addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
+    const model = new Model();
+    setCellContent(model, "A1", "hello");
+    expect(handledBySpecificHandler).toContain("UPDATE_CELL");
+    expect(handledByHandle).not.toContain("UPDATE_CELL");
   });
 
   test("canDispatch method is exposed and works", () => {

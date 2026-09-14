@@ -12,7 +12,11 @@ import {
   toZone,
   union,
 } from "../../helpers/zones";
-import { EvaluationCommand, invalidateEvaluationCommands } from "../../types/commands";
+import {
+  EvaluationCommand,
+  invalidateEvaluationCommands,
+  UpdateCellCommand,
+} from "../../types/commands";
 import { CellErrorType } from "../../types/errors";
 import { CellPosition, FilterId, TableId, UID, Zone } from "../../types/misc";
 import { PivotStyle } from "../../types/pivot";
@@ -37,12 +41,18 @@ export class DynamicTablesPlugin extends EvaluationPlugin {
 
   tables: Record<UID, Table[]> = {};
 
+  handlers = {
+    UPDATE_CELL: this.invalidateTables,
+  };
+
+  private invalidateTables(cmd: UpdateCellCommand) {
+    if ("content" in cmd || "format" in cmd) {
+      this.tables = {};
+    }
+  }
+
   handle(cmd: EvaluationCommand) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd)) ||
-      cmd.type === "EVALUATE_CELLS"
-    ) {
+    if (invalidateEvaluationCommands.has(cmd.type) || cmd.type === "EVALUATE_CELLS") {
       this.tables = {};
       return;
     }

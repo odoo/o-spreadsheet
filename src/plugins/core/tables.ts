@@ -56,6 +56,10 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   readonly tables: Record<UID, Record<TableId, CoreTable | undefined>> = {};
   readonly nextTableId: number = 1;
 
+  handlers = {
+    UPDATE_CELL: this.extendTablesOnCellUpdate,
+  };
+
   adaptRanges({ applyChange }: RangeAdapterFunctions) {
     for (const sheetId in this.tables) {
       for (const table of this.getCoreTables(sheetId)) {
@@ -164,21 +168,6 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
         this.updateTable(cmd);
         break;
       }
-      case "UPDATE_CELL": {
-        const sheetId = cmd.sheetId;
-        for (const table of this.getCoreTables(sheetId)) {
-          if (table.type === "dynamic") {
-            continue;
-          }
-          const direction = this.canUpdateCellCmdExtendTable(cmd, table);
-          if (direction === "down") {
-            this.extendTableDown(sheetId, table);
-          } else if (direction === "right") {
-            this.extendTableRight(sheetId, table);
-          }
-        }
-        break;
-      }
       case "DELETE_CONTENT": {
         const tables: Record<TableId, CoreTable | undefined> = { ...this.tables[cmd.sheetId] };
         for (const tableId in tables) {
@@ -208,6 +197,22 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     return this.getCoreTables(sheetId).filter((table) =>
       zones.some((zone) => overlap(table.range.zone, zone))
     );
+  }
+
+  /** Extend the tables of the sheet impacted by a cell update */
+  private extendTablesOnCellUpdate(cmd: UpdateCellCommand) {
+    const sheetId = cmd.sheetId;
+    for (const table of this.getCoreTables(sheetId)) {
+      if (table.type === "dynamic") {
+        continue;
+      }
+      const direction = this.canUpdateCellCmdExtendTable(cmd, table);
+      if (direction === "down") {
+        this.extendTableDown(sheetId, table);
+      } else if (direction === "right") {
+        this.extendTableRight(sheetId, table);
+      }
+    }
   }
 
   /** Extend a table down one row */

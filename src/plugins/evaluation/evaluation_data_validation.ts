@@ -10,7 +10,11 @@ import { isInside, positions } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { _t } from "../../translation";
 import { CellValue, CellValueType } from "../../types/cells";
-import { EvaluationCommand, invalidateEvaluationCommands } from "../../types/commands";
+import {
+  EvaluationCommand,
+  invalidateEvaluationCommands,
+  UpdateCellCommand,
+} from "../../types/commands";
 import {
   DataValidationCriterion,
   DataValidationCriterionType,
@@ -52,12 +56,19 @@ export class EvaluationDataValidationPlugin extends EvaluationPlugin {
   validationResults: Record<UID, SheetValidationResult> = {};
   criterionPreComputeResult: Record<UID, { [dvRuleId: UID]: unknown }> = {};
 
+  handlers = {
+    UPDATE_CELL: this.invalidateValidationResults,
+  };
+
+  private invalidateValidationResults(cmd: UpdateCellCommand) {
+    if ("content" in cmd || "format" in cmd) {
+      this.validationResults = {};
+      this.criterionPreComputeResult = {};
+    }
+  }
+
   handle(cmd: EvaluationCommand) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      cmd.type === "EVALUATE_CELLS" ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
-    ) {
+    if (invalidateEvaluationCommands.has(cmd.type) || cmd.type === "EVALUATE_CELLS") {
       this.validationResults = {};
       this.criterionPreComputeResult = {};
       return;

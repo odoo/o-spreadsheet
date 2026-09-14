@@ -26,6 +26,14 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
   hiddenRows: Record<UID, Set<number> | undefined> = {};
   isEvaluationDirty = false;
 
+  handlers = {
+    UPDATE_CELL: this.invalidateEvaluation,
+  };
+
+  private invalidateEvaluation() {
+    this.isEvaluationDirty = true;
+  }
+
   allowDispatch(cmd: EvaluationCommand): CommandResult {
     switch (cmd.type) {
       case "UPDATE_FILTER":
@@ -41,7 +49,6 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
     switch (cmd.type) {
       case "UNDO":
       case "REDO":
-      case "UPDATE_CELL":
       case "EVALUATE_CELLS":
       case "REMOVE_TABLE":
       case "ADD_COLUMNS_ROWS":

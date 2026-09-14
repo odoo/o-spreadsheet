@@ -22,10 +22,18 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
   private styles: PositionMap<Style> = new PositionMap();
   private borders: PositionMap<Border | null> = new PositionMap();
 
+  handlers = {
+    UPDATE_CELL: this.invalidateComputedStyles,
+  };
+
+  private invalidateComputedStyles() {
+    this.styles = new PositionMap();
+    this.borders = new PositionMap();
+  }
+
   handle(cmd: EvaluationCommand) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
-      cmd.type === "UPDATE_CELL" ||
       cmd.type === "SET_FORMATTING" ||
       cmd.type === "CLEAR_FORMATTING" ||
       cmd.type === "ADD_DATA_VALIDATION_RULE" ||

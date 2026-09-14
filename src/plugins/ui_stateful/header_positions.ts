@@ -14,6 +14,16 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
   private headerPositions: Record<UID, Record<Dimension, Record<HeaderIndex, Pixel>>> = {};
   private isDirty = true;
 
+  handlers = {
+    // Either the content, format or style can impact the header sizes of a sheet
+    UPDATE_CELL: this.invalidateHeaderPositions,
+  };
+
+  private invalidateHeaderPositions() {
+    this.headerPositions = {};
+    this.isDirty = true;
+  }
+
   handle(cmd: Command) {
     if (invalidateEvaluationCommands.has(cmd.type)) {
       this.headerPositions = {};
@@ -25,12 +35,6 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
         for (const sheetId of this.getters.getSheetIds()) {
           this.headerPositions[sheetId] = this.computeHeaderPositionsOfSheet(sheetId);
         }
-        break;
-      // Either the content, format or style can impact the header sizes of a sheet
-      // As such, every command can have a potential effect on the viewport
-      case "UPDATE_CELL":
-        this.headerPositions = {};
-        this.isDirty = true;
         break;
       case "UPDATE_FILTER":
       case "UPDATE_TABLE":

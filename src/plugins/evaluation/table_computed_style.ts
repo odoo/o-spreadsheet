@@ -6,6 +6,7 @@ import {
   CommandTypes,
   EvaluationCommand,
   invalidateEvaluationCommands,
+  UpdateCellCommand,
 } from "../../types/commands";
 import { EvaluationError } from "../../types/errors";
 import { Border, CellPosition, Lazy, Style, TableId, UID } from "../../types/misc";
@@ -28,12 +29,18 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
 
   private tableStyles: Record<UID, Record<TableId, Lazy<ComputedTableStyle>>> = {};
 
+  handlers = {
+    UPDATE_CELL: this.invalidateTableStyles,
+  };
+
+  private invalidateTableStyles(cmd: UpdateCellCommand) {
+    if ("content" in cmd || "format" in cmd) {
+      this.tableStyles = {};
+    }
+  }
+
   handle(cmd: EvaluationCommand) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd)) ||
-      cmd.type === "EVALUATE_CELLS"
-    ) {
+    if (invalidateEvaluationCommands.has(cmd.type) || cmd.type === "EVALUATE_CELLS") {
       this.tableStyles = {};
       return;
     }
