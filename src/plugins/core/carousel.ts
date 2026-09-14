@@ -3,6 +3,7 @@ import { haveSameNumberOfCols } from "../../helpers/zones";
 import {
   CommandResult,
   CoreCommand,
+  CreateCarouselCommand,
   DeleteFigureCommand,
   UpdateCarouselCommand,
 } from "../../types/commands";
@@ -21,7 +22,16 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
 
   handlers = {
     DELETE_FIGURE: this.deleteCarousel,
+    CREATE_CAROUSEL: this.createCarousel,
   };
+
+  private createCarousel(cmd: CreateCarouselCommand) {
+    if (!this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
+      this.dispatch("CREATE_FIGURE", { ...cmd, tag: "carousel" });
+    }
+    const carousel = this.carouselDataToCarousel(cmd.definition);
+    this.history.update("carousels", cmd.sheetId, cmd.figureId, carousel);
+  }
 
   private deleteCarousel(cmd: DeleteFigureCommand) {
     this.history.update("carousels", cmd.sheetId, cmd.figureId, undefined);
@@ -87,14 +97,6 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "CREATE_CAROUSEL": {
-        if (!this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
-          this.dispatch("CREATE_FIGURE", { ...cmd, tag: "carousel" });
-        }
-        const carousel = this.carouselDataToCarousel(cmd.definition);
-        this.history.update("carousels", cmd.sheetId, cmd.figureId, carousel);
-        break;
-      }
       case "UPDATE_CAROUSEL": {
         this.removeDeletedCharts(cmd, this.getters.getCarousel(cmd.figureId).items);
         const carousel = this.carouselDataToCarousel(cmd.definition);
