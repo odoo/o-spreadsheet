@@ -35,6 +35,7 @@ export class CarouselUIPlugin extends UIPlugin {
     ADD_FIGURES_CHART_TO_CAROUSEL: this.addFigureCharts,
     DUPLICATE_CAROUSEL_CHART: this.duplicateCarouselChart,
     UPDATE_CAROUSEL_ACTIVE_ITEM: this.updateActiveItem,
+    POPOUT_CHART_FROM_CAROUSEL: this.popOutChartFromCarousel,
   };
 
   private updateActiveItem(cmd: UpdateCarouselActiveItemCommand) {
@@ -109,9 +110,6 @@ export class CarouselUIPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "POPOUT_CHART_FROM_CAROUSEL":
-        this.popOutChartFromCarousel(cmd);
-        break;
       case "UNDO":
       case "REDO":
       case "DELETE_SHEET":
