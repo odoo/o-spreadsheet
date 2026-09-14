@@ -64,6 +64,7 @@ export class CellIconPlugin extends UIPlugin {
     POPOUT_CHART_FROM_CAROUSEL: this.clearCellIconsCache,
     UPDATE_FIGURES: this.clearCellIconsCache,
     DELETE_FIGURES: this.clearCellIconsCache,
+    MERGE_CHART_FIGURES_INTO_CAROUSEL: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {

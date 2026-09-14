@@ -3,6 +3,7 @@ import {
   Command,
   CommandResult,
   DeleteFiguresCommand,
+  MergeIntoCarouselCommand,
   UpdateFiguresCommand,
 } from "../../types/commands";
 import { Figure, FigureUI } from "../../types/figure";
@@ -15,7 +16,30 @@ export class FigureUIPlugin extends UIPlugin {
   handlers = {
     UPDATE_FIGURES: this.updateFigures,
     DELETE_FIGURES: this.deleteFigures,
+    MERGE_CHART_FIGURES_INTO_CAROUSEL: this.mergeChartFiguresIntoCarousel,
   };
+
+  private mergeChartFiguresIntoCarousel(cmd: MergeIntoCarouselCommand) {
+    const carouselFigureId = UuidGenerator.smallUuid();
+    const baseFigure = this.getters.getFigure(cmd.sheetId, cmd.baseFigureId);
+    if (!baseFigure) {
+      throw new Error(`Figure ${cmd.baseFigureId} does not exists.`);
+    }
+    this.dispatch("CREATE_CAROUSEL", {
+      sheetId: cmd.sheetId,
+      figureId: carouselFigureId,
+      col: baseFigure.col,
+      row: baseFigure.row,
+      offset: baseFigure.offset,
+      size: { width: baseFigure.width, height: baseFigure.height },
+      definition: { items: [] },
+    });
+    this.dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
+      sheetId: cmd.sheetId,
+      carouselFigureId,
+      chartFigureIds: cmd.chartFigureIds,
+    });
+  }
 
   private deleteFigures(cmd: DeleteFiguresCommand) {
     for (const figureId of cmd.figureIds) {
@@ -72,27 +96,6 @@ export class FigureUIPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "MERGE_CHART_FIGURES_INTO_CAROUSEL":
-        const carouselFigureId = UuidGenerator.smallUuid();
-        const baseFigure = this.getters.getFigure(cmd.sheetId, cmd.baseFigureId);
-        if (!baseFigure) {
-          throw new Error(`Figure ${cmd.baseFigureId} does not exists.`);
-        }
-        this.dispatch("CREATE_CAROUSEL", {
-          sheetId: cmd.sheetId,
-          figureId: carouselFigureId,
-          col: baseFigure.col,
-          row: baseFigure.row,
-          offset: baseFigure.offset,
-          size: { width: baseFigure.width, height: baseFigure.height },
-          definition: { items: [] },
-        });
-        this.dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
-          sheetId: cmd.sheetId,
-          carouselFigureId,
-          chartFigureIds: cmd.chartFigureIds,
-        });
-        break;
       case "CREATE_CHART_AND_MERGE_INTO_CAROUSEL":
         const baseFigureToMerge = this.getters.getFigure(cmd.sheetId, cmd.baseFigureId);
         if (!baseFigureToMerge) {
