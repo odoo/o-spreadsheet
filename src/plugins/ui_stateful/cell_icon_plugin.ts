@@ -77,6 +77,7 @@ export class CellIconPlugin extends UIPlugin {
     UNFREEZE_COLUMNS_ROWS: this.clearCellIconsCache,
     SHOW_SHEET: this.clearCellIconsCache,
     HIDE_SHEET: this.clearCellIconsCache,
+    COLOR_SHEET: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {

@@ -121,6 +121,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     UNFREEZE_COLUMNS_ROWS: this.invalidateUnusedPivots,
     SHOW_SHEET: this.invalidateUnusedPivots,
     HIDE_SHEET: this.invalidateUnusedPivots,
+    COLOR_SHEET: this.invalidateUnusedPivots,
   };
 
   constructor(config: EvaluationPluginConfig) {
