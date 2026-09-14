@@ -343,6 +343,7 @@ import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/bui
 import { TopBar } from "./components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "./components/top_bar/top_bar_tools_registry";
 import { PositionMap } from "./helpers/cells/position_map";
+import { addStyleToWorkbookData } from "./helpers/data_normalization";
 import { parseFormat } from "./helpers/format/format_parser";
 import { replaceSymbolInFormula } from "./helpers/formulas";
 import {
@@ -396,6 +397,7 @@ export const helpers = {
   overlap,
   union,
   isInside,
+  addStyleToWorkbookData,
   deepCopy,
   expandZoneOnInsertion,
   reduceZoneOnDeletion,
