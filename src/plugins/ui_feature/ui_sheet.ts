@@ -22,6 +22,7 @@ import { CellValueType } from "../../types/cells";
 import {
   AutoresizeColumnsCommand,
   AutoresizeRowsCommand,
+  ColorAllCellsBackground,
   Command,
   CommandResult,
   DeleteUnfilteredContentCommand,
@@ -57,7 +58,17 @@ export class SheetUIPlugin extends UIPlugin {
     AUTORESIZE_COLUMNS: this.autoResizeColumns,
     AUTORESIZE_ROWS: this.autoResizeRowsHandler,
     DELETE_UNFILTERED_CONTENT: this.deleteUnfilteredContent,
+    SET_BACKGROUND_FOR_ALL_CELLS: this.setBackgroundForAllCells,
   };
+
+  private setBackgroundForAllCells(cmd: ColorAllCellsBackground) {
+    this.dispatch("SET_FORMATTING", {
+      sheetId: cmd.sheetId,
+      target: [this.getters.getSheetZone(cmd.sheetId)],
+      style: { fillColor: undefined },
+    });
+    this.dispatch("SET_SHEET_BACKGROUND_COLOR", { sheetId: cmd.sheetId, color: cmd.color });
+  }
 
   private deleteUnfilteredContent(cmd: DeleteUnfilteredContentCommand) {
     const newTarget: Zone[] = [];
@@ -100,19 +111,6 @@ export class SheetUIPlugin extends UIPlugin {
       return CommandResult.InvalidColor;
     }
     return this.chainValidations(this.checkSheetExists, this.checkZonesAreInSheet)(cmd);
-  }
-
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "SET_BACKGROUND_FOR_ALL_CELLS":
-        this.dispatch("SET_FORMATTING", {
-          sheetId: cmd.sheetId,
-          target: [this.getters.getSheetZone(cmd.sheetId)],
-          style: { fillColor: undefined },
-        });
-        this.dispatch("SET_SHEET_BACKGROUND_COLOR", { sheetId: cmd.sheetId, color: cmd.color });
-        break;
-    }
   }
 
   // ---------------------------------------------------------------------------
