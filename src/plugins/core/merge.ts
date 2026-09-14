@@ -57,6 +57,16 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   private nextId: number = 1;
 
   readonly merges: Record<UID, Record<number, Range | undefined> | undefined> = {};
+
+  handlers = {
+    ADD_MERGE: this.addMerges,
+  };
+
+  private addMerges(cmd: AddMergeCommand) {
+    for (const zone of cmd.target) {
+      this.addMerge(cmd.sheetId, zone);
+    }
+  }
   readonly mergeCellMap: Record<UID, SheetMergeCellMap | undefined> = {};
 
   // ---------------------------------------------------------------------------
@@ -102,11 +112,6 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         }
         for (const range of Object.values(merges).filter(isDefined)) {
           this.addMerge(cmd.sheetIdTo, range.zone);
-        }
-        break;
-      case "ADD_MERGE":
-        for (const zone of cmd.target) {
-          this.addMerge(cmd.sheetId, zone);
         }
         break;
       case "REMOVE_MERGE":

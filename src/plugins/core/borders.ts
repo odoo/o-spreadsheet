@@ -9,6 +9,7 @@ import { recomputeZones } from "../../helpers/recompute_zones";
 import { toZone } from "../../helpers/zones";
 import {
   AddColumnsRowsCommand,
+  AddMergeCommand,
   ClearFormattingCommand,
   CommandResult,
   CoreCommand,
@@ -48,6 +49,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     SET_BORDER: this.setBorderOfCell,
     SET_ZONE_BORDERS: this.setZoneBorders,
     SET_BORDERS_ON_TARGET: this.setBordersOnTarget,
+    ADD_MERGE: this.addBordersToMerges,
   };
 
   private setBordersOnTarget(cmd: SetBorderTargetCommand) {
@@ -101,11 +103,6 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "ADD_MERGE":
-        for (const zone of cmd.target) {
-          this.addBordersToMerge(cmd.sheetId, zone);
-        }
-        break;
       case "DUPLICATE_SHEET":
         const borders = this.borders[cmd.sheetId];
         if (borders) {
@@ -614,6 +611,12 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   /**
    * Compute the borders to add to the given zone merged.
    */
+  private addBordersToMerges(cmd: AddMergeCommand) {
+    for (const zone of cmd.target) {
+      this.addBordersToMerge(cmd.sheetId, zone);
+    }
+  }
+
   private addBordersToMerge(sheetId: UID, zone: Zone) {
     const { left, right, top, bottom } = zone;
     const bordersTopLeft = this.getCellBorder({ sheetId, col: left, row: top });
