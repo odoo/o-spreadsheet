@@ -69,6 +69,7 @@ export class CellIconPlugin extends UIPlugin {
     SET_GRID_LINES_VISIBILITY: this.clearCellIconsCache,
     MOVE_SHEET: this.clearCellIconsCache,
     LOCK_SHEET: this.clearCellIconsCache,
+    UNLOCK_SHEET: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
