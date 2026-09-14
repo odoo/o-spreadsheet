@@ -46,7 +46,12 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
     UNFOLD_ALL_HEADER_GROUPS: this.invalidateSheetTableStyles,
     FOLD_HEADER_GROUPS_IN_ZONE: this.invalidateSheetTableStyles,
     UNFOLD_HEADER_GROUPS_IN_ZONE: this.invalidateSheetTableStyles,
+    CREATE_TABLE_STYLE: this.clearTableStyles,
   };
+
+  private clearTableStyles() {
+    this.tableStyles = {};
+  }
 
   private invalidateTableStyles(cmd: UpdateCellCommand) {
     if ("content" in cmd || "format" in cmd) {
@@ -309,7 +314,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
   }
 }
 
-const invalidateTableStyleCommands = ["CREATE_TABLE_STYLE", "REMOVE_TABLE_STYLE"] as const;
+const invalidateTableStyleCommands = ["REMOVE_TABLE_STYLE"] as const;
 const invalidateTableStyleCommandsSet = new Set<CommandTypes>(invalidateTableStyleCommands);
 
 export function doesCommandInvalidatesTableStyle<C extends Command>(
