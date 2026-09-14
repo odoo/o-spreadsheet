@@ -19,7 +19,12 @@ import {
 } from "../../helpers/text_helper";
 import { isEqual, positions } from "../../helpers/zones";
 import { CellValueType } from "../../types/cells";
-import { Command, CommandResult, LocalCommand } from "../../types/commands";
+import {
+  AutoresizeColumnsCommand,
+  Command,
+  CommandResult,
+  LocalCommand,
+} from "../../types/commands";
 import {
   CellPosition,
   HeaderIndex,
@@ -46,6 +51,24 @@ export class SheetUIPlugin extends UIPlugin {
 
   private ctx = getCanvas();
 
+  handlers = {
+    AUTORESIZE_COLUMNS: this.autoResizeColumns,
+  };
+
+  private autoResizeColumns(cmd: AutoresizeColumnsCommand) {
+    for (const col of cmd.cols) {
+      const size = this.getColMaxWidth(cmd.sheetId, col);
+      if (size !== 0) {
+        this.dispatch("RESIZE_COLUMNS_ROWS", {
+          elements: [col],
+          dimension: "COL",
+          size,
+          sheetId: cmd.sheetId,
+        });
+      }
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
@@ -59,19 +82,6 @@ export class SheetUIPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "AUTORESIZE_COLUMNS":
-        for (const col of cmd.cols) {
-          const size = this.getColMaxWidth(cmd.sheetId, col);
-          if (size !== 0) {
-            this.dispatch("RESIZE_COLUMNS_ROWS", {
-              elements: [col],
-              dimension: "COL",
-              size,
-              sheetId: cmd.sheetId,
-            });
-          }
-        }
-        break;
       case "AUTORESIZE_ROWS":
         this.autoResizeRows(cmd.sheetId, cmd.rows);
         break;
