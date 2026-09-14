@@ -11,6 +11,7 @@ import {
   InsertPivotCommand,
   RemovePivotCommand,
   RenamePivotCommand,
+  UpdatePivotCommand,
 } from "../../types/commands";
 import { CellPosition, RangeAdapterFunctions, UID } from "../../types/misc";
 
@@ -60,7 +61,13 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     INSERT_PIVOT: this.insertPivotTable,
     ADD_PIVOT: this.addPivotHandler,
     DUPLICATE_PIVOT: this.duplicatePivot,
+    UPDATE_PIVOT: this.updatePivot,
   };
+
+  private updatePivot(cmd: UpdatePivotCommand) {
+    this.history.update("pivots", cmd.pivotId, "definition", deepCopy(cmd.pivot));
+    this.compileCalculatedMeasures(cmd.pivotId, cmd.pivot.measures);
+  }
 
   private duplicatePivot(cmd: DuplicatePivotCommand) {
     const { pivotId, newPivotId } = cmd;
@@ -168,11 +175,6 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "UPDATE_PIVOT": {
-        this.history.update("pivots", cmd.pivotId, "definition", deepCopy(cmd.pivot));
-        this.compileCalculatedMeasures(cmd.pivotId, cmd.pivot.measures);
-        break;
-      }
     }
   }
 
