@@ -36,6 +36,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
     REMOVE_TABLE: this.invalidateSheetTableStyles,
     UPDATE_TABLE: this.invalidateSheetTableStyles,
     UPDATE_FILTER: this.invalidateSheetTableStyles,
+    HIDE_COLUMNS_ROWS: this.invalidateSheetTableStyles,
   };
 
   private invalidateTableStyles(cmd: UpdateCellCommand) {
@@ -304,7 +305,6 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
 }
 
 const invalidateTableStyleCommands = [
-  "HIDE_COLUMNS_ROWS",
   "UNHIDE_COLUMNS_ROWS",
   "UNFOLD_HEADER_GROUP",
   "UNGROUP_HEADERS",

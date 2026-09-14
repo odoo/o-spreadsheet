@@ -31,7 +31,12 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
     REMOVE_TABLE: this.invalidateEvaluation,
     UPDATE_TABLE: this.invalidateEvaluation,
     UPDATE_FILTER: this.applyFilter,
+    HIDE_COLUMNS_ROWS: this.refreshHiddenRows,
   };
+
+  private refreshHiddenRows(cmd: { sheetId: UID }) {
+    this.updateHiddenRows(cmd.sheetId);
+  }
 
   private applyFilter(cmd: UpdateFilterCommand) {
     this.updateFilter(cmd);
@@ -70,7 +75,6 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
       case "CREATE_SHEET":
         this.filterValues[cmd.sheetId] = {};
         break;
-      case "HIDE_COLUMNS_ROWS":
       case "UNHIDE_COLUMNS_ROWS":
       case "GROUP_HEADERS":
       case "UNGROUP_HEADERS":
