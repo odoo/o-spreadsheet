@@ -49,6 +49,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     CREATE_TABLE_STYLE: this.invalidateComputedStyles,
     REMOVE_TABLE_STYLE: this.invalidateComputedStyles,
     REMOVE_DATA_VALIDATION_RULE: this.invalidateComputedStyles,
+    ADD_DATA_VALIDATION_RULE: this.invalidateComputedStyles,
   };
 
   private invalidateComputedCfStyles() {
@@ -70,11 +71,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
   }
 
   handle(cmd: EvaluationCommand) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      cmd.type === "ADD_DATA_VALIDATION_RULE" ||
-      cmd.type === "EVALUATE_CELLS"
-    ) {
+    if (invalidateEvaluationCommands.has(cmd.type) || cmd.type === "EVALUATE_CELLS") {
       this.styles = new PositionMap();
       this.borders = new PositionMap();
       return;

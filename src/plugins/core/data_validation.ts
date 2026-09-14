@@ -39,7 +39,13 @@ export class DataValidationPlugin
   handlers = {
     DELETE_CONTENT: this.removeRulesInDeletedContent,
     REMOVE_DATA_VALIDATION_RULE: this.removeRule,
+    ADD_DATA_VALIDATION_RULE: this.addRule,
   };
+
+  private addRule(cmd: AddDataValidationCommand) {
+    const ranges = cmd.ranges.map((range) => this.getters.getRangeFromRangeData(range));
+    this.addDataValidationRule(cmd.sheetId, { ...cmd.rule, ranges });
+  }
 
   private removeRule(cmd: RemoveDataValidationCommand) {
     this.removeDataValidationRule(cmd.sheetId, cmd.id);
@@ -181,11 +187,6 @@ export class DataValidationPlugin
         const rules = { ...this.rules };
         delete rules[cmd.sheetId];
         this.history.update("rules", rules);
-        break;
-      }
-      case "ADD_DATA_VALIDATION_RULE": {
-        const ranges = cmd.ranges.map((range) => this.getters.getRangeFromRangeData(range));
-        this.addDataValidationRule(cmd.sheetId, { ...cmd.rule, ranges });
         break;
       }
     }
