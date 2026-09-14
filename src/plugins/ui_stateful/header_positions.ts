@@ -20,7 +20,14 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     REMOVE_TABLE: this.invalidateHeaderPositions,
     UPDATE_TABLE: this.invalidateHeaderPositions,
     UPDATE_FILTER: this.invalidateHeaderPositions,
+    HIDE_COLUMNS_ROWS: this.computeSheetHeaderPositions,
   };
+
+  private computeSheetHeaderPositions(cmd: { sheetId: UID }) {
+    if (this.getters.tryGetSheet(cmd.sheetId)) {
+      this.headerPositions[cmd.sheetId] = this.computeHeaderPositionsOfSheet(cmd.sheetId);
+    }
+  }
 
   private invalidateHeaderPositions() {
     this.headerPositions = {};
@@ -41,7 +48,6 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
         break;
       case "REMOVE_COLUMNS_ROWS":
       case "RESIZE_COLUMNS_ROWS":
-      case "HIDE_COLUMNS_ROWS":
       case "ADD_COLUMNS_ROWS":
       case "UNHIDE_COLUMNS_ROWS":
       case "FOLD_HEADER_GROUP":
