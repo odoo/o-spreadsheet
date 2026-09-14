@@ -88,6 +88,7 @@ export class CellIconPlugin extends UIPlugin {
     UPDATE_NAMED_RANGE: this.clearCellIconsCache,
     DELETE_NAMED_RANGE: this.clearCellIconsCache,
     RENAME_PIVOT: this.clearCellIconsCache,
+    REMOVE_PIVOT: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
