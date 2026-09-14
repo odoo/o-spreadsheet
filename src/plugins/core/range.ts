@@ -40,6 +40,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   readonly handlers: CommandsHandlers<CoreCommand> = {
     MOVE_RANGES: this.adaptRanges,
     UPDATE_NAMED_RANGE: this.adaptRanges,
+    RENAME_SHEET: this.adaptRanges,
   };
 
   private adaptRanges(cmd: CoreCommand) {

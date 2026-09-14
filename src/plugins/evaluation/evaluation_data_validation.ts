@@ -72,6 +72,7 @@ export class EvaluationDataValidationPlugin extends EvaluationPlugin {
     UPDATE_PIVOT: this.clearValidationResults,
     ADD_MERGE: this.clearValidationResults,
     REMOVE_MERGE: this.clearValidationResults,
+    RENAME_SHEET: this.clearValidationResults,
   };
 
   private clearValidationResults() {
