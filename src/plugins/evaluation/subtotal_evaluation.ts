@@ -6,6 +6,7 @@ export class SubtotalEvaluationPlugin extends EvaluationPlugin {
     UPDATE_TABLE: this.invalidateSubtotalFormulas,
     UPDATE_FILTER: this.invalidateSubtotalFormulas,
     HIDE_COLUMNS_ROWS: this.invalidateSubtotalFormulas,
+    UNHIDE_COLUMNS_ROWS: this.invalidateSubtotalFormulas,
   };
 
   private invalidateSubtotalFormulas() {

@@ -86,6 +86,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     REMOVE_CONDITIONAL_FORMAT: this.invalidateUnusedPivots,
     CHANGE_CONDITIONAL_FORMAT_PRIORITY: this.invalidateUnusedPivots,
     HIDE_COLUMNS_ROWS: this.invalidateUnusedPivots,
+    UNHIDE_COLUMNS_ROWS: this.invalidateUnusedPivots,
   };
 
   constructor(config: EvaluationPluginConfig) {
