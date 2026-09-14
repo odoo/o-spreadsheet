@@ -73,6 +73,7 @@ export class EvaluationDataValidationPlugin extends EvaluationPlugin {
     ADD_MERGE: this.clearValidationResults,
     REMOVE_MERGE: this.clearValidationResults,
     RENAME_SHEET: this.clearValidationResults,
+    CREATE_SHEET: this.clearValidationResults,
   };
 
   private clearValidationResults() {

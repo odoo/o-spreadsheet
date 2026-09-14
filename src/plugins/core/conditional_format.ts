@@ -64,7 +64,12 @@ export class ConditionalFormatPlugin
     ADD_CONDITIONAL_FORMAT: this.addConditionalFormat,
     REMOVE_CONDITIONAL_FORMAT: this.removeConditionalFormat,
     CHANGE_CONDITIONAL_FORMAT_PRIORITY: this.changeConditionalFormatPriority,
+    CREATE_SHEET: this.initSheetCfRules,
   };
+
+  private initSheetCfRules(cmd: { sheetId: UID }) {
+    this.cfRules[cmd.sheetId] = [];
+  }
 
   private changeConditionalFormatPriority(cmd: MoveConditionalFormatCommand) {
     this.changeCFPriority(cmd.cfId, cmd.delta, cmd.sheetId);
@@ -233,9 +238,6 @@ export class ConditionalFormatPlugin
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "CREATE_SHEET":
-        this.cfRules[cmd.sheetId] = [];
-        break;
       case "DUPLICATE_SHEET":
         this.history.update("cfRules", cmd.sheetIdTo, []);
         for (const cf of this.getConditionalFormats(cmd.sheetId)) {

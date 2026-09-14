@@ -62,7 +62,13 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   handlers = {
     ADD_MERGE: this.addMerges,
     REMOVE_MERGE: this.removeMerges,
+    CREATE_SHEET: this.initSheetMerges,
   };
+
+  private initSheetMerges(cmd: { sheetId: UID }) {
+    this.history.update("merges", cmd.sheetId, {});
+    this.history.update("mergeCellMap", cmd.sheetId, {});
+  }
 
   private removeMerges(cmd: RemoveMergeCommand) {
     for (const zone of cmd.target) {
@@ -105,10 +111,6 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "CREATE_SHEET":
-        this.history.update("merges", cmd.sheetId, {});
-        this.history.update("mergeCellMap", cmd.sheetId, {});
-        break;
       case "DELETE_SHEET":
         this.history.update("merges", cmd.sheetId, {});
         this.history.update("mergeCellMap", cmd.sheetId, {});

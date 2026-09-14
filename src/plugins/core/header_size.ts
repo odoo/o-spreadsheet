@@ -21,7 +21,15 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
 
   handlers = {
     RESIZE_COLUMNS_ROWS: this.resizeHeaders,
+    CREATE_SHEET: this.initSheetSizes,
   };
+
+  private initSheetSizes(cmd: { sheetId: UID }) {
+    this.history.update("sizes", cmd.sheetId, {
+      COL: Array(this.getters.getNumberCols(cmd.sheetId)).fill(undefined),
+      ROW: Array(this.getters.getNumberRows(cmd.sheetId)).fill(undefined),
+    });
+  }
 
   private resizeHeaders(cmd: ResizeColumnsRowsCommand) {
     for (const el of cmd.elements) {
@@ -31,13 +39,6 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "CREATE_SHEET": {
-        this.history.update("sizes", cmd.sheetId, {
-          COL: Array(this.getters.getNumberCols(cmd.sheetId)).fill(undefined),
-          ROW: Array(this.getters.getNumberRows(cmd.sheetId)).fill(undefined),
-        });
-        break;
-      }
       case "DUPLICATE_SHEET":
         this.history.update("sizes", cmd.sheetIdTo, deepCopy(this.sizes[cmd.sheetId]));
         break;

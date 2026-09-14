@@ -65,6 +65,7 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
     ADD_MERGE: this.invalidateChartRuntimes,
     REMOVE_MERGE: this.invalidateChartRuntimes,
     RENAME_SHEET: this.invalidateChartRuntimes,
+    CREATE_SHEET: this.invalidateChartRuntimes,
   };
 
   private invalidateChartRuntime(cmd: { chartId: UID }) {

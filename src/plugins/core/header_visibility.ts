@@ -32,7 +32,16 @@ export class HeaderVisibilityPlugin extends CorePlugin {
   handlers = {
     HIDE_COLUMNS_ROWS: this.hideHeaders,
     UNHIDE_COLUMNS_ROWS: this.unhideHeaders,
+    CREATE_SHEET: this.initSheetHiddenHeaders,
   };
+
+  private initSheetHiddenHeaders(cmd: { sheetId: UID }) {
+    const hiddenHeaders = {
+      COL: Array(this.getters.getNumberCols(cmd.sheetId)).fill(false),
+      ROW: Array(this.getters.getNumberRows(cmd.sheetId)).fill(false),
+    };
+    this.history.update("hiddenHeaders", cmd.sheetId, hiddenHeaders);
+  }
 
   private unhideHeaders(cmd: UnhideColumnsRowsCommand) {
     for (const el of cmd.elements) {
@@ -83,13 +92,6 @@ export class HeaderVisibilityPlugin extends CorePlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "CREATE_SHEET":
-        const hiddenHeaders = {
-          COL: Array(this.getters.getNumberCols(cmd.sheetId)).fill(false),
-          ROW: Array(this.getters.getNumberRows(cmd.sheetId)).fill(false),
-        };
-        this.history.update("hiddenHeaders", cmd.sheetId, hiddenHeaders);
-        break;
       case "DUPLICATE_SHEET":
         this.history.update(
           "hiddenHeaders",

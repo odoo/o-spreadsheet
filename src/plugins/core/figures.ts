@@ -28,7 +28,12 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     UPDATE_FIGURE: this.updateFigure,
     CREATE_FIGURE: this.createFigure,
     DELETE_FIGURE: this.deleteFigure,
+    CREATE_SHEET: this.initSheetFigures,
   };
+
+  private initSheetFigures(cmd: { sheetId: UID }) {
+    this.figures[cmd.sheetId] = {};
+  }
 
   private deleteFigure(cmd: DeleteFigureCommand) {
     this.removeFigure(cmd.figureId, cmd.sheetId);
@@ -117,9 +122,6 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "CREATE_SHEET":
-        this.figures[cmd.sheetId] = {};
-        break;
       case "DELETE_SHEET":
         this.deleteSheet(cmd.sheetId);
         break;
