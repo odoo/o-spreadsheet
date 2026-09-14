@@ -26,6 +26,7 @@ import {
   CreateSheetCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
+  HideSheetCommand,
   LockSheetCommand,
   MoveSheetCommand,
   RenameSheetCommand,
@@ -113,6 +114,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     UNFREEZE_COLUMNS: this.unfreezeColumns,
     UNFREEZE_COLUMNS_ROWS: this.unfreezeColumnsAndRows,
     SHOW_SHEET: this.showSheetHandler,
+    HIDE_SHEET: this.hideSheetHandler,
   };
 
   private updateGridLinesVisibility(cmd: SetGridLinesVisibilityCommand) {
@@ -158,6 +160,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   private showSheetHandler(cmd: ShowSheetCommand) {
     this.showSheet(cmd.sheetId);
+  }
+
+  private hideSheetHandler(cmd: HideSheetCommand) {
+    this.hideSheet(cmd.sheetId);
   }
 
   // ---------------------------------------------------------------------------
@@ -296,9 +302,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         break;
       case "COLOR_SHEET":
         this.history.update("sheets", cmd.sheetId, "color", cmd.color);
-        break;
-      case "HIDE_SHEET":
-        this.hideSheet(cmd.sheetId);
         break;
       case "DUPLICATE_SHEET":
         this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo, cmd.sheetNameTo);

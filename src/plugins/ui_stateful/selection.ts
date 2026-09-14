@@ -23,6 +23,7 @@ import {
   CommandResult,
   CreateFigureCommand,
   DeleteFigureCommand,
+  HideSheetCommand,
   LocalCommand,
   MoveColumnsRowsCommand,
   RemoveColumnsRowsCommand,
@@ -193,7 +194,17 @@ export class GridSelectionPlugin extends UIPlugin {
 
   handlers = {
     DELETE_FIGURE: this.unselectDeletedFigure,
+    HIDE_SHEET: this.activateAnotherSheetOnHide,
   };
+
+  private activateAnotherSheetOnHide(cmd: HideSheetCommand) {
+    if (cmd.sheetId === this.getActiveSheetId()) {
+      this.dispatch("ACTIVATE_SHEET", {
+        sheetIdFrom: cmd.sheetId,
+        sheetIdTo: this.getters.getVisibleSheetIds()[0],
+      });
+    }
+  }
 
   private unselectDeletedFigure(cmd: DeleteFigureCommand) {
     this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
@@ -264,14 +275,6 @@ export class GridSelectionPlugin extends UIPlugin {
         break;
       case "ACTIVATE_PREVIOUS_SHEET":
         this.activateNextSheet("left");
-        break;
-      case "HIDE_SHEET":
-        if (cmd.sheetId === this.getActiveSheetId()) {
-          this.dispatch("ACTIVATE_SHEET", {
-            sheetIdFrom: cmd.sheetId,
-            sheetIdTo: this.getters.getVisibleSheetIds()[0],
-          });
-        }
         break;
       case "UNDO":
       case "REDO":
