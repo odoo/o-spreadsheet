@@ -4,8 +4,8 @@ import { rangeReference } from "../../helpers/references";
 import {
   Command,
   CommandResult,
-  CoreCommand,
   CreateNamedRangeCommand,
+  DeleteNamedRangeCommand,
   UpdateNamedRangeCommand,
 } from "../../types/commands";
 import { DEFAULT_LOCALE } from "../../types/locale";
@@ -32,7 +32,17 @@ export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements Na
   handlers = {
     CREATE_NAMED_RANGE: this.createNamedRange,
     UPDATE_NAMED_RANGE: this.updateNamedRange,
+    DELETE_NAMED_RANGE: this.deleteNamedRange,
   };
+
+  private deleteNamedRange(cmd: DeleteNamedRangeCommand) {
+    const index = this.getNamedRangeIndex(cmd.name);
+    if (index !== -1) {
+      const newNamedRanges = [...this.namedRanges];
+      newNamedRanges.splice(index, 1);
+      this.history.update("namedRanges", newNamedRanges);
+    }
+  }
 
   private updateNamedRange(cmd: UpdateNamedRangeCommand) {
     const index = this.getNamedRangeIndex(cmd.oldRangeName);
@@ -89,20 +99,6 @@ export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements Na
         return this.checkNamedRangeExists(cmd.name);
     }
     return CommandResult.Success;
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "DELETE_NAMED_RANGE": {
-        const index = this.getNamedRangeIndex(cmd.name);
-        if (index !== -1) {
-          const newNamedRanges = [...this.namedRanges];
-          newNamedRanges.splice(index, 1);
-          this.history.update("namedRanges", newNamedRanges);
-        }
-        break;
-      }
-    }
   }
 
   getNamedRange(name: UID): NamedRange | undefined {
