@@ -1,11 +1,21 @@
 import { UuidGenerator } from "../../helpers/uuid";
-import { Command, CommandResult } from "../../types/commands";
+import { Command, CommandResult, UpdateFiguresCommand } from "../../types/commands";
 import { Figure, FigureUI } from "../../types/figure";
 import { UID } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class FigureUIPlugin extends UIPlugin {
   static getters = ["getFigureUI"] as const;
+
+  handlers = {
+    UPDATE_FIGURES: this.updateFigures,
+  };
+
+  private updateFigures(cmd: UpdateFiguresCommand) {
+    for (const updateFigurePayload of cmd.figures) {
+      this.dispatch("UPDATE_FIGURE", updateFigurePayload);
+    }
+  }
 
   allowDispatch(cmd: Command): CommandResult | CommandResult[] {
     switch (cmd.type) {
@@ -50,11 +60,6 @@ export class FigureUIPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "UPDATE_FIGURES":
-        for (const updateFigurePayload of cmd.figures) {
-          this.dispatch("UPDATE_FIGURE", updateFigurePayload);
-        }
-        break;
       case "DELETE_FIGURES":
         for (const figureId of cmd.figureIds) {
           this.dispatch("DELETE_FIGURE", { figureId, sheetId: cmd.sheetId });
