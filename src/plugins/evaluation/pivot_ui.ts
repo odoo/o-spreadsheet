@@ -145,6 +145,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     ADD_COLUMNS_ROWS: this.invalidateAllPivots,
     REMOVE_COLUMNS_ROWS: this.invalidateAllPivots,
     UNDO: this.setupPivotsOnUndoRedo,
+    REDO: this.setupPivotsOnUndoRedo,
   };
 
   private setupPivotsOnUndoRedo(cmd: UndoCommand | RedoCommand) {
@@ -229,18 +230,6 @@ export class PivotUIPlugin extends EvaluationPlugin {
       case "REFRESH_PIVOT":
         this.refreshPivot(cmd.id);
         break;
-      case "REDO": {
-        const pivotCommands = cmd.commands.filter(isPivotCommand);
-
-        for (const cmd of pivotCommands) {
-          const pivotId = cmd.pivotId;
-          if (!this.getters.isExistingPivot(pivotId)) {
-            continue;
-          }
-          this.setupPivot(pivotId, { recreate: true });
-        }
-        break;
-      }
     }
   }
 

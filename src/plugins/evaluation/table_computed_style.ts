@@ -65,6 +65,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
     ADD_COLUMNS_ROWS: this.clearTableStyles,
     REMOVE_COLUMNS_ROWS: this.clearTableStyles,
     UNDO: this.clearTableStyles,
+    REDO: this.clearTableStyles,
   };
 
   private clearTableStyles() {
