@@ -10,6 +10,7 @@ import {
   CommandResult,
   DuplicatePivotInNewSheetCommand,
   InsertNewPivotCommand,
+  InsertPivotWithTableCommand,
 } from "../../types/commands";
 import { CellPosition, HeaderIndex, UID } from "../../types/misc";
 import { PivotTableData } from "../../types/pivot";
@@ -35,7 +36,12 @@ export class InsertPivotPlugin extends UIPlugin {
   handlers = {
     INSERT_NEW_PIVOT: this.insertNewPivotFromCommand,
     DUPLICATE_PIVOT_IN_NEW_SHEET: this.duplicatePivotInNewSheetFromCommand,
+    INSERT_PIVOT_WITH_TABLE: this.insertPivotWithTableFromCommand,
   };
+
+  private insertPivotWithTableFromCommand(cmd: InsertPivotWithTableCommand) {
+    this.insertPivotWithTable(cmd.sheetId, cmd.col, cmd.row, cmd.pivotId, cmd.table, cmd.pivotMode);
+  }
 
   private duplicatePivotInNewSheetFromCommand(cmd: DuplicatePivotInNewSheetCommand) {
     this.duplicatePivotInNewSheet(cmd.pivotId, cmd.newPivotId, cmd.newSheetId);
@@ -47,16 +53,6 @@ export class InsertPivotPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "INSERT_PIVOT_WITH_TABLE":
-        this.insertPivotWithTable(
-          cmd.sheetId,
-          cmd.col,
-          cmd.row,
-          cmd.pivotId,
-          cmd.table,
-          cmd.pivotMode
-        );
-        break;
       case "SPLIT_PIVOT_FORMULA":
         this.splitPivotFormula(cmd.sheetId, cmd.col, cmd.row, cmd.pivotId);
     }
