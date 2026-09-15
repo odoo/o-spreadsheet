@@ -5,6 +5,7 @@ import { ChartAnimationStore } from "../../../src/components/figures/chart/chart
 import { downloadFile } from "../../../src/components/helpers/dom_helpers";
 import { CAROUSEL_LAYOUT } from "../../../src/constants";
 import { toZone } from "../../../src/helpers/zones";
+import { ZoomStore } from "../../../src/stores/zoom_store";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
@@ -27,6 +28,7 @@ import {
   doubleClick,
   getElStyle,
   triggerMouseEvent,
+  triggerWheelEvent,
 } from "../../test_helpers/dom_helper";
 import {
   makeTestEnv,
@@ -98,6 +100,27 @@ describe("Carousel figure component", () => {
     await nextTick();
 
     expect(getLastZonesRendered(stores)).toEqual([{ sheetId, ...toZone("A1:A2") }]);
+  });
+
+  test("Ctrl+wheel on a carousel data view is handled by the underlying grid", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    setGrid(model, { A1: "Hello", A2: "World" });
+    createCarouselWithDataView(model, toRangeData(sheetId, "A1:A2"), "carouselId");
+
+    const { env } = await mountSpreadsheet({ model });
+    expect(".o-carousel .o-standalone-viewport").toHaveCount(1);
+
+    triggerWheelEvent(".o-standalone-viewport", {
+      deltaY: -100,
+      ctrlKey: true,
+      clientX: 10,
+      clientY: 10,
+    });
+    await nextTick();
+
+    // the standalone viewport doesn't handle ctrl+wheel itself: it lets the event bubble up to
+    // the surrounding grid, which applies the zoom tick once
+    expect(env.getStore(ZoomStore).zoomLevel).toBeCloseTo(1.1);
   });
 
   test("Empty rows are not rendered in the data view", async () => {

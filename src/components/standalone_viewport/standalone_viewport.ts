@@ -17,7 +17,7 @@ import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { HoveredIconStore } from "../grid_overlay/hovered_icon_store";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { cssPropertiesToCss } from "../helpers/css";
-import { getElBoundingRect } from "../helpers/dom_helpers";
+import { getElBoundingRect, isCtrlKey } from "../helpers/dom_helpers";
 import { startDnd } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
@@ -92,6 +92,9 @@ export class StandaloneViewport extends Component<SpreadsheetChildEnv> {
     });
 
     this.onMouseWheel = useWheelHandler((deltaX, deltaY, ev) => {
+      if (isCtrlKey(ev)) {
+        return;
+      }
       if (this.hasVerticalScrollBar) {
         ev.stopPropagation();
         ev.preventDefault();

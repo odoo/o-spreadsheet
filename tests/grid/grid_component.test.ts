@@ -14,8 +14,10 @@ import {
   GRID_ICON_MARGIN,
   HEADER_HEIGHT,
   HEADER_WIDTH,
+  MAX_ZOOM,
   MESSAGE_VERSION,
   MIN_CELL_TEXT_MARGIN,
+  MIN_ZOOM,
   SCROLLBAR_WIDTH,
 } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
@@ -1609,6 +1611,61 @@ describe("Events on Grid update viewport correctly", () => {
       scrollX: 200,
       scrollY: 0,
     });
+  });
+  test("Ctrl+wheel zooms in and keeps the cursor position fixed, instead of scrolling", async () => {
+    triggerWheelEvent(".o-grid", { deltaY: -100, ctrlKey: true, clientX: 100, clientY: 200 });
+    await nextTick();
+    expect(env.getStore(ZoomStore).zoomLevel).toBeCloseTo(1.1);
+    expect(viewStore.activeSheetScrollInfo).toMatchObject({
+      scrollX: 100 * (1 - 1 / 1.1),
+      scrollY: 200 * (1 - 1 / 1.1),
+    });
+  });
+  test("Ctrl+wheel zooms out and keeps the cursor position fixed, instead of scrolling", async () => {
+    // start scrolled away from the origin, so the compensated offset doesn't get clamped to 0
+    triggerWheelEvent(".o-grid", { deltaY: 300 });
+    triggerWheelEvent(".o-grid", { deltaY: 300, shiftKey: true });
+    await nextTick();
+
+    triggerWheelEvent(".o-grid", { deltaY: 100, ctrlKey: true, clientX: 100, clientY: 200 });
+    await nextTick();
+    expect(env.getStore(ZoomStore).zoomLevel).toBeCloseTo(0.9);
+    expect(viewStore.activeSheetScrollInfo).toMatchObject({
+      scrollX: 300 + 100 * (1 - 1 / 0.9),
+      scrollY: 300 + 200 * (1 - 1 / 0.9),
+    });
+  });
+  test("Ctrl+wheel zoom clamps at MAX_ZOOM and stops changing scroll further", async () => {
+    for (let i = 0; i < 20; i++) {
+      triggerWheelEvent(".o-grid", { deltaY: -1000, ctrlKey: true, clientX: 100, clientY: 200 });
+      await nextTick();
+    }
+    expect(env.getStore(ZoomStore).zoomLevel).toBe(MAX_ZOOM);
+    const scrollInfo = viewStore.activeSheetScrollInfo;
+    triggerWheelEvent(".o-grid", { deltaY: -1000, ctrlKey: true, clientX: 100, clientY: 200 });
+    await nextTick();
+    expect(env.getStore(ZoomStore).zoomLevel).toBe(MAX_ZOOM);
+    expect(viewStore.activeSheetScrollInfo).toMatchObject(scrollInfo);
+  });
+  test("Ctrl+wheel zoom clamps at MIN_ZOOM and stops changing scroll further", async () => {
+    for (let i = 0; i < 20; i++) {
+      triggerWheelEvent(".o-grid", { deltaY: 1000, ctrlKey: true, clientX: 100, clientY: 200 });
+      await nextTick();
+    }
+    expect(env.getStore(ZoomStore).zoomLevel).toBe(MIN_ZOOM);
+    const scrollInfo = viewStore.activeSheetScrollInfo;
+    triggerWheelEvent(".o-grid", { deltaY: 1000, ctrlKey: true, clientX: 100, clientY: 200 });
+    await nextTick();
+    expect(env.getStore(ZoomStore).zoomLevel).toBe(MIN_ZOOM);
+    expect(viewStore.activeSheetScrollInfo).toMatchObject(scrollInfo);
+  });
+  test("Ctrl+wheel zoom immediately rescales the sheet view, without waiting for a resize", async () => {
+    const dimsBefore = viewStore.sheetViewDimensionWithHeaders;
+    triggerWheelEvent(".o-grid", { deltaY: -100, ctrlKey: true, clientX: 100, clientY: 200 });
+    await nextTick();
+    const scale = 1 / env.getStore(ZoomStore).zoomLevel;
+    expect(viewStore.sheetViewDimensionWithHeaders.width).toBeCloseTo(dimsBefore.width * scale);
+    expect(viewStore.sheetViewDimensionWithHeaders.height).toBeCloseTo(dimsBefore.height * scale);
   });
   test("Move selection with keyboard", async () => {
     await clickCell(env, "I1");
