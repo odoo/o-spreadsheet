@@ -1,7 +1,7 @@
-import { EvaluationError, Model, Style, TableStyle, UID } from "../../src";
+import { Border, BorderDescr, EvaluationError, Model, Style, TableStyle, UID } from "../../src";
 import { PIVOT_TABLE_PRESETS } from "../../src/helpers/pivot_table_presets";
 import { getTables, hideColumns, hideRows, setCellContent } from "../test_helpers";
-import { getGridStyle, toCellPosition } from "../test_helpers/helpers";
+import { getGridBorders, getGridStyle, toCellPosition } from "../test_helpers/helpers";
 import { createModelWithPivot, updatePivot } from "../test_helpers/pivot_helpers";
 
 let model: Model;
@@ -332,6 +332,37 @@ describe("Pivot table style", () => {
     // prettier-ignore
     expect(getGridStyle(model)).toMatchObject({
       A28: firstColumnStripeStyle,  B28: {},  C28: secondColumnStripeStyle,  D28: firstColumnStripeStyle,
+    });
+  });
+
+  test("Banded columns borders works on last pivot columns", () => {
+    const borderDescr: BorderDescr = { color: "#ff0", style: "thin" };
+    const leftBorder: Border = { left: borderDescr };
+    const rightBorder: Border = { right: borderDescr };
+    const leftAndRightBorder: Border = { left: borderDescr, right: borderDescr };
+    tableStyle.wholeTable = { style: wholePivotStyle };
+    tableStyle.firstColumnStripe = { border: { left: borderDescr, right: borderDescr } };
+    console.log(tableStyle);
+
+    updatePivot(model, "1", {
+      columns: [
+        { fieldName: "Created on", granularity: "year" },
+        { fieldName: "Created on", granularity: "month" },
+      ],
+      style: { tableStyleId: "TestStyle", bandedColumns: true },
+    });
+
+    console.log(getGridBorders(model, "A25:D28"));
+
+    // prettier-ignore
+    expect(getGridBorders(model, "A28:D28")).toMatchObject({
+      A28: leftAndRightBorder,  B28: leftAndRightBorder,  C28: leftAndRightBorder,  D28: leftAndRightBorder,
+    });
+
+    hideColumns(model, ["B"]);
+    // prettier-ignore
+    expect(getGridBorders(model, "A28:D28")).toMatchObject({
+      A28: leftAndRightBorder,  B28: null,  C28: leftAndRightBorder,  D28: leftAndRightBorder,
     });
   });
 
