@@ -127,7 +127,7 @@ export const BubbleChart: ChartTypeBuilder<"bubble"> = {
       labelRange: context.bubbleLabelRange || undefined,
       labelsAsText: context.labelsAsText ?? false,
       xRange: context.auxiliaryRange || undefined,
-      sizeRange: context.bubbleSizeRange || undefined,
+      sizeRange: context.sizeRange || undefined,
       axesDesign: context.axesDesign,
       showValues: context.showValues,
       humanize: context.humanize,
@@ -149,7 +149,7 @@ export const BubbleChart: ChartTypeBuilder<"bubble"> = {
       },
       bubbleLabelRange: definition.labelRange,
       auxiliaryRange: definition.xRange,
-      bubbleSizeRange: definition.sizeRange,
+      sizeRange: definition.sizeRange,
       bubbleColorMode: definition.bubbleColor,
     };
   },

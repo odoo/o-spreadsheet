@@ -16,6 +16,8 @@ import { GaugeChartConfigPanel } from "./gauge_chart_panel/gauge_chart_config_pa
 import { GaugeChartDesignPanel } from "./gauge_chart_panel/gauge_chart_design_panel";
 import { GeoChartConfigPanel } from "./geo_chart_panel/geo_chart_config_panel";
 import { GeoChartDesignPanel } from "./geo_chart_panel/geo_chart_design_panel";
+import { HeatmapChartConfigPanel } from "./heatmap_chart/heatmap_chart_config_panel";
+import { HeatmapChartDesignPanel } from "./heatmap_chart/heatmap_chart_design_panel";
 import { HierarchicalChartConfigPanel } from "./hierarchical_chart/hierarchical_chart_config_panel";
 import { LineConfigPanel } from "./line_chart/line_chart_config_panel";
 import { LineChartDesignPanel } from "./line_chart/line_chart_design_panel";
@@ -111,4 +113,8 @@ chartSidePanelComponentRegistry
   .add("calendar", {
     configuration: CalendarChartConfigPanel,
     design: CalendarChartDesignPanel,
+  })
+  .add("heatmap", {
+    configuration: HeatmapChartConfigPanel,
+    design: HeatmapChartDesignPanel,
   });

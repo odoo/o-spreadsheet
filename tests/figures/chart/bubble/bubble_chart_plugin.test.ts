@@ -30,7 +30,7 @@ describe("bubble chart", () => {
       showValues: false,
       humanize: false,
       bubbleColor: { color: FIRST_CHART_COLOR },
-      sizeRange: "Sheet1!A1:A4",
+      sizeRange: "Sheet1!C1:C4",
       xRange: "Sheet1!A1:A4",
       yRanges: ["Sheet1!B1:B4"],
       dataSetsHaveTitle: true,

@@ -1005,6 +1005,32 @@ export const demoData = {
           col: 0,
           row: 0,
         },
+        {
+          id: "17",
+          tag: "chart",
+          width: 500,
+          height: 400,
+          data: {
+            type: "heatmap",
+            dataSetsHaveTitle: true,
+            background: "#FFFFFF",
+            yRange: "Sheet1!C26:C35",
+            legendPosition: "top",
+            xRange: "Sheet1!B26:B35",
+            sizeRange: "Sheet1!D27:D35",
+            title: {
+              text: "Heatmap",
+            },
+            humanize: true,
+            chartId: "17",
+          },
+          offset: {
+            x: 600,
+            y: 2550,
+          },
+          col: 0,
+          row: 0,
+        },
       ],
       tables: [
         {
