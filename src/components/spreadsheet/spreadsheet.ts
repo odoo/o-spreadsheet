@@ -5,7 +5,6 @@ import {
   onWillUpdateProps,
   PluginInstance,
   providePlugins,
-  proxy,
   signal,
   Signal,
   useEffect,
@@ -24,6 +23,7 @@ import { ImageProviderPlugin } from "../../owl_plugins/image_provider_owl_plugin
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
+import { PrintPlugin } from "../../owl_plugins/print_owl_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
 import { ClipboardStore } from "../../stores/clipboard_store";
@@ -64,11 +64,6 @@ import { TopBar } from "../top_bar/top_bar";
 // SpreadSheet
 // -----------------------------------------------------------------------------
 
-interface State {
-  printModeEnabled: boolean;
-  colorThemeBeforePrint: ColorThemeName;
-}
-
 export class Spreadsheet extends Component {
   static template = "o-spreadsheet-Spreadsheet";
   protected props = useProps({
@@ -93,12 +88,11 @@ export class Spreadsheet extends Component {
   spreadsheetRef = signal.ref();
   spreadsheetRect = useSpreadsheetRect();
 
-  state = proxy<State>({ printModeEnabled: false, colorThemeBeforePrint: "light" });
-
   private _focusGrid?: () => void;
 
   private isViewportTooSmall: boolean = false;
   private notificationPlugin!: PluginInstance<typeof NotificationPlugin>;
+  private printPlugin!: PluginInstance<typeof PrintPlugin>;
   private modelPlugin!: PluginInstance<typeof ModelPlugin>;
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
@@ -114,7 +108,7 @@ export class Spreadsheet extends Component {
     properties["--os-dark-mode-filter"] = DARK_MODE_FILTER_STRING;
     properties["color-scheme"] = this.colorScheme;
 
-    if (this.state.printModeEnabled) {
+    if (this.printPlugin.printModeEnabled()) {
       properties["display"] = `block`;
     } else {
       if (this.model().getters.isDashboard()) {
@@ -147,8 +141,10 @@ export class Spreadsheet extends Component {
     providePlugins([ModelPlugin], {
       model: this.props.model,
     });
+    providePlugins([PrintPlugin]);
     providePlugins([NavigatorClipboardPlugin]);
     this.modelPlugin = usePlugin(ModelPlugin);
+    this.printPlugin = usePlugin(PrintPlugin);
 
     const stores = useStoreProvider();
     stores.inject(ModelStore, this.model());
@@ -170,10 +166,6 @@ export class Spreadsheet extends Component {
     for (const store of globalStores.getAll()) {
       useStore(store);
     }
-
-    useSubEnv({
-      printSpreadsheet: this.enterPrintMode.bind(this),
-    } satisfies Partial<SpreadsheetChildEnv>);
 
     this.notificationPlugin.updateNotificationCallbacks({ ...this.props });
 
@@ -201,7 +193,7 @@ export class Spreadsheet extends Component {
       async (event: KeyboardEvent) => {
         const keyDownString = keyboardEventToShortcutString(event);
         if (keyDownString === "Ctrl+P") {
-          this.enterPrintMode();
+          this.printPlugin.start();
           event.stopPropagation();
           event.preventDefault();
         }
@@ -361,29 +353,10 @@ export class Spreadsheet extends Component {
     ].join(" ");
   }
 
-  enterPrintMode() {
-    if (this.state.printModeEnabled) {
-      return;
-    }
-    this.state.colorThemeBeforePrint = this.model().getters.isDarkMode() ? "dark" : "light";
-    this.model().dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "light" });
-    this.state.printModeEnabled = true;
-  }
-
-  exitPrintMode() {
-    if (!this.state.printModeEnabled) {
-      return;
-    }
-    this.model().dispatch("UPDATE_COLOR_SCHEME", {
-      colorScheme: this.state.colorThemeBeforePrint,
-    });
-    this.state.printModeEnabled = false;
-  }
-
   get colorScheme(): ColorThemeName {
-    if (this.state.printModeEnabled) {
+    if (this.printPlugin.printModeEnabled()) {
       // We want to have the canvas/charts (the model) in light mode when printing, but the UI can be in dark mode
-      return this.state.colorThemeBeforePrint;
+      return this.printPlugin.colorThemeBeforePrint;
     }
     return this.model().getters.isDarkMode() ? "dark" : "light";
   }
