@@ -5,6 +5,7 @@ import { getItemId } from "../../helpers/data_normalization";
 import { isObjectEmptyRecursive, removeFalsyAttributes } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isZoneInside, toZone, zoneToXc } from "../../helpers/zones";
+import { EvaluationCommand } from "../../types/commands";
 import { Border, CellPosition, Style, UID } from "../../types/misc";
 import { ExcelWorkbookData } from "../../types/workbook_data";
 import { EvaluationPlugin } from "../evaluation_plugin";
@@ -17,33 +18,26 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
 
   handlers = {
     UPDATE_CELL: this.invalidateComputedStyles,
-    DELETE_CONTENT: this.invalidateSheetComputedStyles,
     SET_FORMATTING: this.invalidateComputedStyles,
     CLEAR_FORMATTING: this.invalidateComputedStyles,
     SET_SHEET_BACKGROUND_COLOR: this.invalidateComputedStyles,
-    CREATE_TABLE: this.invalidateSheetComputedStyles,
-    REMOVE_TABLE: this.invalidateSheetComputedStyles,
-    UPDATE_TABLE: this.invalidateSheetComputedStyles,
-    UPDATE_FILTER: this.invalidateSheetComputedStyles,
-    HIDE_COLUMNS_ROWS: this.invalidateSheetComputedStyles,
-    UNHIDE_COLUMNS_ROWS: this.invalidateSheetComputedStyles,
     GROUP_HEADERS: this.invalidateSheetComputedStyles,
-    UNGROUP_HEADERS: this.invalidateSheetComputedStyles,
-    FOLD_HEADER_GROUP: this.invalidateSheetComputedStyles,
-    UNFOLD_HEADER_GROUP: this.invalidateSheetComputedStyles,
-    FOLD_ALL_HEADER_GROUPS: this.invalidateSheetComputedStyles,
-    UNFOLD_ALL_HEADER_GROUPS: this.invalidateSheetComputedStyles,
-    FOLD_HEADER_GROUPS_IN_ZONE: this.invalidateSheetComputedStyles,
-    UNFOLD_HEADER_GROUPS_IN_ZONE: this.invalidateSheetComputedStyles,
-    CREATE_TABLE_STYLE: this.invalidateComputedStyles,
-    REMOVE_TABLE_STYLE: this.invalidateComputedStyles,
     REMOVE_DATA_VALIDATION_RULE: this.invalidateComputedStyles,
     ADD_DATA_VALIDATION_RULE: this.invalidateComputedStyles,
     EVALUATE_CELLS: this.invalidateComputedStyles,
     invalidateEvaluationCommands: this.invalidateComputedStyles,
     invalidateBordersCommands: this.invalidateComputedBorders,
     invalidateCFEvaluationCommands: this.invalidateComputedCfStyles,
+    invalidateTableStyleCommands: this.invalidateTableComputedStyles,
   };
+
+  private invalidateTableComputedStyles(cmd: EvaluationCommand) {
+    if ("sheetId" in cmd) {
+      this.invalidateSheetComputedStyles(cmd);
+    } else {
+      this.invalidateComputedStyles();
+    }
+  }
 
   private invalidateComputedCfStyles() {
     this.styles = new PositionMap();
