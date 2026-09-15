@@ -5,7 +5,6 @@ import { getItemId } from "../../helpers/data_normalization";
 import { isObjectEmptyRecursive, removeFalsyAttributes } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isZoneInside, toZone, zoneToXc } from "../../helpers/zones";
-import { EvaluationCommand, invalidateCFEvaluationCommands } from "../../types/commands";
 import { Border, CellPosition, Style, UID } from "../../types/misc";
 import { ExcelWorkbookData } from "../../types/workbook_data";
 import { EvaluationPlugin } from "../evaluation_plugin";
@@ -66,6 +65,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     REMOVE_COLUMNS_ROWS: this.invalidateComputedStyles,
     UNDO: this.invalidateComputedStyles,
     REDO: this.invalidateComputedStyles,
+    EVALUATE_CELLS: this.invalidateComputedStyles,
   };
 
   private invalidateComputedCfStyles() {
@@ -84,19 +84,6 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
   private invalidateSheetComputedStyles(cmd: { sheetId: UID }) {
     this.styles.clearSheet(cmd.sheetId);
     this.borders.clearSheet(cmd.sheetId);
-  }
-
-  handle(cmd: EvaluationCommand) {
-    if (cmd.type === "EVALUATE_CELLS") {
-      this.styles = new PositionMap();
-      this.borders = new PositionMap();
-      return;
-    }
-
-    if (invalidateCFEvaluationCommands.has(cmd.type)) {
-      this.styles = new PositionMap();
-      return;
-    }
   }
 
   getCellComputedBorder(position: CellPosition): Border | null {

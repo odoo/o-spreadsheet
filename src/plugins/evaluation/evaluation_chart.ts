@@ -6,11 +6,6 @@ import { chartToImageUrl } from "../../helpers/figures/charts/chart_ui_common";
 import { generateMasterChartConfig } from "../../helpers/figures/charts/runtime/chart_zoom";
 import { isDefined } from "../../helpers/misc";
 import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
-import {
-  EvaluationCommand,
-  invalidateCFEvaluationCommands,
-  invalidateChartEvaluationCommands,
-} from "../../types/commands";
 import { Color, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { ColorThemeName } from "../../types/rendering";
@@ -71,6 +66,7 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
     REMOVE_COLUMNS_ROWS: this.invalidateChartRuntimes,
     UNDO: this.invalidateChartRuntimes,
     REDO: this.invalidateChartRuntimes,
+    EVALUATE_CELLS: this.invalidateChartRuntimes,
   };
 
   private invalidateChartRuntime(cmd: { chartId: UID }) {
@@ -80,17 +76,6 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
   private invalidateChartRuntimes() {
     for (const chartId in this.charts) {
       this.charts[chartId] = {};
-    }
-  }
-
-  handle(cmd: EvaluationCommand) {
-    if (
-      invalidateCFEvaluationCommands.has(cmd.type) ||
-      invalidateChartEvaluationCommands.has(cmd.type)
-    ) {
-      for (const chartId in this.charts) {
-        this.charts[chartId] = {};
-      }
     }
   }
 

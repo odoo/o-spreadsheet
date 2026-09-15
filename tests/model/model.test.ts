@@ -279,16 +279,16 @@ describe("Model", () => {
 
   test("Non evaluation command cannot be dispatch in a top level evaluation command", () => {
     class MyUIPlugin extends UIPlugin {
-      handle(cmd: Command) {
-        if (cmd.type === "EVALUATE_CELLS") {
+      handlers = {
+        EVALUATE_CELLS: () => {
           this.dispatch("UPDATE_CELL", {
             col: 0,
             row: 0,
             sheetId: this.getters.getActiveSheetId(),
             content: "hello",
           });
-        }
-      }
+        },
+      };
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     const model = new Model();
