@@ -63,6 +63,7 @@ export class DynamicTablesPlugin extends EvaluationPlugin {
     REMOVE_COLUMNS_ROWS: this.clearTables,
     UNDO: this.clearTables,
     REDO: this.clearTables,
+    EVALUATE_CELLS: this.clearTables,
   };
 
   private invalidateTables(cmd: UpdateCellCommand) {
@@ -76,10 +77,6 @@ export class DynamicTablesPlugin extends EvaluationPlugin {
   }
 
   handle(cmd: EvaluationCommand) {
-    if (cmd.type === "EVALUATE_CELLS") {
-      this.tables = {};
-      return;
-    }
     switch (cmd.type) {
       case "REFRESH_PIVOT":
         this.tables = {};

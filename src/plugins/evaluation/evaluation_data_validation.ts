@@ -10,7 +10,7 @@ import { isInside, positions } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { _t } from "../../translation";
 import { CellValue, CellValueType } from "../../types/cells";
-import { EvaluationCommand, UpdateCellCommand } from "../../types/commands";
+import { UpdateCellCommand } from "../../types/commands";
 import {
   DataValidationCriterion,
   DataValidationCriterionType,
@@ -76,6 +76,7 @@ export class EvaluationDataValidationPlugin extends EvaluationPlugin {
     REMOVE_COLUMNS_ROWS: this.clearValidationResults,
     UNDO: this.clearValidationResults,
     REDO: this.clearValidationResults,
+    EVALUATE_CELLS: this.clearValidationResults,
   };
 
   private clearValidationResults() {
@@ -92,14 +93,6 @@ export class EvaluationDataValidationPlugin extends EvaluationPlugin {
     if ("content" in cmd || "format" in cmd) {
       this.validationResults = {};
       this.criterionPreComputeResult = {};
-    }
-  }
-
-  handle(cmd: EvaluationCommand) {
-    if (cmd.type === "EVALUATE_CELLS") {
-      this.validationResults = {};
-      this.criterionPreComputeResult = {};
-      return;
     }
   }
 

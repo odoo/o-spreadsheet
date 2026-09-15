@@ -7,11 +7,7 @@ import { percentile } from "../../helpers/numbers";
 import { isInside } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { CellValueType, EvaluatedCell, NumberCell } from "../../types/cells";
-import {
-  EvaluationCommand,
-  invalidateCFEvaluationCommands,
-  UpdateCellCommand,
-} from "../../types/commands";
+import { UpdateCellCommand } from "../../types/commands";
 import {
   CellIsRule,
   ColorScaleMidPointThreshold,
@@ -71,6 +67,7 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
     REMOVE_COLUMNS_ROWS: this.markAsStale,
     UNDO: this.markAsStale,
     REDO: this.markAsStale,
+    EVALUATE_CELLS: this.markAsStale,
   };
 
   private markAsStale() {
@@ -79,12 +76,6 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
 
   private invalidateConditionalFormats(cmd: UpdateCellCommand) {
     if ("content" in cmd || "format" in cmd) {
-      this.isStale = true;
-    }
-  }
-
-  handle(cmd: EvaluationCommand) {
-    if (invalidateCFEvaluationCommands.has(cmd.type)) {
       this.isStale = true;
     }
   }
