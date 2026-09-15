@@ -12,7 +12,7 @@ import {
   toZone,
   union,
 } from "../../helpers/zones";
-import { EvaluationCommand, UpdateCellCommand } from "../../types/commands";
+import { UpdateCellCommand } from "../../types/commands";
 import { CellErrorType } from "../../types/errors";
 import { CellPosition, FilterId, TableId, UID, Zone } from "../../types/misc";
 import { PivotStyle } from "../../types/pivot";
@@ -64,6 +64,7 @@ export class DynamicTablesPlugin extends EvaluationPlugin {
     UNDO: this.clearTables,
     REDO: this.clearTables,
     EVALUATE_CELLS: this.clearTables,
+    REFRESH_PIVOT: this.clearTables,
   };
 
   private invalidateTables(cmd: UpdateCellCommand) {
@@ -74,14 +75,6 @@ export class DynamicTablesPlugin extends EvaluationPlugin {
 
   private clearTables() {
     this.tables = {};
-  }
-
-  handle(cmd: EvaluationCommand) {
-    switch (cmd.type) {
-      case "REFRESH_PIVOT":
-        this.tables = {};
-        break;
-    }
   }
 
   finalize() {

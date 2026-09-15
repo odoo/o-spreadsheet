@@ -21,6 +21,7 @@ import {
   DuplicatePivotCommand,
   EvaluationCommand,
   RedoCommand,
+  RefreshPivotCommand,
   UndoCommand,
   UpdatePivotCommand,
   isCoreCommand,
@@ -145,7 +146,12 @@ export class PivotUIPlugin extends EvaluationPlugin {
     REMOVE_COLUMNS_ROWS: this.invalidateAllPivots,
     UNDO: this.setupPivotsOnUndoRedo,
     REDO: this.setupPivotsOnUndoRedo,
+    REFRESH_PIVOT: this.refreshPivotOfCommand,
   };
+
+  private refreshPivotOfCommand(cmd: RefreshPivotCommand) {
+    this.refreshPivot(cmd.id);
+  }
 
   private setupPivotsOnUndoRedo(cmd: UndoCommand | RedoCommand) {
     this.invalidateAllPivots();
@@ -217,11 +223,6 @@ export class PivotUIPlugin extends EvaluationPlugin {
   handle(cmd: EvaluationCommand) {
     if (isCoreCommand(cmd)) {
       this.unusedPivotsInFormulas = undefined;
-    }
-    switch (cmd.type) {
-      case "REFRESH_PIVOT":
-        this.refreshPivot(cmd.id);
-        break;
     }
   }
 
