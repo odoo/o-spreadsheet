@@ -27,7 +27,6 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
   charts: Record<UID, Partial<Record<ColorThemeName, ChartRuntime | undefined>>> = {};
 
   handlers = {
-    UPDATE_CELL: this.invalidateChartRuntimes,
     UPDATE_TABLE: this.invalidateChartRuntimes,
     UPDATE_FILTER: this.invalidateChartRuntimes,
     ADD_CONDITIONAL_FORMAT: this.invalidateChartRuntimes,
@@ -46,27 +45,8 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
     UPDATE_CHART: this.invalidateChartRuntime,
     CREATE_CHART: this.invalidateChartRuntime,
     DELETE_CHART: this.invalidateChartRuntime,
-    UPDATE_LOCALE: this.invalidateChartRuntimes,
-    CREATE_NAMED_RANGE: this.invalidateChartRuntimes,
-    UPDATE_NAMED_RANGE: this.invalidateChartRuntimes,
-    DELETE_NAMED_RANGE: this.invalidateChartRuntimes,
-    RENAME_PIVOT: this.invalidateChartRuntimes,
-    REMOVE_PIVOT: this.invalidateChartRuntimes,
-    INSERT_PIVOT: this.invalidateChartRuntimes,
-    ADD_PIVOT: this.invalidateChartRuntimes,
-    DUPLICATE_PIVOT: this.invalidateChartRuntimes,
-    UPDATE_PIVOT: this.invalidateChartRuntimes,
-    ADD_MERGE: this.invalidateChartRuntimes,
-    REMOVE_MERGE: this.invalidateChartRuntimes,
-    RENAME_SHEET: this.invalidateChartRuntimes,
-    CREATE_SHEET: this.invalidateChartRuntimes,
-    DUPLICATE_SHEET: this.invalidateChartRuntimes,
-    DELETE_SHEET: this.invalidateChartRuntimes,
-    ADD_COLUMNS_ROWS: this.invalidateChartRuntimes,
-    REMOVE_COLUMNS_ROWS: this.invalidateChartRuntimes,
-    UNDO: this.invalidateChartRuntimes,
-    REDO: this.invalidateChartRuntimes,
-    EVALUATE_CELLS: this.invalidateChartRuntimes,
+    invalidateEvaluationCommands: this.invalidateChartRuntimes,
+    invalidateChartEvaluationCommands: this.invalidateChartRuntimes,
   };
 
   private invalidateChartRuntime(cmd: { chartId: UID }) {
