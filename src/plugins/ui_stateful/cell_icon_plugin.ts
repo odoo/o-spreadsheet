@@ -121,6 +121,7 @@ export class CellIconPlugin extends UIPlugin {
     REQUEST_UNDO: this.clearCellIconsCache,
     REQUEST_REDO: this.clearCellIconsCache,
     ACTIVATE_SHEET: this.clearCellIconsCache,
+    MOVE_COLUMNS_ROWS: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
