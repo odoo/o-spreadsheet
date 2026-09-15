@@ -32,6 +32,7 @@ import {
   HideSheetCommand,
   LockSheetCommand,
   MoveSheetCommand,
+  RemoveColumnsRowsCommand,
   RenameSheetCommand,
   SetGridLinesVisibilityCommand,
   ShowSheetCommand,
@@ -125,7 +126,16 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     DUPLICATE_SHEET: this.duplicateSheetHandler,
     DELETE_SHEET: this.deleteSheetHandler,
     ADD_COLUMNS_ROWS: this.addHeaders,
+    REMOVE_COLUMNS_ROWS: this.removeHeaders,
   };
+
+  private removeHeaders(cmd: RemoveColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      this.removeColumns(this.sheets[cmd.sheetId]!, [...cmd.elements]);
+    } else {
+      this.removeRows(this.sheets[cmd.sheetId]!, [...cmd.elements]);
+    }
+  }
 
   private addHeaders(cmd: AddColumnsRowsCommand) {
     if (cmd.dimension === "COL") {
@@ -331,18 +341,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       }
       default:
         return CommandResult.Success;
-    }
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "REMOVE_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.removeColumns(this.sheets[cmd.sheetId]!, [...cmd.elements]);
-        } else {
-          this.removeRows(this.sheets[cmd.sheetId]!, [...cmd.elements]);
-        }
-        break;
     }
   }
 

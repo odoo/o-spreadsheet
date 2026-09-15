@@ -77,6 +77,7 @@ export class EvaluationDataValidationPlugin extends EvaluationPlugin {
     DUPLICATE_SHEET: this.clearValidationResults,
     DELETE_SHEET: this.clearValidationResults,
     ADD_COLUMNS_ROWS: this.clearValidationResults,
+    REMOVE_COLUMNS_ROWS: this.clearValidationResults,
   };
 
   private clearValidationResults() {
