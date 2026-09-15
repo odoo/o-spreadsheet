@@ -112,6 +112,7 @@ export class CellIconPlugin extends UIPlugin {
     SET_FORMULA_VISIBILITY: this.clearCellIconsCache,
     SORT_CELLS: this.clearCellIconsCache,
     SET_DECIMAL: this.clearCellIconsCache,
+    SET_FORMATTING_WITH_PIVOT: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
