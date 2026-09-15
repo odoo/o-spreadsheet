@@ -13,6 +13,7 @@ import {
   ClearFormattingCommand,
   CommandResult,
   CoreCommand,
+  RemoveColumnsRowsCommand,
   SetBorderCommand,
   SetBorderTargetCommand,
   SetZoneBordersCommand,
@@ -53,7 +54,23 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     DUPLICATE_SHEET: this.duplicateSheetBorders,
     DELETE_SHEET: this.deleteSheetBorders,
     ADD_COLUMNS_ROWS: this.addHeaderBorders,
+    REMOVE_COLUMNS_ROWS: this.removeHeaderBorders,
   };
+
+  private removeHeaderBorders(cmd: RemoveColumnsRowsCommand) {
+    const elements = [...cmd.elements].sort((a, b) => b - a);
+    for (const group of groupConsecutive(elements)) {
+      if (cmd.dimension === "COL") {
+        const zone = this.getters.getColsZone(cmd.sheetId, group[group.length - 1], group[0]);
+        this.clearInsideBorders(cmd.sheetId, [zone]);
+        this.shiftBordersHorizontally(cmd.sheetId, group[0] + 1, -group.length);
+      } else {
+        const zone = this.getters.getRowsZone(cmd.sheetId, group[group.length - 1], group[0]);
+        this.clearInsideBorders(cmd.sheetId, [zone]);
+        this.shiftBordersVertically(cmd.sheetId, group[0] + 1, -group.length);
+      }
+    }
+  }
 
   private addHeaderBorders(cmd: AddColumnsRowsCommand) {
     if (cmd.dimension === "COL") {
@@ -127,25 +144,6 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
         return this.checkBordersUnchanged(cmd);
       default:
         return CommandResult.Success;
-    }
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "REMOVE_COLUMNS_ROWS":
-        const elements = [...cmd.elements].sort((a, b) => b - a);
-        for (const group of groupConsecutive(elements)) {
-          if (cmd.dimension === "COL") {
-            const zone = this.getters.getColsZone(cmd.sheetId, group[group.length - 1], group[0]);
-            this.clearInsideBorders(cmd.sheetId, [zone]);
-            this.shiftBordersHorizontally(cmd.sheetId, group[0] + 1, -group.length);
-          } else {
-            const zone = this.getters.getRowsZone(cmd.sheetId, group[group.length - 1], group[0]);
-            this.clearInsideBorders(cmd.sheetId, [zone]);
-            this.shiftBordersVertically(cmd.sheetId, group[0] + 1, -group.length);
-          }
-        }
-        break;
     }
   }
 

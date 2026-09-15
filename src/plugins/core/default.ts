@@ -16,6 +16,7 @@ import {
   ClearFormattingCommand,
   CommandResult,
   CoreCommand,
+  RemoveColumnsRowsCommand,
   SetFormattingCommand,
 } from "../../types/commands";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
@@ -58,7 +59,17 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
     CLEAR_FORMATTING: this.clearFormatting,
     DUPLICATE_SHEET: this.duplicateSheetDefaults,
     ADD_COLUMNS_ROWS: this.addHeaders,
+    REMOVE_COLUMNS_ROWS: this.removeHeaders,
   };
+
+  private removeHeaders(cmd: RemoveColumnsRowsCommand) {
+    for (const el of groupConsecutive(cmd.elements).toReversed()) {
+      for (const i of el) {
+        this.clearColRows(cmd.sheetId, cmd.dimension, i);
+      }
+      this.moveColRows(cmd.sheetId, cmd.dimension, el[0], -el.length);
+    }
+  }
 
   private addHeaders(cmd: AddColumnsRowsCommand) {
     const startingIdx = cmd.position === "before" ? cmd.base : cmd.base + 1;
@@ -93,19 +104,6 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
       return this.checkUselessSetFormatting(cmd);
     }
     return CommandResult.Success;
-  }
-
-  handle(cmd: CoreCommand): void {
-    switch (cmd.type) {
-      case "REMOVE_COLUMNS_ROWS":
-        for (const el of groupConsecutive(cmd.elements).toReversed()) {
-          for (const i of el) {
-            this.clearColRows(cmd.sheetId, cmd.dimension, i);
-          }
-          this.moveColRows(cmd.sheetId, cmd.dimension, el[0], -el.length);
-        }
-        break;
-    }
   }
 
   private clearColRows(sheetId: UID, colRow: Dimension, index: HeaderIndex) {

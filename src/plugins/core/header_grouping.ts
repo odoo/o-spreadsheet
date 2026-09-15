@@ -11,6 +11,7 @@ import {
   FoldHeaderGroupCommand,
   FoldHeaderGroupsInZoneCommand,
   GroupHeadersCommand,
+  RemoveColumnsRowsCommand,
   UnfoldAllHeaderGroupsCommand,
   UnfoldHeaderGroupCommand,
   UnfoldHeaderGroupsInZoneCommand,
@@ -52,7 +53,12 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
     DUPLICATE_SHEET: this.duplicateSheetGroups,
     DELETE_SHEET: this.deleteSheetGroups,
     ADD_COLUMNS_ROWS: this.moveGroupsOnHeaderAddition,
+    REMOVE_COLUMNS_ROWS: this.moveGroupsOnHeaderRemoval,
   };
+
+  private moveGroupsOnHeaderRemoval(cmd: RemoveColumnsRowsCommand) {
+    this.moveGroupsOnHeaderDeletion(cmd.sheetId, cmd.dimension, cmd.elements);
+  }
 
   private moveGroupsOnHeaderAddition(cmd: AddColumnsRowsCommand) {
     const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
@@ -198,14 +204,6 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
         break;
     }
     return CommandResult.Success;
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "REMOVE_COLUMNS_ROWS":
-        this.moveGroupsOnHeaderDeletion(cmd.sheetId, cmd.dimension, cmd.elements);
-        break;
-    }
   }
 
   getHeaderGroups(sheetId: UID, dim: Dimension): HeaderGroup[] {

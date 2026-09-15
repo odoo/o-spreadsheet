@@ -141,6 +141,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
     DUPLICATE_SHEET: this.invalidateAllPivots,
     DELETE_SHEET: this.invalidateAllPivots,
     ADD_COLUMNS_ROWS: this.invalidateAllPivots,
+    REMOVE_COLUMNS_ROWS: this.invalidateAllPivots,
   };
 
   constructor(config: EvaluationPluginConfig) {

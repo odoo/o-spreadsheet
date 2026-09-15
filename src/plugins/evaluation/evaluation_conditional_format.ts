@@ -69,6 +69,7 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
     DUPLICATE_SHEET: this.markAsStale,
     DELETE_SHEET: this.markAsStale,
     ADD_COLUMNS_ROWS: this.markAsStale,
+    REMOVE_COLUMNS_ROWS: this.markAsStale,
   };
 
   private markAsStale() {
