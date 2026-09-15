@@ -524,3 +524,19 @@ function getRangePartString(
 
   return str;
 }
+
+export function getTransposedParts(parts: readonly RangePart[]): RangePart[] {
+  const newParts = [
+    {
+      colFixed: parts[0].rowFixed,
+      rowFixed: parts[0].colFixed,
+    },
+  ];
+  if (parts[1]) {
+    newParts.push({
+      colFixed: parts[1].rowFixed,
+      rowFixed: parts[1].colFixed,
+    });
+  }
+  return newParts;
+}

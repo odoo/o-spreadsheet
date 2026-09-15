@@ -14,7 +14,7 @@ function moveFormula(model: Model, formula: string, offsetX: number, offsetY: nu
   return model.getters.getTranslatedCellFormula(sheetId, offsetX, offsetY, cell.compiledFormula);
 }
 
-describe("createAdaptedRanges", () => {
+describe("createAdaptedRange", () => {
   test("simple changes", () => {
     const model = new Model({
       sheets: [

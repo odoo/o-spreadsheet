@@ -24,14 +24,6 @@ rowMenuRegistry
     sequence: 40,
     separator: true,
   })
-  .addChild("paste_value_only", ["paste_special"], {
-    ...ACTION_EDIT.pasteSpecialValue,
-    sequence: 10,
-  })
-  .addChild("paste_format_only", ["paste_special"], {
-    ...ACTION_EDIT.pasteSpecialFormat,
-    sequence: 20,
-  })
   .add("add_row_before", {
     ...ACTION_INSERT.rowInsertRowBefore,
     sequence: 50,

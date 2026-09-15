@@ -13,7 +13,7 @@ import { getRangeAdapterFunctions } from "../../helpers/range_adapter_functions"
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { rangeReference, splitReference } from "../../helpers/references";
 
-import { intersection, isZoneInside, isZoneValid, unionUnboundedZones } from "../../helpers/zones";
+import { intersection, isZoneInside, unionUnboundedZones } from "../../helpers/zones";
 import {
   CommandHandler,
   CommandResult,
@@ -78,7 +78,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
     "getRangeFromSheetXC",
     "clipRangesToSheet",
     "clipRangeToSheet",
-    "createAdaptedRanges",
+    "createAdaptedRange",
     "getRangeData",
     "getRangeDataFromXc",
     "getRangeDataFromZone",
@@ -150,44 +150,27 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
     return clippedRanges;
   }
 
-  createAdaptedRanges(ranges: Range[], offsetX: number, offsetY: number, sheetId: UID): Range[] {
-    return ranges.map((range) => {
-      if (!isZoneValid(range.zone)) {
-        return range;
-      }
-      const copySheetId = range.prefixSheet ? range.sheetId : sheetId;
-      const isFullRow = isFullRowRange(range);
-      const isFullCol = isFullColRange(range);
-      const unboundZone = {
-        ...range.unboundedZone,
-        // Don't shift left if the range is a full row without header
-        left:
-          isFullRow && !range.unboundedZone.hasHeader
-            ? range.unboundedZone.left
-            : range.unboundedZone.left + (range.parts[0].colFixed ? 0 : offsetX),
-        // Don't shift right if the range is a full row
-        right: isFullRow
-          ? range.unboundedZone.right
-          : range.unboundedZone.right! +
-            ((range.parts[1] || range.parts[0]).colFixed ? 0 : offsetX),
-        // Don't shift up if the range is a column row without header
-        top:
-          isFullCol && !range.unboundedZone.hasHeader
-            ? range.unboundedZone.top
-            : range.unboundedZone.top + (range.parts[0].rowFixed ? 0 : offsetY),
-        // Don't shift down if the range is a full column
-        bottom: isFullCol
-          ? range.unboundedZone.bottom
-          : range.unboundedZone.bottom! +
-            ((range.parts[1] || range.parts[0]).rowFixed ? 0 : offsetY),
-      };
-      return orderRange(
-        createRange(
-          { ...range, sheetId: copySheetId, zone: unboundZone },
-          this.getters.getSheetSize
-        )
-      );
-    });
+  createAdaptedRange(range: Range, offsetX: number, offsetY: number, sheetId: UID): Range {
+    const copySheetId = range.prefixSheet ? range.sheetId : sheetId;
+    const isFullRow = isFullRowRange(range);
+    const isFullCol = isFullColRange(range);
+    const startPart = range.parts[0];
+    const endPart = range.parts[1] || range.parts[0];
+    const { left, right, top, bottom, hasHeader } = range.unboundedZone;
+    const unboundZone = {
+      ...range.unboundedZone,
+      // Don't shift left if the range is a full row without header
+      left: isFullRow && !hasHeader ? left : left + (startPart.colFixed ? 0 : offsetX),
+      // Don't shift right if the range is a full row
+      right: isFullRow ? right : right! + (endPart.colFixed ? 0 : offsetX),
+      // Don't shift up if the range is a column row without header
+      top: isFullCol && !hasHeader ? top : top + (startPart.rowFixed ? 0 : offsetY),
+      // Don't shift down if the range is a full column
+      bottom: isFullCol ? bottom : bottom! + (endPart.rowFixed ? 0 : offsetY),
+    };
+    return orderRange(
+      createRange({ ...range, sheetId: copySheetId, zone: unboundZone }, this.getters.getSheetSize)
+    );
   }
 
   /**

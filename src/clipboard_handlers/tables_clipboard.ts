@@ -3,6 +3,7 @@ import {
   expandBorderCell,
   expandCompactTableCells,
   makeIndexer,
+  shouldPasteFormat,
 } from "../helpers/clipboard/clipboard_helpers";
 import { removeFalsyAttributes, toReplacingBorder } from "../helpers/misc";
 import { isZoneInside, zoneToDimension } from "../helpers/zones";
@@ -205,12 +206,12 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
 
     // We cannot check for dynamic tables, because at this point the paste can have changed the evaluation, and the
     // dynamic tables are not yet computed
-    if (this.getters.getCoreTable(position) || options.pasteOption === "asValue") {
+    if (this.getters.getCoreTable(position) || !shouldPasteFormat(options.pasteOption)) {
       return;
     }
     if (
       (!options.pasteOption && !tableCell.isWholeTableCopied) ||
-      options.pasteOption === "onlyFormat"
+      options.pasteOption === "format"
     ) {
       if (tableCell.style?.style) {
         this.dispatch("UPDATE_CELL", { ...position, style: tableCell.style.style });

@@ -1,4 +1,8 @@
-import { expandCompactCFCells, makeIndexer } from "../helpers/clipboard/clipboard_helpers";
+import {
+  expandCompactCFCells,
+  makeIndexer,
+  shouldPasteFormat,
+} from "../helpers/clipboard/clipboard_helpers";
 import { deepEquals } from "../helpers/misc";
 import { getFullReference, splitReference } from "../helpers/references";
 import { UuidGenerator } from "../helpers/uuid";
@@ -51,7 +55,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     positions: ClipboardPositions
   ) {
     this.queuedChanges = {};
-    if (options.pasteOption === "asValue") {
+    if (!shouldPasteFormat(options.pasteOption)) {
       return;
     }
     const zones = target.zones;
