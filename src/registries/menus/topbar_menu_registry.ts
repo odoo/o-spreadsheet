@@ -84,6 +84,11 @@ topbarMenuRegistry
   .addChild("paste_special_formula", ["edit", "paste_special"], {
     ...ACTION_EDIT.pasteSpecialFormula,
     sequence: 30,
+    separator: true,
+  })
+  .addChild("paste_special_transpose", ["edit", "paste_special"], {
+    ...ACTION_EDIT.pasteSpecialTranspose,
+    sequence: 40,
   })
   .addChild("edit_table", ["edit"], {
     ...ACTION_EDIT.editTable,

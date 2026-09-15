@@ -1,3 +1,4 @@
+import { transpose } from "../helpers/misc";
 import { recomputeZones } from "../helpers/recompute_zones";
 import { positionToZone } from "../helpers/zones";
 import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
@@ -7,6 +8,22 @@ import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler"
 type ClipboardContent = {
   borders: (Border | null)[][];
 };
+
+/**
+ * Rotate the border sides to match a transposed cell: the top/left edges of a
+ * cell become its left/top edges once rows and columns are swapped.
+ */
+function transposeBorder(border: Border | null): Border | null {
+  if (!border) {
+    return border;
+  }
+  return {
+    top: border.left,
+    left: border.top,
+    bottom: border.right,
+    right: border.bottom,
+  };
+}
 
 export class BorderClipboardHandler extends AbstractCellClipboardHandler<
   ClipboardContent,
@@ -39,11 +56,15 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
       return;
     }
     const zones = target.zones;
+    const borders =
+      options.pasteOption === "transpose"
+        ? transpose(content.borders).map((row) => row.map(transposeBorder))
+        : content.borders;
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, content.borders);
+      this.pasteFromCopy(sheetId, zones, borders);
     } else {
       const { left, top } = zones[0];
-      this.pasteZone(sheetId, left, top, content.borders);
+      this.pasteZone(sheetId, left, top, borders);
     }
 
     this.executeQueuedChanges(sheetId);

@@ -81,6 +81,7 @@ import {
   getClipboardVisibleZones,
   getEvaluatedCell,
   getEvaluatedGrid,
+  getMerges,
   getStyle,
 } from "../test_helpers/getters_helpers";
 import { addTestPlugin, createModelFromGrid, getGrid, target } from "../test_helpers/helpers";
@@ -1351,6 +1352,72 @@ describe("clipboard", () => {
         type: "PASTE",
         target: target("C3"),
         pasteOption: "onlyFormula",
+      });
+
+      expect(result).toBeCancelledBecause(CommandResult.WrongPasteOption);
+    });
+  });
+
+  describe("paste transposed", () => {
+    test("can copy and paste a zone transposed", () => {
+      ({ model, store } = makeStore(ClipboardStore));
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "B1", "2");
+      setCellContent(model, "C1", "3");
+      copy(model, "A1:C1");
+      paste(model, "A3", "transpose");
+      expect(getEvaluatedGrid(model, "A3:A5")).toEqual([["1"], ["2"], ["3"]]);
+    });
+
+    test("relative formula references are translated based on the transposed position", () => {
+      ({ model, store } = makeStore(ClipboardStore));
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "=A1*10");
+      setCellContent(model, "D2", "5");
+      copy(model, "A1:A2");
+      paste(model, "C3", "transpose");
+      expect(getCellText(model, "C3")).toBe("1");
+      expect(getCellText(model, "D3")).toBe("=D2*10");
+      expect(getEvaluatedCell(model, "D3").value).toBe(50);
+    });
+
+    test("style is transposed along with the content", () => {
+      ({ model, store } = makeStore(ClipboardStore));
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "B1", "2");
+      setFormatting(model, "B1", { bold: true });
+      copy(model, "A1:B1");
+      paste(model, "D1", "transpose");
+      expect(getStyle(model, "D1")).toEqual({});
+      expect(getStyle(model, "D2")).toEqual({ bold: true });
+    });
+
+    test("borders are transposed and rotated along with the content", () => {
+      ({ model, store } = makeStore(ClipboardStore));
+      setCellContent(model, "A1", "1");
+      setZoneBorders(model, { position: "bottom" }, ["A1"]);
+      copy(model, "A1");
+      paste(model, "D1", "transpose");
+      expect(getBorder(model, "D1")).toEqual({ right: DEFAULT_BORDER_DESC });
+    });
+
+    test("merges are not pasted when pasting transposed", () => {
+      ({ model, store } = makeStore(ClipboardStore));
+      setCellContent(model, "A1", "1");
+      merge(model, "A1:B1");
+      copy(model, "A1:B1");
+      paste(model, "D1", "transpose");
+      expect(Object.keys(getMerges(model))).toHaveLength(1);
+    });
+
+    test("cut and paste transposed is not allowed", () => {
+      ({ model, store } = makeStore(ClipboardStore));
+      setCellContent(model, "B2", "b2");
+      cut(model, "B2");
+      const result = store.isCommandValid({
+        type: "PASTE",
+        target: target("C3"),
+        pasteOption: "transpose",
       });
 
       expect(result).toBeCancelledBecause(CommandResult.WrongPasteOption);
