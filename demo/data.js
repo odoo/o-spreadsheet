@@ -222,7 +222,7 @@ export const demoData = {
             type: "scorecard",
             keyValue: "Sheet1!B29",
             title: "Scorecard",
-            baselineMode: "absolute",
+            baselineMode: "difference",
             baselineColorUp: "#00A04A",
             baselineColorDown: "#DC6965",
             background: "#FFFFFF",
