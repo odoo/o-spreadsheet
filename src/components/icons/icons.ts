@@ -6,6 +6,7 @@ import {
   GRAY_900,
   TEXT_BODY_MUTED,
 } from "../../constants";
+import { adaptForDarkMode } from "../../helpers/color";
 import { isDefined } from "../../helpers/misc";
 import { ImageSVG } from "../../types/image";
 import { Style } from "../../types/misc";
@@ -143,6 +144,10 @@ export const getThemeCheckboxUncheckedSvg = (isDarkMode: boolean): ImageSVG => (
   height: 512,
   paths: [
     {
+      fillColor: isDarkMode ? adaptForDarkMode("#1A1C2E") : "#FFFFFF",
+      path: "M45,45 h422 v422 h-422 v-422",
+    },
+    {
       fillColor: isDarkMode ? GRAY_300 : "#91959d",
       path: "M45,45 h422 v422 h-422 v-422 m30,30 v362 h362 v-362",
     },
@@ -154,6 +159,10 @@ export const getThemeCheckboxUncheckedHoveredSvg = (isDarkMode: boolean): ImageS
   width: 512,
   height: 512,
   paths: [
+    {
+      fillColor: isDarkMode ? adaptForDarkMode("#1A1C2E") : "#FFFFFF",
+      path: "M45,45 h422 v422 h-422 v-422",
+    },
     {
       fillColor: isDarkMode ? "#82d1d5" : ACTION_COLOR,
       path: "M45,45 h422 v422 h-422 v-422 m30,30 v362 h362 v-362",
