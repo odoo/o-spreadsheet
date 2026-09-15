@@ -37,6 +37,7 @@ export class CarouselUIPlugin extends UIPlugin {
     UPDATE_CAROUSEL_ACTIVE_ITEM: this.updateActiveItem,
     POPOUT_CHART_FROM_CAROUSEL: this.popOutChartFromCarousel,
     DELETE_SHEET: this.fixWrongCarouselStates,
+    UNDO: this.fixWrongCarouselStates,
   };
 
   private updateActiveItem(cmd: UpdateCarouselActiveItemCommand) {
@@ -111,7 +112,6 @@ export class CarouselUIPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "UNDO":
       case "REDO":
         this.fixWrongCarouselStates();
         break;

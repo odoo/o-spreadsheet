@@ -20,6 +20,8 @@ import {
   CoreCommand,
   DuplicatePivotCommand,
   EvaluationCommand,
+  RedoCommand,
+  UndoCommand,
   UpdatePivotCommand,
   invalidateEvaluationCommands,
   isCoreCommand,
@@ -142,7 +144,18 @@ export class PivotUIPlugin extends EvaluationPlugin {
     DELETE_SHEET: this.invalidateAllPivots,
     ADD_COLUMNS_ROWS: this.invalidateAllPivots,
     REMOVE_COLUMNS_ROWS: this.invalidateAllPivots,
+    UNDO: this.setupPivotsOnUndoRedo,
   };
+
+  private setupPivotsOnUndoRedo(cmd: UndoCommand | RedoCommand) {
+    this.invalidateAllPivots();
+    for (const pivotCommand of cmd.commands.filter(isPivotCommand)) {
+      if (!this.getters.isExistingPivot(pivotCommand.pivotId)) {
+        continue;
+      }
+      this.setupPivot(pivotCommand.pivotId, { recreate: true });
+    }
+  }
 
   constructor(config: EvaluationPluginConfig) {
     super(config);
@@ -216,7 +229,6 @@ export class PivotUIPlugin extends EvaluationPlugin {
       case "REFRESH_PIVOT":
         this.refreshPivot(cmd.id);
         break;
-      case "UNDO":
       case "REDO": {
         const pivotCommands = cmd.commands.filter(isPivotCommand);
 
