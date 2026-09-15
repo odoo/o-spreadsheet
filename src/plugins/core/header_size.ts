@@ -6,7 +6,7 @@ import {
   range,
   removeIndexesFromArray,
 } from "../../helpers/misc";
-import { Command, ResizeColumnsRowsCommand } from "../../types/commands";
+import { AddColumnsRowsCommand, Command, ResizeColumnsRowsCommand } from "../../types/commands";
 import { Dimension, HeaderIndex, Pixel, UID } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
@@ -24,7 +24,16 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
     CREATE_SHEET: this.initSheetSizes,
     DUPLICATE_SHEET: this.duplicateSheetSizes,
     DELETE_SHEET: this.deleteSheetSizes,
+    ADD_COLUMNS_ROWS: this.addHeaderSizes,
   };
+
+  private addHeaderSizes(cmd: AddColumnsRowsCommand) {
+    const sizes = this.sizes[cmd.sheetId][cmd.dimension];
+    const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
+    const baseSize = sizes[cmd.base];
+    const newSizes = insertItemsAtIndex(sizes, Array(cmd.quantity).fill(baseSize), addIndex);
+    this.history.update("sizes", cmd.sheetId, cmd.dimension, newSizes);
+  }
 
   private deleteSheetSizes(cmd: { sheetId: UID }) {
     const sizes = { ...this.sizes };
@@ -55,14 +64,6 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
         const arr = this.sizes[cmd.sheetId][cmd.dimension];
         const sizes = removeIndexesFromArray(arr, cmd.elements);
         this.history.update("sizes", cmd.sheetId, cmd.dimension, sizes);
-        break;
-      }
-      case "ADD_COLUMNS_ROWS": {
-        const sizes = this.sizes[cmd.sheetId][cmd.dimension];
-        const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
-        const baseSize = sizes[cmd.base];
-        const newSizes = insertItemsAtIndex(sizes, Array(cmd.quantity).fill(baseSize), addIndex);
-        this.history.update("sizes", cmd.sheetId, cmd.dimension, newSizes);
         break;
       }
     }

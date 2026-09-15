@@ -99,6 +99,7 @@ export class CellIconPlugin extends UIPlugin {
     CREATE_SHEET: this.clearCellIconsCache,
     DUPLICATE_SHEET: this.clearCellIconsCache,
     DELETE_SHEET: this.clearCellIconsCache,
+    ADD_COLUMNS_ROWS: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {

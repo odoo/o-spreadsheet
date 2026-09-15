@@ -67,7 +67,16 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     CLEAR_CELL: this.clearCell,
     CLEAR_CELLS: this.clearCells,
     DELETE_SHEET: this.deleteSheetCells,
+    ADD_COLUMNS_ROWS: this.copyStyleOnHeaderAddition,
   };
+
+  private copyStyleOnHeaderAddition(cmd: AddColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      this.handleAddColumnsRows(cmd, this.copyColumnStyle.bind(this));
+    } else {
+      this.handleAddColumnsRows(cmd, this.copyRowStyle.bind(this));
+    }
+  }
 
   private deleteSheetCells(cmd: { sheetId: UID }) {
     this.history.update("cells", cmd.sheetId, undefined);
@@ -119,18 +128,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           : CommandResult.InvalidCellId;
       default:
         return CommandResult.Success;
-    }
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "ADD_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.handleAddColumnsRows(cmd, this.copyColumnStyle.bind(this));
-        } else {
-          this.handleAddColumnsRows(cmd, this.copyRowStyle.bind(this));
-        }
-        break;
     }
   }
 

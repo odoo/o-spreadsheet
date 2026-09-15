@@ -43,6 +43,7 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
     UNFOLD_HEADER_GROUPS_IN_ZONE: this.refreshHiddenRows,
     CREATE_SHEET: this.initSheetFilterValues,
     DUPLICATE_SHEET: this.duplicateSheetFilterValues,
+    ADD_COLUMNS_ROWS: this.invalidateEvaluation,
   };
 
   private duplicateSheetFilterValues(cmd: { sheetId: UID; sheetIdTo: UID }) {
@@ -82,7 +83,6 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
       case "UNDO":
       case "REDO":
       case "EVALUATE_CELLS":
-      case "ADD_COLUMNS_ROWS":
       case "REMOVE_COLUMNS_ROWS":
         this.isEvaluationDirty = true;
         break;
