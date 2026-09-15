@@ -35,6 +35,10 @@ colMenuRegistry
     ...ACTION_EDIT.pasteSpecialFormat,
     sequence: 20,
   })
+  .addChild("paste_formula_only", ["paste_special"], {
+    ...ACTION_EDIT.pasteSpecialFormula,
+    sequence: 30,
+  })
   .add("sort_columns", {
     ...ACTION_DATA.sortRange,
     name: (env) =>

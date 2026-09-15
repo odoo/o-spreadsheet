@@ -32,6 +32,10 @@ rowMenuRegistry
     ...ACTION_EDIT.pasteSpecialFormat,
     sequence: 20,
   })
+  .addChild("paste_formula_only", ["paste_special"], {
+    ...ACTION_EDIT.pasteSpecialFormula,
+    sequence: 30,
+  })
   .add("add_row_before", {
     ...ACTION_INSERT.rowInsertRowBefore,
     sequence: 50,

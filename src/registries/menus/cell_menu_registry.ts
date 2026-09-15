@@ -39,6 +39,10 @@ cellMenuRegistry
     ...ACTION_EDIT.pasteSpecialFormat,
     sequence: 20,
   })
+  .addChild("paste_formula_only", ["paste_special"], {
+    ...ACTION_EDIT.pasteSpecialFormula,
+    sequence: 30,
+  })
   .add("data_analysis", {
     ...ACTION_DATA.dataAnalysis,
     sequence: 50,
