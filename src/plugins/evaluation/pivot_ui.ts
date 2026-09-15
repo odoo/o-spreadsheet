@@ -24,7 +24,6 @@ import {
   RefreshPivotCommand,
   UndoCommand,
   UpdatePivotCommand,
-  isCoreCommand,
 } from "../../types/commands";
 import {
   CellPosition,
@@ -218,12 +217,6 @@ export class PivotUIPlugin extends EvaluationPlugin {
   private invalidatePivotsOnLocaleUpdate() {
     this.invalidateAllPivots();
     resetMapValueDimensionDate();
-  }
-
-  handle(cmd: EvaluationCommand) {
-    if (isCoreCommand(cmd)) {
-      this.unusedPivotsInFormulas = undefined;
-    }
   }
 
   finalize() {
