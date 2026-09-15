@@ -245,7 +245,7 @@ export class GridOverlay extends OSComponent {
     const [col, row] = this.getCartesianCoordinates(zoomedMouseEvent);
     const clickedIcon = this.getInteractiveIconAtEvent(zoomedMouseEvent);
     if (clickedIcon) {
-      this.env.model.selection.getBackToDefault();
+      this.model().selection.getBackToDefault();
     }
     this.props.onCellClicked(
       col,
@@ -258,7 +258,7 @@ export class GridOverlay extends OSComponent {
     );
 
     if (clickedIcon?.onClick) {
-      clickedIcon.onClick(clickedIcon.position, this.env);
+      clickedIcon.onClick(clickedIcon.position, this.spEnv);
     }
 
     if (
@@ -306,24 +306,24 @@ export class GridOverlay extends OSComponent {
     const sheetId = this.viewStore.displayedSheetId;
 
     let position = { col, row, sheetId };
-    const merge = this.env.model.getters.getMerge(position);
+    const merge = this.model().getters.getMerge(position);
     if (merge) {
       position = { col: merge.left, row: merge.top, sheetId };
     }
 
-    const icons = this.env.model.getters.getCellIcons(position);
+    const icons = this.model().getters.getCellIcons(position);
     const icon = icons.find((icon) => {
-      const merge = this.env.model.getters.getMerge(position);
+      const merge = this.model().getters.getMerge(position);
       const zone = merge || positionToZone(position);
       const cellRect = this.viewStore.viewports.getRect(sheetId, zone);
 
-      return isPointInsideRect(x, y, this.env.model.getters.getCellIconRect(icon, cellRect));
+      return isPointInsideRect(x, y, this.model().getters.getCellIconRect(icon, cellRect));
     });
     return icon?.onClick ? icon : undefined;
   }
 
   get isFooterVisible() {
-    if (this.env.model.getters.isReadonly() || !this.props.hasFooter) {
+    if (this.model().getters.isReadonly() || !this.props.hasFooter) {
       return false;
     }
     const sheetId = this.viewStore.displayedSheetId;

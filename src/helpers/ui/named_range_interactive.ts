@@ -12,7 +12,7 @@ export function interactiveCreateNamedRange(
   env: SpreadsheetActionEnv,
   payload: Omit<CreateNamedRangeCommand, "type">
 ) {
-  const result = env.model.dispatch("CREATE_NAMED_RANGE", payload);
+  const result = env.model().dispatch("CREATE_NAMED_RANGE", payload);
   handleResult(env, result);
 }
 
@@ -20,7 +20,7 @@ export function interactiveUpdateNamedRange(
   env: SpreadsheetActionEnv,
   payload: Omit<UpdateNamedRangeCommand, "type">
 ) {
-  const result = env.model.dispatch("UPDATE_NAMED_RANGE", payload);
+  const result = env.model().dispatch("UPDATE_NAMED_RANGE", payload);
   handleResult(env, result);
 }
 

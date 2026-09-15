@@ -27,18 +27,18 @@ export class TopBarColorEditor extends OSComponent {
   }
   get currentColor(): string {
     return (
-      this.env.model.getters.getCurrentStyle()[this.props.style] ||
+      this.model().getters.getCurrentStyle()[this.props.style] ||
       (this.props.style === "textColor" ? "#000000" : "#ffffff")
     );
   }
 
   setColor(color: string) {
     if (this.props.style === "fillColor" && this.isWholeSheetSelected()) {
-      const sheetId = this.env.model.getters.getActiveSheetId();
-      this.env.model.dispatch("SET_BACKGROUND_FOR_ALL_CELLS", { sheetId, color });
+      const sheetId = this.model().getters.getActiveSheetId();
+      this.model().dispatch("SET_BACKGROUND_FOR_ALL_CELLS", { sheetId, color });
       return;
     }
-    setStyle(this.env.model, { [this.props.style]: color });
+    setStyle(this.model(), { [this.props.style]: color });
     this.state.isOpen = false;
   }
 
@@ -55,8 +55,8 @@ export class TopBarColorEditor extends OSComponent {
   }
 
   private isWholeSheetSelected(): boolean {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const sheetZone = this.env.model.getters.getSheetZone(sheetId);
-    return deepEquals(this.env.model.getters.getSelectedZone(), sheetZone);
+    const sheetId = this.model().getters.getActiveSheetId();
+    const sheetZone = this.model().getters.getSheetZone(sheetId);
+    return deepEquals(this.model().getters.getSelectedZone(), sheetZone);
   }
 }

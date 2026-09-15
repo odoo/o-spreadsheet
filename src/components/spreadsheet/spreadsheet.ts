@@ -7,6 +7,7 @@ import {
   providePlugins,
   proxy,
   signal,
+  Signal,
   useEffect,
   useListener,
   usePlugin,
@@ -19,7 +20,8 @@ import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { batched } from "../../helpers/misc";
 import { providePluginsIfNotPresent, render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
-import { useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
+import { Component, useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
+import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
@@ -52,7 +54,6 @@ import {
 } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";
-import { OSComponent } from "../os_component";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 import { types } from "../props_validation";
 import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
@@ -71,7 +72,7 @@ interface State {
   colorThemeBeforePrint: ColorThemeName;
 }
 
-export class Spreadsheet extends OSComponent {
+export class Spreadsheet extends Component {
   static template = "o-spreadsheet-Spreadsheet";
   protected props = useProps({
     model: types.Model(),
@@ -101,12 +102,13 @@ export class Spreadsheet extends OSComponent {
 
   private isViewportTooSmall: boolean = false;
   private notificationPlugin!: PluginInstance<typeof NotificationPlugin>;
+  private modelPlugin!: PluginInstance<typeof ModelPlugin>;
   private composerFocusStore!: Store<ComposerFocusStore>;
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
 
-  get model(): Model {
-    return this.props.model;
+  get model(): Signal<Model> {
+    return this.modelPlugin.model;
   }
 
   getStyle(): string {
@@ -119,7 +121,7 @@ export class Spreadsheet extends OSComponent {
     if (this.state.printModeEnabled) {
       properties["display"] = `block`;
     } else {
-      if (this.env.model.getters.isDashboard()) {
+      if (this.model().getters.isDashboard()) {
         properties["grid-template-rows"] = `auto`;
       } else {
         properties["grid-template-rows"] = `min-content auto min-content`;
@@ -143,14 +145,16 @@ export class Spreadsheet extends OSComponent {
       } satisfies Partial<SpreadsheetChildEnv>);
     }
 
+    providePlugins([PopoverContainerPlugin, ModelPlugin], {
+      getPopoverContainerRect: () => getElBoundingRect(this.spreadsheetRef()),
+      model: this.props.model,
+    });
+    this.modelPlugin = usePlugin(ModelPlugin);
+
     const stores = useStoreProvider();
-    stores.inject(ModelStore, this.model);
+    stores.inject(ModelStore, this.model());
     this.viewStore = useStore(ViewportsStore);
     this.zoomStore = useStore(ZoomStore);
-
-    providePlugins([PopoverContainerPlugin], {
-      getPopoverContainerRect: () => getElBoundingRect(this.spreadsheetRef()),
-    });
 
     const env = this.env;
     stores.get(ScreenWidthStore).setSmallThreshhold(() => {
@@ -165,13 +169,12 @@ export class Spreadsheet extends OSComponent {
     for (const store of globalStores.getAll()) {
       useStore(store);
     }
-    const fileStore = this.model.config.external.fileStore;
+    const fileStore = this.model().config.external.fileStore;
 
     useSubEnv({
-      model: this.model,
       imageProvider: fileStore ? new ImageProvider(fileStore) : undefined,
-      loadCurrencies: this.model.config.external.loadCurrencies,
-      loadLocales: this.model.config.external.loadLocales,
+      loadCurrencies: this.model().config.external.loadCurrencies,
+      loadLocales: this.model().config.external.loadLocales,
       openSidePanel: this.sidePanel.open.bind(this.sidePanel),
       replaceSidePanel: this.sidePanel.replace.bind(this.sidePanel),
       toggleSidePanel: this.sidePanel.toggle.bind(this.sidePanel),
@@ -258,8 +261,8 @@ export class Spreadsheet extends OSComponent {
   }
 
   private bindModelEvents() {
-    this.model.on("update", this, () => render(this, true));
-    this.model.on("command-rejected", this, ({ result }) => {
+    this.model().on("update", this, () => render(this, true));
+    this.model().on("command-rejected", this, ({ result }) => {
       if (result.isCancelledBecause(CommandResult.SheetLocked)) {
         this.notificationPlugin.notifyUser({
           type: "info",
@@ -269,17 +272,17 @@ export class Spreadsheet extends OSComponent {
       }
     });
 
-    this.model.on("notify-ui", this, (notification: InformationNotification) =>
+    this.model().on("notify-ui", this, (notification: InformationNotification) =>
       this.notificationPlugin.notifyUser(notification)
     );
-    this.model.on("raise-error-ui", this, ({ text }) => this.notificationPlugin.raiseError(text));
+    this.model().on("raise-error-ui", this, ({ text }) => this.notificationPlugin.raiseError(text));
   }
 
   private unbindModelEvents() {
-    this.model.off("update", this);
-    this.model.off("command-rejected", this);
-    this.model.off("notify-ui", this);
-    this.model.off("raise-error-ui", this);
+    this.model().off("update", this);
+    this.model().off("command-rejected", this);
+    this.model().off("notify-ui", this);
+    this.model().off("raise-error-ui", this);
   }
 
   private checkViewportSize() {
@@ -331,13 +334,13 @@ export class Spreadsheet extends OSComponent {
   }
 
   get rowLayers(): HeaderGroup[][] {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    return this.env.model.getters.getVisibleGroupLayers(sheetId, "ROW");
+    const sheetId = this.model().getters.getActiveSheetId();
+    return this.model().getters.getVisibleGroupLayers(sheetId, "ROW");
   }
 
   get colLayers(): HeaderGroup[][] {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    return this.env.model.getters.getVisibleGroupLayers(sheetId, "COL");
+    const sheetId = this.model().getters.getActiveSheetId();
+    return this.model().getters.getVisibleGroupLayers(sheetId, "COL");
   }
 
   getGridSize() {
@@ -371,7 +374,7 @@ export class Spreadsheet extends OSComponent {
   getSpreadSheetClasses() {
     return [
       this.env.isSmall ? "o-spreadsheet-mobile" : "",
-      this.props.model.getters.isDarkMode() ? "dark" : "",
+      this.model().getters.isDarkMode() ? "dark" : "",
     ].join(" ");
   }
 
@@ -379,8 +382,8 @@ export class Spreadsheet extends OSComponent {
     if (this.state.printModeEnabled) {
       return;
     }
-    this.state.colorThemeBeforePrint = this.props.model.getters.isDarkMode() ? "dark" : "light";
-    this.env.model.dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "light" });
+    this.state.colorThemeBeforePrint = this.model().getters.isDarkMode() ? "dark" : "light";
+    this.model().dispatch("UPDATE_COLOR_SCHEME", { colorScheme: "light" });
     this.state.printModeEnabled = true;
   }
 
@@ -388,7 +391,7 @@ export class Spreadsheet extends OSComponent {
     if (!this.state.printModeEnabled) {
       return;
     }
-    this.env.model.dispatch("UPDATE_COLOR_SCHEME", {
+    this.model().dispatch("UPDATE_COLOR_SCHEME", {
       colorScheme: this.state.colorThemeBeforePrint,
     });
     this.state.printModeEnabled = false;
@@ -399,6 +402,6 @@ export class Spreadsheet extends OSComponent {
       // We want to have the canvas/charts (the model) in light mode when printing, but the UI can be in dark mode
       return this.state.colorThemeBeforePrint;
     }
-    return this.props.model.getters.isDarkMode() ? "dark" : "light";
+    return this.model().getters.isDarkMode() ? "dark" : "light";
   }
 }

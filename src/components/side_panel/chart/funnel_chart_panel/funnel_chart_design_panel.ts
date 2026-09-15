@@ -34,9 +34,7 @@ export class FunnelChartDesignPanel extends OSComponent {
   }) as unknown as Props;
 
   getFunnelColorItems() {
-    const runtime = this.env.model.getters.getChartRuntime(
-      this.props.chartId
-    ) as FunnelChartRuntime;
+    const runtime = this.model().getters.getChartRuntime(this.props.chartId) as FunnelChartRuntime;
     const labels: string[] = (runtime.chartJsConfig.data.labels || []) as string[];
     const colors = getFunnelLabelColors(labels, this.props.definition.funnelColors);
     return labels.map((label, index) => ({

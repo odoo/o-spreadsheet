@@ -8,7 +8,7 @@ import { ViewportCollection } from "../../src/helpers/viewport_collection";
 import { positionToZone, toZone } from "../../src/helpers/zones";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { ZoomStore } from "../../src/stores/zoom_store";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { nextTick } from "./helpers";
 
 export type DOMTarget = string | Element | Document | Window | null;
@@ -137,12 +137,12 @@ export async function pointerUp(target: DOMTarget) {
  * this helper.
  */
 export async function hoverCell(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   xc: string,
   delay: number,
   viewports?: ViewportCollection
 ) {
-  const model = env.model;
+  const model = env.model();
   const zone = toZone(xc);
   viewports = viewports || env.getStore(ViewportsStore).viewports;
   const zoom = viewports.getZoomLevel();
@@ -160,7 +160,7 @@ export async function hoverCell(
 }
 
 export async function clickCell(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   xc: string,
   extra: MouseEventInit = { bubbles: true },
   option: {
@@ -176,7 +176,7 @@ export async function clickCell(
 ) {
   const viewStore = env.getStore(ViewportsStore);
   const zone = toZone(xc);
-  const sheetId = env.model.getters.getActiveSheetId();
+  const sheetId = env.model().getters.getActiveSheetId();
   const zoom = env.getStore(ZoomStore).zoomLevel;
   if (!viewStore.viewports.isVisibleInViewport({ sheetId, col: zone.left, row: zone.top })) {
     throw new Error(`You can't click on ${xc} because it is not visible`);
@@ -195,12 +195,12 @@ export async function clickCell(
 }
 
 export async function clickHeader(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   dim: "COL" | "ROW",
   header: HeaderIndex,
   extra: MouseEventInit = { bubbles: true }
 ) {
-  const model = env.model;
+  const model = env.model();
   let x = 1;
   let y = 1;
   const sheetZone = model.getters.getSheetZone(model.getters.getActiveSheetId());
@@ -226,8 +226,8 @@ export async function clickHeader(
   await simulateClick(".o-grid-overlay", x, y, extra);
 }
 
-export function getGridIconEventPosition(env: SpreadsheetChildEnv, xc: string) {
-  const model = env.model;
+export function getGridIconEventPosition(env: SpreadsheetActionEnv, xc: string) {
+  const model = env.model();
   const viewStore = env.getStore(ViewportsStore);
   const sheetId = viewStore.displayedSheetId;
   const position = { ...toCartesian(xc), sheetId };
@@ -245,24 +245,24 @@ export function getGridIconEventPosition(env: SpreadsheetChildEnv, xc: string) {
   return { x, y };
 }
 
-export async function clickGridIcon(env: SpreadsheetChildEnv, xc: string) {
+export async function clickGridIcon(env: SpreadsheetActionEnv, xc: string) {
   const { x, y } = getGridIconEventPosition(env, xc);
   await simulateClick(".o-grid-overlay", x, y);
 }
 
-export async function hoverGridIcon(env: SpreadsheetChildEnv, xc: string) {
+export async function hoverGridIcon(env: SpreadsheetActionEnv, xc: string) {
   const { x, y } = getGridIconEventPosition(env, xc);
   triggerMouseEvent(".o-grid-overlay", "pointermove", x, y);
   await nextTick();
 }
 
 export async function gridMouseEvent(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   type: string,
   xc: string,
   extra: MouseEventInit = { bubbles: true }
 ) {
-  const model = env.model;
+  const model = env.model();
   const zone = toZone(xc);
   let { x, y } = env
     .getStore(ViewportsStore)
@@ -276,7 +276,7 @@ export async function gridMouseEvent(
 }
 
 export async function rightClickCell(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   xc: string,
   extra: MouseEventInit = { bubbles: true }
 ) {
@@ -454,11 +454,11 @@ export function getElStyle(selector: string, style: string): string {
  * @param extra shiftKey, ctrlKey
  */
 export async function selectColumnByClicking(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   letter: string,
   extra: any = {}
 ) {
-  const model = env.model;
+  const model = env.model();
   const index = lettersToNumber(letter);
   const zoom = env.getStore(ZoomStore).zoomLevel;
   const x =

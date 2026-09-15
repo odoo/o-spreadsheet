@@ -45,7 +45,7 @@ export class StandaloneGridCanvas extends OSComponent {
     const imagePaths = props.renderingCtx.viewports
       .getVisibleFigures(props.sheetId)
       .filter((figure) => figure.tag === "image")
-      .map((figure) => this.env.model.getters.getImagePath(figure.id))
+      .map((figure) => this.model().getters.getImagePath(figure.id))
       .filter((path) => path && !this.figureRendererStore.loadedImages[path]);
 
     await Promise.all(
@@ -63,12 +63,12 @@ export class StandaloneGridCanvas extends OSComponent {
       .getVisibleFigures(sheetId)
       .filter((figure) => figure.tag === "carousel")
       .map((figure) => {
-        const carouselItem = this.env.model.getters.getSelectedCarouselItem(figure.id);
+        const carouselItem = this.model().getters.getSelectedCarouselItem(figure.id);
         if (carouselItem?.type !== "carouselDataView" || !carouselItem.range) {
           return undefined;
         }
 
-        const carousel = this.env.model.getters.getCarousel(figure.id);
+        const carousel = this.model().getters.getCarousel(figure.id);
         const scroll = viewports.getViewportOffset(sheetId);
         const { x, y, width, height } = figure;
         const mainRect = { x: x - scroll.x, y: y - scroll.y, width, height };

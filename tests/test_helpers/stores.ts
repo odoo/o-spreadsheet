@@ -6,7 +6,7 @@ import { globalStores } from "../../src/store_engine/store_registries";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 
 import { ModelStore } from "../../src/stores/model_store";
-import { makeTestEnv, mockNotificationMethods } from "./helpers";
+import { makeSpreadsheetActionTestEnv, mockNotificationMethods } from "./helpers";
 
 export interface StoreSpy {
   getStores: (Store: StoreConstructor) => any[];
@@ -17,7 +17,7 @@ export function makeStore<T extends StoreConstructor>(Store: T, ...args: StorePa
 }
 
 export function makeGlobalStoreWithModel(model: Model) {
-  const testEnv = makeTestEnv({ model, useTrueRenderer: true });
+  const testEnv = makeSpreadsheetActionTestEnv(model, { useTrueRenderer: true });
 
   const container = testEnv.__spreadsheet_stores__;
   container.inject(ModelStore, model);

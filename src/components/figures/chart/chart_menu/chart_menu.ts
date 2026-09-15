@@ -68,11 +68,11 @@ export class ChartMenu extends OSComponent {
   }
 
   get figureId() {
-    return this.env.model.getters.getFigureIdFromChartId(this.props.chartId);
+    return this.model().getters.getFigureIdFromChartId(this.props.chartId);
   }
 
   get chartDefinition() {
-    return this.env.model.getters.getChartDefinition(this.props.chartId);
+    return this.model().getters.getChartDefinition(this.props.chartId);
   }
 
   get backgroundColor() {
@@ -132,23 +132,23 @@ export class ChartMenu extends OSComponent {
   }
 
   get regionOptions(): ValueAndLabel[] {
-    return this.env.model.getters
-      .getAvailableChartRegions(this.props.chartId)
+    return this.model()
+      .getters.getAvailableChartRegions(this.props.chartId)
       .map((r) => ({ value: r.id, label: r.label }));
   }
 
   get selectedRegion(): string {
-    const definition = this.env.model.getters.getChartDefinition(this.props.chartId);
+    const definition = this.model().getters.getChartDefinition(this.props.chartId);
     if (!definition.type.includes("geo")) {
       return "";
     }
     const geoDef = definition as GeoChartDefinition<string>;
-    const availableRegions = this.env.model.getters.getGeoChartAvailableRegions();
+    const availableRegions = this.model().getters.getGeoChartAvailableRegions();
     return geoDef.region || availableRegions[0]?.id || "";
   }
 
   onRegionSelected(region: string) {
-    this.env.model.dispatch("UPDATE_CHART_REGION", {
+    this.model().dispatch("UPDATE_CHART_REGION", {
       chartId: this.props.chartId,
       region,
     });
@@ -156,7 +156,7 @@ export class ChartMenu extends OSComponent {
 
   isMenuAvailable() {
     return (
-      (this.env.model.getters.isDashboard() || !this.env.model.getters.isReadonly()) &&
+      (this.model().getters.isDashboard() || !this.model().getters.isReadonly()) &&
       this.props.displayEllipsisButton
     );
   }

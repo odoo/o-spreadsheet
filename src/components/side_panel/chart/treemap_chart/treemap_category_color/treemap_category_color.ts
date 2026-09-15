@@ -37,9 +37,7 @@ export class TreeMapCategoryColors extends OSComponent {
   }
 
   getTreeGroupAndColors(): DeepPartial<TreeMapGroupColor[]> {
-    const runtime = this.env.model.getters.getChartRuntime(
-      this.props.chartId
-    ) as TreeMapChartRuntime;
+    const runtime = this.model().getters.getChartRuntime(this.props.chartId) as TreeMapChartRuntime;
     const config = runtime.chartJsConfig as ChartConfiguration<"treemap">;
     return config.data.datasets[0]?.groupColors || [];
   }

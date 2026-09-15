@@ -40,7 +40,7 @@ export class GridComposer extends OSComponent {
   private currentEditedCell: CellPosition = {
     col: 0,
     row: 0,
-    sheetId: this.env.model.getters.getActiveSheetId(),
+    sheetId: this.model().getters.getActiveSheetId(),
   };
 
   private composerStore!: Store<CellComposerStore>;
@@ -80,9 +80,9 @@ export class GridComposer extends OSComponent {
 
   get cellReference(): string {
     const { col, row, sheetId } = this.composerStore.currentEditedCell;
-    const prefixSheet = sheetId !== this.env.model.getters.getActiveSheetId();
+    const prefixSheet = sheetId !== this.model().getters.getActiveSheetId();
     return getFullReference(
-      prefixSheet ? this.env.model.getters.getSheetName(sheetId) : undefined,
+      prefixSheet ? this.model().getters.getSheetName(sheetId) : undefined,
       toXC(col, row)
     );
   }
@@ -135,9 +135,9 @@ export class GridComposer extends OSComponent {
       return `z-index: -1000; opacity: 0;`; // opacity 0 for safari on ios
     }
     const _isFormula = isFormula(this.composerStore.currentContent);
-    const cell = this.env.model.getters.getActiveCell();
-    const position = this.env.model.getters.getActivePosition();
-    const style = this.env.model.getters.getCellComputedStyle(position);
+    const cell = this.model().getters.getActiveCell();
+    const position = this.model().getters.getActivePosition();
+    const style = this.model().getters.getCellComputedStyle(position);
 
     // position style
     const { x: left, y: top, width, height } = this.rect;
@@ -216,8 +216,8 @@ export class GridComposer extends OSComponent {
     }
 
     if (shouldRecomputeRect) {
-      const position = this.env.model.getters.getActivePosition();
-      const zone = this.env.model.getters.expandZone(position.sheetId, positionToZone(position));
+      const position = this.model().getters.getActivePosition();
+      const zone = this.model().getters.expandZone(position.sheetId, positionToZone(position));
       this.rect = this.viewStore.viewports.getVisibleRect(position.sheetId, zone);
     }
   }
@@ -230,8 +230,8 @@ export class GridComposer extends OSComponent {
     if (this.isCellReferenceVisible) {
       return;
     }
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const zone = positionToZone(this.env.model.getters.getSelection().anchor.cell);
+    const sheetId = this.model().getters.getActiveSheetId();
+    const zone = positionToZone(this.model().getters.getSelection().anchor.cell);
     const rect = this.viewStore.viewports.getVisibleRect(sheetId, zone);
     if (!deepEquals(rect, this.rect) || sheetId !== this.composerStore.currentEditedCell.sheetId) {
       this.isCellReferenceVisible = true;

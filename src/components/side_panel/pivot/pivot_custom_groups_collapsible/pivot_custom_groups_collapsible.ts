@@ -64,7 +64,7 @@ export class PivotCustomGroupsCollapsible extends OSComponent {
   }
 
   private updateCustomField(customField: PivotCustomGroupedField) {
-    const definition = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
+    const definition = this.model().getters.getPivotCoreDefinition(this.props.pivotId);
     this.props.onCustomFieldUpdated({
       customFields: { ...definition.customFields, [customField.name]: customField },
     });

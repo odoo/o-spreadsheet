@@ -22,12 +22,12 @@ export class ScorecardChart extends OSComponent {
   private zoomStore!: Store<ZoomStore>;
 
   get runtime(): ScorecardChartRuntime {
-    return this.env.model.getters.getChartRuntime(this.props.chartId) as ScorecardChartRuntime;
+    return this.model().getters.getChartRuntime(this.props.chartId) as ScorecardChartRuntime;
   }
 
   get title(): string {
-    const title = this.env.model.getters.getChartDefinition(this.props.chartId).title.text;
-    return title ? this.env.model.getters.dynamicTranslate(title) : "";
+    const title = this.model().getters.getChartDefinition(this.props.chartId).title.text;
+    return title ? this.model().getters.dynamicTranslate(title) : "";
   }
 
   setup() {

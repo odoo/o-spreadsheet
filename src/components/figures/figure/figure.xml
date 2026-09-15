@@ -9,7 +9,7 @@
         t-att-class="this.figureClass"
         t-on-pointerdown.stop="(ev) => this.onMouseDown(ev)"
         t-on-click="this.onClick"
-        t-on-contextmenu.prevent.stop="(ev) => !this.env.model.getters.isReadonly() and this.onContextMenu(ev)"
+        t-on-contextmenu.prevent.stop="(ev) => !this.model().getters.isReadonly() and this.onContextMenu(ev)"
         t-ref="this.figureRef"
         t-att-style="this.figureStyle"
         t-att-data-id="this.props.figureUI.id"

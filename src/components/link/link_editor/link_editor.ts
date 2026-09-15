@@ -73,7 +73,7 @@ export class LinkEditor extends OSComponent {
       const links =
         inputVal && this.state.isUrlEditable
           ? fuzzyLookup(inputVal, linkProposals, (link) =>
-              spec.urlRepresentation(link.url, this.env.model.getters)
+              spec.urlRepresentation(link.url, this.model().getters)
             )
           : linkProposals;
 
@@ -82,7 +82,7 @@ export class LinkEditor extends OSComponent {
       }
       proposals[spec.title] = links.map((link) => {
         counter++;
-        const text = spec.urlRepresentation(link.url, this.env.model.getters);
+        const text = spec.urlRepresentation(link.url, this.model().getters);
         const index = counter;
         return {
           text,
@@ -104,7 +104,7 @@ export class LinkEditor extends OSComponent {
   get defaultState(): LinkState {
     const { col, row } = this.props.cellPosition;
     const sheetId = this.viewStore.displayedSheetId;
-    const cell = this.env.model.getters.getEvaluatedCell({ sheetId, col, row });
+    const cell = this.model().getters.getEvaluatedCell({ sheetId, col, row });
     if (cell.link) {
       return {
         url: cell.link.url,
@@ -126,7 +126,7 @@ export class LinkEditor extends OSComponent {
   }
 
   getUrlRepresentation(link: Link): string {
-    return urlRepresentation(link, this.env.model.getters);
+    return urlRepresentation(link, this.model().getters);
   }
 
   removeLink() {
@@ -137,11 +137,11 @@ export class LinkEditor extends OSComponent {
 
   save() {
     const { col, row } = this.props.cellPosition;
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     const label = this.state.label
       ? canonicalizeNumberContent(this.state.label, locale)
       : this.state.url;
-    this.env.model.dispatch("UPDATE_CELL", {
+    this.model().dispatch("UPDATE_CELL", {
       col: col,
       row: row,
       sheetId: this.viewStore.displayedSheetId,

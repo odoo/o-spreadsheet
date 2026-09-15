@@ -46,15 +46,12 @@ export class Corner extends OSComponent {
   get handlerStyle() {
     const z = this.props.zone;
 
-    const rect = this.viewStore.viewports.getVisibleRect(
-      this.env.model.getters.getActiveSheetId(),
-      {
-        left: this.dirX === 1 ? z.right : z.left,
-        right: this.dirX === -1 ? z.left : z.right,
-        top: this.dirY === 1 ? z.bottom : z.top,
-        bottom: this.dirY === -1 ? z.top : z.bottom,
-      }
-    );
+    const rect = this.viewStore.viewports.getVisibleRect(this.model().getters.getActiveSheetId(), {
+      left: this.dirX === 1 ? z.right : z.left,
+      right: this.dirX === -1 ? z.left : z.right,
+      top: this.dirY === 1 ? z.bottom : z.top,
+      bottom: this.dirY === -1 ? z.top : z.bottom,
+    });
 
     // Don't show if not visible in the viewport
     if (rect.width * rect.height === 0) {

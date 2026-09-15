@@ -77,6 +77,7 @@ import { PopoverContainerPlugin } from "../../src/components/popover/popover_con
 import { computeFunctionsCache } from "../../src/formulas/compiler";
 import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
+import { ModelPlugin } from "../../src/owl_plugins/model_owl_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { EvaluationPluginConstructor } from "../../src/plugins/evaluation_plugin";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
@@ -221,19 +222,23 @@ class FakeRendererStore extends RendererStore {
   }
 }
 
-interface SpreadsheetChildEnvWithStores extends SpreadsheetActionEnv {
+interface SpreadsheetActionEnvWithStores extends SpreadsheetActionEnv {
   __spreadsheet_stores__: DependencyContainer;
 }
 
-export function makeTestEnv(
-  mockEnv: Partial<SpreadsheetChildEnvWithStores & { useTrueRenderer?: boolean }> = {}
-): SpreadsheetChildEnvWithStores {
-  const model = mockEnv.model || new Model();
+export function makeSpreadsheetActionTestEnv(
+  model: Model = new Model(),
+  mockEnv: Partial<SpreadsheetActionEnvWithStores & { useTrueRenderer?: boolean }> = {}
+): SpreadsheetActionEnvWithStores {
   if (mockEnv.__spreadsheet_stores__) {
-    throw new Error("Cannot call makeTestEnv on a partial env that already have a store container");
+    throw new Error(
+      "Cannot call makeSpreadsheetActionTestEnv on a partial env that already have a store container"
+    );
   }
 
-  const { getPlugin, container } = makeOwlPluginManager([NotificationPlugin]);
+  const { getPlugin, container } = makeOwlPluginManager([NotificationPlugin, ModelPlugin], {
+    model,
+  });
 
   container.inject(ModelStore, model);
   if (!mockEnv.useTrueRenderer) {
@@ -263,7 +268,7 @@ export function makeTestEnv(
     container.get(store);
   }
   return {
-    model,
+    model: getPlugin(ModelPlugin).model,
     openSidePanel: mockEnv.openSidePanel || sidePanelStore.open.bind(sidePanelStore),
     replaceSidePanel: mockEnv.replaceSidePanel || sidePanelStore.replace.bind(sidePanelStore),
     toggleSidePanel: mockEnv.toggleSidePanel || sidePanelStore.toggle.bind(sidePanelStore),
@@ -305,14 +310,6 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
 
 type ComponentProps = { [key: string]: any };
 
-interface PortalParentProps {
-  isPortalTarget: boolean;
-  childComponent: ComponentConstructor<SpreadsheetChildEnv>;
-  childProps: ComponentProps;
-  model: Model;
-  mockEnv?: Partial<SpreadsheetChildEnv>;
-}
-
 class TestParent extends Component {
   static template = xml/*xml*/ `
     <div t-if="this.props.isPortalTarget" class="o-spreadsheet">
@@ -331,7 +328,9 @@ class TestParent extends Component {
   });
 
   setup() {
-    providePlugins([NotificationPlugin]);
+    providePlugins([NotificationPlugin, ModelPlugin], {
+      model: this.props.model,
+    });
     if (this.props.isPortalTarget) {
       providePlugins([PopoverContainerPlugin], {
         getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
@@ -412,7 +411,7 @@ interface MountComponentArgs<Props extends ComponentProps> {
   callbackInComponentSetup?: () => void;
 }
 
-interface MountComponentReturn<Props extends ComponentProps> {
+interface MountComponentReturn {
   app: App;
   parent: Component<SpreadsheetChildEnv>;
   testRoot: TestParent;
@@ -426,8 +425,8 @@ interface MountComponentReturn<Props extends ComponentProps> {
 export async function mountComponentWithPortalTarget<Props extends ComponentProps>(
   component: ComponentConstructor<SpreadsheetChildEnv>,
   optionalArgs: MountComponentArgs<Props> = {}
-): Promise<MountComponentReturn<PortalParentProps>> {
-  const model = optionalArgs.model || optionalArgs.env?.model || new Model();
+): Promise<MountComponentReturn> {
+  const model = optionalArgs.model || new Model();
   const args = {
     ...optionalArgs,
     props: {
@@ -444,8 +443,8 @@ export async function mountComponentWithPortalTarget<Props extends ComponentProp
 export async function mountComponent<Props extends ComponentProps>(
   component: ComponentConstructor<SpreadsheetChildEnv>,
   optionalArgs: MountComponentArgs<Props> = {}
-): Promise<MountComponentReturn<PortalParentProps>> {
-  const model = optionalArgs.model || optionalArgs.env?.model || new Model();
+): Promise<MountComponentReturn> {
+  const model = optionalArgs.model || new Model();
   const args = {
     ...optionalArgs,
     props: {
@@ -464,7 +463,7 @@ async function _mountComponent<Props extends { [key: string]: any }>(
   rootComponent: ComponentConstructor<SpreadsheetChildEnv>,
   spiedComponent: ComponentConstructor<SpreadsheetChildEnv>,
   optionalArgs: MountComponentArgs<Props> = {}
-): Promise<MountComponentReturn<Props>> {
+): Promise<MountComponentReturn> {
   if (jest.isMockFunction(spiedComponent.prototype.setup)) {
     (spiedComponent.prototype.setup as jest.Mock).mockRestore();
   }

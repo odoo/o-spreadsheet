@@ -160,7 +160,7 @@ export class Grid extends OSComponent {
   private checkboxToggleStore!: Store<CheckboxToggleStore>;
   private clipboardStore!: Store<ClipboardStore>;
 
-  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
 
   onMouseWheel!: (ev: WheelEvent) => void;
   hoveredCell!: Store<DelayedHoveredCellStore>;
@@ -198,7 +198,7 @@ export class Grid extends OSComponent {
       renderingCtx: () => ({
         dpr: window.devicePixelRatio || 1,
         viewports: this.viewStore.viewports,
-        ...this.env.model.getters.getSelectionState(),
+        ...this.model().getters.getSelectionState(),
       }),
     });
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
@@ -264,15 +264,15 @@ export class Grid extends OSComponent {
       this.focusComposerFromActiveCell();
     },
     Delete: () => {
-      this.env.model.dispatch("DELETE_UNFILTERED_CONTENT", {
-        sheetId: this.env.model.getters.getActiveSheetId(),
-        target: this.env.model.getters.getSelectedZones(),
+      this.model().dispatch("DELETE_UNFILTERED_CONTENT", {
+        sheetId: this.model().getters.getActiveSheetId(),
+        target: this.model().getters.getSelectedZones(),
       });
     },
     Backspace: () => {
-      this.env.model.dispatch("DELETE_UNFILTERED_CONTENT", {
-        sheetId: this.env.model.getters.getActiveSheetId(),
-        target: this.env.model.getters.getSelectedZones(),
+      this.model().dispatch("DELETE_UNFILTERED_CONTENT", {
+        sheetId: this.model().getters.getActiveSheetId(),
+        target: this.model().getters.getSelectedZones(),
       });
     },
     Escape: () => {
@@ -284,100 +284,100 @@ export class Grid extends OSComponent {
       } else if (this.paintFormatStore.isActive) {
         this.paintFormatStore.cancel();
       } else {
-        this.env.model.dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
+        this.model().dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
       }
     },
-    "Ctrl+A": () => this.env.model.selection.loopSelection(),
-    "Ctrl+Z": () => this.env.model.dispatch("REQUEST_UNDO"),
-    "Ctrl+Y": () => this.env.model.dispatch("REQUEST_REDO"),
-    F4: () => this.env.model.dispatch("REQUEST_REDO"),
-    F9: () => this.env.model.dispatch("EVALUATE_CELLS"),
+    "Ctrl+A": () => this.model().selection.loopSelection(),
+    "Ctrl+Z": () => this.model().dispatch("REQUEST_UNDO"),
+    "Ctrl+Y": () => this.model().dispatch("REQUEST_REDO"),
+    F4: () => this.model().dispatch("REQUEST_REDO"),
+    F9: () => this.model().dispatch("EVALUATE_CELLS"),
     "Ctrl+B": () =>
-      this.env.model.dispatch("SET_FORMATTING", {
-        sheetId: this.env.model.getters.getActiveSheetId(),
-        target: this.env.model.getters.getSelectedZones(),
-        style: { bold: !this.env.model.getters.getCurrentStyle().bold },
+      this.model().dispatch("SET_FORMATTING", {
+        sheetId: this.model().getters.getActiveSheetId(),
+        target: this.model().getters.getSelectedZones(),
+        style: { bold: !this.model().getters.getCurrentStyle().bold },
       }),
     "Ctrl+I": () =>
-      this.env.model.dispatch("SET_FORMATTING", {
-        sheetId: this.env.model.getters.getActiveSheetId(),
-        target: this.env.model.getters.getSelectedZones(),
-        style: { italic: !this.env.model.getters.getCurrentStyle().italic },
+      this.model().dispatch("SET_FORMATTING", {
+        sheetId: this.model().getters.getActiveSheetId(),
+        target: this.model().getters.getSelectedZones(),
+        style: { italic: !this.model().getters.getCurrentStyle().italic },
       }),
     "Ctrl+U": () =>
-      this.env.model.dispatch("SET_FORMATTING", {
-        sheetId: this.env.model.getters.getActiveSheetId(),
-        target: this.env.model.getters.getSelectedZones(),
-        style: { underline: !this.env.model.getters.getCurrentStyle().underline },
+      this.model().dispatch("SET_FORMATTING", {
+        sheetId: this.model().getters.getActiveSheetId(),
+        target: this.model().getters.getSelectedZones(),
+        style: { underline: !this.model().getters.getCurrentStyle().underline },
       }),
     "Ctrl+O": () => CREATE_IMAGE(this.spEnv),
     "Alt+=": () => {
-      const sheetId = this.env.model.getters.getActiveSheetId();
+      const sheetId = this.model().getters.getActiveSheetId();
 
-      const mainSelectedZone = this.env.model.getters.getSelectedZone();
+      const mainSelectedZone = this.model().getters.getSelectedZone();
       const sums = this.automaticSumStore.automaticSumsOnMainSelectedZone;
       if (
-        this.env.model.getters.isSingleCellOrMerge(sheetId, mainSelectedZone) ||
-        (this.env.model.getters.isEmpty(sheetId, mainSelectedZone) && sums.length <= 1)
+        this.model().getters.isSingleCellOrMerge(sheetId, mainSelectedZone) ||
+        (this.model().getters.isEmpty(sheetId, mainSelectedZone) && sums.length <= 1)
       ) {
         const zone = sums[0]?.zone;
-        const zoneXc = zone ? this.env.model.getters.zoneToXC(sheetId, sums[0].zone) : "";
+        const zoneXc = zone ? this.model().getters.zoneToXC(sheetId, sums[0].zone) : "";
         const formula = `=SUM(${zoneXc})`;
         this.onComposerCellFocused(formula, { start: 5, end: 5 + zoneXc.length });
       } else {
-        this.env.model.dispatch("SUM_SELECTION");
+        this.model().dispatch("SUM_SELECTION");
       }
     },
     "Alt+Enter": () => {
-      const cell = this.env.model.getters.getActiveCell();
+      const cell = this.model().getters.getActiveCell();
       if (cell.link) {
         openLink(cell.link, this.spEnv);
       }
     },
     "Ctrl+Home": () => {
-      const sheetId = this.env.model.getters.getActiveSheetId();
-      const { col, row } = this.env.model.getters.getNextVisibleCellPosition({
+      const sheetId = this.model().getters.getActiveSheetId();
+      const { col, row } = this.model().getters.getNextVisibleCellPosition({
         sheetId,
         col: 0,
         row: 0,
       });
-      this.env.model.selection.selectCell(col, row);
+      this.model().selection.selectCell(col, row);
     },
     "Ctrl+End": () => {
-      const sheetId = this.env.model.getters.getActiveSheetId();
-      const col = this.env.model.getters.findVisibleHeader(
+      const sheetId = this.model().getters.getActiveSheetId();
+      const col = this.model().getters.findVisibleHeader(
         sheetId,
         "COL",
-        this.env.model.getters.getNumberCols(sheetId) - 1,
+        this.model().getters.getNumberCols(sheetId) - 1,
         0
       )!;
-      const row = this.env.model.getters.findVisibleHeader(
+      const row = this.model().getters.findVisibleHeader(
         sheetId,
         "ROW",
-        this.env.model.getters.getNumberRows(sheetId) - 1,
+        this.model().getters.getNumberRows(sheetId) - 1,
         0
       )!;
-      this.env.model.selection.selectCell(col, row);
+      this.model().selection.selectCell(col, row);
     },
     "Shift+ ": () => {
-      const sheetId = this.env.model.getters.getActiveSheetId();
+      const sheetId = this.model().getters.getActiveSheetId();
       const newZone = {
-        ...this.env.model.getters.getSelectedZone(),
+        ...this.model().getters.getSelectedZone(),
         left: 0,
-        right: this.env.model.getters.getNumberCols(sheetId) - 1,
+        right: this.model().getters.getNumberCols(sheetId) - 1,
       };
-      const position = this.env.model.getters.getActivePosition();
-      this.env.model.selection.selectZone({ cell: position, zone: newZone });
+      const position = this.model().getters.getActivePosition();
+      this.model().selection.selectZone({ cell: position, zone: newZone });
     },
     "Ctrl+ ": () => {
-      const sheetId = this.env.model.getters.getActiveSheetId();
+      const sheetId = this.model().getters.getActiveSheetId();
       const newZone = {
-        ...this.env.model.getters.getSelectedZone(),
+        ...this.model().getters.getSelectedZone(),
         top: 0,
-        bottom: this.env.model.getters.getNumberRows(sheetId) - 1,
+        bottom: this.model().getters.getNumberRows(sheetId) - 1,
       };
-      const position = this.env.model.getters.getActivePosition();
-      this.env.model.selection.selectZone({ cell: position, zone: newZone });
+      const position = this.model().getters.getActivePosition();
+      this.model().selection.selectZone({ cell: position, zone: newZone });
     },
     "Ctrl+D": () => {
       handleCopyPasteResult(this.spEnv, { type: "COPY_PASTE_CELLS_ABOVE" });
@@ -397,12 +397,12 @@ export class Grid extends OSComponent {
     "Ctrl+Shift+<": () => this.clearFormatting(), // for qwerty
     "Ctrl+<": () => this.clearFormatting(), // for azerty
     "Ctrl+Shift+ ": () => {
-      this.env.model.selection.selectAll();
+      this.model().selection.selectAll();
     },
     "Ctrl+Alt+=": () => {
-      const activeCols = this.env.model.getters.getActiveCols();
-      const activeRows = this.env.model.getters.getActiveRows();
-      const isSingleSelection = this.env.model.getters.getSelectedZones().length === 1;
+      const activeCols = this.model().getters.getActiveCols();
+      const activeRows = this.model().getters.getActiveRows();
+      const isSingleSelection = this.model().getters.getSelectedZones().length === 1;
       const areFullCols = activeCols.size > 0 && isSingleSelection;
       const areFullRows = activeRows.size > 0 && isSingleSelection;
       if (areFullCols && !areFullRows) {
@@ -412,29 +412,29 @@ export class Grid extends OSComponent {
       }
     },
     "Ctrl+Alt+-": () => {
-      const columns = [...this.env.model.getters.getActiveCols()];
-      const rows = [...this.env.model.getters.getActiveRows()];
+      const columns = [...this.model().getters.getActiveCols()];
+      const rows = [...this.model().getters.getActiveRows()];
       if (columns.length > 0 && rows.length === 0) {
-        this.env.model.dispatch("REMOVE_COLUMNS_ROWS", {
-          sheetId: this.env.model.getters.getActiveSheetId(),
-          sheetName: this.env.model.getters.getActiveSheetName(),
+        this.model().dispatch("REMOVE_COLUMNS_ROWS", {
+          sheetId: this.model().getters.getActiveSheetId(),
+          sheetName: this.model().getters.getActiveSheetName(),
           dimension: "COL",
           elements: columns,
         });
       } else if (rows.length > 0 && columns.length === 0) {
-        this.env.model.dispatch("REMOVE_COLUMNS_ROWS", {
-          sheetId: this.env.model.getters.getActiveSheetId(),
-          sheetName: this.env.model.getters.getActiveSheetName(),
+        this.model().dispatch("REMOVE_COLUMNS_ROWS", {
+          sheetId: this.model().getters.getActiveSheetId(),
+          sheetName: this.model().getters.getActiveSheetName(),
           dimension: "ROW",
           elements: rows,
         });
       }
     },
     "Shift+PageDown": () => {
-      this.env.model.dispatch("ACTIVATE_NEXT_SHEET");
+      this.model().dispatch("ACTIVATE_NEXT_SHEET");
     },
     "Shift+PageUp": () => {
-      this.env.model.dispatch("ACTIVATE_PREVIOUS_SHEET");
+      this.model().dispatch("ACTIVATE_PREVIOUS_SHEET");
     },
     "Shift+F11": () => {
       insertSheet.execute?.(this.spEnv);
@@ -455,7 +455,7 @@ export class Grid extends OSComponent {
   };
 
   private focusComposerFromActiveCell() {
-    const cell = this.env.model.getters.getActiveCell();
+    const cell = this.model().getters.getActiveCell();
     cell.type === CellValueType.empty
       ? this.onComposerCellFocused()
       : this.onComposerContentFocused();
@@ -466,26 +466,26 @@ export class Grid extends OSComponent {
       this.focusComposerFromActiveCell();
       return;
     }
-    moveAnchorWithinSelection(this.env.model.getters, this.env.model.selection, direction);
+    moveAnchorWithinSelection(this.model().getters, this.model().selection, direction);
   }
 
   private moveInSelection(direction: "left" | "right") {
     if (this.isSingleCellOrMergeSelection()) {
-      this.env.model.selection.moveAnchorCell(direction, 1);
+      this.model().selection.moveAnchorCell(direction, 1);
       return;
     }
-    moveAnchorWithinSelection(this.env.model.getters, this.env.model.selection, direction);
+    moveAnchorWithinSelection(this.model().getters, this.model().selection, direction);
   }
 
   private isSingleCellOrMergeSelection(): boolean {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const selectedZone = this.env.model.getters.getSelectedZone();
-    return this.env.model.getters.isSingleCellOrMerge(sheetId, selectedZone);
+    const sheetId = this.model().getters.getActiveSheetId();
+    const selectedZone = this.model().getters.getSelectedZone();
+    return this.model().getters.isSingleCellOrMerge(sheetId, selectedZone);
   }
 
   focusDefaultElement() {
     if (
-      !this.env.model.getters.getSelectedFigureIds().length &&
+      !this.model().getters.getSelectedFigureIds().length &&
       this.composerFocusStore.activeComposer.editionMode === "inactive"
     ) {
       this.DOMFocusableElementStore.focus();
@@ -501,9 +501,9 @@ export class Grid extends OSComponent {
   }
 
   getAutofillPosition() {
-    const zone = this.env.model.getters.getSelectedZone();
+    const zone = this.model().getters.getSelectedZone();
     const rect = this.viewStore.viewports.getVisibleRect(
-      this.env.model.getters.getActiveSheetId(),
+      this.model().getters.getActiveSheetId(),
       zone
     );
     return {
@@ -513,19 +513,16 @@ export class Grid extends OSComponent {
   }
 
   get isAutofillVisible(): boolean {
-    if (this.env.model.getters.isCurrentSheetLocked()) {
+    if (this.model().getters.isCurrentSheetLocked()) {
       return false;
     }
-    const zone = this.env.model.getters.getSelectedZone();
-    const rect = this.viewStore.viewports.getVisibleRect(
-      this.env.model.getters.getActiveSheetId(),
-      {
-        left: zone.right,
-        right: zone.right,
-        top: zone.bottom,
-        bottom: zone.bottom,
-      }
-    );
+    const zone = this.model().getters.getSelectedZone();
+    const rect = this.viewStore.viewports.getVisibleRect(this.model().getters.getActiveSheetId(), {
+      left: zone.right,
+      right: zone.right,
+      top: zone.bottom,
+      bottom: zone.bottom,
+    });
     return !(rect.width === 0 || rect.height === 0);
   }
 
@@ -546,15 +543,13 @@ export class Grid extends OSComponent {
 
   private processSpaceKey(ev: KeyboardEvent) {
     if (
-      this.checkboxToggleStore.hasBooleanValidationInZones(
-        this.env.model.getters.getSelectedZones()
-      )
+      this.checkboxToggleStore.hasBooleanValidationInZones(this.model().getters.getSelectedZones())
     ) {
       ev.preventDefault();
       ev.stopPropagation();
-      this.env.model.dispatch("TOGGLE_CHECKBOX", {
-        sheetId: this.env.model.getters.getActiveSheetId(),
-        target: this.env.model.getters.getSelectedZones(),
+      this.model().dispatch("TOGGLE_CHECKBOX", {
+        sheetId: this.model().getters.getActiveSheetId(),
+        target: this.model().getters.getSelectedZones(),
       });
     }
   }
@@ -596,11 +591,11 @@ export class Grid extends OSComponent {
       this.composerFocusStore.activeComposer.stopEdition();
     }
     if (modifiers.expandZone) {
-      this.env.model.selection.setAnchorCorner(col, row);
+      this.model().selection.setAnchorCorner(col, row);
     } else if (modifiers.addZone) {
-      this.env.model.selection.addCellToSelection(col, row);
+      this.model().selection.addCellToSelection(col, row);
     } else {
-      this.env.model.selection.selectCell(col, row);
+      this.model().selection.selectCell(col, row);
     }
 
     if (this.env.isMobile()) {
@@ -618,22 +613,22 @@ export class Grid extends OSComponent {
       if ((col !== prevCol && col !== -1) || (row !== prevRow && row !== -1)) {
         prevCol = col === -1 ? prevCol : col;
         prevRow = row === -1 ? prevRow : row;
-        this.env.model.selection.setAnchorCorner(prevCol, prevRow);
+        this.model().selection.setAnchorCorner(prevCol, prevRow);
       }
     };
     const onMouseUp = () => {
-      this.env.model.selection.commitSelection();
+      this.model().selection.commitSelection();
       if (this.paintFormatStore.isActive) {
-        this.paintFormatStore.pasteFormat(this.env.model.getters.getSelectedZones());
+        this.paintFormatStore.pasteFormat(this.model().getters.getSelectedZones());
       }
     };
     this.dragNDropGrid.start(zoomedMouseEvent, onMouseMove, onMouseUp);
   }
 
   onCellDoubleClicked(col: HeaderIndex, row: HeaderIndex) {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    ({ col, row } = this.env.model.getters.getMainCellPosition({ sheetId, col, row }));
-    const cell = this.env.model.getters.getEvaluatedCell({ sheetId, col, row });
+    const sheetId = this.model().getters.getActiveSheetId();
+    ({ col, row } = this.model().getters.getMainCellPosition({ sheetId, col, row }));
+    const cell = this.model().getters.getEvaluatedCell({ sheetId, col, row });
     if (cell.type === CellValueType.empty) {
       this.onComposerCellFocused();
     } else {
@@ -652,10 +647,10 @@ export class Grid extends OSComponent {
       this.cellPopovers.close();
     }
 
-    updateSelectionWithArrowKeys(ev, this.env.model.selection);
+    updateSelectionWithArrowKeys(ev, this.model().selection);
 
     if (this.paintFormatStore.isActive) {
-      this.paintFormatStore.pasteFormat(this.env.model.getters.getSelectedZones());
+      this.paintFormatStore.pasteFormat(this.model().getters.getSelectedZones());
     }
   }
 
@@ -687,17 +682,17 @@ export class Grid extends OSComponent {
 
   onInputContextMenu(ev: MouseEvent) {
     ev.preventDefault();
-    const lastZone = this.env.model.getters.getSelectedZone();
+    const lastZone = this.model().getters.getSelectedZone();
     const { left: col, top: row } = lastZone;
     let type: ContextMenuType = "CELL";
     this.composerFocusStore.activeComposer.stopEdition();
-    if (this.env.model.getters.getActiveCols().has(col)) {
+    if (this.model().getters.getActiveCols().has(col)) {
       type = "COL";
-    } else if (this.env.model.getters.getActiveRows().has(row)) {
+    } else if (this.model().getters.getActiveRows().has(row)) {
       type = "ROW";
     }
     const { x, y, width } = this.viewStore.viewports.getVisibleRectWithZoom(
-      this.env.model.getters.getActiveSheetId(),
+      this.model().getters.getActiveSheetId(),
       lastZone
     );
     const gridRect = this.getGridRect();
@@ -705,16 +700,16 @@ export class Grid extends OSComponent {
   }
 
   onCellRightClicked(col: HeaderIndex, row: HeaderIndex, { x, y }: DOMCoordinates) {
-    const zones = this.env.model.getters.getSelectedZones();
+    const zones = this.model().getters.getSelectedZones();
     const lastZone = zones[zones.length - 1];
     let type: ContextMenuType = "CELL";
     if (!isInside(col, row, lastZone)) {
-      this.env.model.selection.getBackToDefault();
-      this.env.model.selection.selectCell(col, row);
+      this.model().selection.getBackToDefault();
+      this.model().selection.selectCell(col, row);
     } else {
-      if (this.env.model.getters.getActiveCols().has(col)) {
+      if (this.model().getters.getActiveCols().has(col)) {
         type = "COL";
-      } else if (this.env.model.getters.getActiveRows().has(row)) {
+      } else if (this.model().getters.getActiveRows().has(row)) {
         type = "ROW";
       }
     }
@@ -745,7 +740,7 @@ export class Grid extends OSComponent {
     if (cut) {
       interactiveCut(this.spEnv);
     } else {
-      this.env.model.dispatch("COPY");
+      this.model().dispatch("COPY");
     }
     const osContent = await this.clipboardStore.getClipboardTextAndImageContent();
     await this.env.clipboard.write(osContent);
@@ -777,7 +772,7 @@ export class Grid extends OSComponent {
       osClipboard.content[image.type] = image;
     }
 
-    const target = this.env.model.getters.getSelectedZones();
+    const target = this.model().getters.getSelectedZones();
     const isCutOperation = this.clipboardStore.isCutOperation();
 
     const clipboardId = this.clipboardStore.getClipboardId();
@@ -796,16 +791,16 @@ export class Grid extends OSComponent {
   }
 
   private clearFormatting() {
-    this.env.model.dispatch("CLEAR_FORMATTING", {
-      sheetId: this.env.model.getters.getActiveSheetId(),
-      target: this.env.model.getters.getSelectedZones(),
+    this.model().dispatch("CLEAR_FORMATTING", {
+      sheetId: this.model().getters.getActiveSheetId(),
+      target: this.model().getters.getSelectedZones(),
     });
   }
 
   private setHorizontalAlign(align: Align) {
-    this.env.model.dispatch("SET_FORMATTING", {
-      sheetId: this.env.model.getters.getActiveSheetId(),
-      target: this.env.model.getters.getSelectedZones(),
+    this.model().dispatch("SET_FORMATTING", {
+      sheetId: this.model().getters.getActiveSheetId(),
+      target: this.model().getters.getSelectedZones(),
       style: { align },
     });
   }
@@ -816,12 +811,12 @@ export class Grid extends OSComponent {
   }
 
   private processHeaderGroupingKey(direction: Direction) {
-    if (this.env.model.getters.getSelectedZones().length !== 1) {
+    if (this.model().getters.getSelectedZones().length !== 1) {
       return;
     }
 
-    const selectingRows = this.env.model.getters.getActiveRows().size > 0;
-    const selectingCols = this.env.model.getters.getActiveCols().size > 0;
+    const selectingRows = this.model().getters.getActiveRows().size > 0;
+    const selectingCols = this.model().getters.getActiveCols().size > 0;
 
     if (selectingCols && selectingRows) {
       this.processHeaderGroupingEventOnWholeSheet(direction);
@@ -835,62 +830,62 @@ export class Grid extends OSComponent {
   }
 
   private processHeaderGroupingEventOnHeaders(direction: Direction, dimension: Dimension) {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
 
-    const zone = this.env.model.getters.getSelectedZone();
+    const zone = this.model().getters.getSelectedZone();
     const start = dimension === "COL" ? zone.left : zone.top;
     const end = dimension === "COL" ? zone.right : zone.bottom;
 
     switch (direction) {
       case "right":
-        this.env.model.dispatch("GROUP_HEADERS", { sheetId, dimension: dimension, start, end });
+        this.model().dispatch("GROUP_HEADERS", { sheetId, dimension: dimension, start, end });
         break;
       case "left":
-        this.env.model.dispatch("UNGROUP_HEADERS", { sheetId, dimension: dimension, start, end });
+        this.model().dispatch("UNGROUP_HEADERS", { sheetId, dimension: dimension, start, end });
         break;
       case "down":
-        this.env.model.dispatch("UNFOLD_HEADER_GROUPS_IN_ZONE", { sheetId, dimension, zone });
+        this.model().dispatch("UNFOLD_HEADER_GROUPS_IN_ZONE", { sheetId, dimension, zone });
         break;
       case "up":
-        this.env.model.dispatch("FOLD_HEADER_GROUPS_IN_ZONE", { sheetId, dimension, zone });
+        this.model().dispatch("FOLD_HEADER_GROUPS_IN_ZONE", { sheetId, dimension, zone });
         break;
     }
   }
 
   private processHeaderGroupingEventOnWholeSheet(direction: Direction) {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     if (direction === "up") {
-      this.env.model.dispatch("FOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "ROW" });
-      this.env.model.dispatch("FOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "COL" });
+      this.model().dispatch("FOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "ROW" });
+      this.model().dispatch("FOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "COL" });
     } else if (direction === "down") {
-      this.env.model.dispatch("UNFOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "ROW" });
-      this.env.model.dispatch("UNFOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "COL" });
+      this.model().dispatch("UNFOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "ROW" });
+      this.model().dispatch("UNFOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "COL" });
     }
   }
 
   private processHeaderGroupingEventOnGrid(direction: Direction) {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const zone = this.env.model.getters.getSelectedZone();
+    const sheetId = this.model().getters.getActiveSheetId();
+    const zone = this.model().getters.getSelectedZone();
     switch (direction) {
       case "down":
-        this.env.model.dispatch("UNFOLD_HEADER_GROUPS_IN_ZONE", {
+        this.model().dispatch("UNFOLD_HEADER_GROUPS_IN_ZONE", {
           sheetId,
           dimension: "ROW",
           zone: zone,
         });
-        this.env.model.dispatch("UNFOLD_HEADER_GROUPS_IN_ZONE", {
+        this.model().dispatch("UNFOLD_HEADER_GROUPS_IN_ZONE", {
           sheetId,
           dimension: "COL",
           zone: zone,
         });
         break;
       case "up":
-        this.env.model.dispatch("FOLD_HEADER_GROUPS_IN_ZONE", {
+        this.model().dispatch("FOLD_HEADER_GROUPS_IN_ZONE", {
           sheetId,
           dimension: "ROW",
           zone: zone,
         });
-        this.env.model.dispatch("FOLD_HEADER_GROUPS_IN_ZONE", {
+        this.model().dispatch("FOLD_HEADER_GROUPS_IN_ZONE", {
           sheetId,
           dimension: "COL",
           zone: zone,
@@ -923,8 +918,8 @@ export class Grid extends OSComponent {
   }
 
   get staticTables(): Table[] {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    return this.env.model.getters.getCoreTables(sheetId).filter(isStaticTable);
+    const sheetId = this.model().getters.getActiveSheetId();
+    return this.model().getters.getCoreTables(sheetId).filter(isStaticTable);
   }
 
   get displaySelectionHandler() {
@@ -932,15 +927,15 @@ export class Grid extends OSComponent {
   }
 
   get clientsToDisplay(): Required<Client>[] {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    return this.env.model.getters.getClientsToDisplay(sheetId);
+    const sheetId = this.model().getters.getActiveSheetId();
+    return this.model().getters.getClientsToDisplay(sheetId);
   }
 
   get displayTableResizer() {
     return (
-      this.env.model.getters.isGridSelectionActive() &&
-      !this.env.model.getters.isReadonly() &&
-      !this.env.model.getters.isSheetLocked(this.env.model.getters.getActiveSheetId())
+      this.model().getters.isGridSelectionActive() &&
+      !this.model().getters.isReadonly() &&
+      !this.model().getters.isSheetLocked(this.model().getters.getActiveSheetId())
     );
   }
 }

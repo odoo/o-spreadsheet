@@ -16,7 +16,7 @@ export class ChartHumanizeNumbers extends OSComponent {
   >;
 
   get title() {
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     const format = formatLargeNumber({ value: 1234567 }, undefined, locale);
     const value = formatValue(1234567, { format, locale });
     return _t("E.g. 1234567 -> %(value)s", { value });

@@ -1,6 +1,7 @@
 import { providePlugins } from "@odoo/owl";
 import { Model, UID } from "../../../src";
 import { HoveredIconStore } from "../../../src/components/grid_overlay/hovered_icon_store";
+import { useSpreadsheetEnv } from "../../../src/components/os_component";
 import { PopoverContainerPlugin } from "../../../src/components/popover/popover_container_owl_plugin";
 import { StandaloneViewport } from "../../../src/components/standalone_viewport/standalone_viewport";
 import { DEFAULT_CELL_HEIGHT, TABLE_HOVER_BACKGROUND_COLOR } from "../../../src/constants";
@@ -11,7 +12,7 @@ import { GridRenderer } from "../../../src/stores/grid_renderer_store";
 import { ViewportsStore } from "../../../src/stores/viewports_store";
 import { ZoomStore } from "../../../src/stores/zoom_store";
 import { PropsOf } from "../../../src/types/props_of";
-import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv, SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import {
   addDataValidation,
   clickAndDrag,
@@ -48,6 +49,7 @@ let storeSpy: StoreSpy;
 
 // We need to use the subEnv of the standalone viewport to get the store children of the standalone viewport instead of the global ones
 let subEnv: SpreadsheetChildEnv;
+let subActionEnv: SpreadsheetActionEnv;
 
 function getLastRenderedBoxes() {
   const store = storeSpy.getStores(GridRenderer).at(-1) as GridRenderer;
@@ -79,6 +81,8 @@ async function mountViewport(zone: string, args: MountViewportArgs = {}) {
         getPopoverContainerRect: () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
       });
       subEnv = this.env;
+      this.spEnv = useSpreadsheetEnv();
+      subActionEnv = this.spEnv;
     },
   });
   await nextTick();
@@ -250,7 +254,7 @@ describe("Standalone viewport", () => {
 
     expect(model.getters.getActiveSheetId()).not.toEqual("sh2");
     expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1");
-    await clickCell(subEnv, "A2", {}, { doubleClick: true });
+    await clickCell(subActionEnv, "A2", {}, { doubleClick: true });
     expect(model.getters.getActiveSheetId()).toEqual("sh2");
     expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A2");
   });
@@ -263,10 +267,10 @@ describe("Standalone viewport", () => {
     const iconStore = subEnv.getStore(HoveredIconStore);
     expect(iconStore.hoveredIcon).toBeUndefined();
 
-    await hoverGridIcon(subEnv, "A1");
+    await hoverGridIcon(subActionEnv, "A1");
     expect(iconStore.hoveredIcon).toMatchObject({ position: { sheetId: "sh2", col: 0, row: 0 } });
 
-    await clickGridIcon(subEnv, "A1");
+    await clickGridIcon(subActionEnv, "A1");
     expect(getCellContent(model, "A1", "sh2")).toEqual("TRUE");
   });
 
@@ -289,7 +293,7 @@ describe("Standalone viewport", () => {
     await mountViewport("A1", { sheetId: "sh2" });
     expect(".o-popover").toHaveCount(0);
 
-    await hoverCell(subEnv, "A1", 500);
+    await hoverCell(subActionEnv, "A1", 500);
     expect(".o-popover").toHaveCount(1);
     expect(".o-popover").toHaveText("ErrorThe divisor must be different from zero.");
     jest.useRealTimers();
@@ -314,6 +318,10 @@ describe("Standalone viewport", () => {
       .spyOn(StandaloneViewport.prototype, "setup")
       .mockImplementation(function (this: StandaloneViewport) {
         originalSetup.call(this);
+        subActionEnv = this.spEnv;
+        //TODOPRO Check with ADRM, as we do a proxy, we copy the env at this time and not the env that is computed in the
+        //setup...
+        this.spEnv = useSpreadsheetEnv();
         subEnv = this.env;
       });
     const { env } = await mountSpreadsheet({ model });
@@ -341,7 +349,7 @@ describe("Standalone viewport", () => {
     const overlayStore = subEnv.getStore(CellHoverOverlayStore);
     expect(overlayStore.overlayColors.get(toCellPosition("sh2", "A1"))).toBeUndefined();
 
-    await hoverCell(subEnv, "A1", 500);
+    await hoverCell(subActionEnv, "A1", 500);
     const color = TABLE_HOVER_BACKGROUND_COLOR;
 
     expect(overlayStore.overlayColors.get(toCellPosition("sh2", "A1"))).toEqual(color);

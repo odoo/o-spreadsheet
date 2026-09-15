@@ -29,7 +29,7 @@ import {
   createModelFromGrid,
   doAction,
   getNode,
-  makeTestEnv,
+  makeSpreadsheetActionTestEnv,
   mockNotificationMethods,
   setGrid,
 } from "../test_helpers/helpers";
@@ -49,8 +49,8 @@ describe("Pivot properties menu item", () => {
   let env: SpreadsheetActionEnv;
 
   beforeEach(async () => {
-    env = makeTestEnv();
-    model = env.model;
+    env = makeSpreadsheetActionTestEnv();
+    model = env.model();
   });
   test("It should not display pivot_properties if there is no pivot in the cell", () => {
     selectCell(model, "A1");
@@ -116,7 +116,7 @@ describe("Pivot fix formula menu item", () => {
       A8: "=PIVOT(1)",
     };
     const model = createModelFromGrid(grid);
-    const env = makeTestEnv({ model });
+    const env = makeSpreadsheetActionTestEnv(model);
     addPivot(model, "A1:E6", {
       columns: [{ fieldName: "Customer", order: "asc" }],
       rows: [{ fieldName: "Date", order: "asc", granularity: "month_number" }],
@@ -199,7 +199,7 @@ describe("Pivot fix formula menu item", () => {
       A3: "",         B3: "20",
     };
     const model = createModelFromGrid(grid);
-    const env = makeTestEnv({ model });
+    const env = makeSpreadsheetActionTestEnv(model);
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Customer", order: "asc" }],
@@ -240,7 +240,7 @@ describe("Pivot fix formula menu item", () => {
      A3: "Bob",      B3: "30",
    };
     const model = createModelFromGrid(grid);
-    const env = makeTestEnv({ model });
+    const env = makeSpreadsheetActionTestEnv(model);
 
     addPivot(model, "A1:B3", {
       columns: [],
@@ -277,7 +277,7 @@ describe("Pivot fix formula menu item", () => {
     };
     const model = createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
-    const env = makeTestEnv({ model });
+    const env = makeSpreadsheetActionTestEnv(model);
     addPivot(model, "A1:A2", {
       columns: [],
       rows: [{ fieldName: "Customer" }],
@@ -323,7 +323,7 @@ describe("Pivot fix formula menu item", () => {
       rows: [{ fieldName: "Invalid" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    const env = makeTestEnv({ model });
+    const env = makeSpreadsheetActionTestEnv(model);
     const pivot = model.getters.getPivot("1")!;
     expect(pivot.isValid()).toBe(false);
     selectCell(model, "C1");
@@ -334,7 +334,7 @@ describe("Pivot fix formula menu item", () => {
     const model = createModelWithPivot("A1:I5");
     setCellContent(model, "A24", "=pivot(1)");
     setCellContent(model, "A25", "block the spill");
-    const env = makeTestEnv({ model });
+    const env = makeSpreadsheetActionTestEnv(model);
 
     expect(getCellContent(model, "A24")).toEqual("#SPILL!");
     selectCell(model, "A24");
@@ -366,7 +366,7 @@ describe("Pivot fix formula menu item", () => {
         },
       ],
     });
-    const env = makeTestEnv({ model });
+    const env = makeSpreadsheetActionTestEnv(model);
     selectCell(model, "A4");
     cellMenuRegistry.get("pivot_fix_formulas").execute?.(env);
     setFormulaVisibility(model, true);
@@ -387,7 +387,7 @@ describe("Pivot fix formula menu item", () => {
      A3: "Bob",      B3: "30",    C3: "1/1/2024",
    };
     const model = createModelFromGrid(grid);
-    const env = makeTestEnv({ model });
+    const env = makeSpreadsheetActionTestEnv(model);
 
     addPivot(model, "A1:C3", {
       columns: [{ fieldName: "Customer" }],
@@ -428,7 +428,7 @@ describe("Pivot reinsertion menu item", () => {
         measures: [{ id: "Quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
         style: { tableStyleId: PIVOT_INSERT_TABLE_STYLE_ID },
       });
-      const env = makeTestEnv({ model });
+      const env = makeSpreadsheetActionTestEnv(model);
       selectCell(model, "B8");
       await doAction(reinsertDynamicPivotPath, env, topbarMenuRegistry);
       expect(getCellText(model, "B8")).toEqual(`=PIVOT(1)`);
@@ -451,7 +451,7 @@ describe("Pivot reinsertion menu item", () => {
         measures: [{ id: "Quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
       });
       createSheet(model, { sheetId: "smallSheet", rows: 1, cols: 1, activate: true });
-      const env = makeTestEnv({ model });
+      const env = makeSpreadsheetActionTestEnv(model);
       await doAction(reinsertDynamicPivotPath, env, topbarMenuRegistry);
       expect(getCellText(model, "A1")).toEqual(`=PIVOT(1)`);
       expect(model.getters.getPivot(model.getters.getPivotId("1")!).isValid()).toBeTruthy();
@@ -472,7 +472,7 @@ describe("Pivot reinsertion menu item", () => {
         measures: [{ id: "Quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
         style: { tableStyleId: PIVOT_INSERT_TABLE_STYLE_ID },
       });
-      const env = makeTestEnv({ model });
+      const env = makeSpreadsheetActionTestEnv(model);
       selectCell(model, "B8");
       await doAction(reinsertDynamicPivotPath, env, topbarMenuRegistry);
       expect(getCellText(model, "B8")).toEqual(`=PIVOT(1)`);
@@ -499,7 +499,7 @@ describe("Pivot reinsertion menu item", () => {
         rows: [{ fieldName: "Customer" }],
         measures: [{ id: "Quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
       });
-      const env = makeTestEnv({ model });
+      const env = makeSpreadsheetActionTestEnv(model);
       selectCell(model, "B8");
       await doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
       expect(getCellText(model, "B10")).toEqual(`=PIVOT.HEADER(1,"Customer","Alice")`);
@@ -528,7 +528,7 @@ describe("Pivot reinsertion menu item", () => {
         measures: [{ id: "Quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
       });
       createSheet(model, { sheetId: "smallSheet", rows: 1, cols: 1, activate: true });
-      const env = makeTestEnv({ model });
+      const env = makeSpreadsheetActionTestEnv(model);
       await doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
       expect(getCellText(model, "A3")).toEqual(`=PIVOT.HEADER(1,"Customer","Alice")`);
       expect(model.getters.getPivot(model.getters.getPivotId("1")!).isValid()).toBeTruthy();
@@ -542,7 +542,7 @@ describe("Pivot reinsertion menu item", () => {
       addPivot(model, "A1:B2", {});
 
       const notifyUser = jest.fn();
-      const env = makeTestEnv({ model });
+      const env = makeSpreadsheetActionTestEnv(model);
       mockNotificationMethods(env.getPlugin, { notifyUser });
       jest.spyOn(SpreadsheetPivotTable.prototype, "numberOfCells", "get").mockReturnValue(1000000);
 
@@ -567,7 +567,7 @@ describe("Pivot reinsertion menu item", () => {
         rows: [{ fieldName: "Customer" }],
         measures: [{ id: "Quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
       });
-      const env = makeTestEnv({ model });
+      const env = makeSpreadsheetActionTestEnv(model);
       selectCell(model, "B8");
       await doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
       expect(getCellText(model, "B10")).toEqual(`=PIVOT.HEADER(1,"Customer","Alice")`);
@@ -593,7 +593,7 @@ describe("Pivot reinsertion menu item", () => {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
     });
-    const env = makeTestEnv({ model });
+    const env = makeSpreadsheetActionTestEnv(model);
     selectCell(model, "B8");
     expect(model.getters.getPivot("1")!.isValid()).toBeFalsy();
     expect(getNode(reinsertDynamicPivotPath, env, topbarMenuRegistry).isVisible(env)).toBeFalsy();
@@ -610,7 +610,7 @@ describe("Pivot reinsertion menu item", () => {
             A2: "Alice",    B2: "Jambon",
           };
     const model = createModelFromGrid(grid);
-    const env = makeTestEnv({ model });
+    const env = makeSpreadsheetActionTestEnv(model);
 
     expect(getNode(reinsertDynamicPivotPath, env, topbarMenuRegistry).isVisible(env)).toBeFalsy();
     expect(getNode(reinsertStaticPivotPath, env, topbarMenuRegistry).isVisible(env)).toBeFalsy();
@@ -628,7 +628,7 @@ describe("Pivot reinsertion menu item", () => {
   test("Insert a pivot", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    const env = makeTestEnv({ model });
+    const env = makeSpreadsheetActionTestEnv(model);
     setGrid(model, { A1: "Header1", B1: "Header2", A2: "Data1", B2: "Data2" });
     setSelection(model, ["A1:B2"]);
     await doAction(insertPivotPath, env, topbarMenuRegistry);
@@ -666,7 +666,7 @@ describe("Pivot sorting menu item", () => {
 
   beforeEach(() => {
     model = createModelWithTestPivotDataset();
-    env = makeTestEnv({ model });
+    env = makeSpreadsheetActionTestEnv(model);
     sortAction = getNode(["pivot_sorting"], env, cellMenuRegistry);
   });
 
@@ -786,7 +786,7 @@ describe("Pivot (un)grouping menu items", () => {
     model = createModelWithPivot("A1:I22");
     openSidePanel = jest.fn();
 
-    env = makeTestEnv({ model, openSidePanel });
+    env = makeSpreadsheetActionTestEnv(model, { openSidePanel });
     pivotId = model.getters.getPivotIds()[0];
     updatePivot(model, pivotId, {
       rows: [],
@@ -1170,7 +1170,7 @@ describe("Pivot (un)collapse menu items", () => {
   beforeEach(() => {
     model = createModelWithPivot("A1:I22");
 
-    env = makeTestEnv({ model });
+    env = makeSpreadsheetActionTestEnv(model);
     pivotId = model.getters.getPivotIds()[0];
     updatePivot(model, pivotId, {
       rows: [],

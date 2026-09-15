@@ -4,7 +4,7 @@ import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { HeaderIndex, Pixel } from "../../types/misc";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
 import { gridOverlayPosition } from "./dom_helpers";
 import { startDnd } from "./drag_and_drop";
 
@@ -19,14 +19,14 @@ export type DnDDirection = "all" | "vertical" | "horizontal";
  * (occurrence of the current column and the current row). Second intended for actions
  * performed during the pointerup event.
  */
-export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
+export function useDragAndDropBeyondTheViewport(env: SpreadsheetActionEnv) {
   let timeOutId: any = null;
   let currentEv: PointerEvent;
   let previousEvClientPosition: { clientX: number; clientY: number };
   let startingX: number;
   let startingY: number;
   let scrollDirection: DnDDirection = "all";
-  const getters = env.model.getters;
+  const getters = env.model().getters;
   const viewStore = env.getStore(ViewportsStore);
   const zoomStore = env.getStore(ZoomStore);
 
@@ -88,7 +88,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
             break;
           case -1:
             colIndex = left - 1;
-            while (env.model.getters.isColHidden(sheetId, colIndex)) {
+            while (env.model().getters.isColHidden(sheetId, colIndex)) {
               colIndex--;
             }
             newTarget = colIndex;
@@ -123,13 +123,14 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
             break;
           case -1:
             rowIndex = top - 1;
-            while (env.model.getters.isRowHidden(sheetId, rowIndex)) {
+            while (env.model().getters.isRowHidden(sheetId, rowIndex)) {
               rowIndex--;
             }
             newTarget = rowIndex;
             break;
         }
-        scrollY = env.model.getters.getRowDimensions(sheetId, newTarget).start - offsetCorrectionY;
+        scrollY =
+          env.model().getters.getRowDimensions(sheetId, newTarget).start - offsetCorrectionY;
       }
     }
 

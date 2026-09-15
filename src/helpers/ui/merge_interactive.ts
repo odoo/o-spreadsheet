@@ -13,12 +13,12 @@ export const AddMergeInteractiveContent = {
 
 export function interactiveAddMerge(env: SpreadsheetActionEnv, sheetId: UID, target: Zone[]) {
   const notificationPlugin = env.getPlugin(NotificationPlugin);
-  const result = env.model.dispatch("ADD_MERGE", { sheetId, target });
+  const result = env.model().dispatch("ADD_MERGE", { sheetId, target });
   if (result.isCancelledBecause(CommandResult.MergeInTable)) {
     notificationPlugin.raiseError(AddMergeInteractiveContent.MergeInFilter);
   } else if (result.isCancelledBecause(CommandResult.MergeIsDestructive)) {
     notificationPlugin.askConfirmation(AddMergeInteractiveContent.MergeIsDestructive, () => {
-      env.model.dispatch("ADD_MERGE", { sheetId, target, force: true });
+      env.model().dispatch("ADD_MERGE", { sheetId, target, force: true });
     });
   }
 }

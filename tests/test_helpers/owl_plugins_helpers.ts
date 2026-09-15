@@ -31,11 +31,12 @@ class PluginParent extends Component {
   static template = xml/*xml*/ `<div/>`;
   protected props = useProps({
     providedPlugins: types.array<PluginConstructor>(),
+    configPlugins: types.object().optional(),
     registerCallback: types.function<(args: any) => void>(),
   });
 
   setup() {
-    providePlugins(this.props.providedPlugins);
+    providePlugins(this.props.providedPlugins, this.props.configPlugins);
 
     const scope = useScope();
     const getPlugin = createGetPluginFunctionFromScope(scope);
@@ -45,7 +46,10 @@ class PluginParent extends Component {
   }
 }
 
-export function makeOwlPluginManager(providedPlugins: PluginConstructor[]): {
+export function makeOwlPluginManager(
+  providedPlugins: PluginConstructor[],
+  configPlugins?: Record<string, any>
+): {
   getPlugin: OwlPluginGetter;
   scope: Scope;
   container: DependencyContainer;
@@ -59,6 +63,7 @@ export function makeOwlPluginManager(providedPlugins: PluginConstructor[]): {
   app.createRoot(PluginParent, {
     props: {
       providedPlugins: providedPlugins,
+      configPlugins,
       registerCallback: (params: any) => {
         getPlugin = params.getPlugin;
         scope = params.scope;
