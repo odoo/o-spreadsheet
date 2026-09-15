@@ -74,13 +74,30 @@ topbarMenuRegistry
     sequence: 60,
     separator: true,
   })
-  .addChild("paste_special_value", ["edit", "paste_special"], {
+  .addChild("paste_value_only", ["edit", "paste_special"], {
     ...ACTION_EDIT.pasteSpecialValue,
     sequence: 10,
   })
-  .addChild("paste_special_format", ["edit", "paste_special"], {
+  .addChild("paste_format_only", ["edit", "paste_special"], {
     ...ACTION_EDIT.pasteSpecialFormat,
     sequence: 20,
+  })
+  .addChild("paste_formula_only", ["edit", "paste_special"], {
+    ...ACTION_EDIT.pasteSpecialFormula,
+    sequence: 30,
+  })
+  .addChild("paste_transpose", ["edit", "paste_special"], {
+    ...ACTION_EDIT.pasteSpecialTranspose,
+    sequence: 40,
+    separator: true,
+  })
+  .addChild("paste_transpose_as_value", ["edit", "paste_special"], {
+    ...ACTION_EDIT.pasteSpecialTransposeValue,
+    sequence: 50,
+  })
+  .addChild("paste_transpose_as_formula", ["edit", "paste_special"], {
+    ...ACTION_EDIT.pasteSpecialTransposeFormula,
+    sequence: 60,
   })
   .addChild("edit_table", ["edit"], {
     ...ACTION_EDIT.editTable,

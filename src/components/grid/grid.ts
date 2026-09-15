@@ -6,7 +6,7 @@ import {
   INSERT_COLUMNS_BEFORE_ACTION,
   INSERT_LINK,
   INSERT_ROWS_BEFORE_ACTION,
-  PASTE_AS_VALUE_ACTION,
+  PASTE_VALUE_ACTION,
 } from "../../actions/menu_items_actions";
 import { canUngroupHeaders } from "../../actions/view_actions";
 import { AUTOFILL_EDGE_LENGTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
@@ -401,7 +401,7 @@ export class Grid extends OSComponent {
     "Ctrl+Shift+E": () => this.setHorizontalAlign("center"),
     "Ctrl+Shift+L": () => this.setHorizontalAlign("left"),
     "Ctrl+Shift+R": () => this.setHorizontalAlign("right"),
-    "Ctrl+Shift+V": () => PASTE_AS_VALUE_ACTION(this.spEnv),
+    "Ctrl+Shift+V": () => PASTE_VALUE_ACTION(this.spEnv),
     "Ctrl+Shift+<": () => this.clearFormatting(), // for qwerty
     "Ctrl+<": () => this.clearFormatting(), // for azerty
     "Ctrl+Shift+ ": () => {

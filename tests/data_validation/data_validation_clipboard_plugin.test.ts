@@ -103,15 +103,26 @@ describe("Data validation", () => {
     const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
     addDataValidation(model, "A1:A5", "id", criterion);
     copy(model, "A1:A5");
-    paste(model, "C1", "onlyFormat");
+    paste(model, "C1", "format");
 
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       { id: "id", criterion, ranges: ["A1:A5"] },
     ]);
 
-    paste(model, "C1", "asValue");
+    paste(model, "C1", "value");
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       { id: "id", criterion, ranges: ["A1:A5"] },
+    ]);
+  });
+
+  test("Data validation rules are transposed with a transposed paste", () => {
+    const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
+    addDataValidation(model, "A1:A3", "id", criterion);
+    copy(model, "A1:A3");
+    paste(model, "C1", "transpose");
+
+    expect(getDataValidationRules(model, sheetId)).toMatchObject([
+      { id: "id", criterion, ranges: ["A1:A3", "C1:E1"] },
     ]);
   });
 

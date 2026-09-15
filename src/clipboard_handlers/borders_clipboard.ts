@@ -1,3 +1,5 @@
+import { shouldPasteFormat, transposeBorder } from "../helpers/clipboard/clipboard_helpers";
+import { transpose } from "../helpers/misc";
 import { recomputeZones } from "../helpers/recompute_zones";
 import { positionToZone } from "../helpers/zones";
 import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
@@ -35,15 +37,18 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
     const sheetId = target.sheetId;
-    if (options.pasteOption === "asValue") {
+    if (!shouldPasteFormat(options.pasteOptions)) {
       return;
     }
     const zones = target.zones;
+    const borders = options.pasteOptions?.includes("transpose")
+      ? transpose(content.borders).map((row) => row.map(transposeBorder))
+      : content.borders;
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, content.borders);
+      this.pasteFromCopy(sheetId, zones, borders);
     } else {
       const { left, top } = zones[0];
-      this.pasteZone(sheetId, left, top, content.borders);
+      this.pasteZone(sheetId, left, top, borders);
     }
 
     this.executeQueuedChanges(sheetId);
