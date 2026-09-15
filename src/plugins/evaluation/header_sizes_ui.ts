@@ -58,6 +58,7 @@ export class HeaderSizeUIPlugin
     DUPLICATE_SHEET: this.duplicateSheetTallestCells,
     DELETE_SHEET: this.deleteSheetTallestCells,
     REMOVE_COLUMNS_ROWS: this.removeRowsTallestCells,
+    START: this.initializeAllSheets,
   };
 
   private removeRowsTallestCells(cmd: RemoveColumnsRowsCommand) {
@@ -149,17 +150,6 @@ export class HeaderSizeUIPlugin
         this.history.update("tallestCellInRow", cmd.sheetId, newTallestCells);
         break;
     }
-  }
-
-  handle(cmd: EvaluationCommand) {
-    switch (cmd.type) {
-      case "START":
-        for (const sheetId of this.getters.getSheetIds()) {
-          this.initializeSheet(sheetId);
-        }
-        break;
-    }
-    return;
   }
 
   getRowSize(sheetId: UID, row: HeaderIndex): Pixel {

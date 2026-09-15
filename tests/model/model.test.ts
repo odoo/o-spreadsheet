@@ -20,7 +20,7 @@ import {
   statefulUIPluginRegistry,
 } from "../../src/plugins/plugin_registries";
 import { UIPlugin } from "../../src/plugins/ui_plugin";
-import { CreateSheetCommand, UpdateCellCommand } from "../../src/types/commands";
+import { CreateSheetCommand, StartCommand, UpdateCellCommand } from "../../src/types/commands";
 import { ModelConfig } from "../../src/types/model";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
@@ -214,6 +214,7 @@ describe("Model", () => {
     class MyEvaluationPlugin extends EvaluationPlugin {
       handlers = {
         CREATE_SHEET: (cmd: CreateSheetCommand) => receivedCommands.push(cmd.type),
+        START: (cmd: StartCommand) => receivedCommands.push(cmd.type),
       };
 
       handle(cmd: EvaluationCommand) {

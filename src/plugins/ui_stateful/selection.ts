@@ -202,7 +202,23 @@ export class GridSelectionPlugin extends UIPlugin {
     REMOVE_COLUMNS_ROWS: this.onHeadersRemoved,
     UNDO: this.onUndo,
     REDO: this.onRedo,
+    START: this.onStart,
   };
+
+  private onStart() {
+    const firstSheetId = this.getters.getVisibleSheetIds()[0];
+    this.activateSheet(firstSheetId, firstSheetId);
+    const { col, row } = this.getters.getNextVisibleCellPosition({
+      sheetId: firstSheetId,
+      col: 0,
+      row: 0,
+    });
+    this.selectCell(col, row);
+    this.selection.registerAsDefault(this, this.gridSelection.anchor, {
+      handleEvent: this.handleEvent.bind(this),
+    });
+    this.moveClient({ sheetId: firstSheetId, col: 0, row: 0 });
+  }
 
   private onRedo(cmd: RedoCommand) {
     const sheetId = this.forgetDeletedSheetsSelections();
@@ -294,20 +310,6 @@ export class GridSelectionPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "START":
-        const firstSheetId = this.getters.getVisibleSheetIds()[0];
-        this.activateSheet(firstSheetId, firstSheetId);
-        const { col, row } = this.getters.getNextVisibleCellPosition({
-          sheetId: firstSheetId,
-          col: 0,
-          row: 0,
-        });
-        this.selectCell(col, row);
-        this.selection.registerAsDefault(this, this.gridSelection.anchor, {
-          handleEvent: this.handleEvent.bind(this),
-        });
-        this.moveClient({ sheetId: firstSheetId, col: 0, row: 0 });
-        break;
       case "ACTIVATE_SHEET": {
         this.activateSheet(cmd.sheetIdFrom, cmd.sheetIdTo);
         break;
