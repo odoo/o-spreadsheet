@@ -40,11 +40,13 @@ import {
   CommandHandler,
   CommandHandlerRegistry,
   CommandResult,
+  commandSets,
   CommandsHandlersList,
   CommandTypes,
   CoreCommand,
   DispatchResult,
   EvaluationCommandDispatcher,
+  isCommandSetName,
   isCoreCommand,
   isDispatcheableEvaluationCommand,
   isEvaluationCommand,
@@ -81,14 +83,12 @@ class CommandHandlerRegistryClass<T extends Command> implements CommandHandlerRe
   }
 
   registerPlugin(plugin: CommandHandler<T>) {
-    for (const command of Object.keys(plugin.handlers) as CommandTypes[]) {
-      this.add(
-        command,
-        // The relation between a cmd type and its handler is lost when iterating over the keys
-        plugin.handlers[command]?.bind(plugin) as SingleCommandHandler<
-          Extract<T, { type: CommandTypes }>
-        >
-      );
+    for (const key of Object.keys(plugin.handlers)) {
+      const handler = plugin.handlers[key]?.bind(plugin);
+      const commands = isCommandSetName(key) ? commandSets[key] : [key as CommandTypes];
+      for (const command of commands) {
+        this.add(command, handler);
+      }
     }
   }
 }

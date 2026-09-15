@@ -180,7 +180,7 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "UPDATE_COLOR_SCHEME",
 ]);
 
-export const lockedSheetAllowedCommands = new Set<Command["type"]>([
+export const lockedSheetAllowedCommands = new Set<CommandTypes>([
   // core commands
   "LOCK_SHEET",
   "UNLOCK_SHEET",
@@ -327,6 +327,24 @@ export const evaluationCommandTypes = new Set<dispatcheableEvaluationCommandType
   "PIVOT_START_PRESENCE_TRACKING",
   "PIVOT_STOP_PRESENCE_TRACKING",
 ]);
+
+export const commandSets = {
+  invalidateEvaluationCommands,
+  invalidateChartEvaluationCommands,
+  invalidateDependenciesCommands,
+  invalidateCFEvaluationCommands,
+  readonlyAllowedCommands,
+  lockedSheetAllowedCommands,
+  coreTypes,
+  dispatcheableEvaluationCommandTypes,
+  evaluationCommandTypes,
+} satisfies Record<string, Set<CommandTypes>>;
+
+export type CommandSetName = keyof typeof commandSets;
+
+export function isCommandSetName(key: string): key is CommandSetName {
+  return key in commandSets;
+}
 
 export function isCoreCommand(cmd: Command): cmd is CoreCommand {
   return coreTypes.has(cmd.type as any);
@@ -1576,6 +1594,8 @@ export interface CommandHandler<T extends Command> {
 export type SingleCommandHandler<C extends Command> = (cmd: C) => void;
 export type CommandsHandlers<T extends Command> = {
   [C in CommandTypes]?: SingleCommandHandler<Extract<T, { type: C }>>;
+} & {
+  [S in CommandSetName]?: SingleCommandHandler<T>;
 };
 
 export type CommandsHandlersList<T extends Command> = {
