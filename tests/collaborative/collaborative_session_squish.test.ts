@@ -56,6 +56,7 @@ describe("Collaborative session", () => {
       serverRevisionId: "START_REVISION",
       type: "REMOTE_REVISION",
       version: 1,
+      rootCommandType: "AUTOFILL",
     });
   });
 
@@ -697,6 +698,7 @@ describe("commands", () => {
       serverRevisionId: "START_REVISION",
       type: "REMOTE_REVISION",
       version: 1,
+      rootCommandType: "UPDATE_CELL",
     });
   });
 });
