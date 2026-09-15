@@ -123,6 +123,7 @@ export class CellIconPlugin extends UIPlugin {
     ACTIVATE_SHEET: this.clearCellIconsCache,
     MOVE_COLUMNS_ROWS: this.clearCellIconsCache,
     SELECT_FIGURE: this.clearCellIconsCache,
+    UNSELECT_FIGURE: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {

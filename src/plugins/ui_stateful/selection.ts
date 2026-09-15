@@ -31,6 +31,7 @@ import {
   RemoveColumnsRowsCommand,
   SelectFigureCommand,
   UndoCommand,
+  UnselectFigureCommand,
   UpdateFigureCommand,
 } from "../../types/commands";
 import { SelectionEvent } from "../../types/event_stream/selection_events";
@@ -208,7 +209,12 @@ export class GridSelectionPlugin extends UIPlugin {
     ACTIVATE_SHEET: this.onActivateSheet,
     MOVE_COLUMNS_ROWS: this.onHeadersMoved,
     SELECT_FIGURE: this.onSelectFigure,
+    UNSELECT_FIGURE: this.onUnselectFigure,
   };
+
+  private onUnselectFigure(cmd: UnselectFigureCommand) {
+    this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
+  }
 
   private onSelectFigure(cmd: SelectFigureCommand) {
     if (cmd.selectMultiple) {
@@ -336,9 +342,6 @@ export class GridSelectionPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "UNSELECT_FIGURE":
-        this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
-        break;
       case "ACTIVATE_NEXT_SHEET":
         this.activateNextSheet("right");
         break;
