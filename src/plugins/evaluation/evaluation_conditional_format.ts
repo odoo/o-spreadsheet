@@ -10,7 +10,6 @@ import { CellValueType, EvaluatedCell, NumberCell } from "../../types/cells";
 import {
   EvaluationCommand,
   invalidateCFEvaluationCommands,
-  invalidateEvaluationCommands,
   UpdateCellCommand,
 } from "../../types/commands";
 import {
@@ -85,10 +84,7 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
   }
 
   handle(cmd: EvaluationCommand) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      invalidateCFEvaluationCommands.has(cmd.type)
-    ) {
+    if (invalidateCFEvaluationCommands.has(cmd.type)) {
       this.isStale = true;
     }
   }

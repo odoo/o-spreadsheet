@@ -1,5 +1,5 @@
 import { deepCopy } from "../../helpers/misc";
-import { Command, invalidateEvaluationCommands } from "../../types/commands";
+import { Command } from "../../types/commands";
 import { Dimension, HeaderDimensions, HeaderIndex, Pixel, UID } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
@@ -75,11 +75,6 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
   }
 
   handle(cmd: Command) {
-    if (invalidateEvaluationCommands.has(cmd.type)) {
-      this.headerPositions = {};
-      this.isDirty = true;
-    }
-
     switch (cmd.type) {
       case "START":
         for (const sheetId of this.getters.getSheetIds()) {

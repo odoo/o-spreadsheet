@@ -10,7 +10,6 @@ import {
   EvaluationCommand,
   invalidateCFEvaluationCommands,
   invalidateChartEvaluationCommands,
-  invalidateEvaluationCommands,
 } from "../../types/commands";
 import { Color, UID } from "../../types/misc";
 import { Range } from "../../types/range";
@@ -86,7 +85,6 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
 
   handle(cmd: EvaluationCommand) {
     if (
-      invalidateEvaluationCommands.has(cmd.type) ||
       invalidateCFEvaluationCommands.has(cmd.type) ||
       invalidateChartEvaluationCommands.has(cmd.type)
     ) {

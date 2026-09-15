@@ -5,11 +5,7 @@ import { getItemId } from "../../helpers/data_normalization";
 import { isObjectEmptyRecursive, removeFalsyAttributes } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isZoneInside, toZone, zoneToXc } from "../../helpers/zones";
-import {
-  EvaluationCommand,
-  invalidateCFEvaluationCommands,
-  invalidateEvaluationCommands,
-} from "../../types/commands";
+import { EvaluationCommand, invalidateCFEvaluationCommands } from "../../types/commands";
 import { Border, CellPosition, Style, UID } from "../../types/misc";
 import { ExcelWorkbookData } from "../../types/workbook_data";
 import { EvaluationPlugin } from "../evaluation_plugin";
@@ -91,7 +87,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
   }
 
   handle(cmd: EvaluationCommand) {
-    if (invalidateEvaluationCommands.has(cmd.type) || cmd.type === "EVALUATE_CELLS") {
+    if (cmd.type === "EVALUATE_CELLS") {
       this.styles = new PositionMap();
       this.borders = new PositionMap();
       return;
