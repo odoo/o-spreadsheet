@@ -1,4 +1,5 @@
 import { Model } from "../../../src";
+import { analyzeColumns } from "../../../src/helpers/data_statistics/data_analysis";
 import {
   ChartSuggestion,
   getChartSuggestions,
@@ -12,7 +13,10 @@ import { createModelFromGrid } from "../../test_helpers/helpers";
 
 function suggestions(model: Model, xcs: string | string[]): ChartSuggestion[] {
   const zones = (Array.isArray(xcs) ? xcs : [xcs]).map(toZone);
-  return getChartSuggestions(zones, model.getters);
+  const cols = analyzeColumns(zones, model.getters);
+  const nonEmpty = cols.filter((c) => c.type !== "empty");
+  const shape = nonEmpty.map((c) => c.type);
+  return getChartSuggestions(shape, nonEmpty, model.getters);
 }
 
 function suggestionTypes(model: Model, xcs: string | string[]): string[] {
@@ -26,7 +30,10 @@ function runtimeFor(
   predicate: (definition: ChartDefinition) => boolean
 ) {
   const zones = (Array.isArray(xcs) ? xcs : [xcs]).map(toZone);
-  const suggestions = getChartSuggestions(zones, model.getters);
+  const cols = analyzeColumns(zones, model.getters);
+  const nonEmpty = cols.filter((c) => c.type !== "empty");
+  const shape = nonEmpty.map((c) => c.type);
+  const suggestions = getChartSuggestions(shape, nonEmpty, model.getters);
   const s = suggestions.find((x) => predicate(x.definition));
   if (!s) {
     return undefined;
@@ -355,10 +362,12 @@ describe("getChartSuggestions", () => {
         B2: "5",
         B3: "6",
       });
-      const barSuggestions = getChartSuggestions(
-        [toZone("A1:A3"), toZone("B1:B3")],
-        model.getters
-      ).filter((s) => s.definition.type === "bar");
+      const cols = analyzeColumns([toZone("A1:A3"), toZone("B1:B3")], model.getters);
+      const nonEmpty = cols.filter((c) => c.type !== "empty");
+      const shape = nonEmpty.map((c) => c.type);
+      const barSuggestions = getChartSuggestions(shape, nonEmpty, model.getters).filter(
+        (s) => s.definition.type === "bar"
+      );
       expect(barSuggestions).toHaveLength(1);
     });
 

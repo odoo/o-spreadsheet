@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { ColumnAnalysis, analyzeColumns } from "../../src/helpers/data_analysis";
+import { analyzeColumns, ColumnAnalysis } from "../../src/helpers/data_statistics/data_analysis";
 import { toZone } from "../../src/helpers/zones";
 import { createTable, setCellContent, setFormat } from "../test_helpers";
 import { createModelFromGrid } from "../test_helpers/helpers";

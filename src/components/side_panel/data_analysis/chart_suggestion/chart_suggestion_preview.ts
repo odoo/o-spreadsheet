@@ -1,16 +1,16 @@
 import { onMounted, onWillUnmount, signal, useProps } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
-import { SpreadsheetChart } from "../../../helpers/figures/chart";
-import { registerChartJSExtensions } from "../../../helpers/figures/charts/chart_js_extension";
-import { limitChartConfigDataPoints } from "../../../helpers/figures/charts/chart_ui_common";
-import { drawGaugeChart } from "../../../helpers/figures/charts/gauge_chart_rendering";
-import { drawScoreChart } from "../../../helpers/figures/charts/scorecard_chart";
-import { getScorecardConfiguration } from "../../../helpers/figures/charts/scorecard_chart_config_builder";
-import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
-import { GaugeChartRuntime } from "../../../types/chart/gauge_chart";
-import { ScorecardChartRuntime } from "../../../types/chart/scorecard_chart";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-import { types } from "../../props_validation";
+import { SpreadsheetChart } from "../../../../helpers/figures/chart";
+import { registerChartJSExtensions } from "../../../../helpers/figures/charts/chart_js_extension";
+import { limitChartConfigDataPoints } from "../../../../helpers/figures/charts/chart_ui_common";
+import { drawGaugeChart } from "../../../../helpers/figures/charts/gauge_chart_rendering";
+import { drawScoreChart } from "../../../../helpers/figures/charts/scorecard_chart";
+import { getScorecardConfiguration } from "../../../../helpers/figures/charts/scorecard_chart_config_builder";
+import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
+import { GaugeChartRuntime } from "../../../../types/chart/gauge_chart";
+import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { types } from "../../../props_validation";
 
 const PREVIEW_BUBBLE_RADIUS_RATIO = 0.3;
 const MIN_PREVIEW_BUBBLE_RADIUS = 1;
