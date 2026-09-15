@@ -1,4 +1,5 @@
 import { expandCompactMergeCells } from "../helpers/clipboard/clipboard_helpers";
+import { transpose } from "../helpers/misc";
 import {
   ClipboardCellData,
   ClipboardOptions,
@@ -8,6 +9,19 @@ import {
 } from "../types/clipboard";
 import { CellPosition, HeaderIndex, Maybe, Merge, UID, Zone } from "../types/misc";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
+
+function transposeMerge(merge: Maybe<Merge>): Maybe<Merge> {
+  if (!merge) {
+    return merge;
+  }
+  return {
+    id: merge.id,
+    left: merge.top,
+    right: merge.bottom,
+    top: merge.left,
+    bottom: merge.right,
+  };
+}
 
 export class MergeClipboardHandler extends AbstractCellClipboardHandler<
   Maybe<Merge>,
@@ -76,7 +90,10 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
         this.dispatch("REMOVE_MERGE", { sheetId: positions.sheetId, target: mergeZones });
       }
     }
-    this.pasteFromCopy(target.sheetId, target.zones, content, options, positions);
+    const merges = options.pasteOptions?.includes("transpose")
+      ? transpose(content).map((row) => row.map(transposeMerge))
+      : content;
+    this.pasteFromCopy(target.sheetId, target.zones, merges, options, positions);
   }
 
   pasteZone(
