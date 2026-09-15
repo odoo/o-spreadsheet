@@ -10,6 +10,7 @@ import {
   EvaluationCommand,
   invalidateDependenciesCommands,
   invalidateEvaluationCommands,
+  SetAutomaticEvaluationCommand,
   UpdateCellCommand,
 } from "../../../types/commands";
 import { CellErrorType } from "../../../types/errors";
@@ -174,7 +175,15 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
   handlers = {
     UPDATE_CELL: this.updateCell,
     EVALUATE_CELLS: this.onEvaluateCells,
+    SET_AUTOMATIC_EVALUATION: this.setAutomaticEvaluation,
   };
+
+  private setAutomaticEvaluation(cmd: SetAutomaticEvaluationCommand) {
+    this.automaticEvaluation = cmd.enabled;
+    if (cmd.enabled) {
+      this.shouldRebuildDependenciesGraph = true;
+    }
+  }
 
   private onEvaluateCells(cmd: EvaluateCellsCommand) {
     this.forceEvaluation = true;
@@ -230,17 +239,6 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
       invalidateDependenciesCommands.has(cmd.type)
     ) {
       this.shouldRebuildDependenciesGraph = true;
-    }
-  }
-
-  handle(cmd: EvaluationCommand) {
-    switch (cmd.type) {
-      case "SET_AUTOMATIC_EVALUATION":
-        this.automaticEvaluation = cmd.enabled;
-        if (cmd.enabled) {
-          this.shouldRebuildDependenciesGraph = true;
-        }
-        break;
     }
   }
 

@@ -108,6 +108,7 @@ export class CellIconPlugin extends UIPlugin {
     REFRESH_PIVOT: this.clearCellIconsCache,
     PIVOT_START_PRESENCE_TRACKING: this.clearCellIconsCache,
     PIVOT_STOP_PRESENCE_TRACKING: this.clearCellIconsCache,
+    SET_AUTOMATIC_EVALUATION: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
