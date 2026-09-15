@@ -23,7 +23,6 @@ import {
   RedoCommand,
   UndoCommand,
   UpdatePivotCommand,
-  invalidateEvaluationCommands,
   isCoreCommand,
 } from "../../types/commands";
 import {
@@ -216,15 +215,8 @@ export class PivotUIPlugin extends EvaluationPlugin {
   }
 
   handle(cmd: EvaluationCommand) {
-    if (isCoreCommand(cmd) || cmd.type === "UNDO" || cmd.type === "REDO") {
+    if (isCoreCommand(cmd)) {
       this.unusedPivotsInFormulas = undefined;
-    }
-
-    if (invalidateEvaluationCommands.has(cmd.type)) {
-      this.shouldInvalidateCache = true;
-      for (const pivotId of this.getters.getPivotIds()) {
-        this.setupPivot(pivotId, { recreate: true });
-      }
     }
     switch (cmd.type) {
       case "REFRESH_PIVOT":
