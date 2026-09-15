@@ -20,7 +20,6 @@ import { ClientPosition } from "../../types/collaborative/session";
 import {
   ActivateSheetCommand,
   AddColumnsRowsCommand,
-  Command,
   CommandResult,
   CreateFigureCommand,
   DeleteFigureCommand,
@@ -211,7 +210,12 @@ export class GridSelectionPlugin extends UIPlugin {
     SELECT_FIGURE: this.onSelectFigure,
     UNSELECT_FIGURE: this.onUnselectFigure,
     ACTIVATE_NEXT_SHEET: this.activateNextSheetOnRight,
+    ACTIVATE_PREVIOUS_SHEET: this.activateNextSheetOnLeft,
   };
+
+  private activateNextSheetOnLeft() {
+    this.activateNextSheet("left");
+  }
 
   private activateNextSheetOnRight() {
     this.activateNextSheet("right");
@@ -343,14 +347,6 @@ export class GridSelectionPlugin extends UIPlugin {
 
   private unselectDeletedFigure(cmd: DeleteFigureCommand) {
     this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
-  }
-
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "ACTIVATE_PREVIOUS_SHEET":
-        this.activateNextSheet("left");
-        break;
-    }
   }
 
   finalize(): void {
