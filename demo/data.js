@@ -249,6 +249,7 @@ export const demoData = {
             background: "#FFFFFF",
             baseline: "Sheet1!B28",
             baselineDescr: "Descr",
+            baselineMode: "difference",
             keyValue: "Sheet1!B29",
             humanize: false,
           },
