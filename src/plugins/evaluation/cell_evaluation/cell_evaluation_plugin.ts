@@ -6,6 +6,7 @@ import { positions } from "../../../helpers/zones";
 import { CellValue, CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
   CommandResult,
+  EvaluateCellsCommand,
   EvaluationCommand,
   invalidateDependenciesCommands,
   invalidateEvaluationCommands,
@@ -172,7 +173,23 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
 
   handlers = {
     UPDATE_CELL: this.updateCell,
+    EVALUATE_CELLS: this.onEvaluateCells,
   };
+
+  private onEvaluateCells(cmd: EvaluateCellsCommand) {
+    this.forceEvaluation = true;
+    if (!this.automaticEvaluation) {
+      // When automatic evaluation is disabled, EVALUATE_CELLS should rebuild dependencies
+      // and evaluate all cells to ensure consistency
+      this.shouldRebuildDependenciesGraph = true;
+    } else if (cmd.cellIds) {
+      for (let i = 0; i < cmd.cellIds.length; i++) {
+        this.positionsToUpdate.push(this.getters.getCellPosition(cmd.cellIds[i]));
+      }
+    } else {
+      this.evaluator.evaluateAllCells(cmd.profiling);
+    }
+  }
 
   constructor(config: EvaluationPluginConfig) {
     super(config);
@@ -222,20 +239,6 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
         this.automaticEvaluation = cmd.enabled;
         if (cmd.enabled) {
           this.shouldRebuildDependenciesGraph = true;
-        }
-        break;
-      case "EVALUATE_CELLS":
-        this.forceEvaluation = true;
-        if (!this.automaticEvaluation) {
-          // When automatic evaluation is disabled, EVALUATE_CELLS should rebuild dependencies
-          // and evaluate all cells to ensure consistency
-          this.shouldRebuildDependenciesGraph = true;
-        } else if (cmd.cellIds) {
-          for (let i = 0; i < cmd.cellIds.length; i++) {
-            this.positionsToUpdate.push(this.getters.getCellPosition(cmd.cellIds[i]));
-          }
-        } else {
-          this.evaluator.evaluateAllCells(cmd.profiling);
         }
         break;
     }

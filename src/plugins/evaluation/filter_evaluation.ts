@@ -48,6 +48,9 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
     UNDO: this.invalidateEvaluation,
     REDO: this.invalidateEvaluation,
     START: this.resetFilterValues,
+    EVALUATE_CELLS: this.invalidateEvaluation,
+    // DELETE_SHEET is deliberately not handled: keeping the residual data lets an
+    // undo right after a DELETE_SHEET restore the filter values.
   };
 
   private resetFilterValues() {
@@ -86,16 +89,6 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
         break;
     }
     return CommandResult.Success;
-  }
-
-  handle(cmd: EvaluationCommand) {
-    switch (cmd.type) {
-      case "EVALUATE_CELLS":
-        this.isEvaluationDirty = true;
-        break;
-      // If we don't handle DELETE_SHEET, on one hand we will have some residual data, on the other hand we keep the data
-      // on DELETE_SHEET followed by undo
-    }
   }
 
   finalize() {
