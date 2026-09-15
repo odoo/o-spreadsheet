@@ -10,6 +10,8 @@ import {
   ChartRuntimeGenerationArgs,
   GenericDefinition,
 } from "../../../../types/chart/chart";
+import { ColorGridChartDefinition } from "../../../../types/chart/common_chart";
+import { getColorGridLegendCorner } from "../chart_common";
 
 type ChartLayout = ChartOptions["layout"];
 
@@ -27,15 +29,19 @@ export function getChartLayout(
   };
 }
 
-export function getCalendarChartLayout(
-  definition: GenericDefinition<ChartDefinitionWithDataSource>,
+export function getColorGridChartLayout(
+  definition: ColorGridChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartLayout {
-  const legendPosition = definition.legendPosition;
+  const corner = getColorGridLegendCorner(definition.legendPosition);
   return {
     padding: {
-      left: CHART_PADDING + (legendPosition === "left" ? CHART_COLORSCALE_WIDTH : 0),
-      right: CHART_PADDING + (legendPosition === "right" ? CHART_COLORSCALE_WIDTH : 0),
+      left:
+        CHART_PADDING +
+        (corner !== undefined && corner.horizontal === "left" ? CHART_COLORSCALE_WIDTH : 0),
+      right:
+        CHART_PADDING +
+        (corner !== undefined && corner.horizontal === "right" ? CHART_COLORSCALE_WIDTH : 0),
       top: Math.max(CHART_PADDING_TOP, args.topPadding || 0),
       bottom: CHART_PADDING_BOTTOM,
     },
