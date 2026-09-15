@@ -5,8 +5,8 @@
       t-att-class="this.getSpreadSheetClasses()"
       t-ref="this.spreadsheetRef"
       t-att-style="this.getStyle()">
-      <t t-if="this.state.printModeEnabled">
-        <SpreadsheetPrint onExitPrintMode.bind="this.exitPrintMode"/>
+      <t t-if="this.printPlugin.printModeEnabled()">
+        <SpreadsheetPrint/>
       </t>
       <t t-elif="this.model().getters.isDashboard()">
         <SpreadsheetDashboard getGridSize.bind="this.getGridSize"/>

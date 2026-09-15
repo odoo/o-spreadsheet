@@ -77,6 +77,7 @@ import { detectDateFormat } from "../../src/helpers/format/format";
 import { ModelPlugin } from "../../src/owl_plugins/model_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
+import { PrintPlugin } from "../../src/owl_plugins/print_owl_plugin";
 import { EvaluationPluginConstructor } from "../../src/plugins/evaluation_plugin";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
@@ -275,7 +276,6 @@ export function makeSpreadsheetActionTestEnv(
     get isSmall() {
       return mockEnv.isSmall || false;
     },
-    printSpreadsheet: mockEnv.printSpreadsheet || (() => {}),
     // @ts-ignore
     __spreadsheet_stores__: container,
     getPlugin,
@@ -312,7 +312,7 @@ class TestParent extends Component {
   });
 
   setup() {
-    providePlugins([NotificationPlugin, NavigatorClipboardPlugin, ModelPlugin], {
+    providePlugins([NotificationPlugin, NavigatorClipboardPlugin, ModelPlugin, PrintPlugin], {
       model: this.props.model,
     });
     if (this.props.isPortalTarget) {
@@ -362,7 +362,6 @@ class TestParent extends Component {
       get isSmall() {
         return mockEnv.isSmall || false;
       },
-      printSpreadsheet: mockEnv.printSpreadsheet || (() => {}),
       // @ts-ignore
       __spreadsheet_stores__: container,
     });
