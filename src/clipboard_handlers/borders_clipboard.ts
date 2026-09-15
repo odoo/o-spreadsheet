@@ -1,4 +1,4 @@
-import { splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
+import { shouldPasteFormat, splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
 import { getItemId } from "../helpers/data_normalization";
 import { groupConsecutive, range } from "../helpers/misc";
 import { recomputeZones } from "../helpers/recompute_zones";
@@ -29,6 +29,34 @@ function toDescr(
     return null;
   }
   return { style: border.style, color: border.color };
+}
+
+function transposeColumns(columns: Column<BorderDescrInternal>[]): Column<BorderDescrInternal>[] {
+  const transposed: Column<BorderDescrInternal>[] = [];
+  for (let colIndex = 0; colIndex < columns.length; colIndex++) {
+    const column = columns[colIndex] ?? [];
+    for (let rowIndex = 0; rowIndex < column.length; rowIndex++) {
+      (transposed[rowIndex] ??= [])[colIndex] = column[rowIndex];
+    }
+  }
+  return transposed;
+}
+
+function transposeBorders(content: ClipboardContent): ClipboardContent {
+  return {
+    width: content.height,
+    height: content.width,
+    content: content.content.map((c) => ({
+      left: c.top,
+      top: c.left,
+      width: c.height,
+      height: c.width,
+      bordersTop: transposeColumns(c.bordersLeft),
+      bordersLeft: transposeColumns(c.bordersTop),
+      defaultTop: c.defaultLeft,
+      defaultLeft: c.defaultTop,
+    })),
+  };
 }
 
 type ClipboardContent = {
@@ -86,16 +114,19 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
     const sheetId = target.sheetId;
-    if (options.pasteOption === "asValue") {
+    if (!shouldPasteFormat(options.pasteOptions)) {
       return;
     }
     const zones = target.zones;
+    const borders = options.pasteOptions?.includes("transpose")
+      ? transposeBorders(content)
+      : content;
     if (!options.isCutOperation) {
       for (const zone of zones) {
-        this.pasteContent(sheetId, zone, content.content);
+        this.pasteContent(sheetId, zone, borders.content);
       }
     } else {
-      this.pasteContent(sheetId, zones[0], content.content);
+      this.pasteContent(sheetId, zones[0], borders.content);
     }
   }
 
