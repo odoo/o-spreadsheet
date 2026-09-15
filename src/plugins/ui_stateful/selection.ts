@@ -210,7 +210,12 @@ export class GridSelectionPlugin extends UIPlugin {
     MOVE_COLUMNS_ROWS: this.onHeadersMoved,
     SELECT_FIGURE: this.onSelectFigure,
     UNSELECT_FIGURE: this.onUnselectFigure,
+    ACTIVATE_NEXT_SHEET: this.activateNextSheetOnRight,
   };
+
+  private activateNextSheetOnRight() {
+    this.activateNextSheet("right");
+  }
 
   private onUnselectFigure(cmd: UnselectFigureCommand) {
     this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
@@ -342,9 +347,6 @@ export class GridSelectionPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "ACTIVATE_NEXT_SHEET":
-        this.activateNextSheet("right");
-        break;
       case "ACTIVATE_PREVIOUS_SHEET":
         this.activateNextSheet("left");
         break;
