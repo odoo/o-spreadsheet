@@ -8,6 +8,7 @@ import {
   range,
 } from "../../helpers/misc";
 import {
+  AddColumnsRowsCommand,
   Command,
   CommandResult,
   HideColumnsRowsCommand,
@@ -35,7 +36,18 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     CREATE_SHEET: this.initSheetHiddenHeaders,
     DUPLICATE_SHEET: this.duplicateSheetHiddenHeaders,
     DELETE_SHEET: this.deleteSheetHiddenHeaders,
+    ADD_COLUMNS_ROWS: this.addHiddenHeaders,
   };
+
+  private addHiddenHeaders(cmd: AddColumnsRowsCommand) {
+    const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
+    const hiddenHeaders = insertItemsAtIndex(
+      [...this.hiddenHeaders[cmd.sheetId][cmd.dimension]],
+      Array(cmd.quantity).fill(false),
+      addIndex
+    );
+    this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hiddenHeaders);
+  }
 
   private deleteSheetHiddenHeaders(cmd: { sheetId: UID }) {
     this.history.update("hiddenHeaders", cmd.sheetId, undefined);
@@ -107,16 +119,6 @@ export class HeaderVisibilityPlugin extends CorePlugin {
         for (const el of [...cmd.elements].sort((a, b) => b - a)) {
           hiddenHeaders.splice(el, 1);
         }
-        this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hiddenHeaders);
-        break;
-      }
-      case "ADD_COLUMNS_ROWS": {
-        const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
-        const hiddenHeaders = insertItemsAtIndex(
-          [...this.hiddenHeaders[cmd.sheetId][cmd.dimension]],
-          Array(cmd.quantity).fill(false),
-          addIndex
-        );
         this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hiddenHeaders);
         break;
       }

@@ -4,6 +4,7 @@ import {
   moveHeaderIndexesOnHeaderDeletion,
 } from "../../helpers/sheet";
 import {
+  AddColumnsRowsCommand,
   CommandResult,
   CoreCommand,
   FoldAllHeaderGroupsCommand,
@@ -50,7 +51,13 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
     CREATE_SHEET: this.initSheetGroups,
     DUPLICATE_SHEET: this.duplicateSheetGroups,
     DELETE_SHEET: this.deleteSheetGroups,
+    ADD_COLUMNS_ROWS: this.moveGroupsOnHeaderAddition,
   };
+
+  private moveGroupsOnHeaderAddition(cmd: AddColumnsRowsCommand) {
+    const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
+    this.moveGroupsOnHeaderInsertion(cmd.sheetId, cmd.dimension, addIndex, cmd.quantity);
+  }
 
   private deleteSheetGroups(cmd: { sheetId: UID }) {
     const groups = { ...this.groups };
@@ -195,10 +202,6 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "ADD_COLUMNS_ROWS":
-        const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
-        this.moveGroupsOnHeaderInsertion(cmd.sheetId, cmd.dimension, addIndex, cmd.quantity);
-        break;
       case "REMOVE_COLUMNS_ROWS":
         this.moveGroupsOnHeaderDeletion(cmd.sheetId, cmd.dimension, cmd.elements);
         break;

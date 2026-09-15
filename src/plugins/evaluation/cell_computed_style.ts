@@ -66,6 +66,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     CREATE_SHEET: this.invalidateComputedStyles,
     DUPLICATE_SHEET: this.invalidateComputedStyles,
     DELETE_SHEET: this.invalidateComputedStyles,
+    ADD_COLUMNS_ROWS: this.invalidateComputedStyles,
   };
 
   private invalidateComputedCfStyles() {

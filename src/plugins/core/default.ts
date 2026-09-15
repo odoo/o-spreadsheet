@@ -12,6 +12,7 @@ import {
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { cellPositions, getZoneArea } from "../../helpers/zones";
 import {
+  AddColumnsRowsCommand,
   ClearFormattingCommand,
   CommandResult,
   CoreCommand,
@@ -56,7 +57,17 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
     SET_FORMATTING: this.setFormatting,
     CLEAR_FORMATTING: this.clearFormatting,
     DUPLICATE_SHEET: this.duplicateSheetDefaults,
+    ADD_COLUMNS_ROWS: this.addHeaders,
   };
+
+  private addHeaders(cmd: AddColumnsRowsCommand) {
+    const startingIdx = cmd.position === "before" ? cmd.base : cmd.base + 1;
+    this.moveColRows(cmd.sheetId, cmd.dimension, startingIdx, cmd.quantity);
+    const indexToCopy = cmd.position === "before" ? cmd.base + cmd.quantity : cmd.base;
+    for (let index = startingIdx; index < startingIdx + cmd.quantity; index++) {
+      this.copyColRow(cmd.sheetId, cmd.dimension, indexToCopy, index);
+    }
+  }
 
   private duplicateSheetDefaults(cmd: { sheetId: UID; sheetIdTo: UID }) {
     this.history.update("style", cmd.sheetIdTo, deepCopy(this.style[cmd.sheetId]));
@@ -86,14 +97,6 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
 
   handle(cmd: CoreCommand): void {
     switch (cmd.type) {
-      case "ADD_COLUMNS_ROWS":
-        const startingIdx = cmd.position === "before" ? cmd.base : cmd.base + 1;
-        this.moveColRows(cmd.sheetId, cmd.dimension, startingIdx, cmd.quantity);
-        const indexToCopy = cmd.position === "before" ? cmd.base + cmd.quantity : cmd.base;
-        for (let index = startingIdx; index < startingIdx + cmd.quantity; index++) {
-          this.copyColRow(cmd.sheetId, cmd.dimension, indexToCopy, index);
-        }
-        break;
       case "REMOVE_COLUMNS_ROWS":
         for (const el of groupConsecutive(cmd.elements).toReversed()) {
           for (const i of el) {

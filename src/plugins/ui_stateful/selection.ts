@@ -196,7 +196,17 @@ export class GridSelectionPlugin extends UIPlugin {
     DELETE_FIGURE: this.unselectDeletedFigure,
     HIDE_SHEET: this.activateAnotherSheetOnHide,
     DELETE_SHEET: this.onSheetDeleted,
+    ADD_COLUMNS_ROWS: this.onHeadersAdded,
   };
+
+  private onHeadersAdded(cmd: AddColumnsRowsCommand) {
+    const sheetId = this.getters.getActiveSheetId();
+    if (cmd.sheetId === sheetId) {
+      this.onAddElements(cmd);
+      const { col, row } = this.gridSelection.anchor.cell;
+      this.moveClient({ sheetId, col, row });
+    }
+  }
 
   private activateAnotherSheetOnHide(cmd: HideSheetCommand) {
     if (cmd.sheetId === this.getActiveSheetId()) {
@@ -274,15 +284,6 @@ export class GridSelectionPlugin extends UIPlugin {
           } else {
             this.onRowsRemoved(cmd);
           }
-          const { col, row } = this.gridSelection.anchor.cell;
-          this.moveClient({ sheetId, col, row });
-        }
-        break;
-      }
-      case "ADD_COLUMNS_ROWS": {
-        const sheetId = this.getters.getActiveSheetId();
-        if (cmd.sheetId === sheetId) {
-          this.onAddElements(cmd);
           const { col, row } = this.gridSelection.anchor.cell;
           this.moveClient({ sheetId, col, row });
         }

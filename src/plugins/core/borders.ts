@@ -52,7 +52,16 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     ADD_MERGE: this.addBordersToMerges,
     DUPLICATE_SHEET: this.duplicateSheetBorders,
     DELETE_SHEET: this.deleteSheetBorders,
+    ADD_COLUMNS_ROWS: this.addHeaderBorders,
   };
+
+  private addHeaderBorders(cmd: AddColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      this.handleAddColumns(cmd);
+    } else {
+      this.handleAddRows(cmd);
+    }
+  }
 
   private deleteSheetBorders(cmd: { sheetId: UID }) {
     const allBorders = { ...this.borders };
@@ -135,13 +144,6 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
             this.clearInsideBorders(cmd.sheetId, [zone]);
             this.shiftBordersVertically(cmd.sheetId, group[0] + 1, -group.length);
           }
-        }
-        break;
-      case "ADD_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.handleAddColumns(cmd);
-        } else {
-          this.handleAddRows(cmd);
         }
         break;
     }
