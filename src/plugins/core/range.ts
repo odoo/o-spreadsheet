@@ -89,16 +89,6 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   }
   beforeHandle(command: Command) {}
 
-  handle(cmd: CoreCommand) {
-    if (this.isAdaptingRanges) {
-      throw new Error("Plugins cannot dispatch commands during adaptRanges phase");
-    }
-    const adapterFunctions = getRangeAdapterFunctions(cmd);
-    if (adapterFunctions) {
-      this.executeOnAllRanges(adapterFunctions);
-    }
-  }
-
   finalize() {}
 
   private executeOnAllRanges(adapterFunctions: RangeAdapterFunctions) {
