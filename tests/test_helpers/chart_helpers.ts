@@ -236,10 +236,12 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   humanize: false,
   slicesColors: [],
   bubbleLabelRange: "Sheet1!A1:A4",
-  bubbleSizeRange: "Sheet1!A1:A4",
+  sizeRange: "Sheet1!C1:C4",
   bubbleColorMode: { color: FIRST_CHART_COLOR },
   annotationLink: "https://www.odoo.com",
   annotationText: "This is an annotation text",
   scorecardKeyValueFormula: "=Sheet1!B1:B4",
   scorecardBaselineFormula: "=Sheet1!A1:A4",
+  colorScale: { minColor: "#ffffff", maxColor: "#ff0000" },
+  missingValueColor: "#ff0000",
 };

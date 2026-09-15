@@ -52,6 +52,7 @@ export const GeoChart: ChartTypeBuilder<"geo"> = {
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "geo",
+      missingValueColor: context.missingValueColor,
       humanize: context.humanize,
       annotationLink: context.annotationLink,
       annotationText: context.annotationText,
