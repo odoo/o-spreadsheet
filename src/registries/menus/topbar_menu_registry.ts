@@ -81,6 +81,10 @@ topbarMenuRegistry
     ...ACTION_EDIT.pasteSpecialFormat,
     sequence: 20,
   })
+  .addChild("paste_special_formula", ["edit", "paste_special"], {
+    ...ACTION_EDIT.pasteSpecialFormula,
+    sequence: 30,
+  })
   .addChild("edit_table", ["edit"], {
     ...ACTION_EDIT.editTable,
     isVisible: ACTIONS.SELECTION_CONTAINS_SINGLE_TABLE,

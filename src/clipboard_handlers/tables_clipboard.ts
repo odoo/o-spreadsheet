@@ -211,7 +211,11 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
 
     // We cannot check for dynamic tables, because at this point the paste can have changed the evaluation, and the
     // dynamic tables are not yet computed
-    if (this.getters.getCoreTable(position) || options?.pasteOption === "asValue") {
+    if (
+      this.getters.getCoreTable(position) ||
+      options?.pasteOption === "asValue" ||
+      options?.pasteOption === "onlyFormula"
+    ) {
       return;
     }
     if (

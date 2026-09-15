@@ -266,12 +266,19 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       content = this.getters.getFormulaMovedInSheet(sheetId, origin.compiledFormula);
     }
     if (content !== "" || origin.format || style) {
-      this.dispatch("UPDATE_CELL", {
-        ...target,
-        content,
-        style,
-        format: origin.format,
-      });
+      if (clipboardOption?.pasteOption === "onlyFormula") {
+        this.dispatch("UPDATE_CELL", {
+          ...target,
+          content,
+        });
+      } else {
+        this.dispatch("UPDATE_CELL", {
+          ...target,
+          content,
+          style,
+          format: origin.format,
+        });
+      }
     } else if (targetEvaluatedCell.type !== "empty") {
       this.dispatch("UPDATE_CELL", {
         content: "",

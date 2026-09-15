@@ -34,7 +34,7 @@ export interface ClipboardOptions {
   pasteOption?: ClipboardPasteOptions;
   selectTarget?: boolean;
 }
-export type ClipboardPasteOptions = "onlyFormat" | "asValue";
+export type ClipboardPasteOptions = "onlyFormat" | "asValue" | "onlyFormula";
 export type ClipboardCopyOptions = "copyPaste" | "shiftCells";
 export type ClipboardOperation = "CUT" | "COPY";
 

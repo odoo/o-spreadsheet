@@ -113,7 +113,7 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
     const sheetId = target.sheetId;
-    if (options.pasteOption === "asValue") {
+    if (options.pasteOption === "asValue" || options.pasteOption === "onlyFormula") {
       return;
     }
     const zones = target.zones;
