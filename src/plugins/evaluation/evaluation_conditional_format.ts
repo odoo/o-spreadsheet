@@ -68,6 +68,7 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
     CREATE_SHEET: this.markAsStale,
     DUPLICATE_SHEET: this.markAsStale,
     DELETE_SHEET: this.markAsStale,
+    ADD_COLUMNS_ROWS: this.markAsStale,
   };
 
   private markAsStale() {

@@ -19,6 +19,7 @@ import {
 import { isZoneInside, isZoneValid, toZone } from "../../helpers/zones";
 import { Cell } from "../../types/cells";
 import {
+  AddColumnsRowsCommand,
   ColorSheetBackgroundCommand,
   ColorSheetCommand,
   Command,
@@ -123,7 +124,16 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     CREATE_SHEET: this.createSheetHandler,
     DUPLICATE_SHEET: this.duplicateSheetHandler,
     DELETE_SHEET: this.deleteSheetHandler,
+    ADD_COLUMNS_ROWS: this.addHeaders,
   };
+
+  private addHeaders(cmd: AddColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      this.addColumns(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
+    } else {
+      this.addRows(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
+    }
+  }
 
   private deleteSheetHandler(cmd: { sheetId: UID }) {
     this.deleteSheet(this.sheets[cmd.sheetId]!);
@@ -331,13 +341,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           this.removeColumns(this.sheets[cmd.sheetId]!, [...cmd.elements]);
         } else {
           this.removeRows(this.sheets[cmd.sheetId]!, [...cmd.elements]);
-        }
-        break;
-      case "ADD_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.addColumns(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
-        } else {
-          this.addRows(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
         }
         break;
     }

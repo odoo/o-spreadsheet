@@ -63,6 +63,7 @@ export class DynamicTablesPlugin extends EvaluationPlugin {
     CREATE_SHEET: this.clearTables,
     DUPLICATE_SHEET: this.clearTables,
     DELETE_SHEET: this.clearTables,
+    ADD_COLUMNS_ROWS: this.clearTables,
   };
 
   private invalidateTables(cmd: UpdateCellCommand) {
