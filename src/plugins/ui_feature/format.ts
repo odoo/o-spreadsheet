@@ -6,7 +6,7 @@ import {
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { positions, positionToZone } from "../../helpers/zones";
 import { CellValueType } from "../../types/cells";
-import { Command } from "../../types/commands";
+import { Command, SetDecimalCommand } from "../../types/commands";
 import { Format } from "../../types/format";
 import { CellPosition, Position, SetDecimalStep, UID, Zone } from "../../types/misc";
 import { PivotTableCell, PivotValueCell } from "../../types/pivot";
@@ -17,11 +17,16 @@ export class FormatPlugin extends UIPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
+  handlers = {
+    SET_DECIMAL: this.setDecimalOfTarget,
+  };
+
+  private setDecimalOfTarget(cmd: SetDecimalCommand) {
+    this.setDecimal(cmd.sheetId, cmd.target, cmd.step);
+  }
+
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "SET_DECIMAL":
-        this.setDecimal(cmd.sheetId, cmd.target, cmd.step);
-        break;
       case "SET_FORMATTING_WITH_PIVOT": {
         this.setContextualFormat(cmd.sheetId, cmd.target, cmd.format);
         break;
