@@ -1,4 +1,4 @@
-import { deepEquals } from "../helpers/misc";
+import { deepEquals, transpose } from "../helpers/misc";
 import { UuidGenerator } from "../helpers/uuid";
 import { positionToZone } from "../helpers/zones";
 import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
@@ -47,14 +47,18 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
 
   paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
     this.queuedChanges = {};
-    if (options.pasteOption === "asValue") {
+    if (options.pasteOption === "asValue" || options.pasteOption === "onlyFormula") {
       return;
     }
     const zones = target.zones;
     const sheetId = target.sheetId;
 
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, clippedContent.cfRules, options);
+      const cfRules =
+        options.pasteOption === "transpose"
+          ? transpose(clippedContent.cfRules)
+          : clippedContent.cfRules;
+      this.pasteFromCopy(sheetId, zones, cfRules, options);
     } else {
       this.pasteFromCut(sheetId, zones, clippedContent);
     }

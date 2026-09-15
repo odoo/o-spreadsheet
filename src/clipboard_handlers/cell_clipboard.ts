@@ -1,7 +1,7 @@
 import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
 import { formatValue } from "../helpers/format/format";
 import { canonicalizeNumberValue } from "../helpers/locale";
-import { deepEquals } from "../helpers/misc";
+import { deepEquals, transpose } from "../helpers/misc";
 import { createPivotFormula } from "../helpers/pivot/pivot_helpers";
 import { cellPositions, isZoneInside } from "../helpers/zones";
 import {
@@ -117,16 +117,17 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       // cannot paste only format or only value if the previous operation is a CUT
       return CommandResult.WrongPasteOption;
     }
+    const cells = this.getPastedCells(content, clipboardOptions);
     if (target.length > 1) {
       // cannot paste if we have a clipped zone larger than a cell and multiple
       // zones selected
-      if (content.cells.length > 1 || content.cells[0].length > 1) {
+      if (cells.length > 1 || cells[0].length > 1) {
         return CommandResult.WrongPasteSelection;
       }
     }
-    const clipboardHeight = content.cells.length;
-    const clipboardWidth = content.cells[0].length;
-    for (const zone of getPasteZones(target, content.cells)) {
+    const clipboardHeight = cells.length;
+    const clipboardWidth = cells[0].length;
+    for (const zone of getPasteZones(target, cells)) {
       if (this.getters.doesIntersectMerge(sheetId, zone)) {
         if (
           target.length > 1 ||
@@ -146,10 +147,11 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
     const zones = target.zones;
     const sheetId = target.sheetId;
+    const cells = this.getPastedCells(content, options);
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, content.cells, options);
+      this.pasteFromCopy(sheetId, zones, cells, options);
     } else {
-      this.pasteFromCut(sheetId, zones, content, options);
+      this.pasteFromCut(sheetId, zones, { ...content, cells }, options);
     }
   }
 
@@ -159,8 +161,9 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     content: ClipboardContent,
     options?: ClipboardOptions
   ): ClipboardPasteTarget {
-    const width = content.cells[0].length;
-    const height = content.cells.length;
+    const cells = this.getPastedCells(content, options);
+    const width = cells[0].length;
+    const height = cells.length;
     if (options?.isCutOperation) {
       return {
         sheetId,
@@ -177,7 +180,17 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     if (width === 1 && height === 1) {
       return { zones: [], sheetId };
     }
-    return { sheetId, zones: getPasteZones(target, content.cells) };
+    return { sheetId, zones: getPasteZones(target, cells) };
+  }
+
+  /**
+   * Returns the clipboard cells, transposed if the paste option requires it.
+   */
+  private getPastedCells(content: ClipboardContent, options?: ClipboardOptions): ClipboardCell[][] {
+    if (options?.pasteOption === "transpose") {
+      return transpose(content.cells);
+    }
+    return content.cells;
   }
 
   private pasteFromCut(
@@ -266,12 +279,19 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       content = this.getters.getFormulaMovedInSheet(sheetId, origin.compiledFormula);
     }
     if (content !== "" || origin.format || style) {
-      this.dispatch("UPDATE_CELL", {
-        ...target,
-        content,
-        style,
-        format: origin.format,
-      });
+      if (clipboardOption?.pasteOption === "onlyFormula") {
+        this.dispatch("UPDATE_CELL", {
+          ...target,
+          content,
+        });
+      } else {
+        this.dispatch("UPDATE_CELL", {
+          ...target,
+          content,
+          style,
+          format: origin.format,
+        });
+      }
     } else if (targetEvaluatedCell.type !== "empty") {
       this.dispatch("UPDATE_CELL", {
         content: "",

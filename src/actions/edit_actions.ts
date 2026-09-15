@@ -73,6 +73,16 @@ export const pasteSpecialValue: ActionSpec = {
   execute: ACTIONS.PASTE_AS_VALUE_ACTION,
 };
 
+export const pasteSpecialFormula: ActionSpec = {
+  name: _t("Paste formula only"),
+  execute: ACTIONS.PASTE_FORMULA_ACTION,
+};
+
+export const pasteSpecialTranspose: ActionSpec = {
+  name: _t("Paste transposed"),
+  execute: ACTIONS.PASTE_TRANSPOSE_ACTION,
+};
+
 export const pasteSpecialFormat: ActionSpec = {
   name: _t("Paste format only"),
   execute: ACTIONS.PASTE_FORMAT_ACTION,

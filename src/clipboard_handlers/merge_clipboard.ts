@@ -36,6 +36,11 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
       const copiedMerges = content.merges.flat().filter(isDefined);
       this.dispatch("REMOVE_MERGE", { sheetId: content.sheetId, target: copiedMerges });
     }
+    if (options.pasteOption === "transpose") {
+      // Merges are not transposed: transposing a merged zone would require
+      // swapping its width and height, which is not supported yet.
+      return;
+    }
     this.pasteFromCopy(target.sheetId, target.zones, content.merges, options);
   }
 

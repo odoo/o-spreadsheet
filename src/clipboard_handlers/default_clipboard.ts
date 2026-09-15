@@ -113,13 +113,15 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
     const sheetId = target.sheetId;
-    if (options.pasteOption === "asValue") {
+    if (options.pasteOption === "asValue" || options.pasteOption === "onlyFormula") {
       return;
     }
     const zones = target.zones;
     if (!options.isCutOperation) {
+      const pastedContent =
+        options.pasteOption === "transpose" ? this.transposeContent(content) : content;
       for (const zone of zones) {
-        const newContent = this.adaptContentToZone(zone, content);
+        const newContent = this.adaptContentToZone(zone, pastedContent);
         this.pasteStyle(
           sheetId,
           zone.left,
@@ -143,6 +145,29 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
       this.pasteStyle(sheetId, left, top, content.width, content.height, content.style);
       this.pasteFormat(sheetId, left, top, content.width, content.height, content.format);
     }
+  }
+
+  /**
+   * Swap the width/height and the col/row default values of the content, so that
+   * pasting it behaves as if the copied zone had been transposed.
+   */
+  private transposeContent(content: ClipboardContent): ClipboardContent {
+    const transposed = deepCopy(content);
+    transposed.width = content.height;
+    transposed.height = content.width;
+    transposed.format = {
+      ...content.format,
+      colDefault: content.format.rowDefault,
+      rowDefault: content.format.colDefault,
+    };
+    for (const key in content.style) {
+      transposed.style[key as keyof Style] = {
+        ...content.style[key],
+        colDefault: content.style[key].rowDefault,
+        rowDefault: content.style[key].colDefault,
+      };
+    }
+    return transposed;
   }
 
   /**
