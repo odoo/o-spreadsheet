@@ -1,9 +1,9 @@
-import { signal, useProps } from "@odoo/owl";
+import { PluginInstance, signal, usePlugin } from "@odoo/owl";
+import { PrintPlugin } from "../../owl_plugins/print_owl_plugin";
 import { useLocalStore } from "../../store_engine/store_hooks";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { OSComponent } from "../os_component";
-import { types } from "../props_validation";
 import { Select } from "../select/select";
 import { BadgeSelection } from "../side_panel/components/badge_selection/badge_selection";
 import { Checkbox } from "../side_panel/components/checkbox/checkbox";
@@ -20,18 +20,17 @@ import {
 
 export class SpreadsheetPrint extends OSComponent {
   static template = "o-spreadsheet-SpreadsheetPrint";
-  protected props = useProps({
-    onExitPrintMode: types.function(),
-  });
   static components = { StandaloneGridCanvas, Section, Select, BadgeSelection, Checkbox };
 
   printStore!: Store<SpreadsheetPrintStore>;
   printIframe!: PrintIframe;
+  printPlugin!: PluginInstance<typeof PrintPlugin>;
 
   private iframeRef = signal<HTMLIFrameElement | null>(null);
 
   setup() {
     this.printStore = useLocalStore(SpreadsheetPrintStore);
+    this.printPlugin = usePlugin(PrintPlugin);
     this.printIframe = usePrintIframe({
       iframeRef: this.iframeRef,
       pageCount: () => this.printStore.printPages.length,
@@ -76,6 +75,6 @@ export class SpreadsheetPrint extends OSComponent {
 
   onPrint() {
     this.printIframe.print();
-    this.props.onExitPrintMode();
+    this.printPlugin.stop();
   }
 }

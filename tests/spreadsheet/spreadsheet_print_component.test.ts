@@ -116,7 +116,6 @@ describe("Spreadsheet print rendering", () => {
 
   async function mountSpreadsheetPrint() {
     await mountComponentWithPortalTarget(SpreadsheetPrint, {
-      props: { onExitPrintMode: () => {} },
       model,
     });
     await nextTick(); // Need to wait a render for the iframe to be loaded/initialized before we draw the pages

@@ -18,7 +18,6 @@ export interface SpreadsheetChildEnv {
   getStore: Get;
   isSmall: boolean;
   isMobile: () => boolean;
-  printSpreadsheet: () => void;
 }
 
 export type OwlPluginGetter = <T extends PluginConstructor>(plugin: T) => PluginInstance<T>;

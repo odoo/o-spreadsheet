@@ -8,7 +8,9 @@
           <t t-out="pages.length"/>
           pages
         </span>
-        <button class="o-button ms-auto me-2 flex-grow-0" t-on-click="this.props.onExitPrintMode">
+        <button
+          class="o-button ms-auto me-2 flex-grow-0"
+          t-on-click="() => this.printPlugin.stop()">
           Cancel
         </button>
         <button class="o-button primary flex-grow-0 me-4" t-on-click="this.onPrint">Next</button>
