@@ -79,6 +79,7 @@ export class EvaluationDataValidationPlugin extends EvaluationPlugin {
     ADD_COLUMNS_ROWS: this.clearValidationResults,
     REMOVE_COLUMNS_ROWS: this.clearValidationResults,
     UNDO: this.clearValidationResults,
+    REDO: this.clearValidationResults,
   };
 
   private clearValidationResults() {

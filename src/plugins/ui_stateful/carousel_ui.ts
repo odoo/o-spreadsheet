@@ -5,7 +5,6 @@ import { ChartDefinition } from "../../types/chart/chart";
 import {
   AddFiguresChartToCarouselCommand,
   AddNewChartToCarouselCommand,
-  Command,
   CommandResult,
   DeleteFigureCommand,
   DuplicateCarouselChartCommand,
@@ -38,6 +37,7 @@ export class CarouselUIPlugin extends UIPlugin {
     POPOUT_CHART_FROM_CAROUSEL: this.popOutChartFromCarousel,
     DELETE_SHEET: this.fixWrongCarouselStates,
     UNDO: this.fixWrongCarouselStates,
+    REDO: this.fixWrongCarouselStates,
   };
 
   private updateActiveItem(cmd: UpdateCarouselActiveItemCommand) {
@@ -108,14 +108,6 @@ export class CarouselUIPlugin extends UIPlugin {
         return CommandResult.Success;
     }
     return CommandResult.Success;
-  }
-
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "REDO":
-        this.fixWrongCarouselStates();
-        break;
-    }
   }
 
   popOutChartFromCarousel(cmd: PopOutChartFromCarouselCommand) {

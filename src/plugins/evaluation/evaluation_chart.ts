@@ -71,6 +71,7 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
     ADD_COLUMNS_ROWS: this.invalidateChartRuntimes,
     REMOVE_COLUMNS_ROWS: this.invalidateChartRuntimes,
     UNDO: this.invalidateChartRuntimes,
+    REDO: this.invalidateChartRuntimes,
   };
 
   private invalidateChartRuntime(cmd: { chartId: UID }) {

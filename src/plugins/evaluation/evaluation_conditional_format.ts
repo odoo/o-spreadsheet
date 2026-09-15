@@ -71,6 +71,7 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
     ADD_COLUMNS_ROWS: this.markAsStale,
     REMOVE_COLUMNS_ROWS: this.markAsStale,
     UNDO: this.markAsStale,
+    REDO: this.markAsStale,
   };
 
   private markAsStale() {

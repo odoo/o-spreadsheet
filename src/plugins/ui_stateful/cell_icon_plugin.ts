@@ -102,6 +102,7 @@ export class CellIconPlugin extends UIPlugin {
     ADD_COLUMNS_ROWS: this.clearCellIconsCache,
     REMOVE_COLUMNS_ROWS: this.clearCellIconsCache,
     UNDO: this.clearCellIconsCache,
+    REDO: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
