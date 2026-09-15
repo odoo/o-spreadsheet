@@ -79,6 +79,7 @@ import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
 import { ModelPlugin } from "../../src/owl_plugins/model_owl_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
+import { PrintPlugin } from "../../src/owl_plugins/print_owl_plugin";
 import { EvaluationPluginConstructor } from "../../src/plugins/evaluation_plugin";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
@@ -291,7 +292,6 @@ export function makeSpreadsheetActionTestEnv(
       return mockEnv.isSmall || false;
     },
     isMobile: mockEnv.isMobile || isMobileOS,
-    printSpreadsheet: mockEnv.printSpreadsheet || (() => {}),
     // @ts-ignore
     __spreadsheet_stores__: container,
     getPlugin,
@@ -328,7 +328,7 @@ class TestParent extends Component {
   });
 
   setup() {
-    providePlugins([NotificationPlugin, ModelPlugin], {
+    providePlugins([NotificationPlugin, ModelPlugin, PrintPlugin], {
       model: this.props.model,
     });
     if (this.props.isPortalTarget) {
@@ -394,7 +394,6 @@ class TestParent extends Component {
         return mockEnv.isSmall || false;
       },
       isMobile: mockEnv.isMobile || isMobileOS,
-      printSpreadsheet: mockEnv.printSpreadsheet || (() => {}),
       // @ts-ignore
       __spreadsheet_stores__: container,
     });

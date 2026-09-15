@@ -6,6 +6,7 @@ import * as ACTIONS from "../../actions/menu_items_actions";
 import * as ACTION_VIEW from "../../actions/view_actions";
 import { ZOOM_VALUES } from "../../constants";
 import { getPivotHighlights } from "../../helpers/pivot/pivot_highlight";
+import { PrintPlugin } from "../../owl_plugins/print_owl_plugin";
 import { HighlightStore } from "../../stores/highlight_store";
 import { _t } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
@@ -26,7 +27,7 @@ topbarMenuRegistry
   .addChild("print", ["file"], {
     name: _t("Print"),
     sequence: 190,
-    execute: (env) => env.printSpreadsheet(),
+    execute: (env) => env.getPlugin(PrintPlugin).start(),
     isEnabled: (env) => !env.isSmall,
     icon: "o-spreadsheet-Icon.PRINT",
   })
