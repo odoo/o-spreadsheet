@@ -1,5 +1,5 @@
 import { doesCellContainFunction } from "../../helpers/misc";
-import { EvaluationCommand, UpdateCellCommand } from "../../types/commands";
+import { UpdateCellCommand } from "../../types/commands";
 import { UID } from "../../types/misc";
 import { EvaluationPlugin } from "../evaluation_plugin";
 
@@ -12,24 +12,20 @@ export class FormulaTrackerPlugin extends EvaluationPlugin {
 
   handlers = {
     UPDATE_CELL: this.trackFormulasOfUpdatedCell,
+    START: this.trackFormulasOfAllCells,
   };
 
-  handle(cmd: EvaluationCommand) {
-    switch (cmd.type) {
-      case "START": {
+  private trackFormulasOfAllCells() {
+    for (const formula of trackedFormulas) {
+      this.trackedCells[formula] = {};
+    }
+    for (const sheetId of this.getters.getSheetIds()) {
+      for (const cell of this.getters.getCells(sheetId)) {
         for (const formula of trackedFormulas) {
-          this.trackedCells[formula] = {};
-        }
-        for (const sheetId of this.getters.getSheetIds()) {
-          for (const cell of this.getters.getCells(sheetId)) {
-            for (const formula of trackedFormulas) {
-              if (doesCellContainFunction(cell, formula)) {
-                this.history.update("trackedCells", formula, cell.id, cell.id);
-              }
-            }
+          if (doesCellContainFunction(cell, formula)) {
+            this.history.update("trackedCells", formula, cell.id, cell.id);
           }
         }
-        break;
       }
     }
   }

@@ -1,5 +1,4 @@
 import { deepCopy } from "../../helpers/misc";
-import { Command } from "../../types/commands";
 import { Dimension, HeaderDimensions, HeaderIndex, Pixel, UID } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
@@ -51,7 +50,14 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     REMOVE_COLUMNS_ROWS: this.invalidateAndComputeSheetPositions,
     UNDO: this.invalidateHeaderPositions,
     REDO: this.invalidateHeaderPositions,
+    START: this.computeAllHeaderPositions,
   };
+
+  private computeAllHeaderPositions() {
+    for (const sheetId of this.getters.getSheetIds()) {
+      this.headerPositions[sheetId] = this.computeHeaderPositionsOfSheet(sheetId);
+    }
+  }
 
   private duplicateSheetPositions(cmd: { sheetId: UID; sheetIdTo: UID }) {
     this.invalidateHeaderPositions();
@@ -72,16 +78,6 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
   private invalidateHeaderPositions() {
     this.headerPositions = {};
     this.isDirty = true;
-  }
-
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "START":
-        for (const sheetId of this.getters.getSheetIds()) {
-          this.headerPositions[sheetId] = this.computeHeaderPositionsOfSheet(sheetId);
-        }
-        break;
-    }
   }
 
   finalize() {
