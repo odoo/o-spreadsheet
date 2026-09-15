@@ -27,6 +27,7 @@ import {
   LocalCommand,
   MoveColumnsRowsCommand,
   RemoveColumnsRowsCommand,
+  UndoCommand,
   UpdateFigureCommand,
 } from "../../types/commands";
 import { SelectionEvent } from "../../types/event_stream/selection_events";
@@ -198,7 +199,17 @@ export class GridSelectionPlugin extends UIPlugin {
     DELETE_SHEET: this.onSheetDeleted,
     ADD_COLUMNS_ROWS: this.onHeadersAdded,
     REMOVE_COLUMNS_ROWS: this.onHeadersRemoved,
+    UNDO: this.onUndo,
   };
+
+  private onUndo(cmd: UndoCommand) {
+    const sheetId = this.forgetDeletedSheetsSelections();
+    this.selectedFiguresIds = cmd.commands
+      .filter(
+        (cmd): cmd is DeleteFigureCommand => cmd.type === "DELETE_FIGURE" && cmd.sheetId === sheetId
+      )
+      .map((cmd) => cmd.figureId);
+  }
 
   private onHeadersRemoved(cmd: RemoveColumnsRowsCommand) {
     const sheetId = this.getters.getActiveSheetId();
@@ -314,24 +325,14 @@ export class GridSelectionPlugin extends UIPlugin {
       case "ACTIVATE_PREVIOUS_SHEET":
         this.activateNextSheet("left");
         break;
-      case "UNDO":
       case "REDO":
         const sheetId = this.forgetDeletedSheetsSelections();
-        if (cmd.type === "UNDO") {
-          this.selectedFiguresIds = cmd.commands
-            .filter(
-              (cmd): cmd is DeleteFigureCommand =>
-                cmd.type === "DELETE_FIGURE" && cmd.sheetId === sheetId
-            )
-            .map((cmd) => cmd.figureId);
-        } else {
-          this.selectedFiguresIds = cmd.commands
-            .filter(
-              (cmd): cmd is CreateFigureCommand =>
-                cmd.type === "CREATE_FIGURE" && cmd.sheetId === sheetId
-            )
-            .map((cmd) => cmd.figureId);
-        }
+        this.selectedFiguresIds = cmd.commands
+          .filter(
+            (cmd): cmd is CreateFigureCommand =>
+              cmd.type === "CREATE_FIGURE" && cmd.sheetId === sheetId
+          )
+          .map((cmd) => cmd.figureId);
         break;
     }
   }

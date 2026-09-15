@@ -49,6 +49,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     DELETE_SHEET: this.invalidateHeaderPositions,
     ADD_COLUMNS_ROWS: this.invalidateAndComputeSheetPositions,
     REMOVE_COLUMNS_ROWS: this.invalidateAndComputeSheetPositions,
+    UNDO: this.invalidateHeaderPositions,
   };
 
   private duplicateSheetPositions(cmd: { sheetId: UID; sheetIdTo: UID }) {

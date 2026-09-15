@@ -70,6 +70,7 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
     DELETE_SHEET: this.markAsStale,
     ADD_COLUMNS_ROWS: this.markAsStale,
     REMOVE_COLUMNS_ROWS: this.markAsStale,
+    UNDO: this.markAsStale,
   };
 
   private markAsStale() {
