@@ -35,8 +35,12 @@ export function escapeRegExp(str: string): string {
  * Deep copy arrays, plain objects and primitive values.
  * Throws an error for other types such as class instances.
  * Sparse arrays remain sparse.
+ *
+ * Values under a key listed in `sharedKeys` are kept by reference instead of
+ * being copied. Use it for large immutable sub-trees: it skips the copy and
+ * preserves object identity, which matters for consumers caching on identity.
  */
-export function deepCopy<T>(obj: T): T {
+export function deepCopy<T>(obj: T, sharedKeys?: ReadonlySet<string>): T {
   switch (typeof obj) {
     case "object": {
       if (obj === null) {
@@ -50,12 +54,12 @@ export function deepCopy<T>(obj: T): T {
       if (Array.isArray(obj)) {
         for (let i = 0, len = obj.length; i < len; i++) {
           if (i in obj) {
-            result[i] = deepCopy(obj[i]);
+            result[i] = deepCopy(obj[i], sharedKeys);
           }
         }
       } else {
         for (const key in obj) {
-          result[key] = deepCopy(obj[key]);
+          result[key] = sharedKeys?.has(key) ? obj[key] : deepCopy(obj[key], sharedKeys);
         }
       }
       return result;

@@ -298,7 +298,7 @@ export function getGeoChartTooltip(
       return (tooltipItem.raw as any).value !== undefined;
     },
     callbacks: {
-      beforeLabel: (tooltipItem) => (tooltipItem.raw as any).feature.properties.name,
+      beforeLabel: (tooltipItem) => (tooltipItem.raw as any).label,
       label: function (tooltipItem: TooltipItem<"choropleth">) {
         const rawItem = tooltipItem.raw as any;
         const yLabel = rawItem.value;

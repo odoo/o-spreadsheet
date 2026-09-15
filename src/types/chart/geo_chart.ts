@@ -17,6 +17,18 @@ export type GeoChartRuntime = {
   chartJsConfig: ChartConfiguration;
 };
 
+/**
+ * A point of a geo chart dataset. `feature` is the heavy, immutable GeoJSON
+ * geometry shared from the geo loader; `value` and `label` are the light,
+ * per-point data. chartjs-chart-geo only reads `feature` and `value`, and
+ * hands the whole point back untouched as `tooltipItem.raw`.
+ */
+export interface GeoChartDataPoint {
+  feature: GeoJSON.Feature;
+  value: number | undefined;
+  label: string | undefined;
+}
+
 export type GeoChartProjection =
   | "azimuthalEqualArea"
   | "azimuthalEquidistant"

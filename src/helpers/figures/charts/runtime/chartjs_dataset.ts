@@ -26,6 +26,7 @@ import {
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
 import { FunnelChartColors, FunnelChartDefinition } from "../../../../types/chart/funnel_chart";
 import {
+  GeoChartDataPoint,
   GeoChartDefinition,
   GeoChartRuntimeGenerationArgs,
 } from "../../../../types/chart/geo_chart";
@@ -530,11 +531,19 @@ export function getGeoChartDatasets(
   const regionName = definition.region || availableRegions[0]?.id;
   const features = regionName ? args.getGeoJsonFeatures(regionName) : undefined;
 
-  const dataset: ChartDataset<"choropleth"> = {
+  const data: GeoChartDataPoint[] = [];
+  const dataset = {
+    // `outline` is still needed: the projection scale fits itself to it. But it
+    // must not be *drawn*, as every one of those features is also pushed to
+    // `data` below - drawing it would stream the whole map through the
+    // projection a second time for nothing (it renders nothing anyway: the
+    // outline element defaults to no background and a 0-width border).
     outline: features,
-    showOutline: !!features,
-    data: [],
-  };
+    showOutline: false,
+    // cast: the library's data point type has no `label`, but chart.js passes
+    // the point through untouched as `tooltipItem.raw`.
+    data,
+  } as ChartDataset<"choropleth">;
 
   if (features && regionName) {
     const labelsAndValues: { [featureId: string]: { value: number; label: string } } = {};
@@ -558,12 +567,11 @@ export function getGeoChartDatasets(
       if (!feature.id) {
         continue;
       }
-      dataset.data.push({
-        feature: {
-          ...feature,
-          properties: { name: labelsAndValues[feature.id]?.label },
-        },
+      data.push({
+        // the loader's cached feature, shared as-is: see GEO_GEOMETRY_KEYS
+        feature,
         value: labelsAndValues[feature.id]?.value,
+        label: labelsAndValues[feature.id]?.label,
       });
     }
   }

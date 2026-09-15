@@ -4,6 +4,7 @@ import {
   chartJsExtensionRegistry,
   registerChartJSExtensions,
 } from "../../../../helpers/figures/charts/chart_js_extension";
+import { GEO_GEOMETRY_KEYS } from "../../../../helpers/figures/charts/geo_chart";
 import { deepCopy, deepEquals } from "../../../../helpers/misc";
 import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { useStore } from "../../../../store_engine/store_hooks";
@@ -114,7 +115,7 @@ export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
       const runtime = this.chartRuntime;
       this.currentRuntime = runtime;
       // Note: chartJS modify the runtime in place, so it's important to give it a copy
-      this.createChart(deepCopy(runtime));
+      this.createChart(this.copyRuntime(runtime));
     });
     onWillUnmount(this.unmount.bind(this));
     useLayoutEffect(() => {
@@ -122,14 +123,14 @@ export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
       if (runtime !== this.currentRuntime) {
         if (runtime.chartJsConfig.type !== this.currentRuntime.chartJsConfig.type) {
           this.chart?.destroy();
-          this.createChart(deepCopy(runtime));
+          this.createChart(this.copyRuntime(runtime));
         } else {
-          this.updateChartJs(deepCopy(runtime));
+          this.updateChartJs(this.copyRuntime(runtime));
         }
         this.currentRuntime = runtime;
       } else if (this.currentDevicePixelRatio !== window.devicePixelRatio) {
         this.currentDevicePixelRatio = window.devicePixelRatio;
-        this.updateChartJs(deepCopy(this.currentRuntime));
+        this.updateChartJs(this.copyRuntime(this.currentRuntime));
       }
     });
   }
@@ -140,6 +141,14 @@ export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
 
   private get shouldAnimate(): boolean {
     return this.env.model.getters.isDashboard();
+  }
+
+  /**
+   * ChartJS modifies the runtime in place, so it must be given a copy. Immutable
+   * GeoJSON geometry is kept shared by reference: see `GEO_GEOMETRY_KEYS`.
+   */
+  private copyRuntime(runtime: ChartJSRuntime): ChartJSRuntime {
+    return deepCopy(runtime, GEO_GEOMETRY_KEYS);
   }
 
   protected createChart(chartRuntime: ChartJSRuntime) {

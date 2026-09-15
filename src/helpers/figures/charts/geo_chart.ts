@@ -12,6 +12,20 @@ import { getGeoChartScales } from "./runtime/chartjs_scales";
 import { getChartTitle } from "./runtime/chartjs_title";
 import { getGeoChartTooltip } from "./runtime/chartjs_tooltip";
 
+/**
+ * The keys under which a geo chart runtime holds its GeoJSON geometry: the
+ * `outline` array of features on the dataset, and the `feature` of each data
+ * point. Everything else in the runtime (labels, values, options) is light.
+ *
+ * That geometry is large, immutable, and cached by the geo loader. Chart.js
+ * never mutates it, and chartjs-chart-geo caches each feature's projected path
+ * keyed on the feature's object identity. So when the runtime is copied before
+ * being handed to Chart.js, these keys must be shared by reference rather than
+ * cloned: copying them is both expensive (the whole world map, on every update)
+ * and defeats that cache.
+ */
+export const GEO_GEOMETRY_KEYS: ReadonlySet<string> = new Set(["feature", "outline"]);
+
 export const GeoChart: ChartTypeBuilder<"geo"> = {
   sequence: 90,
   dataSeriesLimit: 1,

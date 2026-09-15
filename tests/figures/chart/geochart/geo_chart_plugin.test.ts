@@ -52,8 +52,8 @@ describe("Geo charts plugin tests", () => {
 
     const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
     expect(getGeoChartNonEmptyData(runtime)).toMatchObject([
-      { value: 10, feature: { properties: { name: "France" } } },
-      { value: 20, feature: { properties: { name: "Germany" } } },
+      { value: 10, label: "France", feature: { id: "FR" } },
+      { value: 20, label: "Germany", feature: { id: "DE" } },
     ]);
   });
 
@@ -85,7 +85,7 @@ describe("Geo charts plugin tests", () => {
     );
     const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
     expect(getGeoChartNonEmptyData(runtime)).toMatchObject([
-      { value: 30, feature: { properties: { name: "France" } } },
+      { value: 30, label: "France", feature: { id: "FR" } },
     ]);
   });
 
@@ -103,7 +103,7 @@ describe("Geo charts plugin tests", () => {
     const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
     const dataPoints = getGeoChartNonEmptyData(runtime);
     expect(dataPoints).toHaveLength(1);
-    expect(dataPoints).toMatchObject([{ value: 10, feature: { properties: { name: "France" } } }]);
+    expect(dataPoints).toMatchObject([{ value: 10, label: "France", feature: { id: "FR" } }]);
   });
 
   test("Ticks values have the same format as the data", () => {
@@ -136,7 +136,7 @@ describe("Geo charts plugin tests", () => {
       ...toChartDataSource({ dataSets: [{ dataRange: "B1:B2" }], labelRange: "A1:A2" }),
     });
     const runtime = model.getters.getChartRuntime("chartId") as any;
-    const tooltipItem = { raw: { value: 20, feature: { properties: { name: "France" } } } };
+    const tooltipItem = { raw: { value: 20, label: "France", feature: { id: "FR" } } };
     const tooltipValues = getChartTooltipValues(runtime, tooltipItem);
     expect(tooltipValues).toEqual({ beforeLabel: "France", label: "$20" });
   });
@@ -248,6 +248,79 @@ describe("Geo charts plugin tests", () => {
       createChart(model, { type: "bar" }, "barChartId");
       expect(model.getters.getAvailableChartRegions("barChartId")).toEqual([]);
     });
+  });
+});
+
+describe("Geo chart rendering performance safeguards", () => {
+  function geoModel() {
+    const model = new Model({}, { external: { geoJsonService: mockGeoJsonService } });
+    model.getters.getGeoChartAvailableRegions();
+    model.getters.getGeoJsonFeatures("world");
+    model.getters.geoFeatureNameToId("world", "France");
+    return model;
+  }
+
+  test("the map outline is not drawn, it is only used to fit the projection", async () => {
+    const model = geoModel();
+    await nextTick();
+    createGeoChart(model, {});
+
+    const dataset = (model.getters.getChartRuntime("chartId") as GeoChartRuntime).chartJsConfig.data
+      .datasets[0] as any;
+    // every outline feature is already present in `data`, drawing it would
+    // project the whole map a second time for nothing
+    expect(dataset.showOutline).toBe(false);
+    expect(dataset.outline).toHaveLength(dataset.data.length);
+  });
+
+  test("features keep the same identity across runtime regenerations", async () => {
+    const model = geoModel();
+    await nextTick();
+    setCellContent(model, "A2", "France");
+    setCellContent(model, "B2", "10");
+    createGeoChart(model, {
+      ...toChartDataSource({ dataSets: [{ dataRange: "B1:B3" }], labelRange: "A1:A3" }),
+    });
+
+    const features = () =>
+      (
+        (model.getters.getChartRuntime("chartId") as GeoChartRuntime).chartJsConfig.data.datasets[0]
+          .data as any[]
+      ).map((point) => point.feature);
+
+    const before = features();
+    expect(before.length).toBeGreaterThan(0);
+    // chartjs-chart-geo caches each feature's projected path keyed on object
+    // identity, so an unrelated change must not produce new feature objects
+    updateChart(model, "chartId", { title: { text: "new title" } });
+    features().forEach((feature, i) => expect(feature).toBe(before[i]));
+  });
+
+  test("data points expose the geometry and the label under separate keys", async () => {
+    const model = geoModel();
+    await nextTick();
+    setCellContent(model, "A2", "France");
+    setCellContent(model, "B2", "10");
+    createGeoChart(model, {
+      ...toChartDataSource({ dataSets: [{ dataRange: "B1:B3" }], labelRange: "A1:A3" }),
+    });
+
+    const france = () =>
+      (
+        (model.getters.getChartRuntime("chartId") as GeoChartRuntime).chartJsConfig.data.datasets[0]
+          .data as any[]
+      ).find((point) => point.feature.id === "FR");
+
+    const before = france();
+    expect(before.label).toBe("France");
+    expect(before.value).toBe(10);
+    // the geometry is the loader's cached object, handed over untouched
+    expect(before.feature).toBe(model.getters.getGeoJsonFeatures("world")![0]);
+
+    // only the light data changes; the shared geometry is never rewritten
+    setCellContent(model, "A2", "");
+    expect(france().label).toBeUndefined();
+    expect(france().feature).toBe(before.feature);
   });
 });
 

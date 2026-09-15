@@ -146,6 +146,23 @@ describe("deepCopy", () => {
     expect("1" in copy).toBe(false);
     expect("2" in copy).toBe(true);
   });
+
+  test("values under a shared key are kept by reference", () => {
+    const obj = { copied: { a: 1 }, shared: { b: 1 } };
+    const copy = deepCopy(obj, new Set(["shared"]));
+    expect(copy.shared).toBe(obj.shared);
+    expect(copy.copied).not.toBe(obj.copied);
+    expect(copy).toEqual(obj);
+  });
+
+  test("shared keys are honored at any depth, including inside arrays", () => {
+    const obj = { list: [{ shared: { a: 1 }, copied: { b: 1 } }] };
+    const copy = deepCopy(obj, new Set(["shared"]));
+    expect(copy.list).not.toBe(obj.list);
+    expect(copy.list[0]).not.toBe(obj.list[0]);
+    expect(copy.list[0].shared).toBe(obj.list[0].shared);
+    expect(copy.list[0].copied).not.toBe(obj.list[0].copied);
+  });
 });
 
 describe("lazy", () => {
