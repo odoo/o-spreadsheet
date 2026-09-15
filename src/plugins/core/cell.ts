@@ -36,7 +36,7 @@ import {
   UpdateCellPositionCommand,
   UpdateLocaleCommand,
 } from "../../types/commands";
-import { CellPosition, HeaderIndex, RangeAdapterFunctions, UID } from "../../types/misc";
+import { CellPosition, HeaderIndex, Position, RangeAdapterFunctions, UID } from "../../types/misc";
 
 import { CompiledFormula, SerializedCompiledFormula } from "../../formulas/compiler";
 import {
@@ -71,6 +71,7 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   static getters = [
     "getCells",
     "getTranslatedCellFormula",
+    "getTransposedCellFormula",
     "getCellById",
     "getFormulaString",
     "getFormulaMovedInSheet",
@@ -484,6 +485,25 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
     );
 
     return this.getFormulaString(sheetId, compiledFormula as CompiledFormula, adaptedDependencies);
+  }
+
+  /**
+   * Constructs a formula string based on an initial formula moved from `origin` to `target`
+   * with a transposed paste. See `createTransposedRanges`.
+   */
+  getTransposedCellFormula(
+    sheetId: UID,
+    origin: Position,
+    target: Position,
+    compiledFormula: CompiledFormula
+  ) {
+    const adaptedDependencies = this.getters.createTransposedRanges(
+      compiledFormula.rangeDependencies,
+      origin,
+      target,
+      sheetId
+    );
+    return this.getFormulaString(sheetId, compiledFormula, adaptedDependencies);
   }
 
   getFormulaMovedInSheet(targetSheetId: UID, compiledFormula: CompiledFormula) {

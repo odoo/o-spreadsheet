@@ -76,14 +76,6 @@ topbarMenuRegistry
     sequence: 60,
     separator: true,
   })
-  .addChild("paste_special_value", ["edit", "paste_special"], {
-    ...ACTION_EDIT.pasteSpecialValue,
-    sequence: 10,
-  })
-  .addChild("paste_special_format", ["edit", "paste_special"], {
-    ...ACTION_EDIT.pasteSpecialFormat,
-    sequence: 20,
-  })
   .addChild("edit_table", ["edit"], {
     ...ACTION_EDIT.editTable,
     isVisible: ACTIONS.SELECTION_CONTAINS_SINGLE_TABLE,

@@ -1,4 +1,4 @@
-import { splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
+import { shouldPasteFormat, splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
 import { getItemId } from "../helpers/data_normalization";
 import { groupConsecutive, range } from "../helpers/misc";
 import { recomputeZones } from "../helpers/recompute_zones";
@@ -29,6 +29,45 @@ function toDescr(
     return null;
   }
   return { style: border.style, color: border.color };
+}
+
+function transposeColumns(columns: Column<BorderDescrInternal>[]): Column<BorderDescrInternal>[] {
+  const transposed: Column<BorderDescrInternal>[] = [];
+  for (const [colIndex, column] of Object.entries(columns)) {
+    for (const [rowIndex, border] of Object.entries(column ?? [])) {
+      (transposed[parseInt(rowIndex)] ??= [])[parseInt(colIndex)] = border;
+    }
+  }
+  return transposed;
+}
+
+/**
+ * Transpose the borders content: the top border of a cell becomes the left
+ * border of the transposed cell (and bottom becomes right).
+ */
+function transposeContent(content: ClipboardContent): ClipboardContent {
+  return {
+    width: content.height,
+    height: content.width,
+    content: content.content.map((c) => ({
+      left: c.top,
+      top: c.left,
+      width: c.height,
+      height: c.width,
+      bordersTop: transposeColumns(c.bordersLeft),
+      bordersLeft: transposeColumns(c.bordersTop),
+      defaultTop: {
+        sheetDefault: c.defaultLeft.sheetDefault,
+        colDefault: c.defaultLeft.rowDefault,
+        rowDefault: c.defaultLeft.colDefault,
+      },
+      defaultLeft: {
+        sheetDefault: c.defaultTop.sheetDefault,
+        colDefault: c.defaultTop.rowDefault,
+        rowDefault: c.defaultTop.colDefault,
+      },
+    })),
+  };
 }
 
 type ClipboardContent = {
@@ -86,16 +125,19 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
     const sheetId = target.sheetId;
-    if (options.pasteOption === "asValue") {
+    if (!shouldPasteFormat(options.pasteOptions)) {
       return;
     }
     const zones = target.zones;
+    const borders = options.pasteOptions?.includes("transpose")
+      ? transposeContent(content)
+      : content;
     if (!options.isCutOperation) {
       for (const zone of zones) {
-        this.pasteContent(sheetId, zone, content.content);
+        this.pasteContent(sheetId, zone, borders.content);
       }
     } else {
-      this.pasteContent(sheetId, zones[0], content.content);
+      this.pasteContent(sheetId, zones[0], borders.content);
     }
   }
 
