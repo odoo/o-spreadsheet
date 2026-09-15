@@ -150,13 +150,51 @@ export const invalidateChartEvaluationCommands = new Set<CommandTypes>([
   "EVALUATE_CELLS",
   "EVALUATE_CHARTS",
   "UPDATE_CELL",
+  "UNHIDE_COLUMNS_ROWS",
+  "HIDE_COLUMNS_ROWS",
+  "GROUP_HEADERS",
+  "UNGROUP_HEADERS",
+  "FOLD_ALL_HEADER_GROUPS",
+  "FOLD_HEADER_GROUP",
+  "FOLD_HEADER_GROUPS_IN_ZONE",
+  "UNFOLD_ALL_HEADER_GROUPS",
+  "UNFOLD_HEADER_GROUP",
+  "UNFOLD_HEADER_GROUPS_IN_ZONE",
+  "UPDATE_TABLE",
+  "UPDATE_FILTER",
   "UNDO",
   "REDO",
 ]);
 
 export const invalidateDependenciesCommands = new Set<CommandTypes>(["MOVE_RANGES"]);
 
-export const invalidateCFEvaluationCommands = new Set<CommandTypes>(["EVALUATE_CELLS"]);
+export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
+  "EVALUATE_CELLS",
+  "ADD_CONDITIONAL_FORMAT",
+  "REMOVE_CONDITIONAL_FORMAT",
+  "CHANGE_CONDITIONAL_FORMAT_PRIORITY",
+]);
+
+export const invalidateBordersCommands = new Set<CommandTypes>([
+  "SET_BORDER",
+  "SET_ZONE_BORDERS",
+  "SET_BORDERS_ON_TARGET",
+]);
+
+export const invalidSubtotalFormulasCommands = new Set<CommandTypes>([
+  "UNHIDE_COLUMNS_ROWS",
+  "HIDE_COLUMNS_ROWS",
+  "GROUP_HEADERS",
+  "UNGROUP_HEADERS",
+  "FOLD_ALL_HEADER_GROUPS",
+  "FOLD_HEADER_GROUP",
+  "FOLD_HEADER_GROUPS_IN_ZONE",
+  "UNFOLD_ALL_HEADER_GROUPS",
+  "UNFOLD_HEADER_GROUP",
+  "UNFOLD_HEADER_GROUPS_IN_ZONE",
+  "UPDATE_TABLE",
+  "UPDATE_FILTER",
+]);
 
 export const readonlyAllowedCommands = new Set<CommandTypes>([
   "START",
@@ -333,6 +371,8 @@ export const commandSets = {
   invalidateChartEvaluationCommands,
   invalidateDependenciesCommands,
   invalidateCFEvaluationCommands,
+  invalidateBordersCommands,
+  invalidSubtotalFormulasCommands,
   readonlyAllowedCommands,
   lockedSheetAllowedCommands,
   coreTypes,
