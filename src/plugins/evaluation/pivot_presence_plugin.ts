@@ -1,5 +1,5 @@
 import { PivotPresenceTracker } from "../../helpers/pivot/pivot_presence_tracker";
-import { EvaluationCommand, PivotStartPresenceTracking } from "../../types/commands";
+import { PivotStartPresenceTracking } from "../../types/commands";
 import { UID } from "../../types/misc";
 import { EvaluationPlugin } from "../evaluation_plugin";
 
@@ -12,21 +12,18 @@ export class PivotPresencePlugin extends EvaluationPlugin {
 
   handlers = {
     PIVOT_START_PRESENCE_TRACKING: this.startPresenceTracking,
+    PIVOT_STOP_PRESENCE_TRACKING: this.stopPresenceTracking,
   };
+
+  private stopPresenceTracking() {
+    this.trackPresencePivotId = undefined;
+    this.sheetId = undefined;
+  }
 
   private startPresenceTracking(cmd: PivotStartPresenceTracking) {
     this.tracker = new PivotPresenceTracker();
     this.trackPresencePivotId = cmd.pivotId;
     this.sheetId = cmd.sheetId;
-  }
-
-  handle(cmd: EvaluationCommand) {
-    switch (cmd.type) {
-      case "PIVOT_STOP_PRESENCE_TRACKING":
-        this.trackPresencePivotId = undefined;
-        this.sheetId = undefined;
-        break;
-    }
   }
 
   getPivotPresenceTracker(pivotId: UID, sheetId: UID) {
