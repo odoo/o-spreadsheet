@@ -1,7 +1,7 @@
 import { isEvaluationError } from "../../functions/helpers";
 import { lazy } from "../../helpers/misc";
 import { getComputedTableStyle } from "../../helpers/table_helpers";
-import { UpdateCellCommand } from "../../types/commands";
+import { EvaluationCommand, UpdateCellCommand } from "../../types/commands";
 import { EvaluationError } from "../../types/errors";
 import { Border, CellPosition, Lazy, Style, TableId, UID } from "../../types/misc";
 import { Table, TableConfig, TableMetaData } from "../../types/table";
@@ -25,26 +25,19 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
 
   handlers = {
     UPDATE_CELL: this.invalidateTableStyles,
-    DELETE_CONTENT: this.invalidateSheetTableStyles,
-    CREATE_TABLE: this.invalidateSheetTableStyles,
-    REMOVE_TABLE: this.invalidateSheetTableStyles,
-    UPDATE_TABLE: this.invalidateSheetTableStyles,
-    UPDATE_FILTER: this.invalidateSheetTableStyles,
-    HIDE_COLUMNS_ROWS: this.invalidateSheetTableStyles,
-    UNHIDE_COLUMNS_ROWS: this.invalidateSheetTableStyles,
     GROUP_HEADERS: this.invalidateSheetTableStyles,
-    UNGROUP_HEADERS: this.invalidateSheetTableStyles,
-    FOLD_HEADER_GROUP: this.invalidateSheetTableStyles,
-    UNFOLD_HEADER_GROUP: this.invalidateSheetTableStyles,
-    FOLD_ALL_HEADER_GROUPS: this.invalidateSheetTableStyles,
-    UNFOLD_ALL_HEADER_GROUPS: this.invalidateSheetTableStyles,
-    FOLD_HEADER_GROUPS_IN_ZONE: this.invalidateSheetTableStyles,
-    UNFOLD_HEADER_GROUPS_IN_ZONE: this.invalidateSheetTableStyles,
-    CREATE_TABLE_STYLE: this.clearTableStyles,
-    REMOVE_TABLE_STYLE: this.clearTableStyles,
     EVALUATE_CELLS: this.clearTableStyles,
     invalidateEvaluationCommands: this.clearTableStyles,
+    invalidateTableStyleCommands: this.invalidateTableStylesOfCommand,
   };
+
+  private invalidateTableStylesOfCommand(cmd: EvaluationCommand) {
+    if ("sheetId" in cmd) {
+      this.invalidateSheetTableStyles(cmd);
+    } else {
+      this.clearTableStyles();
+    }
+  }
 
   private clearTableStyles() {
     this.tableStyles = {};
