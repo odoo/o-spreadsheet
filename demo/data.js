@@ -553,6 +553,7 @@ export const demoData = {
             baselineDescr: {
               text: "Descr",
             },
+            baselineMode: "difference",
             keyValue: "Sheet1!B29",
             humanize: false,
             chartId: "4",
