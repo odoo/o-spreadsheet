@@ -679,9 +679,12 @@ export function cut(model: Model, ...ranges: string[]): DispatchResult {
 export function paste(
   model: Model,
   range: string,
-  pasteOption?: ClipboardPasteOptions
+  ...pasteOptions: ClipboardPasteOptions[]
 ): DispatchResult {
-  return model.dispatch("PASTE", { target: target(range), pasteOption });
+  return model.dispatch("PASTE", {
+    target: target(range),
+    pasteOptions: pasteOptions.length ? pasteOptions : undefined,
+  });
 }
 
 /**
@@ -691,12 +694,12 @@ export function pasteFromOSClipboard(
   model: Model,
   range: string,
   content: ParsedOsClipboardContentWithImageData,
-  pasteOption?: ClipboardPasteOptions
+  ...pasteOptions: ClipboardPasteOptions[]
 ): DispatchResult {
   return model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
     clipboardContent: content,
     target: target(range),
-    pasteOption,
+    pasteOptions: pasteOptions.length ? pasteOptions : undefined,
   });
 }
 

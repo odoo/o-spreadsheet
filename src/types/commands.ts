@@ -985,7 +985,7 @@ export interface CutCommand {
 export interface PasteCommand {
   type: "PASTE";
   target: Zone[];
-  pasteOption?: ClipboardPasteOptions;
+  pasteOptions?: ClipboardPasteOptions[];
 }
 
 export interface CopyPasteCellsAboveCommand {
@@ -1003,7 +1003,7 @@ export interface CopyPasteCellsOnZoneCommand {
 export interface RepeatPasteCommand {
   type: "REPEAT_PASTE";
   target: Zone[];
-  pasteOption?: ClipboardPasteOptions;
+  pasteOptions?: ClipboardPasteOptions[];
 }
 
 export interface CleanClipBoardHighlightCommand {
@@ -1026,7 +1026,7 @@ export interface PasteFromOSClipboardCommand {
   type: "PASTE_FROM_OS_CLIPBOARD";
   target: Zone[];
   clipboardContent: ParsedOsClipboardContentWithImageData;
-  pasteOption?: ClipboardPasteOptions;
+  pasteOptions?: ClipboardPasteOptions[];
 }
 
 export interface AutoresizeColumnsCommand {

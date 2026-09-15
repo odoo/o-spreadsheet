@@ -423,7 +423,7 @@ describe("Repeat local commands", () => {
 
     setSelection(model, ["A1"]);
     copy(model);
-    paste(model, "B1", "onlyFormat");
+    paste(model, "B1", "format");
 
     setSelection(model, ["C1"]);
     redo(model);
