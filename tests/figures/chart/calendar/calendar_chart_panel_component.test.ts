@@ -144,7 +144,7 @@ describe("Calendar chart side panel", () => {
 
       expect(getRoundColorPickerValue(".o-chart-background-color")).toEqual("#FF0000");
       expect(".o-chart-title input").toHaveValue("Title");
-      expect(".o-chart-legend-position").toHaveText("Right");
+      expect(".o-chart-legend-position").toHaveText("Top right");
       expect("span[title=Bold]").toHaveClass("active");
       expect(".o-color-scale .color-scale-preview").toHaveAttribute(
         "data-test-colorscale",

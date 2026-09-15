@@ -10,6 +10,7 @@ import {
   ExcelChartDataset,
   ExcelChartTrendConfiguration,
 } from "../../../types/chart/chart";
+import { LegendPosition } from "../../../types/chart/common_chart";
 import { CommandResult } from "../../../types/commands";
 import { LocaleFormat } from "../../../types/format";
 import { CoreGetters } from "../../../types/getters";
@@ -255,6 +256,24 @@ export function chartMutedFontColor(backgroundColor: Color | undefined): Color {
     return "#666666";
   }
   return relativeLuminance(backgroundColor) < 0.3 ? "#C8C8C8" : "#666666";
+}
+
+export interface ColorGridLegendCorner {
+  horizontal: "left" | "right";
+  vertical: "top" | "bottom";
+}
+
+export function getColorGridLegendCorner(
+  legendPosition: LegendPosition | undefined
+): ColorGridLegendCorner | undefined {
+  const position = legendPosition ?? "left";
+  if (position === "none") {
+    return undefined;
+  }
+  return {
+    horizontal: position === "top" || position === "left" ? "left" : "right",
+    vertical: position === "top" || position === "right" ? "top" : "bottom",
+  };
 }
 
 export function checkDataset(dataSource: ChartRangeDataSource<string>): CommandResult {
