@@ -20,7 +20,7 @@
       <t t-set-slot="content">
         <ColorScalePicker
           definition="this.props.definition"
-          onUpdateColorScale.bind="this.updateColorScale"
+          onUpdateColorScale.bind="this.onColormapChange"
         />
 
         <Section class="'pt-0 o-missing-value'" title.translate="Countries without value">

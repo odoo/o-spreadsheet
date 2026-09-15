@@ -1,21 +1,69 @@
 import { ChartConfiguration, ScaleChartOptions } from "chart.js";
 import { ChartCreationContext, Model } from "../../../../src";
+import {
+  CHART_COLORSCALE_WIDTH,
+  CHART_PADDING,
+  CHART_PADDING_BOTTOM,
+  CHART_PADDING_TOP,
+} from "../../../../src/constants";
 import { UuidGenerator } from "../../../../src/helpers/uuid";
 import {
   CalendarChartGranularity,
   CalendarChartRuntime,
 } from "../../../../src/types/chart/calendar_chart";
+import { LegendPosition } from "../../../../src/types/chart/common_chart";
 import {
   createCalendarChart,
   createChartDefinitionFromContext,
   createSheet,
   setCellContent,
   setFormat,
+  updateChart,
 } from "../../../test_helpers";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   toChartDataSource,
 } from "../../../test_helpers/chart_helpers";
+import { createModelFromGrid } from "../../../test_helpers/helpers";
+
+const EXPECTED_LAYOUT = {
+  left: {
+    left: CHART_PADDING + CHART_COLORSCALE_WIDTH,
+    right: CHART_PADDING,
+    bottom: CHART_PADDING_BOTTOM,
+    top: CHART_PADDING_TOP,
+  },
+  right: {
+    left: CHART_PADDING,
+    right: CHART_PADDING + CHART_COLORSCALE_WIDTH,
+    top: CHART_PADDING_TOP,
+    bottom: CHART_PADDING_BOTTOM,
+  },
+  top: {
+    left: CHART_PADDING + CHART_COLORSCALE_WIDTH,
+    right: CHART_PADDING,
+    top: CHART_PADDING_TOP,
+    bottom: CHART_PADDING_BOTTOM,
+  },
+  bottom: {
+    left: CHART_PADDING,
+    right: CHART_PADDING + CHART_COLORSCALE_WIDTH,
+    top: CHART_PADDING_TOP,
+    bottom: CHART_PADDING_BOTTOM,
+  },
+  none: {
+    left: CHART_PADDING,
+    right: CHART_PADDING,
+    top: CHART_PADDING_TOP,
+    bottom: CHART_PADDING_BOTTOM,
+  },
+};
+
+function setLegendPositionAndGetPadding(model: Model, legendPosition: LegendPosition) {
+  updateChart(model, "chartId", { legendPosition });
+  const runtime = model.getters.getChartRuntime("chartId") as CalendarChartRuntime;
+  return runtime.chartJsConfig.options!.layout?.padding;
+}
 
 const STAMPS_AND_LABELS: { stamp: CalendarChartGranularity; labels: string[] }[] = [
   {
@@ -188,14 +236,54 @@ describe("calendar chart", () => {
         dataSetsHaveTitle: true,
         labelRange: "Sheet1!A1:A4",
       }),
-      legendPosition: "left",
+      legendPosition: "bottom",
       showValues: false,
+      colorScale: { minColor: "#ffffff", maxColor: "#ff0000" },
+      missingValueColor: "#ff0000",
       horizontalGroupBy: "day_of_week",
       verticalGroupBy: "month_number",
       axesDesign: {},
       annotationLink: "https://www.odoo.com",
       annotationText: "This is an annotation text",
     });
+  });
+
+  test("legend position is kept as-is from the context, only defaulting to 'none' when unset", () => {
+    for (const [contextPosition, expected] of [
+      ["right", "right"],
+      ["none", "none"],
+      ["top", "top"],
+      ["bottom", "bottom"],
+      [undefined, "none"],
+    ] as const) {
+      const definition = createChartDefinitionFromContext("calendar", {
+        ...GENERAL_CHART_CREATION_CONTEXT,
+        legendPosition: contextPosition,
+      });
+      expect(definition.legendPosition).toBe(expected);
+    }
+  });
+
+  test("legend position maps to the same corner as the geo chart, reserving space on that edge", () => {
+    // prettier-ignore
+    const model = createModelFromGrid({
+      "A1": "=DATE(2024,7,8)", "B1": "10",
+      "A2": "=DATE(2024,8,4)", "B2": "20",
+    });
+    createCalendarChart(
+      model,
+      {
+        type: "calendar",
+        ...toChartDataSource({ dataSets: [{ dataRange: "B1:B2" }], labelRange: "A1:A2" }),
+      },
+      "chartId"
+    );
+
+    for (const legendPosition of ["top", "right", "bottom", "left", "none"] as const) {
+      expect(setLegendPositionAndGetPadding(model, legendPosition)).toMatchObject(
+        EXPECTED_LAYOUT[legendPosition]
+      );
+    }
   });
 
   test.each(STAMPS_AND_LABELS)(

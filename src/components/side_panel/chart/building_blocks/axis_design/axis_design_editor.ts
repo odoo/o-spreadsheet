@@ -37,6 +37,8 @@ export class AxisDesignEditor extends OSComponent {
     definition: types.ChartWithAxisDefinition(),
     updateChart: types.function<ChartUpdateFunction>(),
     axesList: types.ArrayOf<AxisDefinition>(),
+    canEditBoundaries: types.boolean().optional(true),
+    canEditGridlines: types.boolean().optional(true),
   });
 
   state: { currentAxis: AxisId } = proxy({ currentAxis: "x" });
