@@ -1,4 +1,4 @@
-import { isDefined } from "../helpers/misc";
+import { isDefined, transpose } from "../helpers/misc";
 import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
 import { CellPosition, HeaderIndex, Maybe, Merge, UID } from "../types/misc";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
@@ -6,6 +6,19 @@ import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler"
 interface ClipboardContent {
   sheetId: UID;
   merges: Maybe<Merge>[][];
+}
+
+function transposeMerge(merge: Maybe<Merge>): Maybe<Merge> {
+  if (!merge) {
+    return merge;
+  }
+  return {
+    id: merge.id,
+    left: merge.top,
+    right: merge.bottom,
+    top: merge.left,
+    bottom: merge.right,
+  };
 }
 
 export class MergeClipboardHandler extends AbstractCellClipboardHandler<
@@ -36,7 +49,10 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
       const copiedMerges = content.merges.flat().filter(isDefined);
       this.dispatch("REMOVE_MERGE", { sheetId: content.sheetId, target: copiedMerges });
     }
-    this.pasteFromCopy(target.sheetId, target.zones, content.merges, options);
+    const merges = options.pasteOptions?.includes("transpose")
+      ? transpose(content.merges).map((row) => row.map(transposeMerge))
+      : content.merges;
+    this.pasteFromCopy(target.sheetId, target.zones, merges, options);
   }
 
   pasteZone(sheetId: UID, col: HeaderIndex, row: HeaderIndex, merges: Maybe<Merge>[][]) {

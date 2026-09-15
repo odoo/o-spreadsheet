@@ -598,6 +598,13 @@ export function replaceItemAtIndex<T>(array: readonly T[], newItem: T, index: nu
   return newArray;
 }
 
+export function transpose<T>(array: T[][]): T[][] {
+  if (!array.length) {
+    return [];
+  }
+  return array[0].map((_, colIndex) => array.map((row) => row[colIndex]));
+}
+
 export function trimContent(content: string): string {
   const contentLines = content.split("\n");
   return contentLines.map((line) => line.replace(/\s+/g, " ").trim()).join("\n");

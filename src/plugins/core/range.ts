@@ -19,6 +19,7 @@ import { CellErrorType } from "../../types/errors";
 import { CoreGetters } from "../../types/getters";
 import {
   Dimension,
+  Position,
   RangeAdapterFunctions,
   RangeProvider,
   UID,
@@ -43,6 +44,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
     "clipRangesToSheet",
     "clipRangeToSheet",
     "createAdaptedRanges",
+    "createTransposedRanges",
     "getRangeData",
     "getRangeDataFromXc",
     "getRangeDataFromZone",
@@ -162,6 +164,46 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
       return orderRange(
         createRange(
           { ...range, sheetId: copySheetId, zone: unboundZone },
+          this.getters.getSheetSize
+        )
+      );
+    });
+  }
+
+  /**
+   * Create new ranges for a formula moved from `origin` to `target` with a transposed paste:
+   * the offset of each range relative to `origin` is transposed (rows become columns and
+   * vice versa) and applied from `target`. Fixed parts of the ranges are kept as is.
+   * Full column/row ranges cannot be transposed, they are only translated.
+   */
+  createTransposedRanges(
+    ranges: Range[],
+    origin: Position,
+    target: Position,
+    sheetId: UID
+  ): Range[] {
+    return ranges.map((range) => {
+      if (!isZoneValid(range.zone)) {
+        return range;
+      }
+      if (isFullRowRange(range) || isFullColRange(range)) {
+        const offsetX = target.col - origin.col;
+        const offsetY = target.row - origin.row;
+        return this.createAdaptedRanges([range], offsetX, offsetY, sheetId)[0];
+      }
+      const copySheetId = range.prefixSheet ? range.sheetId : sheetId;
+      const { left, right, top, bottom } = range.zone;
+      const startPart = range.parts[0];
+      const endPart = range.parts[1] || range.parts[0];
+      const transposedZone = {
+        left: startPart.colFixed ? left : target.col + top - origin.row,
+        right: endPart.colFixed ? right : target.col + bottom - origin.row,
+        top: startPart.rowFixed ? top : target.row + left - origin.col,
+        bottom: endPart.rowFixed ? bottom : target.row + right - origin.col,
+      };
+      return orderRange(
+        createRange(
+          { ...range, sheetId: copySheetId, zone: transposedZone },
           this.getters.getSheetSize
         )
       );

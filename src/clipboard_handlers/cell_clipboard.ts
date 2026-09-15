@@ -1,7 +1,7 @@
-import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
+import { getPasteZones, shouldPasteFormat } from "../helpers/clipboard/clipboard_helpers";
 import { formatValue } from "../helpers/format/format";
 import { canonicalizeNumberValue } from "../helpers/locale";
-import { deepEquals } from "../helpers/misc";
+import { deepEquals, transpose } from "../helpers/misc";
 import { createPivotFormula } from "../helpers/pivot/pivot_helpers";
 import { cellPositions, isZoneInside } from "../helpers/zones";
 import {
@@ -113,20 +113,21 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     if (!content.cells) {
       return CommandResult.Success;
     }
-    if (clipboardOptions?.isCutOperation && clipboardOptions?.pasteOption !== undefined) {
+    if (clipboardOptions?.isCutOperation && !!clipboardOptions?.pasteOptions?.length) {
       // cannot paste only format or only value if the previous operation is a CUT
       return CommandResult.WrongPasteOption;
     }
+    const cells = this.getPastedCells(content, clipboardOptions);
     if (target.length > 1) {
       // cannot paste if we have a clipped zone larger than a cell and multiple
       // zones selected
-      if (content.cells.length > 1 || content.cells[0].length > 1) {
+      if (cells.length > 1 || cells[0].length > 1) {
         return CommandResult.WrongPasteSelection;
       }
     }
-    const clipboardHeight = content.cells.length;
-    const clipboardWidth = content.cells[0].length;
-    for (const zone of getPasteZones(target, content.cells)) {
+    const clipboardHeight = cells.length;
+    const clipboardWidth = cells[0].length;
+    for (const zone of getPasteZones(target, cells)) {
       if (this.getters.doesIntersectMerge(sheetId, zone)) {
         if (
           target.length > 1 ||
@@ -146,10 +147,11 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
     const zones = target.zones;
     const sheetId = target.sheetId;
+    const cells = this.getPastedCells(content, options);
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, content.cells, options);
+      this.pasteFromCopy(sheetId, zones, cells, options);
     } else {
-      this.pasteFromCut(sheetId, zones, content, options);
+      this.pasteFromCut(sheetId, zones, { ...content, cells }, options);
     }
   }
 
@@ -159,8 +161,9 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     content: ClipboardContent,
     options?: ClipboardOptions
   ): ClipboardPasteTarget {
-    const width = content.cells[0].length;
-    const height = content.cells.length;
+    const cells = this.getPastedCells(content, options);
+    const width = cells[0].length;
+    const height = cells.length;
     if (options?.isCutOperation) {
       return {
         sheetId,
@@ -177,7 +180,14 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     if (width === 1 && height === 1) {
       return { zones: [], sheetId };
     }
-    return { sheetId, zones: getPasteZones(target, content.cells) };
+    return { sheetId, zones: getPasteZones(target, cells) };
+  }
+
+  private getPastedCells(content: ClipboardContent, options?: ClipboardOptions): ClipboardCell[][] {
+    if (options?.pasteOptions?.includes("transpose")) {
+      return transpose(content.cells);
+    }
+    return content.cells;
   }
 
   private pasteFromCut(
@@ -237,15 +247,9 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     // We know the target cell style is already edited by the default_clipboard
     const newStyle = { ...targetCell?.style, ...origin.style };
     const style = Object.keys(newStyle ?? {}).length === 0 ? undefined : newStyle;
-    if (clipboardOption?.pasteOption === "asValue") {
-      this.dispatch("UPDATE_CELL", {
-        ...target,
-        content: origin.evaluatedCell.value?.toString() || "",
-      });
-      return;
-    }
-
-    if (clipboardOption?.pasteOption === "onlyFormat") {
+    const pasteOptions = clipboardOption?.pasteOptions;
+    if (pasteOptions?.includes("format")) {
+      // "format" alone: paste the style/format only, the content is left untouched
       this.dispatch("UPDATE_CELL", {
         ...target,
         style,
@@ -254,24 +258,56 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       return;
     }
 
+    if (pasteOptions?.includes("value")) {
+      const valueContent = origin.evaluatedCell.value?.toString() || "";
+      if (shouldPasteFormat(pasteOptions)) {
+        this.dispatch("UPDATE_CELL", {
+          ...target,
+          content: valueContent,
+          style,
+          format: originFormat ?? targetEvaluatedCell.format,
+        });
+      } else {
+        this.dispatch("UPDATE_CELL", {
+          ...target,
+          content: valueContent,
+        });
+      }
+      return;
+    }
+
     let content = origin?.content;
     if (origin?.compiledFormula?.hasDependencies && !clipboardOption?.isCutOperation) {
-      content = this.getters.getTranslatedCellFormula(
-        sheetId,
-        col - origin.position.col,
-        row - origin.position.row,
-        origin.compiledFormula
-      );
+      content = pasteOptions?.includes("transpose")
+        ? this.getters.getTransposedCellFormula(
+            sheetId,
+            origin.position,
+            target,
+            origin.compiledFormula
+          )
+        : this.getters.getTranslatedCellFormula(
+            sheetId,
+            col - origin.position.col,
+            row - origin.position.row,
+            origin.compiledFormula
+          );
     } else if (origin?.compiledFormula?.hasDependencies) {
       content = this.getters.getFormulaMovedInSheet(sheetId, origin.compiledFormula);
     }
     if (content !== "" || origin.format || style) {
-      this.dispatch("UPDATE_CELL", {
-        ...target,
-        content,
-        style,
-        format: origin.format,
-      });
+      if (shouldPasteFormat(pasteOptions)) {
+        this.dispatch("UPDATE_CELL", {
+          ...target,
+          content,
+          style,
+          format: origin.format,
+        });
+      } else {
+        this.dispatch("UPDATE_CELL", {
+          ...target,
+          content,
+        });
+      }
     } else if (targetEvaluatedCell.type !== "empty") {
       this.dispatch("UPDATE_CELL", {
         content: "",
