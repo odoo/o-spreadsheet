@@ -5,7 +5,7 @@ import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_piv
 import { pivotTableStyleIdToTableStyleId } from "../../helpers/pivot_table_presets";
 import { getZoneArea, positionToZone } from "../../helpers/zones";
 import { _t } from "../../translation";
-import { Command, CommandResult } from "../../types/commands";
+import { Command, CommandResult, InsertNewPivotCommand } from "../../types/commands";
 import { CellPosition, HeaderIndex, UID } from "../../types/misc";
 import { PivotTableData } from "../../types/pivot";
 import { UIPlugin } from "../ui_plugin";
@@ -27,11 +27,16 @@ export class InsertPivotPlugin extends UIPlugin {
     return CommandResult.Success;
   }
 
+  handlers = {
+    INSERT_NEW_PIVOT: this.insertNewPivotFromCommand,
+  };
+
+  private insertNewPivotFromCommand(cmd: InsertNewPivotCommand) {
+    this.insertNewPivot(cmd.pivotId, cmd.newSheetId);
+  }
+
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "INSERT_NEW_PIVOT":
-        this.insertNewPivot(cmd.pivotId, cmd.newSheetId);
-        break;
       case "DUPLICATE_PIVOT_IN_NEW_SHEET":
         this.duplicatePivotInNewSheet(cmd.pivotId, cmd.newPivotId, cmd.newSheetId);
         break;
