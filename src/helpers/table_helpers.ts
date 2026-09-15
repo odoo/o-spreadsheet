@@ -143,26 +143,34 @@ function setBorderDescr(
 ) {
   switch (dir) {
     case "top":
-      computedBorders[col][row].top = borderDescr ?? undefined;
-      if (row !== 0) {
+      if (computedBorders[col]?.[row]) {
+        computedBorders[col][row].top = borderDescr ?? undefined;
+      }
+      if (computedBorders[col]?.[row - 1]) {
         computedBorders[col][row - 1].bottom = borderDescr ?? undefined;
       }
       return;
     case "bottom":
-      computedBorders[col][row].bottom = borderDescr ?? undefined;
-      if (row !== numberOfRows - 1) {
+      if (computedBorders[col]?.[row]) {
+        computedBorders[col][row].bottom = borderDescr ?? undefined;
+      }
+      if (computedBorders[col]?.[row + 1]) {
         computedBorders[col][row + 1].top = borderDescr ?? undefined;
       }
       return;
     case "left":
-      computedBorders[col][row].left = borderDescr ?? undefined;
-      if (col !== 0) {
+      if (computedBorders[col]?.[row]) {
+        computedBorders[col][row].left = borderDescr ?? undefined;
+      }
+      if (computedBorders[col - 1]?.[row]) {
         computedBorders[col - 1][row].right = borderDescr ?? undefined;
       }
       return;
     case "right":
-      computedBorders[col][row].right = borderDescr ?? undefined;
-      if (col !== numberOfCols - 1) {
+      if (computedBorders[col]?.[row]) {
+        computedBorders[col][row].right = borderDescr ?? undefined;
+      }
+      if (computedBorders[col + 1]?.[row]) {
         computedBorders[col + 1][row].left = borderDescr ?? undefined;
       }
       return;
@@ -188,8 +196,8 @@ function getAllTableStyles(
     for (const zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
-          if (!styles[col][row]) {
-            styles[col][row] = {};
+          if (!styles[col]?.[row]) {
+            continue;
           }
 
           styles[col][row] = {
@@ -204,6 +212,12 @@ function getAllTableStyles(
   return styles;
 }
 
+/**
+ * Return the zones of the table corresponding to the type of the given TableElement
+ *
+ * Might return zones outside of the table. For example right border of secondColumnStripe need to be applied to the
+ * first column of the table, so it returns a zone to the left of the table so its right border can be applied correctly.
+ */
 function getTableElementZones(
   el: TableElement,
   tableConfig: TableConfig,
@@ -248,7 +262,7 @@ function getTableElementZones(
       if (!tableConfig.bandedRows) {
         break;
       }
-      for (let i = headerRows; i < numberOfRows - totalRows; i += 2) {
+      for (let i = headerRows; i < numberOfRows - totalRows + 2; i += 2) {
         zones.push({ top: i, left: 0, bottom: i, right: lastCol });
       }
       break;
@@ -256,7 +270,8 @@ function getTableElementZones(
       if (!tableConfig.bandedRows) {
         break;
       }
-      for (let i = headerRows + 1; i < numberOfRows - totalRows; i += 2) {
+      const startRow = headerRows ? headerRows + 1 : -1;
+      for (let i = startRow; i < numberOfRows - totalRows + 2; i += 2) {
         zones.push({ top: i, left: 0, bottom: i, right: lastCol });
       }
       break;
@@ -265,7 +280,7 @@ function getTableElementZones(
         break;
       }
       const bottom = tableMetaData.mode === "pivot" ? lastRow : lastRow - totalRows;
-      for (let i = 0; i < numberOfCols; i += 2) {
+      for (let i = 0; i < numberOfCols + 2; i += 2) {
         zones.push({ top: headerRows, left: i, bottom, right: i });
       }
       break;
@@ -275,7 +290,7 @@ function getTableElementZones(
         break;
       }
       const bottom = tableMetaData.mode === "pivot" ? lastRow : lastRow - totalRows;
-      for (let i = 1; i < numberOfCols; i += 2) {
+      for (let i = -1; i < numberOfCols + 2; i += 2) {
         zones.push({ top: headerRows, left: i, bottom, right: i });
       }
       break;
