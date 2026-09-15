@@ -68,6 +68,7 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     DELETE_SHEET: this.invalidateComputedStyles,
     ADD_COLUMNS_ROWS: this.invalidateComputedStyles,
     REMOVE_COLUMNS_ROWS: this.invalidateComputedStyles,
+    UNDO: this.invalidateComputedStyles,
   };
 
   private invalidateComputedCfStyles() {

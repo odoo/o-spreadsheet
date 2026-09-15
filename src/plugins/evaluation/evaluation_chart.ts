@@ -70,6 +70,7 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
     DELETE_SHEET: this.invalidateChartRuntimes,
     ADD_COLUMNS_ROWS: this.invalidateChartRuntimes,
     REMOVE_COLUMNS_ROWS: this.invalidateChartRuntimes,
+    UNDO: this.invalidateChartRuntimes,
   };
 
   private invalidateChartRuntime(cmd: { chartId: UID }) {

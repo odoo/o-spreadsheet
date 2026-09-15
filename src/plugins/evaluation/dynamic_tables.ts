@@ -65,6 +65,7 @@ export class DynamicTablesPlugin extends EvaluationPlugin {
     DELETE_SHEET: this.clearTables,
     ADD_COLUMNS_ROWS: this.clearTables,
     REMOVE_COLUMNS_ROWS: this.clearTables,
+    UNDO: this.clearTables,
   };
 
   private invalidateTables(cmd: UpdateCellCommand) {
