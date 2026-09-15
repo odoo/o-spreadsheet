@@ -109,6 +109,7 @@ export class CellIconPlugin extends UIPlugin {
     PIVOT_START_PRESENCE_TRACKING: this.clearCellIconsCache,
     PIVOT_STOP_PRESENCE_TRACKING: this.clearCellIconsCache,
     SET_AUTOMATIC_EVALUATION: this.clearCellIconsCache,
+    SET_FORMULA_VISIBILITY: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {

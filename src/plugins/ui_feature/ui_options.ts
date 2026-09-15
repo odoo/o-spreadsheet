@@ -1,4 +1,4 @@
-import { Command } from "../../types/commands";
+import { ShowFormulaCommand } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 
 export class UIOptionsPlugin extends UIPlugin {
@@ -9,12 +9,12 @@ export class UIOptionsPlugin extends UIPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "SET_FORMULA_VISIBILITY":
-        this.showFormulas = cmd.show;
-        break;
-    }
+  handlers = {
+    SET_FORMULA_VISIBILITY: this.setFormulaVisibility,
+  };
+
+  private setFormulaVisibility(cmd: ShowFormulaCommand) {
+    this.showFormulas = cmd.show;
   }
 
   // ---------------------------------------------------------------------------
