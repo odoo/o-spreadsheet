@@ -31,7 +31,12 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
     DELETE_FIGURE: this.deleteImage,
     CREATE_IMAGE: this.createImage,
     DUPLICATE_SHEET: this.duplicateSheetImages,
+    DELETE_SHEET: this.deleteSheetImages,
   };
+
+  private deleteSheetImages(cmd: { sheetId: UID }) {
+    this.history.update("images", cmd.sheetId, undefined);
+  }
 
   private duplicateSheetImages(cmd: { sheetId: UID; sheetIdTo: UID }) {
     const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
@@ -86,14 +91,6 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
         return CommandResult.Success;
       default:
         return CommandResult.Success;
-    }
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "DELETE_SHEET":
-        this.history.update("images", cmd.sheetId, undefined);
-        break;
     }
   }
 

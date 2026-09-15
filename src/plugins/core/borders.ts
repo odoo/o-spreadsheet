@@ -51,7 +51,14 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     SET_BORDERS_ON_TARGET: this.setBordersOnTarget,
     ADD_MERGE: this.addBordersToMerges,
     DUPLICATE_SHEET: this.duplicateSheetBorders,
+    DELETE_SHEET: this.deleteSheetBorders,
   };
+
+  private deleteSheetBorders(cmd: { sheetId: UID }) {
+    const allBorders = { ...this.borders };
+    delete allBorders[cmd.sheetId];
+    this.history.update("borders", allBorders);
+  }
 
   private duplicateSheetBorders(cmd: { sheetId: UID; sheetIdTo: UID }) {
     const borders = this.borders[cmd.sheetId];
@@ -116,11 +123,6 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "DELETE_SHEET":
-        const allBorders = { ...this.borders };
-        delete allBorders[cmd.sheetId];
-        this.history.update("borders", allBorders);
-        break;
       case "REMOVE_COLUMNS_ROWS":
         const elements = [...cmd.elements].sort((a, b) => b - a);
         for (const group of groupConsecutive(elements)) {

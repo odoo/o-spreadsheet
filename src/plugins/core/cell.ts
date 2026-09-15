@@ -66,7 +66,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     DELETE_CONTENT: this.clearZones,
     CLEAR_CELL: this.clearCell,
     CLEAR_CELLS: this.clearCells,
+    DELETE_SHEET: this.deleteSheetCells,
   };
+
+  private deleteSheetCells(cmd: { sheetId: UID }) {
+    this.history.update("cells", cmd.sheetId, undefined);
+  }
 
   private clearCell(cmd: ClearCellCommand) {
     this.dispatch("UPDATE_CELL", {
@@ -126,9 +131,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           this.handleAddColumnsRows(cmd, this.copyRowStyle.bind(this));
         }
         break;
-      case "DELETE_SHEET": {
-        this.history.update("cells", cmd.sheetId, undefined);
-      }
     }
   }
 

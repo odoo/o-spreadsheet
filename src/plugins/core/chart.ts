@@ -6,7 +6,6 @@ import { ChartCreationContext, ChartDefinition, ChartType } from "../../types/ch
 import {
   Command,
   CommandResult,
-  CoreCommand,
   CreateChartCommand,
   DeleteChartCommand,
   DeleteFigureCommand,
@@ -45,7 +44,14 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     DELETE_CHART: this.deleteChart,
     DELETE_FIGURE: this.deleteChartsOfFigure,
     DUPLICATE_SHEET: this.duplicateSheetCharts,
+    DELETE_SHEET: this.deleteSheetCharts,
   };
+
+  private deleteSheetCharts(cmd: { sheetId: UID }) {
+    for (const id of this.getChartIds(cmd.sheetId)) {
+      this.history.update("charts", id, undefined);
+    }
+  }
 
   private duplicateSheetCharts(cmd: { sheetId: UID; sheetIdTo: UID }) {
     for (const chartId of this.getChartIds(cmd.sheetId)) {
@@ -153,16 +159,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         return CommandResult.SubCommandOnly;
       default:
         return CommandResult.Success;
-    }
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "DELETE_SHEET":
-        for (const id of this.getChartIds(cmd.sheetId)) {
-          this.history.update("charts", id, undefined);
-        }
-        break;
     }
   }
 
