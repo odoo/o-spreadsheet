@@ -29,6 +29,7 @@ import {
   MoveColumnsRowsCommand,
   RedoCommand,
   RemoveColumnsRowsCommand,
+  SelectFigureCommand,
   UndoCommand,
   UpdateFigureCommand,
 } from "../../types/commands";
@@ -206,7 +207,19 @@ export class GridSelectionPlugin extends UIPlugin {
     START: this.onStart,
     ACTIVATE_SHEET: this.onActivateSheet,
     MOVE_COLUMNS_ROWS: this.onHeadersMoved,
+    SELECT_FIGURE: this.onSelectFigure,
   };
+
+  private onSelectFigure(cmd: SelectFigureCommand) {
+    if (cmd.selectMultiple) {
+      if (cmd.figureId) {
+        this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
+        this.selectedFiguresIds.unshift(cmd.figureId);
+      }
+    } else {
+      this.selectedFiguresIds = cmd.figureId ? [cmd.figureId] : [];
+    }
+  }
 
   private onHeadersMoved(cmd: MoveColumnsRowsCommand) {
     if (cmd.sheetId === this.getActiveSheetId()) {
@@ -323,16 +336,6 @@ export class GridSelectionPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "SELECT_FIGURE":
-        if (cmd.selectMultiple) {
-          if (cmd.figureId) {
-            this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
-            this.selectedFiguresIds.unshift(cmd.figureId);
-          }
-        } else {
-          this.selectedFiguresIds = cmd.figureId ? [cmd.figureId] : [];
-        }
-        break;
       case "UNSELECT_FIGURE":
         this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
         break;
