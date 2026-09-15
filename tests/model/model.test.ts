@@ -20,7 +20,7 @@ import {
   statefulUIPluginRegistry,
 } from "../../src/plugins/plugin_registries";
 import { UIPlugin } from "../../src/plugins/ui_plugin";
-import { CreateSheetCommand, StartCommand, UpdateCellCommand } from "../../src/types/commands";
+import { CommandsHandlers, CreateSheetCommand, UpdateCellCommand } from "../../src/types/commands";
 import { ModelConfig } from "../../src/types/model";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
@@ -158,9 +158,11 @@ describe("Model", () => {
   test("Core plugins handle don't receive UI commands", () => {
     const receivedCommands: CommandTypes[] = [];
     class MyCorePlugin extends CorePlugin {
-      handle(cmd: CoreCommand) {
-        receivedCommands.push(cmd.type);
-      }
+      handlers = {
+        allCommands: (cmd: CoreCommand) => {
+          receivedCommands.push(cmd.type);
+        },
+      };
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
@@ -214,42 +216,39 @@ describe("Model", () => {
     const receivedCommands: CommandTypes[] = [];
     class MyEvaluationPlugin extends EvaluationPlugin {
       handlers = {
-        CREATE_SHEET: (cmd: CreateSheetCommand) => receivedCommands.push(cmd.type),
-        START: (cmd: StartCommand) => receivedCommands.push(cmd.type),
+        allCommands: (cmd: EvaluationCommand) => {
+          receivedCommands.push(cmd.type);
+        },
       };
-
-      handle(cmd: EvaluationCommand) {
-        receivedCommands.push(cmd.type);
-      }
     }
     addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
     const model = new Model();
     autoresizeColumns(model, [1]);
     selectCell(model, "A2");
-    createSheet(model, { sheetId: "42" });
+    setCellContent(model, "A1", "hello");
     expect(receivedCommands).not.toContain("AUTORESIZE_COLUMNS");
     expect(receivedCommands).not.toContain("SELECT_CELL");
     // core and evaluation commands are still received
-    expect(receivedCommands).toContain("CREATE_SHEET");
+    expect(receivedCommands).toContain("UPDATE_CELL");
     expect(receivedCommands).toContain("START");
   });
 
-  test("A command with a dedicated handler is not dispatched to the generic handle", () => {
-    const handledByHandle: CommandTypes[] = [];
+  test("A command is dispatched to both its dedicated handler and a command set handler", () => {
+    const handledByCommandSetHandler: CommandTypes[] = [];
     const handledBySpecificHandler: CommandTypes[] = [];
     class MyEvaluationPlugin extends EvaluationPlugin {
       handlers = {
         UPDATE_CELL: (cmd: UpdateCellCommand) => handledBySpecificHandler.push(cmd.type),
+        allCommands: (cmd: EvaluationCommand) => {
+          handledByCommandSetHandler.push(cmd.type);
+        },
       };
-      handle(cmd: EvaluationCommand) {
-        handledByHandle.push(cmd.type);
-      }
     }
     addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
     const model = new Model();
     setCellContent(model, "A1", "hello");
     expect(handledBySpecificHandler).toContain("UPDATE_CELL");
-    expect(handledByHandle).not.toContain("UPDATE_CELL");
+    expect(handledByCommandSetHandler).toContain("UPDATE_CELL");
   });
 
   test("canDispatch method is exposed and works", () => {
@@ -414,27 +413,27 @@ describe("Model", () => {
     //@ts-ignore
     coreTypes.add("MY_CMD_2");
     class MyUIPlugin extends UIPlugin {
-      handle(cmd: Command) {
+      handlers: CommandsHandlers<Command> = {
         //@ts-ignore
-        if (cmd.type === "MY_CMD_2") {
+        MY_CMD_2: () => {
           if (this.getters.getCurrentClient().id === "bob") {
             numberCall++;
           }
-        }
-      }
+        },
+      };
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
 
     class MyCorePlugin extends CorePlugin {
       public readonly state: number = 0;
-      handle(cmd: CoreCommand) {
+      handlers: CommandsHandlers<CoreCommand> = {
         //@ts-ignore
-        if (cmd.type === "MY_CMD_1") {
+        MY_CMD_1: () => {
           this.history.update("state", 1);
           //@ts-ignore
           this.dispatch("MY_CMD_2");
-        }
-      }
+        },
+      };
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
 
@@ -449,11 +448,11 @@ describe("Model", () => {
 
   test("Initial commands are not sent to UI plugins", () => {
     class MyUIPlugin extends UIPlugin {
-      handle(cmd: Command) {
-        if (cmd.type === "UPDATE_CELL") {
+      handlers = {
+        UPDATE_CELL: () => {
           throw new Error("Should not be called");
-        }
-      }
+        },
+      };
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     const data = {
@@ -485,18 +484,17 @@ describe("Model", () => {
     //@ts-ignore
     coreTypes.add("MY_CMD_1");
     class MyCorePlugin extends CorePlugin {
-      handle(cmd: CoreCommand) {
+      handlers: CommandsHandlers<CoreCommand> = {
         //@ts-ignore
-        if (cmd.type === "MY_CMD_1") {
+        MY_CMD_1: (cmd: { sheetId: UID }) => {
           this.dispatch("UPDATE_CELL", {
-            //@ts-ignore
             sheetId: cmd.sheetId,
             col: 0,
             row: 0,
             content: "=5",
           });
-        }
-      }
+        },
+      };
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
 

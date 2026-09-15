@@ -44,8 +44,10 @@ import {
   CommandsHandlersList,
   CommandTypes,
   CoreCommand,
+  coreTypes,
   DispatchResult,
   EvaluationCommandDispatcher,
+  evaluationCommandTypes,
   isCommandSetName,
   isCoreCommand,
   isDispatcheableEvaluationCommand,
@@ -85,12 +87,34 @@ class CommandHandlerRegistryClass<T extends Command> implements CommandHandlerRe
   registerPlugin(plugin: CommandHandler<T>) {
     for (const key of Object.keys(plugin.handlers)) {
       const handler = plugin.handlers[key]?.bind(plugin);
-      const commands = isCommandSetName(key) ? commandSets[key] : [key as CommandTypes];
+      const commands = isCommandSetName(key)
+        ? commandSets[key].keys().filter((commandType) => canHandleType(plugin, commandType))
+        : [key as CommandTypes];
       for (const command of commands) {
         this.add(command, handler);
       }
     }
   }
+}
+
+function canHandle(handler: CommandHandler<Command>, command: Command): boolean {
+  if (handler instanceof CorePlugin) {
+    return isCoreCommand(command);
+  }
+  if (handler instanceof EvaluationPlugin) {
+    return isEvaluationCommand(command);
+  }
+  return true;
+}
+
+function canHandleType(handler: CommandHandler<Command>, commandType: CommandTypes): boolean {
+  if (handler instanceof CorePlugin) {
+    return coreTypes.has(commandType as any);
+  }
+  if (handler instanceof EvaluationPlugin) {
+    return evaluationCommandTypes.has(commandType as any);
+  }
+  return true;
 }
 
 /**
@@ -550,18 +574,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private checkDispatchAllowedLocalCommand(command: Command) {
     return this.uiHandlers
-      .filter((handler) => this.canHandle(handler, command))
+      .filter((handler) => canHandle(handler, command))
       .map((handler) => handler.allowDispatch(command));
-  }
-
-  private canHandle(handler: CommandHandler<Command>, command: Command): boolean {
-    if (handler instanceof CorePlugin) {
-      return isCoreCommand(command);
-    }
-    if (handler instanceof EvaluationPlugin) {
-      return isEvaluationCommand(command);
-    }
-    return true;
   }
 
   private finalize() {
@@ -713,18 +727,12 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     handlers: CommandHandler<Command>[],
     command: C
   ) {
-    const concernedHandlers = handlers.filter((handler) => this.canHandle(handler, command));
+    const concernedHandlers = handlers.filter((handler) => canHandle(handler, command));
     for (const handler of concernedHandlers) {
       handler.beforeHandle(command);
     }
-    if (specificHandlers.length) {
-      for (const handler of specificHandlers) {
-        handler(command);
-      }
-    } else {
-      for (const handler of concernedHandlers) {
-        handler.handle(command);
-      }
+    for (const handler of specificHandlers) {
+      handler(command);
     }
     this.trigger("command-dispatched", command);
   }
