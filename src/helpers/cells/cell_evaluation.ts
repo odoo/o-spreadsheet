@@ -217,7 +217,7 @@ function _createEvaluatedCell(
 
 export function isNumberResult(
   result: FunctionResultObject | undefined
-): result is { value: number } {
+): result is { value: number; format?: string } {
   return !!result && getEvaluatedCellType(result) === CellValueType.number;
 }
 

@@ -111,6 +111,15 @@ export const TEST_CHART_DATA = {
     sizeRange: "D2:D5",
     title: { text: "Bubble Chart" },
   },
+  heatmap: {
+    type: "heatmap" as const,
+    rowRange: "A2:A5",
+    ...toChartDataSource({
+      dataSets: [{ dataRange: "C2:C5" }],
+      labelRange: "B2:B5",
+    }),
+    title: { text: "Heatmap Chart" },
+  },
 };
 
 const PIVOT: PivotCoreDefinition = {

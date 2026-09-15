@@ -1,4 +1,5 @@
 import { Model, schemeToColorScale, UID } from "../../../../src";
+import { MainChartPanelStore } from "../../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel_store";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { GeoChartDefinition } from "../../../../src/types/chart/geo_chart";
 import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheet_env";
@@ -21,6 +22,7 @@ import {
   mockGeoJsonService,
   mountComponentWithPortalTarget,
 } from "../../../test_helpers/helpers";
+import { makeStoreWithModel } from "../../../test_helpers/stores";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -151,4 +153,17 @@ describe("Geo chart side panel", () => {
       expect(getRoundColorPickerValue(".o-missing-value")).toEqual("#FF9900");
     });
   });
+});
+
+test("missingValueColor survives a round trip through another chart type", () => {
+  const model = new Model({}, { external: { geoJsonService: mockGeoJsonService } });
+  const chartId = "chartId";
+  createGeoChart(model, { missingValueColor: "#ff0000" }, chartId);
+  const { store: chartPanelStore } = makeStoreWithModel(model, MainChartPanelStore);
+
+  chartPanelStore.changeChartType(chartId, "bar");
+  chartPanelStore.changeChartType(chartId, "geo");
+
+  const definition = model.getters.getChartDefinition(chartId) as GeoChartDefinition<string>;
+  expect(definition.missingValueColor).toBe("#ff0000");
 });

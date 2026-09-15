@@ -66,6 +66,7 @@ import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
 import { FunnelChartDefinition } from "../../src/types/chart/funnel_chart";
 import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
 import { GeoChartDefinition } from "../../src/types/chart/geo_chart";
+import { HeatmapChartDefinition } from "../../src/types/chart/heatmap_chart";
 import { RadarChartDefinition } from "../../src/types/chart/radar_chart";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
 import { SunburstChartDefinition } from "../../src/types/chart/sunburst_chart";
@@ -419,15 +420,44 @@ export function createCalendarChart(
     offset: { x: 0, y: 0 },
     ...figureData,
     definition: {
+      ...data,
       title: data.title || { text: "test" },
       dataSource: data.dataSource ?? { type: "range", dataSets: [], dataSetsHaveTitle: false },
       dataSetStyles: data.dataSetStyles ?? {},
       type: "calendar",
-      background: data.background,
       horizontalGroupBy: data.horizontalGroupBy ?? "day_of_week",
       verticalGroupBy: data.verticalGroupBy ?? "month_number",
       legendPosition: data.legendPosition || "top",
-      colorScale: data.colorScale,
+    },
+  });
+}
+
+export function createHeatmapChart(
+  model: Model,
+  def: Partial<HeatmapChartDefinition<string>>,
+  chartId?: UID,
+  sheetId?: UID,
+  figureData: Partial<CreateFigureCommand> = {}
+) {
+  const id = chartId || UuidGenerator.uuidv4();
+  sheetId = sheetId || model.getters.getActiveSheetId();
+
+  return model.dispatch("CREATE_CHART", {
+    figureId: figureData.figureId || UuidGenerator.smallUuid(),
+    chartId: id,
+    sheetId: sheetId,
+    col: 0,
+    row: 0,
+    size: { width: 536, height: 335 },
+    offset: { x: 0, y: 0 },
+    ...figureData,
+    definition: {
+      ...def,
+      type: "heatmap",
+      title: def.title || { text: "test" },
+      dataSource: def.dataSource ?? { type: "range", dataSets: [], dataSetsHaveTitle: false },
+      dataSetStyles: def.dataSetStyles ?? {},
+      legendPosition: def.legendPosition || "top",
     },
   });
 }

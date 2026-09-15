@@ -11,6 +11,7 @@ import {
   createSheet,
   setCellContent,
   setFormat,
+  updateChart,
 } from "../../../test_helpers";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
@@ -188,14 +189,69 @@ describe("calendar chart", () => {
         dataSetsHaveTitle: true,
         labelRange: "Sheet1!A1:A4",
       }),
-      legendPosition: "left",
+      legendPosition: "bottom",
       showValues: false,
+      colorScale: { minColor: "#ffffff", maxColor: "#ff0000" },
+      missingValueColor: "#ff0000",
       horizontalGroupBy: "day_of_week",
       verticalGroupBy: "month_number",
       axesDesign: {},
       annotationLink: "https://www.odoo.com",
       annotationText: "This is an annotation text",
     });
+  });
+
+  test("legend position is kept as-is from the context, only defaulting to 'left' when unset", () => {
+    for (const [contextPosition, expected] of [
+      ["right", "right"],
+      ["none", "none"],
+      ["top", "top"],
+      ["bottom", "bottom"],
+      [undefined, "left"],
+    ] as const) {
+      const definition = createChartDefinitionFromContext("calendar", {
+        ...GENERAL_CHART_CREATION_CONTEXT,
+        legendPosition: contextPosition,
+      });
+      expect(definition.legendPosition).toBe(expected);
+    }
+  });
+
+  test("legend position maps to the same corner as the geo chart, reserving space on that edge", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=DATE(2024,7,8)");
+    setCellContent(model, "B1", "10");
+    setCellContent(model, "A2", "=DATE(2024,8,4)");
+    setCellContent(model, "B2", "20");
+    createCalendarChart(
+      model,
+      {
+        type: "calendar",
+        ...toChartDataSource({ dataSets: [{ dataRange: "B1:B2" }], labelRange: "A1:A2" }),
+      },
+      "chartId"
+    );
+
+    for (const [legendPosition, edge] of [
+      ["top", "left"], // top left
+      ["right", "right"], // top right
+      ["bottom", "right"], // bottom right
+      ["left", "left"], // bottom left
+    ] as const) {
+      updateChart(model, "chartId", { legendPosition });
+      const runtime = model.getters.getChartRuntime("chartId") as CalendarChartRuntime;
+      const colorScaleLegend = runtime.chartJsConfig.options!.plugins!.chartColorScalePlugin;
+      expect(colorScaleLegend?.position).toBe(legendPosition);
+
+      const layout = runtime.chartJsConfig.options!.layout as {
+        padding: { left: number; right: number };
+      };
+      if (edge === "left") {
+        expect(layout.padding.left).toBeGreaterThan(layout.padding.right);
+      } else {
+        expect(layout.padding.right).toBeGreaterThan(layout.padding.left);
+      }
+    }
   });
 
   test.each(STAMPS_AND_LABELS)(
