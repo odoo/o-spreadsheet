@@ -1,6 +1,7 @@
-import { proxy, useProps } from "@odoo/owl";
+import { proxy, usePlugin, useProps } from "@odoo/owl";
 import { clip } from "../../../helpers/misc";
 import { isEqual } from "../../../helpers/zones";
+import { MobilePlugin } from "../../../owl_plugins/mobile_owl_plugin";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { ZoomStore } from "../../../stores/zoom_store";
@@ -39,13 +40,15 @@ export class Highlight extends OSComponent {
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
 
+  private mobilePlugin = usePlugin(MobilePlugin);
+
   setup(): void {
     this.viewStore = useStore(ViewportsStore);
     this.zoomStore = useStore(ZoomStore);
   }
 
   get cornerOrientations(): Array<"nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w"> {
-    if (!this.env.isMobile()) {
+    if (!this.mobilePlugin.isMobile()) {
       return ["nw", "ne", "sw", "se"];
     }
     const z = this.props.range.unboundedZone;
@@ -73,7 +76,7 @@ export class Highlight extends OSComponent {
 
     let scrollDirection: DnDDirection = "all";
 
-    if (this.env.isMobile()) {
+    if (this.mobilePlugin.isMobile()) {
       scrollDirection = dirX === 0 ? "vertical" : dirY === 0 ? "horizontal" : "all";
     }
 

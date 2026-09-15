@@ -1,4 +1,12 @@
-import { onMounted, providePlugins, proxy, signal, useListener, useProps } from "@odoo/owl";
+import {
+  onMounted,
+  providePlugins,
+  proxy,
+  signal,
+  useListener,
+  usePlugin,
+  useProps,
+} from "@odoo/owl";
 import { insertSheet, insertTable } from "../../actions/insert_actions";
 import {
   CREATE_IMAGE,
@@ -23,6 +31,7 @@ import {
 } from "../../helpers/ui/paste_interactive";
 import { isInside } from "../../helpers/zones";
 import { useLayoutEffect } from "../../owl3_compatibility_layer";
+import { MobilePlugin } from "../../owl_plugins/mobile_owl_plugin";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {
@@ -159,6 +168,8 @@ export class Grid extends OSComponent {
   private clientFocusStore!: Store<ClientFocusStore>;
   private checkboxToggleStore!: Store<CheckboxToggleStore>;
   private clipboardStore!: Store<ClipboardStore>;
+
+  private mobilePlugin = usePlugin(MobilePlugin);
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
 
@@ -598,7 +609,7 @@ export class Grid extends OSComponent {
       this.model().selection.selectCell(col, row);
     }
 
-    if (this.env.isMobile()) {
+    if (this.mobilePlugin.isMobile()) {
       return;
     }
 
@@ -923,7 +934,10 @@ export class Grid extends OSComponent {
   }
 
   get displaySelectionHandler() {
-    return this.env.isMobile() && this.composerFocusStore.activeComposer.editionMode === "inactive";
+    return (
+      this.mobilePlugin.isMobile() &&
+      this.composerFocusStore.activeComposer.editionMode === "inactive"
+    );
   }
 
   get clientsToDisplay(): Required<Client>[] {

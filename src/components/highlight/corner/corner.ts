@@ -1,4 +1,4 @@
-import { useProps } from "@odoo/owl";
+import { usePlugin, useProps } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ViewportsStore } from "../../../stores/viewports_store";
@@ -7,6 +7,7 @@ import { cssPropertiesToCss } from "../../helpers/css";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 
+import { MobilePlugin } from "../../../owl_plugins/mobile_owl_plugin";
 import { Store } from "../../../types/store_engine";
 const MOBILE_HANDLER_WIDTH = 40;
 
@@ -35,6 +36,8 @@ export class Corner extends OSComponent {
   private dirX!: ResizeDirection;
   private dirY!: ResizeDirection;
   private viewStore!: Store<ViewportsStore>;
+
+  private mobilePlugin = usePlugin(MobilePlugin);
 
   setup(): void {
     this.viewStore = useStore(ViewportsStore);
@@ -68,7 +71,7 @@ export class Corner extends OSComponent {
       height: `${edgeLength}px`,
       width: `${edgeLength}px`,
     };
-    if (this.env.isMobile()) {
+    if (this.mobilePlugin.isMobile()) {
       css["border-radius"] = `${edgeLength / 2}px`;
     }
 
@@ -76,7 +79,7 @@ export class Corner extends OSComponent {
   }
 
   getHandlerEdgeLength() {
-    return this.env.isMobile() ? MOBILE_HANDLER_WIDTH : AUTOFILL_EDGE_LENGTH;
+    return this.mobilePlugin.isMobile() ? MOBILE_HANDLER_WIDTH : AUTOFILL_EDGE_LENGTH;
   }
 
   get buttonLook() {
@@ -84,7 +87,7 @@ export class Corner extends OSComponent {
       "background-color": this.props.color,
       cursor: `${this.props.orientation}-resize`,
     };
-    if (this.env.isMobile()) {
+    if (this.mobilePlugin.isMobile()) {
       css["border-radius"] = `${AUTOFILL_EDGE_LENGTH / 2}px`;
     }
     return cssPropertiesToCss(css);

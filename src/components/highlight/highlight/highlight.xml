@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-Highlight">
     <div class="o-highlight">
       <t
-        t-if="!this.env.isMobile()"
+        t-if="!this.mobilePlugin.isMobile()"
         t-foreach="['n', 's', 'w', 'e']"
         t-as="orientation"
         t-key="orientation">

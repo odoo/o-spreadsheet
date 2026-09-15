@@ -1,6 +1,7 @@
-import { onWillUpdateProps, proxy, signal, useProps } from "@odoo/owl";
+import { onWillUpdateProps, proxy, signal, usePlugin, useProps } from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
 import { UuidGenerator } from "../../helpers/uuid";
+import { MobilePlugin } from "../../owl_plugins/mobile_owl_plugin";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { _t } from "../../translation";
 import { MenuMouseEvent, Pixel, UID } from "../../types/misc";
@@ -38,6 +39,8 @@ export class BottomBar extends OSComponent {
 
   private bottomBarRef = signal.ref();
   private sheetListRef = signal.ref();
+
+  private mobilePlugin = usePlugin(MobilePlugin);
 
   private dragAndDrop = useDragAndDropListItems();
   private targetScroll: number | undefined = undefined;
@@ -204,7 +207,7 @@ export class BottomBar extends OSComponent {
     }
     this.closeMenu();
 
-    if (this.env.isMobile()) {
+    if (this.mobilePlugin.isMobile()) {
       return;
     }
 

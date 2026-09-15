@@ -20,6 +20,7 @@ import { batched } from "../../helpers/misc";
 import { providePluginsIfNotPresent, render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
 import { Component, useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
+import { MobilePlugin } from "../../owl_plugins/mobile_owl_plugin";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { PrintPlugin } from "../../owl_plugins/print_owl_plugin";
@@ -48,7 +49,6 @@ import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { cssPropertiesToCss } from "../helpers/css";
 import {
   getElBoundingRect,
-  isMobileOS,
   keyboardEventToShortcutString,
   zoomCorrectedElementRect,
 } from "../helpers/dom_helpers";
@@ -139,7 +139,7 @@ export class Spreadsheet extends Component {
       } satisfies Partial<SpreadsheetChildEnv>);
     }
 
-    providePlugins([PopoverContainerPlugin, ModelPlugin, PrintPlugin], {
+    providePlugins([PopoverContainerPlugin, ModelPlugin, PrintPlugin, MobilePlugin], {
       getPopoverContainerRect: () => getElBoundingRect(this.spreadsheetRef()),
       model: this.props.model,
     });
@@ -176,7 +176,6 @@ export class Spreadsheet extends Component {
       clipboard: this.env.clipboard || instantiateClipboard(),
       startCellEdition: (content?: string) =>
         this.composerFocusStore.focusActiveComposer({ content }),
-      isMobile: isMobileOS,
     } satisfies Partial<SpreadsheetChildEnv>);
 
     this.notificationPlugin.updateNotificationCallbacks({ ...this.props });

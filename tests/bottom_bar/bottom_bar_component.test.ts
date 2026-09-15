@@ -72,6 +72,26 @@ function getSheetNameSpan(): HTMLSpanElement | null {
   return fixture.querySelector<HTMLSpanElement>(".o-sheet-name");
 }
 
+/**
+ * Mount a bottom bar with 4 sheets, with the sheet elements mocked to have a fixed
+ * position and size, so that drag & drop can be simulated.
+ */
+async function mountBottomBarForDragAndDrop(): Promise<Model> {
+  const sheetIds: UID[] = ["Sheet1", "Sheet2", "Sheet3", "Sheet4"];
+  extendMockGetBoundingClientRect({
+    "o-sheet": (el: HTMLElement) => ({
+      x: model.getters.getSheetIds().indexOf(el.dataset.id!) * 100,
+      width: 101, // width of 101 and x is offset by only 100 because there's negative borders on sheets
+    }),
+    "o-sheet-list": () => ({ x: 0, width: 500 }),
+  });
+
+  useJestFakeTimers();
+  const model = new Model({ sheets: sheetIds.map((sheetId) => ({ id: sheetId })) });
+  await mountBottomBar(model);
+  return model;
+}
+
 describe("BottomBar component", () => {
   test("simple rendering", async () => {
     await mountBottomBar();
@@ -806,21 +826,10 @@ describe("BottomBar component", () => {
   });
 
   describe("drag & drop sheet", () => {
-    const sheetIds: UID[] = ["Sheet1", "Sheet2", "Sheet3", "Sheet4"];
     let model: Model;
 
     beforeEach(async () => {
-      extendMockGetBoundingClientRect({
-        "o-sheet": (el: HTMLElement) => ({
-          x: model.getters.getSheetIds().indexOf(el.dataset.id!) * 100,
-          width: 101, // width of 101 and x is offset by only 100 because there's negative borders on sheets
-        }),
-        "o-sheet-list": () => ({ x: 0, width: 500 }),
-      });
-
-      useJestFakeTimers();
-      model = new Model({ sheets: sheetIds.map((sheetId) => ({ id: sheetId })) });
-      await mountBottomBar(model);
+      model = await mountBottomBarForDragAndDrop();
     });
 
     async function dragSheet(
@@ -1016,10 +1025,17 @@ describe("BottomBar component", () => {
       expect(getElComputedStyle('.o-sheet[data-id="Sheet1"]', "position")).toBe("");
       expect(getElComputedStyle('.o-sheet[data-id="Sheet1"]', "left")).toBe("");
     });
+  });
+
+  describe("drag & drop sheet in mobile mode", () => {
+    let model: Model;
+
+    beforeEach(async () => {
+      setMobileMode();
+      model = await mountBottomBarForDragAndDrop();
+    });
 
     test("Cannot drag & drop sheet in mobile mode", async () => {
-      setMobileMode();
-      await nextTick();
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
       const sheetId = model.getters.getActiveSheetId();
       await clickAndDrag(

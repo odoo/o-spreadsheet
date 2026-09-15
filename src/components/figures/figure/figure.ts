@@ -1,5 +1,6 @@
-import { proxy, signal, useProps } from "@odoo/owl";
+import { proxy, signal, usePlugin, useProps } from "@odoo/owl";
 import { useLayoutEffect } from "../../../owl3_compatibility_layer";
+import { MobilePlugin } from "../../../owl_plugins/mobile_owl_plugin";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ZoomStore } from "../../../stores/zoom_store";
@@ -49,6 +50,8 @@ export class FigureComponent extends OSComponent {
   private figureRef = signal.ref();
 
   private zoomStore!: Store<ZoomStore>;
+
+  private mobilePlugin = usePlugin(MobilePlugin);
 
   get isSelected(): boolean {
     return (
@@ -155,13 +158,13 @@ export class FigureComponent extends OSComponent {
   }
 
   onMouseDown(ev: MouseEvent) {
-    if (!this.env.isMobile()) {
+    if (!this.mobilePlugin.isMobile()) {
       this.props.onMouseDown(ev);
     }
   }
 
   onClick(ev: MouseEvent) {
-    if (this.env.isMobile()) {
+    if (this.mobilePlugin.isMobile()) {
       this.props.onMouseDown(ev);
     }
   }
@@ -325,7 +328,7 @@ export class FigureComponent extends OSComponent {
   get isFigureResizable(): boolean {
     return (
       this.isSelected &&
-      !this.env.isMobile() &&
+      !this.mobilePlugin.isMobile() &&
       !this.model().getters.isDashboard() &&
       !this.model().getters.isCurrentSheetLocked()
     );
