@@ -12,6 +12,7 @@ import {
   Command,
   CommandResult,
   HideColumnsRowsCommand,
+  RemoveColumnsRowsCommand,
   UnhideColumnsRowsCommand,
 } from "../../types/commands";
 import { ConsecutiveIndexes, Dimension, HeaderIndex, UID } from "../../types/misc";
@@ -37,7 +38,16 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     DUPLICATE_SHEET: this.duplicateSheetHiddenHeaders,
     DELETE_SHEET: this.deleteSheetHiddenHeaders,
     ADD_COLUMNS_ROWS: this.addHiddenHeaders,
+    REMOVE_COLUMNS_ROWS: this.removeHiddenHeaders,
   };
+
+  private removeHiddenHeaders(cmd: RemoveColumnsRowsCommand) {
+    const hiddenHeaders = [...this.hiddenHeaders[cmd.sheetId][cmd.dimension]];
+    for (const el of [...cmd.elements].sort((a, b) => b - a)) {
+      hiddenHeaders.splice(el, 1);
+    }
+    this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hiddenHeaders);
+  }
 
   private addHiddenHeaders(cmd: AddColumnsRowsCommand) {
     const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
@@ -110,20 +120,6 @@ export class HeaderVisibilityPlugin extends CorePlugin {
         return CommandResult.Success;
     }
     return CommandResult.Success;
-  }
-
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "REMOVE_COLUMNS_ROWS": {
-        const hiddenHeaders = [...this.hiddenHeaders[cmd.sheetId][cmd.dimension]];
-        for (const el of [...cmd.elements].sort((a, b) => b - a)) {
-          hiddenHeaders.splice(el, 1);
-        }
-        this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hiddenHeaders);
-        break;
-      }
-    }
-    return;
   }
 
   checkElementsIncludeAllVisibleHeaders(

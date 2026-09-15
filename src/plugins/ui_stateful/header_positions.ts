@@ -48,6 +48,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     DUPLICATE_SHEET: this.duplicateSheetPositions,
     DELETE_SHEET: this.invalidateHeaderPositions,
     ADD_COLUMNS_ROWS: this.invalidateAndComputeSheetPositions,
+    REMOVE_COLUMNS_ROWS: this.invalidateAndComputeSheetPositions,
   };
 
   private duplicateSheetPositions(cmd: { sheetId: UID; sheetIdTo: UID }) {
@@ -82,9 +83,6 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
         for (const sheetId of this.getters.getSheetIds()) {
           this.headerPositions[sheetId] = this.computeHeaderPositionsOfSheet(sheetId);
         }
-        break;
-      case "REMOVE_COLUMNS_ROWS":
-        this.computeSheetHeaderPositions(cmd);
         break;
     }
   }

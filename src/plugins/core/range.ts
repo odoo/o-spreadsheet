@@ -43,6 +43,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
     RENAME_SHEET: this.adaptRanges,
     DELETE_SHEET: this.adaptRanges,
     ADD_COLUMNS_ROWS: this.adaptRanges,
+    REMOVE_COLUMNS_ROWS: this.adaptRanges,
   };
 
   private adaptRanges(cmd: CoreCommand) {

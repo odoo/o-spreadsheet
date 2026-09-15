@@ -197,7 +197,21 @@ export class GridSelectionPlugin extends UIPlugin {
     HIDE_SHEET: this.activateAnotherSheetOnHide,
     DELETE_SHEET: this.onSheetDeleted,
     ADD_COLUMNS_ROWS: this.onHeadersAdded,
+    REMOVE_COLUMNS_ROWS: this.onHeadersRemoved,
   };
+
+  private onHeadersRemoved(cmd: RemoveColumnsRowsCommand) {
+    const sheetId = this.getters.getActiveSheetId();
+    if (cmd.sheetId === sheetId) {
+      if (cmd.dimension === "COL") {
+        this.onColumnsRemoved(cmd);
+      } else {
+        this.onRowsRemoved(cmd);
+      }
+      const { col, row } = this.gridSelection.anchor.cell;
+      this.moveClient({ sheetId, col, row });
+    }
+  }
 
   private onHeadersAdded(cmd: AddColumnsRowsCommand) {
     const sheetId = this.getters.getActiveSheetId();
@@ -274,19 +288,6 @@ export class GridSelectionPlugin extends UIPlugin {
         break;
       case "ACTIVATE_SHEET": {
         this.activateSheet(cmd.sheetIdFrom, cmd.sheetIdTo);
-        break;
-      }
-      case "REMOVE_COLUMNS_ROWS": {
-        const sheetId = this.getters.getActiveSheetId();
-        if (cmd.sheetId === sheetId) {
-          if (cmd.dimension === "COL") {
-            this.onColumnsRemoved(cmd);
-          } else {
-            this.onRowsRemoved(cmd);
-          }
-          const { col, row } = this.gridSelection.anchor.cell;
-          this.moveClient({ sheetId, col, row });
-        }
         break;
       }
       case "MOVE_COLUMNS_ROWS":

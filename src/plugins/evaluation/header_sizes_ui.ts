@@ -11,6 +11,7 @@ import { positions } from "../../helpers/zones";
 import { Canvas2DContext } from "../../types/canvas";
 import {
   EvaluationCommand,
+  RemoveColumnsRowsCommand,
   ResizeColumnsRowsCommand,
   SetFormattingCommand,
   TargetDependentCommand,
@@ -56,7 +57,16 @@ export class HeaderSizeUIPlugin
     CREATE_SHEET: this.initializeCreatedSheet,
     DUPLICATE_SHEET: this.duplicateSheetTallestCells,
     DELETE_SHEET: this.deleteSheetTallestCells,
+    REMOVE_COLUMNS_ROWS: this.removeRowsTallestCells,
   };
+
+  private removeRowsTallestCells(cmd: RemoveColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      return;
+    }
+    const tallestCells = removeIndexesFromArray(this.tallestCellInRow[cmd.sheetId], cmd.elements);
+    this.history.update("tallestCellInRow", cmd.sheetId, tallestCells);
+  }
 
   private deleteSheetTallestCells(cmd: { sheetId: UID }) {
     const tallestCells = { ...this.tallestCellInRow };
@@ -148,17 +158,6 @@ export class HeaderSizeUIPlugin
           this.initializeSheet(sheetId);
         }
         break;
-      case "REMOVE_COLUMNS_ROWS": {
-        if (cmd.dimension === "COL") {
-          return;
-        }
-        const tallestCells = removeIndexesFromArray(
-          this.tallestCellInRow[cmd.sheetId],
-          cmd.elements
-        );
-        this.history.update("tallestCellInRow", cmd.sheetId, tallestCells);
-        break;
-      }
     }
     return;
   }

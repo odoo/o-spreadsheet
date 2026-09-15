@@ -5,6 +5,7 @@ import {
   CoreCommand,
   CreateFigureCommand,
   DeleteFigureCommand,
+  RemoveColumnsRowsCommand,
   UpdateFigureCommand,
 } from "../../types/commands";
 import { AnchorOffset, Figure } from "../../types/figure";
@@ -31,7 +32,16 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     CREATE_SHEET: this.initSheetFigures,
     DUPLICATE_SHEET: this.duplicateSheetFigures,
     DELETE_SHEET: this.deleteSheetFigures,
+    REMOVE_COLUMNS_ROWS: this.removeHeaderFigures,
   };
+
+  private removeHeaderFigures(cmd: RemoveColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      this.onColRemove(cmd.sheetId);
+    } else {
+      this.onRowRemove(cmd.sheetId);
+    }
+  }
 
   private deleteSheetFigures(cmd: { sheetId: UID }) {
     this.deleteSheet(cmd.sheetId);
@@ -140,18 +150,6 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
         this.getters.getFigures(cmd.sheetId).forEach((figure) => {
           this.dispatch("DELETE_FIGURE", { figureId: figure.id, sheetId: cmd.sheetId });
         });
-        break;
-    }
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "REMOVE_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.onColRemove(cmd.sheetId);
-        } else {
-          this.onRowRemove(cmd.sheetId);
-        }
         break;
     }
   }
