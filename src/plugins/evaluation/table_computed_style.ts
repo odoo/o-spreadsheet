@@ -1,11 +1,7 @@
 import { isEvaluationError } from "../../functions/helpers";
 import { lazy } from "../../helpers/misc";
 import { getComputedTableStyle } from "../../helpers/table_helpers";
-import {
-  EvaluationCommand,
-  invalidateEvaluationCommands,
-  UpdateCellCommand,
-} from "../../types/commands";
+import { EvaluationCommand, UpdateCellCommand } from "../../types/commands";
 import { EvaluationError } from "../../types/errors";
 import { Border, CellPosition, Lazy, Style, TableId, UID } from "../../types/misc";
 import { Table, TableConfig, TableMetaData } from "../../types/table";
@@ -83,7 +79,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
   }
 
   handle(cmd: EvaluationCommand) {
-    if (invalidateEvaluationCommands.has(cmd.type) || cmd.type === "EVALUATE_CELLS") {
+    if (cmd.type === "EVALUATE_CELLS") {
       this.tableStyles = {};
       return;
     }

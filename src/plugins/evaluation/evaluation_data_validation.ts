@@ -10,11 +10,7 @@ import { isInside, positions } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { _t } from "../../translation";
 import { CellValue, CellValueType } from "../../types/cells";
-import {
-  EvaluationCommand,
-  invalidateEvaluationCommands,
-  UpdateCellCommand,
-} from "../../types/commands";
+import { EvaluationCommand, UpdateCellCommand } from "../../types/commands";
 import {
   DataValidationCriterion,
   DataValidationCriterionType,
@@ -100,7 +96,7 @@ export class EvaluationDataValidationPlugin extends EvaluationPlugin {
   }
 
   handle(cmd: EvaluationCommand) {
-    if (invalidateEvaluationCommands.has(cmd.type) || cmd.type === "EVALUATE_CELLS") {
+    if (cmd.type === "EVALUATE_CELLS") {
       this.validationResults = {};
       this.criterionPreComputeResult = {};
       return;
