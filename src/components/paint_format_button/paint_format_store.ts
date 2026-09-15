@@ -107,7 +107,7 @@ export class PaintFormatStore extends SpreadsheetStore {
     }
     const options: ClipboardOptions = {
       isCutOperation: false,
-      pasteOption: "onlyFormat",
+      pasteOptions: ["format"],
     };
     const expandedData = expandHandlerData(this.clipboardHandlers, this.copiedData);
     const { target: pasteTarget, selectedZones } = getPasteTargetFromHandlers(

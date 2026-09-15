@@ -65,6 +65,61 @@ export const paste: ActionSpec = {
   icon: "o-spreadsheet-Icon.PASTE",
 };
 
+const pasteSpecialValue: ActionSpec = {
+  id: "paste_value_only",
+  name: _t("Values only"),
+  shortcut: "Ctrl+Shift+V",
+  execute: ACTIONS.PASTE_VALUE_ACTION,
+  sequence: 10,
+};
+
+const pasteSpecialFormat: ActionSpec = {
+  id: "paste_format_only",
+  name: _t("Format only"),
+  execute: ACTIONS.PASTE_FORMAT_ACTION,
+  sequence: 20,
+};
+
+const pasteSpecialFormula: ActionSpec = {
+  id: "paste_formula_only",
+  name: _t("Formula only"),
+  execute: ACTIONS.PASTE_FORMULA_ACTION,
+  sequence: 30,
+};
+
+const pasteSpecialTranspose: ActionSpec = {
+  id: "paste_transpose",
+  name: _t("Transposed"),
+  execute: ACTIONS.PASTE_TRANSPOSE_ACTION,
+  sequence: 40,
+  separator: true,
+};
+
+const pasteSpecialTransposeValue: ActionSpec = {
+  id: "paste_transpose_as_value",
+  name: _t("Transposed values only"),
+  execute: ACTIONS.PASTE_TRANSPOSE_VALUE_ACTION,
+  sequence: 50,
+};
+
+const pasteSpecialTransposeFormula: ActionSpec = {
+  id: "paste_transpose_as_formula",
+  name: _t("Transposed formula only"),
+  execute: ACTIONS.PASTE_TRANSPOSE_FORMULA_ACTION,
+  sequence: 60,
+};
+
+function specialPasteMenuBuilder(): ActionSpec[] {
+  return [
+    pasteSpecialValue,
+    pasteSpecialFormat,
+    pasteSpecialFormula,
+    pasteSpecialTranspose,
+    pasteSpecialTransposeValue,
+    pasteSpecialTransposeFormula,
+  ];
+}
+
 export const pasteSpecial: ActionSpec = {
   name: _t("Paste special"),
   isVisible: (env): boolean => {
@@ -72,17 +127,7 @@ export const pasteSpecial: ActionSpec = {
     return !clipboardStore.isCutOperation();
   },
   icon: "o-spreadsheet-Icon.PASTE",
-};
-
-export const pasteSpecialValue: ActionSpec = {
-  name: _t("Paste as value"),
-  shortcut: "Ctrl+Shift+V",
-  execute: ACTIONS.PASTE_AS_VALUE_ACTION,
-};
-
-export const pasteSpecialFormat: ActionSpec = {
-  name: _t("Paste format only"),
-  execute: ACTIONS.PASTE_FORMAT_ACTION,
+  children: specialPasteMenuBuilder(),
 };
 
 export const findAndReplace: ActionSpec = {
