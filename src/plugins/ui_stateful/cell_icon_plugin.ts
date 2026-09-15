@@ -119,6 +119,7 @@ export class CellIconPlugin extends UIPlugin {
     INSERT_PIVOT_WITH_TABLE: this.clearCellIconsCache,
     SPLIT_PIVOT_FORMULA: this.clearCellIconsCache,
     REQUEST_UNDO: this.clearCellIconsCache,
+    REQUEST_REDO: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
