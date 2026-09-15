@@ -26,6 +26,7 @@ import {
   HideSheetCommand,
   LocalCommand,
   MoveColumnsRowsCommand,
+  RedoCommand,
   RemoveColumnsRowsCommand,
   UndoCommand,
   UpdateFigureCommand,
@@ -200,7 +201,17 @@ export class GridSelectionPlugin extends UIPlugin {
     ADD_COLUMNS_ROWS: this.onHeadersAdded,
     REMOVE_COLUMNS_ROWS: this.onHeadersRemoved,
     UNDO: this.onUndo,
+    REDO: this.onRedo,
   };
+
+  private onRedo(cmd: RedoCommand) {
+    const sheetId = this.forgetDeletedSheetsSelections();
+    this.selectedFiguresIds = cmd.commands
+      .filter(
+        (cmd): cmd is CreateFigureCommand => cmd.type === "CREATE_FIGURE" && cmd.sheetId === sheetId
+      )
+      .map((cmd) => cmd.figureId);
+  }
 
   private onUndo(cmd: UndoCommand) {
     const sheetId = this.forgetDeletedSheetsSelections();
@@ -324,15 +335,6 @@ export class GridSelectionPlugin extends UIPlugin {
         break;
       case "ACTIVATE_PREVIOUS_SHEET":
         this.activateNextSheet("left");
-        break;
-      case "REDO":
-        const sheetId = this.forgetDeletedSheetsSelections();
-        this.selectedFiguresIds = cmd.commands
-          .filter(
-            (cmd): cmd is CreateFigureCommand =>
-              cmd.type === "CREATE_FIGURE" && cmd.sheetId === sheetId
-          )
-          .map((cmd) => cmd.figureId);
         break;
     }
   }

@@ -46,6 +46,7 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
     ADD_COLUMNS_ROWS: this.invalidateEvaluation,
     REMOVE_COLUMNS_ROWS: this.invalidateEvaluation,
     UNDO: this.invalidateEvaluation,
+    REDO: this.invalidateEvaluation,
   };
 
   private duplicateSheetFilterValues(cmd: { sheetId: UID; sheetIdTo: UID }) {
@@ -82,7 +83,6 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
 
   handle(cmd: EvaluationCommand) {
     switch (cmd.type) {
-      case "REDO":
       case "EVALUATE_CELLS":
         this.isEvaluationDirty = true;
         break;
