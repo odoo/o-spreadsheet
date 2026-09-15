@@ -114,6 +114,7 @@ export class CellIconPlugin extends UIPlugin {
     SET_DECIMAL: this.clearCellIconsCache,
     SET_FORMATTING_WITH_PIVOT: this.clearCellIconsCache,
     UPDATE_CHART_REGION: this.clearCellIconsCache,
+    INSERT_NEW_PIVOT: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
