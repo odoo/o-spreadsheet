@@ -122,7 +122,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     RENAME_SHEET: this.renameSheetHandler,
     CREATE_SHEET: this.createSheetHandler,
     DUPLICATE_SHEET: this.duplicateSheetHandler,
+    DELETE_SHEET: this.deleteSheetHandler,
   };
+
+  private deleteSheetHandler(cmd: { sheetId: UID }) {
+    this.deleteSheet(this.sheets[cmd.sheetId]!);
+  }
 
   private duplicateSheetHandler(cmd: DuplicateSheetCommand) {
     this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo, cmd.sheetNameTo);
@@ -321,10 +326,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "DELETE_SHEET":
-        this.deleteSheet(this.sheets[cmd.sheetId]!);
-        break;
-
       case "REMOVE_COLUMNS_ROWS":
         if (cmd.dimension === "COL") {
           this.removeColumns(this.sheets[cmd.sheetId]!, [...cmd.elements]);

@@ -25,7 +25,12 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
     CREATE_CAROUSEL: this.createCarousel,
     UPDATE_CAROUSEL: this.updateCarousel,
     DUPLICATE_SHEET: this.duplicateSheetCarousels,
+    DELETE_SHEET: this.deleteSheetCarousels,
   };
+
+  private deleteSheetCarousels(cmd: { sheetId: UID }) {
+    this.history.update("carousels", cmd.sheetId, undefined);
+  }
 
   private duplicateSheetCarousels(cmd: { sheetId: UID; sheetIdTo: UID }) {
     const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
@@ -135,14 +140,6 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
     }
 
     return CommandResult.Success;
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "DELETE_SHEET":
-        this.history.update("carousels", cmd.sheetId, undefined);
-        break;
-    }
   }
 
   doesCarouselExist(figureId: UID): boolean {

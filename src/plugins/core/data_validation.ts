@@ -9,7 +9,6 @@ import {
   AddDataValidationCommand,
   Command,
   CommandResult,
-  CoreCommand,
   DeleteContentCommand,
   RemoveDataValidationCommand,
 } from "../../types/commands";
@@ -42,7 +41,14 @@ export class DataValidationPlugin
     ADD_DATA_VALIDATION_RULE: this.addRule,
     CREATE_SHEET: this.initSheetRules,
     DUPLICATE_SHEET: this.duplicateSheetRules,
+    DELETE_SHEET: this.deleteSheetRules,
   };
+
+  private deleteSheetRules(cmd: { sheetId: UID }) {
+    const rules = { ...this.rules };
+    delete rules[cmd.sheetId];
+    this.history.update("rules", rules);
+  }
 
   private duplicateSheetRules(cmd: { sheetId: UID; sheetIdTo: UID }) {
     const rules = deepCopy(this.rules[cmd.sheetId]).map((rule) => ({
@@ -180,17 +186,6 @@ export class DataValidationPlugin
             this.history.update("rules", sheetId, adaptedRules);
           }
         }
-      }
-    }
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "DELETE_SHEET": {
-        const rules = { ...this.rules };
-        delete rules[cmd.sheetId];
-        this.history.update("rules", rules);
-        break;
       }
     }
   }
