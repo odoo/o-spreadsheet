@@ -643,7 +643,15 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     if (!isDispatcheableEvaluationCommand(command)) {
       throw new Error(`An evaluation plugin cannot dispatch non-evaluation commands (${type})`);
     }
+    if (this.status !== Status.Ready) {
+      this.dispatchToHandlers(this.evaluationHandlers, command);
+      return DispatchResult.Success;
+    }
+    this.status = Status.RunningEvaluation;
     this.dispatchToHandlers(this.evaluationHandlers, command);
+    this.finalize();
+    this.status = Status.Ready;
+    this.trigger("update");
     return DispatchResult.Success;
   };
 
