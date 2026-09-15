@@ -175,6 +175,25 @@ export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
   "CHANGE_CONDITIONAL_FORMAT_PRIORITY",
 ]);
 
+export const invalidateTableStyleCommands = new Set<CommandTypes>([
+  "HIDE_COLUMNS_ROWS",
+  "UNHIDE_COLUMNS_ROWS",
+  "UNFOLD_HEADER_GROUP",
+  "UNGROUP_HEADERS",
+  "FOLD_HEADER_GROUP",
+  "FOLD_ALL_HEADER_GROUPS",
+  "UNFOLD_ALL_HEADER_GROUPS",
+  "FOLD_HEADER_GROUPS_IN_ZONE",
+  "UNFOLD_HEADER_GROUPS_IN_ZONE",
+  "CREATE_TABLE",
+  "UPDATE_TABLE",
+  "UPDATE_FILTER",
+  "REMOVE_TABLE",
+  "CREATE_TABLE_STYLE",
+  "REMOVE_TABLE_STYLE",
+  "DELETE_CONTENT",
+]);
+
 export const invalidateBordersCommands = new Set<CommandTypes>([
   "SET_BORDER",
   "SET_ZONE_BORDERS",
@@ -371,6 +390,7 @@ export const commandSets = {
   invalidateChartEvaluationCommands,
   invalidateDependenciesCommands,
   invalidateCFEvaluationCommands,
+  invalidateTableStyleCommands,
   invalidateBordersCommands,
   invalidSubtotalFormulasCommands,
   readonlyAllowedCommands,
