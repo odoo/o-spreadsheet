@@ -175,6 +175,25 @@ export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
   "CHANGE_CONDITIONAL_FORMAT_PRIORITY",
 ]);
 
+export const invalidateTableStyleCommands = new Set<CommandTypes>([
+  "HIDE_COLUMNS_ROWS",
+  "UNHIDE_COLUMNS_ROWS",
+  "UNFOLD_HEADER_GROUP",
+  "UNGROUP_HEADERS",
+  "FOLD_HEADER_GROUP",
+  "FOLD_ALL_HEADER_GROUPS",
+  "UNFOLD_ALL_HEADER_GROUPS",
+  "FOLD_HEADER_GROUPS_IN_ZONE",
+  "UNFOLD_HEADER_GROUPS_IN_ZONE",
+  "CREATE_TABLE",
+  "UPDATE_TABLE",
+  "UPDATE_FILTER",
+  "REMOVE_TABLE",
+  "CREATE_TABLE_STYLE",
+  "REMOVE_TABLE_STYLE",
+  "DELETE_CONTENT",
+]);
+
 export const invalidateBordersCommands = new Set<CommandTypes>([
   "SET_BORDER",
   "SET_ZONE_BORDERS",
@@ -218,7 +237,7 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "UPDATE_COLOR_SCHEME",
 ]);
 
-export const lockedSheetAllowedCommands = new Set<Command["type"]>([
+export const lockedSheetAllowedCommands = new Set<CommandTypes>([
   // core commands
   "LOCK_SHEET",
   "UNLOCK_SHEET",
@@ -365,6 +384,27 @@ export const evaluationCommandTypes = new Set<dispatcheableEvaluationCommandType
   "PIVOT_START_PRESENCE_TRACKING",
   "PIVOT_STOP_PRESENCE_TRACKING",
 ]);
+
+export const commandSets = {
+  invalidateEvaluationCommands,
+  invalidateChartEvaluationCommands,
+  invalidateDependenciesCommands,
+  invalidateCFEvaluationCommands,
+  invalidateTableStyleCommands,
+  invalidateBordersCommands,
+  invalidSubtotalFormulasCommands,
+  readonlyAllowedCommands,
+  lockedSheetAllowedCommands,
+  coreTypes,
+  dispatcheableEvaluationCommandTypes,
+  evaluationCommandTypes,
+} satisfies Record<string, Set<CommandTypes>>;
+
+export type CommandSetName = keyof typeof commandSets;
+
+export function isCommandSetName(key: string): key is CommandSetName {
+  return key in commandSets;
+}
 
 export function isCoreCommand(cmd: Command): cmd is CoreCommand {
   return coreTypes.has(cmd.type as any);
@@ -1603,12 +1643,32 @@ export const enum CommandResult {
   NoChangeInAutomaticEvaluation = "NoChangeInAutomaticEvaluation",
 }
 
-export interface CommandHandler<T> {
+export interface CommandHandler<T extends Command> {
   allowDispatch(command: T): CommandResult | CommandResult[];
   beforeHandle(command: T): void;
   handle(command: T): void;
   finalize(): void;
+  handlers: CommandsHandlers<T>;
 }
+
+export type SingleCommandHandler<C extends Command> = (cmd: C) => void;
+export type CommandsHandlers<T extends Command> = {
+  [C in CommandTypes]?: SingleCommandHandler<Extract<T, { type: C }>>;
+} & {
+  [S in CommandSetName]?: SingleCommandHandler<T>;
+};
+
+export type CommandsHandlersList<T extends Command> = {
+  [C in CommandTypes]?: SingleCommandHandler<Extract<T, { type: C }>>[];
+};
+
+export type CommandHandlerRegistry = {
+  get<C extends CommandTypes>(cmd: C): SingleCommandHandler<Extract<Command, { type: C }>>[];
+  add<C extends CommandTypes>(
+    cmd: C,
+    handler: SingleCommandHandler<Extract<Command, { type: C }>>
+  ): void;
+};
 
 export interface CommandDispatcher {
   dispatch<T extends CommandTypes, C extends Extract<Command, { type: T }>>(

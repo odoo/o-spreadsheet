@@ -1,5 +1,4 @@
 import { deepCopy } from "../../helpers/misc";
-import { Command, invalidateEvaluationCommands } from "../../types/commands";
 import { Dimension, HeaderDimensions, HeaderIndex, Pixel, UID } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
@@ -14,52 +13,50 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
   private headerPositions: Record<UID, Record<Dimension, Record<HeaderIndex, Pixel>>> = {};
   private isDirty = true;
 
-  handle(cmd: Command) {
-    if (invalidateEvaluationCommands.has(cmd.type)) {
-      this.headerPositions = {};
-      this.isDirty = true;
-    }
+  handlers = {
+    invalidateEvaluationCommands: this.invalidateHeaderPositions,
+    // Either the content, format or style can impact the header sizes of a sheet
+    UPDATE_CELL: this.invalidateHeaderPositions,
+    REMOVE_TABLE: this.invalidateHeaderPositions,
+    UPDATE_TABLE: this.invalidateHeaderPositions,
+    UPDATE_FILTER: this.invalidateHeaderPositions,
+    HIDE_COLUMNS_ROWS: this.computeSheetHeaderPositions,
+    UNHIDE_COLUMNS_ROWS: this.computeSheetHeaderPositions,
+    GROUP_HEADERS: this.computeSheetHeaderPositions,
+    UNGROUP_HEADERS: this.computeSheetHeaderPositions,
+    FOLD_HEADER_GROUP: this.computeSheetHeaderPositions,
+    UNFOLD_HEADER_GROUP: this.computeSheetHeaderPositions,
+    FOLD_ALL_HEADER_GROUPS: this.computeSheetHeaderPositions,
+    UNFOLD_ALL_HEADER_GROUPS: this.computeSheetHeaderPositions,
+    FOLD_HEADER_GROUPS_IN_ZONE: this.computeSheetHeaderPositions,
+    UNFOLD_HEADER_GROUPS_IN_ZONE: this.computeSheetHeaderPositions,
+    RESIZE_COLUMNS_ROWS: this.computeSheetHeaderPositions,
+    CREATE_SHEET: this.computeSheetHeaderPositions,
+    DUPLICATE_SHEET: this.copySheetPositions,
+    ADD_COLUMNS_ROWS: this.computeSheetHeaderPositions,
+    REMOVE_COLUMNS_ROWS: this.computeSheetHeaderPositions,
+    START: this.computeAllHeaderPositions,
+  };
 
-    switch (cmd.type) {
-      case "START":
-        for (const sheetId of this.getters.getSheetIds()) {
-          this.headerPositions[sheetId] = this.computeHeaderPositionsOfSheet(sheetId);
-        }
-        break;
-      // Either the content, format or style can impact the header sizes of a sheet
-      // As such, every command can have a potential effect on the viewport
-      case "UPDATE_CELL":
-        this.headerPositions = {};
-        this.isDirty = true;
-        break;
-      case "UPDATE_FILTER":
-      case "UPDATE_TABLE":
-      case "REMOVE_TABLE":
-        this.headerPositions = {};
-        this.isDirty = true;
-        break;
-      case "REMOVE_COLUMNS_ROWS":
-      case "RESIZE_COLUMNS_ROWS":
-      case "HIDE_COLUMNS_ROWS":
-      case "ADD_COLUMNS_ROWS":
-      case "UNHIDE_COLUMNS_ROWS":
-      case "FOLD_HEADER_GROUP":
-      case "UNFOLD_HEADER_GROUP":
-      case "FOLD_HEADER_GROUPS_IN_ZONE":
-      case "UNFOLD_HEADER_GROUPS_IN_ZONE":
-      case "UNFOLD_ALL_HEADER_GROUPS":
-      case "FOLD_ALL_HEADER_GROUPS":
-      case "UNGROUP_HEADERS":
-      case "GROUP_HEADERS":
-      case "CREATE_SHEET":
-        if (this.getters.tryGetSheet(cmd.sheetId)) {
-          this.headerPositions[cmd.sheetId] = this.computeHeaderPositionsOfSheet(cmd.sheetId);
-        }
-        break;
-      case "DUPLICATE_SHEET":
-        this.headerPositions[cmd.sheetIdTo] = deepCopy(this.headerPositions[cmd.sheetId]);
-        break;
+  private computeAllHeaderPositions() {
+    for (const sheetId of this.getters.getSheetIds()) {
+      this.headerPositions[sheetId] = this.computeHeaderPositionsOfSheet(sheetId);
     }
+  }
+
+  private copySheetPositions(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    this.headerPositions[cmd.sheetIdTo] = deepCopy(this.headerPositions[cmd.sheetId]);
+  }
+
+  private computeSheetHeaderPositions(cmd: { sheetId: UID }) {
+    if (this.getters.tryGetSheet(cmd.sheetId)) {
+      this.headerPositions[cmd.sheetId] = this.computeHeaderPositionsOfSheet(cmd.sheetId);
+    }
+  }
+
+  private invalidateHeaderPositions() {
+    this.headerPositions = {};
+    this.isDirty = true;
   }
 
   finalize() {

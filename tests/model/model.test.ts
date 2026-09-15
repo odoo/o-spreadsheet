@@ -20,6 +20,7 @@ import {
   statefulUIPluginRegistry,
 } from "../../src/plugins/plugin_registries";
 import { UIPlugin } from "../../src/plugins/ui_plugin";
+import { CreateSheetCommand, StartCommand, UpdateCellCommand } from "../../src/types/commands";
 import { ModelConfig } from "../../src/types/model";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
@@ -79,16 +80,16 @@ describe("Model", () => {
         }
         return CommandResult.Success;
       }
-      handle(cmd: CoreCommand) {
-        if (cmd.type === "CREATE_SHEET") {
+      handlers = {
+        CREATE_SHEET: (cmd: CreateSheetCommand) => {
           result = this.dispatch("UPDATE_CELL", {
             col: 0,
             row: 0,
             sheetId: cmd.sheetId,
             content: "Hello",
           });
-        }
-      }
+        },
+      };
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
@@ -168,8 +169,8 @@ describe("Model", () => {
 
   test("An evaluation plugin cannot dispatch non-evaluation commands", () => {
     class MyEvaluationPlugin extends EvaluationPlugin {
-      handle(cmd: EvaluationCommand) {
-        if (cmd.type === "CREATE_SHEET") {
+      handlers = {
+        CREATE_SHEET: () => {
           /**
            * TS ensure that the command is an evaluation command, but we want to
            * test that the runtime will throw an error if we try to dispatch a
@@ -182,8 +183,8 @@ describe("Model", () => {
             sheetId: "sheetId",
             content: "hello",
           });
-        }
-      }
+        },
+      };
     }
     addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
     const model = new Model();
@@ -211,6 +212,11 @@ describe("Model", () => {
   test("Evaluation plugins handle don't receive UI commands", () => {
     const receivedCommands: CommandTypes[] = [];
     class MyEvaluationPlugin extends EvaluationPlugin {
+      handlers = {
+        CREATE_SHEET: (cmd: CreateSheetCommand) => receivedCommands.push(cmd.type),
+        START: (cmd: StartCommand) => receivedCommands.push(cmd.type),
+      };
+
       handle(cmd: EvaluationCommand) {
         receivedCommands.push(cmd.type);
       }
@@ -219,12 +225,30 @@ describe("Model", () => {
     const model = new Model();
     autoresizeColumns(model, [1]);
     selectCell(model, "A2");
-    setCellContent(model, "A1", "hello");
+    createSheet(model, { sheetId: "42" });
     expect(receivedCommands).not.toContain("AUTORESIZE_COLUMNS");
     expect(receivedCommands).not.toContain("SELECT_CELL");
     // core and evaluation commands are still received
-    expect(receivedCommands).toContain("UPDATE_CELL");
+    expect(receivedCommands).toContain("CREATE_SHEET");
     expect(receivedCommands).toContain("START");
+  });
+
+  test("A command with a dedicated handler is not dispatched to the generic handle", () => {
+    const handledByHandle: CommandTypes[] = [];
+    const handledBySpecificHandler: CommandTypes[] = [];
+    class MyEvaluationPlugin extends EvaluationPlugin {
+      handlers = {
+        UPDATE_CELL: (cmd: UpdateCellCommand) => handledBySpecificHandler.push(cmd.type),
+      };
+      handle(cmd: EvaluationCommand) {
+        handledByHandle.push(cmd.type);
+      }
+    }
+    addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
+    const model = new Model();
+    setCellContent(model, "A1", "hello");
+    expect(handledBySpecificHandler).toContain("UPDATE_CELL");
+    expect(handledByHandle).not.toContain("UPDATE_CELL");
   });
 
   test("canDispatch method is exposed and works", () => {
@@ -255,16 +279,16 @@ describe("Model", () => {
 
   test("Non evaluation command cannot be dispatch in a top level evaluation command", () => {
     class MyUIPlugin extends UIPlugin {
-      handle(cmd: Command) {
-        if (cmd.type === "EVALUATE_CELLS") {
+      handlers = {
+        EVALUATE_CELLS: () => {
           this.dispatch("UPDATE_CELL", {
             col: 0,
             row: 0,
             sheetId: this.getters.getActiveSheetId(),
             content: "hello",
           });
-        }
-      }
+        },
+      };
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     const model = new Model();

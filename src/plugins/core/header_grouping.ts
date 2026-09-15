@@ -3,7 +3,20 @@ import {
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,
 } from "../../helpers/sheet";
-import { CommandResult, CoreCommand } from "../../types/commands";
+import {
+  AddColumnsRowsCommand,
+  CommandResult,
+  CoreCommand,
+  FoldAllHeaderGroupsCommand,
+  FoldHeaderGroupCommand,
+  FoldHeaderGroupsInZoneCommand,
+  GroupHeadersCommand,
+  RemoveColumnsRowsCommand,
+  UnfoldAllHeaderGroupsCommand,
+  UnfoldHeaderGroupCommand,
+  UnfoldHeaderGroupsInZoneCommand,
+  UnGroupHeadersCommand,
+} from "../../types/commands";
 import { Dimension, HeaderGroup, HeaderIndex, UID, Zone } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { getSheetDataHeader } from "../../xlsx/helpers/misc";
@@ -26,6 +39,115 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
   ] as const;
 
   private readonly groups: Record<UID, Record<Dimension, HeaderGroup[]>> = {};
+
+  handlers = {
+    GROUP_HEADERS: this.handleGroupHeaders,
+    UNGROUP_HEADERS: this.handleUnGroupHeaders,
+    FOLD_HEADER_GROUP: this.handleFoldHeaderGroup,
+    UNFOLD_HEADER_GROUP: this.handleUnfoldHeaderGroup,
+    FOLD_ALL_HEADER_GROUPS: this.foldAllHeaderGroups,
+    UNFOLD_ALL_HEADER_GROUPS: this.unfoldAllHeaderGroups,
+    FOLD_HEADER_GROUPS_IN_ZONE: this.toggleHeaderGroupsInZone,
+    UNFOLD_HEADER_GROUPS_IN_ZONE: this.toggleHeaderGroupsInZone,
+    CREATE_SHEET: this.initSheetGroups,
+    DUPLICATE_SHEET: this.duplicateSheetGroups,
+    DELETE_SHEET: this.deleteSheetGroups,
+    ADD_COLUMNS_ROWS: this.moveGroupsOnHeaderAddition,
+    REMOVE_COLUMNS_ROWS: this.moveGroupsOnHeaderRemoval,
+  };
+
+  private moveGroupsOnHeaderRemoval(cmd: RemoveColumnsRowsCommand) {
+    this.moveGroupsOnHeaderDeletion(cmd.sheetId, cmd.dimension, cmd.elements);
+  }
+
+  private moveGroupsOnHeaderAddition(cmd: AddColumnsRowsCommand) {
+    const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
+    this.moveGroupsOnHeaderInsertion(cmd.sheetId, cmd.dimension, addIndex, cmd.quantity);
+  }
+
+  private deleteSheetGroups(cmd: { sheetId: UID }) {
+    const groups = { ...this.groups };
+    delete groups[cmd.sheetId];
+    this.history.update("groups", groups);
+  }
+
+  private duplicateSheetGroups(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    const groups = deepCopy(this.groups[cmd.sheetId]);
+    this.history.update("groups", cmd.sheetIdTo, groups);
+  }
+
+  private initSheetGroups(cmd: { sheetId: UID }) {
+    this.history.update("groups", cmd.sheetId, { ROW: [], COL: [] });
+  }
+
+  private toggleHeaderGroupsInZone(
+    cmd: FoldHeaderGroupsInZoneCommand | UnfoldHeaderGroupsInZoneCommand
+  ) {
+    const action = cmd.type === "UNFOLD_HEADER_GROUPS_IN_ZONE" ? "unfold" : "fold";
+    const layers = this.getGroupsLayers(cmd.sheetId, cmd.dimension);
+    if (action === "fold") {
+      layers.reverse();
+    }
+    const groups = layers.flat();
+    const start = cmd.dimension === "ROW" ? cmd.zone.top : cmd.zone.left;
+    const end = cmd.dimension === "ROW" ? cmd.zone.bottom : cmd.zone.right;
+
+    const groupsToToggle = new Set<HeaderGroup>();
+    for (let header = start; header <= end; header++) {
+      const matchedGroups = groups.filter((g) => g.start - 1 <= header && header <= g.end); // -1 to include the group header
+      for (const group of matchedGroups) {
+        if ((action === "fold" && group.isFolded) || (action === "unfold" && !group.isFolded)) {
+          continue;
+        }
+        groupsToToggle.add(group);
+        break;
+      }
+    }
+
+    for (const group of groupsToToggle) {
+      if (action === "unfold") {
+        this.unfoldHeaderGroup(cmd.sheetId, cmd.dimension, group);
+      } else {
+        this.foldHeaderGroup(cmd.sheetId, cmd.dimension, group);
+      }
+    }
+  }
+
+  private unfoldAllHeaderGroups(cmd: UnfoldAllHeaderGroupsCommand) {
+    const groups = this.getters.getHeaderGroups(cmd.sheetId, cmd.dimension);
+    for (const group of groups) {
+      this.unfoldHeaderGroup(cmd.sheetId, cmd.dimension, group);
+    }
+  }
+
+  private foldAllHeaderGroups(cmd: FoldAllHeaderGroupsCommand) {
+    const groups = this.getters.getHeaderGroups(cmd.sheetId, cmd.dimension);
+    for (const group of groups) {
+      this.foldHeaderGroup(cmd.sheetId, cmd.dimension, group);
+    }
+  }
+
+  private handleUnfoldHeaderGroup(cmd: UnfoldHeaderGroupCommand) {
+    const group = this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
+    if (group) {
+      this.unfoldHeaderGroup(cmd.sheetId, cmd.dimension, group);
+    }
+  }
+
+  private handleFoldHeaderGroup(cmd: FoldHeaderGroupCommand) {
+    const group = this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
+    if (group) {
+      this.foldHeaderGroup(cmd.sheetId, cmd.dimension, group);
+    }
+  }
+
+  private handleUnGroupHeaders(cmd: UnGroupHeadersCommand) {
+    this.unGroupHeaders(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
+  }
+
+  private handleGroupHeaders(cmd: GroupHeadersCommand) {
+    this.groupHeaders(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
+  }
 
   allowDispatch(cmd: CoreCommand): CommandResult {
     switch (cmd.type) {
@@ -82,99 +204,6 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
         break;
     }
     return CommandResult.Success;
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "CREATE_SHEET":
-        this.history.update("groups", cmd.sheetId, { ROW: [], COL: [] });
-        break;
-      case "GROUP_HEADERS":
-        this.groupHeaders(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
-        break;
-      case "UNGROUP_HEADERS": {
-        this.unGroupHeaders(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
-        break;
-      }
-      case "DUPLICATE_SHEET": {
-        const groups = deepCopy(this.groups[cmd.sheetId]);
-        this.history.update("groups", cmd.sheetIdTo, groups);
-        break;
-      }
-      case "DELETE_SHEET": {
-        const groups = { ...this.groups };
-        delete groups[cmd.sheetId];
-        this.history.update("groups", groups);
-        break;
-      }
-      case "ADD_COLUMNS_ROWS":
-        const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
-        this.moveGroupsOnHeaderInsertion(cmd.sheetId, cmd.dimension, addIndex, cmd.quantity);
-        break;
-      case "REMOVE_COLUMNS_ROWS":
-        this.moveGroupsOnHeaderDeletion(cmd.sheetId, cmd.dimension, cmd.elements);
-        break;
-      case "UNFOLD_HEADER_GROUP": {
-        const group = this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
-        if (group) {
-          this.unfoldHeaderGroup(cmd.sheetId, cmd.dimension, group);
-        }
-        break;
-      }
-      case "FOLD_HEADER_GROUP": {
-        const group = this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
-        if (group) {
-          this.foldHeaderGroup(cmd.sheetId, cmd.dimension, group);
-        }
-        break;
-      }
-      case "UNFOLD_ALL_HEADER_GROUPS": {
-        const groups = this.getters.getHeaderGroups(cmd.sheetId, cmd.dimension);
-        for (const group of groups) {
-          this.unfoldHeaderGroup(cmd.sheetId, cmd.dimension, group);
-        }
-        break;
-      }
-      case "FOLD_ALL_HEADER_GROUPS": {
-        const groups = this.getters.getHeaderGroups(cmd.sheetId, cmd.dimension);
-        for (const group of groups) {
-          this.foldHeaderGroup(cmd.sheetId, cmd.dimension, group);
-        }
-        break;
-      }
-      case "FOLD_HEADER_GROUPS_IN_ZONE":
-      case "UNFOLD_HEADER_GROUPS_IN_ZONE": {
-        const action = cmd.type === "UNFOLD_HEADER_GROUPS_IN_ZONE" ? "unfold" : "fold";
-        const layers = this.getGroupsLayers(cmd.sheetId, cmd.dimension);
-        if (action === "fold") {
-          layers.reverse();
-        }
-        const groups = layers.flat();
-        const start = cmd.dimension === "ROW" ? cmd.zone.top : cmd.zone.left;
-        const end = cmd.dimension === "ROW" ? cmd.zone.bottom : cmd.zone.right;
-
-        const groupsToToggle = new Set<HeaderGroup>();
-        for (let header = start; header <= end; header++) {
-          const matchedGroups = groups.filter((g) => g.start - 1 <= header && header <= g.end); // -1 to include the group header
-          for (const group of matchedGroups) {
-            if ((action === "fold" && group.isFolded) || (action === "unfold" && !group.isFolded)) {
-              continue;
-            }
-            groupsToToggle.add(group);
-            break;
-          }
-        }
-
-        for (const group of groupsToToggle) {
-          if (action === "unfold") {
-            this.unfoldHeaderGroup(cmd.sheetId, cmd.dimension, group);
-          } else {
-            this.foldHeaderGroup(cmd.sheetId, cmd.dimension, group);
-          }
-        }
-        break;
-      }
-    }
   }
 
   getHeaderGroups(sheetId: UID, dim: Dimension): HeaderGroup[] {

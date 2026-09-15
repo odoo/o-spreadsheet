@@ -19,13 +19,27 @@ import {
 import { isZoneInside, isZoneValid, toZone } from "../../helpers/zones";
 import { Cell } from "../../types/cells";
 import {
+  AddColumnsRowsCommand,
+  ColorSheetBackgroundCommand,
+  ColorSheetCommand,
   Command,
   CommandResult,
   CoreCommand,
   CreateSheetCommand,
+  DuplicateSheetCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
+  HideSheetCommand,
+  LockSheetCommand,
+  MoveSheetCommand,
+  RemoveColumnsRowsCommand,
   RenameSheetCommand,
+  SetGridLinesVisibilityCommand,
+  ShowSheetCommand,
+  UnfreezeColumnsCommand,
+  UnfreezeColumnsRowsCommand,
+  UnfreezeRowsCommand,
+  UnlockSheetCommand,
   UpdateCellPositionCommand,
   isRangeDependant,
   isTargetDependent,
@@ -91,6 +105,125 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   readonly orderedSheetIds: UID[] = [];
   readonly sheets: Record<UID, Sheet | undefined> = {};
   readonly cellPosition: Record<number, CellPosition | undefined> = {};
+
+  handlers = {
+    SET_SHEET_BACKGROUND_COLOR: this.setSheetBackgroundColor,
+    SET_GRID_LINES_VISIBILITY: this.updateGridLinesVisibility,
+    MOVE_SHEET: this.moveSheetTo,
+    LOCK_SHEET: this.lockSheet,
+    UNLOCK_SHEET: this.unlockSheet,
+    FREEZE_COLUMNS: this.freezeColumns,
+    FREEZE_ROWS: this.freezeRows,
+    UNFREEZE_ROWS: this.unfreezeRows,
+    UNFREEZE_COLUMNS: this.unfreezeColumns,
+    UNFREEZE_COLUMNS_ROWS: this.unfreezeColumnsAndRows,
+    SHOW_SHEET: this.showSheetHandler,
+    HIDE_SHEET: this.hideSheetHandler,
+    COLOR_SHEET: this.colorSheet,
+    UPDATE_CELL_POSITION: this.updateCellPositionHandler,
+    RENAME_SHEET: this.renameSheetHandler,
+    CREATE_SHEET: this.createSheetHandler,
+    DUPLICATE_SHEET: this.duplicateSheetHandler,
+    DELETE_SHEET: this.deleteSheetHandler,
+    ADD_COLUMNS_ROWS: this.addHeaders,
+    REMOVE_COLUMNS_ROWS: this.removeHeaders,
+  };
+
+  private removeHeaders(cmd: RemoveColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      this.removeColumns(this.sheets[cmd.sheetId]!, [...cmd.elements]);
+    } else {
+      this.removeRows(this.sheets[cmd.sheetId]!, [...cmd.elements]);
+    }
+  }
+
+  private addHeaders(cmd: AddColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      this.addColumns(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
+    } else {
+      this.addRows(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
+    }
+  }
+
+  private deleteSheetHandler(cmd: { sheetId: UID }) {
+    this.deleteSheet(this.sheets[cmd.sheetId]!);
+  }
+
+  private duplicateSheetHandler(cmd: DuplicateSheetCommand) {
+    this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo, cmd.sheetNameTo);
+  }
+
+  private updateGridLinesVisibility(cmd: SetGridLinesVisibilityCommand) {
+    this.setGridLinesVisibility(cmd.sheetId, cmd.areGridLinesVisible);
+  }
+
+  private setSheetBackgroundColor(cmd: ColorSheetBackgroundCommand) {
+    this.history.update("sheets", cmd.sheetId, "backgroundColor", cmd.color);
+  }
+
+  private moveSheetTo(cmd: MoveSheetCommand) {
+    this.moveSheet(cmd.sheetId, cmd.delta);
+  }
+
+  private lockSheet(cmd: LockSheetCommand) {
+    this.history.update("sheets", cmd.sheetId, "isLocked", true);
+  }
+
+  private unlockSheet(cmd: UnlockSheetCommand) {
+    this.history.update("sheets", cmd.sheetId, "isLocked", false);
+  }
+
+  private freezeColumns(cmd: FreezeColumnsCommand) {
+    this.setPaneDivisions(cmd.sheetId, cmd.quantity, "COL");
+  }
+
+  private freezeRows(cmd: FreezeRowsCommand) {
+    this.setPaneDivisions(cmd.sheetId, cmd.quantity, "ROW");
+  }
+
+  private unfreezeRows(cmd: UnfreezeRowsCommand) {
+    this.setPaneDivisions(cmd.sheetId, 0, "ROW");
+  }
+
+  private unfreezeColumns(cmd: UnfreezeColumnsCommand) {
+    this.setPaneDivisions(cmd.sheetId, 0, "COL");
+  }
+
+  private unfreezeColumnsAndRows(cmd: UnfreezeColumnsRowsCommand) {
+    this.setPaneDivisions(cmd.sheetId, 0, "COL");
+    this.setPaneDivisions(cmd.sheetId, 0, "ROW");
+  }
+
+  private showSheetHandler(cmd: ShowSheetCommand) {
+    this.showSheet(cmd.sheetId);
+  }
+
+  private hideSheetHandler(cmd: HideSheetCommand) {
+    this.hideSheet(cmd.sheetId);
+  }
+
+  private createSheetHandler(cmd: CreateSheetCommand) {
+    const sheet = this.createSheet(
+      cmd.sheetId,
+      cmd.name || this.getNextSheetName(),
+      cmd.cols || 26,
+      cmd.rows || 100,
+      cmd.position
+    );
+    this.history.update("sheetIdsMapName", toStandardizedSheetName(sheet.name), sheet.id);
+  }
+
+  private renameSheetHandler(cmd: RenameSheetCommand) {
+    this.renameSheet(this.sheets[cmd.sheetId]!, cmd.newName);
+  }
+
+  private colorSheet(cmd: ColorSheetCommand) {
+    this.history.update("sheets", cmd.sheetId, "color", cmd.color);
+  }
+
+  private updateCellPositionHandler(cmd: UpdateCellPositionCommand) {
+    this.updateCellPosition(cmd);
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -208,88 +341,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       }
       default:
         return CommandResult.Success;
-    }
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "SET_GRID_LINES_VISIBILITY":
-        this.setGridLinesVisibility(cmd.sheetId, cmd.areGridLinesVisible);
-        break;
-      case "CREATE_SHEET":
-        const sheet = this.createSheet(
-          cmd.sheetId,
-          cmd.name || this.getNextSheetName(),
-          cmd.cols || 26,
-          cmd.rows || 100,
-          cmd.position
-        );
-        this.history.update("sheetIdsMapName", toStandardizedSheetName(sheet.name), sheet.id);
-        break;
-      case "MOVE_SHEET":
-        this.moveSheet(cmd.sheetId, cmd.delta);
-        break;
-      case "RENAME_SHEET":
-        this.renameSheet(this.sheets[cmd.sheetId]!, cmd.newName);
-        break;
-      case "COLOR_SHEET":
-        this.history.update("sheets", cmd.sheetId, "color", cmd.color);
-        break;
-      case "SET_SHEET_BACKGROUND_COLOR":
-        this.history.update("sheets", cmd.sheetId, "backgroundColor", cmd.color);
-        break;
-      case "HIDE_SHEET":
-        this.hideSheet(cmd.sheetId);
-        break;
-      case "SHOW_SHEET":
-        this.showSheet(cmd.sheetId);
-        break;
-      case "DUPLICATE_SHEET":
-        this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo, cmd.sheetNameTo);
-        break;
-      case "DELETE_SHEET":
-        this.deleteSheet(this.sheets[cmd.sheetId]!);
-        break;
-
-      case "REMOVE_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.removeColumns(this.sheets[cmd.sheetId]!, [...cmd.elements]);
-        } else {
-          this.removeRows(this.sheets[cmd.sheetId]!, [...cmd.elements]);
-        }
-        break;
-      case "ADD_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.addColumns(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
-        } else {
-          this.addRows(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
-        }
-        break;
-      case "UPDATE_CELL_POSITION":
-        this.updateCellPosition(cmd);
-        break;
-      case "FREEZE_COLUMNS":
-        this.setPaneDivisions(cmd.sheetId, cmd.quantity, "COL");
-        break;
-      case "FREEZE_ROWS":
-        this.setPaneDivisions(cmd.sheetId, cmd.quantity, "ROW");
-        break;
-      case "UNFREEZE_ROWS":
-        this.setPaneDivisions(cmd.sheetId, 0, "ROW");
-        break;
-      case "UNFREEZE_COLUMNS":
-        this.setPaneDivisions(cmd.sheetId, 0, "COL");
-        break;
-      case "UNFREEZE_COLUMNS_ROWS":
-        this.setPaneDivisions(cmd.sheetId, 0, "COL");
-        this.setPaneDivisions(cmd.sheetId, 0, "ROW");
-        break;
-      case "LOCK_SHEET":
-        this.history.update("sheets", cmd.sheetId, "isLocked", true);
-        break;
-      case "UNLOCK_SHEET":
-        this.history.update("sheets", cmd.sheetId, "isLocked", false);
-        break;
     }
   }
 

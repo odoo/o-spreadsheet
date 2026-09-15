@@ -6,9 +6,12 @@ import { positions } from "../../../helpers/zones";
 import { CellValue, CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
   CommandResult,
+  EvaluateCellsCommand,
   EvaluationCommand,
   invalidateDependenciesCommands,
   invalidateEvaluationCommands,
+  SetAutomaticEvaluationCommand,
+  UpdateCellCommand,
 } from "../../../types/commands";
 import { CellErrorType } from "../../../types/errors";
 import { Format } from "../../../types/format";
@@ -169,6 +172,34 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
   private evaluator: Evaluator;
   private positionsToUpdate: CellPosition[] = [];
 
+  handlers = {
+    UPDATE_CELL: this.updateCell,
+    EVALUATE_CELLS: this.onEvaluateCells,
+    SET_AUTOMATIC_EVALUATION: this.setAutomaticEvaluation,
+  };
+
+  private setAutomaticEvaluation(cmd: SetAutomaticEvaluationCommand) {
+    this.automaticEvaluation = cmd.enabled;
+    if (cmd.enabled) {
+      this.shouldRebuildDependenciesGraph = true;
+    }
+  }
+
+  private onEvaluateCells(cmd: EvaluateCellsCommand) {
+    this.forceEvaluation = true;
+    if (!this.automaticEvaluation) {
+      // When automatic evaluation is disabled, EVALUATE_CELLS should rebuild dependencies
+      // and evaluate all cells to ensure consistency
+      this.shouldRebuildDependenciesGraph = true;
+    } else if (cmd.cellIds) {
+      for (let i = 0; i < cmd.cellIds.length; i++) {
+        this.positionsToUpdate.push(this.getters.getCellPosition(cmd.cellIds[i]));
+      }
+    } else {
+      this.evaluator.evaluateAllCells(cmd.profiling);
+    }
+  }
+
   constructor(config: EvaluationPluginConfig) {
     super(config);
     this.evaluator = new Evaluator(config.custom, this.getters);
@@ -189,6 +220,18 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
     return CommandResult.Success;
   }
 
+  private updateCell(cmd: UpdateCellCommand) {
+    if (!("content" in cmd || "format" in cmd) || this.shouldRebuildDependenciesGraph) {
+      return;
+    }
+    const position = { sheetId: cmd.sheetId, row: cmd.row, col: cmd.col };
+    this.positionsToUpdate.push(position);
+
+    if ("content" in cmd) {
+      this.evaluator.updateDependencies(position);
+    }
+  }
+
   beforeHandle(cmd: EvaluationCommand) {
     this.forceEvaluation = false;
     if (
@@ -196,42 +239,6 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
       invalidateDependenciesCommands.has(cmd.type)
     ) {
       this.shouldRebuildDependenciesGraph = true;
-    }
-  }
-
-  handle(cmd: EvaluationCommand) {
-    switch (cmd.type) {
-      case "UPDATE_CELL":
-        if (!("content" in cmd || "format" in cmd) || this.shouldRebuildDependenciesGraph) {
-          return;
-        }
-        const position = { sheetId: cmd.sheetId, row: cmd.row, col: cmd.col };
-        this.positionsToUpdate.push(position);
-
-        if ("content" in cmd) {
-          this.evaluator.updateDependencies(position);
-        }
-        break;
-      case "SET_AUTOMATIC_EVALUATION":
-        this.automaticEvaluation = cmd.enabled;
-        if (cmd.enabled) {
-          this.shouldRebuildDependenciesGraph = true;
-        }
-        break;
-      case "EVALUATE_CELLS":
-        this.forceEvaluation = true;
-        if (!this.automaticEvaluation) {
-          // When automatic evaluation is disabled, EVALUATE_CELLS should rebuild dependencies
-          // and evaluate all cells to ensure consistency
-          this.shouldRebuildDependenciesGraph = true;
-        } else if (cmd.cellIds) {
-          for (let i = 0; i < cmd.cellIds.length; i++) {
-            this.positionsToUpdate.push(this.getters.getCellPosition(cmd.cellIds[i]));
-          }
-        } else {
-          this.evaluator.evaluateAllCells(cmd.profiling);
-        }
-        break;
     }
   }
 

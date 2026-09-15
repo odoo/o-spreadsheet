@@ -2,13 +2,7 @@ import { deepEquals, range } from "../../helpers/misc";
 import { sortCells } from "../../helpers/sort";
 import { isInside, overlap, positions, zoneToDimension } from "../../helpers/zones";
 import { CellValueType } from "../../types/cells";
-import {
-  Command,
-  CommandResult,
-  LocalCommand,
-  SortCommand,
-  UpdateCellCommand,
-} from "../../types/commands";
+import { CommandResult, LocalCommand, SortCommand, UpdateCellCommand } from "../../types/commands";
 import {
   CellPosition,
   HeaderIndex,
@@ -37,12 +31,12 @@ export class SortPlugin extends UIPlugin {
     return CommandResult.Success;
   }
 
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "SORT_CELLS":
-        this.sortZone(cmd.sheetId, cmd, cmd.zone, cmd.sortDirection, cmd.sortOptions || {});
-        break;
-    }
+  handlers = {
+    SORT_CELLS: this.sortCells,
+  };
+
+  private sortCells(cmd: SortCommand) {
+    this.sortZone(cmd.sheetId, cmd, cmd.zone, cmd.sortDirection, cmd.sortOptions || {});
   }
 
   private checkMerge({ sheetId, zone }: SortCommand): CommandResult {

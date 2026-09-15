@@ -52,15 +52,25 @@ export class HistoryPlugin extends UIPlugin {
     return CommandResult.Success;
   }
 
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "REQUEST_UNDO":
-      case "REQUEST_REDO":
-        // History changes (undo & redo) are *not* applied optimistically on the local state.
-        // We wait a global confirmation from the server. The goal is to avoid handling concurrent
-        // history changes on multiple clients which are very hard to manage correctly.
-        this.requestHistoryChange(cmd.type === "REQUEST_UNDO" ? "UNDO" : "REDO");
-    }
+  handlers = {
+    REQUEST_UNDO: this.requestUndo,
+    REQUEST_REDO: this.requestRedo,
+  };
+
+  /**
+   * See {@link requestUndo}.
+   */
+  private requestRedo() {
+    this.requestHistoryChange("REDO");
+  }
+
+  /**
+   * History changes (undo & redo) are *not* applied optimistically on the local state.
+   * We wait a global confirmation from the server. The goal is to avoid handling concurrent
+   * history changes on multiple clients which are very hard to manage correctly.
+   */
+  private requestUndo() {
+    this.requestHistoryChange("UNDO");
   }
 
   finalize() {}

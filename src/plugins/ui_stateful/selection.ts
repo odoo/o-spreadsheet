@@ -18,14 +18,19 @@ import { clipboardHandlersRegistries } from "../../registries/clipboardHandlersR
 import { EvaluatedCell } from "../../types/cells";
 import { ClientPosition } from "../../types/collaborative/session";
 import {
+  ActivateSheetCommand,
   AddColumnsRowsCommand,
-  Command,
   CommandResult,
   CreateFigureCommand,
   DeleteFigureCommand,
+  HideSheetCommand,
   LocalCommand,
   MoveColumnsRowsCommand,
+  RedoCommand,
   RemoveColumnsRowsCommand,
+  SelectFigureCommand,
+  UndoCommand,
+  UnselectFigureCommand,
   UpdateFigureCommand,
 } from "../../types/commands";
 import { SelectionEvent } from "../../types/event_stream/selection_events";
@@ -191,127 +196,157 @@ export class GridSelectionPlugin extends UIPlugin {
     this.currentStyle = undefined;
   }
 
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "DELETE_FIGURE":
+  handlers = {
+    DELETE_FIGURE: this.unselectDeletedFigure,
+    HIDE_SHEET: this.activateAnotherSheetOnHide,
+    DELETE_SHEET: this.onSheetDeleted,
+    ADD_COLUMNS_ROWS: this.onHeadersAdded,
+    REMOVE_COLUMNS_ROWS: this.onHeadersRemoved,
+    UNDO: this.onUndo,
+    REDO: this.onRedo,
+    START: this.onStart,
+    ACTIVATE_SHEET: this.onActivateSheet,
+    MOVE_COLUMNS_ROWS: this.onHeadersMoved,
+    SELECT_FIGURE: this.onSelectFigure,
+    UNSELECT_FIGURE: this.onUnselectFigure,
+    ACTIVATE_NEXT_SHEET: this.activateNextSheetOnRight,
+    ACTIVATE_PREVIOUS_SHEET: this.activateNextSheetOnLeft,
+  };
+
+  private activateNextSheetOnLeft() {
+    this.activateNextSheet("left");
+  }
+
+  private activateNextSheetOnRight() {
+    this.activateNextSheet("right");
+  }
+
+  private onUnselectFigure(cmd: UnselectFigureCommand) {
+    this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
+  }
+
+  private onSelectFigure(cmd: SelectFigureCommand) {
+    if (cmd.selectMultiple) {
+      if (cmd.figureId) {
         this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
-        break;
-      case "START":
-        const firstSheetId = this.getters.getVisibleSheetIds()[0];
-        this.activateSheet(firstSheetId, firstSheetId);
-        const { col, row } = this.getters.getNextVisibleCellPosition({
-          sheetId: firstSheetId,
-          col: 0,
-          row: 0,
-        });
-        this.selectCell(col, row);
-        this.selection.registerAsDefault(this, this.gridSelection.anchor, {
-          handleEvent: this.handleEvent.bind(this),
-        });
-        this.moveClient({ sheetId: firstSheetId, col: 0, row: 0 });
-        break;
-      case "ACTIVATE_SHEET": {
-        this.activateSheet(cmd.sheetIdFrom, cmd.sheetIdTo);
-        break;
+        this.selectedFiguresIds.unshift(cmd.figureId);
       }
-      case "REMOVE_COLUMNS_ROWS": {
-        const sheetId = this.getters.getActiveSheetId();
-        if (cmd.sheetId === sheetId) {
-          if (cmd.dimension === "COL") {
-            this.onColumnsRemoved(cmd);
-          } else {
-            this.onRowsRemoved(cmd);
-          }
-          const { col, row } = this.gridSelection.anchor.cell;
-          this.moveClient({ sheetId, col, row });
-        }
-        break;
-      }
-      case "ADD_COLUMNS_ROWS": {
-        const sheetId = this.getters.getActiveSheetId();
-        if (cmd.sheetId === sheetId) {
-          this.onAddElements(cmd);
-          const { col, row } = this.gridSelection.anchor.cell;
-          this.moveClient({ sheetId, col, row });
-        }
-        break;
-      }
-      case "MOVE_COLUMNS_ROWS":
-        if (cmd.sheetId === this.getActiveSheetId()) {
-          this.onMoveElements(cmd);
-        }
-        break;
-      case "SELECT_FIGURE":
-        if (cmd.selectMultiple) {
-          if (cmd.figureId) {
-            this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
-            this.selectedFiguresIds.unshift(cmd.figureId);
-          }
-        } else {
-          this.selectedFiguresIds = cmd.figureId ? [cmd.figureId] : [];
-        }
-        break;
-      case "UNSELECT_FIGURE":
-        this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
-        break;
-      case "ACTIVATE_NEXT_SHEET":
-        this.activateNextSheet("right");
-        break;
-      case "ACTIVATE_PREVIOUS_SHEET":
-        this.activateNextSheet("left");
-        break;
-      case "HIDE_SHEET":
-        if (cmd.sheetId === this.getActiveSheetId()) {
-          this.dispatch("ACTIVATE_SHEET", {
-            sheetIdFrom: cmd.sheetId,
-            sheetIdTo: this.getters.getVisibleSheetIds()[0],
-          });
-        }
-        break;
-      case "UNDO":
-      case "REDO":
-      case "DELETE_SHEET":
-        const deletedSheetIds = Object.keys(this.sheetsData).filter(
-          (sheetId) => !this.getters.tryGetSheet(sheetId)
-        );
-        for (const sheetId of deletedSheetIds) {
-          delete this.sheetsData[sheetId];
-        }
-        for (const sheetId in this.sheetsData) {
-          const gridSelection = this.clipSelection(sheetId, this.sheetsData[sheetId].gridSelection);
-          this.sheetsData[sheetId] = {
-            gridSelection: deepCopy(gridSelection),
-          };
-        }
-        this.fallbackToVisibleSheet();
-        const sheetId = this.getters.getActiveSheetId();
-        this.gridSelection.zones = this.gridSelection.zones.map((z) =>
-          this.getters.expandZone(sheetId, z)
-        );
-        this.gridSelection.anchor.zone = this.getters.expandZone(
-          sheetId,
-          this.gridSelection.anchor.zone
-        );
-        this.setSelectionMixin(this.gridSelection.anchor, this.gridSelection.zones);
-        if (cmd.type === "UNDO") {
-          this.selectedFiguresIds = cmd.commands
-            .filter(
-              (cmd): cmd is DeleteFigureCommand =>
-                cmd.type === "DELETE_FIGURE" && cmd.sheetId === sheetId
-            )
-            .map((cmd) => cmd.figureId);
-        } else if (cmd.type === "REDO") {
-          this.selectedFiguresIds = cmd.commands
-            .filter(
-              (cmd): cmd is CreateFigureCommand =>
-                cmd.type === "CREATE_FIGURE" && cmd.sheetId === sheetId
-            )
-            .map((cmd) => cmd.figureId);
-        } else {
-          this.selectedFiguresIds = [];
-        }
-        break;
+    } else {
+      this.selectedFiguresIds = cmd.figureId ? [cmd.figureId] : [];
     }
+  }
+
+  private onHeadersMoved(cmd: MoveColumnsRowsCommand) {
+    if (cmd.sheetId === this.getActiveSheetId()) {
+      this.onMoveElements(cmd);
+    }
+  }
+
+  private onActivateSheet(cmd: ActivateSheetCommand) {
+    this.activateSheet(cmd.sheetIdFrom, cmd.sheetIdTo);
+  }
+
+  private onStart() {
+    const firstSheetId = this.getters.getVisibleSheetIds()[0];
+    this.activateSheet(firstSheetId, firstSheetId);
+    const { col, row } = this.getters.getNextVisibleCellPosition({
+      sheetId: firstSheetId,
+      col: 0,
+      row: 0,
+    });
+    this.selectCell(col, row);
+    this.selection.registerAsDefault(this, this.gridSelection.anchor, {
+      handleEvent: this.handleEvent.bind(this),
+    });
+    this.moveClient({ sheetId: firstSheetId, col: 0, row: 0 });
+  }
+
+  private onRedo(cmd: RedoCommand) {
+    const sheetId = this.forgetDeletedSheetsSelections();
+    this.selectedFiguresIds = cmd.commands
+      .filter(
+        (cmd): cmd is CreateFigureCommand => cmd.type === "CREATE_FIGURE" && cmd.sheetId === sheetId
+      )
+      .map((cmd) => cmd.figureId);
+  }
+
+  private onUndo(cmd: UndoCommand) {
+    const sheetId = this.forgetDeletedSheetsSelections();
+    this.selectedFiguresIds = cmd.commands
+      .filter(
+        (cmd): cmd is DeleteFigureCommand => cmd.type === "DELETE_FIGURE" && cmd.sheetId === sheetId
+      )
+      .map((cmd) => cmd.figureId);
+  }
+
+  private onHeadersRemoved(cmd: RemoveColumnsRowsCommand) {
+    const sheetId = this.getters.getActiveSheetId();
+    if (cmd.sheetId === sheetId) {
+      if (cmd.dimension === "COL") {
+        this.onColumnsRemoved(cmd);
+      } else {
+        this.onRowsRemoved(cmd);
+      }
+      const { col, row } = this.gridSelection.anchor.cell;
+      this.moveClient({ sheetId, col, row });
+    }
+  }
+
+  private onHeadersAdded(cmd: AddColumnsRowsCommand) {
+    const sheetId = this.getters.getActiveSheetId();
+    if (cmd.sheetId === sheetId) {
+      this.onAddElements(cmd);
+      const { col, row } = this.gridSelection.anchor.cell;
+      this.moveClient({ sheetId, col, row });
+    }
+  }
+
+  private activateAnotherSheetOnHide(cmd: HideSheetCommand) {
+    if (cmd.sheetId === this.getActiveSheetId()) {
+      this.dispatch("ACTIVATE_SHEET", {
+        sheetIdFrom: cmd.sheetId,
+        sheetIdTo: this.getters.getVisibleSheetIds()[0],
+      });
+    }
+  }
+
+  private onSheetDeleted() {
+    this.forgetDeletedSheetsSelections();
+    this.selectedFiguresIds = [];
+  }
+
+  /**
+   * Drop the selections of the sheets which no longer exist and clip the
+   * remaining ones to their sheet. Returns the active sheet id.
+   */
+  private forgetDeletedSheetsSelections(): UID {
+    const deletedSheetIds = Object.keys(this.sheetsData).filter(
+      (sheetId) => !this.getters.tryGetSheet(sheetId)
+    );
+    for (const sheetId of deletedSheetIds) {
+      delete this.sheetsData[sheetId];
+    }
+    for (const sheetId in this.sheetsData) {
+      const gridSelection = this.clipSelection(sheetId, this.sheetsData[sheetId].gridSelection);
+      this.sheetsData[sheetId] = {
+        gridSelection: deepCopy(gridSelection),
+      };
+    }
+    this.fallbackToVisibleSheet();
+    const sheetId = this.getters.getActiveSheetId();
+    this.gridSelection.zones = this.gridSelection.zones.map((z) =>
+      this.getters.expandZone(sheetId, z)
+    );
+    this.gridSelection.anchor.zone = this.getters.expandZone(
+      sheetId,
+      this.gridSelection.anchor.zone
+    );
+    this.setSelectionMixin(this.gridSelection.anchor, this.gridSelection.zones);
+    return sheetId;
+  }
+
+  private unselectDeletedFigure(cmd: DeleteFigureCommand) {
+    this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
   }
 
   finalize(): void {

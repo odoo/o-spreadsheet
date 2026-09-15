@@ -5,16 +5,10 @@ import { getItemId } from "../../helpers/data_normalization";
 import { isObjectEmptyRecursive, removeFalsyAttributes } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isZoneInside, toZone, zoneToXc } from "../../helpers/zones";
-import {
-  EvaluationCommand,
-  invalidateBordersCommands,
-  invalidateCFEvaluationCommands,
-  invalidateEvaluationCommands,
-} from "../../types/commands";
-import { Border, CellPosition, Style } from "../../types/misc";
+import { EvaluationCommand } from "../../types/commands";
+import { Border, CellPosition, Style, UID } from "../../types/misc";
 import { ExcelWorkbookData } from "../../types/workbook_data";
 import { EvaluationPlugin } from "../evaluation_plugin";
-import { doesCommandInvalidatesTableStyle } from "./table_computed_style";
 
 export class CellComputedStylePlugin extends EvaluationPlugin {
   static getters = ["getCellComputedBorder", "getCellComputedStyle"] as const;
@@ -22,41 +16,45 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
   private styles: PositionMap<Style> = new PositionMap();
   private borders: PositionMap<Border | null> = new PositionMap();
 
-  handle(cmd: EvaluationCommand) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      cmd.type === "UPDATE_CELL" ||
-      cmd.type === "SET_FORMATTING" ||
-      cmd.type === "CLEAR_FORMATTING" ||
-      cmd.type === "ADD_DATA_VALIDATION_RULE" ||
-      cmd.type === "REMOVE_DATA_VALIDATION_RULE" ||
-      cmd.type === "EVALUATE_CELLS" ||
-      cmd.type === "SET_SHEET_BACKGROUND_COLOR"
-    ) {
-      this.styles = new PositionMap();
-      this.borders = new PositionMap();
-      return;
-    }
+  handlers = {
+    UPDATE_CELL: this.invalidateComputedStyles,
+    SET_FORMATTING: this.invalidateComputedStyles,
+    CLEAR_FORMATTING: this.invalidateComputedStyles,
+    SET_SHEET_BACKGROUND_COLOR: this.invalidateComputedStyles,
+    GROUP_HEADERS: this.invalidateSheetComputedStyles,
+    REMOVE_DATA_VALIDATION_RULE: this.invalidateComputedStyles,
+    ADD_DATA_VALIDATION_RULE: this.invalidateComputedStyles,
+    EVALUATE_CELLS: this.invalidateComputedStyles,
+    invalidateEvaluationCommands: this.invalidateComputedStyles,
+    invalidateBordersCommands: this.invalidateComputedBorders,
+    invalidateCFEvaluationCommands: this.invalidateComputedCfStyles,
+    invalidateTableStyleCommands: this.invalidateTableComputedStyles,
+  };
 
-    if (doesCommandInvalidatesTableStyle(cmd)) {
-      if ("sheetId" in cmd) {
-        this.styles.clearSheet(cmd.sheetId);
-        this.borders.clearSheet(cmd.sheetId);
-      } else {
-        this.styles = new PositionMap();
-        this.borders = new PositionMap();
-      }
-      return;
+  private invalidateTableComputedStyles(cmd: EvaluationCommand) {
+    if ("sheetId" in cmd) {
+      this.invalidateSheetComputedStyles(cmd);
+    } else {
+      this.invalidateComputedStyles();
     }
+  }
 
-    if (invalidateCFEvaluationCommands.has(cmd.type)) {
-      this.styles = new PositionMap();
-      return;
-    }
-    if (invalidateBordersCommands.has(cmd.type)) {
-      this.borders = new PositionMap();
-      return;
-    }
+  private invalidateComputedCfStyles() {
+    this.styles = new PositionMap();
+  }
+
+  private invalidateComputedBorders() {
+    this.borders = new PositionMap();
+  }
+
+  private invalidateComputedStyles() {
+    this.styles = new PositionMap();
+    this.borders = new PositionMap();
+  }
+
+  private invalidateSheetComputedStyles(cmd: { sheetId: UID }) {
+    this.styles.clearSheet(cmd.sheetId);
+    this.borders.clearSheet(cmd.sheetId);
   }
 
   getCellComputedBorder(position: CellPosition): Border | null {

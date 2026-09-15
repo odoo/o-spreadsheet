@@ -6,12 +6,6 @@ import { chartToImageUrl } from "../../helpers/figures/charts/chart_ui_common";
 import { generateMasterChartConfig } from "../../helpers/figures/charts/runtime/chart_zoom";
 import { isDefined } from "../../helpers/misc";
 import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
-import {
-  EvaluationCommand,
-  invalidateCFEvaluationCommands,
-  invalidateChartEvaluationCommands,
-  invalidateEvaluationCommands,
-} from "../../types/commands";
 import { Color, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { ColorThemeName } from "../../types/rendering";
@@ -32,32 +26,22 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
 
   charts: Record<UID, Partial<Record<ColorThemeName, ChartRuntime | undefined>>> = {};
 
-  handle(cmd: EvaluationCommand) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      invalidateCFEvaluationCommands.has(cmd.type) ||
-      invalidateChartEvaluationCommands.has(cmd.type)
-    ) {
-      for (const chartId in this.charts) {
-        this.charts[chartId] = {};
-      }
-    }
+  handlers = {
+    UPDATE_CHART: this.invalidateChartRuntime,
+    CREATE_CHART: this.invalidateChartRuntime,
+    DELETE_CHART: this.invalidateChartRuntime,
+    invalidateEvaluationCommands: this.invalidateChartRuntimes,
+    invalidateChartEvaluationCommands: this.invalidateChartRuntimes,
+    invalidateCFEvaluationCommands: this.invalidateChartRuntimes,
+  };
 
-    switch (cmd.type) {
-      case "UPDATE_CHART":
-      case "CREATE_CHART":
-        this.charts[cmd.chartId] = {};
-        break;
-      case "DELETE_CHART":
-        this.charts[cmd.chartId] = {};
-        break;
-      case "DELETE_SHEET":
-        for (const chartId in this.charts) {
-          if (!this.getters.isChartDefined(chartId)) {
-            this.charts[chartId] = {};
-          }
-        }
-        break;
+  private invalidateChartRuntime(cmd: { chartId: UID }) {
+    this.charts[cmd.chartId] = {};
+  }
+
+  private invalidateChartRuntimes() {
+    for (const chartId in this.charts) {
+      this.charts[chartId] = {};
     }
   }
 

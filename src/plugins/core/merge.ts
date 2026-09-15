@@ -14,6 +14,7 @@ import {
   AddMergeCommand,
   CommandResult,
   CoreCommand,
+  RemoveMergeCommand,
   TargetDependentCommand,
   UpdateCellCommand,
 } from "../../types/commands";
@@ -57,6 +58,46 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   private nextId: number = 1;
 
   readonly merges: Record<UID, Record<number, Range | undefined> | undefined> = {};
+
+  handlers = {
+    ADD_MERGE: this.addMerges,
+    REMOVE_MERGE: this.removeMerges,
+    CREATE_SHEET: this.initSheetMerges,
+    DUPLICATE_SHEET: this.duplicateSheetMerges,
+    DELETE_SHEET: this.deleteSheetMerges,
+  };
+
+  private deleteSheetMerges(cmd: { sheetId: UID }) {
+    this.history.update("merges", cmd.sheetId, {});
+    this.history.update("mergeCellMap", cmd.sheetId, {});
+  }
+
+  private duplicateSheetMerges(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    const merges = this.merges[cmd.sheetId];
+    if (!merges) {
+      return;
+    }
+    for (const range of Object.values(merges).filter(isDefined)) {
+      this.addMerge(cmd.sheetIdTo, range.zone);
+    }
+  }
+
+  private initSheetMerges(cmd: { sheetId: UID }) {
+    this.history.update("merges", cmd.sheetId, {});
+    this.history.update("mergeCellMap", cmd.sheetId, {});
+  }
+
+  private removeMerges(cmd: RemoveMergeCommand) {
+    for (const zone of cmd.target) {
+      this.removeMerge(cmd.sheetId, zone);
+    }
+  }
+
+  private addMerges(cmd: AddMergeCommand) {
+    for (const zone of cmd.target) {
+      this.addMerge(cmd.sheetId, zone);
+    }
+  }
   readonly mergeCellMap: Record<UID, SheetMergeCellMap | undefined> = {};
 
   // ---------------------------------------------------------------------------
@@ -82,38 +123,6 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         return this.checkMergeExists(cmd);
       default:
         return CommandResult.Success;
-    }
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "CREATE_SHEET":
-        this.history.update("merges", cmd.sheetId, {});
-        this.history.update("mergeCellMap", cmd.sheetId, {});
-        break;
-      case "DELETE_SHEET":
-        this.history.update("merges", cmd.sheetId, {});
-        this.history.update("mergeCellMap", cmd.sheetId, {});
-        break;
-      case "DUPLICATE_SHEET":
-        const merges = this.merges[cmd.sheetId];
-        if (!merges) {
-          break;
-        }
-        for (const range of Object.values(merges).filter(isDefined)) {
-          this.addMerge(cmd.sheetIdTo, range.zone);
-        }
-        break;
-      case "ADD_MERGE":
-        for (const zone of cmd.target) {
-          this.addMerge(cmd.sheetId, zone);
-        }
-        break;
-      case "REMOVE_MERGE":
-        for (const zone of cmd.target) {
-          this.removeMerge(cmd.sheetId, zone);
-        }
-        break;
     }
   }
 

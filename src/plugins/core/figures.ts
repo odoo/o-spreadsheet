@@ -5,6 +5,7 @@ import {
   CoreCommand,
   CreateFigureCommand,
   DeleteFigureCommand,
+  RemoveColumnsRowsCommand,
   UpdateFigureCommand,
 } from "../../types/commands";
 import { AnchorOffset, Figure } from "../../types/figure";
@@ -23,6 +24,68 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     [sheet: string]: Record<UID, Figure | undefined> | undefined;
   } = {};
   readonly insertionOrders: UID[] = []; // TODO use a list in master
+
+  handlers = {
+    UPDATE_FIGURE: this.updateFigure,
+    CREATE_FIGURE: this.createFigure,
+    DELETE_FIGURE: this.deleteFigure,
+    CREATE_SHEET: this.initSheetFigures,
+    DUPLICATE_SHEET: this.duplicateSheetFigures,
+    DELETE_SHEET: this.deleteSheetFigures,
+    REMOVE_COLUMNS_ROWS: this.removeHeaderFigures,
+  };
+
+  private removeHeaderFigures(cmd: RemoveColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      this.onColRemove(cmd.sheetId);
+    } else {
+      this.onRowRemove(cmd.sheetId);
+    }
+  }
+
+  private deleteSheetFigures(cmd: { sheetId: UID }) {
+    this.deleteSheet(cmd.sheetId);
+  }
+
+  private duplicateSheetFigures(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    for (const figure of this.getFigures(cmd.sheetId)) {
+      const figureId = figure.id;
+      const fig = this.figures[cmd.sheetId]?.[figureId];
+      if (!fig) {
+        continue;
+      }
+      const figureIdBase = figureId.split(FIGURE_ID_SPLITTER).pop();
+      const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
+      this.dispatch("CREATE_FIGURE", {
+        figureId: duplicatedFigureId,
+        ...fig,
+        size: { width: fig.width, height: fig.height },
+        sheetId: cmd.sheetIdTo,
+      });
+    }
+  }
+
+  private initSheetFigures(cmd: { sheetId: UID }) {
+    this.figures[cmd.sheetId] = {};
+  }
+
+  private deleteFigure(cmd: DeleteFigureCommand) {
+    this.removeFigure(cmd.figureId, cmd.sheetId);
+  }
+
+  private createFigure(cmd: CreateFigureCommand) {
+    const figure: Figure = {
+      id: cmd.figureId,
+      col: cmd.col,
+      row: cmd.row,
+      offset: cmd.offset,
+      width: cmd.size.width,
+      height: cmd.size.height,
+      tag: cmd.tag,
+    };
+    this.addFigure(figure, cmd.sheetId);
+  }
+
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
@@ -88,60 +151,6 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
           this.dispatch("DELETE_FIGURE", { figureId: figure.id, sheetId: cmd.sheetId });
         });
         break;
-    }
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "CREATE_SHEET":
-        this.figures[cmd.sheetId] = {};
-        break;
-      case "DELETE_SHEET":
-        this.deleteSheet(cmd.sheetId);
-        break;
-      case "CREATE_FIGURE":
-        const figure: Figure = {
-          id: cmd.figureId,
-          col: cmd.col,
-          row: cmd.row,
-          offset: cmd.offset,
-          width: cmd.size.width,
-          height: cmd.size.height,
-          tag: cmd.tag,
-        };
-        this.addFigure(figure, cmd.sheetId);
-        break;
-      case "UPDATE_FIGURE":
-        this.updateFigure(cmd);
-        break;
-      case "DELETE_FIGURE":
-        this.removeFigure(cmd.figureId, cmd.sheetId);
-        break;
-      case "REMOVE_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.onColRemove(cmd.sheetId);
-        } else {
-          this.onRowRemove(cmd.sheetId);
-        }
-        break;
-      case "DUPLICATE_SHEET": {
-        for (const figure of this.getFigures(cmd.sheetId)) {
-          const figureId = figure.id;
-          const fig = this.figures[cmd.sheetId]?.[figureId];
-          if (!fig) {
-            continue;
-          }
-          const figureIdBase = figureId.split(FIGURE_ID_SPLITTER).pop();
-          const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
-          this.dispatch("CREATE_FIGURE", {
-            figureId: duplicatedFigureId,
-            ...fig,
-            size: { width: fig.width, height: fig.height },
-            sheetId: cmd.sheetIdTo,
-          });
-        }
-        break;
-      }
     }
   }
 

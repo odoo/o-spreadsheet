@@ -1,5 +1,5 @@
 import { GeoChartDefinition, GeoChartRegion } from "../../types/chart/geo_chart";
-import { Command } from "../../types/commands";
+import { CreateChartCommand, UpdateChartRegionCommand } from "../../types/commands";
 import { UID } from "../../types/misc";
 import { ModelConfig } from "../../types/model";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
@@ -17,37 +17,36 @@ export class GeoFeaturePlugin extends UIPlugin {
     this.geoJsonService = config.external.geoJsonService;
   }
 
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "START": {
-        for (const sheetId of this.getters.getSheetIds()) {
-          for (const chartId of this.getters.getChartIds(sheetId)) {
-            this.trackInitialRegion(chartId);
-          }
-        }
-        break;
-      }
-      case "CREATE_CHART": {
-        this.trackInitialRegion(cmd.chartId);
-        break;
-      }
-      case "UPDATE_CHART_REGION": {
-        const chart = this.getters.getChart(cmd.chartId);
-        const definition = this.getters.getChartDefinition(
-          cmd.chartId
-        ) as GeoChartDefinition<string>;
-        if (!chart || definition.type !== "geo") {
-          break;
-        }
-        this.dispatch("UPDATE_CHART", {
-          chartId: cmd.chartId,
-          sheetId: chart.sheetId,
-          figureId: this.getters.getFigureIdFromChartId(cmd.chartId),
-          definition: { ...definition, region: cmd.region },
-        });
-        break;
+  handlers = {
+    CREATE_CHART: this.trackChartInitialRegion,
+    START: this.trackAllChartsInitialRegion,
+    UPDATE_CHART_REGION: this.updateChartRegion,
+  };
+
+  private updateChartRegion(cmd: UpdateChartRegionCommand) {
+    const chart = this.getters.getChart(cmd.chartId);
+    const definition = this.getters.getChartDefinition(cmd.chartId) as GeoChartDefinition<string>;
+    if (!chart || definition.type !== "geo") {
+      return;
+    }
+    this.dispatch("UPDATE_CHART", {
+      chartId: cmd.chartId,
+      sheetId: chart.sheetId,
+      figureId: this.getters.getFigureIdFromChartId(cmd.chartId),
+      definition: { ...definition, region: cmd.region },
+    });
+  }
+
+  private trackAllChartsInitialRegion() {
+    for (const sheetId of this.getters.getSheetIds()) {
+      for (const chartId of this.getters.getChartIds(sheetId)) {
+        this.trackInitialRegion(chartId);
       }
     }
+  }
+
+  private trackChartInitialRegion(cmd: CreateChartCommand) {
+    this.trackInitialRegion(cmd.chartId);
   }
 
   private trackInitialRegion(chartId: UID) {

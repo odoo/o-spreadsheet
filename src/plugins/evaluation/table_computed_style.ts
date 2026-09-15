@@ -1,12 +1,7 @@
 import { isEvaluationError } from "../../functions/helpers";
 import { lazy } from "../../helpers/misc";
 import { getComputedTableStyle } from "../../helpers/table_helpers";
-import {
-  Command,
-  CommandTypes,
-  EvaluationCommand,
-  invalidateEvaluationCommands,
-} from "../../types/commands";
+import { EvaluationCommand, UpdateCellCommand } from "../../types/commands";
 import { EvaluationError } from "../../types/errors";
 import { Border, CellPosition, Lazy, Style, TableId, UID } from "../../types/misc";
 import { Table, TableConfig, TableMetaData } from "../../types/table";
@@ -28,24 +23,34 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
 
   private tableStyles: Record<UID, Record<TableId, Lazy<ComputedTableStyle>>> = {};
 
-  handle(cmd: EvaluationCommand) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd)) ||
-      cmd.type === "EVALUATE_CELLS"
-    ) {
-      this.tableStyles = {};
-      return;
-    }
+  handlers = {
+    UPDATE_CELL: this.invalidateTableStyles,
+    GROUP_HEADERS: this.invalidateSheetTableStyles,
+    EVALUATE_CELLS: this.clearTableStyles,
+    invalidateEvaluationCommands: this.clearTableStyles,
+    invalidateTableStyleCommands: this.invalidateTableStylesOfCommand,
+  };
 
-    if (doesCommandInvalidatesTableStyle(cmd)) {
-      if ("sheetId" in cmd) {
-        delete this.tableStyles[cmd.sheetId];
-      } else {
-        this.tableStyles = {};
-      }
-      return;
+  private invalidateTableStylesOfCommand(cmd: EvaluationCommand) {
+    if ("sheetId" in cmd) {
+      this.invalidateSheetTableStyles(cmd);
+    } else {
+      this.clearTableStyles();
     }
+  }
+
+  private clearTableStyles() {
+    this.tableStyles = {};
+  }
+
+  private invalidateTableStyles(cmd: UpdateCellCommand) {
+    if ("content" in cmd || "format" in cmd) {
+      this.tableStyles = {};
+    }
+  }
+
+  private invalidateSheetTableStyles(cmd: { sheetId: UID }) {
+    delete this.tableStyles[cmd.sheetId];
   }
 
   finalize() {
@@ -285,30 +290,4 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
       rowMapping,
     };
   }
-}
-
-const invalidateTableStyleCommands = [
-  "HIDE_COLUMNS_ROWS",
-  "UNHIDE_COLUMNS_ROWS",
-  "UNFOLD_HEADER_GROUP",
-  "UNGROUP_HEADERS",
-  "FOLD_HEADER_GROUP",
-  "FOLD_ALL_HEADER_GROUPS",
-  "UNFOLD_ALL_HEADER_GROUPS",
-  "FOLD_HEADER_GROUPS_IN_ZONE",
-  "UNFOLD_HEADER_GROUPS_IN_ZONE",
-  "CREATE_TABLE",
-  "UPDATE_TABLE",
-  "UPDATE_FILTER",
-  "REMOVE_TABLE",
-  "CREATE_TABLE_STYLE",
-  "REMOVE_TABLE_STYLE",
-  "DELETE_CONTENT",
-] as const;
-const invalidateTableStyleCommandsSet = new Set<CommandTypes>(invalidateTableStyleCommands);
-
-export function doesCommandInvalidatesTableStyle<C extends Command>(
-  cmd: C
-): cmd is Extract<C, { type: (typeof invalidateTableStyleCommands)[number] }> {
-  return invalidateTableStyleCommandsSet.has(cmd.type);
 }

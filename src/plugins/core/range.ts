@@ -14,7 +14,13 @@ import { recomputeZones } from "../../helpers/recompute_zones";
 import { rangeReference, splitReference } from "../../helpers/references";
 
 import { intersection, isZoneInside, isZoneValid, unionUnboundedZones } from "../../helpers/zones";
-import { Command, CommandHandler, CommandResult, CoreCommand } from "../../types/commands";
+import {
+  Command,
+  CommandHandler,
+  CommandResult,
+  CommandsHandlers,
+  CoreCommand,
+} from "../../types/commands";
 import { CellErrorType } from "../../types/errors";
 import { CoreGetters } from "../../types/getters";
 import {
@@ -31,6 +37,24 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   private getters: CoreGetters;
   private providers: Array<RangeProvider["adaptRanges"]> = [];
   private isAdaptingRanges: boolean = false;
+  readonly handlers: CommandsHandlers<CoreCommand> = {
+    MOVE_RANGES: this.adaptRanges,
+    UPDATE_NAMED_RANGE: this.adaptRanges,
+    RENAME_SHEET: this.adaptRanges,
+    DELETE_SHEET: this.adaptRanges,
+    ADD_COLUMNS_ROWS: this.adaptRanges,
+    REMOVE_COLUMNS_ROWS: this.adaptRanges,
+  };
+
+  private adaptRanges(cmd: CoreCommand) {
+    if (this.isAdaptingRanges) {
+      throw new Error("Plugins cannot dispatch commands during adaptRanges phase");
+    }
+    const adapterFunctions = getRangeAdapterFunctions(cmd);
+    if (adapterFunctions) {
+      this.executeOnAllRanges(adapterFunctions);
+    }
+  }
   constructor(getters: CoreGetters) {
     this.getters = getters;
   }

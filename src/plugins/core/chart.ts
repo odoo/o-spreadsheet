@@ -6,9 +6,9 @@ import { ChartCreationContext, ChartDefinition, ChartType } from "../../types/ch
 import {
   Command,
   CommandResult,
-  CoreCommand,
   CreateChartCommand,
   DeleteChartCommand,
+  DeleteFigureCommand,
   UpdateChartCommand,
 } from "../../types/commands";
 import { HeaderIndex, PixelPosition, RangeAdapterFunctions, UID } from "../../types/misc";
@@ -37,6 +37,81 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   ] as const;
 
   readonly charts: Record<UID, FigureChart | undefined> = {};
+
+  handlers = {
+    UPDATE_CHART: this.updateChart,
+    CREATE_CHART: this.createChart,
+    DELETE_CHART: this.deleteChart,
+    DELETE_FIGURE: this.deleteChartsOfFigure,
+    DUPLICATE_SHEET: this.duplicateSheetCharts,
+    DELETE_SHEET: this.deleteSheetCharts,
+  };
+
+  private deleteSheetCharts(cmd: { sheetId: UID }) {
+    for (const id of this.getChartIds(cmd.sheetId)) {
+      this.history.update("charts", id, undefined);
+    }
+  }
+
+  private duplicateSheetCharts(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    for (const chartId of this.getChartIds(cmd.sheetId)) {
+      const { chart, figureId } = this.charts[chartId] || {};
+      if (!chart || !figureId) {
+        continue;
+      }
+      const fig = this.getters.getFigure(cmd.sheetId, figureId);
+      if (!fig) {
+        continue;
+      }
+      const figureIdBase = figureId.split(FIGURE_ID_SPLITTER).pop();
+      const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
+      const chartIdBase = chartId.split(FIGURE_ID_SPLITTER).pop();
+      const duplicatedChartId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${chartIdBase}`;
+      const definition = chart.duplicateInDuplicatedSheet(cmd.sheetId, cmd.sheetIdTo);
+      this.dispatch("CREATE_CHART", {
+        figureId: duplicatedFigureId,
+        chartId: duplicatedChartId,
+        col: fig.col,
+        row: fig.row,
+        offset: fig.offset,
+        size: { width: fig.width, height: fig.height },
+        definition,
+        sheetId: cmd.sheetIdTo,
+      });
+    }
+  }
+
+  private deleteChartsOfFigure(cmd: DeleteFigureCommand) {
+    for (const chartId in this.charts) {
+      if (this.charts[chartId]?.figureId === cmd.figureId) {
+        this.dispatch("DELETE_CHART", { chartId, sheetId: cmd.sheetId });
+      }
+    }
+  }
+
+  private deleteChart(cmd: DeleteChartCommand) {
+    if (this.isChartDefined(cmd.chartId)) {
+      this.history.update("charts", cmd.chartId, undefined);
+    }
+  }
+
+  private createChart(cmd: CreateChartCommand) {
+    const { col, row, offset, size, sheetId, figureId } = cmd;
+    // If figure position is not defined, it means that the figure already exist (see allowDispatch)
+    if (
+      !this.getters.getFigure(sheetId, figureId) &&
+      offset !== undefined &&
+      col !== undefined &&
+      row !== undefined
+    ) {
+      this.addFigure(figureId, sheetId, col, row, offset, size);
+    }
+    this.addChart(cmd.figureId, cmd.chartId, cmd.definition);
+  }
+
+  private updateChart(cmd: UpdateChartCommand) {
+    this.addChart(cmd.figureId, cmd.chartId, cmd.definition);
+  }
 
   adaptRanges(rangeAdapters: RangeAdapterFunctions) {
     for (const [chartId, chart] of Object.entries(this.charts)) {
@@ -84,73 +159,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         return CommandResult.SubCommandOnly;
       default:
         return CommandResult.Success;
-    }
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "CREATE_CHART":
-        const { col, row, offset, size, sheetId, figureId } = cmd;
-        // If figure position is not defined, it means that the figure already exist (see allowDispatch)
-        if (
-          !this.getters.getFigure(sheetId, figureId) &&
-          offset !== undefined &&
-          col !== undefined &&
-          row !== undefined
-        ) {
-          this.addFigure(figureId, sheetId, col, row, offset, size);
-        }
-        this.addChart(cmd.figureId, cmd.chartId, cmd.definition);
-        break;
-      case "UPDATE_CHART": {
-        this.addChart(cmd.figureId, cmd.chartId, cmd.definition);
-        break;
-      }
-      case "DUPLICATE_SHEET": {
-        for (const chartId of this.getChartIds(cmd.sheetId)) {
-          const { chart, figureId } = this.charts[chartId] || {};
-          if (!chart || !figureId) {
-            continue;
-          }
-          const fig = this.getters.getFigure(cmd.sheetId, figureId);
-          if (!fig) {
-            continue;
-          }
-          const figureIdBase = figureId.split(FIGURE_ID_SPLITTER).pop();
-          const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
-          const chartIdBase = chartId.split(FIGURE_ID_SPLITTER).pop();
-          const duplicatedChartId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${chartIdBase}`;
-          const definition = chart.duplicateInDuplicatedSheet(cmd.sheetId, cmd.sheetIdTo);
-          this.dispatch("CREATE_CHART", {
-            figureId: duplicatedFigureId,
-            chartId: duplicatedChartId,
-            col: fig.col,
-            row: fig.row,
-            offset: fig.offset,
-            size: { width: fig.width, height: fig.height },
-            definition,
-            sheetId: cmd.sheetIdTo,
-          });
-        }
-        break;
-      }
-      case "DELETE_FIGURE":
-        for (const chartId in this.charts) {
-          if (this.charts[chartId]?.figureId === cmd.figureId) {
-            this.dispatch("DELETE_CHART", { chartId, sheetId: cmd.sheetId });
-          }
-        }
-        break;
-      case "DELETE_CHART":
-        if (this.isChartDefined(cmd.chartId)) {
-          this.history.update("charts", cmd.chartId, undefined);
-        }
-        break;
-      case "DELETE_SHEET":
-        for (const id of this.getChartIds(cmd.sheetId)) {
-          this.history.update("charts", id, undefined);
-        }
-        break;
     }
   }
 

@@ -18,10 +18,12 @@ import { CellValue, CellValueType, FormulaCell } from "../../types/cells";
 import {
   AddPivotCommand,
   CoreCommand,
+  DuplicatePivotCommand,
   EvaluationCommand,
+  RedoCommand,
+  RefreshPivotCommand,
+  UndoCommand,
   UpdatePivotCommand,
-  invalidateEvaluationCommands,
-  isCoreCommand,
 } from "../../types/commands";
 import {
   CellPosition,
@@ -68,6 +70,84 @@ export class PivotUIPlugin extends EvaluationPlugin {
   private pivotPositionCache: PositionMap<UID[]> = new PositionMap();
   private shouldInvalidateCache: boolean = false;
 
+  handlers = {
+    invalidateEvaluationCommands: this.invalidateAllPivots,
+    UPDATE_CELL: this.invalidatePivotCache,
+    DELETE_CONTENT: this.invalidateUnusedPivots,
+    SET_FORMATTING: this.invalidateUnusedPivots,
+    CLEAR_FORMATTING: this.invalidateUnusedPivots,
+    SET_BORDER: this.invalidateUnusedPivots,
+    SET_ZONE_BORDERS: this.invalidateUnusedPivots,
+    SET_BORDERS_ON_TARGET: this.invalidateUnusedPivots,
+    CLEAR_CELL: this.invalidateUnusedPivots,
+    CLEAR_CELLS: this.invalidateUnusedPivots,
+    SET_SHEET_BACKGROUND_COLOR: this.invalidateUnusedPivots,
+    CREATE_TABLE: this.invalidateUnusedPivots,
+    REMOVE_TABLE: this.invalidateUnusedPivots,
+    UPDATE_TABLE: this.invalidateUnusedPivots,
+    ADD_CONDITIONAL_FORMAT: this.invalidateUnusedPivots,
+    REMOVE_CONDITIONAL_FORMAT: this.invalidateUnusedPivots,
+    CHANGE_CONDITIONAL_FORMAT_PRIORITY: this.invalidateUnusedPivots,
+    HIDE_COLUMNS_ROWS: this.invalidateUnusedPivots,
+    UNHIDE_COLUMNS_ROWS: this.invalidateUnusedPivots,
+    GROUP_HEADERS: this.invalidateUnusedPivots,
+    UNGROUP_HEADERS: this.invalidateUnusedPivots,
+    FOLD_HEADER_GROUP: this.invalidateUnusedPivots,
+    UNFOLD_HEADER_GROUP: this.invalidateUnusedPivots,
+    FOLD_ALL_HEADER_GROUPS: this.invalidateUnusedPivots,
+    UNFOLD_ALL_HEADER_GROUPS: this.invalidateUnusedPivots,
+    FOLD_HEADER_GROUPS_IN_ZONE: this.invalidateUnusedPivots,
+    UNFOLD_HEADER_GROUPS_IN_ZONE: this.invalidateUnusedPivots,
+    CREATE_TABLE_STYLE: this.invalidateUnusedPivots,
+    REMOVE_TABLE_STYLE: this.invalidateUnusedPivots,
+    REMOVE_DATA_VALIDATION_RULE: this.invalidateUnusedPivots,
+    ADD_DATA_VALIDATION_RULE: this.invalidateUnusedPivots,
+    RESIZE_COLUMNS_ROWS: this.invalidateUnusedPivots,
+    MOVE_RANGES: this.invalidateUnusedPivots,
+    UPDATE_CHART: this.invalidateUnusedPivots,
+    CREATE_CHART: this.invalidateUnusedPivots,
+    DELETE_CHART: this.invalidateUnusedPivots,
+    UPDATE_FIGURE: this.invalidateUnusedPivots,
+    CREATE_FIGURE: this.invalidateUnusedPivots,
+    DELETE_FIGURE: this.invalidateUnusedPivots,
+    CREATE_IMAGE: this.invalidateUnusedPivots,
+    CREATE_CAROUSEL: this.invalidateUnusedPivots,
+    UPDATE_CAROUSEL: this.invalidateUnusedPivots,
+    SET_GRID_LINES_VISIBILITY: this.invalidateUnusedPivots,
+    MOVE_SHEET: this.invalidateUnusedPivots,
+    LOCK_SHEET: this.invalidateUnusedPivots,
+    UNLOCK_SHEET: this.invalidateUnusedPivots,
+    FREEZE_COLUMNS: this.invalidateUnusedPivots,
+    FREEZE_ROWS: this.invalidateUnusedPivots,
+    UNFREEZE_ROWS: this.invalidateUnusedPivots,
+    UNFREEZE_COLUMNS: this.invalidateUnusedPivots,
+    UNFREEZE_COLUMNS_ROWS: this.invalidateUnusedPivots,
+    SHOW_SHEET: this.invalidateUnusedPivots,
+    HIDE_SHEET: this.invalidateUnusedPivots,
+    COLOR_SHEET: this.invalidateUnusedPivots,
+    UPDATE_CELL_POSITION: this.invalidateUnusedPivots,
+    UPDATE_LOCALE: this.invalidatePivotsOnLocaleUpdate,
+    ADD_PIVOT: this.setupAddedPivot,
+    DUPLICATE_PIVOT: this.setupDuplicatedPivot,
+    UPDATE_PIVOT: this.setupUpdatedPivot,
+    UNDO: this.setupPivotsOnUndoRedo,
+    REDO: this.setupPivotsOnUndoRedo,
+    REFRESH_PIVOT: this.refreshPivotOfCommand,
+  };
+
+  private refreshPivotOfCommand(cmd: RefreshPivotCommand) {
+    this.refreshPivot(cmd.id);
+  }
+
+  private setupPivotsOnUndoRedo(cmd: UndoCommand | RedoCommand) {
+    for (const pivotCommand of cmd.commands.filter(isPivotCommand)) {
+      if (!this.getters.isExistingPivot(pivotCommand.pivotId)) {
+        continue;
+      }
+      this.setupPivot(pivotCommand.pivotId, { recreate: true });
+    }
+  }
+
   constructor(config: EvaluationPluginConfig) {
     super(config);
     this.custom = config.custom;
@@ -82,59 +162,43 @@ export class PivotUIPlugin extends EvaluationPlugin {
     }
   }
 
-  handle(cmd: EvaluationCommand) {
-    if (isCoreCommand(cmd) || cmd.type === "UNDO" || cmd.type === "REDO") {
-      this.unusedPivotsInFormulas = undefined;
-    }
+  private invalidatePivotCache() {
+    this.invalidateUnusedPivots();
+    this.shouldInvalidateCache = true;
+  }
 
-    if (invalidateEvaluationCommands.has(cmd.type)) {
-      this.shouldInvalidateCache = true;
-      for (const pivotId of this.getters.getPivotIds()) {
-        this.setupPivot(pivotId, { recreate: true });
-      }
-    }
-    if (cmd.type === "UPDATE_CELL") {
-      this.shouldInvalidateCache = true;
-    }
-    switch (cmd.type) {
-      case "REFRESH_PIVOT":
-        this.refreshPivot(cmd.id);
-        break;
-      case "ADD_PIVOT": {
-        this.unusedPivotsInFormulas?.push(cmd.pivotId);
-        this.setupPivot(cmd.pivotId);
-        break;
-      }
-      case "DUPLICATE_PIVOT": {
-        this.unusedPivotsInFormulas?.push(cmd.newPivotId);
-        this.setupPivot(cmd.newPivotId);
-        break;
-      }
-      case "UPDATE_PIVOT": {
-        this.setupPivot(cmd.pivotId, { recreate: true });
-        break;
-      }
-      case "UNDO":
-      case "REDO": {
-        const pivotCommands = cmd.commands.filter(isPivotCommand);
+  private invalidateUnusedPivots() {
+    this.unusedPivotsInFormulas = undefined;
+  }
 
-        for (const cmd of pivotCommands) {
-          const pivotId = cmd.pivotId;
-          if (!this.getters.isExistingPivot(pivotId)) {
-            continue;
-          }
-          this.setupPivot(pivotId, { recreate: true });
-        }
-        break;
-      }
-      case "UPDATE_LOCALE":
-        /**
-         * Reset the cache of the date/datetime pivot values, as it depends on
-         * the locale. (e.g. the first day of the week)
-         */
-        resetMapValueDimensionDate();
-        break;
+  private invalidateAllPivots() {
+    this.invalidateUnusedPivots();
+    this.shouldInvalidateCache = true;
+    for (const pivotId of this.getters.getPivotIds()) {
+      this.setupPivot(pivotId, { recreate: true });
     }
+  }
+
+  /**
+   * Reset the cache of the date/datetime pivot values, as it depends on
+   * the locale. (e.g. the first day of the week)
+   */
+  private setupUpdatedPivot(cmd: UpdatePivotCommand) {
+    this.setupPivot(cmd.pivotId, { recreate: true });
+  }
+
+  private setupDuplicatedPivot(cmd: DuplicatePivotCommand) {
+    this.unusedPivotsInFormulas?.push(cmd.newPivotId);
+    this.setupPivot(cmd.newPivotId);
+  }
+
+  private setupAddedPivot(cmd: AddPivotCommand) {
+    this.unusedPivotsInFormulas?.push(cmd.pivotId);
+    this.setupPivot(cmd.pivotId);
+  }
+
+  private invalidatePivotsOnLocaleUpdate() {
+    resetMapValueDimensionDate();
   }
 
   finalize() {

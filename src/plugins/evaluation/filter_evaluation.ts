@@ -26,6 +26,60 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
   hiddenRows: Record<UID, Set<number> | undefined> = {};
   isEvaluationDirty = false;
 
+  handlers = {
+    UPDATE_CELL: this.invalidateEvaluation,
+    REMOVE_TABLE: this.invalidateEvaluation,
+    UPDATE_TABLE: this.invalidateEvaluation,
+    UPDATE_FILTER: this.applyFilter,
+    HIDE_COLUMNS_ROWS: this.refreshHiddenRows,
+    UNHIDE_COLUMNS_ROWS: this.refreshHiddenRows,
+    GROUP_HEADERS: this.refreshHiddenRows,
+    UNGROUP_HEADERS: this.refreshHiddenRows,
+    FOLD_HEADER_GROUP: this.refreshHiddenRows,
+    UNFOLD_HEADER_GROUP: this.refreshHiddenRows,
+    FOLD_ALL_HEADER_GROUPS: this.refreshHiddenRows,
+    UNFOLD_ALL_HEADER_GROUPS: this.refreshHiddenRows,
+    FOLD_HEADER_GROUPS_IN_ZONE: this.refreshHiddenRows,
+    UNFOLD_HEADER_GROUPS_IN_ZONE: this.refreshHiddenRows,
+    CREATE_SHEET: this.initSheetFilterValues,
+    DUPLICATE_SHEET: this.duplicateSheetFilterValues,
+    ADD_COLUMNS_ROWS: this.invalidateEvaluation,
+    REMOVE_COLUMNS_ROWS: this.invalidateEvaluation,
+    UNDO: this.invalidateEvaluation,
+    REDO: this.invalidateEvaluation,
+    START: this.resetFilterValues,
+    EVALUATE_CELLS: this.invalidateEvaluation,
+    // DELETE_SHEET is deliberately not handled: keeping the residual data lets an
+    // undo right after a DELETE_SHEET restore the filter values.
+  };
+
+  private resetFilterValues() {
+    for (const sheetId of this.getters.getSheetIds()) {
+      this.filterValues[sheetId] = {};
+    }
+  }
+
+  private duplicateSheetFilterValues(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    this.filterValues[cmd.sheetIdTo] = deepCopy(this.filterValues[cmd.sheetId]);
+  }
+
+  private initSheetFilterValues(cmd: { sheetId: UID }) {
+    this.filterValues[cmd.sheetId] = {};
+  }
+
+  private refreshHiddenRows(cmd: { sheetId: UID }) {
+    this.updateHiddenRows(cmd.sheetId);
+  }
+
+  private applyFilter(cmd: UpdateFilterCommand) {
+    this.updateFilter(cmd);
+    this.updateHiddenRows(cmd.sheetId);
+  }
+
+  private invalidateEvaluation() {
+    this.isEvaluationDirty = true;
+  }
+
   allowDispatch(cmd: EvaluationCommand): CommandResult {
     switch (cmd.type) {
       case "UPDATE_FILTER":
@@ -35,50 +89,6 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
         break;
     }
     return CommandResult.Success;
-  }
-
-  handle(cmd: EvaluationCommand) {
-    switch (cmd.type) {
-      case "UNDO":
-      case "REDO":
-      case "UPDATE_CELL":
-      case "EVALUATE_CELLS":
-      case "REMOVE_TABLE":
-      case "ADD_COLUMNS_ROWS":
-      case "REMOVE_COLUMNS_ROWS":
-      case "UPDATE_TABLE":
-        this.isEvaluationDirty = true;
-        break;
-      case "START":
-        for (const sheetId of this.getters.getSheetIds()) {
-          this.filterValues[sheetId] = {};
-        }
-        break;
-      case "CREATE_SHEET":
-        this.filterValues[cmd.sheetId] = {};
-        break;
-      case "HIDE_COLUMNS_ROWS":
-      case "UNHIDE_COLUMNS_ROWS":
-      case "GROUP_HEADERS":
-      case "UNGROUP_HEADERS":
-      case "FOLD_HEADER_GROUP":
-      case "UNFOLD_HEADER_GROUP":
-      case "FOLD_ALL_HEADER_GROUPS":
-      case "UNFOLD_ALL_HEADER_GROUPS":
-      case "FOLD_HEADER_GROUPS_IN_ZONE":
-      case "UNFOLD_HEADER_GROUPS_IN_ZONE":
-        this.updateHiddenRows(cmd.sheetId);
-        break;
-      case "UPDATE_FILTER":
-        this.updateFilter(cmd);
-        this.updateHiddenRows(cmd.sheetId);
-        break;
-      case "DUPLICATE_SHEET":
-        this.filterValues[cmd.sheetIdTo] = deepCopy(this.filterValues[cmd.sheetId]);
-        break;
-      // If we don't handle DELETE_SHEET, on one hand we will have some residual data, on the other hand we keep the data
-      // on DELETE_SHEET followed by undo
-    }
   }
 
   finalize() {

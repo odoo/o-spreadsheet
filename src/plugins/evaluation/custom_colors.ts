@@ -10,7 +10,7 @@ import {
 } from "../../helpers/color";
 import { isDefined } from "../../helpers/misc";
 import { Cell } from "../../types/cells";
-import { EvaluationCommand } from "../../types/commands";
+import { ColorSheetBackgroundCommand, ColorSheetCommand } from "../../types/commands";
 import { Color, Immutable, RGBA, UID } from "../../types/misc";
 import { TableElementStyle } from "../../types/table";
 import { EvaluationPlugin, EvaluationPluginConfig } from "../evaluation_plugin";
@@ -78,47 +78,61 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
   private readonly shouldUpdateColors = true;
   static getters = ["getCustomColors"] as const;
 
+  handlers = {
+    UPDATE_CELL: this.invalidateCustomColors,
+    SET_FORMATTING: this.invalidateCustomColors,
+    SET_BORDER: this.invalidateCustomColors,
+    SET_ZONE_BORDERS: this.invalidateCustomColors,
+    SET_SHEET_BACKGROUND_COLOR: this.addSheetBackgroundColor,
+    CREATE_TABLE: this.invalidateCustomColors,
+    UPDATE_TABLE: this.invalidateCustomColors,
+    ADD_CONDITIONAL_FORMAT: this.invalidateCustomColors,
+    UPDATE_CHART: this.addChartColors,
+    CREATE_CHART: this.addChartColors,
+    CREATE_CAROUSEL: this.addCarouselColors,
+    UPDATE_CAROUSEL: this.addCarouselColors,
+    COLOR_SHEET: this.addSheetColor,
+    START: this.addColorsOfCharts,
+  };
+
+  private addColorsOfCharts() {
+    for (const sheetId of this.getters.getSheetIds()) {
+      for (const chartId of this.getters.getChartIds(sheetId)) {
+        this.tryToAddColors(this.getChartColors(chartId));
+      }
+      for (const figureId of this.getters.getFigures(sheetId)) {
+        this.tryToAddColors(this.getCarouselColors(sheetId, figureId.id));
+      }
+    }
+  }
+
+  private addSheetColor(cmd: ColorSheetCommand) {
+    if (cmd.color) {
+      this.tryToAddColors([cmd.color]);
+    }
+  }
+
+  private addCarouselColors(cmd: { sheetId: UID; figureId: UID }) {
+    this.tryToAddColors(this.getCarouselColors(cmd.sheetId, cmd.figureId));
+  }
+
+  private addChartColors(cmd: { chartId: UID }) {
+    this.tryToAddColors(this.getChartColors(cmd.chartId));
+  }
+
+  private addSheetBackgroundColor(cmd: ColorSheetBackgroundCommand) {
+    if (cmd.color) {
+      this.tryToAddColors([cmd.color]);
+    }
+  }
+
   constructor(config: EvaluationPluginConfig) {
     super(config);
     this.tryToAddColors(config.customColors ?? []);
   }
 
-  handle(cmd: EvaluationCommand) {
-    switch (cmd.type) {
-      case "START":
-        for (const sheetId of this.getters.getSheetIds()) {
-          for (const chartId of this.getters.getChartIds(sheetId)) {
-            this.tryToAddColors(this.getChartColors(chartId));
-          }
-          for (const figureId of this.getters.getFigures(sheetId)) {
-            this.tryToAddColors(this.getCarouselColors(sheetId, figureId.id));
-          }
-        }
-        break;
-      case "UPDATE_CHART":
-      case "CREATE_CHART":
-        this.tryToAddColors(this.getChartColors(cmd.chartId));
-        break;
-      case "CREATE_CAROUSEL":
-      case "UPDATE_CAROUSEL":
-        this.tryToAddColors(this.getCarouselColors(cmd.sheetId, cmd.figureId));
-        break;
-      case "SET_SHEET_BACKGROUND_COLOR":
-      case "COLOR_SHEET":
-        if (cmd.color) {
-          this.tryToAddColors([cmd.color]);
-        }
-        break;
-      case "UPDATE_CELL":
-      case "ADD_CONDITIONAL_FORMAT":
-      case "SET_BORDER":
-      case "SET_ZONE_BORDERS":
-      case "SET_FORMATTING":
-      case "CREATE_TABLE":
-      case "UPDATE_TABLE":
-        this.history.update("shouldUpdateColors", true);
-        break;
-    }
+  private invalidateCustomColors() {
+    this.history.update("shouldUpdateColors", true);
   }
 
   finalize() {

@@ -14,8 +14,10 @@ import { Cell } from "../../types/cells";
 import {
   AddColumnsRowsCommand,
   ClearCellCommand,
+  ClearCellsCommand,
   CommandResult,
   CoreCommand,
+  DeleteContentCommand,
   PositionDependentCommand,
   UpdateCellCommand,
 } from "../../types/commands";
@@ -59,6 +61,38 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
 
+  handlers = {
+    UPDATE_CELL: this.updateCell,
+    DELETE_CONTENT: this.clearZones,
+    CLEAR_CELL: this.clearCell,
+    CLEAR_CELLS: this.clearCells,
+    DELETE_SHEET: this.deleteSheetCells,
+    ADD_COLUMNS_ROWS: this.copyStyleOnHeaderAddition,
+  };
+
+  private copyStyleOnHeaderAddition(cmd: AddColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      this.handleAddColumnsRows(cmd, this.copyColumnStyle.bind(this));
+    } else {
+      this.handleAddColumnsRows(cmd, this.copyRowStyle.bind(this));
+    }
+  }
+
+  private deleteSheetCells(cmd: { sheetId: UID }) {
+    this.history.update("cells", cmd.sheetId, undefined);
+  }
+
+  private clearCell(cmd: ClearCellCommand) {
+    this.dispatch("UPDATE_CELL", {
+      sheetId: cmd.sheetId,
+      col: cmd.col,
+      row: cmd.row,
+      content: "",
+      style: null,
+      format: null,
+    });
+  }
+
   adaptRanges(adapters: RangeAdapterFunctions) {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
@@ -97,45 +131,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
   }
 
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "ADD_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.handleAddColumnsRows(cmd, this.copyColumnStyle.bind(this));
-        } else {
-          this.handleAddColumnsRows(cmd, this.copyRowStyle.bind(this));
-        }
-        break;
-      case "UPDATE_CELL":
-        this.updateCell(cmd.sheetId, cmd.col, cmd.row, cmd);
-        break;
-
-      case "CLEAR_CELL":
-        this.dispatch("UPDATE_CELL", {
-          sheetId: cmd.sheetId,
-          col: cmd.col,
-          row: cmd.row,
-          content: "",
-          style: null,
-          format: null,
-        });
-        break;
-
-      case "CLEAR_CELLS":
-        this.clearCells(cmd.sheetId, cmd.target);
-        break;
-
-      case "DELETE_CONTENT":
-        this.clearZones(cmd.sheetId, cmd.target);
-        break;
-      case "DELETE_SHEET": {
-        this.history.update("cells", cmd.sheetId, undefined);
-      }
-    }
-  }
-
-  private clearZones(sheetId: UID, zones: Zone[]) {
-    for (const zone of recomputeZones(zones)) {
+  private clearZones(cmd: DeleteContentCommand) {
+    const sheetId = cmd.sheetId;
+    for (const zone of recomputeZones(cmd.target)) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const cell = this.getters.getCell({ sheetId, col, row });
@@ -155,8 +153,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /**
    * Clear the styles, the format and the content of zones
    */
-  private clearCells(sheetId: UID, zones: Zone[]) {
-    for (const zone of zones) {
+  private clearCells(cmd: ClearCellsCommand) {
+    const sheetId = cmd.sheetId;
+    for (const zone of cmd.target) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           this.dispatch("UPDATE_CELL", {
@@ -502,7 +501,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return id;
   }
 
-  private updateCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex, after: UpdateCellData) {
+  private updateCell(cmd: UpdateCellCommand) {
+    const { sheetId, col, row } = cmd;
+    const after: UpdateCellData = cmd;
     const position = { sheetId, col, row };
     const before = this.getters.getCell(position);
     const hasContent = after.content !== undefined || "formula" in after;

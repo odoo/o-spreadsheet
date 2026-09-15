@@ -19,7 +19,15 @@ import {
 } from "../../helpers/text_helper";
 import { isEqual, positions } from "../../helpers/zones";
 import { CellValueType } from "../../types/cells";
-import { Command, CommandResult, LocalCommand } from "../../types/commands";
+import {
+  AutoresizeColumnsCommand,
+  AutoresizeRowsCommand,
+  ColorAllCellsBackground,
+  Command,
+  CommandResult,
+  DeleteUnfilteredContentCommand,
+  LocalCommand,
+} from "../../types/commands";
 import {
   CellPosition,
   HeaderIndex,
@@ -46,6 +54,54 @@ export class SheetUIPlugin extends UIPlugin {
 
   private ctx = getCanvas();
 
+  handlers = {
+    AUTORESIZE_COLUMNS: this.autoResizeColumns,
+    AUTORESIZE_ROWS: this.autoResizeRowsHandler,
+    DELETE_UNFILTERED_CONTENT: this.deleteUnfilteredContent,
+    SET_BACKGROUND_FOR_ALL_CELLS: this.setBackgroundForAllCells,
+  };
+
+  private setBackgroundForAllCells(cmd: ColorAllCellsBackground) {
+    this.dispatch("SET_FORMATTING", {
+      sheetId: cmd.sheetId,
+      target: [this.getters.getSheetZone(cmd.sheetId)],
+      style: { fillColor: undefined },
+    });
+    this.dispatch("SET_SHEET_BACKGROUND_COLOR", { sheetId: cmd.sheetId, color: cmd.color });
+  }
+
+  private deleteUnfilteredContent(cmd: DeleteUnfilteredContentCommand) {
+    const newTarget: Zone[] = [];
+    for (const target of cmd.target) {
+      const nonFilteredRows = range(target.top, target.bottom + 1).filter(
+        (row) => !this.getters.isRowFiltered(cmd.sheetId, row)
+      );
+      const consecutiveRows = groupConsecutive(nonFilteredRows);
+      for (const group of consecutiveRows) {
+        newTarget.push({ ...target, top: group[0], bottom: group[group.length - 1] });
+      }
+    }
+    this.dispatch("DELETE_CONTENT", { sheetId: cmd.sheetId, target: newTarget });
+  }
+
+  private autoResizeRowsHandler(cmd: AutoresizeRowsCommand) {
+    this.autoResizeRows(cmd.sheetId, cmd.rows);
+  }
+
+  private autoResizeColumns(cmd: AutoresizeColumnsCommand) {
+    for (const col of cmd.cols) {
+      const size = this.getColMaxWidth(cmd.sheetId, col);
+      if (size !== 0) {
+        this.dispatch("RESIZE_COLUMNS_ROWS", {
+          elements: [col],
+          dimension: "COL",
+          size,
+          sheetId: cmd.sheetId,
+        });
+      }
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
@@ -55,48 +111,6 @@ export class SheetUIPlugin extends UIPlugin {
       return CommandResult.InvalidColor;
     }
     return this.chainValidations(this.checkSheetExists, this.checkZonesAreInSheet)(cmd);
-  }
-
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "AUTORESIZE_COLUMNS":
-        for (const col of cmd.cols) {
-          const size = this.getColMaxWidth(cmd.sheetId, col);
-          if (size !== 0) {
-            this.dispatch("RESIZE_COLUMNS_ROWS", {
-              elements: [col],
-              dimension: "COL",
-              size,
-              sheetId: cmd.sheetId,
-            });
-          }
-        }
-        break;
-      case "AUTORESIZE_ROWS":
-        this.autoResizeRows(cmd.sheetId, cmd.rows);
-        break;
-      case "DELETE_UNFILTERED_CONTENT":
-        const newTarget: Zone[] = [];
-        for (const target of cmd.target) {
-          const nonFilteredRows = range(target.top, target.bottom + 1).filter(
-            (row) => !this.getters.isRowFiltered(cmd.sheetId, row)
-          );
-          const consecutiveRows = groupConsecutive(nonFilteredRows);
-          for (const group of consecutiveRows) {
-            newTarget.push({ ...target, top: group[0], bottom: group[group.length - 1] });
-          }
-        }
-        this.dispatch("DELETE_CONTENT", { sheetId: cmd.sheetId, target: newTarget });
-        break;
-      case "SET_BACKGROUND_FOR_ALL_CELLS":
-        this.dispatch("SET_FORMATTING", {
-          sheetId: cmd.sheetId,
-          target: [this.getters.getSheetZone(cmd.sheetId)],
-          style: { fillColor: undefined },
-        });
-        this.dispatch("SET_SHEET_BACKGROUND_COLOR", { sheetId: cmd.sheetId, color: cmd.color });
-        break;
-    }
   }
 
   // ---------------------------------------------------------------------------
