@@ -30,6 +30,7 @@ import { Registry } from "../../src/registries/registry";
 import { PropsOf } from "../../src/types/props_of";
 
 import {
+  Border,
   CellPosition,
   CellValue,
   ChartDefinition,
@@ -425,6 +426,17 @@ export function getGridStyle(model: Model, range?: string): GridStyleDescr {
   for (const xc of Object.keys(getCellGrid(model, range))) {
     const { col, row } = toCartesian(xc);
     result[toXC(col, row)] = model.getters.getCellComputedStyle({ sheetId, col, row });
+  }
+  return result;
+}
+
+export function getGridBorders(model: Model, range: string) {
+  const result: { [xc: string]: Border | null } = {};
+  const sheetId = model.getters.getActiveSheetId();
+  const cellPositions = positions(toZone(range)).map(({ col, row }) => ({ sheetId, col, row }));
+  for (const position of cellPositions) {
+    const { col, row } = position;
+    result[toXC(col, row)] = model.getters.getCellComputedBorder(position);
   }
   return result;
 }
