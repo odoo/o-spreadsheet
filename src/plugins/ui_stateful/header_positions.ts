@@ -14,6 +14,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
   private isDirty = true;
 
   handlers = {
+    invalidateEvaluationCommands: this.invalidateHeaderPositions,
     // Either the content, format or style can impact the header sizes of a sheet
     UPDATE_CELL: this.invalidateHeaderPositions,
     REMOVE_TABLE: this.invalidateHeaderPositions,
@@ -30,26 +31,10 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     FOLD_HEADER_GROUPS_IN_ZONE: this.computeSheetHeaderPositions,
     UNFOLD_HEADER_GROUPS_IN_ZONE: this.computeSheetHeaderPositions,
     RESIZE_COLUMNS_ROWS: this.computeSheetHeaderPositions,
-    UPDATE_LOCALE: this.invalidateHeaderPositions,
-    CREATE_NAMED_RANGE: this.invalidateHeaderPositions,
-    UPDATE_NAMED_RANGE: this.invalidateHeaderPositions,
-    DELETE_NAMED_RANGE: this.invalidateHeaderPositions,
-    RENAME_PIVOT: this.invalidateHeaderPositions,
-    REMOVE_PIVOT: this.invalidateHeaderPositions,
-    INSERT_PIVOT: this.invalidateHeaderPositions,
-    ADD_PIVOT: this.invalidateHeaderPositions,
-    DUPLICATE_PIVOT: this.invalidateHeaderPositions,
-    UPDATE_PIVOT: this.invalidateHeaderPositions,
-    ADD_MERGE: this.invalidateHeaderPositions,
-    REMOVE_MERGE: this.invalidateHeaderPositions,
-    RENAME_SHEET: this.invalidateHeaderPositions,
-    CREATE_SHEET: this.invalidateAndComputeSheetPositions,
-    DUPLICATE_SHEET: this.duplicateSheetPositions,
-    DELETE_SHEET: this.invalidateHeaderPositions,
-    ADD_COLUMNS_ROWS: this.invalidateAndComputeSheetPositions,
-    REMOVE_COLUMNS_ROWS: this.invalidateAndComputeSheetPositions,
-    UNDO: this.invalidateHeaderPositions,
-    REDO: this.invalidateHeaderPositions,
+    CREATE_SHEET: this.computeSheetHeaderPositions,
+    DUPLICATE_SHEET: this.copySheetPositions,
+    ADD_COLUMNS_ROWS: this.computeSheetHeaderPositions,
+    REMOVE_COLUMNS_ROWS: this.computeSheetHeaderPositions,
     START: this.computeAllHeaderPositions,
   };
 
@@ -59,14 +44,8 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     }
   }
 
-  private duplicateSheetPositions(cmd: { sheetId: UID; sheetIdTo: UID }) {
-    this.invalidateHeaderPositions();
+  private copySheetPositions(cmd: { sheetId: UID; sheetIdTo: UID }) {
     this.headerPositions[cmd.sheetIdTo] = deepCopy(this.headerPositions[cmd.sheetId]);
-  }
-
-  private invalidateAndComputeSheetPositions(cmd: { sheetId: UID }) {
-    this.invalidateHeaderPositions();
-    this.computeSheetHeaderPositions(cmd);
   }
 
   private computeSheetHeaderPositions(cmd: { sheetId: UID }) {
