@@ -9,33 +9,51 @@ const BACKGROUND_HEADER_COLOR = "#F8F9FA";
 const BACKGROUND_HEADER_SELECTED_COLOR = "#E8EAED";
 const BACKGROUND_HEADER_ACTIVE_COLOR = "#595959";
 
+type ThemeColors = Omit<GridRenderingTheme, "colorThemeName">;
+
+function adaptColorsForDarkMode(colors: ThemeColors): ThemeColors {
+  return Object.fromEntries(
+    Object.entries(colors).map(([key, color]) => [key, adaptForDarkMode(color)])
+  ) as ThemeColors;
+}
+
+const LIGHT_COLORS: ThemeColors = {
+  chartBackgroundColor: "#FFFFFF",
+  gridBorderColor: "#CECFCF",
+  gridBorderColorOnDefaultBackground: "#E2E3E3",
+  headerBackgroundColor: BACKGROUND_HEADER_COLOR,
+  headerActiveBackgroundColor: BACKGROUND_HEADER_ACTIVE_COLOR,
+  headerSelectedBackgroundColor: BACKGROUND_HEADER_SELECTED_COLOR,
+  headerTextColor: TEXT_HEADER_COLOR,
+  headerBorderColor: HEADER_BORDER_COLOR,
+  frozenPaneBorderColor: FROZEN_PANE_BORDER_COLOR,
+  frozenPaneHeaderBorderColor: FROZEN_PANE_HEADER_BORDER_COLOR,
+  // Translucent so they composite over whatever is behind the cell, including the transparent
+  // canvas. These composite over white to #F3F7FE and #E9F0FF, the opaque colours they replace.
+  singleCellSelectionBackgroundColor: "#D2E1FB44",
+  multipleCellsSelectionBackgroundColor: "#ACC7FF44",
+};
+
+/** Every color defined explicitely in the dark theme is expected to be subject to color-inverter mask applied
+ * through the css class `os-theme-dependant`. They are therefore pre-inverted for dark mode.
+ * Note that  according to `adaptForDarkMode` documentation, the resulting color will be an approximation of the pre-inverted color.
+ */
+const DARK_DISPLAYED_COLORS: ThemeColors = {
+  chartBackgroundColor: "#25262b",
+  gridBorderColor: "#6B706F",
+  gridBorderColorOnDefaultBackground: "#4F5254",
+  headerBackgroundColor: "#262A36",
+  headerActiveBackgroundColor: "#3A4052",
+  headerSelectedBackgroundColor: "#4E566E",
+  headerTextColor: "#A1A6B3",
+  headerBorderColor: "#7A7F91",
+  frozenPaneBorderColor: "#7A7F91",
+  frozenPaneHeaderBorderColor: "#9FA5BD",
+  singleCellSelectionBackgroundColor: "#696E8044",
+  multipleCellsSelectionBackgroundColor: "#828AA044",
+};
+
 export const COLOR_THEMES: Record<ColorThemeName, GridRenderingTheme> = {
-  light: {
-    colorThemeName: "light",
-    backgroundColor: "#FFFFFF",
-    gridBorderColor: "#CECFCF",
-    headerBackgroundColor: BACKGROUND_HEADER_COLOR,
-    headerActiveBackgroundColor: BACKGROUND_HEADER_ACTIVE_COLOR,
-    headerSelectedBackgroundColor: BACKGROUND_HEADER_SELECTED_COLOR,
-    headerTextColor: TEXT_HEADER_COLOR,
-    headerBorderColor: HEADER_BORDER_COLOR,
-    frozenPaneBorderColor: FROZEN_PANE_BORDER_COLOR,
-    frozenPaneHeaderBorderColor: FROZEN_PANE_HEADER_BORDER_COLOR,
-    singleCellSelectionBackgroundColor: "#F3F7FE",
-    multipleCellsSelectionBackgroundColor: "#E9F0FF",
-  },
-  dark: {
-    colorThemeName: "dark",
-    backgroundColor: adaptForDarkMode("#1A1C2E"),
-    gridBorderColor: adaptForDarkMode("#6B706F"),
-    headerBackgroundColor: adaptForDarkMode("#262A36"),
-    headerActiveBackgroundColor: adaptForDarkMode("#3A4052"),
-    headerSelectedBackgroundColor: adaptForDarkMode("#4E566E"),
-    headerTextColor: adaptForDarkMode("#A1A6B3"),
-    headerBorderColor: adaptForDarkMode("#7A7F91"),
-    frozenPaneBorderColor: adaptForDarkMode("#7A7F91"),
-    frozenPaneHeaderBorderColor: adaptForDarkMode("#9FA5BD"),
-    singleCellSelectionBackgroundColor: adaptForDarkMode("#696E8044"),
-    multipleCellsSelectionBackgroundColor: adaptForDarkMode("#828AA044"),
-  },
+  light: { colorThemeName: "light", ...LIGHT_COLORS },
+  dark: { colorThemeName: "dark", ...adaptColorsForDarkMode(DARK_DISPLAYED_COLORS) },
 };

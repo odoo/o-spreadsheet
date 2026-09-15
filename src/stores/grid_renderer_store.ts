@@ -200,8 +200,13 @@ export class GridRenderer extends DisposableStore {
     const { ctx, viewports } = renderingContext;
     const { width, height } = viewports.getSheetViewDimensionWithHeaders();
 
-    ctx.fillStyle = this.getBackgroundColor(renderingContext);
-    ctx.fillRect(0, 0, width + CANVAS_SHIFT, height + CANVAS_SHIFT);
+    const fillStyle = this.getBackgroundColor(renderingContext);
+    if (fillStyle) {
+      ctx.fillStyle = fillStyle;
+      ctx.fillRect(0, 0, width + CANVAS_SHIFT, height + CANVAS_SHIFT);
+    } else {
+      ctx.clearRect(0, 0, width + CANVAS_SHIFT, height + CANVAS_SHIFT);
+    }
   }
 
   private drawBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
@@ -215,8 +220,15 @@ export class GridRenderer extends DisposableStore {
     if (areGridLinesVisible) {
       const theme = this.getters.getSpreadsheetTheme();
       const background = this.getBackgroundColor(renderingContext);
-      const blendedGridColor = blendColors(theme.gridBorderColor + "aa", background + "50");
-      ctx.strokeStyle = setColorAlpha(blendedGridColor, 1);
+      if (background) {
+        const blendedGridColor = blendColors(
+          theme.gridBorderColor + "aa",
+          toHex(background) + "50"
+        );
+        ctx.strokeStyle = setColorAlpha(blendedGridColor, 1);
+      } else {
+        ctx.strokeStyle = theme.gridBorderColorOnDefaultBackground;
+      }
       ctx.lineWidth = thinLineWidth;
       for (const box of boxes) {
         if (box.style.hideGridLines) {
@@ -229,12 +241,11 @@ export class GridRenderer extends DisposableStore {
 
   private drawCellBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx } = renderingContext;
+    const backgroundColor = this.getBackgroundColor(renderingContext);
+    const background = backgroundColor ? toHex(backgroundColor) : undefined;
     for (const box of boxes) {
       const style = box.style;
-      if (
-        style.fillColor &&
-        toHex(style.fillColor) !== toHex(this.getBackgroundColor(renderingContext))
-      ) {
+      if (style.fillColor && toHex(style.fillColor) !== background) {
         ctx.fillStyle = toHex(style.fillColor);
         // We shift the canvas by CANVAS_SHIFT to avoid blurry lines (lines are drawn between pixels), but fillRect
         // are drawn at the exact pixel position, so we need to compensate this shift here. We also want to extend
@@ -256,10 +267,8 @@ export class GridRenderer extends DisposableStore {
         ctx.fillRect(box.x, y, width, height);
       }
       if (box.overlayColor) {
-        ctx.fillStyle = blendColors(
-          style.fillColor || this.getBackgroundColor(renderingContext),
-          box.overlayColor
-        );
+        const backdrop = style.fillColor || this.getBackgroundColor(renderingContext);
+        ctx.fillStyle = backdrop ? blendColors(backdrop, box.overlayColor) : box.overlayColor;
         ctx.fillRect(
           box.x - CANVAS_SHIFT,
           box.y - CANVAS_SHIFT,
@@ -293,6 +302,7 @@ export class GridRenderer extends DisposableStore {
 
   private drawOverflowingCellBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx, thinLineWidth } = renderingContext;
+    const background = this.getBackgroundColor(renderingContext);
     for (const box of boxes) {
       if (box.content && box.isOverflow) {
         const align = box.content.align || "left";
@@ -312,8 +322,12 @@ export class GridRenderer extends DisposableStore {
             (box.clipRect?.x || box.x + box.width / 2 - box.content.width / 2) + thinLineWidth / 2;
           width = clipWidth - 2 * thinLineWidth;
         }
-        ctx.fillStyle = this.getBackgroundColor(renderingContext);
-        ctx.fillRect(x, y, width, height);
+        if (background) {
+          ctx.fillStyle = background;
+          ctx.fillRect(x, y, width, height);
+        } else {
+          ctx.clearRect(x, y, width, height);
+        }
       }
     }
   }
@@ -525,7 +539,7 @@ export class GridRenderer extends DisposableStore {
     ctx.strokeStyle = theme.headerTextColor;
 
     // Background for headers to separate from possible grid background color
-    ctx.fillStyle = this.getters.getSpreadsheetTheme().backgroundColor;
+    ctx.fillStyle = theme.headerBackgroundColor;
     ctx.fillRect(0, 0, HEADER_WIDTH, height);
     ctx.fillRect(0, 0, width, HEADER_HEIGHT);
 
@@ -1084,9 +1098,6 @@ export class GridRenderer extends DisposableStore {
   }
 
   private getBackgroundColor(renderingContext: GridRenderingContext) {
-    return (
-      this.getters.getSheet(renderingContext.sheetId).backgroundColor ||
-      this.getters.getSpreadsheetTheme().backgroundColor
-    );
+    return this.getters.getSheet(renderingContext.sheetId).backgroundColor;
   }
 }
