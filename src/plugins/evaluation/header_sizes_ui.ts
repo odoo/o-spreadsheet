@@ -55,7 +55,14 @@ export class HeaderSizeUIPlugin
     REMOVE_MERGE: this.updateRowSizesForMergeChange,
     CREATE_SHEET: this.initializeCreatedSheet,
     DUPLICATE_SHEET: this.duplicateSheetTallestCells,
+    DELETE_SHEET: this.deleteSheetTallestCells,
   };
+
+  private deleteSheetTallestCells(cmd: { sheetId: UID }) {
+    const tallestCells = { ...this.tallestCellInRow };
+    delete tallestCells[cmd.sheetId];
+    this.history.update("tallestCellInRow", tallestCells);
+  }
 
   private duplicateSheetTallestCells(cmd: { sheetId: UID; sheetIdTo: UID }) {
     const tallestCells = deepCopy(this.tallestCellInRow[cmd.sheetId]);
@@ -140,11 +147,6 @@ export class HeaderSizeUIPlugin
         for (const sheetId of this.getters.getSheetIds()) {
           this.initializeSheet(sheetId);
         }
-        break;
-      case "DELETE_SHEET":
-        const tallestCells = { ...this.tallestCellInRow };
-        delete tallestCells[cmd.sheetId];
-        this.history.update("tallestCellInRow", tallestCells);
         break;
       case "REMOVE_COLUMNS_ROWS": {
         if (cmd.dimension === "COL") {

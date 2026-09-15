@@ -61,6 +61,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
     RENAME_SHEET: this.clearTableStyles,
     CREATE_SHEET: this.clearTableStyles,
     DUPLICATE_SHEET: this.clearTableStyles,
+    DELETE_SHEET: this.clearTableStyles,
   };
 
   private clearTableStyles() {

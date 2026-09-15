@@ -46,6 +46,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     RENAME_SHEET: this.invalidateHeaderPositions,
     CREATE_SHEET: this.invalidateAndComputeSheetPositions,
     DUPLICATE_SHEET: this.duplicateSheetPositions,
+    DELETE_SHEET: this.invalidateHeaderPositions,
   };
 
   private duplicateSheetPositions(cmd: { sheetId: UID; sheetIdTo: UID }) {

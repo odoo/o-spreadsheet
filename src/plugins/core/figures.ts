@@ -30,7 +30,12 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     DELETE_FIGURE: this.deleteFigure,
     CREATE_SHEET: this.initSheetFigures,
     DUPLICATE_SHEET: this.duplicateSheetFigures,
+    DELETE_SHEET: this.deleteSheetFigures,
   };
+
+  private deleteSheetFigures(cmd: { sheetId: UID }) {
+    this.deleteSheet(cmd.sheetId);
+  }
 
   private duplicateSheetFigures(cmd: { sheetId: UID; sheetIdTo: UID }) {
     for (const figure of this.getFigures(cmd.sheetId)) {
@@ -141,9 +146,6 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "DELETE_SHEET":
-        this.deleteSheet(cmd.sheetId);
-        break;
       case "REMOVE_COLUMNS_ROWS":
         if (cmd.dimension === "COL") {
           this.onColRemove(cmd.sheetId);

@@ -67,6 +67,7 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
     RENAME_SHEET: this.invalidateChartRuntimes,
     CREATE_SHEET: this.invalidateChartRuntimes,
     DUPLICATE_SHEET: this.invalidateChartRuntimes,
+    DELETE_SHEET: this.invalidateChartRuntimes,
   };
 
   private invalidateChartRuntime(cmd: { chartId: UID }) {
@@ -88,16 +89,6 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
       for (const chartId in this.charts) {
         this.charts[chartId] = {};
       }
-    }
-
-    switch (cmd.type) {
-      case "DELETE_SHEET":
-        for (const chartId in this.charts) {
-          if (!this.getters.isChartDefined(chartId)) {
-            this.charts[chartId] = {};
-          }
-        }
-        break;
     }
   }
 

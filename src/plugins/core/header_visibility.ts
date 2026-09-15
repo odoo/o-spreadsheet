@@ -34,7 +34,12 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     UNHIDE_COLUMNS_ROWS: this.unhideHeaders,
     CREATE_SHEET: this.initSheetHiddenHeaders,
     DUPLICATE_SHEET: this.duplicateSheetHiddenHeaders,
+    DELETE_SHEET: this.deleteSheetHiddenHeaders,
   };
+
+  private deleteSheetHiddenHeaders(cmd: { sheetId: UID }) {
+    this.history.update("hiddenHeaders", cmd.sheetId, undefined);
+  }
 
   private duplicateSheetHiddenHeaders(cmd: { sheetId: UID; sheetIdTo: UID }) {
     this.history.update("hiddenHeaders", cmd.sheetIdTo, deepCopy(this.hiddenHeaders[cmd.sheetId]));
@@ -97,9 +102,6 @@ export class HeaderVisibilityPlugin extends CorePlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "DELETE_SHEET":
-        this.history.update("hiddenHeaders", cmd.sheetId, undefined);
-        break;
       case "REMOVE_COLUMNS_ROWS": {
         const hiddenHeaders = [...this.hiddenHeaders[cmd.sheetId][cmd.dimension]];
         for (const el of [...cmd.elements].sort((a, b) => b - a)) {

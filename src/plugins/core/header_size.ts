@@ -23,7 +23,14 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
     RESIZE_COLUMNS_ROWS: this.resizeHeaders,
     CREATE_SHEET: this.initSheetSizes,
     DUPLICATE_SHEET: this.duplicateSheetSizes,
+    DELETE_SHEET: this.deleteSheetSizes,
   };
+
+  private deleteSheetSizes(cmd: { sheetId: UID }) {
+    const sizes = { ...this.sizes };
+    delete sizes[cmd.sheetId];
+    this.history.update("sizes", sizes);
+  }
 
   private duplicateSheetSizes(cmd: { sheetId: UID; sheetIdTo: UID }) {
     this.history.update("sizes", cmd.sheetIdTo, deepCopy(this.sizes[cmd.sheetId]));
@@ -44,11 +51,6 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "DELETE_SHEET":
-        const sizes = { ...this.sizes };
-        delete sizes[cmd.sheetId];
-        this.history.update("sizes", sizes);
-        break;
       case "REMOVE_COLUMNS_ROWS": {
         const arr = this.sizes[cmd.sheetId][cmd.dimension];
         const sizes = removeIndexesFromArray(arr, cmd.elements);

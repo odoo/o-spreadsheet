@@ -67,7 +67,14 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     UPDATE_TABLE: this.updateTable,
     CREATE_SHEET: this.initSheetTables,
     DUPLICATE_SHEET: this.duplicateSheetTables,
+    DELETE_SHEET: this.deleteSheetTables,
   };
+
+  private deleteSheetTables(cmd: { sheetId: UID }) {
+    const tables = { ...this.tables };
+    delete tables[cmd.sheetId];
+    this.history.update("tables", tables);
+  }
 
   private duplicateSheetTables(cmd: { sheetId: UID; sheetIdTo: UID }) {
     const newTables: Record<UID, CoreTable | undefined> = {};
@@ -164,17 +171,6 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
         break;
     }
     return CommandResult.Success;
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "DELETE_SHEET": {
-        const tables = { ...this.tables };
-        delete tables[cmd.sheetId];
-        this.history.update("tables", tables);
-        break;
-      }
-    }
   }
 
   getCoreTables(sheetId: UID): CoreTable[] {

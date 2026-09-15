@@ -8,7 +8,6 @@ import {
   CancelledReason,
   Command,
   CommandResult,
-  CoreCommand,
   MoveConditionalFormatCommand,
   RemoveConditionalFormatCommand,
 } from "../../types/commands";
@@ -66,7 +65,14 @@ export class ConditionalFormatPlugin
     CHANGE_CONDITIONAL_FORMAT_PRIORITY: this.changeConditionalFormatPriority,
     CREATE_SHEET: this.initSheetCfRules,
     DUPLICATE_SHEET: this.duplicateSheetCfRules,
+    DELETE_SHEET: this.deleteSheetCfRules,
   };
+
+  private deleteSheetCfRules(cmd: { sheetId: UID }) {
+    const cfRules = Object.assign({}, this.cfRules);
+    delete cfRules[cmd.sheetId];
+    this.history.update("cfRules", cfRules);
+  }
 
   private duplicateSheetCfRules(cmd: { sheetId: UID; sheetIdTo: UID }) {
     this.history.update("cfRules", cmd.sheetIdTo, []);
@@ -242,16 +248,6 @@ export class ConditionalFormatPlugin
         return this.checkValidPriorityChange(cmd.cfId, cmd.delta, cmd.sheetId);
     }
     return CommandResult.Success;
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "DELETE_SHEET":
-        const cfRules = Object.assign({}, this.cfRules);
-        delete cfRules[cmd.sheetId];
-        this.history.update("cfRules", cfRules);
-        break;
-    }
   }
 
   import(data: WorkbookData) {

@@ -64,7 +64,13 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     REMOVE_MERGE: this.removeMerges,
     CREATE_SHEET: this.initSheetMerges,
     DUPLICATE_SHEET: this.duplicateSheetMerges,
+    DELETE_SHEET: this.deleteSheetMerges,
   };
+
+  private deleteSheetMerges(cmd: { sheetId: UID }) {
+    this.history.update("merges", cmd.sheetId, {});
+    this.history.update("mergeCellMap", cmd.sheetId, {});
+  }
 
   private duplicateSheetMerges(cmd: { sheetId: UID; sheetIdTo: UID }) {
     const merges = this.merges[cmd.sheetId];
@@ -117,15 +123,6 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         return this.checkMergeExists(cmd);
       default:
         return CommandResult.Success;
-    }
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "DELETE_SHEET":
-        this.history.update("merges", cmd.sheetId, {});
-        this.history.update("mergeCellMap", cmd.sheetId, {});
-        break;
     }
   }
 

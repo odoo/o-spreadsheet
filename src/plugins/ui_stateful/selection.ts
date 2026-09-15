@@ -195,6 +195,7 @@ export class GridSelectionPlugin extends UIPlugin {
   handlers = {
     DELETE_FIGURE: this.unselectDeletedFigure,
     HIDE_SHEET: this.activateAnotherSheetOnHide,
+    DELETE_SHEET: this.onSheetDeleted,
   };
 
   private activateAnotherSheetOnHide(cmd: HideSheetCommand) {
@@ -204,6 +205,41 @@ export class GridSelectionPlugin extends UIPlugin {
         sheetIdTo: this.getters.getVisibleSheetIds()[0],
       });
     }
+  }
+
+  private onSheetDeleted() {
+    this.forgetDeletedSheetsSelections();
+    this.selectedFiguresIds = [];
+  }
+
+  /**
+   * Drop the selections of the sheets which no longer exist and clip the
+   * remaining ones to their sheet. Returns the active sheet id.
+   */
+  private forgetDeletedSheetsSelections(): UID {
+    const deletedSheetIds = Object.keys(this.sheetsData).filter(
+      (sheetId) => !this.getters.tryGetSheet(sheetId)
+    );
+    for (const sheetId of deletedSheetIds) {
+      delete this.sheetsData[sheetId];
+    }
+    for (const sheetId in this.sheetsData) {
+      const gridSelection = this.clipSelection(sheetId, this.sheetsData[sheetId].gridSelection);
+      this.sheetsData[sheetId] = {
+        gridSelection: deepCopy(gridSelection),
+      };
+    }
+    this.fallbackToVisibleSheet();
+    const sheetId = this.getters.getActiveSheetId();
+    this.gridSelection.zones = this.gridSelection.zones.map((z) =>
+      this.getters.expandZone(sheetId, z)
+    );
+    this.gridSelection.anchor.zone = this.getters.expandZone(
+      sheetId,
+      this.gridSelection.anchor.zone
+    );
+    this.setSelectionMixin(this.gridSelection.anchor, this.gridSelection.zones);
+    return sheetId;
   }
 
   private unselectDeletedFigure(cmd: DeleteFigureCommand) {
@@ -278,29 +314,7 @@ export class GridSelectionPlugin extends UIPlugin {
         break;
       case "UNDO":
       case "REDO":
-      case "DELETE_SHEET":
-        const deletedSheetIds = Object.keys(this.sheetsData).filter(
-          (sheetId) => !this.getters.tryGetSheet(sheetId)
-        );
-        for (const sheetId of deletedSheetIds) {
-          delete this.sheetsData[sheetId];
-        }
-        for (const sheetId in this.sheetsData) {
-          const gridSelection = this.clipSelection(sheetId, this.sheetsData[sheetId].gridSelection);
-          this.sheetsData[sheetId] = {
-            gridSelection: deepCopy(gridSelection),
-          };
-        }
-        this.fallbackToVisibleSheet();
-        const sheetId = this.getters.getActiveSheetId();
-        this.gridSelection.zones = this.gridSelection.zones.map((z) =>
-          this.getters.expandZone(sheetId, z)
-        );
-        this.gridSelection.anchor.zone = this.getters.expandZone(
-          sheetId,
-          this.gridSelection.anchor.zone
-        );
-        this.setSelectionMixin(this.gridSelection.anchor, this.gridSelection.zones);
+        const sheetId = this.forgetDeletedSheetsSelections();
         if (cmd.type === "UNDO") {
           this.selectedFiguresIds = cmd.commands
             .filter(
@@ -308,15 +322,13 @@ export class GridSelectionPlugin extends UIPlugin {
                 cmd.type === "DELETE_FIGURE" && cmd.sheetId === sheetId
             )
             .map((cmd) => cmd.figureId);
-        } else if (cmd.type === "REDO") {
+        } else {
           this.selectedFiguresIds = cmd.commands
             .filter(
               (cmd): cmd is CreateFigureCommand =>
                 cmd.type === "CREATE_FIGURE" && cmd.sheetId === sheetId
             )
             .map((cmd) => cmd.figureId);
-        } else {
-          this.selectedFiguresIds = [];
         }
         break;
     }
