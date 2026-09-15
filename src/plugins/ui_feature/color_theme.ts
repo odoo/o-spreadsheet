@@ -1,5 +1,5 @@
 import { COLOR_THEMES } from "../../helpers/color_themes";
-import { Command } from "../../types/commands";
+import { UpdateColorSchemeCommand } from "../../types/commands";
 import { ColorThemeName, GridRenderingTheme } from "../../types/rendering";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
@@ -12,10 +12,12 @@ export class ColorThemeUIPlugin extends UIPlugin {
     this.colorScheme = config.colorScheme;
   }
 
-  handle(command: Command): void {
-    if (command.type === "UPDATE_COLOR_SCHEME") {
-      this.colorScheme = command.colorScheme;
-    }
+  handlers = {
+    UPDATE_COLOR_SCHEME: this.updateColorScheme,
+  };
+
+  private updateColorScheme(cmd: UpdateColorSchemeCommand) {
+    this.colorScheme = cmd.colorScheme;
   }
 
   isDarkMode(): boolean {

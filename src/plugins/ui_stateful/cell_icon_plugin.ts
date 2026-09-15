@@ -126,6 +126,7 @@ export class CellIconPlugin extends UIPlugin {
     UNSELECT_FIGURE: this.clearCellIconsCache,
     ACTIVATE_NEXT_SHEET: this.clearCellIconsCache,
     ACTIVATE_PREVIOUS_SHEET: this.clearCellIconsCache,
+    UPDATE_COLOR_SCHEME: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
