@@ -38,7 +38,7 @@ import {
   getCellText,
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers";
-import { addTestPlugin } from "../test_helpers/helpers";
+import { addTestPlugin, nextTick } from "../test_helpers/helpers";
 
 describe("Model", () => {
   test("core plugin can refuse command from UI plugin", () => {
@@ -271,6 +271,24 @@ describe("Model", () => {
     expect(() => evaluateCells(model)).toThrow(
       "A top level evaluation command cannot dispatch non-evaluation commands (UPDATE_CELL)"
     );
+  });
+
+  test("An evaluation command dispatched outside of a command loop triggers an update", async () => {
+    class MyEvaluationPlugin extends EvaluationPlugin {
+      handle(cmd: EvaluationCommand) {
+        if (cmd.type === "START") {
+          void Promise.resolve().then(() => this.dispatch("EVALUATE_CELLS"));
+        }
+      }
+    }
+    addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
+    const model = new Model();
+    const onUpdate = jest.fn();
+    model.on("update", null, onUpdate);
+
+    expect(onUpdate).not.toHaveBeenCalled();
+    await nextTick();
+    expect(onUpdate).toHaveBeenCalledTimes(1);
   });
 
   test("Cannot add UI plugin in the wrong registry", () => {

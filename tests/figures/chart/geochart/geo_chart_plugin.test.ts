@@ -251,6 +251,19 @@ describe("Geo charts plugin tests", () => {
   });
 });
 
+test("Loading the geo json features triggers a render", async () => {
+  const model = new Model({}, { external: { geoJsonService: mockGeoJsonService } });
+  const onUpdate = jest.fn();
+  model.on("update", null, onUpdate);
+
+  expect(model.getters.getGeoJsonFeatures("world")).toBeUndefined();
+  expect(onUpdate).not.toHaveBeenCalled();
+
+  await nextTick();
+  expect(onUpdate).toHaveBeenCalled();
+  expect(model.getters.getGeoJsonFeatures("world")).not.toBeUndefined();
+});
+
 test("Excel export loads all the used geo json", async () => {
   const spy = jest.spyOn(mockGeoJsonService, "getTopoJson");
   const model = new Model({}, { external: { geoJsonService: mockGeoJsonService } });
