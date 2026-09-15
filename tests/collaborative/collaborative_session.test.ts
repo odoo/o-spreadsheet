@@ -9,12 +9,21 @@ import {
 } from "../../src";
 import { ICommandSquisher, SquishedCoreCommand } from "../../src/collaborative/command_squisher";
 import { Session } from "../../src/collaborative/session";
+import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { lazy } from "../../src/helpers/misc";
 import { buildRevisionLog } from "../../src/history/factory";
+import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { MockTransportService } from "../__mocks__/transport_service";
-import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import {
+  autofill,
+  copy,
+  paste,
+  selectCell,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
 import { nextTick, useJestFakeTimers } from "../test_helpers/helpers";
+import { makeStoreWithModel } from "../test_helpers/stores";
 
 class MockCommandSquisher implements ICommandSquisher {
   public squish(
@@ -381,6 +390,25 @@ describe("Collaborative session", () => {
       ]);
     }).not.toThrow();
   });
+
+  test("root command name is sent in the revision message", () => {
+    const model = new Model(
+      {},
+      {
+        transportService: transport,
+        client: { id: "alice", name: "Alice" },
+      }
+    );
+    const { container } = makeStoreWithModel(model, ClipboardStore);
+    const spy = jest.spyOn(transport, "sendMessage");
+    setCellContent(model, "A1", "1");
+    copy(model, "A1");
+    paste(model, "A2");
+    expect(spy).toHaveBeenLastCalledWith(expect.objectContaining({ rootCommandType: "PASTE" }));
+    container.get(AutofillStore);
+    autofill(model, "A1:A2", "A3");
+    expect(spy).toHaveBeenLastCalledWith(expect.objectContaining({ rootCommandType: "AUTOFILL" }));
+  });
 });
 
 describe("Command squish verification", () => {
@@ -407,6 +435,7 @@ describe("Command squish verification", () => {
       squishedFailed: true,
       nextRevisionId: expect.any(String),
       serverRevisionId: DEFAULT_REVISION_ID,
+      rootCommandType: "UPDATE_CELL",
     });
   });
 
@@ -422,6 +451,7 @@ describe("Command squish verification", () => {
       version: MESSAGE_VERSION,
       clientId: "alice",
       commands: [command], // LossyCommandSquisher.squish is the identity here
+      rootCommandType: "UPDATE_CELL",
       nextRevisionId: expect.any(String),
       serverRevisionId: DEFAULT_REVISION_ID,
     });

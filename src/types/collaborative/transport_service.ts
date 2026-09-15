@@ -1,5 +1,5 @@
 import { SquishedCoreCommand } from "../../collaborative/command_squisher";
-import { CoreCommand } from "../commands";
+import { CommandTypes, CoreCommand } from "../commands";
 import { UID } from "../misc";
 import { WorkbookData } from "../workbook_data";
 import { ClientId, ClientWithPosition } from "./session";
@@ -14,11 +14,13 @@ export interface RemoteRevisionMessage extends AbstractMessage {
   commands: readonly CoreCommand[];
   nextRevisionId: UID;
   serverRevisionId: UID;
+  rootCommandType?: CommandTypes;
   timestamp?: number;
 }
 
 export interface RemoteRevisionsSquishedMessage extends Omit<RemoteRevisionMessage, "commands"> {
   commands: (CoreCommand | SquishedCoreCommand)[];
+  rootCommandType?: CommandTypes;
   squishedFailed?: boolean;
 }
 
