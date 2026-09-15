@@ -16,7 +16,7 @@ import { ComposerSelection } from "../../src/components/composer/composer/abstra
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { Composer } from "../../src/components/composer/composer/composer";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
-import { getCurrentSelection, isMobileOS } from "../../src/components/helpers/dom_helpers";
+import { getCurrentSelection } from "../../src/components/helpers/dom_helpers";
 import {
   createGetPluginFunctionFromScope,
   OSComponent,
@@ -77,6 +77,7 @@ import { PopoverContainerPlugin } from "../../src/components/popover/popover_con
 import { computeFunctionsCache } from "../../src/formulas/compiler";
 import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
+import { MobilePlugin } from "../../src/owl_plugins/mobile_owl_plugin";
 import { ModelPlugin } from "../../src/owl_plugins/model_owl_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { PrintPlugin } from "../../src/owl_plugins/print_owl_plugin";
@@ -291,7 +292,6 @@ export function makeSpreadsheetActionTestEnv(
     get isSmall() {
       return mockEnv.isSmall || false;
     },
-    isMobile: mockEnv.isMobile || isMobileOS,
     // @ts-ignore
     __spreadsheet_stores__: container,
     getPlugin,
@@ -328,7 +328,7 @@ class TestParent extends Component {
   });
 
   setup() {
-    providePlugins([NotificationPlugin, ModelPlugin, PrintPlugin], {
+    providePlugins([NotificationPlugin, ModelPlugin, PrintPlugin, MobilePlugin], {
       model: this.props.model,
     });
     if (this.props.isPortalTarget) {
@@ -393,7 +393,6 @@ class TestParent extends Component {
       get isSmall() {
         return mockEnv.isSmall || false;
       },
-      isMobile: mockEnv.isMobile || isMobileOS,
       // @ts-ignore
       __spreadsheet_stores__: container,
     });

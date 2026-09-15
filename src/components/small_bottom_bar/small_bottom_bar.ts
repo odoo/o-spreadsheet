@@ -1,4 +1,5 @@
-import { onMounted, onPatched, proxy, signal, useProps } from "@odoo/owl";
+import { onMounted, onPatched, proxy, signal, usePlugin, useProps } from "@odoo/owl";
+import { MobilePlugin } from "../../owl_plugins/mobile_owl_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ComposerFocusType } from "../../types/misc";
@@ -28,6 +29,7 @@ export class SmallBottomBar extends OSComponent {
   private composerStore!: Store<CellComposerStore>;
   private viewStore!: Store<ViewportsStore>;
   private composerInterface!: ComposerInterface;
+  private mobilePlugin = usePlugin(MobilePlugin);
   private composerRef = signal.ref();
 
   private menuState = proxy({
@@ -52,7 +54,7 @@ export class SmallBottomBar extends OSComponent {
     const autoFocusComposer = () => {
       if (
         // we hide the grid composer on mobile so we need to autofocus this composer
-        this.env.isMobile() &&
+        this.mobilePlugin.isMobile() &&
         !this.menuState.isOpen &&
         this.composerStore.editionMode !== "inactive" &&
         this.composerFocusStore.activeComposer !== this.composerInterface

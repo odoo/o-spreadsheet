@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, proxy, signal, useProps } from "@odoo/owl";
+import { onMounted, onWillUnmount, proxy, signal, usePlugin, useProps } from "@odoo/owl";
 import { NEWLINE, SCROLLBAR_WIDTH } from "../../../constants";
 import { setColorAlpha } from "../../../helpers/color";
 import { debounce, deepEquals, isFormula } from "../../../helpers/misc";
@@ -9,6 +9,7 @@ import { DEFAULT_TOKEN_COLOR } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { argTargeting } from "../../../functions/arguments";
 import { functionRegistry } from "../../../functions/function_registry";
+import { MobilePlugin } from "../../../owl_plugins/mobile_owl_plugin";
 import { AutoCompleteProposal } from "../../../registries/auto_completes/auto_complete_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
@@ -103,6 +104,7 @@ export class Composer extends OSComponent {
   });
   private compositionActive: boolean = false;
   private spreadsheetRect = useSpreadsheetRect();
+  private mobilePlugin = usePlugin(MobilePlugin);
   private lastHoveredTokenIndex: number | undefined = undefined;
 
   private debouncedHover = debounce(
@@ -491,7 +493,7 @@ export class Composer extends OSComponent {
       return;
     }
 
-    if (this.env.isMobile() && !isIOS()) {
+    if (this.mobilePlugin.isMobile() && !isIOS()) {
       return;
     }
     this.debouncedHover.stopDebounce();

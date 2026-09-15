@@ -5,11 +5,13 @@ import {
   proxy,
   signal,
   useListener,
+  usePlugin,
   useProps,
 } from "@odoo/owl";
 import { throttle } from "../../../helpers/misc";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
 import { useLayoutEffect } from "../../../owl3_compatibility_layer";
+import { MobilePlugin } from "../../../owl_plugins/mobile_owl_plugin";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { getSheetMenuRegistry } from "../../../registries/menus/sheet_menu_registry";
 import { useStore } from "../../../store_engine/store_hooks";
@@ -56,6 +58,8 @@ export class BottomBarSheet extends OSComponent {
   });
 
   private state = proxy<State>({ isEditing: false, openedPicker: undefined });
+
+  private mobilePlugin = usePlugin(MobilePlugin);
 
   private sheetDivRef = signal.ref();
   private iconRef = signal.ref();
@@ -157,14 +161,14 @@ export class BottomBarSheet extends OSComponent {
   }
 
   onClick() {
-    if (!this.env.isMobile()) {
+    if (!this.mobilePlugin.isMobile()) {
       return;
     }
     this.activateSheet();
   }
 
   onMouseDown(ev: PointerEvent) {
-    if (this.env.isMobile()) {
+    if (this.mobilePlugin.isMobile()) {
       return;
     }
     this.activateSheet();

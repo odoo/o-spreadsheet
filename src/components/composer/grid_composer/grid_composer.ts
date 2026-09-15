@@ -1,10 +1,11 @@
-import { onWillUpdateProps, useProps } from "@odoo/owl";
+import { onWillUpdateProps, usePlugin, useProps } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../../constants";
 import { toXC } from "../../../helpers/coordinates";
 import { deepEquals, isFormula } from "../../../helpers/misc";
 import { getFullReference } from "../../../helpers/references";
 import { fontSizeInPixels } from "../../../helpers/text_helper";
 import { positionToZone } from "../../../helpers/zones";
+import { MobilePlugin } from "../../../owl_plugins/mobile_owl_plugin";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { CellPosition, ComposerFocusType } from "../../../types/misc";
@@ -47,6 +48,8 @@ export class GridComposer extends OSComponent {
   composerFocusStore!: Store<ComposerFocusStore>;
   private viewStore!: Store<ViewportsStore>;
 
+  private mobilePlugin = usePlugin(MobilePlugin);
+
   private composerInterface!: ComposerInterface;
 
   get defaultRect() {
@@ -75,7 +78,7 @@ export class GridComposer extends OSComponent {
   }
 
   get shouldDisplayCellReference(): boolean {
-    return !this.env.isMobile() && this.isCellReferenceVisible;
+    return !this.mobilePlugin.isMobile() && this.isCellReferenceVisible;
   }
 
   get cellReference(): string {
@@ -131,7 +134,7 @@ export class GridComposer extends OSComponent {
   }
 
   get containerStyle(): string {
-    if (this.composerStore.editionMode === "inactive" || this.env.isMobile()) {
+    if (this.composerStore.editionMode === "inactive" || this.mobilePlugin.isMobile()) {
       return `z-index: -1000; opacity: 0;`; // opacity 0 for safari on ios
     }
     const _isFormula = isFormula(this.composerStore.currentContent);

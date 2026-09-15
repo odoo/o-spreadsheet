@@ -1,8 +1,9 @@
-import { onMounted, onWillUpdateProps, proxy } from "@odoo/owl";
+import { onMounted, onWillUpdateProps, proxy, usePlugin } from "@odoo/owl";
 import { DRAG_THRESHOLD } from "../../../constants";
 import { isDefined } from "../../../helpers/misc";
 import { render } from "../../../helpers/owl3_helpers";
 import { rectUnion } from "../../../helpers/rectangle";
+import { MobilePlugin } from "../../../owl_plugins/mobile_owl_plugin";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ChartDragStore } from "../../../stores/chart_drag_store";
@@ -126,6 +127,8 @@ export class FiguresContainer extends OSComponent {
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
   private chartDragStore!: Store<ChartDragStore>;
+
+  private mobilePlugin = usePlugin(MobilePlugin);
 
   setup() {
     this.viewStore = useStore(ViewportsStore);
@@ -330,7 +333,7 @@ export class FiguresContainer extends OSComponent {
       }
     }
 
-    if (this.env.isMobile() || this.model().getters.isCurrentSheetLocked()) {
+    if (this.mobilePlugin.isMobile() || this.model().getters.isCurrentSheetLocked()) {
       return;
     }
 

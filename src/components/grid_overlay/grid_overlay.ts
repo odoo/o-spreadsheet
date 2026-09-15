@@ -1,8 +1,17 @@
-import { onMounted, onWillUnmount, signal, Signal, useListener, useProps } from "@odoo/owl";
+import {
+  onMounted,
+  onWillUnmount,
+  signal,
+  Signal,
+  useListener,
+  usePlugin,
+  useProps,
+} from "@odoo/owl";
 import { FOOTER_HEIGHT } from "../../constants";
 import { deepEquals } from "../../helpers/misc";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { positionToZone } from "../../helpers/zones";
+import { MobilePlugin } from "../../owl_plugins/mobile_owl_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -31,6 +40,7 @@ function useCellHovered(
   const cellHoverOverlay = useStore(CellHoverOverlayStore);
   const viewStore = useStore(ViewportsStore);
   const zoomStore = useStore(ZoomStore);
+  const mobilePlugin = usePlugin(MobilePlugin);
   const hoveredPosition: Partial<Position> = {
     col: undefined,
     row: undefined,
@@ -110,7 +120,8 @@ function useCellHovered(
   useListener(
     gridRef,
     "pointermove",
-    (ev: MouseEvent) => !env.isMobile() && updateMousePosition(zoomStore.getZoomedEvent(ev))
+    (ev: MouseEvent) =>
+      !mobilePlugin.isMobile() && updateMousePosition(zoomStore.getZoomedEvent(ev))
   );
   useListener(gridRef, "mouseleave", onMouseLeave);
   useListener(gridRef, "mouseenter", resume);
@@ -118,7 +129,7 @@ function useCellHovered(
   useListener(
     gridRef,
     "pointerdown",
-    (ev: MouseEvent) => env.isMobile() && updateMousePosition(zoomStore.getZoomedEvent(ev))
+    (ev: MouseEvent) => mobilePlugin.isMobile() && updateMousePosition(zoomStore.getZoomedEvent(ev))
   );
 
   useListener(window, "click", handleGlobalClick);
@@ -174,6 +185,7 @@ export class GridOverlay extends OSComponent {
   private hoveredIconStore!: Store<HoveredIconStore>;
   viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
+  private mobilePlugin = usePlugin(MobilePlugin);
 
   setup() {
     useCellHovered(this.env, this.gridOverlayRef);
@@ -214,7 +226,7 @@ export class GridOverlay extends OSComponent {
   }
 
   onPointerMove(ev: MouseEvent) {
-    if (this.env.isMobile()) {
+    if (this.mobilePlugin.isMobile()) {
       return;
     }
     const icon = this.getInteractiveIconAtEvent(this.zoomStore.getZoomedEvent(ev));
@@ -225,7 +237,7 @@ export class GridOverlay extends OSComponent {
   }
 
   onPointerDown(ev: PointerEvent) {
-    if (ev.button > 0 || this.env.isMobile()) {
+    if (ev.button > 0 || this.mobilePlugin.isMobile()) {
       // not main button, probably a context menu
       return;
     }
@@ -233,7 +245,7 @@ export class GridOverlay extends OSComponent {
   }
 
   onClick(ev: MouseEvent) {
-    if (ev.button > 0 || !this.env.isMobile()) {
+    if (ev.button > 0 || !this.mobilePlugin.isMobile()) {
       // not main button, probably a context menu
       return;
     }

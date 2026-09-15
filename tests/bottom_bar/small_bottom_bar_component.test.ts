@@ -13,13 +13,15 @@ import {
 let fixture: HTMLElement;
 let model: Model;
 
-beforeEach(async () => {
+async function mountSmallSpreadsheet() {
   ({ fixture, model } = await mountSpreadsheet({ model: new Model() }, { isSmall: true }));
-});
+}
 
 const composerSelector = ".o-spreadsheet-small-bottom-bar .o-composer";
 
 describe("Small Bottom Bar", () => {
+  beforeEach(mountSmallSpreadsheet);
+
   describe("Composer", () => {
     test("Clicking the validate button confirms the edition in the bottom bar composer", async () => {
       setCellContent(model, "A1", "lop");
@@ -124,9 +126,12 @@ describe("Small Bottom Bar", () => {
 });
 
 describe("Small Bottom Bar - Mobile Mode", () => {
-  test("the bottombar composer is auto focused on edition in mobile mode", async () => {
+  beforeEach(async () => {
     setMobileMode();
-    await nextTick();
+    await mountSmallSpreadsheet();
+  });
+
+  test("the bottombar composer is auto focused on edition in mobile mode", async () => {
     await typeInComposerGrid(`=SUM(`);
     expect(fixture.querySelector(".o-spreadsheet-small-bottom-bar .o-composer")).toBe(
       document.activeElement

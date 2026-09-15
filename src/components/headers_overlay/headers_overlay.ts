@@ -1,5 +1,6 @@
 import { proxy, signal, usePlugin, useProps } from "@odoo/owl";
 import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../constants";
+import { MobilePlugin } from "../../owl_plugins/mobile_owl_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -50,6 +51,8 @@ abstract class AbstractResizer extends OSComponent {
   private composerFocusStore!: Store<ComposerFocusStore>;
   protected viewStore!: Store<ViewportsStore>;
   protected zoomStore!: Store<ZoomStore>;
+
+  private mobilePlugin = usePlugin(MobilePlugin);
 
   PADDING: number = 0;
   MAX_SIZE_MARGIN: number = 0;
@@ -157,7 +160,7 @@ abstract class AbstractResizer extends OSComponent {
 
   onMouseMove(ev: MouseEvent) {
     if (
-      this.env.isMobile() ||
+      this.mobilePlugin.isMobile() ||
       this.model().getters.isReadonly() ||
       this.state.isResizing ||
       this.state.isMoving ||
@@ -219,7 +222,7 @@ abstract class AbstractResizer extends OSComponent {
   }
 
   onClick(ev: MouseEvent) {
-    if (!this.env.isMobile()) {
+    if (!this.mobilePlugin.isMobile()) {
       return;
     }
     if (ev.button > 0) {
@@ -232,7 +235,7 @@ abstract class AbstractResizer extends OSComponent {
   }
 
   select(ev: PointerEvent) {
-    if (this.env.isMobile()) {
+    if (this.mobilePlugin.isMobile()) {
       return;
     }
     if (ev.button > 0) {
@@ -309,7 +312,7 @@ abstract class AbstractResizer extends OSComponent {
   }
 
   private startSelection(ev: PointerEvent, index: HeaderIndex) {
-    if (this.env.isMobile()) {
+    if (this.mobilePlugin.isMobile()) {
       return;
     }
     this.state.isSelecting = true;
