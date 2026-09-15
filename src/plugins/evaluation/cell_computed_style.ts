@@ -20,17 +20,11 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     DELETE_CONTENT: this.invalidateSheetComputedStyles,
     SET_FORMATTING: this.invalidateComputedStyles,
     CLEAR_FORMATTING: this.invalidateComputedStyles,
-    SET_BORDER: this.invalidateComputedBorders,
-    SET_ZONE_BORDERS: this.invalidateComputedBorders,
-    SET_BORDERS_ON_TARGET: this.invalidateComputedBorders,
     SET_SHEET_BACKGROUND_COLOR: this.invalidateComputedStyles,
     CREATE_TABLE: this.invalidateSheetComputedStyles,
     REMOVE_TABLE: this.invalidateSheetComputedStyles,
     UPDATE_TABLE: this.invalidateSheetComputedStyles,
     UPDATE_FILTER: this.invalidateSheetComputedStyles,
-    ADD_CONDITIONAL_FORMAT: this.invalidateComputedCfStyles,
-    REMOVE_CONDITIONAL_FORMAT: this.invalidateComputedCfStyles,
-    CHANGE_CONDITIONAL_FORMAT_PRIORITY: this.invalidateComputedCfStyles,
     HIDE_COLUMNS_ROWS: this.invalidateSheetComputedStyles,
     UNHIDE_COLUMNS_ROWS: this.invalidateSheetComputedStyles,
     GROUP_HEADERS: this.invalidateSheetComputedStyles,
@@ -47,6 +41,8 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     ADD_DATA_VALIDATION_RULE: this.invalidateComputedStyles,
     EVALUATE_CELLS: this.invalidateComputedStyles,
     invalidateEvaluationCommands: this.invalidateComputedStyles,
+    invalidateBordersCommands: this.invalidateComputedBorders,
+    invalidateCFEvaluationCommands: this.invalidateComputedCfStyles,
   };
 
   private invalidateComputedCfStyles() {

@@ -27,26 +27,12 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
   charts: Record<UID, Partial<Record<ColorThemeName, ChartRuntime | undefined>>> = {};
 
   handlers = {
-    UPDATE_TABLE: this.invalidateChartRuntimes,
-    UPDATE_FILTER: this.invalidateChartRuntimes,
-    ADD_CONDITIONAL_FORMAT: this.invalidateChartRuntimes,
-    REMOVE_CONDITIONAL_FORMAT: this.invalidateChartRuntimes,
-    CHANGE_CONDITIONAL_FORMAT_PRIORITY: this.invalidateChartRuntimes,
-    HIDE_COLUMNS_ROWS: this.invalidateChartRuntimes,
-    UNHIDE_COLUMNS_ROWS: this.invalidateChartRuntimes,
-    GROUP_HEADERS: this.invalidateChartRuntimes,
-    UNGROUP_HEADERS: this.invalidateChartRuntimes,
-    FOLD_HEADER_GROUP: this.invalidateChartRuntimes,
-    UNFOLD_HEADER_GROUP: this.invalidateChartRuntimes,
-    FOLD_ALL_HEADER_GROUPS: this.invalidateChartRuntimes,
-    UNFOLD_ALL_HEADER_GROUPS: this.invalidateChartRuntimes,
-    FOLD_HEADER_GROUPS_IN_ZONE: this.invalidateChartRuntimes,
-    UNFOLD_HEADER_GROUPS_IN_ZONE: this.invalidateChartRuntimes,
     UPDATE_CHART: this.invalidateChartRuntime,
     CREATE_CHART: this.invalidateChartRuntime,
     DELETE_CHART: this.invalidateChartRuntime,
     invalidateEvaluationCommands: this.invalidateChartRuntimes,
     invalidateChartEvaluationCommands: this.invalidateChartRuntimes,
+    invalidateCFEvaluationCommands: this.invalidateChartRuntimes,
   };
 
   private invalidateChartRuntime(cmd: { chartId: UID }) {
