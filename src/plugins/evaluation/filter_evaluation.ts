@@ -47,7 +47,14 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
     REMOVE_COLUMNS_ROWS: this.invalidateEvaluation,
     UNDO: this.invalidateEvaluation,
     REDO: this.invalidateEvaluation,
+    START: this.resetFilterValues,
   };
+
+  private resetFilterValues() {
+    for (const sheetId of this.getters.getSheetIds()) {
+      this.filterValues[sheetId] = {};
+    }
+  }
 
   private duplicateSheetFilterValues(cmd: { sheetId: UID; sheetIdTo: UID }) {
     this.filterValues[cmd.sheetIdTo] = deepCopy(this.filterValues[cmd.sheetId]);
@@ -85,11 +92,6 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
     switch (cmd.type) {
       case "EVALUATE_CELLS":
         this.isEvaluationDirty = true;
-        break;
-      case "START":
-        for (const sheetId of this.getters.getSheetIds()) {
-          this.filterValues[sheetId] = {};
-        }
         break;
       // If we don't handle DELETE_SHEET, on one hand we will have some residual data, on the other hand we keep the data
       // on DELETE_SHEET followed by undo

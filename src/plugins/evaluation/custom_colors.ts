@@ -10,11 +10,7 @@ import {
 } from "../../helpers/color";
 import { isDefined } from "../../helpers/misc";
 import { Cell } from "../../types/cells";
-import {
-  ColorSheetBackgroundCommand,
-  ColorSheetCommand,
-  EvaluationCommand,
-} from "../../types/commands";
+import { ColorSheetBackgroundCommand, ColorSheetCommand } from "../../types/commands";
 import { Color, Immutable, RGBA, UID } from "../../types/misc";
 import { TableElementStyle } from "../../types/table";
 import { EvaluationPlugin, EvaluationPluginConfig } from "../evaluation_plugin";
@@ -96,7 +92,19 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
     CREATE_CAROUSEL: this.addCarouselColors,
     UPDATE_CAROUSEL: this.addCarouselColors,
     COLOR_SHEET: this.addSheetColor,
+    START: this.addColorsOfCharts,
   };
+
+  private addColorsOfCharts() {
+    for (const sheetId of this.getters.getSheetIds()) {
+      for (const chartId of this.getters.getChartIds(sheetId)) {
+        this.tryToAddColors(this.getChartColors(chartId));
+      }
+      for (const figureId of this.getters.getFigures(sheetId)) {
+        this.tryToAddColors(this.getCarouselColors(sheetId, figureId.id));
+      }
+    }
+  }
 
   private addSheetColor(cmd: ColorSheetCommand) {
     if (cmd.color) {
@@ -121,21 +129,6 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
   constructor(config: EvaluationPluginConfig) {
     super(config);
     this.tryToAddColors(config.customColors ?? []);
-  }
-
-  handle(cmd: EvaluationCommand) {
-    switch (cmd.type) {
-      case "START":
-        for (const sheetId of this.getters.getSheetIds()) {
-          for (const chartId of this.getters.getChartIds(sheetId)) {
-            this.tryToAddColors(this.getChartColors(chartId));
-          }
-          for (const figureId of this.getters.getFigures(sheetId)) {
-            this.tryToAddColors(this.getCarouselColors(sheetId, figureId.id));
-          }
-        }
-        break;
-    }
   }
 
   private invalidateCustomColors() {

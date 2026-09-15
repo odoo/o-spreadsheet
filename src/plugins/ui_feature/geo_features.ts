@@ -19,7 +19,16 @@ export class GeoFeaturePlugin extends UIPlugin {
 
   handlers = {
     CREATE_CHART: this.trackChartInitialRegion,
+    START: this.trackAllChartsInitialRegion,
   };
+
+  private trackAllChartsInitialRegion() {
+    for (const sheetId of this.getters.getSheetIds()) {
+      for (const chartId of this.getters.getChartIds(sheetId)) {
+        this.trackInitialRegion(chartId);
+      }
+    }
+  }
 
   private trackChartInitialRegion(cmd: CreateChartCommand) {
     this.trackInitialRegion(cmd.chartId);
@@ -27,14 +36,6 @@ export class GeoFeaturePlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "START": {
-        for (const sheetId of this.getters.getSheetIds()) {
-          for (const chartId of this.getters.getChartIds(sheetId)) {
-            this.trackInitialRegion(chartId);
-          }
-        }
-        break;
-      }
       case "UPDATE_CHART_REGION": {
         const chart = this.getters.getChart(cmd.chartId);
         const definition = this.getters.getChartDefinition(
