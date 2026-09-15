@@ -1,6 +1,7 @@
 import { ChartConfiguration } from "chart.js";
 import { Model } from "../../src";
 import { ColumnStatisticsStore } from "../../src/components/side_panel/column_stats/column_stats_store";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { click } from "../test_helpers";
@@ -26,7 +27,7 @@ describe("column statistics sidePanel component", () => {
   test("Column stats side panel is correctly filled", async () => {
     setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50", A6: "10" });
     selectCell(model, "A1");
-    env.openSidePanel("ColumnStats");
+    env.getStore(SidePanelStore).open("ColumnStats");
     await nextTick();
 
     expect('[data-test-id="Total rows"]').toHaveText("100");
@@ -50,7 +51,7 @@ describe("column statistics sidePanel component", () => {
   test("Column stats side panel is showing an error message when selecting multiple columns", async () => {
     setGrid(model, { A1: "10", A2: "20", B1: "30", B2: "40" });
     setSelection(model, ["A1", "B1"]);
-    env.openSidePanel("ColumnStats");
+    env.getStore(SidePanelStore).open("ColumnStats");
     await nextTick();
 
     expect('[data-test-id="Total rows"]').toHaveCount(0);
@@ -59,7 +60,7 @@ describe("column statistics sidePanel component", () => {
 
   test("Can switch to the next/previous column", async () => {
     selectCell(model, "A1");
-    env.openSidePanel("ColumnStats");
+    env.getStore(SidePanelStore).open("ColumnStats");
     await nextTick();
 
     const columnStatsStore = env.getStore(ColumnStatisticsStore);
@@ -75,7 +76,7 @@ describe("column statistics sidePanel component", () => {
   test("Can ignore header rows", async () => {
     setGrid(model, { A1: "Header", A2: "Header 2", A3: "a", A4: "b", A5: "c" });
     selectCell(model, "A1");
-    env.openSidePanel("ColumnStats");
+    env.getStore(SidePanelStore).open("ColumnStats");
     await nextTick();
 
     expect('[data-test-id="Unique values"]').toHaveText("5");
@@ -100,7 +101,7 @@ describe("column statistics sidePanel component", () => {
   test("Content of the first row is set as side panel title if string", async () => {
     setGrid(model, { A1: "10", A2: "20" });
     selectCell(model, "A1");
-    env.openSidePanel("ColumnStats");
+    env.getStore(SidePanelStore).open("ColumnStats");
     await nextTick();
 
     expect(".o-column-stats-title").toHaveText("Column A");
@@ -114,7 +115,7 @@ describe("column statistics sidePanel component", () => {
   test("Can change the order of frequency table", async () => {
     setGrid(model, { A1: "b", A2: "a", A3: "c", A4: "a", A5: "b", A6: "a" });
     selectCell(model, "A1");
-    env.openSidePanel("ColumnStats");
+    env.getStore(SidePanelStore).open("ColumnStats");
     await nextTick();
 
     let labels = Array.from(fixture.querySelectorAll(".frequency-label")).map(
@@ -130,7 +131,7 @@ describe("column statistics sidePanel component", () => {
 
   test("Chart is re-created when switching from distribution to count when there are no distribution chart to display", async () => {
     setGrid(model, { A1: "Alice", A2: "Alice" });
-    env.openSidePanel("ColumnStats");
+    env.getStore(SidePanelStore).open("ColumnStats");
     const ChartMock = window.Chart;
     window.Chart = jest
       .fn()

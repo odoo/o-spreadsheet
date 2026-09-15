@@ -20,6 +20,7 @@ import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers/css";
 import { getBoundingRectAsPOJO, getElBoundingRect } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { types } from "../../props_validation";
+import { SidePanelStore } from "../../side_panel/side_panel/side_panel_store";
 import { StandaloneViewport } from "../../standalone_viewport/standalone_viewport";
 import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";
 import { ChartMenu } from "../chart/chart_menu/chart_menu";
@@ -43,10 +44,12 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
 
   protected animationStore: Store<ChartAnimationStore> | undefined;
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
+  private sidePanelStore!: Store<SidePanelStore>;
 
   setup(): void {
     this.animationStore = useStore(ChartAnimationStore);
     this.fullScreenFigureStore = useStore(FullScreenFigureStore);
+    this.sidePanelStore = useStore(SidePanelStore);
 
     useLayoutEffect(() => {
       this.updateTabsVisibility();
@@ -76,7 +79,7 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
 
   onCarouselDoubleClick() {
     this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });
-    this.env.openSidePanel("CarouselPanel", { figureId: this.props.figureUI.id });
+    this.sidePanelStore.open("CarouselPanel", { figureId: this.props.figureUI.id });
   }
 
   onCarouselChartDoubleClick() {
@@ -85,7 +88,7 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
     }
     const chartId = this.selectedCarouselItem.chartId;
     this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });
-    this.env.openSidePanel("ChartPanel", { chartId });
+    this.sidePanelStore.open("ChartPanel", { chartId });
   }
 
   isItemSelected(item: CarouselItem): boolean {

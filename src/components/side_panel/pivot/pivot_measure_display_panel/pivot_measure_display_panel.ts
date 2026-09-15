@@ -10,6 +10,7 @@ import { measureDisplayTerms } from "../../../translations_terms";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { Section } from "../../components/section/section";
+import { SidePanelStore } from "../../side_panel/side_panel_store";
 import { PivotMeasureDisplayPanelStore } from "./pivot_measure_display_panel_store";
 
 export class PivotMeasureDisplayPanel extends Component<SpreadsheetChildEnv> {
@@ -35,24 +36,28 @@ export class PivotMeasureDisplayPanel extends Component<SpreadsheetChildEnv> {
   }
 
   onSave() {
-    this.env.replaceSidePanel(
-      "PivotSidePanel",
-      `pivot_measure_display_${this.props.pivotId}_${this.props.measure.id}`,
-      {
-        pivotId: this.props.pivotId,
-      }
-    );
+    this.env
+      .getStore(SidePanelStore)
+      .replace(
+        "PivotSidePanel",
+        `pivot_measure_display_${this.props.pivotId}_${this.props.measure.id}`,
+        {
+          pivotId: this.props.pivotId,
+        }
+      );
   }
 
   onCancel() {
     this.store.cancelMeasureDisplayEdition();
-    this.env.replaceSidePanel(
-      "PivotSidePanel",
-      `pivot_measure_display_${this.props.pivotId}_${this.props.measure.id}`,
-      {
-        pivotId: this.props.pivotId,
-      }
-    );
+    this.env
+      .getStore(SidePanelStore)
+      .replace(
+        "PivotSidePanel",
+        `pivot_measure_display_${this.props.pivotId}_${this.props.measure.id}`,
+        {
+          pivotId: this.props.pivotId,
+        }
+      );
   }
 
   get fieldChoices() {

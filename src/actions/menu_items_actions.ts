@@ -1,4 +1,5 @@
 import { CellPopoverStore } from "../components/popover/cell_popover_store";
+import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import {
   DEFAULT_FIGURE_HEIGHT,
@@ -423,7 +424,7 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   });
   if (result.isSuccessful) {
     env.model.dispatch("SELECT_FIGURE", { figureId });
-    env.openSidePanel("ChartPanel");
+    env.getStore(SidePanelStore).open("ChartPanel");
   }
 };
 
@@ -446,7 +447,7 @@ export const CREATE_CAROUSEL = (env: SpreadsheetChildEnv) => {
   });
   if (result.isSuccessful) {
     env.model.dispatch("SELECT_FIGURE", { figureId });
-    env.openSidePanel("CarouselPanel", { figureId });
+    env.getStore(SidePanelStore).open("CarouselPanel", { figureId });
   }
 };
 
@@ -459,7 +460,7 @@ export const CREATE_PIVOT = (env: SpreadsheetChildEnv) => {
   const newSheetId = UuidGenerator.smallUuid();
   const result = env.model.dispatch("INSERT_NEW_PIVOT", { pivotId, newSheetId });
   if (result.isSuccessful) {
-    env.openSidePanel("PivotSidePanel", { pivotId });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId });
   }
 };
 
@@ -551,12 +552,12 @@ export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetChildEnv) => {
   const rules = env.model.getters.getConditionalFormats(sheetId);
   const ruleIds = env.model.getters.getRulesSelection(sheetId, zones);
   if (ruleIds.length === 1) {
-    return env.openSidePanel("ConditionalFormattingEditor", {
+    return env.getStore(SidePanelStore).open("ConditionalFormattingEditor", {
       cf: rules.find((r) => r.id === ruleIds[0]),
       isNewCf: false,
     });
   }
-  return env.openSidePanel("ConditionalFormatting");
+  return env.getStore(SidePanelStore).open("ConditionalFormatting");
 };
 
 export const INSERT_LINK = (env: SpreadsheetChildEnv) => {
@@ -638,7 +639,7 @@ export const INSERT_TABLE = (env: SpreadsheetChildEnv) => {
   if (result.isSuccessful) {
     const table = FIRST_TABLE_IN_SELECTION(env);
     if (table) {
-      env.openSidePanel("TableSidePanel", { table });
+      env.getStore(SidePanelStore).open("TableSidePanel", { table });
     }
   }
 };

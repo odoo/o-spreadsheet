@@ -234,16 +234,13 @@ export function makeTestEnv(
 
   container.get(ClipboardStore); // Instantiate a clipboard store
 
-  const store = container.get(SidePanelStore);
-  const sidePanelStore = proxifyStoreMutation(store, () => container.trigger("store-updated"));
+  const sidePanelStore = container.get(SidePanelStore);
+  proxifyStoreMutation(sidePanelStore, () => container.trigger("store-updated"));
   for (const store of globalStores.getAll()) {
     container.get(store);
   }
   return {
     model,
-    openSidePanel: mockEnv.openSidePanel || sidePanelStore.open.bind(sidePanelStore),
-    replaceSidePanel: mockEnv.replaceSidePanel || sidePanelStore.replace.bind(sidePanelStore),
-    toggleSidePanel: mockEnv.toggleSidePanel || sidePanelStore.toggle.bind(sidePanelStore),
     clipboard: mockEnv.clipboard || new MockClipboard(),
     //FIXME : image provider is not built on top of the file store of the model if provided
     // and imageProvider is defined even when there is no file store on the model

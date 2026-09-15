@@ -14,6 +14,7 @@ import { StandaloneComposer } from "../../../../composer/standalone_composer/sta
 import { types } from "../../../../props_validation";
 import { Select } from "../../../../select/select";
 import { measureDisplayTerms } from "../../../../translations_terms";
+import { SidePanelStore } from "../../../side_panel/side_panel_store";
 import { PivotDimension } from "../pivot_dimension/pivot_dimension";
 
 export class PivotMeasureEditor extends Component<SpreadsheetChildEnv> {
@@ -79,10 +80,12 @@ export class PivotMeasureEditor extends Component<SpreadsheetChildEnv> {
   }
 
   openShowValuesAs() {
-    this.env.replaceSidePanel("PivotMeasureDisplayPanel", `pivot_key_${this.props.pivotId}`, {
-      pivotId: this.props.pivotId,
-      measure: this.props.measure,
-    });
+    this.env
+      .getStore(SidePanelStore)
+      .replace("PivotMeasureDisplayPanel", `pivot_key_${this.props.pivotId}`, {
+        pivotId: this.props.pivotId,
+        measure: this.props.measure,
+      });
   }
 
   getColoredSymbolToken(token: Token): Color | undefined {

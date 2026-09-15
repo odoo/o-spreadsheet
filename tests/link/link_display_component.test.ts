@@ -1,4 +1,5 @@
 import { Model, Spreadsheet } from "../../src";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { buildSheetLink } from "../../src/helpers/misc";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
@@ -143,7 +144,7 @@ describe("link display component", () => {
     setCellContent(model, "A1", "[label](url.com)");
     await hoverCell(env, "A1", 400);
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
-    parent.env.openSidePanel("FindAndReplace");
+    parent.env.getStore(SidePanelStore).open("FindAndReplace");
     await nextTick();
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
   });

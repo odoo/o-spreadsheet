@@ -199,7 +199,12 @@ import { errorTypes } from "./types/errors";
 import { sidePanelRegistry } from "./registries/side_panel_registry";
 import { topbarComponentRegistry } from "./registries/topbar_component_registry";
 import { DependencyContainer } from "./store_engine/dependency_container";
-import { useLocalStore, useStore, useStoreProvider } from "./store_engine/store_hooks";
+import {
+  proxifyStoreMutation,
+  useLocalStore,
+  useStore,
+  useStoreProvider,
+} from "./store_engine/store_hooks";
 import { ClientFocusStore } from "./stores/client_focus_store";
 import { GridRenderer } from "./stores/grid_renderer_store";
 import { HighlightStore } from "./stores/highlight_store";
@@ -556,6 +561,7 @@ export const compatibility: {
 
 export const stores = {
   useStoreProvider,
+  proxifyStoreMutation,
   DependencyContainer,
   CellPopoverStore,
   ComposerFocusStore,
