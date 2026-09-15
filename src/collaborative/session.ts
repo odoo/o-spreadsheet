@@ -124,6 +124,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       nextRevisionId: revision.id,
       clientId: revision.clientId,
       commands: revision.commands,
+      rootCommandType: rootCommand.type,
     });
   }
 
@@ -450,6 +451,7 @@ export class Session extends EventBus<CollaborativeEvent> {
             ...message,
             commands: revision.commands,
             squishedFailed: true,
+            rootCommandType: revision.rootCommand?.type,
           };
         } else {
           message = {
