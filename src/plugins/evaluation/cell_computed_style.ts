@@ -21,7 +21,6 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     SET_FORMATTING: this.invalidateComputedStyles,
     CLEAR_FORMATTING: this.invalidateComputedStyles,
     SET_SHEET_BACKGROUND_COLOR: this.invalidateComputedStyles,
-    GROUP_HEADERS: this.invalidateSheetComputedStyles,
     REMOVE_DATA_VALIDATION_RULE: this.invalidateComputedStyles,
     ADD_DATA_VALIDATION_RULE: this.invalidateComputedStyles,
     EVALUATE_CELLS: this.invalidateComputedStyles,

@@ -53,16 +53,16 @@ describe("Model", () => {
     }
     let result: DispatchResult | undefined = undefined;
     class MyUIPlugin extends UIPlugin {
-      handle(cmd: Command) {
-        if (cmd.type === "COPY") {
+      handlers = {
+        COPY: () => {
           result = this.dispatch("UPDATE_CELL", {
             col: 0,
             row: 0,
             sheetId: this.getters.getActiveSheetId(),
             content: "hello",
           });
-        }
-      }
+        },
+      };
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     addTestPlugin(corePluginRegistry, MyCorePlugin);
@@ -107,15 +107,16 @@ describe("Model", () => {
         }
         return CommandResult.Success;
       }
-      handle(cmd: Command) {
-        if (cmd.type === "COPY") {
+      handlers = {
+        COPY: () => {
           result = this.dispatch("PASTE", {
             target: [toZone("A2")],
           });
-        } else if (cmd.type === "PASTE") {
+        },
+        PASTE: () => {
           setCellContent(model, "A2", "copy&paste me");
-        }
-      }
+        },
+      };
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     const model = new Model();
