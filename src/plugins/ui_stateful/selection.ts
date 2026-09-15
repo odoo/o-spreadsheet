@@ -18,6 +18,7 @@ import { clipboardHandlersRegistries } from "../../registries/clipboardHandlersR
 import { EvaluatedCell } from "../../types/cells";
 import { ClientPosition } from "../../types/collaborative/session";
 import {
+  ActivateSheetCommand,
   AddColumnsRowsCommand,
   Command,
   CommandResult,
@@ -203,7 +204,12 @@ export class GridSelectionPlugin extends UIPlugin {
     UNDO: this.onUndo,
     REDO: this.onRedo,
     START: this.onStart,
+    ACTIVATE_SHEET: this.onActivateSheet,
   };
+
+  private onActivateSheet(cmd: ActivateSheetCommand) {
+    this.activateSheet(cmd.sheetIdFrom, cmd.sheetIdTo);
+  }
 
   private onStart() {
     const firstSheetId = this.getters.getVisibleSheetIds()[0];
@@ -310,10 +316,6 @@ export class GridSelectionPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "ACTIVATE_SHEET": {
-        this.activateSheet(cmd.sheetIdFrom, cmd.sheetIdTo);
-        break;
-      }
       case "MOVE_COLUMNS_ROWS":
         if (cmd.sheetId === this.getActiveSheetId()) {
           this.onMoveElements(cmd);

@@ -120,6 +120,7 @@ export class CellIconPlugin extends UIPlugin {
     SPLIT_PIVOT_FORMULA: this.clearCellIconsCache,
     REQUEST_UNDO: this.clearCellIconsCache,
     REQUEST_REDO: this.clearCellIconsCache,
+    ACTIVATE_SHEET: this.clearCellIconsCache,
   };
 
   handle(cmd: Command) {
