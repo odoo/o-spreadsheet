@@ -205,7 +205,14 @@ export class GridSelectionPlugin extends UIPlugin {
     REDO: this.onRedo,
     START: this.onStart,
     ACTIVATE_SHEET: this.onActivateSheet,
+    MOVE_COLUMNS_ROWS: this.onHeadersMoved,
   };
+
+  private onHeadersMoved(cmd: MoveColumnsRowsCommand) {
+    if (cmd.sheetId === this.getActiveSheetId()) {
+      this.onMoveElements(cmd);
+    }
+  }
 
   private onActivateSheet(cmd: ActivateSheetCommand) {
     this.activateSheet(cmd.sheetIdFrom, cmd.sheetIdTo);
@@ -316,11 +323,6 @@ export class GridSelectionPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "MOVE_COLUMNS_ROWS":
-        if (cmd.sheetId === this.getActiveSheetId()) {
-          this.onMoveElements(cmd);
-        }
-        break;
       case "SELECT_FIGURE":
         if (cmd.selectMultiple) {
           if (cmd.figureId) {
