@@ -1,9 +1,7 @@
 import { ChartConfiguration } from "chart.js";
-import { Color } from "../misc";
 import { Granularity } from "../pivot";
 import { Range } from "../range";
-import { ChartColorScale } from "./chart";
-import { DataSourceChartDefinition } from "./common_chart";
+import { ColorGridChartDefinition, DataSourceChartDefinition } from "./common_chart";
 
 export const CALENDAR_CHART_GRANULARITIES = [
   "year",
@@ -20,12 +18,11 @@ export const CALENDAR_CHART_GRANULARITIES = [
 export type CalendarChartGranularity = (typeof CALENDAR_CHART_GRANULARITIES)[number];
 
 export interface CalendarChartDefinition<T extends string | Range = Range>
-  extends DataSourceChartDefinition<T> {
+  extends DataSourceChartDefinition<T>,
+    ColorGridChartDefinition {
   readonly type: "calendar";
   readonly horizontalGroupBy: CalendarChartGranularity;
   readonly verticalGroupBy: CalendarChartGranularity;
-  readonly colorScale?: ChartColorScale;
-  readonly missingValueColor?: Color;
 }
 
 export type CalendarChartRuntime = {

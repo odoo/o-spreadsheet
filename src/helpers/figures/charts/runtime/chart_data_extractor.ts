@@ -31,6 +31,7 @@ import {
   GeoChartDefinition,
   GeoChartRuntimeGenerationArgs,
 } from "../../../../types/chart/geo_chart";
+import { HeatmapChartDefinition } from "../../../../types/chart/heatmap_chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../../types/chart/pie_chart";
 import { PyramidChartDefinition } from "../../../../types/chart/pyramid_chart";
@@ -124,7 +125,64 @@ function getDateTimeLabel(value: number, stamp: CalendarChartGranularity): strin
   }
 }
 
-function computeValuesAndLabels(
+interface axisConfiguration<K> {
+  getKey: (i: number) => K;
+  formatLabel: (key: K) => string;
+  sortKeys: (keys: K[]) => K[];
+}
+
+function computeGroupedValuesAndLabels<K extends string | number>(args: {
+  count: number;
+  xAxis: axisConfiguration<K>;
+  yAxis: axisConfiguration<K>;
+  getValue: (i: number) => FunctionResultObject;
+  countEntries?: boolean;
+}): { dataSetsValues: DatasetValues[]; labels: LabelValues } {
+  const grouping: Record<string, Record<string, { value: number }>> = {};
+  const xValues: K[] = [];
+  const yValues: K[] = [];
+  for (let i = 0; i < args.count; i++) {
+    const xValue = args.xAxis.getKey(i);
+    const xKey = String(xValue);
+    if (!(xKey in grouping)) {
+      xValues.push(xValue);
+      grouping[xKey] = {};
+    }
+    const yValue = args.yAxis.getKey(i);
+    if (!yValues.includes(yValue)) {
+      yValues.push(yValue);
+    }
+    const yKey = String(yValue);
+    if (!(yKey in grouping[xKey])) {
+      grouping[xKey][yKey] = { value: 0 };
+    }
+    if (args.countEntries) {
+      grouping[xKey][yKey].value += 1;
+    } else {
+      const cell = args.getValue(i);
+      if (isNumberResult(cell)) {
+        grouping[xKey][yKey].value += cell.value;
+      }
+    }
+  }
+
+  const sortedXValues = args.xAxis.sortKeys(xValues);
+  const sortedYValues = args.yAxis.sortKeys(yValues);
+
+  const dataSetsValues = sortedYValues.map((y) => ({
+    data: sortedXValues.map((x) => grouping[String(x)]?.[String(y)]),
+    label: args.yAxis.formatLabel(y),
+    hidden: false,
+    dataSetId: "0",
+  }));
+
+  return {
+    dataSetsValues,
+    labels: sortedXValues.map((v) => ({ value: args.xAxis.formatLabel(v) })),
+  };
+}
+
+function computeCalendarValuesAndLabels(
   timeValues: FunctionResultObject[],
   values: FunctionResultObject[],
   horizontalGroupBy: CalendarChartGranularity,
@@ -132,62 +190,30 @@ function computeValuesAndLabels(
   locale: Locale,
   countEntries: boolean
 ) {
-  const grouping: Record<string, Record<string, { value: number }>> = {};
-  const xValues: number[] = [];
-  const yValues: number[] = [];
-  const previousYValues: number[] = [];
-  for (let i = 0; i < timeValues?.length; i++) {
-    const xValue = toNumber(
+  const getKey = (granularity: CalendarChartGranularity) => (i: number) =>
+    toNumber(
       createDate(
-        { granularity: horizontalGroupBy, type: "date", displayName: "date" },
+        { granularity, type: "date", displayName: "date" },
         timeValues[i].value,
         DEFAULT_LOCALE
       ),
       locale
     );
-    if (!(xValue in grouping)) {
-      xValues.push(xValue);
-      grouping[xValue] = {};
-    }
-    const yValue = toNumber(
-      createDate(
-        { granularity: verticalGroupBy, type: "date", displayName: "date" },
-        timeValues[i].value,
-        DEFAULT_LOCALE
-      ),
-      locale
-    );
-    if (!previousYValues.includes(yValue)) {
-      yValues.push(yValue);
-      previousYValues.push(yValue);
-    }
-    if (!(yValue in grouping[xValue])) {
-      grouping[xValue][yValue] = { value: 0 };
-    }
-    if (countEntries) {
-      grouping[xValue][yValue].value += 1;
-    } else {
-      const cell = values[i];
-      if (isNumberResult(cell)) {
-        grouping[xValue][yValue].value += cell.value;
-      }
-    }
-  }
-
-  xValues.sort((a, b) => a - b);
-  yValues.sort((a, b) => b - a);
-
-  const dataSetsValues = yValues.map((y) => ({
-    data: xValues.map((x) => grouping?.[x]?.[y]),
-    label: getDateTimeLabel(y, verticalGroupBy),
-    hidden: false,
-    dataSetId: "0",
-  }));
-
-  return {
-    dataSetsValues,
-    labels: xValues.map((v) => ({ value: getDateTimeLabel(v, horizontalGroupBy) })),
-  };
+  return computeGroupedValuesAndLabels({
+    count: timeValues?.length ?? 0,
+    xAxis: {
+      getKey: getKey(horizontalGroupBy),
+      sortKeys: (keys) => [...keys].sort((a, b) => a - b),
+      formatLabel: (key) => getDateTimeLabel(key, horizontalGroupBy),
+    },
+    yAxis: {
+      getKey: getKey(verticalGroupBy),
+      sortKeys: (keys) => [...keys].sort((a, b) => b - a),
+      formatLabel: (key) => getDateTimeLabel(key, verticalGroupBy),
+    },
+    getValue: (i) => values[i],
+    countEntries,
+  });
 }
 
 export function getCalendarChartData(
@@ -210,7 +236,7 @@ export function getCalendarChartData(
     y: getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "left"),
   };
 
-  ({ labels, dataSetsValues } = computeValuesAndLabels(
+  ({ labels, dataSetsValues } = computeCalendarValuesAndLabels(
     labels,
     dataSetsValues[0]?.data ?? [],
     definition.horizontalGroupBy ?? "day_of_week",
@@ -226,6 +252,144 @@ export function getCalendarChartData(
     locale: getters.getLocale(),
     topPadding: getTopPaddingForDashboard(definition, getters),
     background: getChartBackgroundColor(definition, colorThemeName),
+  };
+}
+
+function filterInvalidHeatmapDataPoints(
+  rowValues: FunctionResultObject[],
+  columnValues: FunctionResultObject[],
+  dataValues: FunctionResultObject[] | undefined
+): {
+  rows: FunctionResultObject[];
+  columns: FunctionResultObject[];
+  values: FunctionResultObject[];
+} {
+  const countOccurrences = dataValues === undefined;
+  const count = Math.max(rowValues.length, columnValues.length, dataValues?.length ?? 0);
+  const rows: FunctionResultObject[] = [];
+  const columns: FunctionResultObject[] = [];
+  const values: FunctionResultObject[] = [];
+  for (let i = 0; i < count; i++) {
+    const row = rowValues[i];
+    const column = columnValues[i];
+    const value = countOccurrences ? { value: 1 } : dataValues[i];
+    if (
+      row?.value !== undefined &&
+      row?.value !== null &&
+      column?.value !== undefined &&
+      column?.value !== null &&
+      isNumberResult(value)
+    ) {
+      rows.push(row);
+      columns.push(column);
+      values.push(value);
+    }
+  }
+  return { rows, columns, values };
+}
+
+/**
+ * Splits a series of numeric values into equal-width bins covering their whole range, using
+ * Sturges' formula for the bin count (same heuristic as the column statistics histogram).
+ */
+function computeNumericBins(values: number[], format: Format | undefined, locale: Locale) {
+  const binCount = Math.max(1, 1 + Math.floor(Math.log2(values.length)));
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
+  const valueRange = maxValue - minValue;
+  const binSize = valueRange / binCount;
+  const getBoundaryValue = (edgeIndex: number) =>
+    Math.round((edgeIndex === binCount ? maxValue : minValue + edgeIndex * binSize) * 100) / 100;
+  return {
+    binCount,
+    getBinIndex: (value: number): number => {
+      if (valueRange === 0) {
+        return 0;
+      }
+      const ratio = (value - minValue) / valueRange;
+      return Math.min(binCount - 1, Math.floor(ratio * binCount));
+    },
+    getBinLabel: (index: number): string => {
+      const start = getBoundaryValue(index);
+      const end = getBoundaryValue(index + 1);
+      return `${formatValue(start, { format, locale })} - ${formatValue(end, { format, locale })}`;
+    },
+    getBoundaryLabels: (): string[] =>
+      range(0, binCount + 1).map((edgeIndex) =>
+        formatValue(getBoundaryValue(edgeIndex), { format, locale })
+      ),
+  };
+}
+
+export function getHeatmapChartData(
+  definition: GenericDefinition<HeatmapChartDefinition>,
+  { labelValues, dataSetsValues: sourceDataSetsValues }: ChartData,
+  getters: EvaluationGetters,
+  colorThemeName: ColorThemeName
+): ChartRuntimeGenerationArgs {
+  const locale = getters.getLocale();
+
+  let rowValues = definition.rowRange ? getters.getVisibleRangeValues(definition.rowRange) : [];
+  if (definition.dataSource?.type === "range" && definition.dataSource.dataSetsHaveTitle) {
+    rowValues = rowValues.slice(1);
+  }
+
+  const { rows, columns, values } = filterInvalidHeatmapDataPoints(
+    rowValues,
+    labelValues,
+    sourceDataSetsValues[0]?.data
+  );
+
+  const rowBins =
+    rows.length > 0 && rows.every(isNumberResult)
+      ? computeNumericBins(
+          rows.map((r) => r.value as number),
+          getChartLabelFormat(rows),
+          locale
+        )
+      : undefined;
+  const columnBins =
+    columns.length > 0 && columns.every(isNumberResult)
+      ? computeNumericBins(
+          columns.map((c) => c.value as number),
+          getChartLabelFormat(columns),
+          locale
+        )
+      : undefined;
+
+  const { dataSetsValues, labels } = computeGroupedValuesAndLabels({
+    count: values.length,
+    xAxis: {
+      getKey: (i) =>
+        columnBins
+          ? columnBins.getBinIndex(columns[i].value as number)
+          : formatValue(columns[i].value, { format: columns[i].format, locale }),
+      formatLabel: (key) => (columnBins ? columnBins.getBinLabel(key as number) : String(key)),
+      sortKeys: (keys) => (columnBins ? range(0, columnBins.binCount) : keys),
+    },
+    yAxis: {
+      getKey: (i) =>
+        rowBins
+          ? rowBins.getBinIndex(rows[i].value as number)
+          : formatValue(rows[i].value, { format: rows[i].format, locale }),
+      formatLabel: (key) => (rowBins ? rowBins.getBinLabel(key as number) : String(key)),
+      sortKeys: (keys) => (rowBins ? range(0, rowBins.binCount) : [...keys].reverse()),
+    },
+    getValue: (i) => values[i],
+  });
+
+  return {
+    dataSetsValues,
+    axisFormats: {},
+    labels: labels.map(({ value }) => String(value ?? "")),
+    locale,
+    topPadding: getTopPaddingForDashboard(definition, getters),
+    background: getChartBackgroundColor(definition, colorThemeName),
+    axisTickLabels: {
+      x: columnBins?.getBoundaryLabels(),
+      y: rowBins?.getBoundaryLabels(),
+    },
+    axisType: columnBins && rowBins ? "linear" : "category",
   };
 }
 

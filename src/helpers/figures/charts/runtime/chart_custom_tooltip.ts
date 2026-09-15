@@ -12,39 +12,40 @@ const templates = /* xml */ `
   <t t-name="o-spreadsheet-CustomTooltip">
     <div
       class="o-chart-custom-tooltip border rounded px-2 py-1 pe-none mw-100 position-absolute text-nowrap shadow opacity-100">
-      <table class="overflow-hidden m-0">
-        <thead t-if="title">
-          <tr>
-            <th class="o-tooltip-title align-baseline border-0 text-truncate" t-out="title" t-attf-style="max-width: {{ labelsMaxWidth }}"/>
-          </tr>
-        </thead>
-        <tbody>
-          <tr t-foreach="tooltipItems" t-as="tooltipItem" t-key="tooltipItem_index">
-            <td>
-              <span
-                class="badge ps-2 py-2 rounded-0 align-middle"
-                t-attf-style="background-color: {{ tooltipItem.boxColor }}"
-              > </span>
-              <small
-                t-if="tooltipItem.label"
-                class="o-tooltip-label d-inline-block text-truncate align-middle smaller ms-2"
-                t-out="tooltipItem.label"
-                t-attf-style="max-width: {{ labelsMaxWidth }}"
-              />
-            </td>
-            <td class="o-tooltip-value ps-2 fw-bolder text-end">
-              <small class="smaller d-inline-block text-truncate align-middle" t-attf-style="max-width: {{ valuesMaxWidth }}">
-                <t t-out="tooltipItem.value"/>
-                <t t-if="tooltipItem.percentage">
-                  (
-                  <t t-out="tooltipItem.percentage"/>
-                  %)
-                </t>
-              </small>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div
+        t-if="title"
+        class="o-tooltip-title text-truncate fw-bold"
+        t-out="title"
+        t-attf-style="max-width: {{ labelsMaxWidth }}"
+      />
+      <div class="d-flex align-items-start mt-1" t-foreach="tooltipItems" t-as="tooltipItem" t-key="tooltipItem_index">
+        <div class="position-relative ps-2">
+          <span
+            class="o-tooltip-color-indicator position-absolute top-0 bottom-0 start-0"
+            t-attf-style="width: 5px; background-color: {{ tooltipItem.boxColor }}; border-radius: 2px;"
+          />
+          <div t-if="tooltipItem.label !== undefined" class="ms-2">
+            <small
+              t-foreach="tooltipItem.label"
+              t-as="tooltipLabelLine"
+              t-key="tooltipLabelLine_index"
+              class="o-tooltip-label d-block text-truncate smaller"
+              t-out="tooltipLabelLine"
+              t-attf-style="max-width: {{ labelsMaxWidth }}"
+            />
+          </div>
+        </div>
+        <div class="o-tooltip-value ps-4 fw-bolder text-end ms-auto">
+          <small class="smaller d-inline-block text-truncate" t-attf-style="max-width: {{ valuesMaxWidth }}">
+            <t t-out="tooltipItem.value"/>
+            <t t-if="tooltipItem.percentage">
+              (
+              <t t-out="tooltipItem.percentage"/>
+              %)
+            </t>
+          </small>
+        </div>
+      </div>
     </div>
   </t>
 </templates>
