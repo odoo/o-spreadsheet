@@ -27,7 +27,7 @@ export const geoJsonService = {
   },
   geoFeatureNameToId: function (region, name) {
     const mapping = region === "usa" ? mappingUsa : mappingWorld;
-    return mapping[name.toLowerCase()];
+    return mapping?.[name.toLowerCase()];
   },
   getAlternativeRegions: function (initialRegion) {
     if (initialRegion !== "world") {
