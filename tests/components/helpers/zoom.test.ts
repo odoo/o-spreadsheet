@@ -8,25 +8,27 @@ import {
 import { MAX_ZOOM, MIN_ZOOM } from "../../../src/constants";
 
 describe("nextWheelZoomLevel", () => {
-  test("zooms in on negative deltaY", () => {
-    expect(nextWheelZoomLevel(1, -100)).toBeCloseTo(1 * (1 + ZOOM_WHEEL_STEP));
+  test("zooms in on a positive tick count", () => {
+    expect(nextWheelZoomLevel(1, 1)).toBeCloseTo(1 * (1 + ZOOM_WHEEL_STEP));
   });
 
-  test("zooms out on positive deltaY", () => {
-    expect(nextWheelZoomLevel(1, 100)).toBeCloseTo(1 * (1 - ZOOM_WHEEL_STEP));
+  test("zooms out on a negative tick count", () => {
+    expect(nextWheelZoomLevel(1, -1)).toBeCloseTo(1 * (1 - ZOOM_WHEEL_STEP));
   });
 
-  test("ignores deltaY magnitude, only its sign matters", () => {
-    expect(nextWheelZoomLevel(1, -1)).toBe(nextWheelZoomLevel(1, -1000));
-    expect(nextWheelZoomLevel(1, 1)).toBe(nextWheelZoomLevel(1, 1000));
+  test("compounds one step per tick coalesced into the update", () => {
+    expect(nextWheelZoomLevel(1, 3)).toBeCloseTo(1 * (1 + ZOOM_WHEEL_STEP) ** 3);
+    expect(nextWheelZoomLevel(1, -3)).toBeCloseTo(1 * (1 - ZOOM_WHEEL_STEP) ** 3);
   });
 
   test("clamps to MAX_ZOOM when zooming in past the limit", () => {
-    expect(nextWheelZoomLevel(MAX_ZOOM, -100)).toBe(MAX_ZOOM);
+    expect(nextWheelZoomLevel(MAX_ZOOM, 1)).toBe(MAX_ZOOM);
+    expect(nextWheelZoomLevel(1, 1000)).toBe(MAX_ZOOM);
   });
 
   test("clamps to MIN_ZOOM when zooming out past the limit", () => {
-    expect(nextWheelZoomLevel(MIN_ZOOM, 100)).toBe(MIN_ZOOM);
+    expect(nextWheelZoomLevel(MIN_ZOOM, -1)).toBe(MIN_ZOOM);
+    expect(nextWheelZoomLevel(1, -1000)).toBe(MIN_ZOOM);
   });
 });
 

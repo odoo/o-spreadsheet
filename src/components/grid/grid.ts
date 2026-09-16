@@ -78,7 +78,7 @@ import {
   updateSelectionWithArrowKeys,
 } from "../helpers/selection_helpers";
 import { useTouchHandlers } from "../helpers/touch_handlers_hook";
-import { useWheelHandler } from "../helpers/wheel_hook";
+import { useWheelHandler, useWheelZoomBatcher } from "../helpers/wheel_hook";
 import {
   getZoomAnchorRect,
   nextWheelZoomLevel,
@@ -173,6 +173,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
   onMouseWheel!: (ev: WheelEvent) => void;
+  private queueZoomAtCursor!: (ev: WheelEvent) => void;
   hoveredCell!: Store<DelayedHoveredCellStore>;
   sidePanel!: Store<SidePanelStore>;
   private automaticSumStore!: Store<AutomaticSumStore>;
@@ -211,10 +212,11 @@ export class Grid extends Component<SpreadsheetChildEnv> {
         ...this.env.model.getters.getSelectionState(),
       }),
     });
+    this.queueZoomAtCursor = useWheelZoomBatcher((ticks, ev) => this.zoomAtCursor(ticks, ev));
     this.onMouseWheel = useWheelHandler((deltaX, deltaY, ev) => {
       if (isCtrlKey(ev)) {
         ev.preventDefault();
-        this.zoomAtCursor(ev);
+        this.queueZoomAtCursor(ev);
         return;
       }
       this.moveCanvas(deltaX, deltaY);
@@ -559,9 +561,9 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     this.viewStore.setViewportOffset({ offsetX: scrollX + deltaX, offsetY: scrollY + deltaY });
   }
 
-  private zoomAtCursor(ev: WheelEvent) {
+  private zoomAtCursor(ticks: number, ev: WheelEvent) {
     const oldZoom = this.zoomStore.zoomLevel;
-    const newZoom = nextWheelZoomLevel(oldZoom, ev.deltaY);
+    const newZoom = nextWheelZoomLevel(oldZoom, ticks);
     if (newZoom === oldZoom) {
       return;
     }
@@ -589,7 +591,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
       gridOffsetX: HEADER_WIDTH,
       gridOffsetY: HEADER_HEIGHT,
     });
-    this.viewStore.setViewportOffset(newOffset);
+    this.viewStore.setViewportOffset(newOffset, { allowOverscroll: true });
   }
 
   private processSpaceKey(ev: KeyboardEvent) {

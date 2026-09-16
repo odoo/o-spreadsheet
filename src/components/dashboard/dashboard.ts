@@ -17,7 +17,7 @@ import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect, isCtrlKey } from "../helpers/dom_helpers";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useTouchHandlers } from "../helpers/touch_handlers_hook";
-import { useWheelHandler } from "../helpers/wheel_hook";
+import { useWheelHandler, useWheelZoomBatcher } from "../helpers/wheel_hook";
 import {
   centeredContentMargin,
   getZoomAnchorRect,
@@ -52,6 +52,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   protected cellPopovers!: Store<CellPopoverStore>;
 
   onMouseWheel!: (ev: WheelEvent) => void;
+  private queueZoomAtCursor!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
   hoveredCell!: Store<DelayedHoveredCellStore>;
   private viewStore!: Store<ViewportsStore>;
@@ -83,10 +84,11 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
         hideGridLines: true,
       }),
     });
+    this.queueZoomAtCursor = useWheelZoomBatcher((ticks, ev) => this.zoomAtCursor(ticks, ev));
     this.onMouseWheel = useWheelHandler((deltaX, deltaY, ev) => {
       if (isCtrlKey(ev)) {
         ev.preventDefault();
-        this.zoomAtCursor(ev);
+        this.queueZoomAtCursor(ev);
         return;
       }
       this.moveCanvas(deltaX, deltaY);
@@ -142,9 +144,9 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
     this.viewStore.setViewportOffset({ offsetX: scrollX + deltaX, offsetY: scrollY + deltaY });
   }
 
-  private zoomAtCursor(ev: WheelEvent) {
+  private zoomAtCursor(ticks: number, ev: WheelEvent) {
     const oldZoom = this.zoomStore.zoomLevel;
-    const newZoom = nextWheelZoomLevel(oldZoom, ev.deltaY);
+    const newZoom = nextWheelZoomLevel(oldZoom, ticks);
     if (newZoom === oldZoom) {
       return;
     }
@@ -183,7 +185,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
       gridOffsetX: 0,
       gridOffsetY: 0,
     });
-    this.viewStore.setViewportOffset(newOffset);
+    this.viewStore.setViewportOffset(newOffset, { allowOverscroll: true });
   }
 
   private getGridRect(): Rect {

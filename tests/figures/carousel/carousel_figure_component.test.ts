@@ -34,6 +34,7 @@ import {
   makeTestEnv,
   mockChart,
   mountSpreadsheet,
+  nextAnimationFrame,
   nextTick,
   setGrid,
   toRangeData,
@@ -116,6 +117,7 @@ describe("Carousel figure component", () => {
       clientX: 10,
       clientY: 10,
     });
+    await nextAnimationFrame();
     await nextTick();
 
     // the standalone viewport doesn't handle ctrl+wheel itself: it lets the event bubble up to

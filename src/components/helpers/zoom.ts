@@ -26,13 +26,16 @@ export type ZoomedMouseEvent<T extends MouseEvent | PointerEvent> = {
 export const ZOOM_WHEEL_STEP = 0.1;
 
 /**
- * Compute the next zoom level for a single ctrl+wheel "tick", clamped to [MIN_ZOOM, MAX_ZOOM].
- * Only the sign of deltaY is used (scroll up = zoom in): its magnitude is unreliable across
- * devices/browsers (trackpad line mode vs mouse notch vs OS-level acceleration).
+ * Compute the next zoom level for `ticks` ctrl+wheel "ticks" coalesced into a single update
+ * (positive = zoom in, negative = zoom out; e.g. a fast wheel burst spanning several native `wheel`
+ * events before the next animation frame nets out to |ticks| > 1), clamped to [MIN_ZOOM, MAX_ZOOM].
+ * Only the sign of each individual tick is used, never a wheel event's deltaY magnitude: that
+ * magnitude is unreliable across devices/browsers (trackpad line mode vs mouse notch vs OS-level
+ * acceleration).
  */
-export function nextWheelZoomLevel(currentZoom: number, deltaY: number): number {
-  const factor = deltaY < 0 ? 1 + ZOOM_WHEEL_STEP : 1 - ZOOM_WHEEL_STEP;
-  return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, currentZoom * factor));
+export function nextWheelZoomLevel(currentZoom: number, ticks: number): number {
+  const factor = ticks > 0 ? 1 + ZOOM_WHEEL_STEP : 1 - ZOOM_WHEEL_STEP;
+  return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, currentZoom * factor ** Math.abs(ticks)));
 }
 
 /**

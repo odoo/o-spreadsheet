@@ -158,6 +158,29 @@ export async function nextTick(): Promise<void> {
   await owlPortalNextTick();
 }
 
+// captured before any test can install fake timers (see `realTimeSetTimeout` above), so this always
+// fires for real regardless of `useJestFakeTimers`, which otherwise fakes requestAnimationFrame too
+const realTimeRequestAnimationFrame = window.requestAnimationFrame.bind(window);
+
+/**
+ * Wait for the next `window.requestAnimationFrame` callback to run, e.g. to flush work coalesced to
+ * a single animation frame (see `useWheelZoomBatcher`), before asserting on its result with
+ * `nextTick`. Works whether or not the test file is under `useJestFakeTimers`: fake timers fake
+ * `requestAnimationFrame` too, so a pending one only runs once the fake clock is advanced -- there's
+ * no public, silent way to ask whether fake timers are currently active, so we advance them
+ * speculatively and swallow the (harmless) "timers aren't mocked" warning jest logs when they aren't.
+ */
+export async function nextAnimationFrame(): Promise<void> {
+  const consoleWarn = console.warn;
+  console.warn = () => {};
+  try {
+    jest.advanceTimersByTime(16);
+  } finally {
+    console.warn = consoleWarn;
+  }
+  await new Promise((resolve) => realTimeRequestAnimationFrame(resolve));
+}
+
 /**
  * Get the instance of the given cls, which is a child of the component.
  *

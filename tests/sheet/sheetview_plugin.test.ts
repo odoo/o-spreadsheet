@@ -422,6 +422,38 @@ describe("Viewport of Simple sheet", () => {
     });
   });
 
+  test("regular scroll cannot move past a sheet narrower than the viewport", () => {
+    const model = new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
+    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
+    viewStore.setViewportOffset({
+      offsetX: DEFAULT_CELL_WIDTH * 2,
+      offsetY: DEFAULT_CELL_HEIGHT * 2,
+    });
+    expect(viewStore.activeSheetScrollInfo).toMatchObject({ scrollX: 0, scrollY: 0 });
+    expect(viewStore.activeMainViewport).toMatchObject({ left: 0, right: 1, top: 0, bottom: 1 });
+  });
+
+  test("allowOverscroll lets a wheel-zoom cursor anchor scroll past a sheet narrower than the viewport", () => {
+    const model = new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
+    const { store: viewStore } = makeStoreWithModel(model, ViewportsStore);
+    viewStore.setViewportOffset(
+      { offsetX: DEFAULT_CELL_WIDTH * 2, offsetY: DEFAULT_CELL_HEIGHT * 2 },
+      { allowOverscroll: true }
+    );
+    expect(viewStore.activeSheetScrollInfo).toMatchObject({
+      scrollX: DEFAULT_CELL_WIDTH * 2,
+      scrollY: DEFAULT_CELL_HEIGHT * 2,
+    });
+    // resolves to the last column/row instead of resetting to A1, or the pane would render as if
+    // it hadn't scrolled at all
+    expect(viewStore.activeMainViewport).toMatchObject({ left: 1, right: 1, top: 1, bottom: 1 });
+  });
+
+  test("allowOverscroll still floors the offset at 0", () => {
+    viewStore.setViewportOffset({ offsetX: -1, offsetY: -1 }, { allowOverscroll: true });
+    expect(viewStore.activeSheetScrollInfo).toMatchObject({ scrollX: 0, scrollY: 0 });
+  });
+
   test("cannot set offset outside of the grid", () => {
     // negative
     viewStore.setViewportOffset({ offsetX: -1, offsetY: -1 });

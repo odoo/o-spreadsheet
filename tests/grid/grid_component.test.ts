@@ -108,6 +108,7 @@ import {
   flattenHighlightRange,
   mockChart,
   mountSpreadsheet,
+  nextAnimationFrame,
   nextTick,
   spyModelDispatch,
   target,
@@ -1614,6 +1615,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
   test("Ctrl+wheel zooms in and keeps the cursor position fixed, instead of scrolling", async () => {
     triggerWheelEvent(".o-grid", { deltaY: -100, ctrlKey: true, clientX: 100, clientY: 200 });
+    await nextAnimationFrame();
     await nextTick();
     expect(env.getStore(ZoomStore).zoomLevel).toBeCloseTo(1.1);
     expect(viewStore.activeSheetScrollInfo).toMatchObject({
@@ -1628,6 +1630,7 @@ describe("Events on Grid update viewport correctly", () => {
     await nextTick();
 
     triggerWheelEvent(".o-grid", { deltaY: 100, ctrlKey: true, clientX: 100, clientY: 200 });
+    await nextAnimationFrame();
     await nextTick();
     expect(env.getStore(ZoomStore).zoomLevel).toBeCloseTo(0.9);
     expect(viewStore.activeSheetScrollInfo).toMatchObject({
@@ -1638,11 +1641,13 @@ describe("Events on Grid update viewport correctly", () => {
   test("Ctrl+wheel zoom clamps at MAX_ZOOM and stops changing scroll further", async () => {
     for (let i = 0; i < 20; i++) {
       triggerWheelEvent(".o-grid", { deltaY: -1000, ctrlKey: true, clientX: 100, clientY: 200 });
+      await nextAnimationFrame();
       await nextTick();
     }
     expect(env.getStore(ZoomStore).zoomLevel).toBe(MAX_ZOOM);
     const scrollInfo = viewStore.activeSheetScrollInfo;
     triggerWheelEvent(".o-grid", { deltaY: -1000, ctrlKey: true, clientX: 100, clientY: 200 });
+    await nextAnimationFrame();
     await nextTick();
     expect(env.getStore(ZoomStore).zoomLevel).toBe(MAX_ZOOM);
     expect(viewStore.activeSheetScrollInfo).toMatchObject(scrollInfo);
@@ -1650,18 +1655,38 @@ describe("Events on Grid update viewport correctly", () => {
   test("Ctrl+wheel zoom clamps at MIN_ZOOM and stops changing scroll further", async () => {
     for (let i = 0; i < 20; i++) {
       triggerWheelEvent(".o-grid", { deltaY: 1000, ctrlKey: true, clientX: 100, clientY: 200 });
+      await nextAnimationFrame();
       await nextTick();
     }
     expect(env.getStore(ZoomStore).zoomLevel).toBe(MIN_ZOOM);
     const scrollInfo = viewStore.activeSheetScrollInfo;
     triggerWheelEvent(".o-grid", { deltaY: 1000, ctrlKey: true, clientX: 100, clientY: 200 });
+    await nextAnimationFrame();
     await nextTick();
     expect(env.getStore(ZoomStore).zoomLevel).toBe(MIN_ZOOM);
     expect(viewStore.activeSheetScrollInfo).toMatchObject(scrollInfo);
   });
+  test("A fast burst of Ctrl+wheel ticks within the same animation frame is coalesced into a single zoom step", async () => {
+    // three "zoom in" ticks fired back-to-back, before the browser gets a chance to repaint
+    // (e.g. a fast physical wheel spin): they must compound into one zoom change, computed once
+    // from the zoom level/anchor rect as they were before the burst, not three independent
+    // zoomAtCursor calls racing the (still pending) reflow of the CSS zoom change.
+    triggerWheelEvent(".o-grid", { deltaY: -100, ctrlKey: true, clientX: 100, clientY: 200 });
+    triggerWheelEvent(".o-grid", { deltaY: -100, ctrlKey: true, clientX: 100, clientY: 200 });
+    triggerWheelEvent(".o-grid", { deltaY: -100, ctrlKey: true, clientX: 100, clientY: 200 });
+    await nextAnimationFrame();
+    await nextTick();
+    const zoomLevel = env.getStore(ZoomStore).zoomLevel;
+    expect(zoomLevel).toBeCloseTo(1.1 ** 3);
+    expect(viewStore.activeSheetScrollInfo).toMatchObject({
+      scrollX: 100 * (1 - 1 / zoomLevel),
+      scrollY: 200 * (1 - 1 / zoomLevel),
+    });
+  });
   test("Ctrl+wheel zoom immediately rescales the sheet view, without waiting for a resize", async () => {
     const dimsBefore = viewStore.sheetViewDimensionWithHeaders;
     triggerWheelEvent(".o-grid", { deltaY: -100, ctrlKey: true, clientX: 100, clientY: 200 });
+    await nextAnimationFrame();
     await nextTick();
     const scale = 1 / env.getStore(ZoomStore).zoomLevel;
     expect(viewStore.sheetViewDimensionWithHeaders.width).toBeCloseTo(dimsBefore.width * scale);
@@ -1933,6 +1958,30 @@ describe("Events on Grid update viewport correctly", () => {
       width: DEFAULT_CELL_WIDTH,
       height: DEFAULT_CELL_HEIGHT,
     });
+  });
+});
+
+describe("Ctrl+wheel zoom on a sheet narrower than the viewport", () => {
+  test("keeps the cursor position fixed instead of snapping to the top-left", async () => {
+    // a 2-column, 2-row sheet is far narrower/shorter than the (1000x1000, see jest.setup.ts)
+    // mocked viewport: with no scroll needed to see all of it, the cursor-anchor offset would
+    // normally get clamped back to 0 (see `getMaximumSheetOffset`), snapping the content to the
+    // top-left instead of keeping the point under the cursor fixed.
+    const model = new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
+    const { env, viewStore } = await mountSpreadsheet({ model });
+
+    triggerWheelEvent(".o-grid", { deltaY: -100, ctrlKey: true, clientX: 100, clientY: 200 });
+    await nextAnimationFrame();
+    await nextTick();
+
+    const zoomLevel = env.getStore(ZoomStore).zoomLevel;
+    expect(zoomLevel).toBeCloseTo(1.1);
+    expect(viewStore.activeSheetScrollInfo).toMatchObject({
+      scrollX: 100 * (1 - 1 / zoomLevel),
+      scrollY: 200 * (1 - 1 / zoomLevel),
+    });
+    // still resolves to a valid, fully visible pane (both columns/rows fit in the viewport anyway)
+    expect(viewStore.activeMainViewport).toMatchObject({ left: 0, right: 1, top: 0, bottom: 1 });
   });
 });
 

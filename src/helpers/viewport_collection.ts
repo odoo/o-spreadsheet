@@ -556,16 +556,36 @@ export class ViewportCollection {
 
   checkIfViewportsWillChange(
     sheetId: UID,
-    { offsetX, offsetY }: { offsetX: Pixel; offsetY: Pixel }
+    { offsetX, offsetY }: { offsetX: Pixel; offsetY: Pixel },
+    { allowOverscroll = false }: { allowOverscroll?: boolean } = {}
   ) {
-    const { maxOffsetX, maxOffsetY } = this.getMaximumSheetOffset(sheetId);
+    const [clippedOffsetX, clippedOffsetY] = this.clipSheetOffset(sheetId, offsetX, offsetY, {
+      allowOverscroll,
+    });
     const willScroll = this.getSubViewports(sheetId).some((viewport) =>
-      viewport.willNewOffsetScrollViewport(
-        clip(offsetX, 0, maxOffsetX),
-        clip(offsetY, 0, maxOffsetY)
-      )
+      viewport.willNewOffsetScrollViewport(clippedOffsetX, clippedOffsetY)
     );
     return willScroll ? true : false;
+  }
+
+  /**
+   * Clip a requested sheet-view offset to what's actually allowed. Normally clamped to
+   * [0, maxOffset] (can't scroll past the sheet's content in either direction). With
+   * `allowOverscroll`, the upper bound is dropped (still floored at 0): used by the ctrl+wheel
+   * zoom-at-cursor code path so it can keep the point under the cursor fixed even when the sheet is
+   * narrower/shorter than the viewport, instead of snapping back to a pinned top-left offset of 0.
+   */
+  private clipSheetOffset(
+    sheetId: UID,
+    offsetX: Pixel,
+    offsetY: Pixel,
+    { allowOverscroll = false }: { allowOverscroll?: boolean } = {}
+  ): [Pixel, Pixel] {
+    if (allowOverscroll) {
+      return [Math.max(0, offsetX), Math.max(0, offsetY)];
+    }
+    const { maxOffsetX, maxOffsetY } = this.getMaximumSheetOffset(sheetId);
+    return [clip(offsetX, 0, maxOffsetX), clip(offsetY, 0, maxOffsetY)];
   }
 
   getMainViewport(sheetId: UID): Viewport {
@@ -606,10 +626,20 @@ export class ViewportCollection {
     }
   }
 
-  setSheetViewOffset(sheetId: UID, offsetX: Pixel, offsetY: Pixel) {
-    const { maxOffsetX, maxOffsetY } = this.getMaximumSheetOffset(sheetId);
+  setSheetViewOffset(
+    sheetId: UID,
+    offsetX: Pixel,
+    offsetY: Pixel,
+    options: { allowOverscroll?: boolean } = {}
+  ) {
+    const [clippedOffsetX, clippedOffsetY] = this.clipSheetOffset(
+      sheetId,
+      offsetX,
+      offsetY,
+      options
+    );
     this.getSubViewports(sheetId).forEach((viewport) =>
-      viewport.setViewportOffset(clip(offsetX, 0, maxOffsetX), clip(offsetY, 0, maxOffsetY))
+      viewport.setViewportOffset(clippedOffsetX, clippedOffsetY)
     );
   }
 

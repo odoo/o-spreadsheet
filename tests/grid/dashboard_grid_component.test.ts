@@ -30,7 +30,13 @@ import {
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
 import { getCellIcons, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
-import { addToRegistry, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
+import {
+  addToRegistry,
+  mountSpreadsheet,
+  nextAnimationFrame,
+  nextTick,
+  spyDispatch,
+} from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 let fixture: HTMLElement;
@@ -372,6 +378,7 @@ describe("Grid component in dashboard mode", () => {
       clientX: 100,
       clientY: 200,
     });
+    await nextAnimationFrame();
     await nextTick();
 
     const zoomLevel = env.getStore(ZoomStore).zoomLevel;
@@ -409,6 +416,7 @@ describe("Grid component in dashboard mode", () => {
       clientX: cursor.x,
       clientY: cursor.y,
     });
+    await nextAnimationFrame();
     await nextTick();
 
     const newZoom = env.getStore(ZoomStore).zoomLevel;

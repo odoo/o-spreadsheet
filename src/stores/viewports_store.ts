@@ -160,15 +160,18 @@ export class ViewportsStore extends SpreadsheetStore {
     this.viewports.resetViewports(sheetId);
   }
 
-  setViewportOffset(offset: { offsetX: Pixel; offsetY: Pixel }) {
+  setViewportOffset(
+    offset: { offsetX: Pixel; offsetY: Pixel },
+    options: { allowOverscroll?: boolean } = {}
+  ) {
     const sheetId = this.displayedSheetId;
     if (
       !this.viewports.checkScrollingDirection(sheetId, offset) ||
-      !this.viewports.checkIfViewportsWillChange(sheetId, offset)
+      !this.viewports.checkIfViewportsWillChange(sheetId, offset, options)
     ) {
       return "noStateChange";
     }
-    this.viewports.setSheetViewOffset(sheetId, offset.offsetX, offset.offsetY);
+    this.viewports.setSheetViewOffset(sheetId, offset.offsetX, offset.offsetY, options);
     return;
   }
 

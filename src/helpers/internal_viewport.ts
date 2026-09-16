@@ -319,20 +319,28 @@ export class InternalViewport {
    * offset (will find Left) and its width (will find Right) */
   private adjustViewportZoneX() {
     this.left = this.searchHeaderIndex("COL", this.offsetX, this.boundaries.left);
-    this.right = Math.min(
-      this.boundaries.right,
-      this.searchHeaderIndex(
-        "COL",
-        // if we hit the border of two cells, we want to match the previous
-        Math.max(this.viewportWidth + this.snapCorrection.x - 0.1),
-        this.left
-      )
-    );
+    // skip the search entirely when `left` wasn't found: passing it as a startIndex below would
+    // search relative to a non-existent column
+    this.right =
+      this.left === -1
+        ? -1
+        : Math.min(
+            this.boundaries.right,
+            this.searchHeaderIndex(
+              "COL",
+              // if we hit the border of two cells, we want to match the previous
+              Math.max(this.viewportWidth + this.snapCorrection.x - 0.1),
+              this.left
+            )
+          );
     if (!this.viewportWidth) {
       return;
     }
     if (this.left === -1) {
-      this.left = this.boundaries.left;
+      // the offset is past all of the pane's columns (e.g. a zoom-in cursor anchor overscrolled a
+      // sheet narrower than the viewport, see `allowOverscroll`): clamp to the last column, not the
+      // first, or the pane would render as if it hadn't scrolled at all.
+      this.left = this.boundaries.right;
     }
     if (this.right === -1) {
       this.right = this.boundaries.right;
@@ -343,20 +351,26 @@ export class InternalViewport {
    * offset (will find Top) and its width (will find Bottom) */
   private adjustViewportZoneY() {
     this.top = this.searchHeaderIndex("ROW", this.offsetY, this.boundaries.top);
-    this.bottom = Math.min(
-      this.boundaries.bottom,
-      this.searchHeaderIndex(
-        "ROW",
-        // if we hit the border of two cells, we want to match the previous
-        Math.max(this.viewportHeight + this.snapCorrection.y - 0.1, 0),
-        this.top
-      )
-    );
+    // skip the search entirely when `top` wasn't found: passing it as a startIndex below would
+    // search relative to a non-existent row
+    this.bottom =
+      this.top === -1
+        ? -1
+        : Math.min(
+            this.boundaries.bottom,
+            this.searchHeaderIndex(
+              "ROW",
+              // if we hit the border of two cells, we want to match the previous
+              Math.max(this.viewportHeight + this.snapCorrection.y - 0.1, 0),
+              this.top
+            )
+          );
     if (!this.viewportHeight) {
       return;
     }
     if (this.top === -1) {
-      this.top = this.boundaries.top;
+      // see the equivalent `left` fallback in `adjustViewportZoneX`
+      this.top = this.boundaries.bottom;
     }
     if (this.bottom === -1) {
       this.bottom = this.boundaries.bottom;
