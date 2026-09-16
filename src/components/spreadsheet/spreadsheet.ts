@@ -349,8 +349,8 @@ export class Spreadsheet extends Component {
     const gridHeight = rect.height - colGroupHeight - topBarHeight - bottomBarHeight;
 
     return {
-      width: Math.max(gridWidth / zoom - scrollbarWidth, 0),
-      height: Math.max(gridHeight / zoom - scrollbarWidth, 0),
+      width: Math.floor(Math.max(gridWidth / zoom - scrollbarWidth, 0)),
+      height: Math.floor(Math.max(gridHeight / zoom - scrollbarWidth, 0)),
     };
   }
 
