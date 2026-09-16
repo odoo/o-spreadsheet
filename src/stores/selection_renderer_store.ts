@@ -1,3 +1,4 @@
+import { proxy } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../constants";
 import { deepEquals } from "../helpers/misc";
 import { positionToZone } from "../helpers/zones";
@@ -8,12 +9,21 @@ import { SpreadsheetStore } from "./spreadsheet_store";
 
 export const SELECTION_ANIMATION_DURATION = 100;
 
+// ADRM TODO: debug knobs driven by the settings side panel. To be removed.
+export const SELECTION_ANIMATION_CONFIG = proxy({
+  duration: SELECTION_ANIMATION_DURATION,
+  disableOnMouseMove: false,
+  disableOnWholeColRow: true,
+  disableOnWholeSheet: true,
+});
+
 export interface SelectionRenderingState {
   sheetId: UID;
   selectedZonesRects: Rect[];
   activeZoneRect: Rect | null;
   selectedZones: Zone[];
-  isWholeHeaderSelected: boolean;
+  isWholeColRowSelected: boolean;
+  isWholeSheetSelected: boolean;
   fillStyle: string;
   isDarkMode: boolean;
 }
@@ -69,10 +79,11 @@ export class SelectionRendererStore extends SpreadsheetStore {
     const numberOfRows = this.getters.getNumberRows(sheetId);
     const numberOfColumns = this.getters.getNumberCols(sheetId);
 
-    const isWholeHeaderSelected = zones.some(
-      (zone) =>
-        (zone.top === 0 && zone.bottom === numberOfRows - 1) ||
-        (zone.left === 0 && zone.right === numberOfColumns - 1)
+    const isWholeCol = (zone: Zone) => zone.top === 0 && zone.bottom === numberOfRows - 1;
+    const isWholeRow = (zone: Zone) => zone.left === 0 && zone.right === numberOfColumns - 1;
+    const isWholeSheetSelected = zones.some((zone) => isWholeCol(zone) && isWholeRow(zone));
+    const isWholeColRowSelected = zones.some(
+      (zone) => (isWholeCol(zone) || isWholeRow(zone)) && !(isWholeCol(zone) && isWholeRow(zone))
     );
 
     const state: SelectionRenderingState = {
@@ -81,7 +92,8 @@ export class SelectionRendererStore extends SpreadsheetStore {
       fillStyle,
       selectedZones: zones,
       selectedZonesRects: [],
-      isWholeHeaderSelected,
+      isWholeColRowSelected,
+      isWholeSheetSelected,
       activeZoneRect: null,
     };
 
@@ -181,7 +193,8 @@ export class SelectionRendererStore extends SpreadsheetStore {
       selectedZones: startState.selectedZones,
       selectedZonesRects: [],
       isDarkMode: endState.isDarkMode,
-      isWholeHeaderSelected: startState.isWholeHeaderSelected,
+      isWholeColRowSelected: startState.isWholeColRowSelected,
+      isWholeSheetSelected: startState.isWholeSheetSelected,
       activeZoneRect: null,
     };
     const value = EASING_FN.easeOutQuart(animatedSelection.progress);
@@ -218,8 +231,9 @@ export class SelectionRendererStore extends SpreadsheetStore {
       return;
     }
 
+    const duration = SELECTION_ANIMATION_CONFIG.duration;
     const elapsedTime = timeStamp - this.animatedSelection.startTime;
-    const animationProgress = Math.min(elapsedTime / SELECTION_ANIMATION_DURATION, 1);
+    const animationProgress = duration > 0 ? Math.min(elapsedTime / duration, 1) : 1;
     this.animatedSelection.progress = animationProgress;
     if (animationProgress >= 1) {
       this.animatedSelection = undefined;
@@ -231,18 +245,25 @@ export class SelectionRendererStore extends SpreadsheetStore {
     lastState: SelectionRenderingState | undefined,
     timeStamp: number | undefined
   ) {
+    const wasDisabledForThisRender = this.animationDisabledForNextRender;
+    this.animationDisabledForNextRender = false;
     if (!lastState) {
       return;
     }
+    const disabledByDrag =
+      wasDisabledForThisRender && SELECTION_ANIMATION_CONFIG.disableOnMouseMove;
+    const disabledByHeader =
+      (SELECTION_ANIMATION_CONFIG.disableOnWholeColRow &&
+        (lastState.isWholeColRowSelected || currentState.isWholeColRowSelected)) ||
+      (SELECTION_ANIMATION_CONFIG.disableOnWholeSheet &&
+        (lastState.isWholeSheetSelected || currentState.isWholeSheetSelected));
     if (
       lastState.selectedZonesRects.length !== currentState.selectedZonesRects.length ||
       currentState.selectedZonesRects.length > 1 ||
-      lastState.isWholeHeaderSelected ||
-      currentState.isWholeHeaderSelected ||
-      this.animationDisabledForNextRender
+      disabledByHeader ||
+      disabledByDrag
     ) {
       this.animatedSelection = undefined;
-      this.animationDisabledForNextRender = false;
       return;
     }
 

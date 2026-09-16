@@ -27,6 +27,40 @@
         </div>
       </Section>
 
+      <Section title="'Selection animation (debug)'">
+        <div class="mb-2">
+          <label class="o-fw-bold me-2">Duration (ms)</label>
+          <input
+            type="number"
+            min="0"
+            step="10"
+            class="o-input w-25"
+            t-att-value="this.animationConfig.duration"
+            t-on-change="this.onAnimationDurationChange"
+          />
+        </div>
+        <t t-set="disableOnMouseMoveLabel">Disable animation while dragging on the grid</t>
+        <Checkbox
+          label="disableOnMouseMoveLabel"
+          value="this.animationConfig.disableOnMouseMove"
+          onChange.bind="this.setDisableOnMouseMove"
+        />
+        <t t-set="disableOnWholeColRowLabel">
+          Disable animation when a whole row/column is selected
+        </t>
+        <Checkbox
+          label="disableOnWholeColRowLabel"
+          value="this.animationConfig.disableOnWholeColRow"
+          onChange.bind="this.setDisableOnWholeColRow"
+        />
+        <t t-set="disableOnWholeSheetLabel">Disable animation when the whole sheet is selected</t>
+        <Checkbox
+          label="disableOnWholeSheetLabel"
+          value="this.animationConfig.disableOnWholeSheet"
+          onChange.bind="this.setDisableOnWholeSheet"
+        />
+      </Section>
+
       <Section class="'pt-0'">
         <t t-set="message">Those settings affect all users.</t>
         <ValidationMessages messages="[message]" msgType="'info'"/>
