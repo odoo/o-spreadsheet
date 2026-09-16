@@ -7,6 +7,7 @@ import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   getDefaultSheetViewSize,
+  SCROLLBAR_WIDTH,
 } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { render } from "../../src/helpers/owl3_helpers";
@@ -59,16 +60,20 @@ let model: Model;
 let env: SpreadsheetChildEnv;
 
 let spreadsheetWidth = 1000;
+let spreadsheetHeight = 1000;
 
 beforeEach(() => {
+  spreadsheetWidth = 1000;
+  spreadsheetHeight = 1000;
+
   extendMockGetBoundingClientRect({
     "o-topbar-responsive": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
     "o-dropdown": () => ({ x: 0, y: 0, width: 30, height: 30 }),
     "o-spreadsheet": () => {
-      return { x: 0, y: 0, width: spreadsheetWidth, height: 1000 };
+      return { x: 0, y: 0, width: spreadsheetWidth, height: spreadsheetHeight };
     },
     "o-grid": () => {
-      return { x: 0, y: 0, width: spreadsheetWidth, height: 1000 };
+      return { x: 0, y: 0, width: spreadsheetWidth, height: spreadsheetHeight };
     },
   });
 });
@@ -543,4 +548,17 @@ test("Spreadsheet main viewport store follows the active sheet", async () => {
   await nextTick();
   expect(model.getters.getActiveSheetId()).toBe("Sheet1");
   expect(viewportsStore.displayedSheetId).toBe("Sheet1");
+});
+
+test("Grid dimensions are rounded for the viewports", async () => {
+  const model = new Model();
+  spreadsheetWidth = 500.2;
+  spreadsheetHeight = 100.7;
+  const { env } = await mountSpreadsheet({ model }, { isSmall: true });
+
+  const viewStore = env.getStore(ViewportsStore);
+  expect(viewStore.sheetViewDimensionWithHeaders).toEqual({
+    width: 500 - SCROLLBAR_WIDTH,
+    height: 100 - SCROLLBAR_WIDTH,
+  });
 });
