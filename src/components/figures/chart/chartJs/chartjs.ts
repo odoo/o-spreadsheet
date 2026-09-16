@@ -209,6 +209,7 @@ export class ChartJsComponent extends OSComponent {
         data: dataset.data,
         label: dataset.label,
         tree: dataset.tree,
+        labelsAndValues: dataset.labelsAndValues,
       })),
     };
   }
