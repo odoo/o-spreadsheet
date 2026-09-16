@@ -7,6 +7,7 @@
     <div
       class="o-grid o-dashboard-grid o-two-columns o-zoomable z-1"
       tabindex="-1"
+      t-ref="this.zoomRootRef"
       t-on-wheel="this.onMouseWheel"
       t-att-style="this.dashboardStyle">
       <div

@@ -19,6 +19,7 @@ import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useTouchHandlers } from "../helpers/touch_handlers_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import {
+  centeredContentMargin,
   getZoomAnchorRect,
   nextWheelZoomLevel,
   rescaleDimensionsForZoom,
@@ -58,6 +59,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
 
   private gridRef = signal.ref();
   private canvasRef = signal.ref(HTMLCanvasElement);
+  private zoomRootRef = signal.ref();
 
   setup() {
     this.hoveredCell = useStore(DelayedHoveredCellStore);
@@ -146,13 +148,24 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
     if (newZoom === oldZoom) {
       return;
     }
-    const gridRect = getZoomAnchorRect(this.gridRef());
+    const gridRect = getZoomAnchorRect(this.zoomRootRef());
+    const maxWidth = this.getMaxSheetWidth();
     const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
+    // The content (gridRef) is horizontally auto-centered inside the zoom root whenever it's
+    // narrower than the available width (no horizontal scrollbar): that centering margin shrinks
+    // or grows with the zoom level, so it has to be folded into the cursor-fixed-point offset on
+    // the x axis, on top of the scale factor -- otherwise the content visibly jumps by the change
+    // in margin once the browser reflows for the new zoom, on top of the intended zoom-at-cursor
+    // motion.
     const newOffset = zoomedScrollOffset(
       { scrollX, scrollY },
       { x: ev.clientX - gridRect.x, y: ev.clientY - gridRect.y },
       oldZoom,
-      newZoom
+      newZoom,
+      {
+        old: centeredContentMargin(gridRect.width, maxWidth, oldZoom),
+        new: centeredContentMargin(gridRect.width, maxWidth, newZoom),
+      }
     );
     // Recompute the logical sheet-view size for the new zoom right away, instead of waiting for
     // the ResizeObserver to notice the browser's (delayed) reflow of the CSS zoom change: that lag
@@ -163,7 +176,6 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
       oldZoom,
       newZoom
     );
-    const maxWidth = this.getMaxSheetWidth();
     this.zoomStore.setZoom(newZoom);
     this.viewStore.resizeSheetView({
       height,

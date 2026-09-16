@@ -13,6 +13,7 @@ import { Model } from "../../src/model";
 import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";
 import { GridIcon, iconsOnCellRegistry } from "../../src/registries/icons_on_cell_registry";
 import { ViewportsStore } from "../../src/stores/viewports_store";
+import { ZoomStore } from "../../src/stores/zoom_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   createTableWithFilter,
@@ -22,9 +23,15 @@ import {
   setSheetBackground,
   setViewportOffset,
 } from "../test_helpers/commands_helpers";
-import { clickGridIcon, keyDown, simulateClick } from "../test_helpers/dom_helper";
+import {
+  clickGridIcon,
+  keyDown,
+  simulateClick,
+  triggerWheelEvent,
+} from "../test_helpers/dom_helper";
 import { getCellIcons, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
 import { addToRegistry, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
+import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 let fixture: HTMLElement;
 let parent: Spreadsheet;
@@ -343,5 +350,79 @@ describe("Grid component in dashboard mode", () => {
     expect(".o-dashboard-background").toHaveStyle({
       "background-color": COLOR_THEMES.dark.backgroundColor,
     });
+  });
+
+  test("Ctrl+wheel zoom anchors on the zoom-root element, not the centered content div", async () => {
+    model.updateMode("dashboard");
+    await nextTick();
+
+    // the content div is centered with `mx-auto` when it's narrower than the zoom root
+    // (e.g. no horizontal scrollbar): its on-screen position isn't stable across a zoom change,
+    // so it must not be used as the zoom anchor. Note: the zoom root also carries the "o-grid"
+    // class (matched first, see the default mock registered in jest.setup.ts), so that's the key
+    // to override here, not "o-dashboard-grid".
+    extendMockGetBoundingClientRect({
+      "o-grid": () => ({ x: 0, y: 0 }),
+      "mx-auto": () => ({ x: 200, y: 50 }),
+    });
+
+    triggerWheelEvent(".o-dashboard-grid", {
+      deltaY: -100,
+      ctrlKey: true,
+      clientX: 100,
+      clientY: 200,
+    });
+    await nextTick();
+
+    const zoomLevel = env.getStore(ZoomStore).zoomLevel;
+    expect(zoomLevel).toBeCloseTo(1.1);
+    const viewStore = env.getStore(ViewportsStore);
+    expect(viewStore.activeSheetScrollInfo).toMatchObject({
+      scrollX: 100 * (1 - 1 / zoomLevel),
+      scrollY: 200 * (1 - 1 / zoomLevel),
+    });
+  });
+
+  test("Ctrl+wheel zoom keeps the sheet point under the cursor fixed when the dashboard content is horizontally centered (no horizontal scrollbar)", async () => {
+    model.updateMode("dashboard");
+    await nextTick();
+
+    const sheetId = model.getters.getActiveSheetId();
+    const { right } = model.getters.getSheetZone(sheetId);
+    const contentWidth = model.getters.getColDimensions(sheetId, right).end;
+    const availableWidth = contentWidth + 400; // wide enough that the content gets centered
+
+    // the zoom root carries the "o-grid" class (matched first, see the default mock registered in
+    // jest.setup.ts), so that's the key to override here, not "o-dashboard-grid".
+    extendMockGetBoundingClientRect({
+      "o-grid": () => ({ x: 0, y: 0, width: availableWidth }),
+    });
+
+    const oldZoom = env.getStore(ZoomStore).zoomLevel;
+    // well inside the (initially centered) content, far enough from the shrinking margin that the
+    // resulting scroll offset doesn't get clamped to 0
+    const cursor = { x: 2000, y: 60 };
+
+    triggerWheelEvent(".o-dashboard-grid", {
+      deltaY: -100,
+      ctrlKey: true,
+      clientX: cursor.x,
+      clientY: cursor.y,
+    });
+    await nextTick();
+
+    const newZoom = env.getStore(ZoomStore).zoomLevel;
+    expect(newZoom).toBeCloseTo(oldZoom * 1.1);
+
+    // the centering margin shrinks between oldZoom and newZoom: the sheet point under the cursor
+    // must still stay fixed despite that, or the content visibly jumps.
+    const marginAt = (zoom: number) => Math.max(0, (availableWidth - contentWidth * zoom) / 2);
+    const sheetPointBefore = (cursor.x - marginAt(oldZoom)) / oldZoom;
+
+    const viewStore = env.getStore(ViewportsStore);
+    const sheetPointAfter =
+      viewStore.activeSheetScrollInfo.scrollX + (cursor.x - marginAt(newZoom)) / newZoom;
+
+    expect(sheetPointAfter).toBeCloseTo(sheetPointBefore);
   });
 });

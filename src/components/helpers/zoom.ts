@@ -49,18 +49,45 @@ export function getZoomAnchorRect(el: HTMLElement | null): Rect {
  * relative to a point on screen that is invariant across a zoom change, e.g. the zoomable
  * element's own getBoundingClientRect() origin) stays visually fixed under the cursor after the
  * zoom level changes from oldZoom to newZoom.
+ *
+ * `xCenteringMargin` accounts for content that is horizontally auto-centered inside the zoom-root
+ * (e.g. the dashboard, whose content is centered whenever it's narrower than the available width,
+ * i.e. when there's no horizontal scrollbar): the cursor's x position relative to the zoom-root
+ * origin isn't the cursor's x position relative to the content, since a centering margin sits in
+ * between -- and that margin itself shrinks/grows with the zoom level (see
+ * `centeredContentMargin`), so both its old and new value are needed. Defaults to no margin, e.g.
+ * for content that always starts flush against the zoom-root origin (the main Grid).
  */
 export function zoomedScrollOffset(
   scroll: { scrollX: Pixel; scrollY: Pixel },
   cursor: { x: Pixel; y: Pixel },
   oldZoom: number,
-  newZoom: number
+  newZoom: number,
+  xCenteringMargin: { old: Pixel; new: Pixel } = { old: 0, new: 0 }
 ): { offsetX: Pixel; offsetY: Pixel } {
   const factor = 1 / oldZoom - 1 / newZoom;
   return {
-    offsetX: scroll.scrollX + cursor.x * factor,
+    offsetX:
+      scroll.scrollX +
+      cursor.x * factor -
+      xCenteringMargin.old / oldZoom +
+      xCenteringMargin.new / newZoom,
     offsetY: scroll.scrollY + cursor.y * factor,
   };
+}
+
+/**
+ * The horizontal margin (screen px) added by auto-centering (`margin: 0 auto`) content of logical
+ * (unzoomed) width `contentWidth` inside a zoom-invariant container of screen width
+ * `availableWidth`, at a given zoom level. 0 once the content is wide enough, at that zoom level,
+ * to fill or overflow the container (e.g. once a horizontal scrollbar appears).
+ */
+export function centeredContentMargin(
+  availableWidth: Pixel,
+  contentWidth: Pixel,
+  zoom: number
+): Pixel {
+  return Math.max(0, (availableWidth - contentWidth * zoom) / 2);
 }
 
 /**

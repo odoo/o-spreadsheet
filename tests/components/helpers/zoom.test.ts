@@ -1,4 +1,5 @@
 import {
+  centeredContentMargin,
   nextWheelZoomLevel,
   rescaleDimensionsForZoom,
   ZOOM_WHEEL_STEP,
@@ -52,6 +53,63 @@ describe("zoomedScrollOffset", () => {
     );
     expect(backToOriginal.offsetX).toBeCloseTo(scroll.scrollX);
     expect(backToOriginal.offsetY).toBeCloseTo(scroll.scrollY);
+  });
+});
+
+describe("centeredContentMargin", () => {
+  test("centers content that's narrower than the available width", () => {
+    expect(centeredContentMargin(1000, 400, 1)).toBe(300);
+  });
+
+  test("shrinks as the zoom level grows the content", () => {
+    expect(centeredContentMargin(1000, 400, 2)).toBe(100);
+  });
+
+  test("clamps to 0 once the content fills or overflows the available width", () => {
+    expect(centeredContentMargin(1000, 400, 3)).toBe(0);
+    expect(centeredContentMargin(1000, 400, 10)).toBe(0);
+  });
+});
+
+describe("zoomedScrollOffset with a centered-content margin", () => {
+  // e.g. the dashboard: content narrower than the zoom root gets auto-centered, so the margin
+  // between the zoom-root origin and the actual content shrinks as zoom grows the content.
+  const availableWidth = 1000;
+  const contentWidth = 400;
+
+  function sheetPointUnderCursor(cursorX: number, scrollX: number, zoom: number): number {
+    const margin = centeredContentMargin(availableWidth, contentWidth, zoom);
+    return scrollX + (cursorX - margin) / zoom;
+  }
+
+  test("keeps the sheet point under the cursor fixed even though the centering margin changes with zoom", () => {
+    const scroll = { scrollX: 0, scrollY: 0 };
+    const cursor = { x: 650, y: 0 }; // inside the (initially) centered content, off-center
+    const oldZoom = 1;
+    const newZoom = 1.5;
+    const sheetPointBefore = sheetPointUnderCursor(cursor.x, scroll.scrollX, oldZoom);
+
+    const offset = zoomedScrollOffset(scroll, cursor, oldZoom, newZoom, {
+      old: centeredContentMargin(availableWidth, contentWidth, oldZoom),
+      new: centeredContentMargin(availableWidth, contentWidth, newZoom),
+    });
+
+    const sheetPointAfter = sheetPointUnderCursor(cursor.x, offset.offsetX, newZoom);
+    expect(sheetPointAfter).toBeCloseTo(sheetPointBefore);
+  });
+
+  test("without the margin, the sheet point under the cursor drifts once the margin changes with zoom", () => {
+    const scroll = { scrollX: 0, scrollY: 0 };
+    const cursor = { x: 650, y: 0 };
+    const oldZoom = 1;
+    const newZoom = 1.5;
+    const sheetPointBefore = sheetPointUnderCursor(cursor.x, scroll.scrollX, oldZoom);
+
+    // same call, but without accounting for the (changing) centering margin
+    const offset = zoomedScrollOffset(scroll, cursor, oldZoom, newZoom);
+
+    const sheetPointAfter = sheetPointUnderCursor(cursor.x, offset.offsetX, newZoom);
+    expect(sheetPointAfter).not.toBeCloseTo(sheetPointBefore);
   });
 });
 
