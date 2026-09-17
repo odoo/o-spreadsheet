@@ -2,7 +2,7 @@ import { deepEquals, range } from "../../helpers/misc";
 import { sortCells } from "../../helpers/sort";
 import { isInside, overlap, positions, zoneToDimension } from "../../helpers/zones";
 import { CellValueType } from "../../types/cells";
-import { CommandResult, LocalCommand, SortCommand, UpdateCellCommand } from "../../types/commands";
+import { CommandResult, SortCommand, UpdateCellCommand } from "../../types/commands";
 import {
   CellPosition,
   HeaderIndex,
@@ -15,21 +15,21 @@ import {
 import { UIPlugin } from "../ui_plugin";
 
 export class SortPlugin extends UIPlugin {
-  allowDispatch(cmd: LocalCommand): CommandResult | CommandResult[] {
-    switch (cmd.type) {
-      case "SORT_CELLS":
-        if (!isInside(cmd.col, cmd.row, cmd.zone)) {
-          return CommandResult.InvalidSortAnchor;
-        }
-        return this.checkValidations(
-          cmd,
-          this.checkMerge,
-          this.checkMergeSizes,
-          this.checkArrayFormulaInSortZone
-        );
+  private checkSortCells(cmd: SortCommand) {
+    if (!isInside(cmd.col, cmd.row, cmd.zone)) {
+      return CommandResult.InvalidSortAnchor;
     }
-    return CommandResult.Success;
+    return this.checkValidations(
+      cmd,
+      this.checkMerge,
+      this.checkMergeSizes,
+      this.checkArrayFormulaInSortZone
+    );
   }
+
+  validators = {
+    SORT_CELLS: this.checkSortCells,
+  };
 
   handlers = {
     SORT_CELLS: this.sortCells,

@@ -16,10 +16,10 @@ import {
   ClearCellCommand,
   ClearCellsCommand,
   CommandResult,
-  CoreCommand,
   DeleteContentCommand,
   PositionDependentCommand,
   UpdateCellCommand,
+  UpdateCellPositionCommand,
 } from "../../types/commands";
 import { CellPosition, HeaderIndex, RangeAdapterFunctions, UID } from "../../types/misc";
 
@@ -60,6 +60,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   ] as const;
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
+
+  validators = {
+    UPDATE_CELL: this.checkUpdateCell,
+    CLEAR_CELL: this.checkClearCell,
+    UPDATE_CELL_POSITION: this.checkCellIdExists,
+  };
 
   handlers = {
     UPDATE_CELL: this.updateCell,
@@ -116,19 +122,18 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: CoreCommand): CommandResult | CommandResult[] {
-    switch (cmd.type) {
-      case "UPDATE_CELL":
-        return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessUpdateCell);
-      case "CLEAR_CELL":
-        return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessClearCell);
-      case "UPDATE_CELL_POSITION":
-        return !cmd.cellId || this.cells[cmd.sheetId]?.[cmd.cellId]
-          ? CommandResult.Success
-          : CommandResult.InvalidCellId;
-      default:
-        return CommandResult.Success;
-    }
+  private checkUpdateCell(cmd: UpdateCellCommand) {
+    return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessUpdateCell);
+  }
+
+  private checkClearCell(cmd: ClearCellCommand) {
+    return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessClearCell);
+  }
+
+  private checkCellIdExists(cmd: UpdateCellPositionCommand) {
+    return !cmd.cellId || this.cells[cmd.sheetId]?.[cmd.cellId]
+      ? CommandResult.Success
+      : CommandResult.InvalidCellId;
   }
 
   private clearZones(cmd: DeleteContentCommand) {

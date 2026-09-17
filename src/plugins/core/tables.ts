@@ -15,8 +15,8 @@ import {
   zoneToXc,
 } from "../../helpers/zones";
 import {
+  AddMergeCommand,
   CommandResult,
-  CoreCommand,
   CreateTableCommand,
   DeleteContentCommand,
   RemoveTableCommand,
@@ -58,6 +58,12 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   ] as const;
   readonly tables: Record<UID, Record<TableId, CoreTable | undefined>> = {};
   readonly nextTableId: number = 1;
+
+  validators = {
+    CREATE_TABLE: this.checkCreateTable,
+    UPDATE_TABLE: this.checkUpdateTable,
+    ADD_MERGE: this.checkMergeIsNotInTable,
+  };
 
   handlers = {
     UPDATE_CELL: this.extendTablesOnCellUpdate,
@@ -126,49 +132,46 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     }
   }
 
-  allowDispatch(cmd: CoreCommand): CommandResult | CommandResult[] {
-    switch (cmd.type) {
-      case "CREATE_TABLE":
-        if (
-          cmd.ranges.some(
-            (rangeData) =>
-              !this.getters.tryGetSheet(rangeData._sheetId) || rangeData._sheetId !== cmd.sheetId
-          )
-        ) {
-          return CommandResult.InvalidSheetId;
+  private checkCreateTable(cmd: CreateTableCommand) {
+    if (
+      cmd.ranges.some(
+        (rangeData) =>
+          !this.getters.tryGetSheet(rangeData._sheetId) || rangeData._sheetId !== cmd.sheetId
+      )
+    ) {
+      return CommandResult.InvalidSheetId;
+    }
+    const zones = cmd.ranges.map((rangeData) => this.getters.getRangeFromRangeData(rangeData).zone);
+    if (!areZonesContinuous(zones)) {
+      return CommandResult.NonContinuousTargets;
+    }
+    return this.checkValidations(
+      cmd,
+      (cmd) =>
+        this.getTablesOverlappingZones(cmd.sheetId, zones).length
+          ? CommandResult.TableOverlap
+          : CommandResult.Success,
+      (cmd) => this.checkTableConfigUpdateIsValid(cmd.config)
+    );
+  }
+
+  private checkUpdateTable(cmd: UpdateTableCommand) {
+    if (!this.getCoreTableMatchingTopLeft(cmd.sheetId, cmd.zone)) {
+      return CommandResult.TableNotFound;
+    }
+    return this.checkValidations(cmd, this.checkUpdatedTableZoneIsValid, (cmd) =>
+      this.checkTableConfigUpdateIsValid(cmd.config)
+    );
+  }
+
+  private checkMergeIsNotInTable(cmd: AddMergeCommand) {
+    for (const table of this.getCoreTables(cmd.sheetId)) {
+      const tableZone = table.range.zone;
+      for (const merge of cmd.target) {
+        if (overlap(tableZone, merge)) {
+          return CommandResult.MergeInTable;
         }
-        const zones = cmd.ranges.map(
-          (rangeData) => this.getters.getRangeFromRangeData(rangeData).zone
-        );
-        if (!areZonesContinuous(zones)) {
-          return CommandResult.NonContinuousTargets;
-        }
-        return this.checkValidations(
-          cmd,
-          (cmd) =>
-            this.getTablesOverlappingZones(cmd.sheetId, zones).length
-              ? CommandResult.TableOverlap
-              : CommandResult.Success,
-          (cmd) => this.checkTableConfigUpdateIsValid(cmd.config)
-        );
-      case "UPDATE_TABLE":
-        const updatedTable = this.getCoreTableMatchingTopLeft(cmd.sheetId, cmd.zone);
-        if (!updatedTable) {
-          return CommandResult.TableNotFound;
-        }
-        return this.checkValidations(cmd, this.checkUpdatedTableZoneIsValid, (cmd) =>
-          this.checkTableConfigUpdateIsValid(cmd.config)
-        );
-      case "ADD_MERGE":
-        for (const table of this.getCoreTables(cmd.sheetId)) {
-          const tableZone = table.range.zone;
-          for (const merge of cmd.target) {
-            if (overlap(tableZone, merge)) {
-              return CommandResult.MergeInTable;
-            }
-          }
-        }
-        break;
+      }
     }
     return CommandResult.Success;
   }

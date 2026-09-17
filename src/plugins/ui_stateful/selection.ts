@@ -24,7 +24,6 @@ import {
   CreateFigureCommand,
   DeleteFigureCommand,
   HideSheetCommand,
-  LocalCommand,
   MoveColumnsRowsCommand,
   RedoCommand,
   RemoveColumnsRowsCommand,
@@ -123,22 +122,13 @@ export class GridSelectionPlugin extends UIPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: LocalCommand): CommandResult {
-    switch (cmd.type) {
-      case "ACTIVATE_SHEET":
-        try {
-          const sheet = this.getters.getSheet(cmd.sheetIdTo);
-          if (!sheet.isVisible) {
-            return CommandResult.SheetIsHidden;
-          }
-          break;
-        } catch (error) {
-          return CommandResult.InvalidSheetId;
-        }
-      case "MOVE_COLUMNS_ROWS":
-        return this.isMoveElementAllowed(cmd);
+  private checkActivatedSheetIsVisible(cmd: ActivateSheetCommand) {
+    try {
+      const sheet = this.getters.getSheet(cmd.sheetIdTo);
+      return sheet.isVisible ? CommandResult.Success : CommandResult.SheetIsHidden;
+    } catch (error) {
+      return CommandResult.InvalidSheetId;
     }
-    return CommandResult.Success;
   }
 
   private handleEvent(event: SelectionEvent) {
@@ -195,6 +185,11 @@ export class GridSelectionPlugin extends UIPlugin {
     this.selectedFiguresIds = [];
     this.currentStyle = undefined;
   }
+
+  validators = {
+    ACTIVATE_SHEET: this.checkActivatedSheetIsVisible,
+    MOVE_COLUMNS_ROWS: this.isMoveElementAllowed,
+  };
 
   handlers = {
     DELETE_FIGURE: this.unselectDeletedFigure,

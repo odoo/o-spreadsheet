@@ -44,12 +44,9 @@ import { addTestPlugin } from "../test_helpers/helpers";
 describe("Model", () => {
   test("core plugin can refuse command from UI plugin", () => {
     class MyCorePlugin extends CorePlugin {
-      allowDispatch(cmd: CoreCommand) {
-        if (cmd.type === "UPDATE_CELL") {
-          return CommandResult.CancelledForUnknownReason;
-        }
-        return CommandResult.Success;
-      }
+      validators = {
+        UPDATE_CELL: () => CommandResult.CancelledForUnknownReason,
+      };
     }
     let result: DispatchResult | undefined = undefined;
     class MyUIPlugin extends UIPlugin {
@@ -74,12 +71,9 @@ describe("Model", () => {
   test("core plugin cannot refuse command from core plugin", () => {
     let result: DispatchResult | undefined = undefined;
     class MyCorePlugin extends CorePlugin {
-      allowDispatch(cmd: CoreCommand) {
-        if (cmd.type === "UPDATE_CELL") {
-          return CommandResult.CancelledForUnknownReason;
-        }
-        return CommandResult.Success;
-      }
+      validators = {
+        UPDATE_CELL: () => CommandResult.CancelledForUnknownReason,
+      };
       handlers = {
         CREATE_SHEET: (cmd: CreateSheetCommand) => {
           result = this.dispatch("UPDATE_CELL", {
@@ -101,12 +95,9 @@ describe("Model", () => {
   test("UI plugin cannot refuse command from UI plugin", () => {
     let result: DispatchResult | undefined = undefined;
     class MyUIPlugin extends UIPlugin {
-      allowDispatch(cmd: Command) {
-        if (cmd.type === "PASTE") {
-          return CommandResult.CancelledForUnknownReason;
-        }
-        return CommandResult.Success;
-      }
+      validators = {
+        PASTE: () => CommandResult.CancelledForUnknownReason,
+      };
       handlers = {
         COPY: () => {
           result = this.dispatch("PASTE", {
@@ -127,12 +118,9 @@ describe("Model", () => {
 
   test("UI plugins can refuse local core commands", () => {
     class MyUIPlugin extends UIPlugin {
-      allowDispatch(cmd: Command) {
-        if (cmd.type === "UPDATE_CELL") {
-          return CommandResult.CancelledForUnknownReason;
-        }
-        return CommandResult.Success;
-      }
+      validators = {
+        UPDATE_CELL: () => CommandResult.CancelledForUnknownReason,
+      };
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     const model = new Model();
@@ -141,13 +129,15 @@ describe("Model", () => {
     expect(getCellContent(model, "A1")).toBe("");
   });
 
-  test("Core plugins allowDispatch don't receive UI commands", () => {
+  test("Core plugins validators don't receive UI commands", () => {
     const receivedCommands: CommandTypes[] = [];
     class MyCorePlugin extends CorePlugin {
-      allowDispatch(cmd: CoreCommand): CommandResult {
-        receivedCommands.push(cmd.type);
-        return CommandResult.Success;
-      }
+      validators = {
+        "*allCommands": (cmd: CoreCommand) => {
+          receivedCommands.push(cmd.type);
+          return CommandResult.Success;
+        },
+      };
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
@@ -196,13 +186,15 @@ describe("Model", () => {
     );
   });
 
-  test("Evaluation plugins allowDispatch don't receive UI commands", () => {
+  test("Evaluation plugins validators don't receive UI commands", () => {
     const receivedCommands: CommandTypes[] = [];
     class MyEvaluationPlugin extends EvaluationPlugin {
-      allowDispatch(cmd: EvaluationCommand): CommandResult {
-        receivedCommands.push(cmd.type);
-        return CommandResult.Success;
-      }
+      validators = {
+        "*allCommands": (cmd: EvaluationCommand) => {
+          receivedCommands.push(cmd.type);
+          return CommandResult.Success;
+        },
+      };
     }
     addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
     const model = new Model();
@@ -253,12 +245,9 @@ describe("Model", () => {
 
   test("canDispatch method is exposed and works", () => {
     class MyCorePlugin extends CorePlugin {
-      allowDispatch(cmd: CoreCommand) {
-        if (cmd.type === "CREATE_SHEET") {
-          return CommandResult.CancelledForUnknownReason;
-        }
-        return CommandResult.Success;
-      }
+      validators = {
+        CREATE_SHEET: () => CommandResult.CancelledForUnknownReason,
+      };
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();

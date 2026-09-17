@@ -2,7 +2,6 @@ import { deepEquals } from "../../helpers/misc";
 import { isNumber } from "../../helpers/numbers";
 import { rangeReference } from "../../helpers/references";
 import {
-  Command,
   CommandResult,
   CreateNamedRangeCommand,
   DeleteNamedRangeCommand,
@@ -28,6 +27,12 @@ export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements Na
   static getters = ["getNamedRange", "getNamedRangeFromZone", "getNamedRanges"] as const;
 
   readonly namedRanges: Array<NamedRange> = [];
+
+  validators = {
+    CREATE_NAMED_RANGE: this.checkCreateNamedRange,
+    UPDATE_NAMED_RANGE: this.checkUpdateNamedRange,
+    DELETE_NAMED_RANGE: this.checkDeleteNamedRange,
+  };
 
   handlers = {
     CREATE_NAMED_RANGE: this.createNamedRange,
@@ -82,23 +87,23 @@ export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements Na
     }
   }
 
-  allowDispatch(cmd: Command) {
-    switch (cmd.type) {
-      case "CREATE_NAMED_RANGE":
-        return this.checkValidNewNamedRangeName(cmd.name);
-      case "UPDATE_NAMED_RANGE":
-        return this.checkValidations(
-          cmd,
-          () => this.checkNamedRangeExists(cmd.oldRangeName),
-          () =>
-            cmd.newRangeName !== cmd.oldRangeName
-              ? this.checkValidNewNamedRangeName(cmd.newRangeName)
-              : CommandResult.Success
-        );
-      case "DELETE_NAMED_RANGE":
-        return this.checkNamedRangeExists(cmd.name);
-    }
-    return CommandResult.Success;
+  private checkCreateNamedRange(cmd: CreateNamedRangeCommand) {
+    return this.checkValidNewNamedRangeName(cmd.name);
+  }
+
+  private checkUpdateNamedRange(cmd: UpdateNamedRangeCommand) {
+    return this.checkValidations(
+      cmd,
+      () => this.checkNamedRangeExists(cmd.oldRangeName),
+      () =>
+        cmd.newRangeName !== cmd.oldRangeName
+          ? this.checkValidNewNamedRangeName(cmd.newRangeName)
+          : CommandResult.Success
+    );
+  }
+
+  private checkDeleteNamedRange(cmd: DeleteNamedRangeCommand) {
+    return this.checkNamedRangeExists(cmd.name);
   }
 
   getNamedRange(name: UID): NamedRange | undefined {

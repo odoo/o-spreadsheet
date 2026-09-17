@@ -106,6 +106,127 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   readonly sheets: Record<UID, Sheet | undefined> = {};
   readonly cellPosition: Record<number, CellPosition | undefined> = {};
 
+  /**
+   * `checkSheetIsValid` applies to every core command. Command specific validators
+   * chain it first, so a command is never rejected for a specific reason while the
+   * sheet it targets does not even exist.
+   */
+  validators = {
+    "*allCommands": this.chainValidations(
+      this.warnDeprecatedMissingSheetName,
+      this.checkSheetIsValid
+    ),
+    HIDE_SHEET: this.chainValidations(this.checkSheetIsValid, this.checkEnoughVisibleSheets),
+    CREATE_SHEET: this.chainValidations(this.checkSheetIsValid, this.checkCreateSheet),
+    DUPLICATE_SHEET: this.chainValidations(this.checkSheetIsValid, this.checkDuplicateSheet),
+    MOVE_SHEET: this.chainValidations(this.checkSheetIsValid, this.checkMoveSheet),
+    RENAME_SHEET: this.chainValidations(this.checkSheetIsValid, this.isRenameAllowed),
+    COLOR_SHEET: this.chainValidations(this.checkSheetIsValid, this.checkSheetColor),
+    SET_SHEET_BACKGROUND_COLOR: this.chainValidations(this.checkSheetIsValid, this.checkSheetColor),
+    DELETE_SHEET: this.chainValidations(this.checkSheetIsValid, this.checkEnoughVisibleSheets),
+    ADD_COLUMNS_ROWS: this.chainValidations(this.checkSheetIsValid, this.checkAddHeaders),
+    REMOVE_COLUMNS_ROWS: this.chainValidations(this.checkSheetIsValid, this.checkRemoveHeaders),
+    FREEZE_ROWS: this.chainValidations(this.checkSheetIsValid, this.checkFreezeRows),
+    FREEZE_COLUMNS: this.chainValidations(this.checkSheetIsValid, this.checkFreezeColumns),
+  };
+
+  private checkSheetIsValid(cmd: CoreCommand) {
+    return this.chainValidations(this.checkSheetExists, this.checkZonesAreInSheet)(cmd);
+  }
+
+  private warnDeprecatedMissingSheetName(cmd: CoreCommand) {
+    let sheetNameMissing = false;
+    switch (cmd.type) {
+      case "CREATE_SHEET":
+        if (cmd.name === undefined) {
+          sheetNameMissing = true;
+        }
+        break;
+      case "DELETE_SHEET":
+      case "ADD_COLUMNS_ROWS":
+      case "REMOVE_COLUMNS_ROWS":
+      case "MOVE_RANGES":
+        if (cmd.sheetName === undefined) {
+          sheetNameMissing = true;
+        }
+        break;
+    }
+    if (sheetNameMissing) {
+      console.warn(
+        "Deprecation Warning: Sheet name is missing in the command %s payload.",
+        cmd.type
+      );
+    }
+    return CommandResult.Success;
+  }
+
+  private checkEnoughVisibleSheets() {
+    return this.getVisibleSheetIds().length > 1
+      ? CommandResult.Success
+      : CommandResult.NotEnoughSheets;
+  }
+
+  private checkCreateSheet(cmd: CreateSheetCommand) {
+    return this.checkValidations(
+      cmd,
+      this.createSheetHasName,
+      this.checkSheetName,
+      this.checkSheetPosition
+    );
+  }
+
+  private checkDuplicateSheet(cmd: DuplicateSheetCommand) {
+    if (this.sheets[cmd.sheetIdTo]) {
+      return CommandResult.DuplicatedSheetId;
+    }
+    if (this.orderedSheetIds.map(this.getSheetName.bind(this)).includes(cmd.sheetNameTo)) {
+      return CommandResult.DuplicatedSheetName;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkMoveSheet(cmd: MoveSheetCommand) {
+    try {
+      const currentIndex = this.orderedSheetIds.findIndex((id) => id === cmd.sheetId);
+      this.findIndexOfTargetSheet(currentIndex, cmd.delta);
+      return CommandResult.Success;
+    } catch (e) {
+      return CommandResult.WrongSheetMove;
+    }
+  }
+
+  private checkSheetColor(cmd: ColorSheetCommand | ColorSheetBackgroundCommand) {
+    return !cmd.color || isColorValid(cmd.color)
+      ? CommandResult.Success
+      : CommandResult.InvalidColor;
+  }
+
+  private checkAddHeaders(cmd: AddColumnsRowsCommand) {
+    if (!this.doesHeaderExist(cmd.sheetId, cmd.dimension, cmd.base)) {
+      return CommandResult.InvalidHeaderIndex;
+    }
+    return cmd.quantity <= 0 ? CommandResult.InvalidQuantity : CommandResult.Success;
+  }
+
+  private checkRemoveHeaders(cmd: RemoveColumnsRowsCommand) {
+    const min = largeMin(cmd.elements);
+    const max = largeMax(cmd.elements);
+    if (min < 0 || !this.doesHeaderExist(cmd.sheetId, cmd.dimension, max)) {
+      return CommandResult.InvalidHeaderIndex;
+    }
+    return this.checkElementsIncludeAllNonFrozenHeaders(cmd.sheetId, cmd.dimension, cmd.elements)
+      ? CommandResult.NotEnoughElements
+      : CommandResult.Success;
+  }
+
+  private checkFreezeRows(cmd: FreezeRowsCommand) {
+    return this.checkValidations(cmd, this.checkRowFreezeQuantity, this.checkRowFreezeOverlapMerge);
+  }
+
+  private checkFreezeColumns(cmd: FreezeColumnsCommand) {
+    return this.checkValidations(cmd, this.checkColFreezeQuantity, this.checkColFreezeOverlapMerge);
+  }
+
   handlers = {
     SET_SHEET_BACKGROUND_COLOR: this.setSheetBackgroundColor,
     SET_GRID_LINES_VISIBILITY: this.updateGridLinesVisibility,
@@ -228,121 +349,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-
-  allowDispatch(cmd: CoreCommand) {
-    const genericChecks = this.chainValidations(
-      this.checkSheetExists,
-      this.checkZonesAreInSheet
-    )(cmd);
-
-    if (genericChecks !== CommandResult.Success) {
-      return genericChecks;
-    }
-
-    let sheetNameMissing = false;
-    switch (cmd.type) {
-      case "CREATE_SHEET":
-        if (cmd.name === undefined) {
-          sheetNameMissing = true;
-        }
-        break;
-      case "DELETE_SHEET":
-      case "ADD_COLUMNS_ROWS":
-      case "REMOVE_COLUMNS_ROWS":
-      case "MOVE_RANGES":
-        if (cmd.sheetName === undefined) {
-          sheetNameMissing = true;
-        }
-        break;
-    }
-    if (sheetNameMissing) {
-      console.warn(
-        "Deprecation Warning: Sheet name is missing in the command %s payload.",
-        cmd.type
-      );
-    }
-
-    switch (cmd.type) {
-      case "HIDE_SHEET": {
-        if (this.getVisibleSheetIds().length === 1) {
-          return CommandResult.NotEnoughSheets;
-        }
-        return CommandResult.Success;
-      }
-      case "CREATE_SHEET": {
-        return this.checkValidations(
-          cmd,
-          this.createSheetHasName,
-          this.checkSheetName,
-          this.checkSheetPosition
-        );
-      }
-      case "DUPLICATE_SHEET": {
-        if (this.sheets[cmd.sheetIdTo]) {
-          return CommandResult.DuplicatedSheetId;
-        }
-        if (this.orderedSheetIds.map(this.getSheetName.bind(this)).includes(cmd.sheetNameTo)) {
-          return CommandResult.DuplicatedSheetName;
-        }
-        return CommandResult.Success;
-      }
-      case "MOVE_SHEET":
-        try {
-          const currentIndex = this.orderedSheetIds.findIndex((id) => id === cmd.sheetId);
-          this.findIndexOfTargetSheet(currentIndex, cmd.delta);
-          return CommandResult.Success;
-        } catch (e) {
-          return CommandResult.WrongSheetMove;
-        }
-      case "RENAME_SHEET":
-        return this.isRenameAllowed(cmd);
-      case "COLOR_SHEET":
-      case "SET_SHEET_BACKGROUND_COLOR":
-        return !cmd.color || isColorValid(cmd.color)
-          ? CommandResult.Success
-          : CommandResult.InvalidColor;
-      case "DELETE_SHEET":
-        return this.getVisibleSheetIds().length > 1
-          ? CommandResult.Success
-          : CommandResult.NotEnoughSheets;
-      case "ADD_COLUMNS_ROWS":
-        if (!this.doesHeaderExist(cmd.sheetId, cmd.dimension, cmd.base)) {
-          return CommandResult.InvalidHeaderIndex;
-        } else if (cmd.quantity <= 0) {
-          return CommandResult.InvalidQuantity;
-        }
-        return CommandResult.Success;
-      case "REMOVE_COLUMNS_ROWS": {
-        const min = largeMin(cmd.elements);
-        const max = largeMax(cmd.elements);
-        if (min < 0 || !this.doesHeaderExist(cmd.sheetId, cmd.dimension, max)) {
-          return CommandResult.InvalidHeaderIndex;
-        } else if (
-          this.checkElementsIncludeAllNonFrozenHeaders(cmd.sheetId, cmd.dimension, cmd.elements)
-        ) {
-          return CommandResult.NotEnoughElements;
-        } else {
-          return CommandResult.Success;
-        }
-      }
-      case "FREEZE_ROWS": {
-        return this.checkValidations(
-          cmd,
-          this.checkRowFreezeQuantity,
-          this.checkRowFreezeOverlapMerge
-        );
-      }
-      case "FREEZE_COLUMNS": {
-        return this.checkValidations(
-          cmd,
-          this.checkColFreezeQuantity,
-          this.checkColFreezeOverlapMerge
-        );
-      }
-      default:
-        return CommandResult.Success;
-    }
-  }
 
   // ---------------------------------------------------------------------------
   // Import/Export

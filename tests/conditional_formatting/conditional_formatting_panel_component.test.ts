@@ -13,7 +13,6 @@ import { ConditionalFormatPreviewList } from "../../src/components/side_panel/co
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import { toHex } from "../../src/helpers/color";
 import { toZone } from "../../src/helpers/zones";
-import { ConditionalFormatPlugin } from "../../src/plugins/core/conditional_format";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   activateSheet,
@@ -43,10 +42,10 @@ import {
   createEqualCF,
   editStandaloneComposer,
   getHighlightsFromStore,
-  getPlugin,
   mountComponentWithPortalTarget,
   mountSpreadsheet,
   nextTick,
+  rejectCommand,
   spyModelDispatch,
   textContentAll,
   toRangesData,
@@ -1457,8 +1456,7 @@ describe("UI of conditional formats", () => {
           await click(fixture, selectors.buttonAdd);
           await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
 
-          const cfPlugin = getPlugin(model, ConditionalFormatPlugin);
-          cfPlugin.allowDispatch = jest.fn(() => error);
+          rejectCommand(model, "ADD_CONDITIONAL_FORMAT", error);
 
           await click(fixture, selectors.buttonSave);
           const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
@@ -1480,8 +1478,7 @@ describe("UI of conditional formats", () => {
 
           await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
 
-          const cfPlugin = getPlugin(model, ConditionalFormatPlugin);
-          cfPlugin.allowDispatch = jest.fn(() => error);
+          rejectCommand(model, "ADD_CONDITIONAL_FORMAT", error);
 
           await click(fixture, selectors.buttonSave);
           const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);

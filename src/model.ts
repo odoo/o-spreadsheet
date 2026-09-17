@@ -2,7 +2,7 @@ import { CommandSquisher } from "./collaborative/command_squisher";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
 import { Session } from "./collaborative/session";
-import { canHandle, CommandHandlerRegistryClass } from "./command_handler";
+import { CommandHandlerRegistryClass } from "./command_handler";
 import { DEFAULT_REVISION_ID } from "./constants";
 import { EventBus } from "./helpers/event_bus";
 import { deepCopy, deepEquals, lazy } from "./helpers/misc";
@@ -91,8 +91,6 @@ const enum Status {
  * programmatically a spreadsheet.
  */
 export class Model extends EventBus<any> implements CommandDispatcher {
-  private statefulUIPlugins: UIPlugin[] = [];
-
   private range: RangeAdapterPlugin;
   private formulasPlugin: FormulaProviderAggregator;
 
@@ -151,12 +149,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private readonly handlers: CommandHandler<Command>[] = [];
   private readonly commandHandlers = new CommandHandlerRegistryClass();
-  private readonly uiHandlers: CommandHandler<Command>[] = [];
   private readonly uiCommandHandlers = new CommandHandlerRegistryClass();
-  private readonly coreHandlers: CommandHandler<CoreCommand>[] = [];
   private readonly coreCommandHandlers = new CommandHandlerRegistryClass<CoreCommand>();
   private readonly evaluationCommandHandlers = new CommandHandlerRegistryClass();
-  private readonly evaluationHandlers: CommandHandler<Command>[] = [];
   private readonly statefulUICommandHandlers = new CommandHandlerRegistryClass();
 
   constructor(
@@ -202,7 +197,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     // Initiate stream processor
     this.selection = new SelectionStreamProcessorImpl(this.getters);
 
-    this.coreHandlers.push(this.range);
     this.coreCommandHandlers.registerPlugin(this.range);
     this.handlers.push(this.range);
     this.commandHandlers.registerPlugin(this.range);
@@ -223,7 +217,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     }
     for (const Plugin of statefulUIPluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
-      this.statefulUIPlugins.push(plugin);
       this.statefulUICommandHandlers.registerPlugin(plugin);
     }
     for (const Plugin of featurePluginRegistry.getAll()) {
@@ -315,9 +308,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     }
     this.handlers.push(plugin);
     this.commandHandlers.registerPlugin(plugin);
-    this.uiHandlers.push(plugin);
     this.uiCommandHandlers.registerPlugin(plugin);
-    this.evaluationHandlers.push(plugin);
     this.evaluationCommandHandlers.registerPlugin(plugin);
     return plugin;
   }
@@ -329,11 +320,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     }
     this.handlers.push(plugin);
     this.commandHandlers.registerPlugin(plugin);
-    this.uiHandlers.push(plugin);
     this.uiCommandHandlers.registerPlugin(plugin);
-    this.coreHandlers.push(plugin);
     this.coreCommandHandlers.registerPlugin(plugin);
-    this.evaluationHandlers.push(plugin);
     this.evaluationCommandHandlers.registerPlugin(plugin);
     return plugin;
   }
@@ -347,7 +335,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.registerCoreGetter(plugin, name);
     }
     plugin.import(data);
-    this.coreHandlers.push(plugin);
     this.coreCommandHandlers.registerPlugin(plugin);
     this.handlers.push(plugin);
     this.commandHandlers.registerPlugin(plugin);
@@ -505,18 +492,22 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   private checkDispatchAllowedRemoteCommand(command: CoreCommand): DispatchResult {
-    const results = this.coreHandlers.map((handler) => handler.allowDispatch(command));
-    return this.processCommandResults(results);
+    return this.processCommandResults(this.validateCommand(this.coreCommandHandlers, command));
   }
 
   private checkDispatchAllowedCoreCommand(command: CoreCommand) {
-    return this.handlers.map((handler) => handler.allowDispatch(command));
+    return this.validateCommand(this.commandHandlers, command);
   }
 
   private checkDispatchAllowedLocalCommand(command: Command) {
-    return this.uiHandlers
-      .filter((handler) => canHandle(handler, command))
-      .map((handler) => handler.allowDispatch(command));
+    return this.validateCommand(this.uiCommandHandlers, command);
+  }
+
+  /**
+   * Run the validators registered in the given registry for the given command.
+   */
+  private validateCommand(registry: CommandHandlerRegistry, command: Command) {
+    return registry.getValidators(command.type).map((validator) => validator(command));
   }
 
   private finalize() {

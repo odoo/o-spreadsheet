@@ -7,7 +7,6 @@ import { isInside } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   AddDataValidationCommand,
-  Command,
   CommandResult,
   DeleteContentCommand,
   RemoveDataValidationCommand,
@@ -34,6 +33,11 @@ export class DataValidationPlugin
   ] as const;
 
   readonly rules: { [sheet: string]: DataValidationRule[] } = {};
+
+  validators = {
+    ADD_DATA_VALIDATION_RULE: this.checkAddDataValidationRule,
+    REMOVE_DATA_VALIDATION_RULE: this.checkRemoveDataValidationRule,
+  };
 
   handlers = {
     DELETE_CONTENT: this.removeRulesInDeletedContent,
@@ -128,33 +132,31 @@ export class DataValidationPlugin
     }
   }
 
-  allowDispatch(cmd: Command) {
-    switch (cmd.type) {
-      case "ADD_DATA_VALIDATION_RULE":
-        if (!this.getters.tryGetSheet(cmd.sheetId)) {
-          return CommandResult.InvalidSheetId;
-        }
-        if (cmd.ranges.some((rangeData) => !this.getters.tryGetSheet(rangeData._sheetId))) {
-          return CommandResult.InvalidSheetId;
-        }
-        return this.checkValidations(
-          cmd,
-          this.chainValidations(
-            this.checkEmptyRange,
-            this.checkValidRange,
-            this.checkCriterionTypeIsValid,
-            this.checkCriterionHasValidNumberOfValues,
-            this.checkCriterionValuesAreValid
-          )
-        );
-      case "REMOVE_DATA_VALIDATION_RULE":
-        if (!this.getters.tryGetSheet(cmd.sheetId)) {
-          return CommandResult.InvalidSheetId;
-        }
-        if (!this.rules[cmd.sheetId].find((rule) => rule.id === cmd.id)) {
-          return CommandResult.UnknownDataValidationRule;
-        }
-        break;
+  private checkAddDataValidationRule(cmd: AddDataValidationCommand) {
+    if (!this.getters.tryGetSheet(cmd.sheetId)) {
+      return CommandResult.InvalidSheetId;
+    }
+    if (cmd.ranges.some((rangeData) => !this.getters.tryGetSheet(rangeData._sheetId))) {
+      return CommandResult.InvalidSheetId;
+    }
+    return this.checkValidations(
+      cmd,
+      this.chainValidations(
+        this.checkEmptyRange,
+        this.checkValidRange,
+        this.checkCriterionTypeIsValid,
+        this.checkCriterionHasValidNumberOfValues,
+        this.checkCriterionValuesAreValid
+      )
+    );
+  }
+
+  private checkRemoveDataValidationRule(cmd: RemoveDataValidationCommand) {
+    if (!this.getters.tryGetSheet(cmd.sheetId)) {
+      return CommandResult.InvalidSheetId;
+    }
+    if (!this.rules[cmd.sheetId].find((rule) => rule.id === cmd.id)) {
+      return CommandResult.UnknownDataValidationRule;
     }
     return CommandResult.Success;
   }

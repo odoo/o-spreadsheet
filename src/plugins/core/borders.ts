@@ -12,7 +12,6 @@ import {
   AddMergeCommand,
   ClearFormattingCommand,
   CommandResult,
-  CoreCommand,
   RemoveColumnsRowsCommand,
   SetBorderCommand,
   SetBorderTargetCommand,
@@ -44,6 +43,10 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   static getters = ["getCellBorder", "getBordersColors"] as const;
 
   public readonly borders: BordersPluginState["borders"] = {};
+
+  validators = {
+    SET_BORDER: this.checkBordersUnchanged,
+  };
 
   handlers = {
     CLEAR_FORMATTING: this.clearFormattingBorders,
@@ -137,15 +140,6 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-
-  allowDispatch(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "SET_BORDER":
-        return this.checkBordersUnchanged(cmd);
-      default:
-        return CommandResult.Success;
-    }
-  }
 
   /**
    * Move borders according to the inserted columns.

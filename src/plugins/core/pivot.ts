@@ -6,7 +6,6 @@ import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_piv
 import {
   AddPivotCommand,
   CommandResult,
-  CoreCommand,
   DuplicatePivotCommand,
   InsertPivotCommand,
   RemovePivotCommand,
@@ -51,6 +50,15 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     "isExistingPivot",
     "getMeasureFullDependencies",
   ] as const;
+
+  validators = {
+    ADD_PIVOT: this.checkAddPivot,
+    UPDATE_PIVOT: this.checkUpdatePivot,
+    RENAME_PIVOT: this.checkRenamePivot,
+    REMOVE_PIVOT: this.checkPivotExists,
+    DUPLICATE_PIVOT: this.checkPivotExists,
+    INSERT_PIVOT: this.checkPivotExists,
+  };
 
   handlers = {
     CREATE_NAMED_RANGE: this.recompileCalculatedMeasures,
@@ -119,58 +127,44 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   public readonly formulaIds: { [formulaId: UID]: UID | undefined } = {};
   public readonly compiledMeasureFormulas: Record<UID, Record<string, MeasureState>> = {};
 
-  allowDispatch(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "ADD_PIVOT": {
-        if (cmd.pivotId in this.pivots) {
-          return CommandResult.PivotIdTaken;
-        }
-        return this.checkValidations(
-          cmd.pivot,
-          this.checkDuplicatedMeasureIds,
-          this.checkSortedColumnInMeasures,
-          this.checkCustomFieldsAreValid
-        );
-      }
-      case "UPDATE_PIVOT": {
-        if (!(cmd.pivotId in this.pivots)) {
-          return CommandResult.PivotIdNotFound;
-        }
-        if (deepEquals(cmd.pivot, this.pivots[cmd.pivotId]?.definition)) {
-          return CommandResult.NoChanges;
-        }
-        if (cmd.pivot.name === "") {
-          return CommandResult.EmptyName;
-        }
-        return this.checkValidations(
-          cmd.pivot,
-          this.checkDuplicatedMeasureIds,
-          this.checkSortedColumnInMeasures,
-          this.checkCustomFieldsAreValid
-        );
-      }
-      case "RENAME_PIVOT":
-        if (!(cmd.pivotId in this.pivots)) {
-          return CommandResult.PivotIdNotFound;
-        }
-        if (cmd.name === "") {
-          return CommandResult.EmptyName;
-        }
-        break;
-      case "REMOVE_PIVOT":
-      case "DUPLICATE_PIVOT":
-      case "INSERT_PIVOT": {
-        if (!(cmd.pivotId in this.pivots)) {
-          return CommandResult.PivotIdNotFound;
-        }
-        break;
-      }
-      case "DUPLICATE_PIVOT":
-        if (!(cmd.pivotId in this.pivots)) {
-          return CommandResult.PivotIdNotFound;
-        }
+  private checkPivotExists(cmd: { pivotId: UID }) {
+    return cmd.pivotId in this.pivots ? CommandResult.Success : CommandResult.PivotIdNotFound;
+  }
+
+  private checkPivotDefinition(definition: PivotCoreDefinition) {
+    return this.checkValidations(
+      definition,
+      this.checkDuplicatedMeasureIds,
+      this.checkSortedColumnInMeasures,
+      this.checkCustomFieldsAreValid
+    );
+  }
+
+  private checkAddPivot(cmd: AddPivotCommand) {
+    if (cmd.pivotId in this.pivots) {
+      return CommandResult.PivotIdTaken;
     }
-    return CommandResult.Success;
+    return this.checkPivotDefinition(cmd.pivot);
+  }
+
+  private checkUpdatePivot(cmd: UpdatePivotCommand) {
+    if (!(cmd.pivotId in this.pivots)) {
+      return CommandResult.PivotIdNotFound;
+    }
+    if (deepEquals(cmd.pivot, this.pivots[cmd.pivotId]?.definition)) {
+      return CommandResult.NoChanges;
+    }
+    if (cmd.pivot.name === "") {
+      return CommandResult.EmptyName;
+    }
+    return this.checkPivotDefinition(cmd.pivot);
+  }
+
+  private checkRenamePivot(cmd: RenamePivotCommand) {
+    if (!(cmd.pivotId in this.pivots)) {
+      return CommandResult.PivotIdNotFound;
+    }
+    return cmd.name === "" ? CommandResult.EmptyName : CommandResult.Success;
   }
 
   adaptRanges(adapters: RangeAdapterFunctions) {

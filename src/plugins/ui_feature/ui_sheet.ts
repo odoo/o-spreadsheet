@@ -54,6 +54,14 @@ export class SheetUIPlugin extends UIPlugin {
 
   private ctx = getCanvas();
 
+  validators = {
+    "*allCommands": this.checkSheetAndZonesExist,
+    SET_BACKGROUND_FOR_ALL_CELLS: this.chainValidations(
+      this.checkBackgroundColorIsValid,
+      this.checkSheetAndZonesExist
+    ),
+  };
+
   handlers = {
     AUTORESIZE_COLUMNS: this.autoResizeColumns,
     AUTORESIZE_ROWS: this.autoResizeRowsHandler,
@@ -106,11 +114,14 @@ export class SheetUIPlugin extends UIPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: LocalCommand): CommandResult | CommandResult[] {
-    if (cmd.type === "SET_BACKGROUND_FOR_ALL_CELLS" && cmd.color && !isColorValid(cmd.color)) {
-      return CommandResult.InvalidColor;
-    }
+  private checkSheetAndZonesExist(cmd: LocalCommand) {
     return this.chainValidations(this.checkSheetExists, this.checkZonesAreInSheet)(cmd);
+  }
+
+  private checkBackgroundColorIsValid(cmd: ColorAllCellsBackground) {
+    return cmd.color && !isColorValid(cmd.color)
+      ? CommandResult.InvalidColor
+      : CommandResult.Success;
   }
 
   // ---------------------------------------------------------------------------
