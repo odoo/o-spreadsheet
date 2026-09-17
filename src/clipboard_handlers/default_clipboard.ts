@@ -1,5 +1,4 @@
 import { DEFAULT_STYLE } from "../constants";
-import { shouldPasteFormat } from "../helpers/clipboard/clipboard_helpers";
 import { deepCopy, defaultDict, isObjectEmptyRecursive, repeat } from "../helpers/misc";
 import { defaultValue } from "../plugins/core/default";
 import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
@@ -114,7 +113,9 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
     const sheetId = target.sheetId;
-    if (!shouldPasteFormat(options.pasteOptions)) {
+    const shouldPasteFormat =
+      !options.pasteOptions?.length || options.pasteOptions.includes("onlyFormat");
+    if (!shouldPasteFormat) {
       return;
     }
     const zones = target.zones;

@@ -32,6 +32,7 @@ import {
   activateSheet,
   addCellToSelection,
   addColumns,
+  addDataValidation,
   addEqualCf,
   addRows,
   cleanClipBoardHighlight,
@@ -84,7 +85,13 @@ import {
   getMerges,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { addTestPlugin, createModelFromGrid, getGrid, target } from "../test_helpers/helpers";
+import {
+  addTestPlugin,
+  createModelFromGrid,
+  getDataValidationRules,
+  getGrid,
+  target,
+} from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
 import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
 
@@ -1482,6 +1489,93 @@ describe("clipboard", () => {
 
       expect(getCellText(model, "C3")).toEqual("=SUM(1,2)");
       expect(getStyle(model, "C3")).toEqual({ bold: true });
+    });
+
+    test("format, borders, conditional formats and data validation are independent from each other", () => {
+      ({ model, store } = makeStore(ClipboardStore));
+      setCellContent(model, "B2", "b2");
+      setFormatting(model, "B2", { bold: true });
+      setZoneBorders(model, { position: "bottom" }, ["B2"]);
+      addEqualCf(model, "B2", { fillColor: "#FF0000" }, "1");
+      addDataValidation(model, "B2", "id", { type: "containsText", values: ["1"] });
+
+      copy(model, "B2");
+      paste(model, "C3", "onlyBorders");
+
+      expect(getBorder(model, "C3")).toEqual({ bottom: DEFAULT_BORDER_DESC });
+      expect(getCellContent(model, "C3")).toBe("");
+      // neither the cell format nor the conditional format should be pasted
+      expect(getStyle(model, "C3")).toEqual({});
+      // the data validation rule should only apply to the origin cell, not the target
+      expect(getDataValidationRules(model, model.getters.getActiveSheetId())).toMatchObject([
+        { id: "id", ranges: ["B2"] },
+      ]);
+    });
+
+    test("can paste the value together with the borders, without the format", () => {
+      ({ model, store } = makeStore(ClipboardStore));
+      setCellContent(model, "B2", "=SUM(1,2)");
+      setFormatting(model, "B2", { bold: true });
+      setZoneBorders(model, { position: "bottom" }, ["B2"]);
+
+      copy(model, "B2");
+      paste(model, "C3", "asValue", "onlyBorders");
+
+      expect(getCellContent(model, "C3")).toEqual("3");
+      expect(getBorder(model, "C3")).toEqual({ bottom: DEFAULT_BORDER_DESC });
+      expect(getStyle(model, "C3")).toEqual({});
+    });
+
+    test("can paste conditional formats independently of the content and the cell format", () => {
+      model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
+      ({ store } = makeStoreWithModel(model, ClipboardStore));
+      setCellContent(model, "A1", "1");
+      setFormatting(model, "A1", { bold: true });
+      addEqualCf(model, "A1", { fillColor: "#FF0000" }, "1");
+
+      copy(model, "A1");
+      paste(model, "C1", "onlyConditionalFormat");
+
+      expect(getStyle(model, "C1")).toEqual({ fillColor: "#FF0000" });
+      expect(getCellContent(model, "C1")).toBe("");
+    });
+
+    test("can paste data validation independently of the content and the cell format", () => {
+      ({ model, store } = makeStore(ClipboardStore));
+      setCellContent(model, "A1", "1");
+      setFormatting(model, "A1", { bold: true });
+      addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
+
+      copy(model, "A1");
+      paste(model, "C1", "onlyDataValidation");
+
+      const sheetId = model.getters.getActiveSheetId();
+      expect(getDataValidationRules(model, sheetId)).toMatchObject([
+        { id: "id", ranges: ["A1", "C1"] },
+      ]);
+      expect(getCellContent(model, "C1")).toBe("");
+      expect(getStyle(model, "C1")).toEqual({});
+    });
+
+    test("can combine borders, conditional formats and data validation, without the cell format", () => {
+      model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
+      ({ store } = makeStoreWithModel(model, ClipboardStore));
+      setCellContent(model, "A1", "1");
+      setFormatting(model, "A1", { bold: true });
+      setZoneBorders(model, { position: "bottom" }, ["A1"]);
+      addEqualCf(model, "A1", { fillColor: "#FF0000" }, "1");
+      addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
+
+      copy(model, "A1");
+      paste(model, "C1", "onlyBorders", "onlyConditionalFormat", "onlyDataValidation");
+
+      expect(getCellContent(model, "C1")).toBe("");
+      expect(getBorder(model, "C1")).toEqual({ bottom: DEFAULT_BORDER_DESC });
+      // the conditional format is pasted (fillColor), but not the cell's own bold style
+      expect(getStyle(model, "C1")).toEqual({ fillColor: "#FF0000" });
+      expect(getDataValidationRules(model, model.getters.getActiveSheetId())).toMatchObject([
+        { id: "id", ranges: ["A1", "C1"] },
+      ]);
     });
 
     test("cut and paste with several options is not allowed", () => {

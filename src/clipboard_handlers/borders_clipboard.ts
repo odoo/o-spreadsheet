@@ -1,4 +1,3 @@
-import { shouldPasteFormat } from "../helpers/clipboard/clipboard_helpers";
 import { transpose } from "../helpers/misc";
 import { recomputeZones } from "../helpers/recompute_zones";
 import { positionToZone } from "../helpers/zones";
@@ -49,7 +48,9 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
     const sheetId = target.sheetId;
-    if (!shouldPasteFormat(options.pasteOptions)) {
+    const shouldPasteBorders =
+      !options.pasteOptions?.length || options.pasteOptions.includes("onlyBorders");
+    if (!shouldPasteBorders) {
       return;
     }
     const zones = target.zones;

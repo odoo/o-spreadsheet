@@ -1,8 +1,4 @@
-import {
-  getPasteZones,
-  shouldPasteContent,
-  shouldPasteFormat,
-} from "../helpers/clipboard/clipboard_helpers";
+import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
 import { formatValue } from "../helpers/format/format";
 import { canonicalizeNumberValue } from "../helpers/locale";
 import { deepEquals, transpose } from "../helpers/misc";
@@ -252,9 +248,13 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     const newStyle = { ...targetCell?.style, ...origin.style };
     const style = Object.keys(newStyle ?? {}).length === 0 ? undefined : newStyle;
     const pasteOptions = clipboardOption?.pasteOptions;
-    const pasteFormat = shouldPasteFormat(pasteOptions);
+    const shouldPasteFormat = !pasteOptions?.length || pasteOptions.includes("onlyFormat");
+    const shouldPasteContent =
+      !pasteOptions?.length ||
+      pasteOptions.includes("onlyFormula") ||
+      pasteOptions?.includes("asValue");
 
-    if (!shouldPasteContent(pasteOptions)) {
+    if (!shouldPasteContent) {
       // "onlyFormat" alone: paste the style/format only, the content is left untouched
       this.dispatch("UPDATE_CELL", {
         ...target,
@@ -266,7 +266,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
 
     if (pasteOptions?.includes("asValue")) {
       const valueContent = origin.evaluatedCell.value?.toString() || "";
-      if (pasteFormat) {
+      if (shouldPasteFormat) {
         this.dispatch("UPDATE_CELL", {
           ...target,
           content: valueContent,
@@ -297,7 +297,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       content = this.getters.getFormulaMovedInSheet(sheetId, origin.compiledFormula);
     }
     if (content !== "" || origin.format || style) {
-      if (pasteFormat) {
+      if (shouldPasteFormat) {
         this.dispatch("UPDATE_CELL", {
           ...target,
           content,

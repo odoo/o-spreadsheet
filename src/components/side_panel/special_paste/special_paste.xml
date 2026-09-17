@@ -9,6 +9,14 @@
         onChange="(checked) => this.setContentOption('asValue', checked)"
         className="'mb-1'"
       />
+      <t t-set="formulaLabel">Formulas</t>
+      <Checkbox
+        name="'onlyFormula'"
+        value="this.isContentOptionChecked('onlyFormula')"
+        label="formulaLabel"
+        onChange="(checked) => this.setContentOption('onlyFormula', checked)"
+        className="'mb-1'"
+      />
       <t t-set="formatLabel">Formats</t>
       <Checkbox
         name="'onlyFormat'"
@@ -17,12 +25,28 @@
         onChange.bind="this.setFormat"
         className="'mb-1'"
       />
-      <t t-set="formulaLabel">Formulas</t>
+      <t t-set="bordersLabel">Borders</t>
       <Checkbox
-        name="'onlyFormula'"
-        value="this.isContentOptionChecked('onlyFormula')"
-        label="formulaLabel"
-        onChange="(checked) => this.setContentOption('onlyFormula', checked)"
+        name="'onlyBorders'"
+        value="this.state.borders"
+        label="bordersLabel"
+        onChange.bind="this.setBorders"
+        className="'mb-1'"
+      />
+      <t t-set="conditionalFormatLabel">Conditional formats</t>
+      <Checkbox
+        name="'onlyConditionalFormat'"
+        value="this.state.conditionalFormat"
+        label="conditionalFormatLabel"
+        onChange.bind="this.setConditionalFormat"
+        className="'mb-1'"
+      />
+      <t t-set="dataValidationLabel">Data validation</t>
+      <Checkbox
+        name="'onlyDataValidation'"
+        value="this.state.dataValidation"
+        label="dataValidationLabel"
+        onChange.bind="this.setDataValidation"
         className="'mb-1'"
       />
       <t t-set="transposeLabel">Transpose</t>

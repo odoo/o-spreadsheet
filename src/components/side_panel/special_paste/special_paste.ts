@@ -12,9 +12,12 @@ type ContentOption = Extract<ClipboardPasteOptions, "asValue" | "onlyFormula">;
 
 interface SpecialPasteState {
   contentOption: ContentOption | "all";
-  // Independent from contentOption: e.g. "asValue" + format pastes the value together with
-  // the source formatting, without the formula.
+  // Independent from contentOption and from each other, e.g. "asValue" + format pastes the
+  // value together with the source formatting, without the formula.
   format: boolean;
+  borders: boolean;
+  conditionalFormat: boolean;
+  dataValidation: boolean;
   transpose: boolean;
 }
 
@@ -28,7 +31,14 @@ export class SpecialPastePanel extends Component<SpreadsheetChildEnv> {
   state!: SpecialPasteState;
 
   setup() {
-    this.state = proxy({ contentOption: "all", format: false, transpose: false });
+    this.state = proxy({
+      contentOption: "all",
+      format: false,
+      borders: false,
+      conditionalFormat: false,
+      dataValidation: false,
+      transpose: false,
+    });
   }
 
   isContentOptionChecked(option: ContentOption): boolean {
@@ -41,6 +51,18 @@ export class SpecialPastePanel extends Component<SpreadsheetChildEnv> {
 
   setFormat(format: boolean) {
     this.state.format = format;
+  }
+
+  setBorders(borders: boolean) {
+    this.state.borders = borders;
+  }
+
+  setConditionalFormat(conditionalFormat: boolean) {
+    this.state.conditionalFormat = conditionalFormat;
+  }
+
+  setDataValidation(dataValidation: boolean) {
+    this.state.dataValidation = dataValidation;
   }
 
   setTranspose(transpose: boolean) {
@@ -58,6 +80,15 @@ export class SpecialPastePanel extends Component<SpreadsheetChildEnv> {
     }
     if (this.state.format) {
       pasteOptions.push("onlyFormat");
+    }
+    if (this.state.borders) {
+      pasteOptions.push("onlyBorders");
+    }
+    if (this.state.conditionalFormat) {
+      pasteOptions.push("onlyConditionalFormat");
+    }
+    if (this.state.dataValidation) {
+      pasteOptions.push("onlyDataValidation");
     }
     if (this.state.transpose) {
       pasteOptions.push("transpose");
