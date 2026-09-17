@@ -15,7 +15,6 @@ import {
   AddColumnsRowsCommand,
   ClearFormattingCommand,
   CommandResult,
-  CoreCommand,
   RemoveColumnsRowsCommand,
   SetFormattingCommand,
 } from "../../types/commands";
@@ -53,6 +52,10 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
   ] as const;
   public readonly style: defaultStyles = {};
   public readonly format: defaultValues<Format> = {};
+
+  validators = {
+    SET_FORMATTING: this.checkUselessSetFormatting,
+  };
 
   handlers = {
     SET_FORMATTING: this.setFormatting,
@@ -97,13 +100,6 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
     if (cmd.format !== undefined) {
       this.setFormat(cmd.sheetId, cmd.target, cmd.format);
     }
-  }
-
-  allowDispatch(cmd: CoreCommand): CommandResult | CommandResult[] {
-    if (cmd.type === "SET_FORMATTING") {
-      return this.checkUselessSetFormatting(cmd);
-    }
-    return CommandResult.Success;
   }
 
   private clearColRows(sheetId: UID, colRow: Dimension, index: HeaderIndex) {

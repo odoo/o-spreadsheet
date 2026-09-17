@@ -1,5 +1,11 @@
 import { StateObserver } from "../state_observer";
-import { Command, CommandHandler, CommandResult, CommandsHandlers } from "../types/commands";
+import {
+  Command,
+  CommandHandler,
+  CommandResult,
+  CommandsHandlers,
+  CommandsValidators,
+} from "../types/commands";
 import type { WorkbookHistory } from "../types/history";
 import { Validation } from "../types/misc";
 import type { Validator } from "../types/validator";
@@ -20,6 +26,15 @@ export class BasePlugin<State = any, C extends Command = Command>
   implements CommandHandler<C>, Validator
 {
   static getters: readonly string[] = [];
+
+  /**
+   * Before a command is accepted, the model runs the validators of every plugin.
+   * If all of them return `CommandResult.Success`, the command can proceed.
+   * Otherwise it is cancelled.
+   *
+   * There should not be any side effect in a validator.
+   */
+  validators: CommandsValidators<C> = {};
 
   /**
    * Handlers called before any plugin handles the command. This is useful when a
@@ -50,17 +65,6 @@ export class BasePlugin<State = any, C extends Command = Command>
   // ---------------------------------------------------------------------------
   // Command handling
   // ---------------------------------------------------------------------------
-
-  /**
-   * Before a command is accepted, the model will ask each plugin if the command
-   * is allowed. If all of them return true, then we can proceed. Otherwise,
-   * the command is cancelled.
-   *
-   * There should not be any side effects in this method.
-   */
-  allowDispatch(command: C): CommandResult | CommandResult[] {
-    return CommandResult.Success;
-  }
 
   /**
    * Sometimes, it is useful to perform some work after a command (and all its

@@ -6,7 +6,6 @@ import {
 import {
   AddColumnsRowsCommand,
   CommandResult,
-  CoreCommand,
   FoldAllHeaderGroupsCommand,
   FoldHeaderGroupCommand,
   FoldHeaderGroupsInZoneCommand,
@@ -39,6 +38,13 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
   ] as const;
 
   private readonly groups: Record<UID, Record<Dimension, HeaderGroup[]>> = {};
+
+  validators = {
+    GROUP_HEADERS: this.checkGroupHeaders,
+    UNGROUP_HEADERS: this.checkHeaderGroupStartEnd,
+    UNFOLD_HEADER_GROUP: this.checkFoldHeaderGroup,
+    FOLD_HEADER_GROUP: this.checkFoldHeaderGroup,
+  };
 
   handlers = {
     GROUP_HEADERS: this.handleGroupHeaders,
@@ -149,59 +155,48 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
     this.groupHeaders(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
   }
 
-  allowDispatch(cmd: CoreCommand): CommandResult {
-    switch (cmd.type) {
-      case "GROUP_HEADERS": {
-        const { start, end, sheetId } = cmd;
-        if (!this.getters.tryGetSheet(sheetId)) {
-          return CommandResult.InvalidSheetId;
-        }
-        if (!this.getters.doesHeadersExist(cmd.sheetId, cmd.dimension, [start, end])) {
-          return CommandResult.InvalidHeaderGroupStartEnd;
-        }
-        if (start > end) {
-          return CommandResult.InvalidHeaderGroupStartEnd;
-        }
+  private checkHeaderGroupStartEnd(cmd: GroupHeadersCommand | UnGroupHeadersCommand) {
+    const { start, end, sheetId } = cmd;
+    if (!this.getters.tryGetSheet(sheetId)) {
+      return CommandResult.InvalidSheetId;
+    }
+    if (!this.getters.doesHeadersExist(cmd.sheetId, cmd.dimension, [start, end])) {
+      return CommandResult.InvalidHeaderGroupStartEnd;
+    }
+    if (start > end) {
+      return CommandResult.InvalidHeaderGroupStartEnd;
+    }
+    return CommandResult.Success;
+  }
 
-        if (this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, start, end)) {
-          return CommandResult.HeaderGroupAlreadyExists;
-        }
-        break;
-      }
-      case "UNGROUP_HEADERS": {
-        const { start, end, sheetId } = cmd;
-        if (!this.getters.tryGetSheet(sheetId)) {
-          return CommandResult.InvalidSheetId;
-        }
-        if (!this.getters.doesHeadersExist(cmd.sheetId, cmd.dimension, [start, end])) {
-          return CommandResult.InvalidHeaderGroupStartEnd;
-        }
-        if (start > end) {
-          return CommandResult.InvalidHeaderGroupStartEnd;
-        }
-        break;
-      }
-      case "UNFOLD_HEADER_GROUP":
-      case "FOLD_HEADER_GROUP":
-        if (!this.getters.tryGetSheet(cmd.sheetId)) {
-          return CommandResult.InvalidSheetId;
-        }
-        const group = this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
-        if (!group) {
-          return CommandResult.UnknownHeaderGroup;
-        }
+  private checkGroupHeaders(cmd: GroupHeadersCommand) {
+    const startEndResult = this.checkHeaderGroupStartEnd(cmd);
+    if (startEndResult !== CommandResult.Success) {
+      return startEndResult;
+    }
+    if (this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, cmd.start, cmd.end)) {
+      return CommandResult.HeaderGroupAlreadyExists;
+    }
+    return CommandResult.Success;
+  }
 
-        const numberOfHeaders = this.getters.getNumberHeaders(cmd.sheetId, cmd.dimension);
-        const willHideAllHeaders = range(0, numberOfHeaders).every(
-          (i) =>
-            (i >= group.start && i <= group.end) ||
-            this.getters.isHeaderHiddenByUser(cmd.sheetId, cmd.dimension, i)
-        );
-        if (willHideAllHeaders) {
-          return CommandResult.NotEnoughElements;
-        }
+  private checkFoldHeaderGroup(cmd: FoldHeaderGroupCommand | UnfoldHeaderGroupCommand) {
+    if (!this.getters.tryGetSheet(cmd.sheetId)) {
+      return CommandResult.InvalidSheetId;
+    }
+    const group = this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
+    if (!group) {
+      return CommandResult.UnknownHeaderGroup;
+    }
 
-        break;
+    const numberOfHeaders = this.getters.getNumberHeaders(cmd.sheetId, cmd.dimension);
+    const willHideAllHeaders = range(0, numberOfHeaders).every(
+      (i) =>
+        (i >= group.start && i <= group.end) ||
+        this.getters.isHeaderHiddenByUser(cmd.sheetId, cmd.dimension, i)
+    );
+    if (willHideAllHeaders) {
+      return CommandResult.NotEnoughElements;
     }
     return CommandResult.Success;
   }

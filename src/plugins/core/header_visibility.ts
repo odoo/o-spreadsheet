@@ -9,7 +9,6 @@ import {
 } from "../../helpers/misc";
 import {
   AddColumnsRowsCommand,
-  Command,
   CommandResult,
   HideColumnsRowsCommand,
   RemoveColumnsRowsCommand,
@@ -30,6 +29,11 @@ export class HeaderVisibilityPlugin extends CorePlugin {
   ] as const;
 
   private readonly hiddenHeaders: Record<UID, Record<Dimension, Array<boolean>>> = {};
+
+  validators = {
+    HIDE_COLUMNS_ROWS: this.checkHideHeaders,
+    REMOVE_COLUMNS_ROWS: this.checkRemoveHeaders,
+  };
 
   handlers = {
     HIDE_COLUMNS_ROWS: this.hideHeaders,
@@ -87,37 +91,33 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     }
   }
 
-  allowDispatch(cmd: Command) {
-    switch (cmd.type) {
-      case "HIDE_COLUMNS_ROWS": {
-        if (!this.getters.tryGetSheet(cmd.sheetId)) {
-          return CommandResult.InvalidSheetId;
-        }
-        const hiddenGroup =
-          cmd.dimension === "COL"
-            ? this.getHiddenColsGroups(cmd.sheetId)
-            : this.getHiddenRowsGroups(cmd.sheetId);
-        const elements =
-          cmd.dimension === "COL"
-            ? this.getters.getNumberCols(cmd.sheetId)
-            : this.getters.getNumberRows(cmd.sheetId);
-        const hiddenElements = new Set((hiddenGroup || []).flat().concat(cmd.elements));
-        if (hiddenElements.size >= elements) {
-          return CommandResult.TooManyHiddenElements;
-        } else if (largeMin(cmd.elements) < 0 || largeMax(cmd.elements) > elements) {
-          return CommandResult.InvalidHeaderIndex;
-        } else {
-          return CommandResult.Success;
-        }
-      }
-      case "REMOVE_COLUMNS_ROWS":
-        if (!this.getters.tryGetSheet(cmd.sheetId)) {
-          return CommandResult.InvalidSheetId;
-        }
-        if (this.checkElementsIncludeAllVisibleHeaders(cmd.sheetId, cmd.dimension, cmd.elements)) {
-          return CommandResult.NotEnoughElements;
-        }
-        return CommandResult.Success;
+  private checkHideHeaders(cmd: HideColumnsRowsCommand) {
+    if (!this.getters.tryGetSheet(cmd.sheetId)) {
+      return CommandResult.InvalidSheetId;
+    }
+    const hiddenGroup =
+      cmd.dimension === "COL"
+        ? this.getHiddenColsGroups(cmd.sheetId)
+        : this.getHiddenRowsGroups(cmd.sheetId);
+    const elements =
+      cmd.dimension === "COL"
+        ? this.getters.getNumberCols(cmd.sheetId)
+        : this.getters.getNumberRows(cmd.sheetId);
+    const hiddenElements = new Set((hiddenGroup || []).flat().concat(cmd.elements));
+    if (hiddenElements.size >= elements) {
+      return CommandResult.TooManyHiddenElements;
+    } else if (largeMin(cmd.elements) < 0 || largeMax(cmd.elements) > elements) {
+      return CommandResult.InvalidHeaderIndex;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkRemoveHeaders(cmd: RemoveColumnsRowsCommand) {
+    if (!this.getters.tryGetSheet(cmd.sheetId)) {
+      return CommandResult.InvalidSheetId;
+    }
+    if (this.checkElementsIncludeAllVisibleHeaders(cmd.sheetId, cmd.dimension, cmd.elements)) {
+      return CommandResult.NotEnoughElements;
     }
     return CommandResult.Success;
   }

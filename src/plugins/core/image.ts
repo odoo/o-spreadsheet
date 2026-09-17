@@ -1,11 +1,6 @@
 import { FIGURE_ID_SPLITTER } from "../../constants";
 import { deepCopy } from "../../helpers/misc";
-import {
-  CommandResult,
-  CoreCommand,
-  CreateImageOverCommand,
-  DeleteFigureCommand,
-} from "../../types/commands";
+import { CommandResult, CreateImageOverCommand, DeleteFigureCommand } from "../../types/commands";
 import { FigureSize } from "../../types/figure";
 import { FileStore } from "../../types/files";
 import { Image } from "../../types/image";
@@ -26,6 +21,10 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
    * paths of images synced with the file store server.
    */
   readonly syncedImages: Set<Image["path"]> = new Set();
+
+  validators = {
+    CREATE_IMAGE: this.checkImageFigureIdIsFree,
+  };
 
   handlers = {
     DELETE_FIGURE: this.deleteImage,
@@ -82,16 +81,10 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "CREATE_IMAGE":
-        if (this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
-          return CommandResult.InvalidFigureId;
-        }
-        return CommandResult.Success;
-      default:
-        return CommandResult.Success;
-    }
+  private checkImageFigureIdIsFree(cmd: CreateImageOverCommand) {
+    return this.getters.getFigure(cmd.sheetId, cmd.figureId)
+      ? CommandResult.InvalidFigureId
+      : CommandResult.Success;
   }
 
   // ---------------------------------------------------------------------------

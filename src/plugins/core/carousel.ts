@@ -2,7 +2,6 @@ import { FIGURE_ID_SPLITTER } from "../../constants";
 import { haveSameNumberOfCols } from "../../helpers/zones";
 import {
   CommandResult,
-  CoreCommand,
   CreateCarouselCommand,
   DeleteFigureCommand,
   UpdateCarouselCommand,
@@ -19,6 +18,11 @@ interface CarouselState {
 export class CarouselPlugin extends CorePlugin<CarouselState> implements CarouselState {
   static getters = ["getCarousel", "doesCarouselExist", "carouselToCarouselData"] as const;
   readonly carousels: Record<UID, Record<UID, Carousel | undefined> | undefined> = {};
+
+  validators = {
+    CREATE_CAROUSEL: this.checkCreateCarousel,
+    UPDATE_CAROUSEL: this.checkUpdateCarousel,
+  };
 
   handlers = {
     DELETE_FIGURE: this.deleteCarousel,
@@ -112,33 +116,28 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
     }
   }
 
-  allowDispatch(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "CREATE_CAROUSEL": {
-        if (this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
-          return CommandResult.DuplicatedFigureId;
-        }
-        if (!this.areDataViewRangesValid(cmd.definition.items)) {
-          return CommandResult.InvalidRange;
-        }
-        return CommandResult.Success;
-      }
-      case "UPDATE_CAROUSEL": {
-        if (!this.carousels[cmd.sheetId]?.[cmd.figureId]) {
-          return CommandResult.InvalidFigureId;
-        }
-        if (!this.areDataViewRangesValid(cmd.definition.items)) {
-          return CommandResult.InvalidRange;
-        }
-        for (const item of cmd.definition.items) {
-          if (item.type === "chart" && !this.getters.getChart(item.chartId)) {
-            return CommandResult.ChartDoesNotExist;
-          }
-        }
-        return CommandResult.Success;
+  private checkCreateCarousel(cmd: CreateCarouselCommand) {
+    if (this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
+      return CommandResult.DuplicatedFigureId;
+    }
+    if (!this.areDataViewRangesValid(cmd.definition.items)) {
+      return CommandResult.InvalidRange;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkUpdateCarousel(cmd: UpdateCarouselCommand) {
+    if (!this.carousels[cmd.sheetId]?.[cmd.figureId]) {
+      return CommandResult.InvalidFigureId;
+    }
+    if (!this.areDataViewRangesValid(cmd.definition.items)) {
+      return CommandResult.InvalidRange;
+    }
+    for (const item of cmd.definition.items) {
+      if (item.type === "chart" && !this.getters.getChart(item.chartId)) {
+        return CommandResult.ChartDoesNotExist;
       }
     }
-
     return CommandResult.Success;
   }
 

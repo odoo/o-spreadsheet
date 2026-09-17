@@ -3,7 +3,7 @@ import { isValueFiltered } from "../../helpers/filter_helpers";
 import { deepCopy, getUniqueText, range } from "../../helpers/misc";
 import { positions, toZone, zoneToDimension } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
-import { CommandResult, EvaluationCommand, UpdateFilterCommand } from "../../types/commands";
+import { CommandResult, UpdateFilterCommand } from "../../types/commands";
 import { GenericCriterion } from "../../types/generic_criterion";
 import { CellPosition, FilterId, UID } from "../../types/misc";
 import { CriterionFilter, DataFilterValue } from "../../types/table";
@@ -25,6 +25,10 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
 
   hiddenRows: Record<UID, Set<number> | undefined> = {};
   isEvaluationDirty = false;
+
+  validators = {
+    UPDATE_FILTER: this.checkFilterExists,
+  };
 
   handlers = {
     UPDATE_CELL: this.invalidateEvaluation,
@@ -80,15 +84,8 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
     this.isEvaluationDirty = true;
   }
 
-  allowDispatch(cmd: EvaluationCommand): CommandResult {
-    switch (cmd.type) {
-      case "UPDATE_FILTER":
-        if (!this.getters.getFilterId(cmd)) {
-          return CommandResult.FilterNotFound;
-        }
-        break;
-    }
-    return CommandResult.Success;
+  private checkFilterExists(cmd: UpdateFilterCommand) {
+    return this.getters.getFilterId(cmd) ? CommandResult.Success : CommandResult.FilterNotFound;
   }
 
   finalize() {

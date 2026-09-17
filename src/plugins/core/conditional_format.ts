@@ -6,7 +6,6 @@ import { criterionEvaluatorRegistry } from "../../registries/criterion_registry"
 import {
   AddConditionalFormatCommand,
   CancelledReason,
-  Command,
   CommandResult,
   MoveConditionalFormatCommand,
   RemoveConditionalFormatCommand,
@@ -58,6 +57,11 @@ export class ConditionalFormatPlugin
   ] as const;
 
   readonly cfRules: { [sheet: string]: ConditionalFormatInternal[] } = {};
+
+  validators = {
+    ADD_CONDITIONAL_FORMAT: this.checkAddConditionalFormat,
+    CHANGE_CONDITIONAL_FORMAT_PRIORITY: this.checkPriorityChange,
+  };
 
   handlers = {
     ADD_CONDITIONAL_FORMAT: this.addConditionalFormat,
@@ -232,22 +236,20 @@ export class ConditionalFormatPlugin
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: Command) {
-    switch (cmd.type) {
-      case "ADD_CONDITIONAL_FORMAT":
-        if (cmd.ranges.some((rangeData) => !this.getters.tryGetSheet(rangeData._sheetId))) {
-          return CommandResult.InvalidSheetId;
-        }
-        return this.checkValidations(
-          cmd,
-          this.checkCFRule,
-          this.checkEmptyRange,
-          this.checkCFHasChanged
-        );
-      case "CHANGE_CONDITIONAL_FORMAT_PRIORITY":
-        return this.checkValidPriorityChange(cmd.cfId, cmd.delta, cmd.sheetId);
+  private checkAddConditionalFormat(cmd: AddConditionalFormatCommand) {
+    if (cmd.ranges.some((rangeData) => !this.getters.tryGetSheet(rangeData._sheetId))) {
+      return CommandResult.InvalidSheetId;
     }
-    return CommandResult.Success;
+    return this.checkValidations(
+      cmd,
+      this.checkCFRule,
+      this.checkEmptyRange,
+      this.checkCFHasChanged
+    );
+  }
+
+  private checkPriorityChange(cmd: MoveConditionalFormatCommand) {
+    return this.checkValidPriorityChange(cmd.cfId, cmd.delta, cmd.sheetId);
   }
 
   import(data: WorkbookData) {

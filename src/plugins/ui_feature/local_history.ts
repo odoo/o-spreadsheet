@@ -1,7 +1,7 @@
 import { Session } from "../../collaborative/session";
 import { MAX_HISTORY_STEPS } from "../../constants";
 import { canRepeatRevision, repeatRevision } from "../../history/repeat_commands/repeat_revision";
-import { Command, CommandResult } from "../../types/commands";
+import { CommandResult } from "../../types/commands";
 import { UID } from "../../types/misc";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
@@ -36,21 +36,18 @@ export class HistoryPlugin extends UIPlugin {
     });
   }
 
-  allowDispatch(cmd: Command): CommandResult {
-    switch (cmd.type) {
-      case "REQUEST_UNDO":
-        if (!this.canUndo()) {
-          return CommandResult.EmptyUndoStack;
-        }
-        break;
-      case "REQUEST_REDO":
-        if (!this.canRedo()) {
-          return CommandResult.EmptyRedoStack;
-        }
-        break;
-    }
-    return CommandResult.Success;
+  private checkUndoStackIsNotEmpty() {
+    return this.canUndo() ? CommandResult.Success : CommandResult.EmptyUndoStack;
   }
+
+  private checkRedoStackIsNotEmpty() {
+    return this.canRedo() ? CommandResult.Success : CommandResult.EmptyRedoStack;
+  }
+
+  validators = {
+    REQUEST_UNDO: this.checkUndoStackIsNotEmpty,
+    REQUEST_REDO: this.checkRedoStackIsNotEmpty,
+  };
 
   handlers = {
     REQUEST_UNDO: this.requestUndo,

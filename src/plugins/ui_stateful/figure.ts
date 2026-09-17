@@ -1,6 +1,5 @@
 import { UuidGenerator } from "../../helpers/uuid";
 import {
-  Command,
   CommandResult,
   CreateChartAndMergeIntoCarouselCommand,
   DeleteFiguresCommand,
@@ -13,6 +12,13 @@ import { UIPlugin } from "../ui_plugin";
 
 export class FigureUIPlugin extends UIPlugin {
   static getters = ["getFigureUI"] as const;
+
+  validators = {
+    UPDATE_FIGURES: this.checkUpdateFigures,
+    DELETE_FIGURES: this.checkFiguresExist,
+    MERGE_CHART_FIGURES_INTO_CAROUSEL: this.checkMergedFiguresAreCharts,
+    CREATE_CHART_AND_MERGE_INTO_CAROUSEL: this.checkCreateChartAndMerge,
+  };
 
   handlers = {
     UPDATE_FIGURES: this.updateFigures,
@@ -77,45 +83,44 @@ export class FigureUIPlugin extends UIPlugin {
     }
   }
 
-  allowDispatch(cmd: Command): CommandResult | CommandResult[] {
-    switch (cmd.type) {
-      case "UPDATE_FIGURES":
-        for (const updateFigurePayload of cmd.figures) {
-          const result = this.canDispatch("UPDATE_FIGURE", updateFigurePayload);
-          if (!result.isSuccessful) {
-            return result.reasons;
-          }
-        }
-        break;
-      case "DELETE_FIGURES":
-        for (const figureId of cmd.figureIds) {
-          if (!this.getters.getFigure(cmd.sheetId, figureId)) {
-            return CommandResult.FigureDoesNotExist;
-          }
-        }
-        break;
-      case "MERGE_CHART_FIGURES_INTO_CAROUSEL":
-        const figures = cmd.chartFigureIds.map((id) => this.getters.getFigure(cmd.sheetId, id));
-        const baseFigureId = this.getters.getFigure(cmd.sheetId, cmd.baseFigureId);
-        if (
-          figures.some((f) => f === undefined || f.tag !== "chart") ||
-          !baseFigureId ||
-          baseFigureId.tag !== "chart"
-        ) {
-          return CommandResult.FigureDoesNotExist;
-        }
-        break;
-      case "CREATE_CHART_AND_MERGE_INTO_CAROUSEL":
-        const baseFigure = this.getters.getFigure(cmd.sheetId, cmd.baseFigureId);
-        if (this.getters.getFigure(cmd.sheetId, cmd.figureId) || !baseFigure) {
-          return CommandResult.InvalidFigureId;
-        }
-        if (baseFigure.tag !== "chart") {
-          return CommandResult.FigureDoesNotExist;
-        }
-        break;
+  private checkUpdateFigures(cmd: UpdateFiguresCommand) {
+    for (const updateFigurePayload of cmd.figures) {
+      const result = this.canDispatch("UPDATE_FIGURE", updateFigurePayload);
+      if (!result.isSuccessful) {
+        return result.reasons;
+      }
     }
     return CommandResult.Success;
+  }
+
+  private checkFiguresExist(cmd: DeleteFiguresCommand) {
+    for (const figureId of cmd.figureIds) {
+      if (!this.getters.getFigure(cmd.sheetId, figureId)) {
+        return CommandResult.FigureDoesNotExist;
+      }
+    }
+    return CommandResult.Success;
+  }
+
+  private checkMergedFiguresAreCharts(cmd: MergeIntoCarouselCommand) {
+    const figures = cmd.chartFigureIds.map((id) => this.getters.getFigure(cmd.sheetId, id));
+    const baseFigure = this.getters.getFigure(cmd.sheetId, cmd.baseFigureId);
+    if (
+      figures.some((f) => f === undefined || f.tag !== "chart") ||
+      !baseFigure ||
+      baseFigure.tag !== "chart"
+    ) {
+      return CommandResult.FigureDoesNotExist;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkCreateChartAndMerge(cmd: CreateChartAndMergeIntoCarouselCommand) {
+    const baseFigure = this.getters.getFigure(cmd.sheetId, cmd.baseFigureId);
+    if (this.getters.getFigure(cmd.sheetId, cmd.figureId) || !baseFigure) {
+      return CommandResult.InvalidFigureId;
+    }
+    return baseFigure.tag !== "chart" ? CommandResult.FigureDoesNotExist : CommandResult.Success;
   }
 
   getFigureUI(sheetId: UID, figure: Figure): FigureUI {

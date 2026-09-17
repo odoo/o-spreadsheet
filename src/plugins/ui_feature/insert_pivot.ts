@@ -6,7 +6,6 @@ import { pivotTableStyleIdToTableStyleId } from "../../helpers/pivot_table_prese
 import { getZoneArea, positionToZone } from "../../helpers/zones";
 import { _t } from "../../translation";
 import {
-  Command,
   CommandResult,
   DuplicatePivotInNewSheetCommand,
   InsertNewPivotCommand,
@@ -20,19 +19,19 @@ import { UIPlugin } from "../ui_plugin";
 export class InsertPivotPlugin extends UIPlugin {
   static getters = [] as const;
 
-  allowDispatch(cmd: Command) {
-    switch (cmd.type) {
-      case "DUPLICATE_PIVOT_IN_NEW_SHEET":
-        if (!this.getters.isExistingPivot(cmd.pivotId)) {
-          return CommandResult.PivotIdNotFound;
-        }
-        if (!this.getters.getPivot(cmd.pivotId).isValid()) {
-          return CommandResult.PivotInError;
-        }
-        break;
+  private checkDuplicatedPivotIsValid(cmd: DuplicatePivotInNewSheetCommand) {
+    if (!this.getters.isExistingPivot(cmd.pivotId)) {
+      return CommandResult.PivotIdNotFound;
+    }
+    if (!this.getters.getPivot(cmd.pivotId).isValid()) {
+      return CommandResult.PivotInError;
     }
     return CommandResult.Success;
   }
+
+  validators = {
+    DUPLICATE_PIVOT_IN_NEW_SHEET: this.checkDuplicatedPivotIsValid,
+  };
 
   handlers = {
     INSERT_NEW_PIVOT: this.insertNewPivotFromCommand,

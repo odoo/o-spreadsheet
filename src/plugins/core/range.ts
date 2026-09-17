@@ -14,7 +14,14 @@ import { recomputeZones } from "../../helpers/recompute_zones";
 import { rangeReference, splitReference } from "../../helpers/references";
 
 import { intersection, isZoneInside, isZoneValid, unionUnboundedZones } from "../../helpers/zones";
-import { CommandHandler, CommandResult, CommandsHandlers, CoreCommand } from "../../types/commands";
+import {
+  CommandHandler,
+  CommandResult,
+  CommandsHandlers,
+  CommandsValidators,
+  CoreCommand,
+  MoveRangeCommand,
+} from "../../types/commands";
 import { CellErrorType } from "../../types/errors";
 import { CoreGetters } from "../../types/getters";
 import {
@@ -31,6 +38,9 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   private getters: CoreGetters;
   private providers: Array<RangeProvider["adaptRanges"]> = [];
   private isAdaptingRanges: boolean = false;
+  readonly validators: CommandsValidators<CoreCommand> = {
+    MOVE_RANGES: this.checkSingleTarget,
+  };
   readonly preHandlers: CommandsHandlers<CoreCommand> = {};
   readonly handlers: CommandsHandlers<CoreCommand> = {
     MOVE_RANGES: this.adaptRanges,
@@ -76,11 +86,8 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-  allowDispatch(cmd: CoreCommand): CommandResult {
-    if (cmd.type === "MOVE_RANGES") {
-      return cmd.target.length === 1 ? CommandResult.Success : CommandResult.InvalidZones;
-    }
-    return CommandResult.Success;
+  private checkSingleTarget(cmd: MoveRangeCommand): CommandResult {
+    return cmd.target.length === 1 ? CommandResult.Success : CommandResult.InvalidZones;
   }
 
   finalize() {}

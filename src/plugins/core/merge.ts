@@ -13,7 +13,6 @@ import {
 import {
   AddMergeCommand,
   CommandResult,
-  CoreCommand,
   RemoveMergeCommand,
   TargetDependentCommand,
   UpdateCellCommand,
@@ -59,6 +58,12 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
 
   readonly merges: Record<UID, Record<number, Range | undefined> | undefined> = {};
 
+  validators = {
+    ADD_MERGE: this.checkAddMerge,
+    UPDATE_CELL: this.checkMergedContentUpdate,
+    REMOVE_MERGE: this.checkMergeExists,
+  };
+
   handlers = {
     ADD_MERGE: this.addMerges,
     REMOVE_MERGE: this.removeMerges,
@@ -103,27 +108,16 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-  allowDispatch(cmd: CoreCommand) {
-    const force = "force" in cmd ? !!cmd.force : false;
-
-    switch (cmd.type) {
-      case "ADD_MERGE":
-        if (force) {
-          return this.checkValidations(cmd, this.checkFrozenPanes);
-        }
-        return this.checkValidations(
-          cmd,
-          this.checkDestructiveMerge,
-          this.checkOverlap,
-          this.checkFrozenPanes
-        );
-      case "UPDATE_CELL":
-        return this.checkMergedContentUpdate(cmd);
-      case "REMOVE_MERGE":
-        return this.checkMergeExists(cmd);
-      default:
-        return CommandResult.Success;
+  private checkAddMerge(cmd: AddMergeCommand) {
+    if (cmd.force) {
+      return this.checkValidations(cmd, this.checkFrozenPanes);
     }
+    return this.checkValidations(
+      cmd,
+      this.checkDestructiveMerge,
+      this.checkOverlap,
+      this.checkFrozenPanes
+    );
   }
 
   adaptRanges(rangeAdapters: RangeAdapterFunctions) {

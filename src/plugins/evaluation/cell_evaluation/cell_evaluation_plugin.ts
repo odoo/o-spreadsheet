@@ -170,6 +170,10 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
   private evaluator: Evaluator;
   private positionsToUpdate: CellPosition[] = [];
 
+  validators = {
+    SET_AUTOMATIC_EVALUATION: this.checkAutomaticEvaluationChanges,
+  };
+
   handlers = {
     "*allCommands": this.flagForceEvaluation,
     "*invalidateEvaluationCommands": this.flagRebuildDependenciesGraph,
@@ -210,15 +214,10 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: EvaluationCommand) {
-    switch (cmd.type) {
-      case "SET_AUTOMATIC_EVALUATION":
-        if (cmd.enabled === this.automaticEvaluation) {
-          return CommandResult.NoChangeInAutomaticEvaluation;
-        }
-        return CommandResult.Success;
-    }
-    return CommandResult.Success;
+  private checkAutomaticEvaluationChanges(cmd: SetAutomaticEvaluationCommand) {
+    return cmd.enabled === this.automaticEvaluation
+      ? CommandResult.NoChangeInAutomaticEvaluation
+      : CommandResult.Success;
   }
 
   private updateCell(cmd: UpdateCellCommand) {
