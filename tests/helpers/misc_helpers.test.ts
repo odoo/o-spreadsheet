@@ -1,5 +1,7 @@
 import seedrandom from "seedrandom";
+import { Model } from "../../src";
 import {
+  addStyleToWorkbookData,
   deepCopy,
   deepEquals,
   getUniqueText,
@@ -11,6 +13,7 @@ import {
   UuidGenerator,
 } from "../../src/helpers";
 import { DateTime } from "../../src/helpers/dates";
+import { getCell, getCellStyle, setFormat, setFormatting } from "../test_helpers";
 
 describe("Misc", () => {
   test("range", () => {
@@ -331,5 +334,40 @@ describe("getUniqueText", () => {
 
   test("with start", () => {
     expect(getUniqueText("a", ["a"], { start: 2 })).toEqual("a (2)");
+  });
+});
+
+describe("addStyleToWorkbookData", () => {
+  test("Can add style to workbook data", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setFormatting(model, "A1:A4", { bold: true });
+    const data = model.exportData();
+
+    const A2 = { sheetId, col: 0, row: 1 };
+    addStyleToWorkbookData(data, "styles", A2, { italic: true });
+    expect(data.sheets[0].styles).toEqual({ A1: 1, A2: 2, "A3:A4": 1 });
+
+    const newModel = new Model(data);
+    expect(getCellStyle(newModel, "A1")).toEqual({ bold: true });
+    expect(getCellStyle(newModel, "A2")).toEqual({ italic: true });
+    expect(getCellStyle(newModel, "A3")).toEqual({ bold: true });
+    expect(getCellStyle(newModel, "A4")).toEqual({ bold: true });
+  });
+
+  test("Can add format to workbook data", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setFormat(model, "B3:D3", "0%");
+    const data = model.exportData();
+
+    const C3 = { sheetId, col: 2, row: 2 };
+    addStyleToWorkbookData(data, "formats", C3, "0.00");
+    expect(data.sheets[0].formats).toEqual({ B3: 1, C3: 2, D3: 1 });
+
+    const newModel = new Model(data);
+    expect(getCell(newModel, "B3")?.format).toEqual("0%");
+    expect(getCell(newModel, "C3")?.format).toEqual("0.00");
+    expect(getCell(newModel, "D3")?.format).toEqual("0%");
   });
 });
