@@ -54,14 +54,14 @@ export function handlePasteResult(env: SpreadsheetChildEnv, result: DispatchResu
 export function interactivePaste(
   env: SpreadsheetChildEnv,
   target: Zone[],
-  pasteOption?: ClipboardPasteOptions
+  pasteOptions?: ClipboardPasteOptions[]
 ) {
   const clipboardStore = env.getStore(ClipboardStore);
-  const result = clipboardStore.isCommandValid({ type: "PASTE", target, pasteOption });
+  const result = clipboardStore.isCommandValid({ type: "PASTE", target, pasteOptions });
   if (!result.isSuccessful) {
     handlePasteResult(env, result);
   } else {
-    env.model.dispatch("PASTE", { target, pasteOption });
+    env.model.dispatch("PASTE", { target, pasteOptions });
   }
 }
 
@@ -69,7 +69,7 @@ export async function interactivePasteFromOS(
   env: SpreadsheetChildEnv,
   target: Zone[],
   parsedClipboardContent: ParsedOSClipboardContent,
-  pasteOption?: ClipboardPasteOptions
+  pasteOptions?: ClipboardPasteOptions[]
 ) {
   if (parsedClipboardContent.data && parsedClipboardContent.data.version !== getCurrentVersion()) {
     env.notifyUser({
@@ -97,7 +97,7 @@ export async function interactivePasteFromOS(
   const payload = {
     target,
     clipboardContent: parsedClipboardContent,
-    pasteOption,
+    pasteOptions,
   };
 
   const clipboardStore = env.getStore(ClipboardStore);

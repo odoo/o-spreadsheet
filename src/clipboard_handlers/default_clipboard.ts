@@ -113,13 +113,18 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
     const sheetId = target.sheetId;
-    if (options.pasteOption === "asValue") {
+    const shouldPasteFormat =
+      !options.pasteOptions?.length || options.pasteOptions.includes("onlyFormat");
+    if (!shouldPasteFormat) {
       return;
     }
     const zones = target.zones;
     if (!options.isCutOperation) {
+      const pastedContent = options.pasteOptions?.includes("transpose")
+        ? this.transposeContent(content)
+        : content;
       for (const zone of zones) {
-        const newContent = this.adaptContentToZone(zone, content);
+        const newContent = this.adaptContentToZone(zone, pastedContent);
         this.pasteStyle(
           sheetId,
           zone.left,
@@ -143,6 +148,25 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
       this.pasteStyle(sheetId, left, top, content.width, content.height, content.style);
       this.pasteFormat(sheetId, left, top, content.width, content.height, content.format);
     }
+  }
+
+  private transposeContent(content: ClipboardContent): ClipboardContent {
+    const transposed = deepCopy(content);
+    transposed.width = content.height;
+    transposed.height = content.width;
+    transposed.format = {
+      ...content.format,
+      colDefault: content.format.rowDefault,
+      rowDefault: content.format.colDefault,
+    };
+    for (const key in content.style) {
+      transposed.style[key as keyof Style] = {
+        ...content.style[key],
+        colDefault: content.style[key].rowDefault,
+        rowDefault: content.style[key].colDefault,
+      };
+    }
+    return transposed;
   }
 
   /**

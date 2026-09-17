@@ -31,10 +31,17 @@ export type ParsedOsClipboardContentWithImageData = ParsedOSClipboardContent & {
 
 export interface ClipboardOptions {
   isCutOperation: boolean;
-  pasteOption?: ClipboardPasteOptions;
+  pasteOptions?: ClipboardPasteOptions[];
   selectTarget?: boolean;
 }
-export type ClipboardPasteOptions = "onlyFormat" | "asValue";
+export type ClipboardPasteOptions =
+  | "onlyFormat"
+  | "asValue"
+  | "onlyFormula"
+  | "transpose"
+  | "onlyBorders"
+  | "onlyConditionalFormat"
+  | "onlyDataValidation";
 export type ClipboardCopyOptions = "copyPaste" | "shiftCells";
 export type ClipboardOperation = "CUT" | "COPY";
 

@@ -53,9 +53,14 @@ export function setStyle(model: Model, style: Style) {
 //------------------------------------------------------------------------------
 
 export const PASTE_ACTION = async (env: SpreadsheetChildEnv) => paste(env);
-export const PASTE_AS_VALUE_ACTION = async (env: SpreadsheetChildEnv) => paste(env, "asValue");
+export const PASTE_AS_VALUE_ACTION = async (env: SpreadsheetChildEnv) => paste(env, ["asValue"]);
+export const PASTE_FORMAT_ACTION = (env: SpreadsheetChildEnv) => paste(env, ["onlyFormat"]);
+export const PASTE_FORMULA_ACTION = (env: SpreadsheetChildEnv) => paste(env, ["onlyFormula"]);
 
-async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptions) {
+export async function paste(env: SpreadsheetChildEnv, pasteOptions?: ClipboardPasteOptions[]) {
+  if (pasteOptions?.length === 0) {
+    pasteOptions = undefined;
+  }
   const osClipboard = await env.clipboard.read();
   const clipboardStore = env.getStore(ClipboardStore);
   switch (osClipboard.status) {
@@ -66,12 +71,12 @@ async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptio
         osClipboard.content[ClipboardMIMEType.Html]
       );
       if (clipboardId === htmlClipboardId) {
-        interactivePaste(env, target, pasteOption);
+        interactivePaste(env, target, pasteOptions);
       } else {
         const osClipboardContent = parseOSClipboardContent(osClipboard.content);
-        await interactivePasteFromOS(env, target, osClipboardContent, pasteOption);
+        await interactivePasteFromOS(env, target, osClipboardContent, pasteOptions);
       }
-      if (clipboardStore.isCutOperation() && pasteOption !== "asValue") {
+      if (clipboardStore.isCutOperation() && !pasteOptions?.includes("asValue")) {
         await env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
       }
       break;
@@ -91,8 +96,6 @@ async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptio
       break;
   }
 }
-
-export const PASTE_FORMAT_ACTION = (env: SpreadsheetChildEnv) => paste(env, "onlyFormat");
 
 //------------------------------------------------------------------------------
 // Grid manipulations
