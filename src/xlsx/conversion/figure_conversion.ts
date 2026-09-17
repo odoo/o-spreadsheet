@@ -9,20 +9,25 @@ import { ChartDefinition, ExcelChartDefinition, FigureData } from "../../types";
 import { ExcelImage } from "../../types/image";
 import { XLSXFigure, XLSXWorksheet } from "../../types/xlsx";
 import { convertEMUToDotValue, getColPosition, getRowPosition } from "../helpers/content_helpers";
+import { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { XLSXFigureAnchor } from "./../../types/xlsx";
 import { convertColor } from "./color_conversion";
 
-export function convertFigures(sheetData: XLSXWorksheet): FigureData<any>[] {
+export function convertFigures(
+  sheetData: XLSXWorksheet,
+  warningManager: XLSXImportWarningManager
+): FigureData<any>[] {
   let id = 1;
   return sheetData.figures
-    .map((figure) => convertFigure(figure, (id++).toString(), sheetData))
+    .map((figure) => convertFigure(figure, (id++).toString(), sheetData, warningManager))
     .filter(isDefined);
 }
 
 function convertFigure(
   figure: XLSXFigure,
   id: string,
-  sheetData: XLSXWorksheet
+  sheetData: XLSXWorksheet,
+  warningManager: XLSXImportWarningManager
 ): FigureData<any> | undefined {
   let x1: number, y1: number;
   let height: number, width: number;
@@ -45,7 +50,7 @@ function convertFigure(
       width,
       height,
       tag: "chart",
-      data: convertChartData(figure.data),
+      data: convertChartData(figure.data, warningManager),
     };
   } else if (isImageData(figure.data)) {
     return {
@@ -70,22 +75,27 @@ function isImageData(data: ExcelChartDefinition | ExcelImage): data is ExcelImag
   return "imageSrc" in data;
 }
 
-function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | undefined {
+function convertChartData(
+  chartData: ExcelChartDefinition,
+  warningManager: XLSXImportWarningManager
+): ChartDefinition | undefined {
   const dataSetsHaveTitle = chartData.dataSets.some((ds) => "reference" in (ds.label ?? {}));
   const labelRange = chartData.labelRange
-    ? convertExcelRangeToSheetXC(chartData.labelRange, dataSetsHaveTitle)
+    ? convertExcelRangeToSheetXC(chartData.labelRange, dataSetsHaveTitle, warningManager)
     : undefined;
-  const dataSets = chartData.dataSets.map((data) => {
-    let label: string | undefined = undefined;
-    if (data.label && "text" in data.label) {
-      label = data.label.text;
-    }
-    return {
-      dataRange: convertExcelRangeToSheetXC(data.range, dataSetsHaveTitle),
-      label,
-      backgroundColor: data.backgroundColor,
-    };
-  });
+  const dataSets = chartData.dataSets
+    .map((data) => {
+      let label: string | undefined = undefined;
+      if (data.label && "text" in data.label) {
+        label = data.label.text;
+      }
+      const dataRange = convertExcelRangeToSheetXC(data.range, dataSetsHaveTitle, warningManager);
+      if (!dataRange) {
+        return undefined;
+      }
+      return { dataRange, label, backgroundColor: data.backgroundColor };
+    })
+    .filter(isDefined);
   // For doughnut charts, in chartJS first dataset = outer dataset, in excel first dataset = inner dataset
   if (chartData.type === "pie") {
     dataSets.reverse();
@@ -105,7 +115,15 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
   };
 }
 
-function convertExcelRangeToSheetXC(range: string, dataSetsHaveTitle: boolean): string {
+function convertExcelRangeToSheetXC(
+  range: string,
+  dataSetsHaveTitle: boolean,
+  warningManager: XLSXImportWarningManager
+): string | undefined {
+  if (isCompositeRange(range)) {
+    warningManager.addConversionWarning(`Range ${range} in chart data is not supported/valid`);
+    return undefined;
+  }
   const { sheetName, xc } = splitReference(range);
   let zone = toUnboundedZone(xc);
   if (dataSetsHaveTitle && zone.bottom !== undefined && zone.right !== undefined) {
@@ -132,4 +150,17 @@ function getPositionFromAnchor(
     x: getColPosition(anchor.col, sheetData) + convertEMUToDotValue(anchor.colOffset),
     y: getRowPosition(anchor.row, sheetData) + convertEMUToDotValue(anchor.rowOffset),
   };
+}
+
+export function isCompositeRange(range: string): boolean {
+  let isInString = false;
+  // A composite range contains multiple ranges separated by commas/spaces. We should ignore commas/spaces inside string blocks (sheet names)
+  for (const char of range) {
+    if (char === "'") {
+      isInString = !isInString;
+    } else if ((char === "," || char === " ") && !isInString) {
+      return true;
+    }
+  }
+  return false;
 }
