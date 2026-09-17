@@ -1743,8 +1743,8 @@ export const enum CommandResult {
 
 export interface CommandHandler<T extends Command> {
   allowDispatch(command: T): CommandResult | CommandResult[];
-  beforeHandle(command: T): void;
   finalize(): void;
+  preHandlers: CommandsHandlers<T>;
   handlers: CommandsHandlers<T>;
 }
 
@@ -1760,8 +1760,17 @@ export type CommandsHandlersList<T extends Command> = {
 };
 
 export type CommandHandlerRegistry = {
-  get<C extends CommandTypes>(cmd: C): SingleCommandHandler<Extract<Command, { type: C }>>[];
-  add<C extends CommandTypes>(
+  getHandlers<C extends CommandTypes>(
+    cmd: C
+  ): SingleCommandHandler<Extract<Command, { type: C }>>[];
+  getPreHandlers<C extends CommandTypes>(
+    cmd: C
+  ): SingleCommandHandler<Extract<Command, { type: C }>>[];
+  addHandler<C extends CommandTypes>(
+    cmd: C,
+    handler: SingleCommandHandler<Extract<Command, { type: C }>>
+  ): void;
+  addPreHandler<C extends CommandTypes>(
     cmd: C,
     handler: SingleCommandHandler<Extract<Command, { type: C }>>
   ): void;

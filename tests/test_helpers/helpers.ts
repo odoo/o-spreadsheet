@@ -24,7 +24,6 @@ import { App, Component, ComponentConstructor } from "../../src/owl3_compatibili
 import { BasePlugin } from "../../src/plugins/base_plugin";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { CorePluginConstructor } from "../../src/plugins/core_plugin";
-import { SheetUIPlugin } from "../../src/plugins/ui_feature/ui_sheet";
 import { UIPluginConstructor } from "../../src/plugins/ui_plugin";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { Registry } from "../../src/registries/registry";
@@ -107,18 +106,18 @@ export function spyModelDispatch(model: Model): jest.SpyInstance {
 }
 
 /**
- * Spy on every command the SheetUIPlugin is concerned by, whether it is handled
- * by its generic `handle` or by a command specific handler.
+ * Spy on every command the UI plugins are concerned by, whether it is handled
+ * by a pre-handler or by a regular command handler.
  */
 export function spyUiPluginHandle(model: Model): jest.Mock {
-  const plugin = getPlugin(model, SheetUIPlugin);
   const spy = jest.fn();
+  const uiRegistries: unknown[] = [model["commandHandlers"], model["evaluationCommandHandlers"]];
   const dispatchToHandlers = model["dispatchToHandlers"];
-  model["dispatchToHandlers"] = function (specificHandlers, handlers, command) {
-    if (handlers.includes(plugin)) {
+  model["dispatchToHandlers"] = function (registry, command) {
+    if (uiRegistries.includes(registry)) {
       spy(command);
     }
-    return dispatchToHandlers.call(this, specificHandlers, handlers, command);
+    return dispatchToHandlers.call(this, registry, command);
   };
   return spy;
 }

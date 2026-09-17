@@ -10,7 +10,7 @@ import { getCanvas, getDefaultCellHeight } from "../../helpers/text_helper";
 import { positions } from "../../helpers/zones";
 import { Canvas2DContext } from "../../types/canvas";
 import {
-  EvaluationCommand,
+  AddColumnsRowsCommand,
   RemoveColumnsRowsCommand,
   ResizeColumnsRowsCommand,
   SetFormattingCommand,
@@ -47,6 +47,10 @@ export class HeaderSizeUIPlugin
   readonly tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>> = {};
   ctx: Canvas2DContext = getCanvas();
 
+  preHandlers = {
+    ADD_COLUMNS_ROWS: this.insertRowsTallestCells,
+  };
+
   handlers = {
     UPDATE_CELL: this.updateRowSizeForCellUpdate,
     SET_FORMATTING: this.updateRowSizesForFormatting,
@@ -60,6 +64,26 @@ export class HeaderSizeUIPlugin
     REMOVE_COLUMNS_ROWS: this.removeRowsTallestCells,
     START: this.initializeAllSheets,
   };
+
+  /**
+   * Ensure rows are updated before "UPDATE_CELL" is dispatched from cell plugin.
+   * "UPDATE_CELL" uses the Sheet core plugin to access row data.
+   * If "ADD_COLUMNS_ROWS" has not been processed yet by header_sizes_ui,
+   * size updates may apply to incorrect (pre-insert) rows.
+   */
+  private insertRowsTallestCells(cmd: AddColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      return;
+    }
+    const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
+    const newCells = Array(cmd.quantity).fill(undefined);
+    const newTallestCells = insertItemsAtIndex(
+      this.tallestCellInRow[cmd.sheetId],
+      newCells,
+      addIndex
+    );
+    this.history.update("tallestCellInRow", cmd.sheetId, newTallestCells);
+  }
 
   private removeRowsTallestCells(cmd: RemoveColumnsRowsCommand) {
     if (cmd.dimension === "COL") {
@@ -128,28 +152,6 @@ export class HeaderSizeUIPlugin
 
   private updateRowSizeForCellUpdate(cmd: UpdateCellCommand) {
     this.updateRowSizeForCellChange(cmd.sheetId, cmd.row, cmd.col);
-  }
-
-  beforeHandle(cmd: EvaluationCommand) {
-    switch (cmd.type) {
-      // Ensure rows are updated before "UPDATE_CELL" is dispatched from cell plugin.
-      // "UPDATE_CELL" uses the Sheet core plugin to access row data.
-      // If "ADD_COLUMNS_ROWS" has not been processed yet by header_sizes_ui,
-      // size updates may apply to incorrect (pre-insert) rows.
-      case "ADD_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          return;
-        }
-        const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
-        const newCells = Array(cmd.quantity).fill(undefined);
-        const newTallestCells = insertItemsAtIndex(
-          this.tallestCellInRow[cmd.sheetId],
-          newCells,
-          addIndex
-        );
-        this.history.update("tallestCellInRow", cmd.sheetId, newTallestCells);
-        break;
-    }
   }
 
   getRowSize(sheetId: UID, row: HeaderIndex): Pixel {
