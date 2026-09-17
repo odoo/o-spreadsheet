@@ -243,7 +243,7 @@ describe("Menu Item actions", () => {
     await doAction(["edit", "paste"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE", {
       target: env.model.getters.getSelectedZones(),
-      pasteOption: undefined,
+      pasteOptions: undefined,
     });
     expect(getCellContent(model, "C3")).toEqual("a1");
   });
@@ -255,7 +255,7 @@ describe("Menu Item actions", () => {
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       clipboardContent: { text: "Copy in OS clipboard" },
       target: target("A1"),
-      pasteOption: "onlyFormat",
+      pasteOptions: ["onlyFormat"],
     });
     expect(getCellContent(model, "A1")).toEqual("");
   });
@@ -309,7 +309,7 @@ describe("Menu Item actions", () => {
     await doAction(["edit", "paste_special", "paste_special_value"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE", {
       target: env.model.getters.getSelectedZones(),
-      pasteOption: "asValue",
+      pasteOptions: ["asValue"],
     });
   });
 
@@ -320,7 +320,7 @@ describe("Menu Item actions", () => {
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       target: target("A1"),
       clipboardContent: { text },
-      pasteOption: "asValue",
+      pasteOptions: ["asValue"],
     });
   });
 
@@ -329,7 +329,7 @@ describe("Menu Item actions", () => {
     await doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE", {
       target: env.model.getters.getSelectedZones(),
-      pasteOption: "onlyFormat",
+      pasteOptions: ["onlyFormat"],
     });
   });
 
@@ -340,7 +340,7 @@ describe("Menu Item actions", () => {
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       target: target("A1"),
       clipboardContent: { text },
-      pasteOption: "onlyFormat",
+      pasteOptions: ["onlyFormat"],
     });
   });
 

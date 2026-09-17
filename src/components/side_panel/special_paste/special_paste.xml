@@ -1,14 +1,38 @@
 <templates>
   <t t-name="o-spreadsheet-SpecialPastePanel">
     <Section>
-      <t t-set="value">Values</t>
-      <Checkbox value="false" label="value" onChange.bind="() => {}" className="'mb-1'"/>
-      <t t-set="format">Formats</t>
-      <Checkbox value="false" label="format" onChange.bind="() => {}" className="'mb-1'"/>
-      <t t-set="formula">Formulas</t>
-      <Checkbox value="false" label="formulaOnly" onChange.bind="() => {}" className="'mb-1'"/>
-      <t t-set="transpose">Transpose</t>
-      <Checkbox value="false" label="transpose" onChange.bind="() => {}" className="'mb-1'"/>
+      <t t-set="valuesLabel">Values</t>
+      <Checkbox
+        name="'asValue'"
+        value="this.isContentOptionChecked('asValue')"
+        label="valuesLabel"
+        onChange="(checked) => this.setContentOption('asValue', checked)"
+        className="'mb-1'"
+      />
+      <t t-set="formatLabel">Formats</t>
+      <Checkbox
+        name="'onlyFormat'"
+        value="this.state.format"
+        label="formatLabel"
+        onChange.bind="this.setFormat"
+        className="'mb-1'"
+      />
+      <t t-set="formulaLabel">Formulas</t>
+      <Checkbox
+        name="'onlyFormula'"
+        value="this.isContentOptionChecked('onlyFormula')"
+        label="formulaLabel"
+        onChange="(checked) => this.setContentOption('onlyFormula', checked)"
+        className="'mb-1'"
+      />
+      <t t-set="transposeLabel">Transpose</t>
+      <Checkbox
+        name="'transpose'"
+        value="this.state.transpose"
+        label="transposeLabel"
+        onChange.bind="this.setTranspose"
+        className="'mb-1'"
+      />
     </Section>
     <Section>
       <div class="o-sidePanelButtons">

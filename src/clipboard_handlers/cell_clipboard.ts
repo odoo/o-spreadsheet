@@ -1,4 +1,8 @@
-import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
+import {
+  getPasteZones,
+  shouldPasteContent,
+  shouldPasteFormat,
+} from "../helpers/clipboard/clipboard_helpers";
 import { formatValue } from "../helpers/format/format";
 import { canonicalizeNumberValue } from "../helpers/locale";
 import { deepEquals, transpose } from "../helpers/misc";
@@ -113,7 +117,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     if (!content.cells) {
       return CommandResult.Success;
     }
-    if (clipboardOptions?.isCutOperation && clipboardOptions?.pasteOption !== undefined) {
+    if (clipboardOptions?.isCutOperation && !!clipboardOptions?.pasteOptions?.length) {
       // cannot paste only format or only value if the previous operation is a CUT
       return CommandResult.WrongPasteOption;
     }
@@ -184,7 +188,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   }
 
   private getPastedCells(content: ClipboardContent, options?: ClipboardOptions): ClipboardCell[][] {
-    if (options?.pasteOption === "transpose") {
+    if (options?.pasteOptions?.includes("transpose")) {
       return transpose(content.cells);
     }
     return content.cells;
@@ -247,15 +251,11 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     // We know the target cell style is already edited by the default_clipboard
     const newStyle = { ...targetCell?.style, ...origin.style };
     const style = Object.keys(newStyle ?? {}).length === 0 ? undefined : newStyle;
-    if (clipboardOption?.pasteOption === "asValue") {
-      this.dispatch("UPDATE_CELL", {
-        ...target,
-        content: origin.evaluatedCell.value?.toString() || "",
-      });
-      return;
-    }
+    const pasteOptions = clipboardOption?.pasteOptions;
+    const pasteFormat = shouldPasteFormat(pasteOptions);
 
-    if (clipboardOption?.pasteOption === "onlyFormat") {
+    if (!shouldPasteContent(pasteOptions)) {
+      // "onlyFormat" alone: paste the style/format only, the content is left untouched
       this.dispatch("UPDATE_CELL", {
         ...target,
         style,
@@ -264,9 +264,27 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       return;
     }
 
+    if (pasteOptions?.includes("asValue")) {
+      const valueContent = origin.evaluatedCell.value?.toString() || "";
+      if (pasteFormat) {
+        this.dispatch("UPDATE_CELL", {
+          ...target,
+          content: valueContent,
+          style,
+          format: originFormat ?? targetEvaluatedCell.format,
+        });
+      } else {
+        this.dispatch("UPDATE_CELL", {
+          ...target,
+          content: valueContent,
+        });
+      }
+      return;
+    }
+
     let content = origin?.content;
     if (origin?.compiledFormula?.hasDependencies && !clipboardOption?.isCutOperation) {
-      const isTransposed = clipboardOption?.pasteOption === "transpose";
+      const isTransposed = pasteOptions?.includes("transpose");
       const offsetX = isTransposed ? col - origin.position.row : col - origin.position.col;
       const offsetY = isTransposed ? row - origin.position.col : row - origin.position.row;
       content = this.getters.getTranslatedCellFormula(
@@ -279,17 +297,17 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       content = this.getters.getFormulaMovedInSheet(sheetId, origin.compiledFormula);
     }
     if (content !== "" || origin.format || style) {
-      if (clipboardOption?.pasteOption === "onlyFormula") {
-        this.dispatch("UPDATE_CELL", {
-          ...target,
-          content,
-        });
-      } else {
+      if (pasteFormat) {
         this.dispatch("UPDATE_CELL", {
           ...target,
           content,
           style,
           format: origin.format,
+        });
+      } else {
+        this.dispatch("UPDATE_CELL", {
+          ...target,
+          content,
         });
       }
     } else if (targetEvaluatedCell.type !== "empty") {

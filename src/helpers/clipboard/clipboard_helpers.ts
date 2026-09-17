@@ -3,6 +3,7 @@ import {
   ClipboardCellData,
   ClipboardMIMEType,
   ClipboardOptions,
+  ClipboardPasteOptions,
   ClipboardPasteTarget,
   MinimalClipboardData,
   OSClipboardContent,
@@ -107,6 +108,30 @@ export function parseOSClipboardContent(content: OSClipboardContent): ParsedOSCl
  */
 export function getOSheetClipboardIdFromHTML(htmlContent: string | undefined): string | undefined {
   return htmlContent?.match(/<div data-osheet-clipboard-id=(['"])([^'"]+)\1/)?.[2];
+}
+
+/**
+ * "asValue" and "onlyFormula" restrict the pasted cell content and are mutually exclusive
+ * with each other (a cell can't be pasted both as a static value and as a live formula).
+ * "onlyFormat" only restricts whether the style/format is pasted (see {@link shouldPasteFormat})
+ * and can freely be combined with either of them, e.g. to paste the value together with the
+ * format, without the formula.
+ */
+export function shouldPasteContent(pasteOptions?: ClipboardPasteOptions[]): boolean {
+  if (!pasteOptions?.includes("onlyFormat")) {
+    return true;
+  }
+  return pasteOptions.includes("asValue") || pasteOptions.includes("onlyFormula");
+}
+
+/**
+ * See {@link shouldPasteContent}.
+ */
+export function shouldPasteFormat(pasteOptions?: ClipboardPasteOptions[]): boolean {
+  if (pasteOptions?.includes("onlyFormat")) {
+    return true;
+  }
+  return !(pasteOptions?.includes("asValue") || pasteOptions?.includes("onlyFormula"));
 }
 
 function getOSheetDataFromHTML(htmlDocument: Document) {

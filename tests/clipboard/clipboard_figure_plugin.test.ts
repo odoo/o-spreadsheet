@@ -237,7 +237,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
       const result = clipboardStore.isCommandValid({
         type: "PASTE",
         target: target("A1"),
-        pasteOption: "onlyFormat",
+        pasteOptions: ["onlyFormat"],
       });
       expect(result).toBeCancelledBecause(CommandResult.WrongFigurePasteOption);
     });

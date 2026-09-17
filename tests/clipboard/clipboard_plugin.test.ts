@@ -1351,7 +1351,7 @@ describe("clipboard", () => {
       const result = store.isCommandValid({
         type: "PASTE",
         target: target("C3"),
-        pasteOption: "onlyFormula",
+        pasteOptions: ["onlyFormula"],
       });
 
       expect(result).toBeCancelledBecause(CommandResult.WrongPasteOption);
@@ -1417,7 +1417,81 @@ describe("clipboard", () => {
       const result = store.isCommandValid({
         type: "PASTE",
         target: target("C3"),
-        pasteOption: "transpose",
+        pasteOptions: ["transpose"],
+      });
+
+      expect(result).toBeCancelledBecause(CommandResult.WrongPasteOption);
+    });
+  });
+
+  describe("combining several paste options at once", () => {
+    test("can paste formula only, transposed", () => {
+      ({ model, store } = makeStore(ClipboardStore));
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "=A1*10");
+      setCellContent(model, "B1", "5");
+      setFormatting(model, "A1", { bold: true });
+      copy(model, "A1:A2");
+      paste(model, "B2", "onlyFormula", "transpose");
+      expect(getCellText(model, "B2")).toBe("1");
+      expect(getCellText(model, "C2")).toBe("=B2*10");
+      // the style of the origin cell should not be copied, since only the formula was pasted
+      expect(getStyle(model, "B2")).toEqual({});
+    });
+
+    test("can paste as value, transposed", () => {
+      ({ model, store } = makeStore(ClipboardStore));
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "B1", "2");
+      copy(model, "A1:B1");
+      paste(model, "A3", "asValue", "transpose");
+      expect(getEvaluatedGrid(model, "A3:A4")).toEqual([["1"], ["2"]]);
+    });
+
+    test("can paste format only, transposed", () => {
+      ({ model, store } = makeStore(ClipboardStore));
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "B1", "2");
+      setFormatting(model, "A1", { bold: true });
+      copy(model, "A1:B1");
+      paste(model, "A3", "onlyFormat", "transpose");
+      expect(getStyle(model, "A3")).toEqual({ bold: true });
+      expect(getCellContent(model, "A3")).toBe("");
+      expect(getCellContent(model, "A4")).toBe("");
+    });
+
+    test("can paste the value together with the format, without the formula", () => {
+      ({ model, store } = makeStore(ClipboardStore));
+      setCellContent(model, "B2", "=SUM(1,2)");
+      setFormatting(model, "B2", { bold: true });
+
+      copy(model, "B2");
+      paste(model, "C3", "asValue", "onlyFormat");
+
+      expect(getCellContent(model, "C3")).toEqual("3");
+      expect(getStyle(model, "C3")).toEqual({ bold: true });
+    });
+
+    test("combining formula only and format only behaves like a normal paste", () => {
+      ({ model, store } = makeStore(ClipboardStore));
+      setCellContent(model, "B2", "=SUM(1,2)");
+      setFormatting(model, "B2", { bold: true });
+
+      copy(model, "B2");
+      paste(model, "C3", "onlyFormula", "onlyFormat");
+
+      expect(getCellText(model, "C3")).toEqual("=SUM(1,2)");
+      expect(getStyle(model, "C3")).toEqual({ bold: true });
+    });
+
+    test("cut and paste with several options is not allowed", () => {
+      ({ model, store } = makeStore(ClipboardStore));
+      setCellContent(model, "B2", "b2");
+      cut(model, "B2");
+      const result = store.isCommandValid({
+        type: "PASTE",
+        target: target("C3"),
+        pasteOptions: ["onlyFormula", "transpose"],
       });
 
       expect(result).toBeCancelledBecause(CommandResult.WrongPasteOption);
@@ -1623,7 +1697,7 @@ describe("clipboard", () => {
       const result = store.isCommandValid({
         type: "PASTE",
         target: target("C3"),
-        pasteOption: "asValue",
+        pasteOptions: ["asValue"],
       });
 
       expect(result).toBeCancelledBecause(CommandResult.WrongPasteOption);
@@ -1725,7 +1799,7 @@ describe("clipboard", () => {
     const result = store.isCommandValid({
       type: "PASTE",
       target: target("C3"),
-      pasteOption: "onlyFormat",
+      pasteOptions: ["onlyFormat"],
     });
     expect(result).toBeCancelledBecause(CommandResult.WrongPasteOption);
   });

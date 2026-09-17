@@ -31,7 +31,7 @@ export type ParsedOsClipboardContentWithImageData = ParsedOSClipboardContent & {
 
 export interface ClipboardOptions {
   isCutOperation: boolean;
-  pasteOption?: ClipboardPasteOptions;
+  pasteOptions?: ClipboardPasteOptions[];
   selectTarget?: boolean;
 }
 export type ClipboardPasteOptions = "onlyFormat" | "asValue" | "onlyFormula" | "transpose";

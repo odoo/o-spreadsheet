@@ -1,3 +1,4 @@
+import { shouldPasteFormat } from "../helpers/clipboard/clipboard_helpers";
 import { deepEquals, transpose } from "../helpers/misc";
 import { UuidGenerator } from "../helpers/uuid";
 import { positionToZone } from "../helpers/zones";
@@ -47,17 +48,16 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
 
   paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
     this.queuedChanges = {};
-    if (options.pasteOption === "asValue" || options.pasteOption === "onlyFormula") {
+    if (!shouldPasteFormat(options.pasteOptions)) {
       return;
     }
     const zones = target.zones;
     const sheetId = target.sheetId;
 
     if (!options.isCutOperation) {
-      const cfRules =
-        options.pasteOption === "transpose"
-          ? transpose(clippedContent.cfRules)
-          : clippedContent.cfRules;
+      const cfRules = options.pasteOptions?.includes("transpose")
+        ? transpose(clippedContent.cfRules)
+        : clippedContent.cfRules;
       this.pasteFromCopy(sheetId, zones, cfRules, options);
     } else {
       this.pasteFromCut(sheetId, zones, clippedContent);

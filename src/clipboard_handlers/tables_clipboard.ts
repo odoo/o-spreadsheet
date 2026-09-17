@@ -1,3 +1,4 @@
+import { shouldPasteFormat } from "../helpers/clipboard/clipboard_helpers";
 import { removeFalsyAttributes } from "../helpers/misc";
 import { isZoneInside, zoneToDimension } from "../helpers/zones";
 import {
@@ -192,7 +193,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     position: CellPosition,
     options?: ClipboardOptions
   ) {
-    if (tableCell.table && !options?.pasteOption) {
+    if (tableCell.table && !options?.pasteOptions) {
       const { range: tableRange } = tableCell.table;
       const zoneDims = zoneToDimension(this.getters.getRangeFromRangeData(tableRange).zone);
       const newTableZone = {
@@ -211,16 +212,12 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
 
     // We cannot check for dynamic tables, because at this point the paste can have changed the evaluation, and the
     // dynamic tables are not yet computed
-    if (
-      this.getters.getCoreTable(position) ||
-      options?.pasteOption === "asValue" ||
-      options?.pasteOption === "onlyFormula"
-    ) {
+    if (this.getters.getCoreTable(position) || !shouldPasteFormat(options?.pasteOptions)) {
       return;
     }
     if (
-      (!options?.pasteOption && !tableCell.isWholeTableCopied) ||
-      options?.pasteOption === "onlyFormat"
+      (!options?.pasteOptions && !tableCell.isWholeTableCopied) ||
+      options?.pasteOptions?.includes("onlyFormat")
     ) {
       if (tableCell.style?.style) {
         this.dispatch("UPDATE_CELL", { ...position, style: tableCell.style.style });

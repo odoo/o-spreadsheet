@@ -44,7 +44,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
 
   paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
     this.queuedChanges = {};
-    if (options.pasteOption) {
+    if (options.pasteOptions) {
       return;
     }
     const zones = target.zones;
