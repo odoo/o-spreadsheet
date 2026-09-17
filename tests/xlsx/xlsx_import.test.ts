@@ -15,7 +15,14 @@ import { PieChartDefinition } from "../../src/types/chart/pie_chart";
 import { ScatterChartDefinition } from "../../src/types/chart/scatter_chart";
 import { Image } from "../../src/types/image";
 import { SheetData, WorkbookData } from "../../src/types/workbook_data";
+<<<<<<< d87393f35b629ce993661f7b93a2ef80e51d4646
 import { XLSXSharedFormula } from "../../src/types/xlsx";
+||||||| 22411d51647d50bf92ed71c873648d18f15625a6
+import { XLSXCfOperatorType, XLSXSharedFormula } from "../../src/types/xlsx";
+=======
+import { XLSXCfOperatorType, XLSXSharedFormula } from "../../src/types/xlsx";
+import { isCompositeRange } from "../../src/xlsx/conversion";
+>>>>>>> f1540d96986dd29a93da776df1632abb9e9165b3
 import { hexaToInt } from "../../src/xlsx/conversion/color_conversion";
 import {
   BORDER_STYLE_CONVERSION_MAP,
@@ -962,6 +969,14 @@ describe("Import xlsx data", () => {
     expect(chartData.dataSetsHaveTitle).toBeFalsy();
   });
 
+  test("Composite ranges are dropped from chart definition", () => {
+    const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
+    const figure = testSheet.figures.find(
+      (figure) => figure.data.title.text === "chart with composite ranges"
+    )!;
+    expect(figure.data.labelRange).toEqual(undefined);
+  });
+
   test.each([
     ["chart", "A1:F19"],
     ["image", "H1:K20"],
@@ -1085,6 +1100,7 @@ test.each([
     expectedValue
   );
 });
+<<<<<<< d87393f35b629ce993661f7b93a2ef80e51d4646
 
 test.each([
   EXCEL_TEST_FILES_PATH.XLSM,
@@ -1098,3 +1114,20 @@ test.each([
 
   expect(convertedData.sheets[0].cells["A1"]).toEqual("Hello World !");
 });
+||||||| 22411d51647d50bf92ed71c873648d18f15625a6
+=======
+
+test.each([
+  ["A1", false],
+  ["Sheet1!A1", false],
+  ["A1:B2", false],
+  ["A1,B2", true],
+  ["(A1, B2)", true],
+  ["A1 B2", true],
+  ["(A1 B2)", true],
+  ["'Sheet with, comma'!A1", false],
+  ["('Sheet 1'!B11:C11,'Sheet 1'!A12:C12,'Sheet 1'!A13:C13)", true],
+])("isCompositeRange helper with string %s", (a: string, expected: boolean) => {
+  expect(isCompositeRange(a)).toBe(expected);
+});
+>>>>>>> f1540d96986dd29a93da776df1632abb9e9165b3
