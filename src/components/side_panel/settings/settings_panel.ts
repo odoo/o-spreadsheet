@@ -3,6 +3,7 @@ import { DAYS, formatValue } from "../../../helpers/format/format";
 import { getDateTimeFormat, isValidLocale } from "../../../helpers/locale";
 import { deepEquals } from "../../../helpers/misc";
 import { Component } from "../../../owl3_compatibility_layer";
+import { SELECTION_ANIMATION_CONFIG } from "../../../stores/selection_renderer_store";
 import { Locale, LocaleCode } from "../../../types/locale";
 import { ValueAndLabel } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -10,11 +11,12 @@ import { types } from "../../props_validation";
 import { Select } from "../../select/select";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { BadgeSelection } from "../components/badge_selection/badge_selection";
+import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 
 export class SettingsPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SettingsPanel";
-  static components = { Section, ValidationMessages, BadgeSelection, Select };
+  static components = { Section, ValidationMessages, BadgeSelection, Select, Checkbox };
 
   protected props = useProps({
     onCloseSidePanel: types.function(),
@@ -93,5 +95,26 @@ export class SettingsPanel extends Component<SpreadsheetChildEnv> {
 
   get selectOptions(): ValueAndLabel[] {
     return this.supportedLocales.map((locale) => ({ label: locale.name, value: locale.code }));
+  }
+
+  // ADRM TODO: selection animation debug knobs. To be removed.
+  get animationConfig() {
+    return SELECTION_ANIMATION_CONFIG;
+  }
+
+  onAnimationDurationChange(ev: Event) {
+    SELECTION_ANIMATION_CONFIG.duration = Number((ev.target as HTMLInputElement).value) || 0;
+  }
+
+  setDisableOnMouseMove(value: boolean) {
+    SELECTION_ANIMATION_CONFIG.disableOnMouseMove = value;
+  }
+
+  setDisableOnWholeColRow(value: boolean) {
+    SELECTION_ANIMATION_CONFIG.disableOnWholeColRow = value;
+  }
+
+  setDisableOnWholeSheet(value: boolean) {
+    SELECTION_ANIMATION_CONFIG.disableOnWholeSheet = value;
   }
 }

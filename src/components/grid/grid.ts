@@ -38,6 +38,7 @@ import { CheckboxToggleStore } from "../../stores/checkbox_toggle";
 import { ClientFocusStore } from "../../stores/client_focus_store";
 import { ClipboardStore } from "../../stores/clipboard_store";
 import { HighlightStore } from "../../stores/highlight_store";
+import { SelectionRendererStore } from "../../stores/selection_renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { CellValueType } from "../../types/cells";
@@ -159,6 +160,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
   private clientFocusStore!: Store<ClientFocusStore>;
   private checkboxToggleStore!: Store<CheckboxToggleStore>;
   private clipboardStore!: Store<ClipboardStore>;
+  private selectionRenderStore!: Store<SelectionRendererStore>;
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
@@ -186,6 +188,8 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     useStore(ArrayFormulaHighlight);
     this.automaticSumStore = useLocalStore(AutomaticSumStore);
     this.clipboardStore = useStore(ClipboardStore);
+    useStore(SelectionRendererStore);
+    this.selectionRenderStore = useStore(SelectionRendererStore);
 
     providePlugins([PopoverContainerPlugin], { getPopoverContainerRect: () => this.getGridRect() });
     useListener(document.body, "cut", this.copy.bind(this, true));
@@ -512,23 +516,6 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     };
   }
 
-  get isAutofillVisible(): boolean {
-    if (this.env.model.getters.isCurrentSheetLocked()) {
-      return false;
-    }
-    const zone = this.env.model.getters.getSelectedZone();
-    const rect = this.viewStore.viewports.getVisibleRect(
-      this.env.model.getters.getActiveSheetId(),
-      {
-        left: zone.right,
-        right: zone.right,
-        top: zone.bottom,
-        bottom: zone.bottom,
-      }
-    );
-    return !(rect.width === 0 || rect.height === 0);
-  }
-
   onGridResized() {
     const { height, width } = this.props.getGridSize();
     this.viewStore.resizeSheetView({
@@ -618,6 +605,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
       if ((col !== prevCol && col !== -1) || (row !== prevRow && row !== -1)) {
         prevCol = col === -1 ? prevCol : col;
         prevRow = row === -1 ? prevRow : row;
+        this.selectionRenderStore.disableAnimationForNextRender();
         this.env.model.selection.setAnchorCorner(prevCol, prevRow);
       }
     };
