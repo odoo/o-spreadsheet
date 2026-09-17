@@ -905,6 +905,18 @@ describe("UI of conditional formats", () => {
         expect(style.textDecoration).toBe("line-through");
       });
 
+      test("no color is selected in the text color picker when the rule has no text color", async () => {
+        await click(fixture, selectors.buttonAdd);
+
+        const textColorButton = `${selectors.editorPanel} .o-color-picker-button[title="Text Color"]`;
+        await click(fixture, textColorButton);
+        expect(".o-color-picker-line-item[data-color='#000000'] div").toHaveCount(0);
+
+        await click(fixture, ".o-color-picker-line-item[data-color='#000000']");
+        await click(fixture, textColorButton);
+        expect(".o-color-picker-line-item[data-color='#000000'] div").toHaveCount(1);
+      });
+
       test("can create a new CellIsRule", async () => {
         await click(fixture, selectors.buttonAdd);
         await nextTick();
