@@ -1,6 +1,6 @@
 {
   "name": "@odoo/o-spreadsheet",
-  "version": "19.5.0-alpha.20",
+  "version": "20.0.0",
   "description": "A spreadsheet component",
   "type": "module",
   "main": "dist/o_spreadsheet.cjs",
@@ -185,6 +185,6 @@
     ]
   },
   "publishConfig": {
-    "tag": "alpha"
+    "tag": "latest"
   }
 }
