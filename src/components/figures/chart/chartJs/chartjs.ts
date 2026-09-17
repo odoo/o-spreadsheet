@@ -20,7 +20,7 @@ import {
   getFunnelChartController,
   getFunnelChartElement,
 } from "./chartjs_funnel_chart";
-import { geoProjectionPlugin } from "./chartjs_geo_projection_plugin";
+import { geoChartPlugin } from "./chartjs_geo_plugin";
 import { chartMinorGridPlugin } from "./chartjs_minor_grid_plugin";
 import { chartShowValuesPlugin } from "./chartjs_show_values_plugin";
 import { sunburstHoverPlugin } from "./chartjs_sunburst_hover_plugin";
@@ -78,8 +78,8 @@ chartJsExtensionRegistry.add("chartBackgroundPlugin", {
   unregister: (Chart) => Chart.unregister(chartBackgroundPlugin),
 });
 chartJsExtensionRegistry.add("geoProjectionPlugin", {
-  register: (Chart) => Chart.register(geoProjectionPlugin),
-  unregister: (Chart) => Chart.unregister(geoProjectionPlugin),
+  register: (Chart) => Chart.register(geoChartPlugin),
+  unregister: (Chart) => Chart.unregister(geoChartPlugin),
 });
 
 export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
@@ -209,6 +209,7 @@ export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
         data: dataset.data,
         label: dataset.label,
         tree: dataset.tree,
+        labelsAndValues: dataset.labelsAndValues,
       })),
     };
   }
