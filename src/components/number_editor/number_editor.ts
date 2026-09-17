@@ -39,6 +39,12 @@ export class NumberEditor extends Component<SpreadsheetChildEnv> {
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
+  /**
+   * Skips the change event triggered when moving focus out of the input.
+   * The value has already been committed by `onInputKeydown`.
+   */
+  private skipNextInputChange = false;
+
   setup() {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
 
@@ -93,13 +99,20 @@ export class NumberEditor extends Component<SpreadsheetChildEnv> {
     this.dropdown.isOpen = false;
   }
 
-  private setValue(valueStr: string) {
-    const value = clip(Math.floor(parseFloat(valueStr)), this.props.min, this.props.max);
+  private setValue(valueStr: string): number | undefined {
+    const value = clip(Math.round(parseFloat(valueStr)), this.props.min, this.props.max);
+    if (isNaN(value)) {
+      return undefined;
+    }
     this.props.onValueChange(value);
     this.closeList();
+    return value;
   }
 
   setValueFromInput(ev: InputEvent) {
+    if (this.skipNextInputChange) {
+      return;
+    }
     this.setValue((ev.target as HTMLInputElement).value);
   }
 
@@ -117,21 +130,29 @@ export class NumberEditor extends Component<SpreadsheetChildEnv> {
   }
 
   onInputKeydown(ev: KeyboardEvent) {
-    if (ev.key === "Enter" || ev.key === "Escape") {
-      this.closeList();
-      const target = ev.target as HTMLInputElement;
-      // In the case of a ESCAPE key, we get the previous font size back
-      if (ev.key === "Escape") {
-        target.value = `${this.props.currentValue}`;
+    const target = ev.target as HTMLInputElement;
+    switch (ev.key) {
+      case "Enter":
+      case "Tab": {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const value = this.setValue(target.value);
+        if (value === undefined) {
+          return;
+        }
+        target.value = `${value}`;
+        break;
       }
-      this.props.onToggle?.();
+      case "Escape":
+        // In the case of a ESCAPE key, we get the previous value back
+        target.value = `${this.props.currentValue}`;
+        this.closeList();
+        break;
+      default:
+        return;
     }
-    if (ev.key === "Tab") {
-      ev.preventDefault();
-      ev.stopPropagation();
-      this.closeList();
-      this.DOMFocusableElementStore.focus();
-      return;
-    }
+    this.skipNextInputChange = true;
+    this.DOMFocusableElementStore.focus();
+    this.skipNextInputChange = false;
   }
 }
