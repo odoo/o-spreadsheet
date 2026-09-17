@@ -1,5 +1,5 @@
 import { Model } from "../../../../src";
-import { geoProjectionPlugin } from "../../../../src/components/figures/chart/chartJs/chartjs_geo_projection_plugin";
+import { geoChartPlugin } from "../../../../src/components/figures/chart/chartJs/chartjs_geo_plugin";
 import { deepCopy } from "../../../../src/helpers/misc";
 import { GeoChartRuntime } from "../../../../src/types/chart/geo_chart";
 import {
@@ -160,7 +160,7 @@ describe("Geo charts plugin tests", () => {
     }
 
     function applyChartGeoPlugin(mockChart: any, runtime: GeoChartRuntime) {
-      (geoProjectionPlugin.beforeUpdate as Function)(
+      (geoChartPlugin.beforeUpdate as Function)(
         mockChart,
         undefined,
         runtime.chartJsConfig.options?.plugins?.chartGeoPlugin

@@ -31,7 +31,7 @@ declare module "chartjs-chart-geo" {
  * This is important because Chart.js mutates the projection instance at runtime,
  * and a customize d3 projection object would not be copied during deepCopy.
  */
-export const geoProjectionPlugin: Plugin = {
+export const geoChartPlugin: Plugin = {
   id: "chartGeoPlugin",
   beforeUpdate(chart: any, args, options: PluginOptions) {
     if (chart.config.type !== "choropleth") {
