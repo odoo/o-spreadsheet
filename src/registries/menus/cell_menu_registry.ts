@@ -44,8 +44,8 @@ cellMenuRegistry
     sequence: 30,
     separator: true,
   })
-  .addChild("paste_transpose", ["paste_special"], {
-    ...ACTION_EDIT.pasteSpecialTranspose,
+  .addChild("special_paste_more", ["paste_special"], {
+    ...ACTION_EDIT.pasteSpecialMore,
     sequence: 40,
   })
   .add("data_analysis", {

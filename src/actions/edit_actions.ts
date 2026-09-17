@@ -78,6 +78,13 @@ export const pasteSpecialFormula: ActionSpec = {
   execute: ACTIONS.PASTE_FORMULA_ACTION,
 };
 
+export const pasteSpecialMore: ActionSpec = {
+  name: _t("More paste options"),
+  execute: (env) => {
+    env.openSidePanel("PasteSpecial", {});
+  },
+};
+
 export const pasteSpecialTranspose: ActionSpec = {
   name: _t("Paste transposed"),
   execute: ACTIONS.PASTE_TRANSPOSE_ACTION,

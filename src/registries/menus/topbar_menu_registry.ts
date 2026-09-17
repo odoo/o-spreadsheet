@@ -86,8 +86,8 @@ topbarMenuRegistry
     sequence: 30,
     separator: true,
   })
-  .addChild("paste_special_transpose", ["edit", "paste_special"], {
-    ...ACTION_EDIT.pasteSpecialTranspose,
+  .addChild("special_paste_more", ["edit", "paste_special"], {
+    ...ACTION_EDIT.pasteSpecialMore,
     sequence: 40,
   })
   .addChild("edit_table", ["edit"], {

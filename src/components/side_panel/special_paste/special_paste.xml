@@ -1,0 +1,20 @@
+<templates>
+  <t t-name="o-spreadsheet-SpecialPastePanel">
+    <Section>
+      <t t-set="value">Values</t>
+      <Checkbox value="false" label="value" onChange.bind="() => {}" className="'mb-1'"/>
+      <t t-set="format">Formats</t>
+      <Checkbox value="false" label="format" onChange.bind="() => {}" className="'mb-1'"/>
+      <t t-set="formula">Formulas</t>
+      <Checkbox value="false" label="formulaOnly" onChange.bind="() => {}" className="'mb-1'"/>
+      <t t-set="transpose">Transpose</t>
+      <Checkbox value="false" label="transpose" onChange.bind="() => {}" className="'mb-1'"/>
+    </Section>
+    <Section>
+      <div class="o-sidePanelButtons">
+        <button t-on-click="this.onCancel" class="o-cancel o-button">Discard</button>
+        <button t-on-click="this.onConfirm" class="o-confirm o-button primary">Confirm</button>
+      </div>
+    </Section>
+  </t>
+</templates>

@@ -16,6 +16,7 @@ import { PivotSidePanel } from "../components/side_panel/pivot/pivot_side_panel/
 import { RemoveDuplicatesPanel } from "../components/side_panel/remove_duplicates/remove_duplicates";
 import { SettingsPanel } from "../components/side_panel/settings/settings_panel";
 import { SidePanelState } from "../components/side_panel/side_panel/side_panel_store";
+import { SpecialPastePanel } from "../components/side_panel/special_paste/special_paste";
 import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns_panel/split_to_columns_panel";
 import { TablePanel } from "../components/side_panel/table_panel/table_panel";
 import { TableStyleEditorPanel } from "../components/side_panel/table_style_editor_panel/table_style_editor_panel";
@@ -222,4 +223,9 @@ sidePanelRegistry.add("NamedRangesPanel", {
 sidePanelRegistry.add("PerfProfile", {
   title: _t("Performance"),
   Body: PerfProfilePanel,
+});
+
+sidePanelRegistry.add("PasteSpecial", {
+  title: _t("Paste special"),
+  Body: SpecialPastePanel,
 });
