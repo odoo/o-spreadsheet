@@ -71,7 +71,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
   private shouldInvalidateCache: boolean = false;
 
   handlers = {
-    invalidateEvaluationCommands: this.invalidateAllPivots,
+    "*invalidateEvaluationCommands": this.invalidateAllPivots,
     UPDATE_CELL: this.invalidatePivotCache,
     DELETE_CONTENT: this.invalidateUnusedPivots,
     SET_FORMATTING: this.invalidateUnusedPivots,

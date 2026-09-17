@@ -482,20 +482,20 @@ export const localTypes = new Set<CommandTypes>([
 export const allCommands = new Set<CommandTypes>([...coreTypes, ...localTypes]);
 
 export const commandSets = {
-  invalidateEvaluationCommands,
-  invalidateChartEvaluationCommands,
-  invalidateDependenciesCommands,
-  invalidateCFEvaluationCommands,
-  invalidateTableStyleCommands,
-  invalidateBordersCommands,
-  invalidSubtotalFormulasCommands,
-  readonlyAllowedCommands,
-  lockedSheetAllowedCommands,
-  coreTypes,
-  localTypes,
-  dispatcheableEvaluationCommandTypes,
-  evaluationCommandTypes,
-  allCommands,
+  "*invalidateEvaluationCommands": invalidateEvaluationCommands,
+  "*invalidateChartEvaluationCommands": invalidateChartEvaluationCommands,
+  "*invalidateDependenciesCommands": invalidateDependenciesCommands,
+  "*invalidateCFEvaluationCommands": invalidateCFEvaluationCommands,
+  "*invalidateTableStyleCommands": invalidateTableStyleCommands,
+  "*invalidateBordersCommands": invalidateBordersCommands,
+  "*invalidSubtotalFormulasCommands": invalidSubtotalFormulasCommands,
+  "*readonlyAllowedCommands": readonlyAllowedCommands,
+  "*lockedSheetAllowedCommands": lockedSheetAllowedCommands,
+  "*coreTypes": coreTypes,
+  "*localTypes": localTypes,
+  "*dispatcheableEvaluationCommandTypes": dispatcheableEvaluationCommandTypes,
+  "*evaluationCommandTypes": evaluationCommandTypes,
+  "*allCommands": allCommands,
 } satisfies Record<string, Set<CommandTypes>>;
 
 export type CommandSetName = keyof typeof commandSets;
@@ -1750,7 +1750,7 @@ export interface CommandHandler<T extends Command> {
 
 export type SingleCommandHandler<C extends Command> = (cmd: C) => void;
 export type CommandsHandlers<T extends Command> = {
-  [C in CommandTypes]?: SingleCommandHandler<Extract<T, { type: C }>>;
+  [C in T["type"]]?: SingleCommandHandler<Extract<T, { type: C }>>;
 } & {
   [S in CommandSetName]?: SingleCommandHandler<T>;
 };

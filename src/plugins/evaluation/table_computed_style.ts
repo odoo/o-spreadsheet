@@ -26,8 +26,8 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
   handlers = {
     UPDATE_CELL: this.invalidateTableStyles,
     EVALUATE_CELLS: this.clearTableStyles,
-    invalidateEvaluationCommands: this.clearTableStyles,
-    invalidateTableStyleCommands: this.invalidateTableStylesOfCommand,
+    "*invalidateEvaluationCommands": this.clearTableStyles,
+    "*invalidateTableStyleCommands": this.invalidateTableStylesOfCommand,
   };
 
   private invalidateTableStylesOfCommand(cmd: EvaluationCommand) {

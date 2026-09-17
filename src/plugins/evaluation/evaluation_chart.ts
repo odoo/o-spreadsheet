@@ -30,9 +30,9 @@ export class EvaluationChartPlugin extends EvaluationPlugin<EvaluationChartState
     UPDATE_CHART: this.invalidateChartRuntime,
     CREATE_CHART: this.invalidateChartRuntime,
     DELETE_CHART: this.invalidateChartRuntime,
-    invalidateEvaluationCommands: this.invalidateChartRuntimes,
-    invalidateChartEvaluationCommands: this.invalidateChartRuntimes,
-    invalidateCFEvaluationCommands: this.invalidateChartRuntimes,
+    "*invalidateEvaluationCommands": this.invalidateChartRuntimes,
+    "*invalidateChartEvaluationCommands": this.invalidateChartRuntimes,
+    "*invalidateCFEvaluationCommands": this.invalidateChartRuntimes,
   };
 
   private invalidateChartRuntime(cmd: { chartId: UID }) {

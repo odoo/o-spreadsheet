@@ -20,7 +20,7 @@ export class BasePlugin<State = any, C extends Command = Command>
   implements CommandHandler<C>, Validator
 {
   static getters: readonly string[] = [];
-  readonly handlers: CommandsHandlers<Command> = {};
+  handlers: CommandsHandlers<C> = {};
 
   protected history: WorkbookHistory<State>;
 

@@ -159,7 +159,7 @@ describe("Model", () => {
     const receivedCommands: CommandTypes[] = [];
     class MyCorePlugin extends CorePlugin {
       handlers = {
-        allCommands: (cmd: CoreCommand) => {
+        "*allCommands": (cmd: CoreCommand) => {
           receivedCommands.push(cmd.type);
         },
       };
@@ -216,7 +216,7 @@ describe("Model", () => {
     const receivedCommands: CommandTypes[] = [];
     class MyEvaluationPlugin extends EvaluationPlugin {
       handlers = {
-        allCommands: (cmd: EvaluationCommand) => {
+        "*allCommands": (cmd: EvaluationCommand) => {
           receivedCommands.push(cmd.type);
         },
       };
@@ -239,7 +239,7 @@ describe("Model", () => {
     class MyEvaluationPlugin extends EvaluationPlugin {
       handlers = {
         UPDATE_CELL: (cmd: UpdateCellCommand) => handledBySpecificHandler.push(cmd.type),
-        allCommands: (cmd: EvaluationCommand) => {
+        "*allCommands": (cmd: EvaluationCommand) => {
           handledByCommandSetHandler.push(cmd.type);
         },
       };

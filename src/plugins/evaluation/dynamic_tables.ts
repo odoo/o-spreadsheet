@@ -45,7 +45,7 @@ export class DynamicTablesPlugin extends EvaluationPlugin {
     UPDATE_TABLE: this.clearTables,
     EVALUATE_CELLS: this.clearTables,
     REFRESH_PIVOT: this.clearTables,
-    invalidateEvaluationCommands: this.clearTables,
+    "*invalidateEvaluationCommands": this.clearTables,
   };
 
   private invalidateTables(cmd: UpdateCellCommand) {

@@ -208,7 +208,7 @@ describe("Data validation", () => {
     const commands: Command[] = [];
     class MyUIPlugin extends UIPlugin {
       handlers = {
-        allCommands: (cmd: AddDataValidationCommand) => commands.push(cmd),
+        "*allCommands": (cmd: AddDataValidationCommand) => commands.push(cmd),
       };
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
