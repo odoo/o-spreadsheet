@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-FindAndReplacePanel">
     <div class="o-find-and-replace">
       <Section title.translate="Search">
-        <div class="o-input-search-container">
+        <div class="o-input-search-container d-flex align-items-center">
           <input
             type="text"
             t-ref="searchInput"
