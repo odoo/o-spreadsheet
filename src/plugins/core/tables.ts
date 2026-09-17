@@ -515,6 +515,17 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
         return;
       case "NONE":
         return;
+      case "MOVE":
+        if (
+          this.getTablesOverlappingZones(sheetId, [tableRangeChange.range.zone]).filter(
+            (t) => t.id !== table.id
+          ).length
+        ) {
+          this.history.update("tables", sheetId, table.id, undefined);
+          return;
+        }
+        newTableRange = tableRangeChange.range;
+        break;
       default:
         newTableRange = tableRangeChange.range;
     }
