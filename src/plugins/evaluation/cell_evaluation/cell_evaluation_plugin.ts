@@ -170,13 +170,10 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
   private evaluator: Evaluator;
   private positionsToUpdate: CellPosition[] = [];
 
-  preHandlers = {
+  handlers = {
     "*allCommands": this.flagForceEvaluation,
     "*invalidateEvaluationCommands": this.flagRebuildDependenciesGraph,
     "*invalidateDependenciesCommands": this.flagRebuildDependenciesGraph,
-  };
-
-  handlers = {
     UPDATE_CELL: this.updateCell,
     EVALUATE_CELLS: this.onEvaluateCells,
     SET_AUTOMATIC_EVALUATION: this.setAutomaticEvaluation,
