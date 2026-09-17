@@ -23,6 +23,7 @@ import {
   ICON_SET_CONVERSION_MAP,
   V_ALIGNMENT_CONVERSION_MAP,
 } from "../../src/xlsx/conversion/conversion_maps";
+import { isCompositeRange } from "../../src/xlsx/conversion/figure_conversion";
 import { convertXlsxFormat } from "../../src/xlsx/conversion/format_conversion";
 import { adaptFormula } from "../../src/xlsx/conversion/formula_conversion";
 import { convertSheets } from "../../src/xlsx/conversion/sheet_conversion";
@@ -1009,6 +1010,14 @@ describe("Import xlsx data", () => {
     );
   });
 
+  test("Composite ranges are dropped from chart definition", () => {
+    const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
+    const figure = testSheet.figures.find(
+      (figure) => figure.data.title.text === "chart with composite ranges"
+    )!;
+    expect(figure.data.labelRange).toEqual(undefined);
+  });
+
   test.each([
     ["chart", "A1:F19"],
     ["image", "H1:K20"],
@@ -1332,4 +1341,18 @@ describe("applyLumModOff", () => {
   test("luminance is clamped to 0%", () => {
     expect(applyLumModOff("#000000", 0, 0)).toBe("#000000");
   });
+});
+
+test.each([
+  ["A1", false],
+  ["Sheet1!A1", false],
+  ["A1:B2", false],
+  ["A1,B2", true],
+  ["(A1, B2)", true],
+  ["A1 B2", true],
+  ["(A1 B2)", true],
+  ["'Sheet with, comma'!A1", false],
+  ["('Sheet 1'!B11:C11,'Sheet 1'!A12:C12,'Sheet 1'!A13:C13)", true],
+])("isCompositeRange helper with string %s", (a: string, expected: boolean) => {
+  expect(isCompositeRange(a)).toBe(expected);
 });
