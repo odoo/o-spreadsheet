@@ -24,10 +24,10 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
     REMOVE_DATA_VALIDATION_RULE: this.invalidateComputedStyles,
     ADD_DATA_VALIDATION_RULE: this.invalidateComputedStyles,
     EVALUATE_CELLS: this.invalidateComputedStyles,
-    invalidateEvaluationCommands: this.invalidateComputedStyles,
-    invalidateBordersCommands: this.invalidateComputedBorders,
-    invalidateCFEvaluationCommands: this.invalidateComputedCfStyles,
-    invalidateTableStyleCommands: this.invalidateTableComputedStyles,
+    "*invalidateEvaluationCommands": this.invalidateComputedStyles,
+    "*invalidateBordersCommands": this.invalidateComputedBorders,
+    "*invalidateCFEvaluationCommands": this.invalidateComputedCfStyles,
+    "*invalidateTableStyleCommands": this.invalidateTableComputedStyles,
   };
 
   private invalidateTableComputedStyles(cmd: EvaluationCommand) {

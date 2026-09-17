@@ -52,6 +52,7 @@ import {
   isCoreCommand,
   isDispatcheableEvaluationCommand,
   isEvaluationCommand,
+  localTypes,
   SingleCommandHandler,
 } from "./types/commands";
 import { CoreGetters, EvaluationGetters, Getters } from "./types/getters";
@@ -87,6 +88,11 @@ class CommandHandlerRegistryClass<T extends Command> implements CommandHandlerRe
   registerPlugin(plugin: CommandHandler<T>) {
     for (const key of Object.keys(plugin.handlers)) {
       const handler = plugin.handlers[key]?.bind(plugin);
+      if (!isCommandSetName(key) && !coreTypes.has(key as any) && !localTypes.has(key as any)) {
+        throw new Error(
+          `"${key}" is neither a command type nor a command set name (plugin ${plugin.constructor.name})`
+        );
+      }
       const commands = isCommandSetName(key)
         ? commandSets[key].keys().filter((commandType) => canHandleType(plugin, commandType))
         : [key as CommandTypes];

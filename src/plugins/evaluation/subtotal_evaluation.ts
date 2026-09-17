@@ -2,7 +2,7 @@ import { EvaluationPlugin } from "../evaluation_plugin";
 
 export class SubtotalEvaluationPlugin extends EvaluationPlugin {
   handlers = {
-    invalidSubtotalFormulasCommands: this.invalidateSubtotalFormulas,
+    "*invalidSubtotalFormulasCommands": this.invalidateSubtotalFormulas,
   };
 
   private invalidateSubtotalFormulas() {

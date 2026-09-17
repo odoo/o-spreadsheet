@@ -1954,7 +1954,7 @@ describe("clipboard", () => {
     const commands: Command[] = [];
     class MyUIPlugin extends UIPlugin {
       handlers = {
-        allCommands: (cmd: AddConditionalFormatCommand) => commands.push(cmd),
+        "*allCommands": (cmd: AddConditionalFormatCommand) => commands.push(cmd),
       };
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);

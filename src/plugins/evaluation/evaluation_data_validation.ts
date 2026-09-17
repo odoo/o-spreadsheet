@@ -57,7 +57,7 @@ export class EvaluationDataValidationPlugin extends EvaluationPlugin {
     REMOVE_DATA_VALIDATION_RULE: this.invalidateSheetValidationResults,
     ADD_DATA_VALIDATION_RULE: this.invalidateSheetValidationResults,
     EVALUATE_CELLS: this.clearValidationResults,
-    invalidateEvaluationCommands: this.clearValidationResults,
+    "*invalidateEvaluationCommands": this.clearValidationResults,
   };
 
   private clearValidationResults() {

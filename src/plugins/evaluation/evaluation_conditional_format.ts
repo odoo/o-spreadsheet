@@ -44,8 +44,8 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
 
   handlers = {
     UPDATE_CELL: this.invalidateConditionalFormats,
-    invalidateEvaluationCommands: this.markAsStale,
-    invalidateCFEvaluationCommands: this.markAsStale,
+    "*invalidateEvaluationCommands": this.markAsStale,
+    "*invalidateCFEvaluationCommands": this.markAsStale,
   };
 
   private markAsStale() {

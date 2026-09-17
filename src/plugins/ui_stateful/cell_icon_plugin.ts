@@ -14,7 +14,7 @@ export class CellIconPlugin extends UIPlugin {
   private cellIconsCache: Record<string, Record<number, Record<number, GridIcon[]>>> = {};
 
   handlers = {
-    allCommands: this.clearCellIconsCache,
+    "*allCommands": this.clearCellIconsCache,
   };
 
   private clearCellIconsCache() {
