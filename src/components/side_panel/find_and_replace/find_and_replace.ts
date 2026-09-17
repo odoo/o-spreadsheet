@@ -33,16 +33,14 @@ css/* scss */ `
       }
       .o-input-count {
         width: fit-content;
-        padding: 4px 0 4px 4px;
         white-space: nowrap;
       }
     }
 
     .o-result-buttons {
       .o-button {
-        height: 19px;
-        width: 19px;
-        box-sizing: content-box;
+        min-height: 23px;
+        width: 23px;
         .o-icon {
           height: 14px;
           width: 14px;
