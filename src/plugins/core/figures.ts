@@ -25,6 +25,10 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   } = {};
   readonly insertionOrders: UID[] = []; // TODO use a list in master
 
+  preHandlers = {
+    DELETE_SHEET: this.dispatchSheetFiguresDeletion,
+  };
+
   handlers = {
     UPDATE_FIGURE: this.updateFigure,
     CREATE_FIGURE: this.createFigure,
@@ -40,6 +44,12 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
       this.onColRemove(cmd.sheetId);
     } else {
       this.onRowRemove(cmd.sheetId);
+    }
+  }
+
+  private dispatchSheetFiguresDeletion(cmd: { sheetId: UID }) {
+    for (const figure of this.getters.getFigures(cmd.sheetId)) {
+      this.dispatch("DELETE_FIGURE", { figureId: figure.id, sheetId: cmd.sheetId });
     }
   }
 
@@ -141,16 +151,6 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
         return this.checkFigureExists(cmd);
       default:
         return CommandResult.Success;
-    }
-  }
-
-  beforeHandle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "DELETE_SHEET":
-        this.getters.getFigures(cmd.sheetId).forEach((figure) => {
-          this.dispatch("DELETE_FIGURE", { figureId: figure.id, sheetId: cmd.sheetId });
-        });
-        break;
     }
   }
 

@@ -20,6 +20,15 @@ export class BasePlugin<State = any, C extends Command = Command>
   implements CommandHandler<C>, Validator
 {
   static getters: readonly string[] = [];
+
+  /**
+   * Handlers called before any plugin handles the command. This is useful when a
+   * plugin needs to perform some action before a command is handled in another
+   * plugin. This should only be used if it is not possible to do the work in a
+   * regular handler.
+   */
+  preHandlers: CommandsHandlers<C> = {};
+
   handlers: CommandsHandlers<C> = {};
 
   protected history: WorkbookHistory<State>;
@@ -52,19 +61,6 @@ export class BasePlugin<State = any, C extends Command = Command>
   allowDispatch(command: C): CommandResult | CommandResult[] {
     return CommandResult.Success;
   }
-
-  /**
-   * This method is useful when a plugin needs to perform some action before a
-   * command is handled in another plugin. This should only be used if it is not
-   * possible to do the work in the handle method.
-   */
-  beforeHandle(command: C): void {}
-
-  /**
-   * This is the standard place to handle any command. Most of the plugin
-   * command handling work should take place here.
-   */
-  handle(command: C): void {}
 
   /**
    * Sometimes, it is useful to perform some work after a command (and all its
