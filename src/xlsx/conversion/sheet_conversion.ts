@@ -55,7 +55,7 @@ export function convertSheets(
       rows: convertRows(sheet, sheetDims[1], rowHeaderGroups),
       conditionalFormats: convertConditionalFormats(sheet.cfs, data.dxfs, warningManager),
       dataValidationRules: convertDataValidationRules(sheet.dataValidations, warningManager),
-      figures: convertFigures(sheet),
+      figures: convertFigures(sheet, warningManager),
       isVisible: sheet.isVisible,
       panes: sheetOptions
         ? { xSplit: sheetOptions.pane.xSplit, ySplit: sheetOptions.pane.ySplit }
