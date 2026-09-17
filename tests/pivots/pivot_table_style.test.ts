@@ -1,7 +1,7 @@
-import { EvaluationError, Model, Style, TableStyle, UID } from "../../src";
+import { Border, BorderDescr, EvaluationError, Model, Style, TableStyle, UID } from "../../src";
 import { PIVOT_TABLE_PRESETS } from "../../src/helpers/pivot_table_presets";
 import { getTables, hideColumns, hideRows, setCellContent } from "../test_helpers";
-import { getGridStyle, toCellPosition } from "../test_helpers/helpers";
+import { getGridBorders, getGridStyle, toCellPosition } from "../test_helpers/helpers";
 import { createModelWithPivot, updatePivot } from "../test_helpers/pivot_helpers";
 
 let model: Model;
@@ -332,6 +332,82 @@ describe("Pivot table style", () => {
     // prettier-ignore
     expect(getGridStyle(model)).toMatchObject({
       A28: firstColumnStripeStyle,  B28: {},  C28: secondColumnStripeStyle,  D28: firstColumnStripeStyle,
+    });
+  });
+
+  test("firstColumnStripe borders works on the last table column", () => {
+    const borderDescr: BorderDescr = { color: "#ff0", style: "thin" };
+    const leftAndRightBorder: Border = { left: borderDescr, right: borderDescr };
+    tableStyle.firstColumnStripe = { border: { left: borderDescr, right: borderDescr } };
+
+    updatePivot(model, "1", {
+      columns: [{ fieldName: "Active" }],
+      style: { tableStyleId: "TestStyle", bandedColumns: true },
+    });
+
+    expect(getGridBorders(model, "A27:D27")).toMatchObject({
+      A27: leftAndRightBorder, // firstColumnStripe
+      B27: leftAndRightBorder, // left border from col A, right border from col C
+      C27: leftAndRightBorder, // firstColumnStripe
+      D27: leftAndRightBorder, // left border from col C, right border from ghost firstColumnStripe right of the table
+    });
+  });
+
+  test("secondColumnStripe borders works on the first/last table column", () => {
+    const borderDescr: BorderDescr = { color: "#ff0", style: "thin" };
+    const leftAndRightBorder: Border = { left: borderDescr, right: borderDescr };
+    tableStyle.secondColumnStripe = { border: { left: borderDescr, right: borderDescr } };
+
+    updatePivot(model, "1", {
+      columns: [{ fieldName: "Active" }],
+      style: { tableStyleId: "TestStyle", bandedColumns: true },
+    });
+
+    hideColumns(model, ["B"]); // Hide a column to get an odd number of columns (last column does NOT have secondColumnStripe style)
+    expect(getGridBorders(model, "A27:D27")).toMatchObject({
+      A27: leftAndRightBorder, // left border from ghost secondColumnStripe left of the table, right border from col C
+      B27: null,
+      C27: leftAndRightBorder, // secondColumnStripe
+      D27: leftAndRightBorder, // left border from col C, right border from ghost secondColumnStripe right of the table
+    });
+  });
+
+  test("firstRowStripe borders works on the last table row", () => {
+    const borderDescr: BorderDescr = { color: "#ff0", style: "thin" };
+    const topAndBottomBorder: Border = { top: borderDescr, bottom: borderDescr };
+    tableStyle.firstRowStripe = { border: { top: borderDescr, bottom: borderDescr } };
+
+    setCellContent(model, "A25", "=PIVOT(1, , FALSE, FALSE, , FALSE)"); // Hide total row, column titles and measure titles
+    updatePivot(model, "1", {
+      rows: [{ fieldName: "Stage" }],
+      style: { tableStyleId: "TestStyle", bandedRows: true },
+    });
+
+    expect(getGridBorders(model, "A25:A28")).toMatchObject({
+      A25: topAndBottomBorder, // firstRowStripe
+      A26: topAndBottomBorder, // top border from row 25, bottom border from row 27
+      A27: topAndBottomBorder, // firstRowStripe
+      A28: topAndBottomBorder, // top border from row 27, bottom border from ghost firstRowStripe bottom of the table
+    });
+  });
+
+  test("secondRowStripe borders works on the first/last table row", () => {
+    const borderDescr: BorderDescr = { color: "#ff0", style: "thin" };
+    const topAndBottomBorder: Border = { top: borderDescr, bottom: borderDescr };
+    tableStyle.secondRowStripe = { border: { top: borderDescr, bottom: borderDescr } };
+
+    setCellContent(model, "A25", "=PIVOT(1, , FALSE, FALSE, , FALSE)"); // Hide total row, column titles and measure titles
+    updatePivot(model, "1", {
+      rows: [{ fieldName: "Stage" }],
+      style: { tableStyleId: "TestStyle", bandedRows: true },
+    });
+
+    hideRows(model, [25]); // Hide a row to get an odd number of rows (last row does NOT have secondRowStripe style)
+    expect(getGridBorders(model, "A25:A28")).toMatchObject({
+      A25: topAndBottomBorder, // top border from the first row, bottom border from row 27
+      A26: null,
+      A27: topAndBottomBorder, // secondRowStripe
+      A28: topAndBottomBorder, // top border from row 27, bottom border from ghost firstRowStripe bottom of the table
     });
   });
 
