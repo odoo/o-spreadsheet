@@ -14,7 +14,7 @@ export class ZoomStore {
   zoomLevel: number = DEFAULT_ZOOM;
 
   setZoom(zoom: number) {
-    if (zoom > MAX_ZOOM || zoom < MIN_ZOOM || zoom === this.zoomLevel) {
+    if (isNaN(zoom) || zoom > MAX_ZOOM || zoom < MIN_ZOOM || zoom === this.zoomLevel) {
       return "noStateChange";
     }
     this.zoomLevel = zoom;
