@@ -44,7 +44,7 @@ export class PositionSet {
   }
 
   has(position: CellPosition) {
-    return this.sheets[position.sheetId].getValue(position) === 1;
+    return this.sheets[position.sheetId]?.getValue(position) === 1;
   }
 
   clear(): CellPosition[] {

@@ -31,6 +31,11 @@ export interface ModelConfig {
   readonly snapshotRequested: boolean;
   readonly customColors: Color[];
   readonly colorScheme?: ColorThemeName;
+  /**
+   * Initial state of the automatic evaluation mode. When `false`, the model starts
+   * in manual evaluation mode: nothing is evaluated until decided otherwise.
+   */
+  readonly automaticEvaluation?: boolean;
 }
 
 export interface ModelExternalConfig {
