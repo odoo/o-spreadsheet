@@ -5,17 +5,16 @@ import { useStore } from "../../../store_engine/store_hooks";
 import type { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { EvaluatedCell } from "../../../types/cells";
 import { Link } from "../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { isMiddleClickOrCtrlClick } from "../../helpers/dom_helpers";
+import { OSComponent } from "../../os_component";
 import { CellPopoverStore } from "../../popover/cell_popover_store";
 
 import { useProps } from "@odoo/owl";
-import { Component } from "../../../owl3_compatibility_layer";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { types } from "../../props_validation";
 
-export class LinkDisplay extends Component<SpreadsheetChildEnv> {
+export class LinkDisplay extends OSComponent {
   static template = "o-spreadsheet-LinkDisplay";
 
   protected props = useProps({
@@ -52,7 +51,7 @@ export class LinkDisplay extends Component<SpreadsheetChildEnv> {
   }
 
   openLink(ev: MouseEvent) {
-    openLink(this.link, this.env, isMiddleClickOrCtrlClick(ev));
+    openLink(this.link, this.spEnv, isMiddleClickOrCtrlClick(ev));
   }
 
   edit() {

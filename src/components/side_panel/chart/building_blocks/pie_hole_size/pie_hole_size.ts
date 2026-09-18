@@ -1,12 +1,11 @@
 import { useProps } from "@odoo/owl";
 import { clip } from "../../../../../helpers/misc";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { NumberInput } from "../../../../number_input/number_input";
+import { OSComponent } from "../../../../os_component";
 import { Section } from "../../../components/section/section";
 
-import { Component } from "../../../../../owl3_compatibility_layer";
 import { types } from "../../../../props_validation";
-export class PieHoleSize extends Component<SpreadsheetChildEnv> {
+export class PieHoleSize extends OSComponent {
   static template = "o-spreadsheet.PieHoleSize";
   static components = { Section, NumberInput };
 

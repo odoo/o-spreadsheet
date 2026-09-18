@@ -1,12 +1,13 @@
 import { Model, PivotCustomGroup, SortDirection, SpreadsheetPivotTable } from "../../src";
 import { Action } from "../../src/actions/action";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { getPivotTooBigErrorMessage } from "../../src/components/translations_terms";
 import { PIVOT_INSERT_TABLE_STYLE_ID } from "../../src/constants";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   createSheet,
   createTable,
@@ -30,6 +31,7 @@ import {
   doAction,
   getNode,
   makeTestEnv,
+  mockNotificationMethods,
   setGrid,
 } from "../test_helpers/helpers";
 import {
@@ -45,7 +47,7 @@ const insertPivotPath = ["insert", "insert_pivot"];
 
 describe("Pivot properties menu item", () => {
   let model: Model;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
 
   beforeEach(async () => {
     env = makeTestEnv();
@@ -86,7 +88,8 @@ describe("Pivot properties menu item", () => {
     selectCell(model, "A1");
     addPivot(model, "M1:N1", {}, "1");
     setCellContent(model, "A1", `=PIVOT("1")`);
-    const openSidePanel = jest.spyOn(env, "openSidePanel");
+    const sidePanelStore = env.getStore(SidePanelStore);
+    const openSidePanel = jest.spyOn(sidePanelStore, "open");
     cellMenuRegistry.get("pivot_properties").execute!(env);
     expect(openSidePanel).toHaveBeenCalledWith("PivotSidePanel", { pivotId: "1" });
   });
@@ -96,7 +99,8 @@ describe("Pivot properties menu item", () => {
     addPivot(model, "M1:N1", {}, "1");
     addPivot(model, "M1:N1", {}, "2");
     setCellContent(model, "A1", `=PIVOT("1") + PIVOT("2")`);
-    const openSidePanel = jest.spyOn(env, "openSidePanel");
+    const sidePanelStore = env.getStore(SidePanelStore);
+    const openSidePanel = jest.spyOn(sidePanelStore, "open");
     cellMenuRegistry.get("pivot_properties").execute!(env);
     expect(openSidePanel).toHaveBeenCalledWith("PivotSidePanel", { pivotId: "1" });
   });
@@ -541,7 +545,8 @@ describe("Pivot reinsertion menu item", () => {
       addPivot(model, "A1:B2", {});
 
       const notifyUser = jest.fn();
-      const env = makeTestEnv({ model, notifyUser });
+      const env = makeTestEnv({ model });
+      mockNotificationMethods(env.getPlugin, { notifyUser });
       jest.spyOn(SpreadsheetPivotTable.prototype, "numberOfCells", "get").mockReturnValue(1000000);
 
       await doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
@@ -642,7 +647,7 @@ describe("Pivot reinsertion menu item", () => {
 
 describe("Pivot sorting menu item", () => {
   let model: Model;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
   let sortAction: Action;
 
   async function sortPivot(order: SortDirection | "none") {
@@ -777,14 +782,12 @@ describe("Pivot sorting menu item", () => {
 describe("Pivot (un)grouping menu items", () => {
   let model: Model;
   let pivotId: string;
-  let env: SpreadsheetChildEnv;
-  let openSidePanel: jest.Mock;
+  let env: SpreadsheetActionEnv;
 
   beforeEach(() => {
     model = createModelWithPivot("A1:I22");
-    openSidePanel = jest.fn();
 
-    env = makeTestEnv({ model, openSidePanel });
+    env = makeTestEnv({ model });
     pivotId = model.getters.getPivotIds()[0];
     updatePivot(model, pivotId, {
       rows: [],
@@ -1163,7 +1166,7 @@ describe("Pivot (un)grouping menu items", () => {
 describe("Pivot (un)collapse menu items", () => {
   let model: Model;
   let pivotId: string;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
 
   beforeEach(() => {
     model = createModelWithPivot("A1:I22");

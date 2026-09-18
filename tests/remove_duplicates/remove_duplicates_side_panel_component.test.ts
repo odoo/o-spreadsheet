@@ -1,4 +1,5 @@
 import { Model, Spreadsheet } from "../../src";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { toZone } from "../../src/helpers/zones";
 import { click, merge, setCellContent, setSelection } from "../test_helpers";
 import { getRangeValuesAsMatrix, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
@@ -22,7 +23,7 @@ describe("remove duplicates", () => {
   beforeEach(async () => {
     ({ parent, model, fixture } = await mountSpreadsheet());
 
-    parent.env.openSidePanel("RemoveDuplicates");
+    parent.env.getStore(SidePanelStore).open("RemoveDuplicates");
     await nextTick();
   });
 
@@ -88,7 +89,7 @@ describe("remove duplicates", () => {
 
     model = new Model({ sheets: [{ cells }] });
     ({ parent, fixture } = await mountSpreadsheet({ model }));
-    parent.env.openSidePanel("RemoveDuplicates");
+    parent.env.getStore(SidePanelStore).open("RemoveDuplicates");
     await nextTick();
     setSelection(model, ["A1:A5"]);
     await click(fixture, selectors.checkBoxHasHeaderRow);
@@ -211,7 +212,7 @@ describe("remove duplicates", () => {
     model = new Model({ sheets: [{ cells }] });
     ({ parent, fixture } = await mountSpreadsheet({ model }));
     setSelection(model, ["B1:B2"]);
-    parent.env.openSidePanel("RemoveDuplicates");
+    parent.env.getStore(SidePanelStore).open("RemoveDuplicates");
     await nextTick();
 
     let errors = fixture.querySelectorAll(selectors.sidePanelError);

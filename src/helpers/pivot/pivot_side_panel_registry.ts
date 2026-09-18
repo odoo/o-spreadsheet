@@ -1,9 +1,9 @@
 import { PivotSpreadsheetSidePanel } from "../../components/side_panel/pivot/pivot_side_panel/pivot_spreadsheet_side_panel/pivot_spreadsheet_side_panel";
 import { Registry } from "../../registries/registry";
 
-import { Component } from "../../owl3_compatibility_layer";
+import { ComponentConstructor } from "@odoo/owl";
 export interface PivotRegistryItem {
-  editor: new (...args: any) => Component;
+  editor: ComponentConstructor;
 }
 
 export const pivotSidePanelRegistry = new Registry<PivotRegistryItem>();

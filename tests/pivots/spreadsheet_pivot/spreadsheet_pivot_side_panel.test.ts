@@ -1,4 +1,5 @@
 import { Model, PivotSortedColumn, SpreadsheetPivotTable } from "../../../src";
+import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
 import { getPivotTooBigErrorMessage } from "../../../src/components/translations_terms";
 import {
@@ -10,10 +11,10 @@ import { toXC } from "../../../src/helpers/coordinates";
 import { datetimeGranularities } from "../../../src/helpers/pivot/pivot_registry";
 import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { toZone } from "../../../src/helpers/zones";
+import { NotificationPlugin } from "../../../src/owl_plugins/notification_owl_plugin";
 import { topbarMenuRegistry } from "../../../src/registries/menus/topbar_menu_registry";
-import { NotificationStore } from "../../../src/stores/notification_store";
 import { ViewportsStore } from "../../../src/stores/viewports_store";
-import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
+import { OwlPluginGetter, SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import {
   activateSheet,
   createSheet,
@@ -35,6 +36,7 @@ import { getCellText, getEvaluatedCell, getTable } from "../../test_helpers/gett
 import {
   doAction,
   editStandaloneComposer,
+  mockNotificationMethods,
   mountComponentWithPortalTarget,
   nextTick,
   setGrid,
@@ -45,14 +47,17 @@ import { SELECTORS, addPivot, updatePivot } from "../../test_helpers/pivot_helpe
 describe("Spreadsheet pivot side panel", () => {
   let model: Model;
   let fixture: HTMLElement;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
+  let getPlugin: OwlPluginGetter;
   let notifyUser: jest.Mock;
 
   beforeEach(async () => {
     notifyUser = jest.fn();
-    ({ env, model, fixture } = await mountComponentWithPortalTarget(SidePanels, {
-      env: { notifyUser },
+    ({ env, model, fixture, getPlugin } = await mountComponentWithPortalTarget(SidePanels, {
+      providedPlugins: [NotificationPlugin],
     }));
+    mockNotificationMethods(getPlugin, { notifyUser });
+
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Product", C1: "Amount",
@@ -62,7 +67,7 @@ describe("Spreadsheet pivot side panel", () => {
     setGrid(model, grid);
 
     addPivot(model, "A1:C3", {}, "1");
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
   });
 
@@ -97,7 +102,7 @@ describe("Spreadsheet pivot side panel", () => {
     setCellContent(model, "A2", "10");
     setCellContent(model, "A3", "20");
     addPivot(model, "A1:A3", {}, "3");
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     await click(fixture.querySelector(".pivot-defer-update input")!);
     await click(fixture.querySelector(".add-dimension")!);
@@ -115,7 +120,7 @@ describe("Spreadsheet pivot side panel", () => {
     setCellContent(model, "A2", "Anubis");
     setCellContent(model, "A3", "Teal'c");
     addPivot(model, "A1:A3", {}, "3");
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     await click(fixture.querySelectorAll(".add-dimension")[2]);
     expect(fixture.querySelector(".o-popover")).toBeDefined();
@@ -135,7 +140,7 @@ describe("Spreadsheet pivot side panel", () => {
     setCellContent(model, "A2", "10");
     setCellContent(model, "A3", "20");
     addPivot(model, "A1:A3", {}, "3");
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     await click(fixture.querySelectorAll(".add-dimension")[2]);
     expect(fixture.querySelector(".o-popover")).toBeDefined();
@@ -171,7 +176,7 @@ describe("Spreadsheet pivot side panel", () => {
     setCellContent(model, "A2", "10");
     setCellContent(model, "A3", "20");
     addPivot(model, "A1:A3", {}, "3");
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     await click(fixture.querySelectorAll(".add-dimension")[2]);
     expect(fixture.querySelector(".o-popover")).toBeDefined();
@@ -204,7 +209,7 @@ describe("Spreadsheet pivot side panel", () => {
     setCellContent(model, "A3", "20");
     addPivot(model, "A1:A3", {}, "3");
     const sheetId = model.getters.getActiveSheetId();
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     await click(fixture.querySelectorAll(".add-dimension")[2]);
     await click(fixture, ".add-calculated-measure");
@@ -227,7 +232,7 @@ describe("Spreadsheet pivot side panel", () => {
     const sheet1Id = model.getters.getActiveSheetId();
     const sheet2Id = "sheet2";
     createSheet(model, { sheetId: sheet2Id });
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     await click(fixture.querySelectorAll(".add-dimension")[2]);
     expect(fixture.querySelector(".o-popover")).toBeDefined();
@@ -251,7 +256,7 @@ describe("Spreadsheet pivot side panel", () => {
     activateSheet(model, sheet2Id);
     // close the side panel and reopen it while the second sheet is active
     await click(fixture.querySelector(".o-sidePanelClose")!);
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     expect(fixture.querySelector(".pivot-dimension .o-composer")?.textContent).toEqual(
       "=Sheet1!A1+Sheet2!A1"
@@ -260,7 +265,7 @@ describe("Spreadsheet pivot side panel", () => {
     // reopen in the original sheet
     await click(fixture.querySelector(".o-sidePanelClose")!);
     activateSheet(model, sheet1Id);
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     expect(fixture.querySelector(".pivot-dimension .o-composer")?.textContent).toEqual(
       "=A1+Sheet2!A1"
@@ -282,7 +287,7 @@ describe("Spreadsheet pivot side panel", () => {
       },
       "3"
     );
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     await click(fixture.querySelectorAll(".add-dimension")[2]);
     expect(fixture.querySelector(".o-popover")).toBeDefined();
@@ -424,7 +429,7 @@ describe("Spreadsheet pivot side panel", () => {
     setCellContent(model, "A2", "10");
     setCellContent(model, "A3", "20");
     addPivot(model, "A1:A3", {}, "3");
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     await click(fixture.querySelector(".add-dimension")!);
     expect(fixture.querySelector(".o-popover")).toBeDefined();
@@ -473,7 +478,7 @@ describe("Spreadsheet pivot side panel", () => {
     setCellContent(model, "F1", "text");
     setCellContent(model, "F2", "hi");
     addPivot(model, "A1:F2", {}, "3");
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
     const measures = [...fixture.querySelectorAll(".o-autocomplete-value")].map(
@@ -492,7 +497,7 @@ describe("Spreadsheet pivot side panel", () => {
     expect(model.getters.getPivotCoreDefinition(pivotId).deferUpdates).toBeTruthy();
 
     await click(fixture, ".o-sidePanelClose");
-    env.openSidePanel("PivotSidePanel", { pivotId });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId });
     await nextTick();
     expect(".pivot-defer-update input").toHaveValue(true);
   });
@@ -503,7 +508,7 @@ describe("Spreadsheet pivot side panel", () => {
     setCellContent(model, "B1", "person");
     setCellContent(model, "B2", "Alice");
     addPivot(model, "A1:B2", {}, "3");
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "3" });
     await nextTick();
 
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
@@ -526,7 +531,7 @@ describe("Spreadsheet pivot side panel", () => {
     setCellContent(model, "B1", "duration");
     setCellContent(model, "B2", "01:30:00");
     addPivot(model, "A1:B2", {}, "3");
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
@@ -553,7 +558,7 @@ describe("Spreadsheet pivot side panel", () => {
     setCellContent(model, "B1", "birthdate");
     setCellContent(model, "B2", "1995/12/15");
     addPivot(model, "A1:B2", {}, "3");
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
@@ -694,7 +699,7 @@ describe("Spreadsheet pivot side panel", () => {
     setCellContent(model, "B1", "person");
     setCellContent(model, "B2", "Alice");
     addPivot(model, "A1:B2", {}, "3");
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "3" });
     await nextTick();
 
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
@@ -720,7 +725,7 @@ describe("Spreadsheet pivot side panel", () => {
       },
       "3"
     );
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "3" });
     await nextTick();
 
     const input = fixture.querySelector(".pivot-measure input") as HTMLInputElement;
@@ -741,10 +746,7 @@ describe("Spreadsheet pivot side panel", () => {
   test("notify when no dynamic pivot is visible", async () => {
     setCellContent(model, "A4", "=PIVOT(1)");
     const mockNotify = jest.fn();
-    const notificationStore = env.getStore(NotificationStore);
-    notificationStore.updateNotificationCallbacks({
-      notifyUser: mockNotify,
-    });
+    mockNotificationMethods(getPlugin, { notifyUser: mockNotify });
 
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
@@ -773,10 +775,7 @@ describe("Spreadsheet pivot side panel", () => {
 
   test("notification should not be triggered when the pivot opened in the side panel differs from the pivots visible in the viewport.", async () => {
     const mockNotify = jest.fn();
-    const notificationStore = env.getStore(NotificationStore);
-    notificationStore.updateNotificationCallbacks({
-      notifyUser: mockNotify,
-    });
+    mockNotificationMethods(getPlugin, { notifyUser: mockNotify });
     const pivotData = { measures: [{ id: "amount:sum", fieldName: "amount", aggregator: "sum" }] };
     addPivot(model, "B1:B2", pivotData, "2");
     // insert the first pivot as static pivot in a new empty sheet
@@ -784,7 +783,7 @@ describe("Spreadsheet pivot side panel", () => {
     createSheet(model, { sheetId: sheet2Id, activate: true });
     const reinsertStaticPivotPath = ["data", "reinsert_static_pivot", "reinsert_static_pivot_1"];
     await doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
-    env.openSidePanel("PivotSidePanel", { pivotId: "2" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "2" });
     await nextTick();
     // update the pivot
     await click(fixture.querySelector(".pivot-measure [data-icon='visibility_f']")!);
@@ -803,7 +802,7 @@ describe("Spreadsheet pivot side panel", () => {
       },
       "2"
     );
-    env.openSidePanel("PivotSidePanel", { pivotId: "2" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "2" });
     await nextTick();
     const pivotDimensionEls = fixture.querySelectorAll<HTMLElement>(".pivot-dimension")!;
     const validDimensionEl = pivotDimensionEls[0];
@@ -834,7 +833,7 @@ describe("Spreadsheet pivot side panel", () => {
       },
       "3"
     );
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "3" });
     await nextTick();
 
     const input = fixture.querySelector(".pivot-measure input") as HTMLInputElement;
@@ -862,7 +861,7 @@ describe("Spreadsheet pivot side panel", () => {
       },
       "3"
     );
-    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     await click(fixture.querySelector(".pivot-measure [data-icon='visibility_f']")!);
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
@@ -930,7 +929,7 @@ describe("Spreadsheet pivot side panel", () => {
     addPivot(model, "A1:A2", {
       columns: [{ fieldName: "ValidDimension" }, { fieldName: "ValidDimension" }],
     });
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     expect(1).toBe(1);
   });
@@ -953,7 +952,7 @@ describe("Spreadsheet pivot side panel", () => {
         },
         "2"
       );
-      env.openSidePanel("PivotSidePanel", { pivotId: "2" });
+      env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "2" });
       await nextTick();
     });
 
@@ -965,7 +964,7 @@ describe("Spreadsheet pivot side panel", () => {
 
     test("Does not display sorting for pivot with no sorting or invalid sorting ", async () => {
       updatePivot(model, "2", { sortedColumn: undefined });
-      env.openSidePanel("PivotSidePanel", { pivotId: "2" });
+      env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "2" });
       await nextTick();
       expect(".o-sidePanel .o-pivot-sort").toHaveCount(0);
 
@@ -1010,7 +1009,7 @@ describe("Spreadsheet pivot side panel", () => {
 
   test("Trying to load a very big pivot will raise an error message", async () => {
     setCellContent(model, "G1", "=PIVOT(1)");
-    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();
 
     jest.spyOn(SpreadsheetPivotTable.prototype, "numberOfCells", "get").mockReturnValue(1000000);

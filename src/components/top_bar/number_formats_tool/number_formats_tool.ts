@@ -1,13 +1,12 @@
 import { proxy, signal, useProps } from "@odoo/owl";
 import { Action, createAction } from "../../../actions/action";
-import { Component } from "../../../owl3_compatibility_layer";
 import { formatNumberMenuItemSpec } from "../../../registries/menus/number_format_menu_registry";
 import { Rect } from "../../../types/rendering";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ActionButton } from "../../action_button/action_button";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 import { MenuPopover } from "../../menu_popover/menu_popover";
+import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 
 interface State {
@@ -15,7 +14,7 @@ interface State {
   anchorRect: Rect;
 }
 
-export class NumberFormatsTool extends Component<SpreadsheetChildEnv> {
+export class NumberFormatsTool extends OSComponent {
   static template = "o-spreadsheet-NumberFormatsTool";
   static components = { MenuPopover, ActionButton };
 
@@ -38,7 +37,7 @@ export class NumberFormatsTool extends Component<SpreadsheetChildEnv> {
       this.topBarToolStore.closeDropdowns();
     } else {
       const menu = createAction(this.formatNumberMenuItemSpec);
-      this.state.menuItems = menu.children(this.env).sort((a, b) => a.sequence - b.sequence);
+      this.state.menuItems = menu.children(this.spEnv).sort((a, b) => a.sequence - b.sequence);
       this.state.anchorRect = getBoundingRectAsPOJO(this.buttonRef()!);
       this.topBarToolStore.openDropdown();
     }

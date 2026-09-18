@@ -9,13 +9,14 @@ import {
   PixelDimension,
   UID,
 } from "../../src";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { FIRST_CHART_COLOR, toHex } from "../../src/helpers/color";
 import {
   areChartJSExtensionsLoaded,
   registerChartJSExtensions,
 } from "../../src/helpers/figures/charts/chart_js_extension";
 import { deepCopy, range } from "../../src/helpers/misc";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { selectFigure } from "./commands_helpers";
 import { click, simulateClick } from "./dom_helper";
 import { nextTick } from "./helpers";
@@ -101,7 +102,7 @@ export function toChartDataSource(args: ChartDataInput): ChartDataOutput {
 
 export async function openChartConfigSidePanel(
   model: Model,
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   chartId: UID
 ) {
   const figureId = model.getters.getFigureIdFromChartId(chartId);
@@ -109,13 +110,13 @@ export async function openChartConfigSidePanel(
     throw new Error(`No figure found for chart ID: ${chartId}`);
   }
   selectFigure(model, figureId);
-  env.openSidePanel("ChartPanel");
+  env.getStore(SidePanelStore).open("ChartPanel");
   await nextTick();
 }
 
 export async function openChartDesignSidePanel(
   model: Model,
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   fixture: HTMLElement,
   chartId: UID
 ) {

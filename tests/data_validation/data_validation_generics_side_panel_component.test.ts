@@ -1,6 +1,7 @@
 import { DataValidationCriterion, DataValidationCriterionType, Model, UID } from "../../src";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   activateSheet,
   addDataValidation,
@@ -30,13 +31,13 @@ extendMockGetBoundingClientRect({
 describe("data validation sidePanel component", () => {
   let model: Model;
   let sheetId: UID;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
   let fixture: HTMLElement;
 
   beforeEach(async () => {
     ({ model, env, fixture } = await mountComponentWithPortalTarget(SidePanels));
     sheetId = model.getters.getActiveSheetId();
-    env.openSidePanel("DataValidation", {});
+    env.getStore(SidePanelStore).open("DataValidation", {});
     await nextTick();
   });
 

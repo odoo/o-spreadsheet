@@ -1,8 +1,9 @@
 import { Model, UID } from "../../../src";
 import { PivotMeasureDisplayPanel } from "../../../src/components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel";
+import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
 import { toZone } from "../../../src/helpers/zones";
 import { PivotCoreMeasure, PREVIOUS_VALUE } from "../../../src/types/pivot";
-import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import { setCellContent, setFormat } from "../../test_helpers";
 import { click, editSelectComponent } from "../../test_helpers/dom_helper";
 import {
@@ -17,25 +18,25 @@ const pivotId: UID = "pivotId";
 const measureId: UID = "m1";
 let sheetId: UID;
 let fixture: HTMLElement;
-let replaceSidePanelSpy: jest.Mock;
-let env: SpreadsheetChildEnv;
+let replaceSidePanelSpy: jest.SpyInstance;
+let env: SpreadsheetActionEnv;
 
 function getPivotMeasures() {
   return model.getters.getPivotCoreDefinition(pivotId).measures;
 }
 
 describe("Standalone side panel tests", () => {
-  replaceSidePanelSpy = jest.fn();
   async function mountPanel(measure?: PivotCoreMeasure) {
-    ({ fixture } = await mountComponentWithPortalTarget(PivotMeasureDisplayPanel, {
+    ({ env, fixture } = await mountComponentWithPortalTarget(PivotMeasureDisplayPanel, {
       model,
-      env: { replaceSidePanel: replaceSidePanelSpy },
       props: {
         onCloseSidePanel: () => {},
         pivotId: pivotId,
         measure: measure || { fieldName: "TestMeasure", aggregator: "count", id: measureId },
       },
     }));
+    const sidePanelStore = env.getStore(SidePanelStore);
+    replaceSidePanelSpy = jest.spyOn(sidePanelStore, "replace");
   }
 
   beforeEach(() => {
@@ -263,7 +264,9 @@ describe("Integration test", () => {
       pivotId
     );
     const pivot = model.getters.getPivot(pivotId);
-    env.openSidePanel("PivotMeasureDisplayPanel", { pivotId, measure: pivot.getMeasure("m1") });
+    env
+      .getStore(SidePanelStore)
+      .open("PivotMeasureDisplayPanel", { pivotId, measure: pivot.getMeasure("m1") });
     await nextTick();
   });
 

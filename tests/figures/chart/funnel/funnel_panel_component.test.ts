@@ -1,6 +1,6 @@
 import { Model } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
-import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../../src/types/spreadsheet_env";
 import {
   click,
   createFunnelChart,
@@ -19,7 +19,7 @@ import { mountComponentWithPortalTarget } from "../../../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 describe("Funnel chart side panel", () => {
   beforeEach(async () => {

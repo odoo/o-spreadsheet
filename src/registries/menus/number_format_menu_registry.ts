@@ -1,10 +1,10 @@
 import { ActionSpec } from "../../actions/action";
 import * as ACTION_FORMAT from "../../actions/format_actions";
-import { isDateTimeFormat } from "../../helpers/format/format";
+import { EXAMPLE_DATE, isDateTimeFormat } from "../../helpers/format/format";
 import { memoize } from "../../helpers/misc";
 import { _t } from "../../translation";
 import { Format } from "../../types/format";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
 import { Registry } from "../registry";
 
 export const numberFormatMenuRegistry = new Registry<ACTION_FORMAT.NumberFormatActionSpec>();
@@ -92,7 +92,7 @@ numberFormatMenuRegistry
   });
 
 export function getCustomNumberFormats(
-  env: SpreadsheetChildEnv
+  env: SpreadsheetActionEnv
 ): ACTION_FORMAT.NumberFormatActionSpec[] {
   const defaultFormats = new Set(
     numberFormatMenuRegistry
@@ -112,7 +112,7 @@ export function getCustomNumberFormats(
           customFormats.set(
             cell.format,
             ACTION_FORMAT.createFormatActionSpec({
-              descriptionValue: formatType === "currency" ? 1000 : ACTION_FORMAT.EXAMPLE_DATE,
+              descriptionValue: formatType === "currency" ? 1000 : EXAMPLE_DATE,
               format: cell.format,
               name: cell.format,
             })

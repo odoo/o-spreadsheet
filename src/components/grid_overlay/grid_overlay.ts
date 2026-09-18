@@ -3,7 +3,6 @@ import { FOOTER_HEIGHT } from "../../constants";
 import { deepEquals } from "../../helpers/misc";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { positionToZone } from "../../helpers/zones";
-import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -18,6 +17,7 @@ import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect, isChildEvent, isCtrlKey } from "../helpers/dom_helpers";
 import { useInterval } from "../helpers/time_hooks";
 import { ZoomedMouseEvent } from "../helpers/zoom";
+import { OSComponent } from "../os_component";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { types } from "../props_validation";
@@ -141,7 +141,7 @@ function useCellHovered(
   return hoveredPosition;
 }
 
-export class GridOverlay extends Component<SpreadsheetChildEnv> {
+export class GridOverlay extends OSComponent {
   static template = "o-spreadsheet-GridOverlay";
   static components = {
     GridAddRowsFooter,

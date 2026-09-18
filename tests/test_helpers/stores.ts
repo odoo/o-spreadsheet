@@ -6,9 +6,7 @@ import { globalStores } from "../../src/store_engine/store_registries";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 
 import { ModelStore } from "../../src/stores/model_store";
-import { NotificationStore } from "../../src/stores/notification_store";
-import { registerCleanup } from "../setup/jest.setup";
-import { makeTestNotificationStore } from "./helpers";
+import { makeTestEnv, mockNotificationMethods } from "./helpers";
 
 export interface StoreSpy {
   getStores: (Store: StoreConstructor) => any[];
@@ -19,13 +17,15 @@ export function makeStore<T extends StoreConstructor>(Store: T, ...args: StorePa
 }
 
 export function makeGlobalStoreWithModel(model: Model) {
-  const container = new DependencyContainer();
-  registerCleanup(() => {
-    container.dispose();
-  });
+  const testEnv = makeTestEnv({ model, useTrueRenderer: true });
 
+  const container = testEnv.__spreadsheet_stores__;
   container.inject(ModelStore, model);
-  container.inject(NotificationStore, makeTestNotificationStore());
+  mockNotificationMethods(testEnv.getPlugin, {
+    raiseError: jest.fn(),
+    notifyUser: jest.fn(),
+    askConfirmation: jest.fn(),
+  });
   for (const store of globalStores.getAll()) {
     container.get(store);
   }
@@ -33,6 +33,7 @@ export function makeGlobalStoreWithModel(model: Model) {
   return {
     container,
     model: container.get(ModelStore),
+    getPlugin: testEnv.getPlugin,
   };
 }
 
@@ -41,7 +42,7 @@ export function makeStoreWithModel<T extends StoreConstructor>(
   Store: T,
   ...args: StoreParams<T>
 ) {
-  const { container } = makeGlobalStoreWithModel(model);
+  const { container, getPlugin } = makeGlobalStoreWithModel(model);
   // Use container.get instead of container.instantiate where we can, otherwise the store won't be in the dependency
   // container, and calls to container.get will create a new instance of the store.
   // If we have args, that means the store is a local store and shouldn't be in the dependency container
@@ -55,6 +56,7 @@ export function makeStoreWithModel<T extends StoreConstructor>(
     store,
     container,
     model: container.get(ModelStore),
+    getPlugin,
   };
 }
 

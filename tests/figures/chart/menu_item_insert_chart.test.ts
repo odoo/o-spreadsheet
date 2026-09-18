@@ -1,4 +1,5 @@
 import { ChartDefinition, ChartRangeDataSource, Model } from "../../../src";
+import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -8,7 +9,7 @@ import {
 import { toXC } from "../../../src/helpers/coordinates";
 import { zoneToXc } from "../../../src/helpers/zones";
 import { ViewportsStore } from "../../../src/stores/viewports_store";
-import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import { Store } from "../../../src/types/store_engine";
 import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
@@ -85,8 +86,8 @@ describe("Insert chart menu item", () => {
   let dispatchSpy: jest.SpyInstance;
   let defaultPayload: any;
   let model: Model;
-  let env: SpreadsheetChildEnv;
-  let openSidePanelSpy: jest.Mock<any, any>;
+  let env: SpreadsheetActionEnv;
+  let openSidePanelSpy: jest.SpyInstance;
   let viewStore: Store<ViewportsStore>;
 
   async function insertChart() {
@@ -99,11 +100,11 @@ describe("Insert chart menu item", () => {
   }
 
   beforeEach(async () => {
-    openSidePanelSpy = jest.fn();
     env = makeTestEnv({
       model: new Model(data),
-      openSidePanel: (type, props) => openSidePanelSpy(type, props),
     });
+    const sidePanelStore = env.getStore(SidePanelStore);
+    openSidePanelSpy = jest.spyOn(sidePanelStore, "open");
     model = env.model;
     viewStore = env.getStore(ViewportsStore);
 
@@ -164,7 +165,7 @@ describe("Insert chart menu item", () => {
   test("Chart side panel was opened at chart insertion", async () => {
     setSelection(model, ["B2"]);
     await insertChart();
-    expect(openSidePanelSpy).toHaveBeenCalledWith("ChartPanel", undefined);
+    expect(openSidePanelSpy).toHaveBeenCalledWith("ChartPanel");
   });
 
   test("Chart is inserted at correct position for rows freeze", async () => {
@@ -425,7 +426,7 @@ describe("Smart chart type detection", () => {
   type DatasetDescriptor = string[];
 
   let model: Model;
-  let env: SpreadsheetChildEnv;
+  let env: SpreadsheetActionEnv;
 
   beforeEach(() => {
     model = new Model();

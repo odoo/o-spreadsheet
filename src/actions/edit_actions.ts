@@ -1,10 +1,11 @@
+import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import { interactiveCut } from "../helpers/ui/cut_interactive";
 import { interactiveAddMerge } from "../helpers/ui/merge_interactive";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { doesAnyZoneCrossFrozenPane, getZoneArea, hasOverlappingZones } from "../helpers/zones";
 import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
-import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 import { FIRST_TABLE_IN_SELECTION } from "./menu_items_actions";
@@ -84,7 +85,7 @@ export const findAndReplace: ActionSpec = {
   isReadonlyAllowed: true,
   isEnabledOnLockedSheet: true,
   execute: (env) => {
-    env.openSidePanel("FindAndReplace", {});
+    env.getStore(SidePanelStore).open("FindAndReplace", {});
   },
   isEnabled: (env) => !env.isSmall,
   icon: "o-spreadsheet-Icon.SEARCH",
@@ -102,7 +103,7 @@ export const deleteValues: ActionSpec = {
 export const deleteRows: ActionSpec = {
   name: ACTIONS.REMOVE_ROWS_NAME,
   execute: ACTIONS.REMOVE_ROWS_ACTION,
-  isVisible: (env: SpreadsheetChildEnv) => ACTIONS.CAN_REMOVE_COLUMNS_ROWS("ROW", env),
+  isVisible: (env: SpreadsheetActionEnv) => ACTIONS.CAN_REMOVE_COLUMNS_ROWS("ROW", env),
 };
 
 export const deleteRow: ActionSpec = {
@@ -118,7 +119,7 @@ export const clearRows: ActionSpec = {
 export const deleteCols: ActionSpec = {
   name: ACTIONS.REMOVE_COLUMNS_NAME,
   execute: ACTIONS.REMOVE_COLUMNS_ACTION,
-  isVisible: (env: SpreadsheetChildEnv) => ACTIONS.CAN_REMOVE_COLUMNS_ROWS("COL", env),
+  isVisible: (env: SpreadsheetActionEnv) => ACTIONS.CAN_REMOVE_COLUMNS_ROWS("COL", env),
 };
 
 export const deleteCol: ActionSpec = {
@@ -167,7 +168,7 @@ export const editTable: ActionSpec = {
   execute: (env) => {
     const table = FIRST_TABLE_IN_SELECTION(env);
     if (table) {
-      env.openSidePanel("TableSidePanel", { table });
+      env.getStore(SidePanelStore).open("TableSidePanel", { table });
     }
   },
   icon: "o-spreadsheet-Icon.EDIT_TABLE",
@@ -179,7 +180,7 @@ export const deleteTable: ActionSpec = {
   icon: "o-spreadsheet-Icon.DELETE_TABLE",
 };
 
-function cannotMerge(env: SpreadsheetChildEnv): boolean {
+function cannotMerge(env: SpreadsheetActionEnv): boolean {
   const zones = env.model.getters.getSelectedZones();
   const { sheetId } = env.model.getters.getActivePosition();
   const { xSplit, ySplit } = env.model.getters.getPaneDivisions(sheetId);
@@ -190,7 +191,7 @@ function cannotMerge(env: SpreadsheetChildEnv): boolean {
   );
 }
 
-function hasMergeInAnySelectedZone(env: SpreadsheetChildEnv): boolean {
+function hasMergeInAnySelectedZone(env: SpreadsheetActionEnv): boolean {
   if (cannotMerge(env)) {
     return false;
   }
@@ -202,7 +203,7 @@ function hasMergeInAnySelectedZone(env: SpreadsheetChildEnv): boolean {
   });
 }
 
-function toggleMerge(env: SpreadsheetChildEnv) {
+function toggleMerge(env: SpreadsheetActionEnv) {
   if (cannotMerge(env)) {
     return;
   }

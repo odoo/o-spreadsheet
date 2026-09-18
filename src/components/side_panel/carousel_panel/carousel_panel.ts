@@ -9,18 +9,19 @@ import {
 import { SpreadsheetChart } from "../../../helpers/figures/chart";
 import { deepEquals } from "../../../helpers/misc";
 import { UuidGenerator } from "../../../helpers/uuid";
-import { Component } from "../../../owl3_compatibility_layer";
 import { chartDataSourceRegistry } from "../../../registries/chart_data_source_registry";
 import { chartTypeRegistry } from "../../../registries/chart_registry";
 import { chartSubtypeRegistry } from "../../../registries/chart_subtype_registry";
+import { useStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
 import { CHART_TYPES, ChartDefinition, TitleDesign } from "../../../types/chart/chart";
 import { CarouselItem } from "../../../types/figure";
 import { UID } from "../../../types/misc";
 import { PropsOf } from "../../../types/props_of";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { Store } from "../../../types/store_engine";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../helpers/drag_and_drop_dom_items_hook";
+import { OSComponent } from "../../os_component";
 import { Popover } from "../../popover/popover";
 import { types } from "../../props_validation";
 import { SelectionInput } from "../../selection_input/selection_input";
@@ -29,13 +30,14 @@ import { TextStyler } from "../chart/building_blocks/text_styler/text_styler";
 import { ChartTypePickerPopover } from "../chart/chart_type_picker_popover/chart_type_picker_popover";
 import { CogWheelMenu } from "../components/cog_wheel_menu/cog_wheel_menu";
 import { Section } from "../components/section/section";
+import { SidePanelStore } from "../side_panel/side_panel_store";
 
 interface CarouselPanelState {
   popoverProps: PropsOf<Popover> | undefined;
   currentRange?: string;
 }
 
-export class CarouselPanel extends Component<SpreadsheetChildEnv> {
+export class CarouselPanel extends OSComponent {
   static template = "o-spreadsheet-CarouselPanel";
   static components = {
     Section,
@@ -57,9 +59,11 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
   private previewListRef = signal.ref();
   addChartButton = signal.ref(HTMLButtonElement);
 
+  private sidePanelStore!: Store<SidePanelStore>;
   state = proxy<CarouselPanelState>({ popoverProps: undefined, currentRange: undefined });
 
   setup() {
+    this.sidePanelStore = useStore(SidePanelStore);
     let lastCarouselItems: CarouselItem[] = [...this.carouselItems];
     onWillUpdateProps(() => {
       if (!deepEquals(this.carouselItems, lastCarouselItems)) {
@@ -128,7 +132,7 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
       chartDefinition: definition,
     });
     this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureId });
-    this.env.openSidePanel("ChartPanel");
+    this.sidePanelStore.open("ChartPanel");
   }
 
   get hasDataView(): boolean {
@@ -165,7 +169,7 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
     if (item.type === "chart") {
       this.activateCarouselItem(item);
       this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureId });
-      this.env.openSidePanel("ChartPanel", { chartId: item.chartId });
+      this.sidePanelStore.open("ChartPanel", { chartId: item.chartId });
     }
   }
 

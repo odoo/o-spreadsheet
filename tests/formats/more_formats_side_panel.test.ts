@@ -1,5 +1,6 @@
 import { Model } from "../../src";
 import { MoreFormatsPanel } from "../../src/components/side_panel/more_formats/more_formats";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { click, setInputValueAndTrigger } from "../test_helpers";
 import { selectCell, setFormat } from "../test_helpers/commands_helpers";
@@ -43,7 +44,7 @@ describe("more formats side panel component", () => {
     selectCell(model, "A1");
     // mount whole spreadsheet because onWillUpdateProps doesn't trigger on render if mounting only MoreFormatsPanel
     const { env } = await mountSpreadsheet({ model });
-    env.openSidePanel("MoreFormats");
+    env.getStore(SidePanelStore).open("MoreFormats");
     await nextTick();
     expect(".o-badge-selection .selected").toHaveText("Currency");
 
@@ -130,7 +131,7 @@ describe("more formats side panel component", () => {
     setFormat(model, "A1", "0.00%");
     // mount whole spreadsheet because onWillUpdateProps doesn't trigger on render if mounting only MoreFormatsPanel
     const { env } = await mountSpreadsheet({ model });
-    env.openSidePanel("MoreFormats");
+    env.getStore(SidePanelStore).open("MoreFormats");
     await nextTick();
     expect(".o-custom-format-section input").toHaveValue("0.00%");
 
@@ -148,7 +149,7 @@ describe("more formats side panel component", () => {
     setFormat(model, "A1", "0.00%");
 
     const { env } = await mountSpreadsheet({ model });
-    env.openSidePanel("MoreFormats");
+    env.getStore(SidePanelStore).open("MoreFormats");
     await nextTick();
     expect(".o-custom-format-section input").toHaveValue("0.00%");
 

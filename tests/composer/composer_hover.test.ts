@@ -1,6 +1,7 @@
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { Model } from "../../src/model";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import {
   addEqualCf,
@@ -25,7 +26,7 @@ import {
 let model: Model;
 let fixture: HTMLElement;
 let composerStore: Store<CellComposerStore>;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 export async function hoverComposerContent(content: string) {
   const spans = fixture.querySelectorAll(".o-composer span");
@@ -425,7 +426,7 @@ describe("Composer hover integration test", () => {
     const sheetId = model.getters.getActiveSheetId();
     addEqualCf(model, "B1:D3", { fillColor: "#b6d7a8" }, "=ROW() + COLUMN() + B2");
     const cf = model.getters.getConditionalFormats(sheetId)[0];
-    env.openSidePanel("ConditionalFormattingEditor", { cf, isNewCf: false });
+    env.getStore(SidePanelStore).open("ConditionalFormattingEditor", { cf, isNewCf: false });
     await nextTick();
 
     const composerSelector = ".o-sidePanel .o-composer";

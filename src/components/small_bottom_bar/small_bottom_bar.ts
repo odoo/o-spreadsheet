@@ -1,11 +1,9 @@
 import { onMounted, onPatched, proxy, signal, useProps } from "@odoo/owl";
-import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ComposerFocusType } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
 import { Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { Ripple } from "../animation/ripple";
 import { BottomBar } from "../bottom_bar/bottom_bar";
@@ -14,10 +12,11 @@ import { Composer } from "../composer/composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer/composer_focus_store";
 import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect } from "../helpers/dom_helpers";
+import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
 import { RibbonMenu } from "./ribbon_menu/ribbon_menu";
 
-export class SmallBottomBar extends Component<SpreadsheetChildEnv> {
+export class SmallBottomBar extends OSComponent {
   static components = { Composer, BottomBar, Ripple, RibbonMenu };
   static template = "o-spreadsheet-SmallBottomBar";
 

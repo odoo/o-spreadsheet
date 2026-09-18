@@ -22,10 +22,11 @@ import { Model } from "../../src";
 import { FIRST_TABLE_IN_SELECTION } from "../../src/actions/menu_items_actions";
 import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import { TableAutofillStore } from "../../src/components/autofill/table_autofill_store";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import { TableTerms } from "../../src/components/translations_terms";
 import { TABLE_PRESETS } from "../../src/helpers/table_presets";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { addPivot } from "../test_helpers/pivot_helpers";
 
 function getTable(model: Model, sheetId: UID): Table {
@@ -39,7 +40,7 @@ function getStyleElementStyleId(el: HTMLElement) {
 let model: Model;
 let fixture: HTMLElement;
 let sheetId: UID;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 describe("Table side panel", () => {
   beforeEach(async () => {
@@ -50,7 +51,7 @@ describe("Table side panel", () => {
     const table = FIRST_TABLE_IN_SELECTION(env);
     env.getStore(AutofillStore);
     env.getStore(TableAutofillStore);
-    env.openSidePanel("TableSidePanel", { table });
+    env.getStore(SidePanelStore).open("TableSidePanel", { table });
     await nextTick();
   });
 

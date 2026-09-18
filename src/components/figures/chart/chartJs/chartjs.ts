@@ -5,11 +5,11 @@ import {
   registerChartJSExtensions,
 } from "../../../../helpers/figures/charts/chart_js_extension";
 import { deepCopy, deepEquals } from "../../../../helpers/misc";
-import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
+import { useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
+import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
 import { ChartAnimationStore } from "./chartjs_animation_store";
 import { chartBackgroundPlugin } from "./chartjs_background_plugin";
@@ -82,7 +82,7 @@ chartJsExtensionRegistry.add("geoProjectionPlugin", {
   unregister: (Chart) => Chart.unregister(geoProjectionPlugin),
 });
 
-export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
+export class ChartJsComponent extends OSComponent {
   static template = "o-spreadsheet-ChartJsComponent";
 
   protected props = useProps({

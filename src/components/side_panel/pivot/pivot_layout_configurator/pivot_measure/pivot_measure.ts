@@ -4,19 +4,21 @@ import { CompiledFormula } from "../../../../../formulas/compiler";
 import { Token } from "../../../../../formulas/tokenizer";
 import { unquote } from "../../../../../helpers/misc";
 import { getFieldDisplayName } from "../../../../../helpers/pivot/pivot_helpers";
-import { Component } from "../../../../../owl3_compatibility_layer";
 import { createMeasureAutoComplete } from "../../../../../registries/auto_completes/pivot_dimension_auto_complete";
+import { useStore } from "../../../../../store_engine/store_hooks";
 import { _t } from "../../../../../translation";
 import { Color, ValueAndLabel } from "../../../../../types/misc";
 import { PivotMeasure } from "../../../../../types/pivot";
-import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import type { Store } from "../../../../../types/store_engine";
 import { StandaloneComposer } from "../../../../composer/standalone_composer/standalone_composer";
+import { OSComponent } from "../../../../os_component";
 import { types } from "../../../../props_validation";
 import { Select } from "../../../../select/select";
 import { measureDisplayTerms } from "../../../../translations_terms";
+import { SidePanelStore } from "../../../side_panel/side_panel_store";
 import { PivotDimension } from "../pivot_dimension/pivot_dimension";
 
-export class PivotMeasureEditor extends Component<SpreadsheetChildEnv> {
+export class PivotMeasureEditor extends OSComponent {
   static template = "o-spreadsheet-PivotMeasureEditor";
   static components = {
     PivotDimension,
@@ -32,6 +34,12 @@ export class PivotMeasureEditor extends Component<SpreadsheetChildEnv> {
     generateMeasureId: types.function<(fieldName: string, aggregator?: string) => string>(),
     aggregators: types.object({}),
   });
+
+  private sidePanelStore!: Store<SidePanelStore>;
+
+  setup() {
+    this.sidePanelStore = useStore(SidePanelStore);
+  }
 
   getMeasureAutocomplete() {
     return createMeasureAutoComplete(this.props.definition, this.props.measure);
@@ -79,7 +87,7 @@ export class PivotMeasureEditor extends Component<SpreadsheetChildEnv> {
   }
 
   openShowValuesAs() {
-    this.env.replaceSidePanel("PivotMeasureDisplayPanel", `pivot_key_${this.props.pivotId}`, {
+    this.sidePanelStore.replace("PivotMeasureDisplayPanel", `pivot_key_${this.props.pivotId}`, {
       pivotId: this.props.pivotId,
       measure: this.props.measure,
     });

@@ -1,11 +1,12 @@
 import { proxy, useProps } from "@odoo/owl";
 import { zoneToXc } from "../../../../helpers/zones";
-import { Component, ComponentConstructor } from "../../../../owl3_compatibility_layer";
+import { ComponentConstructor } from "../../../../owl3_compatibility_layer";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,
 } from "../../../../registries/criterion_component_registry";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
+import { useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
 import { AddDataValidationCommand, CancelledReason } from "../../../../types/commands";
 import {
@@ -14,14 +15,16 @@ import {
   DataValidationCriterionType,
 } from "../../../../types/data_validation";
 import { UID, ValueAndLabel } from "../../../../types/misc";
-import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { Store } from "../../../../types/store_engine";
 import { DataValidationRuleData } from "../../../../types/workbook_data";
+import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
 import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { DVTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { Section } from "../../components/section/section";
+import { SidePanelStore } from "../../side_panel/side_panel_store";
 
 interface State {
   rule: DataValidationRuleData;
@@ -29,7 +32,7 @@ interface State {
   isTypeUpdated: boolean;
 }
 
-export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
+export class DataValidationEditor extends OSComponent {
   static template = "o-spreadsheet-DataValidationEditor";
   static components = { SelectionInput, Select, Section, ValidationMessages };
   protected props = useProps({
@@ -44,9 +47,11 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
     isTypeUpdated: false,
   });
   private editingSheetId!: UID;
+  private sidePanelStore!: Store<SidePanelStore>;
 
   setup() {
     this.editingSheetId = this.env.model.getters.getActiveSheetId();
+    this.sidePanelStore = useStore(SidePanelStore);
     const rule = this.env.model.getters.getDataValidationRule(
       this.editingSheetId,
       this.props.ruleId
@@ -80,7 +85,7 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
 
   onCancel() {
     this.props.onCancel?.();
-    this.env.replaceSidePanel("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
+    this.sidePanelStore.replace("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
   }
 
   onSave() {
@@ -89,7 +94,7 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
       this.state.errors = result.reasons;
       return;
     }
-    this.env.replaceSidePanel("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
+    this.sidePanelStore.replace("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
   }
 
   get dispatchPayload(): Omit<AddDataValidationCommand, "type"> {

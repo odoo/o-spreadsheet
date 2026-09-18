@@ -1,7 +1,8 @@
 import { CarouselData, Model, UID } from "../../../src";
+import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
 import { toZone } from "../../../src/helpers/zones";
-import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import {
   addNewChartToCarousel,
   createCarousel,
@@ -20,7 +21,7 @@ mockChart();
 
 let model: Model;
 let fixture: HTMLElement;
-let env: SpreadsheetChildEnv;
+let env: SpreadsheetActionEnv;
 
 extendMockGetBoundingClientRect({
   "o-carousel-preview-list": () => ({ height: 400, width: 450, top: 0, left: 0 }),
@@ -37,7 +38,7 @@ beforeEach(() => {
 
 async function mountCarouselPanel(modelArg: Model, figureId: UID) {
   ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
-  env.openSidePanel("CarouselPanel", { figureId });
+  env.getStore(SidePanelStore).open("CarouselPanel", { figureId });
   await nextTick();
 }
 

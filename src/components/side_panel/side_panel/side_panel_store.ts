@@ -1,5 +1,6 @@
-import { sidePanelRegistry } from "../../../registries/side_panel_registry";
-import { NotificationStore } from "../../../stores/notification_store";
+import { usePlugin } from "@odoo/owl";
+import { NotificationPlugin } from "../../../owl_plugins/notification_owl_plugin";
+import { sidePanelRegistry } from "../../../registries/side_panel_registry_definition";
 import { ScreenWidthStore } from "../../../stores/screen_width_store";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { _t } from "../../../translation";
@@ -52,6 +53,7 @@ export class SidePanelStore extends SpreadsheetStore {
   availableWidth: number = 0;
 
   screenWidthStore = this.get(ScreenWidthStore);
+  notificationPlugin = usePlugin(NotificationPlugin);
 
   get isMainPanelOpen() {
     return this.mainPanel && this.mainPanel.componentTag
@@ -126,7 +128,7 @@ export class SidePanelStore extends SpreadsheetStore {
       !this.secondaryPanel &&
       nonCollapsedPanelSize + DEFAULT_SIDE_PANEL_SIZE > this.availableWidth
     ) {
-      this.get(NotificationStore).notifyUser({
+      this.notificationPlugin.notifyUser({
         sticky: false,
         type: "warning",
         text: _t("The window is too small to display multiple side panels."),
@@ -194,7 +196,7 @@ export class SidePanelStore extends SpreadsheetStore {
     }
   }
 
-  toggle(componentTag: string, panelProps: SidePanelComponentProps) {
+  toggle(componentTag: string, panelProps: SidePanelComponentProps = {}) {
     const panel = this.mainPanel?.isPinned ? this.secondaryPanel : this.mainPanel;
     if (panel && componentTag === panel.componentTag) {
       this.close();
