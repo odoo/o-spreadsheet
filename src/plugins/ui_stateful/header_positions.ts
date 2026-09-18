@@ -11,7 +11,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
   private isDirty = true;
 
   handle(cmd: Command) {
-    if (invalidateEvaluationCommands.has(cmd.type)) {
+    if (invalidateEvaluationCommands.has(cmd.type) || cmd.type === "EVALUATE_CELLS") {
       this.headerPositions = {};
       this.isDirty = true;
     }
