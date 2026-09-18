@@ -196,28 +196,6 @@ export const invalidSubtotalFormulasCommands = new Set<CommandTypes>([
   "UPDATE_FILTER",
 ]);
 
-export const readonlyAllowedCommands = new Set<CommandTypes>([
-  "START",
-  "ACTIVATE_SHEET",
-
-  "COPY",
-
-  "EVALUATE_CELLS",
-  "EVALUATE_CHARTS",
-
-  "SET_FORMULA_VISIBILITY",
-  "SET_AUTOMATIC_EVALUATION",
-
-  "UPDATE_FILTER",
-  "UPDATE_CHART",
-  "UPDATE_CHART_REGION",
-  "UPDATE_CAROUSEL_ACTIVE_ITEM",
-
-  "UPDATE_PIVOT",
-
-  "UPDATE_COLOR_SCHEME",
-]);
-
 export const lockedSheetAllowedCommands = new Set<Command["type"]>([
   // core commands
   "LOCK_SHEET",
@@ -380,10 +358,6 @@ export function isEvaluationCommand(cmd: Command): cmd is EvaluationCommand {
   return evaluationCommandTypes.has(cmd.type as any);
 }
 
-export function canExecuteInReadonly(cmd: Command): boolean {
-  return readonlyAllowedCommands.has(cmd.type);
-}
-
 //#region Core Commands
 // ------------------------------------------------
 
@@ -408,7 +382,6 @@ export interface UpdateCellPositionCommand extends PositionDependentCommand {
 //------------------------------------------------------------------------------
 // Grid Shape
 //------------------------------------------------------------------------------
-
 export interface AddColumnsRowsCommand extends SheetDependentCommand, SheetEditingCommand {
   type: "ADD_COLUMNS_ROWS";
   dimension: Dimension;
