@@ -198,8 +198,8 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   >
                     <input
                       class="o-font-size o-number-input bg-transparent border-0"
-                      max="300"
-                      min="25"
+                      max="200"
+                      min="50"
                       type="number"
                     />
                     %
@@ -1309,8 +1309,8 @@ exports[`components take the small screen into account 1`] = `
                   >
                     <input
                       class="o-font-size o-number-input bg-transparent border-0"
-                      max="300"
-                      min="25"
+                      max="200"
+                      min="50"
                       type="number"
                     />
                     %
