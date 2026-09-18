@@ -1,8 +1,8 @@
-import { CellValueType, EvaluatedCell } from "../types/cells";
-import { Getters } from "../types/getters";
-import { CellPosition, UID, Zone } from "../types/misc";
-import { isDateTimeFormat } from "./format/format";
-import { getZonesByColumns, isInside } from "./zones";
+import { CellValueType, EvaluatedCell } from "../../types/cells";
+import { Getters } from "../../types/getters";
+import { CellPosition, UID, Zone } from "../../types/misc";
+import { isDateTimeFormat } from "../format/format";
+import { getZonesByColumns, isInside } from "../zones";
 
 export type ExtendedColumnType =
   | "error"
@@ -54,7 +54,7 @@ function analyzeColumn(zone: Zone, getters: Getters): ColumnAnalysis {
   let title: string | undefined;
   let dataCells: EvaluatedCell[] = [];
   let headerInZone = false;
-  let analyzedZone: Zone = zone;
+  let analyzedZone: Zone = { ...zone, top: firstCell.position!.row };
   const tableHeaderPosition = getColumnTableHeaderPosition(sheetId, zone, getters);
 
   if (tableHeaderPosition) {
@@ -64,10 +64,8 @@ function analyzeColumn(zone: Zone, getters: Getters): ColumnAnalysis {
       !!title && tableHeaderPosition.row >= zone.top && tableHeaderPosition.row <= zone.bottom;
     if (headerInZone) {
       analyzedZone = {
+        ...analyzedZone,
         top: tableHeaderPosition.row,
-        bottom: zone.bottom,
-        left: zone.left,
-        right: zone.right,
       };
     }
   } else if (
