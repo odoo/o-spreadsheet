@@ -122,11 +122,13 @@ export class DataCleanupStore extends SpreadsheetStore {
       bottom: rowIndex,
     }));
 
+    const clipboardPositions = getClipboardDataPositions(sheetId, rowsToKeep);
     const handler = new CellClipboardHandler(this.getters, this.model.dispatch);
-    const data = handler.copy(getClipboardDataPositions(sheetId, rowsToKeep), false);
-    if (!data) {
+    const compactData = handler.copy(clipboardPositions, false);
+    if (!compactData) {
       return;
     }
+    const data = handler.expand(compactData);
 
     this.model.dispatch("CLEAR_CELLS", { target: [zone], sheetId });
 
@@ -137,7 +139,17 @@ export class DataCleanupStore extends SpreadsheetStore {
       bottom: zone.top,
     };
 
-    handler.paste({ zones: [zonePasted], sheetId }, data, { isCutOperation: false });
+    handler.paste(
+      { zones: [zonePasted], sheetId },
+      data,
+      { isCutOperation: false },
+      {
+        sheetId: sheetId,
+        zones: rowsToKeep,
+        rowsIndexes: clipboardPositions.rowsIndexes,
+        columnsIndexes: clipboardPositions.columnsIndexes,
+      }
+    );
 
     const remainingZone = {
       left: zone.left,
