@@ -36,6 +36,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     ADD_COLUMNS_ROWS: this.computeSheetHeaderPositions,
     REMOVE_COLUMNS_ROWS: this.computeSheetHeaderPositions,
     START: this.onStart,
+    EVALUATE_CELLS: this.invalidateHeaderPositions,
   };
 
   private onStart() {
