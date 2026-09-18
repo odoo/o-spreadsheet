@@ -1,4 +1,5 @@
 import { CommandResult, FilterCriterionType, Model, UID } from "../../src";
+import { functionRegistry } from "../../src/functions/function_registry";
 import { range } from "../../src/helpers/misc";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import {
@@ -20,7 +21,7 @@ import {
   updateTableConfig,
   updateTableZone,
 } from "../test_helpers/commands_helpers";
-import { getFilterHiddenValues, setGrid } from "../test_helpers/helpers";
+import { addToRegistry, getFilterHiddenValues, setGrid } from "../test_helpers/helpers";
 
 describe("Simple filter test", () => {
   let model: Model;
@@ -70,6 +71,25 @@ describe("Simple filter test", () => {
     updateFilter(model, "B1", ["28"]);
     expect(model.getters.isRowHidden(sheetId, 1)).toBe(true);
     expect(model.getters.isRowHidden(sheetId, 2)).toBe(false);
+  });
+
+  test("getRowDimensions is kept in sync when a filtered cell is re-evaluated outside of UPDATE_CELL", () => {
+    let value = "10";
+    addToRegistry(functionRegistry, "GETVALUE", {
+      description: "Get value",
+      compute: () => ({ value }),
+      args: [],
+    });
+    setCellContent(model, "A2", "=GETVALUE()");
+    createTableWithFilter(model, "A1:A3");
+    updateFilter(model, "A1", ["1"]);
+    expect(model.getters.isRowHidden(sheetId, 1)).toBe(false);
+    value = "1";
+    model.dispatch("EVALUATE_CELLS");
+    expect(model.getters.isRowHidden(sheetId, 1)).toBe(true);
+    const row0 = model.getters.getRowDimensions(sheetId, 0);
+    const row2 = model.getters.getRowDimensions(sheetId, 2);
+    expect(row2.start).toBe(row0.end);
   });
 
   test("Filtered rows should persist after hiding and unhiding multiple rows", () => {
