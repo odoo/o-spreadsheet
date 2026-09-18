@@ -1,10 +1,16 @@
 import { Model } from "../src";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, ZOOM_VALUES } from "../src/constants";
+import {
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  DEFAULT_ZOOM,
+  ZOOM_VALUES,
+} from "../src/constants";
+import { ZoomStore } from "../src/stores/zoom_store";
 import { SpreadsheetChildEnv } from "../src/types/spreadsheet_env";
 import { setCellContent, setZoom } from "./test_helpers/commands_helpers";
 import { clickCell, clickHeader, hoverCell } from "./test_helpers/dom_helper";
 import { getSelectionAnchorCellXc } from "./test_helpers/getters_helpers";
-import { mountSpreadsheet, nextTick, useJestFakeTimers } from "./test_helpers/helpers";
+import { makeTestEnv, mountSpreadsheet, nextTick, useJestFakeTimers } from "./test_helpers/helpers";
 
 let fixture: HTMLElement;
 let model: Model;
@@ -90,5 +96,22 @@ describe("Dashboard zoom tests", () => {
       await hoverCell(env, "C8", 400);
       expect(fixture.querySelector(".o-error-tooltip")).toBeTruthy();
     });
+  });
+});
+
+describe("ZoomStore", () => {
+  test("cannot set zoom outside of the [0.5, 2] range", () => {
+    env = makeTestEnv();
+    setZoom(env, 0.4);
+    expect(env.getStore(ZoomStore).zoomLevel).toBe(DEFAULT_ZOOM);
+    setZoom(env, 2.1);
+    expect(env.getStore(ZoomStore).zoomLevel).toBe(DEFAULT_ZOOM);
+  });
+
+  test("setting NaN as zoom is cancelled and keeps the current zoom level", () => {
+    env = makeTestEnv();
+    setZoom(env, 1.5);
+    setZoom(env, NaN);
+    expect(env.getStore(ZoomStore).zoomLevel).toBe(1.5);
   });
 });
