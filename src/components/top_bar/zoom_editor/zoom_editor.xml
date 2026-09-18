@@ -1,14 +1,14 @@
 <templates>
   <div t-name="o-spreadsheet-TopBarZoom" t-on-click.stop="">
     <NumberEditor
-      currentValue="this.currentFontSize"
+      currentValue="this.getZoomLevel()"
       onValueChange.bind="this.setZoom"
       class="this.props.class"
       onToggle.bind="this.toggle"
       onFocusInput.bind="this.onFocusInput"
       valueIcon="'%'"
-      min="25"
-      max="300"
+      min="this.minZoom"
+      max="this.maxZoom"
       valueList="this.valueList"
       title.translate="Zoom"
     />

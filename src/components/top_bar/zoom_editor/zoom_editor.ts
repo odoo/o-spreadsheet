@@ -1,5 +1,5 @@
 import { useProps } from "@odoo/owl";
-import { ZOOM_VALUES } from "../../../constants";
+import { MAX_ZOOM, MIN_ZOOM, ZOOM_VALUES } from "../../../constants";
 import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ZoomStore } from "../../../stores/zoom_store";
@@ -18,19 +18,21 @@ export class ToolBarZoom extends Component<SpreadsheetChildEnv> {
   private zoomStore!: Store<ZoomStore>;
 
   valueList = ZOOM_VALUES;
+  minZoom = MIN_ZOOM * 100;
+  maxZoom = MAX_ZOOM * 100;
 
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();
     this.zoomStore = useStore(ZoomStore);
   }
 
-  get currentFontSize(): number {
+  getZoomLevel(): number {
     const zoom = this.zoomStore.zoomLevel || 1;
-    return zoom * 100;
+    return Math.round(zoom * 100);
   }
 
-  setZoom(fontSize: number) {
-    this.zoomStore.setZoom(fontSize / 100);
+  setZoom(zoomPercentage: number) {
+    this.zoomStore.setZoom(zoomPercentage / 100);
   }
 
   toggle() {
