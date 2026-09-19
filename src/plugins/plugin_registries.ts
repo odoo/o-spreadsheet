@@ -7,6 +7,7 @@ import { ConditionalFormatPlugin } from "./core/conditional_format";
 import { DataValidationPlugin } from "./core/data_validation";
 import { DefaultPlugin } from "./core/default";
 import { FigurePlugin } from "./core/figures";
+import { FormattingPlugin } from "./core/formatting";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
 import { HeaderSizePlugin } from "./core/header_size";
 import { HeaderVisibilityPlugin } from "./core/header_visibility";
@@ -84,13 +85,9 @@ export class CorePluginRegistry extends PluginRegistry<CorePluginConstructor> {
     super(CorePlugin);
   }
   override add(key: string, plugin: CorePluginConstructor): this {
-    // if (key in this.content) {
-    //   throw new Error(`${key} is already present in this registry!`);
-    // }
+    const result = super.add(key, plugin);
     this.checkDepCycle(plugin);
-    return super.add(key, plugin);
-    // this.content = { ...this.content, [key]: plugin };
-    // return this;
+    return result;
   }
 
   private checkDepCycle(
@@ -116,8 +113,9 @@ export const corePluginRegistry = new CorePluginRegistry()
   .add("header_grouping", HeaderGroupingPlugin)
   .add("hidden_header", HiddenHeaderPlugin)
   .add("header_visibility", HeaderVisibilityPlugin)
-  .add("cell", CellPlugin)
   .add("default", DefaultPlugin)
+  .add("cell", CellPlugin)
+  .add("formatting", FormattingPlugin)
   .add("dataValidation", DataValidationPlugin)
   .add("merge", MergePlugin)
   .add("tables", TablePlugin)

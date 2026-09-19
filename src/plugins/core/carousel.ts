@@ -5,6 +5,7 @@ import { Carousel, CarouselData, CarouselItem, CarouselItemData } from "../../ty
 import { RangeAdapterFunctions, UID } from "../../types/misc";
 import { WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
+import { ChartPlugin } from "./chart";
 import { FigurePlugin } from "./figures";
 
 interface CarouselState {
@@ -15,7 +16,7 @@ export class CarouselPlugin
   extends CorePlugin<typeof CarouselPlugin, CarouselState>
   implements CarouselState
 {
-  static readonly dependencies = [FigurePlugin] as const;
+  static readonly dependencies = [FigurePlugin, ChartPlugin] as const;
   static getters = ["getCarousel", "doesCarouselExist", "carouselToCarouselData"] as const;
   readonly carousels: Record<UID, Record<UID, Carousel | undefined> | undefined> = {};
 

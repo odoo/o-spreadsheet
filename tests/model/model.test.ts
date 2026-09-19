@@ -578,19 +578,22 @@ describe("Model", () => {
   });
 });
 
-function makePlugin(name: string, deps: CorePluginConstructor[] = []): CorePluginConstructor {
-  return class {
+function makeCorePlugin(name: string, deps: CorePluginConstructor[] = []): CorePluginConstructor {
+  const cls = class extends CorePlugin<any> {
     static getters = [] as const;
     static readonly dependencies = deps;
     static readonly name = name;
   } as unknown as CorePluginConstructor;
+
+  Object.defineProperty(cls, "name", { value: name });
+  return cls;
 }
 
 describe("sortByDependencies", () => {
   test("dependencies sorting", () => {
-    const A = makePlugin("A");
-    const B = makePlugin("B", [A]);
-    const C = makePlugin("C", [B]);
+    const A = makeCorePlugin("A");
+    const B = makeCorePlugin("B", [A]);
+    const C = makeCorePlugin("C", [B]);
     const newCorePluginRegistry = new CorePluginRegistry();
     newCorePluginRegistry.add("A", A);
     newCorePluginRegistry.add("B", B);
@@ -599,10 +602,10 @@ describe("sortByDependencies", () => {
   });
 
   test("handles diamond dependency", () => {
-    const A = makePlugin("A");
-    const B = makePlugin("B", [A]);
-    const C = makePlugin("C", [A]);
-    const D = makePlugin("D", [B, C]);
+    const A = makeCorePlugin("A");
+    const B = makeCorePlugin("B", [A]);
+    const C = makeCorePlugin("C", [A]);
+    const D = makeCorePlugin("D", [B, C]);
     const newCorePluginRegistry = new CorePluginRegistry();
     newCorePluginRegistry.add("A", A);
     newCorePluginRegistry.add("B", B);
@@ -616,8 +619,8 @@ describe("sortByDependencies", () => {
   });
 
   test("throws on direct cycle (A → B → A)", () => {
-    const A: CorePluginConstructor = makePlugin("A");
-    const B = makePlugin("B", [A]);
+    const A: CorePluginConstructor = makeCorePlugin("A");
+    const B = makeCorePlugin("B", [A]);
     (A as any).dependencies = [B];
     const newCorePluginRegistry = new CorePluginRegistry();
     expect(() => newCorePluginRegistry.add("A", A)).toThrow(
@@ -629,11 +632,11 @@ describe("sortByDependencies", () => {
   });
 
   test("throws on indirect cycle (A → B → C → A)", () => {
-    const A: CorePluginConstructor = makePlugin("A");
-    const B = makePlugin("B", [A]);
-    const C = makePlugin("C", [B]);
+    const A: CorePluginConstructor = makeCorePlugin("A");
+    const B = makeCorePlugin("B", [A]);
+    const C = makeCorePlugin("C", [B]);
     (A as any).dependencies = [C];
-    const D = makePlugin("D", []);
+    const D = makeCorePlugin("D", []);
     const newCorePluginRegistry = new CorePluginRegistry();
     expect(() => newCorePluginRegistry.add("A", A)).toThrow(
       "Cyclic plugin dependency detected: A → B → C → A"
@@ -661,9 +664,9 @@ describe("sortByDependencies", () => {
   });
 
   test("plugins with the same dependency are in registration order", () => {
-    const A = makePlugin("A");
-    const B = makePlugin("B", [A]);
-    const C = makePlugin("C", [A]);
+    const A = makeCorePlugin("A");
+    const B = makeCorePlugin("B", [A]);
+    const C = makeCorePlugin("C", [A]);
     const newCorePluginRegistry = new CorePluginRegistry();
     newCorePluginRegistry.add("A", A);
     newCorePluginRegistry.add("B", B);

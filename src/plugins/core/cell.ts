@@ -8,6 +8,7 @@ import { deepEquals, isObjectEmptyRecursive, range, replaceNewLines } from "../.
 
 import { toXC } from "../../helpers/coordinates";
 import { CorePlugin } from "../core_plugin";
+import { DefaultPlugin } from "./default";
 import { SettingsPlugin } from "./settings";
 import { SheetPlugin } from "./sheet";
 
@@ -53,7 +54,7 @@ interface CoreState {
  * cell and sheet content.
  */
 export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> implements CoreState {
-  static readonly dependencies = [SheetPlugin, SettingsPlugin] as const;
+  static readonly dependencies = [SheetPlugin, SettingsPlugin, DefaultPlugin] as const;
   static getters = [
     "getCells",
     "getTranslatedCellFormula",
@@ -61,6 +62,8 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
     "getFormulaString",
     "getFormulaMovedInSheet",
     "getCell",
+    "getCellStyle",
+    "getCellFormat",
   ] as const;
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
@@ -289,8 +292,10 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   }
 
   export(data: WorkbookData, shouldSquish: boolean) {
-    const styles: { [styleId: number]: Style } = {};
-    const formats: { [formatId: number]: string } = {};
+    // the style and format dictionaries are shared with the other plugins
+    // exporting styles and formats, whichever exports first.
+    const styles = data.styles;
+    const formats = data.formats;
     for (const _sheet of data.sheets) {
       const squisher = new Squisher(this.getters);
       const positionsByStyle: Record<number, CellPosition[]> = [];
@@ -324,8 +329,6 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
       _sheet.formats = groupItemIdsByZones(positionsByFormat);
       _sheet.cells = shouldSquish ? squisher.squishSheet(cells, _sheet.id) : cells;
     }
-    data.styles = styles;
-    data.formats = formats;
   }
 
   importCell(
@@ -575,6 +578,29 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
       return undefined;
     }
     return this.getters.getCellById(cellId);
+  }
+
+  /**
+   * The style of a cell: what it defines itself, on top of the defaults of its
+   * row, its column and its sheet.
+   */
+  getCellStyle(position: CellPosition): Style {
+    const style: Style = { ...this.getters.getCell(position)?.style };
+    const defaults = this.getters.getCellDefaultStyle(position);
+    for (const key in defaults) {
+      if (!(key in style)) {
+        style[key] = defaults[key];
+      }
+    }
+    return style;
+  }
+
+  getCellFormat(position: CellPosition): Format | undefined {
+    const cell = this.getters.getCell(position);
+    if (cell?.format !== undefined) {
+      return cell?.format;
+    }
+    return this.getters.getCellDefaultFormat(position);
   }
 
   private changeCellsDateFormatWithLocale(oldLocale: Locale, newLocale: Locale) {

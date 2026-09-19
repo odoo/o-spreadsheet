@@ -15,7 +15,7 @@ import {
   ChartDefinition,
   ChartType,
 } from "../../types/chart/chart";
-import { CoreGetters, EvaluationGetters, ChartCoreGetters } from "../../types/getters";
+import { ChartCoreGetters, EvaluationGetters } from "../../types/getters";
 import { RangeAdapterFunctions, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { ColorThemeName } from "../../types/rendering";
@@ -190,7 +190,7 @@ export class SpreadsheetChart {
       : { dataSetsValues: [], labelValues: [] };
   }
 
-  getFormulas(getters: CoreGetters): CompiledFormula[] {
+  getFormulas(getters: ChartCoreGetters): CompiledFormula[] {
     return this.chartTypeBuilder.getFormulas(getters, this.sheetId, this.definition);
   }
 

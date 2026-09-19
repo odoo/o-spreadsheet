@@ -189,6 +189,30 @@ export const TEST_COMMANDS: CommandMapping = {
     target: target("A1"),
     sheetId: "Sheet1",
   },
+  SET_SHEET_DEFAULT_STYLE: {
+    type: "SET_SHEET_DEFAULT_STYLE",
+    sheetId: "Sheet1",
+    style: { bold: true },
+  },
+  SET_HEADERS_DEFAULT_STYLE: {
+    type: "SET_HEADERS_DEFAULT_STYLE",
+    sheetId: "Sheet1",
+    dimension: "COL",
+    elements: [0],
+    style: { bold: true },
+  },
+  SET_SHEET_DEFAULT_FORMAT: {
+    type: "SET_SHEET_DEFAULT_FORMAT",
+    sheetId: "Sheet1",
+    format: "0.00%",
+  },
+  SET_HEADERS_DEFAULT_FORMAT: {
+    type: "SET_HEADERS_DEFAULT_FORMAT",
+    sheetId: "Sheet1",
+    dimension: "COL",
+    elements: [0],
+    format: "0.00%",
+  },
   SET_BORDER: {
     type: "SET_BORDER",
     col: 0,

@@ -15,8 +15,10 @@ import { Format } from "../../../types/format";
 import { PerfProfile } from "../../../types/functions";
 import {
   CellPosition,
+  Dimension,
   FunctionResultObject,
   GetSymbolValue,
+  HeaderIndex,
   isMatrix,
   Matrix,
   UID,
@@ -212,6 +214,17 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
           this.evaluator.updateDependencies(position);
         }
         break;
+      // a default format is inherited by every cell not defining its own, so
+      // the cells it applies to must be evaluated again.
+      case "SET_SHEET_DEFAULT_FORMAT":
+        this.cellPositionsToUpdate(cmd.sheetId);
+        break;
+      case "SET_HEADERS_DEFAULT_FORMAT":
+        this.cellPositionsToUpdate(cmd.sheetId, {
+          dimension: cmd.dimension,
+          elements: cmd.elements,
+        });
+        break;
       case "SET_AUTOMATIC_EVALUATION":
         this.automaticEvaluation = cmd.enabled;
         if (cmd.enabled) {
@@ -232,6 +245,28 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
           this.evaluator.evaluateAllCells(cmd.profiling);
         }
         break;
+    }
+  }
+
+  /**
+   * Positions of the cells of a sheet, optionally restricted to some headers.
+   * Positions holding no cell are skipped: they evaluate to nothing, whatever
+   * the format they would inherit.
+   */
+  private cellPositionsToUpdate(
+    sheetId: UID,
+    headers?: { dimension: Dimension; elements: HeaderIndex[] }
+  ) {
+    if (this.shouldRebuildDependenciesGraph) {
+      return;
+    }
+    const elements = headers && new Set(headers.elements);
+    for (const cell of this.getters.getCells(sheetId)) {
+      const position = this.getters.getCellPosition(cell.id);
+      if (elements && !elements.has(headers!.dimension === "COL" ? position.col : position.row)) {
+        continue;
+      }
+      this.positionsToUpdate.push(position);
     }
   }
 
