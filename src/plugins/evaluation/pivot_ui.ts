@@ -74,61 +74,9 @@ export class PivotUIPlugin extends EvaluationPlugin {
   };
 
   handlers = {
+    "*coreTypes": this.invalidateUnusedPivots,
     "*invalidateEvaluationCommands": this.invalidateAllPivots,
     UPDATE_CELL: this.onUpdateCell,
-    DELETE_CONTENT: this.invalidateUnusedPivots,
-    SET_FORMATTING: this.invalidateUnusedPivots,
-    CLEAR_FORMATTING: this.invalidateUnusedPivots,
-    SET_BORDER: this.invalidateUnusedPivots,
-    SET_ZONE_BORDERS: this.invalidateUnusedPivots,
-    SET_BORDERS_ON_TARGET: this.invalidateUnusedPivots,
-    CLEAR_CELL: this.invalidateUnusedPivots,
-    CLEAR_CELLS: this.invalidateUnusedPivots,
-    SET_SHEET_BACKGROUND_COLOR: this.invalidateUnusedPivots,
-    CREATE_TABLE: this.invalidateUnusedPivots,
-    REMOVE_TABLE: this.invalidateUnusedPivots,
-    UPDATE_TABLE: this.invalidateUnusedPivots,
-    ADD_CONDITIONAL_FORMAT: this.invalidateUnusedPivots,
-    REMOVE_CONDITIONAL_FORMAT: this.invalidateUnusedPivots,
-    CHANGE_CONDITIONAL_FORMAT_PRIORITY: this.invalidateUnusedPivots,
-    HIDE_COLUMNS_ROWS: this.invalidateUnusedPivots,
-    UNHIDE_COLUMNS_ROWS: this.invalidateUnusedPivots,
-    GROUP_HEADERS: this.invalidateUnusedPivots,
-    UNGROUP_HEADERS: this.invalidateUnusedPivots,
-    FOLD_HEADER_GROUP: this.invalidateUnusedPivots,
-    UNFOLD_HEADER_GROUP: this.invalidateUnusedPivots,
-    FOLD_ALL_HEADER_GROUPS: this.invalidateUnusedPivots,
-    UNFOLD_ALL_HEADER_GROUPS: this.invalidateUnusedPivots,
-    FOLD_HEADER_GROUPS_IN_ZONE: this.invalidateUnusedPivots,
-    UNFOLD_HEADER_GROUPS_IN_ZONE: this.invalidateUnusedPivots,
-    CREATE_TABLE_STYLE: this.invalidateUnusedPivots,
-    REMOVE_TABLE_STYLE: this.invalidateUnusedPivots,
-    REMOVE_DATA_VALIDATION_RULE: this.invalidateUnusedPivots,
-    ADD_DATA_VALIDATION_RULE: this.invalidateUnusedPivots,
-    RESIZE_COLUMNS_ROWS: this.invalidateUnusedPivots,
-    MOVE_RANGES: this.invalidateUnusedPivots,
-    UPDATE_CHART: this.invalidateUnusedPivots,
-    CREATE_CHART: this.invalidateUnusedPivots,
-    DELETE_CHART: this.invalidateUnusedPivots,
-    UPDATE_FIGURE: this.invalidateUnusedPivots,
-    CREATE_FIGURE: this.invalidateUnusedPivots,
-    DELETE_FIGURE: this.invalidateUnusedPivots,
-    CREATE_IMAGE: this.invalidateUnusedPivots,
-    CREATE_CAROUSEL: this.invalidateUnusedPivots,
-    UPDATE_CAROUSEL: this.invalidateUnusedPivots,
-    SET_GRID_LINES_VISIBILITY: this.invalidateUnusedPivots,
-    MOVE_SHEET: this.invalidateUnusedPivots,
-    LOCK_SHEET: this.invalidateUnusedPivots,
-    UNLOCK_SHEET: this.invalidateUnusedPivots,
-    FREEZE_COLUMNS: this.invalidateUnusedPivots,
-    FREEZE_ROWS: this.invalidateUnusedPivots,
-    UNFREEZE_ROWS: this.invalidateUnusedPivots,
-    UNFREEZE_COLUMNS: this.invalidateUnusedPivots,
-    UNFREEZE_COLUMNS_ROWS: this.invalidateUnusedPivots,
-    SHOW_SHEET: this.invalidateUnusedPivots,
-    HIDE_SHEET: this.invalidateUnusedPivots,
-    COLOR_SHEET: this.invalidateUnusedPivots,
-    UPDATE_CELL_POSITION: this.invalidateUnusedPivots,
     UPDATE_LOCALE: this.onUpdateLocale,
     ADD_PIVOT: this.onAddPivot,
     DUPLICATE_PIVOT: this.onDuplicatePivot,
@@ -143,6 +91,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
   }
 
   private setupPivotsOnUndoRedo(cmd: UndoCommand | RedoCommand) {
+    this.unusedPivotsInFormulas = undefined;
     for (const pivotCommand of cmd.commands.filter(isPivotCommand)) {
       if (!this.getters.isExistingPivot(pivotCommand.pivotId)) {
         continue;
@@ -179,10 +128,6 @@ export class PivotUIPlugin extends EvaluationPlugin {
     }
   }
 
-  /**
-   * Reset the cache of the date/datetime pivot values, as it depends on
-   * the locale. (e.g. the first day of the week)
-   */
   private onUpdatePivot(cmd: UpdatePivotCommand) {
     this.setupPivot(cmd.pivotId, { recreate: true });
   }
