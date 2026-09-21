@@ -1941,6 +1941,10 @@ export function evaluateCells(model: Model) {
   return model.dispatch("EVALUATE_CELLS");
 }
 
+export function setAutomaticEvaluation(model: Model, enabled: boolean) {
+  return model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled });
+}
+
 export function evaluateCharts(model: Model) {
   return model.dispatch("EVALUATE_CHARTS");
 }
