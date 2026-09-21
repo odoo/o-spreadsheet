@@ -27,6 +27,7 @@ import {
   resizeSheetView,
   selectCell,
   setAnchorCorner,
+  setAutomaticEvaluation,
   setCellContent,
   setCellStyle,
   setFormatting,
@@ -48,6 +49,7 @@ import {
   getCell,
   getCellFormat,
   getCellStyle,
+  getEvaluatedCell,
   getStyle,
   getTable,
 } from "./test_helpers/getters_helpers";
@@ -337,12 +339,25 @@ describe("TopBar component", () => {
   test("manual evaluation banner appears and can re-enable automatic evaluation", async () => {
     const { model } = await mountParent();
     expect(".manual-evaluation").toHaveCount(0);
-    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
+    setAutomaticEvaluation(model, false);
     await nextTick();
     expect(".manual-evaluation").toHaveCount(1);
     await click(fixture, ".manual-evaluation .btn");
     expect(".manual-evaluation").toHaveCount(0);
     expect(model.getters.isAutomaticEvaluationEnabled()).toBe(true);
+  });
+
+  test("manual evaluation banner link recalculates the cells", async () => {
+    const { model } = await mountParent();
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "=A1");
+    setAutomaticEvaluation(model, false);
+    setCellContent(model, "A1", "2");
+    await nextTick();
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+    await click(fixture, ".manual-evaluation span .o-button-link");
+    expect(getEvaluatedCell(model, "A2").value).toBe(2);
+    expect(model.getters.isAutomaticEvaluationEnabled()).toBe(false);
   });
 
   describe("Paint format tools", () => {
