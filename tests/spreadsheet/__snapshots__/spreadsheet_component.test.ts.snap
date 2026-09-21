@@ -2131,10 +2131,10 @@ exports[`components take the small screen into account 1`] = `
             class="position-relative"
           >
             <div
-              class="py-1 px-1 mx-2 ribbon-toggler"
+              class="py-1 px-1 mx-2 ribbon-toggler o-icon"
             >
               <i
-                class="o-icon oi oi-filled"
+                class="oi oi-filled"
                 data-icon="settings_f"
               />
             </div>
