@@ -959,11 +959,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
   </div>
   
   <div
-    class="o-spreadsheet-bottombar-wrapper o-two-columns overflow-hidden"
+    class="o-spreadsheet-bottombar-wrapper o-two-columns overflow-hidden border-top"
   >
     
     <div
-      class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden border-top"
+      class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden"
     >
       <div
         class="o-ripple-container position-relative add-sheet-container"
@@ -1969,7 +1969,7 @@ exports[`components take the small screen into account 1`] = `
   </div>
   
   <div
-    class="o-spreadsheet-bottombar-wrapper o-two-columns overflow-hidden"
+    class="o-spreadsheet-bottombar-wrapper o-two-columns overflow-hidden border-top"
   >
     <div
       class="o-spreadsheet-small-bottom-bar o-two-columns d-flex flex-column overflow-hidden"
@@ -2045,7 +2045,7 @@ exports[`components take the small screen into account 1`] = `
         </div>
         
         <div
-          class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden border-top"
+          class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden"
         >
           <div
             class="o-ripple-container position-relative add-sheet-container"
