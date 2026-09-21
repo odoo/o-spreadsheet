@@ -35,7 +35,7 @@ export class Highlight extends OSComponent {
   highlightState: HighlightState = proxy({
     shiftingMode: "none",
   });
-  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
 
@@ -59,7 +59,7 @@ export class Highlight extends OSComponent {
   }
 
   onResizeHighlight(ev: PointerEvent, dirX: ResizeDirection, dirY: ResizeDirection) {
-    const activeSheetId = this.env.model.getters.getActiveSheetId();
+    const activeSheetId = this.model().getters.getActiveSheetId();
     const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
     this.highlightState.shiftingMode = "isResizing";
     const z = this.props.range.zone;
@@ -77,7 +77,7 @@ export class Highlight extends OSComponent {
       scrollDirection = dirX === 0 ? "vertical" : dirY === 0 ? "horizontal" : "all";
     }
 
-    this.env.model.dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
+    this.model().dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
 
     const mouseMove = (col: HeaderIndex, row: HeaderIndex) => {
       if (lastCol !== col || lastRow !== row) {
@@ -87,7 +87,7 @@ export class Highlight extends OSComponent {
           lastRow = lastRow = clip(
             row === -1 ? lastRow : row,
             0,
-            this.env.model.getters.getNumberRows(activeSheetId) - 1
+            this.model().getters.getNumberRows(activeSheetId) - 1
           );
           top = Math.min(pivotRow, lastRow);
           bottom = Math.max(pivotRow, lastRow);
@@ -97,7 +97,7 @@ export class Highlight extends OSComponent {
           lastCol = clip(
             col === -1 ? lastCol : col,
             0,
-            this.env.model.getters.getNumberCols(activeSheetId) - 1
+            this.model().getters.getNumberCols(activeSheetId) - 1
           );
           left = Math.min(pivotCol, lastCol);
           right = Math.max(pivotCol, lastCol);
@@ -105,7 +105,7 @@ export class Highlight extends OSComponent {
 
         const newZone: Zone = { left, right, top, bottom };
         if (!isEqual(newZone, currentZone)) {
-          this.env.model.selection.selectZone(
+          this.model().selection.selectZone(
             {
               cell: { col: newZone.left, row: newZone.top },
               zone: newZone,
@@ -131,7 +131,7 @@ export class Highlight extends OSComponent {
     const position = gridOverlayPosition(zoomLevel);
     const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev, position);
 
-    const activeSheetId = this.env.model.getters.getActiveSheetId();
+    const activeSheetId = this.model().getters.getActiveSheetId();
 
     const initCol = this.viewStore.viewports.getColIndex(
       activeSheetId,
@@ -143,13 +143,13 @@ export class Highlight extends OSComponent {
     );
 
     const deltaColMin = -z.left;
-    const deltaColMax = this.env.model.getters.getNumberCols(activeSheetId) - z.right - 1;
+    const deltaColMax = this.model().getters.getNumberCols(activeSheetId) - z.right - 1;
 
     const deltaRowMin = -z.top;
-    const deltaRowMax = this.env.model.getters.getNumberRows(activeSheetId) - z.bottom - 1;
+    const deltaRowMax = this.model().getters.getNumberRows(activeSheetId) - z.bottom - 1;
 
     let currentZone = z;
-    this.env.model.dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
+    this.model().dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
 
     let lastCol = initCol;
     let lastRow = initRow;
@@ -169,7 +169,7 @@ export class Highlight extends OSComponent {
         };
 
         if (!isEqual(newZone, currentZone)) {
-          this.env.model.selection.selectZone(
+          this.model().selection.selectZone(
             {
               cell: { col: newZone.left, row: newZone.top },
               zone: newZone,

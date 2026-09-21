@@ -13,8 +13,8 @@ import { FIRST_TABLE_IN_SELECTION } from "./menu_items_actions";
 export const undo: ActionSpec = {
   name: _t("Undo"),
   shortcut: "Ctrl+Z",
-  execute: (env) => env.model.dispatch("REQUEST_UNDO"),
-  isEnabled: (env) => env.model.getters.canUndo(),
+  execute: (env) => env.model().dispatch("REQUEST_UNDO"),
+  isEnabled: (env) => env.model().getters.canUndo(),
   isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.UNDO",
 };
@@ -22,8 +22,8 @@ export const undo: ActionSpec = {
 export const redo: ActionSpec = {
   name: _t("Redo"),
   shortcut: "Ctrl+Y",
-  execute: (env) => env.model.dispatch("REQUEST_REDO"),
-  isEnabled: (env) => env.model.getters.canRedo(),
+  execute: (env) => env.model().dispatch("REQUEST_REDO"),
+  isEnabled: (env) => env.model().getters.canRedo(),
   isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.REDO",
 };
@@ -33,7 +33,7 @@ export const copy: ActionSpec = {
   shortcut: "Ctrl+C",
   isReadonlyAllowed: true,
   execute: async (env) => {
-    env.model.dispatch("COPY");
+    env.model().dispatch("COPY");
     const clipboardStore = env.getStore(ClipboardStore);
     await env.clipboard.write(await clipboardStore.getClipboardTextAndImageContent());
   },
@@ -94,9 +94,9 @@ export const findAndReplace: ActionSpec = {
 export const deleteValues: ActionSpec = {
   name: _t("Delete values"),
   execute: (env) =>
-    env.model.dispatch("DELETE_UNFILTERED_CONTENT", {
-      sheetId: env.model.getters.getActiveSheetId(),
-      target: env.model.getters.getSelectedZones(),
+    env.model().dispatch("DELETE_UNFILTERED_CONTENT", {
+      sheetId: env.model().getters.getActiveSheetId(),
+      target: env.model().getters.getSelectedZones(),
     }),
 };
 
@@ -140,8 +140,8 @@ export const deleteCells: ActionSpec = {
 export const deleteCellShiftUp: ActionSpec = {
   name: _t("Delete cell and shift up"),
   execute: (env) => {
-    const zone = env.model.getters.getSelectedZone();
-    const result = env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "ROW" });
+    const zone = env.model().getters.getSelectedZone();
+    const result = env.model().dispatch("DELETE_CELL", { zone, shiftDimension: "ROW" });
     handlePasteResult(env, result);
   },
 };
@@ -149,8 +149,8 @@ export const deleteCellShiftUp: ActionSpec = {
 export const deleteCellShiftLeft: ActionSpec = {
   name: _t("Delete cell and shift left"),
   execute: (env) => {
-    const zone = env.model.getters.getSelectedZone();
-    const result = env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "COL" });
+    const zone = env.model().getters.getSelectedZone();
+    const result = env.model().dispatch("DELETE_CELL", { zone, shiftDimension: "COL" });
     handlePasteResult(env, result);
   },
 };
@@ -181,9 +181,9 @@ export const deleteTable: ActionSpec = {
 };
 
 function cannotMerge(env: SpreadsheetActionEnv): boolean {
-  const zones = env.model.getters.getSelectedZones();
-  const { sheetId } = env.model.getters.getActivePosition();
-  const { xSplit, ySplit } = env.model.getters.getPaneDivisions(sheetId);
+  const zones = env.model().getters.getSelectedZones();
+  const { sheetId } = env.model().getters.getActivePosition();
+  const { xSplit, ySplit } = env.model().getters.getPaneDivisions(sheetId);
   return (
     zones.every((zone) => getZoneArea(zone) === 1) ||
     doesAnyZoneCrossFrozenPane(zones, xSplit, ySplit) ||
@@ -196,10 +196,10 @@ function hasMergeInAnySelectedZone(env: SpreadsheetActionEnv): boolean {
     return false;
   }
 
-  const sheetId = env.model.getters.getActiveSheetId();
-  const zones = env.model.getters.getSelectedZones();
+  const sheetId = env.model().getters.getActiveSheetId();
+  const zones = env.model().getters.getSelectedZones();
   return zones.some((zone) => {
-    return env.model.getters.getMergesInZone(sheetId, zone).length > 0;
+    return env.model().getters.getMergesInZone(sheetId, zone).length > 0;
   });
 }
 
@@ -208,13 +208,13 @@ function toggleMerge(env: SpreadsheetActionEnv) {
     return;
   }
 
-  const target = env.model.getters.getSelectedZones();
-  const sheetId = env.model.getters.getActiveSheetId();
+  const target = env.model().getters.getSelectedZones();
+  const sheetId = env.model().getters.getActiveSheetId();
   if (hasMergeInAnySelectedZone(env)) {
     const mergesToRemove = target.flatMap((zone) =>
-      env.model.getters.getMergesInZone(sheetId, zone)
+      env.model().getters.getMergesInZone(sheetId, zone)
     );
-    env.model.dispatch("REMOVE_MERGE", { sheetId, target: mergesToRemove });
+    env.model().dispatch("REMOVE_MERGE", { sheetId, target: mergesToRemove });
   } else {
     interactiveAddMerge(env, sheetId, target);
   }

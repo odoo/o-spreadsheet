@@ -30,9 +30,7 @@ export class ConditionalFormatPreviewList extends OSComponent {
   }
 
   get conditionalFormats(): ConditionalFormat[] {
-    const cfs = this.env.model.getters.getConditionalFormats(
-      this.env.model.getters.getActiveSheetId()
-    );
+    const cfs = this.model().getters.getConditionalFormats(this.model().getters.getActiveSheetId());
     return cfs;
   }
 
@@ -66,8 +64,8 @@ export class ConditionalFormatPreviewList extends OSComponent {
   }
 
   onAddConditionalFormat() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const zones = this.env.model.getters.getSelectedZones();
+    const sheetId = this.model().getters.getActiveSheetId();
+    const zones = this.model().getters.getSelectedZones();
     const cf: Omit<ConditionalFormat, "ranges"> = {
       id: UuidGenerator.smallUuid(),
       rule: {
@@ -77,17 +75,15 @@ export class ConditionalFormatPreviewList extends OSComponent {
         values: [],
       },
     };
-    this.env.model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    this.model().dispatch("ADD_CONDITIONAL_FORMAT", {
       cf,
-      ranges: zones.map((zone) => this.env.model.getters.getRangeDataFromZone(sheetId, zone)),
+      ranges: zones.map((zone) => this.model().getters.getRangeDataFromZone(sheetId, zone)),
       sheetId,
     });
     return this.sidePanelStore.replace("ConditionalFormattingEditor", "ConditionalFormatting", {
       cf: {
         ...cf,
-        ranges: zones.map((zone) =>
-          zoneToXc(this.env.model.getters.getUnboundedZone(sheetId, zone))
-        ),
+        ranges: zones.map((zone) => zoneToXc(this.model().getters.getUnboundedZone(sheetId, zone))),
       },
       isNewCf: true,
     });
@@ -97,10 +93,10 @@ export class ConditionalFormatPreviewList extends OSComponent {
     const originalIndex = this.conditionalFormats.findIndex((sheet) => sheet.id === cfId);
     const delta = originalIndex - finalIndex;
     if (delta !== 0) {
-      this.env.model.dispatch("CHANGE_CONDITIONAL_FORMAT_PRIORITY", {
+      this.model().dispatch("CHANGE_CONDITIONAL_FORMAT_PRIORITY", {
         cfId,
         delta,
-        sheetId: this.env.model.getters.getActiveSheetId(),
+        sheetId: this.model().getters.getActiveSheetId(),
       });
     }
   }

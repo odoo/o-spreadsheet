@@ -17,18 +17,18 @@ export class NamedRangesPanel extends OSComponent {
   });
 
   get namedRanges() {
-    return this.env.model.getters.getNamedRanges();
+    return this.model().getters.getNamedRanges();
   }
 
   addNewNamedRange() {
     const existingNames = this.namedRanges.map((nr) => nr.name);
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const selection = this.env.model.getters.getSelectedZone();
-    this.env.model.dispatch("CREATE_NAMED_RANGE", {
+    const sheetId = this.model().getters.getActiveSheetId();
+    const selection = this.model().getters.getSelectedZone();
+    this.model().dispatch("CREATE_NAMED_RANGE", {
       name: getUniqueText(_t("Named_Range"), existingNames, {
         compute: (text, index) => `${text}${index}`,
       }),
-      ranges: [this.env.model.getters.getRangeDataFromZone(sheetId, selection)],
+      ranges: [this.model().getters.getRangeDataFromZone(sheetId, selection)],
     });
   }
 }

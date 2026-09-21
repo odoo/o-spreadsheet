@@ -2,6 +2,7 @@ import { DEFAULT_LOCALE, setTranslationMethod } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { arg } from "../../src/functions/arguments";
 import { functionRegistry } from "../../src/functions/function_registry";
+import type { Model } from "../../src/model";
 import { _t } from "../../src/translation";
 import { Store } from "../../src/types/store_engine";
 import { registerCleanup } from "../setup/jest.setup";
@@ -20,6 +21,7 @@ import {
 let composerEl: Element;
 let fixture: HTMLElement;
 let parent: ComposerWrapper;
+let model: Model;
 let composerStore: Store<CellComposerStore>;
 
 const queryFormulaArgName =
@@ -48,7 +50,7 @@ async function typeInComposer(text: string, fromScratch: boolean = true) {
 }
 
 beforeEach(async () => {
-  ({ fixture, parent } = await mountComposerWrapper());
+  ({ fixture, parent, model } = await mountComposerWrapper());
   // start composition
   parent.startComposition();
   await nextTick();
@@ -350,7 +352,7 @@ describe("formula assistant", () => {
       });
 
       test("arguments separator is localized", async () => {
-        updateLocale(parent.env.model, { ...DEFAULT_LOCALE, formulaArgSeparator: ";" });
+        updateLocale(model, { ...DEFAULT_LOCALE, formulaArgSeparator: ";" });
         await typeInComposer("=FUNC1(");
         expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
           "FUNC1 ( f1ArgA; f1ArgB )"

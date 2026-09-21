@@ -52,17 +52,17 @@ export class PivotTitleSection extends OSComponent {
   }
 
   get name() {
-    return this.env.model.getters.getPivotName(this.props.pivotId);
+    return this.model().getters.getPivotName(this.props.pivotId);
   }
 
   get displayName() {
-    return this.env.model.getters.getPivotDisplayName(this.props.pivotId);
+    return this.model().getters.getPivotDisplayName(this.props.pivotId);
   }
 
   duplicatePivot() {
     const newPivotId = UuidGenerator.smallUuid();
     const newSheetId = UuidGenerator.smallUuid();
-    const result = this.env.model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
+    const result = this.model().dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
       pivotId: this.props.pivotId,
       newPivotId,
       newSheetId,
@@ -88,13 +88,13 @@ export class PivotTitleSection extends OSComponent {
 
   delete() {
     this.notification.askConfirmation(_t("Are you sure you want to delete this pivot?"), () => {
-      this.env.model.dispatch("REMOVE_PIVOT", { pivotId: this.props.pivotId });
+      this.model().dispatch("REMOVE_PIVOT", { pivotId: this.props.pivotId });
     });
   }
 
   onNameChanged(name: string) {
-    const pivot = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
-    this.env.model.dispatch("UPDATE_PIVOT", {
+    const pivot = this.model().getters.getPivotCoreDefinition(this.props.pivotId);
+    this.model().dispatch("UPDATE_PIVOT", {
       pivotId: this.props.pivotId,
       pivot: {
         ...pivot,

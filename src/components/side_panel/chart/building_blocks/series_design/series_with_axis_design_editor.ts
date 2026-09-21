@@ -132,7 +132,7 @@ export class SeriesWithAxisDesignEditor extends OSComponent {
   }
 
   getMaxPolynomialDegree(dataSetId: UID) {
-    const runtime = this.env.model.getters.getChartRuntime(
+    const runtime = this.model().getters.getChartRuntime(
       this.props.chartId
     ) as CustomizableSeriesChartRuntime;
     const index = runtime.customizableSeries.findIndex((series) => series.dataSetId === dataSetId);
@@ -157,7 +157,7 @@ export class SeriesWithAxisDesignEditor extends OSComponent {
       return "";
     }
     const color = dataSets[dataSetId]?.backgroundColor;
-    const runtime = this.env.model.getters.getChartRuntime(
+    const runtime = this.model().getters.getChartRuntime(
       this.props.chartId
     ) as CustomizableSeriesChartRuntime;
     const index = runtime.customizableSeries.findIndex((series) => series.dataSetId === dataSetId);

@@ -93,7 +93,7 @@ export class TableStylePreview extends OSComponent {
     if (!this.props.styleId) {
       return;
     }
-    this.menu.menuItems = createTableStyleContextMenuActions(this.env, this.props.styleId);
+    this.menu.menuItems = createTableStyleContextMenuActions(this.spEnv, this.props.styleId);
     this.menu.isOpen = true;
     this.menu.anchorRect = { x: event.clientX, y: event.clientY, width: 0, height: 0 };
   }
@@ -115,7 +115,7 @@ export class TableStylePreview extends OSComponent {
     if (!this.props.styleId) {
       return false;
     }
-    return this.env.model.getters.isTableStyleEditable(this.props.styleId);
+    return this.model().getters.isTableStyleEditable(this.props.styleId);
   }
 
   editTableStyle() {

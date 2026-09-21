@@ -41,6 +41,6 @@ export class ClickableCellsOverlay extends OSComponent {
       return;
     }
     const { position, action } = clickableCell;
-    action(position, this.env, isMiddleClickOrCtrlClick(ev));
+    action(position, this.spEnv, isMiddleClickOrCtrlClick(ev));
   }
 }

@@ -10,7 +10,7 @@ import {
 } from "../../src/constants";
 import { toHex } from "../../src/helpers/color";
 import { toZone } from "../../src/helpers/zones";
-import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
+import { Component } from "../../src/owl3_compatibility_layer";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
@@ -153,9 +153,6 @@ class Parent extends Component {
         handleEvent: spyHandleEvent.bind(this),
       }
     );
-    useSubEnv({
-      model: this.props.model,
-    });
   }
 }
 
@@ -164,6 +161,7 @@ async function mountHighlight(zone: string, color: Color) {
   const sheetId = model.getters.getActiveSheetId();
   ({ fixture, parent, env, viewStore } = await mountComponent(Parent, {
     props: { range: model.getters.getRangeFromZone(sheetId, toZone(zone)), color, model },
+    model,
   }));
   return { parent: parent as Parent, model, env, viewStore };
 }

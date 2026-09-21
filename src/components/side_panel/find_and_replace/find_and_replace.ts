@@ -56,9 +56,7 @@ export class FindAndReplacePanel extends OSComponent {
       activeSheetHiddenMatchesCount: hidden,
       searchOptions,
     } = this.store;
-    const sheetName = this.env.model.getters.getSheetName(
-      this.env.model.getters.getActiveSheetId()
-    );
+    const sheetName = this.model().getters.getSheetName(this.model().getters.getActiveSheetId());
     let label =
       count === 1
         ? _t("1 match in '%(sheetName)s'", { sheetName })
@@ -84,12 +82,12 @@ export class FindAndReplacePanel extends OSComponent {
       count === 1
         ? _t("1 match in range %(range)s of '%(sheetName)s'", {
             range: zoneToXc(zone),
-            sheetName: this.env.model.getters.getSheetName(sheetId),
+            sheetName: this.model().getters.getSheetName(sheetId),
           })
         : _t("%(count)s matches in range %(range)s of '%(sheetName)s'", {
             count,
             range: zoneToXc(zone),
-            sheetName: this.env.model.getters.getSheetName(sheetId),
+            sheetName: this.model().getters.getSheetName(sheetId),
           });
     if (searchOptions.includeHidden) {
       label += this.hiddenLabel(hidden);
@@ -116,7 +114,7 @@ export class FindAndReplacePanel extends OSComponent {
 
   get hiddenSheetsWithMatchesInfo(): string[] {
     return this.store.hiddenSheetsWithMatches.map((sheetId) =>
-      this.env.model.getters.getSheetName(sheetId)
+      this.model().getters.getSheetName(sheetId)
     );
   }
 
@@ -205,8 +203,8 @@ export class FindAndReplacePanel extends OSComponent {
     if (!this.state.dataRange || this.searchOptions.searchScope !== "specificRange") {
       return;
     }
-    const specificRange = this.env.model.getters.getRangeFromSheetXC(
-      this.env.model.getters.getActiveSheetId(),
+    const specificRange = this.model().getters.getRangeFromSheetXC(
+      this.model().getters.getActiveSheetId(),
       this.state.dataRange
     );
     this.store.updateSearchOptions({ specificRange });
@@ -214,7 +212,7 @@ export class FindAndReplacePanel extends OSComponent {
 
   get specificRange(): string {
     const range = this.store.searchOptions.specificRange;
-    return range ? this.env.model.getters.getRangeString(range, "forceSheetReference") : "";
+    return range ? this.model().getters.getRangeString(range, "forceSheetReference") : "";
   }
 
   get pendingSearch() {
@@ -226,7 +224,7 @@ export class FindAndReplacePanel extends OSComponent {
     // and have specific behaviour linked to it (eg. go back to the initial sheet after confirmation).
     // We don't want all those behaviors here, so we force the recreation of the component when the active sheet changes.
     // The only drawback is that the input loses focus when changing sheet.
-    return this.env.model.getters.getActiveSheetId();
+    return this.model().getters.getActiveSheetId();
   }
 
   get searchScopeOptions(): ValueAndLabel[] {

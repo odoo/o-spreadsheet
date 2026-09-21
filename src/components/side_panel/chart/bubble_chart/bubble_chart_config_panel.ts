@@ -183,7 +183,7 @@ export class BubbleChartConfigPanel extends OSComponent {
       return undefined;
     }
     const dataRange = this.yRanges[0] ?? this.xRange ?? "";
-    const getters = this.env.model.getters;
+    const getters = this.model().getters;
     const sheetId = getters.getActiveSheetId();
     const zone = createValidRange(getters, sheetId, dataRange || "")?.zone;
     if (zone) {
@@ -196,7 +196,7 @@ export class BubbleChartConfigPanel extends OSComponent {
     let anyRow = false;
     let anyColumn = false;
     for (const yRange of this.yRanges) {
-      const getters = this.env.model.getters;
+      const getters = this.model().getters;
       const sheetId = getters.getActiveSheetId();
       const zone = createValidRange(getters, sheetId, yRange)?.zone;
       if (!zone) {

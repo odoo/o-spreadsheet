@@ -85,7 +85,7 @@ export class ColorScaleRuleEditorThreshold extends OSComponent {
       defaultStatic: true,
       invalid: isInvalid,
       class: "o-sidePanel-composer",
-      defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
+      defaultRangeSheetId: this.model().getters.getActiveSheetId(),
     };
   }
 
@@ -103,7 +103,7 @@ export class ColorScaleRuleEditorThreshold extends OSComponent {
   }
 
   localizeValue(value: string | undefined): string {
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     return value ? localizeContent(value, locale) : "";
   }
 }

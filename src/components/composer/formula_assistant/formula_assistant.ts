@@ -28,7 +28,7 @@ export class FunctionDescriptionProvider extends OSComponent {
 
   get formulaHeaderContent(): { content: string; focused?: boolean }[] {
     const { functionDescription, repeatingArgGroupIndex, argsToFocus } = this.props;
-    const argSeparator = this.env.model.getters.getLocale().formulaArgSeparator + " ";
+    const argSeparator = this.model().getters.getLocale().formulaArgSeparator + " ";
 
     const result: { content: string; focused?: boolean }[] = [
       { content: functionDescription.name + " ( " },

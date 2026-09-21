@@ -29,7 +29,7 @@ export class UnhideRowHeaders extends OSComponent {
   }
 
   get sheetId() {
-    return this.env.model.getters.getActiveSheetId();
+    return this.model().getters.getActiveSheetId();
   }
 
   getUnhidePreviousButtonStyle(hiddenIndex: HeaderIndex): string {
@@ -51,7 +51,7 @@ export class UnhideRowHeaders extends OSComponent {
   }
 
   unhide(hiddenElements: HeaderIndex[]) {
-    this.env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
+    this.model().dispatch("UNHIDE_COLUMNS_ROWS", {
       sheetId: this.sheetId,
       dimension: "ROW",
       elements: hiddenElements,
@@ -82,7 +82,7 @@ export class UnhideColumnHeaders extends OSComponent {
   }
 
   get sheetId() {
-    return this.env.model.getters.getActiveSheetId();
+    return this.model().getters.getActiveSheetId();
   }
 
   getUnhidePreviousButtonStyle(hiddenIndex: HeaderIndex): string {
@@ -104,7 +104,7 @@ export class UnhideColumnHeaders extends OSComponent {
   }
 
   unhide(hiddenElements: HeaderIndex[]) {
-    this.env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
+    this.model().dispatch("UNHIDE_COLUMNS_ROWS", {
       sheetId: this.sheetId,
       dimension: "COL",
       elements: hiddenElements,

@@ -68,40 +68,44 @@ export class BottomBar extends OSComponent {
   }
 
   clickAddSheet(ev: MouseEvent) {
-    const activeSheetId = this.env.model.getters.getActiveSheetId();
+    const activeSheetId = this.model().getters.getActiveSheetId();
     const position =
-      this.env.model.getters.getSheetIds().findIndex((sheetId) => sheetId === activeSheetId) + 1;
+      this.model()
+        .getters.getSheetIds()
+        .findIndex((sheetId) => sheetId === activeSheetId) + 1;
     const sheetId = UuidGenerator.smallUuid();
-    const name = this.env.model.getters.getNextSheetName(_t("Sheet"));
-    this.env.model.dispatch("CREATE_SHEET", { sheetId, position, name });
-    this.env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
+    const name = this.model().getters.getNextSheetName(_t("Sheet"));
+    this.model().dispatch("CREATE_SHEET", { sheetId, position, name });
+    this.model().dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
   }
 
   getVisibleSheets(): BottomBarSheetItem[] {
-    return this.env.model.getters.getVisibleSheetIds().map((sheetId) => {
-      const sheet = this.env.model.getters.getSheet(sheetId);
-      return { id: sheet.id, name: sheet.name };
-    });
+    return this.model()
+      .getters.getVisibleSheetIds()
+      .map((sheetId) => {
+        const sheet = this.model().getters.getSheet(sheetId);
+        return { id: sheet.id, name: sheet.name };
+      });
   }
 
   clickListSheets(ev: MouseEvent) {
     const registry = new MenuItemRegistry();
-    const from = this.env.model.getters.getActiveSheetId();
+    const from = this.model().getters.getActiveSheetId();
     let i = 0;
-    for (const sheetId of this.env.model.getters.getSheetIds()) {
-      const sheet = this.env.model.getters.getSheet(sheetId);
+    for (const sheetId of this.model().getters.getSheetIds()) {
+      const sheet = this.model().getters.getSheet(sheetId);
       registry.add(sheetId, {
         name: sheet.name,
         sequence: i,
         isReadonlyAllowed: true,
         textColor: sheet.isVisible ? undefined : "#808080",
         execute: (env) => {
-          if (!this.env.model.getters.isSheetVisible(sheetId)) {
-            this.env.model.dispatch("SHOW_SHEET", { sheetId });
+          if (!this.model().getters.isSheetVisible(sheetId)) {
+            this.model().dispatch("SHOW_SHEET", { sheetId });
           }
-          env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: sheetId });
+          env.model().dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: sheetId });
         },
-        isEnabled: (env) => (env.model.getters.isReadonly() ? sheet.isVisible : true),
+        isEnabled: (env) => (env.model().getters.isReadonly() ? sheet.isVisible : true),
         icon: sheet.color ? "o-spreadsheet-Icon.SMALL_DOT_RIGHT_ALIGN" : undefined,
         iconColor: sheet.color,
         isEnabledOnLockedSheet: true,
@@ -195,7 +199,7 @@ export class BottomBar extends OSComponent {
   }
 
   onSheetMouseDown(sheetId: UID, event: MouseEvent) {
-    if (event.button !== 0 || this.env.model.getters.isReadonly()) {
+    if (event.button !== 0 || this.model().getters.isReadonly()) {
       return;
     }
     this.closeMenu();
@@ -225,7 +229,7 @@ export class BottomBar extends OSComponent {
     const originalIndex = this.getVisibleSheets().findIndex((sheet) => sheet.id === sheetId);
     const delta = finalIndex - originalIndex;
     if (sheetId && delta !== 0) {
-      this.env.model.dispatch("MOVE_SHEET", {
+      this.model().dispatch("MOVE_SHEET", {
         sheetId: sheetId,
         delta: delta,
       });

@@ -47,17 +47,17 @@ export class TablePanel extends OSComponent {
   state!: State;
 
   setup() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     useHighlights(this);
     this.state = proxy({
       tableZoneErrors: [],
-      tableXc: this.env.model.getters.getRangeString(this.props.table.range, sheetId),
+      tableXc: this.model().getters.getRangeString(this.props.table.range, sheetId),
       filtersEnabledIfPossible: this.props.table.config.hasFilters,
     });
     useStore(TableResizeStore);
     onWillUpdateProps((nextProps) => {
       if (!deepEquals(nextProps.table.range, this.props.table.range)) {
-        this.state.tableXc = this.env.model.getters.getRangeString(nextProps.table.range, sheetId);
+        this.state.tableXc = this.model().getters.getRangeString(nextProps.table.range, sheetId);
         this.state.tableZoneErrors = [];
         this.state.filtersEnabledIfPossible = nextProps.table.config.hasFilters;
       }
@@ -74,8 +74,8 @@ export class TablePanel extends OSComponent {
   }
 
   updateTableConfig(attName: keyof TableConfig, value: boolean | string | number): DispatchResult {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    return this.env.model.dispatch("UPDATE_TABLE", {
+    const sheetId = this.model().getters.getActiveSheetId();
+    return this.model().dispatch("UPDATE_TABLE", {
       sheetId,
       zone: this.props.table.range.zone,
       config: { [attName]: value },
@@ -92,21 +92,21 @@ export class TablePanel extends OSComponent {
     if (newTableType === this.props.table.type) {
       return;
     }
-    const uiTable = this.env.model.getters.getTable(getTableTopLeft(this.props.table));
+    const uiTable = this.model().getters.getTable(getTableTopLeft(this.props.table));
     if (!uiTable) {
       return;
     }
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const result = this.env.model.dispatch("UPDATE_TABLE", {
+    const sheetId = this.model().getters.getActiveSheetId();
+    const result = this.model().dispatch("UPDATE_TABLE", {
       sheetId,
       zone: this.props.table.range.zone,
-      newTableRange: this.env.model.getters.getRangeData(uiTable.range),
+      newTableRange: this.model().getters.getRangeData(uiTable.range),
       tableType: newTableType,
     });
-    const updatedTable = this.env.model.getters.getCoreTable(getTableTopLeft(this.props.table));
+    const updatedTable = this.model().getters.getCoreTable(getTableTopLeft(this.props.table));
     if (result.isSuccessful && updatedTable) {
       const newTableRange = updatedTable.range;
-      this.state.tableXc = this.env.model.getters.getRangeString(newTableRange, sheetId);
+      this.state.tableXc = this.model().getters.getRangeString(newTableRange, sheetId);
       this.state.tableZoneErrors = [];
     }
   }
@@ -119,32 +119,32 @@ export class TablePanel extends OSComponent {
   private updateNumberOfHeaders(numberOfHeaders: number) {
     const hasFilters =
       numberOfHeaders > 0 && (this.tableConfig.hasFilters || this.state.filtersEnabledIfPossible);
-    return this.env.model.dispatch("UPDATE_TABLE", {
-      sheetId: this.env.model.getters.getActiveSheetId(),
+    return this.model().dispatch("UPDATE_TABLE", {
+      sheetId: this.model().getters.getActiveSheetId(),
       zone: this.props.table.range.zone,
       config: { numberOfHeaders, hasFilters },
     });
   }
 
   onRangeChanged(ranges: string[]) {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
 
     this.state.tableXc = ranges[0];
-    const newTableRange = this.env.model.getters.getRangeFromSheetXC(sheetId, this.state.tableXc);
-    this.state.tableZoneErrors = this.env.model.canDispatch("UPDATE_TABLE", {
+    const newTableRange = this.model().getters.getRangeFromSheetXC(sheetId, this.state.tableXc);
+    this.state.tableZoneErrors = this.model().canDispatch("UPDATE_TABLE", {
       sheetId,
       zone: this.props.table.range.zone,
-      newTableRange: this.env.model.getters.getRangeDataFromXc(sheetId, this.state.tableXc),
+      newTableRange: this.model().getters.getRangeDataFromXc(sheetId, this.state.tableXc),
       tableType: this.getNewTableType(newTableRange.zone),
     }).reasons;
   }
 
   onRangeConfirmed() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    let newRange: Range = this.env.model.getters.getRangeFromSheetXC(sheetId, this.state.tableXc);
+    const sheetId = this.model().getters.getActiveSheetId();
+    let newRange: Range = this.model().getters.getRangeFromSheetXC(sheetId, this.state.tableXc);
     if (getZoneArea(newRange.zone) === 1) {
-      const extendedZone = this.env.model.getters.getContiguousZone(sheetId, newRange.zone);
-      newRange = this.env.model.getters.getRangeFromZone(sheetId, extendedZone);
+      const extendedZone = this.model().getters.getContiguousZone(sheetId, newRange.zone);
+      newRange = this.model().getters.getRangeFromZone(sheetId, extendedZone);
     }
     const newTableZone = newRange.zone;
     const oldTableZone = this.props.table.range.zone;
@@ -152,30 +152,30 @@ export class TablePanel extends OSComponent {
       newTableZone.top === oldTableZone.top && newTableZone.left === oldTableZone.left
         ? "RESIZE_TABLE"
         : "UPDATE_TABLE";
-    const result = this.env.model.dispatch(cmdToCall, {
+    const result = this.model().dispatch(cmdToCall, {
       sheetId,
       zone: this.props.table.range.zone,
-      newTableRange: this.env.model.getters.getRangeData(newRange),
+      newTableRange: this.model().getters.getRangeData(newRange),
       tableType: this.getNewTableType(newRange.zone),
     });
 
     const position = { sheetId, col: newRange.zone.left, row: newRange.zone.top };
-    const updatedTable = this.env.model.getters.getCoreTable(position);
+    const updatedTable = this.model().getters.getCoreTable(position);
 
     if (result.isSuccessful && updatedTable) {
       const newTopLeft = getTableTopLeft(updatedTable);
-      this.env.model.selection.selectZone({
+      this.model().selection.selectZone({
         zone: positionToZone(newTopLeft),
         cell: newTopLeft,
       });
       const newTableRange = updatedTable.range;
-      this.state.tableXc = this.env.model.getters.getRangeString(newTableRange, sheetId);
+      this.state.tableXc = this.model().getters.getRangeString(newTableRange, sheetId);
     }
   }
 
   onStylePicked(styleId: string) {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    this.env.model.dispatch("UPDATE_TABLE", {
+    const sheetId = this.model().getters.getActiveSheetId();
+    this.model().dispatch("UPDATE_TABLE", {
       sheetId,
       zone: this.props.table.range.zone,
       config: { styleId: styleId },
@@ -183,8 +183,8 @@ export class TablePanel extends OSComponent {
   }
 
   deleteTable() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    this.env.model.dispatch("REMOVE_TABLE", {
+    const sheetId = this.model().getters.getActiveSheetId();
+    this.model().dispatch("REMOVE_TABLE", {
       sheetId,
       target: [this.props.table.range.zone],
     });
@@ -194,8 +194,8 @@ export class TablePanel extends OSComponent {
     if (this.props.table.type === "forceStatic") {
       return "forceStatic";
     }
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    return this.env.model.getters.canCreateDynamicTableOnZones(sheetId, [newTableZone])
+    const sheetId = this.model().getters.getActiveSheetId();
+    return this.model().getters.canCreateDynamicTableOnZones(sheetId, [newTableZone])
       ? "dynamic"
       : "static";
   }
@@ -224,10 +224,10 @@ export class TablePanel extends OSComponent {
   }
 
   get canBeDynamic() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     return (
       this.props.table.type === "dynamic" ||
-      this.env.model.getters.canCreateDynamicTableOnZones(sheetId, [this.props.table.range.zone])
+      this.model().getters.canCreateDynamicTableOnZones(sheetId, [this.props.table.range.zone])
     );
   }
 

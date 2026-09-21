@@ -24,7 +24,7 @@ clickableCellRegistry.add("link", {
     return !!getters.getEvaluatedCell(position).link;
   },
   execute: (position: CellPosition, env: SpreadsheetActionEnv, isMiddleClick?: boolean) =>
-    openLink(env.model.getters.getEvaluatedCell(position).link!, env, isMiddleClick),
+    openLink(env.model().getters.getEvaluatedCell(position).link!, env, isMiddleClick),
   title: (position, getters) => {
     const link = getters.getEvaluatedCell(position).link;
     if (!link) {
@@ -48,7 +48,7 @@ clickableCellRegistry.add("dashboard_pivot_sorting", {
     return canSortPivot(getters, position) && pivotCell.type === "MEASURE_HEADER";
   },
   execute: (position: CellPosition, env: SpreadsheetActionEnv) => {
-    sortPivot(env, position, getNextSortDirection(env.model.getters, position));
+    sortPivot(env, position, getNextSortDirection(env.model().getters, position));
   },
   component: ClickableCellSortIcon,
   componentProps: (position: CellPosition, getters: Getters) => {

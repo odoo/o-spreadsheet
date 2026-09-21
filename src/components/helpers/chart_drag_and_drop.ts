@@ -14,7 +14,7 @@ import { ZoomStore } from "../../stores/zoom_store";
 import { ChartDefinition } from "../../types/chart/chart";
 import { FigureSize, FigureUI } from "../../types/figure";
 import { PixelPosition } from "../../types/misc";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
 import { gridOverlayPosition } from "./dom_helpers";
 import { startDnd } from "./drag_and_drop";
 
@@ -69,7 +69,7 @@ export function getCarouselOverlappingChart(
  * On drop, creates the chart on the grid (or inside a carousel if dropped on one).
  */
 export function startChartDragAndDrop(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   definition: ChartDefinition,
   ev: MouseEvent
 ) {
@@ -85,7 +85,7 @@ export function startChartDragAndDrop(
   const figureWidth = width * zoom;
   const figureHeight = height * zoom;
 
-  const getters = env.model.getters;
+  const getters = env.model().getters;
   const sheetId = getters.getActiveSheetId();
 
   let container: HTMLDivElement | null = null;
@@ -196,14 +196,14 @@ export function startChartDragAndDrop(
       mouseEvent.clientY - halfHeight
     );
     if (overlappingFigure?.tag === "carousel") {
-      env.model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
+      env.model().dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
         sheetId,
         figureId: overlappingFigure.id,
         newChartId: UuidGenerator.smallUuid(),
         chartDefinition: definition,
       });
     } else if (overlappingFigure?.tag === "chart") {
-      env.model.dispatch("CREATE_CHART_AND_MERGE_INTO_CAROUSEL", {
+      env.model().dispatch("CREATE_CHART_AND_MERGE_INTO_CAROUSEL", {
         chartId: payload.chartId,
         figureId: payload.figureId,
         sheetId: payload.sheetId,
@@ -211,7 +211,7 @@ export function startChartDragAndDrop(
         baseFigureId: overlappingFigure.id,
       });
     } else {
-      env.model.dispatch("CREATE_CHART", payload);
+      env.model().dispatch("CREATE_CHART", payload);
     }
   };
 

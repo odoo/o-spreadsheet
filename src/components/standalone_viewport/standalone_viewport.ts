@@ -124,16 +124,16 @@ export class StandaloneViewport extends OSComponent {
   }
 
   onCellDoubleClicked(col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) {
-    if (!this.env.model.getters.isDashboard()) {
+    if (!this.model().getters.isDashboard()) {
       ev.stopPropagation();
-      const activeSheetId = this.env.model.getters.getActiveSheetId();
+      const activeSheetId = this.model().getters.getActiveSheetId();
       if (this.props.range.sheetId !== activeSheetId) {
-        this.env.model.dispatch("ACTIVATE_SHEET", {
+        this.model().dispatch("ACTIVATE_SHEET", {
           sheetIdFrom: activeSheetId,
           sheetIdTo: this.props.range.sheetId,
         });
       }
-      this.env.model.selection.selectCell(col, row);
+      this.model().selection.selectCell(col, row);
       return;
     }
   }
@@ -149,7 +149,7 @@ export class StandaloneViewport extends OSComponent {
     const zone = this.props.range.zone;
     const sheetId = this.props.range.sheetId;
     for (let col = zone.left; col < zone.right; col++) {
-      if (this.env.model.getters.isColHidden(sheetId, col)) {
+      if (this.model().getters.isColHidden(sheetId, col)) {
         continue;
       }
       const colDimensions = this.viewStore.viewports.getColDimensionsInViewport(sheetId, col);

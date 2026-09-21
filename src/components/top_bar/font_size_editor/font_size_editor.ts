@@ -18,10 +18,10 @@ export class TopBarFontSizeEditor extends OSComponent {
   }
 
   get currentFontSize(): number {
-    return this.env.model.getters.getCurrentStyle().fontSize || DEFAULT_FONT_SIZE;
+    return this.model().getters.getCurrentStyle().fontSize || DEFAULT_FONT_SIZE;
   }
   setFontSize(fontSize: number) {
-    setStyle(this.env.model, { fontSize });
+    setStyle(this.model(), { fontSize });
   }
 
   onToggle() {
@@ -41,8 +41,6 @@ export class TopBarFontSizeEditor extends OSComponent {
   }
 
   get class() {
-    return `${this.props.class} ${
-      this.env.model.getters.isCurrentSheetLocked() ? "o-disabled" : ""
-    }`;
+    return `${this.props.class} ${this.model().getters.isCurrentSheetLocked() ? "o-disabled" : ""}`;
   }
 }

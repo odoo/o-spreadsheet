@@ -50,17 +50,14 @@ export class DataValidationEditor extends OSComponent {
   private sidePanelStore!: Store<SidePanelStore>;
 
   setup() {
-    this.editingSheetId = this.env.model.getters.getActiveSheetId();
+    this.editingSheetId = this.model().getters.getActiveSheetId();
     this.sidePanelStore = useStore(SidePanelStore);
-    const rule = this.env.model.getters.getDataValidationRule(
-      this.editingSheetId,
-      this.props.ruleId
-    );
+    const rule = this.model().getters.getDataValidationRule(this.editingSheetId, this.props.ruleId);
     if (rule) {
       this.state.rule = {
         ...rule,
         ranges: rule.ranges.map((range) =>
-          this.env.model.getters.getRangeString(range, this.editingSheetId)
+          this.model().getters.getRangeString(range, this.editingSheetId)
         ),
       };
     }
@@ -89,7 +86,7 @@ export class DataValidationEditor extends OSComponent {
   }
 
   onSave() {
-    const result = this.env.model.dispatch("ADD_DATA_VALIDATION_RULE", this.dispatchPayload);
+    const result = this.model().dispatch("ADD_DATA_VALIDATION_RULE", this.dispatchPayload);
     if (!result.isSuccessful) {
       this.state.errors = result.reasons;
       return;
@@ -110,7 +107,7 @@ export class DataValidationEditor extends OSComponent {
     return {
       sheetId: this.editingSheetId,
       ranges: this.state.rule.ranges.map((xc) =>
-        this.env.model.getters.getRangeDataFromXc(this.editingSheetId, xc)
+        this.model().getters.getRangeDataFromXc(this.editingSheetId, xc)
       ),
       rule,
     };
@@ -121,10 +118,10 @@ export class DataValidationEditor extends OSComponent {
   }
 
   get defaultDataValidationRule(): DataValidationRuleData {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const ranges = this.env.model.getters
-      .getSelectedZones()
-      .map((zone) => zoneToXc(this.env.model.getters.getUnboundedZone(sheetId, zone)));
+    const sheetId = this.model().getters.getActiveSheetId();
+    const ranges = this.model()
+      .getters.getSelectedZones()
+      .map((zone) => zoneToXc(this.model().getters.getUnboundedZone(sheetId, zone)));
     return {
       id: this.props.ruleId,
       criterion: { type: "containsText", values: [""] },

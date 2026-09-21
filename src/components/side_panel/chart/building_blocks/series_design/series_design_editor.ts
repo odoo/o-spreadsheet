@@ -32,7 +32,7 @@ export class SeriesDesignEditor extends OSComponent {
   protected state = proxy({ dataSetId: this.getDataSeries()[0]?.dataSetId || "" });
 
   private getRuntime(): CustomizableSeriesChartRuntime {
-    const runtime = this.env.model.getters.getChartRuntime(this.props.chartId);
+    const runtime = this.model().getters.getChartRuntime(this.props.chartId);
     if (!runtime || !("customizableSeries" in runtime)) {
       throw new Error(
         "SeriesDesignEditor: chart runtime is not compatible with series customization."

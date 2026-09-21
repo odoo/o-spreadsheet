@@ -43,7 +43,7 @@ export class TableDropdownButton extends OSComponent {
   }
 
   onStylePicked(styleId: string) {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const tableConfig = { ...this.tableConfig, styleId };
     const result = interactiveCreateTable(this.spEnv, sheetId, tableConfig);
     if (result.isSuccessful) {
@@ -109,26 +109,26 @@ export class TableDropdownButton extends OSComponent {
   }
 
   get tableStyles() {
-    return this.env.model.getters.getTableStyles();
+    return this.model().getters.getTableStyles();
   }
 
   get dynamicPivotIdInSelection(): UID | undefined {
-    const selection = this.env.model.getters.getSelectedZones();
-    const pivotCellIds = new Set(this.env.model.getters.getCellsWithTrackedFormula("PIVOT"));
+    const selection = this.model().getters.getSelectedZones();
+    const pivotCellIds = new Set(this.model().getters.getCellsWithTrackedFormula("PIVOT"));
     if (pivotCellIds.size === 0) {
       return undefined;
     }
 
-    const activeSheetId = this.env.model.getters.getActiveSheetId();
+    const activeSheetId = this.model().getters.getActiveSheetId();
     for (const zone of selection) {
       for (const position of cellPositions(activeSheetId, zone)) {
-        const mainPosition = this.env.model.getters.getArrayFormulaSpreadingOn(position);
+        const mainPosition = this.model().getters.getArrayFormulaSpreadingOn(position);
         if (!mainPosition) {
           continue;
         }
-        const cellId = this.env.model.getters.getCell(mainPosition)?.id;
+        const cellId = this.model().getters.getCell(mainPosition)?.id;
         if (cellId && pivotCellIds.has(cellId)) {
-          const pivotId = this.env.model.getters.getPivotIdFromPosition(mainPosition);
+          const pivotId = this.model().getters.getPivotIdFromPosition(mainPosition);
           if (pivotId) {
             return pivotId;
           }
@@ -141,7 +141,7 @@ export class TableDropdownButton extends OSComponent {
 
   get class() {
     return `${this.props.class ? this.props.class : ""} ${
-      this.env.model.getters.isCurrentSheetLocked() ? "o-disabled" : ""
+      this.model().getters.isCurrentSheetLocked() ? "o-disabled" : ""
     }`;
   }
 }

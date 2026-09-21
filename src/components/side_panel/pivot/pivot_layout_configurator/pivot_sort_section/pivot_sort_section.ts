@@ -21,7 +21,7 @@ export class PivotSortSection extends OSComponent {
   });
 
   get hasValidSort() {
-    const pivot = this.env.model.getters.getPivot(this.props.pivotId);
+    const pivot = this.model().getters.getPivot(this.props.pivotId);
     return (
       !!this.props.definition.sortedColumn &&
       isSortedColumnValid(this.props.definition.sortedColumn, pivot)
@@ -41,8 +41,8 @@ export class PivotSortSection extends OSComponent {
     if (!sortedColumn) {
       return [];
     }
-    const pivot = this.env.model.getters.getPivot(this.props.pivotId);
-    const locale = this.env.model.getters.getLocale();
+    const pivot = this.model().getters.getPivot(this.props.pivotId);
+    const locale = this.model().getters.getLocale();
 
     const currentDomain: PivotDomain = [];
     const sortValues: { field?: string; value: string }[] = [];

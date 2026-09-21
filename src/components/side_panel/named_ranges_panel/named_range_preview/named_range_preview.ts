@@ -37,7 +37,7 @@ export class NamedRangePreview extends OSComponent {
   }
 
   deleteNamedRange() {
-    this.env.model.dispatch("DELETE_NAMED_RANGE", {
+    this.model().dispatch("DELETE_NAMED_RANGE", {
       name: this.props.namedRange.name,
     });
   }
@@ -47,7 +47,7 @@ export class NamedRangePreview extends OSComponent {
     interactiveUpdateNamedRange(this.spEnv, {
       oldRangeName: this.props.namedRange.name,
       newRangeName: newName,
-      ranges: [this.env.model.getters.getRangeData(this.props.namedRange.range)],
+      ranges: [this.model().getters.getRangeData(this.props.namedRange.range)],
     });
   }
 
@@ -58,8 +58,8 @@ export class NamedRangePreview extends OSComponent {
   onSelectionInputConfirmed() {
     this.state.isSelectionInputFocused = false;
     if (this.state.currentRange) {
-      const range = this.env.model.getters.getRangeFromSheetXC(
-        this.env.model.getters.getActiveSheetId(),
+      const range = this.model().getters.getRangeFromSheetXC(
+        this.model().getters.getActiveSheetId(),
         this.state.currentRange
       );
       if (range.invalidSheetName || range.invalidXc) {
@@ -69,7 +69,7 @@ export class NamedRangePreview extends OSComponent {
       interactiveUpdateNamedRange(this.spEnv, {
         oldRangeName: this.props.namedRange.name,
         newRangeName: this.props.namedRange.name,
-        ranges: [this.env.model.getters.getRangeData(range)],
+        ranges: [this.model().getters.getRangeData(range)],
       });
     }
   }
@@ -79,9 +79,9 @@ export class NamedRangePreview extends OSComponent {
   }
 
   get rangeString(): string {
-    return this.env.model.getters.getRangeString(
+    return this.model().getters.getRangeString(
       this.props.namedRange.range,
-      this.env.model.getters.getActiveSheetId()
+      this.model().getters.getActiveSheetId()
     );
   }
 }

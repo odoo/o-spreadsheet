@@ -14,7 +14,7 @@ export function createHeaderGroupContainerContextMenu(
       id: "unfold_all",
       name: dimension === "ROW" ? _t("Expand all row groups") : _t("Expand all column groups"),
       execute: (env) => {
-        env.model.dispatch("UNFOLD_ALL_HEADER_GROUPS", { sheetId, dimension });
+        env.model().dispatch("UNFOLD_ALL_HEADER_GROUPS", { sheetId, dimension });
       },
       icon: "o-spreadsheet-Icon.EXPAND",
     },
@@ -22,7 +22,7 @@ export function createHeaderGroupContainerContextMenu(
       id: "fold_all",
       name: dimension === "ROW" ? _t("Collapse all row groups") : _t("Collapse all column groups"),
       execute: (env) => {
-        env.model.dispatch("FOLD_ALL_HEADER_GROUPS", { sheetId, dimension });
+        env.model().dispatch("FOLD_ALL_HEADER_GROUPS", { sheetId, dimension });
       },
       icon: "o-spreadsheet-Icon.COLLAPSE",
     },
@@ -39,8 +39,8 @@ export function getHeaderGroupContextMenu(
     {
       id: "toggle_group",
       name: (env) => {
-        const sheetId = env.model.getters.getActiveSheetId();
-        const groupIsFolded = env.model.getters.isGroupFolded(sheetId, dimension, start, end);
+        const sheetId = env.model().getters.getActiveSheetId();
+        const groupIsFolded = env.model().getters.isGroupFolded(sheetId, dimension, start, end);
         if (groupIsFolded) {
           return dimension === "ROW" ? _t("Expand row group") : _t("Expand column group");
         } else {
@@ -48,12 +48,12 @@ export function getHeaderGroupContextMenu(
         }
       },
       execute: (env) => {
-        const sheetId = env.model.getters.getActiveSheetId();
+        const sheetId = env.model().getters.getActiveSheetId();
         interactiveToggleGroup(env, sheetId, dimension, start, end);
       },
       icon: (env) => {
-        const sheetId = env.model.getters.getActiveSheetId();
-        const groupIsFolded = env.model.getters.isGroupFolded(sheetId, dimension, start, end);
+        const sheetId = env.model().getters.getActiveSheetId();
+        const groupIsFolded = env.model().getters.isGroupFolded(sheetId, dimension, start, end);
         return groupIsFolded ? "o-spreadsheet-Icon.EXPAND" : "o-spreadsheet-Icon.COLLAPSE";
       },
     },
@@ -61,8 +61,8 @@ export function getHeaderGroupContextMenu(
       id: "remove_group",
       name: dimension === "ROW" ? _t("Remove row group") : _t("Remove column group"),
       execute: (env) => {
-        const sheetId = env.model.getters.getActiveSheetId();
-        env.model.dispatch("UNGROUP_HEADERS", { sheetId, dimension, start, end });
+        const sheetId = env.model().getters.getActiveSheetId();
+        env.model().dispatch("UNGROUP_HEADERS", { sheetId, dimension, start, end });
       },
       icon: "o-spreadsheet-Icon.TRASH",
       separator: true,

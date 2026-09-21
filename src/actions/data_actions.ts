@@ -15,8 +15,8 @@ export const sortRange: ActionSpec = {
 export const sortAscending: ActionSpec = {
   name: _t("Ascending (A ⟶ Z)"),
   execute: (env) => {
-    const { anchor, zones } = env.model.getters.getSelection();
-    const sheetId = env.model.getters.getActiveSheetId();
+    const { anchor, zones } = env.model().getters.getSelection();
+    const sheetId = env.model().getters.getActiveSheetId();
     interactiveSortSelection(env, sheetId, anchor.cell, zones[0], "asc");
   },
   icon: "o-spreadsheet-Icon.SORT_ASCENDING",
@@ -30,8 +30,8 @@ export const dataCleanup: ActionSpec = {
 export const removeDuplicates: ActionSpec = {
   name: _t("Remove duplicates"),
   execute: (env) => {
-    if (getZoneArea(env.model.getters.getSelectedZone()) === 1) {
-      env.model.selection.selectTableAroundSelection();
+    if (getZoneArea(env.model().getters.getSelectedZone()) === 1) {
+      env.model().selection.selectTableAroundSelection();
     }
     env.getStore(SidePanelStore).open("RemoveDuplicates", {});
   },
@@ -54,8 +54,8 @@ export const cleanupDataSources: ActionSpec = {
 export const sortDescending: ActionSpec = {
   name: _t("Descending (Z ⟶ A)"),
   execute: (env) => {
-    const { anchor, zones } = env.model.getters.getSelection();
-    const sheetId = env.model.getters.getActiveSheetId();
+    const { anchor, zones } = env.model().getters.getSelection();
+    const sheetId = env.model().getters.getActiveSheetId();
     interactiveSortSelection(env, sheetId, anchor.cell, zones[0], "desc");
   },
   icon: "o-spreadsheet-Icon.SORT_DESCENDING",
@@ -74,7 +74,7 @@ export const splitToColumns: ActionSpec = {
   name: _t("Split text to columns"),
   sequence: 1,
   execute: (env) => env.getStore(SidePanelStore).open("SplitToColumns", {}),
-  isEnabled: (env) => !env.isSmall && env.model.getters.isSingleColSelected(),
+  isEnabled: (env) => !env.isSmall && env.model().getters.isSingleColSelected(),
   icon: "o-spreadsheet-Icon.SPLIT_TEXT",
 };
 
@@ -101,7 +101,10 @@ export const reinsertDynamicPivotMenu: ActionSpec = {
   icon: "o-spreadsheet-Icon.INSERT_PIVOT",
   children: [ACTIONS.REINSERT_DYNAMIC_PIVOT_CHILDREN],
   isVisible: (env) =>
-    env.model.getters.getPivotIds().some((id) => env.model.getters.getPivot(id).isValid()),
+    env
+      .model()
+      .getters.getPivotIds()
+      .some((id) => env.model().getters.getPivot(id).isValid()),
 };
 
 export const reinsertStaticPivotMenu: ActionSpec = {
@@ -111,7 +114,10 @@ export const reinsertStaticPivotMenu: ActionSpec = {
   icon: "o-spreadsheet-Icon.INSERT_PIVOT",
   children: [ACTIONS.REINSERT_STATIC_PIVOT_CHILDREN],
   isVisible: (env) =>
-    env.model.getters.getPivotIds().some((id) => env.model.getters.getPivot(id).isValid()),
+    env
+      .model()
+      .getters.getPivotIds()
+      .some((id) => env.model().getters.getPivot(id).isValid()),
 };
 
 export const calculationMode: ActionSpec = {
@@ -121,12 +127,12 @@ export const calculationMode: ActionSpec = {
 
 export const automaticCalculation: ActionSpec = {
   name: _t("Automatic"),
-  execute: (env) => env.model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: true }),
-  isActive: (env) => env.model.getters.isAutomaticEvaluationEnabled(),
+  execute: (env) => env.model().dispatch("SET_AUTOMATIC_EVALUATION", { enabled: true }),
+  isActive: (env) => env.model().getters.isAutomaticEvaluationEnabled(),
 };
 
 export const manualCalculation: ActionSpec = {
   name: _t("Manual"),
-  execute: (env) => env.model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false }),
-  isActive: (env) => !env.model.getters.isAutomaticEvaluationEnabled(),
+  execute: (env) => env.model().dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false }),
+  isActive: (env) => !env.model().getters.isAutomaticEvaluationEnabled(),
 };

@@ -194,9 +194,8 @@ import {
   repeatCommandTransformRegistry,
   repeatLocalCommandTransformRegistry,
 } from "./registries/repeat_transform_registry";
-import { errorTypes } from "./types/errors";
-
 import { sidePanelRegistry } from "./registries/side_panel_registry";
+import "./registries/side_panel_registry_definition";
 import { topbarComponentRegistry } from "./registries/topbar_component_registry";
 import { DependencyContainer } from "./store_engine/dependency_container";
 import {
@@ -213,6 +212,7 @@ import { RendererStore } from "./stores/renderer_store";
 import { SpreadsheetStore } from "./stores/spreadsheet_store";
 import { ZoomStore } from "./stores/zoom_store";
 import { CHART_TYPES, schemeToColorScale } from "./types/chart/chart";
+import { errorTypes } from "./types/errors";
 import { AddFunctionDescription } from "./types/functions";
 import { DEFAULT_LOCALE } from "./types/locale";
 import { isMatrix } from "./types/misc";
@@ -353,7 +353,11 @@ import {
   hasInteractiveElementInEventTree,
   isMobileOS,
 } from "./components/helpers/dom_helpers";
-import { createGetPluginFunctionFromScope, OSComponent } from "./components/os_component";
+import {
+  createGetPluginFunctionFromScope,
+  OSComponent,
+  useSpreadsheetEnv,
+} from "./components/os_component";
 import { PopoverContainerPlugin } from "./components/popover/popover_container_owl_plugin";
 import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
@@ -372,6 +376,7 @@ import {
 import { domainToColRowDomain } from "./helpers/pivot/pivot_domain_helpers";
 import { drawHighlight } from "./helpers/rendering";
 import { fuzzyLookup } from "./helpers/search";
+import { ModelPlugin } from "./owl_plugins/model_owl_plugin";
 import { NotificationPlugin } from "./owl_plugins/notification_owl_plugin";
 import { chartDataSourceSidePanelComponentRegistry } from "./registries/chart_data_source_component_registry";
 import { chartDataSourceRegistry } from "./registries/chart_data_source_registry";
@@ -547,6 +552,7 @@ export const components = {
 };
 
 export const hooks = {
+  useSpreadsheetEnv,
   useDragAndDropListItems,
   useHighlights,
   useHighlightsOnHover,
@@ -595,6 +601,7 @@ export const stores = {
 export const owlPlugins = {
   PopoverContainerPlugin,
   NotificationPlugin,
+  ModelPlugin,
 };
 
 export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";

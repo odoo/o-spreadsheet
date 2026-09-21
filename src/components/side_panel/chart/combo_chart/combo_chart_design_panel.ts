@@ -37,7 +37,7 @@ export class ComboChartDesignPanel extends GenericZoomableChartDesignPanel<
       .dataSetStyles as ComboChartDefinition["dataSetStyles"];
     const type = dataSetStyles?.[dataSetId]?.type;
     if (!type) {
-      const runtime = this.env.model.getters.getChartRuntime(
+      const runtime = this.model().getters.getChartRuntime(
         this.props.chartId
       ) as CustomizableSeriesChartRuntime;
       const dataSetIndex = runtime.customizableSeries.findIndex(

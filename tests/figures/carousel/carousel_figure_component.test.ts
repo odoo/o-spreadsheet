@@ -30,7 +30,7 @@ import {
   triggerMouseEvent,
 } from "../../test_helpers/dom_helper";
 import {
-  makeTestEnv,
+  makeSpreadsheetActionTestEnv,
   mockChart,
   mountSpreadsheet,
   nextTick,
@@ -584,7 +584,7 @@ describe("Carousel figure component", () => {
     }
 
     beforeEach(() => {
-      env = makeTestEnv({ model });
+      env = makeSpreadsheetActionTestEnv(model);
       const sidePanelStore = env.getStore(SidePanelStore);
       openSidePanel = jest.spyOn(sidePanelStore, "open");
     });

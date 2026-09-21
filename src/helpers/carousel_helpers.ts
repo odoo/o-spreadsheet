@@ -6,22 +6,22 @@ import { AnchorOffset, Carousel, CarouselItem } from "../types/figure";
 import { Getters } from "../types/getters";
 import { UID } from "../types/misc";
 import { Rect } from "../types/rendering";
-import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
 
 /**
  * Compute the anchor of a chart popped out of a carousel: slightly offset from the
  * carousel figure so the new chart does not perfectly overlap it.
  */
 export function getPoppedOutChartAnchor(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   sheetId: UID,
   carouselId: UID
 ): AnchorOffset {
-  const figure = env.model.getters.getFigure(sheetId, carouselId);
+  const figure = env.model().getters.getFigure(sheetId, carouselId);
   if (!figure) {
     throw new Error(`Could not find figure with id ${carouselId} in sheet ${sheetId}`);
   }
-  const figureUI = env.model.getters.getFigureUI(sheetId, figure);
+  const figureUI = env.model().getters.getFigureUI(sheetId, figure);
   return env.getStore(ViewportsStore).viewports.getPositionAnchorOffset(sheetId, {
     x: figureUI.x + 50,
     y: figureUI.y + 50,

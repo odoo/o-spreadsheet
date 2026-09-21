@@ -4,7 +4,7 @@ import { ViewportsStore } from "../../stores/viewports_store";
 import { FigureUI } from "../../types/figure";
 import { Pixel, PixelPosition, UID } from "../../types/misc";
 import { Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
 
 const SNAP_MARGIN: Pixel = 5;
 
@@ -37,7 +37,7 @@ export interface SnapReturn {
  * figure and the possible snap lines, if any were found
  */
 export function snapForMove(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   figuresToSnap: FigureUI[],
   otherFigures: FigureUI[]
 ): SnapMoveReturn {
@@ -99,7 +99,7 @@ export function snapForMove(
  * figure and the possible snap lines, if any were found
  */
 export function snapForResize(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   resizeDirX: -1 | 0 | 1,
   resizeDirY: -1 | 0 | 1,
   rect: Rect,
@@ -155,7 +155,7 @@ export function snapForResize(
  * @param axesTypes the list of axis types to return the positions of
  */
 function getVisibleAxes<T extends HFigureAxisType | VFigureAxisType>(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   figure: FigureUI,
   axesTypes: T[]
 ): FigureAxis<T>[] {
@@ -164,7 +164,7 @@ function getVisibleAxes<T extends HFigureAxisType | VFigureAxisType>(
 }
 
 function isAxisVisible<T extends HFigureAxisType | VFigureAxisType>(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   figureUI: FigureUI,
   axis: FigureAxis<T>
 ): boolean {
@@ -196,7 +196,7 @@ function isAxisVisible<T extends HFigureAxisType | VFigureAxisType>(
   return axisStartEndPositions.some((position) =>
     env
       .getStore(ViewportsStore)
-      .viewports.isPixelPositionVisible(env.model.getters.getActiveSheetId(), position)
+      .viewports.isPixelPositionVisible(env.model().getters.getActiveSheetId(), position)
   );
 }
 
@@ -210,7 +210,7 @@ function isAxisVisible<T extends HFigureAxisType | VFigureAxisType>(
  */
 
 function getSnapLine<T extends HFigureAxisType[] | VFigureAxisType[]>(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   figureToSnap: Rect,
   figAxesTypes: T,
   otherFigures: FigureUI[],
@@ -252,7 +252,7 @@ function canSnap(axisPosition1: Pixel, axisPosition2: Pixel) {
 }
 
 function getAxis<T extends HFigureAxisType | VFigureAxisType>(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   figureUI: Rect,
   dnd: boolean,
   axisType: T

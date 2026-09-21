@@ -37,14 +37,14 @@ export class CriterionInput extends OSComponent {
     );
     onWillUpdateProps((nextProps) => {
       if (nextProps.value !== this.props.value) {
-        this.state.textInput = localizeContent(nextProps.value, this.env.model.getters.getLocale());
+        this.state.textInput = localizeContent(nextProps.value, this.model().getters.getLocale());
       }
     });
   }
 
   state = proxy({
     shouldDisplayError: !!this.props.value, // Don't display error if user inputted nothing yet
-    textInput: localizeContent(this.props.value, this.env.model.getters.getLocale()),
+    textInput: localizeContent(this.props.value, this.model().getters.getLocale()),
   });
 
   get placeholder(): string {
@@ -75,7 +75,7 @@ export class CriterionInput extends OSComponent {
   }
 
   onInputValueConfirmed() {
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     const canonicalizedValue = canonicalizeContent(this.state.textInput, locale);
     this.props.onValueChanged(canonicalizedValue);
   }
@@ -91,7 +91,7 @@ export class CriterionInput extends OSComponent {
       composerContent: this.props.value,
       placeholder: this.placeholder,
       class: "o-sidePanel-composer",
-      defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
+      defaultRangeSheetId: this.model().getters.getActiveSheetId(),
       invalid: this.state.shouldDisplayError && !!this.errorMessage,
       defaultStatic: true,
       autofocus: this.props.focused,
@@ -102,9 +102,9 @@ export class CriterionInput extends OSComponent {
     if (!this.state.shouldDisplayError) {
       return undefined;
     }
-    return this.env.model.getters.getDataValidationInvalidCriterionValueMessage(
+    return this.model().getters.getDataValidationInvalidCriterionValueMessage(
       this.props.criterionType,
-      canonicalizeContent(this.state.textInput, this.env.model.getters.getLocale())
+      canonicalizeContent(this.state.textInput, this.model().getters.getLocale())
     );
   }
 }

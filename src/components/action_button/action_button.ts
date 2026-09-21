@@ -32,7 +32,7 @@ export class ActionButton extends OSComponent {
 
   get isEnabled() {
     const isLockedAvailable =
-      this.actionButton.isEnabledOnLockedSheet || !this.env.model.getters.isCurrentSheetLocked();
+      this.actionButton.isEnabledOnLockedSheet || !this.model().getters.isCurrentSheetLocked();
     return this.actionButton.isEnabled(this.spEnv) && isLockedAvailable;
   }
 

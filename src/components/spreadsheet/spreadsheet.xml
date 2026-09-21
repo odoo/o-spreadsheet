@@ -8,7 +8,7 @@
       <t t-if="this.state.printModeEnabled">
         <SpreadsheetPrint onExitPrintMode.bind="this.exitPrintMode"/>
       </t>
-      <t t-elif="this.env.model.getters.isDashboard()">
+      <t t-elif="this.model().getters.isDashboard()">
         <SpreadsheetDashboard getGridSize.bind="this.getGridSize"/>
         <FullScreenFigure/>
       </t>

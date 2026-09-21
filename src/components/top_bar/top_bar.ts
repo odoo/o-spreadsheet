@@ -101,7 +101,7 @@ export class TopBar extends OSComponent {
   }
 
   setVisibilityToolsGroups() {
-    if (this.env.model.getters.isReadonly()) {
+    if (this.model().getters.isReadonly()) {
       return;
     }
     const hiddenCategories: string[] = [];
@@ -149,11 +149,11 @@ export class TopBar extends OSComponent {
   get topbarComponents() {
     return topbarComponentRegistry
       .getAllOrdered()
-      .filter((item) => !item.isVisible || item.isVisible(this.env));
+      .filter((item) => !item.isVisible || item.isVisible(this.spEnv));
   }
 
   get currentFontSize(): number {
-    return this.env.model.getters.getCurrentStyle().fontSize || DEFAULT_FONT_SIZE;
+    return this.model().getters.getCurrentStyle().fontSize || DEFAULT_FONT_SIZE;
   }
 
   onExternalClick(ev: MouseEvent) {
@@ -244,12 +244,12 @@ export class TopBar extends OSComponent {
   }
 
   setColor(target: string, color: Color) {
-    setStyle(this.env.model, { [target]: color });
+    setStyle(this.model(), { [target]: color });
     this.onClick();
   }
 
   setFontSize(fontSize: number) {
-    setStyle(this.env.model, { fontSize });
+    setStyle(this.model(), { fontSize });
   }
 
   toggleMoreTools() {

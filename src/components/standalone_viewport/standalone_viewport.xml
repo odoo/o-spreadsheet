@@ -24,7 +24,7 @@
             <div class="o-col-resizer-handle position-absolute h-100"/>
           </div>
 
-          <ClickableCellsOverlay t-if="this.env.model.getters.isDashboard()"/>
+          <ClickableCellsOverlay t-if="this.model().getters.isDashboard()"/>
         </GridOverlay>
         <GridPopover
           gridRect="this.getGridRect()"

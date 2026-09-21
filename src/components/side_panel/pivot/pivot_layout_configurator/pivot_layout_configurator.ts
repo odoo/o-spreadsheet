@@ -236,7 +236,7 @@ export class PivotLayoutConfigurator extends OSComponent {
 
   addCalculatedMeasure() {
     const { measures }: { measures: PivotCoreMeasure[] } = this.props.definition;
-    const measureName = this.env.model.getters.generateNewCalculatedMeasureName(measures);
+    const measureName = this.model().getters.generateNewCalculatedMeasureName(measures);
     const aggregator = "sum";
     this.props.onDimensionsUpdated({
       measures: measures.concat([
@@ -245,7 +245,7 @@ export class PivotLayoutConfigurator extends OSComponent {
           fieldName: measureName,
           aggregator,
           computedBy: {
-            sheetId: this.env.model.getters.getActiveSheetId(),
+            sheetId: this.model().getters.getActiveSheetId(),
             formula: "=0",
           },
         },
@@ -254,7 +254,7 @@ export class PivotLayoutConfigurator extends OSComponent {
   }
 
   getCustomField(dimension: PivotDimensionType) {
-    const definition = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
+    const definition = this.model().getters.getPivotCoreDefinition(this.props.pivotId);
     return definition.customFields?.[dimension.nameWithGranularity];
   }
 
@@ -299,7 +299,7 @@ export class PivotLayoutConfigurator extends OSComponent {
   }
 
   getHugeDimensionErrorMessage(dimension: PivotDimensionType) {
-    const pivot = this.env.model.getters.getPivot(this.props.pivotId);
+    const pivot = this.model().getters.getPivot(this.props.pivotId);
     const possibleValues = pivot.getPossibleFieldValues(dimension);
     return possibleValues.length > 100
       ? _t(

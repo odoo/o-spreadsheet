@@ -24,7 +24,7 @@ import {
 } from "../../test_helpers/commands_helpers";
 import {
   doAction,
-  makeTestEnv,
+  makeSpreadsheetActionTestEnv,
   mockChart,
   mountSpreadsheet,
   nextTick,
@@ -100,12 +100,10 @@ describe("Insert chart menu item", () => {
   }
 
   beforeEach(async () => {
-    env = makeTestEnv({
-      model: new Model(data),
-    });
+    env = makeSpreadsheetActionTestEnv(new Model(data));
     const sidePanelStore = env.getStore(SidePanelStore);
     openSidePanelSpy = jest.spyOn(sidePanelStore, "open");
-    model = env.model;
+    model = env.model();
     viewStore = env.getStore(ViewportsStore);
 
     mockChart();
@@ -430,7 +428,7 @@ describe("Smart chart type detection", () => {
 
   beforeEach(() => {
     model = new Model();
-    env = makeTestEnv({ model });
+    env = makeSpreadsheetActionTestEnv(model);
   });
 
   /**

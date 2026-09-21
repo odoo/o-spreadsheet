@@ -29,14 +29,14 @@
       <!-- Toolbar and Cell Content -->
       <div
         class="d-flex o-topbar-responsive"
-        t-att-class="{'o-topbar-responsive': !this.env.model.getters.isReadonly()}"
+        t-att-class="{'o-topbar-responsive': !this.model().getters.isReadonly()}"
         t-ref="this.toolBarContainerRef">
         <div
           class="o-topbar-toolbar d-flex flex-grow-1"
-          t-att-class="{'flex-shrink-0': this.env.model.getters.isReadonly()}">
+          t-att-class="{'flex-shrink-0': this.model().getters.isReadonly()}">
           <!-- Toolbar -->
           <div
-            t-if="this.env.model.getters.isReadonly()"
+            t-if="this.model().getters.isReadonly()"
             class="o-readonly-toolbar d-flex flex-grow-1 align-items-center text-muted">
             <span>
               <i class="oi" data-icon="visibility"/>
@@ -109,7 +109,7 @@
         </div>
       </div>
       <div
-        t-if="!this.env.model.getters.isAutomaticEvaluationEnabled()"
+        t-if="!this.model().getters.isAutomaticEvaluationEnabled()"
         class="topbar-banner manual-evaluation d-flex align-items-stretch justify-content-between border-top">
         <div class="d-flex align-items-center text-warning px-3 text-nowrap">
           <i class="oi me-2" data-icon="pause_circle"/>
@@ -122,7 +122,7 @@
           </span>
           <div
             class="ps-3 btn o-button-link flex-shrink-0 py-0"
-            t-on-click="() => this.env.model.dispatch('SET_AUTOMATIC_EVALUATION', { enabled: true })">
+            t-on-click="() => this.model().dispatch('SET_AUTOMATIC_EVALUATION', { enabled: true })">
             Re-enable
           </div>
         </div>

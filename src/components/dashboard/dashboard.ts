@@ -70,7 +70,7 @@ export class SpreadsheetDashboard extends OSComponent {
       renderingCtx: () => ({
         dpr: window.devicePixelRatio || 1,
         viewports: this.viewStore.viewports,
-        ...this.env.model.getters.getSelectionState(),
+        ...this.model().getters.getSelectionState(),
         hideGridLines: true,
       }),
     });
@@ -137,8 +137,8 @@ export class SpreadsheetDashboard extends OSComponent {
 
   private getMaxSheetWidth(): Pixel {
     const sheetId = this.viewStore.displayedSheetId;
-    const { right } = this.env.model.getters.getSheetZone(sheetId);
-    return this.env.model.getters.getColDimensions(sheetId, right).end;
+    const { right } = this.model().getters.getSheetZone(sheetId);
+    return this.model().getters.getColDimensions(sheetId, right).end;
   }
 
   get dashboardStyle() {
@@ -147,7 +147,7 @@ export class SpreadsheetDashboard extends OSComponent {
   }
 
   get backgroundStyle() {
-    const sheet = this.env.model.getters.getActiveSheet();
+    const sheet = this.model().getters.getActiveSheet();
     return cssPropertiesToCss({ "background-color": sheet.backgroundColor });
   }
 }

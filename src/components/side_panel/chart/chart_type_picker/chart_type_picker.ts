@@ -55,7 +55,7 @@ export class ChartTypePicker extends OSComponent {
   }
 
   private getChartDefinition(chartId: UID): ChartDefinition {
-    return this.env.model.getters.getChartDefinition(chartId);
+    return this.model().getters.getChartDefinition(chartId);
   }
 
   getSelectedChartSubtypeProperties(): ChartSubtypeProperties {

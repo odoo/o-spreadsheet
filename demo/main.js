@@ -39,7 +39,7 @@ topbarMenuRegistry.addChild("xlsx", ["file"], {
   name: "Save as XLSX",
   sequence: 20,
   execute: async (env) => {
-    const doc = await env.model.exportXLSX();
+    const doc = await env.model().exportXLSX();
     const zip = new JSZip();
     for (const file of doc.files) {
       if (file.imageSrc) {
@@ -235,7 +235,7 @@ class Demo extends Component {
           date.getDate()
         )}${num2date(date.getHours())}${num2date(date.getMinutes())}.osheet.json`;
 
-        const data = await env.model.exportData();
+        const data = await env.model().exportData();
         saveAs(
           new Blob([JSON.stringify(data)], {
             type: "application/json",
