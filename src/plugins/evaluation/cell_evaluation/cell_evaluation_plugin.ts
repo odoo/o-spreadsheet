@@ -311,13 +311,15 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
     return this.evaluator.getEvaluatedCell(position);
   }
 
-  getEvaluatedCells(sheetId: UID): EvaluatedCell[] {
-    return this.evaluator
-      .getEvaluatedPositionsInSheet(sheetId)
-      .map((position) => this.getEvaluatedCell(position));
+  *getEvaluatedCells(sheetId: UID): Generator<EvaluatedCell> {
+    console.log("getEvaluatedCells");
+    for (const position of this.evaluator.getEvaluatedPositionsInSheet(sheetId)) {
+      yield this.getEvaluatedCell(position);
+    }
   }
 
-  getEvaluatedCellsPositions(sheetId: UID): CellPosition[] {
+  getEvaluatedCellsPositions(sheetId: UID): Generator<CellPosition> {
+    console.log("getEvaluatedCellsPositions");
     return this.evaluator.getEvaluatedPositionsInSheet(sheetId);
   }
 

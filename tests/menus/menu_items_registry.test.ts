@@ -1290,13 +1290,15 @@ describe("Menu Item actions", () => {
       function getNumberFormatsInMenu() {
         return getNode(["format", "format_number"], env)
           .children(env)
-          .map((node) => node.name(env));
+          .map((node) => node.name(env).toString());
       }
 
       test("Custom date and currency formats are present in the number format item", () => {
-        expect(getNumberFormatsInMenu()).not.toContain("#.##0[$£]");
+        const msdkmf = getNumberFormatsInMenu();
+        expect(msdkmf).not.toContain("#.##0[$£]");
         setFormat(model, "A1", "#.##0[$£]");
-        expect(getNumberFormatsInMenu()).toContain("#.##0[$£]");
+        const numberFormatsInMenu = getNumberFormatsInMenu();
+        expect(numberFormatsInMenu).toContain("#.##0[$£]");
 
         expect(getNumberFormatsInMenu()).not.toContain("dd/mm/yyyy");
         setFormat(model, "A1", "dd/mm/yyyy");

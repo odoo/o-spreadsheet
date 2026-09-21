@@ -1520,12 +1520,12 @@ describe("evaluate formula getter", () => {
 
   test("Getter getEvaluatedCells return spreaded cells", () => {
     setCellContent(model, "A1", "=MUNIT(3)");
-    expect(model.getters.getEvaluatedCells(sheetId)).toHaveLength(9);
+    expect([...model.getters.getEvaluatedCells(sheetId)]).toHaveLength(9);
   });
 
   test("Getter getEvaluatedCells does not return cells with only a style", () => {
     setFormatting(model, "B1", { fillColor: "red" });
-    expect(model.getters.getEvaluatedCells(sheetId)).toHaveLength(0);
+    expect([...model.getters.getEvaluatedCells(sheetId)]).toHaveLength(0);
   });
 });
 

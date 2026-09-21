@@ -46,31 +46,46 @@ export class PositionMap<T> {
     delete this.map[sheetId]?.[col]?.[row];
   }
 
-  keys(): CellPosition[] {
+  *keys(): Generator<CellPosition> {
+    console.log("1");
     const map = this.map;
-    const keys: CellPosition[] = [];
+    //const keys: CellPosition[] = [];
     for (const sheetId in map) {
       for (const col in map[sheetId]) {
         for (const row in map[sheetId][col]) {
-          keys.push({ sheetId, col: parseInt(col), row: parseInt(row) });
+          yield { sheetId, col: parseInt(col), row: parseInt(row) };
         }
       }
     }
-    return keys;
+    return;
   }
 
-  keysForSheet(sheetId: UID): CellPosition[] {
-    const map = this.map[sheetId];
-    if (!map) {
-      return [];
-    }
-    const keys: CellPosition[] = [];
-    for (const col in map) {
-      for (const row in map[col]) {
-        keys.push({ sheetId, col: parseInt(col), row: parseInt(row) });
+  length(): number {
+    console.log("2");
+    let count = 0;
+    const map = this.map;
+    for (const sheetId in map) {
+      for (const col in map[sheetId]) {
+        for (const _ in map[sheetId][col]) {
+          count++;
+        }
       }
     }
-    return keys;
+    return count;
+  }
+
+  *keysForSheet(sheetId: UID): Generator<CellPosition> {
+    console.log("3");
+    const map = this.map[sheetId];
+    if (map) {
+      //const keys: CellPosition[] = [];
+      for (const col in map) {
+        for (const row in map[col]) {
+          yield { sheetId, col: parseInt(col), row: parseInt(row) };
+        }
+      }
+    }
+    return;
   }
 
   *entries(): IterableIterator<[CellPosition, T]> {

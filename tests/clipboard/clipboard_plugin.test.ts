@@ -187,7 +187,7 @@ describe("clipboard", () => {
       content: "a1",
     });
     activateSheet(model, to);
-    expect(model.getters.getEvaluatedCells(to)).toEqual([]);
+    expect([...model.getters.getEvaluatedCells(to)]).toEqual([]);
 
     expect(getClipboardVisibleZones(store).length).toBe(0);
 
