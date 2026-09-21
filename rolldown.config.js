@@ -62,6 +62,9 @@ export default defineConfig((cliArgs) => {
       watch: {
         include: ["src/**"],
       },
+      optimization: {
+        inlineConst: false,
+      },
     };
   }
 
@@ -80,5 +83,8 @@ export default defineConfig((cliArgs) => {
       getConfigForFormat("iife"),
       getConfigForFormat("iife", true),
     ],
+    optimization: {
+      inlineConst: false,
+    },
   };
 });
