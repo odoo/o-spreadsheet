@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-BottomBar">
     <div
-      class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden border-top"
+      class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden"
       t-on-click="props.onClick"
       t-ref="bottomBar"
       t-on-contextmenu.prevent="">
