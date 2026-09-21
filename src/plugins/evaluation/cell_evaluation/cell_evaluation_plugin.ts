@@ -178,12 +178,12 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
     "*allCommands": this.flagForceEvaluation,
     "*invalidateEvaluationCommands": this.flagRebuildDependenciesGraph,
     "*invalidateDependenciesCommands": this.flagRebuildDependenciesGraph,
-    UPDATE_CELL: this.updateCell,
+    UPDATE_CELL: this.onUpdateCell,
     EVALUATE_CELLS: this.onEvaluateCells,
-    SET_AUTOMATIC_EVALUATION: this.setAutomaticEvaluation,
+    SET_AUTOMATIC_EVALUATION: this.onSetAutomaticEvaluation,
   };
 
-  private setAutomaticEvaluation(cmd: SetAutomaticEvaluationCommand) {
+  private onSetAutomaticEvaluation(cmd: SetAutomaticEvaluationCommand) {
     this.automaticEvaluation = cmd.enabled;
     if (cmd.enabled) {
       this.shouldRebuildDependenciesGraph = true;
@@ -220,7 +220,7 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
       : CommandResult.Success;
   }
 
-  private updateCell(cmd: UpdateCellCommand) {
+  private onUpdateCell(cmd: UpdateCellCommand) {
     if (!("content" in cmd || "format" in cmd) || this.shouldRebuildDependenciesGraph) {
       return;
     }

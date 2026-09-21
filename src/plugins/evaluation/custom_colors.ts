@@ -83,7 +83,7 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
     SET_FORMATTING: this.invalidateCustomColors,
     SET_BORDER: this.invalidateCustomColors,
     SET_ZONE_BORDERS: this.invalidateCustomColors,
-    SET_SHEET_BACKGROUND_COLOR: this.addSheetBackgroundColor,
+    SET_SHEET_BACKGROUND_COLOR: this.onSetSheetBackgroundColor,
     CREATE_TABLE: this.invalidateCustomColors,
     UPDATE_TABLE: this.invalidateCustomColors,
     ADD_CONDITIONAL_FORMAT: this.invalidateCustomColors,
@@ -91,11 +91,11 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
     CREATE_CHART: this.addChartColors,
     CREATE_CAROUSEL: this.addCarouselColors,
     UPDATE_CAROUSEL: this.addCarouselColors,
-    COLOR_SHEET: this.addSheetColor,
-    START: this.addColorsOfCharts,
+    COLOR_SHEET: this.onColorSheet,
+    START: this.onStart,
   };
 
-  private addColorsOfCharts() {
+  private onStart() {
     for (const sheetId of this.getters.getSheetIds()) {
       for (const chartId of this.getters.getChartIds(sheetId)) {
         this.tryToAddColors(this.getChartColors(chartId));
@@ -106,7 +106,7 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
     }
   }
 
-  private addSheetColor(cmd: ColorSheetCommand) {
+  private onColorSheet(cmd: ColorSheetCommand) {
     if (cmd.color) {
       this.tryToAddColors([cmd.color]);
     }
@@ -120,7 +120,7 @@ export class CustomColorsPlugin extends EvaluationPlugin<CustomColorState> {
     this.tryToAddColors(this.getChartColors(cmd.chartId));
   }
 
-  private addSheetBackgroundColor(cmd: ColorSheetBackgroundCommand) {
+  private onSetSheetBackgroundColor(cmd: ColorSheetBackgroundCommand) {
     if (cmd.color) {
       this.tryToAddColors([cmd.color]);
     }

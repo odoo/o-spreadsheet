@@ -13,10 +13,10 @@ export class ColorThemeUIPlugin extends UIPlugin {
   }
 
   handlers = {
-    UPDATE_COLOR_SCHEME: this.updateColorScheme,
+    UPDATE_COLOR_SCHEME: this.onUpdateColorScheme,
   };
 
-  private updateColorScheme(cmd: UpdateColorSchemeCommand) {
+  private onUpdateColorScheme(cmd: UpdateColorSchemeCommand) {
     this.colorScheme = cmd.colorScheme;
   }
 

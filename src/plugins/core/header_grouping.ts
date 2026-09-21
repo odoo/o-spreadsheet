@@ -47,42 +47,42 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
   };
 
   handlers = {
-    GROUP_HEADERS: this.handleGroupHeaders,
-    UNGROUP_HEADERS: this.handleUnGroupHeaders,
-    FOLD_HEADER_GROUP: this.handleFoldHeaderGroup,
-    UNFOLD_HEADER_GROUP: this.handleUnfoldHeaderGroup,
-    FOLD_ALL_HEADER_GROUPS: this.foldAllHeaderGroups,
-    UNFOLD_ALL_HEADER_GROUPS: this.unfoldAllHeaderGroups,
+    GROUP_HEADERS: this.onGroupHeaders,
+    UNGROUP_HEADERS: this.onUngroupHeaders,
+    FOLD_HEADER_GROUP: this.onFoldHeaderGroup,
+    UNFOLD_HEADER_GROUP: this.onUnfoldHeaderGroup,
+    FOLD_ALL_HEADER_GROUPS: this.onFoldAllHeaderGroups,
+    UNFOLD_ALL_HEADER_GROUPS: this.onUnfoldAllHeaderGroups,
     FOLD_HEADER_GROUPS_IN_ZONE: this.toggleHeaderGroupsInZone,
     UNFOLD_HEADER_GROUPS_IN_ZONE: this.toggleHeaderGroupsInZone,
-    CREATE_SHEET: this.initSheetGroups,
-    DUPLICATE_SHEET: this.duplicateSheetGroups,
-    DELETE_SHEET: this.deleteSheetGroups,
-    ADD_COLUMNS_ROWS: this.moveGroupsOnHeaderAddition,
-    REMOVE_COLUMNS_ROWS: this.moveGroupsOnHeaderRemoval,
+    CREATE_SHEET: this.onCreateSheet,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
+    ADD_COLUMNS_ROWS: this.onAddColumnsRows,
+    REMOVE_COLUMNS_ROWS: this.onRemoveColumnsRows,
   };
 
-  private moveGroupsOnHeaderRemoval(cmd: RemoveColumnsRowsCommand) {
+  private onRemoveColumnsRows(cmd: RemoveColumnsRowsCommand) {
     this.moveGroupsOnHeaderDeletion(cmd.sheetId, cmd.dimension, cmd.elements);
   }
 
-  private moveGroupsOnHeaderAddition(cmd: AddColumnsRowsCommand) {
+  private onAddColumnsRows(cmd: AddColumnsRowsCommand) {
     const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
     this.moveGroupsOnHeaderInsertion(cmd.sheetId, cmd.dimension, addIndex, cmd.quantity);
   }
 
-  private deleteSheetGroups(cmd: { sheetId: UID }) {
+  private onDeleteSheet(cmd: { sheetId: UID }) {
     const groups = { ...this.groups };
     delete groups[cmd.sheetId];
     this.history.update("groups", groups);
   }
 
-  private duplicateSheetGroups(cmd: { sheetId: UID; sheetIdTo: UID }) {
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
     const groups = deepCopy(this.groups[cmd.sheetId]);
     this.history.update("groups", cmd.sheetIdTo, groups);
   }
 
-  private initSheetGroups(cmd: { sheetId: UID }) {
+  private onCreateSheet(cmd: { sheetId: UID }) {
     this.history.update("groups", cmd.sheetId, { ROW: [], COL: [] });
   }
 
@@ -119,39 +119,39 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
     }
   }
 
-  private unfoldAllHeaderGroups(cmd: UnfoldAllHeaderGroupsCommand) {
+  private onUnfoldAllHeaderGroups(cmd: UnfoldAllHeaderGroupsCommand) {
     const groups = this.getters.getHeaderGroups(cmd.sheetId, cmd.dimension);
     for (const group of groups) {
       this.unfoldHeaderGroup(cmd.sheetId, cmd.dimension, group);
     }
   }
 
-  private foldAllHeaderGroups(cmd: FoldAllHeaderGroupsCommand) {
+  private onFoldAllHeaderGroups(cmd: FoldAllHeaderGroupsCommand) {
     const groups = this.getters.getHeaderGroups(cmd.sheetId, cmd.dimension);
     for (const group of groups) {
       this.foldHeaderGroup(cmd.sheetId, cmd.dimension, group);
     }
   }
 
-  private handleUnfoldHeaderGroup(cmd: UnfoldHeaderGroupCommand) {
+  private onUnfoldHeaderGroup(cmd: UnfoldHeaderGroupCommand) {
     const group = this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
     if (group) {
       this.unfoldHeaderGroup(cmd.sheetId, cmd.dimension, group);
     }
   }
 
-  private handleFoldHeaderGroup(cmd: FoldHeaderGroupCommand) {
+  private onFoldHeaderGroup(cmd: FoldHeaderGroupCommand) {
     const group = this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
     if (group) {
       this.foldHeaderGroup(cmd.sheetId, cmd.dimension, group);
     }
   }
 
-  private handleUnGroupHeaders(cmd: UnGroupHeadersCommand) {
+  private onUngroupHeaders(cmd: UnGroupHeadersCommand) {
     this.unGroupHeaders(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
   }
 
-  private handleGroupHeaders(cmd: GroupHeadersCommand) {
+  private onGroupHeaders(cmd: GroupHeadersCommand) {
     this.groupHeaders(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
   }
 

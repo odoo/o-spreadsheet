@@ -68,15 +68,15 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   };
 
   handlers = {
-    UPDATE_CELL: this.updateCell,
-    DELETE_CONTENT: this.clearZones,
-    CLEAR_CELL: this.clearCell,
-    CLEAR_CELLS: this.clearCells,
-    DELETE_SHEET: this.deleteSheetCells,
-    ADD_COLUMNS_ROWS: this.copyStyleOnHeaderAddition,
+    UPDATE_CELL: this.onUpdateCell,
+    DELETE_CONTENT: this.onDeleteContent,
+    CLEAR_CELL: this.onClearCell,
+    CLEAR_CELLS: this.onClearCells,
+    DELETE_SHEET: this.onDeleteSheet,
+    ADD_COLUMNS_ROWS: this.onAddColumnsRows,
   };
 
-  private copyStyleOnHeaderAddition(cmd: AddColumnsRowsCommand) {
+  private onAddColumnsRows(cmd: AddColumnsRowsCommand) {
     if (cmd.dimension === "COL") {
       this.handleAddColumnsRows(cmd, this.copyColumnStyle.bind(this));
     } else {
@@ -84,11 +84,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
   }
 
-  private deleteSheetCells(cmd: { sheetId: UID }) {
+  private onDeleteSheet(cmd: { sheetId: UID }) {
     this.history.update("cells", cmd.sheetId, undefined);
   }
 
-  private clearCell(cmd: ClearCellCommand) {
+  private onClearCell(cmd: ClearCellCommand) {
     this.dispatch("UPDATE_CELL", {
       sheetId: cmd.sheetId,
       col: cmd.col,
@@ -136,7 +136,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       : CommandResult.InvalidCellId;
   }
 
-  private clearZones(cmd: DeleteContentCommand) {
+  private onDeleteContent(cmd: DeleteContentCommand) {
     const sheetId = cmd.sheetId;
     for (const zone of recomputeZones(cmd.target)) {
       for (let col = zone.left; col <= zone.right; col++) {
@@ -158,7 +158,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /**
    * Clear the styles, the format and the content of zones
    */
-  private clearCells(cmd: ClearCellsCommand) {
+  private onClearCells(cmd: ClearCellsCommand) {
     const sheetId = cmd.sheetId;
     for (const zone of cmd.target) {
       for (let col = zone.left; col <= zone.right; col++) {
@@ -506,7 +506,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return id;
   }
 
-  private updateCell(cmd: UpdateCellCommand) {
+  private onUpdateCell(cmd: UpdateCellCommand) {
     const { sheetId, col, row } = cmd;
     const after: UpdateCellData = cmd;
     const position = { sheetId, col, row };

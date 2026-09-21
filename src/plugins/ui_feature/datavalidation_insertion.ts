@@ -7,10 +7,10 @@ import { UIPlugin } from "../ui_plugin";
 
 export class DataValidationInsertionPlugin extends UIPlugin {
   handlers = {
-    ADD_DATA_VALIDATION_RULE: this.insertBooleanValues,
+    ADD_DATA_VALIDATION_RULE: this.onAddDataValidationRule,
   };
 
-  private insertBooleanValues(cmd: AddDataValidationCommand) {
+  private onAddDataValidationRule(cmd: AddDataValidationCommand) {
     if (cmd.rule.criterion.type !== "isBoolean") {
       return;
     }

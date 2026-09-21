@@ -58,16 +58,16 @@ export class TableStylePlugin extends CorePlugin<TableStylesState> implements Ta
   };
 
   handlers = {
-    CREATE_TABLE_STYLE: this.createTableStyle,
-    REMOVE_TABLE_STYLE: this.removeTableStyle,
+    CREATE_TABLE_STYLE: this.onCreateTableStyle,
+    REMOVE_TABLE_STYLE: this.onRemoveTableStyle,
   };
 
-  private createTableStyle(cmd: CreateTableStyleCommand) {
+  private onCreateTableStyle(cmd: CreateTableStyleCommand) {
     const style = buildCustomTableStyle(cmd.tableStyleName, cmd.templateName, cmd.primaryColor);
     this.history.update("styles", cmd.tableStyleId, style);
   }
 
-  private removeTableStyle(cmd: RemoveTableStyleCommand) {
+  private onRemoveTableStyle(cmd: RemoveTableStyleCommand) {
     const styles = { ...this.styles };
     delete styles[cmd.tableStyleId];
     this.history.update("styles", styles);

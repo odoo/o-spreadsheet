@@ -34,7 +34,7 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
     UPDATE_CELL: this.invalidateEvaluation,
     REMOVE_TABLE: this.invalidateEvaluation,
     UPDATE_TABLE: this.invalidateEvaluation,
-    UPDATE_FILTER: this.applyFilter,
+    UPDATE_FILTER: this.onUpdateFilter,
     HIDE_COLUMNS_ROWS: this.refreshHiddenRows,
     UNHIDE_COLUMNS_ROWS: this.refreshHiddenRows,
     GROUP_HEADERS: this.refreshHiddenRows,
@@ -45,29 +45,29 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
     UNFOLD_ALL_HEADER_GROUPS: this.refreshHiddenRows,
     FOLD_HEADER_GROUPS_IN_ZONE: this.refreshHiddenRows,
     UNFOLD_HEADER_GROUPS_IN_ZONE: this.refreshHiddenRows,
-    CREATE_SHEET: this.initSheetFilterValues,
-    DUPLICATE_SHEET: this.duplicateSheetFilterValues,
+    CREATE_SHEET: this.onCreateSheet,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
     ADD_COLUMNS_ROWS: this.invalidateEvaluation,
     REMOVE_COLUMNS_ROWS: this.invalidateEvaluation,
     UNDO: this.invalidateEvaluation,
     REDO: this.invalidateEvaluation,
-    START: this.resetFilterValues,
+    START: this.onStart,
     EVALUATE_CELLS: this.invalidateEvaluation,
     // DELETE_SHEET is deliberately not handled: keeping the residual data lets an
     // undo right after a DELETE_SHEET restore the filter values.
   };
 
-  private resetFilterValues() {
+  private onStart() {
     for (const sheetId of this.getters.getSheetIds()) {
       this.filterValues[sheetId] = {};
     }
   }
 
-  private duplicateSheetFilterValues(cmd: { sheetId: UID; sheetIdTo: UID }) {
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
     this.filterValues[cmd.sheetIdTo] = deepCopy(this.filterValues[cmd.sheetId]);
   }
 
-  private initSheetFilterValues(cmd: { sheetId: UID }) {
+  private onCreateSheet(cmd: { sheetId: UID }) {
     this.filterValues[cmd.sheetId] = {};
   }
 
@@ -75,7 +75,7 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
     this.updateHiddenRows(cmd.sheetId);
   }
 
-  private applyFilter(cmd: UpdateFilterCommand) {
+  private onUpdateFilter(cmd: UpdateFilterCommand) {
     this.updateFilter(cmd);
     this.updateHiddenRows(cmd.sheetId);
   }

@@ -11,11 +11,11 @@ export class FormulaTrackerPlugin extends EvaluationPlugin {
   private trackedCells: Record<string, Record<UID, number | undefined>> = {};
 
   handlers = {
-    UPDATE_CELL: this.trackFormulasOfUpdatedCell,
-    START: this.trackFormulasOfAllCells,
+    UPDATE_CELL: this.onUpdateCell,
+    START: this.onStart,
   };
 
-  private trackFormulasOfAllCells() {
+  private onStart() {
     for (const formula of trackedFormulas) {
       this.trackedCells[formula] = {};
     }
@@ -30,7 +30,7 @@ export class FormulaTrackerPlugin extends EvaluationPlugin {
     }
   }
 
-  private trackFormulasOfUpdatedCell(cmd: UpdateCellCommand) {
+  private onUpdateCell(cmd: UpdateCellCommand) {
     if (!("content" in cmd)) {
       return;
     }

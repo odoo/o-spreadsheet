@@ -35,12 +35,12 @@ export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements Na
   };
 
   handlers = {
-    CREATE_NAMED_RANGE: this.createNamedRange,
-    UPDATE_NAMED_RANGE: this.updateNamedRange,
-    DELETE_NAMED_RANGE: this.deleteNamedRange,
+    CREATE_NAMED_RANGE: this.onCreateNamedRange,
+    UPDATE_NAMED_RANGE: this.onUpdateNamedRange,
+    DELETE_NAMED_RANGE: this.onDeleteNamedRange,
   };
 
-  private deleteNamedRange(cmd: DeleteNamedRangeCommand) {
+  private onDeleteNamedRange(cmd: DeleteNamedRangeCommand) {
     const index = this.getNamedRangeIndex(cmd.name);
     if (index !== -1) {
       const newNamedRanges = [...this.namedRanges];
@@ -49,7 +49,7 @@ export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements Na
     }
   }
 
-  private updateNamedRange(cmd: UpdateNamedRangeCommand) {
+  private onUpdateNamedRange(cmd: UpdateNamedRangeCommand) {
     const index = this.getNamedRangeIndex(cmd.oldRangeName);
     if (index !== -1) {
       const range = this.getters.getRangeFromRangeData(cmd.ranges[0]);
@@ -57,7 +57,7 @@ export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements Na
     }
   }
 
-  private createNamedRange(cmd: CreateNamedRangeCommand) {
+  private onCreateNamedRange(cmd: CreateNamedRangeCommand) {
     const range = this.getters.getRangeFromRangeData(cmd.ranges[0]);
     const newNamedRanges = [...this.namedRanges, { name: cmd.name, range }];
     this.history.update("namedRanges", newNamedRanges);

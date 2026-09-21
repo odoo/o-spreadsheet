@@ -14,10 +14,10 @@ export class SettingsPlugin extends CorePlugin {
   };
 
   handlers = {
-    UPDATE_LOCALE: this.updateLocale,
+    UPDATE_LOCALE: this.onUpdateLocale,
   };
 
-  private updateLocale(cmd: UpdateLocaleCommand) {
+  private onUpdateLocale(cmd: UpdateLocaleCommand) {
     const oldLocale = this.locale;
     const newLocale = cmd.locale;
     this.history.update("locale", newLocale);

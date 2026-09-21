@@ -44,21 +44,21 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   };
 
   handlers = {
-    UPDATE_CHART: this.updateChart,
-    CREATE_CHART: this.createChart,
-    DELETE_CHART: this.deleteChart,
-    DELETE_FIGURE: this.deleteChartsOfFigure,
-    DUPLICATE_SHEET: this.duplicateSheetCharts,
-    DELETE_SHEET: this.deleteSheetCharts,
+    UPDATE_CHART: this.onUpdateChart,
+    CREATE_CHART: this.onCreateChart,
+    DELETE_CHART: this.onDeleteChart,
+    DELETE_FIGURE: this.onDeleteFigure,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
   };
 
-  private deleteSheetCharts(cmd: { sheetId: UID }) {
+  private onDeleteSheet(cmd: { sheetId: UID }) {
     for (const id of this.getChartIds(cmd.sheetId)) {
       this.history.update("charts", id, undefined);
     }
   }
 
-  private duplicateSheetCharts(cmd: { sheetId: UID; sheetIdTo: UID }) {
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
     for (const chartId of this.getChartIds(cmd.sheetId)) {
       const { chart, figureId } = this.charts[chartId] || {};
       if (!chart || !figureId) {
@@ -86,7 +86,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     }
   }
 
-  private deleteChartsOfFigure(cmd: DeleteFigureCommand) {
+  private onDeleteFigure(cmd: DeleteFigureCommand) {
     for (const chartId in this.charts) {
       if (this.charts[chartId]?.figureId === cmd.figureId) {
         this.dispatch("DELETE_CHART", { chartId, sheetId: cmd.sheetId });
@@ -94,13 +94,13 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     }
   }
 
-  private deleteChart(cmd: DeleteChartCommand) {
+  private onDeleteChart(cmd: DeleteChartCommand) {
     if (this.isChartDefined(cmd.chartId)) {
       this.history.update("charts", cmd.chartId, undefined);
     }
   }
 
-  private createChart(cmd: CreateChartCommand) {
+  private onCreateChart(cmd: CreateChartCommand) {
     const { col, row, offset, size, sheetId, figureId } = cmd;
     // If figure position is not defined, it means that the figure already exist (see the validators)
     if (
@@ -114,7 +114,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     this.addChart(cmd.figureId, cmd.chartId, cmd.definition);
   }
 
-  private updateChart(cmd: UpdateChartCommand) {
+  private onUpdateChart(cmd: UpdateChartCommand) {
     this.addChart(cmd.figureId, cmd.chartId, cmd.definition);
   }
 

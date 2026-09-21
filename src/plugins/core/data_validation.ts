@@ -40,21 +40,21 @@ export class DataValidationPlugin
   };
 
   handlers = {
-    DELETE_CONTENT: this.removeRulesInDeletedContent,
-    REMOVE_DATA_VALIDATION_RULE: this.removeRule,
-    ADD_DATA_VALIDATION_RULE: this.addRule,
-    CREATE_SHEET: this.initSheetRules,
-    DUPLICATE_SHEET: this.duplicateSheetRules,
-    DELETE_SHEET: this.deleteSheetRules,
+    DELETE_CONTENT: this.onDeleteContent,
+    REMOVE_DATA_VALIDATION_RULE: this.onRemoveDataValidationRule,
+    ADD_DATA_VALIDATION_RULE: this.onAddDataValidationRule,
+    CREATE_SHEET: this.onCreateSheet,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
   };
 
-  private deleteSheetRules(cmd: { sheetId: UID }) {
+  private onDeleteSheet(cmd: { sheetId: UID }) {
     const rules = { ...this.rules };
     delete rules[cmd.sheetId];
     this.history.update("rules", rules);
   }
 
-  private duplicateSheetRules(cmd: { sheetId: UID; sheetIdTo: UID }) {
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
     const rules = deepCopy(this.rules[cmd.sheetId]).map((rule) => ({
       ...rule,
       ranges: rule.ranges.map((range) =>
@@ -64,16 +64,16 @@ export class DataValidationPlugin
     this.history.update("rules", cmd.sheetIdTo, rules);
   }
 
-  private initSheetRules(cmd: { sheetId: UID }) {
+  private onCreateSheet(cmd: { sheetId: UID }) {
     this.history.update("rules", cmd.sheetId, []);
   }
 
-  private addRule(cmd: AddDataValidationCommand) {
+  private onAddDataValidationRule(cmd: AddDataValidationCommand) {
     const ranges = cmd.ranges.map((range) => this.getters.getRangeFromRangeData(range));
     this.addDataValidationRule(cmd.sheetId, { ...cmd.rule, ranges });
   }
 
-  private removeRule(cmd: RemoveDataValidationCommand) {
+  private onRemoveDataValidationRule(cmd: RemoveDataValidationCommand) {
     this.removeDataValidationRule(cmd.sheetId, cmd.id);
   }
 
@@ -165,7 +165,7 @@ export class DataValidationPlugin
    * Remove the data validation rules on the cleared cells, for the criteria
    * which are meaningless without a value.
    */
-  private removeRulesInDeletedContent(cmd: DeleteContentCommand) {
+  private onDeleteContent(cmd: DeleteContentCommand) {
     const zones = recomputeZones(cmd.target);
     const sheetId = cmd.sheetId;
     for (const zone of zones) {

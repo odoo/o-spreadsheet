@@ -18,12 +18,12 @@ export class GeoFeaturePlugin extends UIPlugin {
   }
 
   handlers = {
-    CREATE_CHART: this.trackChartInitialRegion,
-    START: this.trackAllChartsInitialRegion,
-    UPDATE_CHART_REGION: this.updateChartRegion,
+    CREATE_CHART: this.onCreateChart,
+    START: this.onStart,
+    UPDATE_CHART_REGION: this.onUpdateChartRegion,
   };
 
-  private updateChartRegion(cmd: UpdateChartRegionCommand) {
+  private onUpdateChartRegion(cmd: UpdateChartRegionCommand) {
     const chart = this.getters.getChart(cmd.chartId);
     const definition = this.getters.getChartDefinition(cmd.chartId) as GeoChartDefinition<string>;
     if (!chart || definition.type !== "geo") {
@@ -37,7 +37,7 @@ export class GeoFeaturePlugin extends UIPlugin {
     });
   }
 
-  private trackAllChartsInitialRegion() {
+  private onStart() {
     for (const sheetId of this.getters.getSheetIds()) {
       for (const chartId of this.getters.getChartIds(sheetId)) {
         this.trackInitialRegion(chartId);
@@ -45,7 +45,7 @@ export class GeoFeaturePlugin extends UIPlugin {
     }
   }
 
-  private trackChartInitialRegion(cmd: CreateChartCommand) {
+  private onCreateChart(cmd: CreateChartCommand) {
     this.trackInitialRegion(cmd.chartId);
   }
 

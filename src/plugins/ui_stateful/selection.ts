@@ -192,27 +192,27 @@ export class GridSelectionPlugin extends UIPlugin {
   };
 
   handlers = {
-    DELETE_FIGURE: this.unselectDeletedFigure,
-    HIDE_SHEET: this.activateAnotherSheetOnHide,
-    DELETE_SHEET: this.onSheetDeleted,
-    ADD_COLUMNS_ROWS: this.onHeadersAdded,
-    REMOVE_COLUMNS_ROWS: this.onHeadersRemoved,
+    DELETE_FIGURE: this.onDeleteFigure,
+    HIDE_SHEET: this.onHideSheet,
+    DELETE_SHEET: this.onDeleteSheet,
+    ADD_COLUMNS_ROWS: this.onAddColumnsRows,
+    REMOVE_COLUMNS_ROWS: this.onRemoveColumnsRows,
     UNDO: this.onUndo,
     REDO: this.onRedo,
     START: this.onStart,
     ACTIVATE_SHEET: this.onActivateSheet,
-    MOVE_COLUMNS_ROWS: this.onHeadersMoved,
+    MOVE_COLUMNS_ROWS: this.onMoveColumnsRows,
     SELECT_FIGURE: this.onSelectFigure,
     UNSELECT_FIGURE: this.onUnselectFigure,
-    ACTIVATE_NEXT_SHEET: this.activateNextSheetOnRight,
-    ACTIVATE_PREVIOUS_SHEET: this.activateNextSheetOnLeft,
+    ACTIVATE_NEXT_SHEET: this.onActivateNextSheet,
+    ACTIVATE_PREVIOUS_SHEET: this.onActivatePreviousSheet,
   };
 
-  private activateNextSheetOnLeft() {
+  private onActivatePreviousSheet() {
     this.activateNextSheet("left");
   }
 
-  private activateNextSheetOnRight() {
+  private onActivateNextSheet() {
     this.activateNextSheet("right");
   }
 
@@ -231,7 +231,7 @@ export class GridSelectionPlugin extends UIPlugin {
     }
   }
 
-  private onHeadersMoved(cmd: MoveColumnsRowsCommand) {
+  private onMoveColumnsRows(cmd: MoveColumnsRowsCommand) {
     if (cmd.sheetId === this.getActiveSheetId()) {
       this.onMoveElements(cmd);
     }
@@ -274,7 +274,7 @@ export class GridSelectionPlugin extends UIPlugin {
       .map((cmd) => cmd.figureId);
   }
 
-  private onHeadersRemoved(cmd: RemoveColumnsRowsCommand) {
+  private onRemoveColumnsRows(cmd: RemoveColumnsRowsCommand) {
     const sheetId = this.getters.getActiveSheetId();
     if (cmd.sheetId === sheetId) {
       if (cmd.dimension === "COL") {
@@ -287,7 +287,7 @@ export class GridSelectionPlugin extends UIPlugin {
     }
   }
 
-  private onHeadersAdded(cmd: AddColumnsRowsCommand) {
+  private onAddColumnsRows(cmd: AddColumnsRowsCommand) {
     const sheetId = this.getters.getActiveSheetId();
     if (cmd.sheetId === sheetId) {
       this.onAddElements(cmd);
@@ -296,7 +296,7 @@ export class GridSelectionPlugin extends UIPlugin {
     }
   }
 
-  private activateAnotherSheetOnHide(cmd: HideSheetCommand) {
+  private onHideSheet(cmd: HideSheetCommand) {
     if (cmd.sheetId === this.getActiveSheetId()) {
       this.dispatch("ACTIVATE_SHEET", {
         sheetIdFrom: cmd.sheetId,
@@ -305,7 +305,7 @@ export class GridSelectionPlugin extends UIPlugin {
     }
   }
 
-  private onSheetDeleted() {
+  private onDeleteSheet() {
     this.forgetDeletedSheetsSelections();
     this.selectedFiguresIds = [];
   }
@@ -340,7 +340,7 @@ export class GridSelectionPlugin extends UIPlugin {
     return sheetId;
   }
 
-  private unselectDeletedFigure(cmd: DeleteFigureCommand) {
+  private onDeleteFigure(cmd: DeleteFigureCommand) {
     this.selectedFiguresIds = this.selectedFiguresIds.filter((id) => id !== cmd.figureId);
   }
 

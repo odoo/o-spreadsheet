@@ -66,23 +66,23 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   };
 
   handlers = {
-    UPDATE_CELL: this.extendTablesOnCellUpdate,
-    DELETE_CONTENT: this.removeTablesInDeletedContent,
-    CREATE_TABLE: this.createTable,
-    REMOVE_TABLE: this.removeTable,
-    UPDATE_TABLE: this.updateTable,
-    CREATE_SHEET: this.initSheetTables,
-    DUPLICATE_SHEET: this.duplicateSheetTables,
-    DELETE_SHEET: this.deleteSheetTables,
+    UPDATE_CELL: this.onUpdateCell,
+    DELETE_CONTENT: this.onDeleteContent,
+    CREATE_TABLE: this.onCreateTable,
+    REMOVE_TABLE: this.onRemoveTable,
+    UPDATE_TABLE: this.onUpdateTable,
+    CREATE_SHEET: this.onCreateSheet,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
   };
 
-  private deleteSheetTables(cmd: { sheetId: UID }) {
+  private onDeleteSheet(cmd: { sheetId: UID }) {
     const tables = { ...this.tables };
     delete tables[cmd.sheetId];
     this.history.update("tables", tables);
   }
 
-  private duplicateSheetTables(cmd: { sheetId: UID; sheetIdTo: UID }) {
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
     const newTables: Record<UID, CoreTable | undefined> = {};
     for (const table of this.getCoreTables(cmd.sheetId)) {
       newTables[table.id] =
@@ -93,11 +93,11 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     this.history.update("tables", cmd.sheetIdTo, newTables);
   }
 
-  private initSheetTables(cmd: { sheetId: UID }) {
+  private onCreateSheet(cmd: { sheetId: UID }) {
     this.history.update("tables", cmd.sheetId, {});
   }
 
-  private removeTable(cmd: RemoveTableCommand) {
+  private onRemoveTable(cmd: RemoveTableCommand) {
     const tables: Record<UID, CoreTable> = {};
     for (const table of this.getCoreTables(cmd.sheetId)) {
       if (cmd.target.every((zone) => !intersection(table.range.zone, zone))) {
@@ -107,7 +107,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     this.history.update("tables", cmd.sheetId, tables);
   }
 
-  private createTable(cmd: CreateTableCommand) {
+  private onCreateTable(cmd: CreateTableCommand) {
     const ranges = cmd.ranges.map((rangeData) => this.getters.getRangeFromRangeData(rangeData));
     const union = this.getters.getRangesUnion(ranges);
     const mergesInTarget = this.getters.getMergesInZone(cmd.sheetId, union.zone);
@@ -195,7 +195,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   }
 
   /** Remove the tables entirely contained in the cleared zones */
-  private removeTablesInDeletedContent(cmd: DeleteContentCommand) {
+  private onDeleteContent(cmd: DeleteContentCommand) {
     const tables: Record<TableId, CoreTable | undefined> = { ...this.tables[cmd.sheetId] };
     for (const tableId in tables) {
       const table = tables[tableId];
@@ -206,7 +206,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   }
 
   /** Extend the tables of the sheet impacted by a cell update */
-  private extendTablesOnCellUpdate(cmd: UpdateCellCommand) {
+  private onUpdateCell(cmd: UpdateCellCommand) {
     const sheetId = cmd.sheetId;
     for (const table of this.getCoreTables(sheetId)) {
       if (table.type === "dynamic") {
@@ -381,7 +381,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     };
   }
 
-  private updateTable(cmd: UpdateTableCommand) {
+  private onUpdateTable(cmd: UpdateTableCommand) {
     const table = this.getCoreTableMatchingTopLeft(cmd.sheetId, cmd.zone);
     if (!table) {
       return;

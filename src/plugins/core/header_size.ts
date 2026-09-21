@@ -24,21 +24,21 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
   readonly sizes: Record<UID, Record<Dimension, Array<Pixel | undefined>>> = {};
 
   handlers = {
-    RESIZE_COLUMNS_ROWS: this.resizeHeaders,
-    CREATE_SHEET: this.initSheetSizes,
-    DUPLICATE_SHEET: this.duplicateSheetSizes,
-    DELETE_SHEET: this.deleteSheetSizes,
-    ADD_COLUMNS_ROWS: this.addHeaderSizes,
-    REMOVE_COLUMNS_ROWS: this.removeHeaderSizes,
+    RESIZE_COLUMNS_ROWS: this.onResizeColumnsRows,
+    CREATE_SHEET: this.onCreateSheet,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
+    ADD_COLUMNS_ROWS: this.onAddColumnsRows,
+    REMOVE_COLUMNS_ROWS: this.onRemoveColumnsRows,
   };
 
-  private removeHeaderSizes(cmd: RemoveColumnsRowsCommand) {
+  private onRemoveColumnsRows(cmd: RemoveColumnsRowsCommand) {
     const arr = this.sizes[cmd.sheetId][cmd.dimension];
     const sizes = removeIndexesFromArray(arr, cmd.elements);
     this.history.update("sizes", cmd.sheetId, cmd.dimension, sizes);
   }
 
-  private addHeaderSizes(cmd: AddColumnsRowsCommand) {
+  private onAddColumnsRows(cmd: AddColumnsRowsCommand) {
     const sizes = this.sizes[cmd.sheetId][cmd.dimension];
     const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
     const baseSize = sizes[cmd.base];
@@ -46,24 +46,24 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
     this.history.update("sizes", cmd.sheetId, cmd.dimension, newSizes);
   }
 
-  private deleteSheetSizes(cmd: { sheetId: UID }) {
+  private onDeleteSheet(cmd: { sheetId: UID }) {
     const sizes = { ...this.sizes };
     delete sizes[cmd.sheetId];
     this.history.update("sizes", sizes);
   }
 
-  private duplicateSheetSizes(cmd: { sheetId: UID; sheetIdTo: UID }) {
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
     this.history.update("sizes", cmd.sheetIdTo, deepCopy(this.sizes[cmd.sheetId]));
   }
 
-  private initSheetSizes(cmd: { sheetId: UID }) {
+  private onCreateSheet(cmd: { sheetId: UID }) {
     this.history.update("sizes", cmd.sheetId, {
       COL: Array(this.getters.getNumberCols(cmd.sheetId)).fill(undefined),
       ROW: Array(this.getters.getNumberRows(cmd.sheetId)).fill(undefined),
     });
   }
 
-  private resizeHeaders(cmd: ResizeColumnsRowsCommand) {
+  private onResizeColumnsRows(cmd: ResizeColumnsRowsCommand) {
     for (const el of cmd.elements) {
       this.history.update("sizes", cmd.sheetId, cmd.dimension, el, cmd.size || undefined);
     }

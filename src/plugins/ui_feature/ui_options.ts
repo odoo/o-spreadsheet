@@ -10,10 +10,10 @@ export class UIOptionsPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   handlers = {
-    SET_FORMULA_VISIBILITY: this.setFormulaVisibility,
+    SET_FORMULA_VISIBILITY: this.onSetFormulaVisibility,
   };
 
-  private setFormulaVisibility(cmd: ShowFormulaCommand) {
+  private onSetFormulaVisibility(cmd: ShowFormulaCommand) {
     this.showFormulas = cmd.show;
   }
 

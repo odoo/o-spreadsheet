@@ -50,27 +50,22 @@ export class HistoryPlugin extends UIPlugin {
   };
 
   handlers = {
-    REQUEST_UNDO: this.requestUndo,
-    REQUEST_REDO: this.requestRedo,
+    REQUEST_UNDO: this.onRequestUndo,
+    REQUEST_REDO: this.onRequestRedo,
   };
-
-  /**
-   * See {@link requestUndo}.
-   */
-  private requestRedo() {
-    this.requestHistoryChange("REDO");
-  }
 
   /**
    * History changes (undo & redo) are *not* applied optimistically on the local state.
    * We wait a global confirmation from the server. The goal is to avoid handling concurrent
    * history changes on multiple clients which are very hard to manage correctly.
    */
-  private requestUndo() {
+  private onRequestUndo() {
     this.requestHistoryChange("UNDO");
   }
 
-  finalize() {}
+  private onRequestRedo() {
+    this.requestHistoryChange("REDO");
+  }
 
   private requestHistoryChange(type: "UNDO" | "REDO") {
     const id = type === "UNDO" ? this.undoStack.pop() : this.redoStack.pop();

@@ -228,29 +228,29 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   handlers = {
-    SET_SHEET_BACKGROUND_COLOR: this.setSheetBackgroundColor,
-    SET_GRID_LINES_VISIBILITY: this.updateGridLinesVisibility,
-    MOVE_SHEET: this.moveSheetTo,
-    LOCK_SHEET: this.lockSheet,
-    UNLOCK_SHEET: this.unlockSheet,
-    FREEZE_COLUMNS: this.freezeColumns,
-    FREEZE_ROWS: this.freezeRows,
-    UNFREEZE_ROWS: this.unfreezeRows,
-    UNFREEZE_COLUMNS: this.unfreezeColumns,
-    UNFREEZE_COLUMNS_ROWS: this.unfreezeColumnsAndRows,
-    SHOW_SHEET: this.showSheetHandler,
-    HIDE_SHEET: this.hideSheetHandler,
-    COLOR_SHEET: this.colorSheet,
-    UPDATE_CELL_POSITION: this.updateCellPositionHandler,
-    RENAME_SHEET: this.renameSheetHandler,
-    CREATE_SHEET: this.createSheetHandler,
-    DUPLICATE_SHEET: this.duplicateSheetHandler,
-    DELETE_SHEET: this.deleteSheetHandler,
-    ADD_COLUMNS_ROWS: this.addHeaders,
-    REMOVE_COLUMNS_ROWS: this.removeHeaders,
+    SET_SHEET_BACKGROUND_COLOR: this.onSetSheetBackgroundColor,
+    SET_GRID_LINES_VISIBILITY: this.onSetGridLinesVisibility,
+    MOVE_SHEET: this.onMoveSheet,
+    LOCK_SHEET: this.onLockSheet,
+    UNLOCK_SHEET: this.onUnlockSheet,
+    FREEZE_COLUMNS: this.onFreezeColumns,
+    FREEZE_ROWS: this.onFreezeRows,
+    UNFREEZE_ROWS: this.onUnfreezeRows,
+    UNFREEZE_COLUMNS: this.onUnfreezeColumns,
+    UNFREEZE_COLUMNS_ROWS: this.onUnfreezeColumnsRows,
+    SHOW_SHEET: this.onShowSheet,
+    HIDE_SHEET: this.onHideSheet,
+    COLOR_SHEET: this.onColorSheet,
+    UPDATE_CELL_POSITION: this.onUpdateCellPosition,
+    RENAME_SHEET: this.onRenameSheet,
+    CREATE_SHEET: this.onCreateSheet,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
+    ADD_COLUMNS_ROWS: this.onAddColumnsRows,
+    REMOVE_COLUMNS_ROWS: this.onRemoveColumnsRows,
   };
 
-  private removeHeaders(cmd: RemoveColumnsRowsCommand) {
+  private onRemoveColumnsRows(cmd: RemoveColumnsRowsCommand) {
     if (cmd.dimension === "COL") {
       this.removeColumns(this.sheets[cmd.sheetId]!, [...cmd.elements]);
     } else {
@@ -258,7 +258,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
   }
 
-  private addHeaders(cmd: AddColumnsRowsCommand) {
+  private onAddColumnsRows(cmd: AddColumnsRowsCommand) {
     if (cmd.dimension === "COL") {
       this.addColumns(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
     } else {
@@ -266,64 +266,64 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
   }
 
-  private deleteSheetHandler(cmd: { sheetId: UID }) {
+  private onDeleteSheet(cmd: { sheetId: UID }) {
     this.deleteSheet(this.sheets[cmd.sheetId]!);
   }
 
-  private duplicateSheetHandler(cmd: DuplicateSheetCommand) {
+  private onDuplicateSheet(cmd: DuplicateSheetCommand) {
     this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo, cmd.sheetNameTo);
   }
 
-  private updateGridLinesVisibility(cmd: SetGridLinesVisibilityCommand) {
+  private onSetGridLinesVisibility(cmd: SetGridLinesVisibilityCommand) {
     this.setGridLinesVisibility(cmd.sheetId, cmd.areGridLinesVisible);
   }
 
-  private setSheetBackgroundColor(cmd: ColorSheetBackgroundCommand) {
+  private onSetSheetBackgroundColor(cmd: ColorSheetBackgroundCommand) {
     this.history.update("sheets", cmd.sheetId, "backgroundColor", cmd.color);
   }
 
-  private moveSheetTo(cmd: MoveSheetCommand) {
+  private onMoveSheet(cmd: MoveSheetCommand) {
     this.moveSheet(cmd.sheetId, cmd.delta);
   }
 
-  private lockSheet(cmd: LockSheetCommand) {
+  private onLockSheet(cmd: LockSheetCommand) {
     this.history.update("sheets", cmd.sheetId, "isLocked", true);
   }
 
-  private unlockSheet(cmd: UnlockSheetCommand) {
+  private onUnlockSheet(cmd: UnlockSheetCommand) {
     this.history.update("sheets", cmd.sheetId, "isLocked", false);
   }
 
-  private freezeColumns(cmd: FreezeColumnsCommand) {
+  private onFreezeColumns(cmd: FreezeColumnsCommand) {
     this.setPaneDivisions(cmd.sheetId, cmd.quantity, "COL");
   }
 
-  private freezeRows(cmd: FreezeRowsCommand) {
+  private onFreezeRows(cmd: FreezeRowsCommand) {
     this.setPaneDivisions(cmd.sheetId, cmd.quantity, "ROW");
   }
 
-  private unfreezeRows(cmd: UnfreezeRowsCommand) {
+  private onUnfreezeRows(cmd: UnfreezeRowsCommand) {
     this.setPaneDivisions(cmd.sheetId, 0, "ROW");
   }
 
-  private unfreezeColumns(cmd: UnfreezeColumnsCommand) {
+  private onUnfreezeColumns(cmd: UnfreezeColumnsCommand) {
     this.setPaneDivisions(cmd.sheetId, 0, "COL");
   }
 
-  private unfreezeColumnsAndRows(cmd: UnfreezeColumnsRowsCommand) {
+  private onUnfreezeColumnsRows(cmd: UnfreezeColumnsRowsCommand) {
     this.setPaneDivisions(cmd.sheetId, 0, "COL");
     this.setPaneDivisions(cmd.sheetId, 0, "ROW");
   }
 
-  private showSheetHandler(cmd: ShowSheetCommand) {
+  private onShowSheet(cmd: ShowSheetCommand) {
     this.showSheet(cmd.sheetId);
   }
 
-  private hideSheetHandler(cmd: HideSheetCommand) {
+  private onHideSheet(cmd: HideSheetCommand) {
     this.hideSheet(cmd.sheetId);
   }
 
-  private createSheetHandler(cmd: CreateSheetCommand) {
+  private onCreateSheet(cmd: CreateSheetCommand) {
     const sheet = this.createSheet(
       cmd.sheetId,
       cmd.name || this.getNextSheetName(),
@@ -334,15 +334,15 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     this.history.update("sheetIdsMapName", toStandardizedSheetName(sheet.name), sheet.id);
   }
 
-  private renameSheetHandler(cmd: RenameSheetCommand) {
+  private onRenameSheet(cmd: RenameSheetCommand) {
     this.renameSheet(this.sheets[cmd.sheetId]!, cmd.newName);
   }
 
-  private colorSheet(cmd: ColorSheetCommand) {
+  private onColorSheet(cmd: ColorSheetCommand) {
     this.history.update("sheets", cmd.sheetId, "color", cmd.color);
   }
 
-  private updateCellPositionHandler(cmd: UpdateCellPositionCommand) {
+  private onUpdateCellPosition(cmd: UpdateCellPositionCommand) {
     this.updateCellPosition(cmd);
   }
 

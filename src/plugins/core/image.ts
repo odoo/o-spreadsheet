@@ -27,17 +27,17 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
   };
 
   handlers = {
-    DELETE_FIGURE: this.deleteImage,
-    CREATE_IMAGE: this.createImage,
-    DUPLICATE_SHEET: this.duplicateSheetImages,
-    DELETE_SHEET: this.deleteSheetImages,
+    DELETE_FIGURE: this.onDeleteFigure,
+    CREATE_IMAGE: this.onCreateImage,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
   };
 
-  private deleteSheetImages(cmd: { sheetId: UID }) {
+  private onDeleteSheet(cmd: { sheetId: UID }) {
     this.history.update("images", cmd.sheetId, undefined);
   }
 
-  private duplicateSheetImages(cmd: { sheetId: UID; sheetIdTo: UID }) {
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
     const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
     for (const fig of sheetFiguresFrom) {
       if (fig.tag === "image") {
@@ -60,7 +60,7 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
     }
   }
 
-  private createImage(cmd: CreateImageOverCommand) {
+  private onCreateImage(cmd: CreateImageOverCommand) {
     if (!this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
       this.addFigure(cmd.figureId, cmd.sheetId, cmd.col, cmd.row, cmd.offset, cmd.size);
     }
@@ -68,7 +68,7 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
     this.syncedImages.add(cmd.definition.path);
   }
 
-  private deleteImage(cmd: DeleteFigureCommand) {
+  private onDeleteFigure(cmd: DeleteFigureCommand) {
     this.history.update("images", cmd.sheetId, cmd.figureId, undefined);
   }
 

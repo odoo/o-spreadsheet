@@ -43,7 +43,7 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
   // ---------------------------------------------------------------------------
 
   handlers = {
-    UPDATE_CELL: this.invalidateConditionalFormats,
+    UPDATE_CELL: this.onUpdateCell,
     "*invalidateEvaluationCommands": this.markAsStale,
     "*invalidateCFEvaluationCommands": this.markAsStale,
   };
@@ -52,7 +52,7 @@ export class EvaluationConditionalFormatPlugin extends EvaluationPlugin {
     this.isStale = true;
   }
 
-  private invalidateConditionalFormats(cmd: UpdateCellCommand) {
+  private onUpdateCell(cmd: UpdateCellCommand) {
     if ("content" in cmd || "format" in cmd) {
       this.isStale = true;
     }

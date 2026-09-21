@@ -70,12 +70,12 @@ export class PivotUIPlugin extends EvaluationPlugin {
   private shouldInvalidateCache: boolean = false;
 
   preHandlers = {
-    START: this.setupAllPivots,
+    START: this.onStart,
   };
 
   handlers = {
     "*invalidateEvaluationCommands": this.invalidateAllPivots,
-    UPDATE_CELL: this.invalidatePivotCache,
+    UPDATE_CELL: this.onUpdateCell,
     DELETE_CONTENT: this.invalidateUnusedPivots,
     SET_FORMATTING: this.invalidateUnusedPivots,
     CLEAR_FORMATTING: this.invalidateUnusedPivots,
@@ -129,16 +129,16 @@ export class PivotUIPlugin extends EvaluationPlugin {
     HIDE_SHEET: this.invalidateUnusedPivots,
     COLOR_SHEET: this.invalidateUnusedPivots,
     UPDATE_CELL_POSITION: this.invalidateUnusedPivots,
-    UPDATE_LOCALE: this.invalidatePivotsOnLocaleUpdate,
-    ADD_PIVOT: this.setupAddedPivot,
-    DUPLICATE_PIVOT: this.setupDuplicatedPivot,
-    UPDATE_PIVOT: this.setupUpdatedPivot,
+    UPDATE_LOCALE: this.onUpdateLocale,
+    ADD_PIVOT: this.onAddPivot,
+    DUPLICATE_PIVOT: this.onDuplicatePivot,
+    UPDATE_PIVOT: this.onUpdatePivot,
     UNDO: this.setupPivotsOnUndoRedo,
     REDO: this.setupPivotsOnUndoRedo,
-    REFRESH_PIVOT: this.refreshPivotOfCommand,
+    REFRESH_PIVOT: this.onRefreshPivot,
   };
 
-  private refreshPivotOfCommand(cmd: RefreshPivotCommand) {
+  private onRefreshPivot(cmd: RefreshPivotCommand) {
     this.refreshPivot(cmd.id);
   }
 
@@ -156,13 +156,13 @@ export class PivotUIPlugin extends EvaluationPlugin {
     this.custom = config.custom;
   }
 
-  private setupAllPivots() {
+  private onStart() {
     for (const pivotId of this.getters.getPivotIds()) {
       this.setupPivot(pivotId);
     }
   }
 
-  private invalidatePivotCache() {
+  private onUpdateCell() {
     this.invalidateUnusedPivots();
     this.shouldInvalidateCache = true;
   }
@@ -183,21 +183,21 @@ export class PivotUIPlugin extends EvaluationPlugin {
    * Reset the cache of the date/datetime pivot values, as it depends on
    * the locale. (e.g. the first day of the week)
    */
-  private setupUpdatedPivot(cmd: UpdatePivotCommand) {
+  private onUpdatePivot(cmd: UpdatePivotCommand) {
     this.setupPivot(cmd.pivotId, { recreate: true });
   }
 
-  private setupDuplicatedPivot(cmd: DuplicatePivotCommand) {
+  private onDuplicatePivot(cmd: DuplicatePivotCommand) {
     this.unusedPivotsInFormulas?.push(cmd.newPivotId);
     this.setupPivot(cmd.newPivotId);
   }
 
-  private setupAddedPivot(cmd: AddPivotCommand) {
+  private onAddPivot(cmd: AddPivotCommand) {
     this.unusedPivotsInFormulas?.push(cmd.pivotId);
     this.setupPivot(cmd.pivotId);
   }
 
-  private invalidatePivotsOnLocaleUpdate() {
+  private onUpdateLocale() {
     resetMapValueDimensionDate();
   }
 

@@ -36,16 +36,16 @@ export class HeaderVisibilityPlugin extends CorePlugin {
   };
 
   handlers = {
-    HIDE_COLUMNS_ROWS: this.hideHeaders,
-    UNHIDE_COLUMNS_ROWS: this.unhideHeaders,
-    CREATE_SHEET: this.initSheetHiddenHeaders,
-    DUPLICATE_SHEET: this.duplicateSheetHiddenHeaders,
-    DELETE_SHEET: this.deleteSheetHiddenHeaders,
-    ADD_COLUMNS_ROWS: this.addHiddenHeaders,
-    REMOVE_COLUMNS_ROWS: this.removeHiddenHeaders,
+    HIDE_COLUMNS_ROWS: this.onHideColumnsRows,
+    UNHIDE_COLUMNS_ROWS: this.onUnhideColumnsRows,
+    CREATE_SHEET: this.onCreateSheet,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
+    ADD_COLUMNS_ROWS: this.onAddColumnsRows,
+    REMOVE_COLUMNS_ROWS: this.onRemoveColumnsRows,
   };
 
-  private removeHiddenHeaders(cmd: RemoveColumnsRowsCommand) {
+  private onRemoveColumnsRows(cmd: RemoveColumnsRowsCommand) {
     const hiddenHeaders = [...this.hiddenHeaders[cmd.sheetId][cmd.dimension]];
     for (const el of [...cmd.elements].sort((a, b) => b - a)) {
       hiddenHeaders.splice(el, 1);
@@ -53,7 +53,7 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hiddenHeaders);
   }
 
-  private addHiddenHeaders(cmd: AddColumnsRowsCommand) {
+  private onAddColumnsRows(cmd: AddColumnsRowsCommand) {
     const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
     const hiddenHeaders = insertItemsAtIndex(
       [...this.hiddenHeaders[cmd.sheetId][cmd.dimension]],
@@ -63,15 +63,15 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hiddenHeaders);
   }
 
-  private deleteSheetHiddenHeaders(cmd: { sheetId: UID }) {
+  private onDeleteSheet(cmd: { sheetId: UID }) {
     this.history.update("hiddenHeaders", cmd.sheetId, undefined);
   }
 
-  private duplicateSheetHiddenHeaders(cmd: { sheetId: UID; sheetIdTo: UID }) {
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
     this.history.update("hiddenHeaders", cmd.sheetIdTo, deepCopy(this.hiddenHeaders[cmd.sheetId]));
   }
 
-  private initSheetHiddenHeaders(cmd: { sheetId: UID }) {
+  private onCreateSheet(cmd: { sheetId: UID }) {
     const hiddenHeaders = {
       COL: Array(this.getters.getNumberCols(cmd.sheetId)).fill(false),
       ROW: Array(this.getters.getNumberRows(cmd.sheetId)).fill(false),
@@ -79,13 +79,13 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     this.history.update("hiddenHeaders", cmd.sheetId, hiddenHeaders);
   }
 
-  private unhideHeaders(cmd: UnhideColumnsRowsCommand) {
+  private onUnhideColumnsRows(cmd: UnhideColumnsRowsCommand) {
     for (const el of cmd.elements) {
       this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, el, false);
     }
   }
 
-  private hideHeaders(cmd: HideColumnsRowsCommand) {
+  private onHideColumnsRows(cmd: HideColumnsRowsCommand) {
     for (const el of cmd.elements) {
       this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, el, true);
     }

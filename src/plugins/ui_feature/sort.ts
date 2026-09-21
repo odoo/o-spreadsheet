@@ -32,10 +32,10 @@ export class SortPlugin extends UIPlugin {
   };
 
   handlers = {
-    SORT_CELLS: this.sortCells,
+    SORT_CELLS: this.onSortCells,
   };
 
-  private sortCells(cmd: SortCommand) {
+  private onSortCells(cmd: SortCommand) {
     this.sortZone(cmd.sheetId, cmd, cmd.zone, cmd.sortDirection, cmd.sortOptions || {});
   }
 

@@ -35,16 +35,16 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   };
 
   handlers = {
-    UPDATE_FIGURE: this.updateFigure,
-    CREATE_FIGURE: this.createFigure,
-    DELETE_FIGURE: this.deleteFigure,
-    CREATE_SHEET: this.initSheetFigures,
-    DUPLICATE_SHEET: this.duplicateSheetFigures,
-    DELETE_SHEET: this.deleteSheetFigures,
-    REMOVE_COLUMNS_ROWS: this.removeHeaderFigures,
+    UPDATE_FIGURE: this.onUpdateFigure,
+    CREATE_FIGURE: this.onCreateFigure,
+    DELETE_FIGURE: this.onDeleteFigure,
+    CREATE_SHEET: this.onCreateSheet,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
+    REMOVE_COLUMNS_ROWS: this.onRemoveColumnsRows,
   };
 
-  private removeHeaderFigures(cmd: RemoveColumnsRowsCommand) {
+  private onRemoveColumnsRows(cmd: RemoveColumnsRowsCommand) {
     if (cmd.dimension === "COL") {
       this.onColRemove(cmd.sheetId);
     } else {
@@ -58,11 +58,11 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     }
   }
 
-  private deleteSheetFigures(cmd: { sheetId: UID }) {
+  private onDeleteSheet(cmd: { sheetId: UID }) {
     this.deleteSheet(cmd.sheetId);
   }
 
-  private duplicateSheetFigures(cmd: { sheetId: UID; sheetIdTo: UID }) {
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
     for (const figure of this.getFigures(cmd.sheetId)) {
       const figureId = figure.id;
       const fig = this.figures[cmd.sheetId]?.[figureId];
@@ -80,15 +80,15 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     }
   }
 
-  private initSheetFigures(cmd: { sheetId: UID }) {
+  private onCreateSheet(cmd: { sheetId: UID }) {
     this.figures[cmd.sheetId] = {};
   }
 
-  private deleteFigure(cmd: DeleteFigureCommand) {
+  private onDeleteFigure(cmd: DeleteFigureCommand) {
     this.removeFigure(cmd.figureId, cmd.sheetId);
   }
 
-  private createFigure(cmd: CreateFigureCommand) {
+  private onCreateFigure(cmd: CreateFigureCommand) {
     const figure: Figure = {
       id: cmd.figureId,
       col: cmd.col,
@@ -268,7 +268,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     return { col, row, offset };
   }
 
-  private updateFigure(cmd: UpdateFigureCommand) {
+  private onUpdateFigure(cmd: UpdateFigureCommand) {
     if (!("figureId" in cmd) || !("sheetId" in cmd)) {
       return;
     }

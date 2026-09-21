@@ -18,15 +18,15 @@ export class FormatPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   handlers = {
-    SET_DECIMAL: this.setDecimalOfTarget,
-    SET_FORMATTING_WITH_PIVOT: this.setFormattingWithPivot,
+    SET_DECIMAL: this.onSetDecimal,
+    SET_FORMATTING_WITH_PIVOT: this.onSetFormattingWithPivot,
   };
 
-  private setFormattingWithPivot(cmd: SetContextualFormatCommand) {
+  private onSetFormattingWithPivot(cmd: SetContextualFormatCommand) {
     this.setContextualFormat(cmd.sheetId, cmd.target, cmd.format);
   }
 
-  private setDecimalOfTarget(cmd: SetDecimalCommand) {
+  private onSetDecimal(cmd: SetDecimalCommand) {
     this.setDecimal(cmd.sheetId, cmd.target, cmd.step);
   }
 

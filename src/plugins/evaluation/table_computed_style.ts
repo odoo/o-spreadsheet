@@ -24,7 +24,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
   private tableStyles: Record<UID, Record<TableId, Lazy<ComputedTableStyle>>> = {};
 
   handlers = {
-    UPDATE_CELL: this.invalidateTableStyles,
+    UPDATE_CELL: this.onUpdateCell,
     EVALUATE_CELLS: this.clearTableStyles,
     "*invalidateEvaluationCommands": this.clearTableStyles,
     "*invalidateTableStyleCommands": this.invalidateTableStylesOfCommand,
@@ -42,7 +42,7 @@ export class TableComputedStylePlugin extends EvaluationPlugin {
     this.tableStyles = {};
   }
 
-  private invalidateTableStyles(cmd: UpdateCellCommand) {
+  private onUpdateCell(cmd: UpdateCellCommand) {
     if ("content" in cmd || "format" in cmd) {
       this.tableStyles = {};
     }

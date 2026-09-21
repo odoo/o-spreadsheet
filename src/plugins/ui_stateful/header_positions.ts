@@ -32,19 +32,19 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     UNFOLD_HEADER_GROUPS_IN_ZONE: this.computeSheetHeaderPositions,
     RESIZE_COLUMNS_ROWS: this.computeSheetHeaderPositions,
     CREATE_SHEET: this.computeSheetHeaderPositions,
-    DUPLICATE_SHEET: this.copySheetPositions,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
     ADD_COLUMNS_ROWS: this.computeSheetHeaderPositions,
     REMOVE_COLUMNS_ROWS: this.computeSheetHeaderPositions,
-    START: this.computeAllHeaderPositions,
+    START: this.onStart,
   };
 
-  private computeAllHeaderPositions() {
+  private onStart() {
     for (const sheetId of this.getters.getSheetIds()) {
       this.headerPositions[sheetId] = this.computeHeaderPositionsOfSheet(sheetId);
     }
   }
 
-  private copySheetPositions(cmd: { sheetId: UID; sheetIdTo: UID }) {
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
     this.headerPositions[cmd.sheetIdTo] = deepCopy(this.headerPositions[cmd.sheetId]);
   }
 

@@ -21,13 +21,13 @@ export class FigureUIPlugin extends UIPlugin {
   };
 
   handlers = {
-    UPDATE_FIGURES: this.updateFigures,
-    DELETE_FIGURES: this.deleteFigures,
-    MERGE_CHART_FIGURES_INTO_CAROUSEL: this.mergeChartFiguresIntoCarousel,
-    CREATE_CHART_AND_MERGE_INTO_CAROUSEL: this.createChartAndMergeIntoCarousel,
+    UPDATE_FIGURES: this.onUpdateFigures,
+    DELETE_FIGURES: this.onDeleteFigures,
+    MERGE_CHART_FIGURES_INTO_CAROUSEL: this.onMergeChartFiguresIntoCarousel,
+    CREATE_CHART_AND_MERGE_INTO_CAROUSEL: this.onCreateChartAndMergeIntoCarousel,
   };
 
-  private createChartAndMergeIntoCarousel(cmd: CreateChartAndMergeIntoCarouselCommand) {
+  private onCreateChartAndMergeIntoCarousel(cmd: CreateChartAndMergeIntoCarouselCommand) {
     const baseFigureToMerge = this.getters.getFigure(cmd.sheetId, cmd.baseFigureId);
     if (!baseFigureToMerge) {
       throw new Error(`Figure ${cmd.baseFigureId} does not exists.`);
@@ -49,7 +49,7 @@ export class FigureUIPlugin extends UIPlugin {
     });
   }
 
-  private mergeChartFiguresIntoCarousel(cmd: MergeIntoCarouselCommand) {
+  private onMergeChartFiguresIntoCarousel(cmd: MergeIntoCarouselCommand) {
     const carouselFigureId = UuidGenerator.smallUuid();
     const baseFigure = this.getters.getFigure(cmd.sheetId, cmd.baseFigureId);
     if (!baseFigure) {
@@ -71,13 +71,13 @@ export class FigureUIPlugin extends UIPlugin {
     });
   }
 
-  private deleteFigures(cmd: DeleteFiguresCommand) {
+  private onDeleteFigures(cmd: DeleteFiguresCommand) {
     for (const figureId of cmd.figureIds) {
       this.dispatch("DELETE_FIGURE", { figureId, sheetId: cmd.sheetId });
     }
   }
 
-  private updateFigures(cmd: UpdateFiguresCommand) {
+  private onUpdateFigures(cmd: UpdateFiguresCommand) {
     for (const updateFigurePayload of cmd.figures) {
       this.dispatch("UPDATE_FIGURE", updateFigurePayload);
     }

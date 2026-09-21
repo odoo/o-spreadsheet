@@ -25,18 +25,18 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
   };
 
   handlers = {
-    DELETE_FIGURE: this.deleteCarousel,
-    CREATE_CAROUSEL: this.createCarousel,
-    UPDATE_CAROUSEL: this.updateCarousel,
-    DUPLICATE_SHEET: this.duplicateSheetCarousels,
-    DELETE_SHEET: this.deleteSheetCarousels,
+    DELETE_FIGURE: this.onDeleteFigure,
+    CREATE_CAROUSEL: this.onCreateCarousel,
+    UPDATE_CAROUSEL: this.onUpdateCarousel,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
   };
 
-  private deleteSheetCarousels(cmd: { sheetId: UID }) {
+  private onDeleteSheet(cmd: { sheetId: UID }) {
     this.history.update("carousels", cmd.sheetId, undefined);
   }
 
-  private duplicateSheetCarousels(cmd: { sheetId: UID; sheetIdTo: UID }) {
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
     const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
     for (const fig of sheetFiguresFrom) {
       if (fig.tag === "carousel") {
@@ -70,13 +70,13 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
     }
   }
 
-  private updateCarousel(cmd: UpdateCarouselCommand) {
+  private onUpdateCarousel(cmd: UpdateCarouselCommand) {
     this.removeDeletedCharts(cmd, this.getters.getCarousel(cmd.figureId).items);
     const carousel = this.carouselDataToCarousel(cmd.definition);
     this.history.update("carousels", cmd.sheetId, cmd.figureId, carousel);
   }
 
-  private createCarousel(cmd: CreateCarouselCommand) {
+  private onCreateCarousel(cmd: CreateCarouselCommand) {
     if (!this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
       this.dispatch("CREATE_FIGURE", { ...cmd, tag: "carousel" });
     }
@@ -84,7 +84,7 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
     this.history.update("carousels", cmd.sheetId, cmd.figureId, carousel);
   }
 
-  private deleteCarousel(cmd: DeleteFigureCommand) {
+  private onDeleteFigure(cmd: DeleteFigureCommand) {
     this.history.update("carousels", cmd.sheetId, cmd.figureId, undefined);
   }
 

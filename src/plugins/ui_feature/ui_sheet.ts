@@ -64,13 +64,13 @@ export class SheetUIPlugin extends UIPlugin {
   };
 
   handlers = {
-    AUTORESIZE_COLUMNS: this.autoResizeColumns,
-    AUTORESIZE_ROWS: this.autoResizeRowsHandler,
-    DELETE_UNFILTERED_CONTENT: this.deleteUnfilteredContent,
-    SET_BACKGROUND_FOR_ALL_CELLS: this.setBackgroundForAllCells,
+    AUTORESIZE_COLUMNS: this.onAutoresizeColumns,
+    AUTORESIZE_ROWS: this.onAutoresizeRows,
+    DELETE_UNFILTERED_CONTENT: this.onDeleteUnfilteredContent,
+    SET_BACKGROUND_FOR_ALL_CELLS: this.onSetBackgroundForAllCells,
   };
 
-  private setBackgroundForAllCells(cmd: ColorAllCellsBackground) {
+  private onSetBackgroundForAllCells(cmd: ColorAllCellsBackground) {
     this.dispatch("SET_FORMATTING", {
       sheetId: cmd.sheetId,
       target: [this.getters.getSheetZone(cmd.sheetId)],
@@ -79,7 +79,7 @@ export class SheetUIPlugin extends UIPlugin {
     this.dispatch("SET_SHEET_BACKGROUND_COLOR", { sheetId: cmd.sheetId, color: cmd.color });
   }
 
-  private deleteUnfilteredContent(cmd: DeleteUnfilteredContentCommand) {
+  private onDeleteUnfilteredContent(cmd: DeleteUnfilteredContentCommand) {
     const newTarget: Zone[] = [];
     for (const target of cmd.target) {
       const nonFilteredRows = range(target.top, target.bottom + 1).filter(
@@ -93,11 +93,11 @@ export class SheetUIPlugin extends UIPlugin {
     this.dispatch("DELETE_CONTENT", { sheetId: cmd.sheetId, target: newTarget });
   }
 
-  private autoResizeRowsHandler(cmd: AutoresizeRowsCommand) {
+  private onAutoresizeRows(cmd: AutoresizeRowsCommand) {
     this.autoResizeRows(cmd.sheetId, cmd.rows);
   }
 
-  private autoResizeColumns(cmd: AutoresizeColumnsCommand) {
+  private onAutoresizeColumns(cmd: AutoresizeColumnsCommand) {
     for (const col of cmd.cols) {
       const size = Math.min(this.getColMaxWidth(cmd.sheetId, col), MAX_HEADER_SIZE);
       if (size !== 0) {

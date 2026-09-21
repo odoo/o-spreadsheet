@@ -11,16 +11,16 @@ export class PivotPresencePlugin extends EvaluationPlugin {
   private tracker?: PivotPresenceTracker;
 
   handlers = {
-    PIVOT_START_PRESENCE_TRACKING: this.startPresenceTracking,
-    PIVOT_STOP_PRESENCE_TRACKING: this.stopPresenceTracking,
+    PIVOT_START_PRESENCE_TRACKING: this.onPivotStartPresenceTracking,
+    PIVOT_STOP_PRESENCE_TRACKING: this.onPivotStopPresenceTracking,
   };
 
-  private stopPresenceTracking() {
+  private onPivotStopPresenceTracking() {
     this.trackPresencePivotId = undefined;
     this.sheetId = undefined;
   }
 
-  private startPresenceTracking(cmd: PivotStartPresenceTracking) {
+  private onPivotStartPresenceTracking(cmd: PivotStartPresenceTracking) {
     this.tracker = new PivotPresenceTracker();
     this.trackPresencePivotId = cmd.pivotId;
     this.sheetId = cmd.sheetId;

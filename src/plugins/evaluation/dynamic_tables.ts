@@ -38,7 +38,7 @@ export class DynamicTablesPlugin extends EvaluationPlugin {
   tables: Record<UID, Table[]> = {};
 
   handlers = {
-    UPDATE_CELL: this.invalidateTables,
+    UPDATE_CELL: this.onUpdateCell,
     DELETE_CONTENT: this.clearTables,
     CREATE_TABLE: this.clearTables,
     REMOVE_TABLE: this.clearTables,
@@ -48,7 +48,7 @@ export class DynamicTablesPlugin extends EvaluationPlugin {
     "*invalidateEvaluationCommands": this.clearTables,
   };
 
-  private invalidateTables(cmd: UpdateCellCommand) {
+  private onUpdateCell(cmd: UpdateCellCommand) {
     if ("content" in cmd || "format" in cmd) {
       this.clearTables();
     }

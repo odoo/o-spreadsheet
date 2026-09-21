@@ -64,40 +64,40 @@ export class ConditionalFormatPlugin
   };
 
   handlers = {
-    ADD_CONDITIONAL_FORMAT: this.addConditionalFormat,
-    REMOVE_CONDITIONAL_FORMAT: this.removeConditionalFormat,
-    CHANGE_CONDITIONAL_FORMAT_PRIORITY: this.changeConditionalFormatPriority,
-    CREATE_SHEET: this.initSheetCfRules,
-    DUPLICATE_SHEET: this.duplicateSheetCfRules,
-    DELETE_SHEET: this.deleteSheetCfRules,
+    ADD_CONDITIONAL_FORMAT: this.onAddConditionalFormat,
+    REMOVE_CONDITIONAL_FORMAT: this.onRemoveConditionalFormat,
+    CHANGE_CONDITIONAL_FORMAT_PRIORITY: this.onChangeConditionalFormatPriority,
+    CREATE_SHEET: this.onCreateSheet,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
   };
 
-  private deleteSheetCfRules(cmd: { sheetId: UID }) {
+  private onDeleteSheet(cmd: { sheetId: UID }) {
     const cfRules = Object.assign({}, this.cfRules);
     delete cfRules[cmd.sheetId];
     this.history.update("cfRules", cfRules);
   }
 
-  private duplicateSheetCfRules(cmd: { sheetId: UID; sheetIdTo: UID }) {
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
     this.history.update("cfRules", cmd.sheetIdTo, []);
     for (const cf of this.getConditionalFormats(cmd.sheetId)) {
       this.addConditionalFormatting(cf, cmd.sheetIdTo);
     }
   }
 
-  private initSheetCfRules(cmd: { sheetId: UID }) {
+  private onCreateSheet(cmd: { sheetId: UID }) {
     this.cfRules[cmd.sheetId] = [];
   }
 
-  private changeConditionalFormatPriority(cmd: MoveConditionalFormatCommand) {
+  private onChangeConditionalFormatPriority(cmd: MoveConditionalFormatCommand) {
     this.changeCFPriority(cmd.cfId, cmd.delta, cmd.sheetId);
   }
 
-  private removeConditionalFormat(cmd: RemoveConditionalFormatCommand) {
+  private onRemoveConditionalFormat(cmd: RemoveConditionalFormatCommand) {
     this.removeConditionalFormatting(cmd.id, cmd.sheetId);
   }
 
-  private addConditionalFormat(cmd: AddConditionalFormatCommand) {
+  private onAddConditionalFormat(cmd: AddConditionalFormatCommand) {
     const cf = {
       ...cmd.cf,
       ranges: cmd.ranges.map((rangeData) =>

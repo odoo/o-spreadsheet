@@ -34,25 +34,25 @@ export class InsertPivotPlugin extends UIPlugin {
   };
 
   handlers = {
-    INSERT_NEW_PIVOT: this.insertNewPivotFromCommand,
-    DUPLICATE_PIVOT_IN_NEW_SHEET: this.duplicatePivotInNewSheetFromCommand,
-    INSERT_PIVOT_WITH_TABLE: this.insertPivotWithTableFromCommand,
-    SPLIT_PIVOT_FORMULA: this.splitPivotFormulaFromCommand,
+    INSERT_NEW_PIVOT: this.onInsertNewPivot,
+    DUPLICATE_PIVOT_IN_NEW_SHEET: this.onDuplicatePivotInNewSheet,
+    INSERT_PIVOT_WITH_TABLE: this.onInsertPivotWithTable,
+    SPLIT_PIVOT_FORMULA: this.onSplitPivotFormula,
   };
 
-  private splitPivotFormulaFromCommand(cmd: SplitPivotFormulaCommand) {
+  private onSplitPivotFormula(cmd: SplitPivotFormulaCommand) {
     this.splitPivotFormula(cmd.sheetId, cmd.col, cmd.row, cmd.pivotId);
   }
 
-  private insertPivotWithTableFromCommand(cmd: InsertPivotWithTableCommand) {
+  private onInsertPivotWithTable(cmd: InsertPivotWithTableCommand) {
     this.insertPivotWithTable(cmd.sheetId, cmd.col, cmd.row, cmd.pivotId, cmd.table, cmd.pivotMode);
   }
 
-  private duplicatePivotInNewSheetFromCommand(cmd: DuplicatePivotInNewSheetCommand) {
+  private onDuplicatePivotInNewSheet(cmd: DuplicatePivotInNewSheetCommand) {
     this.duplicatePivotInNewSheet(cmd.pivotId, cmd.newPivotId, cmd.newSheetId);
   }
 
-  private insertNewPivotFromCommand(cmd: InsertNewPivotCommand) {
+  private onInsertNewPivot(cmd: InsertNewPivotCommand) {
     this.insertNewPivot(cmd.pivotId, cmd.newSheetId);
   }
 

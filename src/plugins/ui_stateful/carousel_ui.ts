@@ -34,37 +34,37 @@ export class CarouselUIPlugin extends UIPlugin {
 
   handlers = {
     DELETE_CHART: this.fixWrongCarouselStates,
-    DELETE_FIGURE: this.forgetCarouselState,
-    UPDATE_CAROUSEL: this.fixUpdatedCarouselState,
-    ADD_NEW_CHART_TO_CAROUSEL: this.addNewChart,
-    ADD_FIGURES_CHART_TO_CAROUSEL: this.addFigureCharts,
-    DUPLICATE_CAROUSEL_CHART: this.duplicateCarouselChart,
-    UPDATE_CAROUSEL_ACTIVE_ITEM: this.updateActiveItem,
-    POPOUT_CHART_FROM_CAROUSEL: this.popOutChartFromCarousel,
+    DELETE_FIGURE: this.onDeleteFigure,
+    UPDATE_CAROUSEL: this.onUpdateCarousel,
+    ADD_NEW_CHART_TO_CAROUSEL: this.onAddNewChartToCarousel,
+    ADD_FIGURES_CHART_TO_CAROUSEL: this.onAddFiguresChartToCarousel,
+    DUPLICATE_CAROUSEL_CHART: this.onDuplicateCarouselChart,
+    UPDATE_CAROUSEL_ACTIVE_ITEM: this.onUpdateCarouselActiveItem,
+    POPOUT_CHART_FROM_CAROUSEL: this.onPopoutChartFromCarousel,
     DELETE_SHEET: this.fixWrongCarouselStates,
     UNDO: this.fixWrongCarouselStates,
     REDO: this.fixWrongCarouselStates,
   };
 
-  private updateActiveItem(cmd: UpdateCarouselActiveItemCommand) {
+  private onUpdateCarouselActiveItem(cmd: UpdateCarouselActiveItemCommand) {
     this.carouselStates[cmd.figureId] = this.getCarouselItemId(cmd.item);
   }
 
-  private addFigureCharts(cmd: AddFiguresChartToCarouselCommand) {
+  private onAddFiguresChartToCarousel(cmd: AddFiguresChartToCarouselCommand) {
     cmd.chartFigureIds.forEach((figureId) => {
       this.addFigureChartToCarousel(cmd.carouselFigureId, figureId, cmd.sheetId);
     });
   }
 
-  private addNewChart(cmd: AddNewChartToCarouselCommand) {
+  private onAddNewChartToCarousel(cmd: AddNewChartToCarouselCommand) {
     this.addNewChartToCarousel(cmd.figureId, cmd.newChartId, cmd.sheetId, cmd.chartDefinition);
   }
 
-  private fixUpdatedCarouselState(cmd: UpdateCarouselCommand) {
+  private onUpdateCarousel(cmd: UpdateCarouselCommand) {
     this.fixWrongCarouselState(cmd.figureId);
   }
 
-  private forgetCarouselState(cmd: DeleteFigureCommand) {
+  private onDeleteFigure(cmd: DeleteFigureCommand) {
     delete this.carouselStates[cmd.figureId];
   }
 
@@ -115,7 +115,7 @@ export class CarouselUIPlugin extends UIPlugin {
     return CommandResult.Success;
   }
 
-  popOutChartFromCarousel(cmd: PopOutChartFromCarouselCommand) {
+  onPopoutChartFromCarousel(cmd: PopOutChartFromCarouselCommand) {
     const { carouselId, chartId, sheetId, col, row, offset } = cmd;
     const carousel = this.getters.getCarousel(carouselId);
     if (!carousel) {
@@ -261,7 +261,7 @@ export class CarouselUIPlugin extends UIPlugin {
     this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", { figureId, sheetId, item: newItem });
   }
 
-  private duplicateCarouselChart({
+  private onDuplicateCarouselChart({
     carouselId,
     chartId,
     sheetId,

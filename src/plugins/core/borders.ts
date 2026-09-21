@@ -49,18 +49,18 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   };
 
   handlers = {
-    CLEAR_FORMATTING: this.clearFormattingBorders,
-    SET_BORDER: this.setBorderOfCell,
-    SET_ZONE_BORDERS: this.setZoneBorders,
-    SET_BORDERS_ON_TARGET: this.setBordersOnTarget,
-    ADD_MERGE: this.addBordersToMerges,
-    DUPLICATE_SHEET: this.duplicateSheetBorders,
-    DELETE_SHEET: this.deleteSheetBorders,
-    ADD_COLUMNS_ROWS: this.addHeaderBorders,
-    REMOVE_COLUMNS_ROWS: this.removeHeaderBorders,
+    CLEAR_FORMATTING: this.onClearFormatting,
+    SET_BORDER: this.onSetBorder,
+    SET_ZONE_BORDERS: this.onSetZoneBorders,
+    SET_BORDERS_ON_TARGET: this.onSetBordersOnTarget,
+    ADD_MERGE: this.onAddMerge,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
+    ADD_COLUMNS_ROWS: this.onAddColumnsRows,
+    REMOVE_COLUMNS_ROWS: this.onRemoveColumnsRows,
   };
 
-  private removeHeaderBorders(cmd: RemoveColumnsRowsCommand) {
+  private onRemoveColumnsRows(cmd: RemoveColumnsRowsCommand) {
     const elements = [...cmd.elements].sort((a, b) => b - a);
     for (const group of groupConsecutive(elements)) {
       if (cmd.dimension === "COL") {
@@ -75,7 +75,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     }
   }
 
-  private addHeaderBorders(cmd: AddColumnsRowsCommand) {
+  private onAddColumnsRows(cmd: AddColumnsRowsCommand) {
     if (cmd.dimension === "COL") {
       this.handleAddColumns(cmd);
     } else {
@@ -83,13 +83,13 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     }
   }
 
-  private deleteSheetBorders(cmd: { sheetId: UID }) {
+  private onDeleteSheet(cmd: { sheetId: UID }) {
     const allBorders = { ...this.borders };
     delete allBorders[cmd.sheetId];
     this.history.update("borders", allBorders);
   }
 
-  private duplicateSheetBorders(cmd: { sheetId: UID; sheetIdTo: UID }) {
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
     const borders = this.borders[cmd.sheetId];
     if (borders) {
       // borders is a sparse 2D array.
@@ -101,7 +101,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     }
   }
 
-  private setBordersOnTarget(cmd: SetBorderTargetCommand) {
+  private onSetBordersOnTarget(cmd: SetBorderTargetCommand) {
     for (const zone of cmd.target) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         for (let col = zone.left; col <= zone.right; col++) {
@@ -111,7 +111,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     }
   }
 
-  private setZoneBorders(cmd: SetZoneBordersCommand) {
+  private onSetZoneBorders(cmd: SetZoneBordersCommand) {
     if (!cmd.border) {
       return;
     }
@@ -129,11 +129,11 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     );
   }
 
-  private setBorderOfCell(cmd: SetBorderCommand) {
+  private onSetBorder(cmd: SetBorderCommand) {
     this.setBorder(cmd.sheetId, cmd.col, cmd.row, cmd.border);
   }
 
-  private clearFormattingBorders(cmd: ClearFormattingCommand) {
+  private onClearFormatting(cmd: ClearFormattingCommand) {
     this.clearBorders(cmd.sheetId, cmd.target);
   }
 
@@ -609,7 +609,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   /**
    * Compute the borders to add to the given zone merged.
    */
-  private addBordersToMerges(cmd: AddMergeCommand) {
+  private onAddMerge(cmd: AddMergeCommand) {
     for (const zone of cmd.target) {
       this.addBordersToMerge(cmd.sheetId, zone);
     }

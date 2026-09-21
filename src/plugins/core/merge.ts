@@ -65,19 +65,19 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   };
 
   handlers = {
-    ADD_MERGE: this.addMerges,
-    REMOVE_MERGE: this.removeMerges,
-    CREATE_SHEET: this.initSheetMerges,
-    DUPLICATE_SHEET: this.duplicateSheetMerges,
-    DELETE_SHEET: this.deleteSheetMerges,
+    ADD_MERGE: this.onAddMerge,
+    REMOVE_MERGE: this.onRemoveMerge,
+    CREATE_SHEET: this.onCreateSheet,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
   };
 
-  private deleteSheetMerges(cmd: { sheetId: UID }) {
+  private onDeleteSheet(cmd: { sheetId: UID }) {
     this.history.update("merges", cmd.sheetId, {});
     this.history.update("mergeCellMap", cmd.sheetId, {});
   }
 
-  private duplicateSheetMerges(cmd: { sheetId: UID; sheetIdTo: UID }) {
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
     const merges = this.merges[cmd.sheetId];
     if (!merges) {
       return;
@@ -87,18 +87,18 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     }
   }
 
-  private initSheetMerges(cmd: { sheetId: UID }) {
+  private onCreateSheet(cmd: { sheetId: UID }) {
     this.history.update("merges", cmd.sheetId, {});
     this.history.update("mergeCellMap", cmd.sheetId, {});
   }
 
-  private removeMerges(cmd: RemoveMergeCommand) {
+  private onRemoveMerge(cmd: RemoveMergeCommand) {
     for (const zone of cmd.target) {
       this.removeMerge(cmd.sheetId, zone);
     }
   }
 
-  private addMerges(cmd: AddMergeCommand) {
+  private onAddMerge(cmd: AddMergeCommand) {
     for (const zone of cmd.target) {
       this.addMerge(cmd.sheetId, zone);
     }

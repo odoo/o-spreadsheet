@@ -48,20 +48,20 @@ export class HeaderSizeUIPlugin
   ctx: Canvas2DContext = getCanvas();
 
   preHandlers = {
-    ADD_COLUMNS_ROWS: this.insertRowsTallestCells,
+    ADD_COLUMNS_ROWS: this.onAddColumnsRows,
   };
 
   handlers = {
-    UPDATE_CELL: this.updateRowSizeForCellUpdate,
-    SET_FORMATTING: this.updateRowSizesForFormatting,
-    RESIZE_COLUMNS_ROWS: this.updateRowSizesForResize,
+    UPDATE_CELL: this.onUpdateCell,
+    SET_FORMATTING: this.onSetFormatting,
+    RESIZE_COLUMNS_ROWS: this.onResizeColumnsRows,
     UPDATE_LOCALE: this.initializeAllSheets,
     ADD_MERGE: this.updateRowSizesForMergeChange,
     REMOVE_MERGE: this.updateRowSizesForMergeChange,
-    CREATE_SHEET: this.initializeCreatedSheet,
-    DUPLICATE_SHEET: this.duplicateSheetTallestCells,
-    DELETE_SHEET: this.deleteSheetTallestCells,
-    REMOVE_COLUMNS_ROWS: this.removeRowsTallestCells,
+    CREATE_SHEET: this.onCreateSheet,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
+    REMOVE_COLUMNS_ROWS: this.onRemoveColumnsRows,
     START: this.initializeAllSheets,
   };
 
@@ -71,7 +71,7 @@ export class HeaderSizeUIPlugin
    * If "ADD_COLUMNS_ROWS" has not been processed yet by header_sizes_ui,
    * size updates may apply to incorrect (pre-insert) rows.
    */
-  private insertRowsTallestCells(cmd: AddColumnsRowsCommand) {
+  private onAddColumnsRows(cmd: AddColumnsRowsCommand) {
     if (cmd.dimension === "COL") {
       return;
     }
@@ -85,7 +85,7 @@ export class HeaderSizeUIPlugin
     this.history.update("tallestCellInRow", cmd.sheetId, newTallestCells);
   }
 
-  private removeRowsTallestCells(cmd: RemoveColumnsRowsCommand) {
+  private onRemoveColumnsRows(cmd: RemoveColumnsRowsCommand) {
     if (cmd.dimension === "COL") {
       return;
     }
@@ -93,22 +93,22 @@ export class HeaderSizeUIPlugin
     this.history.update("tallestCellInRow", cmd.sheetId, tallestCells);
   }
 
-  private deleteSheetTallestCells(cmd: { sheetId: UID }) {
+  private onDeleteSheet(cmd: { sheetId: UID }) {
     const tallestCells = { ...this.tallestCellInRow };
     delete tallestCells[cmd.sheetId];
     this.history.update("tallestCellInRow", tallestCells);
   }
 
-  private duplicateSheetTallestCells(cmd: { sheetId: UID; sheetIdTo: UID }) {
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
     const tallestCells = deepCopy(this.tallestCellInRow[cmd.sheetId]);
     this.history.update("tallestCellInRow", cmd.sheetIdTo, tallestCells);
   }
 
-  private initializeCreatedSheet(cmd: { sheetId: UID }) {
+  private onCreateSheet(cmd: { sheetId: UID }) {
     this.initializeSheet(cmd.sheetId);
   }
 
-  private updateRowSizesForResize(cmd: ResizeColumnsRowsCommand) {
+  private onResizeColumnsRows(cmd: ResizeColumnsRowsCommand) {
     const sheetId = cmd.sheetId;
     if (cmd.dimension === "ROW") {
       for (const row of cmd.elements) {
@@ -125,7 +125,7 @@ export class HeaderSizeUIPlugin
     }
   }
 
-  private updateRowSizesForFormatting(cmd: SetFormattingCommand) {
+  private onSetFormatting(cmd: SetFormattingCommand) {
     if (
       cmd.style &&
       ("fontSize" in cmd.style || "wrapping" in cmd.style || "rotation" in cmd.style)
@@ -150,7 +150,7 @@ export class HeaderSizeUIPlugin
     }
   }
 
-  private updateRowSizeForCellUpdate(cmd: UpdateCellCommand) {
+  private onUpdateCell(cmd: UpdateCellCommand) {
     this.updateRowSizeForCellChange(cmd.sheetId, cmd.row, cmd.col);
   }
 

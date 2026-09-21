@@ -64,32 +64,32 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     CREATE_NAMED_RANGE: this.recompileCalculatedMeasures,
     UPDATE_NAMED_RANGE: this.recompileCalculatedMeasures,
     DELETE_NAMED_RANGE: this.recompileCalculatedMeasures,
-    RENAME_PIVOT: this.renamePivot,
-    REMOVE_PIVOT: this.removePivot,
-    INSERT_PIVOT: this.insertPivotTable,
-    ADD_PIVOT: this.addPivotHandler,
-    DUPLICATE_PIVOT: this.duplicatePivot,
-    UPDATE_PIVOT: this.updatePivot,
+    RENAME_PIVOT: this.onRenamePivot,
+    REMOVE_PIVOT: this.onRemovePivot,
+    INSERT_PIVOT: this.onInsertPivot,
+    ADD_PIVOT: this.onAddPivot,
+    DUPLICATE_PIVOT: this.onDuplicatePivot,
+    UPDATE_PIVOT: this.onUpdatePivot,
   };
 
-  private updatePivot(cmd: UpdatePivotCommand) {
+  private onUpdatePivot(cmd: UpdatePivotCommand) {
     this.history.update("pivots", cmd.pivotId, "definition", deepCopy(cmd.pivot));
     this.compileCalculatedMeasures(cmd.pivotId, cmd.pivot.measures);
   }
 
-  private duplicatePivot(cmd: DuplicatePivotCommand) {
+  private onDuplicatePivot(cmd: DuplicatePivotCommand) {
     const { pivotId, newPivotId } = cmd;
     const pivot = deepCopy(this.getPivotCore(pivotId).definition);
     pivot.name = cmd.duplicatedPivotName ?? pivot.name + " (copy)";
     this.addPivot(newPivotId, pivot);
   }
 
-  private addPivotHandler(cmd: AddPivotCommand) {
+  private onAddPivot(cmd: AddPivotCommand) {
     const { pivotId, pivot } = cmd;
     this.addPivot(pivotId, pivot);
   }
 
-  private insertPivotTable(cmd: InsertPivotCommand) {
+  private onInsertPivot(cmd: InsertPivotCommand) {
     const { sheetId, col, row, pivotId, table } = cmd;
     const position = { sheetId, col, row };
     const { cols, rows, measures, fieldsType } = table;
@@ -98,7 +98,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     this.insertPivot(position, formulaId, spTable);
   }
 
-  private removePivot(cmd: RemovePivotCommand) {
+  private onRemovePivot(cmd: RemovePivotCommand) {
     const pivots = { ...this.pivots };
     delete pivots[cmd.pivotId];
     const formulaId = this.getPivotFormulaId(cmd.pivotId);
@@ -106,7 +106,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     this.history.update("pivots", pivots);
   }
 
-  private renamePivot(cmd: RenamePivotCommand) {
+  private onRenamePivot(cmd: RenamePivotCommand) {
     this.history.update("pivots", cmd.pivotId, "definition", "name", cmd.name);
   }
 

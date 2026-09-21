@@ -53,7 +53,7 @@ export class EvaluationDataValidationPlugin extends EvaluationPlugin {
   criterionPreComputeResult: Record<UID, { [dvRuleId: UID]: unknown }> = {};
 
   handlers = {
-    UPDATE_CELL: this.invalidateValidationResults,
+    UPDATE_CELL: this.onUpdateCell,
     REMOVE_DATA_VALIDATION_RULE: this.invalidateSheetValidationResults,
     ADD_DATA_VALIDATION_RULE: this.invalidateSheetValidationResults,
     EVALUATE_CELLS: this.clearValidationResults,
@@ -70,7 +70,7 @@ export class EvaluationDataValidationPlugin extends EvaluationPlugin {
     delete this.criterionPreComputeResult[cmd.sheetId];
   }
 
-  private invalidateValidationResults(cmd: UpdateCellCommand) {
+  private onUpdateCell(cmd: UpdateCellCommand) {
     if ("content" in cmd || "format" in cmd) {
       this.validationResults = {};
       this.criterionPreComputeResult = {};
