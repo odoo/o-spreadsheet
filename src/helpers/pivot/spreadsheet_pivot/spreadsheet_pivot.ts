@@ -4,7 +4,7 @@ import { _t } from "../../../translation";
 import { CellValueType, EvaluatedCell } from "../../../types/cells";
 import { CellErrorType, EvaluationError } from "../../../types/errors";
 import { Getters } from "../../../types/getters";
-import { FunctionResultObject, Maybe, UID, ValueAndLabel, Zone } from "../../../types/misc";
+import { FunctionResultObject, Lazy, Maybe, UID, ValueAndLabel, Zone } from "../../../types/misc";
 import { ModelConfig } from "../../../types/model";
 import {
   Granularity,
@@ -20,7 +20,7 @@ import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
 import { Range } from "../../../types/range";
 import { toXC } from "../../coordinates";
 import { formatValue, isDateTimeFormat } from "../../format/format";
-import { deepEquals, isDefined } from "../../misc";
+import { deepEquals, isDefined, lazy } from "../../misc";
 import {
   AGGREGATORS_FN,
   areDomainArgsFieldsValid,
@@ -32,6 +32,7 @@ import {
 import { PivotParams } from "../pivot_registry";
 import { pivotTimeAdapter } from "../pivot_time_adapter";
 import { SpreadsheetPivotTable } from "../table_spreadsheet_pivot";
+import { PivotDataEntriesIndex } from "./data_entries_index_spreadsheet_pivot";
 import {
   DataEntries,
   dataEntriesToSpreadsheetPivotTable,
@@ -80,6 +81,13 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
    */
   private dataEntries: DataEntries = [];
   /**
+   * This index is used to retrieve the data entries matching a pivot domain
+   * without scanning all the data entries.
+   */
+  private dataEntriesIndex: Lazy<PivotDataEntriesIndex> = lazy(
+    () => new PivotDataEntriesIndex([], [], [])
+  );
+  /**
    * This object contains the pivot table structure. It is created from the
    * data entries and the pivot definition.
    */
@@ -120,6 +128,10 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       this.dataEntries = this.loadData();
     }
     if (type >= ReloadType.TABLE) {
+      this.dataEntriesIndex = lazy(
+        () =>
+          new PivotDataEntriesIndex(this.dataEntries, this.definition.rows, this.definition.columns)
+      );
       this.collapsedTable = undefined;
       this.expandedTable = undefined;
     }
@@ -248,12 +260,12 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       return { value: _t("Total") };
     }
     const dimension = this.getDimension(lastNode.field);
-    const cells = this.filterDataEntriesFromDomain(this.dataEntries, domain);
-    const finalCell = cells[0]?.[dimension.nameWithGranularity];
     if (dimension.type === "datetime") {
       const adapter = pivotTimeAdapter((dimension.granularity || "month") as Granularity);
       return adapter.toValueAndFormat(lastNode.value, this.getters.getLocale());
     }
+    const cells = this.getDataEntriesFromDomain(domain);
+    const finalCell = cells[0]?.[dimension.nameWithGranularity];
     if (!finalCell) {
       return { value: "" };
     }
@@ -264,7 +276,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
   }
 
   getPivotCellValueAndFormat(measureId: string, domain: PivotDomain): FunctionResultObject {
-    const dataEntries = this.filterDataEntriesFromDomain(this.dataEntries, domain);
+    const dataEntries = this.getDataEntriesFromDomain(domain);
     if (dataEntries.length === 0) {
       return { value: "" };
     }
@@ -385,23 +397,8 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     return type;
   }
 
-  private filterDataEntriesFromDomain(dataEntries: DataEntries, domain: PivotNode[]) {
-    return domain.reduce(
-      (current, acc) => this.filterDataEntriesFromDomainNode(current, acc),
-      dataEntries
-    );
-  }
-
-  private filterDataEntriesFromDomainNode(dataEntries: DataEntries, domain: PivotNode) {
-    const { field, value, type } = domain;
-    const { nameWithGranularity } = this.getDimension(field);
-    return dataEntries.filter((entry) => {
-      const cellValue = entry[nameWithGranularity]?.value;
-      if (type === "char") {
-        return String(cellValue) === String(value);
-      }
-      return cellValue === value;
-    });
+  private getDataEntriesFromDomain(domain: PivotNode[]): DataEntries {
+    return this.dataEntriesIndex().getDataEntries(domain);
   }
 
   private getDimension(nameWithGranularity: string): PivotDimension {
