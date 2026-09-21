@@ -89,7 +89,7 @@ export class BottomBarSheet extends OSComponent {
           this.scrollToSheet();
         }
       },
-      () => [this.env.model.getters.getActiveSheetId()]
+      () => [this.model().getters.getActiveSheetId()]
     );
 
     onMounted(() => {
@@ -101,7 +101,7 @@ export class BottomBarSheet extends OSComponent {
         800
       );
 
-      this.env.model.on(
+      this.model().on(
         "command-rejected",
         this,
         async ({ command, result }: { command: Command; result: DispatchResult }) => {
@@ -119,7 +119,7 @@ export class BottomBarSheet extends OSComponent {
       );
     });
     onWillUnmount(() => {
-      this.env.model.off("command-rejected", this);
+      this.model().off("command-rejected", this);
     });
   }
 
@@ -172,15 +172,15 @@ export class BottomBarSheet extends OSComponent {
   }
 
   private activateSheet() {
-    this.env.model.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: this.env.model.getters.getActiveSheetId(),
+    this.model().dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: this.model().getters.getActiveSheetId(),
       sheetIdTo: this.props.sheetId,
     });
     this.scrollToSheet();
   }
 
   onDblClick() {
-    if (this.env.model.getters.isReadonly() || this.isSheetLocked) {
+    if (this.model().getters.isReadonly() || this.isSheetLocked) {
       return;
     }
     this.startEdition();
@@ -264,9 +264,9 @@ export class BottomBarSheet extends OSComponent {
 
   onColorPicked(color: string) {
     if (this.state.openedPicker === "tabColor") {
-      this.env.model.dispatch("COLOR_SHEET", { sheetId: this.props.sheetId, color });
+      this.model().dispatch("COLOR_SHEET", { sheetId: this.props.sheetId, color });
     } else if (this.state.openedPicker === "backgroundColor") {
-      this.env.model.dispatch("SET_SHEET_BACKGROUND_COLOR", { sheetId: this.props.sheetId, color });
+      this.model().dispatch("SET_SHEET_BACKGROUND_COLOR", { sheetId: this.props.sheetId, color });
     }
     this.state.openedPicker = undefined;
   }
@@ -277,7 +277,7 @@ export class BottomBarSheet extends OSComponent {
   }
 
   get contextMenuRegistry() {
-    const sheet = this.env.model.getters.getSheet(this.props.sheetId);
+    const sheet = this.model().getters.getSheet(this.props.sheetId);
     return getSheetMenuRegistry({
       renameSheetCallback: () => {
         this.scrollToSheet();
@@ -295,19 +295,19 @@ export class BottomBarSheet extends OSComponent {
   }
 
   get isSheetActive() {
-    return this.env.model.getters.getActiveSheetId() === this.props.sheetId;
+    return this.model().getters.getActiveSheetId() === this.props.sheetId;
   }
 
   get sheetName() {
-    return this.env.model.getters.getSheetName(this.props.sheetId);
+    return this.model().getters.getSheetName(this.props.sheetId);
   }
 
   get sheetColorStyle() {
-    const color = this.env.model.getters.getSheet(this.props.sheetId).color || "";
+    const color = this.model().getters.getSheet(this.props.sheetId).color || "";
     return cssPropertiesToCss({ background: color });
   }
 
   get isSheetLocked() {
-    return this.env.model.getters.isSheetLocked(this.props.sheetId);
+    return this.model().getters.isSheetLocked(this.props.sheetId);
   }
 }

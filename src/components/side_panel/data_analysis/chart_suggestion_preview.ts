@@ -38,7 +38,7 @@ export class ChartSuggestionPreview extends OSComponent {
   }
 
   private getChartConfiguration(): ChartConfiguration | null {
-    const getters = this.env.model.getters;
+    const getters = this.model().getters;
     const activeSheetId = getters.getActiveSheetId();
     const chart = SpreadsheetChart.fromStrDefinition(getters, activeSheetId, this.props.definition);
     const runtime = chart.getRuntime(
@@ -144,7 +144,7 @@ export class ChartSuggestionPreview extends OSComponent {
     if (!canvas) {
       return;
     }
-    const getters = this.env.model.getters;
+    const getters = this.model().getters;
     const chart = SpreadsheetChart.fromStrDefinition(
       getters,
       getters.getActiveSheetId(),

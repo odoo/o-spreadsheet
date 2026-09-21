@@ -150,8 +150,8 @@ export const insertCell: ActionSpec = {
   name: _t("Insert cells"),
   isVisible: (env) =>
     ACTIONS.IS_ONLY_ONE_RANGE(env) &&
-    env.model.getters.getActiveCols().size === 0 &&
-    env.model.getters.getActiveRows().size === 0,
+    env.model().getters.getActiveCols().size === 0 &&
+    env.model().getters.getActiveRows().size === 0,
 
   icon: "o-spreadsheet-Icon.INSERT_CELL",
 };
@@ -159,24 +159,26 @@ export const insertCell: ActionSpec = {
 export const insertCellShiftDown: ActionSpec = {
   name: _t("Insert cells and shift down"),
   execute: (env) => {
-    const zone = env.model.getters.getSelectedZone();
-    const result = env.model.dispatch("INSERT_CELL", { zone, shiftDimension: "ROW" });
+    const zone = env.model().getters.getSelectedZone();
+    const result = env.model().dispatch("INSERT_CELL", { zone, shiftDimension: "ROW" });
     handlePasteResult(env, result);
   },
   isVisible: (env) =>
-    env.model.getters.getActiveRows().size === 0 && env.model.getters.getActiveCols().size === 0,
+    env.model().getters.getActiveRows().size === 0 &&
+    env.model().getters.getActiveCols().size === 0,
   icon: "o-spreadsheet-Icon.INSERT_CELL_SHIFT_DOWN",
 };
 
 export const insertCellShiftRight: ActionSpec = {
   name: _t("Insert cells and shift right"),
   execute: (env) => {
-    const zone = env.model.getters.getSelectedZone();
-    const result = env.model.dispatch("INSERT_CELL", { zone, shiftDimension: "COL" });
+    const zone = env.model().getters.getSelectedZone();
+    const result = env.model().dispatch("INSERT_CELL", { zone, shiftDimension: "COL" });
     handlePasteResult(env, result);
   },
   isVisible: (env) =>
-    env.model.getters.getActiveRows().size === 0 && env.model.getters.getActiveCols().size === 0,
+    env.model().getters.getActiveRows().size === 0 &&
+    env.model().getters.getActiveCols().size === 0,
   icon: "o-spreadsheet-Icon.INSERT_CELL_SHIFT_RIGHT",
 };
 
@@ -294,10 +296,10 @@ export const insertLink: ActionSpec = {
 export const insertCheckbox: ActionSpec = {
   name: _t("Checkbox"),
   execute: (env) => {
-    const zones = env.model.getters.getSelectedZones();
-    const sheetId = env.model.getters.getActiveSheetId();
-    const ranges = zones.map((zone) => env.model.getters.getRangeDataFromZone(sheetId, zone));
-    env.model.dispatch("ADD_DATA_VALIDATION_RULE", {
+    const zones = env.model().getters.getSelectedZones();
+    const sheetId = env.model().getters.getActiveSheetId();
+    const ranges = zones.map((zone) => env.model().getters.getRangeDataFromZone(sheetId, zone));
+    env.model().dispatch("ADD_DATA_VALIDATION_RULE", {
       ranges,
       sheetId,
       rule: {
@@ -316,11 +318,11 @@ export const insertCheckbox: ActionSpec = {
 export const insertDropdown: ActionSpec = {
   name: _t("Dropdown list"),
   execute: (env) => {
-    const zones = env.model.getters.getSelectedZones();
-    const sheetId = env.model.getters.getActiveSheetId();
-    const ranges = zones.map((zone) => env.model.getters.getRangeDataFromZone(sheetId, zone));
+    const zones = env.model().getters.getSelectedZones();
+    const sheetId = env.model().getters.getActiveSheetId();
+    const ranges = zones.map((zone) => env.model().getters.getRangeDataFromZone(sheetId, zone));
     const ruleId = UuidGenerator.smallUuid();
-    env.model.dispatch("ADD_DATA_VALIDATION_RULE", {
+    env.model().dispatch("ADD_DATA_VALIDATION_RULE", {
       ranges,
       sheetId,
       rule: {
@@ -332,14 +334,14 @@ export const insertDropdown: ActionSpec = {
         },
       },
     });
-    const rule = env.model.getters.getDataValidationRule(sheetId, ruleId);
+    const rule = env.model().getters.getDataValidationRule(sheetId, ruleId);
     if (!rule) {
       return;
     }
     env.getStore(SidePanelStore).open("DataValidationEditor", {
       ruleId,
       onCancel: () => {
-        env.model.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: ruleId });
+        env.model().dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: ruleId });
       },
     });
   },
@@ -351,15 +353,15 @@ export const insertSheet: ActionSpec = {
   name: _t("Insert sheet"),
   shortcut: "Shift+F11",
   execute: (env) => {
-    const activeSheetId = env.model.getters.getActiveSheetId();
-    const position = env.model.getters.getSheetIds().indexOf(activeSheetId) + 1;
+    const activeSheetId = env.model().getters.getActiveSheetId();
+    const position = env.model().getters.getSheetIds().indexOf(activeSheetId) + 1;
     const sheetId = UuidGenerator.smallUuid();
-    env.model.dispatch("CREATE_SHEET", {
+    env.model().dispatch("CREATE_SHEET", {
       sheetId,
       position,
-      name: env.model.getters.getNextSheetName(),
+      name: env.model().getters.getNextSheetName(),
     });
-    env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
+    env.model().dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
   },
   icon: "o-spreadsheet-Icon.INSERT_SHEET",
 };
@@ -375,21 +377,21 @@ function createFormulaFunctions(fnNames: string[]): ActionSpec[] {
 }
 
 function getRowsNumber(env): number {
-  const activeRows = env.model.getters.getActiveRows();
+  const activeRows = env.model().getters.getActiveRows();
   if (activeRows.size) {
     return activeRows.size;
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = env.model().getters.getSelectedZones()[0];
     return zone.bottom - zone.top + 1;
   }
 }
 
 function getColumnsNumber(env): number {
-  const activeCols = env.model.getters.getActiveCols();
+  const activeCols = env.model().getters.getActiveCols();
   if (activeCols.size) {
     return activeCols.size;
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = env.model().getters.getSelectedZones()[0];
     return zone.right - zone.left + 1;
   }
 }

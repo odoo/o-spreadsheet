@@ -17,8 +17,8 @@ export class ImageFigure extends OSComponent {
   private menuButtonRef = signal.ref();
 
   showMenu(ev: MouseEvent) {
-    if (!this.env.model.getters.getSelectedFigureIds().includes(this.props.figureUI.id)) {
-      this.env.model.dispatch("SELECT_FIGURE", {
+    if (!this.model().getters.getSelectedFigureIds().includes(this.props.figureUI.id)) {
+      this.model().dispatch("SELECT_FIGURE", {
         figureId: this.props.figureUI.id,
         selectMultiple: ev.shiftKey || isCtrlKey(ev),
       });
@@ -35,10 +35,10 @@ export class ImageFigure extends OSComponent {
   }
 
   get getImagePath(): string {
-    return this.env.model.getters.getImagePath(this.figureId);
+    return this.model().getters.getImagePath(this.figureId);
   }
 
   get shouldShowMenuButton(): boolean {
-    return !this.env.model.getters.isReadonly() && !this.env.model.getters.isDashboard();
+    return !this.model().getters.isReadonly() && !this.model().getters.isDashboard();
   }
 }

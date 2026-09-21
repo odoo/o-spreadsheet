@@ -72,7 +72,7 @@ export class PivotFilterEditor extends OSComponent {
       }
       return criterionEvaluatorRegistry
         .get(this.props.filter.type)
-        .getPreview(this.props.filter as GenericCriterion, this.env.model.getters);
+        .getPreview(this.props.filter as GenericCriterion, this.model().getters);
     }
 
     const numberOfHiddenValues = this.props.filter.hiddenValues.length;
@@ -88,7 +88,7 @@ export class PivotFilterEditor extends OSComponent {
   }
 
   private getFilterHiddenValues(props: PropsOf<PivotFilterEditor>): Value[] {
-    const pivot = this.env.model.getters.getPivot(props.pivotId) as SpreadsheetPivot;
+    const pivot = this.model().getters.getPivot(props.pivotId) as SpreadsheetPivot;
     if (pivot.type !== "SPREADSHEET") {
       throw new Error("Filters are only available on spreadsheet pivot table");
     }
@@ -132,7 +132,7 @@ export class PivotFilterEditor extends OSComponent {
   }
 
   getCell(position: CellPosition): Cell | undefined {
-    return this.env.model.getters.getCell(position);
+    return this.model().getters.getCell(position);
   }
 
   removeFilter(filter: PivotFilter) {

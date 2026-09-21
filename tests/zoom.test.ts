@@ -10,7 +10,12 @@ import { SpreadsheetActionEnv } from "../src/types/spreadsheet_env";
 import { setCellContent, setZoom } from "./test_helpers/commands_helpers";
 import { clickCell, clickHeader, hoverCell } from "./test_helpers/dom_helper";
 import { getSelectionAnchorCellXc } from "./test_helpers/getters_helpers";
-import { makeTestEnv, mountSpreadsheet, nextTick, useJestFakeTimers } from "./test_helpers/helpers";
+import {
+  makeSpreadsheetActionTestEnv,
+  mountSpreadsheet,
+  nextTick,
+  useJestFakeTimers,
+} from "./test_helpers/helpers";
 
 let fixture: HTMLElement;
 let model: Model;
@@ -101,7 +106,7 @@ describe("Dashboard zoom tests", () => {
 
 describe("ZoomStore", () => {
   test("cannot set zoom outside of the [0.5, 2] range", () => {
-    env = makeTestEnv();
+    env = makeSpreadsheetActionTestEnv();
     setZoom(env, 0.4);
     expect(env.getStore(ZoomStore).zoomLevel).toBe(DEFAULT_ZOOM);
     setZoom(env, 2.1);
@@ -109,7 +114,7 @@ describe("ZoomStore", () => {
   });
 
   test("setting NaN as zoom is cancelled and keeps the current zoom level", () => {
-    env = makeTestEnv();
+    env = makeSpreadsheetActionTestEnv();
     setZoom(env, 1.5);
     setZoom(env, NaN);
     expect(env.getStore(ZoomStore).zoomLevel).toBe(1.5);

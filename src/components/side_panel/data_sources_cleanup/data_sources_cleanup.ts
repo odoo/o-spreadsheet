@@ -47,6 +47,6 @@ export class DataSourcesCleanup extends OSComponent {
   }
 
   onRemoveUnusedDataSources() {
-    this.env.model.dispatch("DELETE_DATA_SOURCES", { dataSources: this.dataSourcesToDelete });
+    this.model().dispatch("DELETE_DATA_SOURCES", { dataSources: this.dataSourcesToDelete });
   }
 }

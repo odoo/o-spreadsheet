@@ -36,7 +36,7 @@ import {
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
 import {
-  makeTestEnv,
+  makeSpreadsheetActionTestEnv,
   mockNotificationMethods,
   mountComponentWithPortalTarget,
   mountSpreadsheet,
@@ -416,7 +416,7 @@ describe("BottomBar component", () => {
     const sheetName = "New name";
     const raiseError = jest.fn();
     const model = new Model({}, { mode: "readonly" });
-    const env = makeTestEnv({ model });
+    const env = makeSpreadsheetActionTestEnv(model);
     interactiveRenameSheet(env, model.getters.getActiveSheetId(), sheetName, raiseError);
     expect(raiseError).not.toHaveBeenCalled();
     expect(model.getters.getActiveSheet().name).toEqual("Sheet1");

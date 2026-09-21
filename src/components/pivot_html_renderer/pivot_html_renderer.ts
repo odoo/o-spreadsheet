@@ -1,9 +1,8 @@
-import { proxy, useProps } from "@odoo/owl";
+import { Component, proxy, useProps } from "@odoo/owl";
 import { FunctionResultObject, Maybe, SpreadsheetPivotTable, UID } from "../..";
 import { toString } from "../../functions/helpers";
 import { formatValue } from "../../helpers/format/format";
 import { generatePivotArgs } from "../../helpers/pivot/pivot_helpers";
-import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
 import { Checkbox } from "../side_panel/components/checkbox/checkbox";
 
@@ -38,15 +37,16 @@ interface TableData {
   values: PivotDialogValue[][];
 }
 
-export class PivotHTMLRenderer extends OSComponent {
+export class PivotHTMLRenderer extends Component {
   static template = "o_spreadsheet.PivotHTMLRenderer";
   static components = { Checkbox };
   protected props = useProps({
     pivotId: types.UID(),
     onCellClicked: types.function<(formula: string) => void>(),
+    model: types.Model(),
   });
 
-  private pivot = this.env.model.getters.getPivot(this.props.pivotId);
+  private pivot = this.props.model.getters.getPivot(this.props.pivotId);
   data: TableData = {
     columns: [],
     rows: [],
@@ -58,7 +58,7 @@ export class PivotHTMLRenderer extends OSComponent {
 
   setup() {
     const table = this.pivot.getExpandedTableStructure();
-    const formulaId = this.env.model.getters.getPivotFormulaId(this.props.pivotId);
+    const formulaId = this.props.model.getters.getPivotFormulaId(this.props.pivotId);
     this.data = {
       columns: this._buildColHeaders(formulaId, table),
       rows: this._buildRowHeaders(formulaId, table),
@@ -67,8 +67,8 @@ export class PivotHTMLRenderer extends OSComponent {
   }
 
   get tracker() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    return this.env.model.getters.getPivotPresenceTracker(this.props.pivotId, sheetId);
+    const sheetId = this.props.model.getters.getActiveSheetId();
+    return this.props.model.getters.getPivotPresenceTracker(this.props.pivotId, sheetId);
   }
 
   // ---------------------------------------------------------------------
@@ -244,7 +244,7 @@ export class PivotHTMLRenderer extends OSComponent {
           args.push({ value: cell.fields[i] }, { value: cell.values[i] });
         }
         const domain = this.pivot.parseArgsToPivotDomain(args);
-        const locale = this.env.model.getters.getLocale();
+        const locale = this.props.model.getters.getLocale();
         if (domain.at(-1)?.field === "measure") {
           const { value, format } = this.pivot.getPivotMeasureValue(
             toString(domain.at(-1)!.value),
@@ -286,7 +286,7 @@ export class PivotHTMLRenderer extends OSComponent {
       }
       const domain = this.pivot.parseArgsToPivotDomain(args);
       const { value, format } = this.pivot.getPivotHeaderValueAndFormat(domain);
-      const locale = this.env.model.getters.getLocale();
+      const locale = this.props.model.getters.getLocale();
       const cell: PivotDialogRow = {
         formula: `=PIVOT.HEADER(${generatePivotArgs(id, domain).join(",")})`,
         value: formatValue(value, { format, locale }),
@@ -314,7 +314,7 @@ export class PivotHTMLRenderer extends OSComponent {
         }
         const domain = this.pivot.parseArgsToPivotDomain(args);
         const { value, format } = this.pivot.getPivotCellValueAndFormat(measure, domain);
-        const locale = this.env.model.getters.getLocale();
+        const locale = this.props.model.getters.getLocale();
         current.push({
           formula: `=PIVOT.VALUE(${generatePivotArgs(id, domain, measure).join(",")})`,
           value: formatValue(value, { format, locale }),

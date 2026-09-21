@@ -85,9 +85,9 @@ export class BorderEditorWidget extends OSComponent {
     if (this.state.currentPosition === undefined) {
       return;
     }
-    this.env.model.dispatch("SET_ZONE_BORDERS", {
-      sheetId: this.env.model.getters.getActiveSheetId(),
-      target: this.env.model.getters.getSelectedZones(),
+    this.model().dispatch("SET_ZONE_BORDERS", {
+      sheetId: this.model().getters.getActiveSheetId(),
+      target: this.model().getters.getSelectedZones(),
       border: {
         position: this.state.currentPosition,
         color: this.state.currentColor,

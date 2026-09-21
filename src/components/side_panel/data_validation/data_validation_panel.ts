@@ -29,7 +29,7 @@ export class DataValidationPanel extends OSComponent {
   }
 
   get validationRules() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    return this.env.model.getters.getDataValidationRules(sheetId);
+    const sheetId = this.model().getters.getActiveSheetId();
+    return this.model().getters.getDataValidationRules(sheetId);
   }
 }

@@ -27,12 +27,12 @@ export class GaugeChartComponent extends OSComponent {
   private zoomStore!: Store<ZoomStore>;
 
   get runtime(): GaugeChartRuntime {
-    return this.env.model.getters.getChartRuntime(this.props.chartId) as GaugeChartRuntime;
+    return this.model().getters.getChartRuntime(this.props.chartId) as GaugeChartRuntime;
   }
 
   setup() {
     this.zoomStore = useStore(ZoomStore);
-    if (this.env.model.getters.isDashboard()) {
+    if (this.model().getters.isDashboard()) {
       this.animationStore = useStore(ChartAnimationStore);
     }
 
@@ -41,14 +41,14 @@ export class GaugeChartComponent extends OSComponent {
     useLayoutEffect(
       () => {
         if (
-          this.env.model.getters.isDashboard() &&
+          this.model().getters.isDashboard() &&
           lastRuntime === undefined && // first render
           this.animationStore?.animationPlayed[this.animationChartId] !== "gauge"
         ) {
           animation = this.drawGaugeWithAnimation();
           this.animationStore?.disableAnimationForChart(this.animationChartId, "gauge");
         } else if (
-          this.env.model.getters.isDashboard() &&
+          this.model().getters.isDashboard() &&
           lastRuntime !== undefined && // not first render
           !deepEquals(this.runtime, lastRuntime)
         ) {

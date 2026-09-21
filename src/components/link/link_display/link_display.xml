@@ -26,14 +26,14 @@
         <t t-out="this.getUrlRepresentation(this.link)"/>
       </a>
       <span
-        t-if="!this.env.model.getters.isReadonly()"
+        t-if="!this.model().getters.isReadonly()"
         class="o-link-icon o-unlink"
         t-on-click="this.unlink"
         title="Remove link">
         <t t-call="o-spreadsheet-Icon.UNLINK"/>
       </span>
       <span
-        t-if="!this.env.model.getters.isReadonly()"
+        t-if="!this.model().getters.isReadonly()"
         class="o-link-icon o-edit-link"
         t-on-click="this.edit"
         title="Edit link">

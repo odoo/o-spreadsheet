@@ -527,7 +527,7 @@ test("Commands rejected on locked sheet trigger a notification", async () => {
 
 test("Spreadsheet main viewport store follows the active sheet", async () => {
   ({ env, fixture, model } = await mountSpreadsheet({ model: new Model() }));
-  createSheet(env.model, { sheetId: "sh2" });
+  createSheet(model, { sheetId: "sh2" });
   const viewportsStore = env.getStore(ViewportsStore);
 
   expect(model.getters.getActiveSheetId()).toBe("Sheet1");
@@ -543,7 +543,7 @@ test("Spreadsheet main viewport store follows the active sheet", async () => {
   expect(model.getters.getActiveSheetId()).toBe("Sheet1");
   expect(viewportsStore.displayedSheetId).toBe("Sheet1");
 
-  createSheet(env.model, { sheetId: "sh3" });
+  createSheet(model, { sheetId: "sh3" });
   activateSheet(model, "sh3");
   await nextTick();
   expect(model.getters.getActiveSheetId()).toBe("sh3");

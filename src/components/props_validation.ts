@@ -7,7 +7,7 @@ import {
   AutoCompleteProposal,
   AutoCompleteProviderDefinition,
 } from "../registries/auto_completes/auto_complete_registry";
-import { SidePanelContent } from "../registries/side_panel_registry";
+import { SidePanelContent } from "../registries/side_panel_registry_definition";
 import {
   ChartColorScale,
   ChartDefinition,

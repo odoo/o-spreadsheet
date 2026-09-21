@@ -5,7 +5,7 @@ import { StandaloneComposer } from "../../src/components/composer/standalone_com
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { zoneToXc } from "../../src/helpers/zones";
 import { Component } from "../../src/owl3_compatibility_layer";
-import { sidePanelRegistry } from "../../src/registries/side_panel_registry";
+import { sidePanelRegistry } from "../../src/registries/side_panel_registry_definition";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { createSheet, updateLocale } from "../test_helpers/commands_helpers";

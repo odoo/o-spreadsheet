@@ -71,8 +71,8 @@ urlRegistry.add("sheet_URL", {
   },
   open(url, env) {
     const sheetId = parseSheetUrl(url);
-    const result = env.model.dispatch("ACTIVATE_SHEET", {
-      sheetIdFrom: env.model.getters.getActiveSheetId(),
+    const result = env.model().dispatch("ACTIVATE_SHEET", {
+      sheetIdFrom: env.model().getters.getActiveSheetId(),
       sheetIdTo: sheetId,
     });
     if (result.isCancelledBecause(CommandResult.SheetIsHidden)) {
@@ -86,13 +86,16 @@ urlRegistry.add("sheet_URL", {
   sequence: 0,
   title: _t("Sheets"),
   getLinkProposals(env) {
-    return env.model.getters.getSheetIds().map((sheetId) => {
-      const sheet = env.model.getters.getSheet(sheetId);
-      return {
-        ...this.createLink(buildSheetLink(sheetId), sheet.name),
-        icon: "o-spreadsheet-Icon.INSERT_SHEET",
-      };
-    });
+    return env
+      .model()
+      .getters.getSheetIds()
+      .map((sheetId) => {
+        const sheet = env.model().getters.getSheet(sheetId);
+        return {
+          ...this.createLink(buildSheetLink(sheetId), sheet.name),
+          icon: "o-spreadsheet-Icon.INSERT_SHEET",
+        };
+      });
   },
 });
 

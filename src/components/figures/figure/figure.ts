@@ -52,8 +52,8 @@ export class FigureComponent extends OSComponent {
 
   get isSelected(): boolean {
     return (
-      !this.env.model.getters.isDashboard() &&
-      this.env.model.getters.getSelectedFigureIds().includes(this.props.figureUI.id)
+      !this.model().getters.isDashboard() &&
+      this.model().getters.getSelectedFigureIds().includes(this.props.figureUI.id)
     );
   }
 
@@ -66,15 +66,15 @@ export class FigureComponent extends OSComponent {
   }
 
   get borderWidth() {
-    return figureRegistry.get(this.props.figureUI.tag).borderWidth(this.env.model.getters);
+    return figureRegistry.get(this.props.figureUI.tag).borderWidth(this.model().getters);
   }
 
   get hasShadow() {
-    return figureRegistry.get(this.props.figureUI.tag).hasShadow(this.env.model.getters);
+    return figureRegistry.get(this.props.figureUI.tag).hasShadow(this.model().getters);
   }
 
   get isRounded() {
-    return figureRegistry.get(this.props.figureUI.tag).isRounded(this.env.model.getters);
+    return figureRegistry.get(this.props.figureUI.tag).isRounded(this.model().getters);
   }
 
   get wrapperStyle() {
@@ -131,7 +131,7 @@ export class FigureComponent extends OSComponent {
     this.zoomStore = useStore(ZoomStore);
     useLayoutEffect(
       () => {
-        const selectedFigureIds = this.env.model.getters.getSelectedFigureIds();
+        const selectedFigureIds = this.model().getters.getSelectedFigureIds();
         const thisFigureId = this.props.figureUI.id;
         const el = this.figureRef();
         if (selectedFigureIds.includes(thisFigureId)) {
@@ -146,7 +146,7 @@ export class FigureComponent extends OSComponent {
           el?.focus({ preventScroll: true });
         }
       },
-      () => [this.env.model.getters.getSelectedFigureIds(), this.props.figureUI.id]
+      () => [this.model().getters.getSelectedFigureIds(), this.props.figureUI.id]
     );
   }
 
@@ -171,9 +171,9 @@ export class FigureComponent extends OSComponent {
     switch (keyDownShortcut) {
       case "Delete":
       case "Backspace":
-        this.env.model.dispatch("DELETE_FIGURES", {
-          sheetId: this.env.model.getters.getActiveSheetId(),
-          figureIds: this.env.model.getters.getSelectedFigureIds(),
+        this.model().dispatch("DELETE_FIGURES", {
+          sheetId: this.model().getters.getActiveSheetId(),
+          figureIds: this.model().getters.getSelectedFigureIds(),
         });
         ev.preventDefault();
         ev.stopPropagation();
@@ -186,11 +186,11 @@ export class FigureComponent extends OSComponent {
       case "ArrowLeft":
       case "ArrowRight":
       case "ArrowUp":
-        const sheetId = this.env.model.getters.getActiveSheetId();
-        const figureIds = this.env.model.getters.getSelectedFigureIds();
+        const sheetId = this.model().getters.getActiveSheetId();
+        const figureIds = this.model().getters.getSelectedFigureIds();
         const figures: UpdateFiguresPayload[] = [];
         for (const figureId of figureIds) {
-          const figure = this.env.model.getters.getFigure(sheetId, figureId);
+          const figure = this.model().getters.getFigure(sheetId, figureId);
           if (!figure) {
             continue;
           }
@@ -199,13 +199,13 @@ export class FigureComponent extends OSComponent {
             figureId,
             ...this.positionInBoundary(
               sheetId,
-              this.env.model.getters.getFigureUI(sheetId, figure),
+              this.model().getters.getFigureUI(sheetId, figure),
               ev.key,
               ev.shiftKey
             ),
           });
         }
-        this.env.model.dispatch("UPDATE_FIGURES", { figures });
+        this.model().dispatch("UPDATE_FIGURES", { figures });
         ev.preventDefault();
         ev.stopPropagation();
         break;
@@ -217,9 +217,9 @@ export class FigureComponent extends OSComponent {
       case "Ctrl+Y":
       case "Ctrl+Z":
         if (keyDownShortcut === "Ctrl+Y") {
-          this.env.model.dispatch("REQUEST_REDO");
+          this.model().dispatch("REQUEST_REDO");
         } else if (keyDownShortcut === "Ctrl+Z") {
-          this.env.model.dispatch("REQUEST_UNDO");
+          this.model().dispatch("REQUEST_UNDO");
         }
         ev.preventDefault();
         ev.stopPropagation();
@@ -236,19 +236,15 @@ export class FigureComponent extends OSComponent {
     const shiftAmount = shift ? 1 : 5;
     let { col, row, offset } = figure;
     offset = { ...offset };
-    const maxAnchor = this.env.model.getters.getMaxAnchorOffset(
-      sheetId,
-      figure.height,
-      figure.width
-    );
+    const maxAnchor = this.model().getters.getMaxAnchorOffset(sheetId, figure.height, figure.width);
     switch (key) {
       case "ArrowUp":
         if (offset.y < shiftAmount) {
           row--;
-          while (row > 0 && this.env.model.getters.isRowHiddenByUser(sheetId, row)) {
+          while (row > 0 && this.model().getters.isRowHiddenByUser(sheetId, row)) {
             row--;
           }
-          offset.y = this.env.model.getters.getRowSize(sheetId, row) - shiftAmount + offset.y;
+          offset.y = this.model().getters.getRowSize(sheetId, row) - shiftAmount + offset.y;
         } else {
           offset.y -= shiftAmount;
         }
@@ -256,19 +252,19 @@ export class FigureComponent extends OSComponent {
       case "ArrowLeft":
         if (offset.x < shiftAmount) {
           col--;
-          while (col > 0 && this.env.model.getters.isColHiddenByUser(sheetId, col)) {
+          while (col > 0 && this.model().getters.isColHiddenByUser(sheetId, col)) {
             col--;
           }
-          offset.x = this.env.model.getters.getColSize(sheetId, col) - shiftAmount + offset.x;
+          offset.x = this.model().getters.getColSize(sheetId, col) - shiftAmount + offset.x;
         } else {
           offset.x -= shiftAmount;
         }
         break;
       case "ArrowDown":
-        const rowSize = this.env.model.getters.getRowSize(sheetId, row);
+        const rowSize = this.model().getters.getRowSize(sheetId, row);
         if (offset.y + shiftAmount >= rowSize) {
           row++;
-          while (row <= maxAnchor.row && this.env.model.getters.isRowHiddenByUser(sheetId, row)) {
+          while (row <= maxAnchor.row && this.model().getters.isRowHiddenByUser(sheetId, row)) {
             row++;
           }
           offset.y = offset.y + shiftAmount - rowSize;
@@ -277,10 +273,10 @@ export class FigureComponent extends OSComponent {
         }
         break;
       case "ArrowRight":
-        const colSize = this.env.model.getters.getColSize(sheetId, col);
+        const colSize = this.model().getters.getColSize(sheetId, col);
         if (offset.x + shiftAmount >= colSize) {
           col++;
-          while (col <= maxAnchor.col && this.env.model.getters.isColHiddenByUser(sheetId, col)) {
+          while (col <= maxAnchor.col && this.model().getters.isColHiddenByUser(sheetId, col)) {
             col++;
           }
           offset.x = offset.x + shiftAmount - colSize;
@@ -306,7 +302,7 @@ export class FigureComponent extends OSComponent {
   }
 
   onContextMenu(ev: MouseEvent) {
-    if (this.env.model.getters.isDashboard()) {
+    if (this.model().getters.isDashboard()) {
       return;
     }
     const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
@@ -330,8 +326,8 @@ export class FigureComponent extends OSComponent {
     return (
       this.isSelected &&
       !this.env.isMobile() &&
-      !this.env.model.getters.isDashboard() &&
-      !this.env.model.getters.isCurrentSheetLocked()
+      !this.model().getters.isDashboard() &&
+      !this.model().getters.isCurrentSheetLocked()
     );
   }
 }
