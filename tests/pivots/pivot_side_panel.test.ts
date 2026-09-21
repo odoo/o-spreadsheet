@@ -26,27 +26,36 @@ describe("Pivot side panel", () => {
     addPivot(model, "A1:B2", {}, "2");
   });
 
-  test("readonly panel is not clickable and greyed but remains scrollable", async () => {
+  test("in readonly, both configuration and design panels are not clickable and greyed but remain scrollable", async () => {
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
     await nextTick();
 
     const sidePanel = fixture.querySelector(".o-sidePanel")!;
-    let interactiveWrapper = sidePanel.querySelector(".o-sidePanelBody div[inert]");
-    expect(interactiveWrapper).toBeNull();
-
+    let interactiveWrappers = sidePanel.querySelectorAll(".o-sidePanelBody div[inert]");
+    expect(interactiveWrappers.length).toBe(0);
     model.updateMode("readonly");
     await nextTick();
+    interactiveWrappers = sidePanel.querySelectorAll(".o-sidePanelBody div[inert]");
+    expect(interactiveWrappers.length).toBe(2);
 
-    const scrollableContainer = sidePanel.querySelector(".overflow-y-auto")!;
-    expect(scrollableContainer).toBeTruthy();
+    const scrollableContainer = sidePanel.querySelectorAll(".overflow-y-auto")!;
+    expect(scrollableContainer.length).toBe(2);
 
     // The [inert] wrapper with `pe-none` and `opacity-50` is placed inside the scrollable container,
     // ensuring that user interactions are blocked while still allowing vertical scrolling.
-    interactiveWrapper = scrollableContainer.querySelector("[inert]")!;
-    expect(interactiveWrapper).toBeTruthy();
-    expect(interactiveWrapper.classList).toContain("pe-none");
-    expect(interactiveWrapper.classList).toContain("opacity-50");
-    expect(interactiveWrapper.getAttribute("inert")).toBe("1");
+    interactiveWrappers = scrollableContainer[0].querySelectorAll("[inert]")!;
+    expect(interactiveWrappers.length).toBe(1);
+    expect(interactiveWrappers[0]).toBeTruthy();
+    expect(interactiveWrappers[0].classList).toContain("pe-none");
+    expect(interactiveWrappers[0].classList).toContain("opacity-50");
+    expect(interactiveWrappers[0].getAttribute("inert")).toBe("1");
+
+    interactiveWrappers = scrollableContainer[1].querySelectorAll("[inert]")!;
+    expect(interactiveWrappers.length).toBe(1);
+    expect(interactiveWrappers[0]).toBeTruthy();
+    expect(interactiveWrappers[0].classList).toContain("pe-none");
+    expect(interactiveWrappers[0].classList).toContain("opacity-50");
+    expect(interactiveWrappers[0].getAttribute("inert")).toBe("1");
 
     expect(fixture.querySelector(".pivot-defer-update")).toBeNull();
   });

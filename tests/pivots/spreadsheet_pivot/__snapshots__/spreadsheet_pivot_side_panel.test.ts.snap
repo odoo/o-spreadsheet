@@ -270,131 +270,137 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
             class="h-100 d-none"
           >
             <div
-              class="o-section o-pivot-design h-100 overflow-y-auto"
+              class="h-100 overflow-y-auto"
             >
-              <div
-                class="o-section-title"
-              >
-                Display options
-                
-                
-              </div>
-              
               <div>
                 <div
-                  class="container-fluid p-0 pt-2"
+                  class="o-section o-pivot-design"
                 >
                   <div
-                    class="row mb-2 align-items-center"
+                    class="o-section-title"
                   >
-                    <div
-                      class="col-6"
-                    >
-                      Max rows:
-                    </div>
-                    <div
-                      class="col-6 d-flex align-items-center"
-                    >
-                      <input
-                        class="o-pivot-n-of-rows o-input"
-                        placeholder="e.g. 10"
-                        type="number"
-                      />
-                    </div>
+                    Display options
+                    
+                    
                   </div>
-                  <div
-                    class="row mb-2 align-items-center"
-                  >
+                  
+                  <div>
                     <div
-                      class="col-6"
+                      class="container-fluid p-0 pt-2"
                     >
-                      Max columns:
-                    </div>
-                    <div
-                      class="col-6 d-flex align-items-center"
-                    >
-                      <input
-                        class="o-pivot-n-of-columns o-input"
-                        placeholder="e.g. 5"
-                        type="number"
-                      />
-                    </div>
-                  </div>
-                  <div
-                    class="row mb-2 align-items-center"
-                  >
-                    <div
-                      class="col-6"
-                    >
-                      Show totals:
-                    </div>
-                    <div
-                      class="col-6 d-flex align-items-center"
-                    >
-                      <label
-                        class="o-checkbox d-flex align-items-center"
-                        role="button"
+                      <div
+                        class="row mb-2 align-items-center"
                       >
-                        <input
-                          class="me-2 flex-shrink-0 border"
-                          name="displayTotals"
-                          type="checkbox"
-                        />
-                        
-                      </label>
-                    </div>
-                  </div>
-                  <div
-                    class="row mb-2 align-items-center"
-                  >
-                    <div
-                      class="col-6"
-                    >
-                      Show column titles:
-                    </div>
-                    <div
-                      class="col-6 d-flex align-items-center"
-                    >
-                      <label
-                        class="o-checkbox d-flex align-items-center"
-                        role="button"
+                        <div
+                          class="col-6"
+                        >
+                          Max rows:
+                        </div>
+                        <div
+                          class="col-6 d-flex align-items-center"
+                        >
+                          <input
+                            class="o-pivot-n-of-rows o-input"
+                            placeholder="e.g. 10"
+                            type="number"
+                          />
+                        </div>
+                      </div>
+                      <div
+                        class="row mb-2 align-items-center"
                       >
-                        <input
-                          class="me-2 flex-shrink-0 border"
-                          name="displayColumnHeaders"
-                          type="checkbox"
-                        />
-                        
-                      </label>
-                    </div>
-                  </div>
-                  <div
-                    class="row mb-2 align-items-center"
-                  >
-                    <div
-                      class="col-6"
-                    >
-                      Show measure titles:
-                    </div>
-                    <div
-                      class="col-6 d-flex align-items-center"
-                    >
-                      <label
-                        class="o-checkbox d-flex align-items-center"
-                        role="button"
+                        <div
+                          class="col-6"
+                        >
+                          Max columns:
+                        </div>
+                        <div
+                          class="col-6 d-flex align-items-center"
+                        >
+                          <input
+                            class="o-pivot-n-of-columns o-input"
+                            placeholder="e.g. 5"
+                            type="number"
+                          />
+                        </div>
+                      </div>
+                      <div
+                        class="row mb-2 align-items-center"
                       >
-                        <input
-                          class="me-2 flex-shrink-0 border"
-                          name="displayMeasuresRow"
-                          type="checkbox"
-                        />
-                        
-                      </label>
+                        <div
+                          class="col-6"
+                        >
+                          Show totals:
+                        </div>
+                        <div
+                          class="col-6 d-flex align-items-center"
+                        >
+                          <label
+                            class="o-checkbox d-flex align-items-center"
+                            role="button"
+                          >
+                            <input
+                              class="me-2 flex-shrink-0 border"
+                              name="displayTotals"
+                              type="checkbox"
+                            />
+                            
+                          </label>
+                        </div>
+                      </div>
+                      <div
+                        class="row mb-2 align-items-center"
+                      >
+                        <div
+                          class="col-6"
+                        >
+                          Show column titles:
+                        </div>
+                        <div
+                          class="col-6 d-flex align-items-center"
+                        >
+                          <label
+                            class="o-checkbox d-flex align-items-center"
+                            role="button"
+                          >
+                            <input
+                              class="me-2 flex-shrink-0 border"
+                              name="displayColumnHeaders"
+                              type="checkbox"
+                            />
+                            
+                          </label>
+                        </div>
+                      </div>
+                      <div
+                        class="row mb-2 align-items-center"
+                      >
+                        <div
+                          class="col-6"
+                        >
+                          Show measure titles:
+                        </div>
+                        <div
+                          class="col-6 d-flex align-items-center"
+                        >
+                          <label
+                            class="o-checkbox d-flex align-items-center"
+                            role="button"
+                          >
+                            <input
+                              class="me-2 flex-shrink-0 border"
+                              name="displayMeasuresRow"
+                              type="checkbox"
+                            />
+                            
+                          </label>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                  
                 </div>
               </div>
-              
             </div>
           </div>
         </div>
@@ -659,131 +665,137 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
             class="h-100 d-none"
           >
             <div
-              class="o-section o-pivot-design h-100 overflow-y-auto"
+              class="h-100 overflow-y-auto"
             >
-              <div
-                class="o-section-title"
-              >
-                Display options
-                
-                
-              </div>
-              
               <div>
                 <div
-                  class="container-fluid p-0 pt-2"
+                  class="o-section o-pivot-design"
                 >
                   <div
-                    class="row mb-2 align-items-center"
+                    class="o-section-title"
                   >
-                    <div
-                      class="col-6"
-                    >
-                      Max rows:
-                    </div>
-                    <div
-                      class="col-6 d-flex align-items-center"
-                    >
-                      <input
-                        class="o-pivot-n-of-rows o-input"
-                        placeholder="e.g. 10"
-                        type="number"
-                      />
-                    </div>
+                    Display options
+                    
+                    
                   </div>
-                  <div
-                    class="row mb-2 align-items-center"
-                  >
+                  
+                  <div>
                     <div
-                      class="col-6"
+                      class="container-fluid p-0 pt-2"
                     >
-                      Max columns:
-                    </div>
-                    <div
-                      class="col-6 d-flex align-items-center"
-                    >
-                      <input
-                        class="o-pivot-n-of-columns o-input"
-                        placeholder="e.g. 5"
-                        type="number"
-                      />
-                    </div>
-                  </div>
-                  <div
-                    class="row mb-2 align-items-center"
-                  >
-                    <div
-                      class="col-6"
-                    >
-                      Show totals:
-                    </div>
-                    <div
-                      class="col-6 d-flex align-items-center"
-                    >
-                      <label
-                        class="o-checkbox d-flex align-items-center"
-                        role="button"
+                      <div
+                        class="row mb-2 align-items-center"
                       >
-                        <input
-                          class="me-2 flex-shrink-0 border"
-                          name="displayTotals"
-                          type="checkbox"
-                        />
-                        
-                      </label>
-                    </div>
-                  </div>
-                  <div
-                    class="row mb-2 align-items-center"
-                  >
-                    <div
-                      class="col-6"
-                    >
-                      Show column titles:
-                    </div>
-                    <div
-                      class="col-6 d-flex align-items-center"
-                    >
-                      <label
-                        class="o-checkbox d-flex align-items-center"
-                        role="button"
+                        <div
+                          class="col-6"
+                        >
+                          Max rows:
+                        </div>
+                        <div
+                          class="col-6 d-flex align-items-center"
+                        >
+                          <input
+                            class="o-pivot-n-of-rows o-input"
+                            placeholder="e.g. 10"
+                            type="number"
+                          />
+                        </div>
+                      </div>
+                      <div
+                        class="row mb-2 align-items-center"
                       >
-                        <input
-                          class="me-2 flex-shrink-0 border"
-                          name="displayColumnHeaders"
-                          type="checkbox"
-                        />
-                        
-                      </label>
-                    </div>
-                  </div>
-                  <div
-                    class="row mb-2 align-items-center"
-                  >
-                    <div
-                      class="col-6"
-                    >
-                      Show measure titles:
-                    </div>
-                    <div
-                      class="col-6 d-flex align-items-center"
-                    >
-                      <label
-                        class="o-checkbox d-flex align-items-center"
-                        role="button"
+                        <div
+                          class="col-6"
+                        >
+                          Max columns:
+                        </div>
+                        <div
+                          class="col-6 d-flex align-items-center"
+                        >
+                          <input
+                            class="o-pivot-n-of-columns o-input"
+                            placeholder="e.g. 5"
+                            type="number"
+                          />
+                        </div>
+                      </div>
+                      <div
+                        class="row mb-2 align-items-center"
                       >
-                        <input
-                          class="me-2 flex-shrink-0 border"
-                          name="displayMeasuresRow"
-                          type="checkbox"
-                        />
-                        
-                      </label>
+                        <div
+                          class="col-6"
+                        >
+                          Show totals:
+                        </div>
+                        <div
+                          class="col-6 d-flex align-items-center"
+                        >
+                          <label
+                            class="o-checkbox d-flex align-items-center"
+                            role="button"
+                          >
+                            <input
+                              class="me-2 flex-shrink-0 border"
+                              name="displayTotals"
+                              type="checkbox"
+                            />
+                            
+                          </label>
+                        </div>
+                      </div>
+                      <div
+                        class="row mb-2 align-items-center"
+                      >
+                        <div
+                          class="col-6"
+                        >
+                          Show column titles:
+                        </div>
+                        <div
+                          class="col-6 d-flex align-items-center"
+                        >
+                          <label
+                            class="o-checkbox d-flex align-items-center"
+                            role="button"
+                          >
+                            <input
+                              class="me-2 flex-shrink-0 border"
+                              name="displayColumnHeaders"
+                              type="checkbox"
+                            />
+                            
+                          </label>
+                        </div>
+                      </div>
+                      <div
+                        class="row mb-2 align-items-center"
+                      >
+                        <div
+                          class="col-6"
+                        >
+                          Show measure titles:
+                        </div>
+                        <div
+                          class="col-6 d-flex align-items-center"
+                        >
+                          <label
+                            class="o-checkbox d-flex align-items-center"
+                            role="button"
+                          >
+                            <input
+                              class="me-2 flex-shrink-0 border"
+                              name="displayMeasuresRow"
+                              type="checkbox"
+                            />
+                            
+                          </label>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                  
                 </div>
               </div>
-              
             </div>
           </div>
         </div>
