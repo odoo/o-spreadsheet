@@ -129,7 +129,7 @@ export class HeaderResizeEditor extends Component<SpreadsheetChildEnv> {
 
   get emptyInputHint(): string {
     return this.target.dimension === "COL"
-      ? _t("Empty value resets width to %s px", DEFAULT_CELL_WIDTH.toString())
+      ? _t("Empty value resets width to %s px", DEFAULT_CELL_WIDTH)
       : _t("Empty value fits height to content");
   }
 
