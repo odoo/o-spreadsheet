@@ -2,20 +2,20 @@ import { Position, UID } from "../../..";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { AnchorOffset, Figure, FigureSize } from "../../../types/figure";
 import { Getters } from "../../../types/getters";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../types/spreadsheet_env";
 import { deepCopy } from "../../misc";
 
 const MAX_FIGURE_WIDTH = 1000;
 const MAX_FIGURE_HEIGHT = 1000;
 
-export function centerFigurePosition(env: SpreadsheetChildEnv, size: FigureSize): AnchorOffset {
+export function centerFigurePosition(env: SpreadsheetActionEnv, size: FigureSize): AnchorOffset {
   const viewStore = env.getStore(ViewportsStore);
   const { scrollX, scrollY } = viewStore.activeSheetScrollInfo;
   const dim = viewStore.sheetViewDimension;
 
   const posX = scrollX + Math.max(0, (dim.width - size.width) / 2);
   const posY = scrollY + Math.max(0, (dim.height - size.height) / 2);
-  const sheetId = env.model.getters.getActiveSheetId();
+  const sheetId = env.model().getters.getActiveSheetId();
   return viewStore.viewports.getPositionAnchorOffset(sheetId, { x: posX, y: posY });
 }
 

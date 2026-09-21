@@ -41,7 +41,7 @@ export class PivotSidePanel extends OSComponent {
   }
 
   get sidePanelEditor(): ComponentConstructor {
-    const pivot = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
+    const pivot = this.model().getters.getPivotCoreDefinition(this.props.pivotId);
     if (!pivot) {
       throw new Error("pivotId does not correspond to a pivot.");
     }
@@ -50,7 +50,7 @@ export class PivotSidePanel extends OSComponent {
 
   get highlights() {
     return this.state.panel === "configuration"
-      ? getPivotHighlights(this.env, this.props.pivotId)
+      ? getPivotHighlights(this.spEnv, this.props.pivotId)
       : [];
   }
 

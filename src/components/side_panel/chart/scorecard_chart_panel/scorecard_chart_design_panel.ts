@@ -48,7 +48,7 @@ export class ScorecardChartDesignPanel extends OSComponent {
   }
 
   translate(term: string): string {
-    return this.env.model.getters.dynamicTranslate(term);
+    return this.model().getters.dynamicTranslate(term);
   }
 
   setColor(color: Color, colorPickerId: ColorPickerId) {

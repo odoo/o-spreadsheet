@@ -1,9 +1,8 @@
-import { useProps } from "@odoo/owl";
-import { OSComponent } from "../../../os_component";
+import { Component, useProps } from "@odoo/owl";
 
 import { types } from "../../../props_validation";
 
-export class Checkbox extends OSComponent {
+export class Checkbox extends Component {
   static template = "o-spreadsheet.Checkbox";
 
   protected props = useProps({

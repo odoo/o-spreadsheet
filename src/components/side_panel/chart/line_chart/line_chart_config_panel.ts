@@ -7,11 +7,11 @@ export class LineConfigPanel extends GenericChartConfigPanel {
   static template = "o-spreadsheet-LineConfigPanel";
 
   get canTreatLabelsAsText() {
-    const chart = this.env.model.getters.getChart(this.props.chartId);
+    const chart = this.model().getters.getChart(this.props.chartId);
     const definition = chart?.getRangeDefinition();
     const sheetId = chart?.sheetId;
     if (sheetId && definition?.type === "line") {
-      return canChartParseLabels(chart.getData(this.env.model.getters, this.props.chartId));
+      return canChartParseLabels(chart.getData(this.model().getters, this.props.chartId));
     }
     return false;
   }

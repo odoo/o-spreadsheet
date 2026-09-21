@@ -16,12 +16,12 @@ export function interactiveToggleGroup(
   start: HeaderIndex,
   end: HeaderIndex
 ) {
-  const group = env.model.getters.getHeaderGroup(sheetId, dimension, start, end);
+  const group = env.model().getters.getHeaderGroup(sheetId, dimension, start, end);
   if (!group) {
     return;
   }
   const command = group.isFolded ? "UNFOLD_HEADER_GROUP" : "FOLD_HEADER_GROUP";
-  const result = env.model.dispatch(command, {
+  const result = env.model().dispatch(command, {
     sheetId,
     dimension,
     start: group.start,

@@ -36,7 +36,7 @@
           <div class="dragging-resizer" t-if="this.state.isResizing"/>
         </div>
       </t>
-      <t t-if="this.env.model.getters.getHiddenRowsGroups(this.sheetId).length">
+      <t t-if="this.model().getters.getHiddenRowsGroups(this.sheetId).length">
         <t t-if="this.hasFrozenPane">
           <div
             class="position-relative pe-none overflow-hidden"
@@ -80,7 +80,7 @@
           <div class="dragging-resizer" t-if="this.state.isResizing"/>
         </div>
       </t>
-      <t t-if="this.env.model.getters.getHiddenColsGroups(this.sheetId).length">
+      <t t-if="this.model().getters.getHiddenColsGroups(this.sheetId).length">
         <t t-if="this.hasFrozenPane">
           <div
             class="position-relative pe-none h-100 flex-shrink-0"

@@ -1,6 +1,5 @@
-import { onMounted, onWillUpdateProps, signal, useListener, useProps } from "@odoo/owl";
+import { Component, onMounted, onWillUpdateProps, signal, useListener, useProps } from "@odoo/owl";
 import { useAutofocus } from "../helpers/autofocus_hook";
-import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
 
 export interface GenericInputProps {
@@ -32,7 +31,7 @@ export const genericInputPropsDefinition = {
   resetOnBlur: types.boolean().optional(),
 };
 
-export class GenericInput<T extends GenericInputProps> extends OSComponent {
+export class GenericInput<T extends GenericInputProps> extends Component {
   protected props: T = useProps(genericInputPropsDefinition) as unknown as T;
 
   protected genericInputRef = signal.ref(HTMLInputElement);

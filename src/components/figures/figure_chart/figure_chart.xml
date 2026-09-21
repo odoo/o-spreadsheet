@@ -9,7 +9,7 @@
       />
     </div>
     <div class="position-absolute top-0 end-0">
-      <ChartMenu chartId="this.chartId" hasFullScreenButton="this.env.model.getters.isDashboard()"/>
+      <ChartMenu chartId="this.chartId" hasFullScreenButton="this.model().getters.isDashboard()"/>
     </div>
   </t>
 </templates>

@@ -22,7 +22,7 @@ export class GeoChartRegionSelectSection extends OSComponent {
   }
 
   get availableRegions() {
-    return this.env.model.getters.getGeoChartAvailableRegions();
+    return this.model().getters.getGeoChartAvailableRegions();
   }
 
   get selectedRegion() {

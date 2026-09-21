@@ -8,12 +8,12 @@ export class Selection extends OSComponent {
   static components = { Highlight };
 
   get highlightProps(): PropsOf<Highlight> {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const zone = this.env.model.getters.getUnboundedZone(
+    const sheetId = this.model().getters.getActiveSheetId();
+    const zone = this.model().getters.getUnboundedZone(
       sheetId,
-      this.env.model.getters.getSelectedZone()
+      this.model().getters.getSelectedZone()
     );
-    const range = this.env.model.getters.getRangeFromZone(sheetId, zone);
+    const range = this.model().getters.getRangeFromZone(sheetId, zone);
     return { range, color: SELECTION_BORDER_COLOR };
   }
 }

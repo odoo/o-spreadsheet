@@ -15,6 +15,6 @@ export function interactiveCut(env: SpreadsheetActionEnv) {
         .raiseError(_t("This operation is not allowed with multiple selections."));
     }
   } else {
-    env.model.dispatch("CUT");
+    env.model().dispatch("CUT");
   }
 }

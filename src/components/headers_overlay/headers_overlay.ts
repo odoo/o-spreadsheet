@@ -71,7 +71,7 @@ abstract class AbstractResizer extends OSComponent {
     position: "before",
   });
 
-  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
 
   abstract _getEvOffset(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>): Pixel;
 
@@ -158,7 +158,7 @@ abstract class AbstractResizer extends OSComponent {
   onMouseMove(ev: MouseEvent) {
     if (
       this.env.isMobile() ||
-      this.env.model.getters.isReadonly() ||
+      this.model().getters.isReadonly() ||
       this.state.isResizing ||
       this.state.isMoving ||
       this.state.isSelecting
@@ -244,12 +244,12 @@ abstract class AbstractResizer extends OSComponent {
     if (index < 0) {
       return;
     }
-    if (this.env.model.getters.isReadonly()) {
+    if (this.model().getters.isReadonly()) {
       this._selectElement(index, false);
       return;
     }
     if (!isCtrlKey(ev) && this.state.waitingForMove) {
-      if (!this.env.model.getters.isGridSelectionActive()) {
+      if (!this.model().getters.isGridSelectionActive()) {
         this._selectElement(index, false);
       } else {
         // FIXME: Consider reintroducing this feature for all type of selection if we find
@@ -259,7 +259,7 @@ abstract class AbstractResizer extends OSComponent {
       return;
     }
     if (this.composerFocusStore.activeComposer.editionMode === "editing") {
-      this.env.model.selection.getBackToDefault();
+      this.model().selection.getBackToDefault();
     }
     this.startSelection(ev, index);
   }
@@ -329,7 +329,7 @@ abstract class AbstractResizer extends OSComponent {
       }
     };
     const mouseUpSelect = () => {
-      this.env.model.selection.commitSelection();
+      this.model().selection.commitSelection();
       this.state.isSelecting = false;
       this.lastSelectedElementIndex = null;
       this._computeGrabDisplay(zoomedMouseEvent);
@@ -365,7 +365,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   get sheetId() {
-    return this.env.model.getters.getActiveSheetId();
+    return this.model().getters.getActiveSheetId();
   }
 
   _getEvOffset(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>): Pixel {
@@ -385,11 +385,11 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getSelectedZoneStart(): HeaderIndex {
-    return this.env.model.getters.getSelectedZone().left;
+    return this.model().getters.getSelectedZone().left;
   }
 
   _getSelectedZoneEnd(): HeaderIndex {
-    return this.env.model.getters.getSelectedZone().right;
+    return this.model().getters.getSelectedZone().right;
   }
 
   _getEdgeScroll(position: Pixel): EdgeScrollInfo {
@@ -401,7 +401,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getElementSize(index: HeaderIndex): Pixel {
-    return this.env.model.getters.getColSize(this.sheetId, index);
+    return this.model().getters.getColSize(this.sheetId, index);
   }
 
   _getMaxSize(): Pixel {
@@ -411,8 +411,8 @@ export class ColResizer extends AbstractResizer {
   _updateSize(): void {
     const index = this.state.activeElement;
     const size = this.state.delta + this._getElementSize(index);
-    const cols = this.env.model.getters.getActiveCols();
-    this.env.model.dispatch("RESIZE_COLUMNS_ROWS", {
+    const cols = this.model().getters.getActiveCols();
+    this.model().dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "COL",
       sheetId: this.sheetId,
       elements: cols.has(index) ? [...cols] : [index],
@@ -427,9 +427,9 @@ export class ColResizer extends AbstractResizer {
     for (let colIndex = start; colIndex <= end; colIndex++) {
       elements.push(colIndex);
     }
-    const result = this.env.model.dispatch("MOVE_COLUMNS_ROWS", {
+    const result = this.model().dispatch("MOVE_COLUMNS_ROWS", {
       sheetId: this.sheetId,
-      sheetName: this.env.model.getters.getActiveSheetName(),
+      sheetName: this.model().getters.getActiveSheetName(),
       dimension: "COL",
       base: this.state.base,
       elements,
@@ -441,19 +441,19 @@ export class ColResizer extends AbstractResizer {
   }
 
   _selectElement(index: HeaderIndex, addDistinctHeader: boolean): void {
-    this.env.model.selection.selectColumn(
+    this.model().selection.selectColumn(
       index,
       addDistinctHeader ? "newAnchor" : "overrideSelection"
     );
   }
 
   _increaseSelection(index: HeaderIndex): void {
-    this.env.model.selection.selectColumn(index, "updateAnchor");
+    this.model().selection.selectColumn(index, "updateAnchor");
   }
 
   _fitElementSize(index: HeaderIndex): void {
-    const cols = this.env.model.getters.getActiveCols();
-    this.env.model.dispatch("AUTORESIZE_COLUMNS", {
+    const cols = this.model().getters.getActiveCols();
+    this.model().dispatch("AUTORESIZE_COLUMNS", {
       sheetId: this.sheetId,
       cols: cols.has(index) ? [...cols] : [index],
     });
@@ -464,14 +464,14 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getActiveElements(): Set<HeaderIndex> {
-    return this.env.model.getters.getActiveCols();
+    return this.model().getters.getActiveCols();
   }
 
   _getPreviousVisibleElement(index: HeaderIndex): HeaderIndex {
     const sheetId = this.sheetId;
     let row: HeaderIndex;
     for (row = index - 1; row >= 0; row--) {
-      if (!this.env.model.getters.isColHidden(sheetId, row)) {
+      if (!this.model().getters.isColHidden(sheetId, row)) {
         break;
       }
     }
@@ -479,7 +479,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   unhide(hiddenElements: HeaderIndex[]) {
-    this.env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
+    this.model().dispatch("UNHIDE_COLUMNS_ROWS", {
       sheetId: this.sheetId,
       elements: hiddenElements,
       dimension: "COL",
@@ -488,8 +488,8 @@ export class ColResizer extends AbstractResizer {
 
   get mainUnhideHeadersProps() {
     const { left, right } = this.viewStore.activeMainViewport;
-    const { xSplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
-    const hiddenGroups = this.env.model.getters.getHiddenColsGroups(this.sheetId);
+    const { xSplit } = this.model().getters.getPaneDivisions(this.sheetId);
+    const hiddenGroups = this.model().getters.getHiddenColsGroups(this.sheetId);
     const index = hiddenGroups.findIndex((group) => group[0] >= xSplit - 1);
     return {
       headersGroups: index === -1 ? [] : hiddenGroups.slice(index),
@@ -499,8 +499,8 @@ export class ColResizer extends AbstractResizer {
   }
 
   get frozenUnhideHeadersProps() {
-    const { xSplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
-    const hiddenGroups = this.env.model.getters.getHiddenColsGroups(this.sheetId);
+    const { xSplit } = this.model().getters.getPaneDivisions(this.sheetId);
+    const hiddenGroups = this.model().getters.getHiddenColsGroups(this.sheetId);
     const index = hiddenGroups.findIndex((group) => group[0] >= xSplit - 1);
 
     return {
@@ -516,7 +516,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   get hasFrozenPane(): boolean {
-    return this.env.model.getters.getPaneDivisions(this.sheetId).xSplit > 0;
+    return this.model().getters.getPaneDivisions(this.sheetId).xSplit > 0;
   }
 }
 
@@ -534,7 +534,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   get sheetId() {
-    return this.env.model.getters.getActiveSheetId();
+    return this.model().getters.getActiveSheetId();
   }
 
   _getEvOffset(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>): Pixel {
@@ -554,11 +554,11 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getSelectedZoneStart(): HeaderIndex {
-    return this.env.model.getters.getSelectedZone().top;
+    return this.model().getters.getSelectedZone().top;
   }
 
   _getSelectedZoneEnd(): HeaderIndex {
-    return this.env.model.getters.getSelectedZone().bottom;
+    return this.model().getters.getSelectedZone().bottom;
   }
 
   _getEdgeScroll(position: Pixel): EdgeScrollInfo {
@@ -570,7 +570,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getElementSize(index: HeaderIndex): Pixel {
-    return this.env.model.getters.getRowSize(this.sheetId, index);
+    return this.model().getters.getRowSize(this.sheetId, index);
   }
 
   _getMaxSize(): Pixel {
@@ -580,8 +580,8 @@ export class RowResizer extends AbstractResizer {
   _updateSize(): void {
     const index = this.state.activeElement;
     const size = this.state.delta + this._getElementSize(index);
-    const rows = this.env.model.getters.getActiveRows();
-    this.env.model.dispatch("RESIZE_COLUMNS_ROWS", {
+    const rows = this.model().getters.getActiveRows();
+    this.model().dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "ROW",
       sheetId: this.sheetId,
       elements: rows.has(index) ? [...rows] : [index],
@@ -596,9 +596,9 @@ export class RowResizer extends AbstractResizer {
     for (let rowIndex = start; rowIndex <= end; rowIndex++) {
       elements.push(rowIndex);
     }
-    const result = this.env.model.dispatch("MOVE_COLUMNS_ROWS", {
+    const result = this.model().dispatch("MOVE_COLUMNS_ROWS", {
       sheetId: this.sheetId,
-      sheetName: this.env.model.getters.getActiveSheetName(),
+      sheetName: this.model().getters.getActiveSheetName(),
       dimension: "ROW",
       base: this.state.base,
       elements,
@@ -615,19 +615,16 @@ export class RowResizer extends AbstractResizer {
   }
 
   _selectElement(index: HeaderIndex, addDistinctHeader: boolean): void {
-    this.env.model.selection.selectRow(
-      index,
-      addDistinctHeader ? "newAnchor" : "overrideSelection"
-    );
+    this.model().selection.selectRow(index, addDistinctHeader ? "newAnchor" : "overrideSelection");
   }
 
   _increaseSelection(index: HeaderIndex): void {
-    this.env.model.selection.selectRow(index, "updateAnchor");
+    this.model().selection.selectRow(index, "updateAnchor");
   }
 
   _fitElementSize(index: HeaderIndex): void {
-    const rows = this.env.model.getters.getActiveRows();
-    this.env.model.dispatch("AUTORESIZE_ROWS", {
+    const rows = this.model().getters.getActiveRows();
+    this.model().dispatch("AUTORESIZE_ROWS", {
       sheetId: this.sheetId,
       rows: rows.has(index) ? [...rows] : [index],
     });
@@ -638,14 +635,14 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getActiveElements(): Set<HeaderIndex> {
-    return this.env.model.getters.getActiveRows();
+    return this.model().getters.getActiveRows();
   }
 
   _getPreviousVisibleElement(index: HeaderIndex): HeaderIndex {
     const sheetId = this.sheetId;
     let row: HeaderIndex;
     for (row = index - 1; row >= 0; row--) {
-      if (!this.env.model.getters.isRowHidden(sheetId, row)) {
+      if (!this.model().getters.isRowHidden(sheetId, row)) {
         break;
       }
     }
@@ -654,8 +651,8 @@ export class RowResizer extends AbstractResizer {
 
   get mainUnhideHeadersProps() {
     const { top, bottom } = this.viewStore.activeMainViewport;
-    const { ySplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
-    const hiddenGroups = this.env.model.getters.getHiddenRowsGroups(this.sheetId);
+    const { ySplit } = this.model().getters.getPaneDivisions(this.sheetId);
+    const hiddenGroups = this.model().getters.getHiddenRowsGroups(this.sheetId);
     const index = hiddenGroups.findIndex((group) => group[0] >= ySplit - 1);
     return {
       headersGroups: index === -1 ? [] : hiddenGroups.slice(index),
@@ -665,8 +662,8 @@ export class RowResizer extends AbstractResizer {
   }
 
   get frozenUnhideHeadersProps() {
-    const { ySplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
-    const hiddenGroups = this.env.model.getters.getHiddenRowsGroups(this.sheetId);
+    const { ySplit } = this.model().getters.getPaneDivisions(this.sheetId);
+    const hiddenGroups = this.model().getters.getHiddenRowsGroups(this.sheetId);
     const index = hiddenGroups.findIndex((group) => group[0] >= ySplit - 1);
 
     return {
@@ -682,7 +679,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   get hasFrozenPane(): boolean {
-    return this.env.model.getters.getPaneDivisions(this.sheetId).ySplit > 0;
+    return this.model().getters.getPaneDivisions(this.sheetId).ySplit > 0;
   }
 }
 
@@ -693,6 +690,6 @@ export class HeadersOverlay extends OSComponent {
   static components = { ColResizer, RowResizer };
 
   selectAll() {
-    this.env.model.selection.selectAll();
+    this.model().selection.selectAll();
   }
 }

@@ -21,6 +21,6 @@ export class DataAnalysisPanel extends OSComponent {
   }
 
   onStartChartSuggestionDrag(definition: ChartDefinition, ev: MouseEvent) {
-    startChartDragAndDrop(this.env, definition, ev);
+    startChartDragAndDrop(this.spEnv, definition, ev);
   }
 }

@@ -39,16 +39,16 @@ export class RemoveDuplicatesPanel extends OSComponent {
   }
 
   onRemoveDuplicates() {
-    this.env.model.dispatch("REMOVE_DUPLICATES");
+    this.model().dispatch("REMOVE_DUPLICATES");
   }
 
   getColLabel(colKey: string): string {
     const col = parseInt(colKey);
     let colLabel = _t("Column %s", numberToLetters(col));
     if (this.dataCleanupSore.hasHeader) {
-      const sheetId = this.env.model.getters.getActiveSheetId();
-      const row = this.env.model.getters.getSelectedZone().top;
-      const colHeader = this.env.model.getters.getEvaluatedCell({ sheetId, col, row });
+      const sheetId = this.model().getters.getActiveSheetId();
+      const row = this.model().getters.getSelectedZone().top;
+      const colHeader = this.model().getters.getEvaluatedCell({ sheetId, col, row });
       if (colHeader.type !== "empty") {
         colLabel += ` - ${colHeader.value}`;
       }
@@ -72,7 +72,7 @@ export class RemoveDuplicatesPanel extends OSComponent {
   }
 
   get selectionStatisticalInformation(): string {
-    const dimension = zoneToDimension(this.env.model.getters.getSelectedZone());
+    const dimension = zoneToDimension(this.model().getters.getSelectedZone());
     return _t("%(row_count)s rows and %(column_count)s columns selected", {
       row_count: dimension.numberOfRows,
       column_count: dimension.numberOfCols,

@@ -5,7 +5,6 @@ import {
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
 } from "../../constants";
-import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -15,9 +14,9 @@ import { DispatchResult } from "../../types/commands";
 import { Dimension, HeaderIndex } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
 import { Rect } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { isChildEvent } from "../helpers/dom_helpers";
+import { OSComponent } from "../os_component";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
 
@@ -26,7 +25,7 @@ export interface HeaderResizeEditorTarget {
   index: HeaderIndex;
 }
 
-export class HeaderResizeEditor extends Component<SpreadsheetChildEnv> {
+export class HeaderResizeEditor extends OSComponent {
   static template = "o-spreadsheet-HeaderResizeEditor";
   static components = { Popover };
 
@@ -77,7 +76,7 @@ export class HeaderResizeEditor extends Component<SpreadsheetChildEnv> {
 
   private get anchorRect(): Rect {
     const { dimension, index } = this.target;
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const gridOffset = this.viewStore.gridOffset;
     let headerRect: Rect;
     if (dimension === "COL") {
@@ -100,10 +99,10 @@ export class HeaderResizeEditor extends Component<SpreadsheetChildEnv> {
   }
 
   get currentSize(): number {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     return this.target.dimension === "COL"
-      ? this.env.model.getters.getColSize(sheetId, this.target.index)
-      : this.env.model.getters.getRowSize(sheetId, this.target.index);
+      ? this.model().getters.getColSize(sheetId, this.target.index)
+      : this.model().getters.getRowSize(sheetId, this.target.index);
   }
 
   onExternalClick(ev: MouseEvent) {
@@ -154,13 +153,13 @@ export class HeaderResizeEditor extends Component<SpreadsheetChildEnv> {
     if (size === undefined) {
       return;
     }
-    const result: DispatchResult = this.env.model.dispatch("RESIZE_COLUMNS_ROWS", {
-      sheetId: this.env.model.getters.getActiveSheetId(),
+    const result: DispatchResult = this.model().dispatch("RESIZE_COLUMNS_ROWS", {
+      sheetId: this.model().getters.getActiveSheetId(),
       dimension: this.target.dimension,
       elements:
         this.target.dimension === "COL"
-          ? [...this.env.model.getters.getActiveCols()]
-          : [...this.env.model.getters.getActiveRows()],
+          ? [...this.model().getters.getActiveCols()]
+          : [...this.model().getters.getActiveRows()],
       size,
     });
     if (result.isSuccessful) {

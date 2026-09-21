@@ -1,16 +1,16 @@
 import { selectCell, setCellContent, setFormatting } from "../test_helpers/commands_helpers";
 import { getCell, getCellRawContent } from "../test_helpers/getters_helpers";
-import { doAction, makeTestEnv } from "../test_helpers/helpers";
+import { doAction, makeSpreadsheetActionTestEnv } from "../test_helpers/helpers";
 
 import { Model } from "../../src";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 
 describe("cross spreadsheet copy/paste", () => {
   test("should copy/paste from Edit menu", async () => {
-    const envA: SpreadsheetActionEnv = makeTestEnv();
-    const envB: SpreadsheetActionEnv = makeTestEnv();
-    const modelA: Model = envA.model;
-    const modelB: Model = envB.model;
+    const envA: SpreadsheetActionEnv = makeSpreadsheetActionTestEnv();
+    const envB: SpreadsheetActionEnv = makeSpreadsheetActionTestEnv();
+    const modelA: Model = envA.model();
+    const modelB: Model = envB.model();
 
     const cellStyle = { bold: true, fillColor: "#00FF00", fontSize: 20 };
 

@@ -53,7 +53,7 @@ const mouseUpFn = jest.fn();
 class FakeGridComponent extends OSComponent {
   static template = TEMPLATE;
 
-  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
 
   onMouseDown(ev: PointerEvent) {
     this.dragNDropGrid.start(

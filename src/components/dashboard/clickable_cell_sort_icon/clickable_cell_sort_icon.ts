@@ -25,7 +25,7 @@ export class ClickableCellSortIcon extends OSComponent {
   }
 
   get style() {
-    const cellStyle = this.env.model.getters.getCellComputedStyle(this.props.position);
+    const cellStyle = this.model().getters.getCellComputedStyle(this.props.position);
     const size = computeTextFontSizeInPixels(cellStyle);
     return cssPropertiesToCss({
       height: `${size}px`,
@@ -36,7 +36,7 @@ export class ClickableCellSortIcon extends OSComponent {
   }
 
   get verticalJustifyClass() {
-    const cellStyle = this.env.model.getters.getCellComputedStyle(this.props.position);
+    const cellStyle = this.model().getters.getCellComputedStyle(this.props.position);
     switch (cellStyle.verticalAlign) {
       case "top":
         return "justify-content-start";

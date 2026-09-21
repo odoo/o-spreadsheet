@@ -44,7 +44,7 @@ import {
   addToRegistry,
   createModelFromGrid,
   getNode,
-  makeTestEnv,
+  makeSpreadsheetActionTestEnv,
   spyUiPluginHandle,
   target,
 } from "../test_helpers/helpers";
@@ -408,8 +408,8 @@ describe("pivot contextual formatting", () => {
   });
 
   test("topbar menu correctly indicates the format of the selected pivot cell", () => {
-    const env = makeTestEnv();
-    const { model } = env;
+    const model = new Model();
+    const env = makeSpreadsheetActionTestEnv(model);
 
     setCellContent(model, "A1", "Price");
     setCellContent(model, "A2", "10");

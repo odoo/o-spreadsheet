@@ -12,10 +12,10 @@ export function interactiveRenameSheet(
   errorCallback: () => void
 ) {
   const notificationPlugin = env.getPlugin(NotificationPlugin);
-  const result = env.model.dispatch("RENAME_SHEET", {
+  const result = env.model().dispatch("RENAME_SHEET", {
     sheetId,
     newName: name,
-    oldName: env.model.getters.getSheetName(sheetId),
+    oldName: env.model().getters.getSheetName(sheetId),
   });
   if (result.reasons.includes(CommandResult.MissingSheetName)) {
     notificationPlugin.raiseError(_t("The sheet name cannot be empty."), errorCallback);

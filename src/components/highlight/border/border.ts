@@ -37,7 +37,7 @@ export class Border extends OSComponent {
     const margin = 2;
 
     const rect = this.viewStore.viewports.getVisibleRect(
-      this.env.model.getters.getActiveSheetId(),
+      this.model().getters.getActiveSheetId(),
       z
     );
 

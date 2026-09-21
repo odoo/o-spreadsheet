@@ -265,7 +265,7 @@ export class Composer extends OSComponent {
       // Prevent the default content editable behavior which moves the cursor
       ev.preventDefault();
       ev.stopPropagation();
-      updateSelectionWithArrowKeys(ev, this.env.model.selection);
+      updateSelectionWithArrowKeys(ev, this.model().selection);
       return;
     }
     const content = this.props.composerStore.currentContent;
@@ -348,7 +348,7 @@ export class Composer extends OSComponent {
   private processNumpadDecimal(ev: KeyboardEvent) {
     ev.stopPropagation();
     ev.preventDefault();
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     const selection = this.contentHelper.getCurrentSelection();
     const currentContent = this.props.composerStore.currentContent;
     const content =
@@ -499,7 +499,7 @@ export class Composer extends OSComponent {
   }
 
   onMouseup() {
-    if (this.env.model.getters.isReadonly()) {
+    if (this.model().getters.isReadonly()) {
       return;
     }
     const selection = this.contentHelper.getCurrentSelection();
@@ -509,7 +509,7 @@ export class Composer extends OSComponent {
   }
 
   onClick() {
-    if (this.env.model.getters.isReadonly()) {
+    if (this.model().getters.isReadonly()) {
       return;
     }
     const newSelection = this.contentHelper.getCurrentSelection();
@@ -522,7 +522,7 @@ export class Composer extends OSComponent {
   }
 
   onDblClick() {
-    if (this.env.model.getters.isReadonly()) {
+    if (this.model().getters.isReadonly()) {
       return;
     }
     const composerContent = this.props.composerStore.currentContent;

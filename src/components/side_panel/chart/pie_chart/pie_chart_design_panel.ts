@@ -39,7 +39,7 @@ export class PieChartDesignPanel extends OSComponent {
   protected state = proxy({ index: 0 });
 
   get runtime() {
-    return this.env.model.getters.getChartRuntime(this.props.chartId) as PieChartRuntime;
+    return this.model().getters.getChartRuntime(this.props.chartId) as PieChartRuntime;
   }
 
   get isLegendDisabled() {

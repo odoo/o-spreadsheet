@@ -34,7 +34,7 @@ export class Autofill extends OSComponent {
     handler: false,
   });
 
-  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
   private zoomStore!: Store<ZoomStore>;
   private autofillStore!: Store<AutofillStore>;
 
@@ -90,7 +90,7 @@ export class Autofill extends OSComponent {
     const onMouseUp = () => {
       this.state.handler = false;
       this.state.position = { ...this.props.position };
-      this.env.model.dispatch("AUTOFILL");
+      this.model().dispatch("AUTOFILL");
     };
 
     const onMouseMove = (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => {
@@ -99,13 +99,13 @@ export class Autofill extends OSComponent {
         y: ev.clientY / zoom - start.y,
       };
       if (lastCol !== col || lastRow !== row) {
-        const activeSheetId = this.env.model.getters.getActiveSheetId();
-        const numberOfCols = this.env.model.getters.getNumberCols(activeSheetId);
-        const numberOfRows = this.env.model.getters.getNumberRows(activeSheetId);
+        const activeSheetId = this.model().getters.getActiveSheetId();
+        const numberOfCols = this.model().getters.getNumberCols(activeSheetId);
+        const numberOfRows = this.model().getters.getNumberRows(activeSheetId);
         lastCol = col === -1 ? lastCol : clip(col, 0, numberOfCols);
         lastRow = row === -1 ? lastRow : clip(row, 0, numberOfRows);
         if (lastCol !== undefined && lastRow !== undefined) {
-          this.env.model.dispatch("AUTOFILL_SELECT", { col: lastCol, row: lastRow });
+          this.model().dispatch("AUTOFILL_SELECT", { col: lastCol, row: lastRow });
         }
       }
     };
@@ -113,7 +113,7 @@ export class Autofill extends OSComponent {
   }
 
   onDblClick() {
-    this.env.model.dispatch("AUTOFILL_AUTO");
+    this.model().dispatch("AUTOFILL_AUTO");
   }
 }
 

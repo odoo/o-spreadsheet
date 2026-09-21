@@ -64,7 +64,7 @@ export class FullScreenFigure extends OSComponent {
     if (!this.figureUI) {
       return undefined;
     }
-    return this.env.model.getters.getChartIdFromFigureId(this.figureUI?.id);
+    return this.model().getters.getChartIdFromFigureId(this.figureUI?.id);
   }
 
   exitFullScreen() {

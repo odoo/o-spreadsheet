@@ -17,17 +17,17 @@ export function interactiveCreateTable(
   sheetId: UID,
   tableConfig: TableConfig = DEFAULT_TABLE_CONFIG
 ): DispatchResult {
-  let target = env.model.getters.getSelectedZones();
-  let isDynamic = env.model.getters.canCreateDynamicTableOnZones(sheetId, target);
+  let target = env.model().getters.getSelectedZones();
+  let isDynamic = env.model().getters.canCreateDynamicTableOnZones(sheetId, target);
 
   if (target.length === 1 && !isDynamic && getZoneArea(target[0]) === 1) {
-    env.model.selection.selectTableAroundSelection();
-    target = env.model.getters.getSelectedZones();
-    isDynamic = env.model.getters.canCreateDynamicTableOnZones(sheetId, target);
+    env.model().selection.selectTableAroundSelection();
+    target = env.model().getters.getSelectedZones();
+    isDynamic = env.model().getters.canCreateDynamicTableOnZones(sheetId, target);
   }
 
-  const ranges = target.map((zone) => env.model.getters.getRangeDataFromZone(sheetId, zone));
-  const result = env.model.dispatch("CREATE_TABLE", {
+  const ranges = target.map((zone) => env.model().getters.getRangeDataFromZone(sheetId, zone));
+  const result = env.model().dispatch("CREATE_TABLE", {
     ranges,
     sheetId,
     config: tableConfig,

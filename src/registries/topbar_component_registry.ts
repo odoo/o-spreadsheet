@@ -1,6 +1,6 @@
 import { UuidGenerator } from "../helpers/uuid";
 import { UID } from "../types/misc";
-import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
 import { Registry } from "./registry";
 
 //------------------------------------------------------------------------------
@@ -9,7 +9,7 @@ import { Registry } from "./registry";
 export interface TopbarComponent {
   id: UID;
   component: any;
-  isVisible?: (env: SpreadsheetChildEnv) => boolean;
+  isVisible?: (env: SpreadsheetActionEnv) => boolean;
   sequence: number;
 }
 

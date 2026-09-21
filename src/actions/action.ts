@@ -210,7 +210,7 @@ export function isMenuItemEnabled(env: SpreadsheetActionEnv, menu: Action): bool
     return children.some((child) => isMenuItemEnabled(env, child));
   } else {
     if (menu.isEnabled(env)) {
-      return env.model.getters.isReadonly() ? menu.isReadonlyAllowed : true;
+      return env.model().getters.isReadonly() ? menu.isReadonlyAllowed : true;
     }
     return false;
   }

@@ -38,11 +38,8 @@ export class ValueInRangeCriterionForm extends CriterionForm<IsValueInRangeCrite
   }
 
   get values() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const values = this.env.model.getters.getDataValidationRangeValues(
-      sheetId,
-      this.props.criterion
-    );
+    const sheetId = this.model().getters.getActiveSheetId();
+    const values = this.model().getters.getDataValidationRangeValues(sheetId, this.props.criterion);
     return new Set(values);
   }
 

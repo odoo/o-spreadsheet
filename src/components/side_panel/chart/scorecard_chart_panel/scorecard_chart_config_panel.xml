@@ -6,7 +6,7 @@
           placeholder.translate="Formula"
           title.translate=""
           composerContent="this.getKeyValue()"
-          defaultRangeSheetId="this.env.model.getters.getActiveSheetId()"
+          defaultRangeSheetId="this.model().getters.getActiveSheetId()"
           onConfirm.bind="this.onConfirmKeyValue"
         />
       </Section>
@@ -16,7 +16,7 @@
           placeholder.translate="Formula"
           title.translate=""
           composerContent="this.getBaseline()"
-          defaultRangeSheetId="this.env.model.getters.getActiveSheetId()"
+          defaultRangeSheetId="this.model().getters.getActiveSheetId()"
           onConfirm.bind="this.onConfirmBaseline"
         />
         <div class="o-section-subtitle">Format</div>

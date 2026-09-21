@@ -59,7 +59,7 @@ export class PivotSpreadsheetSidePanel extends OSComponent {
       return [this.state.range];
     }
     if (this.definition.range) {
-      return [this.env.model.getters.getRangeString(this.definition.range, "forceSheetReference")];
+      return [this.model().getters.getRangeString(this.definition.range, "forceSheetReference")];
     }
     return [];
   }
@@ -82,17 +82,17 @@ export class PivotSpreadsheetSidePanel extends OSComponent {
       this.state.range = undefined;
       return;
     }
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const range = this.env.model.getters.getRangeFromSheetXC(sheetId, ranges[0]);
-    this.state.range = this.env.model.getters.getRangeString(range, "forceSheetReference", {
+    const sheetId = this.model().getters.getActiveSheetId();
+    const range = this.model().getters.getRangeFromSheetXC(sheetId, ranges[0]);
+    this.state.range = this.model().getters.getRangeString(range, "forceSheetReference", {
       useBoundedReference: true,
     });
   }
 
   onSelectionConfirmed() {
     if (this.state.range) {
-      const range = this.env.model.getters.getRangeFromSheetXC(
-        this.env.model.getters.getActiveSheetId(),
+      const range = this.model().getters.getRangeFromSheetXC(
+        this.model().getters.getActiveSheetId(),
         this.state.range
       );
       if (range.invalidSheetName || range.invalidXc) {
@@ -123,7 +123,7 @@ export class PivotSpreadsheetSidePanel extends OSComponent {
   }
 
   addFilter(fieldName: string) {
-    const { filters } = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
+    const { filters } = this.model().getters.getPivotCoreDefinition(this.props.pivotId);
     this.onFiltersUpdated({
       filters: (filters ?? []).concat([
         {
