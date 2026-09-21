@@ -189,14 +189,20 @@ export const CHECKBOX_UNCHECKED: ImageSVG = {
   name: "CHECKBOX_UNCHECKED",
   width: 512,
   height: 512,
-  paths: [{ fillColor: GRAY_300, path: "M45,45 h422 v422 h-422 v-422 m30,30 v362 h362 v-362" }],
+  paths: [
+    { fillColor: "#FFF", path: "M45,45 h422 v422 h-422 v-422" },
+    { fillColor: GRAY_300, path: "M45,45 h422 v422 h-422 v-422 m30,30 v362 h362 v-362" },
+  ],
 };
 
 export const CHECKBOX_UNCHECKED_HOVERED: ImageSVG = {
   name: "CHECKBOX_UNCHECKED",
   width: 512,
   height: 512,
-  paths: [{ fillColor: ACTION_COLOR, path: "M45,45 h422 v422 h-422 v-422 m30,30 v362 h362 v-362" }],
+  paths: [
+    { fillColor: "#FFF", path: "M45,45 h422 v422 h-422 v-422" },
+    { fillColor: ACTION_COLOR, path: "M45,45 h422 v422 h-422 v-422 m30,30 v362 h362 v-362" },
+  ],
 };
 
 export const CHECKBOX_CHECKED: ImageSVG = {
