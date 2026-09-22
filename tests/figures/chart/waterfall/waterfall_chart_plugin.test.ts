@@ -19,7 +19,7 @@ import {
   getChartTooltipValues,
   toChartDataSource,
 } from "../../../test_helpers/chart_helpers";
-import { nextTick } from "../../../test_helpers/helpers";
+import { nextTick, setGrid } from "../../../test_helpers/helpers";
 
 let model: Model;
 
@@ -245,6 +245,32 @@ describe("Waterfall chart", () => {
     tooltipItem = { raw: [30, -10], dataIndex: 1, dataset: { xAxisID: "x" } };
     tooltipValues = getChartTooltipValues(runtime, tooltipItem);
     expect(tooltipValues).toEqual({ beforeLabel: "Dataset 2", label: "-40€" });
+  });
+
+  test("Waterfall tooltip with subtotals shown", () => {
+    setGrid(model, { A1: "Dataset 1", B1: "Dataset 2", A2: "30", B2: "-40" });
+    const chartId = createWaterfallChart(model, {
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:B2" }],
+        dataSetsHaveTitle: true,
+      }),
+      showSubTotals: true,
+    });
+    const runtime = getWaterfallRuntime(chartId);
+
+    const tooltipItems = [
+      { raw: [0, 30], dataIndex: 0, dataset: { xAxisID: "x" } }, // A2
+      { raw: [0, 30], dataIndex: 1, dataset: { xAxisID: "x" } }, // Subtotal
+      { raw: [30, -10], dataIndex: 2, dataset: { xAxisID: "x" } }, // B2
+      { raw: [30, -10], dataIndex: 3, dataset: { xAxisID: "x" } }, // Subtotal
+    ];
+    const tooltipValues = tooltipItems.map((item) => getChartTooltipValues(runtime, item));
+    expect(tooltipValues).toMatchObject([
+      { beforeLabel: "Dataset 1", label: "30" },
+      { beforeLabel: "Dataset 1", label: "30" },
+      { beforeLabel: "Dataset 2", label: "-40" },
+      { beforeLabel: "Dataset 2", label: "-40" },
+    ]);
   });
 
   test("Waterfall legend", () => {
