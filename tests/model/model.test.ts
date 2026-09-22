@@ -8,7 +8,7 @@ import {
   DispatchResult,
   EvaluationCommand,
   EvaluationPlugin,
-  coreTypes,
+  registerCommand,
 } from "../../src";
 import { MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
@@ -40,6 +40,11 @@ import {
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers";
 import { addTestPlugin, nextTick } from "../test_helpers/helpers";
+
+//@ts-ignore
+registerCommand("MY_CMD_1", { category: "core" });
+//@ts-ignore
+registerCommand("MY_CMD_2", { category: "core" });
 
 describe("Model", () => {
   test("core plugin can refuse command from UI plugin", () => {
@@ -415,10 +420,6 @@ describe("Model", () => {
 
   test("Replayed commands are not send to UI plugins", () => {
     let numberCall = 0;
-    //@ts-ignore
-    coreTypes.add("MY_CMD_1");
-    //@ts-ignore
-    coreTypes.add("MY_CMD_2");
     class MyUIPlugin extends UIPlugin {
       handlers: CommandsHandlers<Command> = {
         //@ts-ignore
@@ -488,8 +489,6 @@ describe("Model", () => {
   });
 
   test("Core commands which dispatch UPDATE_CELL should trigger evaluation", () => {
-    //@ts-ignore
-    coreTypes.add("MY_CMD_1");
     class MyCorePlugin extends CorePlugin {
       handlers: CommandsHandlers<CoreCommand> = {
         //@ts-ignore

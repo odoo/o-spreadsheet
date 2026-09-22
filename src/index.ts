@@ -166,6 +166,7 @@ import {
 } from "./migrations/data";
 import { migrationStepRegistry } from "./migrations/migration_steps";
 
+import { inverseCommandRegistry } from "./command_registry";
 import { UNDO_REDO_PIVOT_COMMANDS } from "./plugins/evaluation/pivot_ui";
 import {
   corePluginRegistry,
@@ -182,7 +183,6 @@ import { chartComponentRegistry } from "./registries/chart_component_registry";
 import { chartTypeRegistry } from "./registries/chart_registry";
 import { figureRegistry } from "./registries/figures_registry";
 import { iconsOnCellRegistry } from "./registries/icons_on_cell_registry";
-import { inverseCommandRegistry } from "./registries/inverse_command_registry";
 import { cellMenuRegistry } from "./registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "./registries/menus/col_menu_registry";
 import { numberFormatMenuRegistry } from "./registries/menus/number_format_menu_registry";
@@ -229,6 +229,29 @@ export const __info__ = {};
 export { LocalTransportService } from "./collaborative/local_transport_service";
 export { Revision } from "./collaborative/revisions";
 export { ClientDisconnectedError } from "./collaborative/session";
+export {
+  allCommands,
+  canExecuteInReadonly,
+  commandSets,
+  coreCommands,
+  dispatcheableEvaluationCommandTypes,
+  evaluationCommandTypes,
+  invalidateBordersCommands,
+  invalidateCFEvaluationCommands,
+  invalidateChartEvaluationCommands,
+  invalidateDependenciesCommands,
+  invalidateEvaluationCommands,
+  invalidateTableStyleCommands,
+  invalidSubtotalFormulasCommands,
+  isCoreCommand,
+  isDispatcheableEvaluationCommand,
+  isEvaluationCommand,
+  localCommands,
+  lockedSheetAllowedCommands,
+  readonlyAllowedCommands,
+  registerCommand,
+} from "./command_registry";
+export type { CommandRegistrationOptions, CommandSetName } from "./command_registry";
 export { Spreadsheet } from "./components/spreadsheet/spreadsheet";
 export { setDefaultSheetViewSize, tokenColors } from "./constants";
 export { CompiledFormula, functionCache } from "./formulas/compiler";
@@ -255,22 +278,7 @@ export type {
   RevisionUndoneMessage,
   TransportService,
 } from "./types/collaborative/transport_service";
-export {
-  canExecuteInReadonly,
-  CommandResult,
-  coreTypes,
-  dispatcheableEvaluationCommandTypes,
-  DispatchResult,
-  evaluationCommandTypes,
-  invalidateCFEvaluationCommands,
-  invalidateChartEvaluationCommands,
-  invalidateDependenciesCommands,
-  invalidateEvaluationCommands,
-  isCoreCommand,
-  isSheetDependent,
-  lockedSheetAllowedCommands,
-  readonlyAllowedCommands,
-} from "./types/commands";
+export { CommandResult, DispatchResult, isSheetDependent } from "./types/commands";
 export type { CancelledReason } from "./types/commands";
 export { CellErrorType, EvaluationError } from "./types/errors";
 export { addRenderingLayer } from "./types/rendering";

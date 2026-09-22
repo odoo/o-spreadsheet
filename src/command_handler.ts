@@ -1,42 +1,31 @@
+import {
+  commandSets,
+  coreCommands,
+  evaluationCommandTypes,
+  isCommandSetName,
+  isCoreCommand,
+  isEvaluationCommand,
+  localCommands,
+} from "./command_registry";
 import { CorePlugin } from "./plugins/core_plugin";
 import { EvaluationPlugin } from "./plugins/evaluation_plugin";
 import {
   Command,
   CommandHandler,
   CommandHandlerRegistry,
-  commandSets,
+  CommandTypes,
   CommandsHandlers,
   CommandsHandlersList,
   CommandsValidators,
   CommandsValidatorsList,
-  CommandTypes,
-  coreTypes,
-  evaluationCommandTypes,
-  isCommandSetName,
-  isCoreCommand,
-  isEvaluationCommand,
-  localTypes,
   SingleCommandHandler,
   SingleCommandValidator,
 } from "./types/commands";
-
-const ALL_COMMANDS = "*allCommands";
-
-interface CatchAllValidator<T extends Command> {
-  canHandleType: (commandType: CommandTypes) => boolean;
-  validator: SingleCommandValidator<T>;
-}
 
 export class CommandHandlerRegistryClass<T extends Command> implements CommandHandlerRegistry {
   private handlers: CommandsHandlersList<T> = {};
   private preHandlers: CommandsHandlersList<T> = {};
   private validators: CommandsValidatorsList<T> = {};
-  /**
-   * Validators declared under `"*allCommands"`. Unlike the other command sets they
-   * are not expanded into the per-command lists: they must run for *every* command,
-   * including command types registered after the plugins were instantiated.
-   */
-  private catchAllValidators: CatchAllValidator<T>[] = [];
 
   getHandlers<C extends CommandTypes>(cmd: C): SingleCommandHandler<Extract<T, { type: C }>>[] {
     return this.handlers[cmd] ?? [];
@@ -57,12 +46,7 @@ export class CommandHandlerRegistryClass<T extends Command> implements CommandHa
   }
 
   getValidators<C extends CommandTypes>(cmd: C): SingleCommandValidator<Extract<T, { type: C }>>[] {
-    const catchAll = this.catchAllValidators
-      .filter(({ canHandleType }) => canHandleType(cmd))
-      .map(({ validator }) => validator);
-    return [...catchAll, ...(this.validators[cmd] ?? [])] as SingleCommandValidator<
-      Extract<T, { type: C }>
-    >[];
+    return this.validators[cmd] ?? [];
   }
 
   addValidator<C extends CommandTypes>(cmd: C, f: SingleCommandValidator<Extract<T, { type: C }>>) {
@@ -71,23 +55,9 @@ export class CommandHandlerRegistryClass<T extends Command> implements CommandHa
   }
 
   registerPlugin(plugin: CommandHandler<T>) {
-    this.registerValidators(plugin);
+    this.registerDeclaredHandlers(plugin, plugin.validators, this.addValidator);
     this.registerDeclaredHandlers(plugin, plugin.preHandlers, this.addPreHandler);
     this.registerDeclaredHandlers(plugin, plugin.handlers, this.addHandler);
-  }
-
-  private registerValidators(plugin: CommandHandler<T>) {
-    const validators = plugin.validators;
-    const catchAll = validators[ALL_COMMANDS]?.bind(plugin);
-    if (catchAll) {
-      this.catchAllValidators.push({
-        canHandleType: (cmd) => canHandleType(plugin, cmd),
-        validator: catchAll,
-      });
-    }
-    const declaredValidators = { ...validators };
-    delete declaredValidators[ALL_COMMANDS];
-    this.registerDeclaredHandlers(plugin, declaredValidators, this.addValidator);
   }
 
   private registerDeclaredHandlers<F extends (...args: any[]) => any>(
@@ -97,7 +67,11 @@ export class CommandHandlerRegistryClass<T extends Command> implements CommandHa
   ) {
     for (const key of Object.keys(declaredHandlers)) {
       const handler = declaredHandlers[key]?.bind(plugin);
-      if (!isCommandSetName(key) && !coreTypes.has(key as any) && !localTypes.has(key as any)) {
+      if (
+        !isCommandSetName(key) &&
+        !coreCommands.has(key as any) &&
+        !localCommands.has(key as any)
+      ) {
         throw new Error(
           `"${key}" is neither a command type nor a command set name (plugin ${plugin.constructor.name})`
         );
@@ -127,7 +101,7 @@ export function canHandleType(
   commandType: CommandTypes
 ): boolean {
   if (handler instanceof CorePlugin) {
-    return coreTypes.has(commandType as any);
+    return coreCommands.has(commandType as any);
   }
   if (handler instanceof EvaluationPlugin) {
     return evaluationCommandTypes.has(commandType as any);

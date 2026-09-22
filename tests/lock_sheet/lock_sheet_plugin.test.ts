@@ -1,13 +1,9 @@
+import { Command, CommandResult, CoreCommand, Model, isSheetDependent } from "../../src";
 import {
-  Command,
-  CommandResult,
-  CoreCommand,
-  Model,
   isCoreCommand,
-  isSheetDependent,
   lockedSheetAllowedCommands,
   readonlyAllowedCommands,
-} from "../../src";
+} from "../../src/command_registry";
 import { createChart, createSheet, lockSheet } from "../test_helpers/commands_helpers";
 import { TEST_COMMANDS } from "../test_helpers/constants";
 import { addPivot } from "../test_helpers/pivot_helpers";

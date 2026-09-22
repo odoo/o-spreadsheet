@@ -1,10 +1,10 @@
 import {
   CellErrorType,
   CorePlugin,
-  coreTypes,
   Model,
   Range,
   RangeAdapterFunctions,
+  registerCommand,
   UID,
 } from "../src";
 import { numberToLetters } from "../src/helpers/coordinates";
@@ -38,9 +38,9 @@ export interface UseTransientRange {
 }
 
 //@ts-ignore
-coreTypes.add("USE_RANGE");
+registerCommand("USE_RANGE", { category: "core" });
 //@ts-ignore
-coreTypes.add("USE_TRANSIENT_RANGE");
+registerCommand("USE_TRANSIENT_RANGE", { category: "core" });
 
 class PluginTestRange extends CorePlugin {
   static getters = ["getUsedRanges", "getRanges", "getRangeZoneEdge"];

@@ -3,6 +3,12 @@ import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
 import { Session } from "./collaborative/session";
 import { CommandHandlerRegistryClass } from "./command_handler";
+import {
+  allCommands,
+  canExecuteInReadonly,
+  isCoreCommand,
+  isDispatcheableEvaluationCommand,
+} from "./command_registry";
 import { DEFAULT_REVISION_ID } from "./constants";
 import { EventBus } from "./helpers/event_bus";
 import { deepCopy, deepEquals, lazy } from "./helpers/misc";
@@ -35,7 +41,6 @@ import { StateObserver } from "./state_observer";
 import { _t, setDefaultTranslationMethod } from "./translation";
 import { StateUpdateMessage } from "./types/collaborative/transport_service";
 import {
-  canExecuteInReadonly,
   Command,
   CommandDispatcher,
   CommandHandler,
@@ -45,8 +50,6 @@ import {
   CoreCommand,
   DispatchResult,
   EvaluationCommandDispatcher,
-  isCoreCommand,
-  isDispatcheableEvaluationCommand,
 } from "./types/commands";
 import { CoreGetters, EvaluationGetters, Getters } from "./types/getters";
 import { DEFAULT_LOCALES } from "./types/locale";
@@ -542,6 +545,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * 2. This allows us to define its type by using the interface CommandDispatcher
    */
   dispatch: CommandDispatcher["dispatch"] = (type: CommandTypes, payload?: any) => {
+    if (!allCommands.has(type)) {
+      throw new Error(`Command ${type} has not been registered`);
+    }
     const command: Command = createCommand(type, payload);
     const status: Status = this.status;
     if (this.getters.isReadonly() && !canExecuteInReadonly(command)) {

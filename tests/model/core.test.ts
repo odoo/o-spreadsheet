@@ -1,4 +1,4 @@
-import { CommandResult, coreTypes, UID } from "../../src";
+import { CommandResult, registerCommand, UID } from "../../src";
 import { zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import {
@@ -624,6 +624,10 @@ describe("history", () => {
 describe("Generic allowDispatch", () => {
   let model: Model;
   let sheetId: UID;
+  //@ts-ignore
+  registerCommand("MY_CORE_CMD", { category: "core" });
+  //@ts-ignore
+  registerCommand("My_UI_CMD", { category: "local" });
 
   function dispatch(type: string, payload: any) {
     //@ts-ignore
@@ -631,15 +635,8 @@ describe("Generic allowDispatch", () => {
   }
 
   beforeEach(() => {
-    //@ts-ignore
-    coreTypes.add("MY_CORE_CMD");
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
-  });
-
-  afterEach(() => {
-    //@ts-ignore
-    coreTypes.delete("MY_CORE_CMD");
   });
 
   describe.each(["MY_CORE_CMD", "My_UI_CMD"])("Generic allowDispatch", (cmdType: string) => {
