@@ -18,7 +18,11 @@ interface NamedRangeState {
  */
 export const validNamedRangeNameRegex = /^[\p{L}\p{N}_.]+$/u;
 
-export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements NamedRangeState {
+export class NamedRangesPlugin
+  extends CorePlugin<typeof NamedRangesPlugin, NamedRangeState>
+  implements NamedRangeState
+{
+  static readonly dependencies = [] as const;
   static getters = ["getNamedRange", "getNamedRangeFromZone", "getNamedRanges"] as const;
 
   readonly namedRanges: Array<NamedRange> = [];

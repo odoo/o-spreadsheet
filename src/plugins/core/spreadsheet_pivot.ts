@@ -2,8 +2,11 @@ import { isZoneValid } from "../../helpers/zones";
 import { CommandResult, CoreCommand } from "../../types/commands";
 import { PivotCoreDefinition } from "../../types/pivot";
 import { CorePlugin } from "../core_plugin";
+import { SheetPlugin } from "./sheet";
 
-export class SpreadsheetPivotCorePlugin extends CorePlugin {
+export class SpreadsheetPivotCorePlugin extends CorePlugin<any, typeof SpreadsheetPivotCorePlugin> {
+  static readonly dependencies = [SheetPlugin] as const;
+  static readonly getters = [] as const;
   allowDispatch(cmd: CoreCommand) {
     switch (cmd.type) {
       case "ADD_PIVOT":

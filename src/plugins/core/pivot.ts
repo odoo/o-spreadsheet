@@ -12,6 +12,8 @@ import { PivotCoreDefinition, PivotCoreMeasure } from "../../types/pivot";
 import { Range } from "../../types/range";
 import { WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
+import { NamedRangesPlugin } from "./named_range";
+import { SheetPlugin } from "./sheet";
 
 interface Pivot {
   definition: PivotCoreDefinition;
@@ -30,7 +32,11 @@ interface CoreState {
   compiledMeasureFormulas: Record<UID, Record<string, MeasureState | undefined>>;
 }
 
-export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState {
+export class PivotCorePlugin
+  extends CorePlugin<typeof PivotCorePlugin, CoreState>
+  implements CoreState
+{
+  static readonly dependencies = [SheetPlugin, NamedRangesPlugin] as const;
   static getters = [
     "getPivotCoreDefinition",
     "getPivotDisplayName",

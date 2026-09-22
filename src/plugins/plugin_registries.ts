@@ -10,6 +10,7 @@ import { FigurePlugin } from "./core/figures";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
 import { HeaderSizePlugin } from "./core/header_size";
 import { HeaderVisibilityPlugin } from "./core/header_visibility";
+import { HiddenHeaderPlugin } from "./core/hidden_headers";
 import { ImagePlugin } from "./core/image";
 import { MergePlugin } from "./core/merge";
 import { NamedRangesPlugin } from "./core/named_range";
@@ -78,16 +79,43 @@ export class PluginRegistry<T extends new (config: any) => any> extends Registry
   }
 }
 
-export const corePluginRegistry = new PluginRegistry<CorePluginConstructor>(CorePlugin)
-  .add("settings", SettingsPlugin)
+export class CorePluginRegistry extends PluginRegistry<CorePluginConstructor> {
+  constructor() {
+    super(CorePlugin);
+  }
+  override add(key: string, plugin: CorePluginConstructor): this {
+    this.checkDepCycle(plugin);
+    return super.add(key, plugin);
+  }
+
+  private checkDepCycle(
+    plugin: CorePluginConstructor,
+    dependencyChain: CorePluginConstructor[] = []
+  ) {
+    if (dependencyChain.includes(plugin)) {
+      const cycle = [plugin, ...dependencyChain]
+        .reverse()
+        .map((p) => p.prototype.constructor.name)
+        .join(" → ");
+      throw new Error(`Cyclic plugin dependency detected: ${cycle}`);
+    }
+    for (const dep of dependencyChain.at(-1)?.dependencies || plugin.dependencies || []) {
+      this.checkDepCycle(plugin, dependencyChain.concat(dep));
+    }
+  }
+}
+
+export const corePluginRegistry = new CorePluginRegistry()
   .add("sheet", SheetPlugin)
-  .add("header grouping", HeaderGroupingPlugin)
-  .add("header visibility", HeaderVisibilityPlugin)
-  .add("tables", TablePlugin)
-  .add("dataValidation", DataValidationPlugin)
-  .add("cell", CellPlugin)
+  .add("settings", SettingsPlugin)
+  .add("header_grouping", HeaderGroupingPlugin)
+  .add("hidden_header", HiddenHeaderPlugin)
+  .add("header_visibility", HeaderVisibilityPlugin)
   .add("default", DefaultPlugin)
+  .add("cell", CellPlugin)
+  .add("dataValidation", DataValidationPlugin)
   .add("merge", MergePlugin)
+  .add("tables", TablePlugin)
   .add("headerSize", HeaderSizePlugin)
   .add("borders", BordersPlugin)
   .add("conditional formatting", ConditionalFormatPlugin)
