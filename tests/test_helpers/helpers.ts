@@ -33,12 +33,7 @@ import { createRangeFromXc } from "../../src/helpers/range";
 import { positions, toUnboundedZone, toZone, zoneToXc } from "../../src/helpers/zones";
 import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
-import {
-  App,
-  Component,
-  ComponentConstructor,
-  useSubEnv,
-} from "../../src/owl3_compatibility_layer";
+import { App, Component, ComponentConstructor } from "../../src/owl3_compatibility_layer";
 import { BasePlugin } from "../../src/plugins/base_plugin";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { CorePluginConstructor } from "../../src/plugins/core_plugin";
@@ -74,10 +69,12 @@ import { PopoverContainerPlugin } from "../../src/components/popover/popover_con
 import { computeFunctionsCache } from "../../src/formulas/compiler";
 import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
+import { IsSmallPlugin } from "../../src/owl_plugins/is_small_plugin";
 import { ModelPlugin } from "../../src/owl_plugins/model_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { PrintPlugin } from "../../src/owl_plugins/print_owl_plugin";
+import { SpreadsheetRectPlugin } from "../../src/owl_plugins/spreadsheet_rect_plugin";
 import { EvaluationPluginConstructor } from "../../src/plugins/evaluation_plugin";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
@@ -234,10 +231,14 @@ export function makeSpreadsheetActionTestEnv(
   }
 
   const { getPlugin, container } = makeOwlPluginManager(
-    [NotificationPlugin, NavigatorClipboardPlugin, ModelPlugin],
-    {
-      model,
-    }
+    [
+      NotificationPlugin,
+      NavigatorClipboardPlugin,
+      ModelPlugin,
+      SpreadsheetRectPlugin,
+      IsSmallPlugin,
+    ],
+    { model }
   );
 
   container.inject(ModelStore, model);
@@ -272,9 +273,6 @@ export function makeSpreadsheetActionTestEnv(
     getStore<T extends StoreConstructor>(Store: T) {
       const store = container.get(Store);
       return proxifyStoreMutation(store, () => container.trigger("store-updated"));
-    },
-    get isSmall() {
-      return mockEnv.isSmall || false;
     },
     // @ts-ignore
     __spreadsheet_stores__: container,
@@ -312,9 +310,19 @@ class TestParent extends Component {
   });
 
   setup() {
-    providePlugins([NotificationPlugin, NavigatorClipboardPlugin, ModelPlugin, PrintPlugin], {
-      model: this.props.model,
-    });
+    providePlugins(
+      [
+        NotificationPlugin,
+        NavigatorClipboardPlugin,
+        ModelPlugin,
+        PrintPlugin,
+        SpreadsheetRectPlugin,
+        IsSmallPlugin,
+      ],
+      {
+        model: this.props.model,
+      }
+    );
     if (this.props.isPortalTarget) {
       providePlugins([PopoverContainerPlugin], {
         getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
@@ -332,7 +340,6 @@ class TestParent extends Component {
       askConfirmation: jest.fn(),
     });
     useStore(ClipboardStore);
-    useStore(SidePanelStore);
 
     // For tests without the grid composer mounted, we register fake composer
     const composerFocusStore = container.get(ComposerFocusStore);
@@ -352,19 +359,6 @@ class TestParent extends Component {
     for (const store of globalStores.getAll()) {
       container.get(store);
     }
-    const mockEnv = this.props.mockEnv || {};
-    useSubEnv({
-      model: this.props.model,
-      getStore<T extends StoreConstructor>(Store: T) {
-        const store = container.get(Store);
-        return proxifyStoreMutation(store, () => container.trigger("store-updated"));
-      },
-      get isSmall() {
-        return mockEnv.isSmall || false;
-      },
-      // @ts-ignore
-      __spreadsheet_stores__: container,
-    });
   }
 }
 
@@ -441,7 +435,6 @@ async function _mountComponent<Props extends { [key: string]: any }>(
   const spySetup = jest
     .spyOn(spiedComponent.prototype, "setup")
     .mockImplementation(function (this: Component) {
-      providePlugins(optionalArgs.providedPlugins || []);
       originalSetup.call(this);
       getPlugin = createGetPluginFunctionFromScope(useScope());
       env = useSpreadsheetEnv();
@@ -457,6 +450,7 @@ async function _mountComponent<Props extends { [key: string]: any }>(
   const app = new App({
     test: true,
     translateFn: _t,
+    plugins: [...(optionalArgs.providedPlugins || [])],
   });
   const root = app.createRoot(rootComponent, { props });
   const fixture = optionalArgs?.fixture || makeTestFixture();

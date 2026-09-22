@@ -4,7 +4,6 @@ import { Get } from "./store_engine";
 
 export interface SpreadsheetChildEnv {
   getStore: Get;
-  isSmall: boolean;
 }
 
 export type OwlPluginGetter = <T extends PluginConstructor>(plugin: T) => PluginInstance<T>;

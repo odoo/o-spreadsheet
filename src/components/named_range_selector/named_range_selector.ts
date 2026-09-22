@@ -8,6 +8,7 @@ import {
   interactiveUpdateNamedRange,
 } from "../../helpers/ui/named_range_interactive";
 import { zoneToXc } from "../../helpers/zones";
+import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
@@ -33,6 +34,7 @@ export class NamedRangeSelector extends OSComponent {
   static components = { TextInput, MenuPopover };
 
   private notification = usePlugin(NotificationPlugin);
+  private isSmallPlugin = usePlugin(IsSmallPlugin);
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private sidePanelStore!: Store<SidePanelStore>;
@@ -138,7 +140,7 @@ export class NamedRangeSelector extends OSComponent {
       actionsSpecs.at(-1)!.separator = true;
     }
 
-    if (!this.env.isSmall) {
+    if (!this.isSmallPlugin.isSmall()) {
       actionsSpecs.push({
         name: _t("Manage named ranges"),
         execute: () => {
