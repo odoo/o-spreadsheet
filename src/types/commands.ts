@@ -144,6 +144,7 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "CREATE_NAMED_RANGE",
   "UPDATE_NAMED_RANGE",
   "DELETE_NAMED_RANGE",
+  "UPDATE_LOCALE",
 ]);
 
 export const invalidateChartEvaluationCommands = new Set<CommandTypes>([
@@ -302,6 +303,10 @@ export const coreTypes = new Set<CoreCommandTypes>([
   /** FORMATTING */
   "SET_FORMATTING",
   "CLEAR_FORMATTING",
+  "SET_SHEET_DEFAULT_STYLE",
+  "SET_HEADERS_DEFAULT_STYLE",
+  "SET_SHEET_DEFAULT_FORMAT",
+  "SET_HEADERS_DEFAULT_FORMAT",
   "SET_BORDER",
   "SET_ZONE_BORDERS",
   "SET_BORDERS_ON_TARGET",
@@ -820,6 +825,33 @@ export interface ClearFormattingCommand extends TargetDependentCommand {
   type: "CLEAR_FORMATTING";
 }
 
+/**
+ * Default style properties to apply on a sheet, a column or a row.
+ * A `null` value removes the default for that property, falling back on the
+ * broader scope (a column falls back on the sheet, the sheet on DEFAULT_STYLE).
+ */
+export type DefaultStyleUpdate = { [K in keyof Style]?: Style[K] | null };
+
+export interface SetSheetDefaultStyleCommand extends SheetDependentCommand {
+  type: "SET_SHEET_DEFAULT_STYLE";
+  style: DefaultStyleUpdate;
+}
+
+export interface SetHeadersDefaultStyleCommand extends HeadersDependentCommand {
+  type: "SET_HEADERS_DEFAULT_STYLE";
+  style: DefaultStyleUpdate;
+}
+
+export interface SetSheetDefaultFormatCommand extends SheetDependentCommand {
+  type: "SET_SHEET_DEFAULT_FORMAT";
+  format: Format | null;
+}
+
+export interface SetHeadersDefaultFormatCommand extends HeadersDependentCommand {
+  type: "SET_HEADERS_DEFAULT_FORMAT";
+  format: Format | null;
+}
+
 export interface SetDecimalCommand extends TargetDependentCommand {
   type: "SET_DECIMAL";
   step: SetDecimalStep;
@@ -1307,6 +1339,10 @@ export type CoreCommand =
   /** FORMATTING */
   | SetFormattingCommand
   | ClearFormattingCommand
+  | SetSheetDefaultStyleCommand
+  | SetHeadersDefaultStyleCommand
+  | SetSheetDefaultFormatCommand
+  | SetHeadersDefaultFormatCommand
   | SetZoneBordersCommand
   | SetBorderCommand
   | SetBorderTargetCommand

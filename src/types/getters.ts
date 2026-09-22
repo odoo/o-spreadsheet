@@ -10,6 +10,7 @@ import { FormulaProviderAggregator } from "../plugins/core/formulas_provider";
 import { HeaderGroupingPlugin } from "../plugins/core/header_grouping";
 import { HeaderSizePlugin } from "../plugins/core/header_size";
 import { HeaderVisibilityPlugin } from "../plugins/core/header_visibility";
+import { HiddenHeaderPlugin } from "../plugins/core/hidden_headers";
 import { ImagePlugin } from "../plugins/core/image";
 import { MergePlugin } from "../plugins/core/merge";
 import { NamedRangesPlugin } from "../plugins/core/named_range";
@@ -19,6 +20,7 @@ import { SettingsPlugin } from "../plugins/core/settings";
 import { SheetPlugin } from "../plugins/core/sheet";
 import { TableStylePlugin } from "../plugins/core/table_style";
 import { TablePlugin } from "../plugins/core/tables";
+import { DepsGetters } from "../plugins/core_plugin";
 import { CellComputedStylePlugin } from "../plugins/evaluation/cell_computed_style";
 import { CellEvaluationPlugin } from "../plugins/evaluation/cell_evaluation/cell_evaluation_plugin";
 import { CustomColorsPlugin } from "../plugins/evaluation/custom_colors";
@@ -113,6 +115,7 @@ type FormulasGetters = Pick<
 
 export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof HeaderSizePlugin> &
+  PluginGetters<typeof HiddenHeaderPlugin> &
   PluginGetters<typeof HeaderVisibilityPlugin> &
   PluginGetters<typeof CellPlugin> &
   PluginGetters<typeof DefaultPlugin> &
@@ -203,3 +206,7 @@ export interface ViewportsGetters {
   getSheetZone: Getters["getSheetZone"];
   getFigures: Getters["getFigures"];
 }
+
+export type CellCoreGetters = DepsGetters<typeof CellPlugin>;
+export type ChartCoreGetters = DepsGetters<typeof ChartPlugin>;
+export type PivotCoreGetters = DepsGetters<typeof PivotCorePlugin>;

@@ -7,7 +7,7 @@ import { getRangeString } from "../../helpers/range";
 import { Cell } from "../../types/cells";
 import { UpdateCellCommand } from "../../types/commands";
 import { Format } from "../../types/format";
-import { CoreGetters } from "../../types/getters";
+import { CellCoreGetters } from "../../types/getters";
 import { UID } from "../../types/misc";
 import { Range } from "../../types/range";
 
@@ -31,12 +31,13 @@ export interface SquishedFormula {
 }
 
 export type SquishedContent = string | SquishedFormula;
+type SquishGetters = CellCoreGetters;
 
 export const SEPARATOR = "|";
 export const NO_CHANGE = "=";
 
 export class Squisher {
-  private readonly getters: CoreGetters;
+  private readonly getters: SquishGetters;
   // the base formula to compare against
   private baseFormula: CompiledFormula | undefined;
   // for each number in the base formula, how much offset has already been applied
@@ -51,7 +52,7 @@ export class Squisher {
   private baseNumber: number | undefined = undefined;
   private baseNumberFormat: Format | undefined = undefined;
 
-  constructor(getters: CoreGetters) {
+  constructor(getters: SquishGetters) {
     this.getters = getters;
   }
 
