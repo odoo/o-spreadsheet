@@ -312,14 +312,12 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
   }
 
   *getEvaluatedCells(sheetId: UID): Generator<EvaluatedCell> {
-    console.log("getEvaluatedCells");
     for (const position of this.evaluator.getEvaluatedPositionsInSheet(sheetId)) {
       yield this.getEvaluatedCell(position);
     }
   }
 
   getEvaluatedCellsPositions(sheetId: UID): Generator<CellPosition> {
-    console.log("getEvaluatedCellsPositions");
     return this.evaluator.getEvaluatedPositionsInSheet(sheetId);
   }
 

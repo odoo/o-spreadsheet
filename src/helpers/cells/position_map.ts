@@ -47,7 +47,6 @@ export class PositionMap<T> {
   }
 
   *keys(): Generator<CellPosition> {
-    console.log("1");
     const map = this.map;
     //const keys: CellPosition[] = [];
     for (const sheetId in map) {
@@ -61,7 +60,6 @@ export class PositionMap<T> {
   }
 
   length(): number {
-    console.log("2");
     let count = 0;
     const map = this.map;
     for (const sheetId in map) {
@@ -75,7 +73,6 @@ export class PositionMap<T> {
   }
 
   *keysForSheet(sheetId: UID): Generator<CellPosition> {
-    console.log("3");
     const map = this.map[sheetId];
     if (map) {
       //const keys: CellPosition[] = [];
