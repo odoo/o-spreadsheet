@@ -5,10 +5,11 @@ import {
   CommandTypes,
   CoreCommand,
   CorePlugin,
-  coreTypes,
   DispatchResult,
   EvaluationCommand,
   EvaluationPlugin,
+  isDispatcheableEvaluationCommand,
+  registerCommand,
 } from "../../src";
 import { MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
@@ -28,6 +29,7 @@ import { MockTransportService } from "../__mocks__/transport_service";
 import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
 import { setupCollaborativeEnv } from "../collaborative/collaborative_helpers";
 import {
+  activateSheet,
   autoresizeColumns,
   copy,
   createSheet,
@@ -42,6 +44,11 @@ import {
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers";
 import { addTestPlugin, nextTick } from "../test_helpers/helpers";
+
+//@ts-ignore
+registerCommand("MY_CMD_1", { category: "core" });
+//@ts-ignore
+registerCommand("MY_CMD_2", { category: "core" });
 
 describe("Model", () => {
   test("core plugin can refuse command from UI plugin", () => {
@@ -245,6 +252,67 @@ describe("Model", () => {
     expect(handledByCommandSetHandler).toContain("UPDATE_CELL");
   });
 
+  test("core plugins handlers don't receive UI commands declared explicitly", () => {
+    const receivedCommands: CommandTypes[] = [];
+    class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
+      handlers = {
+        UPDATE_LOCALE: () => {},
+        ACTIVATE_SHEET: () => receivedCommands.push("ACTIVATE_SHEET"),
+      };
+    }
+    addTestPlugin(corePluginRegistry, MyCorePlugin);
+    const model = new Model();
+    createSheet(model, { sheetId: "42" });
+    activateSheet(model, "42");
+    expect(receivedCommands).toEqual([]);
+  });
+
+  test("evaluation plugins handlers don't receive UI commands declared explicitly", () => {
+    const receivedCommands: CommandTypes[] = [];
+    class MyEvaluationPlugin extends EvaluationPlugin {
+      handlers = {
+        START: () => {},
+        ACTIVATE_SHEET: () => receivedCommands.push("ACTIVATE_SHEET"),
+      };
+    }
+    addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
+    const model = new Model();
+    createSheet(model, { sheetId: "42" });
+    activateSheet(model, "42");
+    expect(receivedCommands).toEqual([]);
+  });
+
+  test("a plugin still defining the removed handle method is rejected", () => {
+    class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
+      handle() {}
+    }
+    addTestPlugin(corePluginRegistry, MyCorePlugin);
+    expect(() => new Model()).toThrow(
+      'Plugin MyCorePlugin defines "handle", use validators, preHandlers or handlers instead'
+    );
+  });
+
+  test("isDispatcheableEvaluationCommand option makes the command dispatchable by evaluation plugins", () => {
+    //@ts-ignore custom command type
+    registerCommand("MY_DISPATCHEABLE_EVAL_CMD", {
+      category: "local",
+      isDispatcheableEvaluationCommand: true,
+    });
+    //@ts-ignore custom command type
+    expect(isDispatcheableEvaluationCommand({ type: "MY_DISPATCHEABLE_EVAL_CMD" })).toBe(true);
+  });
+
+  test("A command is registered with the options of its category", () => {
+    expect(() =>
+      // @ts-expect-error ACTIVATE_SHEET is not a core command
+      registerCommand("ACTIVATE_SHEET", { category: "core" })
+    ).toThrow('The command "ACTIVATE_SHEET" is already registered');
+    expect(() =>
+      // @ts-expect-error UPDATE_CELL is a core command
+      registerCommand("UPDATE_CELL", { category: "local" })
+    ).toThrow('The command "UPDATE_CELL" is already registered');
+  });
+
   test("canDispatch method is exposed and works", () => {
     class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
       validators = {
@@ -417,10 +485,6 @@ describe("Model", () => {
 
   test("Replayed commands are not send to UI plugins", () => {
     let numberCall = 0;
-    //@ts-ignore
-    coreTypes.add("MY_CMD_1");
-    //@ts-ignore
-    coreTypes.add("MY_CMD_2");
     class MyUIPlugin extends UIPlugin {
       handlers: CommandsHandlers<Command> = {
         //@ts-ignore
@@ -490,8 +554,6 @@ describe("Model", () => {
   });
 
   test("Core commands which dispatch UPDATE_CELL should trigger evaluation", () => {
-    //@ts-ignore
-    coreTypes.add("MY_CMD_1");
     class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
       handlers: CommandsHandlers<CoreCommand> = {
         //@ts-ignore

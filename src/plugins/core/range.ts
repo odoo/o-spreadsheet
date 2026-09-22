@@ -46,7 +46,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   readonly preHandlers: CommandsHandlers<CoreCommand> = {};
 
   readonly handlers: CommandsHandlers<CoreCommand> = {
-    "*coreTypes": this.throwDispatchErrorIfAdapting,
+    "*coreCommands": this.throwDispatchErrorIfAdapting,
     MOVE_RANGES: this.adaptRanges,
     UPDATE_NAMED_RANGE: this.adaptRanges,
     RENAME_SHEET: this.adaptRanges,

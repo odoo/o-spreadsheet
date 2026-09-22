@@ -115,9 +115,10 @@ state. Here we introduce a new command `"TOGGLE_PARTY_MODE"`. More details about
 a new command are explained in the [command section](command.md)
 
 ```typescript
-const { coreTypes } = o_spreadsheet;
+const { registerCommand } = o_spreadsheet;
 
-coreTypes.add("TOGGLE_PARTY_MODE"); // declare the command as a core command
+// declare the command as a core command
+registerCommand("TOGGLE_PARTY_MODE", { category: "core" });
 
 class PartyPlugin extends CorePlugin {
   handle(cmd) {

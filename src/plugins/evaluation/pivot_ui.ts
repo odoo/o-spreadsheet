@@ -74,7 +74,7 @@ export class PivotUIPlugin extends EvaluationPlugin {
   };
 
   handlers = {
-    "*coreTypes": this.invalidateUnusedPivots,
+    "*coreCommands": this.invalidateUnusedPivots,
     "*invalidateEvaluationCommands": this.invalidateAllPivots,
     UPDATE_CELL: this.onUpdateCell,
     UPDATE_LOCALE: this.onUpdateLocale,
