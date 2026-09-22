@@ -14,7 +14,14 @@ import { recomputeZones } from "../../helpers/recompute_zones";
 import { rangeReference, splitReference } from "../../helpers/references";
 
 import { intersection, isZoneInside, isZoneValid, unionUnboundedZones } from "../../helpers/zones";
-import { Command, CommandHandler, CommandResult, CoreCommand } from "../../types/commands";
+import {
+  CommandHandler,
+  CommandResult,
+  CommandsHandlers,
+  CommandsValidators,
+  CoreCommand,
+  MoveRangeCommand,
+} from "../../types/commands";
 import { CellErrorType } from "../../types/errors";
 import { CoreGetters } from "../../types/getters";
 import {
@@ -31,6 +38,28 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   private getters: CoreGetters;
   private providers: Array<RangeProvider["adaptRanges"]> = [];
   private isAdaptingRanges: boolean = false;
+  readonly validators: CommandsValidators<CoreCommand> = {
+    MOVE_RANGES: this.checkSingleTarget,
+  };
+  readonly preHandlers: CommandsHandlers<CoreCommand> = {};
+  readonly handlers: CommandsHandlers<CoreCommand> = {
+    MOVE_RANGES: this.adaptRanges,
+    UPDATE_NAMED_RANGE: this.adaptRanges,
+    RENAME_SHEET: this.adaptRanges,
+    DELETE_SHEET: this.adaptRanges,
+    ADD_COLUMNS_ROWS: this.adaptRanges,
+    REMOVE_COLUMNS_ROWS: this.adaptRanges,
+  };
+
+  private adaptRanges(cmd: CoreCommand) {
+    if (this.isAdaptingRanges) {
+      throw new Error("Plugins cannot dispatch commands during adaptRanges phase");
+    }
+    const adapterFunctions = getRangeAdapterFunctions(cmd);
+    if (adapterFunctions) {
+      this.executeOnAllRanges(adapterFunctions);
+    }
+  }
   constructor(getters: CoreGetters) {
     this.getters = getters;
   }
@@ -57,22 +86,8 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-  allowDispatch(cmd: CoreCommand): CommandResult {
-    if (cmd.type === "MOVE_RANGES") {
-      return cmd.target.length === 1 ? CommandResult.Success : CommandResult.InvalidZones;
-    }
-    return CommandResult.Success;
-  }
-  beforeHandle(command: Command) {}
-
-  handle(cmd: CoreCommand) {
-    if (this.isAdaptingRanges) {
-      throw new Error("Plugins cannot dispatch commands during adaptRanges phase");
-    }
-    const adapterFunctions = getRangeAdapterFunctions(cmd);
-    if (adapterFunctions) {
-      this.executeOnAllRanges(adapterFunctions);
-    }
+  private checkSingleTarget(cmd: MoveRangeCommand): CommandResult {
+    return cmd.target.length === 1 ? CommandResult.Success : CommandResult.InvalidZones;
   }
 
   finalize() {}

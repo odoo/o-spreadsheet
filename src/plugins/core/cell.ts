@@ -14,10 +14,12 @@ import { Cell } from "../../types/cells";
 import {
   AddColumnsRowsCommand,
   ClearCellCommand,
+  ClearCellsCommand,
   CommandResult,
-  CoreCommand,
+  DeleteContentCommand,
   PositionDependentCommand,
   UpdateCellCommand,
+  UpdateCellPositionCommand,
 } from "../../types/commands";
 import { CellPosition, HeaderIndex, RangeAdapterFunctions, UID } from "../../types/misc";
 
@@ -59,6 +61,44 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
 
+  validators = {
+    UPDATE_CELL: this.checkUpdateCell,
+    CLEAR_CELL: this.checkClearCell,
+    UPDATE_CELL_POSITION: this.checkCellIdExists,
+  };
+
+  handlers = {
+    UPDATE_CELL: this.onUpdateCell,
+    DELETE_CONTENT: this.onDeleteContent,
+    CLEAR_CELL: this.onClearCell,
+    CLEAR_CELLS: this.onClearCells,
+    DELETE_SHEET: this.onDeleteSheet,
+    ADD_COLUMNS_ROWS: this.onAddColumnsRows,
+  };
+
+  private onAddColumnsRows(cmd: AddColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      this.handleAddColumnsRows(cmd, this.copyColumnStyle.bind(this));
+    } else {
+      this.handleAddColumnsRows(cmd, this.copyRowStyle.bind(this));
+    }
+  }
+
+  private onDeleteSheet(cmd: { sheetId: UID }) {
+    this.history.update("cells", cmd.sheetId, undefined);
+  }
+
+  private onClearCell(cmd: ClearCellCommand) {
+    this.dispatch("UPDATE_CELL", {
+      sheetId: cmd.sheetId,
+      col: cmd.col,
+      row: cmd.row,
+      content: "",
+      style: null,
+      format: null,
+    });
+  }
+
   adaptRanges(adapters: RangeAdapterFunctions) {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
@@ -82,60 +122,23 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: CoreCommand): CommandResult | CommandResult[] {
-    switch (cmd.type) {
-      case "UPDATE_CELL":
-        return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessUpdateCell);
-      case "CLEAR_CELL":
-        return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessClearCell);
-      case "UPDATE_CELL_POSITION":
-        return !cmd.cellId || this.cells[cmd.sheetId]?.[cmd.cellId]
-          ? CommandResult.Success
-          : CommandResult.InvalidCellId;
-      default:
-        return CommandResult.Success;
-    }
+  private checkUpdateCell(cmd: UpdateCellCommand) {
+    return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessUpdateCell);
   }
 
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "ADD_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.handleAddColumnsRows(cmd, this.copyColumnStyle.bind(this));
-        } else {
-          this.handleAddColumnsRows(cmd, this.copyRowStyle.bind(this));
-        }
-        break;
-      case "UPDATE_CELL":
-        this.updateCell(cmd.sheetId, cmd.col, cmd.row, cmd);
-        break;
-
-      case "CLEAR_CELL":
-        this.dispatch("UPDATE_CELL", {
-          sheetId: cmd.sheetId,
-          col: cmd.col,
-          row: cmd.row,
-          content: "",
-          style: null,
-          format: null,
-        });
-        break;
-
-      case "CLEAR_CELLS":
-        this.clearCells(cmd.sheetId, cmd.target);
-        break;
-
-      case "DELETE_CONTENT":
-        this.clearZones(cmd.sheetId, cmd.target);
-        break;
-      case "DELETE_SHEET": {
-        this.history.update("cells", cmd.sheetId, undefined);
-      }
-    }
+  private checkClearCell(cmd: ClearCellCommand) {
+    return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessClearCell);
   }
 
-  private clearZones(sheetId: UID, zones: Zone[]) {
-    for (const zone of recomputeZones(zones)) {
+  private checkCellIdExists(cmd: UpdateCellPositionCommand) {
+    return !cmd.cellId || this.cells[cmd.sheetId]?.[cmd.cellId]
+      ? CommandResult.Success
+      : CommandResult.InvalidCellId;
+  }
+
+  private onDeleteContent(cmd: DeleteContentCommand) {
+    const sheetId = cmd.sheetId;
+    for (const zone of recomputeZones(cmd.target)) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const cell = this.getters.getCell({ sheetId, col, row });
@@ -155,8 +158,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /**
    * Clear the styles, the format and the content of zones
    */
-  private clearCells(sheetId: UID, zones: Zone[]) {
-    for (const zone of zones) {
+  private onClearCells(cmd: ClearCellsCommand) {
+    const sheetId = cmd.sheetId;
+    for (const zone of cmd.target) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           this.dispatch("UPDATE_CELL", {
@@ -502,7 +506,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return id;
   }
 
-  private updateCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex, after: UpdateCellData) {
+  private onUpdateCell(cmd: UpdateCellCommand) {
+    const { sheetId, col, row } = cmd;
+    const after: UpdateCellData = cmd;
     const position = { sheetId, col, row };
     const before = this.getters.getCell(position);
     const hasContent = after.content !== undefined || "formula" in after;

@@ -1,5 +1,5 @@
 import { getDateTimeFormat, isValidLocale } from "../../helpers/locale";
-import { CommandResult, CoreCommand } from "../../types/commands";
+import { CommandResult, UpdateLocaleCommand } from "../../types/commands";
 import { Format } from "../../types/format";
 import { DEFAULT_LOCALE, Locale } from "../../types/locale";
 import { WorkbookData } from "../../types/workbook_data";
@@ -9,23 +9,23 @@ export class SettingsPlugin extends CorePlugin {
   static getters = ["getLocale"] as const;
   private locale: Locale = DEFAULT_LOCALE;
 
-  allowDispatch(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "UPDATE_LOCALE":
-        return isValidLocale(cmd.locale) ? CommandResult.Success : CommandResult.InvalidLocale;
-    }
-    return CommandResult.Success;
+  validators = {
+    UPDATE_LOCALE: this.checkLocaleIsValid,
+  };
+
+  handlers = {
+    UPDATE_LOCALE: this.onUpdateLocale,
+  };
+
+  private onUpdateLocale(cmd: UpdateLocaleCommand) {
+    const oldLocale = this.locale;
+    const newLocale = cmd.locale;
+    this.history.update("locale", newLocale);
+    this.changeCellsDateFormatWithLocale(oldLocale, newLocale);
   }
 
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "UPDATE_LOCALE":
-        const oldLocale = this.locale;
-        const newLocale = cmd.locale;
-        this.history.update("locale", newLocale);
-        this.changeCellsDateFormatWithLocale(oldLocale, newLocale);
-        break;
-    }
+  private checkLocaleIsValid(cmd: UpdateLocaleCommand) {
+    return isValidLocale(cmd.locale) ? CommandResult.Success : CommandResult.InvalidLocale;
   }
 
   getLocale(): Locale {

@@ -1,4 +1,5 @@
-import { Model, readonlyAllowedCommands, Rect } from "../../../../src";
+import { Model, Rect } from "../../../../src";
+import { readonlyAllowedCommands } from "../../../../src/command_registry";
 import { GaugeChartComponent } from "../../../../src/components/figures/chart/gauge/gauge_chart_component";
 import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../src/constants";
 import { chartMutedFontColor } from "../../../../src/helpers/figures/charts/chart_common";

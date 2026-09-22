@@ -1,6 +1,11 @@
 import { FIGURE_ID_SPLITTER } from "../../constants";
 import { haveSameNumberOfCols } from "../../helpers/zones";
-import { CommandResult, CoreCommand, UpdateCarouselCommand } from "../../types/commands";
+import {
+  CommandResult,
+  CreateCarouselCommand,
+  DeleteFigureCommand,
+  UpdateCarouselCommand,
+} from "../../types/commands";
 import { Carousel, CarouselData, CarouselItem, CarouselItemData } from "../../types/figure";
 import { RangeAdapterFunctions, UID } from "../../types/misc";
 import { WorkbookData } from "../../types/workbook_data";
@@ -13,6 +18,75 @@ interface CarouselState {
 export class CarouselPlugin extends CorePlugin<CarouselState> implements CarouselState {
   static getters = ["getCarousel", "doesCarouselExist", "carouselToCarouselData"] as const;
   readonly carousels: Record<UID, Record<UID, Carousel | undefined> | undefined> = {};
+
+  validators = {
+    CREATE_CAROUSEL: this.checkCreateCarousel,
+    UPDATE_CAROUSEL: this.checkUpdateCarousel,
+  };
+
+  handlers = {
+    DELETE_FIGURE: this.onDeleteFigure,
+    CREATE_CAROUSEL: this.onCreateCarousel,
+    UPDATE_CAROUSEL: this.onUpdateCarousel,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
+  };
+
+  private onDeleteSheet(cmd: { sheetId: UID }) {
+    this.history.update("carousels", cmd.sheetId, undefined);
+  }
+
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
+    for (const fig of sheetFiguresFrom) {
+      if (fig.tag === "carousel") {
+        const figureIdBase = fig.id.split(FIGURE_ID_SPLITTER).pop();
+        const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
+        const carousel = this.getCarousel(fig.id);
+        if (carousel) {
+          const size = { width: fig.width, height: fig.height };
+          const carouselData = this.carouselToCarouselData(carousel);
+          this.dispatch("CREATE_CAROUSEL", {
+            sheetId: cmd.sheetIdTo,
+            figureId: duplicatedFigureId,
+            offset: fig.offset,
+            col: fig.col,
+            row: fig.row,
+            size,
+            definition: {
+              ...carouselData,
+              items: carouselData.items.map((item): CarouselItemData => {
+                if (item.type === "carouselDataView") {
+                  return { ...item };
+                }
+                const chartIdBase = item.chartId.split(FIGURE_ID_SPLITTER).pop();
+                const newChartId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${chartIdBase}`;
+                return { ...item, chartId: newChartId };
+              }),
+            },
+          });
+        }
+      }
+    }
+  }
+
+  private onUpdateCarousel(cmd: UpdateCarouselCommand) {
+    this.removeDeletedCharts(cmd, this.getters.getCarousel(cmd.figureId).items);
+    const carousel = this.carouselDataToCarousel(cmd.definition);
+    this.history.update("carousels", cmd.sheetId, cmd.figureId, carousel);
+  }
+
+  private onCreateCarousel(cmd: CreateCarouselCommand) {
+    if (!this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
+      this.dispatch("CREATE_FIGURE", { ...cmd, tag: "carousel" });
+    }
+    const carousel = this.carouselDataToCarousel(cmd.definition);
+    this.history.update("carousels", cmd.sheetId, cmd.figureId, carousel);
+  }
+
+  private onDeleteFigure(cmd: DeleteFigureCommand) {
+    this.history.update("carousels", cmd.sheetId, cmd.figureId, undefined);
+  }
 
   adaptRanges(rangeAdapterFunctions: RangeAdapterFunctions): void {
     for (const sheetId in this.carousels) {
@@ -42,93 +116,29 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
     }
   }
 
-  allowDispatch(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "CREATE_CAROUSEL": {
-        if (this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
-          return CommandResult.DuplicatedFigureId;
-        }
-        if (!this.areDataViewRangesValid(cmd.definition.items)) {
-          return CommandResult.InvalidRange;
-        }
-        return CommandResult.Success;
-      }
-      case "UPDATE_CAROUSEL": {
-        if (!this.carousels[cmd.sheetId]?.[cmd.figureId]) {
-          return CommandResult.InvalidFigureId;
-        }
-        if (!this.areDataViewRangesValid(cmd.definition.items)) {
-          return CommandResult.InvalidRange;
-        }
-        for (const item of cmd.definition.items) {
-          if (item.type === "chart" && !this.getters.getChart(item.chartId)) {
-            return CommandResult.ChartDoesNotExist;
-          }
-        }
-        return CommandResult.Success;
-      }
+  private checkCreateCarousel(cmd: CreateCarouselCommand) {
+    if (this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
+      return CommandResult.DuplicatedFigureId;
     }
-
+    if (!this.areDataViewRangesValid(cmd.definition.items)) {
+      return CommandResult.InvalidRange;
+    }
     return CommandResult.Success;
   }
 
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "CREATE_CAROUSEL": {
-        if (!this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
-          this.dispatch("CREATE_FIGURE", { ...cmd, tag: "carousel" });
-        }
-        const carousel = this.carouselDataToCarousel(cmd.definition);
-        this.history.update("carousels", cmd.sheetId, cmd.figureId, carousel);
-        break;
-      }
-      case "UPDATE_CAROUSEL": {
-        this.removeDeletedCharts(cmd, this.getters.getCarousel(cmd.figureId).items);
-        const carousel = this.carouselDataToCarousel(cmd.definition);
-        this.history.update("carousels", cmd.sheetId, cmd.figureId, carousel);
-        break;
-      }
-      case "DUPLICATE_SHEET": {
-        const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
-        for (const fig of sheetFiguresFrom) {
-          if (fig.tag === "carousel") {
-            const figureIdBase = fig.id.split(FIGURE_ID_SPLITTER).pop();
-            const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
-            const carousel = this.getCarousel(fig.id);
-            if (carousel) {
-              const size = { width: fig.width, height: fig.height };
-              const carouselData = this.carouselToCarouselData(carousel);
-              this.dispatch("CREATE_CAROUSEL", {
-                sheetId: cmd.sheetIdTo,
-                figureId: duplicatedFigureId,
-                offset: fig.offset,
-                col: fig.col,
-                row: fig.row,
-                size,
-                definition: {
-                  ...carouselData,
-                  items: carouselData.items.map((item): CarouselItemData => {
-                    if (item.type === "carouselDataView") {
-                      return { ...item };
-                    }
-                    const chartIdBase = item.chartId.split(FIGURE_ID_SPLITTER).pop();
-                    const newChartId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${chartIdBase}`;
-                    return { ...item, chartId: newChartId };
-                  }),
-                },
-              });
-            }
-          }
-        }
-        break;
-      }
-      case "DELETE_FIGURE":
-        this.history.update("carousels", cmd.sheetId, cmd.figureId, undefined);
-        break;
-      case "DELETE_SHEET":
-        this.history.update("carousels", cmd.sheetId, undefined);
-        break;
+  private checkUpdateCarousel(cmd: UpdateCarouselCommand) {
+    if (!this.carousels[cmd.sheetId]?.[cmd.figureId]) {
+      return CommandResult.InvalidFigureId;
     }
+    if (!this.areDataViewRangesValid(cmd.definition.items)) {
+      return CommandResult.InvalidRange;
+    }
+    for (const item of cmd.definition.items) {
+      if (item.type === "chart" && !this.getters.getChart(item.chartId)) {
+        return CommandResult.ChartDoesNotExist;
+      }
+    }
+    return CommandResult.Success;
   }
 
   doesCarouselExist(figureId: UID): boolean {

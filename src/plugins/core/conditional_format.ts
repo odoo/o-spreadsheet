@@ -6,9 +6,9 @@ import { criterionEvaluatorRegistry } from "../../registries/criterion_registry"
 import {
   AddConditionalFormatCommand,
   CancelledReason,
-  Command,
   CommandResult,
-  CoreCommand,
+  MoveConditionalFormatCommand,
+  RemoveConditionalFormatCommand,
 } from "../../types/commands";
 import {
   CellIsRule,
@@ -57,6 +57,55 @@ export class ConditionalFormatPlugin
   ] as const;
 
   readonly cfRules: { [sheet: string]: ConditionalFormatInternal[] } = {};
+
+  validators = {
+    ADD_CONDITIONAL_FORMAT: this.checkAddConditionalFormat,
+    CHANGE_CONDITIONAL_FORMAT_PRIORITY: this.checkPriorityChange,
+  };
+
+  handlers = {
+    ADD_CONDITIONAL_FORMAT: this.onAddConditionalFormat,
+    REMOVE_CONDITIONAL_FORMAT: this.onRemoveConditionalFormat,
+    CHANGE_CONDITIONAL_FORMAT_PRIORITY: this.onChangeConditionalFormatPriority,
+    CREATE_SHEET: this.onCreateSheet,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
+  };
+
+  private onDeleteSheet(cmd: { sheetId: UID }) {
+    const cfRules = Object.assign({}, this.cfRules);
+    delete cfRules[cmd.sheetId];
+    this.history.update("cfRules", cfRules);
+  }
+
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    this.history.update("cfRules", cmd.sheetIdTo, []);
+    for (const cf of this.getConditionalFormats(cmd.sheetId)) {
+      this.addConditionalFormatting(cf, cmd.sheetIdTo);
+    }
+  }
+
+  private onCreateSheet(cmd: { sheetId: UID }) {
+    this.cfRules[cmd.sheetId] = [];
+  }
+
+  private onChangeConditionalFormatPriority(cmd: MoveConditionalFormatCommand) {
+    this.changeCFPriority(cmd.cfId, cmd.delta, cmd.sheetId);
+  }
+
+  private onRemoveConditionalFormat(cmd: RemoveConditionalFormatCommand) {
+    this.removeConditionalFormatting(cmd.id, cmd.sheetId);
+  }
+
+  private onAddConditionalFormat(cmd: AddConditionalFormatCommand) {
+    const cf = {
+      ...cmd.cf,
+      ranges: cmd.ranges.map((rangeData) =>
+        this.getters.getRangeString(this.getters.getRangeFromRangeData(rangeData), cmd.sheetId)
+      ),
+    };
+    this.addConditionalFormatting(cf, cmd.sheetId);
+  }
 
   adaptCFFormulas({ applyChange, adaptFormulaString }: RangeAdapterFunctions) {
     for (const sheetId in this.cfRules) {
@@ -187,56 +236,20 @@ export class ConditionalFormatPlugin
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: Command) {
-    switch (cmd.type) {
-      case "ADD_CONDITIONAL_FORMAT":
-        if (cmd.ranges.some((rangeData) => !this.getters.tryGetSheet(rangeData._sheetId))) {
-          return CommandResult.InvalidSheetId;
-        }
-        return this.checkValidations(
-          cmd,
-          this.checkCFRule,
-          this.checkEmptyRange,
-          this.checkCFHasChanged
-        );
-      case "CHANGE_CONDITIONAL_FORMAT_PRIORITY":
-        return this.checkValidPriorityChange(cmd.cfId, cmd.delta, cmd.sheetId);
+  private checkAddConditionalFormat(cmd: AddConditionalFormatCommand) {
+    if (cmd.ranges.some((rangeData) => !this.getters.tryGetSheet(rangeData._sheetId))) {
+      return CommandResult.InvalidSheetId;
     }
-    return CommandResult.Success;
+    return this.checkValidations(
+      cmd,
+      this.checkCFRule,
+      this.checkEmptyRange,
+      this.checkCFHasChanged
+    );
   }
 
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "CREATE_SHEET":
-        this.cfRules[cmd.sheetId] = [];
-        break;
-      case "DUPLICATE_SHEET":
-        this.history.update("cfRules", cmd.sheetIdTo, []);
-        for (const cf of this.getConditionalFormats(cmd.sheetId)) {
-          this.addConditionalFormatting(cf, cmd.sheetIdTo);
-        }
-        break;
-      case "DELETE_SHEET":
-        const cfRules = Object.assign({}, this.cfRules);
-        delete cfRules[cmd.sheetId];
-        this.history.update("cfRules", cfRules);
-        break;
-      case "ADD_CONDITIONAL_FORMAT":
-        const cf = {
-          ...cmd.cf,
-          ranges: cmd.ranges.map((rangeData) =>
-            this.getters.getRangeString(this.getters.getRangeFromRangeData(rangeData), cmd.sheetId)
-          ),
-        };
-        this.addConditionalFormatting(cf, cmd.sheetId);
-        break;
-      case "REMOVE_CONDITIONAL_FORMAT":
-        this.removeConditionalFormatting(cmd.id, cmd.sheetId);
-        break;
-      case "CHANGE_CONDITIONAL_FORMAT_PRIORITY":
-        this.changeCFPriority(cmd.cfId, cmd.delta, cmd.sheetId);
-        break;
-    }
+  private checkPriorityChange(cmd: MoveConditionalFormatCommand) {
+    return this.checkValidPriorityChange(cmd.cfId, cmd.delta, cmd.sheetId);
   }
 
   import(data: WorkbookData) {

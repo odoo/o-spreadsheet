@@ -1,7 +1,7 @@
 import { Session } from "../../collaborative/session";
 import { MAX_HISTORY_STEPS } from "../../constants";
 import { canRepeatRevision, repeatRevision } from "../../history/repeat_commands/repeat_revision";
-import { Command, CommandResult } from "../../types/commands";
+import { CommandResult } from "../../types/commands";
 import { UID } from "../../types/misc";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
@@ -36,34 +36,36 @@ export class HistoryPlugin extends UIPlugin {
     });
   }
 
-  allowDispatch(cmd: Command): CommandResult {
-    switch (cmd.type) {
-      case "REQUEST_UNDO":
-        if (!this.canUndo()) {
-          return CommandResult.EmptyUndoStack;
-        }
-        break;
-      case "REQUEST_REDO":
-        if (!this.canRedo()) {
-          return CommandResult.EmptyRedoStack;
-        }
-        break;
-    }
-    return CommandResult.Success;
+  private checkUndoStackIsNotEmpty() {
+    return this.canUndo() ? CommandResult.Success : CommandResult.EmptyUndoStack;
   }
 
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "REQUEST_UNDO":
-      case "REQUEST_REDO":
-        // History changes (undo & redo) are *not* applied optimistically on the local state.
-        // We wait a global confirmation from the server. The goal is to avoid handling concurrent
-        // history changes on multiple clients which are very hard to manage correctly.
-        this.requestHistoryChange(cmd.type === "REQUEST_UNDO" ? "UNDO" : "REDO");
-    }
+  private checkRedoStackIsNotEmpty() {
+    return this.canRedo() ? CommandResult.Success : CommandResult.EmptyRedoStack;
   }
 
-  finalize() {}
+  validators = {
+    REQUEST_UNDO: this.checkUndoStackIsNotEmpty,
+    REQUEST_REDO: this.checkRedoStackIsNotEmpty,
+  };
+
+  handlers = {
+    REQUEST_UNDO: this.onRequestUndo,
+    REQUEST_REDO: this.onRequestRedo,
+  };
+
+  /**
+   * History changes (undo & redo) are *not* applied optimistically on the local state.
+   * We wait a global confirmation from the server. The goal is to avoid handling concurrent
+   * history changes on multiple clients which are very hard to manage correctly.
+   */
+  private onRequestUndo() {
+    this.requestHistoryChange("UNDO");
+  }
+
+  private onRequestRedo() {
+    this.requestHistoryChange("REDO");
+  }
 
   private requestHistoryChange(type: "UNDO" | "REDO") {
     const id = type === "UNDO" ? this.undoStack.pop() : this.redoStack.pop();

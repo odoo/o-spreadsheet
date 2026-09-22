@@ -1,3 +1,4 @@
+import { invalidateEvaluationCommands } from "../../../command_registry";
 import {
   ChartSuggestion,
   getChartSuggestions,
@@ -5,7 +6,7 @@ import {
 import { zoneToXc } from "../../../helpers/zones";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { CellValueType } from "../../../types/cells";
-import { Command, invalidateEvaluationCommands } from "../../../types/commands";
+import { Command } from "../../../types/commands";
 import { Get } from "../../../types/store_engine";
 
 export class DataAnalysisStore extends SpreadsheetStore {

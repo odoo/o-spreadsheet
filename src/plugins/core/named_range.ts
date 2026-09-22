@@ -1,7 +1,12 @@
 import { deepEquals } from "../../helpers/misc";
 import { isNumber } from "../../helpers/numbers";
 import { rangeReference } from "../../helpers/references";
-import { Command, CommandResult, CoreCommand } from "../../types/commands";
+import {
+  CommandResult,
+  CreateNamedRangeCommand,
+  DeleteNamedRangeCommand,
+  UpdateNamedRangeCommand,
+} from "../../types/commands";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { NamedRange, RangeAdapterFunctions, UID, UnboundedZone, Zone } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
@@ -22,6 +27,41 @@ export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements Na
   static getters = ["getNamedRange", "getNamedRangeFromZone", "getNamedRanges"] as const;
 
   readonly namedRanges: Array<NamedRange> = [];
+
+  validators = {
+    CREATE_NAMED_RANGE: this.checkCreateNamedRange,
+    UPDATE_NAMED_RANGE: this.checkUpdateNamedRange,
+    DELETE_NAMED_RANGE: this.checkDeleteNamedRange,
+  };
+
+  handlers = {
+    CREATE_NAMED_RANGE: this.onCreateNamedRange,
+    UPDATE_NAMED_RANGE: this.onUpdateNamedRange,
+    DELETE_NAMED_RANGE: this.onDeleteNamedRange,
+  };
+
+  private onDeleteNamedRange(cmd: DeleteNamedRangeCommand) {
+    const index = this.getNamedRangeIndex(cmd.name);
+    if (index !== -1) {
+      const newNamedRanges = [...this.namedRanges];
+      newNamedRanges.splice(index, 1);
+      this.history.update("namedRanges", newNamedRanges);
+    }
+  }
+
+  private onUpdateNamedRange(cmd: UpdateNamedRangeCommand) {
+    const index = this.getNamedRangeIndex(cmd.oldRangeName);
+    if (index !== -1) {
+      const range = this.getters.getRangeFromRangeData(cmd.ranges[0]);
+      this.history.update("namedRanges", index, { name: cmd.newRangeName, range });
+    }
+  }
+
+  private onCreateNamedRange(cmd: CreateNamedRangeCommand) {
+    const range = this.getters.getRangeFromRangeData(cmd.ranges[0]);
+    const newNamedRanges = [...this.namedRanges, { name: cmd.name, range }];
+    this.history.update("namedRanges", newNamedRanges);
+  }
 
   adaptRanges({ applyChange }: RangeAdapterFunctions) {
     const newNamedRanges: Array<NamedRange> = [];
@@ -47,51 +87,23 @@ export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements Na
     }
   }
 
-  allowDispatch(cmd: Command) {
-    switch (cmd.type) {
-      case "CREATE_NAMED_RANGE":
-        return this.checkValidNewNamedRangeName(cmd.name);
-      case "UPDATE_NAMED_RANGE":
-        return this.checkValidations(
-          cmd,
-          () => this.checkNamedRangeExists(cmd.oldRangeName),
-          () =>
-            cmd.newRangeName !== cmd.oldRangeName
-              ? this.checkValidNewNamedRangeName(cmd.newRangeName)
-              : CommandResult.Success
-        );
-      case "DELETE_NAMED_RANGE":
-        return this.checkNamedRangeExists(cmd.name);
-    }
-    return CommandResult.Success;
+  private checkCreateNamedRange(cmd: CreateNamedRangeCommand) {
+    return this.checkValidNewNamedRangeName(cmd.name);
   }
 
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "CREATE_NAMED_RANGE": {
-        const range = this.getters.getRangeFromRangeData(cmd.ranges[0]);
-        const newNamedRanges = [...this.namedRanges, { name: cmd.name, range }];
-        this.history.update("namedRanges", newNamedRanges);
-        break;
-      }
-      case "UPDATE_NAMED_RANGE": {
-        const index = this.getNamedRangeIndex(cmd.oldRangeName);
-        if (index !== -1) {
-          const range = this.getters.getRangeFromRangeData(cmd.ranges[0]);
-          this.history.update("namedRanges", index, { name: cmd.newRangeName, range });
-        }
-        break;
-      }
-      case "DELETE_NAMED_RANGE": {
-        const index = this.getNamedRangeIndex(cmd.name);
-        if (index !== -1) {
-          const newNamedRanges = [...this.namedRanges];
-          newNamedRanges.splice(index, 1);
-          this.history.update("namedRanges", newNamedRanges);
-        }
-        break;
-      }
-    }
+  private checkUpdateNamedRange(cmd: UpdateNamedRangeCommand) {
+    return this.checkValidations(
+      cmd,
+      () => this.checkNamedRangeExists(cmd.oldRangeName),
+      () =>
+        cmd.newRangeName !== cmd.oldRangeName
+          ? this.checkValidNewNamedRangeName(cmd.newRangeName)
+          : CommandResult.Success
+    );
+  }
+
+  private checkDeleteNamedRange(cmd: DeleteNamedRangeCommand) {
+    return this.checkNamedRangeExists(cmd.name);
   }
 
   getNamedRange(name: UID): NamedRange | undefined {

@@ -1,5 +1,5 @@
 import { doesCellContainFunction } from "../../helpers/misc";
-import { EvaluationCommand } from "../../types/commands";
+import { UpdateCellCommand } from "../../types/commands";
 import { UID } from "../../types/misc";
 import { EvaluationPlugin } from "../evaluation_plugin";
 
@@ -10,41 +10,41 @@ export class FormulaTrackerPlugin extends EvaluationPlugin {
 
   private trackedCells: Record<string, Record<UID, number | undefined>> = {};
 
-  handle(cmd: EvaluationCommand) {
-    switch (cmd.type) {
-      case "START": {
-        for (const formula of trackedFormulas) {
-          this.trackedCells[formula] = {};
-        }
-        for (const sheetId of this.getters.getSheetIds()) {
-          for (const cell of this.getters.getCells(sheetId)) {
-            for (const formula of trackedFormulas) {
-              if (doesCellContainFunction(cell, formula)) {
-                this.history.update("trackedCells", formula, cell.id, cell.id);
-              }
-            }
-          }
-        }
-        break;
-      }
-      case "UPDATE_CELL": {
-        if (!("content" in cmd)) {
-          return;
-        }
-        const cell = this.getters.getCell(cmd);
-        // We don't update `this.trackedCells` and rely on `getCellsWithTrackedFormula` filtering out non-existing cells.
-        // We cannot store the id in the beforeHandle, because the cell is already deleted in the beforeHandle of the sheet plugin
-        if (!cell) {
-          return;
-        }
+  handlers = {
+    UPDATE_CELL: this.onUpdateCell,
+    START: this.onStart,
+  };
+
+  private onStart() {
+    for (const formula of trackedFormulas) {
+      this.trackedCells[formula] = {};
+    }
+    for (const sheetId of this.getters.getSheetIds()) {
+      for (const cell of this.getters.getCells(sheetId)) {
         for (const formula of trackedFormulas) {
           if (doesCellContainFunction(cell, formula)) {
             this.history.update("trackedCells", formula, cell.id, cell.id);
-          } else if (this.trackedCells[formula][cell.id]) {
-            this.history.update("trackedCells", formula, cell.id, undefined);
           }
         }
-        break;
+      }
+    }
+  }
+
+  private onUpdateCell(cmd: UpdateCellCommand) {
+    if (!("content" in cmd)) {
+      return;
+    }
+    const cell = this.getters.getCell(cmd);
+    // We don't update `this.trackedCells` and rely on `getCellsWithTrackedFormula` filtering out non-existing cells.
+    // We cannot store the id in a pre-handler, because the cell is already deleted in the pre-handler of the sheet plugin
+    if (!cell) {
+      return;
+    }
+    for (const formula of trackedFormulas) {
+      if (doesCellContainFunction(cell, formula)) {
+        this.history.update("trackedCells", formula, cell.id, cell.id);
+      } else if (this.trackedCells[formula][cell.id]) {
+        this.history.update("trackedCells", formula, cell.id, undefined);
       }
     }
   }

@@ -1,5 +1,6 @@
 import { usePlugin } from "@odoo/owl";
 import { ClipboardHandler } from "../clipboard_handlers/abstract_clipboard_handler";
+import { isCoreCommand } from "../command_registry";
 import { convertImageToPng } from "../components/helpers/convert_image_to_png";
 import { cellStyleToCss, cssPropertiesToCss } from "../components/helpers/css";
 import { SELECTION_BORDER_COLOR } from "../constants";
@@ -25,7 +26,7 @@ import {
   OSClipboardContent,
   SpreadsheetClipboardData,
 } from "../types/clipboard";
-import { Command, CommandResult, DispatchResult, isCoreCommand } from "../types/commands";
+import { Command, CommandResult, DispatchResult } from "../types/commands";
 import { Dimension, HeaderIndex, UID, Zone } from "../types/misc";
 import { GridRenderingContext } from "../types/rendering";
 import { xmlEscape } from "../xlsx/helpers/xml_helpers";
