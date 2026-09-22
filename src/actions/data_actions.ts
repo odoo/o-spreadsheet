@@ -1,6 +1,7 @@
 import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import { interactiveSortSelection } from "../helpers/sort_interactive";
 import { getZoneArea } from "../helpers/zones";
+import { IsSmallPlugin } from "../owl_plugins/is_small_plugin";
 import { TrimWhitespaceStore } from "../stores/trim_whitespace_store";
 import { _t } from "../translation";
 import { ActionSpec } from "./action";
@@ -35,7 +36,7 @@ export const removeDuplicates: ActionSpec = {
     }
     env.getStore(SidePanelStore).open("RemoveDuplicates", {});
   },
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
 };
 
 export const trimWhitespace: ActionSpec = {
@@ -48,7 +49,7 @@ export const trimWhitespace: ActionSpec = {
 export const cleanupDataSources: ActionSpec = {
   name: _t("Remove unused data sources"),
   execute: (env) => env.getStore(SidePanelStore).open("DataSourceCleanup", {}),
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
 };
 
 export const sortDescending: ActionSpec = {
@@ -74,7 +75,8 @@ export const splitToColumns: ActionSpec = {
   name: _t("Split text to columns"),
   sequence: 1,
   execute: (env) => env.getStore(SidePanelStore).open("SplitToColumns", {}),
-  isEnabled: (env) => !env.isSmall && env.model.getters.isSingleColSelected(),
+  isEnabled: (env) =>
+    !env.getPlugin(IsSmallPlugin).isSmall() && env.model.getters.isSingleColSelected(),
   icon: "o-spreadsheet-Icon.SPLIT_TEXT",
 };
 
@@ -85,7 +87,7 @@ export const dataAnalysis: ActionSpec = {
     sidePanelStore.togglePinnedSidePanel("DataAnalysisPanel");
   },
   icon: "o-spreadsheet-Icon.COLUMN_STATS",
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
 };
 
 export const columnStatistics: ActionSpec = {

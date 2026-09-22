@@ -1,5 +1,6 @@
 import { ActionSpec } from "../../actions/action";
 import { SidePanelStore } from "../../components/side_panel/side_panel/side_panel_store";
+import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { _t } from "../../translation";
 import { CellValue, CellValueType } from "../../types/cells";
 import { Getters } from "../../types/getters";
@@ -36,7 +37,12 @@ export const pivotProperties: ActionSpec = {
   isVisible: (env) => {
     const position = env.model.getters.getActivePosition();
     const pivotId = env.model.getters.getPivotIdFromPosition(position);
-    return (!env.isSmall && pivotId && env.model.getters.isExistingPivot(pivotId)) || false;
+    return (
+      (!env.getPlugin(IsSmallPlugin).isSmall() &&
+        pivotId &&
+        env.model.getters.isExistingPivot(pivotId)) ||
+      false
+    );
   },
   isReadonlyAllowed: true,
   isEnabledOnLockedSheet: true,

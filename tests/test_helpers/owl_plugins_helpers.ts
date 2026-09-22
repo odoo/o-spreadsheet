@@ -2,6 +2,7 @@ import { PluginConstructor, providePlugins, Scope, useProps, useScope, xml } fro
 import { createGetPluginFunctionFromScope } from "../../src/components/os_component";
 import { types } from "../../src/components/props_validation";
 import { App, Component } from "../../src/owl3_compatibility_layer";
+import { SpreadsheetRectPlugin } from "../../src/owl_plugins/spreadsheet_rect_plugin";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { useStoreProvider } from "../../src/store_engine/store_hooks";
 import { _t } from "../../src/translation";
@@ -74,4 +75,13 @@ export function makeOwlPluginManager(providedPlugins: PluginConstructor[]): {
   container = scopeDependencyContainer(scope, container);
 
   return { getPlugin, scope, container };
+}
+
+/** Exact same plugin as SpreadsheetRectPlugin but with a starting spreadsheet size of 1000x1000 */
+export class MockSpreadsheetRectPlugin extends SpreadsheetRectPlugin {
+  static id = SpreadsheetRectPlugin.id;
+
+  setup() {
+    this.rect.set({ x: 0, y: 0, width: 1000, height: 1000 });
+  }
 }

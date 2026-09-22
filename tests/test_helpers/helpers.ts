@@ -2,6 +2,7 @@ import {
   PluginConstructor,
   providePlugins,
   proxy,
+  Scope,
   types,
   usePlugin,
   useProps,
@@ -77,6 +78,7 @@ import { PopoverContainerPlugin } from "../../src/components/popover/popover_con
 import { computeFunctionsCache } from "../../src/formulas/compiler";
 import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
+import { IsSmallPlugin } from "../../src/owl_plugins/is_small_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { EvaluationPluginConstructor } from "../../src/plugins/evaluation_plugin";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
@@ -121,8 +123,14 @@ import {
 import { EN_LOCALE } from "./constants";
 import { click, DOMTarget, getTarget, getTextNodes, keyDown, keyUp } from "./dom_helper";
 import { getCellContent, getEvaluatedCell } from "./getters_helpers";
-import { makeOwlPluginManager } from "./owl_plugins_helpers";
+import { makeOwlPluginManager, MockSpreadsheetRectPlugin } from "./owl_plugins_helpers";
 import { makeStoreWithModel } from "./stores";
+
+const owlPluginsToProvideWhenNotMountingSpreadsheet: PluginConstructor[] = [
+  NotificationPlugin,
+  MockSpreadsheetRectPlugin,
+  IsSmallPlugin,
+];
 
 const functionsContent = functionRegistry.content;
 
@@ -233,7 +241,9 @@ export function makeTestEnv(
     throw new Error("Cannot call makeTestEnv on a partial env that already have a store container");
   }
 
-  const { getPlugin, container } = makeOwlPluginManager([NotificationPlugin]);
+  const { getPlugin, container } = makeOwlPluginManager(
+    owlPluginsToProvideWhenNotMountingSpreadsheet
+  );
 
   container.inject(ModelStore, model);
   if (!mockEnv.useTrueRenderer) {
@@ -278,9 +288,6 @@ export function makeTestEnv(
     getStore<T extends StoreConstructor>(Store: T) {
       const store = container.get(Store);
       return proxifyStoreMutation(store, () => container.trigger("store-updated"));
-    },
-    get isSmall() {
-      return mockEnv.isSmall || false;
     },
     isMobile: mockEnv.isMobile || isMobileOS,
     printSpreadsheet: mockEnv.printSpreadsheet || (() => {}),
@@ -346,7 +353,6 @@ class TestParent extends Component {
       askConfirmation: jest.fn(),
     });
     useStore(ClipboardStore);
-    useStore(SidePanelStore);
 
     // For tests without the grid composer mounted, we register fake composer
     const composerFocusStore = container.get(ComposerFocusStore);
@@ -383,9 +389,6 @@ class TestParent extends Component {
       getStore<T extends StoreConstructor>(Store: T) {
         const store = container.get(Store);
         return proxifyStoreMutation(store, () => container.trigger("store-updated"));
-      },
-      get isSmall() {
-        return mockEnv.isSmall || false;
       },
       isMobile: mockEnv.isMobile || isMobileOS,
       printSpreadsheet: mockEnv.printSpreadsheet || (() => {}),
@@ -430,6 +433,10 @@ export async function mountComponentWithPortalTarget<Props extends ComponentProp
       isPortalTarget: true,
       childProps: optionalArgs.props || ({} as Props),
     },
+    providedPlugins: [
+      ...owlPluginsToProvideWhenNotMountingSpreadsheet,
+      ...(optionalArgs.providedPlugins || []),
+    ],
   };
   return _mountComponent(model, TestParent, component, args);
 }
@@ -448,6 +455,10 @@ export async function mountComponent<Props extends ComponentProps>(
       isPortalTarget: false,
       childProps: optionalArgs.props || ({} as Props),
     },
+    providedPlugins: [
+      ...owlPluginsToProvideWhenNotMountingSpreadsheet,
+      ...(optionalArgs.providedPlugins || []),
+    ],
   };
   return _mountComponent(model, TestParent, component, args);
 }
@@ -465,12 +476,13 @@ async function _mountComponent<Props extends { [key: string]: any }>(
   let getPlugin: OwlPluginGetter | undefined = undefined;
   let env: SpreadsheetActionEnv;
   let parent: Component<SpreadsheetChildEnv> | undefined = undefined;
+  let scope!: Scope;
   const spySetup = jest
     .spyOn(spiedComponent.prototype, "setup")
     .mockImplementation(function (this: Component) {
-      providePlugins(optionalArgs.providedPlugins || []);
       originalSetup.call(this);
-      getPlugin = createGetPluginFunctionFromScope(useScope());
+      scope = useScope();
+      getPlugin = createGetPluginFunctionFromScope(scope);
       env = useSpreadsheetEnv();
       parent = this;
       optionalArgs.callbackInComponentSetup?.call(this);
@@ -484,6 +496,7 @@ async function _mountComponent<Props extends { [key: string]: any }>(
   const app = new App({
     test: true,
     translateFn: _t,
+    plugins: [...(optionalArgs.providedPlugins || [])],
   });
   const root = app.createRoot(rootComponent, { props });
   const fixture = optionalArgs?.fixture || makeTestFixture();

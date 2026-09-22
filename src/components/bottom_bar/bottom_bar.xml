@@ -45,7 +45,7 @@
           t-if="this.state.isSheetListScrollableRight"
         />
       </div>
-      <t t-if="!this.env.isSmall">
+      <t t-if="!this.isSmallPlugin.isSmall()">
         <div
           class="o-bottom-bar-arrows d-flex h-100 me-4 align-items-center ms-3"
           t-if="this.state.isSheetListScrollableLeft || this.state.isSheetListScrollableRight">

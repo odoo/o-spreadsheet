@@ -1,7 +1,7 @@
 import { usePlugin } from "@odoo/owl";
+import { IsSmallPlugin } from "../../../owl_plugins/is_small_plugin";
 import { NotificationPlugin } from "../../../owl_plugins/notification_owl_plugin";
 import { sidePanelRegistry } from "../../../registries/side_panel_registry_definition";
-import { ScreenWidthStore } from "../../../stores/screen_width_store";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { _t } from "../../../translation";
 
@@ -52,7 +52,7 @@ export class SidePanelStore extends SpreadsheetStore {
   secondaryPanel: PanelInfo | undefined;
   availableWidth: number = 0;
 
-  screenWidthStore = this.get(ScreenWidthStore);
+  isSmallPlugin = usePlugin(IsSmallPlugin);
   notificationPlugin = usePlugin(NotificationPlugin);
 
   get isMainPanelOpen() {
@@ -105,7 +105,7 @@ export class SidePanelStore extends SpreadsheetStore {
   }
 
   open(componentTag: string, currentPanelProps: SidePanelComponentProps = {}) {
-    if (this.screenWidthStore.isSmall) {
+    if (this.isSmallPlugin.isSmall()) {
       return;
     }
 
