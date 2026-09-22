@@ -50,26 +50,48 @@ Core commands should be device-agnostic and include all necessary information to
 
 ## Declaring New Commands
 
-### CoreCommands
-
-To declare a new `CoreCommands`, its type should be added to `coreTypes`:
+Every command is declared with `registerCommand`. It is the single entry point:
+it takes care of adding the command to each set describing its behaviour.
 
 ```ts
-import { coreTypes } from "@odoo/o-spreadsheet";
+import { registerCommand } from "@odoo/o-spreadsheet";
 
-coreTypes.add("MY_COMMAND_NAME");
+registerCommand("MY_COMMAND_NAME", { category: "core" });
 ```
+
+The built-in commands are all declared this way, in `src/command_registry.ts`.
+
+### Options
+
+| option                                   | core | local | description                                                                 |
+| ---------------------------------------- | :--: | :---: | --------------------------------------------------------------------------- |
+| `category`                               |  ✔   |   ✔   | `"core"` for a shared, persisted command, `"local"` for any other one       |
+| `inverse`                                |  ✔   |       | commands to dispatch to revert this one. Defaults to the command itself     |
+| `isEvaluationCommand`                    |      |   ✔   | the command is handled by the evaluation plugins (core commands always are) |
+| `isDispatcheableEvaluationCommand`       |      |   ✔   | the command is dispatched by the evaluation plugins                         |
+| `allowedInReadonly`                      |  ✔   |   ✔   | the command can be executed while the model is readonly                     |
+| `allowedOnLockedSheet`                   |  ✔   |   ✔   | the command can be executed on a locked sheet                               |
+| `invalidatesEvaluation`                  |  ✔   |   ✔   | the command invalidates the evaluation of the cells                         |
+| `invalidatesChartEvaluation`             |  ✔   |   ✔   | the command invalidates the chart runtimes                                  |
+| `invalidatesDependencies`                |  ✔   |   ✔   | the command invalidates the dependencies of the formulas                    |
+| `invalidatesConditionalFormatEvaluation` |  ✔   |   ✔   | the command invalidates the evaluation of the conditional formats           |
+| `invalidatesTableStyle`                  |  ✔   |   ✔   | the command invalidates the computed style of the tables                    |
+| `invalidatesBorders`                     |  ✔   |   ✔   | the command invalidates the computed borders                                |
+| `invalidatesSubtotalFormulas`            |  ✔   |   ✔   | the command invalidates the result of the `SUBTOTAL` formulas               |
+
+Each option adds the command to a command set, which plugins can use as a handler
+key (e.g. `"*invalidateEvaluationCommands"`) to react to all of them at once.
 
 ### Read-Only Mode
 
 In read-only mode, all core commands are cancelled with the `CommandResult` `Readonly` since the spreadsheet state cannot be modified.
-However, some locale commands still need to be executed, such as updating the active sheet.
-To allow a new local command in read-only mode, add its type to `readonlyAllowedCommands`:
+However, some local commands still need to be executed, such as updating the active sheet.
+To allow a new local command in read-only mode, declare it with `allowedInReadonly`:
 
 ```ts
-import { readonlyAllowedCommands } from "@odoo/o-spreadsheet";
+import { registerCommand } from "@odoo/o-spreadsheet";
 
-readonlyAllowedCommands.add("MY_COMMAND_NAME");
+registerCommand("MY_COMMAND_NAME", { category: "local", allowedInReadonly: true });
 ```
 
 ## Reserved keywords in commands

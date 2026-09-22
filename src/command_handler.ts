@@ -1,21 +1,23 @@
+import {
+  commandSets,
+  coreCommands,
+  evaluationCommandTypes,
+  isCommandSetName,
+  isCoreCommand,
+  isEvaluationCommand,
+  localCommands,
+} from "./command_registry";
 import { CorePlugin } from "./plugins/core_plugin";
 import { EvaluationPlugin } from "./plugins/evaluation_plugin";
 import {
   Command,
   CommandHandler,
   CommandHandlerRegistry,
-  commandSets,
+  CommandTypes,
   CommandsHandlers,
   CommandsHandlersList,
   CommandsValidators,
   CommandsValidatorsList,
-  CommandTypes,
-  coreTypes,
-  evaluationCommandTypes,
-  isCommandSetName,
-  isCoreCommand,
-  isEvaluationCommand,
-  localTypes,
   SingleCommandHandler,
   SingleCommandValidator,
 } from "./types/commands";
@@ -97,7 +99,11 @@ export class CommandHandlerRegistryClass<T extends Command> implements CommandHa
   ) {
     for (const key of Object.keys(declaredHandlers)) {
       const handler = declaredHandlers[key]?.bind(plugin);
-      if (!isCommandSetName(key) && !coreTypes.has(key as any) && !localTypes.has(key as any)) {
+      if (
+        !isCommandSetName(key) &&
+        !coreCommands.has(key as any) &&
+        !localCommands.has(key as any)
+      ) {
         throw new Error(
           `"${key}" is neither a command type nor a command set name (plugin ${plugin.constructor.name})`
         );
@@ -127,7 +133,7 @@ export function canHandleType(
   commandType: CommandTypes
 ): boolean {
   if (handler instanceof CorePlugin) {
-    return coreTypes.has(commandType as any);
+    return coreCommands.has(commandType as any);
   }
   if (handler instanceof EvaluationPlugin) {
     return evaluationCommandTypes.has(commandType as any);

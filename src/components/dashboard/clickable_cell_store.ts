@@ -1,11 +1,12 @@
 import { markRaw } from "@odoo/owl";
+import { invalidateEvaluationCommands } from "../../command_registry";
 import { toXC } from "../../helpers/coordinates";
 import { positionToZone } from "../../helpers/zones";
 import { ComponentConstructor } from "../../owl3_compatibility_layer";
 import { CellClickableItem, clickableCellRegistry } from "../../registries/cell_clickable_registry";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { ViewportsStore } from "../../stores/viewports_store";
-import { Command, invalidateEvaluationCommands } from "../../types/commands";
+import { Command } from "../../types/commands";
 import { CellPosition, UID } from "../../types/misc";
 import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";

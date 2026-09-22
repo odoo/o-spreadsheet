@@ -10,10 +10,11 @@ import {
   ViewportsGetters,
   Zone,
 } from "..";
+import { invalidateEvaluationCommands } from "../command_registry";
 import { FOOTER_HEIGHT, getDefaultSheetViewSize } from "../constants";
 import { deepEquals } from "../helpers/misc";
 import { ViewportCollection } from "../helpers/viewport_collection";
-import { Command, invalidateEvaluationCommands } from "../types/commands";
+import { Command } from "../types/commands";
 import {
   DOMCoordinates,
   DOMDimension,

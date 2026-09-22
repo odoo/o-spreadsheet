@@ -1,9 +1,5 @@
-import {
-  Command,
-  CommandResult,
-  isCoreCommand,
-  lockedSheetAllowedCommands,
-} from "../../types/commands";
+import { isCoreCommand, lockedSheetAllowedCommands } from "../../command_registry";
+import { Command, CommandResult } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 
 export class LockSheetPlugin extends UIPlugin {
