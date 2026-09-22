@@ -154,9 +154,8 @@ export function getWaterfallChartTooltip(
     external: customTooltipHandler,
     callbacks: {
       beforeLabel: function (tooltipItem) {
-        const dataSeriesIndex = labels.length
-          ? Math.floor(tooltipItem.dataIndex / labels.length)
-          : 0;
+        const labelLength = definition.showSubTotals ? labels.length + 1 : labels.length;
+        const dataSeriesIndex = labelLength ? Math.floor(tooltipItem.dataIndex / labelLength) : 0;
         return dataSeriesLabels[dataSeriesIndex];
       },
       label: function (tooltipItem) {
