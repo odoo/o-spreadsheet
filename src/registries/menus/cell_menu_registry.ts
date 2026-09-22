@@ -6,6 +6,7 @@ import * as ACTION_EDIT from "../../actions/edit_actions";
 import * as ACTION_INSERT from "../../actions/insert_actions";
 import * as ACTIONS from "../../actions/menu_items_actions";
 import * as ACTIONS_PIVOT from "../../helpers/pivot/pivot_menu_items";
+import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 
 //------------------------------------------------------------------------------
 // Context MenuPopover Registry
@@ -98,7 +99,7 @@ cellMenuRegistry
   .add("edit_table", {
     ...ACTION_EDIT.editTable,
     isVisible: ACTIONS.SELECTION_CONTAINS_SINGLE_TABLE,
-    isEnabled: (env) => !env.isSmall,
+    isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
     sequence: 140,
   })
   .add("delete_table", {
