@@ -25,7 +25,9 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
   <div
     class="o-filter-menu-content"
   >
-    <div>
+    <div
+      data-test-id="Filter by criterion"
+    >
       <div
         class="o_side_panel_collapsible_title o-fw-bold d-flex align-items-center"
       >
@@ -81,7 +83,9 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
       
     </div>
     
-    <div>
+    <div
+      data-test-id="Filter by values"
+    >
       <div
         class="o_side_panel_collapsible_title o-fw-bold d-flex align-items-center"
       >

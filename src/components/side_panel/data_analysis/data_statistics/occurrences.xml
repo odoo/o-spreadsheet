@@ -1,0 +1,48 @@
+<templates>
+  <t t-name="o-spreadsheet-Occurrences">
+    <div class="fw-bold d-flex justify-content-between">
+      <div class="d-flex o-stat-sort-header">
+        <span>Categories</span>
+        <div
+          t-on-click="this.sortItemsByName"
+          data-test-id="o-sort-occurrences"
+          class="o-button-icon mx-2 d-flex small text-end">
+          <t t-if="this.listState.namesSortType === 'desc'" t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+          <t t-if="this.listState.namesSortType === 'asc'" t-call="o-spreadsheet-Icon.CARET_UP"/>
+          <span t-if="this.listState.namesSortType === 'none'" class="o-caret-sort-icon">
+            <t t-call="o-spreadsheet-Icon.CARET_UP_DOWN"/>
+          </span>
+        </div>
+      </div>
+      <div class="d-flex o-stat-sort-header">
+        <span>Count</span>
+        <div
+          t-on-click="this.sortItemsByValues"
+          data-test-id="o-sort-occurrences"
+          class="o-button-icon ms-auto mx-2 d-flex small text-end">
+          <t
+            t-if="this.listState.valuesSortType === 'desc'"
+            t-call="o-spreadsheet-Icon.CARET_DOWN"
+          />
+          <t t-if="this.listState.valuesSortType === 'asc'" t-call="o-spreadsheet-Icon.CARET_UP"/>
+          <span t-if="this.listState.valuesSortType === 'none'" class="o-caret-sort-icon">
+            <t t-call="o-spreadsheet-Icon.CARET_UP_DOWN"/>
+          </span>
+        </div>
+      </div>
+    </div>
+    <t t-foreach="this.listState.displayedValues" t-as="stat" t-key="stat_index">
+      <StatisticItem
+        stat="stat"
+        onHover.bind="this.hoverStat"
+        computePercentage.bind="this.computePercentage"
+      />
+    </t>
+    <div
+      t-if="this.listState.hasMoreValues"
+      class="o-button-link d-flex justify-content-center py-1"
+      t-on-click="this.loadMoreValues">
+      Load more...
+    </div>
+  </t>
+</templates>
