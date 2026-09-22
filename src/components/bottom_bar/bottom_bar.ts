@@ -1,6 +1,7 @@
-import { onWillUpdateProps, proxy, signal, useProps } from "@odoo/owl";
+import { onWillUpdateProps, proxy, signal, usePlugin, useProps } from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
 import { UuidGenerator } from "../../helpers/uuid";
+import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { _t } from "../../translation";
 import { MenuMouseEvent, Pixel, UID } from "../../types/misc";
@@ -35,6 +36,8 @@ export class BottomBar extends OSComponent {
   protected props = useProps({ onClick: types.function<(ev: MouseEvent) => void>() });
 
   static components = { MenuPopover, Ripple, BottomBarSheet, BottomBarStatistic };
+
+  protected isSmallPlugin = usePlugin(IsSmallPlugin);
 
   private bottomBarRef = signal.ref();
   private sheetListRef = signal.ref();

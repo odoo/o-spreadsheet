@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { extendMockGetBoundingClientRect } from "../test_helpers";
 import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { click } from "../test_helpers/dom_helper";
 import { getCellText } from "../test_helpers/getters_helpers";
@@ -14,7 +15,10 @@ let fixture: HTMLElement;
 let model: Model;
 
 beforeEach(async () => {
-  ({ fixture, model } = await mountSpreadsheet({ model: new Model() }, { isSmall: true }));
+  extendMockGetBoundingClientRect({
+    "o-spreadsheet": () => ({ x: 0, y: 0, width: 300, height: 1000 }), // small width
+  });
+  ({ fixture, model } = await mountSpreadsheet({ model: new Model() }));
 });
 
 const composerSelector = ".o-spreadsheet-small-bottom-bar .o-composer";

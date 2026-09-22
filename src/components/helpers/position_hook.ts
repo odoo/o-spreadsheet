@@ -1,12 +1,23 @@
-import { onMounted, onPatched, proxy, usePlugin } from "@odoo/owl";
+import {
+  onMounted,
+  onPatched,
+  providePlugins,
+  proxy,
+  Signal,
+  useEffect,
+  usePlugin,
+} from "@odoo/owl";
+import { SpreadsheetRectPlugin } from "../../owl_plugins/spreadsheet_rect_plugin";
 import { Rect } from "../../types/rendering";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
+import { getBoundingRectAsPOJO } from "./dom_helpers";
 
 /**
  * Return the o-spreadsheet element position relative
  * to the browser viewport.
  */
 export function useSpreadsheetRect(): Rect {
+  // FIXME: remove this helper, use SpreadsheetRectPlugin instead (need to use useEffect in the components)
   const position = proxy({ x: 0, y: 0, width: 0, height: 0 });
   let spreadsheetElement: Element | null = null;
   function updatePosition() {
@@ -24,6 +35,20 @@ export function useSpreadsheetRect(): Rect {
   onMounted(updatePosition);
   onPatched(updatePosition);
   return position;
+}
+
+export function provideSpreadsheetRect(spreadsheetRef: Signal<HTMLElement | null>) {
+  providePlugins([SpreadsheetRectPlugin]);
+  const spreadsheetRectPlugin = usePlugin(SpreadsheetRectPlugin);
+  function updatePosition() {
+    const spreadsheetElement = spreadsheetRef();
+    if (spreadsheetElement) {
+      spreadsheetRectPlugin.setPosition(getBoundingRectAsPOJO(spreadsheetElement));
+    }
+  }
+  onMounted(updatePosition);
+  onPatched(updatePosition);
+  useResizeObserver(spreadsheetRef, updatePosition);
 }
 
 /**
@@ -47,4 +72,16 @@ export function usePopoverContainer(): Rect {
   onMounted(updateRect);
   onPatched(updateRect);
   return container;
+}
+
+export function useResizeObserver(ref: () => HTMLElement | null, callback: ResizeObserverCallback) {
+  useEffect(() => {
+    const el = ref();
+    if (!el) {
+      return;
+    }
+    const resizeObserver = new ResizeObserver(callback);
+    resizeObserver.observe(el);
+    return () => resizeObserver.disconnect();
+  });
 }

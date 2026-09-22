@@ -20,19 +20,19 @@ import { batched } from "../../helpers/misc";
 import { providePluginsIfNotPresent, render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
 import { useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
+import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
 import { ClipboardStore } from "../../stores/clipboard_store";
 import { ModelStore } from "../../stores/model_store";
-import { ScreenWidthStore } from "../../stores/screen_width_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
 import { CSSProperties, HeaderGroup, Pixel } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
-import { ColorThemeName } from "../../types/rendering";
+import { ColorThemeName, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { NotificationCallbacks } from "../../types/stores/notification_store_methods";
@@ -49,8 +49,7 @@ import {
   keyboardEventToShortcutString,
   zoomCorrectedElementRect,
 } from "../helpers/dom_helpers";
-import { useSpreadsheetRect } from "../helpers/position_hook";
-import { useScreenWidth } from "../helpers/screen_width_hook";
+import { provideSpreadsheetRect, useSpreadsheetRect } from "../helpers/position_hook";
 import { OSComponent } from "../os_component";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 import { types } from "../props_validation";
@@ -92,7 +91,7 @@ export class Spreadsheet extends OSComponent {
 
   sidePanel!: Store<SidePanelStore>;
   spreadsheetRef = signal.ref();
-  spreadsheetRect = useSpreadsheetRect();
+  spreadsheetRect!: Rect;
 
   state = proxy<State>({ printModeEnabled: false, colorThemeBeforePrint: "light" });
 
@@ -100,6 +99,7 @@ export class Spreadsheet extends OSComponent {
 
   private isViewportTooSmall: boolean = false;
   private notificationPlugin!: PluginInstance<typeof NotificationPlugin>;
+  private isSmallPlugin!: PluginInstance<typeof IsSmallPlugin>;
   private composerFocusStore!: Store<ComposerFocusStore>;
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
@@ -133,14 +133,11 @@ export class Spreadsheet extends OSComponent {
   }
 
   setup() {
-    if (!("isSmall" in this.env)) {
-      const screenSize = useScreenWidth();
-      useSubEnv({
-        get isSmall() {
-          return screenSize.isSmall;
-        },
-      } satisfies Partial<SpreadsheetChildEnv>);
-    }
+    provideSpreadsheetRect(this.spreadsheetRef);
+    providePluginsIfNotPresent([NotificationPlugin, IsSmallPlugin]);
+    this.spreadsheetRect = useSpreadsheetRect();
+    this.notificationPlugin = usePlugin(NotificationPlugin);
+    this.isSmallPlugin = usePlugin(IsSmallPlugin);
 
     const stores = useStoreProvider();
     stores.inject(ModelStore, this.model);
@@ -151,13 +148,6 @@ export class Spreadsheet extends OSComponent {
       getPopoverContainerRect: () => getElBoundingRect(this.spreadsheetRef()),
     });
 
-    const env = this.env;
-    stores.get(ScreenWidthStore).setSmallThreshhold(() => {
-      return env.isSmall;
-    });
-
-    providePluginsIfNotPresent([NotificationPlugin]);
-    this.notificationPlugin = usePlugin(NotificationPlugin);
     this.composerFocusStore = useStore(ComposerFocusStore);
     useStore(ClipboardStore);
     this.sidePanel = useStore(SidePanelStore);
@@ -359,7 +349,7 @@ export class Spreadsheet extends OSComponent {
 
   getSpreadSheetClasses() {
     return [
-      this.env.isSmall ? "o-spreadsheet-mobile" : "",
+      this.isSmallPlugin.isSmall() ? "o-spreadsheet-mobile" : "",
       this.props.model.getters.isDarkMode() ? "dark" : "",
     ].join(" ");
   }
