@@ -337,9 +337,9 @@ class TestParent extends Component {
   setup() {
     providePlugins([NotificationPlugin]);
     if (this.props.isPortalTarget) {
-      providePlugins([PopoverContainerPlugin], {
-        getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
-      });
+      providePlugins([PopoverContainerPlugin]);
+      const popoverContainerPlugin = usePlugin(PopoverContainerPlugin);
+      popoverContainerPlugin.setContainerRect({ x: 0, y: 0, height: 1000, width: 1000 });
     }
     const container = useStoreProvider();
 

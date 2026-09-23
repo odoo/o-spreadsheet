@@ -4,7 +4,6 @@ import { useLocalStore, useStore } from "../../../store_engine/store_hooks";
 import { Color, ComposerFocusType } from "../../../types/misc";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
-import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { ComposerSelection } from "../composer/abstract_composer_store";
@@ -33,7 +32,6 @@ export class StandaloneComposer extends OSComponent {
   private composerFocusStore!: Store<ComposerFocusStore>;
   private standaloneComposerStore!: Store<StandaloneComposerStore>;
   private composerInterface!: ComposerInterface;
-  readonly spreadsheetRect = useSpreadsheetRect();
 
   setup() {
     this.composerFocusStore = useStore(ComposerFocusStore);

@@ -1,4 +1,4 @@
-import { providePlugins, signal, useProps } from "@odoo/owl";
+import { signal, useProps } from "@odoo/owl";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -19,7 +19,6 @@ import { useWheelHandler } from "../helpers/wheel_hook";
 import { OSComponent } from "../os_component";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
-import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 import { types } from "../props_validation";
 import { HorizontalScrollBar } from "../scrollbar/scrollbar_horizontal";
 import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
@@ -60,9 +59,6 @@ export class SpreadsheetDashboard extends OSComponent {
 
     const layers = OrderedLayers().filter((layer) => layer !== "Headers");
     const rendererStore = useLocalStore(RendererStore, layers);
-    providePlugins([PopoverContainerPlugin], {
-      getPopoverContainerRect: () => this.zoomStore.getZoomedRect(this.getGridRect()),
-    });
 
     useGridDrawing({
       canvasRef: this.canvasRef,
@@ -128,7 +124,7 @@ export class SpreadsheetDashboard extends OSComponent {
     this.viewStore.setViewportOffset({ offsetX: scrollX + deltaX, offsetY: scrollY + deltaY });
   }
 
-  private getGridRect(): Rect {
+  getGridRect(): Rect {
     return {
       ...getElBoundingRect(this.gridRef()),
       ...this.viewStore.sheetViewDimensionWithHeaders,

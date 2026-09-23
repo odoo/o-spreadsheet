@@ -1,4 +1,3 @@
-import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 
@@ -18,7 +17,6 @@ export class SidePanel extends OSComponent {
     onToggleCollapsePanel: types.function().optional(),
     isCollapsed: types.boolean().optional(),
   });
-  spreadsheetRect = useSpreadsheetRect();
 
   getTitle() {
     const panel = this.props.panelContent;

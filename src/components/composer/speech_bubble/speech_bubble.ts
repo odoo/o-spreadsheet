@@ -1,7 +1,6 @@
-import { signal, useProps } from "@odoo/owl";
-import { useLayoutEffect } from "../../../owl3_compatibility_layer";
-import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
-import { useSpreadsheetRect } from "../../helpers/position_hook";
+import { signal, useEffect, usePlugin, useProps } from "@odoo/owl";
+import { SpreadsheetRectPlugin } from "../../../owl_plugins/spreadsheet_rect_plugin";
+import { useElementRect } from "../../helpers/position_hook";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 
@@ -16,19 +15,21 @@ export class SpeechBubble extends OSComponent {
     anchorRect: types.Rect(),
   });
 
-  private spreadsheetRect = useSpreadsheetRect();
+  private spreadsheetRect = usePlugin(SpreadsheetRectPlugin);
   private bubbleRef = signal.ref();
+  private bubbleDimensions = useElementRect(this.bubbleRef);
 
   setup(): void {
-    useLayoutEffect(() => {
+    useEffect(() => {
       const el = this.bubbleRef();
       if (!el) {
         return;
       }
       const anchorRect = this.props.anchorRect;
-      const rect = getBoundingRectAsPOJO(el);
-      const x = anchorRect.x + anchorRect.width / 2 - rect.width / 2 - this.spreadsheetRect.x;
-      const y = anchorRect.y - rect.height - BUBBLE_ARROW_SIZE - this.spreadsheetRect.y;
+      const spreadsheetRect = this.spreadsheetRect.rect();
+      const rect = this.bubbleDimensions();
+      const x = anchorRect.x + anchorRect.width / 2 - rect.width / 2 - spreadsheetRect.x;
+      const y = anchorRect.y - rect.height - BUBBLE_ARROW_SIZE - spreadsheetRect.y;
       el.style.left = `${x}px`;
       el.style.top = `${y}px`;
     });

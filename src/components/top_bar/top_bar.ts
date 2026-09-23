@@ -1,8 +1,9 @@
-import { onMounted, onPatched, proxy, signal, useListener, usePlugin, useProps } from "@odoo/owl";
+import { proxy, signal, useEffect, useListener, usePlugin, useProps } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../constants";
 import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
+import { SpreadsheetRectPlugin } from "../../owl_plugins/spreadsheet_rect_plugin";
 import { formatNumberMenuItemSpec } from "../../registries/menus/number_format_menu_registry";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../../registries/topbar_component_registry";
@@ -13,12 +14,8 @@ import { PropsOf } from "../../types/props_of";
 import { Store } from "../../types/store_engine";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
-import {
-  getBoundingRectAsPOJO,
-  getElBoundingRect,
-  keyboardEventToShortcutString,
-} from "../helpers/dom_helpers";
-import { useSpreadsheetRect } from "../helpers/position_hook";
+import { getBoundingRectAsPOJO, keyboardEventToShortcutString } from "../helpers/dom_helpers";
+import { useElementRect } from "../helpers/position_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { NamedRangeSelector } from "../named_range_selector/named_range_selector";
 import { OSComponent } from "../os_component";
@@ -70,14 +67,22 @@ export class TopBar extends OSComponent {
   topBarToolStore!: Store<TopBarToolStore>;
 
   toolBarContainerRef = signal.ref();
+  toolBarContainerDimensions = useElementRect(this.toolBarContainerRef);
+
   toolbarRef = signal.ref();
+  toolBarDimensions = useElementRect(this.toolbarRef);
+
   namedRangesRef = signal.ref();
+  namedRangesDimensions = useElementRect(this.namedRangesRef);
+
   topBarTopRef = signal.ref();
 
   moreToolsContainerRef = signal.ref();
-  moreToolsButtonRef = signal.ref();
 
-  spreadsheetRect = useSpreadsheetRect();
+  moreToolsButtonRef = signal.ref();
+  moreToolsButtonDimensions = useElementRect(this.moreToolsButtonRef);
+
+  spreadsheetRectPlugin = usePlugin(SpreadsheetRectPlugin);
   isSmallPlugin = usePlugin(IsSmallPlugin);
 
   setup() {
@@ -89,17 +94,10 @@ export class TopBar extends OSComponent {
     useListener(window, "keydown", this.onKeydown.bind(this));
     this.menus = topbarMenuRegistry.getMenuItems();
 
-    let lastWidth: number | undefined;
-    const updateVisibility = () => {
-      const currentWidth = this.spreadsheetRect.width;
-      if (lastWidth !== currentWidth) {
-        lastWidth = currentWidth;
-        this.state.toolsPopoverState.isOpen = false;
-        this.setVisibilityToolsGroups();
-      }
-    };
-    onMounted(updateVisibility);
-    onPatched(updateVisibility);
+    useEffect(() => {
+      this.state.toolsPopoverState.isOpen = false;
+      this.setVisibilityToolsGroups();
+    });
   }
 
   setVisibilityToolsGroups() {
@@ -113,21 +111,22 @@ export class TopBar extends OSComponent {
     if (!toolbarEl || !containerEl) {
       return;
     }
-    const { x: toolsX } = toolbarEl.getBoundingClientRect();
-    const { x } = containerEl.getBoundingClientRect();
+    const { x: toolsX } = this.toolBarDimensions();
+    const { x } = this.toolBarContainerDimensions();
 
     // Compute the with of the button that will toggle the hidden tools
     this.moreToolsContainerRef()?.classList.remove("d-none");
-    const moreToolsWidth = this.moreToolsButtonRef()?.getBoundingClientRect().width || 0;
+    const moreToolsWidth = this.moreToolsButtonDimensions().width;
 
-    const namedRangeWidth = getElBoundingRect(this.namedRangesRef()).width;
+    const namedRangeWidth = this.namedRangesDimensions().width;
+    const spreadsheetWidth = this.spreadsheetRectPlugin.rect().width;
 
     // The actual width in which we can place our tools so that they are visible.
     // Every tool container passed that width will be hidden.
     // We remove 16px to the width to account for a scrollbar that might appear.
     // Otherwise, we could end up in a loop of computation
     const usableWidth =
-      Math.round(this.spreadsheetRect.width) - moreToolsWidth - (toolsX - x) - 16 - namedRangeWidth;
+      Math.round(spreadsheetWidth) - moreToolsWidth - (toolsX - x) - 16 - namedRangeWidth;
 
     const toolElements = document.querySelectorAll(".tool-container");
 

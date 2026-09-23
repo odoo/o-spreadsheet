@@ -1,4 +1,13 @@
-import { onMounted, providePlugins, proxy, signal, useListener, useProps } from "@odoo/owl";
+import {
+  onMounted,
+  providePlugins,
+  proxy,
+  signal,
+  useEffect,
+  useListener,
+  usePlugin,
+  useProps,
+} from "@odoo/owl";
 import { Action, createAction } from "../../actions/action";
 import { insertSheet, insertTable } from "../../actions/insert_actions";
 import {
@@ -9,7 +18,12 @@ import {
   PASTE_AS_VALUE_ACTION,
 } from "../../actions/menu_items_actions";
 import { canUngroupHeaders } from "../../actions/view_actions";
-import { AUTOFILL_EDGE_LENGTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
+import {
+  AUTOFILL_EDGE_LENGTH,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+  SCROLLBAR_WIDTH,
+} from "../../constants";
 import {
   getOSheetClipboardIdFromHTML,
   parseOSClipboardContent,
@@ -74,6 +88,7 @@ import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect, keyboardEventToShortcutString } from "../helpers/dom_helpers";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
+import { useElementRect } from "../helpers/position_hook";
 import {
   moveAnchorWithinSelection,
   updateSelectionWithArrowKeys,
@@ -195,7 +210,17 @@ export class Grid extends OSComponent {
     this.automaticSumStore = useLocalStore(AutomaticSumStore);
     this.clipboardStore = useStore(ClipboardStore);
 
-    providePlugins([PopoverContainerPlugin], { getPopoverContainerRect: () => this.getGridRect() });
+    providePlugins([PopoverContainerPlugin]);
+    const popoverContainerPlugin = usePlugin(PopoverContainerPlugin);
+    const gridRect = useElementRect(this.gridRef);
+    useEffect(() => {
+      const rect = gridRect();
+      popoverContainerPlugin.setContainerRect({
+        ...rect,
+        width: rect.width - SCROLLBAR_WIDTH,
+        height: rect.height - SCROLLBAR_WIDTH,
+      });
+    });
     useListener(document.body, "cut", this.copy.bind(this, true));
     useListener(document.body, "copy", this.copy.bind(this, false));
     useListener(document.body, "paste", this.paste.bind(this));

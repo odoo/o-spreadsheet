@@ -1,6 +1,10 @@
-import { Plugin, useConfig } from "@odoo/owl";
+import { Plugin, shallowEqual, signal } from "@odoo/owl";
 import { Rect } from "../../types/rendering";
 
 export class PopoverContainerPlugin extends Plugin {
-  getContainerRect: () => Rect = useConfig("getPopoverContainerRect");
+  rect = signal<Rect>({ x: 0, y: 0, width: 0, height: 0 }, { equals: shallowEqual });
+
+  setContainerRect(rect: Rect) {
+    this.rect.set(rect);
+  }
 }
