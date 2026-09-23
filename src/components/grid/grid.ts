@@ -1,4 +1,12 @@
-import { onMounted, providePlugins, proxy, signal, useListener, useProps } from "@odoo/owl";
+import {
+  onMounted,
+  providePlugins,
+  proxy,
+  signal,
+  useListener,
+  usePlugin,
+  useProps,
+} from "@odoo/owl";
 import { Action, createAction } from "../../actions/action";
 import { insertSheet, insertTable } from "../../actions/insert_actions";
 import {
@@ -24,6 +32,7 @@ import {
 } from "../../helpers/ui/paste_interactive";
 import { isInside, positionToZone } from "../../helpers/zones";
 import { useLayoutEffect } from "../../owl3_compatibility_layer";
+import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {
@@ -171,6 +180,7 @@ export class Grid extends OSComponent {
   private clientFocusStore!: Store<ClientFocusStore>;
   private checkboxToggleStore!: Store<CheckboxToggleStore>;
   private clipboardStore!: Store<ClipboardStore>;
+  private clipboardPlugin = usePlugin(NavigatorClipboardPlugin);
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
 
@@ -824,7 +834,7 @@ export class Grid extends OSComponent {
       this.model().dispatch("COPY");
     }
     const osContent = await this.clipboardStore.getClipboardTextAndImageContent();
-    await this.env.clipboard.write(osContent);
+    await this.clipboardPlugin.write(osContent);
     ev.preventDefault();
   }
 
@@ -867,7 +877,7 @@ export class Grid extends OSComponent {
       await interactivePasteFromOS(this.spEnv, target, osClipboardContent);
     }
     if (isCutOperation) {
-      await this.env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
+      await this.clipboardPlugin.write({ [ClipboardMIMEType.PlainText]: "" });
     }
   }
 

@@ -56,6 +56,7 @@ import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_
 import { FONT_SIZES } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
+import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../src/registries/menus/col_menu_registry";
@@ -200,7 +201,7 @@ describe("Menu Item actions", () => {
   });
 
   test("Edit -> copy", async () => {
-    const spyWriteClipboard = jest.spyOn(env.clipboard!, "write");
+    const spyWriteClipboard = jest.spyOn(env.getPlugin(NavigatorClipboardPlugin), "write");
     await doAction(["edit", "copy"], env);
     expect(dispatch).toHaveBeenCalledWith("COPY");
     const clipboardStore = env.getStore(ClipboardStore);
@@ -210,7 +211,7 @@ describe("Menu Item actions", () => {
   });
 
   test("Edit -> cut", async () => {
-    const spyWriteClipboard = jest.spyOn(env.clipboard!, "write");
+    const spyWriteClipboard = jest.spyOn(env.getPlugin(NavigatorClipboardPlugin), "write");
     await doAction(["edit", "cut"], env);
     expect(dispatch).toHaveBeenCalledWith("CUT");
     const clipboardStore = env.getStore(ClipboardStore);
@@ -223,14 +224,14 @@ describe("Menu Item actions", () => {
     setCellContent(model, "A1", "a1");
     selectCell(model, "A1");
     await doAction(["edit", "copy"], env); // first copy from grid
-    await env.clipboard!.writeText("Then copy in OS clipboard");
+    await env.getPlugin(NavigatorClipboardPlugin).writeText("Then copy in OS clipboard");
     selectCell(model, "C3");
     await doAction(["edit", "paste"], env);
     expect(getCellContent(model, "C3")).toEqual("Then copy in OS clipboard");
   });
 
   test("Edit -> paste if copied from grid last", async () => {
-    await env.clipboard!.writeText("First copy in OS clipboard");
+    await env.getPlugin(NavigatorClipboardPlugin).writeText("First copy in OS clipboard");
     await doAction(["edit", "copy"], env); // then copy from grid
     await doAction(["edit", "paste"], env);
     interactivePaste(env, target("A1"));
@@ -251,7 +252,7 @@ describe("Menu Item actions", () => {
   });
 
   test("Paste only-format from OS clipboard should paste nothing", async () => {
-    await env.clipboard!.writeText("Copy in OS clipboard");
+    await env.getPlugin(NavigatorClipboardPlugin).writeText("Copy in OS clipboard");
     selectCell(model, "A1");
     await doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
@@ -267,7 +268,7 @@ describe("Menu Item actions", () => {
     setFormatting(model, "C1", { fillColor: "#FA0000" });
     selectCell(model, "C1");
     await doAction(["edit", "copy"], env); // first copy from grid
-    await env.clipboard!.writeText("Then copy in OS clipboard");
+    await env.getPlugin(NavigatorClipboardPlugin).writeText("Then copy in OS clipboard");
     selectCell(model, "A1");
     await doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(getStyle(model, "A1").fillColor).toBeUndefined();
@@ -317,7 +318,7 @@ describe("Menu Item actions", () => {
 
   test("Edit -> paste_special -> paste_special_value from OS clipboard", async () => {
     const text = "in OS clipboard";
-    await env.clipboard!.writeText(text);
+    await env.getPlugin(NavigatorClipboardPlugin).writeText(text);
     await doAction(["edit", "paste_special", "paste_special_value"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       target: target("A1"),
@@ -337,7 +338,7 @@ describe("Menu Item actions", () => {
 
   test("Edit -> paste_special -> paste_special_format from OS clipboard", async () => {
     const text = "in OS clipboard";
-    await env.clipboard!.writeText(text);
+    await env.getPlugin(NavigatorClipboardPlugin).writeText(text);
     await doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       target: target("A1"),

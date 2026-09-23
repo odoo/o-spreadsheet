@@ -6,6 +6,7 @@ import { downloadFile } from "../../../src/components/helpers/dom_helpers";
 import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
 import { CAROUSEL_LAYOUT } from "../../../src/constants";
 import { toZone } from "../../../src/helpers/zones";
+import { NavigatorClipboardPlugin } from "../../../src/owl_plugins/navigator_clipboard_plugin";
 import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
@@ -651,7 +652,7 @@ describe("Carousel figure component", () => {
       action?.execute?.(env);
       await nextTick();
 
-      const clipboard = await env.clipboard.read!();
+      const clipboard = await env.getPlugin(NavigatorClipboardPlugin).read!();
       if (clipboard.status !== "ok") {
         throw new Error("Clipboard read failed");
       }
