@@ -5,7 +5,6 @@ import { Get } from "./store_engine";
 
 export interface SpreadsheetChildEnv {
   clipboard: ClipboardInterface;
-  startCellEdition: (content?: string) => void;
   getStore: Get;
   isSmall: boolean;
   printSpreadsheet: () => void;
