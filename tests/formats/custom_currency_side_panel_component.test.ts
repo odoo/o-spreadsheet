@@ -76,7 +76,6 @@ describe("custom currency sidePanel component", () => {
     currenciesContent = Object.assign({}, currenciesRegistry.content);
 
     ({ model, fixture } = await mountComponentWithPortalTarget(MoreFormatsPanel, {
-      env: { loadCurrencies },
       model: new Model({}, { external: { loadCurrencies } }),
       props: { onCloseSidePanel: () => {}, category: "currency" },
     }));
@@ -358,7 +357,6 @@ describe("Provided Currencies", () => {
 
   test("if currencies are provided in spreadsheet --> display this currencies", async () => {
     await mountComponent(MoreFormatsPanel, {
-      env: { loadCurrencies },
       model: new Model({}, { external: { loadCurrencies } }),
       props: { onCloseSidePanel: () => {}, category: "currency" },
     });
@@ -368,7 +366,6 @@ describe("Provided Currencies", () => {
 
   test("if currencies aren't provided in spreadsheet --> remove 'available currencies' section", async () => {
     await mountComponent(MoreFormatsPanel, {
-      env: { loadCurrencies: undefined },
       model: new Model({}),
       props: { onCloseSidePanel: () => {}, category: "currency" },
     });

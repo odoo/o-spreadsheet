@@ -45,7 +45,7 @@ export class MoreFormatsPanel extends OSComponent {
 
   async loadCurrencies() {
     if (currenciesRegistry.getAll().length === 0) {
-      const currencies = await (this.env.loadCurrencies?.() ?? Promise.resolve([]));
+      const currencies = (await this.env.model.config.external.loadCurrencies?.()) ?? [];
       currencies.forEach((currency, index) => {
         currenciesRegistry.replace(index.toString(), currency);
       });

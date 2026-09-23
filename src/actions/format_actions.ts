@@ -121,7 +121,7 @@ export const formatNumberAccounting = createFormatActionSpec({
 
 export const formatCustomCurrency: ActionSpec = {
   name: _t("Custom currency"),
-  isVisible: (env) => env.loadCurrencies !== undefined && !env.isSmall,
+  isVisible: (env) => env.model.config.external.loadCurrencies !== undefined && !env.isSmall,
   execute: (env) => env.getStore(SidePanelStore).open("MoreFormats", { category: "currency" }),
 };
 

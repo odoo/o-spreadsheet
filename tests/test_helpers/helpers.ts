@@ -58,7 +58,6 @@ import {
   CommandTypes,
   ComposerFocusType,
   ConditionalFormat,
-  Currency,
   DEFAULT_LOCALES,
   EditionMode,
   EvaluatedCell,
@@ -269,11 +268,6 @@ export function makeTestEnv(
     // and imageProvider is defined even when there is no file store on the model
     imageProvider: new ImageProvider(new FileStore()),
     startCellEdition: mockEnv.startCellEdition || (() => {}),
-    loadCurrencies:
-      mockEnv.loadCurrencies ||
-      (async () => {
-        return [] as Currency[];
-      }),
     loadLocales: mockEnv.loadLocales || (async () => DEFAULT_LOCALES),
     getStore<T extends StoreConstructor>(Store: T) {
       const store = container.get(Store);
@@ -373,11 +367,6 @@ class TestParent extends Component {
       // and imageProvider is defined even when there is no file store on the model
       imageProvider: new ImageProvider(new FileStore()),
       startCellEdition: mockEnv.startCellEdition || (() => {}),
-      loadCurrencies:
-        mockEnv.loadCurrencies ||
-        (async () => {
-          return [] as Currency[];
-        }),
       loadLocales: mockEnv.loadLocales || (async () => DEFAULT_LOCALES),
       getStore<T extends StoreConstructor>(Store: T) {
         const store = container.get(Store);
