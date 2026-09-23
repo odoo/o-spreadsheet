@@ -6,6 +6,7 @@ import { _t } from "../../translation";
 import { MenuMouseEvent, Pixel, UID } from "../../types/misc";
 import { Rect } from "../../types/rendering";
 import { Ripple } from "../animation/ripple";
+import { isMobileOS } from "../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { OSComponent } from "../os_component";
@@ -200,7 +201,7 @@ export class BottomBar extends OSComponent {
     }
     this.closeMenu();
 
-    if (this.env.isMobile()) {
+    if (isMobileOS()) {
       return;
     }
 

@@ -16,7 +16,7 @@ import { ComposerSelection } from "../../src/components/composer/composer/abstra
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { Composer } from "../../src/components/composer/composer/composer";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
-import { getCurrentSelection, isMobileOS } from "../../src/components/helpers/dom_helpers";
+import { getCurrentSelection } from "../../src/components/helpers/dom_helpers";
 import {
   createGetPluginFunctionFromScope,
   OSComponent,
@@ -58,8 +58,6 @@ import {
   CommandTypes,
   ComposerFocusType,
   ConditionalFormat,
-  Currency,
-  DEFAULT_LOCALES,
   EditionMode,
   EvaluatedCell,
   ExcelWorkbookData,
@@ -268,13 +266,6 @@ export function makeTestEnv(
     //FIXME : image provider is not built on top of the file store of the model if provided
     // and imageProvider is defined even when there is no file store on the model
     imageProvider: new ImageProvider(new FileStore()),
-    startCellEdition: mockEnv.startCellEdition || (() => {}),
-    loadCurrencies:
-      mockEnv.loadCurrencies ||
-      (async () => {
-        return [] as Currency[];
-      }),
-    loadLocales: mockEnv.loadLocales || (async () => DEFAULT_LOCALES),
     getStore<T extends StoreConstructor>(Store: T) {
       const store = container.get(Store);
       return proxifyStoreMutation(store, () => container.trigger("store-updated"));
@@ -282,7 +273,6 @@ export function makeTestEnv(
     get isSmall() {
       return mockEnv.isSmall || false;
     },
-    isMobile: mockEnv.isMobile || isMobileOS,
     printSpreadsheet: mockEnv.printSpreadsheet || (() => {}),
     // @ts-ignore
     __spreadsheet_stores__: container,
@@ -373,13 +363,6 @@ class TestParent extends Component {
       //FIXME : image provider is not built on top of the file store of the model if provided
       // and imageProvider is defined even when there is no file store on the model
       imageProvider: new ImageProvider(new FileStore()),
-      startCellEdition: mockEnv.startCellEdition || (() => {}),
-      loadCurrencies:
-        mockEnv.loadCurrencies ||
-        (async () => {
-          return [] as Currency[];
-        }),
-      loadLocales: mockEnv.loadLocales || (async () => DEFAULT_LOCALES),
       getStore<T extends StoreConstructor>(Store: T) {
         const store = container.get(Store);
         return proxifyStoreMutation(store, () => container.trigger("store-updated"));
@@ -387,7 +370,6 @@ class TestParent extends Component {
       get isSmall() {
         return mockEnv.isSmall || false;
       },
-      isMobile: mockEnv.isMobile || isMobileOS,
       printSpreadsheet: mockEnv.printSpreadsheet || (() => {}),
       // @ts-ignore
       __spreadsheet_stores__: container,

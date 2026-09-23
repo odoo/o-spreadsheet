@@ -37,7 +37,6 @@ import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { NotificationCallbacks } from "../../types/stores/notification_store_methods";
 import { BottomBar } from "../bottom_bar/bottom_bar";
-import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { FullScreenFigure } from "../full_screen_figure/full_screen_figure";
 import { Grid } from "../grid/grid";
@@ -45,7 +44,6 @@ import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { cssPropertiesToCss } from "../helpers/css";
 import {
   getElBoundingRect,
-  isMobileOS,
   keyboardEventToShortcutString,
   zoomCorrectedElementRect,
 } from "../helpers/dom_helpers";
@@ -100,7 +98,6 @@ export class Spreadsheet extends OSComponent {
 
   private isViewportTooSmall: boolean = false;
   private notificationPlugin!: PluginInstance<typeof NotificationPlugin>;
-  private composerFocusStore!: Store<ComposerFocusStore>;
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
 
@@ -158,7 +155,6 @@ export class Spreadsheet extends OSComponent {
 
     providePluginsIfNotPresent([NotificationPlugin]);
     this.notificationPlugin = usePlugin(NotificationPlugin);
-    this.composerFocusStore = useStore(ComposerFocusStore);
     useStore(ClipboardStore);
     this.sidePanel = useStore(SidePanelStore);
     for (const store of globalStores.getAll()) {
@@ -169,12 +165,7 @@ export class Spreadsheet extends OSComponent {
     useSubEnv({
       model: this.model,
       imageProvider: fileStore ? new ImageProvider(fileStore) : undefined,
-      loadCurrencies: this.model.config.external.loadCurrencies,
-      loadLocales: this.model.config.external.loadLocales,
       clipboard: this.env.clipboard || instantiateClipboard(),
-      startCellEdition: (content?: string) =>
-        this.composerFocusStore.focusActiveComposer({ content }),
-      isMobile: isMobileOS,
       printSpreadsheet: this.enterPrintMode.bind(this),
     } satisfies Partial<SpreadsheetChildEnv>);
 

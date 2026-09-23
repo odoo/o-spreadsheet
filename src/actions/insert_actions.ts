@@ -1,3 +1,4 @@
+import { ComposerFocusStore } from "../components/composer/composer_focus_store";
 import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import { functionRegistry } from "../functions/function_registry";
 import { isDefined } from "../helpers/misc";
@@ -228,27 +229,27 @@ export const insertFunction: ActionSpec = {
 
 export const insertFunctionSum: ActionSpec = {
   name: _t("SUM"),
-  execute: (env) => env.startCellEdition(`=SUM(`),
+  execute: (env) => env.getStore(ComposerFocusStore).focusActiveComposer({ content: `=SUM(` }),
 };
 
 export const insertFunctionAverage: ActionSpec = {
   name: _t("AVERAGE"),
-  execute: (env) => env.startCellEdition(`=AVERAGE(`),
+  execute: (env) => env.getStore(ComposerFocusStore).focusActiveComposer({ content: `=AVERAGE(` }),
 };
 
 export const insertFunctionCount: ActionSpec = {
   name: _t("COUNT"),
-  execute: (env) => env.startCellEdition(`=COUNT(`),
+  execute: (env) => env.getStore(ComposerFocusStore).focusActiveComposer({ content: `=COUNT(` }),
 };
 
 export const insertFunctionMax: ActionSpec = {
   name: _t("MAX"),
-  execute: (env) => env.startCellEdition(`=MAX(`),
+  execute: (env) => env.getStore(ComposerFocusStore).focusActiveComposer({ content: `=MAX(` }),
 };
 
 export const insertFunctionMin: ActionSpec = {
   name: _t("MIN"),
-  execute: (env) => env.startCellEdition(`=MIN(`),
+  execute: (env) => env.getStore(ComposerFocusStore).focusActiveComposer({ content: `=MIN(` }),
 };
 
 export const categorieFunctionAll: ActionSpec = {
@@ -369,7 +370,8 @@ function createFormulaFunctions(fnNames: string[]): ActionSpec[] {
     return {
       name: fnName,
       sequence: i * 10,
-      execute: (env) => env.startCellEdition(`=${fnName}(`),
+      execute: (env) =>
+        env.getStore(ComposerFocusStore).focusActiveComposer({ content: `=${fnName}(` }),
     };
   });
 }

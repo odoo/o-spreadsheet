@@ -1,5 +1,6 @@
 import { CellIsRule, HeaderIndex, Model } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -740,7 +741,7 @@ describe("Grid composer", () => {
 
       env.model.selection.getBackToDefault();
       env.model.selection.selectCell(1, 1);
-      env.startCellEdition();
+      env.getStore(ComposerFocusStore).focusActiveComposer({});
       await nextTick();
       expect(getElComputedStyle(composerContainerSelector, "top")).toBe(expectedTop(1) + "px");
       expect(getElComputedStyle(composerContainerSelector, "left")).toBe(expectedLeft(1) + "px");
