@@ -1,5 +1,6 @@
 import { Action, createActions } from "../../actions/action";
 import { SidePanelStore } from "../../components/side_panel/side_panel/side_panel_store";
+import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { _t } from "../../translation";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
@@ -15,7 +16,7 @@ export function createTableStyleContextMenuActions(
       id: "editTableStyle",
       name: _t("Edit table style"),
       execute: (env) => env.getStore(SidePanelStore).open("TableStyleEditorPanel", { styleId }),
-      isEnabled: (env) => !env.isSmall,
+      isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
       icon: "o-spreadsheet-Icon.EDIT",
     },
     {

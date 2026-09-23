@@ -5,6 +5,7 @@ import {
   SpreadsheetActionEnv,
   SpreadsheetChildEnv,
 } from "../types/spreadsheet_env";
+import { StoreConstructor } from "../types/store_engine";
 
 export function createGetPluginFunctionFromScope(scope: Scope): OwlPluginGetter {
   return (plugin) => {
@@ -26,7 +27,11 @@ export function useSpreadsheetEnv(): SpreadsheetActionEnv {
     get(target, prop, receiver) {
       if ("getPlugin" === String(prop)) {
         return getPlugin;
+      } else if (prop === "getStore") {
+        // env.getStore should be scoped (we need a scope to create a store, as the store might need a owl plugin)
+        return (store: StoreConstructor) => scope.run(() => target.getStore(store));
       }
+
       return Reflect.get(target, prop, receiver);
     },
   });

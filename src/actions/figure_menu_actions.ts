@@ -5,6 +5,7 @@ import { getPoppedOutChartAnchor } from "../helpers/carousel_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts/chart_ui_common";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { deepEquals } from "../helpers/misc";
+import { IsSmallPlugin } from "../owl_plugins/is_small_plugin";
 import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
 import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
@@ -26,7 +27,7 @@ export function getChartMenuActions(figureId: UID, env: SpreadsheetActionEnv): A
         env.getStore(SidePanelStore).open("ChartPanel");
       },
       icon: "o-spreadsheet-Icon.EDIT",
-      isEnabled: (env) => !env.isSmall,
+      isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
     },
     getCopyMenuItem(figureId, env),
     getCutMenuItem(figureId, env),
@@ -100,7 +101,7 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetActionEnv)
         env.getStore(SidePanelStore).open("CarouselPanel", { figureId });
       },
       icon: "o-spreadsheet-Icon.EDIT",
-      isEnabled: (env) => !env.isSmall,
+      isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
     },
     {
       ...getCopyMenuItem(figureId, env, _t("Carousel copied to clipboard")),
@@ -121,7 +122,7 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetActionEnv)
         env.getStore(SidePanelStore).open("ChartPanel", {});
       },
       icon: "o-spreadsheet-Icon.EDIT",
-      isEnabled: (env) => !env.isSmall,
+      isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
       isVisible: isChartSelected,
     },
     {

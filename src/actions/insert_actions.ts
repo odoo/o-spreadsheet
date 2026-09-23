@@ -3,6 +3,7 @@ import { functionRegistry } from "../functions/function_registry";
 import { isDefined } from "../helpers/misc";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { UuidGenerator } from "../helpers/uuid";
+import { IsSmallPlugin } from "../owl_plugins/is_small_plugin";
 import { _t } from "../translation";
 import { ActionBuilder, ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
@@ -183,21 +184,21 @@ export const insertCellShiftRight: ActionSpec = {
 export const insertChart: ActionSpec = {
   name: _t("Chart"),
   execute: ACTIONS.CREATE_CHART,
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
   icon: "o-spreadsheet-Icon.INSERT_CHART",
 };
 
 export const insertCarousel: ActionSpec = {
   name: _t("Carousel"),
   execute: ACTIONS.CREATE_CAROUSEL,
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
   icon: "o-spreadsheet-Icon.CAROUSEL",
 };
 
 export const insertPivot: ActionSpec = {
   name: _t("Pivot table"),
   execute: ACTIONS.CREATE_PIVOT,
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
   isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.PIVOT",
 };
@@ -207,7 +208,7 @@ export const insertImage: ActionSpec = {
   shortcut: "Ctrl+O",
   execute: ACTIONS.CREATE_IMAGE,
   isVisible: (env) => env.imageProvider !== undefined,
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
   icon: "o-spreadsheet-Icon.INSERT_IMAGE",
 };
 
@@ -217,7 +218,7 @@ export const insertTable: ActionSpec = {
   execute: ACTIONS.INSERT_TABLE,
   isVisible: (env) =>
     ACTIONS.IS_SELECTION_CONTINUOUS(env) && !ACTIONS.FIRST_TABLE_IN_SELECTION(env),
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
   icon: "o-spreadsheet-Icon.PAINT_TABLE",
 };
 
@@ -343,7 +344,7 @@ export const insertDropdown: ActionSpec = {
       },
     });
   },
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
   icon: "o-spreadsheet-Icon.INSERT_DROPDOWN",
 };
 
