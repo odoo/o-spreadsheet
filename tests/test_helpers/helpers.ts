@@ -266,7 +266,6 @@ export function makeTestEnv(
     //FIXME : image provider is not built on top of the file store of the model if provided
     // and imageProvider is defined even when there is no file store on the model
     imageProvider: new ImageProvider(new FileStore()),
-    startCellEdition: mockEnv.startCellEdition || (() => {}),
     getStore<T extends StoreConstructor>(Store: T) {
       const store = container.get(Store);
       return proxifyStoreMutation(store, () => container.trigger("store-updated"));
@@ -364,7 +363,6 @@ class TestParent extends Component {
       //FIXME : image provider is not built on top of the file store of the model if provided
       // and imageProvider is defined even when there is no file store on the model
       imageProvider: new ImageProvider(new FileStore()),
-      startCellEdition: mockEnv.startCellEdition || (() => {}),
       getStore<T extends StoreConstructor>(Store: T) {
         const store = container.get(Store);
         return proxifyStoreMutation(store, () => container.trigger("store-updated"));

@@ -8,7 +8,6 @@ export interface SpreadsheetChildEnv {
   model: Model;
   imageProvider?: ImageProviderInterface;
   clipboard: ClipboardInterface;
-  startCellEdition: (content?: string) => void;
   getStore: Get;
   isSmall: boolean;
   printSpreadsheet: () => void;
