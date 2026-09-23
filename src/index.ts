@@ -241,6 +241,7 @@ export { load } from "./migrations/data";
 export { Model } from "./model";
 export { CorePlugin } from "./plugins/core_plugin";
 export { EvaluationPlugin } from "./plugins/evaluation_plugin";
+
 export { UIPlugin } from "./plugins/ui_plugin";
 export { Registry } from "./registries/registry";
 export { setTranslationMethod } from "./translation";
@@ -638,6 +639,10 @@ export const chartHelpers: typeof CHART_HELPERS & typeof CHART_RUNTIME_HELPERS =
   ...CHART_HELPERS,
   ...CHART_RUNTIME_HELPERS,
 };
+
+export const corePlugins = Object.fromEntries(
+  corePluginRegistry.getAll().map((Plugin) => [Plugin.name, Plugin])
+);
 
 export { SpreadsheetPivotTable } from "./helpers/pivot/table_spreadsheet_pivot";
 

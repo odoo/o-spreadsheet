@@ -99,7 +99,8 @@ export class CorePluginRegistry extends PluginRegistry<CorePluginConstructor> {
         .join(" → ");
       throw new Error(`Cyclic plugin dependency detected: ${cycle}`);
     }
-    for (const dep of dependencyChain.at(-1)?.dependencies || plugin.dependencies || []) {
+    const current = dependencyChain.length ? dependencyChain.at(-1) : plugin;
+    for (const dep of current?.dependencies || []) {
       this.checkDepCycle(plugin, dependencyChain.concat(dep));
     }
   }
