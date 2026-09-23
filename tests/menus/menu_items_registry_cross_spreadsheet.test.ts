@@ -24,15 +24,6 @@ describe("cross spreadsheet copy/paste", () => {
     selectCell(modelA, "A1");
     await doAction(["edit", "copy"], envA);
 
-    /**
-     * Copy the clipboard from envA to envB because
-     * in this context we need to simulate that
-     * the clipboard is shared between the two environments
-     * given that in a real world scenario we are using one
-     * clipboard which is the machine clipboard.
-     */
-    envB.clipboard = envA.clipboard;
-
     selectCell(modelB, "B1");
     await doAction(["edit", "paste"], envB);
 

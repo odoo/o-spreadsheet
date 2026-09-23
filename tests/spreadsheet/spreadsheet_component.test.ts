@@ -139,13 +139,6 @@ describe("Simple Spreadsheet Component", () => {
     });
   });
 
-  test("Clipboard is in spreadsheet env", async () => {
-    ({ env } = await mountSpreadsheet({
-      model: new Model({ sheets: [{ id: "sh1" }] }),
-    }));
-    expect(env.clipboard["clipboard"]).toBe(navigator.clipboard);
-  });
-
   test("typing opens composer after toolbar clicked", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet());
     const composerStore = parent.env.getStore(CellComposerStore);

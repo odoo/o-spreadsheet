@@ -8,6 +8,7 @@ import { CAROUSEL_LAYOUT } from "../../../src/constants";
 import { toZone } from "../../../src/helpers/zones";
 import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
+import { waitForOsClipboardContent } from "../../test_helpers/clipboard";
 import {
   addNewChartToCarousel,
   createCarousel,
@@ -651,11 +652,7 @@ describe("Carousel figure component", () => {
       action?.execute?.(env);
       await nextTick();
 
-      const clipboard = await env.clipboard.read!();
-      if (clipboard.status !== "ok") {
-        throw new Error("Clipboard read failed");
-      }
-      const clipboardContent = clipboard.content;
+      const clipboardContent = await waitForOsClipboardContent();
 
       const imgData = new window.Chart("test", mockChartData as any).toBase64Image();
 

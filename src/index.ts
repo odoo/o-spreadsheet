@@ -373,6 +373,7 @@ import { domainToColRowDomain } from "./helpers/pivot/pivot_domain_helpers";
 import { drawHighlight } from "./helpers/rendering";
 import { fuzzyLookup } from "./helpers/search";
 import { IsSmallPlugin } from "./owl_plugins/is_small_plugin";
+import { NavigatorClipboardPlugin } from "./owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "./owl_plugins/notification_owl_plugin";
 import { SpreadsheetRectPlugin } from "./owl_plugins/spreadsheet_rect_plugin";
 import { chartDataSourceSidePanelComponentRegistry } from "./registries/chart_data_source_component_registry";
@@ -599,6 +600,7 @@ export const owlPlugins = {
   NotificationPlugin,
   IsSmallPlugin,
   SpreadsheetRectPlugin,
+  NavigatorClipboardPlugin,
 };
 
 export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";

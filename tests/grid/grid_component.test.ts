@@ -37,7 +37,13 @@ import { Store } from "../../src/types/store_engine";
 import { xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { MockTransportService } from "../__mocks__/transport_service";
-import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
+import {
+  MockClipboardData,
+  getClipboardEvent,
+  getOsClipboardContent,
+  setOsClipboardContent,
+  waitForOsClipboardContent,
+} from "../test_helpers/clipboard";
 import {
   addEqualCf,
   addIconCF,
@@ -2134,10 +2140,7 @@ describe("Copy paste keyboard shortcut", () => {
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
     await nextTick();
-    const clipboard = await parent.env.clipboard.read!();
-    if (clipboard.status === "ok") {
-      clipboardData.content = clipboard.content;
-    }
+    clipboardData.content = await getOsClipboardContent();
     const clipboardContent = clipboardData.content;
     const clipboardStore = env.getStore(ClipboardStore);
     //@ts-ignore
@@ -2160,10 +2163,7 @@ describe("Copy paste keyboard shortcut", () => {
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
-    const clipboard = await parent.env.clipboard.read!();
-    if (clipboard.status === "ok") {
-      clipboardData.content = clipboard.content;
-    }
+    clipboardData.content = await getOsClipboardContent();
     const clipboardContent = clipboardData.content;
     const clipboardStore = env.getStore(ClipboardStore);
     //@ts-ignore
@@ -2188,10 +2188,7 @@ describe("Copy paste keyboard shortcut", () => {
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
-    const clipboard = await parent.env.clipboard.read!();
-    if (clipboard.status === "ok") {
-      clipboardData.content = clipboard.content;
-    }
+    clipboardData.content = await getOsClipboardContent();
     setCellContent(model, "A1", "new content");
     setFormatting(model, "A1", { bold: false });
     selectCell(model, "A2");
@@ -2208,10 +2205,7 @@ describe("Copy paste keyboard shortcut", () => {
     setCellFormat(model, "A1", "m/d/yyyy");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
-    const clipboard = await parent.env.clipboard.read!();
-    if (clipboard.status === "ok") {
-      clipboardData.content = clipboard.content;
-    }
+    clipboardData.content = await getOsClipboardContent();
     const clipboardContent = clipboardData.content;
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(getCellContent(model, "A1"));
     setFormulaVisibility(model, false);
@@ -2226,10 +2220,7 @@ describe("Copy paste keyboard shortcut", () => {
     setCellFormat(model, "A1", "m/d/yyyy");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
-    let clipboard = await parent.env.clipboard.read!();
-    if (clipboard.status === "ok") {
-      clipboardData.content = clipboard.content;
-    }
+    clipboardData.content = await getOsClipboardContent();
     let clipboardContent = clipboardData.content;
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(
       getEvaluatedCell(model, "A1").formattedValue
@@ -2244,10 +2235,7 @@ describe("Copy paste keyboard shortcut", () => {
     selectCell(model, "B1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
-    clipboard = await parent.env.clipboard.read!();
-    if (clipboard.status === "ok") {
-      clipboardData.content = clipboard.content;
-    }
+    clipboardData.content = await getOsClipboardContent();
     clipboardContent = clipboardData.content;
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(
       getEvaluatedCell(model, "B1").formattedValue
@@ -2267,14 +2255,11 @@ describe("Copy paste keyboard shortcut", () => {
     const ev = getClipboardEvent("copy", clipboardData);
     document.body.dispatchEvent(ev);
     await nextTick();
-    const clipboard = await parent.env.clipboard.read!();
-    if (clipboard.status === "ok") {
-      clipboardData.content = clipboard.content;
-    }
+    clipboardData.content = await getOsClipboardContent();
     // Fake OS clipboard should have the same content
     // to make paste come from spreadsheet clipboard
     // which support paste as values
-    await parent.env.clipboard.write(clipboardData.content);
+    setOsClipboardContent(clipboardData.content);
     selectCell(model, "A2");
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "V", ctrlKey: true, bubbles: true, shiftKey: true })
@@ -2407,10 +2392,7 @@ describe("Copy paste keyboard shortcut", () => {
     selectFigure(model, "figureId");
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
     await nextTick();
-    const clipboard = await parent.env.clipboard.read!();
-    if (clipboard.status === "ok") {
-      clipboardData.content = clipboard.content;
-    }
+    clipboardData.content = await getOsClipboardContent();
     const clipboardContent = clipboardData.content;
     expect(clipboardContent).toMatchObject({
       "text/plain": "\t",
@@ -2426,10 +2408,7 @@ describe("Copy paste keyboard shortcut", () => {
     selectFigure(model, "figureId");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
-    const clipboard = await parent.env.clipboard.read!();
-    if (clipboard.status === "ok") {
-      clipboardData.content = clipboard.content;
-    }
+    clipboardData.content = await getOsClipboardContent();
     const clipboardContent = clipboardData.content;
     expect(clipboardContent).toMatchObject({
       "text/plain": "\t",
@@ -2450,11 +2429,7 @@ describe("Copy paste keyboard shortcut", () => {
       selectFigure(model, "figId");
       document.body.dispatchEvent(getClipboardEvent(operation, clipboardData));
       await nextTick();
-      const clipboard = await parent.env.clipboard.read!();
-      if (clipboard.status !== "ok") {
-        throw new Error("Clipboard read failed");
-      }
-      const clipboardContent = clipboard.content;
+      const clipboardContent = await getOsClipboardContent();
 
       const clipboardStore = env.getStore(ClipboardStore);
       //@ts-ignore
@@ -2479,15 +2454,7 @@ describe("Copy paste keyboard shortcut", () => {
       document.body.dispatchEvent(getClipboardEvent(operation, clipboardData));
       await nextTick();
       // copying to the clipboard might take more than one tick
-      let clipboard = await parent.env.clipboard.read!();
-      while (clipboard.status === "ok" && Object.keys(clipboard.content).length === 0) {
-        await nextTick();
-        clipboard = await parent.env.clipboard.read!();
-      }
-      if (clipboard.status !== "ok") {
-        throw new Error("Clipboard read failed");
-      }
-      const clipboardContent = clipboard.content;
+      const clipboardContent = await waitForOsClipboardContent();
 
       const clipboardStore = env.getStore(ClipboardStore);
       //@ts-ignore
