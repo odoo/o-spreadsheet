@@ -14,7 +14,7 @@ import { DOMDimension, Rect } from "../../../types/rendering";
 import { Store } from "../../../types/store_engine";
 import { getCarouselOverlappingChart } from "../../helpers/chart_drag_and_drop";
 import { cssPropertiesToCss } from "../../helpers/css";
-import { isCtrlKey } from "../../helpers/dom_helpers";
+import { isCtrlKey, isMobileOS } from "../../helpers/dom_helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
 import { dragFigureForMove, dragFigureForResize } from "../../helpers/figure_drag_helper";
 import {
@@ -330,7 +330,7 @@ export class FiguresContainer extends OSComponent {
       }
     }
 
-    if (this.env.isMobile() || this.env.model.getters.isCurrentSheetLocked()) {
+    if (isMobileOS() || this.env.model.getters.isCurrentSheetLocked()) {
       return;
     }
 

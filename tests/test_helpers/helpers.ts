@@ -16,7 +16,7 @@ import { ComposerSelection } from "../../src/components/composer/composer/abstra
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { Composer } from "../../src/components/composer/composer/composer";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
-import { getCurrentSelection, isMobileOS } from "../../src/components/helpers/dom_helpers";
+import { getCurrentSelection } from "../../src/components/helpers/dom_helpers";
 import {
   createGetPluginFunctionFromScope,
   OSComponent,
@@ -282,7 +282,6 @@ export function makeTestEnv(
     get isSmall() {
       return mockEnv.isSmall || false;
     },
-    isMobile: mockEnv.isMobile || isMobileOS,
     printSpreadsheet: mockEnv.printSpreadsheet || (() => {}),
     // @ts-ignore
     __spreadsheet_stores__: container,
@@ -387,7 +386,6 @@ class TestParent extends Component {
       get isSmall() {
         return mockEnv.isSmall || false;
       },
-      isMobile: mockEnv.isMobile || isMobileOS,
       printSpreadsheet: mockEnv.printSpreadsheet || (() => {}),
       // @ts-ignore
       __spreadsheet_stores__: container,
