@@ -7,7 +7,7 @@ import { ZoomStore } from "../../../stores/zoom_store";
 import { ResizeDirection } from "../../../types/figure";
 import { HeaderIndex, Zone } from "../../../types/misc";
 import { Store } from "../../../types/store_engine";
-import { gridOverlayPosition } from "../../helpers/dom_helpers";
+import { gridOverlayPosition, isMobileOS } from "../../helpers/dom_helpers";
 import {
   DnDDirection,
   useDragAndDropBeyondTheViewport,
@@ -45,7 +45,7 @@ export class Highlight extends OSComponent {
   }
 
   get cornerOrientations(): Array<"nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w"> {
-    if (!this.env.isMobile()) {
+    if (!this.isMobile) {
       return ["nw", "ne", "sw", "se"];
     }
     const z = this.props.range.unboundedZone;
@@ -73,7 +73,7 @@ export class Highlight extends OSComponent {
 
     let scrollDirection: DnDDirection = "all";
 
-    if (this.env.isMobile()) {
+    if (this.isMobile) {
       scrollDirection = dirX === 0 ? "vertical" : dirY === 0 ? "horizontal" : "all";
     }
 
@@ -186,5 +186,9 @@ export class Highlight extends OSComponent {
     };
 
     this.dragNDropGrid.start(zoomedMouseEvent, mouseMove, mouseUp);
+  }
+
+  get isMobile() {
+    return isMobileOS();
   }
 }

@@ -11,7 +11,7 @@ import { CellComposerStore } from "../composer/composer/cell_composer_store";
 import { Composer } from "../composer/composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer/composer_focus_store";
 import { cssPropertiesToCss } from "../helpers/css";
-import { getElBoundingRect } from "../helpers/dom_helpers";
+import { getElBoundingRect, isMobileOS } from "../helpers/dom_helpers";
 import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
 import { RibbonMenu } from "./ribbon_menu/ribbon_menu";
@@ -52,7 +52,7 @@ export class SmallBottomBar extends OSComponent {
     const autoFocusComposer = () => {
       if (
         // we hide the grid composer on mobile so we need to autofocus this composer
-        this.env.isMobile() &&
+        isMobileOS() &&
         !this.menuState.isOpen &&
         this.composerStore.editionMode !== "inactive" &&
         this.composerFocusStore.activeComposer !== this.composerInterface

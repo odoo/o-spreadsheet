@@ -14,7 +14,7 @@ import { Store } from "../../types/store_engine";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { cssPropertiesToCss } from "../helpers/css";
-import { getElBoundingRect, isChildEvent, isCtrlKey } from "../helpers/dom_helpers";
+import { getElBoundingRect, isChildEvent, isCtrlKey, isMobileOS } from "../helpers/dom_helpers";
 import { useInterval } from "../helpers/time_hooks";
 import { ZoomedMouseEvent } from "../helpers/zoom";
 import { OSComponent } from "../os_component";
@@ -110,7 +110,7 @@ function useCellHovered(
   useListener(
     gridRef,
     "pointermove",
-    (ev: MouseEvent) => !env.isMobile() && updateMousePosition(zoomStore.getZoomedEvent(ev))
+    (ev: MouseEvent) => !isMobileOS() && updateMousePosition(zoomStore.getZoomedEvent(ev))
   );
   useListener(gridRef, "mouseleave", onMouseLeave);
   useListener(gridRef, "mouseenter", resume);
@@ -118,7 +118,7 @@ function useCellHovered(
   useListener(
     gridRef,
     "pointerdown",
-    (ev: MouseEvent) => env.isMobile() && updateMousePosition(zoomStore.getZoomedEvent(ev))
+    (ev: MouseEvent) => isMobileOS() && updateMousePosition(zoomStore.getZoomedEvent(ev))
   );
 
   useListener(window, "click", handleGlobalClick);
@@ -214,7 +214,7 @@ export class GridOverlay extends OSComponent {
   }
 
   onPointerMove(ev: MouseEvent) {
-    if (this.env.isMobile()) {
+    if (isMobileOS()) {
       return;
     }
     const icon = this.getInteractiveIconAtEvent(this.zoomStore.getZoomedEvent(ev));
@@ -225,7 +225,7 @@ export class GridOverlay extends OSComponent {
   }
 
   onPointerDown(ev: PointerEvent) {
-    if (ev.button > 0 || this.env.isMobile()) {
+    if (ev.button > 0 || isMobileOS()) {
       // not main button, probably a context menu
       return;
     }
@@ -233,7 +233,7 @@ export class GridOverlay extends OSComponent {
   }
 
   onClick(ev: MouseEvent) {
-    if (ev.button > 0 || !this.env.isMobile()) {
+    if (ev.button > 0 || !isMobileOS()) {
       // not main button, probably a context menu
       return;
     }

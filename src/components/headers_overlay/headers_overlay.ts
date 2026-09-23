@@ -10,7 +10,7 @@ import { EdgeScrollInfo } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
 import { ContextMenuType } from "../grid/grid";
 import { cssPropertiesToCss } from "../helpers/css";
-import { isCtrlKey } from "../helpers/dom_helpers";
+import { isCtrlKey, isMobileOS } from "../helpers/dom_helpers";
 import { startDnd } from "../helpers/drag_and_drop";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { ZoomedMouseEvent } from "../helpers/zoom";
@@ -157,7 +157,7 @@ abstract class AbstractResizer extends OSComponent {
 
   onMouseMove(ev: MouseEvent) {
     if (
-      this.env.isMobile() ||
+      isMobileOS() ||
       this.env.model.getters.isReadonly() ||
       this.state.isResizing ||
       this.state.isMoving ||
@@ -219,7 +219,7 @@ abstract class AbstractResizer extends OSComponent {
   }
 
   onClick(ev: MouseEvent) {
-    if (!this.env.isMobile()) {
+    if (!isMobileOS()) {
       return;
     }
     if (ev.button > 0) {
@@ -232,7 +232,7 @@ abstract class AbstractResizer extends OSComponent {
   }
 
   select(ev: PointerEvent) {
-    if (this.env.isMobile()) {
+    if (isMobileOS()) {
       return;
     }
     if (ev.button > 0) {
@@ -309,7 +309,7 @@ abstract class AbstractResizer extends OSComponent {
   }
 
   private startSelection(ev: PointerEvent, index: HeaderIndex) {
-    if (this.env.isMobile()) {
+    if (isMobileOS()) {
       return;
     }
     this.state.isSelecting = true;

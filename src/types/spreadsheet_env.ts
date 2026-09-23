@@ -15,7 +15,6 @@ export interface SpreadsheetChildEnv {
   loadLocales: () => Promise<Locale[]>;
   getStore: Get;
   isSmall: boolean;
-  isMobile: () => boolean;
   printSpreadsheet: () => void;
 }
 

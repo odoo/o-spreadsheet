@@ -17,7 +17,7 @@ import { CSSProperties, Color, Direction } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
-import { isIOS, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
+import { isIOS, isMobileOS, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
 import { types } from "../../props_validation";
@@ -491,7 +491,7 @@ export class Composer extends OSComponent {
       return;
     }
 
-    if (this.env.isMobile() && !isIOS()) {
+    if (isMobileOS() && !isIOS()) {
       return;
     }
     this.debouncedHover.stopDebounce();
