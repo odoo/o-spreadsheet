@@ -27,6 +27,7 @@ import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { ImageProviderPlugin } from "../../src/owl_plugins/image_provider_owl_plugin";
+import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { ClientFocusStore } from "../../src/stores/client_focus_store";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
@@ -2133,7 +2134,7 @@ describe("Copy paste keyboard shortcut", () => {
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
     await nextTick();
-    const clipboard = await parent.env.clipboard.read!();
+    const clipboard = await getOwlPlugin(NavigatorClipboardPlugin).read!();
     if (clipboard.status === "ok") {
       clipboardData.content = clipboard.content;
     }
@@ -2159,7 +2160,7 @@ describe("Copy paste keyboard shortcut", () => {
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
-    const clipboard = await parent.env.clipboard.read!();
+    const clipboard = await getOwlPlugin(NavigatorClipboardPlugin).read!();
     if (clipboard.status === "ok") {
       clipboardData.content = clipboard.content;
     }
@@ -2187,7 +2188,7 @@ describe("Copy paste keyboard shortcut", () => {
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
-    const clipboard = await parent.env.clipboard.read!();
+    const clipboard = await getOwlPlugin(NavigatorClipboardPlugin).read!();
     if (clipboard.status === "ok") {
       clipboardData.content = clipboard.content;
     }
@@ -2207,7 +2208,7 @@ describe("Copy paste keyboard shortcut", () => {
     setCellFormat(model, "A1", "m/d/yyyy");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
-    const clipboard = await parent.env.clipboard.read!();
+    const clipboard = await getOwlPlugin(NavigatorClipboardPlugin).read!();
     if (clipboard.status === "ok") {
       clipboardData.content = clipboard.content;
     }
@@ -2225,7 +2226,7 @@ describe("Copy paste keyboard shortcut", () => {
     setCellFormat(model, "A1", "m/d/yyyy");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
-    let clipboard = await parent.env.clipboard.read!();
+    let clipboard = await getOwlPlugin(NavigatorClipboardPlugin).read!();
     if (clipboard.status === "ok") {
       clipboardData.content = clipboard.content;
     }
@@ -2243,7 +2244,7 @@ describe("Copy paste keyboard shortcut", () => {
     selectCell(model, "B1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
-    clipboard = await parent.env.clipboard.read!();
+    clipboard = await getOwlPlugin(NavigatorClipboardPlugin).read!();
     if (clipboard.status === "ok") {
       clipboardData.content = clipboard.content;
     }
@@ -2266,14 +2267,14 @@ describe("Copy paste keyboard shortcut", () => {
     const ev = getClipboardEvent("copy", clipboardData);
     document.body.dispatchEvent(ev);
     await nextTick();
-    const clipboard = await parent.env.clipboard.read!();
+    const clipboard = await getOwlPlugin(NavigatorClipboardPlugin).read!();
     if (clipboard.status === "ok") {
       clipboardData.content = clipboard.content;
     }
     // Fake OS clipboard should have the same content
     // to make paste come from spreadsheet clipboard
     // which support paste as values
-    await parent.env.clipboard.write(clipboardData.content);
+    await getOwlPlugin(NavigatorClipboardPlugin).write(clipboardData.content);
     selectCell(model, "A2");
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "V", ctrlKey: true, bubbles: true, shiftKey: true })
@@ -2406,7 +2407,7 @@ describe("Copy paste keyboard shortcut", () => {
     selectFigure(model, "figureId");
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
     await nextTick();
-    const clipboard = await parent.env.clipboard.read!();
+    const clipboard = await getOwlPlugin(NavigatorClipboardPlugin).read!();
     if (clipboard.status === "ok") {
       clipboardData.content = clipboard.content;
     }
@@ -2425,7 +2426,7 @@ describe("Copy paste keyboard shortcut", () => {
     selectFigure(model, "figureId");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
-    const clipboard = await parent.env.clipboard.read!();
+    const clipboard = await getOwlPlugin(NavigatorClipboardPlugin).read!();
     if (clipboard.status === "ok") {
       clipboardData.content = clipboard.content;
     }
@@ -2449,7 +2450,7 @@ describe("Copy paste keyboard shortcut", () => {
       selectFigure(model, "figId");
       document.body.dispatchEvent(getClipboardEvent(operation, clipboardData));
       await nextTick();
-      const clipboard = await parent.env.clipboard.read!();
+      const clipboard = await getOwlPlugin(NavigatorClipboardPlugin).read!();
       if (clipboard.status !== "ok") {
         throw new Error("Clipboard read failed");
       }
@@ -2469,7 +2470,7 @@ describe("Copy paste keyboard shortcut", () => {
     }
   );
 
-  test.each<"cut" | "copy">(["copy" /*, "cut"*/])(
+  test.each<"cut" | "copy">(["copy", "cut"])(
     "%s an image pushes it in the clipboard as attachment",
     async (operation) => {
       selectCell(model, "A1");
@@ -2478,10 +2479,10 @@ describe("Copy paste keyboard shortcut", () => {
       document.body.dispatchEvent(getClipboardEvent(operation, clipboardData));
       await nextTick();
       // copying to the clipboard might take more than one tick
-      let clipboard = await parent.env.clipboard.read!();
+      let clipboard = await getOwlPlugin(NavigatorClipboardPlugin).read!();
       while (clipboard.status === "ok" && Object.keys(clipboard.content).length === 0) {
         await nextTick();
-        clipboard = await parent.env.clipboard.read!();
+        clipboard = await getOwlPlugin(NavigatorClipboardPlugin).read!();
       }
       if (clipboard.status !== "ok") {
         throw new Error("Clipboard read failed");

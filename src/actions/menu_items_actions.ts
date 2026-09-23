@@ -21,6 +21,7 @@ import { UuidGenerator } from "../helpers/uuid";
 import { areZonesContinuous, getZoneArea, isEqual } from "../helpers/zones";
 import { Model } from "../model";
 import { ImageProviderPlugin } from "../owl_plugins/image_provider_owl_plugin";
+import { NavigatorClipboardPlugin } from "../owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
 import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
@@ -60,7 +61,8 @@ export const PASTE_AS_VALUE_ACTION = async (env: SpreadsheetActionEnv) => paste(
 
 async function paste(env: SpreadsheetActionEnv, pasteOption?: ClipboardPasteOptions) {
   const notificationPlugin = env.getPlugin(NotificationPlugin);
-  const osClipboard = await env.clipboard.read();
+  const clipboardPlugin = env.getPlugin(NavigatorClipboardPlugin);
+  const osClipboard = await clipboardPlugin.read();
   const clipboardStore = env.getStore(ClipboardStore);
   switch (osClipboard.status) {
     case "ok":
@@ -76,7 +78,7 @@ async function paste(env: SpreadsheetActionEnv, pasteOption?: ClipboardPasteOpti
         await interactivePasteFromOS(env, target, osClipboardContent, pasteOption);
       }
       if (clipboardStore.isCutOperation() && pasteOption !== "asValue") {
-        await env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
+        await clipboardPlugin.write({ [ClipboardMIMEType.PlainText]: "" });
       }
       break;
     case "notImplemented":

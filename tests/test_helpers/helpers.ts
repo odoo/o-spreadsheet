@@ -75,6 +75,7 @@ import { computeFunctionsCache } from "../../src/formulas/compiler";
 import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
 import { ModelPlugin } from "../../src/owl_plugins/model_owl_plugin";
+import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { EvaluationPluginConstructor } from "../../src/plugins/evaluation_plugin";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
@@ -106,7 +107,6 @@ import { XLSXExport } from "../../src/types/xlsx";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
 import { fixLengthySheetNames, purgeSingleRowTables } from "../../src/xlsx/xlsx_writer";
 import { registerCleanup } from "../setup/jest.setup";
-import { MockClipboard } from "./clipboard";
 import {
   evaluateCells,
   redo,
@@ -232,9 +232,12 @@ export function makeSpreadsheetActionTestEnv(
     );
   }
 
-  const { getPlugin, container } = makeOwlPluginManager([NotificationPlugin, ModelPlugin], {
-    model,
-  });
+  const { getPlugin, container } = makeOwlPluginManager(
+    [NotificationPlugin, NavigatorClipboardPlugin, ModelPlugin],
+    {
+      model,
+    }
+  );
 
   container.inject(ModelStore, model);
   if (!mockEnv.useTrueRenderer) {
@@ -265,7 +268,6 @@ export function makeSpreadsheetActionTestEnv(
   }
   return {
     model: getPlugin(ModelPlugin).model,
-    clipboard: mockEnv.clipboard || new MockClipboard(),
     getStore<T extends StoreConstructor>(Store: T) {
       const store = container.get(Store);
       return proxifyStoreMutation(store, () => container.trigger("store-updated"));
@@ -310,7 +312,7 @@ class TestParent extends Component {
   });
 
   setup() {
-    providePlugins([NotificationPlugin, ModelPlugin], {
+    providePlugins([NotificationPlugin, NavigatorClipboardPlugin, ModelPlugin], {
       model: this.props.model,
     });
     if (this.props.isPortalTarget) {
@@ -353,7 +355,6 @@ class TestParent extends Component {
     const mockEnv = this.props.mockEnv || {};
     useSubEnv({
       model: this.props.model,
-      clipboard: mockEnv.clipboard || new MockClipboard(),
       getStore<T extends StoreConstructor>(Store: T) {
         const store = container.get(Store);
         return proxifyStoreMutation(store, () => container.trigger("store-updated"));

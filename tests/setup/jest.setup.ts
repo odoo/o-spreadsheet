@@ -15,6 +15,7 @@ import {
   mockGetBoundingClientRect,
 } from "../test_helpers/mock_helpers";
 import "./canvas.mock";
+import { defineMissingJSDomClipboardProperties, mockNavigatorClipboard } from "./clipboard.mock";
 import "./jest_extend";
 import "./polyfill";
 import "./resize_observer.mock";
@@ -102,9 +103,11 @@ beforeAll(() => {
   window.PointerEvent = PointerEventPolyfill;
 
   Element.prototype.scrollIntoView = () => {};
+  defineMissingJSDomClipboardProperties();
 });
 
 beforeEach(() => {
+  mockNavigatorClipboard();
   jest
     .spyOn(HTMLDivElement.prototype, "clientHeight", "get")
     .mockImplementation(function (this: HTMLDivElement) {

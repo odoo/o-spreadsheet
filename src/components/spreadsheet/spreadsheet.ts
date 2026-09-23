@@ -58,7 +58,6 @@ import { SidePanels } from "../side_panel/side_panels/side_panels";
 import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
 import { SpreadsheetPrint } from "../spreadsheet_print/spreadsheet_print";
 import { TopBar } from "../top_bar/top_bar";
-import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -171,7 +170,6 @@ export class Spreadsheet extends Component {
     }
 
     useSubEnv({
-      clipboard: this.env.clipboard || instantiateClipboard(),
       printSpreadsheet: this.enterPrintMode.bind(this),
     } satisfies Partial<SpreadsheetChildEnv>);
 
