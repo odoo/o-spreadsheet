@@ -71,7 +71,11 @@ import {
 } from "../header_resize_editor/header_resize_editor";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { cssPropertiesToCss } from "../helpers/css";
-import { getElBoundingRect, keyboardEventToShortcutString } from "../helpers/dom_helpers";
+import {
+  getElBoundingRect,
+  isMobileOS,
+  keyboardEventToShortcutString,
+} from "../helpers/dom_helpers";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import {
@@ -606,7 +610,7 @@ export class Grid extends OSComponent {
       this.model().selection.selectCell(col, row);
     }
 
-    if (this.env.isMobile()) {
+    if (this.isMobile) {
       return;
     }
 
@@ -1000,7 +1004,7 @@ export class Grid extends OSComponent {
   }
 
   get displaySelectionHandler() {
-    return this.env.isMobile() && this.composerFocusStore.activeComposer.editionMode === "inactive";
+    return this.isMobile && this.composerFocusStore.activeComposer.editionMode === "inactive";
   }
 
   get clientsToDisplay(): Required<Client>[] {
@@ -1014,5 +1018,9 @@ export class Grid extends OSComponent {
       !this.model().getters.isReadonly() &&
       !this.model().getters.isSheetLocked(this.model().getters.getActiveSheetId())
     );
+  }
+
+  get isMobile() {
+    return isMobileOS();
   }
 }

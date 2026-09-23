@@ -8,6 +8,7 @@ import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 
 import { Store } from "../../../types/store_engine";
+import { isMobileOS } from "../../helpers/dom_helpers";
 const MOBILE_HANDLER_WIDTH = 40;
 
 type Orientation = "nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w";
@@ -68,7 +69,7 @@ export class Corner extends OSComponent {
       height: `${edgeLength}px`,
       width: `${edgeLength}px`,
     };
-    if (this.env.isMobile()) {
+    if (isMobileOS()) {
       css["border-radius"] = `${edgeLength / 2}px`;
     }
 
@@ -76,7 +77,7 @@ export class Corner extends OSComponent {
   }
 
   getHandlerEdgeLength() {
-    return this.env.isMobile() ? MOBILE_HANDLER_WIDTH : AUTOFILL_EDGE_LENGTH;
+    return isMobileOS() ? MOBILE_HANDLER_WIDTH : AUTOFILL_EDGE_LENGTH;
   }
 
   get buttonLook() {
@@ -84,7 +85,7 @@ export class Corner extends OSComponent {
       "background-color": this.props.color,
       cursor: `${this.props.orientation}-resize`,
     };
-    if (this.env.isMobile()) {
+    if (isMobileOS()) {
       css["border-radius"] = `${AUTOFILL_EDGE_LENGTH / 2}px`;
     }
     return cssPropertiesToCss(css);
