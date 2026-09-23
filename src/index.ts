@@ -372,6 +372,7 @@ import {
 import { domainToColRowDomain } from "./helpers/pivot/pivot_domain_helpers";
 import { drawHighlight } from "./helpers/rendering";
 import { fuzzyLookup } from "./helpers/search";
+import { NavigatorClipboardPlugin } from "./owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "./owl_plugins/notification_owl_plugin";
 import { chartDataSourceSidePanelComponentRegistry } from "./registries/chart_data_source_component_registry";
 import { chartDataSourceRegistry } from "./registries/chart_data_source_registry";
@@ -595,6 +596,7 @@ export const stores = {
 export const owlPlugins = {
   PopoverContainerPlugin,
   NotificationPlugin,
+  NavigatorClipboardPlugin,
 };
 
 export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";

@@ -18,6 +18,7 @@ import { deepCopy } from "../../../src/helpers/misc";
 import { render } from "../../../src/helpers/owl3_helpers";
 import { toZone } from "../../../src/helpers/zones";
 import { App } from "../../../src/owl3_compatibility_layer";
+import { NavigatorClipboardPlugin } from "../../../src/owl_plugins/navigator_clipboard_plugin";
 import { chartSubtypeRegistry } from "../../../src/registries/chart_subtype_registry";
 import { HighlightStore } from "../../../src/stores/highlight_store";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
@@ -529,7 +530,7 @@ describe("charts", () => {
       await simulateClick(".o-chart-menu-item");
       await simulateClick(".o-menu div[data-name='copy_as_image']");
       await nextTick();
-      const clipboard = await env.clipboard.read!();
+      const clipboard = await getPlugin(NavigatorClipboardPlugin).read!();
       if (clipboard.status !== "ok") {
         throw new Error("Clipboard read failed");
       }

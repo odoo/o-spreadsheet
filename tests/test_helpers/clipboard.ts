@@ -1,28 +1,4 @@
 import { ClipboardMIMEType, OSClipboardContent } from "../../src";
-import {
-  ClipboardInterface,
-  ClipboardReadResult,
-} from "../../src/types/clipboard/clipboard_interface";
-
-export class MockClipboard implements ClipboardInterface {
-  content: OSClipboardContent = {};
-
-  async read(): Promise<ClipboardReadResult> {
-    return {
-      status: "ok",
-      content: { ...this.content },
-    };
-  }
-
-  async writeText(text: string): Promise<void> {
-    this.content[ClipboardMIMEType.PlainText] = text;
-    this.content[ClipboardMIMEType.Html] = "";
-  }
-
-  async write(content: OSClipboardContent) {
-    this.content = { ...content };
-  }
-}
 
 // jsDom does not support the creation of FileList
 // https://github.com/jsdom/jsdom/blame/main/lib/jsdom/living/file-api/FileList-impl.js#L7
