@@ -39,7 +39,6 @@ import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { NotificationCallbacks } from "../../types/stores/notification_store_methods";
 import { BottomBar } from "../bottom_bar/bottom_bar";
-import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { FullScreenFigure } from "../full_screen_figure/full_screen_figure";
 import { Grid } from "../grid/grid";
@@ -101,7 +100,6 @@ export class Spreadsheet extends Component {
   private isViewportTooSmall: boolean = false;
   private notificationPlugin!: PluginInstance<typeof NotificationPlugin>;
   private modelPlugin!: PluginInstance<typeof ModelPlugin>;
-  private composerFocusStore!: Store<ComposerFocusStore>;
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
 
@@ -166,7 +164,6 @@ export class Spreadsheet extends Component {
       fileStore: this.model().config.external.fileStore,
     });
     this.notificationPlugin = usePlugin(NotificationPlugin);
-    this.composerFocusStore = useStore(ComposerFocusStore);
     useStore(ClipboardStore);
     this.sidePanel = useStore(SidePanelStore);
     for (const store of globalStores.getAll()) {
@@ -175,8 +172,6 @@ export class Spreadsheet extends Component {
 
     useSubEnv({
       clipboard: this.env.clipboard || instantiateClipboard(),
-      startCellEdition: (content?: string) =>
-        this.composerFocusStore.focusActiveComposer({ content }),
       printSpreadsheet: this.enterPrintMode.bind(this),
     } satisfies Partial<SpreadsheetChildEnv>);
 

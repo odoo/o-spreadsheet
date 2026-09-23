@@ -266,7 +266,6 @@ export function makeSpreadsheetActionTestEnv(
   return {
     model: getPlugin(ModelPlugin).model,
     clipboard: mockEnv.clipboard || new MockClipboard(),
-    startCellEdition: mockEnv.startCellEdition || (() => {}),
     getStore<T extends StoreConstructor>(Store: T) {
       const store = container.get(Store);
       return proxifyStoreMutation(store, () => container.trigger("store-updated"));
@@ -355,7 +354,6 @@ class TestParent extends Component {
     useSubEnv({
       model: this.props.model,
       clipboard: mockEnv.clipboard || new MockClipboard(),
-      startCellEdition: mockEnv.startCellEdition || (() => {}),
       getStore<T extends StoreConstructor>(Store: T) {
         const store = container.get(Store);
         return proxifyStoreMutation(store, () => container.trigger("store-updated"));
