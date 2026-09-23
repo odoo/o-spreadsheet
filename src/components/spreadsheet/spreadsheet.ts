@@ -168,7 +168,6 @@ export class Spreadsheet extends OSComponent {
     useSubEnv({
       model: this.model,
       imageProvider: fileStore ? new ImageProvider(fileStore) : undefined,
-      loadLocales: this.model.config.external.loadLocales,
       clipboard: this.env.clipboard || instantiateClipboard(),
       startCellEdition: (content?: string) =>
         this.composerFocusStore.focusActiveComposer({ content }),
