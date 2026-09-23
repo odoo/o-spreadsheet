@@ -58,7 +58,6 @@ import {
   CommandTypes,
   ComposerFocusType,
   ConditionalFormat,
-  DEFAULT_LOCALES,
   EditionMode,
   EvaluatedCell,
   ExcelWorkbookData,
@@ -268,7 +267,6 @@ export function makeTestEnv(
     // and imageProvider is defined even when there is no file store on the model
     imageProvider: new ImageProvider(new FileStore()),
     startCellEdition: mockEnv.startCellEdition || (() => {}),
-    loadLocales: mockEnv.loadLocales || (async () => DEFAULT_LOCALES),
     getStore<T extends StoreConstructor>(Store: T) {
       const store = container.get(Store);
       return proxifyStoreMutation(store, () => container.trigger("store-updated"));
@@ -367,7 +365,6 @@ class TestParent extends Component {
       // and imageProvider is defined even when there is no file store on the model
       imageProvider: new ImageProvider(new FileStore()),
       startCellEdition: mockEnv.startCellEdition || (() => {}),
-      loadLocales: mockEnv.loadLocales || (async () => DEFAULT_LOCALES),
       getStore<T extends StoreConstructor>(Store: T) {
         const store = container.get(Store);
         return proxifyStoreMutation(store, () => container.trigger("store-updated"));
