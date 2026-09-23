@@ -57,7 +57,6 @@ import {
   CommandTypes,
   ComposerFocusType,
   ConditionalFormat,
-  Currency,
   DEFAULT_LOCALES,
   EditionMode,
   EvaluatedCell,
@@ -269,11 +268,6 @@ export function makeSpreadsheetActionTestEnv(
     model: getPlugin(ModelPlugin).model,
     clipboard: mockEnv.clipboard || new MockClipboard(),
     startCellEdition: mockEnv.startCellEdition || (() => {}),
-    loadCurrencies:
-      mockEnv.loadCurrencies ||
-      (async () => {
-        return [] as Currency[];
-      }),
     loadLocales: mockEnv.loadLocales || (async () => DEFAULT_LOCALES),
     getStore<T extends StoreConstructor>(Store: T) {
       const store = container.get(Store);
@@ -364,11 +358,6 @@ class TestParent extends Component {
       model: this.props.model,
       clipboard: mockEnv.clipboard || new MockClipboard(),
       startCellEdition: mockEnv.startCellEdition || (() => {}),
-      loadCurrencies:
-        mockEnv.loadCurrencies ||
-        (async () => {
-          return [] as Currency[];
-        }),
       loadLocales: mockEnv.loadLocales || (async () => DEFAULT_LOCALES),
       getStore<T extends StoreConstructor>(Store: T) {
         const store = container.get(Store);
