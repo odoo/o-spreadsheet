@@ -1,14 +1,12 @@
-import { ClipboardMIMEType, OSClipboardContent } from "../../types/clipboard";
-import { ClipboardInterface, ClipboardReadResult } from "../../types/clipboard/clipboard_interface";
-import { AllowedImageMimeTypes } from "../../types/image";
+import { Plugin } from "@odoo/owl";
+import { ClipboardMIMEType, OSClipboardContent } from "../types/clipboard";
+import { ClipboardInterface, ClipboardReadResult } from "../types/clipboard/clipboard_interface";
+import { AllowedImageMimeTypes } from "../types/image";
 
-export function instantiateClipboard(): ClipboardInterface {
-  return new WebClipboardWrapper(navigator.clipboard);
-}
-
-class WebClipboardWrapper implements ClipboardInterface {
-  // Can be undefined because navigator.clipboard doesn't exist in old browsers
-  constructor(private clipboard: Clipboard | undefined) {}
+export class NavigatorClipboardPlugin extends Plugin implements ClipboardInterface {
+  private get clipboard(): Clipboard {
+    return navigator.clipboard;
+  }
 
   async write(clipboardContent: OSClipboardContent): Promise<void> {
     if (this.clipboard?.write) {

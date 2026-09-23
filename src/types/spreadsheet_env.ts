@@ -1,13 +1,11 @@
 import { PluginConstructor, PluginInstance } from "@odoo/owl";
 import { Model } from "../model";
-import { ClipboardInterface } from "./clipboard/clipboard_interface";
 import { ImageProviderInterface } from "./files";
 import { Get } from "./store_engine";
 
 export interface SpreadsheetChildEnv {
   model: Model;
   imageProvider?: ImageProviderInterface;
-  clipboard: ClipboardInterface;
   getStore: Get;
   isSmall: boolean;
   printSpreadsheet: () => void;

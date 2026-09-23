@@ -20,6 +20,7 @@ import { batched } from "../../helpers/misc";
 import { providePluginsIfNotPresent, render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
 import { useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
+import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
@@ -57,7 +58,6 @@ import { SidePanels } from "../side_panel/side_panels/side_panels";
 import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
 import { SpreadsheetPrint } from "../spreadsheet_print/spreadsheet_print";
 import { TopBar } from "../top_bar/top_bar";
-import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -161,11 +161,11 @@ export class Spreadsheet extends OSComponent {
       useStore(store);
     }
     const fileStore = this.model.config.external.fileStore;
+    providePlugins([NavigatorClipboardPlugin]);
 
     useSubEnv({
       model: this.model,
       imageProvider: fileStore ? new ImageProvider(fileStore) : undefined,
-      clipboard: this.env.clipboard || instantiateClipboard(),
       printSpreadsheet: this.enterPrintMode.bind(this),
     } satisfies Partial<SpreadsheetChildEnv>);
 
