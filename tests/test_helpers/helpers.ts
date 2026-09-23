@@ -57,7 +57,6 @@ import {
   CommandTypes,
   ComposerFocusType,
   ConditionalFormat,
-  DEFAULT_LOCALES,
   EditionMode,
   EvaluatedCell,
   ExcelWorkbookData,
@@ -268,7 +267,6 @@ export function makeSpreadsheetActionTestEnv(
     model: getPlugin(ModelPlugin).model,
     clipboard: mockEnv.clipboard || new MockClipboard(),
     startCellEdition: mockEnv.startCellEdition || (() => {}),
-    loadLocales: mockEnv.loadLocales || (async () => DEFAULT_LOCALES),
     getStore<T extends StoreConstructor>(Store: T) {
       const store = container.get(Store);
       return proxifyStoreMutation(store, () => container.trigger("store-updated"));
@@ -358,7 +356,6 @@ class TestParent extends Component {
       model: this.props.model,
       clipboard: mockEnv.clipboard || new MockClipboard(),
       startCellEdition: mockEnv.startCellEdition || (() => {}),
-      loadLocales: mockEnv.loadLocales || (async () => DEFAULT_LOCALES),
       getStore<T extends StoreConstructor>(Store: T) {
         const store = container.get(Store);
         return proxifyStoreMutation(store, () => container.trigger("store-updated"));

@@ -174,7 +174,6 @@ export class Spreadsheet extends Component {
     }
 
     useSubEnv({
-      loadLocales: this.model().config.external.loadLocales,
       clipboard: this.env.clipboard || instantiateClipboard(),
       startCellEdition: (content?: string) =>
         this.composerFocusStore.focusActiveComposer({ content }),
