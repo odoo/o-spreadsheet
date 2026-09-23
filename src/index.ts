@@ -639,6 +639,10 @@ export const chartHelpers: typeof CHART_HELPERS & typeof CHART_RUNTIME_HELPERS =
   ...CHART_RUNTIME_HELPERS,
 };
 
+export const corePlugins = Object.fromEntries(
+  corePluginRegistry.getAll().map((Plugin) => [Plugin.name, Plugin])
+);
+
 export { SpreadsheetPivotTable } from "./helpers/pivot/table_spreadsheet_pivot";
 
 export { AbstractCellClipboardHandler } from "./clipboard_handlers/abstract_cell_clipboard_handler";
