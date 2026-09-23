@@ -21,7 +21,7 @@ import { Store } from "../../../types/store_engine";
 import { Ripple } from "../../animation/ripple";
 import { ColorPicker } from "../../color_picker/color_picker";
 import { cssPropertiesToCss } from "../../helpers/css";
-import { getElBoundingRect } from "../../helpers/dom_helpers";
+import { getElBoundingRect, isMobileOS } from "../../helpers/dom_helpers";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 
@@ -157,14 +157,14 @@ export class BottomBarSheet extends OSComponent {
   }
 
   onClick() {
-    if (!this.env.isMobile()) {
+    if (!isMobileOS()) {
       return;
     }
     this.activateSheet();
   }
 
   onMouseDown(ev: PointerEvent) {
-    if (this.env.isMobile()) {
+    if (isMobileOS()) {
       return;
     }
     this.activateSheet();

@@ -14,7 +14,7 @@ import { DOMDimension, Rect } from "../../../types/rendering";
 import { Store } from "../../../types/store_engine";
 import { getOverlappedFigure } from "../../helpers/chart_drag_and_drop";
 import { cssPropertiesToCss } from "../../helpers/css";
-import { isCtrlKey } from "../../helpers/dom_helpers";
+import { isCtrlKey, isMobileOS } from "../../helpers/dom_helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
 import {
   dragFigureForMove,
@@ -320,7 +320,7 @@ export class FiguresContainer extends OSComponent {
       }
     }
 
-    if (this.env.isMobile() || this.model().getters.isCurrentSheetLocked()) {
+    if (isMobileOS() || this.model().getters.isCurrentSheetLocked()) {
       return;
     }
 
