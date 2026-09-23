@@ -55,10 +55,21 @@ export function setStyle(model: Model, style: Style) {
 //------------------------------------------------------------------------------
 
 export const PASTE_ACTION = async (env: SpreadsheetActionEnv) => paste(env);
-export const PASTE_AS_VALUE_ACTION = async (env: SpreadsheetActionEnv) => paste(env, "asValue");
+export const PASTE_VALUE_ACTION = async (env: SpreadsheetActionEnv) => paste(env, ["value"]);
+export const PASTE_FORMAT_ACTION = (env: SpreadsheetActionEnv) => paste(env, ["format"]);
+export const PASTE_FORMULA_ACTION = (env: SpreadsheetActionEnv) => paste(env, ["formula"]);
+export const PASTE_TRANSPOSE_ACTION = (env: SpreadsheetActionEnv) => paste(env, ["transpose"]);
+export const PASTE_TRANSPOSE_VALUE_ACTION = (env: SpreadsheetActionEnv) =>
+  paste(env, ["transpose", "value"]);
+export const PASTE_TRANSPOSE_FORMULA_ACTION = (env: SpreadsheetActionEnv) =>
+  paste(env, ["transpose", "formula"]);
 
-async function paste(env: SpreadsheetActionEnv, pasteOption?: ClipboardPasteOptions) {
+async function paste(env: SpreadsheetActionEnv, pasteOptions?: ClipboardPasteOptions[]) {
+  if (pasteOptions?.length === 0) {
+    pasteOptions = undefined;
+  }
   const notificationPlugin = env.getPlugin(NotificationPlugin);
+
   const osClipboard = await env.clipboard.read();
   const clipboardStore = env.getStore(ClipboardStore);
   switch (osClipboard.status) {
@@ -69,12 +80,12 @@ async function paste(env: SpreadsheetActionEnv, pasteOption?: ClipboardPasteOpti
         osClipboard.content[ClipboardMIMEType.Html]
       );
       if (clipboardId === htmlClipboardId) {
-        interactivePaste(env, target, pasteOption);
+        interactivePaste(env, target, pasteOptions);
       } else {
         const osClipboardContent = parseOSClipboardContent(osClipboard.content);
-        await interactivePasteFromOS(env, target, osClipboardContent, pasteOption);
+        await interactivePasteFromOS(env, target, osClipboardContent, pasteOptions);
       }
-      if (clipboardStore.isCutOperation() && pasteOption !== "asValue") {
+      if (clipboardStore.isCutOperation() && !pasteOptions?.includes("value")) {
         await env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
       }
       break;
@@ -94,8 +105,6 @@ async function paste(env: SpreadsheetActionEnv, pasteOption?: ClipboardPasteOpti
       break;
   }
 }
-
-export const PASTE_FORMAT_ACTION = (env: SpreadsheetActionEnv) => paste(env, "onlyFormat");
 
 //------------------------------------------------------------------------------
 // Grid manipulations

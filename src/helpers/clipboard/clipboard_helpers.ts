@@ -3,6 +3,7 @@ import {
   ClipboardCellData,
   ClipboardMIMEType,
   ClipboardOptions,
+  ClipboardPasteOptions,
   ClipboardPasteTarget,
   MinimalClipboardData,
   OSClipboardContent,
@@ -10,7 +11,7 @@ import {
   SpreadsheetClipboardData,
 } from "../../types/clipboard";
 import { AllowedImageMimeTypes } from "../../types/image";
-import { UID, Zone } from "../../types/misc";
+import { Border, UID, Zone } from "../../types/misc";
 import { SelectionStreamProcessor } from "../../types/selection_stream_processor";
 import { mergeOverlappingZones, positions, union } from "../zones";
 
@@ -204,3 +205,24 @@ export const selectPastedZone = (
     { scrollIntoView: false }
   );
 };
+
+export function shouldPasteFormat(pasteOptions?: ClipboardPasteOptions[]): boolean {
+  return (
+    !pasteOptions?.length || (!pasteOptions.includes("value") && !pasteOptions.includes("formula"))
+  );
+}
+
+/**
+ * Rotate a border to match a transposed paste: top <-> left and bottom <-> right
+ */
+export function transposeBorder<T extends Border | null | undefined>(border: T): T {
+  if (!border) {
+    return border;
+  }
+  return {
+    top: border.left,
+    left: border.top,
+    bottom: border.right,
+    right: border.bottom,
+  } as T;
+}

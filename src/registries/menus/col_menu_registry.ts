@@ -35,6 +35,23 @@ colMenuRegistry
     ...ACTION_EDIT.pasteSpecialFormat,
     sequence: 20,
   })
+  .addChild("paste_formula_only", ["paste_special"], {
+    ...ACTION_EDIT.pasteSpecialFormula,
+    sequence: 30,
+  })
+  .addChild("paste_transpose", ["paste_special"], {
+    ...ACTION_EDIT.pasteSpecialTranspose,
+    sequence: 40,
+    separator: true,
+  })
+  .addChild("paste_transpose_as_value", ["paste_special"], {
+    ...ACTION_EDIT.pasteSpecialTransposeValue,
+    sequence: 50,
+  })
+  .addChild("paste_transpose_as_formula", ["paste_special"], {
+    ...ACTION_EDIT.pasteSpecialTransposeFormula,
+    sequence: 60,
+  })
   .add("sort_columns", {
     ...ACTION_DATA.sortRange,
     name: (env) =>

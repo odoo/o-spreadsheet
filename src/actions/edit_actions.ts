@@ -69,14 +69,34 @@ export const pasteSpecial: ActionSpec = {
 };
 
 export const pasteSpecialValue: ActionSpec = {
-  name: _t("Paste as value"),
+  name: _t("Values only"),
   shortcut: "Ctrl+Shift+V",
-  execute: ACTIONS.PASTE_AS_VALUE_ACTION,
+  execute: ACTIONS.PASTE_VALUE_ACTION,
 };
 
 export const pasteSpecialFormat: ActionSpec = {
-  name: _t("Paste format only"),
+  name: _t("Format only"),
   execute: ACTIONS.PASTE_FORMAT_ACTION,
+};
+
+export const pasteSpecialFormula: ActionSpec = {
+  name: _t("Formula only"),
+  execute: ACTIONS.PASTE_FORMULA_ACTION,
+};
+
+export const pasteSpecialTranspose: ActionSpec = {
+  name: _t("Transposed"),
+  execute: ACTIONS.PASTE_TRANSPOSE_ACTION,
+};
+
+export const pasteSpecialTransposeValue: ActionSpec = {
+  name: _t("Transposed values only"),
+  execute: ACTIONS.PASTE_TRANSPOSE_VALUE_ACTION,
+};
+
+export const pasteSpecialTransposeFormula: ActionSpec = {
+  name: _t("Transposed formula only"),
+  execute: ACTIONS.PASTE_TRANSPOSE_FORMULA_ACTION,
 };
 
 export const findAndReplace: ActionSpec = {

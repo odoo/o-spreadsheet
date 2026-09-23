@@ -884,7 +884,7 @@ describe("Table plugin", () => {
       createTable(model, "A1:B4", { styleId: "TestStyleAllRed" });
 
       copy(model, "A1:B4");
-      paste(model, "A5", "asValue");
+      paste(model, "A5", "value");
       expect(getTable(model, "A5")).toBeFalsy();
       expect(getCellStyle(model, "A5")).toBeUndefined();
     });
@@ -893,22 +893,33 @@ describe("Table plugin", () => {
       createTable(model, "A1:A2", { styleId: "TestStyleAllRed" });
 
       copy(model, "A1:A2");
-      paste(model, "A5", "onlyFormat");
+      paste(model, "A5", "format");
       expect(getTable(model, "A5")).toBeFalsy();
       expect(getCellStyle(model, "A5")).toEqual({ fillColor: "#FF0000", bold: true });
       expect(getBorder(model, "A5")).toEqual({ top: DEFAULT_BORDER_DESC });
       expect(getCellStyle(model, "A6")).toEqual({ fillColor: "#FF0000" });
     });
 
-    test("Pasting onlyFormat with a partial table copied paste the table style, not asValue", () => {
+    test("Transposed paste of a whole table pastes its transposed style, not the table", () => {
+      createTable(model, "A1:A2", { styleId: "TestStyleAllRed" });
+
+      copy(model, "A1:A2");
+      paste(model, "A5", "transpose");
+      expect(getTable(model, "A5")).toBeFalsy();
+      expect(getCellStyle(model, "A5")).toEqual({ fillColor: "#FF0000", bold: true });
+      expect(getBorder(model, "A5")).toEqual({ left: DEFAULT_BORDER_DESC });
+      expect(getCellStyle(model, "B5")).toEqual({ fillColor: "#FF0000" });
+    });
+
+    test("Pasting format with a partial table copied paste the table style, not value", () => {
       createTable(model, "A1:B4");
       updateTableConfig(model, "A1", { styleId: "TestStyleAllRed" });
       copy(model, "A1");
 
-      paste(model, "A5", "onlyFormat");
+      paste(model, "A5", "format");
       expect(getCellStyle(model, "A5")).toEqual({ fillColor: "#FF0000", bold: true });
 
-      paste(model, "A6", "asValue");
+      paste(model, "A6", "value");
       expect(getCellStyle(model, "A6")).toEqual(undefined);
     });
 
