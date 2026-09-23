@@ -1,6 +1,7 @@
 import { signal, useProps } from "@odoo/owl";
 import { HIGHLIGHT_COLOR, TEXT_BODY } from "../../../../constants";
 import { colorNumberToHex } from "../../../../helpers/color";
+import { getFullReference } from "../../../../helpers/references";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { Highlight } from "../../../../types/misc";
@@ -77,9 +78,14 @@ export class ConditionalFormatPreview extends OSComponent {
   }
 
   editConditionalFormat() {
+    const sheetName = this.env.model.getters.getActiveSheetName();
+    const ranges = this.props.conditionalFormat.ranges.map((range) =>
+      getFullReference(sheetName, range)
+    );
     this.sidePanelStore.replace("ConditionalFormattingEditor", "ConditionalFormatting", {
-      cf: this.props.conditionalFormat,
+      cf: { ...this.props.conditionalFormat, ranges },
       isNewCf: false,
+      sheetId: this.env.model.getters.getActiveSheetId(),
     });
   }
 

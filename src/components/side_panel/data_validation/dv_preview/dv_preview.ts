@@ -27,6 +27,7 @@ export class DataValidationPreview extends OSComponent {
   onPreviewClick() {
     this.sidePanelStore.replace("DataValidationEditor", "DataValidation", {
       ruleId: this.props.rule.id,
+      sheetId: this.env.model.getters.getActiveSheetId(),
     });
   }
 
