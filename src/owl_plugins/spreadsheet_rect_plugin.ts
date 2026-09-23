@@ -1,10 +1,10 @@
 import { Plugin, shallowEqual, signal } from "@odoo/owl";
-import { Rect } from "../../types/rendering";
+import { Rect } from "../types/rendering";
 
-export class PopoverContainerPlugin extends Plugin {
+export class SpreadsheetRectPlugin extends Plugin {
   rect = signal<Rect>({ x: 0, y: 0, width: 0, height: 0 }, { equals: shallowEqual });
 
-  setContainerRect(rect: Rect) {
+  setPosition(rect: Rect) {
     this.rect.set(rect);
   }
 }

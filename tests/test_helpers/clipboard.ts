@@ -1,27 +1,45 @@
 import { ClipboardMIMEType, OSClipboardContent } from "../../src";
-import {
-  ClipboardInterface,
-  ClipboardReadResult,
-} from "../../src/types/clipboard/clipboard_interface";
+import { AllowedImageMimeTypes } from "../../src/types/image";
+import { MockClipboardItem, mockClipboard } from "../setup/clipboard.mock";
+import { nextTick } from "./helpers";
 
-export class MockClipboard implements ClipboardInterface {
-  content: OSClipboardContent = {};
-
-  async read(): Promise<ClipboardReadResult> {
-    return {
-      status: "ok",
-      content: { ...this.content },
-    };
+/**
+ * Read the OS clipboard directly from the mock, without going through
+ * `NavigatorClipboardPlugin.read()`, so that a bug in the plugin cannot make an
+ * assertion silently pass.
+ */
+export async function getOsClipboardContent(): Promise<OSClipboardContent> {
+  const content: OSClipboardContent = {};
+  for (const item of mockClipboard.items) {
+    for (const type of item.types) {
+      const blob = await item.getType(type);
+      content[type] = AllowedImageMimeTypes.includes(type as (typeof AllowedImageMimeTypes)[number])
+        ? blob
+        : await blob.text();
+    }
   }
+  return content;
+}
 
-  async writeText(text: string): Promise<void> {
-    this.content[ClipboardMIMEType.PlainText] = text;
-    this.content[ClipboardMIMEType.Html] = "";
-  }
+/** Fully replace the OS clipboard, as any application copying something would do */
+export function setOsClipboardContent(content: OSClipboardContent) {
+  mockClipboard.items = [new MockClipboardItem({ ...content } as Record<string, Blob | string>)];
+}
 
-  async write(content: OSClipboardContent) {
-    this.content = { ...content };
+export function setOsClipboardText(text: string) {
+  setOsClipboardContent({ [ClipboardMIMEType.PlainText]: text });
+}
+
+/** The OS clipboard is filled asynchronously after a copy, it might take a few ticks */
+export async function waitForOsClipboardContent(maxTicks = 20): Promise<OSClipboardContent> {
+  for (let i = 0; i < maxTicks; i++) {
+    const content = await getOsClipboardContent();
+    if (Object.keys(content).length) {
+      return content;
+    }
+    await nextTick();
   }
+  throw new Error(`The OS clipboard is still empty after ${maxTicks} ticks`);
 }
 
 // jsDom does not support the creation of FileList

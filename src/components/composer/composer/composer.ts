@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, proxy, signal, useProps } from "@odoo/owl";
+import { onMounted, onWillUnmount, proxy, signal, usePlugin, useProps } from "@odoo/owl";
 import { NEWLINE, SCROLLBAR_WIDTH } from "../../../constants";
 import { setColorAlpha } from "../../../helpers/color";
 import { debounce, deepEquals, isFormula } from "../../../helpers/misc";
@@ -9,6 +9,7 @@ import { DEFAULT_TOKEN_COLOR } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { argTargeting } from "../../../functions/arguments";
 import { functionRegistry } from "../../../functions/function_registry";
+import { SpreadsheetRectPlugin } from "../../../owl_plugins/spreadsheet_rect_plugin";
 import { AutoCompleteProposal } from "../../../registries/auto_completes/auto_complete_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
@@ -18,7 +19,6 @@ import { Rect } from "../../../types/rendering";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { isIOS, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
-import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
 import { types } from "../../props_validation";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
@@ -102,7 +102,7 @@ export class Composer extends OSComponent {
     forcedClosed: false,
   });
   private compositionActive: boolean = false;
-  private spreadsheetRect = useSpreadsheetRect();
+  private spreadsheetRectPlugin = usePlugin(SpreadsheetRectPlugin);
   private lastHoveredTokenIndex: number | undefined = undefined;
 
   private debouncedHover = debounce(
@@ -152,10 +152,11 @@ export class Composer extends OSComponent {
         assistantStyle.right = `0px`;
       }
     } else {
-      assistantStyle["max-height"] = `${this.spreadsheetRect.height - composerRect.bottom - 1}px`; // -1: margin
+      const spreadsheetRect = this.spreadsheetRectPlugin.rect();
+      assistantStyle["max-height"] = `${spreadsheetRect.height - composerRect.bottom - 1}px`; // -1: margin
       if (
         composerRect.left + ASSISTANT_WIDTH + SCROLLBAR_WIDTH + CLOSE_ICON_RADIUS >
-        this.spreadsheetRect.width
+        spreadsheetRect.width
       ) {
         assistantStyle.right = `${CLOSE_ICON_RADIUS}px`;
       }

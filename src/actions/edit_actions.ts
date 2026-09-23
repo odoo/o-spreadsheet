@@ -3,6 +3,8 @@ import { interactiveCut } from "../helpers/ui/cut_interactive";
 import { interactiveAddMerge } from "../helpers/ui/merge_interactive";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { doesAnyZoneCrossFrozenPane, getZoneArea, hasOverlappingZones } from "../helpers/zones";
+import { IsSmallPlugin } from "../owl_plugins/is_small_plugin";
+import { NavigatorClipboardPlugin } from "../owl_plugins/navigator_clipboard_plugin";
 import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
 import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
@@ -35,7 +37,9 @@ export const copy: ActionSpec = {
   execute: async (env) => {
     env.model.dispatch("COPY");
     const clipboardStore = env.getStore(ClipboardStore);
-    await env.clipboard.write(await clipboardStore.getClipboardTextAndImageContent());
+    await env
+      .getPlugin(NavigatorClipboardPlugin)
+      .write(await clipboardStore.getClipboardTextAndImageContent());
   },
   isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.CLIPBOARD",
@@ -47,7 +51,9 @@ export const cut: ActionSpec = {
   execute: async (env) => {
     interactiveCut(env);
     const clipboardStore = env.getStore(ClipboardStore);
-    await env.clipboard.write(await clipboardStore.getClipboardTextAndImageContent());
+    await env
+      .getPlugin(NavigatorClipboardPlugin)
+      .write(await clipboardStore.getClipboardTextAndImageContent());
   },
   icon: "o-spreadsheet-Icon.CUT",
 };
@@ -87,7 +93,7 @@ export const findAndReplace: ActionSpec = {
   execute: (env) => {
     env.getStore(SidePanelStore).open("FindAndReplace", {});
   },
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
   icon: "o-spreadsheet-Icon.SEARCH",
 };
 

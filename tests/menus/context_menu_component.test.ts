@@ -1,4 +1,4 @@
-import { providePlugins, useProps, xml } from "@odoo/owl";
+import { useProps, xml } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../src/actions/action";
 import { MenuPopover } from "../../src/components/menu_popover/menu_popover";
 import {
@@ -27,7 +27,6 @@ import {
 import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
 
 import { Rect } from "../../src";
-import { PopoverContainerPlugin } from "../../src/components/popover/popover_container_owl_plugin";
 import { types } from "../../src/components/props_validation";
 import { render } from "../../src/helpers/owl3_helpers";
 import { PopoverPropsPosition } from "../../src/types/cell_popovers";
@@ -35,7 +34,7 @@ import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   getStylePropertyInPx,
   makeTestFixture,
-  mountComponent,
+  mountComponentWithPortalTarget,
   mountSpreadsheet,
   nextTick,
   useJestFakeTimers,
@@ -147,7 +146,7 @@ async function renderContextMenu(
   // x, y are relative to the upper left grid corner, but the menu
   // props must take the top bar into account.
   fixture = makeTestFixture();
-  ({ fixture, model, parent } = await mountComponent(ContextMenuParent, {
+  ({ fixture, model, parent } = await mountComponentWithPortalTarget(ContextMenuParent, {
     props: {
       x,
       y,
@@ -182,7 +181,7 @@ interface Props {
 
 class ContextMenuParent extends Component {
   static template = xml/* xml */ `
-    <div class="o-spreadsheet">
+    <div>
       <MenuPopover
         onClose="() => this.onClose()"
         anchorRect="this.anchorRect"
@@ -216,15 +215,14 @@ class ContextMenuParent extends Component {
     this.menus = this.props.config.menuItems || createActions([makeTestMenuItem("Action")]);
     resizeSheetView(this.env, { height: this.props.height, width: this.props.width });
   }
-
-  setup() {
-    providePlugins([PopoverContainerPlugin], {
-      getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
-    });
-  }
 }
 
+let gridWidth = 1000;
+let gridHeight = 1000;
+
 beforeEach(() => {
+  gridWidth = 1000;
+  gridHeight = 1000;
   extendMockGetBoundingClientRect({
     "o-menu": (el) => getElPosition(el),
     "o-menu-wrapper": (el) => getElPosition(el),
@@ -254,6 +252,7 @@ beforeEach(() => {
     "o-topbar-responsive": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
     "o-dropdown": () => ({ x: 0, y: 0, width: 30, height: 30 }),
     "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+    "o-grid": () => ({ x: 0, y: 0, width: gridWidth, height: gridHeight }),
   });
 });
 
@@ -925,6 +924,8 @@ describe("Context menu react to grid size changes", () => {
     expect(menus[1]).toBeTruthy();
 
     resizeSheetView(env, { height: 500, width: 500 });
+    gridWidth = 500 + MENU_WIDTH / 2;
+    gridHeight = 500;
     await nextTick();
     await nextTick(); // First render hides the parent menu, second closes the submenu
 
@@ -944,6 +945,8 @@ describe("Context menu react to grid size changes", () => {
     expect(menus[1]).toBeTruthy();
 
     resizeSheetView(env, { height: 1000, width: 500 + MENU_WIDTH / 2 });
+    gridWidth = 500 + MENU_WIDTH / 2;
+    window.resizers.resize();
     await nextTick();
     await nextTick(); // First render moves the parent menu, second closes the submenu
 

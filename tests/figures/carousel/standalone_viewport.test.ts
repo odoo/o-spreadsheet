@@ -1,7 +1,5 @@
-import { providePlugins } from "@odoo/owl";
 import { Model, UID } from "../../../src";
 import { HoveredIconStore } from "../../../src/components/grid_overlay/hovered_icon_store";
-import { PopoverContainerPlugin } from "../../../src/components/popover/popover_container_owl_plugin";
 import { StandaloneViewport } from "../../../src/components/standalone_viewport/standalone_viewport";
 import { DEFAULT_CELL_HEIGHT, TABLE_HOVER_BACKGROUND_COLOR } from "../../../src/constants";
 import { buildSheetLink, range } from "../../../src/helpers/misc";
@@ -75,10 +73,6 @@ async function mountViewport(zone: string, args: MountViewportArgs = {}) {
     model,
     props: { ...args, range, size },
     callbackInComponentSetup: function (this: StandaloneViewport) {
-      // In real life this is defined by the standalone viewport's parent (grid)
-      providePlugins([PopoverContainerPlugin], {
-        getPopoverContainerRect: () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
-      });
       subEnv = this.env;
     },
   });

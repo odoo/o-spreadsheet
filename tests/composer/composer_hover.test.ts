@@ -1,6 +1,7 @@
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { Model } from "../../src/model";
+import { SpreadsheetRectPlugin } from "../../src/owl_plugins/spreadsheet_rect_plugin";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import {
@@ -321,9 +322,6 @@ describe("Composer hover", () => {
     jest
       .spyOn(HTMLElement.prototype, "getBoundingClientRect")
       .mockImplementation(function (this: HTMLElement) {
-        if (this.classList.contains("o-spreadsheet")) {
-          return { left: 66, top: 66, width: 555, height: 555 } as DOMRect;
-        }
         if (this.classList.contains("o-speech-bubble")) {
           return { x: 0, y: 0, width: 100, height: 50 } as DOMRect;
         } else if (this.textContent === "=") {
@@ -331,6 +329,7 @@ describe("Composer hover", () => {
         }
         return originalGetBoundingClientRect.call(this);
       });
+    env.getPlugin(SpreadsheetRectPlugin).setPosition({ x: 66, y: 66, width: 555, height: 555 });
 
     await typeInComposer("=50");
     await hoverComposerContent("=");

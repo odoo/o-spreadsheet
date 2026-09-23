@@ -1,8 +1,6 @@
-import { xml } from "@odoo/owl";
 import { CommandResult, Model, setDefaultSheetViewSize, Spreadsheet } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
-import { useScreenWidth } from "../../src/components/helpers/screen_width_hook";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -10,9 +8,8 @@ import {
   getDefaultSheetViewSize,
 } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
-import { render } from "../../src/helpers/owl3_helpers";
 import { toZone } from "../../src/helpers/zones";
-import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
+import { IsSmallPlugin } from "../../src/owl_plugins/is_small_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
@@ -46,7 +43,6 @@ import {
   doAction,
   mockChart,
   mockNotificationMethods,
-  mountComponent,
   mountSpreadsheet,
   nextTick,
   startGridComposition,
@@ -141,13 +137,6 @@ describe("Simple Spreadsheet Component", () => {
       });
       expect(env).toMatchObject({ myKey: [] });
     });
-  });
-
-  test("Clipboard is in spreadsheet env", async () => {
-    ({ env } = await mountSpreadsheet({
-      model: new Model({ sheets: [{ id: "sh1" }] }),
-    }));
-    expect(env.clipboard["clipboard"]).toBe(navigator.clipboard);
   });
 
   test("typing opens composer after toolbar clicked", async () => {
@@ -472,34 +461,22 @@ test("cell popovers to be closed on clicking outside grid", async () => {
 });
 
 test("*isSmall* is properly recomputed when changing window size", async () => {
-  let env: any;
-  class Parent extends Component {
-    static template = xml`<div class="o-spreadsheet"/>`;
-    static components = { Spreadsheet };
-
-    setup() {
-      const screenSize = useScreenWidth();
-      useSubEnv({
-        get isSmall() {
-          return screenSize.isSmall;
-        },
-      });
-      env = this.env;
-    }
-  }
-  const { parent } = await mountComponent(Parent, { model });
-  expect(env.isSmall).toBeFalsy();
+  const { getPlugin } = await mountSpreadsheet();
+  const isSmallPlugin = getPlugin(IsSmallPlugin);
+  expect(isSmallPlugin.isSmall()).toBeFalsy();
   spreadsheetWidth = 500;
-  render(parent, true);
+  window.resizers.resize();
   await nextTick();
 
-  expect(env.isSmall).toBeTruthy();
+  expect(isSmallPlugin.isSmall()).toBeTruthy();
 });
 
 test("components take the small screen into account", async () => {
   const model = new Model();
   spreadsheetWidth = 500;
-  const { fixture } = await mountSpreadsheet({ model }, { isSmall: true });
+  const { fixture, getPlugin } = await mountSpreadsheet({ model });
+  expect(getPlugin(IsSmallPlugin).isSmall()).toBeTruthy();
+
   expect(fixture.querySelector(".o-spreadsheet")).toMatchSnapshot();
   expect(fixture.querySelector(".o-spreadsheet-mobile")).not.toBeNull();
 });

@@ -5,7 +5,6 @@ import { useStore } from "../../store_engine/store_hooks";
 import { Store } from "../../types/store_engine";
 import { ChartAnimationStore } from "../figures/chart/chartJs/chartjs_animation_store";
 import { ChartFigure } from "../figures/figure_chart/figure_chart";
-import { useSpreadsheetRect } from "../helpers/position_hook";
 import { OSComponent } from "../os_component";
 import { FullScreenFigureStore } from "./full_screen_figure_store";
 
@@ -16,8 +15,6 @@ export class FullScreenFigure extends OSComponent {
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
   private fullScreenFigureRef = signal.ref();
   private containerSize = proxy({ width: 0, height: 0 });
-
-  spreadsheetRect = useSpreadsheetRect();
 
   figureRegistry = figureRegistry;
 

@@ -1,13 +1,12 @@
-import { providePlugins, proxy, xml } from "@odoo/owl";
+import { proxy, xml } from "@odoo/owl";
 import { BorderPosition, BorderStyle, Color, Model } from "../../src";
 import { BorderEditorWidget } from "../../src/components/border_editor/border_editor_widget";
 import { OSComponent } from "../../src/components/os_component";
-import { PopoverContainerPlugin } from "../../src/components/popover/popover_container_owl_plugin";
 import { toHex } from "../../src/helpers/color";
 import { toZone } from "../../src/helpers/zones";
 import { PropsOf } from "../../src/types/props_of";
 import { click, simulateClick } from "../test_helpers/dom_helper";
-import { mountComponent } from "../test_helpers/helpers";
+import { mountComponentWithPortalTarget } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 let fixture: HTMLElement;
@@ -37,10 +36,8 @@ async function setBorder({
 
 class BorderWidgetContainer extends OSComponent {
   static template = xml/* xml */ `
-    <div class="o-spreadsheet">
-      <div class="container">
-        <BorderEditorWidget t-props="this.borderWidgetProps"/>
-      </div>
+    <div class="container">
+      <BorderEditorWidget t-props="this.borderWidgetProps"/>
     </div>
   `;
   static components = { BorderEditorWidget };
@@ -50,10 +47,6 @@ class BorderWidgetContainer extends OSComponent {
     this.state = proxy({
       showBorderEditor: false,
     });
-
-    providePlugins([PopoverContainerPlugin], {
-      getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
-    });
   }
 
   get borderWidgetProps(): PropsOf<BorderEditorWidget> {
@@ -62,7 +55,7 @@ class BorderWidgetContainer extends OSComponent {
 }
 
 async function mountBorderWidgetContainer() {
-  ({ fixture, model } = await mountComponent(BorderWidgetContainer));
+  ({ fixture, model } = await mountComponentWithPortalTarget(BorderWidgetContainer));
 }
 
 extendMockGetBoundingClientRect({

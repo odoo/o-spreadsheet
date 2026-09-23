@@ -5,6 +5,8 @@ import { getPoppedOutChartAnchor } from "../helpers/carousel_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts/chart_ui_common";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { deepEquals } from "../helpers/misc";
+import { IsSmallPlugin } from "../owl_plugins/is_small_plugin";
+import { NavigatorClipboardPlugin } from "../owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
 import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
@@ -26,7 +28,7 @@ export function getChartMenuActions(figureId: UID, env: SpreadsheetActionEnv): A
         env.getStore(SidePanelStore).open("ChartPanel");
       },
       icon: "o-spreadsheet-Icon.EDIT",
-      isEnabled: (env) => !env.isSmall,
+      isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
     },
     getCopyMenuItem(figureId, env),
     getCutMenuItem(figureId, env),
@@ -100,7 +102,7 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetActionEnv)
         env.getStore(SidePanelStore).open("CarouselPanel", { figureId });
       },
       icon: "o-spreadsheet-Icon.EDIT",
-      isEnabled: (env) => !env.isSmall,
+      isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
     },
     {
       ...getCopyMenuItem(figureId, env, _t("Carousel copied to clipboard")),
@@ -121,7 +123,7 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetActionEnv)
         env.getStore(SidePanelStore).open("ChartPanel", {});
       },
       icon: "o-spreadsheet-Icon.EDIT",
-      isEnabled: (env) => !env.isSmall,
+      isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
       isVisible: isChartSelected,
     },
     {
@@ -198,7 +200,7 @@ function getCopyMenuItem(
       env.model.dispatch("COPY");
       const clipboardStore = env.getStore(ClipboardStore);
       const osClipboardContent = await clipboardStore.getClipboardTextAndImageContent();
-      await env.clipboard.write(osClipboardContent);
+      await env.getPlugin(NavigatorClipboardPlugin).write(osClipboardContent);
       if (copiedNotificationMessage) {
         env
           .getPlugin(NotificationPlugin)
@@ -221,7 +223,9 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetActionEnv): ActionSpec {
       }
       env.model.dispatch("CUT");
       const clipboardStore = env.getStore(ClipboardStore);
-      await env.clipboard.write(await clipboardStore.getClipboardTextAndImageContent());
+      await env
+        .getPlugin(NavigatorClipboardPlugin)
+        .write(await clipboardStore.getClipboardTextAndImageContent());
     },
     icon: "o-spreadsheet-Icon.CUT",
   };
@@ -266,7 +270,7 @@ function getCopyAsImageMenuItem(figureId: UID, env: SpreadsheetActionEnv): Actio
 
       const innerHTML = `<img src="data:image/png;base64,${imageBase64}" />`;
 
-      await env.clipboard.write({
+      await env.getPlugin(NavigatorClipboardPlugin).write({
         "text/html": innerHTML,
         "image/png": blob,
       });

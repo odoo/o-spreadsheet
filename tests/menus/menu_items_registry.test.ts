@@ -62,6 +62,7 @@ import { rowMenuRegistry } from "../../src/registries/menus/row_menu_registry";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
+import { getOsClipboardContent, setOsClipboardText } from "../test_helpers/clipboard";
 import { FR_LOCALE } from "../test_helpers/constants";
 
 const TEST_CURRENCY: Partial<Currency> = {
@@ -199,21 +200,19 @@ describe("Menu Item actions", () => {
   });
 
   test("Edit -> copy", async () => {
-    const spyWriteClipboard = jest.spyOn(env.clipboard!, "write");
     await doAction(["edit", "copy"], env);
     expect(dispatch).toHaveBeenCalledWith("COPY");
     const clipboardStore = env.getStore(ClipboardStore);
-    expect(spyWriteClipboard).toHaveBeenCalledWith(
+    expect(await getOsClipboardContent()).toEqual(
       await clipboardStore.getClipboardTextAndImageContent()
     );
   });
 
   test("Edit -> cut", async () => {
-    const spyWriteClipboard = jest.spyOn(env.clipboard!, "write");
     await doAction(["edit", "cut"], env);
     expect(dispatch).toHaveBeenCalledWith("CUT");
     const clipboardStore = env.getStore(ClipboardStore);
-    expect(spyWriteClipboard).toHaveBeenCalledWith(
+    expect(await getOsClipboardContent()).toEqual(
       await clipboardStore.getClipboardTextAndImageContent()
     );
   });
@@ -222,14 +221,14 @@ describe("Menu Item actions", () => {
     setCellContent(model, "A1", "a1");
     selectCell(model, "A1");
     await doAction(["edit", "copy"], env); // first copy from grid
-    await env.clipboard!.writeText("Then copy in OS clipboard");
+    setOsClipboardText("Then copy in OS clipboard");
     selectCell(model, "C3");
     await doAction(["edit", "paste"], env);
     expect(getCellContent(model, "C3")).toEqual("Then copy in OS clipboard");
   });
 
   test("Edit -> paste if copied from grid last", async () => {
-    await env.clipboard!.writeText("First copy in OS clipboard");
+    setOsClipboardText("First copy in OS clipboard");
     await doAction(["edit", "copy"], env); // then copy from grid
     await doAction(["edit", "paste"], env);
     interactivePaste(env, target("A1"));
@@ -250,7 +249,7 @@ describe("Menu Item actions", () => {
   });
 
   test("Paste only-format from OS clipboard should paste nothing", async () => {
-    await env.clipboard!.writeText("Copy in OS clipboard");
+    setOsClipboardText("Copy in OS clipboard");
     selectCell(model, "A1");
     await doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
@@ -266,7 +265,7 @@ describe("Menu Item actions", () => {
     setFormatting(model, "C1", { fillColor: "#FA0000" });
     selectCell(model, "C1");
     await doAction(["edit", "copy"], env); // first copy from grid
-    await env.clipboard!.writeText("Then copy in OS clipboard");
+    setOsClipboardText("Then copy in OS clipboard");
     selectCell(model, "A1");
     await doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(getStyle(model, "A1").fillColor).toBeUndefined();
@@ -316,7 +315,7 @@ describe("Menu Item actions", () => {
 
   test("Edit -> paste_special -> paste_special_value from OS clipboard", async () => {
     const text = "in OS clipboard";
-    await env.clipboard!.writeText(text);
+    setOsClipboardText(text);
     await doAction(["edit", "paste_special", "paste_special_value"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       target: target("A1"),
@@ -336,7 +335,7 @@ describe("Menu Item actions", () => {
 
   test("Edit -> paste_special -> paste_special_format from OS clipboard", async () => {
     const text = "in OS clipboard";
-    await env.clipboard!.writeText(text);
+    setOsClipboardText(text);
     await doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       target: target("A1"),

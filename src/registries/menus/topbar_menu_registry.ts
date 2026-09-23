@@ -7,6 +7,7 @@ import * as ACTION_VIEW from "../../actions/view_actions";
 import { SidePanelStore } from "../../components/side_panel/side_panel/side_panel_store";
 import { ZOOM_VALUES } from "../../constants";
 import { getPivotHighlights } from "../../helpers/pivot/pivot_highlight";
+import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { HighlightStore } from "../../stores/highlight_store";
 import { _t } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
@@ -28,14 +29,14 @@ topbarMenuRegistry
     name: _t("Print"),
     sequence: 190,
     execute: (env) => env.printSpreadsheet(),
-    isEnabled: (env) => !env.isSmall,
+    isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
     icon: "o-spreadsheet-Icon.PRINT",
   })
   .addChild("settings", ["file"], {
     name: _t("Settings"),
     sequence: 200,
     execute: (env) => env.getStore(SidePanelStore).open("Settings"),
-    isEnabled: (env) => !env.isSmall,
+    isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
     isEnabledOnLockedSheet: true,
     icon: "o-spreadsheet-Icon.COG",
   })
@@ -230,7 +231,7 @@ topbarMenuRegistry
     name: _t("Performance"),
     sequence: 45,
     execute: (env) => env.getStore(SidePanelStore).open("PerfProfile"),
-    isVisible: (env) => !env.isSmall,
+    isVisible: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
     isEnabledOnLockedSheet: true,
     icon: "o-spreadsheet-Icon.AVG_TIME",
     separator: true,
@@ -504,7 +505,7 @@ topbarMenuRegistry
     execute: (env) => {
       env.getStore(SidePanelStore).open("DataValidation");
     },
-    isEnabled: (env) => !env.isSmall,
+    isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
     isEnabledOnLockedSheet: true,
     icon: "o-spreadsheet-Icon.DATA_VALIDATION",
     sequence: 30,
@@ -514,7 +515,7 @@ topbarMenuRegistry
     execute: (env) => {
       env.getStore(SidePanelStore).open("NamedRangesPanel");
     },
-    isEnabled: (env) => !env.isSmall,
+    isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
     isEnabledOnLockedSheet: true,
     icon: "o-spreadsheet-Icon.NAMED_RANGE",
     sequence: 35,
@@ -557,7 +558,7 @@ topbarMenuRegistry
             isReadonlyAllowed: true,
             isEnabledOnLockedSheet: true,
             execute: () => env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId }),
-            isEnabled: () => !env.isSmall,
+            isEnabled: () => !env.getPlugin(IsSmallPlugin).isSmall(),
             onStartHover: () => env.getStore(HighlightStore).register(highlightProvider),
             onStopHover: () => env.getStore(HighlightStore).unRegister(highlightProvider),
           };

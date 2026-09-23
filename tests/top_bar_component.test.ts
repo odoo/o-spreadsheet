@@ -1,15 +1,15 @@
-import { providePlugins, xml } from "@odoo/owl";
+import { xml } from "@odoo/owl";
 import { Currency, Model, Pixel, Style } from "../src";
 import { CellComposerStore } from "../src/components/composer/composer/cell_composer_store";
 import { OSComponent } from "../src/components/os_component";
 import { PaintFormatStore } from "../src/components/paint_format_button/paint_format_store";
-import { PopoverContainerPlugin } from "../src/components/popover/popover_container_owl_plugin";
 import { TopBar } from "../src/components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_registry";
 import { DEFAULT_FONT_SIZE } from "../src/constants";
 import { render } from "../src/helpers/owl3_helpers";
 import { toZone, zoneToXc } from "../src/helpers/zones";
 import { Component } from "../src/owl3_compatibility_layer";
+import { SpreadsheetRectPlugin } from "../src/owl_plugins/spreadsheet_rect_plugin";
 import { topbarMenuRegistry } from "../src/registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../src/registries/topbar_component_registry";
 import { DOMFocusableElementStore } from "../src/stores/DOM_focus_store";
@@ -57,7 +57,7 @@ import {
   getFigureIds,
   getInputSelection,
   getNode,
-  mountComponent,
+  mountComponentWithPortalTarget,
   mountSpreadsheet,
   nextTick,
   target,
@@ -117,7 +117,7 @@ let viewStore: Store<ViewportsStore>;
 
 class Parent extends OSComponent {
   static template = xml/* xml */ `
-    <div class="o-spreadsheet">
+    <div>
       <TopBar
         onClick="() => {}"
         dropdownMaxHeight="this.gridHeight"/>
@@ -128,17 +128,6 @@ class Parent extends OSComponent {
   get gridHeight(): Pixel {
     const { height } = this.env.getStore(ViewportsStore).sheetViewDimension;
     return height;
-  }
-
-  setup() {
-    providePlugins([PopoverContainerPlugin], {
-      getPopoverContainerRect: () => ({
-        x: 0,
-        y: 0,
-        height: spreadsheetHeight,
-        width: spreadsheetWidth,
-      }),
-    });
   }
 }
 
@@ -159,7 +148,9 @@ async function mountParent(model: Model = new Model(), testEnv?: Partial<Spreads
     model,
   };
   let parent: Component;
-  ({ parent, fixture, env, viewStore } = await mountComponent(Parent, { env: partialEnv }));
+  ({ parent, fixture, env, viewStore } = await mountComponentWithPortalTarget(Parent, {
+    env: partialEnv,
+  }));
   return { parent: parent as Parent, model, fixture, viewStore };
 }
 
@@ -976,39 +967,29 @@ test("onCancel of dropdown dv editor removes the data validation rule", async ()
 
 describe("Topbar - menu item resizing with viewport", () => {
   test("color picker of fill color in top bar is resized with screen size change", async () => {
-    const { model, fixture } = await mountParent();
-    const sheetId = model.getters.getActiveSheetId();
+    const { fixture, env } = await mountSpreadsheet();
     await click(fixture, '.o-menu-item-button[title="Fill Color"]');
     let height = getElComputedStyle(".o-popover", "maxHeight");
-    expect(parseInt(height)).toBe(
-      viewStore.viewports.getVisibleRect(sheetId, viewStore.activeMainViewport).height
-    );
+    expect(parseInt(height)).toBe(1000);
     resizeSheetView(env, { height: 100, width: 300 });
     spreadsheetHeight = 100;
     window.resizers.resize();
     await nextTick();
     height = getElComputedStyle(".o-popover", "maxHeight");
-    expect(parseInt(height)).toBe(
-      viewStore.viewports.getVisibleRect(sheetId, viewStore.activeMainViewport).height
-    );
+    expect(parseInt(height)).toBe(100);
   });
 
   test("color picker of text color in top bar is resized with screen size change", async () => {
-    const { model, fixture } = await mountParent();
-    const sheetId = model.getters.getActiveSheetId();
+    const { fixture, env } = await mountSpreadsheet();
     await click(fixture, '.o-menu-item-button[title="Text Color"]');
     let height = getElComputedStyle(".o-popover", "maxHeight");
-    expect(parseInt(height)).toBe(
-      viewStore.viewports.getVisibleRect(sheetId, viewStore.activeMainViewport).height
-    );
+    expect(parseInt(height)).toBe(1000);
     resizeSheetView(env, { height: 100, width: 300 });
     spreadsheetHeight = 100;
     window.resizers.resize();
     await nextTick();
     height = getElComputedStyle(".o-popover", "maxHeight");
-    expect(parseInt(height)).toBe(
-      viewStore.viewports.getVisibleRect(sheetId, viewStore.activeMainViewport).height
-    );
+    expect(parseInt(height)).toBe(100);
   });
 });
 
@@ -1122,11 +1103,19 @@ test("Clicking on a topbar button triggers two renders", async () => {
 
 describe("Responsive Top bar behaviour", () => {
   const categories = topBarToolBarRegistry.getCategories();
+
+  async function changeSpreadsheetWidth(newWidth: number) {
+    spreadsheetWidth = newWidth;
+    env
+      .getPlugin(SpreadsheetRectPlugin)
+      .setPosition({ x: 0, y: 0, width: spreadsheetWidth, height: spreadsheetHeight });
+    return nextTick();
+  }
+
   describe("items are hidden when the screen is resized", () => {
     test.each([750, 650])("Screen slightly smaller than %spx ", async (threshold) => {
-      spreadsheetWidth = threshold - 1;
       await mountParent();
-      await nextTick();
+      await changeSpreadsheetWidth(threshold - 1);
       const tools = [...fixture.querySelectorAll(".o-toolbar-tools .tool-container")].filter(
         (element) => !element.classList.contains("d-none")
       );
@@ -1141,8 +1130,9 @@ describe("Responsive Top bar behaviour", () => {
       expect(fixture.querySelector('.o-menu-item-button[title="Horizontal align"]')).not.toBeNull();
       expect(fixture.querySelector('.o-menu-item-button[title="Wrapping"]')).not.toBeNull();
 
-      spreadsheetWidth = (categories.length - 2) * toolWidth + moreToolsContainerWidth + 1; // hides the last 2 categories
-      await nextTick();
+      await changeSpreadsheetWidth(
+        (categories.length - 2) * toolWidth + moreToolsContainerWidth + 1 // hides the last 2 categories
+      );
 
       expect(
         fixture
@@ -1173,12 +1163,11 @@ describe("Responsive Top bar behaviour", () => {
   });
 
   test("the popover should close when the screen is resized", async () => {
-    spreadsheetWidth = (toolWidth * categories.length) / 2;
     const { parent } = await mountParent();
-    await nextTick();
+    await changeSpreadsheetWidth((toolWidth * categories.length) / 2);
     await click(fixture, ".more-tools");
     expect(fixture.querySelector(".o-popover")).not.toBeNull();
-    spreadsheetWidth += 10;
+    await changeSpreadsheetWidth((toolWidth * categories.length) / 2 + 10);
 
     render(parent, true);
     await nextTick();
@@ -1186,9 +1175,8 @@ describe("Responsive Top bar behaviour", () => {
   });
 
   test("the popover should close when clicking the grid", async () => {
-    spreadsheetWidth = namedRangeWidth + (toolWidth * categories.length) / 2;
-    const { fixture } = await mountSpreadsheet();
-    await nextTick();
+    ({ fixture, env } = await mountSpreadsheet());
+    await changeSpreadsheetWidth(namedRangeWidth + (toolWidth * categories.length) / 2);
     await click(fixture, ".more-tools");
     expect(fixture.querySelector(".o-popover")).not.toBeNull();
 
@@ -1197,9 +1185,8 @@ describe("Responsive Top bar behaviour", () => {
   });
 
   test("the popover should close when clicking visible tools", async () => {
-    spreadsheetWidth = namedRangeWidth + (toolWidth * categories.length) / 2;
     await mountParent();
-    await nextTick();
+    await changeSpreadsheetWidth(namedRangeWidth + (toolWidth * categories.length) / 2);
     await click(fixture, ".more-tools");
     expect(fixture.querySelector(".o-popover")).not.toBeNull();
     await click(fixture, '.o-menu-item-button[title="Format as percent"]');
@@ -1207,11 +1194,10 @@ describe("Responsive Top bar behaviour", () => {
   });
 
   test("the popover should close when clicking top bar menus", async () => {
-    spreadsheetWidth = namedRangeWidth + (toolWidth * categories.length) / 2;
     await mountParent();
-    await nextTick();
+    await changeSpreadsheetWidth(namedRangeWidth + (toolWidth * categories.length - 1));
     await click(fixture, ".more-tools");
-    const menuInPopoverSelector = '.o-popover .o-menu-item-button[title="Vertical align"]';
+    const menuInPopoverSelector = '.o-popover .o-menu-item-button[title="Insert table"]';
     expect(fixture.querySelector(menuInPopoverSelector)).not.toBeNull();
     await click(fixture, ".o-topbar-menu[data-id='edit']");
     expect(fixture.querySelector(menuInPopoverSelector)).toBeNull();
@@ -1220,11 +1206,10 @@ describe("Responsive Top bar behaviour", () => {
   test("Use a color picker from the popover", async () => {
     // Hide the text Style section
     const index = categories.findIndex((category) => category === "cellStyle");
-    spreadsheetWidth = index * toolWidth + moreToolsContainerWidth + 1;
 
     const model = new Model();
     await mountParent(model);
-    await nextTick();
+    await changeSpreadsheetWidth(index * toolWidth + moreToolsContainerWidth + 1);
     await click(fixture, ".more-tools");
     await click(fixture, '.o-popover .o-menu-item-button[title="Fill Color"]');
     await click(fixture, ".o-color-picker-line-item:nth-child(2)");
@@ -1234,10 +1219,9 @@ describe("Responsive Top bar behaviour", () => {
   test("use an action button from the popover", async () => {
     // Hide a section with an action button
     const index = categories.findIndex((category) => category === "textStyle");
-    spreadsheetWidth = index * toolWidth + moreToolsContainerWidth + 1;
     const model = new Model();
     await mountParent(model);
-    await nextTick();
+    await changeSpreadsheetWidth(index * toolWidth + moreToolsContainerWidth + 1);
     await click(fixture, ".more-tools");
     await click(fixture, '.o-popover .o-menu-item-button[title="Strikethrough"]');
     expect(getStyle(model, "A1").strikethrough).toBeTruthy();
@@ -1246,10 +1230,9 @@ describe("Responsive Top bar behaviour", () => {
   });
 
   test("Use a dropdown item from the popover", async () => {
-    spreadsheetWidth = 550;
     const model = new Model();
     await mountParent(model);
-    await nextTick();
+    await changeSpreadsheetWidth(550);
     await click(fixture, ".more-tools");
     await click(fixture, '.o-popover .o-menu-item-button[title="Vertical align"]');
     await click(fixture, '.o-popover .o-menu-item-button[title="Top"]');

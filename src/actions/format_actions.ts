@@ -15,6 +15,7 @@ import {
   roundFormat,
 } from "../helpers/format/format";
 import { getDateTimeFormat } from "../helpers/locale";
+import { IsSmallPlugin } from "../owl_plugins/is_small_plugin";
 import { _t } from "../translation";
 import { CellValue } from "../types/cells";
 import { Format } from "../types/format";
@@ -121,7 +122,7 @@ export const formatNumberAccounting = createFormatActionSpec({
 
 export const formatCustomCurrency: ActionSpec = {
   name: _t("Custom currency"),
-  isVisible: (env) => env.loadCurrencies !== undefined && !env.isSmall,
+  isVisible: (env) => env.loadCurrencies !== undefined && !env.getPlugin(IsSmallPlugin).isSmall(),
   execute: (env) => env.getStore(SidePanelStore).open("MoreFormats", { category: "currency" }),
 };
 
@@ -154,13 +155,13 @@ export const formatNumberDuration = createFormatActionSpec({
 
 export const customDateFormat: ActionSpec = {
   name: _t("Custom date and time"),
-  isVisible: (env) => !env.isSmall,
+  isVisible: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
   execute: (env) => env.getStore(SidePanelStore).open("MoreFormats", { category: "date" }),
 };
 
 export const customNumberFormat: ActionSpec = {
   name: _t("Custom number format"),
-  isVisible: (env) => !env.isSmall,
+  isVisible: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
   execute: (env) => env.getStore(SidePanelStore).open("MoreFormats", { category: "number" }),
 };
 
@@ -388,7 +389,7 @@ export const fillColor: ActionSpec = {
 export const formatCF: ActionSpec = {
   name: _t("Conditional formatting"),
   execute: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
-  isEnabled: (env) => !env.isSmall,
+  isEnabled: (env) => !env.getPlugin(IsSmallPlugin).isSmall(),
   isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.CONDITIONAL_FORMAT",
 };

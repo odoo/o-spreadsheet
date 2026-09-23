@@ -1,11 +1,12 @@
-import { onMounted, onWillUnmount, signal, useProps } from "@odoo/owl";
+import { signal, useEffect, usePlugin, useProps } from "@odoo/owl";
 import { rectIntersection } from "../../helpers/rectangle";
-import { useLayoutEffect } from "../../owl3_compatibility_layer";
+import { SpreadsheetRectPlugin } from "../../owl_plugins/spreadsheet_rect_plugin";
 import { CSSProperties } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../../types/rendering";
-import { usePopoverContainer, useSpreadsheetRect } from "../helpers/position_hook";
+import { useElementRect } from "../helpers/position_hook";
 import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
+import { PopoverContainerPlugin } from "./popover_container_owl_plugin";
 
 type PopoverPosition = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 type DisplayValue = "none" | "block";
@@ -30,40 +31,30 @@ export class Popover extends OSComponent {
 
   private popoverRef = signal.ref();
   private popoverContentRef = signal.ref();
+  private containerDimensions = useElementRect(this.popoverContentRef);
+
+  private popoverContainerPlugin = usePlugin(PopoverContainerPlugin);
+
   private currentPosition: PopoverPosition | undefined = undefined;
   private currentDisplayValue: DisplayValue | undefined = undefined;
 
-  private spreadsheetRect = useSpreadsheetRect();
-  private containerRect: Rect | undefined;
+  private spreadsheetRectPlugin = usePlugin(SpreadsheetRectPlugin);
+  // private containerRect: Rect | undefined;
 
   setup() {
-    this.containerRect = usePopoverContainer();
-
-    const resizeObserver = new ResizeObserver(this.computePopoverPosition.bind(this));
-    onMounted(() => {
-      const contentEl = this.popoverContentRef();
-      if (contentEl) {
-        resizeObserver.observe(contentEl);
-      }
-    });
-    onWillUnmount(() => {
-      resizeObserver.disconnect();
-    });
-
-    useLayoutEffect(this.computePopoverPosition.bind(this));
+    // this.containerRect = usePopoverContainer();
+    useEffect(this.computePopoverPosition.bind(this));
   }
 
   private computePopoverPosition() {
-    if (!this.containerRect) {
-      throw new Error("Popover container is not defined");
-    }
     const el = this.popoverRef();
     const contentEl = this.popoverContentRef();
     if (!el || !contentEl) {
       return;
     }
 
-    const anchor = rectIntersection(this.props.anchorRect, this.containerRect);
+    const containerRect = this.popoverContainerPlugin.rect();
+    const anchor = rectIntersection(this.props.anchorRect, containerRect);
     const newDisplay: DisplayValue = anchor ? "block" : "none";
     if (this.currentDisplayValue !== "none" && newDisplay === "none") {
       this.props.onPopoverHidden?.();
@@ -77,24 +68,24 @@ export class Popover extends OSComponent {
 
     const propsMaxSize = { width: this.props.maxWidth, height: this.props.maxHeight };
     let elDims = {
-      width: contentEl.getBoundingClientRect().width,
-      height: contentEl.getBoundingClientRect().height,
+      width: this.containerDimensions().width,
+      height: this.containerDimensions().height,
     };
 
-    const spreadsheetRect = this.spreadsheetRect;
+    const spreadsheetRect = this.spreadsheetRectPlugin.rect();
 
     const popoverPositionHelper =
       this.props.positioning === "bottom-left"
         ? new BottomLeftPopoverContext(
             anchor,
-            this.containerRect,
+            containerRect,
             propsMaxSize,
             spreadsheetRect,
             this.currentPosition
           )
         : new TopRightPopoverContext(
             anchor,
-            this.containerRect,
+            containerRect,
             propsMaxSize,
             spreadsheetRect,
             this.currentPosition

@@ -1,13 +1,12 @@
-import { providePlugins, xml } from "@odoo/owl";
+import { xml } from "@odoo/owl";
 import { Model, UID } from "../../src";
 import { OSComponent } from "../../src/components/os_component";
-import { PopoverContainerPlugin } from "../../src/components/popover/popover_container_owl_plugin";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import { TableDropdownButton } from "../../src/components/tables/table_dropdown_button/table_dropdown_button";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { createTable, setSelection } from "../test_helpers/commands_helpers";
 import { click } from "../test_helpers/dom_helper";
-import { mountComponent, nextTick, setGrid } from "../test_helpers/helpers";
+import { mountComponentWithPortalTarget, nextTick, setGrid } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
 
 let model: Model;
@@ -17,21 +16,15 @@ let fixture: HTMLElement;
 class Parent extends OSComponent {
   static components = { TableDropdownButton, SidePanels };
   static template = xml/*xml*/ `
-  <div class="o-spreadsheet">
+  <div>
     <TableDropdownButton />
     <SidePanels />
   </div>
   `;
-
-  setup() {
-    providePlugins([PopoverContainerPlugin], {
-      getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
-    });
-  }
 }
 
 beforeEach(async () => {
-  ({ model, fixture } = await mountComponent(Parent, {}));
+  ({ model, fixture } = await mountComponentWithPortalTarget(Parent, {}));
   sheetId = model.getters.getActiveSheetId();
 });
 

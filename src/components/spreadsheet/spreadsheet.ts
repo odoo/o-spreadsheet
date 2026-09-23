@@ -20,12 +20,14 @@ import { batched } from "../../helpers/misc";
 import { providePluginsIfNotPresent, render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
 import { useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
+import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
+import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
+import { SpreadsheetRectPlugin } from "../../owl_plugins/spreadsheet_rect_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
 import { ClipboardStore } from "../../stores/clipboard_store";
 import { ModelStore } from "../../stores/model_store";
-import { ScreenWidthStore } from "../../stores/screen_width_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { _t } from "../../translation";
@@ -49,8 +51,11 @@ import {
   keyboardEventToShortcutString,
   zoomCorrectedElementRect,
 } from "../helpers/dom_helpers";
-import { useSpreadsheetRect } from "../helpers/position_hook";
-import { useScreenWidth } from "../helpers/screen_width_hook";
+import {
+  provideSpreadsheetRect,
+  useElementRect,
+  useResizeObserver,
+} from "../helpers/position_hook";
 import { OSComponent } from "../os_component";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 import { types } from "../props_validation";
@@ -59,7 +64,6 @@ import { SidePanels } from "../side_panel/side_panels/side_panels";
 import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
 import { SpreadsheetPrint } from "../spreadsheet_print/spreadsheet_print";
 import { TopBar } from "../top_bar/top_bar";
-import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -92,7 +96,6 @@ export class Spreadsheet extends OSComponent {
 
   sidePanel!: Store<SidePanelStore>;
   spreadsheetRef = signal.ref();
-  spreadsheetRect = useSpreadsheetRect();
 
   state = proxy<State>({ printModeEnabled: false, colorThemeBeforePrint: "light" });
 
@@ -100,6 +103,7 @@ export class Spreadsheet extends OSComponent {
 
   private isViewportTooSmall: boolean = false;
   private notificationPlugin!: PluginInstance<typeof NotificationPlugin>;
+  private isSmallPlugin!: PluginInstance<typeof IsSmallPlugin>;
   private composerFocusStore!: Store<ComposerFocusStore>;
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
@@ -133,14 +137,11 @@ export class Spreadsheet extends OSComponent {
   }
 
   setup() {
-    if (!("isSmall" in this.env)) {
-      const screenSize = useScreenWidth();
-      useSubEnv({
-        get isSmall() {
-          return screenSize.isSmall;
-        },
-      } satisfies Partial<SpreadsheetChildEnv>);
-    }
+    provideSpreadsheetRect(this.spreadsheetRef);
+    providePluginsIfNotPresent([NotificationPlugin, IsSmallPlugin]);
+    providePlugins([NavigatorClipboardPlugin]);
+    this.notificationPlugin = usePlugin(NotificationPlugin);
+    this.isSmallPlugin = usePlugin(IsSmallPlugin);
 
     const stores = useStoreProvider();
     stores.inject(ModelStore, this.model);
@@ -150,14 +151,10 @@ export class Spreadsheet extends OSComponent {
     providePlugins([PopoverContainerPlugin], {
       getPopoverContainerRect: () => getElBoundingRect(this.spreadsheetRef()),
     });
+    const popoverContainerPlugin = usePlugin(PopoverContainerPlugin);
+    const spreadsheetRect = useElementRect(this.spreadsheetRef);
+    useEffect(() => popoverContainerPlugin.setContainerRect(spreadsheetRect()));
 
-    const env = this.env;
-    stores.get(ScreenWidthStore).setSmallThreshhold(() => {
-      return env.isSmall;
-    });
-
-    providePluginsIfNotPresent([NotificationPlugin]);
-    this.notificationPlugin = usePlugin(NotificationPlugin);
     this.composerFocusStore = useStore(ComposerFocusStore);
     useStore(ClipboardStore);
     this.sidePanel = useStore(SidePanelStore);
@@ -171,7 +168,6 @@ export class Spreadsheet extends OSComponent {
       imageProvider: fileStore ? new ImageProvider(fileStore) : undefined,
       loadCurrencies: this.model.config.external.loadCurrencies,
       loadLocales: this.model.config.external.loadLocales,
-      clipboard: this.env.clipboard || instantiateClipboard(),
       startCellEdition: (content?: string) =>
         this.composerFocusStore.focusActiveComposer({ content }),
       isMobile: isMobileOS,
@@ -225,16 +221,10 @@ export class Spreadsheet extends OSComponent {
       }
     });
 
-    const resizeObserver = new ResizeObserver(() => {
-      this.sidePanel.changeSpreadsheetWidth(this.spreadsheetRect.width);
-    });
-    useEffect(() => {
-      const el = this.spreadsheetRef();
-      if (!el) {
-        return;
-      }
-      resizeObserver.observe(el);
-      return () => resizeObserver.disconnect();
+    const spreadsheetRectPlugin = usePlugin(SpreadsheetRectPlugin);
+    // FIXME OWL3: once the side panel is reactive, we can drop the observer and make it depend on SpreadsheetRectPlugin directly
+    useResizeObserver(this.spreadsheetRef, () => {
+      this.sidePanel.changeSpreadsheetWidth(spreadsheetRectPlugin.rect().width);
     });
 
     const batchedRender = batched(() => render(this, true));
@@ -359,7 +349,7 @@ export class Spreadsheet extends OSComponent {
 
   getSpreadSheetClasses() {
     return [
-      this.env.isSmall ? "o-spreadsheet-mobile" : "",
+      this.isSmallPlugin.isSmall() ? "o-spreadsheet-mobile" : "",
       this.props.model.getters.isDarkMode() ? "dark" : "",
     ].join(" ");
   }

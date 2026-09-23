@@ -20,6 +20,7 @@ import { figureRegistry } from "../../src/registries/figures_registry";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { ClipboardMIMEType } from "../../src/types/clipboard";
 import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
+import { getOsClipboardContent } from "../test_helpers/clipboard";
 import {
   activateSheet,
   addColumns,
@@ -1210,13 +1211,12 @@ describe("figures", () => {
         await simulateClick(".o-figure");
         await simulateClick(menuSelector);
         await simulateClick(".o-menu div[data-name='copy']");
-        const envClipBoardContent = await env.clipboard.read();
-        if (envClipBoardContent.status === "ok") {
-          const envClipboardTextContent = envClipBoardContent.content[ClipboardMIMEType.PlainText];
-          const clipboardStore = env.getStore(ClipboardStore);
-          const osClipboardContent = await clipboardStore.getClipboardTextAndImageContent();
-          expect(envClipboardTextContent).toEqual(osClipboardContent[ClipboardMIMEType.PlainText]);
-        }
+        const osClipboard = await getOsClipboardContent();
+        const clipboardStore = env.getStore(ClipboardStore);
+        const clipboardContent = await clipboardStore.getClipboardTextAndImageContent();
+        expect(osClipboard[ClipboardMIMEType.PlainText]).toEqual(
+          clipboardContent[ClipboardMIMEType.PlainText]
+        );
         paste(model, "A4");
         expect(getFigureIds(model, sheetId)).toHaveLength(2);
         const figureIds = getFigureIds(model, sheetId);
@@ -1238,13 +1238,12 @@ describe("figures", () => {
         await simulateClick(".o-figure");
         await simulateClick(menuSelector);
         await simulateClick(".o-menu div[data-name='cut']");
-        const envClipBoardContent = await env.clipboard.read();
-        if (envClipBoardContent.status === "ok") {
-          const envClipboardTextContent = envClipBoardContent.content[ClipboardMIMEType.PlainText];
-          const clipboardStore = env.getStore(ClipboardStore);
-          const osClipboardContent = await clipboardStore.getClipboardTextAndImageContent();
-          expect(envClipboardTextContent).toEqual(osClipboardContent[ClipboardMIMEType.PlainText]);
-        }
+        const osClipboard = await getOsClipboardContent();
+        const clipboardStore = env.getStore(ClipboardStore);
+        const clipboardContent = await clipboardStore.getClipboardTextAndImageContent();
+        expect(osClipboard[ClipboardMIMEType.PlainText]).toEqual(
+          clipboardContent[ClipboardMIMEType.PlainText]
+        );
         paste(model, "A1");
         expect(getFigureIds(model, sheetId)).toHaveLength(1);
         const figureIds = getFigureIds(model, sheetId);

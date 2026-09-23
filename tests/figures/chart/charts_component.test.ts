@@ -40,6 +40,7 @@ import {
   openChartDesignSidePanel,
   toChartDataSource,
 } from "../../test_helpers/chart_helpers";
+import { waitForOsClipboardContent } from "../../test_helpers/clipboard";
 import {
   copy,
   createBubbleChart,
@@ -529,11 +530,7 @@ describe("charts", () => {
       await simulateClick(".o-chart-menu-item");
       await simulateClick(".o-menu div[data-name='copy_as_image']");
       await nextTick();
-      const clipboard = await env.clipboard.read!();
-      if (clipboard.status !== "ok") {
-        throw new Error("Clipboard read failed");
-      }
-      const clipboardContent = clipboard.content;
+      const clipboardContent = await waitForOsClipboardContent();
 
       const imgData = new window.Chart("test", mockChartData as any).toBase64Image();
 
