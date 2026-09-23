@@ -18,9 +18,10 @@ import {
   SEPARATOR_COLOR,
   TOPBAR_TOOLBAR_HEIGHT,
 } from "../../constants";
-import { formatNumberMenuItemSpec, topbarComponentRegistry } from "../../registries/index";
+import { topbarComponentRegistry } from "../../registries/index";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { Store, useStore } from "../../store_engine";
+import { formatNumberMenuItemSpec } from "../../stores/custom_number_format_store";
 import { Color, Pixel, SpreadsheetChildEnv } from "../../types/index";
 import { ActionButton } from "../action_button/action_button";
 import { BorderEditorWidget } from "../border_editor/border_editor_widget";
