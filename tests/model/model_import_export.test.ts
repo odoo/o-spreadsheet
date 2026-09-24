@@ -939,6 +939,27 @@ test("migrate version 19.5.1: scorecard keyValue/baseline become formulas", () =
   });
 });
 
+test("migrate version 19.5.2: overlapping tables are removed", () => {
+  const model = new Model({
+    version: "19.5.1",
+    sheets: [
+      {
+        id: "sh1",
+        tables: [{ range: "A1:B5" }, { range: "A2:A7" }, { range: "A6:E7" }],
+      },
+    ],
+  });
+  const exportedData = model.exportData();
+
+  expect(exportedData.sheets[0].tables.length).toBe(2);
+  expect(exportedData.sheets[0].tables[0]).toMatchObject({
+    range: "A1:B5",
+  });
+  expect(exportedData.sheets[0].tables[1]).toMatchObject({
+    range: "A6:E7",
+  });
+});
+
 describe("Import", () => {
   test("Import sheet with rows/cols size defined.", () => {
     const model = new Model({
