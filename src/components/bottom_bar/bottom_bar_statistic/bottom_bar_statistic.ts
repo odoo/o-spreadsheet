@@ -76,7 +76,7 @@ export class BottomBarStatistic extends OSComponent {
   }
 
   private getComposedFnName(fnName: string): string {
-    const locale = this.env.model.getters.getLocale();
+    const locale = this.model().getters.getLocale();
     const fnValue = this.store.statisticFnResults[fnName];
     if (!fnValue?.value) {
       return "";

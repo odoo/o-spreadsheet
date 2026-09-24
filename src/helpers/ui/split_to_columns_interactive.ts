@@ -15,10 +15,10 @@ export function interactiveSplitToColumns(env: SpreadsheetActionEnv): DispatchRe
     env
       .getPlugin(NotificationPlugin)
       .askConfirmation(SplitToColumnsInteractiveContent.SplitIsDestructive, () => {
-        result = env.model.dispatch("SPLIT_TEXT_INTO_COLUMNS", { force: true });
+        result = env.model().dispatch("SPLIT_TEXT_INTO_COLUMNS", { force: true });
       });
   } else {
-    result = env.model.dispatch("SPLIT_TEXT_INTO_COLUMNS", { force: false });
+    result = env.model().dispatch("SPLIT_TEXT_INTO_COLUMNS", { force: false });
   }
   return result;
 }

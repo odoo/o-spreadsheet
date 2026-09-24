@@ -34,7 +34,7 @@ export class ChartPanel extends OSComponent {
   }
 
   updateChart<T extends ChartDefinition>(chartId: UID, updateDefinition: Partial<T>) {
-    const figureId = this.env.model.getters.getFigureIdFromChartId(chartId);
+    const figureId = this.model().getters.getFigureIdFromChartId(chartId);
     if (chartId !== this.chartId) {
       return;
     }
@@ -42,28 +42,28 @@ export class ChartPanel extends OSComponent {
       ...(this.getChartDefinition(this.chartId) as T),
       ...updateDefinition,
     };
-    return this.env.model.dispatch("UPDATE_CHART", {
+    return this.model().dispatch("UPDATE_CHART", {
       definition,
       chartId,
       figureId,
-      sheetId: this.env.model.getters.getFigureSheetId(figureId)!,
+      sheetId: this.model().getters.getFigureSheetId(figureId)!,
     });
   }
 
   canUpdateChart<T extends ChartDefinition>(chartId: UID, updateDefinition: Partial<T>) {
-    const figureId = this.env.model.getters.getFigureIdFromChartId(chartId);
-    if (chartId !== this.chartId || !this.env.model.getters.isChartDefined(chartId)) {
+    const figureId = this.model().getters.getFigureIdFromChartId(chartId);
+    if (chartId !== this.chartId || !this.model().getters.isChartDefined(chartId)) {
       return;
     }
     const definition: T = {
       ...(this.getChartDefinition(this.chartId) as T),
       ...updateDefinition,
     };
-    return this.env.model.canDispatch("UPDATE_CHART", {
+    return this.model().canDispatch("UPDATE_CHART", {
       definition,
       chartId,
       figureId,
-      sheetId: this.env.model.getters.getFigureSheetId(figureId)!,
+      sheetId: this.model().getters.getFigureSheetId(figureId)!,
     });
   }
 
@@ -78,7 +78,7 @@ export class ChartPanel extends OSComponent {
     if (!this.chartId) {
       throw new Error("Chart not defined.");
     }
-    const type = this.env.model.getters.getChartType(this.chartId);
+    const type = this.model().getters.getChartType(this.chartId);
     if (!type) {
       throw new Error("Chart not defined.");
     }
@@ -90,6 +90,6 @@ export class ChartPanel extends OSComponent {
   }
 
   private getChartDefinition(chartId: UID): ChartDefinition {
-    return this.env.model.getters.getChartDefinition(chartId);
+    return this.model().getters.getChartDefinition(chartId);
   }
 }

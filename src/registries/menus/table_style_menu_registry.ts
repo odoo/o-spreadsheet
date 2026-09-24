@@ -1,13 +1,13 @@
 import { Action, createActions } from "../../actions/action";
 import { SidePanelStore } from "../../components/side_panel/side_panel/side_panel_store";
 import { _t } from "../../translation";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
 
 export function createTableStyleContextMenuActions(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetActionEnv,
   styleId: string
 ): Action[] {
-  if (!env.model.getters.isTableStyleEditable(styleId)) {
+  if (!env.model().getters.isTableStyleEditable(styleId)) {
     return [];
   }
   return createActions([
@@ -21,7 +21,7 @@ export function createTableStyleContextMenuActions(
     {
       id: "deleteTableStyle",
       name: _t("Delete table style"),
-      execute: (env) => env.model.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: styleId }),
+      execute: (env) => env.model().dispatch("REMOVE_TABLE_STYLE", { tableStyleId: styleId }),
       icon: "o-spreadsheet-Icon.TRASH",
     },
   ]);

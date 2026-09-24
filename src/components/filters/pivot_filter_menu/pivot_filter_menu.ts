@@ -51,7 +51,7 @@ export class PivotFilterMenu extends OSComponent {
   }
 
   private getCriterionCategory(): CriterionCategory {
-    const pivot = this.env.model.getters.getPivot(this.props.pivotId);
+    const pivot = this.model().getters.getPivot(this.props.pivotId);
     const fields = pivot.getFields();
     const criterionCategory = fields[this.props.filter.fieldName]?.type;
     return (criterionCategory || "char") as CriterionCategory;

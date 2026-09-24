@@ -142,9 +142,9 @@ export class FiguresContainer extends OSComponent {
       render(this);
     });
     onWillUpdateProps(() => {
-      const sheetId = this.env.model.getters.getActiveSheetId();
+      const sheetId = this.model().getters.getActiveSheetId();
       const draggedFigureId = this.dnd.draggedFigure?.id;
-      if (draggedFigureId && !this.env.model.getters.getFigure(sheetId, draggedFigureId)) {
+      if (draggedFigureId && !this.model().getters.getFigure(sheetId, draggedFigureId)) {
         this.dnd.cancelDnd?.();
         this.dnd.draggedFigure = undefined;
         this.dnd.selectedFigures = undefined;
@@ -233,15 +233,15 @@ export class FiguresContainer extends OSComponent {
   }
 
   get maxDimensions() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     return {
-      maxX: this.env.model.getters.getColDimensions(
+      maxX: this.model().getters.getColDimensions(
         sheetId,
-        this.env.model.getters.getNumberCols(sheetId) - 1
+        this.model().getters.getNumberCols(sheetId) - 1
       ).end,
-      maxY: this.env.model.getters.getRowDimensions(
+      maxY: this.model().getters.getRowDimensions(
         sheetId,
-        this.env.model.getters.getNumberRows(sheetId) - 1
+        this.model().getters.getNumberRows(sheetId) - 1
       ).end,
     };
   }
@@ -315,13 +315,13 @@ export class FiguresContainer extends OSComponent {
   }
 
   startDraggingFigure(figureUI: FigureUI, ev: MouseEvent) {
-    if (ev.button > 0 || this.env.model.getters.isReadonly() || this.isMenuClick(ev)) {
+    if (ev.button > 0 || this.model().getters.isReadonly() || this.isMenuClick(ev)) {
       // not main button, probably a context menu and no d&d in readonly mode
       return;
     }
-    const selected = this.env.model.getters.getSelectedFigureIds().includes(figureUI.id);
+    const selected = this.model().getters.getSelectedFigureIds().includes(figureUI.id);
     if (!selected) {
-      const selectResult = this.env.model.dispatch("SELECT_FIGURE", {
+      const selectResult = this.model().dispatch("SELECT_FIGURE", {
         figureId: figureUI.id,
         selectMultiple: ev.shiftKey || isCtrlKey(ev),
       });
@@ -330,20 +330,20 @@ export class FiguresContainer extends OSComponent {
       }
     }
 
-    if (this.env.isMobile() || this.env.model.getters.isCurrentSheetLocked()) {
+    if (this.env.isMobile() || this.model().getters.isCurrentSheetLocked()) {
       return;
     }
 
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const zoom = this.zoomStore.zoomLevel;
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const initialScrollPosition = this.viewStore.activeSheetScrollInfo;
     const maxDimensions = this.maxDimensions;
-    const selectedFiguresIds = this.env.model.getters.getSelectedFigureIds();
+    const selectedFiguresIds = this.model().getters.getSelectedFigureIds();
     const initialFigures = selectedFiguresIds
-      .map((id) => this.env.model.getters.getFigure(sheetId, id))
+      .map((id) => this.model().getters.getFigure(sheetId, id))
       .filter(isDefined)
-      .map((f) => this.env.model.getters.getFigureUI(sheetId, f))
+      .map((f) => this.model().getters.getFigureUI(sheetId, f))
       .map(this.toBottomRightViewport.bind(this));
 
     const draggedFigureId = figureUI.id;
@@ -381,7 +381,7 @@ export class FiguresContainer extends OSComponent {
       this.chartDragStore.setHighlightedFigure(overlappingChartOrCarousel?.id);
 
       if (!overlappingChartOrCarousel) {
-        const snapReturn = snapForMove(this.env, selectedFigures, otherFigures);
+        const snapReturn = snapForMove(this.spEnv, selectedFigures, otherFigures);
         this.dnd.selectedFigures = snapReturn.snappedFigures;
         this.dnd.selectedRect = this.getDndFigureRect();
         this.dnd.draggedFigure = selectedFigures.find((f) => f.id === draggedFigureId);
@@ -401,9 +401,9 @@ export class FiguresContainer extends OSComponent {
         // on click without move
         if (selected) {
           if (ev.shiftKey || isCtrlKey(ev)) {
-            this.env.model.dispatch("UNSELECT_FIGURE", { figureId: figureUI.id });
+            this.model().dispatch("UNSELECT_FIGURE", { figureId: figureUI.id });
           } else {
-            this.env.model.dispatch("SELECT_FIGURE", { figureId: figureUI.id });
+            this.model().dispatch("SELECT_FIGURE", { figureId: figureUI.id });
           }
         }
         return;
@@ -417,18 +417,18 @@ export class FiguresContainer extends OSComponent {
               ...this.viewStore.viewports.getPositionAnchorOffset(sheetId, f),
             };
           }) || [];
-        this.env.model.dispatch("UPDATE_FIGURES", { figures: payloads });
+        this.model().dispatch("UPDATE_FIGURES", { figures: payloads });
       } else {
         const overlappingFigureId = overlappingChartOrCarousel.id;
         const chartFigureIds = this.dnd.selectedFigures?.map((f) => f.id) || [];
         if (overlappingChartOrCarousel.tag === "carousel") {
-          this.env.model.dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
+          this.model().dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
             sheetId,
             carouselFigureId: overlappingFigureId,
             chartFigureIds: chartFigureIds,
           });
         } else if (overlappingChartOrCarousel.tag === "chart") {
-          this.env.model.dispatch("MERGE_CHART_FIGURES_INTO_CAROUSEL", {
+          this.model().dispatch("MERGE_CHART_FIGURES_INTO_CAROUSEL", {
             sheetId,
             baseFigureId: overlappingFigureId,
             chartFigureIds: [overlappingFigureId, ...chartFigureIds],
@@ -459,16 +459,16 @@ export class FiguresContainer extends OSComponent {
   resizeAllSelectedFigures(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) {
     ev.stopPropagation();
 
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const zoom = this.zoomStore.zoomLevel;
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const initialScrollPosition = this.viewStore.activeSheetScrollInfo;
     const maxDimensions = this.maxDimensions;
-    const selectedFiguresIds = this.env.model.getters.getSelectedFigureIds();
+    const selectedFiguresIds = this.model().getters.getSelectedFigureIds();
     const initialFigures = selectedFiguresIds
-      .map((id) => this.env.model.getters.getFigure(sheetId, id))
+      .map((id) => this.model().getters.getFigure(sheetId, id))
       .filter(isDefined)
-      .map((figure) => this.env.model.getters.getFigureUI(sheetId, figure))
+      .map((figure) => this.model().getters.getFigureUI(sheetId, figure))
       .map(this.toBottomRightViewport.bind(this));
 
     const mutlipleFiguresSelected = selectedFiguresIds.length > 1;
@@ -524,7 +524,7 @@ export class FiguresContainer extends OSComponent {
       );
 
       const { snappedRect, verticalSnapLine, horizontalSnapLine } = snapForResize(
-        this.env,
+        this.spEnv,
         dirX,
         dirY,
         resizedRect,
@@ -567,7 +567,7 @@ export class FiguresContainer extends OSComponent {
           ...update,
         };
       });
-      this.env.model.dispatch("UPDATE_FIGURES", { figures: dispatchPayload });
+      this.model().dispatch("UPDATE_FIGURES", { figures: dispatchPayload });
       this.dnd.draggedFigure = undefined;
       this.dnd.selectedFigures = undefined;
       this.dnd.selectedRect = undefined;

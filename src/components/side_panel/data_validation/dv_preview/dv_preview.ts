@@ -31,8 +31,8 @@ export class DataValidationPreview extends OSComponent {
   }
 
   deleteDataValidation() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    this.env.model.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: this.props.rule.id });
+    const sheetId = this.model().getters.getActiveSheetId();
+    this.model().dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: this.props.rule.id });
   }
 
   get highlights(): Highlight[] {
@@ -44,15 +44,15 @@ export class DataValidationPreview extends OSComponent {
   }
 
   get rangesString(): string {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     return this.props.rule.ranges
-      .map((range) => this.env.model.getters.getRangeString(range, sheetId))
+      .map((range) => this.model().getters.getRangeString(range, sheetId))
       .join(", ");
   }
 
   get descriptionString(): string {
     return criterionEvaluatorRegistry
       .get(this.props.rule.criterion.type)
-      .getPreview(this.props.rule.criterion, this.env.model.getters);
+      .getPreview(this.props.rule.criterion, this.model().getters);
   }
 }

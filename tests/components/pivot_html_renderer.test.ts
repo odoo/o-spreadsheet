@@ -15,11 +15,12 @@ async function mountPivotHtmlRenderer(
   const props = {
     pivotId,
     onCellClicked,
+    model,
   };
   const sheetId = model.getters.getActiveSheetId();
   model.dispatch("PIVOT_START_PRESENCE_TRACKING", { pivotId, sheetId });
   evaluateCells(model);
-  ({ fixture } = await mountComponent(PivotHTMLRenderer, { env: { model }, props }));
+  ({ fixture } = await mountComponent(PivotHTMLRenderer, { model, props }));
 }
 
 describe("Pivot HTML Renderer", () => {

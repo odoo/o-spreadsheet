@@ -9,9 +9,9 @@ export function interactiveFreezeColumnsRows(
   dimension: Dimension,
   base: HeaderIndex
 ) {
-  const sheetId = env.model.getters.getActiveSheetId();
+  const sheetId = env.model().getters.getActiveSheetId();
   const cmd = dimension === "COL" ? "FREEZE_COLUMNS" : "FREEZE_ROWS";
-  const result = env.model.dispatch(cmd, { sheetId, quantity: base });
+  const result = env.model().dispatch(cmd, { sheetId, quantity: base });
 
   if (result.isCancelledBecause(CommandResult.MergeOverlap)) {
     env.getPlugin(NotificationPlugin).raiseError(MergeErrorMessage);

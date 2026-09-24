@@ -26,7 +26,7 @@ export class TableResizer extends OSComponent {
   });
 
   state = proxy<State>({ highlightZone: undefined });
-  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
 
@@ -65,10 +65,10 @@ export class TableResizer extends OSComponent {
         return;
       }
       const sheetId = this.props.table.range.sheetId;
-      this.env.model.dispatch("RESIZE_TABLE", {
+      this.model().dispatch("RESIZE_TABLE", {
         sheetId,
         zone: this.props.table.range.zone,
-        newTableRange: this.env.model.getters.getRangeDataFromZone(sheetId, newTableZone),
+        newTableRange: this.model().getters.getRangeDataFromZone(sheetId, newTableZone),
       });
       this.state.highlightZone = undefined;
     };
@@ -90,7 +90,7 @@ export class TableResizer extends OSComponent {
     }
     return [
       {
-        range: this.env.model.getters.getRangeFromZone(
+        range: this.model().getters.getRangeFromZone(
           this.props.table.range.sheetId,
           this.state.highlightZone
         ),

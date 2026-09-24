@@ -245,7 +245,7 @@ export class AxisDesignEditor extends OSComponent {
   }
 
   private parseTimeAxisBoundaryValue(value: string): number | undefined | null {
-    const dateNumber = toNumber(value, this.env.model.getters.getLocale());
+    const dateNumber = toNumber(value, this.model().getters.getLocale());
     return Number.isNaN(dateNumber) ? null : dateNumber;
   }
 
@@ -253,11 +253,11 @@ export class AxisDesignEditor extends OSComponent {
     if (value === undefined) {
       return undefined;
     }
-    return formatValue(value, { format: "yyyy-mm-dd", locale: this.env.model.getters.getLocale() });
+    return formatValue(value, { format: "yyyy-mm-dd", locale: this.model().getters.getLocale() });
   }
 
   private getXAxisType(): AxisType | undefined {
-    const runtime = this.env.model.getters.getChartRuntime(this.props.chartId) as LineChartRuntime;
+    const runtime = this.model().getters.getChartRuntime(this.props.chartId) as LineChartRuntime;
     return runtime?.chartJsConfig.options?.scales?.x?.type as AxisType | undefined;
   }
 }

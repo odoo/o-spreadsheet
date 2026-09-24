@@ -1,9 +1,7 @@
-import { useProps } from "@odoo/owl";
-import { OSComponent } from "../../../os_component";
-
+import { Component, useProps } from "@odoo/owl";
 import { types } from "../../../props_validation";
 
-export class Section extends OSComponent {
+export class Section extends Component {
   static template = "o_spreadsheet.Section";
 
   protected props = useProps({

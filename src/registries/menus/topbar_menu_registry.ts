@@ -543,7 +543,7 @@ topbarMenuRegistry
     icon: "o-spreadsheet-Icon.PIVOT",
     children: [
       (env) => {
-        const { getters } = env.model;
+        const { getters } = env.model();
         return getters.getPivotIds().map((pivotId, sequence) => {
           const highlightProvider = {
             get highlights() {

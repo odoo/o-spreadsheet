@@ -101,8 +101,8 @@ export function getCustomNumberFormats(
   );
 
   const customFormats = new Map<Format, ACTION_FORMAT.NumberFormatActionSpec>();
-  for (const sheetId of env.model.getters.getSheetIds()) {
-    const cells = env.model.getters.getEvaluatedCells(sheetId);
+  for (const sheetId of env.model().getters.getSheetIds()) {
+    const cells = env.model().getters.getEvaluatedCells(sheetId);
     for (const cellId in cells) {
       const cell = cells[cellId];
 

@@ -49,7 +49,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   }
 
   get masterChartContainerStyle() {
-    const runtime = this.env.model.getters.getChartRuntime(this.props.chartId) as ChartJSRuntime;
+    const runtime = this.model().getters.getChartRuntime(this.props.chartId) as ChartJSRuntime;
     if (runtime && !runtime.chartJsConfig.data.datasets.some((ds) => ds.data.length > 1)) {
       return "opacity: 0.3;";
     }
@@ -60,7 +60,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     if (this.props.isFullScreen) {
       return true;
     }
-    const definition = this.env.model.getters.getChartDefinition(this.props.chartId);
+    const definition = this.model().getters.getChartDefinition(this.props.chartId);
     return ("zoomable" in definition && definition.zoomable) ?? false;
   }
 

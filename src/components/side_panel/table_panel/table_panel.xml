@@ -66,7 +66,7 @@
         <TableStylePicker
           tableConfig="this.props.table.config"
           onStylePicked.bind="this.onStylePicked"
-          tableStyles="this.env.model.getters.getTableStyles()"
+          tableStyles="this.model().getters.getTableStyles()"
           type="'table'"
         />
       </Section>

@@ -37,7 +37,7 @@ export class PivotDesignPanel extends OSComponent {
   }
 
   get pivotStyle() {
-    const pivot = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
+    const pivot = this.model().getters.getPivotCoreDefinition(this.props.pivotId);
     return pivot.style || {};
   }
 

@@ -23,7 +23,7 @@ export class SidePanel extends OSComponent {
   getTitle() {
     const panel = this.props.panelContent;
     return typeof panel.title === "function"
-      ? panel.title(this.env, this.props.panelProps)
+      ? panel.title(this.spEnv, this.props.panelProps)
       : panel.title;
   }
 }

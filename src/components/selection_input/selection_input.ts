@@ -207,7 +207,7 @@ export class SelectionInput extends OSComponent {
       ev.stopPropagation();
       if (this.store.mode === "select-range") {
         ev.preventDefault();
-        updateSelectionWithArrowKeys(ev, this.env.model.selection);
+        updateSelectionWithArrowKeys(ev, this.model().selection);
       }
     } else if (ev.key === "Enter") {
       const target = ev.target as HTMLInputElement;
@@ -259,7 +259,7 @@ export class SelectionInput extends OSComponent {
   confirm() {
     this.store.confirm();
     const anyValidInput = this.store.selectionInputs.some((range) =>
-      this.env.model.getters.isRangeValid(range.xc)
+      this.model().getters.isRangeValid(range.xc)
     );
     if (this.props.required && !anyValidInput) {
       this.state.isMissing = true;

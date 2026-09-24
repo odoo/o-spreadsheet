@@ -9,7 +9,10 @@ import {
 } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { render } from "../../src/helpers/owl3_helpers";
 import { Component } from "../../src/owl3_compatibility_layer";
-import { SidePanelContent, sidePanelRegistry } from "../../src/registries/side_panel_registry";
+import {
+  SidePanelContent,
+  sidePanelRegistry,
+} from "../../src/registries/side_panel_registry_definition";
 import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { createSheet } from "../test_helpers/commands_helpers";

@@ -51,7 +51,7 @@ export class SunburstChartDesignPanel extends OSComponent {
 
   get groupColors() {
     const chartId = this.props.chartId;
-    const runtime = this.env.model.getters.getChartRuntime(chartId) as SunburstChartRuntime;
+    const runtime = this.model().getters.getChartRuntime(chartId) as SunburstChartRuntime;
     const dataset = runtime.chartJsConfig.data.datasets[0] as SunburstChartJSDataset;
     return dataset?.groupColors || [];
   }

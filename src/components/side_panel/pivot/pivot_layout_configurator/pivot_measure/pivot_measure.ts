@@ -49,7 +49,7 @@ export class PivotMeasureEditor extends OSComponent {
     this.props.onMeasureUpdated({
       ...this.props.measure,
       computedBy: {
-        sheetId: this.env.model.getters.getActiveSheetId(),
+        sheetId: this.model().getters.getActiveSheetId(),
         formula: formula[0] === "=" ? formula : "=" + formula,
       },
     });
@@ -131,7 +131,7 @@ export class PivotMeasureEditor extends OSComponent {
     if (!measureDisplay || measureDisplay.type === "no_calculations") {
       return "";
     }
-    const pivot = this.env.model.getters.getPivot(this.props.pivotId);
+    const pivot = this.model().getters.getPivot(this.props.pivotId);
     const field = [...pivot.definition.columns, ...pivot.definition.rows].find(
       (f) => f.nameWithGranularity === measureDisplay.fieldNameWithGranularity
     );
