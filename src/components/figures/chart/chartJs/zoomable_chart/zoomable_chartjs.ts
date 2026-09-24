@@ -4,7 +4,7 @@ import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
 } from "../../../../../helpers/figures/charts/chart_common";
-import { clip } from "../../../../../helpers/misc";
+import { clip, largeMax, largeMin } from "../../../../../helpers/misc";
 import { useStore } from "../../../../../store_engine/store_hooks";
 import { ChartJSRuntime } from "../../../../../types/chart/chart";
 import { Store } from "../../../../../types/store_engine";
@@ -117,8 +117,8 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   private getAxisLimitsFromDataset(chartData: ChartConfiguration<any>): Boundaries {
     const data = chartData.data.datasets.map((ds) => ds.data).flat();
     const xValues = data.map((d, i) => (typeof d === "object" && d !== null ? d.x : i));
-    const min = Math.min(...xValues);
-    const max = Math.max(...xValues);
+    const min = largeMin(xValues);
+    const max = largeMax(xValues);
     return { min, max };
   }
 
