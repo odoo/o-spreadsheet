@@ -52,7 +52,7 @@
 
   <t t-name="o-spreadsheet-SidePanelCollapsed">
     <div
-      class="o-sidePanel collapsed w-100 h-100 bg-white"
+      class="o-sidePanel collapsed w-100 h-100 bg-white border-start"
       t-on-click="props.onToggleCollapsePanel">
       <div class="d-flex flex-column align-items-center">
         <div
