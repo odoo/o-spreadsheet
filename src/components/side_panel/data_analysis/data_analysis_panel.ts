@@ -20,7 +20,10 @@ export class DataAnalysisPanel extends OSComponent {
     this.store = useLocalStore(DataAnalysisStore);
   }
 
-  onStartChartSuggestionDrag(definition: ChartDefinition, ev: MouseEvent) {
+  onStartChartSuggestionDrag(definition: ChartDefinition, ev: PointerEvent) {
+    if (ev.button !== 0) {
+      return;
+    }
     startChartDragAndDrop(this.spEnv, definition, ev);
   }
 }
