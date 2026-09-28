@@ -67,7 +67,7 @@ export function getOverlappedFigure(
 export function startChartDragAndDrop(
   env: SpreadsheetChildEnv,
   definition: ChartDefinition,
-  ev: MouseEvent
+  ev: PointerEvent
 ) {
   const getters = env.model.getters;
   const viewStore = env.getStore(ViewportsStore);
@@ -110,7 +110,7 @@ export function startChartDragAndDrop(
     };
   };
 
-  const onMouseMove = (ev: MouseEvent) => {
+  const onPointerMove = (ev: PointerEvent) => {
     const currentMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const offsetX = Math.abs(currentMousePosition.x - initialMousePosition.x);
     const offsetY = Math.abs(currentMousePosition.y - initialMousePosition.y);
@@ -169,7 +169,7 @@ export function startChartDragAndDrop(
     chartDragStore.setHighlightedFigure(overlappedFigure?.id);
   };
 
-  const onMouseUp = (ev: MouseEvent) => {
+  const onPointerUp = (ev: PointerEvent) => {
     const currentMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const offsetX = Math.abs(currentMousePosition.x - initialMousePosition.x);
     const offsetY = Math.abs(currentMousePosition.y - initialMousePosition.y);
@@ -240,5 +240,5 @@ export function startChartDragAndDrop(
     }
   };
 
-  startDnd(onMouseMove, onMouseUp);
+  startDnd(onPointerMove, onPointerUp);
 }
