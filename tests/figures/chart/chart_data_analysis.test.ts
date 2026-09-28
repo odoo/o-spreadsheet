@@ -185,4 +185,15 @@ describe("drag and drop chart suggestions", () => {
       expect.anything()
     );
   });
+
+  test("right-click does not start the suggestion drag", async () => {
+    const { model } = await mountSpreadsheet();
+    setCellContent(model, "A1", "1");
+    selectCell(model, "A1");
+    await simulateClick(".o-data-analysis-button");
+    triggerMouseEvent(".o-suggestion-canvas-wrap", "pointerdown", 0, 0, { button: 1 });
+    triggerMouseEvent(".o-suggestion-canvas-wrap", "pointermove", 200, 200, { button: 1 });
+    await nextTick();
+    expect(".o-chart-drag-preview").toHaveCount(0);
+  });
 });

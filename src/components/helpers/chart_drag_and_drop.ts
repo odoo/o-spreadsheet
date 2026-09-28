@@ -71,7 +71,7 @@ export function getCarouselOverlappingChart(
 export function startChartDragAndDrop(
   env: SpreadsheetChildEnv,
   definition: ChartDefinition,
-  ev: MouseEvent
+  ev: PointerEvent
 ) {
   const zoom = env.getStore(ZoomStore).zoomLevel;
   const gridPosition = gridOverlayPosition(zoom);
@@ -124,7 +124,7 @@ export function startChartDragAndDrop(
   const halfWidth = figureWidth / 2;
   const halfHeight = figureHeight / 2;
 
-  const onMouseMove = (e: MouseEvent) => {
+  const onPointerMove = (e: PointerEvent) => {
     if (
       Math.abs(e.clientX - startX) <= DRAG_THRESHOLD &&
       Math.abs(e.clientY - startY) <= DRAG_THRESHOLD
@@ -159,7 +159,7 @@ export function startChartDragAndDrop(
     chartDragStore.setHighlightedFigure(overlappingFigure?.id);
   };
 
-  const onMouseUp = (mouseEvent: MouseEvent) => {
+  const onMouseUp = (e: PointerEvent) => {
     chartDragStore.setHighlightedFigure(undefined);
     if (container !== null) {
       spreadsheet.removeChild(container);
@@ -168,10 +168,10 @@ export function startChartDragAndDrop(
     destroyChart?.();
     document.body.style.cursor = previousCursor;
 
-    let position = getGridPosition(mouseEvent.clientX - halfWidth, mouseEvent.clientY - halfHeight);
+    let position = getGridPosition(e.clientX - halfWidth, e.clientY - halfHeight);
     if (
-      Math.abs(mouseEvent.clientX / zoom - startX) <= DRAG_THRESHOLD &&
-      Math.abs(mouseEvent.clientY / zoom - startY) <= DRAG_THRESHOLD
+      Math.abs(e.clientX / zoom - startX) <= DRAG_THRESHOLD &&
+      Math.abs(e.clientY / zoom - startY) <= DRAG_THRESHOLD
     ) {
       position = { x: 0, y: 0 };
     } else if (!position || position.x + halfWidth > gridPosition.width) {
@@ -191,10 +191,7 @@ export function startChartDragAndDrop(
       row,
       offset,
     };
-    const overlappingFigure = getOverlappingFigure(
-      mouseEvent.clientX - halfWidth,
-      mouseEvent.clientY - halfHeight
-    );
+    const overlappingFigure = getOverlappingFigure(e.clientX - halfWidth, e.clientY - halfHeight);
     if (overlappingFigure?.tag === "carousel") {
       env.model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
         sheetId,
@@ -215,5 +212,5 @@ export function startChartDragAndDrop(
     }
   };
 
-  startDnd(onMouseMove, onMouseUp);
+  startDnd(onPointerMove, onMouseUp);
 }
