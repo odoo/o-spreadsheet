@@ -26,7 +26,7 @@ import { ClipboardStore, MAX_FILE_SIZE } from "../../src/stores/clipboard_store"
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { XMLString } from "../../src/types/xlsx";
 import { parseXML, xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
-import { FileStore as MockFileStore } from "../__mocks__/mock_file_store";
+import { MockFileStore } from "../__mocks__/mock_file_store";
 import { MockClipboardData } from "../test_helpers/clipboard";
 import {
   activateSheet,

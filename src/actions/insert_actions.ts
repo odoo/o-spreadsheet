@@ -1,5 +1,6 @@
 import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import { functionRegistry } from "../functions/function_registry";
+import { ImageProviderPlugin } from "../helpers/figures/images/image_provider";
 import { isDefined } from "../helpers/misc";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { UuidGenerator } from "../helpers/uuid";
@@ -208,7 +209,7 @@ export const insertImage: ActionSpec = {
   name: _t("Image"),
   shortcut: "Ctrl+O",
   execute: ACTIONS.CREATE_IMAGE,
-  isVisible: (env) => env.imageProvider !== undefined,
+  isVisible: (env) => env.getPlugin(ImageProviderPlugin).canUseImageProvider,
   isEnabled: (env) => !env.isSmall,
   icon: "o-spreadsheet-Icon.INSERT_IMAGE",
 };

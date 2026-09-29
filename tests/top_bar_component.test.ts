@@ -7,6 +7,7 @@ import { PopoverContainerPlugin } from "../src/components/popover/popover_contai
 import { TopBar } from "../src/components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_registry";
 import { DEFAULT_FONT_SIZE } from "../src/constants";
+import { ImageProviderPlugin } from "../src/helpers/figures/images/image_provider";
 import { render } from "../src/helpers/owl3_helpers";
 import { toZone, zoneToXc } from "../src/helpers/zones";
 import { Component } from "../src/owl3_compatibility_layer";
@@ -16,7 +17,8 @@ import { DOMFocusableElementStore } from "../src/stores/DOM_focus_store";
 import { ViewportsStore } from "../src/stores/viewports_store";
 import { SpreadsheetActionEnv, SpreadsheetChildEnv } from "../src/types/spreadsheet_env";
 import { Store } from "../src/types/store_engine";
-import { FileStore } from "./__mocks__/mock_file_store";
+import { MockFileStore } from "./__mocks__/mock_file_store";
+import { mockJsDomForImageProvider } from "./__mocks__/mock_image_provider";
 import { MockTransportService } from "./__mocks__/transport_service";
 import {
   addCellToSelection,
@@ -65,10 +67,6 @@ import {
   useJestFakeTimers,
 } from "./test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "./test_helpers/mock_helpers";
-
-jest.mock("../src/helpers/figures/images/image_provider", () =>
-  require("./__mocks__/mock_image_provider")
-);
 
 const topBarToolsHeight = 30;
 let spreadsheetWidth = 1000;
@@ -138,6 +136,9 @@ class Parent extends OSComponent {
         height: spreadsheetHeight,
         width: spreadsheetWidth,
       }),
+    });
+    providePlugins([ImageProviderPlugin], {
+      fileStore: this.model().config.external.fileStore,
     });
   }
 }
@@ -841,13 +842,19 @@ describe("TopBar component", () => {
   );
 
   test("can insert an image", async () => {
-    const fileStore = new FileStore();
+    mockJsDomForImageProvider();
+    const fileStore = new MockFileStore();
     const model = new Model({}, { external: { fileStore } });
     await mountParent(model);
     const sheetId = model.getters.getActiveSheetId();
     await simulateClick(".o-topbar-menu[data-id='insert']");
     await simulateClick(".o-menu-item[data-name='insert_image']");
     expect(getFigureIds(model, sheetId)).toHaveLength(1);
+    expect(model.getters.getImage(getFigureIds(model, sheetId)[0])).toMatchObject({
+      mimetype: "image/png",
+      path: "file/0", // From mock FileStore
+      size: { height: 100, width: 200 }, // From mock jsdom image load event in jest.setup.ts
+    });
   });
 
   test("top bar composer displays formula", async () => {
