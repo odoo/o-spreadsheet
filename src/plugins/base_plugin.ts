@@ -67,17 +67,6 @@ export class BasePlugin<State = any, C extends Command = Command>
   // ---------------------------------------------------------------------------
 
   /**
-   * Before a command is accepted, the model will ask each plugin if the command
-   * is allowed. If all of them return true, then we can proceed. Otherwise,
-   * the command is cancelled.
-   *
-   * There should not be any side effects in this method.
-   */
-  allowDispatch(command: C): CommandResult | CommandResult[] {
-    return CommandResult.Success;
-  }
-
-  /**
    * Sometimes, it is useful to perform some work after a command (and all its
    * subcommands) has been completely handled. For example, when we paste
    * multiple cells, we only want to reevaluate the cell values once at the end.
