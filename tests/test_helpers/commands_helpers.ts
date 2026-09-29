@@ -74,7 +74,7 @@ import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart"
 import { SunburstChartDefinition } from "../../src/types/chart/sunburst_chart";
 import { TreeMapChartDefinition } from "../../src/types/chart/tree_map_chart";
 import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart";
-import { AnchorOffset, CarouselItem, FigureSize } from "../../src/types/figure";
+import { AnchorOffset, FigureSize } from "../../src/types/figure";
 import { Image } from "../../src/types/image";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { CoreTableType, CriterionFilter, TableConfig } from "../../src/types/table";
@@ -1951,12 +1951,12 @@ export function addNewChartToCarousel(
 export function selectCarouselItem(
   model: Model,
   carouselId: UID,
-  item: CarouselItem,
+  itemIndex: number,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   return model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
     carouselId,
-    item,
+    itemIndex,
     sheetId,
   });
 }

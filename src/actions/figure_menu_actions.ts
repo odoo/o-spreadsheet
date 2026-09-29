@@ -4,7 +4,6 @@ import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_s
 import { getPoppedOutChartAnchor } from "../helpers/carousel_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts/chart_ui_common";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
-import { deepEquals } from "../helpers/misc";
 import { UuidGenerator } from "../helpers/uuid";
 import { ImageProviderPlugin } from "../owl_plugins/image_provider_owl_plugin";
 import { IsSmallPlugin } from "../owl_plugins/is_small_plugin";
@@ -166,12 +165,12 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetActionEnv)
         return item?.type === "chart" ? _t("Delete chart") : _t("Delete data view");
       },
       execute: () => {
-        const item = env.model().getters.getSelectedCarouselItem(figureId);
-        if (!item) {
+        const index = env.model().getters.getSelectedCarouselItemIndex(figureId);
+        if (index === undefined) {
           return;
         }
         const carousel = env.model().getters.getCarousel(figureId);
-        const items = carousel.items.filter((itm) => !deepEquals(itm, item));
+        const items = carousel.items.filter((_, i) => i !== index);
         env.model().dispatch("UPDATE_CAROUSEL", {
           figureId,
           sheetId: env.model().getters.getActiveSheetId(),
