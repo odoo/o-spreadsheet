@@ -83,22 +83,31 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
         sheetId,
         copiedDefinition
       ).getDefinition();
-      const { col, row, offset } = boundColRowOffsetInSheet(
-        this.getters,
-        sheetId,
-        { col: zones[0].left, row: zones[0].top },
-        { ...clippedFigure.copiedFigure, offset: clippedFigure.offset }
-      );
-      this.dispatch("CREATE_CHART", {
-        figureId,
-        chartId: UuidGenerator.smallUuid(),
-        sheetId,
-        definition: copiedDefinition,
-        col,
-        row,
-        offset,
-        size: { height, width },
-      });
+      if (options.targetCarouselId) {
+        this.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
+          sheetId,
+          figureId: options.targetCarouselId,
+          newChartId: UuidGenerator.smallUuid(),
+          chartDefinition: copiedDefinition,
+        });
+      } else {
+        const { col, row, offset } = boundColRowOffsetInSheet(
+          this.getters,
+          sheetId,
+          { col: zones[0].left, row: zones[0].top },
+          { ...clippedFigure.copiedFigure, offset: clippedFigure.offset }
+        );
+        this.dispatch("CREATE_CHART", {
+          figureId,
+          chartId: UuidGenerator.smallUuid(),
+          sheetId,
+          definition: copiedDefinition,
+          col,
+          row,
+          offset,
+          size: { height, width },
+        });
+      }
 
       if (options.isCutOperation) {
         this.dispatch("DELETE_FIGURE", {
