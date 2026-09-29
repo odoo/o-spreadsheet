@@ -464,7 +464,30 @@ export class ClipboardStore extends SpreadsheetStore {
         zone.top
       );
     }
-    if (copiedData.figureIds) {
+    const pastedFigures = copiedData.figureIds;
+    const pastedZones = copiedData.zones;
+    const selectedFigures = this.getters.getSelectedFigureIds();
+    if (selectedFigures.length === 1 && !pastedFigures?.includes(selectedFigures[0])) {
+      const targetFigure = this.getters.getFigure(sheetId, selectedFigures[0]);
+      if (targetFigure?.tag === "carousel" || targetFigure?.tag === "chart") {
+        const pastingCharts =
+          pastedFigures &&
+          pastedFigures.every((figureId) => {
+            const figureSheetId = this.getters.getFigureSheetId(figureId);
+            return (
+              !!figureSheetId && this.getters.getFigure(figureSheetId, figureId)?.tag === "chart"
+            );
+          });
+        const pastingUniqueZone = pastedZones?.length === 1;
+        if (pastingCharts || pastingUniqueZone) {
+          options.targetFigureId = selectedFigures[0];
+          if (pastingUniqueZone) {
+            options.selectTarget = false;
+          }
+        }
+      }
+    }
+    if (pastedFigures) {
       // Deselect current figure before adding new figure to selection
       this.model.dispatch("SELECT_FIGURE", { figureId: null });
     }

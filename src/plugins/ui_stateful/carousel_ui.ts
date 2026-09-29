@@ -1,5 +1,5 @@
 import { SpreadsheetChart } from "../../helpers/figures/chart";
-import { deepEquals, insertItemsAtIndex } from "../../helpers/misc";
+import { insertItemsAtIndex } from "../../helpers/misc";
 import { UuidGenerator } from "../../helpers/uuid";
 import { ChartDefinition } from "../../types/chart/chart";
 import {
@@ -16,11 +16,12 @@ import { UIPlugin } from "../ui_plugin";
 export class CarouselUIPlugin extends UIPlugin {
   static getters = [
     "getSelectedCarouselItem",
+    "getSelectedCarouselItemIndex",
     "getChartFromFigureId",
     "getChartIdFromFigureId",
   ] as const;
 
-  carouselStates: Record<UID, string | undefined> = {};
+  carouselStates: Record<UID, number | undefined> = {};
 
   allowDispatch(cmd: LocalCommand): CommandResult | CommandResult[] {
     switch (cmd.type) {
@@ -55,9 +56,10 @@ export class CarouselUIPlugin extends UIPlugin {
         if (!this.getters.doesCarouselExist(cmd.carouselId)) {
           return CommandResult.InvalidFigureId;
         } else if (
-          !this.getters.getCarousel(cmd.carouselId).items.some((item) => deepEquals(item, cmd.item))
+          cmd.itemIndex < 0 ||
+          cmd.itemIndex >= this.getters.getCarousel(cmd.carouselId).items.length
         ) {
-          return CommandResult.InvalidCarouselItem;
+          return CommandResult.InvalidCarouselIndex;
         }
         return CommandResult.Success;
     }
@@ -83,7 +85,7 @@ export class CarouselUIPlugin extends UIPlugin {
         this.duplicateCarouselChart(cmd);
         break;
       case "UPDATE_CAROUSEL_ACTIVE_ITEM":
-        this.carouselStates[cmd.carouselId] = this.getCarouselItemId(cmd.item);
+        this.carouselStates[cmd.carouselId] = cmd.itemIndex;
         break;
       case "POPOUT_CHART_FROM_CAROUSEL":
         this.popOutChartFromCarousel(cmd);
@@ -112,9 +114,12 @@ export class CarouselUIPlugin extends UIPlugin {
       return;
     }
     const figure = this.getters.getFigure(sheetId, carouselId);
-
     const chartDefinition = this.getters.getChartDefinition(chartId);
-    if (!chartDefinition || !figure) {
+    const chartIndex = carousel.items.findIndex(
+      (item) => item.type === "chart" && item.chartId === chartId
+    );
+    const selectedItemIndex = this.getSelectedCarouselItemIndex(carouselId);
+    if (!chartDefinition || !figure || chartIndex === -1 || selectedItemIndex === undefined) {
       return;
     }
 
@@ -137,6 +142,13 @@ export class CarouselUIPlugin extends UIPlugin {
       figureId: carouselId,
       definition: this.getters.carouselToCarouselData({ ...carousel, items }),
     });
+    if (chartIndex < selectedItemIndex) {
+      this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+        carouselId,
+        sheetId,
+        itemIndex: selectedItemIndex - 1,
+      });
+    }
     this.dispatch("SELECT_FIGURE", { figureId: newChartFigureId });
   }
 
@@ -145,12 +157,16 @@ export class CarouselUIPlugin extends UIPlugin {
     if (!carousel.items.length) {
       return undefined;
     }
+    const index = this.carouselStates[figureId] || 0;
+    return carousel.items[index];
+  }
 
-    return this.carouselStates[figureId]
-      ? carousel.items.find(
-          (item) => this.getCarouselItemId(item) === this.carouselStates[figureId]
-        )
-      : carousel.items[0];
+  getSelectedCarouselItemIndex(figureId: UID): number | undefined {
+    const carousel = this.getters.getCarousel(figureId);
+    if (!carousel.items.length) {
+      return undefined;
+    }
+    return this.carouselStates[figureId] || 0;
   }
 
   getChartFromFigureId(figureId: UID): SpreadsheetChart | undefined {
@@ -192,11 +208,9 @@ export class CarouselUIPlugin extends UIPlugin {
     if (carousel.items.length === 0) {
       delete this.carouselStates[figureId];
     } else if (!this.carouselStates[figureId]) {
-      this.carouselStates[figureId] = this.getCarouselItemId(carousel.items[0]);
-    } else if (
-      !carousel.items.some((item) => this.getCarouselItemId(item) === this.carouselStates[figureId])
-    ) {
-      this.carouselStates[figureId] = this.getCarouselItemId(carousel.items[0]);
+      this.carouselStates[figureId] = 0;
+    } else if (this.carouselStates[figureId]! >= carousel.items.length) {
+      this.carouselStates[figureId] = 0;
     }
   }
 
@@ -224,7 +238,7 @@ export class CarouselUIPlugin extends UIPlugin {
     this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
       carouselId: figureId,
       sheetId,
-      item: carouselItem,
+      itemIndex: definition.items.length - 1,
     });
   }
 
@@ -252,7 +266,11 @@ export class CarouselUIPlugin extends UIPlugin {
       definition: this.getters.getChartDefinition(chartId),
     });
     this.dispatch("DELETE_FIGURE", { sheetId, figureId: chartFigureId });
-    this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", { carouselId: figureId, sheetId, item: newItem });
+    this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+      carouselId: figureId,
+      sheetId,
+      itemIndex: definition.items.length - 1,
+    });
   }
 
   private duplicateCarouselChart({
@@ -267,10 +285,11 @@ export class CarouselUIPlugin extends UIPlugin {
     }
     const carousel = this.getters.getCarousel(carouselId);
 
+    const selectedItemIndex = this.getSelectedCarouselItemIndex(carouselId);
     const duplicatedItemIndex = carousel.items.findIndex(
       (item) => item.type === "chart" && item.chartId === chartId
     );
-    if (duplicatedItemIndex === -1) {
+    if (duplicatedItemIndex === -1 || selectedItemIndex === undefined) {
       return;
     }
 
@@ -292,9 +311,12 @@ export class CarouselUIPlugin extends UIPlugin {
       figureId: carouselId,
       definition: this.getters.carouselToCarouselData({ ...carousel, items: carouselItems }),
     });
-  }
-
-  private getCarouselItemId(item: CarouselItem): UID {
-    return item.type === "chart" ? item.chartId : "carouselDataView";
+    if (duplicatedItemIndex < selectedItemIndex) {
+      this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+        carouselId,
+        sheetId,
+        itemIndex: selectedItemIndex + 1,
+      });
+    }
   }
 }

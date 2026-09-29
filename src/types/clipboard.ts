@@ -33,6 +33,7 @@ export interface ClipboardOptions {
   isCutOperation: boolean;
   pasteOption?: ClipboardPasteOptions;
   selectTarget?: boolean;
+  targetFigureId?: UID;
 }
 export type ClipboardPasteOptions = "onlyFormat" | "asValue";
 export type ClipboardCopyOptions = "copyPaste" | "shiftCells";
