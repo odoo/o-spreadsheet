@@ -16,11 +16,11 @@ import {
 import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO } from "../../constants";
 import { DARK_MODE_FILTER_STRING } from "../../helpers/color";
 import { unregisterChartJsExtensions } from "../../helpers/figures/charts/chart_js_extension";
-import { ImageProviderPlugin } from "../../helpers/figures/images/image_provider";
 import { batched } from "../../helpers/misc";
 import { providePluginsIfNotPresent, render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
 import { Component, useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
+import { ImageProviderPlugin } from "../../owl_plugins/image_provider_owl_plugin";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";

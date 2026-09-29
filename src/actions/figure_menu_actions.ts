@@ -4,8 +4,8 @@ import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_s
 import { getPoppedOutChartAnchor } from "../helpers/carousel_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts/chart_ui_common";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
-import { ImageProviderPlugin } from "../helpers/figures/images/image_provider";
 import { deepEquals } from "../helpers/misc";
+import { ImageProviderPlugin } from "../owl_plugins/image_provider_owl_plugin";
 import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
 import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";

@@ -1,7 +1,7 @@
 import { Plugin, useConfig } from "@odoo/owl";
-import { FigureSize } from "../../../types/figure";
-import { FileStore, ImageProviderInterface } from "../../../types/files";
-import { type Image } from "../../../types/image";
+import { FigureSize } from "../types/figure";
+import { FileStore, ImageProviderInterface } from "../types/files";
+import { type Image } from "../types/image";
 
 export class ImageProviderPlugin extends Plugin implements ImageProviderInterface {
   // FIXME OWL3: use this.model.config.external.fileStore directly once we have a model plugin

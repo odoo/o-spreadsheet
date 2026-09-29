@@ -21,12 +21,12 @@ import {
 } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { toCartesian } from "../../src/helpers/coordinates";
-import { ImageProviderPlugin } from "../../src/helpers/figures/images/image_provider";
 import { buildSheetLink } from "../../src/helpers/misc";
 import { handleCopyPasteResult } from "../../src/helpers/ui/paste_interactive";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
+import { ImageProviderPlugin } from "../../src/owl_plugins/image_provider_owl_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { ClientFocusStore } from "../../src/stores/client_focus_store";
 import { ClipboardStore } from "../../src/stores/clipboard_store";

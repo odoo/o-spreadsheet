@@ -7,10 +7,10 @@ import { PopoverContainerPlugin } from "../src/components/popover/popover_contai
 import { TopBar } from "../src/components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_registry";
 import { DEFAULT_FONT_SIZE } from "../src/constants";
-import { ImageProviderPlugin } from "../src/helpers/figures/images/image_provider";
 import { render } from "../src/helpers/owl3_helpers";
 import { toZone, zoneToXc } from "../src/helpers/zones";
 import { Component } from "../src/owl3_compatibility_layer";
+import { ImageProviderPlugin } from "../src/owl_plugins/image_provider_owl_plugin";
 import { topbarMenuRegistry } from "../src/registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../src/registries/topbar_component_registry";
 import { DOMFocusableElementStore } from "../src/stores/DOM_focus_store";

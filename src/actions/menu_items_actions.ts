@@ -13,7 +13,6 @@ import {
 import { numberToLetters } from "../helpers/coordinates";
 import { getSmartChartDefinition } from "../helpers/figures/charts/smart_chart_engine";
 import { centerFigurePosition, getMaxFigureSize } from "../helpers/figures/figure/figure";
-import { ImageProviderPlugin } from "../helpers/figures/images/image_provider";
 import { isConsecutive, largeMax, largeMin } from "../helpers/misc";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
@@ -21,6 +20,7 @@ import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { UuidGenerator } from "../helpers/uuid";
 import { areZonesContinuous, getZoneArea, isEqual } from "../helpers/zones";
 import { Model } from "../model";
+import { ImageProviderPlugin } from "../owl_plugins/image_provider_owl_plugin";
 import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
 import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
