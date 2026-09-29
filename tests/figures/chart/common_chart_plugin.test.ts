@@ -44,7 +44,7 @@ describe("Single cell chart background color", () => {
     if (chartType === "scorecard") {
       createScorecardChart(model, { background, keyValue: `=${mainCell}` }, chartId);
     } else if (chartType === "gauge") {
-      createGaugeChart(model, { background, dataRange: mainCell }, chartId);
+      createGaugeChart(model, { background, metric: `=${mainCell}` }, chartId);
     }
   }
 
