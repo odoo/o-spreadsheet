@@ -678,8 +678,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   /**
    * Dispatch the given command to the given handlers.
-   * It will call `beforeHandle` and `handle` of the given handlers, then the
-   * handlers registered in the given registry.
+   * It will call `beforeHandle` of the given handlers, then the handlers
+   * registered in the given registry.
    */
   private dispatchToHandlers(
     registry: CommandHandlerRegistry,
@@ -689,9 +689,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     const concernedHandlers = handlers.filter((handler) => canHandle(handler, command));
     for (const handler of concernedHandlers) {
       handler.beforeHandle(command);
-    }
-    for (const handler of concernedHandlers) {
-      handler.handle(command);
     }
     for (const handler of registry.getHandlers(command.type)) {
       handler(command);
