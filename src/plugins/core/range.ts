@@ -20,6 +20,7 @@ import {
   CommandsHandlers,
   CommandsValidators,
   CoreCommand,
+  MoveRangeCommand,
 } from "../../types/commands";
 import { CellErrorType } from "../../types/errors";
 import { CoreGetters } from "../../types/getters";
@@ -37,8 +38,13 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   private getters: CoreGetters;
   private providers: Array<RangeProvider["adaptRanges"]> = [];
   private isAdaptingRanges: boolean = false;
-  readonly validators: CommandsValidators<CoreCommand> = {};
+
+  readonly validators: CommandsValidators<CoreCommand> = {
+    MOVE_RANGES: this.checkSingleTarget,
+  };
+
   readonly preHandlers: CommandsHandlers<CoreCommand> = {};
+
   readonly handlers: CommandsHandlers<CoreCommand> = {
     "*coreTypes": this.throwDispatchErrorIfAdapting,
     MOVE_RANGES: this.adaptRanges,
@@ -87,11 +93,8 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-  allowDispatch(cmd: CoreCommand): CommandResult {
-    if (cmd.type === "MOVE_RANGES") {
-      return cmd.target.length === 1 ? CommandResult.Success : CommandResult.InvalidZones;
-    }
-    return CommandResult.Success;
+  private checkSingleTarget(cmd: MoveRangeCommand): CommandResult {
+    return cmd.target.length === 1 ? CommandResult.Success : CommandResult.InvalidZones;
   }
 
   finalize() {}
