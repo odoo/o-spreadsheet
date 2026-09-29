@@ -1,5 +1,5 @@
 import { isValidLocale } from "../../helpers/locale";
-import { CommandResult, CoreCommand, UpdateLocaleCommand } from "../../types/commands";
+import { CommandResult, UpdateLocaleCommand } from "../../types/commands";
 import { DEFAULT_LOCALE, Locale } from "../../types/locale";
 import { WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
@@ -13,6 +13,10 @@ export class SettingsPlugin extends CorePlugin<typeof SettingsPlugin, SettingsSt
   static getters = ["getLocale"] as const;
   private locale: Locale = DEFAULT_LOCALE;
 
+  validators = {
+    UPDATE_LOCALE: this.checkLocaleIsValid,
+  };
+
   handlers = {
     UPDATE_LOCALE: this.onUpdateLocale,
   };
@@ -21,12 +25,8 @@ export class SettingsPlugin extends CorePlugin<typeof SettingsPlugin, SettingsSt
     this.history.update("locale", cmd.locale);
   }
 
-  allowDispatch(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "UPDATE_LOCALE":
-        return isValidLocale(cmd.locale) ? CommandResult.Success : CommandResult.InvalidLocale;
-    }
-    return CommandResult.Success;
+  private checkLocaleIsValid(cmd: UpdateLocaleCommand) {
+    return isValidLocale(cmd.locale) ? CommandResult.Success : CommandResult.InvalidLocale;
   }
 
   getLocale(): Locale {

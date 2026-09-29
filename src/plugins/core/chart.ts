@@ -4,7 +4,6 @@ import { SpreadsheetChart } from "../../helpers/figures/chart";
 import { deepEquals, isDefined } from "../../helpers/misc";
 import { ChartCreationContext, ChartDefinition, ChartType } from "../../types/chart/chart";
 import {
-  Command,
   CommandResult,
   CreateChartCommand,
   DeleteChartCommand,
@@ -39,6 +38,12 @@ export class ChartPlugin extends CorePlugin<typeof ChartPlugin, ChartState> impl
   ] as const;
 
   readonly charts: Record<UID, FigureChart | undefined> = {};
+
+  validators = {
+    CREATE_CHART: this.checkCreateChart,
+    UPDATE_CHART: this.checkUpdateChart,
+    DELETE_CHART: this.rejectDeleteChart,
+  };
 
   handlers = {
     UPDATE_CHART: this.onUpdateChart,
@@ -99,7 +104,7 @@ export class ChartPlugin extends CorePlugin<typeof ChartPlugin, ChartState> impl
 
   private onCreateChart(cmd: CreateChartCommand) {
     const { col, row, offset, size, sheetId, figureId } = cmd;
-    // If figure position is not defined, it means that the figure already exist (see allowDispatch)
+    // If figure position is not defined, it means that the figure already exist (see the validators)
     if (
       !this.getters.getFigure(sheetId, figureId) &&
       offset !== undefined &&
@@ -137,31 +142,30 @@ export class ChartPlugin extends CorePlugin<typeof ChartPlugin, ChartState> impl
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: Command) {
-    switch (cmd.type) {
-      case "CREATE_CHART":
-        return this.checkValidations(
-          cmd,
-          this.chainValidations(
-            this.checkFigureArguments,
-            this.checkChartDefinition,
-            this.checkChartDuplicate
-          )
-        );
-      case "UPDATE_CHART":
-        return this.checkValidations(
-          cmd,
-          this.chainValidations(
-            this.checkChartDefinition,
-            this.checkChartExists,
-            this.checkChartChanged
-          )
-        );
-      case "DELETE_CHART":
-        return CommandResult.SubCommandOnly;
-      default:
-        return CommandResult.Success;
-    }
+  private checkCreateChart(cmd: CreateChartCommand) {
+    return this.checkValidations(
+      cmd,
+      this.chainValidations(
+        this.checkFigureArguments,
+        this.checkChartDefinition,
+        this.checkChartDuplicate
+      )
+    );
+  }
+
+  private checkUpdateChart(cmd: UpdateChartCommand) {
+    return this.checkValidations(
+      cmd,
+      this.chainValidations(
+        this.checkChartDefinition,
+        this.checkChartExists,
+        this.checkChartChanged
+      )
+    );
+  }
+
+  private rejectDeleteChart() {
+    return CommandResult.SubCommandOnly;
   }
 
   // ---------------------------------------------------------------------------

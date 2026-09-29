@@ -1,5 +1,5 @@
 import { isZoneValid } from "../../helpers/zones";
-import { CommandResult, CoreCommand } from "../../types/commands";
+import { AddPivotCommand, CommandResult, UpdatePivotCommand } from "../../types/commands";
 import { PivotCoreDefinition } from "../../types/pivot";
 import { CorePlugin } from "../core_plugin";
 import { SheetPlugin } from "./sheet";
@@ -7,14 +7,13 @@ import { SheetPlugin } from "./sheet";
 export class SpreadsheetPivotCorePlugin extends CorePlugin<typeof SpreadsheetPivotCorePlugin> {
   static readonly dependencies = [SheetPlugin] as const;
   static readonly getters = [] as const;
-  allowDispatch(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "ADD_PIVOT":
-      case "UPDATE_PIVOT":
-        const definition = cmd.pivot;
-        return this.checkDataSetValidity(definition);
-    }
-    return CommandResult.Success;
+  validators = {
+    ADD_PIVOT: this.checkPivotDataSetValidity,
+    UPDATE_PIVOT: this.checkPivotDataSetValidity,
+  };
+
+  private checkPivotDataSetValidity(cmd: AddPivotCommand | UpdatePivotCommand) {
+    return this.checkDataSetValidity(cmd.pivot);
   }
 
   private checkDataSetValidity(definition: PivotCoreDefinition) {
