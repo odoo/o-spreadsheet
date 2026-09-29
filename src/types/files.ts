@@ -10,7 +10,7 @@ export interface FileStore {
   /**
    * Upload a file to a server and returns its path.
    */
-  upload(file: File): Promise<FilePath>;
+  upload(file: File | Blob): Promise<FilePath>;
 
   /**
    * get File from the server

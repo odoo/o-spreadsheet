@@ -2,12 +2,10 @@ import { PluginConstructor, PluginInstance, Signal } from "@odoo/owl";
 import { Model } from "../model";
 import { ClipboardInterface } from "./clipboard/clipboard_interface";
 import { Currency } from "./currency";
-import { ImageProviderInterface } from "./files";
 import { Locale } from "./locale";
 import { Get } from "./store_engine";
 
 export interface SpreadsheetChildEnv {
-  imageProvider?: ImageProviderInterface;
   clipboard: ClipboardInterface;
   startCellEdition: (content?: string) => void;
   loadCurrencies?: () => Promise<Currency[]>;

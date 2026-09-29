@@ -17,6 +17,7 @@ import {
 } from "../../types/commands";
 import { Zone } from "../../types/misc";
 import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
+import { ImageProviderPlugin } from "../figures/images/image_provider";
 
 export const handleCopyPasteResult = (
   env: SpreadsheetActionEnv,
@@ -87,7 +88,8 @@ export async function interactivePasteFromOS(
   if (parsedClipboardContent.imageBlob) {
     const clipboardContent: ParsedOsClipboardContentWithImageData = parsedClipboardContent;
     try {
-      const imageData = await env.imageProvider?.uploadFile(parsedClipboardContent.imageBlob);
+      const imageProvider = env.getPlugin(ImageProviderPlugin);
+      const imageData = await imageProvider.uploadFile(parsedClipboardContent.imageBlob);
       clipboardContent.imageData = imageData;
     } catch (e) {
       const msg = _t("An error occurred while uploading the image. %s", e.message);

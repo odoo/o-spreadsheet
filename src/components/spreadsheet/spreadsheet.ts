@@ -16,7 +16,7 @@ import {
 import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO } from "../../constants";
 import { DARK_MODE_FILTER_STRING } from "../../helpers/color";
 import { unregisterChartJsExtensions } from "../../helpers/figures/charts/chart_js_extension";
-import { ImageProvider } from "../../helpers/figures/images/image_provider";
+import { ImageProviderPlugin } from "../../helpers/figures/images/image_provider";
 import { batched } from "../../helpers/misc";
 import { providePluginsIfNotPresent, render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
@@ -163,6 +163,9 @@ export class Spreadsheet extends Component {
     });
 
     providePluginsIfNotPresent([NotificationPlugin]);
+    providePlugins([ImageProviderPlugin], {
+      fileStore: this.model().config.external.fileStore,
+    });
     this.notificationPlugin = usePlugin(NotificationPlugin);
     this.composerFocusStore = useStore(ComposerFocusStore);
     useStore(ClipboardStore);
@@ -170,10 +173,8 @@ export class Spreadsheet extends Component {
     for (const store of globalStores.getAll()) {
       useStore(store);
     }
-    const fileStore = this.model().config.external.fileStore;
 
     useSubEnv({
-      imageProvider: fileStore ? new ImageProvider(fileStore) : undefined,
       loadCurrencies: this.model().config.external.loadCurrencies,
       loadLocales: this.model().config.external.loadLocales,
       clipboard: this.env.clipboard || instantiateClipboard(),

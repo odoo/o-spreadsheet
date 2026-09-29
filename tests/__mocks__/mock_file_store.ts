@@ -1,6 +1,6 @@
-import { FileStore as FileStoreInterface } from "../../src/types/files";
+import { FileStore } from "../../src/types/files";
 
-export class FileStore implements FileStoreInterface {
+export class MockFileStore implements FileStore {
   private fileId = 0;
   async upload(_file: File): Promise<string> {
     return `file/${this.fileId++}`;

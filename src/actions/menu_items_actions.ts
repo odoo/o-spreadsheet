@@ -13,6 +13,7 @@ import {
 import { numberToLetters } from "../helpers/coordinates";
 import { getSmartChartDefinition } from "../helpers/figures/charts/smart_chart_engine";
 import { centerFigurePosition, getMaxFigureSize } from "../helpers/figures/figure/figure";
+import { ImageProviderPlugin } from "../helpers/figures/images/image_provider";
 import { isConsecutive, largeMax, largeMin } from "../helpers/misc";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
@@ -523,10 +524,11 @@ export const REINSERT_STATIC_PIVOT_CHILDREN = (env: SpreadsheetActionEnv) =>
 //------------------------------------------------------------------------------
 
 export const CREATE_IMAGE = async (env: SpreadsheetActionEnv) => {
-  if (env.imageProvider) {
+  const imageProvider = env.getPlugin(ImageProviderPlugin);
+  if (imageProvider.canUseImageProvider) {
     const sheetId = env.model().getters.getActiveSheetId();
     const figureId = UuidGenerator.smallUuid();
-    const image = await env.imageProvider.requestImage();
+    const image = await imageProvider.requestImage();
     const size = getMaxFigureSize(image.size);
     const { col, row, offset } = centerFigurePosition(env, size);
     env.model().dispatch("CREATE_IMAGE", {

@@ -27,7 +27,6 @@ import { Spreadsheet } from "../../src/components/spreadsheet/spreadsheet";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { matrixMap } from "../../src/functions/helpers";
 import { toCartesian, toXC } from "../../src/helpers/coordinates";
-import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
 import { batched, range } from "../../src/helpers/misc";
 import { render } from "../../src/helpers/owl3_helpers";
 import { createRangeFromXc } from "../../src/helpers/range";
@@ -108,7 +107,6 @@ import { NotificationCallbacks } from "../../src/types/stores/notification_store
 import { XLSXExport } from "../../src/types/xlsx";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
 import { fixLengthySheetNames, purgeSingleRowTables } from "../../src/xlsx/xlsx_writer";
-import { FileStore } from "../__mocks__/mock_file_store";
 import { registerCleanup } from "../setup/jest.setup";
 import { MockClipboard } from "./clipboard";
 import {
@@ -270,9 +268,6 @@ export function makeSpreadsheetActionTestEnv(
   return {
     model: getPlugin(ModelPlugin).model,
     clipboard: mockEnv.clipboard || new MockClipboard(),
-    //FIXME : image provider is not built on top of the file store of the model if provided
-    // and imageProvider is defined even when there is no file store on the model
-    imageProvider: new ImageProvider(new FileStore()),
     startCellEdition: mockEnv.startCellEdition || (() => {}),
     loadCurrencies:
       mockEnv.loadCurrencies ||
@@ -369,9 +364,6 @@ class TestParent extends Component {
     useSubEnv({
       model: this.props.model,
       clipboard: mockEnv.clipboard || new MockClipboard(),
-      //FIXME : image provider is not built on top of the file store of the model if provided
-      // and imageProvider is defined even when there is no file store on the model
-      imageProvider: new ImageProvider(new FileStore()),
       startCellEdition: mockEnv.startCellEdition || (() => {}),
       loadCurrencies:
         mockEnv.loadCurrencies ||

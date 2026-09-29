@@ -4,6 +4,7 @@ import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_s
 import { getPoppedOutChartAnchor } from "../helpers/carousel_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts/chart_ui_common";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
+import { ImageProviderPlugin } from "../helpers/figures/images/image_provider";
 import { deepEquals } from "../helpers/misc";
 import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
 import { ClipboardStore } from "../stores/clipboard_store";
@@ -47,6 +48,7 @@ export function getImageMenuActions(figureId: UID, env: SpreadsheetActionEnv): A
       id: "reset_size",
       name: _t("Reset size"),
       execute: async () => {
+        const imageProvider = env.getPlugin(ImageProviderPlugin);
         const sheetId = env.model().getters.getActiveSheetId();
         const figure = env.model().getters.getFigure(sheetId, figureId);
         if (!figure) {
@@ -55,7 +57,7 @@ export function getImageMenuActions(figureId: UID, env: SpreadsheetActionEnv): A
         const imagePath = env.model().getters.getImagePath(figureId);
         const size =
           env.model().getters.getImageSize(figureId) ??
-          (await env.imageProvider?.getImageOriginalSize(imagePath));
+          (await imageProvider.getImageOriginalSize(imagePath));
         if (!env.model().getters.getImageSize(figureId)) {
           const image = env.model().getters.getImage(figureId);
           image.size = size;

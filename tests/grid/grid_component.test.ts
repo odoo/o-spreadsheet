@@ -21,6 +21,7 @@ import {
 } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { toCartesian } from "../../src/helpers/coordinates";
+import { ImageProviderPlugin } from "../../src/helpers/figures/images/image_provider";
 import { buildSheetLink } from "../../src/helpers/misc";
 import { handleCopyPasteResult } from "../../src/helpers/ui/paste_interactive";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
@@ -35,7 +36,8 @@ import { ZoomStore } from "../../src/stores/zoom_store";
 import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
-import { FileStore } from "../__mocks__/mock_file_store";
+import { MockFileStore } from "../__mocks__/mock_file_store";
+import { mockJsDomForImageProvider } from "../__mocks__/mock_image_provider";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
 import {
@@ -115,10 +117,6 @@ import {
   useJestFakeTimers,
 } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
-
-jest.mock("../../src/helpers/figures/images/image_provider", () =>
-  require("../__mocks__/mock_image_provider")
-);
 
 function getVerticalScroll(): number {
   const scrollbar = fixture.querySelector(".o-scrollbar.vertical") as HTMLElement;
@@ -638,7 +636,7 @@ describe("Grid component", () => {
     });
 
     test("open inserting image window with CTRL+O", async () => {
-      const fileStore = new FileStore();
+      const fileStore = new MockFileStore();
       const data = createEmptyWorkbookData();
       const { env } = await mountSpreadsheet({
         model: new Model(data, {
@@ -646,7 +644,8 @@ describe("Grid component", () => {
         }),
       });
 
-      const requestImage = jest.spyOn(env.imageProvider!, "requestImage");
+      const imageProvider = env.getPlugin(ImageProviderPlugin);
+      const requestImage = jest.spyOn(imageProvider, "requestImage");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "O", ctrlKey: true, bubbles: true })
       );
@@ -2098,7 +2097,7 @@ describe("Copy paste keyboard shortcut", () => {
   let clipboardData: MockClipboardData;
   let sheetId: string;
   let getOwlPlugin: OwlPluginGetter;
-  const fileStore = new FileStore();
+  const fileStore = new MockFileStore();
   beforeEach(async () => {
     clipboardData = new MockClipboardData();
     ({
@@ -2509,6 +2508,7 @@ describe("Copy paste keyboard shortcut", () => {
   );
 
   test("Paste an image from the clipboard uploads it on the server and adds it to the sheet", async () => {
+    mockJsDomForImageProvider();
     const image = new File(["image"], "image.png", { type: "image/png" });
     clipboardData.setData("image/png", image);
     selectCell(model, "A1");
