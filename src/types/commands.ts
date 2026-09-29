@@ -175,6 +175,26 @@ export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
   "CHANGE_CONDITIONAL_FORMAT_PRIORITY",
 ]);
 
+export const invalidateTableStyleCommands = new Set<CommandTypes>([
+  "HIDE_COLUMNS_ROWS",
+  "UNHIDE_COLUMNS_ROWS",
+  "UNFOLD_HEADER_GROUP",
+  "UNGROUP_HEADERS",
+  "FOLD_HEADER_GROUP",
+  "FOLD_ALL_HEADER_GROUPS",
+  "UNFOLD_ALL_HEADER_GROUPS",
+  "FOLD_HEADER_GROUPS_IN_ZONE",
+  "UNFOLD_HEADER_GROUPS_IN_ZONE",
+  "CREATE_TABLE",
+  "UPDATE_TABLE",
+  "UPDATE_FILTER",
+  "REMOVE_TABLE",
+  "CREATE_TABLE_STYLE",
+  "REMOVE_TABLE_STYLE",
+  "DELETE_CONTENT",
+  "GROUP_HEADERS",
+]);
+
 export const invalidateBordersCommands = new Set<CommandTypes>([
   "SET_BORDER",
   "SET_ZONE_BORDERS",
@@ -218,7 +238,7 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "UPDATE_COLOR_SCHEME",
 ]);
 
-export const lockedSheetAllowedCommands = new Set<Command["type"]>([
+export const lockedSheetAllowedCommands = new Set<CommandTypes>([
   // core commands
   "LOCK_SHEET",
   "UNLOCK_SHEET",
@@ -365,6 +385,124 @@ export const evaluationCommandTypes = new Set<dispatcheableEvaluationCommandType
   "PIVOT_START_PRESENCE_TRACKING",
   "PIVOT_STOP_PRESENCE_TRACKING",
 ]);
+
+export const localTypes = new Set<CommandTypes>([
+  /** HISTORY */
+  "REQUEST_UNDO",
+  "REQUEST_REDO",
+  "UNDO",
+  "REDO",
+
+  /** CLIPBOARD */
+  "COPY",
+  "CUT",
+  "PASTE",
+  "COPY_PASTE_CELLS_ABOVE",
+  "COPY_PASTE_CELLS_ON_LEFT",
+  "COPY_PASTE_CELLS_ON_ZONE",
+  "REPEAT_PASTE",
+  "CLEAN_CLIPBOARD_HIGHLIGHT",
+  "AUTOFILL_CELL",
+  "PASTE_FROM_OS_CLIPBOARD",
+
+  /** GRID SHAPE */
+  "AUTORESIZE_COLUMNS",
+  "AUTORESIZE_ROWS",
+  "MOVE_COLUMNS_ROWS",
+
+  /** SHEETS MANIPULATION */
+  "ACTIVATE_SHEET",
+  "ACTIVATE_NEXT_SHEET",
+  "ACTIVATE_PREVIOUS_SHEET",
+
+  /** EVALUATION */
+  "EVALUATE_CELLS",
+  "EVALUATE_CHARTS",
+  "SET_AUTOMATIC_EVALUATION",
+
+  /** COMPOSER */
+  "START_CHANGE_HIGHLIGHT",
+
+  /** MISC */
+  "START",
+  "AUTOFILL",
+  "AUTOFILL_SELECT",
+  "AUTOFILL_TABLE_COLUMN",
+  "SET_FORMULA_VISIBILITY",
+  "AUTOFILL_AUTO",
+  "SELECT_FIGURE",
+  "UNSELECT_FIGURE",
+  "REPLACE_SEARCH",
+  "SORT_CELLS",
+  "SUM_SELECTION",
+  "DELETE_CELL",
+  "INSERT_CELL",
+  "SPLIT_TEXT_INTO_COLUMNS",
+  "REMOVE_DUPLICATES",
+  "TRIM_WHITESPACE",
+  "TOGGLE_CHECKBOX",
+  "DELETE_DATA_SOURCES",
+  "UPDATE_COLOR_SCHEME",
+
+  /** FORMATTING */
+  "SET_DECIMAL",
+  "SET_FORMATTING_WITH_PIVOT",
+  "PAINT_FORMAT",
+  "SET_BACKGROUND_FOR_ALL_CELLS",
+
+  /** FILTERS / TABLES */
+  "UPDATE_FILTER",
+  "RESIZE_TABLE",
+  "DELETE_UNFILTERED_CONTENT",
+
+  /** PIVOT */
+  "REFRESH_PIVOT",
+  "INSERT_NEW_PIVOT",
+  "DUPLICATE_PIVOT_IN_NEW_SHEET",
+  "INSERT_PIVOT_WITH_TABLE",
+  "SPLIT_PIVOT_FORMULA",
+  "PIVOT_START_PRESENCE_TRACKING",
+  "PIVOT_STOP_PRESENCE_TRACKING",
+
+  /** FIGURES */
+  "UPDATE_FIGURES",
+  "DELETE_FIGURES",
+
+  /** CHART / CAROUSEL */
+  "ADD_NEW_CHART_TO_CAROUSEL",
+  "ADD_FIGURES_CHART_TO_CAROUSEL",
+  "DUPLICATE_CAROUSEL_CHART",
+  "UPDATE_CAROUSEL_ACTIVE_ITEM",
+  "POPOUT_CHART_FROM_CAROUSEL",
+  "UPDATE_CHART_REGION",
+  "MERGE_CHART_FIGURES_INTO_CAROUSEL",
+  "CREATE_CHART_AND_MERGE_INTO_CAROUSEL",
+]);
+
+export const allCommands = new Set<CommandTypes>([...coreTypes, ...localTypes]);
+
+export const commandSets = {
+  "*invalidateEvaluationCommands": invalidateEvaluationCommands,
+  "*invalidateChartEvaluationCommands": invalidateChartEvaluationCommands,
+  "*invalidateDependenciesCommands": invalidateDependenciesCommands,
+  "*invalidateCFEvaluationCommands": invalidateCFEvaluationCommands,
+  "*invalidateTableStyleCommands": invalidateTableStyleCommands,
+  "*invalidateBordersCommands": invalidateBordersCommands,
+  "*invalidSubtotalFormulasCommands": invalidSubtotalFormulasCommands,
+  "*readonlyAllowedCommands": readonlyAllowedCommands,
+  "*lockedSheetAllowedCommands": lockedSheetAllowedCommands,
+  "*coreTypes": coreTypes,
+  "*localTypes": localTypes,
+  "*dispatcheableEvaluationCommandTypes": dispatcheableEvaluationCommandTypes,
+  "*evaluationCommandTypes": evaluationCommandTypes,
+  "*allCommands": allCommands,
+} satisfies Record<string, Set<CommandTypes>>;
+
+export type CommandSetName = keyof typeof commandSets;
+
+export function isCommandSetName(key: string): key is CommandSetName {
+  return key in commandSets;
+}
 
 export function isCoreCommand(cmd: Command): cmd is CoreCommand {
   return coreTypes.has(cmd.type as any);
@@ -1603,12 +1741,34 @@ export const enum CommandResult {
   NoChangeInAutomaticEvaluation = "NoChangeInAutomaticEvaluation",
 }
 
-export interface CommandHandler<T> {
+export interface CommandHandler<T extends Command> {
   allowDispatch(command: T): CommandResult | CommandResult[];
   beforeHandle(command: T): void;
   handle(command: T): void;
   finalize(): void;
+  handlers: CommandsHandlers<T>;
 }
+
+export type SingleCommandHandler<C extends Command> = (cmd: C) => void;
+export type CommandsHandlers<T extends Command> = {
+  [C in T["type"]]?: SingleCommandHandler<Extract<T, { type: C }>>;
+} & {
+  [S in CommandSetName]?: SingleCommandHandler<T>;
+};
+
+export type CommandsHandlersList<T extends Command> = {
+  [C in CommandTypes]?: SingleCommandHandler<Extract<T, { type: C }>>[];
+};
+
+export type CommandHandlerRegistry = {
+  getHandlers<C extends CommandTypes>(
+    cmd: C
+  ): SingleCommandHandler<Extract<Command, { type: C }>>[];
+  addHandler<C extends CommandTypes>(
+    cmd: C,
+    handler: SingleCommandHandler<Extract<Command, { type: C }>>
+  ): void;
+};
 
 export interface CommandDispatcher {
   dispatch<T extends CommandTypes, C extends Extract<Command, { type: T }>>(
