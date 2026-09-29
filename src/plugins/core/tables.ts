@@ -62,6 +62,10 @@ export class TablePlugin extends CorePlugin<typeof TablePlugin, TableState> impl
   readonly tables: Record<UID, Record<TableId, CoreTable | undefined>> = {};
   readonly nextTableId: number = 1;
 
+  preHandlers = {
+    UPDATE_CELL: this.onUpdateCell,
+  };
+
   handlers = {
     DELETE_CONTENT: this.onDeleteContent,
     CREATE_TABLE: this.onCreateTable,
@@ -175,19 +179,18 @@ export class TablePlugin extends CorePlugin<typeof TablePlugin, TableState> impl
     return CommandResult.Success;
   }
 
-  beforeHandle(cmd: CoreCommand): void {
-    if (cmd.type === "UPDATE_CELL") {
-      const sheetId = cmd.sheetId;
-      for (const table of this.getCoreTables(sheetId)) {
-        if (table.type === "dynamic") {
-          continue;
-        }
-        const direction = this.canUpdateCellCmdExtendTable(cmd, table);
-        if (direction === "down") {
-          this.extendTableDown(sheetId, table);
-        } else if (direction === "right") {
-          this.extendTableRight(sheetId, table);
-        }
+  /** Extend the static tables when a cell is updated right next to them */
+  private onUpdateCell(cmd: UpdateCellCommand) {
+    const sheetId = cmd.sheetId;
+    for (const table of this.getCoreTables(sheetId)) {
+      if (table.type === "dynamic") {
+        continue;
+      }
+      const direction = this.canUpdateCellCmdExtendTable(cmd, table);
+      if (direction === "down") {
+        this.extendTableDown(sheetId, table);
+      } else if (direction === "right") {
+        this.extendTableRight(sheetId, table);
       }
     }
   }

@@ -85,6 +85,12 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   private previousDefaultStyle: defaultStyle | undefined;
   private previousDefaultFormat: defaultValue<Format> | undefined;
 
+  preHandlers = {
+    UPDATE_LOCALE: this.storePreviousLocale,
+    SET_FORMATTING: this.storePreviousSheetDefaults,
+    CLEAR_FORMATTING: this.storePreviousSheetDefaults,
+  };
+
   handlers = {
     UPDATE_CELL: this.onUpdateCell,
     DELETE_CONTENT: this.onDeleteContent,
@@ -161,17 +167,13 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
     }
   }
 
-  beforeHandle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "UPDATE_LOCALE":
-        this.previousLocale = this.getters.getLocale();
-        break;
-      case "SET_FORMATTING":
-      case "CLEAR_FORMATTING":
-        this.previousDefaultStyle = deepCopy(this.getters.getSheetDefaultStyle(cmd.sheetId));
-        this.previousDefaultFormat = deepCopy(this.getters.getSheetDefaultFormat(cmd.sheetId));
-        break;
-    }
+  private storePreviousLocale() {
+    this.previousLocale = this.getters.getLocale();
+  }
+
+  private storePreviousSheetDefaults(cmd: SetFormattingCommand | ClearFormattingCommand) {
+    this.previousDefaultStyle = deepCopy(this.getters.getSheetDefaultStyle(cmd.sheetId));
+    this.previousDefaultFormat = deepCopy(this.getters.getSheetDefaultFormat(cmd.sheetId));
   }
 
   finalize() {
@@ -199,7 +201,10 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   }
 
   private onUpdateLocale(cmd: UpdateLocaleCommand) {
-    this.changeCellsDateFormatWithLocale(this.previousLocale || this.getters.getLocale(), cmd.locale);
+    this.changeCellsDateFormatWithLocale(
+      this.previousLocale || this.getters.getLocale(),
+      cmd.locale
+    );
     this.history.update("previousLocale", cmd.locale);
   }
 
@@ -661,7 +666,7 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   // would otherwise change. These run in `handle`, after the DefaultPlugin has
   // updated its state, so the default comparisons (in `updateCell`) use the new
   // defaults; the *previous* defaults are read from the snapshots taken in
-  // `beforeHandle`. Those snapshots predate every zone of the command, so the
+  // the pre-handlers. Those snapshots predate every zone of the command, so the
   // previous defaults are never baked into a cell of the target: it receives
   // the new formatting anyway.
   // ---------------------------------------------------------------------------

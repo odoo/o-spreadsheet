@@ -19,7 +19,6 @@ import {
   AddPivotCommand,
   CoreCommand,
   DuplicatePivotCommand,
-  EvaluationCommand,
   RedoCommand,
   RefreshPivotCommand,
   UndoCommand,
@@ -70,6 +69,10 @@ export class PivotUIPlugin extends EvaluationPlugin {
   private pivotPositionCache: PositionMap<UID[]> = new PositionMap();
   private shouldInvalidateCache: boolean = false;
 
+  preHandlers = {
+    START: this.onStart,
+  };
+
   handlers = {
     "*coreTypes": this.invalidateUnusedPivots,
     "*invalidateEvaluationCommands": this.invalidateAllPivots,
@@ -102,12 +105,9 @@ export class PivotUIPlugin extends EvaluationPlugin {
     this.custom = config.custom;
   }
 
-  beforeHandle(cmd: EvaluationCommand) {
-    switch (cmd.type) {
-      case "START":
-        for (const pivotId of this.getters.getPivotIds()) {
-          this.setupPivot(pivotId);
-        }
+  private onStart() {
+    for (const pivotId of this.getters.getPivotIds()) {
+      this.setupPivot(pivotId);
     }
   }
 

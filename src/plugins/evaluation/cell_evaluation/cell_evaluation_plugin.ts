@@ -8,8 +8,6 @@ import {
   CommandResult,
   EvaluateCellsCommand,
   EvaluationCommand,
-  invalidateDependenciesCommands,
-  invalidateEvaluationCommands,
   SetAutomaticEvaluationCommand,
   UpdateCellCommand,
 } from "../../../types/commands";
@@ -172,7 +170,13 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
   private evaluator: Evaluator;
   private positionsToUpdate: CellPosition[] = [];
 
+  preHandlers = {
+    "*invalidateEvaluationCommands": this.flagRebuildDependenciesGraph,
+    "*invalidateDependenciesCommands": this.flagRebuildDependenciesGraph,
+  };
+
   handlers = {
+    "*allCommands": this.resetForceEvaluation,
     UPDATE_CELL: this.onUpdateCell,
     EVALUATE_CELLS: this.onEvaluateCells,
     SET_AUTOMATIC_EVALUATION: this.onSetAutomaticEvaluation,
@@ -232,14 +236,12 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
     }
   }
 
-  beforeHandle(cmd: EvaluationCommand) {
+  private resetForceEvaluation(cmd: EvaluationCommand) {
     this.forceEvaluation = false;
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      invalidateDependenciesCommands.has(cmd.type)
-    ) {
-      this.shouldRebuildDependenciesGraph = true;
-    }
+  }
+
+  private flagRebuildDependenciesGraph(cmd: EvaluationCommand) {
+    this.shouldRebuildDependenciesGraph = true;
   }
 
   finalize() {

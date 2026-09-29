@@ -36,7 +36,7 @@ export class FormulaTrackerPlugin extends EvaluationPlugin {
     }
     const cell = this.getters.getCell(cmd);
     // We don't update `this.trackedCells` and rely on `getCellsWithTrackedFormula` filtering out non-existing cells.
-    // We cannot store the id in the beforeHandle, because the cell is already deleted in the beforeHandle of the sheet plugin
+    // We cannot store the id in a pre-handler, because the cell is already deleted in the pre-handler of the sheet plugin
     if (!cell) {
       return;
     }
