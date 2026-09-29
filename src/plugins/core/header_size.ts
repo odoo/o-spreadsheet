@@ -6,7 +6,11 @@ import {
   range,
   removeIndexesFromArray,
 } from "../../helpers/misc";
-import { Command } from "../../types/commands";
+import {
+  AddColumnsRowsCommand,
+  RemoveColumnsRowsCommand,
+  ResizeColumnsRowsCommand,
+} from "../../types/commands";
 import { Dimension, HeaderIndex, Pixel, UID } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
@@ -19,51 +23,50 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
 
   readonly sizes: Record<UID, Record<Dimension, Array<Pixel | undefined>>> = {};
 
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "CREATE_SHEET": {
-        this.history.update("sizes", cmd.sheetId, {
-          COL: Array(this.getters.getNumberCols(cmd.sheetId)).fill(undefined),
-          ROW: Array(this.getters.getNumberRows(cmd.sheetId)).fill(undefined),
-        });
-        break;
-      }
-      case "DUPLICATE_SHEET":
-        this.history.update("sizes", cmd.sheetIdTo, deepCopy(this.sizes[cmd.sheetId]));
-        break;
-      case "DELETE_SHEET":
-        const sizes = { ...this.sizes };
-        delete sizes[cmd.sheetId];
-        this.history.update("sizes", sizes);
-        break;
-      case "REMOVE_COLUMNS_ROWS": {
-        const arr = this.sizes[cmd.sheetId][cmd.dimension];
-        const sizes = removeIndexesFromArray(arr, cmd.elements);
-        this.history.update("sizes", cmd.sheetId, cmd.dimension, sizes);
-        break;
-      }
-      case "ADD_COLUMNS_ROWS": {
-        const sizes = this.sizes[cmd.sheetId][cmd.dimension];
-        const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
-        const baseSize = sizes[cmd.base];
-        const newSizes = insertItemsAtIndex(sizes, Array(cmd.quantity).fill(baseSize), addIndex);
-        this.history.update("sizes", cmd.sheetId, cmd.dimension, newSizes);
-        break;
-      }
-      case "RESIZE_COLUMNS_ROWS":
-        if (cmd.dimension === "ROW") {
-          for (const el of cmd.elements) {
-            this.history.update("sizes", cmd.sheetId, cmd.dimension, el, cmd.size || undefined);
-          }
-        } else {
-          for (const el of cmd.elements) {
-            this.history.update("sizes", cmd.sheetId, cmd.dimension, el, cmd.size || undefined);
-          }
-        }
+  handlers = {
+    RESIZE_COLUMNS_ROWS: this.onResizeColumnsRows,
+    CREATE_SHEET: this.onCreateSheet,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
+    ADD_COLUMNS_ROWS: this.onAddColumnsRows,
+    REMOVE_COLUMNS_ROWS: this.onRemoveColumnsRows,
+  };
 
-        break;
+  private onRemoveColumnsRows(cmd: RemoveColumnsRowsCommand) {
+    const arr = this.sizes[cmd.sheetId][cmd.dimension];
+    const sizes = removeIndexesFromArray(arr, cmd.elements);
+    this.history.update("sizes", cmd.sheetId, cmd.dimension, sizes);
+  }
+
+  private onAddColumnsRows(cmd: AddColumnsRowsCommand) {
+    const sizes = this.sizes[cmd.sheetId][cmd.dimension];
+    const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
+    const baseSize = sizes[cmd.base];
+    const newSizes = insertItemsAtIndex(sizes, Array(cmd.quantity).fill(baseSize), addIndex);
+    this.history.update("sizes", cmd.sheetId, cmd.dimension, newSizes);
+  }
+
+  private onDeleteSheet(cmd: { sheetId: UID }) {
+    const sizes = { ...this.sizes };
+    delete sizes[cmd.sheetId];
+    this.history.update("sizes", sizes);
+  }
+
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    this.history.update("sizes", cmd.sheetIdTo, deepCopy(this.sizes[cmd.sheetId]));
+  }
+
+  private onCreateSheet(cmd: { sheetId: UID }) {
+    this.history.update("sizes", cmd.sheetId, {
+      COL: Array(this.getters.getNumberCols(cmd.sheetId)).fill(undefined),
+      ROW: Array(this.getters.getNumberRows(cmd.sheetId)).fill(undefined),
+    });
+  }
+
+  private onResizeColumnsRows(cmd: ResizeColumnsRowsCommand) {
+    for (const el of cmd.elements) {
+      this.history.update("sizes", cmd.sheetId, cmd.dimension, el, cmd.size || undefined);
     }
-    return;
   }
 
   getColSize(sheetId: UID, index: HeaderIndex): Pixel {

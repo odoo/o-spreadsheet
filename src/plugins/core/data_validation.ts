@@ -9,7 +9,8 @@ import {
   AddDataValidationCommand,
   Command,
   CommandResult,
-  CoreCommand,
+  DeleteContentCommand,
+  RemoveDataValidationCommand,
 } from "../../types/commands";
 import { DataValidationRule } from "../../types/data_validation";
 import { CellPosition, RangeAdapterFunctions, Style, UID } from "../../types/misc";
@@ -33,6 +34,44 @@ export class DataValidationPlugin
   ] as const;
 
   readonly rules: { [sheet: string]: DataValidationRule[] } = {};
+
+  handlers = {
+    DELETE_CONTENT: this.onDeleteContent,
+    REMOVE_DATA_VALIDATION_RULE: this.onRemoveDataValidationRule,
+    ADD_DATA_VALIDATION_RULE: this.onAddDataValidationRule,
+    CREATE_SHEET: this.onCreateSheet,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
+  };
+
+  private onDeleteSheet(cmd: { sheetId: UID }) {
+    const rules = { ...this.rules };
+    delete rules[cmd.sheetId];
+    this.history.update("rules", rules);
+  }
+
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    const rules = deepCopy(this.rules[cmd.sheetId]).map((rule) => ({
+      ...rule,
+      ranges: rule.ranges.map((range) =>
+        duplicateRangeInDuplicatedSheet(cmd.sheetId, cmd.sheetIdTo, range)
+      ),
+    }));
+    this.history.update("rules", cmd.sheetIdTo, rules);
+  }
+
+  private onCreateSheet(cmd: { sheetId: UID }) {
+    this.history.update("rules", cmd.sheetId, []);
+  }
+
+  private onAddDataValidationRule(cmd: AddDataValidationCommand) {
+    const ranges = cmd.ranges.map((range) => this.getters.getRangeFromRangeData(range));
+    this.addDataValidationRule(cmd.sheetId, { ...cmd.rule, ranges });
+  }
+
+  private onRemoveDataValidationRule(cmd: RemoveDataValidationCommand) {
+    this.removeDataValidationRule(cmd.sheetId, cmd.id);
+  }
 
   adaptRanges(rangeAdapters: RangeAdapterFunctions) {
     for (const sheetId in this.rules) {
@@ -120,59 +159,31 @@ export class DataValidationPlugin
     return CommandResult.Success;
   }
 
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "CREATE_SHEET":
-        this.history.update("rules", cmd.sheetId, []);
-        break;
-      case "DUPLICATE_SHEET": {
-        const rules = deepCopy(this.rules[cmd.sheetId]).map((rule) => ({
-          ...rule,
-          ranges: rule.ranges.map((range) =>
-            duplicateRangeInDuplicatedSheet(cmd.sheetId, cmd.sheetIdTo, range)
-          ),
-        }));
-        this.history.update("rules", cmd.sheetIdTo, rules);
-        break;
-      }
-      case "DELETE_SHEET": {
-        const rules = { ...this.rules };
-        delete rules[cmd.sheetId];
-        this.history.update("rules", rules);
-        break;
-      }
-      case "REMOVE_DATA_VALIDATION_RULE": {
-        this.removeDataValidationRule(cmd.sheetId, cmd.id);
-        break;
-      }
-      case "ADD_DATA_VALIDATION_RULE": {
-        const ranges = cmd.ranges.map((range) => this.getters.getRangeFromRangeData(range));
-        this.addDataValidationRule(cmd.sheetId, { ...cmd.rule, ranges });
-        break;
-      }
-      case "DELETE_CONTENT": {
-        const zones = recomputeZones(cmd.target);
-        const sheetId = cmd.sheetId;
-        for (const zone of zones) {
-          for (let row = zone.top; row <= zone.bottom; row++) {
-            for (let col = zone.left; col <= zone.right; col++) {
-              const dataValidation = this.getValidationRuleForCell({ sheetId, col, row });
-              if (!dataValidation) {
-                continue;
-              }
-              const cell = this.getters.getCell({ sheetId, col, row });
-              if (
-                dataValidation.criterion.type === "isBoolean" ||
-                (dataValidation.criterion.type === "isValueInList" &&
-                  !cell?.isFormula &&
-                  !cell?.content)
-              ) {
-                const rules = this.rules[sheetId];
-                const ranges = [this.getters.getRangeFromSheetXC(sheetId, toXC(col, row))];
-                const adaptedRules = this.removeRangesFromRules(sheetId, ranges, rules);
-                this.history.update("rules", sheetId, adaptedRules);
-              }
-            }
+  /**
+   * Remove the data validation rules on the cleared cells, for the criteria
+   * which are meaningless without a value.
+   */
+  private onDeleteContent(cmd: DeleteContentCommand) {
+    const zones = recomputeZones(cmd.target);
+    const sheetId = cmd.sheetId;
+    for (const zone of zones) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        for (let col = zone.left; col <= zone.right; col++) {
+          const dataValidation = this.getValidationRuleForCell({ sheetId, col, row });
+          if (!dataValidation) {
+            continue;
+          }
+          const cell = this.getters.getCell({ sheetId, col, row });
+          if (
+            dataValidation.criterion.type === "isBoolean" ||
+            (dataValidation.criterion.type === "isValueInList" &&
+              !cell?.isFormula &&
+              !cell?.content)
+          ) {
+            const rules = this.rules[sheetId];
+            const ranges = [this.getters.getRangeFromSheetXC(sheetId, toXC(col, row))];
+            const adaptedRules = this.removeRangesFromRules(sheetId, ranges, rules);
+            this.history.update("rules", sheetId, adaptedRules);
           }
         }
       }

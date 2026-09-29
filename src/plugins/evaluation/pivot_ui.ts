@@ -18,10 +18,12 @@ import { CellValue, CellValueType, FormulaCell } from "../../types/cells";
 import {
   AddPivotCommand,
   CoreCommand,
+  DuplicatePivotCommand,
   EvaluationCommand,
+  RedoCommand,
+  RefreshPivotCommand,
+  UndoCommand,
   UpdatePivotCommand,
-  invalidateEvaluationCommands,
-  isCoreCommand,
 } from "../../types/commands";
 import {
   CellPosition,
@@ -68,6 +70,33 @@ export class PivotUIPlugin extends EvaluationPlugin {
   private pivotPositionCache: PositionMap<UID[]> = new PositionMap();
   private shouldInvalidateCache: boolean = false;
 
+  handlers = {
+    "*coreTypes": this.invalidateUnusedPivots,
+    "*invalidateEvaluationCommands": this.invalidateAllPivots,
+    UPDATE_CELL: this.onUpdateCell,
+    UPDATE_LOCALE: this.onUpdateLocale,
+    ADD_PIVOT: this.onAddPivot,
+    DUPLICATE_PIVOT: this.onDuplicatePivot,
+    UPDATE_PIVOT: this.onUpdatePivot,
+    UNDO: this.setupPivotsOnUndoRedo,
+    REDO: this.setupPivotsOnUndoRedo,
+    REFRESH_PIVOT: this.onRefreshPivot,
+  };
+
+  private onRefreshPivot(cmd: RefreshPivotCommand) {
+    this.refreshPivot(cmd.id);
+  }
+
+  private setupPivotsOnUndoRedo(cmd: UndoCommand | RedoCommand) {
+    this.unusedPivotsInFormulas = undefined;
+    for (const pivotCommand of cmd.commands.filter(isPivotCommand)) {
+      if (!this.getters.isExistingPivot(pivotCommand.pivotId)) {
+        continue;
+      }
+      this.setupPivot(pivotCommand.pivotId, { recreate: true });
+    }
+  }
+
   constructor(config: EvaluationPluginConfig) {
     super(config);
     this.custom = config.custom;
@@ -82,59 +111,39 @@ export class PivotUIPlugin extends EvaluationPlugin {
     }
   }
 
-  handle(cmd: EvaluationCommand) {
-    if (isCoreCommand(cmd) || cmd.type === "UNDO" || cmd.type === "REDO") {
-      this.unusedPivotsInFormulas = undefined;
-    }
+  private onUpdateCell() {
+    this.invalidateUnusedPivots();
+    this.shouldInvalidateCache = true;
+  }
 
-    if (invalidateEvaluationCommands.has(cmd.type)) {
-      this.shouldInvalidateCache = true;
-      for (const pivotId of this.getters.getPivotIds()) {
-        this.setupPivot(pivotId, { recreate: true });
-      }
-    }
-    if (cmd.type === "UPDATE_CELL") {
-      this.shouldInvalidateCache = true;
-    }
-    switch (cmd.type) {
-      case "REFRESH_PIVOT":
-        this.refreshPivot(cmd.id);
-        break;
-      case "ADD_PIVOT": {
-        this.unusedPivotsInFormulas?.push(cmd.pivotId);
-        this.setupPivot(cmd.pivotId);
-        break;
-      }
-      case "DUPLICATE_PIVOT": {
-        this.unusedPivotsInFormulas?.push(cmd.newPivotId);
-        this.setupPivot(cmd.newPivotId);
-        break;
-      }
-      case "UPDATE_PIVOT": {
-        this.setupPivot(cmd.pivotId, { recreate: true });
-        break;
-      }
-      case "UNDO":
-      case "REDO": {
-        const pivotCommands = cmd.commands.filter(isPivotCommand);
+  private invalidateUnusedPivots() {
+    this.unusedPivotsInFormulas = undefined;
+  }
 
-        for (const cmd of pivotCommands) {
-          const pivotId = cmd.pivotId;
-          if (!this.getters.isExistingPivot(pivotId)) {
-            continue;
-          }
-          this.setupPivot(pivotId, { recreate: true });
-        }
-        break;
-      }
-      case "UPDATE_LOCALE":
-        /**
-         * Reset the cache of the date/datetime pivot values, as it depends on
-         * the locale. (e.g. the first day of the week)
-         */
-        resetMapValueDimensionDate();
-        break;
+  private invalidateAllPivots() {
+    this.invalidateUnusedPivots();
+    this.shouldInvalidateCache = true;
+    for (const pivotId of this.getters.getPivotIds()) {
+      this.setupPivot(pivotId, { recreate: true });
     }
+  }
+
+  private onUpdatePivot(cmd: UpdatePivotCommand) {
+    this.setupPivot(cmd.pivotId, { recreate: true });
+  }
+
+  private onDuplicatePivot(cmd: DuplicatePivotCommand) {
+    this.unusedPivotsInFormulas?.push(cmd.newPivotId);
+    this.setupPivot(cmd.newPivotId);
+  }
+
+  private onAddPivot(cmd: AddPivotCommand) {
+    this.unusedPivotsInFormulas?.push(cmd.pivotId);
+    this.setupPivot(cmd.pivotId);
+  }
+
+  private onUpdateLocale() {
+    resetMapValueDimensionDate();
   }
 
   finalize() {

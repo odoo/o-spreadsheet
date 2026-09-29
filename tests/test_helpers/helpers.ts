@@ -136,8 +136,21 @@ export function spyModelDispatch(model: Model): jest.SpyInstance {
   return jest.spyOn(model, "dispatch");
 }
 
-export function spyUiPluginHandle(model: Model): jest.SpyInstance {
-  return jest.spyOn(getPlugin(model, SheetUIPlugin), "handle");
+/**
+ * Spy on every command the SheetUIPlugin is concerned by, whether it is handled
+ * by its generic `handle` or by a command specific handler.
+ */
+export function spyUiPluginHandle(model: Model): jest.Mock {
+  const plugin = getPlugin(model, SheetUIPlugin);
+  const spy = jest.fn();
+  const dispatchToHandlers = model["dispatchToHandlers"];
+  model["dispatchToHandlers"] = function (specificHandlers, handlers, command) {
+    if (handlers.includes(plugin)) {
+      spy(command);
+    }
+    return dispatchToHandlers.call(this, specificHandlers, handlers, command);
+  };
+  return spy;
 }
 
 export function getPlugin<T extends new (...args: any) => any>(

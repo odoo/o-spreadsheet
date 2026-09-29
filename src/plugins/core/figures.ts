@@ -5,6 +5,7 @@ import {
   CoreCommand,
   CreateFigureCommand,
   DeleteFigureCommand,
+  RemoveColumnsRowsCommand,
   UpdateFigureCommand,
 } from "../../types/commands";
 import { AnchorOffset, Figure } from "../../types/figure";
@@ -23,6 +24,78 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     [sheet: string]: Record<UID, Figure | undefined> | undefined;
   } = {};
   readonly insertionOrders: UID[] = []; // TODO use a list in master
+
+  handlers = {
+    UPDATE_FIGURE: this.onUpdateFigure,
+    CREATE_FIGURE: this.onCreateFigure,
+    DELETE_FIGURE: this.onDeleteFigure,
+    CREATE_SHEET: this.onCreateSheet,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
+    REMOVE_COLUMNS_ROWS: this.onRemoveColumnsRows,
+  };
+
+  private onRemoveColumnsRows(cmd: RemoveColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      this.onColRemove(cmd.sheetId);
+    } else {
+      this.onRowRemove(cmd.sheetId);
+    }
+  }
+
+  beforeHandle(cmd: CoreCommand) {
+    switch (cmd.type) {
+      case "DELETE_SHEET":
+        this.getters.getFigures(cmd.sheetId).forEach((figure) => {
+          this.dispatch("DELETE_FIGURE", { figureId: figure.id, sheetId: cmd.sheetId });
+        });
+        break;
+    }
+  }
+
+  private onDeleteSheet(cmd: { sheetId: UID }) {
+    this.deleteSheet(cmd.sheetId);
+  }
+
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    for (const figure of this.getFigures(cmd.sheetId)) {
+      const figureId = figure.id;
+      const fig = this.figures[cmd.sheetId]?.[figureId];
+      if (!fig) {
+        continue;
+      }
+      const figureIdBase = figureId.split(FIGURE_ID_SPLITTER).pop();
+      const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
+      this.dispatch("CREATE_FIGURE", {
+        figureId: duplicatedFigureId,
+        ...fig,
+        size: { width: fig.width, height: fig.height },
+        sheetId: cmd.sheetIdTo,
+      });
+    }
+  }
+
+  private onCreateSheet(cmd: { sheetId: UID }) {
+    this.figures[cmd.sheetId] = {};
+  }
+
+  private onDeleteFigure(cmd: DeleteFigureCommand) {
+    this.removeFigure(cmd.figureId, cmd.sheetId);
+  }
+
+  private onCreateFigure(cmd: CreateFigureCommand) {
+    const figure: Figure = {
+      id: cmd.figureId,
+      col: cmd.col,
+      row: cmd.row,
+      offset: cmd.offset,
+      width: cmd.size.width,
+      height: cmd.size.height,
+      tag: cmd.tag,
+    };
+    this.addFigure(figure, cmd.sheetId);
+  }
+
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
@@ -78,70 +151,6 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
         return this.checkFigureExists(cmd);
       default:
         return CommandResult.Success;
-    }
-  }
-
-  beforeHandle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "DELETE_SHEET":
-        this.getters.getFigures(cmd.sheetId).forEach((figure) => {
-          this.dispatch("DELETE_FIGURE", { figureId: figure.id, sheetId: cmd.sheetId });
-        });
-        break;
-    }
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "CREATE_SHEET":
-        this.figures[cmd.sheetId] = {};
-        break;
-      case "DELETE_SHEET":
-        this.deleteSheet(cmd.sheetId);
-        break;
-      case "CREATE_FIGURE":
-        const figure: Figure = {
-          id: cmd.figureId,
-          col: cmd.col,
-          row: cmd.row,
-          offset: cmd.offset,
-          width: cmd.size.width,
-          height: cmd.size.height,
-          tag: cmd.tag,
-        };
-        this.addFigure(figure, cmd.sheetId);
-        break;
-      case "UPDATE_FIGURE":
-        this.updateFigure(cmd);
-        break;
-      case "DELETE_FIGURE":
-        this.removeFigure(cmd.figureId, cmd.sheetId);
-        break;
-      case "REMOVE_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.onColRemove(cmd.sheetId);
-        } else {
-          this.onRowRemove(cmd.sheetId);
-        }
-        break;
-      case "DUPLICATE_SHEET": {
-        for (const figure of this.getFigures(cmd.sheetId)) {
-          const figureId = figure.id;
-          const fig = this.figures[cmd.sheetId]?.[figureId];
-          if (!fig) {
-            continue;
-          }
-          const figureIdBase = figureId.split(FIGURE_ID_SPLITTER).pop();
-          const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
-          this.dispatch("CREATE_FIGURE", {
-            figureId: duplicatedFigureId,
-            ...fig,
-            size: { width: fig.width, height: fig.height },
-            sheetId: cmd.sheetIdTo,
-          });
-        }
-        break;
-      }
     }
   }
 
@@ -259,7 +268,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     return { col, row, offset };
   }
 
-  private updateFigure(cmd: UpdateFigureCommand) {
+  private onUpdateFigure(cmd: UpdateFigureCommand) {
     if (!("figureId" in cmd) || !("sheetId" in cmd)) {
       return;
     }

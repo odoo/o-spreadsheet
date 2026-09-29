@@ -12,7 +12,7 @@ import {
   toZone,
   union,
 } from "../../helpers/zones";
-import { EvaluationCommand, invalidateEvaluationCommands } from "../../types/commands";
+import { UpdateCellCommand } from "../../types/commands";
 import { CellErrorType } from "../../types/errors";
 import { CellPosition, FilterId, TableId, UID, Zone } from "../../types/misc";
 import { PivotStyle } from "../../types/pivot";
@@ -37,24 +37,25 @@ export class DynamicTablesPlugin extends EvaluationPlugin {
 
   tables: Record<UID, Table[]> = {};
 
-  handle(cmd: EvaluationCommand) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd)) ||
-      cmd.type === "EVALUATE_CELLS"
-    ) {
-      this.tables = {};
-      return;
+  handlers = {
+    UPDATE_CELL: this.onUpdateCell,
+    DELETE_CONTENT: this.clearTables,
+    CREATE_TABLE: this.clearTables,
+    REMOVE_TABLE: this.clearTables,
+    UPDATE_TABLE: this.clearTables,
+    EVALUATE_CELLS: this.clearTables,
+    REFRESH_PIVOT: this.clearTables,
+    "*invalidateEvaluationCommands": this.clearTables,
+  };
+
+  private onUpdateCell(cmd: UpdateCellCommand) {
+    if ("content" in cmd || "format" in cmd) {
+      this.clearTables();
     }
-    switch (cmd.type) {
-      case "CREATE_TABLE":
-      case "REMOVE_TABLE":
-      case "UPDATE_TABLE":
-      case "DELETE_CONTENT":
-      case "REFRESH_PIVOT":
-        this.tables = {};
-        break;
-    }
+  }
+
+  private clearTables() {
+    this.tables = {};
   }
 
   finalize() {
