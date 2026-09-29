@@ -98,7 +98,7 @@ export class Session extends EventBus<CollaborativeEvent> {
    * Add a new revision to the collaborative session.
    * It will be transmitted to all other connected clients.
    */
-  save(rootCommand: Command, commands: CoreCommand[], changes: HistoryChange[]) {
+  save(rootCommand: Command, commands: readonly CoreCommand[], changes: HistoryChange[]) {
     if (!commands.length || !changes.length || !this.canApplyOptimisticUpdate()) {
       return;
     }
@@ -442,9 +442,12 @@ export class Session extends EventBus<CollaborativeEvent> {
           commands: revision.commands,
         };
       } else {
+        const sortedCommands = [
+          ...this.commandSquisher.collectConsecutiveUpdateCellCommands(revision.commands),
+        ].flat();
         if (
           this.shouldVerifySquish &&
-          !deepEquals(revision.commands, this.commandSquisher.unsquish(squishedCommands))
+          !deepEquals(sortedCommands, this.commandSquisher.unsquish(squishedCommands))
         ) {
           message = {
             ...message,
