@@ -19,9 +19,14 @@ import {
 
 export class CommandHandlerRegistryClass<T extends Command> implements CommandHandlerRegistry {
   private handlers: CommandsHandlersList<T> = {};
+  private preHandlers: CommandsHandlersList<T> = {};
 
   getHandlers<C extends CommandTypes>(cmd: C): SingleCommandHandler<Extract<T, { type: C }>>[] {
     return this.handlers[cmd] ?? [];
+  }
+
+  getPreHandlers<C extends CommandTypes>(cmd: C): SingleCommandHandler<Extract<T, { type: C }>>[] {
+    return this.preHandlers[cmd] ?? [];
   }
 
   addHandler<C extends CommandTypes>(cmd: C, f: SingleCommandHandler<Extract<T, { type: C }>>) {
@@ -29,7 +34,13 @@ export class CommandHandlerRegistryClass<T extends Command> implements CommandHa
     this.handlers[cmd].push(f);
   }
 
+  addPreHandler<C extends CommandTypes>(cmd: C, f: SingleCommandHandler<Extract<T, { type: C }>>) {
+    this.preHandlers[cmd] ??= [];
+    this.preHandlers[cmd].push(f);
+  }
+
   registerPlugin(plugin: CommandHandler<T>) {
+    this.registerDeclaredHandlers(plugin, plugin.preHandlers, this.addPreHandler);
     this.registerDeclaredHandlers(plugin, plugin.handlers, this.addHandler);
   }
 

@@ -663,14 +663,18 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   /**
    * Dispatch the given command to the given handlers.
-   * It will call `beforeHandle` of the given handlers, then the handlers
-   * registered in the given registry.
+   * It will call the pre-handlers registered in the given registry and the
+   * `beforeHandle` of the given handlers, then the handlers registered in the
+   * given registry.
    */
   private dispatchToHandlers(
     registry: CommandHandlerRegistry,
     handlers: CommandHandler<Command>[],
     command: Command
   ) {
+    for (const preHandler of registry.getPreHandlers(command.type)) {
+      preHandler(command);
+    }
     const concernedHandlers = handlers.filter((handler) => canHandle(handler, command));
     for (const handler of concernedHandlers) {
       handler.beforeHandle(command);

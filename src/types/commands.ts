@@ -1745,6 +1745,7 @@ export interface CommandHandler<T extends Command> {
   allowDispatch(command: T): CommandResult | CommandResult[];
   beforeHandle(command: T): void;
   finalize(): void;
+  preHandlers: CommandsHandlers<T>;
   handlers: CommandsHandlers<T>;
 }
 
@@ -1763,7 +1764,14 @@ export type CommandHandlerRegistry = {
   getHandlers<C extends CommandTypes>(
     cmd: C
   ): SingleCommandHandler<Extract<Command, { type: C }>>[];
+  getPreHandlers<C extends CommandTypes>(
+    cmd: C
+  ): SingleCommandHandler<Extract<Command, { type: C }>>[];
   addHandler<C extends CommandTypes>(
+    cmd: C,
+    handler: SingleCommandHandler<Extract<Command, { type: C }>>
+  ): void;
+  addPreHandler<C extends CommandTypes>(
     cmd: C,
     handler: SingleCommandHandler<Extract<Command, { type: C }>>
   ): void;
