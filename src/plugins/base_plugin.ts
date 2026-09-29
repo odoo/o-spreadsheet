@@ -20,6 +20,15 @@ export class BasePlugin<State = any, C extends Command = Command>
   implements CommandHandler<C>, Validator
 {
   static getters: readonly string[] = [];
+
+  /**
+   * Handlers called before any plugin handles the command. This is useful when a
+   * plugin needs to perform some action before a command is handled in another
+   * plugin. This should only be used if it is not possible to do the work in a
+   * regular handler.
+   */
+  preHandlers: CommandsHandlers<C> = {};
+
   handlers: CommandsHandlers<C> = {};
 
   protected history: WorkbookHistory<State>;
