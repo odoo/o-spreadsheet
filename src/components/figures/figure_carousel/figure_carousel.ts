@@ -60,6 +60,10 @@ export class CarouselFigure extends OSComponent {
     return this.model().getters.getCarousel(this.props.figureUI.id);
   }
 
+  get selectedCarouselItemIndex(): number | undefined {
+    return this.model().getters.getSelectedCarouselItemIndex(this.props.figureUI.id);
+  }
+
   get selectedCarouselItem(): CarouselItem | undefined {
     return this.model().getters.getSelectedCarouselItem(this.props.figureUI.id);
   }
@@ -91,21 +95,21 @@ export class CarouselFigure extends OSComponent {
     this.sidePanelStore.open("ChartPanel", { chartId });
   }
 
-  isItemSelected(item: CarouselItem): boolean {
-    const selectedItem = this.selectedCarouselItem;
-    return deepEquals(selectedItem, item);
+  isItemSelected(itemIndex: number): boolean {
+    return this.selectedCarouselItemIndex === itemIndex;
   }
 
   getItemTitle(item: CarouselItem): string {
     return getCarouselItemTitle(this.model().getters, item);
   }
 
-  onCarouselTabClick(item: CarouselItem) {
+  onCarouselTabClick(itemIndex: number) {
     this.model().dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
       carouselId: this.props.figureUI.id,
       sheetId: this.model().getters.getActiveSheetId(),
-      item,
+      itemIndex,
     });
+    const item = this.carousel.items[itemIndex];
     if (item.type === "chart") {
       const animationChartId = item.chartId + (this.props.isFullScreen ? "-fullscreen" : "");
       this.animationStore?.enableAnimationForChart(animationChartId);
@@ -204,12 +208,16 @@ export class CarouselFigure extends OSComponent {
       return;
     }
     const rect = getElBoundingRect(this.carouselTabsDropdownRef());
-    const menuItems: ActionSpec[] = this.hiddenItems.map((item) => ({
-      name: this.getItemTitle(item),
-      execute: () => this.onCarouselTabClick(item),
-      isActive: () => this.isItemSelected(item),
-      isReadonlyAllowed: true,
-    }));
+    const numberOfShownItems = this.carousel.items.length - this.hiddenItems.length;
+    const menuItems: ActionSpec[] = this.hiddenItems.map((item, i) => {
+      const itemIndex = numberOfShownItems + i;
+      return {
+        name: this.getItemTitle(item),
+        execute: () => this.onCarouselTabClick(itemIndex),
+        isActive: () => this.isItemSelected(itemIndex),
+        isReadonlyAllowed: true,
+      };
+    });
     this.menuState.isOpen = true;
     this.menuState.anchorRect = rect;
     this.menuState.menuItems = createActions(menuItems);

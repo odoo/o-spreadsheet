@@ -9,7 +9,9 @@ import {
   createCarousel,
   createCarouselWithDataView,
   createChart,
+  createChartAndMergeIntoCarousel,
   duplicateSheet,
+  mergeChartFiguresIntoCarousel,
   popOutChartFromCarousel,
   selectCarouselItem,
   undo,
@@ -86,33 +88,26 @@ describe("Carousel figure", () => {
 
     test("Cannot update the carousel to a wrong state", () => {
       createCarousel(model, { items: [] }, "carouselId");
-      const chartId = addNewChartToCarousel(model, "carouselId");
+      addNewChartToCarousel(model, "carouselId");
 
       let result = model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
         carouselId: "wrongCarouselId",
         sheetId,
-        item: { type: "chart", chartId: "invalidChartId" },
+        itemIndex: 0,
       });
       expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
 
       result = model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
         carouselId: "carouselId",
         sheetId,
-        item: { type: "chart", chartId: "invalidChartId" },
+        itemIndex: 2,
       });
-      expect(result).toBeCancelledBecause(CommandResult.InvalidCarouselItem);
+      expect(result).toBeCancelledBecause(CommandResult.InvalidCarouselIndex);
 
       result = model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
         carouselId: "carouselId",
         sheetId,
-        item: { type: "carouselDataView" },
-      });
-      expect(result).toBeCancelledBecause(CommandResult.InvalidCarouselItem);
-
-      result = model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
-        carouselId: "carouselId",
-        sheetId,
-        item: { type: "chart", chartId },
+        itemIndex: 0,
       });
       expect(result).toBeSuccessfullyDispatched();
     });
@@ -363,7 +358,7 @@ describe("Carousel figure", () => {
   test("Carousel item is still selected when changing its name", () => {
     createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
     const chartId = addNewChartToCarousel(model, "carouselId");
-    selectCarouselItem(model, "carouselId", { type: "chart", chartId });
+    selectCarouselItem(model, "carouselId", 1);
 
     expect(model.getters.getSelectedCarouselItem("carouselId")).toEqual({ type: "chart", chartId });
 
@@ -374,6 +369,75 @@ describe("Carousel figure", () => {
       type: "chart",
       chartId,
       title: "Title",
+    });
+  });
+
+  test("Can select one data view among several data views", () => {
+    createCarousel(
+      model,
+      {
+        items: [
+          { type: "carouselDataView", rangeData: toRangeData(sheetId, "A1") },
+          { type: "carouselDataView", rangeData: toRangeData(sheetId, "B2") },
+        ],
+      },
+      "carouselId"
+    );
+    selectCarouselItem(model, "carouselId", 1);
+    expect(model.getters.getSelectedCarouselItem("carouselId")).toMatchObject({
+      type: "carouselDataView",
+      range: { zone: toZone("B2") },
+    });
+  });
+
+  test("Selected carousel item falls back to the first item when it is removed", () => {
+    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    const chartId = addNewChartToCarousel(model, "carouselId");
+    expect(model.getters.getSelectedCarouselItem("carouselId")).toEqual({ type: "chart", chartId });
+
+    updateCarousel(model, "carouselId", { items: [{ type: "carouselDataView" }] });
+    expect(model.getters.getSelectedCarouselItem("carouselId")).toEqual({
+      type: "carouselDataView",
+    });
+  });
+
+  test("Can merge chart figures into a new carousel with the given id", () => {
+    createChart(model, { type: "radar" }, "chartId1", undefined, { figureId: "figureId1" });
+    createChart(model, { type: "bar" }, "chartId2", undefined, { figureId: "figureId2" });
+
+    mergeChartFiguresIntoCarousel(model, "figureId1", ["figureId1", "figureId2"], "carouselId");
+
+    expect(model.getters.getFigures(sheetId)).toMatchObject([
+      { id: "carouselId", tag: "carousel" },
+    ]);
+    expect(model.getters.getCarousel("carouselId").items).toEqual([
+      { type: "chart", chartId: "chartId1" },
+      { type: "chart", chartId: "chartId2" },
+    ]);
+  });
+
+  test("Can create a chart and merge it with an existing chart into a new carousel", () => {
+    createChart(model, { type: "radar" }, "chartId", undefined, { figureId: "chartFigureId" });
+
+    createChartAndMergeIntoCarousel(
+      model,
+      "chartFigureId",
+      "newChartId",
+      "carouselId",
+      TEST_CHART_DATA.combo
+    );
+
+    expect(model.getters.getFigures(sheetId)).toMatchObject([
+      { id: "carouselId", tag: "carousel" },
+    ]);
+    expect(model.getters.getCarousel("carouselId").items).toEqual([
+      { type: "chart", chartId: "chartId" },
+      { type: "chart", chartId: "newChartId" },
+    ]);
+    expect(model.getters.getChartDefinition("newChartId")).toMatchObject({ type: "combo" });
+    expect(model.getters.getSelectedCarouselItem("carouselId")).toEqual({
+      type: "chart",
+      chartId: "newChartId",
     });
   });
 });

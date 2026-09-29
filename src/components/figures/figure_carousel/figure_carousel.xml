@@ -24,10 +24,10 @@
             t-if="this.carousel.items.length > 1">
             <div
               class="o-carousel-tab text-truncate px-2 flex-shrink-0"
-              t-att-class="{ 'selected': this.isItemSelected(item) }"
+              t-att-class="{ 'selected': this.isItemSelected(item_index) }"
               t-att-data-type="item.type"
               t-out="this.getItemTitle(item)"
-              t-on-click.stop="() => this.onCarouselTabClick(item)"
+              t-on-click.stop="() => this.onCarouselTabClick(item_index)"
             />
           </t>
         </div>
