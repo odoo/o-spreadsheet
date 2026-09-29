@@ -71,7 +71,7 @@ export const TEST_CHART_DATA = {
   },
   gauge: {
     type: "gauge" as const,
-    dataRange: "B1:B4",
+    metric: "=B1:B4",
     title: { text: "hello" },
     humanize: true,
     sectionRule: {

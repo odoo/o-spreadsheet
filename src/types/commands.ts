@@ -1256,7 +1256,6 @@ export const enum CommandResult {
   InvalidLabelRange = "InvalidLabelRange",
   InvalidBubbleSizeRange = "InvalidBubbleSizeRange",
   InvalidHeatmapSizeRange = "InvalidHeatmapSizeRange",
-  InvalidGaugeDataRange = "InvalidGaugeDataRange",
   EmptyGaugeRangeMin = "EmptyGaugeRangeMin",
   GaugeRangeMinNaN = "GaugeRangeMinNaN",
   EmptyGaugeRangeMax = "EmptyGaugeRangeMax",

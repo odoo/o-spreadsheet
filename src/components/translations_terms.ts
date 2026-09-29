@@ -57,7 +57,6 @@ export const ChartTerms: {
     [CommandResult.InvalidDataSet]: _t("The dataset is invalid"),
     [CommandResult.InvalidLabelRange]: _t("Labels are invalid"),
     // GAUGE CHART ERRORS
-    [CommandResult.InvalidGaugeDataRange]: _t("The data range is invalid"),
     [CommandResult.EmptyGaugeRangeMin]: _t("A minimum range limit value is needed"),
     [CommandResult.GaugeRangeMinNaN]: _t("The minimum range limit value must be a number"),
     [CommandResult.EmptyGaugeRangeMax]: _t("A maximum range limit value is needed"),
