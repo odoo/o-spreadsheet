@@ -37,6 +37,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   private getters: CoreGetters;
   private providers: Array<RangeProvider["adaptRanges"]> = [];
   private isAdaptingRanges: boolean = false;
+  readonly preHandlers: CommandsHandlers<CoreCommand> = {};
   readonly handlers: CommandsHandlers<CoreCommand> = {
     "*coreTypes": this.throwDispatchErrorIfAdapting,
     MOVE_RANGES: this.adaptRanges,
