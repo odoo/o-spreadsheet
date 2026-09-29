@@ -7,6 +7,8 @@ import {
   commandSets,
   CommandsHandlers,
   CommandsHandlersList,
+  CommandsValidators,
+  CommandsValidatorsList,
   CommandTypes,
   coreTypes,
   evaluationCommandTypes,
@@ -15,11 +17,26 @@ import {
   isEvaluationCommand,
   localTypes,
   SingleCommandHandler,
+  SingleCommandValidator,
 } from "./types/commands";
+
+const ALL_COMMANDS = "*allCommands";
+
+interface CatchAllValidator<T extends Command> {
+  canHandleType: (commandType: CommandTypes) => boolean;
+  validator: SingleCommandValidator<T>;
+}
 
 export class CommandHandlerRegistryClass<T extends Command> implements CommandHandlerRegistry {
   private handlers: CommandsHandlersList<T> = {};
   private preHandlers: CommandsHandlersList<T> = {};
+  private validators: CommandsValidatorsList<T> = {};
+  /**
+   * Validators declared under `"*allCommands"`. Unlike the other command sets they
+   * are not expanded into the per-command lists: they must run for *every* command,
+   * including command types registered after the plugins were instantiated.
+   */
+  private catchAllValidators: CatchAllValidator<T>[] = [];
 
   getHandlers<C extends CommandTypes>(cmd: C): SingleCommandHandler<Extract<T, { type: C }>>[] {
     return this.handlers[cmd] ?? [];
@@ -39,15 +56,44 @@ export class CommandHandlerRegistryClass<T extends Command> implements CommandHa
     this.preHandlers[cmd].push(f);
   }
 
+  getValidators<C extends CommandTypes>(cmd: C): SingleCommandValidator<Extract<T, { type: C }>>[] {
+    const catchAll = this.catchAllValidators
+      .filter(({ canHandleType }) => canHandleType(cmd))
+      .map(({ validator }) => validator);
+    return [...catchAll, ...(this.validators[cmd] ?? [])] as SingleCommandValidator<
+      Extract<T, { type: C }>
+    >[];
+  }
+
+  addValidator<C extends CommandTypes>(cmd: C, f: SingleCommandValidator<Extract<T, { type: C }>>) {
+    this.validators[cmd] ??= [];
+    this.validators[cmd].push(f);
+  }
+
   registerPlugin(plugin: CommandHandler<T>) {
+    this.registerValidators(plugin);
     this.registerDeclaredHandlers(plugin, plugin.preHandlers, this.addPreHandler);
     this.registerDeclaredHandlers(plugin, plugin.handlers, this.addHandler);
   }
 
-  private registerDeclaredHandlers(
+  private registerValidators(plugin: CommandHandler<T>) {
+    const validators = plugin.validators;
+    const catchAll = validators[ALL_COMMANDS]?.bind(plugin);
+    if (catchAll) {
+      this.catchAllValidators.push({
+        canHandleType: (cmd) => canHandleType(plugin, cmd),
+        validator: catchAll,
+      });
+    }
+    const declaredValidators = { ...validators };
+    delete declaredValidators[ALL_COMMANDS];
+    this.registerDeclaredHandlers(plugin, declaredValidators, this.addValidator);
+  }
+
+  private registerDeclaredHandlers<F extends (...args: any[]) => any>(
     plugin: CommandHandler<T>,
-    declaredHandlers: CommandsHandlers<T>,
-    register: CommandHandlerRegistryClass<T>["addHandler"]
+    declaredHandlers: CommandsHandlers<T> | CommandsValidators<T>,
+    register: (cmd: CommandTypes, f: F) => void
   ) {
     for (const key of Object.keys(declaredHandlers)) {
       const handler = declaredHandlers[key]?.bind(plugin);

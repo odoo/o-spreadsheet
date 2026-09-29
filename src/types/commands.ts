@@ -1746,6 +1746,7 @@ export const enum CommandResult {
 export interface CommandHandler<T extends Command> {
   allowDispatch(command: T): CommandResult | CommandResult[];
   finalize(): void;
+  validators: CommandsValidators<T>;
   preHandlers: CommandsHandlers<T>;
   handlers: CommandsHandlers<T>;
 }
@@ -1759,6 +1760,17 @@ export type CommandsHandlers<T extends Command> = {
 
 export type CommandsHandlersList<T extends Command> = {
   [C in CommandTypes]?: SingleCommandHandler<Extract<T, { type: C }>>[];
+};
+
+export type SingleCommandValidator<C extends Command> = (cmd: C) => CommandResult | CommandResult[];
+export type CommandsValidators<T extends Command> = {
+  [C in T["type"]]?: SingleCommandValidator<Extract<T, { type: C }>>;
+} & {
+  [S in CommandSetName]?: SingleCommandValidator<T>;
+};
+
+export type CommandsValidatorsList<T extends Command> = {
+  [C in CommandTypes]?: SingleCommandValidator<Extract<T, { type: C }>>[];
 };
 
 export type CommandHandlerRegistry = {
@@ -1775,6 +1787,13 @@ export type CommandHandlerRegistry = {
   addPreHandler<C extends CommandTypes>(
     cmd: C,
     handler: SingleCommandHandler<Extract<Command, { type: C }>>
+  ): void;
+  getValidators<C extends CommandTypes>(
+    cmd: C
+  ): SingleCommandValidator<Extract<Command, { type: C }>>[];
+  addValidator<C extends CommandTypes>(
+    cmd: C,
+    validator: SingleCommandValidator<Extract<Command, { type: C }>>
   ): void;
 };
 
