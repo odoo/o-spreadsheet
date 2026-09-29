@@ -1,6 +1,6 @@
 import { CompiledFormula } from "../formulas/compiler";
 import { StateObserver } from "../state_observer";
-import { CoreCommand, CoreCommandDispatcher } from "../types/commands";
+import { CommandsHandlers, CoreCommand, CoreCommandDispatcher } from "../types/commands";
 import { CoreGetters, PluginGetters, RangeAdapterGetters } from "../types/getters";
 import { FormulaProvider, RangeAdapterFunctions, RangeProvider } from "../types/misc";
 import { ModelConfig } from "../types/model";
@@ -86,6 +86,7 @@ export class CorePlugin<Self extends CorePluginConstructor, State = any>
   static readonly dependencies: readonly CorePluginConstructor[] = [];
 
   protected getters: ScopedGetters<Self>;
+  readonly handlers: CommandsHandlers<CoreCommand> = {};
   protected dispatch: CoreCommandDispatcher["dispatch"];
   protected canDispatch: CoreCommandDispatcher["dispatch"];
 
