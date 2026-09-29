@@ -2,7 +2,6 @@ import { DEFAULT_CELL_HEIGHT, FIGURE_ID_SPLITTER } from "../../constants";
 import { clip } from "../../helpers/misc";
 import {
   CommandResult,
-  CoreCommand,
   CreateFigureCommand,
   DeleteFigureCommand,
   RemoveColumnsRowsCommand,
@@ -27,6 +26,12 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
 
   preHandlers = {
     DELETE_SHEET: this.dispatchSheetFiguresDeletion,
+  };
+
+  validators = {
+    CREATE_FIGURE: this.checkCreateFigure,
+    UPDATE_FIGURE: this.checkUpdateFigure,
+    DELETE_FIGURE: this.checkFigureExists,
   };
 
   handlers = {
@@ -141,17 +146,12 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     }
   }
 
-  allowDispatch(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "CREATE_FIGURE":
-        return this.checkValidations(cmd, this.checkFigureDuplicate, this.checkFigureAnchorOffset);
-      case "UPDATE_FIGURE":
-        return this.checkValidations(cmd, this.checkFigureExists, this.checkFigureAnchorOffset);
-      case "DELETE_FIGURE":
-        return this.checkFigureExists(cmd);
-      default:
-        return CommandResult.Success;
-    }
+  private checkCreateFigure(cmd: CreateFigureCommand) {
+    return this.checkValidations(cmd, this.checkFigureDuplicate, this.checkFigureAnchorOffset);
+  }
+
+  private checkUpdateFigure(cmd: UpdateFigureCommand) {
+    return this.checkValidations(cmd, this.checkFigureExists, this.checkFigureAnchorOffset);
   }
 
   private onColRemove(sheetId: UID) {
