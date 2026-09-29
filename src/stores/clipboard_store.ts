@@ -7,6 +7,7 @@ import { cellStyleToCss, cssPropertiesToCss } from "../components/helpers/css";
 import { SELECTION_BORDER_COLOR } from "../constants";
 import {
   applyClipboardHandlersPaste,
+  applyClipboardHandlersPasteIntoFigure,
   expandHandlerData,
   getClipboardDataPositions,
   getPasteTargetFromHandlers,
@@ -55,6 +56,7 @@ export class ClipboardStore extends SpreadsheetStore {
     "getClipboardTextContent",
     "isCutOperation",
     "isCommandValid",
+    "canPasteChartsOrUniqueZone",
   ] as const;
 
   private status: "visible" | "invisible" = "invisible";
@@ -75,6 +77,37 @@ export class ClipboardStore extends SpreadsheetStore {
 
   isCommandValid(cmd: Command): DispatchResult {
     return new DispatchResult(this.getCommandResult(cmd));
+  }
+
+  canPasteChartsOrUniqueZone(targetFigureId: UID): boolean {
+    const pastedFigures = this.copiedData?.figureIds;
+    if (this._isCutOperation && !pastedFigures) {
+      return false;
+    }
+    const pastingCharts =
+      pastedFigures &&
+      pastedFigures.every((figureId) => {
+        const figureSheetId = this.getters.getFigureSheetId(figureId);
+        return !!figureSheetId && this.getters.getFigure(figureSheetId, figureId)?.tag === "chart";
+      });
+    const pastingUniqueZone = !pastedFigures && this.copiedData?.zones?.length === 1;
+    return (pastingCharts && !pastedFigures?.includes(targetFigureId)) || pastingUniqueZone;
+  }
+
+  private getPasteTargetFigureId(): UID | undefined {
+    const selectedFigures = this.getters.getSelectedFigureIds();
+    if (selectedFigures.length !== 1) {
+      return undefined;
+    }
+    const targetFigureId = selectedFigures[0];
+    const targetFigure = this.getters.getFigure(this.getters.getActiveSheetId(), targetFigureId);
+    if (
+      (targetFigure?.tag === "carousel" || targetFigure?.tag === "chart") &&
+      this.canPasteChartsOrUniqueZone(targetFigureId)
+    ) {
+      return targetFigureId;
+    }
+    return undefined;
   }
 
   private getCommandResult(cmd: Command): CommandResult {
@@ -202,10 +235,12 @@ export class ClipboardStore extends SpreadsheetStore {
       }
       case "PASTE": {
         const pasteOption = cmd.pasteOption;
+        const targetFigureId = this.getPasteTargetFigureId();
         this.paste(cmd.target, this.copiedData, {
           pasteOption,
-          selectTarget: true,
+          selectTarget: !(targetFigureId && this.copiedData?.zones?.length === 1),
           isCutOperation: this._isCutOperation,
+          targetFigureId,
         });
         this.status = "invisible";
         if (this._isCutOperation) {
@@ -489,7 +524,7 @@ export class ClipboardStore extends SpreadsheetStore {
       expandedData,
       options
     );
-    if (zone !== undefined) {
+    if (zone !== undefined && !options.targetFigureId) {
       this.addMissingDimensions(
         sheetId,
         zone.right - zone.left + 1,
@@ -502,12 +537,17 @@ export class ClipboardStore extends SpreadsheetStore {
       // Deselect current figure before adding new figure to selection
       this.model.dispatch("SELECT_FIGURE", { figureId: null });
     }
-    applyClipboardHandlersPaste(handlers, expandedData, target, options, {
+    const positions = {
       sheetId: copiedData.sheetId,
       zones: copiedData.zones,
       rowsIndexes: copiedData.rowsIndexes,
       columnsIndexes: copiedData.columnsIndexes,
-    });
+    };
+    if (options.targetFigureId) {
+      applyClipboardHandlersPasteIntoFigure(handlers, expandedData, target, options, positions);
+    } else {
+      applyClipboardHandlersPaste(handlers, expandedData, target, options, positions);
+    }
     if (!options.selectTarget) {
       return;
     }

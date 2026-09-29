@@ -1,9 +1,10 @@
-import { Position, UID } from "../../..";
+import { ChartDefinition, CommandDispatcher, Position, UID } from "../../..";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { AnchorOffset, Figure, FigureSize } from "../../../types/figure";
 import { Getters } from "../../../types/getters";
 import { SpreadsheetActionEnv } from "../../../types/spreadsheet_env";
 import { deepCopy } from "../../misc";
+import { UuidGenerator } from "../../uuid";
 
 const MAX_FIGURE_WIDTH = 1000;
 const MAX_FIGURE_HEIGHT = 1000;
@@ -72,4 +73,32 @@ export function boundColRowOffsetInSheet(
     offset.y = maxPosition.offset.y;
   }
   return { col, row, offset };
+}
+
+export function addNewChartToFigure(
+  chartDefinition: ChartDefinition,
+  targetFigure: Figure,
+  sheetId: UID,
+  newCarouselId: UID,
+  dispatch: CommandDispatcher["dispatch"]
+) {
+  const newChartId = UuidGenerator.smallUuid();
+  if (targetFigure.tag === "carousel") {
+    dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
+      sheetId,
+      carouselId: targetFigure.id,
+      newChartId,
+      chartDefinition,
+    });
+  } else if (targetFigure.tag === "chart") {
+    dispatch("CREATE_CHART_AND_MERGE_INTO_CAROUSEL", {
+      newChartId,
+      sheetId,
+      chartDefinition,
+      baseFigureId: targetFigure.id,
+      newCarouselId,
+    });
+  } else {
+    throw new Error(`Cannot add chart to figure with tag ${targetFigure.tag}`);
+  }
 }

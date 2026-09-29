@@ -38,6 +38,13 @@ export abstract class ClipboardHandler<T> {
     positions: ClipboardPositions
   ) {}
 
+  pasteIntoFigure(
+    target: ClipboardPasteTarget,
+    clippedContent: T,
+    options: ClipboardOptions,
+    positions: ClipboardPositions
+  ) {}
+
   isPasteAllowed(
     sheetId: UID,
     target: Zone[],

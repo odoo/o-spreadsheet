@@ -463,6 +463,21 @@ export const applyClipboardHandlersPaste = (
   });
 };
 
+export const applyClipboardHandlersPasteIntoFigure = (
+  handlers: { handlerName: string; handler: ClipboardHandler<unknown> }[],
+  expandedData: MinimalClipboardData,
+  target: ClipboardPasteTarget,
+  options: ClipboardOptions,
+  positions: ClipboardPositions
+): void => {
+  handlers.forEach(({ handlerName, handler }) => {
+    const data = expandedData[handlerName];
+    if (data) {
+      handler.pasteIntoFigure(target, data, options, positions);
+    }
+  });
+};
+
 /**
  * Returns the paste target based on clipboard handlers.
  * Also includes the full affected zone and the list of pasted zones for selection.
