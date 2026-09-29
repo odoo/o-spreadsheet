@@ -1,5 +1,4 @@
 import {
-  Command,
   CommandResult,
   CoreCommand,
   DataValidationCriterion,
@@ -1236,14 +1235,12 @@ describe("Multi users synchronisation", () => {
 
 test("UI plugins cannot refuse core command and de-synchronize the users", () => {
   class MyUIPlugin extends UIPlugin {
-    allowDispatch(cmd: Command) {
-      if (cmd.type === "UPDATE_CELL") {
-        return this.getters.getCurrentClient().name === "Alice"
+    validators = {
+      UPDATE_CELL: () =>
+        this.getters.getCurrentClient().name === "Alice"
           ? CommandResult.Success
-          : CommandResult.CancelledForUnknownReason;
-      }
-      return CommandResult.Success;
-    }
+          : CommandResult.CancelledForUnknownReason,
+    };
   }
   addToRegistry(featurePluginRegistry, "myUIPlugin", MyUIPlugin);
   const { alice, bob } = setupCollaborativeEnv();

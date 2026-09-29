@@ -13,7 +13,6 @@ import {
 import {
   AddMergeCommand,
   CommandResult,
-  CoreCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
   RemoveMergeCommand,
@@ -65,6 +64,14 @@ export class MergePlugin extends CorePlugin<typeof MergePlugin, MergeState> impl
 
   readonly merges: Record<UID, Record<number, Range | undefined> | undefined> = {};
 
+  validators = {
+    ADD_MERGE: this.checkAddMerge,
+    UPDATE_CELL: this.checkMergedContentUpdate,
+    REMOVE_MERGE: this.checkMergeExists,
+    FREEZE_COLUMNS: this.checkColFreezeOverlapMerge,
+    FREEZE_ROWS: this.checkRowFreezeOverlapMerge,
+  };
+
   handlers = {
     ADD_MERGE: this.onAddMerge,
     REMOVE_MERGE: this.onRemoveMerge,
@@ -109,33 +116,16 @@ export class MergePlugin extends CorePlugin<typeof MergePlugin, MergeState> impl
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-  allowDispatch(cmd: CoreCommand) {
-    const force = "force" in cmd ? !!cmd.force : false;
-
-    switch (cmd.type) {
-      case "ADD_MERGE":
-        if (force) {
-          return this.checkValidations(cmd, this.checkFrozenPanes);
-        }
-        return this.checkValidations(
-          cmd,
-          this.checkDestructiveMerge,
-          this.checkOverlap,
-          this.checkFrozenPanes
-        );
-      case "UPDATE_CELL":
-        return this.checkMergedContentUpdate(cmd);
-      case "REMOVE_MERGE":
-        return this.checkMergeExists(cmd);
-
-      case "FREEZE_COLUMNS":
-        return this.checkColFreezeOverlapMerge(cmd);
-
-      case "FREEZE_ROWS":
-        return this.checkRowFreezeOverlapMerge(cmd);
-      default:
-        return CommandResult.Success;
+  private checkAddMerge(cmd: AddMergeCommand) {
+    if (cmd.force) {
+      return this.checkValidations(cmd, this.checkFrozenPanes);
     }
+    return this.checkValidations(
+      cmd,
+      this.checkDestructiveMerge,
+      this.checkOverlap,
+      this.checkFrozenPanes
+    );
   }
 
   adaptRanges(rangeAdapters: RangeAdapterFunctions) {

@@ -8,7 +8,6 @@ import {
 } from "../../helpers/misc";
 import {
   AddColumnsRowsCommand,
-  Command,
   CommandResult,
   HideColumnsRowsCommand,
   RemoveColumnsRowsCommand,
@@ -30,6 +29,10 @@ export class HiddenHeaderPlugin extends CorePlugin<typeof HiddenHeaderPlugin, St
   ] as const;
 
   private readonly hiddenHeaders: Record<UID, Record<Dimension, Array<boolean>>> = {};
+
+  validators = {
+    HIDE_COLUMNS_ROWS: this.checkHideHeaders,
+  };
 
   handlers = {
     HIDE_COLUMNS_ROWS: this.onHideColumnsRows,
@@ -89,29 +92,23 @@ export class HiddenHeaderPlugin extends CorePlugin<typeof HiddenHeaderPlugin, St
     }
   }
 
-  allowDispatch(cmd: Command) {
-    switch (cmd.type) {
-      case "HIDE_COLUMNS_ROWS": {
-        if (!this.getters.tryGetSheet(cmd.sheetId)) {
-          return CommandResult.InvalidSheetId;
-        }
-        const hiddenGroup =
-          cmd.dimension === "COL"
-            ? this.getHiddenColsGroups(cmd.sheetId)
-            : this.getHiddenRowsGroups(cmd.sheetId);
-        const elements =
-          cmd.dimension === "COL"
-            ? this.getters.getNumberCols(cmd.sheetId)
-            : this.getters.getNumberRows(cmd.sheetId);
-        const hiddenElements = new Set((hiddenGroup || []).flat().concat(cmd.elements));
-        if (hiddenElements.size >= elements) {
-          return CommandResult.TooManyHiddenElements;
-        } else if (largeMin(cmd.elements) < 0 || largeMax(cmd.elements) > elements) {
-          return CommandResult.InvalidHeaderIndex;
-        } else {
-          return CommandResult.Success;
-        }
-      }
+  private checkHideHeaders(cmd: HideColumnsRowsCommand) {
+    if (!this.getters.tryGetSheet(cmd.sheetId)) {
+      return CommandResult.InvalidSheetId;
+    }
+    const hiddenGroup =
+      cmd.dimension === "COL"
+        ? this.getHiddenColsGroups(cmd.sheetId)
+        : this.getHiddenRowsGroups(cmd.sheetId);
+    const elements =
+      cmd.dimension === "COL"
+        ? this.getters.getNumberCols(cmd.sheetId)
+        : this.getters.getNumberRows(cmd.sheetId);
+    const hiddenElements = new Set((hiddenGroup || []).flat().concat(cmd.elements));
+    if (hiddenElements.size >= elements) {
+      return CommandResult.TooManyHiddenElements;
+    } else if (largeMin(cmd.elements) < 0 || largeMax(cmd.elements) > elements) {
+      return CommandResult.InvalidHeaderIndex;
     }
     return CommandResult.Success;
   }

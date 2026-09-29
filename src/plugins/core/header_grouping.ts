@@ -6,7 +6,6 @@ import {
 import {
   AddColumnsRowsCommand,
   CommandResult,
-  CoreCommand,
   FoldAllHeaderGroupsCommand,
   FoldHeaderGroupCommand,
   FoldHeaderGroupsInZoneCommand,
@@ -40,6 +39,11 @@ export class HeaderGroupingPlugin extends CorePlugin<typeof HeaderGroupingPlugin
   ] as const;
 
   private readonly groups: Record<UID, Record<Dimension, HeaderGroup[]>> = {};
+
+  validators = {
+    GROUP_HEADERS: this.checkGroupHeaders,
+    UNGROUP_HEADERS: this.checkHeaderGroupStartEnd,
+  };
 
   handlers = {
     GROUP_HEADERS: this.onGroupHeaders,
@@ -150,38 +154,27 @@ export class HeaderGroupingPlugin extends CorePlugin<typeof HeaderGroupingPlugin
     this.groupHeaders(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
   }
 
-  allowDispatch(cmd: CoreCommand): CommandResult {
-    switch (cmd.type) {
-      case "GROUP_HEADERS": {
-        const { start, end, sheetId } = cmd;
-        if (!this.getters.tryGetSheet(sheetId)) {
-          return CommandResult.InvalidSheetId;
-        }
-        if (!this.getters.doesHeadersExist(cmd.sheetId, cmd.dimension, [start, end])) {
-          return CommandResult.InvalidHeaderGroupStartEnd;
-        }
-        if (start > end) {
-          return CommandResult.InvalidHeaderGroupStartEnd;
-        }
+  private checkHeaderGroupStartEnd(cmd: GroupHeadersCommand | UnGroupHeadersCommand) {
+    const { start, end, sheetId } = cmd;
+    if (!this.getters.tryGetSheet(sheetId)) {
+      return CommandResult.InvalidSheetId;
+    }
+    if (!this.getters.doesHeadersExist(cmd.sheetId, cmd.dimension, [start, end])) {
+      return CommandResult.InvalidHeaderGroupStartEnd;
+    }
+    if (start > end) {
+      return CommandResult.InvalidHeaderGroupStartEnd;
+    }
+    return CommandResult.Success;
+  }
 
-        if (this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, start, end)) {
-          return CommandResult.HeaderGroupAlreadyExists;
-        }
-        break;
-      }
-      case "UNGROUP_HEADERS": {
-        const { start, end, sheetId } = cmd;
-        if (!this.getters.tryGetSheet(sheetId)) {
-          return CommandResult.InvalidSheetId;
-        }
-        if (!this.getters.doesHeadersExist(cmd.sheetId, cmd.dimension, [start, end])) {
-          return CommandResult.InvalidHeaderGroupStartEnd;
-        }
-        if (start > end) {
-          return CommandResult.InvalidHeaderGroupStartEnd;
-        }
-        break;
-      }
+  private checkGroupHeaders(cmd: GroupHeadersCommand) {
+    const startEndResult = this.checkHeaderGroupStartEnd(cmd);
+    if (startEndResult !== CommandResult.Success) {
+      return startEndResult;
+    }
+    if (this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, cmd.start, cmd.end)) {
+      return CommandResult.HeaderGroupAlreadyExists;
     }
     return CommandResult.Success;
   }

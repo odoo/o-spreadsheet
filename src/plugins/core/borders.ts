@@ -12,7 +12,6 @@ import {
   AddMergeCommand,
   ClearFormattingCommand,
   CommandResult,
-  CoreCommand,
   RemoveColumnsRowsCommand,
   SetBorderCommand,
   SetBorderTargetCommand,
@@ -49,6 +48,10 @@ export class BordersPlugin
   static getters = ["getCellBorder", "getBordersColors"] as const;
 
   public readonly borders: BordersPluginState["borders"] = {};
+
+  validators = {
+    SET_BORDER: this.checkBordersUnchanged,
+  };
 
   handlers = {
     CLEAR_FORMATTING: this.onClearFormatting,
@@ -142,15 +145,6 @@ export class BordersPlugin
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-
-  allowDispatch(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "SET_BORDER":
-        return this.checkBordersUnchanged(cmd);
-      default:
-        return CommandResult.Success;
-    }
-  }
 
   /**
    * Move borders according to the inserted columns.

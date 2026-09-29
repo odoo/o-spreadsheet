@@ -28,12 +28,12 @@ import {
   ClearCellsCommand,
   ClearFormattingCommand,
   CommandResult,
-  CoreCommand,
   DeleteContentCommand,
   DuplicateSheetCommand,
   PositionDependentCommand,
   SetFormattingCommand,
   UpdateCellCommand,
+  UpdateCellPositionCommand,
   UpdateLocaleCommand,
 } from "../../types/commands";
 import { CellPosition, HeaderIndex, RangeAdapterFunctions, UID } from "../../types/misc";
@@ -84,6 +84,13 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
 
   private previousDefaultStyle: defaultStyle | undefined;
   private previousDefaultFormat: defaultValue<Format> | undefined;
+
+  validators = {
+    UPDATE_CELL: this.checkUpdateCell,
+    CLEAR_CELL: this.checkClearCell,
+    UPDATE_CELL_POSITION: this.checkCellIdExists,
+    SET_FORMATTING: this.checkUselessSetFormatting,
+  };
 
   preHandlers = {
     UPDATE_LOCALE: this.storePreviousLocale,
@@ -150,21 +157,18 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: CoreCommand): CommandResult | CommandResult[] {
-    switch (cmd.type) {
-      case "UPDATE_CELL":
-        return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessUpdateCell);
-      case "CLEAR_CELL":
-        return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessClearCell);
-      case "UPDATE_CELL_POSITION":
-        return !cmd.cellId || this.cells[cmd.sheetId]?.[cmd.cellId]
-          ? CommandResult.Success
-          : CommandResult.InvalidCellId;
-      case "SET_FORMATTING":
-        return this.checkUselessSetFormatting(cmd);
-      default:
-        return CommandResult.Success;
-    }
+  private checkUpdateCell(cmd: UpdateCellCommand) {
+    return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessUpdateCell);
+  }
+
+  private checkClearCell(cmd: ClearCellCommand) {
+    return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessClearCell);
+  }
+
+  private checkCellIdExists(cmd: UpdateCellPositionCommand) {
+    return !cmd.cellId || this.cells[cmd.sheetId]?.[cmd.cellId]
+      ? CommandResult.Success
+      : CommandResult.InvalidCellId;
   }
 
   private storePreviousLocale() {
