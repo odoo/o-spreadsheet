@@ -9,7 +9,7 @@ import {
   AddDataValidationCommand,
   Command,
   CommandResult,
-  CoreCommand,
+  DeleteContentCommand,
   RemoveDataValidationCommand,
 } from "../../types/commands";
 import { DataValidationRule } from "../../types/data_validation";
@@ -36,6 +36,10 @@ export class DataValidationPlugin
   ] as const;
 
   readonly rules: { [sheet: string]: DataValidationRule[] } = {};
+
+  preHandlers = {
+    DELETE_CONTENT: this.onDeleteContent,
+  };
 
   handlers = {
     REMOVE_DATA_VALIDATION_RULE: this.onRemoveDataValidationRule,
@@ -160,34 +164,34 @@ export class DataValidationPlugin
     return CommandResult.Success;
   }
 
-  beforeHandle(cmd: CoreCommand): void {
-    switch (cmd.type) {
-      case "DELETE_CONTENT":
-        const zones = recomputeZones(cmd.target);
-        const sheetId = cmd.sheetId;
-        for (const zone of zones) {
-          for (let row = zone.top; row <= zone.bottom; row++) {
-            for (let col = zone.left; col <= zone.right; col++) {
-              const dataValidation = this.getValidationRuleForCell({ sheetId, col, row });
-              if (!dataValidation) {
-                continue;
-              }
-              const cell = this.getters.getCell({ sheetId, col, row });
-              if (
-                dataValidation.criterion.type === "isBoolean" ||
-                (dataValidation.criterion.type === "isValueInList" &&
-                  !cell?.isFormula &&
-                  !cell?.content)
-              ) {
-                const rules = this.rules[sheetId];
-                const ranges = [this.getters.getRangeFromSheetXC(sheetId, toXC(col, row))];
-                const adaptedRules = this.removeRangesFromRules(sheetId, ranges, rules);
-                this.history.update("rules", sheetId, adaptedRules);
-              }
-            }
+  /**
+   * Remove the data validation rules on the cleared cells, for the criteria
+   * which are meaningless without a value.
+   */
+  private onDeleteContent(cmd: DeleteContentCommand) {
+    const zones = recomputeZones(cmd.target);
+    const sheetId = cmd.sheetId;
+    for (const zone of zones) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        for (let col = zone.left; col <= zone.right; col++) {
+          const dataValidation = this.getValidationRuleForCell({ sheetId, col, row });
+          if (!dataValidation) {
+            continue;
+          }
+          const cell = this.getters.getCell({ sheetId, col, row });
+          if (
+            dataValidation.criterion.type === "isBoolean" ||
+            (dataValidation.criterion.type === "isValueInList" &&
+              !cell?.isFormula &&
+              !cell?.content)
+          ) {
+            const rules = this.rules[sheetId];
+            const ranges = [this.getters.getRangeFromSheetXC(sheetId, toXC(col, row))];
+            const adaptedRules = this.removeRangesFromRules(sheetId, ranges, rules);
+            this.history.update("rules", sheetId, adaptedRules);
           }
         }
-        break;
+      }
     }
   }
 
