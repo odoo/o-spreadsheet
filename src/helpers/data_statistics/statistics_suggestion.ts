@@ -116,6 +116,48 @@ export function buildOccurrencesItems(
     );
 }
 
+export function buildCategorySumItems(
+  getters: Getters,
+  colCategories: ColumnAnalysis,
+  colValues: ColumnAnalysis,
+  sheetId: string
+): StatValue[] {
+  const zoneCat = colCategories.headerInZone
+    ? { ...colCategories.zone, top: colCategories.zone.top + 1 }
+    : colCategories.zone;
+  const zoneVal = colValues.headerInZone
+    ? { ...colValues.zone, top: colValues.zone.top + 1 }
+    : colValues.zone;
+  const rangeCategories = zoneToXc(zoneCat);
+  const rangeValues = zoneToXc(zoneVal);
+  const sumMap: Map<string, number> = new Map();
+  const catsVals = getters.getEvaluatedCellsInZone(sheetId, zoneCat);
+  const moneyVals = getters.getEvaluatedCellsInZone(sheetId, zoneVal);
+  for (let i = 0; i < catsVals.length; i++) {
+    const catCell = catsVals[i];
+    const moneyCell = moneyVals[i];
+    if (!catCell || !moneyCell) {
+      continue;
+    }
+    const key = toTrimmedLowerCase(String(catCell.value));
+    const amount = Number(moneyCell.value);
+    const validAmount = isNaN(amount) ? 0 : amount;
+    sumMap.set(key, (sumMap.get(key) ?? 0) + validAmount);
+  }
+  return uniqueValues(colCategories.nonEmpty)
+    .filter(({ formattedValue }) => formattedValue !== "")
+    .map(({ value, formattedValue }) =>
+      createStatItem(getters,sheetId, {
+        id: generateItemIdFromValue(value),
+        name: formattedValue,
+        formula: `=SUMIF(${rangeCategories},"${value}",${rangeValues})`,
+        computedValue: {
+          value: sumMap.get(toTrimmedLowerCase(String(value))) ?? 0,
+        }
+      })
+    );
+}
+
 function uniqueValues(
   cells: EvaluatedCell[]
 ): { value: string | number | boolean | null; formattedValue: string }[] {
@@ -195,5 +237,60 @@ export function buildDateStatSections(
     year: { label: _t("Occurrences by year"), items: yearItems },
     month: { label: _t("Occurrences by month"), items: monthItems },
     day: { label: _t("Occurrences by day of week"), items: dayItems },
+  };
+}
+
+export function buildGroupedDateSections(
+  getters: Getters,
+  colDates: ColumnAnalysis,
+  colValues: ColumnAnalysis,
+  sheetId: string
+): DateSections {
+  const zoneDates = colDates.headerInZone
+    ? { ...colDates.zone, top: colDates.zone.top + 1 }
+    : colDates.zone;
+  const zoneValues = colValues.headerInZone
+    ? { ...colValues.zone, top: colValues.zone.top + 1 }
+    : colValues.zone;
+  const rangeDates = zoneToXc(zoneDates);
+  const rangeValues = zoneToXc(zoneValues);
+  const dateValues = colDates.nonEmpty
+    .map((cell) => cell.value)
+    .filter((value): value is number => typeof value === "number");
+  const earliestYear = numberToJsDate(Math.min(...dateValues)).getFullYear();
+  const latestYear = numberToJsDate(Math.max(...dateValues)).getFullYear();
+  const yearRange = Array.from(
+    { length: latestYear - earliestYear + 1 },
+    (_, i) => earliestYear + i
+  );
+  const yearItems = yearRange.map(
+    (year) =>
+      createStatItem(getters, sheetId, {
+        id: String(year),
+        name: getStatIdForYear(year),
+        formula: `=SUMPRODUCT((YEAR(${rangeDates})=${year})*(${rangeValues}))`
+      })
+      // `=SUM(--(YEAR(${range})=${year})*(${rangeValues}))`
+  );
+  const monthItems = Object.entries(MONTHS).map(([month, name]) =>
+    createStatItem(getters, sheetId, {
+      id: getStatIdForMonth(month),
+      name,
+      formula: `=SUMPRODUCT((MONTH(${rangeDates})=${Number(month) + 1})*(${rangeDates}<>"")*(${rangeValues}))`
+      //`=SUM((MONTH(${rangeDates})=${Number(month) + 1})*(${rangeDates}<>"")*(${rangeValues}))`
+    })
+  );
+  const dayItems = Object.entries(DAYS).map(([day, name]) =>
+    createStatItem(getters, sheetId, {
+      id: getStatIdForDay(day),
+      name,
+      formula: `=SUMPRODUCT((WEEKDAY(${rangeDates})=${Number(day) + 1})*(${rangeDates}<>"")*(${rangeValues}))`
+      //`=SUM((WEEKDAY(${rangeDates})=${Number(day) + 1})*(${rangeDates}<>"")*(${rangeValues}))`
+    })
+  );
+  return {
+    year: { label: _t("Sum by year"), items: yearItems },
+    month : { label: _t("Sum by month"), items: monthItems },
+    day : { label: _t("Sum by day of week"), items: dayItems },
   };
 }

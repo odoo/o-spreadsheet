@@ -11,6 +11,7 @@ import { DataAnalysisStore } from "./data_analysis_store";
 import { DateSection } from "./data_statistics/date_section";
 import { GeneralStatsSection } from "./data_statistics/general_stats_section";
 import { Occurrences } from "./data_statistics/occurrences_statistics";
+import { GroupedSums } from "./data_statistics/grouped_sum";
 
 export class DataAnalysisPanel extends OSComponent {
   static template = "o-spreadsheet-DataAnalysisPanel";
@@ -20,6 +21,7 @@ export class DataAnalysisPanel extends OSComponent {
     ChartSuggestionPreview,
     SidePanelCollapsible,
     Occurrences,
+    GroupedSums,
     GeneralStatsSection,
     DateSection,
   };
