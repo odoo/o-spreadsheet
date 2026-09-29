@@ -506,17 +506,33 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private checkDispatchAllowedRemoteCommand(command: CoreCommand): DispatchResult {
     const results = this.coreHandlers.map((handler) => handler.allowDispatch(command));
-    return this.processCommandResults(results);
+    return this.processCommandResults([
+      ...results,
+      ...this.validateCommand(this.coreCommandHandlers, command),
+    ]);
   }
 
   private checkDispatchAllowedCoreCommand(command: CoreCommand) {
-    return this.handlers.map((handler) => handler.allowDispatch(command));
+    return [
+      ...this.handlers.map((handler) => handler.allowDispatch(command)),
+      ...this.validateCommand(this.commandHandlers, command),
+    ];
   }
 
   private checkDispatchAllowedLocalCommand(command: Command) {
-    return this.uiHandlers
-      .filter((handler) => canHandle(handler, command))
-      .map((handler) => handler.allowDispatch(command));
+    return [
+      ...this.uiHandlers
+        .filter((handler) => canHandle(handler, command))
+        .map((handler) => handler.allowDispatch(command)),
+      ...this.validateCommand(this.uiCommandHandlers, command),
+    ];
+  }
+
+  /**
+   * Run the validators registered in the given registry for the given command.
+   */
+  private validateCommand(registry: CommandHandlerRegistry, command: Command) {
+    return registry.getValidators(command.type).map((validator) => validator(command));
   }
 
   private finalize() {

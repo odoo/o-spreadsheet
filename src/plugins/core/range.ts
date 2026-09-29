@@ -14,7 +14,13 @@ import { recomputeZones } from "../../helpers/recompute_zones";
 import { rangeReference, splitReference } from "../../helpers/references";
 
 import { intersection, isZoneInside, isZoneValid, unionUnboundedZones } from "../../helpers/zones";
-import { CommandHandler, CommandResult, CommandsHandlers, CoreCommand } from "../../types/commands";
+import {
+  CommandHandler,
+  CommandResult,
+  CommandsHandlers,
+  CommandsValidators,
+  CoreCommand,
+} from "../../types/commands";
 import { CellErrorType } from "../../types/errors";
 import { CoreGetters } from "../../types/getters";
 import {
@@ -31,6 +37,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   private getters: CoreGetters;
   private providers: Array<RangeProvider["adaptRanges"]> = [];
   private isAdaptingRanges: boolean = false;
+  readonly validators: CommandsValidators<CoreCommand> = {};
   readonly preHandlers: CommandsHandlers<CoreCommand> = {};
   readonly handlers: CommandsHandlers<CoreCommand> = {
     "*coreTypes": this.throwDispatchErrorIfAdapting,

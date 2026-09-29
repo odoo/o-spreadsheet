@@ -46,6 +46,7 @@ import { CorePluginConstructor } from "../../src/plugins/core_plugin";
 import { UIPluginConstructor } from "../../src/plugins/ui_plugin";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { Registry } from "../../src/registries/registry";
+import { CommandResult } from "../../src/types/commands";
 import { PropsOf } from "../../src/types/props_of";
 
 import {
@@ -150,6 +151,14 @@ export function spyUiPluginHandle(model: Model): jest.Mock {
     return dispatchToHandlers.call(this, registry, command);
   };
   return spy;
+}
+
+/**
+ * Force the given command to be rejected with the given reason, by registering
+ * an additional validator in the model.
+ */
+export function rejectCommand(model: Model, type: CommandTypes, reason: CommandResult) {
+  model["commandHandlers"].addValidator(type, () => reason);
 }
 
 export function getPlugin<T extends new (...args: any) => any>(
