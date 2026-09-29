@@ -3,7 +3,7 @@ import { isValueFiltered } from "../../helpers/filter_helpers";
 import { deepCopy, getUniqueText, range } from "../../helpers/misc";
 import { positions, toZone, zoneToDimension } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
-import { CommandResult, EvaluationCommand, UpdateFilterCommand } from "../../types/commands";
+import { CommandResult, UpdateFilterCommand } from "../../types/commands";
 import { GenericCriterion } from "../../types/generic_criterion";
 import { CellPosition, FilterId, UID } from "../../types/misc";
 import { CriterionFilter, DataFilterValue } from "../../types/table";
@@ -26,59 +26,66 @@ export class FilterEvaluationPlugin extends EvaluationPlugin {
   hiddenRows: Record<UID, Set<number> | undefined> = {};
   isEvaluationDirty = false;
 
-  allowDispatch(cmd: EvaluationCommand): CommandResult {
-    switch (cmd.type) {
-      case "UPDATE_FILTER":
-        if (!this.getters.getFilterId(cmd)) {
-          return CommandResult.FilterNotFound;
-        }
-        break;
+  validators = {
+    UPDATE_FILTER: this.checkFilterExists,
+  };
+
+  handlers = {
+    UPDATE_CELL: this.invalidateEvaluation,
+    REMOVE_TABLE: this.invalidateEvaluation,
+    UPDATE_TABLE: this.invalidateEvaluation,
+    UPDATE_FILTER: this.onUpdateFilter,
+    HIDE_COLUMNS_ROWS: this.refreshHiddenRows,
+    UNHIDE_COLUMNS_ROWS: this.refreshHiddenRows,
+    GROUP_HEADERS: this.refreshHiddenRows,
+    UNGROUP_HEADERS: this.refreshHiddenRows,
+    FOLD_HEADER_GROUP: this.refreshHiddenRows,
+    UNFOLD_HEADER_GROUP: this.refreshHiddenRows,
+    FOLD_ALL_HEADER_GROUPS: this.refreshHiddenRows,
+    UNFOLD_ALL_HEADER_GROUPS: this.refreshHiddenRows,
+    FOLD_HEADER_GROUPS_IN_ZONE: this.refreshHiddenRows,
+    UNFOLD_HEADER_GROUPS_IN_ZONE: this.refreshHiddenRows,
+    CREATE_SHEET: this.onCreateSheet,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    ADD_COLUMNS_ROWS: this.invalidateEvaluation,
+    REMOVE_COLUMNS_ROWS: this.invalidateEvaluation,
+    UNDO: this.invalidateEvaluation,
+    REDO: this.invalidateEvaluation,
+    START: this.onStart,
+    EVALUATE_CELLS: this.invalidateEvaluation,
+    // DELETE_SHEET is deliberately not handled: keeping the residual data lets an
+    // undo right after a DELETE_SHEET restore the filter values.
+  };
+
+  private onStart() {
+    for (const sheetId of this.getters.getSheetIds()) {
+      this.filterValues[sheetId] = {};
     }
-    return CommandResult.Success;
   }
 
-  handle(cmd: EvaluationCommand) {
-    switch (cmd.type) {
-      case "UNDO":
-      case "REDO":
-      case "UPDATE_CELL":
-      case "EVALUATE_CELLS":
-      case "REMOVE_TABLE":
-      case "ADD_COLUMNS_ROWS":
-      case "REMOVE_COLUMNS_ROWS":
-      case "UPDATE_TABLE":
-        this.isEvaluationDirty = true;
-        break;
-      case "START":
-        for (const sheetId of this.getters.getSheetIds()) {
-          this.filterValues[sheetId] = {};
-        }
-        break;
-      case "CREATE_SHEET":
-        this.filterValues[cmd.sheetId] = {};
-        break;
-      case "HIDE_COLUMNS_ROWS":
-      case "UNHIDE_COLUMNS_ROWS":
-      case "GROUP_HEADERS":
-      case "UNGROUP_HEADERS":
-      case "FOLD_HEADER_GROUP":
-      case "UNFOLD_HEADER_GROUP":
-      case "FOLD_ALL_HEADER_GROUPS":
-      case "UNFOLD_ALL_HEADER_GROUPS":
-      case "FOLD_HEADER_GROUPS_IN_ZONE":
-      case "UNFOLD_HEADER_GROUPS_IN_ZONE":
-        this.updateHiddenRows(cmd.sheetId);
-        break;
-      case "UPDATE_FILTER":
-        this.updateFilter(cmd);
-        this.updateHiddenRows(cmd.sheetId);
-        break;
-      case "DUPLICATE_SHEET":
-        this.filterValues[cmd.sheetIdTo] = deepCopy(this.filterValues[cmd.sheetId]);
-        break;
-      // If we don't handle DELETE_SHEET, on one hand we will have some residual data, on the other hand we keep the data
-      // on DELETE_SHEET followed by undo
-    }
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    this.filterValues[cmd.sheetIdTo] = deepCopy(this.filterValues[cmd.sheetId]);
+  }
+
+  private onCreateSheet(cmd: { sheetId: UID }) {
+    this.filterValues[cmd.sheetId] = {};
+  }
+
+  private refreshHiddenRows(cmd: { sheetId: UID }) {
+    this.updateHiddenRows(cmd.sheetId);
+  }
+
+  private onUpdateFilter(cmd: UpdateFilterCommand) {
+    this.updateFilter(cmd);
+    this.updateHiddenRows(cmd.sheetId);
+  }
+
+  private invalidateEvaluation() {
+    this.isEvaluationDirty = true;
+  }
+
+  private checkFilterExists(cmd: UpdateFilterCommand) {
+    return this.getters.getFilterId(cmd) ? CommandResult.Success : CommandResult.FilterNotFound;
   }
 
   finalize() {

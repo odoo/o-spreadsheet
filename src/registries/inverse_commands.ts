@@ -1,9 +1,12 @@
+/**
+ * Inverse functions for core commands. They are wired to their command in
+ * `registerCommand`, in `src/command_registry.ts`.
+ */
 import { groupConsecutive } from "../helpers/misc";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
   AddPivotCommand,
-  CoreCommand,
   CreateChartCommand,
   CreateFigureCommand,
   CreateSheetCommand,
@@ -21,42 +24,9 @@ import {
   RenameSheetCommand,
   UnhideColumnsRowsCommand,
   UnlockSheetCommand,
-  coreTypes,
 } from "../types/commands";
-import { Registry } from "./registry";
 
-type InverseFunction = (cmd: CoreCommand) => CoreCommand[];
-
-export const inverseCommandRegistry = new Registry<InverseFunction>()
-
-  .add("ADD_COLUMNS_ROWS", inverseAddColumnsRows)
-  .add("REMOVE_COLUMNS_ROWS", inverseRemoveColumnsRows)
-  .add("ADD_MERGE", inverseAddMerge)
-  .add("REMOVE_MERGE", inverseRemoveMerge)
-  .add("CREATE_SHEET", inverseCreateSheet)
-  .add("DELETE_SHEET", inverseDeleteSheet)
-  .add("DUPLICATE_SHEET", inverseDuplicateSheet)
-  .add("CREATE_FIGURE", inverseCreateFigure)
-  .add("CREATE_CHART", inverseCreateChart)
-  .add("HIDE_COLUMNS_ROWS", inverseHideColumnsRows)
-  .add("UNHIDE_COLUMNS_ROWS", inverseUnhideColumnsRows)
-  .add("CREATE_TABLE_STYLE", inverseCreateTableStyle)
-  .add("ADD_PIVOT", inverseAddPivot)
-  .add("RENAME_SHEET", inverseRenameSheet)
-  .add("LOCK_SHEET", inverseLockSheet)
-  .add("UNLOCK_SHEET", inverseUnlockSheet);
-
-for (const cmd of coreTypes.values()) {
-  if (!inverseCommandRegistry.contains(cmd)) {
-    inverseCommandRegistry.add(cmd, identity);
-  }
-}
-
-function identity(cmd: CoreCommand): CoreCommand[] {
-  return [cmd];
-}
-
-function inverseAddPivot(cmd: AddPivotCommand): RemovePivotCommand[] {
+export function inverseAddPivot(cmd: AddPivotCommand): RemovePivotCommand[] {
   return [
     {
       type: "REMOVE_PIVOT",
@@ -65,7 +35,7 @@ function inverseAddPivot(cmd: AddPivotCommand): RemovePivotCommand[] {
   ];
 }
 
-function inverseAddColumnsRows(cmd: AddColumnsRowsCommand): RemoveColumnsRowsCommand[] {
+export function inverseAddColumnsRows(cmd: AddColumnsRowsCommand): RemoveColumnsRowsCommand[] {
   const elements: number[] = [];
   let start = cmd.base;
   if (cmd.position === "after") {
@@ -85,23 +55,23 @@ function inverseAddColumnsRows(cmd: AddColumnsRowsCommand): RemoveColumnsRowsCom
   ];
 }
 
-function inverseAddMerge(cmd: AddMergeCommand): RemoveMergeCommand[] {
+export function inverseAddMerge(cmd: AddMergeCommand): RemoveMergeCommand[] {
   return [{ type: "REMOVE_MERGE", sheetId: cmd.sheetId, target: cmd.target }];
 }
 
-function inverseRemoveMerge(cmd: RemoveMergeCommand): AddMergeCommand[] {
+export function inverseRemoveMerge(cmd: RemoveMergeCommand): AddMergeCommand[] {
   return [{ type: "ADD_MERGE", sheetId: cmd.sheetId, target: cmd.target }];
 }
 
-function inverseCreateSheet(cmd: CreateSheetCommand): DeleteSheetCommand[] {
+export function inverseCreateSheet(cmd: CreateSheetCommand): DeleteSheetCommand[] {
   return [{ type: "DELETE_SHEET", sheetId: cmd.sheetId, sheetName: cmd.name }];
 }
 
-function inverseDuplicateSheet(cmd: DuplicateSheetCommand): DeleteSheetCommand[] {
+export function inverseDuplicateSheet(cmd: DuplicateSheetCommand): DeleteSheetCommand[] {
   return [{ type: "DELETE_SHEET", sheetId: cmd.sheetIdTo, sheetName: "" }];
 }
 
-function inverseRemoveColumnsRows(cmd: RemoveColumnsRowsCommand): AddColumnsRowsCommand[] {
+export function inverseRemoveColumnsRows(cmd: RemoveColumnsRowsCommand): AddColumnsRowsCommand[] {
   const commands: AddColumnsRowsCommand[] = [];
   const elements = [...cmd.elements].sort((a, b) => a - b);
   for (const group of groupConsecutive(elements)) {
@@ -120,22 +90,24 @@ function inverseRemoveColumnsRows(cmd: RemoveColumnsRowsCommand): AddColumnsRows
   return commands;
 }
 
-function inverseDeleteSheet(cmd: DeleteSheetCommand): CreateSheetCommand[] {
+export function inverseDeleteSheet(cmd: DeleteSheetCommand): CreateSheetCommand[] {
   return [{ type: "CREATE_SHEET", sheetId: cmd.sheetId, position: 1, name: cmd.sheetName }];
 }
 
-function inverseCreateFigure(cmd: CreateFigureCommand): DeleteFigureCommand[] {
+export function inverseCreateFigure(cmd: CreateFigureCommand): DeleteFigureCommand[] {
   return [{ type: "DELETE_FIGURE", figureId: cmd.figureId, sheetId: cmd.sheetId }];
 }
 
-function inverseCreateChart(cmd: CreateChartCommand): (DeleteFigureCommand | DeleteChartCommand)[] {
+export function inverseCreateChart(
+  cmd: CreateChartCommand
+): (DeleteFigureCommand | DeleteChartCommand)[] {
   return [
     { type: "DELETE_CHART", chartId: cmd.chartId, sheetId: cmd.sheetId },
     { type: "DELETE_FIGURE", figureId: cmd.figureId, sheetId: cmd.sheetId },
   ];
 }
 
-function inverseHideColumnsRows(cmd: HideColumnsRowsCommand): UnhideColumnsRowsCommand[] {
+export function inverseHideColumnsRows(cmd: HideColumnsRowsCommand): UnhideColumnsRowsCommand[] {
   return [
     {
       type: "UNHIDE_COLUMNS_ROWS",
@@ -146,7 +118,7 @@ function inverseHideColumnsRows(cmd: HideColumnsRowsCommand): UnhideColumnsRowsC
   ];
 }
 
-function inverseUnhideColumnsRows(cmd: UnhideColumnsRowsCommand): HideColumnsRowsCommand[] {
+export function inverseUnhideColumnsRows(cmd: UnhideColumnsRowsCommand): HideColumnsRowsCommand[] {
   return [
     {
       type: "HIDE_COLUMNS_ROWS",
@@ -157,11 +129,11 @@ function inverseUnhideColumnsRows(cmd: UnhideColumnsRowsCommand): HideColumnsRow
   ];
 }
 
-function inverseCreateTableStyle(cmd: CreateTableStyleCommand): RemoveTableStyleCommand[] {
+export function inverseCreateTableStyle(cmd: CreateTableStyleCommand): RemoveTableStyleCommand[] {
   return [{ type: "REMOVE_TABLE_STYLE", tableStyleId: cmd.tableStyleId }];
 }
 
-function inverseRenameSheet(cmd: RenameSheetCommand): RenameSheetCommand[] {
+export function inverseRenameSheet(cmd: RenameSheetCommand): RenameSheetCommand[] {
   return [
     {
       type: "RENAME_SHEET",
@@ -172,7 +144,7 @@ function inverseRenameSheet(cmd: RenameSheetCommand): RenameSheetCommand[] {
   ];
 }
 
-function inverseLockSheet(cmd: LockSheetCommand): UnlockSheetCommand[] {
+export function inverseLockSheet(cmd: LockSheetCommand): UnlockSheetCommand[] {
   return [
     {
       type: "UNLOCK_SHEET",
@@ -181,7 +153,7 @@ function inverseLockSheet(cmd: LockSheetCommand): UnlockSheetCommand[] {
   ];
 }
 
-function inverseUnlockSheet(cmd: UnlockSheetCommand): LockSheetCommand[] {
+export function inverseUnlockSheet(cmd: UnlockSheetCommand): LockSheetCommand[] {
   return [
     {
       type: "LOCK_SHEET",

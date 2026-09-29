@@ -1,3 +1,4 @@
+import type { CommandSetName } from "../command_registry";
 import { Format } from "./format";
 import {
   Border,
@@ -121,267 +122,6 @@ export function isZoneDependent(
   cmd: CoreCommand
 ): cmd is Extract<CoreCommand, ZoneDependentCommand> {
   return "sheetId" in cmd && "zone" in cmd;
-}
-
-export const invalidateEvaluationCommands = new Set<CommandTypes>([
-  "RENAME_SHEET",
-  "DELETE_SHEET",
-  "CREATE_SHEET",
-  "DUPLICATE_SHEET",
-  "ADD_COLUMNS_ROWS",
-  "REMOVE_COLUMNS_ROWS",
-  "UNDO",
-  "REDO",
-  "ADD_MERGE",
-  "REMOVE_MERGE",
-  "UPDATE_LOCALE",
-  "ADD_PIVOT",
-  "UPDATE_PIVOT",
-  "INSERT_PIVOT",
-  "RENAME_PIVOT",
-  "REMOVE_PIVOT",
-  "DUPLICATE_PIVOT",
-  "CREATE_NAMED_RANGE",
-  "UPDATE_NAMED_RANGE",
-  "DELETE_NAMED_RANGE",
-]);
-
-export const invalidateChartEvaluationCommands = new Set<CommandTypes>([
-  "EVALUATE_CELLS",
-  "EVALUATE_CHARTS",
-  "UPDATE_CELL",
-  "UNHIDE_COLUMNS_ROWS",
-  "HIDE_COLUMNS_ROWS",
-  "GROUP_HEADERS",
-  "UNGROUP_HEADERS",
-  "FOLD_ALL_HEADER_GROUPS",
-  "FOLD_HEADER_GROUP",
-  "FOLD_HEADER_GROUPS_IN_ZONE",
-  "UNFOLD_ALL_HEADER_GROUPS",
-  "UNFOLD_HEADER_GROUP",
-  "UNFOLD_HEADER_GROUPS_IN_ZONE",
-  "UPDATE_TABLE",
-  "UPDATE_FILTER",
-  "UNDO",
-  "REDO",
-]);
-
-export const invalidateDependenciesCommands = new Set<CommandTypes>(["MOVE_RANGES"]);
-
-export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
-  "EVALUATE_CELLS",
-  "ADD_CONDITIONAL_FORMAT",
-  "REMOVE_CONDITIONAL_FORMAT",
-  "CHANGE_CONDITIONAL_FORMAT_PRIORITY",
-]);
-
-export const invalidateBordersCommands = new Set<CommandTypes>([
-  "SET_BORDER",
-  "SET_ZONE_BORDERS",
-  "SET_BORDERS_ON_TARGET",
-]);
-
-export const invalidSubtotalFormulasCommands = new Set<CommandTypes>([
-  "UNHIDE_COLUMNS_ROWS",
-  "HIDE_COLUMNS_ROWS",
-  "GROUP_HEADERS",
-  "UNGROUP_HEADERS",
-  "FOLD_ALL_HEADER_GROUPS",
-  "FOLD_HEADER_GROUP",
-  "FOLD_HEADER_GROUPS_IN_ZONE",
-  "UNFOLD_ALL_HEADER_GROUPS",
-  "UNFOLD_HEADER_GROUP",
-  "UNFOLD_HEADER_GROUPS_IN_ZONE",
-  "UPDATE_TABLE",
-  "UPDATE_FILTER",
-]);
-
-export const readonlyAllowedCommands = new Set<CommandTypes>([
-  "START",
-  "ACTIVATE_SHEET",
-
-  "COPY",
-
-  "EVALUATE_CELLS",
-  "EVALUATE_CHARTS",
-
-  "SET_FORMULA_VISIBILITY",
-  "SET_AUTOMATIC_EVALUATION",
-
-  "UPDATE_FILTER",
-  "UPDATE_CHART",
-  "UPDATE_CHART_REGION",
-  "UPDATE_CAROUSEL_ACTIVE_ITEM",
-
-  "UPDATE_PIVOT",
-
-  "UPDATE_COLOR_SCHEME",
-]);
-
-export const lockedSheetAllowedCommands = new Set<Command["type"]>([
-  // core commands
-  "LOCK_SHEET",
-  "UNLOCK_SHEET",
-  "MOVE_SHEET",
-  "DUPLICATE_SHEET",
-  "CREATE_SHEET",
-  "HIDE_SHEET",
-  "SHOW_SHEET",
-
-  // local commands
-  "COPY",
-  "START",
-  "ACTIVATE_SHEET",
-  "SET_FORMULA_VISIBILITY",
-  "SELECT_FIGURE", // not  sure
-  "EVALUATE_CHARTS",
-  "EVALUATE_CELLS",
-  "REQUEST_UNDO",
-  "REQUEST_REDO",
-  "REPLACE_SEARCH",
-  "UPDATE_CAROUSEL_ACTIVE_ITEM",
-  "DUPLICATE_PIVOT_IN_NEW_SHEET",
-  "UPDATE_FILTER",
-  "ACTIVATE_NEXT_SHEET",
-  "ACTIVATE_PREVIOUS_SHEET",
-]);
-
-export const coreTypes = new Set<CoreCommandTypes>([
-  /** CELLS */
-  "UPDATE_CELL",
-  "UPDATE_CELL_POSITION",
-  "CLEAR_CELL",
-  "CLEAR_CELLS",
-  "DELETE_CONTENT",
-
-  /** GRID SHAPE */
-  "ADD_COLUMNS_ROWS",
-  "REMOVE_COLUMNS_ROWS",
-  "RESIZE_COLUMNS_ROWS",
-  "HIDE_COLUMNS_ROWS",
-  "UNHIDE_COLUMNS_ROWS",
-  "SET_GRID_LINES_VISIBILITY",
-  "UNFREEZE_COLUMNS",
-  "UNFREEZE_ROWS",
-  "FREEZE_COLUMNS",
-  "FREEZE_ROWS",
-  "UNFREEZE_COLUMNS_ROWS",
-
-  /** MERGE */
-  "ADD_MERGE",
-  "REMOVE_MERGE",
-
-  /** SHEETS MANIPULATION */
-  "CREATE_SHEET",
-  "DELETE_SHEET",
-  "DUPLICATE_SHEET",
-  "MOVE_SHEET",
-  "RENAME_SHEET",
-  "COLOR_SHEET",
-  "SET_SHEET_BACKGROUND_COLOR",
-  "HIDE_SHEET",
-  "SHOW_SHEET",
-  "LOCK_SHEET",
-  "UNLOCK_SHEET",
-
-  /** RANGES MANIPULATION */
-  "MOVE_RANGES",
-
-  /** CONDITIONAL FORMAT */
-  "ADD_CONDITIONAL_FORMAT",
-  "REMOVE_CONDITIONAL_FORMAT",
-  "CHANGE_CONDITIONAL_FORMAT_PRIORITY",
-
-  /** FIGURES */
-  "CREATE_FIGURE",
-  "DELETE_FIGURE",
-  "UPDATE_FIGURE",
-  "CREATE_CAROUSEL",
-  "UPDATE_CAROUSEL",
-
-  /** FORMATTING */
-  "SET_FORMATTING",
-  "CLEAR_FORMATTING",
-  "SET_BORDER",
-  "SET_ZONE_BORDERS",
-  "SET_BORDERS_ON_TARGET",
-
-  /** CHART */
-  "CREATE_CHART",
-  "UPDATE_CHART",
-  "DELETE_CHART",
-
-  /** FILTERS */
-  "CREATE_TABLE",
-  "REMOVE_TABLE",
-  "UPDATE_TABLE",
-  "CREATE_TABLE_STYLE",
-  "REMOVE_TABLE_STYLE",
-
-  /** IMAGE */
-  "CREATE_IMAGE",
-
-  /** HEADER GROUP */
-  "GROUP_HEADERS",
-  "UNGROUP_HEADERS",
-  "UNFOLD_HEADER_GROUP",
-  "FOLD_HEADER_GROUP",
-  "FOLD_ALL_HEADER_GROUPS",
-  "UNFOLD_ALL_HEADER_GROUPS",
-  "UNFOLD_HEADER_GROUPS_IN_ZONE",
-  "FOLD_HEADER_GROUPS_IN_ZONE",
-
-  /** DATA VALIDATION */
-  "ADD_DATA_VALIDATION_RULE",
-  "REMOVE_DATA_VALIDATION_RULE",
-
-  /** MISC */
-  "UPDATE_LOCALE",
-  "CREATE_NAMED_RANGE",
-  "UPDATE_NAMED_RANGE",
-  "DELETE_NAMED_RANGE",
-
-  /** PIVOT */
-  "ADD_PIVOT",
-  "UPDATE_PIVOT",
-  "INSERT_PIVOT",
-  "RENAME_PIVOT",
-  "REMOVE_PIVOT",
-  "DUPLICATE_PIVOT",
-]);
-
-export const dispatcheableEvaluationCommandTypes =
-  new Set<DispatcheabledispatcheableEvaluationCommandTypes>(["EVALUATE_CELLS", "EVALUATE_CHARTS"]);
-
-export const evaluationCommandTypes = new Set<dispatcheableEvaluationCommandTypes>([
-  ...coreTypes,
-  ...dispatcheableEvaluationCommandTypes,
-  "UNDO",
-  "REDO",
-  "START",
-  "UPDATE_FILTER",
-  "SET_AUTOMATIC_EVALUATION",
-  "REFRESH_PIVOT",
-  "PIVOT_START_PRESENCE_TRACKING",
-  "PIVOT_STOP_PRESENCE_TRACKING",
-]);
-
-export function isCoreCommand(cmd: Command): cmd is CoreCommand {
-  return coreTypes.has(cmd.type as any);
-}
-
-export function isDispatcheableEvaluationCommand(
-  cmd: Command
-): cmd is DispatcheableEvaluationCommand {
-  return dispatcheableEvaluationCommandTypes.has(cmd.type as any);
-}
-
-export function isEvaluationCommand(cmd: Command): cmd is EvaluationCommand {
-  return evaluationCommandTypes.has(cmd.type as any);
-}
-
-export function canExecuteInReadonly(cmd: Command): boolean {
-  return readonlyAllowedCommands.has(cmd.type);
 }
 
 //#region Core Commands
@@ -1603,12 +1343,58 @@ export const enum CommandResult {
   NoChangeInAutomaticEvaluation = "NoChangeInAutomaticEvaluation",
 }
 
-export interface CommandHandler<T> {
-  allowDispatch(command: T): CommandResult | CommandResult[];
-  beforeHandle(command: T): void;
-  handle(command: T): void;
+export interface CommandHandler<T extends Command> {
   finalize(): void;
+  validators: CommandsValidators<T>;
+  preHandlers: CommandsHandlers<T>;
+  handlers: CommandsHandlers<T>;
 }
+
+export type SingleCommandHandler<C extends Command> = (cmd: C) => void;
+export type CommandsHandlers<T extends Command> = {
+  [C in T["type"]]?: SingleCommandHandler<Extract<T, { type: C }>>;
+} & {
+  [S in CommandSetName]?: SingleCommandHandler<T>;
+};
+
+export type CommandsHandlersList<T extends Command> = {
+  [C in CommandTypes]?: SingleCommandHandler<Extract<T, { type: C }>>[];
+};
+
+export type SingleCommandValidator<C extends Command> = (cmd: C) => CommandResult | CommandResult[];
+export type CommandsValidators<T extends Command> = {
+  [C in T["type"]]?: SingleCommandValidator<Extract<T, { type: C }>>;
+} & {
+  [S in CommandSetName]?: SingleCommandValidator<T>;
+};
+
+export type CommandsValidatorsList<T extends Command> = {
+  [C in CommandTypes]?: SingleCommandValidator<Extract<T, { type: C }>>[];
+};
+
+export type CommandHandlerRegistry = {
+  getHandlers<C extends CommandTypes>(
+    cmd: C
+  ): SingleCommandHandler<Extract<Command, { type: C }>>[];
+  getPreHandlers<C extends CommandTypes>(
+    cmd: C
+  ): SingleCommandHandler<Extract<Command, { type: C }>>[];
+  addHandler<C extends CommandTypes>(
+    cmd: C,
+    handler: SingleCommandHandler<Extract<Command, { type: C }>>
+  ): void;
+  addPreHandler<C extends CommandTypes>(
+    cmd: C,
+    handler: SingleCommandHandler<Extract<Command, { type: C }>>
+  ): void;
+  getValidators<C extends CommandTypes>(
+    cmd: C
+  ): SingleCommandValidator<Extract<Command, { type: C }>>[];
+  addValidator<C extends CommandTypes>(
+    cmd: C,
+    validator: SingleCommandValidator<Extract<Command, { type: C }>>
+  ): void;
+};
 
 export interface CommandDispatcher {
   dispatch<T extends CommandTypes, C extends Extract<Command, { type: T }>>(

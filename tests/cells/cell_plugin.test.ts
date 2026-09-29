@@ -1,4 +1,4 @@
-import { CellValueType, CommandResult, CoreCommand, CorePlugin, Model } from "../../src";
+import { CellValueType, CommandResult, CorePlugin, Model } from "../../src";
 import { LINK_COLOR } from "../../src/constants";
 import { urlRepresentation } from "../../src/helpers/links";
 import { buildSheetLink } from "../../src/helpers/misc";
@@ -570,11 +570,9 @@ describe("Cell dependencies and tokens are updated", () => {
     let counter = 0;
     class SubCommandCounterRange extends CorePlugin {
       static getters = [];
-      handle(command: CoreCommand) {
-        if (command.type === "UPDATE_CELL") {
-          counter++;
-        }
-      }
+      handlers = {
+        UPDATE_CELL: () => counter++,
+      };
     }
     addTestPlugin(corePluginRegistry, SubCommandCounterRange);
     const model = new Model();

@@ -8,7 +8,13 @@ import {
   buildTableStyle as buildCustomTableStyle,
 } from "../../helpers/table_presets";
 import { _t } from "../../translation";
-import { CommandResult, CoreCommand } from "../../types/commands";
+import {
+  CommandResult,
+  CreateTableCommand,
+  CreateTableStyleCommand,
+  RemoveTableStyleCommand,
+  UpdateTableCommand,
+} from "../../types/commands";
 import { TableStyle } from "../../types/table";
 import { TableStyleData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
@@ -26,50 +32,55 @@ export class TableStylePlugin extends CorePlugin<TableStylesState> implements Ta
   ] as const;
   readonly styles: { [styleId: string]: TableStyle } = {};
 
-  allowDispatch(cmd: CoreCommand): CommandResult | CommandResult[] {
-    switch (cmd.type) {
-      case "CREATE_TABLE":
-      case "UPDATE_TABLE":
-        if (cmd.config?.styleId && !this.styles[cmd.config.styleId]) {
-          return CommandResult.InvalidTableConfig;
-        }
-        break;
-      case "CREATE_TABLE_STYLE":
-        if (!TABLE_STYLES_TEMPLATES[cmd.templateName]) {
-          return CommandResult.InvalidTableStyle;
-        }
-        try {
-          toHex(cmd.primaryColor);
-        } catch (e) {
-          return CommandResult.InvalidTableStyle;
-        }
-        break;
+  private checkTableStyleExists(cmd: CreateTableCommand | UpdateTableCommand) {
+    if (cmd.config?.styleId && !this.styles[cmd.config.styleId]) {
+      return CommandResult.InvalidTableConfig;
     }
     return CommandResult.Success;
   }
 
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "CREATE_TABLE_STYLE":
-        const style = buildCustomTableStyle(cmd.tableStyleName, cmd.templateName, cmd.primaryColor);
-        this.history.update("styles", cmd.tableStyleId, style);
-        break;
-      case "REMOVE_TABLE_STYLE":
-        const styles = { ...this.styles };
-        delete styles[cmd.tableStyleId];
-        this.history.update("styles", styles);
-        for (const sheetId of this.getters.getSheetIds()) {
-          for (const table of this.getters.getCoreTables(sheetId)) {
-            if (table.config.styleId === cmd.tableStyleId) {
-              this.dispatch("UPDATE_TABLE", {
-                sheetId,
-                zone: table.range.zone,
-                config: { styleId: DEFAULT_TABLE_CONFIG.styleId },
-              });
-            }
-          }
+  private checkTableStyleIsValid(cmd: CreateTableStyleCommand) {
+    if (!TABLE_STYLES_TEMPLATES[cmd.templateName]) {
+      return CommandResult.InvalidTableStyle;
+    }
+    try {
+      toHex(cmd.primaryColor);
+    } catch (e) {
+      return CommandResult.InvalidTableStyle;
+    }
+    return CommandResult.Success;
+  }
+
+  validators = {
+    CREATE_TABLE: this.checkTableStyleExists,
+    UPDATE_TABLE: this.checkTableStyleExists,
+    CREATE_TABLE_STYLE: this.checkTableStyleIsValid,
+  };
+
+  handlers = {
+    CREATE_TABLE_STYLE: this.onCreateTableStyle,
+    REMOVE_TABLE_STYLE: this.onRemoveTableStyle,
+  };
+
+  private onCreateTableStyle(cmd: CreateTableStyleCommand) {
+    const style = buildCustomTableStyle(cmd.tableStyleName, cmd.templateName, cmd.primaryColor);
+    this.history.update("styles", cmd.tableStyleId, style);
+  }
+
+  private onRemoveTableStyle(cmd: RemoveTableStyleCommand) {
+    const styles = { ...this.styles };
+    delete styles[cmd.tableStyleId];
+    this.history.update("styles", styles);
+    for (const sheetId of this.getters.getSheetIds()) {
+      for (const table of this.getters.getCoreTables(sheetId)) {
+        if (table.config.styleId === cmd.tableStyleId) {
+          this.dispatch("UPDATE_TABLE", {
+            sheetId,
+            zone: table.range.zone,
+            config: { styleId: DEFAULT_TABLE_CONFIG.styleId },
+          });
         }
-        break;
+      }
     }
   }
 

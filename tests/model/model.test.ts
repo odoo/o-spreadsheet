@@ -8,7 +8,7 @@ import {
   DispatchResult,
   EvaluationCommand,
   EvaluationPlugin,
-  coreTypes,
+  registerCommand,
 } from "../../src";
 import { MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
@@ -20,6 +20,7 @@ import {
   statefulUIPluginRegistry,
 } from "../../src/plugins/plugin_registries";
 import { UIPlugin } from "../../src/plugins/ui_plugin";
+import { CommandsHandlers, CreateSheetCommand, UpdateCellCommand } from "../../src/types/commands";
 import { ModelConfig } from "../../src/types/model";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
@@ -40,28 +41,30 @@ import {
 } from "../test_helpers/getters_helpers";
 import { addTestPlugin, nextTick } from "../test_helpers/helpers";
 
+//@ts-ignore
+registerCommand("MY_CMD_1", { category: "core" });
+//@ts-ignore
+registerCommand("MY_CMD_2", { category: "core" });
+
 describe("Model", () => {
   test("core plugin can refuse command from UI plugin", () => {
     class MyCorePlugin extends CorePlugin {
-      allowDispatch(cmd: CoreCommand) {
-        if (cmd.type === "UPDATE_CELL") {
-          return CommandResult.CancelledForUnknownReason;
-        }
-        return CommandResult.Success;
-      }
+      validators = {
+        UPDATE_CELL: () => CommandResult.CancelledForUnknownReason,
+      };
     }
     let result: DispatchResult | undefined = undefined;
     class MyUIPlugin extends UIPlugin {
-      handle(cmd: Command) {
-        if (cmd.type === "COPY") {
+      handlers = {
+        COPY: () => {
           result = this.dispatch("UPDATE_CELL", {
             col: 0,
             row: 0,
             sheetId: this.getters.getActiveSheetId(),
             content: "hello",
           });
-        }
-      }
+        },
+      };
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     addTestPlugin(corePluginRegistry, MyCorePlugin);
@@ -73,22 +76,19 @@ describe("Model", () => {
   test("core plugin cannot refuse command from core plugin", () => {
     let result: DispatchResult | undefined = undefined;
     class MyCorePlugin extends CorePlugin {
-      allowDispatch(cmd: CoreCommand) {
-        if (cmd.type === "UPDATE_CELL") {
-          return CommandResult.CancelledForUnknownReason;
-        }
-        return CommandResult.Success;
-      }
-      handle(cmd: CoreCommand) {
-        if (cmd.type === "CREATE_SHEET") {
+      validators = {
+        UPDATE_CELL: () => CommandResult.CancelledForUnknownReason,
+      };
+      handlers = {
+        CREATE_SHEET: (cmd: CreateSheetCommand) => {
           result = this.dispatch("UPDATE_CELL", {
             col: 0,
             row: 0,
             sheetId: cmd.sheetId,
             content: "Hello",
           });
-        }
-      }
+        },
+      };
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
@@ -100,21 +100,19 @@ describe("Model", () => {
   test("UI plugin cannot refuse command from UI plugin", () => {
     let result: DispatchResult | undefined = undefined;
     class MyUIPlugin extends UIPlugin {
-      allowDispatch(cmd: Command) {
-        if (cmd.type === "PASTE") {
-          return CommandResult.CancelledForUnknownReason;
-        }
-        return CommandResult.Success;
-      }
-      handle(cmd: Command) {
-        if (cmd.type === "COPY") {
+      validators = {
+        PASTE: () => CommandResult.CancelledForUnknownReason,
+      };
+      handlers = {
+        COPY: () => {
           result = this.dispatch("PASTE", {
             target: [toZone("A2")],
           });
-        } else if (cmd.type === "PASTE") {
+        },
+        PASTE: () => {
           setCellContent(model, "A2", "copy&paste me");
-        }
-      }
+        },
+      };
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     const model = new Model();
@@ -125,12 +123,9 @@ describe("Model", () => {
 
   test("UI plugins can refuse local core commands", () => {
     class MyUIPlugin extends UIPlugin {
-      allowDispatch(cmd: Command) {
-        if (cmd.type === "UPDATE_CELL") {
-          return CommandResult.CancelledForUnknownReason;
-        }
-        return CommandResult.Success;
-      }
+      validators = {
+        UPDATE_CELL: () => CommandResult.CancelledForUnknownReason,
+      };
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     const model = new Model();
@@ -139,13 +134,15 @@ describe("Model", () => {
     expect(getCellContent(model, "A1")).toBe("");
   });
 
-  test("Core plugins allowDispatch don't receive UI commands", () => {
+  test("Core plugins validators don't receive UI commands", () => {
     const receivedCommands: CommandTypes[] = [];
     class MyCorePlugin extends CorePlugin {
-      allowDispatch(cmd: CoreCommand): CommandResult {
-        receivedCommands.push(cmd.type);
-        return CommandResult.Success;
-      }
+      validators = {
+        "*allCommands": (cmd: CoreCommand) => {
+          receivedCommands.push(cmd.type);
+          return CommandResult.Success;
+        },
+      };
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
@@ -156,9 +153,11 @@ describe("Model", () => {
   test("Core plugins handle don't receive UI commands", () => {
     const receivedCommands: CommandTypes[] = [];
     class MyCorePlugin extends CorePlugin {
-      handle(cmd: CoreCommand) {
-        receivedCommands.push(cmd.type);
-      }
+      handlers = {
+        "*allCommands": (cmd: CoreCommand) => {
+          receivedCommands.push(cmd.type);
+        },
+      };
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
@@ -168,8 +167,8 @@ describe("Model", () => {
 
   test("An evaluation plugin cannot dispatch non-evaluation commands", () => {
     class MyEvaluationPlugin extends EvaluationPlugin {
-      handle(cmd: EvaluationCommand) {
-        if (cmd.type === "CREATE_SHEET") {
+      handlers = {
+        CREATE_SHEET: () => {
           /**
            * TS ensure that the command is an evaluation command, but we want to
            * test that the runtime will throw an error if we try to dispatch a
@@ -182,8 +181,8 @@ describe("Model", () => {
             sheetId: "sheetId",
             content: "hello",
           });
-        }
-      }
+        },
+      };
     }
     addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
     const model = new Model();
@@ -192,13 +191,15 @@ describe("Model", () => {
     );
   });
 
-  test("Evaluation plugins allowDispatch don't receive UI commands", () => {
+  test("Evaluation plugins validators don't receive UI commands", () => {
     const receivedCommands: CommandTypes[] = [];
     class MyEvaluationPlugin extends EvaluationPlugin {
-      allowDispatch(cmd: EvaluationCommand): CommandResult {
-        receivedCommands.push(cmd.type);
-        return CommandResult.Success;
-      }
+      validators = {
+        "*allCommands": (cmd: EvaluationCommand) => {
+          receivedCommands.push(cmd.type);
+          return CommandResult.Success;
+        },
+      };
     }
     addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
     const model = new Model();
@@ -211,9 +212,11 @@ describe("Model", () => {
   test("Evaluation plugins handle don't receive UI commands", () => {
     const receivedCommands: CommandTypes[] = [];
     class MyEvaluationPlugin extends EvaluationPlugin {
-      handle(cmd: EvaluationCommand) {
-        receivedCommands.push(cmd.type);
-      }
+      handlers = {
+        "*allCommands": (cmd: EvaluationCommand) => {
+          receivedCommands.push(cmd.type);
+        },
+      };
     }
     addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
     const model = new Model();
@@ -227,14 +230,29 @@ describe("Model", () => {
     expect(receivedCommands).toContain("START");
   });
 
+  test("A command is dispatched to both its dedicated handler and a command set handler", () => {
+    const handledByCommandSetHandler: CommandTypes[] = [];
+    const handledBySpecificHandler: CommandTypes[] = [];
+    class MyEvaluationPlugin extends EvaluationPlugin {
+      handlers = {
+        UPDATE_CELL: (cmd: UpdateCellCommand) => handledBySpecificHandler.push(cmd.type),
+        "*allCommands": (cmd: EvaluationCommand) => {
+          handledByCommandSetHandler.push(cmd.type);
+        },
+      };
+    }
+    addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
+    const model = new Model();
+    setCellContent(model, "A1", "hello");
+    expect(handledBySpecificHandler).toContain("UPDATE_CELL");
+    expect(handledByCommandSetHandler).toContain("UPDATE_CELL");
+  });
+
   test("canDispatch method is exposed and works", () => {
     class MyCorePlugin extends CorePlugin {
-      allowDispatch(cmd: CoreCommand) {
-        if (cmd.type === "CREATE_SHEET") {
-          return CommandResult.CancelledForUnknownReason;
-        }
-        return CommandResult.Success;
-      }
+      validators = {
+        CREATE_SHEET: () => CommandResult.CancelledForUnknownReason,
+      };
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
@@ -255,16 +273,16 @@ describe("Model", () => {
 
   test("Non evaluation command cannot be dispatch in a top level evaluation command", () => {
     class MyUIPlugin extends UIPlugin {
-      handle(cmd: Command) {
-        if (cmd.type === "EVALUATE_CELLS") {
+      handlers = {
+        EVALUATE_CELLS: () => {
           this.dispatch("UPDATE_CELL", {
             col: 0,
             row: 0,
             sheetId: this.getters.getActiveSheetId(),
             content: "hello",
           });
-        }
-      }
+        },
+      };
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     const model = new Model();
@@ -275,11 +293,11 @@ describe("Model", () => {
 
   test("An evaluation command dispatched outside of a command loop triggers an update", async () => {
     class MyEvaluationPlugin extends EvaluationPlugin {
-      handle(cmd: EvaluationCommand) {
-        if (cmd.type === "START") {
+      handlers = {
+        START: () => {
           void Promise.resolve().then(() => this.dispatch("EVALUATE_CELLS"));
-        }
-      }
+        },
+      };
     }
     addTestPlugin(evaluationPluginRegistry, MyEvaluationPlugin);
     const model = new Model();
@@ -402,32 +420,28 @@ describe("Model", () => {
 
   test("Replayed commands are not send to UI plugins", () => {
     let numberCall = 0;
-    //@ts-ignore
-    coreTypes.add("MY_CMD_1");
-    //@ts-ignore
-    coreTypes.add("MY_CMD_2");
     class MyUIPlugin extends UIPlugin {
-      handle(cmd: Command) {
+      handlers: CommandsHandlers<Command> = {
         //@ts-ignore
-        if (cmd.type === "MY_CMD_2") {
+        MY_CMD_2: () => {
           if (this.getters.getCurrentClient().id === "bob") {
             numberCall++;
           }
-        }
-      }
+        },
+      };
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
 
     class MyCorePlugin extends CorePlugin {
       public readonly state: number = 0;
-      handle(cmd: CoreCommand) {
+      handlers: CommandsHandlers<CoreCommand> = {
         //@ts-ignore
-        if (cmd.type === "MY_CMD_1") {
+        MY_CMD_1: () => {
           this.history.update("state", 1);
           //@ts-ignore
           this.dispatch("MY_CMD_2");
-        }
-      }
+        },
+      };
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
 
@@ -442,11 +456,11 @@ describe("Model", () => {
 
   test("Initial commands are not sent to UI plugins", () => {
     class MyUIPlugin extends UIPlugin {
-      handle(cmd: Command) {
-        if (cmd.type === "UPDATE_CELL") {
+      handlers = {
+        UPDATE_CELL: () => {
           throw new Error("Should not be called");
-        }
-      }
+        },
+      };
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     const data = {
@@ -475,21 +489,18 @@ describe("Model", () => {
   });
 
   test("Core commands which dispatch UPDATE_CELL should trigger evaluation", () => {
-    //@ts-ignore
-    coreTypes.add("MY_CMD_1");
     class MyCorePlugin extends CorePlugin {
-      handle(cmd: CoreCommand) {
+      handlers: CommandsHandlers<CoreCommand> = {
         //@ts-ignore
-        if (cmd.type === "MY_CMD_1") {
+        MY_CMD_1: (cmd: { sheetId: UID }) => {
           this.dispatch("UPDATE_CELL", {
-            //@ts-ignore
             sheetId: cmd.sheetId,
             col: 0,
             row: 0,
             content: "=5",
           });
-        }
-      }
+        },
+      };
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
 

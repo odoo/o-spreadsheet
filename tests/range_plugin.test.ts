@@ -1,17 +1,17 @@
 import {
   CellErrorType,
-  Command,
   CorePlugin,
-  coreTypes,
   Model,
   Range,
   RangeAdapterFunctions,
+  registerCommand,
   UID,
 } from "../src";
 import { numberToLetters } from "../src/helpers/coordinates";
 import { duplicateRangeInDuplicatedSheet } from "../src/helpers/range";
 import { zoneToXc } from "../src/helpers/zones";
 import { corePluginRegistry } from "../src/plugins/plugin_registries";
+import { CommandsHandlers, CoreCommand } from "../src/types/commands";
 import {
   addColumns,
   addRows,
@@ -37,11 +37,10 @@ export interface UseTransientRange {
   rangesXC: string[];
 }
 
-type TestCommands = Command | UseRange | UseTransientRange;
 //@ts-ignore
-coreTypes.add("USE_RANGE");
+registerCommand("USE_RANGE", { category: "core" });
 //@ts-ignore
-coreTypes.add("USE_TRANSIENT_RANGE");
+registerCommand("USE_TRANSIENT_RANGE", { category: "core" });
 
 class PluginTestRange extends CorePlugin {
   static getters = ["getUsedRanges", "getRanges", "getRangeZoneEdge"];
@@ -65,18 +64,16 @@ class PluginTestRange extends CorePlugin {
     }
   }
 
-  handle(cmd: TestCommands) {
-    switch (cmd.type) {
-      case "USE_RANGE":
-        for (const r of cmd.rangesXC) {
-          this.ranges.push(this.getters.getRangeFromSheetXC(cmd.sheetId, r));
-        }
-        break;
-      case "USE_TRANSIENT_RANGE":
-        for (const r of cmd.rangesXC) {
-          this.ranges.push(this.getters.getRangeFromSheetXC(cmd.sheetId, r));
-        }
-        break;
+  handlers: CommandsHandlers<CoreCommand> = {
+    //@ts-ignore
+    USE_RANGE: (cmd: UseRange) => this.useRanges(cmd),
+    //@ts-ignore
+    USE_TRANSIENT_RANGE: (cmd: UseTransientRange) => this.useRanges(cmd),
+  };
+
+  private useRanges(cmd: UseRange | UseTransientRange) {
+    for (const r of cmd.rangesXC) {
+      this.ranges.push(this.getters.getRangeFromSheetXC(cmd.sheetId, r));
     }
   }
 

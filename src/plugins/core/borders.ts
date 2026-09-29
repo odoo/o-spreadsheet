@@ -9,9 +9,13 @@ import { recomputeZones } from "../../helpers/recompute_zones";
 import { toZone } from "../../helpers/zones";
 import {
   AddColumnsRowsCommand,
+  AddMergeCommand,
+  ClearFormattingCommand,
   CommandResult,
-  CoreCommand,
+  RemoveColumnsRowsCommand,
   SetBorderCommand,
+  SetBorderTargetCommand,
+  SetZoneBordersCommand,
 } from "../../types/commands";
 import {
   Border,
@@ -40,96 +44,102 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
 
   public readonly borders: BordersPluginState["borders"] = {};
 
+  validators = {
+    SET_BORDER: this.checkBordersUnchanged,
+  };
+
+  handlers = {
+    CLEAR_FORMATTING: this.onClearFormatting,
+    SET_BORDER: this.onSetBorder,
+    SET_ZONE_BORDERS: this.onSetZoneBorders,
+    SET_BORDERS_ON_TARGET: this.onSetBordersOnTarget,
+    ADD_MERGE: this.onAddMerge,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
+    ADD_COLUMNS_ROWS: this.onAddColumnsRows,
+    REMOVE_COLUMNS_ROWS: this.onRemoveColumnsRows,
+  };
+
+  private onRemoveColumnsRows(cmd: RemoveColumnsRowsCommand) {
+    const elements = [...cmd.elements].sort((a, b) => b - a);
+    for (const group of groupConsecutive(elements)) {
+      if (cmd.dimension === "COL") {
+        const zone = this.getters.getColsZone(cmd.sheetId, group[group.length - 1], group[0]);
+        this.clearInsideBorders(cmd.sheetId, [zone]);
+        this.shiftBordersHorizontally(cmd.sheetId, group[0] + 1, -group.length);
+      } else {
+        const zone = this.getters.getRowsZone(cmd.sheetId, group[group.length - 1], group[0]);
+        this.clearInsideBorders(cmd.sheetId, [zone]);
+        this.shiftBordersVertically(cmd.sheetId, group[0] + 1, -group.length);
+      }
+    }
+  }
+
+  private onAddColumnsRows(cmd: AddColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      this.handleAddColumns(cmd);
+    } else {
+      this.handleAddRows(cmd);
+    }
+  }
+
+  private onDeleteSheet(cmd: { sheetId: UID }) {
+    const allBorders = { ...this.borders };
+    delete allBorders[cmd.sheetId];
+    this.history.update("borders", allBorders);
+  }
+
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    const borders = this.borders[cmd.sheetId];
+    if (borders) {
+      // borders is a sparse 2D array.
+      // map and slice preserve empty values and do not set `undefined` instead
+      const bordersCopy = borders
+        .slice()
+        .map((col) => col?.slice().map((border) => deepCopy(border)));
+      this.history.update("borders", cmd.sheetIdTo, bordersCopy);
+    }
+  }
+
+  private onSetBordersOnTarget(cmd: SetBorderTargetCommand) {
+    for (const zone of cmd.target) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        for (let col = zone.left; col <= zone.right; col++) {
+          this.setBorder(cmd.sheetId, col, row, cmd.border);
+        }
+      }
+    }
+  }
+
+  private onSetZoneBorders(cmd: SetZoneBordersCommand) {
+    if (!cmd.border) {
+      return;
+    }
+    const target = cmd.target.map((zone) => this.getters.expandZone(cmd.sheetId, zone));
+    this.setBorders(
+      cmd.sheetId,
+      target,
+      cmd.border.position,
+      cmd.border.color === ""
+        ? undefined
+        : {
+            style: cmd.border.style || DEFAULT_BORDER_DESC.style,
+            color: cmd.border.color || DEFAULT_BORDER_DESC.color,
+          }
+    );
+  }
+
+  private onSetBorder(cmd: SetBorderCommand) {
+    this.setBorder(cmd.sheetId, cmd.col, cmd.row, cmd.border);
+  }
+
+  private onClearFormatting(cmd: ClearFormattingCommand) {
+    this.clearBorders(cmd.sheetId, cmd.target);
+  }
+
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-
-  allowDispatch(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "SET_BORDER":
-        return this.checkBordersUnchanged(cmd);
-      default:
-        return CommandResult.Success;
-    }
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "ADD_MERGE":
-        for (const zone of cmd.target) {
-          this.addBordersToMerge(cmd.sheetId, zone);
-        }
-        break;
-      case "DUPLICATE_SHEET":
-        const borders = this.borders[cmd.sheetId];
-        if (borders) {
-          // borders is a sparse 2D array.
-          // map and slice preserve empty values and do not set `undefined` instead
-          const bordersCopy = borders
-            .slice()
-            .map((col) => col?.slice().map((border) => deepCopy(border)));
-          this.history.update("borders", cmd.sheetIdTo, bordersCopy);
-        }
-        break;
-      case "DELETE_SHEET":
-        const allBorders = { ...this.borders };
-        delete allBorders[cmd.sheetId];
-        this.history.update("borders", allBorders);
-        break;
-      case "SET_BORDER":
-        this.setBorder(cmd.sheetId, cmd.col, cmd.row, cmd.border);
-        break;
-      case "SET_BORDERS_ON_TARGET":
-        for (const zone of cmd.target) {
-          for (let row = zone.top; row <= zone.bottom; row++) {
-            for (let col = zone.left; col <= zone.right; col++) {
-              this.setBorder(cmd.sheetId, col, row, cmd.border);
-            }
-          }
-        }
-        break;
-      case "SET_ZONE_BORDERS":
-        if (cmd.border) {
-          const target = cmd.target.map((zone) => this.getters.expandZone(cmd.sheetId, zone));
-          this.setBorders(
-            cmd.sheetId,
-            target,
-            cmd.border.position,
-            cmd.border.color === ""
-              ? undefined
-              : {
-                  style: cmd.border.style || DEFAULT_BORDER_DESC.style,
-                  color: cmd.border.color || DEFAULT_BORDER_DESC.color,
-                }
-          );
-        }
-        break;
-      case "CLEAR_FORMATTING":
-        this.clearBorders(cmd.sheetId, cmd.target);
-        break;
-      case "REMOVE_COLUMNS_ROWS":
-        const elements = [...cmd.elements].sort((a, b) => b - a);
-        for (const group of groupConsecutive(elements)) {
-          if (cmd.dimension === "COL") {
-            const zone = this.getters.getColsZone(cmd.sheetId, group[group.length - 1], group[0]);
-            this.clearInsideBorders(cmd.sheetId, [zone]);
-            this.shiftBordersHorizontally(cmd.sheetId, group[0] + 1, -group.length);
-          } else {
-            const zone = this.getters.getRowsZone(cmd.sheetId, group[group.length - 1], group[0]);
-            this.clearInsideBorders(cmd.sheetId, [zone]);
-            this.shiftBordersVertically(cmd.sheetId, group[0] + 1, -group.length);
-          }
-        }
-        break;
-      case "ADD_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.handleAddColumns(cmd);
-        } else {
-          this.handleAddRows(cmd);
-        }
-        break;
-    }
-  }
 
   /**
    * Move borders according to the inserted columns.
@@ -599,6 +609,12 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   /**
    * Compute the borders to add to the given zone merged.
    */
+  private onAddMerge(cmd: AddMergeCommand) {
+    for (const zone of cmd.target) {
+      this.addBordersToMerge(cmd.sheetId, zone);
+    }
+  }
+
   private addBordersToMerge(sheetId: UID, zone: Zone) {
     const { left, right, top, bottom } = zone;
     const bordersTopLeft = this.getCellBorder({ sheetId, col: left, row: top });

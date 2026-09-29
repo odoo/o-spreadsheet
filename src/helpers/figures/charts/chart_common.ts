@@ -89,7 +89,7 @@ export function createDataSets(
     // It's a rectangle. We treat all columns (arbitrary) as different data series.
     if (zone.left !== zone.right && zone.top !== zone.bottom) {
       if (zone.right === undefined) {
-        // Should never happens because of the allowDispatch of charts, but just making sure
+        // Should never happens because of the validators of the chart plugin, but just making sure
         continue;
       }
       let dataSetId = dataSet.dataSetId;

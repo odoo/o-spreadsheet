@@ -1,7 +1,8 @@
+import { isCoreCommand } from "../command_registry";
 import { PositionMap } from "../helpers/cells/position_map";
 import { AlternatingColorGenerator, setColorAlpha } from "../helpers/color";
 import { DATA_FINGERPRINT, Fingerprint } from "../plugins/evaluation/fingerprint";
-import { Command, isCoreCommand } from "../types/commands";
+import { Command } from "../types/commands";
 import { CellPosition, Color } from "../types/misc";
 import { SpreadsheetStore } from "./spreadsheet_store";
 

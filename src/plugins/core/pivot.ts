@@ -3,7 +3,15 @@ import { deepCopy, deepEquals, getCanonicalSymbolName } from "../../helpers/misc
 import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
-import { CommandResult, CoreCommand } from "../../types/commands";
+import {
+  AddPivotCommand,
+  CommandResult,
+  DuplicatePivotCommand,
+  InsertPivotCommand,
+  RemovePivotCommand,
+  RenamePivotCommand,
+  UpdatePivotCommand,
+} from "../../types/commands";
 import { CellPosition, RangeAdapterFunctions, UID } from "../../types/misc";
 
 import { CellValue } from "../../types/cells";
@@ -43,6 +51,75 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     "getMeasureFullDependencies",
   ] as const;
 
+  validators = {
+    ADD_PIVOT: this.checkAddPivot,
+    UPDATE_PIVOT: this.checkUpdatePivot,
+    RENAME_PIVOT: this.checkRenamePivot,
+    REMOVE_PIVOT: this.checkPivotExists,
+    DUPLICATE_PIVOT: this.checkPivotExists,
+    INSERT_PIVOT: this.checkPivotExists,
+  };
+
+  handlers = {
+    CREATE_NAMED_RANGE: this.recompileCalculatedMeasures,
+    UPDATE_NAMED_RANGE: this.recompileCalculatedMeasures,
+    DELETE_NAMED_RANGE: this.recompileCalculatedMeasures,
+    RENAME_PIVOT: this.onRenamePivot,
+    REMOVE_PIVOT: this.onRemovePivot,
+    INSERT_PIVOT: this.onInsertPivot,
+    ADD_PIVOT: this.onAddPivot,
+    DUPLICATE_PIVOT: this.onDuplicatePivot,
+    UPDATE_PIVOT: this.onUpdatePivot,
+  };
+
+  private onUpdatePivot(cmd: UpdatePivotCommand) {
+    this.history.update("pivots", cmd.pivotId, "definition", deepCopy(cmd.pivot));
+    this.compileCalculatedMeasures(cmd.pivotId, cmd.pivot.measures);
+  }
+
+  private onDuplicatePivot(cmd: DuplicatePivotCommand) {
+    const { pivotId, newPivotId } = cmd;
+    const pivot = deepCopy(this.getPivotCore(pivotId).definition);
+    pivot.name = cmd.duplicatedPivotName ?? pivot.name + " (copy)";
+    this.addPivot(newPivotId, pivot);
+  }
+
+  private onAddPivot(cmd: AddPivotCommand) {
+    const { pivotId, pivot } = cmd;
+    this.addPivot(pivotId, pivot);
+  }
+
+  private onInsertPivot(cmd: InsertPivotCommand) {
+    const { sheetId, col, row, pivotId, table } = cmd;
+    const position = { sheetId, col, row };
+    const { cols, rows, measures, fieldsType } = table;
+    const spTable = new SpreadsheetPivotTable(cols, rows, measures, fieldsType || {});
+    const formulaId = this.getPivotFormulaId(pivotId);
+    this.insertPivot(position, formulaId, spTable);
+  }
+
+  private onRemovePivot(cmd: RemovePivotCommand) {
+    const pivots = { ...this.pivots };
+    delete pivots[cmd.pivotId];
+    const formulaId = this.getPivotFormulaId(cmd.pivotId);
+    this.history.update("formulaIds", formulaId, undefined);
+    this.history.update("pivots", pivots);
+  }
+
+  private onRenamePivot(cmd: RenamePivotCommand) {
+    this.history.update("pivots", cmd.pivotId, "definition", "name", cmd.name);
+  }
+
+  private recompileCalculatedMeasures() {
+    for (const pivotId in this.pivots) {
+      const pivot = this.pivots[pivotId];
+      if (!pivot) {
+        continue;
+      }
+      this.compileCalculatedMeasures(pivotId, pivot.definition.measures);
+    }
+  }
+
   readonly nextFormulaId: number = 1;
   public readonly pivots: {
     [pivotId: UID]: Pivot | undefined;
@@ -50,112 +127,44 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   public readonly formulaIds: { [formulaId: UID]: UID | undefined } = {};
   public readonly compiledMeasureFormulas: Record<UID, Record<string, MeasureState>> = {};
 
-  allowDispatch(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "ADD_PIVOT": {
-        if (cmd.pivotId in this.pivots) {
-          return CommandResult.PivotIdTaken;
-        }
-        return this.checkValidations(
-          cmd.pivot,
-          this.checkDuplicatedMeasureIds,
-          this.checkSortedColumnInMeasures,
-          this.checkCustomFieldsAreValid
-        );
-      }
-      case "UPDATE_PIVOT": {
-        if (!(cmd.pivotId in this.pivots)) {
-          return CommandResult.PivotIdNotFound;
-        }
-        if (deepEquals(cmd.pivot, this.pivots[cmd.pivotId]?.definition)) {
-          return CommandResult.NoChanges;
-        }
-        if (cmd.pivot.name === "") {
-          return CommandResult.EmptyName;
-        }
-        return this.checkValidations(
-          cmd.pivot,
-          this.checkDuplicatedMeasureIds,
-          this.checkSortedColumnInMeasures,
-          this.checkCustomFieldsAreValid
-        );
-      }
-      case "RENAME_PIVOT":
-        if (!(cmd.pivotId in this.pivots)) {
-          return CommandResult.PivotIdNotFound;
-        }
-        if (cmd.name === "") {
-          return CommandResult.EmptyName;
-        }
-        break;
-      case "REMOVE_PIVOT":
-      case "DUPLICATE_PIVOT":
-      case "INSERT_PIVOT": {
-        if (!(cmd.pivotId in this.pivots)) {
-          return CommandResult.PivotIdNotFound;
-        }
-        break;
-      }
-      case "DUPLICATE_PIVOT":
-        if (!(cmd.pivotId in this.pivots)) {
-          return CommandResult.PivotIdNotFound;
-        }
-    }
-    return CommandResult.Success;
+  private checkPivotExists(cmd: { pivotId: UID }) {
+    return cmd.pivotId in this.pivots ? CommandResult.Success : CommandResult.PivotIdNotFound;
   }
 
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "ADD_PIVOT": {
-        const { pivotId, pivot } = cmd;
-        this.addPivot(pivotId, pivot);
-        break;
-      }
-      case "INSERT_PIVOT": {
-        const { sheetId, col, row, pivotId, table } = cmd;
-        const position = { sheetId, col, row };
-        const { cols, rows, measures, fieldsType } = table;
-        const spTable = new SpreadsheetPivotTable(cols, rows, measures, fieldsType || {});
-        const formulaId = this.getPivotFormulaId(pivotId);
-        this.insertPivot(position, formulaId, spTable);
-        break;
-      }
-      case "RENAME_PIVOT": {
-        this.history.update("pivots", cmd.pivotId, "definition", "name", cmd.name);
-        break;
-      }
-      case "REMOVE_PIVOT": {
-        const pivots = { ...this.pivots };
-        delete pivots[cmd.pivotId];
-        const formulaId = this.getPivotFormulaId(cmd.pivotId);
-        this.history.update("formulaIds", formulaId, undefined);
-        this.history.update("pivots", pivots);
-        break;
-      }
-      case "DUPLICATE_PIVOT": {
-        const { pivotId, newPivotId } = cmd;
-        const pivot = deepCopy(this.getPivotCore(pivotId).definition);
-        pivot.name = cmd.duplicatedPivotName ?? pivot.name + " (copy)";
-        this.addPivot(newPivotId, pivot);
-        break;
-      }
-      case "UPDATE_PIVOT": {
-        this.history.update("pivots", cmd.pivotId, "definition", deepCopy(cmd.pivot));
-        this.compileCalculatedMeasures(cmd.pivotId, cmd.pivot.measures);
-        break;
-      }
-      case "CREATE_NAMED_RANGE":
-      case "UPDATE_NAMED_RANGE":
-      case "DELETE_NAMED_RANGE": {
-        for (const pivotId in this.pivots) {
-          const pivot = this.pivots[pivotId];
-          if (!pivot) {
-            continue;
-          }
-          this.compileCalculatedMeasures(pivotId, pivot.definition.measures);
-        }
-      }
+  private checkPivotDefinition(definition: PivotCoreDefinition) {
+    return this.checkValidations(
+      definition,
+      this.checkDuplicatedMeasureIds,
+      this.checkSortedColumnInMeasures,
+      this.checkCustomFieldsAreValid
+    );
+  }
+
+  private checkAddPivot(cmd: AddPivotCommand) {
+    if (cmd.pivotId in this.pivots) {
+      return CommandResult.PivotIdTaken;
     }
+    return this.checkPivotDefinition(cmd.pivot);
+  }
+
+  private checkUpdatePivot(cmd: UpdatePivotCommand) {
+    if (!(cmd.pivotId in this.pivots)) {
+      return CommandResult.PivotIdNotFound;
+    }
+    if (deepEquals(cmd.pivot, this.pivots[cmd.pivotId]?.definition)) {
+      return CommandResult.NoChanges;
+    }
+    if (cmd.pivot.name === "") {
+      return CommandResult.EmptyName;
+    }
+    return this.checkPivotDefinition(cmd.pivot);
+  }
+
+  private checkRenamePivot(cmd: RenamePivotCommand) {
+    if (!(cmd.pivotId in this.pivots)) {
+      return CommandResult.PivotIdNotFound;
+    }
+    return cmd.name === "" ? CommandResult.EmptyName : CommandResult.Success;
   }
 
   adaptRanges(adapters: RangeAdapterFunctions) {

@@ -1,6 +1,6 @@
 import { FIGURE_ID_SPLITTER } from "../../constants";
 import { deepCopy } from "../../helpers/misc";
-import { CommandResult, CoreCommand } from "../../types/commands";
+import { CommandResult, CreateImageOverCommand, DeleteFigureCommand } from "../../types/commands";
 import { FigureSize } from "../../types/figure";
 import { FileStore } from "../../types/files";
 import { Image } from "../../types/image";
@@ -22,6 +22,56 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
    */
   readonly syncedImages: Set<Image["path"]> = new Set();
 
+  validators = {
+    CREATE_IMAGE: this.checkImageFigureIdIsFree,
+  };
+
+  handlers = {
+    DELETE_FIGURE: this.onDeleteFigure,
+    CREATE_IMAGE: this.onCreateImage,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
+  };
+
+  private onDeleteSheet(cmd: { sheetId: UID }) {
+    this.history.update("images", cmd.sheetId, undefined);
+  }
+
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
+    for (const fig of sheetFiguresFrom) {
+      if (fig.tag === "image") {
+        const figureIdBase = fig.id.split(FIGURE_ID_SPLITTER).pop();
+        const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
+        const image = this.getImage(fig.id);
+        if (image) {
+          const size = { width: fig.width, height: fig.height };
+          this.dispatch("CREATE_IMAGE", {
+            sheetId: cmd.sheetIdTo,
+            figureId: duplicatedFigureId,
+            offset: fig.offset,
+            col: fig.col,
+            row: fig.row,
+            size,
+            definition: deepCopy(image),
+          });
+        }
+      }
+    }
+  }
+
+  private onCreateImage(cmd: CreateImageOverCommand) {
+    if (!this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
+      this.addFigure(cmd.figureId, cmd.sheetId, cmd.col, cmd.row, cmd.offset, cmd.size);
+    }
+    this.history.update("images", cmd.sheetId, cmd.figureId, cmd.definition);
+    this.syncedImages.add(cmd.definition.path);
+  }
+
+  private onDeleteFigure(cmd: DeleteFigureCommand) {
+    this.history.update("images", cmd.sheetId, cmd.figureId, undefined);
+  }
+
   constructor(config: CorePluginConfig) {
     super(config);
     this.fileStore = config.external.fileStore;
@@ -31,57 +81,10 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "CREATE_IMAGE":
-        if (this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
-          return CommandResult.InvalidFigureId;
-        }
-        return CommandResult.Success;
-      default:
-        return CommandResult.Success;
-    }
-  }
-
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "CREATE_IMAGE":
-        if (!this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
-          this.addFigure(cmd.figureId, cmd.sheetId, cmd.col, cmd.row, cmd.offset, cmd.size);
-        }
-        this.history.update("images", cmd.sheetId, cmd.figureId, cmd.definition);
-        this.syncedImages.add(cmd.definition.path);
-        break;
-      case "DUPLICATE_SHEET": {
-        const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
-        for (const fig of sheetFiguresFrom) {
-          if (fig.tag === "image") {
-            const figureIdBase = fig.id.split(FIGURE_ID_SPLITTER).pop();
-            const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
-            const image = this.getImage(fig.id);
-            if (image) {
-              const size = { width: fig.width, height: fig.height };
-              this.dispatch("CREATE_IMAGE", {
-                sheetId: cmd.sheetIdTo,
-                figureId: duplicatedFigureId,
-                offset: fig.offset,
-                col: fig.col,
-                row: fig.row,
-                size,
-                definition: deepCopy(image),
-              });
-            }
-          }
-        }
-        break;
-      }
-      case "DELETE_FIGURE":
-        this.history.update("images", cmd.sheetId, cmd.figureId, undefined);
-        break;
-      case "DELETE_SHEET":
-        this.history.update("images", cmd.sheetId, undefined);
-        break;
-    }
+  private checkImageFigureIdIsFree(cmd: CreateImageOverCommand) {
+    return this.getters.getFigure(cmd.sheetId, cmd.figureId)
+      ? CommandResult.InvalidFigureId
+      : CommandResult.Success;
   }
 
   // ---------------------------------------------------------------------------

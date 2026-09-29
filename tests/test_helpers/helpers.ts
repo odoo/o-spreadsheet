@@ -43,10 +43,10 @@ import {
 import { BasePlugin } from "../../src/plugins/base_plugin";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { CorePluginConstructor } from "../../src/plugins/core_plugin";
-import { SheetUIPlugin } from "../../src/plugins/ui_feature/ui_sheet";
 import { UIPluginConstructor } from "../../src/plugins/ui_plugin";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { Registry } from "../../src/registries/registry";
+import { CommandResult } from "../../src/types/commands";
 import { PropsOf } from "../../src/types/props_of";
 
 import {
@@ -136,8 +136,29 @@ export function spyModelDispatch(model: Model): jest.SpyInstance {
   return jest.spyOn(model, "dispatch");
 }
 
-export function spyUiPluginHandle(model: Model): jest.SpyInstance {
-  return jest.spyOn(getPlugin(model, SheetUIPlugin), "handle");
+/**
+ * Spy on every command the UI plugins are concerned by, whether it is handled
+ * by a pre-handler or by a regular command handler.
+ */
+export function spyUiPluginHandle(model: Model): jest.Mock {
+  const spy = jest.fn();
+  const uiRegistries: unknown[] = [model["commandHandlers"], model["evaluationCommandHandlers"]];
+  const dispatchToHandlers = model["dispatchToHandlers"];
+  model["dispatchToHandlers"] = function (registry, command) {
+    if (uiRegistries.includes(registry)) {
+      spy(command);
+    }
+    return dispatchToHandlers.call(this, registry, command);
+  };
+  return spy;
+}
+
+/**
+ * Force the given command to be rejected with the given reason, by registering
+ * an additional validator in the model.
+ */
+export function rejectCommand(model: Model, type: CommandTypes, reason: CommandResult) {
+  model["commandHandlers"].addValidator(type, () => reason);
 }
 
 export function getPlugin<T extends new (...args: any) => any>(

@@ -1,11 +1,12 @@
 import { Revision } from "../../collaborative/revisions";
+import { isCoreCommand } from "../../command_registry";
 import {
   repeatCommandTransformRegistry,
   repeatCoreCommand,
   repeatLocalCommand,
   repeatLocalCommandTransformRegistry,
 } from "../../registries/repeat_transform_registry";
-import { Command, CoreCommand, isCoreCommand } from "../../types/commands";
+import { Command, CoreCommand } from "../../types/commands";
 import { Getters } from "../../types/getters";
 
 export function canRepeatRevision(revision: Revision | undefined): boolean {

@@ -19,13 +19,27 @@ import {
 import { isZoneInside, isZoneValid, toZone } from "../../helpers/zones";
 import { Cell } from "../../types/cells";
 import {
+  AddColumnsRowsCommand,
+  ColorSheetBackgroundCommand,
+  ColorSheetCommand,
   Command,
   CommandResult,
   CoreCommand,
   CreateSheetCommand,
+  DuplicateSheetCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
+  HideSheetCommand,
+  LockSheetCommand,
+  MoveSheetCommand,
+  RemoveColumnsRowsCommand,
   RenameSheetCommand,
+  SetGridLinesVisibilityCommand,
+  ShowSheetCommand,
+  UnfreezeColumnsCommand,
+  UnfreezeColumnsRowsCommand,
+  UnfreezeRowsCommand,
+  UnlockSheetCommand,
   UpdateCellPositionCommand,
   isRangeDependant,
   isTargetDependent,
@@ -92,20 +106,35 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   readonly sheets: Record<UID, Sheet | undefined> = {};
   readonly cellPosition: Record<number, CellPosition | undefined> = {};
 
-  // ---------------------------------------------------------------------------
-  // Command Handling
-  // ---------------------------------------------------------------------------
+  /**
+   * `checkSheetIsValid` applies to every core command. Command specific validators
+   * chain it first, so a command is never rejected for a specific reason while the
+   * sheet it targets does not even exist.
+   */
+  validators = {
+    "*allCommands": this.chainValidations(
+      this.warnDeprecatedMissingSheetName,
+      this.checkSheetIsValid
+    ),
+    HIDE_SHEET: this.chainValidations(this.checkSheetIsValid, this.checkEnoughVisibleSheets),
+    CREATE_SHEET: this.chainValidations(this.checkSheetIsValid, this.checkCreateSheet),
+    DUPLICATE_SHEET: this.chainValidations(this.checkSheetIsValid, this.checkDuplicateSheet),
+    MOVE_SHEET: this.chainValidations(this.checkSheetIsValid, this.checkMoveSheet),
+    RENAME_SHEET: this.chainValidations(this.checkSheetIsValid, this.isRenameAllowed),
+    COLOR_SHEET: this.chainValidations(this.checkSheetIsValid, this.checkSheetColor),
+    SET_SHEET_BACKGROUND_COLOR: this.chainValidations(this.checkSheetIsValid, this.checkSheetColor),
+    DELETE_SHEET: this.chainValidations(this.checkSheetIsValid, this.checkEnoughVisibleSheets),
+    ADD_COLUMNS_ROWS: this.chainValidations(this.checkSheetIsValid, this.checkAddHeaders),
+    REMOVE_COLUMNS_ROWS: this.chainValidations(this.checkSheetIsValid, this.checkRemoveHeaders),
+    FREEZE_ROWS: this.chainValidations(this.checkSheetIsValid, this.checkFreezeRows),
+    FREEZE_COLUMNS: this.chainValidations(this.checkSheetIsValid, this.checkFreezeColumns),
+  };
 
-  allowDispatch(cmd: CoreCommand) {
-    const genericChecks = this.chainValidations(
-      this.checkSheetExists,
-      this.checkZonesAreInSheet
-    )(cmd);
+  private checkSheetIsValid(cmd: CoreCommand) {
+    return this.chainValidations(this.checkSheetExists, this.checkZonesAreInSheet)(cmd);
+  }
 
-    if (genericChecks !== CommandResult.Success) {
-      return genericChecks;
-    }
-
+  private warnDeprecatedMissingSheetName(cmd: CoreCommand) {
     let sheetNameMissing = false;
     switch (cmd.type) {
       case "CREATE_SHEET":
@@ -128,170 +157,198 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         cmd.type
       );
     }
+    return CommandResult.Success;
+  }
 
-    switch (cmd.type) {
-      case "HIDE_SHEET": {
-        if (this.getVisibleSheetIds().length === 1) {
-          return CommandResult.NotEnoughSheets;
-        }
-        return CommandResult.Success;
-      }
-      case "CREATE_SHEET": {
-        return this.checkValidations(
-          cmd,
-          this.createSheetHasName,
-          this.checkSheetName,
-          this.checkSheetPosition
-        );
-      }
-      case "DUPLICATE_SHEET": {
-        if (this.sheets[cmd.sheetIdTo]) {
-          return CommandResult.DuplicatedSheetId;
-        }
-        if (this.orderedSheetIds.map(this.getSheetName.bind(this)).includes(cmd.sheetNameTo)) {
-          return CommandResult.DuplicatedSheetName;
-        }
-        return CommandResult.Success;
-      }
-      case "MOVE_SHEET":
-        try {
-          const currentIndex = this.orderedSheetIds.findIndex((id) => id === cmd.sheetId);
-          this.findIndexOfTargetSheet(currentIndex, cmd.delta);
-          return CommandResult.Success;
-        } catch (e) {
-          return CommandResult.WrongSheetMove;
-        }
-      case "RENAME_SHEET":
-        return this.isRenameAllowed(cmd);
-      case "COLOR_SHEET":
-      case "SET_SHEET_BACKGROUND_COLOR":
-        return !cmd.color || isColorValid(cmd.color)
-          ? CommandResult.Success
-          : CommandResult.InvalidColor;
-      case "DELETE_SHEET":
-        return this.getVisibleSheetIds().length > 1
-          ? CommandResult.Success
-          : CommandResult.NotEnoughSheets;
-      case "ADD_COLUMNS_ROWS":
-        if (!this.doesHeaderExist(cmd.sheetId, cmd.dimension, cmd.base)) {
-          return CommandResult.InvalidHeaderIndex;
-        } else if (cmd.quantity <= 0) {
-          return CommandResult.InvalidQuantity;
-        }
-        return CommandResult.Success;
-      case "REMOVE_COLUMNS_ROWS": {
-        const min = largeMin(cmd.elements);
-        const max = largeMax(cmd.elements);
-        if (min < 0 || !this.doesHeaderExist(cmd.sheetId, cmd.dimension, max)) {
-          return CommandResult.InvalidHeaderIndex;
-        } else if (
-          this.checkElementsIncludeAllNonFrozenHeaders(cmd.sheetId, cmd.dimension, cmd.elements)
-        ) {
-          return CommandResult.NotEnoughElements;
-        } else {
-          return CommandResult.Success;
-        }
-      }
-      case "FREEZE_ROWS": {
-        return this.checkValidations(
-          cmd,
-          this.checkRowFreezeQuantity,
-          this.checkRowFreezeOverlapMerge
-        );
-      }
-      case "FREEZE_COLUMNS": {
-        return this.checkValidations(
-          cmd,
-          this.checkColFreezeQuantity,
-          this.checkColFreezeOverlapMerge
-        );
-      }
-      default:
-        return CommandResult.Success;
+  private checkEnoughVisibleSheets() {
+    return this.getVisibleSheetIds().length > 1
+      ? CommandResult.Success
+      : CommandResult.NotEnoughSheets;
+  }
+
+  private checkCreateSheet(cmd: CreateSheetCommand) {
+    return this.checkValidations(
+      cmd,
+      this.createSheetHasName,
+      this.checkSheetName,
+      this.checkSheetPosition
+    );
+  }
+
+  private checkDuplicateSheet(cmd: DuplicateSheetCommand) {
+    if (this.sheets[cmd.sheetIdTo]) {
+      return CommandResult.DuplicatedSheetId;
+    }
+    if (this.orderedSheetIds.map(this.getSheetName.bind(this)).includes(cmd.sheetNameTo)) {
+      return CommandResult.DuplicatedSheetName;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkMoveSheet(cmd: MoveSheetCommand) {
+    try {
+      const currentIndex = this.orderedSheetIds.findIndex((id) => id === cmd.sheetId);
+      this.findIndexOfTargetSheet(currentIndex, cmd.delta);
+      return CommandResult.Success;
+    } catch (e) {
+      return CommandResult.WrongSheetMove;
     }
   }
 
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "SET_GRID_LINES_VISIBILITY":
-        this.setGridLinesVisibility(cmd.sheetId, cmd.areGridLinesVisible);
-        break;
-      case "CREATE_SHEET":
-        const sheet = this.createSheet(
-          cmd.sheetId,
-          cmd.name || this.getNextSheetName(),
-          cmd.cols || 26,
-          cmd.rows || 100,
-          cmd.position
-        );
-        this.history.update("sheetIdsMapName", toStandardizedSheetName(sheet.name), sheet.id);
-        break;
-      case "MOVE_SHEET":
-        this.moveSheet(cmd.sheetId, cmd.delta);
-        break;
-      case "RENAME_SHEET":
-        this.renameSheet(this.sheets[cmd.sheetId]!, cmd.newName);
-        break;
-      case "COLOR_SHEET":
-        this.history.update("sheets", cmd.sheetId, "color", cmd.color);
-        break;
-      case "SET_SHEET_BACKGROUND_COLOR":
-        this.history.update("sheets", cmd.sheetId, "backgroundColor", cmd.color);
-        break;
-      case "HIDE_SHEET":
-        this.hideSheet(cmd.sheetId);
-        break;
-      case "SHOW_SHEET":
-        this.showSheet(cmd.sheetId);
-        break;
-      case "DUPLICATE_SHEET":
-        this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo, cmd.sheetNameTo);
-        break;
-      case "DELETE_SHEET":
-        this.deleteSheet(this.sheets[cmd.sheetId]!);
-        break;
+  private checkSheetColor(cmd: ColorSheetCommand | ColorSheetBackgroundCommand) {
+    return !cmd.color || isColorValid(cmd.color)
+      ? CommandResult.Success
+      : CommandResult.InvalidColor;
+  }
 
-      case "REMOVE_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.removeColumns(this.sheets[cmd.sheetId]!, [...cmd.elements]);
-        } else {
-          this.removeRows(this.sheets[cmd.sheetId]!, [...cmd.elements]);
-        }
-        break;
-      case "ADD_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.addColumns(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
-        } else {
-          this.addRows(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
-        }
-        break;
-      case "UPDATE_CELL_POSITION":
-        this.updateCellPosition(cmd);
-        break;
-      case "FREEZE_COLUMNS":
-        this.setPaneDivisions(cmd.sheetId, cmd.quantity, "COL");
-        break;
-      case "FREEZE_ROWS":
-        this.setPaneDivisions(cmd.sheetId, cmd.quantity, "ROW");
-        break;
-      case "UNFREEZE_ROWS":
-        this.setPaneDivisions(cmd.sheetId, 0, "ROW");
-        break;
-      case "UNFREEZE_COLUMNS":
-        this.setPaneDivisions(cmd.sheetId, 0, "COL");
-        break;
-      case "UNFREEZE_COLUMNS_ROWS":
-        this.setPaneDivisions(cmd.sheetId, 0, "COL");
-        this.setPaneDivisions(cmd.sheetId, 0, "ROW");
-        break;
-      case "LOCK_SHEET":
-        this.history.update("sheets", cmd.sheetId, "isLocked", true);
-        break;
-      case "UNLOCK_SHEET":
-        this.history.update("sheets", cmd.sheetId, "isLocked", false);
-        break;
+  private checkAddHeaders(cmd: AddColumnsRowsCommand) {
+    if (!this.doesHeaderExist(cmd.sheetId, cmd.dimension, cmd.base)) {
+      return CommandResult.InvalidHeaderIndex;
+    }
+    return cmd.quantity <= 0 ? CommandResult.InvalidQuantity : CommandResult.Success;
+  }
+
+  private checkRemoveHeaders(cmd: RemoveColumnsRowsCommand) {
+    const min = largeMin(cmd.elements);
+    const max = largeMax(cmd.elements);
+    if (min < 0 || !this.doesHeaderExist(cmd.sheetId, cmd.dimension, max)) {
+      return CommandResult.InvalidHeaderIndex;
+    }
+    return this.checkElementsIncludeAllNonFrozenHeaders(cmd.sheetId, cmd.dimension, cmd.elements)
+      ? CommandResult.NotEnoughElements
+      : CommandResult.Success;
+  }
+
+  private checkFreezeRows(cmd: FreezeRowsCommand) {
+    return this.checkValidations(cmd, this.checkRowFreezeQuantity, this.checkRowFreezeOverlapMerge);
+  }
+
+  private checkFreezeColumns(cmd: FreezeColumnsCommand) {
+    return this.checkValidations(cmd, this.checkColFreezeQuantity, this.checkColFreezeOverlapMerge);
+  }
+
+  handlers = {
+    SET_SHEET_BACKGROUND_COLOR: this.onSetSheetBackgroundColor,
+    SET_GRID_LINES_VISIBILITY: this.onSetGridLinesVisibility,
+    MOVE_SHEET: this.onMoveSheet,
+    LOCK_SHEET: this.onLockSheet,
+    UNLOCK_SHEET: this.onUnlockSheet,
+    FREEZE_COLUMNS: this.onFreezeColumns,
+    FREEZE_ROWS: this.onFreezeRows,
+    UNFREEZE_ROWS: this.onUnfreezeRows,
+    UNFREEZE_COLUMNS: this.onUnfreezeColumns,
+    UNFREEZE_COLUMNS_ROWS: this.onUnfreezeColumnsRows,
+    SHOW_SHEET: this.onShowSheet,
+    HIDE_SHEET: this.onHideSheet,
+    COLOR_SHEET: this.onColorSheet,
+    UPDATE_CELL_POSITION: this.onUpdateCellPosition,
+    RENAME_SHEET: this.onRenameSheet,
+    CREATE_SHEET: this.onCreateSheet,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
+    ADD_COLUMNS_ROWS: this.onAddColumnsRows,
+    REMOVE_COLUMNS_ROWS: this.onRemoveColumnsRows,
+  };
+
+  private onRemoveColumnsRows(cmd: RemoveColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      this.removeColumns(this.sheets[cmd.sheetId]!, [...cmd.elements]);
+    } else {
+      this.removeRows(this.sheets[cmd.sheetId]!, [...cmd.elements]);
     }
   }
+
+  private onAddColumnsRows(cmd: AddColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      this.addColumns(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
+    } else {
+      this.addRows(this.sheets[cmd.sheetId]!, cmd.base, cmd.position, cmd.quantity);
+    }
+  }
+
+  private onDeleteSheet(cmd: { sheetId: UID }) {
+    this.deleteSheet(this.sheets[cmd.sheetId]!);
+  }
+
+  private onDuplicateSheet(cmd: DuplicateSheetCommand) {
+    this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo, cmd.sheetNameTo);
+  }
+
+  private onSetGridLinesVisibility(cmd: SetGridLinesVisibilityCommand) {
+    this.setGridLinesVisibility(cmd.sheetId, cmd.areGridLinesVisible);
+  }
+
+  private onSetSheetBackgroundColor(cmd: ColorSheetBackgroundCommand) {
+    this.history.update("sheets", cmd.sheetId, "backgroundColor", cmd.color);
+  }
+
+  private onMoveSheet(cmd: MoveSheetCommand) {
+    this.moveSheet(cmd.sheetId, cmd.delta);
+  }
+
+  private onLockSheet(cmd: LockSheetCommand) {
+    this.history.update("sheets", cmd.sheetId, "isLocked", true);
+  }
+
+  private onUnlockSheet(cmd: UnlockSheetCommand) {
+    this.history.update("sheets", cmd.sheetId, "isLocked", false);
+  }
+
+  private onFreezeColumns(cmd: FreezeColumnsCommand) {
+    this.setPaneDivisions(cmd.sheetId, cmd.quantity, "COL");
+  }
+
+  private onFreezeRows(cmd: FreezeRowsCommand) {
+    this.setPaneDivisions(cmd.sheetId, cmd.quantity, "ROW");
+  }
+
+  private onUnfreezeRows(cmd: UnfreezeRowsCommand) {
+    this.setPaneDivisions(cmd.sheetId, 0, "ROW");
+  }
+
+  private onUnfreezeColumns(cmd: UnfreezeColumnsCommand) {
+    this.setPaneDivisions(cmd.sheetId, 0, "COL");
+  }
+
+  private onUnfreezeColumnsRows(cmd: UnfreezeColumnsRowsCommand) {
+    this.setPaneDivisions(cmd.sheetId, 0, "COL");
+    this.setPaneDivisions(cmd.sheetId, 0, "ROW");
+  }
+
+  private onShowSheet(cmd: ShowSheetCommand) {
+    this.showSheet(cmd.sheetId);
+  }
+
+  private onHideSheet(cmd: HideSheetCommand) {
+    this.hideSheet(cmd.sheetId);
+  }
+
+  private onCreateSheet(cmd: CreateSheetCommand) {
+    const sheet = this.createSheet(
+      cmd.sheetId,
+      cmd.name || this.getNextSheetName(),
+      cmd.cols || 26,
+      cmd.rows || 100,
+      cmd.position
+    );
+    this.history.update("sheetIdsMapName", toStandardizedSheetName(sheet.name), sheet.id);
+  }
+
+  private onRenameSheet(cmd: RenameSheetCommand) {
+    this.renameSheet(this.sheets[cmd.sheetId]!, cmd.newName);
+  }
+
+  private onColorSheet(cmd: ColorSheetCommand) {
+    this.history.update("sheets", cmd.sheetId, "color", cmd.color);
+  }
+
+  private onUpdateCellPosition(cmd: UpdateCellPositionCommand) {
+    this.updateCellPosition(cmd);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Command Handling
+  // ---------------------------------------------------------------------------
 
   // ---------------------------------------------------------------------------
   // Import/Export
