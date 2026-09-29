@@ -939,6 +939,53 @@ test("migrate version 19.5.1: scorecard keyValue/baseline become formulas", () =
   });
 });
 
+test("migrate version 20.1.1: gauge dataRange becomes a metric formula", () => {
+  const sectionRule = {
+    colors: { lowerColor: "#cc0000", middleColor: "#f1c232", upperColor: "#6aa84f" },
+    rangeMin: "0",
+    rangeMax: "100",
+    lowerInflectionPoint: { type: "percentage", value: "15", operator: "<=" },
+    upperInflectionPoint: { type: "percentage", value: "40", operator: "<=" },
+  };
+  const model = new Model({
+    version: "19.5.1",
+    sheets: [
+      {
+        id: "sh1",
+        figures: [
+          {
+            id: "chartFigure1",
+            tag: "chart",
+            data: {
+              chartId: "chartFigure1",
+              type: "gauge",
+              dataRange: "Sheet1!A1",
+              sectionRule,
+              title: { text: "Test gauge" },
+            },
+          },
+          {
+            id: "chartFigure2",
+            tag: "chart",
+            data: {
+              chartId: "chartFigure2",
+              type: "gauge",
+              sectionRule,
+              title: { text: "Empty gauge" },
+            },
+          },
+        ],
+      },
+    ],
+  });
+  const exportedData = model.exportData();
+
+  expect(exportedData.sheets[0].figures[0].data).toMatchObject({ metric: "=Sheet1!A1" });
+  expect(exportedData.sheets[0].figures[0].data).not.toHaveProperty("dataRange");
+  expect(exportedData.sheets[0].figures[1].data.metric).toBeUndefined();
+  expect(exportedData.sheets[0].figures[1].data).not.toHaveProperty("dataRange");
+});
+
 describe("Import", () => {
   test("Import sheet with rows/cols size defined.", () => {
     const model = new Model({

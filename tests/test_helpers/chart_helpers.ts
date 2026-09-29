@@ -242,4 +242,5 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   annotationText: "This is an annotation text",
   scorecardKeyValueFormula: "=Sheet1!B1:B4",
   scorecardBaselineFormula: "=Sheet1!A1:A4",
+  gaugeMetricFormula: "=Sheet1!B1:B4",
 };

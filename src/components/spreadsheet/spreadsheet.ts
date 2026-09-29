@@ -22,6 +22,7 @@ import { Model } from "../../model";
 import { Component, useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
 import { ImageProviderPlugin } from "../../owl_plugins/image_provider_owl_plugin";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
+import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
@@ -146,6 +147,7 @@ export class Spreadsheet extends Component {
     providePlugins([ModelPlugin], {
       model: this.props.model,
     });
+    providePlugins([NavigatorClipboardPlugin]);
     this.modelPlugin = usePlugin(ModelPlugin);
 
     const stores = useStoreProvider();
