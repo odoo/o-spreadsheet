@@ -37,7 +37,28 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
   private getters: CoreGetters;
   private providers: Array<RangeProvider["adaptRanges"]> = [];
   private isAdaptingRanges: boolean = false;
-  readonly handlers: CommandsHandlers<CoreCommand> = {};
+  readonly handlers: CommandsHandlers<CoreCommand> = {
+    "*coreTypes": this.throwDispatchErrorIfAdapting,
+    MOVE_RANGES: this.adaptRanges,
+    UPDATE_NAMED_RANGE: this.adaptRanges,
+    RENAME_SHEET: this.adaptRanges,
+    DELETE_SHEET: this.adaptRanges,
+    ADD_COLUMNS_ROWS: this.adaptRanges,
+    REMOVE_COLUMNS_ROWS: this.adaptRanges,
+  };
+
+  private throwDispatchErrorIfAdapting(cmd: CoreCommand) {
+    if (this.isAdaptingRanges) {
+      throw new Error("Plugins cannot dispatch commands during adaptRanges phase");
+    }
+  }
+
+  private adaptRanges(cmd: CoreCommand) {
+    const adapterFunctions = getRangeAdapterFunctions(cmd);
+    if (adapterFunctions) {
+      this.executeOnAllRanges(adapterFunctions);
+    }
+  }
   constructor(getters: CoreGetters) {
     this.getters = getters;
   }
@@ -71,16 +92,6 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
     return CommandResult.Success;
   }
   beforeHandle(command: Command) {}
-
-  handle(cmd: CoreCommand) {
-    if (this.isAdaptingRanges) {
-      throw new Error("Plugins cannot dispatch commands during adaptRanges phase");
-    }
-    const adapterFunctions = getRangeAdapterFunctions(cmd);
-    if (adapterFunctions) {
-      this.executeOnAllRanges(adapterFunctions);
-    }
-  }
 
   finalize() {}
 

@@ -61,12 +61,6 @@ export class BasePlugin<State = any, C extends Command = Command>
   beforeHandle(command: C): void {}
 
   /**
-   * This is the standard place to handle any command. Most of the plugin
-   * command handling work should take place here.
-   */
-  handle(command: C): void {}
-
-  /**
    * Sometimes, it is useful to perform some work after a command (and all its
    * subcommands) has been completely handled. For example, when we paste
    * multiple cells, we only want to reevaluate the cell values once at the end.

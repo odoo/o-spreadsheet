@@ -1744,7 +1744,6 @@ export const enum CommandResult {
 export interface CommandHandler<T extends Command> {
   allowDispatch(command: T): CommandResult | CommandResult[];
   beforeHandle(command: T): void;
-  handle(command: T): void;
   finalize(): void;
   handlers: CommandsHandlers<T>;
 }
