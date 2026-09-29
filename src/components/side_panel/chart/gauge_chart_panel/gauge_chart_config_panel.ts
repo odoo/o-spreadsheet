@@ -1,9 +1,11 @@
 import { proxy, useProps } from "@odoo/owl";
 import { GaugeChartDefinition } from "../../../../types/chart/gauge_chart";
 import { CommandResult, DispatchResult } from "../../../../types/commands";
+import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { OSComponent } from "../../../os_component";
+import { SelectionInput } from "../../../selection_input/selection_input";
 import { ChartTerms } from "../../../translations_terms";
-import { ChartDataSeries } from "../building_blocks/data_series/data_series";
+import { Section } from "../../components/section/section";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
@@ -13,7 +15,7 @@ interface PanelState {
 
 export class GaugeChartConfigPanel extends OSComponent {
   static template = "o-spreadsheet-GaugeChartConfigPanel";
-  static components = { ChartErrorSection, ChartDataSeries };
+  static components = { ChartErrorSection, Section, SelectionInput, StandaloneComposer };
   protected props = useProps(
     chartSidePanelPropsDefinition
   ) as unknown as ChartSidePanelProps<GaugeChartDefinition>;
@@ -22,7 +24,7 @@ export class GaugeChartConfigPanel extends OSComponent {
     dataRangeDispatchResult: undefined,
   });
 
-  private dataRange: string | undefined = this.props.definition.dataRange;
+  private metric: string | undefined = this.props.definition.metric;
 
   get configurationErrorMessages(): string[] {
     const cancelledReasons = [...(this.state.dataRangeDispatchResult?.reasons || [])].filter(
@@ -39,20 +41,22 @@ export class GaugeChartConfigPanel extends OSComponent {
     );
   }
 
-  onDataRangeChanged(ranges: string[]) {
-    this.dataRange = ranges[0];
-    this.state.dataRangeDispatchResult = this.props.canUpdateChart(this.props.chartId, {
-      dataRange: this.dataRange,
-    });
-  }
-
-  updateDataRange() {
+  updateMetric(metric: string) {
+    this.metric = metric;
     this.state.dataRangeDispatchResult = this.props.updateChart(this.props.chartId, {
-      dataRange: this.dataRange,
+      metric: this.metric,
     });
   }
 
   getDataRange() {
-    return { dataRange: this.dataRange || "" };
+    return { dataRange: this.metric || "" };
+  }
+
+  get ranges(): string[] {
+    return [this.getDataRange()].map((r) => r.dataRange);
+  }
+
+  get disabledRanges(): boolean[] {
+    return this.ranges.map((r, i) => false);
   }
 }

@@ -7,7 +7,7 @@ import { NonDataSourceBaseChartDefinition } from "./common_chart";
 export interface GaugeChartDefinition<T extends string | Range = string>
   extends NonDataSourceBaseChartDefinition {
   readonly type: "gauge";
-  readonly dataRange?: T;
+  readonly metric?: string;
   readonly sectionRule: SectionRule;
 }
 

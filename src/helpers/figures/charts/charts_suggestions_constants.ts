@@ -248,14 +248,14 @@ function scorecardChart(
 
 export function gaugeChart(
   titleText: string,
-  dataRange: string,
+  metric: string,
   rangeMin: string,
   rangeMax: string
 ): GaugeChartDefinition<string> {
   return {
     type: "gauge",
     title: { text: titleText },
-    dataRange,
+    metric,
     sectionRule: {
       colors: {
         lowerColor: DEFAULT_GAUGE_LOWER_COLOR,
@@ -286,7 +286,7 @@ export const SINGLE_NUMBER_COLUMN_SUGGESTIONS: Suggestion<SingleNumberContext>[]
     description: _t("Shows the position of the last value within the data's min-max range."),
     isApplicable: ({ rowCount }) => rowCount === 3,
     build: (ctx) =>
-      gaugeChart(ctx.title, ctx.lastCellXC, `=${ctx.firstCellXC}`, `=${ctx.prevCellXC}`),
+      gaugeChart(ctx.title, `=${ctx.lastCellXC}`, `=${ctx.firstCellXC}`, `=${ctx.prevCellXC}`),
   },
   {
     description: _t("Compares individual values side-by-side."),
@@ -319,13 +319,13 @@ export const SINGLE_PERCENTAGE_COLUMN_SUGGESTIONS: Suggestion<SinglePercentageCo
   {
     description: _t("Natural fit for a 0–100% range."),
     isApplicable: ({ rowCount }) => rowCount === 1,
-    build: (ctx) => gaugeChart(ctx.title, ctx.lastCellXC, "0", ctx.isAboveOne ? "100" : "1"),
+    build: (ctx) => gaugeChart(ctx.title, `=${ctx.lastCellXC}`, "0", ctx.isAboveOne ? "100" : "1"),
   },
   {
     description: _t("Natural fit for a 0–100% range."),
     isApplicable: ({ rowCount }) => rowCount === 3,
     build: (ctx) =>
-      gaugeChart(ctx.title, ctx.lastCellXC, `=${ctx.firstCellXC}`, `=${ctx.prevCellXC}`),
+      gaugeChart(ctx.title, `=${ctx.lastCellXC}`, `=${ctx.firstCellXC}`, `=${ctx.prevCellXC}`),
   },
   {
     description: _t("Shows completion against total."),
@@ -694,7 +694,7 @@ export const MANY_NUMBERS_SUGGESTIONS: Suggestion<ManyNumbersContext>[] = [
     description: _t("Shows the position of the last value within the data's min-max range."),
     isApplicable: ({ colsLength, rowCount }) => colsLength === 3 && rowCount === 1,
     build: (ctx) =>
-      gaugeChart(ctx.title, ctx.lastCellXC, `=${ctx.firstCellXC}`, `=${ctx.secondCellXC}`),
+      gaugeChart(ctx.title, `=${ctx.lastCellXC}`, `=${ctx.firstCellXC}`, `=${ctx.secondCellXC}`),
   },
   {
     description: _t("Trend comparison across all metrics."),

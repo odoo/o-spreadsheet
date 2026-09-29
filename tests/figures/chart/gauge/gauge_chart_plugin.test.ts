@@ -87,7 +87,7 @@ describe("datasource tests", function () {
     createGaugeChart(
       model,
       {
-        dataRange: "B8",
+        metric: "=B8",
         title: { text: "Title" },
         sectionRule: randomSectionRule,
       },
@@ -103,10 +103,10 @@ describe("datasource tests", function () {
   });
 
   test("create empty gauge chart", () => {
-    createGaugeChart(model, { dataRange: "A1" }, "chartId");
+    createGaugeChart(model, { metric: "A1" }, "chartId");
     expect(model.getters.getChartDefinition("chartId") as GaugeChartDefinition).toMatchObject({
       type: "gauge",
-      dataRange: "A1",
+      metric: "=A1",
       title: { text: "" },
       sectionRule: defaultSectionRule,
     });
@@ -133,7 +133,7 @@ describe("datasource tests", function () {
       createGaugeChart(
         model,
         {
-          dataRange: "Sheet1!B1:B4",
+          metric: "=Sheet1!B1:B4",
           sectionRule: {
             ...randomSectionRule,
             rangeMin: "=A1+5",
@@ -149,7 +149,7 @@ describe("datasource tests", function () {
     test("ranges in gauge definition change automatically", () => {
       addColumns(model, "before", "A", 2);
       const chart = model.getters.getChartDefinition("chartId") as GaugeChartDefinition;
-      expect(chart.dataRange).toStrictEqual("Sheet1!D1:D4");
+      expect(chart.metric).toStrictEqual("=Sheet1!D1:D4");
       expect(chart.sectionRule).toMatchObject({
         rangeMin: "=C1+5",
         rangeMax: "=E8",
@@ -168,7 +168,7 @@ describe("datasource tests", function () {
 
       const copiedChartId = model.getters.getChartIds("Sheet2")[0];
       const chart = model.getters.getChartDefinition(copiedChartId) as GaugeChartDefinition;
-      expect(chart.dataRange).toStrictEqual("Sheet1!B1:B4");
+      expect(chart.metric).toStrictEqual("=Sheet1!B1:B4");
       expect(chart.sectionRule).toMatchObject({
         rangeMin: "=Sheet1!A1+5",
         rangeMax: "=Sheet1!C8",
@@ -181,7 +181,7 @@ describe("datasource tests", function () {
       duplicateSheet(model, "Sheet1", "Sheet3");
       const duplicatedChartId = model.getters.getChartIds("Sheet3")[0];
       const chart = model.getters.getChartDefinition(duplicatedChartId) as GaugeChartDefinition;
-      expect(chart.dataRange).toStrictEqual("'Copy of Sheet1'!B1:B4");
+      expect(chart.metric).toStrictEqual("='Copy of Sheet1'!B1:B4");
       expect(chart.sectionRule).toMatchObject({
         rangeMin: "=A1+5",
         rangeMax: "=C8",
@@ -199,7 +199,7 @@ describe("datasource tests", function () {
 
       renameSheet(model, "Sheet1", "Magic");
       chart = model.getters.getChartDefinition("chartId") as GaugeChartDefinition;
-      expect(chart.dataRange).toStrictEqual("Magic!B1:B4");
+      expect(chart.metric).toStrictEqual("=Magic!B1:B4");
       expect(chart.sectionRule).toMatchObject({
         rangeMin: "=A1+5",
         rangeMax: "=C8",
@@ -226,7 +226,7 @@ describe("datasource tests", function () {
   });
 
   test("can delete an imported gauge chart", () => {
-    createGaugeChart(model, { dataRange: "B7:B8" }, "chartId", undefined, { figureId: "figureId" });
+    createGaugeChart(model, { metric: "=B7:B8" }, "chartId", undefined, { figureId: "figureId" });
     const exportedData = model.exportData();
     const newModel = new Model(exportedData);
     const { store: viewStore } = makeStoreWithModel(newModel, ViewportsStore);
@@ -238,14 +238,14 @@ describe("datasource tests", function () {
   });
 
   test("update gauge chart", () => {
-    createGaugeChart(model, { dataRange: "B7:B8" }, "chartId");
+    createGaugeChart(model, { metric: "=B7:B8" }, "chartId");
     updateChart(model, "chartId", {
-      dataRange: "A7",
+      metric: "=A7",
       title: { text: "hello1" },
       sectionRule: randomSectionRule,
     });
     expect(model.getters.getChartDefinition("chartId") as GaugeChartDefinition).toMatchObject({
-      dataRange: "A7",
+      metric: "=A7",
       title: { text: "hello1" },
       sectionRule: randomSectionRule,
     });
@@ -258,7 +258,7 @@ describe("datasource tests", function () {
     createGaugeChart(
       model,
       {
-        dataRange: "A1",
+        metric: "=A1",
         sectionRule: {
           rangeMin: "=0",
           rangeMax: "=A2 - 20",
@@ -292,7 +292,7 @@ describe("datasource tests", function () {
   });
 
   test("create gauge chart with invalid ranges", () => {
-    const result = createGaugeChart(model, { dataRange: "this is invalid" }, "chartId");
+    const result = createGaugeChart(model, { metric: "this is invalid" }, "chartId");
     expect(result).toBeCancelledBecause(CommandResult.InvalidGaugeDataRange);
   });
 
@@ -306,19 +306,19 @@ describe("datasource tests", function () {
 
     test("empty rangeMin", async () => {
       sectionRule = { ...sectionRule, rangeMin: "" };
-      const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "chartId");
+      const result = createGaugeChart(model, { metric: "=A1", sectionRule }, "chartId");
       expect(result).toBeCancelledBecause(CommandResult.EmptyGaugeRangeMin);
     });
 
     test("NaN rangeMin", async () => {
       sectionRule = { ...sectionRule, rangeMin: "I'm not a number" };
-      const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "chartId");
+      const result = createGaugeChart(model, { metric: "=A1", sectionRule }, "chartId");
       expect(result).toBeCancelledBecause(CommandResult.GaugeRangeMinNaN);
     });
 
     test("Invalid rangeMin formula value", () => {
       sectionRule = { ...sectionRule, rangeMin: '=CONCAT("hello", "there")' };
-      const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "1");
+      const result = createGaugeChart(model, { metric: "=A1", sectionRule }, "1");
       expect(result).toBeSuccessfullyDispatched();
       expect(model.getters.getChartRuntime("1")).toMatchObject({
         minValue: { value: 0, label: "" },
@@ -331,19 +331,19 @@ describe("datasource tests", function () {
 
     test("empty rangeMax", async () => {
       sectionRule = { ...sectionRule, rangeMax: "" };
-      const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "chartId");
+      const result = createGaugeChart(model, { metric: "=A1", sectionRule }, "chartId");
       expect(result).toBeCancelledBecause(CommandResult.EmptyGaugeRangeMax);
     });
 
     test("NaN rangeMax", async () => {
       sectionRule = { ...sectionRule, rangeMax: "I'm not a number" };
-      const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "chartId");
+      const result = createGaugeChart(model, { metric: "=A1", sectionRule }, "chartId");
       expect(result).toBeCancelledBecause(CommandResult.GaugeRangeMaxNaN);
     });
 
     test("Invalid rangeMin formula value", () => {
       sectionRule = { ...sectionRule, rangeMax: "=)))(((invalid formula)))" };
-      const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "1");
+      const result = createGaugeChart(model, { metric: "=A1", sectionRule }, "1");
       expect(result).toBeSuccessfullyDispatched();
       expect(model.getters.getChartRuntime("1")).toMatchObject({
         minValue: { value: 0, label: "" },
@@ -359,7 +359,7 @@ describe("datasource tests", function () {
         ...sectionRule,
         lowerInflectionPoint: { ...sectionRule.lowerInflectionPoint, value: "I'm not a number" },
       };
-      const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "chartId");
+      const result = createGaugeChart(model, { metric: "=A1", sectionRule }, "chartId");
       expect(result).toBeCancelledBecause(CommandResult.GaugeLowerInflectionPointNaN);
     });
 
@@ -368,7 +368,7 @@ describe("datasource tests", function () {
         ...sectionRule,
         lowerInflectionPoint: { ...sectionRule.lowerInflectionPoint, value: '=TRIM("hello")' },
       };
-      const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "1");
+      const result = createGaugeChart(model, { metric: "=A1", sectionRule }, "1");
       expect(result).toBeSuccessfullyDispatched();
       const runtime = model.getters.getChartRuntime("1") as GaugeChartRuntime;
       expect(runtime.inflectionValues).toHaveLength(1); // only the upper inflection point is valid and kept
@@ -382,7 +382,7 @@ describe("datasource tests", function () {
           value: "I'm not a number",
         },
       };
-      const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "chartId");
+      const result = createGaugeChart(model, { metric: "=A1", sectionRule }, "chartId");
       expect(result).toBeCancelledBecause(CommandResult.GaugeUpperInflectionPointNaN);
     });
 
@@ -394,7 +394,7 @@ describe("datasource tests", function () {
           value: '=CONCAT("hello", " there")',
         },
       };
-      const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "1");
+      const result = createGaugeChart(model, { metric: "=A1", sectionRule }, "1");
       expect(result).toBeSuccessfullyDispatched();
       const runtime = model.getters.getChartRuntime("1") as GaugeChartRuntime;
       expect(runtime.inflectionValues).toHaveLength(1); // only the lower inflection point is valid and kept
@@ -408,7 +408,7 @@ describe("datasource tests", function () {
         rangeMin: '=IF(TRUE, A1, "something else")',
         rangeMax: '=IF(TRUE, A1, "something else")',
       };
-      const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "1");
+      const result = createGaugeChart(model, { metric: "=A1", sectionRule }, "1");
       expect(result).toBeSuccessfullyDispatched();
 
       const runtime = model.getters.getChartRuntime("1") as GaugeChartRuntime;
@@ -419,7 +419,7 @@ describe("datasource tests", function () {
 
   test("Gauge Chart is deleted on sheet deletion", () => {
     createSheet(model, { sheetId: "sheet2", position: 1 });
-    createGaugeChart(model, { dataRange: "Sheet1!B1:B4" }, "chartId", "sheet2");
+    createGaugeChart(model, { metric: "=Sheet1!B1:B4" }, "chartId", "sheet2");
     expect(model.getters.getChartRuntime("chartId") as GaugeChartRuntime).not.toBeUndefined();
     deleteSheet(model, "sheet2");
     expect(() => model.getters.getChartRuntime("chartId")).toThrow();
@@ -432,7 +432,7 @@ describe("datasource tests", function () {
       model,
       {
         title: { text: "test" },
-        dataRange: "B1:B4",
+        metric: "=B1:B4",
         sectionRule: randomSectionRule,
       },
       firstSheetId
@@ -448,7 +448,7 @@ describe("datasource tests", function () {
       ?.getDefinition() as GaugeChartDefinition;
 
     expect(duplicatedChart.title.text).toEqual("test");
-    expect(duplicatedChart.dataRange).toEqual("B1:B4");
+    expect(duplicatedChart.metric).toEqual("=B1:B4");
 
     expect(duplicatedFigure).toMatchObject({ ...figure, id: expect.any(String) });
     expect(duplicatedFigure.id).not.toBe(figure?.id);
@@ -462,15 +462,15 @@ describe("datasource tests", function () {
 test("create a gauge chart with data from another sheet", () => {
   model = new Model();
   createSheet(model, { sheetId: "42", activate: true });
-  createGaugeChart(model, { dataRange: "Sheet1!B1" }, "chartId");
+  createGaugeChart(model, { metric: "=Sheet1!B1" }, "chartId");
   const chart = model.getters.getChartDefinition("chartId") as GaugeChartDefinition;
-  expect(chart.dataRange).toEqual("Sheet1!B1");
+  expect(chart.metric).toEqual("=Sheet1!B1");
 });
 
 describe("undo/redo", () => {
   test("undo/redo gauge chart creation", () => {
     const before = model.exportData();
-    createGaugeChart(model, { dataRange: "Sheet1!B1:B4" });
+    createGaugeChart(model, { metric: "=Sheet1!B1:B4" });
     const after = model.exportData();
     undo(model);
     expect(model).toExport(before);
@@ -479,7 +479,7 @@ describe("undo/redo", () => {
   });
 
   test("undo/redo gauge chart data rebuild the chart runtime", () => {
-    createGaugeChart(model, { dataRange: "Sheet1!A2" }, "27");
+    createGaugeChart(model, { metric: "=Sheet1!A2" }, "27");
     setCellContent(model, "A2", "99");
     let gaugeValue = (model.getters.getChartRuntime("27") as GaugeChartRuntime).gaugeValue;
     expect(gaugeValue?.value).toBe(99);
@@ -503,7 +503,7 @@ describe("Chart design configuration", () => {
     model = new Model();
     defaultChart = {
       background: "#ffffff",
-      dataRange: "A1",
+      metric: "=A1",
       title: { text: "My chart" },
       type: "gauge",
       sectionRule: deepCopy(defaultSectionRule),
