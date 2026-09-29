@@ -10,6 +10,12 @@ import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { nextTick } from "../test_helpers/helpers";
 
 class MockCommandSquisher implements ICommandSquisher {
+  public *collectConsecutiveUpdateCellCommands(
+    commands: readonly CoreCommand[]
+  ): Generator<CoreCommand[]> {
+    yield [...commands];
+  }
+
   public squish(
     allCommands: readonly (CoreCommand | SquishedCoreCommand)[]
   ): (CoreCommand | SquishedCoreCommand)[] {
@@ -29,6 +35,11 @@ class LossyCommandSquisher implements ICommandSquisher {
   }
   public unsquish(): CoreCommand[] {
     return [];
+  }
+  public *collectConsecutiveUpdateCellCommands(
+    commands: readonly CoreCommand[]
+  ): Generator<CoreCommand[]> {
+    yield [...commands];
   }
 }
 
