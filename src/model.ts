@@ -155,8 +155,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private readonly uiCommandHandlers = new CommandHandlerRegistryClass();
   private readonly coreHandlers: CommandHandler<CoreCommand>[] = [];
   private readonly coreCommandHandlers = new CommandHandlerRegistryClass<CoreCommand>();
-  private readonly evaluationHandlers: CommandHandler<Command>[] = [];
   private readonly evaluationCommandHandlers = new CommandHandlerRegistryClass();
+  private readonly evaluationHandlers: CommandHandler<Command>[] = [];
   private readonly statefulUICommandHandlers = new CommandHandlerRegistryClass();
 
   constructor(
@@ -357,7 +357,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     for (const command of commands) {
       const previousStatus = this.status;
       this.status = Status.RunningCore;
-      this.dispatchToHandlers(this.statefulUICommandHandlers, this.statefulUIPlugins, command);
+      this.dispatchToHandlers(this.statefulUICommandHandlers, command);
       this.status = previousStatus;
     }
     this.finalize();
@@ -372,14 +372,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           const result = this.checkDispatchAllowedRemoteCommand(command);
           if (!result.isSuccessful) {
             // evaluation plugins need to be invalidated
-            this.dispatchToHandlers(this.coreCommandHandlers, this.coreHandlers, {
+            this.dispatchToHandlers(this.coreCommandHandlers, {
               type: "UNDO",
               commands: [command],
             });
             return;
           }
           this.isReplayingCommand = true;
-          this.dispatchToHandlers(this.coreCommandHandlers, this.coreHandlers, command);
+          this.dispatchToHandlers(this.coreCommandHandlers, command);
           this.isReplayingCommand = false;
         },
       }),
@@ -564,7 +564,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         if (isDispatcheableEvaluationCommand(command)) {
           this.status = Status.RunningEvaluation;
           const start = performance.now();
-          this.dispatchToHandlers(this.commandHandlers, this.handlers, command);
+          this.dispatchToHandlers(this.commandHandlers, command);
           this.finalize();
           const time = performance.now() - start;
           if (time > 5) {
@@ -586,7 +586,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           if (isCoreCommand(command)) {
             this.state.addCommand(command);
           }
-          this.dispatchToHandlers(this.commandHandlers, this.handlers, command);
+          this.dispatchToHandlers(this.commandHandlers, command);
           this.finalize();
           const time = performance.now() - start;
           if (time > 5) {
@@ -605,7 +605,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           }
           this.state.addCommand(command);
         }
-        this.dispatchToHandlers(this.commandHandlers, this.handlers, command);
+        this.dispatchToHandlers(this.commandHandlers, command);
         break;
       case Status.Finalizing:
         throw new Error("Cannot dispatch commands in the finalize state");
@@ -613,7 +613,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         if (isCoreCommand(command)) {
           throw new Error(`A UI plugin cannot dispatch ${type} while handling a core command`);
         }
-        this.dispatchToHandlers(this.commandHandlers, this.handlers, command);
+        this.dispatchToHandlers(this.commandHandlers, command);
         break;
       case Status.RunningEvaluation:
         if (!isDispatcheableEvaluationCommand(command)) {
@@ -634,9 +634,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     const command = createCommand(type, payload);
     const previousStatus = this.status;
     this.status = Status.RunningCore;
-    const handlers = this.isReplayingCommand ? this.coreHandlers : this.handlers;
     const registry = this.isReplayingCommand ? this.coreCommandHandlers : this.commandHandlers;
-    this.dispatchToHandlers(registry, handlers, command);
+    this.dispatchToHandlers(registry, command);
     this.status = previousStatus;
     return DispatchResult.Success;
   };
@@ -650,11 +649,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       throw new Error(`An evaluation plugin cannot dispatch non-evaluation commands (${type})`);
     }
     if (this.status !== Status.Ready) {
-      this.dispatchToHandlers(this.evaluationCommandHandlers, this.evaluationHandlers, command);
+      this.dispatchToHandlers(this.evaluationCommandHandlers, command);
       return DispatchResult.Success;
     }
     this.status = Status.RunningEvaluation;
-    this.dispatchToHandlers(this.evaluationCommandHandlers, this.evaluationHandlers, command);
+    this.dispatchToHandlers(this.evaluationCommandHandlers, command);
     this.finalize();
     this.status = Status.Ready;
     this.trigger("update");
@@ -662,22 +661,12 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   };
 
   /**
-   * Dispatch the given command to the given handlers.
-   * It will call the pre-handlers registered in the given registry and the
-   * `beforeHandle` of the given handlers, then the handlers registered in the
-   * given registry.
+   * Dispatch the given command to the handlers registered in the given registry.
+   * It will call the pre-handlers first, then the handlers.
    */
-  private dispatchToHandlers(
-    registry: CommandHandlerRegistry,
-    handlers: CommandHandler<Command>[],
-    command: Command
-  ) {
+  private dispatchToHandlers(registry: CommandHandlerRegistry, command: Command) {
     for (const preHandler of registry.getPreHandlers(command.type)) {
       preHandler(command);
-    }
-    const concernedHandlers = handlers.filter((handler) => canHandle(handler, command));
-    for (const handler of concernedHandlers) {
-      handler.beforeHandle(command);
     }
     for (const handler of registry.getHandlers(command.type)) {
       handler(command);

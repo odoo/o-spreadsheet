@@ -14,13 +14,7 @@ import { recomputeZones } from "../../helpers/recompute_zones";
 import { rangeReference, splitReference } from "../../helpers/references";
 
 import { intersection, isZoneInside, isZoneValid, unionUnboundedZones } from "../../helpers/zones";
-import {
-  Command,
-  CommandHandler,
-  CommandResult,
-  CommandsHandlers,
-  CoreCommand,
-} from "../../types/commands";
+import { CommandHandler, CommandResult, CommandsHandlers, CoreCommand } from "../../types/commands";
 import { CellErrorType } from "../../types/errors";
 import { CoreGetters } from "../../types/getters";
 import {
@@ -92,7 +86,6 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
     }
     return CommandResult.Success;
   }
-  beforeHandle(command: Command) {}
 
   finalize() {}
 
