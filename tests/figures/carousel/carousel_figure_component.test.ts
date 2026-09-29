@@ -73,7 +73,7 @@ describe("Carousel figure component", () => {
     createCarousel(model, { items: [] }, "carouselId");
     const radarId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
     const barId = addNewChartToCarousel(model, "carouselId", { type: "bar" });
-    selectCarouselItem(model, "carouselId", { type: "chart", chartId: radarId });
+    selectCarouselItem(model, "carouselId", 0);
     const { fixture } = await mountSpreadsheet({ model });
 
     expect(model.getters.getSelectedCarouselItem("carouselId")).toMatchObject({ chartId: radarId });
@@ -416,11 +416,11 @@ describe("Carousel figure component", () => {
     expect(".o-carousel").toHaveStyle({ "background-color": "#FFFFFF" });
 
     // Carousel with chart
-    const chartId = addNewChartToCarousel(model, "carouselId", {
+    addNewChartToCarousel(model, "carouselId", {
       background: "#123456",
       type: "bar",
     });
-    selectCarouselItem(model, "carouselId", { type: "chart", chartId });
+    selectCarouselItem(model, "carouselId", 1);
     await nextTick();
     expect(".o-carousel").toHaveStyle({ "background-color": "#123456" });
   });
@@ -428,7 +428,7 @@ describe("Carousel figure component", () => {
   test("display chart menu", async () => {
     createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
     addNewChartToCarousel(model, "carouselId", { type: "bar" });
-    selectCarouselItem(model, "carouselId", { type: "carouselDataView" });
+    selectCarouselItem(model, "carouselId", 0);
     model.updateMode("dashboard");
     const { fixture } = await mountSpreadsheet({ model });
     expect(".o-chart-menu-item").toHaveCount(0); // nothing for the data view
