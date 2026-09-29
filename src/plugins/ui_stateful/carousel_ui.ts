@@ -3,11 +3,15 @@ import { deepEquals, insertItemsAtIndex } from "../../helpers/misc";
 import { UuidGenerator } from "../../helpers/uuid";
 import { ChartDefinition } from "../../types/chart/chart";
 import {
-  Command,
+  AddFiguresChartToCarouselCommand,
+  AddNewChartToCarouselCommand,
   CommandResult,
+  DeleteFigureCommand,
   DuplicateCarouselChartCommand,
   LocalCommand,
   PopOutChartFromCarouselCommand,
+  UpdateCarouselActiveItemCommand,
+  UpdateCarouselCommand,
 } from "../../types/commands";
 import { Carousel, CarouselItem } from "../../types/figure";
 import { UID } from "../../types/misc";
@@ -21,6 +25,48 @@ export class CarouselUIPlugin extends UIPlugin {
   ] as const;
 
   carouselStates: Record<UID, string | undefined> = {};
+
+  handlers = {
+    DELETE_CHART: this.fixWrongCarouselStates,
+    DELETE_FIGURE: this.onDeleteFigure,
+    UPDATE_CAROUSEL: this.onUpdateCarousel,
+    ADD_NEW_CHART_TO_CAROUSEL: this.onAddNewChartToCarousel,
+    ADD_FIGURES_CHART_TO_CAROUSEL: this.onAddFiguresChartToCarousel,
+    DUPLICATE_CAROUSEL_CHART: this.onDuplicateCarouselChart,
+    UPDATE_CAROUSEL_ACTIVE_ITEM: this.onUpdateCarouselActiveItem,
+    POPOUT_CHART_FROM_CAROUSEL: this.onPopoutChartFromCarousel,
+    DELETE_SHEET: this.fixWrongCarouselStates,
+    UNDO: this.fixWrongCarouselStates,
+    REDO: this.fixWrongCarouselStates,
+  };
+
+  private onUpdateCarouselActiveItem(cmd: UpdateCarouselActiveItemCommand) {
+    this.carouselStates[cmd.figureId] = this.getCarouselItemId(cmd.item);
+  }
+
+  private onAddFiguresChartToCarousel(cmd: AddFiguresChartToCarouselCommand) {
+    cmd.chartFigureIds.forEach((figureId) => {
+      this.addFigureChartToCarousel(cmd.carouselFigureId, figureId, cmd.sheetId);
+    });
+  }
+
+  private onAddNewChartToCarousel(cmd: AddNewChartToCarouselCommand) {
+    this.addNewChartToCarousel(cmd.figureId, cmd.newChartId, cmd.sheetId, cmd.chartDefinition);
+  }
+
+  private onUpdateCarousel(cmd: UpdateCarouselCommand) {
+    this.fixWrongCarouselState(cmd.figureId);
+  }
+
+  private onDeleteFigure(cmd: DeleteFigureCommand) {
+    delete this.carouselStates[cmd.figureId];
+  }
+
+  private fixWrongCarouselStates() {
+    for (const figureId in this.carouselStates) {
+      this.fixWrongCarouselState(figureId);
+    }
+  }
 
   allowDispatch(cmd: LocalCommand): CommandResult | CommandResult[] {
     switch (cmd.type) {
@@ -64,43 +110,7 @@ export class CarouselUIPlugin extends UIPlugin {
     return CommandResult.Success;
   }
 
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "ADD_NEW_CHART_TO_CAROUSEL":
-        this.addNewChartToCarousel(cmd.figureId, cmd.newChartId, cmd.sheetId, cmd.chartDefinition);
-        break;
-      case "ADD_FIGURES_CHART_TO_CAROUSEL":
-        cmd.chartFigureIds.forEach((figureId) => {
-          this.addFigureChartToCarousel(cmd.carouselFigureId, figureId, cmd.sheetId);
-        });
-        break;
-      case "DUPLICATE_CAROUSEL_CHART":
-        this.duplicateCarouselChart(cmd);
-        break;
-      case "UPDATE_CAROUSEL_ACTIVE_ITEM":
-        this.carouselStates[cmd.figureId] = this.getCarouselItemId(cmd.item);
-        break;
-      case "POPOUT_CHART_FROM_CAROUSEL":
-        this.popOutChartFromCarousel(cmd);
-        break;
-      case "DELETE_FIGURE":
-        delete this.carouselStates[cmd.figureId];
-        break;
-      case "UPDATE_CAROUSEL":
-        this.fixWrongCarouselState(cmd.figureId);
-        break;
-      case "DELETE_CHART":
-      case "UNDO":
-      case "REDO":
-      case "DELETE_SHEET":
-        for (const figureId in this.carouselStates) {
-          this.fixWrongCarouselState(figureId);
-        }
-        break;
-    }
-  }
-
-  popOutChartFromCarousel(cmd: PopOutChartFromCarouselCommand) {
+  onPopoutChartFromCarousel(cmd: PopOutChartFromCarouselCommand) {
     const { carouselId, chartId, sheetId, col, row, offset } = cmd;
     const carousel = this.getters.getCarousel(carouselId);
     if (!carousel) {
@@ -246,7 +256,7 @@ export class CarouselUIPlugin extends UIPlugin {
     this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", { figureId, sheetId, item: newItem });
   }
 
-  private duplicateCarouselChart({
+  private onDuplicateCarouselChart({
     carouselId,
     chartId,
     sheetId,
