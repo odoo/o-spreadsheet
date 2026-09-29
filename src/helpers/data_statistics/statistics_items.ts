@@ -4,7 +4,7 @@ import {
 } from "../../constants";
 import { Getters } from "../../types/getters";
 import { FunctionResultObject, isMatrix, Matrix } from "../../types/misc";
-import { DateTime } from "../dates";
+import { DateTime, jsDateToNumber } from "../dates";
 import { formatValue } from "../format/format";
 
 export interface StatItem {
@@ -14,24 +14,41 @@ export interface StatItem {
 }
 
 export interface StatValue extends StatItem {
+  rawValue: string;
   value: string;
   percentage?: string;
 }
 
-export type DateSections = { year: StatValue[]; month: StatValue[]; day: StatValue[] };
+export type DateSections = {
+  year: StatValue[];
+  quarter: StatValue[];
+  month: StatValue[];
+  week: StatValue[];
+  weekday: StatValue[];
+  day: StatValue[];
+  date: StatValue[];
+};
 
-export type DateGranularity = "year" | "month" | "day";
+export type DateGranularity = "year" | "quarter" | "month" | "week" | "weekday" | "day" | "date";
 
 export function getStatIdFromDate(date: DateTime, granularity: DateGranularity): string | null {
   switch (granularity) {
     case "year":
       return getStatIdForYear(date.getFullYear().toString());
+    case "quarter":
+      return getStatIdForQuarter(date.getQuarter());
     case "month":
       return getStatIdForMonth(date.getMonth());
+    case "week":
+      return getStatIdForWeek(date.getIsoWeek().toString());
+    case "weekday":
+      return getStatIdForDay(date.getDay());
     case "day":
       return getStatIdForDay(date.getDay());
+    case "date":
+      return jsDateToNumber(date).toString();
     default:
-      return null;
+      throw new Error(`Granularity not supported : ${granularity}`);
   }
 }
 
@@ -39,8 +56,16 @@ export function getStatIdForYear(year: number | string) {
   return year.toString();
 }
 
+export function getStatIdForQuarter(quarter: number | string) {
+  return "q" + quarter.toString();
+}
+
 export function getStatIdForMonth(month: number | string) {
   return "m" + month.toString();
+}
+
+export function getStatIdForWeek(week: number | string) {
+  return week.toString();
 }
 
 export function getStatIdForDay(day: number | string) {
@@ -55,29 +80,38 @@ export function createStatItem(
     name,
     formula,
     computedValue,
+    format: targetFormat,
   }: {
     id: string;
     name: string;
     formula: string;
     computedValue?: Matrix<FunctionResultObject> | FunctionResultObject;
+    rawValue?: string;
+    format?: string;
   }
 ): StatValue {
   const locale = getters.getLocale();
   const result = computedValue ?? getters.evaluateFormulaResult(sheetId, formula);
+
   if (!isMatrix(result) && !result.message) {
-    const { value, format } = result;
+    const { value } = result;
+    const format = result.format ?? targetFormat;
+
     if (value !== null && value !== undefined) {
       const displayValue =
         typeof value === "number" && !format ? parseFloat(value.toFixed(4)) : value;
       return {
         id,
         name,
+        rawValue: String(result.value),
+        // TODO MAWAT: use raw value to check for 0 instead of formatted value and regex
+        // MAWAT : OK
         value: formatValue(displayValue, { locale, format }),
         formula,
       };
     }
   }
-  return { id, name, formula, value: "—" };
+  return { id, name, formula, rawValue: "", value: "—" };
 }
 
 export function getStatScorecardDefinition(stat: StatItem) {

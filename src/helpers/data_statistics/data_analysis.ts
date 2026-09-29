@@ -54,7 +54,7 @@ function analyzeColumn(zone: Zone, getters: Getters): ColumnAnalysis {
   let title: string | undefined;
   let dataCells: EvaluatedCell[] = [];
   let headerInZone = false;
-  let analyzedZone: Zone = { ...zone, top: firstCell.position!.row };
+  let analyzedZone: Zone = { ...zone };
   const tableHeaderPosition = getColumnTableHeaderPosition(sheetId, zone, getters);
 
   if (tableHeaderPosition) {

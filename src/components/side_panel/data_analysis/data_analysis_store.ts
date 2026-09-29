@@ -6,8 +6,10 @@ import {
 } from "../../../helpers/data_statistics/statistics_items";
 import {
   buildBooleanItems,
+  buildCategorySumItems,
   buildDateStatSections,
   buildGeneralStatItems,
+  buildGroupedDateSections,
   buildOccurrencesItems,
 } from "../../../helpers/data_statistics/statistics_suggestion";
 import {
@@ -27,6 +29,9 @@ export interface OccurrencesSortType {
   sortOn: "name" | "value";
   order: "asc" | "desc" | "none";
 }
+
+// TODO MAWAT: not correct either, use raw value
+// MAWAT : removed falsy regex cleaning function
 
 export class DataAnalysisStore extends SpreadsheetStore {
   mutators = [
@@ -142,12 +147,18 @@ export class DataAnalysisStore extends SpreadsheetStore {
 
   private sortDateItems() {
     const items = [...this.dateStatSections[this.dateGranularity]];
+    // TODO MAWAT: if there is tranformation to do, first transform, then sort
+    // MAWAT : removed cleaning function inside and replaced it with cast of rawValue property but not ideal, have to pass number value directly. Anyway matho-anthe branch has new compare method => check
     switch (this.dateSortType) {
       case "asc":
-        items.sort((a, b) => Number(a.value) - Number(b.value) || a.name.localeCompare(b.name));
+        items.sort(
+          (a, b) => Number(a.rawValue) - Number(b.rawValue) || a.name.localeCompare(b.name)
+        );
         break;
       case "desc":
-        items.sort((a, b) => Number(b.value) - Number(a.value) || a.name.localeCompare(b.name));
+        items.sort(
+          (a, b) => Number(b.rawValue) - Number(a.rawValue) || a.name.localeCompare(b.name)
+        );
         break;
     }
     this.displayedDateItems = items;
@@ -162,8 +173,8 @@ export class DataAnalysisStore extends SpreadsheetStore {
           return order === "desc" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
         }
         return order === "asc"
-          ? Number(a.value) - Number(b.value) || a.name.localeCompare(b.name)
-          : Number(b.value) - Number(a.value) || a.name.localeCompare(b.name);
+          ? Number(a.rawValue) - Number(b.rawValue) || a.name.localeCompare(b.name)
+          : Number(b.rawValue) - Number(a.rawValue) || a.name.localeCompare(b.name);
       });
     }
     this.displayedOccurrencesItems = items.slice(0, this.numberOfDisplayedOccurrences);
@@ -173,8 +184,12 @@ export class DataAnalysisStore extends SpreadsheetStore {
   get defaultDateSections() {
     return {
       year: [],
+      quarter: [],
       month: [],
+      week: [],
+      weekday: [],
       day: [],
+      date: [],
     };
   }
 
@@ -208,6 +223,17 @@ export class DataAnalysisStore extends SpreadsheetStore {
           break;
         default:
           this.occurrencesItems = buildOccurrencesItems(this.getters, col, sheetId);
+      }
+    } else {
+      if (
+        (this.hasData && cols.length === 2 && zones.length === 1) ||
+        (zones.length === 2 && zones[0].top === zones[1].top && zones[0].bottom === zones[1].bottom)
+      ) {
+        const leftCol = cols[0];
+        const rightCol = cols[1];
+        this.generalStatItems = [];
+        this.dateStatSections = buildGroupedDateSections(this.getters, leftCol, rightCol, sheetId);
+        this.occurrencesItems = buildCategorySumItems(this.getters, leftCol, rightCol, sheetId);
       }
     }
     this.sortOccurrencesItems();
