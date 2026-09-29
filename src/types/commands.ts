@@ -22,7 +22,7 @@ import { ConditionalFormat } from "./conditional_formatting";
 
 import { ClipboardPasteOptions, ParsedOsClipboardContentWithImageData } from "./clipboard";
 import { DataValidationRule } from "./data_validation";
-import { AnchorOffset, CarouselData, CarouselItem, Figure, FigureSize } from "./figure";
+import { AnchorOffset, CarouselData, Figure, FigureSize } from "./figure";
 import { SearchOptions } from "./find_and_replace";
 import { Image } from "./image";
 import { Locale } from "./locale";
@@ -444,7 +444,7 @@ export interface DuplicateCarouselChartCommand extends SheetDependentCommand {
 export interface UpdateCarouselActiveItemCommand extends SheetDependentCommand {
   type: "UPDATE_CAROUSEL_ACTIVE_ITEM";
   carouselId: UID;
-  item: CarouselItem;
+  itemIndex: number;
 }
 
 export interface PopOutChartFromCarouselCommand extends SheetDependentCommand, AnchorOffset {
@@ -1335,7 +1335,7 @@ export const enum CommandResult {
   InvalidPivotDataSet = "InvalidPivotDataSet",
   InvalidPivotCustomField = "InvalidPivotCustomField",
   MissingFigureArguments = "MissingFigureArguments",
-  InvalidCarouselItem = "InvalidCarouselItem",
+  InvalidCarouselIndex = "InvalidCarouselIndex",
   SheetLocked = "SheetLocked",
   NamedRangeNameAlreadyExists = "NamedRangeNameAlreadyExists",
   NamedRangeInvalidName = "NamedRangeInvalidName",
