@@ -1,6 +1,7 @@
 import { onMounted, usePlugin } from "@odoo/owl";
 import { isDefined } from "../../../helpers/misc";
 import { render } from "../../../helpers/owl3_helpers";
+import { UuidGenerator } from "../../../helpers/uuid";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { AnchorOffset, Figure, FigureUI, ResizeDirection } from "../../../types/figure";
@@ -12,7 +13,6 @@ import { isCtrlKey, isMobileOS } from "../../helpers/dom_helpers";
 import { OSComponent } from "../../os_component";
 import { FigureComponent } from "../figure/figure";
 import { DraggedFigurePlugin } from "../figure_dnd_container/figure_dnd_owl_plugin";
-import { UuidGenerator } from "../../../helpers/uuid";
 
 type ContainerType = "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "none";
 

@@ -34,7 +34,7 @@ import { SidePanelStore } from "../side_panel/side_panel_store";
 
 interface CarouselPanelState {
   popoverProps: PropsOf<Popover> | undefined;
-  currentRange?: string;
+  currentRanges: Record<number, string | undefined>;
 }
 
 export class CarouselPanel extends OSComponent {
@@ -60,7 +60,7 @@ export class CarouselPanel extends OSComponent {
   addChartButton = signal.ref(HTMLButtonElement);
 
   private sidePanelStore!: Store<SidePanelStore>;
-  state = proxy<CarouselPanelState>({ popoverProps: undefined, currentRange: undefined });
+  state = proxy<CarouselPanelState>({ popoverProps: undefined, currentRanges: {} });
 
   setup() {
     this.sidePanelStore = useStore(SidePanelStore);
@@ -85,12 +85,8 @@ export class CarouselPanel extends OSComponent {
     return this.model().getters.getCarousel(this.props.figureId);
   }
 
-  getPreviewDivStyle(item: CarouselItem): string {
-    return this.dragAndDrop.itemsStyle[this.getItemId(item)] || "";
-  }
-
-  getItemId(item: CarouselItem): string {
-    return item.type === "chart" ? item.chartId : "transparent-carousel";
+  getPreviewDivStyle(index: number): string {
+    return this.dragAndDrop.itemsStyle[index.toString()] || "";
   }
 
   addNewChartToCarousel(ev: MouseEvent) {
@@ -135,13 +131,8 @@ export class CarouselPanel extends OSComponent {
     this.sidePanelStore.open("ChartPanel");
   }
 
-  get hasDataView(): boolean {
-    return this.carouselItems.some((item) => item.type === "carouselDataView");
-  }
-
-  isCarouselItemActive(item: CarouselItem): boolean {
-    const activeItem = this.model().getters.getSelectedCarouselItem(this.props.figureId);
-    return deepEquals(activeItem, item);
+  isCarouselItemActive(itemIndex: number): boolean {
+    return this.model().getters.getSelectedCarouselItemIndex(this.props.figureId) === itemIndex;
   }
 
   addDataViewToCarousel() {
@@ -157,38 +148,36 @@ export class CarouselPanel extends OSComponent {
     ]);
   }
 
-  activateCarouselItem(item: CarouselItem) {
+  activateCarouselItem(itemIndex: number) {
     this.model().dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
       carouselId: this.props.figureId,
       sheetId: this.carouselSheetId,
-      item,
+      itemIndex,
     });
   }
 
-  editCarouselItem(item: CarouselItem) {
+  editCarouselItem(itemIndex: number) {
+    const item = this.carouselItems[itemIndex];
     if (item.type === "chart") {
-      this.activateCarouselItem(item);
+      this.activateCarouselItem(itemIndex);
       this.model().dispatch("SELECT_FIGURE", { figureId: this.props.figureId });
       this.sidePanelStore.open("ChartPanel", { chartId: item.chartId });
     }
   }
 
-  renameCarouselItem(item: CarouselItem, newName: string) {
+  renameCarouselItem(itemIndex: number, newName: string) {
+    const item = this.carouselItems[itemIndex];
     const trimmedName = newName.trim();
-    if (!trimmedName || trimmedName === this.getItemTitle(item).toString()) {
+    if (!item || !trimmedName || trimmedName === this.getItemTitle(item).toString()) {
       return;
     }
     const items = [...this.carouselItems];
-    const itemIndex = this.carouselItems.findIndex((itm) => deepEquals(itm, item));
-    if (itemIndex !== -1) {
-      items[itemIndex] = { ...item, title: trimmedName };
-      this.updateItems(items);
-    }
+    items[itemIndex] = { ...item, title: trimmedName };
+    this.updateItems(items);
   }
 
-  deleteCarouselItem(item: CarouselItem) {
-    const carousel = this.model().getters.getCarousel(this.props.figureId);
-    const items = carousel.items.filter((itm) => !deepEquals(itm, item));
+  deleteCarouselItem(itemIndex: number) {
+    const items = this.carouselItems.filter((_, i) => i !== itemIndex);
     this.updateItems(items);
   }
 
@@ -217,7 +206,7 @@ export class CarouselPanel extends OSComponent {
     });
   }
 
-  onDragHandleMouseDown(item: CarouselItem, event: MouseEvent) {
+  onDragHandleMouseDown(index: number, event: MouseEvent) {
     if (event.button !== 0) {
       return;
     }
@@ -228,30 +217,39 @@ export class CarouselPanel extends OSComponent {
     const previewRects = Array.from(previewListEl.children).map((previewEl) =>
       getBoundingRectAsPOJO(previewEl)
     );
-    const items = this.carouselItems.map((item, index) => ({
-      id: this.getItemId(item),
-      size: previewRects[index].height,
-      position: previewRects[index].y,
+    const items = this.carouselItems.map((_, itemIndex) => ({
+      id: itemIndex.toString(),
+      size: previewRects[itemIndex].height,
+      position: previewRects[itemIndex].y,
     }));
     this.dragAndDrop.start("vertical", {
-      draggedItemId: this.getItemId(item),
+      draggedItemId: index.toString(),
       initialMousePosition: event.clientY,
       items: items,
       scrollableContainerEl: previewListEl,
-      onDragEnd: (itemId: string, finalIndex: number) => this.onDragEnd(item, finalIndex),
+      onDragEnd: (itemId: string, finalIndex: number) => this.onDragEnd(index, finalIndex),
     });
   }
 
-  private onDragEnd(item: CarouselItem, finalIndex: number) {
-    const originalIndex = this.carouselItems.findIndex((itm) => deepEquals(itm, item));
-    if (originalIndex === -1 || originalIndex === finalIndex) {
+  private onDragEnd(originalIndex: number, finalIndex: number) {
+    const selectedItemIndex = this.model().getters.getSelectedCarouselItemIndex(
+      this.props.figureId
+    );
+    const item = this.carouselItems[originalIndex];
+    if (!item || originalIndex === finalIndex || selectedItemIndex === undefined) {
       return;
     }
-    const carousel = this.model().getters.getCarousel(this.props.figureId);
-    const items = [...carousel.items];
+    const items = [...this.carouselItems];
     items.splice(originalIndex, 1);
     items.splice(finalIndex, 0, item);
     this.updateItems(items);
+    if (originalIndex === selectedItemIndex) {
+      this.activateCarouselItem(finalIndex);
+    } else if (originalIndex < selectedItemIndex && finalIndex >= selectedItemIndex) {
+      this.activateCarouselItem(selectedItemIndex - 1);
+    } else if (originalIndex > selectedItemIndex && finalIndex <= selectedItemIndex) {
+      this.activateCarouselItem(selectedItemIndex + 1);
+    }
   }
 
   getItemTitle(item: CarouselItem): string {
@@ -306,12 +304,13 @@ export class CarouselPanel extends OSComponent {
     );
   }
 
-  getCogWheelMenuItems(item: CarouselItem): ActionSpec[] {
+  getCogWheelMenuItems(itemIndex: number): ActionSpec[] {
+    const item = this.carouselItems[itemIndex];
     const actions: ActionSpec[] = [];
     if (item.type === "chart") {
       actions.push({
         name: _t("Edit chart"),
-        execute: () => this.editCarouselItem(item),
+        execute: () => this.editCarouselItem(itemIndex),
         icon: "o-spreadsheet-Icon.EDIT",
       });
       actions.push({
@@ -327,7 +326,7 @@ export class CarouselPanel extends OSComponent {
     }
     actions.push({
       name: _t("Delete item"),
-      execute: () => this.deleteCarouselItem(item),
+      execute: () => this.deleteCarouselItem(itemIndex),
       icon: "o-spreadsheet-Icon.TRASH",
     });
     return actions;
@@ -348,13 +347,13 @@ export class CarouselPanel extends OSComponent {
     return this.model().getters.getRangeString(item.range);
   }
 
-  onSelectionInputChanged(ranges: string[]) {
-    this.state.currentRange = ranges[0];
+  onSelectionInputChanged(index: number, ranges: string[]) {
+    this.state.currentRanges[index] = ranges[0];
   }
 
-  onSelectionInputConfirmed() {
-    const index = this.carouselItems.findIndex((item) => item.type === "carouselDataView");
-    if (index === -1 || !this.state.currentRange) {
+  onSelectionInputConfirmed(index: number) {
+    const currentRange = this.state.currentRanges[index];
+    if (this.carouselItems[index]?.type !== "carouselDataView" || !currentRange) {
       return;
     }
     const items = [...this.carouselItems];
@@ -362,7 +361,7 @@ export class CarouselPanel extends OSComponent {
       ...(items[index] as Extract<CarouselItem, { type: "carouselDataView" }>),
       range: this.model().getters.getRangeFromSheetXC(
         this.model().getters.getActiveSheetId(),
-        this.state.currentRange
+        currentRange
       ),
     };
     this.updateItems(items);
