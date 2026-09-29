@@ -43,6 +43,21 @@
           </Section>
         </t>
       </SidePanelCollapsible>
+      <SidePanelCollapsible
+        title.translate="Statistics"
+        isInitiallyCollapsed="false"
+        t-if="this.store.shape.length === 2 and this.store.shape[1] === 'number'">
+        <t t-set-slot="content">
+          <Section class="'o-column-global-stats d-flex flex-column pt-0'">
+            <t t-if="this.store.shape[0] !== 'date'">
+              <Occurrences store="this.store"/>
+            </t>
+            <t t-else="">
+              <DateSection store="this.store"/>
+            </t>
+          </Section>
+        </t>
+      </SidePanelCollapsible>
     </div>
     <div t-else="" class="o-data-analysis-empty text-muted p-3">
       Select cells containing data to see suggestions. Note that the order of selected

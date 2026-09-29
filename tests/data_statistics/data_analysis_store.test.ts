@@ -65,14 +65,6 @@ describe("data analysis store", () => {
     expect(store.generalStatItems).toEqual([]);
     expect(store.occurrencesItems).toEqual([]);
   });
-
-  test("generalStatItems and occurrencesItems are empty when several columns are selected", () => {
-    const model = createModelFromGrid({ A1: "apple", A2: "banana", B1: "1", B2: "2" });
-    const { store } = makeStoreWithModel(model, DataAnalysisStore);
-    setSelection(model, ["A1:B2"]);
-    expect(store.generalStatItems).toEqual([]);
-    expect(store.occurrencesItems).toEqual([]);
-  });
 });
 
 function makeDataAnalysisStore(grid: Record<string, string>, selection: string) {

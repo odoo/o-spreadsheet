@@ -6,8 +6,10 @@ import {
 } from "../../../helpers/data_statistics/statistics_items";
 import {
   buildBooleanItems,
+  buildCategorySumItems,
   buildDateStatSections,
   buildGeneralStatItems,
+  buildGroupedDateSections,
   buildOccurrencesItems,
 } from "../../../helpers/data_statistics/statistics_suggestion";
 import {
@@ -26,6 +28,11 @@ export type DateSortType = "desc" | "asc" | "chrono";
 export interface OccurrencesSortType {
   sortOn: "name" | "value";
   order: "asc" | "desc" | "none";
+}
+
+function cleanFormatStatValue(stat: StatValue): number {
+  const cleanedStatValue = String(stat.value).replace(/[^0-9-]/g, "");
+  return parseFloat(cleanedStatValue);
 }
 
 export class DataAnalysisStore extends SpreadsheetStore {
@@ -144,10 +151,16 @@ export class DataAnalysisStore extends SpreadsheetStore {
     const items = [...this.dateStatSections[this.dateGranularity]];
     switch (this.dateSortType) {
       case "asc":
-        items.sort((a, b) => Number(a.value) - Number(b.value) || a.name.localeCompare(b.name));
+        items.sort(
+          (a, b) =>
+            cleanFormatStatValue(a) - cleanFormatStatValue(b) || a.name.localeCompare(b.name)
+        );
         break;
       case "desc":
-        items.sort((a, b) => Number(b.value) - Number(a.value) || a.name.localeCompare(b.name));
+        items.sort(
+          (a, b) =>
+            cleanFormatStatValue(b) - cleanFormatStatValue(a) || a.name.localeCompare(b.name)
+        );
         break;
     }
     this.displayedDateItems = items;
@@ -162,8 +175,8 @@ export class DataAnalysisStore extends SpreadsheetStore {
           return order === "desc" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
         }
         return order === "asc"
-          ? Number(a.value) - Number(b.value) || a.name.localeCompare(b.name)
-          : Number(b.value) - Number(a.value) || a.name.localeCompare(b.name);
+          ? cleanFormatStatValue(a) - cleanFormatStatValue(b) || a.name.localeCompare(b.name)
+          : cleanFormatStatValue(b) - cleanFormatStatValue(a) || a.name.localeCompare(b.name);
       });
     }
     this.displayedOccurrencesItems = items.slice(0, this.numberOfDisplayedOccurrences);
@@ -209,6 +222,15 @@ export class DataAnalysisStore extends SpreadsheetStore {
         default:
           this.occurrencesItems = buildOccurrencesItems(this.getters, col, sheetId);
       }
+    } else if (
+      (this.hasData && cols.length === 2 && zones.length === 1) ||
+      (zones.length === 2 && zones[0].top === zones[1].top && zones[0].bottom === zones[1].bottom)
+    ) {
+      const leftCol = cols[0];
+      const rightCol = cols[1];
+      this.generalStatItems = [];
+      this.dateStatSections = buildGroupedDateSections(this.getters, leftCol, rightCol, sheetId);
+      this.occurrencesItems = buildCategorySumItems(this.getters, leftCol, rightCol, sheetId);
     }
     this.sortOccurrencesItems();
     this.sortDateItems();

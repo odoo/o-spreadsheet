@@ -19,7 +19,8 @@
         </div>
       </div>
       <div class="d-flex o-stat-sort-header">
-        <span>Count</span>
+        <span t-if="this.store.shape.length == 1">Count</span>
+        <span t-else="">Sum</span>
         <div
           t-on-click="() => this.store.toggleOccurrencesSort('value')"
           data-test-id="o-sort-occurrences"

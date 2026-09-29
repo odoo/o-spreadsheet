@@ -55,17 +55,22 @@ export function createStatItem(
     name,
     formula,
     computedValue,
+    format: targetFormat,
   }: {
     id: string;
     name: string;
     formula: string;
     computedValue?: Matrix<FunctionResultObject> | FunctionResultObject;
+    format?: string;
   }
 ): StatValue {
   const locale = getters.getLocale();
   const result = computedValue ?? getters.evaluateFormulaResult(sheetId, formula);
+
   if (!isMatrix(result) && !result.message) {
-    const { value, format } = result;
+    const { value } = result;
+    const format = result.format ?? targetFormat;
+
     if (value !== null && value !== undefined) {
       const displayValue =
         typeof value === "number" && !format ? parseFloat(value.toFixed(4)) : value;

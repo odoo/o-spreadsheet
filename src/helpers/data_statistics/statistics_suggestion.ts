@@ -74,6 +74,11 @@ const GENERIC_STAT_ITEMS: StatItemConfig[] = [
   },
 ];
 
+const isNonZero = (item: StatValue) => {
+  const cleanedValue = String(item.value).replace(/[^0-9-.]/g, "");
+  return cleanedValue !== "0.00";
+};
+
 export function buildGeneralStatItems(
   getters: Getters,
   col: ColumnAnalysis,
@@ -116,6 +121,54 @@ export function buildOccurrencesItems(
       })
     );
   return withPercentages(items, col.nonEmpty.length);
+}
+
+export function buildCategorySumItems(
+  getters: Getters,
+  colCategories: ColumnAnalysis,
+  colValues: ColumnAnalysis,
+  sheetId: string
+): StatValue[] {
+  if (!colCategories || !colValues) {
+    return [];
+  }
+  const zoneCat = colCategories.headerInZone
+    ? { ...colCategories.zone, top: colCategories.zone.top + 1 }
+    : colCategories.zone;
+  const zoneVal = colValues.headerInZone
+    ? { ...colValues.zone, top: colValues.zone.top + 1 }
+    : colValues.zone;
+  const rangeCategories = zoneToXc(zoneCat);
+  const rangeValues = zoneToXc(zoneVal);
+  const sumMap: Map<string, number> = new Map();
+  const catsVals = getters.getEvaluatedCellsInZone(sheetId, zoneCat);
+  const moneyVals = getters.getEvaluatedCellsInZone(sheetId, zoneVal);
+  const moneyFormat = moneyVals.find((cell) => cell?.format)?.format;
+  for (let i = 0; i < catsVals.length; i++) {
+    const catCell = catsVals[i];
+    const moneyCell = moneyVals[i];
+    if (!catCell || !moneyCell) {
+      continue;
+    }
+    const key = toTrimmedLowerCase(String(catCell.value));
+    const amount = Number(moneyCell.value);
+    const validAmount = isNaN(amount) ? 0 : amount;
+    sumMap.set(key, (sumMap.get(key) ?? 0) + validAmount);
+  }
+  return uniqueValues(colCategories.nonEmpty)
+    .filter(({ formattedValue }) => formattedValue !== "")
+    .map(({ value, formattedValue }) =>
+      createStatItem(getters, sheetId, {
+        id: generateItemIdFromValue(value),
+        name: formattedValue,
+        formula: `=SUMIF(${rangeCategories},"${value}",${rangeValues})`,
+        computedValue: {
+          value: sumMap.get(toTrimmedLowerCase(String(value))) ?? 0,
+        },
+        format: moneyFormat,
+      })
+    )
+    .filter(isNonZero);
 }
 
 function uniqueValues(
@@ -218,4 +271,81 @@ function withPercentages(items: StatValue[], total: number): StatValue[] {
     ...item,
     percentage: `(${Math.round((Number(item.value) / total) * 100)}%)`,
   }));
+}
+
+export function buildGroupedDateSections(
+  getters: Getters,
+  colDates: ColumnAnalysis,
+  colValues: ColumnAnalysis,
+  sheetId: string
+): DateSections {
+  if (!colDates || !colValues) {
+    return {
+      year: [],
+      month: [],
+      day: [],
+    };
+  }
+  const zoneDates = colDates.headerInZone
+    ? { ...colDates.zone, top: colDates.zone.top + 1 }
+    : colDates.zone;
+  const zoneValues = colValues.headerInZone
+    ? { ...colValues.zone, top: colValues.zone.top + 1 }
+    : colValues.zone;
+  const valueCell = getters.getEvaluatedCellsInZone(sheetId, zoneValues);
+  const valueFormat = valueCell.find((cell) => cell?.format)?.format;
+  const rangeDates = zoneToXc(zoneDates);
+  const rangeValues = zoneToXc(zoneValues);
+  const dateValues = colDates.nonEmpty
+    .map((cell) => cell.value)
+    .filter((value): value is number => typeof value === "number");
+  const earliestYear = numberToJsDate(Math.min(...dateValues)).getFullYear();
+  const latestYear = numberToJsDate(Math.max(...dateValues)).getFullYear();
+  const yearRange = Array.from(
+    { length: latestYear - earliestYear + 1 },
+    (_, i) => earliestYear + i
+  );
+  const yearItems = yearRange
+    .map(
+      (year) =>
+        createStatItem(getters, sheetId, {
+          id: String(year),
+          name: getStatIdForYear(year),
+          formula: `=SUMPRODUCT((YEAR(${rangeDates})=${year})*(${rangeValues}))`,
+          format: valueFormat,
+        })
+      // `=SUM(--(YEAR(${range})=${year})*(${rangeValues}))`
+    )
+    .filter(isNonZero);
+  const monthItems = Object.entries(MONTHS)
+    .map(([month, name]) =>
+      createStatItem(getters, sheetId, {
+        id: getStatIdForMonth(month),
+        name: name.toString(),
+        formula: `=SUMPRODUCT((MONTH(${rangeDates})=${
+          Number(month) + 1
+        })*(${rangeDates}<>"")*(${rangeValues}))`,
+        format: valueFormat,
+        //`=SUM((MONTH(${rangeDates})=${Number(month) + 1})*(${rangeDates}<>"")*(${rangeValues}))`
+      })
+    )
+    .filter(isNonZero);
+  const dayItems = Object.entries(DAYS)
+    .map(([day, name]) =>
+      createStatItem(getters, sheetId, {
+        id: getStatIdForDay(day),
+        name: name.toString(),
+        formula: `=SUMPRODUCT((WEEKDAY(${rangeDates})=${
+          Number(day) + 1
+        })*(${rangeDates}<>"")*(${rangeValues}))`,
+        format: valueFormat,
+        //`=SUM((WEEKDAY(${rangeDates})=${Number(day) + 1})*(${rangeDates}<>"")*(${rangeValues}))`
+      })
+    )
+    .filter(isNonZero);
+  return {
+    year: yearItems,
+    month: monthItems,
+    day: dayItems,
+  };
 }
