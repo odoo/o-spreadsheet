@@ -9,7 +9,12 @@ import {
 } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { getZoneArea } from "../../helpers/zones";
-import { CoreCommand } from "../../types/commands";
+import {
+  AddColumnsRowsCommand,
+  ClearFormattingCommand,
+  RemoveColumnsRowsCommand,
+  SetFormattingCommand,
+} from "../../types/commands";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 import { SheetPlugin } from "./sheet";
@@ -51,40 +56,48 @@ export class DefaultPlugin
   public readonly style: defaultStyles = {};
   public readonly format: defaultValues<Format> = {};
 
-  handle(cmd: CoreCommand): void {
-    switch (cmd.type) {
-      case "SET_FORMATTING":
-        if (cmd.style !== undefined) {
-          this.setStyle(cmd.sheetId, cmd.target, cmd.style);
-        }
-        if (cmd.format !== undefined) {
-          this.setFormat(cmd.sheetId, cmd.target, cmd.format);
-        }
-        break;
-      case "CLEAR_FORMATTING":
-        this.setStyle(cmd.sheetId, cmd.target, DEFAULT_STYLE);
-        this.setFormat(cmd.sheetId, cmd.target, null);
-        break;
-      case "ADD_COLUMNS_ROWS":
-        const startingIdx = cmd.position === "before" ? cmd.base : cmd.base + 1;
-        this.moveColRows(cmd.sheetId, cmd.dimension, startingIdx, cmd.quantity);
-        const indexToCopy = cmd.position === "before" ? cmd.base + cmd.quantity : cmd.base;
-        for (let index = startingIdx; index < startingIdx + cmd.quantity; index++) {
-          this.copyColRow(cmd.sheetId, cmd.dimension, indexToCopy, index);
-        }
-        break;
-      case "REMOVE_COLUMNS_ROWS":
-        for (const el of groupConsecutive(cmd.elements).toReversed()) {
-          for (const i of el) {
-            this.clearColRows(cmd.sheetId, cmd.dimension, i);
-          }
-          this.moveColRows(cmd.sheetId, cmd.dimension, el[0], -el.length);
-        }
-        break;
-      case "DUPLICATE_SHEET":
-        this.history.update("style", cmd.sheetIdTo, deepCopy(this.style[cmd.sheetId]));
-        this.history.update("format", cmd.sheetIdTo, deepCopy(this.format[cmd.sheetId]));
-        break;
+  handlers = {
+    SET_FORMATTING: this.onSetFormatting,
+    CLEAR_FORMATTING: this.onClearFormatting,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    ADD_COLUMNS_ROWS: this.onAddColumnsRows,
+    REMOVE_COLUMNS_ROWS: this.onRemoveColumnsRows,
+  };
+
+  private onRemoveColumnsRows(cmd: RemoveColumnsRowsCommand) {
+    for (const el of groupConsecutive(cmd.elements).toReversed()) {
+      for (const i of el) {
+        this.clearColRows(cmd.sheetId, cmd.dimension, i);
+      }
+      this.moveColRows(cmd.sheetId, cmd.dimension, el[0], -el.length);
+    }
+  }
+
+  private onAddColumnsRows(cmd: AddColumnsRowsCommand) {
+    const startingIdx = cmd.position === "before" ? cmd.base : cmd.base + 1;
+    this.moveColRows(cmd.sheetId, cmd.dimension, startingIdx, cmd.quantity);
+    const indexToCopy = cmd.position === "before" ? cmd.base + cmd.quantity : cmd.base;
+    for (let index = startingIdx; index < startingIdx + cmd.quantity; index++) {
+      this.copyColRow(cmd.sheetId, cmd.dimension, indexToCopy, index);
+    }
+  }
+
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    this.history.update("style", cmd.sheetIdTo, deepCopy(this.style[cmd.sheetId]));
+    this.history.update("format", cmd.sheetIdTo, deepCopy(this.format[cmd.sheetId]));
+  }
+
+  private onClearFormatting(cmd: ClearFormattingCommand) {
+    this.setStyle(cmd.sheetId, cmd.target, DEFAULT_STYLE);
+    this.setFormat(cmd.sheetId, cmd.target, null);
+  }
+
+  private onSetFormatting(cmd: SetFormattingCommand) {
+    if (cmd.style !== undefined) {
+      this.setStyle(cmd.sheetId, cmd.target, cmd.style);
+    }
+    if (cmd.format !== undefined) {
+      this.setFormat(cmd.sheetId, cmd.target, cmd.format);
     }
   }
 

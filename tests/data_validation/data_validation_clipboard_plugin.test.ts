@@ -1,6 +1,7 @@
 import { Command, DataValidationCriterion, Model, UID, UIPlugin } from "../../src";
 import { featurePluginRegistry } from "../../src/plugins/plugin_registries";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
+import { AddDataValidationCommand } from "../../src/types/commands";
 import {
   activateSheet,
   addDataValidation,
@@ -206,7 +207,9 @@ describe("Data validation", () => {
   test("copy/paste a DV zone only dispatch a singled ADD_DATA_VALIDATION_RULE", () => {
     const commands: Command[] = [];
     class MyUIPlugin extends UIPlugin {
-      handle = (cmd: Command) => commands.push(cmd);
+      handlers = {
+        "*allCommands": (cmd: AddDataValidationCommand) => commands.push(cmd),
+      };
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
 
