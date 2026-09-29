@@ -1,5 +1,6 @@
 import { MergeErrorMessage, RemoveDuplicateTerms } from "../../components/translations_terms";
 import { getCurrentVersion } from "../../migrations/data";
+import { ImageProviderPlugin } from "../../owl_plugins/image_provider_owl_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { ClipboardStore } from "../../stores/clipboard_store";
 import { _t } from "../../translation";
@@ -17,7 +18,6 @@ import {
 } from "../../types/commands";
 import { Zone } from "../../types/misc";
 import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
-import { ImageProviderPlugin } from "../figures/images/image_provider";
 
 export const handleCopyPasteResult = (
   env: SpreadsheetActionEnv,

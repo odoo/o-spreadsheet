@@ -1,9 +1,9 @@
 import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import { functionRegistry } from "../functions/function_registry";
-import { ImageProviderPlugin } from "../helpers/figures/images/image_provider";
 import { isDefined } from "../helpers/misc";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { UuidGenerator } from "../helpers/uuid";
+import { ImageProviderPlugin } from "../owl_plugins/image_provider_owl_plugin";
 import { _t } from "../translation";
 import { ActionBuilder, ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
