@@ -9,7 +9,6 @@ import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_mat
 import { tryToNumber } from "../../../functions/helpers";
 import { BasePlugin } from "../../../plugins/base_plugin";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
-import { CellValueType } from "../../../types/cells";
 import {
   GaugeChartDefinition,
   GaugeChartRuntime,
@@ -22,24 +21,16 @@ import { CellErrorType } from "../../../types/errors";
 import { Format } from "../../../types/format";
 import { Color, UID, Validation } from "../../../types/misc";
 import { Range } from "../../../types/range";
-import { formatOrHumanizeValue, humanizeNumber } from "../../format/format";
-import { clip } from "../../misc";
-import { createValidRange } from "../../range";
-import { rangeReference } from "../../references";
+import { formatOrHumanizeValue, formatValue, humanizeNumber } from "../../format/format";
+import { clip, isFormula } from "../../misc";
 import { AbstractChart } from "./abstract_chart";
-import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
+import { getFormulaRangeXc, getSingleValueFormulaData } from "./chart_common";
 
 type RangeLimitsValidation = (rangeLimit: string, rangeLimitName: string) => CommandResult;
 type InflectionPointValueValidation = (
   inflectionPointValue: string,
   inflectionPointName: string
 ) => CommandResult;
-
-function isDataRangeValid(definition: GaugeChartDefinition): CommandResult {
-  return definition.dataRange && !rangeReference.test(definition.dataRange)
-    ? CommandResult.InvalidGaugeDataRange
-    : CommandResult.Success;
-}
 
 function checkRangeLimits(
   check: RangeLimitsValidation,
@@ -120,26 +111,15 @@ function checkValueIsNumberOrFormula(value: string, valueName: string) {
 
 export const GaugeChart: ChartTypeBuilder<"gauge"> = {
   sequence: 50,
-  allowedDefinitionKeys: [...AbstractChart.commonKeys, "dataRange", "sectionRule"],
+  allowedDefinitionKeys: [...AbstractChart.commonKeys, "metric", "sectionRule"],
 
-  fromStrDefinition(definition, sheetId, getters) {
-    const dataRange = createValidRange(getters, sheetId, definition.dataRange);
-    return { ...definition, dataRange };
-  },
+  fromStrDefinition: (definition) => definition,
 
-  toStrDefinition(definition, sheetId, getters) {
-    return {
-      ...definition,
-      dataRange: definition.dataRange
-        ? getters.getRangeString(definition.dataRange, sheetId)
-        : undefined,
-    };
-  },
+  toStrDefinition: (definition) => definition,
 
   validateDefinition(validator, definition) {
     return validator.checkValidations(
       definition,
-      isDataRangeValid,
       validator.chainValidations(
         checkRangeLimits(checkEmpty, validator.batchValidations),
         checkRangeLimits(checkValueIsNumberOrFormula, validator.batchValidations)
@@ -150,35 +130,32 @@ export const GaugeChart: ChartTypeBuilder<"gauge"> = {
     );
   },
 
-  transformDefinition(definition, chartSheetId, { adaptRangeString, adaptFormulaString }) {
-    let dataRange: string | undefined;
-    if (definition.dataRange) {
-      const { changeType, range: adaptedRange } = adaptRangeString(
-        chartSheetId,
-        definition.dataRange
-      );
-      if (changeType !== "REMOVE") {
-        dataRange = adaptedRange;
-      }
-    }
+  transformDefinition(definition, chartSheetId, { adaptFormulaString }) {
     const adaptFormula = (formula: string) => adaptFormulaString(chartSheetId, formula);
     const sectionRule = adaptSectionRuleFormulas(definition.sectionRule, adaptFormula);
     return {
       ...definition,
-      dataRange,
+      metric: definition.metric ? adaptFormula(definition.metric) : definition.metric,
       sectionRule,
     };
   },
 
   getDefinitionFromContextCreation(context, dataSourceBuilder) {
+    const dataRange =
+      context.dataSource?.type === "range"
+        ? context.dataSource?.dataSets?.[0]?.dataRange
+        : undefined;
+    // We should update the metric if one of these conditions is true:
+    // 1. The metric formula is undefined (i.e. the chart was created from another chart)
+    // 2. The metric formula is a bare reference (e.g. "=A1" or "=A1:B2")
+    const shouldUpdateMetric =
+      context.gaugeMetricFormula === undefined || getFormulaRangeXc(context.gaugeMetricFormula);
+    const metric = shouldUpdateMetric && dataRange ? `=${dataRange}` : context.gaugeMetricFormula;
     return {
       background: context.background,
       title: context.title || { text: "" },
       type: "gauge",
-      dataRange:
-        context.dataSource?.type === "range"
-          ? context.dataSource.dataSets?.[0]?.dataRange
-          : undefined,
+      metric,
       sectionRule: {
         colors: {
           lowerColor: DEFAULT_GAUGE_LOWER_COLOR,
@@ -204,22 +181,15 @@ export const GaugeChart: ChartTypeBuilder<"gauge"> = {
     };
   },
 
-  duplicateInDuplicatedSheet(
-    definition,
-    sheetIdFrom,
-    sheetIdTo,
-    coreGetters
-  ): GaugeChartDefinition<Range> {
-    const dataRange = duplicateLabelRangeInDuplicatedSheet(
-      sheetIdFrom,
-      sheetIdTo,
-      definition.dataRange
-    );
-
+  duplicateInDuplicatedSheet(definition, sheetIdFrom, sheetIdTo, coreGetters) {
     const adaptFormula = (formula: string) =>
       coreGetters.copyFormulaStringForSheet(sheetIdFrom, sheetIdTo, formula, "moveReference");
     const sectionRule = adaptSectionRuleFormulas(definition.sectionRule, adaptFormula);
-    return { ...definition, dataRange, sectionRule };
+    return {
+      ...definition,
+      metric: definition.metric ? adaptFormula(definition.metric) : definition.metric,
+      sectionRule,
+    };
   },
 
   copyInSheetId(definition, sheetIdFrom, sheetIdTo, coreGetters) {
@@ -227,37 +197,45 @@ export const GaugeChart: ChartTypeBuilder<"gauge"> = {
       coreGetters.copyFormulaStringForSheet(sheetIdFrom, sheetIdTo, formula, "keepSameReference");
 
     const sectionRule = adaptSectionRuleFormulas(definition.sectionRule, adaptFormula);
-    return { ...definition, sectionRule };
+    return {
+      ...definition,
+      metric: definition.metric ? adaptFormula(definition.metric) : definition.metric,
+      sectionRule,
+    };
   },
 
   getDefinitionForExcel: () => undefined,
 
   getContextCreation(definition) {
+    const metricXc = getFormulaRangeXc(definition.metric);
     return {
       ...definition,
       dataSource: {
         type: "range",
-        dataSets: definition.dataRange ? [{ dataRange: definition.dataRange, dataSetId: "1" }] : [],
+        dataSets: metricXc ? [{ dataRange: metricXc, dataSetId: "1" }] : [],
       },
+      gaugeMetricFormula: definition.metric,
     };
   },
 
   updateRanges(definition, adapterFunctions, sheetId) {
-    const { adaptFormulaString } = adapterFunctions;
-    const dataRange = adaptChartRange(definition.dataRange, adapterFunctions);
-
-    const adaptFormula = (formula: string) => adaptFormulaString(sheetId, formula);
+    const adaptFormula = (formula: string) => adapterFunctions.adaptFormulaString(sheetId, formula);
+    const metric = definition.metric ? adaptFormula(definition.metric) : definition.metric;
     const sectionRule = adaptSectionRuleFormulas(definition.sectionRule, adaptFormula);
-    return { ...definition, dataRange, sectionRule };
+    return { ...definition, metric, sectionRule };
   },
 
   getFormulas(getters, sheetId, definition): CompiledFormula[] {
-    return [
+    const formulas = [
       definition.sectionRule.rangeMin,
       definition.sectionRule.rangeMax,
       definition.sectionRule.lowerInflectionPoint.value,
       definition.sectionRule.upperInflectionPoint.value,
-    ]
+    ];
+    if (definition.metric) {
+      formulas.push(definition.metric);
+    }
+    return formulas
       .filter((value) => value.startsWith("="))
       .map((formula) => CompiledFormula.Compile(formula, sheetId, getters));
   },
@@ -274,27 +252,27 @@ export const GaugeChart: ChartTypeBuilder<"gauge"> = {
     const chartColors = definition.sectionRule.colors;
 
     let gaugeValue: number | undefined = undefined;
-    let formattedValue: string | undefined = undefined;
     let format: Format | undefined = undefined;
 
-    const dataRange = definition.dataRange;
-    if (dataRange !== undefined) {
-      const cell = getters.getEvaluatedCell({
-        sheetId: dataRange.sheetId,
-        col: dataRange.zone.left,
-        row: dataRange.zone.top,
-      });
-      if (cell.type === CellValueType.number) {
-        gaugeValue = cell.value;
-        formattedValue = cell.formattedValue;
-        format = cell.format;
-      }
+    const { scalar: metric, range: metricRange } = getSingleValueFormulaData(
+      definition.metric,
+      getters,
+      sheetId
+    );
+    // A literal (non-formula) metric is a plain string, e.g. "42"
+    const metricValue =
+      definition.metric && !isFormula(definition.metric)
+        ? tryToNumber(metric?.value, locale)
+        : metric?.value;
+    if (typeof metricValue === "number") {
+      gaugeValue = metricValue;
+      format = metric?.format;
     }
 
     let minValue = getFormulaNumberValue(sheetId, definition.sectionRule.rangeMin, getters);
     let maxValue = getFormulaNumberValue(sheetId, definition.sectionRule.rangeMax, getters);
     if (minValue === undefined || maxValue === undefined) {
-      return getInvalidGaugeRuntime(definition, getters, colorThemeName);
+      return getInvalidGaugeRuntime(definition, metricRange, getters, colorThemeName);
     }
     if (maxValue < minValue) {
       [minValue, maxValue] = [maxValue, minValue];
@@ -354,7 +332,7 @@ export const GaugeChart: ChartTypeBuilder<"gauge"> = {
     return {
       background: getters.getStyleOfSingleCellChart(
         definition.background,
-        dataRange,
+        metricRange,
         colorThemeName
       ).background,
       title: {
@@ -370,12 +348,12 @@ export const GaugeChart: ChartTypeBuilder<"gauge"> = {
         label: formatOrHumanizeValue(maxValue, format, locale, humanize),
       },
       gaugeValue:
-        gaugeValue !== undefined && formattedValue
+        gaugeValue !== undefined
           ? {
               value: gaugeValue,
               label: humanize
                 ? humanizeNumber({ value: gaugeValue, format }, locale)
-                : formattedValue,
+                : formatValue(gaugeValue, { format, locale }),
             }
           : undefined,
       inflectionValues,
@@ -410,14 +388,15 @@ function getFormulaNumberValue(sheetId: UID, formula: string, getters: Evaluatio
 }
 
 function getInvalidGaugeRuntime(
-  definition: GaugeChartDefinition<Range>,
+  definition: GaugeChartDefinition,
+  metricRange: Range | undefined,
   getters: EvaluationGetters,
   colorThemeName: ColorThemeName
 ): GaugeChartRuntime {
   return {
     background: getters.getStyleOfSingleCellChart(
       definition.background,
-      definition.dataRange,
+      metricRange,
       colorThemeName
     ).background,
     title: definition.title ?? { text: "" },

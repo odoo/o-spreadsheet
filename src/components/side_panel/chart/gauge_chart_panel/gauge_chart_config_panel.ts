@@ -1,31 +1,32 @@
 import { proxy, useProps } from "@odoo/owl";
 import { GaugeChartDefinition } from "../../../../types/chart/gauge_chart";
 import { CommandResult, DispatchResult } from "../../../../types/commands";
+import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { OSComponent } from "../../../os_component";
 import { ChartTerms } from "../../../translations_terms";
-import { ChartDataSeries } from "../building_blocks/data_series/data_series";
+import { Section } from "../../components/section/section";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
 import { ChartSidePanelProps, chartSidePanelPropsDefinition } from "../common";
 
 interface PanelState {
-  dataRangeDispatchResult?: DispatchResult;
+  metricDispatchResult?: DispatchResult;
 }
 
 export class GaugeChartConfigPanel extends OSComponent {
   static template = "o-spreadsheet-GaugeChartConfigPanel";
-  static components = { ChartErrorSection, ChartDataSeries };
+  static components = { ChartErrorSection, Section, StandaloneComposer };
   protected props = useProps(
     chartSidePanelPropsDefinition
   ) as unknown as ChartSidePanelProps<GaugeChartDefinition>;
 
   private state: PanelState = proxy({
-    dataRangeDispatchResult: undefined,
+    metricDispatchResult: undefined,
   });
 
-  private dataRange: string | undefined = this.props.definition.dataRange;
+  private metric: string | undefined = this.props.definition.metric;
 
   get configurationErrorMessages(): string[] {
-    const cancelledReasons = [...(this.state.dataRangeDispatchResult?.reasons || [])].filter(
+    const cancelledReasons = [...(this.state.metricDispatchResult?.reasons || [])].filter(
       (reason) => reason !== CommandResult.NoChanges
     );
     return cancelledReasons.map(
@@ -33,26 +34,14 @@ export class GaugeChartConfigPanel extends OSComponent {
     );
   }
 
-  get isDataRangeInvalid(): boolean {
-    return !!this.state.dataRangeDispatchResult?.isCancelledBecause(
-      CommandResult.InvalidGaugeDataRange
-    );
-  }
-
-  onDataRangeChanged(ranges: string[]) {
-    this.dataRange = ranges[0];
-    this.state.dataRangeDispatchResult = this.props.canUpdateChart(this.props.chartId, {
-      dataRange: this.dataRange,
+  onConfirmMetric(metric: string) {
+    this.metric = metric;
+    this.state.metricDispatchResult = this.props.updateChart(this.props.chartId, {
+      metric: this.metric,
     });
   }
 
-  updateDataRange() {
-    this.state.dataRangeDispatchResult = this.props.updateChart(this.props.chartId, {
-      dataRange: this.dataRange,
-    });
-  }
-
-  getDataRange() {
-    return { dataRange: this.dataRange || "" };
+  getMetric(): string {
+    return this.metric || "";
   }
 }
