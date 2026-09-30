@@ -251,7 +251,7 @@ export function gaugeChart(
   metric: string,
   rangeMin: string,
   rangeMax: string
-): GaugeChartDefinition<string> {
+): GaugeChartDefinition {
   return {
     type: "gauge",
     title: { text: titleText },

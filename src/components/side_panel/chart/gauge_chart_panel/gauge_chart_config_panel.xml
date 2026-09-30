@@ -1,16 +1,13 @@
 <templates>
   <t t-name="o-spreadsheet-GaugeChartConfigPanel">
     <div>
-      <Section class="'o-data-series'">
-        <t t-set-slot="title">
-          <div class="d-flex flex-row justify-content-between">Data range</div>
-        </t>
+      <Section class="'o-data-series'" title.translate="Data range">
         <StandaloneComposer
           placeholder.translate="Formula"
           title.translate=""
-          composerContent="this.ranges.toString()"
+          composerContent="this.getMetric()"
           defaultRangeSheetId="this.env.model.getters.getActiveSheetId()"
-          onConfirm.bind="this.updateMetric"
+          onConfirm.bind="this.onConfirmMetric"
         />
       </Section>
 

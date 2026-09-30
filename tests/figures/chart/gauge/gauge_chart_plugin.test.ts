@@ -94,7 +94,7 @@ describe("datasource tests", function () {
       "chartId"
     );
     expect(model.getters.getChartDefinition("chartId") as GaugeChartDefinition).toMatchObject({
-      dataRange: "B8",
+      metric: "=B8",
       type: "gauge",
       title: { text: "Title" },
       sectionRule: randomSectionRule,
@@ -103,7 +103,7 @@ describe("datasource tests", function () {
   });
 
   test("create empty gauge chart", () => {
-    createGaugeChart(model, { metric: "A1" }, "chartId");
+    createGaugeChart(model, { metric: "=A1" }, "chartId");
     expect(model.getters.getChartDefinition("chartId") as GaugeChartDefinition).toMatchObject({
       type: "gauge",
       metric: "=A1",
@@ -119,7 +119,7 @@ describe("datasource tests", function () {
       type: "gauge",
       background: "#123456",
       title: { text: "hello there" },
-      dataRange: "Sheet1!B1:B4",
+      metric: "=Sheet1!B1:B4",
       sectionRule: expect.any(Object),
       humanize: false,
       annotationText: "This is an annotation text",
@@ -289,11 +289,6 @@ describe("datasource tests", function () {
       { value: 22, label: "22", operator: "<=" },
       { value: 65, label: "65", operator: "<=" }, // 50% of 130
     ]);
-  });
-
-  test("create gauge chart with invalid ranges", () => {
-    const result = createGaugeChart(model, { metric: "this is invalid" }, "chartId");
-    expect(result).toBeCancelledBecause(CommandResult.InvalidGaugeDataRange);
   });
 
   describe("create gauge chart with invalid section rule", () => {
@@ -510,14 +505,14 @@ describe("Chart design configuration", () => {
     };
   });
 
-  test("dataRange with a zero value", () => {
+  test("metric with a zero value", () => {
     setCellContent(model, "A1", "0");
     createGaugeChart(model, defaultChart, "chartId");
     const gaugeValue = (model.getters.getChartRuntime("chartId") as GaugeChartRuntime).gaugeValue;
     expect(gaugeValue?.value).toBe(0);
   });
 
-  test("empty/NaN dataRange have undefined gauge value", () => {
+  test("empty/NaN metric have undefined gauge value", () => {
     createGaugeChart(model, defaultChart, "chartId");
     let gaugeValue = (model.getters.getChartRuntime("chartId") as GaugeChartRuntime).gaugeValue;
     expect(gaugeValue).toBe(undefined);
@@ -527,17 +522,61 @@ describe("Chart design configuration", () => {
     expect(gaugeValue).toBe(undefined);
   });
 
-  test("empty dataRange --> gauge value is undefined", () => {
+  test("empty metric reference --> gauge value is undefined", () => {
     createGaugeChart(model, defaultChart, "chartId");
     const gaugeValue = (model.getters.getChartRuntime("chartId") as GaugeChartRuntime).gaugeValue;
     expect(gaugeValue).toBe(undefined);
   });
 
-  test("NaN dataRange --> gauge value is undefined", () => {
+  test("NaN metric reference --> gauge value is undefined", () => {
     setCellContent(model, "A1", "bla bla bla");
     createGaugeChart(model, defaultChart, "chartId");
     const gaugeValue = (model.getters.getChartRuntime("chartId") as GaugeChartRuntime).gaugeValue;
     expect(gaugeValue).toBe(undefined);
+  });
+
+  test("undefined metric --> gauge value is undefined", () => {
+    createGaugeChart(model, { ...defaultChart, metric: undefined }, "chartId");
+    const gaugeValue = (model.getters.getChartRuntime("chartId") as GaugeChartRuntime).gaugeValue;
+    expect(gaugeValue).toBe(undefined);
+  });
+
+  test("metric can be a formula", () => {
+    setCellContent(model, "A1", "10");
+    setCellContent(model, "A2", "32");
+    createGaugeChart(model, { ...defaultChart, metric: "=SUM(A1:A2)" }, "chartId");
+    let gaugeValue = (model.getters.getChartRuntime("chartId") as GaugeChartRuntime).gaugeValue;
+    expect(gaugeValue).toEqual({ value: 42, label: "42" });
+
+    setCellContent(model, "A2", "40");
+    gaugeValue = (model.getters.getChartRuntime("chartId") as GaugeChartRuntime).gaugeValue;
+    expect(gaugeValue).toEqual({ value: 50, label: "50" });
+  });
+
+  test("metric can be a literal number", () => {
+    createGaugeChart(model, { ...defaultChart, metric: "42" }, "chartId");
+    const gaugeValue = (model.getters.getChartRuntime("chartId") as GaugeChartRuntime).gaugeValue;
+    expect(gaugeValue).toEqual({ value: 42, label: "42" });
+  });
+
+  test("literal text metric --> gauge value is undefined", () => {
+    createGaugeChart(model, { ...defaultChart, metric: "hello" }, "chartId");
+    const gaugeValue = (model.getters.getChartRuntime("chartId") as GaugeChartRuntime).gaugeValue;
+    expect(gaugeValue).toBe(undefined);
+  });
+
+  test("formula metric returning text --> gauge value is undefined", () => {
+    createGaugeChart(model, { ...defaultChart, metric: '="hello"' }, "chartId");
+    const gaugeValue = (model.getters.getChartRuntime("chartId") as GaugeChartRuntime).gaugeValue;
+    expect(gaugeValue).toBe(undefined);
+  });
+
+  test("metric formula returning a matrix takes its first value", () => {
+    setCellContent(model, "A1", "12");
+    setCellContent(model, "A2", "24");
+    createGaugeChart(model, { ...defaultChart, metric: "=A1:A2" }, "chartId");
+    const gaugeValue = (model.getters.getChartRuntime("chartId") as GaugeChartRuntime).gaugeValue;
+    expect(gaugeValue?.value).toBe(12);
   });
 
   test("rangeMin and rangeMax are sorted in the runtime", async () => {
@@ -601,7 +640,7 @@ describe("Chart design configuration", () => {
     expect(runtime.inflectionValues).toMatchObject([{ value: 66 }]);
   });
 
-  test("displayed values respect dataRange format", () => {
+  test("displayed values respect metric format", () => {
     setCellContent(model, "A1", "42");
     setFormat(model, "A1", "[$$]0.00");
     createGaugeChart(model, defaultChart, "chartId");

@@ -2,12 +2,7 @@ import { CommandResult, Model } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { ChartTerms } from "../../../../src/components/translations_terms";
 import { SpreadsheetActionEnv } from "../../../../src/types/spreadsheet_env";
-import {
-  createGaugeChart,
-  editSelectComponent,
-  setInputValueAndTrigger,
-  simulateClick,
-} from "../../../test_helpers";
+import { createGaugeChart, editSelectComponent } from "../../../test_helpers";
 import {
   openChartConfigSidePanel,
   openChartDesignSidePanel,
@@ -31,11 +26,19 @@ beforeEach(async () => {
   await openChartConfigSidePanel(model, env, chartId);
 });
 
-test("No error when confirming unchanged data range", async () => {
+test("Metric composer displays the metric formula", async () => {
+  expect(".o-data-series .o-composer").toHaveText(TEST_CHART_DATA.gauge.metric);
+});
+
+test("No error when confirming unchanged metric", async () => {
   expect(textContentAll(".o-validation-error")).toHaveLength(0);
-  await simulateClick(".o-data-series input");
-  await simulateClick(".o-data-series .o-selection-ok");
+  await editStandaloneComposer(".o-data-series .o-composer", TEST_CHART_DATA.gauge.metric);
   expect(textContentAll(".o-validation-error")).toHaveLength(0);
+});
+
+test("Can input a formula as gauge metric", async () => {
+  await editStandaloneComposer(".o-data-series .o-composer", "=SUM(A1:A5)");
+  expect(model.getters.getChartDefinition(chartId)).toMatchObject({ metric: "=SUM(A1:A5)" });
 });
 
 test("Can change gauge inflection operator", async () => {
@@ -112,13 +115,6 @@ test("Composers have correct placeholder and titles", async () => {
 });
 
 describe("update chart with invalid section rule", () => {
-  test("empty dataRange", async () => {
-    await simulateClick(".o-data-series input");
-    await setInputValueAndTrigger(".o-data-series input", "");
-    await simulateClick(".o-data-series .o-selection-ok");
-    expect(document.querySelector(".o-data-series input")?.classList).toContain("o-invalid");
-  });
-
   test("empty rangeMin", async () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
     await editStandaloneComposer(".o-data-range-min .o-composer", "");

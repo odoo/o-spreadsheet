@@ -669,6 +669,30 @@ migrationStepRegistry
       }
       return data;
     },
+  })
+  .add("20.1.1", {
+    migrate(data: WorkbookData): any {
+      function upgrade(definition: any): any {
+        if (definition.type !== "gauge") {
+          return definition;
+        }
+        const { dataRange, ...rest } = definition;
+        return dataRange ? { ...rest, metric: `=${dataRange}` } : rest;
+      }
+      for (const sheet of data.sheets || []) {
+        for (const figure of sheet.figures || []) {
+          if (figure.tag === "chart") {
+            figure.data = upgrade(figure.data);
+          } else if (figure.tag === "carousel") {
+            for (const chartId in figure.data.chartDefinitions) {
+              const definition = figure.data.chartDefinitions[chartId];
+              figure.data.chartDefinitions[chartId] = upgrade(definition);
+            }
+          }
+        }
+      }
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {
