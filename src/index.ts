@@ -363,6 +363,7 @@ import { TopBar } from "./components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "./components/top_bar/top_bar_tools_registry";
 import { createComputeFunction } from "./functions/create_compute_function";
 import { PositionMap } from "./helpers/cells/position_map";
+import { parseOSClipboardContent } from "./helpers/clipboard/clipboard_helpers";
 import { parseFormat } from "./helpers/format/format_parser";
 import { replaceSymbolInFormula } from "./helpers/formulas";
 import {
@@ -458,6 +459,7 @@ export const helpers = {
   collapseHierarchicalDisplayName,
   getCanonicalSymbolName,
   fuzzyLookup,
+  parseOSClipboardContent,
   PositionMap,
   replaceSymbolInFormula,
   isSingleCellReference,
@@ -632,13 +634,13 @@ export const chartHelpers: typeof CHART_HELPERS & typeof CHART_RUNTIME_HELPERS =
   ...CHART_RUNTIME_HELPERS,
 };
 
-export { SpreadsheetPivotTable } from "./helpers/pivot/table_spreadsheet_pivot";
-
 export { AbstractCellClipboardHandler } from "./clipboard_handlers/abstract_cell_clipboard_handler";
+export { ClipboardHandler } from "./clipboard_handlers/abstract_clipboard_handler";
 export { AbstractFigureClipboardHandler } from "./clipboard_handlers/abstract_figure_clipboard_handler";
 export type { EnrichedToken } from "./formulas/composer_tokenizer";
 export type { AST, ASTFuncall } from "./formulas/parser";
 export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";
+export { SpreadsheetPivotTable } from "./helpers/pivot/table_spreadsheet_pivot";
 export type * from "./types/autofill";
 export * from "./types/cells";
 export * from "./types/chart/chart";
