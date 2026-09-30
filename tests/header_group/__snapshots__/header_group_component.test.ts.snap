@@ -24,7 +24,7 @@ exports[`Header group component test For column groups Snapshot 1`] = `
         >
           <div
             class="o-group-fold-button user-select-none rounded d-flex align-items-center justify-content-center"
-            style="background-color: rgb(255, 255, 255); color: #333;"
+            style="background-color: var(--os-white-bg); color: var(--os-text-body);"
           >
             <svg
               class="o-icon minus"
@@ -56,7 +56,7 @@ exports[`Header group component test For column groups Snapshot 1`] = `
         >
           <div
             class="o-group-fold-button user-select-none rounded d-flex align-items-center justify-content-center"
-            style="background-color: rgb(255, 255, 255); color: #333;"
+            style="background-color: var(--os-white-bg); color: var(--os-text-body);"
           >
             <svg
               class="o-icon minus"
@@ -108,7 +108,7 @@ exports[`Header group component test For row groups Snapshot 1`] = `
         >
           <div
             class="o-group-fold-button user-select-none rounded d-flex align-items-center justify-content-center"
-            style="background-color: rgb(255, 255, 255); color: #333;"
+            style="background-color: var(--os-white-bg); color: var(--os-text-body);"
           >
             <svg
               class="o-icon minus"
@@ -140,7 +140,7 @@ exports[`Header group component test For row groups Snapshot 1`] = `
         >
           <div
             class="o-group-fold-button user-select-none rounded d-flex align-items-center justify-content-center"
-            style="background-color: rgb(255, 255, 255); color: #333;"
+            style="background-color: var(--os-white-bg); color: var(--os-text-body);"
           >
             <svg
               class="o-icon minus"
