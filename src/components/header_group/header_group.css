@@ -3,6 +3,7 @@
     .o-header-group-header {
       z-index: var(--os-components-importance-header-grouping-button);
       .o-group-fold-button {
+        color-scheme: light;
         cursor: pointer;
         width: 15px;
         height: 15px;
