@@ -16,6 +16,7 @@ import { downloadFile } from "../../src/components/helpers/dom_helpers";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { toXC } from "../../src/helpers/coordinates";
 import { render } from "../../src/helpers/owl3_helpers";
+import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
 import { figureRegistry } from "../../src/registries/figures_registry";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { ClipboardMIMEType } from "../../src/types/clipboard";
@@ -1210,12 +1211,14 @@ describe("figures", () => {
         await simulateClick(".o-figure");
         await simulateClick(menuSelector);
         await simulateClick(".o-menu div[data-name='copy']");
-        const envClipBoardContent = await env.clipboard.read();
+        const envClipBoardContent = await getPlugin(NavigatorClipboardPlugin).read();
         if (envClipBoardContent.status === "ok") {
           const envClipboardTextContent = envClipBoardContent.content[ClipboardMIMEType.PlainText];
           const clipboardStore = env.getStore(ClipboardStore);
           const osClipboardContent = await clipboardStore.getClipboardTextAndImageContent();
           expect(envClipboardTextContent).toEqual(osClipboardContent[ClipboardMIMEType.PlainText]);
+        } else {
+          throw new Error("Clipboard read failed");
         }
         paste(model, "A4");
         expect(getFigureIds(model, sheetId)).toHaveLength(2);
@@ -1238,12 +1241,14 @@ describe("figures", () => {
         await simulateClick(".o-figure");
         await simulateClick(menuSelector);
         await simulateClick(".o-menu div[data-name='cut']");
-        const envClipBoardContent = await env.clipboard.read();
+        const envClipBoardContent = await getPlugin(NavigatorClipboardPlugin).read();
         if (envClipBoardContent.status === "ok") {
           const envClipboardTextContent = envClipBoardContent.content[ClipboardMIMEType.PlainText];
           const clipboardStore = env.getStore(ClipboardStore);
           const osClipboardContent = await clipboardStore.getClipboardTextAndImageContent();
           expect(envClipboardTextContent).toEqual(osClipboardContent[ClipboardMIMEType.PlainText]);
+        } else {
+          throw new Error("Clipboard read failed");
         }
         paste(model, "A1");
         expect(getFigureIds(model, sheetId)).toHaveLength(1);
