@@ -46,8 +46,8 @@ abstract class AbstractHeaderGroup extends OSComponent {
 
   get groupButtonStyle(): string {
     return cssPropertiesToCss({
-      "background-color": this.isGroupFolded ? "#333" : "#fff",
-      color: this.isGroupFolded ? "#fff" : "#333",
+      "background-color": this.isGroupFolded ? "var(--os-text-body)" : "var(--os-white-bg)",
+      color: this.isGroupFolded ? "var(--os-white-bg)" : "var(--os-text-body)",
     });
   }
 
