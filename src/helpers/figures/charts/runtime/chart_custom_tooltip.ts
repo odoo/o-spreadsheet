@@ -14,17 +14,22 @@ const templates = /* xml */ `
       class="o-chart-custom-tooltip border rounded px-2 py-1 pe-none mw-100 position-absolute text-nowrap shadow opacity-100">
       <div
         t-if="title"
-        class="o-tooltip-title text-truncate fw-bold"
+        class="o-tooltip-title text-truncate fw-bold mb-1"
         t-out="title"
         t-attf-style="max-width: {{ labelsMaxWidth }}"
       />
-      <div class="d-flex align-items-start mt-1" t-foreach="tooltipItems" t-as="tooltipItem" t-key="tooltipItem_index">
+      <div
+          t-foreach="tooltipItems"
+          t-as="tooltipItem"
+          t-key="tooltipItem_index"
+          class="d-flex"
+          t-att-class="{ 'mt-1': tooltipItem_index !== 0 }">
         <div class="position-relative ps-2">
           <span
             class="o-tooltip-color-indicator position-absolute top-0 bottom-0 start-0"
             t-attf-style="width: 5px; background-color: {{ tooltipItem.boxColor }}; border-radius: 2px;"
           />
-          <div t-if="tooltipItem.label.length" class="ms-2">
+          <div t-if="tooltipItem.label.length" class="ms-2 mt-1">
             <small
               t-foreach="tooltipItem.label"
               t-as="tooltipLabelLine"
@@ -35,8 +40,8 @@ const templates = /* xml */ `
             />
           </div>
         </div>
-        <div class="o-tooltip-value ps-4 fw-bolder text-end ms-auto">
-          <small class="smaller d-inline-block text-truncate" t-attf-style="max-width: {{ valuesMaxWidth }}">
+        <div class="o-tooltip-value ps-4 fw-bolder text-end ms-auto mt-1">
+          <small class="smaller d-block text-truncate" t-attf-style="max-width: {{ valuesMaxWidth }}">
             <t t-out="tooltipItem.value"/>
             <t t-if="tooltipItem.percentage">
               (
