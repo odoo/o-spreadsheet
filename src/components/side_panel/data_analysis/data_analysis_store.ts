@@ -6,8 +6,10 @@ import {
 } from "../../../helpers/data_statistics/statistics_items";
 import {
   buildBooleanItems,
+  buildCategorySumItems,
   buildDateStatSections,
   buildGeneralStatItems,
+  buildGroupedDateSections,
   buildOccurrencesItems,
 } from "../../../helpers/data_statistics/statistics_suggestion";
 import {
@@ -213,6 +215,23 @@ export class DataAnalysisStore extends SpreadsheetStore {
           day: { ...day, items: withPercentages(day.items, total) },
         };
       }
+    } else if (this.hasData && cols.length === 2) {
+      const leftCol = cols[0];
+      const rightCol = cols[1];
+      this.generalStatItems = [];
+      this.dateStatSections = buildGroupedDateSections(
+        this.getters,
+        leftCol,
+        rightCol,
+        sheetId
+      );
+      this.occurrencesItems = buildCategorySumItems(
+        this.getters,
+        leftCol,
+        rightCol,
+        sheetId
+      );
+      console.log(this.occurrencesItems);
     }
     this.sortOccurrencesItems();
     this.sortDateItems();
