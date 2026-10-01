@@ -8,6 +8,7 @@
  */
 
 import { CSSProperties, Style } from "../../types/misc";
+import { Rect } from "../../types/rendering";
 
 export function getTextDecoration({
   strikethrough,
@@ -81,6 +82,15 @@ export function cssPropertiesToCss(attributes: CSSProperties): string {
   }
 
   return styleStr;
+}
+
+export function rectToCss(rect: Rect): CSSProperties {
+  return {
+    left: `${rect.x}px`,
+    top: `${rect.y}px`,
+    width: `${rect.width}px`,
+    height: `${rect.height}px`,
+  };
 }
 
 export function getElementMargins(el: Element) {
