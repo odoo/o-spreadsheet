@@ -1666,6 +1666,20 @@ describe("Integration tests", () => {
     expect(fixture.querySelector(selectors.listPreview)).toBeDefined();
   });
 
+  test("no color is selected in the text color picker when the rule has no text color", async () => {
+    env.getStore(SidePanelStore).open("ConditionalFormatting");
+    await nextTick();
+    await click(fixture, selectors.buttonAdd);
+
+    const textColorButton = `.o-cf-editor .o-color-picker-button[title="Text Color"]`;
+    await click(fixture, textColorButton);
+    expect(".o-color-picker-line-item[data-color='#000000'] div").toHaveCount(0);
+
+    await click(fixture, ".o-color-picker-line-item[data-color='#000000']");
+    await click(fixture, textColorButton);
+    expect(".o-color-picker-line-item[data-color='#000000'] div").toHaveCount(1);
+  });
+
   test("CF standalone composer becomes inactive on sheet change", async () => {
     const cf = createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99");
     const range = "A1:A2";
