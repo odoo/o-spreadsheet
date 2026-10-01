@@ -9,7 +9,7 @@ import { CSSProperties, UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
-import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
+import { isMobileOS, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
@@ -155,13 +155,13 @@ export class FigureComponent extends OSComponent {
   }
 
   onMouseDown(ev: MouseEvent) {
-    if (!this.env.isMobile()) {
+    if (!isMobileOS()) {
       this.props.onMouseDown(ev);
     }
   }
 
   onClick(ev: MouseEvent) {
-    if (this.env.isMobile()) {
+    if (isMobileOS()) {
       this.props.onMouseDown(ev);
     }
   }
@@ -329,7 +329,7 @@ export class FigureComponent extends OSComponent {
   get isFigureResizable(): boolean {
     return (
       this.isSelected &&
-      !this.env.isMobile() &&
+      !isMobileOS() &&
       !this.env.model.getters.isDashboard() &&
       !this.env.model.getters.isCurrentSheetLocked()
     );

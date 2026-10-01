@@ -2,7 +2,7 @@ import { onWillStart, useProps } from "@odoo/owl";
 import { DAYS, formatValue } from "../../../helpers/format/format";
 import { getDateTimeFormat, isValidLocale } from "../../../helpers/locale";
 import { deepEquals } from "../../../helpers/misc";
-import { Locale, LocaleCode } from "../../../types/locale";
+import { DEFAULT_LOCALES, Locale, LocaleCode } from "../../../types/locale";
 import { ValueAndLabel } from "../../../types/misc";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
@@ -34,7 +34,7 @@ export class SettingsPanel extends OSComponent {
   }
 
   private async loadLocales() {
-    this.loadedLocales = (await this.env.loadLocales())
+    this.loadedLocales = ((await this.env.model.config.external.loadLocales?.()) ?? DEFAULT_LOCALES)
       .filter((locale) => {
         const isValid = isValidLocale(locale);
         if (!isValid) {

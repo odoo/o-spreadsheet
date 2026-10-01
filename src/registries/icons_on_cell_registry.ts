@@ -1,3 +1,4 @@
+import { ComposerFocusStore } from "../components/composer/composer_focus_store";
 import {
   getCaretDownSvg,
   getCaretUpSvg,
@@ -105,7 +106,7 @@ iconsOnCellRegistry.add("data_validation_list_chip_icon", (getters, position) =>
     onClick: (position, env) => {
       const { col, row } = position;
       env.model.selection.selectCell(col, row);
-      env.startCellEdition();
+      env.getStore(ComposerFocusStore).focusActiveComposer({});
     },
     type: "data_validation_list_chip_icon",
   };

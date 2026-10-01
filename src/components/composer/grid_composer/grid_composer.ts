@@ -12,6 +12,7 @@ import { PropsOf } from "../../../types/props_of";
 import { Rect } from "../../../types/rendering";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss, getTextDecoration } from "../../helpers/css";
+import { isMobileOS } from "../../helpers/dom_helpers";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { CellComposerStore } from "../composer/cell_composer_store";
@@ -75,7 +76,7 @@ export class GridComposer extends OSComponent {
   }
 
   get shouldDisplayCellReference(): boolean {
-    return !this.env.isMobile() && this.isCellReferenceVisible;
+    return !isMobileOS() && this.isCellReferenceVisible;
   }
 
   get cellReference(): string {
@@ -131,7 +132,7 @@ export class GridComposer extends OSComponent {
   }
 
   get containerStyle(): string {
-    if (this.composerStore.editionMode === "inactive" || this.env.isMobile()) {
+    if (this.composerStore.editionMode === "inactive" || isMobileOS()) {
       return `z-index: -1000; opacity: 0;`; // opacity 0 for safari on ios
     }
     const _isFormula = isFormula(this.composerStore.currentContent);

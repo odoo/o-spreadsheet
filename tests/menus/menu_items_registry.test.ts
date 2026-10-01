@@ -51,6 +51,7 @@ import { Currency, Model } from "../../src";
 import { ActionSpec, createAction, createActions } from "../../src/actions/action";
 import { FIRST_TABLE_IN_SELECTION } from "../../src/actions/menu_items_actions";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { FONT_SIZES } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
@@ -1038,9 +1039,10 @@ describe("Menu Item actions", () => {
   });
 
   test("Insert -> Function", async () => {
-    const spyStartCell = jest.spyOn(env, "startCellEdition");
+    const composerFocusStore = env.getStore(ComposerFocusStore);
+    const spyStartCell = jest.spyOn(composerFocusStore, "focusActiveComposer");
     await doAction(["insert", "insert_function", "insert_function_sum"], env);
-    expect(spyStartCell).toHaveBeenCalled();
+    expect(spyStartCell).toHaveBeenCalledWith({ content: "=SUM(" });
   });
 
   test("Insert -> Function -> All includes new functions", () => {

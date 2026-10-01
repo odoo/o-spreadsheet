@@ -77,7 +77,7 @@ describe("settings sidePanel component", () => {
       });
     });
 
-    test("Current locale in loaded model that is not in env.loadLocales() is displayed", async () => {
+    test("Current locale in loaded model that is not in model.config.loadLocales() is displayed", async () => {
       model = new Model({ settings: { locale: CUSTOM_LOCALE } });
       await mountSettingsSidePanel(model);
       await simulateClick(".o-settings-panel .o-select");
@@ -93,8 +93,8 @@ describe("settings sidePanel component", () => {
     test("Malformed locales in env.loadLocales() are not displayed", async () => {
       jest.spyOn(console, "warn").mockImplementation(() => {}); // silence console.warn and don't crash the test
       const testLocales: Locale[] = [DEFAULT_LOCALE, { code: "malformed" } as any, "yo !" as any];
-      const env = { loadLocales: async () => testLocales };
-      await mountSettingsSidePanel(undefined, env);
+      model = new Model({}, { external: { loadLocales: async () => testLocales } });
+      await mountSettingsSidePanel(model);
 
       await simulateClick(".o-settings-panel .o-select");
       const options = fixture.querySelectorAll<HTMLOptionElement>(".o-select-option");
