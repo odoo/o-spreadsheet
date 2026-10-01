@@ -72,6 +72,7 @@ import { ComposerSelection } from "../composer/composer/abstract_composer_store"
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
+import { FiguresDragAndDropContainer } from "../figures/figure_dnd_container/figure_dnd_container";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import {
@@ -157,6 +158,7 @@ export class Grid extends OSComponent {
     TableResizer,
     Selection,
     FiguresContainer,
+    FiguresDragAndDropContainer,
   };
 
   protected props = useProps({

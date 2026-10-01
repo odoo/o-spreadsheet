@@ -18,16 +18,22 @@ export function dragFigureForMove(
   { x: mouseX, y: mouseY }: PixelPosition,
   { x: mouseInitialX, y: mouseInitialY }: PixelPosition,
   initialFigures: FigureUI[],
-  { maxX, maxY }: { maxX: number; maxY: number },
-  { scrollX: initialScrollX, scrollY: initialScrollY }: SheetDOMScrollInfo,
-  { scrollX, scrollY }: SheetDOMScrollInfo
+  boundaries: Rect
 ): FigureUI[] {
-  let deltaX = mouseX - mouseInitialX + scrollX - initialScrollX;
-  let deltaY = mouseY - mouseInitialY + scrollY - initialScrollY;
+  let deltaX = mouseX - mouseInitialX;
+  let deltaY = mouseY - mouseInitialY;
 
   for (const figure of initialFigures) {
-    deltaX = clip(deltaX, -figure.x, maxX - figure.x - figure.width);
-    deltaY = clip(deltaY, -figure.y, maxY - figure.y - figure.height);
+    deltaX = clip(
+      deltaX,
+      boundaries.x - figure.x,
+      boundaries.x + boundaries.width - figure.x - figure.width
+    );
+    deltaY = clip(
+      deltaY,
+      boundaries.y - figure.y,
+      boundaries.y + boundaries.height - figure.y - figure.height
+    );
   }
 
   return initialFigures.map((f) => {
@@ -45,17 +51,25 @@ export function dragFigureForResize(
   minFigSize: DOMDimension,
   { scrollX: initialScrollX, scrollY: initialScrollY }: SheetDOMScrollInfo,
   { scrollX, scrollY }: SheetDOMScrollInfo,
-  { maxX, maxY }: { maxX: number; maxY: number }
+  boundaries: Rect
 ): Rect {
   let { x, y, width, height } = initialRect;
+  const scrollOffset = {
+    x: scrollX - initialScrollX,
+    y: scrollY - initialScrollY,
+  };
+
+  // The displayed dragged figure moves with the scroll. But for resize, we want its position to stay the same, and change the size on scroll
+  x -= scrollOffset.x;
+  y -= scrollOffset.y;
 
   if (keepRatio && dirX !== 0 && dirY !== 0) {
     const deltaX = Math.min(
-      dirX * (mouseInitialX - mouseX + scrollX - initialScrollX),
+      dirX * (mouseInitialX - mouseX + scrollOffset.x),
       width - minFigSize.width
     );
     const deltaY = Math.min(
-      dirY * (mouseInitialY - mouseY + scrollY - initialScrollY),
+      dirY * (mouseInitialY - mouseY + scrollOffset.y),
       height - minFigSize.height
     );
     const fraction = Math.min(deltaX / width, deltaY / height);
@@ -69,11 +83,11 @@ export function dragFigureForResize(
     height = height * (1 - fraction);
   } else {
     const deltaX = Math.max(
-      dirX * (mouseX - mouseInitialX + scrollX - initialScrollX),
+      dirX * (mouseX - mouseInitialX + scrollOffset.x),
       minFigSize.width - width
     );
     const deltaY = Math.max(
-      dirY * (mouseY - mouseInitialY + scrollY - initialScrollY),
+      dirY * (mouseY - mouseInitialY + scrollOffset.y),
       minFigSize.height - height
     );
     width = width + deltaX;
@@ -88,17 +102,17 @@ export function dragFigureForResize(
   }
 
   // Adjusts figure dimensions to ensure it remains within header boundaries and viewport during resizing.
-  if (x + scrollX <= 0) {
-    width = width + x + scrollX;
-    x = -scrollX;
-  } else if (x + width > maxX) {
-    width = maxX - x;
+  if (x <= boundaries.x) {
+    width = width + x - boundaries.x;
+    x = boundaries.x;
+  } else if (x + width > boundaries.x + boundaries.width) {
+    width = boundaries.x + boundaries.width - x;
   }
-  if (y + scrollY <= 0) {
-    height = height + y + scrollY;
-    y = -scrollY;
-  } else if (y + height > maxY) {
-    height = maxY - y;
+  if (y <= boundaries.y) {
+    height = height + y - boundaries.y;
+    y = boundaries.y;
+  } else if (y + height > boundaries.y + boundaries.height) {
+    height = boundaries.y + boundaries.height - y;
   }
 
   return { x, y, width, height };
