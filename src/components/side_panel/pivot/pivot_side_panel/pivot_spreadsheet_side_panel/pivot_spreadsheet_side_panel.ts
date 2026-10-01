@@ -76,15 +76,7 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
 
   onSelectionChanged(ranges: string[]) {
     this.state.rangeHasChanged = true;
-    if (ranges.length === 0) {
-      this.state.range = undefined;
-      return;
-    }
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const range = this.env.model.getters.getRangeFromSheetXC(sheetId, ranges[0]);
-    this.state.range = this.env.model.getters.getRangeString(range, "forceSheetReference", {
-      useBoundedReference: true,
-    });
+    this.state.range = ranges[0];
   }
 
   onSelectionConfirmed() {
@@ -97,6 +89,11 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
         return;
       }
 
+      // Unbounded ranges are not supported as a dataset: display the bounded range once confirmed,
+      // not while typing, to avoid rewriting the input under the user's cursor.
+      this.state.range = this.env.model.getters.getRangeString(range, "forceSheetReference", {
+        useBoundedReference: true,
+      });
       const dataSet = { sheetId: range.sheetId, zone: range.zone };
       this.store.update({ dataSet });
       // Immediately apply the update to recompute the pivot fields
