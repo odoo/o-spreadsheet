@@ -72,6 +72,25 @@ describe("Simple filter test", () => {
     expect(model.getters.isRowHidden(sheetId, 2)).toBe(false);
   });
 
+  test("getRowDimensions is kept in sync when a filtered cell is re-evaluated outside of UPDATE_CELL", () => {
+    setCellContent(model, "B2", "10");
+    setCellContent(model, "A2", "=B2");
+    createTableWithFilter(model, "A1:A3");
+    updateFilter(model, "A1", ["1"]);
+    expect(model.getters.isRowHidden(sheetId, 1)).toBe(false);
+
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
+    setCellContent(model, "B2", "1");
+    expect(model.getters.isRowHidden(sheetId, 1)).toBe(false);
+
+    model.dispatch("EVALUATE_CELLS");
+    expect(model.getters.isRowHidden(sheetId, 1)).toBe(true);
+
+    const row0 = model.getters.getRowDimensions(sheetId, 0);
+    const row2 = model.getters.getRowDimensions(sheetId, 2);
+    expect(row2.start).toBe(row0.end);
+  });
+
   test("Filtered rows should persist after hiding and unhiding multiple rows", () => {
     const model = new Model();
 
