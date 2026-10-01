@@ -1365,6 +1365,18 @@ describe("UI of conditional formats", () => {
     ).toBe("BeginsWith");
   });
 
+  test("no color is selected in the text color picker when the rule has no text color", async () => {
+    await click(fixture, selectors.buttonAdd);
+
+    const textColorButton = `.o-cf-editor .o-color-picker-button[title="Text Color"]`;
+    await click(fixture, textColorButton);
+    expect(".o-color-picker-line-item[data-color='#000000'] div").toHaveCount(0);
+
+    await click(fixture, ".o-color-picker-line-item[data-color='#000000']");
+    await click(fixture, textColorButton);
+    expect(".o-color-picker-line-item[data-color='#000000'] div").toHaveCount(1);
+  });
+
   test("switching to list resets the rules to their default value", async () => {
     await click(fixture, selectors.buttonAdd);
     setInputValueAndTrigger(selectors.ruleEditor.range, "B5:C7");
