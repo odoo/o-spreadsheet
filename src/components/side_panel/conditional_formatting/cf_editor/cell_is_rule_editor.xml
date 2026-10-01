@@ -69,8 +69,16 @@
           <t t-call="o-spreadsheet-Icon.STRIKE"/>
         </div>
         <ColorPickerWidget
+<<<<<<< ca6e2a86b218f514b005be518015dfd1620424b6
           currentColor="rule.style.textColor || '#000000'"
           toggleColorPicker="() => store.toggleMenu('cellIsRule-textColor')"
+||||||| 4ca60f54a5adae10d54bce9e81cf7ae647a5c015
+          currentColor="rule.style.textColor || '#000000'"
+          toggleColorPicker="(ev) => this.toggleMenu('cellIsRule-textColor', ev)"
+=======
+          currentColor="rule.style.textColor"
+          toggleColorPicker="(ev) => this.toggleMenu('cellIsRule-textColor', ev)"
+>>>>>>> 7481deda585f66c89e302b48a8e35f6712490d1f
           showColorPicker="state.openedMenu === 'cellIsRule-textColor'"
           onColorPicked="(color) => store.setColor('textColor', color)"
           title="text_color"

@@ -1637,8 +1637,272 @@ describe("UI of conditional formats", () => {
         (model.getters.getConditionalFormats(sheetId)[lastCfIndex].rule as CellIsRule).values
       ).toEqual(["5/1/2012"]);
 
+<<<<<<< ca6e2a86b218f514b005be518015dfd1620424b6
       const description = fixture.querySelector(selectors.description.ruletype.rule);
       expect(description?.textContent).toContain("01/05/2012");
+||||||| 4ca60f54a5adae10d54bce9e81cf7ae647a5c015
+    setInputValueAndTrigger(inputInflectionUpper, "hello");
+    await click(fixture, selectors.buttonSave);
+    expect(inputInflectionLower.classList).toContain("o-invalid");
+    expect(inputInflectionUpper.classList).toContain("o-invalid");
+    expect(errorMessages()).toEqual([
+      "The second value must be a number",
+      "The first value must be a number",
+    ]);
+  });
+
+  test("lower point bigger than upper displays both input as invalid", async () => {
+    await click(fixture, selectors.buttonAdd);
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
+    const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
+    const inputInflectionLower = rows[1].querySelectorAll("input")[0];
+    const inputInflectionUpper = rows[2].querySelectorAll("input")[0];
+    await setInputValueAndTrigger(inputInflectionUpper, "10");
+    await setInputValueAndTrigger(inputInflectionLower, "1");
+    await click(fixture, selectors.buttonSave);
+    expect(inputInflectionLower.classList).toContain("o-invalid");
+    expect(inputInflectionUpper.classList).toContain("o-invalid");
+    expect(errorMessages()).toEqual([
+      "Lower inflection point must be smaller than upper inflection point",
+    ]);
+  });
+
+  test("Configuration is locally saved when switching cf type", async () => {
+    await click(fixture, selectors.buttonAdd);
+
+    await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith");
+    expect(
+      (
+        document.querySelector(
+          `${selectors.ruleEditor.editor.operatorInput} option:checked`
+        ) as HTMLInputElement
+      ).value
+    ).toBe("BeginsWith");
+
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
+
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[0]);
+    expect(
+      (
+        document.querySelector(
+          `${selectors.ruleEditor.editor.operatorInput} option:checked`
+        ) as HTMLInputElement
+      ).value
+    ).toBe("BeginsWith");
+  });
+
+  test("switching to list resets the rules to their default value", async () => {
+    await click(fixture, selectors.buttonAdd);
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B5:C7");
+    await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith");
+    await click(fixture, selectors.buttonCancel);
+    await click(fixture, selectors.buttonAdd);
+    expect((document.querySelector(selectors.ruleEditor.range) as HTMLInputElement).value).toBe(
+      "A1"
+    );
+    expect(
+      (document.querySelector(selectors.ruleEditor.editor.operatorInput) as HTMLSelectElement).value
+    ).toBe("IsNotEmpty");
+  });
+
+  test("CF rule values are canonicalized when sending them to the model", async () => {
+    updateLocale(model, FR_LOCALE);
+    await click(fixture, selectors.buttonAdd);
+    await nextTick();
+
+    await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "Equal");
+    await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "3,59");
+
+    await click(fixture, selectors.buttonSave);
+    const sheetId = model.getters.getActiveSheetId();
+
+    const lastCfIndex = model.getters.getConditionalFormats(sheetId).length - 1;
+    expect(
+      (model.getters.getConditionalFormats(sheetId)[lastCfIndex].rule as CellIsRule).values
+    ).toEqual(["3.59"]);
+  });
+
+  test("CF date rule values are canonicalized when sending them to the model", async () => {
+    updateLocale(model, FR_LOCALE);
+    await click(fixture, selectors.buttonAdd);
+    await nextTick();
+
+    await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "Equal");
+    await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "01/05/2012");
+
+    await click(fixture, selectors.buttonSave);
+    const sheetId = model.getters.getActiveSheetId();
+
+    const lastCfIndex = model.getters.getConditionalFormats(sheetId).length - 1;
+    expect(
+      (model.getters.getConditionalFormats(sheetId)[lastCfIndex].rule as CellIsRule).values
+    ).toEqual(["5/1/2012"]);
+
+    const description = fixture.querySelector(selectors.description.ruletype.rule);
+    expect(description?.textContent).toContain("01/05/2012");
+  });
+
+  test("Can create a data bar rule", async () => {
+    await click(fixture, selectors.buttonAdd);
+
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[3]);
+
+    // change every value
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+
+    const dispatch = spyModelDispatch(model);
+    //  click save
+    await click(fixture, selectors.buttonSave);
+
+    const sheetId = model.getters.getActiveSheetId();
+    expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: expect.any(String),
+        rule: {
+          type: "DataBarRule",
+          color: 0xd9ead3,
+        },
+      },
+      ranges: toRangesData(sheetId, "B2:B5"),
+      sheetId,
+=======
+    setInputValueAndTrigger(inputInflectionUpper, "hello");
+    await click(fixture, selectors.buttonSave);
+    expect(inputInflectionLower.classList).toContain("o-invalid");
+    expect(inputInflectionUpper.classList).toContain("o-invalid");
+    expect(errorMessages()).toEqual([
+      "The second value must be a number",
+      "The first value must be a number",
+    ]);
+  });
+
+  test("lower point bigger than upper displays both input as invalid", async () => {
+    await click(fixture, selectors.buttonAdd);
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
+    const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
+    const inputInflectionLower = rows[1].querySelectorAll("input")[0];
+    const inputInflectionUpper = rows[2].querySelectorAll("input")[0];
+    await setInputValueAndTrigger(inputInflectionUpper, "10");
+    await setInputValueAndTrigger(inputInflectionLower, "1");
+    await click(fixture, selectors.buttonSave);
+    expect(inputInflectionLower.classList).toContain("o-invalid");
+    expect(inputInflectionUpper.classList).toContain("o-invalid");
+    expect(errorMessages()).toEqual([
+      "Lower inflection point must be smaller than upper inflection point",
+    ]);
+  });
+
+  test("Configuration is locally saved when switching cf type", async () => {
+    await click(fixture, selectors.buttonAdd);
+
+    await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith");
+    expect(
+      (
+        document.querySelector(
+          `${selectors.ruleEditor.editor.operatorInput} option:checked`
+        ) as HTMLInputElement
+      ).value
+    ).toBe("BeginsWith");
+
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
+
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[0]);
+    expect(
+      (
+        document.querySelector(
+          `${selectors.ruleEditor.editor.operatorInput} option:checked`
+        ) as HTMLInputElement
+      ).value
+    ).toBe("BeginsWith");
+  });
+
+  test("no color is selected in the text color picker when the rule has no text color", async () => {
+    await click(fixture, selectors.buttonAdd);
+
+    const textColorButton = `.o-cf-editor .o-color-picker-button[title="Text Color"]`;
+    await click(fixture, textColorButton);
+    expect(".o-color-picker-line-item[data-color='#000000'] div").toHaveCount(0);
+
+    await click(fixture, ".o-color-picker-line-item[data-color='#000000']");
+    await click(fixture, textColorButton);
+    expect(".o-color-picker-line-item[data-color='#000000'] div").toHaveCount(1);
+  });
+
+  test("switching to list resets the rules to their default value", async () => {
+    await click(fixture, selectors.buttonAdd);
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B5:C7");
+    await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith");
+    await click(fixture, selectors.buttonCancel);
+    await click(fixture, selectors.buttonAdd);
+    expect((document.querySelector(selectors.ruleEditor.range) as HTMLInputElement).value).toBe(
+      "A1"
+    );
+    expect(
+      (document.querySelector(selectors.ruleEditor.editor.operatorInput) as HTMLSelectElement).value
+    ).toBe("IsNotEmpty");
+  });
+
+  test("CF rule values are canonicalized when sending them to the model", async () => {
+    updateLocale(model, FR_LOCALE);
+    await click(fixture, selectors.buttonAdd);
+    await nextTick();
+
+    await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "Equal");
+    await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "3,59");
+
+    await click(fixture, selectors.buttonSave);
+    const sheetId = model.getters.getActiveSheetId();
+
+    const lastCfIndex = model.getters.getConditionalFormats(sheetId).length - 1;
+    expect(
+      (model.getters.getConditionalFormats(sheetId)[lastCfIndex].rule as CellIsRule).values
+    ).toEqual(["3.59"]);
+  });
+
+  test("CF date rule values are canonicalized when sending them to the model", async () => {
+    updateLocale(model, FR_LOCALE);
+    await click(fixture, selectors.buttonAdd);
+    await nextTick();
+
+    await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "Equal");
+    await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "01/05/2012");
+
+    await click(fixture, selectors.buttonSave);
+    const sheetId = model.getters.getActiveSheetId();
+
+    const lastCfIndex = model.getters.getConditionalFormats(sheetId).length - 1;
+    expect(
+      (model.getters.getConditionalFormats(sheetId)[lastCfIndex].rule as CellIsRule).values
+    ).toEqual(["5/1/2012"]);
+
+    const description = fixture.querySelector(selectors.description.ruletype.rule);
+    expect(description?.textContent).toContain("01/05/2012");
+  });
+
+  test("Can create a data bar rule", async () => {
+    await click(fixture, selectors.buttonAdd);
+
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[3]);
+
+    // change every value
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+
+    const dispatch = spyModelDispatch(model);
+    //  click save
+    await click(fixture, selectors.buttonSave);
+
+    const sheetId = model.getters.getActiveSheetId();
+    expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: expect.any(String),
+        rule: {
+          type: "DataBarRule",
+          color: 0xd9ead3,
+        },
+      },
+      ranges: toRangesData(sheetId, "B2:B5"),
+      sheetId,
+>>>>>>> 7481deda585f66c89e302b48a8e35f6712490d1f
     });
   });
 });
