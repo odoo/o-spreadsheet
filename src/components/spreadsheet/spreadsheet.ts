@@ -225,7 +225,6 @@ css/* scss */ `
     }
 
     > canvas {
-      box-sizing: content-box;
       border-bottom: 1px solid #e2e3e3;
       border-right: 1px solid #e2e3e3;
     }
