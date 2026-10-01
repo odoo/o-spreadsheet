@@ -67,7 +67,7 @@
           <t t-call="o-spreadsheet-Icon.STRIKE"/>
         </div>
         <ColorPickerWidget
-          currentColor="rule.style.textColor || '#000000'"
+          currentColor="rule.style.textColor"
           toggleColorPicker="(ev) => this.toggleMenu('cellIsRule-textColor', ev)"
           showColorPicker="state.openedMenu === 'cellIsRule-textColor'"
           onColorPicked="(color) => this.setColor('textColor', color)"
