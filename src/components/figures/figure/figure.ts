@@ -39,6 +39,7 @@ export class FigureComponent extends OSComponent {
     style: types.string(),
     class: types.string(),
     onMouseDown: types.function<(ev: MouseEvent) => void>().optional(() => () => {}),
+    onMouseUp: types.function<(ev: MouseEvent) => void>().optional(() => () => {}),
     onClickAnchor: types
       .function<(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) => void>()
       .optional(() => () => {}),

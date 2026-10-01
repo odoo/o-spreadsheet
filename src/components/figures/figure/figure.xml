@@ -8,6 +8,7 @@
         class="o-figure w-100 h-100 overflow-hidden"
         t-att-class="this.figureClass"
         t-on-pointerdown.stop="(ev) => this.onMouseDown(ev)"
+        t-on-pointerup="this.props.onMouseUp"
         t-on-click="this.onClick"
         t-on-contextmenu.prevent.stop="(ev) => !this.model().getters.isReadonly() and this.onContextMenu(ev)"
         t-ref="this.figureRef"

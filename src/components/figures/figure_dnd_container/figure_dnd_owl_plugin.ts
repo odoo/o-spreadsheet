@@ -1,18 +1,18 @@
-import { Plugin, proxy, useConfig } from "@odoo/owl";
+import { Plugin, proxy, useConfig, usePlugin } from "@odoo/owl";
 import { DRAG_THRESHOLD } from "../../../constants";
 import { isDefined } from "../../../helpers/misc";
 import { rectUnion } from "../../../helpers/rectangle";
+import { ModelPlugin } from "../../../owl_plugins/model_owl_plugin";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { ChartDragStore } from "../../../stores/chart_drag_store";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { ZoomStore } from "../../../stores/zoom_store";
-import { AnchorOffset, Figure, FigureUI, ResizeDirection } from "../../../types/figure";
+import { FigureUI, ResizeDirection } from "../../../types/figure";
 import { UID } from "../../../types/misc";
 import { DOMDimension, Rect } from "../../../types/rendering";
 import { Store } from "../../../types/store_engine";
 import { getCarouselOverlappingChart } from "../../helpers/chart_drag_and_drop";
 import { cssPropertiesToCss } from "../../helpers/css";
-import { isCtrlKey } from "../../helpers/dom_helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
 import { dragFigureForMove, dragFigureForResize } from "../../helpers/figure_drag_helper";
 import {
@@ -38,6 +38,21 @@ interface DndState {
   cancelDnd: (() => void) | undefined;
 }
 
+type DragEndCallback = (
+  droppedFigures: FigureUI[],
+  overlappingFigure: FigureUI | undefined
+) => void;
+
+/**
+ * ADRM TODO:
+ * - remove inverse viewport stuff (make sure coordiates are correct at drag start & end, also snap line position)
+ * - make sure it works if we scroll during dnd
+ * - make chart drag & drop use this plugin
+ * - 2 biggest differences: 1) display naother component than figureComponent 2) allow d&d over side panel
+ * - everything could be draggable over side panel TBH, not that big of an issue
+ * - even more so if we implement edge scroll aftwerwards
+ * - sounds good ?
+ */
 export class DraggedFigurePlugin extends Plugin {
   dnd = proxy<DndState>({
     draggedFigure: undefined,
@@ -50,6 +65,7 @@ export class DraggedFigurePlugin extends Plugin {
   private viewStore: Store<ViewportsStore> = useConfig("viewStore");
   private zoomStore: Store<ZoomStore> = useConfig("zoomStore");
   private chartDragStore: Store<ChartDragStore> = useConfig("chartDragStore");
+  private model = usePlugin(ModelPlugin).model;
 
   private getVisibleFigures(): FigureUI[] {
     const visibleFigures = this.viewStore.visibleFigures;
@@ -75,49 +91,17 @@ export class DraggedFigurePlugin extends Plugin {
   }
 
   get maxDimensions() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     return {
-      maxX: this.env.model.getters.getColDimensions(
+      maxX: this.model().getters.getColDimensions(
         sheetId,
-        this.env.model.getters.getNumberCols(sheetId) - 1
+        this.model().getters.getNumberCols(sheetId) - 1
       ).end,
-      maxY: this.env.model.getters.getRowDimensions(
+      maxY: this.model().getters.getRowDimensions(
         sheetId,
-        this.env.model.getters.getNumberRows(sheetId) - 1
+        this.model().getters.getNumberRows(sheetId) - 1
       ).end,
     };
-  }
-
-  private getInverseViewportPositionStyle(container: ContainerType): string {
-    const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
-
-    let left = 0;
-    let top = 0;
-
-    if (container === "dnd") {
-      left = -scrollX;
-      top = -scrollY;
-    }
-
-    return cssPropertiesToCss({
-      left: `${left}px`,
-      top: `${top}px`,
-    });
-  }
-
-  private getFigureContainer(figureUI: FigureUI): ContainerType {
-    const { x: viewportX, y: viewportY } = this.viewStore.mainViewportCoordinates;
-    if (this.dnd.selectedFigures?.some((f) => f.id === figureUI.id)) {
-      return "dnd";
-    } else if (figureUI.x < viewportX && figureUI.y < viewportY) {
-      return "topLeft";
-    } else if (figureUI.x < viewportX) {
-      return "bottomLeft";
-    } else if (figureUI.y < viewportY) {
-      return "topRight";
-    } else {
-      return "bottomRight";
-    }
   }
 
   private getDndFigureRect(): Rect | undefined {
@@ -127,59 +111,54 @@ export class DraggedFigurePlugin extends Plugin {
     return;
   }
 
-  private toBottomRightViewport(figureUI: FigureUI): FigureUI {
-    const container = this.getFigureContainer(figureUI);
-    const initialScrollPosition = this.viewStore.activeSheetScrollInfo;
+  private toScreenPosition(figureUI: FigureUI): FigureUI {
+    const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
     const bottomRightFigure = { ...figureUI };
+    const { x: viewportX, y: viewportY } = this.viewStore.mainViewportCoordinates;
 
-    if (["bottomLeft", "topLeft"].includes(container)) {
-      bottomRightFigure.x += initialScrollPosition.scrollX;
+    // if (figureUI.x < viewportX && figureUI.y < viewportY) {
+    //   // Topleft viewport
+    //   bottomRightFigure.x += scrollX;
+    //   bottomRightFigure.y += scrollY;
+    // } else if (figureUI.x < viewportX) {
+    //   // Bottomleft viewport
+    //   bottomRightFigure.x += scrollX;
+    // } else if (figureUI.y < viewportY) {
+    //   // Topright viewport
+    //   bottomRightFigure.y += scrollY;
+    // } else {
+    //   // Bottomright viewport
+    // }
+
+    if (figureUI.x < viewportX && figureUI.y < viewportY) {
+      // Topleft viewport
+    } else if (figureUI.x < viewportX) {
+      // Bottomleft viewport
+      bottomRightFigure.x -= scrollX;
+    } else if (figureUI.y < viewportY) {
+      // Topright viewport
+      bottomRightFigure.y -= scrollY;
+    } else {
+      // Bottomright viewport
+      bottomRightFigure.x -= scrollX;
+      bottomRightFigure.y -= scrollY;
     }
-    if (["topLeft", "topRight"].includes(container)) {
-      bottomRightFigure.y += initialScrollPosition.scrollY;
-    }
+
     return bottomRightFigure;
   }
 
-  private isMenuClick(ev: MouseEvent): boolean {
-    const target = ev.target;
-    if (target && target instanceof Element) {
-      return !!target.closest(".o-figure-menu");
-    }
-    return false;
-  }
-
-  startDraggingFigure(figureUI: FigureUI, ev: MouseEvent) {
-    if (ev.button > 0 || this.env.model.getters.isReadonly() || this.isMenuClick(ev)) {
-      // not main button, probably a context menu and no d&d in readonly mode
-      return;
-    }
-    const selected = this.env.model.getters.getSelectedFigureIds().includes(figureUI.id);
-    if (!selected) {
-      const selectResult = this.env.model.dispatch("SELECT_FIGURE", {
-        figureId: figureUI.id,
-        selectMultiple: ev.shiftKey || isCtrlKey(ev),
-      });
-      if (!selectResult.isSuccessful) {
-        return;
-      }
-    }
-
-    if (this.env.isMobile() || this.env.model.getters.isCurrentSheetLocked()) {
-      return;
-    }
-
-    const sheetId = this.env.model.getters.getActiveSheetId();
+  startDraggingFigure(figureUI: FigureUI, ev: MouseEvent, onDragEnd: DragEndCallback) {
+    const sheetId = this.model().getters.getActiveSheetId();
     const zoom = this.zoomStore.zoomLevel;
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const initialScrollPosition = this.viewStore.activeSheetScrollInfo;
     const maxDimensions = this.maxDimensions;
-    const selectedFiguresIds = this.env.model.getters.getSelectedFigureIds();
+    const selectedFiguresIds = this.model().getters.getSelectedFigureIds();
     const initialFigures = selectedFiguresIds
-      .map((id) => this.env.model.getters.getFigure(sheetId, id))
+      .map((id) => this.model().getters.getFigure(sheetId, id))
       .filter(isDefined)
-      .map((f) => this.env.model.getters.getFigureUI(sheetId, f))
-      .map(this.toBottomRightViewport.bind(this));
+      .map((f) => this.model().getters.getFigureUI(sheetId, f))
+      .map(this.toScreenPosition.bind(this));
 
     const draggedFigureId = figureUI.id;
 
@@ -216,7 +195,11 @@ export class DraggedFigurePlugin extends Plugin {
       this.chartDragStore.setHighlightedFigure(overlappingChartOrCarousel?.id);
 
       if (!overlappingChartOrCarousel) {
-        const snapReturn = snapForMove(this.env, selectedFigures, otherFigures);
+        const snapReturn = snapForMove(
+          { model: this.model(), viewStore: this.viewStore },
+          selectedFigures,
+          otherFigures
+        );
         this.dnd.selectedFigures = snapReturn.snappedFigures;
         this.dnd.selectedRect = this.getDndFigureRect();
         this.dnd.draggedFigure = selectedFigures.find((f) => f.id === draggedFigureId);
@@ -232,51 +215,10 @@ export class DraggedFigurePlugin extends Plugin {
     };
 
     const onMouseUp = (ev: MouseEvent) => {
-      if (!this.dnd.draggedFigure) {
-        // on click without move
-        if (selected) {
-          if (ev.shiftKey || isCtrlKey(ev)) {
-            this.env.model.dispatch("UNSELECT_FIGURE", { figureId: figureUI.id });
-          } else {
-            this.env.model.dispatch("SELECT_FIGURE", { figureId: figureUI.id });
-          }
-        }
-        return;
+      if (this.dnd.selectedFigures) {
+        onDragEnd(this.dnd.selectedFigures, overlappingChartOrCarousel);
       }
-      if (!overlappingChartOrCarousel) {
-        const payloads =
-          this.dnd.selectedFigures?.map((f) => {
-            return {
-              sheetId,
-              figureId: f.id,
-              ...this.viewStore.viewports.getPositionAnchorOffset(sheetId, f),
-            };
-          }) || [];
-        this.env.model.dispatch("UPDATE_FIGURES", { figures: payloads });
-      } else {
-        const overlappingFigureId = overlappingChartOrCarousel.id;
-        const chartFigureIds = this.dnd.selectedFigures?.map((f) => f.id) || [];
-        if (overlappingChartOrCarousel.tag === "carousel") {
-          this.env.model.dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
-            sheetId,
-            carouselFigureId: overlappingFigureId,
-            chartFigureIds: chartFigureIds,
-          });
-        } else if (overlappingChartOrCarousel.tag === "chart") {
-          this.env.model.dispatch("MERGE_CHART_FIGURES_INTO_CAROUSEL", {
-            sheetId,
-            baseFigureId: overlappingFigureId,
-            chartFigureIds: [overlappingFigureId, ...chartFigureIds],
-          });
-        }
-      }
-
-      this.dnd.draggedFigure = undefined;
-      this.dnd.selectedFigures = undefined;
-      this.dnd.selectedRect = undefined;
-      this.dnd.horizontalSnap = undefined;
-      this.dnd.verticalSnap = undefined;
-      this.chartDragStore.setHighlightedFigure(undefined);
+      this.stopDragAndDrop();
     };
 
     this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
@@ -291,20 +233,25 @@ export class DraggedFigurePlugin extends Plugin {
    * resize from the bottom border of the figure
    * @param ev Mouse Event
    */
-  resizeAllSelectedFigures(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) {
+  resizeAllSelectedFigures(
+    dirX: ResizeDirection,
+    dirY: ResizeDirection,
+    ev: MouseEvent,
+    onDragEnd: DragEndCallback
+  ) {
     ev.stopPropagation();
 
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.model().getters.getActiveSheetId();
     const zoom = this.zoomStore.zoomLevel;
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const initialScrollPosition = this.viewStore.activeSheetScrollInfo;
     const maxDimensions = this.maxDimensions;
-    const selectedFiguresIds = this.env.model.getters.getSelectedFigureIds();
+    const selectedFiguresIds = this.model().getters.getSelectedFigureIds();
     const initialFigures = selectedFiguresIds
-      .map((id) => this.env.model.getters.getFigure(sheetId, id))
+      .map((id) => this.model().getters.getFigure(sheetId, id))
       .filter(isDefined)
-      .map((figure) => this.env.model.getters.getFigureUI(sheetId, figure))
-      .map(this.toBottomRightViewport.bind(this));
+      .map((figure) => this.model().getters.getFigureUI(sheetId, figure))
+      .map(this.toScreenPosition.bind(this));
 
     const mutlipleFiguresSelected = selectedFiguresIds.length > 1;
     const otherFiguresUI = this.getOtherFigures(selectedFiguresIds);
@@ -359,7 +306,7 @@ export class DraggedFigurePlugin extends Plugin {
       );
 
       const { snappedRect, verticalSnapLine, horizontalSnapLine } = snapForResize(
-        this.env,
+        { model: this.model(), viewStore: this.viewStore },
         dirX,
         dirY,
         resizedRect,
@@ -387,27 +334,8 @@ export class DraggedFigurePlugin extends Plugin {
       if (!this.dnd.selectedFigures) {
         return;
       }
-      const dispatchPayload = this.dnd.selectedFigures.map((figureUI) => {
-        const update: Partial<Figure> & AnchorOffset =
-          this.viewStore.viewports.getPositionAnchorOffset(sheetId, figureUI);
-        if (dirX) {
-          update.width = figureUI.width;
-        }
-        if (dirY) {
-          update.height = figureUI.height;
-        }
-        return {
-          sheetId,
-          figureId: figureUI.id,
-          ...update,
-        };
-      });
-      this.env.model.dispatch("UPDATE_FIGURES", { figures: dispatchPayload });
-      this.dnd.draggedFigure = undefined;
-      this.dnd.selectedFigures = undefined;
-      this.dnd.selectedRect = undefined;
-      this.dnd.horizontalSnap = undefined;
-      this.dnd.verticalSnap = undefined;
+      onDragEnd(this.dnd.selectedFigures, undefined);
+      this.stopDragAndDrop();
     };
 
     this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
@@ -489,5 +417,16 @@ export class DraggedFigurePlugin extends Plugin {
         height: `100%`,
       });
     }
+  }
+
+  stopDragAndDrop() {
+    this.dnd.cancelDnd?.();
+    this.dnd.draggedFigure = undefined;
+    this.dnd.selectedFigures = undefined;
+    this.dnd.selectedRect = undefined;
+    this.dnd.horizontalSnap = undefined;
+    this.dnd.verticalSnap = undefined;
+    this.chartDragStore.setHighlightedFigure(undefined);
+    this.dnd.cancelDnd = undefined;
   }
 }

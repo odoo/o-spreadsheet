@@ -25,6 +25,7 @@ import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
+import { ChartDragStore } from "../../stores/chart_drag_store";
 import { ClipboardStore } from "../../stores/clipboard_store";
 import { ModelStore } from "../../stores/model_store";
 import { ScreenWidthStore } from "../../stores/screen_width_store";
@@ -41,6 +42,7 @@ import { NotificationCallbacks } from "../../types/stores/notification_store_met
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
+import { DraggedFigurePlugin } from "../figures/figure_dnd_container/figure_dnd_owl_plugin";
 import { FullScreenFigure } from "../full_screen_figure/full_screen_figure";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
@@ -170,6 +172,11 @@ export class Spreadsheet extends Component {
     for (const store of globalStores.getAll()) {
       useStore(store);
     }
+    providePlugins([DraggedFigurePlugin], {
+      viewStore: this.viewStore,
+      zoomStore: this.zoomStore,
+      chartDragStore: useStore(ChartDragStore),
+    });
     const fileStore = this.model().config.external.fileStore;
 
     useSubEnv({
