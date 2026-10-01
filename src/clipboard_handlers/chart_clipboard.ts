@@ -117,7 +117,7 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     if (target.length === 0) {
       return CommandResult.EmptyTarget;
     }
-    if (option?.pasteOption !== undefined) {
+    if (option?.pasteOptions !== undefined) {
       return CommandResult.WrongFigurePasteOption;
     }
     return CommandResult.Success;

@@ -147,7 +147,7 @@ export function repeatPasteCommand(getters: Getters, cmd: PasteCommand): RepeatP
    */
   return {
     type: "REPEAT_PASTE",
-    pasteOption: deepCopy(cmd.pasteOption),
+    pasteOptions: deepCopy(cmd.pasteOptions),
     target: getters.getSelectedZones(),
   };
 }

@@ -197,8 +197,8 @@ describe("UI Helpers", () => {
 
       const env = makeTestEnv({ model });
       copy(model, "A1");
-      interactivePaste(env, target("B1"), "onlyFormat");
-      interactivePaste(env, target("B2"), "asValue");
+      interactivePaste(env, target("B1"), ["format"]);
+      interactivePaste(env, target("B2"), ["value"]);
       interactivePaste(env, target("B3"));
 
       expect(getCellText(model, "B1")).toBe("");
@@ -247,7 +247,7 @@ describe("UI Helpers", () => {
       createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figureId" });
       selectFigure(model, "figureId");
       copy(model);
-      interactivePaste(env, target("A1"), "onlyFormat");
+      interactivePaste(env, target("A1"), ["format"]);
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         PasteInteractiveContent.wrongFigurePasteOption.toString()
       );
