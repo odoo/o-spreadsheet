@@ -51,6 +51,10 @@ export interface ICommandSquisher {
   unsquish: (
     commands: (CoreCommand | SquishedCoreCommand)[] | readonly CoreCommand[]
   ) => CoreCommand[];
+
+  collectConsecutiveUpdateCellCommands: (
+    commands: readonly CoreCommand[]
+  ) => Generator<CoreCommand[]>;
 }
 
 export class CommandSquisher implements ICommandSquisher {
@@ -76,15 +80,7 @@ export class CommandSquisher implements ICommandSquisher {
 
     for (const commands of this.collectConsecutiveUpdateCellCommands(revisionCommands)) {
       if (commands[0].type === "UPDATE_CELL" && commands.length > 1) {
-        const commandsBySheet = Object.groupBy(
-          commands as UpdateCellCommand[],
-          (command) => command.sheetId
-        );
-        const sortAndSquishUpdateCells = Object.values(commandsBySheet).reduce(
-          this.sortAndSquishUpdateCellsBySheet.bind(this),
-          []
-        );
-        squishedCommands.push(...sortAndSquishUpdateCells);
+        squishedCommands.push(...this.squishUpdateCellsBySheet(commands as UpdateCellCommand[]));
       } else {
         squishedCommands.push(...commands);
       }
@@ -106,7 +102,7 @@ export class CommandSquisher implements ICommandSquisher {
    * Create a block of consecutive UPDATE_CELL commands, meaning a block of
    * commands where all UPDATE_CELL commands are consecutive and uninterrupted by other command types.
    */
-  private *collectConsecutiveUpdateCellCommands(
+  public *collectConsecutiveUpdateCellCommands(
     commands: readonly CoreCommand[]
   ): Generator<CoreCommand[]> {
     for (let i = 0; i < commands.length; i++) {
@@ -121,7 +117,15 @@ export class CommandSquisher implements ICommandSquisher {
             break;
           }
         }
-        yield updateCellCommands;
+        const consecutiveGroupedBySheet = Object.groupBy(
+          updateCellCommands,
+          (command) => command.sheetId
+        );
+        for (const x of Object.values(consecutiveGroupedBySheet)) {
+          if (x) {
+            yield x.sort((a, b) => (a.col !== b.col ? a.col - b.col : a.row - b.row));
+          }
+        }
         i += updateCellCommands.length - 1;
       } else {
         yield [command];
@@ -129,30 +133,25 @@ export class CommandSquisher implements ICommandSquisher {
     }
   }
 
-  private sortAndSquishUpdateCellsBySheet(
-    squishedCommandsResult: (CoreCommand | SquishedCoreCommand)[],
-    updateCellBlock: UpdateCellCommand[]
+  private squishUpdateCellsBySheet(
+    consecutiveUpdateCells: UpdateCellCommand[]
   ): (CoreCommand | SquishedCoreCommand)[] {
-    updateCellBlock.sort((a, b) => {
-      if (a.col !== b.col) {
-        return a.col - b.col;
-      }
-      return a.row - b.row;
-    });
-    const hasDuplicates = updateCellBlock.some(
+    const hasDuplicates = consecutiveUpdateCells.some(
       (cmd, i) =>
-        i > 0 && updateCellBlock[i - 1].col === cmd.col && updateCellBlock[i - 1].row === cmd.row
+        i > 0 &&
+        consecutiveUpdateCells[i - 1].col === cmd.col &&
+        consecutiveUpdateCells[i - 1].row === cmd.row
     );
     if (hasDuplicates) {
-      squishedCommandsResult.push(...updateCellBlock);
-      return squishedCommandsResult;
+      return consecutiveUpdateCells;
     }
     const squisher = new Squisher(this.getters);
-    const squishedContentCommands = updateCellBlock.map((command) => ({
+    const squishedContentCommands = consecutiveUpdateCells.map((command) => ({
       ...command,
       content: squisher.squishCommand(command),
     }));
 
+    const squishedCommandsResult: (CoreCommand | SquishedCoreCommand)[] = [];
     for (let startIndex = 0; startIndex < squishedContentCommands.length; startIndex++) {
       const currentCommand = squishedContentCommands[startIndex];
       const startKey = {
@@ -206,7 +205,7 @@ export class CommandSquisher implements ICommandSquisher {
         squishedCommandsResult.push(updateCellSquished);
         startIndex += mergedRowCount;
       } else {
-        squishedCommandsResult.push(updateCellBlock[startIndex]);
+        squishedCommandsResult.push(consecutiveUpdateCells[startIndex]);
       }
     }
     return squishedCommandsResult;
