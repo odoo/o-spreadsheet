@@ -130,6 +130,79 @@ describe("Collaborative session", () => {
     }
   });
 
+  test("autofill upwards sends squished commands although they are generated bottom to top", () => {
+    const transport = new MockTransportService();
+    const model = new Model(
+      {},
+      { transportService: transport, client: { id: "alice", name: "Alice" } }
+    );
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A5", "Hello");
+    const spy = jest.spyOn(transport, "sendMessage");
+
+    autofill(model, "A5", "A1");
+    expect(spy).toHaveBeenCalledWith({
+      clientId: "alice",
+      commands: [
+        {
+          targetRange: "A1:A4",
+          sheetId,
+          content: "Hello",
+          format: "",
+          style: null,
+          type: "SQUISHED_UPDATE_CELL",
+        },
+        {
+          sheetId,
+          target: [toZone("A1:A4")],
+          type: "SET_BORDERS_ON_TARGET",
+        },
+      ],
+      nextRevisionId: expect.any(String),
+      serverRevisionId: expect.any(String),
+      type: "REMOTE_REVISION",
+      version: 1,
+    });
+  });
+
+  test("autofill rightwards sends squished commands although they are generated row by row", () => {
+    const transport = new MockTransportService();
+    const model = new Model(
+      {},
+      { transportService: transport, client: { id: "alice", name: "Alice" } }
+    );
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "Hello");
+    setCellContent(model, "A2", "Hello");
+    const spy = jest.spyOn(transport, "sendMessage");
+
+    autofill(model, "A1:A2", "C2");
+    const squishedCell = (targetRange: string) => ({
+      targetRange,
+      sheetId,
+      content: "Hello",
+      format: "",
+      style: null,
+      type: "SQUISHED_UPDATE_CELL",
+    });
+    expect(spy).toHaveBeenCalledWith({
+      clientId: "alice",
+      commands: [
+        squishedCell("B1:B2"),
+        squishedCell("C1:C2"),
+        {
+          sheetId,
+          target: [toZone("B1:C2")],
+          type: "SET_BORDERS_ON_TARGET",
+        },
+      ],
+      nextRevisionId: expect.any(String),
+      serverRevisionId: expect.any(String),
+      type: "REMOTE_REVISION",
+      version: 1,
+    });
+  });
+
   test("squish should respect implicit formats", () => {
     const commands: readonly CoreCommand[] = [
       { sheetId: "Sheet1", col: 0, row: 0, content: "100%", type: "UPDATE_CELL" },
@@ -690,6 +763,68 @@ describe("commands", () => {
       type: "REMOTE_REVISION",
       version: 1,
     });
+  });
+});
+
+describe("ordering of commands", () => {
+  test("Ordering of commands by block on the same sheet", () => {
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 0, row: 2, content: "3", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 0, content: "1", type: "UPDATE_CELL" },
+      {
+        sheetId: "Sheet1",
+        type: "SET_BORDERS_ON_TARGET",
+        border: {},
+        target: [{ top: 0, bottom: 0, left: 0, right: 0 }],
+      },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "2", type: "UPDATE_CELL" },
+    ];
+    const model = new Model();
+
+    const orderedCommands = [
+      ...new CommandSquisher(model.getters).collectConsecutiveUpdateCellCommands(commands),
+    ];
+    expect(orderedCommands.flat()).toEqual([
+      { sheetId: "Sheet1", col: 0, row: 0, content: "1", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "3", type: "UPDATE_CELL" },
+      {
+        sheetId: "Sheet1",
+        type: "SET_BORDERS_ON_TARGET",
+        border: {},
+        target: [{ top: 0, bottom: 0, left: 0, right: 0 }],
+      },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "2", type: "UPDATE_CELL" },
+    ]);
+  });
+
+  test("Ordering of commands by block on different sheets", () => {
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 0, row: 2, content: "3", type: "UPDATE_CELL" },
+      { sheetId: "Sheet2", col: 0, row: 0, content: "1", type: "UPDATE_CELL" },
+      {
+        sheetId: "Sheet1",
+        type: "SET_BORDERS_ON_TARGET",
+        border: {},
+        target: [{ top: 0, bottom: 0, left: 0, right: 0 }],
+      },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "2", type: "UPDATE_CELL" },
+    ];
+    const model = new Model();
+
+    const orderedCommands = [
+      ...new CommandSquisher(model.getters).collectConsecutiveUpdateCellCommands(commands),
+    ];
+    expect(orderedCommands.flat()).toEqual([
+      { sheetId: "Sheet1", col: 0, row: 2, content: "3", type: "UPDATE_CELL" },
+      { sheetId: "Sheet2", col: 0, row: 0, content: "1", type: "UPDATE_CELL" },
+      {
+        sheetId: "Sheet1",
+        type: "SET_BORDERS_ON_TARGET",
+        border: {},
+        target: [{ top: 0, bottom: 0, left: 0, right: 0 }],
+      },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "2", type: "UPDATE_CELL" },
+    ]);
   });
 });
 
