@@ -6,6 +6,7 @@ import {
   extendMockGetBoundingClientRect,
   selectCell,
   setCellContent,
+  setViewportOffset,
   simulateClick,
   triggerMouseEvent,
   undo,
@@ -184,5 +185,30 @@ describe("drag and drop chart suggestions", () => {
       "CREATE_CHART_AND_MERGE_INTO_CAROUSEL",
       expect.anything()
     );
+  });
+
+  test("drop in the side panel does not create a chart", async () => {
+    const { model, fixture } = await mountSpreadsheet();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "1");
+    selectCell(model, "A1");
+    await simulateClick(".o-data-analysis-button");
+    expect(fixture.querySelector(".o-suggestion-canvas-wrap")).toBeTruthy();
+    // width of the grid is 1000
+    await clickAndDrag(".o-suggestion-canvas-wrap", { x: 1500, y: 500 }, undefined, true);
+    expect(model.getters.getChartIds(sheetId).length).toBe(0);
+  });
+
+  test("drop inside the spreadsheet after scrolling creates a chart", async () => {
+    const { model, fixture, env } = await mountSpreadsheet();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "1");
+    selectCell(model, "A1");
+    await simulateClick(".o-data-analysis-button");
+    expect(fixture.querySelector(".o-suggestion-canvas-wrap")).toBeTruthy();
+    setViewportOffset(env, 1000, 1000);
+    await nextTick();
+    await clickAndDrag(".o-suggestion-canvas-wrap", { x: 500, y: 500 }, undefined, true);
+    expect(model.getters.getChartIds(sheetId).length).toBe(1);
   });
 });
