@@ -524,20 +524,14 @@ export function getRadarChartDatasets(
 export function getGeoChartDatasets(
   definition: GenericDefinition<GeoChartDefinition>,
   args: GeoChartRuntimeGenerationArgs
-): ChartDataset[] {
+): ChartDataset<"choropleth">[] {
   const { availableRegions, dataSetsValues, labels } = args;
 
   const regionName = definition.region || availableRegions[0]?.id;
   const features = regionName ? args.getGeoJsonFeatures(regionName) : undefined;
 
-  const dataset: ChartDataset<"choropleth"> = {
-    outline: features,
-    showOutline: !!features,
-    data: [],
-  };
-
+  const labelsAndValues: { [featureId: string]: { value: number; label: string } } = {};
   if (features && regionName) {
-    const labelsAndValues: { [featureId: string]: { value: number; label: string } } = {};
     if (dataSetsValues[0]) {
       for (let i = 0; i < dataSetsValues[0].data.length; i++) {
         const cell = dataSetsValues[0].data[i];
@@ -553,20 +547,13 @@ export function getGeoChartDatasets(
         }
       }
     }
-
-    for (const feature of features) {
-      if (!feature.id) {
-        continue;
-      }
-      dataset.data.push({
-        feature: {
-          ...feature,
-          properties: { name: labelsAndValues[feature.id]?.label },
-        },
-        value: labelsAndValues[feature.id]?.value,
-      });
-    }
   }
+
+  const dataset: ChartDataset<"choropleth"> = {
+    data: [], // Data will be filled by the `chartGeoPlugin` from the labelsAndValues object
+    labelsAndValues,
+    showOutline: false, // Outlines are not needed since we add all the features to the dataset
+  };
 
   return [dataset];
 }

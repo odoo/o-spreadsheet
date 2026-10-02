@@ -1,5 +1,6 @@
 import { Model } from "../../../../src";
-import { geoProjectionPlugin } from "../../../../src/components/figures/chart/chartJs/chartjs_geo_projection_plugin";
+import { geoChartPlugin } from "../../../../src/components/figures/chart/chartJs/chartjs_geo_plugin";
+import { deepCopy } from "../../../../src/helpers/misc";
 import { GeoChartRuntime } from "../../../../src/types/chart/geo_chart";
 import {
   createChart,
@@ -13,21 +14,6 @@ import { mockChart, mockGeoJsonService, nextTick } from "../../../test_helpers/h
 
 mockChart();
 let model: Model;
-
-/**
- * Get the data points of the chart that have a value.
- * It's useful because the chart dataset always contains a point for ALL the features, even if they have no value
- */
-function getGeoChartNonEmptyData(runtime: GeoChartRuntime) {
-  const dataPoints: { value: number; feature: any }[] = [];
-  for (let i = 0; i < runtime.chartJsConfig.data.datasets[0].data.length; i++) {
-    const data = runtime.chartJsConfig.data.datasets[0].data[i] as any;
-    if (data.value !== undefined) {
-      dataPoints.push(data);
-    }
-  }
-  return dataPoints;
-}
 
 describe("Geo charts plugin tests", () => {
   beforeEach(async () => {
@@ -51,10 +37,10 @@ describe("Geo charts plugin tests", () => {
     });
 
     const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
-    expect(getGeoChartNonEmptyData(runtime)).toMatchObject([
-      { value: 10, feature: { properties: { name: "France" } } },
-      { value: 20, feature: { properties: { name: "Germany" } } },
-    ]);
+    expect(runtime.chartJsConfig.data.datasets[0].labelsAndValues).toMatchObject({
+      FR: { value: 10, label: "France" },
+      DE: { value: 20, label: "Germany" },
+    });
   });
 
   test("Points with empty/wrong labels are not kept in the runtime", () => {
@@ -69,7 +55,7 @@ describe("Geo charts plugin tests", () => {
       "chartId"
     );
     const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
-    expect(getGeoChartNonEmptyData(runtime)).toEqual([]);
+    expect(runtime.chartJsConfig.data.datasets[0].labelsAndValues).toEqual({});
   });
 
   test("Data with the same label is aggregated", () => {
@@ -84,9 +70,9 @@ describe("Geo charts plugin tests", () => {
       "chartId"
     );
     const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
-    expect(getGeoChartNonEmptyData(runtime)).toMatchObject([
-      { value: 30, feature: { properties: { name: "France" } } },
-    ]);
+    expect(runtime.chartJsConfig.data.datasets[0].labelsAndValues).toEqual({
+      FR: { value: 30, label: "France" },
+    });
   });
 
   test("Only the first dataset is kept", () => {
@@ -101,9 +87,9 @@ describe("Geo charts plugin tests", () => {
       }),
     });
     const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
-    const dataPoints = getGeoChartNonEmptyData(runtime);
-    expect(dataPoints).toHaveLength(1);
-    expect(dataPoints).toMatchObject([{ value: 10, feature: { properties: { name: "France" } } }]);
+    expect(runtime.chartJsConfig.data.datasets[0].labelsAndValues).toEqual({
+      FR: { value: 10, label: "France" },
+    });
   });
 
   test("Ticks values have the same format as the data", () => {
@@ -161,30 +147,92 @@ describe("Geo charts plugin tests", () => {
     createGeoChart(model, { missingValueColor: "#ff0000" });
     const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
     expect(runtime.chartJsConfig.options?.scales?.color?.["missing"]).toBe("#ff0000");
-
-    // The countries that have no data should still be in the runtime, otherwise the missing color won't be applied
-    expect(runtime.chartJsConfig.data.datasets[0].data.length).toBe(3);
   });
 
-  describe("geoProjectionPlugin", () => {
+  describe("chartGeoPlugin", () => {
+    function createMockChart(runtime: GeoChartRuntime): any {
+      return deepCopy({
+        config: runtime.chartJsConfig,
+        data: runtime.chartJsConfig.data,
+        options: runtime.chartJsConfig.options,
+        scales: runtime.chartJsConfig.options?.scales || {},
+      });
+    }
+
+    function applyChartGeoPlugin(mockChart: any, runtime: GeoChartRuntime) {
+      (geoChartPlugin.beforeUpdate as Function)(
+        mockChart,
+        undefined,
+        runtime.chartJsConfig.options?.plugins?.chartGeoPlugin
+      );
+    }
+
     test("applies rotation for conicConformal projection", () => {
+      createGeoChart(model, { region: "northAmerica" });
+      const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
+      expect(runtime.chartJsConfig.options?.scales?.projection?.["projection"]).toBe(
+        "conicConformal"
+      );
+
       const rotateFn = jest.fn();
-      const chart = {
-        options: { scales: { projection: { projection: "conicConformal" } } },
-        scales: { projection: { projection: { rotate: rotateFn } } },
-      };
-      (geoProjectionPlugin.beforeUpdate as Function)(chart);
+      const mockChart = createMockChart(runtime);
+      mockChart.scales.projection.projection = { rotate: rotateFn };
+      applyChartGeoPlugin(mockChart, runtime);
       expect(rotateFn).toHaveBeenCalledWith([100, 0]);
     });
 
-    test("does not rotate non-conicConformal projections", () => {
+    test("applies rotation for conicConformal projection", () => {
+      createGeoChart(model, { region: "world" });
+      const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
+      expect(runtime.chartJsConfig.options?.scales?.projection?.["projection"]).toBe("mercator");
+
       const rotateFn = jest.fn();
-      const chart = {
-        options: { scales: { projection: { projection: "mercator" } } },
-        scales: { projection: { projection: { rotate: rotateFn } } },
-      };
-      (geoProjectionPlugin.beforeUpdate as Function)(chart);
+      const mockChart = createMockChart(runtime);
+      mockChart.scales.projection.projection = { rotate: rotateFn };
+      applyChartGeoPlugin(mockChart, runtime);
       expect(rotateFn).not.toHaveBeenCalled();
+    });
+
+    test("labelsWithValues is transformed to the dataset expected by geo chart controller", () => {
+      setCellContent(model, "A2", "France");
+      setCellContent(model, "A3", "Germany");
+      setCellContent(model, "B2", "10");
+      setCellContent(model, "B3", "20");
+      createGeoChart(model, {
+        ...toChartDataSource({ dataSets: [{ dataRange: "B1:B3" }], labelRange: "A1:A3" }),
+      });
+
+      const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
+      const mockChart = createMockChart(runtime);
+      applyChartGeoPlugin(mockChart, runtime);
+
+      expect(mockChart.data.datasets[0].data).toMatchObject([
+        {
+          feature: {
+            type: "Feature",
+            id: "FR",
+            properties: { name: "France" },
+          },
+          value: 10,
+        },
+        {
+          feature: {
+            type: "Feature",
+            id: "DE",
+            properties: { name: "Germany" },
+          },
+          value: 20,
+        },
+        {
+          feature: {
+            type: "Feature",
+            id: "ES",
+            properties: { name: undefined },
+          },
+          // The countries that have no data should still be in the runtime, otherwise the missing color won't be applied
+          value: undefined,
+        },
+      ]);
     });
   });
 

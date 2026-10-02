@@ -71,7 +71,8 @@ export const GeoChart: ChartTypeBuilder<"geo"> = {
     const data = extractData();
     const chartData = getGeoChartData(definition, data, getters, colorThemeName);
 
-    const config: ChartConfiguration = {
+    const regionName = definition.region || chartData.availableRegions[0]?.id;
+    const config: ChartConfiguration<"choropleth"> = {
       type: "choropleth",
       data: {
         datasets: getGeoChartDatasets(definition, chartData),
@@ -85,6 +86,9 @@ export const GeoChart: ChartTypeBuilder<"geo"> = {
           tooltip: getGeoChartTooltip(definition, chartData),
           legend: { display: false },
           background: { color: chartData.background },
+          chartGeoPlugin: {
+            getGeoFeatures: () => chartData.getGeoJsonFeatures(regionName) || [],
+          },
         },
         ...eventHandlers,
       },
