@@ -1099,3 +1099,9 @@ describe("inserting headers next to a header holding a default", () => {
     expect(getStyle(model, "A2")).toMatchObject({ bold: true });
   });
 });
+
+test("styling a full column and a full row at once styles their intersection", () => {
+  const model = new Model();
+  setFormatting(model, "A1:A100, A5:Z5", { bold: true });
+  expect(getStyle(model, "A5")).toMatchObject({ bold: true });
+});
