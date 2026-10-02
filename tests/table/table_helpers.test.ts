@@ -374,11 +374,11 @@ describe("Table cell borders", () => {
     tableStyle.secondColumnStripe = { border: allBorders };
 
     const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
-    expect(getBorders(computedStyle, 0, 0)).toEqual({ right: border });
+    expect(getBorders(computedStyle, 0, 0)).toEqual({ left: border, right: border });
     expect(getBorders(computedStyle, 1, 0)).toEqual({ top: border, right: border, left: border });
     expect(getBorders(computedStyle, 2, 0)).toEqual({ right: border, left: border });
     expect(getBorders(computedStyle, 3, 0)).toEqual({ top: border, right: border, left: border });
-    expect(getBorders(computedStyle, 4, 0)).toEqual({ left: border });
+    expect(getBorders(computedStyle, 4, 0)).toEqual({ left: border, right: border });
   });
 
   test("Second column stripe borders have priority over first column stripe", () => {
@@ -388,11 +388,11 @@ describe("Table cell borders", () => {
     tableStyle.secondColumnStripe = { border: { left: border2, right: border2 } };
 
     const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
-    expect(getBorders(computedStyle, 0, 0)).toEqual({ left: border, right: border2 });
+    expect(getBorders(computedStyle, 0, 0)).toEqual({ left: border2, right: border2 });
     expect(getBorders(computedStyle, 1, 0)).toEqual({ left: border2, right: border2 });
     expect(getBorders(computedStyle, 2, 0)).toEqual({ left: border2, right: border2 });
     expect(getBorders(computedStyle, 3, 0)).toEqual({ left: border2, right: border2 });
-    expect(getBorders(computedStyle, 4, 0)).toEqual({ left: border2, right: border });
+    expect(getBorders(computedStyle, 4, 0)).toEqual({ left: border2, right: border2 });
   });
 
   test("Banded col borders are not in the headers or total rows in normal tables", () => {
@@ -425,11 +425,11 @@ describe("Table cell borders", () => {
     tableStyle.secondRowStripe = { border: allBorders };
 
     const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
-    expect(getBorders(computedStyle, 0, 0)).toEqual({ bottom: border });
+    expect(getBorders(computedStyle, 0, 0)).toEqual({ top: border, bottom: border });
     expect(getBorders(computedStyle, 0, 1)).toEqual({ top: border, bottom: border, left: border });
     expect(getBorders(computedStyle, 0, 2)).toEqual({ top: border, bottom: border });
     expect(getBorders(computedStyle, 0, 3)).toEqual({ top: border, bottom: border, left: border });
-    expect(getBorders(computedStyle, 0, 4)).toEqual({ top: border });
+    expect(getBorders(computedStyle, 0, 4)).toEqual({ top: border, bottom: border });
   });
 
   test("Second row stripe borders have priority over first column stripe", () => {
@@ -439,11 +439,11 @@ describe("Table cell borders", () => {
     tableStyle.secondRowStripe = { border: { top: border2, bottom: border2 } };
 
     const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
-    expect(getBorders(computedStyle, 0, 0)).toEqual({ top: border, bottom: border2 });
+    expect(getBorders(computedStyle, 0, 0)).toEqual({ top: border2, bottom: border2 });
     expect(getBorders(computedStyle, 0, 1)).toEqual({ top: border2, bottom: border2 });
     expect(getBorders(computedStyle, 0, 2)).toEqual({ top: border2, bottom: border2 });
     expect(getBorders(computedStyle, 0, 3)).toEqual({ top: border2, bottom: border2 });
-    expect(getBorders(computedStyle, 0, 4)).toEqual({ top: border2, bottom: border });
+    expect(getBorders(computedStyle, 0, 4)).toEqual({ top: border2, bottom: border2 });
   });
 
   test("Banded row borders are not in the headers or total rows", () => {
@@ -456,7 +456,7 @@ describe("Table cell borders", () => {
     const computedStyle = getComputedTableStyle(tableConfig, tableStyle, tableMetaData);
     expect(getBorders(computedStyle, 0, 0)).toEqual({});
     expect(getBorders(computedStyle, 0, 1)).toEqual({ bottom: border });
-    expect(getBorders(computedStyle, 0, 4)).toEqual({ top: border });
+    expect(getBorders(computedStyle, 0, 4)).toEqual({ left: border, top: border, bottom: border });
   });
 
   test("Can set null border in style to overwrite other borders", () => {
