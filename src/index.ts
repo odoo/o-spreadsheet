@@ -332,6 +332,7 @@ export const registries = {
   specificRangeTransformRegistry,
   unusedDataSourceRegistry,
   NonSquishableFunctionRegistry,
+  performanceRegistry,
 };
 
 /** Registries Population */
@@ -362,6 +363,7 @@ import { PopoverContainerPlugin } from "./components/popover/popover_container_o
 import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
 import { CalendarButton } from "./components/side_panel/criterion_form/calendar_button/calendar_button";
+import { PerfItem } from "./components/side_panel/perf_profile/perf_item";
 import { Spreadsheet } from "./components/spreadsheet/spreadsheet";
 import { TopBar } from "./components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "./components/top_bar/top_bar_tools_registry";
@@ -384,6 +386,7 @@ import { chartSubtypeRegistry } from "./registries/chart_subtype_registry";
 import { clipboardHandlersRegistries } from "./registries/clipboardHandlersRegistries";
 import { unusedDataSourceRegistry } from "./registries/data_source_registry";
 import { onIterationEndEvaluationRegistry } from "./registries/evaluation_registry";
+import { performanceRegistry } from "./registries/performance_registry";
 import { specificRangeTransformRegistry } from "./registries/srt_registry";
 import { globalStores } from "./store_engine/store_registries";
 import { ClipboardStore } from "./stores/clipboard_store";
@@ -549,6 +552,7 @@ export const components = {
   Spreadsheet,
   OSComponent,
   CarouselFigure,
+  PerfItem,
 };
 
 export const hooks = {
