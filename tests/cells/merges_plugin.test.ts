@@ -16,6 +16,7 @@ import {
   selectCell,
   setAnchorCorner,
   setCellContent,
+  setFormat,
   setFormatting,
   setZoneBorders,
   undo,
@@ -25,6 +26,7 @@ import {
   getBorder,
   getCell,
   getCellContent,
+  getCellStyle,
   getEvaluatedCell,
   getMerges,
   getSelectionAnchorCellXc,
@@ -628,5 +630,15 @@ describe("merges", () => {
       expect(model.getters.isSingleCellOrMerge(sheetId, singleCellZone)).toBe(true);
       expect(model.getters.isSingleCellOrMerge(sheetId, zone)).toBe(false);
     });
+  });
+
+  test("inserting a column inside a merge copies the format of the merge", () => {
+    const model = new Model();
+    setFormat(model, "A1", "0%");
+    setFormatting(model, "A1", { bold: true });
+    merge(model, "A1:B1");
+    addColumns(model, "after", "B", 1);
+    expect(getCell(model, "C1")?.format).toBe("0%");
+    expect(getCellStyle(model, "C1")).toEqual({ bold: true });
   });
 });
