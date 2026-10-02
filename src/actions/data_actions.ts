@@ -88,12 +88,6 @@ export const dataAnalysis: ActionSpec = {
   isEnabled: (env) => !env.isSmall,
 };
 
-export const columnStatistics: ActionSpec = {
-  name: _t("Column statistics"),
-  execute: (env) => env.getStore(SidePanelStore).open("ColumnStats", {}),
-  icon: "o-spreadsheet-Icon.COLUMN_STATS",
-};
-
 export const reinsertDynamicPivotMenu: ActionSpec = {
   id: "reinsert_dynamic_pivot",
   name: _t("Re-insert dynamic pivot"),

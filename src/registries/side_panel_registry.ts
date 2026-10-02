@@ -1,6 +1,5 @@
 import { CarouselPanel } from "../components/side_panel/carousel_panel/carousel_panel";
 import { ChartPanel } from "../components/side_panel/chart/main_chart_panel/main_chart_panel";
-import { ColumnStatsPanel } from "../components/side_panel/column_stats/column_stats_panel";
 import { ConditionalFormattingEditor } from "../components/side_panel/conditional_formatting/cf_editor/cf_editor";
 import { ConditionalFormatPreviewList } from "../components/side_panel/conditional_formatting/cf_preview_list/cf_preview_list";
 import { DataAnalysisPanel } from "../components/side_panel/data_analysis/data_analysis_panel";
@@ -110,11 +109,6 @@ sidePanelRegistry.add("DataValidationEditor", {
 sidePanelRegistry.add("MoreFormats", {
   title: _t("More formats"),
   Body: MoreFormatsPanel,
-});
-
-sidePanelRegistry.add("ColumnStats", {
-  title: _t("Column statistics"),
-  Body: ColumnStatsPanel,
 });
 
 sidePanelRegistry.add("DataAnalysisPanel", {
