@@ -65,7 +65,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "isSheetVisible",
     "doesHeaderExist",
     "doesHeadersExist",
-    "getCell",
     "getCellPosition",
     "getColsZone",
     "getRowCellIds",

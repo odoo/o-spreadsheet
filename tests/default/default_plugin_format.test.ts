@@ -259,6 +259,15 @@ describe("Default Plugin: Format", () => {
     });
   });
 
+  test("Editing default on a new sheet", () => {
+    const zone = { left: 0, right: 0, top: 0, bottom: 14 };
+    setFormat(model, [zone], "%");
+    expect(getCellFormat(model, "A1")).toEqual("%");
+    expect(getCellFormat(model, "A15")).toEqual("%");
+    expect(getCellFormat(model, "A16")).toEqual("");
+    expect(getCellFormat(model, "A20")).toEqual("");
+  });
+
   describe("Sheet Manipulation: Add Column", () => {
     test("Default Row", () => {
       setFormat(model, [model.getters.getRowsZone(sheetId, 1, 1)], DATE_FORMAT);
@@ -547,7 +556,7 @@ describe("Default Plugin: Format", () => {
     });
   });
 
-  describe("Merge: Merge into unmerge does not propagate format", () => {
+  describe("Merge: Merge into unmerge propagate format", () => {
     test("Default Row", () => {
       setFormat(model, [model.getters.getRowsZone(sheetId, 1, 1)], DATE_FORMAT);
       expect(getCellFormat(model, "C2")).toEqual(DATE_FORMAT);
@@ -555,11 +564,14 @@ describe("Default Plugin: Format", () => {
       expect(getCellFormat(model, "C4")).toBeUndefined();
 
       merge(model, "C2:C4");
+      expect(getCellFormat(model, "C2")).toEqual(DATE_FORMAT);
+      expect(getCellFormat(model, "C3")).toEqual(DATE_FORMAT);
+      expect(getCellFormat(model, "C4")).toEqual(DATE_FORMAT);
+
       unMerge(model, "C2:C4");
       expect(getCellFormat(model, "C2")).toEqual(DATE_FORMAT);
-      expect(getCellFormat(model, "C3")).toBeUndefined();
-      expect(getCellFormat(model, "C4")).toBeUndefined();
-      expect(model.getters.getCells(sheetId).length).toBe(0);
+      expect(getCellFormat(model, "C3")).toEqual(DATE_FORMAT);
+      expect(getCellFormat(model, "C4")).toEqual(DATE_FORMAT);
     });
 
     test("Default Col", () => {
@@ -568,11 +580,15 @@ describe("Default Plugin: Format", () => {
       expect(getCellFormat(model, "C2")).toBeUndefined();
       expect(getCellFormat(model, "D2")).toBeUndefined();
 
+      merge(model, "B2:D2");
+      expect(getCellFormat(model, "B2")).toEqual(DATE_FORMAT);
+      expect(getCellFormat(model, "C2")).toEqual(DATE_FORMAT);
+      expect(getCellFormat(model, "D2")).toEqual(DATE_FORMAT);
+
       unMerge(model, "B2:D2");
       expect(getCellFormat(model, "B2")).toEqual(DATE_FORMAT);
-      expect(getCellFormat(model, "C2")).toBeUndefined();
-      expect(getCellFormat(model, "D2")).toBeUndefined();
-      expect(model.getters.getCells(sheetId).length).toBe(0);
+      expect(getCellFormat(model, "C2")).toEqual(DATE_FORMAT);
+      expect(getCellFormat(model, "D2")).toEqual(DATE_FORMAT);
     });
   });
 
@@ -842,5 +858,18 @@ describe("Default Plugin: setSheetFormat preserves cells outside the zone", () =
     expect(
       reloadedModel.getters.getEvaluatedCell({ sheetId, ...toCartesian("A1") }).formattedValue
     ).toBe("1");
+  });
+});
+
+describe("inserting headers next to a header holding a default", () => {
+  test("the copied cell format is not dropped by the default of the shifted column", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1");
+    setFormat(model, [toZone("A1")], "0.00%");
+    setFormat(model, [toZone("B1:B100")], "0.00%");
+
+    addColumns(model, "after", "A", 1);
+
+    expect(getCellFormat(model, "B1")).toBe("0.00%");
   });
 });
