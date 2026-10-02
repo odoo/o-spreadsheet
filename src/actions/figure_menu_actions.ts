@@ -10,6 +10,7 @@ import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
 import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
 import { Action, ActionSpec, createActions } from "./action";
+import * as ACTIONS from "./menu_items_actions";
 
 export function getChartMenuActions(figureId: UID, env: SpreadsheetActionEnv): Action[] {
   const chartId = env.model().getters.getChartIdFromFigureId(figureId);
@@ -110,6 +111,13 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetActionEnv)
     {
       ...getDeleteMenuItem(figureId, env),
       name: _t("Delete carousel"),
+      separator: true,
+    },
+    {
+      id: "paste_into_carousel",
+      name: _t("Paste into carousel"),
+      execute: ACTIONS.PASTE_ACTION,
+      icon: "o-spreadsheet-Icon.PASTE",
       separator: true,
     },
 

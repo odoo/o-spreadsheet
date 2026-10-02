@@ -20,17 +20,17 @@
         <div class="o-section-title">Carousel Sections</div>
       </div>
       <div class="o-carousel-preview-list overflow-auto bg-white" t-ref="this.previewListRef">
-        <t t-foreach="this.carouselItems" t-as="item" t-key="this.getItemId(item)">
+        <t t-foreach="this.carouselItems" t-as="item" t-key="item_index">
           <div
             class="o-carousel-preview border-bottom pe-2 position-relative w-100 d-flex flex-column"
             t-att-class="{
-              'o-dragging border-top': this.dragAndDrop.draggedItemId === this.getItemId(item),
+              'o-dragging border-top': this.dragAndDrop.draggedItemId === item_index.toString(),
               'o-selected': this.isCarouselItemActive(item)
             }"
-            t-att-style="this.getPreviewDivStyle(item)">
+            t-att-style="this.getPreviewDivStyle(item_index)">
             <div
               class="o-drag-handle h-100 position-absolute d-flex align-items-center o-button-icon ps-1 flex-shrink-0"
-              t-on-pointerdown.stop.prevent="(ev) => this.onDragHandleMouseDown(item, ev)">
+              t-on-pointerdown.stop.prevent="(ev) => this.onDragHandleMouseDown(item_index, ev)">
               <t t-call="o-spreadsheet-Icon.THIN_DRAG_HANDLE"/>
             </div>
             <div class="d-flex o-preview-content align-items-center justify-content-center">
@@ -41,13 +41,13 @@
               <div class="o-carousel-preview-title text-truncate ms-2">
                 <TextInput
                   value="this.getItemTitle(item)"
-                  onChange="(newName) => this.renameCarouselItem(item, newName)"
+                  onChange="(newName) => this.renameCarouselItem(item_index, newName)"
                   selectContentOnFocus="true"
                 />
               </div>
               <div class="ms-auto"/>
               <div class="flex-shrink-0 d-flex me-1">
-                <CogWheelMenu items="this.getCogWheelMenuItems(item)"/>
+                <CogWheelMenu items="this.getCogWheelMenuItems(item_index)"/>
               </div>
             </div>
             <div class="ms-4 mb-2" t-if="item.type === 'carouselDataView'">
@@ -56,7 +56,7 @@
                 hasSingleRange="true"
                 required="true"
                 onSelectionChanged.bind="this.onSelectionInputChanged"
-                onSelectionConfirmed.bind="this.onSelectionInputConfirmed"
+                onSelectionConfirmed="() => this.onSelectionInputConfirmed(item_index)"
               />
             </div>
           </div>
@@ -72,7 +72,6 @@
             + Add chart
           </div>
           <div
-            t-if="!this.hasDataView"
             class="o-button-link o-carousel-add-data-view float-end my-4 me-4"
             t-on-click="this.addDataViewToCarousel">
             + Add data view

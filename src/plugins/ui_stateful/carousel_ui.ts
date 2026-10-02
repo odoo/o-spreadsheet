@@ -20,7 +20,7 @@ export class CarouselUIPlugin extends UIPlugin {
     "getChartIdFromFigureId",
   ] as const;
 
-  carouselStates: Record<UID, string | undefined> = {};
+  carouselStates: Record<UID, number | undefined> = {};
 
   allowDispatch(cmd: LocalCommand): CommandResult | CommandResult[] {
     switch (cmd.type) {
@@ -78,7 +78,10 @@ export class CarouselUIPlugin extends UIPlugin {
         this.duplicateCarouselChart(cmd);
         break;
       case "UPDATE_CAROUSEL_ACTIVE_ITEM":
-        this.carouselStates[cmd.figureId] = this.getCarouselItemId(cmd.item);
+        const carouselItems = this.getters.getCarousel(cmd.figureId).items;
+        this.carouselStates[cmd.figureId] = carouselItems.findIndex((item) =>
+          deepEquals(item, cmd.item)
+        );
         break;
       case "POPOUT_CHART_FROM_CAROUSEL":
         this.popOutChartFromCarousel(cmd);
@@ -140,12 +143,8 @@ export class CarouselUIPlugin extends UIPlugin {
     if (!carousel.items.length) {
       return undefined;
     }
-
-    return this.carouselStates[figureId]
-      ? carousel.items.find(
-          (item) => this.getCarouselItemId(item) === this.carouselStates[figureId]
-        )
-      : carousel.items[0];
+    const index = this.carouselStates[figureId] || 0;
+    return carousel.items[index];
   }
 
   getChartFromFigureId(figureId: UID): SpreadsheetChart | undefined {
@@ -187,11 +186,9 @@ export class CarouselUIPlugin extends UIPlugin {
     if (carousel.items.length === 0) {
       delete this.carouselStates[figureId];
     } else if (!this.carouselStates[figureId]) {
-      this.carouselStates[figureId] = this.getCarouselItemId(carousel.items[0]);
-    } else if (
-      !carousel.items.some((item) => this.getCarouselItemId(item) === this.carouselStates[figureId])
-    ) {
-      this.carouselStates[figureId] = this.getCarouselItemId(carousel.items[0]);
+      this.carouselStates[figureId] = 0;
+    } else if (this.carouselStates[figureId]! >= carousel.items.length) {
+      this.carouselStates[figureId] = 0;
     }
   }
 
@@ -283,9 +280,5 @@ export class CarouselUIPlugin extends UIPlugin {
       figureId: carouselId,
       definition: this.getters.carouselToCarouselData({ ...carousel, items: carouselItems }),
     });
-  }
-
-  private getCarouselItemId(item: CarouselItem): UID {
-    return item.type === "chart" ? item.chartId : "carouselDataView";
   }
 }

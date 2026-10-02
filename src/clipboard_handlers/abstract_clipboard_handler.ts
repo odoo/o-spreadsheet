@@ -11,6 +11,10 @@ import { UID, Zone } from "../types/misc";
 export class ClipboardHandler<T> {
   constructor(protected getters: Getters, protected dispatch: CommandDispatcher["dispatch"]) {}
 
+  get canPasteInCarousel() {
+    return false;
+  }
+
   copy(
     data: ClipboardData,
     isCutOperation: boolean,
