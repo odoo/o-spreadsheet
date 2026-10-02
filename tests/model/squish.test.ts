@@ -734,6 +734,28 @@ describe("squish - unsquish specific cases", () => {
     expect(exportUnSquished.sheets[0].cells).toEqual(sheetContent);
     NonSquishableFunctionRegistry.remove("NOSQUISH");
   });
+
+  test('a string literal changed to "=" is not read back as unchanged', () => {
+    const sheetContent = { A1: '=B1&"a"', A2: '=B2&"="' };
+    const model = createModelFromGrid(sheetContent);
+
+    const importedFromSquished = new Model(model._exportData(true));
+    expect(importedFromSquished._exportData(false).sheets[0].cells).toEqual(sheetContent);
+  });
+
+  test("a non-squishable formula breaks the sequence of numbers", () => {
+    addToRegistry(functionRegistry, "NOSQUISH", {
+      description: "DO no squish",
+      compute: () => 1,
+      args: [],
+    });
+    addToRegistry(NonSquishableFunctionRegistry, "NOSQUISH", "NOSQUISH");
+    const sheetContent = { A1: "1", A2: "=NOSQUISH()", A3: "2", A4: "3", A5: "4" };
+    const model = createModelFromGrid(sheetContent);
+
+    const importedFromSquished = new Model(model._exportData(true));
+    expect(importedFromSquished._exportData(false).sheets[0].cells).toEqual(sheetContent);
+  });
 });
 
 describe("Models created from squished data behavior", () => {
