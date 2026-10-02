@@ -1,6 +1,14 @@
 import seedrandom from "seedrandom";
-import { DateTime, deepCopy, deepEquals, UuidGenerator } from "../../src/helpers";
+import { Model } from "../../src";
+import {
+  addStyleToWorkbookData,
+  DateTime,
+  deepCopy,
+  deepEquals,
+  UuidGenerator,
+} from "../../src/helpers";
 import { groupConsecutive, isConsecutive, lazy, memoize, range } from "../../src/helpers/misc";
+import { getCell, setFormat, setStyle } from "../test_helpers";
 
 describe("Misc", () => {
   test("range", () => {
@@ -311,5 +319,40 @@ describe("UUID", () => {
 
     expect(uuidGenerator.smallUuid()).toBe("3");
     expect(uuidGenerator.smallUuid()).toBe("4");
+  });
+});
+
+describe("addStyleToWorkbookData", () => {
+  test("Can add style to workbook data", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setStyle(model, "A1:A4", { bold: true });
+    const data = model.exportData();
+
+    const A2 = { sheetId, col: 0, row: 1 };
+    addStyleToWorkbookData(data, "styles", A2, { italic: true });
+    expect(data.sheets[0].styles).toEqual({ A1: 1, A2: 2, "A3:A4": 1 });
+
+    const newModel = new Model(data);
+    expect(getCell(newModel, "A1")?.style).toEqual({ bold: true });
+    expect(getCell(newModel, "A2")?.style).toEqual({ italic: true });
+    expect(getCell(newModel, "A3")?.style).toEqual({ bold: true });
+    expect(getCell(newModel, "A4")?.style).toEqual({ bold: true });
+  });
+
+  test("Can add format to workbook data", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setFormat(model, "B3:D3", "0%");
+    const data = model.exportData();
+
+    const C3 = { sheetId, col: 2, row: 2 };
+    addStyleToWorkbookData(data, "formats", C3, "0.00");
+    expect(data.sheets[0].formats).toEqual({ B3: 1, C3: 2, D3: 1 });
+
+    const newModel = new Model(data);
+    expect(getCell(newModel, "B3")?.format).toEqual("0%");
+    expect(getCell(newModel, "C3")?.format).toEqual("0.00");
+    expect(getCell(newModel, "D3")?.format).toEqual("0%");
   });
 });
