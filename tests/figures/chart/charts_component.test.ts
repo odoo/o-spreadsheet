@@ -171,9 +171,11 @@ let getPlugin: OwlPluginGetter;
 let env: SpreadsheetActionEnv;
 
 const TEST_CHART_TYPES = ["basicChart", "scorecard", "gauge", "combo"] as const;
-// scorecard's key value is edited with a composer, not a SelectionInput: it has no
-// separate confirm/cancel button, so it doesn't fit the tests below.
-const SELECTION_INPUT_CHART_TYPES = TEST_CHART_TYPES.filter((type) => type !== "scorecard");
+// scorecard's key value and gauge's metric are edited with a composer, not a SelectionInput:
+// they have no separate confirm/cancel button, so they don't fit the tests below.
+const SELECTION_INPUT_CHART_TYPES = TEST_CHART_TYPES.filter(
+  (type) => type !== "scorecard" && type !== "gauge"
+);
 
 describe("charts", () => {
   beforeEach(async () => {
@@ -440,8 +442,6 @@ describe("charts", () => {
     createTestChart(chartType);
     await mountChartSidePanel();
 
-    const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0] as HTMLInputElement;
-    const dataSeriesValues = dataSeries.querySelector("input");
     const dispatch = spyModelDispatch(model);
     switch (chartType) {
       case "combo":
@@ -475,11 +475,9 @@ describe("charts", () => {
         break;
       }
       case "gauge": {
-        await setInputValueAndTrigger(dataSeriesValues, "B9");
-        await nextTick();
-        await simulateClick(".o-data-series .o-selection-ok");
+        await editStandaloneComposer(".o-data-series .o-composer", "=B9");
         const definition = model.getters.getChartDefinition(chartId) as GaugeChartDefinition;
-        expect(definition.dataRange).toEqual("B9");
+        expect(definition.metric).toEqual("=B9");
         break;
       }
     }
@@ -2687,7 +2685,7 @@ describe("charts", () => {
       await mountChartSidePanel(chartId);
 
       await changeChartType("gauge");
-      expect(model.getters.getChartDefinition(chartId)).toMatchObject({ dataRange: "A1" });
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({ metric: "=A1" });
 
       await changeChartType("bar");
       expect(model.getters.getChartDefinition(chartId)).toMatchObject({
@@ -3484,7 +3482,7 @@ describe("Change chart type", () => {
 
     const def = model.getters.getChartDefinition(chartId) as GaugeChartDefinition;
     expect(def.type).toBe("gauge");
-    expect(def.dataRange).toBeUndefined();
+    expect(def.metric).toBeUndefined();
   });
 
   test("Can change chart type between radar and filled radar chart", async () => {
@@ -3509,6 +3507,46 @@ describe("Change chart type", () => {
 
     await changeChartType("bar");
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({ type: "bar" });
+  });
+
+  test("Gauge metric range updates through chart type changes", async () => {
+    createGaugeChart(model, { metric: "=A1" }, chartId);
+    await mountChartSidePanel(chartId);
+
+    await changeChartType("bar");
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+      type: "bar",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1", dataSetId: expect.any(String) }],
+        dataSetsHaveTitle: false,
+      }),
+    });
+    updateChart(
+      model,
+      chartId,
+      {
+        type: "bar",
+        ...toChartDataSource({ dataSets: [{ dataRange: "A2" }], dataSetsHaveTitle: false }),
+      },
+      sheetId
+    );
+    await changeChartType("gauge");
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+      type: "gauge",
+      metric: "=A2",
+    });
+  });
+
+  test("Gauge metric formula is kept through chart type changes", async () => {
+    createGaugeChart(model, { metric: "=SUM(A1:A3)" }, chartId);
+    await mountChartSidePanel(chartId);
+
+    await changeChartType("bar");
+    await changeChartType("gauge");
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+      type: "gauge",
+      metric: "=SUM(A1:A3)",
+    });
   });
 
   test("Keyvalue and baseline ranges update through chart type changes", async () => {

@@ -7,60 +7,24 @@ import {
   DEFAULT_TEXT_HIGHLIGHT_PERCENT,
 } from "../../../constants";
 import { CompiledFormula } from "../../../formulas/compiler";
-import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
 import { toNumber } from "../../../functions/helpers";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
-import { CellValueType } from "../../../types/cells";
 import {
   BaselineArrowDirection,
   BaselineMode,
   ScorecardChartRuntime,
 } from "../../../types/chart/scorecard_chart";
 import { CommandResult } from "../../../types/commands";
-import { EvaluationGetters } from "../../../types/getters";
 import { Locale } from "../../../types/locale";
-import { Color, FunctionResultObject, RangeAdapterFunctions, UID } from "../../../types/misc";
-import { Range } from "../../../types/range";
+import { Color, FunctionResultObject, RangeAdapterFunctions } from "../../../types/misc";
 import { lightenColor } from "../../color";
 import { formatValue, humanizeNumber } from "../../format/format";
 import { isFormula } from "../../misc";
 import { isNumber } from "../../numbers";
-import { createValidRange } from "../../range";
-import { rangeReference } from "../../references";
 import { clipTextWithEllipsis, drawDecoratedText } from "../../text_helper";
 import { AbstractChart } from "./abstract_chart";
+import { getFormulaRangeXc, getSingleValueFormulaData } from "./chart_common";
 import { ScorecardChartConfig } from "./scorecard_chart_config_builder";
-
-function getData(
-  value: string | undefined,
-  getters: EvaluationGetters,
-  sheetId: UID
-): { scalar: FunctionResultObject | undefined; range: Range | undefined } {
-  if (!value) {
-    return { scalar: undefined, range: undefined };
-  }
-  if (!isFormula(value)) {
-    return { scalar: { value }, range: undefined };
-  }
-  const result = getters.evaluateFormulaResult(sheetId, value);
-  let scalar = isMultipleElementMatrix(result) ? result[0][0] : toScalar(result);
-  let range: Range | undefined = undefined;
-  const xc = getFormulaRangeXc(value);
-  if (xc) {
-    range = createValidRange(getters, sheetId, xc);
-    if (range) {
-      const cell = getters.getEvaluatedCell({
-        sheetId: range.sheetId,
-        col: range.zone.left,
-        row: range.zone.top,
-      });
-      if (cell.type === CellValueType.empty) {
-        scalar = undefined;
-      }
-    }
-  }
-  return { scalar, range };
-}
 
 function getBaselineText(
   baseline: FunctionResultObject | undefined,
@@ -163,15 +127,6 @@ function getBaselineArrowDirection(
     return "down";
   }
   return "neutral";
-}
-
-// Only used to derive a Range when the formula is nothing but a bare reference (e.g. "=A1" or "=A1:B2")
-function getFormulaRangeXc(formula: string | undefined): string | undefined {
-  if (!formula || !isFormula(formula)) {
-    return undefined;
-  }
-  const content = formula.slice(1);
-  return rangeReference.test(content) ? content : undefined;
 }
 
 const Path2DConstructor = globalThis.Path2D;
@@ -327,7 +282,7 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
     colorThemeName: ColorThemeName
   ): ScorecardChartRuntime {
     let formattedKeyValue = "";
-    const { scalar: keyValue, range: keyValueRange } = getData(
+    const { scalar: keyValue, range: keyValueRange } = getSingleValueFormulaData(
       definition.keyValue,
       getters,
       sheetId
@@ -339,7 +294,7 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
       formattedKeyValue = "";
     }
 
-    const { scalar: baseline, range: baselineRange } = getData(
+    const { scalar: baseline, range: baselineRange } = getSingleValueFormulaData(
       definition.baseline,
       getters,
       sheetId

@@ -111,7 +111,7 @@ describe("Chart suggestion preview snapshots", () => {
       "Gauge (hides the chart title)",
       {
         type: "gauge",
-        dataRange: "B1",
+        metric: "=B1",
         title: { text: "Progress" },
         sectionRule: {
           rangeMin: "0",

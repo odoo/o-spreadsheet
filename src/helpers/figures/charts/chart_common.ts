@@ -1,5 +1,7 @@
 import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
+import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
 import { _t } from "../../../translation";
+import { CellValueType } from "../../../types/cells";
 import {
   ChartAxisFormats,
   ChartDefinition,
@@ -12,17 +14,24 @@ import {
 } from "../../../types/chart/chart";
 import { CommandResult } from "../../../types/commands";
 import { LocaleFormat } from "../../../types/format";
-import { CoreGetters } from "../../../types/getters";
+import { CoreGetters, EvaluationGetters } from "../../../types/getters";
 import { Locale } from "../../../types/locale";
-import { Color, RangeAdapterFunctions, UID, UnboundedZone, Zone } from "../../../types/misc";
+import {
+  Color,
+  FunctionResultObject,
+  RangeAdapterFunctions,
+  UID,
+  UnboundedZone,
+  Zone,
+} from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { ColorThemeName } from "../../../types/rendering";
 import { MAX_XLSX_POLYNOMIAL_DEGREE } from "../../../xlsx/constants";
 import { ColorGenerator, relativeLuminance } from "../../color";
 import { COLOR_THEMES } from "../../color_themes";
 import { formatValue, humanizeNumber } from "../../format/format";
-import { largeMax } from "../../misc";
-import { createRange, duplicateRangeInDuplicatedSheet } from "../../range";
+import { isFormula, largeMax } from "../../misc";
+import { createRange, createValidRange, duplicateRangeInDuplicatedSheet } from "../../range";
 import { rangeReference } from "../../references";
 import { isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
 
@@ -374,4 +383,48 @@ export function getChartBackgroundColor(
     return COLOR_THEMES[colorThemeName].chartBackgroundColor;
   }
   return background;
+}
+
+// Only used to derive a Range when the formula is nothing but a bare reference (e.g. "=A1" or "=A1:B2")
+export function getFormulaRangeXc(formula: string | undefined): string | undefined {
+  if (!formula || !isFormula(formula)) {
+    return undefined;
+  }
+  const content = formula.slice(1);
+  return rangeReference.test(content) ? content : undefined;
+}
+
+/**
+ * Evaluate a single-value chart formula (scorecard key value, gauge metric...).
+ * If the formula is a bare reference, also return the referenced range.
+ */
+export function getSingleValueFormulaData(
+  value: string | undefined,
+  getters: EvaluationGetters,
+  sheetId: UID
+): { scalar: FunctionResultObject | undefined; range: Range | undefined } {
+  if (!value) {
+    return { scalar: undefined, range: undefined };
+  }
+  if (!isFormula(value)) {
+    return { scalar: { value }, range: undefined };
+  }
+  const result = getters.evaluateFormulaResult(sheetId, value);
+  let scalar = isMultipleElementMatrix(result) ? result[0][0] : toScalar(result);
+  let range: Range | undefined = undefined;
+  const xc = getFormulaRangeXc(value);
+  if (xc) {
+    range = createValidRange(getters, sheetId, xc);
+    if (range) {
+      const cell = getters.getEvaluatedCell({
+        sheetId: range.sheetId,
+        col: range.zone.left,
+        row: range.zone.top,
+      });
+      if (cell.type === CellValueType.empty) {
+        scalar = undefined;
+      }
+    }
+  }
+  return { scalar, range };
 }
