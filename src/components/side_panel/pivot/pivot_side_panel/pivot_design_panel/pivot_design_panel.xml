@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-PivotDesignPanel">
-    <t t-set="isReadonly" t-value="this.env.model.getters.isReadonly()"/>
+    <t t-set="isReadonly" t-value="this.model().getters.isReadonly()"/>
     <div class="h-100 overflow-y-auto">
       <div
         t-att="isReadonly ? ['inert', 1] : []"
