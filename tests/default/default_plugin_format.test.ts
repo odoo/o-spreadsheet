@@ -556,7 +556,7 @@ describe("Default Plugin: Format", () => {
     });
   });
 
-  describe("Merge: Merge into unmerge does not propagate format", () => {
+  describe("Merge: Merge into unmerge propagate format", () => {
     test("Default Row", () => {
       setFormat(model, [model.getters.getRowsZone(sheetId, 1, 1)], DATE_FORMAT);
       expect(getCellFormat(model, "C2")).toEqual(DATE_FORMAT);
@@ -564,11 +564,14 @@ describe("Default Plugin: Format", () => {
       expect(getCellFormat(model, "C4")).toBeUndefined();
 
       merge(model, "C2:C4");
+      expect(getCellFormat(model, "C2")).toEqual(DATE_FORMAT);
+      expect(getCellFormat(model, "C3")).toEqual(DATE_FORMAT);
+      expect(getCellFormat(model, "C4")).toEqual(DATE_FORMAT);
+
       unMerge(model, "C2:C4");
       expect(getCellFormat(model, "C2")).toEqual(DATE_FORMAT);
-      expect(getCellFormat(model, "C3")).toBeUndefined();
-      expect(getCellFormat(model, "C4")).toBeUndefined();
-      expect(model.getters.getCells(sheetId).length).toBe(0);
+      expect(getCellFormat(model, "C3")).toEqual(DATE_FORMAT);
+      expect(getCellFormat(model, "C4")).toEqual(DATE_FORMAT);
     });
 
     test("Default Col", () => {
@@ -577,11 +580,15 @@ describe("Default Plugin: Format", () => {
       expect(getCellFormat(model, "C2")).toBeUndefined();
       expect(getCellFormat(model, "D2")).toBeUndefined();
 
+      merge(model, "B2:D2");
+      expect(getCellFormat(model, "B2")).toEqual(DATE_FORMAT);
+      expect(getCellFormat(model, "C2")).toEqual(DATE_FORMAT);
+      expect(getCellFormat(model, "D2")).toEqual(DATE_FORMAT);
+
       unMerge(model, "B2:D2");
       expect(getCellFormat(model, "B2")).toEqual(DATE_FORMAT);
-      expect(getCellFormat(model, "C2")).toBeUndefined();
-      expect(getCellFormat(model, "D2")).toBeUndefined();
-      expect(model.getters.getCells(sheetId).length).toBe(0);
+      expect(getCellFormat(model, "C2")).toEqual(DATE_FORMAT);
+      expect(getCellFormat(model, "D2")).toEqual(DATE_FORMAT);
     });
   });
 
