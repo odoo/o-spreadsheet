@@ -650,7 +650,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // would otherwise change. These run in `handle`, after the DefaultPlugin has
   // updated its state, so the default comparisons (in `updateCell`) use the new
   // defaults; the *previous* defaults are read from the snapshots taken in
-  // `beforeHandle`.
+  // `beforeHandle`. Those snapshots predate every zone of the command, so the
+  // previous defaults are never baked into a cell of the target: it receives
+  // the new formatting anyway.
   // ---------------------------------------------------------------------------
 
   private setFormat(sheetId: UID, zones: Zone[], format: Format | null) {
@@ -661,35 +663,38 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       const defaultCol = zone.bottom - zone.top + 1 > numberOfRows / 2;
       const defaultRow = zone.right - zone.left + 1 > numberOfCols / 2;
       if (defaultRow && defaultCol && getZoneArea(zone) > sheetArea / 2) {
-        this.setSheetFormat(sheetId, zone, format);
+        this.setSheetFormat(sheetId, zone, zones, format);
       } else if (defaultCol) {
-        this.setColsFormat(sheetId, zone, format ?? "");
+        this.setColsFormat(sheetId, zone, zones, format ?? "");
       } else if (defaultRow) {
-        this.setRowsFormat(sheetId, zone, format ?? "");
+        this.setRowsFormat(sheetId, zone, zones, format ?? "");
       } else {
         this.updateCellsFormat(sheetId, zone, format ?? "");
       }
     }
   }
 
-  private setSheetFormat(sheetId: UID, zone: Zone, format: Format | null) {
+  private setSheetFormat(sheetId: UID, zone: Zone, targetZones: Zone[], format: Format | null) {
     this.updateCellsFormat(sheetId, zone, null);
     const sheetZone = this.getters.getSheetZone(sheetId);
     const horizontalZone = this.getters.getRowsZone(sheetId, zone.top, zone.bottom);
-    const externalHorizontalZones = recomputeZones([horizontalZone], [zone]);
+    const externalHorizontalZones = recomputeZones([horizontalZone], targetZones);
     const defaults = this.getDefaultFormatInCell(sheetId, externalHorizontalZones, {
       shouldUseDefaultSheet: true,
       shouldUseDefaultRow: true,
     });
     const verticalZone = this.getters.getColsZone(sheetId, zone.left, zone.right);
-    const externalVerticalZones = recomputeZones([verticalZone], [zone]);
+    const externalVerticalZones = recomputeZones([verticalZone], targetZones);
     defaults.push(
       ...this.getDefaultFormatInCell(sheetId, externalVerticalZones, {
         shouldUseDefaultSheet: true,
         shouldUseDefaultCol: true,
       })
     );
-    const externalCornerZones = recomputeZones([sheetZone], [horizontalZone, verticalZone]);
+    const externalCornerZones = recomputeZones(
+      [sheetZone],
+      [horizontalZone, verticalZone, ...targetZones]
+    );
     defaults.push(
       ...this.getDefaultFormatInCell(sheetId, externalCornerZones, { shouldUseDefaultSheet: true })
     );
@@ -698,11 +703,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
   }
 
-  private setColsFormat(sheetId: UID, zone: Zone, format: Format) {
+  private setColsFormat(sheetId: UID, zone: Zone, targetZones: Zone[], format: Format) {
     this.updateCellsFormat(sheetId, zone, null);
     const leftoverZones = recomputeZones(
       [this.getters.getColsZone(sheetId, zone.left, zone.right)],
-      [zone]
+      targetZones
     );
     const defaults = this.getDefaultFormatInCell(sheetId, leftoverZones, {
       shouldUseDefaultSheet: true,
@@ -722,11 +727,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
   }
 
-  private setRowsFormat(sheetId: UID, zone: Zone, format: Format) {
+  private setRowsFormat(sheetId: UID, zone: Zone, targetZones: Zone[], format: Format) {
     this.updateCellsFormat(sheetId, zone, null);
     const leftoverZones = recomputeZones(
       [this.getters.getRowsZone(sheetId, zone.top, zone.bottom)],
-      [zone]
+      targetZones
     );
     const defaults = this.getDefaultFormatInCell(sheetId, leftoverZones, {
       shouldUseDefaultSheet: true,
@@ -810,35 +815,38 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       const defaultCol = zone.bottom - zone.top + 1 > numberOfRows / 2;
       const defaultRow = zone.right - zone.left + 1 > numberOfCols / 2;
       if (defaultRow && defaultCol && getZoneArea(zone) > sheetArea / 2) {
-        this.setSheetStyle(sheetId, zone, style);
+        this.setSheetStyle(sheetId, zone, zones, style);
       } else if (defaultCol) {
-        this.setColsStyle(sheetId, zone, style);
+        this.setColsStyle(sheetId, zone, zones, style);
       } else if (defaultRow) {
-        this.setRowsStyle(sheetId, zone, style);
+        this.setRowsStyle(sheetId, zone, zones, style);
       } else {
         this.updateCellsStyle(sheetId, zone, style);
       }
     }
   }
 
-  private setSheetStyle(sheetId: UID, zone: Zone, style: Style) {
+  private setSheetStyle(sheetId: UID, zone: Zone, targetZones: Zone[], style: Style) {
     this.clearCellStyle(sheetId, zone, style);
     const sheetZone = this.getters.getSheetZone(sheetId);
     const horizontalZone = this.getters.getRowsZone(sheetId, zone.top, zone.bottom);
-    const externalHorizontalZones = recomputeZones([horizontalZone], [zone]);
+    const externalHorizontalZones = recomputeZones([horizontalZone], targetZones);
     const defaults = this.getPartialDefaultStyleInCell(sheetId, externalHorizontalZones, style, {
       shouldUseDefaultSheet: true,
       shouldUseDefaultRow: true,
     });
     const verticalZone = this.getters.getColsZone(sheetId, zone.left, zone.right);
-    const externalVerticalZones = recomputeZones([verticalZone], [zone]);
+    const externalVerticalZones = recomputeZones([verticalZone], targetZones);
     defaults.push(
       ...this.getPartialDefaultStyleInCell(sheetId, externalVerticalZones, style, {
         shouldUseDefaultSheet: true,
         shouldUseDefaultCol: true,
       })
     );
-    const externalCornerZones = recomputeZones([sheetZone], [horizontalZone, verticalZone]);
+    const externalCornerZones = recomputeZones(
+      [sheetZone],
+      [horizontalZone, verticalZone, ...targetZones]
+    );
     defaults.push(
       ...this.getPartialDefaultStyleInCell(sheetId, externalCornerZones, style, {
         shouldUseDefaultSheet: true,
@@ -849,11 +857,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
   }
 
-  private setColsStyle(sheetId: UID, zone: Zone, style: Style) {
+  private setColsStyle(sheetId: UID, zone: Zone, targetZones: Zone[], style: Style) {
     this.clearCellStyle(sheetId, zone, style);
     const leftoverZones = recomputeZones(
       [this.getters.getColsZone(sheetId, zone.left, zone.right)],
-      [zone]
+      targetZones
     );
     const defaults = this.getPartialDefaultStyleInCell(sheetId, leftoverZones, style, {
       shouldUseDefaultSheet: true,
@@ -888,11 +896,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
   }
 
-  private setRowsStyle(sheetId: UID, zone: Zone, style: Style) {
+  private setRowsStyle(sheetId: UID, zone: Zone, targetZones: Zone[], style: Style) {
     this.clearCellStyle(sheetId, zone, style);
     const leftoverZones = recomputeZones(
       [this.getters.getRowsZone(sheetId, zone.top, zone.bottom)],
-      [zone]
+      targetZones
     );
     const defaults = this.getPartialDefaultStyleInCell(sheetId, leftoverZones, style, {
       shouldUseDefaultSheet: true,

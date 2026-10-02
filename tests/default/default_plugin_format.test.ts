@@ -869,3 +869,9 @@ describe("inserting headers next to a header holding a default", () => {
     expect(getCellFormat(model, "B1")).toBe("0.00%");
   });
 });
+
+test("formatting a full column and a full row at once formats their intersection", () => {
+  const model = new Model();
+  setFormat(model, target("A1:A100, A5:Z5"), "%");
+  expect(getCellFormat(model, "A5")).toBe("%");
+});
