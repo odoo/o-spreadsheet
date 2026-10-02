@@ -25,6 +25,7 @@ import {
 } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
+import { MergePlugin } from "./merge";
 
 interface BordersPluginState {
   readonly borders: Record<UID, ((Border | undefined)[] | undefined)[] | undefined>;
@@ -35,7 +36,11 @@ interface BordersPluginState {
  * This plugin manages all things related to a cell look:
  * - borders
  */
-export class BordersPlugin extends CorePlugin<BordersPluginState> implements BordersPluginState {
+export class BordersPlugin
+  extends CorePlugin<typeof BordersPlugin, BordersPluginState>
+  implements BordersPluginState
+{
+  static readonly dependencies = [MergePlugin] as const;
   static getters = ["getCellBorder", "getBordersColors"] as const;
 
   public readonly borders: BordersPluginState["borders"] = {};

@@ -30,6 +30,8 @@ import {
 import { Range, RangePart } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
+import { CellPlugin } from "./cell";
+import { HeaderVisibilityPlugin } from "./header_visibility";
 
 type SheetMergeCellMap = Record<number, Record<number, number | undefined> | undefined>;
 
@@ -39,7 +41,8 @@ interface MergeState {
   readonly mergeCellMap: Record<UID, SheetMergeCellMap | undefined>; // SheetId [ col ][ row ] --> merge ID
 }
 
-export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
+export class MergePlugin extends CorePlugin<typeof MergePlugin, MergeState> implements MergeState {
+  static readonly dependencies = [CellPlugin, HeaderVisibilityPlugin] as const;
   static getters = [
     "isInMerge",
     "isInSameMerge",

@@ -42,7 +42,7 @@ export function evaluateLiteral(
 }
 
 export function createCell(
-  getters: CoreGetters,
+  getters: Pick<CoreGetters, "getLocale" | "getRangeFromSheetXC">,
   id: number,
   content: string,
   format: Format | undefined,
@@ -57,7 +57,7 @@ export function createCell(
 }
 
 export function createLiteralCell(
-  getters: CoreGetters,
+  getters: Pick<CoreGetters, "getLocale">,
   id: number,
   content: string,
   format: Format | undefined,
@@ -96,7 +96,7 @@ export function createLiteralCell(
 }
 
 export function createFormulaCell(
-  getters: CoreGetters,
+  getters: Pick<CoreGetters, "getRangeFromSheetXC">,
   id: number,
   content: string,
   format: Format | undefined,

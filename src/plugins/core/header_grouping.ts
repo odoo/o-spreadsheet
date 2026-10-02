@@ -8,12 +8,14 @@ import { Dimension, HeaderGroup, HeaderIndex, UID, Zone } from "../../types/misc
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { getSheetDataHeader } from "../../xlsx/helpers/misc";
 import { CorePlugin } from "../core_plugin";
+import { SheetPlugin } from "./sheet";
 
 interface State {
   groups: Record<UID, Record<Dimension, HeaderGroup[]>>;
 }
 
-export class HeaderGroupingPlugin extends CorePlugin<State> {
+export class HeaderGroupingPlugin extends CorePlugin<typeof HeaderGroupingPlugin, State> {
+  static readonly dependencies = [SheetPlugin] as const;
   static getters = [
     "getHeaderGroups",
     "getGroupsLayers",
