@@ -863,6 +863,7 @@ describe("Default Plugin: setSheetFormat preserves cells outside the zone", () =
     ).toBe("1");
   });
 });
+<<<<<<< 416ea54c01253d707eb20903ee198ab90cb59390
 
 describe("inserting headers next to a header holding a default", () => {
   test("the copied cell format is not dropped by the default of the shifted column", () => {
@@ -882,3 +883,19 @@ test("formatting a full column and a full row at once formats their intersection
   setFormat(model, target("A1:A100, A5:Z5"), "%");
   expect(getCellFormat(model, "A5")).toBe("%");
 });
+||||||| 67dbbc16ca333018f94a14fb04d5975b8ebe572b
+=======
+
+describe("inserting headers next to a header holding a default", () => {
+  test("the copied cell format is not dropped by the default of the shifted column", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1");
+    setFormat(model, [toZone("A1")], "0.00%");
+    setFormat(model, [toZone("B1:B100")], "0.00%");
+
+    addColumns(model, "after", "A", 1);
+
+    expect(getCellFormat(model, "B1")).toBe("0.00%");
+  });
+});
+>>>>>>> 3f8671e4aebfe1d8ed050d4504a2183fd5dbf598

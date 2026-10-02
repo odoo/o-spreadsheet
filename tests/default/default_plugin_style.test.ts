@@ -1075,6 +1075,7 @@ describe("Default Plugin: setRowsStyle preserves cells outside the zone", () => 
     expect(getCellStyle(model, "I3")).toEqual(FCOLOR_STYLE);
   });
 });
+<<<<<<< 416ea54c01253d707eb20903ee198ab90cb59390
 
 describe("inserting headers next to a header holding a default", () => {
   test("the copied cell style is not dropped by the default of the shifted column", () => {
@@ -1105,3 +1106,30 @@ test("styling a full column and a full row at once styles their intersection", (
   setFormatting(model, "A1:A100, A5:Z5", { bold: true });
   expect(getStyle(model, "A5")).toMatchObject({ bold: true });
 });
+||||||| 67dbbc16ca333018f94a14fb04d5975b8ebe572b
+=======
+
+describe("inserting headers next to a header holding a default", () => {
+  test("the copied cell style is not dropped by the default of the shifted column", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "hello");
+    setFormatting(model, "A1", { bold: true });
+    setFormatting(model, "B1:B100", { bold: true });
+
+    addColumns(model, "after", "A", 1);
+
+    expect(getStyle(model, "B1")).toMatchObject({ bold: true });
+  });
+
+  test("the copied cell style is not dropped by the default of the shifted row", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "hello");
+    setFormatting(model, "A1", { bold: true });
+    setFormatting(model, "A2:Z2", { bold: true });
+
+    addRows(model, "after", 0, 1);
+
+    expect(getStyle(model, "A2")).toMatchObject({ bold: true });
+  });
+});
+>>>>>>> 3f8671e4aebfe1d8ed050d4504a2183fd5dbf598

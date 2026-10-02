@@ -631,6 +631,7 @@ describe("merges", () => {
       expect(model.getters.isSingleCellOrMerge(sheetId, zone)).toBe(false);
     });
   });
+<<<<<<< 416ea54c01253d707eb20903ee198ab90cb59390
 
   test("inserting a column inside a merge copies the format of the merge", () => {
     const model = new Model();
@@ -641,4 +642,15 @@ describe("merges", () => {
     expect(getCell(model, "C1")?.format).toBe("0%");
     expect(getCellStyle(model, "C1")).toEqual({ bold: true });
   });
+||||||| 67dbbc16ca333018f94a14fb04d5975b8ebe572b
+=======
+
+  test("inserting a column inside a merge copies the format of the merge", () => {
+    const model = new Model();
+    setFormat(model, "A1", "0%");
+    merge(model, "A1:B1");
+    addColumns(model, "after", "B", 1);
+    expect(getCell(model, "C1")?.format).toBe("0%");
+  });
+>>>>>>> 3f8671e4aebfe1d8ed050d4504a2183fd5dbf598
 });

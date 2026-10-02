@@ -117,13 +117,31 @@ export class CorePluginRegistry extends PluginRegistry<CorePluginConstructor> {
 
 export const corePluginRegistry = new CorePluginRegistry()
   .add("sheet", SheetPlugin)
+<<<<<<< 416ea54c01253d707eb20903ee198ab90cb59390
   .add("settings", SettingsPlugin)
   .add("header_grouping", HeaderGroupingPlugin)
   .add("hidden_header", HiddenHeaderPlugin)
   .add("header_visibility", HeaderVisibilityPlugin)
+||||||| 67dbbc16ca333018f94a14fb04d5975b8ebe572b
+  .add("header grouping", HeaderGroupingPlugin)
+  .add("header visibility", HeaderVisibilityPlugin)
+  .add("tables", TablePlugin)
+  .add("dataValidation", DataValidationPlugin)
+  .add("cell", CellPlugin)
+=======
+  .add("header grouping", HeaderGroupingPlugin)
+  .add("header visibility", HeaderVisibilityPlugin)
+  .add("tables", TablePlugin)
+  .add("dataValidation", DataValidationPlugin)
+>>>>>>> 3f8671e4aebfe1d8ed050d4504a2183fd5dbf598
   .add("default", DefaultPlugin)
+<<<<<<< 416ea54c01253d707eb20903ee198ab90cb59390
   .add("cell", CellPlugin)
   .add("dataValidation", DataValidationPlugin)
+||||||| 67dbbc16ca333018f94a14fb04d5975b8ebe572b
+=======
+  .add("cell", CellPlugin)
+>>>>>>> 3f8671e4aebfe1d8ed050d4504a2183fd5dbf598
   .add("merge", MergePlugin)
   .add("tables", TablePlugin)
   .add("headerSize", HeaderSizePlugin)
