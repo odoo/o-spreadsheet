@@ -1,17 +1,28 @@
-import { CellErrorType, CellValueType, ErrorCell, EvaluationError, UID } from "../../src";
+import {
+  CellErrorType,
+  CellValueType,
+  CommandResult,
+  ErrorCell,
+  EvaluationError,
+  UID,
+} from "../../src";
 import { arg } from "../../src/functions/arguments";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { toMatrix } from "../../src/functions/helpers";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { Model } from "../../src/model";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
+import { ScorecardChartRuntime } from "../../src/types/chart/scorecard_chart";
 import {
   activateSheet,
   addColumns,
+  addEqualCf,
   copy,
+  createScorecardChart,
   createSheet,
   deleteColumns,
   evaluateCells,
+  hideRows,
   paste,
   setCellContent,
   setFormat,
@@ -1603,24 +1614,206 @@ describe("Automatic evaluation", () => {
     setCellContent(model, "A1", "2");
     expect(getEvaluatedCell(model, "A2").value).toBe(1);
 
-    // Even with cellIds, a full rebuild is performed in manual mode
-    const cell = getCell(model, "A2");
-    model.dispatch("EVALUATE_CELLS", { cellIds: [cell!.id] });
+    model.dispatch("EVALUATE_CELLS");
     expect(getEvaluatedCell(model, "A2").value).toBe(2);
   });
 
-  test("EVALUATE_CELLS with cellIds re-evaluates cells outside cellIds in manual mode", () => {
+  test("EVALUATE_CELLS with cellIds only evaluates those cells in manual mode", () => {
     const model = new Model();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "=A1");
-    setCellContent(model, "B1", "42");
+    setCellContent(model, "A3", "=A2");
+    setCellContent(model, "B1", "=A1");
 
     model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
     setCellContent(model, "A1", "2");
     expect(getEvaluatedCell(model, "A2").value).toBe(1);
 
-    const unrelatedCell = getCell(model, "B1")!;
-    model.dispatch("EVALUATE_CELLS", { cellIds: [unrelatedCell.id] });
+    model.dispatch("EVALUATE_CELLS", { cellIds: [getCell(model, "A2")!.id] });
     expect(getEvaluatedCell(model, "A2").value).toBe(2);
+    // neither dependents nor unrelated cells are evaluated
+    expect(getEvaluatedCell(model, "A3").value).toBe(1);
+    expect(getEvaluatedCell(model, "B1").value).toBe(1);
+  });
+
+  test("EVALUATE_CELLS with cellIds only evaluates those cells when nothing was evaluated", () => {
+    const model = new Model(createModelFromGrid({ A1: "1", A2: "=A1", B1: "=A1" }).exportData(), {
+      automaticEvaluation: false,
+    });
+    model.dispatch("EVALUATE_CELLS", { cellIds: [getCell(model, "A2")!.id] });
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+    expect(getEvaluatedCell(model, "B1").value).toBe(null);
+  });
+
+  test("hiding rows only re-evaluates SUBTOTAL formulas in manual mode", () => {
+    const model = createModelFromGrid({ A1: "1", A2: "2", B1: "=SUBTOTAL(109, A1:A2)", C1: "=A1" });
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
+    setCellContent(model, "A1", "10");
+    expect(getEvaluatedCell(model, "B1").value).toBe(3);
+    expect(getEvaluatedCell(model, "C1").value).toBe(1);
+
+    hideRows(model, [1]);
+    expect(getEvaluatedCell(model, "B1").value).toBe(10);
+    expect(getEvaluatedCell(model, "C1").value).toBe(1);
+  });
+});
+
+describe("Automatic evaluation disabled at model creation", () => {
+  function createUnevaluatedModelFromGrid(grid: Record<string, string>) {
+    return new Model(createModelFromGrid(grid).exportData(), { automaticEvaluation: false });
+  }
+
+  test("no formula is evaluated when the model is created with automaticEvaluation false", () => {
+    const model = createUnevaluatedModelFromGrid({ A1: "1", A2: "=A1+1", A3: "hello" });
+    const sheetId = model.getters.getActiveSheetId();
+
+    expect(model.getters.isAutomaticEvaluationEnabled()).toBe(false);
+    expect(getEvaluatedCell(model, "A2").type).toBe(CellValueType.empty);
+    expect(model.getters.getEvaluatedCells(sheetId)).toEqual([]);
+  });
+
+  test("formula cells render blank, literal ones are displayed", () => {
+    const model = createUnevaluatedModelFromGrid({ A1: "1", A2: "=A1+1", A3: "hello" });
+    expect(getCellContent(model, "A1")).toBe("1");
+    expect(getCellContent(model, "A3")).toBe("hello");
+    expect(getCellContent(model, "A2")).toBe("");
+    expect(getCellRawContent(model, "A2")).toBe("=A1+1");
+  });
+
+  test("formulas are displayed when the formula visibility is on", () => {
+    const model = createUnevaluatedModelFromGrid({ A2: "=A1+1" });
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    expect(getCellContent(model, "A2")).toBe("=A1+1");
+  });
+
+  test("EVALUATE_CELLS evaluates the whole workbook", () => {
+    const model = createUnevaluatedModelFromGrid({ A1: "1", A2: "=A1+1", A3: "hello" });
+    evaluateCells(model);
+
+    expect(getEvaluatedCell(model, "A1").value).toBe(1);
+    expect(getEvaluatedCell(model, "A2").value).toBe(2);
+    expect(getEvaluatedCell(model, "A3").value).toBe("hello");
+    expect(model.getters.isAutomaticEvaluationEnabled()).toBe(false);
+  });
+
+  test("enabling automatic evaluation evaluates the whole workbook and restores the cascade", () => {
+    const model = createUnevaluatedModelFromGrid({ A1: "1", A2: "=A1+1" });
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getEvaluatedCells(sheetId)).toEqual([]);
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: true });
+
+    expect(model.getters.isAutomaticEvaluationEnabled()).toBe(true);
+    expect(getEvaluatedCell(model, "A1").value).toBe(1);
+    expect(getEvaluatedCell(model, "A2").value).toBe(2);
+
+    setCellContent(model, "A1", "5");
+    expect(getEvaluatedCell(model, "A2").value).toBe(6);
+  });
+
+  test("disabling automatic evaluation again is cancelled", () => {
+    const model = createUnevaluatedModelFromGrid({ A1: "1" });
+    expect(model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false })).toBeCancelledBecause(
+      CommandResult.NoChangeInAutomaticEvaluation
+    );
+  });
+
+  test("a modified cell is evaluated, without cascading to its dependents", () => {
+    const model = createUnevaluatedModelFromGrid({ A1: "1", A2: "=A1", A3: "=A1" });
+    setCellContent(model, "A1", "2");
+    expect(getEvaluatedCell(model, "A1").value).toBe(2);
+    expect(getEvaluatedCell(model, "A2").type).toBe(CellValueType.empty);
+    expect(getEvaluatedCell(model, "A3").type).toBe(CellValueType.empty);
+  });
+
+  test("a modified formula is evaluated against cells that were never evaluated", () => {
+    const model = createUnevaluatedModelFromGrid({ A1: "4", A2: "=A1" });
+    setCellContent(model, "A2", "=A1*2");
+    expect(getEvaluatedCell(model, "A2").value).toBe(8);
+  });
+
+  test("a modified formula does not evaluate the formulas it references", () => {
+    const model = createUnevaluatedModelFromGrid({ A1: "1", A2: "=A1+1" });
+    setCellContent(model, "B1", "=A2");
+    expect(getEvaluatedCell(model, "B1").value).toBe(0);
+    expect(getEvaluatedCell(model, "A2").type).toBe(CellValueType.empty);
+
+    evaluateCells(model);
+    expect(getEvaluatedCell(model, "B1").value).toBe(2);
+  });
+
+  test("a conditional format formula does not evaluate the formulas it references", () => {
+    const model = createUnevaluatedModelFromGrid({ A1: "1", A2: "=A1+1", B1: "2" });
+    addEqualCf(model, "B1", { fillColor: "#FF0000" }, "=A2");
+    const position = toCellPosition(model.getters.getActiveSheetId(), "B1");
+    expect(model.getters.getCellComputedStyle(position).fillColor).toBeUndefined();
+    expect(getEvaluatedCell(model, "A2").type).toBe(CellValueType.empty);
+
+    evaluateCells(model);
+    expect(model.getters.getCellComputedStyle(position).fillColor).toBe("#FF0000");
+  });
+
+  test("a scorecard formula does not evaluate the formulas it references", () => {
+    const model = createUnevaluatedModelFromGrid({ A1: "1", A2: "=A1+1" });
+    createScorecardChart(model, { keyValue: "=A2" }, "chartId");
+    const runtime = model.getters.getChartRuntime("chartId") as ScorecardChartRuntime;
+    expect(runtime.keyValue).toBe("");
+    expect(getEvaluatedCell(model, "A2").type).toBe(CellValueType.empty);
+
+    evaluateCells(model);
+    const evaluatedRuntime = model.getters.getChartRuntime("chartId") as ScorecardChartRuntime;
+    expect(evaluatedRuntime.keyValue).toBe("2");
+  });
+
+  test("a modified cell is evaluated without evaluating the rest of the sheet", () => {
+    const model = createUnevaluatedModelFromGrid({ A1: "1", B1: "=1+1", C1: "=2+2" });
+    const sheetId = model.getters.getActiveSheetId();
+
+    setCellContent(model, "A1", "=6*7");
+
+    expect(getEvaluatedCell(model, "A1").value).toBe(42);
+    expect(getEvaluatedCell(model, "B1").type).toBe(CellValueType.empty);
+    expect(getEvaluatedCell(model, "C1").type).toBe(CellValueType.empty);
+    expect(model.getters.getEvaluatedCellsPositions(sheetId)).toEqual([
+      toCellPosition(sheetId, "A1"),
+    ]);
+  });
+
+  test("a modified cell spreading an array formula is evaluated", () => {
+    const model = createUnevaluatedModelFromGrid({ A1: "1" });
+
+    setCellContent(model, "A1", '=SPLIT("a,b", ",")');
+
+    expect(getEvaluatedCell(model, "A1").value).toBe("a");
+    expect(getEvaluatedCell(model, "B1").value).toBe("b");
+  });
+
+  test("after a first evaluation, edits behave like manual evaluation mode", () => {
+    const model = createUnevaluatedModelFromGrid({ A1: "1", A2: "=A1" });
+    evaluateCells(model);
+
+    setCellContent(model, "A1", "10");
+    expect(getEvaluatedCell(model, "A1").value).toBe(10);
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+  });
+
+  test("array formula getters do not crash before the first evaluation", () => {
+    const model = createUnevaluatedModelFromGrid({ A1: '=SPLIT("a,b", ",")' });
+    const position = toCellPosition(model.getters.getActiveSheetId(), "A1");
+
+    expect(model.getters.getSpreadZone(position)).toBeUndefined();
+    expect(model.getters.isArrayFormulaSpillBlocked(position)).toBe(false);
+    expect(model.getters.getArrayFormulaSpreadingOn(position)).toBeUndefined();
+  });
+
+  test("the model is evaluated by default", () => {
+    const data = createModelFromGrid({ A1: "1", A2: "=A1+1" }).exportData();
+
+    const defaultModel = new Model(data);
+    expect(defaultModel.getters.isAutomaticEvaluationEnabled()).toBe(true);
+    expect(getEvaluatedCell(defaultModel, "A2").value).toBe(2);
+
+    const explicitModel = new Model(data, { automaticEvaluation: true });
+    expect(explicitModel.getters.isAutomaticEvaluationEnabled()).toBe(true);
+    expect(getEvaluatedCell(explicitModel, "A2").value).toBe(2);
   });
 });
