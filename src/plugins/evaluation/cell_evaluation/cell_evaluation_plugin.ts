@@ -226,16 +226,20 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
         }
         break;
       case "EVALUATE_CELLS":
-        this.forceEvaluation = true;
-        if (!this.automaticEvaluation) {
-          // When automatic evaluation is disabled, EVALUATE_CELLS should rebuild dependencies
-          // and evaluate all cells to ensure consistency
-          this.shouldRebuildDependenciesGraph = true;
-        } else if (cmd.cellIds) {
+        if (cmd.cellIds) {
+          // When automatic evaluation is disabled, only the given cells are
+          // evaluated, without cascading to their dependents.
+          this.forceEvaluation = this.automaticEvaluation;
           for (let i = 0; i < cmd.cellIds.length; i++) {
             this.positionsToUpdate.push(this.getters.getCellPosition(cmd.cellIds[i]));
           }
+        } else if (!this.automaticEvaluation) {
+          // When automatic evaluation is disabled, EVALUATE_CELLS should rebuild dependencies
+          // and evaluate all cells to ensure consistency
+          this.forceEvaluation = true;
+          this.shouldRebuildDependenciesGraph = true;
         } else {
+          this.forceEvaluation = true;
           this.evaluator.evaluateAllCells(cmd.profiling);
         }
         break;
