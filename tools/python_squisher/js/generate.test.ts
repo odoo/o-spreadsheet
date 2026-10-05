@@ -1,38 +1,22 @@
 /**
- * Generates the files the Python port relies on / is tested against. Run from the repo root with
+ * Generates the files the Python port is tested against. Run from the repo root with
  *
  *   npx jest --roots tools/python_squisher/js --testRegex 'tools/python_squisher/js/.*\.test\.ts$'
  *
  * (run it again after the python tests to check their output, see the README)
  *
- * - o_spreadsheet_squisher/builtin_functions.json: arity of the built-in functions
- * - tests/fixtures.json: workbooks, as exported unsquished and squished by the TS model
+ * - tests/fixtures.json: workbooks, as exported unsquished and squished by the TS model. The
+ *   python squisher assumes valid formulas: only valid formulas are generated.
  * - if tests/python_output.json exists (written by the python tests), checks that the TS model
  *   loads the python squished cells back into the exact original content.
  */
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
-import { functionRegistry } from "../../../src/functions/function_registry";
 import "../../../src/functions/function_registry_population";
 import { toCartesian } from "../../../src/helpers/coordinates";
 import { Model } from "../../../src/model";
 
 const ROOT = process.env.PY_SQUISHER_ROOT || join(__dirname, "..");
-
-function dumpFunctions() {
-  const result: Record<string, [number, number][]> = {};
-  for (const name of Object.keys(functionRegistry.content).sort()) {
-    const descr = functionRegistry.content[name];
-    result[name] = descr.args.map((arg) => [
-      arg.optional || arg.default ? 1 : 0,
-      arg.repeating ? 1 : 0,
-    ]);
-  }
-  writeFileSync(
-    join(ROOT, "o_spreadsheet_squisher", "builtin_functions.json"),
-    JSON.stringify(result) + "\n"
-  );
-}
 
 // --------------------------------------------------------------------------
 // random workbooks
@@ -159,22 +143,6 @@ function makeGenerator(seed: number, strict: boolean) {
       return (o) => `=CONCATENATE(${s(o)}, ${a(o)}, ${s(o + 1)})`;
     },
     () => {
-      const a = refTemplate();
-      return (o) => `=UNKNOWNFN(${a(o)})`;
-    },
-    () => {
-      const a = refTemplate();
-      return (o) => `=ABS(${a(o)}, ${a(o)})`; // too many args
-    },
-    () => {
-      const a = refTemplate();
-      return (o) => `=SUM(${a(o)}`; // missing paren
-    },
-    () => {
-      const a = refTemplate();
-      return (o) => `=${a(o)} + `;
-    },
-    () => {
       const n = num();
       return (o) => `={${n(o)},2;3,${n(o + 1)}}`;
     },
@@ -188,7 +156,7 @@ function makeGenerator(seed: number, strict: boolean) {
     },
     () => {
       const a = refTemplate();
-      return (o) => `=IFS(${a(o)}, 1, ${a(o)})`; // repeating args in pairs
+      return (o) => `=IFS(${a(o)}, 1, ${a(o)}, 2)`; // repeating args in pairs
     },
     () => {
       const a = refTemplate();
@@ -311,7 +279,6 @@ function exportCase(data: any) {
 }
 
 test("generate python squisher files", () => {
-  dumpFunctions();
   const cases: any[] = [];
   for (const cells of HANDWRITTEN) {
     cases.push(exportCase({ sheets: [{ id: "Sheet1", name: "Sheet1", cells }] }));

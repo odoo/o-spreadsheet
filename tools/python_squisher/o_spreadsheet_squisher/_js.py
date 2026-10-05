@@ -1,25 +1,15 @@
 """Small helpers reproducing JavaScript semantics the TS implementation relies on.
 
-The squished output must be byte-identical to what o-spreadsheet produces, so
-number formatting, whitespace classes and string trimming follow the JS rules
-rather than the Python ones.
+Tokenizing must find the same tokens as o-spreadsheet, and the number offsets must be read back by
+`parseFloat`, so whitespace classes and number formatting follow the JS rules.
 """
 
 import math
 from decimal import Decimal
 
-# Equivalent of JS `\s` (and of the characters removed by String.prototype.trim)
-JS_WHITESPACES = (
-    "\t\n\v\f\r \u00a0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006"
-    "\u2007\u2008\u2009\u200a\u2028\u2029\u202f\u205f\u3000\ufeff"
-)
 # regex snippets equivalent to JS `\s` and `.` (without the `s` flag)
 RE_JS_WS = "[\t\n\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]"
 RE_JS_DOT = "[^\n\r\u2028\u2029]"
-
-
-def js_trim(text: str) -> str:
-    return text.strip(JS_WHITESPACES)
 
 
 def js_number_to_string(value: float) -> str:
@@ -60,10 +50,3 @@ def unquote(text: str, quote_char: str = '"') -> str:
     if text.endswith(quote_char):
         text = text[:-1]
     return text
-
-
-def get_canonical_symbol_name(symbol_name: str) -> str:
-    """Quote the name if it contains any non `\\w` (ASCII) character."""
-    if not symbol_name or any(not (c.isascii() and (c.isalnum() or c == "_")) for c in symbol_name):
-        return f"'{symbol_name}'"
-    return symbol_name

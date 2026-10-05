@@ -3,28 +3,14 @@ import os
 import unittest
 from pathlib import Path
 
-from o_spreadsheet_squisher import (
-    Compiler,
-    FunctionRegistry,
-    Sheets,
-    squish_sheet_cells,
-    squish_workbook_data,
-)
+from o_spreadsheet_squisher import _cell_formats, squish_sheet_cells, squish_workbook_data
 from o_spreadsheet_squisher._js import js_number_to_string
 from o_spreadsheet_squisher.formula import compilation_cache_key
-from o_spreadsheet_squisher.tokenizer import range_tokenize
-from o_spreadsheet_squisher import _cell_formats
 from o_spreadsheet_squisher.squisher import parse_squishable_integer
+from o_spreadsheet_squisher.tokenizer import range_tokenize
 
 HERE = Path(__file__).parent
 FIXTURES = HERE / "fixtures.json"
-
-
-def squish(cells, functions=None, non_squishable=()):
-    data = {"sheets": [{"id": "s1", "name": "Sheet1", "cells": cells}]}
-    sheets = Sheets.from_workbook_data(data)
-    compiler = Compiler(sheets, functions or FunctionRegistry.builtin())
-    return squish_sheet_cells(cells, "s1", sheets, compiler, {}, non_squishable)
 
 
 class TestJs(unittest.TestCase):
@@ -60,31 +46,43 @@ class TestTokenizer(unittest.TestCase):
 class TestSquisher(unittest.TestCase):
     def test_simple(self):
         self.assertEqual(
-            squish({"A1": "=B1", "A2": "=B2", "A3": "=B3", "A4": "=B4+1", "A5": "=B5+2"}),
+            squish_sheet_cells({"A1": "=B1", "A2": "=B2", "A3": "=B3", "A4": "=B4+1", "A5": "=B5+2"}),
             {"A1": "=B1", "A2:A3": {"R": "+R1"}, "A4": "=B4+1", "A5": {"N": "+1", "R": "+R1"}},
         )
 
     def test_numbers(self):
         self.assertEqual(
-            squish({"A1": "1", "A2": "2", "A3": "3", "A4": "5", "A5": "hello", "A6": "6"}),
+            squish_sheet_cells({"A1": "1", "A2": "2", "A3": "3", "A4": "5", "A5": "hello", "A6": "6"}),
             {"A1": "1", "A2:A3": {"N": "+1"}, "A4": "5", "A5": "hello", "A6": "6"},
         )
 
-    def test_unknown_function_is_not_squished(self):
+    def test_formulas_are_written_as_in_the_input(self):
         self.assertEqual(
-            squish({"A1": "=NOPE(B1)", "A2": "=NOPE(B2)"}),
-            {"A1": "=NOPE(B1)", "A2": "=NOPE(B2)"},
+            squish_sheet_cells({"A1": "=SUM( B1 ,  1.50 )", "A2": "=SUM( B1 ,  1.50 )"}),
+            {"A1:A2": "=SUM( B1 ,  1.50 )"},
         )
-        functions = FunctionRegistry.builtin().add("NOPE", [(False, False)])
+
+    def test_references(self):
         self.assertEqual(
-            squish({"A1": "=NOPE(B1)", "A2": "=NOPE(B2)"}, functions),
-            {"A1": "=NOPE(B1)", "A2": {"R": "+R1"}},
+            squish_sheet_cells(
+                {
+                    "A1": "=Sheet2!B1+$C$1+D1:D2",
+                    "A2": "=Sheet2!B2+$C$1+D2:D3",  # ranges are written in full
+                    "A3": "=Sheet3!B3+$C2+D2:D3",  # other sheet, other $: written in full
+                    "A4": "=Sheet3!C3+$C3+D5:D6",
+                }
+            ),
+            {
+                "A1": "=Sheet2!B1+$C$1+D1:D2",
+                "A2": {"R": "+R1|=|D2:D3"},
+                "A3": {"R": "Sheet3!B3|$C2|="},
+                "A4": {"R": "+C1|+R1|D5:D6"},
+            },
         )
 
     def test_non_squishable_function(self):
-        functions = FunctionRegistry.builtin().add("NOSQUISH", [(False, False)])
         self.assertEqual(
-            squish(
+            squish_sheet_cells(
                 {
                     "A1": "=SUM(B1)",
                     "A2": "=SUM(B2)",
@@ -92,8 +90,7 @@ class TestSquisher(unittest.TestCase):
                     "A4": '=NOSQUISH("hello")',
                     "A5": '=NOSQUISH("world")',
                 },
-                functions,
-                ["NOSQUISH"],
+                non_squishable_functions=["NOSQUISH"],
             ),
             {
                 "A1": "=SUM(B1)",
@@ -104,49 +101,60 @@ class TestSquisher(unittest.TestCase):
         )
 
     def test_number_chain_is_broken_by_non_squishable_formula(self):
-        functions = FunctionRegistry.builtin().add("NOSQUISH", [])
         self.assertEqual(
-            squish(
+            squish_sheet_cells(
                 {"A1": "1", "A2": "=NOSQUISH()", "A3": "2", "A4": "3", "A5": "4"},
-                functions,
-                ["NOSQUISH"],
+                non_squishable_functions=["NOSQUISH"],
             ),
             {"A1": "1", "A2": "=NOSQUISH()", "A3": "2", "A4:A5": {"N": "+1"}},
         )
 
+    def test_string_changed_to_no_change_marker(self):
+        self.assertEqual(
+            squish_sheet_cells({"A1": '=B1&"a"', "A2": '=B2&"="'}),
+            {"A1": '=B1&"a"', "A2": '=B2&"="'},
+        )
+
+    def test_float_offsets_are_read_back_exactly(self):
+        values = [0.1 + 0.2 * i for i in range(23)]
+        cells = {f"A{i + 1}": f"=B1+{js_number_to_string(round(v, 10))}" for i, v in enumerate(values)}
+        squished = squish_sheet_cells(cells)
+        self.assertEqual(squished["A23"], "=B1+4.5")
+
+    def test_special_whitespace_formulas_are_not_squished(self):
+        self.assertEqual(
+            squish_sheet_cells({"A1": "=B1+ 1", "A2": "=B2+ 2"}),
+            {"A1": "=B1+ 1", "A2": "=B2+ 2"},
+        )
+
     def test_already_squished(self):
         with self.assertRaises(ValueError):
-            squish({"A1:A2": "=B1"})
+            squish_sheet_cells({"A1:A2": "=B1"})
 
-    def test_workbook_verification(self):
+    def test_workbook(self):
         data = {"sheets": [{"id": "s1", "name": "Sheet1", "cells": {"A1": "=B1", "A2": "=B2"}}]}
         result = squish_workbook_data(data)
         self.assertEqual(result["sheets"][0]["cells"], {"A1": "=B1", "A2": {"R": "+R1"}})
-        self.assertNotIn("isNotSquishable", result)
         self.assertEqual(data["sheets"][0]["cells"], {"A1": "=B1", "A2": "=B2"})  # not mutated
 
 
 @unittest.skipUnless(FIXTURES.exists(), "run js/generate.test.ts first")
 class TestAgainstTypescript(unittest.TestCase):
-    """Compare with the output of the TS squisher on the generated workbooks."""
+    """Compare with the output of the TS squisher on the generated workbooks. Run js/generate.test.ts
+    again afterwards to check that o-spreadsheet loads the python output back."""
 
     def test_fixtures(self):
         cases = json.loads(FIXTURES.read_text("utf-8"))
-        functions = FunctionRegistry.builtin()
         outputs = []
         mismatches = []
         compared = skipped = 0
         for case_index, case in enumerate(cases):
             data = case["input"]
-            sheets = Sheets.from_workbook_data(data)
-            compiler = Compiler(sheets, functions)
             for sheet, expected, ts_integers in zip(
                 data["sheets"], case["expected"], case["tsIntegers"]
             ):
                 cells = sheet["cells"]
-                result = squish_sheet_cells(
-                    cells, sheet["id"], sheets, compiler, _cell_formats(sheet, cells)
-                )
+                result = squish_sheet_cells(cells, _cell_formats(sheet, cells))
                 compared += 1
                 if case["isNotSquishable"]:
                     # the TS squisher produced a wrong result (see Squisher._can_squish_literals),
@@ -165,9 +173,7 @@ class TestAgainstTypescript(unittest.TestCase):
                         if result.get(k) != expected.get(k)
                     }
                     mismatches.append((case_index, sheet["name"], diff))
-            output = squish_workbook_data(data, functions)
-            self.assertNotIn("isNotSquishable", output)
-            outputs.append({"input": data, "output": output})
+            outputs.append({"input": data, "output": squish_workbook_data(data)})
         if os.environ.get("WRITE_PYTHON_OUTPUT"):
             (HERE / "python_output.json").write_text(json.dumps(outputs), "utf-8")
         for case_index, sheet_name, diff in mismatches[:5]:

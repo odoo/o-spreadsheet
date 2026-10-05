@@ -1,49 +1,52 @@
 # o_spreadsheet_squisher
 
 Python port of the export squisher (`src/plugins/core/squisher.ts`). It compresses the `cells` of a
-non-squished workbook JSON the same way `model.exportData()` does. No dependencies, Python >= 3.10.
+non-squished workbook JSON so that o-spreadsheet loads it back to the same cells. No dependencies,
+Python >= 3.10.
 
 ```python
-from o_spreadsheet_squisher import FunctionRegistry, squish_workbook_data
+from o_spreadsheet_squisher import squish_workbook_data
 
-functions = FunctionRegistry.builtin()
-# functions registered at runtime outside o-spreadsheet: (optional, repeating) for each argument
-functions.add("ODOO.PIVOT", [(False, False), (False, True)])
-
-squished = squish_workbook_data(data, functions=functions, non_squishable_functions=["ODOO.PIVOT"])
+squished = squish_workbook_data(data, non_squishable_functions=["ODOO.PIVOT"])
 ```
 
-The port includes the formula tokenizer, the parser and the compiler checks, because squishing
-depends on the normalized formula, its literals and its references, and on whether o-spreadsheet
-considers the formula a bad expression. Formulas that use an unregistered function count as bad
-expressions and are written in full. That is safe, just less compact.
+## Assumptions
 
-Like `Model.exportData`, `squish_workbook_data` unsquishes the result again (with a port of
-`unsquisher.ts`). If that doesn't give back the original cells, it returns the cells unsquished and
-sets `isNotSquishable`.
+Nothing is verified: correctness is the responsibility of the input and of the TS implementation.
+
+- **Formulas must be valid for o-spreadsheet** (known functions, right number of arguments, no
+  syntax error). o-spreadsheet keeps no literals nor references for an invalid formula, so two
+  consecutive invalid formulas of the same shape (`=NOPE(B1)`, `=NOPE(B2)`) would be squished into
+  an offset that o-spreadsheet reads back as a copy of the first one.
+- The tokenizer is an exact port of o-spreadsheet's (default locale): the unsquisher applies the
+  offsets by position on the literals and references it finds itself.
+
+Formulas and references written in full are written as in the input. Only single cells are
+squished as offsets (`+R1`, `-C2`): ranges, full columns/rows and `#REF` are compared by their text.
 
 ## Differences with the TS version
 
-Each of these only makes Python write a full formula or number where TS writes an offset. TS
-reads both forms.
+Each of these only makes Python write a full formula or number where TS writes an offset. TS reads
+both forms.
 
 - Number literals whose offset would not be read back to the same float (`0.1` steps…) start a
-  new base. In TS, such offsets fail the export verification, and the whole workbook is then
-  exported unsquished.
+  new base.
 - A string literal changed to `"="` starts a new base (TS writes `"="`, which means "unchanged").
 - A non-squishable formula also breaks the chain of integer literals.
+- Formulas containing special whitespace (non-breaking space, tab…) are never squished: TS picks
+  its space tokenizer with a stateful `/g` regex `test()`, so their tokens are not deterministic.
 - Only canonical integers (`"12"`, not `"007"` or `"1e+21"` in a text-formatted cell) are squished
   as numbers.
+- References are compared by sheet name as written, and ranges by text: `sheet1!A1` after
+  `Sheet1!A1`, or `A1:A1`, are written in full where TS may write an offset.
 
 ## Tests
 
 ```bash
-# 1. generate builtin_functions.json and tests/fixtures.json from the TS code (repo root)
+# 1. generate tests/fixtures.json from the TS code (repo root)
 npx jest --roots tools/python_squisher/js --testRegex 'tools/python_squisher/js/.*\.test\.ts$'
-# 2. python tests: unit tests + exact comparison with the TS squisher output
+# 2. python tests: unit tests + comparison with the TS squisher output
 cd tools/python_squisher && WRITE_PYTHON_OUTPUT=1 python3 -m unittest
 # 3. check that o-spreadsheet loads the python output back to the original cells (repo root)
 npx jest --roots tools/python_squisher/js --testRegex 'tools/python_squisher/js/.*\.test\.ts$'
 ```
-
-Re-run step 1 when built-in functions change.
