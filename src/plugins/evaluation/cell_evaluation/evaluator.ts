@@ -115,11 +115,11 @@ export class Evaluator {
     return union(positionToZone(position), spreadZone);
   }
 
-  getEvaluatedPositions(): CellPosition[] {
+  getEvaluatedPositions(): Generator<CellPosition> {
     return this.evaluatedCells.keys();
   }
 
-  getEvaluatedPositionsInSheet(sheetId: UID): CellPosition[] {
+  getEvaluatedPositionsInSheet(sheetId: UID): Generator<CellPosition> {
     return this.evaluatedCells.keysForSheet(sheetId);
   }
 
@@ -742,7 +742,7 @@ export class Evaluator {
     rangeTimings.sort((a, b) => b.time - a.time);
     this.perfProfile = {
       totalTime,
-      totalCells: this.evaluatedCells.keys().length,
+      totalCells: [...this.evaluatedCells.keys()].length,
       totalFunctionCalls: timingEntries.length,
       entries: rangeTimings,
     };

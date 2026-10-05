@@ -15,6 +15,7 @@ import {
   roundFormat,
 } from "../helpers/format/format";
 import { getDateTimeFormat } from "../helpers/locale";
+import { Model } from "../model";
 import { IsSmallPlugin } from "../owl_plugins/is_small_plugin";
 import { _t } from "../translation";
 import { CellValue } from "../types/cells";
@@ -26,7 +27,7 @@ import * as ACTIONS from "./menu_items_actions";
 import { setFormatter, setStyle } from "./menu_items_actions";
 
 export interface NumberFormatActionSpec extends ActionSpec {
-  format?: Format | ((env: SpreadsheetActionEnv) => Format);
+  format?: Format | ((model: Model) => Format);
 }
 
 /**
@@ -40,18 +41,18 @@ export function createFormatActionSpec({
 }: {
   name: string;
   descriptionValue: CellValue;
-  format: Format | ((env: SpreadsheetActionEnv) => Format);
+  format: Format | ((model: Model) => Format);
 }): NumberFormatActionSpec {
   const formatCallback = typeof format === "function" ? format : () => format;
   return {
     name,
     description: (env) =>
       formatValue(descriptionValue, {
-        format: formatCallback(env),
+        format: formatCallback(env.model()),
         locale: env.model().getters.getLocale(),
       }),
-    execute: (env) => setFormatter(env.model(), formatCallback(env)),
-    isActive: (env) => isFormatSelected(env, formatCallback(env)),
+    execute: (env) => setFormatter(env.model(), formatCallback(env.model())),
+    isActive: (env) => isFormatSelected(env, formatCallback(env.model())),
     format,
   };
 }
@@ -95,15 +96,15 @@ export const formatNumberScientific = createFormatActionSpec({
 export const formatNumberCurrency = createFormatActionSpec({
   name: _t("Currency"),
   descriptionValue: 1000.12,
-  format: (env) => createCurrencyFormat(env.model().config.defaultCurrency || DEFAULT_CURRENCY),
+  format: (model) => createCurrencyFormat(model.config.defaultCurrency || DEFAULT_CURRENCY),
 });
 
 export const formatNumberCurrencyRounded: NumberFormatActionSpec = {
   ...createFormatActionSpec({
     name: _t("Currency rounded"),
     descriptionValue: 1000,
-    format: (env) =>
-      roundFormat(createCurrencyFormat(env.model().config.defaultCurrency || DEFAULT_CURRENCY)),
+    format: (model) =>
+      roundFormat(createCurrencyFormat(model.config.defaultCurrency || DEFAULT_CURRENCY)),
   }),
   isVisible: (env) => {
     const currencyFormat = createCurrencyFormat(
@@ -117,7 +118,7 @@ export const formatNumberCurrencyRounded: NumberFormatActionSpec = {
 export const formatNumberAccounting = createFormatActionSpec({
   name: _t("Accounting"),
   descriptionValue: -1000.12,
-  format: (env) => createAccountingFormat(env.model().config.defaultCurrency || DEFAULT_CURRENCY),
+  format: (model) => createAccountingFormat(model.config.defaultCurrency || DEFAULT_CURRENCY),
 });
 
 export const formatCustomCurrency: ActionSpec = {
@@ -131,20 +132,20 @@ export const formatCustomCurrency: ActionSpec = {
 export const formatNumberDate = createFormatActionSpec({
   name: _t("Date"),
   descriptionValue: EXAMPLE_DATE,
-  format: (env) => env.model().getters.getLocale().dateFormat,
+  format: (model) => model.getters.getLocale().dateFormat,
 });
 
 export const formatNumberTime = createFormatActionSpec({
   name: _t("Time"),
   descriptionValue: EXAMPLE_DATE,
-  format: (env) => env.model().getters.getLocale().timeFormat,
+  format: (model) => model.getters.getLocale().timeFormat,
 });
 
 export const formatNumberDateTime = createFormatActionSpec({
   name: _t("Date time"),
   descriptionValue: EXAMPLE_DATE,
-  format: (env) => {
-    const locale = env.model().getters.getLocale();
+  format: (model) => {
+    const locale = model.getters.getLocale();
     return getDateTimeFormat(locale);
   },
 });

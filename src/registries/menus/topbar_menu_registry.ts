@@ -10,9 +10,9 @@ import { getPivotHighlights } from "../../helpers/pivot/pivot_highlight";
 import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
 import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { PrintModePlugin } from "../../owl_plugins/print_mode_owl_plugin";
+import { formatNumberMenuItemSpec } from "../../stores/custom_number_format_store";
 import { _t } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
-import { formatNumberMenuItemSpec } from "./number_format_menu_registry";
 
 export const topbarMenuRegistry = new MenuItemRegistry();
 

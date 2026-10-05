@@ -1043,7 +1043,7 @@ export function getFingerprint(
   sheetId?: UID
 ) {
   const { col, row } = toCartesian(xc);
-  const positions = plugin.colors().keys();
+  const positions = [...plugin.colors().keys()];
   if (positions.length === 0) {
     return undefined;
   }
