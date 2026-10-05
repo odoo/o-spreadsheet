@@ -23,7 +23,7 @@ export class CellHoverOverlayStore extends SpreadsheetStore {
     const oldOverlayColors = this.overlayColors;
     this.overlayColors = new PositionMap();
     if (!hoveredPosition) {
-      return oldOverlayColors.keys().length === 0 ? "noStateChange" : undefined;
+      return oldOverlayColors.length() === 0 ? "noStateChange" : undefined;
     }
 
     for (const provider of this.providers) {
