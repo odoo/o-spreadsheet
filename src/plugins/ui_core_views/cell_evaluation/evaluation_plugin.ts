@@ -291,13 +291,13 @@ export class EvaluationPlugin extends CoreViewPlugin {
     return this.evaluator.getEvaluatedCell(position);
   }
 
-  getEvaluatedCells(sheetId: UID): EvaluatedCell[] {
+  getEvaluatedCells(sheetId: UID): Iterable<EvaluatedCell> {
     return this.evaluator
       .getEvaluatedPositionsInSheet(sheetId)
       .map((position) => this.getEvaluatedCell(position));
   }
 
-  getEvaluatedCellsPositions(sheetId: UID): CellPosition[] {
+  getEvaluatedCellsPositions(sheetId: UID): Generator<CellPosition> {
     return this.evaluator.getEvaluatedPositionsInSheet(sheetId);
   }
 
