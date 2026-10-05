@@ -44,9 +44,7 @@ export class CustomNumberFormatStore extends SpreadsheetStore {
     const customFormats = new Map<Format, ACTION_FORMAT.NumberFormatActionSpec>();
     for (const sheetId of this.model.getters.getSheetIds()) {
       const cells = this.model.getters.getEvaluatedCells(sheetId);
-      for (const cellId in cells) {
-        const cell = cells[cellId];
-
+      for (const cell of cells) {
         if (cell.format && !customFormats.has(cell.format) && !defaultFormats.has(cell.format)) {
           const formatType = getNumberFormatType(cell.format);
           if (formatType === "date" || formatType === "currency") {
