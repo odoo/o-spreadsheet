@@ -114,9 +114,7 @@ function getKeyValueText(
   if (humanizeNumbers) {
     return humanizeNumber(keyValue, locale);
   }
-  return keyValue.format
-    ? formatValue(keyValue.value, { format: keyValue.format, locale })
-    : String(keyValue.value ?? "");
+  return formatValue(keyValue.value, { format: keyValue.format, locale });
 }
 
 function getBaselineColor(
