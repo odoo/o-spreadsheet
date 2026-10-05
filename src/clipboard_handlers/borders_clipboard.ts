@@ -3,19 +3,10 @@ import { getItemId } from "../helpers/data_normalization";
 import { groupConsecutive, range } from "../helpers/misc";
 import { recomputeZones } from "../helpers/recompute_zones";
 import { positionToZone } from "../helpers/zones";
-import { BorderDescrInternal } from "../plugins/core/borders";
+import { BorderDescrInternal, toDescr } from "../plugins/core/borders";
 import { defaultValue } from "../plugins/core/default";
 import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
-import {
-  Border,
-  BorderDescr,
-  BorderOrNull,
-  CellPosition,
-  Column,
-  HeaderIndex,
-  UID,
-  Zone,
-} from "../types/misc";
+import { Border, BorderOrNull, CellPosition, Column, HeaderIndex, UID, Zone } from "../types/misc";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 type ClipboardContent = {
@@ -32,19 +23,6 @@ type ClipboardContent = {
   height: number;
   width: number;
 };
-
-function toDescr(
-  border: BorderDescrInternal | undefined,
-  undefinedIf?: "external" | "internal"
-): BorderDescr | undefined | null {
-  if (border?.style === "empty") {
-    return null;
-  }
-  if (!border || border.internal === undefinedIf) {
-    return undefined;
-  }
-  return { color: border.color, style: border.style };
-}
 
 export class BorderClipboardHandler extends AbstractCellClipboardHandler<
   ClipboardContent,
@@ -91,9 +69,7 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
     const zones = target.zones;
     if (!options.isCutOperation) {
       for (const zone of zones) {
-        for (const pasteZone of splitZoneForPaste(zone, content.width, content.height)) {
-          this.pasteContent(sheetId, pasteZone, content.content);
-        }
+        this.pasteContent(sheetId, zone, content.content);
       }
     } else {
       this.pasteContent(sheetId, zones[0], content.content);
@@ -110,17 +86,31 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
       this.dispatch("SET_BORDERS_ON_TARGET", {
         border: {
           left: toDescr(content.defaultLeft.sheetDefault),
+          right: toDescr(content.defaultLeft.sheetDefault),
           top: toDescr(content.defaultTop.sheetDefault),
+          bottom: toDescr(content.defaultLeft.sheetDefault),
         },
         sheetId,
         target: [{ left, top, right, bottom }],
       });
       // Col default
       for (const col of range(0, content.width)) {
-        const borderLeft = toDescr(content.defaultLeft.colDefault?.[col], "external");
-        const borderRight = toDescr(content.defaultLeft.colDefault?.[col + 1], "internal");
-        const borderTop = toDescr(content.defaultTop.colDefault?.[col], "external");
-        const borderBottom = toDescr(content.defaultTop.colDefault?.[col], "internal");
+        const borderLeft = toDescr(content.defaultLeft.colDefault?.[col], {
+          undefinedIf: "external",
+          nullOnEmpty: true,
+        });
+        const borderRight = toDescr(content.defaultLeft.colDefault?.[col + 1], {
+          undefinedIf: "internal",
+          nullOnEmpty: true,
+        });
+        const borderTop = toDescr(content.defaultTop.colDefault?.[col], {
+          undefinedIf: "external",
+          nullOnEmpty: true,
+        });
+        const borderBottom = toDescr(content.defaultTop.colDefault?.[col], {
+          undefinedIf: "internal",
+          nullOnEmpty: true,
+        });
         if (
           borderLeft !== undefined ||
           borderRight !== undefined ||
@@ -141,10 +131,22 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
       }
       // Row default
       for (const row of range(0, content.height)) {
-        const borderLeft = toDescr(content.defaultLeft.rowDefault?.[row], "external");
-        const borderRight = toDescr(content.defaultLeft.rowDefault?.[row], "internal");
-        const borderTop = toDescr(content.defaultTop.rowDefault?.[row], "external");
-        const borderBottom = toDescr(content.defaultTop.rowDefault?.[row + 1], "internal");
+        const borderLeft = toDescr(content.defaultLeft.rowDefault?.[row], {
+          undefinedIf: "external",
+          nullOnEmpty: true,
+        });
+        const borderRight = toDescr(content.defaultLeft.rowDefault?.[row], {
+          undefinedIf: "internal",
+          nullOnEmpty: true,
+        });
+        const borderTop = toDescr(content.defaultTop.rowDefault?.[row], {
+          undefinedIf: "external",
+          nullOnEmpty: true,
+        });
+        const borderBottom = toDescr(content.defaultTop.rowDefault?.[row + 1], {
+          undefinedIf: "internal",
+          nullOnEmpty: true,
+        });
         if (
           borderLeft !== undefined ||
           borderRight !== undefined ||
@@ -170,44 +172,48 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
         cellBorders[col][row] ??= {};
         cellBorders[col][row][side] = toDescr(border);
       }
-      // Cells
-      for (const [colIndex, column] of Object.entries(content.bordersLeft)) {
-        if (!column) {
-          continue;
-        }
-        const col = parseInt(colIndex) + left;
-        for (const [rowIndex, border] of Object.entries(column)) {
-          if (!border) {
+      for (const pasteZone of splitZoneForPaste(zone, content.width, content.height)) {
+        const left = pasteZone.left + content.left;
+        const top = pasteZone.top + content.top;
+        // Cells
+        for (const [colIndex, column] of Object.entries(content.bordersLeft)) {
+          if (!column) {
             continue;
           }
-          const row = parseInt(rowIndex) + top;
-          if (border?.internal === "internal" || border.style === "empty") {
-            set(col, row, "left", border);
-          } else if (border?.internal === "external") {
-            set(col - 1, row, "right", border);
-          } else {
-            set(col, row, "left", border);
-            set(col - 1, row, "right", border);
+          const col = parseInt(colIndex) + left;
+          for (const [rowIndex, border] of Object.entries(column)) {
+            if (!border) {
+              continue;
+            }
+            const row = parseInt(rowIndex) + top;
+            if (border?.internal === "internal" || border.style === "empty") {
+              set(col, row, "left", border);
+            } else if (border?.internal === "external") {
+              set(col - 1, row, "right", border);
+            } else {
+              set(col, row, "left", border);
+              set(col - 1, row, "right", border);
+            }
           }
         }
-      }
-      for (const [colIndex, column] of Object.entries(content.bordersTop)) {
-        if (!column) {
-          continue;
-        }
-        const col = parseInt(colIndex) + left;
-        for (const [rowIndex, border] of Object.entries(column)) {
-          if (!border) {
+        for (const [colIndex, column] of Object.entries(content.bordersTop)) {
+          if (!column) {
             continue;
           }
-          const row = parseInt(rowIndex) + top;
-          if (border?.internal === "internal" || border.style === "empty") {
-            set(col, row, "top", border);
-          } else if (border?.internal === "external") {
-            set(col, row - 1, "bottom", border);
-          } else {
-            set(col, row, "top", border);
-            set(col, row - 1, "bottom", border);
+          const col = parseInt(colIndex) + left;
+          for (const [rowIndex, border] of Object.entries(column)) {
+            if (!border) {
+              continue;
+            }
+            const row = parseInt(rowIndex) + top;
+            if (border?.internal === "internal" || border.style === "empty") {
+              set(col, row, "top", border);
+            } else if (border?.internal === "external") {
+              set(col, row - 1, "bottom", border);
+            } else {
+              set(col, row, "top", border);
+              set(col, row - 1, "bottom", border);
+            }
           }
         }
       }

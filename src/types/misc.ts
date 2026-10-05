@@ -180,11 +180,6 @@ export interface BorderOrNull {
   right?: BorderDescr | null;
 }
 
-export interface BorderTopLeft {
-  top?: BorderDescr;
-  left?: BorderDescr;
-}
-
 export type ReferenceDenormalizer = (range: Range) => FunctionResultObject;
 
 export type EnsureRange = (range: Range) => Matrix<FunctionResultObject>;

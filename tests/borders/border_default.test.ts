@@ -9,7 +9,7 @@ import {
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { getClipboardDataPositions } from "../../src/helpers/clipboard/clipboard_helpers";
 import { toCartesian, toXC } from "../../src/helpers/coordinates";
-import { toZone } from "../../src/helpers/zones";
+import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { clipboardHandlersRegistries } from "../../src/registries/clipboardHandlersRegistries";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
@@ -76,11 +76,7 @@ describe("Default Borders", () => {
 
   describe.each(TEST_BORDERS)("Border : %s", (border) => {
     test("Can set border on sheet", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border,
-      });
+      setBordersOnTarget(model, ["A1:Z20"], border);
 
       expect(getCellBorder(model, "A1")).toEqual(border);
       expect(getCellBorder(model, "A5")).toEqual(border);
@@ -94,11 +90,7 @@ describe("Default Borders", () => {
     });
 
     test("Can set border on row", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 2, 2)],
-        border,
-      });
+      setBordersOnTarget(model, ["A3:Z3"], border);
 
       expect(getCellBorder(model, "A3")).toEqual(border);
       expect(getCellBorder(model, "D3")).toEqual(border);
@@ -107,11 +99,7 @@ describe("Default Borders", () => {
     });
 
     test("Can set border on col", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 2, 2)],
-        border,
-      });
+      setBordersOnTarget(model, ["C1:C20"], border);
 
       expect(getCellBorder(model, "C1")).toEqual(border);
       expect(getCellBorder(model, "C3")).toEqual(border);
@@ -127,16 +115,8 @@ describe("Default Borders", () => {
     test("Row after sheet", () => {
       const sheetBorder = border1;
       const rowBorder = border2;
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border: sheetBorder,
-      });
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 1, 1)],
-        border: rowBorder,
-      });
+      setBordersOnTarget(model, ["A1:Z20"], sheetBorder);
+      setBordersOnTarget(model, ["A2:Z2"], rowBorder);
 
       expect(getCellBorder(model, "A1")).toEqual(sheetBorder);
       expect(getCellBorder(model, "B1")).toEqual(sheetBorder);
@@ -147,16 +127,8 @@ describe("Default Borders", () => {
     test("Row after col", () => {
       const colBorder = border1;
       const rowBorder = border2;
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 1, 1)],
-        border: colBorder,
-      });
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 1, 1)],
-        border: rowBorder,
-      });
+      setBordersOnTarget(model, ["B1:B20"], colBorder);
+      setBordersOnTarget(model, ["A2:Z2"], rowBorder);
 
       expect(getCellBorder(model, "A1")).toBeNull();
       expect(getCellBorder(model, "B1")).toEqual(colBorder);
@@ -167,16 +139,8 @@ describe("Default Borders", () => {
     test("Row after row", () => {
       const rowBorder = border1;
       const rowBorder2 = border2;
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 1, 1)],
-        border: rowBorder,
-      });
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 1, 1)],
-        border: rowBorder2,
-      });
+      setBordersOnTarget(model, ["A2:Z2"], rowBorder);
+      setBordersOnTarget(model, ["A2:Z2"], rowBorder2);
 
       expect(getCellBorder(model, "A1")).toBeNull();
       expect(getCellBorder(model, "B1")).toBeNull();
@@ -187,16 +151,8 @@ describe("Default Borders", () => {
     test("Row after cell", () => {
       const rowBorder = border2;
       const cellBorder = border1;
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: target("B2"),
-        border: cellBorder,
-      });
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 1, 1)],
-        border: rowBorder,
-      });
+      setBordersOnTarget(model, ["B2"], cellBorder);
+      setBordersOnTarget(model, ["A2:Z2"], rowBorder);
 
       expect(getCellBorder(model, "A1")).toBeNull();
       expect(getCellBorder(model, "B1")).toBeNull();
@@ -207,16 +163,8 @@ describe("Default Borders", () => {
     test("Col after sheet", () => {
       const sheetBorder = border1;
       const colBorder = border2;
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border: sheetBorder,
-      });
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 1, 1)],
-        border: colBorder,
-      });
+      setBordersOnTarget(model, ["A1:Z20"], sheetBorder);
+      setBordersOnTarget(model, ["B1:B20"], colBorder);
 
       expect(getCellBorder(model, "A1")).toEqual(sheetBorder);
       expect(getCellBorder(model, "B1")).toEqual(colBorder);
@@ -227,16 +175,8 @@ describe("Default Borders", () => {
     test("Col after col", () => {
       const colBorder = border1;
       const colBorder2 = border2;
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 1, 1)],
-        border: colBorder,
-      });
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 1, 1)],
-        border: colBorder2,
-      });
+      setBordersOnTarget(model, ["B1:B20"], colBorder);
+      setBordersOnTarget(model, ["B1:B20"], colBorder2);
 
       expect(getCellBorder(model, "A1")).toBeNull();
       expect(getCellBorder(model, "B1")).toEqual(colBorder2);
@@ -247,16 +187,8 @@ describe("Default Borders", () => {
     test("Col after row", () => {
       const rowBorder = border1;
       const colBorder = border2;
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 1, 1)],
-        border: rowBorder,
-      });
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 1, 1)],
-        border: colBorder,
-      });
+      setBordersOnTarget(model, ["A2:Z2"], rowBorder);
+      setBordersOnTarget(model, ["B1:B20"], colBorder);
 
       expect(getCellBorder(model, "A1")).toBeNull();
       expect(getCellBorder(model, "B1")).toEqual(colBorder);
@@ -267,16 +199,8 @@ describe("Default Borders", () => {
     test("Col after cell", () => {
       const colBorder = border2;
       const cellBorder = border1;
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: target("B2"),
-        border: cellBorder,
-      });
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 1, 1)],
-        border: colBorder,
-      });
+      setBordersOnTarget(model, ["B2"], cellBorder);
+      setBordersOnTarget(model, ["B1:B20"], colBorder);
 
       expect(getCellBorder(model, "A1")).toBeNull();
       expect(getCellBorder(model, "B1")).toEqual(colBorder);
@@ -287,16 +211,8 @@ describe("Default Borders", () => {
     test("Sheet after sheet", () => {
       const sheetBorder = border1;
       const sheetBorder2 = border2;
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border: sheetBorder,
-      });
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border: sheetBorder2,
-      });
+      setBordersOnTarget(model, ["A1:Z20"], sheetBorder);
+      setBordersOnTarget(model, ["A1:Z20"], sheetBorder2);
 
       expect(getCellBorder(model, "A1")).toEqual(sheetBorder2);
       expect(getCellBorder(model, "B1")).toEqual(sheetBorder2);
@@ -307,16 +223,8 @@ describe("Default Borders", () => {
     test("Sheet after col", () => {
       const colBorder = border1;
       const sheetBorder = border2;
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 1, 1)],
-        border: colBorder,
-      });
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border: sheetBorder,
-      });
+      setBordersOnTarget(model, ["B1:B20"], colBorder);
+      setBordersOnTarget(model, ["A1:Z20"], sheetBorder);
 
       expect(getCellBorder(model, "A1")).toEqual(sheetBorder);
       expect(getCellBorder(model, "B1")).toEqual(sheetBorder);
@@ -327,16 +235,8 @@ describe("Default Borders", () => {
     test("Sheet after row", () => {
       const rowBorder = border1;
       const sheetBorder = border2;
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 1, 1)],
-        border: rowBorder,
-      });
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border: sheetBorder,
-      });
+      setBordersOnTarget(model, ["A2:Z2"], rowBorder);
+      setBordersOnTarget(model, ["A1:Z20"], sheetBorder);
 
       expect(getCellBorder(model, "A1")).toEqual(sheetBorder);
       expect(getCellBorder(model, "B1")).toEqual(sheetBorder);
@@ -347,16 +247,8 @@ describe("Default Borders", () => {
     test("Sheet after cell", () => {
       const cellBorder = border1;
       const sheetBorder = border2;
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: target("B2"),
-        border: cellBorder,
-      });
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border: sheetBorder,
-      });
+      setBordersOnTarget(model, ["B2"], cellBorder);
+      setBordersOnTarget(model, ["A1:Z20"], sheetBorder);
 
       expect(getCellBorder(model, "A1")).toEqual(sheetBorder);
       expect(getCellBorder(model, "B1")).toEqual(sheetBorder);
@@ -367,16 +259,8 @@ describe("Default Borders", () => {
     test("Cell after sheet", () => {
       const sheetBorder = border1;
       const cellBorder = border2;
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border: sheetBorder,
-      });
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: target("B2"),
-        border: cellBorder,
-      });
+      setBordersOnTarget(model, ["A1:Z20"], sheetBorder);
+      setBordersOnTarget(model, ["B2"], cellBorder);
 
       expect(getCellBorder(model, "A1")).toEqual(sheetBorder);
       expect(getCellBorder(model, "B1")).toEqual(sheetBorder);
@@ -387,16 +271,8 @@ describe("Default Borders", () => {
     test("Cell after col", () => {
       const colBorder = border1;
       const cellBorder = border2;
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 1, 1)],
-        border: colBorder,
-      });
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: target("B2"),
-        border: cellBorder,
-      });
+      setBordersOnTarget(model, ["B1:B20"], colBorder);
+      setBordersOnTarget(model, ["B2"], cellBorder);
 
       expect(getCellBorder(model, "A1")).toBeNull();
       expect(getCellBorder(model, "B1")).toEqual(colBorder);
@@ -407,16 +283,8 @@ describe("Default Borders", () => {
     test("Cell after row", () => {
       const rowBorder = border1;
       const cellBorder = border2;
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 1, 1)],
-        border: rowBorder,
-      });
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: target("B2"),
-        border: cellBorder,
-      });
+      setBordersOnTarget(model, ["A2:Z2"], rowBorder);
+      setBordersOnTarget(model, ["B2"], cellBorder);
 
       expect(getCellBorder(model, "A1")).toBeNull();
       expect(getCellBorder(model, "B1")).toBeNull();
@@ -427,21 +295,13 @@ describe("Default Borders", () => {
 
   describe("Sheet Manipulation: Add Column", () => {
     test("Default Row", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 1, 1)],
-        border: ALL_BORDER,
-      });
+      setBordersOnTarget(model, ["A2:Z2"], ALL_BORDER);
       addColumns(model, "after", "A", 1);
       expect(getCellBorder(model, "B2")).toEqual(ALL_BORDER);
     });
 
     test("Default Col", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 1, 1)],
-        border: ALL_BORDER,
-      });
+      setBordersOnTarget(model, ["B1:B20"], ALL_BORDER);
       expect(getCellBorder(model, "B2")).toEqual(ALL_BORDER);
       expect(getCellBorder(model, "C2")).toBeNull();
 
@@ -455,11 +315,7 @@ describe("Default Borders", () => {
     });
 
     test("Default Sheet", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border: ALL_BORDER,
-      });
+      setBordersOnTarget(model, ["A1:Z20"], ALL_BORDER);
       addColumns(model, "after", "A", 1);
       expect(getCellBorder(model, "A2")).toEqual(ALL_BORDER);
       expect(getCellBorder(model, "B2")).toEqual(ALL_BORDER);
@@ -480,21 +336,13 @@ describe("Default Borders", () => {
 
   describe("Sheet Manipulation: Remove Column", () => {
     test("Default Row", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 1, 1)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["A2:Z2"], TOP_BORDER);
       deleteColumns(model, ["A"]);
       expect(getCellBorder(model, "A2")).toEqual(TOP_BORDER);
     });
 
     test("Default Col", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 1, 1)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["B1:B20"], TOP_BORDER);
       deleteColumns(model, ["A"]);
       expect(getCellBorder(model, "A2")).toEqual(TOP_BORDER);
       expect(getCellBorder(model, "B2")).toBeNull();
@@ -505,24 +353,33 @@ describe("Default Borders", () => {
     });
 
     test("Default Sheet", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["A1:Z20"], TOP_BORDER);
       deleteColumns(model, ["A"]);
       expect(getCellBorder(model, "A2")).toEqual(TOP_BORDER);
       expect(getCellBorder(model, "B2")).toEqual(TOP_BORDER);
+    });
+
+    test("Removing several non-consecutive columns keeps the borders of the other columns", () => {
+      setZoneBorders(model, { position: "all" }, ["D1"]);
+
+      deleteColumns(model, ["A", "C"]);
+
+      // D1 is shifted left by the two removed columns
+      expect(getCellBorder(model, "B1")).toEqual(ALL_BORDER);
+    });
+
+    test("Removing the column right of a bordered column keeps its right border", () => {
+      setZoneBorders(model, { position: "all" }, ["B1:B20"]);
+
+      deleteColumns(model, ["C"]);
+
+      expect(getCellBorder(model, "B2")).toEqual(ALL_BORDER);
     });
   });
 
   describe("Sheet Manipulation: Move Column", () => {
     test("Default Row", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 1, 1)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["A2:Z2"], TOP_BORDER);
       moveColumns(model, "D", ["A"], "after");
       expect(getCellBorder(model, "A2")).toEqual(TOP_BORDER);
       expect(getCellBorder(model, "B2")).toEqual(TOP_BORDER);
@@ -530,11 +387,7 @@ describe("Default Borders", () => {
     });
 
     test("Default Col", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 1, 1)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["B1:B20"], TOP_BORDER);
       moveColumns(model, "D", ["A"], "after");
       expect(getCellBorder(model, "A2")).toEqual(TOP_BORDER);
       expect(getCellBorder(model, "B2")).toBeNull();
@@ -547,11 +400,7 @@ describe("Default Borders", () => {
     });
 
     test("Default Sheet", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["A1:Z20"], TOP_BORDER);
       moveColumns(model, "D", ["A"], "after");
       expect(getCellBorder(model, "A2")).toEqual(TOP_BORDER);
       expect(getCellBorder(model, "B2")).toEqual(TOP_BORDER);
@@ -561,11 +410,7 @@ describe("Default Borders", () => {
 
   describe("Sheet Manipulation: Add Row", () => {
     test("Default Row", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 1, 1)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["A2:Z2"], TOP_BORDER);
       addRows(model, "after", 0, 1);
       expect(getCellBorder(model, "A2")).toBeNull();
       expect(getCellBorder(model, "A3")).toEqual(TOP_BORDER);
@@ -576,22 +421,14 @@ describe("Default Borders", () => {
     });
 
     test("Default Col", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 1, 1)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["B1:B20"], TOP_BORDER);
       addRows(model, "after", 0, 1);
       expect(getCellBorder(model, "B2")).toEqual(TOP_BORDER);
       expect(getCellBorder(model, "B3")).toEqual(TOP_BORDER);
     });
 
     test("Default Sheet", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["A1:Z20"], TOP_BORDER);
       addRows(model, "after", 0, 1);
       expect(getCellBorder(model, "A1")).toEqual(TOP_BORDER);
       expect(getCellBorder(model, "A2")).toEqual(TOP_BORDER);
@@ -608,15 +445,20 @@ describe("Default Borders", () => {
       expect(getCellBorder(model, "C3")).toEqual(ALL_BORDER);
       expect(getCellBorder(model, "C4")).toBeNull();
     });
+
+    test("Adding a row on a sheet with a large number of cell borders does not overflow the stack", () => {
+      // The bordered zone must stay under half of the sheet in both dimensions,
+      // so that its borders are stored per cell rather than as column/row defaults.
+      const model = new Model({ sheets: [{ id: "sh1", colNumber: 1000, rowNumber: 1000 }] });
+      setZoneBorders(model, { position: "all" }, ["A1:OJ400"]);
+
+      expect(() => addRows(model, "before", 500, 1)).not.toThrow();
+    });
   });
 
   describe("Sheet Manipulation: Remove Row", () => {
     test("Default Row", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 1, 1)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["A2:Z2"], TOP_BORDER);
       deleteRows(model, [0]);
       expect(getCellBorder(model, "A1")).toEqual(TOP_BORDER);
 
@@ -625,55 +467,52 @@ describe("Default Borders", () => {
     });
 
     test("Default Col", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 1, 1)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["B1:B20"], TOP_BORDER);
       deleteRows(model, [1]);
       expect(getCellBorder(model, "B2")).toEqual(TOP_BORDER);
     });
 
     test("Default Sheet", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["A1:Z20"], TOP_BORDER);
       deleteRows(model, [1]);
       expect(getCellBorder(model, "A2")).toEqual(TOP_BORDER);
+    });
+
+    test("Removing several non-consecutive rows keeps the borders of the other rows", () => {
+      setZoneBorders(model, { position: "all" }, ["A4"]);
+
+      deleteRows(model, [0, 2]);
+
+      // A4 is shifted up by the two removed rows
+      expect(getCellBorder(model, "A2")).toEqual(ALL_BORDER);
+    });
+
+    test("Removing the row below a bordered row keeps its bottom border", () => {
+      setZoneBorders(model, { position: "all" }, ["A2:Z2"]);
+
+      deleteRows(model, [2]);
+
+      expect(getCellBorder(model, "B2")).toEqual(ALL_BORDER);
     });
   });
 
   describe("Sheet Manipulation: Move Row", () => {
     test("Default Row", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 1, 1)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["A2:Z2"], TOP_BORDER);
       moveRows(model, 3, [1], "after");
       expect(getCellBorder(model, "A2")).toBeNull();
       expect(getCellBorder(model, "A4")).toEqual(TOP_BORDER);
     });
 
     test("Default Col", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 1, 1)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["B1:B20"], TOP_BORDER);
       moveRows(model, 3, [1], "after");
       expect(getCellBorder(model, "B2")).toEqual(TOP_BORDER);
       expect(getCellBorder(model, "B4")).toEqual(TOP_BORDER);
     });
 
     test("Default Sheet", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["A1:Z20"], TOP_BORDER);
       moveRows(model, 3, [1], "after");
       expect(getCellBorder(model, "A2")).toEqual(TOP_BORDER);
       expect(getCellBorder(model, "A4")).toEqual(TOP_BORDER);
@@ -682,33 +521,21 @@ describe("Default Borders", () => {
 
   describe("Sheet Manipulation: Delete Cell Up", () => {
     test("Default Row", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 1, 1)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["A2:Z2"], TOP_BORDER);
       deleteCells(model, "B1", "up");
       expect(getCellBorder(model, "B1")).toEqual(TOP_BORDER);
       expect(getCellBorder(model, "B2")).toBeNull();
     });
 
     test("Default Col", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 1, 1)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["B1:B20"], TOP_BORDER);
       deleteCells(model, "B1", "up");
       expect(getCellBorder(model, "B1")).toEqual(TOP_BORDER);
       expect(getCellBorder(model, "B2")).toEqual(TOP_BORDER);
     });
 
     test("Default Sheet", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["A1:Z20"], TOP_BORDER);
       deleteCells(model, "B1", "up");
       expect(getCellBorder(model, "B1")).toEqual(TOP_BORDER);
       expect(getCellBorder(model, "B2")).toEqual(TOP_BORDER);
@@ -718,22 +545,14 @@ describe("Default Borders", () => {
 
   describe("Sheet Manipulation: Delete Cell Left", () => {
     test("Default Row", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 1, 1)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["A2:Z2"], TOP_BORDER);
       deleteCells(model, "A2", "left");
       expect(getCellBorder(model, "A2")).toEqual(TOP_BORDER);
       expect(getCellBorder(model, "B2")).toEqual(TOP_BORDER);
     });
 
     test("Default Col", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 1, 1)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["B1:B20"], TOP_BORDER);
       deleteCells(model, "A2", "left");
       expect(getCellBorder(model, "A2")).toEqual(TOP_BORDER);
       expect(getCellBorder(model, "B1")).toEqual(TOP_BORDER);
@@ -741,11 +560,7 @@ describe("Default Borders", () => {
     });
 
     test("Default Sheet", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["A1:Z20"], TOP_BORDER);
       deleteCells(model, "A2", "left");
       expect(getCellBorder(model, "A2")).toEqual(TOP_BORDER);
       expect(getCellBorder(model, "B2")).toEqual(TOP_BORDER);
@@ -755,33 +570,21 @@ describe("Default Borders", () => {
 
   describe("Sheet Manipulation: Insert Cell Down", () => {
     test("Default Row", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 1, 1)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["A2:Z2"], TOP_BORDER);
       insertCells(model, "B2", "down");
       expect(getCellBorder(model, "B2")).toBeNull();
       expect(getCellBorder(model, "B3")).toEqual(TOP_BORDER);
     });
 
     test("Default Col", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 1, 1)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["B1:B20"], TOP_BORDER);
       insertCells(model, "B2", "down");
       expect(getCellBorder(model, "B2")).toBeNull();
       expect(getCellBorder(model, "B21")).toEqual(TOP_BORDER);
     });
 
     test("Default Sheet", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["A1:Z20"], TOP_BORDER);
       insertCells(model, "B2", "down");
       expect(getCellBorder(model, "B2")).toBeNull();
       expect(getCellBorder(model, "B21")).toEqual(TOP_BORDER);
@@ -790,33 +593,21 @@ describe("Default Borders", () => {
 
   describe("Sheet Manipulation: Insert Cell Right", () => {
     test("Default Row", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getRowsZone(sheetId, 1, 1)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["A2:Z2"], TOP_BORDER);
       insertCells(model, "B2", "right");
       expect(getCellBorder(model, "B2")).toBeNull();
       expect(getCellBorder(model, "C2")).toEqual(TOP_BORDER);
     });
 
     test("Default Col", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getColsZone(sheetId, 1, 1)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["B1:B20"], TOP_BORDER);
       insertCells(model, "B2", "right");
       expect(getCellBorder(model, "B2")).toBeNull();
       expect(getCellBorder(model, "C2")).toEqual(TOP_BORDER);
     });
 
     test("Default Sheet", () => {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [model.getters.getSheetZone(sheetId)],
-        border: TOP_BORDER,
-      });
+      setBordersOnTarget(model, ["A1:Z20"], TOP_BORDER);
       insertCells(model, "B2", "right");
       expect(getCellBorder(model, "B2")).toBeNull();
       expect(getCellBorder(model, "C2")).toEqual(TOP_BORDER);
@@ -854,11 +645,7 @@ describe("Default Borders", () => {
     });
     for (const command of commands) {
       const [zone, border] = command;
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [zone],
-        border,
-      });
+      setBordersOnTarget(model, [zoneToXc(zone)], border);
     }
 
     const gridState: (Border | null)[][] = [[]];
@@ -940,11 +727,7 @@ describe("Default Borders", () => {
       .map((handler) => new handler(model.getters, model.dispatch));
 
     for (const command of commands) {
-      model.dispatch("SET_BORDERS_ON_TARGET", {
-        sheetId,
-        target: [command[0]],
-        border: command[1],
-      });
+      setBordersOnTarget(model, [zoneToXc(command[0])], command[1]);
     }
 
     const gridState: (Border | null)[][] = [[]];
@@ -1044,6 +827,22 @@ describe("Default Borders", () => {
       });
       expect(getCellBorder(model, "D4")).toEqual(ALL_BORDER);
     });
+
+    test("Clearing a whole column of a sheet-wide border clears its left and right borders", () => {
+      setZoneBorders(model, { position: "all" }, ["A1:Z20"]);
+
+      clearFormatting(model, "C1:C20");
+
+      expect(getCellBorder(model, "C3")).toBeNull();
+    });
+
+    test("Clearing a whole row of a sheet-wide border clears its top and bottom borders", () => {
+      setZoneBorders(model, { position: "all" }, ["A1:Z20"]);
+
+      clearFormatting(model, "A3:Z3");
+
+      expect(getCellBorder(model, "C3")).toBeNull();
+    });
   });
 
   test("Clipboard : a cleared row is still cleared once pasted", () => {
@@ -1054,19 +853,30 @@ describe("Default Borders", () => {
     paste(model, "E10");
 
     // E11:G11 is the pasted copy of the cleared row 3
-    expect(getCellBorder(model, "E11")).toEqual({ top: DEFAULT_BORDER_DESC });
-    expect(getCellBorder(model, "F11")).toEqual({ top: DEFAULT_BORDER_DESC });
-    expect(getCellBorder(model, "G11")).toEqual({ top: DEFAULT_BORDER_DESC });
+    expect(getCellBorder(model, "E11")).toBeNull();
+    expect(getCellBorder(model, "F11")).toBeNull();
+    expect(getCellBorder(model, "G11")).toBeNull();
     // the rows around it are still bordered
-    expect(getCellBorder(model, "F10")).toEqual({
-      top: DEFAULT_BORDER_DESC,
-      left: DEFAULT_BORDER_DESC,
-    });
-    expect(getCellBorder(model, "F12")).toEqual({
-      top: DEFAULT_BORDER_DESC,
-      bottom: DEFAULT_BORDER_DESC,
-      left: DEFAULT_BORDER_DESC,
-    });
+    expect(getCellBorder(model, "F10")).toEqual(ALL_BORDER);
+    expect(getCellBorder(model, "F12")).toEqual(ALL_BORDER);
+  });
+
+  test("Clipboard : a zone inheriting a sheet-wide border is pasted with its four sides", () => {
+    setZoneBorders(model, { position: "all" }, ["A1:Z20"]);
+
+    copy(model, "B2:C3");
+    paste(model, "E5");
+
+    expect(getCellBorder(model, "E5")).toEqual(ALL_BORDER);
+  });
+
+  test("An explicit null border overrides the inherited default border", () => {
+    setZoneBorders(model, { position: "all" }, ["A1:Z20"]);
+
+    setBordersOnTarget(model, ["C3"], { top: null, bottom: null, left: null, right: null });
+
+    expect(getCellBorder(model, "C3")).toBeNull();
+    expect(getCellBorder(new Model(model.exportData()), "C3")).toBeNull();
   });
 
   test("Clipboard does not generates a bunch of commands", () => {
@@ -1156,6 +966,39 @@ describe("Default Borders", () => {
       const imported = new Model(model.exportData());
 
       expect(getCellBorder(imported, "C3")).toEqual({ left: { style: "thin", color: "#000000" } });
+    });
+
+    test("Sheet-wide default border on all sides keeps its right and bottom on import/export", () => {
+      setZoneBorders(model, { position: "all" }, ["A1:Z20"]);
+
+      const imported = new Model(model.exportData());
+
+      expect(getCellBorder(imported, "C3")).toEqual(ALL_BORDER);
+    });
+
+    test("Column default border with only a top side does not gain a bottom on import/export", () => {
+      setBordersOnTarget(model, ["C1:C20"], TOP_BORDER);
+
+      const imported = new Model(model.exportData());
+
+      expect(getCellBorder(imported, "C5")).toEqual(TOP_BORDER);
+    });
+
+    test("Row default border with only a left side does not gain a right on import/export", () => {
+      setBordersOnTarget(model, ["A3:Z3"], LEFT_BORDER);
+
+      const imported = new Model(model.exportData());
+
+      expect(getCellBorder(imported, "C3")).toEqual(LEFT_BORDER);
+    });
+
+    test("A column cleared from a sheet-wide border is still cleared after import/export", () => {
+      setZoneBorders(model, { position: "all" }, ["A1:Z20"]);
+      clearFormatting(model, "C1:C20");
+
+      const imported = new Model(model.exportData());
+
+      expect(getCellBorder(imported, "C5")).toBeNull();
     });
   });
 });

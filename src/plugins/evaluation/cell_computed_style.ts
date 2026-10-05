@@ -49,11 +49,11 @@ export class CellComputedStylePlugin extends EvaluationPlugin {
       return;
     }
 
-    if (invalidateCFEvaluationCommands.has(cmd.type)) {
+    if (invalidateCFEvaluationCommands.has(cmd.type) && !this.styles.isEmpty()) {
       this.styles = new PositionMap();
       return;
     }
-    if (invalidateBordersCommands.has(cmd.type)) {
+    if (invalidateBordersCommands.has(cmd.type) && !this.borders.isEmpty()) {
       this.borders = new PositionMap();
       return;
     }

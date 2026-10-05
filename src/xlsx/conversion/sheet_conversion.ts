@@ -1,9 +1,9 @@
-import { toCartesian } from "../../helpers/coordinates";
+import { toCartesian, toXC } from "../../helpers/coordinates";
 import { buildSheetLink, largeMax, markdownLink, replaceNewLines } from "../../helpers/misc";
 import { splitReference } from "../../helpers/references";
 import { defaultValue } from "../../plugins/core/default";
-import { Dimension, HeaderGroup } from "../../types/misc";
-import { HeaderData, SheetData } from "../../types/workbook_data";
+import { BorderOrNull, Dimension, HeaderGroup } from "../../types/misc";
+import { HeaderData, SheetData, WorkbookData } from "../../types/workbook_data";
 import {
   XLSXCell,
   XLSXColumn,
@@ -347,4 +347,69 @@ function getHeader(
   return "COL" === dim
     ? sheet.cols.find((col) => col.min <= index && index <= col.max)
     : sheet.rows.find((row) => row.index === index);
+}
+
+const BORDER_SIDES = [
+  { side: "left", opposite: "right", dCol: -1, dRow: 0 },
+  { side: "right", opposite: "left", dCol: 1, dRow: 0 },
+  { side: "top", opposite: "bottom", dCol: 0, dRow: -1 },
+  { side: "bottom", opposite: "top", dCol: 0, dRow: 1 },
+] as const;
+
+/**
+ * In XLSX, a styled cell does not inherit the border of its row or column: a
+ * side missing from its border means "no border". In o-spreadsheet, a missing
+ * side means "inherit the default", so such sides are made explicitly `null`.
+ *
+ * A side is left untouched when the unstyled neighbour across the edge brings
+ * its own border, since Excel draws an edge if either of its cells has one.
+ */
+export function convertCellBordersOverridingDefaults(data: WorkbookData) {
+  const borders: Record<number, BorderOrNull> = data.borders;
+  let nextId = largeMax(Object.keys(borders).map(Number)) + 1;
+  const overrideIds = new Map<string, number>();
+
+  for (const sheet of data.sheets) {
+    const defaults = sheet.defaultBorder;
+    if (!defaults) {
+      continue;
+    }
+    const inheritedBorder = (col: number, row: number): BorderOrNull | undefined => {
+      const id = defaults.rowDefault?.[row] ?? defaults.colDefault?.[col] ?? defaults.sheetDefault;
+      return id ? borders[id] : undefined;
+    };
+    for (const [xc, borderId] of Object.entries(sheet.borders)) {
+      const { col, row } = toCartesian(xc);
+      const border = { ...borders[borderId] };
+      for (const { side, opposite, dCol, dRow } of BORDER_SIDES) {
+        if (border[side] !== undefined || !inheritedBorder(col, row)?.[side]) {
+          continue;
+        }
+        const neighbourCol = col + dCol;
+        const neighbourRow = row + dRow;
+        const isNeighbourInSheet =
+          neighbourCol >= 0 &&
+          neighbourRow >= 0 &&
+          neighbourCol < sheet.colNumber &&
+          neighbourRow < sheet.rowNumber;
+        if (
+          isNeighbourInSheet &&
+          !sheet.borders[toXC(neighbourCol, neighbourRow)] &&
+          inheritedBorder(neighbourCol, neighbourRow)?.[opposite]
+        ) {
+          continue;
+        }
+        border[side] = null;
+      }
+      const key = JSON.stringify(border);
+      if (key === JSON.stringify(borders[borderId])) {
+        continue;
+      }
+      if (!overrideIds.has(key)) {
+        borders[nextId] = border;
+        overrideIds.set(key, nextId++);
+      }
+      sheet.borders[xc] = overrideIds.get(key)!;
+    }
+  }
 }

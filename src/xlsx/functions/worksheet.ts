@@ -165,7 +165,8 @@ export function addRows(
       row.outlineLevel ||
       row.collapsed ||
       rowStyle ||
-      rowFormat
+      rowFormat ||
+      rowBorder
     ) {
       rowNodes.push(escapeXml/*xml*/ `
         <row ${formatAttributes(rowAttrs)}>

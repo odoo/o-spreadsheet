@@ -2,6 +2,7 @@ import {
   AnchorZone,
   Border,
   BorderData,
+  BorderOrNull,
   CarouselData,
   ChartCreationContext,
   ChartDefinition,
@@ -971,7 +972,7 @@ export function setBorders(
 export function setBordersOnTarget(
   model: Model,
   xcs: string[],
-  border?: Border,
+  border?: BorderOrNull,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
   return model.dispatch("SET_BORDERS_ON_TARGET", {

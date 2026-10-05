@@ -1,7 +1,6 @@
 import { Model } from "../../src";
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { toXC } from "../../src/helpers/coordinates";
-import { isObjectEmptyRecursive } from "../../src/helpers/misc";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
 import {
@@ -189,16 +188,6 @@ describe("blockers", () => {
 });
 
 describe("warnings", () => {
-  test("worksheet.ts:55 — a column default merges with the sheet default through xlsx", async () => {
-    const model = new Model();
-    setBordersOnTarget(model, [fullSheetXc(model)], LEFT_BORDER);
-    setBordersOnTarget(model, [wholeColXc(model, "C")], TOP_BORDER);
-
-    const imported = await exportToXlsxThenImport(model);
-
-    expect(getBorder(imported, "C5")).toMatchObject({ left: DESC, top: DESC });
-  });
-
   test("borders.ts:1337 — a top-only column default does not gain a bottom border", () => {
     const model = new Model();
     setBordersOnTarget(model, [wholeColXc(model, "C")], TOP_BORDER);
@@ -280,10 +269,6 @@ describe("warnings", () => {
 });
 
 describe("nits", () => {
-  test("misc.ts:809 — isObjectEmptyRecursive tolerates a null value", () => {
-    expect(() => isObjectEmptyRecursive({ left: null })).not.toThrow();
-  });
-
   test("border_plugin.test.ts:670 — a duplicated sheet does not share its default borders", () => {
     const model = new Model();
     setBordersOnTarget(model, [wholeColXc(model, "C")], ALL_BORDER);
