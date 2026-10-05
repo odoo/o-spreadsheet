@@ -22,7 +22,10 @@ import {
   setCellContent,
   undo,
   updateChart,
+  updateLocale,
 } from "../../../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../../../test_helpers/constants";
+import { getEvaluatedCell } from "../../../test_helpers/getters_helpers";
 import { makeStoreWithModel } from "../../../test_helpers/stores";
 
 let model: Model;
@@ -559,6 +562,22 @@ describe("Keyvalue formula", () => {
     addColumns(model, "before", "A", 1);
     const chart = model.getters.getChartDefinition("1") as ScorecardChartDefinition;
     expect(chart.keyValue).toEqual("=SUM(B1, C1)");
+  });
+
+  test("unformatted keyValue does not show floating point imprecision when humanize is disabled", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=0.1+0.7");
+    createScorecardChart(model, { keyValue: "=A1", humanize: false }, "1");
+    expect(getEvaluatedCell(model, "A1").formattedValue).toBe("0.8");
+    expect(model.getters.getChartRuntime("1")).toMatchObject({ keyValue: "0.8" });
+  });
+
+  test("unformatted keyValue uses the locale decimal separator when humanize is disabled", () => {
+    const model = new Model();
+    updateLocale(model, FR_LOCALE);
+    setCellContent(model, "C1", "1.5");
+    createScorecardChart(model, { keyValue: "=C1", humanize: false }, "1");
+    expect(model.getters.getChartRuntime("1")).toMatchObject({ keyValue: "1,5" });
   });
 });
 
