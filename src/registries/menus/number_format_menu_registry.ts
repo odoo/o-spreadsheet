@@ -96,7 +96,7 @@ export function getCustomNumberFormats(
   const defaultFormats = new Set(
     numberFormatMenuRegistry
       .getAll()
-      .map((f) => (typeof f.format === "function" ? f.format(env) : f.format))
+      .map((f) => (typeof f.format === "function" ? f.format(env.model) : f.format))
   );
 
   const customFormats = new Map<Format, ACTION_FORMAT.NumberFormatActionSpec>();
