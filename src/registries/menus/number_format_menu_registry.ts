@@ -1,8 +1,4 @@
-import { ActionSpec, createActions } from "../../actions/action";
 import * as ACTION_FORMAT from "../../actions/format_actions";
-import { isDateTimeFormat, memoize } from "../../helpers";
-import { _t } from "../../translation";
-import { Format, SpreadsheetChildEnv } from "../../types";
 import { Registry } from "../registry";
 
 export const numberFormatMenuRegistry = new Registry<ACTION_FORMAT.NumberFormatActionSpec>();
@@ -77,62 +73,3 @@ numberFormatMenuRegistry
     id: "more_formats",
     sequence: 120,
   });
-
-export function getCustomNumberFormats(
-  env: SpreadsheetChildEnv
-): ACTION_FORMAT.NumberFormatActionSpec[] {
-  const defaultFormats = new Set(
-    numberFormatMenuRegistry
-      .getAll()
-      .map((f) => (typeof f.format === "function" ? f.format(env) : f.format))
-  );
-
-  const customFormats = new Map<Format, ACTION_FORMAT.NumberFormatActionSpec>();
-  for (const sheetId of env.model.getters.getSheetIds()) {
-    const cells = env.model.getters.getEvaluatedCells(sheetId);
-    for (const cellId in cells) {
-      const cell = cells[cellId];
-
-      if (cell.format && !customFormats.has(cell.format) && !defaultFormats.has(cell.format)) {
-        const formatType = getNumberFormatType(cell.format);
-        if (formatType === "date" || formatType === "currency") {
-          customFormats.set(
-            cell.format,
-            ACTION_FORMAT.createFormatActionSpec({
-              descriptionValue: formatType === "currency" ? 1000 : ACTION_FORMAT.EXAMPLE_DATE,
-              format: cell.format,
-              name: cell.format,
-            })
-          );
-        }
-      }
-    }
-  }
-  return [...customFormats.values()];
-}
-
-const getNumberFormatType = memoize((format: Format) => {
-  if (isDateTimeFormat(format)) {
-    return "date";
-  } else if (format.includes("[$")) {
-    return "currency";
-  }
-  return "number";
-});
-
-export const formatNumberMenuItemSpec: ActionSpec = {
-  name: _t("More formats"),
-  icon: "o-spreadsheet-Icon.NUMBER_FORMATS",
-  children: [
-    (env) => {
-      const customFormats = getCustomNumberFormats(env).map((action) => ({
-        ...action,
-        sequence: 110,
-      }));
-      if (customFormats.length > 0) {
-        customFormats[customFormats.length - 1].separator = true;
-      }
-      return createActions([...numberFormatMenuRegistry.getAll(), ...customFormats]);
-    },
-  ],
-};

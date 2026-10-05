@@ -1186,7 +1186,7 @@ export function getHighlightsFromStore(
 
 export function getFingerprint(store: FormulaFingerprintStore, xc: string, sheetId?: UID) {
   const { col, row } = toCartesian(xc);
-  const positions = store.colors.keys();
+  const positions = [...store.colors.keys()];
   if (positions.length === 0) {
     return undefined;
   }
