@@ -53,8 +53,9 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
   }
 
   get ranges() {
-    if (this.state.range) {
-      return [this.state.range];
+    if (this.state.rangeHasChanged) {
+      // Keep the input empty if the user cleared it, rather than putting back the pivot range.
+      return this.state.range ? [this.state.range] : [];
     }
     if (this.definition.range) {
       return [this.env.model.getters.getRangeString(this.definition.range, "forceSheetReference")];
