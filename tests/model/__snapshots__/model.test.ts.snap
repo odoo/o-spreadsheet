@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`sortByDependencies Core plugin order is unchanged 1`] = `
+exports[`Core plugin dependencies Core plugin order is unchanged 1`] = `
 [
   "SheetPlugin",
   "SettingsPlugin",
@@ -26,7 +26,7 @@ exports[`sortByDependencies Core plugin order is unchanged 1`] = `
 ]
 `;
 
-exports[`sortByDependencies core plugins dependency tree 1`] = `
+exports[`Core plugin dependencies core plugins dependency tree 1`] = `
 {
   "BordersPlugin": Set {
     "MergePlugin",
