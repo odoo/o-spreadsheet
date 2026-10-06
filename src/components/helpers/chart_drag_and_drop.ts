@@ -67,18 +67,18 @@ export function useChartDragAndDrop() {
         : undefined;
       let dropFigureId: UID | undefined = undefined;
       if (overlappingFigure?.tag === "carousel") {
-        dropFigureId = dropFigureId = overlappingFigure.id;
+        dropFigureId = overlappingFigure.id;
         model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
           sheetId,
-          figureId: overlappingFigure.id,
+          carouselId: overlappingFigure.id,
           newChartId: UuidGenerator.smallUuid(),
           chartDefinition: definition,
         });
       } else if (overlappingFigure?.tag === "chart") {
         dropFigureId = UuidGenerator.smallUuid();
         model.dispatch("CREATE_CHART_AND_MERGE_INTO_CAROUSEL", {
-          chartId: UuidGenerator.smallUuid(),
-          figureId: dropFigureId,
+          newChartId: UuidGenerator.smallUuid(),
+          newCarouselId: dropFigureId,
           sheetId,
           definition,
           baseFigureId: overlappingFigure.id,

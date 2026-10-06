@@ -32,9 +32,10 @@ export class FigureUIPlugin extends UIPlugin {
     if (!baseFigureToMerge) {
       throw new Error(`Figure ${cmd.baseFigureId} does not exists.`);
     }
+    const figureId = UuidGenerator.smallUuid();
     this.dispatch("CREATE_CHART", {
-      chartId: cmd.chartId,
-      figureId: cmd.figureId,
+      chartId: cmd.newChartId,
+      figureId,
       sheetId: cmd.sheetId,
       definition: cmd.definition,
       col: baseFigureToMerge.col,
@@ -45,19 +46,19 @@ export class FigureUIPlugin extends UIPlugin {
     this.dispatch("MERGE_CHART_FIGURES_INTO_CAROUSEL", {
       sheetId: cmd.sheetId,
       baseFigureId: cmd.baseFigureId,
-      chartFigureIds: [cmd.baseFigureId, cmd.figureId],
+      chartFigureIds: [cmd.baseFigureId, figureId],
+      newCarouselId: cmd.newCarouselId,
     });
   }
 
   private onMergeChartFiguresIntoCarousel(cmd: MergeIntoCarouselCommand) {
-    const carouselFigureId = UuidGenerator.smallUuid();
     const baseFigure = this.getters.getFigure(cmd.sheetId, cmd.baseFigureId);
     if (!baseFigure) {
       throw new Error(`Figure ${cmd.baseFigureId} does not exists.`);
     }
     this.dispatch("CREATE_CAROUSEL", {
       sheetId: cmd.sheetId,
-      figureId: carouselFigureId,
+      figureId: cmd.newCarouselId,
       col: baseFigure.col,
       row: baseFigure.row,
       offset: baseFigure.offset,
@@ -66,7 +67,7 @@ export class FigureUIPlugin extends UIPlugin {
     });
     this.dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
       sheetId: cmd.sheetId,
-      carouselFigureId,
+      carouselId: cmd.newCarouselId,
       chartFigureIds: cmd.chartFigureIds,
     });
   }
@@ -117,7 +118,7 @@ export class FigureUIPlugin extends UIPlugin {
 
   private checkCreateChartAndMerge(cmd: CreateChartAndMergeIntoCarouselCommand) {
     const baseFigure = this.getters.getFigure(cmd.sheetId, cmd.baseFigureId);
-    if (this.getters.getFigure(cmd.sheetId, cmd.figureId) || !baseFigure) {
+    if (this.getters.getFigure(cmd.sheetId, cmd.newChartId) || !baseFigure) {
       return CommandResult.InvalidFigureId;
     }
     return baseFigure.tag !== "chart" ? CommandResult.FigureDoesNotExist : CommandResult.Success;
