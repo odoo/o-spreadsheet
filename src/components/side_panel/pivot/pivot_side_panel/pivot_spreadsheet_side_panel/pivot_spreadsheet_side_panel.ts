@@ -54,8 +54,9 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
   }
 
   get ranges() {
-    if (this.state.range) {
-      return [this.state.range];
+    if (this.state.rangeHasChanged) {
+      // Keep the input empty if the user cleared it, rather than putting back the pivot range.
+      return this.state.range ? [this.state.range] : [];
     }
     if (this.definition.range) {
       return [this.env.model.getters.getRangeString(this.definition.range, "forceSheetReference")];
@@ -77,32 +78,35 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
 
   onSelectionChanged(ranges: string[]) {
     this.state.rangeHasChanged = true;
-    if (ranges.length === 0) {
-      this.state.range = undefined;
-      return;
-    }
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const range = this.env.model.getters.getRangeFromSheetXC(sheetId, ranges[0]);
-    this.state.range = this.env.model.getters.getRangeString(range, "forceSheetReference", {
-      useBoundedReference: true,
-    });
+    this.state.range = ranges[0];
   }
 
   onSelectionConfirmed() {
-    if (this.state.range) {
-      const range = this.env.model.getters.getRangeFromSheetXC(
-        this.env.model.getters.getActiveSheetId(),
-        this.state.range
-      );
-      if (range.invalidSheetName || range.invalidXc) {
-        return;
-      }
-
-      const dataSet = { sheetId: range.sheetId, zone: range.zone };
-      this.store.update({ dataSet });
-      // Immediately apply the update to recompute the pivot fields
-      this.store.applyUpdate();
+    if (!this.state.range) {
+      // An empty range cannot be applied: display the range used by the pivot again
+      const pivotRange = this.definition.range;
+      this.state.range = pivotRange
+        ? this.env.model.getters.getRangeString(pivotRange, "forceSheetReference")
+        : undefined;
+      return;
     }
+    const range = this.env.model.getters.getRangeFromSheetXC(
+      this.env.model.getters.getActiveSheetId(),
+      this.state.range
+    );
+    if (range.invalidSheetName || range.invalidXc) {
+      return;
+    }
+
+    // Unbounded ranges are not supported as a dataset: display the bounded range once confirmed,
+    // not while typing, to avoid rewriting the input under the user's cursor.
+    this.state.range = this.env.model.getters.getRangeString(range, "forceSheetReference", {
+      useBoundedReference: true,
+    });
+    const dataSet = { sheetId: range.sheetId, zone: range.zone };
+    this.store.update({ dataSet });
+    // Immediately apply the update to recompute the pivot fields
+    this.store.applyUpdate();
   }
 
   flipAxis() {
