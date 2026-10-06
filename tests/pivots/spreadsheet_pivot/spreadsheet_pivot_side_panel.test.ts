@@ -93,6 +93,23 @@ describe("Spreadsheet pivot side panel", () => {
     expect(".o-selection-input input").toHaveValue("Sheet1!A1:C3");
   });
 
+  test("Dataset range input stays empty when its last character is deleted", async () => {
+    setInputValueAndTrigger(".o-selection-input input", "S");
+    await nextTick();
+    setInputValueAndTrigger(".o-selection-input input", "");
+    await nextTick();
+    expect(".o-selection-input input").toHaveValue("");
+  });
+
+  test("Confirming an empty dataset range displays the pivot range again", async () => {
+    setInputValueAndTrigger(".o-selection-input input", "S");
+    await nextTick();
+    setInputValueAndTrigger(".o-selection-input input", "");
+    await nextTick();
+    await simulateClick(".o-selection-ok");
+    expect(".o-selection-input input").toHaveValue("Sheet1!A1:C3");
+  });
+
   test("It should be able to defer updates", async () => {
     setCellContent(model, "A1", "amount");
     setCellContent(model, "A2", "10");

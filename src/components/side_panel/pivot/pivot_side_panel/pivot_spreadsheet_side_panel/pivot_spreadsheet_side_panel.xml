@@ -7,7 +7,6 @@
           <t t-set-slot="title">Range</t>
           <SelectionInput
             ranges="ranges"
-            required="true"
             isInvalid="shouldDisplayInvalidRangeError"
             hasSingleRange="true"
             onSelectionChanged="(ranges) => this.onSelectionChanged(ranges)"
