@@ -42,6 +42,7 @@ import { Store } from "../../types/store_engine";
 import { NotificationCallbacks } from "../../types/stores/notification_store_methods";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
+import { FiguresDragAndDropContainer } from "../figures/figure_dnd_container/figure_dnd_container";
 import { DraggedFigurePlugin } from "../figures/figure_dnd_container/figure_dnd_owl_plugin";
 import { FullScreenFigure } from "../full_screen_figure/full_screen_figure";
 import { Grid } from "../grid/grid";
@@ -89,6 +90,7 @@ export class Spreadsheet extends Component {
     HeaderGroupContainer,
     FullScreenFigure,
     SpreadsheetPrint,
+    FiguresDragAndDropContainer,
   };
 
   sidePanel!: Store<SidePanelStore>;

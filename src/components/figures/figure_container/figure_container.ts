@@ -1,4 +1,5 @@
-import { onMounted, onWillUpdateProps, usePlugin } from "@odoo/owl";
+import { onMounted, usePlugin } from "@odoo/owl";
+import { isDefined } from "../../../helpers/misc";
 import { render } from "../../../helpers/owl3_helpers";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ChartDragStore } from "../../../stores/chart_drag_store";
@@ -102,13 +103,6 @@ export class FiguresContainer extends OSComponent {
       // compute which figures should be displayed, so we have to force a
       // new rendering
       render(this);
-    });
-    onWillUpdateProps(() => {
-      const sheetId = this.model().getters.getActiveSheetId();
-      const draggedFigureId = this.draggedFigurePlugin.dnd.draggedFigure?.id;
-      if (draggedFigureId && !this.model().getters.getFigure(sheetId, draggedFigureId)) {
-        this.draggedFigurePlugin.stopDragAndDrop();
-      }
     });
   }
 
@@ -261,7 +255,21 @@ export class FiguresContainer extends OSComponent {
         }
       }
     };
-    this.draggedFigurePlugin.startDraggingFigure(figureUI, ev, { onDragEnd, onMouseUpWithoutDrag });
+
+    const sheetId = this.model().getters.getActiveSheetId();
+    const initialFigures = this.model()
+      .getters.getSelectedFigureIds()
+      .map((id) => this.model().getters.getFigure(sheetId, id))
+      .filter(isDefined)
+      .map((f) => this.model().getters.getFigureUI(sheetId, f));
+
+    this.draggedFigurePlugin.startDraggingFigure(ev, {
+      draggedFigureId: figureUI.id,
+      figuresToDrag: initialFigures,
+      callbacks: { onDragEnd, onMouseUpWithoutDrag },
+      component: FigureComponent,
+      componentProps: {},
+    });
   }
 
   /**
@@ -295,7 +303,21 @@ export class FiguresContainer extends OSComponent {
       this.model().dispatch("UPDATE_FIGURES", { figures: dispatchPayload });
     };
 
-    this.draggedFigurePlugin.resizeAllSelectedFigures(dirX, dirY, ev, { onDragEnd });
+    const sheetId = this.model().getters.getActiveSheetId();
+    const initialFigures = this.model()
+      .getters.getSelectedFigureIds()
+      .map((id) => this.model().getters.getFigure(sheetId, id))
+      .filter(isDefined)
+      .map((f) => this.model().getters.getFigureUI(sheetId, f));
+
+    this.draggedFigurePlugin.resizeAllSelectedFigures(ev, {
+      figuresToDrag: initialFigures,
+      dirX,
+      dirY,
+      callbacks: { onDragEnd },
+      component: FigureComponent,
+      componentProps: {},
+    });
   }
 
   getFigureClass(figureUI: FigureUI): string {

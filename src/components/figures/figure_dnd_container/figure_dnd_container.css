@@ -1,4 +1,11 @@
 .o-spreadsheet {
+  .o-figure-dnd-container {
+    z-index: var(--os-components-importance-popover);
+
+    * {
+      pointer-events: none !important;
+    }
+  }
   .o-figure-snap-line {
     position: relative;
     z-index: var(--os-components-importance-figure-snap-line);

@@ -10,7 +10,6 @@
       t-ref="this.gridRef">
       <div class="position-absolute" t-att-style="this.gridOverlayDimensions">
         <FiguresContainer/>
-        <FiguresDragAndDropContainer/>
       </div>
       <GridOverlay
         onCellClicked.bind="this.onCellClicked"
