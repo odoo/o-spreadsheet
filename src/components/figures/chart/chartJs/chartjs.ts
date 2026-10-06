@@ -119,7 +119,11 @@ export class ChartJsComponent extends Component<SpreadsheetChildEnv> {
     onWillUnmount(this.unmount.bind(this));
     useLayoutEffect(() => {
       const runtime = this.chartRuntime;
-      if (runtime !== this.currentRuntime) {
+      // @ts-ignore
+      if (
+        runtime !== this.currentRuntime &&
+        (!("errorMessage" in this.chartRuntime) || !this.chartRuntime.errorMessage)
+      ) {
         if (runtime.chartJsConfig.type !== this.currentRuntime.chartJsConfig.type) {
           this.chart?.destroy();
           this.createChart(deepCopy(runtime));

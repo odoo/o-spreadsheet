@@ -1,5 +1,17 @@
 <templates>
   <t t-name="o-spreadsheet-ChartJsComponent">
-    <canvas class="o-figure-canvas w-100 h-100" t-ref="this.canvas"/>
+    <t t-if="this.chartRuntime.errorMessage">
+      <div
+        class="o-figure-error bg-white w-100 h-100 d-flex flex-column justify-content-center align-items-center">
+        <strong>
+          <t t-esc="this.chartRuntime.errorMessage"/>
+        </strong>
+        <br/>
+        The chart is deactivated
+      </div>
+    </t>
+    <t t-else="">
+      <canvas class="o-figure-canvas w-100 h-100" t-ref="this.canvas"/>
+    </t>
   </t>
 </templates>
