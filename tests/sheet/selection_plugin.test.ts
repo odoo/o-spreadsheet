@@ -1014,6 +1014,7 @@ describe("move elements(s)", () => {
   test("Move resized columns preserves their sizes", () => {
     const cmds: CoreCommand[] = [];
     class CommandSpy extends CorePlugin<typeof CommandSpy> {
+      static dependencies = [];
       static getters = [];
       handlers = {
         RESIZE_COLUMNS_ROWS: (command: ResizeColumnsRowsCommand) => cmds.push(command),
@@ -1061,6 +1062,7 @@ describe("move elements(s)", () => {
     const cmds: CoreCommand[] = [];
     class CommandSpy extends CorePlugin<typeof CommandSpy> {
       static getters = [];
+      static dependencies = [];
       handlers = {
         RESIZE_COLUMNS_ROWS: (command: ResizeColumnsRowsCommand) => cmds.push(command),
       };
