@@ -1,222 +1,170 @@
+import { onMounted, onWillDestroy, signal, types, usePlugin, useProps, xml } from "@odoo/owl";
 import {
   DEFAULT_FIGURE_HEIGHT,
   DEFAULT_FIGURE_WIDTH,
   DEFAULT_SCORECARD_HEIGHT,
   DEFAULT_SCORECARD_WIDTH,
-  DRAG_THRESHOLD,
 } from "../../constants";
 import { SpreadsheetChart } from "../../helpers/figures/chart";
 import { drawChartOnCanvas } from "../../helpers/figures/charts/chart_ui_common";
-import { clip } from "../../helpers/misc";
 import { UuidGenerator } from "../../helpers/uuid";
-import { ChartDragStore } from "../../stores/chart_drag_store";
-import { ViewportsStore } from "../../stores/viewports_store";
+import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
+import { useStore } from "../../store_engine/store_hooks";
 import { ZoomStore } from "../../stores/zoom_store";
 import { ChartDefinition } from "../../types/chart/chart";
-import { DispatchResult } from "../../types/commands";
-import { FigureSize, FigureUI } from "../../types/figure";
-import { PixelPosition } from "../../types/misc";
-import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
-import { gridOverlayPosition } from "./dom_helpers";
-import { startDnd } from "./drag_and_drop";
-import { getSheetEndCoordinates } from "./figure_drag_helper";
+import { Figure, FigureSize, FigureUI } from "../../types/figure";
+import { UID } from "../../types/misc";
+import {
+  DraggedFigurePlugin,
+  FAKE_DRAGGED_FIGURE_ID,
+} from "../figures/figure_dnd_container/figure_dnd_owl_plugin";
+import { OSComponent } from "../os_component";
+import { cssPropertiesToCss, rectToCss } from "./css";
+import { getElBoundingRect } from "./dom_helpers";
+import { useSpreadsheetRect } from "./position_hook";
 
-function getDefaultChartFigureSize(type: ChartDefinition["type"]): FigureSize {
+export function getDefaultChartFigureSize(type: ChartDefinition["type"]): FigureSize {
   if (type === "scorecard") {
     return { width: DEFAULT_SCORECARD_WIDTH, height: DEFAULT_SCORECARD_HEIGHT };
   }
   return { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
 }
 
-export function getOverlappedFigure(
-  figureUI: { tag: string; x: number; y: number; width: number; height: number },
-  otherFigures: FigureUI[],
-  matchTags: FigureUI["tag"][]
-): FigureUI | undefined {
-  if (figureUI.tag !== "chart") {
-    return undefined;
-  }
-  const figureCenterX = figureUI.x + figureUI.width / 2;
-  const figureCenterY = figureUI.y + figureUI.height / 2;
-  let bestMatch: FigureUI | undefined;
-  let smallestDistance = Infinity;
-  for (const figure of otherFigures) {
-    if (!matchTags.includes(figure.tag)) {
-      continue;
-    }
-    const targetCenterX = figure.x + figure.width / 2;
-    const targetCenterY = figure.y + figure.height / 2;
-    const distanceX = Math.abs(figureCenterX - targetCenterX);
-    const distanceY = Math.abs(figureCenterY - targetCenterY);
-    const squaredDistance = distanceX ** 2 + distanceY ** 2;
-    if (
-      distanceX <= figureUI.width / 2 &&
-      distanceY <= figureUI.height / 2 &&
-      squaredDistance < smallestDistance
-    ) {
-      smallestDistance = squaredDistance;
-      bestMatch = figure;
-    }
-  }
-  return bestMatch;
-}
+export function useChartDragAndDrop() {
+  const draggedFigurePlugin = usePlugin(DraggedFigurePlugin);
+  const zoomStore = useStore(ZoomStore);
+  const model = usePlugin(ModelPlugin).model();
+  const spreadsheetRect = useSpreadsheetRect();
 
-/**
- * Start dragging a floating preview of the given chart definition, following the mouse.
- * On drop, creates the chart on the grid (or inside a carousel if dropped on one).
- */
-export function startChartDragAndDrop(
-  env: SpreadsheetActionEnv,
-  definition: ChartDefinition,
-  ev: PointerEvent
-) {
-  if (ev.button !== 0) {
-    return;
-  }
-  const getters = env.model().getters;
-  const viewStore = env.getStore(ViewportsStore);
-  const sheetId = getters.getActiveSheetId();
-  const zoom = env.getStore(ZoomStore).zoomLevel;
-  const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
-  const maxDimensions = getSheetEndCoordinates(sheetId, getters);
-  const gridRect = gridOverlayPosition();
-  const gridLeft = gridRect.x / zoom;
-  const gridTop = gridRect.y / zoom;
-  const gridWidth = gridRect.width / zoom;
-  const gridHeight = gridRect.height / zoom;
-  const spreadsheet = document.querySelector(".o-spreadsheet") as HTMLElement | null;
-  if (!spreadsheet) {
-    return;
-  }
-  const figureSize = getDefaultChartFigureSize(definition.type);
-  const halfWidth = figureSize.width / 2;
-  const halfHeight = figureSize.height / 2;
-
-  let container: HTMLDivElement | null = null;
-  let destroyChart: (() => void) | undefined = undefined;
-  const chartDragStore = env.getStore(ChartDragStore);
-  const previousCursor = document.body.style.cursor;
-  document.body.style.cursor = "grabbing";
-
-  const otherFigures = viewStore.visibleFigures;
-  const chartId = UuidGenerator.smallUuid();
-
-  const getDragInfo = (ev: PointerEvent) => {
-    const mouseX = ev.clientX / zoom;
-    const mouseY = ev.clientY / zoom;
-    if (
-      Math.abs(mouseX - initialMousePosition.x) <= DRAG_THRESHOLD &&
-      Math.abs(mouseY - initialMousePosition.y) <= DRAG_THRESHOLD
-    ) {
-      return undefined;
-    }
-    const figurePosition = {
-      x: Math.max(gridLeft, mouseX - halfWidth),
-      y: clip(mouseY - halfHeight, gridTop, gridTop + gridHeight - figureSize.height),
+  const startChartDragAndDrop = (ev: PointerEvent, definition: ChartDefinition) => {
+    const dragContainerRect = draggedFigurePlugin.containerRect;
+    const startX = ev.clientX / zoomStore.zoomLevel - dragContainerRect.x - spreadsheetRect.x;
+    const startY = ev.clientY / zoomStore.zoomLevel - dragContainerRect.y - spreadsheetRect.y;
+    const { width, height } = getDefaultChartFigureSize(definition.type);
+    const figuresToDrag: FigureUI = {
+      id: FAKE_DRAGGED_FIGURE_ID,
+      col: 0,
+      row: 0,
+      offset: { x: 0, y: 0 },
+      tag: "chart",
+      width,
+      height,
+      x: startX - width / 2,
+      y: startY - height / 2,
     };
-    if (figurePosition.x > gridLeft + gridWidth || figurePosition.y > gridTop + gridHeight) {
-      return { figurePosition };
-    }
-    const { scrollX, scrollY } = viewStore.activeSheetScrollInfo;
-    const position: PixelPosition = {
-      x: Math.max(0, figurePosition.x - gridLeft + scrollX),
-      y: Math.max(0, figurePosition.y - gridTop + scrollY),
+
+    const onDragEnd = (
+      ev: MouseEvent,
+      droppedFigures: Figure[],
+      overlappingFigureId: UID | undefined
+    ) => {
+      const droppedFigure = droppedFigures[0];
+      if (!droppedFigure || (!overlappingFigureId && isMouseEventInPanel(ev))) {
+        return;
+      }
+      const sheetId = model.getters.getActiveSheetId();
+      const overlappingFigure = overlappingFigureId
+        ? model.getters.getFigure(sheetId, overlappingFigureId)
+        : undefined;
+      let dropFigureId: UID | undefined = undefined;
+      if (overlappingFigure?.tag === "carousel") {
+        dropFigureId = dropFigureId = overlappingFigure.id;
+        model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
+          sheetId,
+          figureId: overlappingFigure.id,
+          newChartId: UuidGenerator.smallUuid(),
+          chartDefinition: definition,
+        });
+      } else if (overlappingFigure?.tag === "chart") {
+        dropFigureId = UuidGenerator.smallUuid();
+        model.dispatch("CREATE_CHART_AND_MERGE_INTO_CAROUSEL", {
+          chartId: UuidGenerator.smallUuid(),
+          figureId: dropFigureId,
+          sheetId,
+          definition,
+          baseFigureId: overlappingFigure.id,
+        });
+      } else {
+        dropFigureId = UuidGenerator.smallUuid();
+        model.dispatch("CREATE_CHART", {
+          chartId: UuidGenerator.smallUuid(),
+          figureId: dropFigureId,
+          sheetId,
+          size: { width, height },
+          definition,
+          col: droppedFigure.col,
+          row: droppedFigure.row,
+          offset: droppedFigure.offset,
+        });
+      }
+
+      if (dropFigureId) {
+        model.dispatch("SELECT_FIGURE", { figureId: dropFigureId });
+      }
     };
-    const overlappedFigure = getOverlappedFigure(
-      { tag: "chart", ...position, ...figureSize },
-      otherFigures,
-      ["carousel", "chart"]
-    );
-    return { figurePosition, position, overlappedFigure };
+
+    draggedFigurePlugin.startDraggingFigure(ev, {
+      draggedFigureId: figuresToDrag.id,
+      figuresToDrag: [figuresToDrag],
+      callbacks: { onDragEnd },
+      component: SimpleChartCanvas,
+      componentProps: { definition },
+    });
   };
 
-  const onPointerMove = (ev: PointerEvent) => {
-    const dragInfo = getDragInfo(ev);
-    if (!dragInfo) {
-      return;
-    }
-    const { figurePosition, overlappedFigure } = dragInfo;
-    if (container === null) {
-      container = document.createElement("div");
-      container.className = "o-chart-drag-preview os-theme-dependant position-fixed border pe-none";
-      container.style.width = `${figureSize.width}px`;
-      container.style.height = `${figureSize.height}px`;
-      container.style.zoom = `${zoom}`;
-      const canvas = document.createElement("canvas");
-      canvas.className = "w-100 h-100";
-      container.appendChild(canvas);
-      spreadsheet.appendChild(container);
+  return { startChartDragAndDrop };
+}
 
+function isMouseEventInPanel(ev: MouseEvent) {
+  const panelRect = getElBoundingRect((ev.target as HTMLElement)?.closest(".o-sidePanel") || null);
+  return (
+    ev.clientX >= panelRect.x &&
+    ev.clientX <= panelRect.x + panelRect.width &&
+    ev.clientY >= panelRect.y &&
+    ev.clientY <= panelRect.y + panelRect.height
+  );
+}
+
+class SimpleChartCanvas extends OSComponent {
+  static template = xml/*xml*/ `<canvas class="position-absolute border os-theme-dependant" t-att-style="this.style" t-ref="this.canvasRef"/>`;
+
+  canvasRef = signal.ref(HTMLCanvasElement);
+  private zoomStore = useStore(ZoomStore);
+
+  private props = useProps({
+    definition: types.object<ChartDefinition>(),
+    figureUI: types.object<FigureUI>(),
+    style: types.string(),
+  });
+
+  setup() {
+    let cleanupChart: (() => void) | undefined = undefined;
+    onMounted(() => {
+      const canvas = this.canvasRef();
+      if (!canvas) {
+        return;
+      }
+
+      const sheetId = this.model().getters.getActiveSheetId();
+      const definition = this.props.definition;
+      const getters = this.model().getters;
       const runtime = SpreadsheetChart.fromStrDefinition(getters, sheetId, definition).getRuntime(
         getters,
         "newChart",
         getters.getSpreadsheetTheme().colorThemeName
       );
-      destroyChart = drawChartOnCanvas(canvas, runtime, figureSize, definition.type, zoom);
-    }
-
-    container.style.left = `${figurePosition.x}px`;
-    container.style.top = `${figurePosition.y}px`;
-    container.style.opacity = overlappedFigure ? "0.6" : "0.9";
-    chartDragStore.setHighlightedFigure(overlappedFigure?.id);
-  };
-
-  const dropChart = (ev: PointerEvent): DispatchResult | undefined => {
-    const dragInfo = getDragInfo(ev);
-    if (!dragInfo) {
-      return undefined;
-    }
-    const { position, overlappedFigure } = dragInfo;
-    const { scrollX } = viewStore.activeSheetScrollInfo;
-    if (!position || position.x + halfWidth > Math.min(gridWidth + scrollX, maxDimensions.maxX)) {
-      return undefined;
-    }
-    switch (overlappedFigure?.tag) {
-      case "carousel":
-        return env.model().dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
-          sheetId,
-          figureId: overlappedFigure.id,
-          newChartId: chartId,
-          chartDefinition: definition,
-        });
-      case "chart":
-        return env.model().dispatch("CREATE_CHART_AND_MERGE_INTO_CAROUSEL", {
-          chartId,
-          figureId: UuidGenerator.smallUuid(),
-          sheetId,
-          definition,
-          baseFigureId: overlappedFigure.id,
-        });
-      default: {
-        const clampedPosition = {
-          x: Math.min(position.x, maxDimensions.maxX - figureSize.width),
-          y: Math.min(position.y, maxDimensions.maxY - figureSize.height),
-        };
-        const anchor = viewStore.viewports.getPositionAnchorOffset(sheetId, clampedPosition);
-        return env.model().dispatch("CREATE_CHART", {
-          chartId,
-          figureId: UuidGenerator.smallUuid(),
-          sheetId,
-          size: figureSize,
-          definition,
-          ...anchor,
-        });
+      if ("chartJsConfig" in runtime && runtime.chartJsConfig.options) {
+        runtime.chartJsConfig.options.responsive = false;
       }
-    }
-  };
 
-  const onPointerUp = (ev: PointerEvent) => {
-    chartDragStore.setHighlightedFigure(undefined);
-    container?.remove();
-    container = null;
-    destroyChart?.();
-    document.body.style.cursor = previousCursor;
+      const zoom = this.zoomStore.zoomLevel;
+      const { width, height } = this.props.figureUI;
+      cleanupChart = drawChartOnCanvas(canvas, runtime, { width, height }, definition.type, zoom);
+    });
+    onWillDestroy(() => cleanupChart?.());
+  }
 
-    if (dropChart(ev)?.isSuccessful) {
-      const figureId = getters.getFigureIdFromChartId(chartId);
-      env.model().dispatch("SELECT_FIGURE", { figureId });
-    }
-  };
-
-  startDnd(onPointerMove, onPointerUp);
+  get style() {
+    return (this.props.style || "") + ";" + cssPropertiesToCss(rectToCss(this.props.figureUI));
+  }
 }

@@ -1,9 +1,10 @@
-import { types, useProps } from "@odoo/owl";
+import { useProps } from "@odoo/owl";
 import { useLocalStore } from "../../../store_engine/store_hooks";
 import { ChartDefinition } from "../../../types/chart/chart";
 import { Store } from "../../../types/store_engine";
-import { startChartDragAndDrop } from "../../helpers/chart_drag_and_drop";
+import { useChartDragAndDrop } from "../../helpers/chart_drag_and_drop";
 import { OSComponent } from "../../os_component";
+import { types } from "../../props_validation";
 import { SidePanelCollapsible } from "../components/collapsible/side_panel_collapsible";
 import { Section } from "../components/section/section";
 import { ChartSuggestionPreview } from "./chart_suggestion/chart_suggestion_preview";
@@ -26,6 +27,8 @@ export class DataAnalysisPanel extends OSComponent {
 
   store!: Store<DataAnalysisStore>;
 
+  private chartDnd = useChartDragAndDrop();
+
   setup() {
     this.store = useLocalStore(DataAnalysisStore);
   }
@@ -34,6 +37,6 @@ export class DataAnalysisPanel extends OSComponent {
     if (ev.button !== 0) {
       return;
     }
-    startChartDragAndDrop(this.spEnv, definition, ev);
+    this.chartDnd.startChartDragAndDrop(ev, definition);
   }
 }
