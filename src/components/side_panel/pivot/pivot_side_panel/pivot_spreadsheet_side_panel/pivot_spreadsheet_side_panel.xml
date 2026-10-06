@@ -10,7 +10,6 @@
           <Section title.translate="Range">
             <SelectionInput
               ranges="ranges"
-              required="true"
               isInvalid="shouldDisplayInvalidRangeError"
               hasSingleRange="true"
               onSelectionChanged="(ranges) => this.onSelectionChanged(ranges)"
