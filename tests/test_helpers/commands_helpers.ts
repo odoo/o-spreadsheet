@@ -1910,7 +1910,7 @@ export function addChartFigureToCarousel(
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   return model.dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
-    carouselFigureId: carouselId,
+    carouselId: carouselId,
     chartFigureIds: [chartFigureId],
     sheetId,
   });
@@ -1939,7 +1939,7 @@ export function addNewChartToCarousel(
   creationContext = creationContext || { type: "bar" };
   const chartId = UuidGenerator.smallUuid();
   model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
-    figureId: carouselId,
+    carouselId,
     sheetId: model.getters.getActiveSheetId(),
     newChartId: chartId,
     chartDefinition: createChartDefinitionFromContext(creationContext.type, creationContext),
@@ -1954,7 +1954,7 @@ export function selectCarouselItem(
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   return model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
-    figureId: carouselId,
+    carouselId,
     item,
     sheetId,
   });
