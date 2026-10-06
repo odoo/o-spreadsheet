@@ -47,17 +47,17 @@ export class CarouselUIPlugin extends UIPlugin {
   };
 
   private onUpdateCarouselActiveItem(cmd: UpdateCarouselActiveItemCommand) {
-    this.carouselStates[cmd.figureId] = this.getCarouselItemId(cmd.item);
+    this.carouselStates[cmd.carouselId] = this.getCarouselItemId(cmd.item);
   }
 
   private onAddFiguresChartToCarousel(cmd: AddFiguresChartToCarouselCommand) {
     cmd.chartFigureIds.forEach((figureId) => {
-      this.addFigureChartToCarousel(cmd.carouselFigureId, figureId, cmd.sheetId);
+      this.addFigureChartToCarousel(cmd.carouselId, figureId, cmd.sheetId);
     });
   }
 
   private onAddNewChartToCarousel(cmd: AddNewChartToCarouselCommand) {
-    this.addNewChartToCarousel(cmd.figureId, cmd.newChartId, cmd.sheetId, cmd.chartDefinition);
+    this.addNewChartToCarousel(cmd.carouselId, cmd.newChartId, cmd.sheetId, cmd.chartDefinition);
   }
 
   private onUpdateCarousel(cmd: UpdateCarouselCommand) {
@@ -76,7 +76,7 @@ export class CarouselUIPlugin extends UIPlugin {
 
   private checkAddFiguresChartToCarousel(cmd: AddFiguresChartToCarouselCommand) {
     if (
-      !this.getters.doesCarouselExist(cmd.carouselFigureId) ||
+      !this.getters.doesCarouselExist(cmd.carouselId) ||
       cmd.chartFigureIds.some(
         (figureId) => this.getters.getFigure(cmd.sheetId, figureId)?.tag !== "chart"
       )
@@ -100,16 +100,16 @@ export class CarouselUIPlugin extends UIPlugin {
   }
 
   private checkCarouselExists(cmd: AddNewChartToCarouselCommand) {
-    return this.getters.doesCarouselExist(cmd.figureId)
+    return this.getters.doesCarouselExist(cmd.carouselId)
       ? CommandResult.Success
       : CommandResult.InvalidFigureId;
   }
 
   private checkUpdateCarouselActiveItem(cmd: UpdateCarouselActiveItemCommand) {
-    if (!this.getters.doesCarouselExist(cmd.figureId)) {
+    if (!this.getters.doesCarouselExist(cmd.carouselId)) {
       return CommandResult.InvalidFigureId;
     }
-    if (!this.getters.getCarousel(cmd.figureId).items.some((item) => deepEquals(item, cmd.item))) {
+    if (!this.getters.getCarousel(cmd.carouselId).items.some((item) => deepEquals(item, cmd.item))) {
       return CommandResult.InvalidCarouselItem;
     }
     return CommandResult.Success;
@@ -231,7 +231,11 @@ export class CarouselUIPlugin extends UIPlugin {
       figureId,
       definition: this.getters.carouselToCarouselData(definition),
     });
-    this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", { figureId, sheetId, item: carouselItem });
+    this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+      carouselId: figureId,
+      sheetId,
+      item: carouselItem,
+    });
   }
 
   private addFigureChartToCarousel(figureId: UID, chartFigureId: UID, sheetId: string) {
@@ -258,7 +262,7 @@ export class CarouselUIPlugin extends UIPlugin {
       definition: this.getters.getChartDefinition(chartId),
     });
     this.dispatch("DELETE_FIGURE", { sheetId, figureId: chartFigureId });
-    this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", { figureId, sheetId, item: newItem });
+    this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", { carouselId: figureId, sheetId, item: newItem });
   }
 
   private onDuplicateCarouselChart({

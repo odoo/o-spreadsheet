@@ -5,6 +5,7 @@ import { getPoppedOutChartAnchor } from "../helpers/carousel_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts/chart_ui_common";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { deepEquals } from "../helpers/misc";
+import { UuidGenerator } from "../helpers/uuid";
 import { ImageProviderPlugin } from "../owl_plugins/image_provider_owl_plugin";
 import { IsSmallPlugin } from "../owl_plugins/is_small_plugin";
 import { NavigatorClipboardPlugin } from "../owl_plugins/navigator_clipboard_plugin";
@@ -359,6 +360,7 @@ function getMergeCarouselMenuItem(figureId: UID, env: SpreadsheetActionEnv): Act
         sheetId,
         baseFigureId: figureId,
         chartFigureIds,
+        newCarouselId: UuidGenerator.smallUuid(),
       });
     },
     icon: "o-spreadsheet-Icon.CAROUSEL",
