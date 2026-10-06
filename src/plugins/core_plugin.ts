@@ -83,8 +83,6 @@ export class CorePlugin<Self extends CorePluginConstructor, State = any>
   extends BasePlugin<State, CoreCommand>
   implements RangeProvider, FormulaProvider
 {
-  static readonly dependencies: readonly CorePluginConstructor[] = [];
-
   protected getters: ScopedGetters<Self>;
   protected dispatch: CoreCommandDispatcher["dispatch"];
   protected canDispatch: CoreCommandDispatcher["dispatch"];

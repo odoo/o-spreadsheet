@@ -570,6 +570,7 @@ describe("Cell dependencies and tokens are updated", () => {
     let counter = 0;
     class SubCommandCounterRange extends CorePlugin<typeof SubCommandCounterRange> {
       static getters = [];
+      static dependencies = [];
       handle(command: CoreCommand) {
         if (command.type === "UPDATE_CELL") {
           counter++;
