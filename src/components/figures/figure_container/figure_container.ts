@@ -12,6 +12,7 @@ import { isCtrlKey, isMobileOS } from "../../helpers/dom_helpers";
 import { OSComponent } from "../../os_component";
 import { FigureComponent } from "../figure/figure";
 import { DraggedFigurePlugin } from "../figure_dnd_container/figure_dnd_owl_plugin";
+import { UuidGenerator } from "../../../helpers/uuid";
 
 type ContainerType = "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "none";
 
@@ -244,7 +245,7 @@ export class FiguresContainer extends OSComponent {
         if (overlappingFigure.tag === "carousel") {
           this.model().dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
             sheetId,
-            carouselFigureId: overlappingFigureId,
+            carouselId: overlappingFigureId,
             chartFigureIds: chartFigureIds,
           });
         } else if (overlappingFigure.tag === "chart") {
@@ -252,6 +253,7 @@ export class FiguresContainer extends OSComponent {
             sheetId,
             baseFigureId: overlappingFigureId,
             chartFigureIds: [overlappingFigureId, ...chartFigureIds],
+            newCarouselId: UuidGenerator.smallUuid(),
           });
         }
       }

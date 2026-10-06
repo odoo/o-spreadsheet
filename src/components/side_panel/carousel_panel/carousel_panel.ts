@@ -126,7 +126,7 @@ export class CarouselPanel extends OSComponent {
     } as ChartDefinition);
 
     this.model().dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
-      figureId: this.props.figureId,
+      carouselId: this.props.figureId,
       sheetId: this.carouselSheetId,
       newChartId: UuidGenerator.smallUuid(),
       chartDefinition: definition,
@@ -159,7 +159,7 @@ export class CarouselPanel extends OSComponent {
 
   activateCarouselItem(item: CarouselItem) {
     this.model().dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
-      figureId: this.props.figureId,
+      carouselId: this.props.figureId,
       sheetId: this.carouselSheetId,
       item,
     });
