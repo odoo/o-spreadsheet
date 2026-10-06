@@ -35,6 +35,9 @@ export const geoJsonService = {
     }
     return this.getAvailableRegions().filter((r) => r.id !== "usa");
   },
+  isRegionAvailable: function (region) {
+    return true;
+  },
 };
 
 function inverseMapping(mapping) {

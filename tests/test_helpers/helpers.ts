@@ -1010,6 +1010,10 @@ export const mockGeoJsonService: NonNullable<ModelExternalConfig["geoJsonService
     const allRegions = getAvailableRegions();
     return allRegions.filter((r) => r.id !== "usa");
   },
+  isRegionAvailable: (region: string) => {
+    const availableRegions = getAvailableRegions();
+    return availableRegions.some((r) => r.id === region);
+  },
 };
 
 interface CellObject {

@@ -12,6 +12,7 @@ export class GeoFeaturePlugin extends UIPlugin {
     "getGeoChartAvailableRegions",
     "getAvailableChartRegions",
     "loadUsedGeoJsonFeatures",
+    "isRegionAvailable",
   ] as const;
 
   private readonly geoJsonService: ModelConfig["external"]["geoJsonService"];
@@ -154,6 +155,14 @@ export class GeoFeaturePlugin extends UIPlugin {
       return cachedGeoJson instanceof Promise ? cachedGeoJson : Promise.resolve();
     });
     return Promise.all(promises).then(() => {});
+  }
+
+  isRegionAvailable(region: string): boolean {
+    if (!this.geoJsonService) {
+      console.error("No geoJsonService provided to the model");
+      return false;
+    }
+    return this.geoJsonService.isRegionAvailable(region);
   }
 
   private convertToGeoJson(
