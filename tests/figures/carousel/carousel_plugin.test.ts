@@ -49,7 +49,7 @@ describe("Carousel figure", () => {
 
       const sheetId = model.getters.getActiveSheetId();
       let result = model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
-        figureId: "invalidId",
+        carouselId: "invalidId",
         sheetId,
         newChartId: "chartId",
         chartDefinition: TEST_CHART_DATA.combo,
@@ -57,7 +57,7 @@ describe("Carousel figure", () => {
       expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
 
       result = model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
-        figureId: "chartFigureId",
+        carouselId: "chartFigureId",
         sheetId,
         newChartId: "chartId",
         chartDefinition: TEST_CHART_DATA.combo,
@@ -89,28 +89,28 @@ describe("Carousel figure", () => {
       const chartId = addNewChartToCarousel(model, "carouselId");
 
       let result = model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
-        figureId: "wrongCarouselId",
+        carouselId: "wrongCarouselId",
         sheetId,
         item: { type: "chart", chartId: "invalidChartId" },
       });
       expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
 
       result = model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
-        figureId: "carouselId",
+        carouselId: "carouselId",
         sheetId,
         item: { type: "chart", chartId: "invalidChartId" },
       });
       expect(result).toBeCancelledBecause(CommandResult.InvalidCarouselItem);
 
       result = model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
-        figureId: "carouselId",
+        carouselId: "carouselId",
         sheetId,
         item: { type: "carouselDataView" },
       });
       expect(result).toBeCancelledBecause(CommandResult.InvalidCarouselItem);
 
       result = model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
-        figureId: "carouselId",
+        carouselId: "carouselId",
         sheetId,
         item: { type: "chart", chartId },
       });
