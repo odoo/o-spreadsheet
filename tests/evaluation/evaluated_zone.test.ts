@@ -107,11 +107,11 @@ describe("getSheetEvaluatedZone", () => {
     expect(getEvaluatedZone(model)).toBeUndefined();
   });
 
-  test("zone is updated when automatic evaluation is disabled", () => {
+  test("zone is not computed when automatic evaluation is disabled", () => {
     const model = new Model();
     setAutomaticEvaluation(model, false);
     setCellContent(model, "B2", "=MUNIT(2)");
-    expect(getEvaluatedZone(model)).toEqual(toZone("B2:C3"));
+    expect(getEvaluatedZone(model)).toBeUndefined();
   });
 
   test("zone is reset when the evaluation is recomputed with automatic evaluation disabled", () => {

@@ -1,9 +1,17 @@
 import { CompiledFormula } from "../../../formulas/compiler";
 import { matrixMap } from "../../../functions/helpers";
+import { evaluateLiteral } from "../../../helpers/cells/cell_evaluation";
+import { PositionMap } from "../../../helpers/cells/position_map";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
 import { positions } from "../../../helpers/zones";
-import { CellValue, CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
+import {
+  CellValue,
+  CellValueType,
+  EvaluatedCell,
+  FormulaCell,
+  LiteralCell,
+} from "../../../types/cells";
 import {
   CommandResult,
   EvaluateCellsCommand,
@@ -14,6 +22,7 @@ import {
 import { CellErrorType } from "../../../types/errors";
 import { Format } from "../../../types/format";
 import { PerfProfile } from "../../../types/functions";
+import { Locale } from "../../../types/locale";
 import {
   CellPosition,
   FunctionResultObject,
@@ -27,7 +36,7 @@ import { Range } from "../../../types/range";
 import { ExcelWorkbookData } from "../../../types/workbook_data";
 import { SquishedFormula } from "../../core/squisher";
 import { EvaluationPlugin, EvaluationPluginConfig } from "../../evaluation_plugin";
-import { Evaluator } from "./evaluator";
+import { EMPTY_CELL, Evaluator } from "./evaluator";
 
 //#region
 
@@ -144,6 +153,13 @@ import { Evaluator } from "./evaluator";
 // of other cells depending on it, at the next iteration.
 
 //#endregion
+
+interface LiteralEvaluation {
+  cell: LiteralCell;
+  format: Format | undefined;
+  locale: Locale;
+  evaluatedCell: EvaluatedCell;
+}
 export class CellEvaluationPlugin extends EvaluationPlugin {
   static getters = [
     "evaluateFormula",
@@ -163,11 +179,13 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
     "isAutomaticEvaluationEnabled",
     "getSheetEvaluatedZone",
     "getSheetOptimalEvaluatedZone",
+    "isEvaluationActive",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
   private forceEvaluation = false;
-  private automaticEvaluation: boolean = true;
+  private automaticEvaluation: boolean;
+  private literalEvaluations = new PositionMap<LiteralEvaluation>();
 
   private evaluator: Evaluator;
   private positionsToUpdate: CellPosition[] = [];
@@ -190,7 +208,10 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
 
   constructor(config: EvaluationPluginConfig) {
     super(config);
-    this.evaluator = new Evaluator(config.custom, this.getters);
+    this.automaticEvaluation = config.automaticEvaluation;
+    this.evaluator = new Evaluator(config.custom, this.getters, (position) =>
+      this.isEvaluationActive() ? undefined : this.getEvaluatedCell(position)
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -204,10 +225,20 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
   }
 
   private onUpdateCell(cmd: UpdateCellCommand) {
-    if (!("content" in cmd || "format" in cmd) || this.shouldRebuildDependenciesGraph) {
+    if (!("content" in cmd || "format" in cmd)) {
       return;
     }
     const position = { sheetId: cmd.sheetId, row: cmd.row, col: cmd.col };
+    if (!this.automaticEvaluation) {
+      // only forget the value of the modified cell: its dependents keep theirs
+      if ("content" in cmd || !this.getters.getCell(position)?.isFormula) {
+        this.evaluator.deleteEvaluatedCell(position);
+      }
+      return;
+    }
+    if (this.shouldRebuildDependenciesGraph) {
+      return;
+    }
     this.positionsToUpdate.push(position);
 
     if ("content" in cmd) {
@@ -243,23 +274,22 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
 
   private flagRebuildDependenciesGraph(cmd: EvaluationCommand) {
     this.shouldRebuildDependenciesGraph = true;
+    if (!this.automaticEvaluation) {
+      // the evaluated cells may no longer match their positions
+      this.evaluator.discardEvaluatedCells();
+    }
   }
 
   finalize() {
     if (!this.shouldPerformEvaluation()) {
-      // When automatic evaluation is disabled, still evaluate directly modified cells
-      // so the user can see the result of what they typed, without cascading to dependents.
-      if (this.positionsToUpdate.length) {
-        this.evaluator.evaluateCellsWithoutCascade(this.positionsToUpdate);
-      }
       this.positionsToUpdate = [];
       return;
     }
 
     if (this.shouldRebuildDependenciesGraph) {
+      this.shouldRebuildDependenciesGraph = false;
       this.evaluator.buildDependencyGraph();
       this.evaluator.evaluateAllCells();
-      this.shouldRebuildDependenciesGraph = false;
     } else if (this.positionsToUpdate.length) {
       this.evaluator.evaluateCells(this.positionsToUpdate);
     }
@@ -276,6 +306,11 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
    */
   isAutomaticEvaluationEnabled(): boolean {
     return this.automaticEvaluation;
+  }
+
+  /** returns whether an evaluation has been triggered */
+  isEvaluationActive(): boolean {
+    return this.automaticEvaluation || this.forceEvaluation;
   }
 
   evaluateFormula(
@@ -317,18 +352,61 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
     return this.mapVisiblePositions(range, (p) => this.getters.getEvaluatedCell(p));
   }
 
+  /**
+   * When the automatic evaluation is disabled, a cell keeps the value of its
+   * last evaluation. A cell that was never evaluated, or that was modified
+   * since, is either its literal or empty.
+   */
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
-    return this.evaluator.getEvaluatedCell(position);
+    if (this.automaticEvaluation) {
+      return this.evaluator.getEvaluatedCell(position);
+    }
+    const evaluatedCell = this.evaluator.tryGetEvaluatedCell(position);
+    if (evaluatedCell) {
+      return evaluatedCell;
+    }
+    const cell = this.getters.getCell(position);
+    return cell && !cell.isFormula ? this.evaluateLiteral(position, cell) : EMPTY_CELL;
+  }
+
+  private evaluateLiteral(position: CellPosition, cell: LiteralCell): EvaluatedCell {
+    const format = this.getters.getCellFormat(position);
+    const locale = this.getters.getLocale();
+    const cached = this.literalEvaluations.get(position);
+    if (cached?.cell === cell && cached.format === format && cached.locale === locale) {
+      return cached.evaluatedCell;
+    }
+    const evaluatedCell = evaluateLiteral(cell, { format, locale }, position);
+    this.literalEvaluations.set(position, { cell, format, locale, evaluatedCell });
+    return evaluatedCell;
   }
 
   getEvaluatedCells(sheetId: UID): EvaluatedCell[] {
-    return this.evaluator
-      .getEvaluatedPositionsInSheet(sheetId)
-      .map((position) => this.getEvaluatedCell(position));
+    return this.getEvaluatedCellsPositions(sheetId).map((position) =>
+      this.getEvaluatedCell(position)
+    );
   }
 
   getEvaluatedCellsPositions(sheetId: UID): CellPosition[] {
-    return this.evaluator.getEvaluatedPositionsInSheet(sheetId);
+    const positions = this.evaluator.getEvaluatedPositionsInSheet(sheetId);
+    if (this.automaticEvaluation) {
+      return positions;
+    }
+    for (const cell of this.getters.getCells(sheetId)) {
+      if (cell.isFormula) {
+        continue;
+      }
+      const position = this.getters.getCellPosition(cell.id);
+      if (this.evaluator.tryGetEvaluatedCell(position)) {
+        continue;
+      }
+      const evaluatedCell = this.evaluateLiteral(position, cell);
+      // same as the positions kept by the evaluator
+      if (evaluatedCell.value !== null || evaluatedCell.format !== undefined) {
+        positions.push(position);
+      }
+    }
+    return positions;
   }
 
   getEvaluatedCellsInZone(sheetId: UID, zone: Zone): EvaluatedCell[] {
