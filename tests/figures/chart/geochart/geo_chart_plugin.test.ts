@@ -312,6 +312,21 @@ test("Loading the geo json features triggers a render", async () => {
   expect(model.getters.getGeoJsonFeatures("world")).not.toBeUndefined();
 });
 
+test("Geo chart runtime has no error message when the region is available", () => {
+  const model = new Model({}, { external: { geoJsonService: mockGeoJsonService } });
+  createGeoChart(model, { region: "world" });
+  const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
+  expect(runtime.errorMessage).toBeUndefined();
+});
+
+test("Geo chart runtime has an error message when the region is not available", () => {
+  const geoJsonService = { ...mockGeoJsonService, isRegionAvailable: () => false };
+  const model = new Model({}, { external: { geoJsonService } });
+  createGeoChart(model, { region: "northAmerica" });
+  const runtime = model.getters.getChartRuntime("chartId") as GeoChartRuntime;
+  expect(runtime.errorMessage).toBe("Region North America is not available");
+});
+
 test("Excel export loads all the used geo json", async () => {
   const spy = jest.spyOn(mockGeoJsonService, "getTopoJson");
   const model = new Model({}, { external: { geoJsonService: mockGeoJsonService } });

@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Geo chart displays an error message instead of the canvas when the region is not available 1`] = `
+<div
+  class="o-figure-error bg-white w-100 h-100 d-flex flex-column justify-content-center align-items-center"
+>
+  <strong>
+    Region World is not available
+  </strong>
+  <br />
+   The chart is deactivated 
+</div>
+`;
+
+exports[`Geo chart displays an error message when no region is available 1`] = `
+<div
+  class="o-figure-error bg-white w-100 h-100 d-flex flex-column justify-content-center align-items-center"
+>
+  <strong>
+    No region is available
+  </strong>
+  <br />
+   The chart is deactivated 
+</div>
+`;

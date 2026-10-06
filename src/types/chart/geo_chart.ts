@@ -15,6 +15,7 @@ export interface GeoChartDefinition<T extends string | Range = Range>
 
 export type GeoChartRuntime = {
   chartJsConfig: ChartConfiguration<"choropleth">;
+  errorMessage?: string;
 };
 
 export type GeoChartProjection =
