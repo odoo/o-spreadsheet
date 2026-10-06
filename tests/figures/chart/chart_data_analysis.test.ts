@@ -188,14 +188,17 @@ describe("drag and drop chart suggestions", () => {
   });
 
   test("drop in the side panel does not create a chart", async () => {
-    const { model, fixture } = await mountSpreadsheet();
+    const { model } = await mountSpreadsheet();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "1");
     selectCell(model, "A1");
     await simulateClick(".o-data-analysis-button");
-    expect(fixture.querySelector(".o-suggestion-canvas-wrap")).toBeTruthy();
-    // width of the grid is 1000
-    await clickAndDrag(".o-suggestion-canvas-wrap", { x: 1500, y: 500 }, undefined, true);
+    expect(".o-suggestion-canvas-wrap").toHaveCount(1);
+    await clickAndDrag(".o-suggestion-canvas-wrap", { x: 1500, y: 500 }, undefined, false);
+    expect(".o-figure-dnd-container").toHaveCount(1);
+    triggerMouseEvent(".o-sidePanel", "pointerup");
+    await nextTick();
+    expect(".o-figure-dnd-container").toHaveCount(0);
     expect(model.getters.getChartIds(sheetId).length).toBe(0);
   });
 

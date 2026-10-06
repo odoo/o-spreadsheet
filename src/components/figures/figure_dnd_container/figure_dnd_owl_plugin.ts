@@ -1,7 +1,7 @@
-import { Plugin, proxy, useConfig, usePlugin } from "@odoo/owl";
+import { ComponentConstructor, Plugin, proxy, useConfig, useEffect, usePlugin } from "@odoo/owl";
 import { DRAG_THRESHOLD } from "../../../constants";
-import { isDefined } from "../../../helpers/misc";
-import { rectUnion } from "../../../helpers/rectangle";
+import { clip, isDefined } from "../../../helpers/misc";
+import { getZoomedRect, rectIntersection, rectUnion } from "../../../helpers/rectangle";
 import { ModelPlugin } from "../../../owl_plugins/model_owl_plugin";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { ChartDragStore } from "../../../stores/chart_drag_store";
@@ -13,6 +13,7 @@ import { DOMCoordinates, DOMDimension, Rect } from "../../../types/rendering";
 import { Store } from "../../../types/store_engine";
 import { getOverlappedFigure } from "../../helpers/chart_drag_and_drop";
 import { cssPropertiesToCss, rectToCss } from "../../helpers/css";
+import { gridOverlayPosition, zoomCorrectedElementRect } from "../../helpers/dom_helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
 import { dragFigureForMove, dragFigureForResize } from "../../helpers/figure_drag_helper";
 import {
@@ -36,12 +37,20 @@ interface DndState {
   horizontalSnap?: Snap<HFigureAxisType>;
   verticalSnap?: Snap<VFigureAxisType>;
   cancelDnd: (() => void) | undefined;
+  component?: ComponentConstructor;
+  componentProps?: Record<string, any>;
 }
 
 interface DragCallbacks {
-  onDragEnd: (droppedFigures: Figure[], overlappingFigureId: UID | undefined) => void;
+  onDragEnd: (
+    ev: MouseEvent,
+    droppedFigures: Figure[],
+    overlappingFigureId: UID | undefined
+  ) => void;
   onMouseUpWithoutDrag?: () => void;
 }
+
+export const FAKE_DRAGGED_FIGURE_ID = "fake_dragged_figure";
 
 export class DraggedFigurePlugin extends Plugin {
   dnd = proxy<DndState>({
@@ -57,14 +66,22 @@ export class DraggedFigurePlugin extends Plugin {
   private chartDragStore: Store<ChartDragStore> = useConfig("chartDragStore");
   private model = usePlugin(ModelPlugin).model;
 
-  private getFiguresOnScreen(): FigureUI[] {
-    const visibleFigures = this.viewStore.visibleFigures;
-    for (const figure of this.dnd.selectedFigures || []) {
-      if (!visibleFigures.some((figureUI) => figureUI.id === figure.id)) {
-        visibleFigures.push(figure);
+  setup() {
+    useEffect(() => {
+      const sheetId = this.model().getters.getActiveSheetId();
+      const draggedFigureId = this.dnd.draggedFigure?.id;
+      if (
+        draggedFigureId &&
+        draggedFigureId !== FAKE_DRAGGED_FIGURE_ID &&
+        !this.model().getters.getFigure(sheetId, draggedFigureId)
+      ) {
+        this.stopDragAndDrop();
       }
-    }
-    return visibleFigures.map((figure) => this.toScreenPosition(figure));
+    });
+  }
+
+  private getFiguresOnScreen(): FigureUI[] {
+    return this.viewStore.visibleFigures.map((figure) => this.convertToOverlayCoordinate(figure));
   }
 
   get selectedRectStyle(): string {
@@ -95,7 +112,7 @@ export class DraggedFigurePlugin extends Plugin {
     return;
   }
 
-  private toScreenPosition(figureUI: FigureUI): FigureUI {
+  private convertToOverlayCoordinate(figureUI: FigureUI): FigureUI {
     const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
     const screenFigure = { ...figureUI };
     const pane = this.getFigurePane(figureUI.id);
@@ -113,6 +130,9 @@ export class DraggedFigurePlugin extends Plugin {
   }
 
   private getFigurePane(figureId: UID): "topLeft" | "topRight" | "bottomLeft" | "bottomRight" {
+    if (figureId === FAKE_DRAGGED_FIGURE_ID) {
+      return "topLeft"; // top-left viewport to not apply any scroll adjustments, the fake figure is outside of the viewports
+    }
     const sheetId = this.model().getters.getActiveSheetId();
     const figure = this.model().getters.getFigure(sheetId, figureId);
     if (!figure) {
@@ -134,30 +154,47 @@ export class DraggedFigurePlugin extends Plugin {
   /**
    * Convert a figure's screen coordinates to spreadsheet coordinates.
    */
-  private toSpreadsheetFigure(figureUI: FigureUI): Figure {
+  private toSpreadsheetFigures(figures: FigureUI[]): Figure[] {
     const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
-    // FIXME: we need to always add the scroll (even in frozen panes) to make getPositionAnchorOffset work, something is strange
-    const spreadsheetFigure = { ...figureUI, x: figureUI.x + scrollX, y: figureUI.y + scrollY };
-    const sheetId = this.model().getters.getActiveSheetId();
-
-    return {
+    const scrolledFigures: FigureUI[] = figures.map((figureUI) => ({
       ...figureUI,
-      ...this.viewStore.viewports.getPositionAnchorOffset(sheetId, spreadsheetFigure),
-    };
+      x: figureUI.x + scrollX,
+      y: figureUI.y + scrollY,
+    }));
+
+    const figureUnion = rectUnion(...scrolledFigures);
+    const boundedUnion = { ...figureUnion };
+    boundedUnion.x = clip(boundedUnion.x, 0, this.sheetBoundaries.width - boundedUnion.width);
+    boundedUnion.y = clip(boundedUnion.y, 0, this.sheetBoundaries.height - boundedUnion.height);
+
+    const boundedFigures = scrolledFigures.map((figureUI) => ({
+      ...figureUI,
+      x: figureUI.x - (figureUnion.x - boundedUnion.x),
+      y: figureUI.y - (figureUnion.y - boundedUnion.y),
+    }));
+
+    const sheetId = this.model().getters.getActiveSheetId();
+    return boundedFigures.map((figureUI) => ({
+      ...figureUI,
+      ...this.viewStore.viewports.getPositionAnchorOffset(sheetId, figureUI),
+    }));
   }
 
-  startDraggingFigure(figureUI: FigureUI, ev: MouseEvent, callbacks: DragCallbacks) {
-    const sheetId = this.model().getters.getActiveSheetId();
+  startDraggingFigure(
+    ev: MouseEvent,
+    args: {
+      draggedFigureId: UID;
+      figuresToDrag: FigureUI[];
+      callbacks: DragCallbacks;
+      component: ComponentConstructor;
+      componentProps: Record<string, unknown>;
+    }
+  ) {
+    const { draggedFigureId, figuresToDrag, callbacks } = args;
     const zoom = this.zoomStore.zoomLevel;
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
-    const selectedFiguresIds = this.model().getters.getSelectedFigureIds();
-    const initialFigures = selectedFiguresIds
-      .map((id) => this.model().getters.getFigure(sheetId, id))
-      .filter(isDefined)
-      .map((f) => this.model().getters.getFigureUI(sheetId, f))
-      .map(this.toScreenPosition.bind(this));
-
-    const draggedFigureId = figureUI.id;
+    const initialFigures = figuresToDrag.map(this.convertToOverlayCoordinate.bind(this));
+    let previousCursor = document.body.style.cursor;
 
     let hasStartedDnd = false;
     let overlappingChartOrCarousel: FigureUI | undefined = undefined;
@@ -168,20 +205,22 @@ export class DraggedFigurePlugin extends Plugin {
       const offsetY = Math.abs(currentMousePosition.y - initialMousePosition.y);
       if (!hasStartedDnd && offsetX < DRAG_THRESHOLD && offsetY < DRAG_THRESHOLD) {
         return; // add a small threshold to avoid dnd when just clicking
+      } else if (!hasStartedDnd) {
+        hasStartedDnd = true;
+        previousCursor = document.body.style.cursor;
+        document.body.style.cursor = "grabbing";
       }
-      hasStartedDnd = true;
 
-      const selectedFigures = dragFigureForMove(
+      const draggedFigures = dragFigureForMove(
         currentMousePosition,
         initialMousePosition,
-        initialFigures,
-        this.sheetBoundaries
+        initialFigures
       );
-      const draggedFigure = selectedFigures.find((f) => f.id === draggedFigureId);
+      const draggedFigure = draggedFigures.find((f) => f.id === draggedFigureId);
 
       overlappingChartOrCarousel = undefined;
-      const otherFigures = this.getOtherFigures(selectedFigures.map((f) => f.id));
-      if (draggedFigure && !selectedFigures.find((f) => f.tag !== "chart")) {
+      const otherFigures = this.getOtherFigures(draggedFigures.map((f) => f.id));
+      if (draggedFigure && !draggedFigures.find((f) => f.tag !== "chart")) {
         overlappingChartOrCarousel = getOverlappedFigure(draggedFigure, otherFigures, [
           "carousel",
           "chart",
@@ -189,21 +228,23 @@ export class DraggedFigurePlugin extends Plugin {
       }
       this.chartDragStore.setHighlightedFigure(overlappingChartOrCarousel?.id);
 
+      this.dnd.component = args.component;
+      this.dnd.componentProps = args.componentProps;
       if (!overlappingChartOrCarousel) {
         const snapReturn = snapForMove(
-          { model: this.model(), isPositionVisible: this.isPositionVisible.bind(this) },
-          selectedFigures,
+          { model: this.model(), isPositionVisible: this.isPositionVisibleInViewports.bind(this) },
+          draggedFigures,
           otherFigures
         );
 
         this.dnd.selectedFigures = snapReturn.snappedFigures;
         this.dnd.selectedRect = this.getDndFigureRect();
-        this.dnd.draggedFigure = selectedFigures.find((f) => f.id === draggedFigureId);
+        this.dnd.draggedFigure = draggedFigures.find((f) => f.id === draggedFigureId);
         this.dnd.horizontalSnap = this.getSnap(snapReturn.horizontalSnapLine);
         this.dnd.verticalSnap = this.getSnap(snapReturn.verticalSnapLine);
       } else {
         this.dnd.draggedFigure = draggedFigure;
-        this.dnd.selectedFigures = selectedFigures;
+        this.dnd.selectedFigures = draggedFigures;
         this.dnd.selectedRect = this.getDndFigureRect();
         this.dnd.horizontalSnap = undefined;
         this.dnd.verticalSnap = undefined;
@@ -213,13 +254,15 @@ export class DraggedFigurePlugin extends Plugin {
     const onMouseUp = (ev: MouseEvent) => {
       if (this.dnd.selectedFigures) {
         callbacks.onDragEnd(
-          this.dnd.selectedFigures.map((f) => this.toSpreadsheetFigure(f)),
+          ev,
+          this.toSpreadsheetFigures(this.dnd.selectedFigures),
           overlappingChartOrCarousel?.id
         );
       } else {
         callbacks.onMouseUpWithoutDrag?.();
       }
       this.stopDragAndDrop();
+      document.body.style.cursor = previousCursor;
     };
 
     this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
@@ -235,25 +278,26 @@ export class DraggedFigurePlugin extends Plugin {
    * @param ev Mouse Event
    */
   resizeAllSelectedFigures(
-    dirX: ResizeDirection,
-    dirY: ResizeDirection,
     ev: MouseEvent,
-    callbacks: Pick<DragCallbacks, "onDragEnd">
+    args: {
+      figuresToDrag: FigureUI[];
+      dirX: ResizeDirection;
+      dirY: ResizeDirection;
+      callbacks: Pick<DragCallbacks, "onDragEnd">;
+      component: ComponentConstructor;
+      componentProps: Record<string, any>;
+    }
   ) {
+    const { figuresToDrag, dirX, dirY, callbacks } = args;
     ev.stopPropagation();
 
-    const sheetId = this.model().getters.getActiveSheetId();
     const zoom = this.zoomStore.zoomLevel;
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const initialScrollPosition = this.viewStore.activeSheetScrollInfo;
-    const selectedFiguresIds = this.model().getters.getSelectedFigureIds();
-    const initialFigures = selectedFiguresIds
-      .map((id) => this.model().getters.getFigure(sheetId, id))
-      .filter(isDefined)
-      .map((figure) => this.model().getters.getFigureUI(sheetId, figure))
-      .map(this.toScreenPosition.bind(this));
+    const initialFigures = figuresToDrag.map(this.convertToOverlayCoordinate.bind(this));
+    const previousCursor = document.body.style.cursor;
 
-    const multipleFiguresSelected = selectedFiguresIds.length > 1;
+    const multipleFiguresSelected = initialFigures.length > 1;
     if (initialFigures.length === 0) {
       return;
     }
@@ -285,6 +329,7 @@ export class DraggedFigurePlugin extends Plugin {
     }
 
     const onMouseMove = (ev: MouseEvent) => {
+      document.body.style.cursor = this.getResizeCursor(dirX, dirY);
       const currentMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
       const keepRatio =
         multipleFiguresSelected || ev.shiftKey
@@ -304,12 +349,13 @@ export class DraggedFigurePlugin extends Plugin {
         this.sheetBoundaries
       );
 
+      const otherFigures = this.getOtherFigures(initialFigures.map((f) => f.id));
       const { snappedRect, verticalSnapLine, horizontalSnapLine } = snapForResize(
-        { model: this.model(), isPositionVisible: this.isPositionVisible.bind(this) },
+        { model: this.model(), isPositionVisible: this.isPositionVisibleInViewports.bind(this) },
         dirX,
         dirY,
         resizedRect,
-        this.getOtherFigures(selectedFiguresIds)
+        otherFigures
       );
 
       const scaleX = snappedRect.width / initialRect.width;
@@ -327,16 +373,16 @@ export class DraggedFigurePlugin extends Plugin {
       this.dnd.selectedRect = this.getDndFigureRect();
       this.dnd.horizontalSnap = this.getSnap(horizontalSnapLine);
       this.dnd.verticalSnap = this.getSnap(verticalSnapLine);
+      this.dnd.component = args.component;
+      this.dnd.componentProps = args.componentProps;
     };
 
-    const onMouseUp = () => {
+    const onMouseUp = (ev: MouseEvent) => {
+      document.body.style.cursor = previousCursor;
       if (!this.dnd.selectedFigures) {
         return;
       }
-      callbacks.onDragEnd(
-        this.dnd.selectedFigures.map((figure) => this.toSpreadsheetFigure(figure)),
-        undefined
-      );
+      callbacks.onDragEnd(ev, this.toSpreadsheetFigures(this.dnd.selectedFigures), undefined);
       this.stopDragAndDrop();
     };
 
@@ -363,14 +409,21 @@ export class DraggedFigurePlugin extends Plugin {
     if (!snapLine || !this.dnd.draggedFigure) {
       return undefined;
     }
+    const sheetViewDims = this.viewStore.sheetViewDimension;
+    const viewportRect = { x: 0, y: 0, width: sheetViewDims.width, height: sheetViewDims.height };
+
+    const figuresOnScreen = this.getFiguresOnScreen();
     const figureVisibleRects = snapLine.matchedFigIds
-      .map((id) => this.getFiguresOnScreen().find((figureUI) => figureUI.id === id))
+      .map((id) => figuresOnScreen.find((figureUI) => figureUI.id === id))
+      .filter(isDefined)
+      .map((rect) => rectIntersection(rect, viewportRect)) // Consider only the visible part of the figures other than the dragged one
       .filter(isDefined);
-    const snapContainerRect = rectUnion(this.dnd.draggedFigure, ...figureVisibleRects);
+
+    const containerRect = rectUnion(this.dnd.draggedFigure, ...figureVisibleRects);
     return {
       line: snapLine,
-      containerStyle: cssPropertiesToCss(rectToCss(snapContainerRect)),
-      lineStyle: this.getSnapLineStyle(snapLine, snapContainerRect),
+      containerStyle: cssPropertiesToCss(rectToCss(containerRect)),
+      lineStyle: this.getSnapLineStyle(snapLine, containerRect),
     };
   }
 
@@ -401,23 +454,66 @@ export class DraggedFigurePlugin extends Plugin {
     this.dnd.verticalSnap = undefined;
     this.chartDragStore.setHighlightedFigure(undefined);
     this.dnd.cancelDnd = undefined;
+    this.dnd.componentProps = undefined;
+    this.dnd.component = undefined;
   }
 
-  private isPositionVisible(figureId: UID, screenPosition: DOMCoordinates) {
+  private isPositionVisibleInViewports(figureId: UID, screenPosition: DOMCoordinates) {
     const { x: viewportX, y: viewportY } = this.viewStore.mainViewportCoordinates;
     const { width: viewportWidth, height: viewportHeight } = this.viewStore.sheetViewDimension;
     const figurePane = this.getFigurePane(figureId);
 
     const checkXIsVisible = (x: number) =>
       figurePane === "topLeft" || figurePane === "bottomLeft"
-        ? x <= viewportX + viewportWidth
-        : x >= viewportX && x <= viewportX + viewportWidth;
+        ? x <= viewportWidth
+        : x >= viewportX && x <= viewportWidth;
 
     const checkYIsVisible = (y: number) =>
       figurePane === "topLeft" || figurePane === "topRight"
-        ? y <= viewportY + viewportHeight
-        : y >= viewportY && y <= viewportY + viewportHeight;
+        ? y <= viewportHeight
+        : y >= viewportY && y <= viewportHeight;
 
     return checkXIsVisible(screenPosition.x) && checkYIsVisible(screenPosition.y);
+  }
+
+  get containerRect(): Rect {
+    // FIXME replace querySelector with SpreadsheetRectPlugin once PR 9729 is merged
+    // FIXME the rect of the grid overlay should also be provided by a plugin, instead of gridOverlayPosition that might throw
+    try {
+      const zoom = this.zoomStore.zoomLevel;
+      const spreadsheetElement = document.querySelector(".o-spreadsheet")!;
+      const spreadsheetRect = zoomCorrectedElementRect(spreadsheetElement, zoom);
+      const gridPosition = gridOverlayPosition(zoom);
+      const rect = {
+        x: gridPosition.x - spreadsheetRect.x,
+        y: gridPosition.y - spreadsheetRect.y,
+        height: gridPosition.height,
+        width: spreadsheetRect.width - (gridPosition.x - spreadsheetRect.x),
+      };
+      return getZoomedRect(1 / zoom, rect);
+    } catch {
+      return { x: 0, y: 0, height: 0, width: 0 };
+    }
+  }
+
+  private getResizeCursor(dirX: ResizeDirection, dirY: ResizeDirection): string {
+    if (dirX === -1 && dirY === -1) {
+      return "nw-resize";
+    } else if (dirX === 1 && dirY === -1) {
+      return "ne-resize";
+    } else if (dirX === -1 && dirY === 1) {
+      return "sw-resize";
+    } else if (dirX === 1 && dirY === 1) {
+      return "se-resize";
+    } else if (dirX === -1) {
+      return "w-resize";
+    } else if (dirX === 1) {
+      return "e-resize";
+    } else if (dirY === -1) {
+      return "n-resize";
+    } else if (dirY === 1) {
+      return "s-resize";
+    }
+    return "default";
   }
 }
