@@ -26,7 +26,7 @@ export class CarouselUIPlugin extends UIPlugin {
     switch (cmd.type) {
       case "ADD_FIGURES_CHART_TO_CAROUSEL":
         if (
-          !this.getters.doesCarouselExist(cmd.carouselFigureId) ||
+          !this.getters.doesCarouselExist(cmd.carouselId) ||
           cmd.chartFigureIds.some(
             (figureId) => this.getters.getFigure(cmd.sheetId, figureId)?.tag !== "chart"
           )
@@ -46,16 +46,16 @@ export class CarouselUIPlugin extends UIPlugin {
         }
         return CommandResult.Success;
       case "ADD_NEW_CHART_TO_CAROUSEL":
-        if (!this.getters.doesCarouselExist(cmd.figureId)) {
+        if (!this.getters.doesCarouselExist(cmd.carouselId)) {
           return CommandResult.InvalidFigureId;
         }
         return CommandResult.Success;
 
       case "UPDATE_CAROUSEL_ACTIVE_ITEM":
-        if (!this.getters.doesCarouselExist(cmd.figureId)) {
+        if (!this.getters.doesCarouselExist(cmd.carouselId)) {
           return CommandResult.InvalidFigureId;
         } else if (
-          !this.getters.getCarousel(cmd.figureId).items.some((item) => deepEquals(item, cmd.item))
+          !this.getters.getCarousel(cmd.carouselId).items.some((item) => deepEquals(item, cmd.item))
         ) {
           return CommandResult.InvalidCarouselItem;
         }
@@ -67,18 +67,23 @@ export class CarouselUIPlugin extends UIPlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "ADD_NEW_CHART_TO_CAROUSEL":
-        this.addNewChartToCarousel(cmd.figureId, cmd.newChartId, cmd.sheetId, cmd.chartDefinition);
+        this.addNewChartToCarousel(
+          cmd.carouselId,
+          cmd.newChartId,
+          cmd.sheetId,
+          cmd.chartDefinition
+        );
         break;
       case "ADD_FIGURES_CHART_TO_CAROUSEL":
         cmd.chartFigureIds.forEach((figureId) => {
-          this.addFigureChartToCarousel(cmd.carouselFigureId, figureId, cmd.sheetId);
+          this.addFigureChartToCarousel(cmd.carouselId, figureId, cmd.sheetId);
         });
         break;
       case "DUPLICATE_CAROUSEL_CHART":
         this.duplicateCarouselChart(cmd);
         break;
       case "UPDATE_CAROUSEL_ACTIVE_ITEM":
-        this.carouselStates[cmd.figureId] = this.getCarouselItemId(cmd.item);
+        this.carouselStates[cmd.carouselId] = this.getCarouselItemId(cmd.item);
         break;
       case "POPOUT_CHART_FROM_CAROUSEL":
         this.popOutChartFromCarousel(cmd);
@@ -216,7 +221,11 @@ export class CarouselUIPlugin extends UIPlugin {
       figureId,
       definition: this.getters.carouselToCarouselData(definition),
     });
-    this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", { figureId, sheetId, item: carouselItem });
+    this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+      carouselId: figureId,
+      sheetId,
+      item: carouselItem,
+    });
   }
 
   private addFigureChartToCarousel(figureId: UID, chartFigureId: UID, sheetId: string) {
@@ -243,7 +252,7 @@ export class CarouselUIPlugin extends UIPlugin {
       definition: this.getters.getChartDefinition(chartId),
     });
     this.dispatch("DELETE_FIGURE", { sheetId, figureId: chartFigureId });
-    this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", { figureId, sheetId, item: newItem });
+    this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", { carouselId: figureId, sheetId, item: newItem });
   }
 
   private duplicateCarouselChart({

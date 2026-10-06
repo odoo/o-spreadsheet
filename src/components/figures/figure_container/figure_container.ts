@@ -3,6 +3,7 @@ import { DRAG_THRESHOLD } from "../../../constants";
 import { isDefined } from "../../../helpers/misc";
 import { render } from "../../../helpers/owl3_helpers";
 import { rectUnion } from "../../../helpers/rectangle";
+import { UuidGenerator } from "../../../helpers/uuid";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ChartDragStore } from "../../../stores/chart_drag_store";
@@ -411,7 +412,7 @@ export class FiguresContainer extends OSComponent {
         if (overlappedFigure.tag === "carousel") {
           this.model().dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
             sheetId,
-            carouselFigureId: overlappingFigureId,
+            carouselId: overlappingFigureId,
             chartFigureIds: chartFigureIds,
           });
         } else if (overlappedFigure.tag === "chart") {
@@ -419,6 +420,7 @@ export class FiguresContainer extends OSComponent {
             sheetId,
             baseFigureId: overlappingFigureId,
             chartFigureIds: [overlappingFigureId, ...chartFigureIds],
+            newCarouselId: UuidGenerator.smallUuid(),
           });
         }
       }

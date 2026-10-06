@@ -684,14 +684,14 @@ export interface UpdateCarouselCommand extends SheetDependentCommand {
 
 export interface AddNewChartToCarouselCommand extends SheetDependentCommand {
   type: "ADD_NEW_CHART_TO_CAROUSEL";
-  figureId: UID;
+  carouselId: UID;
   newChartId: UID;
   chartDefinition: ChartDefinition<string>;
 }
 
 export interface AddFiguresChartToCarouselCommand extends SheetDependentCommand {
   type: "ADD_FIGURES_CHART_TO_CAROUSEL";
-  carouselFigureId: UID;
+  carouselId: UID;
   chartFigureIds: UID[];
 }
 
@@ -704,7 +704,7 @@ export interface DuplicateCarouselChartCommand extends SheetDependentCommand {
 
 export interface UpdateCarouselActiveItemCommand extends SheetDependentCommand {
   type: "UPDATE_CAROUSEL_ACTIVE_ITEM";
-  figureId: UID;
+  carouselId: UID;
   item: CarouselItem;
 }
 
@@ -718,14 +718,15 @@ export interface MergeIntoCarouselCommand extends SheetDependentCommand {
   type: "MERGE_CHART_FIGURES_INTO_CAROUSEL";
   baseFigureId: UID;
   chartFigureIds: UID[];
+  newCarouselId: UID;
 }
 
 export interface CreateChartAndMergeIntoCarouselCommand extends SheetDependentCommand {
   type: "CREATE_CHART_AND_MERGE_INTO_CAROUSEL";
   baseFigureId: UID;
-  chartId: UID;
+  newChartId: UID;
   definition: ChartDefinition<string>;
-  figureId: UID;
+  newCarouselId: UID;
 }
 
 //------------------------------------------------------------------------------

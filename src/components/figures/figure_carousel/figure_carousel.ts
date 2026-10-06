@@ -102,7 +102,7 @@ export class CarouselFigure extends OSComponent {
 
   onCarouselTabClick(item: CarouselItem) {
     this.model().dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
-      figureId: this.props.figureUI.id,
+      carouselId: this.props.figureUI.id,
       sheetId: this.model().getters.getActiveSheetId(),
       item,
     });
