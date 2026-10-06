@@ -9,6 +9,7 @@ export class GeoLoaderEvaluation extends EvaluationPlugin {
     "geoFeatureNameToId",
     "getGeoChartAvailableRegions",
     "loadUsedGeoJsonFeatures",
+    "isRegionAvailable",
   ] as const;
 
   private readonly geoJsonService: ModelConfig["external"]["geoJsonService"];
@@ -110,5 +111,13 @@ export class GeoLoaderEvaluation extends EvaluationPlugin {
       return cachedGeoJson instanceof Promise ? cachedGeoJson : Promise.resolve();
     });
     await Promise.all(promises);
+  }
+
+  isRegionAvailable(region: string): boolean {
+    if (!this.geoJsonService) {
+      console.error("No geoJsonService provided to the model");
+      return false;
+    }
+    return this.geoJsonService.isRegionAvailable(region);
   }
 }
