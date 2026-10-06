@@ -1,13 +1,11 @@
 import type { ChartOptions } from "chart.js";
 import { Color } from "../misc";
-import { Range } from "../range";
 import { TitleDesign } from "./chart";
 import { NonDataSourceBaseChartDefinition } from "./common_chart";
 
-export interface GaugeChartDefinition<T extends string | Range = string>
-  extends NonDataSourceBaseChartDefinition {
+export interface GaugeChartDefinition extends NonDataSourceBaseChartDefinition {
   readonly type: "gauge";
-  readonly dataRange?: T;
+  readonly metric?: string;
   readonly sectionRule: SectionRule;
 }
 

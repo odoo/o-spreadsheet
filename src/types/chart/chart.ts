@@ -65,7 +65,7 @@ export type ChartDefinitionWithDataSource<T extends string | Range = Range> =
 export type ChartDefinition<T extends string | Range = string> =
   | ChartDefinitionWithDataSource<T>
   | ScorecardChartDefinition
-  | GaugeChartDefinition<T>
+  | GaugeChartDefinition
   | BubbleChartDefinition<T>;
 
 /**
@@ -277,6 +277,7 @@ export interface ChartCreationContext {
   readonly annotationLink?: string;
   readonly scorecardKeyValueFormula?: string;
   readonly scorecardBaselineFormula?: string;
+  readonly gaugeMetricFormula?: string;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;
