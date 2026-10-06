@@ -60,6 +60,7 @@ import {
   resizeColumns,
   resizeRows,
   selectCell,
+  setAutomaticEvaluation,
   setCellContent,
   setCellFormat,
   setFormat,
@@ -1040,6 +1041,33 @@ describe("renderer", () => {
       });
     }
   );
+
+  test("Overflowing text is clipped by a non-evaluated formula when automatic evaluation is disabled", () => {
+    const overflowingText = "I am a very long text";
+    const { drawGridRenderer, model, gridRendererStore, getPlugin } = setRenderer();
+    setAutomaticEvaluation(model, false);
+    resizeColumns(model, ["A"], 5);
+    setCellContent(model, "A1", overflowingText);
+    setCellContent(model, "B1", "=1");
+
+    const ctx = new MockGridRenderingContext(model, getPlugin, 1000, 1000, {});
+    drawGridRenderer(ctx);
+
+    const box = getBoxFromText(gridRendererStore, overflowingText);
+    expect(box.clipRect).toEqual({ x: 0, y: 0, width: 5, height: DEFAULT_CELL_HEIGHT });
+  });
+
+  test("Formula text of a non-evaluated formula is drawn when showing formulas with automatic evaluation disabled", () => {
+    const { drawGridRenderer, model, gridRendererStore, getPlugin } = setRenderer();
+    setAutomaticEvaluation(model, false);
+    setCellContent(model, "A1", "=SUM(1,2)");
+    setFormulaVisibility(model, true);
+
+    const ctx = new MockGridRenderingContext(model, getPlugin, 1000, 1000, {});
+    drawGridRenderer(ctx);
+
+    expect(getBoxFromText(gridRendererStore, "=SUM(1,2)")?.id).toBe("A1");
+  });
 
   test("Overflowing right-aligned text is correctly clipped", () => {
     const overflowingText = "I am a very long text";

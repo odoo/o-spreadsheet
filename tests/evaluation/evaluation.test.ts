@@ -4,6 +4,7 @@ import { functionRegistry } from "../../src/functions/function_registry";
 import { toMatrix } from "../../src/functions/helpers";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { Model } from "../../src/model";
+import { CellEvaluationPlugin } from "../../src/plugins/evaluation/cell_evaluation/cell_evaluation_plugin";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import {
   activateSheet,
@@ -36,6 +37,7 @@ import {
   createModelFromGrid,
   evaluateCell,
   evaluateGrid,
+  getPlugin,
   toCellPosition,
 } from "../test_helpers/helpers";
 import { makeStore } from "../test_helpers/stores";
@@ -1549,6 +1551,15 @@ describe("evaluate formula getter", () => {
   });
 });
 
+/**
+ * Evaluation stored by the evaluator, regardless of what is displayed when the
+ * automatic evaluation is disabled.
+ */
+function getStoredEvaluation(model: Model, xc: string) {
+  const evaluator = getPlugin(model, CellEvaluationPlugin)["evaluator"];
+  return evaluator.tryGetEvaluatedCell(toCellPosition(model.getters.getActiveSheetId(), xc));
+}
+
 describe("Automatic evaluation", () => {
   test("Can toggle automatic evaluation on and off", () => {
     const model = new Model();
@@ -1559,15 +1570,16 @@ describe("Automatic evaluation", () => {
     expect(model.getters.isAutomaticEvaluationEnabled()).toBe(true);
   });
 
-  test("Directly modified cell is evaluated even when automatic evaluation is disabled", () => {
+  test("Directly modified formula is not evaluated when automatic evaluation is disabled", () => {
     const model = new Model();
     setCellContent(model, "A1", "1");
     expect(getEvaluatedCell(model, "A1").value).toBe(1);
 
     model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
     setCellContent(model, "A1", "=1+1");
-    // The modified cell itself should be evaluated
-    expect(getEvaluatedCell(model, "A1").value).toBe(2);
+    expect(getCellContent(model, "A1")).toBe("");
+    expect(getEvaluatedCell(model, "A1").type).not.toBe(CellValueType.empty);
+    expect(getStoredEvaluation(model, "A1")).toBeUndefined();
   });
 
   test("Dependent cells are not re-evaluated when automatic evaluation is disabled", () => {
@@ -1701,5 +1713,57 @@ describe("Automatic evaluation", () => {
     // REMOVE_TABLE_STYLE dispatches UPDATE_TABLE, which makes the subtotal plugin dispatch EVALUATE_CELLS
     removeTableStyle(model, "MyStyle");
     expect(getEvaluatedCell(model, "A2").value).toBe(1);
+  });
+
+  test("Evaluated formulas are discarded by a structural change in manual mode", () => {
+    const model = createModelFromGrid({ A1: "1", A2: "=A1" });
+    setAutomaticEvaluation(model, false);
+    addColumns(model, "before", "A", 1);
+    expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.empty);
+    expect(getEvaluatedCell(model, "A2").type).toBe(CellValueType.empty);
+    expect(getEvaluatedCell(model, "B1").value).toBe(1);
+    expect(getCellContent(model, "B2")).toBe("");
+    expect(getStoredEvaluation(model, "B2")).toBeUndefined();
+  });
+});
+
+describe("Automatic evaluation disabled at model creation", () => {
+  function createUnevaluatedModelFromGrid(grid: Record<string, string>) {
+    return new Model(createModelFromGrid(grid).exportData(), { automaticEvaluation: false });
+  }
+
+  test("only literals are evaluated", () => {
+    const model = createUnevaluatedModelFromGrid({ A1: "1", A2: "=A1+1" });
+    expect(model.getters.isAutomaticEvaluationEnabled()).toBe(false);
+    expect(getCellContent(model, "A1")).toBe("1");
+    expect(getCellContent(model, "A2")).toBe("");
+    expect(getStoredEvaluation(model, "A2")).toBeUndefined();
+  });
+
+  test("literals are displayed with their format and the locale", () => {
+    const model = createUnevaluatedModelFromGrid({ A1: "1.5" });
+    setFormat(model, "A1", "0.00");
+    expect(getCellContent(model, "A1")).toBe("1.50");
+    updateLocale(model, FR_LOCALE);
+    expect(getCellContent(model, "A1")).toBe("1,50");
+  });
+
+  test("reading a formula cell does not evaluate it nor its dependencies", () => {
+    const compute = jest.fn().mockReturnValue(1);
+    addToRegistry(functionRegistry, "MY.FUNC", { description: "any function", compute, args: [] });
+    const data = createModelFromGrid({ A1: "=MY.FUNC()", A2: "=A1+1" }).exportData();
+    compute.mockClear();
+    const model = new Model(data, { automaticEvaluation: false });
+    expect(getCellContent(model, "A2")).toBe("");
+    expect(getCellContent(model, "A1")).toBe("");
+    expect(getStoredEvaluation(model, "A2")).toBeUndefined();
+    expect(getStoredEvaluation(model, "A1")).toBeUndefined();
+    expect(compute).not.toHaveBeenCalled();
+  });
+
+  test("the model is evaluated by default", () => {
+    const model = new Model(createModelFromGrid({ A2: "=1+1" }).exportData());
+    expect(model.getters.isAutomaticEvaluationEnabled()).toBe(true);
+    expect(getEvaluatedCell(model, "A2").value).toBe(2);
   });
 });
