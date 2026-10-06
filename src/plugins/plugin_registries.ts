@@ -85,7 +85,15 @@ export class CorePluginRegistry extends PluginRegistry<CorePluginConstructor> {
   }
   override add(key: string, plugin: CorePluginConstructor): this {
     this.checkDepCycle(plugin);
-    return super.add(key, plugin);
+    const result = super.add(key, plugin);
+    this.checkDependencies(plugin);
+    return result;
+  }
+
+  private checkDependencies(plugin: CorePluginConstructor) {
+    if (!plugin.dependencies) {
+      throw new Error(`Plugin ${plugin.prototype.constructor.name} has no dependencies defined`);
+    }
   }
 
   /**

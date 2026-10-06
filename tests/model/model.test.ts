@@ -53,6 +53,7 @@ registerCommand("MY_CMD_2", { category: "core" });
 describe("Model", () => {
   test("core plugin can refuse command from UI plugin", () => {
     class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
+      static dependencies = [];
       validators = {
         UPDATE_CELL: () => CommandResult.CancelledForUnknownReason,
       };
@@ -80,6 +81,7 @@ describe("Model", () => {
   test("core plugin cannot refuse command from core plugin", () => {
     let result: DispatchResult | undefined = undefined;
     class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
+      static dependencies = [];
       validators = {
         UPDATE_CELL: () => CommandResult.CancelledForUnknownReason,
       };
@@ -141,6 +143,7 @@ describe("Model", () => {
   test("Core plugins validators don't receive UI commands", () => {
     const receivedCommands: CommandTypes[] = [];
     class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
+      static dependencies = [];
       validators = {
         "*allCommands": (cmd: CoreCommand) => {
           receivedCommands.push(cmd.type);
@@ -157,6 +160,7 @@ describe("Model", () => {
   test("Core plugins handle don't receive UI commands", () => {
     const receivedCommands: CommandTypes[] = [];
     class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
+      static dependencies = [];
       handlers = {
         "*allCommands": (cmd: CoreCommand) => {
           receivedCommands.push(cmd.type);
@@ -255,6 +259,7 @@ describe("Model", () => {
   test("core plugins handlers don't receive UI commands declared explicitly", () => {
     const receivedCommands: CommandTypes[] = [];
     class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
+      static dependencies = [];
       handlers = {
         UPDATE_LOCALE: () => {},
         ACTIVATE_SHEET: () => receivedCommands.push("ACTIVATE_SHEET"),
@@ -284,6 +289,7 @@ describe("Model", () => {
 
   test("a plugin still defining the removed handle method is rejected", () => {
     class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
+      static dependencies = [];
       handle() {}
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
@@ -315,6 +321,7 @@ describe("Model", () => {
 
   test("canDispatch method is exposed and works", () => {
     class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
+      static dependencies = [];
       validators = {
         CREATE_SHEET: () => CommandResult.CancelledForUnknownReason,
       };
@@ -401,7 +408,9 @@ describe("Model", () => {
   });
 
   test("Cannot add Core plugin in the wrong registry", () => {
-    class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {}
+    class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
+      static dependencies = [];
+    }
     expect(() => addTestPlugin(corePluginRegistry, MyCorePlugin)).not.toThrow();
     expect(() => addTestPlugin(evaluationPluginRegistry, MyCorePlugin)).toThrow(
       "Plugin MyCorePlugin does not extend EvaluationPlugin"
@@ -450,12 +459,14 @@ describe("Model", () => {
   test("Cannot add an already existing core getters", () => {
     class MyCorePlugin1 extends CorePlugin<typeof MyCorePlugin1> {
       static getters = ["getSomething"];
+      static dependencies = [];
 
       getSomething() {}
     }
 
     class MyCorePlugin2 extends CorePlugin<typeof MyCorePlugin2> {
       static getters = ["getSomething"];
+      static dependencies = [];
 
       getSomething() {}
     }
@@ -498,6 +509,7 @@ describe("Model", () => {
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
 
     class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
+      static dependencies = [];
       public readonly state: number = 0;
       handlers: CommandsHandlers<CoreCommand> = {
         //@ts-ignore
@@ -555,6 +567,7 @@ describe("Model", () => {
 
   test("Core commands which dispatch UPDATE_CELL should trigger evaluation", () => {
     class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
+      static dependencies = [];
       handlers: CommandsHandlers<CoreCommand> = {
         //@ts-ignore
         MY_CMD_1: (cmd: { sheetId: UID }) => {
@@ -662,7 +675,7 @@ function makeCorePlugin(name: string, deps: CorePluginConstructor[] = []): CoreP
   return cls;
 }
 
-describe("sortByDependencies", () => {
+describe("Core plugin dependencies", () => {
   test("dependencies sorting", () => {
     const A = makeCorePlugin("A");
     const B = makeCorePlugin("B", [A]);
@@ -779,5 +792,14 @@ describe("sortByDependencies", () => {
     expect(() => registry.add("A", A)).toThrow("Cyclic plugin dependency detected: B → C → B");
     expect(() => registry.add("B", B)).toThrow("Cyclic plugin dependency detected: B → C → B");
     expect(() => registry.add("C", C)).toThrow("Cyclic plugin dependency detected: C → B → C");
+  });
+
+  test("A core plugin without a dependencies static property throws an error", () => {
+    const A = makeCorePlugin("A");
+    delete (A as any).dependencies;
+    const registry = new CorePluginRegistry();
+    expect(() => registry.add("A", A)).toThrow(
+      `Plugin ${A.prototype.constructor.name} has no dependencies defined`
+    );
   });
 });
