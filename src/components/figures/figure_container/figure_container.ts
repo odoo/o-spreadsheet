@@ -1,6 +1,7 @@
 import { onMounted, usePlugin } from "@odoo/owl";
 import { isDefined } from "../../../helpers/misc";
 import { render } from "../../../helpers/owl3_helpers";
+import { UuidGenerator } from "../../../helpers/uuid";
 import { ViewportsPlugin } from "../../../owl_plugins/viewports_owl_plugin";
 import { AnchorOffset, Figure, FigureUI, ResizeDirection } from "../../../types/figure";
 import { UID } from "../../../types/misc";
@@ -241,7 +242,7 @@ export class FiguresContainer extends OSComponent {
         if (overlappingFigure.tag === "carousel") {
           this.model().dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
             sheetId,
-            carouselFigureId: overlappingFigureId,
+            carouselId: overlappingFigureId,
             chartFigureIds: chartFigureIds,
           });
         } else if (overlappingFigure.tag === "chart") {
@@ -249,6 +250,7 @@ export class FiguresContainer extends OSComponent {
             sheetId,
             baseFigureId: overlappingFigureId,
             chartFigureIds: [overlappingFigureId, ...chartFigureIds],
+            newCarouselId: UuidGenerator.smallUuid(),
           });
         }
       }
