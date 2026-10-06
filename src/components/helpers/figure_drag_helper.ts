@@ -1,40 +1,14 @@
-import { clip } from "../../helpers/misc";
 import { FigureUI } from "../../types/figure";
-import { Getters } from "../../types/getters";
-import { PixelPosition, UID } from "../../types/misc";
+import { PixelPosition } from "../../types/misc";
 import { DOMDimension, Rect, SheetDOMScrollInfo } from "../../types/rendering";
-
-export function getSheetEndCoordinates(
-  sheetId: UID,
-  getters: Getters
-): { maxX: number; maxY: number } {
-  return {
-    maxX: getters.getColDimensions(sheetId, getters.getNumberCols(sheetId) - 1).end,
-    maxY: getters.getRowDimensions(sheetId, getters.getNumberRows(sheetId) - 1).end,
-  };
-}
 
 export function dragFigureForMove(
   { x: mouseX, y: mouseY }: PixelPosition,
   { x: mouseInitialX, y: mouseInitialY }: PixelPosition,
-  initialFigures: FigureUI[],
-  boundaries: Rect
+  initialFigures: FigureUI[]
 ): FigureUI[] {
-  let deltaX = mouseX - mouseInitialX;
-  let deltaY = mouseY - mouseInitialY;
-
-  for (const figure of initialFigures) {
-    deltaX = clip(
-      deltaX,
-      boundaries.x - figure.x,
-      boundaries.x + boundaries.width - figure.x - figure.width
-    );
-    deltaY = clip(
-      deltaY,
-      boundaries.y - figure.y,
-      boundaries.y + boundaries.height - figure.y - figure.height
-    );
-  }
+  const deltaX = mouseX - mouseInitialX;
+  const deltaY = mouseY - mouseInitialY;
 
   return initialFigures.map((f) => {
     return { ...f, x: f.x + deltaX, y: f.y + deltaY };

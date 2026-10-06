@@ -9,6 +9,10 @@ export class ChartDragStore {
   highlightedFigureId: UID | undefined = undefined;
 
   setHighlightedFigure(figureId: UID | undefined) {
+    if (figureId === this.highlightedFigureId) {
+      return "noStateChange";
+    }
     this.highlightedFigureId = figureId;
+    return "";
   }
 }

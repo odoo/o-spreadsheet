@@ -15,11 +15,6 @@ exports[`Grid component simple rendering snapshot 1`] = `
     >
       
     </div>
-    
-    
-    
-    
-    
   </div>
   <div
     class="o-grid-overlay overflow-hidden o-zoomable"

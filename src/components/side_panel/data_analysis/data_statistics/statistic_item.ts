@@ -11,7 +11,7 @@ import { UuidGenerator } from "../../../../helpers/uuid";
 import { NavigatorClipboardPlugin } from "../../../../owl_plugins/navigator_clipboard_plugin";
 import { _t } from "../../../../translation";
 import { MenuMouseEvent } from "../../../../types/misc";
-import { startChartDragAndDrop } from "../../../helpers/chart_drag_and_drop";
+import { useChartDragAndDrop } from "../../../helpers/chart_drag_and_drop";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
 import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
@@ -27,12 +27,13 @@ export class StatisticItem extends OSComponent {
   };
 
   private menuState = proxy<MenuState>({ isOpen: false, anchorRect: null, menuItems: [] });
+  private chartDnd = useChartDragAndDrop();
 
   startDragAndDrop(stat: StatValue, ev: PointerEvent) {
-    if (stat.formula === "") {
+    if (stat.formula === "" || ev.button !== 0) {
       return;
     }
-    startChartDragAndDrop(this.spEnv, getStatScorecardDefinition(stat), ev);
+    this.chartDnd.startChartDragAndDrop(ev, getStatScorecardDefinition(stat));
   }
 
   closeMenu() {
