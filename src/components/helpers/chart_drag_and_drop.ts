@@ -8,6 +8,7 @@ import {
 import { SpreadsheetChart } from "../../helpers/figures/chart";
 import { drawChartOnCanvas } from "../../helpers/figures/charts/chart_ui_common";
 import { UuidGenerator } from "../../helpers/uuid";
+import { Model } from "../../model";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { ZoomStore } from "../../stores/zoom_store";
@@ -52,6 +53,7 @@ export function useChartDragAndDrop() {
       x: startX - width / 2,
       y: startY - height / 2,
     };
+    const sheetIdFrom = model.getters.getActiveSheetId();
 
     const onDragEnd = (
       ev: MouseEvent,
@@ -63,6 +65,9 @@ export function useChartDragAndDrop() {
         return;
       }
       const sheetId = model.getters.getActiveSheetId();
+      if (sheetId !== sheetIdFrom) {
+        definition = copyDefinitionForSheet(model, definition, sheetIdFrom, sheetId);
+      }
       const overlappingFigure = overlappingFigureId
         ? model.getters.getFigure(sheetId, overlappingFigureId)
         : undefined;
@@ -116,13 +121,28 @@ export function useChartDragAndDrop() {
 }
 
 function isMouseEventInPanel(ev: MouseEvent) {
-  const panelRect = getElBoundingRect((ev.target as HTMLElement)?.closest(".o-sidePanel") || null);
+  const panel = (ev.target as HTMLElement)?.closest?.(".o-sidePanel");
+  if (!panel) {
+    return false;
+  }
+  const panelRect = getElBoundingRect(panel as HTMLElement);
   return (
     ev.clientX >= panelRect.x &&
     ev.clientX <= panelRect.x + panelRect.width &&
     ev.clientY >= panelRect.y &&
     ev.clientY <= panelRect.y + panelRect.height
   );
+}
+
+function copyDefinitionForSheet(
+  model: Model,
+  definition: ChartDefinition,
+  sheetIdFrom: UID,
+  sheetIdTo: UID
+): ChartDefinition {
+  const chart = SpreadsheetChart.fromStrDefinition(model.getters, sheetIdFrom, definition);
+  const copied = chart.copyInSheetId(sheetIdTo);
+  return SpreadsheetChart.fromDefinition(model.getters, sheetIdTo, copied).getDefinition();
 }
 
 class SimpleChartCanvas extends OSComponent {

@@ -12,10 +12,12 @@ import {
 } from "../../src/constants";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 
+import { DraggedFigurePlugin } from "../../src/components/figures/figure_dnd_container/figure_dnd_owl_plugin";
 import { downloadFile } from "../../src/components/helpers/dom_helpers";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { toXC } from "../../src/helpers/coordinates";
 import { render } from "../../src/helpers/owl3_helpers";
+import { toZone } from "../../src/helpers/zones";
 import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
 import { figureRegistry } from "../../src/registries/figures_registry";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
@@ -24,6 +26,7 @@ import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadshe
 import {
   activateSheet,
   addColumns,
+  createCarousel,
   createChart,
   createGaugeChart,
   createImage,
@@ -45,6 +48,7 @@ import { TEST_CHART_DATA } from "../test_helpers/constants";
 import {
   clickAndDrag,
   getElStyle,
+  hoverBottomBarSheet,
   keyDown,
   keyUp,
   simulateClick,
@@ -60,6 +64,7 @@ import {
   mockNotificationMethods,
   mountSpreadsheet,
   nextTick,
+  toRangeData,
 } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
@@ -951,18 +956,23 @@ describe("figures", () => {
       }
     );
 
-    test("Deleting a figure during drag and drop does not crash", async () => {
+    test("Deleting a figure during drag and drop does not crash and stops the drag & drop", async () => {
       createFigure(model, {
         id: "someuuid",
         col: 5,
         row: 6,
         offset: { x: 7, y: 8 },
       });
+      const dragFigurePlugin = getPlugin(DraggedFigurePlugin);
       await nextTick();
       await clickAndDrag(".o-figure", { x: 150, y: 100 }, undefined, false);
       deleteFigure(model, "someuuid", sheetId);
+      expect(dragFigurePlugin.dnd.draggedFigure?.id).toBe("someuuid");
+      expect(document.body.style.cursor).toBe("grabbing");
       await nextTick();
       expect(model.getters.getFigure(sheetId, "someuuid")).toEqual(undefined);
+      expect(dragFigurePlugin.dnd.draggedFigure).toBeUndefined();
+      expect(document.body.style.cursor).toBe("");
     });
 
     test("Can drag and drop multiple figures", async () => {
@@ -1049,6 +1059,187 @@ describe("figures", () => {
         row: 0,
         offset: { x: 1, y: 0 },
       });
+    });
+  });
+
+  describe("Drop a figure on another sheet", () => {
+    /** Drag a figure, hover another sheet in the bottom bar to activate it, then drop the figure */
+    async function dropFigureOnSheet(
+      figureSelector: string,
+      sheetIdTo: UID,
+      dragOffset: { x: Pixel; y: Pixel }
+    ) {
+      await clickAndDrag(figureSelector, dragOffset, undefined, false);
+      await hoverBottomBarSheet(sheetIdTo);
+      triggerMouseEvent(window, "pointerup");
+      await nextTick();
+    }
+
+    test("Can drag & drop a chart into another sheet", async () => {
+      createSheet(model, { sheetId: "sh2" });
+      createChart(model, TEST_CHART_DATA.basicChart, "chartId", sheetId, {
+        figureId: "figureId",
+        col: 0,
+        row: 0,
+        offset: { x: 0, y: 0 },
+        size: { width: 200, height: 200 },
+      });
+      await nextTick();
+
+      await dropFigureOnSheet(".o-figure", "sh2", { x: cellWidth + 10, y: cellHeight + 10 });
+
+      expect(model.getters.getFigures(sheetId)).toHaveLength(0);
+      expect(model.getters.getFigures("sh2")).toMatchObject([
+        { tag: "chart", col: 1, row: 1, offset: { x: 10, y: 10 }, width: 200, height: 200 },
+      ]);
+      expect(model.getters.getSelectedFigureIds()).toEqual([model.getters.getFigures("sh2")[0].id]);
+    });
+
+    test("A chart dropped on another sheet keeps its ranges pointing to the original sheet", async () => {
+      createSheet(model, { sheetId: "sh2" });
+      createChart(model, TEST_CHART_DATA.basicChart, "chartId", sheetId, {
+        figureId: "figureId",
+      });
+      await nextTick();
+
+      await dropFigureOnSheet(".o-figure", "sh2", { x: 0, y: 0 });
+
+      expect(model.getters.getChartIds(sheetId)).toHaveLength(0);
+      const chartIds = model.getters.getChartIds("sh2");
+      expect(chartIds).toHaveLength(1);
+      expect(model.getters.getChartDefinition(chartIds[0])).toMatchObject({
+        dataSource: {
+          dataSets: [{ dataRange: "Sheet1!B1:B4" }],
+          labelRange: "Sheet1!A2:A4",
+        },
+      });
+    });
+
+    test("Can drag & drop an image into another sheet", async () => {
+      createSheet(model, { sheetId: "sh2" });
+      createImage(model, { figureId: "figureId", size: { width: 100, height: 100 } });
+      await nextTick();
+
+      await dropFigureOnSheet(".o-figure", "sh2", { x: cellWidth, y: cellHeight });
+
+      expect(model.getters.getFigures(sheetId)).toHaveLength(0);
+      expect(model.getters.getFigures("sh2")).toMatchObject([
+        { tag: "image", col: 1, row: 1, offset: { x: 0, y: 0 } },
+      ]);
+    });
+
+    test("Can drag & drop a carousel into another sheet", async () => {
+      createSheet(model, { sheetId: "sh2" });
+      createCarousel(model, {
+        items: [{ type: "carouselDataView", rangeData: toRangeData(sheetId, "A1:B1") }],
+      });
+      await nextTick();
+
+      await dropFigureOnSheet(".o-figure", "sh2", { x: cellWidth, y: cellHeight });
+
+      expect(model.getters.getFigures(sheetId)).toHaveLength(0);
+      expect(model.getters.getFigures("sh2")).toMatchObject([
+        { tag: "carousel", col: 1, row: 1, offset: { x: 0, y: 0 } },
+      ]);
+      expect(model.getters.getCarousel(model.getters.getFigures("sh2")[0].id)).toMatchObject({
+        items: [{ type: "carouselDataView", range: { sheetId, zone: toZone("A1:B1") } }],
+      });
+    });
+
+    test("Can drag & drop multiple figures into another sheet", async () => {
+      createSheet(model, { sheetId: "sh2" });
+      createChart(model, TEST_CHART_DATA.basicChart, "chartId1", sheetId, {
+        figureId: "figureId1",
+        col: 0,
+        row: 0,
+        offset: { x: 0, y: 0 },
+        size: { width: 100, height: 100 },
+      });
+      createImage(model, {
+        figureId: "figureId2",
+        col: 2,
+        row: 2,
+        offset: { x: 0, y: 0 },
+        size: { width: 100, height: 100 },
+      });
+      await nextTick();
+      selectFigure(model, "figureId1");
+      selectFigure(model, "figureId2", true);
+      await nextTick();
+
+      await dropFigureOnSheet(".o-figure", "sh2", { x: cellWidth, y: cellHeight });
+
+      expect(model.getters.getFigures(sheetId)).toHaveLength(0);
+      expect(model.getters.getFigures("sh2")).toMatchObject([
+        { tag: "chart", col: 1, row: 1, offset: { x: 0, y: 0 } },
+        { tag: "image", col: 3, row: 3, offset: { x: 0, y: 0 } },
+      ]);
+    });
+
+    test("Dropping a chart onto a chart of another sheet merges them into a carousel", async () => {
+      createSheet(model, { sheetId: "sh2" });
+      createChart(model, TEST_CHART_DATA.basicChart, "chartId", sheetId, {
+        figureId: "figureId",
+        col: 0,
+        row: 0,
+        offset: { x: 300, y: 300 },
+        size: { width: 200, height: 200 },
+      });
+      createChart(model, TEST_CHART_DATA.basicChart, "targetChartId", "sh2", {
+        figureId: "targetFigureId",
+        col: 0,
+        row: 0,
+        offset: { x: 0, y: 0 },
+        size: { width: 200, height: 200 },
+      });
+      await nextTick();
+
+      await clickAndDrag(".o-figure", { x: 0, y: 0 }, { x: 300, y: 300 }, false);
+      await hoverBottomBarSheet("sh2");
+      triggerMouseEvent(window, "pointermove", 50, 50);
+      triggerMouseEvent(window, "pointerup");
+      await nextTick();
+
+      expect(model.getters.getFigures(sheetId)).toHaveLength(0);
+      const figures = model.getters.getFigures("sh2");
+      expect(figures).toMatchObject([
+        { tag: "carousel", col: 0, row: 0, offset: { x: 0, y: 0 }, width: 200, height: 200 },
+      ]);
+      expect(model.getters.getCarousel(figures[0].id).items).toMatchObject([
+        { type: "chart", chartId: "targetChartId" },
+        { type: "chart" },
+      ]);
+    });
+
+    test("Dropping a chart onto a carousel of another sheet adds it to the carousel", async () => {
+      createSheet(model, { sheetId: "sh2" });
+      createChart(model, TEST_CHART_DATA.basicChart, "chartId", undefined, {
+        figureId: "figureId",
+        col: 0,
+        row: 0,
+        offset: { x: 300, y: 300 },
+        size: { width: 200, height: 200 },
+      });
+      createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId", "sh2", {
+        col: 0,
+        row: 0,
+        offset: { x: 0, y: 0 },
+        size: { width: 200, height: 200 },
+      });
+      await nextTick();
+
+      await clickAndDrag(".o-figure", { x: 0, y: 0 }, { x: 300, y: 300 }, false);
+      await hoverBottomBarSheet("sh2");
+      triggerMouseEvent(window, "pointermove", 50, 50);
+      triggerMouseEvent(window, "pointerup");
+      await nextTick();
+
+      expect(model.getters.getFigures(sheetId)).toHaveLength(0);
+      expect(model.getters.getFigures("sh2")).toMatchObject([{ id: "carouselId" }]);
+      expect(model.getters.getCarousel("carouselId").items).toMatchObject([
+        { type: "carouselDataView" },
+        { type: "chart" },
+      ]);
     });
   });
 

@@ -39,6 +39,18 @@
               onMouseDown="(ev) => this.onSheetMouseDown(sheet.id, ev)"
             />
           </t>
+          <div
+            t-if="this.shouldHaveHoverScrollOverlay('left')"
+            class="o-bottom-bar-scroll-overlay position-absolute start-0 top-0 h-100 z-1"
+            t-on-pointerenter="() => this.onStartHoverScrollOverlay('left')"
+            t-on-pointerleave="() => this.onStopHoverScrollOverlay()"
+          />
+          <div
+            t-if="this.shouldHaveHoverScrollOverlay('right')"
+            class="o-bottom-bar-scroll-overlay position-absolute end-0 top-0 h-100 z-1"
+            t-on-pointerenter="() => this.onStartHoverScrollOverlay('right')"
+            t-on-pointerleave="() => this.onStopHoverScrollOverlay()"
+          />
         </div>
         <div
           class="o-bottom-bar-fade-out position-absolute h-100 w-100 pe-none"
@@ -59,7 +71,9 @@
             <div
               class="o-bottom-bar-arrow o-bottom-bar-arrow-left d-flex align-items-center"
               t-att-class="{'o-disabled': !this.state.isSheetListScrollableLeft}"
-              t-on-click="this.onArrowLeft">
+              t-on-click="this.onArrowLeft"
+              t-on-pointerenter="() => this.onStartHoverScrollOverlay('left')"
+              t-on-pointerleave="() => this.onStopHoverScrollOverlay()">
               <t t-call="o-spreadsheet-Icon.CARET_LEFT"/>
             </div>
           </Ripple>
@@ -73,7 +87,9 @@
             <div
               class="o-bottom-bar-arrow o-bottom-bar-arrow-right d-flex align-items-center"
               t-att-class="{'o-disabled': !this.state.isSheetListScrollableRight}"
-              t-on-click="this.onArrowRight">
+              t-on-click="this.onArrowRight"
+              t-on-pointerenter="() => this.onStartHoverScrollOverlay('right')"
+              t-on-pointerleave="() => this.onStopHoverScrollOverlay()">
               <t t-call="o-spreadsheet-Icon.CARET_RIGHT"/>
             </div>
           </Ripple>

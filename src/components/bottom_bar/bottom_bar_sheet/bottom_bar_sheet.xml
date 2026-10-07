@@ -6,6 +6,9 @@
         tabindex="-1"
         composerFocusableElement="true"
         t-on-pointerdown="(ev) => this.onMouseDown(ev)"
+        t-on-mouseenter="this.onMouseEnter"
+        t-on-mouseleave="this.onMouseLeave"
+        t-on-transitionend="this.onFillAnimationEnd"
         t-on-click="this.onClick"
         t-on-contextmenu="(ev) => this.onContextMenu(ev)"
         t-ref="this.sheetDivRef"
@@ -13,7 +16,7 @@
         t-att-style="this.props.style"
         t-att-title="this.sheetName"
         t-att-data-id="this.props.sheetId"
-        t-att-class="{active: this.isSheetActive}">
+        t-att-class="{active: this.isSheetActive, 'o-fill-animation': this.hasFillAnimation}">
         <span t-if="this.isSheetLocked" class="me-1 lock-icon">
           <t t-call="o-spreadsheet-Icon.LOCK"/>
         </span>

@@ -38,6 +38,7 @@ import { ColorThemeName } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
 import { NotificationCallbacks } from "../../types/stores/notification_store_methods";
 import { BottomBar } from "../bottom_bar/bottom_bar";
+import { BottomBarSheetHoverPlugin } from "../bottom_bar/bottom_bar_sheet/bottom_bar_sheet_hover_owl_plugin";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { FiguresDragAndDropContainer } from "../figures/figure_dnd_container/figure_dnd_container";
 import { DraggedFigurePlugin } from "../figures/figure_dnd_container/figure_dnd_owl_plugin";
@@ -149,7 +150,7 @@ export class Spreadsheet extends Component {
     this.zoomStore = useStore(ZoomStore);
 
     providePluginsIfNotPresent([NotificationPlugin]);
-    providePlugins([ImageProviderPlugin], {
+    providePlugins([ImageProviderPlugin, BottomBarSheetHoverPlugin], {
       fileStore: this.model().config.external.fileStore,
     });
     providePlugins([DraggedFigurePlugin], {

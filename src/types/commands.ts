@@ -360,6 +360,14 @@ export interface UpdateFiguresCommand {
   figures: UpdateFiguresPayload[];
 }
 
+export interface MoveFiguresToSheetCommand extends SheetDependentCommand {
+  type: "MOVE_FIGURES_TO_SHEET";
+  sheetIdTo: UID;
+  figures: Figure[];
+  /** Chart or carousel of `sheetIdTo` the figures were dropped onto */
+  overlappingFigureId?: UID;
+}
+
 export interface DeleteFigureCommand extends SheetDependentCommand {
   type: "DELETE_FIGURE";
   figureId: UID;
@@ -1162,6 +1170,7 @@ export type LocalCommand =
   | UpdateChartRegionCommand
   | UpdateColorSchemeCommand
   | UpdateFiguresCommand
+  | MoveFiguresToSheetCommand
   | DeleteFiguresCommand
   | MergeIntoCarouselCommand
   | CreateChartAndMergeIntoCarouselCommand
