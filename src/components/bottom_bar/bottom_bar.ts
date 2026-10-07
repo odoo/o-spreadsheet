@@ -1,4 +1,4 @@
-import { onWillUpdateProps, proxy, signal, usePlugin, useProps } from "@odoo/owl";
+import { onWillDestroy, onWillUpdateProps, proxy, signal, usePlugin, useProps } from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
 import { UuidGenerator } from "../../helpers/uuid";
 import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
@@ -13,6 +13,7 @@ import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
 import { BottomBarSheet } from "./bottom_bar_sheet/bottom_bar_sheet";
+import { BottomBarSheetHoverPlugin } from "./bottom_bar_sheet/bottom_bar_sheet_hover_owl_plugin";
 import { BottomBarStatistic } from "./bottom_bar_statistic/bottom_bar_statistic";
 
 // -----------------------------------------------------------------------------
@@ -39,9 +40,12 @@ export class BottomBar extends OSComponent {
   static components = { MenuPopover, Ripple, BottomBarSheet, BottomBarStatistic };
 
   protected isSmallPlugin = usePlugin(IsSmallPlugin);
+  protected bottomBarSheetHoverPlugin = usePlugin(BottomBarSheetHoverPlugin);
 
   private bottomBarRef = signal.ref();
   private sheetListRef = signal.ref();
+  private timeoutBeforeEdgeScrollId: number | undefined = undefined;
+  private edgeScrollIntervalId: number | undefined = undefined;
 
   private dragAndDrop = useDragAndDropListItems();
   private targetScroll: number | undefined = undefined;
@@ -68,6 +72,10 @@ export class BottomBar extends OSComponent {
         this.dragAndDrop.cancel();
       }
       this.sheetList = visibleSheets;
+    });
+    onWillDestroy(() => {
+      clearTimeout(this.timeoutBeforeEdgeScrollId);
+      clearInterval(this.edgeScrollIntervalId);
     });
   }
 
@@ -277,5 +285,45 @@ export class BottomBar extends OSComponent {
       return 0;
     }
     return sheetListEl.scrollWidth - sheetListEl.clientWidth;
+  }
+
+  shouldHaveHoverScrollOverlay(direction: "left" | "right") {
+    const canScroll =
+      direction === "left"
+        ? this.state.isSheetListScrollableLeft
+        : this.state.isSheetListScrollableRight;
+    return (
+      canScroll && this.bottomBarSheetHoverPlugin.sheetHoverAnimationEndCallback() !== undefined
+    );
+  }
+
+  onStartHoverScrollOverlay(direction: "left" | "right") {
+    window.clearTimeout(this.timeoutBeforeEdgeScrollId);
+    if (this.shouldHaveHoverScrollOverlay(direction)) {
+      this.timeoutBeforeEdgeScrollId = window.setTimeout(
+        () => this.startEdgeScroll(direction),
+        200
+      );
+    }
+  }
+
+  onStopHoverScrollOverlay() {
+    window.clearTimeout(this.timeoutBeforeEdgeScrollId);
+    this.stopEdgeScroll();
+  }
+
+  private startEdgeScroll(direction: "left" | "right") {
+    if (this.edgeScrollIntervalId) {
+      window.clearInterval(this.edgeScrollIntervalId);
+    }
+    this.edgeScrollIntervalId = window.setInterval(() => {
+      const offset = (direction === "left" ? -1 : 1) * 3;
+      this.sheetListRef()!.scrollLeft += offset;
+    }, 5);
+  }
+
+  private stopEdgeScroll() {
+    window.clearInterval(this.edgeScrollIntervalId);
+    this.edgeScrollIntervalId = undefined;
   }
 }
