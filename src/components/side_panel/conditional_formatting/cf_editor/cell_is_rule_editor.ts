@@ -14,6 +14,7 @@ export class CellIsRuleEditor extends OSComponent {
   };
   protected props = useProps({
     store: types.Store<ConditionalFormattingEditorStore>(),
+    sheetId: types.UID(),
   });
 
   getTextDecoration = getTextDecoration;

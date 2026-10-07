@@ -58,7 +58,7 @@ class PluginTestRange extends CorePlugin<typeof PluginTestRange> {
           break;
         case "RESIZE":
         case "MOVE":
-        case "CHANGE":
+        case "RENAME":
           this.ranges[i] = change.range;
           break;
       }
