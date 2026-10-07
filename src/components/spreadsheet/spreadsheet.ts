@@ -26,7 +26,6 @@ import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { PrintPlugin } from "../../owl_plugins/print_owl_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
-import { ChartDragStore } from "../../stores/chart_drag_store";
 import { ClipboardStore } from "../../stores/clipboard_store";
 import { ModelStore } from "../../stores/model_store";
 import { ScreenWidthStore } from "../../stores/screen_width_store";
@@ -167,7 +166,6 @@ export class Spreadsheet extends Component {
     providePlugins([DraggedFigurePlugin], {
       viewStore: this.viewStore,
       zoomStore: this.zoomStore,
-      chartDragStore: useStore(ChartDragStore),
     });
 
     this.notificationPlugin = usePlugin(NotificationPlugin);
