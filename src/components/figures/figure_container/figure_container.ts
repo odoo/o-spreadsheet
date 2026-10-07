@@ -2,7 +2,6 @@ import { onMounted, usePlugin } from "@odoo/owl";
 import { isDefined } from "../../../helpers/misc";
 import { render } from "../../../helpers/owl3_helpers";
 import { useStore } from "../../../store_engine/store_hooks";
-import { ChartDragStore } from "../../../stores/chart_drag_store";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { AnchorOffset, Figure, FigureUI, ResizeDirection } from "../../../types/figure";
 import { UID } from "../../../types/misc";
@@ -88,12 +87,10 @@ export class FiguresContainer extends OSComponent {
   static components = { FigureComponent };
 
   private viewStore!: Store<ViewportsStore>;
-  private chartDragStore!: Store<ChartDragStore>;
   private draggedFigurePlugin = usePlugin(DraggedFigurePlugin);
 
   setup() {
     this.viewStore = useStore(ViewportsStore);
-    this.chartDragStore = useStore(ChartDragStore);
     onMounted(() => {
       // horrible, but necessary
       // the following line ensures that we render the figures with the correct
@@ -321,7 +318,7 @@ export class FiguresContainer extends OSComponent {
   }
 
   getFigureClass(figureUI: FigureUI): string {
-    if (figureUI.id !== this.chartDragStore.highlightedFigureId) {
+    if (figureUI.id !== this.draggedFigurePlugin.dnd.overlappingFigureId) {
       return "";
     }
     return "o-add-to-carousel";
