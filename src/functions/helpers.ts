@@ -892,7 +892,7 @@ export function visitMatchingRanges(
       );
     }
 
-    const description = toString(args[i + 1] as Maybe<FunctionResultObject>);
+    const description = toLocaleString(args[i + 1] as Maybe<FunctionResultObject>, locale);
     const predicate = getPredicate(description, locale);
     if (isQuery && typeof predicate.operand === "string") {
       predicate.operand += "*";
