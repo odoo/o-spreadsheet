@@ -223,8 +223,27 @@ export class FiguresContainer extends OSComponent {
       }
     };
 
+    const sheetIdFrom = this.model().getters.getActiveSheetId();
+
     const onDragEnd = (droppedFigures: Figure[], overlappingFigureId: UID | undefined) => {
       const sheetId = this.model().getters.getActiveSheetId();
+      if (sheetId !== sheetIdFrom) {
+        // the active sheet changed during the drag & drop: move the figures to the new sheet
+        this.model().dispatch("MOVE_FIGURES_TO_SHEET", {
+          sheetId: sheetIdFrom,
+          sheetIdTo: sheetId,
+          figures: droppedFigures.map(({ id, col, row, offset, width, height }) => ({
+            figureId: id,
+            col,
+            row,
+            offset,
+            width,
+            height,
+          })),
+          overlappingFigureId,
+        });
+        return;
+      }
       const overlappingFigure = overlappingFigureId
         ? this.model().getters.getFigure(sheetId, overlappingFigureId)
         : undefined;
@@ -253,12 +272,11 @@ export class FiguresContainer extends OSComponent {
       }
     };
 
-    const sheetId = this.model().getters.getActiveSheetId();
     const initialFigures = this.model()
       .getters.getSelectedFigureIds()
-      .map((id) => this.model().getters.getFigure(sheetId, id))
+      .map((id) => this.model().getters.getFigure(sheetIdFrom, id))
       .filter(isDefined)
-      .map((f) => this.model().getters.getFigureUI(sheetId, f));
+      .map((f) => this.model().getters.getFigureUI(sheetIdFrom, f));
 
     this.draggedFigurePlugin.startDraggingFigure(ev, {
       draggedFigureId: figureUI.id,
