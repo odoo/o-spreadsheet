@@ -150,6 +150,8 @@ export interface CellPosition {
   sheetId: UID;
 }
 
+export type Column<T> = (T | undefined)[] | undefined;
+
 export const borderStyles = ["thin", "medium", "thick", "dashed", "dotted"] as const;
 export type BorderStyle = (typeof borderStyles)[number];
 // A complete border description is a pair [style, color]
@@ -169,6 +171,13 @@ export interface Border {
   left?: BorderDescr;
   bottom?: BorderDescr;
   right?: BorderDescr;
+}
+
+export interface BorderOrNull {
+  top?: BorderDescr | null;
+  left?: BorderDescr | null;
+  bottom?: BorderDescr | null;
+  right?: BorderDescr | null;
 }
 
 export type ReferenceDenormalizer = (range: Range) => FunctionResultObject;

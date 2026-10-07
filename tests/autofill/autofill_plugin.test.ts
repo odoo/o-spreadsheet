@@ -1,6 +1,7 @@
 import "../test_helpers/helpers";
 
 import { Border, Style } from "../../src";
+import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { buildSheetLink } from "../../src/helpers/misc";
 import { toZone } from "../../src/helpers/zones";
@@ -21,6 +22,7 @@ import {
   setCellContent,
   setFormat,
   setSelection,
+  setZoneBorders,
   updateCell,
 } from "../test_helpers/commands_helpers";
 import {
@@ -678,6 +680,13 @@ describe("Autofill", () => {
     expect(getCellText(model, "B2")).toBe("=C3");
     autofill(model, "B2", "B1"); // UP
     expect(getCellText(model, "B1")).toBe("=C2");
+  });
+
+  test("src/components/autofill/autofill_store.ts:267 — autofill replaces the whole border of the target cell", () => {
+    setZoneBorders(model, { position: "top" }, ["A1"]);
+    setZoneBorders(model, { position: "all" }, ["A3"]);
+    autofill(model, "A1", "A3");
+    expect(getBorder(model, "A3")).toEqual({ top: DEFAULT_BORDER_DESC });
   });
 
   test("Autofill empty cell should erase others", () => {

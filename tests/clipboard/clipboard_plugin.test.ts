@@ -345,6 +345,30 @@ describe("clipboard", () => {
     });
   });
 
+  test("borders_clipboard.ts:179 — bottom border of the cell above the copied cell is not pasted above the target", () => {
+    ({ model, store } = makeStore(ClipboardStore));
+    setZoneBorders(model, { position: "bottom" }, ["A1"]);
+    copy(model, "A2");
+    paste(model, "C5");
+    expect(getBorder(model, "C4")).toBeNull();
+  });
+
+  test("borders_clipboard.ts:179 — left border of the cell right of the copied cell is not pasted right of the target", () => {
+    ({ model, store } = makeStore(ClipboardStore));
+    setZoneBorders(model, { position: "left" }, ["B1"]);
+    copy(model, "A1");
+    paste(model, "D5");
+    expect(getBorder(model, "E5")).toBeNull();
+  });
+
+  test("borders_clipboard.ts:179 — top border of the cell below the copied cell is not pasted below the target", () => {
+    ({ model, store } = makeStore(ClipboardStore));
+    setZoneBorders(model, { position: "top" }, ["A2"]);
+    copy(model, "A1");
+    paste(model, "D5");
+    expect(getBorder(model, "D6")).toBeNull();
+  });
+
   test("can copy a cell with a format", () => {
     ({ model, store } = makeStore(ClipboardStore));
     setCellContent(model, "B2", "0.451");

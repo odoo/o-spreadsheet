@@ -142,6 +142,20 @@ export function range(start: number, end: number, step = 1) {
   return array;
 }
 
+export function* rangeIterator(start: number, end: number, step = 1) {
+  if (end <= start && step > 0) {
+    return [];
+  }
+  if (step === 0) {
+    throw new Error("range() step must not be zero");
+  }
+  const length = Math.ceil(Math.abs((end - start) / step));
+  for (let i = 0; i < length; i++) {
+    yield start + i * step;
+  }
+  return;
+}
+
 /**
  * Groups consecutive numbers.
  * The input array is assumed to be sorted
@@ -804,6 +818,20 @@ export function getMissingHeadersForSpreadResult(
   const missingRows = row + evaluated[0].length - numberOfRows;
   const missingCols = col + evaluated.length - numberOfCols;
   return { missingRows, missingCols };
+}
+export function isObjectEmptyOrNullRecursively(obj: any) {
+  if (obj === null || obj === undefined || Object.keys(obj).length === 0) {
+    return true;
+  }
+  for (const value of Object.values(obj)) {
+    if (
+      value !== undefined &&
+      (value === null || typeof value !== "object" || !isObjectEmptyOrNullRecursively(value))
+    ) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /*

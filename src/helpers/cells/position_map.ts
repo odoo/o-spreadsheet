@@ -80,4 +80,16 @@ export class PositionMap<T> {
       yield [position, map[sheetId][col][row]];
     }
   }
+
+  isEmpty(): boolean {
+    const map = this.map;
+    for (const sheetId in map) {
+      for (const col in map[sheetId]) {
+        for (const _ in map[sheetId][col]) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
 }
