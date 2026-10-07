@@ -5,6 +5,7 @@ import {
   proxy,
   signal,
   useListener,
+  usePlugin,
   useProps,
 } from "@odoo/owl";
 import { throttle } from "../../../helpers/misc";
@@ -24,6 +25,7 @@ import { cssPropertiesToCss } from "../../helpers/css";
 import { getElBoundingRect, isMobileOS } from "../../helpers/dom_helpers";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
+import { BottomBarSheetHoverPlugin } from "./bottom_bar_sheet_hover_owl_plugin";
 
 interface State {
   isEditing: boolean;
@@ -64,6 +66,10 @@ export class BottomBarSheet extends OSComponent {
   private editionState: "initializing" | "editing" = "initializing";
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
+  private hoverSheetPlugin = usePlugin(BottomBarSheetHoverPlugin);
+
+  private sheetHoverTimeoutId = 0;
+
   setup() {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     useListener(window, "click", this.onExternalClick.bind(this), { capture: true });
@@ -171,6 +177,24 @@ export class BottomBarSheet extends OSComponent {
     this.props.onMouseDown(ev);
   }
 
+  onMouseEnter() {
+    this.sheetHoverTimeoutId = window.setTimeout(() => {
+      this.hoverSheetPlugin.hoverSheet(this.props.sheetId);
+    }, 200);
+  }
+
+  onMouseLeave() {
+    if (this.sheetHoverTimeoutId) {
+      window.clearTimeout(this.sheetHoverTimeoutId);
+      this.sheetHoverTimeoutId = 0;
+    }
+    this.hoverSheetPlugin.stopHoverSheet(this.props.sheetId);
+  }
+
+  onFillAnimationEnd() {
+    this.hoverSheetPlugin.onSheetHoverAnimationEnd(this.props.sheetId);
+  }
+
   private activateSheet() {
     this.model().dispatch("ACTIVATE_SHEET", {
       sheetIdFrom: this.model().getters.getActiveSheetId(),
@@ -244,6 +268,10 @@ export class BottomBarSheet extends OSComponent {
     if ((ev.target as HTMLElement).isContentEditable) {
       return;
     }
+    if (this.hoverSheetPlugin.hasHoverSheetCallback()) {
+      ev.preventDefault();
+      return;
+    }
     if (!this.isSheetActive) {
       this.activateSheet();
     }
@@ -309,5 +337,9 @@ export class BottomBarSheet extends OSComponent {
 
   get isSheetLocked() {
     return this.model().getters.isSheetLocked(this.props.sheetId);
+  }
+
+  get hasFillAnimation() {
+    return this.hoverSheetPlugin.shouldRunAnimationOnSheetHover(this.props.sheetId);
   }
 }
