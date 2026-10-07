@@ -2,14 +2,15 @@ import { ChartMeta } from "chart.js";
 import { Range } from "../../../..";
 import { ChartShowValuesPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
 import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
-import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import { ChartDefinition, ChartRuntimeGenerationArgs } from "../../../../types/chart/chart";
+import { ColorGridChartDefinition } from "../../../../types/chart/common_chart";
 import { PyramidChartDefinition } from "../../../../types/chart/pyramid_chart";
 import {
   SunburstChartDefaults,
   SunburstChartDefinition,
 } from "../../../../types/chart/sunburst_chart";
 import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
+import { isNumberResult } from "../../../cells/cell_evaluation";
 import { humanizeNumber } from "../../../format/format";
 import { formatChartDatasetValue } from "../chart_common";
 
@@ -30,19 +31,19 @@ export function getChartShowValues(
   };
 }
 
-export function getCalendarChartShowValues(
-  definition: CalendarChartDefinition,
+export function getColorGridChartShowValues(
+  definition: ColorGridChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartShowValuesPluginOptions {
-  const { locale, axisFormats } = args;
+  const { locale, dataSetsValues } = args;
   return {
-    type: "calendar",
+    type: definition.type,
     horizontal: false,
     showValues: "showValues" in definition ? !!definition.showValues : false,
     background: () => definition.background,
-    callback: (_value: number | string, dataset: ChartMeta<any>, index) => {
-      const value = dataset._dataset.values[index];
-      return value === undefined ? "" : humanizeNumber({ value, format: axisFormats?.y }, locale);
+    callback: (_value: number | string, dataset: ChartMeta, index) => {
+      const cell = dataSetsValues[dataset.index]?.data[index];
+      return isNumberResult(cell) ? humanizeNumber(cell, locale) : "";
     },
   };
 }

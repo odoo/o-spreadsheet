@@ -1,10 +1,11 @@
 import { BubbleDataPoint, Chart, Point, TooltipItem, TooltipModel, TooltipOptions } from "chart.js";
 import { toNumber } from "../../../../functions/helpers";
+import { _t } from "../../../../translation";
 import { CellValue } from "../../../../types/cells";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
-import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import { ChartRuntimeGenerationArgs, GenericDefinition } from "../../../../types/chart/chart";
+import { ColorGridChartDefinition } from "../../../../types/chart/common_chart";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../../types/chart/pie_chart";
@@ -61,11 +62,13 @@ export function getBarChartTooltip(
   };
 }
 
-export function getCalendarChartTooltip(
-  definition: CalendarChartDefinition,
+export function getColorGridChartTooltip(
+  definition: ColorGridChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartTooltip {
-  const { locale, axisFormats } = args;
+  const { locale, dataSetsValues, axisTickLabels } = args;
+  const xAxisName = definition.axesDesign?.x?.title?.text || "x";
+  const yAxisName = definition.axesDesign?.y?.title?.text || "y";
   return {
     enabled: false,
     filter: (tooltipItem) => tooltipItem.dataset.values[tooltipItem.dataIndex] !== undefined,
@@ -73,11 +76,19 @@ export function getCalendarChartTooltip(
     callbacks: {
       title: (_) => "",
       beforeLabel: (tooltipItem) => {
-        return `${tooltipItem.dataset?.label}, ${tooltipItem.label}`;
+        return axisTickLabels?.x || axisTickLabels?.y
+          ? [
+              _t("%(axis_name)s: %(value)s", { axis_name: xAxisName, value: tooltipItem.label }),
+              _t("%(axis_name)s: %(value)s", {
+                axis_name: yAxisName,
+                value: tooltipItem.dataset?.label,
+              }),
+            ]
+          : `${tooltipItem.dataset?.label}, ${tooltipItem.label}`;
       },
       label: function (tooltipItem) {
-        const yLabel = tooltipItem.dataset.values[tooltipItem.dataIndex];
-        return humanizeNumber({ value: yLabel, format: axisFormats?.y }, locale);
+        const cell = dataSetsValues[tooltipItem.datasetIndex]?.data[tooltipItem.dataIndex];
+        return humanizeNumber(cell, locale);
       },
     },
   };
@@ -419,11 +430,11 @@ function customTooltipHandler({ chart, tooltip }: ChartContext) {
   }
 
   const tooltipItems = tooltip.body.map((body, index) => {
-    let label = body.before[0];
+    let label = body.before.filter((line) => line);
     let value = body.lines[0];
     if (!value) {
-      value = label;
-      label = "";
+      value = label[0];
+      label = [];
     }
 
     const color = tooltip.labelColors[index].backgroundColor;

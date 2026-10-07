@@ -3,5 +3,9 @@
     font-size: 12px;
     background-color: #fff;
     z-index: var(--os-components-importance-figure-tooltip);
+    span {
+      width: 5px;
+      border-radius: 2px;
+    }
   }
 }
