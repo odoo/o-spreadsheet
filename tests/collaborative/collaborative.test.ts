@@ -1,4 +1,5 @@
 import {
+  BorderDescr,
   Command,
   CommandResult,
   CoreCommand,
@@ -22,6 +23,7 @@ import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   activateSheet,
   addChartFigureToCarousel,
+  addColumns,
   addDataValidation,
   addEqualCf,
   addRows,
@@ -384,6 +386,64 @@ describe("Multi users synchronisation", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellContent(user, "B2"), "");
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getBorder(user, "B2"), null);
+  });
+
+  test("Whole column border & insert column before it concurrently", () => {
+    network.concurrent(() => {
+      setZoneBorders(alice, { position: "all" }, ["A1:A100"]);
+      addColumns(bob, "before", "A", 1);
+    });
+    const descr: BorderDescr = { style: "thin", color: "#000000" };
+    const fullBorder = { left: descr, right: descr, top: descr, bottom: descr };
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getBorder(user, "B1"),
+      fullBorder
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getBorder(user, "B50"),
+      fullBorder
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getBorder(user, "B100"),
+      fullBorder
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getBorder(user, "A50"), null);
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getBorder(user, "C50"), null);
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("Whole row border & delete a row above it concurrently", () => {
+    network.concurrent(() => {
+      setZoneBorders(alice, { position: "all" }, ["A3:Z3"]);
+      deleteRows(bob, [1]);
+    });
+    const descr: BorderDescr = { style: "thin", color: "#000000" };
+    const fullBorder = { left: descr, right: descr, top: descr, bottom: descr };
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getBorder(user, "A2"),
+      fullBorder
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getBorder(user, "M2"),
+      fullBorder
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getBorder(user, "Z2"),
+      fullBorder
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getBorder(user, "M1"), null);
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getBorder(user, "M3"), null);
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("Whole row border & delete that row concurrently", () => {
+    network.concurrent(() => {
+      setZoneBorders(alice, { position: "all" }, ["A3:Z3"]);
+      deleteRows(bob, [2]);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getBorder(user, "M3"), null);
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getBorder(user, "M2"), null);
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
   test("merge is transformed to fit sheet size", () => {

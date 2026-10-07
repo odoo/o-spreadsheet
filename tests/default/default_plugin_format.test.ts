@@ -862,6 +862,17 @@ describe("Default Plugin: setSheetFormat preserves cells outside the zone", () =
       reloadedModel.getters.getEvaluatedCell({ sheetId, ...toCartesian("A1") }).formattedValue
     ).toBe("1");
   });
+
+  test("data_normalization.ts:96 — a column clearing the sheet format keeps no format after a reload", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setFormat(model, [model.getters.getSheetZone(sheetId)], PERCENT_FORMAT);
+    setFormat(model, [model.getters.getColsZone(sheetId, 0, 0)], "");
+    expect(getCellFormat(model, "A5")).toEqual("");
+
+    const reloadedModel = new Model(model.exportData());
+    expect(getCellFormat(reloadedModel, "A5")).toEqual("");
+  });
 });
 
 describe("inserting headers next to a header holding a default", () => {
