@@ -4,9 +4,10 @@ import { isEvaluationError, toBoolean, toNumber } from "../../src/functions/help
 import { arg, functionRegistry } from "../../src/functions/index";
 import { Arg, DEFAULT_LOCALE } from "../../src/types";
 import { CellErrorType, EvaluationError } from "../../src/types/errors";
-import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
+import { setCellContent, setCellFormat, updateLocale } from "../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../test_helpers/constants";
 import { getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
-import { addToRegistry, evaluateCell } from "../test_helpers/helpers";
+import { addToRegistry, createModelFromGrid, evaluateCell } from "../test_helpers/helpers";
 
 describe("functions", () => {
   test("can add a function", () => {
@@ -327,5 +328,28 @@ describe("functions", () => {
       expect(getEvaluatedCell(m, "B2").value).toBe(true);
       expect(getEvaluatedCell(m, "B3").value).toBe(true);
     });
+  });
+
+  test("functions with 'visitMatchingRange' take Locale into account", () => {
+    const model = createModelFromGrid({
+      A1: "0.5",
+      A2: "1.5",
+      A3: "0.5",
+      A4: '="1.5"',
+      A5: '="1.5"',
+      A6: '="1,5"',
+      B1: "0.5",
+      C1: "=COUNTIF(A1:A3, B1)",
+      C2: "=COUNTIF(A1:A3, 0.5)",
+      C3: "=COUNTIF(A1:A6, 1.5)",
+    });
+    expect(getEvaluatedCell(model, "C1").value).toBe(2);
+    expect(getEvaluatedCell(model, "C2").value).toBe(2);
+    expect(getEvaluatedCell(model, "C3").value).toBe(3);
+
+    updateLocale(model, FR_LOCALE);
+    expect(getEvaluatedCell(model, "C1").value).toBe(2);
+    expect(getEvaluatedCell(model, "C2").value).toBe(2);
+    expect(getEvaluatedCell(model, "C3").value).toBe(2);
   });
 });
