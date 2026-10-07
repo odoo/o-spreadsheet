@@ -12,7 +12,6 @@ import { clip, isDefined } from "../../../helpers/misc";
 import { getZoomedRect, rectIntersection, rectUnion } from "../../../helpers/rectangle";
 import { ModelPlugin } from "../../../owl_plugins/model_owl_plugin";
 import { figureRegistry } from "../../../registries/figures_registry";
-import { ChartDragStore } from "../../../stores/chart_drag_store";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { ZoomStore } from "../../../stores/zoom_store";
 import { Figure, FigureUI, ResizeDirection } from "../../../types/figure";
@@ -41,6 +40,7 @@ interface DndState {
   draggedFigure?: FigureUI;
   selectedFigures?: FigureUI[];
   selectedRect?: Rect;
+  overlappingFigureId?: UID;
   horizontalSnap?: Snap<HFigureAxisType>;
   verticalSnap?: Snap<VFigureAxisType>;
   cancelDnd: (() => void) | undefined;
@@ -62,6 +62,7 @@ export const FAKE_DRAGGED_FIGURE_ID = "fake_dragged_figure";
 export class DraggedFigurePlugin extends Plugin {
   dnd = proxy<DndState>({
     draggedFigure: undefined,
+    overlappingFigureId: undefined,
     selectedFigures: undefined,
     selectedRect: undefined,
     horizontalSnap: undefined,
@@ -70,7 +71,6 @@ export class DraggedFigurePlugin extends Plugin {
   });
   private viewStore: Store<ViewportsStore> = useConfig("viewStore");
   private zoomStore: Store<ZoomStore> = useConfig("zoomStore");
-  private chartDragStore: Store<ChartDragStore> = useConfig("chartDragStore");
   private model = usePlugin(ModelPlugin).model;
 
   setup() {
@@ -236,8 +236,6 @@ export class DraggedFigurePlugin extends Plugin {
           "chart",
         ]);
       }
-      this.chartDragStore.setHighlightedFigure(overlappingChartOrCarousel?.id);
-
       this.dnd.component = args.component;
       this.dnd.componentProps = args.componentProps;
       if (!overlappingChartOrCarousel) {
@@ -252,12 +250,14 @@ export class DraggedFigurePlugin extends Plugin {
         this.dnd.draggedFigure = draggedFigures.find((f) => f.id === draggedFigureId);
         this.dnd.horizontalSnap = this.getSnap(snapReturn.horizontalSnapLine);
         this.dnd.verticalSnap = this.getSnap(snapReturn.verticalSnapLine);
+        this.dnd.overlappingFigureId = undefined;
       } else {
         this.dnd.draggedFigure = draggedFigure;
         this.dnd.selectedFigures = draggedFigures;
         this.dnd.selectedRect = this.getDndFigureRect();
         this.dnd.horizontalSnap = undefined;
         this.dnd.verticalSnap = undefined;
+        this.dnd.overlappingFigureId = overlappingChartOrCarousel.id;
       }
     };
 
@@ -408,7 +408,7 @@ export class DraggedFigurePlugin extends Plugin {
       return "";
     }
     return cssPropertiesToCss({
-      opacity: this.chartDragStore.highlightedFigureId ? "0.6" : "0.9",
+      opacity: this.dnd.overlappingFigureId ? "0.6" : "0.9",
       cursor: "grabbing",
     });
   }
@@ -462,7 +462,7 @@ export class DraggedFigurePlugin extends Plugin {
     this.dnd.selectedRect = undefined;
     this.dnd.horizontalSnap = undefined;
     this.dnd.verticalSnap = undefined;
-    this.chartDragStore.setHighlightedFigure(undefined);
+    this.dnd.overlappingFigureId = undefined;
     this.dnd.cancelDnd = undefined;
     this.dnd.componentProps = undefined;
     this.dnd.component = undefined;
