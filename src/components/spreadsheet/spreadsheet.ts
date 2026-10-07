@@ -40,6 +40,7 @@ import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { NotificationCallbacks } from "../../types/stores/notification_store_methods";
 import { BottomBar } from "../bottom_bar/bottom_bar";
+import { BottomBarSheetHoverPlugin } from "../bottom_bar/bottom_bar_sheet/bottom_bar_sheet_hover_owl_plugin";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { FiguresDragAndDropContainer } from "../figures/figure_dnd_container/figure_dnd_container";
 import { DraggedFigurePlugin } from "../figures/figure_dnd_container/figure_dnd_owl_plugin";
@@ -163,6 +164,7 @@ export class Spreadsheet extends Component {
       return env.isSmall;
     });
 
+    providePlugins([BottomBarSheetHoverPlugin]);
     providePluginsIfNotPresent([NotificationPlugin]);
     providePlugins([ImageProviderPlugin], {
       fileStore: this.model().config.external.fileStore,

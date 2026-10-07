@@ -10,6 +10,7 @@ import { Figure, FigureUI, ResizeDirection } from "../../../types/figure";
 import { UID } from "../../../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../../../types/rendering";
 import { Store } from "../../../types/store_engine";
+import { BottomBarSheetHoverPlugin } from "../../bottom_bar/bottom_bar_sheet/bottom_bar_sheet_hover_owl_plugin";
 import { getOverlappedFigure } from "../../helpers/chart_drag_and_drop";
 import { cssPropertiesToCss, rectToCss } from "../../helpers/css";
 import { gridOverlayPosition, zoomCorrectedElementRect } from "../../helpers/dom_helpers";
@@ -17,10 +18,10 @@ import { startDnd } from "../../helpers/drag_and_drop";
 import { dragFigureForMove, dragFigureForResize } from "../../helpers/figure_drag_helper";
 import {
   HFigureAxisType,
-  SnapLine,
-  VFigureAxisType,
   snapForMove,
   snapForResize,
+  SnapLine,
+  VFigureAxisType,
 } from "../../helpers/figure_snap_helper";
 
 interface Snap<T extends HFigureAxisType | VFigureAxisType> {
@@ -61,6 +62,7 @@ export class DraggedFigurePlugin extends Plugin {
   private viewStore: Store<ViewportsStore> = useConfig("viewStore");
   private zoomStore: Store<ZoomStore> = useConfig("zoomStore");
   private model = usePlugin(ModelPlugin).model;
+  private hoverSheetPlugin = usePlugin(BottomBarSheetHoverPlugin);
 
   setup() {
     useEffect(() => {
@@ -71,19 +73,22 @@ export class DraggedFigurePlugin extends Plugin {
         draggedFigureId !== FAKE_DRAGGED_FIGURE_ID &&
         !this.model().getters.getFigure(sheetId, draggedFigureId)
       ) {
-        this.stopDragAndDrop();
+        // ADRM TODO
+        // this.stopDragAndDrop();
       }
     });
   }
 
-  private getFiguresOnScreen(): FigureUI[] {
+  private getFiguresOnScreen(excludedFigures: UID[] = []): FigureUI[] {
     const visibleFigures = this.viewStore.visibleFigures;
     for (const figure of this.dnd.selectedFigures || []) {
       if (!visibleFigures.some((figureUI) => figureUI.id === figure.id)) {
         visibleFigures.push(figure);
       }
     }
-    return visibleFigures.map((figure) => this.convertToOverlayCoordinate(figure));
+    return visibleFigures
+      .filter((figure) => !excludedFigures.includes(figure.id))
+      .map((figure) => this.convertToOverlayCoordinate(figure));
   }
 
   get selectedRectStyle(): string {
@@ -182,6 +187,12 @@ export class DraggedFigurePlugin extends Plugin {
     const zoom = this.zoomStore.zoomLevel;
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const initialFigures = figuresToDrag.map(this.convertToOverlayCoordinate.bind(this));
+    const onBottomBarSheetHover = (hoveredSheetId: UID) => {
+      this.model().dispatch("ACTIVATE_SHEET", {
+        sheetIdFrom: this.model().getters.getActiveSheetId(),
+        sheetIdTo: hoveredSheetId,
+      });
+    };
 
     let hasStartedDnd = false;
     let overlappingChartOrCarousel: FigureUI | undefined = undefined;
@@ -194,6 +205,7 @@ export class DraggedFigurePlugin extends Plugin {
         return; // add a small threshold to avoid dnd when just clicking
       }
       hasStartedDnd = true;
+      this.hoverSheetPlugin.registerSheetHoverAnimationCallback(onBottomBarSheetHover);
 
       const draggedFigures = dragFigureForMove(
         currentMousePosition,
@@ -237,6 +249,7 @@ export class DraggedFigurePlugin extends Plugin {
     };
 
     const onMouseUp = (ev: MouseEvent) => {
+      this.hoverSheetPlugin.unregisterSheetHoverAnimationCallback(onBottomBarSheetHover);
       if (this.dnd.selectedFigures) {
         callbacks.onDragEnd(
           this.dnd.selectedFigures.map((f) => this.toSpreadsheetFigure(f)),
@@ -372,8 +385,8 @@ export class DraggedFigurePlugin extends Plugin {
     this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
   }
 
-  private getOtherFigures(figIds: UID[]): FigureUI[] {
-    return this.getFiguresOnScreen().filter((f) => !figIds.includes(f.id));
+  private getOtherFigures(excludedFigures: UID[]): FigureUI[] {
+    return this.getFiguresOnScreen(excludedFigures);
   }
 
   getFigureStyle(figureUI: FigureUI): string {
@@ -395,8 +408,9 @@ export class DraggedFigurePlugin extends Plugin {
     const sheetViewDims = this.viewStore.sheetViewDimension;
     const viewportRect = { x: 0, y: 0, width: sheetViewDims.width, height: sheetViewDims.height };
 
+    const excludedFigures = this.dnd.selectedFigures?.map((f) => f.id) ?? [];
     const figureVisibleRects = snapLine.matchedFigIds
-      .map((id) => this.getFiguresOnScreen().find((figureUI) => figureUI.id === id))
+      .map((id) => this.getFiguresOnScreen(excludedFigures).find((figureUI) => figureUI.id === id))
       .filter(isDefined)
       .map((rect) => rectIntersection(rect, viewportRect)) // Consider only the visible part of the figures other than the dragged one
       .filter(isDefined);

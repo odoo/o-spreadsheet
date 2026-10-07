@@ -55,6 +55,7 @@ export class DataAnalysisPanel extends OSComponent {
       x: startX - figureWidth / 2,
       y: startY - figureHeight / 2,
     };
+    const suggestionSheetId = this.model().getters.getActiveSheetId();
 
     const onDragEnd = (droppedFigures: Figure[], overlappingFigureId: UID | undefined) => {
       const droppedFigure = droppedFigures[0];
@@ -65,6 +66,9 @@ export class DataAnalysisPanel extends OSComponent {
         return;
       }
       const sheetId = this.model().getters.getActiveSheetId();
+      if (sheetId !== suggestionSheetId) {
+        definition = this.copyDefinitionForSheet(definition, suggestionSheetId, sheetId);
+      }
       const overlappingFigure = overlappingFigureId
         ? this.model().getters.getFigure(sheetId, overlappingFigureId)
         : undefined;
@@ -117,6 +121,16 @@ export class DataAnalysisPanel extends OSComponent {
     const r = middleOfFigureX >= viewportX + viewportWidth + scrollX;
 
     return r;
+  }
+
+  private copyDefinitionForSheet(
+    definition: ChartDefinition,
+    sheetIdFrom: UID,
+    sheetIdTo: UID
+  ): ChartDefinition {
+    const chart = SpreadsheetChart.fromStrDefinition(this.model().getters, sheetIdFrom, definition);
+    const copied = chart.copyInSheetId(sheetIdTo);
+    return SpreadsheetChart.fromDefinition(this.model().getters, sheetIdTo, copied).getDefinition();
   }
 }
 

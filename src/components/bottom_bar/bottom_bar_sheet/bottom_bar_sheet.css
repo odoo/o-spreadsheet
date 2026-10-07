@@ -5,6 +5,7 @@
     height: var(--os-desktop-bottombar-height);
     margin-left: -1px;
     cursor: pointer;
+
     &:hover {
       background-color: var(--os-background-gray-color-hover);
     }
@@ -26,6 +27,7 @@
     .o-sheet-name {
       outline: none;
       padding: 2px 4px;
+      z-index: 1;
 
       &.o-sheet-name-editable {
         border-radius: 2px;
@@ -46,6 +48,23 @@
 
     .lock-icon {
       --os-icon-edge-length: 14px;
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      background: var(--os-active-sheet-bg);
+      left: 0;
+      bottom: 0;
+      height: 100%;
+      width: 100%;
+      transform-origin: left;
+      transform: scaleX(0%);
+    }
+
+    &.o-fill-animation::after {
+      transition: transform 600ms linear;
+      transform: scaleX(100%);
     }
   }
 
