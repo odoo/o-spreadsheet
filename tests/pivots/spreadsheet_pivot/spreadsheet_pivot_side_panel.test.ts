@@ -83,6 +83,24 @@ describe("Spreadsheet pivot side panel", () => {
     expect(model.getters.getPivotCoreDefinition("1")["dataSet"].zone).toEqual(toZone("A1:C100"));
   });
 
+  test("Dataset range is not rewritten while typing", async () => {
+    setInputValueAndTrigger(".o-selection-input input", "Sheet1!A1:C");
+    await nextTick();
+    expect(".o-selection-input input").toHaveValue("Sheet1!A1:C");
+
+    setInputValueAndTrigger(".o-selection-input input", "Sheet1!A1:C3");
+    await nextTick();
+    expect(".o-selection-input input").toHaveValue("Sheet1!A1:C3");
+  });
+
+  test("Dataset range input stays empty when its last character is deleted", async () => {
+    setInputValueAndTrigger(".o-selection-input input", "S");
+    await nextTick();
+    setInputValueAndTrigger(".o-selection-input input", "");
+    await nextTick();
+    expect(".o-selection-input input").toHaveValue("");
+  });
+
   test("It should be able to defer updates", async () => {
     setCellContent(model, "A1", "amount");
     setCellContent(model, "A2", "10");
