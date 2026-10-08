@@ -1061,7 +1061,7 @@ describe("Default Borders", () => {
     expect(borderCommands.length).toBeLessThan(10);
   });
 
-  test("borders_clipboard.ts:97 — pasted full-width bordered rows keep all their sides", () => {
+  test("pasted full-width bordered rows keep all their sides", () => {
     const model = new Model();
     makeStoreWithModel(model, ClipboardStore);
     setZoneBorders(model, { position: "all" }, ["A1:Z50"]);

@@ -264,7 +264,13 @@ export class BordersPlugin
           break;
         }
         if (cmd.border.left !== undefined) {
-          this.setBorder("LEFT", cmd.sheetId, cmd.target.map(leftCol), internal(cmd.border.left));
+          this.setBoundaryBorder(
+            "LEFT",
+            cmd.sheetId,
+            cmd.target.map(leftCol),
+            cmd.border.left,
+            "internal"
+          );
           this.setBorder(
             "LEFT",
             cmd.sheetId,
@@ -274,24 +280,38 @@ export class BordersPlugin
               : internal(cmd.border.left)
           );
           if (cmd.border.right !== undefined) {
-            this.setBorder(
+            this.setBoundaryBorder(
               "LEFT",
               cmd.sheetId,
               cmd.target.map(rightCol),
-              external(cmd.border.right)
+              cmd.border.right,
+              "external"
             );
           }
         } else if (cmd.border.right !== undefined) {
           this.setBorder(
             "LEFT",
             cmd.sheetId,
-            cmd.target.map((z) => extendZone(extendZone(z, "right", 1), "left", -1)),
+            cmd.target.map((z) => extendZone(z, "left", -1)).filter(isZoneOrdered),
             external(cmd.border.right)
+          );
+          this.setBoundaryBorder(
+            "LEFT",
+            cmd.sheetId,
+            cmd.target.map(rightCol),
+            cmd.border.right,
+            "external"
           );
         }
 
         if (cmd.border.top !== undefined) {
-          this.setBorder("TOP", cmd.sheetId, cmd.target.map(topRow), internal(cmd.border.top));
+          this.setBoundaryBorder(
+            "TOP",
+            cmd.sheetId,
+            cmd.target.map(topRow),
+            cmd.border.top,
+            "internal"
+          );
           this.setBorder(
             "TOP",
             cmd.sheetId,
@@ -301,19 +321,27 @@ export class BordersPlugin
               : internal(cmd.border.top)
           );
           if (cmd.border.bottom !== undefined) {
-            this.setBorder(
+            this.setBoundaryBorder(
               "TOP",
               cmd.sheetId,
               cmd.target.map(bottomRow),
-              external(cmd.border.bottom)
+              cmd.border.bottom,
+              "external"
             );
           }
         } else if (cmd.border.bottom !== undefined) {
           this.setBorder(
             "TOP",
             cmd.sheetId,
-            cmd.target.map((z) => extendZone(extendZone(z, "bottom", 1), "top", -1)),
+            cmd.target.map((z) => extendZone(z, "top", -1)).filter(isZoneOrdered),
             external(cmd.border.bottom)
+          );
+          this.setBoundaryBorder(
+            "TOP",
+            cmd.sheetId,
+            cmd.target.map(bottomRow),
+            cmd.border.bottom,
+            "external"
           );
         }
         break;
@@ -393,6 +421,48 @@ export class BordersPlugin
       } else {
         this.setCellsBorder(borderType, sheetId, zone, border);
       }
+    }
+  }
+
+  /**
+   * Set one side of the edges on the boundary of a zone. These edges are shared
+   * with the cells around the zone: keep their side when it is compatible.
+   */
+  private setBoundaryBorder(
+    borderType: "LEFT" | "TOP",
+    sheetId: UID,
+    zones: Zone[],
+    descr: BorderDescr | null,
+    side: "internal" | "external"
+  ) {
+    const border = side === "internal" ? internal(descr) : external(descr);
+    const zonesByBorder = new Map<string, { border: BorderDescrInternal; zones: Zone[] }>();
+    for (const zone of zones) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          const existing = this.getBorderValue(borderType, sheetId, col, row);
+          const merged =
+            side === "internal" ? mergeSides(existing, border) : mergeSides(border, existing);
+          const key = JSON.stringify(merged);
+          let group = zonesByBorder.get(key);
+          if (!group) {
+            group = { border: merged!, zones: [] };
+            zonesByBorder.set(key, group);
+          }
+          // extend the last zone of the group when the cell follows it on the line
+          const last = group.zones.at(-1);
+          if (last && last.left === col && last.right === col && last.bottom === row - 1) {
+            last.bottom = row;
+          } else if (last && last.top === row && last.bottom === row && last.right === col - 1) {
+            last.right = col;
+          } else {
+            group.zones.push({ left: col, right: col, top: row, bottom: row });
+          }
+        }
+      }
+    }
+    for (const group of zonesByBorder.values()) {
+      this.setBorder(borderType, sheetId, group.zones, group.border);
     }
   }
 
