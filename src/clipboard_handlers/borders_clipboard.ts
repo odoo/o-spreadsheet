@@ -85,10 +85,10 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
       // Sheet default
       this.dispatch("SET_BORDERS_ON_TARGET", {
         border: {
-          left: toDescr(content.defaultLeft.sheetDefault),
-          right: toDescr(content.defaultLeft.sheetDefault),
-          top: toDescr(content.defaultTop.sheetDefault),
-          bottom: toDescr(content.defaultLeft.sheetDefault),
+          left: toDescr(content.defaultLeft.sheetDefault, { undefinedIf: "external" }),
+          right: toDescr(content.defaultLeft.sheetDefault, { undefinedIf: "internal" }),
+          top: toDescr(content.defaultTop.sheetDefault, { undefinedIf: "external" }),
+          bottom: toDescr(content.defaultTop.sheetDefault, { undefinedIf: "internal" }),
         },
         sheetId,
         target: [{ left, top, right, bottom }],

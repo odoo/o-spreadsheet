@@ -1004,7 +1004,7 @@ describe("Default Borders", () => {
     expect(borderCommands.length).toBeLessThan(10);
   });
 
-  test("borders_clipboard.ts:86 — pasting a cell with an inner vertical sheet border on another sheet copies the exact cell border", () => {
+  test("pasting a cell with an inner vertical sheet border on another sheet copies the exact cell border", () => {
     const model = new Model();
     makeStoreWithModel(model, ClipboardStore);
     setZoneBorders(model, { position: "v" }, ["A1:Z100"]);
@@ -1018,7 +1018,7 @@ describe("Default Borders", () => {
     expect(getCellBorder(model, "D5")).toEqual(VERTICAL_BORDER);
   });
 
-  test("borders_clipboard.ts:86 — pasting a cell with a sheet-wide left border on another sheet only pastes a left border", () => {
+  test("pasting a cell with a sheet-wide left border on another sheet only pastes a left border", () => {
     const model = new Model();
     makeStoreWithModel(model, ClipboardStore);
     setBordersOnTarget(model, ["A1:Z100"], LEFT_BORDER);
@@ -1031,7 +1031,7 @@ describe("Default Borders", () => {
     expect(getCellBorder(model, "D5")).toEqual(LEFT_BORDER);
   });
 
-  test("borders_clipboard.ts:86 — pasting a cell with a sheet-wide bottom border on another sheet pastes a bottom border, not a top one", () => {
+  test("pasting a cell with a sheet-wide bottom border on another sheet pastes a bottom border, not a top one", () => {
     const model = new Model();
     makeStoreWithModel(model, ClipboardStore);
     setBordersOnTarget(model, ["A1:Z100"], BOTTOM_BORDER);
