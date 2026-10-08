@@ -1760,5 +1760,25 @@ export class BordersPlugin
 
   exportForExcel(data: ExcelWorkbookData) {
     this._export(data, { fullBorder: true });
+    // In Excel, a row or column style replaces the sheet style instead of
+    // overriding some of its sides.
+    for (const sheet of data.sheets) {
+      const defaults = sheet.defaultBorder;
+      if (defaults?.sheetDefault === undefined) {
+        continue;
+      }
+      const sheetBorder = data.borders[defaults.sheetDefault];
+      for (const headerDefaults of [defaults.colDefault, defaults.rowDefault]) {
+        for (const index in headerDefaults) {
+          const border = { ...sheetBorder };
+          for (const [side, descr] of Object.entries(data.borders[headerDefaults[index]])) {
+            if (descr !== undefined) {
+              border[side] = descr;
+            }
+          }
+          headerDefaults[index] = getItemId(border, data.borders);
+        }
+      }
+    }
   }
 }
