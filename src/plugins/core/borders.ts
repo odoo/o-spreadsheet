@@ -105,6 +105,23 @@ function removeSide(
   return border;
 }
 
+function mergeSides(
+  ext: BorderDescrInternal | undefined,
+  int: BorderDescrInternal | undefined
+): BorderDescrInternal | undefined {
+  const hasExt = ext && ext.internal !== "internal";
+  const hasInt = int && int.internal !== "external";
+  const tag = (border: BorderDescrInternal, side: "internal" | "external") =>
+    border.style === "empty" ? border : { ...border, internal: side };
+  if (hasExt && hasInt) {
+    if (ext.style === int.style && ext.color === int.color) {
+      return both(int);
+    }
+    return int.style === "empty" ? tag(ext, "external") : tag(int, "internal");
+  }
+  return hasExt ? ext : int;
+}
+
 export function toDescr(
   border: BorderDescrInternal | undefined,
   options?: {
@@ -879,11 +896,23 @@ export class BordersPlugin
           continue;
         }
         if (defaultKey === "defaultTop" && row === start) {
-          if (value?.internal !== "external") {
-            this.history.update(defaultKey, sheetId, "rowDefault", row + quantity, value);
-          }
-          if (value?.internal === "internal") {
+          if (quantity < 0) {
+            const target = this.defaultTop[sheetId]?.rowDefault?.[row + quantity];
+            this.history.update(
+              defaultKey,
+              sheetId,
+              "rowDefault",
+              row + quantity,
+              mergeSides(target, value)
+            );
             this.history.update(defaultKey, sheetId, "rowDefault", row, undefined);
+          } else {
+            if (value?.internal !== "external") {
+              this.history.update(defaultKey, sheetId, "rowDefault", row + quantity, value);
+            }
+            if (value?.internal === "internal") {
+              this.history.update(defaultKey, sheetId, "rowDefault", row, undefined);
+            }
           }
           continue;
         }
@@ -912,11 +941,23 @@ export class BordersPlugin
         for (const col of cols) {
           const value = this[borderKey][sheetId]?.[col]?.[row];
           if (borderType === "TOP" && row === start) {
-            if (value?.internal !== "external") {
-              this.history.update(borderKey, sheetId, col, row + quantity, value);
-            }
-            if (value?.internal === "internal") {
+            if (quantity < 0) {
+              const target = this[borderKey][sheetId]?.[col]?.[row + quantity];
+              this.history.update(
+                borderKey,
+                sheetId,
+                col,
+                row + quantity,
+                mergeSides(target, value)
+              );
               this.history.update(borderKey, sheetId, col, row, undefined);
+            } else {
+              if (value?.internal !== "external") {
+                this.history.update(borderKey, sheetId, col, row + quantity, value);
+              }
+              if (value?.internal === "internal") {
+                this.history.update(borderKey, sheetId, col, row, undefined);
+              }
             }
             continue;
           }
@@ -945,6 +986,18 @@ export class BordersPlugin
           continue;
         }
         if (defaultKey === "defaultLeft" && col === start) {
+          if (quantity < 0) {
+            const target = this[defaultKey][sheetId]?.colDefault?.[col + quantity];
+            this.history.update(
+              defaultKey,
+              sheetId,
+              "colDefault",
+              col + quantity,
+              mergeSides(target, value)
+            );
+            this.history.update(defaultKey, sheetId, "colDefault", col, undefined);
+            continue;
+          }
           if (value?.internal !== "external") {
             this.history.update(defaultKey, sheetId, "colDefault", col + quantity, value);
           }
@@ -970,6 +1023,22 @@ export class BordersPlugin
         }
         const value = this[borderKey][sheetId]?.[col];
         if (borderType === "LEFT" && col === start) {
+          if (quantity < 0) {
+            const target = this[borderKey][sheetId]?.[col + quantity];
+            const merged: Column<BorderDescrInternal> = [];
+            for (const row of new Set([
+              ...Object.keys(target ?? {}),
+              ...Object.keys(value ?? {}),
+            ])) {
+              const border = mergeSides(target?.[row], value?.[row]);
+              if (border) {
+                merged[row] = border;
+              }
+            }
+            this.history.update(borderKey, sheetId, col + quantity, merged);
+            this.history.update(borderKey, sheetId, col, undefined);
+            continue;
+          }
           const { internal, external } = this.splitInternalExternal(value);
           this.history.update(borderKey, sheetId, col + quantity, internal);
           this.history.update(borderKey, sheetId, col, external);

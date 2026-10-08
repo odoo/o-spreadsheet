@@ -952,14 +952,14 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "C3")).toEqual({ top: b, bottom: b, left: b, right: b });
   });
 
-  test("src/plugins/core/borders.ts:859 — deleting the last bordered row keeps the bottom border of the row above", () => {
+  test("deleting the last bordered row keeps the bottom border of the row above", () => {
     const b = DEFAULT_BORDER_DESC;
     setZoneBorders(model, { position: "all" }, ["A1:A3"]);
     deleteRows(model, [2]);
     expect(getBorder(model, "A2")).toEqual({ top: b, bottom: b, left: b, right: b });
   });
 
-  test("src/plugins/core/borders.ts:925 — deleting the last bordered column keeps the right border of the column before", () => {
+  test("deleting the last bordered column keeps the right border of the column before", () => {
     const b = DEFAULT_BORDER_DESC;
     setZoneBorders(model, { position: "all" }, ["A1:C1"]);
     deleteColumns(model, ["C"]);

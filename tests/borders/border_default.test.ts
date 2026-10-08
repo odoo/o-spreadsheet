@@ -538,7 +538,7 @@ describe("Default Borders", () => {
       expect(getCellBorder(model, "B2")).toEqual(ALL_BORDER);
     });
 
-    test("borders.ts:859 — deleting a row inside a bordered column keeps the line between the rows around it", () => {
+    test("deleting a row inside a bordered column keeps the line between the rows around it", () => {
       const model = new Model();
       setZoneBorders(model, { position: "all" }, ["A1:A100"]);
 
