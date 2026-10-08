@@ -10,7 +10,7 @@
         class="o-header-group-header position-absolute d-flex align-items-center justify-content-center overflow-hidden"
         t-att-style="this.groupHeaderStyle">
         <div
-          class="o-group-fold-button user-select-none rounded d-flex align-items-center justify-content-center"
+          class="o-group-fold-button user-select-none rounded d-flex align-items-center justify-content-center os-theme-dependant"
           t-att-style="this.groupButtonStyle">
           <t t-call="{{this.groupButtonIcon}}"/>
         </div>
