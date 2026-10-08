@@ -52,7 +52,6 @@ import { FormulaFingerprintStore } from "./formula_fingerprints_store";
 import { ModelStore } from "./model_store";
 import { RendererStore } from "./renderer_store";
 
-export const CELL_BACKGROUND_GRIDLINE_STROKE_STYLE = "#111";
 export const CELL_ANIMATION_DURATION = 200;
 
 interface Animation {
