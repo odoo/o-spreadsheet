@@ -1,16 +1,4 @@
 .o-spreadsheet {
-  .o-figure-snap-line {
-    position: relative;
-    z-index: var(--os-components-importance-figure-snap-line);
-    &.vertical {
-      width: 0px;
-      border-left: 1px dashed var(--os-gray-800);
-    }
-    &.horizontal {
-      border-top: 1px dashed var(--os-gray-800);
-      height: 0px;
-    }
-  }
   .o-figure-container {
     -webkit-user-select: none; /* safari */
     user-select: none;

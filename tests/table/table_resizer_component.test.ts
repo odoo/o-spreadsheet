@@ -1,6 +1,5 @@
 import { Model, UID } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
-import { Grid } from "../../src/components/grid/grid";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
@@ -10,7 +9,7 @@ import { getCellRawContent } from "../test_helpers/getters_helpers";
 import {
   flattenHighlightRange,
   getHighlightsFromStore,
-  mountComponent,
+  mountSpreadsheet,
   nextTick,
 } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
@@ -35,12 +34,7 @@ describe("Table resizer component", () => {
   let env: SpreadsheetActionEnv;
 
   beforeEach(async () => {
-    ({ env, model } = await mountComponent(Grid, {
-      props: {
-        exposeFocus: () => {},
-        getGridSize: () => ({ width: 1000, height: 1000 }),
-      },
-    }));
+    ({ env, model } = await mountSpreadsheet());
     sheetId = model.getters.getActiveSheetId();
   });
 

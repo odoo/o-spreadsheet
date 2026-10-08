@@ -15,7 +15,7 @@ import { Range } from "../../../types/range";
 import { Rect } from "../../../types/rendering";
 import { Store } from "../../../types/store_engine";
 import { FullScreenFigureStore } from "../../full_screen_figure/full_screen_figure_store";
-import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers/css";
+import { cellTextStyleToCss, cssPropertiesToCss, rectToCss } from "../../helpers/css";
 import { getBoundingRectAsPOJO, getElBoundingRect } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { OSComponent } from "../../os_component";
@@ -130,19 +130,19 @@ export class CarouselFigure extends OSComponent {
   }
 
   get contentStyle(): string {
-    return cssPropertiesToCss(this.rectToCss(this.carouselLayout.contentRect));
+    return cssPropertiesToCss(rectToCss(this.carouselLayout.contentRect));
   }
 
   get headerStyle(): string {
     return cssPropertiesToCss({
-      ...this.rectToCss(this.carouselLayout.headerRect),
+      ...rectToCss(this.carouselLayout.headerRect),
       "line-height": String(this.carouselLayout.headerLineHeight),
     });
   }
 
   get separatorStyle(): string {
     const separatorRect = this.carouselLayout.separatorRect;
-    return separatorRect ? cssPropertiesToCss(this.rectToCss(separatorRect)) : "";
+    return separatorRect ? cssPropertiesToCss(rectToCss(separatorRect)) : "";
   }
 
   get title(): string {
@@ -152,15 +152,6 @@ export class CarouselFigure extends OSComponent {
   get titleStyle(): string {
     const style = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...this.carousel.title };
     return cssPropertiesToCss(cellTextStyleToCss(chartStyleToCellStyle(style)));
-  }
-
-  private rectToCss(rect: Rect): CSSProperties {
-    return {
-      top: `${rect.y}px`,
-      left: `${rect.x}px`,
-      width: `${rect.width}px`,
-      height: `${rect.height}px`,
-    };
   }
 
   private updateTabsVisibility(): void {

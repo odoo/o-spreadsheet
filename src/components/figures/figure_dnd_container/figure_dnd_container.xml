@@ -1,0 +1,43 @@
+<templates>
+  <t t-name="o-spreadsheet-FiguresDragAndDropContainer">
+    <div
+      class="o-figure-dnd-container o-figure-container position-absolute pe-none overflow-hidden"
+      t-att-style="this.containerStyle"
+      t-if="this.draggedFigures.length">
+      <t t-if="this.figureDndPlugin.dnd.selectedRect">
+        <div
+          t-att-style="this.figureDndPlugin.selectedRectStyle"
+          class="position-absolute o-selected-border"
+        />
+      </t>
+      <t t-foreach="this.draggedFigures" t-as="figureUI" t-key="figureUI.id">
+        <t
+          t-component="this.figureDndPlugin.dnd.component"
+          t-props="this.figureDndPlugin.dnd.componentProps"
+          figureUI="figureUI"
+          style="this.figureDndPlugin.getFigureStyle(figureUI)"
+        />
+      </t>
+      <div
+        class="o-figure-container position-absolute pe-none overflow-hidden"
+        t-if="this.figureDndPlugin.dnd.horizontalSnap"
+        t-att-style="this.figureDndPlugin.dnd.horizontalSnap.containerStyle"
+        t-att-data-id="'HorizontalSnapContainer'">
+        <div
+          class="o-figure-snap-line horizontal w-100"
+          t-att-style="this.figureDndPlugin.dnd.horizontalSnap.lineStyle"
+        />
+      </div>
+      <div
+        class="o-figure-container position-absolute pe-none overflow-hidden"
+        t-if="this.figureDndPlugin.dnd.verticalSnap"
+        t-att-style="this.figureDndPlugin.dnd.verticalSnap.containerStyle"
+        t-att-data-id="'VerticalSnapContainer'">
+        <div
+          class="o-figure-snap-line vertical h-100"
+          t-att-style="this.figureDndPlugin.dnd.verticalSnap.lineStyle"
+        />
+      </div>
+    </div>
+  </t>
+</templates>

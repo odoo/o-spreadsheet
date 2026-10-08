@@ -40,6 +40,7 @@
           <SmallBottomBar t-if="this.env.isSmall" onClick="() => this.focusGrid()"/>
           <BottomBar t-else="" onClick="() => this.focusGrid()"/>
         </div>
+        <FiguresDragAndDropContainer/>
       </t>
     </div>
   </t>

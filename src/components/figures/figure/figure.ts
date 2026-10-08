@@ -36,8 +36,8 @@ export class FigureComponent extends OSComponent {
 
   protected props = useProps({
     figureUI: types.FigureUI(),
-    style: types.string(),
-    class: types.string(),
+    style: types.string().optional(""),
+    class: types.string().optional(""),
     onMouseDown: types.function<(ev: MouseEvent) => void>().optional(() => () => {}),
     onClickAnchor: types
       .function<(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) => void>()
