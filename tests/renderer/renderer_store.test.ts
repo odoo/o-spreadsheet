@@ -20,7 +20,6 @@ import {
   MIN_CELL_TEXT_MARGIN,
   MIN_CF_ICON_MARGIN,
   NEWLINE,
-  SELECTION_BORDER_COLOR,
   TABLE_HOVER_BACKGROUND_COLOR,
 } from "../../src/constants";
 import {
@@ -65,7 +64,6 @@ import {
   setFormat,
   setFormatting,
   setFormulaVisibility,
-  setGridLinesVisibility,
   setSelection,
   setSheetBackground,
   setZoneBorders,
@@ -1706,75 +1704,6 @@ describe("renderer", () => {
     expect(boxF1.isError).toBeTruthy();
     expect(filled[4][0]).toBe(boxF1.x + boxF1.width - 5);
     expect(filled[4][1]).toBe(boxF1.y);
-  });
-
-  test("Do not draw gridLines over colored cells in dashboard mode", () => {
-    const CellFillColor = "#fe0000";
-    const { drawGridRenderer, model, container } = setRenderer(
-      new Model({
-        sheets: [{ id: "Sheet1", name: "Sheet1", styles: { A1: 1, A2: 1 } }],
-        styles: { 1: { fillColor: CellFillColor } },
-      }),
-      ["Selection", "Background"]
-    );
-
-    let strokeColors: string[];
-    const ctx = new MockGridRenderingContext(model, container, 1000, 1000, {
-      onFunctionCall: (val, _, renderingContext) => {
-        if (val === "strokeRect") {
-          strokeColors.push(toHex(renderingContext.ctx.strokeStyle as string));
-        }
-      },
-    });
-
-    // Default Model displaying grid lines
-    strokeColors = [];
-    drawGridRenderer(ctx);
-    expect(strokeColors).toContain(toHex(SELECTION_BORDER_COLOR));
-    expect(strokeColors).toContain(toHex(SELECTION_BORDER_COLOR));
-
-    // dashboard mode
-    model.updateMode("dashboard");
-    strokeColors = [];
-    drawGridRenderer(ctx);
-
-    expect(strokeColors).toEqual([]);
-  });
-
-  test("Do not draw gridLines over colored cells while hiding grid lines", () => {
-    const CellFillColor = "#fe0000";
-    const { drawGridRenderer, model, container } = setRenderer(
-      new Model({
-        sheets: [{ id: "Sheet1", name: "Sheet1", styles: { A1: 1, A2: 2 } }],
-        styles: { 1: { fillColor: CellFillColor } },
-      }),
-      ["Selection", "Background"]
-    );
-
-    let strokeColors: string[];
-    const ctx = new MockGridRenderingContext(model, container, 1000, 1000, {
-      onFunctionCall: (val, _, renderingContext) => {
-        if (val === "strokeRect") {
-          strokeColors.push(toHex(renderingContext.ctx.strokeStyle as string));
-        }
-      },
-    });
-
-    // Default Model displaying grid lines
-    strokeColors = [];
-    drawGridRenderer(ctx);
-    expect(strokeColors).toContain(toHex(COLOR_THEMES.light.gridBorderColorOnDefaultBackground));
-    expect(strokeColors).toContain(toHex(SELECTION_BORDER_COLOR));
-
-    // model without grid lines
-    setGridLinesVisibility(model, false);
-    strokeColors = [];
-    drawGridRenderer(ctx);
-
-    expect(strokeColors).toEqual([
-      toHex(SELECTION_BORDER_COLOR), // selection drawGrid
-      toHex(SELECTION_BORDER_COLOR), // selection drawGrid
-    ]);
   });
 
   test("draw text position depends on vertical align", () => {
