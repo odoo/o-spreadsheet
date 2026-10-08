@@ -2,7 +2,7 @@
 
 exports[`Grid composer grid composer basic style Grid composer snapshot 1`] = `
 <div
-  class="o-grid-composer"
+  class="o-grid-composer os-theme-dependant"
   style="left: 47px; top: 26px; border: 1.2000000000000002px solid rgb(50, 102, 202); min-width: 97px; min-height: 24px; max-width: 985px; max-height: 985px; background: rgb(255, 255, 255); color: #000000; font-size: 13px; font-style: normal; text-decoration: none; text-align: left;"
 >
   <div
