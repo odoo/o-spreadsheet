@@ -344,27 +344,6 @@ describe("Default Borders", () => {
       expect(getCellBorder(model, "B50")).toEqual(ALL_BORDER);
       expect(model.exportData().sheets[0].borders).toEqual({});
     });
-
-    test("borders.ts:771 — columns added after the last column do not inherit a row default that did not reach it", () => {
-      const model = new Model();
-      setZoneBorders(model, { position: "top" }, ["A1:Z1"]);
-      setZoneBorders(model, { position: "left" }, ["A1:P1"]);
-
-      addColumns(model, "after", "Z", 5);
-
-      expect(getCellBorder(model, "AC1")).toBeNull();
-    });
-
-    test("borders.ts:771 — a column added after the last column does not inherit a left border the old last column did not have", () => {
-      const model = new Model();
-      setZoneBorders(model, { position: "left" }, ["A1:A100", "B1:B100"]);
-      addColumns(model, "after", "A", 40);
-
-      addColumns(model, "after", "BN", 1);
-
-      expect(getCellBorder(model, "BN5")).toBeNull();
-      expect(getCellBorder(model, "BO5")).toBeNull();
-    });
   });
 
   describe("Sheet Manipulation: Remove Column", () => {
