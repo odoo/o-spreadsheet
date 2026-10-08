@@ -80,16 +80,16 @@ export class ClipboardStore extends SpreadsheetStore {
         return this.isCutAllowedOn(zones);
       case "PASTE_FROM_OS_CLIPBOARD": {
         const copiedData = this.convertTextToClipboardData(cmd.clipboardContent.text ?? "");
-        const pasteOption = cmd.pasteOption;
-        return this.isPasteAllowed(cmd.target, copiedData, { pasteOption, isCutOperation: false });
+        const pasteOptions = cmd.pasteOptions;
+        return this.isPasteAllowed(cmd.target, copiedData, { pasteOptions, isCutOperation: false });
       }
       case "PASTE": {
         if (!this.copiedData) {
           return CommandResult.EmptyClipboard;
         }
-        const pasteOption = cmd.pasteOption;
+        const pasteOptions = cmd.pasteOptions;
         return this.isPasteAllowed(cmd.target, this.copiedData, {
-          pasteOption: pasteOption,
+          pasteOptions,
           isCutOperation: this._isCutOperation,
         });
       }
@@ -186,9 +186,9 @@ export class ClipboardStore extends SpreadsheetStore {
         } else {
           this.copiedData = this.convertTextToClipboardData(contentToPaste.text ?? "");
         }
-        const pasteOption = cmd.pasteOption;
+        const pasteOptions = cmd.pasteOptions;
         this.paste(cmd.target, this.copiedData, {
-          pasteOption,
+          pasteOptions,
           selectTarget: true,
           isCutOperation: false,
         });
@@ -197,9 +197,9 @@ export class ClipboardStore extends SpreadsheetStore {
         break;
       }
       case "PASTE": {
-        const pasteOption = cmd.pasteOption;
+        const pasteOptions = cmd.pasteOptions;
         this.paste(cmd.target, this.copiedData, {
-          pasteOption,
+          pasteOptions,
           selectTarget: true,
           isCutOperation: this._isCutOperation,
         });
@@ -301,7 +301,7 @@ export class ClipboardStore extends SpreadsheetStore {
       case "REPEAT_PASTE": {
         this.paste(cmd.target, this.copiedData, {
           isCutOperation: false,
-          pasteOption: cmd.pasteOption,
+          pasteOptions: cmd.pasteOptions,
           selectTarget: true,
         });
         break;
