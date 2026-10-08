@@ -93,6 +93,18 @@ export function getCanonicalRepresentation(item: any): string {
   return repr;
 }
 
+/**
+ * A default holding no value. Primitive values (e.g. an empty format
+ * overriding the sheet format) are meaningful and must be kept.
+ */
+function isEmptyDefault(value: unknown): boolean {
+  return (
+    value === undefined ||
+    value === null ||
+    (typeof value === "object" && isObjectEmptyOrNullRecursively(value))
+  );
+}
+
 export function mapToId<T>(
   defaults: defaultValue<T>,
   dict: ItemsDic<T>
@@ -101,19 +113,19 @@ export function mapToId<T>(
     colDefault: {},
     rowDefault: {},
   };
-  if (!isObjectEmptyOrNullRecursively(defaults.sheetDefault)) {
+  if (defaults.sheetDefault && !isEmptyDefault(defaults.sheetDefault)) {
     defaultsIds.sheetDefault = getItemId(defaults.sheetDefault, dict);
   }
   for (const colIndex in defaults.colDefault) {
     const colValue = defaults.colDefault[colIndex];
-    if (isObjectEmptyOrNullRecursively(colValue)) {
+    if (isEmptyDefault(colValue)) {
       continue;
     }
     defaultsIds.colDefault![colIndex] = getItemId(defaults.colDefault[colIndex], dict);
   }
   for (const rowIndex in defaults.rowDefault) {
     const rowValue = defaults.rowDefault[rowIndex];
-    if (isObjectEmptyOrNullRecursively(rowValue)) {
+    if (isEmptyDefault(rowValue)) {
       continue;
     }
     defaultsIds.rowDefault![rowIndex] = getItemId(defaults.rowDefault[rowIndex], dict);
