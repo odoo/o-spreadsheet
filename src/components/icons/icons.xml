@@ -611,6 +611,11 @@
       <i class="oi" data-icon="arrow_drop_down"/>
     </div>
   </t>
+  <t t-name="o-spreadsheet-Icon.CARET_UP_DOWN">
+    <svg class="o-icon" viewBox="0 0 512 512">
+      <path fill="currentColor" d="M119 240h272L255 112M119 272h272L255 400"/>
+    </svg>
+  </t>
   <t t-name="o-spreadsheet-Icon.CARET_RIGHT">
     <div class="o-icon">
       <i class="oi" data-icon="arrow_right"/>
