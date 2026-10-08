@@ -16,6 +16,7 @@ import {
 } from "../../figures/figure_dnd_container/figure_dnd_owl_plugin";
 import { getDefaultChartFigureSize } from "../../helpers/chart_drag_and_drop";
 import { cssPropertiesToCss, rectToCss } from "../../helpers/css";
+import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { Section } from "../components/section/section";
@@ -34,14 +35,18 @@ export class DataAnalysisPanel extends OSComponent {
   private zoomStore = useStore(ZoomStore);
   private viewStore = useStore(ViewportsStore);
 
+  private spreadsheetRect = useSpreadsheetRect();
+
   setup() {
     this.store = useLocalStore(DataAnalysisStore);
   }
 
   onStartChartSuggestionDrag(definition: ChartDefinition, ev: MouseEvent) {
     const dragContainerRect = this.draggedFigurePlugin.containerRect;
-    const startX = ev.clientX / this.zoomStore.zoomLevel - dragContainerRect.x;
-    const startY = ev.clientY / this.zoomStore.zoomLevel - dragContainerRect.y;
+    const startX =
+      ev.clientX / this.zoomStore.zoomLevel - dragContainerRect.x - this.spreadsheetRect.x;
+    const startY =
+      ev.clientY / this.zoomStore.zoomLevel - dragContainerRect.y - this.spreadsheetRect.y;
     const { width, height } = getDefaultChartFigureSize(definition.type);
     const figuresToDrag: FigureUI = {
       id: FAKE_DRAGGED_FIGURE_ID,
