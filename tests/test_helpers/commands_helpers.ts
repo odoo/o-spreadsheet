@@ -71,7 +71,7 @@ import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart"
 import { SunburstChartDefinition } from "../../src/types/chart/sunburst_chart";
 import { TreeMapChartDefinition } from "../../src/types/chart/tree_map_chart";
 import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart";
-import { AnchorOffset, CarouselItem, FigureSize } from "../../src/types/figure";
+import { AnchorOffset, FigureSize } from "../../src/types/figure";
 import { Image } from "../../src/types/image";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
@@ -1873,7 +1873,7 @@ export function addChartFigureToCarousel(
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   return model.dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
-    carouselFigureId: carouselId,
+    carouselId: carouselId,
     chartFigureIds: [chartFigureId],
     sheetId,
   });
@@ -1902,7 +1902,7 @@ export function addNewChartToCarousel(
   creationContext = creationContext || { type: "bar" };
   const chartId = UuidGenerator.smallUuid();
   model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
-    figureId: carouselId,
+    carouselId,
     sheetId: model.getters.getActiveSheetId(),
     newChartId: chartId,
     chartDefinition: createChartDefinitionFromContext(creationContext.type, creationContext),
@@ -1913,13 +1913,45 @@ export function addNewChartToCarousel(
 export function selectCarouselItem(
   model: Model,
   carouselId: UID,
-  item: CarouselItem,
+  itemIndex: number,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   return model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
-    figureId: carouselId,
-    item,
+    carouselId,
+    itemIndex,
     sheetId,
+  });
+}
+
+export function mergeChartFiguresIntoCarousel(
+  model: Model,
+  baseFigureId: UID,
+  chartFigureIds: UID[],
+  newCarouselId: UID,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("MERGE_CHART_FIGURES_INTO_CAROUSEL", {
+    sheetId,
+    baseFigureId,
+    chartFigureIds,
+    newCarouselId,
+  });
+}
+
+export function createChartAndMergeIntoCarousel(
+  model: Model,
+  baseFigureId: UID,
+  newChartId: UID,
+  newCarouselId: UID,
+  definition: ChartDefinition<string>,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("CREATE_CHART_AND_MERGE_INTO_CAROUSEL", {
+    sheetId,
+    baseFigureId,
+    newChartId,
+    newCarouselId,
+    definition,
   });
 }
 

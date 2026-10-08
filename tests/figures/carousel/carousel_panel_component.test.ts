@@ -14,7 +14,12 @@ import {
   setInputValueAndTrigger,
   simulateClick,
 } from "../../test_helpers/dom_helper";
-import { mockChart, mountComponentWithPortalTarget, nextTick } from "../../test_helpers/helpers";
+import {
+  mockChart,
+  mountComponentWithPortalTarget,
+  nextTick,
+  toRangeData,
+} from "../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
 mockChart();
@@ -189,8 +194,8 @@ describe("Carousel panel component", () => {
 
   test("Selected carousel item is highlighted", async () => {
     createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
-    const radarId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
-    selectCarouselItem(model, "carouselId", { type: "carouselDataView" });
+    addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    selectCarouselItem(model, "carouselId", 0);
     await mountCarouselPanel(model, "carouselId");
 
     await setInputValueAndTrigger(".o-carousel-preview .os-input", "New Chart Name");
@@ -199,9 +204,72 @@ describe("Carousel panel component", () => {
     expect(previews[0]).toHaveClass("o-selected");
     expect(previews[1]).not.toHaveClass("o-selected");
 
-    selectCarouselItem(model, "carouselId", { type: "chart", chartId: radarId });
+    selectCarouselItem(model, "carouselId", 1);
     await nextTick();
     expect(previews[0]).not.toHaveClass("o-selected");
     expect(previews[1]).toHaveClass("o-selected");
+  });
+
+  test("Can add a data view to a carousel that already has one", async () => {
+    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    await mountCarouselPanel(model, "carouselId");
+
+    await click(fixture, ".o-carousel-add-data-view");
+    expect(model.getters.getCarousel("carouselId").items).toMatchObject([
+      { type: "carouselDataView" },
+      { type: "carouselDataView" },
+    ]);
+    expect(".o-carousel-preview").toHaveCount(2);
+  });
+
+  test("Can edit the range of the second data view", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    const carousel: CarouselData = {
+      items: [
+        { type: "carouselDataView", rangeData: toRangeData(sheetId, "A1") },
+        { type: "carouselDataView", rangeData: toRangeData(sheetId, "B2") },
+      ],
+    };
+    createCarousel(model, carousel, "carouselId");
+    await mountCarouselPanel(model, "carouselId");
+
+    await setInputValueAndTrigger(
+      ".o-carousel-preview:nth-child(2) .o-selection-input input",
+      "C3:D4"
+    );
+    await simulateClick(".o-carousel-preview:nth-child(2) .o-selection-ok");
+
+    expect(model.getters.getCarousel("carouselId").items).toMatchObject([
+      { type: "carouselDataView", range: { zone: toZone("A1") } },
+      { type: "carouselDataView", range: { zone: toZone("C3:D4") } },
+    ]);
+  });
+
+  test("Can rename one of two identical data views", async () => {
+    const carousel: CarouselData = {
+      items: [{ type: "carouselDataView" }, { type: "carouselDataView" }],
+    };
+    createCarousel(model, carousel, "carouselId");
+    await mountCarouselPanel(model, "carouselId");
+
+    await setInputValueAndTrigger(".o-carousel-preview:nth-child(2) .os-input", "Second view");
+    expect(model.getters.getCarousel("carouselId").items).toEqual([
+      { type: "carouselDataView" },
+      { type: "carouselDataView", title: "Second view" },
+    ]);
+  });
+
+  test("Can delete the second data view", async () => {
+    const carousel: CarouselData = {
+      items: [{ type: "carouselDataView", title: "First view" }, { type: "carouselDataView" }],
+    };
+    createCarousel(model, carousel, "carouselId");
+    await mountCarouselPanel(model, "carouselId");
+
+    await click(fixture, ".o-carousel-preview:nth-child(2) .os-cog-wheel-menu-icon");
+    await click(fixture, '.o-menu-item[title="Delete item"]');
+    expect(model.getters.getCarousel("carouselId").items).toEqual([
+      { type: "carouselDataView", title: "First view" },
+    ]);
   });
 });

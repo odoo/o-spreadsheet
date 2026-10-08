@@ -1,6 +1,7 @@
 import { SpreadsheetChart } from "../helpers/figures/chart";
 import { boundColRowOffsetInSheet } from "../helpers/figures/figure/figure";
 import { UuidGenerator } from "../helpers/uuid";
+import { ChartDefinition } from "../types/chart/chart";
 import { ClipboardFigureData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
 import { CommandResult } from "../types/commands";
 import { Figure } from "../types/figure";
@@ -67,6 +68,7 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     }
     const { zones } = target;
     const sheetId = target.sheetId;
+    let carouselFigureId: UID | undefined;
     for (const clippedFigure of clippedContent.figures) {
       const figureId = target.figureIds[clippedFigure.figureId];
       const { width, height } = clippedFigure.copiedFigure;
@@ -83,22 +85,30 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
         sheetId,
         copiedDefinition
       ).getDefinition();
-      const { col, row, offset } = boundColRowOffsetInSheet(
-        this.getters,
-        sheetId,
-        { col: zones[0].left, row: zones[0].top },
-        { ...clippedFigure.copiedFigure, offset: clippedFigure.offset }
-      );
-      this.dispatch("CREATE_CHART", {
-        figureId,
-        chartId: UuidGenerator.smallUuid(),
-        sheetId,
-        definition: copiedDefinition,
-        col,
-        row,
-        offset,
-        size: { height, width },
-      });
+      if (options.targetFigureId) {
+        carouselFigureId = this.pasteChartInCarousel(
+          sheetId,
+          carouselFigureId ?? options.targetFigureId,
+          copiedDefinition
+        );
+      } else {
+        const { col, row, offset } = boundColRowOffsetInSheet(
+          this.getters,
+          sheetId,
+          { col: zones[0].left, row: zones[0].top },
+          { ...clippedFigure.copiedFigure, offset: clippedFigure.offset }
+        );
+        this.dispatch("CREATE_CHART", {
+          figureId,
+          chartId: UuidGenerator.smallUuid(),
+          sheetId,
+          definition: copiedDefinition,
+          col,
+          row,
+          offset,
+          size: { height, width },
+        });
+      }
 
       if (options.isCutOperation) {
         this.dispatch("DELETE_FIGURE", {
@@ -106,10 +116,49 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
           figureId: clippedFigure.copiedFigure.id,
         });
       }
-      this.dispatch("SELECT_FIGURE", {
-        figureId,
-        selectMultiple: clippedContent.figureIds.length > 1,
-      });
+      if (!carouselFigureId) {
+        this.dispatch("SELECT_FIGURE", {
+          figureId,
+          selectMultiple: clippedContent.figureIds.length > 1,
+        });
+      }
+    }
+    if (carouselFigureId) {
+      this.dispatch("SELECT_FIGURE", { figureId: carouselFigureId });
+    }
+  }
+
+  /**
+   * Paste the chart into the target carousel, or merge it with the target chart
+   * into a new carousel. Returns the id of the carousel figure.
+   */
+  private pasteChartInCarousel(
+    sheetId: UID,
+    targetFigureId: UID,
+    definition: ChartDefinition<string>
+  ): UID {
+    const targetFigure = this.getters.getFigure(sheetId, targetFigureId);
+    const newChartId = UuidGenerator.smallUuid();
+    switch (targetFigure?.tag) {
+      case "carousel":
+        this.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
+          sheetId,
+          carouselId: targetFigureId,
+          newChartId,
+          chartDefinition: definition,
+        });
+        return targetFigureId;
+      case "chart":
+        this.dispatch("CREATE_CHART_AND_MERGE_INTO_CAROUSEL", {
+          newChartId,
+          sheetId,
+          definition,
+          baseFigureId: targetFigureId,
+          newCarouselId: UuidGenerator.smallUuid(),
+        });
+        return this.getters.getFigureIdFromChartId(newChartId);
+      default:
+        throw new Error(`Cannot paste into figure of type ${targetFigure?.tag}`);
     }
   }
 

@@ -132,6 +132,9 @@ export const applyClipboardHandlersPaste = (
 ): void => {
   handlers.forEach(({ handlerName, handler }) => {
     const data = copiedData[handlerName];
+    if (options.targetFigureId && !handler.canPasteInCarousel) {
+      return;
+    }
     if (data) {
       handler.paste(target, data, options);
     }
