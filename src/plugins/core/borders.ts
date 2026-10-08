@@ -1,4 +1,5 @@
 import { DEFAULT_BORDER_DESC } from "../../constants";
+import { toCartesian } from "../../helpers/coordinates";
 import {
   getItemId,
   groupItemIdsByZones,
@@ -1641,13 +1642,20 @@ export class BordersPlugin
     const borders: { [borderId: number]: BorderOrNull } = {};
     for (const sheet of data.sheets) {
       const positionsByBorder: Record<number, CellPosition[]> = {};
+      // In Excel, a cell node does not inherit the row or column style: give
+      // it its full border.
+      const cellNodes = options.fullBorder ? this.getCellNodePositions(sheet) : undefined;
       for (let col: HeaderIndex = 0; col < sheet.colNumber; col++) {
         for (let row: HeaderIndex = 0; row < sheet.rowNumber; row++) {
           const specificBorders = this.getCellSpecificBorder(sheet.id, col, row);
-          if (specificBorders) {
+          const inheritsBorder =
+            !specificBorders &&
+            cellNodes?.has(`${col},${row}`) &&
+            this.getCellBorder({ sheetId: sheet.id, col, row });
+          if (specificBorders || inheritsBorder) {
             const border = options.fullBorder
               ? this.getCellBorder({ sheetId: sheet.id, col, row }) ?? {}
-              : specificBorders;
+              : specificBorders!;
             const borderId = getItemId(border, borders);
             const position = { sheetId: sheet.id, col, row };
             positionsByBorder[borderId] ??= [];
@@ -1726,6 +1734,24 @@ export class BordersPlugin
       }
     }
     data.borders = borders;
+  }
+
+  /**
+   * Positions of the cells exported as a node in Excel: the ones with a
+   * content, a style or a format.
+   */
+  private getCellNodePositions(sheet: WorkbookData["sheets"][number]): Set<string> {
+    const positions = new Set<string>();
+    for (const xc in sheet.cells) {
+      const { col, row } = toCartesian(xc);
+      positions.add(`${col},${row}`);
+    }
+    for (const items of [sheet.styles, sheet.formats]) {
+      for (const [{ col, row }] of iterateItemIdsPositions(sheet.id, items)) {
+        positions.add(`${col},${row}`);
+      }
+    }
+    return positions;
   }
 
   export(data: WorkbookData) {

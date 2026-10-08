@@ -169,7 +169,7 @@ describe("Export data to xlsx then import it", () => {
     expect(getBorder(importedModel, "C2")).toEqual({ top: descr, bottom: descr });
   });
 
-  test("worksheet.ts:118 — a cell with content keeps its inherited default border", async () => {
+  test("a cell with content keeps its inherited default border", async () => {
     setZoneBorders(model, { position: "all" }, ["A2:Z2"]);
     setCellContent(model, "B2", "hello");
     const descr: BorderDescr = { style: "thin", color: "#000000" };
