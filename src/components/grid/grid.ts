@@ -48,6 +48,7 @@ import { CheckboxToggleStore } from "../../stores/checkbox_toggle";
 import { ClientFocusStore } from "../../stores/client_focus_store";
 import { ClipboardStore } from "../../stores/clipboard_store";
 import { HighlightStore } from "../../stores/highlight_store";
+import { SelectionRendererStore } from "../../stores/selection_renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { _t } from "../../translation";
@@ -208,6 +209,7 @@ export class Grid extends OSComponent {
     useStore(ArrayFormulaHighlight);
     this.automaticSumStore = useLocalStore(AutomaticSumStore);
     this.clipboardStore = useStore(ClipboardStore);
+    useStore(SelectionRendererStore);
 
     providePlugins([PopoverContainerPlugin], { getPopoverContainerRect: () => this.getGridRect() });
     useListener(document.body, "cut", this.copy.bind(this, true));
@@ -532,20 +534,6 @@ export class Grid extends OSComponent {
       x: rect.x + rect.width - AUTOFILL_EDGE_LENGTH / 2,
       y: rect.y + rect.height - AUTOFILL_EDGE_LENGTH / 2,
     };
-  }
-
-  get isAutofillVisible(): boolean {
-    if (this.model().getters.isCurrentSheetLocked()) {
-      return false;
-    }
-    const zone = this.model().getters.getSelectedZone();
-    const rect = this.viewStore.viewports.getVisibleRect(this.model().getters.getActiveSheetId(), {
-      left: zone.right,
-      right: zone.right,
-      top: zone.bottom,
-      bottom: zone.bottom,
-    });
-    return !(rect.width === 0 || rect.height === 0);
   }
 
   onGridResized() {

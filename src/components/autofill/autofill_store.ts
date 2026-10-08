@@ -1,10 +1,13 @@
+import { AUTOFILL_EDGE_LENGTH, CANVAS_SHIFT, SELECTION_BORDER_COLOR } from "../../constants";
 import { toCartesian, toXC } from "../../helpers/coordinates";
 import { clip } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isInside, positionToZone, toZone } from "../../helpers/zones";
 import { autofillModifiersRegistry } from "../../registries/autofill_modifiers";
 import { autofillRulesRegistry } from "../../registries/autofill_rules";
+import { SelectionRendererStore } from "../../stores/selection_renderer_store";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
+import { ViewportsStore } from "../../stores/viewports_store";
 import {
   AutofillData,
   AutofillModifier,
@@ -16,7 +19,7 @@ import { Cell, CellValueType } from "../../types/cells";
 import { AutoFillCellCommand, Command } from "../../types/commands";
 import { Getters } from "../../types/getters";
 import { Border, DIRECTION, HeaderIndex, Style, UID, Zone } from "../../types/misc";
-import { GridRenderingContext } from "../../types/rendering";
+import { GridRenderingContext, LayerName } from "../../types/rendering";
 
 type AutofillCellData = Omit<AutoFillCellCommand, "type">;
 
@@ -78,11 +81,16 @@ class AutofillGenerator {
 }
 
 export class AutofillStore extends SpreadsheetStore {
+  storeGetters = ["isAutofillVisible"] as const;
+
   private autofillZone: Zone | undefined;
   private steps: number | undefined;
   private lastCellSelected: { col?: number; row?: number } = {};
   private direction: DIRECTION | undefined;
   tooltip: Tooltip | undefined;
+
+  private viewStore = this.get(ViewportsStore);
+  private selectionRendererStore = this.get(SelectionRendererStore);
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -531,15 +539,40 @@ export class AutofillStore extends SpreadsheetStore {
     }
   }
 
+  isAutofillVisible(sheetId: UID): boolean {
+    if (this.getters.isCurrentSheetLocked()) {
+      return false;
+    }
+    const zone = this.getters.getSelectedZone();
+    // FIXME: this.viewStore could be wrong during the drawing process (we should use the renderingCtx's viewports)
+    // we should probably change the print process so we can trust this.viewports even during rendering
+    const rect = this.viewStore.viewports.getVisibleRect(sheetId, {
+      left: zone.right,
+      right: zone.right,
+      top: zone.bottom,
+      bottom: zone.bottom,
+    });
+
+    return !(rect.width === 0 || rect.height === 0);
+  }
+
   // ---------------------------------------------------------------------------
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  get renderingLayers() {
-    return ["Autofill"] as const;
+  get renderingLayers(): LayerName[] {
+    return ["Autofill", "Selection"] as const;
   }
 
-  drawLayer(renderingContext: GridRenderingContext) {
+  drawLayer(renderingContext: GridRenderingContext, layer: LayerName) {
+    if (layer === "Autofill") {
+      this.drawAutofillZone(renderingContext);
+    } else if (layer === "Selection") {
+      this.drawAutofillSquare(renderingContext);
+    }
+  }
+
+  private drawAutofillZone(renderingContext: GridRenderingContext) {
     if (!this.autofillZone) {
       return;
     }
@@ -552,5 +585,41 @@ export class AutofillStore extends SpreadsheetStore {
       ctx.strokeRect(x, y, width, height);
       ctx.setLineDash([]);
     }
+  }
+
+  private drawAutofillSquare(renderingContext: GridRenderingContext) {
+    const { ctx, viewports, sheetId } = renderingContext;
+    if (!this.isAutofillVisible(sheetId)) {
+      return;
+    }
+
+    const zone = this.getters.getSelectedZone();
+    const selectionAnimationRect =
+      this.selectionRendererStore.animatedSelection?.currentState?.selectedZonesRects[0];
+    const bottomRightRect =
+      selectionAnimationRect ||
+      viewports.getVisibleRect(sheetId, {
+        left: zone.right,
+        right: zone.right,
+        top: zone.bottom,
+        bottom: zone.bottom,
+      });
+
+    const autofillSquareSize = AUTOFILL_EDGE_LENGTH - 2;
+    const x = bottomRightRect.x + bottomRightRect.width - autofillSquareSize / 2;
+    const y = bottomRightRect.y + bottomRightRect.height - autofillSquareSize / 2;
+    const width = autofillSquareSize;
+    const height = autofillSquareSize;
+
+    const background = this.getters.getSheet(sheetId).backgroundColor;
+    if (background) {
+      ctx.fillStyle = background;
+      ctx.fillRect(x - 1 - CANVAS_SHIFT, y - 1 - CANVAS_SHIFT, width + 2, height + 2);
+    } else {
+      ctx.clearRect(x - 1 - CANVAS_SHIFT, y - 1 - CANVAS_SHIFT, width + 2, height + 2);
+    }
+
+    ctx.fillStyle = SELECTION_BORDER_COLOR;
+    ctx.fillRect(x - CANVAS_SHIFT, y - CANVAS_SHIFT, width, height);
   }
 }
