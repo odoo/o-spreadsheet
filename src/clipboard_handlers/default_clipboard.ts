@@ -1,10 +1,17 @@
 import { DEFAULT_STYLE } from "../constants";
+import { splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
 import { deepCopy, defaultDict, isObjectEmptyRecursive, repeat } from "../helpers/misc";
 import { defaultValue } from "../plugins/core/default";
-import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
+import {
+  ClipboardCellData,
+  ClipboardCopyOptions,
+  ClipboardOptions,
+  ClipboardPasteTarget,
+  ClipboardPositions,
+} from "../types/clipboard";
 import { Format } from "../types/format";
 import { HeaderIndex, Style, UID, Zone } from "../types/misc";
-import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
+import { ClipboardHandler } from "./abstract_clipboard_handler";
 
 type ClipboardContent = {
   style: { [J in keyof Style]: defaultValue<Style[J]> | undefined };
@@ -15,11 +22,12 @@ type ClipboardContent = {
   sheetId: UID;
 };
 
-export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
-  ClipboardContent,
-  unknown
-> {
-  copy(data: ClipboardCellData): ClipboardContent | undefined {
+export class DefaultClipboardHandler extends ClipboardHandler<ClipboardContent[][]> {
+  copy(
+    data: ClipboardCellData,
+    _isCutOperation: boolean,
+    _mode: ClipboardCopyOptions = "copyPaste"
+  ): ClipboardContent | undefined {
     const content: ClipboardContent = {
       style: {},
       format: {},
@@ -111,7 +119,20 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
     return newContent;
   }
 
-  paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
+  expand(data: ClipboardContent): ClipboardContent[][] {
+    return [[data]];
+  }
+
+  paste(
+    target: ClipboardPasteTarget,
+    content: (ClipboardContent | null)[][],
+    options: ClipboardOptions,
+    _positions: ClipboardPositions
+  ) {
+    const clipboardContent = content[0]?.[0];
+    if (!clipboardContent) {
+      return;
+    }
     const sheetId = target.sheetId;
     if (options.pasteOption === "asValue") {
       return;
@@ -119,29 +140,45 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
     const zones = target.zones;
     if (!options.isCutOperation) {
       for (const zone of zones) {
-        const newContent = this.adaptContentToZone(zone, content);
-        this.pasteStyle(
-          sheetId,
-          zone.left,
-          zone.top,
-          newContent.width,
-          newContent.height,
-          newContent.style
-        );
-        this.pasteFormat(
-          sheetId,
-          zone.left,
-          zone.top,
-          newContent.width,
-          newContent.height,
-          newContent.format
-        );
+        const newContent = this.adaptContentToZone(zone, clipboardContent);
+        for (const pasteZone of splitZoneForPaste(zone, newContent.width, newContent.height)) {
+          this.pasteStyle(
+            sheetId,
+            pasteZone.left,
+            pasteZone.top,
+            newContent.width,
+            newContent.height,
+            newContent.style
+          );
+          this.pasteFormat(
+            sheetId,
+            pasteZone.left,
+            pasteZone.top,
+            newContent.width,
+            newContent.height,
+            newContent.format
+          );
+        }
       }
     } else {
-      this.clearClippedZones(content);
+      this.clearClippedZones(clipboardContent);
       const { left, top } = zones[0];
-      this.pasteStyle(sheetId, left, top, content.width, content.height, content.style);
-      this.pasteFormat(sheetId, left, top, content.width, content.height, content.format);
+      this.pasteStyle(
+        sheetId,
+        left,
+        top,
+        clipboardContent.width,
+        clipboardContent.height,
+        clipboardContent.style
+      );
+      this.pasteFormat(
+        sheetId,
+        left,
+        top,
+        clipboardContent.width,
+        clipboardContent.height,
+        clipboardContent.format
+      );
     }
   }
 

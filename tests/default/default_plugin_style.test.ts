@@ -777,9 +777,13 @@ describe("Default Plugin: Style", () => {
       [ROW(2), BOLD_STYLE],
     ],
   ] as [Zone, Style][][])("Clipboard : copy partial sheet", (...commands) => {
-    const handlers = clipboardHandlersRegistries.cellHandlers
-      .getAll()
-      .map((handler) => new handler(model.getters, model.dispatch));
+    const handlerEntries = clipboardHandlersRegistries.cellHandlers.getKeys().map((name) => ({
+      name,
+      handler: new (clipboardHandlersRegistries.cellHandlers.get(name))(
+        model.getters,
+        model.dispatch
+      ),
+    }));
 
     for (const command of commands) {
       setStyle(model, [command[0]], command[1]);
@@ -794,10 +798,13 @@ describe("Default Plugin: Style", () => {
     }
     gridState.push([]);
 
-    let copiedData = {};
+    const copiedData: Record<string, any> = {};
     const clipboardData = getClipboardDataPositions(sheetId, [toZone("B2:D4")]);
-    for (const handler of handlers) {
-      copiedData = { ...copiedData, ...handler.copy(clipboardData, false) };
+    for (const { name, handler } of handlerEntries) {
+      const result = handler.copy(clipboardData, false);
+      if (result !== undefined) {
+        copiedData[name] = result;
+      }
     }
 
     model.dispatch("CLEAR_FORMATTING", {
@@ -806,8 +813,15 @@ describe("Default Plugin: Style", () => {
     });
 
     const pasteTarget: ClipboardPasteTarget = { sheetId: "sh2", zones: target("B2") };
-    for (const handler of handlers) {
-      handler.paste(pasteTarget, copiedData, { isCutOperation: false });
+    for (const { name, handler } of handlerEntries) {
+      if (copiedData[name] !== undefined) {
+        handler.paste(
+          pasteTarget,
+          handler.expand(copiedData[name]),
+          { isCutOperation: false },
+          clipboardData
+        );
+      }
     }
 
     expect(getCellStyle(model, toXC(0, 0))).toEqual({});
@@ -859,9 +873,13 @@ describe("Default Plugin: Style", () => {
       [ROW(2), BOLD_STYLE],
     ],
   ] as [Zone, Style][][])("Clipboard : cut partial sheet", (...commands) => {
-    const handlers = clipboardHandlersRegistries.cellHandlers
-      .getAll()
-      .map((handler) => new handler(model.getters, model.dispatch));
+    const handlerEntries = clipboardHandlersRegistries.cellHandlers.getKeys().map((name) => ({
+      name,
+      handler: new (clipboardHandlersRegistries.cellHandlers.get(name))(
+        model.getters,
+        model.dispatch
+      ),
+    }));
 
     for (const command of commands) {
       setStyle(model, [command[0]], command[1]);
@@ -875,15 +893,25 @@ describe("Default Plugin: Style", () => {
       }
     }
 
-    let copiedData = {};
+    const copiedData: Record<string, any> = {};
     const clipboardData = getClipboardDataPositions(sheetId, [toZone("B2:D4")]);
-    for (const handler of handlers) {
-      copiedData = { ...copiedData, ...handler.copy(clipboardData, true) };
+    for (const { name, handler } of handlerEntries) {
+      const result = handler.copy(clipboardData, true);
+      if (result !== undefined) {
+        copiedData[name] = result;
+      }
     }
 
     const pasteTarget: ClipboardPasteTarget = { sheetId: "sh2", zones: target("F6") };
-    for (const handler of handlers) {
-      handler.paste(pasteTarget, copiedData, { isCutOperation: true });
+    for (const { name, handler } of handlerEntries) {
+      if (copiedData[name] !== undefined) {
+        handler.paste(
+          pasteTarget,
+          handler.expand(copiedData[name]),
+          { isCutOperation: true },
+          clipboardData
+        );
+      }
     }
 
     for (let col = 1; col < 4; col++) {
@@ -922,9 +950,13 @@ describe("Default Plugin: Style", () => {
       [ROW(2), BOLD_STYLE],
     ],
   ] as [Zone, Style][][])("Clipboard : copy whole sheet", (...commands) => {
-    const handlers = clipboardHandlersRegistries.cellHandlers
-      .getAll()
-      .map((handler) => new handler(model.getters, model.dispatch));
+    const handlerEntries = clipboardHandlersRegistries.cellHandlers.getKeys().map((name) => ({
+      name,
+      handler: new (clipboardHandlersRegistries.cellHandlers.get(name))(
+        model.getters,
+        model.dispatch
+      ),
+    }));
 
     for (const command of commands) {
       setStyle(model, [command[0]], command[1]);
@@ -939,10 +971,13 @@ describe("Default Plugin: Style", () => {
     }
     gridState.push([]);
 
-    let copiedData = {};
+    const copiedData: Record<string, any> = {};
     const clipboardData = getClipboardDataPositions(sheetId, [toZone("A1:Y20")]);
-    for (const handler of handlers) {
-      copiedData = { ...copiedData, ...handler.copy(clipboardData, false) };
+    for (const { name, handler } of handlerEntries) {
+      const result = handler.copy(clipboardData, false);
+      if (result !== undefined) {
+        copiedData[name] = result;
+      }
     }
 
     model.dispatch("CLEAR_FORMATTING", {
@@ -951,8 +986,15 @@ describe("Default Plugin: Style", () => {
     });
 
     const pasteTarget: ClipboardPasteTarget = { sheetId: "sh2", zones: target("A1") };
-    for (const handler of handlers) {
-      handler.paste(pasteTarget, copiedData, { isCutOperation: false });
+    for (const { name, handler } of handlerEntries) {
+      if (copiedData[name] !== undefined) {
+        handler.paste(
+          pasteTarget,
+          handler.expand(copiedData[name]),
+          { isCutOperation: false },
+          clipboardData
+        );
+      }
     }
 
     expect(getCellStyle(model, toXC(1, 1))).toEqual(gridState[1][1]);

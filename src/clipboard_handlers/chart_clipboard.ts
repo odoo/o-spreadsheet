@@ -1,7 +1,12 @@
 import { SpreadsheetChart } from "../helpers/figures/chart";
 import { boundColRowOffsetInSheet } from "../helpers/figures/figure/figure";
 import { UuidGenerator } from "../helpers/uuid";
-import { ClipboardFigureData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
+import {
+  ClipboardFigureData,
+  ClipboardOptions,
+  ClipboardPasteTarget,
+  ClipboardPositions,
+} from "../types/clipboard";
 import { CommandResult } from "../types/commands";
 import { Figure } from "../types/figure";
 import { PixelPosition, UID, Zone } from "../types/misc";
@@ -52,7 +57,7 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     sheetId: UID,
     target: Zone[],
     content: ClipboardContent,
-    options?: ClipboardOptions
+    options: ClipboardOptions
   ): ClipboardPasteTarget {
     const figureIds = {};
     for (const figure of content.figures) {
@@ -61,7 +66,12 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     return { zones: [], figureIds, sheetId };
   }
 
-  paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
+  paste(
+    target: ClipboardPasteTarget,
+    clippedContent: ClipboardContent,
+    options: ClipboardOptions,
+    positions: ClipboardPositions
+  ) {
     if (!target.figureIds) {
       return;
     }
