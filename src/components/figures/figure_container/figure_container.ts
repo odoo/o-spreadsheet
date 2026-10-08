@@ -1,4 +1,4 @@
-import { onMounted, onWillUpdateProps, proxy } from "@odoo/owl";
+import { onMounted, onWillDestroy, onWillUpdateProps, proxy } from "@odoo/owl";
 import { DRAG_THRESHOLD } from "../../../constants";
 import { isDefined } from "../../../helpers/misc";
 import { render } from "../../../helpers/owl3_helpers";
@@ -144,6 +144,10 @@ export class FiguresContainer extends OSComponent {
       // compute which figures should be displayed, so we have to force a
       // new rendering
       render(this);
+    });
+    onWillDestroy(() => {
+      this.dnd.cancelDnd?.();
+      this.dnd.cancelDnd = undefined;
     });
     onWillUpdateProps(() => {
       const sheetId = this.model().getters.getActiveSheetId();

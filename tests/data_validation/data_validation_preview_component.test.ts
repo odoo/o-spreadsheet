@@ -1,16 +1,18 @@
 import { DataValidationRuleData, DEFAULT_LOCALE, Model } from "../../src";
 import { DataValidationPreview } from "../../src/components/side_panel/data_validation/dv_preview/dv_preview";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { toZone } from "../../src/helpers/zones";
-import { Component } from "../../src/owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../src/registries/criterion_registry";
 import { DataValidationCriterion } from "../../src/types/data_validation";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
-import { updateLocale } from "../test_helpers/commands_helpers";
+import { addDataValidation, updateLocale } from "../test_helpers/commands_helpers";
 import { click, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
   flattenHighlightRange,
   getHighlightsFromStore,
   mountComponent,
+  mountSpreadsheet,
+  nextTick,
   spyModelDispatch,
 } from "../test_helpers/helpers";
 
@@ -23,7 +25,6 @@ const testDataValidationRule: DataValidationRuleData = {
 describe("Data validation preview", () => {
   let fixture: HTMLElement;
   let model: Model;
-  let parent: Component;
   let env: SpreadsheetActionEnv;
 
   async function mountDataValidationPreview(ruleData: DataValidationRuleData) {
@@ -34,7 +35,7 @@ describe("Data validation preview", () => {
       id: "1",
       ranges: ruleData.ranges.map((range) => model.getters.getRangeFromSheetXC(sheetId, range)),
     };
-    ({ fixture, model, parent, env } = await mountComponent(DataValidationPreview, {
+    ({ fixture, model, env } = await mountComponent(DataValidationPreview, {
       props: { rule },
     }));
   }
@@ -80,10 +81,15 @@ describe("Data validation preview", () => {
   });
 
   test("Highlights disappear when preview is unmounted", async () => {
-    await mountDataValidationPreview(testDataValidationRule);
+    model = new Model();
+    addDataValidation(model, "A1", "ruleId", testDataValidationRule.criterion);
+    ({ fixture, env } = await mountSpreadsheet({ model }));
+    env.getStore(SidePanelStore).open("DataValidation");
+    await nextTick();
     triggerMouseEvent(".o-dv-preview", "mouseenter");
     expect(getHighlightsFromStore(env)).not.toEqual([]);
-    parent.__owl__.destroy();
+    env.getStore(SidePanelStore).close();
+    await nextTick();
     expect(getHighlightsFromStore(env)).toEqual([]);
   });
 

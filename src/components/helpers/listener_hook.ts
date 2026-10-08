@@ -22,3 +22,15 @@ export function useHoveredElement(ref: Signal<HTMLElement | null>) {
 
   return state;
 }
+
+export function useResizeObserver(ref: () => HTMLElement | null, callback: ResizeObserverCallback) {
+  useEffect(() => {
+    const el = ref();
+    if (!el) {
+      return;
+    }
+    const resizeObserver = new ResizeObserver(callback);
+    resizeObserver.observe(el);
+    return () => resizeObserver.disconnect();
+  });
+}

@@ -7,7 +7,6 @@ import {
   providePlugins,
   signal,
   Signal,
-  useEffect,
   useListener,
   usePlugin,
   useProps,
@@ -18,8 +17,9 @@ import { unregisterChartJsExtensions } from "../../helpers/figures/charts/chart_
 import { batched } from "../../helpers/misc";
 import { providePluginsIfNotPresent, render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
-import { Component, useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { ImageProviderPlugin } from "../../owl_plugins/image_provider_owl_plugin";
+import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
@@ -28,7 +28,6 @@ import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
 import { ClipboardStore } from "../../stores/clipboard_store";
 import { ModelStore } from "../../stores/model_store";
-import { ScreenWidthStore } from "../../stores/screen_width_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { _t } from "../../translation";
@@ -36,7 +35,6 @@ import { CommandResult } from "../../types/commands";
 import { CSSProperties, HeaderGroup, Pixel } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
 import { ColorThemeName } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { NotificationCallbacks } from "../../types/stores/notification_store_methods";
 import { BottomBar } from "../bottom_bar/bottom_bar";
@@ -50,8 +48,8 @@ import {
   keyboardEventToShortcutString,
   zoomCorrectedElementRect,
 } from "../helpers/dom_helpers";
-import { useSpreadsheetRect } from "../helpers/position_hook";
-import { useScreenWidth } from "../helpers/screen_width_hook";
+import { useResizeObserver } from "../helpers/listener_hook";
+import { provideSpreadsheetRect, useSpreadsheetRect } from "../helpers/position_hook";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
 import { types } from "../props_validation";
 import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
@@ -94,6 +92,7 @@ export class Spreadsheet extends Component {
   private notificationPlugin!: PluginInstance<typeof NotificationPlugin>;
   private printPlugin!: PluginInstance<typeof PrintPlugin>;
   private modelPlugin!: PluginInstance<typeof ModelPlugin>;
+  private isSmallPlugin!: PluginInstance<typeof IsSmallPlugin>;
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
 
@@ -126,14 +125,9 @@ export class Spreadsheet extends Component {
   }
 
   setup() {
-    if (!("isSmall" in this.env)) {
-      const screenSize = useScreenWidth();
-      useSubEnv({
-        get isSmall() {
-          return screenSize.isSmall;
-        },
-      } satisfies Partial<SpreadsheetChildEnv>);
-    }
+    provideSpreadsheetRect(this.spreadsheetRef);
+    providePlugins([IsSmallPlugin]);
+    this.isSmallPlugin = usePlugin(IsSmallPlugin);
 
     providePlugins([PopoverContainerPlugin], {
       getPopoverContainerRect: () => getElBoundingRect(this.spreadsheetRef()),
@@ -150,11 +144,6 @@ export class Spreadsheet extends Component {
     stores.inject(ModelStore, this.model());
     this.viewStore = useStore(ViewportsStore);
     this.zoomStore = useStore(ZoomStore);
-
-    const env = this.env;
-    stores.get(ScreenWidthStore).setSmallThreshhold(() => {
-      return env.isSmall;
-    });
 
     providePluginsIfNotPresent([NotificationPlugin]);
     providePlugins([ImageProviderPlugin], {
@@ -214,16 +203,8 @@ export class Spreadsheet extends Component {
       }
     });
 
-    const resizeObserver = new ResizeObserver(() => {
+    useResizeObserver(this.spreadsheetRef, () => {
       this.sidePanel.changeSpreadsheetWidth(this.spreadsheetRect.width);
-    });
-    useEffect(() => {
-      const el = this.spreadsheetRef();
-      if (!el) {
-        return;
-      }
-      resizeObserver.observe(el);
-      return () => resizeObserver.disconnect();
     });
 
     const batchedRender = batched(() => render(this, true));
@@ -348,7 +329,7 @@ export class Spreadsheet extends Component {
 
   getSpreadSheetClasses() {
     return [
-      this.env.isSmall ? "o-spreadsheet-mobile" : "",
+      this.isSmallPlugin.isSmall() ? "o-spreadsheet-mobile" : "",
       this.model().getters.isDarkMode() ? "dark" : "",
     ].join(" ");
   }
