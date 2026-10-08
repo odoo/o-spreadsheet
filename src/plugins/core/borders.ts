@@ -142,6 +142,16 @@ const undefinedIfExternal = { undefinedIf: "external" } as const;
 const undefinedIfInternal = { undefinedIf: "internal" } as const;
 const nullOnEmpty = { nullOnEmpty: true } as const;
 
+function keepSide(
+  border: BorderDescrInternal | undefined,
+  side: "internal" | "external"
+): BorderDescrInternal | undefined {
+  if (!border || (border.internal !== side && border.internal !== "both")) {
+    return undefined;
+  }
+  return { ...border, internal: side };
+}
+
 function leftCol(zone: Zone): Zone {
   return { left: zone.left, right: zone.left, top: zone.top, bottom: zone.bottom };
 }
@@ -1362,6 +1372,19 @@ export class BordersPlugin
       zone.top,
       zone.bottom + 1
     );
+
+    const height = zone.bottom - zone.top + 1;
+    for (const column of bordersTop) {
+      if (column?.[0]) {
+        column[0] = keepSide(column[0], "internal");
+      }
+      if (column?.[height]) {
+        column[height] = keepSide(column[height], "external");
+      }
+    }
+    const lastCol = zone.right + 1 - zone.left;
+    bordersLeft[0] = bordersLeft[0]?.map((border) => keepSide(border, "internal"));
+    bordersLeft[lastCol] = bordersLeft[lastCol]?.map((border) => keepSide(border, "external"));
 
     const defaultTop: defaultValue<BorderDescrInternal> = {
       sheetDefault: this.defaultTop[sheetId]?.sheetDefault,
