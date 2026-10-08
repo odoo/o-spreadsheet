@@ -920,7 +920,7 @@ describe("Default Borders", () => {
     });
   });
 
-  test("borders.ts:465 — a border on a row-wide zone does not leak a right border onto the last column", () => {
+  test("a border on a row-wide zone does not leak a right border onto the last column", () => {
     const model = new Model();
     setZoneBorders(model, { position: "all" }, ["A1:P1"]);
 
@@ -928,7 +928,7 @@ describe("Default Borders", () => {
     expect(getCellBorder(model, "Z1")).toBeNull();
   });
 
-  test("borders.ts:465 — a border on a column-wide zone does not leak a bottom border onto the last row", () => {
+  test("a border on a column-wide zone does not leak a bottom border onto the last row", () => {
     const model = new Model();
     setZoneBorders(model, { position: "all" }, ["A1:A60"]);
 
@@ -936,7 +936,7 @@ describe("Default Borders", () => {
     expect(getCellBorder(model, "A100")).toBeNull();
   });
 
-  test("borders.ts:380 — a sheet-default border does not leak onto the last row and column", () => {
+  test("a sheet-default border does not leak onto the last row and column", () => {
     const model = new Model();
     setZoneBorders(model, { position: "all" }, ["B2:Y99"]);
 
@@ -946,7 +946,7 @@ describe("Default Borders", () => {
     expect(getCellBorder(model, "Z100")).toBeNull();
   });
 
-  test("borders.ts:380 — inner borders on the whole sheet do not add a bottom/right border on the last cell", () => {
+  test("inner borders on the whole sheet do not add a bottom/right border on the last cell", () => {
     const model = new Model();
     setZoneBorders(model, { position: "hv" }, ["A1:Z100"]);
 

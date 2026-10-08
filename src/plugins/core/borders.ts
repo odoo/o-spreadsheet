@@ -377,13 +377,21 @@ export class BordersPlugin
   ) {
     this.clearCellsBorder(borderType, sheetId, zone);
     const sheetZone = this.getters.getSheetZone(sheetId);
-    const horizontalZone = this.getters.getRowsZone(sheetId, zone.top, zone.bottom);
+    const horizontalZone = extendZone(
+      this.getters.getRowsZone(sheetId, zone.top, zone.bottom),
+      "right",
+      1
+    );
     const externalHorizontalZones = recomputeZones([horizontalZone], [zone]);
     let defaults = this.getDefaultBorderInCell(borderType, sheetId, externalHorizontalZones, {
       sheet: true,
       row: true,
     });
-    const verticalZone = this.getters.getColsZone(sheetId, zone.left, zone.right);
+    const verticalZone = extendZone(
+      this.getters.getColsZone(sheetId, zone.left, zone.right),
+      "bottom",
+      1
+    );
     const externalVerticalZones = recomputeZones([verticalZone], [zone]);
     defaults = defaults.concat(
       this.getDefaultBorderInCell(borderType, sheetId, externalVerticalZones, {
@@ -391,7 +399,10 @@ export class BordersPlugin
         col: true,
       })
     );
-    const externalCornerZones = recomputeZones([sheetZone], [horizontalZone, verticalZone]);
+    const externalCornerZones = recomputeZones(
+      [extendZone(extendZone(sheetZone, "right", 1), "bottom", 1)],
+      [horizontalZone, verticalZone]
+    );
     defaults = defaults.concat(
       this.getDefaultBorderInCell(borderType, sheetId, externalCornerZones, { sheet: true })
     );
@@ -429,7 +440,7 @@ export class BordersPlugin
   ) {
     this.clearCellsBorder(borderType, sheetId, zone);
     const leftoverZones = recomputeZones(
-      [this.getters.getColsZone(sheetId, zone.left, zone.right)],
+      [extendZone(this.getters.getColsZone(sheetId, zone.left, zone.right), "bottom", 1)],
       [zone]
     );
     const defaults = this.getDefaultBorderInCell(borderType, sheetId, leftoverZones, {
@@ -463,7 +474,7 @@ export class BordersPlugin
   ) {
     this.clearCellsBorder(borderType, sheetId, zone);
     const leftoverZones = recomputeZones(
-      [this.getters.getRowsZone(sheetId, zone.top, zone.bottom)],
+      [extendZone(this.getters.getRowsZone(sheetId, zone.top, zone.bottom), "right", 1)],
       [zone]
     );
     const defaults = this.getDefaultBorderInCell(borderType, sheetId, leftoverZones, {
