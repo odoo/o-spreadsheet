@@ -863,7 +863,7 @@ describe("Default Plugin: setSheetFormat preserves cells outside the zone", () =
     ).toBe("1");
   });
 
-  test("data_normalization.ts:96 — a column clearing the sheet format keeps no format after a reload", () => {
+  test("a column clearing the sheet format keeps no format after a reload", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setFormat(model, [model.getters.getSheetZone(sheetId)], PERCENT_FORMAT);

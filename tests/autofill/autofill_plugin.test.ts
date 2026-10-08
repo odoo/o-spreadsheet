@@ -682,7 +682,7 @@ describe("Autofill", () => {
     expect(getCellText(model, "B1")).toBe("=C2");
   });
 
-  test("src/components/autofill/autofill_store.ts:267 — autofill replaces the whole border of the target cell", () => {
+  test("autofill replaces the whole border of the target cell", () => {
     setZoneBorders(model, { position: "top" }, ["A1"]);
     setZoneBorders(model, { position: "all" }, ["A3"]);
     autofill(model, "A1", "A3");

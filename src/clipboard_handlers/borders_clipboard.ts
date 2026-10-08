@@ -3,11 +3,33 @@ import { getItemId } from "../helpers/data_normalization";
 import { groupConsecutive, range } from "../helpers/misc";
 import { recomputeZones } from "../helpers/recompute_zones";
 import { positionToZone } from "../helpers/zones";
-import { BorderDescrInternal, toDescr } from "../plugins/core/borders";
+import { BorderDescrInternal } from "../plugins/core/borders";
 import { defaultValue } from "../plugins/core/default";
 import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
-import { Border, BorderOrNull, CellPosition, Column, HeaderIndex, UID, Zone } from "../types/misc";
+import {
+  Border,
+  BorderDescr,
+  BorderOrNull,
+  CellPosition,
+  Column,
+  HeaderIndex,
+  UID,
+  Zone,
+} from "../types/misc";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
+
+function toDescr(
+  border: BorderDescrInternal | undefined,
+  side: "internal" | "external"
+): BorderDescr | null | undefined {
+  if (!border) {
+    return undefined;
+  }
+  if (border.style === "empty" || (border.internal !== side && border.internal !== "both")) {
+    return null;
+  }
+  return { style: border.style, color: border.color };
+}
 
 type ClipboardContent = {
   content: {
@@ -82,142 +104,70 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
       const right = left + content.width - 1;
       const top = zone.top + content.top;
       const bottom = top + content.height - 1;
+      const { defaultLeft, defaultTop } = content;
       // Sheet default
-      this.dispatch("SET_BORDERS_ON_TARGET", {
-        border: {
-          left: toDescr(content.defaultLeft.sheetDefault),
-          right: toDescr(content.defaultLeft.sheetDefault),
-          top: toDescr(content.defaultTop.sheetDefault),
-          bottom: toDescr(content.defaultLeft.sheetDefault),
-        },
-        sheetId,
-        target: [{ left, top, right, bottom }],
+      this.setBorders(sheetId, [{ left, top, right, bottom }], {
+        left: toDescr(defaultLeft.sheetDefault, "internal"),
+        right: toDescr(defaultLeft.sheetDefault, "external"),
+        top: toDescr(defaultTop.sheetDefault, "internal"),
+        bottom: toDescr(defaultTop.sheetDefault, "external"),
       });
       // Col default
       for (const col of range(0, content.width)) {
-        const borderLeft = toDescr(content.defaultLeft.colDefault?.[col], {
-          undefinedIf: "external",
-          nullOnEmpty: true,
+        this.setBorders(sheetId, [{ left: left + col, right: left + col, top, bottom }], {
+          left: toDescr(defaultLeft.colDefault?.[col], "internal"),
+          right: toDescr(defaultLeft.colDefault?.[col + 1], "external"),
+          top: toDescr(defaultTop.colDefault?.[col], "internal"),
+          bottom: toDescr(defaultTop.colDefault?.[col], "external"),
         });
-        const borderRight = toDescr(content.defaultLeft.colDefault?.[col + 1], {
-          undefinedIf: "internal",
-          nullOnEmpty: true,
-        });
-        const borderTop = toDescr(content.defaultTop.colDefault?.[col], {
-          undefinedIf: "external",
-          nullOnEmpty: true,
-        });
-        const borderBottom = toDescr(content.defaultTop.colDefault?.[col], {
-          undefinedIf: "internal",
-          nullOnEmpty: true,
-        });
-        if (
-          borderLeft !== undefined ||
-          borderRight !== undefined ||
-          borderTop !== undefined ||
-          borderBottom !== undefined
-        ) {
-          this.dispatch("SET_BORDERS_ON_TARGET", {
-            border: {
-              left: borderLeft,
-              right: borderRight,
-              top: borderTop,
-              bottom: borderBottom,
-            },
-            sheetId,
-            target: [{ left: left + col, right: left + col, top, bottom }],
-          });
-        }
       }
       // Row default
       for (const row of range(0, content.height)) {
-        const borderLeft = toDescr(content.defaultLeft.rowDefault?.[row], {
-          undefinedIf: "external",
-          nullOnEmpty: true,
+        this.setBorders(sheetId, [{ left, right, top: top + row, bottom: top + row }], {
+          left: toDescr(defaultLeft.rowDefault?.[row], "internal"),
+          right: toDescr(defaultLeft.rowDefault?.[row], "external"),
+          top: toDescr(defaultTop.rowDefault?.[row], "internal"),
+          bottom: toDescr(defaultTop.rowDefault?.[row + 1], "external"),
         });
-        const borderRight = toDescr(content.defaultLeft.rowDefault?.[row], {
-          undefinedIf: "internal",
-          nullOnEmpty: true,
-        });
-        const borderTop = toDescr(content.defaultTop.rowDefault?.[row], {
-          undefinedIf: "external",
-          nullOnEmpty: true,
-        });
-        const borderBottom = toDescr(content.defaultTop.rowDefault?.[row + 1], {
-          undefinedIf: "internal",
-          nullOnEmpty: true,
-        });
-        if (
-          borderLeft !== undefined ||
-          borderRight !== undefined ||
-          borderTop !== undefined ||
-          borderBottom !== undefined
-        ) {
-          this.dispatch("SET_BORDERS_ON_TARGET", {
-            border: {
-              left: borderLeft,
-              right: borderRight,
-              top: borderTop,
-              bottom: borderBottom,
-            },
-            sheetId,
-            target: [{ left, right, top: top + row, bottom: top + row }],
-          });
-        }
       }
 
       const cellBorders: Record<number, Record<number, BorderOrNull>> = {};
-      function set(col: number, row: number, side: keyof Border, border: BorderDescrInternal) {
+      function set(
+        col: number,
+        row: number,
+        side: keyof Border,
+        border: BorderDescr | null | undefined
+      ) {
+        if (border === undefined || col < 0 || row < 0) {
+          return;
+        }
         cellBorders[col] ??= {};
         cellBorders[col][row] ??= {};
-        cellBorders[col][row][side] = toDescr(border);
+        cellBorders[col][row][side] = border;
       }
       for (const pasteZone of splitZoneForPaste(zone, content.width, content.height)) {
         const left = pasteZone.left + content.left;
         const top = pasteZone.top + content.top;
+
         // Cells
         for (const [colIndex, column] of Object.entries(content.bordersLeft)) {
-          if (!column) {
-            continue;
-          }
           const col = parseInt(colIndex) + left;
-          for (const [rowIndex, border] of Object.entries(column)) {
-            if (!border) {
-              continue;
-            }
+          for (const [rowIndex, border] of Object.entries(column ?? [])) {
             const row = parseInt(rowIndex) + top;
-            if (border?.internal === "internal" || border.style === "empty") {
-              set(col, row, "left", border);
-            } else if (border?.internal === "external") {
-              set(col - 1, row, "right", border);
-            } else {
-              set(col, row, "left", border);
-              set(col - 1, row, "right", border);
-            }
+            set(col, row, "left", toDescr(border, "internal"));
+            set(col - 1, row, "right", toDescr(border, "external"));
           }
         }
         for (const [colIndex, column] of Object.entries(content.bordersTop)) {
-          if (!column) {
-            continue;
-          }
           const col = parseInt(colIndex) + left;
-          for (const [rowIndex, border] of Object.entries(column)) {
-            if (!border) {
-              continue;
-            }
+          for (const [rowIndex, border] of Object.entries(column ?? [])) {
             const row = parseInt(rowIndex) + top;
-            if (border?.internal === "internal" || border.style === "empty") {
-              set(col, row, "top", border);
-            } else if (border?.internal === "external") {
-              set(col, row - 1, "bottom", border);
-            } else {
-              set(col, row, "top", border);
-              set(col, row - 1, "bottom", border);
-            }
+            set(col, row, "top", toDescr(border, "internal"));
+            set(col, row - 1, "bottom", toDescr(border, "external"));
           }
         }
       }
-      const borders: { [borderId: number]: Border } = {};
+      const borders: { [borderId: number]: BorderOrNull } = {};
       const bordersPositions: Record<number, CellPosition[]> = {};
 
       for (const col of Object.keys(cellBorders)) {
@@ -237,6 +187,12 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
           target: recomputeZones(bordersPositions[itemId].map(positionToZone)),
         });
       }
+    }
+  }
+
+  private setBorders(sheetId: UID, target: Zone[], border: BorderOrNull) {
+    if (Object.values(border).some((side) => side !== undefined)) {
+      this.dispatch("SET_BORDERS_ON_TARGET", { border, sheetId, target });
     }
   }
 }

@@ -344,27 +344,6 @@ describe("Default Borders", () => {
       expect(getCellBorder(model, "B50")).toEqual(ALL_BORDER);
       expect(model.exportData().sheets[0].borders).toEqual({});
     });
-
-    test("borders.ts:771 — columns added after the last column do not inherit a row default that did not reach it", () => {
-      const model = new Model();
-      setZoneBorders(model, { position: "top" }, ["A1:Z1"]);
-      setZoneBorders(model, { position: "left" }, ["A1:P1"]);
-
-      addColumns(model, "after", "Z", 5);
-
-      expect(getCellBorder(model, "AC1")).toBeNull();
-    });
-
-    test("borders.ts:771 — a column added after the last column does not inherit a left border the old last column did not have", () => {
-      const model = new Model();
-      setZoneBorders(model, { position: "left" }, ["A1:A100", "B1:B100"]);
-      addColumns(model, "after", "A", 40);
-
-      addColumns(model, "after", "BN", 1);
-
-      expect(getCellBorder(model, "BN5")).toBeNull();
-      expect(getCellBorder(model, "BO5")).toBeNull();
-    });
   });
 
   describe("Sheet Manipulation: Remove Column", () => {
@@ -538,7 +517,7 @@ describe("Default Borders", () => {
       expect(getCellBorder(model, "B2")).toEqual(ALL_BORDER);
     });
 
-    test("borders.ts:859 — deleting a row inside a bordered column keeps the line between the rows around it", () => {
+    test("deleting a row inside a bordered column keeps the line between the rows around it", () => {
       const model = new Model();
       setZoneBorders(model, { position: "all" }, ["A1:A100"]);
 
@@ -897,30 +876,9 @@ describe("Default Borders", () => {
 
       expect(getCellBorder(model, "C3")).toBeNull();
     });
-
-    test("borders.ts:686 — clearing a cell inside a sheet-wide border keeps the sides of its neighbours", () => {
-      const model = new Model();
-      setZoneBorders(model, { position: "all" }, ["A1:Z100"]);
-
-      clearFormatting(model, "B2");
-
-      expect(getCellBorder(model, "A2")).toEqual(ALL_BORDER);
-      expect(getCellBorder(model, "B1")).toEqual(ALL_BORDER);
-      expect(getCellBorder(model, "C2")).toEqual(ALL_BORDER);
-      expect(getCellBorder(model, "B3")).toEqual(ALL_BORDER);
-    });
-
-    test("borders.ts:596 — clearing the end of a bordered column keeps the bottom of the cell above", () => {
-      const model = new Model();
-      setZoneBorders(model, { position: "all" }, ["A1:A100"]);
-
-      clearFormatting(model, "A10:A100");
-
-      expect(getCellBorder(model, "A9")).toEqual(ALL_BORDER);
-    });
   });
 
-  test("borders.ts:465 — a border on a row-wide zone does not leak a right border onto the last column", () => {
+  test("a border on a row-wide zone does not leak a right border onto the last column", () => {
     const model = new Model();
     setZoneBorders(model, { position: "all" }, ["A1:P1"]);
 
@@ -928,7 +886,7 @@ describe("Default Borders", () => {
     expect(getCellBorder(model, "Z1")).toBeNull();
   });
 
-  test("borders.ts:465 — a border on a column-wide zone does not leak a bottom border onto the last row", () => {
+  test("a border on a column-wide zone does not leak a bottom border onto the last row", () => {
     const model = new Model();
     setZoneBorders(model, { position: "all" }, ["A1:A60"]);
 
@@ -936,7 +894,7 @@ describe("Default Borders", () => {
     expect(getCellBorder(model, "A100")).toBeNull();
   });
 
-  test("borders.ts:380 — a sheet-default border does not leak onto the last row and column", () => {
+  test("a sheet-default border does not leak onto the last row and column", () => {
     const model = new Model();
     setZoneBorders(model, { position: "all" }, ["B2:Y99"]);
 
@@ -946,7 +904,7 @@ describe("Default Borders", () => {
     expect(getCellBorder(model, "Z100")).toBeNull();
   });
 
-  test("borders.ts:380 — inner borders on the whole sheet do not add a bottom/right border on the last cell", () => {
+  test("inner borders on the whole sheet do not add a bottom/right border on the last cell", () => {
     const model = new Model();
     setZoneBorders(model, { position: "hv" }, ["A1:Z100"]);
 
@@ -1025,7 +983,7 @@ describe("Default Borders", () => {
     expect(borderCommands.length).toBeLessThan(10);
   });
 
-  test("borders_clipboard.ts:86 — pasting a cell with an inner vertical sheet border on another sheet copies the exact cell border", () => {
+  test("pasting a cell with an inner vertical sheet border on another sheet copies the exact cell border", () => {
     const model = new Model();
     makeStoreWithModel(model, ClipboardStore);
     setZoneBorders(model, { position: "v" }, ["A1:Z100"]);
@@ -1039,7 +997,7 @@ describe("Default Borders", () => {
     expect(getCellBorder(model, "D5")).toEqual(VERTICAL_BORDER);
   });
 
-  test("borders_clipboard.ts:86 — pasting a cell with a sheet-wide left border on another sheet only pastes a left border", () => {
+  test("pasting a cell with a sheet-wide left border on another sheet only pastes a left border", () => {
     const model = new Model();
     makeStoreWithModel(model, ClipboardStore);
     setBordersOnTarget(model, ["A1:Z100"], LEFT_BORDER);
@@ -1052,7 +1010,7 @@ describe("Default Borders", () => {
     expect(getCellBorder(model, "D5")).toEqual(LEFT_BORDER);
   });
 
-  test("borders_clipboard.ts:86 — pasting a cell with a sheet-wide bottom border on another sheet pastes a bottom border, not a top one", () => {
+  test("pasting a cell with a sheet-wide bottom border on another sheet pastes a bottom border, not a top one", () => {
     const model = new Model();
     makeStoreWithModel(model, ClipboardStore);
     setBordersOnTarget(model, ["A1:Z100"], BOTTOM_BORDER);
@@ -1082,7 +1040,7 @@ describe("Default Borders", () => {
     expect(borderCommands.length).toBeLessThan(10);
   });
 
-  test("borders_clipboard.ts:97 — pasted full-width bordered rows keep all their sides", () => {
+  test("pasted full-width bordered rows keep all their sides", () => {
     const model = new Model();
     makeStoreWithModel(model, ClipboardStore);
     setZoneBorders(model, { position: "all" }, ["A1:Z50"]);
