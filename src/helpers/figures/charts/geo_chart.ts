@@ -1,5 +1,6 @@
 import { ChartConfiguration } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
+import { _t } from "../../../translation";
 import { GeoChartRuntime } from "../../../types/chart/geo_chart";
 import { CommandResult } from "../../../types/commands";
 import { AbstractChart } from "./abstract_chart";
@@ -79,7 +80,18 @@ export const GeoChart: ChartTypeBuilder<"geo"> = {
         ...eventHandlers,
       },
     };
+    const runtime: GeoChartRuntime = { chartJsConfig: config };
+    const region = definition.region || getters.getGeoChartAvailableRegions()[0]?.id;
+    if (region) {
+      runtime.errorMessage = !getters.isRegionAvailable(region)
+        ? _t("Region %(region)s is not available", {
+            region: getters.getGeoChartAvailableRegions().find((r) => r.id === region)?.label ?? "",
+          })
+        : undefined;
+    } else {
+      runtime.errorMessage = _t("No region is available");
+    }
 
-    return { chartJsConfig: config };
+    return runtime;
   },
 };
