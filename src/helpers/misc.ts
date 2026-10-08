@@ -7,6 +7,8 @@ import { ChartStyle } from "../types/chart/chart";
 import { SearchOptions } from "../types/find_and_replace";
 import { Getters } from "../types/getters";
 import {
+  Border,
+  BorderOrNull,
   CellPosition,
   Cloneable,
   ConsecutiveIndexes,
@@ -16,6 +18,19 @@ import {
   Style,
   UID,
 } from "../types/misc";
+
+/**
+ * Border commands keep the sides left undefined. Use null for the missing
+ * sides to replace the whole border.
+ */
+export function toReplacingBorder(border: Border): BorderOrNull {
+  return {
+    top: border.top ?? null,
+    left: border.left ?? null,
+    bottom: border.bottom ?? null,
+    right: border.right ?? null,
+  };
+}
 
 const sanitizeSheetNameRegex = new RegExp(FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX, "g");
 
