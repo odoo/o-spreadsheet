@@ -77,6 +77,7 @@ export function createStatItem(
       return {
         id,
         name,
+        rawValue: value, // TODO MAWAT: use raw value to check for 0 instead of formatted value and regex
         value: formatValue(displayValue, { locale, format }),
         formula,
       };

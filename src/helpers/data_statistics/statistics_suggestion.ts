@@ -142,6 +142,7 @@ export function buildCategorySumItems(
   const rangeValues = zoneToXc(zoneVal);
   const sumMap: Map<string, number> = new Map();
   const catsVals = getters.getEvaluatedCellsInZone(sheetId, zoneCat);
+<<<<<<< HEAD
   const moneyVals = getters.getEvaluatedCellsInZone(sheetId, zoneVal);
   const moneyFormat = moneyVals.find((cell) => cell?.format)?.format;
   for (let i = 0; i < catsVals.length; i++) {
@@ -164,6 +165,44 @@ export function buildCategorySumItems(
         formula: `=SUMIF(${rangeCategories},"${value}",${rangeValues})`,
         computedValue: {
           value: sumMap.get(toTrimmedLowerCase(String(value))) ?? 0,
+=======
+  const somethingElseThanMoneyFindAGoodName = getters.getEvaluatedCellsInZone(sheetId, zoneVal);
+
+
+// TODO MAWAT: try with javascritp group by
+// const allValuesByCategory=[
+  {category: value}, {category:value}, etc.
+]
+const allGroupedByCategory = Object.groupBy(allValuesByCategory, (item) => item.category);
+// {"category1": [...], "category2": [...], ...}
+
+
+  const moneyFormat = somethingElseThanMoneyFindAGoodName.find((cell) => cell?.format)?.format;
+  for (let i = 0; i < catsVals.length; i++) {
+    const catCell = catsVals[i];
+    const moneyCell = somethingElseThanMoneyFindAGoodName[i];
+    if (!catCell || !moneyCell) {
+      continue;
+    }
+    const key = toTrimmedLowerCase(String(catCell.value));  // sure?
+    const amount = Number(moneyCell.value);
+    const validAmount = isNaN(amount) ? 0 : amount;
+    sumMap.set(
+      key, (sumMap.get(key) ?? 0) + validAmount
+      //category1: {value: valueCategory1, categoryText: catCell.value},
+    );
+  }
+
+  return uniqueValues(colCategories.nonEmpty)
+    .filter(({ formattedValue }) => formattedValue !== "")
+    .map(({ value: category, formattedValue }) =>
+      createStatItem(getters, sheetId, {
+        id: generateItemIdFromValue(category),
+        name: formattedValue,
+        formula: `=SUMIF(${rangeCategories},"${category}",${rangeValues})`,
+        computedValue: {
+          value: sumMap.get(toTrimmedLowerCase(String(category))) ?? 0,
+>>>>>>> a1c3f1ba19 (first review with VSC)
         },
         format: moneyFormat,
       })
@@ -181,8 +220,8 @@ function uniqueValues(
     const { value, formattedValue } = cell;
     const normalizedValue = toTrimmedLowerCase(String(value));
     if (!normalizedValues.has(normalizedValue)) {
-      uniqueValuesList.push({ value, formattedValue });
       normalizedValues.add(normalizedValue);
+      uniqueValuesList.push({ value, formattedValue });
     }
   }
   return uniqueValuesList;
@@ -294,6 +333,10 @@ export function buildGroupedDateSections(
     : colValues.zone;
   const valueCell = getters.getEvaluatedCellsInZone(sheetId, zoneValues);
   const valueFormat = valueCell.find((cell) => cell?.format)?.format;
+<<<<<<< HEAD
+=======
+  // copy of code
+>>>>>>> a1c3f1ba19 (first review with VSC)
   const rangeDates = zoneToXc(zoneDates);
   const rangeValues = zoneToXc(zoneValues);
   const dateValues = colDates.nonEmpty
@@ -305,18 +348,30 @@ export function buildGroupedDateSections(
     { length: latestYear - earliestYear + 1 },
     (_, i) => earliestYear + i
   );
+<<<<<<< HEAD
+=======
+  // end of copy of code
+>>>>>>> a1c3f1ba19 (first review with VSC)
   const yearItems = yearRange
     .map(
       (year) =>
         createStatItem(getters, sheetId, {
           id: String(year),
           name: getStatIdForYear(year),
+<<<<<<< HEAD
+=======
+          // TODO: VSC is it the same as countif ?
+>>>>>>> a1c3f1ba19 (first review with VSC)
           formula: `=SUMPRODUCT((YEAR(${rangeDates})=${year})*(${rangeValues}))`,
           format: valueFormat,
         })
       // `=SUM(--(YEAR(${range})=${year})*(${rangeValues}))`
     )
+<<<<<<< HEAD
     .filter(isNonZero);
+=======
+    .filter(x=>x.rawValue !== 0);
+>>>>>>> a1c3f1ba19 (first review with VSC)
   const monthItems = Object.entries(MONTHS)
     .map(([month, name]) =>
       createStatItem(getters, sheetId, {
@@ -330,6 +385,10 @@ export function buildGroupedDateSections(
       })
     )
     .filter(isNonZero);
+<<<<<<< HEAD
+=======
+    // TODO: day of the month (actual dates or weekdays or day of the month)
+>>>>>>> a1c3f1ba19 (first review with VSC)
   const dayItems = Object.entries(DAYS)
     .map(([day, name]) =>
       createStatItem(getters, sheetId, {

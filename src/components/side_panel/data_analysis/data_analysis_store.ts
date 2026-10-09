@@ -30,6 +30,7 @@ export interface OccurrencesSortType {
   order: "asc" | "desc" | "none";
 }
 
+// TODO MAWAT: not correct either, use raw value
 function cleanFormatStatValue(stat: StatValue): number {
   const cleanedStatValue = String(stat.value).replace(/[^0-9-]/g, "");
   return parseFloat(cleanedStatValue);
@@ -149,6 +150,7 @@ export class DataAnalysisStore extends SpreadsheetStore {
 
   private sortDateItems() {
     const items = [...this.dateStatSections[this.dateGranularity]];
+    // TODO MAWAT: if there is tranformation to do, first transform, then sort
     switch (this.dateSortType) {
       case "asc":
         items.sort(
@@ -222,7 +224,7 @@ export class DataAnalysisStore extends SpreadsheetStore {
         default:
           this.occurrencesItems = buildOccurrencesItems(this.getters, col, sheetId);
       }
-    } else if (
+    } else {if (
       (this.hasData && cols.length === 2 && zones.length === 1) ||
       (zones.length === 2 && zones[0].top === zones[1].top && zones[0].bottom === zones[1].bottom)
     ) {
@@ -231,8 +233,6 @@ export class DataAnalysisStore extends SpreadsheetStore {
       this.generalStatItems = [];
       this.dateStatSections = buildGroupedDateSections(this.getters, leftCol, rightCol, sheetId);
       this.occurrencesItems = buildCategorySumItems(this.getters, leftCol, rightCol, sheetId);
-    }
-    this.sortOccurrencesItems();
-    this.sortDateItems();
+    }}
   }
 }
