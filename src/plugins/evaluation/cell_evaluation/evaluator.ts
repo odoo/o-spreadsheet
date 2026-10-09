@@ -67,12 +67,20 @@ export class Evaluator {
   private spreadingRelations = new SpreadingRelation();
   private perfProfile: PerfProfile | undefined;
 
-  constructor(private readonly context: ModelConfig["custom"], getters: EvaluationGetters) {
+  /**
+   * @param readReference when it returns a cell, the referenced cell is read
+   * from it instead of being computed.
+   */
+  constructor(
+    private readonly context: ModelConfig["custom"],
+    getters: EvaluationGetters,
+    private readonly readReference: (position: CellPosition) => EvaluatedCell | undefined
+  ) {
     this.getters = getters;
     this.compilationParams = buildCompilationParameters(
       this.context,
       this.getters,
-      this.computeAndSave.bind(this)
+      this.computeReference.bind(this)
     );
   }
 
@@ -154,7 +162,7 @@ export class Evaluator {
     this.compilationParams = buildCompilationParameters(
       this.context,
       this.getters,
-      this.computeAndSave.bind(this)
+      this.computeReference.bind(this)
     );
     this.compilationParams.evalContext.__originCellPosition = originCellPosition;
     this.compilationParams.evalContext.updateDependencies = undefined;
@@ -171,7 +179,7 @@ export class Evaluator {
     this.compilationParams = buildCompilationParameters(
       this.context,
       this.getters,
-      this.computeAndSave.bind(this)
+      this.computeReference.bind(this)
     );
     this.compilationParams.evalContext.updateDependencies = this.updateDependencies.bind(this);
     this.compilationParams.evalContext.addDependencies = this.addDependencies.bind(this);
@@ -203,17 +211,6 @@ export class Evaluator {
     rangesToCompute.addMany(this.getCellsDependingOn(arrayFormulasPositions));
     this.evaluate(rangesToCompute);
     console.debug("evaluate Cells", performance.now() - start, "ms");
-  }
-
-  /**
-   * Evaluates the given cells without propagating to their dependents.
-   * Used when automatic evaluation is disabled, to show the result of a
-   * directly modified cell without triggering a potentially expensive cascade.
-   */
-  evaluateCellsWithoutCascade(positions: CellPosition[]) {
-    const rangesToCompute = new RangeSet();
-    rangesToCompute.addManyPositions(positions);
-    this.evaluate(rangesToCompute);
   }
 
   private getArrayFormulasImpactedByChangesOf(positions: Iterable<CellPosition>): RangeSet {
@@ -419,6 +416,10 @@ export class Evaluator {
     } finally {
       this.cellsBeingComputed.delete(cellId);
     }
+  }
+
+  private computeReference(position: CellPosition): EvaluatedCell {
+    return this.readReference(position) ?? this.computeAndSave(position);
   }
 
   private computeAndSave(position: CellPosition) {
