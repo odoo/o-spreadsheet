@@ -92,7 +92,7 @@ import {
   updateSelectionWithArrowKeys,
 } from "../helpers/selection_helpers";
 import { useTouchHandlers } from "../helpers/touch_handlers_hook";
-import { useWheelHandler } from "../helpers/wheel_hook";
+import { useRootWheelHandler } from "../helpers/wheel_hook";
 import { ZoomedMouseEvent } from "../helpers/zoom";
 import { Highlight } from "../highlight/highlight/highlight";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
@@ -223,7 +223,7 @@ export class Grid extends OSComponent {
         ...this.model().getters.getSelectionState(),
       }),
     });
-    this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
+    this.onMouseWheel = useRootWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);
       this.hoveredCell.clear();
     });

@@ -18,7 +18,7 @@ import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect } from "../helpers/dom_helpers";
 import { startDnd } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
-import { useWheelHandler } from "../helpers/wheel_hook";
+import { useNestedWheelHandler } from "../helpers/wheel_hook";
 import { OSComponent } from "../os_component";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { types } from "../props_validation";
@@ -82,6 +82,7 @@ export class StandaloneViewport extends OSComponent {
         this.store.setCustomColWeights(this.props.columnWeights);
       }
       this.store.setContainerSize(this.contentWidth, this.props.size.height);
+      this.store.saveScrollPosition();
     });
 
     useGridDrawing({
@@ -90,18 +91,31 @@ export class StandaloneViewport extends OSComponent {
       rendererStore: this.rendererStore,
     });
 
-    this.onMouseWheel = useWheelHandler((deltaX, deltaY, ev) => {
-      if (this.hasVerticalScrollBar) {
-        ev.stopPropagation();
-        ev.preventDefault();
-
+    this.onMouseWheel = useNestedWheelHandler(
+      (deltaX, deltaY) => this.canScroll(deltaX, deltaY),
+      (deltaX, deltaY) => {
         const scroll = this.viewStore.activeSheetScrollInfo;
         this.viewStore.setViewportOffset({
           offsetX: scroll.scrollX + deltaX,
           offsetY: scroll.scrollY + deltaY,
         });
       }
-    });
+    );
+  }
+
+  /**
+   * Whether the viewport can still be scrolled in the direction of the given deltas.
+   * If it cannot, the wheel event is left to the parent spreadsheet.
+   */
+  private canScroll(deltaX: number, deltaY: number): boolean {
+    const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
+    const { maxOffsetX, maxOffsetY } = this.viewStore.maximumSheetOffset;
+    return (
+      (deltaY < 0 && scrollY > 0) ||
+      (deltaY > 0 && scrollY < maxOffsetY) ||
+      (deltaX < 0 && scrollX > 0) ||
+      (deltaX > 0 && scrollX < maxOffsetX)
+    );
   }
 
   get contentWidth() {

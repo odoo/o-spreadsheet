@@ -1,6 +1,7 @@
 import { DEFAULT_CELL_WIDTH } from "../../constants";
 import { deepEquals, range, sumArray } from "../../helpers/misc";
 import { isInside, isZoneValid } from "../../helpers/zones";
+import { CarouselScrollPositionStore } from "../../stores/carousel_scroll_position_store";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { ViewportsStore } from "../../stores/viewports_store";
@@ -11,7 +12,13 @@ import { GridRenderingContext } from "../../types/rendering";
 import { Get } from "../../types/store_engine";
 
 export class StandaloneViewportStore extends SpreadsheetStore {
-  mutators = ["setContainerSize", "setRange", "resizeColumn", "setCustomColWeights"] as const;
+  mutators = [
+    "setContainerSize",
+    "setRange",
+    "resizeColumn",
+    "setCustomColWeights",
+    "saveScrollPosition",
+  ] as const;
 
   cachedColDimensions: Record<HeaderIndex, HeaderDimensions> | undefined = undefined;
 
@@ -21,6 +28,7 @@ export class StandaloneViewportStore extends SpreadsheetStore {
   private customColWeights: number[] | undefined = undefined;
 
   private viewStore = this.get(ViewportsStore);
+  private scrollPositionStore = this.get(CarouselScrollPositionStore);
 
   constructor(get: Get, range: Range, customColWeights?: number[]) {
     super(get);
@@ -44,13 +52,33 @@ export class StandaloneViewportStore extends SpreadsheetStore {
 
   setContainerSize(width: number, height: number) {
     if (this.containerWidth !== width || this.containerHeight !== height) {
+      // the viewport is sized (0, 0) until the component's first render; only then is the
+      // scroll offset restored, since the max offset cannot be computed before that
+      const isFirstSize = this.containerWidth === 0 && this.containerHeight === 0;
       this.containerWidth = width;
       this.containerHeight = height;
       this.cachedColDimensions = undefined;
       this.viewStore.resizeSheetView({ width, height });
+      if (isFirstSize) {
+        const savedPosition = this.scrollPositionStore.getPosition(this.scrollPositionKey);
+        if (savedPosition) {
+          this.viewStore.setViewportOffset(savedPosition);
+        }
+      }
       return;
     }
     return "noStateChange";
+  }
+
+  saveScrollPosition() {
+    const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
+    this.scrollPositionStore.save(this.scrollPositionKey, { offsetX: scrollX, offsetY: scrollY });
+    return "noStateChange" as const;
+  }
+
+  private get scrollPositionKey(): string {
+    const { sheetId, zone } = this.range;
+    return `${sheetId}:${zone.left},${zone.top},${zone.right},${zone.bottom}`;
   }
 
   setRange(range: Range) {

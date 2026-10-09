@@ -5,6 +5,7 @@ import { isPointInsideRect } from "../../helpers/rectangle";
 import { positionToZone } from "../../helpers/zones";
 import { useStore } from "../../store_engine/store_hooks";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
+import { ScrollGestureStore } from "../../stores/scroll_gesture_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { CellPosition, GridClickModifiers, HeaderIndex, Position } from "../../types/misc";
@@ -29,6 +30,7 @@ function useCellHovered(
 ): Partial<Position> {
   const delayedHoveredCell = useStore(DelayedHoveredCellStore);
   const cellHoverOverlay = useStore(CellHoverOverlayStore);
+  const scrollGesture = useStore(ScrollGestureStore);
   const viewStore = useStore(ViewportsStore);
   const zoomStore = useStore(ZoomStore);
   const hoveredPosition: Partial<Position> = {
@@ -75,16 +77,29 @@ function useCellHovered(
       setPosition(col, row);
     }
   }
+  /**
+   * Recompute the cell hover overlay (eg. the hovered row background) from the last known
+   * pointer position. Called on every pointer move, and once a scroll gesture ends: scrolling
+   * does not move the pointer, but it does move the cell that is now under it, so the overlay
+   * would otherwise stay stuck on the cell it used to highlight before the scroll.
+   */
+  function refreshHoverOverlay() {
+    if (x === undefined || y === undefined) {
+      return;
+    }
+    const position = getPosition();
+    if (position.col < 0 || position.row < 0) {
+      cellHoverOverlay.hover(undefined);
+    } else {
+      cellHoverOverlay.hover(position);
+    }
+  }
+
   function updateMousePosition(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>) {
     if (isChildEvent(gridRef(), zoomedMouseEvent.ev)) {
       ({ x, y } = getOffsetRelativeToOverlay(zoomedMouseEvent));
       lastMoved = Date.now();
-      const position = getPosition();
-      if (position.col < 0 || position.row < 0) {
-        cellHoverOverlay.hover(undefined);
-      } else {
-        cellHoverOverlay.hover(getPosition());
-      }
+      refreshHoverOverlay();
     }
   }
 
@@ -106,6 +121,9 @@ function useCellHovered(
       return pause();
     }
   }
+
+  scrollGesture.register(refreshHoverOverlay);
+  onWillUnmount(() => scrollGesture.unRegister(refreshHoverOverlay));
 
   useListener(
     gridRef,

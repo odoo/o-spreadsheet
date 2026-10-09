@@ -6,10 +6,11 @@ import { PopoverContainerPlugin } from "../../../src/components/popover/popover_
 import { StandaloneViewport } from "../../../src/components/standalone_viewport/standalone_viewport";
 import { DEFAULT_CELL_HEIGHT, TABLE_HOVER_BACKGROUND_COLOR } from "../../../src/constants";
 import { buildSheetLink, range } from "../../../src/helpers/misc";
-import { zoneToXc } from "../../../src/helpers/zones";
+import { toZone, zoneToXc } from "../../../src/helpers/zones";
 import { CellHoverOverlayStore } from "../../../src/stores/cell_hover_overlay_store";
 import { GridRenderer } from "../../../src/stores/grid_renderer_store";
 import { RendererStore } from "../../../src/stores/renderer_store";
+import { SCROLL_GESTURE_TIMEOUT } from "../../../src/stores/scroll_gesture_store";
 import { ViewportsStore } from "../../../src/stores/viewports_store";
 import { ZoomStore } from "../../../src/stores/zoom_store";
 import { PropsOf } from "../../../src/types/props_of";
@@ -28,10 +29,12 @@ import {
   hideColumns,
   hoverCell,
   hoverGridIcon,
+  scrollGrid,
   selectCell,
   setCellContent,
   setFormatting,
   simulateClick,
+  triggerMouseEvent,
   triggerWheelEvent,
   updateCarousel,
 } from "../../test_helpers";
@@ -497,6 +500,276 @@ describe("Standalone viewport", () => {
         { id: "C1", height: DEFAULT_CELL_HEIGHT, width: 200, x: 600, y: 0 },
         { id: "D1", height: DEFAULT_CELL_HEIGHT, width: 200, x: 800, y: 0 },
       ]);
+    });
+  });
+
+  describe("Scroll chaining with the main grid", () => {
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    /**
+     * Mount a spreadsheet containing a carousel displaying the given zone, and return both the
+     * grid viewport store and the carousel viewport store.
+     */
+    async function mountSpreadsheetWithDataView(zone: string, figureHeight: number) {
+      const sheetId = model.getters.getActiveSheetId();
+      createCarouselWithDataView(model, toRangeData(sheetId, zone), "carouselId", sheetId, {
+        size: { width: 300, height: figureHeight },
+      });
+      const originalSetup = StandaloneViewport.prototype["setup"];
+      jest
+        .spyOn(StandaloneViewport.prototype, "setup")
+        .mockImplementation(function (this: StandaloneViewport) {
+          originalSetup.call(this);
+          subEnv = this.env;
+        });
+      jest.useFakeTimers();
+      const { viewStore } = await mountSpreadsheet({ model });
+      return { grid: viewStore, carousel: subEnv.getStore(ViewportsStore) };
+    }
+
+    async function scrollCarousel(delta: { deltaX?: number; deltaY?: number }) {
+      triggerWheelEvent(".o-standalone-viewport", { deltaX: 0, deltaY: 0, ...delta });
+      await nextTick();
+    }
+
+    function endScrollGesture() {
+      jest.advanceTimersByTime(SCROLL_GESTURE_TIMEOUT + 1);
+    }
+
+    /** Hover a cell inside the carousel's own grid overlay, using the carousel's own viewport. */
+    async function hoverCarouselCell(xc: string) {
+      const viewports = subEnv.getStore(ViewportsStore).viewports;
+      const zone = toZone(xc);
+      const zoom = viewports.getZoomLevel();
+      let { x, y, width, height } = viewports.getVisibleRectWithZoom(
+        model.getters.getActiveSheetId(),
+        zone
+      );
+      x -= viewports.getGridOffsetX() * zoom;
+      y -= viewports.getGridOffsetY() * zoom;
+      x += width / 2;
+      y += height / 2;
+      triggerMouseEvent(".o-standalone-viewport .o-grid-overlay", "pointermove", x, y);
+      await nextTick();
+    }
+
+    test("The carousel consumes the scroll and the grid does not move", async () => {
+      setGrid(model, { A1: "=RANDARRAY(20,1)" });
+      const { grid, carousel } = await mountSpreadsheetWithDataView("A1:A20", 300);
+
+      await scrollCarousel({ deltaY: 100 });
+      expect(carousel.activeSheetScrollInfo.scrollY).toBe(100);
+      expect(grid.activeSheetScrollInfo.scrollY).toBe(0);
+    });
+
+    test("The grid does not take over when the carousel reaches its bottom during the same gesture", async () => {
+      setGrid(model, { A1: "=RANDARRAY(20,1)" });
+      const { grid, carousel } = await mountSpreadsheetWithDataView("A1:A20", 300);
+      const maxOffsetY = carousel.maximumSheetOffset.maxOffsetY;
+
+      await scrollCarousel({ deltaY: maxOffsetY + 100 });
+      expect(carousel.activeSheetScrollInfo.scrollY).toBe(maxOffsetY);
+      expect(grid.activeSheetScrollInfo.scrollY).toBe(0);
+
+      await scrollCarousel({ deltaY: 100 });
+      expect(carousel.activeSheetScrollInfo.scrollY).toBe(maxOffsetY);
+      expect(grid.activeSheetScrollInfo.scrollY).toBe(0);
+    });
+
+    test("A new gesture scrolls the grid when the carousel is at its bottom", async () => {
+      setGrid(model, { A1: "=RANDARRAY(20,1)" });
+      const { grid, carousel } = await mountSpreadsheetWithDataView("A1:A20", 300);
+      const maxOffsetY = carousel.maximumSheetOffset.maxOffsetY;
+
+      await scrollCarousel({ deltaY: maxOffsetY + 100 });
+      endScrollGesture();
+
+      await scrollCarousel({ deltaY: 100 });
+      expect(grid.activeSheetScrollInfo.scrollY).toBe(100);
+      expect(carousel.activeSheetScrollInfo.scrollY).toBe(maxOffsetY);
+    });
+
+    test("A new gesture in the opposite direction is still consumed by the carousel", async () => {
+      setGrid(model, { A1: "=RANDARRAY(20,1)" });
+      const { grid, carousel } = await mountSpreadsheetWithDataView("A1:A20", 300);
+      const maxOffsetY = carousel.maximumSheetOffset.maxOffsetY;
+
+      await scrollCarousel({ deltaY: maxOffsetY + 100 });
+      endScrollGesture();
+
+      await scrollCarousel({ deltaY: -100 });
+      expect(carousel.activeSheetScrollInfo.scrollY).toBe(maxOffsetY - 100);
+      expect(grid.activeSheetScrollInfo.scrollY).toBe(0);
+    });
+
+    test("The grid does not take over when the carousel reaches its top during the same gesture", async () => {
+      setGrid(model, { A1: "=RANDARRAY(20,1)" });
+      const { grid, carousel } = await mountSpreadsheetWithDataView("A1:A20", 300);
+      await scrollGrid({ deltaY: 300 });
+      endScrollGesture(); // the grid owned that gesture; end it so the carousel can claim the next one
+
+      await scrollCarousel({ deltaY: 100 });
+      endScrollGesture();
+
+      await scrollCarousel({ deltaY: -1000 });
+      expect(carousel.activeSheetScrollInfo.scrollY).toBe(0);
+      expect(grid.activeSheetScrollInfo.scrollY).toBe(300);
+
+      await scrollCarousel({ deltaY: -100 });
+      expect(carousel.activeSheetScrollInfo.scrollY).toBe(0);
+      expect(grid.activeSheetScrollInfo.scrollY).toBe(300);
+    });
+
+    test("A new gesture scrolls the grid when the carousel is at its top", async () => {
+      setGrid(model, { A1: "=RANDARRAY(20,1)" });
+      const { grid, carousel } = await mountSpreadsheetWithDataView("A1:A20", 300);
+      await scrollGrid({ deltaY: 300 });
+      endScrollGesture(); // the grid owned that gesture; end it so the carousel can claim the next one
+
+      await scrollCarousel({ deltaY: 100 });
+      endScrollGesture();
+      await scrollCarousel({ deltaY: -1000 });
+      expect(carousel.activeSheetScrollInfo.scrollY).toBe(0);
+      expect(grid.activeSheetScrollInfo.scrollY).toBe(300);
+
+      endScrollGesture();
+      await scrollCarousel({ deltaY: -100 });
+      expect(grid.activeSheetScrollInfo.scrollY).toBe(200);
+      expect(carousel.activeSheetScrollInfo.scrollY).toBe(0);
+    });
+
+    test("Scrolling a carousel without vertical overflow scrolls the grid", async () => {
+      setGrid(model, { A1: "Hello", A2: "World" });
+      const { grid, carousel } = await mountSpreadsheetWithDataView("A1:A2", 300);
+      expect(carousel.maximumSheetOffset.maxOffsetY).toBe(0);
+
+      await scrollCarousel({ deltaY: 100 });
+      expect(grid.activeSheetScrollInfo.scrollY).toBe(100);
+      expect(carousel.activeSheetScrollInfo.scrollY).toBe(0);
+    });
+
+    test("Horizontal scroll in the carousel scrolls the grid horizontally", async () => {
+      setGrid(model, { A1: "=RANDARRAY(20,1)" });
+      const { grid, carousel } = await mountSpreadsheetWithDataView("A1:A20", 300);
+
+      await scrollCarousel({ deltaX: 100 });
+      expect(grid.activeSheetScrollInfo.scrollX).toBe(100);
+      expect(grid.activeSheetScrollInfo.scrollY).toBe(0);
+      expect(carousel.activeSheetScrollInfo.scrollX).toBe(0);
+    });
+
+    test("The carousel position in the sheet does not change the scroll ownership", async () => {
+      setGrid(model, { A1: "=RANDARRAY(20,1)" });
+      const { grid, carousel } = await mountSpreadsheetWithDataView("A1:A20", 300);
+      const maxOffsetY = carousel.maximumSheetOffset.maxOffsetY;
+      // the carousel is only partially visible, and the grid is not at its top anymore
+      await scrollGrid({ deltaY: 200 });
+      endScrollGesture(); // the grid owned that gesture; end it so the carousel can claim the next one
+
+      await scrollCarousel({ deltaY: maxOffsetY + 100 });
+      expect(carousel.activeSheetScrollInfo.scrollY).toBe(maxOffsetY);
+      expect(grid.activeSheetScrollInfo.scrollY).toBe(200);
+
+      endScrollGesture();
+      await scrollCarousel({ deltaY: 100 });
+      expect(grid.activeSheetScrollInfo.scrollY).toBe(300);
+    });
+
+    test("The grid keeps owning an active gesture even when the carousel scrolls under the pointer", async () => {
+      setGrid(model, { A1: "=RANDARRAY(20,1)" });
+      const { grid, carousel } = await mountSpreadsheetWithDataView("A1:A20", 300);
+
+      await scrollGrid({ deltaY: 50 });
+      // same gesture: the carousel passing under the pointer must not steal it
+      await scrollCarousel({ deltaY: 50 });
+      expect(grid.activeSheetScrollInfo.scrollY).toBe(100);
+      expect(carousel.activeSheetScrollInfo.scrollY).toBe(0);
+    });
+
+    test("A new gesture lets the carousel claim scroll ownership from the grid", async () => {
+      setGrid(model, { A1: "=RANDARRAY(20,1)" });
+      const { grid, carousel } = await mountSpreadsheetWithDataView("A1:A20", 300);
+
+      await scrollGrid({ deltaY: 50 });
+      await scrollCarousel({ deltaY: 50 });
+      endScrollGesture();
+
+      await scrollCarousel({ deltaY: 50 });
+      expect(carousel.activeSheetScrollInfo.scrollY).toBe(50);
+      expect(grid.activeSheetScrollInfo.scrollY).toBe(100);
+    });
+
+    test("Scrolling the grid while the carousel owns the gesture forwards the scroll to the carousel", async () => {
+      setGrid(model, { A1: "=RANDARRAY(20,1)" });
+      const { grid, carousel } = await mountSpreadsheetWithDataView("A1:A20", 300);
+
+      await scrollCarousel({ deltaY: 50 });
+      // same gesture: scrolling over the grid must keep scrolling the carousel that owns it
+      await scrollGrid({ deltaY: 50 });
+
+      expect(carousel.activeSheetScrollInfo.scrollY).toBe(100);
+      expect(grid.activeSheetScrollInfo.scrollY).toBe(0);
+    });
+
+    test("Forwarding a scroll to a carousel already at its boundary does not move anything", async () => {
+      setGrid(model, { A1: "=RANDARRAY(20,1)" });
+      const { grid, carousel } = await mountSpreadsheetWithDataView("A1:A20", 300);
+      const maxOffsetY = carousel.maximumSheetOffset.maxOffsetY;
+
+      await scrollCarousel({ deltaY: maxOffsetY + 100 });
+      await scrollGrid({ deltaY: 100 });
+
+      expect(carousel.activeSheetScrollInfo.scrollY).toBe(maxOffsetY);
+      expect(grid.activeSheetScrollInfo.scrollY).toBe(0);
+    });
+
+    test("Scrolling the carousel refreshes the hovered row once the gesture ends", async () => {
+      setGrid(model, { A1: "=RANDARRAY(20,1)" });
+      const sheetId = model.getters.getActiveSheetId();
+      await mountSpreadsheetWithDataView("A1:A20", 300);
+      const overlayStore = subEnv.getStore(CellHoverOverlayStore);
+      const rowHeight = DEFAULT_CELL_HEIGHT;
+
+      await hoverCarouselCell("A1");
+      expect(overlayStore.overlayColors.get(toCellPosition(sheetId, "A1"))).toBe(
+        TABLE_HOVER_BACKGROUND_COLOR
+      );
+
+      await scrollCarousel({ deltaY: rowHeight * 2 });
+      // the pointer did not move: the highlight stays on the old row while the gesture is active
+      expect(overlayStore.overlayColors.get(toCellPosition(sheetId, "A1"))).toBe(
+        TABLE_HOVER_BACKGROUND_COLOR
+      );
+      expect(overlayStore.overlayColors.get(toCellPosition(sheetId, "A3"))).toBeUndefined();
+
+      endScrollGesture();
+      // the gesture ended: the highlight now follows the row under the (unmoved) pointer
+      expect(overlayStore.overlayColors.get(toCellPosition(sheetId, "A1"))).toBeUndefined();
+      expect(overlayStore.overlayColors.get(toCellPosition(sheetId, "A3"))).toBe(
+        TABLE_HOVER_BACKGROUND_COLOR
+      );
+    });
+
+    test("The carousel keeps its scroll position after being scrolled out of view and back in", async () => {
+      setGrid(model, { A1: "=RANDARRAY(20,1)" });
+      const { grid, carousel } = await mountSpreadsheetWithDataView("A1:A20", 300);
+      const maxOffsetY = carousel.maximumSheetOffset.maxOffsetY;
+
+      await scrollCarousel({ deltaY: maxOffsetY + 100 });
+      endScrollGesture();
+
+      // scroll the grid far enough that the carousel figure leaves the visible viewport,
+      // unmounting the carousel component, then scroll back so it becomes visible again
+      await scrollGrid({ deltaY: 2000 });
+      expect(".o-standalone-viewport").toHaveCount(0);
+      endScrollGesture();
+
+      await scrollGrid({ deltaY: -2000 });
+      expect(".o-standalone-viewport").toHaveCount(1);
+      expect(grid.activeSheetScrollInfo.scrollY).toBe(0);
+      expect(subEnv.getStore(ViewportsStore).activeSheetScrollInfo.scrollY).toBe(maxOffsetY);
     });
   });
 });
