@@ -82,6 +82,7 @@ def squish_workbook_data(data: dict, non_squishable_functions: Iterable[str] = (
     non_squishable_functions = list(non_squishable_functions)
     for sheet in data.get("sheets", []):
         cells = sheet.get("cells") or {}
+        _check_not_squished(cells)
         sheet["cells"] = squish_sheet_cells(
             cells, _cell_formats(sheet, cells), non_squishable_functions
         )

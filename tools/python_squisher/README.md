@@ -10,6 +10,14 @@ from o_spreadsheet_squisher import squish_workbook_data
 squished = squish_workbook_data(data, non_squishable_functions=["ODOO.PIVOT"])
 ```
 
+From the command line (`-` reads the standard input), the result is printed on the standard output:
+
+```bash
+cd tools/python_squisher
+python3 -m o_spreadsheet_squisher data.json --non-squishable ODOO.PIVOT ODOO.LIST > squished.json
+python3 -m o_spreadsheet_squisher data.json --indent 2
+```
+
 ## Assumptions
 
 Nothing is verified: correctness is the responsibility of the input and of the TS implementation.
