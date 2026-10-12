@@ -23,7 +23,7 @@ import { ImageProviderPlugin } from "../../owl_plugins/image_provider_owl_plugin
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
-import { PrintPlugin } from "../../owl_plugins/print_owl_plugin";
+import { PrintModePlugin } from "../../owl_plugins/print_mode_owl_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
 import { ClipboardStore } from "../../stores/clipboard_store";
@@ -92,7 +92,7 @@ export class Spreadsheet extends Component {
 
   private isViewportTooSmall: boolean = false;
   private notificationPlugin!: PluginInstance<typeof NotificationPlugin>;
-  private printPlugin!: PluginInstance<typeof PrintPlugin>;
+  private printModePlugin!: PluginInstance<typeof PrintModePlugin>;
   private modelPlugin!: PluginInstance<typeof ModelPlugin>;
   private viewStore!: Store<ViewportsStore>;
   private zoomStore!: Store<ZoomStore>;
@@ -108,7 +108,7 @@ export class Spreadsheet extends Component {
     properties["--os-dark-mode-filter"] = DARK_MODE_FILTER_STRING;
     properties["color-scheme"] = this.colorScheme;
 
-    if (this.printPlugin.printModeEnabled()) {
+    if (this.printModePlugin.printModeEnabled()) {
       properties["display"] = `block`;
     } else {
       if (this.model().getters.isDashboard()) {
@@ -141,10 +141,10 @@ export class Spreadsheet extends Component {
     providePlugins([ModelPlugin], {
       model: this.props.model,
     });
-    providePlugins([PrintPlugin]);
+    providePlugins([PrintModePlugin]);
     providePlugins([NavigatorClipboardPlugin]);
     this.modelPlugin = usePlugin(ModelPlugin);
-    this.printPlugin = usePlugin(PrintPlugin);
+    this.printModePlugin = usePlugin(PrintModePlugin);
 
     const stores = useStoreProvider();
     stores.inject(ModelStore, this.model());
@@ -193,7 +193,7 @@ export class Spreadsheet extends Component {
       async (event: KeyboardEvent) => {
         const keyDownString = keyboardEventToShortcutString(event);
         if (keyDownString === "Ctrl+P") {
-          this.printPlugin.start();
+          this.printModePlugin.start();
           event.stopPropagation();
           event.preventDefault();
         }
@@ -354,9 +354,9 @@ export class Spreadsheet extends Component {
   }
 
   get colorScheme(): ColorThemeName {
-    if (this.printPlugin.printModeEnabled()) {
+    if (this.printModePlugin.printModeEnabled()) {
       // We want to have the canvas/charts (the model) in light mode when printing, but the UI can be in dark mode
-      return this.printPlugin.colorThemeBeforePrint;
+      return this.printModePlugin.colorThemeBeforePrint;
     }
     return this.model().getters.isDarkMode() ? "dark" : "light";
   }

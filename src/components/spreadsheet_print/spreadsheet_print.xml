@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-SpreadsheetPrint">
     <div class="o-spreadsheet-print d-flex flex-column h-100 w-100">
-      <t t-set="pages" t-value="this.printStore.printPages"/>
+      <t t-set="pages" t-value="this.printPlugin.printPages()"/>
       <div class="o-print-header flex-shrink-0 d-flex align-items-center">
         <h3 class="m-0 p-3 ps-4 text-white">Print Preview</h3>
         <span class="text-white">
@@ -10,7 +10,7 @@
         </span>
         <button
           class="o-button ms-auto me-2 flex-grow-0"
-          t-on-click="() => this.printPlugin.stop()">
+          t-on-click="() => this.printModePlugin.stop()">
           Cancel
         </button>
         <button class="o-button primary flex-grow-0 me-4" t-on-click="this.onPrint">Next</button>
@@ -22,8 +22,8 @@
             <Section t-if="!this.model().getters.isDashboard()">
               <div class="o-section-title">Print content</div>
               <Select
-                selectedValue="this.printStore.printSelection"
-                values="this.printStore.printSelectionOptions"
+                selectedValue="this.printPlugin.printSelection()"
+                values="this.printPlugin.printSelectionOptions()"
                 class="'o-print-selection'"
                 onChange.bind="this.onPrintSelectionChange"
               />
@@ -32,8 +32,8 @@
             <Section>
               <div class="o-section-title">Scale</div>
               <Select
-                selectedValue="this.printStore.printScale"
-                values="this.printStore.printScaleOptions"
+                selectedValue="this.printPlugin.printScale()"
+                values="this.printPlugin.printScaleOptions"
                 class="'o-print-scale'"
                 onChange.bind="this.onPrintScaleChange"
               />
@@ -42,8 +42,8 @@
             <Section>
               <div class="o-section-title">Paper</div>
               <Select
-                selectedValue="this.printStore.pageLayout"
-                values="this.printStore.layoutOptions"
+                selectedValue="this.printPlugin.pageLayout()"
+                values="this.printPlugin.layoutOptions"
                 class="'o-print-layout'"
                 onChange.bind="this.onLayoutChange"
               />
@@ -52,9 +52,9 @@
             <Section>
               <div class="o-section-title">Orientation</div>
               <BadgeSelection
-                choices="this.printStore.orientationChoices"
+                choices="this.printPlugin.orientationChoices"
                 onChange.bind="this.changeOrientation"
-                selectedValue="this.printStore.orientation"
+                selectedValue="this.printPlugin.orientation()"
               />
             </Section>
 
@@ -62,7 +62,7 @@
               <div class="o-section-title">Formatting</div>
               <Checkbox
                 name="'showGridLines'"
-                value="!this.printStore.hideGridLines"
+                value="!this.printPlugin.hideGridLines()"
                 onChange.bind="this.setGridLinesVisibility"
                 className="'mt-2'"
                 label.translate="Show gridlines"

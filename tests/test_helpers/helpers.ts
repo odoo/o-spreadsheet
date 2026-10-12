@@ -77,7 +77,7 @@ import { detectDateFormat } from "../../src/helpers/format/format";
 import { ModelPlugin } from "../../src/owl_plugins/model_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
-import { PrintPlugin } from "../../src/owl_plugins/print_owl_plugin";
+import { PrintModePlugin } from "../../src/owl_plugins/print_mode_owl_plugin";
 import { EvaluationPluginConstructor } from "../../src/plugins/evaluation_plugin";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
@@ -312,7 +312,7 @@ class TestParent extends Component {
   });
 
   setup() {
-    providePlugins([NotificationPlugin, NavigatorClipboardPlugin, ModelPlugin, PrintPlugin], {
+    providePlugins([NotificationPlugin, NavigatorClipboardPlugin, ModelPlugin, PrintModePlugin], {
       model: this.props.model,
     });
     if (this.props.isPortalTarget) {

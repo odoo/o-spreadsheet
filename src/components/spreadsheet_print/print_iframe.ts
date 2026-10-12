@@ -1,5 +1,4 @@
-import { onMounted, Signal, signal } from "@odoo/owl";
-import { useLayoutEffect } from "../../owl3_compatibility_layer";
+import { onMounted, signal, Signal, useEffect } from "@odoo/owl";
 import { _t } from "../../translation";
 import { keyboardEventToShortcutString } from "../helpers/dom_helpers";
 
@@ -60,12 +59,12 @@ const PRINT_IFRAME_CSS = /* css */ `
 `;
 
 interface PrintIframeArgs {
-  iframeRef: () => HTMLIFrameElement | null;
-  pageCount: () => number;
+  iframeRef: Signal<HTMLIFrameElement | null>;
+  pageCount: Signal<number>;
   /** Dimensions/padding of a page */
-  pageStyle: () => string;
+  pageStyle: Signal<string>;
   /** `@page` css rules */
-  pageRule: () => string;
+  pageRule: Signal<string>;
 }
 
 export interface PrintIframe {
@@ -79,7 +78,7 @@ export function usePrintIframe(args: PrintIframeArgs): PrintIframe {
   let currentIframeDocument: Document | null = null;
 
   onMounted(initializeIframe);
-  useLayoutEffect(syncIframeContent);
+  useEffect(syncIframeContent);
 
   function initializeIframe() {
     const iframe = args.iframeRef();
