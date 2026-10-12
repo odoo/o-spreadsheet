@@ -1,4 +1,4 @@
-# o-spreadsheet Data Modeltyle doc
+# o-spreadsheet Data Model
 
 This document describes the data structure expected for importing spreadsheet data into o-spreadsheet.
 
@@ -86,7 +86,8 @@ The SheetPlugin manages the structure and metadata of each worksheet. Each entry
   "cols": {...},
   // Array of merged cell ranges (e.g., ["A1:B2"])
   "merges": [string, ...],
-  // Cell values and formulas, keyed by address (e.g., {"A1": "value"})
+  // Cell values and formulas, keyed by address or range (e.g., {"A1": "value"}).
+  // Exports use a compressed form, see data-model/cells.md
   "cells": {...},
   // Cell/range to style ID mapping
   "styles": {...},
@@ -132,6 +133,7 @@ The SheetPlugin manages the structure and metadata of each worksheet. Each entry
 ## More
 
 - [Borders](data-model/border.md)
+- [Cells](data-model/cells.md)
 - [Conditional formatting](data-model/cf.md)
 - [Charts](data-model/chart.md)
 - [Formats](data-model/format.md)
