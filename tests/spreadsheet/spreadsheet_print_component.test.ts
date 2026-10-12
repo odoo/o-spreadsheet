@@ -1,10 +1,10 @@
 import { createCanvas } from "canvas";
 import { Model } from "../../src";
 import { SpreadsheetPrint } from "../../src/components/spreadsheet_print/spreadsheet_print";
-import { SpreadsheetPrintStore } from "../../src/components/spreadsheet_print/spreadsheet_print_store";
+import { SpreadsheetPrintPlugin } from "../../src/components/spreadsheet_print/spreadsheet_print_owl_plugin";
 import { FigureRendererStore } from "../../src/components/standalone_grid_canvas/figure_renderer_store";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, PRINT_DPR } from "../../src/constants";
-import { Store } from "../../src/types/store_engine";
+import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import {
   createCarousel,
   createChart,
@@ -103,6 +103,7 @@ describe("Spreadsheet print rendering", () => {
   let model: Model;
   let sheetId: string;
   let storeSpy: StoreSpy;
+  let getPlugin: OwlPluginGetter;
 
   beforeEach(async () => {
     model = new Model();
@@ -115,22 +116,20 @@ describe("Spreadsheet print rendering", () => {
   });
 
   async function mountSpreadsheetPrint() {
-    await mountComponentWithPortalTarget(SpreadsheetPrint, {
-      model,
-    });
+    ({ getPlugin } = await mountComponentWithPortalTarget(SpreadsheetPrint, { model }));
     await nextTick(); // Need to wait a render for the iframe to be loaded/initialized before we draw the pages
   }
 
   function getPrintStore() {
-    return storeSpy.getStores(SpreadsheetPrintStore)[0] as Store<SpreadsheetPrintStore>;
+    return getPlugin(SpreadsheetPrintPlugin);
   }
 
   test("Can print change print scaling", async () => {
     setCellContent(model, "A1", "=RANDARRAY(50, 12)");
     await mountSpreadsheetPrint();
-    expect(getPrintStore().printScale).toBe("fitToWidth");
+    expect(getPrintStore().printScale()).toBe("fitToWidth");
     await editSelectComponent(".o-print-scale", "actualSize");
-    expect(getPrintStore().printScale).toBe("actualSize");
+    expect(getPrintStore().printScale()).toBe("actualSize");
   });
 
   test("Printed pages includes the figures", async () => {
@@ -162,12 +161,12 @@ describe("Spreadsheet print rendering", () => {
 
     expect(".o-print-layout").toHaveText("A4 (210 x 297 mm)");
     expect(getPrintPages()[0]).toHaveStyle({ height: "1122px", width: "793px" });
-    expect(getPrintStore().pageLayout).toBe("A4");
+    expect(getPrintStore().pageLayout()).toBe("A4");
 
     await editSelectComponent(".o-print-layout", "A3");
     expect(".o-print-layout").toHaveText("A3 (297 x 420 mm)");
     expect(getPrintPages()[0]).toHaveStyle({ height: "1587px", width: "1122px" });
-    expect(getPrintStore().pageLayout).toBe("A3");
+    expect(getPrintStore().pageLayout()).toBe("A3");
   });
 
   test("Can change the page orientation", async () => {
@@ -176,22 +175,22 @@ describe("Spreadsheet print rendering", () => {
 
     expect(".o-badge-selection .selected").toHaveAttribute("data-id", "portrait");
     expect(getPrintPages()[0]).toHaveStyle({ height: "1122px", width: "793px" });
-    expect(getPrintStore().orientation).toBe("portrait");
+    expect(getPrintStore().orientation()).toBe("portrait");
 
     await simulateClick(".o-badge-selection button[data-id='landscape']");
     expect(".o-badge-selection .selected").toHaveAttribute("data-id", "landscape");
     expect(getPrintPages()[0]).toHaveStyle({ height: "793px", width: "1122px" });
-    expect(getPrintStore().orientation).toBe("landscape");
+    expect(getPrintStore().orientation()).toBe("landscape");
   });
 
   test("Can hide or show grid lines", async () => {
     setCellContent(model, "A1", "Hello");
     await mountSpreadsheetPrint();
 
-    expect(getPrintStore().hideGridLines).toBe(false);
+    expect(getPrintStore().hideGridLines()).toBe(false);
 
     await simulateClick("input[name='showGridLines']");
-    expect(getPrintStore().hideGridLines).toBe(true);
+    expect(getPrintStore().hideGridLines()).toBe(true);
   });
 
   test("Can change print selection", async () => {
@@ -199,13 +198,13 @@ describe("Spreadsheet print rendering", () => {
     createSheet(model, { name: "Sheet2", sheetId: "Sheet2" });
     setCellContent(model, "A1", "World", "Sheet2");
     await mountSpreadsheetPrint();
-    expect(getPrintStore().printSelection).toBe("currentSheet");
+    expect(getPrintStore().printSelection()).toBe("currentSheet");
 
     await editSelectComponent(".o-print-selection", "entireWorkbook");
-    expect(getPrintStore().printSelection).toBe("entireWorkbook");
+    expect(getPrintStore().printSelection()).toBe("entireWorkbook");
 
     await editSelectComponent(".o-print-selection", "selection");
-    expect(getPrintStore().printSelection).toBe("selection");
+    expect(getPrintStore().printSelection()).toBe("selection");
   });
 
   test("In dashboard, can only print the active sheet and cannot show the grid lines", async () => {

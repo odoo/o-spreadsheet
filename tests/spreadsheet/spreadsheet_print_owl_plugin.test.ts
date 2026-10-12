@@ -1,5 +1,6 @@
+import { PluginInstance } from "@odoo/owl";
 import { Model } from "../../src";
-import { SpreadsheetPrintStore } from "../../src/components/spreadsheet_print/spreadsheet_print_store";
+import { SpreadsheetPrintPlugin } from "../../src/components/spreadsheet_print/spreadsheet_print_owl_plugin";
 import {
   createChart,
   createSheet,
@@ -8,20 +9,22 @@ import {
   setCellContent,
   setSelection,
 } from "../test_helpers";
-import { makeStore } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 describe("Spreadsheet print rendering", () => {
   let model: Model;
   let sheetId: string;
-  let printStore: SpreadsheetPrintStore;
+  let printPlugin: PluginInstance<typeof SpreadsheetPrintPlugin>;
 
   beforeEach(async () => {
-    ({ model, store: printStore } = makeStore(SpreadsheetPrintStore));
+    model = new Model();
+    const { getPlugin } = makeOwlPluginManager([SpreadsheetPrintPlugin], { model });
+    printPlugin = getPlugin(SpreadsheetPrintPlugin);
     sheetId = model.getters.getActiveSheetId();
   });
 
   function getPrintedZones() {
-    return printStore.printPages.map((page) => ({
+    return printPlugin.printPages().map((page) => ({
       sheetId: page.sheetId,
       ...page.zone,
     }));
@@ -58,7 +61,7 @@ describe("Spreadsheet print rendering", () => {
 
   test("Print pages breaks take hidden columns into account", () => {
     setCellContent(model, "A1", "=TRANSPOSE(SEQUENCE(12))");
-    printStore.changePrintScale("fitToHeight");
+    printPlugin.changePrintScale("fitToHeight");
     expect(getPrintedZones()).toEqual([
       { sheetId, left: 0, top: 0, right: 6, bottom: 0 },
       { sheetId, left: 7, top: 0, right: 11, bottom: 0 },
@@ -81,7 +84,7 @@ describe("Spreadsheet print rendering", () => {
 
   test("Can print fitting the height of the content", () => {
     setCellContent(model, "A1", "=RANDARRAY(100, 26)");
-    printStore.changePrintScale("fitToHeight");
+    printPlugin.changePrintScale("fitToHeight");
     expect(getPrintedZones()).toEqual([
       { sheetId, left: 0, top: 0, right: 15, bottom: 99 },
       { sheetId, left: 16, top: 0, right: 25, bottom: 99 },
@@ -90,7 +93,7 @@ describe("Spreadsheet print rendering", () => {
 
   test("Can print without scaling the content", () => {
     setCellContent(model, "A1", "=RANDARRAY(50, 12)");
-    printStore.changePrintScale("actualSize");
+    printPlugin.changePrintScale("actualSize");
     expect(getPrintedZones()).toEqual([
       { sheetId, left: 0, top: 0, right: 6, bottom: 43 },
       { sheetId, left: 0, top: 44, right: 6, bottom: 49 },
@@ -115,7 +118,7 @@ describe("Spreadsheet print rendering", () => {
       { sheetId, left: 0, top: 88, right: 0, bottom: 99 },
     ]);
 
-    printStore.changePrintLayout("A3");
+    printPlugin.changePrintLayout("A3");
     expect(getPrintedZones()).toEqual([
       { sheetId, left: 0, top: 0, right: 0, bottom: 63 },
       { sheetId, left: 0, top: 64, right: 0, bottom: 99 },
@@ -129,7 +132,7 @@ describe("Spreadsheet print rendering", () => {
       { sheetId, left: 0, top: 44, right: 0, bottom: 79 },
     ]);
 
-    printStore.changePrintOrientation("landscape");
+    printPlugin.changePrintOrientation("landscape");
     expect(getPrintedZones()).toEqual([
       { sheetId, left: 0, top: 0, right: 0, bottom: 29 },
       { sheetId, left: 0, top: 30, right: 0, bottom: 59 },
@@ -140,14 +143,14 @@ describe("Spreadsheet print rendering", () => {
   test("Can hide or show grid lines", async () => {
     setCellContent(model, "A1", "Hello");
 
-    expect(printStore.hideGridLines).toBe(false);
-    expect(printStore.printPages.map((page) => page.renderingCtx)).toMatchObject([
+    expect(printPlugin.hideGridLines()).toBe(false);
+    expect(printPlugin.printPages().map((page) => page.renderingCtx)).toMatchObject([
       { hideGridLines: false },
     ]);
 
-    printStore.setGridLinesVisibility(true);
-    expect(printStore.hideGridLines).toBe(true);
-    expect(printStore.printPages.map((page) => page.renderingCtx)).toMatchObject([
+    printPlugin.setGridLinesVisibility(true);
+    expect(printPlugin.hideGridLines()).toBe(true);
+    expect(printPlugin.printPages().map((page) => page.renderingCtx)).toMatchObject([
       { hideGridLines: true },
     ]);
   });
@@ -160,7 +163,7 @@ describe("Spreadsheet print rendering", () => {
       { sheetId: "Sheet1", left: 0, top: 0, right: 0, bottom: 0 },
     ]);
 
-    printStore.changePrintSelection("entireWorkbook");
+    printPlugin.changePrintSelection("entireWorkbook");
     expect(getPrintedZones()).toEqual([
       { sheetId: "Sheet1", left: 0, top: 0, right: 0, bottom: 0 },
       { sheetId: "Sheet2", left: 0, top: 0, right: 0, bottom: 0 },
@@ -172,14 +175,14 @@ describe("Spreadsheet print rendering", () => {
     setCellContent(model, "A1", "=MUNIT(5)");
     expect(getPrintedZones()).toEqual([{ sheetId, left: 0, top: 0, right: 4, bottom: 4 }]);
 
-    printStore.changePrintSelection("selection");
+    printPlugin.changePrintSelection("selection");
     expect(getPrintedZones()).toEqual([{ sheetId, left: 1, top: 1, right: 3, bottom: 2 }]);
   });
 
   test("Cannot print the selection if multiple zones are selected", () => {
     setSelection(model, ["B2:D3", "A1"]);
     setCellContent(model, "A1", "=MUNIT(5)");
-    expect(printStore.printSelectionOptions.map((option) => option.value)).toEqual([
+    expect(printPlugin.printSelectionOptions().map((option) => option.value)).toEqual([
       "currentSheet",
       "entireWorkbook",
     ]);

@@ -2,7 +2,7 @@ import { Plugin, signal, usePlugin } from "@odoo/owl";
 import { ColorThemeName } from "../types/rendering";
 import { ModelPlugin } from "./model_owl_plugin";
 
-export class PrintPlugin extends Plugin {
+export class PrintModePlugin extends Plugin {
   modelPlugin = usePlugin(ModelPlugin);
   printModeEnabled = signal(false);
   colorThemeBeforePrint: ColorThemeName = "light";

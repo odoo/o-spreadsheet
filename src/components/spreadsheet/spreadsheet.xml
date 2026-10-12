@@ -5,7 +5,7 @@
       t-att-class="this.getSpreadSheetClasses()"
       t-ref="this.spreadsheetRef"
       t-att-style="this.getStyle()">
-      <t t-if="this.printPlugin.printModeEnabled()">
+      <t t-if="this.printModePlugin.printModeEnabled()">
         <SpreadsheetPrint/>
       </t>
       <t t-elif="this.model().getters.isDashboard()">

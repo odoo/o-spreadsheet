@@ -1,7 +1,5 @@
-import { PluginInstance, signal, usePlugin } from "@odoo/owl";
-import { PrintPlugin } from "../../owl_plugins/print_owl_plugin";
-import { useLocalStore } from "../../store_engine/store_hooks";
-import { Store } from "../../types/store_engine";
+import { computed, PluginInstance, providePlugins, signal, usePlugin } from "@odoo/owl";
+import { PrintModePlugin } from "../../owl_plugins/print_mode_owl_plugin";
 import { cssPropertiesToCss } from "../helpers/css";
 import { OSComponent } from "../os_component";
 import { Select } from "../select/select";
@@ -15,66 +13,63 @@ import {
   PrintPageLayout,
   PrintScale,
   PrintSelection,
-  SpreadsheetPrintStore,
-} from "./spreadsheet_print_store";
+  SpreadsheetPrintPlugin,
+} from "./spreadsheet_print_owl_plugin";
 
 export class SpreadsheetPrint extends OSComponent {
   static template = "o-spreadsheet-SpreadsheetPrint";
   static components = { StandaloneGridCanvas, Section, Select, BadgeSelection, Checkbox };
 
-  printStore!: Store<SpreadsheetPrintStore>;
+  printPlugin!: PluginInstance<typeof SpreadsheetPrintPlugin>;
   printIframe!: PrintIframe;
-  printPlugin!: PluginInstance<typeof PrintPlugin>;
+  printModePlugin!: PluginInstance<typeof PrintModePlugin>;
 
   private iframeRef = signal<HTMLIFrameElement | null>(null);
 
   setup() {
-    this.printStore = useLocalStore(SpreadsheetPrintStore);
-    this.printPlugin = usePlugin(PrintPlugin);
+    providePlugins([SpreadsheetPrintPlugin]);
+    this.printPlugin = usePlugin(SpreadsheetPrintPlugin);
+    this.printModePlugin = usePlugin(PrintModePlugin);
     this.printIframe = usePrintIframe({
       iframeRef: this.iframeRef,
-      pageCount: () => this.printStore.printPages.length,
-      pageStyle: () => this.pageStyle,
-      pageRule: () => this.pageRule,
-    });
-  }
-
-  get pageRule(): string {
-    const size = `${this.printStore.pageLayout} ${this.printStore.orientation}`;
-    return `@page { size: ${size}; margin: ${this.printStore.printMargin}px; }`;
-  }
-
-  get pageStyle(): string {
-    const { width, height } = this.printStore.pageDimensionsInPixels;
-    return cssPropertiesToCss({
-      width: `${width}px`,
-      height: `${height}px`,
-      padding: `${this.printStore.printMargin}px`,
+      pageCount: computed(() => this.printPlugin.printPages().length),
+      pageStyle: computed((): string => {
+        const { width, height } = this.printPlugin.pageDimensionsInPixels();
+        return cssPropertiesToCss({
+          width: `${width}px`,
+          height: `${height}px`,
+          padding: `${this.printPlugin.printMargin}px`,
+        });
+      }),
+      pageRule: computed((): string => {
+        const size = `${this.printPlugin.pageLayout()} ${this.printPlugin.orientation()}`;
+        return `@page { size: ${size}; margin: ${this.printPlugin.printMargin}px; }`;
+      }),
     });
   }
 
   onLayoutChange(value: PrintPageLayout) {
-    this.printStore.changePrintLayout(value);
+    this.printPlugin.changePrintLayout(value);
   }
 
   onPrintSelectionChange(value: PrintSelection) {
-    this.printStore.changePrintSelection(value);
+    this.printPlugin.changePrintSelection(value);
   }
 
   onPrintScaleChange(value: PrintScale) {
-    this.printStore.changePrintScale(value);
+    this.printPlugin.changePrintScale(value);
   }
 
   setGridLinesVisibility(value: boolean) {
-    this.printStore.setGridLinesVisibility(!value);
+    this.printPlugin.setGridLinesVisibility(!value);
   }
 
   changeOrientation(value: Orientation) {
-    this.printStore.changePrintOrientation(value);
+    this.printPlugin.changePrintOrientation(value);
   }
 
   onPrint() {
     this.printIframe.print();
-    this.printPlugin.stop();
+    this.printModePlugin.stop();
   }
 }
