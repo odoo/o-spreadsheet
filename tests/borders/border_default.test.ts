@@ -24,6 +24,7 @@ import {
   deleteRows,
   duplicateSheet,
   insertCells,
+  merge,
   moveColumns,
   moveRows,
   paste,
@@ -31,6 +32,7 @@ import {
   setBordersOnTarget,
   setZoneBorders,
   undo,
+  unMerge,
 } from "../test_helpers";
 import { target } from "../test_helpers/helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
@@ -296,6 +298,17 @@ describe("Default Borders", () => {
   });
 
   describe("Sheet Manipulation: Add Column", () => {
+    test("Columns inserted inside a fully bordered zone keep the lines between them", () => {
+      const model = new Model();
+      setZoneBorders(model, { position: "all" }, ["A1:C1"]);
+
+      addColumns(model, "after", "A", 2);
+
+      for (const xc of ["A1", "B1", "C1", "D1", "E1"]) {
+        expect(getCellBorder(model, xc)).toEqual(ALL_BORDER);
+      }
+    });
+
     test("Default Row", () => {
       setBordersOnTarget(model, ["A2:Z2"], ALL_BORDER);
       addColumns(model, "after", "A", 1);
@@ -337,6 +350,16 @@ describe("Default Borders", () => {
   });
 
   describe("Sheet Manipulation: Remove Column", () => {
+    test("Removing columns before a row default does not add borders around them", () => {
+      const model = new Model();
+      setZoneBorders(model, { position: "all" }, ["H5:V5"]);
+
+      deleteColumns(model, ["C", "D"]);
+
+      expect(getCellBorder(model, "B5")).toBeNull();
+      expect(getCellBorder(model, "C5")).toBeNull();
+    });
+
     test("Default Row", () => {
       setBordersOnTarget(model, ["A2:Z2"], TOP_BORDER);
       deleteColumns(model, ["A"]);
@@ -411,6 +434,17 @@ describe("Default Borders", () => {
   });
 
   describe("Sheet Manipulation: Add Row", () => {
+    test("Rows inserted inside a fully bordered zone keep the lines between them", () => {
+      const model = new Model();
+      setZoneBorders(model, { position: "all" }, ["A1:A3"]);
+
+      addRows(model, "before", 1, 2);
+
+      for (const xc of ["A1", "A2", "A3", "A4", "A5"]) {
+        expect(getCellBorder(model, xc)).toEqual(ALL_BORDER);
+      }
+    });
+
     test("Default Row", () => {
       setBordersOnTarget(model, ["A2:Z2"], TOP_BORDER);
       addRows(model, "after", 0, 1);
@@ -792,6 +826,28 @@ describe("Default Borders", () => {
   });
 
   describe("Clear Formatting", () => {
+    test("Clearing a column crossing a row default does not add borders around it", () => {
+      const model = new Model();
+      setZoneBorders(model, { position: "all" }, ["H5:V5"]);
+
+      clearFormatting(model, "C1:C100");
+
+      expect(getCellBorder(model, "B5")).toBeNull();
+      expect(getCellBorder(model, "C5")).toBeNull();
+      expect(getCellBorder(model, "D5")).toBeNull();
+    });
+
+    test("Clearing a row crossing a column default does not add borders around it", () => {
+      const model = new Model();
+      setZoneBorders(model, { position: "all" }, ["E8:E100"]);
+
+      clearFormatting(model, "A3:Z3");
+
+      expect(getCellBorder(model, "E2")).toBeNull();
+      expect(getCellBorder(model, "E3")).toBeNull();
+      expect(getCellBorder(model, "E4")).toBeNull();
+    });
+
     test("Clearing a zone overlapping several default columns clears all of them", () => {
       setZoneBorders(model, { position: "all" }, ["C1:C20", "F1:F20", "I1:I20"]);
 
@@ -1023,6 +1079,56 @@ describe("Default Borders", () => {
 
     expect(getCellBorder(model, "C20")).toEqual(ALL_BORDER);
     expect(getCellBorder(model, "C70")).toEqual(ALL_BORDER);
+  });
+
+  describe("Merge", () => {
+    test("Merging over a sheet default removes the inner borders", () => {
+      const model = new Model();
+      setZoneBorders(model, { position: "all" }, ["A1:Z100"]);
+
+      merge(model, "B2:C3");
+      unMerge(model, "B2:C3");
+
+      expect(getCellBorder(model, "B2")).toEqual({
+        ...ALL_BORDER,
+        right: undefined,
+        bottom: undefined,
+      });
+      expect(getCellBorder(model, "C2")).toEqual({
+        ...ALL_BORDER,
+        left: undefined,
+        bottom: undefined,
+      });
+      expect(getCellBorder(model, "B3")).toEqual({
+        ...ALL_BORDER,
+        right: undefined,
+        top: undefined,
+      });
+      expect(getCellBorder(model, "C3")).toEqual({
+        ...ALL_BORDER,
+        left: undefined,
+        top: undefined,
+      });
+    });
+
+    test("Merging over a column default removes the inner borders", () => {
+      const model = new Model();
+      setZoneBorders(model, { position: "all" }, ["B1:C100"]);
+
+      merge(model, "B2:C3");
+      unMerge(model, "B2:C3");
+
+      expect(getCellBorder(model, "B2")).toEqual({
+        ...ALL_BORDER,
+        right: undefined,
+        bottom: undefined,
+      });
+      expect(getCellBorder(model, "C3")).toEqual({
+        ...ALL_BORDER,
+        left: undefined,
+        top: undefined,
+      });
+    });
   });
 
   describe("Undo/Redo", () => {

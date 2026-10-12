@@ -443,6 +443,9 @@ export class BordersPlugin
           const existing = this.getBorderValue(borderType, sheetId, col, row);
           const merged =
             side === "internal" ? mergeSides(existing, border) : mergeSides(border, existing);
+          if (deepEquals(merged, existing)) {
+            continue;
+          }
           const key = JSON.stringify(merged);
           let group = zonesByBorder.get(key);
           if (!group) {
@@ -687,6 +690,12 @@ export class BordersPlugin
   }
 
   private clearColsBorders(borderType: "LEFT" | "TOP", sheetId: UID, zone: Zone) {
+    const defaultKey = borderType === "LEFT" ? "defaultLeft" : "defaultTop";
+    const rowOverlap = Object.keys(this[defaultKey][sheetId]?.rowDefault ?? {});
+    const valuesBeforeClear = rowOverlap.map((row) => ({
+      internal: this.getBorderValue(borderType, sheetId, zone.left, parseInt(row)),
+      external: this.getBorderValue(borderType, sheetId, zone.right, parseInt(row)),
+    }));
     this.clearZoneInternalCellsBorder(borderType, sheetId, zone);
     const leftoverZones = recomputeZones(
       [this.getters.getColsZone(sheetId, zone.left, zone.right)],
@@ -696,8 +705,6 @@ export class BordersPlugin
       sheet: true,
       col: true,
     });
-    const defaultKey = borderType === "LEFT" ? "defaultLeft" : "defaultTop";
-    const rowOverlap = Object.keys(this[defaultKey][sheetId]?.rowDefault ?? {});
     const sheetDefaults = this[defaultKey][sheetId];
     const colBorder = sheetDefaults?.sheetDefault ? EMPTY_BORDER : undefined;
 
@@ -716,7 +723,7 @@ export class BordersPlugin
             )
           : colBorder
       );
-      for (const rowIndex of rowOverlap) {
+      for (const [i, rowIndex] of rowOverlap.entries()) {
         const row = parseInt(rowIndex);
         if (zone.top <= row && row <= zone.bottom) {
           this.setCellBorder(
@@ -724,7 +731,7 @@ export class BordersPlugin
             sheetId,
             col,
             row,
-            side ? removeSide(sheetDefaults?.rowDefault?.[row], side, EMPTY_BORDER)! : EMPTY_BORDER
+            side ? removeSide(valuesBeforeClear[i][side], side, EMPTY_BORDER)! : EMPTY_BORDER
           );
         }
       }
@@ -735,6 +742,12 @@ export class BordersPlugin
   }
 
   private clearRowsBorders(borderType: "LEFT" | "TOP", sheetId: UID, zone: Zone) {
+    const defaultKey = borderType === "LEFT" ? "defaultLeft" : "defaultTop";
+    const colOverlap = Object.keys(this[defaultKey][sheetId]?.colDefault ?? {});
+    const valuesBeforeClear = colOverlap.map((col) => ({
+      internal: this.getBorderValue(borderType, sheetId, parseInt(col), zone.top),
+      external: this.getBorderValue(borderType, sheetId, parseInt(col), zone.bottom),
+    }));
     this.clearZoneInternalCellsBorder(borderType, sheetId, zone);
     const leftoverZones = recomputeZones(
       [this.getters.getRowsZone(sheetId, zone.top, zone.bottom)],
@@ -746,7 +759,6 @@ export class BordersPlugin
       row: true,
     });
 
-    const defaultKey = borderType === "LEFT" ? "defaultLeft" : "defaultTop";
     const sheetDefaults = this[defaultKey][sheetId];
     const rowBorder =
       sheetDefaults?.sheetDefault || sheetDefaults?.colDefault?.some(isDefined)
@@ -770,19 +782,27 @@ export class BordersPlugin
     }
 
     if (borderType === "TOP") {
-      const colOverlap = Object.keys(this[defaultKey][sheetId]?.colDefault ?? {});
-      for (const colIndex of colOverlap) {
+      for (const [i, colIndex] of colOverlap.entries()) {
         const col = parseInt(colIndex);
         const colDefault = this[defaultKey][sheetId]?.colDefault?.[col];
         if (!colDefault) {
           continue;
         }
-        if (colDefault.internal !== "internal") {
-          this.setCellBorder(borderType, sheetId, col, zone.top, colDefault);
-        }
-        if (colDefault.internal !== "external") {
-          this.setCellBorder(borderType, sheetId, col, zone.bottom, colDefault);
-        }
+        const { internal, external } = valuesBeforeClear[i];
+        this.setCellBorder(
+          borderType,
+          sheetId,
+          col,
+          zone.top,
+          removeSide(internal, "internal", EMPTY_BORDER)!
+        );
+        this.setCellBorder(
+          borderType,
+          sheetId,
+          col,
+          zone.bottom,
+          removeSide(external, "external", EMPTY_BORDER)!
+        );
       }
     }
 
@@ -923,16 +943,19 @@ export class BordersPlugin
     rightColumn: HeaderIndex
   ) {
     for (let row: HeaderIndex = 0; row <= this.getters.getNumberRows(sheetId) + 1; row++) {
-      for (const borderType of ["LEFT", "TOP"] as const) {
-        const left = this.getBorderValue(borderType, sheetId, leftColumn, row);
-        if (left && deepEquals(left, this.getBorderValue(borderType, sheetId, rightColumn, row))) {
-          this.setBorder(
-            borderType,
-            sheetId,
-            [{ left: leftColumn + 1, right: rightColumn - 1, top: row, bottom: row }],
-            left
-          );
-        }
+      const zone = { left: leftColumn + 1, right: rightColumn - 1, top: row, bottom: row };
+      const top = this.getBorderValue("TOP", sheetId, leftColumn, row);
+      if (top && deepEquals(top, this.getBorderValue("TOP", sheetId, rightColumn, row))) {
+        this.setBorder("TOP", sheetId, [zone], top);
+      }
+      const before = this.getCellBorder({ sheetId, col: leftColumn, row });
+      const after = this.getCellBorder({ sheetId, col: rightColumn, row });
+      if (before?.left && deepEquals(before.left, after?.left)) {
+        this.setBoundaryBorder("LEFT", sheetId, [zone], before.left, "internal");
+      }
+      if (before?.right && deepEquals(before.right, after?.right)) {
+        const rightEdges = { ...zone, left: zone.left + 1, right: zone.right + 1 };
+        this.setBoundaryBorder("LEFT", sheetId, [rightEdges], before.right, "external");
       }
     }
   }
@@ -944,16 +967,19 @@ export class BordersPlugin
    */
   private ensureRowBorderContinuity(sheetId: UID, topRow: HeaderIndex, bottomRow: HeaderIndex) {
     for (let col: HeaderIndex = 0; col < this.getters.getNumberCols(sheetId) + 1; col++) {
-      for (const borderType of ["LEFT", "TOP"] as const) {
-        const top = this.getBorderValue(borderType, sheetId, col, topRow);
-        if (top && deepEquals(top, this.getBorderValue(borderType, sheetId, col, bottomRow))) {
-          this.setBorder(
-            borderType,
-            sheetId,
-            [{ left: col, right: col, top: topRow + 1, bottom: bottomRow - 1 }],
-            top
-          );
-        }
+      const zone = { left: col, right: col, top: topRow + 1, bottom: bottomRow - 1 };
+      const left = this.getBorderValue("LEFT", sheetId, col, topRow);
+      if (left && deepEquals(left, this.getBorderValue("LEFT", sheetId, col, bottomRow))) {
+        this.setBorder("LEFT", sheetId, [zone], left);
+      }
+      const before = this.getCellBorder({ sheetId, col, row: topRow });
+      const after = this.getCellBorder({ sheetId, col, row: bottomRow });
+      if (before?.top && deepEquals(before.top, after?.top)) {
+        this.setBoundaryBorder("TOP", sheetId, [zone], before.top, "internal");
+      }
+      if (before?.bottom && deepEquals(before.bottom, after?.bottom)) {
+        const bottomEdges = { ...zone, top: zone.top + 1, bottom: zone.bottom + 1 };
+        this.setBoundaryBorder("TOP", sheetId, [bottomEdges], before.bottom, "external");
       }
     }
   }
@@ -1190,9 +1216,20 @@ export class BordersPlugin
     if (bottomBorder) {
       this.setBorder("TOP", sheetId, [bottomRow(zone)], bottomBorder);
     }
-    // Clear inside
-    this.clearCellsBorder("LEFT", sheetId, extendZone(zone, "left", -1));
-    this.clearCellsBorder("TOP", sheetId, extendZone(zone, "top", -1));
+    // Clear inside, hiding the defaults
+    this.clearCellsBorderOverDefaults("LEFT", sheetId, extendZone(zone, "left", -1));
+    this.clearCellsBorderOverDefaults("TOP", sheetId, extendZone(zone, "top", -1));
+  }
+
+  private clearCellsBorderOverDefaults(borderType: "LEFT" | "TOP", sheetId: UID, zone: Zone) {
+    this.clearCellsBorder(borderType, sheetId, zone);
+    for (let col = zone.left; col <= zone.right; col++) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        if (this.getBorderValue(borderType, sheetId, col, row)) {
+          this.setCellBorder(borderType, sheetId, col, row, EMPTY_BORDER);
+        }
+      }
+    }
   }
 
   /**
