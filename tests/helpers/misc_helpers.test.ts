@@ -342,11 +342,12 @@ describe("addStyleToWorkbookData", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setFormatting(model, "A1:A4", { bold: true });
+    setFormatting(model, "B1:B4", { align: "center" });
     const data = model.exportData();
 
     const A2 = { sheetId, col: 0, row: 1 };
     addStyleToWorkbookData(data, "styles", A2, { italic: true });
-    expect(data.sheets[0].styles).toEqual({ A1: 1, A2: 2, "A3:A4": 1 });
+    expect(data.sheets[0].styles).toEqual({ A1: 1, A2: 3, "A3:A4": 1, "B1:B4": 2 });
 
     const newModel = new Model(data);
     expect(getCellStyle(newModel, "A1")).toEqual({ bold: true });
