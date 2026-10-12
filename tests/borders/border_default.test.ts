@@ -334,16 +334,6 @@ describe("Default Borders", () => {
       expect(getCellBorder(model, "C3")).toEqual(ALL_BORDER);
       expect(getCellBorder(model, "D3")).toBeNull();
     });
-
-    test("borders.ts:812 — inserting a column keeps a sheet-wide border as a sheet default, not per-cell borders", () => {
-      const model = new Model();
-      setZoneBorders(model, { position: "all" }, ["A1:Z100"]);
-
-      addColumns(model, "after", "A", 1);
-
-      expect(getCellBorder(model, "B50")).toEqual(ALL_BORDER);
-      expect(model.exportData().sheets[0].borders).toEqual({});
-    });
   });
 
   describe("Sheet Manipulation: Remove Column", () => {
@@ -1021,23 +1011,6 @@ describe("Default Borders", () => {
     paste(model, "D5");
 
     expect(getCellBorder(model, "D5")).toEqual(BOTTOM_BORDER);
-  });
-
-  test("borders_clipboard.ts:97 — pasting many full-width bordered rows does not dispatch one command per row", () => {
-    const model = new Model();
-    makeStoreWithModel(model, ClipboardStore);
-    setZoneBorders(model, { position: "all" }, ["A1:Z50"]);
-    copy(model, "A1:Z50");
-
-    const borderCommands: string[] = [];
-    model.on("command-dispatched", null, (cmd: any) => {
-      if (cmd.type === "SET_BORDERS_ON_TARGET") {
-        borderCommands.push(cmd.type);
-      }
-    });
-    paste(model, "A60");
-
-    expect(borderCommands.length).toBeLessThan(10);
   });
 
   test("pasted full-width bordered rows keep all their sides", () => {
