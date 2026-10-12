@@ -1,21 +1,20 @@
 import {
+  computed,
   onMounted,
-  onPatched,
   onWillUnmount,
   proxy,
   signal,
+  useEffect,
   useListener,
   useProps,
 } from "@odoo/owl";
 import { throttle } from "../../../helpers/misc";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
-import { useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { getSheetMenuRegistry } from "../../../registries/menus/sheet_menu_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import { Command, CommandResult, DispatchResult, isSheetDependent } from "../../../types/commands";
-import { UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { Store } from "../../../types/store_engine";
 import { Ripple } from "../../animation/ripple";
@@ -61,36 +60,23 @@ export class BottomBarSheet extends OSComponent {
   private iconRef = signal.ref();
   private sheetNameRef = signal.ref();
 
-  private editionState: "initializing" | "editing" = "initializing";
-
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   setup() {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     useListener(window, "click", this.onExternalClick.bind(this), { capture: true });
 
-    // Subscribe BottomBarSheet to isEditing so onPatched fires when it changes.
-    // (Without this, isEditing is read inside Ripple's slot render, which subscribes
-    // Ripple's signalComputation instead of ours, so our onPatched never fires.)
-    useLayoutEffect(
-      () => {},
-      () => [this.state.isEditing]
-    );
-
-    onPatched(() => {
-      if (this.sheetNameRef() && this.state.isEditing && this.editionState === "initializing") {
-        this.editionState = "editing";
+    useEffect(() => {
+      if (this.sheetNameRef() && this.state.isEditing) {
         this.focusInputAndSelectContent();
       }
     });
 
-    useLayoutEffect(
-      (sheetId: UID) => {
-        if (this.props.sheetId === sheetId) {
-          this.scrollToSheet();
-        }
-      },
-      () => [this.model().getters.getActiveSheetId()]
-    );
+    const activeSheetId = computed(() => this.model().getters.getActiveSheetId());
+    useEffect(() => {
+      if (this.sheetNameRef() && this.props.sheetId === activeSheetId()) {
+        this.scrollToSheet();
+      }
+    });
 
     onMounted(() => {
       const animateLockedSheet = throttle(
@@ -136,6 +122,10 @@ export class BottomBarSheet extends OSComponent {
       return;
     }
 
+    // Manually set contenteditable so the element is focusable. We cannot use onPatched,
+    // because isEditing is read inside Ripple's slot render, which subscribes
+    // Ripple's signalComputation instead of ours, so our onPatched never fires
+    el.setAttribute("contenteditable", "plaintext-only");
     el.focus();
     const selection = window.getSelection();
     if (selection && el.firstChild) {
@@ -151,7 +141,7 @@ export class BottomBarSheet extends OSComponent {
   }
 
   onFocusOut() {
-    if (this.state.isEditing && this.editionState !== "initializing") {
+    if (this.state.isEditing) {
       this.stopEdition();
     }
   }
@@ -209,7 +199,6 @@ export class BottomBarSheet extends OSComponent {
 
   private startEdition() {
     this.state.isEditing = true;
-    this.editionState = "initializing";
   }
 
   private stopEdition() {
@@ -218,7 +207,6 @@ export class BottomBarSheet extends OSComponent {
     }
 
     this.state.isEditing = false;
-    this.editionState = "initializing";
     this.sheetNameRef()?.blur();
 
     const inputValue = this.getInputContent() || "";
@@ -228,7 +216,6 @@ export class BottomBarSheet extends OSComponent {
 
   private cancelEdition() {
     this.state.isEditing = false;
-    this.editionState = "initializing";
     this.sheetNameRef()?.blur();
     this.setInputContent(this.sheetName);
   }
