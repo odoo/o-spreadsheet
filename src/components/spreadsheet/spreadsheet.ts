@@ -18,7 +18,7 @@ import { unregisterChartJsExtensions } from "../../helpers/figures/charts/chart_
 import { batched } from "../../helpers/misc";
 import { providePluginsIfNotPresent, render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
-import { Component, useLayoutEffect, useSubEnv } from "../../owl3_compatibility_layer";
+import { Component, useSubEnv } from "../../owl3_compatibility_layer";
 import { ImageProviderPlugin } from "../../owl_plugins/image_provider_owl_plugin";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
@@ -169,7 +169,7 @@ export class Spreadsheet extends Component {
 
     this.notificationPlugin.updateNotificationCallbacks({ ...this.props });
 
-    useLayoutEffect(() => {
+    onPatched(() => {
       /**
        * Only refocus the grid if the active element is not a child of the spreadsheet
        * (i.e. activeElement is outside of the spreadsheetRef component)
