@@ -1,5 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-ZoomableChartJsComponent">
+    <t t-set="renderSignal" t-value="this.renderSignal()"/>
     <div class="w-100 h-100" t-att-style="this.canvasStyle">
       <div t-att-style="this.containerStyle">
         <canvas class="o-figure-canvas w-100 h-100" t-ref="this.canvas"/>

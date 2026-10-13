@@ -388,6 +388,7 @@ import {
 import { domainToColRowDomain } from "./helpers/pivot/pivot_domain_helpers";
 import { drawHighlight } from "./helpers/rendering";
 import { fuzzyLookup } from "./helpers/search";
+import { DevicePixelRatioPlugin } from "./owl_plugins/device_pixel_ratio_owl_plugin";
 import { IsSmallPlugin } from "./owl_plugins/is_small_plugin";
 import { ModelPlugin } from "./owl_plugins/model_owl_plugin";
 import { NavigatorClipboardPlugin } from "./owl_plugins/navigator_clipboard_plugin";
@@ -624,6 +625,7 @@ export const owlPlugins = {
   SpreadsheetRectPlugin,
   NavigatorClipboardPlugin,
   ModelPlugin,
+  DevicePixelRatioPlugin,
 };
 
 export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";

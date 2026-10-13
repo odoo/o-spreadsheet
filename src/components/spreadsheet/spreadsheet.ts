@@ -18,6 +18,7 @@ import { batched } from "../../helpers/misc";
 import { providePluginsIfNotPresent, render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
 import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
+import { DevicePixelRatioPlugin } from "../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { ImageProviderPlugin } from "../../owl_plugins/image_provider_owl_plugin";
 import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
@@ -132,7 +133,7 @@ export class Spreadsheet extends Component {
     providePlugins([PopoverContainerPlugin], {
       getPopoverContainerRect: () => getElBoundingRect(this.spreadsheetRef()),
     });
-    providePlugins([ModelPlugin], {
+    providePlugins([ModelPlugin, DevicePixelRatioPlugin], {
       model: this.props.model,
     });
     providePlugins([PrintModePlugin]);

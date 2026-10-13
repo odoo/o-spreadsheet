@@ -1,11 +1,19 @@
-import { onMounted, onWillUnmount, signal, useProps } from "@odoo/owl";
+import {
+  onMounted,
+  onPatched,
+  onWillUnmount,
+  signal,
+  useEffect,
+  usePlugin,
+  useProps,
+} from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import {
   chartJsExtensionRegistry,
   registerChartJSExtensions,
 } from "../../../../helpers/figures/charts/chart_js_extension";
 import { deepCopy, deepEquals } from "../../../../helpers/misc";
-import { useLayoutEffect } from "../../../../owl3_compatibility_layer";
+import { DevicePixelRatioPlugin } from "../../../../owl_plugins/device_pixel_ratio_owl_plugin";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { Store } from "../../../../types/store_engine";
@@ -95,7 +103,9 @@ export class ChartJsComponent extends OSComponent {
   protected currentRuntime!: ChartJSRuntime;
   protected animationStore: Store<ChartAnimationStore> | undefined;
 
-  private currentDevicePixelRatio = window.devicePixelRatio;
+  devicePixelRatioPlugin = usePlugin(DevicePixelRatioPlugin);
+  private currentDevicePixelRatio = this.devicePixelRatioPlugin.devicePixelRatio();
+  renderSignal = signal(0);
 
   get chartRuntime(): ChartJSRuntime {
     const runtime = this.model().getters.getChartRuntime(this.props.chartId);
@@ -117,7 +127,17 @@ export class ChartJsComponent extends OSComponent {
       this.createChart(deepCopy(runtime));
     });
     onWillUnmount(this.unmount.bind(this));
-    useLayoutEffect(() => {
+
+    useEffect(() => {
+      this.devicePixelRatioPlugin.devicePixelRatio();
+      this.model();
+      // When either the model of the dpr signal changes, re-render by triggering this signal that is read by the template
+      // we have to do this workaround because we don't want the update logic to be run during the render, not before
+      // when the signal is triggered (it would change animation state and update ChartJS for nothing if the update removes
+      // the component)
+      signal.trigger(this.renderSignal);
+    });
+    onPatched(() => {
       const runtime = this.chartRuntime;
       if (
         runtime !== this.currentRuntime &&
@@ -130,7 +150,7 @@ export class ChartJsComponent extends OSComponent {
           this.updateChartJs(deepCopy(runtime));
         }
         this.currentRuntime = runtime;
-      } else if (this.currentDevicePixelRatio !== window.devicePixelRatio) {
+      } else if (this.currentDevicePixelRatio !== this.devicePixelRatioPlugin.devicePixelRatio()) {
         this.currentDevicePixelRatio = window.devicePixelRatio;
         this.updateChartJs(deepCopy(this.currentRuntime));
       }
