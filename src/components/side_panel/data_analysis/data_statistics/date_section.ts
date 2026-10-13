@@ -37,8 +37,12 @@ export class DateSection extends OSComponent {
   get granularityOptions() {
     return [
       { value: "year", label: _t("Year") },
+      { value: "quarter", label: _t("Quarter") },
       { value: "month", label: _t("Month") },
-      { value: "day", label: _t("Day of week") },
+      { value: "week", label: _t("Week") },
+      { value: "weekday", label: _t("Day of week") },
+      { value: "day", label: _t("Day") },
+      { value: "date", label: _t("Date") },
     ];
   }
 

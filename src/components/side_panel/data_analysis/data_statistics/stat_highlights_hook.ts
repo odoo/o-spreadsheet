@@ -33,7 +33,6 @@ export function useStatHighlights(
 
       for (let row = primaryZone.top; row <= primaryZone.bottom; row++) {
         const refCell = getters.getEvaluatedCell({ sheetId, col: refCol, row });
-
         if (matches(refCell, hoveredStat)) {
           /* Do we have to highlight cells where category is aligned to a void cell ?
           
