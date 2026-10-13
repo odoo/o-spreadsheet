@@ -1,7 +1,7 @@
-import { proxy, signal, useProps } from "@odoo/owl";
+import { onPatched, proxy, signal, useProps } from "@odoo/owl";
 import { withHttps } from "../../../../../helpers/links";
-import { useLayoutEffect } from "../../../../../owl3_compatibility_layer";
 import { _t } from "../../../../../translation";
+import { useResizeObserver } from "../../../../helpers/listener_hook";
 import { OSComponent } from "../../../../os_component";
 import { TextInput } from "../../../../text_input/text_input";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
@@ -26,28 +26,21 @@ export class ChartAnnotation extends OSComponent {
   });
 
   setup() {
-    useLayoutEffect(
-      (el, annotationText) => {
-        if (el && !el.matches(":focus") && el.innerText !== (annotationText || "")) {
-          el.innerText = annotationText || "";
-          this.state.annotationTextInput = annotationText || "";
-          this.updateOverflowState(el);
-        }
-      },
-      () => [this.editorRef(), this.props.definition.annotationText]
-    );
-    useLayoutEffect(
-      (el) => {
-        if (!el) {
-          return;
-        }
-        const observer = new ResizeObserver(() => this.updateOverflowState(el));
-        observer.observe(el);
+    onPatched(() => {
+      const el = this.editorRef();
+      const annotationText = this.props.definition.annotationText;
+      if (el && !el.matches(":focus") && el.innerText !== (annotationText || "")) {
+        el.innerText = annotationText || "";
+        this.state.annotationTextInput = annotationText || "";
         this.updateOverflowState(el);
-        return () => observer.disconnect();
-      },
-      () => [this.editorRef()]
-    );
+      }
+    });
+    useResizeObserver(this.editorRef, () => {
+      const el = this.editorRef();
+      if (el) {
+        this.updateOverflowState(el);
+      }
+    });
   }
 
   private updateOverflowState(el: HTMLElement) {
