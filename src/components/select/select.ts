@@ -1,8 +1,8 @@
-import { proxy, signal, useListener, useProps } from "@odoo/owl";
-import { useLayoutEffect } from "../../owl3_compatibility_layer";
+import { proxy, signal, useEffect, useListener, useProps } from "@odoo/owl";
 import { ValueAndLabel } from "../../types/misc";
 import { PropsOf } from "../../types/props_of";
 import { getElBoundingRect, isChildEvent } from "../helpers/dom_helpers";
+import { useElementRect } from "../helpers/position_hook";
 import { OSComponent } from "../os_component";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
@@ -34,10 +34,11 @@ export class Select extends OSComponent {
   setup() {
     useListener(window, "pointerdown", this.onExternalClick.bind(this), { capture: true });
 
-    useLayoutEffect(() => {
+    const selectRect = useElementRect(this.selectRef);
+    useEffect(() => {
       const el = this.dropdownRef();
       if (el) {
-        el.style.width = `${this.selectRef()?.offsetWidth}px`;
+        el.style.width = `${selectRect().width}px`;
       }
     });
   }
