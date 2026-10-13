@@ -1,5 +1,4 @@
-import { onWillUnmount } from "@odoo/owl";
-import { useLayoutEffect } from "../../owl3_compatibility_layer";
+import { onMounted, onWillDestroy, onWillUnmount } from "@odoo/owl";
 
 interface IntervalTimer {
   pause: () => void;
@@ -29,13 +28,8 @@ export function useInterval(callback: () => void, delay: number): IntervalTimer 
       throw e;
     }
   };
-  useLayoutEffect(
-    () => {
-      intervalId = setInterval(safeCallback, delay);
-      return () => clearInterval(intervalId);
-    },
-    () => [delay]
-  );
+  onWillDestroy(pause);
+  onMounted(() => (intervalId = setInterval(safeCallback, delay)));
   return {
     pause,
     resume: () => {
