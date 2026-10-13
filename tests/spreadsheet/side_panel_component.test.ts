@@ -327,6 +327,31 @@ describe("Side Panel", () => {
     expect(document.querySelector(".o-sidePanel")).toBeNull();
   });
 
+  test("panel.replace do nothing if called with a wrong panel key", async () => {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL", {
+      title: "Custom Panel",
+      Body: Body,
+    });
+    addToRegistry(sidePanelRegistry, "OTHER_PANEL", {
+      title: "Other Panel",
+      Body: Body,
+    });
+    parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL", { key: "panelKey" });
+    await nextTick();
+    expect(".o-sidePanel").toHaveCount(1);
+    expect(".o-sidePanelTitle").toHaveText("Custom Panel");
+
+    parent.env.getStore(SidePanelStore).replace("OTHER_PANEL", "wrongKey", {});
+    await nextTick();
+    expect(".o-sidePanel").toHaveCount(1);
+    expect(".o-sidePanelTitle").toHaveText("Custom Panel");
+
+    parent.env.getStore(SidePanelStore).replace("CUSTOM_PANEL", "panelKey", {});
+    await nextTick();
+    expect(".o-sidePanel").toHaveCount(1);
+    expect(".o-sidePanelTitle").toHaveText("Custom Panel");
+  });
+
   describe("Side panel resize", () => {
     beforeEach(async () => {
       addToRegistry(sidePanelRegistry, "CUSTOM_PANEL_2", { title: "title", Body: Body });
