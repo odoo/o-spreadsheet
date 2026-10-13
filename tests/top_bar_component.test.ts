@@ -78,6 +78,11 @@ const moreToolsWidth = 50;
 const toolWidth = 100;
 const namedRangeWidth = 150;
 
+jest.mock("../src/constants", () => {
+  const actual = jest.requireActual("../src/constants");
+  return { ...actual, DEFAULT_FONT: "Roboto", USABLE_FONTS: actual.AVAILABLE_FONTS };
+});
+
 beforeEach(() => {
   extendMockGetBoundingClientRect({
     "o-spreadsheet": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: spreadsheetHeight }),
@@ -524,6 +529,58 @@ describe("TopBar component", () => {
     await click(fixture, '.o-text-options [data-size="8"]');
     expect(fontSizeText.value.trim()).toBe("8");
     expect(getStyle(model, "A1").fontSize).toBe(8);
+  });
+
+  test("font editor displays the default font", async () => {
+    await mountParent();
+    expect(".o-font-editor-name").toHaveText("Roboto");
+    expect(getElComputedStyle(".o-font-editor-name", "fontFamily")).toBe("Roboto");
+  });
+
+  test("font editor displays the font of the selected cell", async () => {
+    const model = new Model();
+    setCellStyle(model, "A1", { font: "Verdana" });
+    await mountParent(model);
+    expect(".o-font-editor-name").toHaveText("Verdana");
+    expect(getElComputedStyle(".o-font-editor-name", "fontFamily")).toBe("Verdana");
+  });
+
+  test("font editor dropdown lists all usable fonts", async () => {
+    await mountParent();
+    expect(".o-popover .o-text-options").toHaveCount(0);
+    await click(fixture, ".o-font-editor-button");
+    const fontNames = [...fixture.querySelectorAll(".o-popover .o-text-options > div")].map(
+      (el) => el.querySelector("span")!.textContent
+    );
+    expect(fontNames).toEqual([
+      "Roboto",
+      "Arial",
+      "Liberation Sans",
+      "Verdana",
+      "Tahoma",
+      "Trebuchet MS",
+      "Courier New",
+    ]);
+  });
+
+  test("can set font", async () => {
+    const { model } = await mountParent();
+    await click(fixture, ".o-font-editor-button");
+    const courierNew = [...fixture.querySelectorAll(".o-popover .o-text-options > div")].find(
+      (el) => el.textContent?.includes("Courier New")
+    )!;
+    await click(courierNew);
+    expect(getStyle(model, "A1").font).toBe("Courier New");
+    expect(".o-font-editor-name").toHaveText("Courier New");
+    expect(".o-popover .o-text-options").toHaveCount(0);
+  });
+
+  test("clicking the font editor button again closes the dropdown", async () => {
+    await mountParent();
+    await click(fixture, ".o-font-editor-button");
+    expect(".o-popover .o-text-options").toHaveCount(1);
+    await click(fixture, ".o-font-editor-button");
+    expect(".o-popover .o-text-options").toHaveCount(0);
   });
 
   test("Tab from font size editor closes the dropdown and moves focus to grid", async () => {
