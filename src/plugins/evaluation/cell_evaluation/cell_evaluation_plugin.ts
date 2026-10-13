@@ -175,12 +175,12 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
   };
 
   preHandlers = {
+    "*allCommands": this.resetForceEvaluation,
     "*invalidateEvaluationCommands": this.flagRebuildDependenciesGraph,
     "*invalidateDependenciesCommands": this.flagRebuildDependenciesGraph,
   };
 
   handlers = {
-    "*allCommands": this.resetForceEvaluation,
     UPDATE_CELL: this.onUpdateCell,
     EVALUATE_CELLS: this.onEvaluateCells,
     SET_AUTOMATIC_EVALUATION: this.onSetAutomaticEvaluation,

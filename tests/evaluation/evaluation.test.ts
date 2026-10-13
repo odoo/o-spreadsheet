@@ -10,9 +10,13 @@ import {
   addColumns,
   copy,
   createSheet,
+  createTable,
+  createTableStyle,
   deleteColumns,
   evaluateCells,
   paste,
+  removeTableStyle,
+  setAutomaticEvaluation,
   setCellContent,
   setFormat,
   setFormatting,
@@ -1621,6 +1625,22 @@ describe("Automatic evaluation", () => {
 
     const unrelatedCell = getCell(model, "B1")!;
     model.dispatch("EVALUATE_CELLS", { cellIds: [unrelatedCell.id] });
+    expect(getEvaluatedCell(model, "A2").value).toBe(2);
+  });
+
+  test("An EVALUATE_CELLS nested in a core command forces evaluation in manual mode", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "=A1");
+    createTableStyle(model, "MyStyle");
+    createTable(model, "C1:D2", { styleId: "MyStyle" });
+
+    setAutomaticEvaluation(model, false);
+    setCellContent(model, "A1", "2");
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+
+    // REMOVE_TABLE_STYLE dispatches UPDATE_TABLE, which makes the subtotal plugin dispatch EVALUATE_CELLS
+    removeTableStyle(model, "MyStyle");
     expect(getEvaluatedCell(model, "A2").value).toBe(2);
   });
 });
