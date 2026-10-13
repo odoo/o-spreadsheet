@@ -64,9 +64,6 @@ import {
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 const constantsMocks = jest.requireMock("../../src/constants");
-jest.mock("../../src/constants", () => ({
-  ...jest.requireActual("../../src/constants"),
-}));
 
 jest.mock("../../src/components/helpers/dom_helpers", () => {
   return {

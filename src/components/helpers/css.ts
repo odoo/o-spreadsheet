@@ -57,6 +57,9 @@ export function cellTextStyleToCss(style: Style | undefined): CSSProperties {
   if (style.fontSize) {
     attributes["font-size"] = `${style.fontSize}px`;
   }
+  if (style.font) {
+    attributes["font-family"] = style.font;
+  }
   if (style.strikethrough || style.underline) {
     let decoration = style.strikethrough ? "line-through" : "";
     decoration = style.underline ? decoration + " underline" : decoration;

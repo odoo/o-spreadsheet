@@ -4,6 +4,7 @@
       class="o-chart-title-designer position-relative d-flex align-items-center"
       t-att-class="this.props.class">
       <ActionButton action="this.boldButtonAction" class="'o-hoverable-button'"/>
+      <div class="o-divider border-start"/>
       <ActionButton action="this.italicButtonAction" class="'o-hoverable-button'"/>
       <div
         class="o-divider border-start"
@@ -47,6 +48,15 @@
           </div>
         </div>
       </div>
+      <div class="o-divider border-start" t-if="this.props.hasFontSelector"/>
+      <FontEditor
+        t-if="this.props.hasFontSelector"
+        currentFont="this.currentFont"
+        onFontChanged.bind="this.updateFont"
+        showDropdown="this.state.activeTool === 'fontTool'"
+        toggleDropdown="(ev) => this.toggleDropdownTool('fontTool', ev)"
+        class="'o-hoverable-button'"
+      />
       <div class="o-divider border-start"/>
       <FontSizeEditor
         currentFontSize="this.currentFontSize"

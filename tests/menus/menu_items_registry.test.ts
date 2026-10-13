@@ -53,7 +53,7 @@ import { FIRST_TABLE_IN_SELECTION } from "../../src/actions/menu_items_actions";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
-import { FONT_SIZES } from "../../src/constants";
+import { FONT_SIZES, POSSIBLE_FONTS } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
 import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
@@ -1362,6 +1362,33 @@ describe("Menu Item actions", () => {
       target: env.model().getters.getSelectedZones(),
       style: { fontSize },
     });
+  });
+
+  test("Format -> font", async () => {
+    await doAction(["format", "format_font", "font_Verdana"], env);
+    expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      sheetId: env.model().getters.getActiveSheetId(),
+      target: env.model().getters.getSelectedZones(),
+      style: { font: "Verdana" },
+    });
+  });
+
+  test("Format -> font lists the fonts with their description", () => {
+    const fonts = getNode(["format", "format_font"], env)
+      .children(env)
+      .map((node) => [node.name(env), node.description(env)]);
+    expect(fonts).toEqual(POSSIBLE_FONTS.map((f) => [f.name, f.description]));
+  });
+
+  test("Format -> font marks the font of the selection as active", () => {
+    const isFontActive = (font: string) =>
+      getNode(["format", "format_font", `font_${font}`], env).isActive!(env);
+    expect(isFontActive("Roboto")).toBe(true);
+    expect(isFontActive("Verdana")).toBe(false);
+
+    setFormatting(model, "A1", { font: "Verdana" });
+    expect(isFontActive("Roboto")).toBe(false);
+    expect(isFontActive("Verdana")).toBe(true);
   });
 
   describe("Format -> Alignment", () => {
