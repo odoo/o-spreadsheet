@@ -1,10 +1,10 @@
-import { proxy, signal, useProps } from "@odoo/owl";
+import { onPatched, proxy, signal, useProps } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemTitle, getCarouselLayout } from "../../../helpers/carousel_helpers";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers/misc";
 import { cellPositions } from "../../../helpers/zones";
-import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
+import { Component } from "../../../owl3_compatibility_layer";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
@@ -51,7 +51,7 @@ export class CarouselFigure extends OSComponent {
     this.fullScreenFigureStore = useStore(FullScreenFigureStore);
     this.sidePanelStore = useStore(SidePanelStore);
 
-    useLayoutEffect(() => {
+    onPatched(() => {
       this.updateTabsVisibility();
     });
   }
