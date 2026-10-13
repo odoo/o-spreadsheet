@@ -1,11 +1,13 @@
 import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import {
   DEFAULT_CURRENCY,
+  DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
   DEFAULT_VERTICAL_ALIGN,
   DEFAULT_WRAPPING_MODE,
   FONT_SIZES,
   ROTATION_EPSILON,
+  USABLE_FONTS,
 } from "../constants";
 import {
   EXAMPLE_DATE,
@@ -18,7 +20,7 @@ import { getDateTimeFormat } from "../helpers/locale";
 import { _t } from "../translation";
 import { CellValue } from "../types/cells";
 import { Format } from "../types/format";
-import { Align, VerticalAlign, Wrapping } from "../types/misc";
+import { Align, Font, VerticalAlign, Wrapping } from "../types/misc";
 import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
@@ -277,6 +279,33 @@ export const formatStrikethrough: ActionSpec = {
     setStyle(env.model(), { strikethrough: !env.model().getters.getCurrentStyle().strikethrough }),
   icon: "o-spreadsheet-Icon.STRIKE",
   isActive: (env) => !!env.model().getters.getCurrentStyle().strikethrough,
+};
+
+function makeFontAction(font: Font, description: string): ActionSpec {
+  return {
+    name: font,
+    description,
+    id: `font_${font}`,
+    execute: (env) => setStyle(env.model(), { font }),
+    isActive: (env) => {
+      const currentFont = env.model().getters.getCurrentStyle().font;
+      if (currentFont) {
+        return currentFont === font;
+      } else {
+        return DEFAULT_FONT === font;
+      }
+    },
+  };
+}
+
+export const formatFontsList: ActionSpec[] = USABLE_FONTS.map((f) =>
+  makeFontAction(f.name, f.description)
+);
+
+export const formatFonts: ActionSpec = {
+  name: _t("Font"),
+  children: formatFontsList,
+  icon: "o-spreadsheet-Icon.FONT_SIZE",
 };
 
 export const formatFontSize: ActionSpec = {

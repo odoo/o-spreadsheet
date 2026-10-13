@@ -74,6 +74,11 @@ import { makeStoreWithModel } from "../../test_helpers/stores";
 
 let model: Model;
 
+jest.mock("../../../src/constants", () => {
+  const actual = jest.requireActual("../../../src/constants");
+  return { ...actual, DEFAULT_FONT: "Roboto", USABLE_FONTS: actual.AVAILABLE_FONTS };
+});
+
 beforeEach(() => {
   model = new Model({
     sheets: [
