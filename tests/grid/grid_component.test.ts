@@ -1,7 +1,10 @@
 import { Align, ClipboardMIMEType, Spreadsheet, TransportService } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
-import { resetTimeoutDuration } from "../../src/components/helpers/touch_handlers_hook";
+import {
+  LONG_PRESS_DURATION,
+  resetTimeoutDuration,
+} from "../../src/components/helpers/touch_handlers_hook";
 import { getDataFilterIcon } from "../../src/components/icons/icons";
 import { PaintFormatStore } from "../../src/components/paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../../src/components/popover/cell_popover_store";
@@ -443,6 +446,58 @@ describe("Grid component", () => {
     expect(viewStore.activeSheetScrollInfo.scrollY).toBe(30);
     jest.runOnlyPendingTimers();
     expect(viewStore.activeSheetScrollInfo.scrollY).toBe(30);
+  });
+
+  test("Long press on the grid opens the context menu", async () => {
+    const grid = fixture.querySelector(".o-grid-overlay")!;
+    triggerTouchEvent(grid, "touchstart", { clientX: 150, clientY: 150 });
+    jest.advanceTimersByTime(LONG_PRESS_DURATION - 1);
+    await nextTick();
+    expect(".o-menu").toHaveCount(0);
+    jest.advanceTimersByTime(1);
+    await nextTick();
+    expect(".o-menu").toHaveCount(1);
+  });
+
+  test("Long press does not open the context menu if the touch ends or moves", async () => {
+    const grid = fixture.querySelector(".o-grid-overlay")!;
+    triggerTouchEvent(grid, "touchstart", { clientX: 150, clientY: 150 });
+    triggerTouchEvent(grid, "touchend", { clientX: 150, clientY: 150 });
+    jest.advanceTimersByTime(LONG_PRESS_DURATION);
+    await nextTick();
+    expect(".o-menu").toHaveCount(0);
+
+    triggerTouchEvent(grid, "touchstart", { clientX: 150, clientY: 150 });
+    triggerTouchEvent(grid, "touchmove", { clientX: 150, clientY: 100 });
+    jest.advanceTimersByTime(LONG_PRESS_DURATION);
+    await nextTick();
+    expect(".o-menu").toHaveCount(0);
+  });
+
+  test("Long press opens a single context menu when the browser natively dispatches one", async () => {
+    const grid = fixture.querySelector(".o-grid-overlay")!;
+    const triggerNativeContextMenu = () => {
+      const ev = new MouseEvent("contextmenu", { bubbles: true, cancelable: true });
+      grid.dispatchEvent(ev);
+      return ev;
+    };
+    const onContextMenu = jest.fn();
+    grid.addEventListener("contextmenu", onContextMenu);
+
+    // native event dispatched before the long press duration
+    triggerTouchEvent(grid, "touchstart", { clientX: 150, clientY: 150 });
+    triggerNativeContextMenu();
+    jest.advanceTimersByTime(LONG_PRESS_DURATION);
+    triggerTouchEvent(grid, "touchend", { clientX: 150, clientY: 150 });
+    expect(onContextMenu).toHaveBeenCalledTimes(1);
+
+    // native event dispatched after the long press duration
+    onContextMenu.mockClear();
+    triggerTouchEvent(grid, "touchstart", { clientX: 150, clientY: 150 });
+    jest.advanceTimersByTime(LONG_PRESS_DURATION);
+    const nativeEvent = triggerNativeContextMenu();
+    expect(nativeEvent.defaultPrevented).toBe(true);
+    expect(onContextMenu).toHaveBeenCalledTimes(1);
   });
 
   test("Double clicking on an icon does not open the composer", async () => {
