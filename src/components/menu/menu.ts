@@ -1,4 +1,4 @@
-import { signal, useProps } from "@odoo/owl";
+import { signal, useEffect, useProps } from "@odoo/owl";
 import {
   Action,
   adaptShortcutStringToMacOs,
@@ -6,7 +6,6 @@ import {
   isRootMenu,
   MenuItemOrSeparator,
 } from "../../actions/action";
-import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { Pixel } from "../../types/misc";
 import { Rect } from "../../types/rendering";
 import { cssPropertiesToCss } from "../helpers/css";
@@ -48,7 +47,7 @@ export class Menu extends OSComponent {
   private menuRef = signal.ref();
 
   setup(): void {
-    useLayoutEffect(() => {
+    useEffect(() => {
       const menuEl = this.menuRef();
       if (
         this.props.hoveredMenuId &&
