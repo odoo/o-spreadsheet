@@ -1,6 +1,5 @@
-import { useListener, useProps } from "@odoo/owl";
+import { useListener, useOnChange, useProps } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/misc";
-import { useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
 import { UID } from "../../../../types/misc";
@@ -48,7 +47,8 @@ export class ConditionalFormattingEditor extends OSComponent {
       this.props.isNewCf
     );
     this.sidePanelStore = useStore(SidePanelStore);
-    useLayoutEffect(
+    useOnChange(
+      () => [this.model().getters.getActiveSheetId(), this.isEditedCfRemoved],
       (sheetId, isCfRemoved) => {
         if (this.activeSheetId !== sheetId || isCfRemoved) {
           this.sidePanelStore.replace(
@@ -56,8 +56,7 @@ export class ConditionalFormattingEditor extends OSComponent {
             `ConditionalFormattingEditor_${this.props.cf.id}`
           );
         }
-      },
-      () => [this.model().getters.getActiveSheetId(), this.isEditedCfRemoved]
+      }
     );
     useListener(window as any, "click", () => this.store.closeMenus());
   }
