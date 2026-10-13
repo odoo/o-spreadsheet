@@ -5,7 +5,6 @@ import {
   CommandResult,
   CreateFigureCommand,
   Model,
-  Spreadsheet,
   TrendConfiguration,
   UID,
 } from "../../../src";
@@ -15,9 +14,9 @@ import { ChartTerms } from "../../../src/components/translations_terms";
 import { LINE_DATA_POINT_RADIUS } from "../../../src/constants";
 import { ColorGenerator, toHex } from "../../../src/helpers/color";
 import { deepCopy } from "../../../src/helpers/misc";
-import { render } from "../../../src/helpers/owl3_helpers";
 import { toZone } from "../../../src/helpers/zones";
 import { App } from "../../../src/owl3_compatibility_layer";
+import { DevicePixelRatioPlugin } from "../../../src/owl_plugins/device_pixel_ratio_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../../src/owl_plugins/navigator_clipboard_plugin";
 import { chartSubtypeRegistry } from "../../../src/registries/chart_subtype_registry";
 import { HighlightStore } from "../../../src/stores/highlight_store";
@@ -154,7 +153,7 @@ async function mountChartSidePanel(id: UID = chartId, _model: Model = model) {
 }
 
 async function mountSpreadsheet(partialEnv?: Partial<SpreadsheetChildEnv>) {
-  return ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheetHelper(
+  return ({ env, model, fixture, app, getPlugin } = await mountSpreadsheetHelper(
     { model },
     partialEnv
   ));
@@ -166,7 +165,6 @@ let mockChartData = mockChart();
 let app: App;
 const chartId = "someuuid";
 let sheetId: string;
-let parent: Spreadsheet;
 let getPlugin: OwlPluginGetter;
 
 let env: SpreadsheetActionEnv;
@@ -3097,8 +3095,9 @@ describe("charts", () => {
     createTestChart("basicChart");
     await nextTick();
     expect(updateChart).not.toHaveBeenCalled();
-    window.devicePixelRatio = 2;
-    render(parent, true);
+    const devicePixelRatioPlugin = getPlugin(DevicePixelRatioPlugin);
+    // In practice this is triggered by MediaQueryList changes, which is not supported in JSDOM
+    devicePixelRatioPlugin.devicePixelRatio.set(2);
     await nextTick();
     expect(updateChart).toHaveBeenCalled();
   });

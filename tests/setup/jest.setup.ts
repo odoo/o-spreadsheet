@@ -102,6 +102,13 @@ beforeAll(() => {
   // @ts-ignore
   window.PointerEvent = PointerEventPolyfill;
 
+  window.matchMedia = () =>
+    ({
+      matches: false,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    } as unknown as MediaQueryList);
+
   Element.prototype.scrollIntoView = () => {};
   defineMissingJSDomClipboardProperties();
 });

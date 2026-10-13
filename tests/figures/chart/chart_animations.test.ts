@@ -121,6 +121,7 @@ describe("Chart animations in dashboard", () => {
     await nextTick();
     expect(mockedChart.config.options.animation).toBe(false);
 
+    // ADRM TODO: doesn't work, see https://pad.odoo.com/p/owl-3-adrm
     updateChart(model, "chartId", { type: "pie" });
     await nextTick();
     expect(mockedChart.config.options.animation.animateRotate).toBe(true);
