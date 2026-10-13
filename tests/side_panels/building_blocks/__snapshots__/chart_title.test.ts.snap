@@ -50,6 +50,9 @@ exports[`Chart title Can render a chart title component 1`] = `
           
         </span>
         
+        <div
+          class="o-divider border-start"
+        />
         <span
           class="o-menu-item-button o-hoverable-button"
           title="Italic"
@@ -109,6 +112,36 @@ exports[`Chart title Can render a chart title component 1`] = `
           
         </div>
         
+        
+        <div
+          class="o-divider border-start"
+        />
+        
+        <div
+          class="o-dropdown o-font-editor"
+        >
+          <span
+            class="o-menu-item-button o-font-editor-button o-hoverable-button"
+            title="Roboto"
+          >
+            <span
+              class="o-font-editor-name text-truncate"
+              style="font-family: Roboto, Roboto;"
+            >
+              Roboto
+            </span>
+            <div
+              class="o-icon"
+            >
+              <i
+                class="oi"
+                data-icon="arrow_drop_down"
+              />
+            </div>
+            
+          </span>
+          
+        </div>
         
         <div
           class="o-divider border-start"

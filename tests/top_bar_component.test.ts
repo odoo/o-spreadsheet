@@ -5,7 +5,7 @@ import { OSComponent } from "../src/components/os_component";
 import { PaintFormatStore } from "../src/components/paint_format_button/paint_format_store";
 import { TopBar } from "../src/components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_registry";
-import { DEFAULT_FONT_SIZE } from "../src/constants";
+import { DEFAULT_FONT_SIZE, POSSIBLE_FONTS } from "../src/constants";
 import { render } from "../src/helpers/owl3_helpers";
 import { toZone, zoneToXc } from "../src/helpers/zones";
 import { Component } from "../src/owl3_compatibility_layer";
@@ -508,6 +508,50 @@ describe("TopBar component", () => {
     await click(fixture, '.o-text-options [data-size="8"]');
     expect(fontSizeText.value.trim()).toBe("8");
     expect(getStyle(model, "A1").fontSize).toBe(8);
+  });
+
+  test("font editor displays the default font", async () => {
+    await mountParent();
+    expect(".o-font-editor-name").toHaveText("Roboto");
+    expect(getElComputedStyle(".o-font-editor-name", "fontFamily")).toBe("Roboto, Roboto");
+  });
+
+  test("font editor displays the font of the selected cell", async () => {
+    const model = new Model();
+    setCellStyle(model, "A1", { font: "Verdana" });
+    await mountParent(model);
+    expect(".o-font-editor-name").toHaveText("Verdana");
+    expect(getElComputedStyle(".o-font-editor-name", "fontFamily")).toBe("Verdana, Roboto");
+  });
+
+  test("font editor dropdown lists all usable fonts", async () => {
+    await mountParent();
+    expect(".o-popover .o-text-options").toHaveCount(0);
+    await click(fixture, ".o-font-editor-button");
+    const fontNames = [...fixture.querySelectorAll(".o-popover .o-text-options > div")].map(
+      (el) => el.querySelector("span")!.textContent
+    );
+    expect(fontNames).toEqual(POSSIBLE_FONTS.map((f) => f.name));
+  });
+
+  test("can set font", async () => {
+    const { model } = await mountParent();
+    await click(fixture, ".o-font-editor-button");
+    const courierNew = [...fixture.querySelectorAll(".o-popover .o-text-options > div")].find(
+      (el) => el.textContent?.includes("Courier New")
+    )!;
+    await click(courierNew);
+    expect(getStyle(model, "A1").font).toBe("Courier New");
+    expect(".o-font-editor-name").toHaveText("Courier New");
+    expect(".o-popover .o-text-options").toHaveCount(0);
+  });
+
+  test("clicking the font editor button again closes the dropdown", async () => {
+    await mountParent();
+    await click(fixture, ".o-font-editor-button");
+    expect(".o-popover .o-text-options").toHaveCount(1);
+    await click(fixture, ".o-font-editor-button");
+    expect(".o-popover .o-text-options").toHaveCount(0);
   });
 
   test("Tab from font size editor closes the dropdown and moves focus to grid", async () => {

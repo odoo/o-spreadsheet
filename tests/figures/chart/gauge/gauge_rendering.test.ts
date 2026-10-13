@@ -68,8 +68,14 @@ describe("Gauge rendering config", () => {
         x: CHART_PADDING,
         y: 23,
       },
+      font: "Roboto",
       color: chartMutedFontColor(testRuntime.background),
     });
+  });
+
+  test("Chart title uses the title font", () => {
+    const runtime = { ...testRuntime, title: { ...testRuntime.title, font: "Verdana" as const } };
+    expect(getRenderingConfig(runtime).title.font).toBe("Verdana");
   });
 
   test("Min value label", () => {

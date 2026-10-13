@@ -1,6 +1,6 @@
 import { TitleOptions } from "chart.js";
 import { TitleDesign } from "../../../..";
-import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../constants";
+import { CHART_PADDING, CHART_TITLE_FONT_SIZE, DEFAULT_FONT } from "../../../../constants";
 import { EvaluationGetters } from "../../../../types/getters";
 import { DeepPartial } from "../../../../types/misc";
 import { chartMutedFontColor } from "../chart_common";
@@ -23,6 +23,7 @@ export function getChartTitle(
       size: title.fontSize ?? CHART_TITLE_FONT_SIZE,
       weight: title.bold ? "bold" : "normal",
       style: title.italic ? "italic" : "normal",
+      family: title.font ?? DEFAULT_FONT,
     },
     padding: {
       // Disable title top/left/right padding to use the chart padding instead.

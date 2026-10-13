@@ -1,0 +1,11 @@
+<templates>
+  <t t-name="o-spreadsheet-TopBarFontEditor">
+    <FontEditor
+      currentFont="this.currentFont"
+      onFontChanged.bind="this.setFont"
+      showDropdown="this.isActive"
+      toggleDropdown.bind="this.toggleDropdown"
+      class="this.class"
+    />
+  </t>
+</templates>

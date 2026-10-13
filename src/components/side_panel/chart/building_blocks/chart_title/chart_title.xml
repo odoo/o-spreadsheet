@@ -12,6 +12,7 @@
         updateStyle="this.props.updateStyle"
         defaultStyle="this.props.defaultStyle"
         hasHorizontalAlign="true"
+        hasFontSelector="this.props.hasFontSelector"
       />
     </Section>
   </t>
