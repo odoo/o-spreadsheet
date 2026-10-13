@@ -62,6 +62,11 @@ let getPlugin: OwlPluginGetter;
 let spreadsheetWidth = 1000;
 let spreadsheetHeight = 1000;
 
+jest.mock("../../src/constants", () => ({
+  ...jest.requireActual("../../src/constants"),
+  DEFAULT_FONT: "Roboto",
+}));
+
 beforeEach(() => {
   spreadsheetWidth = 1000;
   spreadsheetHeight = 1000;

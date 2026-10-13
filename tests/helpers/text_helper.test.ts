@@ -1,6 +1,32 @@
 import { Style } from "../../src";
-import { MIN_CELL_TEXT_MARGIN } from "../../src/constants";
-import { computeRotationPosition } from "../../src/helpers/text_helper";
+import { DEFAULT_FONT, MIN_CELL_TEXT_MARGIN } from "../../src/constants";
+import {
+  computeRotationPosition,
+  computeTextFont,
+  getDefaultContextFont,
+} from "../../src/helpers/text_helper";
+
+describe("computeTextFont", () => {
+  test("uses the default font when the style has no font", () => {
+    expect(computeTextFont({ fontSize: 12 }, "px")).toBe(`400 12px ${DEFAULT_FONT}`);
+  });
+
+  test("uses the style font with the default font as fallback", () => {
+    expect(computeTextFont({ fontSize: 12, font: "Verdana" }, "px")).toBe(
+      `400 12px Verdana,${DEFAULT_FONT}`
+    );
+  });
+});
+
+describe("getDefaultContextFont", () => {
+  test("uses the default font when no font is given", () => {
+    expect(getDefaultContextFont(12)).toBe(`  12px ${DEFAULT_FONT}`);
+  });
+
+  test("uses the given font", () => {
+    expect(getDefaultContextFont(12, true, true, "Verdana")).toBe("italic bold 12px Verdana");
+  });
+});
 
 describe("computeRotationPosition", () => {
   const rotate = (x, y, rotation) => {
