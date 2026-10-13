@@ -1439,10 +1439,6 @@ describe("figures", () => {
     createChart(model, { type: "bar" });
     await nextTick();
     await simulateClick(".o-chart-menu-item");
-    // NOTE: need to "force" a rendering such that the menu takes the focus back
-    // See task https://www.odoo.com/odoo/2328/tasks/6272762
-    await keyDown({ key: "ArrowDown" });
-    expect(document.activeElement).toHaveClass("o-menu-wrapper");
     await keyDown({ key: "ArrowDown" });
     expect(document.activeElement).toHaveClass("o-menu-item");
     expect(document.activeElement).toHaveAttribute("data-name", "edit");
