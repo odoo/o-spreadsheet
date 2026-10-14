@@ -148,7 +148,7 @@ export class DataAnalysisStore extends SpreadsheetStore {
   private sortDateItems() {
     const items = [...this.dateStatSections[this.dateGranularity]];
     // TODO MAWAT: if there is tranformation to do, first transform, then sort
-    // MAWAT : removed cleaning function inside and replaced it with cast of rawValue property
+    // MAWAT : removed cleaning function inside and replaced it with cast of rawValue property but not ideal, have to pass number value directly. Anyway matho-anthe branch has new compare method => check
     switch (this.dateSortType) {
       case "asc":
         items.sort(

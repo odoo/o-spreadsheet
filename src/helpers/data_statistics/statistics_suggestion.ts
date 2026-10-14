@@ -338,15 +338,7 @@ export function buildGroupedDateSections(
   sheetId: string
 ): DateSections {
   if (!colDates || !colValues) {
-    return {
-      year: [],
-      quarter: [],
-      month: [],
-      week: [],
-      weekday: [],
-      day: [],
-      date: [],
-    };
+    return { year: [], quarter: [], month: [], week: [], weekday: [], day: [], date: [] };
   }
   const zoneDates = colDates.headerInZone
     ? { ...colDates.zone, top: colDates.zone.top + 1 }
@@ -354,6 +346,11 @@ export function buildGroupedDateSections(
   const zoneValues = colValues.headerInZone
     ? { ...colValues.zone, top: colValues.zone.top + 1 }
     : colValues.zone;
+
+  if (zoneDates.bottom - zoneDates.top !== zoneValues.bottom - zoneValues.top) {
+    return { year: [], quarter: [], month: [], week: [], weekday: [], day: [], date: [] };
+  }
+
   const valueCell = getters.getEvaluatedCellsInZone(sheetId, zoneValues);
   const valueFormat = valueCell.find((cell) => cell?.format)?.format;
   // copy of code
