@@ -10,8 +10,10 @@ import {
   autofill,
   deleteRows,
   getCellContent,
+  getCellRawContent,
   getEvaluatedCell,
   undo,
+  updateLocale,
 } from "../test_helpers";
 import {
   copy,
@@ -21,6 +23,7 @@ import {
   setCellStyle,
   setFormat,
 } from "../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../test_helpers/constants";
 import { makeStoreWithModel } from "../test_helpers/stores";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -136,6 +139,38 @@ describe("Collaborative session", () => {
 
     for (const xc of ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9"]) {
       expect(getCellContent(bob, xc)).toBe(getCellContent(alice, xc));
+    }
+  });
+
+  test("unsquisher.ts:261 — two merged offset groups with different offsets reach other clients intact", () => {
+    const { alice, bob } = setupCollaborativeEnv();
+    makeStoreWithModel(alice, ClipboardStore);
+
+    // squished as A2:A3 {R:"+R1"} then A4:A5 {R:"+R2"}
+    pasteFromOSClipboard(alice, "A1", { text: "=B1\n=B2\n=B3\n=B5\n=B7" });
+
+    for (const model of [alice, bob]) {
+      expect(["A1", "A2", "A3", "A4", "A5"].map((xc) => getCellRawContent(model, xc))).toEqual([
+        "=B1",
+        "=B2",
+        "=B3",
+        "=B5",
+        "=B7",
+      ]);
+    }
+  });
+
+  test("unsquisher.ts:313 — squished literals are unsquished with the sender's locale on concurrent locale change", () => {
+    const { network, alice, bob } = setupCollaborativeEnv();
+    makeStoreWithModel(alice, ClipboardStore);
+
+    network.concurrent(() => {
+      pasteFromOSClipboard(alice, "A1", { text: "1/2/2026\n1/3/2026\n1/4/2026\n1/5/2026" });
+      updateLocale(bob, FR_LOCALE);
+    });
+
+    for (const xc of ["A1", "A2", "A3", "A4"]) {
+      expect(getEvaluatedCell(bob, xc).value).toBe(getEvaluatedCell(alice, xc).value);
     }
   });
 

@@ -3,6 +3,7 @@ import {
   functionRegistry,
   NonSquishableFunctionRegistry,
 } from "../../src/functions/function_registry";
+import { deepCopy } from "../../src/helpers/misc";
 import { createRangeFromXc } from "../../src/helpers/range";
 import { Model } from "../../src/model";
 import {
@@ -733,6 +734,56 @@ describe("squish - unsquish specific cases", () => {
     const exportUnSquished = importedFromSquished._exportData(false);
     expect(exportUnSquished.sheets[0].cells).toEqual(sheetContent);
     NonSquishableFunctionRegistry.remove("NOSQUISH");
+  });
+
+  test("squisher.ts:137 — a non-squishable formula breaks the chain of consecutive numbers", () => {
+    addToRegistry(functionRegistry, "NOSQUISH", {
+      description: "DO no squish",
+      compute: () => ({ value: 0 }),
+      args: [],
+    });
+    NonSquishableFunctionRegistry.add("NOSQUISH", "NOSQUISH");
+    const sheetContent = { A1: "1", A2: "=NOSQUISH()", A3: "2", A4: "3" };
+    const model = createModelFromGrid(sheetContent);
+
+    const importedFromSquished = new Model(model._exportData(true));
+    expect(importedFromSquished._exportData(false).sheets[0].cells).toEqual(sheetContent);
+    NonSquishableFunctionRegistry.remove("NOSQUISH");
+  });
+
+  test('squisher.ts:400 — a string literal changing to "=" is not confused with the no-change marker', () => {
+    const sheetContent = {
+      A1: '=CONCAT(B1,"x")',
+      A2: '=CONCAT(B2,"x")',
+      A3: '=CONCAT(B3,"=")',
+    };
+    const model = createModelFromGrid(sheetContent);
+
+    const importedFromSquished = new Model(model._exportData(true));
+    expect(importedFromSquished._exportData(false).sheets[0].cells).toEqual(sheetContent);
+  });
+
+  test("unsquisher.ts:261 — importing squished data does not mutate it", () => {
+    const model = createModelFromGrid({
+      A1: "=B1",
+      A2: "=B2",
+      A3: "=B3",
+      A4: "=B5",
+      A5: "=B7",
+    });
+    const data = model.exportData();
+    const dataCopy = deepCopy(data);
+
+    new Model(data);
+    expect(data).toEqual(dataCopy);
+    const secondImport = new Model(data);
+    expect(["A1", "A2", "A3", "A4", "A5"].map((xc) => getCellContent(secondImport, xc))).toEqual([
+      "=B1",
+      "=B2",
+      "=B3",
+      "=B5",
+      "=B7",
+    ]);
   });
 });
 

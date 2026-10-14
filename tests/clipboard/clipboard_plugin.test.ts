@@ -2321,6 +2321,31 @@ describe("clipboard", () => {
     paste(model, "G4");
     expect(getCellRawContent(model, "G4")).toBe('=PIVOT.VALUE(G3,"Price","Customer","Bob")');
   });
+
+  test('squisher.ts:400 — pasting a formula whose string literal changes to "=" keeps that literal', () => {
+    const grid = { A1: '=CONCAT(B1,"x")', A2: '=CONCAT(B2,"x")', A3: '=CONCAT(B3,"=")' };
+    ({ store, model } = makeStoreWithModel(createModelFromGrid(grid), ClipboardStore));
+
+    copy(model, "A1:A3");
+    paste(model, "A11");
+    expect(getCellRawContent(model, "A13")).toBe('=CONCAT(B13,"=")');
+  });
+
+  test("unsquisher.ts:261 — pasting the same copy twice gives the same formulas", () => {
+    const grid = { A1: "=B1", A2: "=B2", A3: "=B3", A4: "=B5", A5: "=B7" };
+    ({ store, model } = makeStoreWithModel(createModelFromGrid(grid), ClipboardStore));
+
+    copy(model, "A1:A5");
+    paste(model, "D1");
+    paste(model, "F1");
+    expect(["F1", "F2", "F3", "F4", "F5"].map((xc) => getCellRawContent(model, xc))).toEqual([
+      "=G1",
+      "=G2",
+      "=G3",
+      "=G5",
+      "=G7",
+    ]);
+  });
 });
 
 describe("clipboard: pasting outside of sheet", () => {
