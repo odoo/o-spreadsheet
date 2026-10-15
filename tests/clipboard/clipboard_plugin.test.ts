@@ -3305,6 +3305,16 @@ describe("cross spreadsheet copy/paste", () => {
     expect(getCellContent(modelB, "D2")).toBe("Hello");
     expect(getStyle(modelB, "D2")).toEqual({});
   });
+
+  test("plain text content holds the formulas when they are displayed", async () => {
+    const modelA = createModelFromGrid({ A1: "=1+1", A2: "=2+2", A3: "=3+3" });
+    const { store: storeA } = makeStoreWithModel(modelA, ClipboardStore);
+    setFormulaVisibility(modelA, true);
+
+    copy(modelA, "A1:A3");
+
+    expect(storeA.getClipboardTextContent()).toBe("=1+1\n=2+2\n=3+3");
+  });
 });
 
 test("Can use clipboard handlers to paste in a sheet other than the active sheet", () => {

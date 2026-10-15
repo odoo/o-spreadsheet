@@ -614,12 +614,9 @@ export class ClipboardStore extends SpreadsheetStore {
       return "\t";
     }
     const handler = this.getCellHandler();
-    let cells: (ClipboardCell | null)[][] = handler
+    const cells: (ClipboardCell | null)[][] = handler
       ? handler.expand(raw as CompactCellHandlerData)
       : (raw as ClipboardCell[][]);
-    if (this.getters.shouldShowFormulas() && handler) {
-      cells = handler.unsquishClipboardCells(cells, this.copiedData!.sheetId);
-    }
     return (
       cells
         .map((row) => {
