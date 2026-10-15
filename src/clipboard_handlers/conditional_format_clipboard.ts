@@ -21,7 +21,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
   private queuedChanges: Record<UID, { toAdd: Zone[]; toRemove: Zone[]; cf: ConditionalFormat }[]> =
     {};
 
-  copy(data: ClipboardCellData): CompactCFHandlerData | undefined {
+  copy(data: ClipboardCellData): ClipboardCF[][] | undefined {
     if (!data.zones.length) {
       return;
     }
@@ -40,7 +40,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
       }
       cfRules.push(cfRuleInRow);
     }
-    return this.compact(cfRules);
+    return cfRules;
   }
 
   paste(
@@ -175,7 +175,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     return targetCF || { ...originCF, id: UuidGenerator.smallUuid(), ranges: [] };
   }
 
-  protected compact(data: ClipboardCF[][]): CompactCFHandlerData {
+  compact(data: ClipboardCF[][]): CompactCFHandlerData {
     const rows = data.length;
     const cols = data[0]?.length ?? 0;
     const { index: cfIndex, table: cfTable } = makeIndexer<ConditionalFormat>((cf) => cf.id);

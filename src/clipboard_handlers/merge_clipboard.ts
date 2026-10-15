@@ -1,4 +1,5 @@
 import { expandCompactMergeCells } from "../helpers/clipboard/clipboard_helpers";
+import { isInside } from "../helpers/zones";
 import {
   ClipboardCellData,
   ClipboardOptions,
@@ -13,7 +14,7 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
   Maybe<Merge>,
   CompactMergeHandlerData
 > {
-  copy(data: ClipboardCellData): CompactMergeHandlerData | undefined {
+  copy(data: ClipboardCellData): Maybe<Merge>[][] | undefined {
     const sheetId = this.getters.getActiveSheetId();
     const { rowsIndexes, columnsIndexes } = data;
     const merges: Maybe<Merge>[][] = [];
@@ -26,7 +27,7 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
       }
       merges.push(mergesInRow);
     }
-    return this.compact(merges);
+    return merges;
   }
 
   /**
@@ -52,23 +53,28 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
       }
       const sortedRows = [...rows].sort((a, b) => a - b);
       const sortedCols = [...cols].sort((a, b) => a - b);
-      // All cells within the same merge share the same object reference — use that to dedup.
-      const seenMerges = new WeakSet<Merge>();
+
       const mergeZones: Zone[] = [];
       for (let r = 0; r < content.length; r++) {
         for (let c = 0; c < (content[r]?.length ?? 0); c++) {
           const merge = content[r][c];
-          if (!merge || seenMerges.has(merge)) {
+          if (!merge) {
             continue;
           }
-          seenMerges.add(merge);
           const absLeft = sortedCols[c] ?? c;
           const absTop = sortedRows[r] ?? r;
+          const width = merge.right - merge.left;
+          const height = merge.bottom - merge.top;
+
+          if (mergeZones.some((zone) => isInside(absLeft, absTop, zone))) {
+            continue; // Skip this merge as it overlaps with an existing one
+          }
+
           mergeZones.push({
             left: absLeft,
             top: absTop,
-            right: absLeft + (merge.right - merge.left),
-            bottom: absTop + (merge.bottom - merge.top),
+            right: absLeft + width,
+            bottom: absTop + height,
           });
         }
       }
@@ -119,7 +125,7 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
     });
   }
 
-  protected compact(data: Maybe<Merge>[][]): CompactMergeHandlerData {
+  compact(data: Maybe<Merge>[][]): CompactMergeHandlerData {
     const rows = data.length;
     const cols = data[0]?.length ?? 0;
     const seen = new Set<string>();

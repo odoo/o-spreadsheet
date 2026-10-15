@@ -24,7 +24,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     { toAdd: Zone[]; toRemove: Zone[]; rule: DataValidationRule }[]
   > = {};
 
-  copy(data: ClipboardCellData): CompactDVHandlerData | undefined {
+  copy(data: ClipboardCellData): ClipboardDV[][] | undefined {
     const { rowsIndexes, columnsIndexes } = data;
     const sheetId = data.sheetId;
     const dvRules: ClipboardDV[][] = [];
@@ -37,7 +37,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
       }
       dvRules.push(dvRuleInRow);
     }
-    return this.compact(dvRules);
+    return dvRules;
   }
 
   paste(
@@ -198,7 +198,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     }
   }
 
-  protected compact(data: ClipboardDV[][]): CompactDVHandlerData {
+  compact(data: ClipboardDV[][]): CompactDVHandlerData {
     const rows = data.length;
     const cols = data[0]?.length ?? 0;
     const { index: ruleIndex, table: ruleTable } = makeIndexer<DataValidationRule>((r) => r.id);
