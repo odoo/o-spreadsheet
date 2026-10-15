@@ -20,6 +20,7 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
       position="position"
       offset="offset"
       direction="'vertical'"
+      class="'border-start'"
       onScroll.bind="onScroll"
     />`;
   static defaultProps = {

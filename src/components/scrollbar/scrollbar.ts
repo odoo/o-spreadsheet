@@ -41,10 +41,12 @@ export class ScrollBar extends Component<Props> {
     position: Object,
     offset: Number,
     onScroll: Function,
+    class: { type: String, optional: true },
   };
   static template = xml/*xml*/ `
     <div
         t-attf-class="o-scrollbar {{props.direction}}"
+        t-att-class="props.class"
         t-on-scroll="onScroll"
         t-ref="scrollbar"
         t-att-style="positionCss">
