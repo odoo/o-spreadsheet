@@ -1,7 +1,8 @@
-import { onMounted, onPatched, proxy, signal, useListener, useProps } from "@odoo/owl";
+import { onMounted, onPatched, proxy, signal, useListener, usePlugin, useProps } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../constants";
+import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { formatNumberMenuItemSpec } from "../../registries/menus/number_format_menu_registry";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../../registries/topbar_component_registry";
@@ -77,6 +78,7 @@ export class TopBar extends OSComponent {
   moreToolsButtonRef = signal.ref();
 
   spreadsheetRect = useSpreadsheetRect();
+  isSmallPlugin = usePlugin(IsSmallPlugin);
 
   setup() {
     this.composerFocusStore = useStore(ComposerFocusStore);

@@ -1,4 +1,4 @@
-import { onWillUnmount, status } from "@odoo/owl";
+import { onWillUnmount, status, useScope } from "@odoo/owl";
 import { useComponent, useEnv, useSubEnv } from "../owl3_compatibility_layer";
 import { LocalStoreConstructor, Store, StoreConstructor, StoreParams } from "../types/store_engine";
 import { DependencyContainer } from "./dependency_container";
@@ -11,11 +11,12 @@ export function useStoreProvider() {
   if (env.__spreadsheet_stores__ instanceof DependencyContainer) {
     return env.__spreadsheet_stores__;
   }
+  const scope = useScope();
   const container = new DependencyContainer();
   useSubEnv({
     __spreadsheet_stores__: container,
     getStore: <T extends StoreConstructor>(Store: T) => {
-      const store = container.get(Store);
+      const store = scope.run(() => container.get(Store));
       return proxifyStoreMutation(store, () => container.trigger("store-updated"));
     },
   });

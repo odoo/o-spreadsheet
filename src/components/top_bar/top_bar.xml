@@ -4,7 +4,7 @@
       class="o-spreadsheet-topbar d-flex flex-column user-select-none bg-white"
       t-on-click="this.props.onClick">
       <div
-        t-if="!this.env.isSmall"
+        t-if="!this.isSmallPlugin.isSmall()"
         class="o-topbar-top d-flex justify-content-between border-bottom">
         <!-- Menus -->
         <div class="o-topbar-topleft d-flex" t-ref="this.topBarTopRef">
@@ -80,7 +80,7 @@
             </div>
           </div>
         </div>
-        <TopBarComposer t-if="!this.env.isSmall"/>
+        <TopBarComposer t-if="!this.isSmallPlugin.isSmall()"/>
       </div>
       <div
         t-if="this.fingerprints.isEnabled"
