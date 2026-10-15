@@ -67,7 +67,7 @@ export abstract class AbstractCellClipboardHandler<
     };
   }
 
-  protected compact(data: T[][]): U {
+  protected compact(data: T[][], sheetId: UID): U {
     return data as U;
   }
 

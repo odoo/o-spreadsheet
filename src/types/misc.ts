@@ -243,6 +243,7 @@ export type ClipboardEvaluatedCell = {
 export interface ClipboardCell {
   evaluatedCell: ClipboardEvaluatedCell;
   content: SquishedContent;
+  parsedValue?: CellValue;
   style?: Style | undefined;
   format?: Format | undefined;
   compiledFormula?: CompiledFormula;
