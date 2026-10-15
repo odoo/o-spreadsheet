@@ -91,8 +91,12 @@ The SheetPlugin manages the structure and metadata of each worksheet. Each entry
   "cells": {...},
   // Cell/range to style ID mapping
   "styles": {...},
+  // Optional: default style IDs for the whole sheet, columns and rows, see "Default styles and formats" below
+  "defaultStyle": {...},
   // Cell/range to format ID mapping
   "formats": {...},
+  // Optional: default format IDs for the whole sheet, columns and rows (same structure as defaultStyle)
+  "defaultFormat": {...},
   // Cell/range to border style ID mapping
   "borders": {...},
   // Array of conditional formatting rules
@@ -127,6 +131,48 @@ The SheetPlugin manages the structure and metadata of each worksheet. Each entry
   "color": string
 }
 ```
+
+---
+
+## Default styles and formats
+
+`defaultStyle` and `defaultFormat` give a style or format to whole columns, whole rows or the whole sheet,
+without listing every cell. Values are IDs from the top-level `styles` and `formats` objects. Column and row
+indices are 0-based (`"0"` is column A or row 1). All keys are optional.
+
+```js
+"defaultStyle": {
+  "sheetDefault": 1,            // every cell of the sheet
+  "colDefault": { "1": 2 },     // column B
+  "rowDefault": { "2": 3 }      // row 3
+},
+"defaultFormat": {
+  "colDefault": { "2": 1 }      // column C
+}
+```
+
+The style of a cell is resolved **property by property** (`bold`, `fillColor`, …). For each property, the first
+value found wins:
+
+1. the cell's own style (sheet `styles` mapping)
+2. the row default
+3. the column default
+4. the sheet default
+
+The format of a cell is its own format if it has one, otherwise the row default, then the column default, then
+the sheet default.
+
+With `styles` = `{ "1": { "fillColor": "#FFF2CC" }, "2": { "bold": true }, "3": { "fillColor": "#000000", "textColor": "#FFFFFF" } }`,
+the example above gives:
+
+- `A1`: `{ fillColor: "#FFF2CC" }`
+- `B1`: `{ fillColor: "#FFF2CC", bold: true }`
+- `B3`: `{ fillColor: "#000000", textColor: "#FFFFFF", bold: true }` (the row wins over the sheet for
+  `fillColor`; `bold` still comes from the column)
+- `C5`: formatted with format 1
+
+Formatting more than half of a column, a row or the sheet stores it as a default instead of a per-cell style
+or format, so exported sheets often have few entries in `styles`/`formats` and most of it in the defaults.
 
 ---
 
