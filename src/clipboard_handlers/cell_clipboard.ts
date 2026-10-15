@@ -21,7 +21,15 @@ import {
 } from "../types/clipboard";
 import { CommandResult } from "../types/commands";
 import { Format } from "../types/format";
-import { CellPosition, ClipboardCell, HeaderIndex, Style, UID, Zone } from "../types/misc";
+import {
+  CellPosition,
+  ClipboardCell,
+  ClipboardCellWithSquishedContent,
+  HeaderIndex,
+  Style,
+  UID,
+  Zone,
+} from "../types/misc";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 export class CellClipboardHandler extends AbstractCellClipboardHandler<
@@ -39,7 +47,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     data: ClipboardCellData,
     isCutOperation: boolean,
     mode: ClipboardCopyOptions = "copyPaste"
-  ): CompactCellHandlerData | undefined {
+  ): (ClipboardCell | null)[][] | undefined {
     const sheetId = data.sheetId;
     const { rowsIndexes, columnsIndexes } = data;
     const isCopyingOneCell = rowsIndexes.length === 1 && columnsIndexes.length === 1;
@@ -118,7 +126,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         };
       }
     }
-    return this.compact(result, sheetId);
+    return result;
   }
 
   isPasteAllowed(
@@ -348,7 +356,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   }
 
   private unsquishClipboardCells(
-    cells: (ClipboardCell | null)[][],
+    cells: (ClipboardCellWithSquishedContent | null)[][],
     compileSheetId: UID,
     squishedMap: Record<string, SquishedContent>
   ): (ClipboardCell | null)[][] {
@@ -409,7 +417,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     return cells;
   }
 
-  protected compact(cells: (ClipboardCell | null)[][], sheetId: UID): CompactCellHandlerData {
+  compact(cells: (ClipboardCell | null)[][], sheetId: UID): CompactCellHandlerData {
     const { index: styleIndex, table: styleTable } = makeIndexer<Style>(JSON.stringify);
     const { index: formatIndex, table: formatTable } = makeIndexer<Format>((f) => f);
     const rows = cells.length;
@@ -551,13 +559,13 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     }
     const compactData = data as CompactCellHandlerData;
     const { rows, cols, items, styleTable, formatTable, squishedMap } = compactData;
-    const result: (ClipboardCell | null)[][] = Array.from({ length: rows }, () =>
+    const result: (ClipboardCellWithSquishedContent | null)[][] = Array.from({ length: rows }, () =>
       Array.from({ length: cols }, () => null)
     );
 
     for (const [key, content] of Object.entries(squishedMap)) {
       const strContent = typeof content === "string" ? content : "";
-      const cell: ClipboardCell = {
+      const cell: ClipboardCellWithSquishedContent = {
         content,
         evaluatedCell: { value: strContent || null, format: undefined, formattedValue: strContent },
       };
