@@ -104,47 +104,6 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
    */
   pasteZone() {}
 
-  /**
-   * Convert a per-cell border grid (copied from an older version through the
-   * HTML clipboard) to the region format.
-   */
-  expand(data: ClipboardContent | (Border | null)[][]): ClipboardContent {
-    if (!Array.isArray(data)) {
-      return data;
-    }
-    const height = data.length;
-    const width = data[0]?.length ?? 0;
-    const bordersTop: Column<BorderDescrInternal>[] = [];
-    const bordersLeft: Column<BorderDescrInternal>[] = [];
-    for (const [row, rowBorders] of data.entries()) {
-      for (const [col, border] of rowBorders.entries()) {
-        if (border?.left) {
-          (bordersLeft[col] ??= [])[row] = { ...border.left, internal: "internal" };
-        }
-        if (border?.top) {
-          (bordersTop[col] ??= [])[row] = { ...border.top, internal: "internal" };
-        }
-        if (border?.right) {
-          (bordersLeft[col + 1] ??= [])[row] = { ...border.right, internal: "external" };
-        }
-        if (border?.bottom) {
-          (bordersTop[col] ??= [])[row + 1] = { ...border.bottom, internal: "external" };
-        }
-      }
-    }
-    const content = {
-      left: 0,
-      top: 0,
-      width,
-      height,
-      bordersTop,
-      bordersLeft,
-      defaultTop: {},
-      defaultLeft: {},
-    };
-    return { content: [content], width, height };
-  }
-
   pasteContent(sheetId: UID, zone: Zone, contents: ClipboardContent["content"]) {
     for (const content of contents) {
       const left = zone.left + content.left;

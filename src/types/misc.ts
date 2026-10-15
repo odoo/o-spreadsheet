@@ -242,11 +242,15 @@ export type ClipboardEvaluatedCell = {
 
 export interface ClipboardCell {
   evaluatedCell: ClipboardEvaluatedCell;
-  content: SquishedContent;
+  content: string;
   parsedValue?: CellValue;
   style?: Style | undefined;
   format?: Format | undefined;
   compiledFormula?: CompiledFormula;
+}
+
+export interface ClipboardCellWithSquishedContent extends Omit<ClipboardCell, "content"> {
+  content: SquishedContent;
 }
 
 export interface HeaderDimensions {

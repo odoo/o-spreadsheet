@@ -428,7 +428,26 @@ export function expandSparse2DArray<T>(
 }
 
 /**
- * Pre-expands compact clipboard data for each handler and returns a new MinimalClipboardData
+ * Compacts each handler's data into a smaller form for serialization.
+ *
+ * @param `sheetId` the sheet the data was copied from.
+ */
+export function compactHandlerData(
+  handlers: { handlerName: string; handler: ClipboardHandler<unknown> }[],
+  copiedData: MinimalClipboardData
+): MinimalClipboardData {
+  const compactData: MinimalClipboardData = { ...copiedData };
+  for (const { handlerName, handler } of handlers) {
+    const data = copiedData[handlerName];
+    if (data !== undefined) {
+      compactData[handlerName] = handler.compact(data, copiedData.sheetId);
+    }
+  }
+  return compactData;
+}
+
+/**
+ * Expands compact clipboard data for each handler and returns a new MinimalClipboardData
  * object where each handler's data is already in its full expanded form.
  */
 export function expandHandlerData(
