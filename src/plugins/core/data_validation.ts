@@ -1,5 +1,6 @@
 import { CompiledFormula } from "../../formulas/compiler";
 import { toXC } from "../../helpers/coordinates";
+import { getDvFormulas } from "../../helpers/formula_extractor";
 import { deepCopy } from "../../helpers/misc";
 import { duplicateRangeInDuplicatedSheet, getCellPositionsInRanges } from "../../helpers/range";
 import { recomputeZones } from "../../helpers/recompute_zones";
@@ -384,9 +385,9 @@ export class DataValidationPlugin
   getFormulas(): CompiledFormula[] {
     return Object.keys(this.rules).flatMap((sheetId) =>
       this.rules[sheetId].flatMap((rule) =>
-        rule.criterion.values
-          .filter((value) => value.startsWith("="))
-          .map((formulaString) => CompiledFormula.Compile(formulaString, sheetId, this.getters))
+        getDvFormulas(rule).map((formulaString) =>
+          CompiledFormula.Compile(formulaString, sheetId, this.getters)
+        )
       )
     );
   }

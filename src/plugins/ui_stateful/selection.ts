@@ -734,7 +734,7 @@ export class GridSelectionPlugin extends UIPlugin {
       }
       handler.paste(
         { zones: pasteTarget, sheetId },
-        handler.expand(data[handlerName]),
+        data[handlerName],
         {
           isCutOperation: true,
         },
