@@ -20,6 +20,11 @@ export type ClipboardHandlerConstructor<H extends ClipboardHandler<any>> = new (
   dispatch: CommandDispatcher["dispatch"]
 ) => H;
 
+export type NamedClipboardHandler = {
+  handlerName: string;
+  handler: ClipboardHandler<any>;
+};
+
 export abstract class ClipboardHandler<T> {
   constructor(protected getters: Getters, protected dispatch: CommandDispatcher["dispatch"]) {}
 
@@ -77,5 +82,10 @@ export abstract class ClipboardHandler<T> {
   /** Expand the compacted content back into its original form. Inverse operation of `compact`. */
   expand(data: unknown): T {
     return data as T;
+  }
+
+  /** Map a callback to all formulas in the clipboard content, and change them in place */
+  mapFormulas(content: T, mapFn: (formula: string) => string): void {
+    return;
   }
 }

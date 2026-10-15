@@ -1,4 +1,5 @@
 import { expandCompactDVCells, makeIndexer } from "../helpers/clipboard/clipboard_helpers";
+import { mapDvFormulas } from "../helpers/formula_extractor";
 import { deepEquals } from "../helpers/misc";
 import { recomputeZones } from "../helpers/recompute_zones";
 import { UuidGenerator } from "../helpers/uuid";
@@ -219,5 +220,15 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
       return data as ClipboardDV[][];
     }
     return expandCompactDVCells(data as CompactDVHandlerData);
+  }
+
+  mapFormulas(clipboardDvs: (ClipboardDV | null)[][], mapFn: (formula: string) => string): void {
+    for (const row of clipboardDvs) {
+      for (const clipboardDV of row) {
+        if (clipboardDV?.rule) {
+          mapDvFormulas(clipboardDV?.rule, mapFn);
+        }
+      }
+    }
   }
 }
