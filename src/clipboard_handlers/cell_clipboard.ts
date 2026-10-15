@@ -3,7 +3,7 @@ import { getPasteZones, makeIndexer } from "../helpers/clipboard/clipboard_helpe
 import { toCartesian, toXC } from "../helpers/coordinates";
 import { formatValue } from "../helpers/format/format";
 import { canonicalizeNumberValue } from "../helpers/locale";
-import { deepEquals } from "../helpers/misc";
+import { deepEquals, isFormula } from "../helpers/misc";
 import { createPivotFormula } from "../helpers/pivot/pivot_helpers";
 import { cellPositions, isZoneInside } from "../helpers/zones";
 import { SquishedContent, Squisher } from "../plugins/core/squisher";
@@ -622,5 +622,16 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       ? data.sheetId
       : this.getters.getActiveSheetId();
     return this.unsquishClipboardCells(result, sheetId, squishedMap);
+  }
+
+  mapFormulas(
+    cells: (ClipboardCell | null)[][],
+    mapFn: (formula: string) => string
+  ): (ClipboardCell | null)[][] {
+    return cells.map((row) =>
+      row.map((cell) =>
+        cell && isFormula(cell.content) ? { ...cell, content: mapFn(cell.content) } : cell
+      )
+    );
   }
 }

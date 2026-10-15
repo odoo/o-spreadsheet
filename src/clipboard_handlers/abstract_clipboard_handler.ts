@@ -78,4 +78,11 @@ export abstract class ClipboardHandler<T> {
   expand(data: unknown): T {
     return data as T;
   }
+
+  /**
+   * Map a callback to very formula in the clipboard content.
+   */
+  mapFormulas(content: T, mapFn: (formula: string) => string): T {
+    return content;
+  }
 }

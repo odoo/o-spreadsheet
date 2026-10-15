@@ -197,4 +197,15 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     }
     return expandCompactCFCells(data as CompactCFHandlerData);
   }
+
+  mapFormulas(
+    cells: (ClipboardCF | null)[][],
+    mapFn: (formula: string) => string
+  ): (ClipboardCF | null)[][] {
+    return cells.map((row) =>
+      row.map((cell) =>
+        cell && isFormula(cell.content) ? { ...cell, content: mapFn(cell.content) } : cell
+      )
+    );
+  }
 }
