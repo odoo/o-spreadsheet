@@ -4,7 +4,8 @@ import {
   XLSXImportFile,
   XLSXXmlDocuments,
 } from "../../types/xlsx";
-import { CONTENT_TYPES_FILE } from "../constants";
+import { CONTENT_TYPES_FILE, XLSX_RELATION_TYPE } from "../constants";
+import { resolveRelationshipTarget } from "./misc";
 
 /**
  * Return all the xmls converted to XLSXImportFile corresponding to the given content type.
@@ -12,6 +13,19 @@ import { CONTENT_TYPES_FILE } from "../constants";
 export function getXLSXFilesOfType(contentType: string, xmls: XLSXXmlDocuments): XLSXImportFile[] {
   const paths = getPathsOfContent(contentType, xmls);
   return getXlsxFile(paths, xmls);
+}
+
+export function getWorkbookFile(xmls: XLSXXmlDocuments): XLSXImportFile {
+  const xml = xmls["_rels/.rels"];
+  const workbookRel = xml.querySelector(`Relationship[Type="${XLSX_RELATION_TYPE.document}"]`);
+  if (!workbookRel) {
+    throw new Error(
+      "Workbook relationship not found. The XLSX file might be corrupted or incomplete. Please check the file rels/.rels"
+    );
+  }
+  // The relationships of "_rels/.rels" are relative to the root of the xlsx
+  const workbookPath = resolveRelationshipTarget("", workbookRel.attributes["Target"].value);
+  return getXlsxFile([workbookPath], xmls)[0];
 }
 
 /**
