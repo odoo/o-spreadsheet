@@ -2,27 +2,23 @@ import { tokenize } from "../../formulas/tokenizer";
 import { Dimension, ExcelHeaderData, ExcelSheetData } from "../../types";
 
 /**
- * Get the relative path between two files
+ * Get the path (from the root of the xlsx) of the file targeted by a relationship of the given source file.
+ * The target is either absolute (starting with "/") or relative to the folder of the source file.
  *
  * Eg.:
- * from "folder1/file1.txt" to "folder2/file2.txt" => "../folder2/file2.txt"
+ * from "xl/workbook.xml" to "worksheets/sheet1.xml" => "xl/worksheets/sheet1.xml"
+ * from "xl/workbook.xml" to "/xl/worksheets/sheet1.xml" => "xl/worksheets/sheet1.xml"
  */
-export function getRelativePath(from: string, to: string): string {
-  const fromPathParts = from.split("/");
-  const toPathParts = to.split("/");
-
-  let relPath = "";
-  let startIndex = 0;
-  for (let i = 0; i < fromPathParts.length - 1; i++) {
-    if (fromPathParts[i] === toPathParts[i]) {
-      startIndex++;
-    } else {
-      relPath += "../";
+export function resolveRelationshipTarget(sourceFile: string, target: string): string {
+  const pathParts = target.startsWith("/") ? [] : sourceFile.split("/").slice(0, -1);
+  for (const part of target.split("/")) {
+    if (part === "..") {
+      pathParts.pop();
+    } else if (part && part !== ".") {
+      pathParts.push(part);
     }
   }
-  relPath += toPathParts.slice(startIndex).join("/");
-
-  return relPath;
+  return pathParts.join("/");
 }
 
 /**
