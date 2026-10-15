@@ -21,7 +21,7 @@ import { XlsxExternalBookExtractor } from "./extraction/external_book_extractor"
 import { XlsxMiscExtractor } from "./extraction/misc_extractor";
 import { XlsxSheetExtractor } from "./extraction/sheet_extractor";
 import { XlsxStyleExtractor } from "./extraction/style_extractor";
-import { getXLSXFilesOfType } from "./helpers/xlsx_helper";
+import { getWorkbookFile, getXLSXFilesOfType } from "./helpers/xlsx_helper";
 import { XLSXImportWarningManager } from "./helpers/xlsx_parser_error_manager";
 import { escapeTagNamespaces, parseXML } from "./helpers/xml_helpers";
 
@@ -129,12 +129,7 @@ export class XlsxReader {
   private buildXlsxFileStructure(): XLSXFileStructure {
     const xlsxFileStructure = {
       sheets: getXLSXFilesOfType(CONTENT_TYPES.sheet, this.xmls),
-      workbook:
-        getXLSXFilesOfType(CONTENT_TYPES.workbook, this.xmls)[0] ||
-        getXLSXFilesOfType(CONTENT_TYPES.macroEnabledWorkbook, this.xmls)[0] ||
-        getXLSXFilesOfType(CONTENT_TYPES.templateWorkbook, this.xmls)[0] ||
-        getXLSXFilesOfType(CONTENT_TYPES.macroEnabledTemplateWorkbook, this.xmls)[0] ||
-        getXLSXFilesOfType(CONTENT_TYPES.excelAddInWorkbook, this.xmls)[0],
+      workbook: getWorkbookFile(this.xmls),
       styles: getXLSXFilesOfType(CONTENT_TYPES.styles, this.xmls)[0],
       sharedStrings: getXLSXFilesOfType(CONTENT_TYPES.sharedStrings, this.xmls)[0],
       theme: getXLSXFilesOfType(CONTENT_TYPES.themes, this.xmls)[0],
@@ -145,7 +140,6 @@ export class XlsxReader {
       externalLinks: getXLSXFilesOfType(CONTENT_TYPES.externalLink, this.xmls),
       images: this.images,
     };
-
     if (!xlsxFileStructure.workbook.rels) {
       throw Error(_t("Cannot find workbook relations file"));
     }
