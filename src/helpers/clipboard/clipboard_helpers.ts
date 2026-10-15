@@ -1,4 +1,7 @@
-import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
+import {
+  ClipboardHandler,
+  NamedClipboardHandler,
+} from "../../clipboard_handlers/abstract_clipboard_handler";
 import {
   ClipboardCellData,
   ClipboardCF,
@@ -433,7 +436,7 @@ export function expandSparse2DArray<T>(
  * @param `sheetId` the sheet the data was copied from.
  */
 export function compactHandlerData(
-  handlers: { handlerName: string; handler: ClipboardHandler<unknown> }[],
+  handlers: NamedClipboardHandler[],
   copiedData: MinimalClipboardData
 ): MinimalClipboardData {
   const compactData: MinimalClipboardData = { ...copiedData };
@@ -451,7 +454,7 @@ export function compactHandlerData(
  * object where each handler's data is already in its full expanded form.
  */
 export function expandHandlerData(
-  handlers: { handlerName: string; handler: ClipboardHandler<unknown> }[],
+  handlers: NamedClipboardHandler[],
   copiedData: MinimalClipboardData
 ): MinimalClipboardData {
   const expandedData: MinimalClipboardData = { ...copiedData };
@@ -468,7 +471,7 @@ export function expandHandlerData(
  * Applies each clipboard handler to paste its corresponding data into the target.
  */
 export const applyClipboardHandlersPaste = (
-  handlers: { handlerName: string; handler: ClipboardHandler<unknown> }[],
+  handlers: NamedClipboardHandler[],
   expandedData: MinimalClipboardData,
   target: ClipboardPasteTarget,
   options: ClipboardOptions,

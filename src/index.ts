@@ -87,6 +87,7 @@ import {
 } from "./helpers/misc";
 import { isNumber } from "./helpers/numbers";
 import {
+  getPivotFunctions,
   insertTokenAfterArgSeparator,
   insertTokenAfterLeftParenthesis,
   makeFieldProposal,
@@ -340,6 +341,7 @@ export const registries = {
   unusedDataSourceRegistry,
   NonSquishableFunctionRegistry,
   performanceRegistry,
+  crossSpreadsheetClipboardTransformerRegistry,
 };
 
 /** Registries Population */
@@ -398,7 +400,10 @@ import { SpreadsheetRectPlugin } from "./owl_plugins/spreadsheet_rect_plugin";
 import { chartDataSourceSidePanelComponentRegistry } from "./registries/chart_data_source_component_registry";
 import { chartDataSourceRegistry } from "./registries/chart_data_source_registry";
 import { chartSubtypeRegistry } from "./registries/chart_subtype_registry";
-import { clipboardHandlersRegistries } from "./registries/clipboard_handlers_registries";
+import {
+  clipboardHandlersRegistries,
+  crossSpreadsheetClipboardTransformerRegistry,
+} from "./registries/clipboard_handlers_registries";
 import { unusedDataSourceRegistry } from "./registries/data_source_registry";
 import { onIterationEndEvaluationRegistry } from "./registries/evaluation_registry";
 import { performanceRegistry } from "./registries/performance_registry";
@@ -452,6 +457,7 @@ export const helpers = {
   unquote,
   getMaxObjectId,
   getFirstPivotFunction,
+  getPivotFunctions,
   getNumberOfPivotFunctions,
   parseDimension,
   isDateOrDatetimeField,

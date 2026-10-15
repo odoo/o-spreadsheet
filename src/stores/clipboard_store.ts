@@ -1,5 +1,5 @@
 import { usePlugin } from "@odoo/owl";
-import { ClipboardHandler } from "../clipboard_handlers/abstract_clipboard_handler";
+import { NamedClipboardHandler } from "../clipboard_handlers/abstract_clipboard_handler";
 import { isCoreCommand } from "../command_registry";
 import { convertImageToPng } from "../components/helpers/convert_image_to_png";
 import { cellStyleToCss, cssPropertiesToCss } from "../components/helpers/css";
@@ -17,7 +17,10 @@ import { UuidGenerator } from "../helpers/uuid";
 import { isZoneValid } from "../helpers/zones";
 import { getCurrentVersion } from "../migrations/data";
 import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
-import { clipboardHandlersRegistries } from "../registries/clipboard_handlers_registries";
+import {
+  clipboardHandlersRegistries,
+  crossSpreadsheetClipboardTransformerRegistry,
+} from "../registries/clipboard_handlers_registries";
 import { _t } from "../translation";
 import {
   ClipboardCopyOptions,
@@ -185,9 +188,7 @@ export class ClipboardStore extends SpreadsheetStore {
           });
         }
         if (contentToPaste.data) {
-          // Data from the OS clipboard was compacted, expand it before use.
-          const handlers = this.selectClipboardHandlers(contentToPaste.data);
-          this.copiedData = expandHandlerData(handlers, contentToPaste.data);
+          this.copiedData = this.getOsClipboardDataToPaste(contentToPaste.data);
         } else {
           this.copiedData = this.convertTextToClipboardData(contentToPaste.text ?? "");
         }
@@ -377,10 +378,7 @@ export class ClipboardStore extends SpreadsheetStore {
     return copiedData;
   }
 
-  private selectClipboardHandlers(data: {}): {
-    handlerName: string;
-    handler: ClipboardHandler<any>;
-  }[] {
+  private selectClipboardHandlers(data: {}): NamedClipboardHandler[] {
     if ("figureIds" in data) {
       return clipboardHandlersRegistries.figureHandlers.getKeys().map((handlerName) => {
         const Handler = clipboardHandlersRegistries.figureHandlers.get(handlerName);
@@ -604,7 +602,15 @@ export class ClipboardStore extends SpreadsheetStore {
       return data;
     }
     const handlers = this.selectClipboardHandlers(this.copiedData);
-    return { ...data, ...compactHandlerData(handlers, this.copiedData) };
+    const crossSpreadsheetTransformers = crossSpreadsheetClipboardTransformerRegistry.getKeys();
+    const crossSpreadsheetData: Record<string, any> = {};
+    for (const key of crossSpreadsheetTransformers) {
+      const transformer = crossSpreadsheetClipboardTransformerRegistry.get(key);
+      const data = transformer.collectData(this.getters, this.copiedData, handlers);
+      crossSpreadsheetData[key] = data;
+    }
+
+    return { ...data, ...compactHandlerData(handlers, this.copiedData), crossSpreadsheetData };
   }
 
   private getPlainTextContent(): string {
@@ -811,6 +817,29 @@ export class ClipboardStore extends SpreadsheetStore {
       data.rowsIndexes = data.rowsIndexes.filter((r) => !this.getters.isRowFiltered(sheetId, r));
     }
     return data;
+  }
+
+  private getOsClipboardDataToPaste(osClipboardData: SpreadsheetClipboardData) {
+    // Data from the OS clipboard was compacted, expand it before use.
+    const handlers = this.selectClipboardHandlers(osClipboardData);
+    const copiedData = expandHandlerData(handlers, osClipboardData);
+
+    const crossSpreadsheetTransformers = crossSpreadsheetClipboardTransformerRegistry.getKeys();
+    const crossSpreadsheetData = osClipboardData.crossSpreadsheetData || {};
+    for (const transformerKey of crossSpreadsheetTransformers) {
+      const transformer = crossSpreadsheetClipboardTransformerRegistry.get(transformerKey);
+      const data = crossSpreadsheetData[transformerKey];
+      if (!data) {
+        continue;
+      }
+      const transformerData = transformer.onCrossSpreadsheetPaste(
+        this.getters,
+        this.model.dispatch,
+        data
+      );
+      transformer.transform(transformerData, copiedData, handlers);
+    }
+    return copiedData;
   }
 
   // ---------------------------------------------------------------------------

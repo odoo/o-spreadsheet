@@ -1,4 +1,5 @@
 import { expandCompactCFCells, makeIndexer } from "../helpers/clipboard/clipboard_helpers";
+import { mapToCfFormulas } from "../helpers/formula_extractor";
 import { deepEquals } from "../helpers/misc";
 import { UuidGenerator } from "../helpers/uuid";
 import { positionToZone } from "../helpers/zones";
@@ -196,5 +197,15 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
       return data as ClipboardCF[][];
     }
     return expandCompactCFCells(data as CompactCFHandlerData);
+  }
+
+  mapFormulas(clipboardCfs: (ClipboardCF | null)[][], mapFn: (formula: string) => string): void {
+    for (const row of clipboardCfs) {
+      for (const clipboardCf of row) {
+        for (const rule of clipboardCf?.rules ?? []) {
+          mapToCfFormulas(rule, mapFn);
+        }
+      }
+    }
   }
 }

@@ -24,6 +24,7 @@ export type OSClipboardContent = {
 export interface SpreadsheetClipboardData extends MinimalClipboardData {
   version?: string;
   clipboardId?: string;
+  crossSpreadsheetData?: Record<string, any>;
 }
 
 export type ParsedOSClipboardContent = {
