@@ -4,6 +4,7 @@ import {
   ConditionalFormatInternal,
   IconThreshold,
 } from "../types/conditional_formatting";
+import { DataValidationCriterion } from "../types/data_validation";
 import { isDefined } from "./misc";
 
 function getCfThresholdFormula(threshold: ColorScaleThreshold | IconThreshold | undefined) {
@@ -76,4 +77,27 @@ export function mapTCfFormulas<T extends ConditionalFormat | ConditionalFormatIn
       };
   }
   return cf;
+}
+
+function isCriterionFormula(value: string): boolean {
+  return value.startsWith("=");
+}
+
+export function getDvFormulas<T extends { criterion: DataValidationCriterion }>(rule: T): string[] {
+  return rule.criterion.values.filter(isCriterionFormula);
+}
+
+export function mapDvFormulas<T extends { criterion: DataValidationCriterion }>(
+  rule: T,
+  callback: (formula: string) => string
+): T {
+  return {
+    ...rule,
+    criterion: {
+      ...rule.criterion,
+      values: rule.criterion.values.map((value) =>
+        isCriterionFormula(value) ? callback(value) : value
+      ),
+    },
+  };
 }

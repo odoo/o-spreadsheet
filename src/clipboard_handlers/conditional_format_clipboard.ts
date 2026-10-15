@@ -1,4 +1,5 @@
 import { expandCompactCFCells, makeIndexer } from "../helpers/clipboard/clipboard_helpers";
+import { getCfFormulas, mapTCfFormulas } from "../helpers/formula_extractor";
 import { deepEquals } from "../helpers/misc";
 import { UuidGenerator } from "../helpers/uuid";
 import { positionToZone } from "../helpers/zones";
@@ -198,13 +199,19 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     return expandCompactCFCells(data as CompactCFHandlerData);
   }
 
+  getAllFormulas(cells: (ClipboardCF | null)[][]): string[] {
+    return cells.flatMap((row) =>
+      row.flatMap((cell) => (cell ? cell.rules.flatMap(getCfFormulas) : []))
+    );
+  }
+
   mapFormulas(
     cells: (ClipboardCF | null)[][],
     mapFn: (formula: string) => string
   ): (ClipboardCF | null)[][] {
     return cells.map((row) =>
       row.map((cell) =>
-        cell && isFormula(cell.content) ? { ...cell, content: mapFn(cell.content) } : cell
+        cell ? { ...cell, rules: cell.rules.map((cf) => mapTCfFormulas(cf, mapFn)) } : cell
       )
     );
   }
