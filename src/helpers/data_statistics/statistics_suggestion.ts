@@ -129,12 +129,18 @@ export function buildCategorySumItems(
   if (!colCategories || !colValues) {
     return [];
   }
-  const categoryZone = colCategories.headerInZone
+  // shared flag to solve bug where column of values has an header and column of categories contains only text so we need
+  // to ensure first row of categories is considered as an header
+  const hasHeader = colCategories.headerInZone || colValues.headerInZone;
+  const categoryZone = hasHeader
     ? { ...colCategories.zone, top: colCategories.zone.top + 1 }
     : colCategories.zone;
-  const valueZone = colValues.headerInZone
-    ? { ...colValues.zone, top: colValues.zone.top + 1 }
-    : colValues.zone;
+  const valueZone = hasHeader ? { ...colValues.zone, top: colValues.zone.top + 1 } : colValues.zone;
+
+  if (categoryZone.bottom - categoryZone.top !== valueZone.bottom - valueZone.top) {
+    return [];
+  }
+
   const categoryZoneBounds = zoneToXc(categoryZone);
   const valueZoneBounds = zoneToXc(valueZone);
   // const sumMap: Map<string, number> = new Map();
