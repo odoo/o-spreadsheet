@@ -175,6 +175,7 @@ export type CompactBorderHandlerData = {
 };
 
 export type CompactCellHandlerData = {
+  sheetId: UID;
   rows: number;
   cols: number;
   items: { r: number; c: number; v: CompactClipboardCell }[];

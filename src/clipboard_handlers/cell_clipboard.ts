@@ -28,12 +28,6 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   ClipboardCell | null,
   CompactCellHandlerData
 > {
-  // Stashed by expand() from the compact data it was just given, so that paste() can feed it
-  // straight to the unsquisher instead of re-deriving an equivalent map from the expanded grid.
-  // Only set for the compact-data branch of expand(); paste() falls back to rebuilding the map
-  // from the grid when this is undefined (e.g. content coming from convertTextToClipboardData).
-  private lastSquishedMap?: Record<string, SquishedContent>;
-
   isCutAllowed(data: ClipboardCellData) {
     if (data.zones.length !== 1) {
       return CommandResult.WrongCutSelection;
@@ -50,12 +44,9 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     const { rowsIndexes, columnsIndexes } = data;
     const isCopyingOneCell = rowsIndexes.length === 1 && columnsIndexes.length === 1;
 
-    // Pre-allocate the row-major result matrix so we can fill it directly
-    // while iterating col-major (required by the squisher).
     const result: (ClipboardCell | null)[][] = rowsIndexes.map(
       () => new Array(columnsIndexes.length)
     );
-    const squisher = new Squisher(this.getters);
 
     for (let ci = 0; ci < columnsIndexes.length; ci++) {
       const col = columnsIndexes[ci];
@@ -102,42 +93,20 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
           };
         }
 
-        let compiledFormula = cell?.isFormula ? cell.compiledFormula : undefined;
+        const compiledFormula = cell?.isFormula ? cell.compiledFormula : undefined;
         const rawContent = !cell?.isFormula
           ? cell?.content ?? ""
           : cell.compiledFormula.toFormulaString(this.getters);
 
-        let squishedContent: SquishedContent = "";
-        if (rawContent) {
-          let tempCell: Cell;
-          if (compiledFormula) {
-            tempCell = { id: -1, isFormula: true, compiledFormula };
-          } else if (rawContent.startsWith("=")) {
-            // Formula string without a compiledFormula (e.g. pivot substitution cells).
-            // Compile it so the squisher treats it as a formula, not a plain number.
-            compiledFormula = CompiledFormula.Compile(rawContent, sheetId, this.getters);
-            tempCell = { id: -1, isFormula: true, compiledFormula };
-          } else {
-            const parsedValue = evaluatedCell.value;
-            tempCell = {
-              id: -1,
-              isFormula: false,
-              content: rawContent,
-              parsedValue: parsedValue !== null && parsedValue !== undefined ? parsedValue : "",
-            };
-          }
-          squishedContent = squisher.squish(tempCell, sheetId);
-        }
-
         // Truly empty cells (no content, no style, no format) are stored as null
         // to avoid polluting copiedData with useless entries.
-        if (!squishedContent && !cell?.style && !cell?.format) {
+        if (!rawContent && !cell?.style && !cell?.format) {
           result[ri][ci] = null;
           continue;
         }
 
         result[ri][ci] = {
-          content: squishedContent,
+          content: rawContent,
           style: cell?.style,
           format: cell?.format,
           compiledFormula,
@@ -149,7 +118,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         };
       }
     }
-    return this.compact(result);
+    return this.compact(result, sheetId);
   }
 
   isPasteAllowed(
@@ -199,11 +168,10 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   ) {
     const zones = target.zones;
     const sheetId = target.sheetId;
-    const unsquishedContent = this.unsquishClipboardCells(content, sheetId, this.lastSquishedMap);
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, unsquishedContent, options, positions);
+      this.pasteFromCopy(sheetId, zones, content, options, positions);
     } else {
-      this.pasteFromCut(sheetId, zones, unsquishedContent, options, positions);
+      this.pasteFromCut(sheetId, zones, content, options, positions);
     }
   }
 
@@ -379,42 +347,14 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     }
   }
 
-  /**
-   * Unsquish clipboard cells. The cells are squished in col-major order during copy.
-   * This reconstructs the full content for each cell before pasting.
-   *
-   * `precomputedSquishedMap`, when provided (see `expand()`), is the original compact
-   * squishedMap straight from copy — still using merged range keys (e.g. "A1:A1000") — which
-   * lets the unsquisher process a repeated run in one step instead of once per cell. When absent
-   * (content that never went through compact(), e.g. convertTextToClipboardData), the map is
-   * rebuilt from the expanded grid as before.
-   */
-  unsquishClipboardCells(
+  private unsquishClipboardCells(
     cells: (ClipboardCell | null)[][],
-    sourceSheetId: UID,
-    precomputedSquishedMap?: Record<string, SquishedContent>
+    compileSheetId: UID,
+    squishedMap: Record<string, SquishedContent>
   ): (ClipboardCell | null)[][] {
-    const numRows = cells.length;
-    const numCols = cells[0]?.length ?? 0;
-
-    const squishedMap: Record<string, SquishedContent> =
-      precomputedSquishedMap ??
-      (() => {
-        const map: Record<string, SquishedContent> = {};
-        for (let c = 0; c < numCols; c++) {
-          for (let r = 0; r < numRows; r++) {
-            const cell = cells[r][c];
-            if (cell && cell.content !== "") {
-              map[toXC(c, r)] = cell.content;
-            }
-          }
-        }
-        return map;
-      })();
-
     const unsquishedMap = new Map<string, { content?: string; compiled?: CompiledFormula }>();
     const unsquisher = new Unsquisher();
-    for (const item of unsquisher.unsquishSheet(squishedMap, sourceSheetId, this.getters)) {
+    for (const item of unsquisher.unsquishSheet(squishedMap, compileSheetId, this.getters)) {
       unsquishedMap.set(toXC(item.position.col, item.position.row), {
         content: item.content,
         compiled: item.compiled,
@@ -423,9 +363,6 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
 
     // Rebuild ClipboardCell[][] with unsquished (plain string) content.
     // We intentionally do NOT propagate `unsquished.compiled` into `compiledFormula`:
-    // the unsquisher compiles formulas with the source sheetId, which may not exist in the
-    // target model (cross-spreadsheet paste). pasteCell will handle translation by compiling
-    // from the content string in the target context when needed.
     return cells.map((row, r) =>
       row.map((cell, c) => {
         if (!cell) {
@@ -472,22 +409,42 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     return cells;
   }
 
-  protected compact(cells: (ClipboardCell | null)[][]): CompactCellHandlerData {
+  protected compact(cells: (ClipboardCell | null)[][], sheetId: UID): CompactCellHandlerData {
     const { index: styleIndex, table: styleTable } = makeIndexer<Style>(JSON.stringify);
     const { index: formatIndex, table: formatTable } = makeIndexer<Format>((f) => f);
     const rows = cells.length;
     const cols = cells[0]?.length ?? 0;
 
-    // Build a col-major map of squished content so that mergeContentRangeKeys can
-    // collapse consecutive same-column cells with identical squished values into
-    // range keys (e.g. "A1:A1000"), reducing the HTML clipboard payload.
+    const squisher = new Squisher(this.getters);
+    const squishedCells: (SquishedContent | undefined)[][] = cells.map(() => new Array(cols));
     const rawSquishedMap: Record<string, SquishedContent> = {};
     for (let c = 0; c < cols; c++) {
       for (let r = 0; r < rows; r++) {
-        const content = cells[r][c]?.content;
-        if (content) {
-          rawSquishedMap[toXC(c, r)] = content;
+        const cell = cells[r][c];
+        const content = cell?.content;
+        if (!cell || !content || typeof content !== "string") {
+          continue;
         }
+        let tempCell: Cell;
+        if (cell.compiledFormula) {
+          tempCell = { id: -1, isFormula: true, compiledFormula: cell.compiledFormula };
+        } else if (content.startsWith("=")) {
+          // Formula string without a compiledFormula (e.g. pivot substitution cells).
+          // Compile it so the squisher treats it as a formula, not a plain number.
+          const compiledFormula = CompiledFormula.Compile(content, sheetId, this.getters);
+          tempCell = { id: -1, isFormula: true, compiledFormula };
+        } else {
+          const parsedValue = cell.evaluatedCell?.value;
+          tempCell = {
+            id: -1,
+            isFormula: false,
+            content,
+            parsedValue: parsedValue !== null && parsedValue !== undefined ? parsedValue : "",
+          };
+        }
+        const squished = squisher.squish(tempCell, sheetId);
+        squishedCells[r][c] = squished;
+        rawSquishedMap[toXC(c, r)] = squished;
       }
     }
     const squishedMap = this.mergeContentRangeKeys(rawSquishedMap);
@@ -511,7 +468,9 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
           content: _content,
           ...rest
         } = cell;
-        const isPlainLiteral = typeof cell.content === "string" && !cell.content.startsWith("=");
+        const squishedContent = squishedCells[r][c] ?? "";
+        const isPlainLiteral =
+          typeof squishedContent === "string" && !squishedContent.startsWith("=");
         const evaluatedCell: CompactEvaluatedCell = isPlainLiteral ? {} : { ...ecRest };
         if (ecFormat !== undefined && ecFormat !== format) {
           evaluatedCell.format = ecFormat;
@@ -519,7 +478,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         // Preserve formattedValue when it differs from what expand() would derive from content.
         // This covers both formula cells (with custom formats) and plain literal cells
         // that have an applied format (e.g. numeric value 1 displayed as "12/31/1899").
-        const derivedFormattedValue = typeof cell.content === "string" ? cell.content : "";
+        const derivedFormattedValue = typeof squishedContent === "string" ? squishedContent : "";
         if (
           formattedValue !== undefined &&
           formattedValue !== (ecRest.value?.toString() ?? derivedFormattedValue)
@@ -546,7 +505,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         items.push({ r, c, v });
       }
     }
-    return { rows, cols, items, styleTable, formatTable, squishedMap };
+    return { rows, cols, items, styleTable, formatTable, squishedMap, sheetId };
   }
 
   /**
@@ -588,11 +547,9 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
 
   expand(data: CompactCellHandlerData): (ClipboardCell | null)[][] {
     if (Array.isArray(data)) {
-      this.lastSquishedMap = undefined;
       return data as (ClipboardCell | null)[][];
     }
     const compactData = data as CompactCellHandlerData;
-    this.lastSquishedMap = compactData.squishedMap;
     const { rows, cols, items, styleTable, formatTable, squishedMap } = compactData;
     const result: (ClipboardCell | null)[][] = Array.from({ length: rows }, () =>
       Array.from({ length: cols }, () => null)
@@ -652,6 +609,10 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       };
     }
 
-    return result;
+    // The sheetId of the squished cells might not exist anymore (cross-spreadsheet copy/paste or deleted sheet)
+    const sheetId = this.getters.tryGetSheet(data.sheetId)
+      ? data.sheetId
+      : this.getters.getActiveSheetId();
+    return this.unsquishClipboardCells(result, sheetId, squishedMap);
   }
 }
