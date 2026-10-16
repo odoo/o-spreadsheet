@@ -2168,11 +2168,13 @@ describe("figures", () => {
         expect(fixture.querySelector(".o-figure-snap-line.horizontal")).toBeTruthy();
         expect(fixture.querySelector(".o-figure-snap-line.vertical")).toBeTruthy();
         triggerMouseEvent(".o-figure[data-id=f1]", "pointerup", 0, 0);
+        await nextTick();
 
         await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: 10 }, undefined, false);
         expect(fixture.querySelector(".o-figure-snap-line.horizontal")).toBeFalsy();
         expect(fixture.querySelector(".o-figure-snap-line.vertical")).toBeTruthy();
         triggerMouseEvent(".o-figure[data-id=f1]", "pointerup", 0, 10);
+        await nextTick();
 
         await clickAndDrag(
           ".o-figure[data-id=f1]",
@@ -2213,11 +2215,13 @@ describe("figures", () => {
         expect(fixture.querySelector(".o-figure-snap-line.vertical")).toBeTruthy();
         expect(fixture.querySelector(".o-figure-snap-line.horizontal")).toBeTruthy();
         triggerMouseEvent(".o-figure[data-id=f1]", "pointerup", 0, 0);
+        await nextTick();
 
         await clickAndDrag(".o-figure[data-id=f1]", { x: 10, y: 0 }, undefined, false);
         expect(fixture.querySelector(".o-figure-snap-line.vertical")).toBeFalsy();
         expect(fixture.querySelector(".o-figure-snap-line.horizontal")).toBeTruthy();
         triggerMouseEvent(".o-figure[data-id=f1]", "pointerup", 10, 0);
+        await nextTick();
 
         await clickAndDrag(
           ".o-figure[data-id=f1]",

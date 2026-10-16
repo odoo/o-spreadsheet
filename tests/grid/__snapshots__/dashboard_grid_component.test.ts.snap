@@ -18,8 +18,6 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
       >
         
       </div>
-      
-      
     </div>
     <div
       class="o-grid-overlay overflow-hidden o-zoomable"

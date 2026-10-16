@@ -1,7 +1,7 @@
 <templates>
   <div t-name="o-spreadsheet-DataAnalysisPanel" class="o-data-analysis-panel">
     <Section title.translate="Suggested charts">
-      <div t-if="this.store.hasData" class="px-2 pb-2">
+      <div t-if="this.store.hasData" class="px-2 pb-2" t-ref="this.panelRef">
         <div t-if="this.store.chartSuggestions.length" class="o-chart-suggestions-grid">
           <t t-foreach="this.store.chartSuggestions" t-as="suggestion" t-key="suggestion_index">
             <ChartSuggestionPreview

@@ -41,6 +41,8 @@ import { Store } from "../../types/store_engine";
 import { NotificationCallbacks } from "../../types/stores/notification_store_methods";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
+import { FiguresDragAndDropContainer } from "../figures/figure_dnd_container/figure_dnd_container";
+import { DraggedFigurePlugin } from "../figures/figure_dnd_container/figure_dnd_owl_plugin";
 import { FullScreenFigure } from "../full_screen_figure/full_screen_figure";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
@@ -82,6 +84,7 @@ export class Spreadsheet extends Component {
     HeaderGroupContainer,
     FullScreenFigure,
     SpreadsheetPrint,
+    FiguresDragAndDropContainer,
   };
 
   sidePanel!: Store<SidePanelStore>;
@@ -160,6 +163,11 @@ export class Spreadsheet extends Component {
     providePlugins([ImageProviderPlugin], {
       fileStore: this.model().config.external.fileStore,
     });
+    providePlugins([DraggedFigurePlugin], {
+      viewStore: this.viewStore,
+      zoomStore: this.zoomStore,
+    });
+
     this.notificationPlugin = usePlugin(NotificationPlugin);
     useStore(ClipboardStore);
     this.sidePanel = useStore(SidePanelStore);
