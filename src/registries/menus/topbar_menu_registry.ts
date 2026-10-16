@@ -388,6 +388,10 @@ topbarMenuRegistry
     sequence: 50,
     separator: true,
   })
+  .addChild("format_font", ["format"], {
+    ...ACTION_FORMAT.formatFonts,
+    sequence: 55,
+  })
   .addChild("format_font_size", ["format"], {
     ...ACTION_FORMAT.formatFontSize,
     sequence: 60,

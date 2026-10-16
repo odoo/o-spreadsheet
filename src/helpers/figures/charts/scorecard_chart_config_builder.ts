@@ -330,7 +330,8 @@ class ScorecardChartConfigBuilder {
         font: getDefaultContextFont(
           this.runtime.title.fontSize ?? SCORECARD_CHART_TITLE_FONT_SIZE,
           this.runtime.title.bold,
-          this.runtime.title.italic
+          this.runtime.title.italic,
+          this.runtime.title.font
         ),
         color: this.runtime.title.color ?? this.secondaryFontColor,
       },
@@ -339,7 +340,8 @@ class ScorecardChartConfigBuilder {
         font: getDefaultContextFont(
           keyValueFontSize,
           this.runtime.keyValueStyle?.bold,
-          this.runtime.keyValueStyle?.italic
+          this.runtime.keyValueStyle?.italic,
+          this.runtime.keyValueStyle?.font
         ),
         strikethrough: this.runtime.keyValueStyle?.strikethrough,
         underline: this.runtime.keyValueStyle?.underline,
@@ -350,7 +352,8 @@ class ScorecardChartConfigBuilder {
         font: getDefaultContextFont(
           keyValueDescrFontSize,
           this.runtime.keyValueDescrStyle?.bold,
-          this.runtime.keyValueDescrStyle?.italic
+          this.runtime.keyValueDescrStyle?.italic,
+          this.runtime.keyValueDescrStyle?.font
         ),
         strikethrough: this.runtime.keyValueDescrStyle?.strikethrough,
         underline: this.runtime.keyValueDescrStyle?.underline,
@@ -360,7 +363,8 @@ class ScorecardChartConfigBuilder {
         font: getDefaultContextFont(
           baselineValueFontSize,
           this.runtime.baselineStyle?.bold,
-          this.runtime.baselineStyle?.italic
+          this.runtime.baselineStyle?.italic,
+          this.runtime.baselineStyle?.font
         ),
         strikethrough: this.runtime.baselineStyle?.strikethrough,
         underline: this.runtime.baselineStyle?.underline,
@@ -374,7 +378,8 @@ class ScorecardChartConfigBuilder {
         font: getDefaultContextFont(
           baselineDescrFontSize,
           this.runtime.baselineDescrStyle?.bold,
-          this.runtime.baselineDescrStyle?.italic
+          this.runtime.baselineDescrStyle?.italic,
+          this.runtime.baselineDescrStyle?.font
         ),
         strikethrough: this.runtime.baselineDescrStyle?.strikethrough,
         underline: this.runtime.baselineDescrStyle?.underline,
