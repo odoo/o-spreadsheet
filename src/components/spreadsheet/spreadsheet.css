@@ -213,6 +213,7 @@
   .o-grid-overlay {
     position: absolute;
     outline: none;
+    -webkit-touch-callout: none;
     z-index: var(--os-components-importance-grid-overlay);
   }
 

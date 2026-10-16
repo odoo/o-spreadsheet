@@ -1,4 +1,4 @@
-import { Signal, useListener } from "@odoo/owl";
+import { onWillUnmount, Signal, useListener } from "@odoo/owl";
 
 const friction = 0.95;
 
@@ -6,6 +6,9 @@ const verticalScrollFactor = 1;
 const horizontalScrollFactor = 1;
 
 export const resetTimeoutDuration = 100;
+
+export const LONG_PRESS_DURATION = 500;
+const LONG_PRESS_MOVE_TOLERANCE = 10;
 
 type touchCallBacks = {
   updateScroll: (offsetX: number, offsetY: number) => void;
@@ -15,9 +18,17 @@ type touchCallBacks = {
   setZoom: (scale: number) => void;
 };
 
+const noScrollNorZoom: touchCallBacks = {
+  updateScroll: () => {},
+  canMoveUp: () => false,
+  canMoveDown: () => false,
+  getZoom: () => 1,
+  setZoom: () => {},
+};
+
 export function useTouchHandlers(
   ref: Signal<HTMLElement | null>,
-  { updateScroll, canMoveUp, canMoveDown, getZoom, setZoom }: touchCallBacks
+  { updateScroll, canMoveUp, canMoveDown, getZoom, setZoom }: touchCallBacks = noScrollNorZoom
 ) {
   // Scroll state
   let lastX = 0;
@@ -29,6 +40,12 @@ export function useTouchHandlers(
   let resetTimeout: NodeJS.Timeout | null = null;
   let isZooming = false;
 
+  // long press state
+  let longPressTimeout: ReturnType<typeof setTimeout> | undefined;
+  let hasOpenedContextMenu = false;
+  let startX = 0;
+  let startY = 0;
+
   // zoom state
   const evCache: PointerEvent[] = [];
   let previousPointersDistance = -1;
@@ -36,6 +53,9 @@ export function useTouchHandlers(
   useListener(ref, "touchstart", onTouchStart, { capture: false });
   useListener(ref, "touchmove", onTouchMove, { capture: false });
   useListener(ref, "touchend", onTouchEnd, { capture: false });
+  useListener(ref, "touchcancel", onTouchEnd, { capture: false });
+  useListener(window, "contextmenu", onContextMenu, { capture: true });
+  onWillUnmount(cancelLongPress);
 
   useListener(ref, "pointerdown", onPointerdown, { passive: false, capture: false });
   useListener(ref, "pointermove", onPointermove, { passive: false, capture: false });
@@ -47,9 +67,18 @@ export function useTouchHandlers(
     ({ clientX: lastX, clientY: lastY } = event.touches[0]);
     velocityX = 0;
     velocityY = 0;
+    startLongPress(event);
   }
 
   function onTouchMove(event: TouchEvent) {
+    const { clientX, clientY } = event.touches[0];
+    if (
+      event.touches.length !== 1 ||
+      Math.abs(clientX - startX) > LONG_PRESS_MOVE_TOLERANCE ||
+      Math.abs(clientY - startY) > LONG_PRESS_MOVE_TOLERANCE
+    ) {
+      cancelLongPress();
+    }
     // scrolling
     // FIXME: should we allow scrolling when zooming with 2 fingers on Android (works on iOS)
     if (!isMouseDown || isZooming) {
@@ -66,7 +95,6 @@ export function useTouchHandlers(
     }
 
     const currentTime = Date.now();
-    const { clientX, clientY } = event.touches[0];
     const deltaX = lastX - clientX;
     const deltaY = lastY - clientY;
 
@@ -95,6 +123,11 @@ export function useTouchHandlers(
   }
 
   function onTouchEnd(ev: TouchEvent) {
+    cancelLongPress();
+    if (hasOpenedContextMenu && ev.cancelable) {
+      ev.preventDefault();
+    }
+    hasOpenedContextMenu = false;
     isMouseDown = false;
     lastX = lastY = 0;
     if (resetTimeout) {
@@ -103,6 +136,38 @@ export function useTouchHandlers(
     velocityX *= 1.2;
     velocityY *= 1.2;
     requestAnimationFrame(scroll);
+  }
+
+  function startLongPress(ev: TouchEvent) {
+    cancelLongPress();
+    hasOpenedContextMenu = false;
+    const target = ev.target;
+    if (ev.touches.length !== 1 || !target) {
+      return;
+    }
+    const { clientX, clientY } = ev.touches[0];
+    startX = clientX;
+    startY = clientY;
+    longPressTimeout = setTimeout(() => {
+      longPressTimeout = undefined;
+      const options = { bubbles: true, cancelable: true, clientX, clientY, button: 2 };
+      hasOpenedContextMenu = !target.dispatchEvent(new MouseEvent("contextmenu", options));
+    }, LONG_PRESS_DURATION);
+  }
+
+  function cancelLongPress() {
+    clearTimeout(longPressTimeout);
+    longPressTimeout = undefined;
+  }
+
+  function onContextMenu(ev: MouseEvent) {
+    if (hasOpenedContextMenu) {
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+    } else if (longPressTimeout) {
+      cancelLongPress();
+      hasOpenedContextMenu = true;
+    }
   }
 
   function scroll() {

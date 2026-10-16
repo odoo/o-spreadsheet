@@ -8,6 +8,7 @@ import { Rect } from "../../types/rendering";
 import { Ripple } from "../animation/ripple";
 import { isMobileOS } from "../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
+import { useTouchHandlers } from "../helpers/touch_handlers_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
@@ -57,6 +58,7 @@ export class BottomBar extends OSComponent {
   sheetList = this.getVisibleSheets();
 
   setup() {
+    useTouchHandlers(this.bottomBarRef);
     onWillUpdateProps(() => {
       this.updateScrollState();
       const visibleSheets = this.getVisibleSheets();
