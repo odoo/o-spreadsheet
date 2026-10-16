@@ -33,6 +33,9 @@ export class LineConfigPanel extends GenericChartConfigPanel {
         onChange: this.onUpdateLabelsAsText.bind(this),
       });
     }
+    if (this.hasMultipleLabelRanges) {
+      options.push(this.getGroupByParentCategories());
+    }
     return options;
   }
 

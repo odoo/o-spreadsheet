@@ -10,12 +10,12 @@ import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers
 
 const ONE_SERIES = toChartDataSource({
   dataSets: [{ dataRange: "B1:B4" }],
-  labelRange: "A1:A4",
+  labelRanges: ["A1:A4"],
   dataSetsHaveTitle: false,
 });
 const TWO_SERIES = toChartDataSource({
   dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
-  labelRange: "A1:A4",
+  labelRanges: ["A1:A4"],
   dataSetsHaveTitle: false,
 });
 
