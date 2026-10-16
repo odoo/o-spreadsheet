@@ -60,11 +60,25 @@
           <t t-call="o-spreadsheet-Icon.STRIKE"/>
         </div>
         <ColorPickerWidget
+<<<<<<< 6ec0b26d64d4817df6120e724f6d422c8ff51345
           currentColor="this.rule.style.textColor || '#000000'"
           toggleColorPicker="() => this.props.store.toggleMenu('cellIsRule-textColor')"
           showColorPicker="this.props.store.state.openedMenu === 'cellIsRule-textColor'"
           onColorPicked="(color) => this.props.store.setColor('textColor', color)"
           title.translate="Text Color"
+||||||| ca6e2a86b218f514b005be518015dfd1620424b6
+          currentColor="rule.style.textColor || '#000000'"
+          toggleColorPicker="() => store.toggleMenu('cellIsRule-textColor')"
+          showColorPicker="state.openedMenu === 'cellIsRule-textColor'"
+          onColorPicked="(color) => store.setColor('textColor', color)"
+          title="text_color"
+=======
+          currentColor="rule.style.textColor"
+          toggleColorPicker="() => store.toggleMenu('cellIsRule-textColor')"
+          showColorPicker="state.openedMenu === 'cellIsRule-textColor'"
+          onColorPicked="(color) => store.setColor('textColor', color)"
+          title="text_color"
+>>>>>>> 15d95e0e3607997ce421839e6bce0e0b5fe7d89f
           icon="'o-spreadsheet-Icon.TEXT_COLOR'"
           class="'o-hoverable-button o-menu-item-button'"
         />
