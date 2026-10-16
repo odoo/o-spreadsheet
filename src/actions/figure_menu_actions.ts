@@ -5,6 +5,7 @@ import { getPoppedOutChartAnchor } from "../helpers/carousel_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts/chart_ui_common";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { deepEquals } from "../helpers/misc";
+import { UuidGenerator } from "../helpers/uuid";
 import { ImageProviderPlugin } from "../owl_plugins/image_provider_owl_plugin";
 import { NavigatorClipboardPlugin } from "../owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
@@ -12,6 +13,7 @@ import { ClipboardStore } from "../stores/clipboard_store";
 import { _t } from "../translation";
 import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
 import { Action, ActionSpec, createActions } from "./action";
+import * as ACTIONS from "./menu_items_actions";
 
 export function getChartMenuActions(figureId: UID, env: SpreadsheetActionEnv): Action[] {
   const chartId = env.model().getters.getChartIdFromFigureId(figureId);
@@ -110,6 +112,12 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetActionEnv)
       name: _t("Copy carousel"),
     },
     { ...getCutMenuItem(figureId, env), name: _t("Cut carousel") },
+    {
+      id: "paste_into_carousel",
+      name: _t("Paste into carousel"),
+      execute: ACTIONS.PASTE_ACTION,
+      icon: "o-spreadsheet-Icon.PASTE",
+    },
     {
       ...getDeleteMenuItem(figureId, env),
       name: _t("Delete carousel"),
@@ -358,6 +366,7 @@ function getMergeCarouselMenuItem(figureId: UID, env: SpreadsheetActionEnv): Act
         sheetId,
         baseFigureId: figureId,
         chartFigureIds,
+        newCarouselId: UuidGenerator.smallUuid(),
       });
     },
     icon: "o-spreadsheet-Icon.CAROUSEL",
