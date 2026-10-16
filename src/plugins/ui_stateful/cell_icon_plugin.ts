@@ -4,7 +4,6 @@ import {
   IconsOfCell,
   iconsOnCellRegistry,
 } from "../../registries/icons_on_cell_registry";
-import { Command } from "../../types/commands";
 import { Align, CellPosition } from "../../types/misc";
 import { Rect } from "../../types/rendering";
 import { UIPlugin } from "../ui_plugin";
@@ -14,7 +13,11 @@ export class CellIconPlugin extends UIPlugin {
 
   private cellIconsCache: Record<string, Record<number, Record<number, GridIcon[]>>> = {};
 
-  handle(cmd: Command) {
+  handlers = {
+    "*allCommands": this.clearCellIconsCache,
+  };
+
+  private clearCellIconsCache() {
     this.cellIconsCache = {};
   }
 

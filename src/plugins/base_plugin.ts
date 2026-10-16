@@ -1,5 +1,11 @@
 import { StateObserver } from "../state_observer";
-import { CommandHandler, CommandResult } from "../types/commands";
+import {
+  Command,
+  CommandHandler,
+  CommandResult,
+  CommandsHandlers,
+  CommandsValidators,
+} from "../types/commands";
 import type { WorkbookHistory } from "../types/history";
 import { Validation } from "../types/misc";
 import type { Validator } from "../types/validator";
@@ -16,8 +22,29 @@ import { ExcelWorkbookData } from "../types/workbook_data";
  * There are two kinds of plugins: core plugins handling persistent data
  * and UI plugins handling transient data.
  */
-export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Validator {
+export class BasePlugin<State = any, C extends Command = Command>
+  implements CommandHandler<C>, Validator
+{
   static getters: readonly string[] = [];
+
+  /**
+   * Before a command is accepted, the model runs the validators of every plugin.
+   * If all of them return `CommandResult.Success`, the command can proceed.
+   * Otherwise it is cancelled.
+   *
+   * There should not be any side effect in a validator.
+   */
+  validators: CommandsValidators<C> = {};
+
+  /**
+   * Handlers called before any plugin handles the command. This is useful when a
+   * plugin needs to perform some action before a command is handled in another
+   * plugin. This should only be used if it is not possible to do the work in a
+   * regular handler.
+   */
+  preHandlers: CommandsHandlers<C> = {};
+
+  handlers: CommandsHandlers<C> = {};
 
   protected history: WorkbookHistory<State>;
 
@@ -38,30 +65,6 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Vali
   // ---------------------------------------------------------------------------
   // Command handling
   // ---------------------------------------------------------------------------
-
-  /**
-   * Before a command is accepted, the model will ask each plugin if the command
-   * is allowed. If all of them return true, then we can proceed. Otherwise,
-   * the command is cancelled.
-   *
-   * There should not be any side effects in this method.
-   */
-  allowDispatch(command: C): CommandResult | CommandResult[] {
-    return CommandResult.Success;
-  }
-
-  /**
-   * This method is useful when a plugin needs to perform some action before a
-   * command is handled in another plugin. This should only be used if it is not
-   * possible to do the work in the handle method.
-   */
-  beforeHandle(command: C): void {}
-
-  /**
-   * This is the standard place to handle any command. Most of the plugin
-   * command handling work should take place here.
-   */
-  handle(command: C): void {}
 
   /**
    * Sometimes, it is useful to perform some work after a command (and all its

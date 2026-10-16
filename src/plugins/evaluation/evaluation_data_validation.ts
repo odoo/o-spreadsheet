@@ -10,7 +10,7 @@ import { isInside, positions } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { _t } from "../../translation";
 import { CellValue, CellValueType } from "../../types/cells";
-import { EvaluationCommand, invalidateEvaluationCommands } from "../../types/commands";
+import { UpdateCellCommand } from "../../types/commands";
 import {
   DataValidationCriterion,
   DataValidationCriterionType,
@@ -52,22 +52,28 @@ export class EvaluationDataValidationPlugin extends EvaluationPlugin {
   validationResults: Record<UID, SheetValidationResult> = {};
   criterionPreComputeResult: Record<UID, { [dvRuleId: UID]: unknown }> = {};
 
-  handle(cmd: EvaluationCommand) {
-    if (
-      invalidateEvaluationCommands.has(cmd.type) ||
-      cmd.type === "EVALUATE_CELLS" ||
-      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
-    ) {
+  handlers = {
+    UPDATE_CELL: this.onUpdateCell,
+    REMOVE_DATA_VALIDATION_RULE: this.invalidateSheetValidationResults,
+    ADD_DATA_VALIDATION_RULE: this.invalidateSheetValidationResults,
+    EVALUATE_CELLS: this.clearValidationResults,
+    "*invalidateEvaluationCommands": this.clearValidationResults,
+  };
+
+  private clearValidationResults() {
+    this.validationResults = {};
+    this.criterionPreComputeResult = {};
+  }
+
+  private invalidateSheetValidationResults(cmd: { sheetId: UID }) {
+    delete this.validationResults[cmd.sheetId];
+    delete this.criterionPreComputeResult[cmd.sheetId];
+  }
+
+  private onUpdateCell(cmd: UpdateCellCommand) {
+    if ("content" in cmd || "format" in cmd) {
       this.validationResults = {};
       this.criterionPreComputeResult = {};
-      return;
-    }
-    switch (cmd.type) {
-      case "ADD_DATA_VALIDATION_RULE":
-      case "REMOVE_DATA_VALIDATION_RULE":
-        delete this.validationResults[cmd.sheetId];
-        delete this.criterionPreComputeResult[cmd.sheetId];
-        break;
     }
   }
 

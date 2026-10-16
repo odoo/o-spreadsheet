@@ -1,15 +1,15 @@
-import {
-  Command,
-  CommandResult,
-  isCoreCommand,
-  lockedSheetAllowedCommands,
-} from "../../types/commands";
+import { isCoreCommand, lockedSheetAllowedCommands } from "../../command_registry";
+import { Command, CommandResult } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 
 export class LockSheetPlugin extends UIPlugin {
   static getters = ["isCurrentSheetLocked"] as const;
 
-  allowDispatch(cmd: Command): CommandResult | CommandResult[] {
+  validators = {
+    "*allCommands": this.checkSheetIsNotLocked,
+  };
+
+  private checkSheetIsNotLocked(cmd: Command) {
     /**
      * isDashboard() implies that the user is not connected
      * to other users and can do any operation and can do core modifications that will only affect them

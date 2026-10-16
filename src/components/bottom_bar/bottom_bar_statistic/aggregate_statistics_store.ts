@@ -1,3 +1,4 @@
+import { invalidateEvaluationCommands } from "../../../command_registry";
 import { sum } from "../../../functions/helper_math";
 import { average, countAny, countNumbers, max, min } from "../../../functions/helper_statistical";
 import { isDateTimeFormat } from "../../../helpers/format/format";
@@ -10,7 +11,7 @@ import {
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { _t } from "../../../translation";
 import { CellValueType, EvaluatedCell } from "../../../types/cells";
-import { Command, invalidateEvaluationCommands } from "../../../types/commands";
+import { Command } from "../../../types/commands";
 import { Get } from "../../../types/store_engine";
 
 const selectionStatisticFunctions: SelectionStatisticFunction[] = [

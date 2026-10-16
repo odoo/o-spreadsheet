@@ -1,5 +1,6 @@
 import { Chart } from "chart.js";
-import { Model, readonlyAllowedCommands } from "../../../src";
+import { Model } from "../../../src";
+import { readonlyAllowedCommands } from "../../../src/command_registry";
 import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
 import { ViewportsStore } from "../../../src/stores/viewports_store";
 import { toChartDataSource } from "../../test_helpers/chart_helpers";

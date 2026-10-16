@@ -120,9 +120,9 @@ There are two types of [commands](add_command.md): `CoreCommands` and `Commands`
 Here is the way to register a `CoreCommand` to o-spreadsheet.
 
 ```ts
-const { coreTypes } = o_spreadsheet;
+const { registerCommand } = o_spreadsheet;
 
-coreTypes.add("MY_COMMAND_NAME");
+registerCommand("MY_COMMAND_NAME", { category: "core" });
 ```
 
 ### Transformations
@@ -166,9 +166,10 @@ The inverse function is used during a selective undo to transform commands execu
 Here is the way to declare it.
 
 ```ts
-const { inverseCommandRegistry } = o_spreadsheet.registries;
+const { registerCommand } = o_spreadsheet;
 
-inverseCommandRegistry.add("CREATE_SHEET", (cmd) => {
-  return [{ type: "DELETE_SHEET", sheetId: cmd.sheetId, sheetName: cmd.sheetName }];
+registerCommand("CREATE_SHEET", {
+  category: "core",
+  inverse: (cmd) => [{ type: "DELETE_SHEET", sheetId: cmd.sheetId, sheetName: cmd.name }],
 });
 ```

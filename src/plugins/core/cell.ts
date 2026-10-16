@@ -25,11 +25,16 @@ import { Cell } from "../../types/cells";
 import {
   AddColumnsRowsCommand,
   ClearCellCommand,
+  ClearCellsCommand,
+  ClearFormattingCommand,
   CommandResult,
-  CoreCommand,
+  DeleteContentCommand,
+  DuplicateSheetCommand,
   PositionDependentCommand,
   SetFormattingCommand,
   UpdateCellCommand,
+  UpdateCellPositionCommand,
+  UpdateLocaleCommand,
 } from "../../types/commands";
 import { CellPosition, HeaderIndex, RangeAdapterFunctions, UID } from "../../types/misc";
 
@@ -80,6 +85,55 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   private previousDefaultStyle: defaultStyle | undefined;
   private previousDefaultFormat: defaultValue<Format> | undefined;
 
+  validators = {
+    UPDATE_CELL: this.checkUpdateCell,
+    CLEAR_CELL: this.checkClearCell,
+    UPDATE_CELL_POSITION: this.checkCellIdExists,
+    SET_FORMATTING: this.checkUselessSetFormatting,
+  };
+
+  preHandlers = {
+    UPDATE_LOCALE: this.storePreviousLocale,
+    SET_FORMATTING: this.storePreviousSheetDefaults,
+    CLEAR_FORMATTING: this.storePreviousSheetDefaults,
+  };
+
+  handlers = {
+    UPDATE_CELL: this.onUpdateCell,
+    DELETE_CONTENT: this.onDeleteContent,
+    CLEAR_CELL: this.onClearCell,
+    CLEAR_CELLS: this.onClearCells,
+    DELETE_SHEET: this.onDeleteSheet,
+    ADD_COLUMNS_ROWS: this.onAddColumnsRows,
+    SET_FORMATTING: this.onSetFormatting,
+    CLEAR_FORMATTING: this.onClearFormatting,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    UPDATE_LOCALE: this.onUpdateLocale,
+  };
+
+  private onAddColumnsRows(cmd: AddColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      this.handleAddColumnsRows(cmd, this.copyColumnStyle.bind(this));
+    } else {
+      this.handleAddColumnsRows(cmd, this.copyRowStyle.bind(this));
+    }
+  }
+
+  private onDeleteSheet(cmd: { sheetId: UID }) {
+    this.history.update("cells", cmd.sheetId, undefined);
+  }
+
+  private onClearCell(cmd: ClearCellCommand) {
+    this.dispatch("UPDATE_CELL", {
+      sheetId: cmd.sheetId,
+      col: cmd.col,
+      row: cmd.row,
+      content: "",
+      style: null,
+      format: null,
+    });
+  }
+
   adaptRanges(adapters: RangeAdapterFunctions) {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
@@ -103,94 +157,27 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: CoreCommand): CommandResult | CommandResult[] {
-    switch (cmd.type) {
-      case "UPDATE_CELL":
-        return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessUpdateCell);
-      case "CLEAR_CELL":
-        return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessClearCell);
-      case "UPDATE_CELL_POSITION":
-        return !cmd.cellId || this.cells[cmd.sheetId]?.[cmd.cellId]
-          ? CommandResult.Success
-          : CommandResult.InvalidCellId;
-      case "SET_FORMATTING":
-        return this.checkUselessSetFormatting(cmd);
-      default:
-        return CommandResult.Success;
-    }
+  private checkUpdateCell(cmd: UpdateCellCommand) {
+    return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessUpdateCell);
   }
 
-  beforeHandle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "UPDATE_LOCALE":
-        this.previousLocale = this.getters.getLocale();
-        break;
-      case "SET_FORMATTING":
-      case "CLEAR_FORMATTING":
-        this.previousDefaultStyle = deepCopy(this.getters.getSheetDefaultStyle(cmd.sheetId));
-        this.previousDefaultFormat = deepCopy(this.getters.getSheetDefaultFormat(cmd.sheetId));
-        break;
-    }
+  private checkClearCell(cmd: ClearCellCommand) {
+    return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessClearCell);
   }
 
-  handle(cmd: CoreCommand) {
-    switch (cmd.type) {
-      case "ADD_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.handleAddColumnsRows(cmd, this.copyColumnStyle.bind(this));
-        } else {
-          this.handleAddColumnsRows(cmd, this.copyRowStyle.bind(this));
-        }
-        break;
-      case "SET_FORMATTING":
-        if (cmd.style !== undefined) {
-          this.setStyle(cmd.sheetId, cmd.target, cmd.style);
-        }
-        if (cmd.format !== undefined) {
-          this.setFormat(cmd.sheetId, cmd.target, cmd.format);
-        }
-        break;
-      case "CLEAR_FORMATTING":
-        this.setStyle(cmd.sheetId, cmd.target, DEFAULT_STYLE);
-        this.setFormat(cmd.sheetId, cmd.target, null);
-        break;
-      case "UPDATE_CELL":
-        this.updateCell(cmd.sheetId, cmd.col, cmd.row, cmd);
-        break;
+  private checkCellIdExists(cmd: UpdateCellPositionCommand) {
+    return !cmd.cellId || this.cells[cmd.sheetId]?.[cmd.cellId]
+      ? CommandResult.Success
+      : CommandResult.InvalidCellId;
+  }
 
-      case "CLEAR_CELL":
-        this.dispatch("UPDATE_CELL", {
-          sheetId: cmd.sheetId,
-          col: cmd.col,
-          row: cmd.row,
-          content: "",
-          style: null,
-          format: null,
-        });
-        break;
+  private storePreviousLocale() {
+    this.previousLocale = this.getters.getLocale();
+  }
 
-      case "CLEAR_CELLS":
-        this.clearCells(cmd.sheetId, cmd.target);
-        break;
-
-      case "DELETE_CONTENT":
-        this.clearZones(cmd.sheetId, cmd.target);
-        break;
-      case "DELETE_SHEET": {
-        this.history.update("cells", cmd.sheetId, undefined);
-        break;
-      }
-      case "DUPLICATE_SHEET":
-        this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo);
-        break;
-      case "UPDATE_LOCALE": {
-        this.changeCellsDateFormatWithLocale(
-          this.previousLocale || this.getters.getLocale(),
-          cmd.locale
-        );
-        this.history.update("previousLocale", cmd.locale);
-      }
-    }
+  private storePreviousSheetDefaults(cmd: SetFormattingCommand | ClearFormattingCommand) {
+    this.previousDefaultStyle = deepCopy(this.getters.getSheetDefaultStyle(cmd.sheetId));
+    this.previousDefaultFormat = deepCopy(this.getters.getSheetDefaultFormat(cmd.sheetId));
   }
 
   finalize() {
@@ -199,8 +186,35 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
     this.previousDefaultFormat = undefined;
   }
 
-  private clearZones(sheetId: UID, zones: Zone[]) {
-    for (const zone of recomputeZones(zones)) {
+  private onSetFormatting(cmd: SetFormattingCommand) {
+    if (cmd.style !== undefined) {
+      this.setStyle(cmd.sheetId, cmd.target, cmd.style);
+    }
+    if (cmd.format !== undefined) {
+      this.setFormat(cmd.sheetId, cmd.target, cmd.format);
+    }
+  }
+
+  private onClearFormatting(cmd: ClearFormattingCommand) {
+    this.setStyle(cmd.sheetId, cmd.target, DEFAULT_STYLE);
+    this.setFormat(cmd.sheetId, cmd.target, null);
+  }
+
+  private onDuplicateSheet(cmd: DuplicateSheetCommand) {
+    this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo);
+  }
+
+  private onUpdateLocale(cmd: UpdateLocaleCommand) {
+    this.changeCellsDateFormatWithLocale(
+      this.previousLocale || this.getters.getLocale(),
+      cmd.locale
+    );
+    this.history.update("previousLocale", cmd.locale);
+  }
+
+  private onDeleteContent(cmd: DeleteContentCommand) {
+    const sheetId = cmd.sheetId;
+    for (const zone of recomputeZones(cmd.target)) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const cell = this.getters.getCell({ sheetId, col, row });
@@ -220,8 +234,9 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   /**
    * Clear the styles, the format and the content of zones
    */
-  private clearCells(sheetId: UID, zones: Zone[]) {
-    for (const zone of zones) {
+  private onClearCells(cmd: ClearCellsCommand) {
+    const sheetId = cmd.sheetId;
+    for (const zone of cmd.target) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           this.dispatch("UPDATE_CELL", {
@@ -538,7 +553,9 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
     return id;
   }
 
-  private updateCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex, after: UpdateCellData) {
+  private onUpdateCell(cmd: UpdateCellCommand) {
+    const { sheetId, col, row } = cmd;
+    const after: UpdateCellData = cmd;
     const position = { sheetId, col, row };
     const before = this.getters.getCell(position);
     const hasContent = after.content !== undefined || "formula" in after;
@@ -653,7 +670,7 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   // would otherwise change. These run in `handle`, after the DefaultPlugin has
   // updated its state, so the default comparisons (in `updateCell`) use the new
   // defaults; the *previous* defaults are read from the snapshots taken in
-  // `beforeHandle`. Those snapshots predate every zone of the command, so the
+  // the pre-handlers. Those snapshots predate every zone of the command, so the
   // previous defaults are never baked into a cell of the target: it receives
   // the new formatting anyway.
   // ---------------------------------------------------------------------------

@@ -9,7 +9,14 @@ import {
 import { getCanvas, getDefaultCellHeight } from "../../helpers/text_helper";
 import { positions } from "../../helpers/zones";
 import { Canvas2DContext } from "../../types/canvas";
-import { EvaluationCommand } from "../../types/commands";
+import {
+  AddColumnsRowsCommand,
+  RemoveColumnsRowsCommand,
+  ResizeColumnsRowsCommand,
+  SetFormattingCommand,
+  TargetDependentCommand,
+  UpdateCellCommand,
+} from "../../types/commands";
 import { AnchorOffset } from "../../types/figure";
 import {
   CellPosition,
@@ -40,101 +47,111 @@ export class HeaderSizeUIPlugin
   readonly tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>> = {};
   ctx: Canvas2DContext = getCanvas();
 
-  beforeHandle(cmd: EvaluationCommand) {
-    switch (cmd.type) {
-      // Ensure rows are updated before "UPDATE_CELL" is dispatched from cell plugin.
-      // "UPDATE_CELL" uses the Sheet core plugin to access row data.
-      // If "ADD_COLUMNS_ROWS" has not been processed yet by header_sizes_ui,
-      // size updates may apply to incorrect (pre-insert) rows.
-      case "ADD_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          return;
+  preHandlers = {
+    ADD_COLUMNS_ROWS: this.onAddColumnsRows,
+  };
+
+  handlers = {
+    UPDATE_CELL: this.onUpdateCell,
+    SET_FORMATTING: this.onSetFormatting,
+    RESIZE_COLUMNS_ROWS: this.onResizeColumnsRows,
+    UPDATE_LOCALE: this.initializeAllSheets,
+    ADD_MERGE: this.updateRowSizesForMergeChange,
+    REMOVE_MERGE: this.updateRowSizesForMergeChange,
+    CREATE_SHEET: this.onCreateSheet,
+    DUPLICATE_SHEET: this.onDuplicateSheet,
+    DELETE_SHEET: this.onDeleteSheet,
+    REMOVE_COLUMNS_ROWS: this.onRemoveColumnsRows,
+    START: this.initializeAllSheets,
+  };
+
+  /**
+   * Ensure rows are updated before "UPDATE_CELL" is dispatched from cell plugin.
+   * "UPDATE_CELL" uses the Sheet core plugin to access row data.
+   * If "ADD_COLUMNS_ROWS" has not been processed yet by header_sizes_ui,
+   * size updates may apply to incorrect (pre-insert) rows.
+   */
+  private onAddColumnsRows(cmd: AddColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      return;
+    }
+    const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
+    const newCells = Array(cmd.quantity).fill(undefined);
+    const newTallestCells = insertItemsAtIndex(
+      this.tallestCellInRow[cmd.sheetId],
+      newCells,
+      addIndex
+    );
+    this.history.update("tallestCellInRow", cmd.sheetId, newTallestCells);
+  }
+
+  private onRemoveColumnsRows(cmd: RemoveColumnsRowsCommand) {
+    if (cmd.dimension === "COL") {
+      return;
+    }
+    const tallestCells = removeIndexesFromArray(this.tallestCellInRow[cmd.sheetId], cmd.elements);
+    this.history.update("tallestCellInRow", cmd.sheetId, tallestCells);
+  }
+
+  private onDeleteSheet(cmd: { sheetId: UID }) {
+    const tallestCells = { ...this.tallestCellInRow };
+    delete tallestCells[cmd.sheetId];
+    this.history.update("tallestCellInRow", tallestCells);
+  }
+
+  private onDuplicateSheet(cmd: { sheetId: UID; sheetIdTo: UID }) {
+    const tallestCells = deepCopy(this.tallestCellInRow[cmd.sheetId]);
+    this.history.update("tallestCellInRow", cmd.sheetIdTo, tallestCells);
+  }
+
+  private onCreateSheet(cmd: { sheetId: UID }) {
+    this.initializeSheet(cmd.sheetId);
+  }
+
+  private onResizeColumnsRows(cmd: ResizeColumnsRowsCommand) {
+    const sheetId = cmd.sheetId;
+    if (cmd.dimension === "ROW") {
+      for (const row of cmd.elements) {
+        const tallestCell = this.getRowTallestCell(sheetId, row);
+        this.history.update("tallestCellInRow", sheetId, row, tallestCell);
+      }
+    } else {
+      // Recompute row heights on col size change, they might have changed because of wrapped text
+      for (const row of range(0, this.getters.getNumberRows(sheetId))) {
+        for (const col of cmd.elements) {
+          this.updateRowSizeForCellChange(sheetId, row, col);
         }
-        const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
-        const newCells = Array(cmd.quantity).fill(undefined);
-        const newTallestCells = insertItemsAtIndex(
-          this.tallestCellInRow[cmd.sheetId],
-          newCells,
-          addIndex
-        );
-        this.history.update("tallestCellInRow", cmd.sheetId, newTallestCells);
-        break;
+      }
     }
   }
 
-  handle(cmd: EvaluationCommand) {
-    switch (cmd.type) {
-      case "START":
-      case "UPDATE_LOCALE":
-        for (const sheetId of this.getters.getSheetIds()) {
-          this.initializeSheet(sheetId);
-        }
-        break;
-      case "CREATE_SHEET": {
-        this.initializeSheet(cmd.sheetId);
-        break;
+  private onSetFormatting(cmd: SetFormattingCommand) {
+    if (
+      cmd.style &&
+      ("fontSize" in cmd.style || "wrapping" in cmd.style || "rotation" in cmd.style)
+    ) {
+      for (const zone of cmd.target) {
+        this.updateRowSizeForZoneChange(cmd.sheetId, zone);
       }
-      case "DUPLICATE_SHEET": {
-        const tallestCells = deepCopy(this.tallestCellInRow[cmd.sheetId]);
-        this.history.update("tallestCellInRow", cmd.sheetIdTo, tallestCells);
-        break;
-      }
-      case "DELETE_SHEET":
-        const tallestCells = { ...this.tallestCellInRow };
-        delete tallestCells[cmd.sheetId];
-        this.history.update("tallestCellInRow", tallestCells);
-        break;
-      case "REMOVE_COLUMNS_ROWS": {
-        if (cmd.dimension === "COL") {
-          return;
-        }
-        const tallestCells = removeIndexesFromArray(
-          this.tallestCellInRow[cmd.sheetId],
-          cmd.elements
-        );
-        this.history.update("tallestCellInRow", cmd.sheetId, tallestCells);
-        break;
-      }
-      case "RESIZE_COLUMNS_ROWS":
-        {
-          const sheetId = cmd.sheetId;
-          if (cmd.dimension === "ROW") {
-            for (const row of cmd.elements) {
-              const tallestCell = this.getRowTallestCell(sheetId, row);
-              this.history.update("tallestCellInRow", sheetId, row, tallestCell);
-            }
-          } else {
-            // Recompute row heights on col size change, they might have changed because of wrapped text
-            for (const row of range(0, this.getters.getNumberRows(sheetId))) {
-              for (const col of cmd.elements) {
-                this.updateRowSizeForCellChange(sheetId, row, col);
-              }
-            }
-          }
-        }
-        break;
-      case "SET_FORMATTING":
-        if (
-          cmd.style &&
-          ("fontSize" in cmd.style || "wrapping" in cmd.style || "rotation" in cmd.style)
-        ) {
-          for (const zone of cmd.target) {
-            this.updateRowSizeForZoneChange(cmd.sheetId, zone);
-          }
-        }
-        break;
-      case "UPDATE_CELL":
-        this.updateRowSizeForCellChange(cmd.sheetId, cmd.row, cmd.col);
-        break;
-      case "ADD_MERGE":
-      case "REMOVE_MERGE":
-        for (const target of cmd.target) {
-          for (const position of positions(target)) {
-            this.updateRowSizeForCellChange(cmd.sheetId, position.row, position.col);
-          }
-        }
     }
-    return;
+  }
+
+  private updateRowSizesForMergeChange(cmd: TargetDependentCommand) {
+    for (const target of cmd.target) {
+      for (const position of positions(target)) {
+        this.updateRowSizeForCellChange(cmd.sheetId, position.row, position.col);
+      }
+    }
+  }
+
+  private initializeAllSheets() {
+    for (const sheetId of this.getters.getSheetIds()) {
+      this.initializeSheet(sheetId);
+    }
+  }
+
+  private onUpdateCell(cmd: UpdateCellCommand) {
+    this.updateRowSizeForCellChange(cmd.sheetId, cmd.row, cmd.col);
   }
 
   getRowSize(sheetId: UID, row: HeaderIndex): Pixel {
