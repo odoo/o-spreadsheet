@@ -17,7 +17,7 @@ function sprintf(s: string, ...values: SprintfValues): string {
   }
   return s;
 }
-
+console.log("coucou");
 /***
  * Allow to inject a translation function from outside o-spreadsheet. This should be called before instantiating
  * a model.
