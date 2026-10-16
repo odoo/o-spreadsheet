@@ -67,7 +67,7 @@ export type ChartDefinitionWithDataSource<T extends string | Range = Range> =
 export type ChartDefinition<T extends string | Range = string> =
   | ChartDefinitionWithDataSource<T>
   | ScorecardChartDefinition
-  | GaugeChartDefinition<T>
+  | GaugeChartDefinition
   | BubbleChartDefinition<T>
   | HeatmapChartDefinition<T>;
 
@@ -283,6 +283,7 @@ export interface ChartCreationContext {
   readonly scorecardBaselineFormula?: string;
   readonly colorScale?: ChartColorScale;
   readonly missingValueColor?: Color;
+  readonly gaugeMetricFormula?: string;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;

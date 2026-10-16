@@ -68,7 +68,7 @@ function getGaugeCommand(sheetId: UID, formula: string) {
   const definition: GaugeChartDefinition = {
     type: "gauge",
     title: { text: "" },
-    dataRange: "Sheet1!B1:B4",
+    metric: "=Sheet1!B1:B4",
     sectionRule: {
       colors: {
         lowerColor: "#111111",
