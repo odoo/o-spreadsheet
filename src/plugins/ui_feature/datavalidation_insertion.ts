@@ -1,14 +1,45 @@
 import { isBoolean } from "../../helpers/misc";
 import { getCellPositionsInRanges } from "../../helpers/range";
 import { CellValueType } from "../../types/cells";
-import { AddDataValidationCommand } from "../../types/commands";
+import {
+  AddDataValidationCommand,
+  AddDataValidationsCommand,
+  CommandResult,
+  DispatchResult,
+} from "../../types/commands";
 import { isMatrix } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class DataValidationInsertionPlugin extends UIPlugin {
+  validators = {
+    ADD_DATA_VALIDATION_RULES: this.checkAddDataValidationRules,
+  };
+
   handlers = {
     ADD_DATA_VALIDATION_RULE: this.onAddDataValidationRule,
+    ADD_DATA_VALIDATION_RULES: this.onAddDataValidationRules,
   };
+
+  private checkAddDataValidationRules(cmd: AddDataValidationsCommand) {
+    const results: DispatchResult[] = [];
+    for (const sheetId in cmd.rulesBySheetId) {
+      results.push(
+        this.canDispatch("ADD_DATA_VALIDATION_RULE", {
+          sheetId,
+          rule: cmd.rulesBySheetId[sheetId].rule,
+          ranges: cmd.rulesBySheetId[sheetId].ranges,
+        })
+      );
+    }
+    const reasons = results
+      .map((result) => result.reasons)
+      .flat()
+      .filter((r) => r !== CommandResult.NoChanges);
+    if (reasons.length) {
+      return reasons;
+    }
+    return CommandResult.Success;
+  }
 
   private onAddDataValidationRule(cmd: AddDataValidationCommand) {
     if (cmd.rule.criterion.type !== "isBoolean") {
@@ -40,6 +71,16 @@ export class DataValidationInsertionPlugin extends UIPlugin {
       } else if (evaluatedCell.type !== CellValueType.boolean) {
         this.dispatch("UPDATE_CELL", { ...position, content: "FALSE" });
       }
+    }
+  }
+
+  private onAddDataValidationRules(cmd: AddDataValidationsCommand) {
+    for (const sheetId in cmd.rulesBySheetId) {
+      this.dispatch("ADD_DATA_VALIDATION_RULE", {
+        sheetId,
+        ranges: cmd.rulesBySheetId[sheetId].ranges,
+        rule: cmd.rulesBySheetId[sheetId].rule,
+      });
     }
   }
 }
