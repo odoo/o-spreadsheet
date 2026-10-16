@@ -123,6 +123,7 @@ export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> impleme
   beforeHandle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "UPDATE_LOCALE":
+        console.log("coucou");
         this.previousLocale = this.getters.getLocale();
         break;
       case "SET_FORMATTING":
