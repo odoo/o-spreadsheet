@@ -181,6 +181,9 @@ export function startChartDragAndDrop(
     destroyChart?.();
     document.body.style.cursor = previousCursor;
 
+    if (getters.isReadonly()) {
+      return;
+    }
     const { scrollX, scrollY } = viewStore.activeSheetScrollInfo;
     const figurePosition = {
       x: Math.max(gridLeft, currentMousePosition.x - halfWidth),

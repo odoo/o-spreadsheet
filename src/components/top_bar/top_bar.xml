@@ -37,7 +37,7 @@
           <!-- Toolbar -->
           <div
             t-if="this.model().getters.isReadonly()"
-            class="o-readonly-toolbar d-flex flex-grow-1 align-items-center text-muted">
+            class="o-readonly-toolbar d-flex flex-grow-1 align-items-center text-info">
             <span>
               <i class="oi" data-icon="visibility"/>
               Readonly Access
