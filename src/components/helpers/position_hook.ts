@@ -1,6 +1,16 @@
-import { onMounted, onPatched, proxy, usePlugin } from "@odoo/owl";
+import {
+  onMounted,
+  onPatched,
+  proxy,
+  shallowEqual,
+  Signal,
+  signal,
+  useEffect,
+  usePlugin,
+} from "@odoo/owl";
 import { Rect } from "../../types/rendering";
 import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
+import { getBoundingRectAsPOJO } from "./dom_helpers";
 
 /**
  * Return the o-spreadsheet element position relative
@@ -47,4 +57,34 @@ export function usePopoverContainer(): Rect {
   onMounted(updateRect);
   onPatched(updateRect);
   return container;
+}
+
+export function useResizeObserver(ref: () => HTMLElement | null, callback: ResizeObserverCallback) {
+  useEffect(() => {
+    const el = ref();
+    if (!el) {
+      return;
+    }
+    const resizeObserver = new ResizeObserver(callback);
+    resizeObserver.observe(el);
+    return () => resizeObserver.disconnect();
+  });
+}
+
+/**
+ * Get the rect of a DOM element as a reactive signal.
+ * The dimensions are updated and the signal triggered whenever the element is resized.
+ */
+export function useElementRect(ref: () => HTMLElement | null): Signal<Rect> {
+  const dimensions = signal<Rect>({ x: 0, y: 0, width: 0, height: 0 }, { equals: shallowEqual });
+  function updateDimensions() {
+    const el = ref();
+    if (el) {
+      dimensions.set(getBoundingRectAsPOJO(el));
+    }
+  }
+  useResizeObserver(ref, updateDimensions);
+  onMounted(updateDimensions);
+  onPatched(updateDimensions);
+  return dimensions;
 }

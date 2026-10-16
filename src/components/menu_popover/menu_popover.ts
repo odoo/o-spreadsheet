@@ -1,7 +1,14 @@
-import { onWillUnmount, onWillUpdateProps, proxy, signal, useListener, useProps } from "@odoo/owl";
+import {
+  onWillUnmount,
+  onWillUpdateProps,
+  proxy,
+  signal,
+  useEffect,
+  useListener,
+  useProps,
+} from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators, isMenuItemEnabled } from "../../actions/action";
 import { DESKTOP_MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../constants";
-import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { MenuMouseEvent, Pixel, UID } from "../../types/misc";
@@ -78,7 +85,7 @@ export class MenuPopover extends OSComponent {
 
   setup() {
     const domFocusableElementStore = useStore(DOMFocusableElementStore);
-    useLayoutEffect(() => {
+    useEffect(() => {
       if (
         !this.props.disableKeyboardNavigation &&
         !this.state.hoveredMenu &&

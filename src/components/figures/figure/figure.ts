@@ -1,5 +1,4 @@
-import { proxy, signal, useProps } from "@odoo/owl";
-import { useLayoutEffect } from "../../../owl3_compatibility_layer";
+import { computed, proxy, shallowEqual, signal, useEffect, useProps } from "@odoo/owl";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ZoomStore } from "../../../stores/zoom_store";
@@ -129,25 +128,24 @@ export class FigureComponent extends OSComponent {
 
   setup() {
     this.zoomStore = useStore(ZoomStore);
-    useLayoutEffect(
-      () => {
-        const selectedFigureIds = this.model().getters.getSelectedFigureIds();
-        const thisFigureId = this.props.figureUI.id;
-        const el = this.figureRef();
-        if (selectedFigureIds.includes(thisFigureId)) {
-          /** Scrolling on a newly inserted figure that overflows outside the viewport
-           * will break the whole layout.
-           * NOTE: `preventScroll`does not work on mobile but then again,
-           * mobile is not really supported ATM.
-           *
-           * TODO: When implementing proper mobile, we will need to scroll the viewport
-           * correctly (and render?) before focusing the element.
-           */
-          el?.focus({ preventScroll: true });
-        }
-      },
-      () => [this.model().getters.getSelectedFigureIds(), this.props.figureUI.id]
-    );
+    const selectedFigureIds = computed<UID[]>(() => this.model().getters.getSelectedFigureIds(), {
+      equals: shallowEqual,
+    });
+    const thisFigureId = computed(() => this.props.figureUI.id);
+    useEffect(() => {
+      const el = this.figureRef();
+      if (selectedFigureIds().includes(thisFigureId())) {
+        /** Scrolling on a newly inserted figure that overflows outside the viewport
+         * will break the whole layout.
+         * NOTE: `preventScroll`does not work on mobile but then again,
+         * mobile is not really supported ATM.
+         *
+         * TODO: When implementing proper mobile, we will need to scroll the viewport
+         * correctly (and render?) before focusing the element.
+         */
+        el?.focus({ preventScroll: true });
+      }
+    });
   }
 
   clickAnchor(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) {

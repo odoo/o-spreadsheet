@@ -1,4 +1,4 @@
-import { onMounted, onWillUnmount, signal, useProps } from "@odoo/owl";
+import { onMounted, onWillUnmount, signal, useEffect, useProps } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { SpreadsheetChart } from "../../../helpers/figures/chart";
 import { registerChartJSExtensions } from "../../../helpers/figures/charts/chart_js_extension";
@@ -6,7 +6,6 @@ import { limitChartConfigDataPoints } from "../../../helpers/figures/charts/char
 import { drawGaugeChart } from "../../../helpers/figures/charts/gauge_chart_rendering";
 import { drawScoreChart } from "../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../helpers/figures/charts/scorecard_chart_config_builder";
-import { useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { GaugeChartRuntime } from "../../../types/chart/gauge_chart";
 import { ScorecardChartRuntime } from "../../../types/chart/scorecard_chart";
 import { OSComponent } from "../../os_component";
@@ -29,12 +28,9 @@ export class ChartSuggestionPreview extends OSComponent {
   setup() {
     onMounted(() => registerChartJSExtensions());
     onWillUnmount(() => this.destroyChart());
-    useLayoutEffect(
-      () => {
-        this.updateChart();
-      },
-      () => [this.props.definition]
-    );
+    useEffect(() => {
+      this.updateChart();
+    });
   }
 
   private getChartConfiguration(): ChartConfiguration | null {

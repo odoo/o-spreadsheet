@@ -1,6 +1,5 @@
-import { onWillUnmount, usePlugin } from "@odoo/owl";
+import { onWillUnmount, useOnChange, usePlugin } from "@odoo/owl";
 import { MAX_DELAY } from "../../helpers/edge_scrolling";
-import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
@@ -27,7 +26,8 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetActionEnv) {
   let startingX: number;
   let startingY: number;
   let scrollDirection: DnDDirection = "all";
-  const model = usePlugin(ModelPlugin).model();
+  const modelPlugin = usePlugin(ModelPlugin);
+  const model = modelPlugin.model();
   const viewStore = env.getStore(ViewportsStore);
   const zoomStore = env.getStore(ZoomStore);
 
@@ -186,11 +186,10 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetActionEnv) {
     cleanUp();
   });
 
-  useLayoutEffect(
-    () => {
-      cleanUp();
-    },
-    () => [model.getters.getActiveSheetId()]
+  useOnChange(
+    () => [modelPlugin.model().getters.getActiveSheetId()],
+    () => cleanUp(),
+    { initialRun: false }
   );
 
   return { start: startFn };

@@ -1,6 +1,5 @@
-import { onWillUpdateProps, proxy, signal, useProps } from "@odoo/owl";
+import { onWillUpdateProps, proxy, signal, useOnChange, useProps } from "@odoo/owl";
 import { canonicalizeContent, localizeContent } from "../../../../helpers/locale";
-import { useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { _t } from "../../../../translation";
 import { PropsOf } from "../../../../types/props_of";
@@ -26,14 +25,14 @@ export class CriterionInput extends OSComponent {
   inputRef = signal.ref(HTMLInputElement);
 
   setup() {
-    useLayoutEffect(
+    useOnChange(
+      () => [this.props.focused, this.inputRef()],
       () => {
         const el = this.inputRef();
         if (this.props.focused && el) {
           el.focus();
         }
-      },
-      () => [this.props.focused, this.inputRef()]
+      }
     );
     onWillUpdateProps((nextProps) => {
       if (nextProps.value !== this.props.value) {

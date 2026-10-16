@@ -145,6 +145,9 @@ export class SidePanelStore extends SpreadsheetStore {
     currentPanelKey: string,
     currentPanelProps: SidePanelComponentProps = {}
   ) {
+    if (currentPanelKey !== this.mainPanelKey && currentPanelKey !== this.secondaryPanelKey) {
+      return;
+    }
     const newPanelInfo = { currentPanelProps, componentTag, size: DEFAULT_SIDE_PANEL_SIZE };
     const state = this.computeState(newPanelInfo);
     if (!state.isOpen) {
