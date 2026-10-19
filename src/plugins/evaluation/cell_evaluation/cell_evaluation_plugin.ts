@@ -161,6 +161,8 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
     "isEmpty",
     "getPerfProfile",
     "isAutomaticEvaluationEnabled",
+    "getSheetEvaluatedZone",
+    "getSheetOptimalEvaluatedZone",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
@@ -348,6 +350,79 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
 
   isArrayFormulaSpillBlocked(position: CellPosition): boolean {
     return this.evaluator.isArrayFormulaSpillBlocked(position);
+  }
+
+  getSheetEvaluatedZone(sheetId: UID): Zone | undefined {
+    return this.evaluator.getSheetUsedZone(sheetId);
+  }
+
+  isRowEmpty(sheetId: UID, row: number, colStart: number, colEnd: number) {
+    const pos = { sheetId, row, col: colStart };
+    while (pos.col <= colEnd) {
+      if (this.evaluator.getEvaluatedCell(pos).value !== null) {
+        return false;
+      }
+      pos.col++;
+    }
+    return true;
+  }
+
+  isColEmpty(sheetId: UID, col: number, rowStart: number, rowEnd: number) {
+    const pos = { sheetId, col, row: rowStart };
+    while (pos.row <= rowEnd) {
+      if (this.evaluator.getEvaluatedCell(pos).value !== null) {
+        return false;
+      }
+      pos.row++;
+    }
+    return true;
+  }
+
+  getSheetOptimalEvaluatedZone(sheetId: UID): Zone | undefined {
+    const approximate = this.evaluator.getSheetUsedZone(sheetId);
+    if (!approximate) {
+      return undefined;
+    }
+    let { top, left, right, bottom } = approximate;
+    while (top <= bottom) {
+      if (this.isRowEmpty(sheetId, top, left, right)) {
+        top++;
+      } else {
+        break;
+      }
+    }
+    while (top <= bottom) {
+      if (this.isRowEmpty(sheetId, bottom, left, right)) {
+        bottom--;
+      } else {
+        break;
+      }
+    }
+    if (bottom < top) {
+      this.evaluator.setSheetUsedZone(sheetId, undefined);
+      return undefined;
+    }
+    while (left <= right) {
+      if (this.isColEmpty(sheetId, left, top, bottom)) {
+        left++;
+      } else {
+        break;
+      }
+    }
+    while (left <= right) {
+      if (this.isColEmpty(sheetId, right, top, bottom)) {
+        right--;
+      } else {
+        break;
+      }
+    }
+    if (right < left) {
+      this.evaluator.setSheetUsedZone(sheetId, undefined);
+      return undefined;
+    }
+    const optimalZone = { top, left, right, bottom };
+    this.evaluator.setSheetUsedZone(sheetId, optimalZone);
+    return optimalZone;
   }
 
   /**
