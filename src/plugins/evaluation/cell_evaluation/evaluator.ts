@@ -66,9 +66,13 @@ export class Evaluator {
   private blockedArrayFormulas = new PositionSet({});
   private spreadingRelations = new SpreadingRelation();
   private perfProfile: PerfProfile | undefined;
+  private usedZones: Record<UID, Zone> = {};
 
   constructor(private readonly context: ModelConfig["custom"], getters: EvaluationGetters) {
     this.getters = getters;
+    this.getters.getSheetIds().forEach((sheetId) => {
+      this.usedZones[sheetId] = this.getters.getSheetZone(sheetId);
+    });
     this.compilationParams = buildCompilationParameters(
       this.context,
       this.getters,
@@ -78,6 +82,18 @@ export class Evaluator {
 
   getPerfProfile(): PerfProfile | undefined {
     return this.perfProfile;
+  }
+
+  getSheetUsedZone(sheetId: UID): Zone | undefined {
+    return this.usedZones[sheetId];
+  }
+
+  setSheetUsedZone(sheetId: UID, zone: Zone | undefined): void {
+    if (zone) {
+      this.usedZones[sheetId] = zone;
+    } else {
+      delete this.usedZones[sheetId];
+    }
   }
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
@@ -260,6 +276,7 @@ export class Evaluator {
   evaluateAllCells(profiling?: boolean) {
     const start = performance.now();
     this.evaluatedCells = new PositionMap();
+    this.usedZones = {};
     const ranges: BoundedRange[] = [];
     for (const sheetId of this.getters.getSheetIds()) {
       const zone = this.getters.getSheetZone(sheetId);
@@ -351,6 +368,7 @@ export class Evaluator {
             const evaluatedCell = this.computeCell(position);
             if (evaluatedCell.value !== null || evaluatedCell.format !== undefined) {
               this.evaluatedCells.set(position, evaluatedCell);
+              this.updateUsedZone(position);
             }
           }
         }
@@ -431,10 +449,24 @@ export class Evaluator {
     }
   }
 
+  private updateUsedZone({ sheetId, col, row }: CellPosition) {
+    if (!this.usedZones[sheetId]) {
+      this.usedZones[sheetId] = { left: col, right: col, top: row, bottom: row };
+    } else {
+      this.usedZones[sheetId].left = Math.min(this.usedZones[sheetId].left, col);
+      this.usedZones[sheetId].right = Math.max(this.usedZones[sheetId].right, col);
+      this.usedZones[sheetId].top = Math.min(this.usedZones[sheetId].top, row);
+      this.usedZones[sheetId].bottom = Math.max(this.usedZones[sheetId].bottom, row);
+    }
+  }
+
   private computeAndSave(position: CellPosition) {
     const evaluatedCell = this.computeCell(position);
     if (!this.evaluatedCells.has(position)) {
       this.evaluatedCells.set(position, evaluatedCell);
+      if (evaluatedCell.value !== null) {
+        this.updateUsedZone(position);
+      }
     }
     return evaluatedCell;
   }
@@ -622,6 +654,9 @@ export class Evaluator {
         evaluatedCell.errorOriginPosition = matrixResult[i][j].errorOriginPosition ?? position;
       }
       this.evaluatedCells.set(position, evaluatedCell);
+      if (evaluatedCell.value !== null) {
+        this.updateUsedZone(position);
+      }
     };
     return spreadValues;
   }
