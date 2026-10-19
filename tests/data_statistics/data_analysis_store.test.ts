@@ -66,14 +66,6 @@ describe("data analysis store", () => {
     expect(store.generalStatItems).toEqual([]);
     expect(store.occurrencesItems).toEqual([]);
   });
-
-  test("generalStatItems and occurrencesItems are empty when several columns are selected", () => {
-    const model = createModelFromGrid({ A1: "apple", A2: "banana", B1: "1", B2: "2" });
-    const { store } = makeStoreWithModel(model, DataAnalysisStore);
-    setSelection(model, ["A1:B2"]);
-    expect(store.generalStatItems).toEqual([]);
-    expect(store.occurrencesItems).toEqual([]);
-  });
 });
 
 function makeDataAnalysisStore(grid: Record<string, string>, selection: string) {
@@ -118,9 +110,9 @@ describe("data analysis store occurrences", () => {
   test("sorting by name cycles between alphabetical, reverse alphabetical and apparition order", () => {
     const { store } = makeDataAnalysisStore(grid, "A1:A6");
     store.toggleOccurrencesSort("name");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["apple", "banana", "cherry"]);
-    store.toggleOccurrencesSort("name");
     expect(getNames(store.displayedOccurrencesItems)).toEqual(["cherry", "banana", "apple"]);
+    store.toggleOccurrencesSort("name");
+    expect(getNames(store.displayedOccurrencesItems)).toEqual(["apple", "banana", "cherry"]);
     store.toggleOccurrencesSort("name");
     expect(getNames(store.displayedOccurrencesItems)).toEqual(["banana", "cherry", "apple"]);
   });
@@ -132,23 +124,23 @@ describe("data analysis store occurrences", () => {
     );
     store.toggleOccurrencesSort("name");
     expect(getNames(store.displayedOccurrencesItems)).toEqual([
-      "-5",
-      "1.25",
-      "1.5",
-      "9",
-      "10",
-      "Apple",
       "banana",
+      "Apple",
+      "10",
+      "9",
+      "1.5",
+      "1.25",
+      "-5",
     ]);
     store.toggleOccurrencesSort("name");
     expect(getNames(store.displayedOccurrencesItems)).toEqual([
-      "banana",
-      "Apple",
-      "10",
-      "9",
-      "1.5",
-      "1.25",
       "-5",
+      "1.25",
+      "1.5",
+      "9",
+      "10",
+      "Apple",
+      "banana",
     ]);
   });
 
@@ -161,9 +153,9 @@ describe("data analysis store occurrences", () => {
     const { model, store } = makeDataAnalysisStore(grid, "A1:A6");
     store.toggleOccurrencesSort("name");
     setCellContent(model, "A1", "date");
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["apple", "cherry", "date"]);
+    expect(getNames(store.displayedOccurrencesItems)).toEqual(["date", "cherry", "apple"]);
     setSelection(model, ["A1:A3"]);
-    expect(getNames(store.displayedOccurrencesItems)).toEqual(["cherry", "date"]);
+    expect(getNames(store.displayedOccurrencesItems)).toEqual(["date", "cherry"]);
   });
 
   test("occurrences are displayed by pages of 50", () => {

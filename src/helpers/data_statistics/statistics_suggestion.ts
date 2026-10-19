@@ -2,7 +2,7 @@ import { _t } from "../../translation";
 import { CellValue, CellValueType, EvaluatedCell } from "../../types/cells";
 import { Getters } from "../../types/getters";
 import { numberToJsDate } from "../dates";
-import { DAYS, MONTHS } from "../format/format";
+import { formatValue, MONTHS, QUARTERS, DAYS as WEEKDAYS } from "../format/format";
 import { toTrimmedLowerCase } from "../text_helper";
 import { zoneToXc } from "../zones";
 import { ColumnAnalysis } from "./data_analysis";
@@ -11,6 +11,8 @@ import {
   DateSections,
   getStatIdForDay,
   getStatIdForMonth,
+  getStatIdForQuarter,
+  getStatIdForWeek,
   getStatIdForYear,
   StatValue,
 } from "./statistics_items";
@@ -24,7 +26,7 @@ interface StatItemConfig {
   formula: (range: string) => string;
   types: string[];
 }
-
+// ADD _t()
 export function generateItemIdFromValue(value: any) {
   return toTrimmedLowerCase(String(value));
 }
@@ -85,7 +87,7 @@ export function buildGeneralStatItems(
     const name = item.getName(col.type);
     return item.types.includes(col.type)
       ? createStatItem(getters, sheetId, { id: item.id, name, formula: item.formula(range) })
-      : { id: item.id, name, formula: "", value: "—" };
+      : { id: item.id, name, formula: "", rawValue: 0, value: "—" };
   });
 }
 
@@ -129,6 +131,64 @@ export function buildOccurrencesItems(
       };
     });
   return withPercentages(items, col.nonEmpty.length);
+}
+
+export function buildSumByCategoryItems(
+  getters: Getters,
+  categoryColumn: ColumnAnalysis,
+  valueColumn: ColumnAnalysis,
+  sheetId: string
+): StatValue[] {
+  if (!categoryColumn || !valueColumn) {
+    return [];
+  }
+  const hasHeader = categoryColumn.headerInZone || valueColumn.headerInZone;
+  const categoryZone = hasHeader
+    ? { ...categoryColumn.zone, top: categoryColumn.zone.top + 1 }
+    : categoryColumn.zone;
+  const valueZone = hasHeader
+    ? { ...valueColumn.zone, top: valueColumn.zone.top + 1 }
+    : valueColumn.zone;
+
+  if (categoryZone.bottom - categoryZone.top !== valueZone.bottom - valueZone.top) {
+    return [];
+  }
+
+  const categoryRange = zoneToXc(categoryZone);
+  const valueRange = zoneToXc(valueZone);
+  const categoryCells = getters.getEvaluatedCellsInZone(sheetId, categoryZone);
+  const valueCells = getters.getEvaluatedCellsInZone(sheetId, valueZone);
+  const format = valueCells.find((cell) => cell.format)?.format;
+  const locale = getters.getLocale();
+
+  const sumByCategory: Record<string, number> = {};
+  for (let i = 0; i < categoryCells.length; i++) {
+    const cellValue = categoryCells[i].value;
+    let category = cellValue?.toString().trim();
+    if (typeof cellValue === "boolean") {
+      category = category?.toUpperCase();
+    }
+    const value = Number(valueCells[i].value);
+    if (category && !isNaN(value) && value !== 0) {
+      sumByCategory[category] = (sumByCategory[category] || 0) + value;
+    }
+  }
+
+  return Object.entries(sumByCategory).map(([category, total]) => ({
+    ...createStatItem(getters, sheetId, {
+      id: generateItemIdFromValue(category),
+      name: category,
+      formula: `=SUMIF(${categoryRange},"${category}",${valueRange})`,
+      chartTitle: _t('Sum of "%s"', category),
+      computedValue: { value: total },
+    }),
+    value: format ? formatValue(total, { format, locale }) : String(total),
+    rawValue: total,
+    rawData: {
+      type: "text" as CellValueType,
+      value: category,
+    },
+  }));
 }
 
 function uniqueValues(
@@ -230,7 +290,7 @@ export function buildDateStatSections(
   const dayItems: StatValue[] = [];
   for (let i = 0; i < 7; i++) {
     const day = (i + offset) % 7;
-    const name = DAYS[day].toString();
+    const name = WEEKDAYS[day].toString();
     dayItems.push(
       createStatItem(getters, sheetId, {
         id: getStatIdForDay(day),
@@ -242,8 +302,12 @@ export function buildDateStatSections(
   }
   return {
     year: withPercentages(yearItems, col.nonEmpty.length),
+    quarter: [],
     month: withPercentages(monthItems, col.nonEmpty.length),
+    week: [],
+    weekday: [],
     day: withPercentages(dayItems, col.nonEmpty.length),
+    date: [],
   };
 }
 
@@ -255,4 +319,106 @@ function withPercentages(items: StatValue[], count: number): StatValue[] {
     ...item,
     percentage: `(${Math.round((Number(item.value) / count) * 100)}%)`,
   }));
+}
+
+export function buildGroupedDateSections(
+  getters: Getters,
+  dateColumn: ColumnAnalysis,
+  valueColumn: ColumnAnalysis,
+  sheetId: string
+): DateSections {
+  const emptyDefaultDateSections = {
+    year: [],
+    quarter: [],
+    month: [],
+    week: [],
+    weekday: [],
+    day: [],
+    date: [],
+  };
+  if (!dateColumn || !valueColumn) {
+    return emptyDefaultDateSections;
+  }
+
+  const dateZone = dateColumn.headerInZone
+    ? { ...dateColumn.zone, top: dateColumn.zone.top + 1 }
+    : dateColumn.zone;
+  const valueZone = valueColumn.headerInZone
+    ? { ...valueColumn.zone, top: valueColumn.zone.top + 1 }
+    : valueColumn.zone;
+
+  if (dateZone.bottom - dateZone.top !== valueZone.bottom - valueZone.top) {
+    return emptyDefaultDateSections;
+  }
+
+  const dateValues = dateColumn.nonEmpty
+    .map((c) => c.value)
+    .filter((v): v is number => typeof v === "number");
+  if (dateValues.length === 0) {
+    return emptyDefaultDateSections;
+  }
+
+  const minDate = numberToJsDate(Math.min(...dateValues));
+  const maxDate = numberToJsDate(Math.max(...dateValues));
+  const format = getters.getEvaluatedCellsInZone(sheetId, valueZone).find((c) => c?.format)?.format;
+  const datesRange = zoneToXc(dateZone);
+  const valuesRange = zoneToXc(valueZone);
+
+  const range = (min: number, max: number) =>
+    Array.from({ length: max - min + 1 }, (_, i) => min + i);
+
+  function buildStatItems<T>(
+    items: T[],
+    getParameters: (item: T) => { id: string; name: string; condition: string }
+  ) {
+    return items
+      .map((item) => {
+        const { id, name, condition } = getParameters(item);
+        return createStatItem(getters, sheetId, {
+          id,
+          name,
+          formula: `=SUMIF(${condition}, ${valuesRange})`,
+          format,
+        });
+      })
+      .filter((statItem) => statItem.rawValue !== 0);
+  }
+
+  return {
+    year: buildStatItems(range(minDate.getFullYear(), maxDate.getFullYear()), (year) => ({
+      id: String(year),
+      name: getStatIdForYear(year),
+      condition: `YEAR(${datesRange}), ${year}`,
+    })),
+    quarter: buildStatItems(Object.entries(QUARTERS), ([quarter, name]) => ({
+      id: getStatIdForQuarter(quarter),
+      name: String(name),
+      condition: `QUARTER(${datesRange}), ${Number(quarter)}`,
+    })),
+    month: buildStatItems(Object.entries(MONTHS), ([month, name]) => ({
+      id: getStatIdForMonth(month),
+      name: String(name),
+      condition: `MONTH(${datesRange}), ${Number(month) + 1}`,
+    })),
+    week: buildStatItems(range(minDate.getIsoWeek(), maxDate.getIsoWeek()), (week) => ({
+      id: String(week),
+      name: getStatIdForWeek(week),
+      condition: `ISOWEEKNUM(${datesRange}), ${week}`,
+    })),
+    weekday: buildStatItems(Object.entries(WEEKDAYS), ([date, name]) => ({
+      id: getStatIdForDay(date),
+      name: String(name),
+      condition: `WEEKDAY(${datesRange}), ${Number(date) + 1}`,
+    })),
+    day: buildStatItems(range(1, 31), (date) => ({
+      id: getStatIdForDay(date),
+      name: String(date),
+      condition: `DAY(${datesRange}), ${date}`,
+    })),
+    date: buildStatItems(Array.from(new Set(dateValues)), (date) => ({
+      id: String(date),
+      name: formatValue(date, { locale: getters.getLocale(), format: "m/d/yyyy" }),
+      condition: `${datesRange}, ${date}`,
+    })),
+  };
 }

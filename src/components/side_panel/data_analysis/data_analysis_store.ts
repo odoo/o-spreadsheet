@@ -1,5 +1,9 @@
 import { invalidateEvaluationCommands } from "../../../command_registry";
-import { analyzeColumns, ExtendedColumnType } from "../../../helpers/data_statistics/data_analysis";
+import {
+  analyzeColumns,
+  ExtendedColumnType,
+  getCategoryAndValueColumns,
+} from "../../../helpers/data_statistics/data_analysis";
 import {
   DateGranularity,
   DateSections,
@@ -10,6 +14,8 @@ import {
   buildDateStatSections,
   buildGeneralStatItems,
   buildOccurrencesItems,
+  buildSumByCategoryItems,
+  buildGroupedDateSections as buildSumByDateItems,
 } from "../../../helpers/data_statistics/statistics_suggestion";
 import {
   ChartSuggestion,
@@ -18,6 +24,7 @@ import {
 import { cellsSortingCriterion } from "../../../helpers/sort";
 import { zoneToXc } from "../../../helpers/zones";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
+import { _t } from "../../../translation";
 import { CellValueType } from "../../../types/cells";
 import { Command } from "../../../types/commands";
 import { Get } from "../../../types/store_engine";
@@ -29,6 +36,9 @@ export interface OccurrencesSortType {
   sortOn: "name" | "value";
   order: "asc" | "desc" | "none";
 }
+
+// TODO MAWAT: not correct either, use raw value
+// MAWAT : removed falsy regex cleaning function
 
 export class DataAnalysisStore extends SpreadsheetStore {
   mutators = [
@@ -145,12 +155,14 @@ export class DataAnalysisStore extends SpreadsheetStore {
 
   private sortDateItems() {
     const items = [...this.dateStatSections[this.dateGranularity]];
+    // TODO MAWAT: if there is tranformation to do, first transform, then sort
+    // MAWAT : removed cleaning function inside and replaced it with cast of rawValue property but not ideal, have to pass number value directly. Anyway matho-anthe branch has new compare method => check
     switch (this.dateSortType) {
       case "asc":
-        items.sort((a, b) => Number(a.value) - Number(b.value) || a.name.localeCompare(b.name));
+        items.sort((a, b) => a.rawValue - b.rawValue || a.name.localeCompare(b.name));
         break;
       case "desc":
-        items.sort((a, b) => Number(b.value) - Number(a.value) || a.name.localeCompare(b.name));
+        items.sort((a, b) => b.rawValue - a.rawValue || a.name.localeCompare(b.name));
         break;
     }
     this.displayedDateItems = items;
@@ -162,11 +174,9 @@ export class DataAnalysisStore extends SpreadsheetStore {
     if (order !== "none") {
       items.sort((a, b) => {
         if (sortOn === "name") {
-          return order === "desc" ? compareCategories(a, b) : compareCategories(b, a);
+          return order === "asc" ? compareCategories(a, b) : compareCategories(b, a);
         }
-        return order === "asc"
-          ? Number(a.value) - Number(b.value)
-          : Number(b.value) - Number(a.value);
+        return order === "asc" ? a.rawValue - b.rawValue : b.rawValue - a.rawValue;
       });
     }
     this.displayedOccurrencesItems = items.slice(0, this.numberOfDisplayedOccurrences);
@@ -176,9 +186,17 @@ export class DataAnalysisStore extends SpreadsheetStore {
   get defaultDateSections() {
     return {
       year: [],
+      quarter: [],
       month: [],
+      week: [],
+      weekday: [],
       day: [],
+      date: [],
     };
+  }
+
+  get sectionTitle(): string {
+    return this.shape.length === 2 ? _t("Sums") : _t("Occurrences");
   }
 
   private refresh() {
@@ -212,6 +230,48 @@ export class DataAnalysisStore extends SpreadsheetStore {
           break;
         default:
           this.occurrencesItems = buildOccurrencesItems(this.getters, col, sheetId);
+      }
+    } else {
+      if (
+        this.hasData &&
+        cols.length === 2 &&
+        (zones.length === 1 ||
+          (zones.length === 2 &&
+            zones[0].top === zones[1].top &&
+            zones[0].bottom === zones[1].bottom))
+      ) {
+        const columnsData = getCategoryAndValueColumns(cols);
+
+        // 1 txt/date + number
+        if (columnsData?.categoryColumn && columnsData.valueColumn) {
+          const { categoryColumn, valueColumn } = columnsData;
+
+          this.shape = [categoryColumn.type, valueColumn.type];
+          this.generalStatItems = [];
+
+          if (categoryColumn.type === "date") {
+            this.occurrencesItems = [];
+            this.dateStatSections = buildSumByDateItems(
+              this.getters,
+              categoryColumn,
+              valueColumn,
+              sheetId
+            );
+          } else {
+            this.occurrencesItems = buildSumByCategoryItems(
+              this.getters,
+              categoryColumn,
+              valueColumn,
+              sheetId
+            );
+            this.dateStatSections = this.defaultDateSections;
+          }
+        } else {
+          // 2 txt or 2 numbers
+          this.shape = cols.map((c) => c.type);
+          this.occurrencesItems = [];
+          this.dateStatSections = this.defaultDateSections;
+        }
       }
     }
     this.sortOccurrencesItems();

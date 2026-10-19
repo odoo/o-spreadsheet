@@ -54,7 +54,7 @@ function analyzeColumn(zone: Zone, getters: Getters): ColumnAnalysis {
   let title: string | undefined;
   let dataCells: EvaluatedCell[] = [];
   let headerInZone = false;
-  let analyzedZone: Zone = { ...zone, top: firstCell.position!.row };
+  let analyzedZone: Zone = { ...zone };
   const tableHeaderPosition = getColumnTableHeaderPosition(sheetId, zone, getters);
 
   if (tableHeaderPosition) {
@@ -98,6 +98,21 @@ function analyzeColumn(zone: Zone, getters: Getters): ColumnAnalysis {
       : undefined,
     nonEmpty: dataCells,
   };
+}
+
+export function getCategoryAndValueColumns(cols: ColumnAnalysis[]):
+  | {
+      categoryColumn: ColumnAnalysis | undefined;
+      valueColumn: ColumnAnalysis | undefined;
+    }
+  | undefined {
+  if (cols.length === 0 || cols.length > 2) {
+    return undefined;
+  }
+
+  const valueColumn = cols.find((c) => c.type === "number");
+  const categoryColumn = cols.find((c) => c.type !== "number");
+  return { categoryColumn, valueColumn };
 }
 
 function computeColumnType(cells: EvaluatedCell[]): ExtendedColumnType {
