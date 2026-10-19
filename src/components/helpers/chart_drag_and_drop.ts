@@ -7,7 +7,6 @@ import {
 } from "../../constants";
 import { SpreadsheetChart } from "../../helpers/figures/chart";
 import { drawChartOnCanvas } from "../../helpers/figures/charts/chart_ui_common";
-import { centerFigurePosition } from "../../helpers/figures/figure/figure";
 import { clip } from "../../helpers/misc";
 import { UuidGenerator } from "../../helpers/uuid";
 import { ChartDragStore } from "../../stores/chart_drag_store";
@@ -15,7 +14,7 @@ import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { ChartDefinition } from "../../types/chart/chart";
 import { DispatchResult } from "../../types/commands";
-import { AnchorOffset, FigureSize, FigureUI } from "../../types/figure";
+import { FigureSize, FigureUI } from "../../types/figure";
 import { PixelPosition } from "../../types/misc";
 import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
 import { gridOverlayPosition } from "./dom_helpers";
@@ -162,20 +161,10 @@ export function startChartDragAndDrop(
     chartDragStore.setHighlightedFigure(overlappedFigure?.id);
   };
 
-  const createChart = (anchor: AnchorOffset) =>
-    env.model().dispatch("CREATE_CHART", {
-      chartId,
-      figureId: UuidGenerator.smallUuid(),
-      sheetId,
-      size: figureSize,
-      definition,
-      ...anchor,
-    });
-
   const dropChart = (ev: PointerEvent): DispatchResult | undefined => {
     const dragInfo = getDragInfo(ev);
     if (!dragInfo) {
-      return createChart(centerFigurePosition(env, figureSize));
+      return undefined;
     }
     const { position, overlappedFigure } = dragInfo;
     const { scrollX } = viewStore.activeSheetScrollInfo;
@@ -198,12 +187,21 @@ export function startChartDragAndDrop(
           definition,
           baseFigureId: overlappedFigure.id,
         });
-      default:
+      default: {
         const clampedPosition = {
           x: Math.min(position.x, maxDimensions.maxX - figureSize.width),
           y: Math.min(position.y, maxDimensions.maxY - figureSize.height),
         };
-        return createChart(viewStore.viewports.getPositionAnchorOffset(sheetId, clampedPosition));
+        const anchor = viewStore.viewports.getPositionAnchorOffset(sheetId, clampedPosition);
+        return env.model().dispatch("CREATE_CHART", {
+          chartId,
+          figureId: UuidGenerator.smallUuid(),
+          sheetId,
+          size: figureSize,
+          definition,
+          ...anchor,
+        });
+      }
     }
   };
 
