@@ -161,6 +161,7 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
     "isEmpty",
     "getPerfProfile",
     "isAutomaticEvaluationEnabled",
+    "getSheetEvaluatedZone",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
@@ -348,6 +349,10 @@ export class CellEvaluationPlugin extends EvaluationPlugin {
 
   isArrayFormulaSpillBlocked(position: CellPosition): boolean {
     return this.evaluator.isArrayFormulaSpillBlocked(position);
+  }
+
+  getSheetEvaluatedZone(sheetId: UID): Zone | undefined {
+    return this.evaluator.getSheetUsedZone(sheetId);
   }
 
   /**
