@@ -411,4 +411,30 @@ describe("Pivot side panel", () => {
     expect(definition.measures[0].id).toBe("renamed:avg");
     expect(definition.measures[1].computedBy?.formula).toBe("='renamed:avg'*25");
   });
+
+  test("Can change the tabular form setting", async () => {
+    setGrid(model, {
+      A1: "Partner",
+      B1: "Amount",
+      A2: "Alice",
+      B2: "10",
+      A5: "=PIVOT(1)",
+    });
+    updatePivot(model, "1", {
+      measures: [{ id: "Amount:sum", fieldName: "Amount", aggregator: "sum" }],
+    });
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
+
+    const tabularFormCheckbox = fixture.querySelector(
+      ".o-pivot-design input[name='tabularForm']"
+    ) as HTMLInputElement;
+    expect(tabularFormCheckbox.checked).toBe(false);
+
+    tabularFormCheckbox.click();
+    await nextTick();
+
+    const definition = model.getters.getPivotCoreDefinition("1") as SpreadsheetPivotCoreDefinition;
+    expect(definition.style?.tabularForm).toBe(true);
+  });
 });
