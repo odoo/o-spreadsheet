@@ -1,4 +1,4 @@
-import { onWillUnmount, status, useComponent, useEnv, useSubEnv } from "@odoo/owl";
+import { onWillDestroy, status, useComponent, useEnv, useSubEnv } from "@odoo/owl";
 import { DependencyContainer } from "./dependency_container";
 import { LocalStoreConstructor, Store, StoreConstructor, StoreParams } from "./store";
 
@@ -40,7 +40,7 @@ export function useLocalStore<T extends LocalStoreConstructor<any>>(
   const env = useEnv();
   const container = getDependencyContainer(env);
   const store = container.instantiate(Store, ...args);
-  onWillUnmount(() => store.dispose());
+  onWillDestroy(() => store.dispose());
   return useStoreRenderProxy(container, store);
 }
 
