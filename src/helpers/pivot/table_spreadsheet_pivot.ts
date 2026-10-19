@@ -208,6 +208,9 @@ export class SpreadsheetPivotTable {
           domainArray[col].push(cell);
         }
       }
+      if (domainArray.length === 0) {
+        domainArray.push([]);
+      }
       this.pivotCells[key] = domainArray;
     }
     return this.pivotCells[key];
