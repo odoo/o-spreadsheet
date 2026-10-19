@@ -83,15 +83,18 @@ describe("Cross spreadsheet clipboard transformer", () => {
 
   test("Formulas in CFs/DVs are also transformed", async () => {
     setCellContent(modelA, "A1", "=SUM(1,2)");
-    addEqualCf(modelA, "A1", { bold: true }, "=SUM(B1)");
-    addDataValidation(modelA, "A1", "id", { type: "isEqual", values: ["=SUM(B1)"] });
+    addEqualCf(modelA, "A1:A2", { bold: true }, "=SUM(B1)");
+    addDataValidation(modelA, "A1:A2", "id", { type: "isEqual", values: ["=SUM(B1)"] });
 
-    copy(modelA, "A1");
+    copy(modelA, "A1:A2");
     const osClipboardContent = parseOSClipboardContent(
       await storeA.getClipboardTextAndImageContent()
     );
     pasteFromOSClipboard(modelB, "E1", osClipboardContent);
 
+    // ADRM TODO: talk with anthony. It faisl because CFs are repeated on every cell they are applied to, so mapFormulas is called
+    // a bagillion time per CF (depending on CF range). Why was the CF clipboard changed from a simple array of copied CFs to
+    // one entry per cell ? reapeating CFs + possibly sparse array
     expect(getCellText(modelB, "A1")).toBe("3 sums transformed");
     expect(getCellText(modelB, "E1")).toBe("=PRODUCT(1,2)");
 
