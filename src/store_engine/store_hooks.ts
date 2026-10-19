@@ -1,4 +1,4 @@
-import { onWillUnmount, useScope } from "@odoo/owl";
+import { onWillDestroy, useScope } from "@odoo/owl";
 import { useEnv, useSubEnv } from "../owl3_compatibility_layer";
 import { LocalStoreConstructor, Store, StoreConstructor, StoreParams } from "../types/store_engine";
 import { DependencyContainer } from "./dependency_container";
@@ -20,7 +20,7 @@ export function useStoreProvider() {
       return proxifyStoreMutation(store, () => container.trigger("store-updated"));
     },
   });
-  onWillUnmount(() => container.dispose());
+  onWillDestroy(() => container.dispose());
   return container;
 }
 
@@ -42,7 +42,7 @@ export function useChildStoreProvider(extendedStores: StoreConstructor[]) {
       return proxifyStoreMutation(store, () => container.trigger("store-updated"));
     },
   });
-  onWillUnmount(() => container.dispose());
+  onWillDestroy(() => container.dispose());
   return container;
 }
 
@@ -65,7 +65,7 @@ export function useLocalStore<T extends LocalStoreConstructor<any>>(
   const env = useEnv();
   const container = getDependencyContainer(env);
   const store = container.instantiate(Store, ...args);
-  onWillUnmount(() => store.dispose());
+  onWillDestroy(() => store.dispose());
   return useStoreRenderProxy(container, store);
 }
 
