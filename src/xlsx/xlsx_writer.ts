@@ -166,7 +166,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
       if (extension === undefined) {
         continue;
       }
-      const xlsxImageId = convertImageId(image.id);
+      const xlsxImageId = convertImageId(image.id, construct);
       const imageFileName = `image${xlsxImageId}.${extension}`;
 
       const imageRelId = addRelsToFile(

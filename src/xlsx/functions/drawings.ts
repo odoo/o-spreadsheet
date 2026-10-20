@@ -50,7 +50,12 @@ export function createDrawing(
         break;
       case "image":
         figuresNodes.push(
-          createImageDrawing(figure as FigureData<Image>, sheet, drawingRelIds[figureIndex])
+          createImageDrawing(
+            figure as FigureData<Image>,
+            sheet,
+            drawingRelIds[figureIndex],
+            construct
+          )
         );
         break;
     }
@@ -174,11 +179,12 @@ function createChartDrawing(
 function createImageDrawing(
   figure: FigureData<Image>,
   sheet: SheetData,
-  imageRelId: string
+  imageRelId: string,
+  construct: XLSXStructure
 ): XMLString {
   // position
   const { from, to } = convertFigureData(figure, sheet);
-  const imageId = convertImageId(figure.id);
+  const imageId = convertImageId(figure.id, construct);
   const cNvPrAttrs: XMLAttributes = [
     ["id", imageId],
     ["name", `Image ${imageId}`],
