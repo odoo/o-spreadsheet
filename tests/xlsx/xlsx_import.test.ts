@@ -33,6 +33,7 @@ import { getRelativePath } from "../../src/xlsx/helpers/misc";
 import { XLSXImportWarningManager } from "../../src/xlsx/helpers/xlsx_parser_error_manager";
 import { XlsxReader } from "../../src/xlsx/xlsx_reader";
 import { EXCEL_TEST_FILES_PATH, getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
+import { deepFreeze } from "../test_helpers/helpers";
 import {
   getCFBeginningAt,
   getColPosition,
@@ -46,17 +47,12 @@ import {
   standardizeColor,
 } from "../test_helpers/xlsx";
 
-let reader: XlsxReader;
-
 describe("Import xlsx data", () => {
   let convertedData: WorkbookData;
   beforeAll(async () => {
     const demo_xlsx = await getTextXlsxFiles();
-    reader = new XlsxReader(demo_xlsx);
-  });
-
-  beforeEach(() => {
-    convertedData = reader.convertXlsx();
+    const reader = new XlsxReader(demo_xlsx);
+    convertedData = deepFreeze(reader.convertXlsx());
   });
 
   test("Can import cell content", () => {
