@@ -19,13 +19,13 @@ function compileFromCompleteFormula(formula: string) {
 }
 
 describe("expression compiler", () => {
-  test.each(["=1", "=true", `="abc"`])("some arithmetic expressions", (formula) => {
+  test.each(["=1", "=true", `="abc"`])("some arithmetic expressions %s", (formula) => {
     const compiledFormula = compiledBaseFunction(formula);
     expect(compiledFormula.execute.toString()).toMatchSnapshot();
   });
 
   test.each(["=1 + 3", "=2 * 3", "=2 - 3", "=2 / 3", "=-3", "=(3 + 1) * (-1 + 4)"])(
-    "some arithmetic expressions",
+    "some arithmetic expressions %s",
     (formula) => {
       const compiledFormula = compiledBaseFunction(formula);
       expect(compiledFormula.execute.toString()).toMatchSnapshot();
@@ -33,14 +33,14 @@ describe("expression compiler", () => {
   );
 
   test.each(["=sum(1,2)", '=sum(true, "")', "=sum(1,,2)"])(
-    "some arithmetic expressions",
+    "some arithmetic expressions %s",
     (formula) => {
       const compiledFormula = compiledBaseFunction(formula);
       expect(compiledFormula.execute.toString()).toMatchSnapshot();
     }
   );
 
-  test.each(["=1%", "=(2+5)%", "=A1%"])("some arithmetic expressions", (formula) => {
+  test.each(["=1%", "=(2+5)%", "=A1%"])("some arithmetic expressions %s", (formula) => {
     const compiledFormula = compiledBaseFunction(formula);
     expect(compiledFormula.execute.toString()).toMatchSnapshot();
   });

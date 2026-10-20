@@ -150,72 +150,24 @@ return computeFunctions[1](ctx,_2,_3); // ADD;
 }"
 `;
 
-exports[`expression compiler some arithmetic expressions 1`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
-) {
-return this.literalValues.numbers[0];
-}"
-`;
-
-exports[`expression compiler some arithmetic expressions 2`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
-) {
-return { value: true };
-}"
-`;
-
-exports[`expression compiler some arithmetic expressions 3`] = `
+exports[`expression compiler some arithmetic expressions ="abc" 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
 ) {
 return this.literalValues.strings[0];
 }"
 `;
 
-exports[`expression compiler some arithmetic expressions 4`] = `
+exports[`expression compiler some arithmetic expressions =(2+5)% 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
-return computeFunctions[0](ctx,_1,_2); // ADD;
+const _3 = computeFunctions[0](ctx,_1,_2); // ADD;
+return computeFunctions[1](ctx,_3); // UNARY.PERCENT;
 }"
 `;
 
-exports[`expression compiler some arithmetic expressions 5`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
-) {
-const _1 = this.literalValues.numbers[0];
-const _2 = this.literalValues.numbers[1];
-return computeFunctions[0](ctx,_1,_2); // MULTIPLY;
-}"
-`;
-
-exports[`expression compiler some arithmetic expressions 6`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
-) {
-const _1 = this.literalValues.numbers[0];
-const _2 = this.literalValues.numbers[1];
-return computeFunctions[0](ctx,_1,_2); // MINUS;
-}"
-`;
-
-exports[`expression compiler some arithmetic expressions 7`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
-) {
-const _1 = this.literalValues.numbers[0];
-const _2 = this.literalValues.numbers[1];
-return computeFunctions[0](ctx,_1,_2); // DIVIDE;
-}"
-`;
-
-exports[`expression compiler some arithmetic expressions 8`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
-) {
-const _1 = this.literalValues.numbers[0];
-return computeFunctions[0](ctx,_1); // UMINUS;
-}"
-`;
-
-exports[`expression compiler some arithmetic expressions 9`] = `
+exports[`expression compiler some arithmetic expressions =(3 + 1) * (-1 + 4) 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = this.literalValues.numbers[0];
@@ -229,25 +181,74 @@ return computeFunctions[3](ctx,_6,_7); // MULTIPLY;
 }"
 `;
 
-exports[`expression compiler some arithmetic expressions 10`] = `
+exports[`expression compiler some arithmetic expressions =-3 1`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const _1 = this.literalValues.numbers[0];
+return computeFunctions[0](ctx,_1); // UMINUS;
+}"
+`;
+
+exports[`expression compiler some arithmetic expressions =1 + 3 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
-return computeFunctions[0](ctx,_1,_2); // SUM;
+return computeFunctions[0](ctx,_1,_2); // ADD;
 }"
 `;
 
-exports[`expression compiler some arithmetic expressions 11`] = `
+exports[`expression compiler some arithmetic expressions =1 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
 ) {
-const _1 = { value: true };
-const _2 = this.literalValues.strings[0];
-return computeFunctions[0](ctx,_1,_2); // SUM;
+return this.literalValues.numbers[0];
 }"
 `;
 
-exports[`expression compiler some arithmetic expressions 12`] = `
+exports[`expression compiler some arithmetic expressions =1% 1`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const _1 = this.literalValues.numbers[0];
+return computeFunctions[0](ctx,_1); // UNARY.PERCENT;
+}"
+`;
+
+exports[`expression compiler some arithmetic expressions =2 * 3 1`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const _1 = this.literalValues.numbers[0];
+const _2 = this.literalValues.numbers[1];
+return computeFunctions[0](ctx,_1,_2); // MULTIPLY;
+}"
+`;
+
+exports[`expression compiler some arithmetic expressions =2 / 3 1`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const _1 = this.literalValues.numbers[0];
+const _2 = this.literalValues.numbers[1];
+return computeFunctions[0](ctx,_1,_2); // DIVIDE;
+}"
+`;
+
+exports[`expression compiler some arithmetic expressions =2 - 3 1`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const _1 = this.literalValues.numbers[0];
+const _2 = this.literalValues.numbers[1];
+return computeFunctions[0](ctx,_1,_2); // MINUS;
+}"
+`;
+
+exports[`expression compiler some arithmetic expressions =A1% 1`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+const _1 = ref(deps[0]);
+return computeFunctions[0](ctx,_1); // UNARY.PERCENT;
+}"
+`;
+
+exports[`expression compiler some arithmetic expressions =sum(1,,2) 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = this.literalValues.numbers[0];
@@ -257,29 +258,28 @@ return computeFunctions[0](ctx,_1,_2,_3); // SUM;
 }"
 `;
 
-exports[`expression compiler some arithmetic expressions 13`] = `
-"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
-) {
-const _1 = this.literalValues.numbers[0];
-return computeFunctions[0](ctx,_1); // UNARY.PERCENT;
-}"
-`;
-
-exports[`expression compiler some arithmetic expressions 14`] = `
+exports[`expression compiler some arithmetic expressions =sum(1,2) 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
 ) {
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
-const _3 = computeFunctions[0](ctx,_1,_2); // ADD;
-return computeFunctions[1](ctx,_3); // UNARY.PERCENT;
+return computeFunctions[0](ctx,_1,_2); // SUM;
 }"
 `;
 
-exports[`expression compiler some arithmetic expressions 15`] = `
+exports[`expression compiler some arithmetic expressions =sum(true, "") 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
 ) {
-const _1 = ref(deps[0]);
-return computeFunctions[0](ctx,_1); // UNARY.PERCENT;
+const _1 = { value: true };
+const _2 = this.literalValues.strings[0];
+return computeFunctions[0](ctx,_1,_2); // SUM;
+}"
+`;
+
+exports[`expression compiler some arithmetic expressions =true 1`] = `
+"function anonymous(deps,ref,range,getSymbolValue,ctx,computeFunctions
+) {
+return { value: true };
 }"
 `;
 
