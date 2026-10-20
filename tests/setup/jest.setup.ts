@@ -107,7 +107,7 @@ beforeEach(() => {
         return null;
       }
 
-      if (this.tagName.toLowerCase() in ["html", "body"]) {
+      if (["html", "body"].includes(this.tagName.toLowerCase())) {
         return null;
       }
 
