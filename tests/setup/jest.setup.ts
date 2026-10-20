@@ -106,7 +106,7 @@ beforeEach(() => {
     .mockImplementation(function (callback: BlobCallback, type?: string) {
       const data = new Uint8Array(length);
       const blob = new window.Blob([data], { type });
-      setTimeout(() => callback(blob), 0);
+      queueMicrotask(() => callback(blob));
     });
   // light-dark() colors are not supported in the color parser used by jsdom. Mock the setColor to avoid parsing color issues
   jest
