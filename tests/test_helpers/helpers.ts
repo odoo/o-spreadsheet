@@ -1,5 +1,6 @@
 import { App, Component, ComponentConstructor, useState, xml } from "@odoo/owl";
 import { type ChartConfiguration } from "chart.js";
+import { setImmediate as realSetImmediate } from "timers";
 import format from "xml-formatter";
 import { functionCache } from "../../src";
 import { Action } from "../../src/actions/action";
@@ -140,7 +141,15 @@ export function addToRegistry<T>(registry: Registry<T>, key: string, value: T) {
   }
 }
 
-const realTimeSetTimeout = window.setTimeout.bind(window);
+/**
+ * Node's setImmediate yields a macrotask like setTimeout(fn, 0) does, but without the
+ * 1ms minimum delay that Node enforces on timers. Imported from "timers" so that it is
+ * neither removed by the jsdom environment nor faked by jest fake timers.
+ */
+function realTimeNextMacrotask(callback: (value?: unknown) => void) {
+  realSetImmediate(callback);
+}
+
 class Root extends Component {
   static template = xml`<div/>`;
   static props = {};
@@ -149,12 +158,12 @@ const Scheduler = new App(Root).scheduler.constructor as unknown as { requestAni
 
 // modifies scheduler to make it faster to test components
 Scheduler.requestAnimationFrame = function (callback: FrameRequestCallback) {
-  realTimeSetTimeout(callback, 1);
+  realTimeNextMacrotask(callback);
   return 1;
 };
 
 export async function nextTick(): Promise<void> {
-  await new Promise((resolve) => realTimeSetTimeout(resolve));
+  await new Promise((resolve) => realTimeNextMacrotask(resolve));
   await new Promise((resolve) => Scheduler.requestAnimationFrame(resolve));
 }
 

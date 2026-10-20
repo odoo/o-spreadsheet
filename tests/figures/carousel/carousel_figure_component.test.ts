@@ -345,7 +345,7 @@ describe("Carousel figure component", () => {
       createCarousel(model, { items: [] }, "carouselId");
       addNewChartToCarousel(model, "carouselId", { type: "radar" });
       const action = getCarouselMenuItem("carouselId", "copy_as_image");
-      action?.execute?.(env);
+      await action?.execute?.(env);
       await nextTick();
 
       const clipboard = await env.clipboard.read!();
