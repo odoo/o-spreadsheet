@@ -416,6 +416,7 @@ describe("UI Helpers", () => {
       askConfirmation = jest.fn();
       model = new Model(modelData);
       const zone = toZone("A2:A3");
+      anchor = toCartesian("A2");
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
       const env = makeSpreadsheetActionTestEnv(model);
       const notificationPlugin = env.getPlugin(NotificationPlugin);
