@@ -1331,3 +1331,13 @@ export function setMobileMode() {
 export function useJestFakeTimers() {
   jest.useFakeTimers({ doNotFake: ["queueMicrotask"] });
 }
+
+export function deepFreeze<T>(obj: T): T {
+  if (obj && typeof obj === "object" && !Object.isFrozen(obj)) {
+    Object.freeze(obj);
+    for (const v of Object.values(obj)) {
+      deepFreeze(v);
+    }
+  }
+  return obj;
+}
