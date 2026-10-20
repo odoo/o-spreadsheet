@@ -1,5 +1,5 @@
-import { onWillUnmount, status } from "@odoo/owl";
-import { useComponent, useEnv, useSubEnv } from "../owl3_compatibility_layer";
+import { onWillUnmount, STATUS, useScope } from "@odoo/owl";
+import { useEnv, useSubEnv } from "../owl3_compatibility_layer";
 import { LocalStoreConstructor, Store, StoreConstructor, StoreParams } from "../types/store_engine";
 import { DependencyContainer } from "./dependency_container";
 
@@ -54,9 +54,9 @@ function useStoreRenderProxy<S extends { mutators: readonly (keyof S)[] }>(
   container: DependencyContainer,
   store: S
 ): S {
-  const component = useComponent();
+  const scope = useScope();
   const proxy = proxifyStoreMutation(store, () => {
-    if (status(component) === "mounted") {
+    if (scope.status === STATUS.MOUNTED) {
       container.trigger("store-updated");
     }
   });
