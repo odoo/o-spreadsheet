@@ -1,6 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-const { getParsedOwlTemplateBundle } = require("../bundle_xml/bundle_xml_templates.cjs");
 
 const TEMPLATE_FILE_PATH = path.join(__dirname, "./_compiled/owl_compiled_templates.cjs");
 
@@ -41,6 +40,9 @@ function slugify(str) {
 }
 
 function compileTemplates() {
+  // Required lazily: the bundler pulls in heavy dependencies (prettier, glob) that are
+  // only needed to compile the templates, not to load them from the compiled file.
+  const { getParsedOwlTemplateBundle } = require("../bundle_xml/bundle_xml_templates.cjs");
   const owl = importOwl();
   const parsedXMl = getParsedOwlTemplateBundle();
   const app = new owl.App(owl.Component, { test: true });
