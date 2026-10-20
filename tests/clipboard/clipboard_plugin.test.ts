@@ -2647,7 +2647,10 @@ describe("clipboard: pasting outside of sheet", () => {
   test("Copying an imge too big in the clipboard notifies the user", async () => {
     class FileStore extends MockFileStore {
       async getFile(fileUrl) {
-        return new File(["x".repeat(MAX_FILE_SIZE + 1)], "mock", { type: "image/jpeg" });
+        const file = new File(["x"], "mock", { type: "image/jpeg" });
+        // fake the size rather than allocating a file bigger than MAX_FILE_SIZE
+        Object.defineProperty(file, "size", { value: MAX_FILE_SIZE + 1 });
+        return file;
       }
     }
     model = new Model({}, { external: { fileStore: new FileStore() } });
