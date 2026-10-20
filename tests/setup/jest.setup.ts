@@ -87,7 +87,7 @@ beforeEach(() => {
     .mockImplementation(function (callback: BlobCallback, type?: string) {
       const data = new Uint8Array(length);
       const blob = new window.Blob([data], { type });
-      setTimeout(() => callback(blob), 0);
+      queueMicrotask(() => callback(blob));
     });
 
   // offsetParent should return the nearest positioned ancestor, or null if an ancestor has `display: none`
