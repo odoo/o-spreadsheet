@@ -36,7 +36,7 @@ import * as owl from "@odoo/owl";
 const {
   __ODOO_COMPATIBILITY_LAYER_ADDED__,
   blockDom,
-  config,
+  useConfig,
   onMounted,
   onPatched, // Exported by Odoo compat layer
   onWillUnmount,
@@ -118,7 +118,7 @@ function _useLayoutEffect(effect, computeDependencies: () => any = () => [NaN]) 
 
 class _EnvPlugin extends Plugin {
   static id = "__ENV__";
-  env = config("env") ?? {};
+  env = useConfig("env") ?? {};
 }
 
 function _useEnv() {
