@@ -392,7 +392,7 @@ describe("charts", () => {
   });
 
   test.each([TEST_CHART_TYPES])(
-    "Copy a chart as a figure pushes it in the clipboard as a File",
+    "Copy a chart as a figure pushes it in the clipboard as a File %s",
     async (chartType) => {
       const notifyUser = jest.fn();
       await mountSpreadsheet({ notifyUser });
@@ -403,6 +403,8 @@ describe("charts", () => {
       await simulateClick(".o-menu div[data-name='copy_as_image']");
       await nextTick();
       const clipboard = await env.clipboard.read!();
+      await nextTick();
+
       if (clipboard.status !== "ok") {
         throw new Error("Clipboard read failed");
       }
