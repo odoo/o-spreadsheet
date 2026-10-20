@@ -401,7 +401,7 @@ export class Evaluator {
     const cell = this.getters.getCell(position);
     if (cell === undefined) {
       // EMPTY_CELL is the only evaluatedCell without position (for perf reasons). We need to add it here.
-      return { ...EMPTY_CELL, position };
+      return EMPTY_CELL;
     }
 
     const cellId = cell.id;
@@ -433,7 +433,7 @@ export class Evaluator {
 
   private computeAndSave(position: CellPosition) {
     const evaluatedCell = this.computeCell(position);
-    if (!this.evaluatedCells.has(position)) {
+    if (!this.evaluatedCells.has(position) && evaluatedCell !== EMPTY_CELL) {
       this.evaluatedCells.set(position, evaluatedCell);
     }
     return evaluatedCell;
