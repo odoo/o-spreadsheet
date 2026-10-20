@@ -2211,7 +2211,7 @@ describe("Test XLSX export", () => {
   });
 
   describe("Header grouping export", () => {
-    test.each<Dimension>(["ROW", "COL"])("Simple grouped headers", async (dim) => {
+    test.each<Dimension>(["ROW", "COL"])("Simple grouped headers %s", async (dim) => {
       const model = new Model();
       groupHeaders(model, dim, 0, 2);
       foldHeaderGroup(model, dim, 0, 2);
@@ -2227,7 +2227,7 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
-    test.each<Dimension>(["COL", "ROW"])("Nested grouped headers", async (dim) => {
+    test.each<Dimension>(["COL", "ROW"])("Nested grouped headers %s", async (dim) => {
       const model = new Model();
       groupHeaders(model, dim, 0, 6);
       groupHeaders(model, dim, 1, 3);
