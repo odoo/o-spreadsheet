@@ -74,6 +74,12 @@ import { makeStoreWithModel } from "../../test_helpers/stores";
 
 let model: Model;
 
+// some tests replace window.Chart with `mockChart()`, restore the real one for the other tests
+const originalChart = window.Chart;
+afterEach(() => {
+  window.Chart = originalChart;
+});
+
 beforeEach(() => {
   model = new Model({
     sheets: [
