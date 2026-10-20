@@ -1,10 +1,10 @@
-import { proxy, signal, useProps } from "@odoo/owl";
+import { Component, proxy, signal, useProps } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemTitle, getCarouselLayout } from "../../../helpers/carousel_helpers";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers/misc";
 import { cellPositions } from "../../../helpers/zones";
-import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
+import { useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";

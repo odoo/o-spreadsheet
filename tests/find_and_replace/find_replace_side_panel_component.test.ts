@@ -1,9 +1,10 @@
-import { Model, Spreadsheet } from "../../src";
+import { Model } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
 import { SearchOptions } from "../../src/types/find_and_replace";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   createSheet,
   hideColumns,
@@ -90,13 +91,13 @@ function getSelectedMatchIndex() {
 
 describe("find and replace sidePanel component", () => {
   let fixture: HTMLElement;
-  let parent: Spreadsheet;
+  let env: SpreadsheetActionEnv;
   let model: Model;
 
   beforeEach(async () => {
     useJestFakeTimers();
-    ({ parent, model, fixture } = await mountSpreadsheet());
-    parent.env.getStore(SidePanelStore).open("FindAndReplace");
+    ({ model, fixture, env } = await mountSpreadsheet());
+    env.getStore(SidePanelStore).open("FindAndReplace");
     await nextTick();
   });
 
@@ -129,7 +130,7 @@ describe("find and replace sidePanel component", () => {
       ];
       for (const selector of panelSelectors) {
         // reopen the side panel for each selector test
-        parent.env.getStore(SidePanelStore).open("FindAndReplace");
+        env.getStore(SidePanelStore).open("FindAndReplace");
         await nextTick();
         expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
         await focusAndKeyDown(selector, { key: "Escape" });
@@ -347,7 +348,7 @@ describe("find and replace sidePanel component", () => {
       expect(model.getters.shouldShowFormulas()).toBe(false);
 
       setFormulaVisibility(model, true);
-      parent.env.getStore(SidePanelStore).open("FindAndReplace");
+      env.getStore(SidePanelStore).open("FindAndReplace");
       await nextTick();
 
       expect(model.getters.shouldShowFormulas()).toBe(true);
@@ -489,7 +490,7 @@ describe("find and replace sidePanel component", () => {
     await inputSearchValue("hello");
     await nextTick();
     expect(model.getters.getSelectedZones()).toMatchObject([toZone("B1")]);
-    const composerStore = parent.env.getStore(CellComposerStore);
+    const composerStore = env.getStore(CellComposerStore);
     selectCell(model, "C11");
     composerStore.startEdition("hello");
     composerStore.stopEdition("down");

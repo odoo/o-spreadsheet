@@ -9,7 +9,6 @@ import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { CellPosition, GridClickModifiers, HeaderIndex, Position } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
@@ -23,10 +22,7 @@ import { CellPopoverStore } from "../popover/cell_popover_store";
 import { types } from "../props_validation";
 import { HoveredIconStore } from "./hovered_icon_store";
 
-function useCellHovered(
-  env: SpreadsheetChildEnv,
-  gridRef: Signal<HTMLElement | null>
-): Partial<Position> {
+function useCellHovered(gridRef: Signal<HTMLElement | null>): Partial<Position> {
   const delayedHoveredCell = useStore(DelayedHoveredCellStore);
   const cellHoverOverlay = useStore(CellHoverOverlayStore);
   const viewStore = useStore(ViewportsStore);
@@ -176,7 +172,7 @@ export class GridOverlay extends OSComponent {
   private zoomStore!: Store<ZoomStore>;
 
   setup() {
-    useCellHovered(this.env, this.gridOverlayRef);
+    useCellHovered(this.gridOverlayRef);
     const resizeObserver = new ResizeObserver(() => {
       this.props.onGridResized();
     });

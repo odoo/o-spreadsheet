@@ -1,4 +1,4 @@
-import { Align, ClipboardMIMEType, Spreadsheet, TransportService } from "../../src";
+import { Align, ClipboardMIMEType, TransportService } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { resetTimeoutDuration } from "../../src/components/helpers/touch_handlers_hook";
@@ -132,7 +132,6 @@ function getHorizontalScroll(): number {
 let fixture: HTMLElement;
 let model: Model;
 let env: SpreadsheetActionEnv;
-let parent: Spreadsheet;
 let composerStore: Store<CellComposerStore>;
 let composerFocusStore: Store<ComposerFocusStore>;
 let viewStore: Store<ViewportsStore>;
@@ -142,7 +141,7 @@ mockChart();
 
 describe("Grid component", () => {
   beforeEach(async () => {
-    ({ parent, model, fixture, env, viewStore } = await mountSpreadsheet());
+    ({ model, fixture, env, viewStore } = await mountSpreadsheet());
 
     composerStore = env.getStore(CellComposerStore);
     composerFocusStore = env.getStore(ComposerFocusStore);
@@ -282,7 +281,7 @@ describe("Grid component", () => {
   });
 
   test("Can open the Conditional Format side panel", async () => {
-    parent.env.getStore(SidePanelStore).open("ConditionalFormatting");
+    env.getStore(SidePanelStore).open("ConditionalFormatting");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
   });
@@ -1591,7 +1590,7 @@ describe("Multi User selection", () => {
     transportService = new MockTransportService();
 
     model = new Model({}, { transportService });
-    ({ parent, fixture, env, viewStore } = await mountSpreadsheet({ model }));
+    ({ fixture, env, viewStore } = await mountSpreadsheet({ model }));
   });
 
   test("Render collaborative user when hovering the position", async () => {
@@ -1723,7 +1722,7 @@ describe("Multi User selection", () => {
 
 describe("Events on Grid update viewport correctly", () => {
   beforeEach(async () => {
-    ({ parent, model, fixture, env, viewStore } = await mountSpreadsheet());
+    ({ model, fixture, env, viewStore } = await mountSpreadsheet());
   });
 
   test("Vertical scroll", async () => {
@@ -2026,7 +2025,7 @@ describe("Events on Grid update viewport correctly", () => {
 describe("Edge-Scrolling on mouseMove in selection", () => {
   beforeEach(async () => {
     useJestFakeTimers();
-    ({ parent, model, fixture, env, viewStore } = await mountSpreadsheet());
+    ({ model, fixture, env, viewStore } = await mountSpreadsheet());
   });
 
   test("Can edge-scroll horizontally", async () => {
@@ -2102,7 +2101,6 @@ describe("Copy paste keyboard shortcut", () => {
   beforeEach(async () => {
     clipboardData = new MockClipboardData();
     ({
-      parent,
       model,
       fixture,
       env,
@@ -2538,7 +2536,7 @@ describe("Header grouping shortcuts", () => {
   let sheetId: string;
 
   beforeEach(async () => {
-    ({ parent, model, fixture } = await mountSpreadsheet());
+    ({ model, fixture, env } = await mountSpreadsheet());
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -2646,7 +2644,7 @@ describe("Header grouping shortcuts", () => {
 
 describe("Can select de-select zones", () => {
   beforeEach(async () => {
-    ({ parent, model, fixture, env, viewStore } = await mountSpreadsheet());
+    ({ model, fixture, env, viewStore } = await mountSpreadsheet());
   });
   test("Can select a zone", async () => {
     await gridMouseEvent(env, "pointerdown", "A1");
@@ -2699,7 +2697,7 @@ describe("Can select de-select zones", () => {
 });
 
 test("Can pinch to zoom in", async () => {
-  ({ parent, model, fixture, env, viewStore } = await mountSpreadsheet());
+  ({ model, fixture, env, viewStore } = await mountSpreadsheet());
 
   const grid = fixture.querySelector(".o-grid-overlay")!;
   const moveDistance = 30;
@@ -2758,7 +2756,7 @@ test("Can pinch to zoom in", async () => {
 });
 
 test("pinch to zoom stops on pointerup", async () => {
-  ({ parent, model, fixture, env, viewStore } = await mountSpreadsheet());
+  ({ model, fixture, env, viewStore } = await mountSpreadsheet());
 
   const grid = fixture.querySelector(".o-grid-overlay")!;
   const moveDistance = 30;
@@ -2806,7 +2804,7 @@ test("pinch to zoom stops on pointerup", async () => {
 });
 
 test("Cannot pinch to zoom with right-click", async () => {
-  ({ parent, model, fixture, env, viewStore } = await mountSpreadsheet());
+  ({ model, fixture, env, viewStore } = await mountSpreadsheet());
   const grid = fixture.querySelector(".o-grid-overlay")!;
 
   // first we have to move the pointer enough to trigger the pinch zoom which

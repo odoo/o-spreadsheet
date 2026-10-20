@@ -1,12 +1,12 @@
-import { onMounted, signal, useProps, xml } from "@odoo/owl";
-import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
+import { Component, onMounted, signal, useProps, xml } from "@odoo/owl";
+import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { Pixel } from "../../types/misc";
 import { ScrollDirection } from "../../types/scroll_direction";
 import { cssPropertiesToCss } from "../helpers/css";
 import { types } from "../props_validation";
 import { ScrollBar as ScrollBarElement } from "../scrollbar";
 
-export class ScrollBar extends Component<any> {
+export class ScrollBar extends Component {
   static template = xml/*xml*/ `
     <div
         t-attf-class="o-scrollbar {{this.props.direction}}"

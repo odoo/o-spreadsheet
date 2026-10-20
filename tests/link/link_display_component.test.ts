@@ -1,4 +1,4 @@
-import { Model, Spreadsheet } from "../../src";
+import { Model } from "../../src";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { buildSheetLink } from "../../src/helpers/misc";
 import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
@@ -23,7 +23,6 @@ import {
 describe("link display component", () => {
   let fixture: HTMLElement;
   let model: Model;
-  let parent: Spreadsheet;
   let env: SpreadsheetActionEnv;
   let notifyUser: jest.Mock;
   let getPlugin: OwlPluginGetter;
@@ -31,7 +30,7 @@ describe("link display component", () => {
   beforeEach(async () => {
     useJestFakeTimers();
     notifyUser = jest.fn();
-    ({ parent, model, fixture, env, getPlugin } = await mountSpreadsheet());
+    ({ model, fixture, env, getPlugin } = await mountSpreadsheet());
     mockNotificationMethods(getPlugin, { notifyUser });
   });
 
@@ -151,7 +150,7 @@ describe("link display component", () => {
     setCellContent(model, "A1", "[label](url.com)");
     await hoverCell(env, "A1", 400);
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
-    parent.env.getStore(SidePanelStore).open("FindAndReplace");
+    env.getStore(SidePanelStore).open("FindAndReplace");
     await nextTick();
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
   });

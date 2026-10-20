@@ -1,4 +1,5 @@
 import {
+  Component,
   PluginConstructor,
   providePlugins,
   proxy,
@@ -33,7 +34,7 @@ import { createRangeFromXc } from "../../src/helpers/range";
 import { positions, toUnboundedZone, toZone, zoneToXc } from "../../src/helpers/zones";
 import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
-import { App, Component, ComponentConstructor } from "../../src/owl3_compatibility_layer";
+import { App, ComponentConstructor } from "../../src/owl3_compatibility_layer";
 import { BasePlugin } from "../../src/plugins/base_plugin";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { CorePluginConstructor } from "../../src/plugins/core_plugin";
@@ -396,7 +397,7 @@ interface MountComponentArgs<Props extends ComponentProps> {
 
 interface MountComponentReturn {
   app: App;
-  parent: Component<SpreadsheetChildEnv>;
+  parent: Component;
   testRoot: TestParent;
   model: Model;
   fixture: HTMLElement;
@@ -453,7 +454,7 @@ async function _mountComponent<Props extends { [key: string]: any }>(
   const originalSetup = spiedComponent.prototype.setup;
   let getPlugin: OwlPluginGetter | undefined = undefined;
   let env: SpreadsheetActionEnv;
-  let parent: Component<SpreadsheetChildEnv> | undefined = undefined;
+  let parent: Component | undefined = undefined;
   const spySetup = jest
     .spyOn(spiedComponent.prototype, "setup")
     .mockImplementation(function (this: Component) {

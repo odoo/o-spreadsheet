@@ -1,4 +1,4 @@
-import { CommandResult, Model, setDefaultSheetViewSize, Spreadsheet } from "../../src";
+import { CommandResult, Model, setDefaultSheetViewSize } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
@@ -53,7 +53,6 @@ import {
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 let fixture: HTMLElement;
-let parent: Spreadsheet;
 let model: Model;
 let env: SpreadsheetActionEnv;
 let getPlugin: OwlPluginGetter;
@@ -75,7 +74,7 @@ beforeEach(() => {
 
 describe("Simple Spreadsheet Component", () => {
   test("simple rendering snapshot", async () => {
-    ({ model, parent, fixture } = await mountSpreadsheet({
+    ({ model, fixture, env } = await mountSpreadsheet({
       model: new Model({ sheets: [{ id: "sh1" }] }),
     }));
     expect(fixture.querySelector(".o-spreadsheet")).toMatchSnapshot();
@@ -140,8 +139,8 @@ describe("Simple Spreadsheet Component", () => {
   });
 
   test("typing opens composer after toolbar clicked", async () => {
-    ({ model, parent, fixture } = await mountSpreadsheet());
-    const composerStore = parent.env.getStore(CellComposerStore);
+    ({ model, fixture, env } = await mountSpreadsheet());
+    const composerStore = env.getStore(CellComposerStore);
     await simulateClick(`span[title="Bold (Ctrl+B)"]`);
     expect(document.activeElement).not.toBeNull();
     await typeInComposerGrid("d");
@@ -150,25 +149,25 @@ describe("Simple Spreadsheet Component", () => {
   });
 
   test("can open data analysis panel with the icon button", async () => {
-    ({ model, parent, fixture } = await mountSpreadsheet());
+    ({ model, fixture, env } = await mountSpreadsheet());
     await click(fixture, ".o-data-analysis-button");
     expect(document.querySelector(".o-data-analysis-panel")).toBeTruthy();
   });
 
   test("can open search with ctrl+h", async () => {
-    ({ model, parent, fixture } = await mountSpreadsheet());
+    ({ model, fixture, env } = await mountSpreadsheet());
     await keyDown({ key: "H", ctrlKey: true });
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
   });
 
   test("can open search with ctrl+f", async () => {
-    ({ model, parent, fixture } = await mountSpreadsheet());
+    ({ model, fixture, env } = await mountSpreadsheet());
     await keyDown({ key: "F", ctrlKey: true });
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
   });
 
   test("A second press of ctrl+f/ctrl+h will focus the search input", async () => {
-    ({ model, parent, fixture } = await mountSpreadsheet());
+    ({ model, fixture, env } = await mountSpreadsheet());
     await keyDown({ key: "H", ctrlKey: true });
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
     expect(document.activeElement!.classList).toContain("o-search");
@@ -185,7 +184,7 @@ describe("Simple Spreadsheet Component", () => {
   });
 
   test("Mac user use metaKey, not CtrlKey", async () => {
-    ({ model, parent, fixture } = await mountSpreadsheet({
+    ({ model, fixture, env } = await mountSpreadsheet({
       model: new Model({ sheets: [{ id: "sh1" }] }),
     }));
     const mockUserAgent = jest.spyOn(navigator, "userAgent", "get");
@@ -205,7 +204,7 @@ describe("Simple Spreadsheet Component", () => {
     mockUserAgent.mockImplementation(
       () => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0"
     );
-    ({ model, parent, fixture } = await mountSpreadsheet({
+    ({ model, fixture, env } = await mountSpreadsheet({
       model: new Model({ sheets: [{ id: "sh1" }] }),
     }));
     // menu shortcut
@@ -217,7 +216,7 @@ describe("Simple Spreadsheet Component", () => {
   });
 
   test("Insert a function properly sets the edition", async () => {
-    ({ model, parent, fixture, env } = await mountSpreadsheet());
+    ({ model, fixture, env } = await mountSpreadsheet());
     const composerStore = env.getStore(CellComposerStore);
     await doAction(["insert", "insert_function", "insert_function_sum"], env);
     expect(composerStore.currentContent).toBe("=SUM(");
@@ -242,7 +241,7 @@ test("Can instantiate a spreadsheet with a given client id-name", async () => {
 
 test("Spreadsheet detects frozen panes that exceed the limit size at start", async () => {
   const model = new Model({ sheets: [{ panes: { xSplit: 12, ySplit: 50 } }] });
-  ({ parent, fixture, getPlugin } = await mountSpreadsheet({ model }));
+  ({ fixture, getPlugin, env } = await mountSpreadsheet({ model }));
   const notificationPlugin = getPlugin(NotificationPlugin);
   const notifyUser = notificationPlugin.notifyUser;
   expect(notifyUser).toHaveBeenCalled();
@@ -254,7 +253,7 @@ test("Warns user when viewport is too small for frozen panes but stops warning a
   // Setting the sheet viewport size to 0 to represent the "real life" scenario where the default size is 0
   setDefaultSheetViewSize(0);
   const model = new Model({ sheets: [{ panes: { xSplit: 0, ySplit: 20 } }] });
-  ({ parent, fixture, getPlugin } = await mountSpreadsheet({ model }));
+  ({ fixture, getPlugin, env } = await mountSpreadsheet({ model }));
   const notificationPlugin = getPlugin(NotificationPlugin);
   const notifyUser = notificationPlugin.notifyUser;
 
@@ -264,7 +263,7 @@ test("Warns user when viewport is too small for frozen panes but stops warning a
 });
 
 test("Warn user only once when the viewport is too small for its frozen panes", async () => {
-  ({ parent, model, fixture, getPlugin } = await mountSpreadsheet());
+  ({ model, fixture, getPlugin, env } = await mountSpreadsheet());
   const notificationPlugin = getPlugin(NotificationPlugin);
   const notifyUser = notificationPlugin.notifyUser;
   expect(notifyUser).not.toHaveBeenCalled();
@@ -288,7 +287,7 @@ test("Warn user only once when the viewport is too small for its frozen panes", 
 });
 
 test("grid should regain focus after a topbar menu option is selected", async () => {
-  ({ parent, fixture } = await mountSpreadsheet());
+  ({ fixture, env } = await mountSpreadsheet());
   expect(document.activeElement!.classList).toContain("o-composer");
   await click(fixture, ".o-topbar-menu[data-id='format']");
   await simulateClick(".o-menu-item[title='Bold']");
@@ -312,7 +311,7 @@ describe("Composer / selectionInput interactions", () => {
     ],
   };
   beforeEach(async () => {
-    ({ model, parent, fixture, env } = await mountSpreadsheet({
+    ({ model, fixture, env } = await mountSpreadsheet({
       model: new Model(modelDataCf),
     }));
   });
@@ -490,7 +489,7 @@ test("Spreadsheet color scheme can be set to dark", async () => {
 test("Commands rejected on locked sheet trigger a notification", async () => {
   const model = new Model();
   const notifyFn = jest.fn();
-  ({ parent, fixture, getPlugin } = await mountSpreadsheet({ model }));
+  ({ fixture, getPlugin, env } = await mountSpreadsheet({ model }));
   mockNotificationMethods(getPlugin, { notifyUser: notifyFn });
   lockSheet(model);
   const result = deleteSheet(model, model.getters.getActiveSheetId());

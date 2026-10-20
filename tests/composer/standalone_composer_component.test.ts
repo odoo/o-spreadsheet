@@ -1,10 +1,9 @@
-import { useProps, xml } from "@odoo/owl";
+import { Component, useProps, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { StandaloneComposer } from "../../src/components/composer/standalone_composer/standalone_composer";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { zoneToXc } from "../../src/helpers/zones";
-import { Component } from "../../src/owl3_compatibility_layer";
 import { sidePanelRegistry } from "../../src/registries/side_panel_registry_definition";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
@@ -25,7 +24,7 @@ let composerEl: HTMLElement;
 let composerFocusStore: Store<ComposerFocusStore>;
 let model: Model;
 
-class SidePanelWithComposer extends Component<any> {
+class SidePanelWithComposer extends Component {
   static template = xml/*xml*/ `
       <div>
         <StandaloneComposer

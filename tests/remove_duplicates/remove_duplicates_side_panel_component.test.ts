@@ -1,6 +1,7 @@
-import { Model, Spreadsheet } from "../../src";
+import { Model } from "../../src";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { toZone } from "../../src/helpers/zones";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { click, merge, setCellContent, setSelection } from "../test_helpers";
 import { getRangeValuesAsMatrix, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
@@ -18,12 +19,12 @@ let model: Model;
 
 describe("remove duplicates", () => {
   let fixture: HTMLElement;
-  let parent: Spreadsheet;
+  let env: SpreadsheetActionEnv;
 
   beforeEach(async () => {
-    ({ parent, model, fixture } = await mountSpreadsheet());
+    ({ model, fixture, env } = await mountSpreadsheet());
 
-    parent.env.getStore(SidePanelStore).open("RemoveDuplicates");
+    env.getStore(SidePanelStore).open("RemoveDuplicates");
     await nextTick();
   });
 
@@ -88,8 +89,8 @@ describe("remove duplicates", () => {
     };
 
     model = new Model({ sheets: [{ cells }] });
-    ({ parent, fixture } = await mountSpreadsheet({ model }));
-    parent.env.getStore(SidePanelStore).open("RemoveDuplicates");
+    ({ fixture, env } = await mountSpreadsheet({ model }));
+    env.getStore(SidePanelStore).open("RemoveDuplicates");
     await nextTick();
     setSelection(model, ["A1:A5"]);
     await click(fixture, selectors.checkBoxHasHeaderRow);
@@ -210,9 +211,9 @@ describe("remove duplicates", () => {
   test("if no columns selected --> display error message and disable", async () => {
     const cells = { B1: "42", B2: "42" };
     model = new Model({ sheets: [{ cells }] });
-    ({ parent, fixture } = await mountSpreadsheet({ model }));
+    ({ fixture, env } = await mountSpreadsheet({ model }));
     setSelection(model, ["B1:B2"]);
-    parent.env.getStore(SidePanelStore).open("RemoveDuplicates");
+    env.getStore(SidePanelStore).open("RemoveDuplicates");
     await nextTick();
 
     let errors = fixture.querySelectorAll(selectors.sidePanelError);

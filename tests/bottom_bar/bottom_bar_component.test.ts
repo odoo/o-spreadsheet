@@ -1,3 +1,4 @@
+import { Component } from "@odoo/owl";
 import { CommandResult, DispatchResult, Pixel, UID } from "../../src";
 import { BottomBar } from "../../src/components/bottom_bar/bottom_bar";
 import { toHex } from "../../src/helpers/color";
@@ -47,7 +48,6 @@ import {
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 import { render } from "../../src/helpers/owl3_helpers";
-import { Component } from "../../src/owl3_compatibility_layer";
 let fixture: HTMLElement;
 
 function isDragAndDropActive(): boolean {

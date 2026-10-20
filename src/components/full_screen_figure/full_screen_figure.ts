@@ -1,5 +1,4 @@
-import { onWillUpdateProps, proxy, signal, useEffect } from "@odoo/owl";
-import { Component } from "../../owl3_compatibility_layer";
+import { Component, onWillUpdateProps, proxy, signal, useEffect } from "@odoo/owl";
 import { figureRegistry } from "../../registries/figures_registry";
 import { useStore } from "../../store_engine/store_hooks";
 import { Store } from "../../types/store_engine";
