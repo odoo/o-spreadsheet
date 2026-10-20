@@ -1,7 +1,7 @@
 import { onMounted, useProps } from "@odoo/owl";
 import { Token } from "../../../formulas/tokenizer";
 import { useLocalStore, useStore } from "../../../store_engine/store_hooks";
-import { Color, ComposerFocusType } from "../../../types/misc";
+import { Color, ComposerFocusType, UID } from "../../../types/misc";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
@@ -17,7 +17,7 @@ export class StandaloneComposer extends OSComponent {
   static components = { Composer };
 
   protected props = useProps({
-    onConfirm: types.function<(content: string) => void>(),
+    onConfirm: types.function<(content: string, sheetId: UID) => void>(),
     composerContent: types.string().optional(""),
     defaultRangeSheetId: types.UID(),
     defaultStatic: types.boolean().optional(false),
