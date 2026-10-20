@@ -37,13 +37,17 @@ export function getWorkbookCellBorder(
   data: WorkbookData
 ): Border | undefined {
   const border = borderId ? data.borders[borderId] : undefined;
-  // Add undefined borders for toMatchObject matchers
-  if (border) {
-    ["top", "left", "right", "bottom"].forEach(
-      (dir) => (border[dir] = border[dir] ? border[dir] : undefined)
-    );
+  if (!border) {
+    return undefined;
   }
-  return borderId ? data.borders[borderId] : undefined;
+  // Add undefined borders for toMatchObject matchers, without mutating the shared data
+  return {
+    ...border,
+    top: border.top || undefined,
+    left: border.left || undefined,
+    right: border.right || undefined,
+    bottom: border.bottom || undefined,
+  };
 }
 
 export function getCFBeginningAt(xc: string, sheetData: SheetData): ConditionalFormat | undefined {
