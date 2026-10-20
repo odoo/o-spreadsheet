@@ -14,8 +14,10 @@ import { click, clickAndDrag } from "../../test_helpers/dom_helper";
 import { mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
-extendMockGetBoundingClientRect({
-  "o-master-chart-canvas": () => ({ top: 0, left: 0, width: 100, height: 50 }),
+beforeEach(() => {
+  extendMockGetBoundingClientRect({
+    "o-master-chart-canvas": () => ({ top: 0, left: 0, width: 100, height: 50 }),
+  });
 });
 
 mockChart({

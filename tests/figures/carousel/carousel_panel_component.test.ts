@@ -23,13 +23,15 @@ let model: Model;
 let fixture: HTMLElement;
 let env: SpreadsheetActionEnv;
 
-extendMockGetBoundingClientRect({
-  "o-carousel-preview-list": () => ({ height: 400, width: 450, top: 0, left: 0 }),
-  "o-carousel-preview": (el: HTMLElement) => {
-    const parentEl = el.parentElement!;
-    const indexInParent = Array.from(parentEl.children).indexOf(el);
-    return { width: 450, height: 200, top: indexInParent * 200, left: 0 };
-  },
+beforeEach(() => {
+  extendMockGetBoundingClientRect({
+    "o-carousel-preview-list": () => ({ height: 400, width: 450, top: 0, left: 0 }),
+    "o-carousel-preview": (el: HTMLElement) => {
+      const parentEl = el.parentElement!;
+      const indexInParent = Array.from(parentEl.children).indexOf(el);
+      return { width: 450, height: 200, top: indexInParent * 200, left: 0 };
+    },
+  });
 });
 
 beforeEach(() => {

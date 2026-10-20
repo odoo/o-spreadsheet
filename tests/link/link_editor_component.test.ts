@@ -21,8 +21,10 @@ import { getCell, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
-extendMockGetBoundingClientRect({
-  "o-special-link": () => ({ top: 100, left: 100, height: 50, width: 50 }),
+beforeEach(() => {
+  extendMockGetBoundingClientRect({
+    "o-special-link": () => ({ top: 100, left: 100, height: 50, width: 50 }),
+  });
 });
 
 describe("link editor component", () => {

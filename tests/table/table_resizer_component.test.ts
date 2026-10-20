@@ -14,19 +14,21 @@ import {
 } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
-extendMockGetBoundingClientRect({
-  "o-spreadsheet": () => {
-    return { x: 0, y: 0, width: 1000, height: 1000 };
-  },
-  "o-grid": () => {
-    return { x: 0, y: 0, width: 1000, height: 780 };
-  },
-  "o-spreadsheet-bottombar-wrapper": () => {
-    return { x: 0, y: 0, width: 1000, height: 120 };
-  },
-  "o-spreadsheet-topbar-wrapper": () => {
-    return { x: 0, y: 0, width: 1000, height: 100 };
-  },
+beforeEach(() => {
+  extendMockGetBoundingClientRect({
+    "o-spreadsheet": () => {
+      return { x: 0, y: 0, width: 1000, height: 1000 };
+    },
+    "o-grid": () => {
+      return { x: 0, y: 0, width: 1000, height: 780 };
+    },
+    "o-spreadsheet-bottombar-wrapper": () => {
+      return { x: 0, y: 0, width: 1000, height: 120 };
+    },
+    "o-spreadsheet-topbar-wrapper": () => {
+      return { x: 0, y: 0, width: 1000, height: 100 };
+    },
+  });
 });
 describe("Table resizer component", () => {
   let model: Model;

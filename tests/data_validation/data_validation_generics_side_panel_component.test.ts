@@ -24,8 +24,10 @@ import {
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 const dataValidationSelectBoundingRect = { x: 100, y: 100, width: 50, height: 50 };
-extendMockGetBoundingClientRect({
-  "o-dv-type": () => dataValidationSelectBoundingRect,
+beforeEach(() => {
+  extendMockGetBoundingClientRect({
+    "o-dv-type": () => dataValidationSelectBoundingRect,
+  });
 });
 
 describe("data validation sidePanel component", () => {
