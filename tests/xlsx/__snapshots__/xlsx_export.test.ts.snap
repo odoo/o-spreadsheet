@@ -29442,7 +29442,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
 }
 `;
 
-exports[`Test XLSX export Header grouping export Nested grouped headers 1`] = `
+exports[`Test XLSX export Header grouping export Nested grouped headers COL 1`] = `
 {
   "files": [
     {
@@ -29609,7 +29609,7 @@ exports[`Test XLSX export Header grouping export Nested grouped headers 1`] = `
 }
 `;
 
-exports[`Test XLSX export Header grouping export Nested grouped headers 2`] = `
+exports[`Test XLSX export Header grouping export Nested grouped headers ROW 1`] = `
 {
   "files": [
     {
@@ -29790,7 +29790,7 @@ exports[`Test XLSX export Header grouping export Nested grouped headers 2`] = `
 }
 `;
 
-exports[`Test XLSX export Header grouping export Simple grouped headers 1`] = `
+exports[`Test XLSX export Header grouping export Simple grouped headers COL 1`] = `
 {
   "files": [
     {
@@ -29810,10 +29810,10 @@ exports[`Test XLSX export Header grouping export Simple grouped headers 1`] = `
     </sheetViews>
     <sheetFormatPr defaultRowHeight="17.25" defaultColWidth="13.73"/>
     <cols>
-        <col min="1" max="1" width="13.73" customWidth="1" hidden="0"/>
-        <col min="2" max="2" width="13.73" customWidth="1" hidden="0"/>
-        <col min="3" max="3" width="13.73" customWidth="1" hidden="0"/>
-        <col min="4" max="4" width="13.73" customWidth="1" hidden="0"/>
+        <col min="1" max="1" width="13.73" customWidth="1" hidden="1" outlineLevel="1"/>
+        <col min="2" max="2" width="13.73" customWidth="1" hidden="1" outlineLevel="1"/>
+        <col min="3" max="3" width="13.73" customWidth="1" hidden="1" outlineLevel="1"/>
+        <col min="4" max="4" width="13.73" customWidth="1" hidden="0" collapsed="1"/>
         <col min="5" max="5" width="13.73" customWidth="1" hidden="0"/>
         <col min="6" max="6" width="13.73" customWidth="1" hidden="0"/>
         <col min="7" max="7" width="13.73" customWidth="1" hidden="0"/>
@@ -29838,14 +29838,6 @@ exports[`Test XLSX export Header grouping export Simple grouped headers 1`] = `
         <col min="26" max="26" width="13.73" customWidth="1" hidden="0"/>
     </cols>
     <sheetData>
-        <row r="1" hidden="1" outlineLevel="1">
-        </row>
-        <row r="2" hidden="1" outlineLevel="1">
-        </row>
-        <row r="3" hidden="1" outlineLevel="1">
-        </row>
-        <row r="4" collapsed="1">
-        </row>
     </sheetData>
 </worksheet>",
       "contentType": "sheet",
@@ -29965,7 +29957,7 @@ exports[`Test XLSX export Header grouping export Simple grouped headers 1`] = `
 }
 `;
 
-exports[`Test XLSX export Header grouping export Simple grouped headers 2`] = `
+exports[`Test XLSX export Header grouping export Simple grouped headers ROW 1`] = `
 {
   "files": [
     {
@@ -29985,10 +29977,10 @@ exports[`Test XLSX export Header grouping export Simple grouped headers 2`] = `
     </sheetViews>
     <sheetFormatPr defaultRowHeight="17.25" defaultColWidth="13.73"/>
     <cols>
-        <col min="1" max="1" width="13.73" customWidth="1" hidden="1" outlineLevel="1"/>
-        <col min="2" max="2" width="13.73" customWidth="1" hidden="1" outlineLevel="1"/>
-        <col min="3" max="3" width="13.73" customWidth="1" hidden="1" outlineLevel="1"/>
-        <col min="4" max="4" width="13.73" customWidth="1" hidden="0" collapsed="1"/>
+        <col min="1" max="1" width="13.73" customWidth="1" hidden="0"/>
+        <col min="2" max="2" width="13.73" customWidth="1" hidden="0"/>
+        <col min="3" max="3" width="13.73" customWidth="1" hidden="0"/>
+        <col min="4" max="4" width="13.73" customWidth="1" hidden="0"/>
         <col min="5" max="5" width="13.73" customWidth="1" hidden="0"/>
         <col min="6" max="6" width="13.73" customWidth="1" hidden="0"/>
         <col min="7" max="7" width="13.73" customWidth="1" hidden="0"/>
@@ -30013,6 +30005,14 @@ exports[`Test XLSX export Header grouping export Simple grouped headers 2`] = `
         <col min="26" max="26" width="13.73" customWidth="1" hidden="0"/>
     </cols>
     <sheetData>
+        <row r="1" hidden="1" outlineLevel="1">
+        </row>
+        <row r="2" hidden="1" outlineLevel="1">
+        </row>
+        <row r="3" hidden="1" outlineLevel="1">
+        </row>
+        <row r="4" collapsed="1">
+        </row>
     </sheetData>
 </worksheet>",
       "contentType": "sheet",
