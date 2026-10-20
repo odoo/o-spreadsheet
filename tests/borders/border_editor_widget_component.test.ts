@@ -65,9 +65,11 @@ async function mountBorderWidgetContainer() {
   ({ fixture, model } = await mountComponent(BorderWidgetContainer));
 }
 
-extendMockGetBoundingClientRect({
-  "border-widget": () => ({ x: 10, y: 10, width: 300, height: 300 }),
-  "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+beforeEach(() => {
+  extendMockGetBoundingClientRect({
+    "border-widget": () => ({ x: 10, y: 10, width: 300, height: 300 }),
+    "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+  });
 });
 
 describe("BorderEditorWidget", () => {

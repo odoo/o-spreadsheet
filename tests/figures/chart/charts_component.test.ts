@@ -94,9 +94,11 @@ import {
 } from "../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
-extendMockGetBoundingClientRect({
-  "o-popover": () => ({ height: 0, width: 0 }),
-  "o-figure-menu-item": () => ({ top: 500, left: 500 }),
+beforeEach(() => {
+  extendMockGetBoundingClientRect({
+    "o-popover": () => ({ height: 0, width: 0 }),
+    "o-figure-menu-item": () => ({ top: 500, left: 500 }),
+  });
 });
 type AllChartType = ChartType | "basicChart";
 

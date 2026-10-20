@@ -144,18 +144,20 @@ describe("UI of conditional formats", () => {
   let env: SpreadsheetActionEnv;
 
   describe("Conditional formatting list panel", () => {
-    extendMockGetBoundingClientRect({
-      "o-cf-preview-container": (el: HTMLElement) => ({
-        y:
-          model.getters
-            .getConditionalFormats(sheetId)
-            .findIndex((cf) => cf.id === (el.firstChild as HTMLElement).dataset.id) * 100,
-        height: 100,
-      }),
-      "o-cf-preview-list": () => ({
-        y: 0,
-        height: model.getters.getConditionalFormats(sheetId).length * 100,
-      }),
+    beforeEach(() => {
+      extendMockGetBoundingClientRect({
+        "o-cf-preview-container": (el: HTMLElement) => ({
+          y:
+            model.getters
+              .getConditionalFormats(sheetId)
+              .findIndex((cf) => cf.id === (el.firstChild as HTMLElement).dataset.id) * 100,
+          height: 100,
+        }),
+        "o-cf-preview-list": () => ({
+          y: 0,
+          height: model.getters.getConditionalFormats(sheetId).length * 100,
+        }),
+      });
     });
 
     beforeEach(async () => {

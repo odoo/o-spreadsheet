@@ -13,6 +13,7 @@ import { getCompiledTemplates } from "../../tools/owl_templates/compile_template
 import {
   extendMockGetBoundingClientRect,
   mockGetBoundingClientRect,
+  resetMockGetBoundingClientRect,
 } from "../test_helpers/mock_helpers";
 import "./canvas.mock";
 import { defineMissingJSDomClipboardProperties, mockNavigatorClipboard } from "./clipboard.mock";
@@ -175,6 +176,7 @@ beforeEach(() => {
 });
 
 beforeEach(() => {
+  resetMockGetBoundingClientRect();
   mockGetBoundingClientRect();
   extendMockGetBoundingClientRect({
     "o-spreadsheet": () => ({
@@ -188,8 +190,6 @@ beforeEach(() => {
     "o-fullscreen-figure": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
   });
 });
-
-// afterAll(() => {resetMockGetBoundingClientRect()});
 
 afterEach(() => {
   window.resizers.removeAll();
