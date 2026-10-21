@@ -1,5 +1,5 @@
 import { onMounted, onWillUpdateProps, proxy } from "@odoo/owl";
-import { DRAG_THRESHOLD, MIN_FIG_SIZE } from "../../../constants";
+import { DRAG_THRESHOLD } from "../../../constants";
 import { isDefined } from "../../../helpers/misc";
 import { rectUnion } from "../../../helpers/rectangle";
 import { Component } from "../../../owl3_compatibility_layer";
@@ -437,7 +437,7 @@ export class FiguresContainer extends Component<SpreadsheetChildEnv> {
     const initialScrollPosition = this.env.model.getters.getActiveSheetScrollInfo();
 
     const keepRatio = figureRegistry.get(figureUI.tag).keepRatio || false;
-    const minFigSize = figureRegistry.get(figureUI.tag).minFigSize || MIN_FIG_SIZE;
+    const minFigSize = figureRegistry.get(figureUI.tag).minFigSize;
     const zoom = this.env.model.getters.getViewportZoomLevel();
     const sheetId = this.env.model.getters.getActiveSheetId();
 

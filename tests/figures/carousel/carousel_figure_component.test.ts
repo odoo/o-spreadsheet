@@ -317,6 +317,10 @@ describe("Carousel figure component", () => {
     expect(
       new Set(carousel.items.map((item) => (item.type === "chart" ? item.chartId : undefined)))
     ).toEqual(new Set(["baseChartId1", "additionalChartId1", "additionalChartId2"]));
+    expect(carouselFigure).toMatchObject({
+      width: 105,
+      height: 105,
+    });
   });
 
   test("Can open carousel context menu with both right click and the menu icon", async () => {
