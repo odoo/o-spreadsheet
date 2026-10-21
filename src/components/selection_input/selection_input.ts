@@ -82,10 +82,6 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   private focusedInput = useRef("focusedInput");
   private store!: Store<SelectionInputStore>;
 
-  get ranges(): SelectionRange[] {
-    return this.store.selectionInputs;
-  }
-
   get canAddRange(): boolean {
     return !this.props.hasSingleRange;
   }
