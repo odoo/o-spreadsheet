@@ -17,8 +17,6 @@ export class GeneralStatsSection extends OSComponent {
   onStatHovered!: (stat: StatValue, isHovered: boolean) => void;
 
   setup() {
-    this.onStatHovered = useStatHighlights(
-      (cell, stat) => (stat.id === "min" || stat.id === "max") && cell.formattedValue === stat.value
-    );
+    this.onStatHovered = useStatHighlights((cell, stat) => cell.formattedValue === stat.value);
   }
 }

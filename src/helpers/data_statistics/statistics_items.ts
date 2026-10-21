@@ -9,7 +9,7 @@ import { DateTime, jsDateToNumber } from "../dates";
 import { formatValue } from "../format/format";
 
 export interface StatItem {
-  id: string | null;
+  id: string;
   name: string;
   formula: string;
   chartTitle?: string;

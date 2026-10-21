@@ -1,6 +1,7 @@
 import { proxy, usePlugin } from "@odoo/owl";
 import { HIGHLIGHT_IN_SELECTION_COLOR } from "../../../../constants";
 import { StatValue } from "../../../../helpers/data_statistics/statistics_items";
+import { GENERIC_STAT_ITEMS } from "../../../../helpers/data_statistics/statistics_suggestion";
 import { positions, positionToZone } from "../../../../helpers/zones";
 import { ModelPlugin } from "../../../../owl_plugins/model_owl_plugin";
 import { EvaluatedCell } from "../../../../types/cells";
@@ -14,10 +15,18 @@ export function useStatHighlights(
   const modelPlugin = usePlugin(ModelPlugin);
   const state = proxy<{ hoveredStat?: StatValue }>({ hoveredStat: undefined });
 
+  function shouldHighlight(stat: StatValue) {
+    const generalStatItemsIds = GENERIC_STAT_ITEMS.map((item) => item.id);
+    return (
+      !generalStatItemsIds.includes(stat.id) ||
+      (["min", "max"].includes(stat.id) && stat.formula !== "")
+    );
+  }
+
   useHighlights({
     get highlights(): Highlight[] {
       const hoveredStat = state.hoveredStat;
-      if (!hoveredStat) {
+      if (!hoveredStat || !shouldHighlight(hoveredStat)) {
         return [];
       }
       const getters = modelPlugin.model().getters;
