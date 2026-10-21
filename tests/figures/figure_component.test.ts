@@ -146,6 +146,7 @@ beforeEach(() => {
     Component: TextFigure,
     menuBuilder: () => [],
     isThemeDependant: true,
+    minFigSize: 80,
   });
 });
 

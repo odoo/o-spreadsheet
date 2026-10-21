@@ -28,7 +28,7 @@ export interface FigureContent {
   isThemeDependant: boolean;
   SidePanelComponent?: string;
   keepRatio?: boolean;
-  minFigSize?: number;
+  minFigSize: number;
   borderWidth?: number;
 }
 
@@ -38,6 +38,7 @@ figureRegistry.add("chart", {
   SidePanelComponent: "ChartPanel",
   menuBuilder: getChartMenuActions,
   isThemeDependant: true,
+  minFigSize: 80,
 });
 figureRegistry.add("image", {
   Component: ImageFigure,
@@ -51,4 +52,5 @@ figureRegistry.add("carousel", {
   Component: CarouselFigure,
   menuBuilder: getCarouselMenuActions,
   isThemeDependant: true,
+  minFigSize: 105,
 });
