@@ -1,3 +1,4 @@
+import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../../constants";
 import { UuidGenerator } from "../../helpers/uuid";
 import { Command, CommandResult } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
@@ -58,7 +59,7 @@ export class FigureUIPlugin extends UIPlugin {
           col: baseFigure.col,
           row: baseFigure.row,
           offset: baseFigure.offset,
-          size: { width: baseFigure.width, height: baseFigure.height },
+          size: { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT },
           definition: { items: [] },
         });
         this.dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
