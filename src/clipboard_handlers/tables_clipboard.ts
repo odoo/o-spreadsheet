@@ -31,7 +31,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     data: ClipboardCellData,
     isCutOperation: boolean,
     mode: ClipboardCopyOptions = "copyPaste"
-  ): CompactTableHandlerData | undefined {
+  ): ClipboardTableCell[][] | undefined {
     const sheetId = data.sheetId;
 
     const { rowsIndexes, columnsIndexes, zones } = data;
@@ -94,7 +94,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
       }
     }
 
-    return this.compact(tableCells);
+    return tableCells;
   }
 
   /**
@@ -221,7 +221,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     }
   }
 
-  protected compact(array2D: ClipboardTableCell[][]): CompactTableHandlerData {
+  compact(array2D: ClipboardTableCell[][]): CompactTableHandlerData {
     const { index: tableIndex, table: tables } = makeIndexer<ClipboardCopiedTable>((t) =>
       JSON.stringify(t.range)
     );

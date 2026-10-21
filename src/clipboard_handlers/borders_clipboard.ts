@@ -21,7 +21,7 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
 > {
   private queuedBordersToAdd: Record<string, Zone[]> = {};
 
-  copy(data: ClipboardCellData): CompactBorderHandlerData | undefined {
+  copy(data: ClipboardCellData): (Border | null)[][] | undefined {
     const sheetId = data.sheetId;
     if (data.zones.length === 0) {
       return;
@@ -37,7 +37,7 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
       }
       borders.push(bordersInRow);
     }
-    return this.compact(borders);
+    return borders;
   }
 
   paste(
@@ -103,7 +103,7 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
     this.queuedBordersToAdd = {};
   }
 
-  protected compact(data: (Border | null)[][]): CompactBorderHandlerData {
+  compact(data: (Border | null)[][]): CompactBorderHandlerData {
     const rows = data.length;
     const cols = data[0]?.length ?? 0;
     const { index: descrIndex, table: descrTable } = makeIndexer<BorderDescr>(

@@ -1,4 +1,5 @@
 import { CompiledFormula } from "../../formulas/compiler";
+import { getCfFormulas } from "../../helpers/formula_extractor";
 import { deepEquals, isDefined } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isInside, toUnboundedZone } from "../../helpers/zones";
@@ -682,22 +683,9 @@ export class ConditionalFormatPlugin
   }
 
   getFormulas(): CompiledFormula[] {
-    const getFormula = (threshold: ColorScaleThreshold | IconThreshold | undefined) =>
-      threshold?.type === "formula" ? threshold.value : undefined;
-
     return Object.keys(this.cfRules).flatMap((sheetId) =>
       this.cfRules[sheetId]
-        .flatMap((cf) => {
-          const rule = cf.rule;
-          if (rule.type === "CellIsRule") {
-            return rule.values.filter((v) => v.startsWith("="));
-          } else if (rule.type === "ColorScaleRule") {
-            return [getFormula(rule.minimum), getFormula(rule.maximum), getFormula(rule.midpoint)];
-          } else if (rule.type === "IconSetRule") {
-            return [getFormula(rule.lowerInflectionPoint), getFormula(rule.upperInflectionPoint)];
-          }
-          return [];
-        })
+        .flatMap(getCfFormulas)
         .filter(isDefined)
         .map((formulaString) => CompiledFormula.Compile(formulaString, sheetId, this.getters))
     );

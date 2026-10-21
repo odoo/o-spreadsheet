@@ -2,7 +2,6 @@ import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_ha
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import {
   applyClipboardHandlersPaste,
-  expandHandlerData,
   getClipboardDataPositions,
   getPasteTargetFromHandlers,
   selectPastedZone,
@@ -108,15 +107,14 @@ export class PaintFormatStore extends SpreadsheetStore {
       isCutOperation: false,
       pasteOption: "onlyFormat",
     };
-    const expandedData = expandHandlerData(this.clipboardHandlers, this.copiedData);
     const { target: pasteTarget, selectedZones } = getPasteTargetFromHandlers(
       sheetId,
       target,
       this.clipboardHandlers,
-      expandedData,
+      this.copiedData,
       options
     );
-    applyClipboardHandlersPaste(this.clipboardHandlers, expandedData, pasteTarget, options, {
+    applyClipboardHandlersPaste(this.clipboardHandlers, this.copiedData, pasteTarget, options, {
       sheetId: this.copiedData.sheetId,
       zones: this.copiedData.zones,
     });
