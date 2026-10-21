@@ -1,6 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-SelectionInput">
     <div class="o-selection" t-ref="o-selection">
+      <t t-set="ranges" t-value="this.store.selectionInputs"/>
       <div
         t-foreach="ranges"
         t-as="range"
