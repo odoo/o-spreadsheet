@@ -61,10 +61,6 @@ export class SelectionInput extends Component<SpreadsheetChildEnv> {
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private store!: Store<SelectionInputStore>;
 
-  get ranges(): SelectionRange[] {
-    return this.store.selectionInputs;
-  }
-
   get canAddRange(): boolean {
     return !this.props.hasSingleRange;
   }
@@ -153,7 +149,7 @@ export class SelectionInput extends Component<SpreadsheetChildEnv> {
     }
 
     const rects = this.getRangeElementsRects();
-    const draggableIds = this.ranges.map((range) => range.id);
+    const draggableIds = this.store.selectionInputs.map((range) => range.id);
     const draggableItems = draggableIds.map((id, index) => ({
       id: id.toString(),
       size: rects[index].height,
@@ -237,8 +233,9 @@ export class SelectionInput extends Component<SpreadsheetChildEnv> {
   }
 
   removeInput(rangeId: number) {
-    const index = this.store.selectionInputs.findIndex((range) => range.id === rangeId);
-    if (this.ranges.find((range) => range.id === rangeId)?.xc) {
+    const activeRanges = this.store.selectionInputs;
+    const index = activeRanges.findIndex((range) => range.id === rangeId);
+    if (activeRanges[index]?.xc) {
       this.props.onSelectionRemoved?.(index);
       this.props.onSelectionConfirmed?.();
     }
