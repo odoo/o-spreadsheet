@@ -12,8 +12,17 @@ import { PieChartDefinition } from "../../src/types/chart/pie_chart";
 import { ScatterChartDefinition } from "../../src/types/chart/scatter_chart";
 import { Image } from "../../src/types/image";
 import { SheetData, WorkbookData } from "../../src/types/workbook_data";
+<<<<<<< 6e701ed7941f976cbfe93b0c28688a5f4e12750b
 import { XLSXImportData, XLSXSharedFormula, XLSXStyle, XLSXWorksheet } from "../../src/types/xlsx";
 import { applyLumModOff, hexaToInt } from "../../src/xlsx/conversion/color_conversion";
+||||||| 51551748f104c9405120959170689ba03743867c
+import { XLSXSharedFormula } from "../../src/types/xlsx";
+import { hexaToInt } from "../../src/xlsx/conversion/color_conversion";
+=======
+import { XLSXSharedFormula } from "../../src/types/xlsx";
+import { isCompositeRange } from "../../src/xlsx/conversion";
+import { hexaToInt } from "../../src/xlsx/conversion/color_conversion";
+>>>>>>> b5c1bd78d4fc1986cef24a0e63e6d09f9fcc89ae
 import {
   BORDER_STYLE_CONVERSION_MAP,
   CF_OPERATOR_TYPE_CONVERSION_MAP,
@@ -1013,6 +1022,14 @@ describe("Import xlsx data", () => {
     );
   });
 
+  test("Composite ranges are dropped from chart definition", () => {
+    const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
+    const figure = testSheet.figures.find(
+      (figure) => figure.data.title.text === "chart with composite ranges"
+    )!;
+    expect(figure.data.labelRange).toEqual(undefined);
+  });
+
   test.each([
     ["chart", "A1:F19"],
     ["image", "H1:K20"],
@@ -1169,6 +1186,7 @@ test.each([
 
   expect(convertedData.sheets[0].cells["A1"]).toEqual("Hello World !");
 });
+<<<<<<< 6e701ed7941f976cbfe93b0c28688a5f4e12750b
 
 describe("Import col/row default styles", () => {
   const warningManager = new XLSXImportWarningManager();
@@ -1337,3 +1355,20 @@ describe("applyLumModOff", () => {
     expect(applyLumModOff("#000000", 0, 0)).toBe("#000000");
   });
 });
+||||||| 51551748f104c9405120959170689ba03743867c
+=======
+
+test.each([
+  ["A1", false],
+  ["Sheet1!A1", false],
+  ["A1:B2", false],
+  ["A1,B2", true],
+  ["(A1, B2)", true],
+  ["A1 B2", true],
+  ["(A1 B2)", true],
+  ["'Sheet with, comma'!A1", false],
+  ["('Sheet 1'!B11:C11,'Sheet 1'!A12:C12,'Sheet 1'!A13:C13)", true],
+])("isCompositeRange helper with string %s", (a: string, expected: boolean) => {
+  expect(isCompositeRange(a)).toBe(expected);
+});
+>>>>>>> b5c1bd78d4fc1986cef24a0e63e6d09f9fcc89ae
