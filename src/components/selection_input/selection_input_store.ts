@@ -329,6 +329,9 @@ export class SelectionInputStore extends SpreadsheetStore {
       this.insertNewRange(this.ranges.length, [""]);
       this.focusLast();
     }
+    if (this.focusedRangeIndex !== null && this.focusedRangeIndex >= this.ranges.length) {
+      this.focusLast();
+    }
   }
 
   private setContent(index: number, xc: string) {
