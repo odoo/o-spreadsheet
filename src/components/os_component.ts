@@ -25,13 +25,21 @@ export function useSpreadsheetEnv(): SpreadsheetActionEnv {
   const scope = useScope();
 
   const getPlugin = createGetPluginFunctionFromScope(scope);
+  const getMaybePlugin = (plugin) => {
+    try {
+      return getPlugin(plugin);
+    } catch {
+      return undefined;
+    }
+  };
   return new Proxy(env, {
     get(target, prop, receiver) {
       if ("model" === String(prop)) {
         return model;
-      }
-      if ("getPlugin" === String(prop)) {
+      } else if ("getPlugin" === String(prop)) {
         return getPlugin;
+      } else if ("getMaybePlugin" === String(prop)) {
+        return getMaybePlugin;
       }
       return Reflect.get(target, prop, receiver);
     },
