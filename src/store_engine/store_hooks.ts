@@ -1,4 +1,4 @@
-import { onWillUnmount, STATUS, useScope } from "@odoo/owl";
+import { onWillUnmount, useScope } from "@odoo/owl";
 import { useEnv, useSubEnv } from "../owl3_compatibility_layer";
 import { LocalStoreConstructor, Store, StoreConstructor, StoreParams } from "../types/store_engine";
 import { DependencyContainer } from "./dependency_container";
@@ -78,7 +78,9 @@ function useStoreRenderProxy<S extends { mutators: readonly (keyof S)[] }>(
 ): S {
   const scope = useScope();
   const proxy = proxifyStoreMutation(store, () => {
-    if (scope.status === STATUS.MOUNTED) {
+    //TODO OWL v50 introduces STATUS.MOUNTED with the value 1. This line should be uncommented when upgrading OWL v50 lands in odoo.
+    // if (scope.status === STATUS.MOUNTED) {
+    if (scope.status === 1) {
       container.trigger("store-updated");
     }
   });
