@@ -660,4 +660,12 @@ describe("selection input plugin", () => {
     expect(store2.selectionInputs[1].xc).toBe("F2");
     expect(store2.selectionInputs[1].isFocused).toBe(true);
   });
+
+  test("selecting a cell after resetting with fewer ranges than the focused index", () => {
+    const { store, model } = makeStore(SelectionInputStore, ["A1", "A2", "A3"]);
+    store.focusById(idOfRange(store, 2));
+    store.resetWithRanges(["B1"]);
+    selectCell(model, "C1");
+    expect(store.selectionInputValues).toEqual(["C1"]);
+  });
 });
