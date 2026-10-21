@@ -3,6 +3,7 @@ import { Color, Model } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { types } from "../../src/components/props_validation";
 import { SelectionInput } from "../../src/components/selection_input/selection_input";
+import { SelectionInputStore } from "../../src/components/selection_input/selection_input_store";
 import { ColorGenerator } from "../../src/helpers/color";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
@@ -864,5 +865,14 @@ describe("Selection Input", () => {
     expect(input.value).toBe("C4");
 
     expect(model.getters.isGridSelectionActive()).toBeTruthy();
+  });
+
+  test("ranges are computed only once per render", async () => {
+    const { parent } = await createSelectionInput({ initialRanges: ["A1", "A2", "A3"] });
+    const spy = jest.spyOn(SelectionInputStore.prototype, "selectionInputs", "get");
+    parent.render(true);
+    await nextTick();
+    expect(spy).toHaveBeenCalledTimes(1);
+    spy.mockRestore();
   });
 });
