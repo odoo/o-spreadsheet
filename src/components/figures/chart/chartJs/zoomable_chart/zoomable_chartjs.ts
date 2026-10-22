@@ -13,7 +13,7 @@ import { cssPropertiesToCss } from "../../../../helpers/css";
 import { ChartJsComponent } from "../chartjs";
 import { Boundaries, ZoomableChartStore } from "./zoomable_chart_store";
 
-import { signal } from "@odoo/owl";
+import { onPatched, signal, useEffect } from "@odoo/owl";
 export class ZoomableChartJsComponent extends ChartJsComponent {
   static template = "o-spreadsheet-ZoomableChartJsComponent";
 
@@ -30,10 +30,23 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
   private removeEventListeners = () => {};
   private isMasterChartAllowed: boolean = false;
 
+  get effectDependencies() {
+    return [...super.effectDependencies, this.masterChartCanvas()];
+  }
+
   setup() {
     this.store = useStore(ZoomableChartStore);
     this.zoomStore = useStore(ZoomStore);
     super.setup();
+
+    useEffect(() => {
+      this.masterChartCanvas();
+      console.log("useEffect", this.masterChartCanvas());
+    });
+
+    onPatched(() => {
+      console.log("onPatched", this.masterChartCanvas());
+    });
   }
 
   protected unmount() {
@@ -151,6 +164,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
       const updatedData = this.getDetailChartConfiguration(chartData);
       chartRuntime.chartJsConfig = updatedData;
     }
+    console.log("createChart");
 
     super.createChart(chartRuntime);
     this.hasLinearScale = this.chart?.scales?.x?.type === "linear";
@@ -162,8 +176,10 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     this.masterChart?.destroy();
     const masterCanvas = this.masterChartCanvas();
     if (!masterCanvas) {
+      console.log("create chart w/o master canvas");
       return;
     }
+    console.log("new masterChart");
     const masterChartCtx = masterCanvas.getContext("2d")!;
 
     this.setMasterChartCursor(chartRuntime);
@@ -204,6 +220,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
       const masterChartConfig = this.getMasterChartConfiguration(
         chartRuntime["masterChartConfig"] as ChartConfiguration<any>
       );
+      console.log("uppdatechart", this.masterChartCanvas());
       if (!this.masterChart) {
         const masterCanvas = this.masterChartCanvas();
         if (!masterCanvas) {

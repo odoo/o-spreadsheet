@@ -1,12 +1,4 @@
-import {
-  onMounted,
-  onPatched,
-  onWillUnmount,
-  signal,
-  useEffect,
-  usePlugin,
-  useProps,
-} from "@odoo/owl";
+import { onWillUnmount, signal, useOnChange, usePlugin, useProps } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import {
   chartJsExtensionRegistry,
@@ -96,6 +88,7 @@ export class ChartJsComponent extends OSComponent {
   protected props = useProps({
     chartId: types.string(),
     isFullScreen: types.boolean().optional(),
+    runtime: types.object<ChartJSRuntime>(),
   });
 
   protected canvas = signal.ref(HTMLCanvasElement);
@@ -105,56 +98,60 @@ export class ChartJsComponent extends OSComponent {
 
   devicePixelRatioPlugin = usePlugin(DevicePixelRatioPlugin);
   private currentDevicePixelRatio = this.devicePixelRatioPlugin.devicePixelRatio();
-  renderSignal = signal(0);
 
-  get chartRuntime(): ChartJSRuntime {
-    const runtime = this.model().getters.getChartRuntime(this.props.chartId);
-    if (!("chartJsConfig" in runtime)) {
-      throw new Error("Unsupported chart runtime");
-    }
-    return runtime;
+  get effectDependencies() {
+    return [this.canvas(), this.props.runtime, this.devicePixelRatioPlugin.devicePixelRatio()];
   }
 
   setup() {
     if (this.shouldAnimate) {
       this.animationStore = useStore(ChartAnimationStore);
     }
-    onMounted(() => {
-      registerChartJSExtensions();
-      const runtime = this.chartRuntime;
-      this.currentRuntime = runtime;
-      // Note: chartJS modify the runtime in place, so it's important to give it a copy
-      this.createChart(deepCopy(runtime));
-    });
     onWillUnmount(this.unmount.bind(this));
 
-    useEffect(() => {
-      this.devicePixelRatioPlugin.devicePixelRatio();
-      this.model();
-      // When either the model of the dpr signal changes, re-render by triggering this signal that is read by the template
-      // we have to do this workaround because we want the update logic to be run during the render, not before
-      // when the signal is triggered (it would change animation state and update ChartJS for nothing if the update unmount
-      // the component)
-      signal.trigger(this.renderSignal);
-    });
-    onPatched(() => {
-      const runtime = this.chartRuntime;
-      if (
-        runtime !== this.currentRuntime &&
-        (!("errorMessage" in this.chartRuntime) || !this.chartRuntime.errorMessage)
-      ) {
-        if (runtime.chartJsConfig.type !== this.currentRuntime.chartJsConfig.type) {
-          this.chart?.destroy();
-          this.createChart(deepCopy(runtime));
-        } else {
-          this.updateChartJs(deepCopy(runtime));
+    // ADRM TODO: doesn't work because of the whole master/detail chart thing ()
+    // Either 1) go back to the useEffect hack to do everything in the onPatched
+    // 2) have a separate effect for both the master and detail charts. In either case, should probably a hook that does everything
+
+    // We need to listen to a change of props, and not a change in the model signal to update the chart only when the
+    // component is rendered. A simple effect on the model would run BEFORE the render, and the render could afterward
+    // delete the component to create a new one, making the effect wrong/useless.
+    useOnChange(
+      () => this.effectDependencies,
+      () => {
+        console.log("useOnChange");
+        if (!this.canvas()) {
+          return;
         }
-        this.currentRuntime = runtime;
-      } else if (this.currentDevicePixelRatio !== this.devicePixelRatioPlugin.devicePixelRatio()) {
-        this.currentDevicePixelRatio = window.devicePixelRatio;
-        this.updateChartJs(deepCopy(this.currentRuntime));
+
+        if (!this.currentRuntime) {
+          registerChartJSExtensions();
+          this.currentRuntime = this.props.runtime;
+          // Note: chartJS modify the runtime in place, so it's important to give it a copy
+          this.createChart(deepCopy(this.currentRuntime));
+          return;
+        }
+        const runtime = this.props.runtime;
+
+        if (
+          runtime !== this.currentRuntime &&
+          (!("errorMessage" in this.props.runtime) || !this.props.runtime.errorMessage)
+        ) {
+          if (runtime.chartJsConfig.type !== this.currentRuntime.chartJsConfig.type) {
+            this.chart?.destroy();
+            this.createChart(deepCopy(runtime));
+          } else {
+            this.updateChartJs(deepCopy(runtime));
+          }
+          this.currentRuntime = runtime;
+        } else if (
+          this.currentDevicePixelRatio !== this.devicePixelRatioPlugin.devicePixelRatio()
+        ) {
+          this.currentDevicePixelRatio = this.devicePixelRatioPlugin.devicePixelRatio();
+          this.updateChartJs(deepCopy(this.currentRuntime));
+        }
       }
-    });
+    );
   }
 
   protected unmount() {
@@ -162,11 +159,10 @@ export class ChartJsComponent extends OSComponent {
   }
 
   private get shouldAnimate(): boolean {
-    return this.model().getters.isDashboard();
+    return this.model().getters.isDashboard() || true;
   }
 
   protected createChart(chartRuntime: ChartJSRuntime) {
-    console.log("createChart", chartRuntime.chartJsConfig.type);
     if (!globalThis.Chart) {
       throw new Error("Chart.js library is not loaded");
     }
@@ -212,7 +208,7 @@ export class ChartJsComponent extends OSComponent {
   private hasChartDataChanged() {
     return !deepEquals(
       this.getChartDataInRuntime(this.currentRuntime),
-      this.getChartDataInRuntime(this.chartRuntime)
+      this.getChartDataInRuntime(this.props.runtime)
     );
   }
 

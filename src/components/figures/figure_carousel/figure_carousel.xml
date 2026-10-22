@@ -83,6 +83,7 @@
           <t
             t-component="this.chartComponent"
             chartId="selectedItem.chartId"
+            runtime="this.selectedChartRuntime"
             isFullScreen="this.props.isFullScreen"
             t-key="selectedItem.chartId"
           />

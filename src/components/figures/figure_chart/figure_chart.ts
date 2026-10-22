@@ -53,4 +53,12 @@ export class ChartFigure extends OSComponent {
     }
     return component;
   }
+
+  get runtime() {
+    return this.model().getters.getChartRuntime(this.chartId);
+  }
+
+  get definition() {
+    return this.model().getters.getChartDefinition(this.chartId);
+  }
 }

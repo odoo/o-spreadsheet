@@ -287,4 +287,12 @@ export class CarouselFigure extends OSComponent {
     const rect: Rect = { ...this.props.figureUI, x: 0, y: 0 }; // {0, 0} to have positions relative to the figure
     return getCarouselLayout(rect, this.carousel, this.selectedCarouselItem);
   }
+
+  get selectedChartRuntime() {
+    const selectedItem = this.selectedCarouselItem;
+    if (selectedItem?.type !== "chart") {
+      throw new Error("Selected item is not a chart");
+    }
+    return this.model().getters.getChartRuntime(selectedItem.chartId);
+  }
 }

@@ -4,6 +4,7 @@
       <t
         t-component="this.chartComponent"
         chartId="this.chartId"
+        runtime="this.runtime"
         t-key="this.chartId"
         isFullScreen="this.props.isFullScreen"
       />
