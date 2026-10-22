@@ -401,7 +401,7 @@ describe("evaluateCells", () => {
 
     createSheet(model, { sheetId: "42" });
     const sheet2 = model.getters.getSheetIds()[1];
-    setCellContent(model, "A1", "=SEQUENCE(3)", sheet2);
+    setCellContent(model, "A1", "=SEQUENCE(3, 1, 10)", sheet2);
 
     setCellContent(model, "C1", "=A1#");
     expect(getEvaluatedCell(model, "C1").value).toBe(1);
@@ -423,9 +423,9 @@ describe("evaluateCells", () => {
     );
 
     setCellContent(model, "C1", "=Sheet2!A1#");
-    expect(getEvaluatedCell(model, "C1").value).toBe(1);
-    expect(getEvaluatedCell(model, "C2").value).toBe(2);
-    expect(getEvaluatedCell(model, "C3").value).toBe(3);
+    expect(getEvaluatedCell(model, "C1").value).toBe(10);
+    expect(getEvaluatedCell(model, "C2").value).toBe(11);
+    expect(getEvaluatedCell(model, "C3").value).toBe(12);
   });
 
   test("if with sub expressions", () => {
