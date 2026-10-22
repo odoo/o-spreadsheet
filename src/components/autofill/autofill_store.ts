@@ -1,5 +1,5 @@
 import { toCartesian, toXC } from "../../helpers/coordinates";
-import { clip } from "../../helpers/misc";
+import { clip, toReplacingBorder } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { isInside, positionToZone, toZone } from "../../helpers/zones";
 import { autofillModifiersRegistry } from "../../registries/autofill_modifiers";
@@ -267,7 +267,9 @@ export class AutofillStore extends SpreadsheetStore {
   private autofillBorders(sheetId: UID, bordersPositions: Record<string, Zone[]>) {
     for (const stringifiedBorder in bordersPositions) {
       const border =
-        stringifiedBorder === "undefined" ? undefined : (JSON.parse(stringifiedBorder) as Border);
+        stringifiedBorder === "undefined"
+          ? undefined
+          : toReplacingBorder(JSON.parse(stringifiedBorder) as Border);
       this.model.dispatch("SET_BORDERS_ON_TARGET", {
         sheetId,
         border,

@@ -4,7 +4,7 @@ import {
   expandCompactTableCells,
   makeIndexer,
 } from "../helpers/clipboard/clipboard_helpers";
-import { removeFalsyAttributes } from "../helpers/misc";
+import { removeFalsyAttributes, toReplacingBorder } from "../helpers/misc";
 import { isZoneInside, zoneToDimension } from "../helpers/zones";
 import {
   ClipboardCellData,
@@ -216,7 +216,10 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
         this.dispatch("UPDATE_CELL", { ...position, style: tableCell.style.style });
       }
       if (tableCell.style?.border) {
-        this.dispatch("SET_BORDER", { ...position, border: tableCell.style.border });
+        this.dispatch("SET_BORDER", {
+          ...position,
+          border: toReplacingBorder(tableCell.style.border),
+        });
       }
     }
   }

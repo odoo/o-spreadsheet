@@ -2,7 +2,7 @@ import { defaultValue, sparseDefaultValue } from "../plugins/core/default";
 import { Format } from "../types/format";
 import { BorderOrNull, CellPosition, Position, Style, UID } from "../types/misc";
 import { WorkbookData } from "../types/workbook_data";
-import { isObjectFalsyRecursively } from "./misc";
+import { isObjectEmptyRecursive } from "./misc";
 import { recomputeZones } from "./recompute_zones";
 import { isZoneInside, positionToZone, toZone, zoneToXc } from "./zones";
 
@@ -130,6 +130,14 @@ export function addStyleToWorkbookData(
   zonifiedData[zoneToXc(zone)] = id;
 }
 
+function isDefaultEmpty(value: unknown): boolean {
+  return (
+    value === undefined ||
+    value === null ||
+    (typeof value === "object" && isObjectEmptyRecursive(value))
+  );
+}
+
 export function mapToId<T>(
   defaults: defaultValue<T>,
   dict: ItemsDic<T>
@@ -138,19 +146,19 @@ export function mapToId<T>(
     colDefault: {},
     rowDefault: {},
   };
-  if (!isObjectFalsyRecursively(defaults.sheetDefault)) {
+  if (defaults.sheetDefault && !isDefaultEmpty(defaults.sheetDefault)) {
     defaultsIds.sheetDefault = getItemId(defaults.sheetDefault, dict);
   }
   for (const colIndex in defaults.colDefault) {
     const colValue = defaults.colDefault[colIndex];
-    if (isObjectFalsyRecursively(colValue)) {
+    if (isDefaultEmpty(colValue)) {
       continue;
     }
     defaultsIds.colDefault![colIndex] = getItemId(defaults.colDefault[colIndex], dict);
   }
   for (const rowIndex in defaults.rowDefault) {
     const rowValue = defaults.rowDefault[rowIndex];
-    if (isObjectFalsyRecursively(rowValue)) {
+    if (isDefaultEmpty(rowValue)) {
       continue;
     }
     defaultsIds.rowDefault![rowIndex] = getItemId(defaults.rowDefault[rowIndex], dict);

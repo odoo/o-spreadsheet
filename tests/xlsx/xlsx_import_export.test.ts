@@ -29,9 +29,11 @@ import {
   resizeColumns,
   resizeRows,
   setBorders,
+  setBordersOnTarget,
   setCellContent,
   setFormat,
   setFormatting,
+  setZoneBorders,
 } from "../test_helpers/commands_helpers";
 import {
   getBorder,
@@ -146,6 +148,56 @@ describe("Export data to xlsx then import it", () => {
     setBorders(model, "A1", border);
     const importedModel = await exportToXlsxThenImport(model);
     expect(getBorder(importedModel, "A1")).toEqual(border);
+  });
+
+  test("Cell without border inside a sheet-wide default border", async () => {
+    setZoneBorders(model, { position: "all" }, ["A1:Z100"]);
+    setBordersOnTarget(model, ["C3"], undefined);
+    expect(getBorder(model, "C3")).toBeNull();
+
+    const importedModel = await exportToXlsxThenImport(model);
+
+    expect(getBorder(importedModel, "C3")).toBeNull();
+  });
+
+  test("Default border of a whole row", async () => {
+    const descr: BorderDescr = { style: "thin", color: "#000000" };
+    setBordersOnTarget(model, ["A2:Z2"], { top: descr, bottom: descr });
+
+    const importedModel = await exportToXlsxThenImport(model);
+
+    expect(getBorder(importedModel, "C2")).toEqual({ top: descr, bottom: descr });
+  });
+
+  test("Default border of a whole column", async () => {
+    const descr: BorderDescr = { style: "thin", color: "#000000" };
+    setBordersOnTarget(model, ["B1:B100"], { left: descr, right: descr });
+
+    const importedModel = await exportToXlsxThenImport(model);
+
+    expect(getBorder(importedModel, "B3")).toEqual({ left: descr, right: descr });
+    expect(getBorder(importedModel, "B100")).toEqual({ left: descr, right: descr });
+  });
+
+  test("Default border of the whole sheet", async () => {
+    setZoneBorders(model, { position: "all" }, ["A1:Z100"]);
+    const descr: BorderDescr = { style: "thin", color: "#000000" };
+    const expectedBorder = { left: descr, right: descr, top: descr, bottom: descr };
+
+    const importedModel = await exportToXlsxThenImport(model);
+
+    expect(getBorder(importedModel, "A1")).toEqual(expectedBorder);
+    expect(getBorder(importedModel, "M50")).toEqual(expectedBorder);
+    expect(getBorder(importedModel, "Z100")).toEqual(expectedBorder);
+  });
+
+  test("Explicit null border overriding a sheet-wide default border", async () => {
+    setZoneBorders(model, { position: "all" }, ["A1:Z100"]);
+    setBordersOnTarget(model, ["C3"], { top: null, bottom: null, left: null, right: null });
+
+    const importedModel = await exportToXlsxThenImport(model);
+
+    expect(getBorder(importedModel, "C3")).toBeNull();
   });
 
   test.each(["0.00%", "#,##0.00", "m/d/yyyy", "m/d/yyyy hh:mm:ss", "#,##0.00 [$€]"])(

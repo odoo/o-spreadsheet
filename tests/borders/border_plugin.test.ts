@@ -509,6 +509,16 @@ describe("borders", () => {
     });
     expect(getBorder(model, "B2")).toBeNull();
   });
+
+  test("SET_BORDERS_ON_TARGET replaces the sides set to null and keeps the undefined ones", () => {
+    const model = new Model();
+    setZoneBorders(model, { position: "all" }, ["B2"]);
+    setBordersOnTarget(model, ["B2"], { top: DEFAULT_BORDER_DESC, left: null, bottom: null });
+    expect(getBorder(model, "B2")).toEqual({
+      top: DEFAULT_BORDER_DESC,
+      right: DEFAULT_BORDER_DESC,
+    });
+  });
 });
 
 describe("Grid manipulation", () => {
@@ -943,6 +953,20 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "C1")).toEqual({ top: b, bottom: b, left: b, right: b });
     expect(getBorder(model, "C2")).toEqual({ top: b, bottom: b, right: b });
     expect(getBorder(model, "C3")).toEqual({ top: b, bottom: b, left: b, right: b });
+  });
+
+  test("deleting the last bordered row keeps the bottom border of the row above", () => {
+    const b = DEFAULT_BORDER_DESC;
+    setZoneBorders(model, { position: "all" }, ["A1:A3"]);
+    deleteRows(model, [2]);
+    expect(getBorder(model, "A2")).toEqual({ top: b, bottom: b, left: b, right: b });
+  });
+
+  test("deleting the last bordered column keeps the right border of the column before", () => {
+    const b = DEFAULT_BORDER_DESC;
+    setZoneBorders(model, { position: "all" }, ["A1:C1"]);
+    deleteColumns(model, ["C"]);
+    expect(getBorder(model, "B1")).toEqual({ top: b, bottom: b, left: b, right: b });
   });
 
   describe("manipulate borders on boundaries of the sheet", () => {
