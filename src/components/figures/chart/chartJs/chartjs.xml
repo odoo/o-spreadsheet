@@ -4,7 +4,7 @@
       <div
         class="o-figure-error bg-white w-100 h-100 d-flex flex-column justify-content-center align-items-center">
         <strong>
-          <t t-esc="this.chartRuntime.errorMessage"/>
+          <t t-out="this.chartRuntime.errorMessage"/>
         </strong>
         <br/>
         The chart is deactivated
