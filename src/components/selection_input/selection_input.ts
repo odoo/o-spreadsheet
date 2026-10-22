@@ -1,6 +1,6 @@
 import { onWillStart, onWillUpdateProps, proxy, signal, useEffect, useProps } from "@odoo/owl";
 import { deepEquals, range } from "../../helpers/misc";
-import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
+import { Component } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { Color } from "../../types/misc";
@@ -9,6 +9,7 @@ import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
+import { useResizeObserver } from "../helpers/listener_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { types } from "../props_validation";
 import { RangeInputValue, SelectionInputStore } from "./selection_input_store";
@@ -113,14 +114,14 @@ export class SelectionInput extends Component<SpreadsheetChildEnv> {
     useEffect(() => {
       this.focusedInputRef()?.focus();
     });
-    // Check on every render if the element is hidden (non-reactive DOM property)
-    const checkVisibility = () => {
+
+    useResizeObserver(this.selectionRef, () => {
       const el = this.selectionRef();
       if ((this.store.isResettable || this.store.hasFocus) && el?.offsetParent === null) {
         this.reset();
       }
-    };
-    useLayoutEffect(checkVisibility);
+    });
+
     onWillUpdateProps((nextProps: PropsOf<SelectionInput>) => {
       if (nextProps.ranges.join() !== this.store.selectionInputValues.join()) {
         this.triggerChange();
