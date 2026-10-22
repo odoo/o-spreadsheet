@@ -1,4 +1,12 @@
-import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
+import {
+  Component,
+  onMounted,
+  onWillUnmount,
+  onWillUpdateProps,
+  useEffect,
+  useRef,
+  useState,
+} from "@odoo/owl";
 import { ALERT_DANGER_BG } from "../../constants";
 import { deepEquals, range } from "../../helpers";
 import { Store, useLocalStore } from "../../store_engine";
@@ -129,8 +137,9 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       () => this.focusedInput.el?.focus(),
       () => [this.focusedInput.el]
     );
-    useEffect(() => {
-      // Check the offsetParent to know if the input or an ancestor is `display: none` (eg. when changing side panel tab)
+    // The element size becomes 0 when it or an ancestor is `display: none` (eg. when changing side
+    // panel tab). The offsetParent is checked in the callback, where the layout is already computed.
+    const resizeObserver = new ResizeObserver(() => {
       if (
         (this.store.isResettable || this.store.hasFocus) &&
         this.selectionRef.el?.offsetParent === null
@@ -138,6 +147,8 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
         this.reset();
       }
     });
+    onMounted(() => resizeObserver.observe(this.selectionRef.el!));
+    onWillUnmount(() => resizeObserver.disconnect());
 
     this.store = useLocalStore(
       SelectionInputStore,
