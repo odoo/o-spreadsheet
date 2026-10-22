@@ -1631,7 +1631,8 @@ describe("charts", () => {
     expect(highlightStore.highlights.length).toBe(1);
 
     await openChartDesignSidePanel(model, env, fixture, chartId);
-    await nextTick(); // the check is done in a `useLayoutEffect`, we need to wait for the next render
+    window.resizers.resize(); // the hidden input is resized to 0
+    await nextTick();
 
     expect(".o-selection-ok").toHaveCount(0);
     expect(highlightStore.highlights.length).toBe(0);
@@ -1650,7 +1651,8 @@ describe("charts", () => {
     expect(".o-selection-ok").toHaveCount(2);
 
     await openChartDesignSidePanel(model, env, fixture, chartId);
-    await nextTick(); // the check is done in a `useLayoutEffect`, we need to wait for the next render
+    window.resizers.resize(); // the hidden inputs are resized to 0
+    await nextTick();
 
     expect(".o-selection-ok").toHaveCount(0);
   });
