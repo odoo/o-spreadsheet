@@ -49,9 +49,30 @@ function compileTemplates() {
   const parsedXMl = getParsedOwlTemplateBundle();
   const app = new owl.App({ test: true });
   const compiledTemplates = {};
-  for (const template of parsedXMl.querySelectorAll("[t-name]")) {
-    const name = template.getAttribute("t-name");
-    compiledTemplates[name] = app._compileTemplate(name, template);
+  const warnings = [];
+  const errors = [];
+  let currentTemplate;
+  let originalWarn;
+  let originalError;
+  try {
+    originalWarn = console.warn;
+    originalError = console.error;
+
+    console.warn = (...args) => warnings.push(`[${currentTemplate}] ${args.join(" ")}`);
+    console.error = (...args) => errors.push(`[${currentTemplate}] ${args.join(" ")}`);
+    for (const template of parsedXMl.querySelectorAll("[t-name]")) {
+      currentTemplate = template.getAttribute("t-name");
+      compiledTemplates[currentTemplate] = app._compileTemplate(currentTemplate, template);
+    }
+  } finally {
+    console.warn = originalWarn;
+    console.error = originalError;
+  }
+  if (warnings.length) {
+    throw new Error(`Owl template compilation warnings:\n${warnings.join("\n")}`);
+  }
+  if (errors.length) {
+    throw new Error(`Owl template compilation errors:\n${errors.join("\n")}`);
   }
 
   return compiledTemplates;
