@@ -1,5 +1,6 @@
 - [Plugins](#plugins)
   - [Plugin skeleton](#plugin-skeleton)
+  - [Core plugin dependencies](#core-plugin-dependencies)
   - [Dispatch lifecycle and methods](#dispatch-lifecycle-and-methods)
     - [`allowDispatch`](#allowdispatch)
     - [`beforeHandle`](#beforehandle)
@@ -34,6 +35,7 @@ Plugins are divided into three base classes: `CorePlugin`, `EvaluationPlugin` an
 - can make changes to its state using the history interface (allowing `undo` and `redo`)
 - import and export its state to be stored in the o-spreadsheet file
 - can only dispatch core commands
+- must declare the core plugins it depends on in a `static dependencies` list, and can only read the getters of those plugins (see [Core plugin dependencies](#core-plugin-dependencies))
 
 ### II. EvaluationPlugin
 
@@ -57,21 +59,30 @@ Unsure which of the four plugin categories (or which store) your feature belongs
 
 ```typescript
 const { CorePlugin } = o_spreadsheet;
+const { SheetPlugin } = o_spreadsheet.corePlugins;
 
-class MyPlugin extends CorePlugin {
+// The first type parameter is the plugin class itself: it lets TypeScript compute
+// the type of `this.getters` from `MyPlugin.dependencies` (see below).
+class MyPlugin extends CorePlugin<typeof MyPlugin> {
+  // Mandatory: the core plugins whose getters this plugin reads. `[]` if none.
+  static readonly dependencies = [SheetPlugin] as const;
+  // makes getSomething accessible from anywhere that has a reference to model.getters
+  static getters = ["getSomething"] as const;
+
   readonly myPluginState = { firstProp: "hello" };
-  readonly currentSomething = "";
 
   // ---------------------------------------------------------------------
   // Command handling
   // ---------------------------------------------------------------------
 
-  handle(cmd) {
-    // every plugin handle every commands, but most plugins only care for some commands.
-    switch (cmd.type) {
-      case "DO_SOMETHING":
-        this.history.update("myPluginState", "firstProp", cmd.toPutInFirstProp);
-        break;
+  // only the commands listed here reach this plugin
+  handlers = {
+    DO_SOMETHING: this.onDoSomething,
+  };
+
+  private onDoSomething(cmd) {
+    if (this.getters.tryGetSheet(cmd.sheetId)) {
+      this.history.update("myPluginState", "firstProp", cmd.toPutInFirstProp);
     }
   }
 
@@ -99,15 +110,47 @@ class MyPlugin extends CorePlugin {
   }
 }
 
-// makes the function getSomething accessible from anywhere that has a reference to model.getters
-MyPlugin.getters = ["getSomething"];
-
 // add the new "MyPlugin" to the registry matching its base class
 // (corePluginRegistry, evaluationPluginRegistry, statefulUIPluginRegistry or featurePluginRegistry).
 // It will be automatically instantiated by o-spreadsheet when you mount the spreadsheet component or when you create a new Model()
 const { corePluginRegistry } = o_spreadsheet.registries;
 corePluginRegistry.add("MyPlugin", MyPlugin);
 ```
+
+## Core plugin dependencies
+
+Every class extending `CorePlugin` must declare a `static dependencies` property listing the core plugins it reads from. A plugin that reads nothing from other plugins declares an empty list:
+
+```typescript
+class MergePlugin extends CorePlugin<typeof MergePlugin, MergeState> {
+  static readonly dependencies = [CellPlugin, HeaderVisibilityPlugin] as const;
+  ...
+}
+
+class SheetPlugin extends CorePlugin<typeof SheetPlugin, SheetState> {
+  static readonly dependencies = [] as const;
+  ...
+}
+```
+
+### What it brings
+
+**1. `this.getters` only contains what you depend on.**
+A core plugin no longer receives every `CoreGetters`. At instantiation, the model gives it a getters object made of:
+
+- the getters of `RangeAdapterPlugin` and `FormulaProviderAggregator` (always available),
+- the getters of each plugin listed in `dependencies`, and, through them, the getters of their own dependencies (the closure is transitive),
+- its own getters.
+
+**note:** The restriction is enforced in typescript.
+
+### Registration order
+
+Plugins are instantiated (and imported) in the order of `corePluginRegistry`, and the getters of a dependency are collected when the dependent plugin is instantiated. A dependency must therefore be **registered before** the plugins that depend on it. The registry does not reorder plugins: if a dependency is registered later, or not registered at all, its getters are silently missing from `this.getters`.
+
+### What to put in `dependencies`
+
+List the plugins whose getters you call directly, not their own dependencies: those are included transitively. For example, `MergePlugin` depends on `CellPlugin`, which depends on `SheetPlugin`, so `MergePlugin` can call sheet getters without listing `SheetPlugin`. Listing it anyway is harmless and documents a direct use.
 
 ## Dispatch lifecycle and methods
 
