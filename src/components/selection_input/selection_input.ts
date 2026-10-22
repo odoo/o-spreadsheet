@@ -1,6 +1,5 @@
 import { onWillStart, onWillUpdateProps, proxy, signal, useEffect, useProps } from "@odoo/owl";
 import { deepEquals, range } from "../../helpers/misc";
-import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { Color } from "../../types/misc";
@@ -8,6 +7,7 @@ import { PropsOf } from "../../types/props_of";
 import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
+import { useResizeObserver } from "../helpers/listener_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
@@ -113,14 +113,14 @@ export class SelectionInput extends OSComponent {
     useEffect(() => {
       this.focusedInputRef()?.focus();
     });
-    // Check on every render if the element is hidden (non-reactive DOM property)
-    const checkVisibility = () => {
+
+    useResizeObserver(this.selectionRef, () => {
       const el = this.selectionRef();
       if ((this.store.isResettable || this.store.hasFocus) && el?.offsetParent === null) {
         this.reset();
       }
-    };
-    useLayoutEffect(checkVisibility);
+    });
+
     onWillUpdateProps((nextProps: PropsOf<SelectionInput>) => {
       if (nextProps.ranges.join() !== this.store.selectionInputValues.join()) {
         this.triggerChange();
