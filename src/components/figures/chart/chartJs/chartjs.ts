@@ -132,8 +132,8 @@ export class ChartJsComponent extends OSComponent {
       this.devicePixelRatioPlugin.devicePixelRatio();
       this.model();
       // When either the model of the dpr signal changes, re-render by triggering this signal that is read by the template
-      // we have to do this workaround because we don't want the update logic to be run during the render, not before
-      // when the signal is triggered (it would change animation state and update ChartJS for nothing if the update removes
+      // we have to do this workaround because we want the update logic to be run during the render, not before
+      // when the signal is triggered (it would change animation state and update ChartJS for nothing if the update unmount
       // the component)
       signal.trigger(this.renderSignal);
     });
@@ -166,6 +166,7 @@ export class ChartJsComponent extends OSComponent {
   }
 
   protected createChart(chartRuntime: ChartJSRuntime) {
+    console.log("createChart", chartRuntime.chartJsConfig.type);
     if (!globalThis.Chart) {
       throw new Error("Chart.js library is not loaded");
     }
