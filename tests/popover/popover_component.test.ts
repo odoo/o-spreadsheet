@@ -1,10 +1,10 @@
-import { providePlugins, useProps, xml } from "@odoo/owl";
+import { Component, providePlugins, useProps, xml } from "@odoo/owl";
 import { Model, Pixel, Rect } from "../../src";
 import { Popover } from "../../src/components/popover/popover";
 import { PopoverContainerPlugin } from "../../src/components/popover/popover_container_owl_plugin";
 import { types } from "../../src/components/props_validation";
 import { getDefaultSheetViewSize } from "../../src/constants";
-import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
+import { useSubEnv } from "../../src/owl3_compatibility_layer";
 import { PropsOf } from "../../src/types/props_of";
 import { getStylePropertyInPx, mountComponent } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
@@ -22,7 +22,7 @@ interface MountPopoverArgs extends Partial<PropsOf<Popover>> {
 }
 
 async function mountTestPopover(args: MountPopoverArgs) {
-  class Parent extends Component<any> {
+  class Parent extends Component {
     static template = xml/* xml */ `
         <div class="o-spreadsheet">
           <Popover t-props="this.popoverProps">

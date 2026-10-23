@@ -1,4 +1,4 @@
-import { App, useProps, xml } from "@odoo/owl";
+import { App, Component, useProps, xml } from "@odoo/owl";
 import { Color, Model } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { types } from "../../src/components/props_validation";
@@ -6,11 +6,11 @@ import { SelectionInput } from "../../src/components/selection_input/selection_i
 import { ColorGenerator } from "../../src/helpers/color";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { toZone } from "../../src/helpers/zones";
-import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
+import { useSubEnv } from "../../src/owl3_compatibility_layer";
 import { useStoreProvider } from "../../src/store_engine/store_hooks";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { ModelStore } from "../../src/stores/model_store";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   activateSheet,
   addCellToSelection,
@@ -60,7 +60,7 @@ interface SelectionInputTestConfig {
   colors?: Color[];
 }
 
-class Parent extends Component<any> {
+class Parent extends Component {
   static template = xml/* xml */ `
     <SelectionInput
       ranges="this.initialRanges || []"
@@ -102,7 +102,7 @@ class Parent extends Component<any> {
   }
 }
 
-class MultiParent extends Component<any> {
+class MultiParent extends Component {
   static template = xml/* xml */ `
     <div>
       <div class="input-1">
@@ -134,7 +134,8 @@ async function createSelectionInput(
   model = new Model();
   let parent: Component;
   let app: App;
-  ({ fixture, parent, app } = await mountComponent(Parent, {
+  let env: SpreadsheetActionEnv;
+  ({ fixture, parent, app, env } = await mountComponent(Parent, {
     model,
     fixture: fixtureEl,
     props: { model, config },
@@ -143,7 +144,7 @@ async function createSelectionInput(
   const id = (parent as Parent).id;
   return {
     parent: parent as Parent,
-    env: parent.env as SpreadsheetChildEnv,
+    env,
     model,
     id,
     app,

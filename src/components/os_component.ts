@@ -1,12 +1,8 @@
-import { PluginInstance, Scope, Signal, usePlugin, useScope } from "@odoo/owl";
+import { Component, PluginInstance, Scope, Signal, usePlugin, useScope } from "@odoo/owl";
 import { Model } from "../model";
-import { Component, useEnv } from "../owl3_compatibility_layer";
+import { useEnv } from "../owl3_compatibility_layer";
 import { ModelPlugin } from "../owl_plugins/model_owl_plugin";
-import {
-  OwlPluginGetter,
-  SpreadsheetActionEnv,
-  SpreadsheetChildEnv,
-} from "../types/spreadsheet_env";
+import { OwlPluginGetter, SpreadsheetActionEnv } from "../types/spreadsheet_env";
 
 export function createGetPluginFunctionFromScope(scope: Scope): OwlPluginGetter {
   return (plugin) => {
@@ -47,10 +43,10 @@ export function useSpreadsheetEnv(): SpreadsheetActionEnv {
 }
 
 /**
- * Base class of all o-spreadsheet components. It only binds the environment
- * type, so that `this.env` is properly typed in every component.
+ * Base class of all o-spreadsheet components. It gives access to the model and
+ * to the spreadsheet environment (`this.spEnv`).
  */
-export class OSComponent extends Component<SpreadsheetChildEnv> {
+export class OSComponent extends Component {
   modelPlugin = usePlugin(ModelPlugin);
   spEnv = useSpreadsheetEnv();
 

@@ -13,7 +13,7 @@ import { RendererStore } from "../../../src/stores/renderer_store";
 import { ViewportsStore } from "../../../src/stores/viewports_store";
 import { ZoomStore } from "../../../src/stores/zoom_store";
 import { PropsOf } from "../../../src/types/props_of";
-import { SpreadsheetActionEnv, SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import {
   addDataValidation,
   clickAndDrag,
@@ -49,7 +49,7 @@ let model: Model;
 let storeSpy: StoreSpy;
 
 // We need to use the subEnv of the standalone viewport to get the store children of the standalone viewport instead of the global ones
-let subEnv: SpreadsheetChildEnv;
+let subEnv: SpreadsheetActionEnv;
 let subActionEnv: SpreadsheetActionEnv;
 
 function getLastRenderedBoxes() {
@@ -81,8 +81,8 @@ async function mountViewport(zone: string, args: MountViewportArgs = {}) {
       providePlugins([PopoverContainerPlugin], {
         getPopoverContainerRect: () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
       });
-      subEnv = this.env;
       this.spEnv = useSpreadsheetEnv();
+      subEnv = this.spEnv;
       subActionEnv = this.spEnv;
     },
   });
@@ -321,7 +321,7 @@ describe("Standalone viewport", () => {
         originalSetup.call(this);
         subActionEnv = this.spEnv;
         this.spEnv = useSpreadsheetEnv();
-        subEnv = this.env;
+        subEnv = this.spEnv;
       });
     const { env } = await mountSpreadsheet({ model });
 

@@ -1,4 +1,4 @@
-import { useProps, xml } from "@odoo/owl";
+import { Component, useProps, xml } from "@odoo/owl";
 import { Color, Model, Pixel, Range } from "../../src";
 import { Highlight } from "../../src/components/highlight/highlight/highlight";
 import { types } from "../../src/components/props_validation";
@@ -10,7 +10,6 @@ import {
 } from "../../src/constants";
 import { toHex } from "../../src/helpers/color";
 import { toZone } from "../../src/helpers/zones";
-import { Component } from "../../src/owl3_compatibility_layer";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";

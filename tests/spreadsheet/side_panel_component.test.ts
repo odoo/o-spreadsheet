@@ -1,4 +1,4 @@
-import { useProps, xml } from "@odoo/owl";
+import { Component, useProps, xml } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
 import { types } from "../../src/components/props_validation";
 import {
@@ -8,7 +8,6 @@ import {
   SidePanelStore,
 } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { render } from "../../src/helpers/owl3_helpers";
-import { Component } from "../../src/owl3_compatibility_layer";
 import {
   SidePanelContent,
   sidePanelRegistry,
@@ -43,7 +42,7 @@ let sidePanelStore: Store<SidePanelStore>;
 let notifyUser = jest.fn();
 let getPlugin: OwlPluginGetter;
 
-class Body extends Component<any> {
+class Body extends Component {
   static template = xml`
     <div>
       <div class="main_body">test</div>
@@ -57,7 +56,7 @@ class Body extends Component<any> {
   });
 }
 
-class Body2 extends Component<any> {
+class Body2 extends Component {
   static template = xml`
     <div>
       <div class="main_body_2">Hello</div>
@@ -69,7 +68,7 @@ class Body2 extends Component<any> {
   });
 }
 
-class BodyWithoutProps extends Component<any> {
+class BodyWithoutProps extends Component {
   static template = xml`
     <div>
       <div class="main_body_3">Hello</div>
@@ -100,7 +99,7 @@ describe("Side Panel", () => {
       title: "Custom Panel",
       Body: Body,
     });
-    parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL");
+    env.getStore(SidePanelStore).open("CUSTOM_PANEL");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Custom Panel");
@@ -113,7 +112,7 @@ describe("Side Panel", () => {
       title: "Custom Panel",
       Body: Body,
     });
-    parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL");
+    env.getStore(SidePanelStore).open("CUSTOM_PANEL");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
     await simulateClick(".o-sidePanelClose");
@@ -126,10 +125,10 @@ describe("Side Panel", () => {
       title: "Custom Panel",
       Body: Body,
     });
-    parent.env.getStore(SidePanelStore).toggle("CUSTOM_PANEL");
+    env.getStore(SidePanelStore).toggle("CUSTOM_PANEL");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
-    parent.env.getStore(SidePanelStore).toggle("CUSTOM_PANEL");
+    env.getStore(SidePanelStore).toggle("CUSTOM_PANEL");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(0);
   });
@@ -143,10 +142,10 @@ describe("Side Panel", () => {
       title: "Custom Panel 2",
       Body: Body,
     });
-    parent.env.getStore(SidePanelStore).toggle("CUSTOM_PANEL_1");
+    env.getStore(SidePanelStore).toggle("CUSTOM_PANEL_1");
     await nextTick();
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Custom Panel 1");
-    parent.env.getStore(SidePanelStore).toggle("CUSTOM_PANEL_2");
+    env.getStore(SidePanelStore).toggle("CUSTOM_PANEL_2");
     await nextTick();
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Custom Panel 2");
   });
@@ -156,7 +155,7 @@ describe("Side Panel", () => {
       title: () => "Computed Title",
       Body: Body,
     });
-    parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL", { text: "context" });
+    env.getStore(SidePanelStore).open("CUSTOM_PANEL", { text: "context" });
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Computed Title");
@@ -170,7 +169,7 @@ describe("Side Panel", () => {
       title: (env, props: any) => `Title: ${props.text}`,
       Body: Body,
     });
-    parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL", { text: "1" });
+    env.getStore(SidePanelStore).open("CUSTOM_PANEL", { text: "1" });
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Title: 1");
@@ -184,7 +183,7 @@ describe("Side Panel", () => {
         return { isOpen: true };
       },
     });
-    parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL");
+    env.getStore(SidePanelStore).open("CUSTOM_PANEL");
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
     expect(document.querySelector(".main_body_3")).not.toBeNull();
@@ -202,9 +201,9 @@ describe("Side Panel", () => {
       title: "PANEL_2",
       Body: Body2,
     });
-    parent.env.getStore(SidePanelStore).open("PANEL_1", { text: "test" });
+    env.getStore(SidePanelStore).open("PANEL_1", { text: "test" });
     await nextTick();
-    parent.env.getStore(SidePanelStore).open("PANEL_2", { field: "field" });
+    env.getStore(SidePanelStore).open("PANEL_2", { field: "field" });
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
     expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("PANEL_2");
@@ -219,7 +218,7 @@ describe("Side Panel", () => {
       title: "Custom Panel",
       Body: Body,
     });
-    parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL");
+    env.getStore(SidePanelStore).open("CUSTOM_PANEL");
     await nextTick();
     await simulateClick(".o-sidePanelClose");
     await nextTick();
@@ -232,7 +231,7 @@ describe("Side Panel", () => {
       title: "Custom Panel",
       Body: Body,
     });
-    parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL", { onCloseSidePanel });
+    env.getStore(SidePanelStore).open("CUSTOM_PANEL", { onCloseSidePanel });
     await nextTick();
     await simulateClick(".o-sidePanelClose");
     await nextTick();
@@ -249,9 +248,9 @@ describe("Side Panel", () => {
       title: "Custom Panel 2",
       Body: Body,
     });
-    parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL_1", { onCloseSidePanel });
+    env.getStore(SidePanelStore).open("CUSTOM_PANEL_1", { onCloseSidePanel });
     await nextTick();
-    parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
+    env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
     await nextTick();
     expect(onCloseSidePanel).toHaveBeenCalled();
   });
@@ -262,7 +261,7 @@ describe("Side Panel", () => {
       title: "Custom Panel 1",
       Body: Body,
     });
-    parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL_1", { input: true });
+    env.getStore(SidePanelStore).open("CUSTOM_PANEL_1", { input: true });
     await nextTick();
     const inputTarget = document.querySelector(".o-sidePanel input")! as HTMLInputElement;
     inputTarget.focus();
@@ -280,7 +279,7 @@ describe("Side Panel", () => {
       Body: Body,
       computeState: () => ({ isOpen: true, props: { text: "test text" } }),
     });
-    parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL", {});
+    env.getStore(SidePanelStore).open("CUSTOM_PANEL", {});
     await nextTick();
     expect(document.querySelector(".props_body")!.textContent).toBe("test text");
   });
@@ -292,7 +291,7 @@ describe("Side Panel", () => {
       Body: Body,
       computeState: () => (text ? { isOpen: true, props: { text } } : { isOpen: false }),
     });
-    parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL", {});
+    env.getStore(SidePanelStore).open("CUSTOM_PANEL", {});
     await nextTick();
     expect(document.querySelector(".o-sidePanel .props_body")!.textContent).toBe("test text");
 
@@ -311,7 +310,7 @@ describe("Side Panel", () => {
       computeState: () =>
         text ? { isOpen: true, props: { text, onCloseSidePanel } } : { isOpen: false },
     });
-    parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL", {});
+    env.getStore(SidePanelStore).open("CUSTOM_PANEL", {});
     await nextTick();
     expect(document.querySelector(".o-sidePanel .props_body")!.textContent).toBe("test text");
 
@@ -330,7 +329,7 @@ describe("Side Panel", () => {
   describe("Side panel resize", () => {
     beforeEach(async () => {
       addToRegistry(sidePanelRegistry, "CUSTOM_PANEL_2", { title: "title", Body: Body });
-      parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
+      env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
       await nextTick();
     });
 
@@ -388,7 +387,7 @@ describe("Side Panel", () => {
     beforeEach(async () => {
       addToRegistry(sidePanelRegistry, "CUSTOM_PANEL", { title: "Custom Panel", Body: Body });
       addToRegistry(sidePanelRegistry, "CUSTOM_PANEL_2", { title: "Custom Panel 2", Body: Body });
-      parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL");
+      env.getStore(SidePanelStore).open("CUSTOM_PANEL");
       await nextTick();
     });
 
@@ -401,7 +400,7 @@ describe("Side Panel", () => {
       expect(sidePanelStore.mainPanel?.isPinned).toBe(true);
       expect(".o-pin-panel").toHaveCount(1);
 
-      parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
+      env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
       await nextTick();
 
       const panels = fixture.querySelectorAll(".o-sidePanel");
@@ -429,7 +428,7 @@ describe("Side Panel", () => {
 
     test("Unpinning a panel close it if another panel is open", async () => {
       sidePanelStore.togglePinPanel();
-      parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
+      env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
       await nextTick();
 
       expect(".o-sidePanel").toHaveCount(2);
@@ -457,7 +456,7 @@ describe("Side Panel", () => {
       sidePanelStore.togglePinPanel();
       expect(sidePanelStore.mainPanel?.isCollapsed).toBeFalsy();
 
-      parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
+      env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
       await nextTick();
       expect(sidePanelStore.mainPanel?.isCollapsed).toBe(true);
       expect(sidePanelStore.mainPanel?.size).toBe(COLLAPSED_SIDE_PANEL_SIZE);
@@ -466,7 +465,7 @@ describe("Side Panel", () => {
 
     test("Closing the secondary panel expands the pinned main panel back", async () => {
       sidePanelStore.togglePinPanel();
-      parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
+      env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
       await nextTick();
       expect(sidePanelStore.mainPanel?.isCollapsed).toBe(true);
 
@@ -479,7 +478,7 @@ describe("Side Panel", () => {
 
     test("Closing the secondary panel with togglePinnedSidePanel expands the pinned main panel back", async () => {
       sidePanelStore.togglePinPanel();
-      parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
+      env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
       await nextTick();
       expect(sidePanelStore.mainPanel?.isCollapsed).toBe(true);
 
@@ -491,7 +490,7 @@ describe("Side Panel", () => {
 
     test("Can collapse both panels", async () => {
       sidePanelStore.togglePinPanel();
-      parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
+      env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
       await nextTick();
 
       // opening a secondary panel automatically collapses the pinned main panel
@@ -522,7 +521,7 @@ describe("Side Panel", () => {
       });
 
       await doAction(["view", "toggle_pin_panel"], env);
-      parent.env.getStore(SidePanelStore).open("OTHER_PANEL", { key: panelKey });
+      env.getStore(SidePanelStore).open("OTHER_PANEL", { key: panelKey });
       await nextTick();
       expect(".o-sidePanel").toHaveCount(1);
       expect(".o-sidePanelTitle").toHaveText("Custom Panel");
@@ -531,11 +530,11 @@ describe("Side Panel", () => {
     test("Reopening main panel from secondary panel closes secondary panel", async () => {
       await doAction(["view", "toggle_pin_panel"], env);
 
-      parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
+      env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
       await nextTick();
       expect(".o-sidePanel").toHaveCount(2);
 
-      parent.env.getStore(SidePanelStore).replace("CUSTOM_PANEL", "CUSTOM_PANEL_2");
+      env.getStore(SidePanelStore).replace("CUSTOM_PANEL", "CUSTOM_PANEL_2");
       await nextTick();
       expect(".o-sidePanel").toHaveCount(1);
       expect(".o-sidePanelTitle").toHaveText("Custom Panel");
@@ -544,11 +543,11 @@ describe("Side Panel", () => {
     test("Reopening main panel directly does not close secondary panel", async () => {
       await doAction(["view", "toggle_pin_panel"], env);
 
-      parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
+      env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
       await nextTick();
       expect(".o-sidePanel").toHaveCount(2);
 
-      parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL");
+      env.getStore(SidePanelStore).open("CUSTOM_PANEL");
       await nextTick();
       expect(".o-sidePanel").toHaveCount(2);
     });
@@ -560,7 +559,7 @@ describe("Side Panel", () => {
       expect(".o-sidePanel").toHaveClass("collapsed");
       expect(sidePanelStore.mainPanel?.size).toBe(COLLAPSED_SIDE_PANEL_SIZE);
 
-      parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL");
+      env.getStore(SidePanelStore).open("CUSTOM_PANEL");
       await nextTick();
       expect(".o-sidePanel").not.toHaveClass("collapsed");
       expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
@@ -573,8 +572,8 @@ describe("Side Panel", () => {
       expect(".o-sidePanel").toHaveClass("collapsed");
       expect(sidePanelStore.mainPanel?.size).toBe(COLLAPSED_SIDE_PANEL_SIZE);
 
-      parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
-      parent.env.getStore(SidePanelStore).replace("CUSTOM_PANEL", "CUSTOM_PANEL_2");
+      env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
+      env.getStore(SidePanelStore).replace("CUSTOM_PANEL", "CUSTOM_PANEL_2");
       await nextTick();
       expect(".o-sidePanel").not.toHaveClass("collapsed");
       expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
@@ -582,7 +581,7 @@ describe("Side Panel", () => {
 
     test("Can resize panels when two panels are open", async () => {
       sidePanelStore.togglePinPanel();
-      parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
+      env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
       await nextTick();
       // opening the secondary panel auto-collapsed the main panel, expand it back
       sidePanelStore.toggleCollapsePanel("mainPanel");
@@ -602,7 +601,7 @@ describe("Side Panel", () => {
 
     test("Resizing the man panel reduces the size of the secondary panel if there is not enough space", async () => {
       sidePanelStore.togglePinPanel();
-      parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
+      env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
       await nextTick();
       // opening the secondary panel auto-collapsed the main panel, expand it back
       sidePanelStore.toggleCollapsePanel("mainPanel");
@@ -624,7 +623,7 @@ describe("Side Panel", () => {
 
     test("Secondary side panel closes if the sheet is too small", async () => {
       sidePanelStore.togglePinPanel();
-      parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
+      env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
       await nextTick();
       expect(".o-sidePanel").toHaveCount(2);
       expect(sidePanelStore.mainPanel?.isCollapsed).toBe(true);
@@ -641,7 +640,7 @@ describe("Side Panel", () => {
     test("Cannot open second size panel if the spreadsheet is too small", async () => {
       sidePanelStore.changeSpreadsheetWidth(400);
       sidePanelStore.togglePinPanel();
-      parent.env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
+      env.getStore(SidePanelStore).open("CUSTOM_PANEL_2");
       await nextTick();
 
       expect(".o-sidePanel").toHaveCount(1);

@@ -1,4 +1,4 @@
-import { providePlugins, xml } from "@odoo/owl";
+import { Component, providePlugins, xml } from "@odoo/owl";
 import { Currency, Model, Pixel, Style } from "../src";
 import { CellComposerStore } from "../src/components/composer/composer/cell_composer_store";
 import { OSComponent } from "../src/components/os_component";
@@ -9,7 +9,6 @@ import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_r
 import { DEFAULT_FONT_SIZE } from "../src/constants";
 import { render } from "../src/helpers/owl3_helpers";
 import { toZone, zoneToXc } from "../src/helpers/zones";
-import { Component } from "../src/owl3_compatibility_layer";
 import { ImageProviderPlugin } from "../src/owl_plugins/image_provider_owl_plugin";
 import { topbarMenuRegistry } from "../src/registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../src/registries/topbar_component_registry";
@@ -111,7 +110,6 @@ afterEach(() => {
 });
 
 let fixture: HTMLElement;
-let parent: Parent;
 let env: SpreadsheetActionEnv;
 let viewStore: Store<ViewportsStore>;
 
@@ -126,7 +124,7 @@ class Parent extends OSComponent {
   static components = { TopBar };
 
   get gridHeight(): Pixel {
-    const { height } = this.env.getStore(ViewportsStore).sheetViewDimension;
+    const { height } = this.spEnv.getStore(ViewportsStore).sheetViewDimension;
     return height;
   }
 
@@ -360,27 +358,27 @@ describe("TopBar component", () => {
 
   describe("Paint format tools", () => {
     test("Single click to activate paint format (once)", async () => {
-      const { parent } = await mountParent();
+      await mountParent();
       const paintFormatTool = fixture.querySelector('.o-menu-item-button[title="Paint Format"]')!;
       expect(paintFormatTool.classList.contains("active")).toBeFalsy();
 
       await click(paintFormatTool);
       expect(paintFormatTool.classList.contains("active")).toBeTruthy();
 
-      parent.env.getStore(PaintFormatStore).pasteFormat(target("B2"));
+      env.getStore(PaintFormatStore).pasteFormat(target("B2"));
       await nextTick();
       expect(paintFormatTool.classList.contains("active")).toBeFalsy();
     });
 
     test("Double click to activate and keep it", async () => {
-      const { parent } = await mountParent();
+      await mountParent();
       const paintFormatTool = fixture.querySelector('.o-menu-item-button[title="Paint Format"]')!;
       expect(paintFormatTool.classList.contains("active")).toBeFalsy();
 
       await doubleClick(paintFormatTool);
       expect(paintFormatTool.classList.contains("active")).toBeTruthy();
 
-      parent.env.getStore(PaintFormatStore).pasteFormat(target("B2"));
+      env.getStore(PaintFormatStore).pasteFormat(target("B2"));
       expect(paintFormatTool.classList.contains("active")).toBeTruthy();
     });
 
@@ -799,8 +797,8 @@ describe("TopBar component", () => {
 
   test("Cannot edit cell in a readonly spreadsheet", async () => {
     const model = new Model({}, { mode: "readonly" });
-    ({ fixture, parent } = await mountParent(model));
-    const composerStore = parent.env.getStore(CellComposerStore);
+    ({ fixture } = await mountParent(model));
+    const composerStore = env.getStore(CellComposerStore);
 
     const composerEl = fixture.querySelector(".o-spreadsheet-topbar div.o-composer")!;
     expect(composerEl.attributes.getNamedItem("contentEditable")!.value).toBe("false");
@@ -1031,8 +1029,8 @@ describe("Topbar - menu item resizing with viewport", () => {
 });
 
 test("The composer helper should be closed on toggle topbar context menu", async () => {
-  const { parent, fixture } = await mountSpreadsheet();
-  const composerStore = parent.env.getStore(CellComposerStore);
+  const { env, fixture } = await mountSpreadsheet();
+  const composerStore = env.getStore(CellComposerStore);
   await typeInComposerTopBar("=sum(");
   expect(composerStore.editionMode).not.toBe("inactive");
   expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(1);
