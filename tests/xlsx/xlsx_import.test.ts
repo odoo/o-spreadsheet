@@ -883,7 +883,7 @@ describe("Import xlsx data", () => {
       expect(chartData).toMatchObject(
         toChartDataSource({
           dataSets: chartDatasets,
-          labelRange: "Sheet1!A27:A35",
+          labelRanges: ["Sheet1!A27:A35"],
           dataSetsHaveTitle: false,
         })
       );
@@ -957,7 +957,7 @@ describe("Import xlsx data", () => {
       expect(chartData).toMatchObject(
         toChartDataSource({
           dataSets: chartDatasets,
-          labelRange: "Sheet1!A26:A35",
+          labelRanges: ["Sheet1!A26:A35"],
           dataSetsHaveTitle: true,
         })
       );
@@ -985,7 +985,7 @@ describe("Import xlsx data", () => {
     expect(chartData).toMatchObject(
       toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!C27:C35" }],
-        labelRange: "Sheet1!B27:B35",
+        labelRanges: ["Sheet1!B27:B35"],
         dataSetsHaveTitle: false,
       })
     );
@@ -1003,7 +1003,7 @@ describe("Import xlsx data", () => {
     expect(chartData).toMatchObject(
       toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!C27:C35" }],
-        labelRange: "Sheet1!A27:A35",
+        labelRanges: ["Sheet1!A27:A35"],
         dataSetsHaveTitle: false,
       })
     );

@@ -121,7 +121,7 @@ describe("Collaborative range manipulation", () => {
       {
         ...toChartDataSource({
           dataSets: [{ dataRange: "A2" }],
-          labelRange: "A1",
+          labelRanges: ["A1"],
           dataSetsHaveTitle: false,
         }),
         type: "line",
@@ -135,7 +135,7 @@ describe("Collaborative range manipulation", () => {
       {
         type: "range",
         dataSets: [{ dataRange: "D4", dataSetId: expect.any(String) }],
-        labelRange: "A1",
+        labelRanges: ["A1"],
         dataSetsHaveTitle: false,
       }
     );

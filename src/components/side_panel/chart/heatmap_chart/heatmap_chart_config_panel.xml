@@ -3,14 +3,14 @@
     <div>
       <ChartLabelRange
         title.translate="Horizontal axis values"
-        range="this.getRange('xRange')"
+        ranges="[this.getRange('xRange')]"
         isInvalid="this.isRangeInvalid('xRange')"
         onSelectionChanged="(ranges) => this.onRangeChanged('xRange', ranges)"
         onSelectionConfirmed="() => this.onRangeConfirmed('xRange')"
       />
       <ChartLabelRange
         title.translate="Vertical axis values"
-        range="this.getRange('yRange')"
+        ranges="[this.getRange('yRange')]"
         isInvalid="this.isRangeInvalid('yRange')"
         onSelectionChanged="(ranges) => this.onRangeChanged('yRange', ranges)"
         onSelectionConfirmed="() => this.onRangeConfirmed('yRange')"
@@ -18,7 +18,7 @@
       />
       <ChartLabelRange
         title.translate="Values"
-        range="this.getRange('sizeRange')"
+        ranges="[this.getRange('sizeRange')]"
         isInvalid="this.isRangeInvalid('sizeRange')"
         onSelectionChanged="(ranges) => this.onRangeChanged('sizeRange', ranges)"
         onSelectionConfirmed="() => this.onRangeConfirmed('sizeRange')"
