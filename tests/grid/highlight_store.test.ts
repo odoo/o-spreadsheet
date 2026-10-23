@@ -4,6 +4,7 @@ import { Highlight, UID } from "../../src/types";
 
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
+import { merge, setViewportOffset } from "../test_helpers/commands_helpers";
 import { MockGridRenderingContext } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 
@@ -144,5 +145,34 @@ describe("Highlight store", () => {
     drawHighlight(testHighlight);
 
     expect(ctxInstructions).toContain('context.fillStyle="#FF000080";');
+  });
+
+  test("Highlight on a merge stays visible when its top-left cell is scrolled out", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    merge(model, "A1:C3");
+    setViewportOffset(model, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT);
+    const { store } = makeStoreWithModel(model, HighlightStore);
+    store.register({
+      highlights: [
+        { range: model.getters.getRangeFromZone(sheetId, toZone("A1")), color: "#FF0000" },
+      ],
+    });
+
+    expect(store.highlights.map((h) => h.range.zone)).toEqual([toZone("A1:C3")]);
+  });
+
+  test("Non-visible highlights are not rendered", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setViewportOffset(model, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT);
+    const { store } = makeStoreWithModel(model, HighlightStore);
+    store.register({
+      highlights: [
+        { range: model.getters.getRangeFromZone(sheetId, toZone("A1")), color: "#FF0000" },
+      ],
+    });
+
+    expect(store.highlights).toEqual([]);
   });
 });
