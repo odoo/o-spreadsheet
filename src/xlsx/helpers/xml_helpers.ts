@@ -9,6 +9,7 @@ import {
   XMLAttributes,
   XMLString,
 } from "../../types/xlsx";
+import { NAMESPACE } from "../constants";
 import { XLSXExportXMLFile } from "./../../types/xlsx";
 
 // -------------------------------------
@@ -160,8 +161,17 @@ export function removeTagEscapedNamespaces(tag: string): string {
  *
  * That's useful because namespaces aren't supported by the HTML specification, so it's arbitrary whether a HTML parser/querySelector
  * implementation will support namespaces in the tags or not.
+ *
+ * The prefixes bound to the main spreadsheetml namespace are removed beforehand: Excel uses it as the default
+ * namespace, but some generators (e.g. the .NET OpenXML SDK) prefix it (<x:sheet>), which would make our
+ * unprefixed queries fail.
  */
 export function escapeTagNamespaces(str: string): string {
+  const mainNsDeclaration = new RegExp(`xmlns:([a-zA-Z0-9]+)="${NAMESPACE.workbook}"`, "g");
+  const mainPrefixes = new Set([...str.matchAll(mainNsDeclaration)].map((match) => match[1]));
+  for (const prefix of mainPrefixes) {
+    str = str.replaceAll(new RegExp(`(<\\/?)${prefix}:`, "g"), "$1");
+  }
   return str.replaceAll(
     /(<\/?)([a-zA-Z0-9]+):([a-zA-Z0-9]+)/g,
     "$1" + "NAMESPACE" + "$2" + "NAMESPACE" + "$3"
