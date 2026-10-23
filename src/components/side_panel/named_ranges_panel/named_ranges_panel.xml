@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-NamedRangesPanel">
     <div class="o-named-ranges">
       <div class="o-named-range-list">
-        <t t-foreach="this.namedRanges" t-as="namedRange" t-key="namedRange_index">
+        <t t-foreach="this.namedRanges" t-as="namedRange" t-key="namedRange_index+namedRange.name">
           <NamedRangePreview namedRange="namedRange"/>
         </t>
       </div>
