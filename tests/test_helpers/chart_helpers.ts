@@ -244,4 +244,5 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   scorecardBaselineFormula: "=Sheet1!A1:A4",
   colorScale: { minColor: "#ffffff", maxColor: "#ff0000" },
   missingValueColor: "#ff0000",
+  gaugeMetricFormula: "=Sheet1!B1:B4",
 };

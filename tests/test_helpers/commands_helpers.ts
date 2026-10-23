@@ -553,7 +553,7 @@ export function createGaugeChart(
       type: "gauge",
       background: data.background,
       title: data.title || { text: "" },
-      dataRange: data.dataRange || "",
+      metric: data.metric || "",
       sectionRule: data.sectionRule || {
         rangeMin: "0",
         rangeMax: "100",
