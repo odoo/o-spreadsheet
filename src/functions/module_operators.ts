@@ -342,7 +342,7 @@ export const SPILLED_RANGE = {
     if (spilledZone === undefined) {
       return new InvalidReferenceError();
     }
-    const spilledRange = this.getters.getRangeFromZone(this.__originSheetId, spilledZone);
+    const spilledRange = this.getters.getRangeFromZone(firstCell.position.sheetId, spilledZone);
     if (originPosition) {
       this.addDependencies?.(originPosition, [spilledRange]);
     }
