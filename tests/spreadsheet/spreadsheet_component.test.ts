@@ -60,6 +60,11 @@ let getPlugin: OwlPluginGetter;
 
 let spreadsheetWidth = 1000;
 
+jest.mock("../../src/constants", () => ({
+  ...jest.requireActual("../../src/constants"),
+  DEFAULT_FONT: "Roboto",
+}));
+
 beforeEach(() => {
   extendMockGetBoundingClientRect({
     "o-topbar-responsive": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),

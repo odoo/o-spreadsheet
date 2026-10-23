@@ -1,0 +1,30 @@
+<templates>
+  <div
+    t-name="o-spreadsheet-FontEditor"
+    class="o-dropdown flex-grow-1 overflow-hidden"
+    t-ref="this.dropdownRef">
+    <span
+      class="o-menu-item-button d-flex justify-content-between w-100"
+      t-att-class="this.props.class"
+      t-att-style="'font-family: ' + this.props.currentFont"
+      t-on-click.stop="this.props.toggleDropdown">
+      <span class="text-truncate text-start flex-grow-1" t-out="this.props.currentFont"/>
+      <span class="flex-shrink-0">
+        <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+      </span>
+    </span>
+    <Popover t-if="this.props.showDropdown" t-props="this.popoverProps">
+      <div class="o-text-options">
+        <t t-foreach="this.fonts" t-as="font" t-key="font.name">
+          <div
+            class="d-flex justify-content-between gap-3"
+            t-att-style="'font-family: ' + font.name"
+            t-on-click="() => this.props.onFontChanged(font.name)">
+            <span t-out="font.name" class="text-truncate"/>
+            <span class="text-muted" t-out="font.description"/>
+          </div>
+        </t>
+      </div>
+    </Popover>
+  </div>
+</templates>

@@ -1,0 +1,35 @@
+<templates>
+  <div
+    t-name="o-spreadsheet-TopBarFontEditor"
+    class="o-dropdown o-font-editor"
+    t-att-class="{'o-disabled': this.model().getters.isCurrentSheetLocked() }"
+    t-ref="this.dropdownRef"
+    t-on-click.stop="">
+    <span
+      class="o-menu-item-button o-font-editor-button"
+      t-att-class="this.props.class"
+      t-att-title="this.currentFont"
+      t-on-click="this.toggleDropdown">
+      <span
+        class="o-font-editor-name text-truncate"
+        t-att-style="'font-family: ' + this.currentFont"
+        t-out="this.currentFont"
+      />
+      <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+    </span>
+    <Popover t-if="this.isActive" t-props="this.popoverProps">
+      <div class="o-text-options">
+        <t t-foreach="this.actions" t-as="action" t-key="action.id">
+          <t t-set="font" t-value="action.name(this.spEnv)"/>
+          <div
+            class="d-flex justify-content-between gap-3"
+            t-att-style="'font-family: ' + font"
+            t-on-click="() => this.selectFont(action)">
+            <span t-out="font"/>
+            <span class="text-muted" t-out="action.description(this.spEnv)"/>
+          </div>
+        </t>
+      </div>
+    </Popover>
+  </div>
+</templates>

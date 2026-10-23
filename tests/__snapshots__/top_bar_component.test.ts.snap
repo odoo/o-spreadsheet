@@ -302,6 +302,42 @@ exports[`TopBar component simple rendering 1`] = `
         </div>
         <div
           class="d-flex tool-container h-100"
+          id="font"
+        >
+          <div
+            class="o-dropdown o-font-editor"
+          >
+            <span
+              class="o-menu-item-button o-font-editor-button o-hoverable-button o-toolbar-button"
+              title="Roboto"
+            >
+              <span
+                class="o-font-editor-name text-truncate"
+                style="font-family: Roboto;"
+              >
+                Roboto
+              </span>
+              <div
+                class="o-icon"
+              >
+                <i
+                  class="oi"
+                  data-icon="arrow_drop_down"
+                />
+              </div>
+              
+            </span>
+            
+          </div>
+          
+          
+          <div
+            class="o-topbar-divider border-end"
+          />
+          
+        </div>
+        <div
+          class="d-flex tool-container h-100"
           id="fontSize"
         >
           <div
@@ -669,7 +705,7 @@ exports[`TopBar component simple rendering 1`] = `
           
         </div>
         <div
-          class="d-flex tool-container h-100"
+          class="d-flex tool-container h-100 d-none"
           id="misc"
         >
           <div
@@ -729,7 +765,7 @@ exports[`TopBar component simple rendering 1`] = `
         
         
         <div
-          class="d-flex align-items-center flex-grow-1 me-auto more-tools-container d-none"
+          class="d-flex align-items-center flex-grow-1 me-auto more-tools-container"
         >
           <span
             class="o-toolbar-button o-menu-item-button o-hoverable-button  me-2 px-1 py-2 more-tools"

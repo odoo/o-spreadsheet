@@ -48,6 +48,13 @@
         </div>
       </div>
       <div class="o-divider border-start"/>
+      <FontEditor
+        currentFont="this.currentFont"
+        onFontChanged.bind="this.updateFont"
+        showDropdown="this.state.activeTool === 'fontTool'"
+        toggleDropdown="(ev) => this.toggleDropdownTool('fontTool', ev)"
+        class="'o-hoverable-button'"
+      />
       <FontSizeEditor
         currentFontSize="this.currentFontSize"
         onFontSizeChanged.bind="this.updateFontSize"

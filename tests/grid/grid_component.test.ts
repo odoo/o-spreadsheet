@@ -140,6 +140,11 @@ let viewStore: Store<ViewportsStore>;
 useJestFakeTimers();
 mockChart();
 
+jest.mock("../../src/constants", () => ({
+  ...jest.requireActual("../../src/constants"),
+  DEFAULT_FONT: "Roboto",
+}));
+
 describe("Grid component", () => {
   beforeEach(async () => {
     ({ parent, model, fixture, env, viewStore } = await mountSpreadsheet());
