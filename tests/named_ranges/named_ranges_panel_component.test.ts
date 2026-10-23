@@ -131,4 +131,19 @@ describe("Named ranges side panel", () => {
     expect(getHighlightsFromStore(env)).toHaveLength(1);
     expect(getHighlightsFromStore(env)).toMatchObject([{ range: { zone: toZone("C3:D4") } }]);
   });
+
+  test("Deleting a named range being edited does not put the next one in edition", async () => {
+    createNamedRange(model, "Range1", "A1");
+    createNamedRange(model, "Range2", "B2");
+    await mountNamedRangesPanel();
+
+    await simulateClick(".o-named-range-preview .o-selection-input input");
+    await setInputValueAndTrigger(".o-named-range-preview .o-selection-input input", "C3");
+    await simulateClick(".o-named-range-preview .o-named-range-edit");
+
+    expect(".o-named-range-preview .os-input").toHaveValue("Range2");
+    expect(".o-named-range-preview .o-selection-input input").toHaveValue("B2");
+    expect(".o-named-range-preview").not.toHaveClass("o-focused");
+    expect(".o-selection-ok").toHaveCount(0);
+  });
 });
