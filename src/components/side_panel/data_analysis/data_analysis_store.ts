@@ -1,3 +1,4 @@
+import { Zone } from "../../..";
 import { invalidateEvaluationCommands } from "../../../command_registry";
 import {
   analyzeColumns,
@@ -49,6 +50,7 @@ export class DataAnalysisStore extends SpreadsheetStore {
   ] as const;
   shape: ExtendedColumnType[] = [];
   hasHeader: boolean = false;
+  mainColumnZone: Zone = { left: -1, top: -1, right: -1, bottom: -1 };
   generalStatItems: StatValue[] = [];
   occurrencesItems: StatValue[] = [];
   dateStatSections: DateSections = this.defaultDateSections;
@@ -212,6 +214,7 @@ export class DataAnalysisStore extends SpreadsheetStore {
     const cols = analyzeColumns(zones, this.getters);
     this.shape = cols.map((c) => c.type);
     this.hasHeader = cols.some((c) => c.headerInZone);
+    this.mainColumnZone = cols[0]?.zone || { left: -1, top: -1, right: -1, bottom: -1 };
 
     const suggestions = this.hasData ? getChartSuggestions(this.shape, cols, this.getters) : [];
     this.chartSuggestions = suggestions;
@@ -245,7 +248,7 @@ export class DataAnalysisStore extends SpreadsheetStore {
         // 1 txt/date + number
         if (columnsData?.categoryColumn && columnsData.valueColumn) {
           const { categoryColumn, valueColumn } = columnsData;
-
+          this.mainColumnZone = categoryColumn.zone;
           this.shape = [categoryColumn.type, valueColumn.type];
           this.generalStatItems = [];
 

@@ -21,6 +21,7 @@ export class OccurrencesStatistics extends OSComponent {
 
   setup() {
     this.onStatHovered = useStatHighlights(
+      this.store.mainColumnZone,
       (cell, stat) => generateItemIdFromValue(cell.value) === generateItemIdFromValue(stat.id),
       this.store.hasHeader
     );

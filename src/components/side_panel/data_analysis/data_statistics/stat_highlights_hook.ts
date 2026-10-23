@@ -1,17 +1,14 @@
 import { proxy, usePlugin } from "@odoo/owl";
 import { HIGHLIGHT_IN_SELECTION_COLOR } from "../../../../constants";
-import {
-  analyzeColumns,
-  getCategoryAndValueColumns,
-} from "../../../../helpers/data_statistics/data_analysis";
 import { StatValue } from "../../../../helpers/data_statistics/statistics_items";
 import { positionToZone } from "../../../../helpers/zones";
 import { ModelPlugin } from "../../../../owl_plugins/model_owl_plugin";
 import { EvaluatedCell } from "../../../../types/cells";
-import { Highlight } from "../../../../types/misc";
+import { Highlight, Zone } from "../../../../types/misc";
 import { useHighlights } from "../../../helpers/highlight_hook";
 
 export function useStatHighlights(
+  mainColumnZone: Zone,
   doesCellMatchStatistic: (cell: EvaluatedCell, hoveredStat: StatValue) => boolean,
   headerInZone: boolean = false
 ): (stat: StatValue, isHovered: boolean) => void {
@@ -28,26 +25,12 @@ export function useStatHighlights(
       const sheetId = getters.getActiveSheetId();
       const zones = getters.getSelectedZones();
 
-      const columns = analyzeColumns(zones, getters);
-      const columnsData = getCategoryAndValueColumns(columns);
-
-      if (zones.length === 0 || !columnsData) {
-        return [];
-      }
-
-      const { categoryColumn, valueColumn } = columnsData;
-      const referenceColumn = categoryColumn || valueColumn;
-      if (!referenceColumn) {
-        return [];
-      }
       const highlights: Highlight[] = [];
-      const referenceZone = referenceColumn.zone;
-      const columnToCompare = categoryColumn ? referenceZone.left : referenceZone.left;
 
-      for (let row = referenceZone.top; row <= referenceZone.bottom; row++) {
+      for (let row = mainColumnZone.top; row <= mainColumnZone.bottom; row++) {
         const cellToCompare = getters.getEvaluatedCell({
           sheetId,
-          col: columnToCompare,
+          col: mainColumnZone.left,
           row,
         });
         if (doesCellMatchStatistic(cellToCompare, hoveredStat)) {
