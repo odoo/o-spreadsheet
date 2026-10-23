@@ -7,6 +7,8 @@ import { ChartStyle } from "../types/chart/chart";
 import { SearchOptions } from "../types/find_and_replace";
 import { Getters } from "../types/getters";
 import {
+  Border,
+  BorderOrNull,
   CellPosition,
   Cloneable,
   ConsecutiveIndexes,
@@ -16,6 +18,19 @@ import {
   Style,
   UID,
 } from "../types/misc";
+
+/**
+ * Border commands keep the sides left undefined. Use null for the missing
+ * sides to replace the whole border.
+ */
+export function toReplacingBorder(border: Border): BorderOrNull {
+  return {
+    top: border.top ?? null,
+    left: border.left ?? null,
+    bottom: border.bottom ?? null,
+    right: border.right ?? null,
+  };
+}
 
 const sanitizeSheetNameRegex = new RegExp(FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX, "g");
 
@@ -140,6 +155,20 @@ export function range(start: number, end: number, step = 1) {
     array[i] = start + i * step;
   }
   return array;
+}
+
+export function* rangeIterator(start: number, end: number, step = 1) {
+  if (end <= start && step > 0) {
+    return [];
+  }
+  if (step === 0) {
+    throw new Error("range() step must not be zero");
+  }
+  const length = Math.ceil(Math.abs((end - start) / step));
+  for (let i = 0; i < length; i++) {
+    yield start + i * step;
+  }
+  return;
 }
 
 /**
@@ -267,7 +296,9 @@ export function isObjectEmptyRecursive<T extends object>(argument: T | undefined
     return true;
   }
   return Object.values(argument).every((value) =>
-    typeof value === "object" ? isObjectEmptyRecursive(value) : value === undefined
+    typeof value === "object" && value !== null
+      ? isObjectEmptyRecursive(value)
+      : value === undefined
   );
 }
 

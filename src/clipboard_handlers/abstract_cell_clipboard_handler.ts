@@ -9,7 +9,11 @@ import {
 import { CellPosition, HeaderIndex, UID, Zone } from "../types/misc";
 import { ClipboardHandler } from "./abstract_clipboard_handler";
 
-export abstract class AbstractCellClipboardHandler<T, U> extends ClipboardHandler<(T | null)[][]> {
+export abstract class AbstractCellClipboardHandler<
+  T,
+  U,
+  C = (T | null)[][]
+> extends ClipboardHandler<C> {
   copy(
     data: ClipboardCellData,
     isCutOperation: boolean,
@@ -67,7 +71,7 @@ export abstract class AbstractCellClipboardHandler<T, U> extends ClipboardHandle
     return data as U;
   }
 
-  expand(data: U): T[][] {
-    return data as T[][];
+  expand(data: U): C {
+    return data as unknown as C;
   }
 }
