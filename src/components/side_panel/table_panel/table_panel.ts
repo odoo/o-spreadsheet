@@ -130,7 +130,7 @@ export class TablePanel extends Component<SpreadsheetChildEnv> {
   onRangeChanged(ranges: string[]) {
     const sheetId = this.env.model.getters.getActiveSheetId();
 
-    this.state.tableXc = ranges[0];
+    this.state.tableXc = ranges[0] || "";
     const newTableRange = this.env.model.getters.getRangeFromSheetXC(sheetId, this.state.tableXc);
     this.state.tableZoneErrors = this.env.model.canDispatch("UPDATE_TABLE", {
       sheetId,
