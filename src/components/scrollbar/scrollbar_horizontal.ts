@@ -19,6 +19,7 @@ export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
         width="width"
         position="position"
         offset="offset"
+        class="'border-top'"
         direction="'horizontal'"
         onScroll.bind="onScroll"
       />`;
