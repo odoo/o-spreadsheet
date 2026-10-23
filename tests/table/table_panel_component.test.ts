@@ -309,4 +309,11 @@ describe("Table side panel", () => {
     expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("A1:C3");
     expect(fixture.querySelector(".o-selection-input button")).toBeNull();
   });
+
+  test("Deleting table range from the input does not change the table zone", async () => {
+    await setInputValueAndTrigger(".o-selection input", "");
+    expect(zoneToXc(model.getters.getCoreTable({ sheetId, col: 0, row: 0 })!.range.zone)).toMatch(
+      "A1:C3"
+    );
+  });
 });
