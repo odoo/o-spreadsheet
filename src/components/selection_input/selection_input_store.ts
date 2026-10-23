@@ -225,7 +225,7 @@ export class SelectionInputStore extends SpreadsheetStore {
   }
 
   get hasFocus(): boolean {
-    return this.selectionInputs.some((i) => i.isFocused);
+    return this.hasMainFocus && this.focusedRangeIndex !== null;
   }
 
   private get hasMainFocus() {
@@ -290,6 +290,9 @@ export class SelectionInputStore extends SpreadsheetStore {
     this.insertNewRange(0, ranges);
     if (this.ranges.length === 0) {
       this.insertNewRange(this.ranges.length, [""]);
+      this.focusLast();
+    }
+    if (this.focusedRangeIndex !== null && this.focusedRangeIndex >= this.ranges.length) {
       this.focusLast();
     }
   }
