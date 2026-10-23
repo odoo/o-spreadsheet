@@ -837,8 +837,8 @@ describe("Grid composer", () => {
       });
       await typeInComposerGrid("=");
       const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
-      expect(toHex(gridComposer.style.color)).toBe("#000000");
-      expect(toHex(gridComposer.style.background)).toBe("#FFFFFF");
+      expect(gridComposer.style.color).toBe("");
+      expect(toHex(gridComposer.style.background)).toBe("#123456");
       expect(gridComposer.style.fontSize).toBe("13px");
       expect(gridComposer.style.fontWeight).toBe("");
       expect(gridComposer.style.fontStyle).toBe("normal");
@@ -865,8 +865,8 @@ describe("Grid composer", () => {
       const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
       expect(gridComposer.style.textDecoration).toBe("none");
       expect(gridComposer.style.fontWeight).toBe("");
-      expect(toHex(gridComposer.style.color)).toBe("#000000");
-      expect(toHex(gridComposer.style.background)).toBe("#FFFFFF");
+      expect(gridComposer.style.color).toBe("");
+      expect(gridComposer.style.background).toBe("");
     });
   });
 

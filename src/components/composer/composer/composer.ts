@@ -75,6 +75,7 @@ export class Composer extends Component<SpreadsheetChildEnv> {
     placeholder: types.string().optional(),
     inputMode: types.string().optional("text"),
     showAssistant: types.boolean().optional(true),
+    osThemeDependant: types.boolean().optional(false),
   });
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
@@ -121,6 +122,13 @@ export class Composer extends Component<SpreadsheetChildEnv> {
     },
     120
   );
+
+  get inputStyle() {
+    if (this.props.osThemeDependant) {
+      return this.props.inputStyle + " color-scheme: light;";
+    }
+    return this.props.inputStyle;
+  }
 
   get assistantStyleProperties(): CSSProperties {
     const composerEl = this.composerRef();
