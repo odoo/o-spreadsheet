@@ -129,7 +129,7 @@ export class TablePanel extends OSComponent {
   onRangeChanged(ranges: string[]) {
     const sheetId = this.model().getters.getActiveSheetId();
 
-    this.state.tableXc = ranges[0];
+    this.state.tableXc = ranges[0] || "";
     const newTableRange = this.model().getters.getRangeFromSheetXC(sheetId, this.state.tableXc);
     this.state.tableZoneErrors = this.model().canDispatch("UPDATE_TABLE", {
       sheetId,
