@@ -1,9 +1,10 @@
 import { drawHighlight } from "../helpers/rendering";
 import { zoneToDimension } from "../helpers/zones";
 import { Highlight } from "../types/misc";
-import { GridRenderingContext, LayerName } from "../types/rendering";
-import { Get } from "../types/store_engine";
+import { GridRenderingContext, LayerName, Rect } from "../types/rendering";
+import { Get, Store } from "../types/store_engine";
 import { SpreadsheetStore } from "./spreadsheet_store";
+import { ViewportsStore } from "./viewports_store";
 
 export interface HighlightProvider {
   highlights: Highlight[];
@@ -12,9 +13,11 @@ export interface HighlightProvider {
 export class HighlightStore extends SpreadsheetStore {
   mutators = ["register", "unRegister"] as const;
   private providers: HighlightProvider[] = [];
+  private viewStore: Store<ViewportsStore>;
 
   constructor(get: Get) {
     super(get);
+    this.viewStore = get(ViewportsStore);
     this.onDispose(() => {
       this.providers = [];
     });
@@ -25,22 +28,35 @@ export class HighlightStore extends SpreadsheetStore {
   }
 
   get highlights(): Highlight[] {
+    return this.getVisibleHighlights().map(({ highlight }) => highlight);
+  }
+
+  private getVisibleHighlights(): { highlight: Highlight; rect: Rect }[] {
     const activeSheetId = this.getters.getActiveSheetId();
-    return this.providers
-      .flatMap((h) => h.highlights)
-      .filter((h) => h.range.sheetId === activeSheetId)
-      .map((highlight) => {
-        const { numberOfRows, numberOfCols } = zoneToDimension(highlight.range.zone);
+    const visibleHighlights: { highlight: Highlight; rect: Rect }[] = [];
+    for (const provider of this.providers) {
+      for (const highlight of provider.highlights) {
+        const { sheetId, zone: highlightZone } = highlight.range;
+        if (sheetId !== activeSheetId) {
+          continue;
+        }
+        const { numberOfRows, numberOfCols } = zoneToDimension(highlightZone);
         const zone =
           numberOfRows * numberOfCols === 1
-            ? this.getters.expandZone(highlight.range.sheetId, highlight.range.zone)
-            : highlight.range.unboundedZone;
-
-        return {
-          ...highlight,
-          range: this.model.getters.getRangeFromZone(highlight.range.sheetId, zone),
-        };
-      });
+            ? this.getters.expandZone(sheetId, highlightZone)
+            : highlightZone;
+        // compute once here as it's used in drawLayer
+        const rect = this.viewStore.viewports.getVisibleRect(sheetId, zone);
+        if (!(rect.width > 0 && rect.height > 0)) {
+          continue;
+        }
+        visibleHighlights.push({
+          highlight: { ...highlight, range: this.getters.getRangeFromZone(sheetId, zone) },
+          rect,
+        });
+      }
+    }
+    return visibleHighlights;
   }
 
   register(highlightProvider: HighlightProvider) {
@@ -53,8 +69,7 @@ export class HighlightStore extends SpreadsheetStore {
 
   drawLayer(ctx: GridRenderingContext, layer: LayerName): void {
     if (layer === "Highlights") {
-      for (const highlight of this.highlights) {
-        const rect = ctx.viewports.getVisibleRect(ctx.sheetId, highlight.range.zone);
+      for (const { highlight, rect } of this.getVisibleHighlights()) {
         drawHighlight(ctx, highlight, rect);
       }
     }
