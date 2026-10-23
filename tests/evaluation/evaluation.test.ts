@@ -426,6 +426,21 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "C3").value).toBe(12);
   });
 
+  test("# operator on a formula returning a single value", () => {
+    // prettier-ignore
+    const model = createModelFromGrid({
+      A1: "1",            B1: "=A1#",
+      A2: "=A1",          B2: "=A2#",
+      A3: "=SEQUENCE(1)", B3: "=A3#",
+      A4: "=SEQUENCE(2)",
+                          B5: "=A5#",
+    });
+    expect(getEvaluatedCell(model, "B1").value).toBe("#REF");
+    expect(getEvaluatedCell(model, "B2").value).toBe(1);
+    expect(getEvaluatedCell(model, "B3").value).toBe(1);
+    expect(getEvaluatedCell(model, "B5").value).toBe("#REF");
+  });
+
   test("if with sub expressions", () => {
     expect(evaluateCell("A1", { A1: "=IF(A2>0,1,2)", A2: "0" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=IF(A2>0,1,2)", A2: "1" })).toBe(1);
