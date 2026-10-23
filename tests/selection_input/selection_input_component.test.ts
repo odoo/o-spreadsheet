@@ -6,6 +6,7 @@ import { SelectionInput } from "../../src/components/selection_input/selection_i
 import { SelectionInputStore } from "../../src/components/selection_input/selection_input_store";
 import { ColorGenerator } from "../../src/helpers/color";
 import { toCartesian } from "../../src/helpers/coordinates";
+import { render } from "../../src/helpers/owl3_helpers";
 import { toZone } from "../../src/helpers/zones";
 import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
 import { useStoreProvider } from "../../src/store_engine/store_hooks";
@@ -870,7 +871,7 @@ describe("Selection Input", () => {
   test("ranges are computed only once per render", async () => {
     const { parent } = await createSelectionInput({ initialRanges: ["A1", "A2", "A3"] });
     const spy = jest.spyOn(SelectionInputStore.prototype, "selectionInputs", "get");
-    parent.render(true);
+    render(parent, true);
     await nextTick();
     expect(spy).toHaveBeenCalledTimes(1);
     spy.mockRestore();
