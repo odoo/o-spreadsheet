@@ -33,7 +33,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     for (const row of rowsIndexes) {
       const cfRuleInRow: ClipboardCF[] = [];
       for (const col of columnsIndexes) {
-        const cfRules = Array.from(this.getters.getRulesByCell(sheetId, col, row));
+        const cfRules = this.getters.getRulesByCell(sheetId, col, row);
         cfRuleInRow.push({
           rules: cfRules,
         });

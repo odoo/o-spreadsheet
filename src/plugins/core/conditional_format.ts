@@ -321,7 +321,7 @@ export class ConditionalFormatPlugin
     return ruleIds;
   }
 
-  getRulesByCell(sheetId: UID, cellCol: number, cellRow: number): Set<ConditionalFormat> {
+  getRulesByCell(sheetId: UID, cellCol: number, cellRow: number): ConditionalFormat[] {
     const rules: ConditionalFormatInternal[] = [];
     for (const cf of this.cfRules[sheetId]) {
       for (const range of cf.ranges) {
@@ -331,11 +331,9 @@ export class ConditionalFormatPlugin
       }
     }
 
-    return new Set<ConditionalFormat>(
-      rules.map((rule) => {
-        return this.mapToConditionalFormat(sheetId, rule);
-      })
-    );
+    return rules.map((rule) => {
+      return this.mapToConditionalFormat(sheetId, rule);
+    });
   }
 
   /**
