@@ -1,3 +1,4 @@
+import { positionToZone } from "../helpers/zones";
 import { _t } from "../translation";
 import { DivisionByZeroError, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
@@ -330,10 +331,11 @@ export const SPILLED_RANGE = {
       this.updateDependencies?.(originPosition);
     }
 
-    const spilledZone = this.getters.getSpreadZone(cellPosition);
-    if (spilledZone === undefined) {
+    if (!this.getters.getCell(cellPosition)?.isFormula) {
       return new InvalidReferenceError();
     }
+    // A formula returning a single value is a 1x1 spilled range
+    const spilledZone = this.getters.getSpreadZone(cellPosition) ?? positionToZone(cellPosition);
     const spilledRange = this.getters.getRangeFromZone(initialRange.sheetId, spilledZone);
     if (originPosition) {
       this.addDependencies?.(originPosition, [spilledRange]);
