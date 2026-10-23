@@ -223,17 +223,17 @@ export function startChartDragAndDrop(
     if (overlappedFigure?.tag === "carousel") {
       env.model().dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
         sheetId,
-        figureId: overlappedFigure.id,
-        newChartId: UuidGenerator.smallUuid(),
+        carouselId: overlappedFigure.id,
+        newChartId: payload.chartId,
         chartDefinition: definition,
       });
     } else if (overlappedFigure?.tag === "chart") {
       env.model().dispatch("CREATE_CHART_AND_MERGE_INTO_CAROUSEL", {
-        chartId: payload.chartId,
-        figureId: payload.figureId,
+        newChartId: payload.chartId,
         sheetId: payload.sheetId,
         definition: payload.definition,
         baseFigureId: overlappedFigure.id,
+        newCarouselId: UuidGenerator.smallUuid(),
       });
     } else {
       env.model().dispatch("CREATE_CHART", payload);

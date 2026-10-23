@@ -7,10 +7,12 @@ import { SidePanelStore } from "../../../src/components/side_panel/side_panel/si
 import { CAROUSEL_LAYOUT } from "../../../src/constants";
 import { toZone } from "../../../src/helpers/zones";
 import { NavigatorClipboardPlugin } from "../../../src/owl_plugins/navigator_clipboard_plugin";
+import { ClipboardStore } from "../../../src/stores/clipboard_store";
 import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
   addNewChartToCarousel,
+  copy,
   createCarousel,
   createCarouselWithDataView,
   createChart,
@@ -73,7 +75,7 @@ describe("Carousel figure component", () => {
     createCarousel(model, { items: [] }, "carouselId");
     const radarId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
     const barId = addNewChartToCarousel(model, "carouselId", { type: "bar" });
-    selectCarouselItem(model, "carouselId", { type: "chart", chartId: radarId });
+    selectCarouselItem(model, "carouselId", 0);
     const { fixture } = await mountSpreadsheet({ model });
 
     expect(model.getters.getSelectedCarouselItem("carouselId")).toMatchObject({ chartId: radarId });
@@ -416,11 +418,11 @@ describe("Carousel figure component", () => {
     expect(".o-carousel").toHaveStyle({ "background-color": "#FFFFFF" });
 
     // Carousel with chart
-    const chartId = addNewChartToCarousel(model, "carouselId", {
+    addNewChartToCarousel(model, "carouselId", {
       background: "#123456",
       type: "bar",
     });
-    selectCarouselItem(model, "carouselId", { type: "chart", chartId });
+    selectCarouselItem(model, "carouselId", 1);
     await nextTick();
     expect(".o-carousel").toHaveStyle({ "background-color": "#123456" });
   });
@@ -428,7 +430,7 @@ describe("Carousel figure component", () => {
   test("display chart menu", async () => {
     createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
     addNewChartToCarousel(model, "carouselId", { type: "bar" });
-    selectCarouselItem(model, "carouselId", { type: "carouselDataView" });
+    selectCarouselItem(model, "carouselId", 0);
     model.updateMode("dashboard");
     const { fixture } = await mountSpreadsheet({ model });
     expect(".o-chart-menu-item").toHaveCount(0); // nothing for the data view
@@ -643,6 +645,21 @@ describe("Carousel figure component", () => {
       paste(model, "A1");
       expect(model.getters.getFigures(sheetId)).toHaveLength(1);
       expect(model.getters.getFigure(sheetId, "carouselId")).toBeUndefined();
+    });
+
+    test("Can paste a range into the carousel", async () => {
+      createCarousel(model, { items: [] }, "carouselId");
+      copy(model, "A1:B2");
+      const clipboardStore = env.getStore(ClipboardStore);
+      await env
+        .getPlugin(NavigatorClipboardPlugin)
+        .write(await clipboardStore.getClipboardTextAndImageContent());
+      selectFigure(model, "carouselId");
+
+      await getCarouselMenuItem("carouselId", "paste_into_carousel")?.execute?.(env);
+      expect(model.getters.getCarousel("carouselId").items).toMatchObject([
+        { type: "carouselDataView", range: { zone: toZone("A1:B2") } },
+      ]);
     });
 
     test("Can copy the carousel chart as image", async () => {
