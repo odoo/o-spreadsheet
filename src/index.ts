@@ -328,6 +328,7 @@ export const registries = {
   repeatLocalCommandTransformRegistry,
   repeatCommandTransformRegistry,
   clipboardHandlersRegistries,
+  dynamicToStaticFormulaRegistry,
   pivotRegistry,
   pivotTimeAdapterRegistry,
   pivotSidePanelRegistry,
@@ -398,6 +399,7 @@ import { chartDataSourceRegistry } from "./registries/chart_data_source_registry
 import { chartSubtypeRegistry } from "./registries/chart_subtype_registry";
 import { clipboardHandlersRegistries } from "./registries/clipboard_handlers_registries";
 import { unusedDataSourceRegistry } from "./registries/data_source_registry";
+import { dynamicToStaticFormulaRegistry } from "./registries/dynamic_to_static_formula_registry";
 import { onIterationEndEvaluationRegistry } from "./registries/evaluation_registry";
 import { performanceRegistry } from "./registries/performance_registry";
 import { specificRangeTransformRegistry } from "./registries/srt_registry";
