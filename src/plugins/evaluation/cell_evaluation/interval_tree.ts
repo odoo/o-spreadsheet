@@ -1,13 +1,18 @@
+import { Dimension } from "../../../types/misc";
 import { BoundedRange } from "../../../types/range";
 
 /**
  * Represents a numeric range [top, bottom].
  * Optional 'dependents' link the interval to the range of cells that depend on
  * the interval.
+ * Optional 'dim' is the dimension along which contiguous dependents are compacted:
+ * "COL" merges dependents of the same columns on contiguous rows, "ROW" merges
+ * dependents of the same rows on contiguous columns.
  */
 export interface Interval {
-  top: number;
-  bottom: number;
+  start: number;
+  end: number;
+  dim?: Dimension;
   dependents?: BoundedRange;
 }
 
@@ -21,10 +26,10 @@ class IntervalNode {
 
   constructor(
     public interval: Interval,
-    public left: IntervalNode | null = null,
-    public right: IntervalNode | null = null
+    public start: IntervalNode | null = null,
+    public stop: IntervalNode | null = null
   ) {
-    this.max = interval.bottom;
+    this.max = interval.end;
   }
 }
 
@@ -86,20 +91,27 @@ export class IntervalTree {
     const compacted: Interval[] = [];
     for (let i = 1; i < sortedIntervals.length; i++) {
       const next = sortedIntervals[i];
-      const isSameInterval = next.top === current.top && next.bottom === current.bottom;
+      const isSameInterval =
+        next.start === current.start && next.end === current.end && next.dim === current.dim;
+      const isDimCol = current.dim === "COL";
+      const dStart = isDimCol ? "left" : "top";
+      const dStop = isDimCol ? "right" : "bottom";
+
       if (
         isSameInterval &&
-        // Is same column
-        next.dependents.zone.left === current.dependents.zone.left &&
-        next.dependents.zone.right === current.dependents.zone.right &&
+        // Is same column (or row)
+        next.dependents.zone[dStart] === current.dependents.zone[dStart] &&
+        next.dependents.zone[dStop] === current.dependents.zone[dStop] &&
         next.dependents.sheetId === current.dependents.sheetId
       ) {
-        if (next.dependents.zone.top - 1 === current.dependents.zone.bottom) {
+        const pStart = isDimCol ? "top" : "left";
+        const pStop = isDimCol ? "bottom" : "right";
+        if (next.dependents.zone[pStart] - 1 === current.dependents.zone[pStop]) {
           // Extend the vertical boundary of the dependents
-          current.dependents.zone.bottom = next.dependents.zone.bottom;
+          current.dependents.zone[pStop] = next.dependents.zone[pStop];
         } else if (
-          next.dependents.zone.top === current.dependents.zone.top &&
-          next.dependents.zone.bottom === current.dependents.zone.bottom
+          next.dependents.zone[pStart] === current.dependents.zone[pStart] &&
+          next.dependents.zone[pStop] === current.dependents.zone[pStop]
         ) {
           // Exact same, ignore it
           continue;
@@ -152,21 +164,21 @@ export class IntervalTree {
     const mid = start + ((end - start) >> 1); // divide by 2
     const node = new IntervalNode(sortedIntervals[mid]);
 
-    node.left = this.buildBalancedTree(sortedIntervals, start, mid);
-    node.right = this.buildBalancedTree(sortedIntervals, mid + 1, end);
+    node.start = this.buildBalancedTree(sortedIntervals, start, mid);
+    node.stop = this.buildBalancedTree(sortedIntervals, mid + 1, end);
 
     // Update augmented 'max' for the subtree
     node.max = Math.max(
-      node.interval.bottom,
-      node.left ? node.left.max : -1,
-      node.right ? node.right.max : -1
+      node.interval.end,
+      node.start ? node.start.max : -1,
+      node.stop ? node.stop.max : -1
     );
 
     return node;
   }
 
   private searchTree(node: IntervalNode | null, target: Interval, results: Interval[]) {
-    if (!node || target.top > node.max) {
+    if (!node || target.start > node.max) {
       return;
     }
 
@@ -175,14 +187,14 @@ export class IntervalTree {
     }
 
     // Use node.max to skip subtrees that cannot possibly overlap.
-    if (node.left && node.left.max >= target.top) {
-      this.searchTree(node.left, target, results);
+    if (node.start && node.start.max >= target.start) {
+      this.searchTree(node.start, target, results);
     }
 
     // Since tree is sorted by 'top', we only check right if target.bottom
     // can reach the node's top or beyond.
-    if (node.right && target.bottom >= node.interval.top) {
-      this.searchTree(node.right, target, results);
+    if (node.stop && target.end >= node.interval.start) {
+      this.searchTree(node.stop, target, results);
     }
   }
 
@@ -190,13 +202,13 @@ export class IntervalTree {
     if (!node) {
       return;
     }
-    this.inOrderTraversal(node.left, results);
+    this.inOrderTraversal(node.start, results);
     results.push(node.interval);
-    this.inOrderTraversal(node.right, results);
+    this.inOrderTraversal(node.stop, results);
   }
 
   private isOverlapping(a: Interval, b: Interval): boolean {
-    return a.top <= b.bottom && a.bottom >= b.top;
+    return a.start <= b.end && a.end >= b.start;
   }
 }
 
@@ -205,10 +217,10 @@ export class IntervalTree {
  */
 function compareIntervals(a: Required<Interval>, b: Required<Interval>): number {
   // Primary sort by interval boundaries
-  if (a.top !== b.top) {
-    return a.top - b.top;
-  } else if (a.bottom !== b.bottom) {
-    return a.bottom - b.bottom;
+  if (a.start !== b.start) {
+    return a.start - b.start;
+  } else if (a.end !== b.end) {
+    return a.end - b.end;
   }
   // Secondary sort by dependent for compaction
   const { zone: zA, sheetId: sheetIdA } = a.dependents;
@@ -216,5 +228,11 @@ function compareIntervals(a: Required<Interval>, b: Required<Interval>): number 
   if (sheetIdA !== sheetIdB) {
     return sheetIdA > sheetIdB ? 1 : -1;
   }
-  return zA.left - zB.left || zA.right - zB.right || zA.top - zB.top || zA.bottom - zB.bottom;
+  if (a.dim !== b.dim) {
+    return a.dim > b.dim ? 1 : -1;
+  }
+  if (a.dim === "COL") {
+    return zA.left - zB.left || zA.right - zB.right || zA.top - zB.top || zA.bottom - zB.bottom;
+  }
+  return zA.top - zB.top || zA.bottom - zB.bottom || zA.left - zB.left || zA.right - zB.right;
 }
