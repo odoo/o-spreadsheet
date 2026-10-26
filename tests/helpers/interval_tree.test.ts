@@ -111,4 +111,30 @@ describe.each(["COL", "ROW"])("IntervalTree", (dim: Dimension) => {
     expect(tree.query({ start: 1, end: 10 })).toEqual([interval]);
     expect(tree.query({ start: 20, end: 30 })).toEqual([interval]);
   });
+
+  test("compaction does not alter dependents shared with another tree", () => {
+    const sharedDependents = toBoundedRange("Sheet1", "A1");
+    const tree1 = new IntervalTree();
+    tree1.insert(createInterval(0, 0, sharedDependents));
+    if (dim === "COL") {
+      tree1.insert(createInterval(0, 0, toBoundedRange("Sheet1", "A2")));
+    } else {
+      tree1.insert(createInterval(0, 0, toBoundedRange("Sheet1", "B1")));
+    }
+    const tree2 = new IntervalTree();
+    tree2.insert(createInterval(5, 5, sharedDependents));
+
+    if (dim === "COL") {
+      expect(tree1.query({ start: 0, end: 0 })).toEqual([
+        createInterval(0, 0, toBoundedRange("Sheet1", "A1:A2")),
+      ]);
+    } else {
+      expect(tree1.query({ start: 0, end: 0 })).toEqual([
+        createInterval(0, 0, toBoundedRange("Sheet1", "A1:B1")),
+      ]);
+    }
+    expect(tree2.query({ start: 5, end: 5 })).toEqual([
+      createInterval(5, 5, toBoundedRange("Sheet1", "A1")),
+    ]);
+  });
 });
