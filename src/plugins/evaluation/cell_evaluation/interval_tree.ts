@@ -88,6 +88,7 @@ export class IntervalTree {
    */
   private compactSortedIntervals(sortedIntervals: Required<Interval>[]): Interval[] {
     let current = sortedIntervals[0];
+    let isCurrentCopied = false;
     const compacted: Interval[] = [];
     for (let i = 1; i < sortedIntervals.length; i++) {
       const next = sortedIntervals[i];
@@ -107,6 +108,16 @@ export class IntervalTree {
         const pStart = isDimCol ? "top" : "left";
         const pStop = isDimCol ? "bottom" : "right";
         if (next.dependents.zone[pStart] - 1 === current.dependents.zone[pStop]) {
+          if (!isCurrentCopied) {
+            current = {
+              ...current,
+              dependents: {
+                sheetId: current.dependents.sheetId,
+                zone: { ...current.dependents.zone },
+              },
+            };
+            isCurrentCopied = true;
+          }
           // Extend the vertical boundary of the dependents
           current.dependents.zone[pStop] = next.dependents.zone[pStop];
         } else if (
@@ -118,10 +129,12 @@ export class IntervalTree {
         } else {
           compacted.push(current);
           current = next;
+          isCurrentCopied = false;
         }
       } else {
         compacted.push(current);
         current = next;
+        isCurrentCopied = false;
       }
     }
     compacted.push(current);

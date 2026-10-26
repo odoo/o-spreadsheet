@@ -81,7 +81,8 @@ export class FormulaDependencyGraph {
 
     // At the end we want to remove from the visited set all the initial range positions, except the ones we're actually depending on
     // Some of the cells of the initial ranges might be depending on other cells of the initial ranges, and we want to keep those in the visited set
-    let initialRangesToRemove = visited.copy();
+    const initialRangesToRemove = visited.copy();
+    const hasInitialRanges = !initialRangesToRemove.isEmpty();
 
     const queue: BoundedRange[] = Array.from(ranges).reverse();
     while (queue.length > 0) {
@@ -119,8 +120,14 @@ export class FormulaDependencyGraph {
           impactedRanges.add(interval.dependents);
         }
       }
-      queue.push(...impactedRanges.difference(visited));
-      initialRangesToRemove = initialRangesToRemove.difference(impactedRanges);
+      for (const impactedRange of impactedRanges) {
+        if (!visited.has(impactedRange)) {
+          queue.push(impactedRange);
+        }
+        if (hasInitialRanges) {
+          initialRangesToRemove.delete(impactedRange);
+        }
+      }
     }
 
     // remove initial ranges
