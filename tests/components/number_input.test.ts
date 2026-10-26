@@ -1,8 +1,7 @@
-import { useProps, xml } from "@odoo/owl";
+import { Component, useProps, xml } from "@odoo/owl";
 import { NumberInput } from "../../src/components/number_input/number_input";
 import { OSComponent } from "../../src/components/os_component";
 import { render } from "../../src/helpers/owl3_helpers";
-import { Component } from "../../src/owl3_compatibility_layer";
 import { PropsOf } from "../../src/types/props_of";
 import {
   click,

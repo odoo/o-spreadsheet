@@ -1,6 +1,5 @@
-import { proxy, useProps, xml } from "@odoo/owl";
+import { Component, proxy, useProps, xml } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
-import { Component } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ZoomStore } from "../../stores/zoom_store";
 import { HeaderIndex } from "../../types/misc";
@@ -117,7 +116,7 @@ export class Autofill extends OSComponent {
   }
 }
 
-class TooltipComponent extends Component<any> {
+class TooltipComponent extends Component {
   protected props: { content: string } = useProps({
     content: types.string(),
   });

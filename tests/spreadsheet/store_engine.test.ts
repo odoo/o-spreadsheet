@@ -1,7 +1,6 @@
-import { batched, onMounted, useProps, xml } from "@odoo/owl";
+import { batched, Component, onMounted, useProps, xml } from "@odoo/owl";
 import { types } from "../../src/components/props_validation";
 import { render } from "../../src/helpers/owl3_helpers";
-import { Component } from "../../src/owl3_compatibility_layer";
 import {
   useChildStoreProvider,
   useStore,
@@ -21,7 +20,7 @@ class TestStore extends SpreadsheetStore {
 }
 
 describe("Children stores", () => {
-  class Child extends Component<any> {
+  class Child extends Component {
     static template = xml/* xml */ `<div class="childText" t-out="this.store.value" />`;
     props = useProps({ childOwnStores: types.array() });
     store!: Store<TestStore>;
@@ -35,7 +34,7 @@ describe("Children stores", () => {
     }
   }
 
-  class Parent extends Component<any> {
+  class Parent extends Component {
     static template = xml/* xml */ `
         <div class="parentText" t-out="this.store.value" />
         <Child t-props="this.props"/>

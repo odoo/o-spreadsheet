@@ -1,7 +1,15 @@
-import { PluginConstructor, providePlugins, Scope, useProps, useScope, xml } from "@odoo/owl";
+import {
+  Component,
+  PluginConstructor,
+  providePlugins,
+  Scope,
+  useProps,
+  useScope,
+  xml,
+} from "@odoo/owl";
 import { createGetPluginFunctionFromScope } from "../../src/components/os_component";
 import { types } from "../../src/components/props_validation";
-import { App, Component } from "../../src/owl3_compatibility_layer";
+import { App } from "../../src/owl3_compatibility_layer";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { useStoreProvider } from "../../src/store_engine/store_hooks";
 import { _t } from "../../src/translation";

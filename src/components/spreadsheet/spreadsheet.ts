@@ -1,4 +1,5 @@
 import {
+  Component,
   onMounted,
   onPatched,
   onWillUnmount,
@@ -17,7 +18,7 @@ import { unregisterChartJsExtensions } from "../../helpers/figures/charts/chart_
 import { batched } from "../../helpers/misc";
 import { providePluginsIfNotPresent, render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
-import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
+import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { ImageProviderPlugin } from "../../owl_plugins/image_provider_owl_plugin";
 import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";

@@ -41,7 +41,7 @@ const {
   onPatched, // Exported by Odoo compat layer
   onWillUnmount,
   App: OwlApp,
-  Component: OwlComponent, // Exported by Odoo compat layer
+  Component: OwlComponent,
   EnvPlugin: OwlEnvPlugin, // Exported by Odoo compat layer
   useComponent: OwlUseComponent, // Exported by Odoo compat layer
   useEnv: OwlUseEnv, // Exported by Odoo compat layer
@@ -59,18 +59,6 @@ const isOdooCompatLoaded = __ODOO_COMPATIBILITY_LAYER_ADDED__ === true;
 export interface ComponentConstructor<Env = any> {
   new (...args: any[]): any;
   template: string;
-}
-
-class _Component<Env = any> extends OwlComponent {
-  // @ts-ignore
-  public env: Env;
-
-  constructor(node) {
-    super(node);
-    this.env = _useEnv();
-  }
-
-  setup() {}
 }
 
 function _useComponent() {
@@ -311,7 +299,6 @@ class _App extends OwlApp {
   }
 }
 
-const Component = isOdooCompatLoaded ? (OwlComponent as typeof _Component) : _Component;
 const useComponent = isOdooCompatLoaded ? (OwlUseComponent as typeof _useComponent) : _useComponent;
 const useLayoutEffect = isOdooCompatLoaded
   ? (OwlUseLayoutEffect as typeof _useLayoutEffect)
@@ -321,8 +308,7 @@ const useEnv = isOdooCompatLoaded ? (OwlUseEnv as typeof _useEnv) : _useEnv;
 const useSubEnv = isOdooCompatLoaded ? (OwlUseSubEnv as typeof _useSubEnv) : _useSubEnv;
 const App = isOdooCompatLoaded ? (OwlApp as typeof _App) : _App;
 
-export { App, Component, EnvPlugin, useComponent, useEnv, useLayoutEffect, useSubEnv };
-export type Component<Env = any> = _Component<Env>;
+export { App, EnvPlugin, useComponent, useEnv, useLayoutEffect, useSubEnv };
 export type useComponent = () => any;
 export type useLayoutEffect = (effect, computeDependencies: () => any) => void;
 export type EnvPlugin = _EnvPlugin;
