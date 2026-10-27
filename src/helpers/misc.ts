@@ -8,7 +8,6 @@ import { SearchOptions } from "../types/find_and_replace";
 import { Getters } from "../types/getters";
 import {
   CellPosition,
-  Cloneable,
   ConsecutiveIndexes,
   DebouncedFunction,
   isMatrix,
@@ -18,10 +17,6 @@ import {
 } from "../types/misc";
 
 const sanitizeSheetNameRegex = new RegExp(FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX, "g");
-
-function isCloneable<T extends Object>(obj: T | Cloneable<T>): obj is Cloneable<T> {
-  return "clone" in obj && obj.clone instanceof Function;
-}
 
 /**
  * Escapes a string to use as a literal string in a RegExp.
@@ -41,8 +36,6 @@ export function deepCopy<T>(obj: T): T {
     case "object": {
       if (obj === null) {
         return obj;
-      } else if (isCloneable(obj)) {
-        return obj.clone();
       } else if (!(isPlainObject(obj) || obj instanceof Array)) {
         throw new Error("Unsupported type: only objects and arrays are supported");
       }
