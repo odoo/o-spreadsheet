@@ -375,10 +375,6 @@ export interface Lazy<T> {
 
 export type Maybe<T> = T | undefined;
 
-export interface Cloneable<T> {
-  clone: (args?: Partial<T>) => T;
-}
-
 export type CSSProperties<P extends string = string> = Record<P, string | undefined>;
 
 export interface SortOptions {
