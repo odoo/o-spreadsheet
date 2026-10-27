@@ -4,10 +4,13 @@ import { toCartesian, toXC } from "../helpers/coordinates";
 import { formatValue } from "../helpers/format/format";
 import { canonicalizeNumberValue } from "../helpers/locale";
 import { deepEquals } from "../helpers/misc";
-import { cellPositions, isZoneInside } from "../helpers/zones";
+import { cellPositions } from "../helpers/zones";
 import { SquishedContent, Squisher } from "../plugins/core/squisher";
 import { Unsquisher } from "../plugins/core/unsquisher";
-import { getDynamicToStaticFormulaRule } from "../registries/dynamic_to_static_formula_registry";
+import {
+  getDynamicToStaticFormulaRule,
+  isCopiedAsDynamicFormula,
+} from "../registries/dynamic_to_static_formula_registry";
 import { Cell, CellValue, CellValueType, LiteralCell } from "../types/cells";
 import {
   ClipboardCellData,
@@ -48,7 +51,6 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   ): CompactCellHandlerData | undefined {
     const sheetId = data.sheetId;
     const { rowsIndexes, columnsIndexes } = data;
-    const isCopyingOneCell = rowsIndexes.length === 1 && columnsIndexes.length === 1;
 
     // Pre-allocate the row-major result matrix so we can fill it directly
     // while iterating col-major (required by the squisher).
@@ -68,12 +70,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         const dynamicToStaticRule = getDynamicToStaticFormulaRule(position, this.getters);
         const spreader = this.getters.getArrayFormulaSpreadingOn(position);
         if (mode !== "shiftCells" && dynamicToStaticRule && spreader) {
-          const spreadZone = this.getters.getSpreadZone(spreader);
-          if (
-            (!deepEquals(spreader, position) || !isCopyingOneCell) &&
-            spreadZone &&
-            !data.zones.some((z) => isZoneInside(spreadZone, z))
-          ) {
+          if (!isCopiedAsDynamicFormula(this.getters, position, data)) {
             cell = {
               id: cell?.id ?? 0,
               style: cell?.style,
