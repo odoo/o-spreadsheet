@@ -1,4 +1,7 @@
+import { deepEquals } from "../helpers/misc";
 import { createPivotFormula } from "../helpers/pivot/pivot_helpers";
+import { isZoneInside } from "../helpers/zones";
+import { ClipboardCellData } from "../types/clipboard";
 import { Getters } from "../types/getters";
 import { CellPosition } from "../types/misc";
 import { Registry } from "./registry";
@@ -28,4 +31,29 @@ dynamicToStaticFormulaRegistry.add("pivot", {
 
 export function getDynamicToStaticFormulaRule(position: CellPosition, getters: Getters) {
   return dynamicToStaticFormulaRegistry.getAll().find((rule) => rule.condition(position, getters));
+}
+
+/**
+ * Whether the formula of the cell stays dynamic when copying it, instead of being
+ * copied as static formulas, e.g. =PIVOT(1) copied as =PIVOT.HEADER(...) and
+ * =PIVOT.VALUE(...) (see `dynamicToStaticFormulaRegistry`). It stays dynamic when
+ * copying only the formula cell, or its whole spread zone.
+ */
+export function isCopiedAsDynamicFormula(
+  getters: Getters,
+  position: CellPosition,
+  data: ClipboardCellData
+): boolean {
+  const spreader = getters.getArrayFormulaSpreadingOn(position);
+  const spreadZone = spreader && getters.getSpreadZone(spreader);
+  // Other spread formulas, e.g. =SEQUENCE(3), are copied as they are
+  if (!spreadZone || !getDynamicToStaticFormulaRule(position, getters)) {
+    return true;
+  }
+  const isOnlyFormulaCellCopied =
+    data.rowsIndexes.length === 1 &&
+    data.columnsIndexes.length === 1 &&
+    deepEquals(spreader, position);
+  const isWholeSpreadZoneCopied = data.zones.some((zone) => isZoneInside(spreadZone, zone));
+  return isOnlyFormulaCellCopied || isWholeSpreadZoneCopied;
 }
