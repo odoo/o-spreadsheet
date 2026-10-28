@@ -100,7 +100,8 @@ exports[`Grid component simple rendering snapshot 1`] = `
   </div>
   
   <div
-    class="os-canvas-background"
+    class="os-canvas-background o-canvas-container overflow-hidden"
+    style="width: 1033px; height: 1011px;"
   >
     <canvas
       class="os-theme-dependant pe-none"
