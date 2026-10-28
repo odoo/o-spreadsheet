@@ -1,8 +1,8 @@
 import { onWillUnmount, useOnChange, usePlugin } from "@odoo/owl";
 import { MAX_DELAY } from "../../helpers/edge_scrolling";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
+import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { ViewportsStore } from "../../stores/viewports_store";
-import { ZoomStore } from "../../stores/zoom_store";
 import { HeaderIndex, Pixel } from "../../types/misc";
 import { SpreadsheetActionEnv } from "../../types/spreadsheet_env";
 import { gridOverlayPosition } from "./dom_helpers";
@@ -29,7 +29,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetActionEnv) {
   const modelPlugin = usePlugin(ModelPlugin);
   const model = modelPlugin.model();
   const viewStore = env.getStore(ViewportsStore);
-  const zoomStore = env.getStore(ZoomStore);
+  const zoomPlugin = usePlugin(ZoomPlugin);
 
   const blockKeyboard = (ev: KeyboardEvent) => ev.preventDefault();
   const cleanUpBlockKeyboard = () =>
@@ -54,9 +54,9 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetActionEnv) {
     }
 
     const sheetId = model.getters.getActiveSheetId();
-    const zoomLevel = zoomStore.zoomLevel;
+    const zoomLevel = zoomPlugin.zoomLevel();
     const position = gridOverlayPosition(zoomLevel);
-    const zoomedMouseEvent = zoomStore.getZoomedEvent(currentEv, position);
+    const zoomedMouseEvent = zoomPlugin.getZoomedEvent(currentEv, position);
     const { x: offsetCorrectionX, y: offsetCorrectionY } = viewStore.mainViewportCoordinates;
     const { top, left, bottom, right } = viewStore.activeMainViewport;
     let { scrollX, scrollY } = viewStore.activeSheetScrollInfo;
@@ -165,7 +165,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetActionEnv) {
     startScrollDirection: DnDDirection = "all"
   ) => {
     cleanUp();
-    const zoomLevel = zoomStore.zoomLevel;
+    const zoomLevel = zoomPlugin.zoomLevel();
     const position = gridOverlayPosition(zoomLevel);
     scrollDirection = startScrollDirection;
     startingX = initialPointerCoordinates.clientX - position.x;

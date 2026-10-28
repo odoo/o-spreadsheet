@@ -1,12 +1,10 @@
-import { computed, proxy, shallowEqual, signal, useEffect, useProps } from "@odoo/owl";
+import { computed, proxy, shallowEqual, signal, useEffect, usePlugin, useProps } from "@odoo/owl";
+import { ZoomPlugin } from "../../../owl_plugins/zoom_plugin";
 import { figureRegistry } from "../../../registries/figures_registry";
-import { useStore } from "../../../store_engine/store_hooks";
-import { ZoomStore } from "../../../stores/zoom_store";
 import { UpdateFiguresPayload } from "../../../types/commands";
 import { AnchorOffset, FigureUI, ResizeDirection } from "../../../types/figure";
 import { CSSProperties, UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
-import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { isMobileOS, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
@@ -47,7 +45,7 @@ export class FigureComponent extends OSComponent {
 
   private figureRef = signal.ref();
 
-  private zoomStore!: Store<ZoomStore>;
+  private zoomPlugin = usePlugin(ZoomPlugin);
 
   get isSelected(): boolean {
     return (
@@ -127,7 +125,6 @@ export class FigureComponent extends OSComponent {
   }
 
   setup() {
-    this.zoomStore = useStore(ZoomStore);
     const selectedFigureIds = computed<UID[]>(() => this.model().getters.getSelectedFigureIds(), {
       equals: shallowEqual,
     });
@@ -303,7 +300,7 @@ export class FigureComponent extends OSComponent {
     if (this.model().getters.isDashboard()) {
       return;
     }
-    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
+    const zoomedMouseEvent = this.zoomPlugin.getZoomedEvent(ev);
     this.openContextMenu({
       x: zoomedMouseEvent.clientX,
       y: zoomedMouseEvent.clientY,

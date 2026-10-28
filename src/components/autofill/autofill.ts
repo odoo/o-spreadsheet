@@ -1,8 +1,8 @@
-import { proxy, useProps, xml } from "@odoo/owl";
+import { proxy, usePlugin, useProps, xml } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
 import { Component } from "../../owl3_compatibility_layer";
+import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
-import { ZoomStore } from "../../stores/zoom_store";
 import { HeaderIndex } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
@@ -34,11 +34,10 @@ export class Autofill extends OSComponent {
   });
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
-  private zoomStore!: Store<ZoomStore>;
+  private zoomPlugin = usePlugin(ZoomPlugin);
   private autofillStore!: Store<AutofillStore>;
 
   setup(): void {
-    this.zoomStore = useStore(ZoomStore);
     this.autofillStore = useLocalStore(AutofillStore);
     useStore(TableAutofillStore);
   }
@@ -75,8 +74,8 @@ export class Autofill extends OSComponent {
 
   onMouseDown(ev: PointerEvent) {
     this.state.handler = true;
-    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
-    const zoom = this.zoomStore.zoomLevel;
+    const zoomedMouseEvent = this.zoomPlugin.getZoomedEvent(ev);
+    const zoom = this.zoomPlugin.zoomLevel();
     let lastCol: HeaderIndex | undefined;
     let lastRow: HeaderIndex | undefined;
     const start = {

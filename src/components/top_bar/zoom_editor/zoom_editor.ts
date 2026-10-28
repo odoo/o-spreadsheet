@@ -1,8 +1,6 @@
-import { useProps } from "@odoo/owl";
+import { usePlugin, useProps } from "@odoo/owl";
 import { MAX_ZOOM, MIN_ZOOM, ZOOM_VALUES } from "../../../constants";
-import { useStore } from "../../../store_engine/store_hooks";
-import { ZoomStore } from "../../../stores/zoom_store";
-import { Store } from "../../../types/store_engine";
+import { ZoomPlugin } from "../../../owl_plugins/zoom_plugin";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 import { NumberEditor } from "../../number_editor/number_editor";
 import { OSComponent } from "../../os_component";
@@ -14,7 +12,7 @@ export class ToolBarZoom extends OSComponent {
 
   protected props = useProps({ class: types.string() });
   topBarToolStore!: ToolBarDropdownStore;
-  private zoomStore!: Store<ZoomStore>;
+  private zoomPlugin = usePlugin(ZoomPlugin);
 
   valueList = ZOOM_VALUES;
   minZoom = MIN_ZOOM * 100;
@@ -22,16 +20,15 @@ export class ToolBarZoom extends OSComponent {
 
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();
-    this.zoomStore = useStore(ZoomStore);
   }
 
   getZoomLevel(): number {
-    const zoom = this.zoomStore.zoomLevel || 1;
+    const zoom = this.zoomPlugin.zoomLevel() || 1;
     return Math.round(zoom * 100);
   }
 
   setZoom(zoomPercentage: number) {
-    this.zoomStore.setZoom(zoomPercentage / 100);
+    this.zoomPlugin.setZoom(zoomPercentage / 100);
   }
 
   toggle() {

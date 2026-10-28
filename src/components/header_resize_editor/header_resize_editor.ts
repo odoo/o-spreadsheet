@@ -1,14 +1,14 @@
-import { signal, useEffect, useListener, useProps } from "@odoo/owl";
+import { signal, useEffect, useListener, usePlugin, useProps } from "@odoo/owl";
 import {
   DEFAULT_CELL_WIDTH,
   MAX_HEADER_SIZE,
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
 } from "../../constants";
+import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ViewportsStore } from "../../stores/viewports_store";
-import { ZoomStore } from "../../stores/zoom_store";
 import { _t } from "../../translation";
 import { DispatchResult } from "../../types/commands";
 import { Dimension, HeaderIndex } from "../../types/misc";
@@ -39,12 +39,11 @@ export class HeaderResizeEditor extends OSComponent {
   private inputRef = signal.ref(HTMLInputElement);
   private editorRef = signal.ref();
   private viewStore!: Store<ViewportsStore>;
-  private zoomStore!: Store<ZoomStore>;
+  private zoomPlugin = usePlugin(ZoomPlugin);
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
   setup() {
     this.viewStore = useStore(ViewportsStore);
-    this.zoomStore = useStore(ZoomStore);
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     useListener(window, "click", this.onExternalClick.bind(this), { capture: true });
     useListener(window, "contextmenu", this.onExternalClick.bind(this), { capture: true });
@@ -86,7 +85,7 @@ export class HeaderResizeEditor extends OSComponent {
       const { start, size } = this.viewStore.viewports.getRowDimensionsInViewport(sheetId, index);
       headerRect = { x: 0, y: gridOffset.y + start, width: gridOffset.x, height: size };
     }
-    const zoomedHeaderRect = this.zoomStore.getZoomedRect(headerRect);
+    const zoomedHeaderRect = this.zoomPlugin.getZoomedRect(headerRect);
     return {
       ...zoomedHeaderRect,
       x: this.props.gridRect.x + zoomedHeaderRect.x,

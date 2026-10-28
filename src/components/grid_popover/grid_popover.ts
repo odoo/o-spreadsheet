@@ -1,13 +1,12 @@
+import { usePlugin, useProps } from "@odoo/owl";
+import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useStore } from "../../store_engine/store_hooks";
-import { ZoomStore } from "../../stores/zoom_store";
 import { ClosedCellPopover, PositionedCellPopoverComponent } from "../../types/cell_popovers";
 import { Store } from "../../types/store_engine";
 import { OSComponent } from "../os_component";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
 import { types } from "../props_validation";
-
-import { useProps } from "@odoo/owl";
 
 export class GridPopover extends OSComponent {
   static template = "o-spreadsheet-GridPopover";
@@ -19,11 +18,10 @@ export class GridPopover extends OSComponent {
     gridRect: types.Rect(),
   });
   protected cellPopovers!: Store<CellPopoverStore>;
-  private zoomStore!: Store<ZoomStore>;
+  private zoomPlugin = usePlugin(ZoomPlugin);
 
   setup() {
     this.cellPopovers = useStore(CellPopoverStore);
-    this.zoomStore = useStore(ZoomStore);
   }
 
   get cellPopover(): PositionedCellPopoverComponent | ClosedCellPopover {
@@ -31,7 +29,7 @@ export class GridPopover extends OSComponent {
     if (!popover.isOpen) {
       return { isOpen: false };
     }
-    const anchorRect = this.zoomStore.getZoomedRect(popover.anchorRect);
+    const anchorRect = this.zoomPlugin.getZoomedRect(popover.anchorRect);
     return {
       ...popover,
       // transform from the "canvas coordinate system" to the "body coordinate system"

@@ -1,3 +1,4 @@
+import { usePlugin } from "@odoo/owl";
 import {
   CellPosition,
   FigureUI,
@@ -14,6 +15,7 @@ import { invalidateEvaluationCommands } from "../command_registry";
 import { FOOTER_HEIGHT, getDefaultSheetViewSize } from "../constants";
 import { deepEquals } from "../helpers/misc";
 import { ViewportCollection } from "../helpers/viewport_collection";
+import { ZoomPlugin } from "../owl_plugins/zoom_plugin";
 import { Command } from "../types/commands";
 import {
   DOMCoordinates,
@@ -24,7 +26,6 @@ import {
 } from "../types/rendering";
 import { Get } from "../types/store_engine";
 import { SpreadsheetStore } from "./spreadsheet_store";
-import { ZoomStore } from "./zoom_store";
 
 type getHeaderDimensionsCallback = (
   sheetId: UID,
@@ -51,10 +52,10 @@ export class ViewportsStore extends SpreadsheetStore {
   ] as const;
   storeGetters = ["getCartesianCoordinates"] as const;
 
-  private zoomStore = this.get(ZoomStore);
+  private zoomPlugin = usePlugin(ZoomPlugin);
   private getHeaderDimensionsCallback = this.getters.getHeaderDimensions;
   private getFooterSizeCallback = this.getFooterSize.bind(this);
-  private getZoomLevelCallback = () => this.zoomStore.zoomLevel;
+  private getZoomLevelCallback = () => this.zoomPlugin.zoomLevel();
   private zoneToDisplay: Zone | undefined = undefined;
 
   viewports: ViewportCollection = new ViewportCollection({

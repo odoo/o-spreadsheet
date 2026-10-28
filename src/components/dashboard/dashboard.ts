@@ -1,8 +1,8 @@
-import { providePlugins, signal, useProps } from "@odoo/owl";
+import { providePlugins, signal, usePlugin, useProps } from "@odoo/owl";
+import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
-import { ZoomStore } from "../../stores/zoom_store";
 import { Pixel } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
@@ -47,7 +47,7 @@ export class SpreadsheetDashboard extends OSComponent {
   canvasPosition!: DOMCoordinates;
   hoveredCell!: Store<DelayedHoveredCellStore>;
   private viewStore!: Store<ViewportsStore>;
-  private zoomStore!: Store<ZoomStore>;
+  private zoomPlugin = usePlugin(ZoomPlugin);
 
   private gridRef = signal.ref();
   private canvasRef = signal.ref(HTMLCanvasElement);
@@ -55,13 +55,12 @@ export class SpreadsheetDashboard extends OSComponent {
   setup() {
     this.hoveredCell = useStore(DelayedHoveredCellStore);
     this.viewStore = useStore(ViewportsStore);
-    this.zoomStore = useStore(ZoomStore);
     useLocalStore(HoveredTableStore);
 
     const layers = OrderedLayers().filter((layer) => layer !== "Headers");
     const rendererStore = useLocalStore(RendererStore, layers);
     providePlugins([PopoverContainerPlugin], {
-      getPopoverContainerRect: () => this.zoomStore.getZoomedRect(this.getGridRect()),
+      getPopoverContainerRect: () => this.zoomPlugin.getZoomedRect(this.getGridRect()),
     });
 
     useGridDrawing({
@@ -91,8 +90,8 @@ export class SpreadsheetDashboard extends OSComponent {
         const { scrollY } = this.viewStore.activeSheetScrollInfo;
         return scrollY < maxOffsetY;
       },
-      getZoom: () => this.zoomStore.zoomLevel,
-      setZoom: (zoom: number) => this.zoomStore.setZoom(zoom),
+      getZoom: () => this.zoomPlugin.zoomLevel(),
+      setZoom: (zoom: number) => this.zoomPlugin.setZoom(zoom),
     });
   }
 
@@ -142,7 +141,7 @@ export class SpreadsheetDashboard extends OSComponent {
   }
 
   get dashboardStyle() {
-    const style = { zoom: this.zoomStore.cssZoom };
+    const style = { zoom: this.zoomPlugin.zoomLevel().toString() };
     return cssPropertiesToCss(style);
   }
 

@@ -5,7 +5,7 @@ import {
   DEFAULT_ZOOM,
   ZOOM_VALUES,
 } from "../src/constants";
-import { ZoomStore } from "../src/stores/zoom_store";
+import { ZoomPlugin } from "../src/owl_plugins/zoom_plugin";
 import { SpreadsheetActionEnv } from "../src/types/spreadsheet_env";
 import { setCellContent, setZoom } from "./test_helpers/commands_helpers";
 import { clickCell, clickHeader, hoverCell } from "./test_helpers/dom_helper";
@@ -87,6 +87,7 @@ describe("Dashboard zoom tests", () => {
   describe.each(ZOOM_VALUES.map((zoom) => zoom / 100))("Zoom tests selection %s", (zoom) => {
     beforeEach(async () => {
       ({ model, fixture, env } = await mountSpreadsheet());
+      // getPlugin(ZoomPlugin).setZoom(zoom);
       setZoom(env, zoom);
       setCellContent(model, "C8", "=1/0");
       model.updateMode("dashboard");
@@ -104,19 +105,19 @@ describe("Dashboard zoom tests", () => {
   });
 });
 
-describe("ZoomStore", () => {
+describe("ZoomPlugin", () => {
   test("cannot set zoom outside of the [0.5, 2] range", () => {
     env = makeSpreadsheetActionTestEnv();
     setZoom(env, 0.4);
-    expect(env.getStore(ZoomStore).zoomLevel).toBe(DEFAULT_ZOOM);
+    expect(env.getPlugin(ZoomPlugin).zoomLevel()).toBe(DEFAULT_ZOOM);
     setZoom(env, 2.1);
-    expect(env.getStore(ZoomStore).zoomLevel).toBe(DEFAULT_ZOOM);
+    expect(env.getPlugin(ZoomPlugin).zoomLevel()).toBe(DEFAULT_ZOOM);
   });
 
   test("setting NaN as zoom is cancelled and keeps the current zoom level", () => {
     env = makeSpreadsheetActionTestEnv();
     setZoom(env, 1.5);
     setZoom(env, NaN);
-    expect(env.getStore(ZoomStore).zoomLevel).toBe(1.5);
+    expect(env.getPlugin(ZoomPlugin).zoomLevel()).toBe(1.5);
   });
 });

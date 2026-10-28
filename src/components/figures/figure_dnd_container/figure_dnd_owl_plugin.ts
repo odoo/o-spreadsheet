@@ -11,9 +11,9 @@ import { DRAG_THRESHOLD } from "../../../constants";
 import { clip, isDefined } from "../../../helpers/misc";
 import { getZoomedRect, rectIntersection, rectUnion } from "../../../helpers/rectangle";
 import { ModelPlugin } from "../../../owl_plugins/model_owl_plugin";
+import { ZoomPlugin } from "../../../owl_plugins/zoom_plugin";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { ViewportsStore } from "../../../stores/viewports_store";
-import { ZoomStore } from "../../../stores/zoom_store";
 import { Figure, FigureUI, ResizeDirection } from "../../../types/figure";
 import { UID } from "../../../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../../../types/rendering";
@@ -70,7 +70,7 @@ export class DraggedFigurePlugin extends Plugin {
     cancelDnd: undefined,
   });
   private viewStore: Store<ViewportsStore> = useConfig("viewStore");
-  private zoomStore: Store<ZoomStore> = useConfig("zoomStore");
+  private zoomPlugin = usePlugin(ZoomPlugin);
   private model = usePlugin(ModelPlugin).model;
 
   setup() {
@@ -201,7 +201,7 @@ export class DraggedFigurePlugin extends Plugin {
     }
   ) {
     const { draggedFigureId, figuresToDrag, callbacks } = args;
-    const zoom = this.zoomStore.zoomLevel;
+    const zoom = this.zoomPlugin.zoomLevel();
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const initialFigures = figuresToDrag.map(this.convertToOverlayCoordinate.bind(this));
     let previousCursor = document.body.style.cursor;
@@ -301,7 +301,7 @@ export class DraggedFigurePlugin extends Plugin {
     const { figuresToDrag, dirX, dirY, callbacks } = args;
     ev.stopPropagation();
 
-    const zoom = this.zoomStore.zoomLevel;
+    const zoom = this.zoomPlugin.zoomLevel();
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const initialScrollPosition = this.viewStore.activeSheetScrollInfo;
     const initialFigures = figuresToDrag.map(this.convertToOverlayCoordinate.bind(this));
@@ -490,7 +490,7 @@ export class DraggedFigurePlugin extends Plugin {
     // FIXME replace querySelector with SpreadsheetRectPlugin once PR 9729 is merged
     // FIXME the rect of the grid overlay should also be provided by a plugin, instead of gridOverlayPosition that might throw
     try {
-      const zoom = this.zoomStore.zoomLevel;
+      const zoom = this.zoomPlugin.zoomLevel();
       const spreadsheetElement = document.querySelector(".o-spreadsheet")!;
       const spreadsheetRect = zoomCorrectedElementRect(spreadsheetElement, zoom);
       const gridPosition = gridOverlayPosition(zoom);

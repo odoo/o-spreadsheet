@@ -1,10 +1,10 @@
-import { proxy, signal, useEffect, useProps } from "@odoo/owl";
+import { proxy, signal, useEffect, usePlugin, useProps } from "@odoo/owl";
 import { sumArray } from "../../helpers/misc";
+import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
-import { ZoomStore } from "../../stores/zoom_store";
 import { HeaderIndex } from "../../types/misc";
 import { DOMDimension, Rect } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
@@ -59,7 +59,7 @@ export class StandaloneViewport extends OSComponent {
 
   rendererStore!: Store<RendererStore>;
   viewStore!: Store<ViewportsStore>;
-  zoomStore!: Store<ZoomStore>;
+  zoomPlugin = usePlugin(ZoomPlugin);
   cellPopoverStore!: Store<CellPopoverStore>;
 
   setup() {
@@ -73,7 +73,6 @@ export class StandaloneViewport extends OSComponent {
     ]);
     this.store = useLocalStore(StandaloneViewportStore, this.props.range, this.props.columnWeights);
     this.viewStore = useStore(ViewportsStore);
-    this.zoomStore = useStore(ZoomStore);
     this.cellPopoverStore = useStore(CellPopoverStore);
     this.rendererStore = useLocalStore(RendererStore, ["Background", "Chart"]);
     useEffect(() => {
@@ -106,7 +105,7 @@ export class StandaloneViewport extends OSComponent {
 
   get contentWidth() {
     return this.hasVerticalScrollBar
-      ? this.props.size.width - this.zoomStore.scrollBarWidth
+      ? this.props.size.width - this.zoomPlugin.scrollBarWidth()
       : this.props.size.width;
   }
 
@@ -119,7 +118,7 @@ export class StandaloneViewport extends OSComponent {
 
   get scrollBarContainerStyle() {
     return cssPropertiesToCss({
-      width: `${this.zoomStore.scrollBarWidth}px`,
+      width: `${this.zoomPlugin.scrollBarWidth()}px`,
     });
   }
 
@@ -165,7 +164,7 @@ export class StandaloneViewport extends OSComponent {
     }
     this.dndState.col = resizer.col;
 
-    const initialX = this.zoomStore.getZoomedEvent(ev).clientX;
+    const initialX = this.zoomPlugin.getZoomedEvent(ev).clientX;
     const startingColWeights = this.store.columnWeights;
     const totalWeight = sumArray(startingColWeights);
     let deltaX = 0;
@@ -177,7 +176,7 @@ export class StandaloneViewport extends OSComponent {
       }
     };
     const onMouseMove = (ev: MouseEvent) => {
-      deltaX = this.zoomStore.getZoomedEvent(ev).clientX - initialX;
+      deltaX = this.zoomPlugin.getZoomedEvent(ev).clientX - initialX;
 
       const weightDelta = (deltaX / this.props.size.width) * totalWeight;
       this.store.resizeColumn(resizer.col, weightDelta, startingColWeights);

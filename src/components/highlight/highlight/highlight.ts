@@ -1,9 +1,9 @@
-import { proxy, useProps } from "@odoo/owl";
+import { proxy, usePlugin, useProps } from "@odoo/owl";
 import { clip } from "../../../helpers/misc";
 import { isEqual } from "../../../helpers/zones";
+import { ZoomPlugin } from "../../../owl_plugins/zoom_plugin";
 import { useStore } from "../../../store_engine/store_hooks";
 import { ViewportsStore } from "../../../stores/viewports_store";
-import { ZoomStore } from "../../../stores/zoom_store";
 import { ResizeDirection } from "../../../types/figure";
 import { HeaderIndex, Zone } from "../../../types/misc";
 import { Store } from "../../../types/store_engine";
@@ -37,11 +37,10 @@ export class Highlight extends OSComponent {
   });
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
   private viewStore!: Store<ViewportsStore>;
-  private zoomStore!: Store<ZoomStore>;
+  private zoomPlugin = usePlugin(ZoomPlugin);
 
   setup(): void {
     this.viewStore = useStore(ViewportsStore);
-    this.zoomStore = useStore(ZoomStore);
   }
 
   get cornerOrientations(): Array<"nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w"> {
@@ -60,7 +59,7 @@ export class Highlight extends OSComponent {
 
   onResizeHighlight(ev: PointerEvent, dirX: ResizeDirection, dirY: ResizeDirection) {
     const activeSheetId = this.model().getters.getActiveSheetId();
-    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
+    const zoomedMouseEvent = this.zoomPlugin.getZoomedEvent(ev);
     this.highlightState.shiftingMode = "isResizing";
     const z = this.props.range.zone;
 
@@ -127,9 +126,9 @@ export class Highlight extends OSComponent {
     this.highlightState.shiftingMode = "isMoving";
     const z = this.props.range.zone;
 
-    const zoomLevel = this.zoomStore.zoomLevel;
+    const zoomLevel = this.zoomPlugin.zoomLevel();
     const position = gridOverlayPosition(zoomLevel);
-    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev, position);
+    const zoomedMouseEvent = this.zoomPlugin.getZoomedEvent(ev, position);
 
     const activeSheetId = this.model().getters.getActiveSheetId();
 

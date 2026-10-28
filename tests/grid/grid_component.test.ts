@@ -29,11 +29,11 @@ import { Model } from "../../src/model";
 import { ImageProviderPlugin } from "../../src/owl_plugins/image_provider_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
+import { ZoomPlugin } from "../../src/owl_plugins/zoom_plugin";
 import { ClientFocusStore } from "../../src/stores/client_focus_store";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
-import { ZoomStore } from "../../src/stores/zoom_store";
 import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
@@ -2731,7 +2731,7 @@ test("Can pinch to zoom in", async () => {
   );
 
   await nextTick();
-  expect(env.getStore(ZoomStore).zoomLevel).toBeCloseTo(1.54);
+  expect(env.getPlugin(ZoomPlugin).zoomLevel()).toBeCloseTo(1.54);
 
   // go back to initial
   triggerPointerEvent(grid, "pointermove", secondPointerStartX, secondPointerStartY, {
@@ -2739,7 +2739,7 @@ test("Can pinch to zoom in", async () => {
     bubbles: true,
   });
   await nextTick();
-  expect(env.getStore(ZoomStore).zoomLevel).toBeCloseTo(1);
+  expect(env.getPlugin(ZoomPlugin).zoomLevel()).toBeCloseTo(1);
 
   // // pinch to zoom out - closer pointers
   triggerPointerEvent(grid, "pointermove", 110, 110, {
@@ -2747,14 +2747,14 @@ test("Can pinch to zoom in", async () => {
     bubbles: true,
   });
   await nextTick();
-  expect(env.getStore(ZoomStore).zoomLevel).toBeCloseTo(0.74);
+  expect(env.getPlugin(ZoomPlugin).zoomLevel()).toBeCloseTo(0.74);
 
   // go back to initial
   triggerPointerEvent(grid, "pointermove", 100, 100, {
     pointerId: 1,
     bubbles: true,
   });
-  expect(env.getStore(ZoomStore).zoomLevel).toBeCloseTo(1);
+  expect(env.getPlugin(ZoomPlugin).zoomLevel()).toBeCloseTo(1);
 });
 
 test("pinch to zoom stops on pointerup", async () => {
@@ -2789,7 +2789,7 @@ test("pinch to zoom stops on pointerup", async () => {
   );
 
   await nextTick();
-  expect(env.getStore(ZoomStore).zoomLevel).toBeCloseTo(1.54);
+  expect(env.getPlugin(ZoomPlugin).zoomLevel()).toBeCloseTo(1.54);
 
   triggerPointerEvent(window, "pointerup", secondPointerStartX, secondPointerStartY, {
     pointerId: 2,
@@ -2802,7 +2802,7 @@ test("pinch to zoom stops on pointerup", async () => {
     bubbles: true,
   });
   await nextTick();
-  expect(env.getStore(ZoomStore).zoomLevel).toBeCloseTo(1.54);
+  expect(env.getPlugin(ZoomPlugin).zoomLevel()).toBeCloseTo(1.54);
 });
 
 test("Cannot pinch to zoom with right-click", async () => {
@@ -2823,11 +2823,11 @@ test("Cannot pinch to zoom with right-click", async () => {
     bubbles: true,
     button: 1,
   });
-  expect(env.getStore(ZoomStore).zoomLevel).toBe(1);
+  expect(env.getPlugin(ZoomPlugin).zoomLevel()).toBe(1);
   triggerPointerEvent(grid, "pointermove", secondPointerStartX + 100, secondPointerStartY + 100, {
     pointerId: 2,
     bubbles: true,
     button: 1,
   });
-  expect(env.getStore(ZoomStore).zoomLevel).toBe(1);
+  expect(env.getPlugin(ZoomPlugin).zoomLevel()).toBe(1);
 });

@@ -1,4 +1,4 @@
-import { providePlugins } from "@odoo/owl";
+import { PluginInstance, providePlugins, usePlugin } from "@odoo/owl";
 import { Model, UID } from "../../../src";
 import { HoveredIconStore } from "../../../src/components/grid_overlay/hovered_icon_store";
 import { useSpreadsheetEnv } from "../../../src/components/os_component";
@@ -7,11 +7,11 @@ import { StandaloneViewport } from "../../../src/components/standalone_viewport/
 import { DEFAULT_CELL_HEIGHT, TABLE_HOVER_BACKGROUND_COLOR } from "../../../src/constants";
 import { buildSheetLink, range } from "../../../src/helpers/misc";
 import { zoneToXc } from "../../../src/helpers/zones";
+import { ZoomPlugin } from "../../../src/owl_plugins/zoom_plugin";
 import { CellHoverOverlayStore } from "../../../src/stores/cell_hover_overlay_store";
 import { GridRenderer } from "../../../src/stores/grid_renderer_store";
 import { RendererStore } from "../../../src/stores/renderer_store";
 import { ViewportsStore } from "../../../src/stores/viewports_store";
-import { ZoomStore } from "../../../src/stores/zoom_store";
 import { PropsOf } from "../../../src/types/props_of";
 import { SpreadsheetActionEnv, SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import {
@@ -315,27 +315,29 @@ describe("Standalone viewport", () => {
       size: { width: 1048, height: 1061 }, // Add some padding so the carousel content is exactly 1000x1000
     });
     const originalSetup = StandaloneViewport.prototype["setup"];
+    let subZoomPlugin!: PluginInstance<typeof ZoomPlugin>;
     const spy = jest
       .spyOn(StandaloneViewport.prototype, "setup")
       .mockImplementation(function (this: StandaloneViewport) {
         originalSetup.call(this);
         subActionEnv = this.spEnv;
         this.spEnv = useSpreadsheetEnv();
+        subZoomPlugin = usePlugin(ZoomPlugin);
         subEnv = this.env;
       });
     const { env } = await mountSpreadsheet({ model });
 
-    const mainZoomStore = env.getStore(ZoomStore);
+    const mainZoomPlugin = env.getPlugin(ZoomPlugin);
     const standaloneViewportStore = subEnv.getStore(ViewportsStore);
 
-    mainZoomStore.setZoom(2);
+    mainZoomPlugin.setZoom(2);
     await nextTick();
-    expect(subEnv.getStore(ZoomStore).zoomLevel).toEqual(2);
+    expect(subZoomPlugin.zoomLevel()).toEqual(2);
     expect(standaloneViewportStore.sheetViewDimension).toEqual({ width: 1000, height: 1000 });
 
-    mainZoomStore.setZoom(0.5);
+    mainZoomPlugin.setZoom(0.5);
     await nextTick();
-    expect(subEnv.getStore(ZoomStore).zoomLevel).toEqual(0.5);
+    expect(subZoomPlugin.zoomLevel()).toEqual(0.5);
     expect(standaloneViewportStore.sheetViewDimension).toEqual({ width: 1000, height: 1000 });
     spy.mockRestore();
   });
