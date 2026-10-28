@@ -21,6 +21,7 @@ export class CarouselUIPlugin extends UIPlugin {
     "getSelectedCarouselItem",
     "getChartFromFigureId",
     "getChartIdFromFigureId",
+    "getCarouselItemId",
   ] as const;
 
   carouselStates: Record<UID, string | undefined> = {};
@@ -192,6 +193,10 @@ export class CarouselUIPlugin extends UIPlugin {
       .find((chartId) => this.getters.getFigureIdFromChartId(chartId) === figureId);
   }
 
+  getCarouselItemId(item: CarouselItem): UID {
+    return item.type === "chart" ? item.chartId : "carouselDataView";
+  }
+
   private fixWrongCarouselState(figureId: UID) {
     if (!this.getters.doesCarouselExist(figureId)) {
       delete this.carouselStates[figureId];
@@ -298,9 +303,5 @@ export class CarouselUIPlugin extends UIPlugin {
       figureId: carouselId,
       definition: this.getters.carouselToCarouselData({ ...carousel, items: carouselItems }),
     });
-  }
-
-  private getCarouselItemId(item: CarouselItem): UID {
-    return item.type === "chart" ? item.chartId : "carouselDataView";
   }
 }

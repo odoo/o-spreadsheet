@@ -104,6 +104,7 @@
           canResizeColumns="this.canResizeDataViewColumns"
           onResizeColumns.bind="this.onResizeColumns"
           size="this.carouselLayout.contentRect"
+          scrollMemoryKey="this.getScrollMemoryKey(selectedItem)"
         />
       </div>
     </div>

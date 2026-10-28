@@ -3,11 +3,12 @@ import { deepEquals, range, sumArray } from "../../helpers/misc";
 import { isInside, isZoneValid } from "../../helpers/zones";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
+import { ViewportScrollMemoryStore } from "../../stores/viewport_scroll_memory_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { Command } from "../../types/commands";
 import { CellPosition, HeaderDimensions, HeaderIndex, UID } from "../../types/misc";
 import { Range } from "../../types/range";
-import { GridRenderingContext } from "../../types/rendering";
+import { GridRenderingContext, SheetDOMScrollInfo } from "../../types/rendering";
 import { Get } from "../../types/store_engine";
 
 export class StandaloneViewportStore extends SpreadsheetStore {
@@ -19,13 +20,24 @@ export class StandaloneViewportStore extends SpreadsheetStore {
   private containerHeight = 0;
   private range: Range;
   private customColWeights: number[] | undefined = undefined;
+  /** Scroll position to restore once the viewport knows its size, otherwise it would be clipped to 0 */
+  private pendingScroll: SheetDOMScrollInfo | undefined = undefined;
 
   private viewStore = this.get(ViewportsStore);
 
-  constructor(get: Get, range: Range, customColWeights?: number[]) {
+  constructor(get: Get, range: Range, customColWeights?: number[], scrollMemoryKey?: string) {
     super(get);
     this.range = range;
     this.customColWeights = customColWeights;
+    if (scrollMemoryKey !== undefined) {
+      const scrollMemory = this.get(ViewportScrollMemoryStore);
+      this.pendingScroll = scrollMemory.load(scrollMemoryKey);
+      this.onDispose(() => {
+        if (this.getters.tryGetSheet(this.range.sheetId)) {
+          scrollMemory.save(scrollMemoryKey, this.viewStore.activeSheetScrollInfo);
+        }
+      });
+    }
 
     this.viewStore.setDisplayedSheetId(this.range.sheetId);
     this.viewStore.setViewportArgs({
@@ -48,6 +60,11 @@ export class StandaloneViewportStore extends SpreadsheetStore {
       this.containerHeight = height;
       this.cachedColDimensions = undefined;
       this.viewStore.resizeSheetView({ width, height });
+      if (this.pendingScroll && width > 0 && height > 0) {
+        const { scrollX, scrollY } = this.pendingScroll;
+        this.viewStore.setViewportOffset({ offsetX: scrollX, offsetY: scrollY });
+        this.pendingScroll = undefined;
+      }
       return;
     }
     return "noStateChange";

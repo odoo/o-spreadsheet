@@ -5,6 +5,8 @@ import { isPointInsideRect } from "../../helpers/rectangle";
 import { positionToZone } from "../../helpers/zones";
 import { useStore } from "../../store_engine/store_hooks";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
+import { PointerPositionStore } from "../../stores/pointer_position_store";
+import { SCROLL_SETTLE_DELAY } from "../../stores/scroll_latch_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { CellPosition, GridClickModifiers, HeaderIndex, Position } from "../../types/misc";
@@ -14,7 +16,13 @@ import { Store } from "../../types/store_engine";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { cssPropertiesToCss } from "../helpers/css";
-import { getElBoundingRect, isChildEvent, isCtrlKey, isMobileOS } from "../helpers/dom_helpers";
+import {
+  getElBoundingRect,
+  isChildEvent,
+  isCtrlKey,
+  isMobileOS,
+  zoomCorrectedElementRect,
+} from "../helpers/dom_helpers";
 import { useInterval } from "../helpers/time_hooks";
 import { ZoomedMouseEvent } from "../helpers/zoom";
 import { OSComponent } from "../os_component";
@@ -31,6 +39,7 @@ function useCellHovered(
   const cellHoverOverlay = useStore(CellHoverOverlayStore);
   const viewStore = useStore(ViewportsStore);
   const zoomStore = useStore(ZoomStore);
+  const pointerPosition = useStore(PointerPositionStore);
   const hoveredPosition: Partial<Position> = {
     col: undefined,
     row: undefined,
@@ -39,6 +48,8 @@ function useCellHovered(
   let x: number | undefined = undefined;
   let y: number | undefined = undefined;
   let lastMoved = 0;
+  let layoutSignature: string | undefined = undefined;
+  let layoutChangedAt: number | undefined = undefined;
 
   function getPosition(): CellPosition {
     const sheetId = viewStore.displayedSheetId;
@@ -63,6 +74,7 @@ function useCellHovered(
   const { pause, resume } = useInterval(checkTiming, 200);
 
   function checkTiming() {
+    checkLayoutSettled();
     const { col, row } = getPosition();
     const delta = Date.now() - lastMoved;
     if (delta > 300 && (col !== hoveredPosition.col || row !== hoveredPosition.row)) {
@@ -79,13 +91,58 @@ function useCellHovered(
     if (isChildEvent(gridRef(), zoomedMouseEvent.ev)) {
       ({ x, y } = getOffsetRelativeToOverlay(zoomedMouseEvent));
       lastMoved = Date.now();
-      const position = getPosition();
-      if (position.col < 0 || position.row < 0) {
-        cellHoverOverlay.hover(undefined);
-      } else {
-        cellHoverOverlay.hover(getPosition());
-      }
+      updateHoverOverlay();
     }
+  }
+
+  function updateHoverOverlay() {
+    const position = getPosition();
+    const isOutside = position.col < 0 || position.row < 0;
+    cellHoverOverlay.hover(isOutside ? undefined : position);
+  }
+
+  /**
+   * Scrolling the overlay or one of its parents moves the cells under a motionless pointer.
+   * Like browsers do, the hovered cell is only re-resolved once the scroll settled.
+   */
+  function checkLayoutSettled() {
+    const signature = getLayoutSignature();
+    if (signature !== layoutSignature) {
+      // mounting counts as a change: the cells just appeared under the pointer
+      layoutChangedAt = Date.now();
+      layoutSignature = signature;
+      return;
+    }
+    if (layoutChangedAt !== undefined && Date.now() - layoutChangedAt >= SCROLL_SETTLE_DELAY) {
+      // a pointer move since the change already resolved the hovered cell
+      if (lastMoved < layoutChangedAt) {
+        hoverCellUnderPointer();
+      }
+      layoutChangedAt = undefined;
+    }
+  }
+
+  function getLayoutSignature(): string {
+    const rect = gridRef()?.getBoundingClientRect();
+    const { scrollX, scrollY } = viewStore.activeSheetScrollInfo;
+    return `${rect?.x},${rect?.y},${scrollX},${scrollY}`;
+  }
+
+  function hoverCellUnderPointer() {
+    const { lastPointerEvent } = pointerPosition;
+    const target =
+      lastPointerEvent &&
+      document.elementFromPoint(lastPointerEvent.clientX, lastPointerEvent.clientY);
+    if (!lastPointerEvent || !target || !gridRef()?.contains(target)) {
+      x = undefined;
+      y = undefined;
+    } else {
+      const targetRect = zoomCorrectedElementRect(target, zoomStore.zoomLevel);
+      ({ x, y } = getOffsetRelativeToOverlay(
+        zoomStore.getZoomedEvent(lastPointerEvent, targetRect)
+      ));
+    }
+    updateHoverOverlay();
   }
 
   function recompute() {

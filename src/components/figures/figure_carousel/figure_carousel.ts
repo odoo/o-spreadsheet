@@ -96,6 +96,10 @@ export class CarouselFigure extends OSComponent {
     return deepEquals(selectedItem, item);
   }
 
+  getScrollMemoryKey(item: CarouselItem): string {
+    return `${this.props.figureUI.id}-${this.model().getters.getCarouselItemId(item)}`;
+  }
+
   getItemTitle(item: CarouselItem): string {
     return getCarouselItemTitle(this.model().getters, item);
   }

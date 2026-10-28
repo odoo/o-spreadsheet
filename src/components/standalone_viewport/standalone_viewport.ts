@@ -5,7 +5,7 @@ import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
-import { HeaderIndex } from "../../types/misc";
+import { HeaderIndex, Pixel } from "../../types/misc";
 import { DOMDimension, Rect } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
@@ -18,7 +18,7 @@ import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect } from "../helpers/dom_helpers";
 import { startDnd } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
-import { useWheelHandler } from "../helpers/wheel_hook";
+import { useNestedWheelHandler } from "../helpers/wheel_hook";
 import { OSComponent } from "../os_component";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { types } from "../props_validation";
@@ -44,6 +44,7 @@ export class StandaloneViewport extends OSComponent {
     onResizeColumns: types.function<(columnWeights: number[] | undefined) => void>().optional(),
     columnWeights: types.array<number>().optional(),
     size: types.object<DOMDimension>(),
+    scrollMemoryKey: types.string().optional(),
   });
 
   private canvasRef = signal.ref(HTMLCanvasElement);
@@ -71,7 +72,12 @@ export class StandaloneViewport extends OSComponent {
       DelayedHoveredCellStore,
       CellPopoverStore,
     ]);
-    this.store = useLocalStore(StandaloneViewportStore, this.props.range, this.props.columnWeights);
+    this.store = useLocalStore(
+      StandaloneViewportStore,
+      this.props.range,
+      this.props.columnWeights,
+      this.props.scrollMemoryKey
+    );
     this.viewStore = useStore(ViewportsStore);
     this.zoomStore = useStore(ZoomStore);
     this.cellPopoverStore = useStore(CellPopoverStore);
@@ -90,18 +96,27 @@ export class StandaloneViewport extends OSComponent {
       rendererStore: this.rendererStore,
     });
 
-    this.onMouseWheel = useWheelHandler((deltaX, deltaY, ev) => {
-      if (this.hasVerticalScrollBar) {
-        ev.stopPropagation();
-        ev.preventDefault();
-
+    this.onMouseWheel = useNestedWheelHandler({
+      canScroll: this.canScroll.bind(this),
+      scrollBy: (deltaX, deltaY) => {
         const scroll = this.viewStore.activeSheetScrollInfo;
         this.viewStore.setViewportOffset({
           offsetX: scroll.scrollX + deltaX,
           offsetY: scroll.scrollY + deltaY,
         });
-      }
+      },
     });
+  }
+
+  private canScroll(deltaX: Pixel, deltaY: Pixel): boolean {
+    const { scrollX, scrollY } = this.viewStore.activeSheetScrollInfo;
+    const { maxOffsetX, maxOffsetY } = this.viewStore.maximumSheetOffset;
+    return (
+      (deltaY < 0 && scrollY > 0) ||
+      (deltaY > 0 && scrollY < maxOffsetY) ||
+      (deltaX < 0 && scrollX > 0) ||
+      (deltaX > 0 && scrollX < maxOffsetX)
+    );
   }
 
   get contentWidth() {

@@ -15,7 +15,7 @@ import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect } from "../helpers/dom_helpers";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useTouchHandlers } from "../helpers/touch_handlers_hook";
-import { useWheelHandler } from "../helpers/wheel_hook";
+import { useRootWheelHandler } from "../helpers/wheel_hook";
 import { OSComponent } from "../os_component";
 import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
@@ -74,7 +74,7 @@ export class SpreadsheetDashboard extends OSComponent {
         hideGridLines: true,
       }),
     });
-    this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
+    this.onMouseWheel = useRootWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);
       this.hoveredCell.clear();
     });
