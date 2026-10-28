@@ -199,13 +199,14 @@
       outline: none;
     }
 
-    > .os-canvas-background {
+    > .os-canvas-background.o-canvas-container {
       width: fit-content;
+      box-sizing: border-box;
+      border-bottom: 1px solid var(--os-canvas-border-color);
+      border-right: 1px solid var(--os-canvas-border-color);
+
       > canvas {
         display: block;
-        box-sizing: content-box;
-        border-bottom: 1px solid var(--os-canvas-border-color);
-        border-right: 1px solid var(--os-canvas-border-color);
       }
     }
   }
