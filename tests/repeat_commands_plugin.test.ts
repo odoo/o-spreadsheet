@@ -16,12 +16,12 @@ import {
 } from "../src/types/commands";
 
 import { CoreCommand, Dimension, UID } from "../src";
+import { AutomaticSumPlugin } from "../src/owl_plugins/automatic_sum_plugin";
 import {
   repeatCommandTransformRegistry,
   repeatCoreCommand,
   repeatLocalCommandTransformRegistry,
 } from "../src/registries/repeat_transform_registry";
-import { AutomaticSumStore } from "../src/stores/automatic_sum_store";
 import { ClipboardStore } from "../src/stores/clipboard_store";
 import {
   activateSheet,
@@ -56,6 +56,7 @@ import {
   getStyle,
 } from "./test_helpers/getters_helpers";
 import { makeTestComposerStore, target, toRangesData } from "./test_helpers/helpers";
+import { makeOwlPluginManager } from "./test_helpers/owl_plugins_helpers";
 import { makeStoreWithModel } from "./test_helpers/stores";
 
 let model: Model;
@@ -554,7 +555,7 @@ describe("Repeat local commands", () => {
   });
 
   test("Repeat sum selection", () => {
-    makeStoreWithModel(model, AutomaticSumStore);
+    makeOwlPluginManager([AutomaticSumPlugin], { model });
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
 

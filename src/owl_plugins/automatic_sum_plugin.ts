@@ -1,24 +1,23 @@
+import { computed } from "@odoo/owl";
 import { isDateTimeFormat } from "../helpers/format/format";
 import { groupConsecutive, largeMax, largeMin, range } from "../helpers/misc";
 import { isInside, isOneDimensional, positions, union, zoneToDimension } from "../helpers/zones";
 import { CellValueType, EvaluatedCell } from "../types/cells";
 import { Command } from "../types/commands";
 import { Dimension, HeaderIndex, Position, Sheet, UID, Zone } from "../types/misc";
-import { SpreadsheetStore } from "./spreadsheet_store";
+import { OwlPluginWithModel } from "./owl_plugin_with_model";
 
 interface AutomaticSum {
   position: Position;
   zone: Zone;
 }
 
-export class AutomaticSumStore extends SpreadsheetStore {
-  static getters = ["getAutomaticSums"] as const;
-
+export class AutomaticSumPlugin extends OwlPluginWithModel {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "SUM_SELECTION":
-        const sheetId = this.getters.getActiveSheetId();
-        const { zones, anchor } = this.getters.getSelection();
+        const sheetId = this.model().getters.getActiveSheetId();
+        const { zones, anchor } = this.model().getters.getSelection();
         for (const zone of zones) {
           const sums = this.getAutomaticSums(sheetId, zone, anchor.cell);
           this.dispatchCellUpdates(sheetId, sums);
@@ -33,13 +32,13 @@ export class AutomaticSumStore extends SpreadsheetStore {
       : this.sumData(sheetId, zone);
   }
 
-  get automaticSumsOnMainSelectedZone(): AutomaticSum[] {
-    const sheetId = this.getters.getActiveSheetId();
+  automaticSumsOnMainSelectedZone = computed(() => {
+    const sheetId = this.model().getters.getActiveSheetId();
 
-    const mainSelectedZone = this.getters.getSelectedZone();
-    const { anchor } = this.getters.getSelection();
+    const mainSelectedZone = this.model().getters.getSelectedZone();
+    const { anchor } = this.model().getters.getSelection();
     return this.getAutomaticSums(sheetId, mainSelectedZone, anchor.cell);
-  }
+  });
 
   // ---------------------------------------------------------------------------
   // Private methods
@@ -48,7 +47,7 @@ export class AutomaticSumStore extends SpreadsheetStore {
   private sumData(sheetId: UID, zone: Zone): AutomaticSum[] {
     const dimensions = this.dimensionsToSum(sheetId, zone);
     const sums = this.sumDimensions(sheetId, zone, dimensions).filter(
-      ({ zone }) => !this.getters.isEmpty(sheetId, zone)
+      ({ zone }) => !this.model().getters.isEmpty(sheetId, zone)
     );
     if (dimensions.has("ROW") && dimensions.has("COL")) {
       sums.push(this.sumTotal(zone));
@@ -65,7 +64,7 @@ export class AutomaticSumStore extends SpreadsheetStore {
       return [];
     }
     if (
-      this.getters.isSingleCellOrMerge(sheetId, zone) ||
+      this.model().getters.isSingleCellOrMerge(sheetId, zone) ||
       isOneDimensional(union(dataZone, zone))
     ) {
       return [{ position: { col, row }, zone: dataZone }];
@@ -111,11 +110,11 @@ export class AutomaticSumStore extends SpreadsheetStore {
    *  -------                                       -------
    */
   private findAdjacentData(sheetId: UID, col: HeaderIndex, row: HeaderIndex): Zone | undefined {
-    const sheet = this.getters.getSheet(sheetId);
-    const mainCellPosition = this.getters.getMainCellPosition({ sheetId, col, row });
+    const sheet = this.model().getters.getSheet(sheetId);
+    const mainCellPosition = this.model().getters.getMainCellPosition({ sheetId, col, row });
     const zone = this.findSuitableZoneToSum(sheet, mainCellPosition.col, mainCellPosition.row);
     if (zone) {
-      return this.getters.expandZone(sheetId, zone);
+      return this.model().getters.expandZone(sheetId, zone);
     }
     return undefined;
   }
@@ -129,8 +128,12 @@ export class AutomaticSumStore extends SpreadsheetStore {
     col: HeaderIndex,
     row: HeaderIndex
   ): Zone | undefined {
-    const topCell = this.getters.getEvaluatedCell({ sheetId: sheet.id, col, row: row - 1 });
-    const leftCell = this.getters.getEvaluatedCell({ sheetId: sheet.id, col: col - 1, row });
+    const topCell = this.model().getters.getEvaluatedCell({ sheetId: sheet.id, col, row: row - 1 });
+    const leftCell = this.model().getters.getEvaluatedCell({
+      sheetId: sheet.id,
+      col: col - 1,
+      row,
+    });
     if (this.isNumber(leftCell) && !this.isNumber(topCell)) {
       return this.findHorizontalZone(sheet, col, row);
     }
@@ -177,7 +180,7 @@ export class AutomaticSumStore extends SpreadsheetStore {
    * @returns the starting position of the valid zone or Infinity if the zone is not valid.
    */
   private reduceZoneStart(sheet: Sheet, zone: Zone, end: HeaderIndex): number {
-    const cells = this.getters.getEvaluatedCellsInZone(sheet.id, zone);
+    const cells = this.model().getters.getEvaluatedCellsInZone(sheet.id, zone);
     const cellPositions = range(end, -1, -1);
     const invalidCells = cellPositions.filter(
       (position) => cells[position] && !cells[position].isAutoSummable
@@ -194,7 +197,10 @@ export class AutomaticSumStore extends SpreadsheetStore {
   }
 
   private shouldFindData(sheetId: UID, zone: Zone): boolean {
-    return this.getters.isEmpty(sheetId, zone) || this.getters.isSingleCellOrMerge(sheetId, zone);
+    return (
+      this.model().getters.isEmpty(sheetId, zone) ||
+      this.model().getters.isSingleCellOrMerge(sheetId, zone)
+    );
   }
 
   private isNumber(cell: EvaluatedCell): boolean {
@@ -206,11 +212,11 @@ export class AutomaticSumStore extends SpreadsheetStore {
   }
 
   private lastColIsEmpty(sheetId: UID, zone: Zone): boolean {
-    return this.getters.isEmpty(sheetId, { ...zone, left: zone.right });
+    return this.model().getters.isEmpty(sheetId, { ...zone, left: zone.right });
   }
 
   private lastRowIsEmpty(sheetId: UID, zone: Zone): boolean {
-    return this.getters.isEmpty(sheetId, { ...zone, top: zone.bottom });
+    return this.model().getters.isEmpty(sheetId, { ...zone, top: zone.bottom });
   }
 
   /**
@@ -279,11 +285,11 @@ export class AutomaticSumStore extends SpreadsheetStore {
   private dispatchCellUpdates(sheetId: UID, sums: AutomaticSum[]): void {
     for (const sum of sums) {
       const { col, row } = sum.position;
-      this.model.dispatch("UPDATE_CELL", {
+      this.model().dispatch("UPDATE_CELL", {
         sheetId,
         col,
         row,
-        content: `=SUM(${this.getters.zoneToXC(sheetId, sum.zone)})`,
+        content: `=SUM(${this.model().getters.zoneToXC(sheetId, sum.zone)})`,
       });
     }
   }
@@ -294,7 +300,7 @@ export class AutomaticSumStore extends SpreadsheetStore {
   private nextEmptyRow(sheetId: UID, zone: Zone): Zone {
     let start: HeaderIndex = zone.bottom + 1;
     const { left, right } = zone;
-    while (!this.getters.isEmpty(sheetId, { bottom: start, top: start, left, right })) {
+    while (!this.model().getters.isEmpty(sheetId, { bottom: start, top: start, left, right })) {
       start++;
     }
     return {
@@ -310,7 +316,7 @@ export class AutomaticSumStore extends SpreadsheetStore {
   private nextEmptyCol(sheetId: UID, zone: Zone): Zone {
     let start: HeaderIndex = zone.right + 1;
     const { top, bottom } = zone;
-    while (!this.getters.isEmpty(sheetId, { left: start, right: start, top, bottom })) {
+    while (!this.model().getters.isEmpty(sheetId, { left: start, right: start, top, bottom })) {
       start++;
     }
     return {
