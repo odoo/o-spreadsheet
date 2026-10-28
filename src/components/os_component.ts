@@ -1,4 +1,4 @@
-import { PluginInstance, Scope, Signal, usePlugin, useScope } from "@odoo/owl";
+import { PluginConstructor, PluginInstance, Scope, Signal, usePlugin, useScope } from "@odoo/owl";
 import { Model } from "../model";
 import { Component, useEnv } from "../owl3_compatibility_layer";
 import { ModelPlugin } from "../owl_plugins/model_owl_plugin";
@@ -25,12 +25,11 @@ export function useSpreadsheetEnv(): SpreadsheetActionEnv {
   const scope = useScope();
 
   const getPlugin = createGetPluginFunctionFromScope(scope);
-  const getMaybePlugin = (plugin) => {
-    try {
+  const getMaybePlugin = (plugin: PluginConstructor) => {
+    if (scope.pluginManager?.getPluginById(plugin.id)) {
       return getPlugin(plugin);
-    } catch {
-      return undefined;
     }
+    return undefined;
   };
   return new Proxy(env, {
     get(target, prop, receiver) {
