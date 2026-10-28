@@ -226,9 +226,12 @@ css/* scss */ `
       outline: none;
     }
 
-    > canvas {
+    .o-canvas-container {
+      box-sizing: border-box;
       border-bottom: 1px solid #e2e3e3;
+      border-right: 1px solid #e2e3e3;
     }
+
     .o-scrollbar {
       &.corner {
         right: 0px;
