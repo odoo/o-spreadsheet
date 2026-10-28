@@ -541,9 +541,8 @@ export interface CreateImageOverCommand extends SheetDependentCommand {
 // Filters
 //------------------------------------------------------------------------------
 
-export interface CreateTableCommand extends RangesDependentCommand {
+export interface CreateTableCommand extends SheetDependentCommand, RangesDependentCommand {
   type: "CREATE_TABLE";
-  sheetId: UID;
   config?: TableConfig;
   tableType: CoreTableType;
 }
@@ -552,19 +551,15 @@ export interface RemoveTableCommand extends TargetDependentCommand {
   type: "REMOVE_TABLE";
 }
 
-export interface UpdateTableCommand {
+export interface UpdateTableCommand extends ZoneDependentCommand {
   type: "UPDATE_TABLE";
-  zone: Zone;
-  sheetId: UID;
   newTableRange?: RangeData;
   tableType?: CoreTableType;
   config?: Partial<TableConfig>;
 }
 
-export interface ResizeTableCommand {
+export interface ResizeTableCommand extends ZoneDependentCommand {
   type: "RESIZE_TABLE";
-  zone: Zone;
-  sheetId: UID;
   newTableRange: RangeData;
   tableType?: CoreTableType;
 }
