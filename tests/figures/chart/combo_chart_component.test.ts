@@ -4,11 +4,11 @@ import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import { openChartDesignSidePanel, toChartDataSource } from "../../test_helpers/chart_helpers";
 import { createChart } from "../../test_helpers/commands_helpers";
 import { click } from "../../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget } from "../../test_helpers/helpers";
+import { mountComponent } from "../../test_helpers/helpers";
 
 async function mountChartSidePanel(id = chartId) {
   const props = { chartId: id, onCloseSidePanel: () => {} };
-  ({ fixture, env } = await mountComponentWithPortalTarget(ChartPanel, { props, model }));
+  ({ fixture, env } = await mountComponent(ChartPanel, { props, model }));
 }
 
 let fixture: HTMLElement;

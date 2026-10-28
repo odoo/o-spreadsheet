@@ -17,7 +17,7 @@ import {
   updateColorScheme,
 } from "../test_helpers";
 import {
-  mountComponentWithPortalTarget,
+  mountComponent,
   mountSpreadsheet,
   nextTick,
   setGrid,
@@ -116,7 +116,7 @@ describe("Spreadsheet print rendering", () => {
   });
 
   async function mountSpreadsheetPrint() {
-    ({ getPlugin } = await mountComponentWithPortalTarget(SpreadsheetPrint, { model }));
+    ({ getPlugin } = await mountComponent(SpreadsheetPrint, { model }));
     await nextTick(); // Need to wait a render for the iframe to be loaded/initialized before we draw the pages
   }
 

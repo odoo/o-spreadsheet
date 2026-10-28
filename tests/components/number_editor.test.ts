@@ -1,7 +1,7 @@
 import { NumberEditor } from "../../src/components/number_editor/number_editor";
 import { PropsOf } from "../../src/types/props_of";
 import { click, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
+import { mountComponent, nextTick } from "../test_helpers/helpers";
 
 type Props = PropsOf<NumberEditor>;
 
@@ -21,7 +21,7 @@ async function mountNumberEditor(partialProps: Partial<Props> = {}) {
     onValueChange,
     ...partialProps,
   };
-  await mountComponentWithPortalTarget(NumberEditor, { props });
+  await mountComponent(NumberEditor, { props });
   return onValueChange;
 }
 

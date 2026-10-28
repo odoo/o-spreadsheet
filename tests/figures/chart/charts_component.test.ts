@@ -29,11 +29,7 @@ import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
 } from "../../../src/types/chart/scorecard_chart";
-import {
-  OwlPluginGetter,
-  SpreadsheetActionEnv,
-  SpreadsheetChildEnv,
-} from "../../../src/types/spreadsheet_env";
+import { OwlPluginGetter, SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
   getChartConfiguration,
@@ -85,8 +81,8 @@ import {
   mockChart,
   mockGeoJsonService,
   mockNotificationMethods,
-  mountComponentWithPortalTarget,
-  mountSpreadsheet as mountSpreadsheetHelper,
+  mountComponent,
+  mountSpreadsheet,
   nextTick,
   setGrid,
   spyModelDispatch,
@@ -156,14 +152,7 @@ async function changeChartType(type: string) {
 
 async function mountChartSidePanel(id: UID = chartId, _model: Model = model) {
   const props = { chartId: id, onCloseSidePanel: () => {} };
-  ({ fixture, env } = await mountComponentWithPortalTarget(ChartPanel, { props, model: _model }));
-}
-
-async function mountSpreadsheet(partialEnv?: Partial<SpreadsheetChildEnv>) {
-  return ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheetHelper(
-    { model },
-    partialEnv
-  ));
+  ({ fixture, env } = await mountComponent(ChartPanel, { props, model: _model }));
 }
 
 let fixture: HTMLElement;
@@ -217,7 +206,9 @@ describe("charts", () => {
   });
 
   test.each(CHART_TYPES)("Can open a chart sidePanel", async (chartType) => {
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     createTestChart(chartType);
     await openChartConfigSidePanel(model, env, chartId);
     expect(fixture.querySelector(".o-figure")).toBeTruthy();
@@ -252,7 +243,9 @@ describe("charts", () => {
   });
 
   test.each(TEST_CHART_TYPES)("charts have a menu button", async (chartType) => {
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     createTestChart(chartType);
     await nextTick();
     expect(fixture.querySelector(".o-figure")).not.toBeNull();
@@ -262,7 +255,9 @@ describe("charts", () => {
   test.each(TEST_CHART_TYPES)(
     "%s have an info button if there is an annotation text or link",
     async (chartType) => {
-      await mountSpreadsheet();
+      await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+        model,
+      }));
       createTestChart(chartType);
       updateChart(model, chartId, { annotationText: "This is an annotation text" });
       await nextTick();
@@ -272,7 +267,9 @@ describe("charts", () => {
   );
 
   test("charts do not have an info button if there is no annotation text or link", async () => {
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     createTestChart("calendar");
     await nextTick();
     expect(fixture.querySelector(".o-figure")).not.toBeNull();
@@ -280,7 +277,9 @@ describe("charts", () => {
   });
 
   test.each(TEST_CHART_TYPES)("%s have an info button in dashboard mode", async (chartType) => {
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     createTestChart(chartType);
     updateChart(model, chartId, { annotationText: "This is an annotation text" });
     model.updateMode("dashboard");
@@ -292,7 +291,9 @@ describe("charts", () => {
   test.each(TEST_CHART_TYPES)(
     "charts don't have a menu button in readonly mode",
     async (chartType) => {
-      await mountSpreadsheet();
+      await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+        model,
+      }));
       createTestChart(chartType);
       model.updateMode("readonly");
       await nextTick();
@@ -302,7 +303,9 @@ describe("charts", () => {
   );
 
   test.each(TEST_CHART_TYPES)("%s have an info button in readonly mode", async (chartType) => {
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     createTestChart(chartType);
     updateChart(model, chartId, { annotationText: "This is an annotation text" });
     model.updateMode("readonly");
@@ -315,7 +318,9 @@ describe("charts", () => {
     test.each(["normal", "readonly", "dashboard"] as const)(
       "basicChart: text and link are displayed",
       async (mode) => {
-        await mountSpreadsheet();
+        await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+          model,
+        }));
         createTestChart("basicChart");
         updateChart(model, chartId, {
           annotationText: "This is an annotation text",
@@ -338,7 +343,9 @@ describe("charts", () => {
     test.each(["normal", "readonly", "dashboard"] as const)(
       "basicChart: only link is displayed in %s mode",
       async (mode) => {
-        await mountSpreadsheet();
+        await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+          model,
+        }));
         createTestChart("basicChart");
         updateChart(model, chartId, { annotationLink: "https://www.odoo.com" });
         model.updateMode(mode);
@@ -355,7 +362,9 @@ describe("charts", () => {
     test.each(["normal", "readonly", "dashboard"] as const)(
       "basicChart: only text is displayed in %s mode",
       async (mode) => {
-        await mountSpreadsheet();
+        await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+          model,
+        }));
         createTestChart("basicChart");
         updateChart(model, chartId, { annotationText: "This is an annotation text" });
         model.updateMode(mode);
@@ -370,7 +379,9 @@ describe("charts", () => {
   });
 
   test("withHttps helper adds https if the url does not start with https", async () => {
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     createTestChart("basicChart");
     updateChart(model, chartId, { annotationLink: "javascript:alert('hello world')" });
     // https://javascript:alert is not valid and adding https prevent javascript injection
@@ -436,7 +447,9 @@ describe("charts", () => {
   });
 
   test.each(TEST_CHART_TYPES)("Double click on chart will open sidepanel", async (chartType) => {
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     createTestChart(chartType, "chartID", { figureId: "figureId" });
     await nextTick();
     expect(document.querySelector(".o-chart-container")).toBeTruthy();
@@ -513,7 +526,9 @@ describe("charts", () => {
 
   test("Clicking in the input does not reset the title", async () => {
     createChart(model, { type: "bar", title: { text: "Title" } }, chartId);
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
     await setInputValueAndTrigger(".o-chart-title input", "Another Title", "onlyInput");
@@ -526,7 +541,9 @@ describe("charts", () => {
     "Copy a chart as a figure pushes it in the clipboard as a File",
     async (chartType) => {
       const notifyUser = jest.fn();
-      await mountSpreadsheet({});
+      await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+        model,
+      }));
       mockNotificationMethods(getPlugin, { notifyUser });
       createTestChart(chartType);
       await nextTick();
@@ -1240,7 +1257,9 @@ describe("charts", () => {
       },
       "2"
     );
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     await openChartDesignSidePanel(model, env, fixture, "1");
 
     const figures = fixture.querySelectorAll(".o-figure");
@@ -1256,7 +1275,9 @@ describe("charts", () => {
     "defocusing sidepanel after modifying chart title w/o saving should maintain the new title %s",
     async (chartType) => {
       createTestChart(chartType);
-      await mountSpreadsheet();
+      await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+        model,
+      }));
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await simulateClick(".o-chart-title input");
@@ -1272,7 +1293,9 @@ describe("charts", () => {
     "can edit charts %s background",
     async (chartType) => {
       createTestChart(chartType);
-      await mountSpreadsheet();
+      await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+        model,
+      }));
       const dispatch = spyModelDispatch(model);
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
@@ -1343,7 +1366,9 @@ describe("charts", () => {
           height: 300,
         }),
       });
-      await mountSpreadsheet();
+      await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+        model,
+      }));
     });
 
     test("can reorder ranges in chart panel (last to first)", async () => {
@@ -1533,7 +1558,9 @@ describe("charts", () => {
 
   test("drawing of chart will receive new data after update", async () => {
     createTestChart("basicChart");
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     await openChartConfigSidePanel(model, env, chartId);
 
     const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0] as HTMLInputElement;
@@ -1566,7 +1593,9 @@ describe("charts", () => {
 
   test.each(TEST_CHART_TYPES)("deleting chart %s will close sidePanel", async (chartType) => {
     createTestChart(chartType);
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
 
     await simulateClick(".o-figure");
     await simulateClick(".o-chart-menu-item");
@@ -1589,7 +1618,9 @@ describe("charts", () => {
 
   test("Deleting a chart with active selection input does not produce a traceback", async () => {
     createTestChart("basicChart");
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     await openChartConfigSidePanel(model, env, chartId);
 
     await simulateClick(".o-data-series .o-add-selection");
@@ -1603,7 +1634,9 @@ describe("charts", () => {
 
   test("Undo a chart insertion will close the chart side panel", async () => {
     createTestChart("basicChart");
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     await openChartConfigSidePanel(model, env, chartId);
     undo(model);
     await nextTick();
@@ -1612,7 +1645,9 @@ describe("charts", () => {
 
   test("double click a chart in readonly mode does not open the side panel", async () => {
     createTestChart("basicChart");
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
 
     expect(fixture.querySelector(".o-chart")).toBeFalsy();
     model.updateMode("readonly");
@@ -1671,7 +1706,9 @@ describe("charts", () => {
         },
         "secondChartId"
       );
-      await mountSpreadsheet();
+      await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+        model,
+      }));
       await openChartConfigSidePanel(model, env, chartId);
       expect(fixture.querySelector(".o-chart")).toBeTruthy();
 
@@ -1763,7 +1800,9 @@ describe("charts", () => {
       },
       chartId
     );
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     await openChartConfigSidePanel(model, env, chartId);
     await simulateClick(".o-data-series .o-remove-selection");
     expect(model.getters.getChartDefinition(chartId)).toMatchObject(
@@ -2044,7 +2083,9 @@ describe("charts", () => {
     "Can open context menu on right click",
     async (chartType) => {
       createTestChart(chartType);
-      await mountSpreadsheet();
+      await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+        model,
+      }));
       triggerMouseEvent(".o-chart-container", "contextmenu");
       await nextTick();
       expect(document.querySelector(".o-menu")).not.toBeNull();
@@ -2061,7 +2102,9 @@ describe("charts", () => {
         dataRange: undefined,
         ...toChartDataSource({ dataSets: [] }),
       });
-      await mountSpreadsheet();
+      await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+        model,
+      }));
       await openChartConfigSidePanel(model, env, chartId);
 
       const input = fixture.querySelector(".o-selection input");
@@ -2083,7 +2126,9 @@ describe("charts", () => {
       },
       chartId
     );
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     await openChartConfigSidePanel(model, env, chartId);
     await setInputValueAndTrigger(".o-data-series input", "B2:C4");
     await simulateClick(".o-data-series .o-selection-ok");
@@ -2108,7 +2153,9 @@ describe("charts", () => {
   test("Deleting the second chart after selecting it closes the side panel", async () => {
     createTestChart("basicChart", chartId);
     createTestChart("basicChart", "secondChartId");
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     await openChartConfigSidePanel(model, env, chartId);
     const store = env.getStore(SidePanelStore);
     const sheetId = model.getters.getActiveSheetId();
@@ -3041,7 +3088,9 @@ describe("charts", () => {
   });
 
   test("When a figure is selected, pressing Ctrl+A will not propagate to the grid to select all cells", async () => {
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     selectCell(model, "A1");
     createTestChart("gauge", undefined, { figureId: "someuuid" });
     await nextTick();
@@ -3054,7 +3103,9 @@ describe("charts", () => {
   });
 
   test("Can undo multiple times after pasting figure", async () => {
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     setCellContent(model, "D6", "HELLO");
     createTestChart("gauge", undefined, { figureId: "someuuid" });
     await nextTick();
@@ -3088,7 +3139,9 @@ describe("charts", () => {
   });
 
   test("Chart is re-rendered if its label format change", async () => {
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     const updateChart = jest.spyOn((window as any).Chart.prototype, "update");
     createTestChart("basicChart");
     await nextTick();
@@ -3098,7 +3151,9 @@ describe("charts", () => {
   });
 
   test("Chart is re-rendered once if window.devicePixelRatio changes", async () => {
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
     const updateChart = jest.spyOn((window as any).Chart.prototype, "update");
     createTestChart("basicChart");
     await nextTick();
@@ -3188,7 +3243,9 @@ describe("charts with multiple sheets", () => {
       ],
     };
     model = new Model(data);
-    await mountSpreadsheet();
+    await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+      model,
+    }));
   });
 
   test("delete sheet containing chart data does not crash", async () => {
@@ -3248,7 +3305,9 @@ describe("Default background on runtime tests", () => {
 
 test("ChartJS charts are correctly destroyed on chart deletion", async () => {
   model = new Model();
-  await mountSpreadsheet();
+  await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+    model,
+  }));
   createChart(
     model,
     { type: "bar", ...toChartDataSource({ dataSets: [{ dataRange: "A1" }] }) },
@@ -3264,7 +3323,9 @@ test("ChartJS charts are correctly destroyed on chart deletion", async () => {
 
 test("ChartJS charts are correctly destroyed and re-created when runtime change type but definition do not", async () => {
   model = new Model();
-  await mountSpreadsheet();
+  await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+    model,
+  }));
 
   createChart(model, { type: "pie", isDoughnut: false }, chartId);
   expect(model.getters.getChartDefinition(chartId).type).toEqual("pie");
@@ -3292,7 +3353,9 @@ test("ChartJS charts extensions are loaded when mounting a spreadsheet, are only
   const spyRegister = jest.spyOn(window.Chart, "register");
   const spyUnregister = jest.spyOn(window.Chart, "unregister");
   createChart(model, { type: "bar" }, chartId);
-  await mountSpreadsheet();
+  await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+    model,
+  }));
   const numberOfExtensions = window.Chart.registry.plugins["items"].length;
   expect(spyRegister).toHaveBeenCalledTimes(numberOfExtensions);
   expect(window.Chart.registry.plugins["items"].map((i) => i.id)).toMatchObject([
@@ -3621,7 +3684,9 @@ describe("Change chart type", () => {
 test("Can update the chart data source from the side panel", async () => {
   model = new Model();
   createChart(model, { type: "bar" }, chartId);
-  await mountSpreadsheet();
+  await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+    model,
+  }));
   selectFigure(model, model.getters.getFigureIdFromChartId(chartId)!);
   env.getStore(SidePanelStore).open("ChartPanel");
   await nextTick();
@@ -3670,7 +3735,9 @@ test("Can edit a chart range", async () => {
     },
     chartId
   );
-  await mountSpreadsheet();
+  await ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheet({
+    model,
+  }));
   selectFigure(model, model.getters.getFigureIdFromChartId(chartId)!);
   await simulateClick(".o-figure");
   env.getStore(SidePanelStore).open("ChartPanel");

@@ -65,7 +65,7 @@ const model = createModelFromGrid({ A1: "1", A2: "2" });
 
 Each test should contain only the setup and assertions strictly necessary to verify the behavior being tested. Avoid adding extra setup that is irrelevant to the actual feature being tested. A minimal test is easier to read, and when it fails, the cause is immediately obvious.
 
-For component tests, mount as few components as possible for your testing you are testing rather than the entire `Spreadsheet`. Use `mountComponent` or `mountComponentWithPortalTarget` to mount an isolated component with a `Model`.
+For component tests, mount as few components as possible for your testing you are testing rather than the entire `Spreadsheet`. Use `mountComponent` to mount an isolated component with a `Model`.
 
 ```js
 // Avoid this: mounting the full Spreadsheet just to test some menu present in the spreadsheet
@@ -80,7 +80,7 @@ test("Test specific menu item action", async () => {
   const menuItems = []; // populate from a specific registry
   const { fixture } = await mountComponent(Menu, {
     props: { menuItems, onClose: () => {}, onClickMenu: () => callback() },
-    env: { model },
+    model,
   });
   // ... interact with a menu to test its own behavior/aspect
 });

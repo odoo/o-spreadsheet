@@ -2,104 +2,107 @@
 
 exports[`Pivot HTML Renderer Rendering a simple pivot table 1`] = `
 <div>
-  
   <div
-    class="w-100"
+    class="o-spreadsheet"
   >
-    <label
-      class="o-checkbox d-flex align-items-center m-2"
-      role="button"
+    <div
+      class="w-100"
     >
-      <input
-        class="me-2 flex-shrink-0 border"
-        name="missing_values"
-        type="checkbox"
-      />
-      <span
-        class="text-truncate"
+      <label
+        class="o-checkbox d-flex align-items-center m-2"
+        role="button"
       >
-        Display missing cells only
-      </span>
-      
-    </label>
-    
-    <table
-      class="o_pivot_html_renderer"
-    >
-      <tr>
-        <th
-          rowspan="2"
+        <input
+          class="me-2 flex-shrink-0 border"
+          name="missing_values"
+          type="checkbox"
         />
-        
-        <th
-          class="o_missing_value"
-          colspan="1"
+        <span
+          class="text-truncate"
         >
-          Total
-        </th>
+          Display missing cells only
+        </span>
+        
+      </label>
+      
+      <table
+        class="o_pivot_html_renderer"
+      >
+        <tr>
+          <th
+            rowspan="2"
+          />
+          
+          <th
+            class="o_missing_value"
+            colspan="1"
+          >
+            Total
+          </th>
+          
+          
+        </tr>
+        <tr>
+          
+          <th
+            class="o_missing_value"
+            colspan="1"
+          >
+            Score
+          </th>
+          
+          
+        </tr>
         
         
-      </tr>
-      <tr>
+        <tr>
+          <th
+            class="o_missing_value"
+          >
+            Alice
+          </th>
+          <td
+            class="o_missing_value"
+          >
+            1
+          </td>
+          
+          
+        </tr>
+        <tr>
+          <th
+            class="o_missing_value"
+          >
+            Bob
+          </th>
+          <td
+            class="o_missing_value"
+          >
+            1
+          </td>
+          
+          
+        </tr>
+        <tr>
+          <th
+            class="o_missing_value"
+          >
+            Total
+          </th>
+          <td
+            class="o_missing_value"
+          >
+            2
+          </td>
+          
+          
+        </tr>
         
-        <th
-          class="o_missing_value"
-          colspan="1"
-        >
-          Score
-        </th>
         
-        
-      </tr>
+      </table>
       
       
-      <tr>
-        <th
-          class="o_missing_value"
-        >
-          Alice
-        </th>
-        <td
-          class="o_missing_value"
-        >
-          1
-        </td>
-        
-        
-      </tr>
-      <tr>
-        <th
-          class="o_missing_value"
-        >
-          Bob
-        </th>
-        <td
-          class="o_missing_value"
-        >
-          1
-        </td>
-        
-        
-      </tr>
-      <tr>
-        <th
-          class="o_missing_value"
-        >
-          Total
-        </th>
-        <td
-          class="o_missing_value"
-        >
-          2
-        </td>
-        
-        
-      </tr>
-      
-      
-    </table>
-    
-    
+    </div>
   </div>
 </div>
 `;

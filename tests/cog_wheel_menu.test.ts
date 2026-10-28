@@ -1,11 +1,11 @@
 import { CogWheelMenu } from "../src/components/side_panel/components/cog_wheel_menu/cog_wheel_menu";
 import { click } from "./test_helpers/dom_helper";
-import { mountComponentWithPortalTarget } from "./test_helpers/helpers";
+import { mountComponent } from "./test_helpers/helpers";
 
 async function mountCogWheelMenu(
   props: Partial<CogWheelMenu["props"]>
 ): Promise<{ component: CogWheelMenu; fixture: HTMLElement }> {
-  const { parent, fixture } = await mountComponentWithPortalTarget(CogWheelMenu, {
+  const { parent, fixture } = await mountComponent(CogWheelMenu, {
     props: {
       items: [],
       ...props,

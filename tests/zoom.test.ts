@@ -87,7 +87,6 @@ describe("Dashboard zoom tests", () => {
   describe.each(ZOOM_VALUES.map((zoom) => zoom / 100))("Zoom tests selection %s", (zoom) => {
     beforeEach(async () => {
       ({ model, fixture, env } = await mountSpreadsheet());
-      // getPlugin(ZoomPlugin).setZoom(zoom);
       setZoom(env, zoom);
       setCellContent(model, "C8", "=1/0");
       model.updateMode("dashboard");

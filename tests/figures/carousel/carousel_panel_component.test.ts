@@ -14,7 +14,7 @@ import {
   setInputValueAndTrigger,
   simulateClick,
 } from "../../test_helpers/dom_helper";
-import { mockChart, mountComponentWithPortalTarget, nextTick } from "../../test_helpers/helpers";
+import { mockChart, mountComponent, nextTick } from "../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
 mockChart();
@@ -39,7 +39,7 @@ beforeEach(() => {
 });
 
 async function mountCarouselPanel(modelArg: Model, figureId: UID) {
-  ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
+  ({ fixture, env } = await mountComponent(SidePanels, { model }));
   env.getStore(SidePanelStore).open("CarouselPanel", { figureId });
   await nextTick();
 }

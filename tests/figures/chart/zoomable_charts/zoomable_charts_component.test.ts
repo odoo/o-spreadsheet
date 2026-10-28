@@ -2,7 +2,7 @@ import { CreateFigureCommand, Model, UID } from "../../../../src";
 import { ZoomableChartStore } from "../../../../src/components/figures/chart/chartJs/zoomable_chart/zoomable_chart_store";
 import { ChartPanel } from "../../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { LineChartDefinition } from "../../../../src/types/chart/line_chart";
-import { SpreadsheetActionEnv, SpreadsheetChildEnv } from "../../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../../src/types/spreadsheet_env";
 import { openChartDesignSidePanel, toChartDataSource } from "../../../test_helpers/chart_helpers";
 import {
   createChart,
@@ -14,8 +14,8 @@ import { TEST_CHART_DATA } from "../../../test_helpers/constants";
 import { clickAndDrag, simulateClick, triggerMouseEvent } from "../../../test_helpers/dom_helper";
 import {
   mockChart,
-  mountComponentWithPortalTarget,
-  mountSpreadsheet as mountSpreadsheetHelper,
+  mountComponent,
+  mountSpreadsheet,
   nextTick,
 } from "../../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../../test_helpers/mock_helpers";
@@ -50,11 +50,7 @@ function createTestChart(
 
 async function mountChartSidePanel(id = chartId) {
   const props = { chartId: id, onCloseSidePanel: () => {} };
-  ({ fixture, env } = await mountComponentWithPortalTarget(ChartPanel, { props, model }));
-}
-
-async function mountSpreadsheet(partialEnv?: Partial<SpreadsheetChildEnv>) {
-  ({ env, model, fixture } = await mountSpreadsheetHelper({ model }, partialEnv));
+  ({ fixture, env } = await mountComponent(ChartPanel, { props, model }));
 }
 
 let fixture: HTMLElement;
@@ -122,7 +118,7 @@ describe("zoom", () => {
   });
 
   test("Allowing zoom changes the definition and shows the master chart", async () => {
-    await mountSpreadsheet();
+    ({ env, model, fixture } = await mountSpreadsheet({ model }));
     createTestChart(chartId);
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
@@ -138,7 +134,7 @@ describe("zoom", () => {
   });
 
   test("Disabling zoom removes the master chart", async () => {
-    await mountSpreadsheet();
+    ({ env, model, fixture } = await mountSpreadsheet({ model }));
     createTestChart(chartId, {}, { zoomable: true });
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
@@ -155,7 +151,7 @@ describe("zoom", () => {
 
   describe("line chart", () => {
     beforeEach(async () => {
-      await mountSpreadsheet();
+      ({ env, model, fixture } = await mountSpreadsheet({ model }));
       createTestChart(chartId, {}, { type: "line", zoomable: true });
       await nextTick();
     });
@@ -324,7 +320,7 @@ describe("zoom", () => {
 
   describe("Bar chart", () => {
     beforeEach(async () => {
-      await mountSpreadsheet();
+      ({ env, model, fixture } = await mountSpreadsheet({ model }));
       createTestChart(chartId, {}, { zoomable: true });
       await nextTick();
     });
@@ -477,7 +473,7 @@ describe("zoom", () => {
   });
 
   test("Chart with one point shows timeline as disabled", async () => {
-    await mountSpreadsheet();
+    ({ env, model, fixture } = await mountSpreadsheet({ model }));
     createTestChart(chartId, {}, { zoomable: true });
     await openChartDesignSidePanel(model, env, fixture, chartId);
     let container = fixture.querySelector(".o-master-chart-container");

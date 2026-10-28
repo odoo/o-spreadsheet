@@ -5,7 +5,7 @@ import { DEFAULT_TABLE_CONFIG, TABLE_PRESETS } from "../../src/helpers/table_pre
 import { PropsOf } from "../../src/types/props_of";
 import { createTableStyle } from "../test_helpers/commands_helpers";
 import { click, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
+import { mountComponent, nextTick } from "../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -25,7 +25,7 @@ async function mountPopover(partialProps: Partial<PropsOf<TableStylesPopover>> =
     type: "table",
     ...partialProps,
   };
-  const result = await mountComponentWithPortalTarget(TableStylesPopover, { model, props });
+  const result = await mountComponent(TableStylesPopover, { model, props });
   fixture = result.fixture;
   const sidePanelStore = result.env.getStore(SidePanelStore);
   openSidePanel = jest.spyOn(sidePanelStore, "open");

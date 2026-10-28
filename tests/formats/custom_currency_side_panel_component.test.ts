@@ -8,7 +8,6 @@ import { click, editSelectComponent, setInputValueAndTrigger } from "../test_hel
 import { getCell } from "../test_helpers/getters_helpers";
 import {
   mountComponent,
-  mountComponentWithPortalTarget,
   nextTick,
   spyModelDispatch,
   useJestFakeTimers,
@@ -80,7 +79,7 @@ describe("custom currency sidePanel component", () => {
   beforeEach(async () => {
     currenciesContent = Object.assign({}, currenciesRegistry.content);
 
-    ({ model, fixture } = await mountComponentWithPortalTarget(MoreFormatsPanel, {
+    ({ model, fixture } = await mountComponent(MoreFormatsPanel, {
       model: new Model({}, { external: { loadCurrencies } }),
       props: { onCloseSidePanel: () => {}, category: "currency" },
     }));

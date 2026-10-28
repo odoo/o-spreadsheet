@@ -2,16 +2,19 @@
 
 exports[`Checkbox Can render a checkbox 1`] = `
 <div>
-  
-  <label
-    class="o-checkbox d-flex align-items-center"
-    role="button"
+  <div
+    class="o-spreadsheet"
   >
-    <input
-      class="me-2 flex-shrink-0 border"
-      type="checkbox"
-    />
-    
-  </label>
+    <label
+      class="o-checkbox d-flex align-items-center"
+      role="button"
+    >
+      <input
+        class="me-2 flex-shrink-0 border"
+        type="checkbox"
+      />
+      
+    </label>
+  </div>
 </div>
 `;

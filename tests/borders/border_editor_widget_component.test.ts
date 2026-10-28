@@ -1,8 +1,7 @@
-import { providePlugins, proxy, xml } from "@odoo/owl";
+import { proxy, xml } from "@odoo/owl";
 import { BorderPosition, BorderStyle, Color, Model } from "../../src";
 import { BorderEditorWidget } from "../../src/components/border_editor/border_editor_widget";
 import { OSComponent } from "../../src/components/os_component";
-import { PopoverContainerPlugin } from "../../src/components/popover/popover_container_owl_plugin";
 import { toHex } from "../../src/helpers/color";
 import { toZone } from "../../src/helpers/zones";
 import { PropsOf } from "../../src/types/props_of";
@@ -49,10 +48,6 @@ class BorderWidgetContainer extends OSComponent {
   setup() {
     this.state = proxy({
       showBorderEditor: false,
-    });
-
-    providePlugins([PopoverContainerPlugin], {
-      getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
     });
   }
 

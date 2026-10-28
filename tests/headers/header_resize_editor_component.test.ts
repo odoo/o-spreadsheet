@@ -17,11 +17,7 @@ import {
   setInputValueAndTrigger,
   simulateClick,
 } from "../test_helpers/dom_helper";
-import {
-  mountComponentWithPortalTarget,
-  nextTick,
-  spyModelDispatch,
-} from "../test_helpers/helpers";
+import { mountComponent, nextTick, spyModelDispatch } from "../test_helpers/helpers";
 
 const SELECTORS = {
   applyButton: ".o-popover .o-button.primary",
@@ -46,7 +42,7 @@ describe("Header resize editor", () => {
   async function mountHeaderResizeEditor(
     editorTarget: HeaderResizeEditorTarget | null = { dimension: "COL", index: 0 }
   ): Promise<void> {
-    ({ fixture } = await mountComponentWithPortalTarget(HeaderResizeEditor, {
+    ({ fixture } = await mountComponent(HeaderResizeEditor, {
       model,
       props: { target, gridRect: { x: 0, y: 0, width: 0, height: 0 } },
     }));

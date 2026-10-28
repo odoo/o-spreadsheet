@@ -16,7 +16,7 @@ import {
   simulateClick,
 } from "../../../test_helpers";
 import { openChartConfigSidePanel, toChartDataSource } from "../../../test_helpers/chart_helpers";
-import { mountComponentWithPortalTarget } from "../../../test_helpers/helpers";
+import { mountComponent } from "../../../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -29,7 +29,7 @@ function getWaterfallDefinition(chartId: UID): WaterfallChartDefinition<string> 
 describe("Waterfall chart side panel", () => {
   beforeEach(async () => {
     model = new Model();
-    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
+    ({ fixture, env } = await mountComponent(SidePanels, { model }));
   });
 
   describe("Config panel", () => {
