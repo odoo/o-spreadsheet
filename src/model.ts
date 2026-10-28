@@ -61,6 +61,27 @@ import { WorkbookData } from "./types/workbook_data";
 import { XLSXExport } from "./types/xlsx";
 import { getXLSX } from "./xlsx/xlsx_writer";
 
+/**
+ * Names of the getters of every plugin a core plugin depends on, transitively.
+ * The dependencies of a plugin class never change, so it is shared by all models.
+ */
+const dependenciesGetterNames = new WeakMap<CorePluginConstructor, string[]>();
+
+function getDependenciesGetterNames(Plugin: CorePluginConstructor): string[] {
+  let names = dependenciesGetterNames.get(Plugin);
+  if (!names) {
+    const allNames = new Set<string>();
+    for (const Dep of Plugin.dependencies) {
+      for (const name of [...getDependenciesGetterNames(Dep), ...Dep.getters]) {
+        allNames.add(name);
+      }
+    }
+    names = [...allNames];
+    dependenciesGetterNames.set(Plugin, names);
+  }
+  return names;
+}
+
 const enum Status {
   Ready,
   Running,
@@ -94,7 +115,6 @@ const enum Status {
  * programmatically a spreadsheet.
  */
 export class Model extends EventBus<any> implements CommandDispatcher {
-  private corePluginGetters = new Map<CorePluginConstructor, CoreGetters>();
   private baseGetters: CoreGetters = {} as CoreGetters;
 
   private range: RangeAdapterPlugin;
@@ -343,7 +363,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.registerCoreGetter(plugin, name);
       getters[name] = this.coreGetters[name];
     }
-    this.corePluginGetters.set(Plugin, getters);
     plugin.import(data);
     this.coreCommandHandlers.registerPlugin(plugin);
     this.handlers.push(plugin);
@@ -352,8 +371,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private buildDepGetters(Plugin: CorePluginConstructor): CoreGetters {
     const getters = { ...this.baseGetters } as CoreGetters;
-    for (const Dep of Plugin.dependencies as CorePluginConstructor[]) {
-      Object.assign(getters, this.corePluginGetters.get(Dep));
+    for (const name of getDependenciesGetterNames(Plugin)) {
+      if (name in this.coreGetters) {
+        getters[name] = this.coreGetters[name];
+      }
     }
     return getters;
   }
