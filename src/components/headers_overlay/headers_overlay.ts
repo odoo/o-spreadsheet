@@ -1,9 +1,9 @@
 import { proxy, signal, usePlugin, useProps } from "@odoo/owl";
 import { MAX_HEADER_SIZE, MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../constants";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
+import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
-import { ZoomStore } from "../../stores/zoom_store";
 import { CommandResult } from "../../types/commands";
 import { HeaderDimensions, HeaderIndex, Pixel } from "../../types/misc";
 import { EdgeScrollInfo } from "../../types/rendering";
@@ -49,7 +49,7 @@ abstract class AbstractResizer extends OSComponent {
   protected notification = usePlugin(NotificationPlugin);
   private composerFocusStore!: Store<ComposerFocusStore>;
   protected viewStore!: Store<ViewportsStore>;
-  protected zoomStore!: Store<ZoomStore>;
+  protected zoomPlugin = usePlugin(ZoomPlugin);
 
   PADDING: number = 0;
   MAX_SIZE_MARGIN: number = 0;
@@ -112,7 +112,6 @@ abstract class AbstractResizer extends OSComponent {
   setup(): void {
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.viewStore = useStore(ViewportsStore);
-    this.zoomStore = useStore(ZoomStore);
   }
 
   _computeHandleDisplay(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>) {
@@ -165,7 +164,7 @@ abstract class AbstractResizer extends OSComponent {
     ) {
       return;
     }
-    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
+    const zoomedMouseEvent = this.zoomPlugin.getZoomedEvent(ev);
     this._computeHandleDisplay(zoomedMouseEvent);
     this._computeGrabDisplay(zoomedMouseEvent);
   }
@@ -176,7 +175,7 @@ abstract class AbstractResizer extends OSComponent {
   }
 
   onDblClick(ev: MouseEvent) {
-    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
+    const zoomedMouseEvent = this.zoomPlugin.getZoomedEvent(ev);
     this._fitElementSize(this.state.activeElement);
     this.state.isResizing = false;
     this._computeHandleDisplay(zoomedMouseEvent);
@@ -189,7 +188,7 @@ abstract class AbstractResizer extends OSComponent {
     }
     this.state.isResizing = true;
     this.state.delta = 0;
-    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
+    const zoomedMouseEvent = this.zoomPlugin.getZoomedEvent(ev);
 
     const initialPosition = this._getClientPosition(zoomedMouseEvent);
     const styleValue = this.state.draggerLinePosition;
@@ -204,7 +203,7 @@ abstract class AbstractResizer extends OSComponent {
     };
     const onMouseMove = (ev: MouseEvent) => {
       this.state.delta =
-        this._getClientPosition(this.zoomStore.getZoomedEvent(ev)) - initialPosition;
+        this._getClientPosition(this.zoomPlugin.getZoomedEvent(ev)) - initialPosition;
       this.state.draggerLinePosition = styleValue + this.state.delta;
       if (this.state.draggerLinePosition < minSize) {
         this.state.draggerLinePosition = minSize;
@@ -226,7 +225,7 @@ abstract class AbstractResizer extends OSComponent {
       // not main button, probably a context menu
       return;
     }
-    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
+    const zoomedMouseEvent = this.zoomPlugin.getZoomedEvent(ev);
     const index = this._getElementIndex(this._getEvOffset(zoomedMouseEvent));
     this._selectElement(index, false);
   }
@@ -239,7 +238,7 @@ abstract class AbstractResizer extends OSComponent {
       // not main button, probably a context menu
       return;
     }
-    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
+    const zoomedMouseEvent = this.zoomPlugin.getZoomedEvent(ev);
     const index = this._getElementIndex(this._getEvOffset(zoomedMouseEvent));
     if (index < 0) {
       return;
@@ -267,7 +266,7 @@ abstract class AbstractResizer extends OSComponent {
   private startMovement(ev: PointerEvent) {
     this.state.waitingForMove = false;
     this.state.isMoving = true;
-    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
+    const zoomedMouseEvent = this.zoomPlugin.getZoomedEvent(ev);
     const startDimensions = this._getDimensionsInViewport(this._getSelectedZoneStart());
     const endDimensions = this._getDimensionsInViewport(this._getSelectedZoneEnd());
     const defaultPosition = startDimensions.start;
@@ -302,7 +301,7 @@ abstract class AbstractResizer extends OSComponent {
       if (this.state.base !== this._getSelectedZoneStart()) {
         this._moveElements();
       }
-      const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
+      const zoomedMouseEvent = this.zoomPlugin.getZoomedEvent(ev);
       this._computeGrabDisplay(zoomedMouseEvent);
     };
     this.dragNDropGrid.start(zoomedMouseEvent, mouseMoveMovement, mouseUpMovement);
@@ -319,7 +318,7 @@ abstract class AbstractResizer extends OSComponent {
       this._selectElement(index, isCtrlKey(ev));
     }
     this.lastSelectedElementIndex = index;
-    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
+    const zoomedMouseEvent = this.zoomPlugin.getZoomedEvent(ev);
 
     const mouseMoveSelect = (col: HeaderIndex, row: HeaderIndex) => {
       const newIndex = this._getType() === "COL" ? col : row;
@@ -339,7 +338,7 @@ abstract class AbstractResizer extends OSComponent {
 
   onContextMenu(ev: MouseEvent) {
     ev.preventDefault();
-    const index = this._getElementIndex(this._getEvOffset(this.zoomStore.getZoomedEvent(ev)));
+    const index = this._getElementIndex(this._getEvOffset(this.zoomPlugin.getZoomedEvent(ev)));
     if (index < 0) {
       return;
     }

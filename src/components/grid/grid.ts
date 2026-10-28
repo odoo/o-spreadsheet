@@ -36,6 +36,7 @@ import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { AutomaticSumPlugin } from "../../owl_plugins/automatic_sum_plugin";
 import { CheckboxTogglePlugin } from "../../owl_plugins/checkbox_toggle_plugin";
 import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
+import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {
@@ -51,7 +52,6 @@ import { ClipboardStore } from "../../stores/clipboard_store";
 import { HighlightStore } from "../../stores/highlight_store";
 import { SelectionRendererStore } from "../../stores/selection_renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
-import { ZoomStore } from "../../stores/zoom_store";
 import { _t } from "../../translation";
 import { CellValueType } from "../../types/cells";
 import { ClipboardMIMEType } from "../../types/clipboard";
@@ -174,7 +174,7 @@ export class Grid extends OSComponent {
   private canvasRef = signal.ref(HTMLCanvasElement);
   private highlightStore!: Store<HighlightStore>;
   viewStore!: Store<ViewportsStore>;
-  private zoomStore!: Store<ZoomStore>;
+  private zoomPlugin = usePlugin(ZoomPlugin);
   private cellPopovers!: Store<CellPopoverStore>;
   private composerFocusStore!: Store<ComposerFocusStore>;
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
@@ -194,7 +194,6 @@ export class Grid extends OSComponent {
   setup() {
     this.highlightStore = useStore(HighlightStore);
     this.viewStore = useStore(ViewportsStore);
-    this.zoomStore = useStore(ZoomStore);
     this.menuState = proxy({
       isOpen: false,
       anchorRect: null,
@@ -254,8 +253,8 @@ export class Grid extends OSComponent {
         const { scrollY } = this.viewStore.activeSheetScrollInfo;
         return scrollY < maxOffsetY;
       },
-      getZoom: () => this.zoomStore.zoomLevel,
-      setZoom: (zoom: number) => this.zoomStore.setZoom(zoom),
+      getZoom: () => this.zoomPlugin.zoomLevel(),
+      setZoom: (zoom: number) => this.zoomPlugin.setZoom(zoom),
     });
   }
 
@@ -264,7 +263,7 @@ export class Grid extends OSComponent {
   }
 
   get gridOverlayDimensions() {
-    const scrollbarWidth = this.zoomStore.scrollBarWidth;
+    const scrollbarWidth = this.zoomPlugin.scrollBarWidth();
     return cssPropertiesToCss({
       top: `${HEADER_HEIGHT}px`,
       left: `${HEADER_WIDTH}px`,
@@ -578,7 +577,7 @@ export class Grid extends OSComponent {
   }
 
   private getGridRect(): Rect {
-    const zoom = this.zoomStore.zoomLevel;
+    const zoom = this.zoomPlugin.zoomLevel();
     const { width, height } = this.viewStore.sheetViewDimensionWithHeaders;
     return {
       ...getElBoundingRect(this.gridRef()),
@@ -795,7 +794,7 @@ export class Grid extends OSComponent {
       this.cellPopovers.close();
     }
     const gridRect = this.getGridRect();
-    const zoom = this.zoomStore.zoomLevel;
+    const zoom = this.zoomPlugin.zoomLevel();
     const gridOffset = this.viewStore.gridOffset;
     // x/y are client coords; getCartesianCoordinates expects unzoomed offsets
     // relative to the top-left of the cell grid.

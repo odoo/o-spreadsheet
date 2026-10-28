@@ -9,8 +9,7 @@ import { SpreadsheetChart } from "../../helpers/figures/chart";
 import { drawChartOnCanvas } from "../../helpers/figures/charts/chart_ui_common";
 import { UuidGenerator } from "../../helpers/uuid";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
-import { useStore } from "../../store_engine/store_hooks";
-import { ZoomStore } from "../../stores/zoom_store";
+import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { ChartDefinition } from "../../types/chart/chart";
 import { Figure, FigureSize, FigureUI } from "../../types/figure";
 import { UID } from "../../types/misc";
@@ -32,14 +31,14 @@ export function getDefaultChartFigureSize(type: ChartDefinition["type"]): Figure
 
 export function useChartDragAndDrop() {
   const draggedFigurePlugin = usePlugin(DraggedFigurePlugin);
-  const zoomStore = useStore(ZoomStore);
+  const zoomPlugin = usePlugin(ZoomPlugin);
   const model = usePlugin(ModelPlugin).model();
   const spreadsheetRect = useSpreadsheetRect();
 
   const startChartDragAndDrop = (ev: PointerEvent, definition: ChartDefinition) => {
     const dragContainerRect = draggedFigurePlugin.containerRect;
-    const startX = ev.clientX / zoomStore.zoomLevel - dragContainerRect.x - spreadsheetRect.x;
-    const startY = ev.clientY / zoomStore.zoomLevel - dragContainerRect.y - spreadsheetRect.y;
+    const startX = ev.clientX / zoomPlugin.zoomLevel() - dragContainerRect.x - spreadsheetRect.x;
+    const startY = ev.clientY / zoomPlugin.zoomLevel() - dragContainerRect.y - spreadsheetRect.y;
     const { width, height } = getDefaultChartFigureSize(definition.type);
     const figuresToDrag: FigureUI = {
       id: FAKE_DRAGGED_FIGURE_ID,
@@ -129,7 +128,7 @@ class SimpleChartCanvas extends OSComponent {
   static template = xml/*xml*/ `<canvas class="position-absolute border os-theme-dependant" t-att-style="this.style" t-ref="this.canvasRef"/>`;
 
   canvasRef = signal.ref(HTMLCanvasElement);
-  private zoomStore = useStore(ZoomStore);
+  private zoomPlugin = usePlugin(ZoomPlugin);
 
   private props = useProps({
     definition: types.object<ChartDefinition>(),
@@ -157,7 +156,7 @@ class SimpleChartCanvas extends OSComponent {
         runtime.chartJsConfig.options.responsive = false;
       }
 
-      const zoom = this.zoomStore.zoomLevel;
+      const zoom = this.zoomPlugin.zoomLevel();
       const { width, height } = this.props.figureUI;
       cleanupChart = drawChartOnCanvas(canvas, runtime, { width, height }, definition.type, zoom);
     });

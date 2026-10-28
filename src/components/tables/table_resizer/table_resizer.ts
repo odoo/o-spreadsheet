@@ -1,8 +1,8 @@
-import { proxy, useProps } from "@odoo/owl";
+import { proxy, usePlugin, useProps } from "@odoo/owl";
+import { ZoomPlugin } from "../../../owl_plugins/zoom_plugin";
 import { useStore } from "../../../store_engine/store_hooks";
 import { TableResizeStore } from "../../../stores/table_resize_store";
 import { ViewportsStore } from "../../../stores/viewports_store";
-import { ZoomStore } from "../../../stores/zoom_store";
 import { HeaderIndex, Highlight, Zone } from "../../../types/misc";
 import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
@@ -28,13 +28,12 @@ export class TableResizer extends OSComponent {
   state = proxy<State>({ highlightZone: undefined });
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
   private viewStore!: Store<ViewportsStore>;
-  private zoomStore!: Store<ZoomStore>;
+  private zoomPlugin = usePlugin(ZoomPlugin);
 
   setup(): void {
     useHighlights(this);
     this.viewStore = useStore(ViewportsStore);
     useStore(TableResizeStore);
-    this.zoomStore = useStore(ZoomStore);
   }
 
   get containerStyle(): string {
@@ -56,7 +55,7 @@ export class TableResizer extends OSComponent {
     const tableZone = this.props.table.range.zone;
     const topLeft = { col: tableZone.left, row: tableZone.top };
     document.body.style.cursor = "nwse-resize";
-    const zoomedMouseEvent = this.zoomStore.getZoomedEvent(ev);
+    const zoomedMouseEvent = this.zoomPlugin.getZoomedEvent(ev);
 
     const onMouseUp = () => {
       document.body.style.cursor = "";

@@ -1,13 +1,11 @@
-import { onMounted, onWillUnmount, signal, useProps } from "@odoo/owl";
+import { onMounted, onWillUnmount, signal, usePlugin, useProps } from "@odoo/owl";
 import { drawScoreChart } from "../../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../../helpers/figures/charts/scorecard_chart_config_builder";
 import { getZoomedRect } from "../../../../helpers/rectangle";
 import { useLayoutEffect } from "../../../../owl3_compatibility_layer";
-import { useStore } from "../../../../store_engine/store_hooks";
-import { ZoomStore } from "../../../../stores/zoom_store";
+import { ZoomPlugin } from "../../../../owl_plugins/zoom_plugin";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 import { Rect } from "../../../../types/rendering";
-import { Store } from "../../../../types/store_engine";
 import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
 
@@ -19,8 +17,7 @@ export class ScorecardChart extends OSComponent {
     isFullScreen: types.boolean().optional(),
   });
   private canvas = signal.ref(HTMLCanvasElement);
-  private zoomStore!: Store<ZoomStore>;
-
+  private zoomPlugin = usePlugin(ZoomPlugin);
   get runtime(): ScorecardChartRuntime {
     return this.model().getters.getChartRuntime(this.props.chartId) as ScorecardChartRuntime;
   }
@@ -31,7 +28,6 @@ export class ScorecardChart extends OSComponent {
   }
 
   setup() {
-    this.zoomStore = useStore(ZoomStore);
     useLayoutEffect(this.createChart.bind(this), () => {
       const canvas = this.canvas();
       if (!canvas) {
@@ -59,7 +55,7 @@ export class ScorecardChart extends OSComponent {
     if (!canvas) {
       return;
     }
-    const zoom = this.zoomStore.zoomLevel;
+    const zoom = this.zoomPlugin.zoomLevel();
     const config = this.config(canvas.getBoundingClientRect(), zoom);
     drawScoreChart(config, canvas, zoom);
   }
