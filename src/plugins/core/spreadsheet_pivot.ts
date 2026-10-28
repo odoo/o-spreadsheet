@@ -22,7 +22,7 @@ export class SpreadsheetPivotCorePlugin extends CorePlugin<typeof SpreadsheetPiv
       if (!sheetId || !this.getters.tryGetSheet(sheetId) || !zone || !isZoneValid(zone)) {
         return CommandResult.InvalidDataSet;
       }
-      return this.getters.checkZonesExistInSheet(sheetId, [zone]);
+      return this.getters.checkRangesExistInSheet([definition.dataSet]);
     }
     return CommandResult.Success;
   }
