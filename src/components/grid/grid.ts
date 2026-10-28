@@ -33,6 +33,7 @@ import {
 } from "../../helpers/ui/paste_interactive";
 import { isInside, positionToZone } from "../../helpers/zones";
 import { useLayoutEffect } from "../../owl3_compatibility_layer";
+import { AutomaticSumPlugin } from "../../owl_plugins/automatic_sum_plugin";
 import { CheckboxTogglePlugin } from "../../owl_plugins/checkbox_toggle_plugin";
 import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
@@ -42,10 +43,9 @@ import {
   unGroupHeadersMenuRegistry,
 } from "../../registries/menus/header_group_registry";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
-import { useLocalStore, useStore } from "../../store_engine/store_hooks";
+import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
-import { AutomaticSumStore } from "../../stores/automatic_sum_store";
 import { ClientFocusStore } from "../../stores/client_focus_store";
 import { ClipboardStore } from "../../stores/clipboard_store";
 import { HighlightStore } from "../../stores/highlight_store";
@@ -189,7 +189,7 @@ export class Grid extends OSComponent {
   onMouseWheel!: (ev: WheelEvent) => void;
   hoveredCell!: Store<DelayedHoveredCellStore>;
   sidePanel!: Store<SidePanelStore>;
-  private automaticSumStore!: Store<AutomaticSumStore>;
+  private automaticSumPlugin!: PluginInstance<typeof AutomaticSumPlugin>;
 
   setup() {
     this.highlightStore = useStore(HighlightStore);
@@ -207,14 +207,14 @@ export class Grid extends OSComponent {
     this.paintFormatStore = useStore(PaintFormatStore);
     this.clientFocusStore = useStore(ClientFocusStore);
     useStore(ArrayFormulaHighlight);
-    this.automaticSumStore = useLocalStore(AutomaticSumStore);
     this.clipboardStore = useStore(ClipboardStore);
     useStore(SelectionRendererStore);
 
-    providePlugins([PopoverContainerPlugin, CheckboxTogglePlugin], {
+    providePlugins([PopoverContainerPlugin, CheckboxTogglePlugin, AutomaticSumPlugin], {
       getPopoverContainerRect: () => this.getGridRect(),
     });
     this.checkboxTogglePlugin = usePlugin(CheckboxTogglePlugin);
+    this.automaticSumPlugin = usePlugin(AutomaticSumPlugin);
     useListener(document.body, "cut", this.copy.bind(this, true));
     useListener(document.body, "copy", this.copy.bind(this, false));
     useListener(document.body, "paste", this.paste.bind(this));
@@ -342,7 +342,7 @@ export class Grid extends OSComponent {
       const sheetId = this.model().getters.getActiveSheetId();
 
       const mainSelectedZone = this.model().getters.getSelectedZone();
-      const sums = this.automaticSumStore.automaticSumsOnMainSelectedZone;
+      const sums = this.automaticSumPlugin.automaticSumsOnMainSelectedZone();
       if (
         this.model().getters.isSingleCellOrMerge(sheetId, mainSelectedZone) ||
         (this.model().getters.isEmpty(sheetId, mainSelectedZone) && sums.length <= 1)
