@@ -1,5 +1,6 @@
 import {
   onMounted,
+  PluginInstance,
   providePlugins,
   proxy,
   signal,
@@ -32,6 +33,7 @@ import {
 } from "../../helpers/ui/paste_interactive";
 import { isInside, positionToZone } from "../../helpers/zones";
 import { useLayoutEffect } from "../../owl3_compatibility_layer";
+import { CheckboxTogglePlugin } from "../../owl_plugins/checkbox_toggle_plugin";
 import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
@@ -44,7 +46,6 @@ import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
 import { AutomaticSumStore } from "../../stores/automatic_sum_store";
-import { CheckboxToggleStore } from "../../stores/checkbox_toggle";
 import { ClientFocusStore } from "../../stores/client_focus_store";
 import { ClipboardStore } from "../../stores/clipboard_store";
 import { HighlightStore } from "../../stores/highlight_store";
@@ -179,9 +180,9 @@ export class Grid extends OSComponent {
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
   private clientFocusStore!: Store<ClientFocusStore>;
-  private checkboxToggleStore!: Store<CheckboxToggleStore>;
   private clipboardStore!: Store<ClipboardStore>;
   private clipboardPlugin = usePlugin(NavigatorClipboardPlugin);
+  private checkboxTogglePlugin!: PluginInstance<typeof CheckboxTogglePlugin>;
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.spEnv);
 
@@ -205,13 +206,15 @@ export class Grid extends OSComponent {
     this.sidePanel = useStore(SidePanelStore);
     this.paintFormatStore = useStore(PaintFormatStore);
     this.clientFocusStore = useStore(ClientFocusStore);
-    this.checkboxToggleStore = useStore(CheckboxToggleStore);
     useStore(ArrayFormulaHighlight);
     this.automaticSumStore = useLocalStore(AutomaticSumStore);
     this.clipboardStore = useStore(ClipboardStore);
     useStore(SelectionRendererStore);
 
-    providePlugins([PopoverContainerPlugin], { getPopoverContainerRect: () => this.getGridRect() });
+    providePlugins([PopoverContainerPlugin, CheckboxTogglePlugin], {
+      getPopoverContainerRect: () => this.getGridRect(),
+    });
+    this.checkboxTogglePlugin = usePlugin(CheckboxTogglePlugin);
     useListener(document.body, "cut", this.copy.bind(this, true));
     useListener(document.body, "copy", this.copy.bind(this, false));
     useListener(document.body, "paste", this.paste.bind(this));
@@ -552,9 +555,7 @@ export class Grid extends OSComponent {
   }
 
   private processSpaceKey(ev: KeyboardEvent) {
-    if (
-      this.checkboxToggleStore.hasBooleanValidationInZones(this.model().getters.getSelectedZones())
-    ) {
+    if (this.checkboxTogglePlugin.selectedZonesContainsBooleanValidation()) {
       ev.preventDefault();
       ev.stopPropagation();
       this.model().dispatch("TOGGLE_CHECKBOX", {

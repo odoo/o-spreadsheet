@@ -1,4 +1,4 @@
-import { onWillDestroy, Plugin, usePlugin } from "@odoo/owl";
+import { onWillDestroy, Plugin, untrack, usePlugin } from "@odoo/owl";
 import { Command } from "../types/commands";
 import { ModelPlugin } from "./model_owl_plugin";
 
@@ -6,8 +6,16 @@ export abstract class OwlPluginWithModel extends Plugin {
   modelPlugin = usePlugin(ModelPlugin);
 
   setup() {
-    this.model().on("command-dispatched", this, this.handle);
-    this.model().on("command-finalized", this, this.finalize);
+    this.model().on(
+      "command-dispatched",
+      this,
+      untrack(() => this.handle)
+    );
+    this.model().on(
+      "command-finalized",
+      this,
+      untrack(() => this.finalize)
+    );
 
     onWillDestroy(() => {
       this.model().off("command-dispatched", this);
