@@ -24,12 +24,12 @@ import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { PrintModePlugin } from "../../owl_plugins/print_mode_owl_plugin";
+import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
 import { ClipboardStore } from "../../stores/clipboard_store";
 import { ModelStore } from "../../stores/model_store";
 import { ViewportsStore } from "../../stores/viewports_store";
-import { ZoomStore } from "../../stores/zoom_store";
 import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
 import { CSSProperties, HeaderGroup, Pixel } from "../../types/misc";
@@ -97,7 +97,7 @@ export class Spreadsheet extends Component {
   private modelPlugin!: PluginInstance<typeof ModelPlugin>;
   private isSmallPlugin!: PluginInstance<typeof IsSmallPlugin>;
   private viewStore!: Store<ViewportsStore>;
-  private zoomStore!: Store<ZoomStore>;
+  private zoomPlugin!: PluginInstance<typeof ZoomPlugin>;
 
   get model(): Signal<Model> {
     return this.modelPlugin.model;
@@ -105,7 +105,7 @@ export class Spreadsheet extends Component {
 
   getStyle(): string {
     const properties: CSSProperties = {};
-    const scrollbarWidth = this.zoomStore.scrollBarWidth;
+    const scrollbarWidth = this.zoomPlugin.scrollBarWidth();
     properties["--os-scrollbar-width"] = `${scrollbarWidth}px`;
     properties["--os-dark-mode-filter"] = DARK_MODE_FILTER_STRING;
     properties["color-scheme"] = this.colorScheme;
@@ -129,6 +129,14 @@ export class Spreadsheet extends Component {
 
   setup() {
     provideSpreadsheetRect(this.spreadsheetRef);
+    try {
+      //TODO This is a temporary hack only for testing purposes as we mount
+      //a component that already provide a ZoomPlugin. This hack will be
+      //removed in the very next future
+      usePlugin(ZoomPlugin);
+    } catch {
+      providePlugins([ZoomPlugin]);
+    }
     providePlugins([IsSmallPlugin]);
     this.isSmallPlugin = usePlugin(IsSmallPlugin);
 
@@ -146,7 +154,7 @@ export class Spreadsheet extends Component {
     const stores = useStoreProvider();
     stores.inject(ModelStore, this.model());
     this.viewStore = useStore(ViewportsStore);
-    this.zoomStore = useStore(ZoomStore);
+    this.zoomPlugin = usePlugin(ZoomPlugin);
 
     providePluginsIfNotPresent([NotificationPlugin]);
     providePlugins([ImageProviderPlugin], {
@@ -154,7 +162,6 @@ export class Spreadsheet extends Component {
     });
     providePlugins([DraggedFigurePlugin], {
       viewStore: this.viewStore,
-      zoomStore: this.zoomStore,
     });
 
     this.notificationPlugin = usePlugin(NotificationPlugin);
@@ -293,7 +300,7 @@ export class Spreadsheet extends Component {
     return cssPropertiesToCss({
       "grid-template-columns": `${gridColSize ? gridColSize + 2 : 0}px auto`, // +2: margins
       "grid-template-rows": `${gridRowSize ? gridRowSize + 2 : 0}px auto`,
-      zoom: this.zoomStore.cssZoom,
+      zoom: this.zoomPlugin.zoomLevel().toString(),
     });
   }
 
@@ -313,8 +320,8 @@ export class Spreadsheet extends Component {
       return { width: 0, height: 0 };
     }
 
-    const zoom = this.zoomStore.zoomLevel;
-    const scrollbarWidth = this.zoomStore.scrollBarWidth;
+    const zoom = this.zoomPlugin.zoomLevel();
+    const scrollbarWidth = this.zoomPlugin.scrollBarWidth();
 
     const getHeight = (s: string) =>
       (el.querySelector(s) && zoomCorrectedElementRect(el.querySelector(s)!, zoom).height) || 0;

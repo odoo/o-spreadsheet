@@ -1,28 +1,29 @@
+import { computed, Plugin, signal } from "@odoo/owl";
 import { zoomCorrectedElementRect } from "../components/helpers/dom_helpers";
 import { ZoomedMouseEvent } from "../components/helpers/zoom";
 import { DEFAULT_ZOOM, MAX_ZOOM, MIN_ZOOM, SCROLLBAR_WIDTH } from "../constants";
 import { getZoomedRect } from "../helpers/rectangle";
-import { Pixel } from "../types/misc";
 import { DOMCoordinates, Rect } from "../types/rendering";
 
 /**
  * Holds the zoom level of the spreadsheet UI, and everything derived purely from it.
  */
-export class ZoomStore {
-  mutators = ["setZoom"] as const;
-  storeGetters = ["getZoomedRect", "getZoomedEvent"] as const;
-  zoomLevel: number = DEFAULT_ZOOM;
+export class ZoomPlugin extends Plugin {
+  zoomLevel = signal(DEFAULT_ZOOM);
+
+  scrollBarWidth = computed(() => {
+    return SCROLLBAR_WIDTH / this.zoomLevel();
+  });
 
   setZoom(zoom: number) {
-    if (isNaN(zoom) || zoom > MAX_ZOOM || zoom < MIN_ZOOM || zoom === this.zoomLevel) {
-      return "noStateChange";
+    if (isNaN(zoom) || zoom > MAX_ZOOM || zoom < MIN_ZOOM || zoom === this.zoomLevel()) {
+      return;
     }
-    this.zoomLevel = zoom;
-    return;
+    this.zoomLevel.set(zoom);
   }
 
   getZoomedRect(rect: Rect): Rect {
-    return getZoomedRect(this.zoomLevel, rect);
+    return getZoomedRect(this.zoomLevel(), rect);
   }
 
   /**
@@ -37,7 +38,7 @@ export class ZoomStore {
     originalTargetPosition?: DOMCoordinates | null
   ): ZoomedMouseEvent<T> {
     if (originalTargetPosition === undefined) {
-      originalTargetPosition = this.getZoomTargetPosition(ev, this.zoomLevel);
+      originalTargetPosition = this.getZoomTargetPosition(ev, this.zoomLevel());
     }
     if (!originalTargetPosition) {
       return {
@@ -50,8 +51,8 @@ export class ZoomStore {
     }
     const baseOffsetX = ev.clientX - originalTargetPosition.x;
     const baseOffsetY = ev.clientY - originalTargetPosition.y;
-    const offsetX = baseOffsetX / this.zoomLevel;
-    const offsetY = baseOffsetY / this.zoomLevel;
+    const offsetX = baseOffsetX / this.zoomLevel();
+    const offsetY = baseOffsetY / this.zoomLevel();
     return {
       ev,
       clientX: ev.clientX - baseOffsetX + offsetX,
@@ -70,13 +71,5 @@ export class ZoomStore {
       return null;
     }
     return zoomCorrectedElementRect(target, zoom);
-  }
-
-  get scrollBarWidth(): Pixel {
-    return SCROLLBAR_WIDTH / this.zoomLevel;
-  }
-
-  get cssZoom(): string {
-    return `${this.zoomLevel}`;
   }
 }

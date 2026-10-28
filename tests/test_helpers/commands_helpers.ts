@@ -56,10 +56,10 @@ import { lettersToNumber, toCartesian } from "../../src/helpers/coordinates";
 import { SpreadsheetChart } from "../../src/helpers/figures/chart";
 import { UuidGenerator } from "../../src/helpers/uuid";
 import { isInside, toZone } from "../../src/helpers/zones";
+import { ZoomPlugin } from "../../src/owl_plugins/zoom_plugin";
 import { chartDataSourceRegistry } from "../../src/registries/chart_data_source_registry";
 import { chartTypeRegistry } from "../../src/registries/chart_registry";
 import { ViewportsStore } from "../../src/stores/viewports_store";
-import { ZoomStore } from "../../src/stores/zoom_store";
 import { BubbleChartDefinition } from "../../src/types/chart/bubble_chart";
 import { CalendarChartDefinition } from "../../src/types/chart/calendar_chart";
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
@@ -2060,8 +2060,8 @@ export function shiftViewportUp(env: SpreadsheetActionEnv) {
 }
 
 export function setZoom(env: SpreadsheetActionEnv, zoom: number) {
-  const store = env.getStore(ZoomStore);
-  return store.setZoom(zoom);
+  const zoomPlugin = env.getPlugin(ZoomPlugin);
+  return zoomPlugin.setZoom(zoom);
 }
 
 export function autofillSelect(model: Model, from: string, to: string) {

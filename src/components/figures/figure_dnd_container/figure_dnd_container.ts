@@ -1,6 +1,5 @@
 import { usePlugin } from "@odoo/owl";
-import { useStore } from "../../../store_engine/store_hooks";
-import { ZoomStore } from "../../../stores/zoom_store";
+import { ZoomPlugin } from "../../../owl_plugins/zoom_plugin";
 import { FigureUI } from "../../../types/figure";
 import { cssPropertiesToCss, rectToCss } from "../../helpers/css";
 import { OSComponent } from "../../os_component";
@@ -12,7 +11,7 @@ export class FiguresDragAndDropContainer extends OSComponent {
   static components = { FigureComponent };
 
   figureDndPlugin = usePlugin(DraggedFigurePlugin);
-  private zoomStore = useStore(ZoomStore);
+  private zoomPlugin = usePlugin(ZoomPlugin);
 
   get draggedFigures(): FigureUI[] {
     return this.figureDndPlugin.dnd.selectedFigures || [];
@@ -21,7 +20,7 @@ export class FiguresDragAndDropContainer extends OSComponent {
   get containerStyle() {
     return cssPropertiesToCss({
       ...rectToCss(this.figureDndPlugin.containerRect),
-      zoom: String(this.zoomStore.zoomLevel),
+      zoom: String(this.zoomPlugin.zoomLevel()),
     });
   }
 }

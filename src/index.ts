@@ -167,6 +167,7 @@ import {
 import { migrationStepRegistry } from "./migrations/migration_steps";
 
 import { inverseCommandRegistry } from "./command_registry";
+import { ZoomPlugin } from "./owl_plugins/zoom_plugin";
 import { UNDO_REDO_PIVOT_COMMANDS } from "./plugins/evaluation/pivot_ui";
 import {
   corePluginRegistry,
@@ -210,7 +211,6 @@ import { HighlightStore } from "./stores/highlight_store";
 import { ModelStore } from "./stores/model_store";
 import { RendererStore } from "./stores/renderer_store";
 import { SpreadsheetStore } from "./stores/spreadsheet_store";
-import { ZoomStore } from "./stores/zoom_store";
 import { CHART_TYPES, schemeToColorScale } from "./types/chart/chart";
 import { errorTypes } from "./types/errors";
 import { AddFunctionDescription } from "./types/functions";
@@ -613,7 +613,6 @@ export const stores = {
   GridRenderer,
   ViewportsStore,
   ClipboardStore,
-  ZoomStore,
   globalStores,
 };
 
@@ -624,6 +623,7 @@ export const owlPlugins = {
   SpreadsheetRectPlugin,
   NavigatorClipboardPlugin,
   ModelPlugin,
+  ZoomPlugin,
 };
 
 export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";

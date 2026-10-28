@@ -77,6 +77,7 @@ import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipbo
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { PrintModePlugin } from "../../src/owl_plugins/print_mode_owl_plugin";
 import { SpreadsheetRectPlugin } from "../../src/owl_plugins/spreadsheet_rect_plugin";
+import { ZoomPlugin } from "../../src/owl_plugins/zoom_plugin";
 import { EvaluationPluginConstructor } from "../../src/plugins/evaluation_plugin";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
@@ -268,6 +269,7 @@ export function makeSpreadsheetActionTestEnv(
       SpreadsheetRectPlugin,
       PrintModePlugin,
       IsSmallPlugin,
+      ZoomPlugin,
     ],
     { model }
   );
@@ -349,6 +351,7 @@ class TestParent extends Component {
         PrintModePlugin,
         SpreadsheetRectPlugin,
         IsSmallPlugin,
+        ZoomPlugin,
       ],
       {
         model: this.props.model,

@@ -1,7 +1,7 @@
-import { useProps, xml } from "@odoo/owl";
+import { usePlugin, useProps, xml } from "@odoo/owl";
+import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useStore } from "../../store_engine/store_hooks";
 import { ViewportsStore } from "../../stores/viewports_store";
-import { ZoomStore } from "../../stores/zoom_store";
 import { Store } from "../../types/store_engine";
 import { OSComponent } from "../os_component";
 import { types } from "../props_validation";
@@ -10,7 +10,7 @@ import { ScrollBar } from "./scrollbar";
 export class VerticalScrollBar extends OSComponent {
   static components = { ScrollBar };
   private viewStore!: Store<ViewportsStore>;
-  private zoomStore!: Store<ZoomStore>;
+  private zoomPlugin = usePlugin(ZoomPlugin);
   static template = xml/*xml*/ `
     <ScrollBar
       t-if="this.isDisplayed"
@@ -23,7 +23,6 @@ export class VerticalScrollBar extends OSComponent {
 
   setup(): void {
     this.viewStore = useStore(ViewportsStore);
-    this.zoomStore = useStore(ZoomStore);
   }
 
   protected props = useProps({
@@ -48,7 +47,7 @@ export class VerticalScrollBar extends OSComponent {
 
   get position() {
     const { y } = this.viewStore.viewports.getMainViewportRect(this.viewStore.displayedSheetId);
-    const scrollbarWidth = this.zoomStore.scrollBarWidth;
+    const scrollbarWidth = this.zoomPlugin.scrollBarWidth();
     return {
       top: `${this.props.topOffset + y}px`,
       right: "0px",

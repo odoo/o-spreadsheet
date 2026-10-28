@@ -1,10 +1,10 @@
-import { onMounted, onWillUnmount, signal, useProps } from "@odoo/owl";
+import { onMounted, onWillUnmount, signal, usePlugin, useProps } from "@odoo/owl";
 import { drawGaugeChart } from "../../../../helpers/figures/charts/gauge_chart_rendering";
 import { deepEquals } from "../../../../helpers/misc";
 import { useLayoutEffect } from "../../../../owl3_compatibility_layer";
+import { ZoomPlugin } from "../../../../owl_plugins/zoom_plugin";
 import { EASING_FN } from "../../../../registries/cell_animation_registry";
 import { useStore } from "../../../../store_engine/store_hooks";
-import { ZoomStore } from "../../../../stores/zoom_store";
 import { GaugeChartRuntime } from "../../../../types/chart/gauge_chart";
 import { Store } from "../../../../types/store_engine";
 import { OSComponent } from "../../../os_component";
@@ -24,14 +24,13 @@ export class GaugeChartComponent extends OSComponent {
   private canvas = signal.ref(HTMLCanvasElement);
 
   private animationStore: Store<ChartAnimationStore> | undefined;
-  private zoomStore!: Store<ZoomStore>;
+  private zoomPlugin = usePlugin(ZoomPlugin);
 
   get runtime(): GaugeChartRuntime {
     return this.model().getters.getChartRuntime(this.props.chartId) as GaugeChartRuntime;
   }
 
   setup() {
-    this.zoomStore = useStore(ZoomStore);
     if (this.model().getters.isDashboard()) {
       this.animationStore = useStore(ChartAnimationStore);
     }
@@ -55,7 +54,7 @@ export class GaugeChartComponent extends OSComponent {
           animation = this.drawGaugeWithAnimation();
           this.animationStore?.disableAnimationForChart(this.animationChartId, "gauge");
         } else {
-          const zoom = this.zoomStore.zoomLevel;
+          const zoom = this.zoomPlugin.zoomLevel();
           drawGaugeChart(this.canvasEl, this.runtime, zoom);
         }
 
@@ -76,7 +75,7 @@ export class GaugeChartComponent extends OSComponent {
         animation.stop();
         animation = null;
       }
-      drawGaugeChart(this.canvasEl, this.runtime, this.zoomStore.zoomLevel);
+      drawGaugeChart(this.canvasEl, this.runtime, this.zoomPlugin.zoomLevel());
     });
     onMounted(() => {
       const canvas = this.canvas();

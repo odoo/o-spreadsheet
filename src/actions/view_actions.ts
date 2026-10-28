@@ -1,8 +1,8 @@
 import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import { numberToLetters } from "../helpers/coordinates";
 import { interactiveFreezeColumnsRows } from "../helpers/ui/freeze_interactive";
+import { ZoomPlugin } from "../owl_plugins/zoom_plugin";
 import { FormulaFingerprintStore } from "../stores/formula_fingerprints_store";
-import { ZoomStore } from "../stores/zoom_store";
 import { _t } from "../translation";
 import { Dimension } from "../types/misc";
 import { SpreadsheetActionEnv } from "../types/spreadsheet_env";
@@ -226,9 +226,9 @@ export function zoomAction(zoom: number): ActionSpec {
   return {
     name: _t("%(zoom_percentage)s%", { zoom_percentage: zoom }),
     execute: (env) => {
-      env.getStore(ZoomStore).setZoom(zoom / 100);
+      env.getPlugin(ZoomPlugin).setZoom(zoom / 100);
     },
-    isActive: (env: SpreadsheetActionEnv) => env.getStore(ZoomStore).zoomLevel === zoom / 100,
+    isActive: (env: SpreadsheetActionEnv) => env.getPlugin(ZoomPlugin).zoomLevel() === zoom / 100,
     isReadonlyAllowed: true,
     isEnabledOnLockedSheet: true,
     sequence: zoom,
