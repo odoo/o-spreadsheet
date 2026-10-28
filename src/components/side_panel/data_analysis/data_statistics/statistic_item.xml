@@ -1,11 +1,12 @@
 <templates>
   <t t-name="o-spreadsheet-StatisticItem">
+    <t t-set="isReadonly" t-value="this.model().getters.isReadonly()"/>
     <div
       class="o-data-analysis-item d-flex flex-fill justify-content-between align-items-center"
       t-att-class="{
-        'o-data-analysis-item-draggable': this.props.stat.formula !== '',
+        'o-data-analysis-item-draggable': !isReadonly and this.props.stat.formula !== '',
       }"
-      t-on-pointerdown="(ev) => this.startDragAndDrop(this.props.stat, ev)"
+      t-on-pointerdown="(ev) => !isReadonly and this.startDragAndDrop(this.props.stat, ev)"
       t-on-contextmenu.prevent="(ev) => this.openContextMenu(this.props.stat, ev)"
       t-on-mouseenter="() => this.props.onHover?.(this.props.stat, true)"
       t-on-mouseleave="() => this.props.onHover?.(this.props.stat, false)">

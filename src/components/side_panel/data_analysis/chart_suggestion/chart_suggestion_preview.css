@@ -1,12 +1,14 @@
 .o-spreadsheet {
   .o-suggestion-canvas-wrap {
-    cursor: grab;
     height: 120px;
   }
   .o-suggestion-canvas-wrap:hover {
     border-color: var(--o-action-color, #3d9be9);
   }
-  .o-suggestion-canvas-wrap:active {
+  .o-suggestion-canvas-wrap.o-grabbable {
+    cursor: grab;
+  }
+  .o-suggestion-canvas-wrap.o-grabbable:active {
     cursor: grabbing;
   }
 
