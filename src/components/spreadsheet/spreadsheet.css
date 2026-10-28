@@ -200,8 +200,8 @@
       outline: none;
     }
 
-    > canvas {
-      box-sizing: content-box;
+    .o-canvas-container {
+      box-sizing: border-box;
       border-bottom: 1px solid var(--os-canvas-border-color);
       border-right: 1px solid var(--os-canvas-border-color);
     }

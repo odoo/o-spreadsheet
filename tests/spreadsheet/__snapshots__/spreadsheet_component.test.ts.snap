@@ -931,12 +931,17 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           </div>
         </div>
         
-        <canvas
-          class="os-theme-dependant pe-none"
-          height="985"
-          style="width:985px; height:985px; "
-          width="985"
-        />
+        <div
+          class="o-canvas-container overflow-hidden"
+          style="width: 985px; height: 985px;"
+        >
+          <canvas
+            class="os-theme-dependant pe-none"
+            height="985"
+            style="width:985px; height:985px; "
+            width="985"
+          />
+        </div>
         
         
         
@@ -1966,12 +1971,17 @@ exports[`components take the small screen into account 1`] = `
           </div>
         </div>
         
-        <canvas
-          class="os-theme-dependant pe-none"
-          height="985"
-          style="width:485px; height:985px; "
-          width="485"
-        />
+        <div
+          class="o-canvas-container overflow-hidden"
+          style="width: 485px; height: 985px;"
+        >
+          <canvas
+            class="os-theme-dependant pe-none"
+            height="985"
+            style="width:485px; height:985px; "
+            width="485"
+          />
+        </div>
         
         
         
