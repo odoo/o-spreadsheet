@@ -1,15 +1,15 @@
 import { Model } from "../../src";
-import { AutomaticSumStore } from "../../src/stores/automatic_sum_store";
+import { AutomaticSumPlugin } from "../../src/owl_plugins/automatic_sum_plugin";
 import { merge, setCellContent } from "../test_helpers/commands_helpers";
 import { automaticSum, automaticSumMulti, getCellText } from "../test_helpers/getters_helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 describe("automatic sum", () => {
   let model: Model;
 
   beforeEach(() => {
     model = new Model();
-    makeStoreWithModel(model, AutomaticSumStore);
+    makeOwlPluginManager([AutomaticSumPlugin], { model });
   });
 
   test("vertical", () => {
