@@ -162,7 +162,7 @@ export class NamedRangeSelector extends OSComponent {
 
   private navigateToRange(range: Range) {
     const { sheetId, zone } = range;
-    const doesRangeExist = this.model().getters.checkZonesExistInSheet(sheetId, [zone]);
+    const doesRangeExist = this.model().getters.checkRangesExistInSheet([range]);
     if (doesRangeExist !== CommandResult.Success) {
       this.notification.raiseError(
         _t(

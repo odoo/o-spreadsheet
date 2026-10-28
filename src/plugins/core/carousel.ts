@@ -218,7 +218,7 @@ export class CarouselPlugin
         if (range.invalidXc || range.invalidSheetName) {
           return false;
         }
-        const rangeExists = this.getters.checkZonesExistInSheet(range.sheetId, [range.zone]);
+        const rangeExists = this.getters.checkRangesExistInSheet([range]);
         if (rangeExists !== CommandResult.Success) {
           return false;
         }

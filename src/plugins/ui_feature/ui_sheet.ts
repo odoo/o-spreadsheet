@@ -119,7 +119,7 @@ export class SheetUIPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   private checkSheetAndZonesExist(cmd: LocalCommand) {
-    return this.chainValidations(this.checkSheetExists, this.checkZonesAreInSheet)(cmd);
+    return this.chainValidations(this.checkSheetExists, this.checkRangesAreInSheet)(cmd);
   }
 
   private checkBackgroundColorIsValid(cmd: ColorAllCellsBackground) {
@@ -317,7 +317,7 @@ export class SheetUIPlugin extends UIPlugin {
    * Check if zones in the command are well formed and
    * not outside the sheet.
    */
-  private checkZonesAreInSheet(cmd: Command): CommandResult {
+  private checkRangesAreInSheet(cmd: Command): CommandResult {
     const sheetId = "sheetId" in cmd ? cmd.sheetId : this.getters.tryGetActiveSheetId();
     if (
       "ranges" in cmd &&
@@ -325,12 +325,12 @@ export class SheetUIPlugin extends UIPlugin {
     ) {
       return CommandResult.InvalidSheetId;
     }
-    const zones = this.getters.getCommandZones(cmd);
-    if (!sheetId && zones.length > 0) {
+    const ranges = this.getters.getCommandBoundedRange(sheetId || "", cmd);
+    if (!sheetId && ranges.length > 0) {
       return CommandResult.NoActiveSheet;
     }
-    if (sheetId && zones.length > 0) {
-      return this.getters.checkZonesExistInSheet(sheetId, zones);
+    if (sheetId && ranges.length > 0) {
+      return this.getters.checkRangesExistInSheet(ranges);
     }
     return CommandResult.Success;
   }
