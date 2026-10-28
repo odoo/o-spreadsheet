@@ -13,6 +13,7 @@ import {
   colorSheet,
   createChart,
   createFigure,
+  createNamedRange,
   createSheet,
   deleteCells,
   deleteColumns,
@@ -1152,6 +1153,20 @@ describe("Collaborative Sheet manipulation", () => {
         ySplit: 0,
       }
     );
+  });
+
+  test("modify sheet and add named range", () => {
+    const sheet1 = alice.getters.getActiveSheetId();
+    network.concurrent(() => {
+      addColumns(alice, "after", "A", 1);
+      createNamedRange(bob, "MyRange", "A1:A10", sheet1);
+    });
+
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getNamedRanges()[0],
+      { name: "MyRange", range: alice.getters.getRangeFromSheetXC(sheet1, "B1:B10") }
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 });
 
