@@ -12,7 +12,7 @@ import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/d
 import { getCellRawContent } from "../test_helpers/getters_helpers";
 import {
   getHighlightsFromStore,
-  mountComponentWithPortalTarget,
+  mountComponent,
   nextTick,
   setGrid,
   toRangeData,
@@ -47,7 +47,7 @@ describe("Table side panel", () => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
     createTable(model, "A1:C3");
-    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
+    ({ fixture, env } = await mountComponent(SidePanels, { model }));
     const table = FIRST_TABLE_IN_SELECTION(env);
     env.getStore(AutofillStore);
     env.getStore(TableAutofillStore);

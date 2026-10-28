@@ -8,7 +8,7 @@ import {
   openChartDesignSidePanel,
 } from "../../../test_helpers/chart_helpers";
 import { TEST_CHART_DATA } from "../../../test_helpers/constants";
-import { mockChart, mountComponentWithPortalTarget } from "../../../test_helpers/helpers";
+import { mockChart, mountComponent } from "../../../test_helpers/helpers";
 
 mockChart();
 const chartId = "chartId";
@@ -16,7 +16,7 @@ const chartId = "chartId";
 describe("Bubble chart config side panel", () => {
   test("Click on Edit button will prefill sidepanel", async () => {
     const model = new Model({});
-    const { fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model });
+    const { fixture, env } = await mountComponent(SidePanels, { model });
     createBubbleChart(model, TEST_CHART_DATA.bubble, chartId, undefined, {});
     await openChartConfigSidePanel(model, env, chartId);
 
@@ -42,7 +42,7 @@ describe("Bubble chart config side panel", () => {
 describe("Bubble chart design side panel", () => {
   test("Can change color mode", async () => {
     const model = new Model({});
-    const { fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model });
+    const { fixture, env } = await mountComponent(SidePanels, { model });
     createBubbleChart(model, TEST_CHART_DATA.bubble, chartId, undefined, {});
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
@@ -64,7 +64,7 @@ describe("Bubble chart design side panel", () => {
 
   test("Can change single color", async () => {
     const model = new Model({});
-    const { fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model });
+    const { fixture, env } = await mountComponent(SidePanels, { model });
     createBubbleChart(
       model,
       {

@@ -9,7 +9,7 @@ import {
   setInputValueAndTrigger,
   simulateClick,
 } from "../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
+import { mountComponent, nextTick } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
@@ -33,7 +33,7 @@ async function mountColorPicker(
     anchorRect: partialProps.anchorRect || { x: 0, y: 0, width: 0, height: 0 },
     disableNoColor: partialProps.disableNoColor || false,
   };
-  ({ fixture } = await mountComponentWithPortalTarget(ColorPicker, { model, props }));
+  ({ fixture } = await mountComponent(ColorPicker, { model, props }));
   return model;
 }
 

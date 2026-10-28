@@ -10,7 +10,7 @@ import {
 import { TEST_CHART_DATA } from "../../../test_helpers/constants";
 import {
   editStandaloneComposer,
-  mountComponentWithPortalTarget,
+  mountComponent,
   textContentAll,
 } from "../../../test_helpers/helpers";
 
@@ -23,7 +23,7 @@ describe("Gauge Panel Component", () => {
   beforeEach(async () => {
     model = new Model();
     createGaugeChart(model, TEST_CHART_DATA.gauge, chartId);
-    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
+    ({ fixture, env } = await mountComponent(SidePanels, { model }));
     await openChartConfigSidePanel(model, env, chartId);
   });
 

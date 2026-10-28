@@ -36,7 +36,7 @@ import { getCellContent, getCellIcons } from "../test_helpers/getters_helpers";
 import {
   ComposerWrapper,
   getDataValidationRules,
-  mountComponentWithPortalTarget,
+  mountComponent,
   mountComposerWrapper,
   mountSpreadsheet,
   nextTick,
@@ -62,7 +62,7 @@ describe("Edit criterion in side panel", () => {
         values: ["ok", "hello", "okay"],
         displayStyle: "arrow",
       });
-      ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
+      ({ fixture, env } = await mountComponent(SidePanels, { model }));
       env.getStore(SidePanelStore).open("DataValidationEditor", { ruleId: "id" });
       await nextTick();
     });
@@ -236,7 +236,7 @@ describe("Edit criterion in side panel", () => {
         values: ["B1:B5"],
         displayStyle: "arrow",
       });
-      ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
+      ({ fixture, env } = await mountComponent(SidePanels, { model }));
       env.getStore(SidePanelStore).open("DataValidationEditor", { ruleId: "id" });
       await nextTick();
     });

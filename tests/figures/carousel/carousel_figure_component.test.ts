@@ -565,7 +565,7 @@ describe("Carousel figure component", () => {
     createCarousel(model, { items: [] }, "carouselId");
     const chartId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
 
-    const { fixture, env } = await mountSpreadsheet({ model }, {});
+    const { fixture, env } = await mountSpreadsheet({ model });
     const sidePanelStore = env.getStore(SidePanelStore);
     const openSidePanel = jest.spyOn(sidePanelStore, "open");
 

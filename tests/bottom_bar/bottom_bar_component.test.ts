@@ -4,11 +4,7 @@ import { toHex } from "../../src/helpers/color";
 import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
 import { Model } from "../../src/model";
 import { DOMFocusableElementStore } from "../../src/stores/DOM_focus_store";
-import {
-  OwlPluginGetter,
-  SpreadsheetActionEnv,
-  SpreadsheetChildEnv,
-} from "../../src/types/spreadsheet_env";
+import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import {
   activateSheet,
   colorSheetTab,
@@ -38,7 +34,7 @@ import {
 import {
   makeSpreadsheetActionTestEnv,
   mockNotificationMethods,
-  mountComponentWithPortalTarget,
+  mountComponent,
   mountSpreadsheet,
   nextTick,
   setMobileMode,
@@ -55,13 +51,9 @@ function isDragAndDropActive(): boolean {
   return activeSheet.style.transition === "left 0s";
 }
 
-async function mountBottomBar(
-  model: Model = new Model(),
-  partialEnv: Partial<SpreadsheetChildEnv> = {}
-) {
-  const returnValue = await mountComponentWithPortalTarget(BottomBar, {
+async function mountBottomBar(model: Model = new Model()) {
+  const returnValue = await mountComponent(BottomBar, {
     model,
-    env: partialEnv,
     props: { onClick: () => {} },
   });
   fixture = returnValue.fixture;
@@ -439,7 +431,7 @@ describe("BottomBar component", () => {
 
   test("Can delete a sheet", async () => {
     const askConfirmation = jest.fn((title, callback) => callback());
-    const { model, getPlugin } = await mountBottomBar(new Model(), {});
+    const { model, getPlugin } = await mountBottomBar(new Model());
     mockNotificationMethods(getPlugin, { askConfirmation });
     const dispatch = jest.spyOn(model, "dispatch");
     createSheet(model, { sheetId: "42" });

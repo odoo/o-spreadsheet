@@ -6,11 +6,7 @@ import { PivotCoreMeasure, PREVIOUS_VALUE } from "../../../src/types/pivot";
 import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import { setCellContent, setFormat } from "../../test_helpers";
 import { click, editSelectComponent } from "../../test_helpers/dom_helper";
-import {
-  mountComponentWithPortalTarget,
-  mountSpreadsheet,
-  nextTick,
-} from "../../test_helpers/helpers";
+import { mountComponent, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 import { addPivot, removePivot, updatePivot } from "../../test_helpers/pivot_helpers";
 
 let model: Model;
@@ -27,7 +23,7 @@ function getPivotMeasures() {
 
 describe("Standalone side panel tests", () => {
   async function mountPanel(measure?: PivotCoreMeasure) {
-    ({ env, fixture } = await mountComponentWithPortalTarget(PivotMeasureDisplayPanel, {
+    ({ env, fixture } = await mountComponent(PivotMeasureDisplayPanel, {
       model,
       props: {
         onCloseSidePanel: () => {},

@@ -39,7 +39,7 @@ import { FR_LOCALE, TEST_CHART_DATA } from "../../../test_helpers/constants";
 import { getCellContent } from "../../../test_helpers/getters_helpers";
 import {
   editStandaloneComposer,
-  mountComponentWithPortalTarget,
+  mountComponent,
   mountSpreadsheet,
   nextTick,
   spyModelDispatch,
@@ -96,7 +96,7 @@ function renderScorecardChart(model: Model, chartId: UID, sheetId: UID, canvas: 
 
 async function mountChartSidePanel(id: UID = chartId, _model: Model = model) {
   const props = { chartId: id, onCloseSidePanel: () => {} };
-  ({ fixture, env } = await mountComponentWithPortalTarget(ChartPanel, { props, model: _model }));
+  ({ fixture, env } = await mountComponent(ChartPanel, { props, model: _model }));
 }
 
 test("Scorecard chart canvas adapt to figure size", () => {
@@ -521,7 +521,7 @@ describe("Scorecard charts rendering", () => {
       baseline: {},
       baselineDescr: {},
     };
-    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
+    ({ fixture, env } = await mountComponent(SidePanels, { model }));
 
     /*
      * We mock the fillText method of the canvas context to get the font size and color used

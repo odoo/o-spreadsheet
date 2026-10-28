@@ -3,16 +3,12 @@ import { PerfProfilePanel } from "../../src/components/side_panel/perf_profile/p
 import { toZone } from "../../src/helpers/zones";
 import { createSheet, deleteSheet, setCellContent } from "../test_helpers/commands_helpers";
 import { click } from "../test_helpers/dom_helper";
-import {
-  createModelFromGrid,
-  mountComponentWithPortalTarget,
-  nextTick,
-} from "../test_helpers/helpers";
+import { createModelFromGrid, mountComponent, nextTick } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
 async function mountPanel(modelArg?: Model) {
-  ({ fixture } = await mountComponentWithPortalTarget(PerfProfilePanel, {
+  ({ fixture } = await mountComponent(PerfProfilePanel, {
     model: modelArg,
     props: { onCloseSidePanel: () => {} },
   }));

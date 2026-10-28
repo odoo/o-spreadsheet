@@ -3,7 +3,7 @@ import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { Model } from "../../src/model";
 import { PropsOf } from "../../src/types/props_of";
 import { simulateClick } from "../test_helpers/dom_helper";
-import { makeTestFixture, mountComponentWithPortalTarget } from "../test_helpers/helpers";
+import { makeTestFixture, mountComponent } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
@@ -31,7 +31,7 @@ async function mountBorderEditor(
     maxHeight: partialProps.maxHeight !== undefined ? partialProps.maxHeight : 1000,
     anchorRect: partialProps.anchorRect || { x: 0, y: 0, width: 0, height: 0 },
   };
-  ({ fixture } = await mountComponentWithPortalTarget(BorderEditor, { model, props }));
+  ({ fixture } = await mountComponent(BorderEditor, { model, props }));
 }
 
 let onBorderColorPicked: jest.Mock;

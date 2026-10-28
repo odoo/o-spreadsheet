@@ -1,6 +1,16 @@
-import { PluginConstructor, providePlugins, Scope, useProps, useScope, xml } from "@odoo/owl";
+import {
+  PluginConstructor,
+  providePlugins,
+  Scope,
+  signal,
+  useProps,
+  useScope,
+  xml,
+} from "@odoo/owl";
 import { createGetPluginFunctionFromScope } from "../../src/components/os_component";
 import { types } from "../../src/components/props_validation";
+import { useSpreadsheetProviders } from "../../src/components/spreadsheet/spreadsheet_providers";
+import { Model } from "../../src/model";
 import { App, Component } from "../../src/owl3_compatibility_layer";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { useStoreProvider } from "../../src/store_engine/store_hooks";
@@ -31,16 +41,24 @@ class PluginParent extends Component {
   static template = xml/*xml*/ `<div/>`;
   protected props = useProps({
     providedPlugins: types.array<PluginConstructor>(),
-    configPlugins: types.object().optional(),
+    configPlugins: types.object<{ model: Model }>(),
     registerCallback: types.function<(args: any) => void>(),
+    beforeProviders: types.function<(container: DependencyContainer) => void>().optional(),
   });
 
   setup() {
+    // Mainly used to inject a FakeRendererStore before the providers are instantiated
+    this.props.beforeProviders?.(useStoreProvider());
+    const { stores } = useSpreadsheetProviders({
+      model: this.props.configPlugins.model,
+      spreadsheetRef: signal.ref(),
+      getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
+    });
     providePlugins(this.props.providedPlugins, this.props.configPlugins);
 
     const scope = useScope();
     const getPlugin = createGetPluginFunctionFromScope(scope);
-    const container: DependencyContainer = useStoreProvider();
+    const container: DependencyContainer = stores;
 
     this.props.registerCallback({ getPlugin, scope, container });
   }
@@ -48,7 +66,8 @@ class PluginParent extends Component {
 
 export function makeOwlPluginManager(
   providedPlugins: PluginConstructor[],
-  configPlugins?: Record<string, any>
+  configPlugins: { model: Model } & Record<string, any>,
+  beforeProviders?: (container: DependencyContainer) => void
 ): {
   getPlugin: OwlPluginGetter;
   scope: Scope;
@@ -64,6 +83,7 @@ export function makeOwlPluginManager(
     props: {
       providedPlugins: providedPlugins,
       configPlugins,
+      beforeProviders,
       registerCallback: (params: any) => {
         getPlugin = params.getPlugin;
         scope = params.scope;

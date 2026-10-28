@@ -4,7 +4,6 @@ import {
   onWillUnmount,
   onWillUpdateProps,
   PluginInstance,
-  providePlugins,
   signal,
   Signal,
   useListener,
@@ -15,20 +14,16 @@ import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO } from "../../constants";
 import { DARK_MODE_FILTER_STRING } from "../../helpers/color";
 import { unregisterChartJsExtensions } from "../../helpers/figures/charts/chart_js_extension";
 import { batched } from "../../helpers/misc";
-import { providePluginsIfNotPresent, render } from "../../helpers/owl3_helpers";
+import { render } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
 import { Component } from "../../owl3_compatibility_layer";
-import { ImageProviderPlugin } from "../../owl_plugins/image_provider_owl_plugin";
 import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
-import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { PrintModePlugin } from "../../owl_plugins/print_mode_owl_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
-import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
-import { globalStores } from "../../store_engine/store_registries";
+import { useStore } from "../../store_engine/store_hooks";
 import { ClipboardStore } from "../../stores/clipboard_store";
-import { ModelStore } from "../../stores/model_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { _t } from "../../translation";
 import { CommandResult } from "../../types/commands";
@@ -40,7 +35,6 @@ import { NotificationCallbacks } from "../../types/stores/notification_store_met
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { FiguresDragAndDropContainer } from "../figures/figure_dnd_container/figure_dnd_container";
-import { DraggedFigurePlugin } from "../figures/figure_dnd_container/figure_dnd_owl_plugin";
 import { FullScreenFigure } from "../full_screen_figure/full_screen_figure";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
@@ -51,14 +45,14 @@ import {
   zoomCorrectedElementRect,
 } from "../helpers/dom_helpers";
 import { useResizeObserver } from "../helpers/listener_hook";
-import { provideSpreadsheetRect, useSpreadsheetRect } from "../helpers/position_hook";
-import { PopoverContainerPlugin } from "../popover/popover_container_owl_plugin";
+import { useSpreadsheetRect } from "../helpers/position_hook";
 import { types } from "../props_validation";
 import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../side_panel/side_panels/side_panels";
 import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
 import { SpreadsheetPrint } from "../spreadsheet_print/spreadsheet_print";
 import { TopBar } from "../top_bar/top_bar";
+import { useSpreadsheetProviders } from "./spreadsheet_providers";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -128,48 +122,19 @@ export class Spreadsheet extends Component {
   }
 
   setup() {
-    provideSpreadsheetRect(this.spreadsheetRef);
-    try {
-      //TODO This is a temporary hack only for testing purposes as we mount
-      //a component that already provide a ZoomPlugin. This hack will be
-      //removed in the very next future
-      usePlugin(ZoomPlugin);
-    } catch {
-      providePlugins([ZoomPlugin]);
-    }
-    providePlugins([IsSmallPlugin]);
-    this.isSmallPlugin = usePlugin(IsSmallPlugin);
-
-    providePlugins([PopoverContainerPlugin], {
+    const { stores } = useSpreadsheetProviders({
+      model: this.props.model,
+      spreadsheetRef: this.spreadsheetRef,
       getPopoverContainerRect: () => getElBoundingRect(this.spreadsheetRef()),
     });
-    providePlugins([ModelPlugin], {
-      model: this.props.model,
-    });
-    providePlugins([PrintModePlugin]);
-    providePlugins([NavigatorClipboardPlugin]);
+    this.viewStore = useStore(ViewportsStore);
+    this.isSmallPlugin = usePlugin(IsSmallPlugin);
     this.modelPlugin = usePlugin(ModelPlugin);
     this.printModePlugin = usePlugin(PrintModePlugin);
-
-    const stores = useStoreProvider();
-    stores.inject(ModelStore, this.model());
-    this.viewStore = useStore(ViewportsStore);
     this.zoomPlugin = usePlugin(ZoomPlugin);
-
-    providePluginsIfNotPresent([NotificationPlugin]);
-    providePlugins([ImageProviderPlugin], {
-      fileStore: this.model().config.external.fileStore,
-    });
-    providePlugins([DraggedFigurePlugin], {
-      viewStore: this.viewStore,
-    });
-
     this.notificationPlugin = usePlugin(NotificationPlugin);
     useStore(ClipboardStore);
     this.sidePanel = useStore(SidePanelStore);
-    for (const store of globalStores.getAll()) {
-      useStore(store);
-    }
 
     this.notificationPlugin.updateNotificationCallbacks({ ...this.props });
 

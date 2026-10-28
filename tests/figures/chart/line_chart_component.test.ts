@@ -6,15 +6,11 @@ import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import { openChartDesignSidePanel, toChartDataSource } from "../../test_helpers/chart_helpers";
 import { createChart } from "../../test_helpers/commands_helpers";
 import { setInputValueAndTrigger } from "../../test_helpers/dom_helper";
-import {
-  createModelFromGrid,
-  mockChart,
-  mountComponentWithPortalTarget,
-} from "../../test_helpers/helpers";
+import { createModelFromGrid, mockChart, mountComponent } from "../../test_helpers/helpers";
 
 async function mountChartSidePanel(id: UID = chartId, _model: Model) {
   const props = { chartId: id, onCloseSidePanel: () => {} };
-  ({ fixture, env } = await mountComponentWithPortalTarget(ChartPanel, { props, model: _model }));
+  ({ fixture, env } = await mountComponent(ChartPanel, { props, model: _model }));
 }
 
 let fixture: HTMLElement;

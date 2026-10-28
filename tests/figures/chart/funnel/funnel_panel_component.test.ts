@@ -15,7 +15,7 @@ import {
   openChartDesignSidePanel,
   toChartDataSource,
 } from "../../../test_helpers/chart_helpers";
-import { mountComponentWithPortalTarget } from "../../../test_helpers/helpers";
+import { mountComponent } from "../../../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -24,7 +24,7 @@ let env: SpreadsheetActionEnv;
 describe("Funnel chart side panel", () => {
   beforeEach(async () => {
     model = new Model();
-    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
+    ({ fixture, env } = await mountComponent(SidePanels, { model }));
   });
 
   describe("Config panel", () => {

@@ -17,11 +17,7 @@ import {
   openChartDesignSidePanel,
   toChartDataSource,
 } from "../../../test_helpers/chart_helpers";
-import {
-  mockChart,
-  mockGeoJsonService,
-  mountComponentWithPortalTarget,
-} from "../../../test_helpers/helpers";
+import { mockChart, mockGeoJsonService, mountComponent } from "../../../test_helpers/helpers";
 import { makeStoreWithModel } from "../../../test_helpers/stores";
 
 let model: Model;
@@ -39,7 +35,7 @@ function getGeoChartDefinition(chartId: UID): GeoChartDefinition<string> {
 describe("Geo chart side panel", () => {
   beforeEach(async () => {
     model = new Model({}, { external: { geoJsonService: mockGeoJsonService } });
-    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
+    ({ fixture, env } = await mountComponent(SidePanels, { model }));
   });
 
   describe("Config panel", () => {

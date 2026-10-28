@@ -6,16 +6,8 @@ export abstract class OwlPluginWithModel extends Plugin {
   modelPlugin = usePlugin(ModelPlugin);
 
   setup() {
-    this.model().on(
-      "command-dispatched",
-      this,
-      untrack(() => this.handle)
-    );
-    this.model().on(
-      "command-finalized",
-      this,
-      untrack(() => this.finalize)
-    );
+    this.model().on("command-dispatched", this, (cmd: Command) => untrack(() => this.handle(cmd)));
+    this.model().on("command-finalized", this, () => untrack(() => this.finalize()));
 
     onWillDestroy(() => {
       this.model().off("command-dispatched", this);
