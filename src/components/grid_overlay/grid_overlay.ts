@@ -6,7 +6,7 @@ import { positionToZone } from "../../helpers/zones";
 import { useStore } from "../../store_engine/store_hooks";
 import { CellHoverOverlayStore } from "../../stores/cell_hover_overlay_store";
 import { PointerPositionStore } from "../../stores/pointer_position_store";
-import { SCROLL_SETTLE_DELAY } from "../../stores/scroll_latch_store";
+import { SCROLL_SETTLE_DELAY, ScrollLatchStore } from "../../stores/scroll_latch_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { ZoomStore } from "../../stores/zoom_store";
 import { CellPosition, GridClickModifiers, HeaderIndex, Position } from "../../types/misc";
@@ -40,6 +40,8 @@ function useCellHovered(
   const viewStore = useStore(ViewportsStore);
   const zoomStore = useStore(ZoomStore);
   const pointerPosition = useStore(PointerPositionStore);
+  const scrollLatch = useStore(ScrollLatchStore);
+  onWillUnmount(scrollLatch.onGestureEnd(onGestureEnd));
   const hoveredPosition: Partial<Position> = {
     col: undefined,
     row: undefined,
@@ -103,23 +105,47 @@ function useCellHovered(
 
   /**
    * Scrolling the overlay or one of its parents moves the cells under a motionless pointer.
-   * Like browsers do, the hovered cell is only re-resolved once the scroll settled.
+   * Like browsers do, the hovered cell is only re-resolved once the scroll settled: at the end
+   * of the wheel gesture, when the next wheel event can be owned by another scroller.
    */
   function checkLayoutSettled() {
-    const signature = getLayoutSignature();
-    if (signature !== layoutSignature) {
-      // mounting counts as a change: the cells just appeared under the pointer
-      layoutChangedAt = Date.now();
-      layoutSignature = signature;
+    if (trackLayoutChange()) {
       return;
     }
-    if (layoutChangedAt !== undefined && Date.now() - layoutChangedAt >= SCROLL_SETTLE_DELAY) {
-      // a pointer move since the change already resolved the hovered cell
-      if (lastMoved < layoutChangedAt) {
-        hoverCellUnderPointer();
-      }
-      layoutChangedAt = undefined;
+    // layout changes without a wheel gesture (scrollbar drag, keyboard...) settle on their own
+    if (
+      layoutChangedAt !== undefined &&
+      !scrollLatch.isGestureActive() &&
+      Date.now() - layoutChangedAt >= SCROLL_SETTLE_DELAY
+    ) {
+      settleHover();
     }
+  }
+
+  function onGestureEnd() {
+    trackLayoutChange();
+    if (layoutChangedAt !== undefined) {
+      settleHover();
+    }
+  }
+
+  function trackLayoutChange(): boolean {
+    const signature = getLayoutSignature();
+    if (signature === layoutSignature) {
+      return false;
+    }
+    // mounting counts as a change: the cells just appeared under the pointer
+    layoutChangedAt = Date.now();
+    layoutSignature = signature;
+    return true;
+  }
+
+  function settleHover() {
+    // a pointer move since the change already resolved the hovered cell
+    if (lastMoved < layoutChangedAt!) {
+      hoverCellUnderPointer();
+    }
+    layoutChangedAt = undefined;
   }
 
   function getLayoutSignature(): string {

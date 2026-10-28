@@ -40,7 +40,7 @@ export function useNestedWheelHandler(scroller: WheelScroller) {
 
 /**
  * Wheel handler of the outermost scrollable container. It owns the gestures no nested
- * container claimed, and forwards the gestures of a nested owner the pointer drifted away from.
+ * container claimed, and forwards the events of a nested owner the pointer slightly drifted off.
  */
 export function useRootWheelHandler(scrollBy: WheelScroller["scrollBy"]) {
   const scroller: WheelScroller = { canScroll: () => true, scrollBy };
