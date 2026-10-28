@@ -183,10 +183,10 @@
       outline: none;
     }
 
-    > canvas {
-      box-sizing: content-box;
-      border-bottom: 1px solid var(--os-grid-border-color);
-      border-right: 1px solid var(--os-grid-border-color);
+    .o-canvas-container {
+      box-sizing: border-box;
+      border-bottom: 1px solid #e2e3e3;
+      border-right: 1px solid #e2e3e3;
     }
 
     .o-grid-overlay {
