@@ -224,10 +224,43 @@ css/* scss */ `
       outline: none;
     }
 
+<<<<<<< 07ff7c0b9822f0da33f9b630bb60620add975d9a
     > canvas {
       box-sizing: content-box;
+||||||| d5d6a4b224b324e06f0beda6e31bc65a9f2b0462
+    > canvas {
+=======
+    .o-canvas-container {
+      box-sizing: border-box;
+>>>>>>> 727dc8ba10d943a0235096b08f2ee5ef99717f9b
       border-bottom: 1px solid #e2e3e3;
+<<<<<<< 07ff7c0b9822f0da33f9b630bb60620add975d9a
       border-right: 1px solid #e2e3e3;
+||||||| d5d6a4b224b324e06f0beda6e31bc65a9f2b0462
+    }
+    .o-scrollbar {
+      &.corner {
+        right: 0px;
+        bottom: 0px;
+        height: ${SCROLLBAR_WIDTH}px;
+        width: ${SCROLLBAR_WIDTH}px;
+        border-top: 1px solid #e2e3e3;
+        border-left: 1px solid #e2e3e3;
+      }
+=======
+      border-right: 1px solid #e2e3e3;
+    }
+
+    .o-scrollbar {
+      &.corner {
+        right: 0px;
+        bottom: 0px;
+        height: ${SCROLLBAR_WIDTH}px;
+        width: ${SCROLLBAR_WIDTH}px;
+        border-top: 1px solid #e2e3e3;
+        border-left: 1px solid #e2e3e3;
+      }
+>>>>>>> 727dc8ba10d943a0235096b08f2ee5ef99717f9b
     }
 
     .o-grid-overlay {

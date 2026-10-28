@@ -21,8 +21,16 @@
         gridDims="env.model.getters.getSheetViewDimensionWithHeaders()"
         onInputContextMenu.bind="onInputContextMenu"
       />
+<<<<<<< 07ff7c0b9822f0da33f9b630bb60620add975d9a
       <canvas t-ref="canvas"/>
       <t t-set="focused" t-value="focusedClients"/>
+||||||| d5d6a4b224b324e06f0beda6e31bc65a9f2b0462
+      <canvas t-ref="canvas"/>
+=======
+      <div class="o-canvas-container overflow-hidden" t-att-style="this.canvasContainerStyle">
+        <canvas t-ref="canvas"/>
+      </div>
+>>>>>>> 727dc8ba10d943a0235096b08f2ee5ef99717f9b
       <t
         t-foreach="env.model.getters.getClientsToDisplay()"
         t-as="client"

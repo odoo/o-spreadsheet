@@ -843,11 +843,30 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           </div>
         </div>
         
+<<<<<<< 07ff7c0b9822f0da33f9b630bb60620add975d9a
         <canvas
           height="985"
           style="width:1033px;height:985px;"
           width="1033"
         />
+||||||| d5d6a4b224b324e06f0beda6e31bc65a9f2b0462
+        <canvas
+          height="1011"
+          style="width:1033px;height:1011px;"
+          width="1033"
+        />
+=======
+        <div
+          class="o-canvas-container overflow-hidden"
+          style="width:1033px; height:1011px; "
+        >
+          <canvas
+            height="1011"
+            style="width:1033px;height:1011px;"
+            width="1033"
+          />
+        </div>
+>>>>>>> 727dc8ba10d943a0235096b08f2ee5ef99717f9b
         
         
         
