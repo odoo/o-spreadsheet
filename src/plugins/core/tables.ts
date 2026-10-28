@@ -296,18 +296,18 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     if (!cmd.newTableRange) {
       return CommandResult.Success;
     }
-    const newTableZone = this.getters.getRangeFromRangeData(cmd.newTableRange).zone;
-    const zoneIsInSheet = this.getters.checkZonesExistInSheet(cmd.sheetId, [newTableZone]);
-    if (zoneIsInSheet !== CommandResult.Success) {
-      return zoneIsInSheet;
+    const newTableRange = this.getters.getRangeFromRangeData(cmd.newTableRange);
+    const rangeIsInSheet = this.getters.checkRangesExistInSheet([newTableRange]);
+    if (rangeIsInSheet !== CommandResult.Success) {
+      return rangeIsInSheet;
     }
     const updatedTable = this.getCoreTableMatchingTopLeft(cmd.sheetId, cmd.zone);
     if (!updatedTable) {
       return CommandResult.TableNotFound;
     }
-    const overlappingTables = this.getTablesOverlappingZones(cmd.sheetId, [newTableZone]).filter(
-      (table) => table.id !== updatedTable.id
-    );
+    const overlappingTables = this.getTablesOverlappingZones(cmd.sheetId, [
+      newTableRange.zone,
+    ]).filter((table) => table.id !== updatedTable.id);
 
     return overlappingTables.length ? CommandResult.TableOverlap : CommandResult.Success;
   }
