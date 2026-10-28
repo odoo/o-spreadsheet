@@ -1,7 +1,6 @@
 import { Model } from "../../src";
 import { MoreFormatsPanel } from "../../src/components/side_panel/more_formats/more_formats";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
-import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { click, setInputValueAndTrigger } from "../test_helpers";
 import { selectCell, setFormat } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
@@ -20,19 +19,15 @@ describe("more formats side panel component", () => {
     model = new Model();
   });
 
-  async function mountFormatPanel(
-    env?: SpreadsheetChildEnv,
-    props?: Partial<MoreFormatsPanel["props"]>
-  ) {
+  async function mountFormatPanel(props?: Partial<MoreFormatsPanel["props"]>) {
     ({ fixture } = await mountComponent(MoreFormatsPanel, {
       model,
       props: { onCloseSidePanel: () => {}, ...props },
-      env,
     }));
   }
 
   test("Can open the panel in the category from the props", async () => {
-    await mountFormatPanel(undefined, { category: "date" });
+    await mountFormatPanel({ category: "date" });
     expect(".o-badge-selection .selected").toHaveText("Date");
   });
 

@@ -37,7 +37,7 @@ import {
   doAction,
   editStandaloneComposer,
   mockNotificationMethods,
-  mountComponentWithPortalTarget,
+  mountComponent,
   nextTick,
   setGrid,
 } from "../../test_helpers/helpers";
@@ -53,7 +53,7 @@ describe("Spreadsheet pivot side panel", () => {
 
   beforeEach(async () => {
     notifyUser = jest.fn();
-    ({ env, model, fixture, getPlugin } = await mountComponentWithPortalTarget(SidePanels, {
+    ({ env, model, fixture, getPlugin } = await mountComponent(SidePanels, {
       providedPlugins: [NotificationPlugin],
     }));
     mockNotificationMethods(getPlugin, { notifyUser });

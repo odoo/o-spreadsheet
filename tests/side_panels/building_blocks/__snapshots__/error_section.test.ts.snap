@@ -2,76 +2,79 @@
 
 exports[`Chart error section Can render a chart error section component 1`] = `
 <div>
-  
   <div
-    class="o-section"
+    class="o-spreadsheet"
   >
-    
     <div
-      class="d-flex flex-column p-3 m-1 o-validation o-validation-error"
+      class="o-section"
     >
+      
       <div
-        class="d-flex align-items-center"
+        class="d-flex flex-column p-3 m-1 o-validation o-validation-error"
       >
         <div
-          class="flex-shrink-0"
+          class="d-flex align-items-center"
         >
-          
           <div
-            class="o-icon"
+            class="flex-shrink-0"
           >
-            <i
-              class="oi"
-              data-icon="warning"
-            />
+            
+            <div
+              class="o-icon"
+            >
+              <i
+                class="oi"
+                data-icon="warning"
+              />
+            </div>
+            
           </div>
-          
-        </div>
-        <div
-          class="d-flex flex-column overflow-hidden"
-        >
-          <span
-            class="ps-2"
+          <div
+            class="d-flex flex-column overflow-hidden"
           >
-            error_1
-          </span>
+            <span
+              class="ps-2"
+            >
+              error_1
+            </span>
+          </div>
         </div>
       </div>
-    </div>
-    <div
-      class="d-flex flex-column p-3 m-1 o-validation o-validation-error"
-    >
       <div
-        class="d-flex align-items-center"
+        class="d-flex flex-column p-3 m-1 o-validation o-validation-error"
       >
         <div
-          class="flex-shrink-0"
+          class="d-flex align-items-center"
         >
-          
           <div
-            class="o-icon"
+            class="flex-shrink-0"
           >
-            <i
-              class="oi"
-              data-icon="warning"
-            />
+            
+            <div
+              class="o-icon"
+            >
+              <i
+                class="oi"
+                data-icon="warning"
+              />
+            </div>
+            
           </div>
-          
-        </div>
-        <div
-          class="d-flex flex-column overflow-hidden"
-        >
-          <span
-            class="ps-2"
+          <div
+            class="d-flex flex-column overflow-hidden"
           >
-            error_2
-          </span>
+            <span
+              class="ps-2"
+            >
+              error_2
+            </span>
+          </div>
         </div>
       </div>
+      
+      
+      
     </div>
-    
-    
-    
   </div>
 </div>
 `;

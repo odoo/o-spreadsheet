@@ -3,7 +3,7 @@ import { ChartTypePicker } from "../../../src/components/side_panel/chart/chart_
 import { MainChartPanelStore } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel_store";
 import { createChart } from "../../test_helpers/commands_helpers";
 import { click, pointerDown } from "../../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget } from "../../test_helpers/helpers";
+import { mountComponent } from "../../test_helpers/helpers";
 import { makeStoreWithModel } from "../../test_helpers/stores";
 
 let model: Model;
@@ -17,7 +17,7 @@ describe("Chart type picker component", () => {
     createChart(model, { type: "bar" }, chartId);
     ({ store: chartPanelStore } = makeStoreWithModel(model, MainChartPanelStore));
     const props = { chartId, chartPanelStore };
-    ({ fixture } = await mountComponentWithPortalTarget(ChartTypePicker, { model, props }));
+    ({ fixture } = await mountComponent(ChartTypePicker, { model, props }));
   });
 
   test("Clicking on the input toggle the popover", async () => {

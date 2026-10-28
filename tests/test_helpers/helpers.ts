@@ -1,40 +1,24 @@
-import {
-  PluginConstructor,
-  providePlugins,
-  proxy,
-  types,
-  usePlugin,
-  useProps,
-  useScope,
-  xml,
-} from "@odoo/owl";
+import { proxy, useProps, xml } from "@odoo/owl";
 import { type ChartConfiguration } from "chart.js";
 import { setImmediate as realSetImmediate } from "timers";
 import format from "xml-formatter";
-import { functionCache, type StoreConstructor } from "../../src";
+import { functionCache } from "../../src";
 import { Action } from "../../src/actions/action";
 import { ComposerSelection } from "../../src/components/composer/composer/abstract_composer_store";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { Composer } from "../../src/components/composer/composer/composer";
-import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { getCurrentSelection } from "../../src/components/helpers/dom_helpers";
-import {
-  createGetPluginFunctionFromScope,
-  OSComponent,
-  useSpreadsheetEnv,
-} from "../../src/components/os_component";
-import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
+import { OSComponent } from "../../src/components/os_component";
 import { Spreadsheet } from "../../src/components/spreadsheet/spreadsheet";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { matrixMap } from "../../src/functions/helpers";
 import { toCartesian, toXC } from "../../src/helpers/coordinates";
-import { batched, range } from "../../src/helpers/misc";
-import { render } from "../../src/helpers/owl3_helpers";
+import { range } from "../../src/helpers/misc";
 import { createRangeFromXc } from "../../src/helpers/range";
 import { positions, toUnboundedZone, toZone, zoneToXc } from "../../src/helpers/zones";
 import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
-import { App, Component, ComponentConstructor } from "../../src/owl3_compatibility_layer";
+import { App, Component } from "../../src/owl3_compatibility_layer";
 import { BasePlugin } from "../../src/plugins/base_plugin";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { CorePluginConstructor } from "../../src/plugins/core_plugin";
@@ -54,7 +38,6 @@ import {
   CommandTypes,
   ComposerFocusType,
   ConditionalFormat,
-  EditionMode,
   EvaluatedCell,
   ExcelWorkbookData,
   Format,
@@ -67,33 +50,17 @@ import {
   UID,
   Zone,
 } from "../../src";
-import { PopoverContainerPlugin } from "../../src/components/popover/popover_container_owl_plugin";
 import { computeFunctionsCache } from "../../src/formulas/compiler";
 import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
-import { IsSmallPlugin } from "../../src/owl_plugins/is_small_plugin";
-import { ModelPlugin } from "../../src/owl_plugins/model_owl_plugin";
-import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
-import { PrintModePlugin } from "../../src/owl_plugins/print_mode_owl_plugin";
-import { SpreadsheetRectPlugin } from "../../src/owl_plugins/spreadsheet_rect_plugin";
-import { ZoomPlugin } from "../../src/owl_plugins/zoom_plugin";
 import { EvaluationPluginConstructor } from "../../src/plugins/evaluation_plugin";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
-import {
-  proxifyStoreMutation,
-  useStore,
-  useStoreProvider,
-} from "../../src/store_engine/store_hooks";
-import { globalStores } from "../../src/store_engine/store_registries";
-import { ClipboardStore } from "../../src/stores/clipboard_store";
+import { useStore } from "../../src/store_engine/store_hooks";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
-import { ModelStore } from "../../src/stores/model_store";
 import { RendererStore } from "../../src/stores/renderer_store";
-import { ViewportsStore } from "../../src/stores/viewports_store";
-import { _t } from "../../src/translation";
 import { GeoChartRegion } from "../../src/types/chart/geo_chart";
 import { Image } from "../../src/types/image";
 import { ModelExternalConfig } from "../../src/types/model";
@@ -119,8 +86,15 @@ import {
 import { EN_LOCALE } from "./constants";
 import { click, DOMTarget, getTarget, getTextNodes, keyDown, keyUp } from "./dom_helper";
 import { getCellContent, getEvaluatedCell } from "./getters_helpers";
-import { makeOwlPluginManager } from "./owl_plugins_helpers";
+import { mountComponent } from "./mount";
 import { makeStoreWithModel } from "./stores";
+
+export {
+  makeSpreadsheetActionTestEnv,
+  mountComponent,
+  mountSpreadsheet,
+  setupTestStores,
+} from "./mount";
 
 const functionsContent = functionRegistry.content;
 
@@ -234,85 +208,6 @@ export function makeTestFixture() {
   return fixture;
 }
 
-class FakeRendererStore extends RendererStore {
-  // we don't want to actually draw anything on the canvas as it cannot be tested
-  draw() {
-    return "noStateChange";
-  }
-  startAnimation() {
-    return "noStateChange";
-  }
-  stopAnimation() {
-    return "noStateChange";
-  }
-}
-
-interface SpreadsheetActionEnvWithStores extends SpreadsheetActionEnv {
-  __spreadsheet_stores__: DependencyContainer;
-}
-
-export function makeSpreadsheetActionTestEnv(
-  model: Model = new Model(),
-  mockEnv: Partial<SpreadsheetActionEnvWithStores & { useTrueRenderer?: boolean }> = {}
-): SpreadsheetActionEnvWithStores {
-  if (mockEnv.__spreadsheet_stores__) {
-    throw new Error(
-      "Cannot call makeSpreadsheetActionTestEnv on a partial env that already have a store container"
-    );
-  }
-
-  const { getPlugin, container } = makeOwlPluginManager(
-    [
-      NotificationPlugin,
-      NavigatorClipboardPlugin,
-      ModelPlugin,
-      SpreadsheetRectPlugin,
-      PrintModePlugin,
-      IsSmallPlugin,
-      ZoomPlugin,
-    ],
-    { model }
-  );
-
-  container.inject(ModelStore, model);
-  if (!mockEnv.useTrueRenderer) {
-    container.inject(RendererStore, new FakeRendererStore(container.get.bind(container)));
-  }
-
-  // For tests without the grid composer mounted, we register fake composer
-  const composerFocusStore = container.get(ComposerFocusStore);
-  composerFocusStore.focusComposer(
-    {
-      id: "mockTestComposer",
-      get editionMode(): EditionMode {
-        return "inactive";
-      },
-      startEdition: () => {},
-      stopEdition: () => {},
-      setCurrentContent: () => {},
-    },
-    { focusMode: "inactive" }
-  );
-
-  container.get(ClipboardStore); // Instantiate a clipboard store
-
-  const sidePanelStore = container.get(SidePanelStore);
-  proxifyStoreMutation(sidePanelStore, () => container.trigger("store-updated"));
-  for (const store of globalStores.getAll()) {
-    container.get(store);
-  }
-  return {
-    model: getPlugin(ModelPlugin).model,
-    getStore<T extends StoreConstructor>(Store: T) {
-      const store = container.get(Store);
-      return proxifyStoreMutation(store, () => container.trigger("store-updated"));
-    },
-    // @ts-ignore
-    __spreadsheet_stores__: container,
-    getPlugin,
-  };
-}
-
 export function testUndoRedo(model: Model, expect: jest.Expect, command: CommandTypes, args: any) {
   const before = model.exportData();
   model.dispatch(command, args);
@@ -321,223 +216,6 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
   expect(model).toExport(before);
   redo(model);
   expect(model).toExport(after);
-}
-
-type ComponentProps = { [key: string]: any };
-
-class TestParent extends Component {
-  static template = xml/*xml*/ `
-    <div t-if="this.props.isPortalTarget" class="o-spreadsheet">
-      <t t-component="this.props.childComponent" t-props="this.props.childProps"/>
-    </div>
-    <t t-else="" >
-      <t t-component="this.props.childComponent" t-props="this.props.childProps"/>
-    </t>
-  `;
-  protected props = useProps({
-    isPortalTarget: types.boolean().optional(),
-    childComponent: types.any(),
-    childProps: types.any(),
-    model: types.object<Model>(),
-    mockEnv: types.object<Partial<SpreadsheetChildEnv>>().optional(),
-  });
-
-  setup() {
-    providePlugins(
-      [
-        NotificationPlugin,
-        NavigatorClipboardPlugin,
-        ModelPlugin,
-        PrintModePlugin,
-        SpreadsheetRectPlugin,
-        IsSmallPlugin,
-        ZoomPlugin,
-      ],
-      {
-        model: this.props.model,
-      }
-    );
-    if (this.props.isPortalTarget) {
-      providePlugins([PopoverContainerPlugin], {
-        getPopoverContainerRect: () => ({ x: 0, y: 0, height: 1000, width: 1000 }),
-      });
-    }
-    const container = useStoreProvider();
-
-    container.inject(ModelStore, this.props.model);
-    container.inject(RendererStore, new FakeRendererStore(container.get.bind(container)));
-
-    const notificationPlugin = usePlugin(NotificationPlugin);
-    notificationPlugin.updateNotificationCallbacks({
-      notifyUser: jest.fn(),
-      raiseError: jest.fn(),
-      askConfirmation: jest.fn(),
-    });
-    useStore(ClipboardStore);
-
-    // For tests without the grid composer mounted, we register fake composer
-    const composerFocusStore = container.get(ComposerFocusStore);
-    composerFocusStore.focusComposer(
-      {
-        id: "mockTestComposer",
-        get editionMode(): EditionMode {
-          return "inactive";
-        },
-        startEdition: () => {},
-        stopEdition: () => {},
-        setCurrentContent: () => {},
-      },
-      { focusMode: "inactive" }
-    );
-
-    for (const store of globalStores.getAll()) {
-      container.get(store);
-    }
-  }
-}
-
-interface MountComponentArgs<Props extends ComponentProps> {
-  props?: Props;
-  env?: Partial<SpreadsheetChildEnv>;
-  model?: Model;
-  fixture?: HTMLElement;
-  renderOnModelUpdate?: boolean; // true by default
-  providedPlugins?: PluginConstructor[];
-  callbackInComponentSetup?: () => void;
-}
-
-interface MountComponentReturn {
-  app: App;
-  parent: Component<SpreadsheetChildEnv>;
-  testRoot: TestParent;
-  model: Model;
-  fixture: HTMLElement;
-  env: SpreadsheetActionEnv;
-  viewStore: Store<ViewportsStore>;
-  getPlugin: OwlPluginGetter;
-}
-
-export async function mountComponentWithPortalTarget<Props extends ComponentProps>(
-  component: ComponentConstructor<SpreadsheetChildEnv>,
-  optionalArgs: MountComponentArgs<Props> = {}
-): Promise<MountComponentReturn> {
-  const model = optionalArgs.model || new Model();
-  const args = {
-    ...optionalArgs,
-    props: {
-      childComponent: component,
-      model,
-      mockEnv: optionalArgs.env || {},
-      isPortalTarget: true,
-      childProps: optionalArgs.props || ({} as Props),
-    },
-  };
-  return _mountComponent(model, TestParent, component, args);
-}
-
-export async function mountComponent<Props extends ComponentProps>(
-  component: ComponentConstructor<SpreadsheetChildEnv>,
-  optionalArgs: MountComponentArgs<Props> = {}
-): Promise<MountComponentReturn> {
-  const model = optionalArgs.model || new Model();
-  const args = {
-    ...optionalArgs,
-    props: {
-      childComponent: component,
-      model,
-      mockEnv: optionalArgs.env || {},
-      isPortalTarget: false,
-      childProps: optionalArgs.props || ({} as Props),
-    },
-  };
-  return _mountComponent(model, TestParent, component, args);
-}
-
-async function _mountComponent<Props extends { [key: string]: any }>(
-  model: Model,
-  rootComponent: ComponentConstructor<SpreadsheetChildEnv>,
-  spiedComponent: ComponentConstructor<SpreadsheetChildEnv>,
-  optionalArgs: MountComponentArgs<Props> = {}
-): Promise<MountComponentReturn> {
-  if (jest.isMockFunction(spiedComponent.prototype.setup)) {
-    (spiedComponent.prototype.setup as jest.Mock).mockRestore();
-  }
-  const originalSetup = spiedComponent.prototype.setup;
-  let getPlugin: OwlPluginGetter | undefined = undefined;
-  let env: SpreadsheetActionEnv;
-  let parent: Component<SpreadsheetChildEnv> | undefined = undefined;
-  const spySetup = jest
-    .spyOn(spiedComponent.prototype, "setup")
-    .mockImplementation(function (this: Component) {
-      originalSetup.call(this);
-      getPlugin = createGetPluginFunctionFromScope(useScope());
-      env = useSpreadsheetEnv();
-      parent = this;
-      optionalArgs.callbackInComponentSetup?.call(this);
-    });
-  registerCleanup(() => {
-    spySetup.mockRestore();
-  });
-
-  model.drawLayer = () => {};
-  const props = optionalArgs.props || ({} as Props);
-  const app = new App({
-    test: true,
-    translateFn: _t,
-    plugins: [...(optionalArgs.providedPlugins || [])],
-  });
-  const root = app.createRoot(rootComponent, { props });
-  const fixture = optionalArgs?.fixture || makeTestFixture();
-  const testRoot = await root.mount(fixture);
-
-  //@ts-ignore
-  const batchedRender = batched(() => render(testRoot, true));
-  if (optionalArgs.renderOnModelUpdate === undefined || optionalArgs.renderOnModelUpdate) {
-    model.on("update", null, batchedRender);
-  }
-  // @ts-ignore
-  env.__spreadsheet_stores__.on("store-updated", null, batchedRender);
-
-  registerCleanup(() => {
-    app.destroy();
-    fixture.remove();
-    model.off("update", null);
-    // @ts-ignore
-    env.__spreadsheet_stores__.off("store-updated", null);
-  });
-  const viewStore = env!.getStore(ViewportsStore);
-
-  // @ts-ignore
-  return { app, parent, model, fixture, env, viewStore, getPlugin, testRoot };
-}
-
-// Requires to be called wit jest realTimers
-export async function mountSpreadsheet(
-  props: PropsOf<Spreadsheet> = { model: new Model() },
-  partialEnv: Partial<SpreadsheetChildEnv> = {}
-): Promise<{
-  app: App;
-  parent: Spreadsheet;
-  model: Model;
-  fixture: HTMLElement;
-  env: SpreadsheetActionEnv;
-  viewStore: Store<ViewportsStore>;
-  getPlugin: OwlPluginGetter;
-}> {
-  const model = props.model;
-  const args = {
-    props: {
-      childComponent: Spreadsheet,
-      model,
-      isPortalTarget: false,
-      childProps: { model },
-      mockEnv: partialEnv || {},
-    },
-    renderOnModelUpdate: false, // handled in spreadsheet component
-  };
-  const ret = await _mountComponent(model, TestParent, Spreadsheet, args);
-  await nextTick();
-  return { ...ret, parent: ret.parent as Spreadsheet };
 }
 
 type GridDescr = { [xc: string]: string | undefined };

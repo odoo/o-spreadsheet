@@ -2,7 +2,7 @@ import { ChartTitle } from "../../../src/components/side_panel/chart/building_bl
 import { TextStyler } from "../../../src/components/side_panel/chart/building_blocks/text_styler/text_styler";
 import { PropsOf } from "../../../src/types/props_of";
 import { click, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget } from "../../test_helpers/helpers";
+import { mountComponent } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
@@ -15,7 +15,7 @@ async function mountChartTitle(props: Partial<PropsOf<ChartTitle>>) {
     style: {},
     defaultStyle: { fontSize: 10 },
   };
-  ({ fixture } = await mountComponentWithPortalTarget(ChartTitle, {
+  ({ fixture } = await mountComponent(ChartTitle, {
     props: { ...defaultProps, ...props },
   }));
 }
@@ -26,7 +26,7 @@ async function mountTextStyler(props: Partial<PropsOf<TextStyler>>) {
     style: {},
     defaultStyle: { fontSize: 10 },
   };
-  ({ fixture } = await mountComponentWithPortalTarget(TextStyler, {
+  ({ fixture } = await mountComponent(TextStyler, {
     props: { ...defaultProps, ...props },
   }));
 }

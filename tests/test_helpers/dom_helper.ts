@@ -460,7 +460,6 @@ export async function selectColumnByClicking(
 ) {
   const model = env.model();
   const index = lettersToNumber(letter);
-  //TODOPRO Check if we can use usePlugin
   const zoom = env.getPlugin(ZoomPlugin).zoomLevel();
   const x =
     model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.start * zoom + 1;

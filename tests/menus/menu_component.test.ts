@@ -3,7 +3,7 @@ import { createActions } from "../../src/actions/action";
 import { Menu } from "../../src/components/menu/menu";
 import { MenuPopover } from "../../src/components/menu_popover/menu_popover";
 import { simulateClick } from "../test_helpers/dom_helper";
-import { mountComponent, mountComponentWithPortalTarget } from "../test_helpers/helpers";
+import { mountComponent } from "../test_helpers/helpers";
 
 describe("Menu component", () => {
   test("Execute is not called when menu item is disabled", async () => {
@@ -56,7 +56,7 @@ describe("Menu component", () => {
       { name: "Test Menu", id: "test_menu", isVisible: () => false },
     ]);
 
-    await mountComponentWithPortalTarget(MenuPopover, {
+    await mountComponent(MenuPopover, {
       props: {
         menuItems,
         onClose: () => {},

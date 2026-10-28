@@ -179,6 +179,5 @@ exports[`Chart title Can render a chart title component 1`] = `
       
     </div>
   </div>
-  
 </div>
 `;

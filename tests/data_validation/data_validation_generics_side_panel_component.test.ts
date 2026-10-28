@@ -18,7 +18,7 @@ import {
 import {
   editStandaloneComposer,
   getDataValidationRules,
-  mountComponentWithPortalTarget,
+  mountComponent,
   nextTick,
 } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
@@ -35,7 +35,7 @@ describe("data validation sidePanel component", () => {
   let fixture: HTMLElement;
 
   beforeEach(async () => {
-    ({ model, env, fixture } = await mountComponentWithPortalTarget(SidePanels));
+    ({ model, env, fixture } = await mountComponent(SidePanels));
     sheetId = model.getters.getActiveSheetId();
     env.getStore(SidePanelStore).open("DataValidation", {});
     await nextTick();

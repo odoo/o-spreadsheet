@@ -17,11 +17,7 @@ import {
   simulateClick,
   triggerMouseEvent,
 } from "../test_helpers";
-import {
-  mockNotificationMethods,
-  mountComponentWithPortalTarget,
-  nextTick,
-} from "../test_helpers/helpers";
+import { mockNotificationMethods, mountComponent, nextTick } from "../test_helpers/helpers";
 
 let model: Model;
 let env: SpreadsheetActionEnv;
@@ -36,7 +32,7 @@ beforeEach(() => {
 
 async function mountRangeSelector() {
   raiseError = jest.fn();
-  ({ model, env, fixture, getPlugin } = await mountComponentWithPortalTarget(NamedRangeSelector, {
+  ({ model, env, fixture, getPlugin } = await mountComponent(NamedRangeSelector, {
     model,
   }));
   const sidePanelStore = env.getStore(SidePanelStore);

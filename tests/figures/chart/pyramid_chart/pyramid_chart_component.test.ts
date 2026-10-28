@@ -4,7 +4,7 @@ import { SpreadsheetActionEnv } from "../../../../src/types/spreadsheet_env";
 import { createChart } from "../../../test_helpers";
 import { openChartConfigSidePanel, toChartDataSource } from "../../../test_helpers/chart_helpers";
 import { setInputValueAndTrigger, simulateClick } from "../../../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget, nextTick } from "../../../test_helpers/helpers";
+import { mountComponent, nextTick } from "../../../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -13,7 +13,7 @@ let env: SpreadsheetActionEnv;
 describe("Pyramid chart side panel", () => {
   beforeEach(async () => {
     model = new Model();
-    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
+    ({ fixture, env } = await mountComponent(SidePanels, { model }));
   });
 
   test("Only first 2 ranges are enabled when changing the selection input", async () => {

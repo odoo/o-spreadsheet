@@ -43,7 +43,7 @@ import {
   createEqualCF,
   editStandaloneComposer,
   getHighlightsFromStore,
-  mountComponentWithPortalTarget,
+  mountComponent,
   mountSpreadsheet,
   nextTick,
   rejectCommand,
@@ -159,12 +159,9 @@ describe("UI of conditional formats", () => {
     });
 
     beforeEach(async () => {
-      ({ model, fixture, env } = await mountComponentWithPortalTarget(
-        ConditionalFormatPreviewList,
-        {
-          props: { onCloseSidePanel: () => {} },
-        }
-      ));
+      ({ model, fixture, env } = await mountComponent(ConditionalFormatPreviewList, {
+        props: { onCloseSidePanel: () => {} },
+      }));
       sheetId = model.getters.getActiveSheetId();
       addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
       const rule = createColorScale(
@@ -300,7 +297,7 @@ describe("UI of conditional formats", () => {
       const cf = createEqualCF("2", { fillColor: "#FF0000" }, "1");
       const ranges = ["A1:A2"];
 
-      ({ model, fixture } = await mountComponentWithPortalTarget(ConditionalFormattingEditor, {
+      ({ model, fixture } = await mountComponent(ConditionalFormattingEditor, {
         props: { cf: { ...cf, ranges }, isNewCf: false, onCloseSidePanel: () => {} },
       }));
       sheetId = model.getters.getActiveSheetId();
@@ -621,7 +618,7 @@ describe("UI of conditional formats", () => {
 
   describe("Conditional Formatting panel changes auto-apply to model", () => {
     beforeEach(async () => {
-      ({ model, fixture, env } = await mountComponentWithPortalTarget(SidePanels));
+      ({ model, fixture, env } = await mountComponent(SidePanels));
       sheetId = model.getters.getActiveSheetId();
       env.getStore(SidePanelStore).open("ConditionalFormatting");
       await nextTick();
@@ -696,7 +693,7 @@ describe("UI of conditional formats", () => {
 
   describe("Conditional Formatting panel interactions", () => {
     beforeEach(async () => {
-      ({ model, fixture, env } = await mountComponentWithPortalTarget(SidePanels));
+      ({ model, fixture, env } = await mountComponent(SidePanels));
       sheetId = model.getters.getActiveSheetId();
       env.getStore(SidePanelStore).open("ConditionalFormatting");
       await nextTick();

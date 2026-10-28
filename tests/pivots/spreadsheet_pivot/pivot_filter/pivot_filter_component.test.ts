@@ -6,11 +6,11 @@ import {
   setInputValueAndTrigger,
   simulateClick,
 } from "../../../test_helpers";
-import { mountComponentWithPortalTarget, nextTick, setGrid } from "../../../test_helpers/helpers";
+import { mountComponent, nextTick, setGrid } from "../../../test_helpers/helpers";
 import { addPivot } from "../../../test_helpers/pivot_helpers";
 
 async function setupPivotWithFilter() {
-  const { env, model, fixture } = await mountComponentWithPortalTarget(SidePanels, {});
+  const { env, model, fixture } = await mountComponent(SidePanels, {});
   // prettier-ignore
   const grid = {
       A1: "Customer", B1: "Product", C1: "Amount", D1: "Date",

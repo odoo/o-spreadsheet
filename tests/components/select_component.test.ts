@@ -2,7 +2,7 @@ import { ValueAndLabel } from "../../src";
 import { Select } from "../../src/components/select/select";
 import { PropsOf } from "../../src/types/props_of";
 import { keyDown, simulateClick, triggerMouseEvent } from "../test_helpers";
-import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
+import { mountComponent, nextTick } from "../test_helpers/helpers";
 
 const testValues: ValueAndLabel[] = [
   { value: "option_1", label: "Option 1" },
@@ -22,7 +22,7 @@ async function mountSelectMenu(partialProps: Partial<PropsOf<Select>> = {}) {
     onChange,
     ...partialProps,
   };
-  ({ fixture } = await mountComponentWithPortalTarget(Select, { props }));
+  ({ fixture } = await mountComponent(Select, { props }));
   selectEl = fixture.querySelector<HTMLElement>(".o-select")!;
 }
 

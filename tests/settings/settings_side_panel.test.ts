@@ -4,7 +4,7 @@ import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { updateLocale } from "../test_helpers/commands_helpers";
 import { CUSTOM_LOCALE, FR_LOCALE } from "../test_helpers/constants";
 import { editSelectComponent, simulateClick } from "../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
+import { mountComponent, nextTick } from "../test_helpers/helpers";
 
 describe("settings sidePanel component", () => {
   let model: Model;
@@ -12,10 +12,9 @@ describe("settings sidePanel component", () => {
 
   async function mountSettingsSidePanel(modelArg?: Model, env?: Partial<SpreadsheetChildEnv>) {
     model = modelArg ?? new Model();
-    ({ fixture } = await mountComponentWithPortalTarget(SettingsPanel, {
+    ({ fixture } = await mountComponent(SettingsPanel, {
       model,
       props: { onCloseSidePanel: () => {} },
-      env,
     }));
     await nextTick();
   }

@@ -1,8 +1,7 @@
-import { PluginInstance, providePlugins, usePlugin } from "@odoo/owl";
+import { PluginInstance, usePlugin } from "@odoo/owl";
 import { Model, UID } from "../../../src";
 import { HoveredIconStore } from "../../../src/components/grid_overlay/hovered_icon_store";
 import { useSpreadsheetEnv } from "../../../src/components/os_component";
-import { PopoverContainerPlugin } from "../../../src/components/popover/popover_container_owl_plugin";
 import { StandaloneViewport } from "../../../src/components/standalone_viewport/standalone_viewport";
 import { DEFAULT_CELL_HEIGHT, TABLE_HOVER_BACKGROUND_COLOR } from "../../../src/constants";
 import { buildSheetLink, range } from "../../../src/helpers/misc";
@@ -36,7 +35,7 @@ import {
   updateCarousel,
 } from "../../test_helpers";
 import {
-  mountComponentWithPortalTarget,
+  mountComponent,
   mountSpreadsheet,
   nextTick,
   setGrid,
@@ -73,14 +72,10 @@ async function mountViewport(zone: string, args: MountViewportArgs = {}) {
   const sheetId = args.sheetId || model.getters.getSheetIds()[0];
   const range = model.getters.getRangeFromSheetXC(sheetId, zone);
   const size = args.size || { width: 1000, height: 1000 };
-  const returnValue = await mountComponentWithPortalTarget(StandaloneViewport, {
+  const returnValue = await mountComponent(StandaloneViewport, {
     model,
     props: { ...args, range, size },
     callbackInComponentSetup: function (this: StandaloneViewport) {
-      // In real life this is defined by the standalone viewport's parent (grid)
-      providePlugins([PopoverContainerPlugin], {
-        getPopoverContainerRect: () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
-      });
       subEnv = this.env;
       this.spEnv = useSpreadsheetEnv();
       subActionEnv = this.spEnv;

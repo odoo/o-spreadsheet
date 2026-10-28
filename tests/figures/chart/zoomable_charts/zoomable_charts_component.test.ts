@@ -2,7 +2,7 @@ import { CreateFigureCommand, Model, UID } from "../../../../src";
 import { ZoomableChartStore } from "../../../../src/components/figures/chart/chartJs/zoomable_chart/zoomable_chart_store";
 import { ChartPanel } from "../../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { LineChartDefinition } from "../../../../src/types/chart/line_chart";
-import { SpreadsheetActionEnv, SpreadsheetChildEnv } from "../../../../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../../../../src/types/spreadsheet_env";
 import { openChartDesignSidePanel, toChartDataSource } from "../../../test_helpers/chart_helpers";
 import {
   createChart,
@@ -14,7 +14,7 @@ import { TEST_CHART_DATA } from "../../../test_helpers/constants";
 import { clickAndDrag, simulateClick, triggerMouseEvent } from "../../../test_helpers/dom_helper";
 import {
   mockChart,
-  mountComponentWithPortalTarget,
+  mountComponent,
   mountSpreadsheet as mountSpreadsheetHelper,
   nextTick,
 } from "../../../test_helpers/helpers";
@@ -48,11 +48,11 @@ function createTestChart(
 
 async function mountChartSidePanel(id = chartId) {
   const props = { chartId: id, onCloseSidePanel: () => {} };
-  ({ fixture, env } = await mountComponentWithPortalTarget(ChartPanel, { props, model }));
+  ({ fixture, env } = await mountComponent(ChartPanel, { props, model }));
 }
 
-async function mountSpreadsheet(partialEnv?: Partial<SpreadsheetChildEnv>) {
-  ({ env, model, fixture } = await mountSpreadsheetHelper({ model }, partialEnv));
+async function mountSpreadsheet() {
+  ({ env, model, fixture } = await mountSpreadsheetHelper({ model }));
 }
 
 let fixture: HTMLElement;

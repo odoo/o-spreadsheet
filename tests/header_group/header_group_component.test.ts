@@ -24,7 +24,7 @@ import {
 import { click, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
   getStylePropertyInPx,
-  mountComponentWithPortalTarget,
+  mountComponent,
   mountSpreadsheet,
   nextTick,
 } from "../test_helpers/helpers";
@@ -133,7 +133,7 @@ describe("Header group component test", () => {
 
   async function mountHeaderGroups(model: Model, dimension: Dimension) {
     const layers = model.getters.getGroupsLayers(sheetId, dimension);
-    ({ fixture, env } = await mountComponentWithPortalTarget(HeaderGroupContainer, {
+    ({ fixture, env } = await mountComponent(HeaderGroupContainer, {
       props: { layers, dimension },
       model,
     }));

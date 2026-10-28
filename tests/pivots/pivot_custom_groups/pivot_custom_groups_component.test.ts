@@ -4,7 +4,7 @@ import { SidePanels } from "../../../src/components/side_panel/side_panels/side_
 import { SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import { setCellContent } from "../../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget, nextTick } from "../../test_helpers/helpers";
+import { mountComponent, nextTick } from "../../test_helpers/helpers";
 import { createModelWithPivot, updatePivot } from "../../test_helpers/pivot_helpers";
 
 let model: Model;
@@ -20,7 +20,7 @@ const TEST_CUSTOM_FIELD: PivotCustomGroupedField = {
 
 beforeEach(async () => {
   model = createModelWithPivot("A1:I5");
-  ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
+  ({ fixture, env } = await mountComponent(SidePanels, { model }));
   pivotId = model.getters.getPivotIds()[0];
   setCellContent(model, "A40", "=PIVOT(1)");
 });

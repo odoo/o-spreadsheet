@@ -21,11 +21,7 @@ import {
   openChartDesignSidePanel,
   toChartDataSource,
 } from "../../../test_helpers/chart_helpers";
-import {
-  mountComponentWithPortalTarget,
-  setGrid,
-  useJestFakeTimers,
-} from "../../../test_helpers/helpers";
+import { mountComponent, setGrid, useJestFakeTimers } from "../../../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -38,7 +34,7 @@ function getSunburstDefinition(chartId: UID): SunburstChartDefinition<string> {
 describe("Sunburst chart side panel", () => {
   beforeEach(async () => {
     model = new Model();
-    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
+    ({ fixture, env } = await mountComponent(SidePanels, { model }));
   });
 
   describe("Config panel", () => {

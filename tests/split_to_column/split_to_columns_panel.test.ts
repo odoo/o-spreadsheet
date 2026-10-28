@@ -13,7 +13,7 @@ import {
   setInputValueAndTrigger,
   simulateClick,
 } from "../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget, nextTick, setGrid } from "../test_helpers/helpers";
+import { mountComponent, nextTick, setGrid } from "../test_helpers/helpers";
 
 describe("split to columns sidePanel component", () => {
   let model: Model;
@@ -26,7 +26,7 @@ describe("split to columns sidePanel component", () => {
 
   beforeEach(async () => {
     onCloseSidePanel = jest.fn();
-    ({ model, fixture, env } = await mountComponentWithPortalTarget(SplitIntoColumnsPanel, {
+    ({ model, fixture, env } = await mountComponent(SplitIntoColumnsPanel, {
       props: { onCloseSidePanel: () => onCloseSidePanel() },
     }));
     splitToColumnsStore = env.getStore(SplitToColumnsStore);

@@ -7,14 +7,14 @@ import { PropsOf } from "../../src/types/props_of";
 import { SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { createTableStyle } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
+import { mountComponent, nextTick } from "../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
 let env: SpreadsheetActionEnv;
 
 async function mountPanel(partialProps: Partial<PropsOf<TableStyleEditorPanel>> = {}) {
-  ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
+  ({ fixture, env } = await mountComponent(SidePanels, { model }));
   const props = { onCloseSidePanel: () => {}, ...partialProps };
   env.getStore(SidePanelStore).open("TableStyleEditorPanel", { ...props });
   await nextTick();

@@ -12,7 +12,7 @@ import {
   openChartDesignSidePanel,
 } from "../../../test_helpers/chart_helpers";
 import { TEST_CHART_DATA } from "../../../test_helpers/constants";
-import { mockChart, mountComponentWithPortalTarget } from "../../../test_helpers/helpers";
+import { mockChart, mountComponent } from "../../../test_helpers/helpers";
 
 mockChart();
 const chartId = "chartId";
@@ -20,7 +20,7 @@ const chartId = "chartId";
 describe("Heatmap chart config side panel", () => {
   test("Click on Edit button will prefill sidepanel", async () => {
     const model = new Model({});
-    const { fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model });
+    const { fixture, env } = await mountComponent(SidePanels, { model });
     createHeatmapChart(model, TEST_CHART_DATA.heatmap, chartId, undefined, {});
     await openChartConfigSidePanel(model, env, chartId);
 
@@ -33,7 +33,7 @@ describe("Heatmap chart config side panel", () => {
 
   test("dataSetsHaveTitle checkbox uses the same wording as other chart config panels", async () => {
     const model = new Model({});
-    const { fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model });
+    const { fixture, env } = await mountComponent(SidePanels, { model });
     createHeatmapChart(model, TEST_CHART_DATA.heatmap, chartId, undefined, {});
     await openChartConfigSidePanel(model, env, chartId);
 
@@ -47,7 +47,7 @@ describe("Heatmap chart config side panel", () => {
     ["sizeRange", 2, "C3:C6"],
   ] as const)("can edit the %s", async (key, inputIndex, newRange) => {
     const model = new Model({});
-    const { fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model });
+    const { fixture, env } = await mountComponent(SidePanels, { model });
     createHeatmapChart(model, TEST_CHART_DATA.heatmap, chartId, undefined, {});
     await openChartConfigSidePanel(model, env, chartId);
 
@@ -64,7 +64,7 @@ describe("Heatmap chart config side panel", () => {
 describe("Heatmap chart design side panel", () => {
   test("Can change the missing value color", async () => {
     const model = new Model({});
-    const { fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model });
+    const { fixture, env } = await mountComponent(SidePanels, { model });
     createHeatmapChart(model, TEST_CHART_DATA.heatmap, chartId, undefined, {});
     await openChartDesignSidePanel(model, env, fixture, chartId);
 

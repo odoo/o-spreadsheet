@@ -6,7 +6,7 @@ import { setCellContent } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
 import {
   mockNotificationMethods,
-  mountComponentWithPortalTarget,
+  mountComponent,
   nextTick,
   setGrid,
   useJestFakeTimers,
@@ -22,7 +22,7 @@ describe("Spreadsheet pivot side panel", () => {
 
   beforeEach(async () => {
     notifyUser = jest.fn();
-    ({ env, model, fixture, getPlugin } = await mountComponentWithPortalTarget(SidePanels, {}));
+    ({ env, model, fixture, getPlugin } = await mountComponent(SidePanels, {}));
     mockNotificationMethods(getPlugin, { notifyUser });
 
     // prettier-ignore

@@ -1,11 +1,11 @@
 import { AddDimensionButton } from "../../src/components/side_panel/pivot/pivot_layout_configurator/add_dimension_button/add_dimension_button";
 import { click, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget } from "../test_helpers/helpers";
+import { mountComponent } from "../test_helpers/helpers";
 
 async function mountAddDimensionButton(
   props: Partial<AddDimensionButton["props"]>
 ): Promise<{ component: AddDimensionButton; fixture: HTMLElement }> {
-  const { parent, fixture } = await mountComponentWithPortalTarget(AddDimensionButton, {
+  const { parent, fixture } = await mountComponent(AddDimensionButton, {
     props: {
       fields: [],
       onFieldPicked: () => {},

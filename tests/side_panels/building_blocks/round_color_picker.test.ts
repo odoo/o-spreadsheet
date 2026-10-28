@@ -1,12 +1,12 @@
 import { RoundColorPicker } from "../../../src/components/side_panel/components/round_color_picker/round_color_picker";
 import { PropsOf } from "../../../src/types/props_of";
 import { click } from "../../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget } from "../../test_helpers/helpers";
+import { mountComponent } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
 async function mountChartColor(props: PropsOf<RoundColorPicker>) {
-  ({ fixture } = await mountComponentWithPortalTarget(RoundColorPicker, { props }));
+  ({ fixture } = await mountComponent(RoundColorPicker, { props }));
 }
 
 describe("Panel color picker", () => {

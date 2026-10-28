@@ -10,12 +10,11 @@ import { DEFAULT_FONT_SIZE } from "../src/constants";
 import { render } from "../src/helpers/owl3_helpers";
 import { toZone, zoneToXc } from "../src/helpers/zones";
 import { Component } from "../src/owl3_compatibility_layer";
-import { ImageProviderPlugin } from "../src/owl_plugins/image_provider_owl_plugin";
 import { topbarMenuRegistry } from "../src/registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../src/registries/topbar_component_registry";
 import { DOMFocusableElementStore } from "../src/stores/DOM_focus_store";
 import { ViewportsStore } from "../src/stores/viewports_store";
-import { SpreadsheetActionEnv, SpreadsheetChildEnv } from "../src/types/spreadsheet_env";
+import { SpreadsheetActionEnv } from "../src/types/spreadsheet_env";
 import { Store } from "../src/types/store_engine";
 import { MockFileStore } from "./__mocks__/mock_file_store";
 import { mockJsDomForImageProvider } from "./__mocks__/mock_image_provider";
@@ -75,7 +74,7 @@ let spreadsheetWidth = 1000;
 let spreadsheetHeight = 1000;
 const moreToolsContainerWidth = 50;
 const moreToolsWidth = 50;
-const toolWidth = 100;
+let toolWidth = 100;
 const namedRangeWidth = 150;
 
 beforeEach(() => {
@@ -108,6 +107,7 @@ beforeEach(() => {
 afterEach(() => {
   spreadsheetWidth = 1000;
   spreadsheetHeight = 1000;
+  toolWidth = 100;
 });
 
 let fixture: HTMLElement;
@@ -117,11 +117,9 @@ let viewStore: Store<ViewportsStore>;
 
 class Parent extends OSComponent {
   static template = xml/* xml */ `
-    <div class="o-spreadsheet">
-      <TopBar
-        onClick="() => {}"
-        dropdownMaxHeight="this.gridHeight"/>
-    </div>
+    <TopBar
+      onClick="() => {}"
+      dropdownMaxHeight="this.gridHeight"/>
   `;
   static components = { TopBar };
 
@@ -139,9 +137,6 @@ class Parent extends OSComponent {
         width: spreadsheetWidth,
       }),
     });
-    providePlugins([ImageProviderPlugin], {
-      fileStore: this.model().config.external.fileStore,
-    });
   }
 }
 
@@ -156,9 +151,9 @@ class Comp2 extends Comp {
   static template = xml`<div class="o-topbar-test2">Test2</div>`;
 }
 
-async function mountParent(model: Model = new Model(), testEnv?: Partial<SpreadsheetChildEnv>) {
+async function mountParent(model: Model = new Model()) {
   let parent: Component;
-  ({ parent, fixture, env, viewStore } = await mountComponent(Parent, { model, env: testEnv }));
+  ({ parent, fixture, env, viewStore } = await mountComponent(Parent, { model }));
   return { parent: parent as Parent, model, fixture, viewStore };
 }
 
@@ -1225,6 +1220,7 @@ describe("Responsive Top bar behaviour", () => {
   });
 
   test("the popover should close when clicking top bar menus", async () => {
+    toolWidth = 400;
     spreadsheetWidth = namedRangeWidth + (toolWidth * categories.length) / 2;
     await mountParent();
     await nextTick();

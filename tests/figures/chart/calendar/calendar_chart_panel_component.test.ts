@@ -18,7 +18,7 @@ import {
   openChartDesignSidePanel,
   toChartDataSource,
 } from "../../../test_helpers/chart_helpers";
-import { mockChart, mountComponentWithPortalTarget } from "../../../test_helpers/helpers";
+import { mockChart, mountComponent } from "../../../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -35,7 +35,7 @@ function getCalendarChartDefinition(chartId: UID): CalendarChartDefinition<strin
 describe("Calendar chart side panel", () => {
   beforeEach(async () => {
     model = new Model({});
-    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
+    ({ fixture, env } = await mountComponent(SidePanels, { model }));
   });
 
   describe("Config panel", () => {

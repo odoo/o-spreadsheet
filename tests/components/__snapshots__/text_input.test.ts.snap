@@ -2,18 +2,21 @@
 
 exports[`TextInput Can render a text input 1`] = `
 <div>
-  
   <div
-    class="container"
+    class="o-spreadsheet"
   >
     <div
-      class="position-relative"
+      class="container"
     >
-      <input
-        class="w-100 os-input"
-        type="text"
-      />
-      
+      <div
+        class="position-relative"
+      >
+        <input
+          class="w-100 os-input"
+          type="text"
+        />
+        
+      </div>
     </div>
   </div>
 </div>

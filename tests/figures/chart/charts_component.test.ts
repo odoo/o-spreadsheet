@@ -29,11 +29,7 @@ import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
 } from "../../../src/types/chart/scorecard_chart";
-import {
-  OwlPluginGetter,
-  SpreadsheetActionEnv,
-  SpreadsheetChildEnv,
-} from "../../../src/types/spreadsheet_env";
+import { OwlPluginGetter, SpreadsheetActionEnv } from "../../../src/types/spreadsheet_env";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
   getChartConfiguration,
@@ -85,7 +81,7 @@ import {
   mockChart,
   mockGeoJsonService,
   mockNotificationMethods,
-  mountComponentWithPortalTarget,
+  mountComponent,
   mountSpreadsheet as mountSpreadsheetHelper,
   nextTick,
   setGrid,
@@ -154,14 +150,13 @@ async function changeChartType(type: string) {
 
 async function mountChartSidePanel(id: UID = chartId, _model: Model = model) {
   const props = { chartId: id, onCloseSidePanel: () => {} };
-  ({ fixture, env } = await mountComponentWithPortalTarget(ChartPanel, { props, model: _model }));
+  ({ fixture, env } = await mountComponent(ChartPanel, { props, model: _model }));
 }
 
-async function mountSpreadsheet(partialEnv?: Partial<SpreadsheetChildEnv>) {
-  return ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheetHelper(
-    { model },
-    partialEnv
-  ));
+async function mountSpreadsheet() {
+  return ({ env, model, fixture, parent, app, getPlugin } = await mountSpreadsheetHelper({
+    model,
+  }));
 }
 
 let fixture: HTMLElement;
@@ -524,7 +519,7 @@ describe("charts", () => {
     "Copy a chart as a figure pushes it in the clipboard as a File",
     async (chartType) => {
       const notifyUser = jest.fn();
-      await mountSpreadsheet({});
+      await mountSpreadsheet();
       mockNotificationMethods(getPlugin, { notifyUser });
       createTestChart(chartType);
       await nextTick();
