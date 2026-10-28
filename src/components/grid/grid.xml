@@ -20,7 +20,9 @@
         gridDims="this.env.model.getters.getSheetViewDimensionWithHeaders()"
         onInputContextMenu.bind="this.onInputContextMenu"
       />
-      <canvas t-ref="this.canvasRef" class="os-theme-dependant pe-none"/>
+      <div class="o-canvas-container overflow-hidden" t-att-style="this.canvasContainerStyle">
+        <canvas t-ref="this.canvasRef" class="os-theme-dependant pe-none"/>
+      </div>
       <t t-set="focused" t-value="this.focusedClients"/>
       <t t-foreach="this.clientsToDisplay" t-as="client" t-key="this.getClientPositionKey(client)">
         <ClientTag
