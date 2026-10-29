@@ -1,4 +1,12 @@
-import { CellPosition, Position, UID, UnboundedZone, Zone, ZoneDimension } from "../types/misc";
+import {
+  CellPosition,
+  Dimension,
+  Position,
+  UID,
+  UnboundedZone,
+  Zone,
+  ZoneDimension,
+} from "../types/misc";
 import {
   MAX_COL,
   MAX_ROW,
@@ -822,4 +830,20 @@ export function haveSameNumberOfCols(z1: Zone | UnboundedZone, z2: Zone | Unboun
     return false;
   }
   return z1.right - z1.left === z2.right - z2.left;
+}
+
+export function dimensionStartEnd(dim: Dimension, zone: Zone) {
+  let start: number, crossStart: number, end: number, crossEnd: number;
+  if (dim === "COL") {
+    start = zone.left;
+    crossStart = zone.top;
+    end = zone.right;
+    crossEnd = zone.bottom;
+  } else {
+    start = zone.top;
+    crossStart = zone.left;
+    end = zone.bottom;
+    crossEnd = zone.right;
+  }
+  return { start, end, crossStart, crossEnd };
 }
