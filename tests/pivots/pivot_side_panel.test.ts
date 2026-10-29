@@ -1,7 +1,7 @@
 import { Model, SpreadsheetPivotCoreDefinition } from "../../src";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
-import { HighlightStore } from "../../src/stores/highlight_store";
+import { HighlightPlugin } from "../../src/owl_plugins/highlight_plugin";
 import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { createSheet, deleteSheet } from "../test_helpers/commands_helpers";
 import {
@@ -131,8 +131,8 @@ describe("Pivot side panel", () => {
       A2: "Alice", B2: "10",
       A5: "=PIVOT(1)"
     });
-    const highlightStore = env.getStore(HighlightStore);
-    expect(highlightStore.highlights.map((h) => zoneToXc(h.range.zone))).toEqual([]);
+    const highlightPlugin = env.getPlugin(HighlightPlugin);
+    expect(highlightPlugin.highlights.map((h) => zoneToXc(h.range.zone))).toEqual([]);
 
     env.getStore(SidePanelStore).open("PivotSidePanel", { pivotId: "1" });
     await nextTick();

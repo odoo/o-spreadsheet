@@ -1,3 +1,4 @@
+import { usePlugin } from "@odoo/owl";
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import {
@@ -7,8 +8,8 @@ import {
   getPasteTargetFromHandlers,
   selectPastedZone,
 } from "../../helpers/clipboard/clipboard_helpers";
+import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
 import { clipboardHandlersRegistries } from "../../registries/clipboard_handlers_registries";
-import { HighlightStore } from "../../stores/highlight_store";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { ClipboardOptions } from "../../types/clipboard";
 import { Command } from "../../types/commands";
@@ -33,16 +34,16 @@ const PAINT_FORMAT_HANDLER_KEYS = [
 export class PaintFormatStore extends SpreadsheetStore {
   mutators = ["activate", "cancel", "pasteFormat"] as const;
 
-  protected highlightStore = this.get(HighlightStore);
+  protected highlightPlugin = usePlugin(HighlightPlugin);
 
   private status: "inactive" | "oneOff" | "persistent" = "inactive";
   private copiedData?: ClipboardContent;
 
   constructor(get: Get) {
     super(get);
-    this.highlightStore.register(this);
+    this.highlightPlugin.register(this);
     this.onDispose(() => {
-      this.highlightStore.unRegister(this);
+      this.highlightPlugin.unRegister(this);
     });
   }
 

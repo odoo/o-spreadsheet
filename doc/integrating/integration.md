@@ -52,7 +52,7 @@ Spreadsheet component takes the following props:
 - `raiseError`
   A function to warn the user when a manipulation error occurs.
 
-The optional props should implement [`NotificationStoreMethods`](../../src/stores/notification_store.ts#L3).
+The optional props should implement [`NotificationCallbacks`](../../src/types/stores/notification_store_methods.ts#L3).
 
 ## Model creation
 

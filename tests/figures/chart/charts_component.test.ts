@@ -18,9 +18,9 @@ import { deepCopy } from "../../../src/helpers/misc";
 import { render } from "../../../src/helpers/owl3_helpers";
 import { toZone } from "../../../src/helpers/zones";
 import { App } from "../../../src/owl3_compatibility_layer";
+import { HighlightPlugin } from "../../../src/owl_plugins/highlight_plugin";
 import { NavigatorClipboardPlugin } from "../../../src/owl_plugins/navigator_clipboard_plugin";
 import { chartSubtypeRegistry } from "../../../src/registries/chart_subtype_registry";
-import { HighlightStore } from "../../../src/stores/highlight_store";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import { GaugeChartDefinition } from "../../../src/types/chart/gauge_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
@@ -1661,18 +1661,18 @@ describe("charts", () => {
   test("selection input is closed when switching tab", async () => {
     createTestChart("basicChart");
     await mountChartSidePanel();
-    const highlightStore = env.getStore(HighlightStore);
+    const highlightPlugin = env.getPlugin(HighlightPlugin);
 
     await simulateClick(".o-selection-input input");
     expect(".o-selection-ok").toHaveCount(1);
-    expect(highlightStore.highlights.length).toBe(1);
+    expect(highlightPlugin.highlights.length).toBe(1);
 
     await openChartDesignSidePanel(model, env, fixture, chartId);
     window.resizers.resize(); // the hidden input is resized to 0
     await nextTick();
 
     expect(".o-selection-ok").toHaveCount(0);
-    expect(highlightStore.highlights.length).toBe(0);
+    expect(highlightPlugin.highlights.length).toBe(0);
   });
 
   test("confirm buttons stay displayed if input is changed and unconfirmed and then selections input are closed and reset when switching tab", async () => {

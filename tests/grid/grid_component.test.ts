@@ -1,3 +1,4 @@
+import { PluginInstance } from "@odoo/owl";
 import { Align, ClipboardMIMEType, Spreadsheet, TransportService } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
@@ -26,13 +27,13 @@ import { handleCopyPasteResult } from "../../src/helpers/ui/paste_interactive";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
+import { HighlightPlugin } from "../../src/owl_plugins/highlight_plugin";
 import { ImageProviderPlugin } from "../../src/owl_plugins/image_provider_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../src/owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { ZoomPlugin } from "../../src/owl_plugins/zoom_plugin";
 import { ClientFocusStore } from "../../src/stores/client_focus_store";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
-import { HighlightStore } from "../../src/stores/highlight_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
@@ -1199,11 +1200,11 @@ describe("Grid component", () => {
 
   describe("paint format tool with grid selection", () => {
     let paintFormatStore: Store<PaintFormatStore>;
-    let highlightStore: Store<HighlightStore>;
+    let highlightPlugin: PluginInstance<typeof HighlightPlugin>;
 
     beforeEach(() => {
       paintFormatStore = env.getStore(PaintFormatStore);
-      highlightStore = env.getStore(HighlightStore);
+      highlightPlugin = env.getPlugin(HighlightPlugin);
     });
 
     test("can paste format and borders with mouse once", async () => {
@@ -1316,12 +1317,12 @@ describe("Grid component", () => {
     test("zone to paint is highlighted", async () => {
       selectCell(model, "B2");
       paintFormatStore.activate({ persistent: false });
-      expect(highlightStore.highlights.map(flattenHighlightRange)).toMatchObject([
+      expect(highlightPlugin.highlights.map(flattenHighlightRange)).toMatchObject([
         { zone: toZone("B2") },
       ]);
 
       paintFormatStore.cancel();
-      expect(highlightStore.highlights).toEqual([]);
+      expect(highlightPlugin.highlights).toEqual([]);
     });
 
     test("paint format does not destroy clipboard content", async () => {
