@@ -28,6 +28,7 @@ export class DateSection extends OSComponent {
 
   setup() {
     this.onStatHovered = useStatHighlights(
+      () => this.store.groupingColumnIndex,
       (cell, stat) =>
         typeof cell.value === "number" &&
         stat.id === getStatIdFromDate(numberToJsDate(cell.value), this.store.dateGranularity)

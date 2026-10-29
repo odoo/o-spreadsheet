@@ -1,7 +1,9 @@
 import { useProps } from "@odoo/owl";
 import { StatValue } from "../../../../helpers/data_statistics/statistics_items";
+import { Store } from "../../../../types/store_engine";
 import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
+import { DataAnalysisStore } from "../data_analysis_store";
 import { useStatHighlights } from "./stat_highlights_hook";
 import { StatisticItem } from "./statistic_item";
 
@@ -9,6 +11,7 @@ export class GeneralStatsSection extends OSComponent {
   static template = "o-spreadsheet-GeneralStatsSection";
   protected props = useProps({
     items: types.array(types.object<StatValue>()),
+    store: types.Store<DataAnalysisStore>(),
   });
   static components = {
     StatisticItem,
@@ -17,6 +20,13 @@ export class GeneralStatsSection extends OSComponent {
   onStatHovered!: (stat: StatValue, isHovered: boolean) => void;
 
   setup() {
-    this.onStatHovered = useStatHighlights((cell, stat) => cell.formattedValue === stat.value);
+    this.onStatHovered = useStatHighlights(
+      () => this.store.groupingColumnIndex,
+      (cell, stat) => cell.formattedValue === stat.formattedValue
+    );
+  }
+
+  get store(): Store<DataAnalysisStore> {
+    return this.props.store;
   }
 }

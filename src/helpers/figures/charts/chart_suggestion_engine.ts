@@ -95,7 +95,7 @@ type ColumnTypeSpec = ExtendedColumnType | readonly ExtendedColumnType[];
  *  array of leading types, and optionally an extension type that can repeat one or more times.
  * The leadingTypes is required anytime, while the extension is only present for extendable patterns.
  */
-interface RulePattern {
+export interface RulePattern {
   readonly leadingTypes: readonly ColumnTypeSpec[];
   //Present only for extendable patterns: every column after leadingTypes must match `type`,
   readonly extension?: { readonly type: ColumnTypeSpec; readonly minSize: number };
@@ -105,7 +105,7 @@ function matchesColumnType(spec: ColumnTypeSpec, type: ExtendedColumnType): bool
   return Array.isArray(spec) ? spec.includes(type) : spec === type;
 }
 
-function matchesShape(pattern: RulePattern, shape: ExtendedColumnType[]): boolean {
+export function matchesShape(pattern: RulePattern, shape: ExtendedColumnType[]): boolean {
   const { leadingTypes, extension } = pattern;
   const expectedLength = leadingTypes.length + (extension?.minSize ?? 0);
   if (extension ? shape.length < expectedLength : shape.length !== expectedLength) {

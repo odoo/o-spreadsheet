@@ -25,8 +25,45 @@ export interface ColumnAnalysis {
   nonEmpty: EvaluatedCell[];
 }
 
+export function hasSameRowSpan(zones: Zone[]) {
+  const firstZone = zones[0];
+  return zones.every((zone) => zone.top === firstZone.top && zone.bottom === firstZone.bottom);
+}
+
+function getFirstNonEmptyRow(zone: Zone, sheetId: string, getters: Getters): number | undefined {
+  for (let row = zone.top; row <= zone.bottom; row++) {
+    for (let col = zone.left; col <= zone.right; col++) {
+      const cell = getters.getEvaluatedCell({ sheetId, col, row });
+      if (cell.type !== CellValueType.empty) {
+        return row;
+      }
+    }
+  }
+  return undefined;
+}
+
 export function analyzeColumns(zones: Zone[], getters: Getters): ColumnAnalysis[] {
-  return getZonesByColumns(zones)
+  const sheetId = getters.getActiveSheetId();
+
+  let firstCommonNonEmptyRow = Number.POSITIVE_INFINITY;
+  for (const zone of zones) {
+    const firstNonEmptyRowOfZone = getFirstNonEmptyRow(zone, sheetId, getters);
+    if (firstNonEmptyRowOfZone !== undefined) {
+      firstCommonNonEmptyRow = Math.min(firstCommonNonEmptyRow, firstNonEmptyRowOfZone);
+    }
+  }
+
+  const cleanedAndAlignedZones = zones.map((zone) => {
+    if (
+      firstCommonNonEmptyRow !== Number.POSITIVE_INFINITY &&
+      firstCommonNonEmptyRow > zone.top &&
+      firstCommonNonEmptyRow <= zone.bottom
+    ) {
+      return { ...zone, top: firstCommonNonEmptyRow };
+    }
+    return zone;
+  });
+  return getZonesByColumns(cleanedAndAlignedZones)
     .map((zone) => analyzeColumn(zone, getters))
     .filter((c) => c.type !== "empty");
 }
@@ -54,7 +91,8 @@ function analyzeColumn(zone: Zone, getters: Getters): ColumnAnalysis {
   let title: string | undefined;
   let dataCells: EvaluatedCell[] = [];
   let headerInZone = false;
-  let analyzedZone: Zone = { ...zone, top: firstCell.position!.row };
+
+  let analyzedZone: Zone = zone;
   const tableHeaderPosition = getColumnTableHeaderPosition(sheetId, zone, getters);
 
   if (tableHeaderPosition) {

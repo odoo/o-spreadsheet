@@ -16,7 +16,8 @@ export interface StatItem {
 }
 
 export interface StatValue extends StatItem {
-  value: string;
+  rawValue: number;
+  formattedValue: string;
   percentage?: string;
   rawData?: { type: CellValueType; value: CellValue };
 }
@@ -87,27 +88,34 @@ export function createStatItem(
     formula,
     chartTitle,
     computedValue,
+    format: inputFormat,
   }: StatItem & {
     computedValue?: Matrix<FunctionResultObject> | FunctionResultObject;
+    rawValue?: number;
+    format?: string;
   }
 ): StatValue {
   const locale = getters.getLocale();
   const result = computedValue ?? getters.evaluateFormulaResult(sheetId, formula);
+
   if (!isMatrix(result) && !result.message) {
-    const { value, format } = result;
+    const { value } = result;
+    const format = result.format || inputFormat;
+
     if (value !== null && value !== undefined) {
       const displayValue =
         typeof value === "number" && !format ? parseFloat(value.toFixed(4)) : value;
       return {
         id,
         name,
-        value: formatValue(displayValue, { locale, format }),
+        rawValue: typeof value === "number" ? value : 0,
+        formattedValue: formatValue(displayValue, { locale, format }),
         formula,
         chartTitle,
       };
     }
   }
-  return { id, name, formula, chartTitle, value: "—" };
+  return { id, name, formula, rawValue: NaN, chartTitle, formattedValue: "—" };
 }
 
 export function getStatScorecardDefinition(stat: StatItem) {

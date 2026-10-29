@@ -1,5 +1,9 @@
 import { invalidateEvaluationCommands } from "../../../command_registry";
-import { analyzeColumns, ExtendedColumnType } from "../../../helpers/data_statistics/data_analysis";
+import {
+  analyzeColumns,
+  ExtendedColumnType,
+  hasSameRowSpan,
+} from "../../../helpers/data_statistics/data_analysis";
 import {
   DateGranularity,
   DateSections,
@@ -10,17 +14,101 @@ import {
   buildDateStatSections,
   buildGeneralStatItems,
   buildOccurrencesItems,
+  buildSumByCategoryItems,
+  buildSumByDateSections,
 } from "../../../helpers/data_statistics/statistics_suggestion";
 import {
   ChartSuggestion,
   getChartSuggestions,
+  RulePattern,
 } from "../../../helpers/figures/charts/chart_suggestion_engine";
+
+import { ColumnAnalysis } from "../../../helpers/data_statistics/data_analysis";
+import { matchesShape } from "../../../helpers/figures/charts/chart_suggestion_engine";
 import { cellsSortingCriterion } from "../../../helpers/sort";
-import { zoneToXc } from "../../../helpers/zones";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { CellValueType } from "../../../types/cells";
 import { Command } from "../../../types/commands";
+import { Getters } from "../../../types/getters";
 import { Get } from "../../../types/store_engine";
+
+// ------------------------------------------------------------------------------------
+// Statistic rules
+//
+// The shape of the selection (the tuple of each column's ExtendedColumnType, with
+// the value columns moved after the category columns) is matched against
+// SELECTION_PATTERNS to decide which statistics to show.
+// Rules only apply to a single zone or to two vertically aligned zones.
+// ------------------------------------------------------------------------------------
+
+/** A StatItemBuilder links a column pattern to the helper that computes its statistics
+ *  and to the store field (`target`) where the result is stored.
+ */
+interface StatItemBuilder<T> {
+  pattern: RulePattern;
+  buildStatHelper: (getters: Getters, columns: ColumnAnalysis[], sheetId: string) => T;
+  target: "generalStatItems" | "aggregatedStatItems" | "dateStatSections";
+}
+
+const CATEGORICAL_OR_LABEL_OR_BOOLEAN: readonly ExtendedColumnType[] = [
+  "categorical",
+  "label",
+  "boolean",
+];
+const CATEGORICAL_OR_LABEL_OR_NUMBER_OR_PERCENTAGE: readonly ExtendedColumnType[] = [
+  "categorical",
+  "label",
+  "number",
+  "percentage",
+];
+const NUMBER_OR_PERCENTAGE: readonly ExtendedColumnType[] = ["number", "percentage"];
+const ANY_TYPE: readonly ExtendedColumnType[] = [
+  "number",
+  "percentage",
+  "date",
+  "categorical",
+  "label",
+  "boolean",
+];
+
+const SELECTION_PATTERNS: StatItemBuilder<any>[] = [
+  // Single column of any type: general statistics (count, sum, average…)
+  {
+    pattern: { leadingTypes: [ANY_TYPE] },
+    buildStatHelper: buildGeneralStatItems,
+    target: "generalStatItems",
+  },
+  // Single date column: occurrences per period
+  {
+    pattern: { leadingTypes: ["date"] },
+    buildStatHelper: buildDateStatSections,
+    target: "dateStatSections",
+  },
+  // Single boolean column: TRUE/FALSE occurrences
+  {
+    pattern: { leadingTypes: ["boolean"] },
+    buildStatHelper: buildBooleanItems,
+    target: "aggregatedStatItems",
+  },
+  // Single categorical, label or numeric column: occurrences per value
+  {
+    pattern: { leadingTypes: [CATEGORICAL_OR_LABEL_OR_NUMBER_OR_PERCENTAGE] },
+    buildStatHelper: buildOccurrencesItems,
+    target: "aggregatedStatItems",
+  },
+  // Category + number columns: sum of the values per category
+  {
+    pattern: { leadingTypes: [CATEGORICAL_OR_LABEL_OR_BOOLEAN, NUMBER_OR_PERCENTAGE] },
+    buildStatHelper: buildSumByCategoryItems,
+    target: "aggregatedStatItems",
+  },
+  // Date + number columns: sum of the values per period
+  {
+    pattern: { leadingTypes: ["date", NUMBER_OR_PERCENTAGE] },
+    buildStatHelper: buildSumByDateSections,
+    target: "dateStatSections",
+  },
+];
 
 const AGGREGATED_STAT_PAGE_SIZE = 50;
 export type DateSortType = "desc" | "asc" | "chrono";
@@ -36,6 +124,7 @@ export class DataAnalysisStore extends SpreadsheetStore {
     "toggleAggregatedStatSort",
     "loadMoreAggregatedStatItems",
   ] as const;
+
   shape: ExtendedColumnType[] = [];
   hasHeader: boolean = false;
   generalStatItems: StatValue[] = [];
@@ -51,10 +140,10 @@ export class DataAnalysisStore extends SpreadsheetStore {
   displayedAggregatedStatItems: StatValue[] = [];
   hasMoreAggregatedStatItems = false;
 
+  groupingColumnIndex?: number;
   hasData: boolean = false;
   chartSuggestions: ChartSuggestion[] = [];
   private isDirty = false;
-  ranges?: string[];
 
   constructor(get: Get) {
     super(get);
@@ -146,10 +235,10 @@ export class DataAnalysisStore extends SpreadsheetStore {
     const items = [...this.dateStatSections[this.dateGranularity]];
     switch (this.dateSortType) {
       case "asc":
-        items.sort((a, b) => Number(a.value) - Number(b.value) || a.name.localeCompare(b.name));
+        items.sort((a, b) => a.rawValue - b.rawValue || a.name.localeCompare(b.name));
         break;
       case "desc":
-        items.sort((a, b) => Number(b.value) - Number(a.value) || a.name.localeCompare(b.name));
+        items.sort((a, b) => b.rawValue - a.rawValue || a.name.localeCompare(b.name));
         break;
     }
     this.displayedDateItems = items;
@@ -163,9 +252,7 @@ export class DataAnalysisStore extends SpreadsheetStore {
         if (sortOn === "name") {
           return order === "desc" ? compareCategories(b, a) : compareCategories(a, b);
         }
-        return order === "asc"
-          ? Number(a.value) - Number(b.value)
-          : Number(b.value) - Number(a.value);
+        return order === "asc" ? a.rawValue - b.rawValue : b.rawValue - a.rawValue;
       });
     }
     this.displayedAggregatedStatItems = items.slice(0, this.numberOfDisplayedAggregatedStatItems);
@@ -184,10 +271,17 @@ export class DataAnalysisStore extends SpreadsheetStore {
     };
   }
 
+  get hasStatistics() {
+    return (
+      this.generalStatItems.length ||
+      this.displayedAggregatedStatItems.length > 0 ||
+      this.displayedDateItems.length > 0
+    );
+  }
+
   private refresh() {
     const sheetId = this.getters.getActiveSheetId();
     const zones = this.getters.getSelectedZones();
-    this.ranges = zones.map(zoneToXc);
 
     this.hasData = zones.some((zone) =>
       this.getters
@@ -197,26 +291,34 @@ export class DataAnalysisStore extends SpreadsheetStore {
     const cols = analyzeColumns(zones, this.getters);
     this.shape = cols.map((c) => c.type);
     this.hasHeader = cols.some((c) => c.headerInZone);
+    this.groupingColumnIndex = undefined;
 
     const suggestions = this.hasData ? getChartSuggestions(this.shape, cols, this.getters) : [];
     this.chartSuggestions = suggestions;
     this.generalStatItems = [];
     this.aggregatedStatItems = [];
     this.dateStatSections = this.defaultDateSections;
-    if (this.hasData && this.shape.length === 1) {
-      const col = cols[0];
-      this.generalStatItems = buildGeneralStatItems(this.getters, col, sheetId);
-      switch (col.type) {
-        case "date":
-          this.dateStatSections = buildDateStatSections(this.getters, col, sheetId);
-          break;
-        case "boolean":
-          this.occurrencesItems = buildBooleanItems(this.getters, col, sheetId);
-          break;
-        default:
-          this.occurrencesItems = buildOccurrencesItems(this.getters, col, sheetId);
+
+    if (hasSameRowSpan(zones)) {
+      const categories = cols.filter((c) => !NUMBER_OR_PERCENTAGE.includes(c.type));
+      const values = cols.filter((c) => NUMBER_OR_PERCENTAGE.includes(c.type));
+      const orderedCols = [...categories, ...values];
+
+      const matchedRules = SELECTION_PATTERNS.filter((rule) =>
+        matchesShape(
+          rule.pattern,
+          orderedCols.map((c) => c.type)
+        )
+      );
+      if (matchedRules.length) {
+        // After ordering, the first column is the one the statistics are grouped by
+        this.groupingColumnIndex = orderedCols[0].zone.left;
+      }
+      for (const rule of matchedRules) {
+        this[rule.target] = rule.buildStatHelper(this.getters, orderedCols, sheetId);
       }
     }
+
     this.sortAggregatedStatItems();
     this.sortDateItems();
   }
