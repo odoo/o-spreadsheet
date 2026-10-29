@@ -1,5 +1,6 @@
 import { useProps } from "@odoo/owl";
 import { useLocalStore } from "../../../store_engine/store_hooks";
+import { _t } from "../../../translation";
 import { ChartDefinition } from "../../../types/chart/chart";
 import { Store } from "../../../types/store_engine";
 import { useChartDragAndDrop } from "../../helpers/chart_drag_and_drop";
@@ -38,5 +39,9 @@ export class DataAnalysisPanel extends OSComponent {
       return;
     }
     this.chartDnd.startChartDragAndDrop(ev, definition);
+  }
+
+  sectionTitle(): string {
+    return this.store.shape.length === 2 ? _t("Sums") : _t("Occurrences");
   }
 }
