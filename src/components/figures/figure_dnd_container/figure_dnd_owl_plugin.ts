@@ -18,6 +18,7 @@ import { Figure, FigureUI, ResizeDirection } from "../../../types/figure";
 import { UID } from "../../../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../../../types/rendering";
 import { Store } from "../../../types/store_engine";
+import { BottomBarSheetHoverPlugin } from "../../bottom_bar/bottom_bar_sheet/bottom_bar_sheet_hover_owl_plugin";
 import { cssPropertiesToCss, rectToCss } from "../../helpers/css";
 import { gridOverlayPosition, zoomCorrectedElementRect } from "../../helpers/dom_helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
@@ -37,6 +38,7 @@ interface Snap<T extends HFigureAxisType | VFigureAxisType> {
 }
 
 interface DndState {
+  figuresSheetId?: UID;
   draggedFigure?: FigureUI;
   selectedFigures?: FigureUI[];
   selectedRect?: Rect;
@@ -46,6 +48,7 @@ interface DndState {
   cancelDnd: (() => void) | undefined;
   component?: ComponentConstructor;
   componentProps?: Record<string, any>;
+  previousCursor?: string;
 }
 
 interface DragCallbacks {
@@ -61,6 +64,7 @@ export const FAKE_DRAGGED_FIGURE_ID = "fake_dragged_figure";
 
 export class DraggedFigurePlugin extends Plugin {
   dnd = proxy<DndState>({
+    figuresSheetId: undefined,
     draggedFigure: undefined,
     overlappingFigureId: undefined,
     selectedFigures: undefined,
@@ -72,17 +76,21 @@ export class DraggedFigurePlugin extends Plugin {
   private viewStore: Store<ViewportsStore> = useConfig("viewStore");
   private zoomStore: Store<ZoomStore> = useConfig("zoomStore");
   private model = usePlugin(ModelPlugin).model;
+  private hoverSheetPlugin = usePlugin(BottomBarSheetHoverPlugin);
 
   setup() {
     useEffect(() => {
-      const sheetId = this.model().getters.getActiveSheetId();
-      const draggedFigureId = this.dnd.draggedFigure?.id;
-      if (
-        draggedFigureId &&
-        draggedFigureId !== FAKE_DRAGGED_FIGURE_ID &&
-        !this.model().getters.getFigure(sheetId, draggedFigureId)
-      ) {
-        this.stopDragAndDrop();
+      const { figuresSheetId, selectedFigures } = this.dnd;
+      if (figuresSheetId && selectedFigures) {
+        for (const figure of selectedFigures) {
+          if (
+            figure.id !== FAKE_DRAGGED_FIGURE_ID &&
+            !this.model().getters.getFigure(figuresSheetId, figure.id)
+          ) {
+            this.stopDragAndDrop();
+            return;
+          }
+        }
       }
     });
     onWillDestroy(() => {
@@ -90,8 +98,16 @@ export class DraggedFigurePlugin extends Plugin {
     });
   }
 
-  private getFiguresOnScreen(): FigureUI[] {
-    return this.viewStore.visibleFigures.map((figure) => this.convertToOverlayCoordinate(figure));
+  private getFiguresOnScreen(excludedFigures: UID[] = []): FigureUI[] {
+    const visibleFigures = this.viewStore.visibleFigures;
+    for (const figure of this.dnd.selectedFigures || []) {
+      if (!visibleFigures.some((figureUI) => figureUI.id === figure.id)) {
+        visibleFigures.push(figure);
+      }
+    }
+    return visibleFigures
+      .filter((figure) => !excludedFigures.includes(figure.id))
+      .map((figure) => this.convertToOverlayCoordinate(figure));
   }
 
   get selectedRectStyle(): string {
@@ -204,7 +220,12 @@ export class DraggedFigurePlugin extends Plugin {
     const zoom = this.zoomStore.zoomLevel;
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const initialFigures = figuresToDrag.map(this.convertToOverlayCoordinate.bind(this));
-    let previousCursor = document.body.style.cursor;
+    const onBottomBarSheetHover = (hoveredSheetId: UID) => {
+      this.model().dispatch("ACTIVATE_SHEET", {
+        sheetIdFrom: this.model().getters.getActiveSheetId(),
+        sheetIdTo: hoveredSheetId,
+      });
+    };
 
     let hasStartedDnd = false;
     let overlappingChartOrCarousel: FigureUI | undefined = undefined;
@@ -217,8 +238,10 @@ export class DraggedFigurePlugin extends Plugin {
         return; // add a small threshold to avoid dnd when just clicking
       } else if (!hasStartedDnd) {
         hasStartedDnd = true;
-        previousCursor = document.body.style.cursor;
+        this.dnd.previousCursor = document.body.style.cursor;
         document.body.style.cursor = "grabbing";
+        this.hoverSheetPlugin.registerSheetHoverAnimationCallback(onBottomBarSheetHover);
+        this.dnd.figuresSheetId = this.model().getters.getActiveSheetId();
       }
 
       const draggedFigures = dragFigureForMove(
@@ -262,6 +285,7 @@ export class DraggedFigurePlugin extends Plugin {
     };
 
     const onMouseUp = (ev: MouseEvent) => {
+      this.hoverSheetPlugin.unregisterSheetHoverAnimationCallback(onBottomBarSheetHover);
       if (this.dnd.selectedFigures) {
         callbacks.onDragEnd(
           ev,
@@ -272,7 +296,6 @@ export class DraggedFigurePlugin extends Plugin {
         callbacks.onMouseUpWithoutDrag?.();
       }
       this.stopDragAndDrop();
-      document.body.style.cursor = previousCursor;
     };
 
     this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
@@ -305,7 +328,7 @@ export class DraggedFigurePlugin extends Plugin {
     const initialMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
     const initialScrollPosition = this.viewStore.activeSheetScrollInfo;
     const initialFigures = figuresToDrag.map(this.convertToOverlayCoordinate.bind(this));
-    const previousCursor = document.body.style.cursor;
+    let hasStartedDnd = false;
 
     const multipleFiguresSelected = initialFigures.length > 1;
     if (initialFigures.length === 0) {
@@ -339,6 +362,10 @@ export class DraggedFigurePlugin extends Plugin {
     }
 
     const onMouseMove = (ev: MouseEvent) => {
+      if (!hasStartedDnd) {
+        hasStartedDnd = true;
+        this.dnd.previousCursor = document.body.style.cursor;
+      }
       document.body.style.cursor = this.getResizeCursor(dirX, dirY);
       const currentMousePosition = { x: ev.clientX / zoom, y: ev.clientY / zoom };
       const keepRatio =
@@ -378,6 +405,7 @@ export class DraggedFigurePlugin extends Plugin {
         height: Math.round(figureUI.height * scaleY),
       }));
 
+      this.dnd.figuresSheetId = this.model().getters.getActiveSheetId();
       this.dnd.draggedFigure = snappedFigures[0];
       this.dnd.selectedFigures = snappedFigures;
       this.dnd.selectedRect = this.getDndFigureRect();
@@ -388,7 +416,6 @@ export class DraggedFigurePlugin extends Plugin {
     };
 
     const onMouseUp = (ev: MouseEvent) => {
-      document.body.style.cursor = previousCursor;
       if (!this.dnd.selectedFigures) {
         return;
       }
@@ -399,8 +426,8 @@ export class DraggedFigurePlugin extends Plugin {
     this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
   }
 
-  private getOtherFigures(figIds: UID[]): FigureUI[] {
-    return this.getFiguresOnScreen().filter((f) => !figIds.includes(f.id));
+  private getOtherFigures(excludedFigures: UID[]): FigureUI[] {
+    return this.getFiguresOnScreen(excludedFigures);
   }
 
   getFigureStyle(figureUI: FigureUI): string {
@@ -422,9 +449,9 @@ export class DraggedFigurePlugin extends Plugin {
     const sheetViewDims = this.viewStore.sheetViewDimension;
     const viewportRect = { x: 0, y: 0, width: sheetViewDims.width, height: sheetViewDims.height };
 
-    const figuresOnScreen = this.getFiguresOnScreen();
+    const excludedFigures = this.dnd.selectedFigures?.map((f) => f.id) ?? [];
     const figureVisibleRects = snapLine.matchedFigIds
-      .map((id) => figuresOnScreen.find((figureUI) => figureUI.id === id))
+      .map((id) => this.getFiguresOnScreen(excludedFigures).find((figureUI) => figureUI.id === id))
       .filter(isDefined)
       .map((rect) => rectIntersection(rect, viewportRect)) // Consider only the visible part of the figures other than the dragged one
       .filter(isDefined);
@@ -457,6 +484,7 @@ export class DraggedFigurePlugin extends Plugin {
 
   stopDragAndDrop() {
     this.dnd.cancelDnd?.();
+    this.dnd.figuresSheetId = undefined;
     this.dnd.draggedFigure = undefined;
     this.dnd.selectedFigures = undefined;
     this.dnd.selectedRect = undefined;
@@ -466,6 +494,8 @@ export class DraggedFigurePlugin extends Plugin {
     this.dnd.cancelDnd = undefined;
     this.dnd.componentProps = undefined;
     this.dnd.component = undefined;
+    document.body.style.cursor = this.dnd.previousCursor ?? "";
+    this.dnd.previousCursor = undefined;
   }
 
   private isPositionVisibleInViewports(figureId: UID, screenPosition: DOMCoordinates) {

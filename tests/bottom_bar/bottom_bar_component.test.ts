@@ -46,8 +46,11 @@ import {
 } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
+import { BottomBarSheetHoverPlugin } from "../../src/components/bottom_bar/bottom_bar_sheet/bottom_bar_sheet_hover_owl_plugin";
 import { render } from "../../src/helpers/owl3_helpers";
 import { Component } from "../../src/owl3_compatibility_layer";
+import { ModelPlugin } from "../../src/owl_plugins/model_owl_plugin";
+import { registerCleanup } from "../setup/jest.setup";
 let fixture: HTMLElement;
 
 function isDragAndDropActive(): boolean {
@@ -63,6 +66,8 @@ async function mountBottomBar(
     model,
     env: partialEnv,
     props: { onClick: () => {} },
+    providedPlugins: [BottomBarSheetHoverPlugin, ModelPlugin],
+    configPlugins: { model },
   });
   fixture = returnValue.fixture;
   return returnValue;
@@ -664,6 +669,95 @@ describe("BottomBar component", () => {
       expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: "smooth", inline: "nearest" });
       expect(mockScrollIntoView).toHaveBeenCalledTimes(1);
       expect(mockScrollIntoView.mock.instances[0]).toBe(sheet6Element);
+    });
+  });
+
+  describe("Edge scroll the sheet list while dragging a figure", () => {
+    async function mountBottomBarWithDraggedFigure() {
+      const model = new Model({
+        sheets: [{ name: "Sheet1" }, { name: "Sheet2" }, { name: "Sheet3" }],
+      });
+      const { testRoot, getPlugin } = await mountBottomBar(model);
+      const sheetListEl = fixture.querySelector<HTMLElement>(".o-sheet-list")!;
+      jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
+      jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(500);
+
+      useJestFakeTimers();
+      registerCleanup(() => jest.useRealTimers());
+
+      const startDraggingFigure = () =>
+        getPlugin(BottomBarSheetHoverPlugin).registerSheetHoverAnimationCallback(() => {});
+
+      const renderParent = async () => {
+        render(testRoot, true);
+        await nextTick();
+      };
+      await renderParent();
+      return { model, sheetListEl, startDraggingFigure, renderParent };
+    }
+
+    test("Scroll overlays are displayed on the scrollable sides while dragging a figure", async () => {
+      const { startDraggingFigure, renderParent, sheetListEl } =
+        await mountBottomBarWithDraggedFigure();
+      expect(".o-bottom-bar-scroll-overlay").toHaveCount(0);
+      startDraggingFigure();
+      await renderParent();
+      expect(".o-bottom-bar-scroll-overlay.start-0").toHaveCount(0);
+      expect(".o-bottom-bar-scroll-overlay.end-0").toHaveCount(1);
+
+      sheetListEl.scrollLeft = 100;
+      await renderParent();
+      expect(".o-bottom-bar-scroll-overlay.start-0").toHaveCount(1);
+      expect(".o-bottom-bar-scroll-overlay.end-0").toHaveCount(1);
+
+      sheetListEl.scrollLeft = 200;
+      await renderParent();
+      expect(".o-bottom-bar-scroll-overlay.start-0").toHaveCount(1);
+      expect(".o-bottom-bar-scroll-overlay.end-0").toHaveCount(0);
+    });
+
+    test.each([
+      { left: ".o-bottom-bar-scroll-overlay.start-0", right: ".o-bottom-bar-scroll-overlay.end-0" },
+      { left: ".o-bottom-bar-arrow-left", right: ".o-bottom-bar-arrow-right" },
+    ])(
+      "Hovering the scroll overlay scrolls the sheet list",
+      async ({ left: leftSelector, right: rightSelector }) => {
+        const { sheetListEl, startDraggingFigure, renderParent } =
+          await mountBottomBarWithDraggedFigure();
+        startDraggingFigure();
+        await renderParent();
+
+        triggerMouseEvent(rightSelector, "pointerenter");
+        jest.advanceTimersByTime(200);
+        expect(sheetListEl.scrollLeft).toBe(0); // the scroll only starts after a delay
+
+        jest.advanceTimersByTime(50);
+        expect(sheetListEl.scrollLeft).toBe(30);
+
+        // Stop scrolling when leaving the overlay
+        triggerMouseEvent(rightSelector, "pointerleave");
+        jest.advanceTimersByTime(1000);
+        expect(sheetListEl.scrollLeft).toBe(30);
+        await renderParent();
+
+        // Scroll the other direction
+        triggerMouseEvent(leftSelector, "pointerenter");
+        jest.advanceTimersByTime(250);
+        expect(sheetListEl.scrollLeft).toBe(0);
+      }
+    );
+
+    test("Leaving the scroll overlay before the delay does not scroll at all", async () => {
+      const { sheetListEl, startDraggingFigure, renderParent } =
+        await mountBottomBarWithDraggedFigure();
+      startDraggingFigure();
+      await renderParent();
+
+      triggerMouseEvent(".o-bottom-bar-scroll-overlay.end-0", "pointerenter");
+      jest.advanceTimersByTime(50);
+      triggerMouseEvent(".o-bottom-bar-scroll-overlay.end-0", "pointerleave");
+      jest.advanceTimersByTime(1000);
+      expect(sheetListEl.scrollLeft).toBe(0);
     });
   });
 

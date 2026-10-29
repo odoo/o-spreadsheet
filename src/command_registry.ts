@@ -639,6 +639,7 @@ registerCommand("PIVOT_STOP_PRESENCE_TRACKING", {
 // FIGURES
 registerCommand("UPDATE_FIGURES", { category: "local" });
 registerCommand("DELETE_FIGURES", { category: "local" });
+registerCommand("MOVE_FIGURES_TO_SHEET", { category: "local" });
 
 // CHART / CAROUSEL
 registerCommand("ADD_NEW_CHART_TO_CAROUSEL", { category: "local" });

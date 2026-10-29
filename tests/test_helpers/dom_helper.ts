@@ -649,3 +649,15 @@ export async function editSelectComponent(selector: DOMTarget, value: string) {
   await simulateClick(selector);
   await simulateClick(`.o-popover .o-select-option[data-id="${value}"]`);
 }
+
+/** Hover a sheet in the bottom bar, and trigger all the timeout/animations effects  */
+export async function hoverBottomBarSheet(sheetId: string) {
+  jest.useFakeTimers();
+  const sheetEl = document.querySelector(`.o-sheet[data-id="${sheetId}"]`)!;
+  triggerMouseEvent(sheetEl, "mouseenter");
+  jest.runAllTimers(); // mouseenter triggers a timeout
+  await nextTick();
+  sheetEl.dispatchEvent(new Event("transitionend")); // after the timeout, there is an animation. Mock its end.
+  await nextTick();
+  jest.useRealTimers();
+}
