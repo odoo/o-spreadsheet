@@ -1,25 +1,29 @@
-import { Model } from "../model";
+import { onWillDestroy, signal, useConfig } from "@odoo/owl";
 import { GridRenderingContext, LayerName, OrderedLayers } from "../types/rendering";
-import { Get } from "../types/store_engine";
-import { ModelStore } from "./model_store";
+import { OwlPluginWithModel } from "./owl_plugin_with_model";
 
 export interface Renderer {
   drawLayer(ctx: GridRenderingContext, layer: LayerName, timestamp: number | undefined): void;
   renderingLayers: Readonly<LayerName[]>;
 }
 
-export class RendererStore {
-  mutators = ["register", "unRegister", "draw", "startAnimation", "stopAnimation"] as const;
-  private renderers: Partial<Record<LayerName, Renderer[]>> = {};
+export class RendererPlugin extends OwlPluginWithModel {
+  layers: LayerName[] = useConfig("layers") || OrderedLayers();
+  renderers = signal.Object<Partial<Record<LayerName, Renderer[]>>>({});
 
-  private model: Model;
   private context: GridRenderingContext | undefined = undefined;
 
   private animationFrameId: number | null = null;
-  private registeredAnimations: Set<String> = new Set();
+  private registeredAnimations: Set<string> = new Set();
 
-  constructor(get: Get, private layers = OrderedLayers()) {
-    this.model = get(ModelStore) as Model;
+  setup() {
+    super.setup();
+    onWillDestroy(() => {
+      if (this.animationFrameId) {
+        cancelAnimationFrame(this.animationFrameId);
+        this.animationFrameId = null;
+      }
+    });
   }
 
   register(renderer: Renderer) {
@@ -27,21 +31,21 @@ export class RendererStore {
       return;
     }
     for (const layer of renderer.renderingLayers) {
-      if (!this.renderers[layer]) {
-        this.renderers[layer] = [];
+      if (!this.renderers()[layer]) {
+        this.renderers()[layer] = [];
       }
-      this.renderers[layer]!.push(renderer);
+      this.renderers()[layer]!.push(renderer);
     }
   }
 
   unRegister(renderer: Renderer) {
-    for (const layer of Object.keys(this.renderers)) {
-      this.renderers[layer] = this.renderers[layer].filter((r: Renderer) => r !== renderer);
+    for (const layer of Object.keys(this.renderers())) {
+      this.renderers()[layer] = this.renderers()[layer].filter((r: Renderer) => r !== renderer);
     }
   }
 
   private drawLayer(context: GridRenderingContext, layer: LayerName, timeStamp?: number) {
-    const renderers = this.renderers[layer];
+    const renderers = this.renderers()[layer];
     if (renderers) {
       for (const renderer of renderers) {
         context.ctx.save();
@@ -49,7 +53,6 @@ export class RendererStore {
         context.ctx.restore();
       }
     }
-    return "noStateChange";
   }
 
   draw(context?: GridRenderingContext, timestamp?: number) {
@@ -59,11 +62,9 @@ export class RendererStore {
     }
     this.context = context;
     for (const layer of this.layers) {
-      this.model.drawLayer(context, layer);
+      this.model().drawLayer(context, layer);
       this.drawLayer(context, layer, timestamp);
     }
-
-    return "noStateChange";
   }
 
   startAnimation(animationId: string) {
@@ -76,7 +77,6 @@ export class RendererStore {
 
       this.animationFrameId = requestAnimationFrame(animationCallback);
     }
-    return "noStateChange";
   }
 
   stopAnimation(animationId: string) {
@@ -85,13 +85,17 @@ export class RendererStore {
       cancelAnimationFrame(this.animationFrameId);
       this.animationFrameId = null;
     }
-    return "noStateChange";
   }
+}
 
-  dispose() {
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-      this.animationFrameId = null;
-    }
-  }
+/**
+ * Renderer of a nested canvas (dashboard, standalone viewport, print page...).
+ * It has its own id so it never shadows the root RendererPlugin: the stores that
+ * must draw on the main grid always get the root one with `usePlugin(RendererPlugin)`.
+ * The components drawing on the nested canvas must receive this renderer explicitly.
+ *
+ * Should disappear with the HighlightStore convertion (and more generally with the stores)
+ */
+export class LocalRendererPlugin extends RendererPlugin {
+  static id = "LocalRendererPlugin";
 }

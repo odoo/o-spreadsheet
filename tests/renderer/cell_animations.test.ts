@@ -1,3 +1,4 @@
+import { PluginInstance } from "@odoo/owl";
 import { Box, CellIsRule, GridRenderingContext, Model } from "../../src";
 import { ICONS } from "../../src/components/icons/icons";
 import {
@@ -7,12 +8,13 @@ import {
   MIN_CELL_TEXT_MARGIN,
 } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
+import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
 import { EASING_FN, cellAnimationRegistry } from "../../src/registries/cell_animation_registry";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { CELL_ANIMATION_DURATION, GridRenderer } from "../../src/stores/grid_renderer_store";
-import { RendererStore } from "../../src/stores/renderer_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
+import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
@@ -46,7 +48,7 @@ let model: Model;
 let container: DependencyContainer;
 let drawGrid: Function;
 let gridRenderer: GridRenderer;
-let rendererStore: RendererStore;
+let rendererPlugin: PluginInstance<typeof RendererPlugin>;
 let animationFrameCallback: Function;
 let spyRequestAnimationFrame: jest.SpyInstance;
 let viewStore: Store<ViewportsStore>;
@@ -73,9 +75,10 @@ afterAll(() => {
 beforeEach(() => {
   model = new Model();
   let gridRendererStore: GridRenderer;
-  ({ container, store: gridRendererStore } = makeStoreWithModel(model, GridRenderer));
+  let getPlugin: OwlPluginGetter;
+  ({ container, store: gridRendererStore, getPlugin } = makeStoreWithModel(model, GridRenderer));
   viewStore = container.get(ViewportsStore);
-  rendererStore = container.get(RendererStore);
+  rendererPlugin = getPlugin(RendererPlugin);
   container.get(ClipboardStore);
   jest
     .spyOn(MockCanvasRenderingContext2D.prototype, "measureText")
@@ -86,7 +89,7 @@ beforeEach(() => {
     }));
 
   const ctx = new MockGridRenderingContext(model, container, 1000, 1000, {});
-  drawGrid = () => rendererStore.draw(ctx);
+  drawGrid = () => rendererPlugin.draw(ctx);
   gridRenderer = gridRendererStore;
 
   jest // @ts-expect-error

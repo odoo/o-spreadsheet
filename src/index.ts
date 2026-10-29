@@ -209,7 +209,6 @@ import { ClientFocusStore } from "./stores/client_focus_store";
 import { GridRenderer } from "./stores/grid_renderer_store";
 import { HighlightStore } from "./stores/highlight_store";
 import { ModelStore } from "./stores/model_store";
-import { RendererStore } from "./stores/renderer_store";
 import { SpreadsheetStore } from "./stores/spreadsheet_store";
 import { CHART_TYPES, schemeToColorScale } from "./types/chart/chart";
 import { errorTypes } from "./types/errors";
@@ -393,6 +392,7 @@ import { IsSmallPlugin } from "./owl_plugins/is_small_plugin";
 import { ModelPlugin } from "./owl_plugins/model_owl_plugin";
 import { NavigatorClipboardPlugin } from "./owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "./owl_plugins/notification_owl_plugin";
+import { RendererPlugin } from "./owl_plugins/renderer_plugin";
 import { SpreadsheetRectPlugin } from "./owl_plugins/spreadsheet_rect_plugin";
 import { chartDataSourceSidePanelComponentRegistry } from "./registries/chart_data_source_component_registry";
 import { chartDataSourceRegistry } from "./registries/chart_data_source_registry";
@@ -601,7 +601,6 @@ export const stores = {
   DelayedHoveredCellStore,
   HoveredTableStore,
   ModelStore,
-  RendererStore,
   SelectionInputStore,
   SpreadsheetStore,
   useStore,
@@ -626,6 +625,7 @@ export const owlPlugins = {
   NavigatorClipboardPlugin,
   ModelPlugin,
   ZoomPlugin,
+  RendererPlugin,
 };
 
 export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";

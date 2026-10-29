@@ -1,28 +1,28 @@
+import { PluginInstance, usePlugin } from "@odoo/owl";
 import { CANVAS_SHIFT } from "../../constants";
 import { useLayoutEffect } from "../../owl3_compatibility_layer";
-import { useLocalStore, useStore } from "../../store_engine/store_hooks";
+import { RendererPlugin } from "../../owl_plugins/renderer_plugin";
+import { useLocalStore } from "../../store_engine/store_hooks";
 import { GridRenderer } from "../../stores/grid_renderer_store";
-import { RendererStore } from "../../stores/renderer_store";
 import { GridRenderingContext } from "../../types/rendering";
-import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "./css";
 
 interface GridDrawingArgs {
   canvasRef: () => HTMLElement | null;
   renderingCtx: () => Omit<GridRenderingContext, "ctx" | "thinLineWidth">;
-  rendererStore?: Store<RendererStore>;
+  rendererPlugin?: PluginInstance<typeof RendererPlugin>;
   changeCanvasSizeOnZoom?: boolean;
 }
 
 export function useGridDrawing({
   canvasRef,
   renderingCtx,
-  rendererStore,
+  rendererPlugin,
   changeCanvasSizeOnZoom,
 }: GridDrawingArgs) {
   useLayoutEffect(drawGrid);
-  const renderer = rendererStore || useStore(RendererStore);
-  useLocalStore(GridRenderer, renderer);
+  const renderer = rendererPlugin ?? usePlugin(RendererPlugin);
+  useLocalStore(GridRenderer, { renderer });
 
   function drawGrid() {
     const canvas = canvasRef() as HTMLCanvasElement | null;

@@ -7,6 +7,7 @@ import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { PrintModePlugin } from "../../owl_plugins/print_mode_owl_plugin";
+import { RendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { SpreadsheetRectPlugin } from "../../owl_plugins/spreadsheet_rect_plugin";
 import { TableResizePlugin } from "../../owl_plugins/table_resize_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
@@ -48,7 +49,7 @@ export function useSpreadsheetProviders(config: SpreadsheetProvidersConfig) {
       fileStore: model.config.external.fileStore,
     }
   );
-  providePluginsIfNotPresent([PrintModePlugin, NotificationPlugin]);
+  providePluginsIfNotPresent([PrintModePlugin, NotificationPlugin, RendererPlugin]);
 
   const stores = useStoreProvider();
   stores.inject(ModelStore, model);

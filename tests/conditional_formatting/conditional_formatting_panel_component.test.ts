@@ -42,7 +42,7 @@ import {
   createColorScale,
   createEqualCF,
   editStandaloneComposer,
-  getHighlightsFromStore,
+  getHighlightsFromPlugin,
   mountComponent,
   mountSpreadsheet,
   nextTick,
@@ -209,13 +209,13 @@ describe("UI of conditional formats", () => {
     });
 
     test("Ranges of hovered previews are highlighted", async () => {
-      expect(getHighlightsFromStore(env)).toEqual([]);
+      expect(getHighlightsFromPlugin(env.getPlugin)).toEqual([]);
       triggerMouseEvent(selectors.listPreview, "mouseenter");
-      expect(getHighlightsFromStore(env)).toMatchObject([
+      expect(getHighlightsFromPlugin(env.getPlugin)).toMatchObject([
         { range: model.getters.getRangeFromZone(sheetId, toZone("A1:A2")) },
       ]);
       triggerMouseEvent(selectors.listPreview, "mouseleave");
-      expect(getHighlightsFromStore(env)).toEqual([]);
+      expect(getHighlightsFromPlugin(env.getPlugin)).toEqual([]);
     });
 
     test("the list preview should be bold when the rule is bold", async () => {
@@ -857,9 +857,9 @@ describe("UI of conditional formats", () => {
       await nextTick();
 
       triggerMouseEvent(selectors.listPreview, "mouseenter");
-      expect(getHighlightsFromStore(env)).not.toEqual([]);
+      expect(getHighlightsFromPlugin(env.getPlugin)).not.toEqual([]);
       await click(fixture.querySelectorAll(selectors.listPreview)[0]);
-      expect(getHighlightsFromStore(env)).toEqual([]);
+      expect(getHighlightsFromPlugin(env.getPlugin)).toEqual([]);
     });
 
     test("switching to list resets the rules to their default value", async () => {
