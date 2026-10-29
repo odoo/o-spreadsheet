@@ -1291,6 +1291,34 @@ describe("move elements(s)", () => {
     expect(getCellText(model, "C4", "Sheet1")).toBe("=B1+C1");
     expect(getCellText(model, "D4", "Sheet1")).toBe("=B2+C2");
   });
+
+  test("Moved formulas keep their references when moving cols before", () => {
+    const model = createModelFromGrid({
+      B1: "=D1",
+      B2: "=$D$1",
+      B3: "=B4",
+      D1: "5",
+    });
+    moveColumns(model, "A", ["B", "C"], "before");
+
+    // B -> A, D stays D
+    expect(getCellText(model, "A1", "Sheet1")).toBe("=D1");
+    expect(getCellText(model, "A2", "Sheet1")).toBe("=$D$1");
+    expect(getCellText(model, "A3", "Sheet1")).toBe("=A4");
+  });
+
+  test("Moved formulas keep their references when moving rows before", () => {
+    const model = createModelFromGrid({
+      A2: "7",
+      A4: "=A2",
+      A5: "=A4",
+    });
+    moveRows(model, 0, [3, 4], "before");
+
+    // 4 -> 1, 5 -> 2, 2 -> 4
+    expect(getCellText(model, "A1", "Sheet1")).toBe("=A4");
+    expect(getCellText(model, "A2", "Sheet1")).toBe("=A1");
+  });
 });
 
 test("Preserves wrapped row height when inserting a row above", () => {

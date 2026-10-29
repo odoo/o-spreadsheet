@@ -8,7 +8,7 @@ import { createPivotFormula } from "../helpers/pivot/pivot_helpers";
 import { cellPositions, isZoneInside } from "../helpers/zones";
 import { SquishedContent, Squisher } from "../plugins/core/squisher";
 import { Unsquisher } from "../plugins/core/unsquisher";
-import { Cell, CellValue, CellValueType } from "../types/cells";
+import { Cell, CellValue, CellValueType, LiteralCell } from "../types/cells";
 import {
   ClipboardCellData,
   ClipboardCopyOptions,
@@ -118,7 +118,9 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
             compiledFormula = CompiledFormula.Compile(rawContent, sheetId, this.getters);
             tempCell = { id: -1, isFormula: true, compiledFormula };
           } else {
-            const parsedValue = evaluatedCell.value;
+            // The evaluation can be stale (e.g. mid MOVE_COLUMNS_ROWS, after ADD_COLUMNS_ROWS),
+            // whereas a literal cell's parsedValue is always in sync with its content.
+            const { parsedValue } = cell as LiteralCell;
             tempCell = {
               id: -1,
               isFormula: false,
