@@ -10,9 +10,9 @@ import {
 } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { toZone } from "../../src/helpers/zones";
+import { HighlightPlugin } from "../../src/owl_plugins/highlight_plugin";
 import { IsSmallPlugin } from "../../src/owl_plugins/is_small_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
-import { HighlightStore } from "../../src/stores/highlight_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { OwlPluginGetter, SpreadsheetActionEnv } from "../../src/types/spreadsheet_env";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
@@ -328,8 +328,8 @@ describe("Composer / selectionInput interactions", () => {
       await nextTick();
       await typeInComposerGrid(xc);
 
-      const highlightStore = env.getStore(HighlightStore);
-      expect(highlightStore.highlights.map((h) => h.range.zone)).toEqual([toZone("A1")]);
+      const highlightPlugin = env.getPlugin(HighlightPlugin);
+      expect(highlightPlugin.highlights.map((h) => h.range.zone)).toEqual([toZone("A1")]);
       expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
 
       await clickAndDrag(".o-spreadsheet .o-highlight .o-border-n", {
@@ -338,7 +338,7 @@ describe("Composer / selectionInput interactions", () => {
       });
       await nextTick();
 
-      expect(highlightStore.highlights.map((h) => h.range.zone)).toEqual([toZone("B3")]);
+      expect(highlightPlugin.highlights.map((h) => h.range.zone)).toEqual([toZone("B3")]);
       expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
     }
   );
@@ -351,7 +351,7 @@ describe("Composer / selectionInput interactions", () => {
     await nextTick();
     await simulateClick(".o-selection-input input");
 
-    expect(env.getStore(HighlightStore).highlights.map((h) => h.range.zone)).toEqual([
+    expect(env.getPlugin(HighlightPlugin).highlights.map((h) => h.range.zone)).toEqual([
       toZone("B2:C4"),
     ]);
     expect(composerStore.highlights).toEqual([]);
@@ -360,7 +360,7 @@ describe("Composer / selectionInput interactions", () => {
     // select Composer
     await simulateClick(".o-spreadsheet-topbar .o-composer");
 
-    expect(env.getStore(HighlightStore).highlights.map((h) => h.range.zone)).toEqual([
+    expect(env.getPlugin(HighlightPlugin).highlights.map((h) => h.range.zone)).toEqual([
       toZone("A1"),
       toZone("A2"),
     ]);
@@ -383,13 +383,13 @@ describe("Composer / selectionInput interactions", () => {
   );
 
   test("Switching from composer to selection input should update the highlights and the highlight components", async () => {
-    const highlightStore = env.getStore(HighlightStore);
+    const highlightPlugin = env.getPlugin(HighlightPlugin);
     selectCell(model, "B2");
     OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
 
     await simulateClick(".o-spreadsheet-topbar .o-composer");
-    expect(highlightStore.highlights.map((h) => h.range.zone)).toEqual([
+    expect(highlightPlugin.highlights.map((h) => h.range.zone)).toEqual([
       toZone("A1"),
       toZone("A2"),
     ]);
@@ -398,7 +398,7 @@ describe("Composer / selectionInput interactions", () => {
     //open cf sidepanel
     await simulateClick(".o-selection-input input");
 
-    expect(highlightStore.highlights.map((h) => h.range.zone)).toEqual([toZone("B2:C4")]);
+    expect(highlightPlugin.highlights.map((h) => h.range.zone)).toEqual([toZone("B2:C4")]);
     expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
   });
 

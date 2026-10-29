@@ -15,6 +15,7 @@ import { splitReference } from "../../../helpers/references";
 import { fuzzyLookup } from "../../../helpers/search";
 import { isSheetNameEqual } from "../../../helpers/sheet";
 import { getZoneArea, isEqual, positionToZone, zoneToDimension } from "../../../helpers/zones";
+import { HighlightPlugin } from "../../../owl_plugins/highlight_plugin";
 import { NotificationPlugin } from "../../../owl_plugins/notification_owl_plugin";
 import {
   AutoCompleteProposal,
@@ -22,7 +23,6 @@ import {
   AutoCompleteProviderDefinition,
   autoCompleteProviders,
 } from "../../../registries/auto_completes/auto_complete_registry";
-import { HighlightStore } from "../../../stores/highlight_store";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { _t } from "../../../translation";
@@ -90,14 +90,14 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
 
   private autoCompleteKeepLast = new KeepLast<AutoCompleteProvider | undefined>();
   protected notificationPlugin = usePlugin(NotificationPlugin);
-  private highlightStore = this.get(HighlightStore);
+  private highlightPlugin = usePlugin(HighlightPlugin);
   private viewStore = this.get(ViewportsStore);
 
   constructor(get: Get) {
     super(get);
-    this.highlightStore.register(this);
+    this.highlightPlugin.register(this);
     this.onDispose(() => {
-      this.highlightStore.unRegister(this);
+      this.highlightPlugin.unRegister(this);
       this._cancelEdition();
     });
   }
