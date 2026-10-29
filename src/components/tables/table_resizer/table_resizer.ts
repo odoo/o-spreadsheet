@@ -1,7 +1,6 @@
 import { proxy, usePlugin, useProps } from "@odoo/owl";
 import { ZoomPlugin } from "../../../owl_plugins/zoom_plugin";
 import { useStore } from "../../../store_engine/store_hooks";
-import { TableResizeStore } from "../../../stores/table_resize_store";
 import { ViewportsStore } from "../../../stores/viewports_store";
 import { HeaderIndex, Highlight, Zone } from "../../../types/misc";
 import { Store } from "../../../types/store_engine";
@@ -33,7 +32,6 @@ export class TableResizer extends OSComponent {
   setup(): void {
     useHighlights(this);
     this.viewStore = useStore(ViewportsStore);
-    useStore(TableResizeStore);
   }
 
   get containerStyle(): string {

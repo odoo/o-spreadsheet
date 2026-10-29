@@ -1,8 +1,9 @@
+import { PluginInstance } from "@odoo/owl";
 import { CommandResult, Model, ResizeTableCommand, UID } from "../../src";
 import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import { TableAutofillStore } from "../../src/components/autofill/table_autofill_store";
 import { toZone } from "../../src/helpers/zones";
-import { TableResizeStore } from "../../src/stores/table_resize_store";
+import { TableResizePlugin } from "../../src/owl_plugins/table_resize_plugin";
 import {
   createDynamicTable,
   createTable,
@@ -11,19 +12,20 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getActivePosition, getCellRawContent, getTable } from "../test_helpers/getters_helpers";
 import { toRangeData } from "../test_helpers/helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 let model: Model;
 let sheetId: UID;
-let tableResizeStore: TableResizeStore;
+let tableResizePlugin: PluginInstance<typeof TableResizePlugin>;
 
 describe("Table resize", () => {
   beforeEach(() => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
-    const { container } = makeStoreWithModel(model, AutofillStore);
+    const { getPlugin, container } = makeOwlPluginManager([TableResizePlugin], { model });
+    container.get(AutofillStore);
     container.get(TableAutofillStore);
-    tableResizeStore = container.get(TableResizeStore);
+    tableResizePlugin = getPlugin(TableResizePlugin);
   });
 
   describe("dispatch result", () => {
@@ -37,7 +39,7 @@ describe("Table resize", () => {
         newTableRange: toRangeData(sheetId, "A1:A600"),
       };
 
-      expect(tableResizeStore.canResizeTable(cmd)).toBeCancelledBecause(
+      expect(tableResizePlugin.canResizeTable(cmd)).toBeCancelledBecause(
         CommandResult.TargetOutOfSheet
       );
 
@@ -48,7 +50,9 @@ describe("Table resize", () => {
         zone: getTable(model, "A1")!.range.zone,
         newTableRange: toRangeData(sheetId, "A1:B5"),
       };
-      expect(tableResizeStore.canResizeTable(cmd)).toBeCancelledBecause(CommandResult.TableOverlap);
+      expect(tableResizePlugin.canResizeTable(cmd)).toBeCancelledBecause(
+        CommandResult.TableOverlap
+      );
     });
 
     test("Cannot resize a table while changing it's top-left", () => {
@@ -59,7 +63,7 @@ describe("Table resize", () => {
         zone: getTable(model, "A1")!.range.zone,
         newTableRange: toRangeData(sheetId, "B1:B5"),
       };
-      expect(tableResizeStore.canResizeTable(cmd)).toBeCancelledBecause(
+      expect(tableResizePlugin.canResizeTable(cmd)).toBeCancelledBecause(
         CommandResult.InvalidTableResize
       );
     });

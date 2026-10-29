@@ -1,19 +1,19 @@
 import { Command, CommandResult, DispatchResult, ResizeTableCommand } from "../types/commands";
-import { SpreadsheetStore } from "./spreadsheet_store";
+import { OwlPluginWithModel } from "./owl_plugin_with_model";
 
-export class TableResizeStore extends SpreadsheetStore {
+export class TableResizePlugin extends OwlPluginWithModel {
   canResizeTable(cmd: ResizeTableCommand): DispatchResult {
-    const table = this.getters.getCoreTableMatchingTopLeft(cmd.sheetId, cmd.zone);
+    const table = this.model().getters.getCoreTableMatchingTopLeft(cmd.sheetId, cmd.zone);
     if (!table) {
       return new DispatchResult([CommandResult.TableNotFound]);
     }
 
     const oldTableZone = table.range.zone;
-    const newTableZone = this.getters.getRangeFromRangeData(cmd.newTableRange).zone;
+    const newTableZone = this.model().getters.getRangeFromRangeData(cmd.newTableRange).zone;
     if (newTableZone.top !== oldTableZone.top || newTableZone.left !== oldTableZone.left) {
       return new DispatchResult([CommandResult.InvalidTableResize]);
     }
-    return this.model.canDispatch("UPDATE_TABLE", { ...cmd });
+    return this.model().canDispatch("UPDATE_TABLE", { ...cmd });
   }
 
   handle(cmd: Command) {
@@ -22,14 +22,14 @@ export class TableResizeStore extends SpreadsheetStore {
         if (!this.canResizeTable(cmd).isSuccessful) {
           return;
         }
-        const table = this.getters.getCoreTableMatchingTopLeft(cmd.sheetId, cmd.zone);
-        this.model.dispatch("UPDATE_TABLE", { ...cmd });
+        const table = this.model().getters.getCoreTableMatchingTopLeft(cmd.sheetId, cmd.zone);
+        this.model().dispatch("UPDATE_TABLE", { ...cmd });
 
         if (!table) {
           return;
         }
-        const newTableZone = this.getters.getRangeFromRangeData(cmd.newTableRange).zone;
-        this.model.selection.selectCell(newTableZone.right, newTableZone.bottom);
+        const newTableZone = this.model().getters.getRangeFromRangeData(cmd.newTableRange).zone;
+        this.model().selection.selectCell(newTableZone.right, newTableZone.bottom);
         if (!table.config.automaticAutofill) {
           return;
         }
@@ -38,8 +38,8 @@ export class TableResizeStore extends SpreadsheetStore {
         if (newTableZone.bottom >= oldTableZone.bottom) {
           for (let col = newTableZone.left; col <= newTableZone.right; col++) {
             const autofillSource = { col, row: oldTableZone.bottom, sheetId: cmd.sheetId };
-            if (this.getters.getCell(autofillSource)?.isFormula) {
-              this.model.dispatch("AUTOFILL_TABLE_COLUMN", {
+            if (this.model().getters.getCell(autofillSource)?.isFormula) {
+              this.model().dispatch("AUTOFILL_TABLE_COLUMN", {
                 ...autofillSource,
                 autofillRowStart: oldTableZone.bottom,
                 autofillRowEnd: newTableZone.bottom,

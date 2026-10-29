@@ -7,6 +7,7 @@ import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
 import { NavigatorClipboardPlugin } from "../../owl_plugins/navigator_clipboard_plugin";
 import { NotificationPlugin } from "../../owl_plugins/notification_owl_plugin";
 import { PrintModePlugin } from "../../owl_plugins/print_mode_owl_plugin";
+import { TableResizePlugin } from "../../owl_plugins/table_resize_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { globalStores } from "../../store_engine/store_registries";
@@ -39,6 +40,7 @@ export function useSpreadsheetProviders(config: SpreadsheetProvidersConfig) {
       ModelPlugin,
       NavigatorClipboardPlugin,
       ImageProviderPlugin,
+      TableResizePlugin,
     ],
     {
       getPopoverContainerRect,
