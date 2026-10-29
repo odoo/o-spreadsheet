@@ -4,6 +4,7 @@ import { SpreadsheetPrint } from "../../src/components/spreadsheet_print/spreads
 import { SpreadsheetPrintPlugin } from "../../src/components/spreadsheet_print/spreadsheet_print_owl_plugin";
 import { FigureRendererStore } from "../../src/components/standalone_grid_canvas/figure_renderer_store";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, PRINT_DPR } from "../../src/constants";
+import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import {
   createCarousel,
@@ -271,5 +272,29 @@ describe("Spreadsheet print rendering", () => {
     await mountSpreadsheetPrint();
 
     expect(canvas.toBuffer("image/png")).toMatchImageSnapshot();
+  });
+
+  test("Only the page grid renderer draws the printed sheet", async () => {
+    createSheet(model, { sheetId: "sh2" });
+    createCarousel(
+      model,
+      { items: [{ type: "carouselDataView", rangeData: toRangeData("sh2", "A1:E5") }] },
+      "fig1",
+      sheetId,
+      { col: 1, row: 1, size: { width: 400, height: 200 } }
+    );
+    const renderersDrawingPrintedSheet = new Set<GridRenderer>();
+    const originalDrawLayer = GridRenderer.prototype.drawLayer;
+    jest.spyOn(GridRenderer.prototype, "drawLayer").mockImplementation(function (this, ctx, ...a) {
+      if (ctx.sheetId === sheetId) {
+        renderersDrawingPrintedSheet.add(this);
+      }
+      return originalDrawLayer.call(this, ctx, ...a);
+    });
+
+    await mountSpreadsheetPrint();
+
+    // the carousel data view grid renderer must only draw the carousel range, not the whole page
+    expect(renderersDrawingPrintedSheet.size).toBe(1);
   });
 });

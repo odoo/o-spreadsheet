@@ -1,7 +1,7 @@
 import { providePlugins, signal, usePlugin, useProps } from "@odoo/owl";
+import { LocalRendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { ZoomPlugin } from "../../owl_plugins/zoom_plugin";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
-import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { Pixel } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/rendering";
@@ -58,20 +58,21 @@ export class SpreadsheetDashboard extends OSComponent {
     useLocalStore(HoveredTableStore);
 
     const layers = OrderedLayers().filter((layer) => layer !== "Headers");
-    const rendererStore = useLocalStore(RendererStore, layers);
+    providePlugins([LocalRendererPlugin], { layers });
     providePlugins([PopoverContainerPlugin], {
       getPopoverContainerRect: () => this.zoomPlugin.getZoomedRect(this.getGridRect()),
     });
+    const rendererPlugin = usePlugin(LocalRendererPlugin);
 
     useGridDrawing({
       canvasRef: this.canvasRef,
-      rendererStore,
       renderingCtx: () => ({
         dpr: window.devicePixelRatio || 1,
         viewports: this.viewStore.viewports,
         ...this.model().getters.getSelectionState(),
         hideGridLines: true,
       }),
+      rendererPlugin,
     });
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);

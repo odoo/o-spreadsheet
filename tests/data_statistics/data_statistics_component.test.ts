@@ -14,7 +14,7 @@ import {
 import {
   createModelFromGrid,
   flattenHighlightRange,
-  getHighlightsFromStore,
+  getHighlightsFromPlugin,
   mockChart,
   mountSpreadsheet,
   nextTick,
@@ -318,10 +318,10 @@ describe("data statistics", () => {
       await simulateClick(".o-data-analysis-button");
       triggerMouseEvent('[data-test-id="banana"]', "mouseenter");
       await nextTick();
-      expect(getHighlightsFromStore(env)).toHaveLength(2);
+      expect(getHighlightsFromPlugin(env.getPlugin)).toHaveLength(2);
       triggerMouseEvent('[data-test-id="banana"]', "mouseleave");
       await nextTick();
-      expect(getHighlightsFromStore(env)).toHaveLength(0);
+      expect(getHighlightsFromPlugin(env.getPlugin)).toHaveLength(0);
     });
 
     test("hovering a day of month row highlights the dates of that day", async () => {
@@ -335,7 +335,7 @@ describe("data statistics", () => {
       await simulateClick('.o-select-option[data-id="day"]');
       triggerMouseEvent('[data-test-id="dom3"]', "mouseenter");
       await nextTick();
-      expect(getHighlightsFromStore(env).map(flattenHighlightRange)).toMatchObject([
+      expect(getHighlightsFromPlugin(env.getPlugin).map(flattenHighlightRange)).toMatchObject([
         { zone: toZone("A1") },
         { zone: toZone("A3") },
       ]);
@@ -352,7 +352,7 @@ describe("data statistics", () => {
       const jan15 = getEvaluatedCell(model, "A3").value;
       triggerMouseEvent(`[data-test-id="${jan15}"]`, "mouseenter");
       await nextTick();
-      expect(getHighlightsFromStore(env).map(flattenHighlightRange)).toMatchObject([
+      expect(getHighlightsFromPlugin(env.getPlugin).map(flattenHighlightRange)).toMatchObject([
         { zone: toZone("A1") },
         { zone: toZone("A3") },
       ]);

@@ -11,7 +11,7 @@ import {
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
 import { getCellRawContent } from "../test_helpers/getters_helpers";
 import {
-  getHighlightsFromStore,
+  getHighlightsFromPlugin,
   mountComponent,
   nextTick,
   setGrid,
@@ -183,9 +183,11 @@ describe("Table side panel", () => {
   });
 
   test("the table range is highlighted when the side panel is open", async () => {
-    expect(getHighlightsFromStore(env).map((h) => zoneToXc(h.range.zone))).toEqual(["A1:C3"]);
+    expect(getHighlightsFromPlugin(env.getPlugin).map((h) => zoneToXc(h.range.zone))).toEqual([
+      "A1:C3",
+    ]);
     await simulateClick(".o-sidePanelClose");
-    expect(getHighlightsFromStore(env).map((h) => zoneToXc(h.range.zone))).toEqual([]);
+    expect(getHighlightsFromPlugin(env.getPlugin).map((h) => zoneToXc(h.range.zone))).toEqual([]);
   });
 
   test("The table zone displayed in the side panel is updated when the user modifies the table range with the mouse", async () => {
@@ -203,7 +205,9 @@ describe("Table side panel", () => {
 
   test("The highlighted zone is updated when the user modifies the table range with the mouse", async () => {
     const table = getTable(model, sheetId);
-    expect(getHighlightsFromStore(env).map((h) => zoneToXc(h.range.zone))).toEqual(["A1:C3"]);
+    expect(getHighlightsFromPlugin(env.getPlugin).map((h) => zoneToXc(h.range.zone))).toEqual([
+      "A1:C3",
+    ]);
     model.dispatch("UPDATE_TABLE", {
       sheetId,
       zone: table.range.zone,
@@ -211,7 +215,9 @@ describe("Table side panel", () => {
       config: { numberOfHeaders: 0 },
     });
     await nextTick();
-    expect(getHighlightsFromStore(env).map((h) => zoneToXc(h.range.zone))).toEqual(["D1:D2"]);
+    expect(getHighlightsFromPlugin(env.getPlugin).map((h) => zoneToXc(h.range.zone))).toEqual([
+      "D1:D2",
+    ]);
   });
 
   test("Changing the selection does not change the edited table", async () => {

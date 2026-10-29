@@ -45,15 +45,18 @@ import {
 import { DIRECTION, Model } from "../../src";
 import { AutofillStore } from "../../src/components/autofill/autofill_store";
 import { functionRegistry } from "../../src/functions/function_registry";
+import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
-import { RendererStore } from "../../src/stores/renderer_store";
+import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 import { watchDashedOutline } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 
 let autoFill: Store<AutofillStore>;
 let container: DependencyContainer;
 let model: Model;
+let getPlugin: OwlPluginGetter;
 
 function autofillTooltip(from: string, to: string): string | undefined {
   autofillSelect(model, from, to);
@@ -71,9 +74,8 @@ function getDirection(from: string, xc: string): DIRECTION {
 
 beforeEach(() => {
   model = new Model();
-  const storeData = makeStoreWithModel(model, AutofillStore);
-  autoFill = storeData.store;
-  container = storeData.container;
+  ({ getPlugin, container } = makeOwlPluginManager([RendererPlugin], { model }));
+  autoFill = container.get(AutofillStore);
 });
 
 describe("Autofill", () => {
@@ -116,7 +118,7 @@ describe("Autofill", () => {
     const { ctx, isDotOutlined } = watchDashedOutline(model, container);
 
     autofillSelect(model, "A1", "A2");
-    container.get(RendererStore).draw(ctx);
+    getPlugin(RendererPlugin).draw(ctx);
 
     expect(isDotOutlined([toZone("A2")])).toBeTruthy();
   });

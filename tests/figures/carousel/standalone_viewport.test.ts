@@ -6,10 +6,10 @@ import { StandaloneViewport } from "../../../src/components/standalone_viewport/
 import { DEFAULT_CELL_HEIGHT, TABLE_HOVER_BACKGROUND_COLOR } from "../../../src/constants";
 import { buildSheetLink, range } from "../../../src/helpers/misc";
 import { zoneToXc } from "../../../src/helpers/zones";
+import { LocalRendererPlugin } from "../../../src/owl_plugins/renderer_plugin";
 import { ZoomPlugin } from "../../../src/owl_plugins/zoom_plugin";
 import { CellHoverOverlayStore } from "../../../src/stores/cell_hover_overlay_store";
 import { GridRenderer } from "../../../src/stores/grid_renderer_store";
-import { RendererStore } from "../../../src/stores/renderer_store";
 import { ViewportsStore } from "../../../src/stores/viewports_store";
 import { PropsOf } from "../../../src/types/props_of";
 import { SpreadsheetActionEnv, SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
@@ -358,11 +358,11 @@ describe("Standalone viewport", () => {
   });
 
   test("Standalone viewport is drawn with the window devicePixelRatio", async () => {
-    await mountViewport("A1:A2");
-    const rendererStore: RendererStore = storeSpy.getStores(RendererStore).at(-1)!;
+    const { getPlugin } = await mountViewport("A1:A2");
+    const rendererPlugin = getPlugin(LocalRendererPlugin);
 
     let lastDpr = 0;
-    rendererStore.register({
+    rendererPlugin.register({
       renderingLayers: ["Background"],
       drawLayer: (ctx) => (lastDpr = ctx.dpr),
     });
@@ -378,6 +378,17 @@ describe("Standalone viewport", () => {
     expect(lastDpr).toEqual(2);
 
     window.devicePixelRatio = originalDpr;
+  });
+
+  test("Animation is cancelled when the standalone viewport is destroyed", async () => {
+    const { app, getPlugin } = await mountViewport("A1:A2");
+    jest.spyOn(window, "requestAnimationFrame").mockReturnValue(42);
+    const cancelAnimationFrameSpy = jest.spyOn(window, "cancelAnimationFrame");
+
+    getPlugin(LocalRendererPlugin).startAnimation("animation");
+    app.destroy();
+
+    expect(cancelAnimationFrameSpy).toHaveBeenCalledWith(42);
   });
 
   describe("Column resize", () => {

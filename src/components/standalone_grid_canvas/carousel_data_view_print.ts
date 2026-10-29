@@ -1,7 +1,7 @@
-import { onMounted, onWillUnmount, useEffect, useProps, xml } from "@odoo/owl";
+import { onMounted, onWillUnmount, PluginInstance, useEffect, useProps, xml } from "@odoo/owl";
+import { RendererPlugin } from "../../owl_plugins/renderer_plugin";
 import { useChildStoreProvider, useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { GridRenderer } from "../../stores/grid_renderer_store";
-import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
 import { GridRenderingContext, Rect } from "../../types/rendering";
 import { Store } from "../../types/store_engine";
@@ -16,7 +16,7 @@ export class CarouselDataViewPrint extends OSComponent {
     range: types.Range(),
     columnWeights: types.array<number>().optional(),
     rect: types.object<Rect>(),
-    rendererStore: types.object<Store<RendererStore>>(),
+    rendererPlugin: types.object<PluginInstance<typeof RendererPlugin>>(),
   });
 
   viewportsStore!: Store<ViewportsStore>;
@@ -29,14 +29,14 @@ export class CarouselDataViewPrint extends OSComponent {
       this.props.range,
       this.props.columnWeights
     );
-    this.gridRender = useLocalStore(GridRenderer, null);
+    this.gridRender = useLocalStore(GridRenderer, { shouldRender: false });
     this.viewportsStore = useStore(ViewportsStore);
     useEffect(() => {
       store.setContainerSize(this.props.rect.width, this.props.rect.height);
     });
 
-    onMounted(() => this.props.rendererStore.register(this));
-    onWillUnmount(() => this.props.rendererStore.unRegister(this));
+    onMounted(() => this.props.rendererPlugin.register(this));
+    onWillUnmount(() => this.props.rendererPlugin.unRegister(this));
   }
 
   get renderingLayers() {

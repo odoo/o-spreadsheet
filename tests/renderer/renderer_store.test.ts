@@ -32,12 +32,12 @@ import {
 import { COLOR_THEMES } from "../../src/helpers/color_themes";
 import { fontSizeInPixels, getContextFontSize } from "../../src/helpers/text_helper";
 import { toZone } from "../../src/helpers/zones";
+import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { CellHoverOverlayStore } from "../../src/stores/cell_hover_overlay_store";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
-import { RendererStore } from "../../src/stores/renderer_store";
 import { SelectionRendererStore } from "../../src/stores/selection_renderer_store";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { Mode } from "../../src/types/model";
@@ -105,7 +105,11 @@ function removeOffsetOfFillStyles(fillStyles: any[]): any[] {
 }
 
 function setRenderer(model: Model = new Model(), layers: LayerName[] = ["Background"]) {
-  const { container, store: gridRendererStore } = makeStoreWithModel(model, GridRenderer);
+  const {
+    container,
+    store: gridRendererStore,
+    getPlugin,
+  } = makeStoreWithModel(model, GridRenderer);
   container.get(ClipboardStore); // Instantiate a ClipboardStore
   container.get(SelectionRendererStore); // Instantiate a SelectionRendererStore
   gridRendererStore["getBoxesWithAnimations"] = function (boxes: Box[]) {
@@ -114,11 +118,11 @@ function setRenderer(model: Model = new Model(), layers: LayerName[] = ["Backgro
     }
     return boxes;
   };
-  const rendererManager = container.get(RendererStore);
+  const rendererPlugin = getPlugin(RendererPlugin);
   const drawGridRenderer = (ctx: GridRenderingContext) => {
     for (const layer of layers) {
       model.drawLayer(ctx, layer);
-      for (const renderer of rendererManager["renderers"][layer] || []) {
+      for (const renderer of rendererPlugin.renderers()[layer] || []) {
         renderer.drawLayer(ctx, layer, undefined);
       }
     }
