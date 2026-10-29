@@ -1,7 +1,8 @@
+import type { PluginInstance } from "@odoo/owl";
 import { CommandResult, HeaderIndex, Model } from "../../src";
 import { toZone } from "../../src/helpers/zones";
+import { DataCleanupPlugin } from "../../src/owl_plugins/data_cleanup_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
-import { DataCleanupStore } from "../../src/stores/data_cleanup_store";
 import { getCellRawContent, getEvaluatedCell } from "../test_helpers";
 import { merge, setFormat, setSelection } from "../test_helpers/commands_helpers";
 import {
@@ -9,11 +10,11 @@ import {
   getRangeFormatsAsMatrix,
   getRangeValuesAsMatrix,
 } from "../test_helpers/helpers";
-import { makeStoreWithModel } from "../test_helpers/stores";
+import { makeOwlPluginManager } from "../test_helpers/owl_plugins_helpers";
 
 export function removeDuplicates(
   model: Model,
-  store: DataCleanupStore,
+  plugin: PluginInstance<typeof DataCleanupPlugin>,
   colsToProcess: HeaderIndex[],
   hasHeader: boolean
 ) {
@@ -21,33 +22,36 @@ export function removeDuplicates(
   for (const col of colsToProcess) {
     columns[col] = true;
   }
-  store.setColumns(columns);
-  store.setHasHeader(hasHeader);
+  plugin.setColumns(columns);
+  plugin.setHasHeader(hasHeader);
   return model.dispatch("REMOVE_DUPLICATES", { columns, hasHeader });
 }
 
 describe("remove duplicates", () => {
   test("can remove duplicate", () => {
     const grid = { A2: "1", A3: "1", A4: "2", A5: "2" };
-    const { model, store } = makeStoreWithModel(createModelFromGrid(grid), DataCleanupStore);
+    const model = createModelFromGrid(grid);
+    const { getPlugin } = makeOwlPluginManager([DataCleanupPlugin], { model });
     setSelection(model, ["A2:A5"]);
-    removeDuplicates(model, store, [0], false);
+    removeDuplicates(model, getPlugin(DataCleanupPlugin), [0], false);
     expect(getRangeValuesAsMatrix(model, "A2:A5")).toEqual([[1], [2], [null], [null]]);
   });
 
   test("selection is updated after removing duplicates", () => {
     const grid = { A2: "1", A3: "1", A4: "2", A5: "2" };
-    const { model, store } = makeStoreWithModel(createModelFromGrid(grid), DataCleanupStore);
+    const model = createModelFromGrid(grid);
+    const { getPlugin } = makeOwlPluginManager([DataCleanupPlugin], { model });
     setSelection(model, ["A2:A5"]);
-    removeDuplicates(model, store, [0], false);
+    removeDuplicates(model, getPlugin(DataCleanupPlugin), [0], false);
     expect(model.getters.getSelectedZone()).toEqual(toZone("A2:A3"));
   });
 
   test("apply deletion only in selected zone", () => {
     const grid = { A2: "1", A3: "1", A4: "2", A5: "2" };
-    const { model, store } = makeStoreWithModel(createModelFromGrid(grid), DataCleanupStore);
+    const model = createModelFromGrid(grid);
+    const { getPlugin } = makeOwlPluginManager([DataCleanupPlugin], { model });
     setSelection(model, ["A2:A4"]);
-    removeDuplicates(model, store, [0], false);
+    removeDuplicates(model, getPlugin(DataCleanupPlugin), [0], false);
     expect(getRangeValuesAsMatrix(model, "A2:A5")).toEqual([[1], [2], [null], [2]]);
   });
 
@@ -58,10 +62,11 @@ describe("remove duplicates", () => {
       A3: "1", B3: "la",
       A4: "1", B4: "land",
     };
-    const { model, store } = makeStoreWithModel(createModelFromGrid(grid), DataCleanupStore);
+    const model = createModelFromGrid(grid);
+    const { getPlugin } = makeOwlPluginManager([DataCleanupPlugin], { model });
     setSelection(model, ["A2:B4"]);
     // provide column B to analyze
-    removeDuplicates(model, store, [1], false);
+    removeDuplicates(model, getPlugin(DataCleanupPlugin), [1], false);
     expect(getRangeValuesAsMatrix(model, "A2:B4")).toEqual([
       [1, "la"],
       [1, "land"],
@@ -76,10 +81,11 @@ describe("remove duplicates", () => {
       A3: "1", B3: "B3",
       A4: "1", B4: "B4",
     };
-    const { model, store } = makeStoreWithModel(createModelFromGrid(grid), DataCleanupStore);
+    const model = createModelFromGrid(grid);
+    const { getPlugin } = makeOwlPluginManager([DataCleanupPlugin], { model });
     setSelection(model, ["A2:B4"]);
     // provide column A to analyze
-    removeDuplicates(model, store, [0], false);
+    removeDuplicates(model, getPlugin(DataCleanupPlugin), [0], false);
     expect(getRangeValuesAsMatrix(model, "B2:B4")).toEqual([["B2"], [null], [null]]);
   });
 
@@ -88,9 +94,10 @@ describe("remove duplicates", () => {
       A2: "42",
       A3: "=21+21",
     };
-    const { model, store } = makeStoreWithModel(createModelFromGrid(grid), DataCleanupStore);
+    const model = createModelFromGrid(grid);
+    const { getPlugin } = makeOwlPluginManager([DataCleanupPlugin], { model });
     setSelection(model, ["A2:A3"]);
-    removeDuplicates(model, store, [0], false);
+    removeDuplicates(model, getPlugin(DataCleanupPlugin), [0], false);
 
     expect(getEvaluatedCell(model, "A2").value).toBe(42);
     expect(getEvaluatedCell(model, "A3").value).toBe(null);
@@ -102,9 +109,10 @@ describe("remove duplicates", () => {
       A3: "1",
       A4: "=A2+1",
     };
-    const { model, store } = makeStoreWithModel(createModelFromGrid(grid), DataCleanupStore);
+    const model = createModelFromGrid(grid);
+    const { getPlugin } = makeOwlPluginManager([DataCleanupPlugin], { model });
     setSelection(model, ["A2:A4"]);
-    removeDuplicates(model, store, [0], false);
+    removeDuplicates(model, getPlugin(DataCleanupPlugin), [0], false);
 
     expect(getEvaluatedCell(model, "A2").value).toBe(1);
     expect(getEvaluatedCell(model, "A3").value).toBe(1);
@@ -117,7 +125,8 @@ describe("remove duplicates", () => {
       B3: "42",
       B4: "42",
     };
-    const { model, store } = makeStoreWithModel(createModelFromGrid(grid), DataCleanupStore);
+    const model = createModelFromGrid(grid);
+    const { getPlugin } = makeOwlPluginManager([DataCleanupPlugin], { model });
     setFormat(model, "B2", "0.00%");
     setFormat(model, "B4", "#,##0[$€]");
 
@@ -125,7 +134,7 @@ describe("remove duplicates", () => {
     expect(getRangeFormatsAsMatrix(model, "B2:B4")).toEqual([["0.00%"], [""], ["#,##0[$€]"]]);
 
     setSelection(model, ["B2:B4"]);
-    removeDuplicates(model, store, [1], false);
+    removeDuplicates(model, getPlugin(DataCleanupPlugin), [1], false);
 
     expect(getRangeValuesAsMatrix(model, "B2:B4")).toEqual([[42], [null], [null]]);
     expect(getRangeFormatsAsMatrix(model, "B2:B4")).toEqual([["0.00%"], [""], [""]]);
@@ -137,9 +146,10 @@ describe("remove duplicates", () => {
       A4: "42",
       A6: "242",
     };
-    const { model, store } = makeStoreWithModel(createModelFromGrid(grid), DataCleanupStore);
+    const model = createModelFromGrid(grid);
+    const { getPlugin } = makeOwlPluginManager([DataCleanupPlugin], { model });
     setSelection(model, ["A1:A6"]);
-    removeDuplicates(model, store, [0], false);
+    removeDuplicates(model, getPlugin(DataCleanupPlugin), [0], false);
     expect(getRangeValuesAsMatrix(model, "A1:A6")).toEqual([
       [24],
       [null],
@@ -159,13 +169,14 @@ describe("remove duplicates", () => {
       A4: "24", B4: "Michel Blanc",
     };
 
-    const { model, store } = makeStoreWithModel(createModelFromGrid(grid), DataCleanupStore);
+    const model = createModelFromGrid(grid);
+    const { getPlugin } = makeOwlPluginManager([DataCleanupPlugin], { model });
     setSelection(model, ["A1:A4"]);
-    removeDuplicates(model, store, [0], true);
+    removeDuplicates(model, getPlugin(DataCleanupPlugin), [0], true);
     expect(getRangeValuesAsMatrix(model, "A1:A4")).toEqual([[42], [24], [42], [null]]);
 
     setSelection(model, ["B1:B4"]);
-    removeDuplicates(model, store, [1], true);
+    removeDuplicates(model, getPlugin(DataCleanupPlugin), [1], true);
     expect(getRangeValuesAsMatrix(model, "B1:B4")).toEqual([
       ["Michel Blanc"],
       ["Michel Noir"],
@@ -181,10 +192,13 @@ describe("allow dispatch", () => {
       A2: "1",
       A3: "1",
     };
-    const { model, store } = makeStoreWithModel(createModelFromGrid(grid), DataCleanupStore);
+    const model = createModelFromGrid(grid);
+    const { getPlugin } = makeOwlPluginManager([DataCleanupPlugin], { model });
     merge(model, "A1:A2");
     setSelection(model, ["A1:A3"]);
-    expect(store.removeDuplicateErrors).toContain(CommandResult.WillRemoveExistingMerge);
+    expect(getPlugin(DataCleanupPlugin).removeDuplicateErrors).toContain(
+      CommandResult.WillRemoveExistingMerge
+    );
   });
 
   test("throw error if more than one range selected", () => {
@@ -192,9 +206,12 @@ describe("allow dispatch", () => {
       A2: "1",
       A3: "1",
     };
-    const { model, store } = makeStoreWithModel(createModelFromGrid(grid), DataCleanupStore);
+    const model = createModelFromGrid(grid);
+    const { getPlugin } = makeOwlPluginManager([DataCleanupPlugin], { model });
     setSelection(model, ["A2:A3", "A3:A4"]);
-    expect(store.removeDuplicateErrors).toContain(CommandResult.MoreThanOneRangeSelected);
+    expect(getPlugin(DataCleanupPlugin).removeDuplicateErrors).toContain(
+      CommandResult.MoreThanOneRangeSelected
+    );
   });
 
   test("throw error if zone doesn't contain values", () => {
@@ -202,15 +219,20 @@ describe("allow dispatch", () => {
       A2: "1",
       A3: "1",
     };
-    const { model, store } = makeStoreWithModel(createModelFromGrid(grid), DataCleanupStore);
+    const model = createModelFromGrid(grid);
+    const { getPlugin } = makeOwlPluginManager([DataCleanupPlugin], { model });
     setSelection(model, ["D10:E11"]);
-    store.setColumns({ 0: true });
-    store.setHasHeader(false);
-    expect(store.removeDuplicateErrors).toContain(CommandResult.EmptySelectedRange);
+    getPlugin(DataCleanupPlugin).setColumns({ 0: true });
+    getPlugin(DataCleanupPlugin).setHasHeader(false);
+    expect(getPlugin(DataCleanupPlugin).removeDuplicateErrors).toContain(
+      CommandResult.EmptySelectedRange
+    );
 
     setSelection(model, ["C9:E11"]);
-    store.setHasHeader(true);
-    expect(store.removeDuplicateErrors).toContain(CommandResult.EmptySelectedRange);
+    getPlugin(DataCleanupPlugin).setHasHeader(true);
+    expect(getPlugin(DataCleanupPlugin).removeDuplicateErrors).toContain(
+      CommandResult.EmptySelectedRange
+    );
   });
 
   test("throw error if no columns selected", () => {
@@ -218,10 +240,13 @@ describe("allow dispatch", () => {
       A2: "1",
       A3: "1",
     };
-    const { model, store } = makeStoreWithModel(createModelFromGrid(grid), DataCleanupStore);
+    const model = createModelFromGrid(grid);
+    const { getPlugin } = makeOwlPluginManager([DataCleanupPlugin], { model });
     setSelection(model, ["A2:A3"]);
-    store.setColumns({});
-    expect(store.removeDuplicateErrors).toContain(CommandResult.NoColumnsProvided);
+    getPlugin(DataCleanupPlugin).setColumns({});
+    expect(getPlugin(DataCleanupPlugin).removeDuplicateErrors).toContain(
+      CommandResult.NoColumnsProvided
+    );
   });
 
   test("throw error if columns aren't in zone", () => {
@@ -229,10 +254,13 @@ describe("allow dispatch", () => {
       A2: "1",
       A3: "1",
     };
-    const { model, store } = makeStoreWithModel(createModelFromGrid(grid), DataCleanupStore);
+    const model = createModelFromGrid(grid);
+    const { getPlugin } = makeOwlPluginManager([DataCleanupPlugin], { model });
     setSelection(model, ["A1:B2"]);
-    store.setColumns({ 1: true, 3: true });
-    expect(store.removeDuplicateErrors).toContain(CommandResult.ColumnsNotIncludedInZone);
+    getPlugin(DataCleanupPlugin).setColumns({ 1: true, 3: true });
+    expect(getPlugin(DataCleanupPlugin).removeDuplicateErrors).toContain(
+      CommandResult.ColumnsNotIncludedInZone
+    );
   });
 });
 
@@ -242,14 +270,12 @@ describe("notify user", () => {
       A1: "42",
       A2: "42",
     };
-    const { model, store, getPlugin } = makeStoreWithModel(
-      createModelFromGrid(grid),
-      DataCleanupStore
-    );
+    const model = createModelFromGrid(grid);
+    const { getPlugin } = makeOwlPluginManager([DataCleanupPlugin], { model });
     const notificationPlugin = getPlugin(NotificationPlugin);
     const notifyUserTextSpy = jest.spyOn(notificationPlugin, "notifyUser");
     setSelection(model, ["A1:A2"]);
-    removeDuplicates(model, store, [0], false);
+    removeDuplicates(model, getPlugin(DataCleanupPlugin), [0], false);
     expect(notifyUserTextSpy).toHaveBeenCalledWith({
       text: "1 duplicate rows found and removed.\n1 unique rows remain.",
       type: "info",
@@ -262,14 +288,12 @@ describe("notify user", () => {
       A1: "42",
       A2: "24",
     };
-    const { model, store, getPlugin } = makeStoreWithModel(
-      createModelFromGrid(grid),
-      DataCleanupStore
-    );
+    const model = createModelFromGrid(grid);
+    const { getPlugin } = makeOwlPluginManager([DataCleanupPlugin], { model });
     const notificationPlugin = getPlugin(NotificationPlugin);
     const notifyUserTextSpy = jest.spyOn(notificationPlugin, "notifyUser");
     setSelection(model, ["A1:A2"]);
-    removeDuplicates(model, store, [0], false);
+    removeDuplicates(model, getPlugin(DataCleanupPlugin), [0], false);
     expect(notifyUserTextSpy).toHaveBeenCalledWith({
       text: "0 duplicate rows found and removed.\n2 unique rows remain.",
       type: "info",

@@ -1,36 +1,34 @@
-import { usePlugin } from "@odoo/owl";
+import { onWillDestroy, signal, usePlugin } from "@odoo/owl";
 import { CellClipboardHandler } from "../clipboard_handlers/cell_clipboard";
 import { getClipboardDataPositions } from "../helpers/clipboard/clipboard_helpers";
 import { deepEquals, range } from "../helpers/misc";
 import { zoneToDimension } from "../helpers/zones";
-import { NotificationPlugin } from "../owl_plugins/notification_owl_plugin";
 import { _t } from "../translation";
 import { CancelledReason, Command, CommandResult } from "../types/commands";
 import { HeaderIndex, UID, Zone } from "../types/misc";
-import { Get } from "../types/store_engine";
-import { SpreadsheetStore } from "./spreadsheet_store";
+import { NotificationPlugin } from "./notification_owl_plugin";
+import { OwlPluginWithModel } from "./owl_plugin_with_model";
 
-export class DataCleanupStore extends SpreadsheetStore {
-  mutators = ["setHasHeader", "setColumns", "toggleAllColumns", "toggleColumn"] as const;
+export class DataCleanupPlugin extends OwlPluginWithModel {
   private notificationPlugin = usePlugin(NotificationPlugin);
 
-  hasHeader: boolean = false;
-  columns: { [colIndex: number]: boolean } = {};
+  hasHeader = signal(false);
+  columns = signal.Object<{ [colIndex: number]: boolean }>({});
 
-  constructor(get: Get) {
-    super(get);
+  setup() {
+    super.setup();
     this.updateColumns();
-    this.model.selection.observe(this, {
+    this.model().selection.observe(this, {
       handleEvent: this.updateColumns.bind(this),
     });
-    this.onDispose(() => {
-      this.model.selection.unobserve(this);
+    onWillDestroy(() => {
+      this.model().selection.unobserve(this);
     });
   }
 
   private updateColumns() {
-    const zone = this.model.getters.getSelectedZone();
-    const oldColumns = this.columns;
+    const zone = this.model().getters.getSelectedZone();
+    const oldColumns = this.columns();
     const newColumns = {};
     for (let i = zone.left; i <= zone.right; i++) {
       newColumns[i] = i in oldColumns ? oldColumns[i] : true;
@@ -39,30 +37,30 @@ export class DataCleanupStore extends SpreadsheetStore {
   }
 
   setHasHeader(hasHeader: boolean) {
-    this.hasHeader = hasHeader;
+    this.hasHeader.set(hasHeader);
   }
 
   setColumns(columns: { [colIndex: number]: boolean }) {
-    this.columns = columns;
+    this.columns.set(columns);
   }
 
   toggleAllColumns() {
     const newState = !this.isEveryColumnSelected;
     const newColumns = {};
-    for (const index in this.columns) {
+    for (const index in this.columns()) {
       newColumns[index] = newState;
     }
     this.setColumns(newColumns);
   }
 
   toggleColumn(colIndex: number) {
-    const newColumns = { ...this.columns };
-    newColumns[colIndex] = !this.columns[colIndex];
+    const newColumns = { ...this.columns() };
+    newColumns[colIndex] = !this.columns()[colIndex];
     this.setColumns(newColumns);
   }
 
   private get isEveryColumnSelected(): boolean {
-    return Object.values(this.columns).every((value) => value);
+    return Object.values(this.columns()).every((value) => value);
   }
 
   get removeDuplicateErrors(): CancelledReason[] {
@@ -96,9 +94,9 @@ export class DataCleanupStore extends SpreadsheetStore {
   // ---------------------------------------------------------------------------
 
   private removeDuplicates() {
-    const sheetId = this.getters.getActiveSheetId();
-    const zone = this.getters.getSelectedZone();
-    if (this.hasHeader) {
+    const sheetId = this.model().getters.getActiveSheetId();
+    const zone = this.model().getters.getSelectedZone();
+    if (this.hasHeader()) {
       zone.top += 1;
     }
     const columnsToAnalyze = this.getColsToAnalyze();
@@ -124,14 +122,14 @@ export class DataCleanupStore extends SpreadsheetStore {
     }));
 
     const clipboardPositions = getClipboardDataPositions(sheetId, rowsToKeep);
-    const handler = new CellClipboardHandler(this.getters, this.model.dispatch);
+    const handler = new CellClipboardHandler(this.model().getters, this.model().dispatch);
     const compactData = handler.copy(clipboardPositions, false);
     if (!compactData) {
       return;
     }
     const data = handler.expand(compactData);
 
-    this.model.dispatch("CLEAR_CELLS", { target: [zone], sheetId });
+    this.model().dispatch("CLEAR_CELLS", { target: [zone], sheetId });
 
     const zonePasted: Zone = {
       left: zone.left,
@@ -154,12 +152,12 @@ export class DataCleanupStore extends SpreadsheetStore {
 
     const remainingZone = {
       left: zone.left,
-      top: zone.top - (this.hasHeader ? 1 : 0),
+      top: zone.top - (this.hasHeader() ? 1 : 0),
       right: zone.right,
       bottom: zone.top + numberOfUniqueRows - 1,
     };
 
-    this.model.selection.selectZone({
+    this.model().selection.selectZone({
       cell: { col: remainingZone.left, row: remainingZone.top },
       zone: remainingZone,
     });
@@ -178,7 +176,7 @@ export class DataCleanupStore extends SpreadsheetStore {
 
     for (const row of range(top, bottom + 1)) {
       const cellsValuesInRow = columns.map((col) => {
-        return this.getters.getEvaluatedCell({
+        return this.model().getters.getEvaluatedCell({
           sheetId,
           col,
           row,
@@ -209,7 +207,7 @@ export class DataCleanupStore extends SpreadsheetStore {
   }
 
   private checkSingleRangeSelected(): boolean {
-    const zones = this.getters.getSelectedZones();
+    const zones = this.model().getters.getSelectedZones();
     if (zones.length !== 1) {
       return false;
     }
@@ -217,9 +215,9 @@ export class DataCleanupStore extends SpreadsheetStore {
   }
 
   private checkNoMergeInZone(): boolean {
-    const sheetId = this.getters.getActiveSheetId();
-    const zone = this.getters.getSelectedZone();
-    const mergesInZone = this.getters.getMergesInZone(sheetId, zone);
+    const sheetId = this.model().getters.getActiveSheetId();
+    const zone = this.model().getters.getSelectedZone();
+    const mergesInZone = this.model().getters.getMergesInZone(sheetId, zone);
     if (mergesInZone.length > 0) {
       return false;
     }
@@ -227,12 +225,12 @@ export class DataCleanupStore extends SpreadsheetStore {
   }
 
   private checkRangeContainsValues(): boolean {
-    const sheetId = this.getters.getActiveSheetId();
-    const zone = this.getters.getSelectedZone();
-    if (this.hasHeader) {
+    const sheetId = this.model().getters.getActiveSheetId();
+    const zone = this.model().getters.getSelectedZone();
+    if (this.hasHeader()) {
       zone.top += 1;
     }
-    const evaluatedCells = this.getters.getEvaluatedCellsInZone(sheetId, zone);
+    const evaluatedCells = this.model().getters.getEvaluatedCellsInZone(sheetId, zone);
     if (evaluatedCells.every((evaluatedCel) => evaluatedCel.type === "empty")) {
       return false;
     }
@@ -248,7 +246,7 @@ export class DataCleanupStore extends SpreadsheetStore {
   }
 
   private checkColumnsIncludedInZone(): boolean {
-    const zone = this.getters.getSelectedZone();
+    const zone = this.model().getters.getSelectedZone();
     const columnsToAnalyze = this.getColsToAnalyze();
     if (columnsToAnalyze.some((colIndex) => colIndex < zone.left || colIndex > zone.right)) {
       return false;
@@ -257,8 +255,8 @@ export class DataCleanupStore extends SpreadsheetStore {
   }
 
   private getColsToAnalyze(): HeaderIndex[] {
-    return Object.keys(this.columns)
-      .filter((colIndex) => this.columns[colIndex])
+    return Object.keys(this.columns())
+      .filter((colIndex) => this.columns()[colIndex])
       .map((colIndex) => parseInt(colIndex));
   }
 }

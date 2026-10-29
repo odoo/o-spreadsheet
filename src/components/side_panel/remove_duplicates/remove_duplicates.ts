@@ -1,10 +1,8 @@
-import { useProps } from "@odoo/owl";
+import { PluginInstance, providePlugins, usePlugin, useProps } from "@odoo/owl";
 import { numberToLetters } from "../../../helpers/coordinates";
 import { zoneToDimension } from "../../../helpers/zones";
-import { useLocalStore } from "../../../store_engine/store_hooks";
-import { DataCleanupStore } from "../../../stores/data_cleanup_store";
+import { DataCleanupPlugin } from "../../../owl_plugins/data_cleanup_plugin";
 import { _t } from "../../../translation";
-import { Store } from "../../../types/store_engine";
 import { OSComponent } from "../../os_component";
 import { types } from "../../props_validation";
 import { RemoveDuplicateTerms } from "../../translations_terms";
@@ -20,22 +18,23 @@ export class RemoveDuplicatesPanel extends OSComponent {
     onCloseSidePanel: types.function(),
   });
 
-  dataCleanupSore!: Store<DataCleanupStore>;
+  dataCleanupPlugin!: PluginInstance<typeof DataCleanupPlugin>;
 
   setup() {
-    this.dataCleanupSore = useLocalStore(DataCleanupStore);
+    providePlugins([DataCleanupPlugin]);
+    this.dataCleanupPlugin = usePlugin(DataCleanupPlugin);
   }
 
   toggleHasHeader() {
-    this.dataCleanupSore.setHasHeader(!this.dataCleanupSore.hasHeader);
+    this.dataCleanupPlugin.setHasHeader(!this.dataCleanupPlugin.hasHeader());
   }
 
   toggleAllColumns() {
-    this.dataCleanupSore.toggleAllColumns();
+    this.dataCleanupPlugin.toggleAllColumns();
   }
 
   toggleColumn(colIndex: number) {
-    this.dataCleanupSore.toggleColumn(colIndex);
+    this.dataCleanupPlugin.toggleColumn(colIndex);
   }
 
   onRemoveDuplicates() {
@@ -45,7 +44,7 @@ export class RemoveDuplicatesPanel extends OSComponent {
   getColLabel(colKey: string): string {
     const col = parseInt(colKey);
     let colLabel = _t("Column %s", numberToLetters(col));
-    if (this.dataCleanupSore.hasHeader) {
+    if (this.dataCleanupPlugin.hasHeader()) {
       const sheetId = this.model().getters.getActiveSheetId();
       const row = this.model().getters.getSelectedZone().top;
       const colHeader = this.model().getters.getEvaluatedCell({ sheetId, col, row });
@@ -57,11 +56,11 @@ export class RemoveDuplicatesPanel extends OSComponent {
   }
 
   get isEveryColumnSelected(): boolean {
-    return Object.values(this.dataCleanupSore.columns).every((value) => value);
+    return Object.values(this.dataCleanupPlugin.columns()).every((value) => value);
   }
 
   get errorMessages(): string[] {
-    const cancelledReasons = this.dataCleanupSore.removeDuplicateErrors;
+    const cancelledReasons = this.dataCleanupPlugin.removeDuplicateErrors;
 
     const errors = new Set<string>();
 
