@@ -123,7 +123,6 @@ describe("Simple Spreadsheet Component", () => {
       await mountSpreadsheet({
         model: new Model(
           {
-            version: 2,
             sheets: [
               {
                 name: "Sheet1",
