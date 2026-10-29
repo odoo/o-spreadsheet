@@ -21,12 +21,14 @@ import {
 
 test("suggestions are updated if the selection changes", async () => {
   const { model, env } = await mountSpreadsheet();
+  setCellContent(model, "A1", "1");
+  setCellContent(model, "A2", "=DATE(2024,1,1)");
   const store = env.getStore(DataAnalysisStore);
   selectCell(model, "A1");
   await simulateClick(".o-data-analysis-button");
-  expect(store.ranges).toEqual(["A1"]);
+  expect(store.shape).toEqual(["number"]);
   selectCell(model, "A2");
-  expect(store.ranges).toEqual(["A2"]);
+  expect(store.shape).toEqual(["date"]);
 });
 
 test("clicking the data analysis button again closes the panel", async () => {
