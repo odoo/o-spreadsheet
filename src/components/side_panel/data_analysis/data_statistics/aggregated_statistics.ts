@@ -8,8 +8,8 @@ import { DataAnalysisStore } from "../data_analysis_store";
 import { useStatHighlights } from "./stat_highlights_hook";
 import { StatisticItem } from "./statistic_item";
 
-export class OccurrencesStatistics extends OSComponent {
-  static template = "o-spreadsheet-OccurrencesStatistics";
+export class AggregatedStatistics extends OSComponent {
+  static template = "o-spreadsheet-AggregatedStatistics";
   protected props = useProps({
     store: types.Store<DataAnalysisStore>(),
   });
