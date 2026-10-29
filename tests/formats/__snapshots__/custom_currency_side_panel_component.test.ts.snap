@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`custom currency sidePanel component Sidepanel change code input or symbol input --> change currency proposals 1`] = `
+exports[`custom currency sidePanel component Sidepanel change code input --> change in currency proposals 1`] = `
 [
   "#,##0[$SYMBOL]",
   "#,##0.00[$SYMBOL]",
@@ -13,7 +13,7 @@ exports[`custom currency sidePanel component Sidepanel change code input or symb
 ]
 `;
 
-exports[`custom currency sidePanel component Sidepanel change code input or symbol input --> change currency proposals 2`] = `
+exports[`custom currency sidePanel component Sidepanel change code input --> change in currency proposals 2`] = `
 [
   "#,##0[$SYMBOL]",
   "#,##0.00[$SYMBOL]",
@@ -26,7 +26,7 @@ exports[`custom currency sidePanel component Sidepanel change code input or symb
 ]
 `;
 
-exports[`custom currency sidePanel component Sidepanel change code input or symbol input --> change currency proposals 3`] = `
+exports[`custom currency sidePanel component Sidepanel change symbol input --> change in currency proposals 1`] = `
 [
   "#,##0[$SYMBOL]",
   "#,##0.00[$SYMBOL]",
@@ -39,7 +39,7 @@ exports[`custom currency sidePanel component Sidepanel change code input or symb
 ]
 `;
 
-exports[`custom currency sidePanel component Sidepanel change code input or symbol input --> change currency proposals 4`] = `
+exports[`custom currency sidePanel component Sidepanel change symbol input --> change in currency proposals 2`] = `
 [
   "#,##0[$TEST]",
   "#,##0.00[$TEST]",
