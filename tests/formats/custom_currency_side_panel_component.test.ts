@@ -24,6 +24,11 @@ const selectors = {
   accountingFormatCheckbox: ".o-more-formats-panel input[name='accountingFormat']",
 };
 
+const InputTestSelectors = [
+  ["code", selectors.inputCode],
+  ["symbol", selectors.inputSymbol],
+];
+
 const [code1, code2] = ["ABC", "DEF"];
 const [symbol1, symbol2] = ["µ", "XD"];
 const [decimalPlaces1, decimalPlaces2] = [3, 4];
@@ -131,9 +136,9 @@ describe("custom currency sidePanel component", () => {
       expect(selectors.inputSymbol).toHaveValue("");
     });
 
-    test.each([selectors.inputCode, selectors.inputSymbol])(
-      "change code input or symbol input --> selected currency becomes custom currency",
-      async (selector) => {
+    test.each(InputTestSelectors)(
+      "change %s input --> selected currency becomes custom currency",
+      async (type, selector) => {
         await editSelectComponent(selectors.availableCurrencies, "1");
         expect(selectors.availableCurrencies).toHaveText(
           `${currenciesData[0].name} (${currenciesData[0].code})`
@@ -144,9 +149,9 @@ describe("custom currency sidePanel component", () => {
       }
     );
 
-    test.each([selectors.inputCode, selectors.inputSymbol])(
-      "change code input or symbol input --> change currency proposals",
-      async (selector) => {
+    test.each(InputTestSelectors)(
+      "change %s input --> change in currency proposals",
+      async (type, selector) => {
         await setInputValueAndTrigger(selectors.inputCode, "CODE");
         await setInputValueAndTrigger(selectors.inputSymbol, "SYMBOL");
         expect(getProposalValues()).toMatchSnapshot();
@@ -183,9 +188,9 @@ describe("custom currency sidePanel component", () => {
       ]);
     });
 
-    test.each([selectors.inputCode, selectors.inputSymbol])(
-      "change code input or symbol input --> does not change proposal selected index",
-      async (selector) => {
+    test.each(InputTestSelectors)(
+      "change %s input --> does not change proposal selected index",
+      async (type, selector) => {
         await editSelectComponent(selectors.availableCurrencies, "1");
         await selectProposalAtIndex(6);
         expect(selectors.selectedProposal).toHaveText(`${code1} ${symbol1}1,000`);
@@ -197,9 +202,9 @@ describe("custom currency sidePanel component", () => {
       }
     );
 
-    test.each([selectors.inputCode, selectors.inputSymbol])(
-      "have only one input filled --> display 4 proposals instead of 8",
-      async (selector) => {
+    test.each(InputTestSelectors)(
+      "have only %s input filled --> display 4 proposals instead of 8",
+      async (type, selector) => {
         await editSelectComponent(selectors.availableCurrencies, "1");
         expect(selectors.formatProposalOptions).toHaveCount(8);
 
