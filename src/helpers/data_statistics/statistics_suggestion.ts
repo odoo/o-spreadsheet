@@ -133,7 +133,7 @@ export function buildOccurrencesItems(
           value: count.get(id) ?? 0,
         },
       }),
-      rawData: { type, value },
+      category: { type, value },
     });
   }
   return withPercentages(items, col.nonEmpty.length);
@@ -152,8 +152,8 @@ export function buildSumByCategoryItems(
     ? { ...valueColumn.zone, top: valueColumn.zone.top + 1 }
     : valueColumn.zone;
 
-  const categoryRange = zoneToXc(categoryZone);
-  const valueRange = zoneToXc(valueZone);
+  const { range: categoryRange } = getColumnDataRange(getters, categoryColumn, sheetId);
+  const { range: valueRange } = getColumnDataRange(getters, valueColumn, sheetId);
   const categoryCells = getters.getEvaluatedCellsInZone(sheetId, categoryZone);
   const valueCells = getters.getEvaluatedCellsInZone(sheetId, valueZone);
   const format = valueCells.find((cell) => cell.format)?.format;
@@ -185,7 +185,7 @@ export function buildSumByCategoryItems(
     formattedValue: format ? formatValue(total, { format, locale }) : String(total),
     rawValue: total,
     rawData: {
-      type: "text" as CellValueType,
+      type: CellValueType.text,
       value: category,
     },
   }));
@@ -391,9 +391,8 @@ export function buildSumByDateSections(
   const valueZone = hasHeader
     ? { ...valueColumn.zone, top: valueColumn.zone.top + 1 }
     : valueColumn.zone;
-  const sheetName = getters.getSheetName(sheetId);
-  const datesRange = getFullReference(sheetName, zoneToXc(dateZone));
-  const valuesRange = getFullReference(sheetName, zoneToXc(valueZone));
+  const { range: datesRange } = getColumnDataRange(getters, dateColumn, sheetId);
+  const { range: valuesRange } = getColumnDataRange(getters, valueColumn, sheetId);
   const dateCells = getters.getEvaluatedCellsInZone(sheetId, dateZone);
   const valueCells = getters.getEvaluatedCellsInZone(sheetId, valueZone);
   const format = valueCells.find((cell) => cell.format)?.format;

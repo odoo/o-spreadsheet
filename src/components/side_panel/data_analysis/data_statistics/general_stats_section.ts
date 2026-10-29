@@ -1,6 +1,5 @@
 import { useProps } from "@odoo/owl";
 import { StatValue } from "../../../../helpers/data_statistics/statistics_items";
-import { Store } from "../../../../types/store_engine";
 import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
 import { DataAnalysisStore } from "../data_analysis_store";
@@ -21,12 +20,8 @@ export class GeneralStatsSection extends OSComponent {
 
   setup() {
     this.onStatHovered = useStatHighlights(
-      () => this.store.groupingColumnIndex,
+      () => this.props.store.groupingColumnIndex,
       (cell, stat) => cell.formattedValue === stat.formattedValue
     );
-  }
-
-  get store(): Store<DataAnalysisStore> {
-    return this.props.store;
   }
 }

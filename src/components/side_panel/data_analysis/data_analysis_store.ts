@@ -1,8 +1,14 @@
 import { invalidateEvaluationCommands } from "../../../command_registry";
 import {
   analyzeColumns,
+  ANY_TYPE,
+  CATEGORICAL_OR_LABEL_OR_BOOLEAN,
+  CATEGORICAL_OR_LABEL_OR_NUMBER_OR_PERCENTAGE,
   ExtendedColumnType,
   hasSameRowSpan,
+  matchesShape,
+  NUMBER_OR_PERCENTAGE,
+  RulePattern,
 } from "../../../helpers/data_statistics/data_analysis";
 import {
   DateGranularity,
@@ -20,11 +26,9 @@ import {
 import {
   ChartSuggestion,
   getChartSuggestions,
-  RulePattern,
 } from "../../../helpers/figures/charts/chart_suggestion_engine";
 
 import { ColumnAnalysis } from "../../../helpers/data_statistics/data_analysis";
-import { matchesShape } from "../../../helpers/figures/charts/chart_suggestion_engine";
 import { cellsSortingCriterion } from "../../../helpers/sort";
 import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { CellValueType } from "../../../types/cells";
@@ -49,27 +53,6 @@ interface StatItemBuilder<T> {
   buildStatHelper: (getters: Getters, columns: ColumnAnalysis[], sheetId: string) => T;
   target: "generalStatItems" | "aggregatedStatItems" | "dateStatSections";
 }
-
-const CATEGORICAL_OR_LABEL_OR_BOOLEAN: readonly ExtendedColumnType[] = [
-  "categorical",
-  "label",
-  "boolean",
-];
-const CATEGORICAL_OR_LABEL_OR_NUMBER_OR_PERCENTAGE: readonly ExtendedColumnType[] = [
-  "categorical",
-  "label",
-  "number",
-  "percentage",
-];
-const NUMBER_OR_PERCENTAGE: readonly ExtendedColumnType[] = ["number", "percentage"];
-const ANY_TYPE: readonly ExtendedColumnType[] = [
-  "number",
-  "percentage",
-  "date",
-  "categorical",
-  "label",
-  "boolean",
-];
 
 const SELECTION_PATTERNS: StatItemBuilder<any>[] = [
   // Single column of any type: general statistics (count, sum, average…)
@@ -126,7 +109,6 @@ export class DataAnalysisStore extends SpreadsheetStore {
   ] as const;
 
   shape: ExtendedColumnType[] = [];
-  hasHeader: boolean = false;
   generalStatItems: StatValue[] = [];
   aggregatedStatItems: StatValue[] = [];
   dateStatSections: DateSections = this.defaultDateSections;
@@ -290,7 +272,6 @@ export class DataAnalysisStore extends SpreadsheetStore {
     );
     const cols = analyzeColumns(zones, this.getters);
     this.shape = cols.map((c) => c.type);
-    this.hasHeader = cols.some((c) => c.headerInZone);
     this.groupingColumnIndex = undefined;
 
     const suggestions = this.hasData ? getChartSuggestions(this.shape, cols, this.getters) : [];
@@ -300,21 +281,27 @@ export class DataAnalysisStore extends SpreadsheetStore {
     this.dateStatSections = this.defaultDateSections;
 
     if (hasSameRowSpan(zones)) {
-      const categories = cols.filter((c) => !NUMBER_OR_PERCENTAGE.includes(c.type));
-      const values = cols.filter((c) => NUMBER_OR_PERCENTAGE.includes(c.type));
+      const categories: ColumnAnalysis[] = [];
+      const values: ColumnAnalysis[] = [];
+      for (const col of cols) {
+        if (NUMBER_OR_PERCENTAGE.includes(col.type)) {
+          values.push(col);
+        } else {
+          categories.push(col);
+        }
+      }
       const orderedCols = [...categories, ...values];
+      const orderedShapes = orderedCols.map((c) => c.type);
 
       const matchedRules = SELECTION_PATTERNS.filter((rule) =>
-        matchesShape(
-          rule.pattern,
-          orderedCols.map((c) => c.type)
-        )
+        matchesShape(rule.pattern, orderedShapes)
       );
       if (matchedRules.length) {
         // After ordering, the first column is the one the statistics are grouped by
         this.groupingColumnIndex = orderedCols[0].zone.left;
       }
       for (const rule of matchedRules) {
+        // ok : will never have different rules for the same target so we don't overwrite data
         this[rule.target] = rule.buildStatHelper(this.getters, orderedCols, sheetId);
       }
     }
@@ -326,8 +313,8 @@ export class DataAnalysisStore extends SpreadsheetStore {
 
 const sortCategoriesAscending = cellsSortingCriterion("asc");
 function compareCategories(a: StatValue, b: StatValue): number {
-  if (a.rawData && b.rawData) {
-    return sortCategoriesAscending(a.rawData, b.rawData);
+  if (a.category && b.category) {
+    return sortCategoriesAscending(a.category, b.category);
   }
   return a.name.localeCompare(b.name);
 }

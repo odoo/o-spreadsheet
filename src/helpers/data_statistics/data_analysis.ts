@@ -4,6 +4,28 @@ import { CellPosition, UID, Zone } from "../../types/misc";
 import { isDateTimeFormat } from "../format/format";
 import { getZonesByColumns, isInside } from "../zones";
 
+export const CATEGORICAL_OR_BOOLEAN: readonly ExtendedColumnType[] = ["categorical", "boolean"];
+export const CATEGORICAL_OR_LABEL_OR_BOOLEAN: readonly ExtendedColumnType[] = [
+  "categorical",
+  "label",
+  "boolean",
+];
+export const CATEGORICAL_OR_LABEL_OR_NUMBER_OR_PERCENTAGE: readonly ExtendedColumnType[] = [
+  "categorical",
+  "label",
+  "number",
+  "percentage",
+];
+export const NUMBER_OR_PERCENTAGE: readonly ExtendedColumnType[] = ["number", "percentage"];
+export const ANY_TYPE: readonly ExtendedColumnType[] = [
+  "number",
+  "percentage",
+  "date",
+  "categorical",
+  "label",
+  "boolean",
+];
+
 export type ExtendedColumnType =
   | "error"
   | "number"
@@ -23,6 +45,44 @@ export interface ColumnAnalysis {
   uniqueCount: number;
   maxValue?: number;
   nonEmpty: EvaluatedCell[];
+}
+
+// -----------------------------------------------------------------------------
+// Rule framework
+//
+// A column "shape" (the tuple of each selected column's ExtendedColumnType) is matched
+// against a table of rules to decide which chart suggestions to propose.
+// Rules are divided in two categories:
+//  * EXACT_PATTERNS: a fixed-length array of column types (e.g. "number + number" or "categorical + date + percentage").
+//  * EXTENDABLE_PATTERNS: a fixed-length set of leading types followed by one or more columns of a fixed type (e.g. "many-numbers" or "label + multiple numbers").
+// -----------------------------------------------------------------------------
+
+type ColumnTypeSpec = ExtendedColumnType | readonly ExtendedColumnType[];
+
+/** A RulePattern describes the column types that a rule applies to. It contains a fixed-length
+ *  array of leading types, and optionally an extension type that can repeat one or more times.
+ * The leadingTypes is required anytime, while the extension is only present for extendable patterns.
+ */
+export interface RulePattern {
+  readonly leadingTypes: readonly ColumnTypeSpec[];
+  //Present only for extendable patterns: every column after leadingTypes must match `type`,
+  readonly extension?: { readonly type: ColumnTypeSpec; readonly minSize: number };
+}
+
+function matchesColumnType(spec: ColumnTypeSpec, type: ExtendedColumnType): boolean {
+  return Array.isArray(spec) ? spec.includes(type) : spec === type;
+}
+
+export function matchesShape(pattern: RulePattern, shape: ExtendedColumnType[]): boolean {
+  const { leadingTypes, extension } = pattern;
+  const expectedLength = leadingTypes.length + (extension?.minSize ?? 0);
+  if (extension ? shape.length < expectedLength : shape.length !== expectedLength) {
+    return false;
+  }
+  return shape.every((type, i) => {
+    const spec = i < leadingTypes.length ? leadingTypes[i] : extension?.type;
+    return spec !== undefined && matchesColumnType(spec, type);
+  });
 }
 
 export function hasSameRowSpan(zones: Zone[]) {
@@ -54,11 +114,7 @@ export function analyzeColumns(zones: Zone[], getters: Getters): ColumnAnalysis[
   }
 
   const cleanedAndAlignedZones = zones.map((zone) => {
-    if (
-      firstCommonNonEmptyRow !== Number.POSITIVE_INFINITY &&
-      firstCommonNonEmptyRow > zone.top &&
-      firstCommonNonEmptyRow <= zone.bottom
-    ) {
+    if (firstCommonNonEmptyRow > zone.top && firstCommonNonEmptyRow <= zone.bottom) {
       return { ...zone, top: firstCommonNonEmptyRow };
     }
     return zone;

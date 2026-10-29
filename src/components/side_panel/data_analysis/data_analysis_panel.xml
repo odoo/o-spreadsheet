@@ -24,7 +24,7 @@
         isInitiallyCollapsed="false">
         <t t-set-slot="content">
           <Section class="'o-column-global-stats d-flex flex-column pt-0'">
-            <GeneralStatsSection items="this.store.generalStatItems" store="this.store"/>
+            <GeneralStatsSection store="this.store"/>
           </Section>
         </t>
       </SidePanelCollapsible>

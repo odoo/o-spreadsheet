@@ -2,11 +2,11 @@
   <t t-name="o-spreadsheet-AggregatedStatistics">
     <div class="fw-bold d-flex justify-content-between">
       <div class="d-flex o-stat-sort-header">
-        <t t-set="sortOn" t-value="this.store.aggregatedStatSortType.sortOn"/>
-        <t t-set="sortOrder" t-value="this.store.aggregatedStatSortType.order"/>
+        <t t-set="sortOn" t-value="this.props.store.aggregatedStatSortType.sortOn"/>
+        <t t-set="sortOrder" t-value="this.props.store.aggregatedStatSortType.order"/>
         <span>Categories</span>
         <div
-          t-on-click="() => this.store.toggleAggregatedStatSort('name')"
+          t-on-click="() => this.props.store.toggleAggregatedStatSort('name')"
           data-test-id="o-sort-occurrences-category"
           class="o-button-icon mx-2 d-flex">
           <t t-if="sortOn === 'name'">
@@ -19,10 +19,10 @@
         </div>
       </div>
       <div class="d-flex o-stat-sort-header">
-        <span t-if="this.store.shape.length == 1">Count</span>
+        <span t-if="this.props.store.shape.length == 1">Count</span>
         <span t-else="">Sum</span>
         <div
-          t-on-click="() => this.store.toggleAggregatedStatSort('value')"
+          t-on-click="() => this.props.store.toggleAggregatedStatSort('value')"
           data-test-id="o-sort-occurrences-value"
           class="o-button-icon mx-2 d-flex">
           <t t-if="sortOn === 'value'">
@@ -35,13 +35,13 @@
         </div>
       </div>
     </div>
-    <t t-foreach="this.store.displayedAggregatedStatItems" t-as="stat" t-key="stat_index">
+    <t t-foreach="this.props.store.displayedAggregatedStatItems" t-as="stat" t-key="stat_index">
       <StatisticItem stat="stat" onHover.bind="this.onStatHovered"/>
     </t>
     <div
-      t-if="this.store.hasMoreAggregatedStatItems"
+      t-if="this.props.store.hasMoreAggregatedStatItems"
       class="o-button-link d-flex justify-content-center py-1"
-      t-on-click="() => this.store.loadMoreAggregatedStatItems()">
+      t-on-click="() => this.props.store.loadMoreAggregatedStatItems()">
       Load more...
     </div>
   </t>

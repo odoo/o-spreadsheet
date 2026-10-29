@@ -19,7 +19,7 @@ export interface StatValue extends StatItem {
   rawValue: number;
   formattedValue: string;
   percentage?: string;
-  rawData?: { type: CellValueType; value: CellValue };
+  category?: { type: CellValueType; value: CellValue };
 }
 
 export type DateSections = {
@@ -91,7 +91,6 @@ export function createStatItem(
     format: inputFormat,
   }: StatItem & {
     computedValue?: Matrix<FunctionResultObject> | FunctionResultObject;
-    rawValue?: number;
     format?: string;
   }
 ): StatValue {
