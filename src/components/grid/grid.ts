@@ -221,6 +221,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
+  get canvasContainerStyle() {
+    const { height, width } = this.env.model.getters.getSheetViewDimensionWithHeaders();
+    return cssPropertiesToCss({
+      width: `${width}px`,
+      height: `${height}px`,
+    });
+  }
+
   onClosePopover() {
     if (this.cellPopovers.isOpen) {
       this.cellPopovers.close();
