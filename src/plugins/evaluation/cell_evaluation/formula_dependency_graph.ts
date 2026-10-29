@@ -1,4 +1,4 @@
-import { positionToZone } from "../../../helpers/zones";
+import { dimensionStartEnd, positionToZone } from "../../../helpers/zones";
 import { CellPosition, Dimension, HeaderIndex, UID, Zone } from "../../../types/misc";
 import { BoundedRange, Range } from "../../../types/range";
 import { IntervalTree } from "./interval_tree";
@@ -38,6 +38,11 @@ export class FormulaDependencyGraph {
     // where this would cause a significant performance issue.
   }
 
+  getTreeSpan(range: BoundedRange) {
+    const dim = this.dependeciesDimensions[range.sheetId] ?? DEFAULT_DIMENSION;
+    return dimensionStartEnd(dim, range.zone);
+  }
+
   addDependencies(formulaPosition: CellPosition, dependencies: Iterable<Range>) {
     const dependentsRange = {
       zone: positionToZone(formulaPosition),
@@ -49,26 +54,12 @@ export class FormulaDependencyGraph {
       if (range.invalidSheetName || range.invalidXc) {
         continue;
       }
-      const { zone, sheetId } = range;
-      const dim = this.dependeciesDimensions[sheetId] ?? DEFAULT_DIMENSION;
-      let dStart: number, pStart: number, dStop: number, pStop: number;
-      if (dim === "COL") {
-        dStart = zone.left;
-        pStart = zone.top;
-        dStop = zone.right;
-        pStop = zone.bottom;
-      } else {
-        dStart = zone.top;
-        pStart = zone.left;
-        dStop = zone.bottom;
-        pStop = zone.right;
-      }
-
-      for (let headerIndex = dStart; headerIndex <= dStop; headerIndex++) {
-        const columnTree = this.getOrCreateIntervalTree(sheetId, headerIndex);
+      const { start, end, crossStart, crossEnd } = this.getTreeSpan(range);
+      for (let headerIndex = start; headerIndex <= end; headerIndex++) {
+        const columnTree = this.getOrCreateIntervalTree(range.sheetId, headerIndex);
         columnTree.insert({
-          start: pStart,
-          end: pStop,
+          start: crossStart,
+          end: crossEnd,
           dim: dependentsDim,
           dependents: dependentsRange,
         });
@@ -88,29 +79,16 @@ export class FormulaDependencyGraph {
     while (queue.length > 0) {
       const range = queue.pop()!;
       visited.add(range);
-      const zone = range.zone;
       const sheetForest = this.forest[range.sheetId];
       if (!sheetForest) {
         continue;
       }
       const impactedRanges = new RangeSet();
 
-      const dim = this.dependeciesDimensions[range.sheetId] ?? DEFAULT_DIMENSION;
-      let dStart: number, pStart: number, dStop: number, pStop: number;
-      if (dim === "COL") {
-        dStart = zone.left;
-        pStart = zone.top;
-        dStop = zone.right;
-        pStop = zone.bottom;
-      } else {
-        dStart = zone.top;
-        pStart = zone.left;
-        dStop = zone.bottom;
-        pStop = zone.right;
-      }
-      const queryInterval = { start: pStart, end: pStop };
+      const { start, end, crossStart, crossEnd } = this.getTreeSpan(range);
+      const queryInterval = { start: crossStart, end: crossEnd };
 
-      for (let headerIndex = dStart; headerIndex <= dStop; headerIndex++) {
+      for (let headerIndex = start; headerIndex <= end; headerIndex++) {
         const columnTree = sheetForest[headerIndex];
         if (!columnTree) {
           continue;

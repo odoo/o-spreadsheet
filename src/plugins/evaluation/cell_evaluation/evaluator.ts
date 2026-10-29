@@ -22,7 +22,7 @@ import {
 } from "../../../functions/create_compute_function";
 import { matrixMap } from "../../../functions/helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
-import { deepCopy, lazy } from "../../../helpers/misc";
+import { lazy } from "../../../helpers/misc";
 import { excludeTopLeft, getZoneArea, positionToZone, union } from "../../../helpers/zones";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
@@ -256,7 +256,7 @@ export class Evaluator {
   buildDependencyGraph() {
     this.blockedArrayFormulas = this.createEmptyPositionSet();
     this.spreadingRelations = new SpreadingRelation();
-    const currentUsedZones = deepCopy(this.usedZones);
+    const currentUsedZones = this.usedZones;
     this.formulaDependencies = lazy(() => {
       const graph = new FormulaDependencyGraph(currentUsedZones);
       for (const sheetId of this.getters.getSheetIds()) {
