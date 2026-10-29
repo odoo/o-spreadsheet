@@ -9,8 +9,6 @@ import { OSComponent } from "../../os_component";
 import { HIGHLIGHT_COLOR } from "../../../constants";
 import { deepEquals } from "../../../helpers/misc";
 import { getTableTopLeft } from "../../../helpers/table_helpers";
-import { useStore } from "../../../store_engine/store_hooks";
-import { TableResizeStore } from "../../../stores/table_resize_store";
 import { useHighlights } from "../../helpers/highlight_hook";
 import { NumberInput } from "../../number_input/number_input";
 import { types } from "../../props_validation";
@@ -54,7 +52,6 @@ export class TablePanel extends OSComponent {
       tableXc: this.model().getters.getRangeString(this.props.table.range, sheetId),
       filtersEnabledIfPossible: this.props.table.config.hasFilters,
     });
-    useStore(TableResizeStore);
     onWillUpdateProps((nextProps) => {
       if (!deepEquals(nextProps.table.range, this.props.table.range)) {
         this.state.tableXc = this.model().getters.getRangeString(nextProps.table.range, sheetId);
