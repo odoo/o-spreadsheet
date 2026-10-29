@@ -55,6 +55,7 @@ import {
   hideRows,
   insertCells,
   merge,
+  moveColumns,
   paste,
   pasteFromOSClipboard,
   removeCF,
@@ -3177,6 +3178,22 @@ describe("cross spreadsheet copy/paste", () => {
         criterion: { type: "containsText", values: ["test"] },
       });
     }
+  });
+
+  test("moving columns with squishable content next to them keeps their content", () => {
+    const model = new Model();
+    setCellContent(model, "B2", "a");
+    setCellContent(model, "B3", "b");
+
+    setCellContent(model, "D2", "1");
+    setCellContent(model, "D3", "2");
+
+    moveColumns(model, "A", ["B", "C"], "before");
+    expect(getCellContent(model, "A2")).toBe("a");
+    expect(getCellContent(model, "A3")).toBe("b");
+    expect(getCellContent(model, "B2")).toBe("");
+    expect(getCellContent(model, "D2")).toBe("1");
+    expect(getCellContent(model, "D3")).toBe("2");
   });
 
   test("should copy/paste a cell with the cell content and format copied last from an external spreadsheet", async () => {
