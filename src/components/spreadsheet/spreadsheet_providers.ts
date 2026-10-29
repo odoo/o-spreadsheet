@@ -1,6 +1,7 @@
 import { providePlugins, Signal } from "@odoo/owl";
 import { providePluginsIfNotPresent } from "../../helpers/owl3_helpers";
 import { Model } from "../../model";
+import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
 import { ImageProviderPlugin } from "../../owl_plugins/image_provider_owl_plugin";
 import { IsSmallPlugin } from "../../owl_plugins/is_small_plugin";
 import { ModelPlugin } from "../../owl_plugins/model_owl_plugin";
@@ -53,7 +54,8 @@ export function useSpreadsheetProviders(config: SpreadsheetProvidersConfig) {
   stores.inject(ModelStore, model);
 
   const viewStore = useStore(ViewportsStore);
-  providePlugins([DraggedFigurePlugin], { viewStore });
+  // HighlightPlugin has to be declared after RendererPlugin to capture it.
+  providePlugins([DraggedFigurePlugin, HighlightPlugin], { viewStore });
 
   for (const store of globalStores.getAll()) {
     useStore(store);

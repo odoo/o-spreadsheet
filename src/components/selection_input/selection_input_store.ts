@@ -1,7 +1,8 @@
+import { usePlugin } from "@odoo/owl";
 import { ColorGenerator } from "../../helpers/color";
 import { splitReference } from "../../helpers/references";
 import { isEqual, positionToZone } from "../../helpers/zones";
-import { HighlightStore } from "../../stores/highlight_store";
+import { HighlightPlugin } from "../../owl_plugins/highlight_plugin";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { Command } from "../../types/commands";
 import { SelectionEvent } from "../../types/event_stream/selection_events";
@@ -43,7 +44,7 @@ export class SelectionInputStore extends SpreadsheetStore {
   mode: SelectionRangeEditMode = "text-edit";
   private inputSheetId: UID;
   private focusStore = this.get(FocusStore);
-  protected highlightStore = this.get(HighlightStore);
+  protected highlightPlugin = usePlugin(HighlightPlugin);
 
   constructor(
     get: Get,
@@ -60,10 +61,10 @@ export class SelectionInputStore extends SpreadsheetStore {
     }
     this.inputSheetId = this.getters.getActiveSheetId();
     this.resetWithRanges(initialRanges);
-    this.highlightStore.register(this);
+    this.highlightPlugin.register(this);
     this.onDispose(() => {
       this.unfocus();
-      this.highlightStore.unRegister(this);
+      this.highlightPlugin.unRegister(this);
     });
   }
 

@@ -1,9 +1,9 @@
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { SelectionInputStore } from "../../src/components/selection_input/selection_input_store";
 import { toZone, zoneToXc } from "../../src/helpers/zones";
-import { DependencyContainer } from "../../src/store_engine/dependency_container";
+import { HighlightPlugin } from "../../src/owl_plugins/highlight_plugin";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
-import { HighlightStore } from "../../src/stores/highlight_store";
+import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import {
   activateSheet,
   addCellToSelection,
@@ -23,9 +23,8 @@ import { flattenHighlightRange } from "../test_helpers/helpers";
 import { makeStore } from "../test_helpers/stores";
 
 /** returns the highlighted zone by the selection input component */
-function highlightedZones(container: DependencyContainer) {
-  return container
-    .get(HighlightStore)
+function highlightedZones(getPlugin: OwlPluginGetter) {
+  return getPlugin(HighlightPlugin)
     .highlights.map((h) => h.range.zone)
     .map(zoneToXc);
 }
@@ -43,11 +42,11 @@ describe("selection input plugin", () => {
   });
 
   test("input with inital ranges should not be focused", () => {
-    const { store, container } = makeStore(SelectionInputStore, ["D4"]);
+    const { store, getPlugin } = makeStore(SelectionInputStore, ["D4"]);
     expect(store.selectionInputs.length).toBe(1);
     expect(store.selectionInputs[0].xc).toBe("D4");
     expect(store.selectionInputs[0].isFocused).toBeFalsy();
-    expect(highlightedZones(container)).toStrictEqual([]);
+    expect(highlightedZones(getPlugin)).toStrictEqual([]);
   });
 
   test("multiple initial values have different ids", () => {
@@ -57,40 +56,40 @@ describe("selection input plugin", () => {
   });
 
   test("focused input should change with selection", () => {
-    const { store, model, container } = makeStore(SelectionInputStore);
+    const { store, model, getPlugin } = makeStore(SelectionInputStore);
     store.focusById(idOfRange(store, 0));
     selectCell(model, "C2");
     expect(store.selectionInputs[0].xc).toBe("C2");
     const firstColor = store.selectionInputs[0].color;
-    expect(highlightedZones(container)).toStrictEqual(["C2"]);
+    expect(highlightedZones(getPlugin)).toStrictEqual(["C2"]);
     selectCell(model, "D4");
     const secondColor = store.selectionInputs[0].color;
     expect(store.selectionInputs[0].xc).toBe("D4");
-    expect(highlightedZones(container)).toStrictEqual(["D4"]);
+    expect(highlightedZones(getPlugin)).toStrictEqual(["D4"]);
     expect(firstColor).toBe(secondColor);
   });
 
   test("select cell inside a merge expands the selection", () => {
-    const { store, model, container } = makeStore(SelectionInputStore);
+    const { store, model, getPlugin } = makeStore(SelectionInputStore);
     merge(model, "A2:A4");
     store.focusById(idOfRange(store, 0));
     setSelection(model, ["A3:A5"]);
     expect(store.selectionInputs[0].xc).toBe("A2:A5");
-    expect(highlightedZones(container)).toStrictEqual(["A2:A5"]);
+    expect(highlightedZones(getPlugin)).toStrictEqual(["A2:A5"]);
   });
 
   test("select cell inside a merge expands the selection of a single range input", () => {
-    const { store, model, container } = makeStore(SelectionInputStore, [], true);
+    const { store, model, getPlugin } = makeStore(SelectionInputStore, [], true);
     selectCell(model, "B1");
     merge(model, "A2:A4");
     store.focusById(idOfRange(store, 0));
     addCellToSelection(model, "A4");
     setAnchorCorner(model, "A3");
     expect(store.selectionInputs[0].xc).toBe("A2");
-    expect(highlightedZones(container)).toStrictEqual(["A2:A4"]);
+    expect(highlightedZones(getPlugin)).toStrictEqual(["A2:A4"]);
     setAnchorCorner(model, "A2");
     expect(store.selectionInputs[0].xc).toBe("A2");
-    expect(highlightedZones(container)).toStrictEqual(["A2:A4"]);
+    expect(highlightedZones(getPlugin)).toStrictEqual(["A2:A4"]);
   });
 
   test("selecting the range of a spilled formula does not create a spill reference", () => {
@@ -120,16 +119,16 @@ describe("selection input plugin", () => {
   });
 
   test("expanding a selection fills empty input then adds a new input", () => {
-    const { store, model, container } = makeStore(SelectionInputStore);
+    const { store, model, getPlugin } = makeStore(SelectionInputStore);
     store.focusById(idOfRange(store, 0));
     selectCell(model, "C2");
     expect(store.selectionInputs.length).toBe(1);
     expect(store.selectionInputs.map((i) => i.xc)).toEqual(["C2"]);
-    expect(highlightedZones(container)).toStrictEqual(["C2"]);
+    expect(highlightedZones(getPlugin)).toStrictEqual(["C2"]);
     addCellToSelection(model, "D2");
     expect(store.selectionInputs.length).toBe(2);
     expect(store.selectionInputs.map((i) => i.xc)).toEqual(["C2", "D2"]);
-    expect(highlightedZones(container)).toStrictEqual(["C2", "D2"]);
+    expect(highlightedZones(getPlugin)).toStrictEqual(["C2", "D2"]);
     const [firstColor, secondColor] = store.selectionInputs.map((i) => i.color);
     expect(firstColor).not.toBe(secondColor);
   });
@@ -285,37 +284,37 @@ describe("selection input plugin", () => {
   });
 
   test("manually changing the input updates highlighted zone", () => {
-    const { store, container } = makeStore(SelectionInputStore);
+    const { store, getPlugin } = makeStore(SelectionInputStore);
     store.changeRange(idOfRange(store, 0), "C5");
     expect(store.selectionInputs[0].xc).toBe("C5");
-    expect(highlightedZones(container)).toStrictEqual(["C5"]);
+    expect(highlightedZones(getPlugin)).toStrictEqual(["C5"]);
   });
 
   test("selection input updates handle full column ranges", () => {
-    const { store, container } = makeStore(SelectionInputStore);
+    const { store, getPlugin } = makeStore(SelectionInputStore);
     store.changeRange(idOfRange(store, 0), "A3:A");
     expect(store.selectionInputs[0].xc).toBe("A3:A");
-    expect(highlightedZones(container)).toEqual(["A3:A100"]);
+    expect(highlightedZones(getPlugin)).toEqual(["A3:A100"]);
   });
 
   test("selection input updates handle full row ranges", () => {
-    const { store, container } = makeStore(SelectionInputStore);
+    const { store, getPlugin } = makeStore(SelectionInputStore);
     store.changeRange(idOfRange(store, 0), "F3:3");
     expect(store.selectionInputs[0].xc).toBe("F3:3");
-    expect(highlightedZones(container)).toEqual(["F3:Z3"]);
+    expect(highlightedZones(getPlugin)).toEqual(["F3:Z3"]);
   });
 
   test("manually changing the input with existing range", () => {
-    const { store, container } = makeStore(SelectionInputStore, ["A8"]);
+    const { store, getPlugin } = makeStore(SelectionInputStore, ["A8"]);
     store.changeRange(idOfRange(store, 0), "A8, C5");
     expect(store.selectionInputs[0].xc).toBe("A8");
     expect(store.selectionInputs[1].xc).toBe("C5");
     expect(store.selectionInputs[1].isFocused).toBe(true);
-    expect(highlightedZones(container)).toStrictEqual(["A8", "C5"]);
+    expect(highlightedZones(getPlugin)).toStrictEqual(["A8", "C5"]);
   });
 
   test("setting multiple ranges in one input", () => {
-    const { store, container } = makeStore(SelectionInputStore);
+    const { store, getPlugin } = makeStore(SelectionInputStore);
     store.changeRange(idOfRange(store, 0), "C5, D8, B2");
     const [range1, range2, range3] = store.selectionInputs;
     expect(range1.xc).toBe("C5");
@@ -323,24 +322,24 @@ describe("selection input plugin", () => {
     expect(range3.xc).toBe("B2");
     expect(range1.id).not.toBe(range2.id);
     expect(range2.id).not.toBe(range3.id);
-    expect(highlightedZones(container)).toStrictEqual(["C5", "D8", "B2"]);
+    expect(highlightedZones(getPlugin)).toStrictEqual(["C5", "D8", "B2"]);
     const [firstColor, secondColor, thirdColor] = store.highlights.map((h) => h.color);
     expect(firstColor).not.toBe(secondColor);
     expect(thirdColor).not.toBe(secondColor);
   });
 
   test("writing an invalid range does not crash", () => {
-    const { store, container } = makeStore(SelectionInputStore);
+    const { store, getPlugin } = makeStore(SelectionInputStore);
     store.changeRange(idOfRange(store, 0), "This is invalid");
     expect(store.selectionInputValues).toEqual(["This is invalid"]);
-    expect(highlightedZones(container)).toStrictEqual([]);
+    expect(highlightedZones(getPlugin)).toStrictEqual([]);
   });
 
   test("writing an invalid range with valid ones keeps the invalid one", () => {
-    const { store, container } = makeStore(SelectionInputStore, ["B2", "E3"]);
+    const { store, getPlugin } = makeStore(SelectionInputStore, ["B2", "E3"]);
     store.focusById(idOfRange(store, 0));
     store.changeRange(idOfRange(store, 0), "A1, This is invalid");
-    expect(highlightedZones(container)).toEqual(["A1", "E3"]);
+    expect(highlightedZones(getPlugin)).toEqual(["A1", "E3"]);
     expect(store.selectionInputs).toHaveLength(3);
     expect(store.selectionInputs[0].xc).toBe("A1");
     expect(store.selectionInputs[1].xc).toBe("This is invalid");
@@ -349,19 +348,19 @@ describe("selection input plugin", () => {
   });
 
   test("writing an empty range removes the highlight", () => {
-    const { store, container } = makeStore(SelectionInputStore);
+    const { store, getPlugin } = makeStore(SelectionInputStore);
     store.changeRange(idOfRange(store, 0), "C2");
-    expect(highlightedZones(container)).toStrictEqual(["C2"]);
+    expect(highlightedZones(getPlugin)).toStrictEqual(["C2"]);
     store.changeRange(idOfRange(store, 0), "");
-    expect(highlightedZones(container)).toStrictEqual([]);
+    expect(highlightedZones(getPlugin)).toStrictEqual([]);
   });
 
   test("disable input removes highlighted zones", () => {
-    const { store, container } = makeStore(SelectionInputStore);
+    const { store, getPlugin } = makeStore(SelectionInputStore);
     store.changeRange(idOfRange(store, 0), "C2");
-    expect(highlightedZones(container)).toStrictEqual(["C2"]);
+    expect(highlightedZones(getPlugin)).toStrictEqual(["C2"]);
     store.unfocus();
-    expect(highlightedZones(container)).toStrictEqual([]);
+    expect(highlightedZones(getPlugin)).toStrictEqual([]);
   });
 
   test("initial ranges are not highlighted", () => {
@@ -397,66 +396,66 @@ describe("selection input plugin", () => {
   });
 
   test("selection expansion adds as many input as needed", () => {
-    const { store, model, container } = makeStore(SelectionInputStore, ["C4"]);
+    const { store, model, getPlugin } = makeStore(SelectionInputStore, ["C4"]);
     selectCell(model, "C2");
     store.focusById(idOfRange(store, 0));
-    expect(highlightedZones(container)).toEqual(["C4"]);
+    expect(highlightedZones(getPlugin)).toEqual(["C4"]);
     addCellToSelection(model, "D2");
-    expect(highlightedZones(container)).toEqual(["C4", "D2"]);
+    expect(highlightedZones(getPlugin)).toEqual(["C4", "D2"]);
     expect(store.selectionInputs[0].xc).toBe("C4");
     expect(store.selectionInputs[1].xc).toBe("D2");
   });
 
   test("multiple alter selection in a single range component", () => {
-    const { store, model, container } = makeStore(SelectionInputStore, ["C4"], true);
+    const { store, model, getPlugin } = makeStore(SelectionInputStore, ["C4"], true);
     selectCell(model, "C2");
     store.focusById(idOfRange(store, 0));
     addCellToSelection(model, "E1");
     setAnchorCorner(model, "E2");
     setAnchorCorner(model, "E3");
-    expect(highlightedZones(container)).toEqual(["E1:E3"]);
+    expect(highlightedZones(getPlugin)).toEqual(["E1:E3"]);
     expect(store.selectionInputs[0].xc).toBe("E1:E3");
   });
 
   test("selection expansion by altering selection adds inputs", () => {
-    const { store, model, container } = makeStore(SelectionInputStore, ["D4"]);
+    const { store, model, getPlugin } = makeStore(SelectionInputStore, ["D4"]);
     selectCell(model, "C2");
     store.focusById(idOfRange(store, 0));
     addCellToSelection(model, "D2");
-    expect(highlightedZones(container)).toEqual(["D4", "D2"]);
+    expect(highlightedZones(getPlugin)).toEqual(["D4", "D2"]);
     resizeAnchorZone(model, "right");
-    expect(highlightedZones(container)).toEqual(["D4", "D2:E2"]);
+    expect(highlightedZones(getPlugin)).toEqual(["D4", "D2:E2"]);
     expect(store.selectionInputs[0].xc).toBe("D4");
     expect(store.selectionInputs[1].xc).toBe("D2:E2");
   });
 
   test("Selections are not shared between selection inputs", () => {
-    const { store, model, container } = makeStore(SelectionInputStore, ["D4"]);
+    const { store, model, getPlugin } = makeStore(SelectionInputStore, ["D4"]);
     selectCell(model, "C2");
     store.focusById(idOfRange(store, 0));
     addCellToSelection(model, "D2");
-    expect(highlightedZones(container)).toEqual(["D4", "D2"]);
+    expect(highlightedZones(getPlugin)).toEqual(["D4", "D2"]);
     resizeAnchorZone(model, "right");
-    expect(highlightedZones(container)).toEqual(["D4", "D2:E2"]);
+    expect(highlightedZones(getPlugin)).toEqual(["D4", "D2:E2"]);
     expect(store.selectionInputs[0].xc).toBe("D4");
     expect(store.selectionInputs[1].xc).toBe("D2:E2");
   });
 
   test("highlights are updated when focus switched from one input to another", () => {
-    const { store: store1, container } = makeStore(SelectionInputStore, ["D4"]);
+    const { store: store1, container, getPlugin } = makeStore(SelectionInputStore, ["D4"]);
     const store2 = container.instantiate(SelectionInputStore, ["D5"]);
     store1.focusById(idOfRange(store1, 0));
     expect(store1.selectionInputs[0].isFocused).toBe(true);
     expect(store2.selectionInputs[0].isFocused).toBe(false);
     expect(store1.selectionInputs[0].color).toBeTruthy();
     expect(store2.selectionInputs[0].color).toBeFalsy();
-    expect(highlightedZones(container)).toEqual(["D4"]);
+    expect(highlightedZones(getPlugin)).toEqual(["D4"]);
     store2.focusById(idOfRange(store2, 0));
     expect(store1.selectionInputs[0].isFocused).toBe(false);
     expect(store2.selectionInputs[0].isFocused).toBe(true);
     expect(store1.selectionInputs[0].color).toBeFalsy();
     expect(store2.selectionInputs[0].color).toBeTruthy();
-    expect(highlightedZones(container)).toEqual(["D5"]);
+    expect(highlightedZones(getPlugin)).toEqual(["D5"]);
   });
 
   test("color is kept between focuses", () => {
@@ -471,14 +470,14 @@ describe("selection input plugin", () => {
   });
 
   test("Pre-existing ranges from other sheets are selected", () => {
-    const { store, model, container } = makeStore(SelectionInputStore, ["Sheet2!A2"]);
+    const { store, model, getPlugin } = makeStore(SelectionInputStore, ["Sheet2!A2"]);
     createSheet(model, { sheetId: "42", name: "Sheet2", activate: false });
     expect(store.selectionInputs[0].xc).toBe("Sheet2!A2");
     store.focusById(idOfRange(store, 0));
-    expect(highlightedZones(container)).toEqual([]);
+    expect(highlightedZones(getPlugin)).toEqual([]);
     const firstSheetId = model.getters.getActiveSheetId();
     activateSheet(model, "42", firstSheetId);
-    expect(highlightedZones(container)).toEqual(["A2"]);
+    expect(highlightedZones(getPlugin)).toEqual(["A2"]);
     flattenHighlightRange;
     expect(flattenHighlightRange(store.highlights[0])).toMatchObject({
       sheetId: "42",
@@ -487,25 +486,25 @@ describe("selection input plugin", () => {
   });
 
   test("can select multiple ranges in another sheet", () => {
-    const { store, model, container } = makeStore(SelectionInputStore);
+    const { store, model, getPlugin } = makeStore(SelectionInputStore);
     selectCell(model, "A1");
     expect(store.selectionInputs[0].xc).toBe("A1");
-    expect(highlightedZones(container)).toEqual(["A1"]);
+    expect(highlightedZones(getPlugin)).toEqual(["A1"]);
     const firstSheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
     addCellToSelection(model, "B2");
     expect(store.selectionInputs).toHaveLength(2);
     expect(store.selectionInputs[0].xc).toBe("A1");
     expect(store.selectionInputs[1].xc).toBe("Sheet2!B2");
-    expect(highlightedZones(container)).toEqual(["B2"]);
+    expect(highlightedZones(getPlugin)).toEqual(["B2"]);
     addCellToSelection(model, "B3");
     expect(store.selectionInputs).toHaveLength(3);
     expect(store.selectionInputs[0].xc).toBe("A1");
     expect(store.selectionInputs[1].xc).toBe("Sheet2!B2");
     expect(store.selectionInputs[2].xc).toBe("Sheet2!B3");
-    expect(highlightedZones(container)).toEqual(["B2", "B3"]);
+    expect(highlightedZones(getPlugin)).toEqual(["B2", "B3"]);
     activateSheet(model, firstSheetId);
-    expect(highlightedZones(container)).toEqual(["A1"]);
+    expect(highlightedZones(getPlugin)).toEqual(["A1"]);
   });
 
   test.each(["sheet name", "Sheet+", "Sheet:)"])(
@@ -530,22 +529,22 @@ describe("selection input plugin", () => {
   });
 
   test("mixing ranges from different sheets in the same input", () => {
-    const { store, model, container } = makeStore(SelectionInputStore);
+    const { store, model, getPlugin } = makeStore(SelectionInputStore);
     createSheet(model, { sheetId: "42", position: 1 });
     expect(model.getters.getActiveSheet()).not.toBe("42");
     store.changeRange(idOfRange(store, 0), "A1, Sheet2!B3");
     const [range1, range2] = store.selectionInputs;
-    expect(highlightedZones(container)).toEqual(["A1"]);
+    expect(highlightedZones(getPlugin)).toEqual(["A1"]);
     expect(range1.xc).toBe("A1");
     expect(range2.xc).toBe("Sheet2!B3");
   });
 
   test("mixing ranges from different sheets in the same input in another sheet", () => {
-    const { store, model, container } = makeStore(SelectionInputStore);
+    const { store, model, getPlugin } = makeStore(SelectionInputStore);
     createSheet(model, { sheetId: "42", activate: true });
     store.changeRange(idOfRange(store, 0), "Sheet2!B3, A1");
     const [range1, range2] = store.selectionInputs;
-    expect(highlightedZones(container)).toEqual(["B3"]);
+    expect(highlightedZones(getPlugin)).toEqual(["B3"]);
     expect(store.selectionInputs).toHaveLength(2);
     expect(range1.xc).toBe("Sheet2!B3");
     expect(range2.xc).toBe("A1");
@@ -563,12 +562,12 @@ describe("selection input plugin", () => {
   });
 
   test("highlights are set when activating another sheet", () => {
-    const { store, model, container } = makeStore(SelectionInputStore);
+    const { store, model, getPlugin } = makeStore(SelectionInputStore);
     createSheet(model, { sheetId: "42", position: 1 });
     store.changeRange(idOfRange(store, 0), "Sheet2!B3, A1");
-    expect(highlightedZones(container)).toEqual(["A1"]);
+    expect(highlightedZones(getPlugin)).toEqual(["A1"]);
     activateSheet(model, "42");
-    expect(highlightedZones(container)).toEqual(["B3"]);
+    expect(highlightedZones(getPlugin)).toEqual(["B3"]);
   });
 
   test("input not focused when changing sheet", () => {
@@ -582,16 +581,16 @@ describe("selection input plugin", () => {
   });
 
   test("input selection is reset only when changing sheet", () => {
-    const { store, model, container } = makeStore(SelectionInputStore);
+    const { store, model, getPlugin } = makeStore(SelectionInputStore);
     createSheet(model, { sheetId: "42" });
     store.focusById(idOfRange(store, 0));
     selectCell(model, "B7");
     activateSheet(model, "42");
     moveAnchorCell(model, "down");
-    expect(highlightedZones(container)).toEqual(["A2"]);
+    expect(highlightedZones(getPlugin)).toEqual(["A2"]);
     activateSheet(model, "42");
     moveAnchorCell(model, "down");
-    expect(highlightedZones(container)).toEqual(["A3"]);
+    expect(highlightedZones(getPlugin)).toEqual(["A3"]);
   });
 
   test("focus and change range with unbounded ranges", () => {

@@ -53,13 +53,12 @@ import {
 import { computeFunctionsCache } from "../../src/formulas/compiler";
 import { getItemId } from "../../src/helpers/data_normalization";
 import { detectDateFormat } from "../../src/helpers/format/format";
+import { HighlightPlugin } from "../../src/owl_plugins/highlight_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
-import { RendererPlugin } from "../../src/owl_plugins/renderer_plugin";
 import { EvaluationPluginConstructor } from "../../src/plugins/evaluation_plugin";
 import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { useStore } from "../../src/store_engine/store_hooks";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
-import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
 import { GeoChartRegion } from "../../src/types/chart/geo_chart";
 import { Image } from "../../src/types/image";
 import { ModelExternalConfig } from "../../src/types/model";
@@ -1035,12 +1034,7 @@ export function drawGrid(model: Model, ctx: GridRenderingContext) {
 }
 
 export function getHighlightsFromPlugin(getPlugin: OwlPluginGetter): Highlight[] {
-  const rendererPlugin = getPlugin(RendererPlugin);
-  return (Object.values(rendererPlugin.renderers()) as any)
-    .flat()
-    .filter((renderer) => renderer instanceof HighlightStore)
-    .flatMap((store: HighlightStore) => store["providers"])
-    .flatMap((getter: HighlightProvider) => getter.highlights);
+  return getPlugin(HighlightPlugin).highlights;
 }
 
 export function getFingerprint(store: FormulaFingerprintStore, xc: string, sheetId?: UID) {

@@ -6,10 +6,10 @@ import { DateTime, jsDateToRoundNumber } from "../../src/helpers/dates";
 import { getCanonicalSymbolName } from "../../src/helpers/misc";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
+import { HighlightPlugin } from "../../src/owl_plugins/highlight_plugin";
 import { NotificationPlugin } from "../../src/owl_plugins/notification_owl_plugin";
 import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { ClipboardStore } from "../../src/stores/clipboard_store";
-import { HighlightStore } from "../../src/stores/highlight_store";
 import { OwlPluginGetter } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import {
@@ -1241,7 +1241,7 @@ describe("edition", () => {
     const secondSheetname = "louloulou";
     createSheet(model, { name: secondSheetname, activate: false });
     composerStore.startEdition(`=${secondSheetname}!A1+A2+ZZZZZZZZZ1000000`);
-    const gridHighlights = container.get(HighlightStore).highlights;
+    const gridHighlights = getPlugin(HighlightPlugin).highlights;
     expect(gridHighlights).toHaveLength(1);
     expect(flattenHighlightRange(gridHighlights[0])).toMatchObject({
       zone: toZone("A2"),
